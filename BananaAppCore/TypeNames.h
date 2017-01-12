@@ -150,39 +150,41 @@ SPECIALIZE_STL_VECTOR(Triplet)
 #else // not using eigen lib
 #ifdef __Using_GLM_Lib__
 
+#define GLM_FORCE_CXX11
+#define GLM_FORCE_INLINE
 #include <glm/glm.hpp>
 
 // Vectors
 template<class ScalarType>
-using Vec2 = ym::vec<ScalarType, 2>;
+using Vec2 = glm::tvec2<ScalarType>;
 
 template<class ScalarType>
-using Vec3 = ym::vec<ScalarType, 3>;
+using Vec3 = glm::tvec3<ScalarType>;
 
 template<class ScalarType>
-using Vec4 = ym::vec<ScalarType, 4>;
+using Vec4 = glm::tvec4<ScalarType>;
 
 // matrices
 template<class ScalarType>
-using Mat2x2 = ym::mat<ScalarType, 2, 2>;
+using Mat2x2 = glm::mat<2, 2, ScalarType>;
 template<class ScalarType>
-const Mat2x2<ScalarType> Identity2x2 = ym::identity_mat<ScalarType, 2>();
+const Mat2x2<ScalarType> Identity2x2 = glm::mat<2, 2, ScalarType>(1.0);
 
 template<class ScalarType>
-using Mat3x3 = ym::mat<ScalarType, 3, 3>;
+using Mat3x3 = glm::mat<3, 3, ScalarType>;
 template<class ScalarType>
-const Mat3x3<ScalarType> Identity3x3 = ym::identity_mat<ScalarType, 3>();
+const Mat3x3<ScalarType> Identity3x3 = glm::mat<3, 3, ScalarType>(1.0);
 
 template<class ScalarType>
-using Mat3x4 = ym::mat<ScalarType, 3, 4>;
+using Mat3x4 = glm::mat<3, 4, ScalarType>;
 
 template<class ScalarType>
-using Mat4x3 = ym::mat<ScalarType, 4, 3>;
+using Mat4x3 = glm::mat<4, 3, ScalarType>;
 
 template<class ScalarType>
-using Mat4x4 = ym::mat<ScalarType, 4, 4>;
+using Mat4x4 = glm::mat<4, 4, ScalarType>;
 template<class ScalarType>
-const Mat4x4<ScalarType> Identity4x4 = ym::identity_mat<ScalarType, 4>();
+const Mat4x4<ScalarType> Identity4x4 = glm::mat<4, 4, ScalarType>(1.0);
 
 // vectors of vectors
 template<class ScalarType>
