@@ -19,3 +19,6 @@
 [submodule "Externals/partio"]
 	path = Externals/partio
 	url = https://github.com/wdas/partio.git
+[submodule "Externals/catch"]
+	path = Externals/catch
+	url = https://github.com/philsquared/Catch.git
