@@ -16,3 +16,6 @@
 [submodule "Externals/libigl"]
 	path = Externals/libigl
 	url = https://github.com/libigl/libigl.git
+[submodule "Externals/partio"]
+	path = Externals/partio
+	url = https://github.com/wdas/partio.git
