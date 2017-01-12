@@ -24,7 +24,9 @@
 #define __Parallel_STL__
 
 #include <cassert>
-#include <vector>
+#include <vector>   
+#include <cmath>
+
 
 #include <tbb/tbb.h>
 #include "./ParallelClass.h"
@@ -83,6 +85,20 @@ inline void min_max_element(const std::vector<ScalarType>& x,
 
     min_element = m.result_min;
     max_element = m.result_max;
+}
+
+//------------------------------------------------------------------------------------------
+// sorting
+template<class ScalarType>
+inline void sort_asd(std::vector<ScalarType>& v)
+{
+    tbb::parallel_sort(v);
+}
+
+template<class ScalarType>
+inline void sort_dsd(std::vector<ScalarType>& v)
+{
+    tbb::parallel_sort(std::begin(v), std::end(v), std::greater<ScalarType>());
 }
 
 //------------------------------------------------------------------------------------------
