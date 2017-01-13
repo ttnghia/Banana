@@ -22,3 +22,9 @@
 [submodule "Externals/catch"]
 	path = Externals/catch
 	url = https://github.com/philsquared/Catch.git
+[submodule "Externals/cpp_progress_bar"]
+	path = Externals/cpp_progress_bar
+	url = https://github.com/htailor/cpp_progress_bar.git
+[submodule "Externals/progress-cpp"]
+	path = Externals/progress-cpp
+	url = https://github.com/prakhar1989/progress-cpp.git

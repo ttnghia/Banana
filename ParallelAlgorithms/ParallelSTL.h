@@ -30,6 +30,7 @@
 
 #include <tbb/tbb.h>
 #include "./ParallelClass.h"
+#include "./ParallelFuncs.h"
 
 
 //------------------------------------------------------------------------------------------
@@ -99,6 +100,26 @@ template<class ScalarType>
 inline void sort_dsd(std::vector<ScalarType>& v)
 {
     tbb::parallel_sort(std::begin(v), std::end(v), std::greater<ScalarType>());
+}
+
+//------------------------------------------------------------------------------------------
+// fill
+template <class RandomIterator, class T>
+void parallel_fill(const RandomIterator& begin,
+                   const RandomIterator& end,
+                   const T& value)
+{
+    auto diff = end - begin;
+    if(diff <= 0)
+    {
+        return;
+    }
+
+    size_t size = static_cast<size_t>(diff);
+    parallel_for(0, size, [begin, value](size_t i)
+    {
+        begin[i] = value;
+    });
 }
 
 //------------------------------------------------------------------------------------------

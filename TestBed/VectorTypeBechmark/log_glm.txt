@@ -1,0 +1,36 @@
+[2017-01-12 22:18:19.837] [basic_logger] [info] Test by glm, real = float
+[2017-01-12 22:18:20.761] [basic_logger] [info] Vector 3D data initialized
+[2017-01-12 22:18:21.724] [basic_logger] [info] Vector 4D data initialized
+[2017-01-12 22:18:23.959] [basic_logger] [info] Mat3x3 data initialized
+[2017-01-12 22:18:27.901] [basic_logger] [info] Mat4x4 data initialized
+[2017-01-12 22:18:27.991] [basic_logger] [info] 
+
+
+[2017-01-12 22:19:02.150] [basic_logger] [info] Test vec3 operation, avg time = 33.84 ms
+[2017-01-12 22:19:02.150] [basic_logger] [info] Test vec4 operation, avg time = 45.44 ms
+[2017-01-12 22:19:02.150] [basic_logger] [info] Test mat3x3 operation, avg time = 64.45 ms
+[2017-01-12 22:19:02.150] [basic_logger] [info] Test mat4x4 operation, avg time = 78.58 ms
+[2017-01-12 22:19:02.151] [basic_logger] [info] Test mat3x3 x vec3 multiplication, avg time = 46.72 ms
+[2017-01-12 22:19:02.151] [basic_logger] [info] Test mat4x4 x vec4 multiplication, avg time = 70.93 ms
+[2017-01-12 22:19:02.151] [basic_logger] [info] Finished.
+
+
+
+[2017-01-12 22:19:23.302] [basic_logger] [info] Test by glm, real = double
+[2017-01-12 22:19:24.221] [basic_logger] [info] Vector 3D data initialized
+[2017-01-12 22:19:25.376] [basic_logger] [info] Vector 4D data initialized
+[2017-01-12 22:19:28.098] [basic_logger] [info] Mat3x3 data initialized
+[2017-01-12 22:19:31.737] [basic_logger] [info] Mat4x4 data initialized
+[2017-01-12 22:19:31.904] [basic_logger] [info] 
+
+
+[2017-01-12 22:20:27.710] [basic_logger] [info] Test vec3 operation, avg time = 34.95 ms
+[2017-01-12 22:20:27.710] [basic_logger] [info] Test vec4 operation, avg time = 46.57 ms
+[2017-01-12 22:20:27.710] [basic_logger] [info] Test mat3x3 operation, avg time = 86.71 ms
+[2017-01-12 22:20:27.710] [basic_logger] [info] Test mat4x4 operation, avg time = 160.32 ms
+[2017-01-12 22:20:27.711] [basic_logger] [info] Test mat3x3 x vec3 multiplication, avg time = 89.41 ms
+[2017-01-12 22:20:27.711] [basic_logger] [info] Test mat4x4 x vec4 multiplication, avg time = 138.37 ms
+[2017-01-12 22:20:27.711] [basic_logger] [info] Finished.
+
+
+

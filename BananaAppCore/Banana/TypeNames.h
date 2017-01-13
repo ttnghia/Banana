@@ -28,7 +28,7 @@
 
 // this definition should depend of each project
 //#define __Using_Eigen_Lib__
-#define __Using_GLM_Lib__
+//#define __Using_GLM_Lib__
 
 
 //------------------------------------------------------------------------------------------

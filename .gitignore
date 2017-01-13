@@ -1,3 +1,5 @@
 **/.vs
 **/*.db
 **/*.opendb
+**/Debug/*
+**/Release/*
