@@ -26,7 +26,7 @@
 
 
 //#define __Using_Eigen_Lib__
-//#define __Using_GLM_Lib__
+#define __Using_GLM_Lib__
 
 
 #define USING_TBB
@@ -290,7 +290,7 @@ void test_mat_vec_multiplication(const std::vector<MatrixType>& mat,
 #endif
 }
 //------------------------------------------------------------------------------------------
-TEST_CASE("Tested vector type performance", "[VectorType]")
+TEST_CASE("Tested vector type performance")
 {
     Timer timer;
     auto console_logger = spdlog::stdout_color_mt("console");
@@ -447,5 +447,5 @@ TEST_CASE("Tested vector type performance", "[VectorType]")
     file_logger->info("Finished.\n\n\n");
     spdlog::drop_all();
 
-    std::cin.get();
+    //std::cin.get();
 }

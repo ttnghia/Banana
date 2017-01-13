@@ -34,3 +34,39 @@
 
 
 
+[2017-01-12 23:37:44.417] [basic_logger] [info] Test by eigen, real = float
+[2017-01-12 23:37:44.898] [basic_logger] [info] Vector 3D data initialized
+[2017-01-12 23:37:45.465] [basic_logger] [info] Vector 4D data initialized
+[2017-01-12 23:37:46.865] [basic_logger] [info] Mat3x3 data initialized
+[2017-01-12 23:37:48.985] [basic_logger] [info] Mat4x4 data initialized
+[2017-01-12 23:37:48.990] [basic_logger] [info] 
+
+
+[2017-01-12 23:38:11.841] [basic_logger] [info] Test vec3 operation, avg time = 10.03 ms
+[2017-01-12 23:38:11.841] [basic_logger] [info] Test vec4 operation, avg time = 11.09 ms
+[2017-01-12 23:38:11.841] [basic_logger] [info] Test mat3x3 operation, avg time = 24.10 ms
+[2017-01-12 23:38:11.842] [basic_logger] [info] Test mat4x4 operation, avg time = 42.42 ms
+[2017-01-12 23:38:11.842] [basic_logger] [info] Test mat3x3 x vec3 multiplication, avg time = 63.35 ms
+[2017-01-12 23:38:11.842] [basic_logger] [info] Test mat4x4 x vec4 multiplication, avg time = 76.62 ms
+[2017-01-12 23:38:11.842] [basic_logger] [info] Finished.
+
+
+
+[2017-01-12 23:38:29.251] [basic_logger] [info] Test by eigen, real = double
+[2017-01-12 23:38:29.760] [basic_logger] [info] Vector 3D data initialized
+[2017-01-12 23:38:30.411] [basic_logger] [info] Vector 4D data initialized
+[2017-01-12 23:38:31.753] [basic_logger] [info] Mat3x3 data initialized
+[2017-01-12 23:38:34.002] [basic_logger] [info] Mat4x4 data initialized
+[2017-01-12 23:38:34.007] [basic_logger] [info] 
+
+
+[2017-01-12 23:39:04.959] [basic_logger] [info] Test vec3 operation, avg time = 16.36 ms
+[2017-01-12 23:39:04.959] [basic_logger] [info] Test vec4 operation, avg time = 21.94 ms
+[2017-01-12 23:39:04.959] [basic_logger] [info] Test mat3x3 operation, avg time = 47.92 ms
+[2017-01-12 23:39:04.959] [basic_logger] [info] Test mat4x4 operation, avg time = 85.56 ms
+[2017-01-12 23:39:04.959] [basic_logger] [info] Test mat3x3 x vec3 multiplication, avg time = 55.47 ms
+[2017-01-12 23:39:04.960] [basic_logger] [info] Test mat4x4 x vec4 multiplication, avg time = 81.47 ms
+[2017-01-12 23:39:04.960] [basic_logger] [info] Finished.
+
+
+
