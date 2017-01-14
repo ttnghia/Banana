@@ -266,13 +266,14 @@ public:
             ScalarType tmp = (ScalarType)v[i].cwiseAbs().maxCoeff();
 #else
 #ifdef __Using_GLM_Lib__
-            ScalarType tmp = v[i][0];
+            ScalarType tmp = std::abs(v[i][0]);
             for(auto k = 1; k < v[i].length(); ++k)
             {
-                tmp = tmp < v[i][k] ? v[i][k] : tmp;
+                tmp = tmp < std::abs(v[i][k]) ? std::abs(v[i][k]) : tmp;
             }
 #else
-            ScalarType tmp = std::max(std::abs(ym::min_element(v[i]), std::abs(ym::max_element(v[i]))));
+            ScalarType tmp = std::max(std::abs(v[i][ym::min_element(v[i])]),
+                                      std::abs(v[i][ym::max_element(v[i])]));
 #endif // __Using_GLM_Lib__
 #endif // __Using_Eigen_Lib__
 

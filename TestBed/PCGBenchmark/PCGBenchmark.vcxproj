@@ -69,13 +69,13 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir)Externals\progress-cpp;$(SolutionDir)Externals\eigen;$(SolutionDir)Externals\yocto-gl;$(SolutionDir)Externals\glm;$(SolutionDir)Externals\tbb_win\include;$(SolutionDir)Externals\catch\include;$(SolutionDir)BananaAppCore;$(SolutionDir)Externals\spdlog\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Externals\progress-cpp;$(SolutionDir)Externals\eigen;$(SolutionDir)Externals\yocto-gl;$(SolutionDir)Externals\glm;$(SolutionDir)Externals\tbb_win\include;$(SolutionDir)Externals\catch\include;$(SolutionDir)BananaAppCore;$(SolutionDir)Externals\spdlog\include;$(SolutionDir)ParallelAlgorithms;$(IncludePath)</IncludePath>
     <OutDir>$(ProjectDir)$(Configuration)\</OutDir>
     <IntDir>D:\Scratch\MSVC-Build\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
     <LibraryPath>$(SolutionDir)Externals\tbb_win\lib\intel64\vc14;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)Externals\progress-cpp;$(SolutionDir)Externals\eigen;$(SolutionDir)Externals\yocto-gl;$(SolutionDir)Externals\glm;$(SolutionDir)Externals\tbb_win\include;$(SolutionDir)Externals\catch\include;$(SolutionDir)BananaAppCore;$(SolutionDir)Externals\spdlog\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Externals\progress-cpp;$(SolutionDir)Externals\eigen;$(SolutionDir)Externals\yocto-gl;$(SolutionDir)Externals\glm;$(SolutionDir)Externals\tbb_win\include;$(SolutionDir)Externals\catch\include;$(SolutionDir)BananaAppCore;$(SolutionDir)Externals\spdlog\include;$(SolutionDir)ParallelAlgorithms;$(IncludePath)</IncludePath>
     <OutDir>$(ProjectDir)$(Configuration)\</OutDir>
     <IntDir>D:\Scratch\MSVC-Build\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
     <LibraryPath>$(SolutionDir)Externals\tbb_win\lib\intel64\vc14;$(LibraryPath)</LibraryPath>
@@ -146,6 +146,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="BlockSparseMatrix.h" />
+    <ClInclude Include="CGSolver.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

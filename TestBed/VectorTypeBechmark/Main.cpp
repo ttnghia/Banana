@@ -447,5 +447,4 @@ TEST_CASE("Tested vector type performance")
     file_logger->info("Finished.\n\n\n");
     spdlog::drop_all();
 
-    //std::cin.get();
 }
