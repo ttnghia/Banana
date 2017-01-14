@@ -1,0 +1,42 @@
+[2017-01-13 15:52:54.135] [basic_logger] [info] Test by eigen, real = float
+[2017-01-13 15:53:00.179] [basic_logger] [info] System 3D data initialized
+[2017-01-13 15:53:00.179] [basic_logger] [info] 
+
+
+[2017-01-13 15:53:11.133] [basic_logger] [info] Test CG, avg time = 10,953.52 ms, tolerance = 1.04778e-19, iterations = 27
+[2017-01-13 15:53:21.879] [basic_logger] [info] Test CG, avg time = 10,744.05 ms, tolerance = 1.05007e-19, iterations = 27
+[2017-01-13 15:53:32.551] [basic_logger] [info] Test CG, avg time = 10,670.65 ms, tolerance = 1.052e-19, iterations = 27
+[2017-01-13 15:53:43.202] [basic_logger] [info] Test CG, avg time = 10,649.29 ms, tolerance = 1.05135e-19, iterations = 27
+[2017-01-13 15:53:53.884] [basic_logger] [info] Test CG, avg time = 10,680.23 ms, tolerance = 1.05652e-19, iterations = 27
+[2017-01-13 15:54:04.574] [basic_logger] [info] Test CG, avg time = 10,689.01 ms, tolerance = 1.06919e-19, iterations = 27
+[2017-01-13 15:54:15.262] [basic_logger] [info] Test CG, avg time = 10,685.84 ms, tolerance = 1.06147e-19, iterations = 27
+[2017-01-13 15:54:25.946] [basic_logger] [info] Test CG, avg time = 10,682.33 ms, tolerance = 1.05908e-19, iterations = 27
+[2017-01-13 15:54:36.640] [basic_logger] [info] Test CG, avg time = 10,693.30 ms, tolerance = 1.03258e-19, iterations = 27
+[2017-01-13 15:54:47.323] [basic_logger] [info] Test CG, avg time = 10,681.26 ms, tolerance = 1.05198e-19, iterations = 27
+[2017-01-13 15:54:47.324] [basic_logger] [info] 
+
+
+[2017-01-13 15:54:47.324] [basic_logger] [info] Finished test CG, avg time = 10,712.95 ms
+
+
+[2017-01-13 15:55:07.861] [basic_logger] [info] Test by eigen, real = double
+[2017-01-13 15:55:15.269] [basic_logger] [info] System 3D data initialized
+[2017-01-13 15:55:15.269] [basic_logger] [info] 
+
+
+[2017-01-13 15:55:26.050] [basic_logger] [info] Test CG, avg time = 10,780.01 ms, tolerance = 1.04407e-19, iterations = 27
+[2017-01-13 15:55:35.912] [basic_logger] [info] Test CG, avg time = 9,859.51 ms, tolerance = 1.04407e-19, iterations = 27
+[2017-01-13 15:55:45.603] [basic_logger] [info] Test CG, avg time = 9,690.04 ms, tolerance = 1.04407e-19, iterations = 27
+[2017-01-13 15:55:55.253] [basic_logger] [info] Test CG, avg time = 9,648.41 ms, tolerance = 1.04407e-19, iterations = 27
+[2017-01-13 15:56:04.837] [basic_logger] [info] Test CG, avg time = 9,582.60 ms, tolerance = 1.04407e-19, iterations = 27
+[2017-01-13 15:56:14.475] [basic_logger] [info] Test CG, avg time = 9,635.98 ms, tolerance = 1.04407e-19, iterations = 27
+[2017-01-13 15:56:24.363] [basic_logger] [info] Test CG, avg time = 9,886.53 ms, tolerance = 1.04407e-19, iterations = 27
+[2017-01-13 15:56:33.958] [basic_logger] [info] Test CG, avg time = 9,594.50 ms, tolerance = 1.04407e-19, iterations = 27
+[2017-01-13 15:56:43.529] [basic_logger] [info] Test CG, avg time = 9,568.76 ms, tolerance = 1.04407e-19, iterations = 27
+[2017-01-13 15:56:53.109] [basic_logger] [info] Test CG, avg time = 9,578.81 ms, tolerance = 1.04407e-19, iterations = 27
+[2017-01-13 15:56:53.111] [basic_logger] [info] 
+
+
+[2017-01-13 15:56:53.111] [basic_logger] [info] Finished test CG, avg time = 9,782.52 ms
+
+
