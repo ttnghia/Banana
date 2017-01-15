@@ -87,7 +87,17 @@ using Mat3x3D = Mat3x3<real>;
 #include <amgcl/backend/builtin.hpp>
 #include <amgcl/adapter/ublas.hpp>
 #include <amgcl/coarsening/smoothed_aggregation.hpp>
+#include <amgcl/coarsening/ruge_stuben.hpp>
+#include <amgcl/coarsening/aggregation.hpp>
+#include <amgcl/coarsening/smoothed_aggr_emin.hpp>
 #include <amgcl/relaxation/spai0.hpp>
+#include <amgcl/relaxation/spai1.hpp>
+#include <amgcl/relaxation/gauss_seidel.hpp>
+#include <amgcl/relaxation/multicolor_gauss_seidel.hpp>
+#include <amgcl/relaxation/parallel_ilu0.hpp>
+#include <amgcl/relaxation/ilut.hpp>
+#include <amgcl/relaxation/damped_jacobi.hpp>
+#include <amgcl/relaxation/chebyshev.hpp>
 #include <amgcl/solver/bicgstabl.hpp>
 #include <amgcl/solver/cg.hpp>
 #include <amgcl/profiler.hpp>
@@ -397,7 +407,18 @@ TEST_CASE("Tested conjugate gradient solver performance")
 
     for(auto i = 0; i < NUM_TEST_LOOP; ++i)
     {
-
+        amgcl::make_solver<
+            amgcl::amg<
+            amgcl::backend::builtin<real>,
+            amgcl::coarsening::smoothed_aggregation,
+            amgcl::relaxation::spai0
+            >,
+            amgcl::solver::bicgstabl<
+            amgcl::backend::builtin<real>
+            >
+        >::params prm;
+        prm.solver.tol = SOLVER_TOLERANCE;
+        prm.solver.maxiter = 10000;
 
         prof.tic("build" + std::to_string(i));
 
@@ -410,8 +431,8 @@ TEST_CASE("Tested conjugate gradient solver performance")
             amgcl::solver::bicgstabl<
             amgcl::backend::builtin<real>
             >
-        > solve(amgcl::backend::map(A));
-        solve.prm.solver.tol = SOLVER_TOLERANCE;
+        > solve(amgcl::backend::map(A), prm);
+
 
         prof.toc("build" + std::to_string(i));
 

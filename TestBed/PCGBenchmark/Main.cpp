@@ -29,7 +29,7 @@
 
 
 //#define __Using_Eigen_Lib__
-#define __Using_GLM_Lib__
+//#define __Using_GLM_Lib__
 //#define __Using_Real_Number__
 
 
@@ -39,9 +39,9 @@
 //#define LOAD_SMALL_DATA
 #define LOAD_MEDIUM_DATA
 
-//#define HIGH_PRECISION
+#define HIGH_PRECISION
 
-
+#define SOLVER_TOLERANCE 1e-20
 
 #include <Banana/TypeNames.h>
 #include <Banana/Timer.h>      
@@ -234,14 +234,14 @@ TEST_CASE("Tested conjugate gradient solver performance")
 #endif
 
     BlockConjugateGradientSolver<Mat3x3D, Vec3D, real> solver_3D;
-    solver_3D.set_solver_parameters(1e-30, 10000);
+    solver_3D.set_solver_parameters(SOLVER_TOLERANCE, 10000);
 
     BlockSparseMatrix<Mat3x3D> mat3D;
     std::vector<Vec3D> rhs_3D;
     std::vector<Vec3D> result_3D;
 
     ConjugateGradientSolver<real> solver_1D;
-    solver_1D.set_solver_parameters(1e-30, 10000);
+    solver_1D.set_solver_parameters(SOLVER_TOLERANCE, 10000);
 
     SparseMatrix<real> mat1D;
     std::vector<real> rhs_1D;
@@ -351,4 +351,4 @@ TEST_CASE("Tested conjugate gradient solver performance")
 
     spdlog::drop_all();
 
-    }
+}
