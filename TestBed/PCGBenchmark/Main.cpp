@@ -30,12 +30,16 @@
 
 //#define __Using_Eigen_Lib__
 #define __Using_GLM_Lib__
-#define __Using_Real_Number__
+//#define __Using_Real_Number__
 
 
 #define USING_TBB
 #define NUM_TEST_LOOP 10
-#define HIGH_PRECISION
+
+//#define LOAD_SMALL_DATA
+#define LOAD_MEDIUM_DATA
+
+//#define HIGH_PRECISION
 
 
 
@@ -70,7 +74,19 @@ using Mat3x3D = Mat3x3<real>;
 //------------------------------------------------------------------------------------------
 void load_data(BlockSparseMatrix<Mat3x3D>& mat, std::vector<Vec3D>& rhs)
 {
-    const char* rhsFileName = "D:/Programming/WorkingData/Data/rhs.dat";
+#ifdef LOAD_SMALL_DATA
+    const char* rhsFileName = "D:/Programming/WorkingData/Data/rhs_small.dat";
+#else
+#ifdef LOAD_MEDIUM_DATA
+    const char* rhsFileName = "D:/Programming/WorkingData/Data/rhs_medium.dat";
+#else
+#ifdef LOAD_SLOW_DATA
+    const char* rhsFileName = "D:/Programming/WorkingData/Data/rhs_slow.dat";
+#else
+    const char* rhsFileName = "D:/Programming/WorkingData/Data/rhs_fast.dat";
+#endif
+#endif
+#endif
     FILE* fptr = NULL;
     fptr = fopen(rhsFileName, "rb");
     if(!fptr)
@@ -101,11 +117,24 @@ void load_data(BlockSparseMatrix<Mat3x3D>& mat, std::vector<Vec3D>& rhs)
     }
 
     fclose(fptr);
+    printf("File read, num. elements: %lu, filename: %s\n", rhs.size(), rhsFileName);
 
     ////////////////////////////////////////////////////////////////////////////////
     // load matrix
     mat.resize(rhs.size());
-    mat.load_from_file("D:/Programming/WorkingData/Data/mat.dat");
+#ifdef LOAD_SMALL_DATA
+    mat.load_from_file("D:/Programming/WorkingData/Data/mat_small.dat");
+#else
+#ifdef LOAD_MEDIUM_DATA
+    mat.load_from_file("D:/Programming/WorkingData/Data/mat_medium.dat");
+#else
+#ifdef LOAD_SLOW_DATA
+    mat.load_from_file("D:/Programming/WorkingData/Data/mat_slow.dat");
+#else
+    mat.load_from_file("D:/Programming/WorkingData/Data/mat_fast.dat");
+#endif
+#endif
+#endif
 }
 
 //------------------------------------------------------------------------------------------
@@ -322,4 +351,4 @@ TEST_CASE("Tested conjugate gradient solver performance")
 
     spdlog::drop_all();
 
-}
+    }

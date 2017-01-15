@@ -69,16 +69,16 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir)..\WorkingData\Libs\boost_1_63_0;$(SolutionDir)Externals\amgcl;$(SolutionDir)Externals\progress-cpp;$(SolutionDir)Externals\eigen;$(SolutionDir)Externals\yocto-gl;$(SolutionDir)Externals\glm;$(SolutionDir)Externals\tbb_win\include;$(SolutionDir)Externals\catch\include;$(SolutionDir)BananaAppCore;$(SolutionDir)Externals\spdlog\include;$(SolutionDir)ParallelAlgorithms;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)..\WorkingData\Libs\boost_1_63_0\Build.win\include\boost-1_63;$(SolutionDir)Externals\amgcl;$(SolutionDir)Externals\progress-cpp;$(SolutionDir)Externals\eigen;$(SolutionDir)Externals\yocto-gl;$(SolutionDir)Externals\glm;$(SolutionDir)Externals\tbb_win\include;$(SolutionDir)Externals\catch\include;$(SolutionDir)BananaAppCore;$(SolutionDir)Externals\spdlog\include;$(SolutionDir)ParallelAlgorithms;$(IncludePath)</IncludePath>
     <OutDir>$(ProjectDir)$(Configuration)\</OutDir>
     <IntDir>D:\Scratch\MSVC-Build\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
-    <LibraryPath>$(SolutionDir)Externals\tbb_win\lib\intel64\vc14;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)..\WorkingData\Libs\boost_1_63_0\Build.win\lib;$(SolutionDir)Externals\tbb_win\lib\intel64\vc14;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)..\WorkingData\Libs\boost_1_63_0;$(SolutionDir)Externals\amgcl;$(SolutionDir)Externals\progress-cpp;$(SolutionDir)Externals\eigen;$(SolutionDir)Externals\yocto-gl;$(SolutionDir)Externals\glm;$(SolutionDir)Externals\tbb_win\include;$(SolutionDir)Externals\catch\include;$(SolutionDir)BananaAppCore;$(SolutionDir)Externals\spdlog\include;$(SolutionDir)ParallelAlgorithms;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)..\WorkingData\Libs\boost_1_63_0\Build.win\include\boost-1_63;$(SolutionDir)Externals\amgcl;$(SolutionDir)Externals\progress-cpp;$(SolutionDir)Externals\eigen;$(SolutionDir)Externals\yocto-gl;$(SolutionDir)Externals\glm;$(SolutionDir)Externals\tbb_win\include;$(SolutionDir)Externals\catch\include;$(SolutionDir)BananaAppCore;$(SolutionDir)Externals\spdlog\include;$(SolutionDir)ParallelAlgorithms;$(IncludePath)</IncludePath>
     <OutDir>$(ProjectDir)$(Configuration)\</OutDir>
     <IntDir>D:\Scratch\MSVC-Build\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
-    <LibraryPath>$(SolutionDir)Externals\tbb_win\lib\intel64\vc14;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)..\WorkingData\Libs\boost_1_63_0\Build.win\lib;$(SolutionDir)Externals\tbb_win\lib\intel64\vc14;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IncludePath>$(SolutionDir)Externals/catch/include;$(SolutionDir)BananaAppCore;$(IncludePath)</IncludePath>
@@ -102,6 +102,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <OpenMPSupport>true</OpenMPSupport>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -134,6 +135,7 @@
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <OpenMPSupport>true</OpenMPSupport>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>

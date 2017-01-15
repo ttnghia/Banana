@@ -32,10 +32,16 @@
 
 
 #define USING_TBB
-#define NUM_TEST_LOOP 10
+#define NUM_TEST_LOOP 2
+
+//#define LOAD_SMALL_DATA
+#define LOAD_MEDIUM_DATA
+#define LOAD_SLOW_DATA
+
 #define HIGH_PRECISION
 
 
+#define SOLVER_TOLERANCE 1e-20
 
 #include <Banana/TypeNames.h>
 #include <Banana/Timer.h>      
@@ -64,14 +70,64 @@ using real = float;
 using Vec3D = Vec3<real>;
 using Mat3x3D = Mat3x3<real>;
 
+
+
+
+
+
+#include <iostream>
+#include <cstdlib>
+#include <utility>
+
+#include <boost/numeric/ublas/vector.hpp>
+#include <boost/numeric/ublas/matrix_sparse.hpp>
+
+#include <amgcl/amg.hpp>
+#include <amgcl/make_solver.hpp>
+#include <amgcl/backend/builtin.hpp>
+#include <amgcl/adapter/ublas.hpp>
+#include <amgcl/coarsening/smoothed_aggregation.hpp>
+#include <amgcl/relaxation/spai0.hpp>
+#include <amgcl/solver/bicgstabl.hpp>
+#include <amgcl/solver/cg.hpp>
+#include <amgcl/profiler.hpp>
+
+#include <complex>
+#include <boost/type_traits.hpp>
+#include <amgcl/value_type/interface.hpp>
+
+typedef boost::numeric::ublas::compressed_matrix<
+    real, boost::numeric::ublas::row_major
+> ublas_matrix;
+
+typedef boost::numeric::ublas::vector<real> ublas_vector;
+
+namespace amgcl
+{
+profiler<> prof;
+}
+
 //------------------------------------------------------------------------------------------
 void load_data(BlockSparseMatrix<Mat3x3D>& mat, std::vector<Vec3D>& rhs)
 {
+#ifdef LOAD_SMALL_DATA
+    const char* rhsFileName = "D:/Programming/WorkingData/Data/rhs_small.dat";
+#else
+#ifdef LOAD_MEDIUM_DATA
+    const char* rhsFileName = "D:/Programming/WorkingData/Data/rhs_medium.dat";
+#else
+#ifdef LOAD_SLOW_DATA
+    const char* rhsFileName = "D:/Programming/WorkingData/Data/rhs_slow.dat";
+#else
+    const char* rhsFileName = "D:/Programming/WorkingData/Data/rhs_fast.dat";
+#endif
+#endif
+#endif
     FILE* fptr = NULL;
-    fptr = fopen("rhs.dat", "rb");
+    fptr = fopen(rhsFileName, "rb");
     if(!fptr)
     {
-        printf("Error: Cannot open file for reading!\n");
+        printf("Cannot open file %s for reading!\n", rhsFileName);
         exit(-1);
     }
 
@@ -96,11 +152,85 @@ void load_data(BlockSparseMatrix<Mat3x3D>& mat, std::vector<Vec3D>& rhs)
     }
 
     fclose(fptr);
+    printf("File read, num. elements: %lu, filename: %s\n", rhs.size(), rhsFileName);
 
     ////////////////////////////////////////////////////////////////////////////////
     // load matrix
     mat.resize(rhs.size());
-    mat.load_from_file("mat.dat");
+#ifdef LOAD_SMALL_DATA
+    mat.load_from_file("D:/Programming/WorkingData/Data/mat_small.dat");
+#else
+#ifdef LOAD_MEDIUM_DATA
+    mat.load_from_file("D:/Programming/WorkingData/Data/mat_medium.dat");
+#else
+#ifdef LOAD_SLOW_DATA
+    mat.load_from_file("D:/Programming/WorkingData/Data/mat_slow.dat");
+#else
+    mat.load_from_file("D:/Programming/WorkingData/Data/mat_fast.dat");
+#endif
+#endif
+#endif
+}
+
+//------------------------------------------------------------------------------------------
+void copy_data(BlockSparseMatrix<Mat3x3D>& mat_src, const std::vector<Vec3D>& rhs_src,
+               ublas_matrix& mat_dst, std::vector<real>& rhs_dst)
+{
+    size_t num_elements = 0;
+    for(UInt32 i = 0; i < mat_src.size; ++i)
+    {
+        for(UInt32 j = 0; j < mat_src.index[i].size(); ++j)
+        {
+            num_elements += mat_src.index[i].size() * 3;
+        }
+    }
+
+    printf("Num total element: %lu\n", num_elements);
+    mat_dst.reserve(num_elements);
+
+    for(UInt32 i = 0; i < mat_src.size; ++i)
+    {
+        for(UInt32 j = 0; j < mat_src.index[i].size(); ++j)
+        {
+            const Mat3x3D& tmp = mat_src.value[i][j];
+            const UInt32 colIndex = mat_src.index[i][j];
+
+#ifdef __Using_GLM_Lib__
+            const real* tmp_ptr = glm::value_ptr(tmp);
+#endif
+
+            for(UInt32 l1 = 0; l1 < 3; ++l1)
+            {
+                for(UInt32 l2 = 0; l2 < 3; ++l2)
+                {
+
+#ifdef __Using_Eigen_Lib__
+                    mat_dst(i * 3 + l1, colIndex * 3 + l2) = tmp(l1, l2);
+#else
+#ifdef __Using_GLM_Lib__
+                    mat_dst(i * 3 + l1, colIndex * 3 + l2) = tmp_ptr[l2 * 3 + l1];
+#else
+                    mat_dst(i * 3 + l1, colIndex * 3 + l2) = tmp[l1][l2];
+#endif
+#endif
+                }
+            }
+
+        }
+    }
+
+    printf("mat copied\n");
+    ////////////////////////////////////////////////////////////////////////////////
+    rhs_dst.resize(rhs_src.size() * 3);
+    for(size_t i = 0; i < rhs_src.size(); ++i)
+    {
+        const Vec3D& tmp = rhs_src[i];
+
+        rhs_dst[i * 3 + 0] = tmp[0];
+        rhs_dst[i * 3 + 1] = tmp[1];
+        rhs_dst[i * 3 + 2] = tmp[2];
+    }
+
 }
 
 //------------------------------------------------------------------------------------------
@@ -142,7 +272,7 @@ TEST_CASE("Tested conjugate gradient solver performance")
     ProgressBar progressBar(NUM_TEST_LOOP, 70, '#', '-');
 
     ConjugateGradientSolver<Mat3x3D, Vec3D, real> solver_3D;
-    solver_3D.set_solver_parameters(1e-30, 10000);
+    solver_3D.set_solver_parameters(SOLVER_TOLERANCE, 10000);
 
     BlockSparseMatrix<Mat3x3D> mat3D;
     std::vector<Vec3D> rhs_3D;
@@ -197,5 +327,112 @@ TEST_CASE("Tested conjugate gradient solver performance")
     ////////////////////////////////////////////////////////////////////////////////
 
     spdlog::drop_all();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#ifdef _OPENMP
+    printf("Has openmp\n");
+#endif
+
+
+
+
+
+
+
+
+
+
+    using amgcl::prof;
+
+    //std::vector<int>    ptr;
+    //std::vector<int>    col;
+    //std::vector<real> val;
+
+    std::vector<real> rhs;
+
+    prof.tic("assemble");
+    //int m = 3 * mat3D.size;
+    //int n = sample_problem(m, val, col, ptr, rhs);
+
+
+
+    // Create ublas matrix with the data.
+    ublas_matrix A(mat3D.size * 3, mat3D.size * 3);
+    copy_data(mat3D, rhs_3D, A, rhs);
+
+
+
+
+
+
+
+
+
+
+    {
+        console_logger->info("Copied block data to typical data");
+        file_logger->info("Copied block data to typical data");
+
+
+    }
+
+
+
+    prof.toc("assemble");
+
+
+    for(auto i = 0; i < NUM_TEST_LOOP; ++i)
+    {
+
+
+        prof.tic("build" + std::to_string(i));
+
+        amgcl::make_solver<
+            amgcl::amg<
+            amgcl::backend::builtin<real>,
+            amgcl::coarsening::smoothed_aggregation,
+            amgcl::relaxation::spai0
+            >,
+            amgcl::solver::bicgstabl<
+            amgcl::backend::builtin<real>
+            >
+        > solve(amgcl::backend::map(A));
+        solve.prm.solver.tol = SOLVER_TOLERANCE;
+
+        prof.toc("build" + std::to_string(i));
+
+        std::cout << solve.precond() << std::endl;
+
+        ublas_vector x(rhs.size(), 0);
+
+        prof.tic("solve" + std::to_string(i));
+        size_t iters;
+        real resid;
+        boost::tie(iters, resid) = solve(rhs, x);
+        prof.toc("solve" + std::to_string(i));
+
+        std::cout << "Iterations: " << iters << std::endl
+            << "Error:      " << resid << std::endl
+            << std::endl << prof << std::endl << std::endl;
+
+    }
+
+
+
+
 
 }
