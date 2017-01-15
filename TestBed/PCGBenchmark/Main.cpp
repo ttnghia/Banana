@@ -30,6 +30,7 @@
 
 //#define __Using_Eigen_Lib__
 #define __Using_GLM_Lib__
+#define __Using_Real_Number__
 
 
 #define USING_TBB
@@ -48,6 +49,7 @@
 #include <tbb/tbb.h>
 #endif
 
+
 #include <glm/gtc/type_ptr.hpp>
 
 #ifdef HIGH_PRECISION
@@ -58,6 +60,8 @@ using real = float;
 
 #pragma warning(disable:4996)
 #include "./BlockSparseMatrix.h"
+#include "./BlockCGSolver.h"
+#include "./SparseMatrix.h"
 #include "./CGSolver.h"
 
 using Vec3D = Vec3<real>;
@@ -66,18 +70,20 @@ using Mat3x3D = Mat3x3<real>;
 //------------------------------------------------------------------------------------------
 void load_data(BlockSparseMatrix<Mat3x3D>& mat, std::vector<Vec3D>& rhs)
 {
+    const char* rhsFileName = "D:/Programming/WorkingData/Data/rhs.dat";
     FILE* fptr = NULL;
-    fptr = fopen("rhs.dat", "rb");
+    fptr = fopen(rhsFileName, "rb");
     if(!fptr)
     {
-        printf("Error: Cannot open file for reading!\n");
+        printf("Cannot open file %s for reading!\n", rhsFileName);
         exit(-1);
     }
 
     UInt32 size;
     fread(&size, 1, sizeof(UInt32), fptr);
     float *data_ptr = new float[3 * size];
-    fread(data_ptr, 1, size * 3 * sizeof(float), fptr);
+    size_t num_read = fread(data_ptr, 1, size * 3 * sizeof(float), fptr);
+    assert(num_read == size * 3 * sizeof(float));
 
     rhs.resize(size);
     for(auto i = 0; i < size; ++i)
@@ -99,9 +105,69 @@ void load_data(BlockSparseMatrix<Mat3x3D>& mat, std::vector<Vec3D>& rhs)
     ////////////////////////////////////////////////////////////////////////////////
     // load matrix
     mat.resize(rhs.size());
-    mat.load_from_file("mat.dat");
+    mat.load_from_file("D:/Programming/WorkingData/Data/mat.dat");
 }
 
+//------------------------------------------------------------------------------------------
+void copy_data(BlockSparseMatrix<Mat3x3D>& mat_src, const std::vector<Vec3D>& rhs_src,
+               SparseMatrix<real>& mat_dst, std::vector<real>& rhs_dst)
+{
+    mat_dst.zero();
+    mat_dst.resize(mat_src.size * 3);
+    for(UInt32 i = 0; i < mat_src.size; ++i)
+    {
+        for(UInt32 j = 0; j < 3; ++j)
+        {
+            mat_dst.index[i * 3 + j].resize(mat_src.index[i].size() * 3);
+            mat_dst.value[i * 3 + j].resize(mat_src.value[i].size() * 3);
+        }
+    }
+
+    for(UInt32 i = 0; i < mat_src.size; ++i)
+    {
+        for(UInt32 j = 0; j < mat_src.index[i].size(); ++j)
+        {
+            const Mat3x3D& tmp = mat_src.value[i][j];
+
+#ifdef __Using_GLM_Lib__
+            const real* tmp_ptr = glm::value_ptr(tmp);
+#endif
+
+            for(UInt32 l1 = 0; l1 < 3; ++l1)
+            {
+                for(UInt32 l2 = 0; l2 < 3; ++l2)
+                {
+                    mat_dst.index[i * 3 + l1][j * 3 + l2] = mat_src.index[i][j] * 3 + l2;
+
+#ifdef __Using_Eigen_Lib__
+                    mat_dst.value[i * 3 + l1][j * 3 + l2] = tmp(l1, l2);
+#else
+#ifdef __Using_GLM_Lib__
+
+                    mat_dst.value[i * 3 + l1][j * 3 + l2] = tmp_ptr[l2 * 3 + l1];
+#else
+                    mat_dst.value[i * 3 + l1][j * 3 + l2] = tmp[l1][l2];
+#endif
+#endif
+                }
+            }
+
+        }
+    }
+
+
+    ////////////////////////////////////////////////////////////////////////////////
+    rhs_dst.resize(rhs_src.size() * 3);
+    for(size_t i = 0; i < rhs_src.size(); ++i)
+    {
+        const Vec3D& tmp = rhs_src[i];
+
+        rhs_dst[i * 3 + 0] = tmp[0];
+        rhs_dst[i * 3 + 1] = tmp[1];
+        rhs_dst[i * 3 + 2] = tmp[2];
+    }
+
+}
 //------------------------------------------------------------------------------------------
 TEST_CASE("Tested conjugate gradient solver performance")
 {
@@ -138,14 +204,19 @@ TEST_CASE("Tested conjugate gradient solver performance")
 #endif
 #endif
 
-    ProgressBar progressBar(NUM_TEST_LOOP, 70, '#', '-');
-
-    ConjugateGradientSolver<Mat3x3D, Vec3D, real> solver_3D;
+    BlockConjugateGradientSolver<Mat3x3D, Vec3D, real> solver_3D;
     solver_3D.set_solver_parameters(1e-30, 10000);
 
     BlockSparseMatrix<Mat3x3D> mat3D;
     std::vector<Vec3D> rhs_3D;
     std::vector<Vec3D> result_3D;
+
+    ConjugateGradientSolver<real> solver_1D;
+    solver_1D.set_solver_parameters(1e-30, 10000);
+
+    SparseMatrix<real> mat1D;
+    std::vector<real> rhs_1D;
+    std::vector<real> result_1D;
 
     double time_test_total = 0;
     double time_test;
@@ -164,12 +235,63 @@ TEST_CASE("Tested conjugate gradient solver performance")
 
     ////////////////////////////////////////////////////////////////////////////////
     {
+        ProgressBar progressBar(NUM_TEST_LOOP, 70, '#', '-');
         real tolerance;
         int iterations;
         for(auto i = 0; i < NUM_TEST_LOOP; ++i)
         {
             timer.tick();
             solver_3D.solve(mat3D, rhs_3D, result_3D, tolerance, iterations);
+            time_test = timer.tock();
+            console_logger->info("Test BlockCG, time = {} ms, tolerance = {}, iterations = {}",
+                                 NumberHelpers::format_with_commas(time_test), tolerance, iterations);
+            file_logger->info("Test BlockCG, avg time = {} ms, tolerance = {}, iterations = {}",
+                              NumberHelpers::format_with_commas(time_test), tolerance, iterations);
+            time_test_total += time_test;
+
+            /////////////////////////////////////////////////////////////////////////////////
+            ++progressBar; // record the tick
+            //if(i % 10 == 0)
+            progressBar.display();
+        }
+        progressBar.done();
+
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////
+    {
+        console_logger->info("\n\n");
+        file_logger->info("\n\n");
+        console_logger->info("Finished test BlockCG, avg time = {} ms\n\n",
+                             NumberHelpers::format_with_commas(time_test_total / (double)NUM_TEST_LOOP));
+        file_logger->info("Finished test BlockCG, avg time = {} ms\n\n",
+                          NumberHelpers::format_with_commas(time_test_total / (double)NUM_TEST_LOOP));
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////
+    {
+        copy_data(mat3D, rhs_3D, mat1D, rhs_1D);
+        console_logger->info("Copied block data to typical data");
+        file_logger->info("Copied block data to typical data");
+
+        result_1D.resize(rhs_1D.size());
+
+    }
+
+#ifdef __Using_Real_Number__
+    console_logger->info("\n\n");
+    file_logger->info("\n\n");
+    time_test_total = 0;
+
+    ////////////////////////////////////////////////////////////////////////////////
+    {
+        ProgressBar progressBar(NUM_TEST_LOOP, 70, '#', '-');
+        real tolerance;
+        int iterations;
+        for(auto i = 0; i < NUM_TEST_LOOP; ++i)
+        {
+            timer.tick();
+            solver_1D.solve(mat1D, rhs_1D, result_1D, tolerance, iterations);
             time_test = timer.tock();
             console_logger->info("Test CG, time = {} ms, tolerance = {}, iterations = {}",
                                  NumberHelpers::format_with_commas(time_test), tolerance, iterations);
@@ -182,8 +304,9 @@ TEST_CASE("Tested conjugate gradient solver performance")
             //if(i % 10 == 0)
             progressBar.display();
         }
-
+        progressBar.done();
     }
+
     ////////////////////////////////////////////////////////////////////////////////
     {
         console_logger->info("\n\n");
@@ -193,6 +316,8 @@ TEST_CASE("Tested conjugate gradient solver performance")
         file_logger->info("Finished test CG, avg time = {} ms\n\n",
                           NumberHelpers::format_with_commas(time_test_total / (double)NUM_TEST_LOOP));
     }
+#endif
+
     ////////////////////////////////////////////////////////////////////////////////
 
     spdlog::drop_all();

@@ -77,7 +77,7 @@ public:
         fixed_matrix.construct_from_matrix(matrix);
         r = rhs;
 
-        residual_out = ParallelSTL::abs_max<ScalarType, VectorType>(r);
+        residual_out = ParallelSTL::vec_abs_max<ScalarType, VectorType>(r);
 
         if(fabs(residual_out) < tolerance_factor)
         {
@@ -86,7 +86,7 @@ public:
         }
 
         ScalarType tol = tolerance_factor * residual_out;
-        ScalarType rho = ParallelBLAS::dot_product<ScalarType, VectorType>(r, r);
+        ScalarType rho = ParallelBLAS::vec_dot_product<ScalarType, VectorType>(r, r);
 
         if(fabs(rho) < tolerance_factor || isnan(rho))
         {
@@ -101,7 +101,7 @@ public:
         for(iteration = 0; iteration < max_iterations; ++iteration)
         {
             multiply<MatrixType, VectorType>(fixed_matrix, z, s);
-            ScalarType tmp = ParallelBLAS::dot_product<ScalarType, VectorType>(s, z);
+            ScalarType tmp = ParallelBLAS::vec_dot_product<ScalarType, VectorType>(s, z);
 
 
             if(fabs(tmp) < tolerance_factor || isnan(tmp))
@@ -121,7 +121,7 @@ public:
                 ParallelBLAS::add_scaled<ScalarType, VectorType>(-alpha, s, r);
             });
 
-            residual_out = ParallelSTL::abs_max<ScalarType, VectorType>(r);
+            residual_out = ParallelSTL::vec_abs_max<ScalarType, VectorType>(r);
 
             if(residual_out <= tol)
             {
@@ -129,7 +129,7 @@ public:
                 return true;
             }
 
-            ScalarType rho_new = ParallelBLAS::dot_product<ScalarType, VectorType>(r, r);
+            ScalarType rho_new = ParallelBLAS::vec_dot_product<ScalarType, VectorType>(r, r);
             ScalarType beta = rho_new / rho;
             ParallelBLAS::scaled_add<ScalarType, VectorType>(beta, r, z);
             rho = rho_new;

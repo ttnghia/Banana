@@ -29,5 +29,11 @@
     <ClInclude Include="CGSolver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="BlockCGSolver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SparseMatrix.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

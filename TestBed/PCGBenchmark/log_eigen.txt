@@ -40,3 +40,85 @@
 [2017-01-13 15:56:53.111] [basic_logger] [info] Finished test CG, avg time = 9,782.52 ms
 
 
+[2017-01-14 18:00:39.604] [basic_logger] [info] Test by eigen, real = float
+[2017-01-14 18:00:43.317] [basic_logger] [info] System 3D data initialized
+[2017-01-14 18:00:43.317] [basic_logger] [info] 
+
+
+[2017-01-14 18:00:51.313] [basic_logger] [info] Test BlockCG, avg time = 7,995.37 ms, tolerance = 1.06689e-19, iterations = 27
+[2017-01-14 18:00:59.147] [basic_logger] [info] Test BlockCG, avg time = 7,833.05 ms, tolerance = 1.05608e-19, iterations = 27
+[2017-01-14 18:01:06.959] [basic_logger] [info] Test BlockCG, avg time = 7,811.25 ms, tolerance = 1.05822e-19, iterations = 27
+[2017-01-14 18:01:15.114] [basic_logger] [info] Test BlockCG, avg time = 8,153.77 ms, tolerance = 1.06491e-19, iterations = 27
+[2017-01-14 18:01:23.037] [basic_logger] [info] Test BlockCG, avg time = 7,921.48 ms, tolerance = 1.03196e-19, iterations = 27
+[2017-01-14 18:01:30.780] [basic_logger] [info] Test BlockCG, avg time = 7,742.16 ms, tolerance = 1.22322e-19, iterations = 27
+[2017-01-14 18:01:38.517] [basic_logger] [info] Test BlockCG, avg time = 7,735.48 ms, tolerance = 1.84612e-19, iterations = 27
+[2017-01-14 18:01:46.292] [basic_logger] [info] Test BlockCG, avg time = 7,774.01 ms, tolerance = 1.16548e-19, iterations = 27
+[2017-01-14 18:01:54.083] [basic_logger] [info] Test BlockCG, avg time = 7,790.94 ms, tolerance = 1.99413e-19, iterations = 27
+[2017-01-14 18:02:01.830] [basic_logger] [info] Test BlockCG, avg time = 7,744.95 ms, tolerance = 1.09183e-19, iterations = 27
+[2017-01-14 18:02:01.831] [basic_logger] [info] 
+
+
+[2017-01-14 18:02:01.831] [basic_logger] [info] Finished test BlockCG, avg time = 7,850.25 ms
+
+
+[2017-01-14 18:02:03.410] [basic_logger] [info] Copied block data to typical data
+[2017-01-14 18:02:03.411] [basic_logger] [info] 
+
+
+[2017-01-14 18:02:07.692] [basic_logger] [info] Test CG, avg time = 4,280.95 ms, tolerance = 1.8252e-19, iterations = 27
+[2017-01-14 18:02:11.164] [basic_logger] [info] Test CG, avg time = 3,470.74 ms, tolerance = 3.23793e-19, iterations = 27
+[2017-01-14 18:02:14.581] [basic_logger] [info] Test CG, avg time = 3,414.61 ms, tolerance = 1.25319e-19, iterations = 27
+[2017-01-14 18:02:18.011] [basic_logger] [info] Test CG, avg time = 3,428.09 ms, tolerance = 1.09631e-19, iterations = 27
+[2017-01-14 18:02:21.408] [basic_logger] [info] Test CG, avg time = 3,394.62 ms, tolerance = 6.00141e-19, iterations = 27
+[2017-01-14 18:02:24.803] [basic_logger] [info] Test CG, avg time = 3,393.39 ms, tolerance = 1.0395e-19, iterations = 27
+[2017-01-14 18:02:28.212] [basic_logger] [info] Test CG, avg time = 3,406.61 ms, tolerance = 4.58416e-19, iterations = 27
+[2017-01-14 18:02:31.619] [basic_logger] [info] Test CG, avg time = 3,404.65 ms, tolerance = 3.80515e-19, iterations = 27
+[2017-01-14 18:02:35.015] [basic_logger] [info] Test CG, avg time = 3,393.75 ms, tolerance = 1.5722e-19, iterations = 27
+[2017-01-14 18:02:38.393] [basic_logger] [info] Test CG, avg time = 3,375.93 ms, tolerance = 4.24026e-19, iterations = 27
+[2017-01-14 18:02:38.395] [basic_logger] [info] 
+
+
+[2017-01-14 18:02:38.395] [basic_logger] [info] Finished test CG, avg time = 3,496.33 ms
+
+
+[2017-01-14 18:02:57.595] [basic_logger] [info] Test by eigen, real = double
+[2017-01-14 18:03:02.199] [basic_logger] [info] System 3D data initialized
+[2017-01-14 18:03:02.199] [basic_logger] [info] 
+
+
+[2017-01-14 18:03:09.259] [basic_logger] [info] Test BlockCG, avg time = 7,059.26 ms, tolerance = 1.04407e-19, iterations = 27
+[2017-01-14 18:03:16.001] [basic_logger] [info] Test BlockCG, avg time = 6,740.09 ms, tolerance = 1.04407e-19, iterations = 27
+[2017-01-14 18:03:22.837] [basic_logger] [info] Test BlockCG, avg time = 6,834.89 ms, tolerance = 1.04407e-19, iterations = 27
+[2017-01-14 18:03:29.609] [basic_logger] [info] Test BlockCG, avg time = 6,770.96 ms, tolerance = 1.04407e-19, iterations = 27
+[2017-01-14 18:03:36.382] [basic_logger] [info] Test BlockCG, avg time = 6,772.28 ms, tolerance = 1.04407e-19, iterations = 27
+[2017-01-14 18:03:43.138] [basic_logger] [info] Test BlockCG, avg time = 6,754.53 ms, tolerance = 1.04407e-19, iterations = 27
+[2017-01-14 18:03:49.918] [basic_logger] [info] Test BlockCG, avg time = 6,779.30 ms, tolerance = 1.04407e-19, iterations = 27
+[2017-01-14 18:03:56.676] [basic_logger] [info] Test BlockCG, avg time = 6,757.43 ms, tolerance = 1.04407e-19, iterations = 27
+[2017-01-14 18:04:03.431] [basic_logger] [info] Test BlockCG, avg time = 6,754.20 ms, tolerance = 1.04407e-19, iterations = 27
+[2017-01-14 18:04:10.182] [basic_logger] [info] Test BlockCG, avg time = 6,748.87 ms, tolerance = 1.04407e-19, iterations = 27
+[2017-01-14 18:04:10.183] [basic_logger] [info] 
+
+
+[2017-01-14 18:04:10.183] [basic_logger] [info] Finished test BlockCG, avg time = 6,797.18 ms
+
+
+[2017-01-14 18:04:12.357] [basic_logger] [info] Copied block data to typical data
+[2017-01-14 18:04:12.358] [basic_logger] [info] 
+
+
+[2017-01-14 18:04:19.300] [basic_logger] [info] Test CG, avg time = 6,941.57 ms, tolerance = 1.04407e-19, iterations = 27
+[2017-01-14 18:04:24.732] [basic_logger] [info] Test CG, avg time = 5,429.09 ms, tolerance = 1.04407e-19, iterations = 27
+[2017-01-14 18:04:30.101] [basic_logger] [info] Test CG, avg time = 5,342.05 ms, tolerance = 1.04407e-19, iterations = 27
+[2017-01-14 18:04:35.383] [basic_logger] [info] Test CG, avg time = 5,264.51 ms, tolerance = 1.04407e-19, iterations = 27
+[2017-01-14 18:04:40.559] [basic_logger] [info] Test CG, avg time = 5,174.93 ms, tolerance = 1.04407e-19, iterations = 27
+[2017-01-14 18:04:45.710] [basic_logger] [info] Test CG, avg time = 5,149.38 ms, tolerance = 1.04407e-19, iterations = 27
+[2017-01-14 18:04:50.841] [basic_logger] [info] Test CG, avg time = 5,126.70 ms, tolerance = 1.04407e-19, iterations = 27
+[2017-01-14 18:04:55.983] [basic_logger] [info] Test CG, avg time = 5,137.84 ms, tolerance = 1.04407e-19, iterations = 27
+[2017-01-14 18:05:01.125] [basic_logger] [info] Test CG, avg time = 5,135.46 ms, tolerance = 1.04407e-19, iterations = 27
+[2017-01-14 18:05:06.271] [basic_logger] [info] Test CG, avg time = 5,143.50 ms, tolerance = 1.04407e-19, iterations = 27
+[2017-01-14 18:05:06.279] [basic_logger] [info] 
+
+
+[2017-01-14 18:05:06.281] [basic_logger] [info] Finished test CG, avg time = 5,384.50 ms
+
+

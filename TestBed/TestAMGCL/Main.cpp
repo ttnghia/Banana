@@ -28,7 +28,6 @@
 #include <catch.hpp>
 
 
-//#define __Using_Eigen_Lib__
 #define __Using_GLM_Lib__
 
 
@@ -59,6 +58,8 @@ using real = float;
 #pragma warning(disable:4996)
 #include "./BlockSparseMatrix.h"
 #include "./CGSolver.h"
+
+#include <amgcl/amg.hpp>
 
 using Vec3D = Vec3<real>;
 using Mat3x3D = Mat3x3<real>;

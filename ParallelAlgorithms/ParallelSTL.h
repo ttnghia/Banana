@@ -49,7 +49,7 @@ inline ScalarType abs_max(const std::vector<ScalarType>& x)
 }
 
 template<class ScalarType, class VectorType>
-inline ScalarType abs_max(const std::vector<VectorType>& x)
+inline ScalarType vec_abs_max(const std::vector<VectorType>& x)
 {
     ParallelClass::vecvec_max_abs<ScalarType, VectorType> m(x);
     tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), m);

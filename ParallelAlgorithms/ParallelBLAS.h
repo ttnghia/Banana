@@ -47,7 +47,7 @@ inline ScalarType dot_product(const std::vector<ScalarType>& x, const std::vecto
 }
 
 template<class ScalarType, class VectorType>
-inline ScalarType dot_product(const std::vector<VectorType>& x, const std::vector<VectorType>& y)
+inline ScalarType vec_dot_product(const std::vector<VectorType>& x, const std::vector<VectorType>& y)
 {
     assert(x.size() == y.size());
 

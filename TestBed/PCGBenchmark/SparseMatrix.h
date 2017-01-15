@@ -1,5 +1,5 @@
-#ifndef BLOCK_SPARSE_MATRIX_H
-#define BLOCK_SPARSE_MATRIX_H
+#ifndef SPARSE_MATRIX_H
+#define SPARSE_MATRIX_H
 
 #include <tbb/tbb.h>
 
@@ -10,10 +10,12 @@
 #include <Banana/TypeNames.h>
 
 using Real = real;
+
+#define SQR(x) (x)*(x)
 //------------------------------------------------------------------------------------------
-template< typename MatrixType >
-inline typename std::vector<MatrixType>::iterator
-block_insert_sorted(std::vector<MatrixType>& vec, const MatrixType& item)
+template< typename ScalarType >
+inline typename std::vector<ScalarType>::iterator
+insert_sorted(std::vector<ScalarType>& vec, ScalarType item)
 {
     return vec.insert(std::upper_bound(vec.begin(), vec.end(), item), item);
 }
@@ -21,8 +23,8 @@ block_insert_sorted(std::vector<MatrixType>& vec, const MatrixType& item)
 //------------------------------------------------------------------------------------------
 // Dynamic compressed sparse row matrix.
 //
-template<class MatrixType>
-struct BlockSparseMatrix
+template<class ScalarType>
+struct SparseMatrix
 {
     // dimension
     UInt32 size;
@@ -31,9 +33,9 @@ struct BlockSparseMatrix
     std::vector<std::vector<UInt32> > index;
 
     // values corresponding to index
-    std::vector<std::vector<MatrixType> > value;
+    std::vector<std::vector<ScalarType> > value;
 
-    explicit BlockSparseMatrix(UInt32 n_ = 0)
+    explicit SparseMatrix(UInt32 n_ = 0)
         : size(n_), index(n_), value(n_)
     {}
 
@@ -72,7 +74,7 @@ struct BlockSparseMatrix
         value.resize(size);
     }
 
-    const MatrixType operator()(UInt32 i, UInt32 j) const
+    const ScalarType operator()(UInt32 i, UInt32 j) const
     {
         auto iter = std::lower_bound(index[i].begin(), index[i].end(), j);
 
@@ -82,18 +84,11 @@ struct BlockSparseMatrix
         }
         else
         {
-#ifdef __Using_Eigen_Lib__
-            return MatrixType::Zero();
-#else
-            MatrixType tmp;
-            tmp[i][0] = 0;;
-            tmp[i][1] = 0;;
-            tmp[i][2] = 0;;
-#endif
+            return 0;
         }
     }
 
-    void set_element(UInt32 i, UInt32 j, const MatrixType& new_value)
+    void set_element(UInt32 i, UInt32 j, ScalarType new_value)
     {
         assert(i < size && j < size);
 
@@ -105,14 +100,14 @@ struct BlockSparseMatrix
         }
         else
         {
-            auto iter = block_insert_sorted(index[i], j);
+            auto iter = insert_sorted(index[i], j);
             size_t k = iter - index[i].begin();
             value[i].insert(value[i].begin() + k, new_value);
         }
     }
 
 
-    void add_to_element(UInt32 i, UInt32 j, const MatrixType& increment_value)
+    void add_to_element(UInt32 i, UInt32 j, ScalarType increment_value)
     {
         assert(i < size && j < size);
 
@@ -125,7 +120,7 @@ struct BlockSparseMatrix
         }
         else
         {
-            auto iter = block_insert_sorted(index[i], j);
+            auto iter = insert_sorted(index[i], j);
             size_t k = iter - index[i].begin();
             value[i].insert(value[i].begin() + k, increment_value);
             return;
@@ -250,7 +245,7 @@ struct BlockSparseMatrix
                 {
                     if(has_data(i, j))
                     {
-                        auto err = ((*this)(i, j) - (*this)(j, i)).squaredNorm();
+                        auto err = SQR((*this)(i, j) - (*this)(j, i));
 
                         if(err > 1e-5)
                         {
@@ -303,7 +298,7 @@ struct BlockSparseMatrix
 
         UInt32 one_percentage = (UInt32)(number_elements / 100);
         UInt32 num_processed = 0;
-        float* data_ptr = new float[9 * number_elements];
+        float* data_ptr = new float[number_elements];
         UInt32* row_ptr = new UInt32[number_elements];
         UInt32* column_ptr = new UInt32[number_elements];
 
@@ -313,52 +308,7 @@ struct BlockSparseMatrix
             {
                 if(has_data(i, j))
                 {
-                    const MatrixType& tmp = (*this)(i, j);
-
-#ifdef __Using_Eigen_Lib__
-                    data_ptr[9 * num_processed + 0] = tmp(0, 0);
-                    data_ptr[9 * num_processed + 1] = tmp(0, 1);
-                    data_ptr[9 * num_processed + 2] = tmp(0, 2);
-
-                    data_ptr[9 * num_processed + 3] = tmp(1, 0);
-                    data_ptr[9 * num_processed + 4] = tmp(1, 1);
-                    data_ptr[9 * num_processed + 5] = tmp(1, 2);
-
-                    data_ptr[9 * num_processed + 6] = tmp(2, 0);
-                    data_ptr[9 * num_processed + 7] = tmp(2, 1);
-                    data_ptr[9 * num_processed + 8] = tmp(2, 2);
-
-#else
-#ifdef __Using_GLM_Lib__
-                    Real* tmp_ptr = glm::value_ptr(tmp);
-                    data_ptr[9 * num_processed + 0] = tmp_ptr[0];
-                    data_ptr[9 * num_processed + 1] = tmp_ptr[1];
-                    data_ptr[9 * num_processed + 2] = tmp_ptr[2];
-
-                    data_ptr[9 * num_processed + 3] = tmp_ptr[3];
-                    data_ptr[9 * num_processed + 4] = tmp_ptr[4];
-                    data_ptr[9 * num_processed + 5] = tmp_ptr[5];
-
-                    data_ptr[9 * num_processed + 6] = tmp_ptr[6];
-                    data_ptr[9 * num_processed + 7] = tmp_ptr[7];
-                    data_ptr[9 * num_processed + 8] = tmp_ptr[8];
-#else
-                    data_ptr = new Real[9];
-
-                    data_ptr[9 * num_processed + 0] = tmp[0][0];
-                    data_ptr[9 * num_processed + 1] = tmp[0][1];
-                    data_ptr[9 * num_processed + 2] = tmp[0][2];
-
-                    data_ptr[9 * num_processed + 3] = tmp[1][0];
-                    data_ptr[9 * num_processed + 4] = tmp[1][1];
-                    data_ptr[9 * num_processed + 5] = tmp[1][2];
-
-                    data_ptr[9 * num_processed + 6] = tmp[2][0];
-                    data_ptr[9 * num_processed + 7] = tmp[2][1];
-                    data_ptr[9 * num_processed + 8] = tmp[2][2];
-#endif
-#endif
-
+                    data_ptr[num_processed] = (*this)(i, j);
                     row_ptr[num_processed] = i;
                     column_ptr[num_processed] = j;
 
@@ -376,7 +326,7 @@ struct BlockSparseMatrix
         fwrite(&number_elements, 1, sizeof(UInt32), fptr);
         fwrite(row_ptr, 1, number_elements * sizeof(UInt32), fptr);
         fwrite(column_ptr, 1, number_elements * sizeof(UInt32), fptr);
-        fwrite(data_ptr, 1, 9 * number_elements * sizeof(float), fptr);
+        fwrite(data_ptr, 1, number_elements * sizeof(float), fptr);
         fclose(fptr);
         printf("File written, num. elements: %u, filename: %s\n", number_elements, fileName);
 
@@ -396,64 +346,27 @@ struct BlockSparseMatrix
 
         if(!fptr)
         {
-            printf("Cannot open file %s for reading!\n", fileName);
+            printf("Cannot open file for reading!\n");
             return false;
         }
 
         UInt32 number_elements = 0;
 
         fread(&number_elements, 1, sizeof(UInt32), fptr);
-        float* data_ptr = new float[9 * number_elements];
+        float* data_ptr = new float[number_elements];
         UInt32* row_ptr = new UInt32[number_elements];
         UInt32* column_ptr = new UInt32[number_elements];
 
         fread(row_ptr, 1, number_elements * sizeof(UInt32), fptr);
         fread(column_ptr, 1, number_elements * sizeof(UInt32), fptr);
-        fread(data_ptr, 1, 9 * number_elements * sizeof(float), fptr);
+        fread(data_ptr, 1, number_elements * sizeof(float), fptr);
 
         UInt32 one_percentage = (UInt32)(number_elements / 100);
         UInt32 num_processed = 0;
 
         for(UInt32 k = 0; k < number_elements; ++k)
         {
-            MatrixType tmp;
-
-#ifdef __Using_Eigen_Lib__
-            tmp(0, 0) = data_ptr[9 * num_processed + 0];
-            tmp(0, 1) = data_ptr[9 * num_processed + 1];
-            tmp(0, 2) = data_ptr[9 * num_processed + 2];
-
-            tmp(1, 0) = data_ptr[9 * num_processed + 3];
-            tmp(1, 1) = data_ptr[9 * num_processed + 4];
-            tmp(1, 2) = data_ptr[9 * num_processed + 5];
-
-            tmp(2, 0) = data_ptr[9 * num_processed + 6];
-            tmp(2, 1) = data_ptr[9 * num_processed + 7];
-            tmp(2, 2) = data_ptr[9 * num_processed + 8];
-
-#else
-#ifdef __Using_GLM_Lib__
-            Real* data_mat = glm::value_ptr(tmp);
-
-            for(int l = 0; l < 9; ++l)
-            {
-                data_mat[l] = data_ptr[9 * num_processed + l];
-            }
-
-#else
-            tmp[0][0] = data_ptr[9 * num_processed + 0];
-            tmp[0][1] = data_ptr[9 * num_processed + 1];
-            tmp[0][2] = data_ptr[9 * num_processed + 2];
-
-            tmp[1][0] = data_ptr[9 * num_processed + 3];
-            tmp[1][1] = data_ptr[9 * num_processed + 4];
-            tmp[1][2] = data_ptr[9 * num_processed + 5];
-
-            tmp[2][0] = data_ptr[9 * num_processed + 6];
-            tmp[2][1] = data_ptr[9 * num_processed + 7];
-            tmp[2][2] = data_ptr[9 * num_processed + 8];
-#endif
-#endif
+            const ScalarType tmp = data_ptr[num_processed];
 
             set_element(row_ptr[num_processed], column_ptr[num_processed], tmp);
             set_element(column_ptr[num_processed], row_ptr[num_processed], tmp);
@@ -481,12 +394,12 @@ struct BlockSparseMatrix
 //------------------------------------------------------------------------------------------
 // perform result=matrix*x
 
-template<class MatrixType, class VectorType>
-void multiply(const BlockSparseMatrix<MatrixType>& matrix,
-              const std::vector<VectorType>& x,
-              std::vector<VectorType>& result)
+template<class ScalarType>
+void multiply(const SparseMatrix<ScalarType>& matrix,
+              const std::vector<ScalarType>& x,
+              std::vector<ScalarType>& result)
 {
-    __NOODLE_ASSERT(matrix.size == x.size());
+    assert(matrix.size == x.size());
     result.resize(matrix.size);
 
     static tbb::affinity_partitioner ap;
@@ -495,7 +408,7 @@ void multiply(const BlockSparseMatrix<MatrixType>& matrix,
     {
         for(size_t i = r.begin(); i != r.end(); ++i)
         {
-            VectorType tmpResult = VectorType::Zero();
+            ScalarType tmpResult = 0;
 
             for(size_t j = 0; j < matrix.index[i].size(); ++j)
             {
@@ -509,13 +422,13 @@ void multiply(const BlockSparseMatrix<MatrixType>& matrix,
 }
 
 // perform result=alpha*matrix*x
-template<class MatrixType, class VectorType, class ScalarType>
-void multiply_scaled(const BlockSparseMatrix<MatrixType>& matrix,
-                     const std::vector<VectorType>& x,
+template<class ScalarType>
+void multiply_scaled(const SparseMatrix<ScalarType>& matrix,
+                     const std::vector<ScalarType>& x,
                      const ScalarType alpha,
-                     std::vector<VectorType>& result)
+                     std::vector<ScalarType>& result)
 {
-    __NOODLE_ASSERT(matrix.size == x.size());
+    assert(matrix.size == x.size());
     result.resize(matrix.size);
 
     static tbb::affinity_partitioner ap;
@@ -524,7 +437,7 @@ void multiply_scaled(const BlockSparseMatrix<MatrixType>& matrix,
     {
         for(size_t i = r.begin(); i != r.end(); ++i)
         {
-            VectorType tmpResult = VectorType::Zero();
+            ScalarType tmpResult = 0;
 
             for(size_t j = 0; j < matrix.index[i].size(); ++j)
             {
@@ -537,71 +450,16 @@ void multiply_scaled(const BlockSparseMatrix<MatrixType>& matrix,
 
 }
 
-// perform result+=alpha*matrix*x
-template<class MatrixType, class VectorType, class ScalarType>
-void add_multiply_scaled(const BlockSparseMatrix<MatrixType>& matrix,
-                         const std::vector<VectorType>& x,
-                         const ScalarType alpha,
-                         std::vector<VectorType>& result)
-{
-    __NOODLE_ASSERT(matrix.size == x.size());
-    result.resize(matrix.size);
-
-    static tbb::affinity_partitioner ap;
-    tbb::parallel_for(tbb::blocked_range<size_t>(0, matrix.size),
-                      [&](tbb::blocked_range<size_t> r)
-    {
-        for(size_t i = r.begin(); i != r.end(); ++i)
-        {
-            VectorType tmpResult = VectorType::Zero();
-
-            for(size_t j = 0; j < matrix.index[i].size(); ++j)
-            {
-                tmpResult += matrix.value[i][j] * x[matrix.index[i][j]] * alpha;
-            }
-
-            result[i] += tmpResult;
-        }
-    }, ap); // end parallel_for
-
-}
-
-// perform result=result-matrix*x
-template<class MatrixType, class VectorType>
-void multiply_and_subtract(const BlockSparseMatrix<MatrixType>& matrix,
-                           const std::vector<VectorType>& x,
-                           std::vector<VectorType>& result)
-{
-    __NOODLE_ASSERT(matrix.size == x.size());
-    result.resize(matrix.size);
-
-    static tbb::affinity_partitioner ap;
-    tbb::parallel_for(tbb::blocked_range<size_t>(0, matrix.size),
-                      [&](tbb::blocked_range<size_t> r)
-    {
-        for(size_t i = r.begin(); i != r.end(); ++i)
-        {
-            VectorType tmpResult = result[i];
-
-            for(size_t j = 0; j < matrix.index[i].size(); ++j)
-            {
-                tmpResult -= matrix.value[i][j] * x[matrix.index[i][j]];
-            }
-
-            result[i] = tmpResult;
-        }
-    }, ap); // end parallel_for
-}
 
 // perform mat = A + alpha*B
-template<class MatrixType, class VectorType, class ScalarType>
-void add_scaled(const BlockSparseMatrix<MatrixType>& A,
-                const BlockSparseMatrix<MatrixType>& B,
+template<class ScalarType>
+void add_scaled(const SparseMatrix<ScalarType>& A,
+                const SparseMatrix<ScalarType>& B,
                 const ScalarType alpha,
-                BlockSparseMatrix<MatrixType>& matrix)
+                SparseMatrix<ScalarType>& matrix)
 {
-    __NOODLE_ASSERT(A.size == B.size);
-    __NOODLE_ASSERT(A.size == matrix.size);
+    assert(A.size == B.size);
+    assert(A.size == matrix.size);
 
     static tbb::affinity_partitioner ap;
     tbb::parallel_for(tbb::blocked_range<size_t>(0, matrix.size),
@@ -609,7 +467,7 @@ void add_scaled(const BlockSparseMatrix<MatrixType>& A,
     {
         for(size_t i = r.begin(); i != r.end(); ++i)
         {
-            __NOODLE_ASSERT(A.index[i].size() == B.index[i].size());
+            assert(A.index[i].size() == B.index[i].size());
 
             for(size_t j = 0; j < A.index[i].size(); ++j)
             {
@@ -624,14 +482,14 @@ void add_scaled(const BlockSparseMatrix<MatrixType>& A,
 // modifying the matrix, but can be significantly faster for matrix-vector
 // multiplies due to better data locality.
 
-template<class MatrixType>
-struct BlockFixedSparseMatrix
+template<class ScalarType>
+struct FixedSparseMatrix
 {
     // dimension
     UInt32 size;
 
     // nonzero values row by row
-    std::vector<MatrixType> value;
+    std::vector<ScalarType> value;
 
     // corresponding column indices
     std::vector<UInt32> colindex;
@@ -639,7 +497,7 @@ struct BlockFixedSparseMatrix
     // where each row starts in value and colindex (and last entry is one past the end, the number of nonzeros)
     std::vector<UInt32> rowstart;
 
-    explicit BlockFixedSparseMatrix(UInt32 n_ = 0)
+    explicit FixedSparseMatrix(UInt32 n_ = 0)
         : size(n_), value(0), colindex(0), rowstart(n_ + 1)
     {}
 
@@ -657,7 +515,7 @@ struct BlockFixedSparseMatrix
         rowstart.resize(size + 1);
     }
 
-    void construct_from_matrix(const BlockSparseMatrix<MatrixType>& matrix)
+    void construct_from_matrix(const SparseMatrix<ScalarType>& matrix)
     {
         resize(matrix.size);
         rowstart[0] = 0;
@@ -723,10 +581,10 @@ struct BlockFixedSparseMatrix
 
 //------------------------------------------------------------------------------------------
 // perform result=matrix*x
-template<class MatrixType, class VectorType>
-void multiply(const BlockFixedSparseMatrix<MatrixType>& matrix,
-              const std::vector<VectorType>& x,
-              std::vector<VectorType>& result)
+template<class ScalarType>
+void multiply(const FixedSparseMatrix<ScalarType>& matrix,
+              const std::vector<ScalarType>& x,
+              std::vector<ScalarType>& result)
 {
     assert(matrix.size == x.size());
     //    result.resize(matrix.n);
@@ -737,10 +595,7 @@ void multiply(const BlockFixedSparseMatrix<MatrixType>& matrix,
     {
         for(size_t i = r.begin(); i != r.end(); ++i)
         {
-            VectorType tmpResult;
-            tmpResult[0] = 0;;
-            tmpResult[1] = 0;;
-            tmpResult[2] = 0;;
+            ScalarType tmpResult = 0;
 
             const UInt32 rowend = matrix.rowstart[i + 1];
 
@@ -754,34 +609,6 @@ void multiply(const BlockFixedSparseMatrix<MatrixType>& matrix,
     }, ap); // end parallel_for
 }
 
-// perform result=result-matrix*x
-template<class MatrixType, class VectorType>
-void multiply_and_subtract(const BlockFixedSparseMatrix<MatrixType>& matrix,
-                           const std::vector<VectorType>& x,
-                           std::vector<VectorType>& result)
-{
-    assert(matrix.size == x.size());
-    //    result.resize(matrix.n);
 
-    static tbb::affinity_partitioner ap;
-    tbb::parallel_for(tbb::blocked_range<size_t>(0, matrix.size),
-                      [&](tbb::blocked_range<size_t> r)
-    {
-        for(size_t i = r.begin(); i != r.end(); ++i)
-        {
-            VectorType tmpResult = result[i];
-
-            const UInt32 rowend = matrix.rowstart[i + 1];
-
-            for(UInt32 j = matrix.rowstart[i]; j < rowend; ++j)
-            {
-                tmpResult -= matrix.value[j] * x[matrix.colindex[j]];
-            }
-
-            result[i] = tmpResult;
-        }
-    }, ap); // end parallel_for
-
-}
 
 #endif

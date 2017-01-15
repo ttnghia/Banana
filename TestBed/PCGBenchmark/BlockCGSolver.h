@@ -1,18 +1,18 @@
-#ifndef CG_SOLVER_H
-#define CG_SOLVER_H
+#ifndef BLOCK_CG_SOLVER_H
+#define BLOCK_CG_SOLVER_H
 
 #include <cmath>
 
 #include <ParallelBLAS.h>
 #include <ParallelSTL.h>
-#include "./SparseMatrix.h"
+#include "./BlockSparseMatrix.h"
 
 //------------------------------------------------------------------------------------------
-template <class ScalarType>
-class ConjugateGradientSolver
+template <class MatrixType, class VectorType, class ScalarType>
+class BlockConjugateGradientSolver
 {
 public:
-    ConjugateGradientSolver()
+    BlockConjugateGradientSolver()
     {
         set_solver_parameters(1e-20, 10000);
         zero_initial = true;
@@ -45,9 +45,9 @@ public:
         zero_initial = false;
     }
 
-    bool solve(const SparseMatrix<ScalarType>& matrix,
-               const std::vector<ScalarType>& rhs,
-               std::vector<ScalarType>& result,
+    bool solve(const BlockSparseMatrix<MatrixType>& matrix,
+               const std::vector<VectorType>& rhs,
+               std::vector<VectorType>& result,
                ScalarType& residual_out, int& iterations_out)
     {
         UInt32 n = matrix.size;
@@ -64,14 +64,20 @@ public:
         {
             for(size_t i = 0; i < result.size(); ++i)
             {
-                result[i] = 0;
+#ifdef __Using_Eigen_Lib__
+                result[i] = VectorType::Zero();
+#else
+                result[i][0] = 0;
+                result[i][1] = 0;
+                result[i][2] = 0;
+#endif
             }
         }
 
         fixed_matrix.construct_from_matrix(matrix);
         r = rhs;
 
-        residual_out = ParallelSTL::abs_max<ScalarType>(r);
+        residual_out = ParallelSTL::vec_abs_max<ScalarType, VectorType>(r);
 
         if(fabs(residual_out) < tolerance_factor)
         {
@@ -80,7 +86,7 @@ public:
         }
 
         ScalarType tol = tolerance_factor * residual_out;
-        ScalarType rho = ParallelBLAS::dot_product<ScalarType>(r, r);
+        ScalarType rho = ParallelBLAS::vec_dot_product<ScalarType, VectorType>(r, r);
 
         if(fabs(rho) < tolerance_factor || isnan(rho))
         {
@@ -94,8 +100,8 @@ public:
 
         for(iteration = 0; iteration < max_iterations; ++iteration)
         {
-            multiply<ScalarType>(fixed_matrix, z, s);
-            ScalarType tmp = ParallelBLAS::dot_product<ScalarType>(s, z);
+            multiply<MatrixType, VectorType>(fixed_matrix, z, s);
+            ScalarType tmp = ParallelBLAS::vec_dot_product<ScalarType, VectorType>(s, z);
 
 
             if(fabs(tmp) < tolerance_factor || isnan(tmp))
@@ -108,14 +114,14 @@ public:
 
             tbb::parallel_invoke([&]
             {
-                ParallelBLAS::add_scaled<ScalarType, ScalarType>(alpha, z, result);
+                ParallelBLAS::add_scaled<ScalarType, VectorType>(alpha, z, result);
             },
                                  [&]
             {
-                ParallelBLAS::add_scaled<ScalarType, ScalarType>(-alpha, s, r);
+                ParallelBLAS::add_scaled<ScalarType, VectorType>(-alpha, s, r);
             });
 
-            residual_out = ParallelSTL::abs_max<ScalarType>(r);
+            residual_out = ParallelSTL::vec_abs_max<ScalarType, VectorType>(r);
 
             if(residual_out <= tol)
             {
@@ -123,9 +129,9 @@ public:
                 return true;
             }
 
-            ScalarType rho_new = ParallelBLAS::dot_product<ScalarType>(r, r);
+            ScalarType rho_new = ParallelBLAS::vec_dot_product<ScalarType, VectorType>(r, r);
             ScalarType beta = rho_new / rho;
-            ParallelBLAS::scaled_add<ScalarType, ScalarType>(beta, r, z);
+            ParallelBLAS::scaled_add<ScalarType, VectorType>(beta, r, z);
             rho = rho_new;
         }
 
@@ -137,8 +143,8 @@ public:
 
 private:
 
-    std::vector<ScalarType> z, s, r; // temporary vectors for CG
-    FixedSparseMatrix<ScalarType> fixed_matrix; // used within loop
+    std::vector<VectorType> z, s, r; // temporary vectors for CG
+    BlockFixedSparseMatrix<MatrixType> fixed_matrix; // used within loop
 
     // parameters
     ScalarType tolerance_factor;
