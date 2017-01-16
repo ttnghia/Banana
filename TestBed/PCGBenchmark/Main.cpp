@@ -29,17 +29,44 @@
 
 
 //#define __Using_Eigen_Lib__
-//#define __Using_GLM_Lib__
+#define __Using_GLM_Lib__
 //#define __Using_Real_Number__
 
 
 #define USING_TBB
-#define NUM_TEST_LOOP 10
+#define NUM_TEST_LOOP 5
+
+#define RUN 5
+
+#if (RUN == 0) // default data (fast), float
+// nothing here
+#endif
+
+#if (RUN == 1) // default data (fast), double
+#define HIGH_PRECISION
+#endif
+
+#if (RUN == 2) // slow data, float
+#define LOAD_SLOW_DATA
+#endif
+
+#if (RUN == 3) // slow data, double
+#define LOAD_SLOW_DATA
+#define HIGH_PRECISION
+#endif
+
+#if (RUN == 4) // medium data, float
+#define LOAD_MEDIUM_DATA
+#endif
+
+#if (RUN == 5) // medium data, double
+#define LOAD_MEDIUM_DATA
+#define HIGH_PRECISION
+#endif
 
 //#define LOAD_SMALL_DATA
-#define LOAD_MEDIUM_DATA
 
-#define HIGH_PRECISION
+
 
 #define SOLVER_TOLERANCE 1e-20
 
@@ -202,6 +229,7 @@ TEST_CASE("Tested conjugate gradient solver performance")
 {
     Timer timer;
     auto console_logger = spdlog::stdout_color_mt("console");
+#ifndef __Using_Real_Number__
 #ifdef __Using_Eigen_Lib__
     auto file_logger = spdlog::basic_logger_mt("basic_logger", "log_eigen.txt");
 #ifdef HIGH_PRECISION
@@ -232,6 +260,16 @@ TEST_CASE("Tested conjugate gradient solver performance")
 #endif // HIGH_PRECISION
 #endif
 #endif
+#else // __Using_Real_Number__
+    auto file_logger = spdlog::basic_logger_mt("basic_logger", "log_real.txt");
+#ifdef HIGH_PRECISION
+    console_logger->info("Test by buildin, real = double");
+    file_logger->info("Test by buildin, real = double");
+#else
+    console_logger->info("Test by buildin, real = float");
+    file_logger->info("Test by buildin, real = float");
+#endif // HIGH_PRECISION
+#endif // __Using_Real_Number__
 
     BlockConjugateGradientSolver<Mat3x3D, Vec3D, real> solver_3D;
     solver_3D.set_solver_parameters(SOLVER_TOLERANCE, 10000);
@@ -258,10 +296,29 @@ TEST_CASE("Tested conjugate gradient solver performance")
 
         result_3D.resize(rhs_3D.size());
 
+#ifdef LOAD_SMALL_DATA
+        console_logger->info("Loaded file: _small");
+        file_logger->info("Loaded file: _small");
+#else
+#ifdef LOAD_MEDIUM_DATA
+        console_logger->info("Loaded file: _medium");
+        file_logger->info("Loaded file: _medium");
+#else
+#ifdef LOAD_SLOW_DATA
+        console_logger->info("Loaded file: _slow");
+        file_logger->info("Loaded file: _slow");
+#else
+        console_logger->info("Loaded file: _fast");
+        file_logger->info("Loaded file: _fast");
+#endif
+#endif
+#endif
+
     }
     console_logger->info("\n\n");
     file_logger->info("\n\n");
 
+#ifndef __Using_Real_Number__
     ////////////////////////////////////////////////////////////////////////////////
     {
         ProgressBar progressBar(NUM_TEST_LOOP, 70, '#', '-');
@@ -297,6 +354,7 @@ TEST_CASE("Tested conjugate gradient solver performance")
                           NumberHelpers::format_with_commas(time_test_total / (double)NUM_TEST_LOOP));
     }
 
+#else
     ////////////////////////////////////////////////////////////////////////////////
     {
         copy_data(mat3D, rhs_3D, mat1D, rhs_1D);
@@ -307,7 +365,6 @@ TEST_CASE("Tested conjugate gradient solver performance")
 
     }
 
-#ifdef __Using_Real_Number__
     console_logger->info("\n\n");
     file_logger->info("\n\n");
     time_test_total = 0;
