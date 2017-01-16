@@ -147,6 +147,12 @@
   <ItemGroup>
     <ClCompile Include="Main.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="cyCore.h" />
+    <ClInclude Include="cyMatrix.h" />
+    <ClInclude Include="cyPoint.h" />
+    <ClInclude Include="TypeNames.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

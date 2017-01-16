@@ -3,8 +3,8 @@
 
 #include <cmath>
 
-#include <ParallelBLAS.h>
-#include <ParallelSTL.h>
+#include "./ParallelBLAS.h"
+#include "./ParallelSTL.h"
 #include "./BlockSparseMatrix.h"
 
 //------------------------------------------------------------------------------------------

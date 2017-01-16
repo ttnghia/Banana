@@ -1,90 +1,36 @@
-[2017-01-12 22:21:06.500] [basic_logger] [info] Test by yocto, real = float
-[2017-01-12 22:21:07.229] [basic_logger] [info] Vector 3D data initialized
-[2017-01-12 22:21:08.600] [basic_logger] [info] Vector 4D data initialized
-[2017-01-12 22:21:08.719] [basic_logger] [info] Mat3x3 data initialized
-[2017-01-12 22:21:08.914] [basic_logger] [info] Mat4x4 data initialized
-[2017-01-12 22:21:08.914] [basic_logger] [info] 
+[2017-01-16 10:23:19.156] [basic_logger] [info] Test by yocto, real = float
+[2017-01-16 10:23:19.559] [basic_logger] [info] Vector 3D data initialized
+[2017-01-16 10:23:20.094] [basic_logger] [info] Vector 4D data initialized
+[2017-01-16 10:23:21.577] [basic_logger] [info] Mat3x3 data initialized
+[2017-01-16 10:23:23.698] [basic_logger] [info] Mat4x4 data initialized
+[2017-01-16 10:23:23.698] [basic_logger] [info] 
 
 
-[2017-01-12 22:23:41.896] [basic_logger] [info] Test vec3 operation, avg time = 32.76 ms
-[2017-01-12 22:23:41.896] [basic_logger] [info] Test vec4 operation, avg time = 41.51 ms
-[2017-01-12 22:23:41.896] [basic_logger] [info] Test mat3x3 operation, avg time = 21.89 ms
-[2017-01-12 22:23:41.896] [basic_logger] [info] Test mat4x4 operation, avg time = 631.90 ms
-[2017-01-12 22:23:41.896] [basic_logger] [info] Test mat3x3 x vec3 multiplication, avg time = 294.07 ms
-[2017-01-12 22:23:41.896] [basic_logger] [info] Test mat4x4 x vec4 multiplication, avg time = 506.36 ms
-[2017-01-12 22:23:41.896] [basic_logger] [info] Finished.
-
-
-
-[2017-01-12 22:23:49.147] [basic_logger] [info] Test by yocto, real = float
-[2017-01-12 22:23:49.887] [basic_logger] [info] Vector 3D data initialized
-[2017-01-12 22:23:50.687] [basic_logger] [info] Vector 4D data initialized
-[2017-01-12 22:23:50.802] [basic_logger] [info] Mat3x3 data initialized
-[2017-01-12 22:23:50.969] [basic_logger] [info] Mat4x4 data initialized
-[2017-01-12 22:23:50.969] [basic_logger] [info] 
-
-
-[2017-01-12 22:24:41.850] [basic_logger] [info] Test vec3 operation, avg time = 32.14 ms
-[2017-01-12 22:24:41.850] [basic_logger] [info] Test vec4 operation, avg time = 41.45 ms
-[2017-01-12 22:24:41.850] [basic_logger] [info] Test mat3x3 operation, avg time = 21.56 ms
-[2017-01-12 22:24:41.850] [basic_logger] [info] Test mat4x4 operation, avg time = 42.90 ms
-[2017-01-12 22:24:41.850] [basic_logger] [info] Test mat3x3 x vec3 multiplication, avg time = 293.18 ms
-[2017-01-12 22:24:41.851] [basic_logger] [info] Test mat4x4 x vec4 multiplication, avg time = 76.23 ms
-[2017-01-12 22:24:41.851] [basic_logger] [info] Finished.
+[2017-01-16 10:23:44.247] [basic_logger] [info] Test vec3 operation, avg time = 13.36 ms
+[2017-01-16 10:23:44.247] [basic_logger] [info] Test vec4 operation, avg time = 15.30 ms
+[2017-01-16 10:23:44.247] [basic_logger] [info] Test mat3x3 operation, avg time = 36.55 ms
+[2017-01-16 10:23:44.247] [basic_logger] [info] Test mat4x4 operation, avg time = 60.81 ms
+[2017-01-16 10:23:44.247] [basic_logger] [info] Test mat3x3 x vec3 multiplication, avg time = 30.21 ms
+[2017-01-16 10:23:44.247] [basic_logger] [info] Test mat4x4 x vec4 multiplication, avg time = 47.29 ms
+[2017-01-16 10:23:44.247] [basic_logger] [info] Finished.
 
 
 
-[2017-01-12 22:25:03.577] [basic_logger] [info] Test by yocto, real = double
-[2017-01-12 22:25:04.394] [basic_logger] [info] Vector 3D data initialized
-[2017-01-12 22:25:05.822] [basic_logger] [info] Vector 4D data initialized
-[2017-01-12 22:25:06.026] [basic_logger] [info] Mat3x3 data initialized
-[2017-01-12 22:25:06.377] [basic_logger] [info] Mat4x4 data initialized
-[2017-01-12 22:25:06.378] [basic_logger] [info] 
+[2017-01-16 10:23:54.194] [basic_logger] [info] Test by yocto, real = double
+[2017-01-16 10:23:54.802] [basic_logger] [info] Vector 3D data initialized
+[2017-01-16 10:23:55.361] [basic_logger] [info] Vector 4D data initialized
+[2017-01-16 10:23:56.959] [basic_logger] [info] Mat3x3 data initialized
+[2017-01-16 10:23:59.413] [basic_logger] [info] Mat4x4 data initialized
+[2017-01-16 10:23:59.413] [basic_logger] [info] 
 
 
-[2017-01-12 22:27:25.526] [basic_logger] [info] Test vec3 operation, avg time = 35.23 ms
-[2017-01-12 22:27:25.526] [basic_logger] [info] Test vec4 operation, avg time = 45.85 ms
-[2017-01-12 22:27:25.527] [basic_logger] [info] Test mat3x3 operation, avg time = 42.18 ms
-[2017-01-12 22:27:25.527] [basic_logger] [info] Test mat4x4 operation, avg time = 73.68 ms
-[2017-01-12 22:27:25.527] [basic_logger] [info] Test mat3x3 x vec3 multiplication, avg time = 443.39 ms
-[2017-01-12 22:27:25.527] [basic_logger] [info] Test mat4x4 x vec4 multiplication, avg time = 749.77 ms
-[2017-01-12 22:27:25.527] [basic_logger] [info] Finished.
-
-
-
-[2017-01-12 23:34:26.369] [basic_logger] [info] Test by yocto, real = float
-[2017-01-12 23:34:26.738] [basic_logger] [info] Vector 3D data initialized
-[2017-01-12 23:34:27.256] [basic_logger] [info] Vector 4D data initialized
-[2017-01-12 23:34:27.331] [basic_logger] [info] Mat3x3 data initialized
-[2017-01-12 23:34:27.461] [basic_logger] [info] Mat4x4 data initialized
-[2017-01-12 23:34:27.461] [basic_logger] [info] 
-
-
-[2017-01-12 23:35:02.232] [basic_logger] [info] Test vec3 operation, avg time = 12.86 ms
-[2017-01-12 23:35:02.232] [basic_logger] [info] Test vec4 operation, avg time = 15.21 ms
-[2017-01-12 23:35:02.232] [basic_logger] [info] Test mat3x3 operation, avg time = 12.46 ms
-[2017-01-12 23:35:02.232] [basic_logger] [info] Test mat4x4 operation, avg time = 25.78 ms
-[2017-01-12 23:35:02.232] [basic_logger] [info] Test mat3x3 x vec3 multiplication, avg time = 234.32 ms
-[2017-01-12 23:35:02.232] [basic_logger] [info] Test mat4x4 x vec4 multiplication, avg time = 46.14 ms
-[2017-01-12 23:35:02.232] [basic_logger] [info] Finished.
-
-
-
-[2017-01-12 23:35:17.730] [basic_logger] [info] Test by yocto, real = double
-[2017-01-12 23:35:18.219] [basic_logger] [info] Vector 3D data initialized
-[2017-01-12 23:35:18.787] [basic_logger] [info] Vector 4D data initialized
-[2017-01-12 23:35:18.943] [basic_logger] [info] Mat3x3 data initialized
-[2017-01-12 23:35:19.231] [basic_logger] [info] Mat4x4 data initialized
-[2017-01-12 23:35:19.232] [basic_logger] [info] 
-
-
-[2017-01-12 23:37:04.006] [basic_logger] [info] Test vec3 operation, avg time = 15.90 ms
-[2017-01-12 23:37:04.006] [basic_logger] [info] Test vec4 operation, avg time = 21.70 ms
-[2017-01-12 23:37:04.006] [basic_logger] [info] Test mat3x3 operation, avg time = 25.13 ms
-[2017-01-12 23:37:04.006] [basic_logger] [info] Test mat4x4 operation, avg time = 43.47 ms
-[2017-01-12 23:37:04.006] [basic_logger] [info] Test mat3x3 x vec3 multiplication, avg time = 341.68 ms
-[2017-01-12 23:37:04.006] [basic_logger] [info] Test mat4x4 x vec4 multiplication, avg time = 599.00 ms
-[2017-01-12 23:37:04.006] [basic_logger] [info] Finished.
+[2017-01-16 10:24:28.874] [basic_logger] [info] Test vec3 operation, avg time = 16.07 ms
+[2017-01-16 10:24:28.875] [basic_logger] [info] Test vec4 operation, avg time = 21.56 ms
+[2017-01-16 10:24:28.875] [basic_logger] [info] Test mat3x3 operation, avg time = 47.53 ms
+[2017-01-16 10:24:28.875] [basic_logger] [info] Test mat4x4 operation, avg time = 84.66 ms
+[2017-01-16 10:24:28.875] [basic_logger] [info] Test mat3x3 x vec3 multiplication, avg time = 48.73 ms
+[2017-01-16 10:24:28.875] [basic_logger] [info] Test mat4x4 x vec4 multiplication, avg time = 75.31 ms
+[2017-01-16 10:24:28.875] [basic_logger] [info] Finished.
 
 
 

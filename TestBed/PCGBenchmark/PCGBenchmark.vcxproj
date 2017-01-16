@@ -151,7 +151,14 @@
     <ClInclude Include="BlockCGSolver.h" />
     <ClInclude Include="BlockSparseMatrix.h" />
     <ClInclude Include="CGSolver.h" />
+    <ClInclude Include="cyCore.h" />
+    <ClInclude Include="cyMatrix.h" />
+    <ClInclude Include="cyPoint.h" />
+    <ClInclude Include="ParallelBLAS.h" />
+    <ClInclude Include="ParallelClass.h" />
+    <ClInclude Include="ParallelSTL.h" />
     <ClInclude Include="SparseMatrix.h" />
+    <ClInclude Include="TypeNames.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

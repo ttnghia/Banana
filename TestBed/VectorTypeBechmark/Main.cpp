@@ -26,7 +26,8 @@
 
 
 //#define __Using_Eigen_Lib__
-#define __Using_GLM_Lib__
+//#define __Using_GLM_Lib__
+//#define __Using_Cem_Lib__
 
 
 #define USING_TBB
@@ -34,10 +35,10 @@
 #define DATA_SIZE 10000000
 #define HIGH_PRECISION
 
-#include <Banana/TypeNames.h>
 #include <Banana/Timer.h>      
 #include <spdlog/spdlog.h>
 #include <ProgressBar.hpp>
+#include "./TypeNames.h"
 
 #define CATCH_CONFIG_MAIN
 #include <catch.hpp>
@@ -122,8 +123,7 @@ void init_matrix_data(std::vector<Mat3x3D>& vec)
     for(size_t i = 0; i < vec.size(); ++i)
     {
         Mat3x3D tmp;
-
-#ifdef __Using_Eigen_Lib__
+#if defined(__Using_Eigen_Lib__) || defined(__Using_Cem_Lib__)
         tmp(0, 0) = (real)rand();
         tmp(0, 1) = (real)rand();
         tmp(0, 2) = (real)rand();
@@ -141,7 +141,17 @@ void init_matrix_data(std::vector<Mat3x3D>& vec)
         for(int i = 0; i < 9; ++i)
             value_ptr[i] = (real)rand();
 #else
+        tmp[0][0] = (real)rand();
+        tmp[0][1] = (real)rand();
+        tmp[0][2] = (real)rand();
 
+        tmp[1][0] = (real)rand();
+        tmp[1][1] = (real)rand();
+        tmp[1][2] = (real)rand();
+
+        tmp[2][0] = (real)rand();
+        tmp[2][1] = (real)rand();
+        tmp[2][2] = (real)rand();
 #endif
 #endif
 
@@ -158,7 +168,7 @@ void init_matrix_data(std::vector<Mat4x4D>& vec)
     for(size_t i = 0; i < vec.size(); ++i)
     {
         Mat4x4D tmp;
-#ifdef __Using_Eigen_Lib__
+#if defined(__Using_Eigen_Lib__) || defined(__Using_Cem_Lib__)
         tmp(0, 0) = (real)rand();
         tmp(0, 1) = (real)rand();
         tmp(0, 2) = (real)rand();
@@ -184,7 +194,25 @@ void init_matrix_data(std::vector<Mat4x4D>& vec)
         for(int i = 0; i < 16; ++i)
             value_ptr[i] = (real)rand();
 #else
+        tmp[0][0] = (real)rand();
+        tmp[0][1] = (real)rand();
+        tmp[0][2] = (real)rand();
+        tmp[0][3] = (real)rand();
 
+        tmp[1][0] = (real)rand();
+        tmp[1][1] = (real)rand();
+        tmp[1][2] = (real)rand();
+        tmp[1][3] = (real)rand();
+
+        tmp[2][0] = (real)rand();
+        tmp[2][1] = (real)rand();
+        tmp[2][2] = (real)rand();
+        tmp[2][3] = (real)rand();
+
+        tmp[3][0] = (real)rand();
+        tmp[3][1] = (real)rand();
+        tmp[3][2] = (real)rand();
+        tmp[3][3] = (real)rand();
 #endif
 #endif
         vec[i] = tmp;
@@ -195,7 +223,7 @@ void init_matrix_data(std::vector<Mat4x4D>& vec)
 //------------------------------------------------------------------------------------------
 inline void compute_work(Mat3x3D& mat)
 {
-#ifdef __Using_Eigen_Lib__
+#if defined(__Using_Eigen_Lib__) || defined(__Using_Cem_Lib__)
     real tmp = mat(0, 0) * mat(0, 0) + mat(0, 1) * mat(0, 1) + mat(0, 2) * mat(0, 2) +
         mat(1, 0) * mat(1, 0) + mat(1, 1) * mat(1, 1) + mat(1, 2) * mat(1, 2) +
         mat(2, 0) * mat(2, 0) + mat(2, 1) * mat(2, 1) + mat(2, 2) * mat(2, 2);
@@ -220,7 +248,7 @@ inline void compute_work(Mat3x3D& mat)
 
 inline void compute_work(Mat4x4D& mat)
 {
-#ifdef __Using_Eigen_Lib__
+#if defined(__Using_Eigen_Lib__) || defined(__Using_Cem_Lib__)
     real tmp = mat(0, 0) * mat(0, 0) + mat(0, 1) * mat(0, 1) + mat(0, 2) * mat(0, 2) + mat(0, 3) * mat(0, 3) +
         mat(1, 0) * mat(1, 0) + mat(1, 1) * mat(1, 1) + mat(1, 2) * mat(1, 2) + mat(1, 3) * mat(1, 3) +
         mat(2, 0) * mat(2, 0) + mat(2, 1) * mat(2, 1) + mat(2, 2) * mat(2, 2) + mat(2, 3) * mat(2, 3) +
@@ -314,6 +342,16 @@ TEST_CASE("Tested vector type performance")
     file_logger->info("Test by glm, real = float");
 #endif // HIGH_PRECISION
 #else
+#ifdef __Using_Cem_Lib__
+    auto file_logger = spdlog::basic_logger_mt("basic_logger", "log_cem.txt");
+#ifdef HIGH_PRECISION
+    console_logger->info("Test by cy, real = double");
+    file_logger->info("Test by cy, real = double");
+#else
+    console_logger->info("Test by cy, real = float");
+    file_logger->info("Test by cy, real = float");
+#endif // HIGH_PRECISION
+#else
     auto file_logger = spdlog::basic_logger_mt("basic_logger", "log_yocto.txt");
 #ifdef HIGH_PRECISION
     console_logger->info("Test by yocto, real = double");
@@ -322,6 +360,7 @@ TEST_CASE("Tested vector type performance")
     console_logger->info("Test by yocto, real = float");
     file_logger->info("Test by yocto, real = float");
 #endif // HIGH_PRECISION
+#endif
 #endif
 #endif
 

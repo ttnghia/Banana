@@ -1,0 +1,36 @@
+[2017-01-16 10:21:35.698] [basic_logger] [info] Test by cy, real = float
+[2017-01-16 10:21:36.285] [basic_logger] [info] Vector 3D data initialized
+[2017-01-16 10:21:36.815] [basic_logger] [info] Vector 4D data initialized
+[2017-01-16 10:21:38.325] [basic_logger] [info] Mat3x3 data initialized
+[2017-01-16 10:21:40.613] [basic_logger] [info] Mat4x4 data initialized
+[2017-01-16 10:21:40.613] [basic_logger] [info] 
+
+
+[2017-01-16 10:21:55.788] [basic_logger] [info] Test vec3 operation, avg time = 10.14 ms
+[2017-01-16 10:21:55.789] [basic_logger] [info] Test vec4 operation, avg time = 11.03 ms
+[2017-01-16 10:21:55.789] [basic_logger] [info] Test mat3x3 operation, avg time = 24.28 ms
+[2017-01-16 10:21:55.789] [basic_logger] [info] Test mat4x4 operation, avg time = 42.44 ms
+[2017-01-16 10:21:55.789] [basic_logger] [info] Test mat3x3 x vec3 multiplication, avg time = 24.72 ms
+[2017-01-16 10:21:55.789] [basic_logger] [info] Test mat4x4 x vec4 multiplication, avg time = 38.23 ms
+[2017-01-16 10:21:55.789] [basic_logger] [info] Finished.
+
+
+
+[2017-01-16 10:22:04.848] [basic_logger] [info] Test by cy, real = double
+[2017-01-16 10:22:05.291] [basic_logger] [info] Vector 3D data initialized
+[2017-01-16 10:22:05.877] [basic_logger] [info] Vector 4D data initialized
+[2017-01-16 10:22:07.190] [basic_logger] [info] Mat3x3 data initialized
+[2017-01-16 10:22:09.407] [basic_logger] [info] Mat4x4 data initialized
+[2017-01-16 10:22:09.407] [basic_logger] [info] 
+
+
+[2017-01-16 10:22:38.723] [basic_logger] [info] Test vec3 operation, avg time = 15.83 ms
+[2017-01-16 10:22:38.723] [basic_logger] [info] Test vec4 operation, avg time = 21.36 ms
+[2017-01-16 10:22:38.723] [basic_logger] [info] Test mat3x3 operation, avg time = 47.49 ms
+[2017-01-16 10:22:38.723] [basic_logger] [info] Test mat4x4 operation, avg time = 83.73 ms
+[2017-01-16 10:22:38.723] [basic_logger] [info] Test mat3x3 x vec3 multiplication, avg time = 48.59 ms
+[2017-01-16 10:22:38.724] [basic_logger] [info] Test mat4x4 x vec4 multiplication, avg time = 75.39 ms
+[2017-01-16 10:22:38.724] [basic_logger] [info] Finished.
+
+
+

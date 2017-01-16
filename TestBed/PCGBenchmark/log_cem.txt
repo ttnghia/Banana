@@ -1,0 +1,102 @@
+[2017-01-16 10:46:46.355] [basic_logger] [info] Test by cy, real = float
+[2017-01-16 10:46:50.398] [basic_logger] [info] System 3D data initialized
+[2017-01-16 10:46:50.399] [basic_logger] [info] Loaded file: _fast
+[2017-01-16 10:46:50.399] [basic_logger] [info] 
+
+
+[2017-01-16 10:46:52.101] [basic_logger] [info] Test BlockCG, avg time = 1,701.07 ms, tolerance = 9.67908e-14, iterations = 20
+[2017-01-16 10:46:53.668] [basic_logger] [info] Test BlockCG, avg time = 1,563.72 ms, tolerance = 9.44698e-14, iterations = 20
+[2017-01-16 10:46:55.221] [basic_logger] [info] Test BlockCG, avg time = 1,551.88 ms, tolerance = 1.26179e-13, iterations = 20
+[2017-01-16 10:46:56.774] [basic_logger] [info] Test BlockCG, avg time = 1,550.77 ms, tolerance = 1.29031e-13, iterations = 20
+[2017-01-16 10:46:58.664] [basic_logger] [info] Test BlockCG, avg time = 1,888.56 ms, tolerance = 6.00607e-15, iterations = 22
+[2017-01-16 10:46:58.665] [basic_logger] [info] 
+
+
+[2017-01-16 10:46:58.666] [basic_logger] [info] Finished test BlockCG, avg time = 1,651.20 ms
+
+
+[2017-01-16 10:47:11.192] [basic_logger] [info] Test by cy, real = double
+[2017-01-16 10:47:16.886] [basic_logger] [info] System 3D data initialized
+[2017-01-16 10:47:16.886] [basic_logger] [info] Loaded file: _fast
+[2017-01-16 10:47:16.886] [basic_logger] [info] 
+
+
+[2017-01-16 10:47:20.099] [basic_logger] [info] Test BlockCG, avg time = 3,212.52 ms, tolerance = 1.14919e-13, iterations = 20
+[2017-01-16 10:47:22.888] [basic_logger] [info] Test BlockCG, avg time = 2,788.01 ms, tolerance = 1.14919e-13, iterations = 20
+[2017-01-16 10:47:25.648] [basic_logger] [info] Test BlockCG, avg time = 2,758.69 ms, tolerance = 1.14919e-13, iterations = 20
+[2017-01-16 10:47:28.406] [basic_logger] [info] Test BlockCG, avg time = 2,756.29 ms, tolerance = 1.14919e-13, iterations = 20
+[2017-01-16 10:47:31.161] [basic_logger] [info] Test BlockCG, avg time = 2,754.58 ms, tolerance = 1.14919e-13, iterations = 20
+[2017-01-16 10:47:31.163] [basic_logger] [info] 
+
+
+[2017-01-16 10:47:31.163] [basic_logger] [info] Finished test BlockCG, avg time = 2,854.02 ms
+
+
+[2017-01-16 10:47:49.495] [basic_logger] [info] Test by cy, real = float
+[2017-01-16 10:47:53.684] [basic_logger] [info] System 3D data initialized
+[2017-01-16 10:47:53.684] [basic_logger] [info] Loaded file: _slow
+[2017-01-16 10:47:53.684] [basic_logger] [info] 
+
+
+[2017-01-16 10:47:58.332] [basic_logger] [info] Test BlockCG, avg time = 4,646.52 ms, tolerance = 2.64552e-13, iterations = 70
+[2017-01-16 10:48:03.019] [basic_logger] [info] Test BlockCG, avg time = 4,686.26 ms, tolerance = 2.09081e-13, iterations = 72
+[2017-01-16 10:48:07.279] [basic_logger] [info] Test BlockCG, avg time = 4,258.50 ms, tolerance = 3.22956e-13, iterations = 68
+[2017-01-16 10:48:11.525] [basic_logger] [info] Test BlockCG, avg time = 4,245.59 ms, tolerance = 3.17523e-13, iterations = 68
+[2017-01-16 10:48:15.891] [basic_logger] [info] Test BlockCG, avg time = 4,364.96 ms, tolerance = 3.52114e-14, iterations = 70
+[2017-01-16 10:48:15.893] [basic_logger] [info] 
+
+
+[2017-01-16 10:48:15.893] [basic_logger] [info] Finished test BlockCG, avg time = 4,440.36 ms
+
+
+[2017-01-16 10:48:26.530] [basic_logger] [info] Test by cy, real = double
+[2017-01-16 10:48:31.424] [basic_logger] [info] System 3D data initialized
+[2017-01-16 10:48:31.429] [basic_logger] [info] Loaded file: _slow
+[2017-01-16 10:48:31.430] [basic_logger] [info] 
+
+
+[2017-01-16 10:48:38.523] [basic_logger] [info] Test BlockCG, avg time = 7,092.93 ms, tolerance = 1.02268e-13, iterations = 56
+[2017-01-16 10:48:45.236] [basic_logger] [info] Test BlockCG, avg time = 6,711.98 ms, tolerance = 2.86602e-13, iterations = 57
+[2017-01-16 10:48:51.826] [basic_logger] [info] Test BlockCG, avg time = 6,588.72 ms, tolerance = 1.02087e-13, iterations = 56
+[2017-01-16 10:48:58.522] [basic_logger] [info] Test BlockCG, avg time = 6,695.12 ms, tolerance = 3.20991e-13, iterations = 57
+[2017-01-16 10:49:05.223] [basic_logger] [info] Test BlockCG, avg time = 6,700.10 ms, tolerance = 3.08065e-13, iterations = 57
+[2017-01-16 10:49:05.224] [basic_logger] [info] 
+
+
+[2017-01-16 10:49:05.224] [basic_logger] [info] Finished test BlockCG, avg time = 6,757.77 ms
+
+
+[2017-01-16 10:49:15.016] [basic_logger] [info] Test by cy, real = float
+[2017-01-16 10:49:15.183] [basic_logger] [info] System 3D data initialized
+[2017-01-16 10:49:15.183] [basic_logger] [info] Loaded file: _medium
+[2017-01-16 10:49:15.183] [basic_logger] [info] 
+
+
+[2017-01-16 10:49:27.468] [basic_logger] [info] Test BlockCG, avg time = 12,284.29 ms, tolerance = 9.19995e-10, iterations = 5000
+[2017-01-16 10:49:38.219] [basic_logger] [info] Test BlockCG, avg time = 10,750.38 ms, tolerance = 6.08974e-10, iterations = 4660
+[2017-01-16 10:49:49.539] [basic_logger] [info] Test BlockCG, avg time = 11,318.88 ms, tolerance = 3.27279e-10, iterations = 4907
+[2017-01-16 10:50:00.114] [basic_logger] [info] Test BlockCG, avg time = 10,573.89 ms, tolerance = 5.00346e-10, iterations = 4579
+[2017-01-16 10:50:11.433] [basic_logger] [info] Test BlockCG, avg time = 11,317.76 ms, tolerance = 6.71556e-10, iterations = 4900
+[2017-01-16 10:50:11.434] [basic_logger] [info] 
+
+
+[2017-01-16 10:50:11.434] [basic_logger] [info] Finished test BlockCG, avg time = 11,249.04 ms
+
+
+[2017-01-16 10:50:19.495] [basic_logger] [info] Test by cy, real = double
+[2017-01-16 10:50:19.655] [basic_logger] [info] System 3D data initialized
+[2017-01-16 10:50:19.655] [basic_logger] [info] Loaded file: _medium
+[2017-01-16 10:50:19.655] [basic_logger] [info] 
+
+
+[2017-01-16 10:50:27.439] [basic_logger] [info] Test BlockCG, avg time = 7,783.22 ms, tolerance = 5.43883e-10, iterations = 1825
+[2017-01-16 10:50:35.401] [basic_logger] [info] Test BlockCG, avg time = 7,961.22 ms, tolerance = 7.19299e-10, iterations = 1879
+[2017-01-16 10:50:43.858] [basic_logger] [info] Test BlockCG, avg time = 8,455.90 ms, tolerance = 7.68039e-10, iterations = 1819
+[2017-01-16 10:50:52.808] [basic_logger] [info] Test BlockCG, avg time = 8,948.24 ms, tolerance = 1.3379e-10, iterations = 1875
+[2017-01-16 10:51:00.825] [basic_logger] [info] Test BlockCG, avg time = 8,016.41 ms, tolerance = 8.18558e-10, iterations = 1883
+[2017-01-16 10:51:00.827] [basic_logger] [info] 
+
+
+[2017-01-16 10:51:00.827] [basic_logger] [info] Finished test BlockCG, avg time = 8,233.00 ms
+
+

@@ -29,7 +29,9 @@
 
 
 //#define __Using_Eigen_Lib__
-#define __Using_GLM_Lib__
+//#define __Using_GLM_Lib__
+#define __Using_Cem_Lib__
+
 //#define __Using_Real_Number__
 
 
@@ -70,18 +72,19 @@
 
 #define SOLVER_TOLERANCE 1e-20
 
-#include <Banana/TypeNames.h>
 #include <Banana/Timer.h>      
 #include <spdlog/spdlog.h>
 #include <ProgressBar.hpp>
+#include "./TypeNames.h"
 
 
 #ifdef USING_TBB
 #include <tbb/tbb.h>
 #endif
 
-
+#ifdef __Using_GLM_Lib__
 #include <glm/gtc/type_ptr.hpp>
+#endif
 
 #ifdef HIGH_PRECISION
 using real = double;
@@ -195,7 +198,7 @@ void copy_data(BlockSparseMatrix<Mat3x3D>& mat_src, const std::vector<Vec3D>& rh
                 {
                     mat_dst.index[i * 3 + l1][j * 3 + l2] = mat_src.index[i][j] * 3 + l2;
 
-#ifdef __Using_Eigen_Lib__
+#if defined(__Using_Eigen_Lib__) || defined(__Using_Cem_Lib__)
                     mat_dst.value[i * 3 + l1][j * 3 + l2] = tmp(l1, l2);
 #else
 #ifdef __Using_GLM_Lib__
@@ -250,6 +253,16 @@ TEST_CASE("Tested conjugate gradient solver performance")
     file_logger->info("Test by glm, real = float");
 #endif // HIGH_PRECISION
 #else
+#ifdef __Using_Cem_Lib__
+    auto file_logger = spdlog::basic_logger_mt("basic_logger", "log_cem.txt");
+#ifdef HIGH_PRECISION
+    console_logger->info("Test by cy, real = double");
+    file_logger->info("Test by cy, real = double");
+#else
+    console_logger->info("Test by cy, real = float");
+    file_logger->info("Test by cy, real = float");
+#endif // HIGH_PRECISION
+#else
     auto file_logger = spdlog::basic_logger_mt("basic_logger", "log_yocto.txt");
 #ifdef HIGH_PRECISION
     console_logger->info("Test by yocto, real = double");
@@ -258,6 +271,7 @@ TEST_CASE("Tested conjugate gradient solver performance")
     console_logger->info("Test by yocto, real = float");
     file_logger->info("Test by yocto, real = float");
 #endif // HIGH_PRECISION
+#endif
 #endif
 #endif
 #else // __Using_Real_Number__

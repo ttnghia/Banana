@@ -7,7 +7,7 @@
 #include <iostream>
 #include <vector>
 
-#include <Banana/TypeNames.h>
+#include "./TypeNames.h"
 
 using Real = real;
 //------------------------------------------------------------------------------------------
@@ -418,7 +418,7 @@ struct BlockSparseMatrix
         {
             MatrixType tmp;
 
-#ifdef __Using_Eigen_Lib__
+#if defined(__Using_Eigen_Lib__) || defined(__Using_Cem_Lib__)
             tmp(0, 0) = data_ptr[9 * num_processed + 0];
             tmp(0, 1) = data_ptr[9 * num_processed + 1];
             tmp(0, 2) = data_ptr[9 * num_processed + 2];
