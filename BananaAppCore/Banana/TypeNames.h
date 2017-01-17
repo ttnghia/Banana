@@ -23,6 +23,20 @@
 #ifndef __Banana_TypeNames__
 #define __Banana_TypeNames__
 
+#ifdef _MSC_VER
+// Use Visual C++'s memory checking functionality
+#define _CRTDBG_MAP_ALLOC
+#include <crtdbg.h>
+#endif // _MSC_VER
+
+/*
+At the beginning of the main function, add this code:
+#ifdef _MSC_VER
+        //_crtBreakAlloc = 1828;
+_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+#endif // _MSC_VER
+*/
+
 #include <vector>
 #include <cstdint>
 
