@@ -3,7 +3,7 @@
 //           (-o/\o-)
 //          /`""``""`\
 //          \ /.__.\ /
-//           \ `--` /                                                 Created on: 1/11/2017
+//           \ `--` /                                                 Created on: 1/17/2017
 //            `)  ('                                                    Author: Nghia Truong
 //         ,  /::::\  ,
 //         |'.\::::/.'|
@@ -20,8 +20,7 @@
 //                    `""`  `""`  `""`  `""`
 //------------------------------------------------------------------------------------------
 
-#ifndef __Banana_TypeNames__
-#define __Banana_TypeNames__
+#pragma once
 
 #ifdef _MSC_VER
 // Use Visual C++'s memory checking functionality
@@ -41,8 +40,9 @@ _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #include <cstdint>
 
 // this definition should depend of each project
-//#define __Using_Eigen_Lib__
-//#define __Using_GLM_Lib__
+#ifndef __Using_Yocto_Lib__
+#define __Using_GLM_Lib__
+#endif
 
 
 //------------------------------------------------------------------------------------------
@@ -57,111 +57,6 @@ using UInt32 = uint32_t;
 using UInt64 = uint64_t;
 
 //------------------------------------------------------------------------------------------
-#ifdef __Using_Eigen_Lib__
-
-#include <Eigen/Dense>
-#include <Eigen/Sparse>
-#include <Eigen/StdVector>
-#include <Eigen/Core>
-
-#define DEFAULT_VECTOR_STORAGE_ORDER Eigen::ColMajor
-#define DEFAULT_MATRIX_STORAGE_ORDER Eigen::RowMajor
-
-// Vectors
-template<class ScalarType>
-using Vec2 = Eigen::Matrix<ScalarType, 2, 1, DEFAULT_VECTOR_STORAGE_ORDER, 2, 1>;
-
-template<class ScalarType>
-using Vec3 = Eigen::Matrix<ScalarType, 3, 1, DEFAULT_VECTOR_STORAGE_ORDER, 3, 1>;
-
-template<class ScalarType>
-using Vec4 = Eigen::Matrix<ScalarType, 4, 1, DEFAULT_VECTOR_STORAGE_ORDER, 4, 1>;
-
-// matrices
-template<class ScalarType>
-using Mat2x2 = Eigen::Matrix<ScalarType, 2, 2, DEFAULT_MATRIX_STORAGE_ORDER, 2, 2>;
-template<class ScalarType>
-const Mat2x2<ScalarType> Identity2x2 = Mat2x2<ScalarType>::Identity();
-
-template<class ScalarType>
-using Mat3x3 = Eigen::Matrix<ScalarType, 3, 3, DEFAULT_MATRIX_STORAGE_ORDER, 3, 3>;
-template<class ScalarType>
-const Mat3x3<ScalarType> Identity3x3 = Mat3x3<ScalarType>::Identity();
-
-template<class ScalarType>
-using Mat3x4 = Eigen::Matrix<ScalarType, 3, 4, DEFAULT_MATRIX_STORAGE_ORDER, 3, 4>;
-
-template<class ScalarType>
-using Mat4x3 = Eigen::Matrix<ScalarType, 4, 3, DEFAULT_MATRIX_STORAGE_ORDER, 4, 3>;
-
-template<class ScalarType>
-using Mat4x4 = Eigen::Matrix<ScalarType, 4, 4, DEFAULT_MATRIX_STORAGE_ORDER, 4, 4>;
-template<class ScalarType>
-const Mat4x4<ScalarType> Identity4x4 = Mat4x4<ScalarType>::Identity();
-
-// triplet
-template<class ScalarType>
-using Triplet = Eigen::Triplet<ScalarType>;
-
-// vectors of vectors
-template<class ScalarType>
-using  Vec_Vec2 = std::vector<Vec2<ScalarType> >;
-
-template<class ScalarType>
-using Vec_Vec3 = std::vector<Vec3<ScalarType> >;
-
-template<class ScalarType>
-using Vec_Vec4 = std::vector<Vec4<ScalarType> >;
-
-// vectors of matrices
-template<class ScalarType>
-using Vec_Mat2x2 = std::vector<Mat2x2<ScalarType> >;
-
-template<class ScalarType>
-using  Vec_Mat3x3 = std::vector<Mat3x3<ScalarType> >;
-
-template<class ScalarType>
-using Vec_Mat3x4 = std::vector<Mat3x4<ScalarType> >;
-
-template<class ScalarType>
-using Vec_Mat4x3 = std::vector<Mat4x3<ScalarType> >;
-
-template<class ScalarType>
-using Vec_Mat4x4 = std::vector<Mat4x4<ScalarType> >;
-
-// vectors of vector of vectors
-template<class ScalarType>
-using Vec_VecVec3 = std::vector<std::vector<Vec3<ScalarType> > >;
-
-// vectors of vector of matrices
-template<class ScalarType>
-using Vec_VecMat3x3 = std::vector<std::vector<Mat3x3<ScalarType> > >;
-
-//------------------------------------------------------------------------------------------
-#define SPECIALIZE_STL_VECTOR(VectorType) \
-EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(VectorType<float>) \
-EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(VectorType<double>) \
-EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(VectorType<Int8>) \
-EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(VectorType<Int16>) \
-EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(VectorType<Int32>) \
-EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(VectorType<Int64>) \
-EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(VectorType<UInt8>) \
-EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(VectorType<UInt16>) \
-EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(VectorType<UInt32>) \
-EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(VectorType<UInt64>)
-
-
-SPECIALIZE_STL_VECTOR(Vec2)
-SPECIALIZE_STL_VECTOR(Vec3)
-SPECIALIZE_STL_VECTOR(Vec4)
-SPECIALIZE_STL_VECTOR(Mat2x2)
-SPECIALIZE_STL_VECTOR(Mat3x3)
-SPECIALIZE_STL_VECTOR(Mat3x4)
-SPECIALIZE_STL_VECTOR(Mat4x3)
-SPECIALIZE_STL_VECTOR(Mat4x4)
-SPECIALIZE_STL_VECTOR(Triplet)
-
-#else // not using eigen lib
 #ifdef __Using_GLM_Lib__
 
 #define GLM_FORCE_CXX11
@@ -234,7 +129,7 @@ using Vec_VecVec3 = std::vector<std::vector<Vec3<ScalarType> > >;
 template<class ScalarType>
 using Vec_VecMat3x3 = std::vector<std::vector<Mat3x3<ScalarType> > >;
 
-#else // not using eigen nor glm lib
+#else // not using glm lib
 
 #include <yocto/yocto_math.h>
 
@@ -305,7 +200,6 @@ template<class ScalarType>
 using Vec_VecMat3x3 = std::vector<std::vector<Mat3x3<ScalarType> > >;
 
 #endif // __Using_GLM_Lib__
-#endif // __Using_Eigen_Lib__
 
 //------------------------------------------------------------------------------------------
 // vectors of basic types
@@ -348,5 +242,3 @@ typedef std::pair<UInt32, UInt32>  UIntPair;
 typedef std::pair<float, float>  FloatPair;
 typedef std::pair<double, double>  DoublePair;
 
-//------------------------------------------------------------------------------------------
-#endif // __Banana_TypeNames__

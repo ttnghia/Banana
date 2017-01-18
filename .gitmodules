@@ -28,3 +28,9 @@
 [submodule "Externals/progress-cpp"]
 	path = Externals/progress-cpp
 	url = https://github.com/prakhar1989/progress-cpp.git
+[submodule "Externals/tinyobjloader"]
+	path = Externals/tinyobjloader
+	url = https://github.com/syoyo/tinyobjloader.git
+[submodule "Externals/tinyply"]
+	path = Externals/tinyply
+	url = https://github.com/ddiakopoulos/tinyply.git

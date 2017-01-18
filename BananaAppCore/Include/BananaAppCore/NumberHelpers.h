@@ -20,8 +20,7 @@
 //                    `""`  `""`  `""`  `""`
 //------------------------------------------------------------------------------------------
 
-#ifndef __NUMBER_UTILS_H__
-#define __NUMBER_UTILS_H__
+#pragma once
 
 #include <cstdint>
 #include <iostream>
@@ -75,4 +74,3 @@ std::string to_string_with_precision(const T value, const int n = 5)
 
 //------------------------------------------------------------------------------------------
 } // end namespace NumberHelpers
-#endif // __NUMBER_Helpers_H__

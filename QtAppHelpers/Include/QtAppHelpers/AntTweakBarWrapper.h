@@ -3,7 +3,7 @@
 //           (-o/\o-)
 //          /`""``""`\
 //          \ /.__.\ /
-//           \ `--` /                                                 Created on: 1/12/2017
+//           \ `--` /                                                 Created on: 06/16/2016
 //            `)  ('                                                    Author: Nghia Truong
 //         ,  /::::\  ,
 //         |'.\::::/.'|
@@ -19,58 +19,40 @@
 //               `""`\::::/\::::/\::::/\::::/`""`
 //                    `""`  `""`  `""`  `""`
 //------------------------------------------------------------------------------------------
+#ifndef __ANTTWEAKBAR_WRAPPER_H__
+#define __ANTTWEAKBAR_WRAPPER_H__
 
-#ifndef __TIMER_H__
-#define __TIMER_H__
-
-#include <chrono>
 #include <string>
-#include <cassert>
-
-#include <Banana/NumberHelpers.h>
+#include <QWidget>
+#include <QtGui>
+#include <AntTweakBar.h>
 //------------------------------------------------------------------------------------------
-class Timer
+class AntTweakBarWrapper
 {
 public:
-    Timer() : ticked(false)
-    {}
+    AntTweakBarWrapper(): antTweakBar(nullptr) {}
 
-    void tick()
-    {
-        assert(!ticked);
+    int TwMousePressQt(QMouseEvent* e);
+    int TwMouseReleaseQt(QMouseEvent* e);
+    int TwMouseMotionQt(QMouseEvent* e);
 
-        start_time = std::chrono::high_resolution_clock::now();
-        ticked = true;
-    }
+    int TwMousePressQt(QWidget* qw, QMouseEvent* e);
+    int TwMouseReleaseQt(QWidget* qw, QMouseEvent* e);
+    int TwMouseMotionQt(QWidget* qw, QMouseEvent* e);
 
-    double tock()
-    {
-        assert(ticked);
+    int TwKeyPressQt(QKeyEvent* e);
 
-        end_time = std::chrono::high_resolution_clock::now();
-        ticked = false;
+    void initializeAntTweakBar();
+    void resizeAntTweakBarWindow(int width, int height);
+    void renderAntTweakBar();
+    void shutDownAntTweakBar();
 
-        elapsed_time = std::chrono::duration<double, std::milli>(end_time - start_time).count();
+protected:
+    virtual void setupTweakBar() {}
 
-        return elapsed_time;
-    }
+    TwMouseButtonID Qt2TwMouseButtonId(QMouseEvent* e);
 
-    std::string get_run_time()
-    {
-        if(ticked)
-        {
-            tock();
-        }
-
-        return NumberHelpers::format_with_commas(elapsed_time) + "ms";
-    }
-
-private:
-    std::chrono::high_resolution_clock::time_point start_time;
-    std::chrono::high_resolution_clock::time_point end_time;
-    double elapsed_time;
-
-    bool ticked;
+    TwBar* antTweakBar;
 };
-
-#endif // __TIMER_H__
+//------------------------------------------------------------------------------------------
+#endif // __ANTTWEAKBAR_WRAPPER_H__

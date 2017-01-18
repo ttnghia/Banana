@@ -18,16 +18,22 @@
     <None Include="BananaAppCore.licenseheader" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Banana\Macros.h">
+    <ClInclude Include="Include\BananaAppCore\Macros.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Banana\NumberHelpers.h">
+    <ClInclude Include="Include\BananaAppCore\NumberHelpers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Banana\Timer.h">
+    <ClInclude Include="Include\BananaAppCore\OptionalParameter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Banana\TypeNames.h">
+    <ClInclude Include="Include\BananaAppCore\STLHelpers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\BananaAppCore\Timer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\BananaAppCore\TypeNames.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
