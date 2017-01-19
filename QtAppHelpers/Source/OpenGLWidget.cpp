@@ -1,24 +1,3 @@
-//------------------------------------------------------------------------------------------
-//            .-..-.
-//           (-o/\o-)
-//          /`""``""`\
-//          \ /.__.\ /
-//           \ `--` /                                                 Created on: 08/10/2016
-//            `)  ('                                                    Author: Nghia Truong
-//         ,  /::::\  ,
-//         |'.\::::/.'|
-//        _|  ';::;'  |_
-//       (::)   ||   (::)                       _.
-//        "|    ||    |"                      _(:)
-//         '.   ||   .'                       /::\
-//           '._||_.'                         \::/
-//            /::::\                         /:::\
-//            \::::/                        _\:::/
-//             /::::\_.._  _.._  _.._  _.._/::::\
-//             \::::/::::\/::::\/::::\/::::\::::/
-//               `""`\::::/\::::/\::::/\::::/`""`
-//                    `""`  `""`  `""`  `""`
-//------------------------------------------------------------------------------------------
 #include <QtAppHelpers/OpenGLWidget.h>
 #include <QtAppHelpers/AntTweakBarWrapper.h>
 
@@ -152,7 +131,7 @@ void OpenGLWidget::wheelEvent(QWheelEvent* event)
         return;
     }
 
-    float zooming_factor =  (event->angleDelta().x() + event->angleDelta().y()) / 2000.0f;
+    float zooming_factor = (event->angleDelta().x() + event->angleDelta().y()) / 2000.0f;
 
     camera.zoom(zooming_factor);
 }
@@ -167,41 +146,41 @@ void OpenGLWidget::keyPressEvent(QKeyEvent* event)
 
     switch(event->key())
     {
-    case Qt::Key_Shift:
-        specialKeyPressed = SpecialKey::ShiftKey;
-        break;
+        case Qt::Key_Shift:
+            specialKeyPressed = SpecialKey::ShiftKey;
+            break;
 
-    case Qt::Key_Plus:
-        camera.zoom(-0.1f);
-        break;
+        case Qt::Key_Plus:
+            camera.zoom(-0.1f);
+            break;
 
-    case Qt::Key_Minus:
-        camera.zoom(0.1f);
-        break;
+        case Qt::Key_Minus:
+            camera.zoom(0.1f);
+            break;
 
-    case Qt::Key_Up:
-        camera.translate(glm::vec2(0, 0.5));
-        break;
+        case Qt::Key_Up:
+            camera.translate(glm::vec2(0, 0.5));
+            break;
 
-    case Qt::Key_Down:
-        camera.translate(glm::vec2(0, -0.5));
-        break;
+        case Qt::Key_Down:
+            camera.translate(glm::vec2(0, -0.5));
+            break;
 
-    case Qt::Key_Left:
-        camera.translate(glm::vec2(-0.5, 0));
-        break;
+        case Qt::Key_Left:
+            camera.translate(glm::vec2(-0.5, 0));
+            break;
 
-    case Qt::Key_Right:
-        camera.translate(glm::vec2(0.5, 0));
-        break;
+        case Qt::Key_Right:
+            camera.translate(glm::vec2(0.5, 0));
+            break;
 
-    case Qt::Key_R:
-        camera.reset();
-        break;
+        case Qt::Key_R:
+            camera.reset();
+            break;
 
 
-    default:
-        break;
+        default:
+            break;
     }
 
 }
@@ -252,7 +231,7 @@ void OpenGLWidget::paintGL()
                  1);
 #endif
 
-//    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    //    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 //------------------------------------------------------------------------------------------
@@ -260,39 +239,39 @@ void OpenGLWidget::checkGLErrors()
 {
     QString glErrStr = "OpenGL initialized: ";
 
-    switch (glGetError())
+    switch(glGetError())
     {
-    case GL_NO_ERROR:
-        glErrStr += "No error.";
-        break;
+        case GL_NO_ERROR:
+            glErrStr += "No error.";
+            break;
 
-    case GL_INVALID_ENUM:
-        glErrStr += "Invalid enum.";
-        break;
+        case GL_INVALID_ENUM:
+            glErrStr += "Invalid enum.";
+            break;
 
-    case GL_INVALID_VALUE:
-        glErrStr += "Invalid value.";
-        break;
+        case GL_INVALID_VALUE:
+            glErrStr += "Invalid value.";
+            break;
 
-    case GL_INVALID_OPERATION:
-        glErrStr += "Invalid operation.";
-        break;
+        case GL_INVALID_OPERATION:
+            glErrStr += "Invalid operation.";
+            break;
 
-    case GL_STACK_OVERFLOW:
-        glErrStr += "Stack overflow.";
-        break;
+        case GL_STACK_OVERFLOW:
+            glErrStr += "Stack overflow.";
+            break;
 
-    case GL_STACK_UNDERFLOW:
-        glErrStr += "Stack underflow.";
-        break;
+        case GL_STACK_UNDERFLOW:
+            glErrStr += "Stack underflow.";
+            break;
 
-    case GL_OUT_OF_MEMORY:
-        glErrStr += "Out of memory.";
-        break;
+        case GL_OUT_OF_MEMORY:
+            glErrStr += "Out of memory.";
+            break;
 
-    default:
-        glErrStr += "Unknown error.";
-        break;
+        default:
+            glErrStr += "Unknown error.";
+            break;
     }
 
     emit emitDebugString(glErrStr);

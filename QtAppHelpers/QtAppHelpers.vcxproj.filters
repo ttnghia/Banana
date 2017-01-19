@@ -90,5 +90,11 @@
     <ClInclude Include="Include\QtAppHelpers\QtAppMacros.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Include\QtAppHelpers\QtAppShader.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="QtAppHelpers.licenseheader" />
   </ItemGroup>
 </Project>

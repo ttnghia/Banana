@@ -1,24 +1,3 @@
-//------------------------------------------------------------------------------------------
-//            .-..-.
-//           (-o/\o-)
-//          /`""``""`\
-//          \ /.__.\ /
-//           \ `--` /                                                 Created on: 09/07/2016
-//            `)  ('                                                    Author: Nghia Truong
-//         ,  /::::\  ,
-//         |'.\::::/.'|
-//        _|  ';::;'  |_
-//       (::)   ||   (::)                       _.
-//        "|    ||    |"                      _(:)
-//         '.   ||   .'                       /::\
-//           '._||_.'                         \::/
-//            /::::\                         /:::\
-//            \::::/                        _\:::/
-//             /::::\_.._  _.._  _.._  _.._/::::\
-//             \::::/::::\/::::\/::::\/::::\::::/
-//               `""`\::::/\::::/\::::/\::::/`""`
-//                    `""`  `""`  `""`  `""`
-//------------------------------------------------------------------------------------------
 #include <QtAppHelpers/OpenGLMainWindow.h>
 
 //------------------------------------------------------------------------------------------
@@ -26,7 +5,7 @@ OpenGLMainWindow::OpenGLMainWindow(QWidget* parent)
     : QMainWindow(parent), glWidget(nullptr)
 {
     qApp->installEventFilter(this);
-//    connect(glWidget, &OpenGLWidget::frameRateChanged, this, &OpenGLMainWindow::updateFrameRate);
+    //    connect(glWidget, &OpenGLWidget::frameRateChanged, this, &OpenGLMainWindow::updateFrameRate);
 
     lblStatusFPS = new QLabel(this);
     lblStatusFPS->setMargin(5);
@@ -40,14 +19,14 @@ void OpenGLMainWindow::processKeyPressEvent(QKeyEvent* event)
 {
     switch(event->key())
     {
-    case Qt::Key_Escape:
-        exit(EXIT_SUCCESS);
+        case Qt::Key_Escape:
+            exit(EXIT_SUCCESS);
 
-    default:
-        if(glWidget != nullptr)
-        {
-            glWidget->keyPressEvent(event);
-        }
+        default:
+            if(glWidget != nullptr)
+            {
+                glWidget->keyPressEvent(event);
+            }
     }
 }
 
@@ -75,8 +54,8 @@ void OpenGLMainWindow::setupOpenglWidget(OpenGLWidget* _glWidget)
 
     glWidget = _glWidget;
     setCentralWidget(glWidget);
-//    connect(glWidget, &OpenGLWidget::frameRateChanged, this,
-//            &OpenGLMainWindow::updateFrameRate);
+    //    connect(glWidget, &OpenGLWidget::frameRateChanged, this,
+    //            &OpenGLMainWindow::updateFrameRate);
     connect(&glWidget->FPSTimer, &AvgTimer::avgTimeChanged, this,
             &OpenGLMainWindow::updateFrameRate);
 }

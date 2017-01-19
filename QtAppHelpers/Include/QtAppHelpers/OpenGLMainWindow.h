@@ -1,24 +1,3 @@
-//------------------------------------------------------------------------------------------
-//            .-..-.
-//           (-o/\o-)
-//          /`""``""`\
-//          \ /.__.\ /
-//           \ `--` /                                                 Created on: 09/07/2016
-//            `)  ('                                                    Author: Nghia Truong
-//         ,  /::::\  ,
-//         |'.\::::/.'|
-//        _|  ';::;'  |_
-//       (::)   ||   (::)                       _.
-//        "|    ||    |"                      _(:)
-//         '.   ||   .'                       /::\
-//           '._||_.'                         \::/
-//            /::::\                         /:::\
-//            \::::/                        _\:::/
-//             /::::\_.._  _.._  _.._  _.._/::::\
-//             \::::/::::\/::::\/::::\/::::\::::/
-//               `""`\::::/\::::/\::::/\::::/`""`
-//                    `""`  `""`  `""`  `""`
-//------------------------------------------------------------------------------------------
 #ifndef OPENGL_MAINWINDOW_H
 #define OPENGL_MAINWINDOW_H
 
@@ -28,7 +7,7 @@
 #include <QtAppHelpers/OpenGLWidget.h>
 
 //------------------------------------------------------------------------------------------
-class OpenGLMainWindow: public QMainWindow
+class OpenGLMainWindow : public QMainWindow
 {
     Q_OBJECT
 
@@ -47,7 +26,7 @@ public:
     virtual void processKeyPressEvent(QKeyEvent* event);
     virtual void processKeyReleaseEvent(QKeyEvent* event);
 
-public slots:
+    public slots:
     void updateFrameRate(double avgFrameTime);
 
 protected:

@@ -1,5 +1,3 @@
-# this is the common include for anything compiled inside the Waoo project
-
 macx {
   QMAKE_MAC_SDK = macosx10.12
   QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.12
@@ -14,43 +12,29 @@ macx {
 }
 
 win32 {
-    CONFIG(release, debug|release): QMAKE_CXXFLAGS += /O2
-    CONFIG(debug, debug|release):QMAKE_CXXFLAGS += /DEBUG /O2
-
+    CONFIG(debug, debug|release) {
+        message("Debug")
+        QMAKE_CXXFLAGS += /DEBUG /Zi
+        LIBS += $$PWD/../Build/Debug/QtAppHelpers.lib
+    }else {
+        message("Release")
+        QMAKE_CXXFLAGS += /O2 /Ob2 /GL /Qpar
+        LIBS += $$PWD/../Build/Release/QtAppHelpers.lib
+    }
 }
 
 
-INCLUDEPATH += $$PWD/../Noodle/Engine/Include
-INCLUDEPATH += $$PWD/Engine/Include
-INCLUDEPATH += $$PWD/Engine/Libs/glm
-INCLUDEPATH += $$PWD/Engine/Libs/
-INCLUDEPATH += $$PWD/Engine/Libs/AntTweakBar/include
+INCLUDEPATH += $$PWD/Include
+INCLUDEPATH += $$PWD/../Externals/glm
+INCLUDEPATH += $$PWD/../Externals/AntTweakBar/include
 
 win32 {
-    INCLUDEPATH += $$PWD/../Libs/tbb44_win/include
+#    INCLUDEPATH += $$PWD/../Externals/tbb_win/include
+#    LIBS += -ltbb -L$$PWD/../Externals/tbb_win/lib/intel64/vc14
+    LIBS += -lAntTweakBar64 -L$$PWD/../Externals/AntTweakBar/lib
 }
 macx {
-    INCLUDEPATH += $$PWD/../Noodle/Engine/Libs/tbb44_osx/include
-}
-
-
-LIBS += -L$$PWD/Engine/Build/ -lMango
-DEPENDPATH += $$PWD/Engine/Build
-
-
-win32 {
-    LIBS += -lAntTweakBar64 -L$$PWD/Engine/Libs/AntTweakBar/lib
-    LIBS += -ltbb -L$$PWD/../Libs/tbb44_win/lib/intel64/vc14
-}
-macx {
-    LIBS += -lAntTweakBar -L$$PWD/Engine/Libs/AntTweakBar/lib
-    LIBS += -ltbb -L$$PWD/../Libs/tbb44_osx/lib
-}
-
-
-win32 {
-    PRE_TARGETDEPS += $$PWD/Engine/Build/Mango.lib
-}
-macx {
-    PRE_TARGETDEPS += $$PWD/Engine/Build/libMango.a
+#    INCLUDEPATH += $$PWD/../Externals/tbb_osx/include
+#    LIBS += -ltbb -L$$PWD/../Externals/tbb_osx/lib
+    LIBS += -lAntTweakBar -L$$PWD/../Externals/AntTweakBar/lib
 }

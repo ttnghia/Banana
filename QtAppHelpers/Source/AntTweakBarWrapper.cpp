@@ -1,31 +1,10 @@
-//------------------------------------------------------------------------------------------
-//            .-..-.
-//           (-o/\o-)
-//          /`""``""`\
-//          \ /.__.\ /
-//           \ `--` /                                                 Created on: 06/16/2016
-//            `)  ('                                                    Author: Nghia Truong
-//         ,  /::::\  ,
-//         |'.\::::/.'|
-//        _|  ';::;'  |_
-//       (::)   ||   (::)                       _.
-//        "|    ||    |"                      _(:)
-//         '.   ||   .'                       /::\
-//           '._||_.'                         \::/
-//            /::::\                         /:::\
-//            \::::/                        _\:::/
-//             /::::\_.._  _.._  _.._  _.._/::::\
-//             \::::/::::\/::::\/::::\/::::\::::/
-//               `""`\::::/\::::/\::::/\::::/`""`
-//                    `""`  `""`  `""`  `""`
-//------------------------------------------------------------------------------------------
 #include <QtAppHelpers/DeviceToLogical.h>
 #include <QtAppHelpers/AntTweakBarWrapper.h>
 
 //------------------------------------------------------------------------------------------
 int AntTweakBarWrapper::TwMousePressQt(QMouseEvent* e)
 {
-    TwMouseMotion(e->x (), e->y ());
+    TwMouseMotion(e->x(), e->y());
     return TwMouseButton(TW_MOUSE_PRESSED, Qt2TwMouseButtonId(e));
 }
 
@@ -39,7 +18,7 @@ int AntTweakBarWrapper::TwMousePressQt(QWidget* qw, QMouseEvent* e)
 //------------------------------------------------------------------------------------------
 int AntTweakBarWrapper::TwMouseReleaseQt(QMouseEvent* e)
 {
-//	TwMouseMotion(e->x (), e->y ());
+    //	TwMouseMotion(e->x (), e->y ());
     return TwMouseButton(TW_MOUSE_RELEASED, Qt2TwMouseButtonId(e));
 }
 
@@ -47,14 +26,14 @@ int AntTweakBarWrapper::TwMouseReleaseQt(QMouseEvent* e)
 int AntTweakBarWrapper::TwMouseReleaseQt(QWidget* qw, QMouseEvent* e)
 {
     (void)qw;
-//	TwMouseMotion(QTLogicalToDevice(qw, e->x()), QTLogicalToDevice(qw, e->y()));
+    //	TwMouseMotion(QTLogicalToDevice(qw, e->x()), QTLogicalToDevice(qw, e->y()));
     return TwMouseButton(TW_MOUSE_RELEASED, Qt2TwMouseButtonId(e));
 }
 
 //------------------------------------------------------------------------------------------
 int AntTweakBarWrapper::TwMouseMotionQt(QMouseEvent* e)
 {
-    return TwMouseMotion(e->x (), e->y ());
+    return TwMouseMotion(e->x(), e->y());
 }
 
 //------------------------------------------------------------------------------------------
@@ -91,77 +70,77 @@ int AntTweakBarWrapper::TwKeyPressQt(QKeyEvent* e)
         k = key;    // plain ascii codes
     }
 
-    if(key >= Qt::Key_F1 && key <= Qt::Key_F12 )
+    if(key >= Qt::Key_F1 && key <= Qt::Key_F12)
     {
         k = TW_KEY_F1 + (key - Qt::Key_F1);
     }
     else
     {
-        switch( key)
+        switch(key)
         {
-        case Qt::Key_Left:
-            k = TW_KEY_LEFT;
-            break;
+            case Qt::Key_Left:
+                k = TW_KEY_LEFT;
+                break;
 
-        case Qt::Key_Up:
-            k = TW_KEY_UP;
-            break;
+            case Qt::Key_Up:
+                k = TW_KEY_UP;
+                break;
 
-        case Qt::Key_Right:
-            k = TW_KEY_RIGHT;
-            break;
+            case Qt::Key_Right:
+                k = TW_KEY_RIGHT;
+                break;
 
-        case Qt::Key_Down:
-            k = TW_KEY_DOWN;
-            break;
+            case Qt::Key_Down:
+                k = TW_KEY_DOWN;
+                break;
 
-        case Qt::Key_PageUp:
-            k = TW_KEY_PAGE_UP;
-            break;
+            case Qt::Key_PageUp:
+                k = TW_KEY_PAGE_UP;
+                break;
 
-        case Qt::Key_PageDown:
-            k = TW_KEY_PAGE_DOWN;
-            break;
+            case Qt::Key_PageDown:
+                k = TW_KEY_PAGE_DOWN;
+                break;
 
-        case Qt::Key_Home:
-            k = TW_KEY_HOME;
-            break;
+            case Qt::Key_Home:
+                k = TW_KEY_HOME;
+                break;
 
-        case Qt::Key_End:
-            k = TW_KEY_END;
-            break;
+            case Qt::Key_End:
+                k = TW_KEY_END;
+                break;
 
-        case Qt::Key_Insert:
-            k = TW_KEY_INSERT;
-            break;
+            case Qt::Key_Insert:
+                k = TW_KEY_INSERT;
+                break;
 
-        case Qt::Key_Backspace:
-            k = TW_KEY_BACKSPACE;
-            break;
+            case Qt::Key_Backspace:
+                k = TW_KEY_BACKSPACE;
+                break;
 
-        case Qt::Key_Delete:
-            k = TW_KEY_DELETE;
-            break;
+            case Qt::Key_Delete:
+                k = TW_KEY_DELETE;
+                break;
 
-        case Qt::Key_Return:
-            k = TW_KEY_RETURN;
-            break;
+            case Qt::Key_Return:
+                k = TW_KEY_RETURN;
+                break;
 
-        case Qt::Key_Enter:
-            k = TW_KEY_RETURN;
-            break;
+            case Qt::Key_Enter:
+                k = TW_KEY_RETURN;
+                break;
 
-        case Qt::Key_Escape:
-            k = TW_KEY_ESCAPE;
-            break;
+            case Qt::Key_Escape:
+                k = TW_KEY_ESCAPE;
+                break;
 
-        case Qt::Key_Tab:
-            k = TW_KEY_TAB;
-            break;
+            case Qt::Key_Tab:
+                k = TW_KEY_TAB;
+                break;
 
-        case Qt::Key_Space:
-            k = TW_KEY_SPACE;
-            break;
+            case Qt::Key_Space:
+                k = TW_KEY_SPACE;
+                break;
         }
     }
 
@@ -214,5 +193,5 @@ TwMouseButtonID AntTweakBarWrapper::Qt2TwMouseButtonId(QMouseEvent* e)
     }
 
     return TW_MOUSE_LEFT;
-//  assert(0);
+    //  assert(0);
 }

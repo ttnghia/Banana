@@ -1,24 +1,3 @@
-//------------------------------------------------------------------------------------------
-//            .-..-.
-//           (-o/\o-)
-//          /`""``""`\
-//          \ /.__.\ /
-//           \ `--` /                                                 Created on: 08/10/2016
-//            `)  ('                                                    Author: Nghia Truong
-//         ,  /::::\  ,
-//         |'.\::::/.'|
-//        _|  ';::;'  |_
-//       (::)   ||   (::)                       _.
-//        "|    ||    |"                      _(:)
-//         '.   ||   .'                       /::\
-//           '._||_.'                         \::/
-//            /::::\                         /:::\
-//            \::::/                        _\:::/
-//             /::::\_.._  _.._  _.._  _.._/::::\
-//             \::::/::::\/::::\/::::\/::::\::::/
-//               `""`\::::/\::::/\::::/\::::/`""`
-//                    `""`  `""`  `""`  `""`
-//------------------------------------------------------------------------------------------
 #ifndef __OPENGL_WIDGET_H__
 #define __OPENGL_WIDGET_H__
 
@@ -55,7 +34,7 @@ signals:
     void emitDebugString(QString str);
     void frameRateChanged(float fps, float avgFrameTime);
 
-public slots:
+    public slots:
     void printDebug(QString str);
 
     // => public accessing members
@@ -104,12 +83,12 @@ protected:
     SpecialKey specialKeyPressed;
     MouseButton mouseButtonPressed;
 
-//    std::chrono::high_resolution_clock::time_point timeStartTimer;
-//    std::chrono::high_resolution_clock::time_point timeStartFrame;
-//    std::chrono::high_resolution_clock::time_point timeEndFrame;
-//    double renderTime;
-//    int renderFrameCount;
-//    bool timerStarted;
+    //    std::chrono::high_resolution_clock::time_point timeStartTimer;
+    //    std::chrono::high_resolution_clock::time_point timeStartFrame;
+    //    std::chrono::high_resolution_clock::time_point timeEndFrame;
+    //    double renderTime;
+    //    int renderFrameCount;
+    //    bool timerStarted;
 
 };
 

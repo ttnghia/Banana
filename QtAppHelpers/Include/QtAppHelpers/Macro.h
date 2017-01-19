@@ -1,36 +1,13 @@
-//------------------------------------------------------------------------------------------
-//            .-..-.
-//           (-o/\o-)
-//          /`""``""`\
-//          \ /.__.\ /
-//           \ `--` /                                                 Created on: 10/15/2016
-//            `)  ('                                                    Author: Nghia Truong
-//         ,  /::::\  ,
-//         |'.\::::/.'|
-//        _|  ';::;'  |_
-//       (::)   ||   (::)                       _.
-//        "|    ||    |"                      _(:)
-//         '.   ||   .'                       /::\
-//           '._||_.'                         \::/
-//            /::::\                         /:::\
-//            \::::/                        _\:::/
-//             /::::\_.._  _.._  _.._  _.._/::::\
-//             \::::/::::\/::::\/::::\/::::\::::/
-//               `""`\::::/\::::/\::::/\::::/`""`
-//                    `""`  `""`  `""`  `""`
-//------------------------------------------------------------------------------------------
-
-#ifndef __MANGO_MACRO_H__
-#define __MANGO_MACRO_H__
+#pragma once
 //------------------------------------------------------------------------------------------
 #ifdef __APPLE__
-#define __MANGO_RUN_MAIN_WINDOW __MANGO_RUN_MAIN_WINDOW_MAC
+#define __BNN_RUN_MAIN_WINDOW __BNN_RUN_MAIN_WINDOW_MAC
 #else
-#define __MANGO_RUN_MAIN_WINDOW __MANGO_RUN_MAIN_WINDOW_WIN
+#define __BNN_RUN_MAIN_WINDOW __BNN_RUN_MAIN_WINDOW_WIN
 #endif
 
 
-#define __MANGO_RUN_MAIN_WINDOW_WIN(MainWindowClass, argc, argv) \
+#define __BNN_RUN_MAIN_WINDOW_WIN(MainWindowClass, argc, argv) \
 { \
     QSurfaceFormat format; \
     format.setDepthBufferSize(24); \
@@ -49,7 +26,7 @@
     return a.exec(); \
 }
 
-#define __MANGO_RUN_MAIN_WINDOW_MAC(MainWindowClass, argc, argv) \
+#define __BNN_RUN_MAIN_WINDOW_MAC(MainWindowClass, argc, argv) \
 { \
     QSurfaceFormat format; \
     format.setDepthBufferSize(24); \
@@ -69,6 +46,3 @@
 }
 
 
-
-//------------------------------------------------------------------------------------------
-#endif // __MANGO_MACRO_H__
