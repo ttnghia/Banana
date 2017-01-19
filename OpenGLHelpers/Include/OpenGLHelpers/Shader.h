@@ -3,7 +3,7 @@
 //           (-o/\o-)
 //          /`""``""`\
 //          \ /.__.\ /
-//           \ `--` /                                                 Created on: 9/25/2016
+//           \ `--` /                                                 Created on: 10/15/2016
 //            `)  ('                                                    Author: Nghia Truong
 //         ,  /::::\  ,
 //         |'.\::::/.'|
@@ -19,25 +19,24 @@
 //               `""`\::::/\::::/\::::/\::::/`""`
 //                    `""`  `""`  `""`  `""`
 //------------------------------------------------------------------------------------------
-#ifndef __SHADER_H__
-#define __SHADER_H__
 
-//#include <QtGui>
+#pragma once
 
 #include <string>
 #include <vector>
-#include <Mango/Core/MangoDefinition.h>
+
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#define GLEW_STATIC
+#include <GL/glew.h>
+
 //------------------------------------------------------------------------------------------
-class Shader: public OpenGLFunctions
+class Shader
 {
 public:
-    Shader(): isLink(false)
-    {
-        initializeOpenGLFunctions();
-    }
+    Shader() : isLink(false)
+    {}
 
     inline bool isValid()
     {
@@ -85,5 +84,3 @@ private:
     std::vector<GLuint> shaders;
     bool isLink;
 };
-
-#endif // __SHADER_H__

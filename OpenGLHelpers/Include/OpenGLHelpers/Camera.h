@@ -3,7 +3,7 @@
 //           (-o/\o-)
 //          /`""``""`\
 //          \ /.__.\ /
-//           \ `--` /                                                 Created on: 08/10/2016
+//           \ `--` /                                                 Created on: 10/15/2016
 //            `)  ('                                                    Author: Nghia Truong
 //         ,  /::::\  ,
 //         |'.\::::/.'|
@@ -19,16 +19,31 @@
 //               `""`\::::/\::::/\::::/\::::/`""`
 //                    `""`  `""`  `""`  `""`
 //------------------------------------------------------------------------------------------
-#ifndef CAMERA_H
-#define CAMERA_H
 
+#pragma once
+
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
-
-#include <Mango/Core/MangoDefinition.h>
 
 //------------------------------------------------------------------------------------------
 class Camera
 {
+    struct Frustum
+    {
+        float fov;
+        float neard;
+        float fard;
+
+
+        Frustum(float _fov = 45.0f, float _near = 0.1f, float _far = 1000.0f)
+        {
+            fov = _fov;
+            neard = _near;
+            fard = _far;
+        }
+
+    };
+
 public:
     Camera();
     Camera(const glm::vec3 _defaultPosition,
@@ -39,7 +54,7 @@ public:
                           const glm::vec3 _defaultCameraFocus,
                           const glm::vec3 _defaultUpDirection);
     void setFrustum(float _fov, float _near, float _far);
-    void resizeWindow(float _width, float _height);
+    void resizeWindow(int _width, int _height);
 
     void updateViewMatrix();
     void reset();
@@ -100,5 +115,3 @@ private:
     glm::vec3 rotation;
     float zooming;
 };
-
-#endif // CAMERA_H

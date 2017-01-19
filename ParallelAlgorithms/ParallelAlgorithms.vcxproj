@@ -79,12 +79,12 @@
     <IncludePath>$(SolutionDir)Externals\tbb_win\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>$(SolutionDir)Lib\$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)Build\$(Configuration)\</OutDir>
     <IntDir>D:\Scratch\MSVC-Build\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
     <IncludePath>$(SolutionDir)Externals\tbb_win\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>$(SolutionDir)Lib\$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)Build\$(Configuration)\</OutDir>
     <IntDir>D:\Scratch\MSVC-Build\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
     <IncludePath>$(SolutionDir)Externals\tbb_win\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
@@ -132,10 +132,10 @@
     <None Include="ParallelAlgorithms.licenseheader" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ParallelBLAS.h" />
-    <ClInclude Include="ParallelClass.h" />
-    <ClInclude Include="ParallelFuncs.h" />
-    <ClInclude Include="ParallelSTL.h" />
+    <ClInclude Include="Include\ParallelAlgorithms\ParallelBLAS.h" />
+    <ClInclude Include="Include\ParallelAlgorithms\ParallelClass.h" />
+    <ClInclude Include="Include\ParallelAlgorithms\ParallelFuncs.h" />
+    <ClInclude Include="Include\ParallelAlgorithms\ParallelSTL.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

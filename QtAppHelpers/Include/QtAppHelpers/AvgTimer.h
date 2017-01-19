@@ -3,7 +3,7 @@
 //           (-o/\o-)
 //          /`""``""`\
 //          \ /.__.\ /
-//           \ `--` /                                                 Created on: 9/28/2016
+//           \ `--` /                                                 Created on: 10/15/2016
 //            `)  ('                                                    Author: Nghia Truong
 //         ,  /::::\  ,
 //         |'.\::::/.'|
@@ -27,12 +27,12 @@
 #include <QObject>
 
 //------------------------------------------------------------------------------------------
-class AvgTimer: public QObject
+class AvgTimer : public QObject
 {
     Q_OBJECT
 
 public:
-    AvgTimer(double _updateTime = 2000):
+    AvgTimer(double _updateTime = 2000) :
         update_time(_updateTime),
         ticktock_count(0),
         timer_started(false)

@@ -3,7 +3,7 @@
 //           (-o/\o-)
 //          /`""``""`\
 //          \ /.__.\ /
-//           \ `--` /                                                 Created on: 06/16/2016
+//           \ `--` /                                                 Created on: 10/15/2016
 //            `)  ('                                                    Author: Nghia Truong
 //         ,  /::::\  ,
 //         |'.\::::/.'|
@@ -19,6 +19,7 @@
 //               `""`\::::/\::::/\::::/\::::/`""`
 //                    `""`  `""`  `""`  `""`
 //------------------------------------------------------------------------------------------
+
 #ifndef __ANTTWEAKBAR_WRAPPER_H__
 #define __ANTTWEAKBAR_WRAPPER_H__
 
@@ -30,7 +31,8 @@
 class AntTweakBarWrapper
 {
 public:
-    AntTweakBarWrapper(): antTweakBar(nullptr) {}
+    AntTweakBarWrapper() : antTweakBar(nullptr)
+    {}
 
     int TwMousePressQt(QMouseEvent* e);
     int TwMouseReleaseQt(QMouseEvent* e);
@@ -48,7 +50,8 @@ public:
     void shutDownAntTweakBar();
 
 protected:
-    virtual void setupTweakBar() {}
+    virtual void setupTweakBar()
+    {}
 
     TwMouseButtonID Qt2TwMouseButtonId(QMouseEvent* e);
 

@@ -33,8 +33,8 @@
 #   define __Banana_Linux__
 #endif
 
-#ifndef UNUSED_VARIABLE
-#   define UNUSED_VARIABLE(x) ((void)x)
+#ifndef __UnUsed_Variable
+#   define __UnUsed_Variable(x) ((void)x)
 #endif
 
 #ifdef __Banana_Windows__

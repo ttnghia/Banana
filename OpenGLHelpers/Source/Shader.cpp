@@ -3,7 +3,7 @@
 //           (-o/\o-)
 //          /`""``""`\
 //          \ /.__.\ /
-//           \ `--` /                                                 Created on: 9/25/2016
+//           \ `--` /                                                 Created on: 10/15/2016
 //            `)  ('                                                    Author: Nghia Truong
 //         ,  /::::\  ,
 //         |'.\::::/.'|
@@ -22,9 +22,11 @@
 
 #include <iostream>
 #include <fstream>
-#include <Mango/Core/Shader.h>
+#include <OpenGLHelpers/Shader.h>
 
+#ifdef QT_CORE_LIB
 #include <QtGui>
+#endif
 
 //------------------------------------------------------------------------------------------
 void Shader::addVertexShader(const GLchar* shaderSource)
@@ -269,10 +271,10 @@ bool Shader::checkCompileError(GLuint shader, GLenum shaderType)
 
 
         std::cout << "ERROR: " << shaderName << " failed to compile!" << std::endl
-                  << "  => : " << infoLog << std::endl;
+            << "  => : " << infoLog << std::endl;
     }
 
-    return success;
+    return static_cast<bool>(success);
 }
 
 //------------------------------------------------------------------------------------------
@@ -286,10 +288,10 @@ bool Shader::checkLinkError(GLuint program)
     {
         glGetProgramInfoLog(program, 1024, NULL, infoLog);
         std::cout << "ERROR: Program failed to link!" << std::endl
-                  << "  => : " << infoLog << std::endl;
+            << "  => : " << infoLog << std::endl;
     }
 
-    return success;
+    return static_cast<bool>(success);
 }
 
 //------------------------------------------------------------------------------------------
@@ -310,6 +312,7 @@ void Shader::loadFile(std::string& fileContent, const char* fileName)
 //------------------------------------------------------------------------------------------
 void Shader::loadResourceFile(std::string& fileContent, const char* fileName)
 {
+#ifdef QT_CORE_LIB
     QFile file(fileName);
 
     if(!file.open(QFile::ReadOnly | QFile::Text))
@@ -321,4 +324,11 @@ void Shader::loadResourceFile(std::string& fileContent, const char* fileName)
     QTextStream in(&file);
     fileContent = in.readAll().toStdString();
     file.close();
+#else
+#if defined ( WIN32 )
+#define __func__ __FUNCTION__
+#endif
+    printf("This function(%s) must be called in Qt.\n", __func__);
+    exit(EXIT_FAILURE);
+#endif
 }

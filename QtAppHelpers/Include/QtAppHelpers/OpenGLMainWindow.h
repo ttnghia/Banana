@@ -25,7 +25,7 @@
 #include <QtWidgets>
 #include <QtGui>
 
-#include <Mango/Core/OpenGLWidget.h>
+#include <QtAppHelpers/OpenGLWidget.h>
 
 //------------------------------------------------------------------------------------------
 class OpenGLMainWindow: public QMainWindow

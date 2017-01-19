@@ -3,7 +3,7 @@
 //           (-o/\o-)
 //          /`""``""`\
 //          \ /.__.\ /
-//           \ `--` /                                                 Created on: 09/03/2016
+//           \ `--` /                                                 Created on: 10/24/2016
 //            `)  ('                                                    Author: Nghia Truong
 //         ,  /::::\  ,
 //         |'.\::::/.'|
@@ -19,26 +19,33 @@
 //               `""`\::::/\::::/\::::/\::::/`""`
 //                    `""`  `""`  `""`  `""`
 //------------------------------------------------------------------------------------------
-#ifndef MESHMODEL_H
-#define MESHMODEL_H
 
-#include <Mango/Core/MangoDefinition.h>
-#include <Mango/Core/Camera.h>
+#pragma once
+
+#include <OpenGLHelpers/Camera.h>
+
 #include <glm/glm.hpp>
 
-#include <tiny_obj_loader/tiny_obj_loader.h>
-#include <tinyply/tinyply.h>
+#include <tiny_obj_loader.h>
+#include <tinyply.h>
 
 //------------------------------------------------------------------------------------------
 class MeshModel
 {
+    enum class MeshFileType
+    {
+        OBJFile,
+        PLYFile,
+        UnsupportedFileType
+    };
+
 public:
-    MeshModel(): mesh_ready(false)
+    MeshModel() : mesh_ready(false)
     {
         clear_data();
     }
 
-    MeshModel(std::string mesh_file):
+    MeshModel(std::string mesh_file) :
         mesh_ready(false)
     {
         load_mesh(mesh_file);
@@ -76,5 +83,3 @@ private:
     glm::vec3 bmax;
 
 };
-
-#endif // MESHMODEL_H

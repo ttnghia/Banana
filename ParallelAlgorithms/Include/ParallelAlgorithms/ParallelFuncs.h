@@ -20,8 +20,7 @@
 //                    `""`  `""`  `""`  `""`
 //------------------------------------------------------------------------------------------
 
-#ifndef __Parallel_Funcs__
-#define __Parallel_Funcs__
+#pragma once
 
 #include <tbb/tbb.h>
 
@@ -150,6 +149,3 @@ void parallel_for_row_major(
 
 //------------------------------------------------------------------------------------------
 }  // namespace ParallelFuncs
-
-
-#endif // __Parallel_Funcs__

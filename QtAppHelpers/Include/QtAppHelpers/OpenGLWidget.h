@@ -25,17 +25,17 @@
 #include <QtGui>
 #include <QtWidgets>
 
-#include <Mango/Core/MangoDefinition.h>
-#include <Mango/Core/Camera.h>
-#include <Mango/Core/Shader.h>
-#include <Mango/Core/AvgTimer.h>
-#include <Mango/Core/AntTweakBarWrapper.h>
+#include <QtAppHelpers/QtAppMacros.h>
+#include <QtAppHelpers/AvgTimer.h>
+#include <QtAppHelpers/AntTweakBarWrapper.h>
 
-#include <glm/glm.hpp>
-#include <glm/gtx/string_cast.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtx/transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
+#include <OpenGLHelpers/Camera.h>
+
+//#include <glm/glm.hpp>
+//#include <glm/gtx/string_cast.hpp>
+//#include <glm/gtc/matrix_transform.hpp>
+//#include <glm/gtx/transform.hpp>
+//#include <glm/gtc/type_ptr.hpp>
 
 //------------------------------------------------------------------------------------------
 class OpenGLWidget : public QOpenGLWidget, public OpenGLFunctions,

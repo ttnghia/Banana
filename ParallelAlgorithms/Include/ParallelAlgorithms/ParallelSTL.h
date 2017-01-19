@@ -3,7 +3,7 @@
 //           (-o/\o-)
 //          /`""``""`\
 //          \ /.__.\ /
-//           \ `--` /                                                 Created on: 1/11/2017
+//           \ `--` /                                                 Created on: 1/15/2017
 //            `)  ('                                                    Author: Nghia Truong
 //         ,  /::::\  ,
 //         |'.\::::/.'|
@@ -20,8 +20,7 @@
 //                    `""`  `""`  `""`  `""`
 //------------------------------------------------------------------------------------------
 
-#ifndef __Parallel_STL__
-#define __Parallel_STL__
+#pragma once
 
 #include <cassert>
 #include <vector>   
@@ -124,6 +123,3 @@ void parallel_fill(const RandomIterator& begin,
 
 //------------------------------------------------------------------------------------------
 } // end namespace ParallelSTL
-
-#endif // __Parallel_STL__
-

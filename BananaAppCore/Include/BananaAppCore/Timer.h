@@ -26,7 +26,8 @@
 #include <string>
 #include <cassert>
 
-#include <Banana/NumberHelpers.h>
+#include <BananaAppCore/NumberHelpers.h>
+
 //------------------------------------------------------------------------------------------
 class Timer
 {

@@ -3,7 +3,7 @@
 //           (-o/\o-)
 //          /`""``""`\
 //          \ /.__.\ /
-//           \ `--` /                                                 Created on: 08/10/2016
+//           \ `--` /                                                 Created on: 10/15/2016
 //            `)  ('                                                    Author: Nghia Truong
 //         ,  /::::\  ,
 //         |'.\::::/.'|
@@ -19,19 +19,19 @@
 //               `""`\::::/\::::/\::::/\::::/`""`
 //                    `""`  `""`  `""`  `""`
 //------------------------------------------------------------------------------------------
-#include <Mango/Core/Camera.h>
+
+#include <OpenGLHelpers/Camera.h>
 
 #include <glm/gtc/matrix_transform.hpp>
 
 #include <stdlib.h>
 #include <iostream>
-#include <qDebug>
 #include <glm/gtx/string_cast.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
 
 //------------------------------------------------------------------------------------------
-Camera::Camera():
+Camera::Camera() :
     cameraPosition(glm::vec3(1, 0, 0)),
     cameraFocus(glm::vec3(0, 0, 0)),
     cameraUpDirection(glm::vec3(0, 1, 0)),
@@ -77,12 +77,12 @@ void Camera::setFrustum(float _fov, float _near, float _far)
 }
 
 //------------------------------------------------------------------------------------------
-void Camera::resizeWindow(float _width, float _height)
+void Camera::resizeWindow(int _width, int _height)
 {
     window_width = _width;
     window_height = _height;
     projectionMatrix = glm::perspective(frustum.fov,
-                                        _width / _height,
+                                        static_cast<float>(_width) / static_cast<float>(_height),
                                         frustum.neard, frustum.fard);
     viewProjectionMatrix = projectionMatrix * viewMatrix;
 }
@@ -256,8 +256,8 @@ void Camera::rotate()
     float scale = eyeDir.length() * 0.002f;
     glm::vec3 rotation_scaled = rotation * scale;
     glm::quat qRotation = glm::angleAxis(rotation_scaled.y, v) *
-                          glm::angleAxis(rotation_scaled.x, u) ;
-//                          *glm::angleAxis(rotation_scaled.z, eyeDir);
+        glm::angleAxis(rotation_scaled.x, u);
+    //                          *glm::angleAxis(rotation_scaled.z, eyeDir);
     eyeDir = qRotation * eyeDir;
 
     cameraPosition = cameraFocus - eyeDir;
@@ -272,7 +272,7 @@ void Camera::zoom_by_mouse(int x, int y)
     glm::vec2 mouseMoved = lastMousePos - currentMousePos;
     lastMousePos = currentMousePos;
 
-    zooming = mouseMoved.length() * ((mouseMoved.x > 0) ? 1.0 : -1.0);
+    zooming = static_cast<float>(mouseMoved.length() * ((mouseMoved.x > 0) ? 1.0 : -1.0));
     zooming *= 0.02f;
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -293,11 +293,11 @@ void Camera::zoom()
 {
     zooming *= zoomingLag;
 
-    glm::vec3 eyeDir = cameraPosition - cameraFocus ;
-    float len = eyeDir.length();
+    glm::vec3 eyeDir = cameraPosition - cameraFocus;
+    float len = static_cast<float>(eyeDir.length());
     eyeDir /= len;
 
-    len *= (1.0 + zooming);
+    len *= static_cast<float>(1.0 + zooming);
 
     if(len < 0.1f)
     {

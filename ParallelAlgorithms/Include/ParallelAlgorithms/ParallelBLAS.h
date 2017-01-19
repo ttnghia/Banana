@@ -3,7 +3,7 @@
 //           (-o/\o-)
 //          /`""``""`\
 //          \ /.__.\ /
-//           \ `--` /                                                 Created on: 1/11/2017
+//           \ `--` /                                                 Created on: 1/15/2017
 //            `)  ('                                                    Author: Nghia Truong
 //         ,  /::::\  ,
 //         |'.\::::/.'|
@@ -20,8 +20,7 @@
 //                    `""`  `""`  `""`  `""`
 //------------------------------------------------------------------------------------------
 
-#ifndef __Parallel_BLAS__
-#define __Parallel_BLAS__
+#pragma once
 
 #include <cassert>
 #include <vector>
@@ -109,6 +108,3 @@ inline void scale(ScalarType alpha, const std::vector<VectorType>& x)
 
 //------------------------------------------------------------------------------------------
 } // end namespace ParallelBLAS
-
-
-#endif // __Parallel_BLAS__

@@ -19,8 +19,8 @@
 //               `""`\::::/\::::/\::::/\::::/`""`
 //                    `""`  `""`  `""`  `""`
 //------------------------------------------------------------------------------------------
-#include <Mango/Core/DeviceToLogical.h>
-#include <Mango/Core/AntTweakBarWrapper.h>
+#include <QtAppHelpers/DeviceToLogical.h>
+#include <QtAppHelpers/AntTweakBarWrapper.h>
 
 //------------------------------------------------------------------------------------------
 int AntTweakBarWrapper::TwMousePressQt(QMouseEvent* e)

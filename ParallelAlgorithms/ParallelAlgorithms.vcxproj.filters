@@ -18,16 +18,16 @@
     <None Include="ParallelAlgorithms.licenseheader" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ParallelBLAS.h">
+    <ClInclude Include="Include\ParallelAlgorithms\ParallelBLAS.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ParallelClass.h">
+    <ClInclude Include="Include\ParallelAlgorithms\ParallelClass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ParallelSTL.h">
+    <ClInclude Include="Include\ParallelAlgorithms\ParallelFuncs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ParallelFuncs.h">
+    <ClInclude Include="Include\ParallelAlgorithms\ParallelSTL.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

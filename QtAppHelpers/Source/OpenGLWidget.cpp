@@ -19,8 +19,8 @@
 //               `""`\::::/\::::/\::::/\::::/`""`
 //                    `""`  `""`  `""`  `""`
 //------------------------------------------------------------------------------------------
-#include <Mango/Core/OpenGLWidget.h>
-#include <Mango/Core/AntTweakBarWrapper.h>
+#include <QtAppHelpers/OpenGLWidget.h>
+#include <QtAppHelpers/AntTweakBarWrapper.h>
 
 //------------------------------------------------------------------------------------------
 OpenGLWidget::OpenGLWidget(QWidget* parent) :

@@ -3,7 +3,7 @@
 //           (-o/\o-)
 //          /`""``""`\
 //          \ /.__.\ /
-//           \ `--` /                                                 Created on: 09/02/2016
+//           \ `--` /                                                 Created on: 10/15/2016
 //            `)  ('                                                    Author: Nghia Truong
 //         ,  /::::\  ,
 //         |'.\::::/.'|
@@ -20,8 +20,7 @@
 //                    `""`  `""`  `""`  `""`
 //------------------------------------------------------------------------------------------
 
-#ifndef ARCBALL_H
-#define ARCBALL_H
+#pragma once
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -33,7 +32,7 @@
 class ArcBall
 {
 public:
-    ArcBall():
+    ArcBall() :
         drag(false),
         radius(1.0),
         center(0.0, 0.0, 0.0),
@@ -93,7 +92,7 @@ public:
     /// indicates the beginning of the dragging.
     inline void begin_drag(int x, int y)
     {
-        drag   = true;  // start dragging
+        drag = true;  // start dragging
 
         // remember start position
         v_down[0] = 2.0f * ((float)x / width) - 1.0f;
@@ -105,7 +104,7 @@ public:
     /// marks the end of the dragging.
     inline void end_drag()
     {
-        drag  = false; // stop dragging
+        drag = false; // stop dragging
         q_end = q_now; // remember rotation
     }
 
@@ -186,13 +185,10 @@ private:
     inline void update()
     {
         glm::vec3 v_from = map_sphere(v_down, center, radius);
-        glm::vec3 v_to   = map_sphere(v_now, center, radius);
+        glm::vec3 v_to = map_sphere(v_now, center, radius);
 
         q_now = from_ball_points(v_from, v_to) * q_end;
         mat_now = glm::mat4_cast(q_now);
 
     }
 };
-
-
-#endif // ARCBALL_H

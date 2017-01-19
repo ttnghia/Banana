@@ -79,14 +79,14 @@
     <IncludePath>$(SolutionDir)Externals\eigen;$(SolutionDir)Externals\yocto-gl;$(SolutionDir)Externals\glm;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>$(SolutionDir)Lib\$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)Build\$(Configuration)\</OutDir>
     <IntDir>D:\Scratch\MSVC-Build\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir)Externals\eigen;$(SolutionDir)Externals\yocto-gl;$(SolutionDir)Externals\glm;$(ProjectDir);$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Externals\yocto-gl;$(SolutionDir)Externals\glm;$(ProjectDir)Include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>$(SolutionDir)Lib\$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)Build\$(Configuration)\</OutDir>
     <IntDir>D:\Scratch\MSVC-Build\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir)Externals\eigen;$(SolutionDir)Externals\yocto-gl;$(SolutionDir)Externals\glm;$(ProjectDir);$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Externals\yocto-gl;$(SolutionDir)Externals\glm;$(ProjectDir)Include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

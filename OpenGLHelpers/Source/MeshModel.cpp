@@ -3,7 +3,7 @@
 //           (-o/\o-)
 //          /`""``""`\
 //          \ /.__.\ /
-//           \ `--` /                                                 Created on: 09/03/2016
+//           \ `--` /                                                 Created on: 10/25/2016
 //            `)  ('                                                    Author: Nghia Truong
 //         ,  /::::\  ,
 //         |'.\::::/.'|
@@ -19,6 +19,7 @@
 //               `""`\::::/\::::/\::::/\::::/`""`
 //                    `""`  `""`  `""`  `""`
 //------------------------------------------------------------------------------------------
+
 #include <sstream>
 #include <fstream>
 #include <iostream>
@@ -29,7 +30,7 @@
 #endif
 
 
-#include <Mango/Core/MeshModel.h>
+#include <OpenGLHelpers/MeshModel.h>
 
 //------------------------------------------------------------------------------------------
 bool MeshModel::load_mesh(std::string mesh_file)
@@ -46,16 +47,16 @@ bool MeshModel::load_mesh(std::string mesh_file)
 
     switch(meshFileType)
     {
-    case MeshFileType::OBJFile:
-        result = load_obj(mesh_file);
-        break;
+        case MeshFileType::OBJFile:
+            result = load_obj(mesh_file);
+            break;
 
-    case MeshFileType::PLYFile:
-        result = load_ply(mesh_file);
-        break;
+        case MeshFileType::PLYFile:
+            result = load_ply(mesh_file);
+            break;
 
-    default:
-        assert(false);
+        default:
+            assert(false);
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -190,9 +191,9 @@ bool MeshModel::load_obj(std::string mesh_file)
 
     ////////////////////////////////////////////////////////////////////////////////
     // => convert data
-    for (size_t s = 0; s < obj_shapes.size(); s++)
+    for(size_t s = 0; s < obj_shapes.size(); s++)
     {
-        for (size_t f = 0; f < obj_shapes[s].mesh.indices.size() / 3; f++)
+        for(size_t f = 0; f < obj_shapes[s].mesh.indices.size() / 3; f++)
         {
             ++num_triangles;
 
@@ -202,7 +203,7 @@ bool MeshModel::load_obj(std::string mesh_file)
 
             float v[3][3];
 
-            for (int k = 0; k < 3; k++)
+            for(int k = 0; k < 3; k++)
             {
                 int f0 = idx0.vertex_index;
                 int f1 = idx1.vertex_index;
@@ -226,7 +227,7 @@ bool MeshModel::load_obj(std::string mesh_file)
 
             float n[3][3];
 
-            if (attrib.normals.size() > 0)
+            if(attrib.normals.size() > 0)
             {
                 int f0 = idx0.normal_index;
                 int f1 = idx1.normal_index;
@@ -235,7 +236,7 @@ bool MeshModel::load_obj(std::string mesh_file)
                 assert(f1 >= 0);
                 assert(f2 >= 0);
 
-                for (int k = 0; k < 3; k++)
+                for(int k = 0; k < 3; k++)
                 {
                     n[0][k] = attrib.normals[3 * f0 + k];
                     n[1][k] = attrib.normals[3 * f1 + k];
@@ -254,7 +255,7 @@ bool MeshModel::load_obj(std::string mesh_file)
                 n[2][2] = n[0][2];
             }
 
-            for (int k = 0; k < 3; k++)
+            for(int k = 0; k < 3; k++)
             {
                 vertices.push_back(v[k][0]);
                 vertices.push_back(v[k][1]);
@@ -268,7 +269,7 @@ bool MeshModel::load_obj(std::string mesh_file)
                 float c[3] = {n[k][0], n[k][1], n[k][2]};
                 float len2 = c[0] * c[0] + c[1] * c[1] + c[2] * c[2];
 
-                if (len2 > 0.0f)
+                if(len2 > 0.0f)
                 {
                     float len = sqrtf(len2);
 
@@ -310,12 +311,12 @@ bool MeshModel::load_ply(std::string mesh_file)
 
         std::vector<uint32_t> faces;
         std::vector<float> uvCoords;
-//        std::vector<uint8_t> faceColors;
+        //        std::vector<uint8_t> faceColors;
 
         uint32_t vertexCount, normalCount, colorCount, faceCount,
-                 faceTexcoordCount/*, faceColorCount*/;
+            faceTexcoordCount/*, faceColorCount*/;
         vertexCount = normalCount = colorCount = faceCount =
-                                                     faceTexcoordCount /*= faceColorCount */ = 0;
+            faceTexcoordCount /*= faceColorCount */ = 0;
 
         // The count returns the number of instances of the property group. The vectors
         // above will be resized into a multiple of the property group size as
@@ -332,14 +333,14 @@ bool MeshModel::load_ply(std::string mesh_file)
         faceCount = file.request_properties_from_element("face", {"vertex_indices"}, faces, 3);
         faceTexcoordCount = file.request_properties_from_element("face", {"texcoord"}, uvCoords,
                                                                  6);
-//        faceColorCount = file.request_properties_from_element("face", {"red", "green", "blue", "alpha"}, faceColors);
+        //        faceColorCount = file.request_properties_from_element("face", {"red", "green", "blue", "alpha"}, faceColors);
 
-        // Now populate the vectors...
+                // Now populate the vectors...
         file.read(ss);
 
         ////////////////////////////////////////////////////////////////////////////////
         // => convert data
-        for (size_t f = 0; f < faces.size() / 3; f++)
+        for(size_t f = 0; f < faces.size() / 3; f++)
         {
             ++num_triangles;
 
@@ -349,7 +350,7 @@ bool MeshModel::load_ply(std::string mesh_file)
 
             float v[3][3];
 
-            for (int k = 0; k < 3; k++)
+            for(int k = 0; k < 3; k++)
             {
 
                 v[0][k] = verts[3 * f0 + k];
@@ -367,13 +368,13 @@ bool MeshModel::load_ply(std::string mesh_file)
 
             float n[3][3];
 
-            if (norms.size() > 0)
+            if(norms.size() > 0)
             {
                 uint32_t f0 = norms[3 * f + 0];
                 uint32_t f1 = norms[3 * f + 1];
                 uint32_t f2 = norms[3 * f + 2];
 
-                for (int k = 0; k < 3; k++)
+                for(int k = 0; k < 3; k++)
                 {
                     n[0][k] = norms[3 * f0 + k];
                     n[1][k] = norms[3 * f1 + k];
@@ -392,7 +393,7 @@ bool MeshModel::load_ply(std::string mesh_file)
                 n[2][2] = n[0][2];
             }
 
-            for (int k = 0; k < 3; k++)
+            for(int k = 0; k < 3; k++)
             {
                 vertices.push_back(v[k][0]);
                 vertices.push_back(v[k][1]);
@@ -406,7 +407,7 @@ bool MeshModel::load_ply(std::string mesh_file)
                 float c[3] = {n[k][0], n[k][1], n[k][2]};
                 float len2 = c[0] * c[0] + c[1] * c[1] + c[2] * c[2];
 
-                if (len2 > 0.0f)
+                if(len2 > 0.0f)
                 {
                     float len = sqrtf(len2);
 
@@ -421,7 +422,7 @@ bool MeshModel::load_ply(std::string mesh_file)
             }
         } // end process current shape
     }
-    catch (const std::exception& e)
+    catch(const std::exception& e)
     {
         std::cerr << "Caught exception: " << e.what() << std::endl;
     }
@@ -448,7 +449,7 @@ void MeshModel::compute_normal(float N[3], float v0[3], float v1[3], float v2[3]
 
     float len2 = N[0] * N[0] + N[1] * N[1] + N[2] * N[2];
 
-    if (len2 > 0.0f)
+    if(len2 > 0.0f)
     {
         float len = sqrtf(len2);
 

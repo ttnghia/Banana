@@ -1,3 +1,25 @@
+//------------------------------------------------------------------------------------------
+//            .-..-.
+//           (-o/\o-)
+//          /`""``""`\
+//          \ /.__.\ /
+//           \ `--` /                                                 Created on: 10/15/2016
+//            `)  ('                                                    Author: Nghia Truong
+//         ,  /::::\  ,
+//         |'.\::::/.'|
+//        _|  ';::;'  |_
+//       (::)   ||   (::)                       _.
+//        "|    ||    |"                      _(:)
+//         '.   ||   .'                       /::\
+//           '._||_.'                         \::/
+//            /::::\                         /:::\
+//            \::::/                        _\:::/
+//             /::::\_.._  _.._  _.._  _.._/::::\
+//             \::::/::::\/::::\/::::\/::::\::::/
+//               `""`\::::/\::::/\::::/\::::/`""`
+//                    `""`  `""`  `""`  `""`
+//------------------------------------------------------------------------------------------
+
 #ifndef DEVICE_TO_LOGICAL_H
 #define DEVICE_TO_LOGICAL_H
 #include <QWidget>
@@ -5,46 +27,46 @@
 //#include <vcg/space/point2.h>
 
 template < class ValueType>
-inline ValueType QTLogicalToDevice( QWidget *qw, const ValueType &value)
+inline ValueType QTLogicalToDevice(QWidget *qw, const ValueType &value)
 {
 #if QT_VERSION >= 0x050000
-  return value*qw->devicePixelRatio() ;
+    return value*qw->devicePixelRatio();
 #else
-  Q_UNUSED(qw);
-  return value;
+    Q_UNUSED(qw);
+    return value;
 #endif
 }
 
 template < class ValueType>
-inline ValueType QTLogicalToDevice( QPainter *qp, const ValueType &value)
+inline ValueType QTLogicalToDevice(QPainter *qp, const ValueType &value)
 {
 #if QT_VERSION >= 0x050000
-  return value*qp->device()->devicePixelRatio() ;
+    return value*qp->device()->devicePixelRatio();
 #else
-  Q_UNUSED(qp);
-  return value;
+    Q_UNUSED(qp);
+    return value;
 #endif
 }
 
 template < class ValueType>
-inline ValueType QTDeviceToLogical( QWidget *qw, const ValueType &value)
+inline ValueType QTDeviceToLogical(QWidget *qw, const ValueType &value)
 {
 #if QT_VERSION >= 0x050000
-  return value/qw->devicePixelRatio() ;
+    return value / qw->devicePixelRatio();
 #else
-  Q_UNUSED(qw);
-  return value;
+    Q_UNUSED(qw);
+    return value;
 #endif
 }
 
 template < class ValueType>
-inline ValueType QTDeviceToLogical( QPainter *qp, const ValueType &value)
+inline ValueType QTDeviceToLogical(QPainter *qp, const ValueType &value)
 {
 #if QT_VERSION >= 0x050000
-  return value/qp->device()->devicePixelRatio() ;
+    return value / qp->device()->devicePixelRatio();
 #else
-  Q_UNUSED(qp);
-  return value;
+    Q_UNUSED(qp);
+    return value;
 #endif
 }
 
@@ -54,6 +76,12 @@ inline ValueType QTDeviceToLogical( QPainter *qp, const ValueType &value)
 //}
 
 
-inline int QTDeviceHeight(QWidget *qw) {return QTLogicalToDevice(qw,qw->height());}
-inline int QTDeviceWidth(QWidget *qw) {return QTLogicalToDevice(qw,qw->width());}
+inline int QTDeviceHeight(QWidget *qw)
+{
+    return QTLogicalToDevice(qw, qw->height());
+}
+inline int QTDeviceWidth(QWidget *qw)
+{
+    return QTLogicalToDevice(qw, qw->width());
+}
 #endif // DEVICE_TO_LOGICAL_H
