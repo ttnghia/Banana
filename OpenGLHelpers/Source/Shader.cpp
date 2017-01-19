@@ -325,7 +325,7 @@ void Shader::loadResourceFile(std::string& fileContent, const char* fileName)
     fileContent = in.readAll().toStdString();
     file.close();
 #else
-#if defined ( WIN32 )
+#if defined(_WIN32) || defined(_WIN64)
 #define __func__ __FUNCTION__
 #endif
     printf("This function(%s) must be called in Qt.\n", __func__);

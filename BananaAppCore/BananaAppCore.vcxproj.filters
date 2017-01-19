@@ -36,5 +36,11 @@
     <ClInclude Include="Include\BananaAppCore\TypeNames.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Include\BananaAppCore\DataWriter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\BananaAppCore\FileHelpers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
