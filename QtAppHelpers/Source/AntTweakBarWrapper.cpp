@@ -1,28 +1,28 @@
 #include <QtAppHelpers/DeviceToLogical.h>
 #include <QtAppHelpers/AntTweakBarWrapper.h>
 
-//------------------------------------------------------------------------------------------
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 int AntTweakBarWrapper::TwMousePressQt(QMouseEvent* e)
 {
     TwMouseMotion(e->x(), e->y());
     return TwMouseButton(TW_MOUSE_PRESSED, Qt2TwMouseButtonId(e));
 }
 
-//------------------------------------------------------------------------------------------
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 int AntTweakBarWrapper::TwMousePressQt(QWidget* qw, QMouseEvent* e)
 {
     TwMouseMotion(QTLogicalToDevice(qw, e->x()), QTLogicalToDevice(qw, e->y()));
     return TwMouseButton(TW_MOUSE_PRESSED, Qt2TwMouseButtonId(e));
 }
 
-//------------------------------------------------------------------------------------------
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 int AntTweakBarWrapper::TwMouseReleaseQt(QMouseEvent* e)
 {
     //	TwMouseMotion(e->x (), e->y ());
     return TwMouseButton(TW_MOUSE_RELEASED, Qt2TwMouseButtonId(e));
 }
 
-//------------------------------------------------------------------------------------------
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 int AntTweakBarWrapper::TwMouseReleaseQt(QWidget* qw, QMouseEvent* e)
 {
     (void)qw;
@@ -30,19 +30,19 @@ int AntTweakBarWrapper::TwMouseReleaseQt(QWidget* qw, QMouseEvent* e)
     return TwMouseButton(TW_MOUSE_RELEASED, Qt2TwMouseButtonId(e));
 }
 
-//------------------------------------------------------------------------------------------
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 int AntTweakBarWrapper::TwMouseMotionQt(QMouseEvent* e)
 {
     return TwMouseMotion(e->x(), e->y());
 }
 
-//------------------------------------------------------------------------------------------
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 int AntTweakBarWrapper::TwMouseMotionQt(QWidget* qw, QMouseEvent* e)
 {
     return TwMouseMotion(QTLogicalToDevice(qw, e->x()), QTLogicalToDevice(qw, e->y()));
 }
 
-//------------------------------------------------------------------------------------------
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 int AntTweakBarWrapper::TwKeyPressQt(QKeyEvent* e)
 {
     int kmod = 0;
@@ -147,19 +147,19 @@ int AntTweakBarWrapper::TwKeyPressQt(QKeyEvent* e)
     return TwKeyPressed(k, kmod);
 }
 
-//------------------------------------------------------------------------------------------
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void AntTweakBarWrapper::initializeAntTweakBar()
 {
     TwInit(TW_OPENGL_CORE, NULL);
 }
 
-//------------------------------------------------------------------------------------------
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void AntTweakBarWrapper::resizeAntTweakBarWindow(int width, int height)
 {
     TwWindowSize(width, height);
 }
 
-//------------------------------------------------------------------------------------------
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void AntTweakBarWrapper::renderAntTweakBar()
 {
     if(antTweakBar != nullptr)
@@ -168,13 +168,13 @@ void AntTweakBarWrapper::renderAntTweakBar()
     }
 }
 
-//------------------------------------------------------------------------------------------
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void AntTweakBarWrapper::shutDownAntTweakBar()
 {
     TwTerminate();
 }
 
-//------------------------------------------------------------------------------------------
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 TwMouseButtonID AntTweakBarWrapper::Qt2TwMouseButtonId(QMouseEvent* e)
 {
     if(e->button() && Qt::LeftButton)

@@ -16,7 +16,7 @@
 //#include <glm/gtx/transform.hpp>
 //#include <glm/gtc/type_ptr.hpp>
 
-//------------------------------------------------------------------------------------------
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 class OpenGLWidget : public QOpenGLWidget, public OpenGLFunctions,
     public AntTweakBarWrapper
 {

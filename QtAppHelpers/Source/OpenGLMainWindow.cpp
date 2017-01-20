@@ -1,6 +1,6 @@
 #include <QtAppHelpers/OpenGLMainWindow.h>
 
-//------------------------------------------------------------------------------------------
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 OpenGLMainWindow::OpenGLMainWindow(QWidget* parent)
     : QMainWindow(parent), glWidget(nullptr)
 {
@@ -14,7 +14,7 @@ OpenGLMainWindow::OpenGLMainWindow(QWidget* parent)
     statusBar()->setSizeGripEnabled(false);
 }
 
-//------------------------------------------------------------------------------------------
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLMainWindow::processKeyPressEvent(QKeyEvent* event)
 {
     switch(event->key())
@@ -30,21 +30,21 @@ void OpenGLMainWindow::processKeyPressEvent(QKeyEvent* event)
     }
 }
 
-//------------------------------------------------------------------------------------------
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLMainWindow::processKeyReleaseEvent(QKeyEvent* event)
 {
     (void)event;
 
 }
 
-//------------------------------------------------------------------------------------------
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLMainWindow::updateFrameRate(double avgFrameTime)
 {
     lblStatusFPS->setText(QString("Frame time: %1ms (~ %2 FPS)")
                           .arg(avgFrameTime).arg(1000.0 / avgFrameTime));
 }
 
-//------------------------------------------------------------------------------------------
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLMainWindow::setupOpenglWidget(OpenGLWidget* _glWidget)
 {
     if(glWidget != nullptr)
@@ -60,7 +60,7 @@ void OpenGLMainWindow::setupOpenglWidget(OpenGLWidget* _glWidget)
             &OpenGLMainWindow::updateFrameRate);
 }
 
-//------------------------------------------------------------------------------------------
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 bool OpenGLMainWindow::eventFilter(QObject* obj, QEvent* event)
 {
     if(event->type() == QEvent::KeyPress)

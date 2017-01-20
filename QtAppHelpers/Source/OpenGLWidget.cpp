@@ -1,7 +1,7 @@
 #include <QtAppHelpers/OpenGLWidget.h>
 #include <QtAppHelpers/AntTweakBarWrapper.h>
 
-//------------------------------------------------------------------------------------------
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 OpenGLWidget::OpenGLWidget(QWidget* parent) :
     QOpenGLWidget(parent),
     print_debug(true),
@@ -20,7 +20,7 @@ OpenGLWidget::OpenGLWidget(QWidget* parent) :
     setFocusPolicy(Qt::StrongFocus);
 }
 
-//------------------------------------------------------------------------------------------
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLWidget::printDebug(QString str)
 {
     if(print_debug)
@@ -29,37 +29,37 @@ void OpenGLWidget::printDebug(QString str)
     }
 }
 
-//------------------------------------------------------------------------------------------
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLWidget::setPrintDebug(bool pdebug)
 {
     print_debug = pdebug;
 }
 
-//------------------------------------------------------------------------------------------
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLWidget::setUpdateTimeout(int timeout_in_ms)
 {
     update_timeout = timeout_in_ms;
 }
 
-//------------------------------------------------------------------------------------------
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLWidget::setDefaultSize(QSize size)
 {
     defaultSize = size;
 }
 
-//------------------------------------------------------------------------------------------
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLWidget::setClearColor(QVector4D color)
 {
     clearColor = color;
 }
 
-//------------------------------------------------------------------------------------------
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 QSize OpenGLWidget::sizeHint() const
 {
     return defaultSize;
 }
 
-//------------------------------------------------------------------------------------------
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLWidget::mousePressEvent(QMouseEvent* event)
 {
     if(TwMousePressQt(this, event))
@@ -85,7 +85,7 @@ void OpenGLWidget::mousePressEvent(QMouseEvent* event)
 
 }
 
-//------------------------------------------------------------------------------------------
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLWidget::mouseReleaseEvent(QMouseEvent* event)
 {
     if(TwMouseReleaseQt(this, event))
@@ -97,7 +97,7 @@ void OpenGLWidget::mouseReleaseEvent(QMouseEvent* event)
 
 }
 
-//------------------------------------------------------------------------------------------
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLWidget::mouseMoveEvent(QMouseEvent* event)
 {
     if(TwMouseMotionQt(this, event))
@@ -123,7 +123,7 @@ void OpenGLWidget::mouseMoveEvent(QMouseEvent* event)
 
 }
 
-//------------------------------------------------------------------------------------------
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLWidget::wheelEvent(QWheelEvent* event)
 {
     if(event->angleDelta().isNull())
@@ -136,7 +136,7 @@ void OpenGLWidget::wheelEvent(QWheelEvent* event)
     camera.zoom(zooming_factor);
 }
 
-//------------------------------------------------------------------------------------------
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLWidget::keyPressEvent(QKeyEvent* event)
 {
     if(TwKeyPressQt(event))
@@ -185,7 +185,7 @@ void OpenGLWidget::keyPressEvent(QKeyEvent* event)
 
 }
 
-//------------------------------------------------------------------------------------------
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLWidget::keyReleaseEvent(QKeyEvent* event)
 {
     (void)event;
@@ -196,7 +196,7 @@ void OpenGLWidget::keyReleaseEvent(QKeyEvent* event)
     }
 }
 
-//------------------------------------------------------------------------------------------
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLWidget::initializeGL()
 {
     initializeOpenGLFunctions();
@@ -213,7 +213,7 @@ void OpenGLWidget::initializeGL()
                  clearColor.w());
 }
 
-//------------------------------------------------------------------------------------------
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLWidget::resizeGL(int w, int h)
 {
     camera.resizeWindow((float)w, (float)h);
@@ -221,7 +221,7 @@ void OpenGLWidget::resizeGL(int w, int h)
     resizeAntTweakBarWindow(w, h);
 }
 
-//------------------------------------------------------------------------------------------
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLWidget::paintGL()
 {
 #if 0
@@ -234,7 +234,7 @@ void OpenGLWidget::paintGL()
     //    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-//------------------------------------------------------------------------------------------
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLWidget::checkGLErrors()
 {
     QString glErrStr = "OpenGL initialized: ";
@@ -277,7 +277,7 @@ void OpenGLWidget::checkGLErrors()
     emit emitDebugString(glErrStr);
 }
 
-//------------------------------------------------------------------------------------------
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLWidget::checkGLVersion()
 {
     QString verStr = QString((const char*)glGetString(GL_VERSION));
@@ -297,7 +297,7 @@ void OpenGLWidget::checkGLVersion()
 
 }
 
-//------------------------------------------------------------------------------------------
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLWidget::checkGLExtensions(QVector<QString> extensions)
 {
     QString extStr = QString((const char*)glGetString(GL_EXTENSIONS));
@@ -323,7 +323,7 @@ void OpenGLWidget::checkGLExtensions(QVector<QString> extensions)
     }
 }
 
-//------------------------------------------------------------------------------------------
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLWidget::startFrameTimer()
 {
     assert(isValid());
@@ -341,7 +341,7 @@ void OpenGLWidget::startFrameTimer()
     FPSTimer.tick();
 }
 
-//------------------------------------------------------------------------------------------
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLWidget::endFrameTimer()
 {
     assert(isValid());

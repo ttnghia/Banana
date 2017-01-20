@@ -1,4 +1,4 @@
-//------------------------------------------------------------------------------------------
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //            .-..-.
 //           (-o/\o-)
 //          /`""``""`\
@@ -18,7 +18,7 @@
 //             \::::/::::\/::::\/::::\/::::\::::/
 //               `""`\::::/\::::/\::::/\::::/`""`
 //                    `""`  `""`  `""`  `""`
-//------------------------------------------------------------------------------------------
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 #pragma once
 
@@ -28,6 +28,7 @@
 #include <cstdio>
 #include <fstream>
 #include <iostream>
+#include <fstream>
 #include <vector>
 #include <future>
 #include <filesystem>
@@ -38,7 +39,7 @@
 
 namespace FileHelpers
 {
-//------------------------------------------------------------------------------------------
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 inline void create_folder(const char* folderName)
 {
 #ifdef __Banana_Windows__
@@ -55,7 +56,7 @@ inline void create_folder(std::string folderName)
     create_folder(folderName.c_str());
 }
 
-//------------------------------------------------------------------------------------------
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 inline bool file_existed(const char* fileName)
 {
     if(FILE* file = fopen(fileName, "r"))
@@ -74,7 +75,7 @@ inline bool file_existed(std::string fileName)
     return file_existed(fileName.c_str());
 }
 
-//------------------------------------------------------------------------------------------
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 inline size_t get_file_size(const char* fileName)
 {
     std::ifstream file(fileName, std::ios::binary | std::ios::ate);
@@ -95,7 +96,7 @@ inline size_t get_file_size(std::string fileName)
     return get_file_size(fileName.c_str());
 }
 
-//------------------------------------------------------------------------------------------
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 inline std::string get_folder_size(const char* folderName, int level = 0)
 {
 #ifdef __Banana_Windows__
@@ -145,7 +146,7 @@ inline std::string get_folder_size(std::string folderName, int level = 0)
     return get_folder_size(folderName.c_str(), level);
 }
 
-//------------------------------------------------------------------------------------------
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 inline void writte_file(std::string str, const char* fileName)
 {
     std::ofstream file(fileName, std::ios::out);
@@ -160,7 +161,7 @@ inline void writte_file(std::string str, std::string fileName)
     writte_file(str, fileName.c_str());
 }
 
-//------------------------------------------------------------------------------------------
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 inline void writte_file(const std::vector<std::string>& vec_str, const char* fileName)
 {
     std::ofstream file(fileName, std::ios::out);
@@ -180,7 +181,7 @@ inline void writte_file(const std::vector<std::string>& vec_str,
     writte_file(vec_str, fileName.c_str());
 }
 
-//------------------------------------------------------------------------------------------
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 inline void writte_file(char* dataBuffer, size_t dataSize, std::string fileName)
 {
     writte_file(dataBuffer, dataSize, fileName.c_str());
@@ -195,7 +196,7 @@ inline void writte_file(char* dataBuffer, size_t dataSize, const char* fileName)
     file.close();
 }
 
-//------------------------------------------------------------------------------------------
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 std::future<void> writte_file_async(char* dataBuffer, size_t dataSize,
                                     std::string fileName)
 {
@@ -217,7 +218,7 @@ std::future<void> writte_file_async(char* dataBuffer, size_t dataSize,
     return futureObj;
 }
 
-//------------------------------------------------------------------------------------------
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 inline void append_file(std::string str, std::string fileName)
 {
     append_file(str, fileName.c_str());
@@ -232,7 +233,7 @@ inline void append_file(std::string str, const char* fileName)
     file.close();
 }
 
-//------------------------------------------------------------------------------------------
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 inline void append_file(const std::vector<std::string>& vec_str,
                         std::string fileName)
 {
@@ -253,7 +254,7 @@ inline void append_file(const std::vector<std::string>& vec_str, const char* fil
 }
 
 
-//------------------------------------------------------------------------------------------
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 inline bool read_file(char* dataBuffer, std::string fileName)
 {
     return read_file(dataBuffer, fileName.c_str());
@@ -279,7 +280,7 @@ inline bool read_file(char* dataBuffer, const char* fileName)
     return true;
 }
 
-//------------------------------------------------------------------------------------------
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 inline bool read_file(std::vector<std::string>& vec_str, std::string fileName)
 {
     return read_file(vec_str, fileName.c_str());
@@ -328,5 +329,5 @@ inline void write_binary_file(const std::vector<T>& data, const char* fileName)
 
     writte_file(buffer, fileName);
 }
-//------------------------------------------------------------------------------------------
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace FileHelpers
