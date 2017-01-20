@@ -30,10 +30,10 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#if defined(QT_GUI_LIB) || defined(QT_CORE_LIB)
-#include <QtAppHelpers/QtAppMacros.h>
+#include <OpenGLHelpers/OpenGLMacros.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#ifdef __Banana_Qt__
 class Shader : public OpenGLFunctions
 {
 public:
@@ -42,10 +42,6 @@ public:
         initializeOpenGLFunctions();
     }
 #else
-#define GLEW_STATIC
-#include <GL/glew.h>
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 class Shader
 {
 public:

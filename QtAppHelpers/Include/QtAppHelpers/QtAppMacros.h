@@ -1,6 +1,28 @@
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//            .-..-.
+//           (-o/\o-)
+//          /`""``""`\
+//          \ /.__.\ /
+//           \ `--` /                                                 Created on: 1/19/2017
+//            `)  ('                                                    Author: Nghia Truong
+//         ,  /::::\  ,
+//         |'.\::::/.'|
+//        _|  ';::;'  |_
+//       (::)   ||   (::)                       _.
+//        "|    ||    |"                      _(:)
+//         '.   ||   .'                       /::\
+//           '._||_.'                         \::/
+//            /::::\                         /:::\
+//            \::::/                        _\:::/
+//             /::::\_.._  _.._  _.._  _.._/::::\
+//             \::::/::::\/::::\/::::\/::::\::::/
+//               `""`\::::/\::::/\::::/\::::/`""`
+//                    `""`  `""`  `""`  `""`
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
 #pragma once
 
-
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #ifdef __APPLE__
 #include <OpenGL.h>
 #include <QOpenGLFunctions_4_1_Core>
@@ -13,6 +35,52 @@ typedef  QOpenGLFunctions_4_5_Core OpenGLFunctions;
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#ifdef __APPLE__
+#define __BNN_RunMainWindow __BNN_RunMainWindowMac
+#else
+#define __BNN_RunMainWindow __BNN_RunMainWindowWin
+#endif
+
+
+#define __BNN_RunMainWindowWin(MainWindowClass, argc, argv) \
+{ \
+    QSurfaceFormat format; \
+    format.setDepthBufferSize(24); \
+    format.setStencilBufferSize(8); \
+    format.setVersion(4, 5); \
+    format.setSwapBehavior(QSurfaceFormat::DoubleBuffer); \
+    format.setProfile(QSurfaceFormat::CoreProfile); \
+    format.setSamples(4); \
+    QSurfaceFormat::setDefaultFormat(format); \
+    QApplication a(argc, argv); \
+    MainWindowClass w; \
+    w.show(); \
+    w.setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, \
+                                      w.size(), \
+                                      qApp->desktop()->availableGeometry())); \
+    return a.exec(); \
+}
+
+#define __BNN_RunMainWindowMac(MainWindowClass, argc, argv) \
+{ \
+    QSurfaceFormat format; \
+    format.setDepthBufferSize(24); \
+    format.setStencilBufferSize(8); \
+    format.setVersion(4, 1); \
+    format.setSwapBehavior(QSurfaceFormat::DoubleBuffer); \
+    format.setProfile(QSurfaceFormat::CoreProfile); \
+    format.setSamples(4); \
+    QSurfaceFormat::setDefaultFormat(format); \
+    QApplication a(argc, argv); \
+    MainWindowClass w; \
+    w.show(); \
+    w.setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, \
+                                      w.size(), \
+                                      qApp->desktop()->availableGeometry())); \
+    return a.exec(); \
+}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // => enums

@@ -81,8 +81,11 @@ inline void throwIfFailed(HRESULT hr)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #define __BNN_PrintLocation \
 { \
-    std::stringstream ss; \
-    printf("%s\n", ss.str().c_str());  fflush(stdout);\ 
+   std::stringstream ss; \
+    ss << "Function: " << __func__ << std::endl; \
+    ss << "Line: " << __LINE__ << ", file: " << __FILE__; \
+    printf("%s\n", ss.str().c_str()); \
+    fflush(stdout); \
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

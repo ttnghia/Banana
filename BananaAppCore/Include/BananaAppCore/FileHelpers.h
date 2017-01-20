@@ -182,11 +182,6 @@ inline void writte_file(const std::vector<std::string>& vec_str,
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-inline void writte_file(char* dataBuffer, size_t dataSize, std::string fileName)
-{
-    writte_file(dataBuffer, dataSize, fileName.c_str());
-}
-
 inline void writte_file(char* dataBuffer, size_t dataSize, const char* fileName)
 {
     std::ofstream file(fileName, std::ios::binary | std::ios::out);
@@ -196,15 +191,14 @@ inline void writte_file(char* dataBuffer, size_t dataSize, const char* fileName)
     file.close();
 }
 
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-std::future<void> writte_file_async(char* dataBuffer, size_t dataSize,
-                                    std::string fileName)
+inline void writte_file(char* dataBuffer, size_t dataSize, std::string fileName)
 {
-    return writte_file_async(dataBuffer, dataSize, fileName.c_str());
+    writte_file(dataBuffer, dataSize, fileName.c_str());
 }
 
-std::future<void> writte_file_async(char* dataBuffer, size_t dataSize,
-                                    const char* fileName)
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+inline std::future<void> writte_file_async(char* dataBuffer, size_t dataSize,
+                                           const char* fileName)
 {
     std::future<void> futureObj = std::async(std::launch::async, [&]()
     {
@@ -218,12 +212,13 @@ std::future<void> writte_file_async(char* dataBuffer, size_t dataSize,
     return futureObj;
 }
 
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-inline void append_file(std::string str, std::string fileName)
+inline std::future<void> writte_file_async(char* dataBuffer, size_t dataSize,
+                                           std::string fileName)
 {
-    append_file(str, fileName.c_str());
+    return writte_file_async(dataBuffer, dataSize, fileName.c_str());
 }
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 inline void append_file(std::string str, const char* fileName)
 {
     std::ofstream file(fileName, std::ios::out | std::ofstream::app);
@@ -233,13 +228,12 @@ inline void append_file(std::string str, const char* fileName)
     file.close();
 }
 
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-inline void append_file(const std::vector<std::string>& vec_str,
-                        std::string fileName)
+inline void append_file(std::string str, std::string fileName)
 {
-    append_file(vec_str, fileName.c_str());
+    append_file(str, fileName.c_str());
 }
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 inline void append_file(const std::vector<std::string>& vec_str, const char* fileName)
 {
     std::ofstream file(fileName, std::ios::out | std::ofstream::app);
@@ -254,16 +248,15 @@ inline void append_file(const std::vector<std::string>& vec_str, const char* fil
 }
 
 
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-inline bool read_file(char* dataBuffer, std::string fileName)
+inline void append_file(const std::vector<std::string>& vec_str, std::string fileName)
 {
-    return read_file(dataBuffer, fileName.c_str());
+    append_file(vec_str, fileName.c_str());
 }
 
-inline bool read_file(char* dataBuffer, const char* fileName)
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+inline bool read_file(char* dataBuffer, size_t bufferSize, const char* fileName)
 {
     std::ifstream file(fileName, std::ios::binary | std::ios::ate);
-    //    check_file_existed(fileName);
 
     if(!file.is_open())
     {
@@ -271,32 +264,35 @@ inline bool read_file(char* dataBuffer, const char* fileName)
     }
 
     size_t fileSize = (size_t)file.tellg();
-    dataBuffer.resize(fileSize);
+    if(bufferSize < fileSize)
+    {
+        delete[] dataBuffer;
+        dataBuffer = new char[fileSize];
+    }
 
     file.seekg(0, std::ios::beg);
-    file.read(dataBuffer.buffer.data(), fileSize);
+    file.read(dataBuffer, fileSize);
     file.close();
 
     return true;
 }
 
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-inline bool read_file(std::vector<std::string>& vec_str, std::string fileName)
+inline bool read_file(char* dataBuffer, std::string fileName)
 {
-    return read_file(vec_str, fileName.c_str());
+    return read_file(dataBuffer, fileName.c_str());
 }
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 inline bool read_file(std::vector<std::string>& vec_str, const char* fileName)
 {
     std::ifstream file(fileName, std::ios::in);
-    //    check_file_existed(fileName);
 
     if(!file.is_open())
     {
         return false;
     }
 
-    vec_str.clear();
+    vec_str.resize(0);
     std::string line;
 
     while(std::getline(file, line))
@@ -309,9 +305,18 @@ inline bool read_file(std::vector<std::string>& vec_str, const char* fileName)
     return true;
 }
 
+inline bool read_file(std::vector<std::string>& vec_str, std::string fileName)
+{
+    return read_file(vec_str, fileName.c_str());
+}
 
-/////////////////////////////////////////////////////////////////////////////////
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // template funcs
+template<class T>
+inline void write_binary_file(const std::vector<T>& dvec, const char* fileName)
+{
+    writte_file((char*)dvec.data(), fileName);
+}
 
 template<class T>
 inline void write_binary_file(const std::vector<T>& data, std::string fileName)
@@ -319,15 +324,5 @@ inline void write_binary_file(const std::vector<T>& data, std::string fileName)
     write_binary_file(data, fileName.c_str());
 }
 
-template<class T>
-inline void write_binary_file(const std::vector<T>& data, const char* fileName)
-{
-    DataBuffer buffer;
-    buffer.clear();
-
-    buffer.push_back_data(data);
-
-    writte_file(buffer, fileName);
-}
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace FileHelpers

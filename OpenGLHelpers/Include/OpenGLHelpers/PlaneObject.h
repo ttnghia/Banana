@@ -22,38 +22,16 @@
 
 #pragma once
 
-#include <string>
-#include <QWidget>
-#include <QtGui>
-#include <AntTweakBar.h>
-
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class AntTweakBarWrapper
+class PlaneObject
 {
 public:
-    AntTweakBarWrapper() : antTweakBar(nullptr)
+    PlaneObject(float _scaleX = 1.0, float _scaleY = 1.0) :
+        scaleX(_scaleX),
+        scaleY(_scaleY)
     {}
 
-    int TwMousePressQt(QMouseEvent* e);
-    int TwMouseReleaseQt(QMouseEvent* e);
-    int TwMouseMotionQt(QMouseEvent* e);
-
-    int TwMousePressQt(QWidget* qw, QMouseEvent* e);
-    int TwMouseReleaseQt(QWidget* qw, QMouseEvent* e);
-    int TwMouseMotionQt(QWidget* qw, QMouseEvent* e);
-
-    int TwKeyPressQt(QKeyEvent* e);
-
-    void initializeAntTweakBar();
-    void resizeAntTweakBarWindow(int width, int height);
-    void renderAntTweakBar();
-    void shutDownAntTweakBar();
-
-protected:
-    virtual void setupTweakBar()
-    {}
-
-    TwMouseButtonID Qt2TwMouseButtonId(QMouseEvent* e);
-
-    TwBar* antTweakBar;
+private:
+    float scaleX;
+    float scaleY;
 };

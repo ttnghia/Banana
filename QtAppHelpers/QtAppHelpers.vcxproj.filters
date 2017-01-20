@@ -78,9 +78,6 @@
     <ClInclude Include="Include\QtAppHelpers\DeviceToLogical.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\QtAppHelpers\Macro.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <CustomBuild Include="Include\QtAppHelpers\OpenGLMainWindow.h">
       <Filter>Header Files</Filter>
     </CustomBuild>

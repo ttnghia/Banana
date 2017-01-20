@@ -132,14 +132,15 @@
   <ItemGroup>
     <ClInclude Include="Include\OpenGLHelpers\ArcBall.h" />
     <ClInclude Include="Include\OpenGLHelpers\Camera.h" />
+    <ClInclude Include="Include\OpenGLHelpers\CubeObject.h" />
     <ClInclude Include="Include\OpenGLHelpers\Light.h" />
-    <ClInclude Include="Include\OpenGLHelpers\MeshModel.h" />
+    <ClInclude Include="Include\OpenGLHelpers\MeshLoader.h" />
+    <ClInclude Include="Include\OpenGLHelpers\OpenGLBuffer.h" />
+    <ClInclude Include="Include\OpenGLHelpers\OpenGLMacros.h" />
+    <ClInclude Include="Include\OpenGLHelpers\PlaneObject.h" />
+    <ClInclude Include="Include\OpenGLHelpers\MeshObject.h" />
     <ClInclude Include="Include\OpenGLHelpers\Shader.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="Source\Camera.cpp" />
-    <ClCompile Include="Source\Light.cpp" />
-    <ClCompile Include="Source\MeshModel.cpp" />
+    <ClInclude Include="Include\OpenGLHelpers\SphereObject.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

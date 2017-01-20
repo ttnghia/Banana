@@ -3,7 +3,7 @@
 //           (-o/\o-)
 //          /`""``""`\
 //          \ /.__.\ /
-//           \ `--` /                                                 Created on: 1/19/2017
+//           \ `--` /                                                 Created on: 1/20/2017
 //            `)  ('                                                    Author: Nghia Truong
 //         ,  /::::\  ,
 //         |'.\::::/.'|
@@ -22,38 +22,61 @@
 
 #pragma once
 
-#include <string>
-#include <QWidget>
-#include <QtGui>
-#include <AntTweakBar.h>
+#include <OpenGLHelpers/OpenGLMacros.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class AntTweakBarWrapper
+#ifdef __Banana_Qt__
+class UniformBuffer : public OpenGLFunctions
 {
 public:
-    AntTweakBarWrapper() : antTweakBar(nullptr)
+    UniformBuffer()
+    {
+        initializeOpenGLFunctions();
+    }
+#else
+class UniformBuffer
+{
+public:
+    UniformBuffer()
     {}
+#endif
 
-    int TwMousePressQt(QMouseEvent* e);
-    int TwMouseReleaseQt(QMouseEvent* e);
-    int TwMouseMotionQt(QMouseEvent* e);
+};
 
-    int TwMousePressQt(QWidget* qw, QMouseEvent* e);
-    int TwMouseReleaseQt(QWidget* qw, QMouseEvent* e);
-    int TwMouseMotionQt(QWidget* qw, QMouseEvent* e);
-
-    int TwKeyPressQt(QKeyEvent* e);
-
-    void initializeAntTweakBar();
-    void resizeAntTweakBarWindow(int width, int height);
-    void renderAntTweakBar();
-    void shutDownAntTweakBar();
-
-protected:
-    virtual void setupTweakBar()
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#ifdef __Banana_Qt__
+class ArrayBuffer : public OpenGLFunctions
+{
+public:
+    ArrayBuffer()
+    {
+        initializeOpenGLFunctions();
+    }
+#else
+class ArrayBuffer
+{
+public:
+    ArrayBuffer()
     {}
+#endif
 
-    TwMouseButtonID Qt2TwMouseButtonId(QMouseEvent* e);
+};
 
-    TwBar* antTweakBar;
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#ifdef __Banana_Qt__
+class ElementArrayBuffer : public OpenGLFunctions
+{
+public:
+    ElementArrayBuffer()
+    {
+        initializeOpenGLFunctions();
+    }
+#else
+class ElementArrayBuffer
+{
+public:
+    ElementArrayBuffer()
+    {}
+#endif
+
 };
