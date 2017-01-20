@@ -24,16 +24,18 @@
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #if _DEBUG
-#define gl_call(a)\
+#define glCall(a)\
 	a; {\
 		GLenum _err = glGetError();\
 		if (_err!=GL_NO_ERROR) {\
-			std::string str = "GL error when calling\n\""+std::string(#a)+"\"\n\nOpenGL error "+Falcor::GlEnum2Str::error(_err)+", in file "+__FILE__+", line "+std::to_string(__LINE__);\
+			std::string str = "GL error when calling\n\""+std::string(#a)+\
+			"\"\n\nOpenGL error "+Falcor::GlEnum2Str::error(_err)+ \
+            ", in file "+__FILE__+", line "+std::to_string(__LINE__);\
 			Falcor::Logger::log(Falcor::Logger::Level::Error, str);\
 		}\
 	}
 #else
-#define gl_call(a) a;
+#define glCall(a) a;
 #endif
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

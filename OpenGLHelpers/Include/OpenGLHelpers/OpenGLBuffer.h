@@ -26,57 +26,34 @@
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #ifdef __Banana_Qt__
-class UniformBuffer : public OpenGLFunctions
+class OpenGLBuffer : public OpenGLFunctions
 {
 public:
-    UniformBuffer()
+    OpenGLBuffer()
     {
         initializeOpenGLFunctions();
     }
 #else
-class UniformBuffer
+class OpenGLBuffer
 {
 public:
-    UniformBuffer()
+    OpenGLBuffer()
     {}
 #endif
 
-};
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#ifdef __Banana_Qt__
-class ArrayBuffer : public OpenGLFunctions
-{
-public:
-    ArrayBuffer()
-    {
-        initializeOpenGLFunctions();
-    }
-#else
-class ArrayBuffer
-{
-public:
-    ArrayBuffer()
+    //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    void deleteBuffer()
     {}
-#endif
 
-};
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#ifdef __Banana_Qt__
-class ElementArrayBuffer : public OpenGLFunctions
-{
-public:
-    ElementArrayBuffer()
-    {
-        initializeOpenGLFunctions();
-    }
-#else
-class ElementArrayBuffer
-{
-public:
-    ElementArrayBuffer()
+    //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    void createBuffer(GLenum _bufferType, size_t _bufferSize = 0)
     {}
-#endif
 
+    //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    void uploadData(char* _data, size_t _dataSize)
+    {}
+
+    //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+    GLuint bufferID;
 };

@@ -37,32 +37,24 @@ class MeshObject
 #endif
 
 public:
-    enum class Topology
-    {
-        Point,
-        Line,
-        Triangle,
-        TriangleStrip
-    };
-
     //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    MeshObject(Topology _topology = Topology::Triangle,
+    MeshObject(GLenum _topology = GL_TRIANGLES,
                bool _veryLargeMesh = false) :
         dataTopology(_topology),
         isMeshVeryLarge(_veryLargeMesh),
         isDataReady(false),
         isBufferReady(false),
-        hasElementIndex(false),
+        hasIndexBuffer(false),
         isUniformScale(true),
         scaleX(1.0),
         scaleY(1.0),
         scaleZ(1.0),
-        vertexCount(0)
+        numVertices(0)
     {
 #ifdef __Banana_Qt__
         initializeOpenGLFunctions();
 #endif
-}
+    }
 
     ~MeshObject()
     {
@@ -100,30 +92,21 @@ public:
         if(!isBufferReady)
         {
             createBuffer();
+            uploadDataToGPU();
         }
 
-        switch(dataTopology)
+        if(hasIndexBuffer)
         {
-            case Topology::Point:
-
-                break;
-
-            case Topology::Line:
-
-                break;
-
-            case Topology::Triangle:
-
-                break;
-
-            case Topology::TriangleStrip:
-
-                break;
+            glCall(glDrawElements(dataTopology, numVertices));
+        }
+        else
+        {
+            glCall(glDrawArrays(dataTopology, 0, numVertices));
         }
     }
 
     //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    void uploadToGPU()
+    void uploadDataToGPU()
     {
 
     }
@@ -132,17 +115,28 @@ protected:
     void createBuffer()
     {
         // create vertex array buffer
+        if(!isDataReady)
+            return;
+
+        arrayBuffer->createBuffer(GL_ARRAY_BUFFER);
 
 
 
         // create element array buffer
-        if(!hasElementIndex)
-            return;
+        if(hasIndexBuffer)
+        {
+            indexBuffer->createBuffer(GL_ELEMENT_ARRAY_BUFFER);
+        }
+
+        // upload to GPU
+        arrayBuffer->uploadData();
+        indexBuffer->uploadData();
     }
 
     void clearBuffer()
     {
-
+        arrayBuffer->deleteBuffer();
+        indexBuffer->deleteBuffer();
     }
 
     //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -151,13 +145,13 @@ protected:
     std::vector<GLfloat> vertices;
     std::vector<GLfloat> texCoord;
     std::vector<GLfloat> normals;
-    size_t vertexCount;
 
-    ArrayBuffer* arrayBuffer;
-    ElementArrayBuffer* indexBuffer;
+    OpenGLBuffer* arrayBuffer;
+    OpenGLBuffer* indexBuffer;
+    size_t numVertices;
 
-private:
-    Topology dataTopology;
+protected:
+    GLenum dataTopology;
     bool isMeshVeryLarge;
     bool isUniformScale;
     bool isDataReady;
@@ -165,7 +159,7 @@ private:
     bool hasVertexColor;
     bool hasVertexTexCoord;
     bool hasVertexNormal;
-    bool hasElementIndex;
+    bool hasIndexBuffer;
 
     float scaleX;
     float scaleY;
