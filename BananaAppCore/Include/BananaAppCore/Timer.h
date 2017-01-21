@@ -28,47 +28,48 @@
 
 #include <BananaAppCore/NumberHelpers.h>
 
+using Clock = std::chrono::high_resolution_clock;
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 class Timer
 {
 public:
-    Timer() : ticked(false)
+    Timer() : m_TimerTicked(false)
     {}
 
     void tick()
     {
-        assert(!ticked);
+        assert(!m_TimerTicked);
 
-        start_time = std::chrono::high_resolution_clock::now();
-        ticked = true;
+        m_StartTime = Clock::now();
+        m_TimerTicked = true;
     }
 
     double tock()
     {
-        assert(ticked);
+        assert(m_TimerTicked);
 
-        end_time = std::chrono::high_resolution_clock::now();
-        ticked = false;
+        m_EndTime = Clock::now();
+        m_TimerTicked = false;
 
-        elapsed_time = std::chrono::duration<double, std::milli>(end_time - start_time).count();
+        m_ElapsedTime = std::chrono::duration<double, std::milli>(m_EndTime - m_StartTime).count();
 
-        return elapsed_time;
+        return m_ElapsedTime;
     }
 
     std::string get_run_time()
     {
-        if(ticked)
+        if(m_TimerTicked)
         {
             tock();
         }
 
-        return NumberHelpers::format_with_commas(elapsed_time) + "ms";
+        return NumberHelpers::format_with_commas(m_ElapsedTime) + "ms";
     }
 
 private:
-    std::chrono::high_resolution_clock::time_point start_time;
-    std::chrono::high_resolution_clock::time_point end_time;
-    double elapsed_time;
-
-    bool ticked;
+    Clock::time_point m_StartTime;
+    Clock::time_point m_EndTime;
+    double            m_ElapsedTime;
+    bool              m_TimerTicked;
 };

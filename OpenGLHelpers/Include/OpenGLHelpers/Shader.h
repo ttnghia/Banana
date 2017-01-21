@@ -104,23 +104,23 @@ public:
     ////////////////////////////////////////////////////////////////////////////////
     void link()
     {
-        programID = glCreateProgram();
+        programID = glCall(glCreateProgram());
 
         for(GLuint shader : shaders)
         {
-            glAttachShader(programID, shader);
+            glCall(glAttachShader(programID, shader));
         }
 
-        glLinkProgram(programID);
+        glCall(glLinkProgram(programID));
 
-        if(checkLinkError(programID))
+        if(glCall(checkLinkError(programID)))
         {
             isLink = true;
         }
 
         for(GLuint shader : shaders)
         {
-            glDeleteShader(shader);
+            glCall(glDeleteShader(shader));
         }
 
         shaders.clear();
@@ -129,19 +129,19 @@ public:
     ////////////////////////////////////////////////////////////////////////////////
     void bind()
     {
-        glUseProgram(programID);
+        glCall(glUseProgram(programID));
     }
 
     ////////////////////////////////////////////////////////////////////////////////
     void release()
     {
-        glUseProgram(0);
+        glCall(glUseProgram(0));
     }
 
     ////////////////////////////////////////////////////////////////////////////////
     GLint getAtributeLocation(const char* atributeName)
     {
-        GLint location = glGetAttribLocation(programID, atributeName);
+        GLint location = glCall(glGetAttribLocation(programID, atributeName));
 
         if(location < 0)
         {
@@ -155,7 +155,7 @@ public:
     ////////////////////////////////////////////////////////////////////////////////
     GLint getUniformLocation(const char* uniformName)
     {
-        GLint location = glGetUniformLocation(programID, uniformName);
+        GLint location = glCall(glGetUniformLocation(programID, uniformName));
 
         if(location < 0)
         {
@@ -170,59 +170,59 @@ public:
     void setUniformValue(const char* uniformName, glm::mat4 mat)
     {
         GLint location = getUniformLocation(uniformName);
-        glUniformMatrix4fv(location,
-                           1 /*only setting 1 matrix*/,
-                           false /*transpose?*/,
-                           glm::value_ptr(mat));
+        glCall(glUniformMatrix4fv(location,
+               1 /*only setting 1 matrix*/,
+               false /*transpose?*/,
+               glm::value_ptr(mat)));
     }
 
     ////////////////////////////////////////////////////////////////////////////////
     void setUniformValue(const char* uniformName, glm::vec4 vec)
     {
         GLint location = getUniformLocation(uniformName);
-        glUniform4fv(location, 1, glm::value_ptr(vec));
+        glCall(glUniform4fv(location, 1, glm::value_ptr(vec)));
     }
 
     ////////////////////////////////////////////////////////////////////////////////
     void setUniformValue(const char* uniformName, glm::vec3 vec)
     {
         GLint location = getUniformLocation(uniformName);
-        glUniform3fv(location, 1, glm::value_ptr(vec));
+        glCall(glUniform3fv(location, 1, glm::value_ptr(vec)));
     }
 
     ////////////////////////////////////////////////////////////////////////////////
     void setUniformValue(const char* uniformName, glm::vec2 vec)
     {
         GLint location = getUniformLocation(uniformName);
-        glUniform2fv(location, 1, glm::value_ptr(vec));
+        glCall(glUniform2fv(location, 1, glm::value_ptr(vec)));
     }
 
     ////////////////////////////////////////////////////////////////////////////////
     void setUniformValue(const char* uniformName, GLfloat value)
     {
         GLint location = getUniformLocation(uniformName);
-        glUniform1f(location, value);
+        glCall(glUniform1f(location, value));
     }
 
     ////////////////////////////////////////////////////////////////////////////////
     void setUniformValue(const char* uniformName, GLint value)
     {
         GLint location = getUniformLocation(uniformName);
-        glUniform1i(location, value);
+        glCall(glUniform1i(location, value));
     }
 
     ////////////////////////////////////////////////////////////////////////////////
     void setUniformValue(const char* uniformName, GLuint value)
     {
         GLint location = getUniformLocation(uniformName);
-        glUniform1ui(location, value);
+        glCall(glUniform1ui(location, value));
     }
 
     ////////////////////////////////////////////////////////////////////////////////
     void setUniformValue(const char* uniformName, GLboolean value)
     {
         GLint location = getUniformLocation(uniformName);
-        glUniform1i(location, value ? GL_TRUE : GL_FALSE);
+        glCall(glUniform1i(location, value ? GL_TRUE : GL_FALSE));
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -233,9 +233,9 @@ protected:
     ////////////////////////////////////////////////////////////////////////////////
     void addShader(GLenum shaderType, const GLchar* shaderSource)
     {
-        GLuint shader = glCreateShader(shaderType);
-        glShaderSource(shader, 1, &shaderSource, NULL);
-        glCompileShader(shader);
+        GLuint shader = glCall(glCreateShader(shaderType));
+        glCall(glShaderSource(shader, 1, &shaderSource, NULL));
+        glCall(glCompileShader(shader));
 
         // => add shader into list
         if(checkCompileError(shader, shaderType))
@@ -250,11 +250,11 @@ protected:
         GLint success;
         GLchar infoLog[1024];
 
-        glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+        glCall(glGetShaderiv(shader, GL_COMPILE_STATUS, &success));
 
         if(!success)
         {
-            glGetShaderInfoLog(shader, 1024, NULL, infoLog);
+            glCall(glGetShaderInfoLog(shader, 1024, NULL, infoLog));
 
             std::string shaderName = "Unknown";
 
@@ -288,11 +288,11 @@ protected:
     {
         GLint success;
         GLchar infoLog[1024];
-        glGetProgramiv(program, GL_LINK_STATUS, &success);
+        glCall(glGetProgramiv(program, GL_LINK_STATUS, &success));
 
         if(!success)
         {
-            glGetProgramInfoLog(program, 1024, NULL, infoLog);
+            glCall(glGetProgramInfoLog(program, 1024, NULL, infoLog));
             std::cout << "ERROR: Program failed to link!" << std::endl
                 << "  => : " << infoLog << std::endl;
         }
@@ -324,5 +324,5 @@ protected:
 
 
     std::vector<GLuint> shaders;
-    bool isLink;
+    bool                isLink;
 };

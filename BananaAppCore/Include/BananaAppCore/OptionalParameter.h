@@ -33,42 +33,42 @@ public:
     {}
     ~OptionalParameter()
     {
-        paramMap.clear();
+        m_ParamMap.clear();
     }
 
     void set_param(std::string key, std::string value)
     {
-        paramMap[key] = value;
+        m_ParamMap[key] = value;
     }
 
     bool has_param(const std::string& key)
     {
-        return (paramMap.find(key) != paramMap.end());
+        return (m_ParamMap.find(key) != m_ParamMap.end());
     }
 
     bool get_bool(const std::string& key)
     {
-        return (paramMap[key] == "true" ||
-                paramMap[key] == "True" ||
-                paramMap[key] == "TRUE");
+        return (m_ParamMap[key] == "true" ||
+                m_ParamMap[key] == "True" ||
+                m_ParamMap[key] == "TRUE");
     }
 
     int get_int(const std::string& key)
     {
-        return std::stoi(paramMap[key]);
+        return std::stoi(m_ParamMap[key]);
     }
 
     template<class T>
     T get_real(const std::string& key)
     {
-        return (T)std::stod(paramMap[key]);
+        return (T)std::stod(m_ParamMap[key]);
     }
 
     size_t get_size_t(const std::string& key)
     {
-        return (size_t)std::stoul(paramMap[key]);
+        return (size_t)std::stoul(m_ParamMap[key]);
     }
 
 private:
-    std::map<std::string, std::string> paramMap;
+    std::map<std::string, std::string> m_ParamMap;
 };

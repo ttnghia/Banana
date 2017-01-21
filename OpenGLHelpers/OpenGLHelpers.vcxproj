@@ -137,7 +137,7 @@
     <ClInclude Include="Include\OpenGLHelpers\MeshLoader.h" />
     <ClInclude Include="Include\OpenGLHelpers\OpenGLBuffer.h" />
     <ClInclude Include="Include\OpenGLHelpers\OpenGLMacros.h" />
-    <ClInclude Include="Include\OpenGLHelpers\PlaneObject.h" />
+    <ClInclude Include="Include\OpenGLHelpers\GridObject.h" />
     <ClInclude Include="Include\OpenGLHelpers\MeshObject.h" />
     <ClInclude Include="Include\OpenGLHelpers\Shader.h" />
     <ClInclude Include="Include\OpenGLHelpers\SphereObject.h" />

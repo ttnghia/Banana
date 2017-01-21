@@ -23,6 +23,7 @@
 #pragma once
 
 #include <OpenGLHelpers/Camera.h>
+#include <OpenGLHelpers/OpenGLMacros.h>
 
 #include <fstream>
 
@@ -45,13 +46,13 @@ class MeshLoader
     };
 
 public:
-    MeshLoader() : mesh_ready(false)
+    MeshLoader() : m_isMeshReady(false)
     {
         clear_data();
     }
 
     MeshLoader(std::string mesh_file) :
-        mesh_ready(false)
+        m_isMeshReady(false)
     {
         load_mesh(mesh_file);
     }
@@ -69,7 +70,7 @@ public:
         // => load mesh
         bool result = false;
 
-        switch(meshFileType)
+        switch(m_MeshFileType)
         {
             case MeshFileType::OBJFile:
                 result = load_obj(mesh_file);
@@ -84,7 +85,7 @@ public:
         }
 
         ////////////////////////////////////////////////////////////////////////////////
-        mesh_ready = result;
+        m_isMeshReady = result;
 
         return result;
     }
@@ -101,13 +102,13 @@ public:
     //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     glm::vec3 get_mesh_center()
     {
-        return 0.5f * (bmin + bmax);
+        return 0.5f * (m_BBoxMin + m_BBoxMax);
     }
 
     //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     float get_camera_distance(float fov)
     {
-        float half_length = (bmax.y - bmin.y) * 0.5f;
+        float half_length = (m_BBoxMax.y - m_BBoxMin.y) * 0.5f;
 
         return (half_length / std::tan(fov * 0.5f * M_PI / 180.0));
     }
@@ -115,83 +116,83 @@ public:
     //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     std::vector<float>& get_vertices()
     {
-        assert(mesh_ready);
+        assert(m_isMeshReady);
 
-        return vertices;
+        return m_Vertices;
     }
 
     //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     std::vector<float>& get_vnormals()
     {
-        assert(mesh_ready);
+        assert(m_isMeshReady);
 
-        return vnormals;
+        return m_VertexNormals;
     }
 
     //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     std::vector<float>& get_vcolors()
     {
-        assert(mesh_ready);
+        assert(m_isMeshReady);
 
-        return vcolors;
+        return m_VertexColors;
     }
 
     //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     std::vector<float>& get_texcoord_2d()
     {
-        assert(mesh_ready);
+        assert(m_isMeshReady);
 
-        return texcoord_2d;
+        return m_VertexTexCoord2D;
     }
 
     //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     std::vector<float>& get_texcoord_3d()
     {
-        assert(mesh_ready);
+        assert(m_isMeshReady);
 
-        return texcoord_3d;
+        return m_VertexTexCoord3D;
     }
 
     //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     // variables
-    unsigned int num_triangles;
-    bool mesh_ready;
+    unsigned int m_NumTriangles;
+    bool m_isMeshReady;
 
 private:
     void check_filetype(std::string mesh_file)
     {
         const std::string extension = mesh_file.substr(mesh_file.rfind('.') + 1);
-        meshFileType = MeshFileType::UnsupportedFileType;
+        m_MeshFileType = MeshFileType::UnsupportedFileType;
 
         if(extension == "obj" || extension == "OBJ" || extension == "Obj")
         {
-            meshFileType = MeshFileType::OBJFile;
+            m_MeshFileType = MeshFileType::OBJFile;
         }
 
         if(extension == "ply" || extension == "PLY" || extension == "Ply")
         {
-            meshFileType = MeshFileType::PLYFile;
+            m_MeshFileType = MeshFileType::PLYFile;
         }
 
-        assert(meshFileType != MeshFileType::UnsupportedFileType);
+        assert(m_MeshFileType != MeshFileType::UnsupportedFileType);
     }
 
     //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     void clear_data()
     {
-        num_triangles = 0;
+        m_NumTriangles = 0;
 
-        bmin = glm::vec3(1e100, 1e100, 1e100);
-        bmax = glm::vec3(-1e100, -1e100, -1e100);
+        m_BBoxMin = glm::vec3(1e100, 1e100, 1e100);
+        m_BBoxMax = glm::vec3(-1e100, -1e100, -1e100);
 
-        vertices.clear();
-        vnormals.clear();
-        vcolors.clear();
-        texcoord_2d.clear();
-        texcoord_3d.clear();
+        m_Vertices.clear();
+        m_VertexNormals.clear();
+        m_VertexColors.clear();
+        m_VertexTexCoord2D.clear();
+        m_VertexTexCoord3D.clear();
 
         ////////////////////////////////////////////////////////////////////////////////
-        loading_error.clear();
+        m_LoadingErrorStr.clear();
     }
 
     //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -203,12 +204,12 @@ private:
         tinyobj::attrib_t attrib;
 
         bool result = tinyobj::LoadObj(&attrib, &obj_shapes, &obj_materials,
-                                       &loading_error, mesh_file.c_str(), NULL);
+                                       &m_LoadingErrorStr, mesh_file.c_str(), NULL);
 
 
-        if(!loading_error.empty())
+        if(!m_LoadingErrorStr.empty())
         {
-            std::cerr << "tinyobj: " << loading_error << std::endl;
+            std::cerr << "tinyobj: " << m_LoadingErrorStr << std::endl;
         }
 
         if(!result)
@@ -224,7 +225,7 @@ private:
         {
             for(size_t f = 0; f < obj_shapes[s].mesh.indices.size() / 3; f++)
             {
-                ++num_triangles;
+                ++m_NumTriangles;
 
                 tinyobj::index_t idx0 = obj_shapes[s].mesh.indices[3 * f + 0];
                 tinyobj::index_t idx1 = obj_shapes[s].mesh.indices[3 * f + 1];
@@ -245,13 +246,13 @@ private:
                     v[1][k] = attrib.vertices[3 * f1 + k];
                     v[2][k] = attrib.vertices[3 * f2 + k];
 
-                    bmin[k] = std::min(v[0][k], bmin[k]);
-                    bmin[k] = std::min(v[1][k], bmin[k]);
-                    bmin[k] = std::min(v[2][k], bmin[k]);
+                    m_BBoxMin[k] = std::min(v[0][k], m_BBoxMin[k]);
+                    m_BBoxMin[k] = std::min(v[1][k], m_BBoxMin[k]);
+                    m_BBoxMin[k] = std::min(v[2][k], m_BBoxMin[k]);
 
-                    bmax[k] = std::max(v[0][k], bmax[k]);
-                    bmax[k] = std::max(v[1][k], bmax[k]);
-                    bmax[k] = std::max(v[2][k], bmax[k]);
+                    m_BBoxMax[k] = std::max(v[0][k], m_BBoxMax[k]);
+                    m_BBoxMax[k] = std::max(v[1][k], m_BBoxMax[k]);
+                    m_BBoxMax[k] = std::max(v[2][k], m_BBoxMax[k]);
                 }
 
                 float n[3][3];
@@ -286,16 +287,16 @@ private:
 
                 for(int k = 0; k < 3; k++)
                 {
-                    vertices.push_back(v[k][0]);
-                    vertices.push_back(v[k][1]);
-                    vertices.push_back(v[k][2]);
+                    m_Vertices.push_back(v[k][0]);
+                    m_Vertices.push_back(v[k][1]);
+                    m_Vertices.push_back(v[k][2]);
 
-                    vnormals.push_back(n[k][0]);
-                    vnormals.push_back(n[k][1]);
-                    vnormals.push_back(n[k][2]);
+                    m_VertexNormals.push_back(n[k][0]);
+                    m_VertexNormals.push_back(n[k][1]);
+                    m_VertexNormals.push_back(n[k][2]);
 
                     // Use normal as color.
-                    float c[3] = {n[k][0], n[k][1], n[k][2]};
+                    float c[3] ={n[k][0], n[k][1], n[k][2]};
                     float len2 = c[0] * c[0] + c[1] * c[1] + c[2] * c[2];
 
                     if(len2 > 0.0f)
@@ -307,9 +308,9 @@ private:
                         c[2] /= len;
                     }
 
-                    vcolors.push_back(c[0] * 0.5 + 0.5);
-                    vcolors.push_back(c[1] * 0.5 + 0.5);
-                    vcolors.push_back(c[2] * 0.5 + 0.5);
+                    m_VertexColors.push_back(c[0] * 0.5 + 0.5);
+                    m_VertexColors.push_back(c[1] * 0.5 + 0.5);
+                    m_VertexColors.push_back(c[2] * 0.5 + 0.5);
                 }
             } // end process current shape
         }
@@ -371,7 +372,7 @@ private:
             // => convert data
             for(size_t f = 0; f < faces.size() / 3; f++)
             {
-                ++num_triangles;
+                ++m_NumTriangles;
 
                 uint32_t f0 = faces[3 * f + 0];
                 uint32_t f1 = faces[3 * f + 1];
@@ -386,13 +387,13 @@ private:
                     v[1][k] = verts[3 * f1 + k];
                     v[2][k] = verts[3 * f2 + k];
 
-                    bmin[k] = std::min(v[0][k], bmin[k]);
-                    bmin[k] = std::min(v[1][k], bmin[k]);
-                    bmin[k] = std::min(v[2][k], bmin[k]);
+                    m_BBoxMin[k] = std::min(v[0][k], m_BBoxMin[k]);
+                    m_BBoxMin[k] = std::min(v[1][k], m_BBoxMin[k]);
+                    m_BBoxMin[k] = std::min(v[2][k], m_BBoxMin[k]);
 
-                    bmax[k] = std::max(v[0][k], bmax[k]);
-                    bmax[k] = std::max(v[1][k], bmax[k]);
-                    bmax[k] = std::max(v[2][k], bmax[k]);
+                    m_BBoxMax[k] = std::max(v[0][k], m_BBoxMax[k]);
+                    m_BBoxMax[k] = std::max(v[1][k], m_BBoxMax[k]);
+                    m_BBoxMax[k] = std::max(v[2][k], m_BBoxMax[k]);
                 }
 
                 float n[3][3];
@@ -424,16 +425,16 @@ private:
 
                 for(int k = 0; k < 3; k++)
                 {
-                    vertices.push_back(v[k][0]);
-                    vertices.push_back(v[k][1]);
-                    vertices.push_back(v[k][2]);
+                    m_Vertices.push_back(v[k][0]);
+                    m_Vertices.push_back(v[k][1]);
+                    m_Vertices.push_back(v[k][2]);
 
-                    vnormals.push_back(n[k][0]);
-                    vnormals.push_back(n[k][1]);
-                    vnormals.push_back(n[k][2]);
+                    m_VertexNormals.push_back(n[k][0]);
+                    m_VertexNormals.push_back(n[k][1]);
+                    m_VertexNormals.push_back(n[k][2]);
 
                     // Use normal as color.
-                    float c[3] = {n[k][0], n[k][1], n[k][2]};
+                    float c[3] ={n[k][0], n[k][1], n[k][2]};
                     float len2 = c[0] * c[0] + c[1] * c[1] + c[2] * c[2];
 
                     if(len2 > 0.0f)
@@ -445,9 +446,9 @@ private:
                         c[2] /= len;
                     }
 
-                    vcolors.push_back(c[0] * 0.5 + 0.5);
-                    vcolors.push_back(c[1] * 0.5 + 0.5);
-                    vcolors.push_back(c[2] * 0.5 + 0.5);
+                    m_VertexColors.push_back(c[0] * 0.5 + 0.5);
+                    m_VertexColors.push_back(c[1] * 0.5 + 0.5);
+                    m_VertexColors.push_back(c[2] * 0.5 + 0.5);
                 }
             } // end process current shape
         }
@@ -490,15 +491,15 @@ private:
 
     //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     // variables
-    MeshFileType meshFileType;
-    std::string loading_error;
+    MeshFileType m_MeshFileType;
+    std::string  m_LoadingErrorStr;
 
-    std::vector<float> vertices;
-    std::vector<float> vnormals;
-    std::vector<float> vcolors;
-    std::vector<float> texcoord_2d;
-    std::vector<float> texcoord_3d;
-    glm::vec3 bmin;
-    glm::vec3 bmax;
+    std::vector<float> m_Vertices;
+    std::vector<float> m_VertexNormals;
+    std::vector<float> m_VertexColors;
+    std::vector<float> m_VertexTexCoord2D;
+    std::vector<float> m_VertexTexCoord3D;
+    glm::vec3          m_BBoxMin;
+    glm::vec3          m_BBoxMax;
 
 };
