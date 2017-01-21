@@ -43,6 +43,7 @@ public:
 
         GLfloat stepX = 1.0 / (GLfloat)sizeX;
         GLfloat stepY = 1.0 / (GLfloat)sizeY;
+        m_NumVertices = 0;
 
         for(int i = 0; i <= sizeX; ++i)
         {
@@ -61,6 +62,8 @@ public:
 
                 m_VertexTexCoords.push_back(vertex[0]);
                 m_VertexTexCoords.push_back(vertex[2]);
+
+                ++m_NumVertices;
             }
         }
 

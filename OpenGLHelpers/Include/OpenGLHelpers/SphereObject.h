@@ -38,6 +38,7 @@ public:
         clearData();
         GLfloat vertex[3];
         GLfloat tex[2];
+        m_NumVertices = 0;
 
         for(int j = 0; j <= numStacks; ++j)
         {
@@ -69,6 +70,8 @@ public:
                 tex[1] = 1.0 - (GLfloat)j / (GLfloat)numStacks;
                 m_VertexTexCoords.push_back(tex[0]);
                 m_VertexTexCoords.push_back(tex[1]);
+
+                ++m_NumVertices;
             }
         }
 
