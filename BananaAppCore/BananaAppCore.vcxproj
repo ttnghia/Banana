@@ -145,6 +145,7 @@
     <ClInclude Include="Include\BananaAppCore\Macros.h" />
     <ClInclude Include="Include\BananaAppCore\NumberHelpers.h" />
     <ClInclude Include="Include\BananaAppCore\OptionalParameter.h" />
+    <ClInclude Include="Include\BananaAppCore\ParticleSystemData.h" />
     <ClInclude Include="Include\BananaAppCore\STLHelpers.h" />
     <ClInclude Include="Include\BananaAppCore\Timer.h" />
     <ClInclude Include="Include\BananaAppCore\TypeNames.h" />

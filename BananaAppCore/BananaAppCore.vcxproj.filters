@@ -42,5 +42,8 @@
     <ClInclude Include="Include\BananaAppCore\DataIO.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Include\BananaAppCore\ParticleSystemData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

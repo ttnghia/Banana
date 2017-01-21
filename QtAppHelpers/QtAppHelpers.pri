@@ -15,11 +15,11 @@ win32 {
     CONFIG(debug, debug|release) {
         message("Debug")
         QMAKE_CXXFLAGS += /DEBUG /Zi
-        LIBS += $$PWD/../Build/Debug/QtAppHelpers.lib
+#        LIBS += $$PWD/../Build/Debug/QtAppHelpers.lib
     }else {
         message("Release")
         QMAKE_CXXFLAGS += /O2 /Ob2 /GL /Qpar
-        LIBS += $$PWD/../Build/Release/QtAppHelpers.lib
+#        LIBS += $$PWD/../Build/Release/QtAppHelpers.lib
     }
 }
 
@@ -29,12 +29,8 @@ INCLUDEPATH += $$PWD/../Externals/glm
 INCLUDEPATH += $$PWD/../Externals/AntTweakBar/include
 
 win32 {
-#    INCLUDEPATH += $$PWD/../Externals/tbb_win/include
-#    LIBS += -ltbb -L$$PWD/../Externals/tbb_win/lib/intel64/vc14
     LIBS += -lAntTweakBar64 -L$$PWD/../Externals/AntTweakBar/lib
 }
 macx {
-#    INCLUDEPATH += $$PWD/../Externals/tbb_osx/include
-#    LIBS += -ltbb -L$$PWD/../Externals/tbb_osx/lib
     LIBS += -lAntTweakBar -L$$PWD/../Externals/AntTweakBar/lib
 }

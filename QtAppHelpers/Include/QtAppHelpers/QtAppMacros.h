@@ -25,26 +25,32 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #ifdef __APPLE__
 #include <OpenGL.h>
-#include <QOpenGLFunctions_4_1_Core>
+#   include <QOpenGLFunctions_4_1_Core>
 typedef  QOpenGLFunctions_4_1_Core OpenGLFunctions;
 #else
-#include <QOpenGLFunctions_4_5_Core>
+#   include <QOpenGLFunctions_4_5_Core>
 typedef  QOpenGLFunctions_4_5_Core OpenGLFunctions;
 #endif
 
 #ifndef M_PI
-#define M_PI 3.14159265358979323846
+#   define M_PI 3.14159265358979323846
 #endif
 
+#if defined(_WIN32) || defined(_WIN64)
+#   ifndef NOMINMAX
+#      define NOMINMAX
+#   endif
+#   define __func__ __FUNCTION__
+#endif 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #ifdef __APPLE__
-#define __BNN_RunMainWindow __BNN_RunMainWindowMac
+#define __BNNQt_RunMainWindow __BNNQt_RunMainWindowMac
 #else
-#define __BNN_RunMainWindow __BNN_RunMainWindowWin
+#define __BNNQt_RunMainWindow __BNNQt_RunMainWindowWin
 #endif
 
 
-#define __BNN_RunMainWindowWin(MainWindowClass, argc, argv) \
+#define __BNNQt_RunMainWindowWin(MainWindowClass, argc, argv) \
 { \
     QSurfaceFormat format; \
     format.setDepthBufferSize(24); \
@@ -63,7 +69,7 @@ typedef  QOpenGLFunctions_4_5_Core OpenGLFunctions;
     return a.exec(); \
 }
 
-#define __BNN_RunMainWindowMac(MainWindowClass, argc, argv) \
+#define __BNNQt_RunMainWindowMac(MainWindowClass, argc, argv) \
 { \
     QSurfaceFormat format; \
     format.setDepthBufferSize(24); \
@@ -80,6 +86,50 @@ typedef  QOpenGLFunctions_4_5_Core OpenGLFunctions;
                                       w.size(), \
                                       qApp->desktop()->availableGeometry())); \
     return a.exec(); \
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#define __BNNQt_PrintLine \
+{ \
+    qDebug()<< "Line:" << __LINE__ << ", file:" << __FILE__; \
+}
+
+#define __BNNQt_PrintExp(x) \
+{ \
+    qDebug() << "Printing at line: " << __LINE__ << ", file: " << __FILE__ << ":"; \
+    qDebug() << "    " << #x << ": " << x; \
+}
+
+#define __BNNQt_PrintLocation \
+{ \
+    qDebug() << "Function: " << __func__; \
+    qDebug() << "Line: " << __LINE__ << ", file: " << __FILE__; \
+}
+
+#define __BNNQt_Die(errMsg) \
+{ \
+    qDebug()<< "Error occured at line:" << __LINE__ << ", file:" << __FILE__; \
+    qDebug()<< "Error message:" << errMsg; \
+    exit(EXIT_FAILURE); \
+}
+
+#define __BNNQt_AssertMsg(condition, errMsg) \
+{ \
+    if(!(condition)) \
+    { \
+        qDebug()<< "Fatal error occured at line:" << __LINE__ << ", file:" << __FILE__; \
+        qDebug()<< "Error message:" << errMsg; \
+        exit(EXIT_FAILURE); \
+    } \
+}
+
+#define __BNNQt_Check(condition, errStr) \
+{ \
+    if(!(condition)) \
+    { \
+        QMessageBox::information(this, "Error", errStr); \
+        return false; \
+    } \
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

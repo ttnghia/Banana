@@ -64,12 +64,12 @@ public:
         m_Buffer.reserve(bufferSize);
     }
 
-    const char* data() const
+    const unsigned char* data() const
     {
         return m_Buffer.data();
     }
 
-    std::vector<char>& buffer()
+    std::vector<unsigned char>& buffer()
     {
         return m_Buffer;
     }
@@ -88,7 +88,7 @@ public:
         push_back(dataBuffer);
     }
 
-    void set_data(const char* arrData, size_t dataSize)
+    void set_data(const unsigned char* arrData, size_t dataSize)
     {
         clearBuffer();
         push_back(arrData, dataSize);
@@ -144,10 +144,10 @@ public:
 
     void push_back(const DataBuffer& dataBuffer)
     {
-        push_back((const char*)dataBuffer.data(), dataBuffer.size());
+        push_back((const unsigned char*)dataBuffer.data(), dataBuffer.size());
     }
 
-    void push_back(const char* arrData, size_t dataSize)
+    void push_back(const unsigned char* arrData, size_t dataSize)
     {
         size_t endOffset = m_Buffer.size();
         resize(endOffset + dataSize);
@@ -431,7 +431,7 @@ public:
         return (segmentStart - startOffset);
     }
 
-    size_t get_data(char* arrData, size_t dataSize, size_t startOffset = 0)
+    size_t get_data(unsigned char* arrData, size_t dataSize, size_t startOffset = 0)
     {
         size_t readSize = (std::min)(dataSize, m_Buffer.size() - startOffset);
 
@@ -500,8 +500,8 @@ public:
     }
 
 private:
-    size_t            m_BufferSize;
-    std::vector<char> m_Buffer;
+    size_t                     m_BufferSize;
+    std::vector<unsigned char> m_Buffer;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -518,7 +518,7 @@ public:
 
     //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     template<class T>
-    char* to_float_array(const std::vector<T>& vData)
+    unsigned char* to_float_array(const std::vector<T>& vData)
     {
         dataBuffer.set_to_float_array(vData);
 
@@ -527,7 +527,7 @@ public:
 
     //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     template<class T>
-    char* to_float_array(const Vec_Vec2<T>& vData)
+    unsigned char* to_float_array(const Vec_Vec2<T>& vData)
     {
         dataBuffer.set_to_float_array(vData);
 
@@ -535,7 +535,7 @@ public:
     }
     //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     template<class T>
-    char* to_float_array(const Vec_Vec3<T>& vData)
+    unsigned char* to_float_array(const Vec_Vec3<T>& vData)
     {
         dataBuffer.set_to_float_array(vData);
 
@@ -544,7 +544,7 @@ public:
 
     //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     template<class T>
-    char* to_double_array(const std::vector<T>& vData)
+    unsigned char* to_double_array(const std::vector<T>& vData)
     {
         dataBuffer.set_to_double_array(vData);
 
@@ -553,7 +553,7 @@ public:
 
     //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     template<class T>
-    char* to_double_array(const Vec_Vec2<T>& vData)
+    unsigned char* to_double_array(const Vec_Vec2<T>& vData)
     {
         dataBuffer.set_to_double_array(vData);
 
@@ -562,7 +562,7 @@ public:
 
     //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     template<class T>
-    char* to_double_array(const Vec_Vec3<T>& vData)
+    unsigned char* to_double_array(const Vec_Vec3<T>& vData)
     {
         dataBuffer.set_to_double_array(vData);
 
@@ -570,7 +570,7 @@ public:
     }
 
     //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    static std::string byte_to_hex_encoder(const char* arrBytes, size_t arrSize)
+    static std::string byte_to_hex_encoder(const unsigned char* arrBytes, size_t arrSize)
     {
         std::stringstream ss;
 
@@ -658,9 +658,9 @@ public:
             create_output_folders();
         }
 
-        m_WriteFutureObj = std::async(std::launch::async, [&, fileName]()
+        m_WriteFutureObj = std::async(std::launch::async, [&]()
         {
-            const std::string fi▐leName = get_file_name(fileID);
+            const std::string fileName = get_file_name(fileID);
             FileHelpers::writte_file(m_FileBuffer.data(), m_FileBuffer.size(), fileName);
         });
     }

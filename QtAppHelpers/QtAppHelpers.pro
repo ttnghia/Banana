@@ -59,11 +59,5 @@ HEADERS += \
     Include/QtAppHelpers/Macro.h \
     Include/QtAppHelpers/OpenGLMainWindow.h \
     Include/QtAppHelpers/OpenGLWidget.h \
-    Include/QtAppHelpers/QtAppMacros.h
-
-SOURCES += \
-    Source/AntTweakBarWrapper.cpp \
-    Source/AvgTimer.cpp \
-    Source/OpenGLMainWindow.cpp \
-    Source/OpenGLWidget.cpp
-
+    Include/QtAppHelpers/QtAppMacros.h \
+    Include/QtAppHelpers/ColorSelector.h
