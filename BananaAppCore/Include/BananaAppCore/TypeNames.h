@@ -167,7 +167,7 @@ const Mat4x4<ScalarType> Identity4x4 = ym::identity_mat<ScalarType, 4>();
 
 // vectors of vectors
 template<class ScalarType>
-using  Vec_Vec2 = std::vector<Vec2<ScalarType> >;
+using Vec_Vec2 = std::vector<Vec2<ScalarType> >;
 
 template<class ScalarType>
 using Vec_Vec3 = std::vector<Vec3<ScalarType> >;

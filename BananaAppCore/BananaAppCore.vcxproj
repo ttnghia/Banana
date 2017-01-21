@@ -140,7 +140,7 @@
     <None Include="BananaAppCore.licenseheader" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Include\BananaAppCore\DataWriter.h" />
+    <ClInclude Include="Include\BananaAppCore\DataIO.h" />
     <ClInclude Include="Include\BananaAppCore\FileHelpers.h" />
     <ClInclude Include="Include\BananaAppCore\Macros.h" />
     <ClInclude Include="Include\BananaAppCore\NumberHelpers.h" />
