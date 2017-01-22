@@ -31,20 +31,20 @@ class ColorSelector : public QWidget
     Q_OBJECT
 public:
     explicit ColorSelector(QWidget *parent = 0) : QWidget(parent),
-        currentColor(Qt::blue)
+        m_CurrentColor(Qt::blue)
     {
         setMouseTracking(true);
         setAutoFillBackground(true);
     }
 
     //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    void setColor(QColor _color)
+    void setColor(QColor color)
     {
         QPalette palette = this->palette();
-        palette.setColor(QPalette::Window, _color);
+        palette.setColor(QPalette::Window, color);
         this->setPalette(palette);
 
-        currentColor = _color;
+        m_CurrentColor = color;
     }
 
     //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -59,13 +59,14 @@ signals:
 protected:
     void mousePressEvent(QMouseEvent *)
     {
-        QColor color = QColorDialog::getColor(currentColor, this);
+        QColor color = QColorDialog::getColor(m_CurrentColor, this);
         if(color.isValid())
         {
             setColor(color);
 
-            emit colorChanged((float)color.red() / 255.0f, (float)color.green() / 255.0f,
-                (float)color.blue() / 255.0f);
+            emit colorChanged(static_cast<float>(color.red()) / 255.0,
+                              static_cast<float>(color.green()) / 255.0,
+                              static_cast<float>(color.blue()) / 255.0);
         }
     }
 
@@ -82,5 +83,5 @@ protected:
     }
 
 private:
-    QColor currentColor;
+    QColor m_CurrentColor;
 };

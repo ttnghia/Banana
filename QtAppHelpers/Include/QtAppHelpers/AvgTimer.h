@@ -26,58 +26,60 @@
 #include <cassert>
 #include <QObject>
 
+using std::chrono::high_resolution_clock;
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 class AvgTimer : public QObject
 {
     Q_OBJECT
 
 public:
-    AvgTimer(double _updateTime = 2000) :
-        update_time(_updateTime),
-        ticktock_count(0),
-        timer_started(false)
+    AvgTimer(double updatePeriod = 2000) :
+        m_UpdatePeriod(updatePeriod),
+        m_TickTockCount(0),
+        m_isTimerStarted(false)
     {}
 
     //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     void tick()
     {
-        assert(!timer_started);
-        tick_time = std::chrono::high_resolution_clock::now();
-        timer_started = true;
+        assert(!m_isTimerStarted);
+        m_isTimerStarted = true;
+        m_TickTime = high_resolution_clock::now();
 
-        if(ticktock_count == 0)
+        if(m_TickTockCount == 0)
         {
-            start_time = std::chrono::high_resolution_clock::now();
+            m_StartTime = high_resolution_clock::now();
         }
     }
 
     //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     void tock()
     {
-        assert(timer_started);
-        tock_time = std::chrono::high_resolution_clock::now();
+        assert(m_isTimerStarted);
+        m_TockTime = high_resolution_clock::now();
+        m_isTimerStarted = false;
+        ++m_TickTockCount;
 
-        std::chrono::duration<double, std::milli> ticktock_duration =
+        std::chrono::duration<double, std::milli> ticktockDuration =
             std::chrono::duration_cast<std::chrono::duration<double, std::milli>>
-            (tock_time - tick_time);
+            (m_TockTime - m_TickTime);
 
-        std::chrono::duration<double, std::milli> timer_duration =
+        std::chrono::duration<double, std::milli> totalDuration =
             std::chrono::duration_cast<std::chrono::duration<double, std::milli>>
-            (tock_time - start_time);
+            (m_TockTime - m_StartTime);
 
-        total_time += ticktock_duration.count();
-        timer_started = false;
-        ++ticktock_count;
+        m_TotalTime += ticktockDuration.count();
 
-        if(timer_duration.count() >= update_time)
+        if(totalDuration.count() >= m_UpdatePeriod)
         {
-            double avg_time = total_time / (double)ticktock_count;
+            double avgTime = m_TotalTime / static_cast<double>(m_TickTockCount);
 
             //        qDebug() << "FPS: " << 1000.0 / renderTime << ", t = " << renderTime;
-            emit avgTimeChanged(avg_time);
+            emit avgTimeChanged(avgTime);
 
-            ticktock_count = 0;
-            total_time = 0;
+            m_TickTockCount = 0;
+            m_TotalTime = 0;
 
         }
     }
@@ -85,25 +87,26 @@ public:
     //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     double getAvgTime()
     {
-        return total_time / (double)ticktock_count;
+        return m_TotalTime / static_cast<double>(m_TickTockCount);
     }
 
     //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     double getTotalTime()
     {
-        return total_time;
+        return m_TotalTime;
     }
 
 
 signals:
-    void avgTimeChanged(double average_time);
+    void avgTimeChanged(double avgTime);
 
 private:
-    bool timer_started;
-    double total_time;
-    double update_time;
-    int ticktock_count;
-    std::chrono::high_resolution_clock::time_point start_time;
-    std::chrono::high_resolution_clock::time_point tick_time;
-    std::chrono::high_resolution_clock::time_point tock_time;
+    bool   m_isTimerStarted;
+    int    m_TickTockCount;
+    double m_TotalTime;
+    double m_UpdatePeriod;
+
+    high_resolution_clock::time_point m_StartTime;
+    high_resolution_clock::time_point m_TickTime;
+    high_resolution_clock::time_point m_TockTime;
 };

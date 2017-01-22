@@ -1,4 +1,4 @@
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+﻿//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //            .-..-.
 //           (-o/\o-)
 //          /`""``""`\
@@ -34,21 +34,20 @@ class OpenGLMainWindow : public QMainWindow
 
 public:
     OpenGLMainWindow(QWidget * parent)
-        : QMainWindow(parent), glWidget(nullptr)
+        : QMainWindow(parent), m_GlWidget(nullptr)
     {
         qApp->installEventFilter(this);
-        //    connect(glWidget, &OpenGLWidget::frameRateChanged, this, &OpenGLMainWindow::updateFrameRate);
 
-        lblStatusFPS = new QLabel(this);
-        lblStatusFPS->setMargin(5);
-        statusBar()->addPermanentWidget(lblStatusFPS);
+        m_LBLStatusFPS = new QLabel(this);
+        m_LBLStatusFPS->setMargin(5);
+        statusBar()->addPermanentWidget(m_LBLStatusFPS);
         statusBar()->setMinimumHeight(30);
         statusBar()->setSizeGripEnabled(false);
     }
 
     ~OpenGLMainWindow()
     {
-        delete glWidget;
+        delete m_GlWidget;
     }
 
     //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -79,9 +78,9 @@ public:
                 exit(EXIT_SUCCESS);
 
             default:
-                if(glWidget != nullptr)
+                if(m_GlWidget != nullptr)
                 {
-                    glWidget->keyPressEvent(event);
+                    m_GlWidget->keyPressEvent(event);
                 }
         }
     }
@@ -102,27 +101,25 @@ protected:
     //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     void updateFrameRate(double avgFrameTime)
     {
-        lblStatusFPS->setText(QString("Frame time: %1ms (~ %2 FPS)")
-                              .arg(avgFrameTime).arg(1000.0 / avgFrameTime));
+        m_LBLStatusFPS->setText(QString("Frame time: %1ms (~ %2 FPS)")
+                                .arg(avgFrameTime).arg(1000.0 / avgFrameTime));
     }
 
     //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    void setupOpenglWidget(OpenGLWidget* _glWidget)
+    void setupOpenglWidget(OpenGLWidget* glWidget)
     {
-        if(glWidget != nullptr)
+        if(m_GlWidget != nullptr)
         {
-            delete glWidget;
+            delete m_GlWidget;
         }
 
-        glWidget = _glWidget;
-        setCentralWidget(glWidget);
-        //    connect(glWidget, &OpenGLWidget::frameRateChanged, this,
-        //            &OpenGLMainWindow::updateFrameRate);
-        connect(&glWidget->FPSTimer, &AvgTimer::avgTimeChanged, this,
+        m_GlWidget = glWidget;
+        setCentralWidget(m_GlWidget);
+        connect(&m_GlWidget->m_FPSTimer, &AvgTimer::avgTimeChanged, this,
                 &OpenGLMainWindow::updateFrameRate);
     }
 
     //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    OpenGLWidget* glWidget;
-    QLabel* lblStatusFPS;
+    QLabel*       m_LBLStatusFPS;
+    OpenGLWidget* m_GlWidget;
 };

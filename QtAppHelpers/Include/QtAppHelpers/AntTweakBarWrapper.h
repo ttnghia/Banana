@@ -32,7 +32,7 @@
 class AntTweakBarWrapper
 {
 public:
-    AntTweakBarWrapper() : antTweakBar(nullptr)
+    AntTweakBarWrapper() : m_AntTweakBar(nullptr)
     {}
 
     //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -190,7 +190,7 @@ public:
     //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     void renderAntTweakBar()
     {
-        if(antTweakBar != nullptr)
+        if(m_AntTweakBar != nullptr)
         {
             TwDraw();
         }
@@ -228,5 +228,5 @@ protected:
     }
 
     //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    TwBar* antTweakBar;
+    TwBar* m_AntTweakBar;
 };

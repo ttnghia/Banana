@@ -89,11 +89,11 @@ public:
     }
 
     //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    void setFrustum(float fov, float near, float far)
+    void setFrustum(float fov, float nearZ, float farZ)
     {
         m_Frustum.m_Fov  = fov;
-        m_Frustum.m_Near = near;
-        m_Frustum.m_Far  = far;
+        m_Frustum.m_Near = nearZ;
+        m_Frustum.m_Far  = farZ;
     }
     void resizeWindow(int width, int height)
     {

@@ -33,28 +33,28 @@ class ArcBall
 {
 public:
     ArcBall() :
-        drag(false),
-        radius(1.0),
-        center(0.0, 0.0, 0.0),
-        v_now(0.0, 0.0, 0.0),
-        v_down(0.0, 0.0, 0.0),
-        q_now(1.0, 0.0, 0.0, 0.0),
-        q_end(1.0, 0.0, 0.0, 0.0),
-        mat_now(glm::mat4(1.0))
+        m_Drag(false),
+        m_Radius(1.0),
+        m_Center(0.0, 0.0, 0.0),
+        m_MouseNow(0.0, 0.0, 0.0),
+        m_MouseDownPos(0.0, 0.0, 0.0),
+        m_CurrentRot(1.0, 0.0, 0.0, 0.0),
+        m_RotationEnd(1.0, 0.0, 0.0, 0.0),
+        m_RotationMatrix(glm::mat4(1.0))
     {}
 
     ////////////////////////////////////////////////////////////////////////////////
     /// sets the window size.
     inline void set_windown_size(float _width, float _height)
     {
-        width = _width;
-        height = _height;
+        m_WindowWidth = _width;
+        m_WindowHeight = _height;
     }
 
     inline void set_windown_size(int _width, int _height)
     {
-        width = (float)_width;
-        height = (float)_height;
+        m_WindowWidth = (float)_width;
+        m_WindowHeight = (float)_height;
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -62,14 +62,14 @@ public:
     /// position.
     inline void place(const glm::vec3& center)
     {
-        this->center = center;
+        this->m_Center = center;
     }
 
     ////////////////////////////////////////////////////////////////////////////////
     /// sets the radius of the virtual trackball.
     inline void set_r(float r)
     {
-        this->radius = r;
+        this->m_Radius = r;
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -77,14 +77,14 @@ public:
     /// rotation matrix.
     inline void set_mouse_coordinate(int x, int y)
     {
-        if(!drag)
+        if(!m_Drag)
         {
             return;
         }
 
-        v_now[0] = 2.0 * ((float)x / width) - 1.0;
-        v_now[1] = 2.0 * ((float)(height - y) / height) - 1.0;
-        v_now[2] = 0.0;
+        m_MouseNow[0] = 2.0 * ((float)x / m_WindowWidth) - 1.0;
+        m_MouseNow[1] = 2.0 * ((float)(m_WindowHeight - y) / m_WindowHeight) - 1.0;
+        m_MouseNow[2] = 0.0;
         update(); // calculate rotation matrix
     }
 
@@ -92,20 +92,20 @@ public:
     /// indicates the beginning of the dragging.
     inline void begin_drag(int x, int y)
     {
-        drag = true;  // start dragging
+        m_Drag = true;  // start dragging
 
         // remember start position
-        v_down[0] = 2.0f * ((float)x / width) - 1.0f;
-        v_down[1] = 2.0f * ((float)(height - y) / height) - 1.0f;
-        v_down[2] = 0.0f;
+        m_MouseDownPos[0] = 2.0f * ((float)x / m_WindowWidth) - 1.0f;
+        m_MouseDownPos[1] = 2.0f * ((float)(m_WindowHeight - y) / m_WindowHeight) - 1.0f;
+        m_MouseDownPos[2] = 0.0f;
     }
 
     ////////////////////////////////////////////////////////////////////////////////
     /// marks the end of the dragging.
     inline void end_drag()
     {
-        drag = false; // stop dragging
-        q_end = q_now; // remember rotation
+        m_Drag = false; // stop dragging
+        m_RotationEnd = m_CurrentRot; // remember rotation
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -113,31 +113,20 @@ public:
     /// for the OpenGL command 'glMultMatrixf'.
     inline const glm::quat get_rotation_quaternion() const
     {
-        return q_now;
+        return m_CurrentRot;
     }
     inline const glm::mat4 get_rotation_matrix() const
     {
-        return mat_now;
+        return m_RotationMatrix;
     }
     inline const float* get_rotation_data() const
     {
-        return glm::value_ptr(mat_now);
+        return glm::value_ptr(m_RotationMatrix);
     }
 
     ////////////////////////////////////////////////////////////////////////////////
 
 private:
-    float width;        // width of window
-    float height;       // height of window
-    bool drag;          // flag: true=dragging, false=nothing
-    float radius;       // radius of the virtual trackball
-    glm::vec3 center;   // center of the virutal trackball
-    glm::vec3 v_now;    // current mouse position
-    glm::vec3 v_down;   // mouse position at the beginning of dragging
-    glm::quat q_now;    // current rotation
-    glm::quat q_end;    // rotation after the dragging
-    glm::mat4 mat_now;  // current rotation matrix
-
     ////////////////////////////////////////////////////////////////////////////////
     /// maps the specified mouse position to the sphere defined
     /// with center and radius. the resulting vector lies on the
@@ -184,11 +173,23 @@ private:
     /// both coordinates mapped to the surface of the virtual trackball.
     inline void update()
     {
-        glm::vec3 v_from = map_sphere(v_down, center, radius);
-        glm::vec3 v_to = map_sphere(v_now, center, radius);
+        glm::vec3 v_from = map_sphere(m_MouseDownPos, m_Center, m_Radius);
+        glm::vec3 v_to = map_sphere(m_MouseNow, m_Center, m_Radius);
 
-        q_now = from_ball_points(v_from, v_to) * q_end;
-        mat_now = glm::mat4_cast(q_now);
+        m_CurrentRot = from_ball_points(v_from, v_to) * m_RotationEnd;
+        m_RotationMatrix = glm::mat4_cast(m_CurrentRot);
 
     }
+
+    //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    float     m_WindowWidth;        // width of window
+    float     m_WindowHeight;       // height of window
+    bool      m_Drag;          // flag: true=dragging, false=nothing
+    float     m_Radius;       // radius of the virtual trackball
+    glm::vec3 m_Center;   // center of the virutal trackball
+    glm::vec3 m_MouseNow;    // current mouse position
+    glm::vec3 m_MouseDownPos;   // mouse position at the beginning of dragging
+    glm::quat m_CurrentRot;    // current rotation
+    glm::quat m_RotationEnd;    // rotation after the dragging
+    glm::mat4 m_RotationMatrix;  // current rotation matrix
 };
