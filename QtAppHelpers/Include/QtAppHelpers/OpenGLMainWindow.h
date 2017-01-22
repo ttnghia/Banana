@@ -24,7 +24,7 @@
 
 #include <QtWidgets>
 #include <QtGui>
-
+#include <arthurstyle.h>
 #include <QtAppHelpers/OpenGLWidget.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -74,14 +74,14 @@ public:
     {
         switch(event->key())
         {
-        case Qt::Key_Escape:
-            exit(EXIT_SUCCESS);
+            case Qt::Key_Escape:
+                exit(EXIT_SUCCESS);
 
-        default:
-            if(m_GlWidget != nullptr)
-            {
-                m_GlWidget->keyPressEvent(event);
-            }
+            default:
+                if(m_GlWidget != nullptr)
+                {
+                    m_GlWidget->keyPressEvent(event);
+                }
         }
     }
 
@@ -92,7 +92,28 @@ public:
 
     }
 
-public slots:
+    //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    void setArthurStyle()
+    {
+        QStyle* arthurStyle = new ArthurStyle();
+        setStyle(arthurStyle);
+        QList<QWidget*> widgets = findChildren<QWidget*>();
+
+        foreach(QWidget* w, widgets)
+        {
+            QString className = QString(w->metaObject()->className());
+
+            if(className == "QScrollBar" || className == "QComboBox" ||
+               className == "QCheckBox")
+            {
+                continue;
+            }
+
+            w->setStyle(arthurStyle);
+        }
+    }
+
+    public slots:
     void updateFrameRate(double avgFrameTime)
     {
         m_LBLStatusFPS->setText(QString("Frame time: %1ms (~ %2 FPS)")
