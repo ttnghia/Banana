@@ -37,7 +37,7 @@
 class Shader : public OpenGLFunctions
 {
 public:
-    Shader() : isLink(false)
+    Shader() : m_isProgramLinked(false)
     {
         initializeOpenGLFunctions();
     }
@@ -45,7 +45,7 @@ public:
 class Shader
 {
 public:
-    Shader() : isLink(false)
+    Shader() : m_isProgramLinked(false)
     {}
 #endif
 
@@ -53,7 +53,7 @@ public:
 
     bool isValid()
     {
-        return isLink;
+        return m_isProgramLinked;
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -106,24 +106,25 @@ public:
     {
         programID = glCall(glCreateProgram());
 
-        for(GLuint shader : shaders)
+        for(GLuint shader : m_ShaderIDs)
         {
             glCall(glAttachShader(programID, shader));
         }
 
         glCall(glLinkProgram(programID));
 
-        if(glCall(checkLinkError(programID)))
+        bool linkSuccess = glCall(checkLinkError(programID));
+        if(linkSuccess)
         {
-            isLink = true;
+            m_isProgramLinked = true;
         }
 
-        for(GLuint shader : shaders)
+        for(GLuint shader : m_ShaderIDs)
         {
             glCall(glDeleteShader(shader));
         }
 
-        shaders.clear();
+        m_ShaderIDs.clear();
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -240,7 +241,7 @@ protected:
         // => add shader into list
         if(checkCompileError(shader, shaderType))
         {
-            shaders.push_back(shader);
+            m_ShaderIDs.push_back(shader);
         }
     }
 
@@ -323,6 +324,6 @@ protected:
     ////////////////////////////////////////////////////////////////////////////////
 
 
-    std::vector<GLuint> shaders;
-    bool                isLink;
+    std::vector<GLuint> m_ShaderIDs;
+    bool                m_isProgramLinked;
 };

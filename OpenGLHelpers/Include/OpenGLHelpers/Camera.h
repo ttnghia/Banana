@@ -40,11 +40,11 @@ class Camera
         float m_Far;
 
 
-        Frustum(float fov = 45.0f, float near = 0.1f, float far = 1000.0f)
+        Frustum(float fov = 45.0f, float nearZ = 0.1f, float farZ = 1000.0f)
         {
             m_Fov = fov;
-            m_Near = near;
-            m_Far = far;
+            m_Near = nearZ;
+            m_Far = farZ;
         }
 
     };

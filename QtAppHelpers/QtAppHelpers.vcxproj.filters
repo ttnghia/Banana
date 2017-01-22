@@ -5,6 +5,10 @@
       <UniqueIdentifier>{71ED8ED8-ACB9-4CE9-BBE1-E00B30144E11}</UniqueIdentifier>
       <Extensions>cpp;c;cxx;moc;h;def;odl;idl;res;</Extensions>
     </Filter>
+    <Filter Include="Generated Files">
+      <UniqueIdentifier>{71ED8ED8-ACB9-4CE9-BBE1-E00B30144E11}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;moc;h;def;odl;idl;res;</Extensions>
+    </Filter>
     <Filter Include="Header Files">
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
@@ -22,71 +26,69 @@
       <Extensions>cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
     <Filter Include="Generated Files\Debug">
-      <UniqueIdentifier>{ef47e6e8-6790-4bbe-8903-73486b9f426c}</UniqueIdentifier>
+      <UniqueIdentifier>{27405c14-4aaa-4a02-b492-d617de66b13d}</UniqueIdentifier>
       <Extensions>cpp;moc</Extensions>
       <SourceControlFiles>False</SourceControlFiles>
     </Filter>
     <Filter Include="Generated Files\Release">
-      <UniqueIdentifier>{e5e020f2-db10-4b1c-90cf-9fdd4bc25b03}</UniqueIdentifier>
+      <UniqueIdentifier>{1e323dcd-1c5c-49a8-9320-5d9f00929ba0}</UniqueIdentifier>
       <Extensions>cpp;moc</Extensions>
       <SourceControlFiles>False</SourceControlFiles>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="QtAppHelpers.licenseheader" />
+    <ClCompile Include="Lib.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\Debug\moc_OpenGLWidget.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\Release\moc_OpenGLWidget.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\Debug\moc_OpenGLMainWindow.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\Release\moc_OpenGLMainWindow.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\Debug\moc_ColorSelector.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\Release\moc_ColorSelector.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\Debug\moc_AvgTimer.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\Release\moc_AvgTimer.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\QtAppHelpers\AntTweakBarWrapper.h">
-      <Filter>Generated Files</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\QtAppHelpers\DeviceToLogical.h">
-      <Filter>Generated Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\QtAppHelpers\QtAppMacros.h">
-      <Filter>Generated Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\QtAppHelpers\QtAppShader.h">
-      <Filter>Generated Files</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
     <CustomBuild Include="Include\QtAppHelpers\AvgTimer.h">
-      <Filter>Generated Files</Filter>
+      <Filter>Header Files</Filter>
     </CustomBuild>
     <CustomBuild Include="Include\QtAppHelpers\ColorSelector.h">
-      <Filter>Generated Files</Filter>
+      <Filter>Header Files</Filter>
     </CustomBuild>
+    <ClInclude Include="Include\QtAppHelpers\DeviceToLogical.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <CustomBuild Include="Include\QtAppHelpers\OpenGLMainWindow.h">
-      <Filter>Generated Files</Filter>
+      <Filter>Header Files</Filter>
     </CustomBuild>
     <CustomBuild Include="Include\QtAppHelpers\OpenGLWidget.h">
-      <Filter>Generated Files</Filter>
+      <Filter>Header Files</Filter>
     </CustomBuild>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Moc\Debug\moc_AvgTimer.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Moc\Release\moc_AvgTimer.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Moc\Debug\moc_ColorSelector.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Moc\Release\moc_ColorSelector.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Moc\Debug\moc_OpenGLMainWindow.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Moc\Release\moc_OpenGLMainWindow.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Moc\Debug\moc_OpenGLWidget.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Moc\Release\moc_OpenGLWidget.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
+    <ClInclude Include="Include\QtAppHelpers\QtAppMacros.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\QtAppHelpers\QtAppShader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

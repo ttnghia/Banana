@@ -33,7 +33,7 @@ class OpenGLMainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    OpenGLMainWindow(QWidget * parent)
+    OpenGLMainWindow(QWidget* parent)
         : QMainWindow(parent), m_GlWidget(nullptr)
     {
         qApp->installEventFilter(this);
@@ -74,14 +74,14 @@ public:
     {
         switch(event->key())
         {
-            case Qt::Key_Escape:
-                exit(EXIT_SUCCESS);
+        case Qt::Key_Escape:
+            exit(EXIT_SUCCESS);
 
-            default:
-                if(m_GlWidget != nullptr)
-                {
-                    m_GlWidget->keyPressEvent(event);
-                }
+        default:
+            if(m_GlWidget != nullptr)
+            {
+                m_GlWidget->keyPressEvent(event);
+            }
         }
     }
 
@@ -92,18 +92,15 @@ public:
 
     }
 
-    public slots:
-    void updateFrameRate(double avgFrameTime);
-
-protected:
-    virtual void instantiateOpenGLWidget() = 0;
-
-    //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+public slots:
     void updateFrameRate(double avgFrameTime)
     {
         m_LBLStatusFPS->setText(QString("Frame time: %1ms (~ %2 FPS)")
                                 .arg(avgFrameTime).arg(1000.0 / avgFrameTime));
     }
+
+protected:
+    virtual void instantiateOpenGLWidget() = 0;
 
     //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     void setupOpenglWidget(OpenGLWidget* glWidget)

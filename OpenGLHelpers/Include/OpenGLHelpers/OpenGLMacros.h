@@ -23,28 +23,57 @@
 #pragma once
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#if _DEBUG
-#define glCall(a)\
-    a; {\
-        GLenum _err = glGetError();\
-        if (_err!=GL_NO_ERROR) {\
-            std::string str = "GL error when calling\n\""+std::string(#a)+\
-            "\"\n\nOpenGL error "+Falcor::GlEnum2Str::error(_err)+ \
-            ", in file "+__FILE__+", line "+std::to_string(__LINE__);\
-            Falcor::Logger::log(Falcor::Logger::Level::Error, str);\
-        }\
-    }
-#else
-#define glCall(a) a;
-#endif
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #if defined(QT_GUI_LIB) || defined(QT_CORE_LIB)
 #   include <QtAppHelpers/QtAppMacros.h>
 #   define __Banana_Qt__
 #else
 #   define GLEW_STATIC
 #   include <GL/glew.h>
+#endif
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+inline std::string GLErr2Str(GLenum err)
+{
+    switch(err)
+    {
+        case GL_NO_ERROR:
+            return std::string("No error.");
+
+        case GL_INVALID_ENUM:
+            return std::string("Invalid enum.");
+
+        case GL_INVALID_VALUE:
+            return std::string("Invalid value.");
+
+        case GL_INVALID_OPERATION:
+            return std::string("Invalid operation.");
+
+        case GL_STACK_OVERFLOW:
+            return std::string("Stack overflow.");
+
+        case GL_STACK_UNDERFLOW:
+            return std::string("Stack underflow.");
+
+        case GL_OUT_OF_MEMORY:
+            return std::string("Out of memory.");
+
+        default:
+            return std::string("Unknown error.");
+    }
+}
+
+#if _DEBUG
+#define glCall(a)\
+    a; {\
+        GLenum err = glGetError();\
+        if (err!=GL_NO_ERROR) {\
+            std::string str = "GL error when calling\n\""+std::string(#a)+\
+            "\"\n\nOpenGL error: "+GLErr2Str(err)+ \
+            ", in file: "+__FILE__+", line: "+std::to_string(__LINE__);\
+        }\
+    }
+#else
+#define glCall(a) a;
 #endif
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
