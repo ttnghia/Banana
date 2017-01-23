@@ -38,11 +38,11 @@ public:
     {
         qApp->installEventFilter(this);
 
-        m_LBLStatusFPS = new QLabel(this);
-        m_LBLStatusFPS->setMargin(5);
-        statusBar()->addPermanentWidget(m_LBLStatusFPS);
+        m_lblStatusFPS = new QLabel(this);
+        m_lblStatusFPS->setMargin(5);
+        statusBar()->addPermanentWidget(m_lblStatusFPS, 1);
         statusBar()->setMinimumHeight(30);
-        statusBar()->setSizeGripEnabled(false);
+        //statusBar()->setSizeGripEnabled(false);
     }
 
     ~OpenGLMainWindow()
@@ -75,6 +75,7 @@ public:
         switch(event->key())
         {
             case Qt::Key_Escape:
+                close();
                 exit(EXIT_SUCCESS);
 
             default:
@@ -88,8 +89,10 @@ public:
     //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     virtual void processKeyReleaseEvent(QKeyEvent* event)
     {
-        (void)event;
-
+        if(m_GlWidget != nullptr)
+        {
+            m_GlWidget->keyReleaseEvent(event);
+        }
     }
 
     //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -116,7 +119,7 @@ public:
     public slots:
     void updateFrameRate(double avgFrameTime)
     {
-        m_LBLStatusFPS->setText(QString("Frame time: %1ms (~ %2 FPS)")
+        m_lblStatusFPS->setText(QString("Frame time: %1 ms (~ %2 FPS)")
                                 .arg(avgFrameTime).arg(1000.0 / avgFrameTime));
     }
 
@@ -138,6 +141,6 @@ protected:
     }
 
     //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    QLabel*       m_LBLStatusFPS;
+    QLabel*       m_lblStatusFPS;
     OpenGLWidget* m_GlWidget;
 };

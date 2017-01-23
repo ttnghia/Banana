@@ -29,3 +29,5 @@
 #include <QtAppHelpers/OpenGLWidget.h>
 #include <QtAppHelpers/OpenGLMainWindow.h>
 #include <QtAppHelpers/QtAppShader.h>
+#include <QtAppHelpers/EnhancedComboBox.h>
+#include <QtAppHelpers/EnhancedSlider.h>
