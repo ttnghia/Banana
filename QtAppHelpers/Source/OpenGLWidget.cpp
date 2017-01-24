@@ -27,7 +27,7 @@ OpenGLWidget::OpenGLWidget(QWidget* parent) :
     QOpenGLWidget(parent),
     m_bPrintDebug(true),
     m_WidgetUpdateTimeout(0),
-    m_DefaultSize(QSize(1024, 1024)),
+    m_DefaultSize(QSize(1920, 1080)),
     m_ClearColor(QVector4D(0.38f, 0.52f, 0.10f, 1.0f)),
     m_SpecialKeyPressed(SpecialKey::NoKey),
     m_CaptureImage(nullptr)

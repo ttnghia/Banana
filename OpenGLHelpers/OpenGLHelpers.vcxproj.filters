@@ -45,7 +45,7 @@
     <ClCompile Include="Source\OpenGLBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Shader.cpp">
+    <ClCompile Include="Source\ShaderProgram.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -80,10 +80,10 @@
     <ClInclude Include="Include\OpenGLHelpers\OpenGLMacros.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\OpenGLHelpers\Shader.h">
+    <ClInclude Include="Include\OpenGLHelpers\SphereObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\OpenGLHelpers\SphereObject.h">
+    <ClInclude Include="Include\OpenGLHelpers\ShaderProgram.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

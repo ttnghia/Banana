@@ -74,9 +74,6 @@
     <ClCompile Include="Source\OpenGLWidget.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\QtAppShader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\DebugQt\moc_AvgTimer.cpp">
       <Filter>Generated Files\DebugQt</Filter>
     </ClCompile>
@@ -173,6 +170,9 @@
     <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\ReleaseQt\moc_OpenGLWidget.cpp">
       <Filter>Generated Files\ReleaseQt</Filter>
     </ClCompile>
+    <ClCompile Include="Source\QtAppShaderProgram.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\QtAppHelpers\AntTweakBarWrapper.h">
@@ -208,7 +208,7 @@
     <ClInclude Include="Include\QtAppHelpers\QtAppMacros.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\QtAppHelpers\QtAppShader.h">
+    <ClInclude Include="Include\QtAppHelpers\QtAppShaderProgram.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

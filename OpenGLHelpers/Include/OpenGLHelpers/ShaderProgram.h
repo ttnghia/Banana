@@ -1,4 +1,4 @@
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+﻿//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //            .-..-.
 //           (-o/\o-)
 //          /`""``""`\
@@ -24,6 +24,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 #include <iostream>
 #include <fstream>
 
@@ -34,19 +35,35 @@
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #ifdef __Banana_Qt__
-class Shader : public OpenGLFunctions
+class ShaderProgram : public OpenGLFunctions
 {
 public:
-    Shader() : m_isProgramLinked(false)
+    ShaderProgram() : m_isProgramLinked(false)
     {
         initializeOpenGLFunctions();
     }
+
+    ShaderProgram(const char* vsFile, const char* fsFile) : m_isProgramLinked(false)
+    {
+        initializeOpenGLFunctions();
+
+        addVertexShaderFromFile(vsFile);
+        addFragmentShaderFromFile(fsFile);
+        link();
+    }
 #else
-class Shader
+class ShaderProgram
 {
 public:
-    Shader() : m_isProgramLinked(false)
+    ShaderProgram() : m_isProgramLinked(false)
     {}
+
+    ShaderProgram(const char* vsFile, const char* fsFile) : m_isProgramLinked(false)
+    {
+        addVertexShaderFromFile(vsFile);
+        addFragmentShaderFromFile(fsFile);
+        link();
+    }
 #endif
 
     bool isValid();
@@ -59,7 +76,8 @@ public:
     void addGeometryShaderFromFile(const char* fileName);
     void addFragmentShaderFromFile(const char* fileName);
 
-    void link();
+    bool link();
+    void reloadShaders();
 
     void bind()
     {
@@ -93,6 +111,7 @@ protected:
     void loadFile(std::string& fileContent, const char* fileName);
 
     ////////////////////////////////////////////////////////////////////////////////
-    std::vector<GLuint> m_ShaderIDs;
-    bool                m_isProgramLinked;
+    std::vector<GLuint>           m_ShaderIDs;
+    bool                          m_isProgramLinked;
+    std::map<GLenum, std::string> m_ShaderSourceFiles;
 };

@@ -251,7 +251,7 @@
     <ClCompile Include="Source\MeshLoader.cpp" />
     <ClCompile Include="Source\MeshObject.cpp" />
     <ClCompile Include="Source\OpenGLBuffer.cpp" />
-    <ClCompile Include="Source\Shader.cpp" />
+    <ClCompile Include="Source\ShaderProgram.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\OpenGLHelpers\ArcBall.h" />
@@ -264,7 +264,7 @@
     <ClInclude Include="Include\OpenGLHelpers\MeshObject.h" />
     <ClInclude Include="Include\OpenGLHelpers\OpenGLBuffer.h" />
     <ClInclude Include="Include\OpenGLHelpers\OpenGLMacros.h" />
-    <ClInclude Include="Include\OpenGLHelpers\Shader.h" />
+    <ClInclude Include="Include\OpenGLHelpers\ShaderProgram.h" />
     <ClInclude Include="Include\OpenGLHelpers\SphereObject.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

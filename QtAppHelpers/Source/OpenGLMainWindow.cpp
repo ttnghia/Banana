@@ -131,7 +131,6 @@ void OpenGLMainWindow::updateFrameRate(double fps)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-
 void OpenGLMainWindow::setupOpenglWidget(OpenGLWidget * glWidget)
 {
     if(m_GLWidget != nullptr)

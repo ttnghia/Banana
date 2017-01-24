@@ -418,7 +418,7 @@
     <ClCompile Include="Source\FPSCounter.cpp" />
     <ClCompile Include="Source\OpenGLMainWindow.cpp" />
     <ClCompile Include="Source\OpenGLWidget.cpp" />
-    <ClCompile Include="Source\QtAppShader.cpp" />
+    <ClCompile Include="Source\QtAppShaderProgram.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\QtAppHelpers\AntTweakBarWrapper.h" />
@@ -568,7 +568,7 @@
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='ReleaseQt|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
     </CustomBuild>
     <ClInclude Include="Include\QtAppHelpers\QtAppMacros.h" />
-    <ClInclude Include="Include\QtAppHelpers\QtAppShader.h" />
+    <ClInclude Include="Include\QtAppHelpers\QtAppShaderProgram.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />

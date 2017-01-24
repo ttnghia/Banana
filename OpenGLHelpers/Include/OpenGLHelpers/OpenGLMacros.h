@@ -32,7 +32,9 @@ typedef  QOpenGLFunctions_4_1_Core OpenGLFunctions;
 #      include <QOpenGLFunctions_4_5_Core>
 typedef  QOpenGLFunctions_4_5_Core OpenGLFunctions;
 #   endif
-#   define __Banana_Qt__
+#   ifndef __Banana_Qt__
+#      define __Banana_Qt__
+#   endif
 #else
 #   define GLEW_STATIC
 #   include <GL/glew.h>

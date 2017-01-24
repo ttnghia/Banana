@@ -193,7 +193,7 @@ void MeshObject::clearElementIndexLong()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MeshObject::render()
+void MeshObject::draw()
 {
     if(!m_isDataReady)
         return;

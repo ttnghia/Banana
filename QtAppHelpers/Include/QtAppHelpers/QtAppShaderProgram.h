@@ -22,14 +22,14 @@
 
 #pragma once
 
-#include <OpenGLHelpers/Shader.h>
+#include <OpenGLHelpers/ShaderProgram.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class QtAppShader : public Shader
+class QtAppShaderProgram : public ShaderProgram
 {
 public:
 
-    QtAppShader()
+    QtAppShaderProgram()
     {}
 
     void addVertexShaderFromResource(const char* fileName);

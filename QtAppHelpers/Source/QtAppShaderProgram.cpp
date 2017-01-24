@@ -24,10 +24,10 @@
 #include <QTextStream>
 #include <Qdebug>
 
-#include <QtAppHelpers/QtAppShader.h>
+#include <QtAppHelpers/QtAppShaderProgram.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void QtAppShader::addVertexShaderFromResource(const char * fileName)
+void QtAppShaderProgram::addVertexShaderFromResource(const char * fileName)
 {
     std::string shaderSouce;
     loadResourceFile(shaderSouce, fileName);
@@ -36,7 +36,7 @@ void QtAppShader::addVertexShaderFromResource(const char * fileName)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void QtAppShader::addGeometryShaderFromResource(const char * fileName)
+void QtAppShaderProgram::addGeometryShaderFromResource(const char * fileName)
 {
     std::string shaderSouce;
     loadResourceFile(shaderSouce, fileName);
@@ -45,7 +45,7 @@ void QtAppShader::addGeometryShaderFromResource(const char * fileName)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void QtAppShader::addFragmentShaderFromResource(const char * fileName)
+void QtAppShaderProgram::addFragmentShaderFromResource(const char * fileName)
 {
     std::string shaderSouce;
     loadResourceFile(shaderSouce, fileName);
@@ -54,7 +54,7 @@ void QtAppShader::addFragmentShaderFromResource(const char * fileName)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void QtAppShader::loadResourceFile(std::string & fileContent, const char * fileName)
+void QtAppShaderProgram::loadResourceFile(std::string & fileContent, const char * fileName)
 {
     QFile file(fileName);
 
