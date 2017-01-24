@@ -34,7 +34,7 @@ class OpenGLMainWindow : public QMainWindow
 
 public:
     OpenGLMainWindow(QWidget* parent)
-        : QMainWindow(parent), m_GlWidget(nullptr)
+        : QMainWindow(parent), m_GLWidget(nullptr)
     {
         qApp->installEventFilter(this);
 
@@ -47,7 +47,7 @@ public:
 
     ~OpenGLMainWindow()
     {
-        delete m_GlWidget;
+        delete m_GLWidget;
     }
 
     //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -79,9 +79,9 @@ public:
                 exit(EXIT_SUCCESS);
 
             default:
-                if(m_GlWidget != nullptr)
+                if(m_GLWidget != nullptr)
                 {
-                    m_GlWidget->keyPressEvent(event);
+                    m_GLWidget->keyPressEvent(event);
                 }
         }
     }
@@ -89,9 +89,9 @@ public:
     //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     virtual void processKeyReleaseEvent(QKeyEvent* event)
     {
-        if(m_GlWidget != nullptr)
+        if(m_GLWidget != nullptr)
         {
-            m_GlWidget->keyReleaseEvent(event);
+            m_GLWidget->keyReleaseEvent(event);
         }
     }
 
@@ -129,18 +129,18 @@ protected:
     //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     void setupOpenglWidget(OpenGLWidget* glWidget)
     {
-        if(m_GlWidget != nullptr)
+        if(m_GLWidget != nullptr)
         {
-            delete m_GlWidget;
+            delete m_GLWidget;
         }
 
-        m_GlWidget = glWidget;
-        setCentralWidget(m_GlWidget);
-        connect(&m_GlWidget->m_FPSTimer, &AvgTimer::avgTimeChanged, this,
+        m_GLWidget = glWidget;
+        setCentralWidget(m_GLWidget);
+        connect(&m_GLWidget->m_FPSTimer, &AvgTimer::avgTimeChanged, this,
                 &OpenGLMainWindow::updateFrameRate);
     }
 
     //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     QLabel*       m_lblStatusFPS;
-    OpenGLWidget* m_GlWidget;
+    OpenGLWidget* m_GLWidget;
 };

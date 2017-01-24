@@ -44,7 +44,7 @@ public:
         m_bPrintDebug(true),
         m_WidgetUpdateTimeout(0),
         m_DefaultSize(QSize(1024, 1024)),
-        m_ClearColor(QVector4D(0.38, 0.52, 0.10, 1.0)),
+        m_ClearColor(QVector4D(0.38f, 0.52f, 0.10f, 1.0f)),
         m_SpecialKeyPressed(SpecialKey::NoKey)
     {
         connect(this, SIGNAL(emitDebugString(QString)), this, SLOT(printDebug(QString)));
@@ -195,41 +195,41 @@ public:
 
         switch(event->key())
         {
-        case Qt::Key_Shift:
-            m_SpecialKeyPressed = SpecialKey::ShiftKey;
-            break;
+            case Qt::Key_Shift:
+                m_SpecialKeyPressed = SpecialKey::ShiftKey;
+                break;
 
-        case Qt::Key_Plus:
-            m_Camera.zoom(-0.1f);
-            break;
+            case Qt::Key_Plus:
+                m_Camera.zoom(-0.1f);
+                break;
 
-        case Qt::Key_Minus:
-            m_Camera.zoom(0.1f);
-            break;
+            case Qt::Key_Minus:
+                m_Camera.zoom(0.1f);
+                break;
 
-        case Qt::Key_Up:
-            m_Camera.translate(glm::vec2(0, 0.5));
-            break;
+            case Qt::Key_Up:
+                m_Camera.translate(glm::vec2(0, 0.5));
+                break;
 
-        case Qt::Key_Down:
-            m_Camera.translate(glm::vec2(0, -0.5));
-            break;
+            case Qt::Key_Down:
+                m_Camera.translate(glm::vec2(0, -0.5));
+                break;
 
-        case Qt::Key_Left:
-            m_Camera.translate(glm::vec2(-0.5, 0));
-            break;
+            case Qt::Key_Left:
+                m_Camera.translate(glm::vec2(-0.5, 0));
+                break;
 
-        case Qt::Key_Right:
-            m_Camera.translate(glm::vec2(0.5, 0));
-            break;
+            case Qt::Key_Right:
+                m_Camera.translate(glm::vec2(0.5, 0));
+                break;
 
-        case Qt::Key_R:
-            m_Camera.reset();
-            break;
+            case Qt::Key_R:
+                m_Camera.reset();
+                break;
 
 
-        default:
-            break;
+            default:
+                break;
         }
 
     }
@@ -290,37 +290,37 @@ protected:
 
         switch(glGetError())
         {
-        case GL_NO_ERROR:
-            glErrStr += "No error.";
-            break;
+            case GL_NO_ERROR:
+                glErrStr += "No error.";
+                break;
 
-        case GL_INVALID_ENUM:
-            glErrStr += "Invalid enum.";
-            break;
+            case GL_INVALID_ENUM:
+                glErrStr += "Invalid enum.";
+                break;
 
-        case GL_INVALID_VALUE:
-            glErrStr += "Invalid value.";
-            break;
+            case GL_INVALID_VALUE:
+                glErrStr += "Invalid value.";
+                break;
 
-        case GL_INVALID_OPERATION:
-            glErrStr += "Invalid operation.";
-            break;
+            case GL_INVALID_OPERATION:
+                glErrStr += "Invalid operation.";
+                break;
 
-        case GL_STACK_OVERFLOW:
-            glErrStr += "Stack overflow.";
-            break;
+            case GL_STACK_OVERFLOW:
+                glErrStr += "Stack overflow.";
+                break;
 
-        case GL_STACK_UNDERFLOW:
-            glErrStr += "Stack underflow.";
-            break;
+            case GL_STACK_UNDERFLOW:
+                glErrStr += "Stack underflow.";
+                break;
 
-        case GL_OUT_OF_MEMORY:
-            glErrStr += "Out of memory.";
-            break;
+            case GL_OUT_OF_MEMORY:
+                glErrStr += "Out of memory.";
+                break;
 
-        default:
-            glErrStr += "Unknown error.";
-            break;
+            default:
+                glErrStr += "Unknown error.";
+                break;
         }
 
         emit emitDebugString(glErrStr);
@@ -395,7 +395,7 @@ protected:
 signals:
     void emitDebugString(QString str);
 
-public slots:
+    public slots:
     void printDebug(QString str)
     {
         if(m_bPrintDebug)

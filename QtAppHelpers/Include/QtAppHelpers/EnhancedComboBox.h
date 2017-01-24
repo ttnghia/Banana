@@ -36,22 +36,24 @@ public:
         m_ComboBox(nullptr),
         m_GroupBox(nullptr),
         m_Layout(nullptr),
+        m_btnPrev(nullptr),
+        m_btnNext(nullptr),
         m_enabledCycling(true)
     {
         m_ComboBox = new QComboBox;
 
-        QToolButton*btnPrev = new QToolButton;
-        btnPrev->setArrowType(Qt::LeftArrow);
-        QToolButton*btnNext = new QToolButton;
-        btnNext->setArrowType(Qt::RightArrow);
+        m_btnPrev = new QToolButton;
+        m_btnPrev->setArrowType(Qt::LeftArrow);
+        m_btnNext = new QToolButton;
+        m_btnNext->setArrowType(Qt::RightArrow);
 
-        connect(btnPrev, SIGNAL(clicked()), this, SLOT(prevItem()));
-        connect(btnNext, SIGNAL(clicked()), this, SLOT(nextItem()));
+        connect(m_btnPrev, SIGNAL(clicked()), this, SLOT(prevItem()));
+        connect(m_btnNext, SIGNAL(clicked()), this, SLOT(nextItem()));
 
         m_Layout = new QGridLayout;
         m_Layout->addWidget(m_ComboBox, 0, 0, 1, comboBoxSpan);
-        m_Layout->addWidget(btnPrev, 0, comboBoxSpan, 1, 1);
-        m_Layout->addWidget(btnNext, 0, comboBoxSpan + 1, 1, 1);
+        m_Layout->addWidget(m_btnPrev, 0, comboBoxSpan, 1, 1);
+        m_Layout->addWidget(m_btnNext, 0, comboBoxSpan + 1, 1, 1);
     }
 
     ~EnhancedComboBox()
@@ -59,6 +61,8 @@ public:
         delete m_ComboBox;
         delete m_GroupBox;
         delete m_Layout;
+        delete m_btnPrev;
+        delete m_btnNext;
     }
 
     QComboBox* getComboBox()
@@ -90,6 +94,13 @@ public:
         }
 
         return m_GroupBox;
+    }
+
+    void setEnabled(bool enabled)
+    {
+        m_ComboBox->setEnabled(enabled);
+        m_btnPrev->setEnabled(enabled);
+        m_btnNext->setEnabled(enabled);
     }
 
     public slots:
@@ -127,4 +138,6 @@ private:
     bool         m_enabledCycling;
     QGroupBox*   m_GroupBox;
     QGridLayout* m_Layout;
+    QToolButton* m_btnPrev;
+    QToolButton* m_btnNext;
 };

@@ -39,8 +39,10 @@ public:
         m_Layout(nullptr)
     {
         m_Slider = new QSlider(Qt::Horizontal);
+        m_Slider->setRange(0, 100);
         m_Slider->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
         m_SpinBox = new QSpinBox;
+        m_SpinBox->setRange(0, 100);
 
         connect(m_Slider, &QSlider::valueChanged, m_SpinBox, &QSpinBox::setValue);
         connect(m_SpinBox, SIGNAL(valueChanged(int)), m_Slider, SLOT(setValue(int)));
@@ -93,6 +95,12 @@ public:
     {
         m_Slider->setRange(minVal, maxVal);
         m_SpinBox->setRange(minVal, maxVal);
+    }
+
+    void setEnabled(bool enabled)
+    {
+        m_Slider->setEnabled(enabled);
+        m_SpinBox->setEnabled(enabled);
     }
 
     public slots:

@@ -134,6 +134,7 @@
     <ClInclude Include="Include\OpenGLHelpers\Camera.h" />
     <ClInclude Include="Include\OpenGLHelpers\CubeObject.h" />
     <ClInclude Include="Include\OpenGLHelpers\Light.h" />
+    <ClInclude Include="Include\OpenGLHelpers\Material.h" />
     <ClInclude Include="Include\OpenGLHelpers\MeshLoader.h" />
     <ClInclude Include="Include\OpenGLHelpers\OpenGLBuffer.h" />
     <ClInclude Include="Include\OpenGLHelpers\OpenGLMacros.h" />

@@ -80,3 +80,15 @@ inline std::string GLErr2Str(GLenum err)
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+// glm setup
+#define GLM_FORCE_INLINE
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+#include <glm/gtx/string_cast.hpp>
+#include <glm/gtx/quaternion.hpp>

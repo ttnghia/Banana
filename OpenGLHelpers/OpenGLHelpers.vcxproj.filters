@@ -51,5 +51,8 @@
     <ClInclude Include="Include\OpenGLHelpers\GridObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Include\OpenGLHelpers\Material.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
