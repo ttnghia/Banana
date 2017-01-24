@@ -143,6 +143,15 @@
     <ClInclude Include="Include\OpenGLHelpers\Shader.h" />
     <ClInclude Include="Include\OpenGLHelpers\SphereObject.h" />
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\Camera.cpp" />
+    <ClCompile Include="Source\Light.cpp" />
+    <ClCompile Include="Source\Material.cpp" />
+    <ClCompile Include="Source\MeshLoader.cpp" />
+    <ClCompile Include="Source\MeshObject.cpp" />
+    <ClCompile Include="Source\OpenGLBuffer.cpp" />
+    <ClCompile Include="Source\Shader.cpp" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -59,7 +59,12 @@ inline void create_folder(std::string folderName)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 inline bool file_existed(const char* fileName)
 {
+    FILE* file;
+#ifdef __Banana_Windows__
+    if(fopen_s(&file, fileName, "r"))
+#else
     if(FILE* file = fopen(fileName, "r"))
+#endif
     {
         fclose(file);
         return true;

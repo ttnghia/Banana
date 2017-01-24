@@ -30,24 +30,9 @@ class ColorSelector : public QWidget
 {
     Q_OBJECT
 public:
-    explicit ColorSelector(QWidget *parent = 0) : QWidget(parent),
-        m_CurrentColor(Qt::blue)
-    {
-        setMouseTracking(true);
-        setAutoFillBackground(true);
-    }
+    ColorSelector(QWidget *parent = 0);
 
-    //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    void setColor(QColor color)
-    {
-        QPalette palette = this->palette();
-        palette.setColor(QPalette::Window, color);
-        this->setPalette(palette);
-
-        m_CurrentColor = color;
-    }
-
-    //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    void setColor(QColor color);
     bool event(QEvent *e)
     {
         return QWidget::event(e);
@@ -57,30 +42,9 @@ signals:
     void colorChanged(float r, float g, float b);
 
 protected:
-    void mousePressEvent(QMouseEvent *)
-    {
-        QColor color = QColorDialog::getColor(m_CurrentColor, this);
-        if(color.isValid())
-        {
-            setColor(color);
-
-            emit colorChanged(static_cast<float>(color.red()) / 255.0,
-                              static_cast<float>(color.green()) / 255.0,
-                              static_cast<float>(color.blue()) / 255.0);
-        }
-    }
-
-    //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    void enterEvent(QEvent *)
-    {
-        QApplication::setOverrideCursor(QCursor(Qt::PointingHandCursor));
-    }
-
-    //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    void leaveEvent(QEvent *)
-    {
-        QApplication::restoreOverrideCursor();
-    }
+    void mousePressEvent(QMouseEvent *);
+    void enterEvent(QEvent *);
+    void leaveEvent(QEvent *);
 
 private:
     QColor m_CurrentColor;

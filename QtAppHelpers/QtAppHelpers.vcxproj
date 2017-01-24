@@ -23,7 +23,6 @@
     <ATLMinimizesCRunTimeLibraryUsage>false</ATLMinimizesCRunTimeLibraryUsage>
     <CharacterSet>NotSet</CharacterSet>
     <ConfigurationType>StaticLibrary</ConfigurationType>
-    <IntermediateDirectory>release\</IntermediateDirectory>
     <PrimaryOutput>QtAppHelpers</PrimaryOutput>
     <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
@@ -33,8 +32,8 @@
     <ATLMinimizesCRunTimeLibraryUsage>false</ATLMinimizesCRunTimeLibraryUsage>
     <CharacterSet>NotSet</CharacterSet>
     <ConfigurationType>StaticLibrary</ConfigurationType>
-    <IntermediateDirectory>debug\</IntermediateDirectory>
     <PrimaryOutput>QtAppHelpers</PrimaryOutput>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings" />
@@ -55,12 +54,17 @@
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">QtAppHelpers</TargetName>
     <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</IgnoreImportLibrary>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>C:\Qt\Qt5.8.0\Examples\Qt-5.8\widgets\painting\shared;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>C:\Qt\Qt5.8.0\Examples\Qt-5.8\widgets\painting\shared;$(IncludePath)</IncludePath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\Qt\Qt5.8.0\Examples\Qt-5.8\widgets\painting\shared;.;.\Include;.\..\Externals\glm;.\..\Externals\AntTweakBar\include;.\..\OpenGLHelpers\Include;$(QTDIR)\include;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtCore;.\release;$(QTDIR)\mkspecs\win32-msvc2015;D:\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName);.\Include\QtAppHelpers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;.\Include;.\..\Externals\glm;.\..\Externals\AntTweakBar\include;.\..\OpenGLHelpers\Include;$(QTDIR)\include;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtCore;.\release;$(QTDIR)\mkspecs\win32-msvc2015;D:\Scratch\MSVC-Build\Banana\OpenGLHelpers\$(ConfigurationName);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>-Zc:strictStrings -Zc:throwingNew /Qpar -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
-      <AssemblerListingLocation>
-      </AssemblerListingLocation>
+      <AssemblerListingLocation>release\</AssemblerListingLocation>
       <BrowseInformation>false</BrowseInformation>
       <DebugInformationFormat>None</DebugInformationFormat>
       <DisableSpecificWarnings>4577;4467;%(DisableSpecificWarnings)</DisableSpecificWarnings>
@@ -96,10 +100,8 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\Qt\Qt5.8.0\Examples\Qt-5.8\widgets\painting\shared;.\NCREMENTAL:NO;.;.\Include;.\..\Externals\glm;.\..\Externals\AntTweakBar\include;.\..\OpenGLHelpers\Include;$(QTDIR)\include;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtCore;.\debug;$(QTDIR)\mkspecs\win32-msvc2015;D:\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName);.\Include\QtAppHelpers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\NCREMENTAL:NO;.;.\Include;.\..\Externals\glm;.\..\Externals\AntTweakBar\include;.\..\OpenGLHelpers\Include;$(QTDIR)\include;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtCore;$(QTDIR)\mkspecs\win32-msvc2015;D:\Scratch\MSVC-Build\Banana\OpenGLHelpers\$(ConfigurationName);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>-Zc:strictStrings -Zc:throwingNew -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
-      <AssemblerListingLocation>
-      </AssemblerListingLocation>
       <BrowseInformation>false</BrowseInformation>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <DisableSpecificWarnings>4577;4467;%(DisableSpecificWarnings)</DisableSpecificWarnings>
@@ -114,6 +116,7 @@
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
       <WarningLevel>Level3</WarningLevel>
       <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Lib>
       <OutputFile>$(OutDir)\QtAppHelpers.lib</OutputFile>
@@ -129,150 +132,156 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\Debug\moc_AvgTimer.cpp">
+    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\OpenGLHelpers\Debug\moc_AvgTimer.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\Debug\moc_BrowsePathWidget.cpp">
+    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\OpenGLHelpers\Debug\moc_BrowsePathWidget.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\Debug\moc_ColorSelector.cpp">
+    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\OpenGLHelpers\Debug\moc_ColorSelector.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\Debug\moc_EnhancedComboBox.cpp">
+    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\OpenGLHelpers\Debug\moc_EnhancedComboBox.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\Debug\moc_EnhancedSlider.cpp">
+    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\OpenGLHelpers\Debug\moc_EnhancedSlider.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\Debug\moc_FPSCounter.cpp">
+    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\OpenGLHelpers\Debug\moc_FPSCounter.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\Debug\moc_OpenGLMainWindow.cpp">
+    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\OpenGLHelpers\Debug\moc_OpenGLMainWindow.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\Debug\moc_OpenGLWidget.cpp">
+    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\OpenGLHelpers\Debug\moc_OpenGLWidget.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\Release\moc_AvgTimer.cpp">
+    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\OpenGLHelpers\Release\moc_AvgTimer.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\Release\moc_BrowsePathWidget.cpp">
+    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\OpenGLHelpers\Release\moc_BrowsePathWidget.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\Release\moc_ColorSelector.cpp">
+    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\OpenGLHelpers\Release\moc_ColorSelector.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\Release\moc_EnhancedComboBox.cpp">
+    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\OpenGLHelpers\Release\moc_EnhancedComboBox.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\Release\moc_EnhancedSlider.cpp">
+    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\OpenGLHelpers\Release\moc_EnhancedSlider.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\Release\moc_FPSCounter.cpp">
+    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\OpenGLHelpers\Release\moc_FPSCounter.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\Release\moc_OpenGLMainWindow.cpp">
+    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\OpenGLHelpers\Release\moc_OpenGLMainWindow.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\Release\moc_OpenGLWidget.cpp">
+    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\OpenGLHelpers\Release\moc_OpenGLWidget.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="Lib.cpp" />
+    <ClCompile Include="Source\AntTweakBarWrapper.cpp" />
+    <ClCompile Include="Source\AvgTimer.cpp" />
+    <ClCompile Include="Source\BrowsePathWidget.cpp" />
+    <ClCompile Include="Source\ColorSelector.cpp" />
+    <ClCompile Include="Source\EnhancedComboBox.cpp" />
+    <ClCompile Include="Source\EnhancedSlider.cpp" />
+    <ClCompile Include="Source\FPSCounter.cpp" />
+    <ClCompile Include="Source\OpenGLMainWindow.cpp" />
+    <ClCompile Include="Source\OpenGLWidget.cpp" />
+    <ClCompile Include="Source\QtAppShader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\QtAppHelpers\AntTweakBarWrapper.h" />
     <CustomBuild Include="Include\QtAppHelpers\AvgTimer.h">
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "D:\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DUNICODE -DWIN32 -DWIN64 -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB -DNDEBUG  "-IC:\Qt\Qt5.8.0\Examples\Qt-5.8\widgets\painting\shared" "-I." "-I.\Include" "-I.\..\Externals\glm" "-I.\..\Externals\AntTweakBar\include" "-I.\..\OpenGLHelpers\Include" "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I.\release" "-I$(QTDIR)\mkspecs\win32-msvc2015" "-ID:\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\." "-I.\Include\QtAppHelpers"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "..\..\..\Scratch\MSVC-Build\Banana\OpenGLHelpers\$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DUNICODE -DWIN32 -DWIN64 -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB -DNDEBUG "-I." "-I.\Include" "-I.\..\Externals\glm" "-I.\..\Externals\AntTweakBar\include" "-I.\..\OpenGLHelpers\Include" "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\mkspecs\win32-msvc2015" "-ID:\Scratch\MSVC-Build\Banana\OpenGLHelpers\$(ConfigurationName)\."</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Moc%27ing AvgTimer.h...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "D:\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\moc_%(Filename).cpp"  -DEBUG -D_WINDOWS -DUNICODE -DWIN32 -DWIN64 -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB  "-IC:\Qt\Qt5.8.0\Examples\Qt-5.8\widgets\painting\shared" "-I.\NCREMENTAL:NO" "-I." "-I.\Include" "-I.\..\Externals\glm" "-I.\..\Externals\AntTweakBar\include" "-I.\..\OpenGLHelpers\Include" "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I.\debug" "-I$(QTDIR)\mkspecs\win32-msvc2015" "-ID:\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\." "-I.\Include\QtAppHelpers"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "..\..\..\Scratch\MSVC-Build\Banana\OpenGLHelpers\$(ConfigurationName)\moc_%(Filename).cpp"  -DEBUG -D_WINDOWS -DUNICODE -DWIN32 -DWIN64 -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB "-I.\NCREMENTAL:NO" "-I." "-I.\Include" "-I.\..\Externals\glm" "-I.\..\Externals\AntTweakBar\include" "-I.\..\OpenGLHelpers\Include" "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I.\debug" "-I$(QTDIR)\mkspecs\win32-msvc2015" "-ID:\Scratch\MSVC-Build\Banana\OpenGLHelpers\$(ConfigurationName)\."</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Moc%27ing AvgTimer.h...</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
-    </CustomBuild>
-    <CustomBuild Include="Include\QtAppHelpers\ColorSelector.h">
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "D:\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DUNICODE -DWIN32 -DWIN64 -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB -DNDEBUG  "-IC:\Qt\Qt5.8.0\Examples\Qt-5.8\widgets\painting\shared" "-I." "-I.\Include" "-I.\..\Externals\glm" "-I.\..\Externals\AntTweakBar\include" "-I.\..\OpenGLHelpers\Include" "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I.\release" "-I$(QTDIR)\mkspecs\win32-msvc2015" "-ID:\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\." "-I.\Include\QtAppHelpers"</Command>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Moc%27ing ColorSelector.h...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "D:\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\moc_%(Filename).cpp"  -DEBUG -D_WINDOWS -DUNICODE -DWIN32 -DWIN64 -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB  "-IC:\Qt\Qt5.8.0\Examples\Qt-5.8\widgets\painting\shared" "-I.\NCREMENTAL:NO" "-I." "-I.\Include" "-I.\..\Externals\glm" "-I.\..\Externals\AntTweakBar\include" "-I.\..\OpenGLHelpers\Include" "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I.\debug" "-I$(QTDIR)\mkspecs\win32-msvc2015" "-ID:\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\." "-I.\Include\QtAppHelpers"</Command>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Moc%27ing ColorSelector.h...</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\..\Scratch\MSVC-Build\Banana\OpenGLHelpers\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\..\Scratch\MSVC-Build\Banana\OpenGLHelpers\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
     </CustomBuild>
     <CustomBuild Include="Include\QtAppHelpers\BrowsePathWidget.h">
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Moc%27ing BrowsePathWidget.h...</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\moc_%(Filename).cpp"  -DEBUG -D_WINDOWS -DUNICODE -DWIN32 -DWIN64 -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB "-IC:\Qt\Qt5.8.0\Examples\Qt-5.8\widgets\painting\shared" "-I.\NCREMENTAL:NO" "-I." "-I.\Include" "-I.\..\Externals\glm" "-I.\..\Externals\AntTweakBar\include" "-I.\..\OpenGLHelpers\Include" "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I.\debug" "-I$(QTDIR)\mkspecs\win32-msvc2015" "-ID:\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\." "-I.\Include\QtAppHelpers"</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "..\..\..\Scratch\MSVC-Build\Banana\OpenGLHelpers\$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DUNICODE -DWIN32 -DWIN64 -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB -DNDEBUG "-I." "-I.\Include" "-I.\..\Externals\glm" "-I.\..\Externals\AntTweakBar\include" "-I.\..\OpenGLHelpers\Include" "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\mkspecs\win32-msvc2015" "-ID:\Scratch\MSVC-Build\Banana\OpenGLHelpers\$(ConfigurationName)\."</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Moc%27ing BrowsePathWidget.h...</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DUNICODE -DWIN32 -DWIN64 -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB -DNDEBUG "-IC:\Qt\Qt5.8.0\Examples\Qt-5.8\widgets\painting\shared" "-I." "-I.\Include" "-I.\..\Externals\glm" "-I.\..\Externals\AntTweakBar\include" "-I.\..\OpenGLHelpers\Include" "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I.\release" "-I$(QTDIR)\mkspecs\win32-msvc2015" "-ID:\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\." "-I.\Include\QtAppHelpers"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "..\..\..\Scratch\MSVC-Build\Banana\OpenGLHelpers\$(ConfigurationName)\moc_%(Filename).cpp"  -DEBUG -D_WINDOWS -DUNICODE -DWIN32 -DWIN64 -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB "-I.\NCREMENTAL:NO" "-I." "-I.\Include" "-I.\..\Externals\glm" "-I.\..\Externals\AntTweakBar\include" "-I.\..\OpenGLHelpers\Include" "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\mkspecs\win32-msvc2015" "-ID:\Scratch\MSVC-Build\Banana\OpenGLHelpers\$(ConfigurationName)\."</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Moc%27ing BrowsePathWidget.h...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\..\Scratch\MSVC-Build\Banana\OpenGLHelpers\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\..\Scratch\MSVC-Build\Banana\OpenGLHelpers\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+    </CustomBuild>
+    <CustomBuild Include="Include\QtAppHelpers\ColorSelector.h">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "..\..\..\Scratch\MSVC-Build\Banana\OpenGLHelpers\$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DUNICODE -DWIN32 -DWIN64 -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB -DNDEBUG "-I." "-I.\Include" "-I.\..\Externals\glm" "-I.\..\Externals\AntTweakBar\include" "-I.\..\OpenGLHelpers\Include" "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\mkspecs\win32-msvc2015" "-ID:\Scratch\MSVC-Build\Banana\OpenGLHelpers\$(ConfigurationName)\."</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Moc%27ing ColorSelector.h...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "..\..\..\Scratch\MSVC-Build\Banana\OpenGLHelpers\$(ConfigurationName)\moc_%(Filename).cpp"  -DEBUG -D_WINDOWS -DUNICODE -DWIN32 -DWIN64 -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB "-I.\NCREMENTAL:NO" "-I." "-I.\Include" "-I.\..\Externals\glm" "-I.\..\Externals\AntTweakBar\include" "-I.\..\OpenGLHelpers\Include" "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I.\debug" "-I$(QTDIR)\mkspecs\win32-msvc2015" "-ID:\Scratch\MSVC-Build\Banana\OpenGLHelpers\$(ConfigurationName)\."</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Moc%27ing ColorSelector.h...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\..\Scratch\MSVC-Build\Banana\OpenGLHelpers\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\..\Scratch\MSVC-Build\Banana\OpenGLHelpers\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
     </CustomBuild>
     <ClInclude Include="Include\QtAppHelpers\DeviceToLogical.h" />
+    <CustomBuild Include="Include\QtAppHelpers\EnhancedComboBox.h">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "..\..\..\Scratch\MSVC-Build\Banana\OpenGLHelpers\$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DUNICODE -DWIN32 -DWIN64 -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB -DNDEBUG "-I." "-I.\Include" "-I.\..\Externals\glm" "-I.\..\Externals\AntTweakBar\include" "-I.\..\OpenGLHelpers\Include" "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\mkspecs\win32-msvc2015" "-ID:\Scratch\MSVC-Build\Banana\OpenGLHelpers\$(ConfigurationName)\."</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Moc%27ing EnhancedComboBox.h...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "..\..\..\Scratch\MSVC-Build\Banana\OpenGLHelpers\$(ConfigurationName)\moc_%(Filename).cpp"  -DEBUG -D_WINDOWS -DUNICODE -DWIN32 -DWIN64 -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB "-I.\NCREMENTAL:NO" "-I." "-I.\Include" "-I.\..\Externals\glm" "-I.\..\Externals\AntTweakBar\include" "-I.\..\OpenGLHelpers\Include" "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I.\debug" "-I$(QTDIR)\mkspecs\win32-msvc2015" "-ID:\Scratch\MSVC-Build\Banana\OpenGLHelpers\$(ConfigurationName)\."</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Moc%27ing EnhancedComboBox.h...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\..\Scratch\MSVC-Build\Banana\OpenGLHelpers\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\..\Scratch\MSVC-Build\Banana\OpenGLHelpers\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+    </CustomBuild>
+    <CustomBuild Include="Include\QtAppHelpers\EnhancedSlider.h">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "..\..\..\Scratch\MSVC-Build\Banana\OpenGLHelpers\$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DUNICODE -DWIN32 -DWIN64 -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB -DNDEBUG "-I." "-I.\Include" "-I.\..\Externals\glm" "-I.\..\Externals\AntTweakBar\include" "-I.\..\OpenGLHelpers\Include" "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\mkspecs\win32-msvc2015" "-ID:\Scratch\MSVC-Build\Banana\OpenGLHelpers\$(ConfigurationName)\."</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Moc%27ing EnhancedSlider.h...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "..\..\..\Scratch\MSVC-Build\Banana\OpenGLHelpers\$(ConfigurationName)\moc_%(Filename).cpp"  -DEBUG -D_WINDOWS -DUNICODE -DWIN32 -DWIN64 -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB "-I.\NCREMENTAL:NO" "-I." "-I.\Include" "-I.\..\Externals\glm" "-I.\..\Externals\AntTweakBar\include" "-I.\..\OpenGLHelpers\Include" "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I.\debug" "-I$(QTDIR)\mkspecs\win32-msvc2015" "-ID:\Scratch\MSVC-Build\Banana\OpenGLHelpers\$(ConfigurationName)\."</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Moc%27ing EnhancedSlider.h...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\..\Scratch\MSVC-Build\Banana\OpenGLHelpers\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\..\Scratch\MSVC-Build\Banana\OpenGLHelpers\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+    </CustomBuild>
+    <CustomBuild Include="Include\QtAppHelpers\FPSCounter.h">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "..\..\..\Scratch\MSVC-Build\Banana\OpenGLHelpers\$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DUNICODE -DWIN32 -DWIN64 -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB -DNDEBUG "-I." "-I.\Include" "-I.\..\Externals\glm" "-I.\..\Externals\AntTweakBar\include" "-I.\..\OpenGLHelpers\Include" "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\mkspecs\win32-msvc2015" "-ID:\Scratch\MSVC-Build\Banana\OpenGLHelpers\$(ConfigurationName)\."</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Moc%27ing FPSCounter.h...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "..\..\..\Scratch\MSVC-Build\Banana\OpenGLHelpers\$(ConfigurationName)\moc_%(Filename).cpp"  -DEBUG -D_WINDOWS -DUNICODE -DWIN32 -DWIN64 -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB "-I.\NCREMENTAL:NO" "-I." "-I.\Include" "-I.\..\Externals\glm" "-I.\..\Externals\AntTweakBar\include" "-I.\..\OpenGLHelpers\Include" "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I.\debug" "-I$(QTDIR)\mkspecs\win32-msvc2015" "-ID:\Scratch\MSVC-Build\Banana\OpenGLHelpers\$(ConfigurationName)\."</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Moc%27ing FPSCounter.h...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\..\Scratch\MSVC-Build\Banana\OpenGLHelpers\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\..\Scratch\MSVC-Build\Banana\OpenGLHelpers\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+    </CustomBuild>
     <CustomBuild Include="Include\QtAppHelpers\OpenGLMainWindow.h">
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "D:\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DUNICODE -DWIN32 -DWIN64 -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB -DNDEBUG  "-IC:\Qt\Qt5.8.0\Examples\Qt-5.8\widgets\painting\shared" "-I." "-I.\Include" "-I.\..\Externals\glm" "-I.\..\Externals\AntTweakBar\include" "-I.\..\OpenGLHelpers\Include" "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I.\release" "-I$(QTDIR)\mkspecs\win32-msvc2015" "-ID:\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\." "-I.\Include\QtAppHelpers"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "..\..\..\Scratch\MSVC-Build\Banana\OpenGLHelpers\$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DUNICODE -DWIN32 -DWIN64 -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB -DNDEBUG "-I." "-I.\Include" "-I.\..\Externals\glm" "-I.\..\Externals\AntTweakBar\include" "-I.\..\OpenGLHelpers\Include" "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\mkspecs\win32-msvc2015" "-ID:\Scratch\MSVC-Build\Banana\OpenGLHelpers\$(ConfigurationName)\."</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Moc%27ing OpenGLMainWindow.h...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "D:\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\moc_%(Filename).cpp"  -DEBUG -D_WINDOWS -DUNICODE -DWIN32 -DWIN64 -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB  "-IC:\Qt\Qt5.8.0\Examples\Qt-5.8\widgets\painting\shared" "-I.\NCREMENTAL:NO" "-I." "-I.\Include" "-I.\..\Externals\glm" "-I.\..\Externals\AntTweakBar\include" "-I.\..\OpenGLHelpers\Include" "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I.\debug" "-I$(QTDIR)\mkspecs\win32-msvc2015" "-ID:\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\." "-I.\Include\QtAppHelpers"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "..\..\..\Scratch\MSVC-Build\Banana\OpenGLHelpers\$(ConfigurationName)\moc_%(Filename).cpp"  -DEBUG -D_WINDOWS -DUNICODE -DWIN32 -DWIN64 -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB "-I.\NCREMENTAL:NO" "-I." "-I.\Include" "-I.\..\Externals\glm" "-I.\..\Externals\AntTweakBar\include" "-I.\..\OpenGLHelpers\Include" "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I.\debug" "-I$(QTDIR)\mkspecs\win32-msvc2015" "-ID:\Scratch\MSVC-Build\Banana\OpenGLHelpers\$(ConfigurationName)\."</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Moc%27ing OpenGLMainWindow.h...</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\..\Scratch\MSVC-Build\Banana\OpenGLHelpers\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\..\Scratch\MSVC-Build\Banana\OpenGLHelpers\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
     </CustomBuild>
     <CustomBuild Include="Include\QtAppHelpers\OpenGLWidget.h">
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "D:\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DUNICODE -DWIN32 -DWIN64 -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB -DNDEBUG  "-IC:\Qt\Qt5.8.0\Examples\Qt-5.8\widgets\painting\shared" "-I." "-I.\Include" "-I.\..\Externals\glm" "-I.\..\Externals\AntTweakBar\include" "-I.\..\OpenGLHelpers\Include" "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I.\release" "-I$(QTDIR)\mkspecs\win32-msvc2015" "-ID:\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\." "-I.\Include\QtAppHelpers"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "..\..\..\Scratch\MSVC-Build\Banana\OpenGLHelpers\$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DUNICODE -DWIN32 -DWIN64 -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB -DNDEBUG "-I." "-I.\Include" "-I.\..\Externals\glm" "-I.\..\Externals\AntTweakBar\include" "-I.\..\OpenGLHelpers\Include" "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I.\release" "-I$(QTDIR)\mkspecs\win32-msvc2015" "-ID:\Scratch\MSVC-Build\Banana\OpenGLHelpers\$(ConfigurationName)\."</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Moc%27ing OpenGLWidget.h...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "D:\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\moc_%(Filename).cpp"  -DEBUG -D_WINDOWS -DUNICODE -DWIN32 -DWIN64 -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB  "-IC:\Qt\Qt5.8.0\Examples\Qt-5.8\widgets\painting\shared" "-I.\NCREMENTAL:NO" "-I." "-I.\Include" "-I.\..\Externals\glm" "-I.\..\Externals\AntTweakBar\include" "-I.\..\OpenGLHelpers\Include" "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I.\debug" "-I$(QTDIR)\mkspecs\win32-msvc2015" "-ID:\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\." "-I.\Include\QtAppHelpers"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "..\..\..\Scratch\MSVC-Build\Banana\OpenGLHelpers\$(ConfigurationName)\moc_%(Filename).cpp"  -DEBUG -D_WINDOWS -DUNICODE -DWIN32 -DWIN64 -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB "-I.\NCREMENTAL:NO" "-I." "-I.\Include" "-I.\..\Externals\glm" "-I.\..\Externals\AntTweakBar\include" "-I.\..\OpenGLHelpers\Include" "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I.\debug" "-I$(QTDIR)\mkspecs\win32-msvc2015" "-ID:\Scratch\MSVC-Build\Banana\OpenGLHelpers\$(ConfigurationName)\."</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Moc%27ing OpenGLWidget.h...</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\..\Scratch\MSVC-Build\Banana\OpenGLHelpers\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\..\Scratch\MSVC-Build\Banana\OpenGLHelpers\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
-    </CustomBuild>
-    <CustomBuild Include="Include\QtAppHelpers\EnhancedComboBox.h">
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Moc%27ing EnhancedComboBox.h...</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "D:\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\moc_%(Filename).cpp"  -DEBUG -D_WINDOWS -DUNICODE -DWIN32 -DWIN64 -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB  "-IC:\Qt\Qt5.8.0\Examples\Qt-5.8\widgets\painting\shared" "-I.\NCREMENTAL:NO" "-I." "-I.\Include" "-I.\..\Externals\glm" "-I.\..\Externals\AntTweakBar\include" "-I.\..\OpenGLHelpers\Include" "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I.\debug" "-I$(QTDIR)\mkspecs\win32-msvc2015" "-ID:\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\." "-I.\Include\QtAppHelpers"</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Moc%27ing EnhancedComboBox.h...</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "D:\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DUNICODE -DWIN32 -DWIN64 -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB -DNDEBUG  "-IC:\Qt\Qt5.8.0\Examples\Qt-5.8\widgets\painting\shared" "-I." "-I.\Include" "-I.\..\Externals\glm" "-I.\..\Externals\AntTweakBar\include" "-I.\..\OpenGLHelpers\Include" "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I.\release" "-I$(QTDIR)\mkspecs\win32-msvc2015" "-ID:\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\." "-I.\Include\QtAppHelpers"</Command>
-    </CustomBuild>
-    <CustomBuild Include="Include\QtAppHelpers\EnhancedSlider.h">
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Moc%27ing EnhancedSlider.h...</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\moc_%(Filename).cpp"  -DEBUG -D_WINDOWS -DUNICODE -DWIN32 -DWIN64 -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB "-IC:\Qt\Qt5.8.0\Examples\Qt-5.8\widgets\painting\shared" "-I.\NCREMENTAL:NO" "-I." "-I.\Include" "-I.\..\Externals\glm" "-I.\..\Externals\AntTweakBar\include" "-I.\..\OpenGLHelpers\Include" "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I.\debug" "-I$(QTDIR)\mkspecs\win32-msvc2015" "-ID:\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\." "-I.\Include\QtAppHelpers"</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Moc%27ing EnhancedSlider.h...</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DUNICODE -DWIN32 -DWIN64 -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB -DNDEBUG "-IC:\Qt\Qt5.8.0\Examples\Qt-5.8\widgets\painting\shared" "-I." "-I.\Include" "-I.\..\Externals\glm" "-I.\..\Externals\AntTweakBar\include" "-I.\..\OpenGLHelpers\Include" "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I.\release" "-I$(QTDIR)\mkspecs\win32-msvc2015" "-ID:\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\." "-I.\Include\QtAppHelpers"</Command>
-    </CustomBuild>
-    <CustomBuild Include="Include\QtAppHelpers\FPSCounter.h">
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Moc%27ing FPSCounter.h...</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\moc_%(Filename).cpp"  -DEBUG -D_WINDOWS -DUNICODE -DWIN32 -DWIN64 -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB "-IC:\Qt\Qt5.8.0\Examples\Qt-5.8\widgets\painting\shared" "-I.\NCREMENTAL:NO" "-I." "-I.\Include" "-I.\..\Externals\glm" "-I.\..\Externals\AntTweakBar\include" "-I.\..\OpenGLHelpers\Include" "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I.\debug" "-I$(QTDIR)\mkspecs\win32-msvc2015" "-ID:\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\." "-I.\Include\QtAppHelpers"</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Moc%27ing FPSCounter.h...</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DUNICODE -DWIN32 -DWIN64 -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB -DNDEBUG "-IC:\Qt\Qt5.8.0\Examples\Qt-5.8\widgets\painting\shared" "-I." "-I.\Include" "-I.\..\Externals\glm" "-I.\..\Externals\AntTweakBar\include" "-I.\..\OpenGLHelpers\Include" "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I.\release" "-I$(QTDIR)\mkspecs\win32-msvc2015" "-ID:\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\." "-I.\Include\QtAppHelpers"</Command>
     </CustomBuild>
     <ClInclude Include="Include\QtAppHelpers\QtAppMacros.h" />
     <ClInclude Include="Include\QtAppHelpers\QtAppShader.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="QtAppHelpers.licenseheader" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties MocDir="D:\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)" UicDir=".\GeneratedFiles" RccDir=".\GeneratedFiles" Qt5Version_x0020_x64="msvc2015_64" />
+      <UserProperties MocDir="D:\Scratch\MSVC-Build\Banana\OpenGLHelpers\$(ConfigurationName)" UicDir=".\GeneratedFiles" RccDir=".\GeneratedFiles" Qt5Version_x0020_x64="msvc2015_64" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>

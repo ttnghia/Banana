@@ -38,16 +38,9 @@
 class DataBuffer
 {
 public:
-    DataBuffer(size_t bufferSize = 0) : m_BufferSize(bufferSize)
-    {
-        if(bufferSize > 0)
-            reserve(bufferSize);
-    }
+    DataBuffer(size_t bufferSize = 0);
 
-    ~DataBuffer()
-    {
-        clearBuffer();
-    }
+    ~DataBuffer();
 
     size_t size() const
     {
@@ -82,17 +75,8 @@ public:
     //////////////////////////////////////////////////////////////////////
     /// replace data in the buffer with new data
     //////////////////////////////////////////////////////////////////////
-    void set_data(const DataBuffer& dataBuffer)
-    {
-        clearBuffer();
-        push_back(dataBuffer);
-    }
-
-    void set_data(const unsigned char* arrData, size_t dataSize)
-    {
-        clearBuffer();
-        push_back(arrData, dataSize);
-    }
+    void set_data(const DataBuffer& dataBuffer);
+    void set_data(const unsigned char* arrData, size_t dataSize);
 
     template<class T>
     void set_to_float(T data)
@@ -142,18 +126,8 @@ public:
     /// append data
     //////////////////////////////////////////////////////////////////////
 
-    void push_back(const DataBuffer& dataBuffer)
-    {
-        push_back((const unsigned char*)dataBuffer.data(), dataBuffer.size());
-    }
-
-    void push_back(const unsigned char* arrData, size_t dataSize)
-    {
-        size_t endOffset = m_Buffer.size();
-        resize(endOffset + dataSize);
-
-        memcpy((void*) & (m_Buffer.data()[endOffset]), arrData, dataSize);
-    }
+    void push_back(const DataBuffer& dataBuffer);
+    void push_back(const unsigned char* arrData, size_t dataSize);
 
     template<class T>
     void push_back(T value)
@@ -591,80 +565,16 @@ class DataIO
 {
 public:
     DataIO(std::string dataRootFolder, std::string dataFolder,
-           std::string fileName, std::string fileExtension) :
-        m_DataRootFolder(dataRootFolder),
-        m_DataFolder(dataFolder),
-        m_FileName(fileName),
-        m_FileExtension(fileExtension),
-        m_isOutputFolderCreated(false)
-    {}
+           std::string fileName, std::string fileExtension);
+    virtual ~DataIO();
 
-    virtual ~DataIO()
-    {
-        if(m_WriteFutureObj.valid())
-        {
-            m_WriteFutureObj.wait();
-        }
-
-    }
-
-
-    int find_latest_file_index(int maxIndex)
-    {
-        int latestIndex = -1;
-
-        for(int index = maxIndex; index >= 1; --index)
-        {
-            if(existed_file_index(index))
-            {
-                latestIndex = index;
-                break;
-            }
-        }
-
-        return latestIndex;
-    }
-
-    bool existed_file_index(int fileID)
-    {
-        return FileHelpers::file_existed(get_file_name(fileID));
-    }
-
-    void reset_buffer()
-    {
-        if(m_WriteFutureObj.valid())
-        {
-            m_WriteFutureObj.wait();
-        }
-
-        m_FileBuffer.clearBuffer();
-    }
-
-    void flush_buffer(int fileID)
-    {
-        if(!m_isOutputFolderCreated)
-        {
-            create_output_folders();
-        }
-
-        const std::string fileName = get_file_name(fileID);
-        FileHelpers::writte_file(m_FileBuffer.data(), m_FileBuffer.size(), fileName);
-    }
-
-    void flush_buffer_async(int fileID)
-    {
-        if(!m_isOutputFolderCreated)
-        {
-            create_output_folders();
-        }
-
-        m_WriteFutureObj = std::async(std::launch::async, [&]()
-        {
-            const std::string fileName = get_file_name(fileID);
-            FileHelpers::writte_file(m_FileBuffer.data(), m_FileBuffer.size(), fileName);
-        });
-    }
-
+    int find_latest_file_index(int maxIndex);
+    bool existed_file_index(int fileID);
+    void reset_buffer();
+    void flush_buffer(int fileID);
+    void flush_buffer_async(int fileID);
+    bool load_file_index(int fileID);
+    std::string get_file_name(int fileID);
 
     ////////////////////////////////////////////////////////////////////////////////
     template<class T>
@@ -673,29 +583,6 @@ public:
         m_FileBuffer.push_back(value);
     }
 
-    ////////////////////////////////////////////////////////////////////////////////
-    bool load_file_index(int fileID)
-    {
-        const std::string fileName = get_file_name(fileID);
-
-        if(FileHelpers::read_file(m_FileBuffer.buffer(), fileName))
-        {
-            return true;
-        }
-
-        return false;
-    }
-
-    std::string get_file_name(int fileID)
-    {
-        char fullFileName[512];
-        sprintf(fullFileName, "%s/%s/%s.%04d.%s", m_DataRootFolder.c_str(), m_DataFolder.c_str(),
-                m_FileName.c_str(), fileID, m_FileExtension.c_str());
-
-        return std::string(fullFileName);
-    }
-
-
     template<class T>
     void get_data(T& value, size_t startOffset = 0)
     {
@@ -703,16 +590,9 @@ public:
     }
 
 private:
+    void create_output_folders();
 
-    void create_output_folders()
-    {
-        char fullFolderName[512];
-
-        sprintf(fullFolderName, "%s/%s", m_DataRootFolder.c_str(), m_DataFolder.c_str());
-        FileHelpers::create_folder(fullFolderName);
-    }
-
-    //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    ////////////////////////////////////////////////////////////////////////////////
     bool               m_isOutputFolderCreated;
     std::string        m_DataRootFolder;
     std::string        m_DataFolder;

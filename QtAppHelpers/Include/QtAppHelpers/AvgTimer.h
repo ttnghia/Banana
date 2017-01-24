@@ -26,7 +26,6 @@
 #include <cassert>
 #include <QObject>
 
-using Clock = std::chrono::high_resolution_clock;
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 class AvgTimer : public QObject
@@ -34,6 +33,8 @@ class AvgTimer : public QObject
     Q_OBJECT
 
 public:
+    using Clock = std::chrono::high_resolution_clock;
+
     AvgTimer(QObject *parent = nullptr,
              double updatePeriod = 2000) :
         QObject(parent),
@@ -43,61 +44,11 @@ public:
         m_isTimerStarted(false)
     {}
 
-    //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    void tick()
-    {
-        assert(!m_isTimerStarted);
-        m_isTimerStarted = true;
-        m_TickTime = Clock::now();
+    void tick();
+    void tock();
 
-        if(m_TickTockCount == 0)
-        {
-            m_StartTime = Clock::now();
-        }
-    }
-
-    //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    void tock()
-    {
-        assert(m_isTimerStarted);
-        m_TockTime = Clock::now();
-        m_isTimerStarted = false;
-        ++m_TickTockCount;
-
-        std::chrono::duration<double, std::milli> ticktockDuration =
-            std::chrono::duration_cast<std::chrono::duration<double, std::milli>>
-            (m_TockTime - m_TickTime);
-
-        std::chrono::duration<double, std::milli> totalDuration =
-            std::chrono::duration_cast<std::chrono::duration<double, std::milli>>
-            (m_TockTime - m_StartTime);
-
-        m_TotalTime += ticktockDuration.count();
-
-        if(totalDuration.count() >= m_UpdatePeriod)
-        {
-            double avgTime = m_TotalTime / static_cast<double>(m_TickTockCount);
-
-            emit avgTimeChanged(avgTime);
-
-            m_TickTockCount = 0;
-            m_TotalTime = 0;
-
-        }
-    }
-
-    //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    double getAvgTime()
-    {
-        return m_TotalTime / static_cast<double>(m_TickTockCount);
-    }
-
-    //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    double getTotalTime()
-    {
-        return m_TotalTime;
-    }
-
+    double getAvgTime();
+    double getTotalTime();
 
 signals:
     void avgTimeChanged(double avgTime);

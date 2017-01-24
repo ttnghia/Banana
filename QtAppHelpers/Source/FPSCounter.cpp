@@ -3,7 +3,7 @@
 //           (-o/\o-)
 //          /`""``""`\
 //          \ /.__.\ /
-//           \ `--` /                                                 Created on: 1/21/2017
+//           \ `--` /                                                 Created on: 1/24/2017
 //            `)  ('                                                    Author: Nghia Truong
 //         ,  /::::\  ,
 //         |'.\::::/.'|
@@ -20,22 +20,36 @@
 //                    `""`  `""`  `""`  `""`
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-#pragma once
-
-#include <OpenGLHelpers/Shader.h>
+#include <QtAppHelpers/FPSCounter.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class QtAppShader : public Shader
+FPSCounter::FPSCounter(QObject * parent /*= nullptr*/, double updatePeriod /*= 2000*/) :
+    QObject(parent),
+    m_Counter(0),
+    m_UpdatePeriod(updatePeriod)
 {
-public:
+    m_StartTime = Clock::now();
+}
 
-    QtAppShader()
-    {}
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void FPSCounter::countFrame()
+{
+    Clock::time_point countTime = Clock::now();
+    ++m_Counter;
 
-    void addVertexShaderFromResource(const char* fileName);
-    void addGeometryShaderFromResource(const char* fileName);
-    void addFragmentShaderFromResource(const char* fileName);
+    std::chrono::duration<double, std::milli> totalDuration =
+        std::chrono::duration_cast<std::chrono::duration<double, std::milli>>
+        (countTime - m_StartTime);
 
-protected:
-    void loadResourceFile(std::string& fileContent, const char* fileName);
-};
+
+    if(totalDuration.count() >= m_UpdatePeriod)
+    {
+        double totalTimeInSec = totalDuration.count() / 1000.0;
+        double fps = static_cast<double>(m_Counter) / totalTimeInSec;
+
+        m_Counter = 0;
+        m_StartTime = countTime;
+
+        emit fpsChanged(fps);
+    }
+}

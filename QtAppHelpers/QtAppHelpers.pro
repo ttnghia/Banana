@@ -16,7 +16,7 @@ TEMPLATE = lib
 
 CONFIG += staticlib
 
-
+include($$[QT_INSTALL_EXAMPLES]/widgets/painting/shared/shared.pri)
 INCLUDEPATH += ./Include
 INCLUDEPATH += ../Externals/glm
 INCLUDEPATH += ../Externals/AntTweakBar/include
@@ -51,7 +51,20 @@ HEADERS += \
     Include/QtAppHelpers/OpenGLWidget.h \
     Include/QtAppHelpers/QtAppMacros.h \
     Include/QtAppHelpers/ColorSelector.h \
-    Include/QtAppHelpers/QtAppShader.h
+    Include/QtAppHelpers/QtAppShader.h \
+    Include/QtAppHelpers/BrowsePathWidget.h \
+    Include/QtAppHelpers/EnhancedComboBox.h \
+    Include/QtAppHelpers/EnhancedSlider.h \
+    Include/QtAppHelpers/FPSCounter.h
 
 SOURCES += \
-    Lib.cpp
+    Source/AntTweakBarWrapper.cpp \
+    Source/AvgTimer.cpp \
+    Source/BrowsePathWidget.cpp \
+    Source/ColorSelector.cpp \
+    Source/EnhancedComboBox.cpp \
+    Source/EnhancedSlider.cpp \
+    Source/FPSCounter.cpp \
+    Source/OpenGLMainWindow.cpp \
+    Source/OpenGLWidget.cpp \
+    Source/QtAppShader.cpp
