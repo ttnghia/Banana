@@ -28,6 +28,7 @@
 
 #include <QtAppHelpers/QtAppMacros.h>
 #include <QtAppHelpers/AvgTimer.h>
+#include <QtAppHelpers/FPSCounter.h>
 #include <QtAppHelpers/AntTweakBarWrapper.h>
 
 #include <OpenGLHelpers/Camera.h>
@@ -61,16 +62,8 @@ public:
         shutDownAntTweakBar();
     }
 
-    AvgTimer    m_FPSTimer;
-
-    //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    void setVsync(bool vsync)
-    {
-        QSurfaceFormat format = context()->format();
-        format.setSwapInterval(vsync ? 1 : 0);
-
-        QSurfaceFormat::setDefaultFormat(format);
-    }
+    AvgTimer   m_AvgFrameTimer;
+    FPSCounter m_FPSCounter;
 
     //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     void setPrintDebug(bool pdebug)
@@ -374,13 +367,13 @@ protected:
     void startFrameTimer()
     {
         assert(isValid());
-        m_FPSTimer.tick();
+        m_AvgFrameTimer.tick();
     }
 
     void endFrameTimer()
     {
         assert(isValid());
-        m_FPSTimer.tock();
+        m_AvgFrameTimer.tock();
     }
 
     //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

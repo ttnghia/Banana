@@ -31,6 +31,8 @@
 #   include <GL/glew.h>
 #endif
 
+#include <string>
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 inline std::string GLErr2Str(GLenum err)
 {
@@ -63,7 +65,7 @@ inline std::string GLErr2Str(GLenum err)
 }
 
 #if _DEBUG
-#define glCall(a)\
+#   define glCall(a)\
     a; {\
         GLenum err = glGetError();\
         if (err!=GL_NO_ERROR) {\
@@ -73,12 +75,12 @@ inline std::string GLErr2Str(GLenum err)
         }\
     }
 #else
-#define glCall(a) a;
+#   define glCall(a) a;
 #endif
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #ifndef M_PI
-#define M_PI 3.14159265358979323846
+#   define M_PI 3.14159265358979323846
 #endif
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

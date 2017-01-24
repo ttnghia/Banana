@@ -82,6 +82,12 @@
     <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\Release\moc_BrowsePathWidget.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\Debug\moc_FPSCounter.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\Release\moc_FPSCounter.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\QtAppHelpers\AntTweakBarWrapper.h">
@@ -120,6 +126,9 @@
       <Filter>Header Files</Filter>
     </CustomBuild>
     <CustomBuild Include="Include\QtAppHelpers\BrowsePathWidget.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Include\QtAppHelpers\FPSCounter.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
   </ItemGroup>

@@ -50,7 +50,7 @@ typedef  QOpenGLFunctions_4_5_Core OpenGLFunctions;
 #endif
 
 
-#define __BNNQt_RunMainWindowWin(MainWindowClass, argc, argv) \
+#define __BNNQt_RunMainWindowWin(MainWindowClass, argc, argv, vsync) \
 { \
     QSurfaceFormat format; \
     format.setDepthBufferSize(24); \
@@ -59,6 +59,7 @@ typedef  QOpenGLFunctions_4_5_Core OpenGLFunctions;
     format.setSwapBehavior(QSurfaceFormat::DoubleBuffer); \
     format.setProfile(QSurfaceFormat::CoreProfile); \
     format.setSamples(4); \
+    format.setSwapInterval(vsync ? 1 : 0); \
     QSurfaceFormat::setDefaultFormat(format); \
     QApplication a(argc, argv); \
     MainWindowClass w; \
@@ -69,7 +70,7 @@ typedef  QOpenGLFunctions_4_5_Core OpenGLFunctions;
     return a.exec(); \
 }
 
-#define __BNNQt_RunMainWindowMac(MainWindowClass, argc, argv) \
+#define __BNNQt_RunMainWindowMac(MainWindowClass, argc, argv, vsync) \
 { \
     QSurfaceFormat format; \
     format.setDepthBufferSize(24); \
@@ -78,6 +79,7 @@ typedef  QOpenGLFunctions_4_5_Core OpenGLFunctions;
     format.setSwapBehavior(QSurfaceFormat::DoubleBuffer); \
     format.setProfile(QSurfaceFormat::CoreProfile); \
     format.setSamples(4); \
+    format.setSwapInterval(vsync ? 1 : 0); \
     QSurfaceFormat::setDefaultFormat(format); \
     QApplication a(argc, argv); \
     MainWindowClass w; \

@@ -111,7 +111,7 @@ public:
         assert(m_UniformBuffer.isCreated());
 
         m_UniformBuffer.bind();
-        glCall(glBufferSubData(GL_UNIFORM_BUFFER, 3 * sizeof(glm::mat3), sizeof(GLint),
+        glCall(glBufferSubData(GL_UNIFORM_BUFFER, 3 * sizeof(glm::mat3), sizeof(GLfloat),
                &m_MaterialData.shininess));
         m_UniformBuffer.release();
     }
