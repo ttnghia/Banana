@@ -24,7 +24,14 @@
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #if defined(QT_GUI_LIB) || defined(QT_CORE_LIB)
-#   include <QtAppHelpers/QtAppMacros.h>
+#ifdef __APPLE__
+#   include <OpenGL.h>
+#      include <QOpenGLFunctions_4_1_Core>
+typedef  QOpenGLFunctions_4_1_Core OpenGLFunctions;
+#   else
+#      include <QOpenGLFunctions_4_5_Core>
+typedef  QOpenGLFunctions_4_5_Core OpenGLFunctions;
+#   endif
 #   define __Banana_Qt__
 #else
 #   define GLEW_STATIC

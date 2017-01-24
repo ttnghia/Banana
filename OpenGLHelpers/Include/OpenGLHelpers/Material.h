@@ -53,8 +53,14 @@ RedRubber      0.05     0.0      0.0      0.5      0.4        0.4        0.7    
 WhiteRubber    0.05     0.05     0.05     0.5      0.5        0.5        0.7        0.7        0.7        .078125
 YellowRubber   0.05     0.05     0.0      0.5      0.5        0.4        0.7        0.7        0.04       .078125
 */
+#ifdef __Banana_Qt__
+class Material : public OpenGLFunctions
+{
+#else
 class Material
 {
+#endif
+
 public:
     struct MaterialData
     {

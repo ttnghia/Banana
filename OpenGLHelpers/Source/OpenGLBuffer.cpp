@@ -26,13 +26,13 @@
 GLuint OpenGLBuffer::s_TotalBindingPoints = 0;
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-OpenGLBuffer::OpenGLBuffer::~OpenGLBuffer()
+OpenGLBuffer::~OpenGLBuffer()
 {
     deleteBuffer();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void OpenGLBuffer::OpenGLBuffer::deleteBuffer()
+void OpenGLBuffer::deleteBuffer()
 {
     if(!m_isBufferCreated)
         return;
@@ -42,8 +42,8 @@ void OpenGLBuffer::OpenGLBuffer::deleteBuffer()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void OpenGLBuffer::OpenGLBuffer::createBuffer(GLenum bufferType, size_t bufferSize,
-                                              const GLvoid * buffData, GLenum bufferUsage)
+void OpenGLBuffer::createBuffer(GLenum bufferType, size_t bufferSize,
+                                const GLvoid * buffData, GLenum bufferUsage)
 {
     m_BufferType      = bufferType;
     m_BufferUsage     = bufferUsage;
@@ -64,7 +64,7 @@ void OpenGLBuffer::OpenGLBuffer::createBuffer(GLenum bufferType, size_t bufferSi
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void OpenGLBuffer::OpenGLBuffer::uploadData(const GLvoid * data, size_t offset, size_t dataSize)
+void OpenGLBuffer::uploadData(const GLvoid * data, size_t offset, size_t dataSize)
 {
     glCall(glBindBuffer(m_BufferType, m_BufferID));
     glCall(glBufferSubData(m_BufferType, offset, dataSize, data));
@@ -72,7 +72,7 @@ void OpenGLBuffer::OpenGLBuffer::uploadData(const GLvoid * data, size_t offset, 
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void OpenGLBuffer::OpenGLBuffer::bind()
+void OpenGLBuffer::bind()
 {
     assert(m_isBufferCreated);
 
@@ -87,26 +87,26 @@ void OpenGLBuffer::OpenGLBuffer::bind()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void OpenGLBuffer::OpenGLBuffer::release()
+void OpenGLBuffer::release()
 {
     glCall(glBindBuffer(m_BufferType, 0));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-GLuint OpenGLBuffer::OpenGLBuffer::getBufferID()
+GLuint OpenGLBuffer::getBufferID()
 {
     return m_BufferID;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-GLuint OpenGLBuffer::OpenGLBuffer::getBindingPoint()
+GLuint OpenGLBuffer::getBindingPoint()
 {
     assert(m_BufferType == GL_UNIFORM_BUFFER);
     return m_BindingPoint;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-bool OpenGLBuffer::OpenGLBuffer::isCreated()
+bool OpenGLBuffer::isCreated()
 {
     return m_isBufferCreated;
 }
