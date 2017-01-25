@@ -60,8 +60,9 @@ void QtAppShaderProgram::loadResourceFile(std::string & fileContent, const char 
 
     if(!file.open(QFile::ReadOnly | QFile::Text))
     {
-        qDebug() << "Could not open file for read";
-        exit(EXIT_FAILURE);
+        __BNN_Die(QString("%1: Cannot open file %2 for reading!")
+                  .arg(QString::fromStdString(m_ProgramName))
+                  .arg(QString(fileName)));
     }
 
     QTextStream in(&file);

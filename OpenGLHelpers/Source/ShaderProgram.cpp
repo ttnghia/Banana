@@ -123,11 +123,12 @@ bool ShaderProgram::reloadShaders()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-GLint ShaderProgram::getAtributeLocation(const char * atributeName)
+GLint ShaderProgram::getAtributeLocation(const char * atributeName,
+                                         bool dieOnError/* = true*/)
 {
     GLint location = glCall(glGetAttribLocation(programID, atributeName));
 
-    if(location < 0)
+    if(location < 0 && dieOnError)
     {
 #ifdef __Banana_Qt__
         __BNN_Die(QString("%1: Attribute %2 not found!")
@@ -142,11 +143,12 @@ GLint ShaderProgram::getAtributeLocation(const char * atributeName)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-GLint ShaderProgram::getUniformLocation(const char * uniformName)
+GLint ShaderProgram::getUniformLocation(const char * uniformName,
+                                        bool dieOnError/* = true*/)
 {
     GLint location = glCall(glGetUniformLocation(programID, uniformName));
 
-    if(location < 0)
+    if(location < 0 && dieOnError)
     {
 #ifdef __Banana_Qt__
         __BNN_Die(QString("%1: Uniform location %2 not found!")
@@ -161,9 +163,8 @@ GLint ShaderProgram::getUniformLocation(const char * uniformName)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void ShaderProgram::setUniformValue(const char * uniformName, glm::mat4 mat)
+void ShaderProgram::setUniformValue(GLint location, const glm::mat4& mat)
 {
-    GLint location = getUniformLocation(uniformName);
     glCall(glUniformMatrix4fv(location,
            1 /*only setting 1 matrix*/,
            false /*transpose?*/,
@@ -171,51 +172,44 @@ void ShaderProgram::setUniformValue(const char * uniformName, glm::mat4 mat)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void ShaderProgram::setUniformValue(const char * uniformName, glm::vec4 vec)
+void ShaderProgram::setUniformValue(GLint location, const glm::vec4& vec)
 {
-    GLint location = getUniformLocation(uniformName);
     glCall(glUniform4fv(location, 1, glm::value_ptr(vec)));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void ShaderProgram::setUniformValue(const char * uniformName, glm::vec3 vec)
+void ShaderProgram::setUniformValue(GLint location, const glm::vec3& vec)
 {
-    GLint location = getUniformLocation(uniformName);
     glCall(glUniform3fv(location, 1, glm::value_ptr(vec)));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void ShaderProgram::setUniformValue(const char * uniformName, glm::vec2 vec)
+void ShaderProgram::setUniformValue(GLint location, const glm::vec2& vec)
 {
-    GLint location = getUniformLocation(uniformName);
     glCall(glUniform2fv(location, 1, glm::value_ptr(vec)));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void ShaderProgram::setUniformValue(const char * uniformName, GLfloat value)
+void ShaderProgram::setUniformValue(GLint location, GLfloat value)
 {
-    GLint location = getUniformLocation(uniformName);
     glCall(glUniform1f(location, value));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void ShaderProgram::setUniformValue(const char * uniformName, GLint value)
+void ShaderProgram::setUniformValue(GLint location, GLint value)
 {
-    GLint location = getUniformLocation(uniformName);
     glCall(glUniform1i(location, value));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void ShaderProgram::setUniformValue(const char * uniformName, GLuint value)
+void ShaderProgram::setUniformValue(GLint location, GLuint value)
 {
-    GLint location = getUniformLocation(uniformName);
     glCall(glUniform1ui(location, value));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void ShaderProgram::setUniformValue(const char * uniformName, GLboolean value)
+void ShaderProgram::setUniformValue(GLint location, GLboolean value)
 {
-    GLint location = getUniformLocation(uniformName);
     glCall(glUniform1i(location, value ? GL_TRUE : GL_FALSE));
 }
 

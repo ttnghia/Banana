@@ -92,17 +92,24 @@ public:
         glCall(glUseProgram(0));
     }
 
-    GLint getAtributeLocation(const char* atributeName);
-    GLint getUniformLocation(const char* uniformName);
+    GLint getAtributeLocation(const char* atributeName, bool dieOnError = true);
+    GLint getUniformLocation(const char* uniformName, bool dieOnError = true);
 
-    void setUniformValue(const char* uniformName, glm::mat4 mat);
-    void setUniformValue(const char* uniformName, glm::vec4 vec);
-    void setUniformValue(const char* uniformName, glm::vec3 vec);
-    void setUniformValue(const char* uniformName, glm::vec2 vec);
-    void setUniformValue(const char* uniformName, GLfloat value);
-    void setUniformValue(const char* uniformName, GLint value);
-    void setUniformValue(const char* uniformName, GLuint value);
-    void setUniformValue(const char* uniformName, GLboolean value);
+    template<class T>
+    void setUniformValue(const char* uniformName, T value, bool dieOnError = true)
+    {
+        GLint location = getUniformLocation(uniformName, dieOnError);
+        setUniformValue(location, value)
+    }
+
+    void setUniformValue(GLint location, const glm::mat4& mat);
+    void setUniformValue(GLint location, const glm::vec4& vec);
+    void setUniformValue(GLint location, const glm::vec3& vec);
+    void setUniformValue(GLint location, const glm::vec2& vec);
+    void setUniformValue(GLint location, GLfloat value);
+    void setUniformValue(GLint location, GLint value);
+    void setUniformValue(GLint location, GLuint value);
+    void setUniformValue(GLint location, GLboolean value);
 
     ////////////////////////////////////////////////////////////////////////////////
     GLuint programID;
