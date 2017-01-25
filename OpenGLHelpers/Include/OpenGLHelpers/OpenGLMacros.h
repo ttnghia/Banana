@@ -23,26 +23,18 @@
 #pragma once
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#include <BananaAppCore/Macros.h>
+
 #if defined(QT_GUI_LIB) || defined(QT_CORE_LIB)
-#ifdef __APPLE__
-#   include <OpenGL.h>
-#      include <QOpenGLFunctions_4_1_Core>
-typedef  QOpenGLFunctions_4_1_Core OpenGLFunctions;
-#   else
-#      include <QOpenGLFunctions_4_5_Core>
-typedef  QOpenGLFunctions_4_5_Core OpenGLFunctions;
-#   endif
-#   ifndef __Banana_Qt__
-#      define __Banana_Qt__
-#   endif
-#else
+#   include <QtAppHelpers/QtAppMacros.h>
+#else // no Qt
 #   define GLEW_STATIC
 #   include <GL/glew.h>
 #endif
 
 #include <string>
 
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+        //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 inline std::string GLErr2Str(GLenum err)
 {
     switch(err)

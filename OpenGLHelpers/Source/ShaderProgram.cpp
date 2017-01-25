@@ -22,10 +22,6 @@
 
 #include <OpenGLHelpers/ShaderProgram.h>
 
-#ifdef __Banana_Qt__
-#   include <QMessageBox>
-#endif
-
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 bool ShaderProgram::isValid()
 {
@@ -114,7 +110,7 @@ bool ShaderProgram::link()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void ShaderProgram::reloadShaders()
+bool ShaderProgram::reloadShaders()
 {
     for(auto it = m_ShaderSourceFiles.begin(); it != m_ShaderSourceFiles.end(); ++it)
     {
@@ -123,15 +119,7 @@ void ShaderProgram::reloadShaders()
         addShader(it->first, shaderSouce.c_str());
     }
 
-    if(link())
-    {
-#ifdef __Banana_Qt__
-        QMessageBox::information(nullptr, QString("Info"),
-                                 QString("Successfully reload shaders!"));
-#else
-        std::cout << "Successfully reload shaders!" << std::endl;
-#endif
-    }
+    return link();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -141,8 +129,13 @@ GLint ShaderProgram::getAtributeLocation(const char * atributeName)
 
     if(location < 0)
     {
-        fprintf(stderr, "Attribute %s not found!\n", atributeName);
-        exit(EXIT_FAILURE);
+#ifdef __Banana_Qt__
+        __BNN_Die(QString("%1: Attribute %2 not found!")
+                  .arg(QString::fromStdString(m_ProgramName))
+                  .arg(atributeName));
+#else
+        __BNN_Die("%s: Attribute %s not found!\n", m_ProgramName.c_str(), atributeName);
+#endif
     }
 
     return location;
@@ -155,8 +148,13 @@ GLint ShaderProgram::getUniformLocation(const char * uniformName)
 
     if(location < 0)
     {
-        fprintf(stderr, "Uniform location %s not found!\n", uniformName);
-        exit(EXIT_FAILURE);
+#ifdef __Banana_Qt__
+        __BNN_Die(QString("%1: Uniform location %2 not found!")
+                  .arg(QString::fromStdString(m_ProgramName))
+                  .arg(QString(uniformName)));
+#else
+        __BNN_Die("%s: Uniform location %s not found!\n", m_ProgramName.c_str(), uniformName);
+#endif
     }
 
     return location;
@@ -285,12 +283,12 @@ bool ShaderProgram::checkLinkError(GLuint program)
     {
         glCall(glGetProgramInfoLog(program, 1024, NULL, infoLog));
 #ifdef __Banana_Qt__
-        QMessageBox::critical(nullptr, QString("Error"),
-                              QString("Program failed to link!\n  => : ")
-                              + QString(infoLog));
+        __BNN_Die(QString("%1: Program failed to link!\n  => : ")
+                  .arg(QString::fromStdString(m_ProgramName))
+                  + QString(infoLog));
 #else
-        std::cout << "ERROR: Program failed to link!" << std::endl
-            << "  => : " << infoLog << std::endl;
+        __BNN_Die("%s: Program failed to link!\n   => : ", m_ProgramName.c_str(),
+                  infoLog);
 #endif
     }
 
@@ -304,11 +302,11 @@ void ShaderProgram::loadFile(std::string & fileContent, const char * fileName)
     if(!file.is_open())
     {
 #ifdef __Banana_Qt__
-        QMessageBox::critical(nullptr, QString("Error"),
-                              QString("Cannot open file %1 for reading!")
-                              .arg(QString(fileName)));
+        __BNN_Die(QString("%1: Cannot open file %2 for reading!")
+                  .arg(QString::fromStdString(m_ProgramName))
+                  .arg(QString(fileName)));
 #else
-        printf("Error: Cannot open file %s for reading!\n", fileName);
+        __BNN_Die("%s: Cannot open file %s for reading!\n", m_ProgramName.c_str(), fileName);
 #endif
         exit(EXIT_FAILURE);
     }

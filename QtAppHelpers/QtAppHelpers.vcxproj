@@ -95,16 +95,16 @@
     <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='DebugQt|x64'">true</IgnoreImportLibrary>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\Qt\Qt5.8.0\Examples\Qt-5.8\widgets\painting\shared;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)BananaAppCore\Include;C:\Qt\Qt5.8.0\Examples\Qt-5.8\widgets\painting\shared;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugQt|x64'">
-    <IncludePath>C:\Qt\Qt5.8.0\Examples\Qt-5.8\widgets\painting\shared;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)BananaAppCore\Include;C:\Qt\Qt5.8.0\Examples\Qt-5.8\widgets\painting\shared;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>C:\Qt\Qt5.8.0\Examples\Qt-5.8\widgets\painting\shared;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)BananaAppCore\Include;C:\Qt\Qt5.8.0\Examples\Qt-5.8\widgets\painting\shared;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseQt|x64'">
-    <IncludePath>C:\Qt\Qt5.8.0\Examples\Qt-5.8\widgets\painting\shared;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)BananaAppCore\Include;C:\Qt\Qt5.8.0\Examples\Qt-5.8\widgets\painting\shared;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>

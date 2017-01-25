@@ -32,6 +32,27 @@ typedef  QOpenGLFunctions_4_1_Core OpenGLFunctions;
 typedef  QOpenGLFunctions_4_5_Core OpenGLFunctions;
 #endif
 
+#define __Banana_Qt__
+
+#include <QMessageBox>
+#ifdef __BNN_Err
+#   undef __BNN_Err
+#endif
+#define __BNN_Err(err) \
+ { \
+     QMessageBox::critical(nullptr, QString("Error"), err); \
+ }
+
+#ifdef __BNN_Info
+#   undef __BNN_Info
+#endif
+#define __BNN_Info(info) \
+ { \
+     QMessageBox::information(nullptr, QString("Info"), info); \
+ }
+
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #ifndef M_PI
 #   define M_PI 3.14159265358979323846
 #endif

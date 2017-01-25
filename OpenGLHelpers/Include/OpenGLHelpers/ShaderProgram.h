@@ -38,12 +38,16 @@
 class ShaderProgram : public OpenGLFunctions
 {
 public:
-    ShaderProgram() : m_isProgramLinked(false)
+    ShaderProgram() :
+        m_ProgramName("Noname"),
+        m_isProgramLinked(false)
     {
         initializeOpenGLFunctions();
     }
 
-    ShaderProgram(const char* vsFile, const char* fsFile) : m_isProgramLinked(false)
+    ShaderProgram(const char* programName, const char* vsFile, const char* fsFile) :
+        m_ProgramName(programName),
+        m_isProgramLinked(false)
     {
         initializeOpenGLFunctions();
 
@@ -77,7 +81,7 @@ public:
     void addFragmentShaderFromFile(const char* fileName);
 
     bool link();
-    void reloadShaders();
+    bool reloadShaders();
 
     void bind()
     {
@@ -111,6 +115,7 @@ protected:
     void loadFile(std::string& fileContent, const char* fileName);
 
     ////////////////////////////////////////////////////////////////////////////////
+    std::string                   m_ProgramName;
     std::vector<GLuint>           m_ShaderIDs;
     bool                          m_isProgramLinked;
     std::map<GLenum, std::string> m_ShaderSourceFiles;

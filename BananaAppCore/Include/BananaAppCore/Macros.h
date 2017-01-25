@@ -93,20 +93,28 @@ inline void throwIfFailed(HRESULT hr)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#define __BNN_Err(err) \
-{ \
-    printf( "Error: %s\n", err); \
-    __BNN_PrintLocation \
-}
+#ifndef __BNN_Info
+#   define __BNN_Info(info) \
+    { \
+        fprintf(stderr, info); \
+    }
+#endif
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#ifndef __BNN_Err
+#   define __BNN_Err(err) \
+    { \
+        fprintf(stderr, err); \
+        __BNN_PrintLocation \
+    }
+#endif
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #define __BNN_Die(err) \
 { \
     __BNN_Err(err) \
-    printf("Exit...\n"); \
     exit(EXIT_FAILURE); \
 }
-
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #define __BNN_Assert(condition) \
 { \
