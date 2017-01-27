@@ -22,6 +22,8 @@
 
 #pragma once
 
+#include <vector>
+
 #include <OpenGLHelpers/OpenGLMacros.h>
 #include <OpenGLHelpers/OpenGLBuffer.h>
 
@@ -64,10 +66,16 @@ class Material
 public:
     struct MaterialData
     {
-        glm::vec3 ambient;
-        glm::vec3 diffuse;
-        glm::vec3 specular;
+        glm::vec4 ambient;
+        glm::vec4 diffuse;
+        glm::vec4 specular;
         GLfloat shininess;
+        std::string name;
+
+        static size_t getSize()
+        {
+            return 3 * sizeof(glm::vec4) + sizeof(GLfloat);
+        }
     };
 
     Material();
@@ -79,20 +87,26 @@ public:
     void uploadSpecularColor();
     void uploadShininess();
 
-    void setAmbientColor(const glm::vec3& ambient);
-    void setDiffuseColor(const glm::vec3& diffuse);
-    void setSpecularColor(const glm::vec3& specular);
+    void setAmbientColor(const glm::vec4& ambient);
+    void setDiffuseColor(const glm::vec4& diffuse);
+    void setSpecularColor(const glm::vec4& specular);
     void setShininess(GLint shininess);
 
-    glm::vec3 getAmbientColor() const;
-    glm::vec3 getDiffuseColor() const;
-    glm::vec3 getSpecularColor() const;
+    glm::vec4 getAmbientColor() const;
+    glm::vec4 getDiffuseColor() const;
+    glm::vec4 getSpecularColor() const;
     GLfloat getShininess() const;
 
-    void uploadMaterial();
-    void setMaterial(MaterialData material);
+    void uploadBuffer();
+    void bindUniformBuffer();
+    GLuint getBufferBindingPoint();
+
+    void setMaterial(const MaterialData& material);
+    std::string getName();
 
     ////////////////////////////////////////////////////////////////////////////////
+    static std::vector<MaterialData> getBuildInMaterials();
+
     const static MaterialData MT_Emerald;
     const static MaterialData MT_Jade;
     const static MaterialData MT_Obsidian;

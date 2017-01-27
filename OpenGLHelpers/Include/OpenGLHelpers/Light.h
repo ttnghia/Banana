@@ -40,17 +40,17 @@ public:
     void uploadLightAmbient();
     void uploadLightDiffuse();
     void uploadLightSpecular();
-    void uploadLightShininess();
 
-    void setLightAmbient(const glm::vec3& ambient);
-    void setLightDiffuse(const glm::vec3& diffuse);
-    void setLightSpecular(const glm::vec3& specular);
-    void setLightShininess(GLfloat shininess);
+    void setLightAmbient(const glm::vec4& ambient);
+    void setLightDiffuse(const glm::vec4& diffuse);
+    void setLightSpecular(const glm::vec4& specular);
 
-    glm::vec3 getLightAmbient() const;
-    glm::vec3 getLightDiffuse() const;
-    glm::vec3 getLightSpecular() const;
-    GLfloat getLightShininess() const;
+    void bindUniformBuffer();
+    GLuint getBufferBindingPoint();
+
+    glm::vec4 getLightAmbient() const;
+    glm::vec4 getLightDiffuse() const;
+    glm::vec4 getLightSpecular() const;
 
     ////////////////////////////////////////////////////////////////////////////////
     virtual void uploadBuffer()           = 0;
@@ -59,10 +59,14 @@ public:
 protected:
     struct BasicLightData
     {
-        glm::vec3 ambient;
-        glm::vec3 diffuse;
-        glm::vec3 specular;
-        GLfloat shininess;
+        glm::vec4 ambient;
+        glm::vec4 diffuse;
+        glm::vec4 specular;
+
+        static size_t getSize()
+        {
+            return 3 * sizeof(glm::vec4);
+        }
     };
 
     void uploadBasicData();
@@ -75,18 +79,18 @@ protected:
 class DirectionalLight : public Light
 {
 public:
-    DirectionalLight() : m_Direction(-1.0, -1.0, -1.0)
+    DirectionalLight() : m_Direction(-1.0, -1.0, -1.0, 0.0)
     {}
 
-    void setLightDirection(const glm::vec3& direction);
-    glm::vec3 getLightDirection() const;
+    void setLightDirection(const glm::vec4& direction);
+    glm::vec4 getLightDirection() const;
 
     void uploadLightDirection();
     virtual void uploadBuffer() override;
     virtual size_t getUniformBufferSize() override;
 
 private:
-    glm::vec3 m_Direction;
+    glm::vec4 m_Direction;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -109,20 +113,20 @@ class PointLight : public Light
 {
 public:
     PointLight() :
-        m_Position(10, 10, 10),
+        m_Position(10, 10, 10, 1.0),
         m_isAttennuating(0),
         m_atConstant(1.0),
         m_atLinear(0.7),
         m_atQuadratic(1.8)
     {}
 
-    void setLightPosition(const glm::vec3& position);
+    void setLightPosition(const glm::vec4& position);
     void setAttennulation(bool attennuation);
     void setATConstantCoeff(GLfloat atConstant);
     void setATLinearCoeff(GLfloat atLinear);
     void setATQuadraticCoeff(GLfloat atQuadratic);
 
-    glm::vec3 getLightPosition() const;
+    glm::vec4 getLightPosition() const;
     bool isAttennuating() const;
     GLfloat getATConstantCoeff();
     GLfloat getATLinearCoeff();
@@ -135,7 +139,7 @@ public:
     virtual size_t getUniformBufferSize() override;
 
 private:
-    glm::vec3 m_Position;
+    glm::vec4 m_Position;
     GLint     m_isAttennuating;
     GLfloat   m_atConstant;
     GLfloat   m_atLinear;
@@ -147,17 +151,17 @@ class SpotLight : public Light
 {
 public:
     SpotLight() :
-        m_Position(0, 0, 0),
-        m_Direction(-1, -1, -1),
+        m_Position(0, 0, 0, 1.0),
+        m_Direction(-1, -1, -1, 0.0),
         m_InnerCutOffAngle(M_PI),
         m_OuterCutOffAngle(M_PI)
     {}
 
-    void setLightDirection(const glm::vec3& direction);
-    void setLightPosition(const glm::vec3& position);
+    void setLightDirection(const glm::vec4& direction);
+    void setLightPosition(const glm::vec4& position);
 
-    glm::vec3 getLightPosition() const;
-    glm::vec3 getLightDirection() const;
+    glm::vec4 getLightPosition() const;
+    glm::vec4 getLightDirection() const;
 
     void uploadLightPosition();
     void uploadLightDirection();
@@ -167,8 +171,8 @@ public:
     virtual size_t getUniformBufferSize() override;
 
 private:
-    glm::vec3 m_Position;
-    glm::vec3 m_Direction;
+    glm::vec4 m_Position;
+    glm::vec4 m_Direction;
     GLfloat   m_InnerCutOffAngle;
     GLfloat   m_OuterCutOffAngle;
 };

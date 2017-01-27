@@ -28,6 +28,8 @@
 #include  <OpenGLHelpers/CubeObject.h>
 #include  <OpenGLHelpers/MeshObject.h>
 #include  <OpenGLHelpers/MeshLoader.h>
+#include  <OpenGLHelpers/Light.h>
+#include  <OpenGLHelpers/Material.h>
 
 #include <QtAppHelpers/QtAppMacros.h>
 #include <QtAppHelpers/OpenGLWidget.h>
@@ -74,6 +76,8 @@ private:
     CubeObject*    m_CubeObj;
     MeshObject*    m_MeshObj;
     MeshLoader*    m_MeshLoader;
+    PointLight*         m_Light;
+    Material*      m_Material;
     GLuint         m_VAO;
 
 };

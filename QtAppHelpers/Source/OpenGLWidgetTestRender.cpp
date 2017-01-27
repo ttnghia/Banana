@@ -190,18 +190,41 @@ void OpenGLWidgetTestRender::initTestRenderMesh(QString meshFile)
     ////////////////////////////////////////////////////////////////////////////////
     m_MeshLoader = new MeshLoader(meshFile.toStdString());
     m_MeshObj = new MeshObject;
-    m_MeshObj->setVertices(m_MeshLoader->get_vertices());
+    m_MeshObj->setVertices(m_MeshLoader->getVertices());
+    m_MeshObj->setVertexNormal(m_MeshLoader->getVertexNormal());
     m_MeshObj->uploadDataToGPU();
 
     // shaders and VAO
-    m_Shader = ShaderProgram::getSimpleUniformColorShader();
+    m_Shader = ShaderProgram::getPhongShader();
 
     glCall(glGenVertexArrays(1, &m_VAO));
     glCall(glBindVertexArray(m_VAO));
     m_MeshObj->bindAllBuffers();
     glCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0));
+    glCall(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0,
+        (GLvoid*)(m_MeshObj->getVNormalOffset())));
     glCall(glEnableVertexAttribArray(0));
+    glCall(glEnableVertexAttribArray(1));
     glCall(glBindVertexArray(0));
+
+    ////////////////////////////////////////////////////////////////////////////////
+    m_Light = new PointLight;
+    m_Light->setLightPosition(glm::vec4(1, 10000, 1, 1.0));
+    m_Light->uploadBuffer();
+
+    m_Material = new Material;
+    m_Material->setMaterial(Material::MT_Emerald);
+    m_Material->uploadBuffer();
+
+    m_UniformBuffer = new OpenGLBuffer;
+    m_UniformBuffer->createBuffer(GL_UNIFORM_BUFFER, 4 * sizeof(glm::mat4), nullptr,
+                                  GL_DYNAMIC_DRAW);
+    glm::mat4 modelMatrix= glm::scale(glm::mat4(1.0f), glm::vec3(0.05f));
+    glm::mat4 normalMatrix= glm::transpose(glm::inverse(glm::mat3(modelMatrix)));
+    m_UniformBuffer->uploadData(glm::value_ptr(modelMatrix),
+                                0, sizeof(glm::mat4)); // model matrix
+    m_UniformBuffer->uploadData(glm::value_ptr(normalMatrix),
+                                sizeof(glm::mat4), sizeof(glm::mat4)); // normal matrix
 
     ////////////////////////////////////////////////////////////////////////////////
     m_RenderType = RenderType::TriMesh;
@@ -217,8 +240,10 @@ void OpenGLWidgetTestRender::initializeGL()
     //    QString("D:/Programming/QtApps/RealTimeFluidRendering/Textures/Floor/blue_marble.png"));
     //initTestRenderSkybox(
     //    QString("D:/Programming/QtApps/RealTimeFluidRendering/Textures/Sky/sky1"));
+    /*initTestRenderMesh(
+        QString("D:/GoogleDrive/DigitalAssets/Models/Animal/Bear 1/model_mesh.obj"));*/
     initTestRenderMesh(
-        QString("D:/GoogleDrive/DigitalAssets/Models/Animal/Bear 1/model_mesh.obj"));
+        QString("D:/GoogleDrive/DigitalAssets/Models/Car/Volkswagen Touareg 2/model/Touareg.obj"));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -232,7 +257,6 @@ void OpenGLWidgetTestRender::paintGL()
 {
     startFrameTimer();
     OpenGLWidget::paintGL();
-    m_FPSCounter.countFrame();
 
     ////////////////////////////////////////////////////////////////////////////////
     switch(m_RenderType)
@@ -310,13 +334,42 @@ void OpenGLWidgetTestRender::renderMesh()
 {
     assert(m_MeshObj != nullptr);
 
+    static std::vector<Material::MaterialData> materials =
+        Material::getBuildInMaterials();
+    static int count = 0;
+    static int currentMaterialIndex = 0;
+
+    ++count;
+    if(count > 300)
+    {
+        count = 0;
+
+        m_Material->setMaterial(materials[currentMaterialIndex]);
+        m_Material->uploadBuffer();
+        currentMaterialIndex = (currentMaterialIndex + 1) % materials.size();
+        qDebug() << "Material: " << QString::fromStdString(m_Material->getName());
+    }
+
     m_Shader->bind();
 
-    m_Shader->setUniformValue<glm::vec3>("objColor", glm::vec3(0.5, 0.1, 0.9));
+    m_UniformBuffer->uploadData(glm::value_ptr(m_Camera.getViewMatrix()),
+                                2 * sizeof(glm::mat4), sizeof(glm::mat4));
+    m_UniformBuffer->uploadData(glm::value_ptr(m_Camera.getProjectionMatrix()),
+                                3 * sizeof(glm::mat4), sizeof(glm::mat4));
+    m_UniformBuffer->bind();
+    glCall(glUniformBlockBinding(m_Shader->programID,
+           m_Shader->getUniformBlockIndex("Matrices"), m_UniformBuffer->getBindingPoint()));
 
-    //m_Shader->setUniformValue<glm::vec3>("camPosition", m_Camera.m_CameraPosition);
-    //m_Shader->setUniformValue<glm::mat4>("viewMatrix", m_Camera.getViewMatrix());
-    //m_Shader->setUniformValue<glm::mat4>("projectionMatrix", m_Camera.getProjectionMatrix());
+    m_Light->bindUniformBuffer();
+    m_Shader->bindUniformBlock(m_Shader->getUniformBlockIndex("PointLight"),
+                               m_Light->getBufferBindingPoint());
+
+    m_Material->bindUniformBuffer();
+    m_Shader->bindUniformBlock(m_Shader->getUniformBlockIndex("Material"),
+                               m_Material->getBufferBindingPoint());
+
+    m_Shader->setUniformValue<glm::vec3>("camPosition", m_Camera.m_CameraPosition);
+    m_Shader->setUniformValue<GLint>("hasTexture", 0);
 
     glCall(glBindVertexArray(m_VAO));
     m_MeshObj->draw();

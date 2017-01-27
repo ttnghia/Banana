@@ -92,6 +92,7 @@ public:
     GLint getAtributeLocation(const char* atributeName, bool dieOnError = true);
     GLint getUniformLocation(const char* uniformName, bool dieOnError = true);
     GLuint getUniformBlockIndex(const char* uniformBlockName, bool dieOnError = true);
+    void bindUniformBlock(GLuint blockIndex, GLuint bindingPoint);
 
     template<class T>
     void setUniformValue(const char* uniformName, T value, bool dieOnError = true)
@@ -129,5 +130,6 @@ public:
     static ShaderProgram* getSimpleVertexColorShader();
     static ShaderProgram* getSimpleUniformColorShader();
     static ShaderProgram* getSimpleTextureShader();
+    static ShaderProgram* getPhongShader();
     static ShaderProgram* getSkyBoxShader();
 };

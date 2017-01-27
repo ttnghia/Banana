@@ -58,7 +58,9 @@ public:
         m_TranslateY(0.0),
         m_TranslateZ(0.0),
         m_NumVertices(0),
-        m_VertexStride(0),
+        m_VNormalOffset(0),
+        m_VTexCoordOffset(0),
+        m_VColorOffset(0),
         m_ArrayBuffer(nullptr),
         m_IndexBuffer(nullptr)
     {
@@ -98,6 +100,10 @@ public:
     void draw();
     void uploadDataToGPU();
 
+    size_t getVNormalOffset();
+    size_t getVTexCoordOffset();
+    size_t getVColorOffset();
+
     ////////////////////////////////////////////////////////////////////////////////
     OpenGLBuffer* m_ArrayBuffer;
     OpenGLBuffer* m_IndexBuffer;
@@ -117,7 +123,10 @@ protected:
     std::vector<GLfloat>  m_VertexColors;
 
     size_t m_NumVertices;
-    size_t m_VertexStride;
+    size_t m_VNormalOffset;
+    size_t m_VTexCoordOffset;
+    size_t m_VColorOffset;
+
     GLenum m_DataTopology;
     GLenum m_CullFaceMode;
 

@@ -49,30 +49,30 @@ public:
     MeshLoader();
     MeshLoader(std::string mesh_file);
 
-    bool load_mesh(std::string mesh_file);
-    glm::vec3 get_mesh_center();
+    bool loadMesh(std::string mesh_file);
+    glm::vec3 getMeshCenter();
 
-    void set_default_camera(Camera& camera, float fov = 45);
-    float get_camera_distance(float fov);
+    void setDefaultCamera(Camera& camera, float fov = 45);
+    float getCameraDistance(float fov);
 
-    std::vector<float>& get_vertices();
-    std::vector<float>& get_vnormals();
-    std::vector<float>& get_vcolors();
-    std::vector<float>& get_texcoord_2d();
-    std::vector<float>& get_texcoord_3d();
+    std::vector<float>& getVertices();
+    std::vector<float>& getVertexNormal();
+    std::vector<float>& getVertexColor();
+    std::vector<float>& getVTexCoord2D();
+    std::vector<float>& getVTexCoord3D();
 
     ////////////////////////////////////////////////////////////////////////////////
     unsigned int m_NumTriangles;
     bool m_isMeshReady;
 
 private:
-    void check_filetype(std::string mesh_file);
-    void clear_data();
+    void checkFileType(std::string mesh_file);
+    void clearData();
 
     bool load_obj(std::string mesh_file);
     bool load_ply(std::string mesh_file);
 
-    void compute_normal(float N[3], float v0[3], float v1[3], float v2[3]);
+    void computeVertexNormal(float N[3], float v0[3], float v1[3], float v2[3]);
 
     ////////////////////////////////////////////////////////////////////////////////
     MeshFileType m_MeshFileType;

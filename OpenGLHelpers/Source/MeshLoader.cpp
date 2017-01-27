@@ -25,23 +25,23 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 MeshLoader::MeshLoader() : m_isMeshReady(false)
 {
-    clear_data();
+    clearData();
 }
 
 MeshLoader::MeshLoader(std::string mesh_file) :
     m_isMeshReady(false)
 {
-    load_mesh(mesh_file);
+    loadMesh(mesh_file);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-bool MeshLoader::load_mesh(std::string mesh_file)
+bool MeshLoader::loadMesh(std::string mesh_file)
 {
-    check_filetype(mesh_file);
+    checkFileType(mesh_file);
 
     ////////////////////////////////////////////////////////////////////////////////
     // => clear data
-    clear_data();
+    clearData();
 
     ////////////////////////////////////////////////////////////////////////////////
     // => load mesh
@@ -68,16 +68,16 @@ bool MeshLoader::load_mesh(std::string mesh_file)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MeshLoader::set_default_camera(Camera & camera, float fov)
+void MeshLoader::setDefaultCamera(Camera & camera, float fov)
 {
     glm::vec3 currentDir = camera.getCameraDirection();
-    camera.setDefaultCamera(currentDir * get_camera_distance(fov * 0.75) +
-                            get_mesh_center(),
-                            get_mesh_center(), glm::vec3(0, 1, 0));
+    camera.setDefaultCamera(currentDir * getCameraDistance(fov * 0.75) +
+                            getMeshCenter(),
+                            getMeshCenter(), glm::vec3(0, 1, 0));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-float MeshLoader::get_camera_distance(float fov)
+float MeshLoader::getCameraDistance(float fov)
 {
     float half_length = (m_BBoxMax.y - m_BBoxMin.y) * 0.5f;
 
@@ -85,7 +85,7 @@ float MeshLoader::get_camera_distance(float fov)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-std::vector<float>& MeshLoader::get_vertices()
+std::vector<float>& MeshLoader::getVertices()
 {
     assert(m_isMeshReady);
 
@@ -93,7 +93,7 @@ std::vector<float>& MeshLoader::get_vertices()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-std::vector<float>& MeshLoader::get_vnormals()
+std::vector<float>& MeshLoader::getVertexNormal()
 {
     assert(m_isMeshReady);
 
@@ -101,7 +101,7 @@ std::vector<float>& MeshLoader::get_vnormals()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-std::vector<float>& MeshLoader::get_vcolors()
+std::vector<float>& MeshLoader::getVertexColor()
 {
     assert(m_isMeshReady);
 
@@ -109,7 +109,7 @@ std::vector<float>& MeshLoader::get_vcolors()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-std::vector<float>& MeshLoader::get_texcoord_2d()
+std::vector<float>& MeshLoader::getVTexCoord2D()
 {
     assert(m_isMeshReady);
 
@@ -117,7 +117,7 @@ std::vector<float>& MeshLoader::get_texcoord_2d()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-std::vector<float>& MeshLoader::get_texcoord_3d()
+std::vector<float>& MeshLoader::getVTexCoord3D()
 {
     assert(m_isMeshReady);
 
@@ -125,7 +125,7 @@ std::vector<float>& MeshLoader::get_texcoord_3d()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MeshLoader::check_filetype(std::string mesh_file)
+void MeshLoader::checkFileType(std::string mesh_file)
 {
     const std::string extension = mesh_file.substr(mesh_file.rfind('.') + 1);
     m_MeshFileType = MeshFileType::UnsupportedFileType;
@@ -144,7 +144,7 @@ void MeshLoader::check_filetype(std::string mesh_file)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MeshLoader::clear_data()
+void MeshLoader::clearData()
 {
     m_NumTriangles = 0;
 
@@ -242,7 +242,7 @@ bool MeshLoader::load_obj(std::string mesh_file)
             else
             {
                 // compute geometric normal
-                compute_normal(n[0], v[0], v[1], v[2]);
+                computeVertexNormal(n[0], v[0], v[1], v[2]);
                 n[1][0] = n[0][0];
                 n[1][1] = n[0][1];
                 n[1][2] = n[0][2];
@@ -380,7 +380,7 @@ bool MeshLoader::load_ply(std::string mesh_file)
             else
             {
                 // compute geometric normal
-                compute_normal(n[0], v[0], v[1], v[2]);
+                computeVertexNormal(n[0], v[0], v[1], v[2]);
                 n[1][0] = n[0][0];
                 n[1][1] = n[0][1];
                 n[1][2] = n[0][2];
@@ -427,7 +427,7 @@ bool MeshLoader::load_ply(std::string mesh_file)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MeshLoader::compute_normal(float N[3], float v0[3], float v1[3], float v2[3])
+void MeshLoader::computeVertexNormal(float N[3], float v0[3], float v1[3], float v2[3])
 {
     float v10[3];
     v10[0] = v1[0] - v0[0];
@@ -456,7 +456,7 @@ void MeshLoader::compute_normal(float N[3], float v0[3], float v1[3], float v2[3
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-glm::vec3 MeshLoader::get_mesh_center()
+glm::vec3 MeshLoader::getMeshCenter()
 {
     return 0.5f * (m_BBoxMin + m_BBoxMax);
 }

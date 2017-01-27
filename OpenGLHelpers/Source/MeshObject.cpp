@@ -279,6 +279,8 @@ void MeshObject::uploadDataToGPU()
 
     if(m_hasVertexNormal)
     {
+        assert(m_VertexNormals.size() == m_NumVertices * 3);
+        m_VNormalOffset = offset;
         dataSize = sizeof(GLfloat) * m_VertexNormals.size();
         m_ArrayBuffer->uploadData((GLvoid*)m_VertexNormals.data(), offset, dataSize);
         offset += dataSize;
@@ -286,6 +288,8 @@ void MeshObject::uploadDataToGPU()
 
     if(m_hasVertexTexCoord)
     {
+        assert(m_VertexTexCoords.size() == m_NumVertices * 2);
+        m_VTexCoordOffset = offset;
         dataSize = sizeof(GLfloat) * m_VertexTexCoords.size();
         m_ArrayBuffer->uploadData((GLvoid*)m_VertexTexCoords.data(), offset, dataSize);
         offset += dataSize;
@@ -293,6 +297,8 @@ void MeshObject::uploadDataToGPU()
 
     if(m_hasVertexColor)
     {
+        assert(m_VertexColors.size() == m_NumVertices * 3);
+        m_VColorOffset = offset;
         dataSize = sizeof(GLfloat) * m_VertexColors.size();
         m_ArrayBuffer->uploadData((GLvoid*)m_VertexColors.data(), offset, dataSize);
         offset += dataSize;
@@ -315,6 +321,24 @@ void MeshObject::uploadDataToGPU()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+size_t MeshObject::getVNormalOffset()
+{
+    return m_VNormalOffset;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+size_t MeshObject::getVTexCoordOffset()
+{
+    return m_VTexCoordOffset;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+size_t MeshObject::getVColorOffset()
+{
+    return m_VColorOffset;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MeshObject::clearData()
 {
     m_Vertices.resize(0);
@@ -325,6 +349,9 @@ void MeshObject::clearData()
     clearElementIndexLong();
 
     m_NumVertices  = 0;
+    m_VNormalOffset  = 0;
+    m_VTexCoordOffset  = 0;
+    m_VColorOffset  = 0;
     m_DataTopology = GL_TRIANGLES;
 
     m_isMeshVeryLarge = false;

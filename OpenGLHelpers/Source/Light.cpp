@@ -29,15 +29,12 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 Light::Light()
 {
-    static_assert(sizeof(glm::vec3) == sizeof(GLfloat) * 3,
-                  "Size of glm::vec3 != 3*sizeof(GLfloat).");
+    static_assert(sizeof(glm::vec4) == sizeof(GLfloat) * 4,
+                  "Size of glm::vec4 != 4 * sizeof(GLfloat).");
 
-    m_BasicData.ambient   = glm::vec3(0, 0, 0);
-    m_BasicData.diffuse   = glm::vec3(1, 1, 1);
-    m_BasicData.specular  = glm::vec3(1, 1, 1);
-    m_BasicData.shininess = 100.0;
-
-    createUniformBuffer();
+    m_BasicData.ambient  = glm::vec4(0.2, 0.2, 0.2, 1.0);
+    m_BasicData.diffuse  = glm::vec4(1, 1, 1, 1.0);
+    m_BasicData.specular = glm::vec4(1, 1, 1, 1.0);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -50,131 +47,123 @@ void Light::createUniformBuffer()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Light::uploadLightAmbient()
 {
-    assert(m_UniformBuffer.isCreated());
+    if(!m_UniformBuffer.isCreated())
+    {
+        createUniformBuffer();
+    }
 
-    m_UniformBuffer.bind();
-    glCall(glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat3),
-           glm::value_ptr(m_BasicData.ambient)));
-    m_UniformBuffer.release();
+    m_UniformBuffer.uploadData(glm::value_ptr(m_BasicData.ambient), 0, sizeof(glm::vec4));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Light::uploadLightDiffuse()
 {
-    assert(m_UniformBuffer.isCreated());
+    if(!m_UniformBuffer.isCreated())
+    {
+        createUniformBuffer();
+    }
 
-    m_UniformBuffer.bind();
-    glCall(glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat3), sizeof(glm::mat3),
-           glm::value_ptr(m_BasicData.diffuse)));
-    m_UniformBuffer.release();
+    m_UniformBuffer.uploadData(glm::value_ptr(m_BasicData.diffuse),
+                               sizeof(glm::vec4), sizeof(glm::vec4));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Light::uploadLightSpecular()
 {
-    assert(m_UniformBuffer.isCreated());
+    if(!m_UniformBuffer.isCreated())
+    {
+        createUniformBuffer();
+    }
 
-    m_UniformBuffer.bind();
-    glCall(glBufferSubData(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat3), sizeof(glm::mat3),
-           glm::value_ptr(m_BasicData.specular)));
-    m_UniformBuffer.release();
+    m_UniformBuffer.uploadData(glm::value_ptr(m_BasicData.specular),
+                               2 * sizeof(glm::vec4), sizeof(glm::vec4));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Light::uploadLightShininess()
-{
-    assert(m_UniformBuffer.isCreated());
-
-    m_UniformBuffer.bind();
-    glCall(glBufferSubData(GL_UNIFORM_BUFFER, 3 * sizeof(glm::mat3), sizeof(GLfloat),
-           &m_BasicData.shininess));
-    m_UniformBuffer.release();
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Light::setLightAmbient(const glm::vec3 & ambient)
+void Light::setLightAmbient(const glm::vec4& ambient)
 {
     m_BasicData.ambient = ambient;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Light::setLightDiffuse(const glm::vec3 & diffuse)
+void Light::setLightDiffuse(const glm::vec4& diffuse)
 {
     m_BasicData.diffuse = diffuse;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Light::setLightSpecular(const glm::vec3 & specular)
+void Light::setLightSpecular(const glm::vec4& specular)
 {
     m_BasicData.specular = specular;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Light::setLightShininess(GLfloat shininess)
+void Light::bindUniformBuffer()
 {
-    m_BasicData.shininess = shininess;
+    assert(m_UniformBuffer.isCreated());
+    m_UniformBuffer.bind();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-glm::vec3 Light::getLightAmbient() const
+GLuint Light::getBufferBindingPoint()
+{
+    if(!m_UniformBuffer.isCreated())
+    {
+        createUniformBuffer();
+    }
+
+    return m_UniformBuffer.getBindingPoint();
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+glm::vec4 Light::getLightAmbient() const
 {
     return m_BasicData.ambient;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-glm::vec3 Light::getLightDiffuse() const
+glm::vec4 Light::getLightDiffuse() const
 {
     return m_BasicData.diffuse;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-glm::vec3 Light::getLightSpecular() const
+glm::vec4 Light::getLightSpecular() const
 {
     return m_BasicData.specular;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-GLfloat Light::getLightShininess() const
-{
-    return m_BasicData.shininess;
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Light::uploadBasicData()
 {
-    assert(m_UniformBuffer.isCreated());
-
-    m_UniformBuffer.bind();
-    glCall(glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(BasicLightData),
-           &m_BasicData));
-    m_UniformBuffer.release();
+    uploadLightAmbient();
+    uploadLightDiffuse();
+    uploadLightSpecular();
 }
-
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // DirectionalLight class
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void DirectionalLight::setLightDirection(const glm::vec3 & direction)
+void DirectionalLight::setLightDirection(const glm::vec4& direction)
 {
     m_Direction = direction;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-glm::vec3 DirectionalLight::getLightDirection() const
+glm::vec4 DirectionalLight::getLightDirection() const
 {
-
     return m_Direction;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void DirectionalLight::uploadLightDirection()
 {
-    m_UniformBuffer.bind();
-    glCall(glBufferSubData(GL_UNIFORM_BUFFER, sizeof(BasicLightData),
-           sizeof(glm::vec3), glm::value_ptr(m_Direction)));
-    m_UniformBuffer.release();
+    assert(m_UniformBuffer.isCreated());
+
+    m_UniformBuffer.uploadData(glm::value_ptr(m_Direction),
+                               BasicLightData::getSize(), sizeof(glm::vec4));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -187,7 +176,7 @@ void DirectionalLight::uploadBuffer()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 size_t DirectionalLight::getUniformBufferSize()
 {
-    return static_cast<size_t>(sizeof(BasicLightData) + sizeof(glm::vec3));
+    return static_cast<size_t>(BasicLightData::getSize() + sizeof(glm::vec4));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -195,7 +184,7 @@ size_t DirectionalLight::getUniformBufferSize()
 // PointLight class
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void PointLight::setLightPosition(const glm::vec3 & position)
+void PointLight::setLightPosition(const glm::vec4& position)
 {
     m_Position = position;
 }
@@ -225,7 +214,7 @@ void PointLight::setATQuadraticCoeff(GLfloat atQuadratic)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-glm::vec3 PointLight::getLightPosition() const
+glm::vec4 PointLight::getLightPosition() const
 {
     return m_Position;
 }
@@ -257,49 +246,44 @@ GLfloat PointLight::getATQuadraticCoeff()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PointLight::uploadLightPosition()
 {
-    m_UniformBuffer.bind();
-    glCall(glBufferSubData(GL_UNIFORM_BUFFER, sizeof(BasicLightData),
-           sizeof(glm::vec3), glm::value_ptr(m_Position)));
-    m_UniformBuffer.release();
+    assert(m_UniformBuffer.isCreated());
+
+    m_UniformBuffer.uploadData(glm::value_ptr(m_Position),
+                               BasicLightData::getSize(), sizeof(glm::vec4));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PointLight::uploadAttennuationCoeffs()
 {
-    size_t offset   = sizeof(BasicLightData) + sizeof(glm::vec3);
-    size_t dataSize = sizeof(GLint);
+    assert(m_UniformBuffer.isCreated());
 
-    m_UniformBuffer.bind();
-    glCall(glBufferSubData(GL_UNIFORM_BUFFER, offset,
-           dataSize, &m_isAttennuating));
+    size_t offset   = BasicLightData::getSize() + sizeof(glm::vec4);
+    size_t dataSize = sizeof(GLint);
+    m_UniformBuffer.uploadData(&m_isAttennuating, offset, dataSize);
 
     offset  += dataSize;
     dataSize = sizeof(GLfloat);
-    glCall(glBufferSubData(GL_UNIFORM_BUFFER, offset,
-           dataSize, &m_atConstant));
+    m_UniformBuffer.uploadData(&m_atConstant, offset, dataSize);
 
     offset  += dataSize;
-    glCall(glBufferSubData(GL_UNIFORM_BUFFER, offset,
-           dataSize, &m_atLinear));
+    m_UniformBuffer.uploadData(&m_atLinear, offset, dataSize);
 
     offset  += dataSize;
-    glCall(glBufferSubData(GL_UNIFORM_BUFFER, offset,
-           dataSize, &m_atQuadratic));
-
-    m_UniformBuffer.release();
+    m_UniformBuffer.uploadData(&m_atQuadratic, offset, dataSize);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PointLight::uploadBuffer()
 {
     uploadBasicData();
+    uploadLightPosition();
     uploadAttennuationCoeffs();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 size_t PointLight::getUniformBufferSize()
 {
-    return static_cast<size_t>(sizeof(BasicLightData) + sizeof(glm::vec3) +
+    return static_cast<size_t>(BasicLightData::getSize() + sizeof(glm::vec4) +
                                sizeof(GLint) + 3 * sizeof(GLfloat));
 }
 
@@ -308,25 +292,25 @@ size_t PointLight::getUniformBufferSize()
 // SpotLight class
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void SpotLight::setLightDirection(const glm::vec3 & direction)
+void SpotLight::setLightDirection(const glm::vec4& direction)
 {
     m_Direction = direction;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void SpotLight::setLightPosition(const glm::vec3 & position)
+void SpotLight::setLightPosition(const glm::vec4& position)
 {
     m_Position = position;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-glm::vec3 SpotLight::getLightPosition() const
+glm::vec4 SpotLight::getLightPosition() const
 {
     return m_Position;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-glm::vec3 SpotLight::getLightDirection() const
+glm::vec4 SpotLight::getLightDirection() const
 {
 
     return m_Direction;
@@ -335,30 +319,32 @@ glm::vec3 SpotLight::getLightDirection() const
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void SpotLight::uploadLightPosition()
 {
-    m_UniformBuffer.bind();
-    glCall(glBufferSubData(GL_UNIFORM_BUFFER, sizeof(BasicLightData),
-           sizeof(glm::vec3), glm::value_ptr(m_Position)));
-    m_UniformBuffer.release();
+    assert(m_UniformBuffer.isCreated());
+
+    m_UniformBuffer.uploadData(glm::value_ptr(m_Position),
+                               BasicLightData::getSize(), sizeof(glm::vec4));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void SpotLight::uploadLightDirection()
 {
-    m_UniformBuffer.bind();
-    glCall(glBufferSubData(GL_UNIFORM_BUFFER, sizeof(BasicLightData) + sizeof(glm::vec3),
-           sizeof(glm::vec3), glm::value_ptr(m_Direction)));
-    m_UniformBuffer.release();
+    assert(m_UniformBuffer.isCreated());
+
+    m_UniformBuffer.uploadData(glm::value_ptr(m_Direction),
+                               BasicLightData::getSize() + sizeof(glm::vec4), sizeof(glm::vec4));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void SpotLight::uploadLightCutOffAngles()
 {
-    m_UniformBuffer.bind();
-    glCall(glBufferSubData(GL_UNIFORM_BUFFER, sizeof(BasicLightData) + 2 * sizeof(glm::vec3),
-           sizeof(GLfloat), &m_InnerCutOffAngle));
-    glCall(glBufferSubData(GL_UNIFORM_BUFFER, sizeof(BasicLightData) + 2 * sizeof(glm::vec3) +
-           sizeof(GLfloat), sizeof(GLfloat), &m_OuterCutOffAngle));
-    m_UniformBuffer.release();
+    assert(m_UniformBuffer.isCreated());
+
+    m_UniformBuffer.uploadData(&m_InnerCutOffAngle,
+                               BasicLightData::getSize() + 2 * sizeof(glm::vec4),
+                               sizeof(GLfloat));
+    m_UniformBuffer.uploadData(&m_OuterCutOffAngle,
+                               BasicLightData::getSize() + 2 * sizeof(glm::vec4) + sizeof(GLfloat),
+                               sizeof(GLfloat));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -372,6 +358,6 @@ void SpotLight::uploadBuffer()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 size_t SpotLight::getUniformBufferSize()
 {
-    return static_cast<size_t>(sizeof(BasicLightData) + 2 * sizeof(glm::vec3) +
+    return static_cast<size_t>(BasicLightData::getSize() + 2 * sizeof(glm::vec4) +
                                2 * sizeof(GLfloat));
 }
