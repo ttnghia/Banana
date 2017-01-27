@@ -19,13 +19,28 @@
 //               `""`\::::/\::::/\::::/\::::/`""`
 //                    `""`  `""`  `""`  `""`
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include "MainWindow.h"
 
-#include <QDesktopWidget>
-#include <QApplication>
+#pragma once
+
+#include <QEvent>
+
+#include <QtAppHelpers/OpenGLMainWindow.h>
+#include <QtAppHelpers/BrowsePathWidget.h>
+#include <QtAppHelpers/OpenGLWidgetTestRender.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-int main(int argc, char* argv[])
+class MainWindow: public OpenGLMainWindow
 {
-    __BNNQt_RunMainWindow(MainWindow, argc, argv, true);
-}
+    Q_OBJECT
+
+public:
+    MainWindow(QWidget* parent = 0);
+
+protected:
+    virtual void instantiateOpenGLWidget();
+    void keyPressEvent(QKeyEvent*);
+
+private:
+    //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    OpenGLWidgetTestRender* m_TestRenderWidget;
+};

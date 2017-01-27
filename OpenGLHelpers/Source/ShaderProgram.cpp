@@ -163,6 +163,25 @@ GLint ShaderProgram::getUniformLocation(const char * uniformName,
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+GLuint ShaderProgram::getUniformBlockIndex(const char* uniformBlockName, bool dieOnError /*= true*/)
+{
+    GLuint location = glCall(glGetUniformBlockIndex(programID, uniformBlockName));
+
+    if(location == GL_INVALID_INDEX && dieOnError)
+    {
+#ifdef __Banana_Qt__
+        __BNN_Die(QString("%1: Uniform block index %2 not found!")
+                  .arg(QString::fromStdString(m_ProgramName))
+                  .arg(QString(uniformBlockName)));
+#else
+        __BNN_Die("%s: Uniform location %s not found!\n", m_ProgramName.c_str(), uniformBlockName);
+#endif
+    }
+
+    return location;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void ShaderProgram::setUniformValue(GLint location, const glm::mat4& mat)
 {
     glCall(glUniformMatrix4fv(location,
@@ -314,3 +333,4 @@ void ShaderProgram::loadFile(std::string & fileContent, const char * fileName)
     fileContent.assign((std::istreambuf_iterator<char>(file)),
                        std::istreambuf_iterator<char>());
 }
+

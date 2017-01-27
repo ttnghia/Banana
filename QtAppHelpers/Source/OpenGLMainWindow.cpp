@@ -119,7 +119,7 @@ void OpenGLMainWindow::setArthurStyle()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLMainWindow::updateAvgFrameTime(double avgFrameTime)
 {
-    m_lblStatusAvgFrameTime->setText(QString("Frame time: %1 ms (~ %2 FPS)")
+    m_lblStatusAvgFrameTime->setText(QString("PaintGL: %1 ms (~ %2 FPS)")
                                      .arg(avgFrameTime).arg(1000.0 / avgFrameTime));
 }
 

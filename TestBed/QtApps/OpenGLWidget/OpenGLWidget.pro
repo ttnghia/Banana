@@ -11,24 +11,13 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = OpenGLWidget
 TEMPLATE = app
 
+include (../../../BananaAppCore/BananaAppCore.pri)
+include (../../../QtAppHelpers/QtAppHelpers.pri)
+include (../../../OpenGLHelpers/OpenGLHelpers.pri)
 
 SOURCES +=\
     Main.cpp \
-    TestFixedGLWidget.cpp \
-    TestGLSLWidget.cpp \
-    TestGLWidgetWindow.cpp
+    MainWindow.cpp
 
-HEADERS  += \
-    TestFixedGLWidget.h \
-    TestGLSLWidget.h \
-    TestGLWidgetWindow.h
-
-
-RESOURCES += \
-    shaders.qrc
-
-include (../../General.pri)
-
-win32 {
-    LIBS += -lGLU32 -lopengl32
-}
+HEADERS += \
+    MainWindow.h

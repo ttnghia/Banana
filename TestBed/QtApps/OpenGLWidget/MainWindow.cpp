@@ -3,7 +3,7 @@
 //           (-o/\o-)
 //          /`""``""`\
 //          \ /.__.\ /
-//           \ `--` /                                                 Created on: 9/28/2016
+//           \ `--` /                                                 Created on: 01/22/2017
 //            `)  ('                                                    Author: Nghia Truong
 //         ,  /::::\  ,
 //         |'.\::::/.'|
@@ -19,13 +19,33 @@
 //               `""`\::::/\::::/\::::/\::::/`""`
 //                    `""`  `""`  `""`  `""`
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+#include <QMouseEvent>
+
 #include "MainWindow.h"
 
-#include <QDesktopWidget>
-#include <QApplication>
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+MainWindow::MainWindow(QWidget* parent): OpenGLMainWindow(parent)
+{
+    instantiateOpenGLWidget();
+
+    setWindowTitle("Test OpenGLWidget");
+    setFocusPolicy(Qt::StrongFocus);
+}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-int main(int argc, char* argv[])
+void MainWindow::instantiateOpenGLWidget()
 {
-    __BNNQt_RunMainWindow(MainWindow, argc, argv, true);
+    OpenGLWidgetTestRender* glWidget = new OpenGLWidgetTestRender(this);
+    setupOpenglWidget(glWidget);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void MainWindow::keyPressEvent(QKeyEvent* event)
+{
+    switch(event->key())
+    {
+    default:
+        OpenGLMainWindow::keyPressEvent(event);
+    }
 }

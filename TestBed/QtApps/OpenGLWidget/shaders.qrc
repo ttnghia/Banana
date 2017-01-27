@@ -1,6 +1,0 @@
-<RCC>
-    <qresource prefix="/">
-        <file>shaders/test.fs.glsl</file>
-        <file>shaders/test.vs.glsl</file>
-    </qresource>
-</RCC>

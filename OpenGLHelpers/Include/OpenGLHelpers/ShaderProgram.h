@@ -28,9 +28,6 @@
 #include <iostream>
 #include <fstream>
 
-#include <glm/glm.hpp>
-#include <glm/gtc/type_ptr.hpp>
-
 #include <OpenGLHelpers/OpenGLMacros.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -94,12 +91,13 @@ public:
 
     GLint getAtributeLocation(const char* atributeName, bool dieOnError = true);
     GLint getUniformLocation(const char* uniformName, bool dieOnError = true);
+    GLuint getUniformBlockIndex(const char* uniformBlockName, bool dieOnError = true);
 
     template<class T>
     void setUniformValue(const char* uniformName, T value, bool dieOnError = true)
     {
         GLint location = getUniformLocation(uniformName, dieOnError);
-        setUniformValue(location, value)
+        setUniformValue(location, value);
     }
 
     void setUniformValue(GLint location, const glm::mat4& mat);
