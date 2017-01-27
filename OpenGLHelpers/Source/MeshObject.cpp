@@ -64,7 +64,7 @@ void MeshObject::transformObject(GLfloat scaleX, GLfloat scaleY, GLfloat scaleZ,
 void MeshObject::setVertices(const std::vector<GLfloat>& vertices)
 {
     m_NumVertices = vertices.size() / 3;
-    m_Vertices.resize(m_NumVertices);
+    m_Vertices.resize(vertices.size());
     std::copy(vertices.begin(), vertices.end(), m_Vertices.begin());
 
     if(!m_isNoTransformation)

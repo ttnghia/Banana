@@ -30,7 +30,9 @@ OpenGLWidgetTestRender::OpenGLWidgetTestRender(QWidget *parent)
     m_VertexBuffer(nullptr),
     m_IndexBuffer(nullptr),
     m_Texture(nullptr),
-    m_Shader(nullptr)
+    m_Shader(nullptr),
+    m_MeshObj(nullptr),
+    m_MeshLoader(nullptr)
 {}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -124,10 +126,6 @@ void OpenGLWidgetTestRender::initTestRenderTexture(QString texFile)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void OpenGLWidgetTestRender::initTestRenderMesh(QString meshFile)
-{}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLWidgetTestRender::initTestRenderSkybox(QString texFolder)
 {
     ////////////////////////////////////////////////////////////////////////////////
@@ -185,6 +183,31 @@ void OpenGLWidgetTestRender::initTestRenderSkybox(QString texFolder)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void OpenGLWidgetTestRender::initTestRenderMesh(QString meshFile)
+{
+    assert(isValid());
+
+    ////////////////////////////////////////////////////////////////////////////////
+    m_MeshLoader = new MeshLoader(meshFile.toStdString());
+    m_MeshObj = new MeshObject;
+    m_MeshObj->setVertices(m_MeshLoader->get_vertices());
+    m_MeshObj->uploadDataToGPU();
+
+    // shaders and VAO
+    m_Shader = ShaderProgram::getSimpleUniformColorShader();
+
+    glCall(glGenVertexArrays(1, &m_VAO));
+    glCall(glBindVertexArray(m_VAO));
+    m_MeshObj->bindAllBuffers();
+    glCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0));
+    glCall(glEnableVertexAttribArray(0));
+    glCall(glBindVertexArray(0));
+
+    ////////////////////////////////////////////////////////////////////////////////
+    m_RenderType = RenderType::TriMesh;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLWidgetTestRender::initializeGL()
 {
     OpenGLWidget::initializeGL();
@@ -192,8 +215,10 @@ void OpenGLWidgetTestRender::initializeGL()
     //initTestRenderTriangle();
     //initTestRenderTexture(
     //    QString("D:/Programming/QtApps/RealTimeFluidRendering/Textures/Floor/blue_marble.png"));
-    initTestRenderSkybox(
-        QString("D:/Programming/QtApps/RealTimeFluidRendering/Textures/Sky/sky1"));
+    //initTestRenderSkybox(
+    //    QString("D:/Programming/QtApps/RealTimeFluidRendering/Textures/Sky/sky1"));
+    initTestRenderMesh(
+        QString("D:/GoogleDrive/DigitalAssets/Models/Animal/Bear 1/model_mesh.obj"));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -221,6 +246,9 @@ void OpenGLWidgetTestRender::paintGL()
             break;
         case RenderType::SkyBox:
             renderSkyBox();
+            break;
+        case RenderType::TriMesh:
+            renderMesh();
             break;
 
         default:
@@ -257,10 +285,6 @@ void OpenGLWidgetTestRender::renderTexture()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void OpenGLWidgetTestRender::renderMesh()
-{}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLWidgetTestRender::renderSkyBox()
 {
     assert(m_Texture != nullptr);
@@ -277,6 +301,25 @@ void OpenGLWidgetTestRender::renderSkyBox()
     //m_CubeObj->setCullFaceMode(GL_NONE);
     m_CubeObj->draw();
     m_Texture->release();
+    m_Shader->release();
+
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void OpenGLWidgetTestRender::renderMesh()
+{
+    assert(m_MeshObj != nullptr);
+
+    m_Shader->bind();
+
+    m_Shader->setUniformValue<glm::vec3>("objColor", glm::vec3(0.5, 0.1, 0.9));
+
+    //m_Shader->setUniformValue<glm::vec3>("camPosition", m_Camera.m_CameraPosition);
+    //m_Shader->setUniformValue<glm::mat4>("viewMatrix", m_Camera.getViewMatrix());
+    //m_Shader->setUniformValue<glm::mat4>("projectionMatrix", m_Camera.getProjectionMatrix());
+
+    glCall(glBindVertexArray(m_VAO));
+    m_MeshObj->draw();
     m_Shader->release();
 
 }

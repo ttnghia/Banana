@@ -127,6 +127,7 @@ protected:
 
 public:
     static ShaderProgram* getSimpleVertexColorShader();
+    static ShaderProgram* getSimpleUniformColorShader();
     static ShaderProgram* getSimpleTextureShader();
     static ShaderProgram* getSkyBoxShader();
 };
