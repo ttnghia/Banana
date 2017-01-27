@@ -19,39 +19,13 @@
 //               `""`\::::/\::::/\::::/\::::/`""`
 //                    `""`  `""`  `""`  `""`
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#include "MainWindow.h"
 
-#include <QtWidgets>
-#include <QEvent>
+#include <QDesktopWidget>
+#include <QApplication>
 
-#include "FluidRenderer.h"
-
-#define WINDOW_WIDTH 1200
-#define WINDOW_HEIGHT 1000
-
-class MainWindow: public QMainWindow
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+int main(int argc, char* argv[])
 {
-    Q_OBJECT
-
-public:
-    MainWindow(QWidget* parent = 0);
-    ~MainWindow();
-
-protected:
-    void keyPressEvent(QKeyEvent *);
-    void keyReleaseEvent(QKeyEvent *);
-
-
-public slots:
-    void setFPS(double avgTime);
-
-private:
-    void setupGUI();
-    void setMethodStatus();
-    FluidRenderer *renderer;
-    QLabel *lblStatusFPS;
-    QLabel *lblStatusMethod;
-
-};
-#endif // MAINWINDOW_H
+    __BNNQt_RunMainWindow(MainWindow, argc, argv, true);
+}

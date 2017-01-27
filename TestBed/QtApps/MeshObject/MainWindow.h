@@ -20,40 +20,27 @@
 //                    `""`  `""`  `""`  `""`
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-#ifndef __AVG_TIMER_H__
-#define __AVG_TIMER_H__
+#pragma once
 
-#include <chrono>
-#include <QObject>
+#include <QEvent>
+
+#include <QtAppHelpers/OpenGLMainWindow.h>
+#include <QtAppHelpers/BrowsePathWidget.h>
+#include <QtAppHelpers/OpenGLWidgetTestRender.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class AvgTimer: public QObject
+class MainWindow: public OpenGLMainWindow
 {
     Q_OBJECT
 
 public:
-    AvgTimer(double _updateTime = 2000):
-        update_time(_updateTime),
-        ticktock_count(0),
-        timer_started(false)
-    {}
+    MainWindow(QWidget* parent = 0);
 
-    void tick();
-    void tock();
-    double getAvgTime();
-    double getTotalTime();
-
-signals:
-    void avgTimeChanged(double average_time);
+protected:
+    virtual void instantiateOpenGLWidget();
+    void keyPressEvent(QKeyEvent*);
 
 private:
-    bool timer_started;
-    double total_time;
-    double update_time;
-    int ticktock_count;
-    std::chrono::high_resolution_clock::time_point start_time;
-    std::chrono::high_resolution_clock::time_point tick_time;
-    std::chrono::high_resolution_clock::time_point tock_time;
+    //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    OpenGLWidgetTestRender* m_TestRenderWidget;
 };
-
-#endif // __AVG_TIMER_H__

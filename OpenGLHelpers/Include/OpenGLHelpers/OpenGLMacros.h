@@ -65,7 +65,8 @@ inline std::string GLErr2Str(GLenum err)
     }
 }
 
-#if _DEBUG
+#ifdef _DEBUG
+#   ifdef __Banana_Qt__ 
 #   define glCall(a)\
     a; {\
         GLenum err = glGetError();\
@@ -73,9 +74,22 @@ inline std::string GLErr2Str(GLenum err)
             std::string str = "GL error when calling\n\""+std::string(#a)+\
             "\"\n\nOpenGL error: "+GLErr2Str(err)+ \
             ", in file: "+__FILE__+", line: "+std::to_string(__LINE__);\
+            qDebug() << QString::fromStdString(str); \
         }\
-    }
-#else
+        }
+#   else 
+#   define glCall(a)\
+    a; {\
+        GLenum err = glGetError();\
+        if (err!=GL_NO_ERROR) {\
+            std::string str = "GL error when calling\n\""+std::string(#a)+\
+            "\"\n\nOpenGL error: "+GLErr2Str(err)+ \
+            ", in file: "+__FILE__+", line: "+std::to_string(__LINE__);\
+            fprintf(stderr, "%s\n", str.c_str()); \
+        }\
+        } 
+#   endif
+#else // NO _DEBUG
 #   define glCall(a) a;
 #endif
 

@@ -1,8 +1,0 @@
-<RCC>
-    <qresource prefix="/">
-        <file>shaders/phong-shading.fs.glsl</file>
-        <file>shaders/phong-shading.vs.glsl</file>
-        <file>shaders/flat-shading.fs.glsl</file>
-        <file>shaders/flat-shading.vs.glsl</file>
-    </qresource>
-</RCC>

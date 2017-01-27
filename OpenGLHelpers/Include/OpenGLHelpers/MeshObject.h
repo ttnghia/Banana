@@ -38,11 +38,13 @@ class MeshObject
 #endif
 
 public:
-    MeshObject(GLenum _topology = GL_TRIANGLES,
-               bool _veryLargeMesh = false) :
-        m_DataTopology(_topology),
-        m_isMeshVeryLarge(_veryLargeMesh),
+    MeshObject(GLenum dataTopology = GL_TRIANGLES,
+               bool isMeshVeryLarge = false) :
+        m_DataTopology(dataTopology),
+        m_CullFaceMode(GL_NONE),
+        m_isMeshVeryLarge(isMeshVeryLarge),
         m_isDataReady(false),
+        m_isBufferCreated(false),
         m_isGLDataReady(false),
         m_hasVertexTexCoord(false),
         m_hasVertexNormal(false),
@@ -56,7 +58,9 @@ public:
         m_TranslateY(0.0),
         m_TranslateZ(0.0),
         m_NumVertices(0),
-        m_NumIndices(0)
+        m_VertexStride(0),
+        m_ArrayBuffer(nullptr),
+        m_IndexBuffer(nullptr)
     {
 #ifdef __Banana_Qt__
         initializeOpenGLFunctions();
@@ -88,6 +92,9 @@ public:
     void clearElementIndexLong();
 
     ////////////////////////////////////////////////////////////////////////////////
+    void setCullFaceMode(GLenum cullFaceMode);
+    void bindAllBuffers();
+    void releaseAllBuffers();
     void draw();
     void uploadDataToGPU();
 
@@ -110,12 +117,14 @@ protected:
     std::vector<GLfloat>  m_VertexColors;
 
     size_t m_NumVertices;
-    size_t m_NumIndices;
+    size_t m_VertexStride;
     GLenum m_DataTopology;
+    GLenum m_CullFaceMode;
 
     bool m_isMeshVeryLarge;
     bool m_isNoTransformation;
     bool m_isDataReady;
+    bool m_isBufferCreated;
     bool m_isGLDataReady;
 
     bool m_hasVertexTexCoord;

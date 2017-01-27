@@ -25,6 +25,7 @@
 #include  <OpenGLHelpers/OpenGLBuffer.h>
 #include  <OpenGLHelpers/OpenGLTexture.h>
 #include  <OpenGLHelpers/ShaderProgram.h>
+#include  <OpenGLHelpers/CubeObject.h>
 
 #include <QtAppHelpers/QtAppMacros.h>
 #include <QtAppHelpers/OpenGLWidget.h>
@@ -39,14 +40,17 @@ public:
     {
         NotSetup,
         Triangle,
-        Texture
+        Texture,
+        SkyBox
     };
 
     OpenGLWidgetTestRender(QWidget *parent);
     ~OpenGLWidgetTestRender();
 
-    void setRenderTriangle();
-    void setRenderTexture(QString texFile);
+    void initTestRenderTriangle();
+    void initTestRenderTexture(QString texFile);
+    void initTestRenderMesh(QString meshFile);
+    void initTestRenderSkybox(QString texFolder);
 
     virtual void initializeGL() override;
     virtual void resizeGL(int w, int h) override;
@@ -55,6 +59,8 @@ public:
 private:
     void renderTriangle();
     void renderTexture();
+    void renderSkyBox();
+    void renderMesh();
 
     RenderType     m_RenderType;
     OpenGLBuffer*  m_UniformBuffer;
@@ -62,5 +68,7 @@ private:
     OpenGLBuffer*  m_IndexBuffer;
     OpenGLTexture* m_Texture;
     ShaderProgram* m_Shader;
+    CubeObject*    m_CubeObj;
     GLuint         m_VAO;
+
 };

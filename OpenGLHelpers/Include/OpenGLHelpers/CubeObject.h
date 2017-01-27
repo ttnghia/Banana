@@ -101,8 +101,6 @@ public:
         };
 
 
-        m_VertexTexCoords.resize(2 * m_NumVertices);
-
         m_VertexTexCoords ={
             // 0
             0.0, 0.0,
@@ -170,5 +168,6 @@ public:
         m_hasVertexNormal   = true;
         m_hasVertexTexCoord = true;
         m_hasVertexColor    = true;
+        m_hasIndexBuffer    = true;
     }
 };

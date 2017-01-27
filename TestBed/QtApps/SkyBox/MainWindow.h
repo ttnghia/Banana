@@ -19,27 +19,28 @@
 //               `""`\::::/\::::/\::::/\::::/`""`
 //                    `""`  `""`  `""`  `""`
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include "MainWindow.h"
-#include <QDesktopWidget>
-#include <QApplication>
 
+#pragma once
 
-int main(int argc, char* argv[])
+#include <QEvent>
+
+#include <QtAppHelpers/OpenGLMainWindow.h>
+#include <QtAppHelpers/BrowsePathWidget.h>
+#include <QtAppHelpers/OpenGLWidgetTestRender.h>
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+class MainWindow: public OpenGLMainWindow
 {
-    QApplication a(argc, argv);
+    Q_OBJECT
 
-    QSurfaceFormat format;
-    format.setVersion(4, 1);
-    format.setSwapBehavior(QSurfaceFormat::DoubleBuffer);
-    format.setProfile(QSurfaceFormat::CoreProfile);
-    QSurfaceFormat::setDefaultFormat(format);
+public:
+    MainWindow(QWidget* parent = 0);
 
-    MainWindow mainWindow;
+protected:
+    virtual void instantiateOpenGLWidget();
+    void keyPressEvent(QKeyEvent*);
 
-    mainWindow.show();
-    mainWindow.setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter,
-                                               mainWindow.size(),
-                                               qApp->desktop()->availableGeometry()));
-
-    return a.exec();
-}
+private:
+    //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    OpenGLWidgetTestRender* m_TestRenderWidget;
+};

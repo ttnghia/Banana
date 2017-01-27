@@ -34,6 +34,7 @@ typedef  QOpenGLFunctions_4_5_Core OpenGLFunctions;
 
 #define __Banana_Qt__
 
+#include <QDebug>
 #include <QMessageBox>
 #ifdef __BNN_Err
 #   undef __BNN_Err

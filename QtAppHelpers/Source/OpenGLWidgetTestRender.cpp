@@ -44,7 +44,7 @@ OpenGLWidgetTestRender::~OpenGLWidgetTestRender()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void OpenGLWidgetTestRender::setRenderTriangle()
+void OpenGLWidgetTestRender::initTestRenderTriangle()
 {
     assert(isValid());
 
@@ -98,7 +98,7 @@ void OpenGLWidgetTestRender::setRenderTriangle()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void OpenGLWidgetTestRender::setRenderTexture(QString texFile)
+void OpenGLWidgetTestRender::initTestRenderTexture(QString texFile)
 {
     assert(isValid());
 
@@ -116,9 +116,11 @@ void OpenGLWidgetTestRender::setRenderTexture(QString texFile)
 
     const GLchar* vertexShader =
         "#version 410 core\n"
+        "\n"
         "layout(location = 0) in vec3 v_position;\n"
         "layout(location = 1) in vec2 v_texcoord;\n"
         "out vec2 f_texcoord;\n"
+        "\n"
         "void main()\n"
         "{\n"
         "    gl_Position = vec4(v_position, 1.0);\n"
@@ -127,9 +129,11 @@ void OpenGLWidgetTestRender::setRenderTexture(QString texFile)
 
     const GLchar* fragmentShader =
         "#version 410 core\n"
+        "\n"
         "uniform sampler2D texSampler;\n"
         "in vec2 f_texcoord;\n"
         "out vec4 outColor;\n"
+        "\n"
         "void main()\n"
         "{\n"
         "    outColor = texture(texSampler, f_texcoord);\n"
@@ -165,12 +169,114 @@ void OpenGLWidgetTestRender::setRenderTexture(QString texFile)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void OpenGLWidgetTestRender::initTestRenderMesh(QString meshFile)
+{}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void OpenGLWidgetTestRender::initTestRenderSkybox(QString texFolder)
+{
+    ////////////////////////////////////////////////////////////////////////////////
+    // cube object
+    m_CubeObj = new CubeObject;
+    m_CubeObj->uploadDataToGPU();
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // shaders
+    const GLchar* vertexShader =
+        "#version 410 core\n"
+        "\n"
+        "uniform mat4 modelMatrix;\n"
+        "uniform mat4 viewMatrix;\n"
+        "uniform mat4 projectionMatrix;\n"
+        "\n"
+        "uniform vec3 camPosition;\n"
+        "layout(location = 0) in vec3 v_coord;\n"
+        "out vec3 f_viewDir;\n"
+        "\n"
+        "void main()\n"
+        "{\n"
+        "    vec4 worldCoord = vec4(100.0f * v_coord, 1.0);\n"
+        "    f_viewDir = vec3(worldCoord) - vec3(camPosition);\n"
+        "    gl_Position = projectionMatrix * viewMatrix * worldCoord;\n"
+        "}";
+
+
+    const GLchar* fragmentShader =
+        "#version 410 core\n"
+        "\n"
+        "uniform samplerCube texSampler;\n"
+        "in vec3 f_viewDir;\n"
+        "out vec4 fragColor;\n"
+        "\n"
+        "void main()\n"
+        "{\n"
+        "   vec3 viewDir = normalize(f_viewDir);\n"
+        "   fragColor = texture(texSampler, viewDir);\n"
+
+        "}";
+
+
+    m_Shader = new ShaderProgram;
+    m_Shader->addVertexShader(vertexShader);
+    m_Shader->addFragmentShader(fragmentShader);
+    m_Shader->link();
+
+
+    glCall(glGenVertexArrays(1, &m_VAO));
+    glCall(glBindVertexArray(m_VAO));
+    m_CubeObj->bindAllBuffers();
+    glCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0));
+    glCall(glEnableVertexAttribArray(0));
+    glCall(glBindVertexArray(0));
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // textures
+    QStringList texFaces =
+    {
+        "/posx.", "/negx.",
+        "/posy.", "/negy.",
+        "/posz.", "/negz."
+    };
+
+    QString posXFilePath = texFolder + "/posx.jpg";
+    QString ext = "jpg";
+
+    if(!QFile::exists(posXFilePath))
+    {
+        ext = "png";
+        posXFilePath = texFolder + "/posx.png";
+        Q_ASSERT(QFile::exists(posXFilePath));
+    }
+
+    m_Texture = new OpenGLTexture(GL_TEXTURE_CUBE_MAP);
+
+    for(GLuint i = 0; i < 6; ++i)
+    {
+        QString texFilePath = texFolder + texFaces[i] + ext;
+        QImage texImg = QImage(texFilePath).convertToFormat(QImage::Format_RGBA8888);
+
+        m_Texture->uploadData(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+                              GL_RGBA, texImg.width(), texImg.height(),
+                              GL_RGBA, GL_UNSIGNED_BYTE, texImg.constBits());
+    }
+
+    m_Texture->setBestParameters();
+    m_Texture->generateMipMap();
+
+    ////////////////////////////////////////////////////////////////////////////////
+    m_RenderType = RenderType::SkyBox;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLWidgetTestRender::initializeGL()
 {
     OpenGLWidget::initializeGL();
 
-    setRenderTriangle();
-    //setRenderTexture(QString("D:/Programming/QtApps/RealTimeFluidRendering/Textures/Floor/blue_marble.png"));
+    //initTestRenderTriangle();
+    //initTestRenderTexture(
+    //    QString("D:/Programming/QtApps/RealTimeFluidRendering/Textures/Floor/blue_marble.png"));
+    initTestRenderSkybox(
+        QString("D:/Programming/QtApps/RealTimeFluidRendering/Textures/Sky/sky5"));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -187,10 +293,22 @@ void OpenGLWidgetTestRender::paintGL()
     startFrameTimer();
 
     ////////////////////////////////////////////////////////////////////////////////
-    if(m_RenderType == RenderType::Triangle)
-        renderTriangle();
-    else if(m_RenderType == RenderType::Texture)
-        renderTexture();
+    switch(m_RenderType)
+    {
+        case RenderType::Triangle:
+            renderTriangle();
+            break;
+
+        case RenderType::Texture:
+            renderTexture();
+            break;
+        case RenderType::SkyBox:
+            renderSkyBox();
+            break;
+
+        default:
+            ;
+    }
     ////////////////////////////////////////////////////////////////////////////////
 
     endFrameTimer();
@@ -216,6 +334,31 @@ void OpenGLWidgetTestRender::renderTexture()
     m_Shader->setUniformValue<GLint>("texSampler", 0);
     glCall(glBindVertexArray(m_VAO));
     glCall(glDrawArrays(GL_TRIANGLES, 0, 3));
+    m_Texture->release();
+    m_Shader->release();
+
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void OpenGLWidgetTestRender::renderMesh()
+{}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void OpenGLWidgetTestRender::renderSkyBox()
+{
+    assert(m_Texture != nullptr);
+
+    m_Shader->bind();
+    m_Texture->bind();
+
+    m_Shader->setUniformValue<GLint>("texSampler", 0);
+    m_Shader->setUniformValue<glm::vec3>("camPosition", m_Camera.m_CameraPosition);
+    m_Shader->setUniformValue<glm::mat4>("viewMatrix", m_Camera.getViewMatrix());
+    m_Shader->setUniformValue<glm::mat4>("projectionMatrix", m_Camera.getProjectionMatrix());
+
+    glCall(glBindVertexArray(m_VAO));
+    //m_CubeObj->setCullFaceMode(GL_NONE);
+    m_CubeObj->draw();
     m_Texture->release();
     m_Shader->release();
 
