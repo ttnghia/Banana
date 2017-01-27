@@ -119,6 +119,11 @@ void OpenGLTexture::setBestParameters()
     GLfloat fLargest;
     glCall(glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &fLargest));
     glCall(glTexParameterf(m_TexureTarget, GL_TEXTURE_MAX_ANISOTROPY_EXT, fLargest));
+
+    if(m_TexureTarget == GL_TEXTURE_CUBE_MAP)
+    {
+        glCall(glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS));
+    }
     release();
 }
 

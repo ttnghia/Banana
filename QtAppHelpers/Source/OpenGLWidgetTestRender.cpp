@@ -60,28 +60,9 @@ void OpenGLWidgetTestRender::initTestRenderTriangle()
     m_VertexBuffer->createBuffer(GL_ARRAY_BUFFER, sizeof(triangle), triangle, GL_STATIC_DRAW);
 
 
-    const GLchar* vertexShader =
-        "#version 410 core\n"
-        "layout(location = 0) in vec3 v_position;\n"
-        "layout(location = 1) in vec3 v_color;\n"
-        "out vec3 f_color;\n"
-        "void main()\n"
-        "{\n"
-        "    gl_Position = vec4(v_position, 1.0);\n"
-        "    f_color = v_color;\n"
-        "}";
+    // shaders and VAO
+    m_Shader = ShaderProgram::getSimpleVertexColorShader();
 
-    const GLchar* fragmentShader =
-        "#version 410 core\n"
-        "in vec3 f_color;\n"
-        "out vec4 outColor;\n"
-        "void main()\n"
-        "{ outColor = vec4(f_color, 1.0f); }\n";
-
-    m_Shader = new ShaderProgram;
-    m_Shader->addVertexShader(vertexShader);
-    m_Shader->addFragmentShader(fragmentShader);
-    m_Shader->link();
 
     glCall(glGenVertexArrays(1, &m_VAO));
     glCall(glBindVertexArray(m_VAO));
@@ -114,35 +95,9 @@ void OpenGLWidgetTestRender::initTestRenderTexture(QString texFile)
     m_VertexBuffer->createBuffer(GL_ARRAY_BUFFER, sizeof(triangle), triangle, GL_STATIC_DRAW);
 
 
-    const GLchar* vertexShader =
-        "#version 410 core\n"
-        "\n"
-        "layout(location = 0) in vec3 v_position;\n"
-        "layout(location = 1) in vec2 v_texcoord;\n"
-        "out vec2 f_texcoord;\n"
-        "\n"
-        "void main()\n"
-        "{\n"
-        "    gl_Position = vec4(v_position, 1.0);\n"
-        "    f_texcoord = v_texcoord;\n"
-        "}";
+    // shaders and VAO
+    m_Shader = ShaderProgram::getSimpleTextureShader();
 
-    const GLchar* fragmentShader =
-        "#version 410 core\n"
-        "\n"
-        "uniform sampler2D texSampler;\n"
-        "in vec2 f_texcoord;\n"
-        "out vec4 outColor;\n"
-        "\n"
-        "void main()\n"
-        "{\n"
-        "    outColor = texture(texSampler, f_texcoord);\n"
-        "}\n";
-
-    m_Shader = new ShaderProgram;
-    m_Shader->addVertexShader(vertexShader);
-    m_Shader->addFragmentShader(fragmentShader);
-    m_Shader->link();
 
     glCall(glGenVertexArrays(1, &m_VAO));
     glCall(glBindVertexArray(m_VAO));
@@ -181,46 +136,8 @@ void OpenGLWidgetTestRender::initTestRenderSkybox(QString texFolder)
     m_CubeObj->uploadDataToGPU();
 
     ////////////////////////////////////////////////////////////////////////////////
-    // shaders
-    const GLchar* vertexShader =
-        "#version 410 core\n"
-        "\n"
-        "uniform mat4 modelMatrix;\n"
-        "uniform mat4 viewMatrix;\n"
-        "uniform mat4 projectionMatrix;\n"
-        "\n"
-        "uniform vec3 camPosition;\n"
-        "layout(location = 0) in vec3 v_coord;\n"
-        "out vec3 f_viewDir;\n"
-        "\n"
-        "void main()\n"
-        "{\n"
-        "    vec4 worldCoord = vec4(100.0f * v_coord, 1.0);\n"
-        "    f_viewDir = vec3(worldCoord) - vec3(camPosition);\n"
-        "    gl_Position = projectionMatrix * viewMatrix * worldCoord;\n"
-        "}";
-
-
-    const GLchar* fragmentShader =
-        "#version 410 core\n"
-        "\n"
-        "uniform samplerCube texSampler;\n"
-        "in vec3 f_viewDir;\n"
-        "out vec4 fragColor;\n"
-        "\n"
-        "void main()\n"
-        "{\n"
-        "   vec3 viewDir = normalize(f_viewDir);\n"
-        "   fragColor = texture(texSampler, viewDir);\n"
-
-        "}";
-
-
-    m_Shader = new ShaderProgram;
-    m_Shader->addVertexShader(vertexShader);
-    m_Shader->addFragmentShader(fragmentShader);
-    m_Shader->link();
-
+    // shaders and VAO
+    m_Shader = ShaderProgram::getSkyBoxShader();
 
     glCall(glGenVertexArrays(1, &m_VAO));
     glCall(glBindVertexArray(m_VAO));
@@ -276,7 +193,7 @@ void OpenGLWidgetTestRender::initializeGL()
     //initTestRenderTexture(
     //    QString("D:/Programming/QtApps/RealTimeFluidRendering/Textures/Floor/blue_marble.png"));
     initTestRenderSkybox(
-        QString("D:/Programming/QtApps/RealTimeFluidRendering/Textures/Sky/sky5"));
+        QString("D:/Programming/QtApps/RealTimeFluidRendering/Textures/Sky/sky1"));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -288,9 +205,9 @@ void OpenGLWidgetTestRender::resizeGL(int w, int h)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLWidgetTestRender::paintGL()
 {
+    startFrameTimer();
     OpenGLWidget::paintGL();
     m_FPSCounter.countFrame();
-    startFrameTimer();
 
     ////////////////////////////////////////////////////////////////////////////////
     switch(m_RenderType)

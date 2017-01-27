@@ -124,4 +124,9 @@ protected:
     std::vector<GLuint>           m_ShaderIDs;
     bool                          m_isProgramLinked;
     std::map<GLenum, std::string> m_ShaderSourceFiles;
+
+public:
+    static ShaderProgram* getSimpleVertexColorShader();
+    static ShaderProgram* getSimpleTextureShader();
+    static ShaderProgram* getSkyBoxShader();
 };
