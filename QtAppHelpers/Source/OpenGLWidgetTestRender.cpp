@@ -197,7 +197,7 @@ void OpenGLWidgetTestRender::initTestRenderFloor(QString texFile)
     ////////////////////////////////////////////////////////////////////////////////
     // light
     m_Light = new PointLight;
-    m_Light->setLightPosition(glm::vec4(0, 20, 0, 1.0));
+    m_Light->setLightPosition(glm::vec4(0, 2, 0, 1.0));
     m_Light->uploadBuffer();
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -205,6 +205,8 @@ void OpenGLWidgetTestRender::initTestRenderFloor(QString texFile)
     m_FloorRender = new FloorRender(m_Camera, m_Light);
     m_FloorRender->addTexture(m_Texture);
     m_FloorRender->setRenderTextureIndex(1);
+
+    m_PointLightRender = new PointLightRender(m_Camera, m_Light);
 
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -238,7 +240,7 @@ void OpenGLWidgetTestRender::initTestRenderMesh(QString meshFile)
 
     ////////////////////////////////////////////////////////////////////////////////
     m_Light = new PointLight;
-    m_Light->setLightPosition(glm::vec4(1, 10000, 1, 1.0));
+    m_Light->setLightPosition(glm::vec4(1, 10, 1, 1.0));
     m_Light->uploadBuffer();
 
     m_Material = new Material;
@@ -359,7 +361,7 @@ void OpenGLWidgetTestRender::renderFloor()
     assert(m_Texture != nullptr);
 
     m_FloorRender->render();
-
+    m_PointLightRender->render();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

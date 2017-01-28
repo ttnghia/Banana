@@ -71,18 +71,19 @@ private:
     void renderFloor();
     void renderMesh();
 
-    RenderType     m_RenderType;
-    OpenGLBuffer*  m_UniformBuffer;
-    OpenGLBuffer*  m_VertexBuffer;
-    OpenGLBuffer*  m_IndexBuffer;
-    OpenGLTexture* m_Texture;
-    ShaderProgram* m_Shader;
-    MeshObject*    m_MeshObj;
-    MeshLoader*    m_MeshLoader;
-    PointLight*    m_Light;
-    Material*      m_Material;
-    GLuint         m_VAO;
-    SkyBoxRender*  m_SkyBoxRender;
-    FloorRender*  m_FloorRender;
+    RenderType        m_RenderType;
+    OpenGLBuffer*     m_UniformBuffer;
+    OpenGLBuffer*     m_VertexBuffer;
+    OpenGLBuffer*     m_IndexBuffer;
+    OpenGLTexture*    m_Texture;
+    ShaderProgram*    m_Shader;
+    MeshObject*       m_MeshObj;
+    MeshLoader*       m_MeshLoader;
+    PointLight*       m_Light;
+    Material*         m_Material;
+    GLuint            m_VAO;
+    SkyBoxRender*     m_SkyBoxRender;
+    FloorRender*      m_FloorRender;
+    PointLightRender* m_PointLightRender;
 
 };

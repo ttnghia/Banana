@@ -144,3 +144,34 @@ private:
     std::vector<OpenGLTexture*> m_FloorTextures;
 
 };
+
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+// Light render
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+class PointLightRender : public OpenGLCallable
+{
+public:
+    PointLightRender(Camera* camera, PointLight* light) :
+        m_Camera(camera), m_Light(light), m_RenderSize(20.0)
+    {
+        initRenderData();
+    }
+
+    void setRenderSize(GLfloat renderSize);
+    void render();
+
+private:
+    void initRenderData();
+
+    GLuint         m_UMatrices;
+    GLuint         m_ULight;
+    GLuint         m_VAO;
+    Camera*        m_Camera;
+    OpenGLBuffer*  m_UBufferMatrices;
+    ShaderProgram* m_Shader;
+    PointLight*    m_Light;
+    GLfloat        m_RenderSize;
+};
