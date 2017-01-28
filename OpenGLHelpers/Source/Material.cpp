@@ -150,7 +150,7 @@ void Material::uploadBuffer()
 void Material::bindUniformBuffer()
 {
     assert(m_UniformBuffer.isCreated());
-    m_UniformBuffer.bind();
+    m_UniformBuffer.bindBufferBase();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

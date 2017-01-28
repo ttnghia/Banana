@@ -26,21 +26,11 @@
 #include <OpenGLHelpers/OpenGLMacros.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#ifdef __Banana_Qt__
-class OpenGLBuffer : public OpenGLFunctions
-{
-public:
-    OpenGLBuffer() : m_isBufferCreated(false)
-    {
-        initializeOpenGLFunctions();
-    }
-#else
-class OpenGLBuffer
+class OpenGLBuffer : public OpenGLCallable
 {
 public:
     OpenGLBuffer() : m_isBufferCreated(false)
     {}
-#endif
 
     //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     ~OpenGLBuffer();
@@ -50,6 +40,7 @@ public:
                       GLenum bufferUsage = GL_STATIC_DRAW);
     void uploadData(const GLvoid* data, size_t offset, size_t dataSize);
     void bind();
+    void bindBufferBase();
     void release();
 
     GLuint getBufferID();

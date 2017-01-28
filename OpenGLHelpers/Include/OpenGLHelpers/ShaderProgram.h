@@ -31,41 +31,28 @@
 #include <OpenGLHelpers/OpenGLMacros.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#ifdef __Banana_Qt__
-class ShaderProgram : public OpenGLFunctions
+class ShaderProgram : public OpenGLCallable
 {
 public:
     ShaderProgram() :
         m_ProgramName("Noname"),
         m_isProgramLinked(false)
-    {
-        initializeOpenGLFunctions();
-    }
+    {}
 
-    ShaderProgram(const char* programName, const char* vsFile, const char* fsFile) :
+    ShaderProgram(std::string programName) :
+        m_ProgramName(programName),
+        m_isProgramLinked(false)
+    {}
+
+    ShaderProgram(const char* programName,
+                  const char* vsFile, const char* fsFile) :
         m_ProgramName(programName),
         m_isProgramLinked(false)
     {
-        initializeOpenGLFunctions();
-
         addVertexShaderFromFile(vsFile);
         addFragmentShaderFromFile(fsFile);
         link();
     }
-#else
-class ShaderProgram
-{
-public:
-    ShaderProgram() : m_isProgramLinked(false)
-    {}
-
-    ShaderProgram(const char* vsFile, const char* fsFile) : m_isProgramLinked(false)
-    {
-        addVertexShaderFromFile(vsFile);
-        addFragmentShaderFromFile(fsFile);
-        link();
-    }
-#endif
 
     bool isValid();
 

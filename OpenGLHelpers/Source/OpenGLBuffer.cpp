@@ -75,15 +75,14 @@ void OpenGLBuffer::uploadData(const GLvoid * data, size_t offset, size_t dataSiz
 void OpenGLBuffer::bind()
 {
     assert(m_isBufferCreated);
+    glCall(glBindBuffer(m_BufferType, m_BufferID));
+}
 
-    if(m_BufferType == GL_UNIFORM_BUFFER)
-    {
-        glCall(glBindBufferBase(GL_UNIFORM_BUFFER, m_BindingPoint, m_BufferID));
-    }
-    else
-    {
-        glCall(glBindBuffer(m_BufferType, m_BufferID));
-    }
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void OpenGLBuffer::bindBufferBase()
+{
+    assert(m_isBufferCreated && m_BufferType == GL_UNIFORM_BUFFER);
+    glCall(glBindBufferBase(GL_UNIFORM_BUFFER, m_BindingPoint, m_BufferID));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

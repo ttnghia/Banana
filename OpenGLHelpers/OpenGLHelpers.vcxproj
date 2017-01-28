@@ -247,6 +247,7 @@
   <ItemGroup>
     <ClCompile Include="..\Externals\tinyobjloader\tiny_obj_loader.cc" />
     <ClCompile Include="..\Externals\tinyply\source\tinyply.cpp" />
+    <ClCompile Include="Include\OpenGLHelpers\RenderObjects.cpp" />
     <ClCompile Include="Source\Camera.cpp" />
     <ClCompile Include="Source\Light.cpp" />
     <ClCompile Include="Source\Material.cpp" />
@@ -268,6 +269,7 @@
     <ClInclude Include="Include\OpenGLHelpers\OpenGLBuffer.h" />
     <ClInclude Include="Include\OpenGLHelpers\OpenGLMacros.h" />
     <ClInclude Include="Include\OpenGLHelpers\OpenGLTexture.h" />
+    <ClInclude Include="Include\OpenGLHelpers\RenderObjects.h" />
     <ClInclude Include="Include\OpenGLHelpers\ShaderProgram.h" />
     <ClInclude Include="Include\OpenGLHelpers\SphereObject.h" />
   </ItemGroup>

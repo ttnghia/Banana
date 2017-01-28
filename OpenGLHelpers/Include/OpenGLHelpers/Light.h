@@ -26,13 +26,8 @@
 #include <OpenGLHelpers/OpenGLBuffer.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#ifdef __Banana_Qt__
-class Light : public OpenGLFunctions
+class Light : public OpenGLCallable
 {
-#else
-class Light
-{
-#endif
 public:
     Light();
 

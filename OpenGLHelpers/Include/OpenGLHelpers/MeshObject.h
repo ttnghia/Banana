@@ -29,14 +29,8 @@
 #include <OpenGLHelpers/OpenGLBuffer.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#ifdef __Banana_Qt__
-class MeshObject : public OpenGLFunctions
+class MeshObject : public OpenGLCallable
 {
-#else
-class MeshObject
-{
-#endif
-
 public:
     MeshObject(GLenum dataTopology = GL_TRIANGLES,
                bool isMeshVeryLarge = false) :
@@ -63,11 +57,7 @@ public:
         m_VColorOffset(0),
         m_ArrayBuffer(nullptr),
         m_IndexBuffer(nullptr)
-    {
-#ifdef __Banana_Qt__
-        initializeOpenGLFunctions();
-#endif
-    }
+    {}
 
     ~MeshObject();
 

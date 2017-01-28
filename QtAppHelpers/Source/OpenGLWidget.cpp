@@ -30,7 +30,8 @@ OpenGLWidget::OpenGLWidget(QWidget* parent) :
     m_DefaultSize(QSize(1920, 1080)),
     m_ClearColor(QVector4D(0.38f, 0.52f, 0.10f, 1.0f)),
     m_SpecialKeyPressed(SpecialKey::NoKey),
-    m_CaptureImage(nullptr)
+    m_CaptureImage(nullptr),
+    m_Camera(new Camera)
 {
     connect(this, SIGNAL(emitDebugString(QString)), this, SLOT(printDebug(QString)));
 
@@ -75,7 +76,7 @@ void OpenGLWidget::setClearColor(QVector4D color)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLWidget::setViewFrustum(float fov, float nearZ, float farZ)
 {
-    m_Camera.setFrustum(fov, nearZ, farZ);
+    m_Camera->setFrustum(fov, nearZ, farZ);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -119,7 +120,7 @@ void OpenGLWidget::mousePressEvent(QMouseEvent * event)
         m_MouseButtonPressed = MouseButton::NoButton;
     }
 
-    m_Camera.set_last_mouse_pos(event->x(), event->y());
+    m_Camera->set_last_mouse_pos(event->x(), event->y());
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -143,17 +144,17 @@ void OpenGLWidget::mouseMoveEvent(QMouseEvent * event)
 
     if(m_MouseButtonPressed == MouseButton::LeftButton)
     {
-        m_Camera.rotate_by_mouse(event->x(), event->y());
+        m_Camera->rotate_by_mouse(event->x(), event->y());
     }
     else if(m_MouseButtonPressed == MouseButton::RightButton)
     {
         if(m_SpecialKeyPressed == SpecialKey::NoKey)
         {
-            m_Camera.translate_by_mouse(event->x(), event->y());
+            m_Camera->translate_by_mouse(event->x(), event->y());
         }
         else
         {
-            m_Camera.zoom_by_mouse(event->x(), event->y());
+            m_Camera->zoom_by_mouse(event->x(), event->y());
         }
     }
 
@@ -169,7 +170,7 @@ void OpenGLWidget::wheelEvent(QWheelEvent * event)
 
     float zoomFactor = (event->angleDelta().x() + event->angleDelta().y()) / 2000.0f;
 
-    m_Camera.zoom(zoomFactor);
+    m_Camera->zoom(zoomFactor);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -187,31 +188,31 @@ void OpenGLWidget::keyPressEvent(QKeyEvent * event)
             break;
 
         case Qt::Key_Plus:
-            m_Camera.zoom(-0.1f);
+            m_Camera->zoom(-0.1f);
             break;
 
         case Qt::Key_Minus:
-            m_Camera.zoom(0.1f);
+            m_Camera->zoom(0.1f);
             break;
 
         case Qt::Key_Up:
-            m_Camera.translate(glm::vec2(0, 0.5));
+            m_Camera->translate(glm::vec2(0, 0.5));
             break;
 
         case Qt::Key_Down:
-            m_Camera.translate(glm::vec2(0, -0.5));
+            m_Camera->translate(glm::vec2(0, -0.5));
             break;
 
         case Qt::Key_Left:
-            m_Camera.translate(glm::vec2(-0.5, 0));
+            m_Camera->translate(glm::vec2(-0.5, 0));
             break;
 
         case Qt::Key_Right:
-            m_Camera.translate(glm::vec2(0.5, 0));
+            m_Camera->translate(glm::vec2(0.5, 0));
             break;
 
         case Qt::Key_R:
-            m_Camera.reset();
+            m_Camera->reset();
             break;
 
 
@@ -251,7 +252,7 @@ void OpenGLWidget::initializeGL()
 
 void OpenGLWidget::resizeGL(int w, int h)
 {
-    m_Camera.resizeWindow((float)w, (float)h);
+    m_Camera->resizeWindow((float)w, (float)h);
 
     resizeAntTweakBarWindow(w, h);
 

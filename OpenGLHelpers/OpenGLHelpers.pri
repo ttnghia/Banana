@@ -1,5 +1,7 @@
 INCLUDEPATH += $$PWD/Include
 INCLUDEPATH += $$PWD/../Externals/glew-2.0.0/include
+INCLUDEPATH += $$PWD/../Externals/tinyply/source
+INCLUDEPATH += $$PWD/../Externals/tinyobjloader
 
 win32 {
     CONFIG(debug, debug|release) {

@@ -91,11 +91,11 @@ protected:
     int         m_WidgetUpdateTimeout;
     QSize       m_DefaultSize;
     QVector4D   m_ClearColor;
-    Camera      m_Camera;
     SpecialKey  m_SpecialKeyPressed;
     MouseButton m_MouseButtonPressed;
     QString     m_CapturePath;
     QImage*     m_CaptureImage;
+    Camera*     m_Camera;
 
 signals:
     void emitDebugString(QString str);

@@ -30,6 +30,7 @@
 #include  <OpenGLHelpers/MeshLoader.h>
 #include  <OpenGLHelpers/Light.h>
 #include  <OpenGLHelpers/Material.h>
+#include  <OpenGLHelpers/RenderObjects.h>
 
 #include <QtAppHelpers/QtAppMacros.h>
 #include <QtAppHelpers/OpenGLWidget.h>
@@ -46,6 +47,7 @@ public:
         Triangle,
         Texture,
         SkyBox,
+        Floor,
         TriMesh
     };
 
@@ -55,6 +57,7 @@ public:
     void initTestRenderTriangle();
     void initTestRenderTexture(QString texFile);
     void initTestRenderSkybox(QString texFolder);
+    void initTestRenderFloor(QString texFile);
     void initTestRenderMesh(QString meshFile);
 
     virtual void initializeGL() override;
@@ -65,6 +68,7 @@ private:
     void renderTriangle();
     void renderTexture();
     void renderSkyBox();
+    void renderFloor();
     void renderMesh();
 
     RenderType     m_RenderType;
@@ -73,11 +77,12 @@ private:
     OpenGLBuffer*  m_IndexBuffer;
     OpenGLTexture* m_Texture;
     ShaderProgram* m_Shader;
-    CubeObject*    m_CubeObj;
     MeshObject*    m_MeshObj;
     MeshLoader*    m_MeshLoader;
-    PointLight*         m_Light;
+    PointLight*    m_Light;
     Material*      m_Material;
     GLuint         m_VAO;
+    SkyBoxRender*  m_SkyBoxRender;
+    FloorRender*  m_FloorRender;
 
 };

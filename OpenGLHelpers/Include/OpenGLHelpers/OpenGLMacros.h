@@ -109,3 +109,27 @@ inline std::string GLErr2Str(GLenum err)
 
 #include <glm/gtx/string_cast.hpp>
 #include <glm/gtx/quaternion.hpp>
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+// Abstract base class for all classes that call opengl functions
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+#ifdef __Banana_Qt__
+class OpenGLCallable : public OpenGLFunctions
+{
+protected:
+    OpenGLCallable()
+    {
+        initializeOpenGLFunctions();
+    }
+};
+#else
+class OpenGLCallable
+{
+protected:
+    OpenGLCallable()
+    {}
+};
+#endif

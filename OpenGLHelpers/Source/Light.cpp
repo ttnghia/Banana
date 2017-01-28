@@ -101,7 +101,7 @@ void Light::setLightSpecular(const glm::vec4& specular)
 void Light::bindUniformBuffer()
 {
     assert(m_UniformBuffer.isCreated());
-    m_UniformBuffer.bind();
+    m_UniformBuffer.bindBufferBase();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

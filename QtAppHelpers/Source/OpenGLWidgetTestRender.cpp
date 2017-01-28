@@ -129,22 +129,6 @@ void OpenGLWidgetTestRender::initTestRenderTexture(QString texFile)
 void OpenGLWidgetTestRender::initTestRenderSkybox(QString texFolder)
 {
     ////////////////////////////////////////////////////////////////////////////////
-    // cube object
-    m_CubeObj = new CubeObject;
-    m_CubeObj->uploadDataToGPU();
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // shaders and VAO
-    m_Shader = ShaderProgram::getSkyBoxShader();
-
-    glCall(glGenVertexArrays(1, &m_VAO));
-    glCall(glBindVertexArray(m_VAO));
-    m_CubeObj->bindAllBuffers();
-    glCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0));
-    glCall(glEnableVertexAttribArray(0));
-    glCall(glBindVertexArray(0));
-
-    ////////////////////////////////////////////////////////////////////////////////
     // textures
     QStringList texFaces =
     {
@@ -179,7 +163,52 @@ void OpenGLWidgetTestRender::initTestRenderSkybox(QString texFolder)
     m_Texture->generateMipMap();
 
     ////////////////////////////////////////////////////////////////////////////////
+    // render data
+    m_SkyBoxRender = new SkyBoxRender(m_Camera);
+    m_SkyBoxRender->addTexture(m_Texture);
+    m_SkyBoxRender->setRenderTextureIndex(1);
+
+    ////////////////////////////////////////////////////////////////////////////////
     m_RenderType = RenderType::SkyBox;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void OpenGLWidgetTestRender::initTestRenderFloor(QString texFile)
+{
+    ////////////////////////////////////////////////////////////////////////////////
+   // textures
+    m_Texture = new OpenGLTexture(GL_TEXTURE_2D);
+
+    QImage texImg = QImage(texFile).convertToFormat(QImage::Format_RGBA8888);
+
+    m_Texture->uploadData(GL_TEXTURE_2D,
+                          GL_RGBA, texImg.width(), texImg.height(),
+                          GL_RGBA, GL_UNSIGNED_BYTE, texImg.constBits());
+
+    m_Texture->setBestParameters();
+    m_Texture->generateMipMap();
+
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // camera
+    m_Camera->setDefaultCamera(glm::vec3(2, 1, 0), glm::vec3(0, 0, 0),
+                               glm::vec3(0, 1, 0));
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // light
+    m_Light = new PointLight;
+    m_Light->setLightPosition(glm::vec4(0, 20, 0, 1.0));
+    m_Light->uploadBuffer();
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // render data
+    m_FloorRender = new FloorRender(m_Camera, m_Light);
+    m_FloorRender->addTexture(m_Texture);
+    m_FloorRender->setRenderTextureIndex(1);
+
+
+    ////////////////////////////////////////////////////////////////////////////////
+    m_RenderType = RenderType::Floor;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -238,12 +267,14 @@ void OpenGLWidgetTestRender::initializeGL()
     //initTestRenderTriangle();
     //initTestRenderTexture(
     //    QString("D:/Programming/QtApps/RealTimeFluidRendering/Textures/Floor/blue_marble.png"));
-    //initTestRenderSkybox(
-    //    QString("D:/Programming/QtApps/RealTimeFluidRendering/Textures/Sky/sky1"));
-    /*initTestRenderMesh(
-        QString("D:/GoogleDrive/DigitalAssets/Models/Animal/Bear 1/model_mesh.obj"));*/
-    initTestRenderMesh(
-        QString("D:/GoogleDrive/DigitalAssets/Models/Car/Volkswagen Touareg 2/model/Touareg.obj"));
+    initTestRenderFloor(
+        QString("D:/Programming/QtApps/RealTimeFluidRendering/Textures/Floor/blue_marble.png"));
+    /*initTestRenderSkybox(
+        QString("D:/Programming/QtApps/RealTimeFluidRendering/Textures/Sky/sky1"));*/
+        /*initTestRenderMesh(
+            QString("D:/GoogleDrive/DigitalAssets/Models/Animal/Bear 1/model_mesh.obj"));*/
+            /*initTestRenderMesh(
+                QString("D:/GoogleDrive/DigitalAssets/Models/Car/Volkswagen Touareg 2/model/Touareg.obj"));*/
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -268,9 +299,15 @@ void OpenGLWidgetTestRender::paintGL()
         case RenderType::Texture:
             renderTexture();
             break;
+
         case RenderType::SkyBox:
             renderSkyBox();
             break;
+
+        case RenderType::Floor:
+            renderFloor();
+            break;
+
         case RenderType::TriMesh:
             renderMesh();
             break;
@@ -313,19 +350,15 @@ void OpenGLWidgetTestRender::renderSkyBox()
 {
     assert(m_Texture != nullptr);
 
-    m_Shader->bind();
-    m_Texture->bind();
+    m_SkyBoxRender->render();
+}
 
-    m_Shader->setUniformValue<GLint>("texSampler", 0);
-    m_Shader->setUniformValue<glm::vec3>("camPosition", m_Camera.m_CameraPosition);
-    m_Shader->setUniformValue<glm::mat4>("viewMatrix", m_Camera.getViewMatrix());
-    m_Shader->setUniformValue<glm::mat4>("projectionMatrix", m_Camera.getProjectionMatrix());
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void OpenGLWidgetTestRender::renderFloor()
+{
+    assert(m_Texture != nullptr);
 
-    glCall(glBindVertexArray(m_VAO));
-    //m_CubeObj->setCullFaceMode(GL_NONE);
-    m_CubeObj->draw();
-    m_Texture->release();
-    m_Shader->release();
+    m_FloorRender->render();
 
 }
 
@@ -352,11 +385,11 @@ void OpenGLWidgetTestRender::renderMesh()
 
     m_Shader->bind();
 
-    m_UniformBuffer->uploadData(glm::value_ptr(m_Camera.getViewMatrix()),
+    m_UniformBuffer->uploadData(glm::value_ptr(m_Camera->getViewMatrix()),
                                 2 * sizeof(glm::mat4), sizeof(glm::mat4));
-    m_UniformBuffer->uploadData(glm::value_ptr(m_Camera.getProjectionMatrix()),
+    m_UniformBuffer->uploadData(glm::value_ptr(m_Camera->getProjectionMatrix()),
                                 3 * sizeof(glm::mat4), sizeof(glm::mat4));
-    m_UniformBuffer->bind();
+    m_UniformBuffer->bindBufferBase();
     glCall(glUniformBlockBinding(m_Shader->programID,
            m_Shader->getUniformBlockIndex("Matrices"), m_UniformBuffer->getBindingPoint()));
 
@@ -368,7 +401,7 @@ void OpenGLWidgetTestRender::renderMesh()
     m_Shader->bindUniformBlock(m_Shader->getUniformBlockIndex("Material"),
                                m_Material->getBufferBindingPoint());
 
-    m_Shader->setUniformValue<glm::vec3>("camPosition", m_Camera.m_CameraPosition);
+    m_Shader->setUniformValue<glm::vec3>("camPosition", m_Camera->m_CameraPosition);
     m_Shader->setUniformValue<GLint>("hasTexture", 0);
 
     glCall(glBindVertexArray(m_VAO));

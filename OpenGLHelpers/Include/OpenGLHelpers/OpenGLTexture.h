@@ -25,30 +25,7 @@
 #include <OpenGLHelpers/OpenGLMacros.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#ifdef __Banana_Qt__
-class OpenGLTexture : public OpenGLFunctions
-{
-public:
-    OpenGLTexture() :
-        m_bTextureCreated(false),
-        m_BindedTexUnit(0),
-        m_TexureTarget(GL_TEXTURE_2D)
-    {
-        initializeOpenGLFunctions();
-    }
-
-    OpenGLTexture(GLenum textureTarget) :
-        m_bTextureCreated(false),
-        m_BindedTexUnit(0),
-        m_TexureTarget(GL_TEXTURE_2D)
-    {
-        initializeOpenGLFunctions();
-
-        createTexture(textureTarget);
-    }
-
-#else
-class OpenGLTexture
+class OpenGLTexture : public OpenGLCallable
 {
 public:
     OpenGLTexture() :
@@ -64,7 +41,6 @@ public:
     {
         createTexture(textureTarget);
     }
-#endif
 
     ~OpenGLTexture();
 

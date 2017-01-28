@@ -60,6 +60,9 @@
     <ClCompile Include="..\Externals\tinyobjloader\tiny_obj_loader.cc">
       <Filter>Externals</Filter>
     </ClCompile>
+    <ClCompile Include="Include\OpenGLHelpers\RenderObjects.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\OpenGLHelpers\ArcBall.h">
@@ -99,6 +102,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Include\OpenGLHelpers\OpenGLTexture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\OpenGLHelpers\RenderObjects.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
