@@ -31,8 +31,8 @@
 #include <QDir>
 
 SkyBoxRender::SkyBoxRender(Camera* camera, QString texureTopFolder,
-                           OpenGLBuffer* bufferMatrices /*= nullptr*/) :
-    m_Camera(camera), m_UBufferMatrices(bufferMatrices)
+                           OpenGLBuffer* bufferCamData /*= nullptr*/) :
+    m_Camera(camera), m_UBufferCamData(bufferCamData)
 {
     initRenderData();
     loadTextures(texureTopFolder);
@@ -93,8 +93,9 @@ void SkyBoxRender::initRenderData()
 
     m_AtrVPosition = m_Shader->getAtributeLocation("v_position");
     m_UTexSampler = m_Shader->getUniformLocation("texSampler");
-    m_UCamPosition = m_Shader->getUniformLocation("camPosition");
-    m_UMatrices = m_Shader->getUniformBlockIndex("Matrices");
+
+    m_UModelMatrix = m_Shader->getUniformBlockIndex("ModelMatrix");
+    m_UCamData = m_Shader->getUniformBlockIndex("CameraData");
 
     ////////////////////////////////////////////////////////////////////////////////
     // cube object
@@ -110,16 +111,25 @@ void SkyBoxRender::initRenderData()
 
     ////////////////////////////////////////////////////////////////////////////////
     // uniform buffer
-    if(m_UBufferMatrices == nullptr)
-    {
-        m_UBufferMatrices = new OpenGLBuffer;
-        m_UBufferMatrices->createBuffer(GL_UNIFORM_BUFFER, 5 * sizeof(glm::mat4),
-                                        nullptr, GL_STATIC_DRAW);
-    }
-    glm::mat4 modelMatrix= glm::scale(glm::mat4(1.0f), glm::vec3(500.0f));
-    m_UBufferMatrices->uploadData(glm::value_ptr(modelMatrix),
-                                  0, sizeof(glm::mat4));
+    m_UBufferModelMatrix = new OpenGLBuffer;
+    m_UBufferModelMatrix->createBuffer(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4),
+                                       nullptr, GL_STATIC_DRAW);
 
+    glm::mat4 modelMatrix= glm::scale(glm::mat4(1.0f), glm::vec3(500.0f));
+    m_UBufferModelMatrix->uploadData(glm::value_ptr(modelMatrix),
+                                     0, sizeof(glm::mat4));
+
+    if(m_UBufferCamData == nullptr)
+    {
+        m_UBufferCamData = new OpenGLBuffer;
+        m_UBufferCamData->createBuffer(GL_UNIFORM_BUFFER,
+                                       3 * sizeof(glm::mat4) + sizeof(glm::vec4),
+                                       nullptr, GL_DYNAMIC_DRAW);
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // default null texture
+    m_SkyBoxTextures.push_back(nullptr);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -162,25 +172,31 @@ size_t SkyBoxRender::getNumTextures()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void SkyBoxRender::render()
 {
-    assert(m_Camera != nullptr && m_UBufferMatrices != nullptr);
+    assert(m_Camera != nullptr && m_UBufferCamData != nullptr);
     if(m_CurrentSkyBoxTex == nullptr)
     {
         return;
     }
 
-    m_UBufferMatrices->uploadData(glm::value_ptr(m_Camera->getViewMatrix()),
-                                  2 * sizeof(glm::mat4), sizeof(glm::mat4));
-    m_UBufferMatrices->uploadData(glm::value_ptr(m_Camera->getProjectionMatrix()),
-                                  3 * sizeof(glm::mat4), sizeof(glm::mat4));
+    m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getViewMatrix()),
+                                 0, sizeof(glm::mat4));
+    m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getProjectionMatrix()),
+                                 sizeof(glm::mat4), sizeof(glm::mat4));
+    m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->m_CameraPosition),
+                                 3 * sizeof(glm::mat4), sizeof(glm::vec3));
 
     m_Shader->bind();
     m_CurrentSkyBoxTex->bind();
 
-    m_UBufferMatrices->bindBufferBase();
-    m_Shader->bindUniformBlock(m_UMatrices,
-                               m_UBufferMatrices->getBindingPoint());
 
-    m_Shader->setUniformValue(m_UCamPosition, m_Camera->m_CameraPosition);
+    m_UBufferModelMatrix->bindBufferBase();
+    m_Shader->bindUniformBlock(m_UModelMatrix,
+                               m_UBufferModelMatrix->getBindingPoint());
+
+    m_UBufferCamData->bindBufferBase();
+    m_Shader->bindUniformBlock(m_UCamData,
+                               m_UBufferCamData->getBindingPoint());
+
     m_Shader->setUniformValue(m_UTexSampler, 0);
 
 
@@ -198,8 +214,8 @@ void SkyBoxRender::render()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #ifdef __Banana_Qt__
 FloorRender::FloorRender(Camera* camera, Light* light, QString texureFolder,
-                         OpenGLBuffer* bufferMatrices /*= nullptr*/) :
-    m_Camera(camera), m_Light(light), m_UBufferMatrices(bufferMatrices)
+                         OpenGLBuffer* bufferCamData /*= nullptr*/) :
+    m_Camera(camera), m_Light(light), m_UBufferCamData(bufferCamData)
 {
     initRenderData();
     loadTextures(texureFolder);
@@ -273,10 +289,10 @@ void FloorRender::transform(const glm::vec3& translation, const glm::vec3& scale
     m_ModelMatrix = glm::scale(glm::translate(glm::mat4(1.0), translation), scale);
     glm::mat4 normalMatrix = glm::transpose(glm::inverse(glm::mat3(m_ModelMatrix)));
 
-    m_UBufferMatrices->uploadData(glm::value_ptr(m_ModelMatrix),
-                                  0, sizeof(glm::mat4)); // model matrix
-    m_UBufferMatrices->uploadData(glm::value_ptr(normalMatrix),
-                                  sizeof(glm::mat4), sizeof(glm::mat4)); // normal matrix
+    m_UBufferModelMatrix->uploadData(glm::value_ptr(m_ModelMatrix),
+                                     0, sizeof(glm::mat4)); // model matrix
+    m_UBufferModelMatrix->uploadData(glm::value_ptr(normalMatrix),
+                                     sizeof(glm::mat4), sizeof(glm::mat4)); // normal matrix
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -289,23 +305,29 @@ void FloorRender::scaleTexCoord(int scaleX, int scaleY)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void FloorRender::render()
 {
-    assert(m_Camera != nullptr && m_UBufferMatrices != nullptr);
+    assert(m_Camera != nullptr && m_UBufferCamData != nullptr);
     if(m_CurrentFloorTex == nullptr)
     {
         return;
     }
 
-    m_UBufferMatrices->uploadData(glm::value_ptr(m_Camera->getViewMatrix()),
-                                  2 * sizeof(glm::mat4), sizeof(glm::mat4));
-    m_UBufferMatrices->uploadData(glm::value_ptr(m_Camera->getProjectionMatrix()),
-                                  3 * sizeof(glm::mat4), sizeof(glm::mat4));
+    m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getViewMatrix()),
+                                 0, sizeof(glm::mat4));
+    m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getProjectionMatrix()),
+                                 sizeof(glm::mat4), sizeof(glm::mat4));
+    m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->m_CameraPosition),
+                                 3 * sizeof(glm::mat4), sizeof(glm::vec3));
 
     m_Shader->bind();
     m_CurrentFloorTex->bind();
 
-    m_UBufferMatrices->bindBufferBase();
-    m_Shader->bindUniformBlock(m_UMatrices,
-                               m_UBufferMatrices->getBindingPoint());
+    m_UBufferModelMatrix->bindBufferBase();
+    m_Shader->bindUniformBlock(m_UModelMatrix,
+                               m_UBufferModelMatrix->getBindingPoint());
+
+    m_UBufferCamData->bindBufferBase();
+    m_Shader->bindUniformBlock(m_UCamData,
+                               m_UBufferCamData->getBindingPoint());
 
     m_Light->bindUniformBuffer();
     m_Shader->bindUniformBlock(m_ULight,
@@ -315,7 +337,6 @@ void FloorRender::render()
     m_Shader->bindUniformBlock(m_UMaterial,
                                m_Material->getBufferBindingPoint());
 
-    m_Shader->setUniformValue(m_UCamPosition, m_Camera->m_CameraPosition);
     m_Shader->setUniformValue(m_UHasTexture, 1);
     m_Shader->setUniformValue(m_UTexSampler, 0);
 
@@ -338,8 +359,9 @@ void FloorRender::initRenderData()
 
     m_UHasTexture = m_Shader->getUniformLocation("hasTexture");
     m_UTexSampler = m_Shader->getUniformLocation("texSampler");
-    m_UCamPosition = m_Shader->getUniformLocation("camPosition");
-    m_UMatrices = m_Shader->getUniformBlockIndex("Matrices");
+
+    m_UModelMatrix = m_Shader->getUniformBlockIndex("ModelMatrix");
+    m_UCamData = m_Shader->getUniformBlockIndex("CameraData");
     m_ULight = m_Shader->getUniformBlockIndex("PointLight");
     m_UMaterial = m_Shader->getUniformBlockIndex("Material");
 
@@ -363,12 +385,17 @@ void FloorRender::initRenderData()
 
     ////////////////////////////////////////////////////////////////////////////////
     // uniform buffer
-    if(m_UBufferMatrices == nullptr)
+    if(m_UBufferCamData == nullptr)
     {
-        m_UBufferMatrices = new OpenGLBuffer;
-        m_UBufferMatrices->createBuffer(GL_UNIFORM_BUFFER, 5 * sizeof(glm::mat4),
-                                        nullptr, GL_DYNAMIC_DRAW);
+        m_UBufferCamData = new OpenGLBuffer;
+        m_UBufferCamData->createBuffer(GL_UNIFORM_BUFFER,
+                                       3 * sizeof(glm::mat4) + sizeof(glm::vec4),
+                                       nullptr, GL_DYNAMIC_DRAW);
     }
+
+    m_UBufferModelMatrix = new OpenGLBuffer;
+    m_UBufferModelMatrix->createBuffer(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), nullptr,
+                                       GL_STATIC_DRAW);
     transform(glm::vec3(0, 0, 0), glm::vec3(1, 1, 1));
     scaleTexCoord(10, 10);
 
@@ -380,6 +407,10 @@ void FloorRender::initRenderData()
     m_Material->setSpecularColor(glm::vec4(1.0));
     m_Material->setShininess(250.0);
     m_Material->uploadBuffer();
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // default null texture
+    m_FloorTextures.push_back(nullptr);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -395,18 +426,18 @@ void PointLightRender::setRenderSize(GLfloat renderSize)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PointLightRender::render()
 {
-    assert(m_Camera != nullptr && m_UBufferMatrices != nullptr);
+    assert(m_Camera != nullptr && m_UBufferCamData != nullptr);
 
-    m_UBufferMatrices->uploadData(glm::value_ptr(m_Camera->getViewMatrix()),
-                                  2 * sizeof(glm::mat4), sizeof(glm::mat4));
-    m_UBufferMatrices->uploadData(glm::value_ptr(m_Camera->getProjectionMatrix()),
-                                  3 * sizeof(glm::mat4), sizeof(glm::mat4));
+    m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getViewMatrix()),
+                                 0, sizeof(glm::mat4));
+    m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getProjectionMatrix()),
+                                 sizeof(glm::mat4), sizeof(glm::mat4));
 
     m_Shader->bind();
 
-    m_UBufferMatrices->bindBufferBase();
-    m_Shader->bindUniformBlock(m_UMatrices,
-                               m_UBufferMatrices->getBindingPoint());
+    m_UBufferCamData->bindBufferBase();
+    m_Shader->bindUniformBlock(m_UCamData,
+                               m_UBufferCamData->getBindingPoint());
 
     m_Light->bindUniformBuffer();
     m_Shader->bindUniformBlock(m_ULight,
@@ -426,12 +457,12 @@ void PointLightRender::initRenderData()
         "// This is the shader statically generated by ShaderProgram class\n"
         "#version 410 core\n"
         "\n"
-        "layout(std140) uniform Matrices\n"
+        "layout(std140) uniform CameraData\n"
         "{\n"
-        "    mat4 modelMatrix;\n"
-        "    mat4 normalMatrix;\n"
         "    mat4 viewMatrix;\n"
         "    mat4 projectionMatrix;\n"
+        "    mat4 shadowMatrix;\n"
+        "    vec4 camPosition;\n"
         "};\n"
         "\n"
         "layout(std140) uniform PointLight\n"
@@ -474,16 +505,17 @@ void PointLightRender::initRenderData()
 
     glCall(glGenVertexArrays(1, &m_VAO));
 
-    m_UMatrices = m_Shader->getUniformBlockIndex("Matrices");
+    m_UCamData = m_Shader->getUniformBlockIndex("CameraData");
     m_ULight = m_Shader->getUniformBlockIndex("PointLight");
 
 
     ////////////////////////////////////////////////////////////////////////////////
     // uniform buffer
-    if(m_UBufferMatrices == nullptr)
+    if(m_UBufferCamData == nullptr)
     {
-        m_UBufferMatrices = new OpenGLBuffer;
-        m_UBufferMatrices->createBuffer(GL_UNIFORM_BUFFER, 5 * sizeof(glm::mat4),
-                                        nullptr, GL_DYNAMIC_DRAW);
+        m_UBufferCamData = new OpenGLBuffer;
+        m_UBufferCamData->createBuffer(GL_UNIFORM_BUFFER,
+                                       3 * sizeof(glm::mat4) + sizeof(glm::vec4),
+                                       nullptr, GL_DYNAMIC_DRAW);
     }
 }

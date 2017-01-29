@@ -269,14 +269,14 @@ void OpenGLWidgetTestRender::initializeGL()
     //initTestRenderTriangle();
     //initTestRenderTexture(
     //    QString("D:/Programming/QtApps/RealTimeFluidRendering/Textures/Floor/blue_marble.png"));
-    initTestRenderFloor(
-        QString("D:/Programming/QtApps/RealTimeFluidRendering/Textures/Floor/blue_marble.png"));
-    /*initTestRenderSkybox(
-        QString("D:/Programming/QtApps/RealTimeFluidRendering/Textures/Sky/sky1"));*/
+    //initTestRenderFloor(
+        //QString("D:/Programming/QtApps/RealTimeFluidRendering/Textures/Floor/blue_marble.png"));
+    initTestRenderSkybox(
+        QString("D:/Programming/QtApps/RealTimeFluidRendering/Textures/Sky/sky1"));
+    /*initTestRenderMesh(
+        QString("D:/GoogleDrive/DigitalAssets/Models/Animal/Bear 1/model_mesh.obj"));*/
         /*initTestRenderMesh(
-            QString("D:/GoogleDrive/DigitalAssets/Models/Animal/Bear 1/model_mesh.obj"));*/
-            /*initTestRenderMesh(
-                QString("D:/GoogleDrive/DigitalAssets/Models/Car/Volkswagen Touareg 2/model/Touareg.obj"));*/
+            QString("D:/GoogleDrive/DigitalAssets/Models/Car/Volkswagen Touareg 2/model/Touareg.obj"));*/
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
