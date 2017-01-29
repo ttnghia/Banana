@@ -43,17 +43,21 @@ class SkyBoxRender : public OpenGLCallable
 {
 public:
 #ifdef __Banana_Qt__
-    SkyBoxRender(Camera* camera, QString texureTopFolder);
+    SkyBoxRender(Camera* camera, QString texureTopFolder,
+                 OpenGLBuffer* bufferMatrices = nullptr);
+
     void loadTextures(QString textureTopFolder);
 #endif
 
-    SkyBoxRender(Camera* camera) : m_Camera(camera)
+    SkyBoxRender(Camera* camera, OpenGLBuffer* bufferMatrices = nullptr) :
+        m_Camera(camera), m_UBufferMatrices(bufferMatrices)
     {
         initRenderData();
     }
 
-    SkyBoxRender(Camera* camera, std::vector<OpenGLTexture*> skyboxTextures) :
-        m_Camera(camera), m_SkyBoxTextures(skyboxTextures)
+    SkyBoxRender(Camera* camera, std::vector<OpenGLTexture*> skyboxTextures,
+                 OpenGLBuffer* bufferMatrices = nullptr) :
+        m_Camera(camera), m_SkyBoxTextures(skyboxTextures), m_UBufferMatrices(bufferMatrices)
     {
         initRenderData();
     }
@@ -92,19 +96,21 @@ class FloorRender : public OpenGLCallable
 {
 public:
 #ifdef __Banana_Qt__
-    FloorRender(Camera* camera, Light* light, QString texureFolder);
+    FloorRender(Camera* camera, Light* light, QString texureFolder,
+                OpenGLBuffer* bufferMatrices = nullptr);
     void loadTextures(QString textureFolder);
 #endif
 
-    FloorRender(Camera* camera, Light* light) :
-        m_Camera(camera), m_Light(light)
+    FloorRender(Camera* camera, Light* light, OpenGLBuffer* bufferMatrices = nullptr) :
+        m_Camera(camera), m_Light(light), m_UBufferMatrices(bufferMatrices)
     {
         initRenderData();
     }
 
-    FloorRender(Camera* camera, Light* light,
-                std::vector<OpenGLTexture*> floorTextures) :
-        m_Camera(camera), m_FloorTextures(floorTextures), m_Light(light)
+    FloorRender(Camera* camera, Light* light, std::vector<OpenGLTexture*> floorTextures,
+                OpenGLBuffer* bufferMatrices = nullptr) :
+        m_Camera(camera), m_FloorTextures(floorTextures), m_Light(light),
+        m_UBufferMatrices(bufferMatrices)
     {
         initRenderData();
     }
@@ -154,8 +160,10 @@ private:
 class PointLightRender : public OpenGLCallable
 {
 public:
-    PointLightRender(Camera* camera, PointLight* light) :
-        m_Camera(camera), m_Light(light), m_RenderSize(20.0)
+    PointLightRender(Camera* camera, PointLight* light,
+                     OpenGLBuffer* bufferMatrices = nullptr) :
+        m_Camera(camera), m_Light(light), m_RenderSize(20.0),
+        m_UBufferMatrices(bufferMatrices)
     {
         initRenderData();
     }

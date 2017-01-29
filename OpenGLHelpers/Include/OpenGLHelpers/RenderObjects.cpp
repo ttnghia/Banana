@@ -30,8 +30,9 @@
 #ifdef __Banana_Qt__
 #include <QDir>
 
-SkyBoxRender::SkyBoxRender(Camera* camera, QString texureTopFolder) :
-    m_Camera(camera)
+SkyBoxRender::SkyBoxRender(Camera* camera, QString texureTopFolder,
+                           OpenGLBuffer* bufferMatrices /*= nullptr*/) :
+    m_Camera(camera), m_UBufferMatrices(bufferMatrices)
 {
     initRenderData();
     loadTextures(texureTopFolder);
@@ -109,16 +110,16 @@ void SkyBoxRender::initRenderData()
 
     ////////////////////////////////////////////////////////////////////////////////
     // uniform buffer
-    m_UBufferMatrices = new OpenGLBuffer;
-    m_UBufferMatrices->createBuffer(GL_UNIFORM_BUFFER, 5 * sizeof(glm::mat4),
-                                    nullptr, GL_STATIC_DRAW);
+    if(m_UBufferMatrices == nullptr)
+    {
+        m_UBufferMatrices = new OpenGLBuffer;
+        m_UBufferMatrices->createBuffer(GL_UNIFORM_BUFFER, 5 * sizeof(glm::mat4),
+                                        nullptr, GL_STATIC_DRAW);
+    }
     glm::mat4 modelMatrix= glm::scale(glm::mat4(1.0f), glm::vec3(500.0f));
     m_UBufferMatrices->uploadData(glm::value_ptr(modelMatrix),
                                   0, sizeof(glm::mat4));
 
-    ////////////////////////////////////////////////////////////////////////////////
-    // texture
-    m_SkyBoxTextures.push_back(nullptr);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -130,6 +131,7 @@ void SkyBoxRender::clearTextures()
     }
 
     m_SkyBoxTextures.resize(0);
+    m_SkyBoxTextures.push_back(nullptr);
     m_CurrentSkyBoxTex = nullptr;
 }
 
@@ -195,8 +197,9 @@ void SkyBoxRender::render()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #ifdef __Banana_Qt__
-FloorRender::FloorRender(Camera* camera, Light* light, QString texureFolder) :
-    m_Camera(camera), m_Light(light)
+FloorRender::FloorRender(Camera* camera, Light* light, QString texureFolder,
+                         OpenGLBuffer* bufferMatrices /*= nullptr*/) :
+    m_Camera(camera), m_Light(light), m_UBufferMatrices(bufferMatrices)
 {
     initRenderData();
     loadTextures(texureFolder);
@@ -236,6 +239,7 @@ void FloorRender::clearTextures()
     }
 
     m_FloorTextures.resize(0);
+    m_FloorTextures.push_back(nullptr);
     m_CurrentFloorTex = nullptr;
 }
 
@@ -359,15 +363,14 @@ void FloorRender::initRenderData()
 
     ////////////////////////////////////////////////////////////////////////////////
     // uniform buffer
-    m_UBufferMatrices = new OpenGLBuffer;
-    m_UBufferMatrices->createBuffer(GL_UNIFORM_BUFFER, 5 * sizeof(glm::mat4),
-                                    nullptr, GL_STATIC_DRAW);
+    if(m_UBufferMatrices == nullptr)
+    {
+        m_UBufferMatrices = new OpenGLBuffer;
+        m_UBufferMatrices->createBuffer(GL_UNIFORM_BUFFER, 5 * sizeof(glm::mat4),
+                                        nullptr, GL_DYNAMIC_DRAW);
+    }
     transform(glm::vec3(0, 0, 0), glm::vec3(1, 1, 1));
     scaleTexCoord(10, 10);
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // texture
-    m_FloorTextures.push_back(nullptr);
 
     ////////////////////////////////////////////////////////////////////////////////
     // material
@@ -410,13 +413,9 @@ void PointLightRender::render()
                                m_Light->getBufferBindingPoint());
 
     glCall(glBindVertexArray(m_VAO));
-    glPointSize(m_RenderSize);
-    glEnable(GL_POINT_SPRITE);
-    glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
-
-    glDrawArrays(GL_POINTS, 0, 1);
-
-    glDisable(GL_POINT_SPRITE);
+    glCall(glPointSize(m_RenderSize));
+    glCall(glEnable(GL_VERTEX_PROGRAM_POINT_SIZE));
+    glCall(glDrawArrays(GL_POINTS, 0, 1));
     m_Shader->release();
 }
 
@@ -481,7 +480,10 @@ void PointLightRender::initRenderData()
 
     ////////////////////////////////////////////////////////////////////////////////
     // uniform buffer
-    m_UBufferMatrices = new OpenGLBuffer;
-    m_UBufferMatrices->createBuffer(GL_UNIFORM_BUFFER, 5 * sizeof(glm::mat4),
-                                    nullptr, GL_STATIC_DRAW);
+    if(m_UBufferMatrices == nullptr)
+    {
+        m_UBufferMatrices = new OpenGLBuffer;
+        m_UBufferMatrices->createBuffer(GL_UNIFORM_BUFFER, 5 * sizeof(glm::mat4),
+                                        nullptr, GL_DYNAMIC_DRAW);
+    }
 }
