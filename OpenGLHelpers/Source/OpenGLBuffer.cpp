@@ -48,6 +48,13 @@ void OpenGLBuffer::createBuffer(GLenum bufferType, size_t bufferSize,
     m_BufferType      = bufferType;
     m_BufferUsage     = bufferUsage;
     m_BufferSize      = bufferSize;
+
+    if(m_isBufferCreated)
+    {
+        resize(bufferSize);
+        return;
+    }
+
     m_isBufferCreated = true;
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -65,10 +72,19 @@ void OpenGLBuffer::createBuffer(GLenum bufferType, size_t bufferSize,
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void OpenGLBuffer::resize(size_t bufferSize)
+{
+    glCall(glBindBuffer(m_BufferType, m_BufferID));
+    glCall(glBufferData(m_BufferType, bufferSize, nullptr, m_BufferUsage));
+    glCall(glBindBuffer(m_BufferType, 0));
+
+    m_BufferSize = bufferSize;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLBuffer::uploadData(const GLvoid * data, size_t offset, size_t dataSize)
 {
     assert(dataSize <= m_BufferSize);
-
     glCall(glBindBuffer(m_BufferType, m_BufferID));
     glCall(glBufferSubData(m_BufferType, offset, dataSize, data));
     glCall(glBindBuffer(m_BufferType, 0));
