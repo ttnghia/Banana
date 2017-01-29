@@ -15,11 +15,11 @@ macx {
 win32 {
     CONFIG(debug, debug|release) {
         message("QtAppHelpers -- Debug")
-        QMAKE_CXXFLAGS += /DEBUG /Zi /D "_DEBUG"
+        QMAKE_CXXFLAGS += /DEBUG /Zi /D "_DEBUG" /wd"4305"
         LIBS += $$PWD/../Build/DebugQt/QtAppHelpers.lib
     }else {
         message("QtAppHelpers -- Release")
-        QMAKE_CXXFLAGS += /O2 /Ob2 /GL /Qpar
+        QMAKE_CXXFLAGS += /O2 /Ob2 /GL /Qpar /wd"4305"
         LIBS += $$PWD/../Build/ReleaseQt/QtAppHelpers.lib
     }
 }
