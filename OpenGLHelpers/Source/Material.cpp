@@ -31,7 +31,7 @@ Material::Material(std::string materialName /*= std::string("NoName")*/)
     m_MaterialData.ambient   = glm::vec4(0.0215, 0.1745, 0.0215, 1.0);
     m_MaterialData.diffuse   = glm::vec4(0.07568, 0.61424, 0.07568, 1.0);
     m_MaterialData.specular  = glm::vec4(0.633, 0.727811, 0.633, 1.0);
-    m_MaterialData.shininess = 0.6;
+    m_MaterialData.shininess = 0.6 * 128.0;
     m_MaterialData.name      = materialName;
 }
 
@@ -118,7 +118,7 @@ void Material::setSpecularColor(const glm::vec4& specular)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Material::setShininess(GLint shininess)
+void Material::setShininess(GLfloat shininess)
 {
     m_MaterialData.shininess = shininess;
 }

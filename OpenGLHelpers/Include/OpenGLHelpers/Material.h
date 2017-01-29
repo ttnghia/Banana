@@ -86,7 +86,7 @@ public:
     void setAmbientColor(const glm::vec4& ambient);
     void setDiffuseColor(const glm::vec4& diffuse);
     void setSpecularColor(const glm::vec4& specular);
-    void setShininess(GLint shininess);
+    void setShininess(GLfloat shininess);
 
     glm::vec4 getAmbientColor() const;
     glm::vec4 getDiffuseColor() const;
