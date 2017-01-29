@@ -7,7 +7,7 @@
 #include "./ParallelSTL.h"
 #include "./BlockSparseMatrix.h"
 
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template <class MatrixType, class VectorType, class ScalarType>
 class BlockConjugateGradientSolver
 {
