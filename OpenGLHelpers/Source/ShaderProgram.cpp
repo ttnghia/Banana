@@ -93,7 +93,7 @@ bool ShaderProgram::link()
     {
         if(m_isProgramLinked)
         {
-            glCall(glDeleteShader(programID));
+            glCall(glDeleteProgram(programID));
         }
 
         programID = newProgramID;
@@ -112,14 +112,15 @@ bool ShaderProgram::link()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 bool ShaderProgram::reloadShaders()
 {
+    bool result = true;
     for(auto it = m_ShaderSourceFiles.begin(); it != m_ShaderSourceFiles.end(); ++it)
     {
         std::string shaderSouce;
         loadFile(shaderSouce, it->second.c_str());
-        addShader(it->first, shaderSouce.c_str());
+        result = result && addShader(it->first, shaderSouce.c_str());
     }
 
-    return link();
+    return (result && link());
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -239,7 +240,7 @@ void ShaderProgram::setUniformValue(GLint location, GLboolean value)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void ShaderProgram::addShader(GLenum shaderType, const GLchar * shaderSource)
+bool ShaderProgram::addShader(GLenum shaderType, const GLchar * shaderSource)
 {
     GLuint shader = glCall(glCreateShader(shaderType));
     glCall(glShaderSource(shader, 1, &shaderSource, NULL));
@@ -249,7 +250,10 @@ void ShaderProgram::addShader(GLenum shaderType, const GLchar * shaderSource)
     if(checkCompileError(shader, shaderType))
     {
         m_ShaderIDs.push_back(shader);
+        return true;
     }
+
+    return false;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -283,9 +287,14 @@ bool ShaderProgram::checkCompileError(GLuint shader, GLenum shaderType)
             shaderName = "InvalidShader";
         }
 
-
+#ifdef __Banana_Qt__
+        __BNN_Info(QString("%1: %2 failed to compile!\n  => : %3")
+                   .arg(QString::fromStdString(m_ProgramName))
+                   .arg(QString::fromStdString(shaderName)).arg(infoLog));
+#else
         std::cout << "ERROR: " << shaderName << " failed to compile!" << std::endl
             << "  => : " << infoLog << std::endl;
+#endif
     }
 
     return (success != 0);

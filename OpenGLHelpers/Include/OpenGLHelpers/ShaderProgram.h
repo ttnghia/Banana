@@ -101,7 +101,7 @@ public:
     GLuint programID;
 
 protected:
-    void addShader(GLenum shaderType, const GLchar* shaderSource);
+    bool addShader(GLenum shaderType, const GLchar* shaderSource);
     bool checkCompileError(GLuint shader, GLenum shaderType);
     bool checkLinkError(GLuint program);
 
