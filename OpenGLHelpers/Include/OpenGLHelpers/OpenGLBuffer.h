@@ -29,7 +29,7 @@
 class OpenGLBuffer : public OpenGLCallable
 {
 public:
-    OpenGLBuffer() : m_isBufferCreated(false)
+    OpenGLBuffer() : m_isBufferCreated(false), m_BufferSize(0)
     {}
 
     //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -45,6 +45,7 @@ public:
 
     GLuint getBufferID();
     GLuint getBindingPoint();
+    size_t getBufferSize();
     bool isCreated();
 
 private:
@@ -53,6 +54,7 @@ private:
     GLenum m_BufferType;
     GLenum m_BufferUsage;
 
+    size_t m_BufferSize;
     GLuint m_BindingPoint;
     static GLuint s_TotalBindingPoints;
 };

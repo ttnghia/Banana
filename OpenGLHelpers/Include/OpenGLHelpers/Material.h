@@ -72,7 +72,9 @@ public:
         }
     };
 
-    Material();
+    Material(std::string materialName = std::string("NoName"));
+    Material(const MaterialData& material,
+             std::string materialName = std::string("NoName"));
 
     void createUniformBuffer();
 
@@ -91,7 +93,7 @@ public:
     glm::vec4 getSpecularColor() const;
     GLfloat getShininess() const;
 
-    void uploadBuffer();
+    void uploadDataToGPU();
     void bindUniformBuffer();
     GLuint getBufferBindingPoint();
 

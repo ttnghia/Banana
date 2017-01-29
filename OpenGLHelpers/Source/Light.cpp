@@ -167,7 +167,7 @@ void DirectionalLight::uploadLightDirection()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void DirectionalLight::uploadBuffer()
+void DirectionalLight::uploadDataToGPU()
 {
     uploadBasicData();
     uploadLightDirection();
@@ -273,7 +273,7 @@ void PointLight::uploadAttennuationCoeffs()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void PointLight::uploadBuffer()
+void PointLight::uploadDataToGPU()
 {
     uploadBasicData();
     uploadLightPosition();
@@ -348,7 +348,7 @@ void SpotLight::uploadLightCutOffAngles()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void SpotLight::uploadBuffer()
+void SpotLight::uploadDataToGPU()
 {
     uploadBasicData();
     uploadLightDirection();

@@ -107,6 +107,9 @@
     <ClInclude Include="Include\OpenGLHelpers\RenderObjects.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Include\OpenGLHelpers\WireFrameBoxObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="OpenGLHelpers.licenseheader" />

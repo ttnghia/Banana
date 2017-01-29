@@ -23,7 +23,7 @@
 #include <OpenGLHelpers/Material.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-Material::Material()
+Material::Material(std::string materialName /*= std::string("NoName")*/)
 {
     static_assert(sizeof(glm::vec4) == sizeof(GLfloat) * 4,
                   "Size of glm::vec4 != 4 * sizeof(GLfloat).");
@@ -32,7 +32,17 @@ Material::Material()
     m_MaterialData.diffuse   = glm::vec4(0.07568, 0.61424, 0.07568, 1.0);
     m_MaterialData.specular  = glm::vec4(0.633, 0.727811, 0.633, 1.0);
     m_MaterialData.shininess = 0.6;
-    m_MaterialData.name      = std::string("NoName");
+    m_MaterialData.name      = materialName;
+}
+
+Material::Material(const MaterialData& material,
+                   std::string materialName /*= std::string("NoName")*/)
+{
+    static_assert(sizeof(glm::vec4) == sizeof(GLfloat) * 4,
+                  "Size of glm::vec4 != 4 * sizeof(GLfloat).");
+
+    m_MaterialData      = material;
+    m_MaterialData.name = materialName;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -138,7 +148,7 @@ GLfloat Material::getShininess() const
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Material::uploadBuffer()
+void Material::uploadDataToGPU()
 {
     uploadAmbientColor();
     uploadDiffuseColor();

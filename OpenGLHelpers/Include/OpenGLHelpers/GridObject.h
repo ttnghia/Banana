@@ -43,18 +43,18 @@ public:
 
         GLfloat normal[3] ={0.0, 1.0, 0.0};
 
-        GLfloat stepX = 1.0 / static_cast<GLfloat>(sizeX);
-        GLfloat stepY = 1.0 / static_cast<GLfloat>(sizeY);
-        GLfloat texStepX = 1.0 / static_cast<GLfloat>(scaleTexX);
-        GLfloat texStepY = 1.0 / static_cast<GLfloat>(scaleTexY);
+        GLfloat stepX = 2.0 / static_cast<GLfloat>(sizeX);
+        GLfloat stepY = 2.0 / static_cast<GLfloat>(sizeY);
+        GLfloat texStepX = 2.0 / static_cast<GLfloat>(scaleTexX);
+        GLfloat texStepY = 2.0 / static_cast<GLfloat>(scaleTexY);
         m_NumVertices = 0;
 
         for(int i = 0; i <= sizeX; ++i)
         {
             for(int j = 0; j <= sizeY; ++j)
             {
-                vertex[0] = -0.5 + static_cast<GLfloat>(i) * stepX;
-                vertex[2] = -0.5 + static_cast<GLfloat>(j) * stepY;
+                vertex[0] = -1.0 + static_cast<GLfloat>(i) * stepX;
+                vertex[2] = -1.0 + static_cast<GLfloat>(j) * stepY;
 
                 m_Vertices.push_back(vertex[0]);
                 m_Vertices.push_back(vertex[1]);
@@ -102,8 +102,8 @@ public:
     void scaleTexCoord(int scaleTexX, int scaleTexY)
     {
         m_VertexTexCoords.resize(0);
-        GLfloat texStepX = 1.0 / static_cast<GLfloat>(m_SizeX) * static_cast<GLfloat>(scaleTexX);
-        GLfloat texStepY = 1.0 / static_cast<GLfloat>(m_SizeX) * static_cast<GLfloat>(scaleTexY);
+        GLfloat texStepX = 2.0 / static_cast<GLfloat>(m_SizeX) * static_cast<GLfloat>(scaleTexX);
+        GLfloat texStepY = 2.0 / static_cast<GLfloat>(m_SizeX) * static_cast<GLfloat>(scaleTexY);
 
         for(int i = 0; i <= m_SizeX; ++i)
         {

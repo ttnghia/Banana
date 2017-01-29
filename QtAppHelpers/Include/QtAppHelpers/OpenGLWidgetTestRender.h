@@ -72,7 +72,8 @@ private:
     void renderMesh();
 
     RenderType        m_RenderType;
-    OpenGLBuffer*     m_UniformBuffer;
+    OpenGLBuffer*     m_UBufferModelMatrix;
+    OpenGLBuffer*     m_UBufferCamData;
     OpenGLBuffer*     m_VertexBuffer;
     OpenGLBuffer*     m_IndexBuffer;
     OpenGLTexture*    m_Texture;

@@ -47,6 +47,7 @@ void OpenGLBuffer::createBuffer(GLenum bufferType, size_t bufferSize,
 {
     m_BufferType      = bufferType;
     m_BufferUsage     = bufferUsage;
+    m_BufferSize      = bufferSize;
     m_isBufferCreated = true;
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -66,6 +67,8 @@ void OpenGLBuffer::createBuffer(GLenum bufferType, size_t bufferSize,
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLBuffer::uploadData(const GLvoid * data, size_t offset, size_t dataSize)
 {
+    assert(dataSize <= m_BufferSize);
+
     glCall(glBindBuffer(m_BufferType, m_BufferID));
     glCall(glBufferSubData(m_BufferType, offset, dataSize, data));
     glCall(glBindBuffer(m_BufferType, 0));
@@ -102,6 +105,12 @@ GLuint OpenGLBuffer::getBindingPoint()
 {
     assert(m_BufferType == GL_UNIFORM_BUFFER);
     return m_BindingPoint;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+size_t OpenGLBuffer::getBufferSize()
+{
+    return m_BufferSize;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

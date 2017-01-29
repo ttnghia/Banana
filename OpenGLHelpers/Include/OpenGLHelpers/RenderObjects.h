@@ -36,28 +36,59 @@
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+// abstract base class of object render
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+class RenderObject : public OpenGLCallable
+{
+protected:
+    RenderObject(Camera* camera, OpenGLBuffer* bufferCamData = nullptr) :
+        m_Camera(camera), m_UBufferCamData(bufferCamData)
+    {}
+
+    virtual void initRenderData() = 0;
+    virtual void render() = 0;
+
+    GLuint         m_UModelMatrix;
+    GLuint         m_UCamData;
+    GLuint         m_VAO;
+
+    Camera*        m_Camera;
+    OpenGLBuffer*  m_UBufferModelMatrix;
+    OpenGLBuffer*  m_UBufferCamData;
+    ShaderProgram* m_Shader;
+};
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // SkyBox render
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class SkyBoxRender : public OpenGLCallable
+class SkyBoxRender : public RenderObject
 {
 public:
 #ifdef __Banana_Qt__
     SkyBoxRender(Camera* camera, QString texureTopFolder,
-                 OpenGLBuffer* bufferCamData = nullptr);
+                 OpenGLBuffer* bufferCamData = nullptr) :
+        RenderObject(camera, bufferCamData)
+    {
+        initRenderData();
+        loadTextures(texureTopFolder);
+    }
 
     void loadTextures(QString textureTopFolder);
 #endif
 
     SkyBoxRender(Camera* camera, OpenGLBuffer* bufferCamData = nullptr) :
-        m_Camera(camera), m_UBufferCamData(bufferCamData)
+        RenderObject(camera, bufferCamData)
     {
         initRenderData();
     }
 
     SkyBoxRender(Camera* camera, std::vector<OpenGLTexture*> skyboxTextures,
                  OpenGLBuffer* bufferCamData = nullptr) :
-        m_Camera(camera), m_SkyBoxTextures(skyboxTextures), m_UBufferCamData(bufferCamData)
+        RenderObject(camera, bufferCamData),
+        m_SkyBoxTextures(skyboxTextures)
     {
         initRenderData();
     }
@@ -67,22 +98,15 @@ public:
     void setRenderTextureIndex(int texIndex);
     size_t getNumTextures();
 
-    void render();
+    virtual void render() override;
 
-private:
-    void initRenderData();
+protected:
+    virtual void initRenderData() override;
 
-    GLint          m_AtrVPosition;
-    GLuint         m_UModelMatrix;
-    GLuint         m_UCamData;
+    GLuint          m_AtrVPosition;
     GLuint         m_UTexSampler;
-    GLuint         m_VAO;
-    CubeObject*    m_CubeObj;
-    Camera*        m_Camera;
-    OpenGLBuffer*  m_UBufferModelMatrix;
-    OpenGLBuffer*  m_UBufferCamData;
-    ShaderProgram* m_Shader;
 
+    CubeObject*                 m_CubeObj;
     OpenGLTexture*              m_CurrentSkyBoxTex;
     std::vector<OpenGLTexture*> m_SkyBoxTextures;
 
@@ -93,25 +117,30 @@ private:
 // Floor render
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class FloorRender : public OpenGLCallable
+class FloorRender : public RenderObject
 {
 public:
 #ifdef __Banana_Qt__
     FloorRender(Camera* camera, Light* light, QString texureFolder,
-                OpenGLBuffer* bufferCamData = nullptr);
+                OpenGLBuffer* bufferCamData = nullptr) :
+        RenderObject(camera, bufferCamData), m_Light(light)
+    {
+        initRenderData();
+        loadTextures(texureFolder);
+    }
     void loadTextures(QString textureFolder);
 #endif
 
     FloorRender(Camera* camera, Light* light, OpenGLBuffer* bufferCamData = nullptr) :
-        m_Camera(camera), m_Light(light), m_UBufferCamData(bufferCamData)
+        RenderObject(camera, bufferCamData), m_Light(light)
     {
         initRenderData();
     }
 
     FloorRender(Camera* camera, Light* light, std::vector<OpenGLTexture*> floorTextures,
                 OpenGLBuffer* bufferCamData = nullptr) :
-        m_Camera(camera), m_FloorTextures(floorTextures), m_Light(light),
-        m_UBufferCamData(bufferCamData)
+        RenderObject(camera, bufferCamData), m_Light(light),
+        m_FloorTextures(floorTextures)
     {
         initRenderData();
     }
@@ -124,29 +153,22 @@ public:
     void transform(const glm::vec3& translation, const glm::vec3& scale);
     void scaleTexCoord(int scaleX, int scaleY);
 
-    void render();
+    virtual void render() override;
 
 private:
-    void initRenderData();
+    virtual void initRenderData() override;
 
-    GLint          m_AtrVPosition;
-    GLint          m_AtrVNormal;
-    GLint          m_AtrVTexCoord;
-    GLuint         m_UModelMatrix;
-    GLuint         m_UCamData;
+    GLuint          m_AtrVPosition;
+    GLuint          m_AtrVNormal;
+    GLuint          m_AtrVTexCoord;
     GLuint         m_UHasTexture;
     GLuint         m_UTexSampler;
     GLuint         m_ULight;
     GLuint         m_UMaterial;
-    GLuint         m_VAO;
+
     GridObject*    m_GridObj;
-    Camera*        m_Camera;
-    OpenGLBuffer*  m_UBufferModelMatrix;
-    OpenGLBuffer*  m_UBufferCamData;
-    ShaderProgram* m_Shader;
     Light*         m_Light;
     Material*      m_Material;
-    glm::mat4      m_ModelMatrix;
 
     OpenGLTexture*              m_CurrentFloorTex;
     std::vector<OpenGLTexture*> m_FloorTextures;
@@ -159,29 +181,25 @@ private:
 // Light render
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class PointLightRender : public OpenGLCallable
+class PointLightRender : public RenderObject
 {
 public:
     PointLightRender(Camera* camera, PointLight* light,
                      OpenGLBuffer* bufferCamData = nullptr) :
-        m_Camera(camera), m_Light(light), m_RenderSize(20.0),
-        m_UBufferCamData(bufferCamData)
+        RenderObject(camera, bufferCamData),
+        m_Light(light), m_RenderSize(20.0)
     {
         initRenderData();
     }
 
     void setRenderSize(GLfloat renderSize);
-    void render();
+    virtual void render() override;
 
 private:
-    void initRenderData();
+    virtual void initRenderData() override;
 
-    GLuint         m_UCamData;
-    GLuint         m_ULight;
-    GLuint         m_VAO;
-    Camera*        m_Camera;
-    OpenGLBuffer*  m_UBufferCamData;
-    ShaderProgram* m_Shader;
-    PointLight*    m_Light;
     GLfloat        m_RenderSize;
+    GLuint         m_ULight;
+
+    PointLight*    m_Light;
 };

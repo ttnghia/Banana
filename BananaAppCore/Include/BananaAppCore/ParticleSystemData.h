@@ -92,13 +92,26 @@ public:
 
         m_ArrayData.clear();
 
-        m_NumParticles       = 0;
-        m_MaxNumParticles    = 0;
+        m_NumParticles    = 0;
+        m_MaxNumParticles = 0;
     }
 
     void reserve(unsigned int maxNumParticles)
     {
-        m_MaxNumParticles    = maxNumParticles;
+        m_MaxNumParticles = maxNumParticles;
+
+        for(auto it = m_ArrayData.begin(); it != m_ArrayData.end(); ++it)
+        {
+            const std::string& arrName = it->first;
+            size_t arraySize = m_MaxNumParticles * m_ArrayElementSize[arrName];
+            it->second.reserve(arraySize);
+        }
+    }
+
+    void resize(unsigned int maxNumParticles)
+    {
+        m_NumParticles    = maxNumParticles;
+        m_MaxNumParticles = maxNumParticles;
 
         for(auto it = m_ArrayData.begin(); it != m_ArrayData.end(); ++it)
         {

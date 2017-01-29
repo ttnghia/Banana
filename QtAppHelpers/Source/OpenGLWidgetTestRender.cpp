@@ -26,7 +26,8 @@
 OpenGLWidgetTestRender::OpenGLWidgetTestRender(QWidget *parent)
     : OpenGLWidget(parent),
     m_RenderType(RenderType::NotSetup),
-    m_UniformBuffer(nullptr),
+    m_UBufferModelMatrix(nullptr),
+    m_UBufferCamData(nullptr),
     m_VertexBuffer(nullptr),
     m_IndexBuffer(nullptr),
     m_Texture(nullptr),
@@ -38,7 +39,8 @@ OpenGLWidgetTestRender::OpenGLWidgetTestRender(QWidget *parent)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 OpenGLWidgetTestRender::~OpenGLWidgetTestRender()
 {
-    delete m_UniformBuffer;
+    delete m_UBufferModelMatrix;
+    delete m_UBufferCamData;
     delete m_VertexBuffer;
     delete m_IndexBuffer;
     delete m_Texture;
@@ -198,7 +200,7 @@ void OpenGLWidgetTestRender::initTestRenderFloor(QString texFile)
     // light
     m_Light = new PointLight;
     m_Light->setLightPosition(glm::vec4(0, 2, 0, 1.0));
-    m_Light->uploadBuffer();
+    m_Light->uploadDataToGPU();
 
     ////////////////////////////////////////////////////////////////////////////////
     // render data
@@ -240,24 +242,28 @@ void OpenGLWidgetTestRender::initTestRenderMesh(QString meshFile)
 
     ////////////////////////////////////////////////////////////////////////////////
     m_Light = new PointLight;
-    m_Light->setLightPosition(glm::vec4(1, 10, 1, 1.0));
-    m_Light->uploadBuffer();
+    m_Light->setLightPosition(glm::vec4(1, 1000, 1, 1.0));
+    m_Light->uploadDataToGPU();
 
     m_Material = new Material;
     m_Material->setMaterial(Material::MT_Emerald);
-    m_Material->uploadBuffer();
+    m_Material->uploadDataToGPU();
 
-    m_UniformBuffer = new OpenGLBuffer;
-    m_UniformBuffer->createBuffer(GL_UNIFORM_BUFFER, 4 * sizeof(glm::mat4), nullptr,
-                                  GL_DYNAMIC_DRAW);
+    m_UBufferModelMatrix = new OpenGLBuffer;
+    m_UBufferModelMatrix->createBuffer(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), nullptr,
+                                       GL_STATIC_DRAW);
+    m_UBufferCamData = new OpenGLBuffer;
+    m_UBufferCamData->createBuffer(GL_UNIFORM_BUFFER, 3 * sizeof(glm::mat4) + sizeof(glm::vec4),
+                                   nullptr, GL_DYNAMIC_DRAW);
+
     glm::mat4 modelMatrix= glm::scale(glm::mat4(1.0f), glm::vec3(0.05f));
     glm::mat4 normalMatrix= glm::transpose(glm::inverse(glm::mat3(modelMatrix)));
-    m_UniformBuffer->uploadData(glm::value_ptr(modelMatrix),
-                                0, sizeof(glm::mat4)); // model matrix
-    m_UniformBuffer->uploadData(glm::value_ptr(normalMatrix),
-                                sizeof(glm::mat4), sizeof(glm::mat4)); // normal matrix
+    m_UBufferModelMatrix->uploadData(glm::value_ptr(modelMatrix),
+                                     0, sizeof(glm::mat4)); // model matrix
+    m_UBufferModelMatrix->uploadData(glm::value_ptr(normalMatrix),
+                                     sizeof(glm::mat4), sizeof(glm::mat4)); // normal matrix
 
-    ////////////////////////////////////////////////////////////////////////////////
+         ////////////////////////////////////////////////////////////////////////////////
     m_RenderType = RenderType::TriMesh;
 }
 
@@ -271,12 +277,12 @@ void OpenGLWidgetTestRender::initializeGL()
     //    QString("D:/Programming/QtApps/RealTimeFluidRendering/Textures/Floor/blue_marble.png"));
     //initTestRenderFloor(
         //QString("D:/Programming/QtApps/RealTimeFluidRendering/Textures/Floor/blue_marble.png"));
-    initTestRenderSkybox(
-        QString("D:/Programming/QtApps/RealTimeFluidRendering/Textures/Sky/sky1"));
+    //initTestRenderSkybox(
+        //QString("D:/Programming/QtApps/RealTimeFluidRendering/Textures/Sky/sky1"));
     /*initTestRenderMesh(
         QString("D:/GoogleDrive/DigitalAssets/Models/Animal/Bear 1/model_mesh.obj"));*/
-        /*initTestRenderMesh(
-            QString("D:/GoogleDrive/DigitalAssets/Models/Car/Volkswagen Touareg 2/model/Touareg.obj"));*/
+    initTestRenderMesh(
+        QString("D:/GoogleDrive/DigitalAssets/Models/Car/Volkswagen Touareg 2/model/Touareg.obj"));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -380,20 +386,26 @@ void OpenGLWidgetTestRender::renderMesh()
         count = 0;
 
         m_Material->setMaterial(materials[currentMaterialIndex]);
-        m_Material->uploadBuffer();
+        m_Material->uploadDataToGPU();
         currentMaterialIndex = (currentMaterialIndex + 1) % materials.size();
         qDebug() << "Material: " << QString::fromStdString(m_Material->getName());
     }
 
     m_Shader->bind();
 
-    m_UniformBuffer->uploadData(glm::value_ptr(m_Camera->getViewMatrix()),
-                                2 * sizeof(glm::mat4), sizeof(glm::mat4));
-    m_UniformBuffer->uploadData(glm::value_ptr(m_Camera->getProjectionMatrix()),
-                                3 * sizeof(glm::mat4), sizeof(glm::mat4));
-    m_UniformBuffer->bindBufferBase();
-    glCall(glUniformBlockBinding(m_Shader->programID,
-           m_Shader->getUniformBlockIndex("Matrices"), m_UniformBuffer->getBindingPoint()));
+    m_UBufferModelMatrix->bindBufferBase();
+    m_Shader->bindUniformBlock(m_Shader->getUniformBlockIndex("ModelMatrix"),
+                               m_UBufferModelMatrix->getBindingPoint());
+
+    m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getViewMatrix()),
+                                 0, sizeof(glm::mat4));
+    m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getProjectionMatrix()),
+                                 sizeof(glm::mat4), sizeof(glm::mat4));
+    m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->m_CameraPosition),
+                                 3 * sizeof(glm::mat4), sizeof(glm::vec3));
+    m_UBufferCamData->bindBufferBase();
+    m_Shader->bindUniformBlock(m_Shader->getUniformBlockIndex("CameraData"),
+                               m_UBufferCamData->getBindingPoint());
 
     m_Light->bindUniformBuffer();
     m_Shader->bindUniformBlock(m_Shader->getUniformBlockIndex("PointLight"),
@@ -403,7 +415,6 @@ void OpenGLWidgetTestRender::renderMesh()
     m_Shader->bindUniformBlock(m_Shader->getUniformBlockIndex("Material"),
                                m_Material->getBufferBindingPoint());
 
-    m_Shader->setUniformValue<glm::vec3>("camPosition", m_Camera->m_CameraPosition);
     m_Shader->setUniformValue<GLint>("hasTexture", 0);
 
     glCall(glBindVertexArray(m_VAO));

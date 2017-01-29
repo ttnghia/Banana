@@ -48,7 +48,7 @@ public:
     glm::vec4 getLightSpecular() const;
 
     ////////////////////////////////////////////////////////////////////////////////
-    virtual void uploadBuffer()           = 0;
+    virtual void uploadDataToGPU()           = 0;
     virtual size_t getUniformBufferSize() = 0;
 
 protected:
@@ -81,7 +81,7 @@ public:
     glm::vec4 getLightDirection() const;
 
     void uploadLightDirection();
-    virtual void uploadBuffer() override;
+    virtual void uploadDataToGPU() override;
     virtual size_t getUniformBufferSize() override;
 
 private:
@@ -130,7 +130,7 @@ public:
     void uploadLightPosition();
     void uploadAttennuationCoeffs();
 
-    virtual void uploadBuffer() override;
+    virtual void uploadDataToGPU() override;
     virtual size_t getUniformBufferSize() override;
 
 private:
@@ -162,7 +162,7 @@ public:
     void uploadLightDirection();
     void uploadLightCutOffAngles();
 
-    virtual void uploadBuffer() override;
+    virtual void uploadDataToGPU() override;
     virtual size_t getUniformBufferSize() override;
 
 private:

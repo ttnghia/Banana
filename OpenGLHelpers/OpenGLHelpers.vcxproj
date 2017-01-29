@@ -259,6 +259,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\OpenGLHelpers\ArcBall.h" />
+    <ClInclude Include="Include\OpenGLHelpers\WireFrameBoxObject.h" />
     <ClInclude Include="Include\OpenGLHelpers\Camera.h" />
     <ClInclude Include="Include\OpenGLHelpers\CubeObject.h" />
     <ClInclude Include="Include\OpenGLHelpers\GridObject.h" />

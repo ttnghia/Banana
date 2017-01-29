@@ -29,15 +29,6 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #ifdef __Banana_Qt__
 #include <QDir>
-
-SkyBoxRender::SkyBoxRender(Camera* camera, QString texureTopFolder,
-                           OpenGLBuffer* bufferCamData /*= nullptr*/) :
-    m_Camera(camera), m_UBufferCamData(bufferCamData)
-{
-    initRenderData();
-    loadTextures(texureTopFolder);
-}
-
 void SkyBoxRender::loadTextures(QString textureTopFolder)
 {
     QStringList texFaces =
@@ -85,52 +76,6 @@ void SkyBoxRender::loadTextures(QString textureTopFolder)
     }
 }
 #endif
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void SkyBoxRender::initRenderData()
-{
-    m_Shader = ShaderProgram::getSkyBoxShader();
-
-    m_AtrVPosition = m_Shader->getAtributeLocation("v_position");
-    m_UTexSampler = m_Shader->getUniformLocation("texSampler");
-
-    m_UModelMatrix = m_Shader->getUniformBlockIndex("ModelMatrix");
-    m_UCamData = m_Shader->getUniformBlockIndex("CameraData");
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // cube object
-    m_CubeObj = new CubeObject;
-    m_CubeObj->uploadDataToGPU();
-
-    glCall(glGenVertexArrays(1, &m_VAO));
-    glCall(glBindVertexArray(m_VAO));
-    m_CubeObj->bindAllBuffers();
-    glCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0));
-    glCall(glEnableVertexAttribArray(0));
-    glCall(glBindVertexArray(0));
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // uniform buffer
-    m_UBufferModelMatrix = new OpenGLBuffer;
-    m_UBufferModelMatrix->createBuffer(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4),
-                                       nullptr, GL_STATIC_DRAW);
-
-    glm::mat4 modelMatrix= glm::scale(glm::mat4(1.0f), glm::vec3(500.0f));
-    m_UBufferModelMatrix->uploadData(glm::value_ptr(modelMatrix),
-                                     0, sizeof(glm::mat4));
-
-    if(m_UBufferCamData == nullptr)
-    {
-        m_UBufferCamData = new OpenGLBuffer;
-        m_UBufferCamData->createBuffer(GL_UNIFORM_BUFFER,
-                                       3 * sizeof(glm::mat4) + sizeof(glm::vec4),
-                                       nullptr, GL_DYNAMIC_DRAW);
-    }
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // default null texture
-    m_SkyBoxTextures.push_back(nullptr);
-}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void SkyBoxRender::clearTextures()
@@ -208,19 +153,56 @@ void SkyBoxRender::render()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void SkyBoxRender::initRenderData()
+{
+    m_Shader = ShaderProgram::getSkyBoxShader();
+
+    m_AtrVPosition = m_Shader->getAtributeLocation("v_position");
+    m_UTexSampler = m_Shader->getUniformLocation("texSampler");
+
+    m_UModelMatrix = m_Shader->getUniformBlockIndex("ModelMatrix");
+    m_UCamData = m_Shader->getUniformBlockIndex("CameraData");
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // cube object
+    m_CubeObj = new CubeObject;
+    m_CubeObj->uploadDataToGPU();
+
+    glCall(glGenVertexArrays(1, &m_VAO));
+    glCall(glBindVertexArray(m_VAO));
+    m_CubeObj->bindAllBuffers();
+    glCall(glVertexAttribPointer(m_AtrVPosition, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0));
+    glCall(glEnableVertexAttribArray(m_AtrVPosition));
+    glCall(glBindVertexArray(0));
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // uniform buffer
+    m_UBufferModelMatrix = new OpenGLBuffer;
+    m_UBufferModelMatrix->createBuffer(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4),
+                                       nullptr, GL_STATIC_DRAW);
+
+    glm::mat4 modelMatrix= glm::scale(glm::mat4(1.0f), glm::vec3(500.0f));
+    m_UBufferModelMatrix->uploadData(glm::value_ptr(modelMatrix),
+                                     0, sizeof(glm::mat4));
+
+    if(m_UBufferCamData == nullptr)
+    {
+        m_UBufferCamData = new OpenGLBuffer;
+        m_UBufferCamData->createBuffer(GL_UNIFORM_BUFFER,
+                                       3 * sizeof(glm::mat4) + sizeof(glm::vec4),
+                                       nullptr, GL_DYNAMIC_DRAW);
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // default null texture
+    m_SkyBoxTextures.push_back(nullptr);
+}
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Floor render
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #ifdef __Banana_Qt__
-FloorRender::FloorRender(Camera* camera, Light* light, QString texureFolder,
-                         OpenGLBuffer* bufferCamData /*= nullptr*/) :
-    m_Camera(camera), m_Light(light), m_UBufferCamData(bufferCamData)
-{
-    initRenderData();
-    loadTextures(texureFolder);
-}
-
 void FloorRender::loadTextures(QString textureFolder)
 {
     clearTextures();
@@ -286,10 +268,10 @@ size_t FloorRender::getNumTextures()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void FloorRender::transform(const glm::vec3& translation, const glm::vec3& scale)
 {
-    m_ModelMatrix = glm::scale(glm::translate(glm::mat4(1.0), translation), scale);
-    glm::mat4 normalMatrix = glm::transpose(glm::inverse(glm::mat3(m_ModelMatrix)));
+    glm::mat4 modelMatrix = glm::scale(glm::translate(glm::mat4(1.0), translation), scale);
+    glm::mat4 normalMatrix = glm::transpose(glm::inverse(glm::mat3(modelMatrix)));
 
-    m_UBufferModelMatrix->uploadData(glm::value_ptr(m_ModelMatrix),
+    m_UBufferModelMatrix->uploadData(glm::value_ptr(modelMatrix),
                                      0, sizeof(glm::mat4)); // model matrix
     m_UBufferModelMatrix->uploadData(glm::value_ptr(normalMatrix),
                                      sizeof(glm::mat4), sizeof(glm::mat4)); // normal matrix
@@ -373,14 +355,14 @@ void FloorRender::initRenderData()
     glCall(glGenVertexArrays(1, &m_VAO));
     glCall(glBindVertexArray(m_VAO));
     m_GridObj->bindAllBuffers();
-    glCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0));
-    glCall(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0,
+    glCall(glVertexAttribPointer(m_AtrVPosition, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0));
+    glCall(glVertexAttribPointer(m_AtrVNormal, 3, GL_FLOAT, GL_FALSE, 0,
         (GLvoid*)(m_GridObj->getVNormalOffset())));
-    glCall(glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0,
+    glCall(glVertexAttribPointer(m_AtrVTexCoord, 2, GL_FLOAT, GL_FALSE, 0,
         (GLvoid*)(m_GridObj->getVTexCoordOffset())));
-    glCall(glEnableVertexAttribArray(0));
-    glCall(glEnableVertexAttribArray(1));
-    glCall(glEnableVertexAttribArray(2));
+    glCall(glEnableVertexAttribArray(m_AtrVPosition));
+    glCall(glEnableVertexAttribArray(m_AtrVNormal));
+    glCall(glEnableVertexAttribArray(m_AtrVTexCoord));
     glCall(glBindVertexArray(0));
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -406,7 +388,7 @@ void FloorRender::initRenderData()
     m_Material->setDiffuseColor(glm::vec4(1.0, 1.0, 0.0, 1.0));
     m_Material->setSpecularColor(glm::vec4(1.0));
     m_Material->setShininess(250.0);
-    m_Material->uploadBuffer();
+    m_Material->uploadDataToGPU();
 
     ////////////////////////////////////////////////////////////////////////////////
     // default null texture
@@ -447,6 +429,7 @@ void PointLightRender::render()
     glCall(glPointSize(m_RenderSize));
     glCall(glEnable(GL_VERTEX_PROGRAM_POINT_SIZE));
     glCall(glDrawArrays(GL_POINTS, 0, 1));
+    glCall(glBindVertexArray(0));
     m_Shader->release();
 }
 

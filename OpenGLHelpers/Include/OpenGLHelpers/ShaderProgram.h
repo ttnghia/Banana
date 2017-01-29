@@ -76,8 +76,8 @@ public:
         glCall(glUseProgram(0));
     }
 
-    GLint getAtributeLocation(const char* atributeName, bool dieOnError = true);
-    GLint getUniformLocation(const char* uniformName, bool dieOnError = true);
+    GLuint getAtributeLocation(const char* atributeName, bool dieOnError = true);
+    GLuint getUniformLocation(const char* uniformName, bool dieOnError = true);
     GLuint getUniformBlockIndex(const char* uniformBlockName, bool dieOnError = true);
     void bindUniformBlock(GLuint blockIndex, GLuint bindingPoint);
 
@@ -117,6 +117,8 @@ public:
     static ShaderProgram* getSimpleVertexColorShader();
     static ShaderProgram* getSimpleUniformColorShader();
     static ShaderProgram* getSimpleTextureShader();
+    static ShaderProgram* getObjUniformColorShader();
+    static ShaderProgram* getObjTextureShader();
     static ShaderProgram* getPhongShader();
     static ShaderProgram* getSkyBoxShader();
 };
