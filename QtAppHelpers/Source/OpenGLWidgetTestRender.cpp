@@ -345,7 +345,7 @@ void OpenGLWidgetTestRender::renderTexture()
     m_Shader->bind();
     m_Texture->bind();
 
-    m_Shader->setUniformValue<GLint>("texSampler", 0);
+    m_Shader->setUniformValue<GLint>("u_TexSampler", 0);
     glCall(glBindVertexArray(m_VAO));
     glCall(glDrawArrays(GL_TRIANGLES, 0, 3));
     m_Texture->release();

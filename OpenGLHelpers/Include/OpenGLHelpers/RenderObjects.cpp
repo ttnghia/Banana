@@ -157,8 +157,8 @@ void SkyBoxRender::initRenderData()
 {
     m_Shader = ShaderProgram::getSkyBoxShader();
 
-    m_AtrVPosition = m_Shader->getAtributeLocation("v_position");
-    m_UTexSampler = m_Shader->getUniformLocation("texSampler");
+    m_AtrVPosition = m_Shader->getAtributeLocation("v_Position");
+    m_UTexSampler = m_Shader->getUniformLocation("u_TexSampler");
 
     m_UModelMatrix = m_Shader->getUniformBlockIndex("ModelMatrix");
     m_UCamData = m_Shader->getUniformBlockIndex("CameraData");
@@ -335,12 +335,12 @@ void FloorRender::initRenderData()
 {
     m_Shader = ShaderProgram::getPhongShader();
 
-    m_AtrVPosition = m_Shader->getAtributeLocation("v_position");
-    m_AtrVNormal = m_Shader->getAtributeLocation("v_normal");
-    m_AtrVTexCoord = m_Shader->getAtributeLocation("v_texcoord");
+    m_AtrVPosition = m_Shader->getAtributeLocation("v_Position");
+    m_AtrVNormal = m_Shader->getAtributeLocation("v_Normal");
+    m_AtrVTexCoord = m_Shader->getAtributeLocation("v_TexCoord");
 
     m_UHasTexture = m_Shader->getUniformLocation("hasTexture");
-    m_UTexSampler = m_Shader->getUniformLocation("texSampler");
+    m_UTexSampler = m_Shader->getUniformLocation("u_TexSampler");
 
     m_UModelMatrix = m_Shader->getUniformBlockIndex("ModelMatrix");
     m_UCamData = m_Shader->getUniformBlockIndex("CameraData");
