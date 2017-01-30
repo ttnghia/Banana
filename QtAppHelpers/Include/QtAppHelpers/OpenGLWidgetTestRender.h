@@ -84,7 +84,8 @@ private:
     Material*         m_Material;
     GLuint            m_VAO;
     SkyBoxRender*     m_SkyBoxRender;
-    FloorRender*      m_FloorRender;
+    PlaneRender*      m_FloorRender;
     PointLightRender* m_PointLightRender;
+    MeshRender*       m_MeshRender;
 
 };

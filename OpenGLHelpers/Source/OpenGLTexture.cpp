@@ -109,9 +109,9 @@ void OpenGLTexture::setBestParameters()
     assert(m_bTextureCreated);
 
     bind();
-    glCall(glTexParameteri(m_TexureTarget, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
-    glCall(glTexParameteri(m_TexureTarget, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
-    glCall(glTexParameteri(m_TexureTarget, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE));
+    glCall(glTexParameteri(m_TexureTarget, GL_TEXTURE_WRAP_S, GL_REPEAT));
+    glCall(glTexParameteri(m_TexureTarget, GL_TEXTURE_WRAP_T, GL_REPEAT));
+    glCall(glTexParameteri(m_TexureTarget, GL_TEXTURE_WRAP_R, GL_REPEAT));
 
     glCall(glTexParameteri(m_TexureTarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR));
     glCall(glTexParameteri(m_TexureTarget, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
@@ -144,3 +144,41 @@ void OpenGLTexture::OpenGLTexture::release()
     glCall(glBindTexture(m_TexureTarget, 0));
 }
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#ifdef __Banana_Qt__
+#include <QDir>
+void OpenGLTexture::loadTextures(std::vector<OpenGLTexture*>& textures,
+                                 QString textureFolder, bool insertNullTex /*= true*/)
+{
+    // clear current textures
+    for(OpenGLTexture* tex : textures)
+    {
+        delete tex;
+    }
+
+    textures.resize(0);
+    if(insertNullTex)
+    {
+        textures.push_back(nullptr);
+    }
+
+    QDir dataDir(textureFolder);
+    dataDir.setFilter(QDir::NoDotAndDotDot | QDir::Files);
+    QStringList allTexFiles = dataDir.entryList();
+
+    foreach(QString texFile, allTexFiles)
+    {
+        QString texFilePath = textureFolder + "/" + texFile;
+        OpenGLTexture* tex = new OpenGLTexture(GL_TEXTURE_2D);
+        QImage texImg = QImage(texFilePath).convertToFormat(QImage::Format_RGBA8888);
+
+        tex->uploadData(GL_TEXTURE_2D,
+                        GL_RGBA, texImg.width(), texImg.height(),
+                        GL_RGBA, GL_UNSIGNED_BYTE, texImg.constBits());
+
+        tex->setBestParameters();
+        tex->generateMipMap();
+        textures.push_back(tex);
+    }
+}
+#endif

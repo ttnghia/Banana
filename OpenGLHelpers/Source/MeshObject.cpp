@@ -339,6 +339,27 @@ size_t MeshObject::getVColorOffset()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+bool MeshObject::hasVertexNormal()
+{
+    return m_hasVertexNormal;
+}
+
+bool MeshObject::hasVertexTexCoord()
+{
+    return m_hasVertexTexCoord;
+}
+
+bool MeshObject::hasVertexColor()
+{
+    return m_hasVertexColor;
+}
+
+bool MeshObject::hasIndexBuffer()
+{
+    return m_hasIndexBuffer;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MeshObject::clearData()
 {
     m_Vertices.resize(0);

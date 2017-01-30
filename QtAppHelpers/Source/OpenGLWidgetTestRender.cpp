@@ -204,7 +204,7 @@ void OpenGLWidgetTestRender::initTestRenderFloor(QString texFile)
 
     ////////////////////////////////////////////////////////////////////////////////
     // render data
-    m_FloorRender = new FloorRender(m_Camera, m_Light);
+    m_FloorRender = new PlaneRender(m_Camera, m_Light);
     m_FloorRender->addTexture(m_Texture);
     m_FloorRender->setRenderTextureIndex(1);
 
@@ -225,22 +225,7 @@ void OpenGLWidgetTestRender::initTestRenderMesh(QString meshFile)
     m_MeshObj = new MeshObject;
     m_MeshObj->setVertices(m_MeshLoader->getVertices());
     m_MeshObj->setVertexNormal(m_MeshLoader->getVertexNormal());
-    m_MeshObj->uploadDataToGPU();
 
-    // shaders and VAO
-    m_Shader = ShaderProgram::getPhongShader();
-
-    glCall(glGenVertexArrays(1, &m_VAO));
-    glCall(glBindVertexArray(m_VAO));
-    m_MeshObj->bindAllBuffers();
-    glCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0));
-    glCall(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0,
-        (GLvoid*)(m_MeshObj->getVNormalOffset())));
-    glCall(glEnableVertexAttribArray(0));
-    glCall(glEnableVertexAttribArray(1));
-    glCall(glBindVertexArray(0));
-
-    ////////////////////////////////////////////////////////////////////////////////
     m_Light = new PointLight;
     m_Light->setLightPosition(glm::vec4(1, 1000, 1, 1.0));
     m_Light->uploadDataToGPU();
@@ -249,21 +234,11 @@ void OpenGLWidgetTestRender::initTestRenderMesh(QString meshFile)
     m_Material->setMaterial(Material::MT_Emerald);
     m_Material->uploadDataToGPU();
 
-    m_UBufferModelMatrix = new OpenGLBuffer;
-    m_UBufferModelMatrix->createBuffer(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), nullptr,
-                                       GL_STATIC_DRAW);
-    m_UBufferCamData = new OpenGLBuffer;
-    m_UBufferCamData->createBuffer(GL_UNIFORM_BUFFER, 3 * sizeof(glm::mat4) + sizeof(glm::vec4),
-                                   nullptr, GL_DYNAMIC_DRAW);
+    m_PointLightRender = new PointLightRender(m_Camera, m_Light);
+    m_MeshRender = new MeshRender(m_MeshObj, m_Camera, m_Light, m_Material, m_UBufferCamData);
+    m_MeshRender->transform(glm::vec3(0, 0, 0), glm::vec3(0.001));
 
-    glm::mat4 modelMatrix= glm::scale(glm::mat4(1.0f), glm::vec3(0.05f));
-    glm::mat4 normalMatrix= glm::transpose(glm::inverse(glm::mat3(modelMatrix)));
-    m_UBufferModelMatrix->uploadData(glm::value_ptr(modelMatrix),
-                                     0, sizeof(glm::mat4)); // model matrix
-    m_UBufferModelMatrix->uploadData(glm::value_ptr(normalMatrix),
-                                     sizeof(glm::mat4), sizeof(glm::mat4)); // normal matrix
-
-         ////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////
     m_RenderType = RenderType::TriMesh;
 }
 
@@ -275,14 +250,14 @@ void OpenGLWidgetTestRender::initializeGL()
     //initTestRenderTriangle();
     //initTestRenderTexture(
     //    QString("D:/Programming/QtApps/RealTimeFluidRendering/Textures/Floor/blue_marble.png"));
-    //initTestRenderFloor(
-        //QString("D:/Programming/QtApps/RealTimeFluidRendering/Textures/Floor/blue_marble.png"));
+    initTestRenderFloor(
+        QString("D:/Programming/QtApps/RealTimeFluidRendering/Textures/Floor/blue_marble.png"));
     //initTestRenderSkybox(
         //QString("D:/Programming/QtApps/RealTimeFluidRendering/Textures/Sky/sky1"));
     /*initTestRenderMesh(
         QString("D:/GoogleDrive/DigitalAssets/Models/Animal/Bear 1/model_mesh.obj"));*/
-    initTestRenderMesh(
-        QString("D:/GoogleDrive/DigitalAssets/Models/Car/Volkswagen Touareg 2/model/Touareg.obj"));
+        //initTestRenderMesh(
+        //    QString("D:/GoogleDrive/DigitalAssets/Models/Car/Volkswagen Touareg 2/model/Touareg.obj"));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -366,8 +341,8 @@ void OpenGLWidgetTestRender::renderFloor()
 {
     assert(m_Texture != nullptr);
 
-    m_FloorRender->render();
     m_PointLightRender->render();
+    m_FloorRender->render();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -391,34 +366,6 @@ void OpenGLWidgetTestRender::renderMesh()
         qDebug() << "Material: " << QString::fromStdString(m_Material->getName());
     }
 
-    m_Shader->bind();
-
-    m_UBufferModelMatrix->bindBufferBase();
-    m_Shader->bindUniformBlock(m_Shader->getUniformBlockIndex("ModelMatrix"),
-                               m_UBufferModelMatrix->getBindingPoint());
-
-    m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getViewMatrix()),
-                                 0, sizeof(glm::mat4));
-    m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getProjectionMatrix()),
-                                 sizeof(glm::mat4), sizeof(glm::mat4));
-    m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->m_CameraPosition),
-                                 3 * sizeof(glm::mat4), sizeof(glm::vec3));
-    m_UBufferCamData->bindBufferBase();
-    m_Shader->bindUniformBlock(m_Shader->getUniformBlockIndex("CameraData"),
-                               m_UBufferCamData->getBindingPoint());
-
-    m_Light->bindUniformBuffer();
-    m_Shader->bindUniformBlock(m_Shader->getUniformBlockIndex("PointLight"),
-                               m_Light->getBufferBindingPoint());
-
-    m_Material->bindUniformBuffer();
-    m_Shader->bindUniformBlock(m_Shader->getUniformBlockIndex("Material"),
-                               m_Material->getBufferBindingPoint());
-
-    m_Shader->setUniformValue<GLint>("hasTexture", 0);
-
-    glCall(glBindVertexArray(m_VAO));
-    m_MeshObj->draw();
-    m_Shader->release();
-
+    m_PointLightRender->render();
+    m_MeshRender->render();
 }

@@ -24,6 +24,8 @@
 
 #include <OpenGLHelpers/OpenGLMacros.h>
 
+#include <vector>
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 class OpenGLTexture : public OpenGLCallable
 {
@@ -57,6 +59,11 @@ public:
 
     void bind(GLuint texUnit = 0);
     void release();
+
+#ifdef __Banana_Qt__
+    static void loadTextures(std::vector<OpenGLTexture*>& textures,
+                             QString textureFolder, bool insertNullTex = true);
+#endif
 
 private:
 

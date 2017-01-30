@@ -44,15 +44,18 @@ class RenderObject : public OpenGLCallable
 protected:
     RenderObject(Camera* camera, OpenGLBuffer* bufferCamData = nullptr) :
         m_Camera(camera), m_UBufferCamData(bufferCamData)
-    {}
+    {
+        m_SelfUpdateCamera = (m_UBufferCamData == nullptr);
+    }
 
     virtual void initRenderData() = 0;
     virtual void render() = 0;
 
-    GLuint         m_UModelMatrix;
-    GLuint         m_UCamData;
+    GLuint         m_UBModelMatrix;
+    GLuint         m_UBCamData;
     GLuint         m_VAO;
 
+    bool           m_SelfUpdateCamera;
     Camera*        m_Camera;
     OpenGLBuffer*  m_UBufferModelMatrix;
     OpenGLBuffer*  m_UBufferCamData;
@@ -85,96 +88,31 @@ public:
         initRenderData();
     }
 
-    SkyBoxRender(Camera* camera, std::vector<OpenGLTexture*> skyboxTextures,
+    SkyBoxRender(Camera* camera, std::vector<OpenGLTexture*> textures,
                  OpenGLBuffer* bufferCamData = nullptr) :
         RenderObject(camera, bufferCamData),
-        m_SkyBoxTextures(skyboxTextures)
+        m_Textures(textures)
     {
         initRenderData();
     }
 
+    size_t getNumTextures();
     void clearTextures();
     void addTexture(OpenGLTexture* texture);
     void setRenderTextureIndex(int texIndex);
-    size_t getNumTextures();
 
     virtual void render() override;
 
 protected:
     virtual void initRenderData() override;
 
-    GLuint          m_AtrVPosition;
-    GLuint         m_UTexSampler;
-
+    GLuint                      m_AtrVPosition;
+    GLuint                      m_UTexSampler;
     CubeObject*                 m_CubeObj;
-    OpenGLTexture*              m_CurrentSkyBoxTex;
-    std::vector<OpenGLTexture*> m_SkyBoxTextures;
+    OpenGLTexture*              m_CurrentTexture;
+    std::vector<OpenGLTexture*> m_Textures;
 
 };
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-// Floor render
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class FloorRender : public RenderObject
-{
-public:
-#ifdef __Banana_Qt__
-    FloorRender(Camera* camera, Light* light, QString texureFolder,
-                OpenGLBuffer* bufferCamData = nullptr) :
-        RenderObject(camera, bufferCamData), m_Light(light)
-    {
-        initRenderData();
-        loadTextures(texureFolder);
-    }
-    void loadTextures(QString textureFolder);
-#endif
-
-    FloorRender(Camera* camera, Light* light, OpenGLBuffer* bufferCamData = nullptr) :
-        RenderObject(camera, bufferCamData), m_Light(light)
-    {
-        initRenderData();
-    }
-
-    FloorRender(Camera* camera, Light* light, std::vector<OpenGLTexture*> floorTextures,
-                OpenGLBuffer* bufferCamData = nullptr) :
-        RenderObject(camera, bufferCamData), m_Light(light),
-        m_FloorTextures(floorTextures)
-    {
-        initRenderData();
-    }
-
-    void clearTextures();
-    void addTexture(OpenGLTexture* texture);
-    void setRenderTextureIndex(int texIndex);
-    size_t getNumTextures();
-
-    void transform(const glm::vec3& translation, const glm::vec3& scale);
-    void scaleTexCoord(int scaleX, int scaleY);
-
-    virtual void render() override;
-
-private:
-    virtual void initRenderData() override;
-
-    GLuint          m_AtrVPosition;
-    GLuint          m_AtrVNormal;
-    GLuint          m_AtrVTexCoord;
-    GLuint         m_UHasTexture;
-    GLuint         m_UTexSampler;
-    GLuint         m_ULight;
-    GLuint         m_UMaterial;
-
-    GridObject*    m_GridObj;
-    Light*         m_Light;
-    Material*      m_Material;
-
-    OpenGLTexture*              m_CurrentFloorTex;
-    std::vector<OpenGLTexture*> m_FloorTextures;
-
-};
-
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -199,7 +137,108 @@ private:
     virtual void initRenderData() override;
 
     GLfloat        m_RenderSize;
-    GLuint         m_ULight;
-
+    GLuint         m_UBLight;
     PointLight*    m_Light;
+};
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+// Mesh render
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+class MeshRender : public RenderObject
+{
+public:
+#ifdef __Banana_Qt__
+    MeshRender(MeshObject* meshObj, Camera* camera, PointLight* light, QString texureFolder,
+               Material* material = nullptr, OpenGLBuffer* bufferCamData = nullptr) :
+        RenderObject(camera, bufferCamData),
+        m_MeshObj(meshObj), m_Light(light), m_Material(material), m_CurrentTexture(nullptr)
+    {
+        initRenderData();
+        OpenGLTexture::loadTextures(m_Textures, texureFolder);
+    }
+#endif
+
+    MeshRender(MeshObject* meshObj, Camera* camera, PointLight* light, Material* material = nullptr,
+               OpenGLBuffer* bufferCamData = nullptr) :
+        RenderObject(camera, bufferCamData),
+        m_MeshObj(meshObj), m_Light(light), m_Material(material), m_CurrentTexture(nullptr)
+    {
+        initRenderData();
+    }
+
+    MeshObject* getMeshObj();
+    Material* getMaterial();
+    OpenGLTexture* getCurrentTexture();
+    size_t getNumTextures();
+    void clearTextures(bool insertNullTex = true);
+    void addTexture(OpenGLTexture* texture, GLenum texWrapMode = GL_REPEAT);
+    void setRenderTextureIndex(int texIndex);
+    void transform(const glm::vec3& translation, const glm::vec3& scale);
+
+    virtual void render() override;
+
+private:
+    virtual void initRenderData() override;
+
+    GLuint                      m_AtrVPosition;
+    GLuint                      m_AtrVNormal;
+    GLuint                      m_AtrVTexCoord;
+    GLuint                      m_UBLight;
+    GLuint                      m_UBMaterial;
+    GLuint                      m_UHasTexture;
+    GLuint                      m_UTexSampler;
+    MeshObject*                 m_MeshObj;
+    PointLight*                 m_Light;
+    Material*                   m_Material;
+    std::vector<OpenGLTexture*> m_Textures;
+    OpenGLTexture*              m_CurrentTexture;
+};
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+// Plane render
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+class PlaneRender : public RenderObject
+{
+public:
+#ifdef __Banana_Qt__
+    PlaneRender(Camera* camera, PointLight* light, QString texureFolder,
+                OpenGLBuffer* bufferCamData = nullptr) :
+        RenderObject(camera, bufferCamData),
+        m_MeshRender(new MeshRender(new GridObject, camera, light, texureFolder, nullptr, bufferCamData)),
+        m_AllowedNonTexRender(true)
+    {
+        initRenderData();
+    }
+#endif
+
+    PlaneRender(Camera* camera, PointLight* light, OpenGLBuffer* bufferCamData = nullptr) :
+        RenderObject(camera, bufferCamData),
+        m_MeshRender(new MeshRender(new GridObject, camera, light, nullptr, bufferCamData)),
+        m_AllowedNonTexRender(true)
+    {
+        initRenderData();
+    }
+
+    void setAllowNonTextureRender(bool allowNonTex);
+    void clearTextures();
+    void addTexture(OpenGLTexture* texture, GLenum texWrapMode = GL_REPEAT);
+    void setRenderTextureIndex(int texIndex);
+    size_t getNumTextures();
+
+    void transform(const glm::vec3& translation, const glm::vec3& scale);
+    void scaleTexCoord(int scaleX, int scaleY);
+
+    virtual void render() override;
+
+private:
+    virtual void initRenderData() override;
+
+    bool        m_AllowedNonTexRender;
+    MeshRender* m_MeshRender;
+    GridObject* m_GridObj;
+
 };

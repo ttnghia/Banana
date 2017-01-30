@@ -80,14 +80,14 @@ void SkyBoxRender::loadTextures(QString textureTopFolder)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void SkyBoxRender::clearTextures()
 {
-    for(OpenGLTexture* tex : m_SkyBoxTextures)
+    for(OpenGLTexture* tex : m_Textures)
     {
         delete tex;
     }
 
-    m_SkyBoxTextures.resize(0);
-    m_SkyBoxTextures.push_back(nullptr);
-    m_CurrentSkyBoxTex = nullptr;
+    m_Textures.resize(0);
+    m_Textures.push_back(nullptr);
+    m_CurrentTexture = nullptr;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -97,28 +97,28 @@ void SkyBoxRender::addTexture(OpenGLTexture* texture)
     texture->setFilterMode(GL_TEXTURE_WRAP_T, GL_REPEAT);
     texture->setFilterMode(GL_TEXTURE_WRAP_R, GL_REPEAT);
 
-    m_SkyBoxTextures.push_back(texture);
+    m_Textures.push_back(texture);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void SkyBoxRender::setRenderTextureIndex(int texIndex)
 {
-    assert(static_cast<size_t>(texIndex) < m_SkyBoxTextures.size());
+    assert(static_cast<size_t>(texIndex) < m_Textures.size());
 
-    m_CurrentSkyBoxTex = m_SkyBoxTextures[texIndex];
+    m_CurrentTexture = m_Textures[texIndex];
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 size_t SkyBoxRender::getNumTextures()
 {
-    return m_SkyBoxTextures.size();
+    return m_Textures.size();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void SkyBoxRender::render()
 {
     assert(m_Camera != nullptr && m_UBufferCamData != nullptr);
-    if(m_CurrentSkyBoxTex == nullptr)
+    if(m_CurrentTexture == nullptr)
     {
         return;
     }
@@ -131,15 +131,15 @@ void SkyBoxRender::render()
                                  3 * sizeof(glm::mat4), sizeof(glm::vec3));
 
     m_Shader->bind();
-    m_CurrentSkyBoxTex->bind();
+    m_CurrentTexture->bind();
 
 
     m_UBufferModelMatrix->bindBufferBase();
-    m_Shader->bindUniformBlock(m_UModelMatrix,
+    m_Shader->bindUniformBlock(m_UBModelMatrix,
                                m_UBufferModelMatrix->getBindingPoint());
 
     m_UBufferCamData->bindBufferBase();
-    m_Shader->bindUniformBlock(m_UCamData,
+    m_Shader->bindUniformBlock(m_UBCamData,
                                m_UBufferCamData->getBindingPoint());
 
     m_Shader->setUniformValue(m_UTexSampler, 0);
@@ -147,7 +147,7 @@ void SkyBoxRender::render()
 
     glCall(glBindVertexArray(m_VAO));
     m_CubeObj->draw();
-    m_CurrentSkyBoxTex->release();
+    m_CurrentTexture->release();
     m_Shader->release();
     glCall(glBindVertexArray(0));
 }
@@ -160,8 +160,8 @@ void SkyBoxRender::initRenderData()
     m_AtrVPosition = m_Shader->getAtributeLocation("v_Position");
     m_UTexSampler = m_Shader->getUniformLocation("u_TexSampler");
 
-    m_UModelMatrix = m_Shader->getUniformBlockIndex("ModelMatrix");
-    m_UCamData = m_Shader->getUniformBlockIndex("CameraData");
+    m_UBModelMatrix = m_Shader->getUniformBlockIndex("ModelMatrix");
+    m_UBCamData = m_Shader->getUniformBlockIndex("CameraData");
 
     ////////////////////////////////////////////////////////////////////////////////
     // cube object
@@ -195,205 +195,9 @@ void SkyBoxRender::initRenderData()
 
     ////////////////////////////////////////////////////////////////////////////////
     // default null texture
-    m_SkyBoxTextures.push_back(nullptr);
-}
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-// Floor render
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#ifdef __Banana_Qt__
-void FloorRender::loadTextures(QString textureFolder)
-{
-    clearTextures();
-
-    QDir dataDir(textureFolder);
-    dataDir.setFilter(QDir::NoDotAndDotDot | QDir::Files);
-    QStringList allTexFiles = dataDir.entryList();
-
-    foreach(QString texFile, allTexFiles)
-    {
-        QString texFilePath = textureFolder + "/" + texFile;
-        OpenGLTexture* floorTex = new OpenGLTexture(GL_TEXTURE_2D);
-        QImage texImg = QImage(texFilePath).convertToFormat(QImage::Format_RGBA8888);
-
-        floorTex->uploadData(GL_TEXTURE_2D,
-                             GL_RGBA, texImg.width(), texImg.height(),
-                             GL_RGBA, GL_UNSIGNED_BYTE, texImg.constBits());
-
-        floorTex->setBestParameters();
-        floorTex->generateMipMap();
-        addTexture(floorTex);
-    }
-}
-#endif
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FloorRender::clearTextures()
-{
-    for(OpenGLTexture* tex : m_FloorTextures)
-    {
-        delete tex;
-    }
-
-    m_FloorTextures.resize(0);
-    m_FloorTextures.push_back(nullptr);
-    m_CurrentFloorTex = nullptr;
+    m_Textures.push_back(nullptr);
 }
 
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FloorRender::addTexture(OpenGLTexture* texture)
-{
-    texture->setFilterMode(GL_TEXTURE_WRAP_S, GL_REPEAT);
-    texture->setFilterMode(GL_TEXTURE_WRAP_T, GL_REPEAT);
-    texture->setFilterMode(GL_TEXTURE_WRAP_R, GL_REPEAT);
-
-    m_FloorTextures.push_back(texture);
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FloorRender::setRenderTextureIndex(int texIndex)
-{
-    assert(static_cast<size_t>(texIndex) < m_FloorTextures.size());
-
-    m_CurrentFloorTex = m_FloorTextures[texIndex];
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-size_t FloorRender::getNumTextures()
-{
-    return m_FloorTextures.size();
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FloorRender::transform(const glm::vec3& translation, const glm::vec3& scale)
-{
-    glm::mat4 modelMatrix = glm::scale(glm::translate(glm::mat4(1.0), translation), scale);
-    glm::mat4 normalMatrix = glm::transpose(glm::inverse(glm::mat3(modelMatrix)));
-
-    m_UBufferModelMatrix->uploadData(glm::value_ptr(modelMatrix),
-                                     0, sizeof(glm::mat4)); // model matrix
-    m_UBufferModelMatrix->uploadData(glm::value_ptr(normalMatrix),
-                                     sizeof(glm::mat4), sizeof(glm::mat4)); // normal matrix
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FloorRender::scaleTexCoord(int scaleX, int scaleY)
-{
-    m_GridObj->scaleTexCoord(scaleX, scaleY);
-    m_GridObj->uploadDataToGPU();
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FloorRender::render()
-{
-    assert(m_Camera != nullptr && m_UBufferCamData != nullptr);
-    if(m_CurrentFloorTex == nullptr)
-    {
-        return;
-    }
-
-    m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getViewMatrix()),
-                                 0, sizeof(glm::mat4));
-    m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getProjectionMatrix()),
-                                 sizeof(glm::mat4), sizeof(glm::mat4));
-    m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->m_CameraPosition),
-                                 3 * sizeof(glm::mat4), sizeof(glm::vec3));
-
-    m_Shader->bind();
-    m_CurrentFloorTex->bind();
-
-    m_UBufferModelMatrix->bindBufferBase();
-    m_Shader->bindUniformBlock(m_UModelMatrix,
-                               m_UBufferModelMatrix->getBindingPoint());
-
-    m_UBufferCamData->bindBufferBase();
-    m_Shader->bindUniformBlock(m_UCamData,
-                               m_UBufferCamData->getBindingPoint());
-
-    m_Light->bindUniformBuffer();
-    m_Shader->bindUniformBlock(m_ULight,
-                               m_Light->getBufferBindingPoint());
-
-    m_Material->bindUniformBuffer();
-    m_Shader->bindUniformBlock(m_UMaterial,
-                               m_Material->getBufferBindingPoint());
-
-    m_Shader->setUniformValue(m_UHasTexture, 1);
-    m_Shader->setUniformValue(m_UTexSampler, 0);
-
-
-    glCall(glBindVertexArray(m_VAO));
-    m_GridObj->draw();
-    m_CurrentFloorTex->release();
-    m_Shader->release();
-    glCall(glBindVertexArray(0));
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FloorRender::initRenderData()
-{
-    m_Shader = ShaderProgram::getPhongShader();
-
-    m_AtrVPosition = m_Shader->getAtributeLocation("v_Position");
-    m_AtrVNormal = m_Shader->getAtributeLocation("v_Normal");
-    m_AtrVTexCoord = m_Shader->getAtributeLocation("v_TexCoord");
-
-    m_UHasTexture = m_Shader->getUniformLocation("hasTexture");
-    m_UTexSampler = m_Shader->getUniformLocation("u_TexSampler");
-
-    m_UModelMatrix = m_Shader->getUniformBlockIndex("ModelMatrix");
-    m_UCamData = m_Shader->getUniformBlockIndex("CameraData");
-    m_ULight = m_Shader->getUniformBlockIndex("PointLight");
-    m_UMaterial = m_Shader->getUniformBlockIndex("Material");
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // cube object
-    m_GridObj = new GridObject(1, 1);
-    m_GridObj->uploadDataToGPU();
-
-    glCall(glGenVertexArrays(1, &m_VAO));
-    glCall(glBindVertexArray(m_VAO));
-    m_GridObj->bindAllBuffers();
-    glCall(glVertexAttribPointer(m_AtrVPosition, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0));
-    glCall(glVertexAttribPointer(m_AtrVNormal, 3, GL_FLOAT, GL_FALSE, 0,
-        (GLvoid*)(m_GridObj->getVNormalOffset())));
-    glCall(glVertexAttribPointer(m_AtrVTexCoord, 2, GL_FLOAT, GL_FALSE, 0,
-        (GLvoid*)(m_GridObj->getVTexCoordOffset())));
-    glCall(glEnableVertexAttribArray(m_AtrVPosition));
-    glCall(glEnableVertexAttribArray(m_AtrVNormal));
-    glCall(glEnableVertexAttribArray(m_AtrVTexCoord));
-    glCall(glBindVertexArray(0));
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // uniform buffer
-    if(m_UBufferCamData == nullptr)
-    {
-        m_UBufferCamData = new OpenGLBuffer;
-        m_UBufferCamData->createBuffer(GL_UNIFORM_BUFFER,
-                                       3 * sizeof(glm::mat4) + sizeof(glm::vec4),
-                                       nullptr, GL_DYNAMIC_DRAW);
-    }
-
-    m_UBufferModelMatrix = new OpenGLBuffer;
-    m_UBufferModelMatrix->createBuffer(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), nullptr,
-                                       GL_STATIC_DRAW);
-    transform(glm::vec3(0, 0, 0), glm::vec3(1, 1, 1));
-    scaleTexCoord(10, 10);
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // material
-    m_Material = new Material;
-    m_Material->setAmbientColor(glm::vec4(1.0));
-    m_Material->setDiffuseColor(glm::vec4(1.0, 1.0, 0.0, 1.0));
-    m_Material->setSpecularColor(glm::vec4(1.0));
-    m_Material->setShininess(250.0);
-    m_Material->uploadDataToGPU();
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // default null texture
-    m_FloorTextures.push_back(nullptr);
-}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -418,11 +222,11 @@ void PointLightRender::render()
     m_Shader->bind();
 
     m_UBufferCamData->bindBufferBase();
-    m_Shader->bindUniformBlock(m_UCamData,
+    m_Shader->bindUniformBlock(m_UBCamData,
                                m_UBufferCamData->getBindingPoint());
 
     m_Light->bindUniformBuffer();
-    m_Shader->bindUniformBlock(m_ULight,
+    m_Shader->bindUniformBlock(m_UBLight,
                                m_Light->getBufferBindingPoint());
 
     glCall(glBindVertexArray(m_VAO));
@@ -488,8 +292,8 @@ void PointLightRender::initRenderData()
 
     glCall(glGenVertexArrays(1, &m_VAO));
 
-    m_UCamData = m_Shader->getUniformBlockIndex("CameraData");
-    m_ULight = m_Shader->getUniformBlockIndex("PointLight");
+    m_UBCamData = m_Shader->getUniformBlockIndex("CameraData");
+    m_UBLight = m_Shader->getUniformBlockIndex("PointLight");
 
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -501,4 +305,284 @@ void PointLightRender::initRenderData()
                                        3 * sizeof(glm::mat4) + sizeof(glm::vec4),
                                        nullptr, GL_DYNAMIC_DRAW);
     }
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+// Mesh render
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+MeshObject * MeshRender::getMeshObj()
+{
+    return m_MeshObj;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+Material * MeshRender::getMaterial()
+{
+    return m_Material;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+OpenGLTexture * MeshRender::getCurrentTexture()
+{
+    return m_CurrentTexture;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+size_t MeshRender::getNumTextures()
+{
+    return m_Textures.size();
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void MeshRender::clearTextures(bool insertNullTex /*= true*/)
+{
+    for(OpenGLTexture* tex : m_Textures)
+    {
+        delete tex;
+    }
+
+    m_Textures.resize(0);
+    if(insertNullTex)
+    {
+        m_Textures.push_back(nullptr);
+    }
+
+    m_CurrentTexture = nullptr;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void MeshRender::addTexture(OpenGLTexture * texture, GLenum texWrapMode /*= GL_REPEAT*/)
+{
+    texture->setFilterMode(GL_TEXTURE_WRAP_S, texWrapMode);
+    texture->setFilterMode(GL_TEXTURE_WRAP_T, texWrapMode);
+    texture->setFilterMode(GL_TEXTURE_WRAP_R, texWrapMode);
+
+    m_Textures.push_back(texture);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void MeshRender::setRenderTextureIndex(int texIndex)
+{
+    assert(static_cast<size_t>(texIndex) < m_Textures.size());
+
+    m_CurrentTexture = m_Textures[texIndex];
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void MeshRender::transform(const glm::vec3 & translation, const glm::vec3 & scale)
+{
+    glm::mat4 modelMatrix = glm::scale(glm::translate(glm::mat4(1.0), translation), scale);
+    glm::mat4 normalMatrix = glm::transpose(glm::inverse(glm::mat3(modelMatrix)));
+
+    m_UBufferModelMatrix->uploadData(glm::value_ptr(modelMatrix),
+                                     0, sizeof(glm::mat4)); // model matrix
+    m_UBufferModelMatrix->uploadData(glm::value_ptr(normalMatrix),
+                                     sizeof(glm::mat4), sizeof(glm::mat4)); // normal matrix
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void MeshRender::render()
+{
+    assert(m_MeshObj != nullptr && m_Camera != nullptr && m_UBufferCamData != nullptr);
+
+    if(m_SelfUpdateCamera)
+    {
+        m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getViewMatrix()),
+                                     0, sizeof(glm::mat4));
+        m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getProjectionMatrix()),
+                                     sizeof(glm::mat4), sizeof(glm::mat4));
+        m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->m_CameraPosition),
+                                     3 * sizeof(glm::mat4), sizeof(glm::vec3));
+    }
+
+    m_Shader->bind();
+    if(m_CurrentTexture != nullptr)
+    {
+        m_CurrentTexture->bind();
+        m_Shader->setUniformValue(m_UHasTexture, 1);
+        m_Shader->setUniformValue(m_UTexSampler, 0);
+    }
+    else
+    {
+        m_Shader->setUniformValue(m_UHasTexture, 0);
+    }
+
+    m_UBufferModelMatrix->bindBufferBase();
+    m_Shader->bindUniformBlock(m_UBModelMatrix,
+                               m_UBufferModelMatrix->getBindingPoint());
+
+    m_UBufferCamData->bindBufferBase();
+    m_Shader->bindUniformBlock(m_UBCamData,
+                               m_UBufferCamData->getBindingPoint());
+
+    m_Light->bindUniformBuffer();
+    m_Shader->bindUniformBlock(m_UBLight,
+                               m_Light->getBufferBindingPoint());
+
+    m_Material->bindUniformBuffer();
+    m_Shader->bindUniformBlock(m_UBMaterial,
+                               m_Material->getBufferBindingPoint());
+
+    glCall(glBindVertexArray(m_VAO));
+    m_MeshObj->draw();
+
+    if(m_CurrentTexture != nullptr)
+    {
+        m_CurrentTexture->release();
+    }
+    m_Shader->release();
+    glCall(glBindVertexArray(0));
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void MeshRender::initRenderData()
+{
+    assert(m_MeshObj != nullptr);
+
+    m_Shader = ShaderProgram::getPhongShader();
+
+    m_AtrVPosition = m_Shader->getAtributeLocation("v_Position");
+    m_AtrVNormal   = m_Shader->getAtributeLocation("v_Normal");
+    m_AtrVTexCoord = m_Shader->getAtributeLocation("v_TexCoord");
+
+    m_UHasTexture = m_Shader->getUniformLocation("hasTexture");
+    m_UTexSampler = m_Shader->getUniformLocation("u_TexSampler");
+
+    m_UBModelMatrix = m_Shader->getUniformBlockIndex("ModelMatrix");
+    m_UBCamData     = m_Shader->getUniformBlockIndex("CameraData");
+    m_UBLight       = m_Shader->getUniformBlockIndex("PointLight");
+    m_UBMaterial    = m_Shader->getUniformBlockIndex("Material");
+
+    ////////////////////////////////////////////////////////////////////////////////
+    m_MeshObj->uploadDataToGPU();
+
+    glCall(glGenVertexArrays(1, &m_VAO));
+    glCall(glBindVertexArray(m_VAO));
+    m_MeshObj->bindAllBuffers();
+    glCall(glEnableVertexAttribArray(m_AtrVPosition));
+    glCall(glVertexAttribPointer(m_AtrVPosition, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0));
+
+    if(m_MeshObj->hasVertexNormal())
+    {
+        glCall(glEnableVertexAttribArray(m_AtrVNormal));
+        glCall(glVertexAttribPointer(m_AtrVNormal, 3, GL_FLOAT, GL_FALSE, 0,
+            (GLvoid*)(m_MeshObj->getVNormalOffset())));
+    }
+    if(m_MeshObj->hasVertexTexCoord())
+    {
+        glCall(glEnableVertexAttribArray(m_AtrVTexCoord));
+        glCall(glVertexAttribPointer(m_AtrVTexCoord, 2, GL_FLOAT, GL_FALSE, 0,
+            (GLvoid*)(m_MeshObj->getVTexCoordOffset())));
+    }
+
+    glCall(glBindVertexArray(0));
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // uniform buffer
+    if(m_UBufferCamData == nullptr)
+    {
+        m_UBufferCamData = new OpenGLBuffer;
+        m_UBufferCamData->createBuffer(GL_UNIFORM_BUFFER,
+                                       3 * sizeof(glm::mat4) + sizeof(glm::vec4),
+                                       nullptr, GL_DYNAMIC_DRAW);
+    }
+
+    m_UBufferModelMatrix = new OpenGLBuffer;
+    m_UBufferModelMatrix->createBuffer(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), nullptr,
+                                       GL_STATIC_DRAW);
+    transform(glm::vec3(0, 0, 0), glm::vec3(1, 1, 1));
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // material
+    if(m_Material == nullptr)
+    {
+        m_Material = new Material;
+        /*m_Material->setAmbientColor(glm::vec4(1.0));
+        m_Material->setDiffuseColor(glm::vec4(1.0, 1.0, 0.0, 1.0));
+        m_Material->setSpecularColor(glm::vec4(1.0));
+        m_Material->setShininess(250.0);*/
+        m_Material->setMaterial(Material::MT_Emerald);
+        m_Material->uploadDataToGPU();
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // default null texture
+    m_Textures.push_back(nullptr);
+}
+
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+// Plane render
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void PlaneRender::setAllowNonTextureRender(bool allowNonTex)
+{
+    m_AllowedNonTexRender = allowNonTex;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void PlaneRender::clearTextures()
+{
+    assert(m_MeshRender != nullptr);
+    m_MeshRender->clearTextures();
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void PlaneRender::addTexture(OpenGLTexture* texture, GLenum texWrapMode /*= GL_REPEAT*/)
+{
+    assert(m_MeshRender != nullptr);
+    m_MeshRender->addTexture(texture, texWrapMode);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void PlaneRender::setRenderTextureIndex(int texIndex)
+{
+    assert(m_MeshRender != nullptr);
+    m_MeshRender->setRenderTextureIndex(texIndex);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+size_t PlaneRender::getNumTextures()
+{
+    assert(m_MeshRender != nullptr);
+    return m_MeshRender->getNumTextures();
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void PlaneRender::transform(const glm::vec3& translation, const glm::vec3& scale)
+{
+    assert(m_MeshRender != nullptr);
+    m_MeshRender->transform(translation, scale);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void PlaneRender::scaleTexCoord(int scaleX, int scaleY)
+{
+    assert(m_MeshRender != nullptr);
+    GridObject* gridObj = static_cast<GridObject*>(m_MeshRender->getMeshObj());
+
+    assert(gridObj != nullptr);
+    gridObj->scaleTexCoord(scaleX, scaleY);
+    gridObj->uploadDataToGPU();
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void PlaneRender::render()
+{
+    assert(m_MeshRender != nullptr);
+
+    if(m_MeshRender->getCurrentTexture() != nullptr ||
+        (m_MeshRender->getCurrentTexture() == nullptr && m_AllowedNonTexRender))
+        m_MeshRender->render();
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void PlaneRender::initRenderData()
+{
+    assert(m_MeshRender != nullptr);
+    // nothing to do
 }

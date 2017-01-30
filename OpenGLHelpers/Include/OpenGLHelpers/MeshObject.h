@@ -94,6 +94,11 @@ public:
     size_t getVTexCoordOffset();
     size_t getVColorOffset();
 
+    bool hasVertexNormal();
+    bool hasVertexTexCoord();
+    bool hasVertexColor();
+    bool hasIndexBuffer();
+
     ////////////////////////////////////////////////////////////////////////////////
     OpenGLBuffer* m_ArrayBuffer;
     OpenGLBuffer* m_IndexBuffer;
@@ -126,8 +131,8 @@ protected:
     bool m_isBufferCreated;
     bool m_isGLDataReady;
 
-    bool m_hasVertexTexCoord;
     bool m_hasVertexNormal;
+    bool m_hasVertexTexCoord;
     bool m_hasVertexColor;
     bool m_hasIndexBuffer;
 
