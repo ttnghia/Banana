@@ -586,3 +586,87 @@ void PlaneRender::initRenderData()
     assert(m_MeshRender != nullptr);
     // nothing to do
 }
+
+
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+// WireFrameBoxRender
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void WireFrameBoxRender::transform(const glm::vec3 & translation, const glm::vec3 & scale)
+{
+    glm::mat4 modelMatrix = glm::scale(glm::translate(glm::mat4(1.0), translation), scale);
+    glm::mat4 normalMatrix = glm::transpose(glm::inverse(glm::mat3(modelMatrix)));
+
+    m_UBufferModelMatrix->uploadData(glm::value_ptr(modelMatrix),
+                                     0, sizeof(glm::mat4)); // model matrix
+    m_UBufferModelMatrix->uploadData(glm::value_ptr(normalMatrix),
+                                     sizeof(glm::mat4), sizeof(glm::mat4)); // normal matrix}
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void WireFrameBoxRender::render()
+{
+    m_Shader->bind();
+
+    m_UBufferModelMatrix->bindBufferBase();
+    m_Shader->bindUniformBlock(m_UBModelMatrix, m_UBufferModelMatrix->getBindingPoint());
+
+    if(m_SelfUpdateCamera)
+    {
+        m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getViewMatrix()),
+                                     0, sizeof(glm::mat4));
+        m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getProjectionMatrix()),
+                                     sizeof(glm::mat4), sizeof(glm::mat4));
+        m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->m_CameraPosition),
+                                     3 * sizeof(glm::mat4), sizeof(glm::vec3));
+    }
+    m_UBufferCamData->bindBufferBase();
+    m_Shader->bindUniformBlock(m_UBCamData, m_UBufferCamData->getBindingPoint());
+
+    m_Shader->setUniformValue(m_UColor, m_BoxColor);
+
+    glCall(glBindVertexArray(m_VAO));
+    m_WireFrameBoxObj->draw();
+    m_Shader->release();
+    glCall(glBindVertexArray(0));
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void WireFrameBoxRender::initRenderData()
+{
+    m_Shader = ShaderProgram::getObjUniformColorShader();
+
+    m_AtrVPosition = m_Shader->getAtributeLocation("v_Position");
+    m_UColor       = m_Shader->getUniformLocation("f_Color");
+
+    m_UBModelMatrix = m_Shader->getUniformBlockIndex("ModelMatrix");
+    m_UBCamData     = m_Shader->getUniformBlockIndex("CameraData");
+
+
+    m_WireFrameBoxObj = new WireFrameBoxObject;
+    m_WireFrameBoxObj->uploadDataToGPU();
+
+    glCall(glGenVertexArrays(1, &m_VAO));
+    glCall(glBindVertexArray(m_VAO));
+    m_WireFrameBoxObj->bindAllBuffers();
+    glCall(glVertexAttribPointer(m_AtrVPosition, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0));
+    glCall(glEnableVertexAttribArray(m_AtrVPosition));
+    glCall(glBindVertexArray(0));
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // uniform buffer
+    if(m_UBufferCamData == nullptr)
+    {
+        m_UBufferCamData = new OpenGLBuffer;
+        m_UBufferCamData->createBuffer(GL_UNIFORM_BUFFER,
+                                       3 * sizeof(glm::mat4) + sizeof(glm::vec4),
+                                       nullptr, GL_DYNAMIC_DRAW);
+    }
+
+    m_UBufferModelMatrix = new OpenGLBuffer;
+    m_UBufferModelMatrix->createBuffer(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), nullptr,
+                                       GL_STATIC_DRAW);
+    transform(glm::vec3(0, 0, 0), glm::vec3(1, 1, 1));
+}

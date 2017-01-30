@@ -29,6 +29,8 @@
 #include <OpenGLHelpers/OpenGLTexture.h>
 #include <OpenGLHelpers/CubeObject.h>
 #include <OpenGLHelpers/GridObject.h>
+#include <OpenGLHelpers/WireFrameBoxObject.h>
+
 #include <OpenGLHelpers/Light.h>
 #include <OpenGLHelpers/Material.h>
 
@@ -240,5 +242,34 @@ private:
     bool        m_AllowedNonTexRender;
     MeshRender* m_MeshRender;
     GridObject* m_GridObj;
+
+};
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+// WirteFrameBoxRender
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+class WireFrameBoxRender : public RenderObject
+{
+public:
+    WireFrameBoxRender(Camera* camera, OpenGLBuffer* bufferCamData = nullptr) :
+        RenderObject(camera, bufferCamData), m_BoxColor(0.5, 0.5, 0)
+    {
+        initRenderData();
+    }
+
+    void transform(const glm::vec3& translation, const glm::vec3& scale);
+
+    virtual void render() override;
+
+private:
+    virtual void initRenderData() override;
+
+    glm::vec3 m_BoxColor;
+    GLfloat m_LineWidth;
+    GLuint  m_AtrVPosition;
+    GLuint  m_UColor;
+    WireFrameBoxObject* m_WireFrameBoxObj;
 
 };
