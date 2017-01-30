@@ -482,8 +482,8 @@ void PointLightRender::initRenderData()
         "}\n";
 
     m_Shader = new ShaderProgram(std::string("LightRenderShader"));
-    m_Shader->addVertexShader(vertexShader);
-    m_Shader->addFragmentShader(fragmentShader);
+    m_Shader->addVertexShaderFromSource(vertexShader);
+    m_Shader->addFragmentShaderFromSource(fragmentShader);
     m_Shader->link();
 
     glCall(glGenVertexArrays(1, &m_VAO));

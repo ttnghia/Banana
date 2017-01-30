@@ -56,9 +56,9 @@ public:
 
     bool isValid();
 
-    void addVertexShader(const GLchar* shaderSource);
-    void addGeometryShader(const GLchar* shaderSource);
-    void addFragmentShader(const GLchar* shaderSource);
+    void addVertexShaderFromSource(const GLchar* shaderSource);
+    void addGeometryShaderFromSource(const GLchar* shaderSource);
+    void addFragmentShaderFromSource(const GLchar* shaderSource);
 
     void addVertexShaderFromFile(const char* fileName);
     void addGeometryShaderFromFile(const char* fileName);
@@ -66,6 +66,7 @@ public:
 
     bool link();
     bool reloadShaders();
+    void clearCachedSource();
 
     void bind()
     {
@@ -111,14 +112,24 @@ protected:
     std::string                   m_ProgramName;
     std::vector<GLuint>           m_ShaderIDs;
     bool                          m_isProgramLinked;
+    std::map<GLenum, std::string> m_ShaderSourceCodes;
     std::map<GLenum, std::string> m_ShaderSourceFiles;
 
 public:
-    static ShaderProgram* getSimpleVertexColorShader();
-    static ShaderProgram* getSimpleUniformColorShader();
-    static ShaderProgram* getSimpleTextureShader();
-    static ShaderProgram* getObjUniformColorShader();
-    static ShaderProgram* getObjTextureShader();
-    static ShaderProgram* getPhongShader();
-    static ShaderProgram* getSkyBoxShader();
+    static ShaderProgram* getSimpleVertexColorShader(std::string programName =
+                                                     std::string("SimpleVertexColorShader"));
+    static ShaderProgram* getSimpleUniformColorShader(std::string programName =
+                                                      std::string("SimpleUniformColorShader"));
+    static ShaderProgram* getSimpleTextureShader(std::string programName =
+                                                 std::string("SimpleTextureShader"));
+    static ShaderProgram* getObjUniformColorShader(std::string programName =
+                                                   std::string("ObjUniformColorShader"));
+    static ShaderProgram* getObjTextureShader(std::string programName =
+                                              std::string("ObjTextureShader"));
+    static ShaderProgram* getPhongShader(std::string programName =
+                                         std::string("PhongShader"));
+    static ShaderProgram* getSkyBoxShader(std::string programName =
+                                          std::string("SkyBoxShader"));
+    static ShaderProgram* getScreenQuadShader(const char* fragmentShaderFile,
+                                              std::string programName =std::string("ScreenQuadShader"));
 };

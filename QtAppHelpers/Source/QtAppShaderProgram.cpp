@@ -32,7 +32,7 @@ void QtAppShaderProgram::addVertexShaderFromResource(const char * fileName)
     std::string shaderSouce;
     loadResourceFile(shaderSouce, fileName);
 
-    addVertexShader(shaderSouce.c_str());
+    addVertexShaderFromSource(shaderSouce.c_str());
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -41,7 +41,7 @@ void QtAppShaderProgram::addGeometryShaderFromResource(const char * fileName)
     std::string shaderSouce;
     loadResourceFile(shaderSouce, fileName);
 
-    addGeometryShader(shaderSouce.c_str());
+    addGeometryShaderFromSource(shaderSouce.c_str());
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -50,7 +50,7 @@ void QtAppShaderProgram::addFragmentShaderFromResource(const char * fileName)
     std::string shaderSouce;
     loadResourceFile(shaderSouce, fileName);
 
-    addFragmentShader(shaderSouce.c_str());
+    addFragmentShaderFromSource(shaderSouce.c_str());
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
