@@ -96,10 +96,10 @@ bool ShaderProgram::link()
     {
         if(m_isProgramLinked)
         {
-            glCall(glDeleteProgram(programID));
+            glCall(glDeleteProgram(m_ProgramID));
         }
 
-        programID = newProgramID;
+        m_ProgramID = newProgramID;
         m_isProgramLinked = true;
     }
 
@@ -142,7 +142,7 @@ void ShaderProgram::clearCachedSource()
 GLuint ShaderProgram::getAtributeLocation(const char * atributeName,
                                           bool dieOnError/* = true*/)
 {
-    GLint location = glCall(glGetAttribLocation(programID, atributeName));
+    GLint location = glCall(glGetAttribLocation(m_ProgramID, atributeName));
 
     if(location < 0 && dieOnError)
     {
@@ -162,7 +162,7 @@ GLuint ShaderProgram::getAtributeLocation(const char * atributeName,
 GLuint ShaderProgram::getUniformLocation(const char * uniformName,
                                          bool dieOnError/* = true*/)
 {
-    GLint location = glCall(glGetUniformLocation(programID, uniformName));
+    GLint location = glCall(glGetUniformLocation(m_ProgramID, uniformName));
 
     if(location < 0 && dieOnError)
     {
@@ -181,7 +181,7 @@ GLuint ShaderProgram::getUniformLocation(const char * uniformName,
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 GLuint ShaderProgram::getUniformBlockIndex(const char* uniformBlockName, bool dieOnError /*= true*/)
 {
-    GLuint location = glCall(glGetUniformBlockIndex(programID, uniformBlockName));
+    GLuint location = glCall(glGetUniformBlockIndex(m_ProgramID, uniformBlockName));
 
     if(location == GL_INVALID_INDEX && dieOnError)
     {
@@ -200,7 +200,7 @@ GLuint ShaderProgram::getUniformBlockIndex(const char* uniformBlockName, bool di
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void ShaderProgram::ShaderProgram::bindUniformBlock(GLuint blockIndex, GLuint bindingPoint)
 {
-    glCall(glUniformBlockBinding(programID, blockIndex, bindingPoint));
+    glCall(glUniformBlockBinding(m_ProgramID, blockIndex, bindingPoint));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -351,7 +351,6 @@ void ShaderProgram::loadFile(std::string & fileContent, const char * fileName)
 #else
         __BNN_Die("%s: Cannot open file %s for reading!\n", m_ProgramName.c_str(), fileName);
 #endif
-        exit(EXIT_FAILURE);
     }
 
     // => allocate memory up front

@@ -57,6 +57,10 @@ public:
     void setBorderColor(glm::vec4 borderColor);
     void setBestParameters();
 
+    GLuint getTextureID()
+    {
+        return m_TextureID;
+    }
     void bind(GLuint texUnit = 0);
     void release();
 

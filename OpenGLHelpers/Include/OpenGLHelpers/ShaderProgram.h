@@ -70,7 +70,7 @@ public:
 
     void bind()
     {
-        glCall(glUseProgram(programID));
+        glCall(glUseProgram(m_ProgramID));
     }
     void release()
     {
@@ -99,7 +99,15 @@ public:
     void setUniformValue(GLint location, GLboolean value);
 
     ////////////////////////////////////////////////////////////////////////////////
-    GLuint programID;
+    GLuint getProgramID()
+    {
+        return m_ProgramID;
+    }
+
+    std::string getProgramName()
+    {
+        return m_ProgramName;
+    }
 
 protected:
     bool addShader(GLenum shaderType, const GLchar* shaderSource);
@@ -109,6 +117,7 @@ protected:
     void loadFile(std::string& fileContent, const char* fileName);
 
     ////////////////////////////////////////////////////////////////////////////////
+    GLuint                        m_ProgramID;
     std::string                   m_ProgramName;
     std::vector<GLuint>           m_ShaderIDs;
     bool                          m_isProgramLinked;

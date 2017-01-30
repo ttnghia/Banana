@@ -266,10 +266,48 @@ public:
 private:
     virtual void initRenderData() override;
 
-    glm::vec3 m_BoxColor;
-    GLfloat m_LineWidth;
-    GLuint  m_AtrVPosition;
-    GLuint  m_UColor;
+    glm::vec3           m_BoxColor;
+    GLuint              m_AtrVPosition;
+    GLuint              m_UColor;
     WireFrameBoxObject* m_WireFrameBoxObj;
 
+};
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+// DepthBufferRender
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+class DepthBufferRender : public RenderObject
+{
+public:
+    DepthBufferRender(Camera* camera, OpenGLBuffer* bufferCamData = nullptr,
+                      int width = 1024, int height = 1024) :
+        RenderObject(camera, bufferCamData),
+        m_BufferWidth(width), m_BufferHeight(height)
+    {
+        initRenderData();
+    }
+
+    void setBufferResolution(int width, int height);
+    void beginRender();
+    void endRender();
+
+    OpenGLTexture* getFloatDepthBuffer();
+    OpenGLTexture* getTestDepthBuffer();
+
+    virtual void render() override // do nothing
+    {}
+
+private:
+    virtual void initRenderData() override;
+    void generateFrameBuffer();
+
+    int            m_BufferWidth;
+    int            m_BufferHeight;
+    glm::vec4      m_ClearColor;
+    GLuint         m_AtrVPosition;
+    GLuint         m_FrameBuffer;
+    OpenGLTexture* m_DepthBuffer;
+    OpenGLTexture* m_TestDepthBuffer;
 };
