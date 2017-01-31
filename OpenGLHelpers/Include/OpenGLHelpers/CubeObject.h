@@ -139,7 +139,7 @@ public:
         };
 
 
-        m_IndicesList ={
+        m_IndexList ={
             // right
              0,  1,  2,
              2,  3,  0,

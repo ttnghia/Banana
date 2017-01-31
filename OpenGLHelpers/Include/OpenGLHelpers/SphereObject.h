@@ -82,13 +82,13 @@ public:
                 int first = (j * (numSlices + 1)) + i;
                 int second = first + numSlices + 1;
 
-                m_IndicesList.push_back(first);
-                m_IndicesList.push_back(first + 1);
-                m_IndicesList.push_back(second);
+                m_IndexList.push_back(first);
+                m_IndexList.push_back(first + 1);
+                m_IndexList.push_back(second);
 
-                m_IndicesList.push_back(second);
-                m_IndicesList.push_back(first + 1);
-                m_IndicesList.push_back(second + 1);
+                m_IndexList.push_back(second);
+                m_IndexList.push_back(first + 1);
+                m_IndexList.push_back(second + 1);
             }
         }
 

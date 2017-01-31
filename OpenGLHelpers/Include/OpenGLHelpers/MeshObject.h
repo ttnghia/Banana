@@ -90,9 +90,18 @@ public:
     void draw();
     void uploadDataToGPU();
 
+    size_t getNumVertices();
     size_t getVNormalOffset();
     size_t getVTexCoordOffset();
     size_t getVColorOffset();
+
+    std::vector<GLushort>& getIndexList();
+    std::vector<GLuint>&   getIndexListLong();
+    std::vector<GLfloat>&  getVertices();
+    std::vector<GLfloat>&  getVertexNormals();
+    std::vector<GLfloat>&  getVertexTexCoords();
+    std::vector<GLfloat>&  getVertexColors();
+
 
     bool hasVertexNormal();
     bool hasVertexTexCoord();
@@ -110,8 +119,8 @@ protected:
     void clearBuffer();
 
     ////////////////////////////////////////////////////////////////////////////////
-    std::vector<GLushort> m_IndicesList;
-    std::vector<GLuint>   m_IndicesListLong;
+    std::vector<GLushort> m_IndexList;
+    std::vector<GLuint>   m_IndexListLong;
     std::vector<GLfloat>  m_Vertices;
     std::vector<GLfloat>  m_VertexNormals;
     std::vector<GLfloat>  m_VertexTexCoords;

@@ -48,7 +48,7 @@ public:
     glm::vec4 getLightSpecular() const;
 
     ////////////////////////////////////////////////////////////////////////////////
-    virtual void uploadDataToGPU()           = 0;
+    virtual void uploadDataToGPU()        = 0;
     virtual size_t getUniformBufferSize() = 0;
 
 protected:

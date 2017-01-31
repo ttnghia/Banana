@@ -52,7 +52,7 @@ public:
             -1.0, -1.0, -1.0,
         };
 
-        m_IndicesList ={
+        m_IndexList ={
             // top
             0, 1,
             1, 2,

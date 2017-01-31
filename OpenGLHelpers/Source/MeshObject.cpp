@@ -170,7 +170,7 @@ void MeshObject::clearVertexColor()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MeshObject::clearElementIndex()
 {
-    m_IndicesList.resize(0);
+    m_IndexList.resize(0);
     m_hasIndexBuffer = false;
 }
 
@@ -180,14 +180,14 @@ void MeshObject::setElementIndex(const std::vector<GLuint>& indices)
     m_isMeshVeryLarge = true;
     m_hasIndexBuffer = true;
 
-    m_IndicesListLong.resize(indices.size());
-    std::copy(indices.begin(), indices.end(), m_IndicesListLong.begin());
+    m_IndexListLong.resize(indices.size());
+    std::copy(indices.begin(), indices.end(), m_IndexListLong.begin());
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MeshObject::clearElementIndexLong()
 {
-    m_IndicesListLong.resize(0);
+    m_IndexListLong.resize(0);
     m_hasIndexBuffer = false;
 }
 
@@ -250,11 +250,11 @@ void MeshObject::draw()
     {
         if(m_isMeshVeryLarge)
         {
-            glCall(glDrawElements(m_DataTopology, m_IndicesListLong.size(), GL_UNSIGNED_INT, 0));
+            glCall(glDrawElements(m_DataTopology, m_IndexListLong.size(), GL_UNSIGNED_INT, 0));
         }
         else
         {
-            glCall(glDrawElements(m_DataTopology, m_IndicesList.size(), GL_UNSIGNED_SHORT, 0));
+            glCall(glDrawElements(m_DataTopology, m_IndexList.size(), GL_UNSIGNED_SHORT, 0));
         }
     }
     else
@@ -310,14 +310,20 @@ void MeshObject::uploadDataToGPU()
         assert(m_IndexBuffer != nullptr);
 
         offset = 0;
-        dataSize = m_isMeshVeryLarge ? sizeof(GLuint) * m_IndicesListLong.size() :
-            sizeof(GLushort) * m_IndicesList.size();
-        m_IndexBuffer->uploadData(m_isMeshVeryLarge ? (GLvoid*)m_IndicesListLong.data() :
-            (GLvoid*)m_IndicesList.data(), 0, dataSize);
+        dataSize = m_isMeshVeryLarge ? sizeof(GLuint) * m_IndexListLong.size() :
+            sizeof(GLushort) * m_IndexList.size();
+        m_IndexBuffer->uploadData(m_isMeshVeryLarge ? (GLvoid*)m_IndexListLong.data() :
+            (GLvoid*)m_IndexList.data(), 0, dataSize);
     }
 
     ////////////////////////////////////////////////////////////////////////////////
     m_isGLDataReady = true;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+size_t MeshObject::getNumVertices()
+{
+    return m_NumVertices;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -336,6 +342,42 @@ size_t MeshObject::getVTexCoordOffset()
 size_t MeshObject::getVColorOffset()
 {
     return m_VColorOffset;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+std::vector<GLushort>& MeshObject::getIndexList()
+{
+    return m_IndexList;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+std::vector<GLuint>& MeshObject::getIndexListLong()
+{
+    return m_IndexListLong;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+std::vector<GLfloat>& MeshObject::getVertices()
+{
+    return m_Vertices;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+std::vector<GLfloat>& MeshObject::getVertexNormals()
+{
+    return m_VertexNormals;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+std::vector<GLfloat>& MeshObject::getVertexTexCoords()
+{
+    return m_VertexTexCoords;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+std::vector<GLfloat>& MeshObject::getVertexColors()
+{
+    return m_VertexColors;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -408,8 +450,8 @@ void MeshObject::createBuffers()
     // create element array buffer
     if(m_hasIndexBuffer)
     {
-        size_t iBufferSize = m_isMeshVeryLarge ? sizeof(GLuint) * m_IndicesListLong.size() :
-            sizeof(GLushort) * m_IndicesList.size();
+        size_t iBufferSize = m_isMeshVeryLarge ? sizeof(GLuint) * m_IndexListLong.size() :
+            sizeof(GLushort) * m_IndexList.size();
 
         m_IndexBuffer = new OpenGLBuffer;
         m_IndexBuffer->createBuffer(GL_ELEMENT_ARRAY_BUFFER, iBufferSize);
@@ -436,6 +478,6 @@ void MeshObject::setElementIndex(const std::vector<GLushort>& indices)
     m_isMeshVeryLarge = false;
     m_hasIndexBuffer = true;
 
-    m_IndicesList.resize(indices.size());
-    std::copy(indices.begin(), indices.end(), m_IndicesList.begin());
+    m_IndexList.resize(indices.size());
+    std::copy(indices.begin(), indices.end(), m_IndexList.begin());
 }

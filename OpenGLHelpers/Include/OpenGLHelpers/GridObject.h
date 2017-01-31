@@ -72,19 +72,19 @@ public:
         }
 
         GLuint indexSize = sizeX * sizeY * 6;
-        m_IndicesList.reserve(indexSize);
+        m_IndexList.reserve(indexSize);
 
         for(int j = 0; j < sizeY; ++j)
         {
             for(int i = 0; i < sizeX; ++i)
             {
-                m_IndicesList.push_back(i * (sizeY + 1) + j);
-                m_IndicesList.push_back((i + 1) * (sizeY + 1) + j);
-                m_IndicesList.push_back(i * (sizeY + 1) + (j + 1));
+                m_IndexList.push_back(i * (sizeY + 1) + j);
+                m_IndexList.push_back((i + 1) * (sizeY + 1) + j);
+                m_IndexList.push_back(i * (sizeY + 1) + (j + 1));
 
-                m_IndicesList.push_back((i + 1) * (sizeY + 1) + j);
-                m_IndicesList.push_back((i + 1) * (sizeY + 1) + (j + 1));
-                m_IndicesList.push_back(i * (sizeY + 1) + (j + 1));
+                m_IndexList.push_back((i + 1) * (sizeY + 1) + j);
+                m_IndexList.push_back((i + 1) * (sizeY + 1) + (j + 1));
+                m_IndexList.push_back(i * (sizeY + 1) + (j + 1));
             }
         }
 
