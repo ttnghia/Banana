@@ -81,6 +81,26 @@ void MeshObject::setVertices(const std::vector<GLfloat>& vertices)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void MeshObject::setVertices(void* vertexData, size_t numVertices)
+{
+    m_NumVertices = numVertices;
+    m_Vertices.resize(numVertices * 3);
+    memcpy(m_Vertices.data(), vertexData, numVertices * 3 * sizeof(GLfloat));
+
+    if(!m_isNoTransformation)
+    {
+        for(size_t i = 0; i < m_NumVertices; ++i)
+        {
+            m_Vertices[i * 3]     = m_Vertices[i * 3] * m_ScaleX + m_TranslateX;
+            m_Vertices[i * 3 + 1] = m_Vertices[i * 3 + 1] * m_ScaleX + m_TranslateY;
+            m_Vertices[i * 3 + 2] = m_Vertices[i * 3 + 2] * m_ScaleX + m_TranslateZ;
+        }
+    }
+
+    m_isDataReady = true;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MeshObject::setVertexNormal(const std::vector<GLfloat>& normals)
 {
     assert(normals.size() == m_NumVertices * 3);
@@ -88,6 +108,16 @@ void MeshObject::setVertexNormal(const std::vector<GLfloat>& normals)
 
     m_VertexNormals.resize(m_NumVertices * 3);
     std::copy(normals.begin(), normals.end(), m_VertexNormals.begin());
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void MeshObject::setVertexNormal(void* normalData, size_t dataSize)
+{
+    assert(dataSize == m_NumVertices * 3 * sizeof(GLfloat));
+    m_hasVertexNormal = true;
+
+    m_VertexNormals.resize(m_NumVertices * 3);
+    memcpy(m_VertexNormals.data(), normalData, dataSize);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -118,6 +148,16 @@ void MeshObject::setVertexTexCoord(const std::vector<float>& texcoords)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void MeshObject::setVertexTexCoord(void* texData, size_t dataSize)
+{
+    assert(dataSize == m_NumVertices * 2 * sizeof(GLfloat));
+    m_hasVertexTexCoord = true;
+
+    m_VertexTexCoords.resize(m_NumVertices * 2);
+    memcpy(m_VertexTexCoords.data(), texData, dataSize);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MeshObject::scaleVertexTexCoord(GLfloat scaleX, GLfloat scaleY)
 {
     if(!m_hasVertexTexCoord)
@@ -145,6 +185,16 @@ void MeshObject::setVertexColor(const std::vector<float>& vcolors)
 
     m_VertexColors.resize(m_NumVertices * 3);
     std::copy(vcolors.begin(), vcolors.end(), m_VertexColors.begin());
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void MeshObject::setVertexColor(void* colorData, size_t dataSize)
+{
+    assert(dataSize == m_NumVertices * 3 * sizeof(GLfloat));
+    m_hasVertexColor = true;
+
+    m_VertexColors.resize(m_NumVertices * 3);
+    memcpy(m_VertexColors.data(), colorData, dataSize);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

@@ -152,6 +152,42 @@ inline std::string get_folder_size(std::string folderName, int level = 0)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#ifdef __Banana_Windows__
+#   define sprintf sprintf_s
+#endif
+inline std::string get_file_name(std::string topFolder, std::string dataSubFolder,
+                                 std::string fileName, std::string fileExtension,
+                                 int fileID)
+{
+    char buff[512];
+    sprintf(buff, "%s/%s/%s.%04d.%s", topFolder.c_str(), dataSubFolder.c_str(),
+            fileName.c_str(), fileID, fileExtension.c_str());
+    return std::string(buff);
+}
+
+inline std::string get_file_name(const char* topFolder, const char* dataSubFolder,
+                                 const char* fileName, const char* fileExtension,
+                                 int fileID)
+{
+    char buff[512];
+    sprintf(buff, "%s/%s/%s.%04d.%s", topFolder, dataSubFolder, fileName, fileID,
+            fileExtension);
+
+    return std::string(buff);
+}
+
+inline std::string get_file_name(std::string topFolder, const char* dataSubFolder,
+                                 const char* fileName, const char* fileExtension,
+                                 int fileID)
+{
+    char buff[512];
+    sprintf(buff, "%s/%s/%s.%04d.%s", topFolder.c_str(), dataSubFolder, fileName, fileID,
+            fileExtension);
+
+    return std::string(buff);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 inline void writte_file(std::string str, const char* fileName)
 {
     std::ofstream file(fileName, std::ios::out);

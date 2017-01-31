@@ -48,7 +48,7 @@ public:
     void tock();
 
     double getAvgTime();
-    double getTotalTime();
+    double getTickTockDuration();
 
 signals:
     void avgTimeChanged(double avgTime);

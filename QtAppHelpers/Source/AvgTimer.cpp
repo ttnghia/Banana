@@ -72,7 +72,7 @@ double AvgTimer::getAvgTime()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-double AvgTimer::getTotalTime()
+double AvgTimer::getTickTockDuration()
 {
     return m_TotalTime;
 }

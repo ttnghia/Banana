@@ -1,4 +1,4 @@
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+﻿//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //            .-..-.
 //           (-o/\o-)
 //          /`""``""`\
@@ -75,7 +75,8 @@ public:
 
     ParticleSystemData() :
         m_NumParticles(0),
-        m_MaxNumParticles(0)
+        m_MaxNumParticles(0),
+        m_ParticleRadius(0)
     {}
 
     ~ParticleSystemData()
@@ -98,7 +99,12 @@ public:
 
     void resize(unsigned int maxNumParticles)
     {
-        m_NumParticles    = maxNumParticles;
+        reserve(maxNumParticles);
+        m_NumParticles = maxNumParticles;
+    }
+
+    void reserve(unsigned int maxNumParticles)
+    {
         m_MaxNumParticles = maxNumParticles;
 
         for(auto it = m_ArrayData.begin(); it != m_ArrayData.end(); ++it)
@@ -162,6 +168,21 @@ public:
     {
         m_ParticleRadius = static_cast<double>(particleRadius);
     }
+
+    void setUInt(std::string dataName, unsigned int value)
+    {
+        ScalarValue sValue;
+        sValue.uintValue = value;
+        m_ScalarData[dataName] = sValue;
+    }
+
+    void setDouble(std::string dataName, double value)
+    {
+        ScalarValue sValue;
+        sValue.doubleValue = value;
+        m_ScalarData[dataName] = sValue;
+    }
+
     //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     unsigned int getNumParticles()
     {
@@ -250,7 +271,7 @@ private:
     unsigned int m_NumParticles;
     unsigned int m_MaxNumParticles;
 
-    std::map<std::string, ScalarValue>                 m_ScalarData;
+    std::map<std::string, ScalarValue>                  m_ScalarData;
     std::map<std::string, std::vector<unsigned char>* > m_ArrayData;
-    std::map<std::string, size_t>                      m_ArrayElementSize;
+    std::map<std::string, size_t>                       m_ArrayElementSize;
 };

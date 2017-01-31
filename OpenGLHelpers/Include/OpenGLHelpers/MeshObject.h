@@ -65,16 +65,20 @@ public:
                          GLfloat translateX = 0.0, GLfloat translateY = 0.0,
                          GLfloat translateZ = 0.0);
     void setVertices(const std::vector<GLfloat>& vertices);
+    void setVertices(void* vertexData, size_t numVertices);
 
     void setVertexNormal(const std::vector<GLfloat>& normals);
+    void setVertexNormal(void* normalData, size_t dataSize);
     void inverseVertexNormal();
     void clearVertexNormal();
 
     void setVertexTexCoord(const std::vector<float>& texcoords);
+    void setVertexTexCoord(void* texData, size_t dataSize);
     void scaleVertexTexCoord(GLfloat scaleX, GLfloat scaleY);
     void clearVertexTexCoord();
 
     void setVertexColor(const std::vector<float>& vcolors);
+    void setVertexColor(void* colorData, size_t dataSize);
     void generateRandomVertexColor();
     void clearVertexColor();
 
