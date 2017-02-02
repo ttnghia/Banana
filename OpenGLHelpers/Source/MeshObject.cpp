@@ -81,11 +81,11 @@ void MeshObject::setVertices(const std::vector<GLfloat>& vertices)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MeshObject::setVertices(void* vertexData, size_t numVertices)
+void MeshObject::setVertices(void* vertexData, size_t dataSize)
 {
-    m_NumVertices = numVertices;
-    m_Vertices.resize(numVertices * 3);
-    memcpy(m_Vertices.data(), vertexData, numVertices * 3 * sizeof(GLfloat));
+    m_NumVertices = dataSize / 3 / sizeof(GLfloat);
+    m_Vertices.resize(m_NumVertices * 3);
+    memcpy(m_Vertices.data(), vertexData, dataSize);
 
     if(!m_isNoTransformation)
     {
@@ -317,6 +317,11 @@ void MeshObject::draw()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MeshObject::uploadDataToGPU()
 {
+    if(!m_isDataReady)
+    {
+        return;
+    }
+
     if(!m_isBufferCreated)
     {
         createBuffers();
@@ -368,6 +373,12 @@ void MeshObject::uploadDataToGPU()
 
     ////////////////////////////////////////////////////////////////////////////////
     m_isGLDataReady = true;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+bool MeshObject::isEmpty()
+{
+    return !m_isDataReady;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

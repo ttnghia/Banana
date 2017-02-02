@@ -57,15 +57,20 @@ bool OpenGLMainWindow::eventFilter(QObject * obj, QEvent * event)
         QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
 
         processKeyPressEvent(keyEvent);
+        return true;
     }
     else if(event->type() == QEvent::KeyRelease)
     {
         QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
 
         processKeyReleaseEvent(keyEvent);
+        return true;
+    }
+    else
+    {
+        return QObject::eventFilter(obj, event);
     }
 
-    return QObject::eventFilter(obj, event);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

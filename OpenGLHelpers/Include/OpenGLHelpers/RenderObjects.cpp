@@ -198,7 +198,6 @@ void SkyBoxRender::initRenderData()
     m_Textures.push_back(nullptr);
 }
 
-
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Light render
@@ -312,7 +311,12 @@ void PointLightRender::initRenderData()
 // Mesh render
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void MeshRender::loadTexture(QString textureFolder)
+{
+    OpenGLTexture::loadTextures(m_Textures, textureFolder);
+}
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 MeshObject * MeshRender::getMeshObj()
 {
     return m_MeshObj;
@@ -383,10 +387,13 @@ void MeshRender::transform(const glm::vec3 & translation, const glm::vec3 & scal
                                      sizeof(glm::mat4), sizeof(glm::mat4)); // normal matrix
 }
 
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MeshRender::render()
 {
     assert(m_MeshObj != nullptr && m_Camera != nullptr && m_UBufferCamData != nullptr);
+    if(m_MeshObj->isEmpty())
+        return;
 
     if(m_SelfUpdateCamera)
     {
@@ -438,6 +445,30 @@ void MeshRender::render()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void MeshRender::setupVAO()
+{
+    glCall(glBindVertexArray(m_VAO));
+    m_MeshObj->bindAllBuffers();
+    glCall(glEnableVertexAttribArray(m_AtrVPosition));
+    glCall(glVertexAttribPointer(m_AtrVPosition, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0));
+
+    if(m_MeshObj->hasVertexNormal())
+    {
+        glCall(glEnableVertexAttribArray(m_AtrVNormal));
+        glCall(glVertexAttribPointer(m_AtrVNormal, 3, GL_FLOAT, GL_FALSE, 0,
+            (GLvoid*)(m_MeshObj->getVNormalOffset())));
+    }
+    if(m_MeshObj->hasVertexTexCoord())
+    {
+        glCall(glEnableVertexAttribArray(m_AtrVTexCoord));
+        glCall(glVertexAttribPointer(m_AtrVTexCoord, 2, GL_FLOAT, GL_FALSE, 0,
+            (GLvoid*)(m_MeshObj->getVTexCoordOffset())));
+    }
+
+    glCall(glBindVertexArray(0));
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MeshRender::initRenderData()
 {
     assert(m_MeshObj != nullptr);
@@ -458,27 +489,8 @@ void MeshRender::initRenderData()
 
     ////////////////////////////////////////////////////////////////////////////////
     m_MeshObj->uploadDataToGPU();
-
     glCall(glGenVertexArrays(1, &m_VAO));
-    glCall(glBindVertexArray(m_VAO));
-    m_MeshObj->bindAllBuffers();
-    glCall(glEnableVertexAttribArray(m_AtrVPosition));
-    glCall(glVertexAttribPointer(m_AtrVPosition, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0));
-
-    if(m_MeshObj->hasVertexNormal())
-    {
-        glCall(glEnableVertexAttribArray(m_AtrVNormal));
-        glCall(glVertexAttribPointer(m_AtrVNormal, 3, GL_FLOAT, GL_FALSE, 0,
-            (GLvoid*)(m_MeshObj->getVNormalOffset())));
-    }
-    if(m_MeshObj->hasVertexTexCoord())
-    {
-        glCall(glEnableVertexAttribArray(m_AtrVTexCoord));
-        glCall(glVertexAttribPointer(m_AtrVTexCoord, 2, GL_FLOAT, GL_FALSE, 0,
-            (GLvoid*)(m_MeshObj->getVTexCoordOffset())));
-    }
-
-    glCall(glBindVertexArray(0));
+    setupVAO();
 
     ////////////////////////////////////////////////////////////////////////////////
     // uniform buffer
@@ -518,6 +530,12 @@ void MeshRender::initRenderData()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Plane render
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void PlaneRender::loadTextures(QString textureFolder)
+{
+    m_MeshRender->loadTexture(textureFolder);
+}
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PlaneRender::setAllowNonTextureRender(bool allowNonTex)
 {
@@ -602,6 +620,13 @@ void WireFrameBoxRender::transform(const glm::vec3 & translation, const glm::vec
                                      0, sizeof(glm::mat4)); // model matrix
     m_UBufferModelMatrix->uploadData(glm::value_ptr(normalMatrix),
                                      sizeof(glm::mat4), sizeof(glm::mat4)); // normal matrix}
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void WireFrameBoxRender::setBox(const glm::vec3& boxMin, const glm::vec3& boxMax)
+{
+    m_WireFrameBoxObj->setBox(boxMin, boxMax);
+    m_WireFrameBoxObj->uploadDataToGPU();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

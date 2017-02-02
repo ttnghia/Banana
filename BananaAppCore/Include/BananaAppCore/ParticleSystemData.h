@@ -224,10 +224,13 @@ public:
         addArray<T, N>(dataName);
 
         T* dataPtr = reinterpret_cast<T*>(getArray(dataName)->data());
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_int_distribution<T> dis(minVal, maxVal);
 
         for(unsigned int i = 0; i < m_MaxNumParticles * N; ++i)
         {
-            dataPtr[i] = generate_random_int(minVal, maxVal);
+            dataPtr[i] = dis(gen);
         }
     }
 
@@ -239,10 +242,13 @@ public:
         addArray<T, N>(dataName);
 
         T* dataPtr = reinterpret_cast<T*>(getArray(dataName)->data());
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_real_distribution<T> dis(minVal, maxVal);
 
         for(unsigned int i = 0; i < m_MaxNumParticles * N; ++i)
         {
-            dataPtr[i] = generate_random_real(minVal, maxVal);
+            dataPtr[i] = dis(gen);
         }
     }
 
@@ -254,9 +260,9 @@ public:
 
         T* dataPtr = reinterpret_cast<T*>(getArray(dataName)->data());
 
-        for(unsigned int i = 0; i < m_MaxNumParticles; ++i)
+        for(unsigned int i = 0; i < m_NumParticles; ++i)
         {
-            T t = static_cast<T>(i) / static_cast<T>(m_MaxNumParticles - 1);
+            T t = static_cast<T>(i) / static_cast<T>(m_NumParticles - 1);
 
             for(int j = 0; j < N; ++j)
             {

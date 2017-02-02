@@ -77,4 +77,20 @@ public:
         m_hasIndexBuffer    = true;
         m_DataTopology      = GL_LINES;
     }
+
+    void setBox(const glm::vec3& boxMin, const glm::vec3& boxMax)
+    {
+        m_Vertices ={
+            // top
+            boxMin[0], boxMax[1], boxMax[2],
+            boxMax[0], boxMax[1], boxMax[2],
+            boxMax[0], boxMax[1], boxMin[2],
+            boxMin[0], boxMax[1], boxMin[2],
+            // bottom
+            boxMin[0], boxMin[1], boxMax[2],
+            boxMax[0], boxMin[1], boxMax[2],
+            boxMax[0], boxMin[1], boxMin[2],
+            boxMin[0], boxMin[1], boxMin[2]
+        };
+    }
 };

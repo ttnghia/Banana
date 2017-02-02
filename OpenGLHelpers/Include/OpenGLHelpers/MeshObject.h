@@ -65,7 +65,7 @@ public:
                          GLfloat translateX = 0.0, GLfloat translateY = 0.0,
                          GLfloat translateZ = 0.0);
     void setVertices(const std::vector<GLfloat>& vertices);
-    void setVertices(void* vertexData, size_t numVertices);
+    void setVertices(void* vertexData, size_t dataSize);
 
     void setVertexNormal(const std::vector<GLfloat>& normals);
     void setVertexNormal(void* normalData, size_t dataSize);
@@ -94,6 +94,7 @@ public:
     void draw();
     void uploadDataToGPU();
 
+    bool   isEmpty();
     size_t getNumVertices();
     size_t getVNormalOffset();
     size_t getVTexCoordOffset();

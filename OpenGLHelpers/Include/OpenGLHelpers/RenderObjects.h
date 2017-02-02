@@ -152,14 +152,16 @@ class MeshRender : public RenderObject
 {
 public:
 #ifdef __Banana_Qt__
-    MeshRender(MeshObject* meshObj, Camera* camera, PointLight* light, QString texureFolder,
+    MeshRender(MeshObject* meshObj, Camera* camera, PointLight* light, QString textureFolder,
                Material* material = nullptr, OpenGLBuffer* bufferCamData = nullptr) :
         RenderObject(camera, bufferCamData),
         m_MeshObj(meshObj), m_Light(light), m_Material(material), m_CurrentTexture(nullptr)
     {
         initRenderData();
-        OpenGLTexture::loadTextures(m_Textures, texureFolder);
+        OpenGLTexture::loadTextures(m_Textures, textureFolder);
     }
+
+    void loadTexture(QString textureFolder);
 #endif
 
     MeshRender(MeshObject* meshObj, Camera* camera, PointLight* light, Material* material = nullptr,
@@ -178,6 +180,7 @@ public:
     void addTexture(OpenGLTexture* texture, GLenum texWrapMode = GL_REPEAT);
     void setRenderTextureIndex(int texIndex);
     void transform(const glm::vec3& translation, const glm::vec3& scale);
+    void setupVAO();
 
     virtual void render() override;
 
@@ -215,6 +218,8 @@ public:
     {
         initRenderData();
     }
+
+    void loadTextures(QString textureFolder);
 #endif
 
     PlaneRender(Camera* camera, PointLight* light, OpenGLBuffer* bufferCamData = nullptr) :
@@ -260,7 +265,7 @@ public:
     }
 
     void transform(const glm::vec3& translation, const glm::vec3& scale);
-
+    void setBox(const glm::vec3& boxMin, const glm::vec3& boxMax);
     virtual void render() override;
 
 private:
