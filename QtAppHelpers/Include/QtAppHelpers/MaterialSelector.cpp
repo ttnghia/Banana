@@ -44,7 +44,6 @@ MaterialSelector::MaterialSelector(const Material::MaterialData& material /*= Ma
     m_Layout->addWidget(m_ColorWidget, 0, comboBoxSpan, 1, 1);
 
     connect(m_ComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(setMaterial(int)));
-    connect(m_ComboBox, SIGNAL(highlighted(int)), this, SLOT(setWidgetColor(int)));
 
     ////////////////////////////////////////////////////////////////////////////////
     m_Materials = Material::getBuildInMaterials();
@@ -52,8 +51,21 @@ MaterialSelector::MaterialSelector(const Material::MaterialData& material /*= Ma
     for(const Material::MaterialData& material : m_Materials)
     {
         m_ComboBox->addItem(QString::fromStdString(material.name));
+        QColor color(floatToQColor(material.diffuse));
+        m_ComboBox->setItemData(m_ComboBox->count() - 1,
+                                color, Qt::DecorationRole);
     }
+
+    ////////////////////////////////////////////////////////////////////////////////
+    m_CustomMaterial.ambient   = glm::vec4(0.2);
+    m_CustomMaterial.diffuse   = glm::vec4(0.40, 0.65, 0.96, 1.00);
+    m_CustomMaterial.specular  = glm::vec4(1);
+    m_CustomMaterial.shininess = 200;
+
     m_ComboBox->addItem(QString("Custom Material"));
+    QColor color(floatToQColor(m_CustomMaterial.diffuse));
+    m_ComboBox->setItemData(m_ComboBox->count() - 1,
+                            color, Qt::DecorationRole);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -97,11 +109,8 @@ void MaterialSelector::setEnabled(bool enabled)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MaterialSelector::setMaterial(int materialID)
 {
-    // the last material is custom material
-    if(materialID == m_ComboBox->count() - 1)
-        return;
-
-    m_CurrentMaterial = m_Materials[materialID];
+    m_CurrentMaterial = (materialID == m_ComboBox->count() - 1) ?
+        m_CustomMaterial : m_Materials[materialID];
     setWidgetColor(m_CurrentMaterial);
 
     emit materialChanged(m_CurrentMaterial);
@@ -128,20 +137,17 @@ void MaterialSelector::setMaterial(const Material::MaterialData& material)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MaterialSelector::setWidgetColor(int materialID)
+void MaterialSelector::setCustomMaterial(const Material::MaterialData & material)
 {
-    // the last material is custom material
-    if(materialID == m_ComboBox->count() - 1)
-        return;
-
-    const Material::MaterialData& material = m_Materials[materialID];
-    setWidgetColor(material);
+    m_CurrentMaterial = material;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MaterialSelector::resetWidgetColor()
+void MaterialSelector::setWidgetColor(int materialID)
 {
-    setWidgetColor(m_CurrentMaterial);
+    const Material::MaterialData& material = (materialID == m_ComboBox->count() - 1) ?
+        m_CustomMaterial : m_Materials[materialID];
+    setWidgetColor(material);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

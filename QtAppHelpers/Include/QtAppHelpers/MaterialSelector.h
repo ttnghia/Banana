@@ -49,13 +49,13 @@ public:
     void setEnabled(bool enabled);
     void setMaterial(int materialID);
     void setMaterial(const Material::MaterialData& material);
+    void setCustomMaterial(const Material::MaterialData& material);
 
 signals:
     void materialChanged(const Material::MaterialData& material);
 
     private slots:
     void setWidgetColor(int materialID);
-    void resetWidgetColor();
 
 private:
     void setWidgetColor(const Material::MaterialData& material);
@@ -65,5 +65,6 @@ private:
     QGroupBox*                          m_GroupBox;
     QGridLayout*                        m_Layout;
     Material::MaterialData              m_CurrentMaterial;
+    Material::MaterialData              m_CustomMaterial;
     std::vector<Material::MaterialData> m_Materials;
 };
