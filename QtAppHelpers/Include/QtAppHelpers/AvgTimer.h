@@ -41,6 +41,7 @@ public:
         m_UpdatePeriod(updatePeriod),
         m_TickTockCount(0),
         m_TotalTime(0),
+        m_AvgTime(0),
         m_isTimerStarted(false)
     {}
 
@@ -57,6 +58,7 @@ private:
     bool              m_isTimerStarted;
     int               m_TickTockCount;
     double            m_TotalTime;
+    double            m_AvgTime;
     double            m_UpdatePeriod;
     Clock::time_point m_StartTime;
     Clock::time_point m_TickTime;

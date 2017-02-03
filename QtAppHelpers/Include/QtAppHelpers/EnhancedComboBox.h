@@ -30,8 +30,7 @@ class EnhancedComboBox : public QWidget
     Q_OBJECT
 
 public:
-    EnhancedComboBox(int comboBoxSpan = 3,
-                     QWidget *parent = nullptr);
+    EnhancedComboBox(int comboBoxSpan = 3, QWidget *parent = nullptr);
     ~EnhancedComboBox();
 
     void enableCycling();

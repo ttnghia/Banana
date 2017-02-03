@@ -21,7 +21,6 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 #include <QtAppHelpers/AvgTimer.h>
-
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void AvgTimer::tick()
 {
@@ -55,20 +54,18 @@ void AvgTimer::tock()
 
     if(totalDuration.count() >= m_UpdatePeriod)
     {
-        double avgTime = m_TotalTime / static_cast<double>(m_TickTockCount);
-
-        emit avgTimeChanged(avgTime);
+        m_AvgTime = m_TotalTime / static_cast<double>(m_TickTockCount);
+        emit avgTimeChanged(m_AvgTime);
 
         m_TickTockCount = 0;
         m_TotalTime = 0;
-
     }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 double AvgTimer::getAvgTime()
 {
-    return m_TotalTime / static_cast<double>(m_TickTockCount);
+    return m_AvgTime;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
