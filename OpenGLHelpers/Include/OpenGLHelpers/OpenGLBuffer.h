@@ -40,6 +40,7 @@ public:
                       GLenum bufferUsage = GL_STATIC_DRAW);
     void resize(size_t bufferSize);
     void uploadData(const GLvoid* data, size_t offset, size_t dataSize);
+    void uploadDataAsync(const GLvoid* data, size_t offset, size_t dataSize);
     void bind();
     void bindBufferBase();
     void release();

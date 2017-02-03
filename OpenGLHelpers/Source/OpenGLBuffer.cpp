@@ -90,6 +90,17 @@ void OpenGLBuffer::uploadData(const GLvoid * data, size_t offset, size_t dataSiz
     glCall(glBindBuffer(m_BufferType, 0));
 }
 
+void OpenGLBuffer::uploadDataAsync(const GLvoid* data, size_t offset, size_t dataSize)
+{
+    glCall(glBindBuffer(m_BufferType, m_BufferID));
+    glCall(glBufferData(m_BufferType, dataSize, nullptr, m_BufferUsage));
+    glCall(glBufferSubData(m_BufferType, offset, dataSize, data));
+    glCall(glBindBuffer(m_BufferType, 0));
+
+    // buffer orphaning can also change buffer size
+    m_BufferSize = dataSize;
+}
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLBuffer::bind()
 {

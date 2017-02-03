@@ -71,8 +71,8 @@ inline std::string GLErr2Str(GLenum err)
     a; {\
         GLenum err = glGetError();\
         if (err!=GL_NO_ERROR) {\
-            std::string str = "GL error when calling\n\""+std::string(#a)+\
-            "\"\n\nOpenGL error: "+GLErr2Str(err)+ \
+            std::string str = "GL error when calling '"+std::string(#a)+"'"\
+            ". OpenGL error: "+GLErr2Str(err)+ \
             ", in file: "+__FILE__+", line: "+std::to_string(__LINE__);\
             qDebug() << QString::fromStdString(str); \
         }\
@@ -82,8 +82,8 @@ inline std::string GLErr2Str(GLenum err)
     a; {\
         GLenum err = glGetError();\
         if (err!=GL_NO_ERROR) {\
-            std::string str = "GL error when calling\n\""+std::string(#a)+\
-            "\"\n\nOpenGL error: "+GLErr2Str(err)+ \
+            std::string str = "GL error when calling '"+std::string(#a)+"'"\
+            ". OpenGL error: "+GLErr2Str(err)+ \
             ", in file: "+__FILE__+", line: "+std::to_string(__LINE__);\
             fprintf(stderr, "%s\n", str.c_str()); \
         }\

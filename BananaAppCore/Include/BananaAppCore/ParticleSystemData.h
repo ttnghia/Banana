@@ -97,10 +97,20 @@ public:
         m_MaxNumParticles = 0;
     }
 
-    void resize(unsigned int maxNumParticles)
+    void resize(unsigned int numParticles)
     {
-        reserve(maxNumParticles);
-        m_NumParticles = maxNumParticles;
+        m_NumParticles = numParticles;
+        if(m_MaxNumParticles < numParticles)
+        {
+            m_MaxNumParticles = numParticles;
+        }
+
+        for(auto it = m_ArrayData.begin(); it != m_ArrayData.end(); ++it)
+        {
+            const std::string& arrName = it->first;
+            size_t arraySize = m_NumParticles * m_ArrayElementSize[arrName];
+            it->second->resize(arraySize);
+        }
     }
 
     void reserve(unsigned int maxNumParticles)
@@ -111,7 +121,7 @@ public:
         {
             const std::string& arrName = it->first;
             size_t arraySize = m_MaxNumParticles * m_ArrayElementSize[arrName];
-            it->second->resize(arraySize);
+            it->second->reserve(arraySize);
         }
     }
 
@@ -129,16 +139,19 @@ public:
     template<class T, int N>
     void addArray(std::string arrName, bool iniZero = false)
     {
-        size_t arraySize = m_MaxNumParticles * sizeof(T) * N;
+        size_t arraySize    = m_NumParticles * sizeof(T) * N;
+        size_t maxArraySize = m_MaxNumParticles * sizeof(T) * N;
 
         if(!hasArray(arrName))
         {
             m_ArrayElementSize[arrName] = sizeof(T) * N;
             m_ArrayData[arrName]        = new std::vector<unsigned char>;
+            m_ArrayData[arrName]->reserve(maxArraySize);
             m_ArrayData[arrName]->resize(arraySize);
         }
         else
         {
+            m_ArrayData[arrName]->reserve(maxArraySize);
             m_ArrayData[arrName]->resize(arraySize);
         }
 
@@ -155,12 +168,7 @@ public:
 
     void setNumParticles(unsigned int numParticles)
     {
-        m_NumParticles = numParticles;
-
-        if(m_MaxNumParticles < m_NumParticles)
-        {
-            m_MaxNumParticles = m_NumParticles;
-        }
+        resize(numParticles);
     }
 
     template<class T>
@@ -228,7 +236,7 @@ public:
         std::mt19937 gen(rd());
         std::uniform_int_distribution<T> dis(minVal, maxVal);
 
-        for(unsigned int i = 0; i < m_MaxNumParticles * N; ++i)
+        for(unsigned int i = 0; i < m_NumParticles * N; ++i)
         {
             dataPtr[i] = dis(gen);
         }
@@ -246,7 +254,7 @@ public:
         std::mt19937 gen(rd());
         std::uniform_real_distribution<T> dis(minVal, maxVal);
 
-        for(unsigned int i = 0; i < m_MaxNumParticles * N; ++i)
+        for(unsigned int i = 0; i < m_NumParticles * N; ++i)
         {
             dataPtr[i] = dis(gen);
         }
