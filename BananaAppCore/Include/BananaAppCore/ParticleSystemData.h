@@ -262,15 +262,21 @@ public:
 
     template<class T, class S, int N>
     void generateRampData(std::string dataName,
-                          S startVal, S endVal)
+                          std::vector<S> rangeVals)
     {
         addArray<T, N>(dataName);
 
         T* dataPtr = reinterpret_cast<T*>(getArray(dataName)->data());
+        T segmentSize = static_cast<T>(m_NumParticles) / static_cast<T>(rangeVals.size() - 1);
 
         for(unsigned int i = 0; i < m_NumParticles; ++i)
         {
-            T t = static_cast<T>(i) / static_cast<T>(m_NumParticles - 1);
+            int segment = static_cast<int>(floor(static_cast<float>(i)) / segmentSize);
+            assert(segment < rangeVals.size() - 1);
+
+            T t = static_cast<T>(i - segmentSize * segment) / segmentSize;
+            S startVal = rangeVals[segment];
+            S endVal = rangeVals[segment + 1];
 
             for(int j = 0; j < N; ++j)
             {
