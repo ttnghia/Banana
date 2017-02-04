@@ -184,6 +184,15 @@ size_t DirectionalLight::getUniformBufferSize()
 // PointLight class
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void PointLight::setLightData(const PointLightData & lightData)
+{
+    setLightAmbient(lightData.ambient);
+    setLightDiffuse(lightData.diffuse);
+    setLightSpecular(lightData.specular);
+    setLightPosition(lightData.position);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PointLight::setLightPosition(const glm::vec4& position)
 {
     m_Position = position;

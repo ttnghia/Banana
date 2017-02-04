@@ -203,6 +203,21 @@
     <ClCompile Include="Include\QtAppHelpers\MaterialSelector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\DebugQt\moc_PointLightEditor.cpp">
+      <Filter>Generated Files\DebugQt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\Debug\moc_PointLightEditor.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\Release\moc_PointLightEditor.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\ReleaseQt\moc_PointLightEditor.cpp">
+      <Filter>Generated Files\ReleaseQt</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\PointLightEditor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\QtAppHelpers\AntTweakBarWrapper.h">
@@ -247,6 +262,9 @@
       <Filter>Header Files</Filter>
     </CustomBuild>
     <CustomBuild Include="Include\QtAppHelpers\MaterialSelector.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Include\QtAppHelpers\PointLightEditor.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
   </ItemGroup>

@@ -3,7 +3,7 @@
 //           (-o/\o-)
 //          /`""``""`\
 //          \ /.__.\ /
-//           \ `--` /                                                 Created on: 1/21/2017
+//           \ `--` /                                                 Created on: 2/3/2017
 //            `)  ('                                                    Author: Nghia Truong
 //         ,  /::::\  ,
 //         |'.\::::/.'|
@@ -22,41 +22,41 @@
 
 #pragma once
 
-#include <QtGui>
+#include <OpenGLHelpers/Light.h>
+#include <QtAppHelpers/ColorSelector.h>
+
 #include <QtWidgets>
+#include <vector>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-inline QColor floatToQColor(float r, float g, float b)
-{
-    return QColor(static_cast<int>(255 * r), static_cast<int>(255 * g),
-                  static_cast<int>(255 * b));
-}
+#define MAX_POINT_LIGHT 4
 
-
-class ColorSelector : public QWidget
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+class PointLightEditor : public QWidget
 {
     Q_OBJECT
+
 public:
-    ColorSelector(QWidget *parent = 0);
+    PointLightEditor(QWidget *parent = nullptr);
+    ~PointLightEditor();
 
-    void setColor(QColor color);
-    void paintEvent(QPaintEvent *e)
-    {
-        QPainter painter(this);
-
-        painter.drawRoundedRect(1, 1, width() - 1, height() - 1, 1, 1);
-
-        QWidget::paintEvent(e);
-    }
+    void setLight(int lightID, const PointLight::PointLightData& light);
+    void addLight(const PointLight::PointLightData& light);
 
 signals:
-    void colorChanged(float r, float g, float b);
-
-protected:
-    void mousePressEvent(QMouseEvent *);
-    void enterEvent(QEvent *);
-    void leaveEvent(QEvent *);
+    void lightsChanged(std::vector<PointLight::PointLightData> lights);
 
 private:
-    QColor m_CurrentColor;
+    void connectComponents();
+    void applyLights();
+
+
+    QCheckBox*     m_CheckBoxes[MAX_POINT_LIGHT];
+    QLineEdit*     m_LightAmbients[MAX_POINT_LIGHT][3];
+    QLineEdit*     m_LightDiffuses[MAX_POINT_LIGHT][3];
+    QLineEdit*     m_LightSpeculars[MAX_POINT_LIGHT][3];
+    QLineEdit*     m_LightPositions[MAX_POINT_LIGHT][3];
+    ColorSelector* m_ColorSelectors[MAX_POINT_LIGHT][3];
+
+    std::vector<PointLight::PointLightData> m_Lights;
 };

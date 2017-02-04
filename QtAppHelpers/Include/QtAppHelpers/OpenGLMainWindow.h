@@ -37,8 +37,11 @@ public:
     ~OpenGLMainWindow();
 
     bool eventFilter(QObject* obj, QEvent* event);
-    virtual void processKeyPressEvent(QKeyEvent* event);
-    virtual void processKeyReleaseEvent(QKeyEvent* event);
+    virtual bool processKeyPressEvent(QKeyEvent* event);
+    virtual bool processKeyReleaseEvent(QKeyEvent*)
+    {
+        return false;
+    }
 
     void setArthurStyle();
 

@@ -107,6 +107,15 @@ Range Constant Linear Quadratic
 class PointLight : public Light
 {
 public:
+    // this struct for interfacing with other program
+    struct PointLightData
+    {
+        glm::vec4 ambient;
+        glm::vec4 diffuse;
+        glm::vec4 specular;
+        glm::vec4 position;
+    };
+
     PointLight() :
         m_Position(10, 10, 10, 1.0),
         m_isAttennuating(0),
@@ -115,6 +124,7 @@ public:
         m_atQuadratic(1.8)
     {}
 
+    void setLightData(const PointLightData& lightData);
     void setLightPosition(const glm::vec4& position);
     void setAttennulation(bool attennuation);
     void setATConstantCoeff(GLfloat atConstant);

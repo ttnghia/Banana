@@ -52,29 +52,25 @@ OpenGLMainWindow::~OpenGLMainWindow()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 bool OpenGLMainWindow::eventFilter(QObject * obj, QEvent * event)
 {
+    ////////////////////////////////////////////////////////////////////////////////
     if(event->type() == QEvent::KeyPress)
     {
         QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
-
-        processKeyPressEvent(keyEvent);
-        return true;
+        return processKeyPressEvent(keyEvent);
     }
-    else if(event->type() == QEvent::KeyRelease)
+
+    if(event->type() == QEvent::KeyRelease)
     {
         QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
 
-        processKeyReleaseEvent(keyEvent);
-        return true;
-    }
-    else
-    {
-        return QObject::eventFilter(obj, event);
+        return processKeyReleaseEvent(keyEvent);
     }
 
+    return false;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void OpenGLMainWindow::processKeyPressEvent(QKeyEvent * event)
+bool OpenGLMainWindow::processKeyPressEvent(QKeyEvent * event)
 {
     switch(event->key())
     {
@@ -84,19 +80,7 @@ void OpenGLMainWindow::processKeyPressEvent(QKeyEvent * event)
 
 
         default:
-            if(m_GLWidget != nullptr)
-            {
-                m_GLWidget->keyPressEvent(event);
-            }
-    }
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void OpenGLMainWindow::processKeyReleaseEvent(QKeyEvent * event)
-{
-    if(m_GLWidget != nullptr)
-    {
-        m_GLWidget->keyReleaseEvent(event);
+            return false;
     }
 }
 
