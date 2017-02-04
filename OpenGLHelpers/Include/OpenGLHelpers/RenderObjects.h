@@ -172,10 +172,11 @@ public:
         initRenderData();
     }
 
-    MeshObject* getMeshObj();
-    Material* getMaterial();
+    MeshObject*    getMeshObj();
+    Material*      getMaterial();
     OpenGLTexture* getCurrentTexture();
-    size_t getNumTextures();
+    size_t         getNumTextures();
+
     void clearTextures(bool insertNullTex = true);
     void addTexture(OpenGLTexture* texture, GLenum texWrapMode = GL_REPEAT);
     void setRenderTextureIndex(int texIndex);

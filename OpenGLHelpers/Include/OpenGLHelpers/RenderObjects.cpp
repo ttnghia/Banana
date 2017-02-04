@@ -170,7 +170,7 @@ void SkyBoxRender::initRenderData()
 
     glCall(glGenVertexArrays(1, &m_VAO));
     glCall(glBindVertexArray(m_VAO));
-    m_CubeObj->bindAllBuffers();
+    m_CubeObj->getVertexBuffer()->bind();
     glCall(glVertexAttribPointer(m_AtrVPosition, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0));
     glCall(glEnableVertexAttribArray(m_AtrVPosition));
     glCall(glBindVertexArray(0));
@@ -449,23 +449,32 @@ void MeshRender::render()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MeshRender::setupVAO()
 {
+    if(m_MeshObj->isEmpty())
+        return;
+
     glCall(glBindVertexArray(m_VAO));
-    m_MeshObj->bindAllBuffers();
+    m_MeshObj->getVertexBuffer()->bind();
     glCall(glEnableVertexAttribArray(m_AtrVPosition));
     glCall(glVertexAttribPointer(m_AtrVPosition, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0));
 
     if(m_MeshObj->hasVertexNormal())
     {
+        m_MeshObj->getNormalBuffer()->bind();
         glCall(glEnableVertexAttribArray(m_AtrVNormal));
-        glCall(glVertexAttribPointer(m_AtrVNormal, 3, GL_FLOAT, GL_FALSE, 0,
-            (GLvoid*)(m_MeshObj->getVNormalOffset())));
+        glCall(glVertexAttribPointer(m_AtrVNormal, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0));
     }
     if(m_MeshObj->hasVertexTexCoord())
     {
+        m_MeshObj->getTexCoordBuffer()->bind();
         glCall(glEnableVertexAttribArray(m_AtrVTexCoord));
-        glCall(glVertexAttribPointer(m_AtrVTexCoord, 2, GL_FLOAT, GL_FALSE, 0,
-            (GLvoid*)(m_MeshObj->getVTexCoordOffset())));
+        glCall(glVertexAttribPointer(m_AtrVTexCoord, 2, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0));
     }
+    //if(m_MeshObj->hasVertexColor())
+    //{
+    //    m_MeshObj->getVertexColorBuffer()->bind();
+    //    glCall(glEnableVertexAttribArray(m_AtrVTexCoord));
+    //    glCall(glVertexAttribPointer(m_AtrVTexCoord, 2, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0));
+    //}
 
     glCall(glBindVertexArray(0));
 }
@@ -678,7 +687,8 @@ void WireFrameBoxRender::initRenderData()
 
     glCall(glGenVertexArrays(1, &m_VAO));
     glCall(glBindVertexArray(m_VAO));
-    m_WireFrameBoxObj->bindAllBuffers();
+    m_WireFrameBoxObj->getVertexBuffer()->bind();
+    m_WireFrameBoxObj->getIndexListBuffer()->bind();
     glCall(glVertexAttribPointer(m_AtrVPosition, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0));
     glCall(glEnableVertexAttribArray(m_AtrVPosition));
     glCall(glBindVertexArray(0));

@@ -52,10 +52,10 @@ public:
         m_TranslateY(0.0),
         m_TranslateZ(0.0),
         m_NumVertices(0),
-        m_VNormalOffset(0),
-        m_VTexCoordOffset(0),
-        m_VColorOffset(0),
-        m_ArrayBuffer(nullptr),
+        m_VertexBuffer(nullptr),
+        m_NormalBuffer(nullptr),
+        m_TexCoordBuffer(nullptr),
+        m_VertexColorBuffer(nullptr),
         m_IndexBuffer(nullptr)
     {}
 
@@ -89,16 +89,11 @@ public:
 
     ////////////////////////////////////////////////////////////////////////////////
     void setCullFaceMode(GLenum cullFaceMode);
-    void bindAllBuffers();
-    void releaseAllBuffers();
     void draw();
     void uploadDataToGPU();
 
     bool   isEmpty();
     size_t getNumVertices();
-    size_t getVNormalOffset();
-    size_t getVTexCoordOffset();
-    size_t getVColorOffset();
 
     std::vector<GLushort>& getIndexList();
     std::vector<GLuint>&   getIndexListLong();
@@ -107,15 +102,16 @@ public:
     std::vector<GLfloat>&  getVertexTexCoords();
     std::vector<GLfloat>&  getVertexColors();
 
+    OpenGLBuffer* getIndexListBuffer();
+    OpenGLBuffer* getVertexBuffer();
+    OpenGLBuffer* getNormalBuffer();
+    OpenGLBuffer* getTexCoordBuffer();
+    OpenGLBuffer* getVertexColorBuffer();
 
     bool hasVertexNormal();
     bool hasVertexTexCoord();
     bool hasVertexColor();
     bool hasIndexBuffer();
-
-    ////////////////////////////////////////////////////////////////////////////////
-    OpenGLBuffer* m_ArrayBuffer;
-    OpenGLBuffer* m_IndexBuffer;
 
 protected:
     void clearData();
@@ -124,6 +120,12 @@ protected:
     void clearBuffer();
 
     ////////////////////////////////////////////////////////////////////////////////
+    OpenGLBuffer* m_VertexBuffer;
+    OpenGLBuffer* m_NormalBuffer;
+    OpenGLBuffer* m_TexCoordBuffer;
+    OpenGLBuffer* m_VertexColorBuffer;
+    OpenGLBuffer* m_IndexBuffer;
+
     std::vector<GLushort> m_IndexList;
     std::vector<GLuint>   m_IndexListLong;
     std::vector<GLfloat>  m_Vertices;
@@ -132,10 +134,6 @@ protected:
     std::vector<GLfloat>  m_VertexColors;
 
     size_t m_NumVertices;
-    size_t m_VNormalOffset;
-    size_t m_VTexCoordOffset;
-    size_t m_VColorOffset;
-
     GLenum m_DataTopology;
     GLenum m_CullFaceMode;
 
