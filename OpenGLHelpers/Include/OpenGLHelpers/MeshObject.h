@@ -1,4 +1,4 @@
-﻿//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+﻿//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //            .-..-.
 //           (-o/\o-)
 //          /`""``""`\
@@ -18,7 +18,7 @@
 //             \::::/::::\/::::\/::::\/::::\::::/
 //               `""`\::::/\::::/\::::/\::::/`""`
 //                    `""`  `""`  `""`  `""`
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 #pragma once
 
@@ -28,7 +28,7 @@
 #include <OpenGLHelpers/OpenGLMacros.h>
 #include <OpenGLHelpers/OpenGLBuffer.h>
 
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 class MeshObject : public OpenGLCallable
 {
 public:
@@ -92,6 +92,7 @@ public:
     void draw();
     void uploadDataToGPU();
 
+    void clearData();
     bool   isEmpty();
     size_t getNumVertices();
 
@@ -102,7 +103,7 @@ public:
     std::vector<GLfloat>&  getVertexTexCoords();
     std::vector<GLfloat>&  getVertexColors();
 
-    OpenGLBuffer* getIndexListBuffer();
+    OpenGLBuffer* getIndexBuffer();
     OpenGLBuffer* getVertexBuffer();
     OpenGLBuffer* getNormalBuffer();
     OpenGLBuffer* getTexCoordBuffer();
@@ -114,8 +115,6 @@ public:
     bool hasIndexBuffer();
 
 protected:
-    void clearData();
-
     void createBuffers();
     void clearBuffer();
 
