@@ -1,4 +1,4 @@
-﻿//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+﻿//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //            .-..-.
 //           (-o/\o-)
 //          /`""``""`\
@@ -18,7 +18,7 @@
 //             \::::/::::\/::::\/::::\/::::\::::/
 //               `""`\::::/\::::/\::::/\::::/`""`
 //                    `""`  `""`  `""`  `""`
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 #pragma once
 
@@ -30,7 +30,7 @@
 
 #include <OpenGLHelpers/OpenGLMacros.h>
 
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 class ShaderProgram : public OpenGLCallable
 {
 public:
@@ -125,20 +125,13 @@ protected:
     std::map<GLenum, std::string> m_ShaderSourceFiles;
 
 public:
-    static ShaderProgram* getSimpleVertexColorShader(std::string programName =
-                                                     std::string("SimpleVertexColorShader"));
-    static ShaderProgram* getSimpleUniformColorShader(std::string programName =
-                                                      std::string("SimpleUniformColorShader"));
-    static ShaderProgram* getSimpleTextureShader(std::string programName =
-                                                 std::string("SimpleTextureShader"));
-    static ShaderProgram* getObjUniformColorShader(std::string programName =
-                                                   std::string("ObjUniformColorShader"));
-    static ShaderProgram* getObjTextureShader(std::string programName =
-                                              std::string("ObjTextureShader"));
-    static ShaderProgram* getPhongShader(std::string programName =
-                                         std::string("PhongShader"));
-    static ShaderProgram* getSkyBoxShader(std::string programName =
-                                          std::string("SkyBoxShader"));
-    static ShaderProgram* getScreenQuadShader(const char* fragmentShaderFile,
-                                              std::string programName =std::string("ScreenQuadShader"));
+    static ShaderProgram* getSimpleVertexColorShader(std::string programName = std::string("SimpleVertexColorShader"));
+    static ShaderProgram* getSimpleUniformColorShader(std::string programName = std::string("SimpleUniformColorShader"));
+    static ShaderProgram* getSimpleTextureShader(std::string programName = std::string("SimpleTextureShader"));
+    static ShaderProgram* getObjUniformColorShader(std::string programName = std::string("ObjUniformColorShader"));
+    static ShaderProgram* getObjTextureShader(std::string programName = std::string("ObjTextureShader"));
+    static ShaderProgram* getPhongShader(std::string programName = std::string("PhongShader"));
+    static ShaderProgram* getSkyBoxShader(std::string programName = std::string("SkyBoxShader"));
+    static ShaderProgram* getScreenQuadShader(const char* fragmentShaderSource, std::string programName =std::string("ScreenQuadShader"));
+    static ShaderProgram* getScreenQuadShaderFromFile(const char* fragmentShaderFile, std::string programName =std::string("ScreenQuadShader"));
 };
