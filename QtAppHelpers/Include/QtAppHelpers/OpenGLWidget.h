@@ -32,6 +32,7 @@
 #include <QtAppHelpers/AntTweakBarWrapper.h>
 
 #include <OpenGLHelpers/Camera.h>
+#include <OpenGLHelpers/OpenGLBuffer.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 class OpenGLWidget : public QOpenGLWidget, public OpenGLFunctions,
@@ -78,6 +79,7 @@ protected:
 
     // => protected members of class OpenGLWidget
 protected:
+    void uploadCameraData();
     void resetClearColor();
     void checkGLErrors();
     void checkGLVersion();
@@ -88,15 +90,16 @@ protected:
     void exportScreenToImage(int frame);
 
     ////////////////////////////////////////////////////////////////////////////////
-    bool        m_bPrintDebug;
-    int         m_WidgetUpdateTimeout;
-    QSize       m_DefaultSize;
-    QVector4D   m_ClearColor;
-    SpecialKey  m_SpecialKeyPressed;
-    MouseButton m_MouseButtonPressed;
-    QString     m_CapturePath;
-    QImage*     m_CaptureImage;
-    Camera*     m_Camera;
+    bool          m_bPrintDebug;
+    int           m_WidgetUpdateTimeout;
+    QSize         m_DefaultSize;
+    QVector4D     m_ClearColor;
+    SpecialKey    m_SpecialKeyPressed;
+    MouseButton   m_MouseButtonPressed;
+    QString       m_CapturePath;
+    QImage*       m_CaptureImage;
+    Camera*       m_Camera;
+    OpenGLBuffer* m_UBufferCamData;
 
 signals:
     void emitDebugString(QString str);

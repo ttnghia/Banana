@@ -72,12 +72,13 @@ void Camera::setFrustum(float fov, float nearZ, float farZ)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Camera::resizeWindow(int width, int height)
 {
-    m_WindowWidth          = width;
-    m_WindowHeight         = height;
-    m_ProjectionMatrix     = glm::perspective(m_Frustum.m_Fov,
-                                              static_cast<float>(width) / static_cast<float>(height),
-                                              m_Frustum.m_Near, m_Frustum.m_Far);
-    m_ViewProjectionMatrix = m_ProjectionMatrix * m_ViewMatrix;
+    m_WindowWidth             = width;
+    m_WindowHeight            = height;
+    m_ProjectionMatrix        = glm::perspective(m_Frustum.m_Fov,
+                                                 static_cast<float>(width) / static_cast<float>(height),
+                                                 m_Frustum.m_Near, m_Frustum.m_Far);
+    m_InverseProjectionMatrix = glm::inverse(m_ProjectionMatrix);
+    m_ViewProjectionMatrix    = m_ProjectionMatrix * m_ViewMatrix;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -327,4 +328,16 @@ const glm::mat4 Camera::getViewProjectionMatrix()
 {
     updateViewMatrix();
     return m_ViewProjectionMatrix;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+const glm::mat4 Camera::getInverseViewMatrix()
+{
+    return glm::inverse(m_ViewMatrix);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+const glm::mat4 Camera::getInverseProjectionMatrix()
+{
+    return m_InverseProjectionMatrix;
 }

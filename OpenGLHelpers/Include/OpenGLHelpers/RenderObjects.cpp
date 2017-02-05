@@ -96,8 +96,7 @@ void SkyBoxRender::loadTextures(QString textureTopFolder)
                                   GL_RGBA, GL_UNSIGNED_BYTE, texImg.constBits());
         }
 
-        skyboxTex->setBestParameters();
-        skyboxTex->generateMipMap();
+        skyboxTex->setBestParametersNoMipMap();
         addTexture(skyboxTex);
     }
 }
@@ -138,6 +137,12 @@ void SkyBoxRender::setRenderTextureIndex(int texIndex)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+OpenGLTexture* SkyBoxRender::getCurrentTexture()
+{
+    return m_CurrentTexture;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 size_t SkyBoxRender::getNumTextures()
 {
     return m_Textures.size();
@@ -157,7 +162,7 @@ void SkyBoxRender::render()
     m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getProjectionMatrix()),
                                  sizeof(glm::mat4), sizeof(glm::mat4));
     m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->m_CameraPosition),
-                                 3 * sizeof(glm::mat4), sizeof(glm::vec3));
+                                 5 * sizeof(glm::mat4), sizeof(glm::vec3));
 
     m_Shader->bind();
     m_CurrentTexture->bind();
@@ -277,6 +282,8 @@ void PointLightRender::initRenderData()
         "{\n"
         "    mat4 viewMatrix;\n"
         "    mat4 projectionMatrix;\n"
+        "    mat4 invViewMatrix;\n"
+        "    mat4 invProjectionMatrix;\n"
         "    mat4 shadowMatrix;\n"
         "    vec4 camPosition;\n"
         "};\n"
@@ -437,7 +444,7 @@ void MeshRender::render()
         m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getProjectionMatrix()),
                                      sizeof(glm::mat4), sizeof(glm::mat4));
         m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->m_CameraPosition),
-                                     3 * sizeof(glm::mat4), sizeof(glm::vec3));
+                                     5 * sizeof(glm::mat4), sizeof(glm::vec3));
     }
 
     m_Shader->bind();
@@ -694,7 +701,7 @@ void WireFrameBoxRender::render()
         m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getProjectionMatrix()),
                                      sizeof(glm::mat4), sizeof(glm::mat4));
         m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->m_CameraPosition),
-                                     3 * sizeof(glm::mat4), sizeof(glm::vec3));
+                                     5 * sizeof(glm::mat4), sizeof(glm::vec3));
     }
     m_UBufferCamData->bindBufferBase();
     m_Shader->bindUniformBlock(m_UBCamData, m_UBufferCamData->getBindingPoint());
@@ -892,6 +899,8 @@ void DepthBufferRender::initRenderData()
         "{\n"
         "    mat4 viewMatrix;\n"
         "    mat4 projectionMatrix;\n"
+        "    mat4 invViewMatrix;\n"
+        "    mat4 invProjectionMatrix;\n"
         "    mat4 shadowMatrix;\n"
         "    vec4 camPosition;\n"
         "};\n"
@@ -916,6 +925,8 @@ void DepthBufferRender::initRenderData()
         "{\n"
         "    mat4 viewMatrix;\n"
         "    mat4 projectionMatrix;\n"
+        "    mat4 invViewMatrix;\n"
+        "    mat4 invProjectionMatrix;\n"
         "    mat4 shadowMatrix;\n"
         "    vec4 camPosition;\n"
         "};\n"
@@ -962,10 +973,10 @@ void DepthBufferRender::generateFrameBuffer()
     m_DepthBuffer->uploadData(GL_TEXTURE_2D, GL_R32F, m_BufferWidth, m_BufferHeight,
                               GL_R32F, GL_UNSIGNED_BYTE, nullptr);
     m_DepthTestBuffer = new OpenGLTexture(GL_TEXTURE_2D);
-    m_DepthBuffer->setBestParameters();
+    m_DepthBuffer->setBestParametersNoMipMap();
     m_DepthTestBuffer->uploadData(GL_TEXTURE_2D, GL_DEPTH24_STENCIL8, m_BufferWidth, m_BufferHeight,
                                   GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, nullptr);
-    m_DepthTestBuffer->setBestParameters();
+    m_DepthTestBuffer->setBestParametersNoMipMap();
 
     glGenFramebuffers(1, &m_FrameBuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, m_FrameBuffer);
@@ -1037,6 +1048,9 @@ void ScreenQuadTextureRender::initRenderData()
         "            break;\n"
         "        case 3:\n"
         "            outColor.xyz = u_ValueScale * texture(u_TexSampler, f_TexCoord).xyz;\n"
+        "            break;\n"
+        "        case 4:\n"
+        "            outColor = u_ValueScale * texture(u_TexSampler, f_TexCoord);\n"
         "            break;\n"
         "        default:\n"
         "            break;\n"

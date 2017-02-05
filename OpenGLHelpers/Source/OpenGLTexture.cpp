@@ -96,7 +96,7 @@ void OpenGLTexture::setBorderColor(glm::vec4 borderColor)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void OpenGLTexture::setBestParameters()
+void OpenGLTexture::setBestParametersWithMipMap()
 {
     assert(m_bTextureCreated);
 
@@ -116,6 +116,33 @@ void OpenGLTexture::setBestParameters()
     {
         glCall(glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS));
     }
+
+    glCall(glGenerateMipmap(m_TexureTarget));
+    release();
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void OpenGLTexture::setBestParametersNoMipMap()
+{
+    assert(m_bTextureCreated);
+
+    bind();
+    glCall(glTexParameteri(m_TexureTarget, GL_TEXTURE_WRAP_S, GL_REPEAT));
+    glCall(glTexParameteri(m_TexureTarget, GL_TEXTURE_WRAP_T, GL_REPEAT));
+    glCall(glTexParameteri(m_TexureTarget, GL_TEXTURE_WRAP_R, GL_REPEAT));
+
+    glCall(glTexParameteri(m_TexureTarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+    glCall(glTexParameteri(m_TexureTarget, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+
+    GLfloat fLargest;
+    glCall(glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &fLargest));
+    glCall(glTexParameterf(m_TexureTarget, GL_TEXTURE_MAX_ANISOTROPY_EXT, fLargest));
+
+    if(m_TexureTarget == GL_TEXTURE_CUBE_MAP)
+    {
+        glCall(glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS));
+    }
+
     release();
 }
 
@@ -139,8 +166,7 @@ void OpenGLTexture::OpenGLTexture::release()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #ifdef __Banana_Qt__
 #include <QDir>
-void OpenGLTexture::loadTextures(std::vector<OpenGLTexture*>& textures,
-                                 QString textureFolder, bool insertNullTex /*= true*/)
+void OpenGLTexture::loadTextures(std::vector<OpenGLTexture*>& textures, QString textureFolder, bool insertNullTex /*= true*/, bool bGenMipMap /*= true*/)
 {
     // clear current textures
     for(OpenGLTexture* tex : textures)
@@ -169,8 +195,14 @@ void OpenGLTexture::loadTextures(std::vector<OpenGLTexture*>& textures,
                         GL_RGBA, texImg.width(), texImg.height(),
                         GL_RGBA, GL_UNSIGNED_BYTE, texImg.constBits());
 
-        tex->setBestParameters();
-        tex->generateMipMap();
+        if(bGenMipMap)
+        {
+            tex->setBestParametersWithMipMap();
+        }
+        else
+        {
+            tex->setBestParametersNoMipMap();
+        }
         textures.push_back(tex);
     }
 }

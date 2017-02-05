@@ -75,7 +75,8 @@ class SkyBoxRender : public RenderObject
 {
 public:
 #ifdef __Banana_Qt__
-    SkyBoxRender(Camera* camera, QString texureTopFolder, OpenGLBuffer* bufferCamData = nullptr) : RenderObject(camera, bufferCamData)
+    SkyBoxRender(Camera* camera, QString texureTopFolder, OpenGLBuffer* bufferCamData = nullptr) :
+        RenderObject(camera, bufferCamData), m_CurrentTexture(nullptr)
     {
         initRenderData();
         loadTextures(texureTopFolder);
@@ -84,17 +85,18 @@ public:
     void loadTextures(QString textureTopFolder);
 #endif
 
-    SkyBoxRender(Camera* camera, OpenGLBuffer* bufferCamData = nullptr) : RenderObject(camera, bufferCamData)
+    SkyBoxRender(Camera* camera, OpenGLBuffer* bufferCamData = nullptr) : RenderObject(camera, bufferCamData), m_CurrentTexture(nullptr)
     {
         initRenderData();
     }
 
     SkyBoxRender(Camera* camera, std::vector<OpenGLTexture*> textures, OpenGLBuffer* bufferCamData = nullptr) :
-        RenderObject(camera, bufferCamData), m_Textures(textures)
+        RenderObject(camera, bufferCamData), m_Textures(textures), m_CurrentTexture(nullptr)
     {
         initRenderData();
     }
 
+    OpenGLTexture* getCurrentTexture();
     size_t getNumTextures();
     void clearTextures();
     void addTexture(OpenGLTexture* texture);

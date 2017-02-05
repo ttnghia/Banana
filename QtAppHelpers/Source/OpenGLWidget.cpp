@@ -31,6 +31,7 @@ OpenGLWidget::OpenGLWidget(QWidget* parent) :
     m_ClearColor(QVector4D(0.38f, 0.52f, 0.10f, 1.0f)),
     m_SpecialKeyPressed(SpecialKey::NoKey),
     m_CaptureImage(nullptr),
+    m_UBufferCamData(nullptr),
     m_Camera(new Camera)
 {
     connect(this, SIGNAL(emitDebugString(QString)), this, SLOT(printDebug(QString)));
@@ -245,6 +246,14 @@ void OpenGLWidget::initializeGL()
     glEnable(GL_MULTISAMPLE);
 
     resetClearColor();
+
+    ////////////////////////////////////////////////////////////////////////////////
+    m_CaptureImage = new QImage(width(), height(), QImage::Format_RGBA8888);
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // view matrix, prj matrix, inverse view matrix, inverse proj matrix, shadow matrix, cam position
+    m_UBufferCamData = new OpenGLBuffer;
+    m_UBufferCamData->createBuffer(GL_UNIFORM_BUFFER, 5 * sizeof(glm::mat4) + sizeof(glm::vec4), nullptr, GL_DYNAMIC_DRAW);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -271,6 +280,19 @@ void OpenGLWidget::paintGL()
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     m_FPSCounter.countFrame();
+    uploadCameraData();
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void OpenGLWidget::uploadCameraData()
+{
+    m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getViewMatrix()), 0, sizeof(glm::mat4));
+    m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getProjectionMatrix()), sizeof(glm::mat4), sizeof(glm::mat4));
+    m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getInverseViewMatrix()), 2 * sizeof(glm::mat4), sizeof(glm::mat4));
+    m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getInverseProjectionMatrix()), 3 * sizeof(glm::mat4), sizeof(glm::mat4));
+    // todo: shadow matrix
+    m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->m_CameraPosition), 5 * sizeof(glm::mat4), sizeof(glm::vec3));
+
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

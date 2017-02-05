@@ -120,8 +120,7 @@ void OpenGLWidgetTestRender::initTestRenderTexture(QString texFile)
                           GL_RGBA, texImg.width(), texImg.height(),
                           GL_RGBA, GL_UNSIGNED_BYTE, texImg.constBits());
 
-    m_Texture->setBestParameters();
-    m_Texture->generateMipMap();
+    m_Texture->setBestParametersWithMipMap();
 
     ////////////////////////////////////////////////////////////////////////////////
     m_RenderType = RenderType::Texture;
@@ -161,8 +160,7 @@ void OpenGLWidgetTestRender::initTestRenderSkybox(QString texFolder)
                               GL_RGBA, GL_UNSIGNED_BYTE, texImg.constBits());
     }
 
-    m_Texture->setBestParameters();
-    m_Texture->generateMipMap();
+    m_Texture->setBestParametersNoMipMap();
 
     ////////////////////////////////////////////////////////////////////////////////
     // render data
@@ -187,9 +185,7 @@ void OpenGLWidgetTestRender::initTestRenderFloor(QString texFile)
                           GL_RGBA, texImg.width(), texImg.height(),
                           GL_RGBA, GL_UNSIGNED_BYTE, texImg.constBits());
 
-    m_Texture->setBestParameters();
-    m_Texture->generateMipMap();
-
+    m_Texture->setBestParametersWithMipMap();
 
     ////////////////////////////////////////////////////////////////////////////////
     // camera

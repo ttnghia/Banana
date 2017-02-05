@@ -81,6 +81,8 @@ public:
     const glm::mat4 getViewMatrix();
     const glm::mat4 getProjectionMatrix();
     const glm::mat4 getViewProjectionMatrix();
+    const glm::mat4 getInverseViewMatrix();
+    const glm::mat4 getInverseProjectionMatrix();
 
     ////////////////////////////////////////////////////////////////////////////////
     // variables
@@ -100,6 +102,7 @@ private:
     Frustum   m_Frustum;
     glm::mat4 m_ViewMatrix;
     glm::mat4 m_ProjectionMatrix;
+    glm::mat4 m_InverseProjectionMatrix;
     glm::mat4 m_ViewProjectionMatrix;
 
     float     m_TranslationLag;

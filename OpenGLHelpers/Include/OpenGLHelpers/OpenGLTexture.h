@@ -53,7 +53,8 @@ public:
     void setFilterMode(GLenum filterMode, GLenum value);
     void setAnisotropicFilter(bool enable);
     void setBorderColor(glm::vec4 borderColor);
-    void setBestParameters();
+    void setBestParametersWithMipMap();
+    void setBestParametersNoMipMap();
 
     GLuint getTextureID()
     {
@@ -63,8 +64,7 @@ public:
     void release();
 
 #ifdef __Banana_Qt__
-    static void loadTextures(std::vector<OpenGLTexture*>& textures,
-                             QString textureFolder, bool insertNullTex = true);
+    static void loadTextures(std::vector<OpenGLTexture*>& textures, QString textureFolder, bool insertNullTex = true, bool bGenMipMap = true);
 #endif
 
 private:
