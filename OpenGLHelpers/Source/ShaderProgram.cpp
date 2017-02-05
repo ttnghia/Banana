@@ -799,8 +799,13 @@ ShaderProgram* ShaderProgram::getScreenQuadShaderFromFile(const char* fragmentSh
         "                        vec2(-1.0, 1.0),\n"
         "                        vec2(1.0, 1.0));\n"
         "\n"
-        "    gl_Position = vec4(pos[gl_VertexID], 0.0, 1.0); \n"
-        "    f_TexCoord = pos[gl_VertexID] * vec2(-0.5, 0.5) + vec2(0.5, 0.5); \n"
+        "    vec2 tex[] = vec2[](vec2(0.0, 0.0),\n"
+        "                        vec2(1.0, 0.0),\n"
+        "                        vec2(0.0, 1.0),\n"
+        "                        vec2(1.0, 1.0));\n"
+        "\n"
+        "    gl_Position = vec4(pos[gl_VertexID], 0.0, 1.0);\n"
+        "    f_TexCoord = tex[gl_VertexID];\n"
         "}\n";
 
 

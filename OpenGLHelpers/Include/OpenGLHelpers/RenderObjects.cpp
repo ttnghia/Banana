@@ -820,7 +820,7 @@ void OffScreenRender::initRenderData()
         OpenGLTexture * tex = new OpenGLTexture(GL_TEXTURE_2D);
         tex->setFilterMode(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         tex->setFilterMode(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        tex->uploadData(GL_TEXTURE_2D, m_FormatColorBuff, m_BufferWidth, m_BufferHeight, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+        tex->uploadData(GL_TEXTURE_2D, m_FormatColorBuff, m_BufferWidth, m_BufferHeight, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
 
         glCall(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, tex->getTextureID(), 0));
         m_ColorBuffers.push_back(tex);
