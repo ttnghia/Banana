@@ -40,6 +40,9 @@ public:
     QLayout* getLayout();
     QGroupBox* getGroupBox(QString title = QString(""));
 
+    void setCurrentIndex(int index);
+    int getCurrentIndex() const;
+
     public slots:
     void setEnabled(bool enabled);
     void prevItem();

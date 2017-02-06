@@ -805,6 +805,54 @@ OpenGLTexture* OffScreenRender::getColorBuffer(int colorBufferID /*= 0*/)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void OffScreenRender::swapDepthStencilBuffer(OpenGLTexture*& depthStencil)
+{
+    OpenGLTexture* tmp   = m_DepthStencilBuffer;
+    m_DepthStencilBuffer = depthStencil;
+    depthStencil         = tmp;
+    tmp                  = nullptr;
+
+    glCall(glBindFramebuffer(GL_FRAMEBUFFER, m_FrameBufferID));
+    glCall(glFramebufferTexture2D(GL_FRAMEBUFFER, m_hasStencilBuffer ? GL_DEPTH_STENCIL_ATTACHMENT : GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D,
+           m_DepthStencilBuffer->getTextureID(), 0));
+    // check error
+    if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+    {
+#ifdef __Banana_Qt__
+        __BNN_Die(QString("OffScreenRender: FrameBuffer is incomplete!"));
+#else
+        __BNN_Die("%s: FrameBuffer is incomplete!\n", m_Shader->getProgramName());
+#endif
+    }
+
+    glCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void OffScreenRender::swapColorBuffer(OpenGLTexture*& colorBuffer, int bufferID)
+{
+    OpenGLTexture* tmp       = m_ColorBuffers[bufferID];
+    m_ColorBuffers[bufferID] = colorBuffer;
+    colorBuffer              = tmp;
+    tmp                      = nullptr;
+
+    glCall(glBindFramebuffer(GL_FRAMEBUFFER, m_FrameBufferID));
+    glCall(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + bufferID, GL_TEXTURE_2D, m_ColorBuffers[bufferID]->getTextureID(), 0));
+    // check error
+    if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+    {
+#ifdef __Banana_Qt__
+        __BNN_Die(QString("OffScreenRender: FrameBuffer is incomplete!"));
+#else
+        __BNN_Die("%s: FrameBuffer is incomplete!\n", m_Shader->getProgramName());
+#endif
+    }
+
+    glCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+
+    }
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OffScreenRender::initRenderData()
 {
     glCall(glGenFramebuffers(1, &m_FrameBufferID));
@@ -844,7 +892,7 @@ void OffScreenRender::initRenderData()
     }
 
     glCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
-}
+    }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -995,7 +1043,7 @@ void DepthBufferRender::generateFrameBuffer()
     }
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-}
+    }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

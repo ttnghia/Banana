@@ -294,6 +294,8 @@ public:
 
     OpenGLTexture* getDepthStencilBuffer();
     OpenGLTexture* getColorBuffer(int colorBufferID = 0);
+    void swapDepthStencilBuffer(OpenGLTexture*& depthStencil);
+    void swapColorBuffer(OpenGLTexture*& colorBuffer, int bufferID = 0);
 
     virtual void render() override // do nothing
     {}

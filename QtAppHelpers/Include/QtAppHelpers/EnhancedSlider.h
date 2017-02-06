@@ -41,6 +41,8 @@ public:
 
     void setTracking(bool tracking);
     void setRange(int minVal, int maxVal);
+    void setValue(int value);
+    int getValue() const;
 
     public slots:
     void setEnabled(bool enabled);
