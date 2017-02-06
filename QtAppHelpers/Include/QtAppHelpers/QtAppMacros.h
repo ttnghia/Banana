@@ -67,11 +67,13 @@ typedef  QOpenGLFunctions_4_5_Core OpenGLFunctions;
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #ifdef __APPLE__
 #define __BNNQt_RunMainWindow __BNNQt_RunMainWindowMac
+#define __BNNQt_RunMainWindowSplashScreen __BNNQt_RunMainWindowMacSplashScreen
 #else
 #define __BNNQt_RunMainWindow __BNNQt_RunMainWindowWin
+#define __BNNQt_RunMainWindowSplashScreen __BNNQt_RunMainWindowWinSplashScreen
 #endif
 
-
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #define __BNNQt_RunMainWindowWin(MainWindowClass, argc, argv, vsync) \
 { \
     QSurfaceFormat format; \
@@ -92,6 +94,38 @@ typedef  QOpenGLFunctions_4_5_Core OpenGLFunctions;
     return a.exec(); \
 }
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#include <BananaAppCore/NumberHelpers.h>
+#include <QtAppHelpers/CustomSplashScreen.h>
+#include <QDir>
+#define __BNNQt_RunMainWindowWinSplashScreen(MainWindowClass, argc, argv, vsync, FSPath) \
+{ \
+    QSurfaceFormat format; \
+    format.setDepthBufferSize(24); \
+    format.setStencilBufferSize(8); \
+    format.setVersion(4, 5); \
+    format.setSwapBehavior(QSurfaceFormat::DoubleBuffer); \
+    format.setProfile(QSurfaceFormat::CoreProfile); \
+    format.setSamples(4); \
+    format.setSwapInterval(vsync ? 1 : 0); \
+    QSurfaceFormat::setDefaultFormat(format); \
+    QApplication a(argc, argv); \
+    QDir imgDir(FSPath);\
+    imgDir.setFilter(QDir::NoDotAndDotDot | QDir::Files);\
+    QStringList imgFiles = imgDir.entryList();\
+    QPixmap pixmap(FSPath + "/" + imgFiles[NumberHelpers::generate_random_int(0, imgFiles.size() - 1)]); \
+    CustomSplashScreen splash(pixmap); \
+    splash.show(); \
+    splash.showStatusMessage(QObject::tr("Initializing..."), QColor(50, 0, 255));\
+    MainWindowClass w; \
+    w.show(); \
+    w.setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, \
+              w.size(), \
+              qApp->desktop()->availableGeometry())); \
+    return a.exec(); \
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #define __BNNQt_RunMainWindowMac(MainWindowClass, argc, argv, vsync) \
 { \
     QSurfaceFormat format; \
@@ -104,6 +138,33 @@ typedef  QOpenGLFunctions_4_5_Core OpenGLFunctions;
     format.setSwapInterval(vsync ? 1 : 0); \
     QSurfaceFormat::setDefaultFormat(format); \
     QApplication a(argc, argv); \
+    MainWindowClass w; \
+    w.show(); \
+    w.setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, \
+                                      w.size(), \
+                                      qApp->desktop()->availableGeometry())); \
+    return a.exec(); \
+}
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#define __BNNQt_RunMainWindowMacSplashScreen(MainWindowClass, argc, argv, vsync, FSPath) \
+{ \
+    QSurfaceFormat format; \
+    format.setDepthBufferSize(24); \
+    format.setStencilBufferSize(8); \
+    format.setVersion(4, 1); \
+    format.setSwapBehavior(QSurfaceFormat::DoubleBuffer); \
+    format.setProfile(QSurfaceFormat::CoreProfile); \
+    format.setSamples(4); \
+    format.setSwapInterval(vsync ? 1 : 0); \
+    QSurfaceFormat::setDefaultFormat(format); \
+    QApplication a(argc, argv); \
+    QDir imgDir(FSPath); \
+    imgDir.setFilter(QDir::NoDotAndDotDot | QDir::Files); \
+    QStringList imgFiles = imgDir.entryList(); \
+    QPixmap pixmap(FSPath + "/" + imgFiles[NumberHelpers::generate_random_int(0, imgFiles.size() - 1)]); \
+    CustomSplashScreen splash(pixmap); \
+    splash.show(); \
+    splash.showStatusMessage(QObject::tr("Initializing..."), QColor(50, 0, 255)); \
     MainWindowClass w; \
     w.show(); \
     w.setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, \

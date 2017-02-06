@@ -37,6 +37,11 @@ EnhancedSlider::EnhancedSlider(int sliderSpan /*= 5*/, QWidget *parent/*= nullpt
     m_SpinBox->setRange(0, 100);
 
     connect(m_Slider, &QSlider::valueChanged, m_SpinBox, &QSpinBox::setValue);
+    connect(m_Slider, &QSlider::sliderMoved, this, [&](int value)
+    {
+        QToolTip::showText(QCursor::pos(), QString("%1").arg(value));
+    });
+
     connect(m_SpinBox, SIGNAL(valueChanged(int)), m_Slider, SLOT(setValue(int)));
 
     m_Layout = new QGridLayout;

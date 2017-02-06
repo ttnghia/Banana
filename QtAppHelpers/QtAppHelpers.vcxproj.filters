@@ -218,6 +218,9 @@
     <ClCompile Include="Source\PointLightEditor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\CustomSplashScreen.cpp">
+      <Filter>Generated Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\QtAppHelpers\AntTweakBarWrapper.h">
@@ -254,6 +257,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Include\QtAppHelpers\QtAppShaderProgram.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\QtAppHelpers\CustomSplashScreen.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

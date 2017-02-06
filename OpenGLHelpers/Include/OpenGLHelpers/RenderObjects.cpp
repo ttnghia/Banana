@@ -224,7 +224,7 @@ void SkyBoxRender::initRenderData()
     {
         m_UBufferCamData = new OpenGLBuffer;
         m_UBufferCamData->createBuffer(GL_UNIFORM_BUFFER,
-                                       3 * sizeof(glm::mat4) + sizeof(glm::vec4),
+                                       5 * sizeof(glm::mat4) + sizeof(glm::vec4),
                                        nullptr, GL_DYNAMIC_DRAW);
     }
 
@@ -338,7 +338,7 @@ void PointLightRender::initRenderData()
     {
         m_UBufferCamData = new OpenGLBuffer;
         m_UBufferCamData->createBuffer(GL_UNIFORM_BUFFER,
-                                       3 * sizeof(glm::mat4) + sizeof(glm::vec4),
+                                       5 * sizeof(glm::mat4) + sizeof(glm::vec4),
                                        nullptr, GL_DYNAMIC_DRAW);
     }
 }
@@ -553,7 +553,7 @@ void MeshRender::initRenderData()
     {
         m_UBufferCamData = new OpenGLBuffer;
         m_UBufferCamData->createBuffer(GL_UNIFORM_BUFFER,
-                                       3 * sizeof(glm::mat4) + sizeof(glm::vec4),
+                                       5 * sizeof(glm::mat4) + sizeof(glm::vec4),
                                        nullptr, GL_DYNAMIC_DRAW);
     }
 
@@ -743,7 +743,7 @@ void WireFrameBoxRender::initRenderData()
     {
         m_UBufferCamData = new OpenGLBuffer;
         m_UBufferCamData->createBuffer(GL_UNIFORM_BUFFER,
-                                       3 * sizeof(glm::mat4) + sizeof(glm::vec4),
+                                       5 * sizeof(glm::mat4) + sizeof(glm::vec4),
                                        nullptr, GL_DYNAMIC_DRAW);
     }
 
@@ -850,7 +850,7 @@ void OffScreenRender::swapColorBuffer(OpenGLTexture*& colorBuffer, int bufferID)
 
     glCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 
-    }
+}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OffScreenRender::initRenderData()
@@ -892,7 +892,7 @@ void OffScreenRender::initRenderData()
     }
 
     glCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
-    }
+}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -1007,7 +1007,7 @@ void DepthBufferRender::initRenderData()
     {
         m_UBufferCamData = new OpenGLBuffer;
         m_UBufferCamData->createBuffer(GL_UNIFORM_BUFFER,
-                                       3 * sizeof(glm::mat4) + sizeof(glm::vec4),
+                                       5 * sizeof(glm::mat4) + sizeof(glm::vec4),
                                        nullptr, GL_DYNAMIC_DRAW);
     }
 
@@ -1043,7 +1043,7 @@ void DepthBufferRender::generateFrameBuffer()
     }
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    }
+}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

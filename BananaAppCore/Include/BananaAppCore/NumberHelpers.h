@@ -27,6 +27,7 @@
 #include <sstream>
 #include <iomanip>
 #include <locale>
+#include <random>
 
 namespace NumberHelpers
 {
@@ -72,5 +73,31 @@ std::string to_string_with_precision(const T value, const int n = 5)
     return out.str();
 }
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class T>
+inline T generate_random_int(T start, T end)
+{
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<T> dis(start, end);
+
+    return dis(gen);
+}
+
+template<class T>
+inline T generate_random_real(T start, T end)
+{
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<T> dis(start, end);
+
+    return dis(gen);
+}
+
+template<class T>
+inline T lerp(T a, T b, T t)
+{
+    return static_cast<T>(a + t * (b - a));
+}
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace NumberHelpers
