@@ -28,6 +28,7 @@
 CustomSplashScreen::CustomSplashScreen(const QPixmap& pixmap)
 {
     QSplashScreen::setPixmap(pixmap);
+    setWindowFlags(Qt::WindowStaysOnTopHint | Qt::SplashScreen);
 
     ////////////////////////////////////////////////////////////////////////////////
     // set default font and message rectangle. can be re-set in program

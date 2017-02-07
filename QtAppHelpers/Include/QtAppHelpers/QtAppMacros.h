@@ -122,6 +122,7 @@ typedef  QOpenGLFunctions_4_5_Core OpenGLFunctions;
     w.setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, \
               w.size(), \
               qApp->desktop()->availableGeometry())); \
+    splash.finish(&w);\
     return a.exec(); \
 }
 
@@ -170,6 +171,7 @@ typedef  QOpenGLFunctions_4_5_Core OpenGLFunctions;
     w.setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, \
                                       w.size(), \
                                       qApp->desktop()->availableGeometry())); \
+    splash.finish(&w);\
     return a.exec(); \
 }
 

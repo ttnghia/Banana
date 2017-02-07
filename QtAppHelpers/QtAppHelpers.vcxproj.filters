@@ -200,9 +200,6 @@
     <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\ReleaseQt\moc_MaterialSelector.cpp">
       <Filter>Generated Files\ReleaseQt</Filter>
     </ClCompile>
-    <ClCompile Include="Include\QtAppHelpers\MaterialSelector.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\DebugQt\moc_PointLightEditor.cpp">
       <Filter>Generated Files\DebugQt</Filter>
     </ClCompile>
@@ -218,8 +215,11 @@
     <ClCompile Include="Source\PointLightEditor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\MaterialSelector.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="Source\CustomSplashScreen.cpp">
-      <Filter>Generated Files</Filter>
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
