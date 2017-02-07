@@ -215,5 +215,6 @@
     <None Include="C:\qt\qt5.8.0\Examples\Qt-5.8\widgets\painting\shared\images\title_stretch.png">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="OpenGLWidget.licenseheader" />
   </ItemGroup>
 </Project>
