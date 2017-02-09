@@ -15,31 +15,12 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-#include "..\Include\BananaAppCore\DataIO.h"
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//            .-..-.
-//           (-o/\o-)
-//          /`""``""`\
-//          \ /.__.\ /
-//           \ `--` /                                                 Created on: 1/24/2017
-//            `)  ('                                                    Author: Nghia Truong
-//         ,  /::::\  ,
-//         |'.\::::/.'|
-//        _|  ';::;'  |_
-//       (::)   ||   (::)                       _.
-//        "|    ||    |"                      _(:)
-//         '.   ||   .'                       /::\
-//           '._||_.'                         \::/
-//            /::::\                         /:::\
-//            \::::/                        _\:::/
-//             /::::\_.._  _.._  _.._  _.._/::::\
-//             \::::/::::\/::::\/::::\/::::\::::/
-//               `""`\::::/\::::/\::::/\::::/`""`
-//                    `""`  `""`  `""`  `""`
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-
 #include <BananaAppCore/DataIO.h>
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+// DataBuffer class
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 DataBuffer::DataBuffer(size_t bufferSize) : m_BufferSize(bufferSize)
 {
@@ -83,6 +64,10 @@ void DataBuffer::push_back(const unsigned char * arrData, size_t dataSize)
     memcpy((void*) & (m_Buffer.data()[endOffset]), arrData, dataSize);
 }
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+// DataIO class
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 DataIO::DataIO(std::string dataRootFolder, std::string dataFolder, std::string fileName, std::string fileExtension) :
     m_DataRootFolder(dataRootFolder),
@@ -145,7 +130,7 @@ void DataIO::flush_buffer(int fileID)
     }
 
     const std::string fileName = get_file_name(fileID);
-    FileHelpers::writte_file(m_FileBuffer.data(), m_FileBuffer.size(), fileName);
+    FileHelpers::write_file(m_FileBuffer.data(), m_FileBuffer.size(), fileName);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -159,7 +144,7 @@ void DataIO::flush_buffer_async(int fileID)
     m_WriteFutureObj = std::async(std::launch::async, [&]()
     {
         const std::string fileName = get_file_name(fileID);
-        FileHelpers::writte_file(m_FileBuffer.data(), m_FileBuffer.size(), fileName);
+        FileHelpers::write_file(m_FileBuffer.data(), m_FileBuffer.size(), fileName);
     });
 }
 
@@ -181,14 +166,37 @@ std::string DataIO::get_file_name(int fileID)
 {
     char fullFileName[512];
 #ifdef __Banana_Windows__
-    sprintf_s(fullFileName, "%s/%s/%s.%04d.%s", m_DataRootFolder.c_str(), m_DataFolder.c_str(),
-              m_FileName.c_str(), fileID, m_FileExtension.c_str());
+    sprintf_s(fullFileName, "%s/%s/%s.%04d.%s", m_DataRootFolder.c_str(), m_DataFolder.c_str(), m_FileName.c_str(), fileID, m_FileExtension.c_str());
 #else
-    sprintf(fullFileName, "%s/%s/%s.%04d.%s", m_DataRootFolder.c_str(), m_DataFolder.c_str(),
-            m_FileName.c_str(), fileID, m_FileExtension.c_str());
+    sprintf(fullFileName, "%s/%s/%s.%04d.%s", m_DataRootFolder.c_str(), m_DataFolder.c_str(), m_FileName.c_str(), fileID, m_FileExtension.c_str());
 #endif
 
     return std::string(fullFileName);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+DataBuffer& DataIO::getBuffer()
+{
+    return m_FileBuffer;
+}
+std::string DataIO::getDataRootFolder()
+{
+    return m_DataRootFolder;
+}
+
+std::string DataIO::getDataFolder()
+{
+    return m_DataFolder;
+}
+
+std::string DataIO::getFileNamer()
+{
+    return m_FileName;
+}
+
+std::string DataIO::getFileExtension()
+{
+    return m_FileExtension;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

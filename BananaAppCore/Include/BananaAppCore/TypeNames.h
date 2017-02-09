@@ -44,7 +44,7 @@ _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 using Int8   = int8_t;
 using Int16  = int16_t;
 using Int32  = int32_t;
-using  Int64 = int64_t;
+using Int64  = int64_t;
 
 using UInt8  = uint8_t;
 using UInt16 = uint16_t;
@@ -231,9 +231,19 @@ using Vec_VecChar   = std::vector<std::vector<char> >;
 using Vec_VecFloat  = std::vector<std::vector<float> >;
 using Vec_VecDouble = std::vector<std::vector<double> >;
 
-//      others
-typedef std::pair<Int32, Int32>  IPair;
-typedef std::pair<UInt32, UInt32>  UIntPair;
-typedef std::pair<float, float>  FloatPair;
-typedef std::pair<double, double>  DoublePair;
+// others
+using IPair8     = std::pair<Int8, Int8>;
+using IPair16    = std::pair<Int16, Int16>;
+using IPair32    = std::pair<Int32, Int32>;
+using IPair      = std::pair<Int32, Int32>;
+using IPair64    = std::pair<Int64, Int64>;
+
+using UIPair8    = std::pair<UInt8, UInt8>;
+using UIPair16   = std::pair<UInt16, UInt16>;
+using UIPair32   = std::pair<UInt32, UInt32>;
+using UIPair     = std::pair<UInt32, UInt32>;
+using UIPair64   = std::pair<UInt64, UInt64>;
+
+using FloatPair  = std::pair<float, float>;
+using DoublePair = std::pair<double, double>;
 
