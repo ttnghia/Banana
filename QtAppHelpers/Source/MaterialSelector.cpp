@@ -38,8 +38,6 @@ MaterialSelector::MaterialSelector(const Material::MaterialData& material /*= Ma
     m_Layout->addWidget(m_ComboBox, 0, 0, 1, comboBoxSpan);
     m_Layout->addWidget(m_ColorWidget, 0, comboBoxSpan, 1, 1);
 
-    connect(m_ComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(setMaterial(int)));
-
     ////////////////////////////////////////////////////////////////////////////////
     m_Materials = Material::getBuildInMaterials();
 
@@ -47,9 +45,9 @@ MaterialSelector::MaterialSelector(const Material::MaterialData& material /*= Ma
     {
         m_ComboBox->addItem(QString::fromStdString(material.name));
         QColor color(floatToQColor(material.diffuse));
-        m_ComboBox->setItemData(m_ComboBox->count() - 1,
-                                color, Qt::DecorationRole);
+        m_ComboBox->setItemData(m_ComboBox->count() - 1, color, Qt::DecorationRole);
     }
+    connect(m_ComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(setMaterial(int)));
 
     ////////////////////////////////////////////////////////////////////////////////
     m_CustomMaterial.ambient   = glm::vec4(0.2);
@@ -59,8 +57,7 @@ MaterialSelector::MaterialSelector(const Material::MaterialData& material /*= Ma
 
     m_ComboBox->addItem(QString("Custom Material"));
     QColor color(floatToQColor(m_CustomMaterial.diffuse));
-    m_ComboBox->setItemData(m_ComboBox->count() - 1,
-                            color, Qt::DecorationRole);
+    m_ComboBox->setItemData(m_ComboBox->count() - 1, color, Qt::DecorationRole);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -104,8 +101,7 @@ void MaterialSelector::setEnabled(bool enabled)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MaterialSelector::setMaterial(int materialID)
 {
-    m_CurrentMaterial = (materialID == m_ComboBox->count() - 1) ?
-        m_CustomMaterial : m_Materials[materialID];
+    m_CurrentMaterial = (materialID == m_ComboBox->count() - 1) ? m_CustomMaterial : m_Materials[materialID];
     setWidgetColor(m_CurrentMaterial);
 
     emit materialChanged(m_CurrentMaterial);
@@ -140,8 +136,7 @@ void MaterialSelector::setCustomMaterial(const Material::MaterialData & material
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MaterialSelector::setWidgetColor(int materialID)
 {
-    const Material::MaterialData& material = (materialID == m_ComboBox->count() - 1) ?
-        m_CustomMaterial : m_Materials[materialID];
+    const Material::MaterialData& material = (materialID == m_ComboBox->count() - 1) ? m_CustomMaterial : m_Materials[materialID];
     setWidgetColor(material);
 }
 
