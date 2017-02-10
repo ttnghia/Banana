@@ -122,44 +122,9 @@ void OpenGLWidgetTestRender::initTestRenderTexture(QString texFile)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void OpenGLWidgetTestRender::initTestRenderSkybox(QString texFolder)
+void OpenGLWidgetTestRender::initTestRenderSkybox(QString texTopFolder)
 {
-    ////////////////////////////////////////////////////////////////////////////////
-    // textures
-    QStringList texFaces =
-    {
-        "/posx.", "/negx.",
-        "/posy.", "/negy.",
-        "/posz.", "/negz."
-    };
-
-    QString posXFilePath = texFolder + "/posx.jpg";
-    QString ext = "jpg";
-
-    if(!QFile::exists(posXFilePath))
-    {
-        ext = "png";
-        posXFilePath = texFolder + "/posx.png";
-        Q_ASSERT(QFile::exists(posXFilePath));
-    }
-
-    m_Texture = new OpenGLTexture(GL_TEXTURE_CUBE_MAP);
-
-    for(GLuint i = 0; i < 6; ++i)
-    {
-        QString texFilePath = texFolder + texFaces[i] + ext;
-        QImage texImg = QImage(texFilePath).convertToFormat(QImage::Format_RGBA8888);
-
-        m_Texture->uploadData(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
-                              GL_RGBA, texImg.width(), texImg.height(),
-                              GL_RGBA, GL_UNSIGNED_BYTE, texImg.constBits());
-    }
-
-    m_Texture->setBestParametersNoMipMap();
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // render data
-    m_SkyBoxRender = new SkyBoxRender(m_Camera);
+    m_SkyBoxRender = new SkyBoxRender(m_Camera, texTopFolder);
     m_SkyBoxRender->addTexture(m_Texture);
     m_SkyBoxRender->setRenderTextureIndex(1);
 
@@ -238,7 +203,7 @@ void OpenGLWidgetTestRender::initializeGL()
 {
     OpenGLWidget::initializeGL();
 
-#define TEST 5
+#define TEST 3
 #if TEST==0
     initTestRenderTriangle();
 #endif
@@ -252,7 +217,7 @@ void OpenGLWidgetTestRender::initializeGL()
 #endif
 #if TEST==3
     initTestRenderSkybox(
-        QString("D:/Programming/QtApps/RealTimeFluidRendering/Textures/Sky/sky1"));
+        QString("D:/Programming/QtApps/RealTimeFluidRendering/Textures/Sky/"));
 #endif
 #if TEST==4
     initTestRenderMesh(QString("D:/GoogleDrive/DigitalAssets/Models/Animal/Bear 1/model_mesh.obj"));

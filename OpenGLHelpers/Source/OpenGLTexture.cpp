@@ -17,6 +17,9 @@
 
 #include <OpenGLHelpers/OpenGLTexture.h>
 
+#include <future>
+#include <vector>
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLTexture::OpenGLTexture::createTexture(GLenum textureTarget)
 {
@@ -180,15 +183,29 @@ void OpenGLTexture::loadTextures(std::vector<OpenGLTexture*>& textures, QString 
     dataDir.setSorting(QDir::Name);
     QStringList allTexFiles = dataDir.entryList();
 
-    foreach(QString texFile, allTexFiles)
-    {
-        QString texFilePath = textureFolder + "/" + texFile;
-        OpenGLTexture* tex = new OpenGLTexture(GL_TEXTURE_2D);
-        QImage texImg = QImage(texFilePath).convertToFormat(QImage::Format_RGBA8888);
+    std::vector<QImage> textureImages;
+    textureImages.resize(allTexFiles.count());
+    std::vector<std::future<void> > futureObjs;
 
-        tex->uploadData(GL_TEXTURE_2D,
-                        GL_RGBA, texImg.width(), texImg.height(),
-                        GL_RGBA, GL_UNSIGNED_BYTE, texImg.constBits());
+    for(int i = 0; i < allTexFiles.count(); ++i)
+    {
+        QString texFilePath = textureFolder + "/" + allTexFiles[i];
+        futureObjs.emplace_back(std::async(std::launch::async, [&, texFilePath, i]()
+        {
+            textureImages[i] = QImage(texFilePath).convertToFormat(QImage::Format_RGBA8888);
+        }));
+    }
+
+    for(std::future<void>& f : futureObjs)
+    {
+        if(f.valid())
+            f.wait();
+    }
+
+    for(const QImage& texImg : textureImages)
+    {
+        OpenGLTexture* tex = new OpenGLTexture(GL_TEXTURE_2D);
+        tex->uploadData(GL_TEXTURE_2D, GL_RGBA, texImg.width(), texImg.height(), GL_RGBA, GL_UNSIGNED_BYTE, texImg.constBits());
 
         if(bGenMipMap)
         {

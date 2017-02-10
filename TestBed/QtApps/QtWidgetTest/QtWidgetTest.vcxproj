@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{29506A87-5FF4-3BF0-9FBA-6C630184A9C0}</ProjectGuid>
+    <ProjectGuid>{06C3CED9-C368-4733-B7C6-FFF07582E6C9}</ProjectGuid>
     <RootNamespace>QtWidgetTest</RootNamespace>
     <Keyword>Qt4VSv1.0</Keyword>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>

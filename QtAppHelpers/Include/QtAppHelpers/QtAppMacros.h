@@ -83,9 +83,7 @@ typedef  QOpenGLFunctions_4_5_Core OpenGLFunctions;
     QApplication a(argc, argv); \
     MainWindowClass w; \
     w.show(); \
-    w.setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, \
-                                      w.size(), \
-                                      qApp->desktop()->availableGeometry())); \
+    w.setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, w.size(), qApp->desktop()->availableGeometry())); \
     return a.exec(); \
 }
 
@@ -114,10 +112,9 @@ typedef  QOpenGLFunctions_4_5_Core OpenGLFunctions;
     splash.showStatusMessage(QObject::tr("Initializing..."), QColor(50, 0, 255));\
     MainWindowClass w; \
     w.show(); \
-    w.setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, \
-              w.size(), \
-              qApp->desktop()->availableGeometry())); \
-    splash.finish(&w);\
+    w.setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, w.size(), qApp->desktop()->availableGeometry())); \
+    splash.hide();\
+    QTimer::singleShot(2500, &splash, SLOT(close()));\
     return a.exec(); \
 }
 
@@ -136,9 +133,7 @@ typedef  QOpenGLFunctions_4_5_Core OpenGLFunctions;
     QApplication a(argc, argv); \
     MainWindowClass w; \
     w.show(); \
-    w.setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, \
-                                      w.size(), \
-                                      qApp->desktop()->availableGeometry())); \
+    w.setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, w.size(), qApp->desktop()->availableGeometry())); \
     return a.exec(); \
 }
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -163,10 +158,9 @@ typedef  QOpenGLFunctions_4_5_Core OpenGLFunctions;
     splash.showStatusMessage(QObject::tr("Initializing..."), QColor(50, 0, 255)); \
     MainWindowClass w; \
     w.show(); \
-    w.setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, \
-                                      w.size(), \
-                                      qApp->desktop()->availableGeometry())); \
-    splash.finish(&w);\
+    w.setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, w.size(), qApp->desktop()->availableGeometry())); \
+    splash.hide();\
+    QTimer::singleShot(2500, &splash, SLOT(close()));\
     return a.exec(); \
 }
 

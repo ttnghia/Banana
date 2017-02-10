@@ -17,6 +17,9 @@
 
 #include <OpenGLHelpers/RenderObjects.h>
 
+#include <future>
+#include <vector>
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // SkyBox render
@@ -34,61 +37,79 @@ void SkyBoxRender::loadTextures(QString textureTopFolder)
     };
 
     clearTextures();
-
     QDir dataDir(textureTopFolder);
     dataDir.setFilter(QDir::NoDotAndDotDot | QDir::Dirs);
     QStringList allTexFolders = dataDir.entryList();
 
-    foreach(QString texFolder, allTexFolders)
+    std::vector<QImage> textureImages;
+    textureImages.resize(allTexFolders.count() * 6);
+    std::vector<std::future<void> > futureObjs;
+    int numLoadedFolders = 0;
+
+    for(int i = 0; i < allTexFolders.count(); ++i)
     {
-        QString texFolderPath = textureTopFolder + "/" + texFolder;
-
-        ////////////////////////////////////////////////////////////////////////////////
-        // find the extension of texture imageg
-        QString posXFilePath = texFolderPath + "/posx.jpg";
-        QString ext = "jpg";
-
-        if(!QFile::exists(posXFilePath))
+        QString texFolderPath = textureTopFolder + "/" + allTexFolders[i];
+        futureObjs.emplace_back(std::async(std::launch::async, [&, texFolderPath, i]()
         {
-            ext = "png";
-            posXFilePath = texFolderPath + "/posx.png";
+            ////////////////////////////////////////////////////////////////////////////////
+            // find the extension of texture imageg
+            QString posXFilePath = texFolderPath + "/posx.jpg";
+            QString ext = "jpg";
+
             if(!QFile::exists(posXFilePath))
             {
-                continue; // only support .png and .jpg
+                ext = "png";
+                posXFilePath = texFolderPath + "/posx.png";
+                if(!QFile::exists(posXFilePath))
+                {
+                    return; // only support .png and .jpg
+                }
             }
-        }
 
-        ////////////////////////////////////////////////////////////////////////////////
-        // check if all 6 faces exist
-        bool check = true;
-        for(GLuint i = 0; i < 6; ++i)
-        {
-            QString texFilePath = texFolderPath + texFaces[i] + ext;
-            if(!QFile::exists(texFilePath))
+            ////////////////////////////////////////////////////////////////////////////////
+            // check if all 6 faces exist
+            bool check = true;
+            for(GLuint j = 0; j < 6; ++j)
             {
-                check = false;
-                break;
+                QString texFilePath = texFolderPath + texFaces[j] + ext;
+                if(!QFile::exists(texFilePath))
+                {
+                    check = false;
+                    break;
+                }
             }
-        }
 
-        if(!check)
-        {
-            continue;
-        }
+            if(!check)
+            {
+                return;
+            }
 
-        ////////////////////////////////////////////////////////////////////////////////
-        // load the textures
+            ////////////////////////////////////////////////////////////////////////////////
+            // load the textures
+            ++numLoadedFolders;
 
+            for(GLuint j = 0; j < 6; ++j)
+            {
+                QString texFilePath = texFolderPath + texFaces[j] + ext;
+                textureImages[i * 6 + j] = QImage(texFilePath).convertToFormat(QImage::Format_RGBA8888);
+            }
+        }));
+    }
+
+    for(std::future<void>& f : futureObjs)
+    {
+        if(f.valid())
+            f.wait();
+    }
+
+    for(int i = 0; i < numLoadedFolders; ++i)
+    {
         OpenGLTexture* skyboxTex = new OpenGLTexture(GL_TEXTURE_CUBE_MAP);
-
-        for(GLuint i = 0; i < 6; ++i)
+        for(GLuint j = 0; j < 6; ++j)
         {
-            QString texFilePath = texFolderPath + texFaces[i] + ext;
-            QImage texImg = QImage(texFilePath).convertToFormat(QImage::Format_RGBA8888);
-
-            skyboxTex->uploadData(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
-                                  GL_RGBA, texImg.width(), texImg.height(),
-                                  GL_RGBA, GL_UNSIGNED_BYTE, texImg.constBits());
+            const QImage& texImg = textureImages[i * 6 + j];
+            skyboxTex->uploadData(GL_TEXTURE_CUBE_MAP_POSITIVE_X + j,
+                                  GL_RGBA, texImg.width(), texImg.height(), GL_RGBA, GL_UNSIGNED_BYTE, texImg.constBits());
         }
 
         skyboxTex->setBestParametersNoMipMap();
