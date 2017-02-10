@@ -1,4 +1,4 @@
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+﻿//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //
 //  Copyright (c) 2017 by
@@ -34,7 +34,14 @@ MaterialSelector::MaterialSelector(const Material::MaterialData& material /*= Ma
     connect(m_MaterialColorPicker, &MaterialColorPicker::materialChanged, this, [&](const Material::MaterialData& material)
     {
         m_CustomMaterial = material;
-        m_ComboBox->setCurrentIndex(m_ComboBox->count() - 1);
+        if(m_ComboBox->currentIndex() != m_ComboBox->count() - 1)
+        {
+            m_ComboBox->setCurrentIndex(m_ComboBox->count() - 1);
+        }
+        else
+        {
+            emit materialChanged(material);
+        }
     });
 
     m_Layout = new QGridLayout;

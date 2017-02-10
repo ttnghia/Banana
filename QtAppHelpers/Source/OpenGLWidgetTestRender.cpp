@@ -238,17 +238,28 @@ void OpenGLWidgetTestRender::initializeGL()
 {
     OpenGLWidget::initializeGL();
 
-    //initTestRenderTriangle();
-    //initTestRenderTexture(
-    //    QString("D:/Programming/QtApps/RealTimeFluidRendering/Textures/Floor/blue_marble.png"));
+#define TEST 5
+#if TEST==0
+    initTestRenderTriangle();
+#endif
+#if TEST==1
+    initTestRenderTexture(
+        QString("D:/Programming/QtApps/RealTimeFluidRendering/Textures/Floor/blue_marble.png"));
+#endif    
+#if TEST==2
     initTestRenderFloor(
         QString("D:/Programming/QtApps/RealTimeFluidRendering/Textures/Floor/blue_marble.png"));
-    //initTestRenderSkybox(
-        //QString("D:/Programming/QtApps/RealTimeFluidRendering/Textures/Sky/sky1"));
-    /*initTestRenderMesh(
-        QString("D:/GoogleDrive/DigitalAssets/Models/Animal/Bear 1/model_mesh.obj"));*/
-        //initTestRenderMesh(
-        //    QString("D:/GoogleDrive/DigitalAssets/Models/Car/Volkswagen Touareg 2/model/Touareg.obj"));
+#endif
+#if TEST==3
+    initTestRenderSkybox(
+        QString("D:/Programming/QtApps/RealTimeFluidRendering/Textures/Sky/sky1"));
+#endif
+#if TEST==4
+    initTestRenderMesh(QString("D:/GoogleDrive/DigitalAssets/Models/Animal/Bear 1/model_mesh.obj"));
+#endif
+#if TEST==5
+    initTestRenderMesh(QString("D:/GoogleDrive/DigitalAssets/Models/Car/Volkswagen Touareg 2/model/Touareg.obj"));
+#endif
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
