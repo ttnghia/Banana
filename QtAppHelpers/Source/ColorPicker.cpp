@@ -15,18 +15,23 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-#include <QtAppHelpers/ColorSelector.h>
+#include <QtAppHelpers/ColorPicker.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-ColorSelector::ColorSelector(QWidget *parent /*= 0*/) : QWidget(parent),
-m_CurrentColor(Qt::blue)
+ColorPicker::ColorPicker(QWidget *parent /*= 0*/) : QWidget(parent), m_CurrentColor(Qt::blue)
 {
     setMouseTracking(true);
     setAutoFillBackground(true);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void ColorSelector::setColor(QColor color)
+QSize ColorPicker::sizeHint() const
+{
+    return QSize(50, 25);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void ColorPicker::setColor(QColor color)
 {
     QPalette palette = this->palette();
     palette.setColor(QPalette::Window, color);
@@ -36,7 +41,22 @@ void ColorSelector::setColor(QColor color)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void ColorSelector::mousePressEvent(QMouseEvent *)
+QColor ColorPicker::getColor()
+{
+    return m_CurrentColor;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void ColorPicker::paintEvent(QPaintEvent * e)
+{
+    QPainter painter(this);
+    painter.drawRoundedRect(1, 1, width() - 1, height() - 1, 1, 1);
+
+    QWidget::paintEvent(e);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void ColorPicker::mousePressEvent(QMouseEvent *)
 {
     QColor color = QColorDialog::getColor(m_CurrentColor, this);
     if(color.isValid())
@@ -50,13 +70,13 @@ void ColorSelector::mousePressEvent(QMouseEvent *)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void ColorSelector::enterEvent(QEvent *)
+void ColorPicker::enterEvent(QEvent *)
 {
     QApplication::setOverrideCursor(QCursor(Qt::PointingHandCursor));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void ColorSelector::leaveEvent(QEvent *)
+void ColorPicker::leaveEvent(QEvent *)
 {
     QApplication::restoreOverrideCursor();
 }

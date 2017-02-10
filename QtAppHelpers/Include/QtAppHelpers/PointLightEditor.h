@@ -18,7 +18,7 @@
 #pragma once
 
 #include <OpenGLHelpers/Light.h>
-#include <QtAppHelpers/ColorSelector.h>
+#include <QtAppHelpers/ColorPicker.h>
 
 #include <QtWidgets>
 #include <vector>
@@ -51,7 +51,7 @@ private:
     QLineEdit*     m_LightDiffuses[MAX_POINT_LIGHT][3];
     QLineEdit*     m_LightSpeculars[MAX_POINT_LIGHT][3];
     QLineEdit*     m_LightPositions[MAX_POINT_LIGHT][3];
-    ColorSelector* m_ColorSelectors[MAX_POINT_LIGHT][3];
+    ColorPicker* m_ColorSelectors[MAX_POINT_LIGHT][3];
 
     std::vector<PointLight::PointLightData> m_Lights;
 };

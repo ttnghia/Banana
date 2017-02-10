@@ -30,13 +30,16 @@ MaterialSelector::MaterialSelector(const Material::MaterialData& material /*= Ma
 
     QPalette palette = this->palette();
     palette.setColor(QPalette::Window, floatToQColor(m_CurrentMaterial.diffuse));
-    m_ColorWidget = new QWidget;
-    m_ColorWidget->setAutoFillBackground(true);
-    m_ColorWidget->setPalette(palette);
+    m_MaterialColorPicker = new MaterialColorPicker;
+    connect(m_MaterialColorPicker, &MaterialColorPicker::materialChanged, this, [&](const Material::MaterialData& material)
+    {
+        m_CustomMaterial = material;
+        m_ComboBox->setCurrentIndex(m_ComboBox->count() - 1);
+    });
 
     m_Layout = new QGridLayout;
     m_Layout->addWidget(m_ComboBox, 0, 0, 1, comboBoxSpan);
-    m_Layout->addWidget(m_ColorWidget, 0, comboBoxSpan, 1, 1);
+    m_Layout->addWidget(m_MaterialColorPicker, 0, comboBoxSpan, 1, 1);
 
     ////////////////////////////////////////////////////////////////////////////////
     m_Materials = Material::getBuildInMaterials();
@@ -58,6 +61,9 @@ MaterialSelector::MaterialSelector(const Material::MaterialData& material /*= Ma
     m_ComboBox->addItem(QString("Custom Material"));
     QColor color(floatToQColor(m_CustomMaterial.diffuse));
     m_ComboBox->setItemData(m_ComboBox->count() - 1, color, Qt::DecorationRole);
+
+    m_MaterialColorPicker->setMaterial(m_CustomMaterial);
+    m_MaterialColorPicker->setWidgetColor(m_Materials[m_ComboBox->currentIndex()]);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -102,7 +108,7 @@ void MaterialSelector::setEnabled(bool enabled)
 void MaterialSelector::setMaterial(int materialID)
 {
     m_CurrentMaterial = (materialID == m_ComboBox->count() - 1) ? m_CustomMaterial : m_Materials[materialID];
-    setWidgetColor(m_CurrentMaterial);
+    m_MaterialColorPicker->setWidgetColor(m_CurrentMaterial);
 
     emit materialChanged(m_CurrentMaterial);
 }
@@ -131,20 +137,4 @@ void MaterialSelector::setMaterial(const Material::MaterialData& material)
 void MaterialSelector::setCustomMaterial(const Material::MaterialData & material)
 {
     m_CurrentMaterial = material;
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MaterialSelector::setWidgetColor(int materialID)
-{
-    const Material::MaterialData& material = (materialID == m_ComboBox->count() - 1) ? m_CustomMaterial : m_Materials[materialID];
-    setWidgetColor(material);
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MaterialSelector::setWidgetColor(const Material::MaterialData& material)
-{
-    QPalette palette = this->palette();
-    palette.setColor(QPalette::Window, floatToQColor(material.diffuse));
-    m_ColorWidget->setAutoFillBackground(true);
-    m_ColorWidget->setPalette(palette);
 }

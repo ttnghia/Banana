@@ -20,6 +20,8 @@
 #include "MainWindow.h"
 
 #include <QtAppHelpers/MaterialSelector.h>
+#include <QtAppHelpers/MaterialEditor.h>
+#include <QtAppHelpers/ColorPicker.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 MainWindow::MainWindow(QWidget* parent) : OpenGLMainWindow(parent)
@@ -52,6 +54,38 @@ void MainWindow::keyPressEvent(QKeyEvent* event)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MainWindow::setupGUI()
 {
+    QVBoxLayout* mainLayout = new QVBoxLayout;
+
     MaterialSelector* matSelector = new MaterialSelector;
-    setCentralWidget(matSelector->getGroupBox("Material"));
+    mainLayout->addWidget(matSelector->getGroupBox("Material"));
+
+    ColorPicker* colorSelector = new ColorPicker;
+    QHBoxLayout* colorSLTLayout = new QHBoxLayout;
+    colorSLTLayout->addStretch();
+    colorSLTLayout->addWidget(colorSelector);
+    mainLayout->addLayout(colorSLTLayout);
+
+    m_MatEditor  = new MaterialEditor;
+    QPushButton* btnShowMatEditor =  new QPushButton("Material");
+    QHBoxLayout* matEditorLayout = new QHBoxLayout;
+    matEditorLayout->addStretch();
+    matEditorLayout->addWidget(btnShowMatEditor);
+    connect(btnShowMatEditor, &QPushButton::clicked, [&]()
+    {
+        m_MatEditor->show();
+    });
+    mainLayout->addLayout(matEditorLayout);
+
+
+    MaterialColorPicker* matPicker = new MaterialColorPicker;
+    QHBoxLayout* matPickerLayout = new QHBoxLayout;
+    matPickerLayout->addStretch();
+    matPickerLayout->addWidget(matPicker);
+    mainLayout->addLayout(matPickerLayout);
+
+
+    ////////////////////////////////////////////////////////////////////////////////
+    QGroupBox* grp = new QGroupBox;
+    grp->setLayout(mainLayout);
+    setCentralWidget(grp);
 }

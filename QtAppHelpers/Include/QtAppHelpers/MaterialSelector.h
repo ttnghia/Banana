@@ -18,15 +18,10 @@
 #pragma once
 
 #include <OpenGLHelpers/Material.h>
+#include <QtAppHelpers/MaterialEditor.h>
 #include <QtWidgets>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-inline QColor floatToQColor(const glm::vec4& color)
-{
-    return QColor(static_cast<int>(255 * color[0]), static_cast<int>(255 * color[1]),
-                  static_cast<int>(255 * color[2]));
-}
-
 class MaterialSelector : public QWidget
 {
     Q_OBJECT
@@ -49,16 +44,11 @@ public:
 signals:
     void materialChanged(const Material::MaterialData& material);
 
-    private slots:
-    void setWidgetColor(int materialID);
-
 private:
-    void setWidgetColor(const Material::MaterialData& material);
-
-    QWidget*                            m_ColorWidget;
     QComboBox*                          m_ComboBox;
     QGroupBox*                          m_GroupBox;
     QGridLayout*                        m_Layout;
+    MaterialColorPicker*                m_MaterialColorPicker;
     Material::MaterialData              m_CurrentMaterial;
     Material::MaterialData              m_CustomMaterial;
     std::vector<Material::MaterialData> m_Materials;

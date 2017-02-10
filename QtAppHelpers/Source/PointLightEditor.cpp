@@ -60,7 +60,7 @@ PointLightEditor::PointLightEditor(QWidget *parent)
             lightLayouts[i]->addWidget(m_LightSpeculars[i][j], 3, j + 2, 1, 1);
             lightLayouts[i]->addWidget(m_LightPositions[i][j], 4, j + 2, 1, 1);
 
-            m_ColorSelectors[i][j] = new ColorSelector;
+            m_ColorSelectors[i][j] = new ColorPicker;
             m_ColorSelectors[i][j]->setColor(j == 0 ?
                                              floatToQColor(0.2, 0.2, 0.2) : floatToQColor(1.0, 1.0, 1.0));
             m_ColorSelectors[i][j]->setFixedWidth(50);
@@ -114,7 +114,7 @@ void PointLightEditor::connectComponents()
         });
 
         ////////////////////////////////////////////////////////////////////////////////
-        connect(m_ColorSelectors[i][0], &ColorSelector::colorChanged, this,
+        connect(m_ColorSelectors[i][0], &ColorPicker::colorChanged, this,
                 [&, i](float r, float g, float b)
         {
             m_LightAmbients[i][0]->setText(QString("%1").arg(r, 8, 'g', 6));
@@ -136,7 +136,7 @@ void PointLightEditor::connectComponents()
 
 
         ////////////////////////////////////////////////////////////////////////////////
-        connect(m_ColorSelectors[i][1], &ColorSelector::colorChanged, this,
+        connect(m_ColorSelectors[i][1], &ColorPicker::colorChanged, this,
                 [&, i](float r, float g, float b)
         {
             m_LightDiffuses[i][0]->setText(QString("%1").arg(r, 8, 'g', 6));
@@ -157,7 +157,7 @@ void PointLightEditor::connectComponents()
         }
 
         ////////////////////////////////////////////////////////////////////////////////
-        connect(m_ColorSelectors[i][2], &ColorSelector::colorChanged, this,
+        connect(m_ColorSelectors[i][2], &ColorPicker::colorChanged, this,
                 [&, i](float r, float g, float b)
         {
             m_LightSpeculars[i][0]->setText(QString("%1").arg(r, 8, 'g', 6));

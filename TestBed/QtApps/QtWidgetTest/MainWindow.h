@@ -22,6 +22,7 @@
 #include <QtAppHelpers/OpenGLMainWindow.h>
 #include <QtAppHelpers/BrowsePathWidget.h>
 #include <QtAppHelpers/OpenGLWidgetTestRender.h>
+#include <QtAppHelpers/MaterialEditor.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 class MainWindow : public OpenGLMainWindow
@@ -39,4 +40,5 @@ private:
     void setupGUI();
 
     OpenGLWidgetTestRender* m_TestRenderWidget;
+    MaterialEditor* m_MatEditor;
 };
