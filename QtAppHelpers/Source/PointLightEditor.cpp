@@ -18,7 +18,7 @@
 #include <QtAppHelpers/PointLightEditor.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-PointLightEditor::PointLightEditor(PointLights* lights, QWidget *parent /*= nullptr*/)
+PointLightEditor::PointLightEditor(PointLights* lights /*= nullptr*/, QWidget *parent /*= nullptr*/)
     : QWidget(parent), m_Lights(lights)
 {
     QVBoxLayout* mainLayout = new QVBoxLayout;
@@ -86,6 +86,12 @@ PointLightEditor::PointLightEditor(PointLights* lights, QWidget *parent /*= null
     mainLayout->addLayout(btnLayout);
     setLayout(mainLayout);
     connectComponents();
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void PointLightEditor::setLights(PointLights * lights)
+{
+    m_Lights = lights;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -188,6 +194,8 @@ void PointLightEditor::connectComponents()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PointLightEditor::applyLights()
 {
+    assert(m_Lights != nullptr);
+
     ////////////////////////////////////////////////////////////////////////////////
     // update the number of active lights
     int numPointLights = 0;

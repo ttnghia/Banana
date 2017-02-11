@@ -32,10 +32,11 @@ class PointLightEditor : public QWidget
     Q_OBJECT
 
 public:
-    PointLightEditor(PointLights* lights, QWidget *parent = nullptr);
+    PointLightEditor(PointLights* lights = nullptr, QWidget *parent = nullptr);
     ~PointLightEditor()
     {}
 
+    void setLights(PointLights* lights);
 signals:
     void lightsChanged(const PointLights* lights);
 
