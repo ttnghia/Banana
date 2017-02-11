@@ -249,7 +249,7 @@
     <ClCompile Include="..\Externals\tinyply\source\tinyply.cpp" />
     <ClCompile Include="Include\OpenGLHelpers\RenderObjects.cpp" />
     <ClCompile Include="Source\Camera.cpp" />
-    <ClCompile Include="Source\Light.cpp" />
+    <ClCompile Include="Source\Lights.cpp" />
     <ClCompile Include="Source\Material.cpp" />
     <ClCompile Include="Source\MeshLoader.cpp" />
     <ClCompile Include="Source\MeshObject.cpp" />
@@ -263,7 +263,7 @@
     <ClInclude Include="Include\OpenGLHelpers\Camera.h" />
     <ClInclude Include="Include\OpenGLHelpers\CubeObject.h" />
     <ClInclude Include="Include\OpenGLHelpers\GridObject.h" />
-    <ClInclude Include="Include\OpenGLHelpers\Light.h" />
+    <ClInclude Include="Include\OpenGLHelpers\Lights.h" />
     <ClInclude Include="Include\OpenGLHelpers\Material.h" />
     <ClInclude Include="Include\OpenGLHelpers\MeshLoader.h" />
     <ClInclude Include="Include\OpenGLHelpers\MeshObject.h" />

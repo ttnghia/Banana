@@ -26,7 +26,7 @@
 #include <OpenGLHelpers/GridObject.h>
 #include <OpenGLHelpers/WireFrameBoxObject.h>
 
-#include <OpenGLHelpers/Light.h>
+#include <OpenGLHelpers/Lights.h>
 #include <OpenGLHelpers/Material.h>
 
 #include <vector>
@@ -116,8 +116,8 @@ protected:
 class PointLightRender : public RenderObject
 {
 public:
-    PointLightRender(Camera* camera, PointLight* light, OpenGLBuffer* bufferCamData = nullptr) :
-        RenderObject(camera, bufferCamData), m_Light(light), m_RenderSize(20.0)
+    PointLightRender(Camera* camera, PointLights* lights, OpenGLBuffer* bufferCamData = nullptr) :
+        RenderObject(camera, bufferCamData), m_Lights(lights), m_RenderSize(20.0)
     {
         initRenderData();
     }
@@ -128,9 +128,9 @@ public:
 private:
     virtual void initRenderData() override;
 
-    GLfloat        m_RenderSize;
-    GLuint         m_UBLight;
-    PointLight*    m_Light;
+    GLfloat      m_RenderSize;
+    GLuint       m_UBLight;
+    PointLights* m_Lights;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -142,7 +142,7 @@ class MeshRender : public RenderObject
 {
 public:
 #ifdef __Banana_Qt__
-    MeshRender(MeshObject* meshObj, Camera* camera, PointLight* light, QString textureFolder,
+    MeshRender(MeshObject* meshObj, Camera* camera, PointLights* light, QString textureFolder,
                Material* material = nullptr, OpenGLBuffer* bufferCamData = nullptr) :
         RenderObject(camera, bufferCamData), m_MeshObj(meshObj), m_Light(light), m_Material(material), m_CurrentTexture(nullptr)
     {
@@ -153,7 +153,7 @@ public:
     void loadTexture(QString textureFolder);
 #endif
 
-    MeshRender(MeshObject* meshObj, Camera* camera, PointLight* light, Material* material = nullptr, OpenGLBuffer* bufferCamData = nullptr) :
+    MeshRender(MeshObject* meshObj, Camera* camera, PointLights* light, Material* material = nullptr, OpenGLBuffer* bufferCamData = nullptr) :
         RenderObject(camera, bufferCamData), m_MeshObj(meshObj), m_Light(light), m_Material(material), m_CurrentTexture(nullptr)
     {
         initRenderData();
@@ -183,7 +183,7 @@ private:
     GLuint                      m_UHasTexture;
     GLuint                      m_UTexSampler;
     MeshObject*                 m_MeshObj;
-    PointLight*                 m_Light;
+    PointLights*                 m_Light;
     Material*                   m_Material;
     std::vector<OpenGLTexture*> m_Textures;
     OpenGLTexture*              m_CurrentTexture;
@@ -198,7 +198,7 @@ class PlaneRender : public RenderObject
 {
 public:
 #ifdef __Banana_Qt__
-    PlaneRender(Camera* camera, PointLight* light, QString texureFolder, OpenGLBuffer* bufferCamData = nullptr) :
+    PlaneRender(Camera* camera, PointLights* light, QString texureFolder, OpenGLBuffer* bufferCamData = nullptr) :
         RenderObject(camera, bufferCamData),
         m_MeshRender(new MeshRender(new GridObject, camera, light, texureFolder, nullptr, bufferCamData)),
         m_AllowedNonTexRender(true)
@@ -209,7 +209,7 @@ public:
     void loadTextures(QString textureFolder);
 #endif
 
-    PlaneRender(Camera* camera, PointLight* light, OpenGLBuffer* bufferCamData = nullptr) :
+    PlaneRender(Camera* camera, PointLights* light, OpenGLBuffer* bufferCamData = nullptr) :
         RenderObject(camera, bufferCamData),
         m_MeshRender(new MeshRender(new GridObject, camera, light, nullptr, bufferCamData)),
         m_AllowedNonTexRender(true)

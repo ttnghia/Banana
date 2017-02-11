@@ -17,7 +17,7 @@
 
 #pragma once
 
-#include <OpenGLHelpers/Light.h>
+#include <OpenGLHelpers/Lights.h>
 #include <QtAppHelpers/ColorPicker.h>
 
 #include <QtWidgets>
@@ -32,26 +32,22 @@ class PointLightEditor : public QWidget
     Q_OBJECT
 
 public:
-    PointLightEditor(QWidget *parent = nullptr);
-    ~PointLightEditor();
-
-    void setLight(int lightID, const PointLight::PointLightData& light);
-    void addLight(const PointLight::PointLightData& light);
+    PointLightEditor(PointLights* lights, QWidget *parent = nullptr);
+    ~PointLightEditor()
+    {}
 
 signals:
-    void lightsChanged(std::vector<PointLight::PointLightData> lights);
+    void lightsChanged(const PointLights* lights);
 
 private:
     void connectComponents();
     void applyLights();
 
-
-    QCheckBox*     m_CheckBoxes[MAX_POINT_LIGHT];
-    QLineEdit*     m_LightAmbients[MAX_POINT_LIGHT][3];
-    QLineEdit*     m_LightDiffuses[MAX_POINT_LIGHT][3];
-    QLineEdit*     m_LightSpeculars[MAX_POINT_LIGHT][3];
-    QLineEdit*     m_LightPositions[MAX_POINT_LIGHT][3];
+    QCheckBox*   m_CheckBoxes[MAX_POINT_LIGHT];
+    QLineEdit*   m_LightAmbients[MAX_POINT_LIGHT][3];
+    QLineEdit*   m_LightDiffuses[MAX_POINT_LIGHT][3];
+    QLineEdit*   m_LightSpeculars[MAX_POINT_LIGHT][3];
+    QLineEdit*   m_LightPositions[MAX_POINT_LIGHT][3];
     ColorPicker* m_ColorSelectors[MAX_POINT_LIGHT][3];
-
-    std::vector<PointLight::PointLightData> m_Lights;
+    PointLights* m_Lights;
 };

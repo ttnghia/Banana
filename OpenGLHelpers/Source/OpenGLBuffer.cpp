@@ -117,26 +117,26 @@ void OpenGLBuffer::release()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-GLuint OpenGLBuffer::getBufferID()
+GLuint OpenGLBuffer::getBufferID() const
 {
     return m_BufferID;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-GLuint OpenGLBuffer::getBindingPoint()
+GLuint OpenGLBuffer::getBindingPoint() const
 {
     assert(m_BufferType == GL_UNIFORM_BUFFER);
     return m_BindingPoint;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-size_t OpenGLBuffer::getBufferSize()
+size_t OpenGLBuffer::getBufferSize() const
 {
     return m_BufferSize;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-bool OpenGLBuffer::isCreated()
+bool OpenGLBuffer::isCreated() const
 {
     return m_isBufferCreated;
 }

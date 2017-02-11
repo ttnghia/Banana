@@ -125,7 +125,6 @@ void OpenGLWidgetTestRender::initTestRenderTexture(QString texFile)
 void OpenGLWidgetTestRender::initTestRenderSkybox(QString texTopFolder)
 {
     m_SkyBoxRender = new SkyBoxRender(m_Camera, texTopFolder);
-    m_SkyBoxRender->addTexture(m_Texture);
     m_SkyBoxRender->setRenderTextureIndex(1);
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -154,7 +153,7 @@ void OpenGLWidgetTestRender::initTestRenderFloor(QString texFile)
 
     ////////////////////////////////////////////////////////////////////////////////
     // light
-    m_Light = new PointLight;
+    m_Light = new PointLights;
     m_Light->setLightPosition(glm::vec4(0, 2, 0, 1.0));
     m_Light->uploadDataToGPU();
 
@@ -182,8 +181,10 @@ void OpenGLWidgetTestRender::initTestRenderMesh(QString meshFile)
     m_MeshObj->setVertices(m_MeshLoader->getVertices());
     m_MeshObj->setVertexNormal(m_MeshLoader->getVertexNormal());
 
-    m_Light = new PointLight;
-    m_Light->setLightPosition(glm::vec4(1, 1000, 1, 1.0));
+    m_Light = new PointLights;
+    m_Light->setNumLights(2);
+    m_Light->setLightPosition(glm::vec4(0, 1000, 0, 1.0), 0);
+    m_Light->setLightPosition(glm::vec4(1000, 0, 0, 1.0), 1);
     m_Light->uploadDataToGPU();
 
     m_Material = new Material;
@@ -203,7 +204,7 @@ void OpenGLWidgetTestRender::initializeGL()
 {
     OpenGLWidget::initializeGL();
 
-#define TEST 3
+#define TEST 5
 #if TEST==0
     initTestRenderTriangle();
 #endif
@@ -298,8 +299,6 @@ void OpenGLWidgetTestRender::renderTexture()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLWidgetTestRender::renderSkyBox()
 {
-    assert(m_Texture != nullptr);
-
     m_SkyBoxRender->render();
 }
 

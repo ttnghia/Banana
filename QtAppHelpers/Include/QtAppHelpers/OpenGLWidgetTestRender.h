@@ -23,7 +23,7 @@
 #include  <OpenGLHelpers/CubeObject.h>
 #include  <OpenGLHelpers/MeshObject.h>
 #include  <OpenGLHelpers/MeshLoader.h>
-#include  <OpenGLHelpers/Light.h>
+#include  <OpenGLHelpers/Lights.h>
 #include  <OpenGLHelpers/Material.h>
 #include  <OpenGLHelpers/RenderObjects.h>
 
@@ -75,7 +75,7 @@ private:
     ShaderProgram*    m_Shader;
     MeshObject*       m_MeshObj;
     MeshLoader*       m_MeshLoader;
-    PointLight*       m_Light;
+    PointLights*       m_Light;
     Material*         m_Material;
     GLuint            m_VAO;
     SkyBoxRender*     m_SkyBoxRender;

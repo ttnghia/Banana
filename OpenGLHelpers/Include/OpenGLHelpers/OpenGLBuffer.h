@@ -40,10 +40,10 @@ public:
     void bindBufferBase();
     void release();
 
-    GLuint getBufferID();
-    GLuint getBindingPoint();
-    size_t getBufferSize();
-    bool isCreated();
+    GLuint getBufferID() const;
+    GLuint getBindingPoint() const;
+    size_t getBufferSize() const;
+    bool isCreated() const;
 
 private:
     bool   m_isBufferCreated;

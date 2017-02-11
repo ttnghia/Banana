@@ -18,8 +18,8 @@
 #include <QtAppHelpers/PointLightEditor.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-PointLightEditor::PointLightEditor(QWidget *parent)
-    : QWidget(parent)
+PointLightEditor::PointLightEditor(PointLights* lights, QWidget *parent /*= nullptr*/)
+    : QWidget(parent), m_Lights(lights)
 {
     QVBoxLayout* mainLayout = new QVBoxLayout;
     QGridLayout* lightLayouts[MAX_POINT_LIGHT];
@@ -89,12 +89,6 @@ PointLightEditor::PointLightEditor(QWidget *parent)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-PointLightEditor::~PointLightEditor()
-{
-    m_Lights.clear();
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PointLightEditor::connectComponents()
 {
     for(int i = 0; i < MAX_POINT_LIGHT; ++i)
@@ -127,10 +121,9 @@ void PointLightEditor::connectComponents()
             connect(m_LightAmbients[i][j], &QLineEdit::textChanged, this,
                     [&, i]()
             {
-                m_ColorSelectors[i][0]->setColor(floatToQColor(
-                    m_LightAmbients[i][0]->text().toFloat(),
-                    m_LightAmbients[i][1]->text().toFloat(),
-                    m_LightAmbients[i][2]->text().toFloat()));
+                m_ColorSelectors[i][0]->setColor(floatToQColor(m_LightAmbients[i][0]->text().toFloat(),
+                                                 m_LightAmbients[i][1]->text().toFloat(),
+                                                 m_LightAmbients[i][2]->text().toFloat()));
             });
         }
 
@@ -149,10 +142,9 @@ void PointLightEditor::connectComponents()
             connect(m_LightDiffuses[i][j], &QLineEdit::textChanged, this,
                     [&, i]()
             {
-                m_ColorSelectors[i][1]->setColor(floatToQColor(
-                    m_LightDiffuses[i][0]->text().toFloat(),
-                    m_LightDiffuses[i][1]->text().toFloat(),
-                    m_LightDiffuses[i][2]->text().toFloat()));
+                m_ColorSelectors[i][1]->setColor(floatToQColor(m_LightDiffuses[i][0]->text().toFloat(),
+                                                 m_LightDiffuses[i][1]->text().toFloat(),
+                                                 m_LightDiffuses[i][2]->text().toFloat()));
             });
         }
 
@@ -170,10 +162,9 @@ void PointLightEditor::connectComponents()
             connect(m_LightSpeculars[i][j], &QLineEdit::textChanged, this,
                     [&, i]()
             {
-                m_ColorSelectors[i][2]->setColor(floatToQColor(
-                    m_LightSpeculars[i][0]->text().toFloat(),
-                    m_LightSpeculars[i][1]->text().toFloat(),
-                    m_LightSpeculars[i][2]->text().toFloat()));
+                m_ColorSelectors[i][2]->setColor(floatToQColor(m_LightSpeculars[i][0]->text().toFloat(),
+                                                 m_LightSpeculars[i][1]->text().toFloat(),
+                                                 m_LightSpeculars[i][2]->text().toFloat()));
             });
         }
 
@@ -195,78 +186,51 @@ void PointLightEditor::connectComponents()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void PointLightEditor::setLight(int lightID, const PointLight::PointLightData & light)
-{
-    assert(lightID < MAX_POINT_LIGHT);
-
-    if(m_CheckBoxes[lightID]->isChecked())
-    {
-        for(int j = 0; j < 3; ++j)
-        {
-            m_LightAmbients[lightID][j]->setText(QString("%1").arg(light.ambient[j], 8, 'g', 6));
-            m_LightDiffuses[lightID][j]->setText(QString("%1").arg(light.diffuse[j], 8, 'g', 6));
-            m_LightSpeculars[lightID][j]->setText(QString("%1").arg(light.specular[j], 8, 'g', 6));
-            m_LightPositions[lightID][j]->setText(QString("%1").arg(light.position[j], 8, 'f', 2));
-        }
-    }
-    else
-    {
-        addLight(light);
-    }
-}
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void PointLightEditor::addLight(const PointLight::PointLightData & light)
-{
-    int lightID = 0;
-    for(; lightID < MAX_POINT_LIGHT; ++lightID)
-    {
-        if(!m_CheckBoxes[lightID]->isChecked())
-            break;
-    }
-
-    if(lightID < MAX_POINT_LIGHT)
-    {
-        m_CheckBoxes[lightID]->setChecked(true);
-        setLight(lightID, light);
-    }
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PointLightEditor::applyLights()
 {
-    m_Lights.resize(0);
-
+    ////////////////////////////////////////////////////////////////////////////////
+    // update the number of active lights
+    int numPointLights = 0;
     for(int i = 0; i < MAX_POINT_LIGHT; ++i)
     {
         if(!m_CheckBoxes[i]->isChecked())
         {
+            numPointLights = i;
             break;
         }
-
-        PointLight::PointLightData light;
-
-        light.ambient = glm::vec4(m_LightAmbients[i][0]->text().toFloat(),
-                                  m_LightAmbients[i][1]->text().toFloat(),
-                                  m_LightAmbients[i][2]->text().toFloat(),
-                                  1.0);
-        light.diffuse = glm::vec4(m_LightDiffuses[i][0]->text().toFloat(),
-                                  m_LightDiffuses[i][1]->text().toFloat(),
-                                  m_LightDiffuses[i][2]->text().toFloat(),
-                                  1.0);
-        light.specular = glm::vec4(m_LightSpeculars[i][0]->text().toFloat(),
-                                   m_LightSpeculars[i][1]->text().toFloat(),
-                                   m_LightSpeculars[i][2]->text().toFloat(),
-                                   1.0);
-
-        light.position = glm::vec4(m_LightPositions[i][0]->text().toFloat(),
-                                   m_LightPositions[i][1]->text().toFloat(),
-                                   m_LightPositions[i][2]->text().toFloat(),
-                                   1.0);
-
-        m_Lights.push_back(light);
     }
 
-    assert(m_Lights.size() > 0);
+    if(m_Lights->getNumLights() != numPointLights)
+    {
+        m_Lights->setNumLights(numPointLights);
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // update light data
+    for(int i = 0; i < numPointLights; ++i)
+    {
+        PointLights::PointLightData light;
+
+        light.setAmbient(glm::vec4(m_LightAmbients[i][0]->text().toFloat(),
+                         m_LightAmbients[i][1]->text().toFloat(),
+                         m_LightAmbients[i][2]->text().toFloat(),
+                         1.0));
+        light.setDiffuse(glm::vec4(m_LightDiffuses[i][0]->text().toFloat(),
+                         m_LightDiffuses[i][1]->text().toFloat(),
+                         m_LightDiffuses[i][2]->text().toFloat(),
+                         1.0));
+        light.setSpecular(glm::vec4(m_LightSpeculars[i][0]->text().toFloat(),
+                          m_LightSpeculars[i][1]->text().toFloat(),
+                          m_LightSpeculars[i][2]->text().toFloat(),
+                          1.0));
+
+        light.setPosition(glm::vec4(m_LightPositions[i][0]->text().toFloat(),
+                          m_LightPositions[i][1]->text().toFloat(),
+                          m_LightPositions[i][2]->text().toFloat(),
+                          1.0));
+
+        m_Lights->setLight(light, i);
+    }
 
     ////////////////////////////////////////////////////////////////////////////////
     emit lightsChanged(m_Lights);

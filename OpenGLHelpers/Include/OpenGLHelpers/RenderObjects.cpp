@@ -112,8 +112,7 @@ void SkyBoxRender::loadTextures(QString textureTopFolder)
         for(GLuint j = 0; j < 6; ++j)
         {
             const QImage& texImg = textureImages[i * 6 + j];
-            skyboxTex->uploadData(GL_TEXTURE_CUBE_MAP_POSITIVE_X + j,
-                                  GL_RGBA, texImg.width(), texImg.height(), GL_RGBA, GL_UNSIGNED_BYTE, texImg.constBits());
+            skyboxTex->uploadData(GL_TEXTURE_CUBE_MAP_POSITIVE_X + j, GL_RGBA, texImg.width(), texImg.height(), GL_RGBA, GL_UNSIGNED_BYTE, texImg.constBits());
         }
 
         skyboxTex->setBestParametersNoMipMap();
@@ -177,24 +176,19 @@ void SkyBoxRender::render()
         return;
     }
 
-    m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getViewMatrix()),
-                                 0, sizeof(glm::mat4));
-    m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getProjectionMatrix()),
-                                 sizeof(glm::mat4), sizeof(glm::mat4));
-    m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->m_CameraPosition),
-                                 5 * sizeof(glm::mat4), sizeof(glm::vec3));
+    m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getViewMatrix()), 0, sizeof(glm::mat4));
+    m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getProjectionMatrix()), sizeof(glm::mat4), sizeof(glm::mat4));
+    m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->m_CameraPosition), 5 * sizeof(glm::mat4), sizeof(glm::vec3));
 
     m_Shader->bind();
     m_CurrentTexture->bind();
 
 
     m_UBufferModelMatrix->bindBufferBase();
-    m_Shader->bindUniformBlock(m_UBModelMatrix,
-                               m_UBufferModelMatrix->getBindingPoint());
+    m_Shader->bindUniformBlock(m_UBModelMatrix, m_UBufferModelMatrix->getBindingPoint());
 
     m_UBufferCamData->bindBufferBase();
-    m_Shader->bindUniformBlock(m_UBCamData,
-                               m_UBufferCamData->getBindingPoint());
+    m_Shader->bindUniformBlock(m_UBCamData, m_UBufferCamData->getBindingPoint());
 
     m_Shader->setUniformValue(m_UTexSampler, 0);
 
@@ -233,19 +227,15 @@ void SkyBoxRender::initRenderData()
     ////////////////////////////////////////////////////////////////////////////////
     // uniform buffer
     m_UBufferModelMatrix = new OpenGLBuffer;
-    m_UBufferModelMatrix->createBuffer(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4),
-                                       nullptr, GL_STATIC_DRAW);
+    m_UBufferModelMatrix->createBuffer(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), nullptr, GL_STATIC_DRAW);
 
     glm::mat4 modelMatrix= glm::scale(glm::mat4(1.0f), glm::vec3(500.0f));
-    m_UBufferModelMatrix->uploadData(glm::value_ptr(modelMatrix),
-                                     0, sizeof(glm::mat4));
+    m_UBufferModelMatrix->uploadData(glm::value_ptr(modelMatrix), 0, sizeof(glm::mat4));
 
     if(m_UBufferCamData == nullptr)
     {
         m_UBufferCamData = new OpenGLBuffer;
-        m_UBufferCamData->createBuffer(GL_UNIFORM_BUFFER,
-                                       5 * sizeof(glm::mat4) + sizeof(glm::vec4),
-                                       nullptr, GL_DYNAMIC_DRAW);
+        m_UBufferCamData->createBuffer(GL_UNIFORM_BUFFER, 5 * sizeof(glm::mat4) + sizeof(glm::vec4), nullptr, GL_DYNAMIC_DRAW);
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -268,25 +258,21 @@ void PointLightRender::render()
 {
     assert(m_Camera != nullptr && m_UBufferCamData != nullptr);
 
-    m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getViewMatrix()),
-                                 0, sizeof(glm::mat4));
-    m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getProjectionMatrix()),
-                                 sizeof(glm::mat4), sizeof(glm::mat4));
+    m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getViewMatrix()), 0, sizeof(glm::mat4));
+    m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getProjectionMatrix()), sizeof(glm::mat4), sizeof(glm::mat4));
 
     m_Shader->bind();
 
     m_UBufferCamData->bindBufferBase();
-    m_Shader->bindUniformBlock(m_UBCamData,
-                               m_UBufferCamData->getBindingPoint());
+    m_Shader->bindUniformBlock(m_UBCamData, m_UBufferCamData->getBindingPoint());
 
-    m_Light->bindUniformBuffer();
-    m_Shader->bindUniformBlock(m_UBLight,
-                               m_Light->getBufferBindingPoint());
+    m_Lights->bindUniformBuffer();
+    m_Shader->bindUniformBlock(m_UBLight, m_Lights->getBufferBindingPoint());
 
     glCall(glBindVertexArray(m_VAO));
     glCall(glPointSize(m_RenderSize));
     glCall(glEnable(GL_VERTEX_PROGRAM_POINT_SIZE));
-    glCall(glDrawArrays(GL_POINTS, 0, 1));
+    glCall(glDrawArrays(GL_POINTS, 0, m_Lights->getNumLights()));
     glCall(glBindVertexArray(0));
     m_Shader->release();
 }
@@ -308,37 +294,39 @@ void PointLightRender::initRenderData()
         "    vec4 camPosition;\n"
         "};\n"
         "\n"
-        "layout(std140) uniform PointLight\n"
+        "#define NUM_TOTAL_LIGHTS 8\n"
+        "struct PointLight\n"
         "{\n"
-        "    vec4 ambient;\n"
-        "    vec4 diffuse;\n"
-        "    vec4 specular;\n"
-        "    vec4 position;\n"
-        "} light;\n"
+        "    vec4 ambient; \n"
+        "    vec4 diffuse; \n"
+        "    vec4 specular; \n"
+        "    vec4 position; \n"
+        "};\n"
+
+        "layout(std140) uniform Lights\n"
+        "{\n"
+        "    PointLight lights[NUM_TOTAL_LIGHTS]; \n"
+        "    int u_NumLights; \n"
+        "}; \n"
         "\n"
+        "out vec3 f_lightDiffuse;\n"
         "void main()\n"
         "{\n"
-        "    vec4 worldCoord = vec4(vec3(light.position), 1.0);\n"
+        "    vec4 worldCoord = vec4(vec3(lights[gl_VertexID].position), 1.0);\n"
         "    gl_Position = projectionMatrix * viewMatrix * worldCoord;\n"
+        "    f_lightDiffuse = vec3(lights[gl_VertexID].diffuse);\n"
         "}";
 
     const GLchar* fragmentShader =
         "// This is the shader statically generated by ShaderProgram class\n"
         "#version 410 core\n"
         "\n"
-        "layout(std140) uniform PointLight\n"
-        "{\n"
-        "    vec4 ambient;\n"
-        "    vec4 diffuse;\n"
-        "    vec4 specular;\n"
-        "    vec4 position;\n"
-        "} light;\n"
-        "\n"
+        "in vec3 f_lightDiffuse;\n"
         "out vec4 outColor;\n"
         "\n"
         "void main()\n"
         "{\n"
-        "    outColor = light.diffuse;\n"
+        "    outColor = vec4(f_lightDiffuse, 1.0);\n"
         "}\n";
 
     m_Shader = new ShaderProgram(std::string("LightRenderShader"));
@@ -349,7 +337,7 @@ void PointLightRender::initRenderData()
     glCall(glGenVertexArrays(1, &m_VAO));
 
     m_UBCamData = m_Shader->getUniformBlockIndex("CameraData");
-    m_UBLight = m_Shader->getUniformBlockIndex("PointLight");
+    m_UBLight = m_Shader->getUniformBlockIndex("Lights");
 
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -357,9 +345,7 @@ void PointLightRender::initRenderData()
     if(m_UBufferCamData == nullptr)
     {
         m_UBufferCamData = new OpenGLBuffer;
-        m_UBufferCamData->createBuffer(GL_UNIFORM_BUFFER,
-                                       5 * sizeof(glm::mat4) + sizeof(glm::vec4),
-                                       nullptr, GL_DYNAMIC_DRAW);
+        m_UBufferCamData->createBuffer(GL_UNIFORM_BUFFER, 5 * sizeof(glm::mat4) + sizeof(glm::vec4), nullptr, GL_DYNAMIC_DRAW);
     }
 }
 
@@ -443,10 +429,8 @@ void MeshRender::transform(const glm::vec3 & translation, const glm::vec3 & scal
     glm::mat4 modelMatrix = glm::scale(glm::translate(glm::mat4(1.0), translation), scale);
     glm::mat4 normalMatrix = glm::transpose(glm::inverse(glm::mat3(modelMatrix)));
 
-    m_UBufferModelMatrix->uploadData(glm::value_ptr(modelMatrix),
-                                     0, sizeof(glm::mat4)); // model matrix
-    m_UBufferModelMatrix->uploadData(glm::value_ptr(normalMatrix),
-                                     sizeof(glm::mat4), sizeof(glm::mat4)); // normal matrix
+    m_UBufferModelMatrix->uploadData(glm::value_ptr(modelMatrix), 0, sizeof(glm::mat4)); // model matrix
+    m_UBufferModelMatrix->uploadData(glm::value_ptr(normalMatrix), sizeof(glm::mat4), sizeof(glm::mat4)); // normal matrix
 }
 
 
@@ -459,12 +443,9 @@ void MeshRender::render()
 
     if(m_SelfUpdateCamera)
     {
-        m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getViewMatrix()),
-                                     0, sizeof(glm::mat4));
-        m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getProjectionMatrix()),
-                                     sizeof(glm::mat4), sizeof(glm::mat4));
-        m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->m_CameraPosition),
-                                     5 * sizeof(glm::mat4), sizeof(glm::vec3));
+        m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getViewMatrix()), 0, sizeof(glm::mat4));
+        m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getProjectionMatrix()), sizeof(glm::mat4), sizeof(glm::mat4));
+        m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->m_CameraPosition), 5 * sizeof(glm::mat4), sizeof(glm::vec3));
     }
 
     m_Shader->bind();
@@ -480,20 +461,16 @@ void MeshRender::render()
     }
 
     m_UBufferModelMatrix->bindBufferBase();
-    m_Shader->bindUniformBlock(m_UBModelMatrix,
-                               m_UBufferModelMatrix->getBindingPoint());
+    m_Shader->bindUniformBlock(m_UBModelMatrix, m_UBufferModelMatrix->getBindingPoint());
 
     m_UBufferCamData->bindBufferBase();
-    m_Shader->bindUniformBlock(m_UBCamData,
-                               m_UBufferCamData->getBindingPoint());
+    m_Shader->bindUniformBlock(m_UBCamData, m_UBufferCamData->getBindingPoint());
 
     m_Light->bindUniformBuffer();
-    m_Shader->bindUniformBlock(m_UBLight,
-                               m_Light->getBufferBindingPoint());
+    m_Shader->bindUniformBlock(m_UBLight, m_Light->getBufferBindingPoint());
 
     m_Material->bindUniformBuffer();
-    m_Shader->bindUniformBlock(m_UBMaterial,
-                               m_Material->getBufferBindingPoint());
+    m_Shader->bindUniformBlock(m_UBMaterial, m_Material->getBufferBindingPoint());
 
     glCall(glBindVertexArray(m_VAO));
     m_MeshObj->draw();
@@ -554,12 +531,12 @@ void MeshRender::initRenderData()
     m_AtrVNormal   = m_Shader->getAtributeLocation("v_Normal");
     m_AtrVTexCoord = m_Shader->getAtributeLocation("v_TexCoord");
 
-    m_UHasTexture = m_Shader->getUniformLocation("hasTexture");
+    m_UHasTexture = m_Shader->getUniformLocation("u_HasTexture");
     m_UTexSampler = m_Shader->getUniformLocation("u_TexSampler");
 
     m_UBModelMatrix = m_Shader->getUniformBlockIndex("ModelMatrix");
     m_UBCamData     = m_Shader->getUniformBlockIndex("CameraData");
-    m_UBLight       = m_Shader->getUniformBlockIndex("PointLight");
+    m_UBLight       = m_Shader->getUniformBlockIndex("Lights");
     m_UBMaterial    = m_Shader->getUniformBlockIndex("Material");
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -572,14 +549,11 @@ void MeshRender::initRenderData()
     if(m_UBufferCamData == nullptr)
     {
         m_UBufferCamData = new OpenGLBuffer;
-        m_UBufferCamData->createBuffer(GL_UNIFORM_BUFFER,
-                                       5 * sizeof(glm::mat4) + sizeof(glm::vec4),
-                                       nullptr, GL_DYNAMIC_DRAW);
+        m_UBufferCamData->createBuffer(GL_UNIFORM_BUFFER, 5 * sizeof(glm::mat4) + sizeof(glm::vec4), nullptr, GL_DYNAMIC_DRAW);
     }
 
     m_UBufferModelMatrix = new OpenGLBuffer;
-    m_UBufferModelMatrix->createBuffer(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), nullptr,
-                                       GL_STATIC_DRAW);
+    m_UBufferModelMatrix->createBuffer(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), nullptr, GL_STATIC_DRAW);
     transform(glm::vec3(0, 0, 0), glm::vec3(1, 1, 1));
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -693,10 +667,8 @@ void WireFrameBoxRender::transform(const glm::vec3 & translation, const glm::vec
     glm::mat4 modelMatrix = glm::scale(glm::translate(glm::mat4(1.0), translation), scale);
     glm::mat4 normalMatrix = glm::transpose(glm::inverse(glm::mat3(modelMatrix)));
 
-    m_UBufferModelMatrix->uploadData(glm::value_ptr(modelMatrix),
-                                     0, sizeof(glm::mat4)); // model matrix
-    m_UBufferModelMatrix->uploadData(glm::value_ptr(normalMatrix),
-                                     sizeof(glm::mat4), sizeof(glm::mat4)); // normal matrix}
+    m_UBufferModelMatrix->uploadData(glm::value_ptr(modelMatrix), 0, sizeof(glm::mat4)); // model matrix
+    m_UBufferModelMatrix->uploadData(glm::value_ptr(normalMatrix), sizeof(glm::mat4), sizeof(glm::mat4)); // normal matrix}
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -716,12 +688,9 @@ void WireFrameBoxRender::render()
 
     if(m_SelfUpdateCamera)
     {
-        m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getViewMatrix()),
-                                     0, sizeof(glm::mat4));
-        m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getProjectionMatrix()),
-                                     sizeof(glm::mat4), sizeof(glm::mat4));
-        m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->m_CameraPosition),
-                                     5 * sizeof(glm::mat4), sizeof(glm::vec3));
+        m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getViewMatrix()), 0, sizeof(glm::mat4));
+        m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getProjectionMatrix()), sizeof(glm::mat4), sizeof(glm::mat4));
+        m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->m_CameraPosition), 5 * sizeof(glm::mat4), sizeof(glm::vec3));
     }
     m_UBufferCamData->bindBufferBase();
     m_Shader->bindUniformBlock(m_UBCamData, m_UBufferCamData->getBindingPoint());
@@ -762,14 +731,11 @@ void WireFrameBoxRender::initRenderData()
     if(m_UBufferCamData == nullptr)
     {
         m_UBufferCamData = new OpenGLBuffer;
-        m_UBufferCamData->createBuffer(GL_UNIFORM_BUFFER,
-                                       5 * sizeof(glm::mat4) + sizeof(glm::vec4),
-                                       nullptr, GL_DYNAMIC_DRAW);
+        m_UBufferCamData->createBuffer(GL_UNIFORM_BUFFER, 5 * sizeof(glm::mat4) + sizeof(glm::vec4), nullptr, GL_DYNAMIC_DRAW);
     }
 
     m_UBufferModelMatrix = new OpenGLBuffer;
-    m_UBufferModelMatrix->createBuffer(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), nullptr,
-                                       GL_STATIC_DRAW);
+    m_UBufferModelMatrix->createBuffer(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), nullptr, GL_STATIC_DRAW);
     transform(glm::vec3(0, 0, 0), glm::vec3(1, 1, 1));
 }
 
@@ -843,7 +809,7 @@ void OffScreenRender::swapDepthStencilBuffer(OpenGLTexture*& depthStencil)
 #else
         __BNN_Die("%s: FrameBuffer is incomplete!\n", m_Shader->getProgramName());
 #endif
-}
+    }
 
     glCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 }
@@ -866,7 +832,7 @@ void OffScreenRender::swapColorBuffer(OpenGLTexture*& colorBuffer, int bufferID)
 #else
         __BNN_Die("%s: FrameBuffer is incomplete!\n", m_Shader->getProgramName());
 #endif
-}
+    }
 
     glCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 
@@ -909,7 +875,7 @@ void OffScreenRender::initRenderData()
 #else
         __BNN_Die("%s: FrameBuffer is incomplete!\n", m_Shader->getProgramName());
 #endif
-}
+    }
 
     glCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 }
@@ -1026,9 +992,7 @@ void DepthBufferRender::initRenderData()
     if(m_UBufferCamData == nullptr)
     {
         m_UBufferCamData = new OpenGLBuffer;
-        m_UBufferCamData->createBuffer(GL_UNIFORM_BUFFER,
-                                       5 * sizeof(glm::mat4) + sizeof(glm::vec4),
-                                       nullptr, GL_DYNAMIC_DRAW);
+        m_UBufferCamData->createBuffer(GL_UNIFORM_BUFFER, 5 * sizeof(glm::mat4) + sizeof(glm::vec4), nullptr, GL_DYNAMIC_DRAW);
     }
 
     generateFrameBuffer();
@@ -1038,19 +1002,16 @@ void DepthBufferRender::initRenderData()
 void DepthBufferRender::generateFrameBuffer()
 {
     m_DepthBuffer = new OpenGLTexture(GL_TEXTURE_2D);
-    m_DepthBuffer->uploadData(GL_TEXTURE_2D, GL_R32F, m_BufferWidth, m_BufferHeight,
-                              GL_R32F, GL_UNSIGNED_BYTE, nullptr);
+    m_DepthBuffer->uploadData(GL_TEXTURE_2D, GL_R32F, m_BufferWidth, m_BufferHeight, GL_R32F, GL_UNSIGNED_BYTE, nullptr);
     m_DepthTestBuffer = new OpenGLTexture(GL_TEXTURE_2D);
     m_DepthBuffer->setBestParametersNoMipMap();
-    m_DepthTestBuffer->uploadData(GL_TEXTURE_2D, GL_DEPTH24_STENCIL8, m_BufferWidth, m_BufferHeight,
-                                  GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, nullptr);
+    m_DepthTestBuffer->uploadData(GL_TEXTURE_2D, GL_DEPTH24_STENCIL8, m_BufferWidth, m_BufferHeight, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, nullptr);
     m_DepthTestBuffer->setBestParametersNoMipMap();
 
     glGenFramebuffers(1, &m_FrameBuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, m_FrameBuffer);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_DepthBuffer->getTextureID(), 0);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT,
-                           GL_TEXTURE_2D, m_DepthTestBuffer->getTextureID(), 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, m_DepthTestBuffer->getTextureID(), 0);
 
     if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
     {
