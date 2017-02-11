@@ -37,6 +37,7 @@ OpenGLWidget::OpenGLWidget(QWidget* parent) :
     timer->start(m_WidgetUpdateTimeout);
 
     setFocusPolicy(Qt::StrongFocus);
+    setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -96,18 +97,18 @@ QSize OpenGLWidget::minimumSizeHint() const
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void OpenGLWidget::mousePressEvent(QMouseEvent * event)
+void OpenGLWidget::mousePressEvent(QMouseEvent * ev)
 {
-    if(TwMousePressQt(this, event))
+    if(TwMousePressQt(this, ev))
     {
         return;
     }
 
-    if(event->button() == Qt::LeftButton)
+    if(ev->button() == Qt::LeftButton)
     {
         m_MouseButtonPressed = MouseButton::LeftButton;
     }
-    else if(event->button() == Qt::RightButton)
+    else if(ev->button() == Qt::RightButton)
     {
         m_MouseButtonPressed = MouseButton::RightButton;
     }
@@ -116,7 +117,7 @@ void OpenGLWidget::mousePressEvent(QMouseEvent * event)
         m_MouseButtonPressed = MouseButton::NoButton;
     }
 
-    m_Camera->set_last_mouse_pos(event->x(), event->y());
+    m_Camera->set_last_mouse_pos(ev->x(), ev->y());
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -131,53 +132,59 @@ void OpenGLWidget::mouseReleaseEvent(QMouseEvent * event)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void OpenGLWidget::mouseMoveEvent(QMouseEvent * event)
+void OpenGLWidget::mouseMoveEvent(QMouseEvent * ev)
 {
-    if(TwMouseMotionQt(this, event))
+    if(TwMouseMotionQt(this, ev))
     {
         return;
     }
 
     if(m_MouseButtonPressed == MouseButton::LeftButton)
     {
-        m_Camera->rotate_by_mouse(event->x(), event->y());
+        m_Camera->rotate_by_mouse(ev->x(), ev->y());
     }
     else if(m_MouseButtonPressed == MouseButton::RightButton)
     {
         if(m_SpecialKeyPressed == SpecialKey::NoKey)
         {
-            m_Camera->translate_by_mouse(event->x(), event->y());
+            m_Camera->translate_by_mouse(ev->x(), ev->y());
         }
         else
         {
-            m_Camera->zoom_by_mouse(event->x(), event->y());
+            m_Camera->zoom_by_mouse(ev->x(), ev->y());
         }
     }
 
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void OpenGLWidget::wheelEvent(QWheelEvent * event)
+void OpenGLWidget::wheelEvent(QWheelEvent * ev)
 {
-    if(event->angleDelta().isNull())
+    if(ev->angleDelta().isNull())
     {
         return;
     }
 
-    float zoomFactor = (event->angleDelta().x() + event->angleDelta().y()) / 2000.0f;
+    float zoomFactor = (ev->angleDelta().x() + ev->angleDelta().y()) / 2000.0f;
 
     m_Camera->zoom(zoomFactor);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void OpenGLWidget::keyPressEvent(QKeyEvent * event)
+void OpenGLWidget::showEvent(QShowEvent* ev)
 {
-    if(TwKeyPressQt(event))
+    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void OpenGLWidget::keyPressEvent(QKeyEvent * ev)
+{
+    if(TwKeyPressQt(ev))
     {
         return;
     }
 
-    switch(event->key())
+    switch(ev->key())
     {
         case Qt::Key_Shift:
             m_SpecialKeyPressed = SpecialKey::ShiftKey;

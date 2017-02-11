@@ -43,8 +43,9 @@ void SkyBoxRender::loadTextures(QString textureTopFolder)
 
     std::vector<QImage> textureImages;
     textureImages.resize(allTexFolders.count() * 6);
+    std::vector<int> loadSuccess;
+    loadSuccess.assign(allTexFolders.count(), 0);
     std::vector<std::future<void> > futureObjs;
-    int numLoadedFolders = 0;
 
     for(int i = 0; i < allTexFolders.count(); ++i)
     {
@@ -86,7 +87,7 @@ void SkyBoxRender::loadTextures(QString textureTopFolder)
 
             ////////////////////////////////////////////////////////////////////////////////
             // load the textures
-            ++numLoadedFolders;
+            loadSuccess[i] = 1;
 
             for(GLuint j = 0; j < 6; ++j)
             {
@@ -102,8 +103,11 @@ void SkyBoxRender::loadTextures(QString textureTopFolder)
             f.wait();
     }
 
-    for(int i = 0; i < numLoadedFolders; ++i)
+    for(int i = 0; i < allTexFolders.count(); ++i)
     {
+        if(loadSuccess[i] == 0)
+            continue;
+
         OpenGLTexture* skyboxTex = new OpenGLTexture(GL_TEXTURE_CUBE_MAP);
         for(GLuint j = 0; j < 6; ++j)
         {
@@ -839,7 +843,7 @@ void OffScreenRender::swapDepthStencilBuffer(OpenGLTexture*& depthStencil)
 #else
         __BNN_Die("%s: FrameBuffer is incomplete!\n", m_Shader->getProgramName());
 #endif
-    }
+}
 
     glCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 }
@@ -862,7 +866,7 @@ void OffScreenRender::swapColorBuffer(OpenGLTexture*& colorBuffer, int bufferID)
 #else
         __BNN_Die("%s: FrameBuffer is incomplete!\n", m_Shader->getProgramName());
 #endif
-    }
+}
 
     glCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 
@@ -905,7 +909,7 @@ void OffScreenRender::initRenderData()
 #else
         __BNN_Die("%s: FrameBuffer is incomplete!\n", m_Shader->getProgramName());
 #endif
-    }
+}
 
     glCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 }

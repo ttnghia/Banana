@@ -56,13 +56,14 @@ public:
 
     // => mouse and key handling
 protected:
-    virtual void mousePressEvent(QMouseEvent* event) override;
-    virtual void mouseReleaseEvent(QMouseEvent* event) override;
-    virtual void mouseMoveEvent(QMouseEvent* event) override;
-    virtual void wheelEvent(QWheelEvent* event) override;
+    virtual void mousePressEvent(QMouseEvent* ev) override;
+    virtual void mouseReleaseEvent(QMouseEvent* ev) override;
+    virtual void mouseMoveEvent(QMouseEvent* ev) override;
+    virtual void wheelEvent(QWheelEvent* ev) override;
+    virtual void showEvent(QShowEvent* ev) override;
 
 public:
-    virtual void keyPressEvent(QKeyEvent* event) override;
+    virtual void keyPressEvent(QKeyEvent* ev) override;
     virtual void keyReleaseEvent(QKeyEvent*) override;
 
     ////////////////////////////////////////////////////////////////////////////////

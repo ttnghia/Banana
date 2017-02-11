@@ -45,18 +45,18 @@ OpenGLMainWindow::~OpenGLMainWindow()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-bool OpenGLMainWindow::eventFilter(QObject * obj, QEvent * event)
+bool OpenGLMainWindow::eventFilter(QObject * obj, QEvent * ev)
 {
     ////////////////////////////////////////////////////////////////////////////////
-    if(event->type() == QEvent::KeyPress)
+    if(ev->type() == QEvent::KeyPress)
     {
-        QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
+        QKeyEvent* keyEvent = static_cast<QKeyEvent*>(ev);
         return processKeyPressEvent(keyEvent);
     }
 
-    if(event->type() == QEvent::KeyRelease)
+    if(ev->type() == QEvent::KeyRelease)
     {
-        QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
+        QKeyEvent* keyEvent = static_cast<QKeyEvent*>(ev);
 
         return processKeyReleaseEvent(keyEvent);
     }
@@ -65,9 +65,9 @@ bool OpenGLMainWindow::eventFilter(QObject * obj, QEvent * event)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-bool OpenGLMainWindow::processKeyPressEvent(QKeyEvent * event)
+bool OpenGLMainWindow::processKeyPressEvent(QKeyEvent * ev)
 {
-    switch(event->key())
+    switch(ev->key())
     {
         case Qt::Key_Escape:
             close();
@@ -124,8 +124,6 @@ void OpenGLMainWindow::setupOpenglWidget(OpenGLWidget * glWidget)
 
     m_GLWidget = glWidget;
     setCentralWidget(m_GLWidget);
-    connect(&m_GLWidget->m_AvgFrameTimer, &AvgTimer::avgTimeChanged, this,
-            &OpenGLMainWindow::updateAvgFrameTime);
-    connect(&m_GLWidget->m_FPSCounter, &FPSCounter::fpsChanged, this,
-            &OpenGLMainWindow::updateFrameRate);
+    connect(&m_GLWidget->m_AvgFrameTimer, &AvgTimer::avgTimeChanged, this, &OpenGLMainWindow::updateAvgFrameTime);
+    connect(&m_GLWidget->m_FPSCounter, &FPSCounter::fpsChanged, this, &OpenGLMainWindow::updateFrameRate);
 }

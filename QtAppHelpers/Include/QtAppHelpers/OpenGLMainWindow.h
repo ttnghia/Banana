@@ -31,8 +31,8 @@ public:
     OpenGLMainWindow(QWidget* parent);
     ~OpenGLMainWindow();
 
-    bool eventFilter(QObject* obj, QEvent* event);
-    virtual bool processKeyPressEvent(QKeyEvent* event);
+    bool eventFilter(QObject* obj, QEvent* ev);
+    virtual bool processKeyPressEvent(QKeyEvent* ev);
     virtual bool processKeyReleaseEvent(QKeyEvent*)
     {
         return false;
