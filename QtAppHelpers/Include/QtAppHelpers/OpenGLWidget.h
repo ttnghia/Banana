@@ -45,7 +45,7 @@ public:
     void setPrintDebug(bool pdebug);
     void setUpdateTimeout(int timeout);
     void setDefaultSize(QSize size);
-    void setClearColor(QVector4D color);
+    void setClearColor(const glm::vec4& color);
     void setViewFrustum(float fov, float nearZ, float farZ);
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -89,7 +89,7 @@ protected:
     bool          m_bPrintDebug;
     int           m_WidgetUpdateTimeout;
     QSize         m_DefaultSize;
-    QVector4D     m_ClearColor;
+    glm::vec4     m_ClearColor;
     SpecialKey    m_SpecialKeyPressed;
     MouseButton   m_MouseButtonPressed;
     QString       m_CapturePath;

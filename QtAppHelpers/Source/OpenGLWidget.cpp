@@ -23,7 +23,7 @@ OpenGLWidget::OpenGLWidget(QWidget* parent) :
     m_bPrintDebug(true),
     m_WidgetUpdateTimeout(0),
     m_DefaultSize(QSize(1920, 1080)),
-    m_ClearColor(QVector4D(0.38f, 0.52f, 0.10f, 1.0f)),
+    m_ClearColor(glm::vec4(0.38f, 0.52f, 0.10f, 1.0f)),
     m_SpecialKeyPressed(SpecialKey::NoKey),
     m_CaptureImage(nullptr),
     m_UBufferCamData(nullptr),
@@ -65,7 +65,7 @@ void OpenGLWidget::setDefaultSize(QSize size)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void OpenGLWidget::setClearColor(QVector4D color)
+void OpenGLWidget::setClearColor(const glm::vec4& color)
 {
     m_ClearColor = color;
 }
@@ -300,8 +300,7 @@ void OpenGLWidget::uploadCameraData()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLWidget::resetClearColor()
 {
-    glClearColor(m_ClearColor.x(), m_ClearColor.y(), m_ClearColor.z(),
-                 m_ClearColor.w());
+    glClearColor(m_ClearColor[0], m_ClearColor[1], m_ClearColor[2], m_ClearColor[3]);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

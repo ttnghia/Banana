@@ -1,4 +1,4 @@
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+﻿//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //
 //  Copyright (c) 2017 by
@@ -652,11 +652,29 @@ void OffScreenRender::initRenderData()
 
 void DepthBufferRender::beginRender()
 {
+    OffScreenRender::beginRender();
+
     glClearColor(m_ClearLinearDepthValue, m_ClearLinearDepthValue, m_ClearLinearDepthValue, 1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     glEnable(GL_DEPTH_TEST);
     glDepthMask(GL_TRUE);
     glDepthFunc(GL_LEQUAL);
+
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void DepthBufferRender::endRender(GLuint defaultFBO /* = 0 */)
+{
+    OffScreenRender::endRender(defaultFBO);
+
+    glClearColor(m_DefaultClearColor[0], m_DefaultClearColor[1], m_DefaultClearColor[2], m_DefaultClearColor[3]);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void DepthBufferRender::setDefaultClearColor(const glm::vec4& clearColor)
+{
+    m_DefaultClearColor = clearColor;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -720,8 +738,7 @@ void ScreenQuadTextureRender::initRenderData()
         "    switch(u_TexelSize)\n"
         "    {\n"
         "        case 1:\n"
-        "            outColor.x = u_ValueScale * texture(u_TexSampler, f_TexCoord).x;\n"
-        //" outColor = vec4(f_TexCoord, 0, 1);\n"
+        "            outColor = vec4(vec3(u_ValueScale * texture(u_TexSampler, f_TexCoord).x), 1.0);\n"
         "            break;\n"
         "        case 2:\n"
         "            outColor.xy = u_ValueScale * texture(u_TexSampler, f_TexCoord).xy;\n"
@@ -819,7 +836,6 @@ void MeshRender::addTexture(OpenGLTexture * texture, GLenum texWrapMode /*= GL_R
     texture->setFilterMode(GL_TEXTURE_WRAP_S, texWrapMode);
     texture->setFilterMode(GL_TEXTURE_WRAP_T, texWrapMode);
     texture->setFilterMode(GL_TEXTURE_WRAP_R, texWrapMode);
-
     m_Textures.push_back(texture);
 }
 
@@ -830,7 +846,6 @@ void MeshRender::setRenderTextureIndex(int texIndex)
         return;
 
     assert(static_cast<size_t>(texIndex) < m_Textures.size());
-
     m_CurrentTexture = m_Textures[texIndex];
 }
 
@@ -838,34 +853,6 @@ void MeshRender::setRenderTextureIndex(int texIndex)
 void MeshRender::setExternalShadowMap(OpenGLTexture* shadowMap)
 {
     m_ExternalShadowMap = shadowMap;
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MeshRender::setRenderShadow(bool bRenderShadow, bool bLinearDepthBuffer /*= false*/)
-{
-    m_bRenderShadow = bRenderShadow;
-
-    if(m_bRenderShadow)
-    {
-        if(m_DepthBufferRender == nullptr)
-        {
-            m_DepthBufferRender = new DepthBufferRender(m_ShadowBufferWidth, m_ShadowBufferHeight);
-        }
-        else
-        {
-            m_DepthBufferRender->setNumColorBuffers(1);
-        }
-    }
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MeshRender::resizeShadowMap(int width, int height)
-{
-    m_ShadowBufferWidth  = width;
-    m_ShadowBufferHeight = height;
-
-    if(m_DepthBufferRender != nullptr)
-        m_DepthBufferRender->resize(width, height);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -905,28 +892,125 @@ void MeshRender::render()
         m_Shader->setUniformValue(m_UHasTexture, 0);
     }
 
+    if(m_ExternalShadowMap != nullptr)
+        m_ExternalShadowMap->bind(1);
+
     m_UBufferModelMatrix->bindBufferBase();
     m_Shader->bindUniformBlock(m_UBModelMatrix, m_UBufferModelMatrix->getBindingPoint());
 
     m_UBufferCamData->bindBufferBase();
     m_Shader->bindUniformBlock(m_UBCamData, m_UBufferCamData->getBindingPoint());
 
-    m_Light->bindUniformBuffer();
-    m_Shader->bindUniformBlock(m_UBLight, m_Light->getBufferBindingPoint());
+    m_Lights->bindUniformBuffer();
+    m_Shader->bindUniformBlock(m_UBLight, m_Lights->getBufferBindingPoint());
 
     m_Material->bindUniformBuffer();
     m_Shader->bindUniformBlock(m_UBMaterial, m_Material->getBufferBindingPoint());
 
     glCall(glBindVertexArray(m_VAO));
     m_MeshObj->draw();
+    glCall(glBindVertexArray(0));
 
     if(m_CurrentTexture != nullptr)
     {
         m_CurrentTexture->release();
     }
+    if(m_ExternalShadowMap != nullptr)
+        m_ExternalShadowMap->release();
     m_Shader->release();
-    glCall(glBindVertexArray(0));
 }
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void MeshRender::renderToDepthBuffer(int scrWidth, int scrHeight, GLuint defaultFBO /*= 0*/)
+{
+    assert(m_MeshObj != nullptr && m_Camera != nullptr && m_UBufferCamData != nullptr);
+    assert(m_Lights != nullptr && m_Lights->getNumLights() > 0);
+    assert(m_DepthBufferRenders.size() != 0);
+
+    if(m_MeshObj->isEmpty())
+        return;
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // update the depth render objs in case the number of lights has changed
+    for(int i = m_DepthBufferRenders.size(); i < m_Lights->getNumLights(); ++i)
+    {
+        m_DepthBufferRenders.push_back(new DepthBufferRender(m_ShadowBufferWidth, m_ShadowBufferHeight));
+    }
+
+    m_DepthShader->bind();
+    m_UBufferModelMatrix->bindBufferBase();
+    m_DepthShader->bindUniformBlock(m_DSUBModelMatrix, m_UBufferModelMatrix->getBindingPoint());
+
+    m_UBufferLightMatrix->bindBufferBase();
+    m_DepthShader->bindUniformBlock(m_DSUBLightMatrix, m_UBufferLightMatrix->getBindingPoint());
+
+    GLfloat aspect = (GLfloat)m_ShadowBufferWidth / (GLfloat)m_ShadowBufferHeight;
+    for(int i = 0; i < m_Lights->getNumLights(); ++i)
+    {
+        m_LightView[i] = glm::lookAt(glm::make_vec3(glm::value_ptr(m_Lights->getLightPosition(i))), m_Camera->m_CameraFocus, glm::vec3(0.0f, 0.9f, 0.950f));
+        m_LightProjection[i] = glm::perspective(45.0f, aspect, 0.1f, 1000.0f);
+
+        m_UBufferLightMatrix->uploadData(glm::value_ptr(m_LightView[i]), 0, sizeof(glm::mat4));
+        m_UBufferLightMatrix->uploadData(glm::value_ptr(m_LightProjection[i]), sizeof(glm::mat4), sizeof(glm::mat4));
+        m_UBufferLightMatrix->uploadData(glm::value_ptr(m_Lights->getLightPosition(i)), 2 * sizeof(glm::mat4), sizeof(glm::vec3));
+
+        m_DepthBufferRenders[i]->beginRender();
+
+
+        glCall(glBindVertexArray(m_DSVAO));
+        m_MeshObj->draw();
+        glCall(glBindVertexArray(0));
+
+        m_DepthBufferRenders[i]->endRender(defaultFBO);
+    }
+
+
+    m_DepthShader->release();
+    glViewport(0, 0, scrWidth, scrHeight);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void MeshRender::initShadowMapRenderData(const glm::vec4& clearColor, bool bLinearDepthBuffer/* = false*/)
+{
+    for(int i = 0; i < m_Lights->getNumLights(); ++i)
+    {
+        m_DepthBufferRenders.push_back(new DepthBufferRender(m_ShadowBufferWidth, m_ShadowBufferHeight));
+        m_DepthBufferRenders[i]->setDefaultClearColor(clearColor);
+    }
+
+    m_DepthShader = ShaderProgram::getSimpleDepthShader();
+
+    m_DSAtrVPosition = m_DepthShader->getAtributeLocation("v_Position");
+    m_DSUBModelMatrix = m_DepthShader->getUniformBlockIndex("ModelMatrix");
+    m_DSUBLightMatrix = m_DepthShader->getUniformBlockIndex("LightMatrix");
+    glCall(glGenVertexArrays(1, &m_DSVAO));
+    glCall(glBindVertexArray(m_DSVAO));
+    m_MeshObj->getVertexBuffer()->bind();
+    glCall(glEnableVertexAttribArray(m_DSAtrVPosition));
+    glCall(glVertexAttribPointer(m_DSAtrVPosition, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0));
+    if(m_MeshObj->hasIndexBuffer())
+    {
+        m_MeshObj->getIndexBuffer()->bind();
+    }
+    glCall(glBindVertexArray(0));
+
+
+    m_UBufferLightMatrix = new OpenGLBuffer;
+    m_UBufferLightMatrix->createBuffer(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4) + sizeof(glm::vec4), nullptr, GL_DYNAMIC_DRAW);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void MeshRender::resizeShadowMap(int width, int height)
+{
+    m_ShadowBufferWidth  = width;
+    m_ShadowBufferHeight = height;
+
+    for(int i = 0; i < m_Lights->getNumLights(); ++i)
+    {
+        m_DepthBufferRenders[i]->resize(width, height);
+    }
+}
+
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MeshRender::setupVAO()
@@ -966,14 +1050,15 @@ void MeshRender::setupVAO()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-OpenGLTexture* MeshRender::getShadowMap()
+OpenGLTexture* MeshRender::getShadowMap(int lightID /*= 0*/)
 {
-    return m_DepthBufferRender->getDepthBuffer();
+    assert(m_DepthBufferRenders.size() > 0);
+    return m_DepthBufferRenders[lightID]->getDepthBuffer();
 }
 
-OpenGLTexture* MeshRender::getLinearShadowMap()
+OpenGLTexture* MeshRender::getLinearShadowMap(int lightID /*= 0*/)
 {
-    return m_DepthBufferRender->getLinearDepthBuffer();
+    return m_DepthBufferRenders[lightID]->getLinearDepthBuffer();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -1037,59 +1122,15 @@ void MeshRender::initRenderData()
 // Plane render
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#ifdef __Banana_Qt__
-void PlaneRender::loadTextures(QString textureFolder)
-{
-    m_MeshRender->loadTexture(textureFolder);
-}
-#endif
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PlaneRender::setAllowNonTextureRender(bool allowNonTex)
 {
     m_AllowedNonTexRender = allowNonTex;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void PlaneRender::clearTextures()
-{
-    assert(m_MeshRender != nullptr);
-    m_MeshRender->clearTextures();
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void PlaneRender::addTexture(OpenGLTexture* texture, GLenum texWrapMode /*= GL_REPEAT*/)
-{
-    assert(m_MeshRender != nullptr);
-    m_MeshRender->addTexture(texture, texWrapMode);
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void PlaneRender::setRenderTextureIndex(int texIndex)
-{
-    assert(m_MeshRender != nullptr);
-    m_MeshRender->setRenderTextureIndex(texIndex);
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-size_t PlaneRender::getNumTextures()
-{
-    assert(m_MeshRender != nullptr);
-    return m_MeshRender->getNumTextures();
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void PlaneRender::transform(const glm::vec3& translation, const glm::vec3& scale)
-{
-    assert(m_MeshRender != nullptr);
-    m_MeshRender->transform(translation, scale);
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PlaneRender::scaleTexCoord(int scaleX, int scaleY)
 {
-    assert(m_MeshRender != nullptr);
-    GridObject* gridObj = static_cast<GridObject*>(m_MeshRender->getMeshObj());
+    GridObject* gridObj = static_cast<GridObject*>(m_MeshObj);
 
     assert(gridObj != nullptr);
     gridObj->scaleTexCoord(scaleX, scaleY);
@@ -1099,17 +1140,6 @@ void PlaneRender::scaleTexCoord(int scaleX, int scaleY)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PlaneRender::render()
 {
-    assert(m_MeshRender != nullptr);
-
-    if(m_MeshRender->getCurrentTexture() != nullptr ||
-        (m_MeshRender->getCurrentTexture() == nullptr && m_AllowedNonTexRender))
-        m_MeshRender->render();
+    if(m_CurrentTexture != nullptr || (m_CurrentTexture == nullptr && m_AllowedNonTexRender))
+        MeshRender::render();
 }
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void PlaneRender::initRenderData()
-{
-    assert(m_MeshRender != nullptr);
-    // nothing to do
-}
-

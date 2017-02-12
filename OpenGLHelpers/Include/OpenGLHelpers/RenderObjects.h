@@ -215,20 +215,23 @@ class DepthBufferRender : public OffScreenRender
 public:
     DepthBufferRender(int width = 1024, int height = 1024, bool bLinearDepthBuffer = false) :
         OffScreenRender(width, height, bLinearDepthBuffer ? 1 : 0, false, GL_DEPTH_COMPONENT, GL_R32F),
-        m_bLinearDepthBuffer(bLinearDepthBuffer), m_ClearLinearDepthValue(-1.0e6)
+        m_bLinearDepthBuffer(bLinearDepthBuffer), m_ClearLinearDepthValue(-1.0e6), m_DefaultClearColor(glm::vec4(0.8, 0.8, 0.8, 1.0))
     {
         initRenderData();
     }
 
     virtual void beginRender() override;
+    virtual void endRender(GLuint defaultFBO /* = 0 */) override;
 
+    void setDefaultClearColor(const glm::vec4& clearColor);
     void setClearLinearDepthValue(GLfloat clearValue);
     OpenGLTexture* getLinearDepthBuffer();
     OpenGLTexture* getDepthBuffer();
 
 private:
-    bool    m_bLinearDepthBuffer;
-    GLfloat m_ClearLinearDepthValue;
+    bool      m_bLinearDepthBuffer;
+    GLfloat   m_ClearLinearDepthValue;
+    glm::vec4 m_DefaultClearColor;
 };
 
 
@@ -278,8 +281,8 @@ public:
 #ifdef __Banana_Qt__
     MeshRender(MeshObject* meshObj, Camera* camera, PointLights* light, QString textureFolder,
                Material* material = nullptr, OpenGLBuffer* bufferCamData = nullptr) :
-        RenderObject(camera, bufferCamData), m_MeshObj(meshObj), m_Light(light), m_Material(material), m_CurrentTexture(nullptr),
-        m_DepthBufferRender(nullptr), m_bRenderShadow(false), m_ShadowBufferWidth(1024), m_ShadowBufferHeight(1024), m_ExternalShadowMap(nullptr)
+        RenderObject(camera, bufferCamData), m_MeshObj(meshObj), m_Lights(light), m_Material(material), m_CurrentTexture(nullptr),
+        m_ShadowBufferWidth(1024), m_ShadowBufferHeight(1024), m_ExternalShadowMap(nullptr)
     {
         initRenderData();
         OpenGLTexture::loadTextures(m_Textures, textureFolder);
@@ -289,8 +292,8 @@ public:
 #endif
 
     MeshRender(MeshObject* meshObj, Camera* camera, PointLights* light, Material* material = nullptr, OpenGLBuffer* bufferCamData = nullptr) :
-        RenderObject(camera, bufferCamData), m_MeshObj(meshObj), m_Light(light), m_Material(material), m_CurrentTexture(nullptr),
-        m_DepthBufferRender(nullptr), m_bRenderShadow(false), m_ShadowBufferWidth(1024), m_ShadowBufferHeight(1024), m_ExternalShadowMap(nullptr)
+        RenderObject(camera, bufferCamData), m_MeshObj(meshObj), m_Lights(light), m_Material(material), m_CurrentTexture(nullptr),
+        m_ShadowBufferWidth(1024), m_ShadowBufferHeight(1024), m_ExternalShadowMap(nullptr)
     {
         initRenderData();
     }
@@ -304,37 +307,47 @@ public:
     void addTexture(OpenGLTexture* texture, GLenum texWrapMode = GL_REPEAT);
     void setRenderTextureIndex(int texIndex);
     void setExternalShadowMap(OpenGLTexture* shadowMap);
-    void setRenderShadow(bool bRenderShadow, bool bLinearDepthBuffer = false);
     void resizeShadowMap(int width, int height);
     void transform(const glm::vec3& translation, const glm::vec3& scale);
     void setupVAO();
 
-    OpenGLTexture* getShadowMap();
-    OpenGLTexture* getLinearShadowMap();
+    OpenGLTexture* getShadowMap(int lightID = 0);
+    OpenGLTexture* getLinearShadowMap(int lightID = 0);
 
     virtual void render() override;
 
-private:
+    void initShadowMapRenderData(const glm::vec4& clearColor, bool bLinearDepthBuffer = false);
+    void renderToDepthBuffer(int scrWidth, int scrHeight, GLuint defaultFBO = 0);
+
+protected:
     virtual void initRenderData() override;
 
-    bool                        m_bRenderShadow;
-    GLint                       m_ShadowBufferWidth;
-    GLint                       m_ShadowBufferHeight;
-    GLuint                      m_AtrVPosition;
-    GLuint                      m_AtrVNormal;
-    GLuint                      m_AtrVTexCoord;
-    GLuint                      m_UBLight;
-    GLuint                      m_UBMaterial;
-    GLuint                      m_UHasTexture;
-    GLuint                      m_UTexSampler;
-    GLuint                      m_UShadowMap;
-    MeshObject*                 m_MeshObj;
-    PointLights*                m_Light;
-    Material*                   m_Material;
-    std::vector<OpenGLTexture*> m_Textures;
-    OpenGLTexture*              m_CurrentTexture;
-    OpenGLTexture*              m_ExternalShadowMap;
-    DepthBufferRender*          m_DepthBufferRender;
+    GLuint                          m_AtrVPosition;
+    GLuint                          m_AtrVNormal;
+    GLuint                          m_AtrVTexCoord;
+    GLuint                          m_UBLight;
+    GLuint                          m_UBMaterial;
+    GLuint                          m_UHasTexture;
+    GLuint                          m_UTexSampler;
+    GLuint                          m_UShadowMap;
+    MeshObject*                     m_MeshObj;
+    PointLights*                    m_Lights;
+    Material*                       m_Material;
+    std::vector<OpenGLTexture*>     m_Textures;
+    OpenGLTexture*                  m_CurrentTexture;
+    OpenGLTexture*                  m_ExternalShadowMap;
+    GLint                           m_ShadowBufferWidth;
+    GLint                           m_ShadowBufferHeight;
+    GLuint                          m_DSAtrVPosition;
+    GLuint                          m_DSUBLightMatrix;
+    GLuint                          m_DSUBModelMatrix;
+    GLuint                          m_DSVAO;
+    ShaderProgram*                  m_DepthShader;
+    OpenGLBuffer*                   m_UBufferLightMatrix;
+    std::vector<DepthBufferRender*> m_DepthBufferRenders;
+    glm::mat4                       m_LightView[MAX_NUM_LIGHTS];
+    glm::mat4                       m_LightProjection[MAX_NUM_LIGHTS];
+
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -342,45 +355,29 @@ private:
 // Plane render
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class PlaneRender : public RenderObject
+class PlaneRender : public MeshRender
 {
 public:
 #ifdef __Banana_Qt__
     PlaneRender(Camera* camera, PointLights* light, QString texureFolder, OpenGLBuffer* bufferCamData = nullptr) :
-        RenderObject(camera, bufferCamData),
-        m_MeshRender(new MeshRender(new GridObject, camera, light, texureFolder, nullptr, bufferCamData)),
+        MeshRender(new GridObject, camera, light, texureFolder, nullptr, bufferCamData),
         m_AllowedNonTexRender(true)
-    {
-        initRenderData();
-    }
+    {}
 
-    void loadTextures(QString textureFolder);
 #endif
 
     PlaneRender(Camera* camera, PointLights* light, OpenGLBuffer* bufferCamData = nullptr) :
-        RenderObject(camera, bufferCamData),
-        m_MeshRender(new MeshRender(new GridObject, camera, light, nullptr, bufferCamData)),
+        MeshRender(new GridObject, camera, light, nullptr, bufferCamData),
         m_AllowedNonTexRender(true)
-    {
-        initRenderData();
-    }
+    {}
 
     void setAllowNonTextureRender(bool allowNonTex);
-    void clearTextures();
-    void addTexture(OpenGLTexture* texture, GLenum texWrapMode = GL_REPEAT);
-    void setRenderTextureIndex(int texIndex);
-    size_t getNumTextures();
-
-    void transform(const glm::vec3& translation, const glm::vec3& scale);
     void scaleTexCoord(int scaleX, int scaleY);
 
     virtual void render() override;
 
 private:
-    virtual void initRenderData() override;
-
     bool        m_AllowedNonTexRender;
-    MeshRender* m_MeshRender;
     GridObject* m_GridObj;
 
 };

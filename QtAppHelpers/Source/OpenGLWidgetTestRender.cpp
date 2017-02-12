@@ -179,10 +179,6 @@ void OpenGLWidgetTestRender::initTestRenderMesh(QString meshFile)
     m_MeshRender = new MeshRender(m_MeshObj, m_Camera, m_Lights, m_Material, m_UBufferCamData);
     m_MeshRender->transform(glm::vec3(0, 0, 0), glm::vec3(0.03));
 
-    if(m_TestCase == TestCase::TriMeshShadow)
-    {
-        m_MeshRender->setRenderShadow(true);
-    }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -205,8 +201,8 @@ void OpenGLWidgetTestRender::initTestRenderMeshWithShadow(QString meshFile, QStr
     // light
     m_Lights = new PointLights;
     m_Lights->setNumLights(2);
-    m_Lights->setLightPosition(glm::vec4(0, 100, 0, 1.0), 0);
-    m_Lights->setLightPosition(glm::vec4(0, 100, 100, 1.0), 1);
+    m_Lights->setLightPosition(glm::vec4(0, 3, 0, 1.0), 0);
+    m_Lights->setLightPosition(glm::vec4(0, 3, 3, 1.0), 1);
     m_Lights->setLightDiffuse(glm::vec4(0.5), 0);
     m_Lights->setLightDiffuse(glm::vec4(0.5), 1);
     m_Lights->uploadDataToGPU();
@@ -233,7 +229,12 @@ void OpenGLWidgetTestRender::initTestRenderMeshWithShadow(QString meshFile, QStr
 
     m_MeshRender = new MeshRender(m_MeshObj, m_Camera, m_Lights, m_Material, m_UBufferCamData);
     m_MeshRender->transform(glm::vec3(0, 0.5, 0), glm::vec3(0.03));
-    //m_MeshRender->setRenderShadow(true);
+    m_MeshRender->initShadowMapRenderData(m_ClearColor);
+    m_FloorRender->setExternalShadowMap(m_MeshRender->getShadowMap());
+
+    m_ScreenQuadTexRender = new ScreenQuadTextureRender;
+    m_ScreenQuadTexRender->setTexture(m_MeshRender->getShadowMap(1));
+    //m_ScreenQuadTexRender->setValueScale(0.10);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -388,7 +389,10 @@ void OpenGLWidgetTestRender::renderMeshWithShadow()
         qDebug() << "Material: " << QString::fromStdString(m_Material->getName());
     }
 
-    m_PointLightRender->render();
-    m_FloorRender->render();
-    m_MeshRender->render();
+    m_MeshRender->renderToDepthBuffer(width(), height(), context()->defaultFramebufferObject());
+
+    m_ScreenQuadTexRender->render();
+    //m_PointLightRender->render();
+    //m_FloorRender->render();
+    //m_MeshRender->render();
 }
