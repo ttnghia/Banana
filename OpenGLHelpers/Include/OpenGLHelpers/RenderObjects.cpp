@@ -326,7 +326,7 @@ void PointLightRender::initRenderData()
         "\n"
         "void main()\n"
         "{\n"
-        "    outColor = vec4(f_lightDiffuse, 1.0);\n"
+        "    outColor = vec4(vec3(1.0 - max(max(f_lightDiffuse.x, f_lightDiffuse.y), f_lightDiffuse.z)) + f_lightDiffuse, 1.0);\n"
         "}\n";
 
     m_Shader = new ShaderProgram(std::string("LightRenderShader"));

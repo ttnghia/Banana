@@ -185,6 +185,8 @@ void OpenGLWidgetTestRender::initTestRenderMesh(QString meshFile)
     m_Light->setNumLights(2);
     m_Light->setLightPosition(glm::vec4(0, 1000, 0, 1.0), 0);
     m_Light->setLightPosition(glm::vec4(1000, 0, 0, 1.0), 1);
+    m_Light->setLightDiffuse(glm::vec4(0.7), 0);
+    m_Light->setLightDiffuse(glm::vec4(0.7), 1);
     m_Light->uploadDataToGPU();
 
     m_Material = new Material;

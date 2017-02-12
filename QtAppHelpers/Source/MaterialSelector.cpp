@@ -160,7 +160,7 @@ void MaterialSelector::setMaterial(const Material::MaterialData& material)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MaterialSelector::setCustomMaterial(const Material::MaterialData & material)
 {
-    m_CurrentMaterial = material;
+    m_CustomMaterial = material;
     if(m_ComboBox->currentIndex() == m_ComboBox->count() - 1)
     {
         m_MaterialColorPicker->setWidgetColor(m_CurrentMaterial);
