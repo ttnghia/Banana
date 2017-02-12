@@ -75,7 +75,7 @@ public:
     {
         DirectionalLightData()
         {
-            setAmbient(glm::vec4(0.2));
+            setAmbient(glm::vec4(1));
             setDiffuse(glm::vec4(1));
             setSpecular(glm::vec4(1));
             setDirection(glm::vec4(-1));
@@ -148,7 +148,7 @@ public:
     {
         PointLightData()
         {
-            setAmbient(glm::vec4(0.2));
+            setAmbient(glm::vec4(1));
             setDiffuse(glm::vec4(1));
             setSpecular(glm::vec4(1));
             setPosition(glm::vec4(-1));
@@ -221,7 +221,7 @@ public:
     {
         SpotLightData()
         {
-            setAmbient(glm::vec4(0.2));
+            setAmbient(glm::vec4(1));
             setDiffuse(glm::vec4(1));
             setSpecular(glm::vec4(1));
             setPosition(glm::vec4(10));

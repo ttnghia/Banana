@@ -23,11 +23,8 @@ Material::Material(std::string materialName /*= std::string("NoName")*/)
     static_assert(sizeof(glm::vec4) == sizeof(GLfloat) * 4,
                   "Size of glm::vec4 != 4 * sizeof(GLfloat).");
 
-    m_MaterialData.ambient   = glm::vec4(0.0215, 0.1745, 0.0215, 1.0);
-    m_MaterialData.diffuse   = glm::vec4(0.07568, 0.61424, 0.07568, 1.0);
-    m_MaterialData.specular  = glm::vec4(0.633, 0.727811, 0.633, 1.0);
-    m_MaterialData.shininess = 0.6 * 128.0;
-    m_MaterialData.name      = materialName;
+    setMaterial(MT_Emerald);
+    m_MaterialData.name = materialName;
 }
 
 Material::Material(const MaterialData& material,

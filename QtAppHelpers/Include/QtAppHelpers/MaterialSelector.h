@@ -27,13 +27,15 @@ class MaterialSelector : public QWidget
     Q_OBJECT
 
 public:
-    MaterialSelector(const Material::MaterialData& material = Material::MT_Emerald,
+    MaterialSelector(const Material::MaterialData& material = Material::MT_Emerald, bool defaultCustomMaterial = false,
                      int comboBoxSpan = 3, QWidget *parent = nullptr);
     ~MaterialSelector();
 
+    void setDefaultCustomMaterial(bool defaultCustomMaterial);
     QComboBox* getComboBox();
     QLayout* getLayout();
     QGroupBox* getGroupBox(QString title = QString(""));
+    int getNumMaterials();
 
     public slots:
     void setEnabled(bool enabled);

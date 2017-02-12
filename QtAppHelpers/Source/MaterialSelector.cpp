@@ -18,7 +18,7 @@
 #include <QtAppHelpers/MaterialSelector.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-MaterialSelector::MaterialSelector(const Material::MaterialData& material /*= Material::MT_Emerald*/,
+MaterialSelector::MaterialSelector(const Material::MaterialData& material /*= Material::MT_Emerald*/, bool defaultCustomMaterial /*= false*/,
                                    int comboBoxSpan /*= 3*/, QWidget *parent /*= nullptr*/)
     : QWidget(parent),
     m_CurrentMaterial(material),
@@ -60,7 +60,7 @@ MaterialSelector::MaterialSelector(const Material::MaterialData& material /*= Ma
     connect(m_ComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(setMaterial(int)));
 
     ////////////////////////////////////////////////////////////////////////////////
-    m_CustomMaterial.ambient   = glm::vec4(0.2);
+    m_CustomMaterial.ambient   = glm::vec4(0.2 * 0.2);
     m_CustomMaterial.diffuse   = glm::vec4(0.40, 0.65, 0.96, 1.00);
     m_CustomMaterial.specular  = glm::vec4(1);
     m_CustomMaterial.shininess = 200;
@@ -71,6 +71,13 @@ MaterialSelector::MaterialSelector(const Material::MaterialData& material /*= Ma
 
     m_MaterialColorPicker->setMaterial(m_CustomMaterial);
     m_MaterialColorPicker->setWidgetColor(m_Materials[m_ComboBox->currentIndex()]);
+
+    if(defaultCustomMaterial)
+    {
+        setMaterial(m_ComboBox->count() - 1);
+        m_ComboBox->setCurrentIndex(m_ComboBox->count() - 1);
+    }
+
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -79,6 +86,13 @@ MaterialSelector::~MaterialSelector()
     delete m_ComboBox;
     delete m_GroupBox;
     delete m_Layout;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void MaterialSelector::setDefaultCustomMaterial(bool defaultCustomMaterial)
+{
+    m_ComboBox->setCurrentIndex(defaultCustomMaterial ? m_ComboBox->count() - 1 : 0);
+    setMaterial(m_ComboBox->currentIndex());
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -106,6 +120,12 @@ QGroupBox * MaterialSelector::getGroupBox(QString title)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+int MaterialSelector::getNumMaterials()
+{
+    return m_ComboBox->count();
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MaterialSelector::setEnabled(bool enabled)
 {
     m_ComboBox->setEnabled(enabled);
@@ -124,7 +144,7 @@ void MaterialSelector::setMaterial(int materialID)
 void MaterialSelector::setMaterial(const Material::MaterialData& material)
 {
     size_t mIndex = m_Materials.size();
-    for(size_t i = 0; i < m_Materials.size() - 1; ++i)
+    for(size_t i = 0; i < m_Materials.size(); ++i)
     {
         if(material.name == m_Materials[i].name)
         {
@@ -133,15 +153,16 @@ void MaterialSelector::setMaterial(const Material::MaterialData& material)
         }
     }
 
-    if(mIndex != m_Materials.size())
-    {
-        m_ComboBox->setCurrentIndex(mIndex);
-        setMaterial(mIndex);
-    }
+    m_ComboBox->setCurrentIndex(mIndex);
+    setMaterial(mIndex);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MaterialSelector::setCustomMaterial(const Material::MaterialData & material)
 {
     m_CurrentMaterial = material;
+    if(m_ComboBox->currentIndex() == m_ComboBox->count() - 1)
+    {
+        m_MaterialColorPicker->setWidgetColor(m_CurrentMaterial);
+    }
 }

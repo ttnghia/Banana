@@ -45,7 +45,7 @@ PointLightEditor::PointLightEditor(PointLights* lights /*= nullptr*/, QWidget *p
             m_LightSpeculars[i][j] = new QLineEdit;
             m_LightPositions[i][j] = new QLineEdit;
 
-            m_LightAmbients[i][j]->setText("0.2");
+            m_LightAmbients[i][j]->setText("1.0");
             m_LightDiffuses[i][j]->setText("1.0");
             m_LightSpeculars[i][j]->setText("1.0");
             m_LightPositions[i][j]->setText(j == 1 ? "100.0" : "0");
@@ -61,8 +61,7 @@ PointLightEditor::PointLightEditor(PointLights* lights /*= nullptr*/, QWidget *p
             lightLayouts[i]->addWidget(m_LightPositions[i][j], 4, j + 2, 1, 1);
 
             m_ColorSelectors[i][j] = new ColorPicker;
-            m_ColorSelectors[i][j]->setColor(j == 0 ?
-                                             floatToQColor(0.2, 0.2, 0.2) : floatToQColor(1.0, 1.0, 1.0));
+            m_ColorSelectors[i][j]->setColor(floatToQColor(1.0, 1.0, 1.0));
             m_ColorSelectors[i][j]->setFixedWidth(50);
             m_ColorSelectors[i][j]->setEnabled((i == 0));
             lightLayouts[i]->addWidget(m_ColorSelectors[i][j], j + 1, 5, 1, 1);
@@ -86,12 +85,14 @@ PointLightEditor::PointLightEditor(PointLights* lights /*= nullptr*/, QWidget *p
     mainLayout->addLayout(btnLayout);
     setLayout(mainLayout);
     connectComponents();
+    lightToGUI();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PointLightEditor::setLights(PointLights * lights)
 {
     m_Lights = lights;
+    lightToGUI();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -242,4 +243,29 @@ void PointLightEditor::applyLights()
 
     ////////////////////////////////////////////////////////////////////////////////
     emit lightsChanged(m_Lights);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void PointLightEditor::lightToGUI()
+{
+    if(m_Lights == nullptr)
+        return;
+
+    for(int i = 0; i < m_Lights->getNumLights(); ++i)
+    {
+        m_CheckBoxes[i]->setChecked(true);
+
+        glm::vec4 ambient  = m_Lights->getLightAmbient(i);
+        glm::vec4 diffuse  = m_Lights->getLightDiffuse(i);
+        glm::vec4 specular = m_Lights->getLightSpecular(i);
+        glm::vec4 position = m_Lights->getLightPosition(i);
+
+        for(int j = 0; j < 3; ++j)
+        {
+            m_LightAmbients[i][j]->setText(QString("%1").arg(ambient[j], 8, 'g', 6));
+            m_LightDiffuses[i][j]->setText(QString("%1").arg(diffuse[j], 8, 'g', 6));
+            m_LightSpeculars[i][j]->setText(QString("%1").arg(specular[j], 8, 'g', 6));
+            m_LightPositions[i][j]->setText(QString("%1").arg(position[j], 8, 'g', 6));
+        }
+    }
 }
