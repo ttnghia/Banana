@@ -439,19 +439,18 @@ void WireFrameBoxRender::initRenderData()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OffScreenRender::resize(int width, int height)
 {
-    assert(m_DepthStencilBuffer != nullptr);
-
     m_BufferWidth  = width;
     m_BufferHeight = height;
 
-    m_DepthStencilBuffer->uploadData(GL_TEXTURE_2D, m_FormatDepthStencilBuff, m_BufferWidth, m_BufferHeight,
-                                     m_hasStencilBuffer ? GL_DEPTH_STENCIL : GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, nullptr);
+    glCall(glBindRenderbuffer(GL_RENDERBUFFER, m_RenderBufferID));
+    glCall(glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, m_BufferWidth, m_BufferHeight));
+    glCall(glBindRenderbuffer(GL_RENDERBUFFER, 0));
 
     // color attachment
     for(int i = 0; i < m_NumColorBuffers; ++i)
     {
         assert(m_ColorBuffers[i] != nullptr);
-        m_ColorBuffers[i]->uploadData(GL_TEXTURE_2D, m_FormatColorBuff, m_BufferWidth, m_BufferHeight, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+        m_ColorBuffers[i]->uploadData(GL_TEXTURE_2D, m_FormatColorBuff, m_BufferWidth, m_BufferHeight, GL_RED, GL_UNSIGNED_BYTE, nullptr);
     }
 
 }
@@ -494,7 +493,7 @@ void OffScreenRender::setNumColorBuffers(int numColorBuffers)
                 OpenGLTexture * tex = new OpenGLTexture(GL_TEXTURE_2D);
                 tex->setFilterMode(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
                 tex->setFilterMode(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-                tex->uploadData(GL_TEXTURE_2D, m_FormatColorBuff, m_BufferWidth, m_BufferHeight, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+                tex->uploadData(GL_TEXTURE_2D, m_FormatColorBuff, m_BufferWidth, m_BufferHeight, GL_RED, GL_UNSIGNED_BYTE, nullptr);
 
                 m_ColorBuffers.push_back(tex);
             }
@@ -536,40 +535,10 @@ void OffScreenRender::setColorBufferFilterModes(GLenum minFilter, GLenum magFili
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-OpenGLTexture* OffScreenRender::getDepthStencilBuffer()
-{
-    return m_DepthStencilBuffer;
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 OpenGLTexture* OffScreenRender::getColorBuffer(int colorBufferID /*= 0*/)
 {
     assert(colorBufferID < m_NumColorBuffers);
     return m_ColorBuffers[colorBufferID];
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void OffScreenRender::swapDepthStencilBuffer(OpenGLTexture*& depthStencil)
-{
-    OpenGLTexture* tmp   = m_DepthStencilBuffer;
-    m_DepthStencilBuffer = depthStencil;
-    depthStencil         = tmp;
-    tmp                  = nullptr;
-
-    glCall(glBindFramebuffer(GL_FRAMEBUFFER, m_FrameBufferID));
-    glCall(glFramebufferTexture2D(GL_FRAMEBUFFER, m_hasStencilBuffer ? GL_DEPTH_STENCIL_ATTACHMENT : GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D,
-           m_DepthStencilBuffer->getTextureID(), 0));
-    // check error
-    if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-    {
-#ifdef __Banana_Qt__
-        __BNN_Die(QString("OffScreenRender: FrameBuffer is incomplete!"));
-#else
-        __BNN_Die("%s: FrameBuffer is incomplete!\n", m_Shader->getProgramName());
-#endif
-    }
-
-    glCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -603,23 +572,19 @@ void OffScreenRender::initRenderData()
     glCall(glBindFramebuffer(GL_FRAMEBUFFER, m_FrameBufferID));
 
     // depth-stencil attachment
-    m_DepthStencilBuffer = new OpenGLTexture(GL_TEXTURE_2D);
-    m_DepthStencilBuffer->setFilterMode(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    m_DepthStencilBuffer->setFilterMode(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    m_DepthStencilBuffer->uploadData(GL_TEXTURE_2D, m_FormatDepthStencilBuff, m_BufferWidth, m_BufferHeight,
-                                     m_hasStencilBuffer ? GL_DEPTH_STENCIL : GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, nullptr);
-    //m_DepthStencilBuffer->setBestParameters();
-
-    glCall(glFramebufferTexture2D(GL_FRAMEBUFFER, m_hasStencilBuffer ? GL_DEPTH_STENCIL_ATTACHMENT : GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D,
-           m_DepthStencilBuffer->getTextureID(), 0));
+    glCall(glGenRenderbuffers(1, &m_RenderBufferID));
+    glCall(glBindRenderbuffer(GL_RENDERBUFFER, m_RenderBufferID));
+    glCall(glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, m_BufferWidth, m_BufferHeight));
+    glCall(glBindRenderbuffer(GL_RENDERBUFFER, 0));
+    glCall(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_RenderBufferID));
 
     // color attachment
     for(int i = 0; i < m_NumColorBuffers; ++i)
     {
-        OpenGLTexture * tex = new OpenGLTexture(GL_TEXTURE_2D);
+        OpenGLTexture* tex = new OpenGLTexture(GL_TEXTURE_2D);
         tex->setFilterMode(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         tex->setFilterMode(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        tex->uploadData(GL_TEXTURE_2D, m_FormatColorBuff, m_BufferWidth, m_BufferHeight, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+        tex->uploadData(GL_TEXTURE_2D, m_FormatColorBuff, m_BufferWidth, m_BufferHeight, GL_RED, GL_UNSIGNED_BYTE, nullptr);
 
         glCall(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, tex->getTextureID(), 0));
         m_ColorBuffers.push_back(tex);
@@ -678,21 +643,16 @@ void DepthBufferRender::setDefaultClearColor(const glm::vec4& clearColor)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void DepthBufferRender::setClearLinearDepthValue(GLfloat clearValue)
+void DepthBufferRender::setClearDepthValue(GLfloat clearValue)
 {
     m_ClearLinearDepthValue = clearValue;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-OpenGLTexture * DepthBufferRender::getLinearDepthBuffer()
-{
-    return m_bLinearDepthBuffer ? m_ColorBuffers[0] : nullptr;
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 OpenGLTexture * DepthBufferRender::getDepthBuffer()
 {
-    return m_DepthStencilBuffer;
+    assert(m_ColorBuffers.size() > 0);
+    return m_ColorBuffers[0];
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -1054,11 +1014,6 @@ OpenGLTexture* MeshRender::getShadowMap(int lightID /*= 0*/)
 {
     assert(m_DepthBufferRenders.size() > 0);
     return m_DepthBufferRenders[lightID]->getDepthBuffer();
-}
-
-OpenGLTexture* MeshRender::getLinearShadowMap(int lightID /*= 0*/)
-{
-    return m_DepthBufferRenders[lightID]->getLinearDepthBuffer();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

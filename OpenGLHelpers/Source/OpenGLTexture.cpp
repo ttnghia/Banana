@@ -41,16 +41,13 @@ void OpenGLTexture::OpenGLTexture::generateMipMap()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void OpenGLTexture::OpenGLTexture::uploadData(GLenum texTarget, GLint internalFormat,
-                                              GLsizei width, GLsizei height,
-                                              GLenum dataFormat, GLenum dataType,
-                                              const GLvoid * data)
+void OpenGLTexture::OpenGLTexture::uploadData(GLenum texTarget, GLint internalFormat, GLsizei width, GLsizei height,
+                                              GLenum dataFormat, GLenum dataType, const GLvoid * data)
 {
     assert(m_bTextureCreated);
 
     bind();
-    glCall(glTexImage2D(texTarget, 0, internalFormat, width, height, 0,
-           dataFormat, dataType, data));
+    glCall(glTexImage2D(texTarget, 0, internalFormat, width, height, 0, dataFormat, dataType, data));
     release();
 }
 

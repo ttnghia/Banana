@@ -168,10 +168,8 @@ private:
 class OffScreenRender : public RenderObject
 {
 public:
-    OffScreenRender(int width, int height, int numColorBuffers = 1, bool hasStencilBuffer = false,
-                    GLenum formatDepthStencilBuffer = GL_DEPTH_COMPONENT, GLenum formatColorBuffers = GL_RGBA) :
-        RenderObject(nullptr, nullptr), m_BufferWidth(width), m_BufferHeight(height), m_hasStencilBuffer(hasStencilBuffer),
-        m_NumColorBuffers(numColorBuffers), m_FormatDepthStencilBuff(formatDepthStencilBuffer), m_FormatColorBuff(formatColorBuffers)
+    OffScreenRender(int width, int height, int numColorBuffers = 1, GLenum formatColorBuffers = GL_RGBA) :
+        RenderObject(nullptr, nullptr), m_BufferWidth(width), m_BufferHeight(height), m_NumColorBuffers(numColorBuffers), m_FormatColorBuff(formatColorBuffers)
     {
         initRenderData();
     }
@@ -183,9 +181,7 @@ public:
     void setNumColorBuffers(int numColorBuffers);
     void setColorBufferFilterModes(GLenum minFilter, GLenum magFiliter);
 
-    OpenGLTexture* getDepthStencilBuffer();
     OpenGLTexture* getColorBuffer(int colorBufferID = 0);
-    void swapDepthStencilBuffer(OpenGLTexture*& depthStencil);
     void swapColorBuffer(OpenGLTexture*& colorBuffer, int bufferID = 0);
 
     virtual void render() override // do nothing
@@ -197,11 +193,9 @@ protected:
     int                         m_BufferWidth;
     int                         m_BufferHeight;
     int                         m_NumColorBuffers;
-    bool                        m_hasStencilBuffer;
-    GLenum                      m_FormatDepthStencilBuff;
     GLenum                      m_FormatColorBuff;
     GLuint                      m_FrameBufferID;
-    OpenGLTexture*              m_DepthStencilBuffer;
+    GLuint                      m_RenderBufferID;
     std::vector<OpenGLTexture*> m_ColorBuffers;
 };
 
@@ -213,23 +207,18 @@ protected:
 class DepthBufferRender : public OffScreenRender
 {
 public:
-    DepthBufferRender(int width = 1024, int height = 1024, bool bLinearDepthBuffer = false) :
-        OffScreenRender(width, height, bLinearDepthBuffer ? 1 : 0, false, GL_DEPTH_COMPONENT, GL_R32F),
-        m_bLinearDepthBuffer(bLinearDepthBuffer), m_ClearLinearDepthValue(-1.0e6), m_DefaultClearColor(glm::vec4(0.8, 0.8, 0.8, 1.0))
-    {
-        initRenderData();
-    }
+    DepthBufferRender(int width = 1024, int height = 1024) :
+        OffScreenRender(width, height, 1, GL_R32F), m_ClearLinearDepthValue(-1.0e6), m_DefaultClearColor(glm::vec4(0.8, 0.8, 0.8, 1.0))
+    {}
 
     virtual void beginRender() override;
     virtual void endRender(GLuint defaultFBO /* = 0 */) override;
 
     void setDefaultClearColor(const glm::vec4& clearColor);
-    void setClearLinearDepthValue(GLfloat clearValue);
-    OpenGLTexture* getLinearDepthBuffer();
+    void setClearDepthValue(GLfloat clearValue);
     OpenGLTexture* getDepthBuffer();
 
 private:
-    bool      m_bLinearDepthBuffer;
     GLfloat   m_ClearLinearDepthValue;
     glm::vec4 m_DefaultClearColor;
 };
@@ -312,7 +301,6 @@ public:
     void setupVAO();
 
     OpenGLTexture* getShadowMap(int lightID = 0);
-    OpenGLTexture* getLinearShadowMap(int lightID = 0);
 
     virtual void render() override;
 

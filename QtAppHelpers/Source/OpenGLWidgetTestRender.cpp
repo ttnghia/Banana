@@ -234,7 +234,7 @@ void OpenGLWidgetTestRender::initTestRenderMeshWithShadow(QString meshFile, QStr
 
     m_ScreenQuadTexRender = new ScreenQuadTextureRender;
     m_ScreenQuadTexRender->setTexture(m_MeshRender->getShadowMap(1));
-    //m_ScreenQuadTexRender->setValueScale(0.10);
+    m_ScreenQuadTexRender->setValueScale(-0.10);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
