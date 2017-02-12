@@ -122,6 +122,7 @@ public:
     static ShaderProgram* getSimpleVertexColorShader(std::string programName = std::string("SimpleVertexColorShader"));
     static ShaderProgram* getSimpleUniformColorShader(std::string programName = std::string("SimpleUniformColorShader"));
     static ShaderProgram* getSimpleTextureShader(std::string programName = std::string("SimpleTextureShader"));
+    static ShaderProgram* getSimpleDepthShader(std::string programName = std::string("SimpleDepthShader"));
     static ShaderProgram* getObjUniformColorShader(std::string programName = std::string("ObjUniformColorShader"));
     static ShaderProgram* getObjTextureShader(std::string programName = std::string("ObjTextureShader"));
     static ShaderProgram* getPhongShader(std::string programName = std::string("PhongShader"));

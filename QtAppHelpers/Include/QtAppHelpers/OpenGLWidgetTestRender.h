@@ -31,21 +31,22 @@
 #include <QtAppHelpers/OpenGLWidget.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+enum class TestCase
+{
+    Triangle,
+    Texture,
+    SkyBox,
+    Floor,
+    TriMesh,
+    TriMeshShadow
+};
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 class OpenGLWidgetTestRender : public OpenGLWidget
 {
     Q_OBJECT
 
 public:
-    enum class RenderType
-    {
-        NotSetup,
-        Triangle,
-        Texture,
-        SkyBox,
-        Floor,
-        TriMesh
-    };
-
     OpenGLWidgetTestRender(QWidget *parent);
     ~OpenGLWidgetTestRender();
 
@@ -54,9 +55,9 @@ public:
     void initTestRenderSkybox(QString texFolder);
     void initTestRenderFloor(QString texFile);
     void initTestRenderMesh(QString meshFile);
+    void initTestRenderMeshWithShadow(QString meshFile, QString floorTexFile);
 
     virtual void initializeGL() override;
-    virtual void resizeGL(int w, int h) override;
     virtual void paintGL() override;
 
 private:
@@ -65,22 +66,24 @@ private:
     void renderSkyBox();
     void renderFloor();
     void renderMesh();
+    void renderMeshWithShadow();
 
-    RenderType        m_RenderType;
-    OpenGLBuffer*     m_UBufferModelMatrix;
-    OpenGLBuffer*     m_UBufferCamData;
-    OpenGLBuffer*     m_VertexBuffer;
-    OpenGLBuffer*     m_IndexBuffer;
-    OpenGLTexture*    m_Texture;
-    ShaderProgram*    m_Shader;
-    MeshObject*       m_MeshObj;
-    MeshLoader*       m_MeshLoader;
-    PointLights*       m_Light;
-    Material*         m_Material;
-    GLuint            m_VAO;
-    SkyBoxRender*     m_SkyBoxRender;
-    PlaneRender*      m_FloorRender;
-    PointLightRender* m_PointLightRender;
-    MeshRender*       m_MeshRender;
+    TestCase           m_TestCase;
+    OpenGLBuffer*      m_UBufferModelMatrix;
+    OpenGLBuffer*      m_UBufferCamData;
+    OpenGLBuffer*      m_VertexBuffer;
+    OpenGLBuffer*      m_IndexBuffer;
+    OpenGLTexture*     m_Texture;
+    ShaderProgram*     m_Shader;
+    MeshObject*        m_MeshObj;
+    MeshLoader*        m_MeshLoader;
+    PointLights*       m_Lights;
+    Material*          m_Material;
+    GLuint             m_VAO;
+    SkyBoxRender*      m_SkyBoxRender;
+    PlaneRender*       m_FloorRender;
+    PointLightRender*  m_PointLightRender;
+    MeshRender*        m_MeshRender;
+    DepthBufferRender* m_DepthBufferRender;
 
 };

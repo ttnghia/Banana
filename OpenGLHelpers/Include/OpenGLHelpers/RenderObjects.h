@@ -135,6 +135,140 @@ private:
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+// WirteFrameBoxRender
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+class WireFrameBoxRender : public RenderObject
+{
+public:
+    WireFrameBoxRender(Camera* camera, OpenGLBuffer* bufferCamData = nullptr) : RenderObject(camera, bufferCamData), m_BoxColor(0.5, 0.5, 0)
+    {
+        initRenderData();
+    }
+
+    void transform(const glm::vec3& translation, const glm::vec3& scale);
+    void setBox(const glm::vec3& boxMin, const glm::vec3& boxMax);
+    virtual void render() override;
+
+private:
+    virtual void initRenderData() override;
+
+    glm::vec3           m_BoxColor;
+    GLuint              m_AtrVPosition;
+    GLuint              m_UColor;
+    WireFrameBoxObject* m_WireFrameBoxObj;
+
+};
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+// OffScreenRender
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+class OffScreenRender : public RenderObject
+{
+public:
+    OffScreenRender(int width, int height, int numColorBuffers = 1, bool hasStencilBuffer = false,
+                    GLenum formatDepthStencilBuffer = GL_DEPTH_COMPONENT, GLenum formatColorBuffers = GL_RGBA) :
+        RenderObject(nullptr, nullptr), m_BufferWidth(width), m_BufferHeight(height), m_hasStencilBuffer(hasStencilBuffer),
+        m_NumColorBuffers(numColorBuffers), m_FormatDepthStencilBuff(formatDepthStencilBuffer), m_FormatColorBuff(formatColorBuffers)
+    {
+        initRenderData();
+    }
+
+    virtual void resize(int width, int height);
+    virtual void beginRender();
+    virtual void endRender(GLuint defaultFBO = 0);
+
+    void setNumColorBuffers(int numColorBuffers);
+    void setColorBufferFilterModes(GLenum minFilter, GLenum magFiliter);
+
+    OpenGLTexture* getDepthStencilBuffer();
+    OpenGLTexture* getColorBuffer(int colorBufferID = 0);
+    void swapDepthStencilBuffer(OpenGLTexture*& depthStencil);
+    void swapColorBuffer(OpenGLTexture*& colorBuffer, int bufferID = 0);
+
+    virtual void render() override // do nothing
+    {}
+
+protected:
+    virtual void   initRenderData() override;
+
+    int                         m_BufferWidth;
+    int                         m_BufferHeight;
+    int                         m_NumColorBuffers;
+    bool                        m_hasStencilBuffer;
+    GLenum                      m_FormatDepthStencilBuff;
+    GLenum                      m_FormatColorBuff;
+    GLuint                      m_FrameBufferID;
+    OpenGLTexture*              m_DepthStencilBuffer;
+    std::vector<OpenGLTexture*> m_ColorBuffers;
+};
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+// DepthBufferRender
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+class DepthBufferRender : public OffScreenRender
+{
+public:
+    DepthBufferRender(int width = 1024, int height = 1024, bool bLinearDepthBuffer = false) :
+        OffScreenRender(width, height, bLinearDepthBuffer ? 1 : 0, false, GL_DEPTH_COMPONENT, GL_R32F),
+        m_bLinearDepthBuffer(bLinearDepthBuffer), m_ClearLinearDepthValue(-1.0e6)
+    {
+        initRenderData();
+    }
+
+    virtual void beginRender() override;
+
+    void setClearLinearDepthValue(GLfloat clearValue);
+    OpenGLTexture* getLinearDepthBuffer();
+    OpenGLTexture* getDepthBuffer();
+
+private:
+    bool    m_bLinearDepthBuffer;
+    GLfloat m_ClearLinearDepthValue;
+};
+
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+// ScreenQuadTextureRender
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+class ScreenQuadTextureRender : public RenderObject
+{
+public:
+    ScreenQuadTextureRender() : RenderObject(nullptr, nullptr), m_Texture(nullptr), m_TexelSizeValue(1), m_ValueScale(1.0)
+    {
+        initRenderData();
+    }
+
+    ScreenQuadTextureRender(OpenGLTexture* texture, int texelSize = 1) :
+        RenderObject(nullptr, nullptr), m_Texture(texture), m_TexelSizeValue(texelSize), m_ValueScale(1.0)
+    {
+        initRenderData();
+    }
+
+    void setValueScale(float scale);
+    void setTexture(OpenGLTexture* texture, int texelSize = 1);
+    virtual void render() override;
+private:
+    virtual void initRenderData() override;
+
+    float          m_ValueScale;
+    int            m_TexelSizeValue;
+    GLuint         m_AtrVPosition;
+    GLuint         m_UTexelSize;
+    GLuint         m_UValueScale;
+    GLuint         m_UTexSampler;
+    OpenGLTexture* m_Texture;
+};
+
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Mesh render
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -144,7 +278,8 @@ public:
 #ifdef __Banana_Qt__
     MeshRender(MeshObject* meshObj, Camera* camera, PointLights* light, QString textureFolder,
                Material* material = nullptr, OpenGLBuffer* bufferCamData = nullptr) :
-        RenderObject(camera, bufferCamData), m_MeshObj(meshObj), m_Light(light), m_Material(material), m_CurrentTexture(nullptr)
+        RenderObject(camera, bufferCamData), m_MeshObj(meshObj), m_Light(light), m_Material(material), m_CurrentTexture(nullptr),
+        m_DepthBufferRender(nullptr), m_bRenderShadow(false), m_ShadowBufferWidth(1024), m_ShadowBufferHeight(1024), m_ExternalShadowMap(nullptr)
     {
         initRenderData();
         OpenGLTexture::loadTextures(m_Textures, textureFolder);
@@ -154,7 +289,8 @@ public:
 #endif
 
     MeshRender(MeshObject* meshObj, Camera* camera, PointLights* light, Material* material = nullptr, OpenGLBuffer* bufferCamData = nullptr) :
-        RenderObject(camera, bufferCamData), m_MeshObj(meshObj), m_Light(light), m_Material(material), m_CurrentTexture(nullptr)
+        RenderObject(camera, bufferCamData), m_MeshObj(meshObj), m_Light(light), m_Material(material), m_CurrentTexture(nullptr),
+        m_DepthBufferRender(nullptr), m_bRenderShadow(false), m_ShadowBufferWidth(1024), m_ShadowBufferHeight(1024), m_ExternalShadowMap(nullptr)
     {
         initRenderData();
     }
@@ -167,14 +303,23 @@ public:
     void clearTextures(bool insertNullTex = true);
     void addTexture(OpenGLTexture* texture, GLenum texWrapMode = GL_REPEAT);
     void setRenderTextureIndex(int texIndex);
+    void setExternalShadowMap(OpenGLTexture* shadowMap);
+    void setRenderShadow(bool bRenderShadow, bool bLinearDepthBuffer = false);
+    void resizeShadowMap(int width, int height);
     void transform(const glm::vec3& translation, const glm::vec3& scale);
     void setupVAO();
+
+    OpenGLTexture* getShadowMap();
+    OpenGLTexture* getLinearShadowMap();
 
     virtual void render() override;
 
 private:
     virtual void initRenderData() override;
 
+    bool                        m_bRenderShadow;
+    GLint                       m_ShadowBufferWidth;
+    GLint                       m_ShadowBufferHeight;
     GLuint                      m_AtrVPosition;
     GLuint                      m_AtrVNormal;
     GLuint                      m_AtrVTexCoord;
@@ -182,11 +327,14 @@ private:
     GLuint                      m_UBMaterial;
     GLuint                      m_UHasTexture;
     GLuint                      m_UTexSampler;
+    GLuint                      m_UShadowMap;
     MeshObject*                 m_MeshObj;
-    PointLights*                 m_Light;
+    PointLights*                m_Light;
     Material*                   m_Material;
     std::vector<OpenGLTexture*> m_Textures;
     OpenGLTexture*              m_CurrentTexture;
+    OpenGLTexture*              m_ExternalShadowMap;
+    DepthBufferRender*          m_DepthBufferRender;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -235,147 +383,4 @@ private:
     MeshRender* m_MeshRender;
     GridObject* m_GridObj;
 
-};
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-// WirteFrameBoxRender
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class WireFrameBoxRender : public RenderObject
-{
-public:
-    WireFrameBoxRender(Camera* camera, OpenGLBuffer* bufferCamData = nullptr) : RenderObject(camera, bufferCamData), m_BoxColor(0.5, 0.5, 0)
-    {
-        initRenderData();
-    }
-
-    void transform(const glm::vec3& translation, const glm::vec3& scale);
-    void setBox(const glm::vec3& boxMin, const glm::vec3& boxMax);
-    virtual void render() override;
-
-private:
-    virtual void initRenderData() override;
-
-    glm::vec3           m_BoxColor;
-    GLuint              m_AtrVPosition;
-    GLuint              m_UColor;
-    WireFrameBoxObject* m_WireFrameBoxObj;
-
-};
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-// OffScreenRender
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class OffScreenRender : public RenderObject
-{
-public:
-    OffScreenRender(int width, int height, int numColorBuffers = 1, bool hasStencilBuffer = false,
-                    GLenum formatDepthStencilBuffer = GL_DEPTH_COMPONENT, GLenum formatColorBuffers = GL_RGBA,
-                    Camera* camera = nullptr, OpenGLBuffer* bufferCamData = nullptr) :
-        RenderObject(camera, bufferCamData), m_BufferWidth(width), m_BufferHeight(height), m_hasStencilBuffer(hasStencilBuffer),
-        m_NumColorBuffers(numColorBuffers), m_FormatDepthStencilBuff(formatDepthStencilBuffer), m_FormatColorBuff(formatColorBuffers)
-    {
-        initRenderData();
-    }
-
-    void resize(int width, int height);
-    void beginRender();
-    void endRender(GLuint defaultFBO = 0);
-
-    OpenGLTexture* getDepthStencilBuffer();
-    OpenGLTexture* getColorBuffer(int colorBufferID = 0);
-    void swapDepthStencilBuffer(OpenGLTexture*& depthStencil);
-    void swapColorBuffer(OpenGLTexture*& colorBuffer, int bufferID = 0);
-
-    virtual void render() override // do nothing
-    {}
-
-private:
-    virtual void   initRenderData() override;
-
-    int                         m_BufferWidth;
-    int                         m_BufferHeight;
-    int                         m_NumColorBuffers;
-    bool                        m_hasStencilBuffer;
-    GLenum                      m_FormatDepthStencilBuff;
-    GLenum                      m_FormatColorBuff;
-    GLuint                      m_FrameBufferID;
-    OpenGLTexture*              m_DepthStencilBuffer;
-    std::vector<OpenGLTexture*> m_ColorBuffers;
-};
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-// DepthBufferRender
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class DepthBufferRender : public RenderObject
-{
-public:
-    DepthBufferRender(Camera* camera, OpenGLBuffer* bufferCamData = nullptr, int width = 1024, int height = 1024) :
-        RenderObject(camera, bufferCamData),
-        m_BufferWidth(width), m_BufferHeight(height)
-    {
-        initRenderData();
-    }
-
-    void resize(int width, int height);
-    void beginRender();
-    void endRender();
-
-    OpenGLTexture* getFloatDepthBuffer();
-    OpenGLTexture* getTestDepthBuffer();
-
-    virtual void render() override // do nothing
-    {}
-
-private:
-    virtual void initRenderData() override;
-    void generateFrameBuffer();
-
-    int            m_BufferWidth;
-    int            m_BufferHeight;
-    glm::vec4      m_ClearColor;
-    GLuint         m_AtrVPosition;
-    GLuint         m_FrameBuffer;
-    OpenGLTexture* m_DepthBuffer;
-    OpenGLTexture* m_DepthTestBuffer;
-};
-
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-// ScreenQuadTextureRender
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class ScreenQuadTextureRender : public RenderObject
-{
-public:
-    ScreenQuadTextureRender() : RenderObject(nullptr, nullptr), m_Texture(nullptr), m_TexelSizeValue(1), m_ValueScale(1.0)
-    {
-        initRenderData();
-    }
-
-    ScreenQuadTextureRender(OpenGLTexture* texture, int texelSize = 1) :
-        RenderObject(nullptr, nullptr), m_Texture(texture), m_TexelSizeValue(texelSize), m_ValueScale(1.0)
-    {
-        initRenderData();
-    }
-
-    void setValueScale(float scale);
-    void setTexture(OpenGLTexture* texture, int texelSize = 1);
-    virtual void render() override;
-private:
-    virtual void initRenderData() override;
-
-    float          m_ValueScale;
-    int            m_TexelSizeValue;
-    GLuint         m_AtrVPosition;
-    GLuint         m_UTexelSize;
-    GLuint         m_UValueScale;
-    GLuint         m_UTexSampler;
-    OpenGLTexture* m_Texture;
 };
