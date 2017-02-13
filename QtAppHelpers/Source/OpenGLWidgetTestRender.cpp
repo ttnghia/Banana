@@ -200,16 +200,36 @@ void OpenGLWidgetTestRender::initTestRenderMeshWithShadow(QString meshFile, QStr
     ////////////////////////////////////////////////////////////////////////////////
     // light
     m_Lights = new PointLights;
-#if 0
+
+#define NUM_LIGHTS 3
+
+#if NUM_LIGHTS==1
+    m_Lights->setNumLights(1);
+    m_Lights->setLightPosition(glm::vec4(0, 3, 3, 1.0), 0);
+    m_Lights->setLightDiffuse(glm::vec4(1.0), 0);
+
+#endif
+#if NUM_LIGHTS==2
     m_Lights->setNumLights(2);
     m_Lights->setLightPosition(glm::vec4(0, 3, 0, 1.0), 0);
     m_Lights->setLightPosition(glm::vec4(0, 3, 3, 1.0), 1);
     m_Lights->setLightDiffuse(glm::vec4(0.5), 0);
     m_Lights->setLightDiffuse(glm::vec4(0.5), 1);
-#else
-    m_Lights->setNumLights(1);
-    m_Lights->setLightPosition(glm::vec4(0, 3, 3, 1.0), 0);
-    m_Lights->setLightDiffuse(glm::vec4(1.0), 0);
+#endif
+#if NUM_LIGHTS==3
+    m_Lights->setNumLights(3);
+    m_Lights->setLightPosition(glm::vec4(0, 3, 0, 1.0), 0);
+    m_Lights->setLightPosition(glm::vec4(0, 3, 3, 1.0), 1);
+    m_Lights->setLightPosition(glm::vec4(3, 3, -3, 1.0), 2);
+    m_Lights->setLightAmbient(glm::vec4(0.05), 0);
+    m_Lights->setLightAmbient(glm::vec4(0.05), 1);
+    m_Lights->setLightAmbient(glm::vec4(0.05), 2);
+    m_Lights->setLightDiffuse(glm::vec4(0.5), 0);
+    m_Lights->setLightDiffuse(glm::vec4(0.5), 1);
+    m_Lights->setLightDiffuse(glm::vec4(0.5), 2);
+    m_Lights->setLightSpecular(glm::vec4(0.5), 0);
+    m_Lights->setLightSpecular(glm::vec4(0.5), 1);
+    m_Lights->setLightSpecular(glm::vec4(0.5), 2);
 #endif
     m_Lights->setSceneCenter(glm::vec3(0, 0, 0));
     m_Lights->setLightViewPerspective(30);

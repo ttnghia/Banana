@@ -281,7 +281,7 @@ public:
         OpenGLTexture::loadTextures(m_Textures, textureFolder);
     }
 
-    void loadTexture(QString textureFolder);
+    void loadTextures(QString textureFolder);
 #endif
 
     MeshRender(MeshObject* meshObj, Camera* camera, PointLights* light, Material* material = nullptr, OpenGLBuffer* bufferCamData = nullptr) :

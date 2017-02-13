@@ -776,7 +776,7 @@ void ScreenQuadTextureRender::setTexture(OpenGLTexture * texture, int texelSize 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #ifdef __Banana_Qt__
-void MeshRender::loadTexture(QString textureFolder)
+void MeshRender::loadTextures(QString textureFolder)
 {
     OpenGLTexture::loadTextures(m_Textures, textureFolder);
 }
