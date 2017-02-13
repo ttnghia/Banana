@@ -200,11 +200,17 @@ void OpenGLWidgetTestRender::initTestRenderMeshWithShadow(QString meshFile, QStr
     ////////////////////////////////////////////////////////////////////////////////
     // light
     m_Lights = new PointLights;
+#if 0
     m_Lights->setNumLights(2);
     m_Lights->setLightPosition(glm::vec4(0, 3, 0, 1.0), 0);
     m_Lights->setLightPosition(glm::vec4(0, 3, 3, 1.0), 1);
     m_Lights->setLightDiffuse(glm::vec4(0.5), 0);
     m_Lights->setLightDiffuse(glm::vec4(0.5), 1);
+#else
+    m_Lights->setNumLights(1);
+    m_Lights->setLightPosition(glm::vec4(0, 3, 3, 1.0), 0);
+    m_Lights->setLightDiffuse(glm::vec4(1.0), 0);
+#endif
     m_Lights->setSceneCenter(glm::vec3(0, 0, 0));
     m_Lights->setLightViewPerspective(30);
     m_Lights->uploadDataToGPU();
@@ -232,6 +238,7 @@ void OpenGLWidgetTestRender::initTestRenderMeshWithShadow(QString meshFile, QStr
     m_MeshRender = new MeshRender(m_MeshObj, m_Camera, m_Lights, m_Material, m_UBufferCamData);
     m_MeshRender->transform(glm::vec3(0, 0.5, 0), glm::vec3(0.03));
     m_MeshRender->initShadowMapRenderData(m_ClearColor);
+    //m_MeshRender->resizeShadowMap(512, 512);
     m_FloorRender->setExternalShadowMaps(m_MeshRender->getAllShadowMaps());
 
     m_ScreenQuadTexRender = new ScreenQuadTextureRender;
