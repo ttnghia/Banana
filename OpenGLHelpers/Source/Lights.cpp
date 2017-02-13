@@ -39,6 +39,8 @@ void Lights::createUniformBuffer()
 {
     size_t bufferSize = getUniformBufferSize();
     m_UniformBuffer.createBuffer(GL_UNIFORM_BUFFER, bufferSize);
+
+    m_UniformBufferLightMatrix.createBuffer(GL_UNIFORM_BUFFER, 2 * MAX_NUM_LIGHTS * sizeof(glm::mat4));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -69,6 +71,37 @@ size_t Lights::getUniformBufferSize() const
 size_t Lights::getLightDataSize() const
 {
     return MAX_NUM_LIGHTS * getLightSize();
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void Lights::setSceneCenter(const glm::vec3& sceneCenter)
+{
+    m_SceneCenter = sceneCenter;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void Lights::bindUniformBufferLightMatrix()
+{
+    assert(m_UniformBufferLightMatrix.isCreated());
+    m_UniformBufferLightMatrix.bindBufferBase();
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+GLuint Lights::getBufferLightMatrixBindingPoint()
+{
+    if(!m_UniformBufferLightMatrix.isCreated())
+    {
+        createUniformBuffer();
+    }
+
+    return m_UniformBufferLightMatrix.getBindingPoint();
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void Lights::uploadLightMatrixToGPU()
+{
+    assert(m_UniformBufferLightMatrix.isCreated());
+    m_UniformBufferLightMatrix.uploadData(m_LightMatrices, 0, 2 * MAX_NUM_LIGHTS * sizeof(glm::mat4));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -185,6 +218,34 @@ void DirectionalLights::uploadDataToGPU()
 
     m_UniformBuffer.uploadData(m_Lights, 0, getLightDataSize());
     m_UniformBuffer.uploadData(&m_NumActiveLights, getLightDataSize(), sizeof(GLint));
+
+    updateLightMatrixBuffer();
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void DirectionalLights::updateLightMatrixBuffer()
+{
+    for(int i = 0; i < m_NumActiveLights; ++i)
+    {
+        glm::mat4 lightView = glm::lookAt(m_SceneCenter - glm::make_vec3(m_Lights[i].direction), m_SceneCenter, glm::vec3(0.0f, -0.91f, 0.01f));
+        glm::mat4 lightProjection = glm::ortho(m_ShadowMinX, m_ShadowMaxX, m_ShadowMinY, m_ShadowMaxY, m_ShadowMinZ, m_ShadowMaxZ);
+
+        m_LightMatrices[i].setViewMatrix(lightView);
+        m_LightMatrices[i].setProjectionMatrix(lightProjection);
+    }
+
+    uploadLightMatrixToGPU();
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void DirectionalLights::setShadowMapBox(GLfloat minX, GLfloat maxX, GLfloat minY, GLfloat maxY, GLfloat minZ, GLfloat maxZ)
+{
+    m_ShadowMinX = minX;
+    m_ShadowMaxX = maxX;
+    m_ShadowMinY = minY;
+    m_ShadowMaxY = maxY;
+    m_ShadowMinZ = minZ;
+    m_ShadowMaxZ = maxZ;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -301,6 +362,32 @@ void PointLights::uploadDataToGPU()
 
     m_UniformBuffer.uploadData(m_Lights, 0, getLightDataSize());
     m_UniformBuffer.uploadData(&m_NumActiveLights, getLightDataSize(), sizeof(GLint));
+
+    updateLightMatrixBuffer();
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void PointLights::updateLightMatrixBuffer()
+{
+    for(int i = 0; i < m_NumActiveLights; ++i)
+    {
+        glm::mat4 lightView = glm::lookAt(glm::make_vec3(m_Lights[i].position), m_SceneCenter, glm::vec3(0.0f, -0.91f, 0.01f));
+        glm::mat4 lightProjection = glm::perspective(glm::radians(m_ShadowFOV), m_ShadowAspect, m_ShadowNearZ, m_ShadowFarZ);
+
+        m_LightMatrices[i].setViewMatrix(lightView);
+        m_LightMatrices[i].setProjectionMatrix(lightProjection);
+    }
+
+    uploadLightMatrixToGPU();
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void PointLights::setLightViewPerspective(GLfloat fov, GLfloat asspect /*= 1.0*/, GLfloat nearZ /*= 0.1f*/, GLfloat farZ /*= 1000.0f*/)
+{
+    m_ShadowFOV = fov;
+    m_ShadowAspect = asspect;
+    m_ShadowNearZ = nearZ;
+    m_ShadowFarZ = farZ;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -468,4 +555,31 @@ void SpotLights::uploadDataToGPU()
 
     m_UniformBuffer.uploadData(m_Lights, 0, getLightDataSize());
     m_UniformBuffer.uploadData(&m_NumActiveLights, getLightDataSize(), sizeof(GLint));
+
+    updateLightMatrixBuffer();
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void SpotLights::updateLightMatrixBuffer()
+{
+
+    for(int i = 0; i < m_NumActiveLights; ++i)
+    {
+        glm::mat4 lightView = glm::lookAt(glm::make_vec3(m_Lights[i].position), m_SceneCenter, glm::vec3(0.0f, -0.91f, 0.01f));
+        glm::mat4 lightProjection = glm::perspective(glm::radians(m_ShadowFOV), m_ShadowAspect, m_ShadowNearZ, m_ShadowFarZ);
+
+        m_LightMatrices[i].setViewMatrix(lightView);
+        m_LightMatrices[i].setProjectionMatrix(lightProjection);
+    }
+
+    uploadLightMatrixToGPU();
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void SpotLights::setLightViewPerspective(GLfloat fov, GLfloat asspect /*= 1.0*/, GLfloat nearZ /*= 0.1f*/, GLfloat farZ /*= 1000.0f*/)
+{
+    m_ShadowFOV = fov;
+    m_ShadowAspect = asspect;
+    m_ShadowNearZ = nearZ;
+    m_ShadowFarZ = farZ;
 }

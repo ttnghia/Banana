@@ -137,9 +137,9 @@ void SkyBoxRender::clearTextures()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void SkyBoxRender::addTexture(OpenGLTexture* texture)
 {
-    texture->setFilterMode(GL_TEXTURE_WRAP_S, GL_REPEAT);
-    texture->setFilterMode(GL_TEXTURE_WRAP_T, GL_REPEAT);
-    texture->setFilterMode(GL_TEXTURE_WRAP_R, GL_REPEAT);
+    texture->setTextureParameter(GL_TEXTURE_WRAP_S, GL_REPEAT);
+    texture->setTextureParameter(GL_TEXTURE_WRAP_T, GL_REPEAT);
+    texture->setTextureParameter(GL_TEXTURE_WRAP_R, GL_REPEAT);
 
     m_Textures.push_back(texture);
 }
@@ -491,8 +491,8 @@ void OffScreenRender::setNumColorBuffers(int numColorBuffers)
             for(int i = m_ColorBuffers.size(); i < numColorBuffers; ++i)
             {
                 OpenGLTexture * tex = new OpenGLTexture(GL_TEXTURE_2D);
-                tex->setFilterMode(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-                tex->setFilterMode(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+                tex->setTextureParameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+                tex->setTextureParameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
                 tex->uploadData(GL_TEXTURE_2D, m_FormatColorBuff, m_BufferWidth, m_BufferHeight, GL_RED, GL_UNSIGNED_BYTE, nullptr);
 
                 m_ColorBuffers.push_back(tex);
@@ -525,12 +525,11 @@ void OffScreenRender::setNumColorBuffers(int numColorBuffers)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void OffScreenRender::setColorBufferFilterModes(GLenum minFilter, GLenum magFiliter)
+void OffScreenRender::setColorBufferParameter(GLenum paramName, GLenum paramValue)
 {
     for(OpenGLTexture* tex : m_ColorBuffers)
     {
-        tex->setFilterMode(GL_TEXTURE_MIN_FILTER, minFilter);
-        tex->setFilterMode(GL_TEXTURE_MAG_FILTER, magFiliter);
+        tex->setTextureParameter(paramName, paramValue);
     }
 }
 
@@ -582,8 +581,8 @@ void OffScreenRender::initRenderData()
     for(int i = 0; i < m_NumColorBuffers; ++i)
     {
         OpenGLTexture* tex = new OpenGLTexture(GL_TEXTURE_2D);
-        tex->setFilterMode(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        tex->setFilterMode(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        tex->setTextureParameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        tex->setTextureParameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         tex->uploadData(GL_TEXTURE_2D, m_FormatColorBuff, m_BufferWidth, m_BufferHeight, GL_RED, GL_UNSIGNED_BYTE, nullptr);
 
         glCall(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, tex->getTextureID(), 0));
@@ -637,6 +636,23 @@ void DepthBufferRender::endRender(GLuint defaultFBO /* = 0 */)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void DepthBufferRender::setNumColorBuffers(int numColorBuffers)
+{
+    OffScreenRender::setNumColorBuffers(numColorBuffers);
+
+    GLfloat borderColor[] ={m_ClearLinearDepthValue, m_ClearLinearDepthValue,m_ClearLinearDepthValue, 1.0};
+
+    for(int i = 0; i < m_NumColorBuffers; ++i)
+    {
+        m_ColorBuffers[i]->bind();
+        glCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER));
+        glCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER));
+        glCall(glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor));
+        m_ColorBuffers[i]->release();
+    }
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void DepthBufferRender::setDefaultClearColor(const glm::vec4& clearColor)
 {
     m_DefaultClearColor = clearColor;
@@ -653,6 +669,23 @@ OpenGLTexture * DepthBufferRender::getDepthBuffer()
 {
     assert(m_ColorBuffers.size() > 0);
     return m_ColorBuffers[0];
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void DepthBufferRender::initRenderData()
+{
+    OffScreenRender::initRenderData();
+
+    GLfloat borderColor[] ={m_ClearLinearDepthValue, m_ClearLinearDepthValue,m_ClearLinearDepthValue, 1.0};
+
+    for(int i = 0; i < m_NumColorBuffers; ++i)
+    {
+        m_ColorBuffers[i]->bind();
+        glCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER));
+        glCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER));
+        glCall(glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor));
+        m_ColorBuffers[i]->release();
+    }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -793,9 +826,9 @@ void MeshRender::clearTextures(bool insertNullTex /*= true*/)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MeshRender::addTexture(OpenGLTexture * texture, GLenum texWrapMode /*= GL_REPEAT*/)
 {
-    texture->setFilterMode(GL_TEXTURE_WRAP_S, texWrapMode);
-    texture->setFilterMode(GL_TEXTURE_WRAP_T, texWrapMode);
-    texture->setFilterMode(GL_TEXTURE_WRAP_R, texWrapMode);
+    texture->setTextureParameter(GL_TEXTURE_WRAP_S, texWrapMode);
+    texture->setTextureParameter(GL_TEXTURE_WRAP_T, texWrapMode);
+    texture->setTextureParameter(GL_TEXTURE_WRAP_R, texWrapMode);
     m_Textures.push_back(texture);
 }
 
@@ -810,9 +843,10 @@ void MeshRender::setRenderTextureIndex(int texIndex)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MeshRender::setExternalShadowMap(OpenGLTexture* shadowMap)
+void MeshRender::setExternalShadowMaps(std::vector<OpenGLTexture*> shadowMaps)
 {
-    m_ExternalShadowMap = shadowMap;
+    assert(shadowMaps.size() == m_Lights->getNumLights());
+    m_ExternalShadowMaps = shadowMaps;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -852,9 +886,6 @@ void MeshRender::render()
         m_Shader->setUniformValue(m_UHasTexture, 0);
     }
 
-    if(m_ExternalShadowMap != nullptr)
-        m_ExternalShadowMap->bind(1);
-
     m_UBufferModelMatrix->bindBufferBase();
     m_Shader->bindUniformBlock(m_UBModelMatrix, m_UBufferModelMatrix->getBindingPoint());
 
@@ -867,6 +898,23 @@ void MeshRender::render()
     m_Material->bindUniformBuffer();
     m_Shader->bindUniformBlock(m_UBMaterial, m_Material->getBufferBindingPoint());
 
+    if(m_ExternalShadowMaps.size() != 0)
+    {
+        m_Lights->bindUniformBufferLightMatrix();
+        m_Shader->bindUniformBlock(m_UBLightMatrices, m_Lights->getBufferLightMatrixBindingPoint());
+        m_Shader->setUniformValue(m_UHasShadow, 1);
+
+        for(int i = 0; i < m_ExternalShadowMaps.size(); ++i)
+        {
+            m_Shader->setUniformValue(m_UShadowMap[i], i + 1);
+            m_ExternalShadowMaps[i]->bind(i + 1);
+        }
+    }
+    else
+    {
+        m_Shader->setUniformValue(m_UHasShadow, 0);
+    }
+
     glCall(glBindVertexArray(m_VAO));
     m_MeshObj->draw();
     glCall(glBindVertexArray(0));
@@ -875,8 +923,11 @@ void MeshRender::render()
     {
         m_CurrentTexture->release();
     }
-    if(m_ExternalShadowMap != nullptr)
-        m_ExternalShadowMap->release();
+    if(m_ExternalShadowMaps.size() != 0)
+    {
+        for(int i = 0; i < m_ExternalShadowMaps.size(); ++i)
+            m_ExternalShadowMaps[i]->release();
+    }
     m_Shader->release();
 }
 
@@ -901,18 +952,13 @@ void MeshRender::renderToDepthBuffer(int scrWidth, int scrHeight, GLuint default
     m_UBufferModelMatrix->bindBufferBase();
     m_DepthShader->bindUniformBlock(m_DSUBModelMatrix, m_UBufferModelMatrix->getBindingPoint());
 
-    m_UBufferLightMatrix->bindBufferBase();
-    m_DepthShader->bindUniformBlock(m_DSUBLightMatrix, m_UBufferLightMatrix->getBindingPoint());
+    m_Lights->bindUniformBufferLightMatrix();
+    m_DepthShader->bindUniformBlock(m_DSUBLightMatrices, m_Lights->getBufferLightMatrixBindingPoint());
 
     GLfloat aspect = (GLfloat)m_ShadowBufferWidth / (GLfloat)m_ShadowBufferHeight;
     for(int i = 0; i < m_Lights->getNumLights(); ++i)
     {
-        m_LightView[i] = glm::lookAt(glm::make_vec3(glm::value_ptr(m_Lights->getLightPosition(i))), m_Camera->m_CameraFocus, glm::vec3(0.0f, 0.9f, 0.950f));
-        m_LightProjection[i] = glm::perspective(45.0f, aspect, 0.1f, 1000.0f);
-
-        m_UBufferLightMatrix->uploadData(glm::value_ptr(m_LightView[i]), 0, sizeof(glm::mat4));
-        m_UBufferLightMatrix->uploadData(glm::value_ptr(m_LightProjection[i]), sizeof(glm::mat4), sizeof(glm::mat4));
-        m_UBufferLightMatrix->uploadData(glm::value_ptr(m_Lights->getLightPosition(i)), 2 * sizeof(glm::mat4), sizeof(glm::vec3));
+        m_DepthShader->setUniformValue(m_DSULightID, i);
 
         m_DepthBufferRenders[i]->beginRender();
 
@@ -940,9 +986,10 @@ void MeshRender::initShadowMapRenderData(const glm::vec4& clearColor, bool bLine
 
     m_DepthShader = ShaderProgram::getSimpleDepthShader();
 
-    m_DSAtrVPosition = m_DepthShader->getAtributeLocation("v_Position");
-    m_DSUBModelMatrix = m_DepthShader->getUniformBlockIndex("ModelMatrix");
-    m_DSUBLightMatrix = m_DepthShader->getUniformBlockIndex("LightMatrix");
+    m_DSAtrVPosition    = m_DepthShader->getAtributeLocation("v_Position");
+    m_DSUBModelMatrix   = m_DepthShader->getUniformBlockIndex("ModelMatrix");
+    m_DSUBLightMatrices = m_DepthShader->getUniformBlockIndex("LightMatrices");
+    m_DSULightID        = m_DepthShader->getUniformLocation("u_LightID");
     glCall(glGenVertexArrays(1, &m_DSVAO));
     glCall(glBindVertexArray(m_DSVAO));
     m_MeshObj->getVertexBuffer()->bind();
@@ -953,10 +1000,6 @@ void MeshRender::initShadowMapRenderData(const glm::vec4& clearColor, bool bLine
         m_MeshObj->getIndexBuffer()->bind();
     }
     glCall(glBindVertexArray(0));
-
-
-    m_UBufferLightMatrix = new OpenGLBuffer;
-    m_UBufferLightMatrix->createBuffer(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4) + sizeof(glm::vec4), nullptr, GL_DYNAMIC_DRAW);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -1016,6 +1059,15 @@ OpenGLTexture* MeshRender::getShadowMap(int lightID /*= 0*/)
     return m_DepthBufferRenders[lightID]->getDepthBuffer();
 }
 
+std::vector<OpenGLTexture*> MeshRender::getAllShadowMaps()
+{
+    std::vector<OpenGLTexture*> depthBuffers;
+    for(int i = 0; i < m_DepthBufferRenders.size(); ++i)
+        depthBuffers.push_back(m_DepthBufferRenders[i]->getDepthBuffer());
+
+    return depthBuffers;
+}
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MeshRender::initRenderData()
 {
@@ -1028,13 +1080,20 @@ void MeshRender::initRenderData()
     m_AtrVTexCoord = m_Shader->getAtributeLocation("v_TexCoord");
 
     m_UHasTexture = m_Shader->getUniformLocation("u_HasTexture");
+    m_UHasShadow  = m_Shader->getUniformLocation("u_HasShadow");
     m_UTexSampler = m_Shader->getUniformLocation("u_TexSampler");
-    //m_UShadowMap  = m_Shader->getUniformLocation("m_UShadowMap");
+    for(int i = 0; i < MAX_NUM_LIGHTS; ++i)
+    {
+        char buff[128];
+        sprintf(buff, "u_ShadowMap[%d]", i);
+        m_UShadowMap[i] = m_Shader->getUniformLocation(buff);
+    }
 
-    m_UBModelMatrix = m_Shader->getUniformBlockIndex("ModelMatrix");
-    m_UBCamData     = m_Shader->getUniformBlockIndex("CameraData");
-    m_UBLight       = m_Shader->getUniformBlockIndex("Lights");
-    m_UBMaterial    = m_Shader->getUniformBlockIndex("Material");
+    m_UBModelMatrix   = m_Shader->getUniformBlockIndex("ModelMatrix");
+    m_UBCamData       = m_Shader->getUniformBlockIndex("CameraData");
+    m_UBLightMatrices = m_Shader->getUniformBlockIndex("LightMatrices");
+    m_UBLight         = m_Shader->getUniformBlockIndex("Lights");
+    m_UBMaterial      = m_Shader->getUniformBlockIndex("Material");
 
     ////////////////////////////////////////////////////////////////////////////////
     m_MeshObj->uploadDataToGPU();

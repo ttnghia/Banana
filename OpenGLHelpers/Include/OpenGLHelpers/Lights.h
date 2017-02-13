@@ -55,13 +55,46 @@ public:
     size_t getUniformBufferSize() const;
     size_t getLightDataSize() const;
 
+    // data for shadow map 
+    void setSceneCenter(const glm::vec3& sceneCenter);
+    void bindUniformBufferLightMatrix();
+    GLuint getBufferLightMatrixBindingPoint();
+    void uploadLightMatrixToGPU();
+
     ////////////////////////////////////////////////////////////////////////////////
-    virtual void uploadDataToGPU()              = 0;
-    virtual size_t getLightSize() const         = 0;
+    virtual void updateLightMatrixBuffer() = 0;
+    virtual void uploadDataToGPU()         = 0;
+    virtual size_t getLightSize() const    = 0;
 
 protected:
-    GLint          m_NumActiveLights;
-    OpenGLBuffer   m_UniformBuffer;
+    struct LightMatrix
+    {
+        LightMatrix()
+        {
+            setViewMatrix(glm::mat4(1));
+            setProjectionMatrix(glm::mat4(1));
+        }
+
+        void setViewMatrix(const glm::mat4& viewMatrix)
+        {
+            const GLfloat* ptr = glm::value_ptr(viewMatrix);
+            memcpy(lightViewMatrix, ptr, sizeof(GLfloat) * 16);
+        }
+        void setProjectionMatrix(const glm::mat4& prjMatrix)
+        {
+            const GLfloat* ptr = glm::value_ptr(prjMatrix);
+            memcpy(lightPrjMatrix, ptr, sizeof(GLfloat) * 16);
+        }
+
+        GLfloat lightViewMatrix[16];
+        GLfloat lightPrjMatrix[16];
+    };
+
+    GLint        m_NumActiveLights;
+    OpenGLBuffer m_UniformBuffer;
+    OpenGLBuffer m_UniformBufferLightMatrix;
+    LightMatrix  m_LightMatrices[MAX_NUM_LIGHTS];
+    glm::vec3    m_SceneCenter;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -133,8 +166,19 @@ public:
         return 4 * sizeof(glm::vec4);
     }
 
+    // shadow map helpers
+    virtual void updateLightMatrixBuffer() override;
+    void setShadowMapBox(GLfloat minX, GLfloat maxX, GLfloat minY, GLfloat maxY, GLfloat minZ, GLfloat maxZ);
+
 private:
     DirectionalLightData m_Lights[MAX_NUM_LIGHTS];
+
+    GLfloat m_ShadowMinX;
+    GLfloat m_ShadowMaxX;
+    GLfloat m_ShadowMinY;
+    GLfloat m_ShadowMaxY;
+    GLfloat m_ShadowMinZ;
+    GLfloat m_ShadowMaxZ;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -206,8 +250,16 @@ public:
         return 4 * sizeof(glm::vec4);
     }
 
+    // shadow map helpers
+    virtual void updateLightMatrixBuffer() override;
+    void setLightViewPerspective(GLfloat fov, GLfloat asspect = 1.0, GLfloat nearZ = 0.1f, GLfloat farZ = 1000.0f);
+
 private:
     PointLightData m_Lights[MAX_NUM_LIGHTS];
+    GLfloat        m_ShadowFOV;
+    GLfloat        m_ShadowAspect;
+    GLfloat        m_ShadowNearZ;
+    GLfloat        m_ShadowFarZ;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -298,6 +350,14 @@ public:
         return 5 * sizeof(glm::vec4) + 2 * sizeof(GLfloat);
     }
 
+    // shadow map helpers
+    virtual void updateLightMatrixBuffer() override;
+    void setLightViewPerspective(GLfloat fov, GLfloat asspect = 1.0, GLfloat nearZ = 0.1f, GLfloat farZ = 1000.0f);
+
 private:
     SpotLightData m_Lights[MAX_NUM_LIGHTS];
+    GLfloat       m_ShadowFOV;
+    GLfloat       m_ShadowAspect;
+    GLfloat       m_ShadowNearZ;
+    GLfloat       m_ShadowFarZ;
 };

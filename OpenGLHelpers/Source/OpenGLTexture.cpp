@@ -52,7 +52,7 @@ void OpenGLTexture::OpenGLTexture::uploadData(GLenum texTarget, GLint internalFo
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void OpenGLTexture::setFilterMode(GLenum filterMode, GLenum value)
+void OpenGLTexture::setTextureParameter(GLenum filterMode, GLenum value)
 {
     assert(m_bTextureCreated);
 

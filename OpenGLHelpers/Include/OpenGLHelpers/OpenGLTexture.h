@@ -45,7 +45,7 @@ public:
                     GLsizei width, GLsizei height,
                     GLenum dataFormat, GLenum dataType, const GLvoid * data);
 
-    void setFilterMode(GLenum filterMode, GLenum value);
+    void setTextureParameter(GLenum filterMode, GLenum value);
     void setAnisotropicFilter(bool enable);
     void setBorderColor(glm::vec4 borderColor);
     void setBestParametersWithMipMap();

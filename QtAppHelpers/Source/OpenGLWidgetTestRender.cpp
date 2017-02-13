@@ -205,6 +205,8 @@ void OpenGLWidgetTestRender::initTestRenderMeshWithShadow(QString meshFile, QStr
     m_Lights->setLightPosition(glm::vec4(0, 3, 3, 1.0), 1);
     m_Lights->setLightDiffuse(glm::vec4(0.5), 0);
     m_Lights->setLightDiffuse(glm::vec4(0.5), 1);
+    m_Lights->setSceneCenter(glm::vec3(0, 0, 0));
+    m_Lights->setLightViewPerspective(30);
     m_Lights->uploadDataToGPU();
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -230,10 +232,10 @@ void OpenGLWidgetTestRender::initTestRenderMeshWithShadow(QString meshFile, QStr
     m_MeshRender = new MeshRender(m_MeshObj, m_Camera, m_Lights, m_Material, m_UBufferCamData);
     m_MeshRender->transform(glm::vec3(0, 0.5, 0), glm::vec3(0.03));
     m_MeshRender->initShadowMapRenderData(m_ClearColor);
-    m_FloorRender->setExternalShadowMap(m_MeshRender->getShadowMap());
+    m_FloorRender->setExternalShadowMaps(m_MeshRender->getAllShadowMaps());
 
     m_ScreenQuadTexRender = new ScreenQuadTextureRender;
-    m_ScreenQuadTexRender->setTexture(m_MeshRender->getShadowMap(1));
+    m_ScreenQuadTexRender->setTexture(m_MeshRender->getShadowMap(0));
     m_ScreenQuadTexRender->setValueScale(-0.10);
 }
 
@@ -391,8 +393,11 @@ void OpenGLWidgetTestRender::renderMeshWithShadow()
 
     m_MeshRender->renderToDepthBuffer(width(), height(), context()->defaultFramebufferObject());
 
+#if 0
     m_ScreenQuadTexRender->render();
-    //m_PointLightRender->render();
-    //m_FloorRender->render();
-    //m_MeshRender->render();
+#else
+    m_PointLightRender->render();
+    m_FloorRender->render();
+    m_MeshRender->render();
+#endif
 }

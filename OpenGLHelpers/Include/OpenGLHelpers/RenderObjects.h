@@ -178,8 +178,8 @@ public:
     virtual void beginRender();
     virtual void endRender(GLuint defaultFBO = 0);
 
-    void setNumColorBuffers(int numColorBuffers);
-    void setColorBufferFilterModes(GLenum minFilter, GLenum magFiliter);
+    virtual void setNumColorBuffers(int numColorBuffers);
+    void setColorBufferParameter(GLenum paramName, GLenum paramValue);
 
     OpenGLTexture* getColorBuffer(int colorBufferID = 0);
     void swapColorBuffer(OpenGLTexture*& colorBuffer, int bufferID = 0);
@@ -188,7 +188,7 @@ public:
     {}
 
 protected:
-    virtual void   initRenderData() override;
+    virtual void initRenderData() override;
 
     int                         m_BufferWidth;
     int                         m_BufferHeight;
@@ -214,11 +214,15 @@ public:
     virtual void beginRender() override;
     virtual void endRender(GLuint defaultFBO /* = 0 */) override;
 
+    virtual void setNumColorBuffers(int numColorBuffers) override;
+
     void setDefaultClearColor(const glm::vec4& clearColor);
     void setClearDepthValue(GLfloat clearValue);
     OpenGLTexture* getDepthBuffer();
 
 private:
+    virtual void initRenderData() override;
+
     GLfloat   m_ClearLinearDepthValue;
     glm::vec4 m_DefaultClearColor;
 };
@@ -271,7 +275,7 @@ public:
     MeshRender(MeshObject* meshObj, Camera* camera, PointLights* light, QString textureFolder,
                Material* material = nullptr, OpenGLBuffer* bufferCamData = nullptr) :
         RenderObject(camera, bufferCamData), m_MeshObj(meshObj), m_Lights(light), m_Material(material), m_CurrentTexture(nullptr),
-        m_ShadowBufferWidth(1024), m_ShadowBufferHeight(1024), m_ExternalShadowMap(nullptr)
+        m_ShadowBufferWidth(1024), m_ShadowBufferHeight(1024)
     {
         initRenderData();
         OpenGLTexture::loadTextures(m_Textures, textureFolder);
@@ -282,7 +286,7 @@ public:
 
     MeshRender(MeshObject* meshObj, Camera* camera, PointLights* light, Material* material = nullptr, OpenGLBuffer* bufferCamData = nullptr) :
         RenderObject(camera, bufferCamData), m_MeshObj(meshObj), m_Lights(light), m_Material(material), m_CurrentTexture(nullptr),
-        m_ShadowBufferWidth(1024), m_ShadowBufferHeight(1024), m_ExternalShadowMap(nullptr)
+        m_ShadowBufferWidth(1024), m_ShadowBufferHeight(1024)
     {
         initRenderData();
     }
@@ -295,12 +299,13 @@ public:
     void clearTextures(bool insertNullTex = true);
     void addTexture(OpenGLTexture* texture, GLenum texWrapMode = GL_REPEAT);
     void setRenderTextureIndex(int texIndex);
-    void setExternalShadowMap(OpenGLTexture* shadowMap);
+    void setExternalShadowMaps(std::vector<OpenGLTexture*> shadowMaps);
     void resizeShadowMap(int width, int height);
     void transform(const glm::vec3& translation, const glm::vec3& scale);
     void setupVAO();
 
     OpenGLTexture* getShadowMap(int lightID = 0);
+    std::vector<OpenGLTexture*> getAllShadowMaps();
 
     virtual void render() override;
 
@@ -314,24 +319,26 @@ protected:
     GLuint                          m_AtrVNormal;
     GLuint                          m_AtrVTexCoord;
     GLuint                          m_UBLight;
+    GLuint                          m_UBLightMatrices;
+    GLuint                          m_DSULightID;
     GLuint                          m_UBMaterial;
     GLuint                          m_UHasTexture;
+    GLuint                          m_UHasShadow;
     GLuint                          m_UTexSampler;
-    GLuint                          m_UShadowMap;
+    GLuint                          m_UShadowMap[MAX_NUM_LIGHTS];
     MeshObject*                     m_MeshObj;
     PointLights*                    m_Lights;
     Material*                       m_Material;
     std::vector<OpenGLTexture*>     m_Textures;
     OpenGLTexture*                  m_CurrentTexture;
-    OpenGLTexture*                  m_ExternalShadowMap;
+    std::vector<OpenGLTexture*>     m_ExternalShadowMaps;
     GLint                           m_ShadowBufferWidth;
     GLint                           m_ShadowBufferHeight;
     GLuint                          m_DSAtrVPosition;
-    GLuint                          m_DSUBLightMatrix;
+    GLuint                          m_DSUBLightMatrices;
     GLuint                          m_DSUBModelMatrix;
     GLuint                          m_DSVAO;
     ShaderProgram*                  m_DepthShader;
-    OpenGLBuffer*                   m_UBufferLightMatrix;
     std::vector<DepthBufferRender*> m_DepthBufferRenders;
     glm::mat4                       m_LightView[MAX_NUM_LIGHTS];
     glm::mat4                       m_LightProjection[MAX_NUM_LIGHTS];
