@@ -57,7 +57,7 @@ void Camera::setDefaultCamera(const glm::vec3& defaultPosition, const glm::vec3&
 
     if(m_bDebug)
     {
-        printf("Debug::SetDefaultCamera, CameraPosition = [%f, %f, %f], CameraFocus = [%f, %f, %f]\n",
+        printf("CameraDebug::SetDefaultCamera, CameraPosition = [%f, %f, %f], CameraFocus = [%f, %f, %f]\n",
                m_DefaultCameraPosition[0], m_DefaultCameraPosition[1], m_DefaultCameraPosition[2],
                m_DefaultCameraFocus[0], m_DefaultCameraFocus[1], m_DefaultCameraFocus[2]);
         fflush(stdout);
@@ -115,7 +115,7 @@ void Camera::updateViewMatrix()
 
         if(m_bDebug)
         {
-            printf("Debug::UpdateViewMatrix CameraPosition = [%f, %f, %f], CameraFocus = [%f, %f, %f]\n",
+            printf("CameraDebug::UpdateViewMatrix CameraPosition = [%f, %f, %f], CameraFocus = [%f, %f, %f]\n",
                    m_CameraPosition[0], m_CameraPosition[1], m_CameraPosition[2],
                    m_CameraFocus[0], m_CameraFocus[1], m_CameraFocus[2]);
             fflush(stdout);

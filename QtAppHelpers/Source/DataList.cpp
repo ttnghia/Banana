@@ -35,7 +35,25 @@ DataList::~DataList()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void DataList::setListIndex(int index)
+void DataList::loadListFromFile(QString listFile)
+{
+    QFile textFile(listFile);
+    if(!textFile.open(QIODevice::ReadOnly));
+    {
+        qDebug("Error: Cannot open file for reading.");
+        return;
+    }
+
+    while(!textFile.atEnd())
+    {
+        addItem(textFile.readLine());
+    }
+
+    setListCurrentIndex(0);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void DataList::setListCurrentIndex(int index)
 {
     m_ListWidget->setCurrentRow(index);
 }
@@ -70,6 +88,12 @@ void DataList::clear()
 
     if(m_bAddEmptyItem)
         m_ListWidget->addItem("Nothing");
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+int DataList::getListSize()
+{
+    return m_DataList.count();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

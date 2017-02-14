@@ -29,10 +29,12 @@ public:
     DataList(QWidget *parent, bool bAddEmptyItem = true, bool bAddOrderText = true, QString indexSeparator = QString("::"));
     ~DataList();
 
-    void setListIndex(int index);
+    void loadListFromFile(QString listFile);
+    void setListCurrentIndex(int index);
     void addItem(QString dataStr);
     void removeIndex(int index);
     void clear();
+    int getListSize();
 
 signals:
     void currentTextChanged(QString dataItem);
