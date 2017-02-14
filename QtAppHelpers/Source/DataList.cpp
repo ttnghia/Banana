@@ -35,21 +35,24 @@ DataList::~DataList()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void DataList::loadListFromFile(QString listFile)
+void DataList::loadListFromFile(const QString& listFile)
 {
+
     QFile textFile(listFile);
-    if(!textFile.open(QIODevice::ReadOnly));
+    if(!textFile.open(QIODevice::ReadOnly | QIODevice::Text))
     {
-        qDebug("Error: Cannot open file for reading.");
+        qDebug() << "Error: Cannot open file" << listFile << "for reading.";
         return;
     }
 
-    while(!textFile.atEnd())
+    QTextStream in(&textFile);
+    while(!in.atEnd())
     {
-        addItem(textFile.readLine());
+        addItem(in.readLine());
     }
 
     setListCurrentIndex(0);
+    m_lblStatus->setText(QString("Loaded list from %1").arg(listFile));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -145,8 +148,13 @@ void DataList::setupGUI()
 
     m_ListWidget->installEventFilter(this);
 
+    m_lblStatus = new QLabel(this);
+    m_lblStatus->setMargin(5);
+    m_lblStatus->setAlignment(Qt::AlignLeft);
+
     QVBoxLayout* layout = new QVBoxLayout;
     layout->addWidget(m_ListWidget);
+    layout->addWidget(m_lblStatus);
     setLayout(layout);
 
     connect(m_ListWidget, &QListWidget::currentRowChanged, this, [&](int currentRow)

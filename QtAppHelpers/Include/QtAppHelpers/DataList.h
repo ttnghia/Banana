@@ -29,7 +29,7 @@ public:
     DataList(QWidget *parent, bool bAddEmptyItem = true, bool bAddOrderText = true, QString indexSeparator = QString("::"));
     ~DataList();
 
-    void loadListFromFile(QString listFile);
+    void loadListFromFile(const QString& listFile);
     void setListCurrentIndex(int index);
     void addItem(QString dataStr);
     void removeIndex(int index);
@@ -52,4 +52,5 @@ private:
     QString      m_IndexSeparator;
     QListWidget* m_ListWidget;
     QStringList  m_DataList;
+    QLabel*      m_lblStatus;
 };
