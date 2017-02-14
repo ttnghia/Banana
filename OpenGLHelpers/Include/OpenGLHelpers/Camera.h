@@ -39,13 +39,10 @@ class Camera
 public:
 
     Camera();
-    Camera(const glm::vec3 defaultPosition,
-           const glm::vec3 defaultCameraFocus,
-           const glm::vec3 defaultUpDirection);
+    Camera(const glm::vec3& defaultPosition, const glm::vec3& defaultCameraFocus, const glm::vec3& defaultUpDirection);
+    void setDebug(bool bDebug);
 
-    void setDefaultCamera(const glm::vec3 defaultPosition,
-                          const glm::vec3 defaultCameraFocus,
-                          const glm::vec3 defaultUpDirection);
+    void setDefaultCamera(const glm::vec3& defaultPosition, const glm::vec3& defaultCameraFocus, const glm::vec3& defaultUpDirection);
     void setFrustum(float fov, float nearZ, float farZ);
     void resizeWindow(int width, int height);
     void updateViewMatrix();
@@ -86,6 +83,7 @@ public:
     glm::vec3 m_CameraUpDirection;
 
 private:
+    bool      m_bDebug;
     int       m_WindowWidth;
     int       m_WindowHeight;
 

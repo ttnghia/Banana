@@ -19,6 +19,7 @@
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 Camera::Camera() :
+    m_bDebug(false),
     m_CameraPosition(glm::vec3(1, 0, 0)),
     m_CameraFocus(glm::vec3(0, 0, 0)),
     m_CameraUpDirection(glm::vec3(0, 1, 0)),
@@ -36,21 +37,31 @@ Camera::Camera() :
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-Camera::Camera(const glm::vec3 defaultPosition,
-               const glm::vec3 defaultCameraFocus,
-               const glm::vec3 defaultUpDirection)
+Camera::Camera(const glm::vec3& defaultPosition, const glm::vec3& defaultCameraFocus, const glm::vec3& defaultUpDirection) : Camera()
 {
     setDefaultCamera(defaultPosition, defaultCameraFocus, defaultUpDirection);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Camera::setDefaultCamera(const glm::vec3 defaultPosition,
-                              const glm::vec3 defaultCameraFocus,
-                              const glm::vec3 defaultUpDirection)
+void Camera::setDebug(bool bDebug)
+{
+    m_bDebug = bDebug;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void Camera::setDefaultCamera(const glm::vec3& defaultPosition, const glm::vec3& defaultCameraFocus, const glm::vec3& defaultUpDirection)
 {
     m_DefaultCameraPosition = defaultPosition;
     m_DefaultCameraFocus = defaultCameraFocus;
     m_DefaultUpDirection = defaultUpDirection;
+
+    if(m_bDebug)
+    {
+        printf("Debug::SetDefaultCamera, CameraPosition = [%f, %f, %f], CameraFocus = [%f, %f, %f]\n",
+               m_DefaultCameraPosition[0], m_DefaultCameraPosition[1], m_DefaultCameraPosition[2],
+               m_DefaultCameraFocus[0], m_DefaultCameraFocus[1], m_DefaultCameraFocus[2]);
+        fflush(stdout);
+    }
 
     ////////////////////////////////////////////////////////////////////////////////
     reset();
@@ -69,9 +80,7 @@ void Camera::resizeWindow(int width, int height)
 {
     m_WindowWidth             = width;
     m_WindowHeight            = height;
-    m_ProjectionMatrix        = glm::perspective(m_Frustum.m_Fov,
-                                                 static_cast<float>(width) / static_cast<float>(height),
-                                                 m_Frustum.m_Near, m_Frustum.m_Far);
+    m_ProjectionMatrix        = glm::perspective(m_Frustum.m_Fov, static_cast<float>(width) / static_cast<float>(height), m_Frustum.m_Near, m_Frustum.m_Far);
     m_InverseProjectionMatrix = glm::inverse(m_ProjectionMatrix);
     m_ViewProjectionMatrix    = m_ProjectionMatrix * m_ViewMatrix;
 }
@@ -103,6 +112,14 @@ void Camera::updateViewMatrix()
     {
         m_ViewMatrix = glm::lookAt(m_CameraPosition, m_CameraFocus, m_CameraUpDirection);
         m_ViewProjectionMatrix = m_ProjectionMatrix * m_ViewMatrix;
+
+        if(m_bDebug)
+        {
+            printf("Debug::UpdateViewMatrix CameraPosition = [%f, %f, %f], CameraFocus = [%f, %f, %f]\n",
+                   m_CameraPosition[0], m_CameraPosition[1], m_CameraPosition[2],
+                   m_CameraFocus[0], m_CameraFocus[1], m_CameraFocus[2]);
+            fflush(stdout);
+        }
     }
 }
 
@@ -212,8 +229,7 @@ void Camera::rotate_by_mouse(int x, int y)
     glm::vec2 escentricity = currentMousePos - center;
     escentricity.x = escentricity.x / center.x;
     escentricity.y = escentricity.y / center.y;
-    m_Rotation.z   = m_Rotation.z + (mouseMoved.x * escentricity.y - mouseMoved.y *
-                                     escentricity.x) / 5.0f;
+    m_Rotation.z   = m_Rotation.z + (mouseMoved.x * escentricity.y - mouseMoved.y * escentricity.x) / 5.0f;
 
     ////////////////////////////////////////////////////////////////////////////////
     rotate();
@@ -244,8 +260,7 @@ void Camera::rotate()
 
     float scale = eyeDir.length() * 0.002f;
     glm::vec3 rotationScaled = m_Rotation * scale;
-    glm::quat qRotation      = glm::angleAxis(rotationScaled.y, v) *
-        glm::angleAxis(rotationScaled.x, u);
+    glm::quat qRotation      = glm::angleAxis(rotationScaled.y, v) * glm::angleAxis(rotationScaled.x, u);
     //                          *glm::angleAxis(rotation_scaled.z, eyeDir);
     eyeDir = qRotation * eyeDir;
 

@@ -21,6 +21,7 @@
 DataList::DataList(QWidget *parent, bool bAddEmptyItem /*= true*/, bool bAddOrderText /*= true*/, QString indexSeparator /*= QString("::")*/) :
     QWidget(parent), m_ListWidget(nullptr), m_bAddEmptyItem(bAddEmptyItem), m_bAddOrderText(bAddOrderText), m_IndexSeparator(indexSeparator)
 {
+    setWindowTitle("Data List");
     setFocusPolicy(Qt::StrongFocus);
     setupGUI();
 }
@@ -46,8 +47,7 @@ void DataList::addItem(QString dataStr)
 
     if(m_bAddOrderText)
     {
-        QString item = QString("%1%2     ").arg(m_ListWidget->count()).arg(m_IndexSeparator);
-        m_ListWidget->addItem(item);
+        m_ListWidget->addItem(QString("%1%2     %3").arg(m_ListWidget->count()).arg(m_IndexSeparator).arg(dataStr));
     }
     else
     {
@@ -127,10 +127,11 @@ void DataList::setupGUI()
 
     connect(m_ListWidget, &QListWidget::currentRowChanged, this, [&](int currentRow)
     {
-        emit currentRowChanged(currentRow);
+        if(!m_bAddEmptyItem || (m_bAddEmptyItem && currentRow != 0))
+        {
+            emit currentRowChanged(currentRow);
+            emit currentTextChanged(m_DataList[m_bAddEmptyItem ? currentRow - 1 : currentRow]);
+        }
     });
-    connect(m_ListWidget, &QListWidget::currentTextChanged, this, [&](QString currentText)
-    {
-        emit currentTextChanged(currentText);
-    });
+
 }

@@ -47,8 +47,7 @@ void BrowsePathWidget::setupGui(QWidget * button)
     m_Layout = new QHBoxLayout;
     m_Layout->setSpacing(10);
     m_Layout->addWidget(m_txtPath, 1);
-    m_Layout->addItem(new QSpacerItem(10, 20, QSizePolicy::Expanding,
-                      QSizePolicy::Minimum));
+    m_Layout->addItem(new QSpacerItem(10, 20, QSizePolicy::Expanding, QSizePolicy::Minimum));
     m_Layout->addWidget(button);
 
     m_Button = dynamic_cast<QAbstractButton*>(button);
@@ -94,13 +93,8 @@ QGroupBox * BrowsePathWidget::getGroupBox(QString title)
 void BrowsePathWidget::browse()
 {
     QString selectedPath = m_bFolderOnly ?
-        QFileDialog::getExistingDirectory(nullptr, QString("Select path"),
-                                          m_CurrentPath,
-                                          QFileDialog::ShowDirsOnly
-                                          | QFileDialog::DontResolveSymlinks) :
-        QFileDialog::getExistingDirectory(nullptr, QString("Select path"),
-                                          m_CurrentPath,
-                                          QFileDialog::DontResolveSymlinks);
+        QFileDialog::getExistingDirectory(nullptr, QString("Select path"), m_CurrentPath, QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks) :
+        QFileDialog::getExistingDirectory(nullptr, QString("Select path"), m_CurrentPath, QFileDialog::DontResolveSymlinks);
 
     if(selectedPath.trimmed() != "")
     {

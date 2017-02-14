@@ -199,8 +199,8 @@ void PointLightEditor::applyLights()
 
     ////////////////////////////////////////////////////////////////////////////////
     // update the number of active lights
-    int numPointLights = 0;
-    for(int i = 0; i < MAX_POINT_LIGHT; ++i)
+    int numPointLights = MAX_POINT_LIGHT;
+    for(int i = 1; i < MAX_POINT_LIGHT; ++i)
     {
         if(!m_CheckBoxes[i]->isChecked())
         {
