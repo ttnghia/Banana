@@ -42,11 +42,13 @@ public:
     void setMaterial(int materialID);
     void setMaterial(const Material::MaterialData& material);
     void setCustomMaterial(const Material::MaterialData& material);
+    void setDebug(bool bDebug);
 
 signals:
     void materialChanged(const Material::MaterialData& material);
 
 private:
+    bool                                m_bDebug;
     QComboBox*                          m_ComboBox;
     QGroupBox*                          m_GroupBox;
     QGridLayout*                        m_Layout;

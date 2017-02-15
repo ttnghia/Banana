@@ -21,6 +21,7 @@
 MaterialSelector::MaterialSelector(const Material::MaterialData& material /*= Material::MT_Emerald*/, bool defaultCustomMaterial /*= false*/,
                                    int comboBoxSpan /*= 3*/, QWidget *parent /*= nullptr*/)
     : QWidget(parent),
+    m_bDebug(false),
     m_CurrentMaterial(material),
     m_ComboBox(nullptr),
     m_GroupBox(nullptr),
@@ -41,6 +42,15 @@ MaterialSelector::MaterialSelector(const Material::MaterialData& material /*= Ma
         else
         {
             emit materialChanged(material);
+
+            if(m_bDebug)
+            {
+                qDebug() << QString("Debug::MaterialChanged: Ambient = [%1, %2, %3], Diffuse = [%4, %5, %6], Specular = [%7, %8, %9]")
+                    .arg(material.ambient[0]).arg(material.ambient[1]).arg(material.ambient[2])
+                    .arg(material.diffuse[0]).arg(material.diffuse[1]).arg(material.diffuse[2])
+                    .arg(material.specular[0]).arg(material.specular[1]).arg(material.specular[2]);
+
+            }
         }
     });
 
@@ -138,6 +148,15 @@ void MaterialSelector::setMaterial(int materialID)
     m_MaterialColorPicker->setWidgetColor(m_CurrentMaterial);
 
     emit materialChanged(m_CurrentMaterial);
+
+    if(m_bDebug)
+    {
+        qDebug() << QString("Debug::MaterialChanged: Ambient = [%1, %2, %3], Diffuse = [%4, %5, %6], Specular = [%7, %8, %9]")
+            .arg(m_CurrentMaterial.ambient[0]).arg(m_CurrentMaterial.ambient[1]).arg(m_CurrentMaterial.ambient[2])
+            .arg(m_CurrentMaterial.diffuse[0]).arg(m_CurrentMaterial.diffuse[1]).arg(m_CurrentMaterial.diffuse[2])
+            .arg(m_CurrentMaterial.specular[0]).arg(m_CurrentMaterial.specular[1]).arg(m_CurrentMaterial.specular[2]);
+
+    }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -167,4 +186,10 @@ void MaterialSelector::setCustomMaterial(const Material::MaterialData & material
     {
         m_MaterialColorPicker->setWidgetColor(m_CurrentMaterial);
     }
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void MaterialSelector::setDebug(bool bDebug)
+{
+    m_bDebug = bDebug;
 }

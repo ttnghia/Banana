@@ -18,18 +18,17 @@
 #include "ClipPlaneEditor.h"
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-ClipPlaneEditor::ClipPlaneEditor(QWidget *parent) : QWidget(parent), m_CoeffA(1.0), m_CoeffB(0.0), m_CoeffC(0.0), m_CoeffD(-0.5)
+ClipPlaneEditor::ClipPlaneEditor(QWidget *parent) : QWidget(parent), m_ClipPlane(1, 0, 0, -0.5)
 {
     setupGUI();
+    setWindowTitle("Clip Plane Editor");
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 ClipPlaneEditor::~ClipPlaneEditor()
 {
-    delete m_sldCoeffA;
-    delete m_sldCoeffB;
-    delete m_sldCoeffC;
-    delete m_sldCoeffD;
+    delete[] m_sldCoeffs;
+    delete[] m_lblPlanes;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -54,9 +53,13 @@ void ClipPlaneEditor::keyPressEvent(QKeyEvent* e)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void ClipPlaneEditor::setClipPlane()
+void ClipPlaneEditor::setClipPlane(const glm::vec4& clipPlane)
 {
-    emit clipPlaneChanged(QVector4D(m_CoeffA, m_CoeffB, m_CoeffC, m_CoeffD));
+    m_ClipPlane = clipPlane;
+    for(int i = 0; i < 4; ++i)
+    {
+        m_lblPlanes[i]->setText(QString("%1").arg(m_ClipPlane[i]));
+    }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -64,91 +67,41 @@ void ClipPlaneEditor::setupGUI()
 {
     QLabel* lblIntro = new QLabel("Set clip plane Ax + By + Cz + D = 0");
     lblIntro->setAlignment(Qt::AlignCenter);
-    QLabel* lblPlaneXIntro = new QLabel("A:");
-    QLabel* lblPlaneYIntro = new QLabel("B:");
-    QLabel* lblPlaneZIntro = new QLabel("C:");
-    QLabel* lblPlaneDIntro = new QLabel("D:");
+    QLabel* lblPlaneIntros[4];
+    lblPlaneIntros[0] = new QLabel("A:");
+    lblPlaneIntros[1] = new QLabel("B:");
+    lblPlaneIntros[2] = new QLabel("C:");
+    lblPlaneIntros[3] = new QLabel("D:");
 
-    QLabel* lblPlaneX = new QLabel("-1");
-    QLabel* lblPlaneY = new QLabel("-1");
-    QLabel* lblPlaneZ = new QLabel("-1");
-    QLabel* lblPlaneD = new QLabel("-1");
-
-    m_sldCoeffA = new QSlider(Qt::Horizontal);
-    m_sldCoeffA->setMaximum(200);
-    connect(m_sldCoeffA, &QSlider::valueChanged, this, [&](int value)
-    {
-        m_CoeffA = 2.0 * (value / 200.0) - 1.0;
-        lblPlaneX->setText(QString("%1").arg(m_CoeffA));
-
-        setClipPlane();
-    });
-
-    m_sldCoeffB = new QSlider(Qt::Horizontal);
-    m_sldCoeffB->setMaximum(200);
-    connect(m_sldCoeffB, &QSlider::valueChanged, [=](const int value)
-    {
-        m_CoeffB = 2.0 * (value / 200.0) - 1.0;
-        lblPlaneY->setText(QString("%1").arg(m_CoeffB));
-
-        setClipPlane();
-    });
-
-    m_sldCoeffC = new QSlider(Qt::Horizontal);
-    m_sldCoeffC->setMaximum(200);
-    connect(m_sldCoeffC, &QSlider::valueChanged, [=](const int value)
-    {
-        m_CoeffC = 2.0 * (value / 200.0) - 1.0;
-        lblPlaneZ->setText(QString("%1").arg(m_CoeffC));
-
-        setClipPlane();
-    });
-
-    m_sldCoeffD = new QSlider(Qt::Horizontal);
-    m_sldCoeffD->setMaximum(200);
-    connect(m_sldCoeffD, &QSlider::valueChanged, [=](const int value)
-    {
-        m_CoeffD = 2.0 * (value / 200.0) - 1.0;
-        lblPlaneD->setText(QString("%1").arg(m_CoeffD));
-
-        setClipPlane();
-    });
-
-    QHBoxLayout* planeXLayout = new QHBoxLayout;
-    planeXLayout->addWidget(lblPlaneXIntro, 0);
-    planeXLayout->addWidget(m_sldCoeffA, 1);
-    planeXLayout->addWidget(lblPlaneX, 0);
-
-    QHBoxLayout* planeYLayout = new QHBoxLayout;
-    planeYLayout->addWidget(lblPlaneYIntro, 0);
-    planeYLayout->addWidget(m_sldCoeffB, 1);
-    planeYLayout->addWidget(lblPlaneY, 0);
-
-    QHBoxLayout* planeZLayout = new QHBoxLayout;
-    planeZLayout->addWidget(lblPlaneZIntro, 0);
-    planeZLayout->addWidget(m_sldCoeffC, 1);
-    planeZLayout->addWidget(lblPlaneZ, 0);
-
-    QHBoxLayout* planeDLayout = new QHBoxLayout;
-    planeDLayout->addWidget(lblPlaneDIntro, 0);
-    planeDLayout->addWidget(m_sldCoeffD, 1);
-    planeDLayout->addWidget(lblPlaneD, 0);
-
-
-
+    QHBoxLayout* planeLayouts[4];
     QVBoxLayout* sldLayout = new QVBoxLayout;
-    sldLayout->addLayout(planeXLayout);
-    sldLayout->addLayout(planeYLayout);
-    sldLayout->addLayout(planeZLayout);
-    sldLayout->addLayout(planeDLayout);
+
+    for(int i = 0; i < 4; ++i)
+    {
+        m_lblPlanes[i] = new QLabel("-1");
+
+        m_sldCoeffs[i] = new QSlider(Qt::Horizontal);
+        m_sldCoeffs[i]->setMaximum(200);
+        m_sldCoeffs[i]->setValue((m_ClipPlane[i] + 1.0) * 100.0);
+        connect(m_sldCoeffs[i], &QSlider::valueChanged, this, [&, i](int value)
+        {
+            m_ClipPlane[i] = 2.0 * (value / 200.0) - 1.0;
+            m_lblPlanes[i]->setText(QString("%1").arg(m_ClipPlane[i]));
+
+            emit clipPlaneChanged(m_ClipPlane);
+        });
+
+
+        planeLayouts[i] = new QHBoxLayout;
+        planeLayouts[i]->addWidget(lblPlaneIntros[i], 0);
+        planeLayouts[i]->addWidget(m_sldCoeffs[i], 1);
+        planeLayouts[i]->addWidget(m_lblPlanes[i], 0);
+        sldLayout->addLayout(planeLayouts[i]);
+    }
+
 
     QGroupBox* sldGroup = new QGroupBox;
     sldGroup->setLayout(sldLayout);
-
-    m_sldCoeffA->setValue((m_CoeffA + 1.0) * 100.0);
-    m_sldCoeffB->setValue((m_CoeffB + 1.0) * 100.0);
-    m_sldCoeffC->setValue((m_CoeffC + 1.0) * 100.0);
-    m_sldCoeffD->setValue((-0.5 + 1.0) * 100.0);
 
     QPushButton* btnClose = new QPushButton("Close");
     connect(btnClose, &QPushButton::clicked, this, [&]()

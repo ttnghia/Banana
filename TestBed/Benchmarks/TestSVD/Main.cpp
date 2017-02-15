@@ -15,35 +15,38 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-#pragma once
+#include "SVD.h"
+#include <cstdio>
 
-#include <BananaAppCore/TypeNames.h>
-
-#include <QtWidgets>
+using Real = float;
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class ClipPlaneEditor : public QWidget
+int main()
 {
-    Q_OBJECT
+    Real a11, a12, a13, a21, a22, a23, a31, a32, a33;
 
-public:
-    ClipPlaneEditor(QWidget *parent = nullptr);
-    ~ClipPlaneEditor();
+    a11= 1; a12 = 2; a13 = 3;
+    a21 = 3; a22 = 4; a23 = 5;
+    a31 = 5; a32 =6; a33 = 7;
 
-public:
-    QSize sizeHint() const;
-    void keyPressEvent(QKeyEvent* e);
+    Real u11, u12, u13,
+        u21, u22, u23,
+        u31, u32, u33;
 
-signals:
-    void clipPlaneChanged(const glm::vec4& clipPlane);
+    Real   s11, s12, s13,
+        s21, s22, s23,
+        s31, s32, s33;
 
-    public slots:
-    void setClipPlane(const glm::vec4&);
+    Real   v11, v12, v13,
+        v21, v22, v23,
+        v31, v32, v33;
 
-private:
-    void setupGUI();
+    SVDDecomposition::svd(a11, a12, a13, a21, a22, a23, a31, a32, a33,
+                          u11, u12, u13, u21, u22, u23, u31, u32, u33,
+                          s11, s12, s13, s21, s22, s23, s31, s32, s33,
+                          v11, v12, v13, v21, v22, v23, v31, v32, v33);
 
-    glm::vec4    m_ClipPlane;
-    QSlider*     m_sldCoeffs[4];
-    QLabel*      m_lblPlanes[4];
-};
+    printf("%f, %f, %f,     %f,%f,%f,     %f,%f,%f\n", u11, u12, u13, u21, u22, u23, u31, u32, u33);
+    printf("%f, %f, %f,     %f,%f,%f,     %f,%f,%f\n", s11, s12, s13, s21, s22, s23, s31, s32, s33);
+    printf("%f, %f, %f,     %f,%f,%f,     %f,%f,%f\n", v11, v12, v13, v21, v22, v23, v31, v32, v33);
+}

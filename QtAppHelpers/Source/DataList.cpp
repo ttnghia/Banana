@@ -124,7 +124,7 @@ bool DataList::eventFilter(QObject* obj, QEvent* e)
             case Qt::Key_7:
             case Qt::Key_8:
             case Qt::Key_9:
-                m_ListWidget->setCurrentRow((int)(key->key() - Qt::Key_0) + 1);
+                m_ListWidget->setCurrentRow((int)(key->key() - Qt::Key_0));
                 break;
             default:
                 ;

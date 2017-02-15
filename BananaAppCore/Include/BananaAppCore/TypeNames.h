@@ -17,11 +17,11 @@
 
 #pragma once
 
-#ifdef _MSC_VER
-// Use Visual C++'s memory checking functionality
-#define _CRTDBG_MAP_ALLOC
-#include <crtdbg.h>
-#endif // _MSC_VER
+//#ifdef _MSC_VER
+//// Use Visual C++'s memory checking functionality
+//#define _CRTDBG_MAP_ALLOC
+//#include <crtdbg.h>
+//#endif // _MSC_VER
 
 /*
 At the beginning of the main function, add this code:

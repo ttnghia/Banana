@@ -72,13 +72,13 @@ BrowsePathWidget::~BrowsePathWidget()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-QLayout * BrowsePathWidget::getLayout()
+QLayout* BrowsePathWidget::getLayout()
 {
     return m_Layout;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-QGroupBox * BrowsePathWidget::getGroupBox(QString title)
+QGroupBox* BrowsePathWidget::getGroupBox(QString title)
 {
     if(m_GroupBox == nullptr)
     {
@@ -87,6 +87,12 @@ QGroupBox * BrowsePathWidget::getGroupBox(QString title)
     }
 
     return m_GroupBox;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+QString BrowsePathWidget::getCurrentPath()
+{
+    return m_txtPath->text();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -102,4 +108,10 @@ void BrowsePathWidget::browse()
         m_txtPath->setText(m_CurrentPath);
         emit pathChanged(selectedPath);
     }
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void BrowsePathWidget::setPath(QString path)
+{
+    m_txtPath->setText(path);
 }
