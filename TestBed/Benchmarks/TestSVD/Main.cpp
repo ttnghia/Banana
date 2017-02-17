@@ -26,8 +26,8 @@ int main()
     Real a11, a12, a13, a21, a22, a23, a31, a32, a33;
 
     a11= 1; a12 = 2; a13 = 3;
-    a21 = 3; a22 = 4; a23 = 5;
-    a31 = 5; a32 =6; a33 = 7;
+    a21 = 2; a22 = 9; a23 = 4;
+    a31 = 3; a32 =4; a33 = 5;
 
     Real u11, u12, u13,
         u21, u22, u23,
@@ -46,7 +46,7 @@ int main()
                           s11, s12, s13, s21, s22, s23, s31, s32, s33,
                           v11, v12, v13, v21, v22, v23, v31, v32, v33);
 
-    printf("%f, %f, %f,     %f,%f,%f,     %f,%f,%f\n", u11, u12, u13, u21, u22, u23, u31, u32, u33);
-    printf("%f, %f, %f,     %f,%f,%f,     %f,%f,%f\n", s11, s12, s13, s21, s22, s23, s31, s32, s33);
-    printf("%f, %f, %f,     %f,%f,%f,     %f,%f,%f\n", v11, v12, v13, v21, v22, v23, v31, v32, v33);
+    printf("%f, %f, %f,\n%f, %f, %f,\n%f, %f, %f\n\n", u11, u12, u13, u21, u22, u23, u31, u32, u33);
+    printf("%f, %f, %f,\n%f, %f, %f,\n%f, %f, %f\n\n", s11, s12, s13, s21, s22, s23, s31, s32, s33);
+    printf("%f, %f, %f,\n%f, %f, %f,\n%f, %f, %f\n\n", v11, v12, v13, v21, v22, v23, v31, v32, v33);
 }
