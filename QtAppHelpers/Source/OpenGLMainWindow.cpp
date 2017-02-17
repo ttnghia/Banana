@@ -122,6 +122,6 @@ void OpenGLMainWindow::setupOpenglWidget(OpenGLWidget * glWidget)
 
     m_GLWidget = glWidget;
     setCentralWidget(m_GLWidget);
-    connect(&m_GLWidget->m_AvgFrameTimer, &AvgTimer::avgTimeChanged, this, &OpenGLMainWindow::updatePaintGLTime);
+    connect(&m_GLWidget->m_AvgPaintGLTimer, &AvgTimer::avgTimeChanged, this, &OpenGLMainWindow::updatePaintGLTime);
     connect(&m_GLWidget->m_FPSCounter, &FPSCounter::fpsChanged, this, &OpenGLMainWindow::updateFrameRate);
 }

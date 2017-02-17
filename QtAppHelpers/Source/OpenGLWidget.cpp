@@ -396,12 +396,12 @@ void OpenGLWidget::checkGLExtensions(QVector<QString> extensions)
 void OpenGLWidget::startFrameTimer()
 {
     assert(isValid());
-    m_AvgFrameTimer.tick();
+    m_AvgPaintGLTimer.tick();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLWidget::endFrameTimer()
 {
     assert(isValid());
-    m_AvgFrameTimer.tock();
+    m_AvgPaintGLTimer.tock();
 }

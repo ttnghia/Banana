@@ -30,8 +30,7 @@ class AvgTimer : public QObject
 public:
     using Clock = std::chrono::high_resolution_clock;
 
-    AvgTimer(QObject *parent = nullptr,
-             double updatePeriod = 2000) :
+    AvgTimer(QObject *parent = nullptr, double updatePeriod = 2000) :
         QObject(parent),
         m_UpdatePeriod(updatePeriod),
         m_TickTockCount(0),
@@ -45,6 +44,7 @@ public:
 
     double getAvgTime();
     double getTickTockDuration();
+    void setUpdatePeriod(double updatePeriod);
 
 signals:
     void avgTimeChanged(double avgTime);

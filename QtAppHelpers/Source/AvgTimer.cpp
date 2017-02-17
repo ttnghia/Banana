@@ -68,3 +68,9 @@ double AvgTimer::getTickTockDuration()
 {
     return m_TotalTime;
 }
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void AvgTimer::setUpdatePeriod(double updatePeriod)
+{
+    m_UpdatePeriod = updatePeriod;
+}

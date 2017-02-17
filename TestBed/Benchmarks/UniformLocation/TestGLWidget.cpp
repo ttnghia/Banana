@@ -505,3 +505,81 @@ void TestGLWidget::keyPressEvent(QKeyEvent* ev)
         ;
     }
 }
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void TestGLWidget::updateAvgRenderTime(double avgRenderTime)
+{
+    static float testResults[20][8];
+
+    makeCurrent();
+    static int count = 0;
+    ++count;
+
+    if(count < 4)
+    {
+        return;
+    }
+    else if(count == 4)
+    {
+        printf("Render testcase: %d, use cached location = %d\n", m_TestCase, m_bUseCachedLocation ? 1 : 0);
+        fflush(stdout);
+    }
+    else if(count == 25)
+    {
+        count = 0;
+
+        if(m_bUseCachedLocation)
+        {
+            m_bUseCachedLocation = false;
+        }
+        else
+        {
+            m_bUseCachedLocation = true;
+            m_TestCase += 1;
+
+            if(m_TestCase > 4)
+            {
+
+                for(int i = 1; i <= 4; ++i)
+                {
+                    QDebug dbg = QDebug(QtDebugMsg).nospace();
+                    dbg << "Test result for test case " << i << ", use cached location: \n";
+
+                    for(int j = 0; j < 20; ++j)
+                    {
+                        dbg << testResults[j][(i - 1) * 2] << ", ";
+                    }
+
+                    dbg << "\n\n";
+                    dbg << "Test result for test case " << i << ", use direct queried location: \n";
+
+                    for(int j = 0; j < 20; ++j)
+                    {
+                        dbg << testResults[j][(i - 1) * 2 + 1] << ", ";
+                    }
+
+                    dbg << "\n\n";
+                    dbg << "Difference in render time: \n";
+
+                    for(int j = 0; j < 20; ++j)
+                    {
+                        dbg << (testResults[j][(i - 1) * 2 + 1] - testResults[j][(i - 1) * 2]) << ", ";
+                    }
+
+                    dbg << "\n\n";
+                }
+
+                ////////////////////////////////////////////////////////////////////////////////
+                qDebug() << "Finished!";
+                exit(0);
+            }
+        }
+    }
+    else
+    {
+        testResults[count - 5][(m_TestCase - 1) * 2 + (m_bUseCachedLocation ? 0 : 1)] = avgRenderTime;
+    }
+
+
+    doneCurrent();
+}

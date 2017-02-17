@@ -31,6 +31,9 @@ public:
 
     virtual void keyPressEvent(QKeyEvent* ev) override;
 
+public slots:
+    void updateAvgRenderTime(double avgRenderTime);
+
 protected:
     virtual void initializeGL() override;
     virtual void paintGL() override;

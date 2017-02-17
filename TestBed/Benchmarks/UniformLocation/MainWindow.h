@@ -38,7 +38,6 @@ protected:
     void keyPressEvent(QKeyEvent*);
 
 private:
-    //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     OpenGLWidgetTestRender* m_TestRenderWidget;
     TestGLWidget*               m_RenderWidget;
 };
