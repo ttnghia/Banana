@@ -90,8 +90,7 @@ void OpenGLMainWindow::setArthurStyle()
     {
         QString className = QString(w->metaObject()->className());
 
-        if(className == "QScrollBar" || className == "QComboBox" ||
-           className == "QCheckBox")
+        if(className == "QScrollBar" || className == "QComboBox" || className == "QCheckBox")
         {
             continue;
         }
@@ -101,10 +100,9 @@ void OpenGLMainWindow::setArthurStyle()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void OpenGLMainWindow::updateAvgFrameTime(double avgFrameTime)
+void OpenGLMainWindow::updatePaintGLTime(double avgFrameTime)
 {
-    m_lblStatusAvgFrameTime->setText(QString("PaintGL: %1 ms (~ %2 FPS)")
-                                     .arg(avgFrameTime).arg(1000.0 / avgFrameTime));
+    m_lblStatusAvgFrameTime->setText(QString("PaintGL: %1 ms (~ %2 FPS)").arg(avgFrameTime).arg(1000.0 / avgFrameTime));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -124,6 +122,6 @@ void OpenGLMainWindow::setupOpenglWidget(OpenGLWidget * glWidget)
 
     m_GLWidget = glWidget;
     setCentralWidget(m_GLWidget);
-    connect(&m_GLWidget->m_AvgFrameTimer, &AvgTimer::avgTimeChanged, this, &OpenGLMainWindow::updateAvgFrameTime);
+    connect(&m_GLWidget->m_AvgFrameTimer, &AvgTimer::avgTimeChanged, this, &OpenGLMainWindow::updatePaintGLTime);
     connect(&m_GLWidget->m_FPSCounter, &FPSCounter::fpsChanged, this, &OpenGLMainWindow::updateFrameRate);
 }

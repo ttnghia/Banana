@@ -38,22 +38,11 @@ http://www.beyond3d.com/content/articles/8/
 
 template<class T>
 inline T rsqrt(T)
-{}
-
-/*
-template<>
-inline float rsqrt<float>(float x)
 {
-const float xhalf = 0.5f*x;
-int32_t i = *(int32_t *)&x;          // View x as an int.
-// i = 0x5f3759df - (i >> 1);   // Initial guess (traditional).
-i = 0x5f3759df - (i >> 1);   // Initial guess (slightly better).
-x = *(float *)&i;            // View i as float.
-x = x*(1.5f - xhalf*x*x);    // Newton step.
-// x = x*(1.5008908 - xhalf*x*x);  // Newton step for a balanced error.
-return x;
+    fprintf(stderr, "Wrong call to unimplemented function.\n    Line: %d, file: %s\n", __LINE__, __FILE__);
+    fflush(stderr);
+    exit(-1);
 }
-/*
 
 /* This is rsqrt with an additional step of the Newton iteration, for
 increased accuracy. The constant 0x5f37599e makes the relative error

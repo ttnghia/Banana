@@ -29,19 +29,13 @@
 class ShaderProgram : public OpenGLCallable
 {
 public:
-    ShaderProgram() :
-        m_ProgramName("Noname"),
-        m_isProgramLinked(false)
+    ShaderProgram() : m_ProgramName("Noname"), m_isProgramLinked(false)
     {}
 
-    ShaderProgram(std::string programName) :
-        m_ProgramName(programName),
-        m_isProgramLinked(false)
+    ShaderProgram(std::string programName) : m_ProgramName(programName), m_isProgramLinked(false)
     {}
 
-    ShaderProgram(const char* vsFile, const char* fsFile, const char* programName) :
-        m_ProgramName(programName),
-        m_isProgramLinked(false)
+    ShaderProgram(const char* vsFile, const char* fsFile, const char* programName) : m_ProgramName(programName), m_isProgramLinked(false)
     {
         addVertexShaderFromFile(vsFile);
         addFragmentShaderFromFile(fsFile);
