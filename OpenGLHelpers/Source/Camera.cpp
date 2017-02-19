@@ -203,7 +203,7 @@ void Camera::translate()
     m_Translation *= m_TranslationLag;
 
     glm::vec3 eyeDir = m_CameraFocus - m_CameraPosition;
-    float scale = eyeDir.length() * 0.1f;
+    float scale = eyeDir.length() * 0.05f;
 
     glm::vec3 u = m_CameraUpDirection;
     glm::vec3 v = glm::cross(eyeDir, u);
@@ -222,14 +222,15 @@ void Camera::rotate_by_mouse(int x, int y)
     glm::vec2 mouseMoved      = m_LastMousePos - currentMousePos;
     m_LastMousePos            = currentMousePos;
 
-    m_Rotation.x = m_Rotation.x + mouseMoved.x / 5.0f;
-    m_Rotation.y = m_Rotation.y + mouseMoved.y / 5.0f;
+    const float scale = 25.0f;
+    m_Rotation.x = m_Rotation.x + mouseMoved.x / scale;
+    m_Rotation.y = m_Rotation.y + mouseMoved.y / scale;
 
     glm::vec2 center(0.5 * m_WindowWidth, 0.5 * m_WindowHeight);
     glm::vec2 escentricity = currentMousePos - center;
     escentricity.x = escentricity.x / center.x;
     escentricity.y = escentricity.y / center.y;
-    m_Rotation.z   = m_Rotation.z + (mouseMoved.x * escentricity.y - mouseMoved.y * escentricity.x) / 5.0f;
+    m_Rotation.z   = m_Rotation.z + (mouseMoved.x * escentricity.y - mouseMoved.y * escentricity.x) / scale;
 
     ////////////////////////////////////////////////////////////////////////////////
     rotate();
@@ -277,7 +278,7 @@ void Camera::zoom_by_mouse(int x, int y)
     m_LastMousePos            = currentMousePos;
 
     m_Zooming = static_cast<float>(mouseMoved.length() * ((mouseMoved.x > 0) ? 1.0 : -1.0));
-    m_Zooming *= 0.02f;
+    m_Zooming *= 0.01f;
 
     ////////////////////////////////////////////////////////////////////////////////
     zoom();

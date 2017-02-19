@@ -173,6 +173,7 @@ void OpenGLWidget::wheelEvent(QWheelEvent * ev)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLWidget::showEvent(QShowEvent* ev)
 {
+    (void*)ev;
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 }
 
@@ -191,11 +192,11 @@ void OpenGLWidget::keyPressEvent(QKeyEvent * ev)
             break;
 
         case Qt::Key_Plus:
-            m_Camera->zoom(-0.1f);
+            m_Camera->zoom(-0.01f);
             break;
 
         case Qt::Key_Minus:
-            m_Camera->zoom(0.1f);
+            m_Camera->zoom(0.01f);
             break;
 
         case Qt::Key_Up:
@@ -262,6 +263,7 @@ void OpenGLWidget::initializeGL()
 
 void OpenGLWidget::resizeGL(int w, int h)
 {
+    glCall(glViewport(0, 0, w, h));
     m_Camera->resizeWindow((float)w, (float)h);
 
     resizeAntTweakBarWindow(w, h);
