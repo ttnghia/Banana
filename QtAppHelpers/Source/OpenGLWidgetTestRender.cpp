@@ -267,11 +267,8 @@ void OpenGLWidgetTestRender::initTestRenderMeshWithShadow(QString meshFile, QStr
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void OpenGLWidgetTestRender::initializeGL()
+void OpenGLWidgetTestRender::initOpenGL()
 {
-    OpenGLWidget::initializeGL();
-
-    ////////////////////////////////////////////////////////////////////////////////
     switch(m_TestCase)
     {
         case TestCase::Triangle:
@@ -295,11 +292,8 @@ void OpenGLWidgetTestRender::initializeGL()
     }
 }
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void OpenGLWidgetTestRender::paintGL()
+void OpenGLWidgetTestRender::renderOpenGL()
 {
-    OpenGLWidget::paintGL();
-
-    ////////////////////////////////////////////////////////////////////////////////
     switch(m_TestCase)
     {
         case TestCase::Triangle:

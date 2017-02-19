@@ -257,6 +257,10 @@ void OpenGLWidget::initializeGL()
     // view matrix, prj matrix, inverse view matrix, inverse proj matrix, shadow matrix, cam position
     m_UBufferCamData = new OpenGLBuffer;
     m_UBufferCamData->createBuffer(GL_UNIFORM_BUFFER, 5 * sizeof(glm::mat4) + sizeof(glm::vec4), nullptr, GL_DYNAMIC_DRAW);
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // call init function from derived class
+    initOpenGL();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -265,11 +269,14 @@ void OpenGLWidget::resizeGL(int w, int h)
 {
     glCall(glViewport(0, 0, w, h));
     m_Camera->resizeWindow((float)w, (float)h);
-
     resizeAntTweakBarWindow(w, h);
 
     delete m_CaptureImage;
     m_CaptureImage = new QImage(w, h, QImage::Format_RGBA8888);
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // call init function from derived class
+    resizeOpenGLWindow(w, h);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -285,6 +292,10 @@ void OpenGLWidget::paintGL()
     m_FPSCounter.countFrame();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     uploadCameraData();
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // call init function from derived class
+    renderOpenGL();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

@@ -67,13 +67,17 @@ public:
 
     ////////////////////////////////////////////////////////////////////////////////
     // => QOpenGLWidget interface
-protected:
+private:
     virtual void initializeGL() override;
     virtual void resizeGL(int w, int h) override;
     virtual void paintGL() override;
 
     // => protected members of class OpenGLWidget
 protected:
+    virtual void initOpenGL() = 0;
+    virtual void resizeOpenGLWindow(int w, int h) = 0;
+    virtual void renderOpenGL() = 0;
+
     void uploadCameraData();
     void resetClearColor();
     void checkGLErrors();
