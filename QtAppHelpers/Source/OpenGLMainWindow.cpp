@@ -100,16 +100,11 @@ void OpenGLMainWindow::setArthurStyle()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void OpenGLMainWindow::updatePaintGLTime(double avgFrameTime)
-{
-    m_lblStatusAvgFrameTime->setText(QString("PaintGL: %1 ms (~ %2 FPS)").arg(avgFrameTime).arg(1000.0 / avgFrameTime));
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLMainWindow::updateFrameRate(double fps)
 {
-    m_lblStatusFPS->setText(QString("Real FPS: %1 | VSync: %2")
-                            .arg(fps).arg(m_VSync ? "On" : "Off"));
+
+    m_lblStatusAvgFrameTime->setText(QString("Avg RenderGL: %1 ms").arg(1000.0 / fps));
+    m_lblStatusFPS->setText(QString("FPS: %1 | VSync: %2").arg(fps).arg(m_VSync ? "On" : "Off"));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -122,6 +117,5 @@ void OpenGLMainWindow::setupOpenglWidget(OpenGLWidget * glWidget)
 
     m_GLWidget = glWidget;
     setCentralWidget(m_GLWidget);
-    connect(&m_GLWidget->m_AvgPaintGLTimer, &AvgTimer::avgTimeChanged, this, &OpenGLMainWindow::updatePaintGLTime);
     connect(&m_GLWidget->m_FPSCounter, &FPSCounter::fpsChanged, this, &OpenGLMainWindow::updateFrameRate);
 }

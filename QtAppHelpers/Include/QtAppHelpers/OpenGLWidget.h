@@ -39,7 +39,6 @@ public:
     OpenGLWidget(QWidget* parent);
     ~OpenGLWidget();
 
-    AvgTimer   m_AvgPaintGLTimer;
     FPSCounter m_FPSCounter;
 
     void setPrintDebug(bool pdebug);
@@ -81,8 +80,6 @@ protected:
     void checkGLVersion();
     void checkGLExtensions(QVector<QString> extensions);
 
-    void startFrameTimer();
-    void endFrameTimer();
     void exportScreenToImage(int frame);
 
     ////////////////////////////////////////////////////////////////////////////////

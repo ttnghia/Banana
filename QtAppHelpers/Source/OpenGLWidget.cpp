@@ -282,8 +282,8 @@ void OpenGLWidget::paintGL()
                  1);
 #endif
 
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     m_FPSCounter.countFrame();
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     uploadCameraData();
 }
 
@@ -392,18 +392,4 @@ void OpenGLWidget::checkGLExtensions(QVector<QString> extensions)
     {
         exit(EXIT_FAILURE);
     }
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void OpenGLWidget::startFrameTimer()
-{
-    assert(isValid());
-    m_AvgPaintGLTimer.tick();
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void OpenGLWidget::endFrameTimer()
-{
-    assert(isValid());
-    m_AvgPaintGLTimer.tock();
 }

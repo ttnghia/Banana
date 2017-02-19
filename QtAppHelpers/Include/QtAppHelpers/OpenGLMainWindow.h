@@ -41,7 +41,6 @@ public:
     void setArthurStyle();
 
     public slots:
-    void updatePaintGLTime(double avgFrameTime);
     void updateFrameRate(double fps);
 
 protected:
