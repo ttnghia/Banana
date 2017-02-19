@@ -31,3 +31,6 @@
 [submodule "Externals/tinyply"]
 	path = Externals/tinyply
 	url = https://github.com/ddiakopoulos/tinyply.git
+[submodule "Externals/freetype2"]
+	path = Externals/freetype2
+	url = git://git.sv.nongnu.org/freetype/freetype2.git
