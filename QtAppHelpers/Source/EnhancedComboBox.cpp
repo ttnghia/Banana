@@ -79,6 +79,16 @@ QLayout* EnhancedComboBox::getLayout()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+QLayout* EnhancedComboBox::getLayoutWithLabel(QString label, int comboStretch /*= 5*/)
+{
+    QHBoxLayout* layout = new QHBoxLayout;
+    layout->addWidget(new QLabel(label), 1);
+    layout->addLayout(m_Layout, comboStretch);
+
+    return layout;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 QGroupBox* EnhancedComboBox::getGroupBox(QString title)
 {
     if(m_GroupBox == nullptr)

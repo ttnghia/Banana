@@ -33,6 +33,7 @@ public:
 
     QComboBox* getComboBox();
     QLayout* getLayout();
+    QLayout* getLayoutWithLabel(QString label, int comboStretch = 5);
     QGroupBox* getGroupBox(QString title = QString(""));
 
     void setCurrentIndex(int index);

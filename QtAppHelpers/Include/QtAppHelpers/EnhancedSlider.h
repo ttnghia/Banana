@@ -32,6 +32,7 @@ public:
     QSlider* getSlider();
     QSpinBox* getSpinBox();
     QLayout* getLayout();
+    QLayout* getLayoutWithLabel(QString label, int sldStretch = 5);
     QGroupBox* getGroupBox(QString title = QString(""));
 
     void setTracking(bool tracking);
