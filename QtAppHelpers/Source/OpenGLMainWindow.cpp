@@ -28,8 +28,12 @@ OpenGLMainWindow::OpenGLMainWindow(QWidget* parent) : QMainWindow(parent), m_GLW
     m_lblStatusFPS = new QLabel(this);
     m_lblStatusFPS->setMargin(5);
 
+    m_lblStatusCamPosition = new QLabel(this);
+    m_lblStatusCamPosition->setMargin(5);
+
     statusBar()->addPermanentWidget(m_lblStatusAvgFrameTime, 1);
     statusBar()->addPermanentWidget(m_lblStatusFPS, 1);
+    statusBar()->addPermanentWidget(m_lblStatusCamPosition, 1);
     statusBar()->setMinimumHeight(30);
     //statusBar()->setSizeGripEnabled(false);
 
@@ -100,11 +104,17 @@ void OpenGLMainWindow::setArthurStyle()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void OpenGLMainWindow::updateFrameRate(double fps)
+void OpenGLMainWindow::updateStatusFrameRate(double fps)
 {
 
     m_lblStatusAvgFrameTime->setText(QString("Avg RenderGL: %1 ms").arg(1000.0 / fps));
     m_lblStatusFPS->setText(QString("FPS: %1 | VSync: %2").arg(fps).arg(m_VSync ? "On" : "Off"));
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void OpenGLMainWindow::updateStatusCameraPosition(const glm::vec3& camPosition)
+{
+    m_lblStatusCamPosition->setText(QString("Camera: [%1, %2, %3]").arg(camPosition[0]).arg(camPosition[1]).arg(camPosition[2]));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -117,5 +127,6 @@ void OpenGLMainWindow::setupOpenglWidget(OpenGLWidget * glWidget)
 
     m_GLWidget = glWidget;
     setCentralWidget(m_GLWidget);
-    connect(&m_GLWidget->m_FPSCounter, &FPSCounter::fpsChanged, this, &OpenGLMainWindow::updateFrameRate);
+    connect(&m_GLWidget->m_FPSCounter, &FPSCounter::fpsChanged, this, &OpenGLMainWindow::updateStatusFrameRate);
+    connect(m_GLWidget, &OpenGLWidget::cameraPositionChanged, this, &OpenGLMainWindow::updateStatusCameraPosition);
 }

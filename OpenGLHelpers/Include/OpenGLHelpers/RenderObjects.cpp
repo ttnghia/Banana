@@ -178,7 +178,7 @@ void SkyBoxRender::render()
 
     m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getViewMatrix()), 0, sizeof(glm::mat4));
     m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getProjectionMatrix()), sizeof(glm::mat4), sizeof(glm::mat4));
-    m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->m_CameraPosition), 5 * sizeof(glm::mat4), sizeof(glm::vec3));
+    m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getCameraPosition()), 5 * sizeof(glm::mat4), sizeof(glm::vec3));
 
     m_Shader->bind();
     m_CurrentTexture->bind();
@@ -380,9 +380,10 @@ void WireFrameBoxRender::render()
 
     if(m_SelfUpdateCamera)
     {
+        m_Camera->updateCameraMatrices();
         m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getViewMatrix()), 0, sizeof(glm::mat4));
         m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getProjectionMatrix()), sizeof(glm::mat4), sizeof(glm::mat4));
-        m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->m_CameraPosition), 5 * sizeof(glm::mat4), sizeof(glm::vec3));
+        m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getCameraPosition()), 5 * sizeof(glm::mat4), sizeof(glm::vec3));
     }
     m_UBufferCamData->bindBufferBase();
     m_Shader->bindUniformBlock(m_UBCamData, m_UBufferCamData->getBindingPoint());
@@ -869,9 +870,10 @@ void MeshRender::render()
 
     if(m_SelfUpdateCamera)
     {
+        m_Camera->updateCameraMatrices();
         m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getViewMatrix()), 0, sizeof(glm::mat4));
         m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getProjectionMatrix()), sizeof(glm::mat4), sizeof(glm::mat4));
-        m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->m_CameraPosition), 5 * sizeof(glm::mat4), sizeof(glm::vec3));
+        m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getCameraPosition()), 5 * sizeof(glm::mat4), sizeof(glm::vec3));
     }
 
     m_Shader->bind();

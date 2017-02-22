@@ -165,7 +165,7 @@ void OpenGLWidget::wheelEvent(QWheelEvent * ev)
         return;
     }
 
-    float zoomFactor = (ev->angleDelta().x() + ev->angleDelta().y()) / 2000.0f;
+    float zoomFactor = (ev->angleDelta().x() + ev->angleDelta().y()) / 5000.0f;
 
     m_Camera->zoom(zoomFactor);
 }
@@ -200,19 +200,19 @@ void OpenGLWidget::keyPressEvent(QKeyEvent * ev)
             break;
 
         case Qt::Key_Up:
-            m_Camera->translate(glm::vec2(0, 0.5));
+            m_Camera->translate(glm::vec2(0, 0.1));
             break;
 
         case Qt::Key_Down:
-            m_Camera->translate(glm::vec2(0, -0.5));
+            m_Camera->translate(glm::vec2(0, -0.1));
             break;
 
         case Qt::Key_Left:
-            m_Camera->translate(glm::vec2(-0.5, 0));
+            m_Camera->translate(glm::vec2(-0.1, 0));
             break;
 
         case Qt::Key_Right:
-            m_Camera->translate(glm::vec2(0.5, 0));
+            m_Camera->translate(glm::vec2(0.1, 0));
             break;
 
         case Qt::Key_R:
@@ -257,6 +257,7 @@ void OpenGLWidget::initializeGL()
     // view matrix, prj matrix, inverse view matrix, inverse proj matrix, shadow matrix, cam position
     m_UBufferCamData = new OpenGLBuffer;
     m_UBufferCamData->createBuffer(GL_UNIFORM_BUFFER, 5 * sizeof(glm::mat4) + sizeof(glm::vec4), nullptr, GL_DYNAMIC_DRAW);
+    emit cameraPositionChanged(m_Camera->getCameraPosition());
 
     ////////////////////////////////////////////////////////////////////////////////
     // call init function from derived class
@@ -301,13 +302,18 @@ void OpenGLWidget::paintGL()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLWidget::uploadCameraData()
 {
-    m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getViewMatrix()), 0, sizeof(glm::mat4));
-    m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getProjectionMatrix()), sizeof(glm::mat4), sizeof(glm::mat4));
-    m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getInverseViewMatrix()), 2 * sizeof(glm::mat4), sizeof(glm::mat4));
-    m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getInverseProjectionMatrix()), 3 * sizeof(glm::mat4), sizeof(glm::mat4));
-    // todo: shadow matrix
-    m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->m_CameraPosition), 5 * sizeof(glm::mat4), sizeof(glm::vec3));
+    m_Camera->updateCameraMatrices();
+    if(m_Camera->isCameraChanged())
+    {
+        m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getViewMatrix()), 0, sizeof(glm::mat4));
+        m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getProjectionMatrix()), sizeof(glm::mat4), sizeof(glm::mat4));
+        m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getInverseViewMatrix()), 2 * sizeof(glm::mat4), sizeof(glm::mat4));
+        m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getInverseProjectionMatrix()), 3 * sizeof(glm::mat4), sizeof(glm::mat4));
+        // todo: shadow matrix
+        m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getCameraPosition()), 5 * sizeof(glm::mat4), sizeof(glm::vec3));
 
+        emit cameraPositionChanged(m_Camera->getCameraPosition());
+    }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

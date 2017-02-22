@@ -41,7 +41,8 @@ public:
     void setArthurStyle();
 
     public slots:
-    void updateFrameRate(double fps);
+    void updateStatusFrameRate(double fps);
+    void updateStatusCameraPosition(const glm::vec3& camPosition);
 
 protected:
     virtual void instantiateOpenGLWidget() = 0;
@@ -51,6 +52,7 @@ protected:
     ////////////////////////////////////////////////////////////////////////////////
     QLabel*       m_lblStatusAvgFrameTime;
     QLabel*       m_lblStatusFPS;
+    QLabel*       m_lblStatusCamPosition;
     OpenGLWidget* m_GLWidget;
     bool          m_VSync;
 };

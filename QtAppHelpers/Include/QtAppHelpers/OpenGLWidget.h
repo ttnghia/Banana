@@ -100,6 +100,7 @@ protected:
 
 signals:
     void emitDebugString(QString str);
+    void cameraPositionChanged(const glm::vec3 cameraPosition);
 
     public slots:
     void printDebug(QString str)

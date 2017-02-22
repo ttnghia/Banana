@@ -45,8 +45,11 @@ public:
     void setDefaultCamera(const glm::vec3& defaultPosition, const glm::vec3& defaultCameraFocus, const glm::vec3& defaultUpDirection);
     void setFrustum(float fov, float nearZ, float farZ);
     void resizeWindow(int width, int height);
-    void updateViewMatrix();
     void reset();
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // updateViewMatrix need to be called each time frame updating
+    void updateCameraMatrices();
 
     void setTranslationLag(float translationLag);
     void setRotationLag(float rotationLag);
@@ -69,23 +72,27 @@ public:
     void zoom(float _zooming);
     void zoom();
 
+    const glm::vec3 getCameraPosition() const;
+    const glm::vec3 getCameraFocus() const;
+    const glm::vec3 getCameraUpDirection() const;
     const glm::vec3 getCameraDirection() const;
-    const glm::mat4 getViewMatrix();
-    const glm::mat4 getProjectionMatrix();
-    const glm::mat4 getViewProjectionMatrix();
-    const glm::mat4 getInverseViewMatrix();
-    const glm::mat4 getInverseProjectionMatrix();
+    const glm::mat4 getViewMatrix() const;
+    const glm::mat4 getProjectionMatrix() const;
+    const glm::mat4 getViewProjectionMatrix() const;
+    const glm::mat4 getInverseViewMatrix() const;
+    const glm::mat4 getInverseProjectionMatrix() const;
 
-    ////////////////////////////////////////////////////////////////////////////////
-    // variables
-    glm::vec3 m_CameraPosition;
-    glm::vec3 m_CameraFocus;
-    glm::vec3 m_CameraUpDirection;
+    bool isCameraChanged();
 
 private:
     bool      m_bDebug;
     int       m_WindowWidth;
     int       m_WindowHeight;
+    bool      m_bIsCameraChanged;
+
+    glm::vec3 m_CameraPosition;
+    glm::vec3 m_CameraFocus;
+    glm::vec3 m_CameraUpDirection;
 
     glm::vec3 m_DefaultCameraPosition;
     glm::vec3 m_DefaultCameraFocus;
