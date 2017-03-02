@@ -142,11 +142,9 @@ GLuint ShaderProgram::getAtributeLocation(const char * atributeName,
     if(location < 0 && dieOnError)
     {
 #ifdef __Banana_Qt__
-        __BNN_Die(QString("%1: Attribute %2 not found!")
-                  .arg(QString::fromStdString(m_ProgramName))
-                  .arg(atributeName));
+        __BNN_Die(QString("%1: Attribute %2 not found!").arg(QString::fromStdString(m_ProgramName)).arg(atributeName));
 #else
-        __BNN_Die("%s: Attribute %s not found!\n", m_ProgramName.c_str(), atributeName);
+        __BNN_Die(("%s: Attribute %s not found!\n", m_ProgramName.c_str(), atributeName));
 #endif
     }
 
@@ -162,11 +160,9 @@ GLuint ShaderProgram::getUniformLocation(const char * uniformName,
     if(location < 0 && dieOnError)
     {
 #ifdef __Banana_Qt__
-        __BNN_Die(QString("%1: Uniform location %2 not found!")
-                  .arg(QString::fromStdString(m_ProgramName))
-                  .arg(QString(uniformName)));
+        __BNN_Die(QString("%1: Uniform location %2 not found!").arg(QString::fromStdString(m_ProgramName)).arg(QString(uniformName)));
 #else
-        __BNN_Die("%s: Uniform location %s not found!\n", m_ProgramName.c_str(), uniformName);
+        __BNN_Die(("%s: Uniform location %s not found!\n", m_ProgramName.c_str(), uniformName));
 #endif
     }
 
@@ -181,11 +177,9 @@ GLuint ShaderProgram::getUniformBlockIndex(const char* uniformBlockName, bool di
     if(location == GL_INVALID_INDEX && dieOnError)
     {
 #ifdef __Banana_Qt__
-        __BNN_Die(QString("%1: Uniform block index %2 not found!")
-                  .arg(QString::fromStdString(m_ProgramName))
-                  .arg(QString(uniformBlockName)));
+        __BNN_Die(QString("%1: Uniform block index %2 not found!").arg(QString::fromStdString(m_ProgramName)).arg(QString(uniformBlockName)));
 #else
-        __BNN_Die("%s: Uniform location %s not found!\n", m_ProgramName.c_str(), uniformBlockName);
+        __BNN_Die(("%s: Uniform location %s not found!\n", m_ProgramName.c_str(), uniformBlockName));
 #endif
     }
 
@@ -298,12 +292,9 @@ bool ShaderProgram::checkCompileError(GLuint shader, GLenum shaderType)
         }
 
 #ifdef __Banana_Qt__
-        __BNN_Info(QString("%1: %2 failed to compile!\n  => : %3")
-                   .arg(QString::fromStdString(m_ProgramName))
-                   .arg(QString::fromStdString(shaderName)).arg(infoLog));
+        __BNN_Info(QString("%1: %2 failed to compile!\n  => : %3").arg(QString::fromStdString(m_ProgramName)).arg(QString::fromStdString(shaderName)).arg(infoLog));
 #else
-        std::cout << "ERROR: " << shaderName << " failed to compile!" << std::endl
-            << "  => : " << infoLog << std::endl;
+        std::cout << "ERROR: " << shaderName << " failed to compile!" << std::endl << "  => : " << infoLog << std::endl;
 #endif
     }
 
@@ -321,12 +312,9 @@ bool ShaderProgram::checkLinkError(GLuint program)
     {
         glCall(glGetProgramInfoLog(program, 1024, NULL, infoLog));
 #ifdef __Banana_Qt__
-        __BNN_Die(QString("%1: Program failed to link!\n  => : ")
-                  .arg(QString::fromStdString(m_ProgramName))
-                  + QString(infoLog));
+        __BNN_Die(QString("%1: Program failed to link!\n  => : ").arg(QString::fromStdString(m_ProgramName)) + QString(infoLog));
 #else
-        __BNN_Die("%s: Program failed to link!\n   => : ", m_ProgramName.c_str(),
-                  infoLog);
+        __BNN_Die(("%s: Program failed to link!\n   => : ", m_ProgramName.c_str(), infoLog));
 #endif
     }
 
@@ -340,11 +328,9 @@ void ShaderProgram::loadFile(std::string & fileContent, const char * fileName)
     if(!file.is_open())
     {
 #ifdef __Banana_Qt__
-        __BNN_Die(QString("%1: Cannot open file %2 for reading!")
-                  .arg(QString::fromStdString(m_ProgramName))
-                  .arg(QString(fileName)));
+        __BNN_Die(QString("%1: Cannot open file %2 for reading!").arg(QString::fromStdString(m_ProgramName)).arg(QString(fileName)));
 #else
-        __BNN_Die("%s: Cannot open file %s for reading!\n", m_ProgramName.c_str(), fileName);
+        __BNN_Die(("%s: Cannot open file %s for reading!\n", m_ProgramName.c_str(), fileName));
 #endif
     }
 
@@ -354,9 +340,8 @@ void ShaderProgram::loadFile(std::string & fileContent, const char * fileName)
     file.seekg(0, std::ios::beg);
 
     // => read file
-    fileContent.assign((std::istreambuf_iterator<char>(file)),
-                       std::istreambuf_iterator<char>());
-}
+    fileContent.assign((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+    }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 ShaderProgram* ShaderProgram::ShaderProgram::getSimpleVertexColorShader(std::string programName)
