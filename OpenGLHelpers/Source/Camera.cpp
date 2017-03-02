@@ -21,6 +21,7 @@
 Camera::Camera() :
     m_bDebug(false),
     m_bIsCameraChanged(false),
+    m_bReseted(false),
     m_CameraPosition(glm::vec3(1, 0, 0)),
     m_CameraFocus(glm::vec3(0, 0, 0)),
     m_CameraUpDirection(glm::vec3(0, 1, 0)),
@@ -55,7 +56,6 @@ void Camera::setDefaultCamera(const glm::vec3& defaultPosition, const glm::vec3&
     m_DefaultCameraPosition = defaultPosition;
     m_DefaultCameraFocus = defaultCameraFocus;
     m_DefaultUpDirection = defaultUpDirection;
-    m_bIsCameraChanged = true;
 
     if(m_bDebug)
     {
@@ -90,6 +90,13 @@ void Camera::resizeWindow(int width, int height)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Camera::updateCameraMatrices()
 {
+    if(m_bReseted)
+    {
+        m_bReseted = false;
+        m_bIsCameraChanged = true;
+        return;
+    }
+
     m_bIsCameraChanged = false;
 
     if(glm::dot(m_Translation, m_Translation) > 1e-4)
@@ -131,7 +138,7 @@ void Camera::reset()
     m_CameraPosition    = m_DefaultCameraPosition;
     m_CameraFocus       = m_DefaultCameraFocus;
     m_CameraUpDirection = m_DefaultUpDirection;
-    m_bIsCameraChanged  = true;
+    m_bReseted          = true;
 
     ////////////////////////////////////////////////////////////////////////////////
     m_ViewMatrix = glm::lookAt(m_CameraPosition, m_CameraFocus, m_CameraUpDirection);

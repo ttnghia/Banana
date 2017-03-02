@@ -94,6 +94,16 @@ public:
         }
     }
 
+    void allocate(unsigned int numAllocation)
+    {
+        for(auto it = m_ArrayData.begin(); it != m_ArrayData.end(); ++it)
+        {
+            const std::string& arrName = it->first;
+            size_t arraySize = numAllocation * m_ArrayElementSize[arrName];
+            it->second->resize(arraySize);
+        }
+    }
+
     bool hasScalar(std::string dataName)
     {
         return (m_ScalarData.find(dataName) != m_ScalarData.end());

@@ -89,6 +89,7 @@ private:
     int       m_WindowWidth;
     int       m_WindowHeight;
     bool      m_bIsCameraChanged;
+    bool      m_bReseted;
 
     glm::vec3 m_CameraPosition;
     glm::vec3 m_CameraFocus;

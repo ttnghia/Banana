@@ -784,19 +784,19 @@ void MeshRender::loadTextures(QString textureFolder)
 #endif
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-MeshObject * MeshRender::getMeshObj()
+MeshObject* MeshRender::getMeshObj()
 {
     return m_MeshObj;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-Material * MeshRender::getMaterial()
+Material* MeshRender::getMaterial()
 {
     return m_Material;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-OpenGLTexture * MeshRender::getCurrentTexture()
+OpenGLTexture* MeshRender::getCurrentTexture()
 {
     return m_CurrentTexture;
 }
@@ -961,9 +961,7 @@ void MeshRender::renderToDepthBuffer(int scrWidth, int scrHeight, GLuint default
     for(int i = 0; i < m_Lights->getNumLights(); ++i)
     {
         m_DepthShader->setUniformValue(m_DSULightID, i);
-
         m_DepthBufferRenders[i]->beginRender();
-
 
         glCall(glBindVertexArray(m_DSVAO));
         m_MeshObj->draw();
@@ -971,7 +969,6 @@ void MeshRender::renderToDepthBuffer(int scrWidth, int scrHeight, GLuint default
 
         m_DepthBufferRenders[i]->endRender(defaultFBO);
     }
-
 
     m_DepthShader->release();
     glViewport(0, 0, scrWidth, scrHeight);
