@@ -2,12 +2,12 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //
 //  Copyright (c) 2017 by
-//       __      _     _         _____                              
-//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _ 
+//       __      _     _         _____
+//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _
 //   /  \/ / _` | '_ \| |/ _` |   / /\/ '__| | | |/ _ \| '_ \ / _` |
 //  / /\  / (_| | | | | | (_| |  / /  | |  | |_| | (_) | | | | (_| |
 //  \_\ \/ \__, |_| |_|_|\__,_|  \/   |_|   \__,_|\___/|_| |_|\__, |
-//         |___/                                              |___/ 
+//         |___/                                              |___/
 //
 //  <nghiatruong.vn@gmail.com>
 //  All rights reserved.
@@ -51,10 +51,13 @@ void OpenGLWidgetTestRender::initTestRenderTriangle()
 
     ////////////////////////////////////////////////////////////////////////////////
     // setup triangle
-    GLfloat triangle[] ={
-        /* position */ 0.0,  0.8, 0.0, /* color */ 1.0, 1.0, 0.0,
-        /* position */ -0.8, -0.8, 0.0, /* color */ 0.0, 0.0, 1.0,
-        /* position */ 0.8, -0.8, 0.0, /* color */ 1.0, 0.0, 0.0
+    GLfloat triangle[] = {
+        0.0,   0.8, 0.0, /* position */
+        1.0,   1.0, 0.0, /* color */
+        -0.8, -0.8, 0.0, /* position */
+        0.0,   0.0, 1.0, /* color */
+        0.8,  -0.8, 0.0, /* position */
+        1.0,   0.0, 0.0  /* color */
     };
 
     m_VertexBuffer = new OpenGLBuffer;
@@ -82,10 +85,13 @@ void OpenGLWidgetTestRender::initTestRenderTexture(QString texFile)
 
     ////////////////////////////////////////////////////////////////////////////////
     // setup square and texture
-    GLfloat triangle[] ={
-        /* position */ 0.0,  0.8, 0.0, /* texcoord */ 0.5, 1.0,
-        /* position */ -0.8, -0.8, 0.0, /* texcoord */ 0.0, 0.0,
-        /* position */ 0.8, -0.8, 0.0, /* texcoord */ 1.0, 0.0
+    GLfloat triangle[] = {
+        0.0,   0.8, 0.0, /* position */
+        0.5,   1.0,      /* texcoord */
+        -0.8, -0.8, 0.0, /* position */
+        0.0,   0.0,      /* texcoord */
+        0.8,  -0.8, 0.0, /* position */
+        1.0, 0.0         /* texcoord */
     };
 
     m_VertexBuffer = new OpenGLBuffer;
@@ -126,7 +132,7 @@ void OpenGLWidgetTestRender::initTestRenderFloor(QString texFile)
 {
     assert(isValid());
     ////////////////////////////////////////////////////////////////////////////////
-   // textures
+    // textures
     m_Texture = new OpenGLTexture(GL_TEXTURE_2D);
 
     QImage texImg = QImage(texFile).convertToFormat(QImage::Format_RGBA8888);
@@ -178,7 +184,6 @@ void OpenGLWidgetTestRender::initTestRenderMesh(QString meshFile)
     m_PointLightRender = new PointLightRender(m_Camera, m_Lights);
     m_MeshRender = new MeshRender(m_MeshObj, m_Camera, m_Lights, m_Material, m_UBufferCamData);
     m_MeshRender->transform(glm::vec3(0, 0, 0), glm::vec3(0.03));
-
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -203,20 +208,19 @@ void OpenGLWidgetTestRender::initTestRenderMeshWithShadow(QString meshFile, QStr
 
 #define NUM_LIGHTS 3
 
-#if NUM_LIGHTS==1
+#if NUM_LIGHTS == 1
     m_Lights->setNumLights(1);
     m_Lights->setLightPosition(glm::vec4(0, 3, 3, 1.0), 0);
     m_Lights->setLightDiffuse(glm::vec4(1.0), 0);
-
 #endif
-#if NUM_LIGHTS==2
+#if NUM_LIGHTS == 2
     m_Lights->setNumLights(2);
     m_Lights->setLightPosition(glm::vec4(0, 3, 0, 1.0), 0);
     m_Lights->setLightPosition(glm::vec4(0, 3, 3, 1.0), 1);
     m_Lights->setLightDiffuse(glm::vec4(0.5), 0);
     m_Lights->setLightDiffuse(glm::vec4(0.5), 1);
 #endif
-#if NUM_LIGHTS==3
+#if NUM_LIGHTS == 3
     m_Lights->setNumLights(3);
     m_Lights->setLightPosition(glm::vec4(0, 3, 0, 1.0), 0);
     m_Lights->setLightPosition(glm::vec4(0, 3, 3, 1.0), 1);
@@ -345,7 +349,6 @@ void OpenGLWidgetTestRender::renderTexture()
     glCall(glDrawArrays(GL_TRIANGLES, 0, 3));
     m_Texture->release();
     m_Shader->release();
-
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
