@@ -34,16 +34,17 @@
 #endif
 
 #ifndef __BNN_UnUsed_Variable
-#   define __BNN_UnUsed_Variable(x)    ((void)x)
+#   define __BNN_UnUsed_Variable(x) ((void)x)
 #endif
 
 #ifdef __Banana_Windows__
-#   define WIN32_LEAN_AND_MEAN    // Exclude rarely-used stuff from Windows headers
+//  Exclude rarely-used stuff from Windows headers
+#   define WIN32_LEAN_AND_MEAN
 #   define NOMINMAX
-#   define __func__               __FUNCTION__
-#include <Windows.h>
-#include <exception>
-#include <string>
+#   define __func__ __FUNCTION__
+#   include <Windows.h>
+#   include <exception>
+#   include <string>
 
 inline void throwIfFailed(HRESULT hr)
 {
@@ -56,7 +57,7 @@ inline void throwIfFailed(HRESULT hr)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #ifndef M_PI
-#define M_PI    3.14159265358979323846
+#define M_PI 3.14159265358979323846
 #endif
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -162,20 +163,20 @@ inline void throwIfFailed(HRESULT hr)
 // test
 #define __BNN_PerformanceTest_Begin(funcName) \
     {                                         \
-        Timer test_timer;                     \
-        test_timer.tick();                    \
+        Timer testTimer;                      \
+        testTimer.tick();                     \
         std::string strName(funcName);
 
 
 #define __BNN_PerformanceTest_End                           \
-    test_timer.tock();                                      \
+    testTimer.tock();                                       \
     printf("Test %s finished. Time: %s\n", strName.c_str(), \
-           test_timer.get_run_time().c_str());              \
+           testTimer.get_run_time().c_str());               \
     }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // data macros
 #define __BNN_AssertAprx(a, b, threshold)                                    \
     {                                                                        \
-        __BNN_AssertMsg (fabs(a - b) < threshold, "Numbers are not equal."); \
+        __BNN_AssertMsg (threshold > fabs(a - b), "Numbers are not equal."); \
                                        }

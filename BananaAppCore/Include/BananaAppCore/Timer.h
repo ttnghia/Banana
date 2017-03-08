@@ -2,12 +2,12 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //
 //  Copyright (c) 2017 by
-//       __      _     _         _____                              
-//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _ 
+//       __      _     _         _____
+//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _
 //   /  \/ / _` | '_ \| |/ _` |   / /\/ '__| | | |/ _ \| '_ \ / _` |
 //  / /\  / (_| | | | | | (_| |  / /  | |  | |_| | (_) | | | | (_| |
 //  \_\ \/ \__, |_| |_|_|\__,_|  \/   |_|   \__,_|\___/|_| |_|\__, |
-//         |___/                                              |___/ 
+//         |___/                                              |___/
 //
 //  <nghiatruong.vn@gmail.com>
 //  All rights reserved.
@@ -36,7 +36,7 @@ public:
     {
         assert(!m_TimerTicked);
 
-        m_StartTime = Clock::now();
+        m_StartTime   = Clock::now();
         m_TimerTicked = true;
     }
 
@@ -44,9 +44,8 @@ public:
     {
         assert(m_TimerTicked);
 
-        m_EndTime = Clock::now();
+        m_EndTime     = Clock::now();
         m_TimerTicked = false;
-
         m_ElapsedTime = std::chrono::duration<double, std::milli>(m_EndTime - m_StartTime).count();
 
         return m_ElapsedTime;
@@ -66,5 +65,5 @@ private:
     Clock::time_point m_StartTime;
     Clock::time_point m_EndTime;
     double            m_ElapsedTime;
-    bool              m_TimerTicked;
+    bool                m_TimerTicked;
 };
