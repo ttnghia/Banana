@@ -17,13 +17,14 @@
 
 #pragma once
 
+#include <OpenGLHelpers/OpenGLMacros.h>
+
 #include <string>
 #include <vector>
 #include <map>
 #include <iostream>
 #include <fstream>
-
-#include <OpenGLHelpers/OpenGLMacros.h>
+#include <memory>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 class ShaderProgram : public OpenGLCallable
@@ -42,7 +43,10 @@ public:
         link();
     }
 
-    bool isValid();
+    bool isValid() const
+    {
+        return m_isProgramLinked;
+    }
 
     void addVertexShaderFromSource(const GLchar* shaderSource);
     void addGeometryShaderFromSource(const GLchar* shaderSource);
@@ -68,7 +72,7 @@ public:
     GLuint getAtributeLocation(const char* atributeName, bool dieOnError = true);
     GLuint getUniformLocation(const char* uniformName, bool dieOnError = true);
     GLuint getUniformBlockIndex(const char* uniformBlockName, bool dieOnError = true);
-    void bindUniformBlock(GLuint blockIndex, GLuint bindingPoint);
+    void   bindUniformBlock(GLuint blockIndex, GLuint bindingPoint);
 
     template<class T>
     void setUniformValue(const char* uniformName, T value, bool dieOnError = true)
@@ -87,12 +91,12 @@ public:
     void setUniformValue(GLint location, GLboolean value);
 
     ////////////////////////////////////////////////////////////////////////////////
-    GLuint getProgramID()
+    GLuint getProgramID() const
     {
         return m_ProgramID;
     }
 
-    std::string getProgramName()
+    std::string getProgramName() const
     {
         return m_ProgramName;
     }
@@ -105,22 +109,22 @@ protected:
     void loadFile(std::string& fileContent, const char* fileName);
 
     ////////////////////////////////////////////////////////////////////////////////
+    bool                          m_isProgramLinked;
     GLuint                        m_ProgramID;
     std::string                   m_ProgramName;
     std::vector<GLuint>           m_ShaderIDs;
-    bool                          m_isProgramLinked;
     std::map<GLenum, std::string> m_ShaderSourceCodes;
     std::map<GLenum, std::string> m_ShaderSourceFiles;
 
 public:
-    static ShaderProgram* getSimpleVertexColorShader(std::string programName = std::string("SimpleVertexColorShader"));
-    static ShaderProgram* getSimpleUniformColorShader(std::string programName = std::string("SimpleUniformColorShader"));
-    static ShaderProgram* getSimpleTextureShader(std::string programName = std::string("SimpleTextureShader"));
-    static ShaderProgram* getSimpleDepthShader(std::string programName = std::string("SimpleDepthShader"));
-    static ShaderProgram* getObjUniformColorShader(std::string programName = std::string("ObjUniformColorShader"));
-    static ShaderProgram* getObjTextureShader(std::string programName = std::string("ObjTextureShader"));
-    static ShaderProgram* getPhongShader(std::string programName = std::string("PhongShader"));
-    static ShaderProgram* getSkyBoxShader(std::string programName = std::string("SkyBoxShader"));
-    static ShaderProgram* getScreenQuadShader(const char* fragmentShaderSource, std::string programName =std::string("ScreenQuadShader"));
-    static ShaderProgram* getScreenQuadShaderFromFile(const char* fragmentShaderFile, std::string programName =std::string("ScreenQuadShader"));
+    static std::shared_ptr<ShaderProgram> getSimpleVertexColorShader(std::string programName = std::string("SimpleVertexColorShader"));
+    static std::shared_ptr<ShaderProgram> getSimpleUniformColorShader(std::string programName = std::string("SimpleUniformColorShader"));
+    static std::shared_ptr<ShaderProgram> getSimpleTextureShader(std::string programName = std::string("SimpleTextureShader"));
+    static std::shared_ptr<ShaderProgram> getSimpleDepthShader(std::string programName = std::string("SimpleDepthShader"));
+    static std::shared_ptr<ShaderProgram> getObjUniformColorShader(std::string programName = std::string("ObjUniformColorShader"));
+    static std::shared_ptr<ShaderProgram> getObjTextureShader(std::string programName = std::string("ObjTextureShader"));
+    static std::shared_ptr<ShaderProgram> getPhongShader(std::string programName = std::string("PhongShader"));
+    static std::shared_ptr<ShaderProgram> getSkyBoxShader(std::string programName = std::string("SkyBoxShader"));
+    static std::shared_ptr<ShaderProgram> getScreenQuadShader(const char* fragmentShaderSource, std::string programName = std::string("ScreenQuadShader"));
+    static std::shared_ptr<ShaderProgram> getScreenQuadShaderFromFile(const char* fragmentShaderFile, std::string programName = std::string("ScreenQuadShader"));
 };

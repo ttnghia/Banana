@@ -2,12 +2,12 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //
 //  Copyright (c) 2017 by
-//       __      _     _         _____                              
-//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _ 
+//       __      _     _         _____
+//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _
 //   /  \/ / _` | '_ \| |/ _` |   / /\/ '__| | | |/ _ \| '_ \ / _` |
 //  / /\  / (_| | | | | | (_| |  / /  | |  | |_| | (_) | | | | (_| |
 //  \_\ \/ \__, |_| |_|_|\__,_|  \/   |_|   \__,_|\___/|_| |_|\__, |
-//         |___/                                              |___/ 
+//         |___/                                              |___/
 //
 //  <nghiatruong.vn@gmail.com>
 //  All rights reserved.
@@ -67,7 +67,7 @@ inline std::string GLErr2Str(GLenum err)
 #endif
 
 #ifdef _DEBUG
-#   ifdef __Banana_Qt__ 
+#   ifdef __Banana_Qt__
 #   define glCall(a)\
     a; {\
         GLenum err = glGetError();\
@@ -79,7 +79,7 @@ inline std::string GLErr2Str(GLenum err)
             DEBUG_BREAK\
         }\
         }
-#   else 
+#   else
 #   define glCall(a)\
     a; {\
         GLenum err = glGetError();\
@@ -90,7 +90,7 @@ inline std::string GLErr2Str(GLenum err)
             fprintf(stderr, "%s\n", str.c_str()); \
             DEBUG_BREAK\
         }\
-        } 
+        }
 #   endif
 #else // NO _DEBUG
 #   define glCall(a) a;

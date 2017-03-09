@@ -2,12 +2,12 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //
 //  Copyright (c) 2017 by
-//       __      _     _         _____                              
-//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _ 
+//       __      _     _         _____
+//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _
 //   /  \/ / _` | '_ \| |/ _` |   / /\/ '__| | | |/ _ \| '_ \ / _` |
 //  / /\  / (_| | | | | | (_| |  / /  | |  | |_| | (_) | | | | (_| |
 //  \_\ \/ \__, |_| |_|_|\__,_|  \/   |_|   \__,_|\___/|_| |_|\__, |
-//         |___/                                              |___/ 
+//         |___/                                              |___/
 //
 //  <nghiatruong.vn@gmail.com>
 //  All rights reserved.
@@ -17,10 +17,6 @@
 
 #pragma once
 
-#include <QtGui>
-#include <QtWidgets>
-#include <QSurfaceFormat>
-
 #include <QtAppHelpers/QtAppMacros.h>
 #include <QtAppHelpers/AvgTimer.h>
 #include <QtAppHelpers/FPSCounter.h>
@@ -28,6 +24,12 @@
 
 #include <OpenGLHelpers/Camera.h>
 #include <OpenGLHelpers/OpenGLBuffer.h>
+
+#include <QtGui>
+#include <QtWidgets>
+#include <QSurfaceFormat>
+
+#include <memory>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 class OpenGLWidget : public QOpenGLWidget, public OpenGLFunctions,
@@ -37,7 +39,7 @@ class OpenGLWidget : public QOpenGLWidget, public OpenGLFunctions,
 
 public:
     OpenGLWidget(QWidget* parent);
-    ~OpenGLWidget();
+    virtual ~OpenGLWidget();
 
     FPSCounter m_FPSCounter;
 
@@ -74,9 +76,9 @@ private:
 
     // => protected members of class OpenGLWidget
 protected:
-    virtual void initOpenGL() = 0;
+    virtual void initOpenGL()                     = 0;
     virtual void resizeOpenGLWindow(int w, int h) = 0;
-    virtual void renderOpenGL() = 0;
+    virtual void renderOpenGL()                   = 0;
 
     void uploadCameraData();
     void resetClearColor();
@@ -87,22 +89,24 @@ protected:
     void exportScreenToImage(int frame);
 
     ////////////////////////////////////////////////////////////////////////////////
-    bool          m_bPrintDebug;
-    int           m_WidgetUpdateTimeout;
-    QSize         m_DefaultSize;
-    glm::vec4     m_ClearColor;
-    SpecialKey    m_SpecialKeyPressed;
-    MouseButton   m_MouseButtonPressed;
-    QString       m_CapturePath;
-    QImage*       m_CaptureImage;
-    Camera*       m_Camera;
-    OpenGLBuffer* m_UBufferCamData;
+    bool                          m_bPrintDebug;
+    int                           m_WidgetUpdateTimeout;
+    QSize                         m_DefaultSize;
+    glm::vec4                     m_ClearColor;
+    SpecialKey                    m_SpecialKeyPressed;
+    MouseButton                   m_MouseButtonPressed;
+    QString                       m_CapturePath;
+
+    std::unique_ptr<QTimer>       m_UpdateTimer    = nullptr;
+    std::unique_ptr<QImage>       m_CaptureImage   = nullptr;
+    std::unique_ptr<OpenGLBuffer> m_UBufferCamData = nullptr;
+    std::unique_ptr<Camera>       m_Camera         = std::make_unique<Camera> ();
 
 signals:
     void emitDebugString(QString str);
     void cameraPositionChanged(const glm::vec3 cameraPosition);
 
-    public slots:
+public slots:
     void printDebug(QString str)
     {
         if(m_bPrintDebug)
@@ -110,5 +114,4 @@ signals:
             qDebug() << str;
         }
     }
-
 };

@@ -3,7 +3,7 @@
 //
 //  Copyright (c) 2017 by
 //       __      _     _         _____
-//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _ 
+//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _
 //   /  \/ / _` | '_ \| |/ _` |   / /\/ '__| | | |/ _ \| '_ \ / _` |
 //  / /\  / (_| | | | | | (_| |  / /  | |  | |_| | (_) | | | | (_| |
 //  \_\ \/ \__, |_| |_|_|\__,_|  \/   |_|   \__,_|\___/|_| |_|\__, |
@@ -16,12 +16,6 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 #include <OpenGLHelpers/ShaderProgram.h>
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-bool ShaderProgram::isValid()
-{
-    return m_isProgramLinked;
-}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void ShaderProgram::addVertexShaderFromSource(const GLchar * shaderSource)
@@ -94,7 +88,7 @@ bool ShaderProgram::link()
             glCall(glDeleteProgram(m_ProgramID));
         }
 
-        m_ProgramID = newProgramID;
+        m_ProgramID       = newProgramID;
         m_isProgramLinked = true;
     }
 
@@ -135,7 +129,7 @@ void ShaderProgram::clearCachedSource()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 GLuint ShaderProgram::getAtributeLocation(const char * atributeName,
-                                          bool dieOnError/* = true*/)
+                                          bool         dieOnError /* = true*/)
 {
     GLint location = glCall(glGetAttribLocation(m_ProgramID, atributeName));
 
@@ -153,7 +147,7 @@ GLuint ShaderProgram::getAtributeLocation(const char * atributeName,
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 GLuint ShaderProgram::getUniformLocation(const char * uniformName,
-                                         bool dieOnError/* = true*/)
+                                         bool         dieOnError /* = true*/)
 {
     GLint location = glCall(glGetUniformLocation(m_ProgramID, uniformName));
 
@@ -196,9 +190,9 @@ void ShaderProgram::ShaderProgram::bindUniformBlock(GLuint blockIndex, GLuint bi
 void ShaderProgram::setUniformValue(GLint location, const glm::mat4& mat)
 {
     glCall(glUniformMatrix4fv(location,
-           1 /*only setting 1 matrix*/,
-           false /*transpose?*/,
-           glm::value_ptr(mat)));
+                              1 /*only setting 1 matrix*/,
+                              false /*transpose?*/,
+                              glm::value_ptr(mat)));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -263,7 +257,7 @@ bool ShaderProgram::addShader(GLenum shaderType, const GLchar * shaderSource)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 bool ShaderProgram::checkCompileError(GLuint shader, GLenum shaderType)
 {
-    GLint success;
+    GLint  success;
     GLchar infoLog[1024];
 
     glCall(glGetShaderiv(shader, GL_COMPILE_STATUS, &success));
@@ -304,7 +298,7 @@ bool ShaderProgram::checkCompileError(GLuint shader, GLenum shaderType)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 bool ShaderProgram::checkLinkError(GLuint program)
 {
-    GLint success;
+    GLint  success;
     GLchar infoLog[1024];
     glCall(glGetProgramiv(program, GL_LINK_STATUS, &success));
 
@@ -322,7 +316,7 @@ bool ShaderProgram::checkLinkError(GLuint program)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void ShaderProgram::loadFile(std::string & fileContent, const char * fileName)
+void ShaderProgram::loadFile(std::string& fileContent, const char * fileName)
 {
     std::ifstream file(fileName);
     if(!file.is_open())
@@ -341,10 +335,10 @@ void ShaderProgram::loadFile(std::string & fileContent, const char * fileName)
 
     // => read file
     fileContent.assign((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-    }
+}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-ShaderProgram* ShaderProgram::ShaderProgram::getSimpleVertexColorShader(std::string programName)
+std::shared_ptr<ShaderProgram> ShaderProgram::ShaderProgram::getSimpleVertexColorShader(std::string programName)
 {
     const GLchar* vertexShader =
         "// This is the shader statically generated by ShaderProgram class\n"
@@ -370,17 +364,16 @@ ShaderProgram* ShaderProgram::ShaderProgram::getSimpleVertexColorShader(std::str
         "void main()\n"
         "{ outColor = vec4(f_Color, 1.0f); }\n";
 
-    ShaderProgram* shader = new ShaderProgram(programName);
+    std::shared_ptr<ShaderProgram> shader = std::make_shared<ShaderProgram>(programName);
     shader->addVertexShaderFromSource(vertexShader);
     shader->addFragmentShaderFromSource(fragmentShader);
     shader->link();
 
     return shader;
-
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-ShaderProgram * ShaderProgram::ShaderProgram::getSimpleUniformColorShader(std::string programName)
+std::shared_ptr<ShaderProgram> ShaderProgram::ShaderProgram::getSimpleUniformColorShader(std::string programName)
 {
     const GLchar* vertexShader =
         "// This is the shader statically generated by ShaderProgram class\n"
@@ -403,17 +396,16 @@ ShaderProgram * ShaderProgram::ShaderProgram::getSimpleUniformColorShader(std::s
         "void main()\n"
         "{ outColor = vec4(f_Color, 1.0f); }\n";
 
-    ShaderProgram* shader = new ShaderProgram(programName);
+    std::shared_ptr<ShaderProgram> shader = std::make_shared<ShaderProgram>(programName);
     shader->addVertexShaderFromSource(vertexShader);
     shader->addFragmentShaderFromSource(fragmentShader);
     shader->link();
 
     return shader;
-
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-ShaderProgram* ShaderProgram::ShaderProgram::getSimpleTextureShader(std::string programName)
+std::shared_ptr<ShaderProgram> ShaderProgram::ShaderProgram::getSimpleTextureShader(std::string programName)
 {
     const GLchar* vertexShader =
         "// This is the shader statically generated by ShaderProgram class\n"
@@ -442,7 +434,7 @@ ShaderProgram* ShaderProgram::ShaderProgram::getSimpleTextureShader(std::string 
         "    outColor = texture(u_TexSampler, f_TexCoord);\n"
         "}\n";
 
-    ShaderProgram* shader = new ShaderProgram(programName);
+    std::shared_ptr<ShaderProgram> shader = std::make_shared<ShaderProgram>(programName);
     shader->addVertexShaderFromSource(vertexShader);
     shader->addFragmentShaderFromSource(fragmentShader);
     shader->link();
@@ -451,7 +443,7 @@ ShaderProgram* ShaderProgram::ShaderProgram::getSimpleTextureShader(std::string 
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-ShaderProgram* ShaderProgram::getSimpleDepthShader(std::string programName /*= std::string("SimpleDepthShader")*/)
+std::shared_ptr<ShaderProgram> ShaderProgram::getSimpleDepthShader(std::string programName /*= std::string("SimpleDepthShader")*/)
 {
     const GLchar* vertexShader =
         "// This is the shader statically generated by ShaderProgram class\n"
@@ -500,7 +492,7 @@ ShaderProgram* ShaderProgram::getSimpleDepthShader(std::string programName /*= s
         "    outDepth = f_LightDistance;\n"
         "}\n";
 
-    ShaderProgram* shader = new ShaderProgram(std::string("DepthShader"));
+    std::shared_ptr<ShaderProgram> shader = std::make_shared<ShaderProgram>(std::string("DepthShader"));
     shader->addVertexShaderFromSource(vertexShader);
     shader->addFragmentShaderFromSource(fragmentShader);
     shader->link();
@@ -509,7 +501,7 @@ ShaderProgram* ShaderProgram::getSimpleDepthShader(std::string programName /*= s
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-ShaderProgram* ShaderProgram::getObjUniformColorShader(std::string programName)
+std::shared_ptr<ShaderProgram> ShaderProgram::getObjUniformColorShader(std::string programName)
 {
     const GLchar* vertexShader =
         "// This is the shader statically generated by ShaderProgram class\n"
@@ -550,17 +542,16 @@ ShaderProgram* ShaderProgram::getObjUniformColorShader(std::string programName)
         "void main()\n"
         "{ outColor = vec4(f_Color, 1.0f); }\n";
 
-    ShaderProgram* shader = new ShaderProgram(programName);
+    std::shared_ptr<ShaderProgram> shader = std::make_shared<ShaderProgram>(programName);
     shader->addVertexShaderFromSource(vertexShader);
     shader->addFragmentShaderFromSource(fragmentShader);
     shader->link();
 
     return shader;
-
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-ShaderProgram* ShaderProgram::getObjTextureShader(std::string programName)
+std::shared_ptr<ShaderProgram> ShaderProgram::getObjTextureShader(std::string programName)
 {
     const GLchar* vertexShader =
         "// This is the shader statically generated by ShaderProgram class\n"
@@ -608,7 +599,7 @@ ShaderProgram* ShaderProgram::getObjTextureShader(std::string programName)
         "}\n";
 
 
-    ShaderProgram* shader = new ShaderProgram(programName);
+    std::shared_ptr<ShaderProgram> shader = std::make_shared<ShaderProgram>(programName);
     shader->addVertexShaderFromSource(vertexShader);
     shader->addFragmentShaderFromSource(fragmentShader);
     shader->link();
@@ -617,7 +608,7 @@ ShaderProgram* ShaderProgram::getObjTextureShader(std::string programName)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-ShaderProgram* ShaderProgram::ShaderProgram::getPhongShader(std::string programName)
+std::shared_ptr<ShaderProgram> ShaderProgram::ShaderProgram::getPhongShader(std::string programName)
 {
     const GLchar* vertexShader =
         "// This is the shader statically generated by ShaderProgram class\n"
@@ -796,17 +787,16 @@ ShaderProgram* ShaderProgram::ShaderProgram::getPhongShader(std::string programN
         "    outColor = vec4(shadeColor, 1.0);\n"
         "}\n";
 
-    ShaderProgram* shader = new ShaderProgram(programName);
+    std::shared_ptr<ShaderProgram> shader = std::make_shared<ShaderProgram>(programName);
     shader->addVertexShaderFromSource(vertexShader);
     shader->addFragmentShaderFromSource(fragmentShader);
     shader->link();
 
     return shader;
-
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-ShaderProgram* ShaderProgram::ShaderProgram::getSkyBoxShader(std::string programName)
+std::shared_ptr<ShaderProgram> ShaderProgram::ShaderProgram::getSkyBoxShader(std::string programName)
 {
     const GLchar* vertexShader =
         "// This is the shader statically generated by ShaderProgram class\n"
@@ -855,18 +845,17 @@ ShaderProgram* ShaderProgram::ShaderProgram::getSkyBoxShader(std::string program
         "}";
 
 
-    ShaderProgram* shader = new ShaderProgram(programName);
+    std::shared_ptr<ShaderProgram> shader = std::make_shared<ShaderProgram>(programName);
     shader->addVertexShaderFromSource(vertexShader);
     shader->addFragmentShaderFromSource(fragmentShader);
     shader->link();
 
     return shader;
-
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-ShaderProgram* ShaderProgram::getScreenQuadShader(const char* fragmentShaderSource,
-                                                  std::string programName)
+std::shared_ptr<ShaderProgram> ShaderProgram::getScreenQuadShader(const char* fragmentShaderSource,
+                                                                  std::string programName)
 {
     const GLchar* vertexShader =
         "// This is the shader statically generated by ShaderProgram class\n"
@@ -892,7 +881,7 @@ ShaderProgram* ShaderProgram::getScreenQuadShader(const char* fragmentShaderSour
         "}\n";
 
 
-    ShaderProgram* shader = new ShaderProgram(programName);
+    std::shared_ptr<ShaderProgram> shader = std::make_shared<ShaderProgram>(programName);
     shader->addVertexShaderFromSource(vertexShader);
     shader->addFragmentShaderFromSource(fragmentShaderSource);
     shader->link();
@@ -901,7 +890,7 @@ ShaderProgram* ShaderProgram::getScreenQuadShader(const char* fragmentShaderSour
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-ShaderProgram* ShaderProgram::getScreenQuadShaderFromFile(const char* fragmentShaderFile, std::string programName /*=std::string("ScreenQuadShader")*/)
+std::shared_ptr<ShaderProgram> ShaderProgram::getScreenQuadShaderFromFile(const char* fragmentShaderFile, std::string programName /*=std::string("ScreenQuadShader")*/)
 {
     const GLchar* vertexShader =
         "// This is the shader statically generated by ShaderProgram class\n"
@@ -927,7 +916,7 @@ ShaderProgram* ShaderProgram::getScreenQuadShaderFromFile(const char* fragmentSh
         "}\n";
 
 
-    ShaderProgram* shader = new ShaderProgram(programName);
+    std::shared_ptr<ShaderProgram> shader = std::make_shared<ShaderProgram>(programName);
     shader->addVertexShaderFromSource(vertexShader);
     shader->addFragmentShaderFromFile(fragmentShaderFile);
     shader->link();

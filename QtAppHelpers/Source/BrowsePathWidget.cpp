@@ -2,12 +2,12 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //
 //  Copyright (c) 2017 by
-//       __      _     _         _____                              
-//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _ 
+//       __      _     _         _____
+//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _
 //   /  \/ / _` | '_ \| |/ _` |   / /\/ '__| | | |/ _ \| '_ \ / _` |
 //  / /\  / (_| | | | | | (_| |  / /  | |  | |_| | (_) | | | | (_| |
 //  \_\ \/ \__, |_| |_|_|\__,_|  \/   |_|   \__,_|\___/|_| |_|\__, |
-//         |___/                                              |___/ 
+//         |___/                                              |___/
 //
 //  <nghiatruong.vn@gmail.com>
 //  All rights reserved.
@@ -64,15 +64,7 @@ void BrowsePathWidget::setEnabled(bool enabled)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-BrowsePathWidget::~BrowsePathWidget()
-{
-    delete m_txtPath;
-    delete m_GroupBox;
-    delete m_Layout;
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-QLayout* BrowsePathWidget::getLayout()
+QLayout* BrowsePathWidget::getLayout() const
 {
     return m_Layout;
 }
@@ -99,8 +91,8 @@ QString BrowsePathWidget::getCurrentPath()
 void BrowsePathWidget::browse()
 {
     QString selectedPath = m_bFolderOnly ?
-        QFileDialog::getExistingDirectory(nullptr, QString("Select path"), m_CurrentPath, QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks) :
-        QFileDialog::getExistingDirectory(nullptr, QString("Select path"), m_CurrentPath, QFileDialog::DontResolveSymlinks);
+                           QFileDialog::getExistingDirectory(nullptr, QString("Select path"), m_CurrentPath, QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks) :
+                           QFileDialog::getExistingDirectory(nullptr, QString("Select path"), m_CurrentPath, QFileDialog::DontResolveSymlinks);
 
     if(selectedPath.trimmed() != "")
     {

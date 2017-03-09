@@ -2,12 +2,12 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //
 //  Copyright (c) 2017 by
-//       __      _     _         _____                              
-//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _ 
+//       __      _     _         _____
+//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _
 //   /  \/ / _` | '_ \| |/ _` |   / /\/ '__| | | |/ _ \| '_ \ / _` |
 //  / /\  / (_| | | | | | (_| |  / /  | |  | |_| | (_) | | | | (_| |
 //  \_\ \/ \__, |_| |_|_|\__,_|  \/   |_|   \__,_|\___/|_| |_|\__, |
-//         |___/                                              |___/ 
+//         |___/                                              |___/
 //
 //  <nghiatruong.vn@gmail.com>
 //  All rights reserved.
@@ -49,7 +49,6 @@ MaterialSelector::MaterialSelector(const Material::MaterialData& material /*= Ma
                     .arg(material.ambient[0]).arg(material.ambient[1]).arg(material.ambient[2])
                     .arg(material.diffuse[0]).arg(material.diffuse[1]).arg(material.diffuse[2])
                     .arg(material.specular[0]).arg(material.specular[1]).arg(material.specular[2]);
-
             }
         }
     });
@@ -87,15 +86,6 @@ MaterialSelector::MaterialSelector(const Material::MaterialData& material /*= Ma
         setMaterial(m_ComboBox->count() - 1);
         m_ComboBox->setCurrentIndex(m_ComboBox->count() - 1);
     }
-
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-MaterialSelector::~MaterialSelector()
-{
-    delete m_ComboBox;
-    delete m_GroupBox;
-    delete m_Layout;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -106,19 +96,19 @@ void MaterialSelector::setDefaultCustomMaterial(bool defaultCustomMaterial)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-QComboBox* MaterialSelector::getComboBox()
+ QComboBox *MaterialSelector::getComboBox() const
 {
     return m_ComboBox;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-QLayout * MaterialSelector::getLayout()
+ QLayout *MaterialSelector::getLayout() const
 {
     return m_Layout;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-QGroupBox * MaterialSelector::getGroupBox(QString title)
+ QGroupBox *MaterialSelector::getGroupBox(QString title)
 {
     if(m_GroupBox == nullptr)
     {
@@ -130,10 +120,11 @@ QGroupBox * MaterialSelector::getGroupBox(QString title)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-int MaterialSelector::getNumMaterials()
+int MaterialSelector::getNumMaterials() const
 {
     return m_ComboBox->count();
 }
+
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MaterialSelector::setEnabled(bool enabled)
@@ -155,7 +146,6 @@ void MaterialSelector::setMaterial(int materialID)
             .arg(m_CurrentMaterial.ambient[0]).arg(m_CurrentMaterial.ambient[1]).arg(m_CurrentMaterial.ambient[2])
             .arg(m_CurrentMaterial.diffuse[0]).arg(m_CurrentMaterial.diffuse[1]).arg(m_CurrentMaterial.diffuse[2])
             .arg(m_CurrentMaterial.specular[0]).arg(m_CurrentMaterial.specular[1]).arg(m_CurrentMaterial.specular[2]);
-
     }
 }
 
@@ -163,6 +153,7 @@ void MaterialSelector::setMaterial(int materialID)
 void MaterialSelector::setMaterial(const Material::MaterialData& material)
 {
     size_t mIndex = m_Materials.size();
+
     for(size_t i = 0; i < m_Materials.size(); ++i)
     {
         if(material.name == m_Materials[i].name)
@@ -177,7 +168,7 @@ void MaterialSelector::setMaterial(const Material::MaterialData& material)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MaterialSelector::setCustomMaterial(const Material::MaterialData & material)
+void MaterialSelector::setCustomMaterial(const Material::MaterialData& material)
 {
     m_CustomMaterial = material;
     m_MaterialColorPicker->setMaterial(material);

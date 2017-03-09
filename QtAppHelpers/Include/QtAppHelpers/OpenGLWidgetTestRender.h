@@ -47,8 +47,7 @@ class OpenGLWidgetTestRender : public OpenGLWidget
     Q_OBJECT
 
 public:
-    OpenGLWidgetTestRender(QWidget *parent);
-    ~OpenGLWidgetTestRender();
+    OpenGLWidgetTestRender(QWidget* parent);
 
     void initTestRenderTriangle();
     void initTestRenderTexture(QString texFile);
@@ -70,23 +69,22 @@ private:
     void renderMesh();
     void renderMeshWithShadow();
 
-    TestCase                 m_TestCase;
-    OpenGLBuffer*            m_UBufferModelMatrix;
-    OpenGLBuffer*            m_UBufferCamData;
-    OpenGLBuffer*            m_VertexBuffer;
-    OpenGLBuffer*            m_IndexBuffer;
-    OpenGLTexture*           m_Texture;
-    ShaderProgram*           m_Shader;
-    MeshObject*              m_MeshObj;
-    MeshLoader*              m_MeshLoader;
-    PointLights*             m_Lights;
-    Material*                m_Material;
-    GLuint                   m_VAO;
-    SkyBoxRender*            m_SkyBoxRender;
-    PlaneRender*             m_FloorRender;
-    PointLightRender*        m_PointLightRender;
-    MeshRender*              m_MeshRender;
-    DepthBufferRender*       m_DepthBufferRender;
-    ScreenQuadTextureRender* m_ScreenQuadTexRender;
-
+    TestCase                                 m_TestCase;
+    std::unique_ptr<OpenGLBuffer>            m_UBufferModelMatrix;
+    std::unique_ptr<OpenGLBuffer>            m_UBufferCamData;
+    std::unique_ptr<OpenGLBuffer>            m_VertexBuffer;
+    std::unique_ptr<OpenGLBuffer>            m_IndexBuffer;
+    std::unique_ptr<OpenGLTexture>           m_Texture;
+    std::unique_ptr<MeshObject>              m_MeshObj;
+    std::unique_ptr<MeshLoader>              m_MeshLoader;
+    std::unique_ptr<PointLights>             m_Lights;
+    std::unique_ptr<Material>                m_Material;
+    std::unique_ptr<SkyBoxRender>            m_SkyBoxRender;
+    std::unique_ptr<PlaneRender>             m_FloorRender;
+    std::unique_ptr<PointLightRender>        m_PointLightRender;
+    std::unique_ptr<MeshRender>              m_MeshRender;
+    std::unique_ptr<DepthBufferRender>       m_DepthBufferRender;
+    std::unique_ptr<ScreenQuadTextureRender> m_ScreenQuadTexRender;
+    std::shared_ptr<ShaderProgram>           m_Shader;
+    GLuint                                   m_VAO;
 };

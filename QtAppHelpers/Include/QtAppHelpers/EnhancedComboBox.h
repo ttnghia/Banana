@@ -2,12 +2,12 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //
 //  Copyright (c) 2017 by
-//       __      _     _         _____                              
-//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _ 
+//       __      _     _         _____
+//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _
 //   /  \/ / _` | '_ \| |/ _` |   / /\/ '__| | | |/ _ \| '_ \ / _` |
 //  / /\  / (_| | | | | | (_| |  / /  | |  | |_| | (_) | | | | (_| |
 //  \_\ \/ \__, |_| |_|_|\__,_|  \/   |_|   \__,_|\___/|_| |_|\__, |
-//         |___/                                              |___/ 
+//         |___/                                              |___/
 //
 //  <nghiatruong.vn@gmail.com>
 //  All rights reserved.
@@ -26,13 +26,12 @@ class EnhancedComboBox : public QWidget
 
 public:
     EnhancedComboBox(int comboBoxSpan = 3, QWidget *parent = nullptr);
-    ~EnhancedComboBox();
 
     void enableCycling();
     void disableCycling();
 
-    QComboBox* getComboBox();
-    QLayout* getLayout();
+    QComboBox* getComboBox()const;
+    QLayout* getLayout()const;
     QLayout* getLayoutWithLabel(QString label, int comboStretch = 5);
     QGroupBox* getGroupBox(QString title = QString(""));
 

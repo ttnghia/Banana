@@ -2,12 +2,12 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //
 //  Copyright (c) 2017 by
-//       __      _     _         _____                              
-//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _ 
+//       __      _     _         _____
+//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _
 //   /  \/ / _` | '_ \| |/ _` |   / /\/ '__| | | |/ _ \| '_ \ / _` |
 //  / /\  / (_| | | | | | (_| |  / /  | |  | |_| | (_) | | | | (_| |
 //  \_\ \/ \__, |_| |_|_|\__,_|  \/   |_|   \__,_|\___/|_| |_|\__, |
-//         |___/                                              |___/ 
+//         |___/                                              |___/
 //
 //  <nghiatruong.vn@gmail.com>
 //  All rights reserved.
@@ -17,18 +17,19 @@
 
 #pragma once
 
-#include <vector>
-#include <cassert>
-
 #include <OpenGLHelpers/OpenGLMacros.h>
 #include <OpenGLHelpers/OpenGLBuffer.h>
+
+#include <vector>
+#include <cassert>
+#include <memory>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 class MeshObject : public OpenGLCallable
 {
 public:
     MeshObject(GLenum dataTopology = GL_TRIANGLES,
-               bool isMeshVeryLarge = false) :
+               bool   isMeshVeryLarge = false) :
         m_DataTopology(dataTopology),
         m_CullFaceMode(GL_NONE),
         m_isMeshVeryLarge(isMeshVeryLarge),
@@ -57,8 +58,7 @@ public:
     ~MeshObject();
 
     void transformObject(GLfloat scaleX = 1.0, GLfloat scaleY = 1.0, GLfloat scaleZ = 1.0,
-                         GLfloat translateX = 0.0, GLfloat translateY = 0.0,
-                         GLfloat translateZ = 0.0);
+                         GLfloat translateX = 0.0, GLfloat translateY = 0.0, GLfloat translateZ = 0.0);
     void setVertices(const std::vector<GLfloat>& vertices);
     void setVertices(void* vertexData, size_t dataSize);
 
@@ -87,65 +87,65 @@ public:
     void draw();
     void uploadDataToGPU();
 
-    void clearData();
-    bool   isEmpty();
-    size_t getNumVertices();
+    void   clearData();
+    bool   isEmpty() const;
+    size_t getNumVertices() const;
 
-    std::vector<GLushort>& getIndexList();
-    std::vector<GLuint>&   getIndexListLong();
-    std::vector<GLfloat>&  getVertices();
-    std::vector<GLfloat>&  getVertexNormals();
-    std::vector<GLfloat>&  getVertexTexCoords();
-    std::vector<GLfloat>&  getVertexColors();
+    const std::vector<GLushort>& getIndexList() const;
+    const std::vector<GLuint>&   getIndexListLong() const;
+    const std::vector<GLfloat>&  getVertices() const;
+    const std::vector<GLfloat>&  getVertexNormals() const;
+    const std::vector<GLfloat>&  getVertexTexCoords() const;
+    const std::vector<GLfloat>&  getVertexColors() const;
 
-    OpenGLBuffer* getIndexBuffer();
-    OpenGLBuffer* getVertexBuffer();
-    OpenGLBuffer* getNormalBuffer();
-    OpenGLBuffer* getTexCoordBuffer();
-    OpenGLBuffer* getVertexColorBuffer();
+    const std::shared_ptr<OpenGLBuffer>& getIndexBuffer() const;
+    const std::shared_ptr<OpenGLBuffer>& getVertexBuffer() const;
+    const std::shared_ptr<OpenGLBuffer>& getNormalBuffer() const;
+    const std::shared_ptr<OpenGLBuffer>& getTexCoordBuffer() const;
+    const std::shared_ptr<OpenGLBuffer>& getVertexColorBuffer() const;
 
-    bool hasVertexNormal();
-    bool hasVertexTexCoord();
-    bool hasVertexColor();
-    bool hasIndexBuffer();
+    bool hasVertexNormal() const;
+    bool hasVertexTexCoord() const;
+    bool hasVertexColor() const;
+    bool hasIndexBuffer() const;
 
 protected:
     void createBuffers();
     void clearBuffer();
 
     ////////////////////////////////////////////////////////////////////////////////
-    OpenGLBuffer* m_VertexBuffer;
-    OpenGLBuffer* m_NormalBuffer;
-    OpenGLBuffer* m_TexCoordBuffer;
-    OpenGLBuffer* m_VertexColorBuffer;
-    OpenGLBuffer* m_IndexBuffer;
+    std::shared_ptr<OpenGLBuffer> m_VertexBuffer;
+    std::shared_ptr<OpenGLBuffer> m_NormalBuffer;
+    std::shared_ptr<OpenGLBuffer> m_TexCoordBuffer;
+    std::shared_ptr<OpenGLBuffer> m_VertexColorBuffer;
+    std::shared_ptr<OpenGLBuffer> m_IndexBuffer;
 
-    std::vector<GLushort> m_IndexList;
-    std::vector<GLuint>   m_IndexListLong;
-    std::vector<GLfloat>  m_Vertices;
-    std::vector<GLfloat>  m_VertexNormals;
-    std::vector<GLfloat>  m_VertexTexCoords;
-    std::vector<GLfloat>  m_VertexColors;
+    std::vector<GLushort>         m_IndexList;
+    std::vector<GLuint>           m_IndexListLong;
+    std::vector<GLfloat>          m_Vertices;
+    std::vector<GLfloat>          m_VertexNormals;
+    std::vector<GLfloat>          m_VertexTexCoords;
+    std::vector<GLfloat>          m_VertexColors;
 
-    size_t m_NumVertices;
-    GLenum m_DataTopology;
-    GLenum m_CullFaceMode;
+    size_t                        m_NumVertices;
+    GLenum                        m_DataTopology;
+    GLenum                        m_CullFaceMode;
 
-    bool m_isMeshVeryLarge;
-    bool m_isNoTransformation;
-    bool m_isDataReady;
-    bool m_isBufferCreated;
-    bool m_isGLDataReady;
+    bool                          m_isMeshVeryLarge;
+    bool                          m_isNoTransformation;
+    bool                          m_isDataReady;
+    bool                          m_isBufferCreated;
+    bool                          m_isGLDataReady;
 
-    bool m_hasVertexNormal;
-    bool m_hasVertexTexCoord;
-    bool m_hasVertexColor;
-    bool m_hasIndexBuffer;
+    bool                          m_hasVertexNormal;
+    bool                          m_hasVertexTexCoord;
+    bool                          m_hasVertexColor;
+    bool                          m_hasIndexBuffer;
 
-    GLfloat m_ScaleX;
-    GLfloat m_ScaleY;
-    GLfloat m_ScaleZ;
-    GLfloat m_TranslateX;
-    GLfloat m_TranslateY;
-    GLfloat m_TranslateZ;
+    GLfloat                       m_ScaleX;
+    GLfloat                       m_ScaleY;
+    GLfloat                       m_ScaleZ;
+    GLfloat                       m_TranslateX;
+    GLfloat                       m_TranslateY;
+    GLfloat                       m_TranslateZ;
 };

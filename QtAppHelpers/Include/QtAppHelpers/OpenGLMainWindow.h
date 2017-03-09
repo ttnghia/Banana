@@ -2,12 +2,12 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //
 //  Copyright (c) 2017 by
-//       __      _     _         _____                              
-//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _ 
+//       __      _     _         _____
+//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _
 //   /  \/ / _` | '_ \| |/ _` |   / /\/ '__| | | |/ _ \| '_ \ / _` |
 //  / /\  / (_| | | | | | (_| |  / /  | |  | |_| | (_) | | | | (_| |
 //  \_\ \/ \__, |_| |_|_|\__,_|  \/   |_|   \__,_|\___/|_| |_|\__, |
-//         |___/                                              |___/ 
+//         |___/                                              |___/
 //
 //  <nghiatruong.vn@gmail.com>
 //  All rights reserved.
@@ -29,9 +29,9 @@ class OpenGLMainWindow : public QMainWindow
 
 public:
     OpenGLMainWindow(QWidget* parent);
-    ~OpenGLMainWindow();
+    virtual ~OpenGLMainWindow();
 
-    bool eventFilter(QObject* obj, QEvent* ev);
+    bool         eventFilter(QObject* obj, QEvent* ev);
     virtual bool processKeyPressEvent(QKeyEvent* ev);
     virtual bool processKeyReleaseEvent(QKeyEvent*)
     {
@@ -40,7 +40,7 @@ public:
 
     void setArthurStyle();
 
-    public slots:
+public slots:
     void updateStatusFrameRate(double fps);
     void updateStatusCameraPosition(const glm::vec3& camPosition);
 

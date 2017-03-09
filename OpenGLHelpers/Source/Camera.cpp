@@ -2,12 +2,12 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //
 //  Copyright (c) 2017 by
-//       __      _     _         _____                              
-//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _ 
+//       __      _     _         _____
+//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _
 //   /  \/ / _` | '_ \| |/ _` |   / /\/ '__| | | |/ _ \| '_ \ / _` |
 //  / /\  / (_| | | | | | (_| |  / /  | |  | |_| | (_) | | | | (_| |
 //  \_\ \/ \__, |_| |_|_|\__,_|  \/   |_|   \__,_|\___/|_| |_|\__, |
-//         |___/                                              |___/ 
+//         |___/                                              |___/
 //
 //  <nghiatruong.vn@gmail.com>
 //  All rights reserved.
@@ -54,8 +54,8 @@ void Camera::setDebug(bool bDebug)
 void Camera::setDefaultCamera(const glm::vec3& defaultPosition, const glm::vec3& defaultCameraFocus, const glm::vec3& defaultUpDirection)
 {
     m_DefaultCameraPosition = defaultPosition;
-    m_DefaultCameraFocus = defaultCameraFocus;
-    m_DefaultUpDirection = defaultUpDirection;
+    m_DefaultCameraFocus    = defaultCameraFocus;
+    m_DefaultUpDirection    = defaultUpDirection;
 
     if(m_bDebug)
     {
@@ -92,7 +92,7 @@ void Camera::updateCameraMatrices()
 {
     if(m_bReseted)
     {
-        m_bReseted = false;
+        m_bReseted         = false;
         m_bIsCameraChanged = true;
         return;
     }
@@ -119,7 +119,7 @@ void Camera::updateCameraMatrices()
 
     if(m_bIsCameraChanged)
     {
-        m_ViewMatrix = glm::lookAt(m_CameraPosition, m_CameraFocus, m_CameraUpDirection);
+        m_ViewMatrix           = glm::lookAt(m_CameraPosition, m_CameraFocus, m_CameraUpDirection);
         m_ViewProjectionMatrix = m_ProjectionMatrix * m_ViewMatrix;
 
         if(m_bDebug)
@@ -141,7 +141,7 @@ void Camera::reset()
     m_bReseted          = true;
 
     ////////////////////////////////////////////////////////////////////////////////
-    m_ViewMatrix = glm::lookAt(m_CameraPosition, m_CameraFocus, m_CameraUpDirection);
+    m_ViewMatrix           = glm::lookAt(m_CameraPosition, m_CameraFocus, m_CameraUpDirection);
     m_ViewProjectionMatrix = m_ProjectionMatrix * m_ViewMatrix;
 }
 
@@ -192,9 +192,9 @@ void Camera::translate_by_mouse(int x, int y)
 {
     glm::vec2 currentMousePos = glm::vec2((float)x, (float)y);
     glm::vec2 mouseMoved      = m_LastMousePos - currentMousePos;
-    m_LastMousePos            = currentMousePos;
+    m_LastMousePos = currentMousePos;
 
-    mouseMoved *= 0.01f;
+    mouseMoved   *= 0.01f;
     m_Translation = glm::vec2(-mouseMoved.x, mouseMoved.y);
 
     translate();
@@ -213,16 +213,16 @@ void Camera::translate()
     m_Translation *= m_TranslationLag;
 
     glm::vec3 eyeDir = m_CameraFocus - m_CameraPosition;
-    float scale = eyeDir.length() * 0.05f;
+    float     scale  = eyeDir.length() * 0.05f;
 
     glm::vec3 u = m_CameraUpDirection;
     glm::vec3 v = glm::cross(eyeDir, u);
-    u = glm::cross(v, eyeDir);
-    u = glm::normalize(u);
-    v = glm::normalize(v);
+    u                 = glm::cross(v, eyeDir);
+    u                 = glm::normalize(u);
+    v                 = glm::normalize(v);
+
     m_CameraPosition -= scale * (m_Translation.x * v + m_Translation.y * u);
     m_CameraFocus    -= scale * (m_Translation.x * v + m_Translation.y * u);
-
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -230,7 +230,7 @@ void Camera::rotate_by_mouse(int x, int y)
 {
     glm::vec2 currentMousePos = glm::vec2((float)x, (float)y);
     glm::vec2 mouseMoved      = m_LastMousePos - currentMousePos;
-    m_LastMousePos            = currentMousePos;
+    m_LastMousePos = currentMousePos;
 
     const float scale = 25.0f;
     m_Rotation.x = m_Rotation.x + mouseMoved.x / scale;
@@ -269,7 +269,7 @@ void Camera::rotate()
     v = glm::normalize(v);
     w = glm::normalize(w);
 
-    float scale = eyeDir.length() * 0.002f;
+    float     scale          = eyeDir.length() * 0.002f;
     glm::vec3 rotationScaled = m_Rotation * scale;
     glm::quat qRotation      = glm::angleAxis(rotationScaled.y, v) * glm::angleAxis(rotationScaled.x, u);
     //                          *glm::angleAxis(rotation_scaled.z, eyeDir);
@@ -277,7 +277,6 @@ void Camera::rotate()
 
     m_CameraPosition    = m_CameraFocus - eyeDir;
     m_CameraUpDirection = glm::cross(eyeDir, w);
-
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -285,9 +284,9 @@ void Camera::zoom_by_mouse(int x, int y)
 {
     glm::vec2 currentMousePos = glm::vec2((float)x, (float)y);
     glm::vec2 mouseMoved      = m_LastMousePos - currentMousePos;
-    m_LastMousePos            = currentMousePos;
+    m_LastMousePos = currentMousePos;
 
-    m_Zooming = static_cast<float>(mouseMoved.length() * ((mouseMoved.x > 0) ? 1.0 : -1.0));
+    m_Zooming  = static_cast<float>(mouseMoved.length() * ((mouseMoved.x > 0) ? 1.0 : -1.0));
     m_Zooming *= 0.005f;
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -309,7 +308,7 @@ void Camera::zoom()
     m_Zooming *= m_ZoomingLag;
 
     glm::vec3 eyeDir = m_CameraPosition - m_CameraFocus;
-    float len = static_cast<float>(eyeDir.length());
+    float     len    = static_cast<float>(eyeDir.length());
     eyeDir /= len;
 
     len *= static_cast<float>(1.0 + m_Zooming);
@@ -320,7 +319,6 @@ void Camera::zoom()
     }
 
     m_CameraPosition = len * eyeDir + m_CameraFocus;
-
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

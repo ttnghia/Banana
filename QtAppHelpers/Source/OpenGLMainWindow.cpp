@@ -2,12 +2,12 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //
 //  Copyright (c) 2017 by
-//       __      _     _         _____                              
-//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _ 
+//       __      _     _         _____
+//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _
 //   /  \/ / _` | '_ \| |/ _` |   / /\/ '__| | | |/ _ \| '_ \ / _` |
 //  / /\  / (_| | | | | | (_| |  / /  | |  | |_| | (_) | | | | (_| |
 //  \_\ \/ \__, |_| |_|_|\__,_|  \/   |_|   \__,_|\___/|_| |_|\__, |
-//         |___/                                              |___/ 
+//         |___/                                              |___/
 //
 //  <nghiatruong.vn@gmail.com>
 //  All rights reserved.
@@ -42,14 +42,16 @@ OpenGLMainWindow::OpenGLMainWindow(QWidget* parent) : QMainWindow(parent), m_GLW
     m_VSync = (sformat.swapInterval() > 0);
 }
 
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 OpenGLMainWindow::~OpenGLMainWindow()
 {
     delete m_GLWidget;
 }
 
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-bool OpenGLMainWindow::eventFilter(QObject * obj, QEvent * ev)
+bool OpenGLMainWindow::eventFilter(QObject* obj, QEvent* ev)
 {
     ////////////////////////////////////////////////////////////////////////////////
     if(ev->type() == QEvent::KeyPress)
@@ -68,8 +70,9 @@ bool OpenGLMainWindow::eventFilter(QObject * obj, QEvent * ev)
     return false;
 }
 
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-bool OpenGLMainWindow::processKeyPressEvent(QKeyEvent * ev)
+bool OpenGLMainWindow::processKeyPressEvent(QKeyEvent* ev)
 {
     switch(ev->key())
     {
@@ -77,24 +80,25 @@ bool OpenGLMainWindow::processKeyPressEvent(QKeyEvent * ev)
             close();
             exit(EXIT_SUCCESS);
 
-
         default:
             return false;
     }
 }
+
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLMainWindow::setArthurStyle()
 {
     QStyle* arthurStyle = new ArthurStyle();
     setStyle(arthurStyle);
+
     QList<QWidget*> widgets = findChildren<QWidget*>();
 
-    foreach(QWidget* w, widgets)
+    foreach(QWidget * w, widgets)
     {
         QString className = QString(w->metaObject()->className());
 
-        if(className == "QScrollBar" || className == "QComboBox" || className == "QCheckBox")
+        if((className == "QScrollBar") || (className == "QComboBox") || (className == "QCheckBox"))
         {
             continue;
         }
@@ -103,13 +107,14 @@ void OpenGLMainWindow::setArthurStyle()
     }
 }
 
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLMainWindow::updateStatusFrameRate(double fps)
 {
-
     m_lblStatusAvgFrameTime->setText(QString("Avg RenderGL: %1 ms").arg(1000.0 / fps));
     m_lblStatusFPS->setText(QString("FPS: %1 | VSync: %2").arg(fps).arg(m_VSync ? "On" : "Off"));
 }
+
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLMainWindow::updateStatusCameraPosition(const glm::vec3& camPosition)
@@ -117,8 +122,9 @@ void OpenGLMainWindow::updateStatusCameraPosition(const glm::vec3& camPosition)
     m_lblStatusCamPosition->setText(QString("Camera: [%1, %2, %3]").arg(camPosition[0]).arg(camPosition[1]).arg(camPosition[2]));
 }
 
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void OpenGLMainWindow::setupOpenglWidget(OpenGLWidget * glWidget)
+void OpenGLMainWindow::setupOpenglWidget(OpenGLWidget* glWidget)
 {
     if(m_GLWidget != nullptr)
     {

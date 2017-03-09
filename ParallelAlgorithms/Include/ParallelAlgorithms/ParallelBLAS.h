@@ -2,12 +2,12 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //
 //  Copyright (c) 2017 by
-//       __      _     _         _____                              
-//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _ 
+//       __      _     _         _____
+//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _
 //   /  \/ / _` | '_ \| |/ _` |   / /\/ '__| | | |/ _ \| '_ \ / _` |
 //  / /\  / (_| | | | | | (_| |  / /  | |  | |_| | (_) | | | | (_| |
 //  \_\ \/ \__, |_| |_|_|\__,_|  \/   |_|   \__,_|\___/|_| |_|\__, |
-//         |___/                                              |___/ 
+//         |___/                                              |___/
 //
 //  <nghiatruong.vn@gmail.com>
 //  All rights reserved.
@@ -60,12 +60,12 @@ inline void add_scaled(ScalarType alpha, const std::vector<VectorType>& x,
 {
     tbb::parallel_for(tbb::blocked_range<size_t>(0, x.size()),
                       [&, alpha](tbb::blocked_range<size_t> r)
-    {
-        for(size_t i = r.begin(); i != r.end(); ++i)
         {
-            y[i] += alpha * x[i];
-        }
-    }); // end parallel_for
+            for(size_t i = r.begin(); i != r.end(); ++i)
+            {
+                y[i] += alpha * x[i];
+            }
+        }); // end parallel_for
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -77,12 +77,12 @@ inline void scaled_add(ScalarType beta, const std::vector<VectorType>& x,
 {
     tbb::parallel_for(tbb::blocked_range<size_t>(0, x.size()),
                       [&, beta](tbb::blocked_range<size_t> r)
-    {
-        for(size_t i = r.begin(); i != r.end(); ++i)
         {
-            y[i] = beta * y[i] + x[i];
-        }
-    }); // end parallel_for
+            for(size_t i = r.begin(); i != r.end(); ++i)
+            {
+                y[i] = beta * y[i] + x[i];
+            }
+        }); // end parallel_for
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -93,12 +93,12 @@ inline void scale(ScalarType alpha, const std::vector<VectorType>& x)
 {
     tbb::parallel_for(tbb::blocked_range<size_t>(0, x.size()),
                       [&, alpha](tbb::blocked_range<size_t> r)
-    {
-        for(size_t i = r.begin(); i != r.end(); ++i)
         {
-            x[i] *= alpha;
-        }
-    }); // end parallel_for
+            for(size_t i = r.begin(); i != r.end(); ++i)
+            {
+                x[i] *= alpha;
+            }
+        }); // end parallel_for
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

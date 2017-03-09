@@ -34,19 +34,19 @@
 #include <vector>
 #include <cstdint>
 
- // this definition should depend of each project
+// this definition should depend of each project
 #ifndef __Using_Yocto_Lib__
 #define __Using_GLM_Lib__
 #endif
 
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-using Int8 = int8_t;
-using Int16 = int16_t;
-using Int32 = int32_t;
-using Int64 = int64_t;
+using Int8   = int8_t;
+using Int16  = int16_t;
+using Int32  = int32_t;
+using Int64  = int64_t;
 
-using UInt8 = uint8_t;
+using UInt8  = uint8_t;
 using UInt16 = uint16_t;
 using UInt32 = uint32_t;
 using UInt64 = uint64_t;
@@ -197,52 +197,52 @@ using Vec_VecMat3x3 = std::vector<std::vector<Mat3x3<ScalarType> > >;
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // vectors of basic types
-using Vec_Int8 = std::vector<Int8>;
-using Vec_Int16 = std::vector<Int16>;
-using Vec_Int = std::vector<Int32>;
-using Vec_Int32 = std::vector<Int32>;
-using Vec_Int64 = std::vector<Int64>;
+using Vec_Int8   = std::vector<Int8>;
+using Vec_Int16  = std::vector<Int16>;
+using Vec_Int    = std::vector<Int32>;
+using Vec_Int32  = std::vector<Int32>;
+using Vec_Int64  = std::vector<Int64>;
 
-using Vec_UInt8 = std::vector<UInt8>;
+using Vec_UInt8  = std::vector<UInt8>;
 using Vec_UInt16 = std::vector<UInt16>;
-using Vec_UInt = std::vector<UInt32>;
+using Vec_UInt   = std::vector<UInt32>;
 using Vec_UInt32 = std::vector<UInt32>;
 using Vec_UInt64 = std::vector<UInt64>;
 
-using Vec_Char = std::vector<char>;
-using Vec_Float = std::vector<float>;
+using Vec_Char   = std::vector<char>;
+using Vec_Float  = std::vector<float>;
 using Vec_Double = std::vector<double>;
 
 // vectors of vectors
-using Vec_VecInt8 = std::vector<std::vector<Int8> >;
-using Vec_VecInt16 = std::vector<std::vector<Int16> >;
-using Vec_VecInt = std::vector<std::vector<Int32> >;
-using Vec_VecInt32 = std::vector<std::vector<Int32> >;
-using Vec_VecInt64 = std::vector<std::vector<Int64> >;
+using Vec_VecInt8   = std::vector<std::vector<Int8> >;
+using Vec_VecInt16  = std::vector<std::vector<Int16> >;
+using Vec_VecInt    = std::vector<std::vector<Int32> >;
+using Vec_VecInt32  = std::vector<std::vector<Int32> >;
+using Vec_VecInt64  = std::vector<std::vector<Int64> >;
 
-using Vec_VecUInt8 = std::vector<std::vector<UInt8> >;
+using Vec_VecUInt8  = std::vector<std::vector<UInt8> >;
 using Vec_VecUInt16 = std::vector<std::vector<UInt16> >;
-using Vec_VecUInt = std::vector<std::vector<UInt32> >;
+using Vec_VecUInt   = std::vector<std::vector<UInt32> >;
 using Vec_VecUInt32 = std::vector<std::vector<UInt32> >;
 using Vec_VecUInt64 = std::vector<std::vector<UInt64> >;
 
-using Vec_VecChar = std::vector<std::vector<char> >;
-using Vec_VecFloat = std::vector<std::vector<float> >;
+using Vec_VecChar   = std::vector<std::vector<char> >;
+using Vec_VecFloat  = std::vector<std::vector<float> >;
 using Vec_VecDouble = std::vector<std::vector<double> >;
 
 // others
-using IPair8 = std::pair<Int8, Int8>;
-using IPair16 = std::pair<Int16, Int16>;
-using IPair32 = std::pair<Int32, Int32>;
-using IPair = std::pair<Int32, Int32>;
-using IPair64 = std::pair<Int64, Int64>;
+using IPair8     = std::pair<Int8, Int8>;
+using IPair16    = std::pair<Int16, Int16>;
+using IPair32    = std::pair<Int32, Int32>;
+using IPair      = std::pair<Int32, Int32>;
+using IPair64    = std::pair<Int64, Int64>;
 
-using UIPair8 = std::pair<UInt8, UInt8>;
-using UIPair16 = std::pair<UInt16, UInt16>;
-using UIPair32 = std::pair<UInt32, UInt32>;
-using UIPair = std::pair<UInt32, UInt32>;
-using UIPair64 = std::pair<UInt64, UInt64>;
+using UIPair8    = std::pair<UInt8, UInt8>;
+using UIPair16   = std::pair<UInt16, UInt16>;
+using UIPair32   = std::pair<UInt32, UInt32>;
+using UIPair     = std::pair<UInt32, UInt32>;
+using UIPair64   = std::pair<UInt64, UInt64>;
 
-using FloatPair = std::pair<float, float>;
+using FloatPair  = std::pair<float, float>;
 using DoublePair = std::pair<double, double>;
 

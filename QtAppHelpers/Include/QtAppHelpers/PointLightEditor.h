@@ -22,7 +22,7 @@
 
 #include <QtWidgets>
 #include <vector>
-
+#include <memory>
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #define MAX_POINT_LIGHT 4
 
@@ -32,12 +32,10 @@ class PointLightEditor : public QWidget
     Q_OBJECT
 
 public:
-    PointLightEditor(PointLights* lights = nullptr, QWidget *parent = nullptr);
-    ~PointLightEditor()
-    {}
+    PointLightEditor(std::shared_ptr<PointLights> lights = nullptr, QWidget* parent = nullptr);
 
-    public slots:
-    void setLights(PointLights* lights);
+public slots:
+    void setLights(std::shared_ptr<PointLights> lights);
 
 signals:
     void lightsChanged(const PointLights* lights);
@@ -47,11 +45,12 @@ private:
     void applyLights();
     void lightToGUI();
 
-    QCheckBox*   m_CheckBoxes[MAX_POINT_LIGHT];
-    QLineEdit*   m_LightAmbients[MAX_POINT_LIGHT][3];
-    QLineEdit*   m_LightDiffuses[MAX_POINT_LIGHT][3];
-    QLineEdit*   m_LightSpeculars[MAX_POINT_LIGHT][3];
-    QLineEdit*   m_LightPositions[MAX_POINT_LIGHT][3];
-    ColorPicker* m_ColorSelectors[MAX_POINT_LIGHT][3];
-    PointLights* m_Lights;
+    QCheckBox*                   m_CheckBoxes[MAX_POINT_LIGHT];
+    QLineEdit*                   m_LightAmbients[MAX_POINT_LIGHT][3];
+    QLineEdit*                   m_LightDiffuses[MAX_POINT_LIGHT][3];
+    QLineEdit*                   m_LightSpeculars[MAX_POINT_LIGHT][3];
+    QLineEdit*                   m_LightPositions[MAX_POINT_LIGHT][3];
+    ColorPicker*                 m_ColorSelectors[MAX_POINT_LIGHT][3];
+
+    std::shared_ptr<PointLights> m_Lights = nullptr;
 };

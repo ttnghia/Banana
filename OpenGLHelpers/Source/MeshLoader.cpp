@@ -2,12 +2,12 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //
 //  Copyright (c) 2017 by
-//       __      _     _         _____                              
-//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _ 
+//       __      _     _         _____
+//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _
 //   /  \/ / _` | '_ \| |/ _` |   / /\/ '__| | | |/ _ \| '_ \ / _` |
 //  / /\  / (_| | | | | | (_| |  / /  | |  | |_| | (_) | | | | (_| |
 //  \_\ \/ \__, |_| |_|_|\__,_|  \/   |_|   \__,_|\___/|_| |_|\__, |
-//         |___/                                              |___/ 
+//         |___/                                              |___/
 //
 //  <nghiatruong.vn@gmail.com>
 //  All rights reserved.
@@ -160,13 +160,13 @@ void MeshLoader::clearData()
 bool MeshLoader::load_obj(std::string mesh_file)
 {
     // if mesh is obj
-    std::vector<tinyobj::shape_t> obj_shapes;
+    std::vector<tinyobj::shape_t>    obj_shapes;
     std::vector<tinyobj::material_t> obj_materials;
-    tinyobj::attrib_t attrib;
+    tinyobj::attrib_t                attrib;
+
 
     bool result = tinyobj::LoadObj(&attrib, &obj_shapes, &obj_materials,
                                    &m_LoadingErrorStr, mesh_file.c_str(), NULL);
-
 
     if(!m_LoadingErrorStr.empty())
     {
@@ -192,7 +192,7 @@ bool MeshLoader::load_obj(std::string mesh_file)
             tinyobj::index_t idx1 = obj_shapes[s].mesh.indices[3 * f + 1];
             tinyobj::index_t idx2 = obj_shapes[s].mesh.indices[3 * f + 2];
 
-            float v[3][3];
+            float            v[3][3];
 
             for(int k = 0; k < 3; k++)
             {
@@ -257,7 +257,7 @@ bool MeshLoader::load_obj(std::string mesh_file)
                 m_VertexNormals.push_back(n[k][2]);
 
                 // Use normal as color.
-                float c[3] ={n[k][0], n[k][1], n[k][2]};
+                float c[3] = { n[k][0], n[k][1], n[k][2] };
                 float len2 = c[0] * c[0] + c[1] * c[1] + c[2] * c[2];
 
                 if(len2 > 0.0f)
@@ -296,33 +296,34 @@ bool MeshLoader::load_ply(std::string mesh_file)
         // Define containers to hold the extracted data. The type must match
         // the property type given in the header. Tinyply will interally allocate the
         // the appropriate amount of memory.
-        std::vector<float> verts;
-        std::vector<float> norms;
-        std::vector<uint8_t> colors;
+        std::vector<float>    verts;
+        std::vector<float>    norms;
+        std::vector<uint8_t>  colors;
 
         std::vector<uint32_t> faces;
-        std::vector<float> uvCoords;
+        std::vector<float>    uvCoords;
         //        std::vector<uint8_t> faceColors;
 
-        uint32_t vertexCount, normalCount, colorCount, faceCount,
-            faceTexcoordCount/*, faceColorCount*/;
-        vertexCount = normalCount = colorCount = faceCount =
-            faceTexcoordCount /*= faceColorCount */ = 0;
+        uint32_t vertexCount = 0;
+        uint32_t normalCount = 0;
+            uint32_t colorCount = 0;
+            uint32_t faceCount = 0;
+            uint32_t faceTexcoordCount = 0;
 
         // The count returns the number of instances of the property group. The vectors
         // above will be resized into a multiple of the property group size as
         // they are "flattened"... i.e. verts = {x, y, z, x, y, z, ...}
-        vertexCount = file.request_properties_from_element("vertex", {"x", "y", "z"}, verts);
-        normalCount = file.request_properties_from_element("vertex", {"nx", "ny", "nz"}, norms);
-        colorCount = file.request_properties_from_element("vertex", {"red", "green", "blue", "alpha"},
-                                                          colors);
+        vertexCount = file.request_properties_from_element("vertex", { "x", "y", "z" }, verts);
+        normalCount = file.request_properties_from_element("vertex", { "nx", "ny", "nz" }, norms);
+        colorCount  = file.request_properties_from_element("vertex", { "red", "green", "blue", "alpha" },
+                                                           colors);
 
         // For properties that are list types, it is possibly to specify the expected count (ideal if a
         // consumer of this library knows the layout of their format a-priori). Otherwise, tinyply
         // defers allocation of memory until the first instance of the property has been found
         // as implemented in file.read(ss)
-        faceCount = file.request_properties_from_element("face", {"vertex_indices"}, faces, 3);
-        faceTexcoordCount = file.request_properties_from_element("face", {"texcoord"}, uvCoords,
+        faceCount         = file.request_properties_from_element("face", { "vertex_indices" }, faces, 3);
+        faceTexcoordCount = file.request_properties_from_element("face", { "texcoord" }, uvCoords,
                                                                  6);
         //        faceColorCount = file.request_properties_from_element("face", {"red", "green", "blue", "alpha"}, faceColors);
 
@@ -339,11 +340,10 @@ bool MeshLoader::load_ply(std::string mesh_file)
             uint32_t f1 = faces[3 * f + 1];
             uint32_t f2 = faces[3 * f + 2];
 
-            float v[3][3];
+            float    v[3][3];
 
             for(int k = 0; k < 3; k++)
             {
-
                 v[0][k] = verts[3 * f0 + k];
                 v[1][k] = verts[3 * f1 + k];
                 v[2][k] = verts[3 * f2 + k];
@@ -395,7 +395,7 @@ bool MeshLoader::load_ply(std::string mesh_file)
                 m_VertexNormals.push_back(n[k][2]);
 
                 // Use normal as color.
-                float c[3] ={n[k][0], n[k][1], n[k][2]};
+                float c[3] = { n[k][0], n[k][1], n[k][2] };
                 float len2 = c[0] * c[0] + c[1] * c[1] + c[2] * c[2];
 
                 if(len2 > 0.0f)

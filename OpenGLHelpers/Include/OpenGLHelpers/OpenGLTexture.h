@@ -2,12 +2,12 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //
 //  Copyright (c) 2017 by
-//       __      _     _         _____                              
-//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _ 
+//       __      _     _         _____
+//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _
 //   /  \/ / _` | '_ \| |/ _` |   / /\/ '__| | | |/ _ \| '_ \ / _` |
 //  / /\  / (_| | | | | | (_| |  / /  | |  | |_| | (_) | | | | (_| |
 //  \_\ \/ \__, |_| |_|_|\__,_|  \/   |_|   \__,_|\___/|_| |_|\__, |
-//         |___/                                              |___/ 
+//         |___/                                              |___/
 //
 //  <nghiatruong.vn@gmail.com>
 //  All rights reserved.
@@ -51,7 +51,7 @@ public:
     void setBestParametersWithMipMap();
     void setBestParametersNoMipMap();
 
-    GLuint getTextureID()
+    GLuint getTextureID() const
     {
         return m_TextureID;
     }
@@ -59,7 +59,7 @@ public:
     void release();
 
 #ifdef __Banana_Qt__
-    static void loadTextures(std::vector<OpenGLTexture*>& textures, QString textureFolder, bool insertNullTex = true, bool bGenMipMap = true);
+    static void loadTextures(std::vector<std::shared_ptr<OpenGLTexture> >& textures, QString textureFolder, bool insertNullTex = true, bool bGenMipMap = true);
 #endif
 
 private:
@@ -68,6 +68,6 @@ private:
     GLenum m_TexureTarget;
     GLuint m_TextureID;
     GLuint m_BindedTexUnit;
-    bool m_bTextureCreated;
+    bool   m_bTextureCreated;
 };
 

@@ -2,12 +2,12 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //
 //  Copyright (c) 2017 by
-//       __      _     _         _____                              
-//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _ 
+//       __      _     _         _____
+//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _
 //   /  \/ / _` | '_ \| |/ _` |   / /\/ '__| | | |/ _ \| '_ \ / _` |
 //  / /\  / (_| | | | | | (_| |  / /  | |  | |_| | (_) | | | | (_| |
 //  \_\ \/ \__, |_| |_|_|\__,_|  \/   |_|   \__,_|\___/|_| |_|\__, |
-//         |___/                                              |___/ 
+//         |___/                                              |___/
 //
 //  <nghiatruong.vn@gmail.com>
 //  All rights reserved.
@@ -18,7 +18,7 @@
 #pragma once
 
 #include <cassert>
-#include <vector>   
+#include <vector>
 #include <cmath>
 
 
@@ -72,8 +72,7 @@ inline ScalarType max_element(const std::vector<ScalarType>& x)
 }
 
 template<class ScalarType>
-inline void min_max_element(const std::vector<ScalarType>& x,
-                            ScalarType& min_element, ScalarType& max_element)
+inline void min_max_element(const std::vector<ScalarType>& x, ScalarType& min_element, ScalarType& max_element)
 {
     ParallelClass::vector_min_max<ScalarType> m(x);
     tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), m);
@@ -98,10 +97,10 @@ inline void sort_dsd(std::vector<ScalarType>& v)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // fill
-template <class RandomIterator, class T>
+template<class RandomIterator, class T>
 void parallel_fill(const RandomIterator& begin,
                    const RandomIterator& end,
-                   const T& value)
+                   const T&              value)
 {
     auto diff = end - begin;
     if(diff <= 0)
@@ -111,9 +110,9 @@ void parallel_fill(const RandomIterator& begin,
 
     size_t size = static_cast<size_t>(diff);
     parallel_for(0, size, [begin, value](size_t i)
-    {
-        begin[i] = value;
-    });
+        {
+            begin[i] = value;
+        });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

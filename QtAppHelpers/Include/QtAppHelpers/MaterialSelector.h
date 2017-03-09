@@ -2,12 +2,12 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //
 //  Copyright (c) 2017 by
-//       __      _     _         _____                              
-//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _ 
+//       __      _     _         _____
+//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _
 //   /  \/ / _` | '_ \| |/ _` |   / /\/ '__| | | |/ _ \| '_ \ / _` |
 //  / /\  / (_| | | | | | (_| |  / /  | |  | |_| | (_) | | | | (_| |
 //  \_\ \/ \__, |_| |_|_|\__,_|  \/   |_|   \__,_|\___/|_| |_|\__, |
-//         |___/                                              |___/ 
+//         |___/                                              |___/
 //
 //  <nghiatruong.vn@gmail.com>
 //  All rights reserved.
@@ -28,16 +28,15 @@ class MaterialSelector : public QWidget
 
 public:
     MaterialSelector(const Material::MaterialData& material = Material::MT_Emerald, bool defaultCustomMaterial = false,
-                     int comboBoxSpan = 3, QWidget *parent = nullptr);
-    ~MaterialSelector();
+                     int comboBoxSpan = 3, QWidget* parent = nullptr);
 
-    void setDefaultCustomMaterial(bool defaultCustomMaterial);
-    QComboBox* getComboBox();
-    QLayout* getLayout();
+    void       setDefaultCustomMaterial(bool defaultCustomMaterial);
+    QComboBox* getComboBox() const;
+    QLayout*   getLayout() const;
     QGroupBox* getGroupBox(QString title = QString(""));
-    int getNumMaterials();
+    int        getNumMaterials() const;
 
-    public slots:
+public slots:
     void setEnabled(bool enabled);
     void setMaterial(int materialID);
     void setMaterial(const Material::MaterialData& material);

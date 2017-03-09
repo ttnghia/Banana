@@ -2,12 +2,12 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //
 //  Copyright (c) 2017 by
-//       __      _     _         _____                              
-//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _ 
+//       __      _     _         _____
+//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _
 //   /  \/ / _` | '_ \| |/ _` |   / /\/ '__| | | |/ _ \| '_ \ / _` |
 //  / /\  / (_| | | | | | (_| |  / /  | |  | |_| | (_) | | | | (_| |
 //  \_\ \/ \__, |_| |_|_|\__,_|  \/   |_|   \__,_|\___/|_| |_|\__, |
-//         |___/                                              |___/ 
+//         |___/                                              |___/
 //
 //  <nghiatruong.vn@gmail.com>
 //  All rights reserved.
@@ -24,17 +24,14 @@ OpenGLWidget::OpenGLWidget(QWidget* parent) :
     m_WidgetUpdateTimeout(0),
     m_DefaultSize(QSize(1920, 1080)),
     m_ClearColor(glm::vec4(0.38f, 0.52f, 0.10f, 1.0f)),
-    m_SpecialKeyPressed(SpecialKey::NoKey),
-    m_CaptureImage(nullptr),
-    m_UBufferCamData(nullptr),
-    m_Camera(new Camera)
+    m_SpecialKeyPressed(SpecialKey::NoKey)
 {
     connect(this, SIGNAL(emitDebugString(QString)), this, SLOT(printDebug(QString)));
 
     ////////////////////////////////////////////////////////////////////////////////
-    QTimer* timer = new QTimer(this);
-    connect(timer, SIGNAL(timeout()), this, SLOT(update()));
-    timer->start(m_WidgetUpdateTimeout);
+    m_UpdateTimer = std::make_unique<QTimer>(this);
+    connect(m_UpdateTimer.get(), SIGNAL(timeout()), this, SLOT(update()));
+    m_UpdateTimer->start(m_WidgetUpdateTimeout);
 
     setFocusPolicy(Qt::StrongFocus);
     setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
@@ -79,8 +76,7 @@ void OpenGLWidget::setViewFrustum(float fov, float nearZ, float farZ)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLWidget::exportScreenToImage(int frame)
 {
-    glCall(glReadPixels(0, 0, width(), height(), GL_RGBA, GL_UNSIGNED_BYTE,
-           m_CaptureImage->bits()));
+    glCall(glReadPixels(0, 0, width(), height(), GL_RGBA, GL_UNSIGNED_BYTE, m_CaptureImage->bits()));
     m_CaptureImage->mirrored().save(QString(m_CapturePath + "/frame.%1.png").arg(frame));
 }
 
@@ -97,7 +93,7 @@ QSize OpenGLWidget::minimumSizeHint() const
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void OpenGLWidget::mousePressEvent(QMouseEvent * ev)
+void OpenGLWidget::mousePressEvent(QMouseEvent* ev)
 {
     if(TwMousePressQt(this, ev))
     {
@@ -121,7 +117,7 @@ void OpenGLWidget::mousePressEvent(QMouseEvent * ev)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void OpenGLWidget::mouseReleaseEvent(QMouseEvent * event)
+void OpenGLWidget::mouseReleaseEvent(QMouseEvent* event)
 {
     if(TwMouseReleaseQt(this, event))
     {
@@ -132,7 +128,7 @@ void OpenGLWidget::mouseReleaseEvent(QMouseEvent * event)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void OpenGLWidget::mouseMoveEvent(QMouseEvent * ev)
+void OpenGLWidget::mouseMoveEvent(QMouseEvent* ev)
 {
     if(TwMouseMotionQt(this, ev))
     {
@@ -154,11 +150,10 @@ void OpenGLWidget::mouseMoveEvent(QMouseEvent * ev)
             m_Camera->zoom_by_mouse(ev->x(), ev->y());
         }
     }
-
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void OpenGLWidget::wheelEvent(QWheelEvent * ev)
+void OpenGLWidget::wheelEvent(QWheelEvent* ev)
 {
     if(ev->angleDelta().isNull())
     {
@@ -178,7 +173,7 @@ void OpenGLWidget::showEvent(QShowEvent* ev)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void OpenGLWidget::keyPressEvent(QKeyEvent * ev)
+void OpenGLWidget::keyPressEvent(QKeyEvent* ev)
 {
     if(TwKeyPressQt(ev))
     {
@@ -223,11 +218,10 @@ void OpenGLWidget::keyPressEvent(QKeyEvent * ev)
         default:
             break;
     }
-
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void OpenGLWidget::keyReleaseEvent(QKeyEvent *)
+void OpenGLWidget::keyReleaseEvent(QKeyEvent*)
 {
     if(m_SpecialKeyPressed != SpecialKey::NoKey)
     {
@@ -251,11 +245,11 @@ void OpenGLWidget::initializeGL()
     resetClearColor();
 
     ////////////////////////////////////////////////////////////////////////////////
-    m_CaptureImage = new QImage(width(), height(), QImage::Format_RGBA8888);
+    m_CaptureImage = std::make_unique<QImage>(width(), height(), QImage::Format_RGBA8888);
 
     ////////////////////////////////////////////////////////////////////////////////
     // view matrix, prj matrix, inverse view matrix, inverse proj matrix, shadow matrix, cam position
-    m_UBufferCamData = new OpenGLBuffer;
+    m_UBufferCamData = std::make_unique<OpenGLBuffer>();
     m_UBufferCamData->createBuffer(GL_UNIFORM_BUFFER, 5 * sizeof(glm::mat4) + sizeof(glm::vec4), nullptr, GL_DYNAMIC_DRAW);
 
     emit cameraPositionChanged(m_Camera->getCameraPosition());
@@ -273,8 +267,7 @@ void OpenGLWidget::resizeGL(int w, int h)
     m_Camera->resizeWindow((float)w, (float)h);
     resizeAntTweakBarWindow(w, h);
 
-    delete m_CaptureImage;
-    m_CaptureImage = new QImage(w, h, QImage::Format_RGBA8888);
+    m_CaptureImage.reset(new QImage(w, h, QImage::Format_RGBA8888));
 
     ////////////////////////////////////////////////////////////////////////////////
     // call init function from derived class
@@ -286,9 +279,9 @@ void OpenGLWidget::paintGL()
 {
 #if 0
     glClearColor(rand() / (float)RAND_MAX,
-                 rand() / (float)RAND_MAX,
-                 rand() / (float)RAND_MAX,
-                 1);
+        rand() / (float)RAND_MAX,
+        rand() / (float)RAND_MAX,
+        1);
 #endif
 
     m_FPSCounter.countFrame();
@@ -310,7 +303,6 @@ void OpenGLWidget::uploadCameraData()
         m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getProjectionMatrix()), sizeof(glm::mat4), sizeof(glm::mat4));
         m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getInverseViewMatrix()), 2 * sizeof(glm::mat4), sizeof(glm::mat4));
         m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getInverseProjectionMatrix()), 3 * sizeof(glm::mat4), sizeof(glm::mat4));
-        // todo: shadow matrix
         m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getCameraPosition()), 5 * sizeof(glm::mat4), sizeof(glm::vec3));
 
         emit cameraPositionChanged(m_Camera->getCameraPosition());
@@ -370,29 +362,28 @@ void OpenGLWidget::checkGLErrors()
 void OpenGLWidget::checkGLVersion()
 {
     QString verStr = QString((const char*)glGetString(GL_VERSION));
-    emit emitDebugString(QString("GLVersion: ") + verStr);
+    emit    emitDebugString(QString("GLVersion: ") + verStr);
 
-    int major = verStr.left(verStr.indexOf(".")).toInt();
-    int minor = verStr.mid(verStr.indexOf(".") + 1, 1).toInt();
+    int     major = verStr.left(verStr.indexOf(".")).toInt();
+    int     minor = verStr.mid(verStr.indexOf(".") + 1, 1).toInt();
 
     if(!(major >= 4 && minor >= 1))
     {
         QMessageBox msgBox(QMessageBox::Critical, "Error",
                            QString("Your OpenGL version is %1.%2 (Required: OpenGL >= 4.1).")
-                           .arg(major).arg(minor));
+                               .arg(major).arg(minor));
         msgBox.exec();
         exit(EXIT_FAILURE);
     }
-
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLWidget::checkGLExtensions(QVector<QString> extensions)
 {
     QString extStr = QString((const char*)glGetString(GL_EXTENSIONS));
-    emit emitDebugString(extStr);
+    emit    emitDebugString(extStr);
 
-    bool check = true;
+    bool    check = true;
 
     for(QString ext : extensions)
     {
@@ -400,7 +391,7 @@ void OpenGLWidget::checkGLExtensions(QVector<QString> extensions)
         {
             QMessageBox msgBox(QMessageBox::Critical, "Error",
                                QString("Extension %1 is not supported.")
-                               .arg(ext));
+                                   .arg(ext));
             msgBox.exec();
             check = false;
         }

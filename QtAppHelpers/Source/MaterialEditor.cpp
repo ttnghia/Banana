@@ -2,12 +2,12 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //
 //  Copyright (c) 2017 by
-//       __      _     _         _____                              
-//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _ 
+//       __      _     _         _____
+//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _
 //   /  \/ / _` | '_ \| |/ _` |   / /\/ '__| | | |/ _ \| '_ \ / _` |
 //  / /\  / (_| | | | | | (_| |  / /  | |  | |_| | (_) | | | | (_| |
 //  \_\ \/ \__, |_| |_|_|\__,_|  \/   |_|   \__,_|\___/|_| |_|\__, |
-//         |___/                                              |___/ 
+//         |___/                                              |___/
 //
 //  <nghiatruong.vn@gmail.com>
 //  All rights reserved.
@@ -32,15 +32,6 @@ MaterialEditor::MaterialEditor(const Material::MaterialData& material /*= Materi
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-MaterialEditor::~MaterialEditor()
-{
-    delete m_AmbientColorPicker;
-    delete m_DiffuseColorPicker;
-    delete m_SpecularColorPicker;
-    delete m_txtShininess;
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MaterialEditor::setMaterial(const Material::MaterialData & material)
 {
     m_CurrentMaterial = material;
@@ -62,7 +53,7 @@ void MaterialEditor::setupGUI()
     QVBoxLayout* mainLayout = new QVBoxLayout;
     setLayout(mainLayout);
     QGridLayout* materialLayout = new QGridLayout;
-    QGroupBox* materialGrp = new QGroupBox;
+    QGroupBox*   materialGrp    = new QGroupBox;
     materialGrp->setLayout(materialLayout);
     mainLayout->addWidget(materialGrp);
 
@@ -92,8 +83,8 @@ void MaterialEditor::setupGUI()
     connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
     connect(buttonBox, &QDialogButtonBox::accepted, this, [&]()
     {
-        m_CurrentMaterial.ambient  = QColorToFloat(m_AmbientColorPicker->getColor());
-        m_CurrentMaterial.diffuse  = QColorToFloat(m_DiffuseColorPicker->getColor());
+        m_CurrentMaterial.ambient = QColorToFloat(m_AmbientColorPicker->getColor());
+        m_CurrentMaterial.diffuse = QColorToFloat(m_DiffuseColorPicker->getColor());
         m_CurrentMaterial.specular = QColorToFloat(m_SpecularColorPicker->getColor());
         m_CurrentMaterial.shininess = m_txtShininess->text().toFloat();
 
@@ -117,12 +108,6 @@ MaterialColorPicker::MaterialColorPicker(QWidget *parent /*= nullptr*/) : QWidge
         setMaterial(material);
         emit materialChanged(material);
     });
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-MaterialColorPicker::~MaterialColorPicker()
-{
-    delete m_MaterialEditor;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

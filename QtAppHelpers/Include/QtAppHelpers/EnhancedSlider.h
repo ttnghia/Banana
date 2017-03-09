@@ -2,12 +2,12 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //
 //  Copyright (c) 2017 by
-//       __      _     _         _____                              
-//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _ 
+//       __      _     _         _____
+//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _
 //   /  \/ / _` | '_ \| |/ _` |   / /\/ '__| | | |/ _ \| '_ \ / _` |
 //  / /\  / (_| | | | | | (_| |  / /  | |  | |_| | (_) | | | | (_| |
 //  \_\ \/ \__, |_| |_|_|\__,_|  \/   |_|   \__,_|\___/|_| |_|\__, |
-//         |___/                                              |___/ 
+//         |___/                                              |___/
 //
 //  <nghiatruong.vn@gmail.com>
 //  All rights reserved.
@@ -25,22 +25,21 @@ class EnhancedSlider : public QWidget
     Q_OBJECT
 
 public:
-    EnhancedSlider(int sliderSpan = 5,
-                   QWidget *parent= nullptr);
-    ~EnhancedSlider();
+    EnhancedSlider(int      sliderSpan = 5,
+                   QWidget *parent = nullptr);
 
-    QSlider* getSlider();
-    QSpinBox* getSpinBox();
-    QLayout* getLayout();
-    QLayout* getLayoutWithLabel(QString label, int sldStretch = 5);
-    QGroupBox* getGroupBox(QString title = QString(""));
+     QSlider*   getSlider() const;
+     QSpinBox*  getSpinBox() const;
+     QLayout*   getLayout() const;
+     QLayout*   getLayoutWithLabel(QString label, int sldStretch = 5);
+     QGroupBox* getGroupBox(QString title = QString(""));
 
     void setTracking(bool tracking);
     void setRange(int minVal, int maxVal);
     void setValue(int value);
-    int getValue() const;
+    int  getValue() const;
 
-    public slots:
+public slots:
     void setEnabled(bool enabled);
     void prevItem();
     void nextItem();

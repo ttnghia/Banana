@@ -2,12 +2,12 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //
 //  Copyright (c) 2017 by
-//       __      _     _         _____                              
-//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _ 
+//       __      _     _         _____
+//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _
 //   /  \/ / _` | '_ \| |/ _` |   / /\/ '__| | | |/ _ \| '_ \ / _` |
 //  / /\  / (_| | | | | | (_| |  / /  | |  | |_| | (_) | | | | (_| |
 //  \_\ \/ \__, |_| |_|_|\__,_|  \/   |_|   \__,_|\___/|_| |_|\__, |
-//         |___/                                              |___/ 
+//         |___/                                              |___/
 //
 //  <nghiatruong.vn@gmail.com>
 //  All rights reserved.
@@ -19,6 +19,7 @@
 
 #include <future>
 #include <vector>
+#include <memory>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLTexture::OpenGLTexture::createTexture(GLenum textureTarget)
@@ -27,7 +28,7 @@ void OpenGLTexture::OpenGLTexture::createTexture(GLenum textureTarget)
 
     glCall(glGenTextures(1, &m_TextureID));
     m_bTextureCreated = true;
-    m_TexureTarget = textureTarget;
+    m_TexureTarget    = textureTarget;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -42,7 +43,7 @@ void OpenGLTexture::OpenGLTexture::generateMipMap()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLTexture::OpenGLTexture::uploadData(GLenum texTarget, GLint internalFormat, GLsizei width, GLsizei height,
-                                              GLenum dataFormat, GLenum dataType, const GLvoid * data)
+                                              GLenum dataFormat, GLenum dataType, const GLvoid* data)
 {
     assert(m_bTextureCreated);
 
@@ -86,7 +87,7 @@ void OpenGLTexture::setBorderColor(glm::vec4 borderColor)
 
     bind();
     glCall(glTexParameterfv(m_TexureTarget, GL_TEXTURE_BORDER_COLOR,
-           glm::value_ptr(borderColor)));
+            glm::value_ptr(borderColor)));
     release();
 }
 
@@ -161,14 +162,9 @@ void OpenGLTexture::OpenGLTexture::release()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #ifdef __Banana_Qt__
 #include <QDir>
-void OpenGLTexture::loadTextures(std::vector<OpenGLTexture*>& textures, QString textureFolder, bool insertNullTex /*= true*/, bool bGenMipMap /*= true*/)
+void OpenGLTexture::loadTextures(std::vector<std::shared_ptr<OpenGLTexture> >& textures, QString textureFolder, bool insertNullTex /*= true*/, bool bGenMipMap /*= true*/)
 {
     // clear current textures
-    for(OpenGLTexture* tex : textures)
-    {
-        delete tex;
-    }
-
     textures.resize(0);
     if(insertNullTex)
     {
@@ -178,10 +174,11 @@ void OpenGLTexture::loadTextures(std::vector<OpenGLTexture*>& textures, QString 
     QDir dataDir(textureFolder);
     dataDir.setFilter(QDir::NoDotAndDotDot | QDir::Files);
     dataDir.setSorting(QDir::Name);
-    QStringList allTexFiles = dataDir.entryList();
 
+    QStringList         allTexFiles = dataDir.entryList();
     std::vector<QImage> textureImages;
     textureImages.resize(allTexFiles.count());
+
     std::vector<std::future<void> > futureObjs;
 
     for(int i = 0; i < allTexFiles.count(); ++i)
@@ -201,7 +198,7 @@ void OpenGLTexture::loadTextures(std::vector<OpenGLTexture*>& textures, QString 
 
     for(const QImage& texImg : textureImages)
     {
-        OpenGLTexture* tex = new OpenGLTexture(GL_TEXTURE_2D);
+        std::shared_ptr<OpenGLTexture> tex = std::make_shared<OpenGLTexture>(GL_TEXTURE_2D);
         tex->uploadData(GL_TEXTURE_2D, GL_RGBA, texImg.width(), texImg.height(), GL_RGBA, GL_UNSIGNED_BYTE, texImg.constBits());
 
         if(bGenMipMap)
