@@ -117,7 +117,7 @@ protected:
 class PointLightRender : public RenderObject
 {
 public:
-    PointLightRender(const std::shared_ptr<Camera>& camera, const const std::shared_ptr<PointLights>&& lights, const std::shared_ptr<OpenGLBuffer>& bufferCamData = nullptr) :
+    PointLightRender(const std::shared_ptr<Camera>& camera, const std::shared_ptr<PointLights>& lights, const std::shared_ptr<OpenGLBuffer>& bufferCamData = nullptr) :
         RenderObject(camera, bufferCamData), m_Lights(lights), m_RenderSize(20.0)
     {
         initRenderData();
@@ -185,7 +185,7 @@ public:
     OpenGLTexture* getColorBuffer(int colorBufferID = 0);
     void           swapColorBuffer(OpenGLTexture*& colorBuffer, int bufferID = 0);
 
-    virtual void render() override // do nothing
+    virtual void render() override         // do nothing
     {}
 
 protected:
@@ -242,25 +242,26 @@ public:
         initRenderData();
     }
 
-    ScreenQuadTextureRender(const std::shared_ptr<OpenGLTexture>& texture, int texelSize = 1) :
+    ScreenQuadTextureRender(OpenGLTexture* texture, int texelSize = 1) :
         RenderObject(nullptr, nullptr), m_Texture(texture), m_TexelSizeValue(texelSize), m_ValueScale(1.0)
     {
         initRenderData();
     }
 
     void         setValueScale(float scale);
-    void         setTexture(const std::shared_ptr<OpenGLTexture>& texture, int texelSize = 1);
+    void         setTexture(OpenGLTexture* texture, int texelSize = 1);
     virtual void render() override;
+
 private:
     virtual void initRenderData() override;
 
-    float                          m_ValueScale;
-    int                            m_TexelSizeValue;
-    GLuint                         m_AtrVPosition;
-    GLuint                         m_UTexelSize;
-    GLuint                         m_UValueScale;
-    GLuint                         m_UTexSampler;
-    std::shared_ptr<OpenGLTexture> m_Texture;
+    float          m_ValueScale;
+    int            m_TexelSizeValue;
+    GLuint         m_AtrVPosition;
+    GLuint         m_UTexelSize;
+    GLuint         m_UValueScale;
+    GLuint         m_UTexSampler;
+    OpenGLTexture* m_Texture;
 };
 
 
@@ -294,20 +295,23 @@ public:
         initRenderData();
     }
 
-    const std::shared_ptr<MeshObject>&    getMeshObj();
-    const std::shared_ptr<Material>&      getMaterial();
+    const std::shared_ptr<MeshObject>& getMeshObj();
+
+    const std::shared_ptr<Material>& getMaterial();
+
     const std::shared_ptr<OpenGLTexture>& getCurrentTexture();
     size_t                                getNumTextures();
 
     void clearTextures(bool insertNullTex = true);
     void addTexture(const std::shared_ptr<OpenGLTexture>& texture, GLenum texWrapMode = GL_REPEAT);
     void setRenderTextureIndex(int texIndex);
-    void setExternalShadowMaps(const std::vector<std::shared_ptr<OpenGLTexture> >& shadowMaps);
+    void setExternalShadowMaps(const std::vector<OpenGLTexture*>& shadowMaps);
     void resizeShadowMap(int width, int height);
     void transform(const glm::vec3& translation, const glm::vec3& scale);
     void setupVAO();
 
-    OpenGLTexture*              getShadowMap(int lightID = 0);
+    OpenGLTexture* getShadowMap(int lightID = 0);
+
     std::vector<OpenGLTexture*> getAllShadowMaps();
 
     virtual void render() override;
@@ -334,7 +338,7 @@ protected:
     std::shared_ptr<Material>                        m_Material;
     std::vector<std::shared_ptr<OpenGLTexture> >     m_Textures;
     std::shared_ptr<OpenGLTexture>                   m_CurrentTexture;
-    std::vector<std::shared_ptr<OpenGLTexture> >     m_ExternalShadowMaps;
+    std::vector<OpenGLTexture*>     m_ExternalShadowMaps;
     GLint                                            m_ShadowBufferWidth;
     GLint                                            m_ShadowBufferHeight;
     GLuint                                           m_DSAtrVPosition;
@@ -374,5 +378,5 @@ public:
     virtual void render() override;
 
 private:
-    bool                        m_AllowedNonTexRender;
+    bool m_AllowedNonTexRender;
 };

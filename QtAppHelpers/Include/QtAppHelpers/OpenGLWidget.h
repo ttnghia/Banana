@@ -99,8 +99,8 @@ protected:
 
     std::unique_ptr<QTimer>       m_UpdateTimer    = nullptr;
     std::unique_ptr<QImage>       m_CaptureImage   = nullptr;
-    std::unique_ptr<OpenGLBuffer> m_UBufferCamData = nullptr;
-    std::unique_ptr<Camera>       m_Camera         = std::make_unique<Camera> ();
+    std::shared_ptr<OpenGLBuffer> m_UBufferCamData = nullptr;
+    std::shared_ptr<Camera>       m_Camera         = std::make_shared<Camera> ();
 
 signals:
     void emitDebugString(QString str);

@@ -38,7 +38,7 @@ public slots:
     void setLights(std::shared_ptr<PointLights> lights);
 
 signals:
-    void lightsChanged(const PointLights* lights);
+    void lightsChanged(const std::shared_ptr<PointLights>& lights);
 
 private:
     void connectComponents();

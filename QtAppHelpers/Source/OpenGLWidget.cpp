@@ -249,7 +249,7 @@ void OpenGLWidget::initializeGL()
 
     ////////////////////////////////////////////////////////////////////////////////
     // view matrix, prj matrix, inverse view matrix, inverse proj matrix, shadow matrix, cam position
-    m_UBufferCamData = std::make_unique<OpenGLBuffer>();
+    m_UBufferCamData = std::make_shared<OpenGLBuffer>();
     m_UBufferCamData->createBuffer(GL_UNIFORM_BUFFER, 5 * sizeof(glm::mat4) + sizeof(glm::vec4), nullptr, GL_DYNAMIC_DRAW);
 
     emit cameraPositionChanged(m_Camera->getCameraPosition());

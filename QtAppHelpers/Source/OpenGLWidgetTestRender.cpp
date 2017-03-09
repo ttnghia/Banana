@@ -123,7 +123,7 @@ void OpenGLWidgetTestRender::initTestRenderFloor(QString texFile)
 
     ////////////////////////////////////////////////////////////////////////////////
     // light
-    m_Lights = std::make_unique<PointLights>;
+    m_Lights = std::make_shared<PointLights>();
     m_Lights->setLightPosition(glm::vec4(0, 2, 0, 1.0));
     m_Lights->uploadDataToGPU();
 
@@ -143,11 +143,11 @@ void OpenGLWidgetTestRender::initTestRenderMesh(QString meshFile)
 
     ////////////////////////////////////////////////////////////////////////////////
     m_MeshLoader = std::make_unique<MeshLoader>(meshFile.toStdString());
-    m_MeshObj    = std::make_unique<MeshObject>;
+    m_MeshObj    = std::make_shared<MeshObject>();
     m_MeshObj->setVertices(m_MeshLoader->getVertices());
     m_MeshObj->setVertexNormal(m_MeshLoader->getVertexNormal());
 
-    m_Lights = std::make_unique<PointLights>;
+    m_Lights = std::make_shared<PointLights>();
     m_Lights->setNumLights(2);
     m_Lights->setLightPosition(glm::vec4(0, 1000, 0, 1.0), 0);
     m_Lights->setLightPosition(glm::vec4(1000, 0, 0, 1.0), 1);
@@ -155,12 +155,12 @@ void OpenGLWidgetTestRender::initTestRenderMesh(QString meshFile)
     m_Lights->setLightDiffuse(glm::vec4(0.7), 1);
     m_Lights->uploadDataToGPU();
 
-    m_Material = std::make_unique<Material>;
+    m_Material = std::make_shared<Material>();
     m_Material->setMaterial(Material::MT_Emerald);
     m_Material->uploadDataToGPU();
 
-    m_PointLightRender = std::make_unique<PointLightRender>(m_Camera, m_Lights) >;
-    m_MeshRender       = std::make_unique<MeshRender>(m_MeshObj, m_Camera, m_Lights, m_Material, m_UBufferCamData) >;
+    m_PointLightRender = std::make_unique<PointLightRender>(m_Camera, m_Lights);
+    m_MeshRender       = std::make_unique<MeshRender>(m_MeshObj, m_Camera, m_Lights, m_Material, m_UBufferCamData);
     m_MeshRender->transform(glm::vec3(0, 0, 0), glm::vec3(0.03));
 }
 
@@ -228,12 +228,12 @@ void OpenGLWidgetTestRender::initTestRenderMeshWithShadow(QString meshFile, QStr
 
     ////////////////////////////////////////////////////////////////////////////////
     m_MeshLoader = std::make_unique<MeshLoader>(meshFile.toStdString());
-    m_MeshObj    = std::make_unique<MeshObject>;
+    m_MeshObj    = std::make_shared<MeshObject>();
     m_MeshObj->setVertices(m_MeshLoader->getVertices());
     m_MeshObj->setVertexNormal(m_MeshLoader->getVertexNormal());
 
 
-    m_Material = std::make_unique<Material>;
+    m_Material = std::make_shared<Material>();
     m_Material->setMaterial(Material::MT_Emerald);
     m_Material->uploadDataToGPU();
 
@@ -243,7 +243,7 @@ void OpenGLWidgetTestRender::initTestRenderMeshWithShadow(QString meshFile, QStr
     //m_MeshRender->resizeShadowMap(512, 512);
     m_FloorRender->setExternalShadowMaps(m_MeshRender->getAllShadowMaps());
 
-    m_ScreenQuadTexRender = std::make_unique<ScreenQuadTextureRender>;
+    m_ScreenQuadTexRender = std::make_unique<ScreenQuadTextureRender>();
     m_ScreenQuadTexRender->setTexture(m_MeshRender->getShadowMap(0));
     m_ScreenQuadTexRender->setValueScale(-0.10);
 }

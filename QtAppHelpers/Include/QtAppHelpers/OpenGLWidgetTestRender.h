@@ -71,20 +71,20 @@ private:
 
     TestCase                                 m_TestCase;
     std::unique_ptr<OpenGLBuffer>            m_UBufferModelMatrix;
-    std::unique_ptr<OpenGLBuffer>            m_UBufferCamData;
     std::unique_ptr<OpenGLBuffer>            m_VertexBuffer;
     std::unique_ptr<OpenGLBuffer>            m_IndexBuffer;
-    std::unique_ptr<OpenGLTexture>           m_Texture;
-    std::unique_ptr<MeshObject>              m_MeshObj;
     std::unique_ptr<MeshLoader>              m_MeshLoader;
-    std::unique_ptr<PointLights>             m_Lights;
-    std::unique_ptr<Material>                m_Material;
     std::unique_ptr<SkyBoxRender>            m_SkyBoxRender;
     std::unique_ptr<PlaneRender>             m_FloorRender;
     std::unique_ptr<PointLightRender>        m_PointLightRender;
     std::unique_ptr<MeshRender>              m_MeshRender;
     std::unique_ptr<DepthBufferRender>       m_DepthBufferRender;
     std::unique_ptr<ScreenQuadTextureRender> m_ScreenQuadTexRender;
+
+    std::shared_ptr<OpenGLTexture>           m_Texture;
+    std::shared_ptr<MeshObject>              m_MeshObj;
+    std::shared_ptr<PointLights>             m_Lights;
+    std::shared_ptr<Material>                m_Material;
     std::shared_ptr<ShaderProgram>           m_Shader;
     GLuint                                   m_VAO;
 };
