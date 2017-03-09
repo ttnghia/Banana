@@ -1,5 +1,5 @@
-# Intel(R) Threading Building Blocks 2017 Update 3
-[![Stable release](https://img.shields.io/badge/version-2017_U3-green.svg)] (https://github.com/01org/tbb/releases/tag/2017_U3)
+# Intel(R) Threading Building Blocks 2017 Update 5
+[![Stable release](https://img.shields.io/badge/version-2017_U5-green.svg)] (https://github.com/01org/tbb/releases/tag/2017_U5)
 [![Apache License Version 2.0](https://img.shields.io/badge/license-Apache_2.0-green.svg)](LICENSE)
 
 Intel(R) Threading Building Blocks (Intel(R) TBB) lets you easily write parallel C++ programs that take
@@ -21,6 +21,9 @@ Please report issues and suggestions via
 
 ## How to Contribute
 Please, read the instructions on the official [Intel(R) TBB open source site] (https://www.threadingbuildingblocks.org/submit-contribution).
+
+## Engineering team contacts
+* [E-mail us.] (mailto:inteltbbdevelopers@intel.com)
 
 ------------------------------------------------------------------------
 Intel and the Intel logo are trademarks of Intel Corporation or its subsidiaries in the U.S. and/or other countries.

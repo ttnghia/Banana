@@ -1,5 +1,5 @@
 /*
-    Copyright (c) 2005-2016 Intel Corporation
+    Copyright (c) 2005-2017 Intel Corporation
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -96,7 +96,7 @@ public:
         : base_type(n_of_buckets, key_compare(a_hasher, a_keyeq), a)
     {}
 
-    concurrent_unordered_set(const Allocator& a) : base_type(base_type::initial_bucket_number, key_compare(), a)
+    explicit concurrent_unordered_set(const Allocator& a) : base_type(base_type::initial_bucket_number, key_compare(), a)
     {}
 
     template <typename Iterator>
@@ -195,7 +195,7 @@ public:
         : base_type(n_of_buckets, key_compare(_Hasher, _Key_equality), a)
     {}
 
-    concurrent_unordered_multiset(const Allocator& a) : base_type(base_type::initial_bucket_number, key_compare(), a)
+    explicit concurrent_unordered_multiset(const Allocator& a) : base_type(base_type::initial_bucket_number, key_compare(), a)
     {}
 
     template <typename Iterator>

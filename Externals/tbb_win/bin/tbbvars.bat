@@ -1,6 +1,6 @@
 @echo off
 REM
-REM Copyright (c) 2005-2016 Intel Corporation
+REM Copyright (c) 2005-2017 Intel Corporation
 REM
 REM Licensed under the Apache License, Version 2.0 (the "License");
 REM you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@ if /i "%1"=="intel64"      (set TBB_TARGET_ARCH=intel64) & shift & goto ParseArg
 if /i "%1"=="vs2012"       (set TBB_TARGET_VS=vc11)      & shift & goto ParseArgs
 if /i "%1"=="vs2013"       (set TBB_TARGET_VS=vc12)      & shift & goto ParseArgs
 if /i "%1"=="vs2015"       (set TBB_TARGET_VS=vc14)      & shift & goto ParseArgs
+if /i "%1"=="vs2017"       (set TBB_TARGET_VS=vc14)      & shift & goto ParseArgs
 if /i "%1"=="all"          (set TBB_TARGET_VS=vc_mt)     & shift & goto ParseArgs
 :: for any other incoming arguments values
 goto Syntax
@@ -74,6 +75,7 @@ echo    ^<vs^> should be one of the following
 echo        vs2012      : Set to use with Microsoft Visual Studio 2012 runtime DLLs
 echo        vs2013      : Set to use with Microsoft Visual Studio 2013 runtime DLLs
 echo        vs2015      : Set to use with Microsoft Visual Studio 2015 runtime DLLs
+echo        vs2017      : Set to use with Microsoft Visual Studio 2017 runtime DLLs
 echo        all         : Set to use TBB statically linked with Microsoft Visual C++ runtime
 echo    if ^<vs^> is not set TBB statically linked with Microsoft Visual C++ runtime will be used.
 exit /B 1
