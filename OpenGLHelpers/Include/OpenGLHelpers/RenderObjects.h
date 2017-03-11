@@ -182,8 +182,8 @@ public:
     virtual void setNumColorBuffers(int numColorBuffers);
     void         setColorBufferParameter(GLenum paramName, GLenum paramValue);
 
-    OpenGLTexture* getColorBuffer(int colorBufferID = 0);
-    void           swapColorBuffer(OpenGLTexture*& colorBuffer, int bufferID = 0);
+    std::shared_ptr<OpenGLTexture>& getColorBuffer(int colorBufferID = 0);
+    void                            swapColorBuffer(std::shared_ptr<OpenGLTexture>& colorBuffer, int bufferID = 0);
 
     virtual void render() override         // do nothing
     {}
@@ -191,13 +191,13 @@ public:
 protected:
     virtual void initRenderData() override;
 
-    int                         m_BufferWidth;
-    int                         m_BufferHeight;
-    int                         m_NumColorBuffers;
-    GLenum                      m_FormatColorBuff;
-    GLuint                      m_FrameBufferID;
-    GLuint                      m_RenderBufferID;
-    std::vector<OpenGLTexture*> m_ColorBuffers;
+    int                                          m_BufferWidth;
+    int                                          m_BufferHeight;
+    int                                          m_NumColorBuffers;
+    GLenum                                       m_FormatColorBuff;
+    GLuint                                       m_FrameBufferID;
+    GLuint                                       m_RenderBufferID;
+    std::vector<std::shared_ptr<OpenGLTexture>> m_ColorBuffers;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -217,9 +217,9 @@ public:
 
     virtual void setNumColorBuffers(int numColorBuffers) override;
 
-    void           setDefaultClearColor(const glm::vec4& clearColor);
-    void           setClearDepthValue(GLfloat clearValue);
-    OpenGLTexture* getDepthBuffer();
+    void                            setDefaultClearColor(const glm::vec4& clearColor);
+    void                            setClearDepthValue(GLfloat clearValue);
+    std::shared_ptr<OpenGLTexture>& getDepthBuffer();
 
 private:
     virtual void initRenderData() override;
@@ -242,26 +242,26 @@ public:
         initRenderData();
     }
 
-    ScreenQuadTextureRender(OpenGLTexture* texture, int texelSize = 1) :
+    ScreenQuadTextureRender(std::shared_ptr<OpenGLTexture>& texture, int texelSize = 1) :
         RenderObject(nullptr, nullptr), m_Texture(texture), m_TexelSizeValue(texelSize), m_ValueScale(1.0)
     {
         initRenderData();
     }
 
     void         setValueScale(float scale);
-    void         setTexture(OpenGLTexture* texture, int texelSize = 1);
+    void         setTexture(std::shared_ptr<OpenGLTexture>& texture, int texelSize = 1);
     virtual void render() override;
 
 private:
     virtual void initRenderData() override;
 
-    float          m_ValueScale;
-    int            m_TexelSizeValue;
-    GLuint         m_AtrVPosition;
-    GLuint         m_UTexelSize;
-    GLuint         m_UValueScale;
-    GLuint         m_UTexSampler;
-    OpenGLTexture* m_Texture;
+    float                          m_ValueScale;
+    int                            m_TexelSizeValue;
+    GLuint                         m_AtrVPosition;
+    GLuint                         m_UTexelSize;
+    GLuint                         m_UValueScale;
+    GLuint                         m_UTexSampler;
+    std::shared_ptr<OpenGLTexture> m_Texture;
 };
 
 
@@ -305,14 +305,13 @@ public:
     void clearTextures(bool insertNullTex = true);
     void addTexture(const std::shared_ptr<OpenGLTexture>& texture, GLenum texWrapMode = GL_REPEAT);
     void setRenderTextureIndex(int texIndex);
-    void setExternalShadowMaps(const std::vector<OpenGLTexture*>& shadowMaps);
+    void setExternalShadowMaps(const std::vector<std::shared_ptr<OpenGLTexture> >& shadowMaps);
     void resizeShadowMap(int width, int height);
     void transform(const glm::vec3& translation, const glm::vec3& scale);
     void setupVAO();
 
-    OpenGLTexture* getShadowMap(int lightID = 0);
-
-    std::vector<OpenGLTexture*> getAllShadowMaps();
+    std::shared_ptr<OpenGLTexture>&              getShadowMap(int lightID = 0);
+    std::vector<std::shared_ptr<OpenGLTexture> > getAllShadowMaps();
 
     virtual void render() override;
 
@@ -338,7 +337,7 @@ protected:
     std::shared_ptr<Material>                        m_Material;
     std::vector<std::shared_ptr<OpenGLTexture> >     m_Textures;
     std::shared_ptr<OpenGLTexture>                   m_CurrentTexture;
-    std::vector<OpenGLTexture*>     m_ExternalShadowMaps;
+    std::vector<std::shared_ptr<OpenGLTexture> >     m_ExternalShadowMaps;
     GLint                                            m_ShadowBufferWidth;
     GLint                                            m_ShadowBufferHeight;
     GLuint                                           m_DSAtrVPosition;
