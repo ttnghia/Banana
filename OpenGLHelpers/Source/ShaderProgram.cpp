@@ -18,28 +18,28 @@
 #include <OpenGLHelpers/ShaderProgram.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void ShaderProgram::addVertexShaderFromSource(const GLchar * shaderSource)
+void ShaderProgram::addVertexShaderFromSource(const GLchar* shaderSource)
 {
     addShader(GL_VERTEX_SHADER, shaderSource);
     m_ShaderSourceCodes[GL_VERTEX_SHADER] = std::string(shaderSource);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void ShaderProgram::addGeometryShaderFromSource(const GLchar * shaderSource)
+void ShaderProgram::addGeometryShaderFromSource(const GLchar* shaderSource)
 {
     addShader(GL_GEOMETRY_SHADER, shaderSource);
     m_ShaderSourceCodes[GL_GEOMETRY_SHADER] = std::string(shaderSource);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void ShaderProgram::addFragmentShaderFromSource(const GLchar * shaderSource)
+void ShaderProgram::addFragmentShaderFromSource(const GLchar* shaderSource)
 {
     addShader(GL_FRAGMENT_SHADER, shaderSource);
     m_ShaderSourceCodes[GL_FRAGMENT_SHADER] = std::string(shaderSource);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void ShaderProgram::addVertexShaderFromFile(const char * fileName)
+void ShaderProgram::addVertexShaderFromFile(const char* fileName)
 {
     std::string shaderSource;
     loadFile(shaderSource, fileName);
@@ -49,7 +49,7 @@ void ShaderProgram::addVertexShaderFromFile(const char * fileName)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void ShaderProgram::addGeometryShaderFromFile(const char * fileName)
+void ShaderProgram::addGeometryShaderFromFile(const char* fileName)
 {
     std::string shaderSource;
     loadFile(shaderSource, fileName);
@@ -59,7 +59,7 @@ void ShaderProgram::addGeometryShaderFromFile(const char * fileName)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void ShaderProgram::addFragmentShaderFromFile(const char * fileName)
+void ShaderProgram::addFragmentShaderFromFile(const char* fileName)
 {
     std::string shaderSource;
     loadFile(shaderSource, fileName);
@@ -128,8 +128,8 @@ void ShaderProgram::clearCachedSource()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-GLuint ShaderProgram::getAtributeLocation(const char * atributeName,
-                                          bool         dieOnError /* = true*/)
+GLuint ShaderProgram::getAtributeLocation(const char* atributeName,
+                                          bool        dieOnError /* = true*/)
 {
     GLint location = glCall(glGetAttribLocation(m_ProgramID, atributeName));
 
@@ -146,8 +146,8 @@ GLuint ShaderProgram::getAtributeLocation(const char * atributeName,
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-GLuint ShaderProgram::getUniformLocation(const char * uniformName,
-                                         bool         dieOnError /* = true*/)
+GLuint ShaderProgram::getUniformLocation(const char* uniformName,
+                                         bool        dieOnError /* = true*/)
 {
     GLint location = glCall(glGetUniformLocation(m_ProgramID, uniformName));
 
@@ -190,9 +190,9 @@ void ShaderProgram::ShaderProgram::bindUniformBlock(GLuint blockIndex, GLuint bi
 void ShaderProgram::setUniformValue(GLint location, const glm::mat4& mat)
 {
     glCall(glUniformMatrix4fv(location,
-                              1 /*only setting 1 matrix*/,
-                              false /*transpose?*/,
-                              glm::value_ptr(mat)));
+            1 /*only setting 1 matrix*/,
+            false /*transpose?*/,
+            glm::value_ptr(mat)));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -238,7 +238,7 @@ void ShaderProgram::setUniformValue(GLint location, GLboolean value)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-bool ShaderProgram::addShader(GLenum shaderType, const GLchar * shaderSource)
+bool ShaderProgram::addShader(GLenum shaderType, const GLchar* shaderSource)
 {
     GLuint shader = glCall(glCreateShader(shaderType));
     glCall(glShaderSource(shader, 1, &shaderSource, NULL));
@@ -316,7 +316,7 @@ bool ShaderProgram::checkLinkError(GLuint program)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void ShaderProgram::loadFile(std::string& fileContent, const char * fileName)
+void ShaderProgram::loadFile(std::string& fileContent, const char* fileName)
 {
     std::ifstream file(fileName);
     if(!file.is_open())
@@ -443,7 +443,7 @@ std::shared_ptr<ShaderProgram> ShaderProgram::ShaderProgram::getSimpleTextureSha
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-std::shared_ptr<ShaderProgram> ShaderProgram::getSimpleDepthShader(std::string programName /*= std::string("SimpleDepthShader")*/)
+std::shared_ptr<ShaderProgram> ShaderProgram::getSimpleLightSpaceDepthShader(std::string programName /*= std::string("SimpleDepthShader")*/)
 {
     const GLchar* vertexShader =
         "// This is the shader statically generated by ShaderProgram class\n"
@@ -481,7 +481,6 @@ std::shared_ptr<ShaderProgram> ShaderProgram::getSimpleDepthShader(std::string p
 
     const GLchar* fragmentShader =
         "// This is the shader statically generated by ShaderProgram class\n"
-        "// negative z direction is the direction from cam pos to cam focus\n"
         "#version 410 core\n"
         "\n"
         "in float f_LightDistance;\n"
@@ -492,7 +491,61 @@ std::shared_ptr<ShaderProgram> ShaderProgram::getSimpleDepthShader(std::string p
         "    outDepth = f_LightDistance;\n"
         "}\n";
 
-    std::shared_ptr<ShaderProgram> shader = std::make_shared<ShaderProgram>(std::string("DepthShader"));
+    std::shared_ptr<ShaderProgram> shader = std::make_shared<ShaderProgram>(programName);
+    shader->addVertexShaderFromSource(vertexShader);
+    shader->addFragmentShaderFromSource(fragmentShader);
+    shader->link();
+
+    return shader;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+std::shared_ptr<ShaderProgram> ShaderProgram::getSimpleCameraSpaceDepthShader(std::string programName /*= std::string("SimpleCameraSpaceDepthShader")*/)
+{
+    const GLchar* vertexShader =
+        "// This is the shader statically generated by ShaderProgram class\n"
+        "#version 410 core\n"
+        "\n"
+        "layout(std140) uniform ModelMatrix\n"
+        "{\n"
+        "    mat4 modelMatrix;\n"
+        "    mat4 normalMatrix;\n"
+        "};\n"
+        "\n"
+        "layout(std140) uniform CameraData\n"
+        "{\n"
+        "    mat4 viewMatrix;\n"
+        "    mat4 projectionMatrix;\n"
+        "    mat4 invViewMatrix;\n"
+        "    mat4 invProjectionMatrix;\n"
+        "    mat4 shadowMatrix;\n"
+        "    vec4 camPosition;\n"
+        "};\n"
+        "\n"
+        "in vec3 v_Position;\n"
+        "out float f_CameraDistance;\n"
+        "\n"
+        "void main()\n"
+        "{\n"
+        "    vec4 eyeCoord    = viewMatrix * modelMatrix * vec4(v_Position, 1.0);\n"
+        "    f_CameraDistance = eyeCoord.z;\n"
+        "    gl_Position      = projectionMatrix * eyeCoord;\n"
+        "}";
+
+
+    const GLchar* fragmentShader =
+        "// This is the shader statically generated by ShaderProgram class\n"
+        "#version 410 core\n"
+        "\n"
+        "in float f_CameraDistance;\n"
+        "out float outDepth;\n"
+        "\n"
+        "void main()\n"
+        "{\n"
+        "    outDepth = f_CameraDistance;\n"
+        "}\n";
+
+    std::shared_ptr<ShaderProgram> shader = std::make_shared<ShaderProgram>(programName);
     shader->addVertexShaderFromSource(vertexShader);
     shader->addFragmentShaderFromSource(fragmentShader);
     shader->link();
@@ -721,7 +774,7 @@ std::shared_ptr<ShaderProgram> ShaderProgram::ShaderProgram::getPhongShader(std:
         "uniform int u_HasShadow;\n"
         "uniform sampler2D u_TexSampler;\n"
         "uniform sampler2D u_ShadowMap[NUM_TOTAL_LIGHTS];\n"
-        "#define SHADOW_BIAS 0.05"
+        "#define SHADOW_BIAS -0.05"
         "\n"
         "in VS_OUT\n"
         "{\n"

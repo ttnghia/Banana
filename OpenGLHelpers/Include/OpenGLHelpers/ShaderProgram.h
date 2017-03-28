@@ -120,7 +120,8 @@ public:
     static std::shared_ptr<ShaderProgram> getSimpleVertexColorShader(std::string programName = std::string("SimpleVertexColorShader"));
     static std::shared_ptr<ShaderProgram> getSimpleUniformColorShader(std::string programName = std::string("SimpleUniformColorShader"));
     static std::shared_ptr<ShaderProgram> getSimpleTextureShader(std::string programName = std::string("SimpleTextureShader"));
-    static std::shared_ptr<ShaderProgram> getSimpleDepthShader(std::string programName = std::string("SimpleDepthShader"));
+    static std::shared_ptr<ShaderProgram> getSimpleLightSpaceDepthShader(std::string programName = std::string("SimpleLightSpaceDepthShader"));
+    static std::shared_ptr<ShaderProgram> getSimpleCameraSpaceDepthShader(std::string programName = std::string("SimpleCameraSpaceDepthShader"));
     static std::shared_ptr<ShaderProgram> getObjUniformColorShader(std::string programName = std::string("ObjUniformColorShader"));
     static std::shared_ptr<ShaderProgram> getObjTextureShader(std::string programName = std::string("ObjTextureShader"));
     static std::shared_ptr<ShaderProgram> getPhongShader(std::string programName = std::string("PhongShader"));

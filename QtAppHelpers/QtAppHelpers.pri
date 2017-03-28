@@ -4,7 +4,7 @@ macx {
 }
 
 #CONFIG += warn_off
-CONFIG += c++11
+CONFIG += c++14
 macx {
     INCLUDEPATH +=
     QMAKE_CXXFLAGS_WARN_ON += -Wno-reorder

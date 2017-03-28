@@ -239,12 +239,14 @@ void OpenGLWidgetTestRender::initTestRenderMeshWithShadow(QString meshFile, QStr
 
     m_MeshRender = std::make_unique<MeshRender>(m_MeshObj, m_Camera, m_Lights, m_Material, m_UBufferCamData);
     m_MeshRender->transform(glm::vec3(0, 0.5, 0), glm::vec3(0.03));
-    m_MeshRender->initShadowMapRenderData(m_ClearColor);
+    m_MeshRender->initDepthBufferData(m_ClearColor);
     //m_MeshRender->resizeShadowMap(512, 512);
-    m_FloorRender->setExternalShadowMaps(m_MeshRender->getAllShadowMaps());
+    m_FloorRender->setExternalShadowMaps(m_MeshRender->getAllLightShadowMaps());
+    m_FloorRender->transform(glm::vec3(0,0, 0), glm::vec3(10));
+    m_FloorRender->scaleTexCoord(10, 10);
 
     m_ScreenQuadTexRender = std::make_unique<ScreenQuadTextureRender>();
-    m_ScreenQuadTexRender->setTexture(m_MeshRender->getShadowMap(0));
+    m_ScreenQuadTexRender->setTexture(m_MeshRender->getLightShadowMap(0));
     m_ScreenQuadTexRender->setValueScale(-0.10);
 }
 
@@ -389,7 +391,7 @@ void OpenGLWidgetTestRender::renderMeshWithShadow()
         qDebug() << "Material: " << QString::fromStdString(m_Material->getName());
     }
 
-    m_MeshRender->renderToDepthBuffer(width(), height(), context()->defaultFramebufferObject());
+    m_MeshRender->renderToLightDepthBuffer(width(), height(), context()->defaultFramebufferObject());
 
 #if 0
     m_ScreenQuadTexRender->render();

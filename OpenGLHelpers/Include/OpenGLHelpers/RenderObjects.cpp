@@ -557,6 +557,13 @@ void OffScreenRender::swapColorBuffer(std::shared_ptr<OpenGLTexture>& colorBuffe
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void OffScreenRender::fastSwapColorBuffer(std::shared_ptr<OpenGLTexture>& colorBuffer, int bufferID)
+{
+    std::swap(colorBuffer, m_ColorBuffers[bufferID]);
+    glCall(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + bufferID, GL_TEXTURE_2D, m_ColorBuffers[bufferID]->getTextureID(), 0));
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OffScreenRender::initRenderData()
 {
     glCall(glGenFramebuffers(1, &m_FrameBufferID));
@@ -754,7 +761,7 @@ void ScreenQuadTextureRender::setValueScale(float scale)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void ScreenQuadTextureRender::setTexture(std::shared_ptr<OpenGLTexture>& texture, int texelSize /*= 1*/)
+void ScreenQuadTextureRender::setTexture(const std::shared_ptr<OpenGLTexture>& texture, int texelSize /*= 1*/)
 {
     m_Texture        = texture;
     m_TexelSizeValue = texelSize;
@@ -918,71 +925,134 @@ void MeshRender::render()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MeshRender::renderToDepthBuffer(int scrWidth, int scrHeight, GLuint defaultFBO /*= 0*/)
+void MeshRender::renderToLightDepthBuffer(int scrWidth, int scrHeight, GLuint defaultFBO /*= 0*/)
 {
+    assert(m_DepthBufferInitialized);
     assert(m_MeshObj != nullptr && m_Camera != nullptr && m_UBufferCamData != nullptr);
     assert(m_Lights != nullptr && m_Lights->getNumLights() > 0);
-    assert(m_DepthBufferRenders.size() != 0);
+    assert(m_LightDepthBufferRenders.size() != 0);
 
     if(m_MeshObj->isEmpty())
         return;
 
     ////////////////////////////////////////////////////////////////////////////////
     // update the depth render objs in case the number of lights has changed
-    for(int i = m_DepthBufferRenders.size(); i < m_Lights->getNumLights(); ++i)
+    for(int i = m_LightDepthBufferRenders.size(); i < m_Lights->getNumLights(); ++i)
     {
-        m_DepthBufferRenders.push_back(std::make_unique<DepthBufferRender>(m_ShadowBufferWidth, m_ShadowBufferHeight));
+        m_LightDepthBufferRenders.push_back(std::make_unique<DepthBufferRender>(m_ShadowBufferWidth, m_ShadowBufferHeight));
     }
 
-    m_DepthShader->bind();
+    m_LightDepthShader->bind();
     m_UBufferModelMatrix->bindBufferBase();
-    m_DepthShader->bindUniformBlock(m_DSUBModelMatrix, m_UBufferModelMatrix->getBindingPoint());
+    m_LightDepthShader->bindUniformBlock(m_LDSUBModelMatrix, m_UBufferModelMatrix->getBindingPoint());
 
     m_Lights->bindUniformBufferLightMatrix();
-    m_DepthShader->bindUniformBlock(m_DSUBLightMatrices, m_Lights->getBufferLightMatrixBindingPoint());
+    m_LightDepthShader->bindUniformBlock(m_LDSUBLightMatrices, m_Lights->getBufferLightMatrixBindingPoint());
 
-    GLfloat aspect = (GLfloat)m_ShadowBufferWidth / (GLfloat)m_ShadowBufferHeight;
     for(int i = 0; i < m_Lights->getNumLights(); ++i)
     {
-        m_DepthShader->setUniformValue(m_DSULightID, i);
-        m_DepthBufferRenders[i]->beginRender();
+        m_LightDepthShader->setUniformValue(m_LDSULightID, i);
+        m_LightDepthBufferRenders[i]->beginRender();
 
-        glCall(glBindVertexArray(m_DSVAO));
+        glCall(glBindVertexArray(m_LDSVAO));
         m_MeshObj->draw();
         glCall(glBindVertexArray(0));
 
-        m_DepthBufferRenders[i]->endRender(defaultFBO);
+        m_LightDepthBufferRenders[i]->endRender(defaultFBO);
     }
 
-    m_DepthShader->release();
+    m_LightDepthShader->release();
     glViewport(0, 0, scrWidth, scrHeight);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MeshRender::initShadowMapRenderData(const glm::vec4& clearColor, bool bLinearDepthBuffer /* = false*/)
+void MeshRender::renderToCameraDepthBuffer(int scrWidth, int scrHeight, GLuint defaultFBO /*= 0*/)
 {
+    assert(m_DepthBufferInitialized);
+    assert(m_MeshObj != nullptr && m_Camera != nullptr && m_UBufferCamData != nullptr);
+    if(m_MeshObj->isEmpty())
+        return;
+
+    m_CameraDepthShader->bind();
+    m_UBufferModelMatrix->bindBufferBase();
+    m_CameraDepthShader->bindUniformBlock(m_CDSUBModelMatrix, m_UBufferModelMatrix->getBindingPoint());
+    m_UBufferCamData->bindBufferBase();
+    m_CameraDepthShader->bindUniformBlock(m_CDSUBCameraData, m_UBufferCamData->getBindingPoint());
+
+    m_CameraDepthBufferRender->beginRender();
+    glCall(glBindVertexArray(m_CDSVAO));
+    m_MeshObj->draw();
+    glCall(glBindVertexArray(0));
+    m_CameraDepthBufferRender->endRender(defaultFBO);
+
+    m_LightDepthShader->release();
+    glViewport(0, 0, scrWidth, scrHeight);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void MeshRender::initDepthBufferData(const glm::vec4& defaultClearColor, bool bLinearDepthBuffer /* = false*/)
+{
+    if(m_MeshObj->isEmpty())
+        return;
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // light depth buffer
     for(int i = 0; i < m_Lights->getNumLights(); ++i)
     {
-        m_DepthBufferRenders.push_back(std::make_unique<DepthBufferRender>(m_ShadowBufferWidth, m_ShadowBufferHeight));
-        m_DepthBufferRenders[i]->setDefaultClearColor(clearColor);
+        m_LightDepthBufferRenders.push_back(std::make_unique<DepthBufferRender>(m_ShadowBufferWidth, m_ShadowBufferHeight));
+        m_LightDepthBufferRenders[i]->setDefaultClearColor(defaultClearColor);
+        m_LightDepthBufferRenders[i]->setClearDepthValue(-1000000.0);
     }
 
-    m_DepthShader = ShaderProgram::getSimpleDepthShader();
+    m_LightDepthShader   = ShaderProgram::getSimpleLightSpaceDepthShader();
+    m_LDSAtrVPosition    = m_LightDepthShader->getAtributeLocation("v_Position");
+    m_LDSUBModelMatrix   = m_LightDepthShader->getUniformBlockIndex("ModelMatrix");
+    m_LDSUBLightMatrices = m_LightDepthShader->getUniformBlockIndex("LightMatrices");
+    m_LDSULightID        = m_LightDepthShader->getUniformLocation("u_LightID");
 
-    m_DSAtrVPosition    = m_DepthShader->getAtributeLocation("v_Position");
-    m_DSUBModelMatrix   = m_DepthShader->getUniformBlockIndex("ModelMatrix");
-    m_DSUBLightMatrices = m_DepthShader->getUniformBlockIndex("LightMatrices");
-    m_DSULightID        = m_DepthShader->getUniformLocation("u_LightID");
-    glCall(glGenVertexArrays(1, &m_DSVAO));
-    glCall(glBindVertexArray(m_DSVAO));
+    glCall(glGenVertexArrays(1, &m_LDSVAO));
+    glCall(glBindVertexArray(m_LDSVAO));
     m_MeshObj->getVertexBuffer()->bind();
-    glCall(glEnableVertexAttribArray(m_DSAtrVPosition));
-    glCall(glVertexAttribPointer(m_DSAtrVPosition, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0));
+    glCall(glEnableVertexAttribArray(m_LDSAtrVPosition));
+    glCall(glVertexAttribPointer(m_LDSAtrVPosition, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0));
     if(m_MeshObj->hasIndexBuffer())
     {
         m_MeshObj->getIndexBuffer()->bind();
     }
     glCall(glBindVertexArray(0));
+    m_MeshObj->getVertexBuffer()->release();
+    if(m_MeshObj->hasIndexBuffer())
+    {
+        m_MeshObj->getIndexBuffer()->release();
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // camera depth buffer
+    m_CameraDepthBufferRender = std::make_unique<DepthBufferRender>(m_ShadowBufferWidth, m_ShadowBufferHeight);
+    m_CameraDepthBufferRender->setDefaultClearColor(defaultClearColor);
+    m_CameraDepthBufferRender->setClearDepthValue(-1000000.0);
+    m_CameraDepthShader = ShaderProgram::getSimpleCameraSpaceDepthShader();
+    m_CDSAtrVPosition   = m_CameraDepthShader->getAtributeLocation("v_Position");
+    m_CDSUBModelMatrix  = m_CameraDepthShader->getUniformBlockIndex("ModelMatrix");
+    m_CDSUBCameraData   = m_CameraDepthShader->getUniformBlockIndex("CameraData");
+    glCall(glGenVertexArrays(1, &m_CDSVAO));
+    glCall(glBindVertexArray(m_CDSVAO));
+    m_MeshObj->getVertexBuffer()->bind();
+    glCall(glEnableVertexAttribArray(m_CDSAtrVPosition));
+    glCall(glVertexAttribPointer(m_CDSAtrVPosition, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0));
+    if(m_MeshObj->hasIndexBuffer())
+    {
+        m_MeshObj->getIndexBuffer()->bind();
+    }
+    glCall(glBindVertexArray(0));
+    m_MeshObj->getVertexBuffer()->release();
+    if(m_MeshObj->hasIndexBuffer())
+    {
+        m_MeshObj->getIndexBuffer()->release();
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////
+    m_DepthBufferInitialized = true;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -993,8 +1063,10 @@ void MeshRender::resizeShadowMap(int width, int height)
 
     for(int i = 0; i < m_Lights->getNumLights(); ++i)
     {
-        m_DepthBufferRenders[i]->resize(width, height);
+        m_LightDepthBufferRenders[i]->resize(width, height);
     }
+
+    m_CameraDepthBufferRender->resize(width, height);
 }
 
 
@@ -1036,19 +1108,25 @@ void MeshRender::setupVAO()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-std::shared_ptr<OpenGLTexture>& MeshRender::getShadowMap(int lightID /*= 0*/)
+std::shared_ptr<OpenGLTexture>& MeshRender::getLightShadowMap(int lightID /*= 0*/)
 {
-    assert(m_DepthBufferRenders.size() > 0);
-    return m_DepthBufferRenders[lightID]->getDepthBuffer();
+    assert(m_LightDepthBufferRenders.size() > 0);
+    return m_LightDepthBufferRenders[lightID]->getDepthBuffer();
 }
 
-std::vector<std::shared_ptr<OpenGLTexture> > MeshRender::getAllShadowMaps()
+std::vector<std::shared_ptr<OpenGLTexture> > MeshRender::getAllLightShadowMaps()
 {
     std::vector<std::shared_ptr<OpenGLTexture> > depthBuffers;
-    for(int i = 0; i < m_DepthBufferRenders.size(); ++i)
-        depthBuffers.push_back(m_DepthBufferRenders[i]->getDepthBuffer());
+    for(int i = 0; i < m_LightDepthBufferRenders.size(); ++i)
+        depthBuffers.push_back(m_LightDepthBufferRenders[i]->getDepthBuffer());
 
     return std::move(depthBuffers);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+std::shared_ptr<OpenGLTexture>& MeshRender::getCameraShadowMap()
+{
+    return m_CameraDepthBufferRender->getDepthBuffer();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -1139,4 +1217,10 @@ void PlaneRender::render()
 {
     if(m_CurrentTexture != nullptr || (m_CurrentTexture == nullptr && m_AllowedNonTexRender))
         MeshRender::render();
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+const std::shared_ptr<ShaderProgram>& RenderObject::getShader() const
+{
+    return m_Shader;
 }
