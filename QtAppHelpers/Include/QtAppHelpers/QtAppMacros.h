@@ -77,7 +77,6 @@ typedef  QOpenGLFunctions_4_5_Core OpenGLFunctions;
     format.setVersion(4, 5); \
     format.setSwapBehavior(QSurfaceFormat::DoubleBuffer); \
     format.setProfile(QSurfaceFormat::CoreProfile); \
-    format.setSamples(4); \
     format.setSwapInterval(vsync ? 1 : 0); \
     QSurfaceFormat::setDefaultFormat(format); \
     QApplication a(argc, argv); \
@@ -99,7 +98,6 @@ typedef  QOpenGLFunctions_4_5_Core OpenGLFunctions;
     format.setVersion(4, 5); \
     format.setSwapBehavior(QSurfaceFormat::DoubleBuffer); \
     format.setProfile(QSurfaceFormat::CoreProfile); \
-    format.setSamples(4); \
     format.setSwapInterval(vsync ? 1 : 0); \
     QSurfaceFormat::setDefaultFormat(format); \
     QApplication a(argc, argv); \
@@ -127,7 +125,6 @@ typedef  QOpenGLFunctions_4_5_Core OpenGLFunctions;
     format.setVersion(4, 1); \
     format.setSwapBehavior(QSurfaceFormat::DoubleBuffer); \
     format.setProfile(QSurfaceFormat::CoreProfile); \
-    format.setSamples(4); \
     format.setSwapInterval(vsync ? 1 : 0); \
     QSurfaceFormat::setDefaultFormat(format); \
     QApplication a(argc, argv); \
@@ -145,7 +142,6 @@ typedef  QOpenGLFunctions_4_5_Core OpenGLFunctions;
     format.setVersion(4, 1); \
     format.setSwapBehavior(QSurfaceFormat::DoubleBuffer); \
     format.setProfile(QSurfaceFormat::CoreProfile); \
-    format.setSamples(4); \
     format.setSwapInterval(vsync ? 1 : 0); \
     QSurfaceFormat::setDefaultFormat(format); \
     QApplication a(argc, argv); \

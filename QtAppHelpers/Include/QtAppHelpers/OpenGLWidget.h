@@ -86,7 +86,7 @@ protected:
     void checkGLVersion();
     void checkGLExtensions(QVector<QString> extensions);
 
-    void exportScreenToImage(int frame);
+    bool exportScreenToImage(int frame);
 
     ////////////////////////////////////////////////////////////////////////////////
     bool                          m_bPrintDebug;
@@ -95,12 +95,12 @@ protected:
     glm::vec4                     m_ClearColor;
     SpecialKey                    m_SpecialKeyPressed;
     MouseButton                   m_MouseButtonPressed;
-    QString                       m_CapturePath;
+    QString                       m_CapturePath = QString("");
 
     std::unique_ptr<QTimer>       m_UpdateTimer    = nullptr;
     std::unique_ptr<QImage>       m_CaptureImage   = nullptr;
     std::shared_ptr<OpenGLBuffer> m_UBufferCamData = nullptr;
-    std::shared_ptr<Camera>       m_Camera         = std::make_shared<Camera> ();
+    std::shared_ptr<Camera>       m_Camera         = std::make_shared<Camera>();
 
 signals:
     void emitDebugString(QString str);
@@ -114,4 +114,6 @@ public slots:
             qDebug() << str;
         }
     }
+
+    void setCapturePath(QString path);
 };

@@ -74,10 +74,21 @@ void OpenGLWidget::setViewFrustum(float fov, float nearZ, float farZ)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void OpenGLWidget::exportScreenToImage(int frame)
+bool OpenGLWidget::exportScreenToImage(int frame)
 {
-    glCall(glReadPixels(0, 0, width(), height(), GL_RGBA, GL_UNSIGNED_BYTE, m_CaptureImage->bits()));
-    m_CaptureImage->mirrored().save(QString(m_CapturePath + "/frame.%1.png").arg(frame));
+    if(m_CapturePath.isEmpty())
+        return false;
+
+    glCall(glReadPixels(0, 0, width(), height(), GL_RGB, GL_UNSIGNED_BYTE, m_CaptureImage->bits()));
+    m_CaptureImage->mirrored().save(QString(m_CapturePath + "/frame.%1.jpg").arg(frame, 4, 10, QChar('0')));
+
+    return true;
+} 
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void OpenGLWidget::setCapturePath(QString path)
+{
+    m_CapturePath = path;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -245,7 +256,7 @@ void OpenGLWidget::initializeGL()
     resetClearColor();
 
     ////////////////////////////////////////////////////////////////////////////////
-    m_CaptureImage = std::make_unique<QImage>(width(), height(), QImage::Format_RGBA8888);
+    m_CaptureImage = std::make_unique<QImage>(width(), height(), QImage::Format_RGB888);
 
     ////////////////////////////////////////////////////////////////////////////////
     // view matrix, prj matrix, inverse view matrix, inverse proj matrix, shadow matrix, cam position
@@ -267,7 +278,7 @@ void OpenGLWidget::resizeGL(int w, int h)
     m_Camera->resizeWindow((float)w, (float)h);
     resizeAntTweakBarWindow(w, h);
 
-    m_CaptureImage.reset(new QImage(w, h, QImage::Format_RGBA8888));
+    m_CaptureImage.reset(new QImage(w, h, QImage::Format_RGB888));
 
     ////////////////////////////////////////////////////////////////////////////////
     // call init function from derived class
