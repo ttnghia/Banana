@@ -5,12 +5,6 @@ macx {
 
 #CONFIG += warn_off
 CONFIG += c++14
-macx {
-    INCLUDEPATH +=
-    QMAKE_CXXFLAGS_WARN_ON += -Wno-reorder
-    CONFIG(release, debug|release): QMAKE_CXXFLAGS += -O3 -s -DNDEBUG
-    CONFIG(debug, debug|release):QMAKE_CXXFLAGS += -O0 -g
-}
 
 win32 {
     CONFIG(debug, debug|release) {
@@ -21,6 +15,20 @@ win32 {
         message("QtAppHelpers -- Release")
         QMAKE_CXXFLAGS += /O2 /Ob2 /GL /Qpar /wd"4305"
         LIBS += $$PWD/../Build/ReleaseQt/QtAppHelpers.lib
+    }
+}
+
+macx {
+    QMAKE_CXXFLAGS_WARN_ON += -Wno-reorder
+
+    CONFIG(debug, debug|release) {
+        message("QtAppHelpers -- Debug")
+        QMAKE_CXXFLAGS += -O0 -g
+        LIBS += $$PWD/../Build/Debug/libQtAppHelpers.a
+    }else {
+        message("QtAppHelpers -- Release")
+        QMAKE_CXXFLAGS += -O3
+        LIBS += $$PWD/../Build/Release/libQtAppHelpers.a
     }
 }
 

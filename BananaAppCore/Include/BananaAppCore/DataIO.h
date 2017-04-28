@@ -1,4 +1,4 @@
-﻿//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //
 //  Copyright (c) 2017 by
@@ -129,12 +129,12 @@ public:
     template<class T>
     void push_back(T value)
     {
-        size_t dataSize = sizeof(T);
+        size_t dataSize  = sizeof(T);
         size_t endOffset = m_Buffer.size();
         resize(endOffset + dataSize);
 
         T Tdata = value;
-        memcpy((void*) &(m_Buffer.data()[endOffset]), (void*)&Tdata, dataSize);
+        memcpy((void*)&(m_Buffer.data()[endOffset]), (void*)&Tdata, dataSize);
     }
 
     template<class T>
@@ -147,11 +147,11 @@ public:
             push_back(numElements);
         }
 
-        size_t dataSize = vData.size() * sizeof(T);
+        size_t dataSize  = vData.size() * sizeof(T);
         size_t endOffset = m_Buffer.size();
         resize(endOffset + dataSize);
 
-        memcpy((void*) &(m_Buffer.data()[endOffset]), (void*)vData.data(), dataSize);
+        memcpy((void*)&(m_Buffer.data()[endOffset]), (void*)vData.data(), dataSize);
     }
 
     template<class T>
@@ -163,15 +163,15 @@ public:
             push_back(numElements);
         }
 
-        size_t dataSize = vData.size() * sizeof(T) * 2;
+        size_t dataSize  = vData.size() * sizeof(T) * 2;
         size_t endOffset = m_Buffer.size();
         resize(endOffset + dataSize);
 
-        T* buff_ptr = (T*) &(m_Buffer.data()[endOffset]);
+        T* buff_ptr = (T*)&(m_Buffer.data()[endOffset]);
 
         for(size_t i = 0; i < vData.size(); ++i)
         {
-            const Vec2<T>& vec  = vData[i];
+            const Vec2<T>& vec = vData[i];
             buff_ptr[i * 2]     = vec[0];
             buff_ptr[i * 2 + 1] = vec[1];
         }
@@ -186,15 +186,15 @@ public:
             push_back(numElements);
         }
 
-        size_t dataSize = vData.size() * sizeof(T) * 3;
+        size_t dataSize  = vData.size() * sizeof(T) * 3;
         size_t endOffset = m_Buffer.size();
         resize(endOffset + dataSize);
 
-        T* buff_ptr = (T*) &(m_Buffer.data()[endOffset]);
+        T* buff_ptr = (T*)&(m_Buffer.data()[endOffset]);
 
         for(size_t i = 0; i < vData.size(); ++i)
         {
-            const Vec3<T>& vec  = vData[i];
+            const Vec3<T>& vec = vData[i];
             buff_ptr[i * 3]     = vec[0];
             buff_ptr[i * 3 + 1] = vec[1];
             buff_ptr[i * 3 + 2] = vec[2];
@@ -217,13 +217,12 @@ public:
     template<class T>
     void push_back_to_float(T value)
     {
-        size_t dataSize = sizeof(float);
+        size_t dataSize  = sizeof(float);
         size_t endOffset = m_Buffer.size();
         resize(endOffset + dataSize);
 
         float fldata = static_cast<float>(value);
-        memcpy((void*) &(m_Buffer.data()[endOffset]), (void*)&fldata, dataSize);
-
+        memcpy((void*)&(m_Buffer.data()[endOffset]), (void*)&fldata, dataSize);
     }
 
     template<class T>
@@ -235,21 +234,20 @@ public:
             push_back(numElements);
         }
 
-        size_t dataSize = vData.size() * sizeof(float);
+        size_t dataSize  = vData.size() * sizeof(float);
         size_t endOffset = m_Buffer.size();
         resize(endOffset + dataSize);
 
-        float* buff_ptr = (float*) &(m_Buffer.data()[endOffset]);
+        float* buff_ptr = (float*)&(m_Buffer.data()[endOffset]);
 
         for(size_t i = 0; i < vData.size(); ++i)
         {
             buff_ptr[i] = static_cast<float>(vData[i]);
         }
-
     }
 
     template<class T>
-    void push_back_to_float_array(const Vec_Vec2<T> & vData, bool bWriteVectorSize = true)
+    void push_back_to_float_array(const Vec_Vec2<T>& vData, bool bWriteVectorSize = true)
     {
         if(bWriteVectorSize)
         {
@@ -257,22 +255,22 @@ public:
             push_back(numElements);
         }
 
-        size_t dataSize = vData.size() * sizeof(float) * 2;
+        size_t dataSize  = vData.size() * sizeof(float) * 2;
         size_t endOffset = m_Buffer.size();
         resize(endOffset + dataSize);
 
-        float* buff_ptr = (float*) &(m_Buffer.data()[endOffset]);
+        float* buff_ptr = (float*)&(m_Buffer.data()[endOffset]);
 
         for(size_t i = 0; i < vData.size(); ++i)
         {
-            const Vec2<T>& vec  = vData[i];
+            const Vec2<T>& vec = vData[i];
             buff_ptr[i * 2]     = static_cast<float>(vec[0]);
             buff_ptr[i * 2 + 1] = static_cast<float>(vec[1]);
         }
     }
 
     template<class T>
-    void push_back_to_float_array(const Vec_Vec3<T> & vData, bool bWriteVectorSize = true)
+    void push_back_to_float_array(const Vec_Vec3<T>& vData, bool bWriteVectorSize = true)
     {
         if(bWriteVectorSize)
         {
@@ -280,15 +278,15 @@ public:
             push_back(numElements);
         }
 
-        size_t dataSize = vData.size() * sizeof(float) * 3;
+        size_t dataSize  = vData.size() * sizeof(float) * 3;
         size_t endOffset = m_Buffer.size();
         resize(endOffset + dataSize);
 
-        float* buff_ptr = (float*) & (m_Buffer.data()[endOffset]);
+        float* buff_ptr = (float*)&(m_Buffer.data()[endOffset]);
 
         for(size_t i = 0; i < vData.size(); ++i)
         {
-            const Vec3<T>& vec  = vData[i];
+            const Vec3<T>& vec = vData[i];
             buff_ptr[i * 3]     = static_cast<float>(vec[0]);
             buff_ptr[i * 3 + 1] = static_cast<float>(vec[1]);
             buff_ptr[i * 3 + 2] = static_cast<float>(vec[2]);
@@ -298,12 +296,12 @@ public:
     template<class T>
     void push_back_to_double(T value)
     {
-        size_t dataSize = sizeof(double);
+        size_t dataSize  = sizeof(double);
         size_t endOffset = m_Buffer.size();
         resize(endOffset + dataSize);
 
         double dbdata = static_cast<double>(value);
-        memcpy((void*) &(m_Buffer.data()[endOffset]), (void*)&dbdata, dataSize);
+        memcpy((void*)&(m_Buffer.data()[endOffset]), (void*)&dbdata, dataSize);
     }
 
     template<class T>
@@ -315,11 +313,11 @@ public:
             push_back(numElements);
         }
 
-        size_t dataSize = vData.size() * sizeof(double);
+        size_t dataSize  = vData.size() * sizeof(double);
         size_t endOffset = m_Buffer.size();
         resize(endOffset + dataSize);
 
-        double* buff_ptr = (double*) & (m_Buffer.data()[endOffset]);
+        double* buff_ptr = (double*)&(m_Buffer.data()[endOffset]);
 
         for(size_t i = 0; i < vData.size(); ++i)
         {
@@ -336,15 +334,15 @@ public:
             push_back(numElements);
         }
 
-        size_t dataSize = vData.size() * sizeof(double) * 2;
+        size_t dataSize  = vData.size() * sizeof(double) * 2;
         size_t endOffset = m_Buffer.size();
         resize(endOffset + dataSize);
 
-        double* buff_ptr = (double*) &(m_Buffer.data()[endOffset]);
+        double* buff_ptr = (double*)&(m_Buffer.data()[endOffset]);
 
         for(size_t i = 0; i < vData.size(); ++i)
         {
-            const Vec2<T>& vec  = vData[i];
+            const Vec2<T>& vec = vData[i];
             buff_ptr[i * 2]     = static_cast<double>(vec[0]);
             buff_ptr[i * 2 + 1] = static_cast<double>(vec[1]);
         }
@@ -359,15 +357,15 @@ public:
             push_back(numElements);
         }
 
-        size_t dataSize = vData.size() * sizeof(double) * 3;
+        size_t dataSize  = vData.size() * sizeof(double) * 3;
         size_t endOffset = m_Buffer.size();
         resize(endOffset + dataSize);
 
-        double* buff_ptr = (double*) &(m_Buffer.data()[endOffset]);
+        double* buff_ptr = (double*)&(m_Buffer.data()[endOffset]);
 
         for(size_t i = 0; i < vData.size(); ++i)
         {
-            const Vec3<T>& vec  = vData[i];
+            const Vec3<T>& vec = vData[i];
             buff_ptr[i * 3]     = static_cast<double>(vec[0]);
             buff_ptr[i * 3 + 1] = static_cast<double>(vec[1]);
             buff_ptr[i * 3 + 2] = static_cast<double>(vec[2]);
@@ -508,7 +506,7 @@ public:
             assert(segmentStart + segmentSize <= m_Buffer.size());
 
             memcpy((void*)(&value), &(m_Buffer.data()[segmentStart]), segmentSize);
-            vData[i] = static_cast<float>(value);
+            vData[i]      = static_cast<float>(value);
             segmentStart += segmentSize;
         }
 
@@ -541,7 +539,7 @@ public:
             assert(segmentStart + segmentSize <= m_Buffer.size());
 
             memcpy((void*)values, &(m_Buffer.data()[segmentStart]), segmentSize);
-            vData[i] = Vec2<float>(static_cast<float>(values[0]), static_cast<float>(values[1]));
+            vData[i]      = Vec2<float>(static_cast<float>(values[0]), static_cast<float>(values[1]));
             segmentStart += segmentSize;
         }
 
@@ -574,7 +572,7 @@ public:
             assert(segmentStart + segmentSize <= m_Buffer.size());
 
             memcpy((void*)values, &(m_Buffer.data()[segmentStart]), segmentSize);
-            vData[i] = Vec3<float>(static_cast<float>(values[0]), static_cast<float>(values[1]), static_cast<float>(values[2]));
+            vData[i]      = Vec3<float>(static_cast<float>(values[0]), static_cast<float>(values[1]), static_cast<float>(values[2]));
             segmentStart += segmentSize;
         }
 
@@ -607,7 +605,7 @@ public:
             assert(segmentStart + segmentSize <= m_Buffer.size());
 
             memcpy((void*)(&value), &(m_Buffer.data()[segmentStart]), segmentSize);
-            vData[i] = static_cast<double>(value);
+            vData[i]      = static_cast<double>(value);
             segmentStart += segmentSize;
         }
 
@@ -640,7 +638,7 @@ public:
             assert(segmentStart + segmentSize <= m_Buffer.size());
 
             memcpy((void*)values, &(m_Buffer.data()[segmentStart]), segmentSize);
-            vData[i] = Vec2<double>(static_cast<double>(values[0]), static_cast<double>(values[1]));
+            vData[i]      = Vec2<double>(static_cast<double>(values[0]), static_cast<double>(values[1]));
             segmentStart += segmentSize;
         }
 
@@ -673,7 +671,7 @@ public:
             assert(segmentStart + segmentSize <= m_Buffer.size());
 
             memcpy((void*)values, &(m_Buffer.data()[segmentStart]), segmentSize);
-            vData[i] = Vec3<double>(static_cast<double>(values[0]), static_cast<double>(values[1]), static_cast<double>(values[2]));
+            vData[i]      = Vec3<double>(static_cast<double>(values[0]), static_cast<double>(values[1]), static_cast<double>(values[2]));
             segmentStart += segmentSize;
         }
 
@@ -685,7 +683,7 @@ public:
     size_t get_data(std::vector<std::vector<T> >& vData, size_t startOffset = 0)
     {
         size_t segmentStart = startOffset;
-        size_t segmentSize = (size_t)sizeof(UInt32);
+        size_t segmentSize  = (size_t)sizeof(UInt32);
         assert(segmentStart + segmentSize <= m_Buffer.size());
 
         UInt32 numElements;
@@ -711,7 +709,7 @@ public:
     }
 
 private:
-    size_t                     m_BufferSize;
+    size_t m_BufferSize;
     std::vector<unsigned char> m_Buffer;
 };
 
@@ -732,7 +730,7 @@ public:
     }
 
     template<class T>
-    unsigned char* to_float_array(const std::vector<T>& vData)
+    const unsigned char* to_float_array(const std::vector<T>& vData)
     {
         dataBuffer.set_to_float_array(vData);
 
@@ -740,7 +738,7 @@ public:
     }
 
     template<class T>
-    unsigned char* to_float_array(const Vec_Vec2<T>& vData)
+    const unsigned char* to_float_array(const Vec_Vec2<T>& vData)
     {
         dataBuffer.set_to_float_array(vData);
 
@@ -748,7 +746,7 @@ public:
     }
 
     template<class T>
-    unsigned char* to_float_array(const Vec_Vec3<T>& vData)
+    const unsigned char* to_float_array(const Vec_Vec3<T>& vData)
     {
         dataBuffer.set_to_float_array(vData);
 
@@ -756,7 +754,7 @@ public:
     }
 
     template<class T>
-    unsigned char* to_double_array(const std::vector<T>& vData)
+    const unsigned char* to_double_array(const std::vector<T>& vData)
     {
         dataBuffer.set_to_double_array(vData);
 
@@ -764,7 +762,7 @@ public:
     }
 
     template<class T>
-    unsigned char* to_double_array(const Vec_Vec2<T>& vData)
+    const unsigned char* to_double_array(const Vec_Vec2<T>& vData)
     {
         dataBuffer.set_to_double_array(vData);
 
@@ -772,7 +770,7 @@ public:
     }
 
     template<class T>
-    unsigned char* to_double_array(const Vec_Vec3<T>& vData)
+    const unsigned char* to_double_array(const Vec_Vec3<T>& vData)
     {
         dataBuffer.set_to_double_array(vData);
 
@@ -808,12 +806,12 @@ public:
            std::string fileName, std::string fileExtension);
     virtual ~DataIO();
 
-    int find_latest_file_index(int maxIndex);
-    bool existed_file_index(int fileID);
-    void reset_buffer();
-    void flush_buffer(int fileID);
-    void flush_buffer_async(int fileID);
-    bool load_file_index(int fileID);
+    int         find_latest_file_index(int maxIndex);
+    bool        existed_file_index(int fileID);
+    void        reset_buffer();
+    void        flush_buffer(int fileID);
+    void        flush_buffer_async(int fileID);
+    bool        load_file_index(int fileID);
     std::string get_file_name(int fileID);
 
     DataBuffer& getBuffer();
@@ -826,11 +824,11 @@ private:
     void create_output_folders();
 
     ////////////////////////////////////////////////////////////////////////////////
-    bool               m_isOutputFolderCreated;
-    std::string        m_DataRootFolder;
-    std::string        m_DataFolder;
-    std::string        m_FileName;
-    std::string        m_FileExtension;
-    DataBuffer         m_FileBuffer;
-    std::future<void>  m_WriteFutureObj;
+    bool m_isOutputFolderCreated;
+    std::string m_DataRootFolder;
+    std::string m_DataFolder;
+    std::string m_FileName;
+    std::string m_FileExtension;
+    DataBuffer m_FileBuffer;
+    std::future<void> m_WriteFutureObj;
 };

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="DebugQt|x64">
@@ -247,7 +247,7 @@
   <ItemGroup>
     <ClCompile Include="..\Externals\tinyobjloader\tiny_obj_loader.cc" />
     <ClCompile Include="..\Externals\tinyply\source\tinyply.cpp" />
-    <ClCompile Include="Include\OpenGLHelpers\RenderObjects.cpp" />
+    <ClCompile Include="Source\RenderObjects.cpp" />
     <ClCompile Include="Source\Camera.cpp" />
     <ClCompile Include="Source\Lights.cpp" />
     <ClCompile Include="Source\Material.cpp" />

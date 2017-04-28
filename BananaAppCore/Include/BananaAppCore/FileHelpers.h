@@ -26,9 +26,9 @@
 #include <fstream>
 #include <vector>
 #include <future>
-#include <filesystem>
 
 #ifdef __Banana_Windows__
+#include <filesystem>
 #include <windows.h>
 #endif
 
@@ -54,12 +54,13 @@ inline void create_folder(std::string folderName)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 inline bool file_existed(const char* fileName)
 {
-    FILE* file;
+    FILE* file = nullptr;
 #ifdef __Banana_Windows__
-    if(!fopen_s(&file, fileName, "r"))
+    fopen_s(&file, fileName, "r");
 #else
-    if(FILE* file = fopen(fileName, "r"))
+    file = fopen(fileName, "r");
 #endif
+    if(file != nullptr)
     {
         fclose(file);
         return true;
@@ -115,8 +116,7 @@ inline std::string get_folder_size(const char* folderName, int level = 0)
         sprintf(command, "du -h -d%d %s", level, folderName);
     }
 
-    FILE* stream = _popen(command, "r");
-    FILE* stream = popen(command, "r");
+    FILE*       stream = popen(command, "r");
 
     std::string output;
 
@@ -171,7 +171,7 @@ inline std::string get_file_name(std::string topFolder, const char* dataSubFolde
 {
     char buff[512];
     print(buff, "%s/%s/%s.%04d.%s", topFolder.c_str(), dataSubFolder, fileName, fileID,
-          fileExtension);
+        fileExtension);
 
     return std::string(buff);
 }
@@ -229,13 +229,13 @@ inline void write_file(const unsigned char* dataBuffer, size_t dataSize, std::st
 inline std::future<void> write_file_async(const unsigned char* dataBuffer, size_t dataSize, const char* fileName)
 {
     std::future<void> futureObj = std::async(std::launch::async, [&]()
-    {
-        std::ofstream file(fileName, std::ios::binary | std::ios::out);
-        __BNN_AssertMsg(file.is_open(), "Could not open file for writing.");
+        {
+            std::ofstream file(fileName, std::ios::binary | std::ios::out);
+            __BNN_AssertMsg(file.is_open(), "Could not open file for writing.");
 
-        file.write((char*)dataBuffer, dataSize);
-        file.close();
-    });
+            file.write((char*)dataBuffer, dataSize);
+            file.close();
+        });
 
     return futureObj;
 }
@@ -304,9 +304,9 @@ inline bool read_file(unsigned char* dataBuffer, size_t bufferSize, const char* 
     return true;
 }
 
-inline bool read_file(unsigned char* dataBuffer, std::string fileName)
+inline bool read_file(unsigned char* dataBuffer, size_t bufferSize, std::string fileName)
 {
-    return read_file(dataBuffer, fileName.c_str());
+    return read_file(dataBuffer, bufferSize, fileName.c_str());
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

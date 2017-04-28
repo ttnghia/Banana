@@ -27,23 +27,23 @@ class ClipPlaneEditor : public QWidget
     Q_OBJECT
 
 public:
-    ClipPlaneEditor(QWidget *parent = nullptr);
-    ~ClipPlaneEditor();
+    ClipPlaneEditor(QWidget* parent = nullptr);
+    ~ClipPlaneEditor() = default;
 
 public:
     QSize sizeHint() const;
-    void keyPressEvent(QKeyEvent* e);
+    void  keyPressEvent(QKeyEvent* e);
 
 signals:
     void clipPlaneChanged(const glm::vec4& clipPlane);
 
-    public slots:
+public slots:
     void setClipPlane(const glm::vec4&);
 
 private:
     void setupGUI();
 
-    glm::vec4    m_ClipPlane;
-    QSlider*     m_sldCoeffs[4];
-    QLabel*      m_lblPlanes[4];
+    glm::vec4 m_ClipPlane;
+    QSlider*  m_sldCoeffs[4];
+    QLabel*   m_lblPlanes[4];
 };

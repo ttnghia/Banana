@@ -53,9 +53,9 @@ protected:
     virtual void render()         = 0;
 
 
-    GLuint                         m_UBModelMatrix;
-    GLuint                         m_UBCamData;
-    GLuint                         m_VAO;
+    GLuint m_UBModelMatrix;
+    GLuint m_UBCamData;
+    GLuint m_VAO;
 
     bool                           m_SelfUpdateCamera;
     std::shared_ptr<Camera>        m_Camera;
@@ -262,7 +262,6 @@ private:
 
     float                          m_ValueScale;
     int                            m_TexelSizeValue;
-    GLuint                         m_AtrVPosition;
     GLuint                         m_UTexelSize;
     GLuint                         m_UValueScale;
     GLuint                         m_UTexSampler;
@@ -319,42 +318,42 @@ public:
 
     virtual void render() override;
 
-    virtual void initDepthBufferData(const glm::vec4& defaultClearColor, bool bLinearDepthBuffer = false);
+    virtual void initDepthBufferData(const glm::vec4& defaultClearColor);
     virtual void renderToLightDepthBuffer(int scrWidth, int scrHeight, GLuint defaultFBO = 0);
     virtual void renderToCameraDepthBuffer(int scrWidth, int scrHeight, GLuint defaultFBO = 0);
 
 protected:
     virtual void initRenderData() override;
 
-    GLuint                                           m_AtrVPosition;
-    GLuint                                           m_AtrVNormal;
-    GLuint                                           m_AtrVTexCoord;
-    GLuint                                           m_UBLight;
-    GLuint                                           m_UBLightMatrices;
-    GLuint                                           m_LDSULightID;
-    GLuint                                           m_UBMaterial;
-    GLuint                                           m_UHasTexture;
-    GLuint                                           m_UHasShadow;
-    GLuint                                           m_UTexSampler;
-    GLuint                                           m_UShadowMap[MAX_NUM_LIGHTS];
-    std::shared_ptr<MeshObject>                      m_MeshObj;
-    std::shared_ptr<PointLights>                     m_Lights;
-    std::shared_ptr<Material>                        m_Material;
-    std::vector<std::shared_ptr<OpenGLTexture> >     m_Textures;
-    std::shared_ptr<OpenGLTexture>                   m_CurrentTexture;
-    std::vector<std::shared_ptr<OpenGLTexture> >     m_ExternalShadowMaps;
+    GLuint                                       m_AtrVPosition;
+    GLuint                                       m_AtrVNormal;
+    GLuint                                       m_AtrVTexCoord;
+    GLuint                                       m_UBLight;
+    GLuint                                       m_UBLightMatrices;
+    GLuint                                       m_LDSULightID;
+    GLuint                                       m_UBMaterial;
+    GLuint                                       m_UHasTexture;
+    GLuint                                       m_UHasShadow;
+    GLuint                                       m_UTexSampler;
+    GLuint                                       m_UShadowMap[MAX_NUM_LIGHTS];
+    std::shared_ptr<MeshObject>                  m_MeshObj;
+    std::shared_ptr<PointLights>                 m_Lights;
+    std::shared_ptr<Material>                    m_Material;
+    std::vector<std::shared_ptr<OpenGLTexture> > m_Textures;
+    std::shared_ptr<OpenGLTexture>               m_CurrentTexture;
+    std::vector<std::shared_ptr<OpenGLTexture> > m_ExternalShadowMaps;
 
-    bool                                             m_DepthBufferInitialized = false;
-    GLint                                            m_ShadowBufferWidth;
-    GLint                                            m_ShadowBufferHeight;
-    GLuint                                           m_LDSAtrVPosition;
-    GLuint                                           m_LDSUBLightMatrices;
-    GLuint                                           m_LDSUBModelMatrix;
-    GLuint                                           m_LDSVAO;
-    GLuint                                           m_CDSAtrVPosition;
-    GLuint                                           m_CDSUBModelMatrix;
-    GLuint                                           m_CDSUBCameraData;
-    GLuint                                           m_CDSVAO;
+    bool   m_DepthBufferInitialized = false;
+    GLint  m_ShadowBufferWidth;
+    GLint  m_ShadowBufferHeight;
+    GLuint m_LDSAtrVPosition;
+    GLuint m_LDSUBLightMatrices;
+    GLuint m_LDSUBModelMatrix;
+    GLuint m_LDSVAO;
+    GLuint m_CDSAtrVPosition;
+    GLuint m_CDSUBModelMatrix;
+    GLuint m_CDSUBCameraData;
+    GLuint m_CDSVAO;
 
     std::shared_ptr<ShaderProgram>                   m_LightDepthShader;
     std::shared_ptr<ShaderProgram>                   m_CameraDepthShader;

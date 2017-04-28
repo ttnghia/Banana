@@ -17,7 +17,9 @@ include (../../../OpenGLHelpers/OpenGLHelpers.pri)
 
 SOURCES +=\
     Main.cpp \
-    MainWindow.cpp
+    MainWindow.cpp \
+    ../../../Externals/tinyobjloader/tiny_obj_loader.cc \
+    ../../../Externals/tinyply/source/tinyply.cpp
 
 HEADERS += \
     MainWindow.h

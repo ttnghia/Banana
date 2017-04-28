@@ -242,7 +242,7 @@ void OpenGLWidgetTestRender::initTestRenderMeshWithShadow(QString meshFile, QStr
     m_MeshRender->initDepthBufferData(m_ClearColor);
     //m_MeshRender->resizeShadowMap(512, 512);
     m_FloorRender->setExternalShadowMaps(m_MeshRender->getAllLightShadowMaps());
-    m_FloorRender->transform(glm::vec3(0,0, 0), glm::vec3(10));
+    m_FloorRender->transform(glm::vec3(0, 0, 0), glm::vec3(10));
     m_FloorRender->scaleTexCoord(10, 10);
 
     m_ScreenQuadTexRender = std::make_unique<ScreenQuadTextureRender>();
@@ -259,7 +259,11 @@ void OpenGLWidgetTestRender::initOpenGL()
             initTestRenderTriangle();
             break;
         case TestCase::Texture:
+#ifdef _WIN32
             initTestRenderTexture(QString("D:/Programming/QtApps/RealTimeFluidRendering/Textures/Floor/blue_marble.png"));
+#else
+            initTestRenderTexture(QString("D:/Programming/QtApps/RealTimeFluidRendering/Textures/Floor/blue_marble.png"));
+#endif
             break;
         case TestCase::Floor:
             initTestRenderFloor(QString("D:/Programming/QtApps/RealTimeFluidRendering/Textures/Floor/blue_marble.png"));
@@ -268,10 +272,19 @@ void OpenGLWidgetTestRender::initOpenGL()
             initTestRenderSkybox(QString("D:/Programming/QtApps/RealTimeFluidRendering/Textures/Sky/"));
             break;
         case TestCase::TriMesh:
+#ifdef _WIN32
             initTestRenderMesh(QString("D:/GoogleDrive/DigitalAssets/Models/AirCraft/A-10_Thunderbolt_II/A-10_Thunderbolt_II.obj"));
+#else
+            initTestRenderMesh(QString("/Volumes/Working/GoogleDrive/DigitalAssets/Models/AirCraft/A-10_Thunderbolt_II/A-10_Thunderbolt_II.obj"));
+#endif
         case TestCase::TriMeshShadow:
+#ifdef _WIN32
             initTestRenderMeshWithShadow(QString("D:/GoogleDrive/DigitalAssets/Models/AirCraft/A-10_Thunderbolt_II/A-10_Thunderbolt_II.obj"),
             QString("D:/Programming/QtApps/RealTimeFluidRendering/Textures/Floor/blue_marble.png"));
+#else
+            initTestRenderMeshWithShadow(QString("/Volumes/Working/GoogleDrive/DigitalAssets/Models/AirCraft/A-10_Thunderbolt_II/A-10_Thunderbolt_II.obj"),
+            QString("/Volumes/Working/Programming/QtApps/RealTimeFluidRendering/Textures/Floor/blue_marble.png"));
+#endif
             break;
     }
 }
