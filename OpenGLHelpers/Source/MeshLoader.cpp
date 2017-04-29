@@ -63,12 +63,12 @@ bool MeshLoader::loadMesh(std::string mesh_file)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MeshLoader::setDefaultCamera(Camera & camera, float fov)
+void MeshLoader::setDefaultCamera(Camera& camera, float fov)
 {
     glm::vec3 currentDir = camera.getCameraDirection();
     camera.setDefaultCamera(currentDir * getCameraDistance(fov * 0.75) +
-                            getMeshCenter(),
-                            getMeshCenter(), glm::vec3(0, 1, 0));
+        getMeshCenter(),
+        getMeshCenter(), glm::vec3(0, 1, 0));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -166,7 +166,7 @@ bool MeshLoader::load_obj(std::string mesh_file)
 
 
     bool result = tinyobj::LoadObj(&attrib, &obj_shapes, &obj_materials,
-                                   &m_LoadingErrorStr, mesh_file.c_str(), NULL);
+        &m_LoadingErrorStr, mesh_file.c_str(), NULL);
 
     if(!m_LoadingErrorStr.empty())
     {
@@ -304,11 +304,11 @@ bool MeshLoader::load_ply(std::string mesh_file)
         std::vector<float>    uvCoords;
         //        std::vector<uint8_t> faceColors;
 
-        uint32_t vertexCount = 0;
-        uint32_t normalCount = 0;
-            uint32_t colorCount = 0;
-            uint32_t faceCount = 0;
-            uint32_t faceTexcoordCount = 0;
+        size_t vertexCount       = 0;
+        size_t normalCount       = 0;
+        size_t colorCount        = 0;
+        size_t faceCount         = 0;
+        size_t faceTexcoordCount = 0;
 
         // The count returns the number of instances of the property group. The vectors
         // above will be resized into a multiple of the property group size as
@@ -316,7 +316,7 @@ bool MeshLoader::load_ply(std::string mesh_file)
         vertexCount = file.request_properties_from_element("vertex", { "x", "y", "z" }, verts);
         normalCount = file.request_properties_from_element("vertex", { "nx", "ny", "nz" }, norms);
         colorCount  = file.request_properties_from_element("vertex", { "red", "green", "blue", "alpha" },
-                                                           colors);
+            colors);
 
         // For properties that are list types, it is possibly to specify the expected count (ideal if a
         // consumer of this library knows the layout of their format a-priori). Otherwise, tinyply
@@ -324,7 +324,7 @@ bool MeshLoader::load_ply(std::string mesh_file)
         // as implemented in file.read(ss)
         faceCount         = file.request_properties_from_element("face", { "vertex_indices" }, faces, 3);
         faceTexcoordCount = file.request_properties_from_element("face", { "texcoord" }, uvCoords,
-                                                                 6);
+            6);
         //        faceColorCount = file.request_properties_from_element("face", {"red", "green", "blue", "alpha"}, faceColors);
 
         // Now populate the vectors...

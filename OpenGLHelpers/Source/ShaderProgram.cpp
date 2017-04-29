@@ -793,7 +793,7 @@ std::shared_ptr<ShaderProgram> ShaderProgram::ShaderProgram::getPhongShader(std:
         "    if(u_HasShadow == 1)\n"
         "    {\n"
         "        vec3 projCoords = f_FragPosLightSpace[lightID].xyz / f_FragPosLightSpace[lightID].w;\n"
-        "        projCoords = projCoords * 0.5 + 0.5; // Transform to [0,1] range\n"
+        "        projCoords = clamp(projCoords * 0.5 + 0.5, 0, 1); // Transform to [0,1] range\n"
         "        vec2 texelSize = 1.0 / textureSize(u_ShadowMap[lightID], 0);\n"
         "        for(int x = -1; x <= 1; ++x)\n"
         "        {\n"

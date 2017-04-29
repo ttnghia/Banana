@@ -3,6 +3,8 @@ INCLUDEPATH += $$PWD/../Externals/glew-2.0.0/include
 INCLUDEPATH += $$PWD/../Externals/tinyply/source
 INCLUDEPATH += $$PWD/../Externals/tinyobjloader
 
+CONFIG += c++14
+
 win32 {
     CONFIG(debug, debug|release) {
         message("OpenGLHelpers -- Debug")
@@ -11,7 +13,7 @@ win32 {
         message("OpenGLHelpers -- Release")
         LIBS += $$PWD/../Build/ReleaseQt/OpenGLHelpers.lib
     }
-    LIBS += -lglew32 -L$$PWD/../Externals/glew-2.0.0/lib/Release/x64
+#    LIBS += -lglew32 -L$$PWD/../Externals/glew-2.0.0/lib/Release/x64
 }
 
 

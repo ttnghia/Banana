@@ -33,12 +33,12 @@ void OpenGLWidgetTestRender::initTestRenderTriangle()
     ////////////////////////////////////////////////////////////////////////////////
     // setup triangle
     GLfloat triangle[] = {
-        0.0,   0.8, 0.0, /* position */
-        1.0,   1.0, 0.0, /* color */
-        -0.8, -0.8, 0.0, /* position */
-        0.0,   0.0, 1.0, /* color */
-        0.8,  -0.8, 0.0, /* position */
-        1.0,   0.0, 0.0  /* color */
+        0.0f,   0.8f, 0.0f, /* position */
+        1.0f,   1.0f, 0.0f, /* color */
+        -0.8f, -0.8f, 0.0f, /* position */
+        0.0f,   0.0f, 1.0f, /* color */
+        0.8f,  -0.8f, 0.0f, /* position */
+        1.0f,   0.0f, 0.0f  /* color */
     };
 
     m_VertexBuffer = std::make_unique<OpenGLBuffer>();
@@ -67,12 +67,12 @@ void OpenGLWidgetTestRender::initTestRenderTexture(QString texFile)
     ////////////////////////////////////////////////////////////////////////////////
     // setup square and texture
     GLfloat triangle[] = {
-        0.0,   0.8, 0.0, /* position */
-        0.5,   1.0,      /* texcoord */
-        -0.8, -0.8, 0.0, /* position */
-        0.0,   0.0,      /* texcoord */
-        0.8,  -0.8, 0.0, /* position */
-        1.0, 0.0         /* texcoord */
+        0.0f,   0.8f, 0.0f, /* position */
+        0.5f,   1.0f,       /* texcoord */
+        -0.8f, -0.8f, 0.0f, /* position */
+        0.0f,   0.0f,       /* texcoord */
+        0.8f,  -0.8f, 0.0f, /* position */
+        1.0f, 0.0f          /* texcoord */
     };
 
     m_VertexBuffer = std::make_unique<OpenGLBuffer>();
@@ -260,16 +260,16 @@ void OpenGLWidgetTestRender::initOpenGL()
             break;
         case TestCase::Texture:
 #ifdef _WIN32
-            initTestRenderTexture(QString("D:/Programming/QtApps/RealTimeFluidRendering/Textures/Floor/blue_marble.png"));
+            initTestRenderTexture(QString("D:/Programming/QtApps/FluidSimulationAndRendering/Textures/Floor/blue_marble.png"));
 #else
-            initTestRenderTexture(QString("D:/Programming/QtApps/RealTimeFluidRendering/Textures/Floor/blue_marble.png"));
+            initTestRenderTexture(QString("D:/Programming/QtApps/FluidSimulationAndRendering/Textures/Floor/blue_marble.png"));
 #endif
             break;
         case TestCase::Floor:
-            initTestRenderFloor(QString("D:/Programming/QtApps/RealTimeFluidRendering/Textures/Floor/blue_marble.png"));
+            initTestRenderFloor(QString("D:/Programming/QtApps/FluidSimulationAndRendering/Textures/Floor/blue_marble.png"));
             break;
         case TestCase::SkyBox:
-            initTestRenderSkybox(QString("D:/Programming/QtApps/RealTimeFluidRendering/Textures/Sky/"));
+            initTestRenderSkybox(QString("D:/Programming/QtApps/FluidSimulationAndRendering/Textures/Sky/"));
             break;
         case TestCase::TriMesh:
 #ifdef _WIN32
@@ -280,10 +280,10 @@ void OpenGLWidgetTestRender::initOpenGL()
         case TestCase::TriMeshShadow:
 #ifdef _WIN32
             initTestRenderMeshWithShadow(QString("D:/GoogleDrive/DigitalAssets/Models/AirCraft/A-10_Thunderbolt_II/A-10_Thunderbolt_II.obj"),
-            QString("D:/Programming/QtApps/RealTimeFluidRendering/Textures/Floor/blue_marble.png"));
+            QString("D:/Programming/QtApps/FluidSimulationAndRendering/Textures/Floor/blue_marble.png"));
 #else
             initTestRenderMeshWithShadow(QString("/Volumes/Working/GoogleDrive/DigitalAssets/Models/AirCraft/A-10_Thunderbolt_II/A-10_Thunderbolt_II.obj"),
-            QString("/Volumes/Working/Programming/QtApps/RealTimeFluidRendering/Textures/Floor/blue_marble.png"));
+            QString("/Volumes/Working/Programming/QtApps/FluidSimulationAndRendering/Textures/Floor/blue_marble.png"));
 #endif
             break;
     }

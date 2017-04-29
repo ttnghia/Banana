@@ -265,16 +265,16 @@ void MeshObject::draw()
     {
         if(m_isMeshVeryLarge)
         {
-            glCall(glDrawElements(m_DataTopology, m_IndexListLong.size(), GL_UNSIGNED_INT, 0));
+            glCall(glDrawElements(m_DataTopology, static_cast<GLsizei>(m_IndexListLong.size()), GL_UNSIGNED_INT, 0));
         }
         else
         {
-            glCall(glDrawElements(m_DataTopology, m_IndexList.size(), GL_UNSIGNED_SHORT, 0));
+            glCall(glDrawElements(m_DataTopology, static_cast<GLsizei>(m_IndexList.size()), GL_UNSIGNED_SHORT, 0));
         }
     }
     else
     {
-        glCall(glDrawArrays(m_DataTopology, 0, m_NumVertices));
+        glCall(glDrawArrays(m_DataTopology, 0, static_cast<GLsizei>(m_NumVertices)));
     }
 }
 
@@ -324,7 +324,7 @@ void MeshObject::uploadDataToGPU()
         dataSize = m_isMeshVeryLarge ? sizeof(GLuint) * m_IndexListLong.size() :
                    sizeof(GLushort) * m_IndexList.size();
         m_IndexBuffer->uploadDataAsync(m_isMeshVeryLarge ? (GLvoid*)m_IndexListLong.data() :
-                                       (GLvoid*)m_IndexList.data(), 0, dataSize);
+            (GLvoid*)m_IndexList.data(), 0, dataSize);
     }
 
     ////////////////////////////////////////////////////////////////////////////////

@@ -44,30 +44,29 @@ void MainWindow::instantiateOpenGLWidget()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MainWindow::keyPressEvent(QKeyEvent* event)
 {
-    switch(event->key())
-    {
-        default:
-            OpenGLMainWindow::keyPressEvent(event);
-    }
+    OpenGLMainWindow::keyPressEvent(event);
+    //switch(event->key())
+    //{
+    //    default:
+    //}
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MainWindow::setupGUI()
 {
-    QVBoxLayout* mainLayout = new QVBoxLayout;
-
+    QVBoxLayout*      mainLayout = new QVBoxLayout;
     MaterialSelector* matSelector = new MaterialSelector;
     mainLayout->addWidget(matSelector->getGroupBox("Material"));
 
-    ColorPicker* colorSelector = new ColorPicker;
+    ColorPicker* colorSelector  = new ColorPicker;
     QHBoxLayout* colorSLTLayout = new QHBoxLayout;
     colorSLTLayout->addStretch();
     colorSLTLayout->addWidget(colorSelector);
     mainLayout->addLayout(colorSLTLayout);
 
-    m_MatEditor  = new MaterialEditor;
-    QPushButton* btnShowMatEditor =  new QPushButton("Material");
-    QHBoxLayout* matEditorLayout = new QHBoxLayout;
+    m_MatEditor = new MaterialEditor;
+    QPushButton* btnShowMatEditor = new QPushButton("Material");
+    QHBoxLayout* matEditorLayout  = new QHBoxLayout;
     matEditorLayout->addStretch();
     matEditorLayout->addWidget(btnShowMatEditor);
     connect(btnShowMatEditor, &QPushButton::clicked, [&]()
@@ -77,8 +76,8 @@ void MainWindow::setupGUI()
     mainLayout->addLayout(matEditorLayout);
 
 
-    MaterialColorPicker* matPicker = new MaterialColorPicker;
-    QHBoxLayout* matPickerLayout = new QHBoxLayout;
+    MaterialColorPicker* matPicker       = new MaterialColorPicker;
+    QHBoxLayout*         matPickerLayout = new QHBoxLayout;
     matPickerLayout->addStretch();
     matPickerLayout->addWidget(matPicker);
     mainLayout->addLayout(matPickerLayout);

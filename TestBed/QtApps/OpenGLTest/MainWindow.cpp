@@ -38,9 +38,9 @@ void MainWindow::instantiateOpenGLWidget()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MainWindow::keyPressEvent(QKeyEvent* event)
 {
-    switch(event->key())
-    {
-        default:
             OpenGLMainWindow::keyPressEvent(event);
-    }
+    //switch(event->key())
+    //{
+    //    default:
+    //}
 }

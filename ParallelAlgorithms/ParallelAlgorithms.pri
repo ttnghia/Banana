@@ -1,5 +1,7 @@
 INCLUDEPATH += $$PWD/Include
 
+CONFIG += c++14
+
 macx {
     INCLUDEPATH += $$PWD/../Externals/tbb_osx/include
     LIBS += -ltbb -L$$PWD/../Externals/tbb_osx/lib

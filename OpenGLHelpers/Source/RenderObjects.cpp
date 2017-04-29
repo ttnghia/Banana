@@ -203,10 +203,10 @@ void SkyBoxRender::initRenderData()
     m_Shader = ShaderProgram::getSkyBoxShader();
 
     m_AtrVPosition = m_Shader->getAtributeLocation("v_Position");
-    m_UTexSampler  = m_Shader->getUniformLocation("u_TexSampler");
+    m_UTexSampler = m_Shader->getUniformLocation("u_TexSampler");
 
     m_UBModelMatrix = m_Shader->getUniformBlockIndex("ModelMatrix");
-    m_UBCamData     = m_Shader->getUniformBlockIndex("CameraData");
+    m_UBCamData = m_Shader->getUniformBlockIndex("CameraData");
 
     ////////////////////////////////////////////////////////////////////////////////
     // cube object
@@ -334,7 +334,7 @@ void PointLightRender::initRenderData()
     glCall(glGenVertexArrays(1, &m_VAO));
 
     m_UBCamData = m_Shader->getUniformBlockIndex("CameraData");
-    m_UBLight   = m_Shader->getUniformBlockIndex("Lights");
+    m_UBLight = m_Shader->getUniformBlockIndex("Lights");
 
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -353,7 +353,7 @@ void PointLightRender::initRenderData()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void WireFrameBoxRender::transform(const glm::vec3& translation, const glm::vec3& scale)
 {
-    glm::mat4 modelMatrix  = glm::scale(glm::translate(glm::mat4(1.0), translation), scale);
+    glm::mat4 modelMatrix = glm::scale(glm::translate(glm::mat4(1.0), translation), scale);
     glm::mat4 normalMatrix = glm::transpose(glm::inverse(glm::mat3(modelMatrix)));
 
     m_UBufferModelMatrix->uploadData(glm::value_ptr(modelMatrix), 0, sizeof(glm::mat4));                  // model matrix
@@ -398,10 +398,10 @@ void WireFrameBoxRender::initRenderData()
 {
     m_Shader = ShaderProgram::getObjUniformColorShader();
 
-    m_AtrVPosition  = m_Shader->getAtributeLocation("v_Position");
-    m_UColor        = m_Shader->getUniformLocation("f_Color");
+    m_AtrVPosition = m_Shader->getAtributeLocation("v_Position");
+    m_UColor = m_Shader->getUniformLocation("f_Color");
     m_UBModelMatrix = m_Shader->getUniformBlockIndex("ModelMatrix");
-    m_UBCamData     = m_Shader->getUniformBlockIndex("CameraData");
+    m_UBCamData = m_Shader->getUniformBlockIndex("CameraData");
 
 
     m_WireFrameBoxObj = std::make_unique<WireFrameBoxObject>();
@@ -436,7 +436,7 @@ void WireFrameBoxRender::initRenderData()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OffScreenRender::resize(int width, int height)
 {
-    m_BufferWidth  = width;
+    m_BufferWidth = width;
     m_BufferHeight = height;
 
     glCall(glBindRenderbuffer(GL_RENDERBUFFER, m_RenderBufferID));
@@ -484,7 +484,7 @@ void OffScreenRender::setNumColorBuffers(int numColorBuffers)
         }
         else // m_NumColorBuffers < numColorBuffers
         {
-            for(int i = m_ColorBuffers.size(); i < numColorBuffers; ++i)
+            for(size_t i = m_ColorBuffers.size(); i < numColorBuffers; ++i)
             {
                 std::shared_ptr<OpenGLTexture> tex = std::make_shared<OpenGLTexture>(GL_TEXTURE_2D);
                 tex->setTextureParameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -638,7 +638,7 @@ void DepthBufferRender::setNumColorBuffers(int numColorBuffers)
 {
     OffScreenRender::setNumColorBuffers(numColorBuffers);
 
-    GLfloat borderColor[] = { m_ClearLinearDepthValue, m_ClearLinearDepthValue, m_ClearLinearDepthValue, 1.0 };
+    GLfloat borderColor[] = {m_ClearLinearDepthValue, m_ClearLinearDepthValue, m_ClearLinearDepthValue, 1.0};
 
     for(int i = 0; i < m_NumColorBuffers; ++i)
     {
@@ -674,7 +674,7 @@ void DepthBufferRender::initRenderData()
 {
     OffScreenRender::initRenderData();
 
-    GLfloat borderColor[] = { m_ClearLinearDepthValue, m_ClearLinearDepthValue, m_ClearLinearDepthValue, 1.0 };
+    GLfloat borderColor[] = {m_ClearLinearDepthValue, m_ClearLinearDepthValue, m_ClearLinearDepthValue, 1.0};
 
     for(int i = 0; i < m_NumColorBuffers; ++i)
     {
@@ -751,7 +751,7 @@ void ScreenQuadTextureRender::initRenderData()
 
     m_UTexSampler = m_Shader->getUniformLocation("u_TexSampler");
     m_UValueScale = m_Shader->getUniformLocation("u_ValueScale");
-    m_UTexelSize  = m_Shader->getUniformLocation("u_TexelSize");
+    m_UTexelSize = m_Shader->getUniformLocation("u_TexelSize");
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -763,7 +763,7 @@ void ScreenQuadTextureRender::setValueScale(float scale)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void ScreenQuadTextureRender::setTexture(const std::shared_ptr<OpenGLTexture>& texture, int texelSize /*= 1*/)
 {
-    m_Texture        = texture;
+    m_Texture = texture;
     m_TexelSizeValue = texelSize;
 }
 
@@ -844,7 +844,7 @@ void MeshRender::setExternalShadowMaps(const std::vector<std::shared_ptr<OpenGLT
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MeshRender::transform(const glm::vec3& translation, const glm::vec3& scale)
 {
-    glm::mat4 modelMatrix  = glm::scale(glm::translate(glm::mat4(1.0), translation), scale);
+    glm::mat4 modelMatrix = glm::scale(glm::translate(glm::mat4(1.0), translation), scale);
     glm::mat4 normalMatrix = glm::transpose(glm::inverse(glm::mat3(modelMatrix)));
 
     m_UBufferModelMatrix->uploadData(glm::value_ptr(modelMatrix), 0, sizeof(glm::mat4));                  // model matrix
@@ -937,7 +937,7 @@ void MeshRender::renderToLightDepthBuffer(int scrWidth, int scrHeight, GLuint de
 
     ////////////////////////////////////////////////////////////////////////////////
     // update the depth render objs in case the number of lights has changed
-    for(int i = m_LightDepthBufferRenders.size(); i < m_Lights->getNumLights(); ++i)
+    for(size_t i = m_LightDepthBufferRenders.size(); i < m_Lights->getNumLights(); ++i)
     {
         m_LightDepthBufferRenders.push_back(std::make_unique<DepthBufferRender>(m_ShadowBufferWidth, m_ShadowBufferHeight));
     }
@@ -1004,11 +1004,11 @@ void MeshRender::initDepthBufferData(const glm::vec4& defaultClearColor)
         m_LightDepthBufferRenders[i]->setClearDepthValue(-1000000.0);
     }
 
-    m_LightDepthShader   = ShaderProgram::getSimpleLightSpaceDepthShader();
-    m_LDSAtrVPosition    = m_LightDepthShader->getAtributeLocation("v_Position");
-    m_LDSUBModelMatrix   = m_LightDepthShader->getUniformBlockIndex("ModelMatrix");
+    m_LightDepthShader = ShaderProgram::getSimpleLightSpaceDepthShader();
+    m_LDSAtrVPosition = m_LightDepthShader->getAtributeLocation("v_Position");
+    m_LDSUBModelMatrix = m_LightDepthShader->getUniformBlockIndex("ModelMatrix");
     m_LDSUBLightMatrices = m_LightDepthShader->getUniformBlockIndex("LightMatrices");
-    m_LDSULightID        = m_LightDepthShader->getUniformLocation("u_LightID");
+    m_LDSULightID = m_LightDepthShader->getUniformLocation("u_LightID");
 
     glCall(glGenVertexArrays(1, &m_LDSVAO));
     glCall(glBindVertexArray(m_LDSVAO));
@@ -1032,9 +1032,9 @@ void MeshRender::initDepthBufferData(const glm::vec4& defaultClearColor)
     m_CameraDepthBufferRender->setDefaultClearColor(defaultClearColor);
     m_CameraDepthBufferRender->setClearDepthValue(-1000000.0);
     m_CameraDepthShader = ShaderProgram::getSimpleCameraSpaceDepthShader();
-    m_CDSAtrVPosition   = m_CameraDepthShader->getAtributeLocation("v_Position");
-    m_CDSUBModelMatrix  = m_CameraDepthShader->getUniformBlockIndex("ModelMatrix");
-    m_CDSUBCameraData   = m_CameraDepthShader->getUniformBlockIndex("CameraData");
+    m_CDSAtrVPosition = m_CameraDepthShader->getAtributeLocation("v_Position");
+    m_CDSUBModelMatrix = m_CameraDepthShader->getUniformBlockIndex("ModelMatrix");
+    m_CDSUBCameraData = m_CameraDepthShader->getUniformBlockIndex("CameraData");
     glCall(glGenVertexArrays(1, &m_CDSVAO));
     glCall(glBindVertexArray(m_CDSVAO));
     m_MeshObj->getVertexBuffer()->bind();
@@ -1058,7 +1058,7 @@ void MeshRender::initDepthBufferData(const glm::vec4& defaultClearColor)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MeshRender::resizeShadowMap(int width, int height)
 {
-    m_ShadowBufferWidth  = width;
+    m_ShadowBufferWidth = width;
     m_ShadowBufferHeight = height;
 
     for(int i = 0; i < m_Lights->getNumLights(); ++i)
@@ -1137,11 +1137,11 @@ void MeshRender::initRenderData()
     m_Shader = ShaderProgram::getPhongShader();
 
     m_AtrVPosition = m_Shader->getAtributeLocation("v_Position");
-    m_AtrVNormal   = m_Shader->getAtributeLocation("v_Normal");
+    m_AtrVNormal = m_Shader->getAtributeLocation("v_Normal");
     m_AtrVTexCoord = m_Shader->getAtributeLocation("v_TexCoord");
 
     m_UHasTexture = m_Shader->getUniformLocation("u_HasTexture");
-    m_UHasShadow  = m_Shader->getUniformLocation("u_HasShadow");
+    m_UHasShadow = m_Shader->getUniformLocation("u_HasShadow");
     m_UTexSampler = m_Shader->getUniformLocation("u_TexSampler");
     for(int i = 0; i < MAX_NUM_LIGHTS; ++i)
     {
@@ -1150,11 +1150,11 @@ void MeshRender::initRenderData()
         m_UShadowMap[i] = m_Shader->getUniformLocation(buff);
     }
 
-    m_UBModelMatrix   = m_Shader->getUniformBlockIndex("ModelMatrix");
-    m_UBCamData       = m_Shader->getUniformBlockIndex("CameraData");
+    m_UBModelMatrix = m_Shader->getUniformBlockIndex("ModelMatrix");
+    m_UBCamData = m_Shader->getUniformBlockIndex("CameraData");
     m_UBLightMatrices = m_Shader->getUniformBlockIndex("LightMatrices");
-    m_UBLight         = m_Shader->getUniformBlockIndex("Lights");
-    m_UBMaterial      = m_Shader->getUniformBlockIndex("Material");
+    m_UBLight = m_Shader->getUniformBlockIndex("Lights");
+    m_UBMaterial = m_Shader->getUniformBlockIndex("Material");
 
     ////////////////////////////////////////////////////////////////////////////////
     m_MeshObj->uploadDataToGPU();
@@ -1179,9 +1179,9 @@ void MeshRender::initRenderData()
     {
         m_Material = std::make_shared<Material>();
         /*m_Material->setAmbientColor(glm::vec4(1.0));
-           m_Material->setDiffuseColor(glm::vec4(1.0, 1.0, 0.0, 1.0));
-           m_Material->setSpecularColor(glm::vec4(1.0));
-           m_Material->setShininess(250.0);*/
+        m_Material->setDiffuseColor(glm::vec4(1.0, 1.0, 0.0, 1.0));
+        m_Material->setSpecularColor(glm::vec4(1.0));
+        m_Material->setShininess(250.0);*/
         m_Material->setMaterial(Material::MT_Emerald);
         m_Material->uploadDataToGPU();
     }

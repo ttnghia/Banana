@@ -19,7 +19,7 @@
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 MaterialSelector::MaterialSelector(const Material::MaterialData& material /*= Material::MT_Emerald*/, bool defaultCustomMaterial /*= false*/,
-                                   int comboBoxSpan /*= 3*/, QWidget *parent /*= nullptr*/)
+                                   int comboBoxSpan /*= 3*/, QWidget* parent /*= nullptr*/)
     : QWidget(parent),
     m_bDebug(false),
     m_CurrentMaterial(material),
@@ -96,19 +96,19 @@ void MaterialSelector::setDefaultCustomMaterial(bool defaultCustomMaterial)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- QComboBox *MaterialSelector::getComboBox() const
+QComboBox* MaterialSelector::getComboBox() const
 {
     return m_ComboBox;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- QLayout *MaterialSelector::getLayout() const
+QLayout* MaterialSelector::getLayout() const
 {
     return m_Layout;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- QGroupBox *MaterialSelector::getGroupBox(QString title)
+QGroupBox* MaterialSelector::getGroupBox(QString title)
 {
     if(m_GroupBox == nullptr)
     {
@@ -163,8 +163,8 @@ void MaterialSelector::setMaterial(const Material::MaterialData& material)
         }
     }
 
-    m_ComboBox->setCurrentIndex(mIndex);
-    setMaterial(mIndex);
+    m_ComboBox->setCurrentIndex(static_cast<int>(mIndex));
+    setMaterial(static_cast<int>(mIndex));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
