@@ -66,7 +66,7 @@ bool MeshLoader::loadMesh(std::string mesh_file)
 void MeshLoader::setDefaultCamera(Camera& camera, float fov)
 {
     glm::vec3 currentDir = camera.getCameraDirection();
-    camera.setDefaultCamera(currentDir * getCameraDistance(fov * 0.75) +
+    camera.setDefaultCamera(currentDir * getCameraDistance(fov * 0.75f) +
         getMeshCenter(),
         getMeshCenter(), glm::vec3(0, 1, 0));
 }
@@ -76,7 +76,7 @@ float MeshLoader::getCameraDistance(float fov)
 {
     float half_length = (m_BBoxMax.y - m_BBoxMin.y) * 0.5f;
 
-    return (half_length / std::tan(fov * 0.5f * M_PI / 180.0));
+    return (half_length / std::tan(fov * 0.5f * M_PI / 180.0f));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -269,9 +269,9 @@ bool MeshLoader::load_obj(std::string mesh_file)
                     c[2] /= len;
                 }
 
-                m_VertexColors.push_back(c[0] * 0.5 + 0.5);
-                m_VertexColors.push_back(c[1] * 0.5 + 0.5);
-                m_VertexColors.push_back(c[2] * 0.5 + 0.5);
+                m_VertexColors.push_back(c[0] * 0.5f + 0.5f);
+                m_VertexColors.push_back(c[1] * 0.5f + 0.5f);
+                m_VertexColors.push_back(c[2] * 0.5f + 0.5f);
             }
         } // end process current shape
     }
@@ -361,10 +361,6 @@ bool MeshLoader::load_ply(std::string mesh_file)
 
             if(norms.size() > 0)
             {
-                uint32_t f0 = norms[3 * f + 0];
-                uint32_t f1 = norms[3 * f + 1];
-                uint32_t f2 = norms[3 * f + 2];
-
                 for(int k = 0; k < 3; k++)
                 {
                     n[0][k] = norms[3 * f0 + k];
@@ -407,9 +403,9 @@ bool MeshLoader::load_ply(std::string mesh_file)
                     c[2] /= len;
                 }
 
-                m_VertexColors.push_back(c[0] * 0.5 + 0.5);
-                m_VertexColors.push_back(c[1] * 0.5 + 0.5);
-                m_VertexColors.push_back(c[2] * 0.5 + 0.5);
+                m_VertexColors.push_back(c[0] * 0.5f + 0.5f);
+                m_VertexColors.push_back(c[1] * 0.5f + 0.5f);
+                m_VertexColors.push_back(c[2] * 0.5f + 0.5f);
             }
         } // end process current shape
     }

@@ -18,7 +18,7 @@
 #include <QtAppHelpers/OpenGLMainWindow.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-OpenGLMainWindow::OpenGLMainWindow(QWidget* parent) : QMainWindow(parent), m_GLWidget(nullptr)
+OpenGLMainWindow::OpenGLMainWindow(QWidget* parent, bool bShowFPS /*= true*/, bool bShowCamPosition /*= true*/) : QMainWindow(parent), m_GLWidget(nullptr)
 {
     qApp->installEventFilter(this);
 
@@ -36,6 +36,16 @@ OpenGLMainWindow::OpenGLMainWindow(QWidget* parent) : QMainWindow(parent), m_GLW
     statusBar()->addPermanentWidget(m_lblStatusCamPosition, 1);
     statusBar()->setMinimumHeight(30);
     //statusBar()->setSizeGripEnabled(false);
+
+    if(!bShowFPS)
+    {
+        m_lblStatusAvgFrameTime->hide();
+        m_lblStatusFPS->hide();
+    }
+    if(!bShowCamPosition)
+    {
+        m_lblStatusCamPosition->hide();
+    }
 
     ////////////////////////////////////////////////////////////////////////////////
     QSurfaceFormat sformat = QSurfaceFormat::defaultFormat();
@@ -86,6 +96,29 @@ bool OpenGLMainWindow::processKeyPressEvent(QKeyEvent* ev)
     }
 }
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void OpenGLMainWindow::showFPS(bool bShowFPS)
+{
+    if(bShowFPS)
+    {
+        m_lblStatusAvgFrameTime->show();
+        m_lblStatusFPS->show();
+    }
+    else
+    {
+        m_lblStatusAvgFrameTime->hide();
+        m_lblStatusFPS->hide();
+    }
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void OpenGLMainWindow::showCameraPosition(bool bShowCamPosition)
+{
+    if(bShowCamPosition)
+        m_lblStatusCamPosition->show();
+    else
+        m_lblStatusCamPosition->hide();
+}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLMainWindow::setArthurStyle()

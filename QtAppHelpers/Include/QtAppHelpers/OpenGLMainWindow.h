@@ -28,7 +28,7 @@ class OpenGLMainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    OpenGLMainWindow(QWidget* parent);
+    OpenGLMainWindow(QWidget* parent, bool bShowFPS = true, bool bShowCamPosition = true);
     virtual ~OpenGLMainWindow();
 
     bool         eventFilter(QObject* obj, QEvent* ev);
@@ -39,6 +39,8 @@ public:
     }
 
     void setArthurStyle();
+    void showFPS(bool bShowFPS);
+    void showCameraPosition(bool bShowCamPosition);
 
 public slots:
     void updateStatusFrameRate(double fps);
