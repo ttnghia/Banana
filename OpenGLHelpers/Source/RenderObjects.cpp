@@ -484,7 +484,7 @@ void OffScreenRender::setNumColorBuffers(int numColorBuffers)
         }
         else // m_NumColorBuffers < numColorBuffers
         {
-            for(size_t i = m_ColorBuffers.size(); i < numColorBuffers; ++i)
+            for(int i = static_cast<int>(m_ColorBuffers.size()); i < numColorBuffers; ++i)
             {
                 std::shared_ptr<OpenGLTexture> tex = std::make_shared<OpenGLTexture>(GL_TEXTURE_2D);
                 tex->setTextureParameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -549,7 +549,7 @@ void OffScreenRender::swapColorBuffer(std::shared_ptr<OpenGLTexture>& colorBuffe
 #ifdef __Banana_Qt__
         __BNN_Die(QString("OffScreenRender: FrameBuffer is incomplete!"));
 #else
-        __BNN_Die("%s: FrameBuffer is incomplete!\n", m_Shader->getProgramName());
+        __BNN_Die(("%s: FrameBuffer is incomplete!\n", m_Shader->getProgramName().c_str()));
 #endif
     }
 
@@ -937,7 +937,7 @@ void MeshRender::renderToLightDepthBuffer(int scrWidth, int scrHeight, GLuint de
 
     ////////////////////////////////////////////////////////////////////////////////
     // update the depth render objs in case the number of lights has changed
-    for(size_t i = m_LightDepthBufferRenders.size(); i < m_Lights->getNumLights(); ++i)
+    for(int i = static_cast<int>(m_LightDepthBufferRenders.size()); i < m_Lights->getNumLights(); ++i)
     {
         m_LightDepthBufferRenders.push_back(std::make_unique<DepthBufferRender>(m_ShadowBufferWidth, m_ShadowBufferHeight));
     }

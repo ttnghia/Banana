@@ -709,7 +709,6 @@ public:
     }
 
 private:
-    size_t m_BufferSize;
     std::vector<unsigned char> m_Buffer;
 };
 
@@ -824,11 +823,11 @@ private:
     void create_output_folders();
 
     ////////////////////////////////////////////////////////////////////////////////
-    bool m_isOutputFolderCreated;
-    std::string m_DataRootFolder;
-    std::string m_DataFolder;
-    std::string m_FileName;
-    std::string m_FileExtension;
-    DataBuffer m_FileBuffer;
+    bool              m_isOutputFolderCreated;
+    std::string       m_DataRootFolder;
+    std::string       m_DataFolder;
+    std::string       m_FileName;
+    std::string       m_FileExtension;
+    DataBuffer        m_FileBuffer;
     std::future<void> m_WriteFutureObj;
 };

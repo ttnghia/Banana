@@ -1,4 +1,4 @@
-﻿//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //
 //  Copyright (c) 2017 by
@@ -38,7 +38,7 @@ public:
 
     union ScalarValue
     {
-        double doubleValue;
+        double       doubleValue;
         unsigned int uintValue;
     };
 
@@ -76,8 +76,8 @@ public:
 
         for(auto it = m_ArrayData.begin(); it != m_ArrayData.end(); ++it)
         {
-            const std::string& arrName = it->first;
-            size_t arraySize = m_NumParticles * m_ArrayElementSize[arrName];
+            const std::string& arrName   = it->first;
+            size_t             arraySize = m_NumParticles * m_ArrayElementSize[arrName];
             it->second->resize(arraySize);
         }
     }
@@ -88,8 +88,8 @@ public:
 
         for(auto it = m_ArrayData.begin(); it != m_ArrayData.end(); ++it)
         {
-            const std::string& arrName = it->first;
-            size_t arraySize = m_MaxNumParticles * m_ArrayElementSize[arrName];
+            const std::string& arrName   = it->first;
+            size_t             arraySize = m_MaxNumParticles * m_ArrayElementSize[arrName];
             it->second->reserve(arraySize);
         }
     }
@@ -98,25 +98,25 @@ public:
     {
         for(auto it = m_ArrayData.begin(); it != m_ArrayData.end(); ++it)
         {
-            const std::string& arrName = it->first;
-            size_t arraySize = numAllocation * m_ArrayElementSize[arrName];
+            const std::string& arrName   = it->first;
+            size_t             arraySize = numAllocation * m_ArrayElementSize[arrName];
             it->second->resize(arraySize);
         }
     }
 
-    bool hasScalar(std::string dataName)
+    bool hasScalar(const std::string& dataName)
     {
         return (m_ScalarData.find(dataName) != m_ScalarData.end());
     }
 
-    bool hasArray(std::string dataName)
+    bool hasArray(const std::string& dataName)
     {
         return (m_ArrayData.find(dataName) != m_ArrayData.end());
     }
 
     //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     template<class T, int N>
-    void addArray(std::string arrName, bool iniZero = false)
+    void addArray(const std::string& arrName, bool iniZero = false)
     {
         size_t arraySize    = m_NumParticles * sizeof(T) * N;
         size_t maxArraySize = m_MaxNumParticles * sizeof(T) * N;
@@ -145,6 +145,31 @@ public:
         }
     }
 
+    template<class T, int N>
+    void addArrayIfNotExist(const std::string& arrName, bool iniZero = false)
+    {
+        if(hasArray(arrName))
+            return;
+
+        size_t arraySize    = m_NumParticles * sizeof(T) * N;
+        size_t maxArraySize = m_MaxNumParticles * sizeof(T) * N;
+
+        m_ArrayElementSize[arrName] = sizeof(T) * N;
+        m_ArrayData[arrName]        = new std::vector<unsigned char>;
+        m_ArrayData[arrName]->reserve(maxArraySize);
+        m_ArrayData[arrName]->resize(arraySize);
+
+        if(iniZero)
+        {
+            T* dataPtr = reinterpret_cast<T*>(getArray(arrName)->data());
+
+            for(unsigned int i = 0; i < m_MaxNumParticles * N; ++i)
+            {
+                dataPtr[i] = T(0);
+            }
+        }
+    }
+
     void setNumParticles(unsigned int numParticles)
     {
         resize(numParticles);
@@ -156,17 +181,17 @@ public:
         m_ParticleRadius = static_cast<double>(particleRadius);
     }
 
-    void setUInt(std::string dataName, unsigned int value)
+    void setUInt(const std::string& dataName, unsigned int value)
     {
         ScalarValue sValue;
-        sValue.uintValue = value;
+        sValue.uintValue       = value;
         m_ScalarData[dataName] = sValue;
     }
 
-    void setDouble(std::string dataName, double value)
+    void setDouble(const std::string& dataName, double value)
     {
         ScalarValue sValue;
-        sValue.doubleValue = value;
+        sValue.doubleValue     = value;
         m_ScalarData[dataName] = sValue;
     }
 
@@ -186,17 +211,17 @@ public:
         return static_cast<T>(m_ParticleRadius);
     }
 
-    unsigned int getUInt(std::string dataName)
+    unsigned int getUInt(const std::string& dataName)
     {
         return hasScalar(dataName) ? m_ScalarData[dataName].uintValue : 0;
     }
 
-    double getDouble(std::string dataName)
+    double getDouble(const std::string& dataName)
     {
         return hasScalar(dataName) ? m_ScalarData[dataName].doubleValue : 0;
     }
 
-    std::vector<unsigned char>* getArray(std::string arrName)
+    std::vector<unsigned char>* getArray(const std::string& arrName)
     {
         assert(hasArray(arrName));
         return m_ArrayData[arrName];
@@ -204,15 +229,15 @@ public:
 
     //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     template<class T, int N>
-    void generateRandomIntData(std::string dataName,
-                               T minVal = 0,
-                               T maxVal = std::numeric_limits<T>::max())
+    void generateRandomIntData(const std::string& dataName,
+                               T                  minVal = 0,
+                               T                  maxVal = std::numeric_limits<T>::max())
     {
         addArray<T, N>(dataName);
 
-        T* dataPtr = reinterpret_cast<T*>(getArray(dataName)->data());
-        std::random_device rd;
-        std::mt19937 gen(rd());
+        T*                               dataPtr = reinterpret_cast<T*>(getArray(dataName)->data());
+        std::random_device               rd;
+        std::mt19937                     gen(rd());
         std::uniform_int_distribution<T> dis(minVal, maxVal);
 
         for(unsigned int i = 0; i < m_NumParticles * N; ++i)
@@ -222,15 +247,15 @@ public:
     }
 
     template<class T, int N>
-    void generateRandomRealData(std::string dataName,
-                                T minVal = 0,
-                                T maxVal = std::numeric_limits<T>::max())
+    void generateRandomRealData(const std::string& dataName,
+                                T                  minVal = 0,
+                                T                  maxVal = std::numeric_limits<T>::max())
     {
         addArray<T, N>(dataName);
 
-        T* dataPtr = reinterpret_cast<T*>(getArray(dataName)->data());
-        std::random_device rd;
-        std::mt19937 gen(rd());
+        T*                                dataPtr = reinterpret_cast<T*>(getArray(dataName)->data());
+        std::random_device                rd;
+        std::mt19937                      gen(rd());
         std::uniform_real_distribution<T> dis(minVal, maxVal);
 
         for(unsigned int i = 0; i < m_NumParticles * N; ++i)
@@ -240,22 +265,22 @@ public:
     }
 
     template<class T, class S, int N>
-    void generateRampData(std::string dataName,
-                          std::vector<S> rangeVals)
+    void generateRampData(const std::string& dataName,
+                          std::vector<S>     rangeVals)
     {
         addArray<T, N>(dataName);
 
-        T* dataPtr = reinterpret_cast<T*>(getArray(dataName)->data());
-        T segmentSize = static_cast<T>(m_NumParticles) / static_cast<T>(rangeVals.size() - 1);
+        T* dataPtr     = reinterpret_cast<T*>(getArray(dataName)->data());
+        T  segmentSize = static_cast<T>(m_NumParticles) / static_cast<T>(rangeVals.size() - 1);
 
         for(unsigned int i = 0; i < m_NumParticles; ++i)
         {
-            int segment = static_cast<int>(floor(static_cast<float>(i)) / segmentSize);
+            size_t segment = static_cast<int>(floor(static_cast<float>(i)) / segmentSize);
             assert(segment < rangeVals.size() - 1);
 
-            T t = static_cast<T>(i - segmentSize * segment) / segmentSize;
+            T t        = static_cast<T>(i - segmentSize * segment) / segmentSize;
             S startVal = rangeVals[segment];
-            S endVal = rangeVals[segment + 1];
+            S endVal   = rangeVals[segment + 1];
 
             for(int j = 0; j < N; ++j)
             {
@@ -270,7 +295,7 @@ private:
     unsigned int m_NumParticles;
     unsigned int m_MaxNumParticles;
 
-    std::map<std::string, ScalarValue>                  m_ScalarData;
-    std::map<std::string, std::vector<unsigned char>* > m_ArrayData;
-    std::map<std::string, size_t>                       m_ArrayElementSize;
+    std::map<std::string, ScalarValue>                 m_ScalarData;
+    std::map<std::string, std::vector<unsigned char>*> m_ArrayData;
+    std::map<std::string, size_t>                      m_ArrayElementSize;
 };

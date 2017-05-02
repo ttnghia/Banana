@@ -83,7 +83,7 @@ bool OpenGLWidget::exportScreenToImage(int frame)
     m_CaptureImage->mirrored().save(QString(m_CapturePath + "/frame.%1.jpg").arg(frame, 4, 10, QChar('0')));
 
     return true;
-} 
+}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLWidget::setCapturePath(QString path)
@@ -179,7 +179,7 @@ void OpenGLWidget::wheelEvent(QWheelEvent* ev)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLWidget::showEvent(QShowEvent* ev)
 {
-    (void*)ev;
+    (void)ev;
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 }
 

@@ -17,12 +17,12 @@
 
 #include <QFile>
 #include <QTextStream>
-#include <Qdebug>
+#include <QDebug>
 
 #include <QtAppHelpers/QtAppShaderProgram.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void QtAppShaderProgram::addVertexShaderFromResource(const char * fileName)
+void QtAppShaderProgram::addVertexShaderFromResource(const char* fileName)
 {
     std::string shaderSouce;
     loadResourceFile(shaderSouce, fileName);
@@ -31,7 +31,7 @@ void QtAppShaderProgram::addVertexShaderFromResource(const char * fileName)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void QtAppShaderProgram::addGeometryShaderFromResource(const char * fileName)
+void QtAppShaderProgram::addGeometryShaderFromResource(const char* fileName)
 {
     std::string shaderSouce;
     loadResourceFile(shaderSouce, fileName);
@@ -40,7 +40,7 @@ void QtAppShaderProgram::addGeometryShaderFromResource(const char * fileName)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void QtAppShaderProgram::addFragmentShaderFromResource(const char * fileName)
+void QtAppShaderProgram::addFragmentShaderFromResource(const char* fileName)
 {
     std::string shaderSouce;
     loadResourceFile(shaderSouce, fileName);
@@ -49,15 +49,15 @@ void QtAppShaderProgram::addFragmentShaderFromResource(const char * fileName)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void QtAppShaderProgram::loadResourceFile(std::string & fileContent, const char * fileName)
+void QtAppShaderProgram::loadResourceFile(std::string& fileContent, const char* fileName)
 {
     QFile file(fileName);
 
     if(!file.open(QFile::ReadOnly | QFile::Text))
     {
         __BNN_Die(QString("%1: Cannot open file %2 for reading!")
-                  .arg(QString::fromStdString(m_ProgramName))
-                  .arg(QString(fileName)));
+                .arg(QString::fromStdString(m_ProgramName))
+                .arg(QString(fileName)));
     }
 
     QTextStream in(&file);

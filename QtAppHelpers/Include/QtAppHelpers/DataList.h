@@ -26,7 +26,7 @@ class DataList : public QWidget
     Q_OBJECT
 
 public:
-    DataList(QWidget *parent, bool bAddEmptyItem = true, bool bAddOrderText = true, QString indexSeparator = QString("::"));
+    DataList(QWidget* parent, bool bAddEmptyItem = true, bool bAddOrderText = true, QString indexSeparator = QString("::"));
     ~DataList();
 
     void loadListFromFile(const QString& listFile);
@@ -34,14 +34,14 @@ public:
     void addItem(QString dataStr);
     void removeIndex(int index);
     void clear();
-    int getListSize() const;
+    int  getListSize() const;
 
 signals:
     void currentTextChanged(QString dataItem);
     void currentRowChanged(int row);
 
 protected:
-    QSize sizeHint() const;
+    QSize        sizeHint() const override;
     virtual bool eventFilter(QObject* obj, QEvent* e) override;
 
 private:
