@@ -20,6 +20,7 @@
 #include <chrono>
 #include <string>
 #include <cassert>
+#include <sstream>
 
 #include <BananaAppCore/NumberHelpers.h>
 
@@ -51,19 +52,24 @@ public:
         return m_ElapsedTime;
     }
 
-    std::string get_run_time()
+    std::string getRunTime()
     {
         if(m_TimerTicked)
         {
             tock();
         }
 
-        return NumberHelpers::format_with_commas(m_ElapsedTime) + "ms";
+        m_StringStream.str("");
+        m_StringStream << NumberHelpers::formatWithCommas(m_ElapsedTime);
+        m_StringStream << "ms";
+
+        return m_StringStream.str();
     }
 
 private:
     Clock::time_point m_StartTime;
     Clock::time_point m_EndTime;
+    std::stringstream m_StringStream;
     double            m_ElapsedTime;
-    bool                m_TimerTicked;
+    bool              m_TimerTicked;
 };

@@ -35,7 +35,7 @@
 namespace FileHelpers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-inline void create_folder(const char* folderName)
+inline void createFolder(const char* folderName)
 {
 #ifdef __Banana_Windows__
     CreateDirectoryA(folderName, NULL);
@@ -46,13 +46,13 @@ inline void create_folder(const char* folderName)
 #endif
 }
 
-inline void create_folder(std::string folderName)
+inline void createFolder(std::string folderName)
 {
-    create_folder(folderName.c_str());
+    createFolder(folderName.c_str());
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-inline bool file_existed(const char* fileName)
+inline bool fileExisted(const char* fileName)
 {
     FILE* file = nullptr;
 #ifdef __Banana_Windows__
@@ -71,13 +71,13 @@ inline bool file_existed(const char* fileName)
     }
 }
 
-inline bool file_existed(std::string fileName)
+inline bool fileExisted(std::string fileName)
 {
-    return file_existed(fileName.c_str());
+    return fileExisted(fileName.c_str());
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-inline size_t get_file_size(const char* fileName)
+inline size_t getFileSize(const char* fileName)
 {
     std::ifstream file(fileName, std::ios::binary | std::ios::ate);
 
@@ -92,20 +92,20 @@ inline size_t get_file_size(const char* fileName)
     return fileSize;
 }
 
-inline size_t get_file_size(std::string fileName)
+inline size_t getFileSize(std::string fileName)
 {
-    return get_file_size(fileName.c_str());
+    return getFileSize(fileName.c_str());
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-inline std::string get_folder_size(const char* folderName, int level = 0)
+inline std::string getFolderSize(const char* folderName, int level = 0)
 {
 #ifdef __Banana_Windows__
     __BNN_CalledToUmimplementedFunc
 #else
-    const int max_buffer = 256;
-    char buffer[max_buffer];
-    char command[max_buffer];
+    const int maxBuffer = 256;
+    char buffer[maxBuffer];
+    char command[maxBuffer];
 
     if(level == 0)
     {
@@ -128,7 +128,7 @@ inline std::string get_folder_size(const char* folderName, int level = 0)
     {
         while(!feof(stream))
         {
-            if(fgets(buffer, max_buffer, stream) != nullptr)
+            if(fgets(buffer, maxBuffer, stream) != nullptr)
             {
                 output.append(buffer);
             }
@@ -141,9 +141,9 @@ inline std::string get_folder_size(const char* folderName, int level = 0)
 #endif
 }
 
-inline std::string get_folder_size(std::string folderName, int level = 0)
+inline std::string getFolderSize(std::string folderName, int level = 0)
 {
-    return get_folder_size(folderName.c_str(), level);
+    return getFolderSize(folderName.c_str(), level);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -152,14 +152,14 @@ inline std::string get_folder_size(std::string folderName, int level = 0)
 #else
 #   define print sprintf
 #endif
-inline std::string get_file_name(std::string topFolder, std::string dataSubFolder, std::string fileName, std::string fileExtension, int fileID)
+inline std::string getFullFilePath(std::string topFolder, std::string dataSubFolder, std::string fileName, std::string fileExtension, int fileID)
 {
     char buff[512];
     print(buff, "%s/%s/%s.%04d.%s", topFolder.c_str(), dataSubFolder.c_str(), fileName.c_str(), fileID, fileExtension.c_str());
     return std::string(buff);
 }
 
-inline std::string get_file_name(const char* topFolder, const char* dataSubFolder, const char* fileName, const char* fileExtension, int fileID)
+inline std::string getFullFilePath(const char* topFolder, const char* dataSubFolder, const char* fileName, const char* fileExtension, int fileID)
 {
     char buff[512];
     print(buff, "%s/%s/%s.%04d.%s", topFolder, dataSubFolder, fileName, fileID, fileExtension);
@@ -167,17 +167,16 @@ inline std::string get_file_name(const char* topFolder, const char* dataSubFolde
     return std::string(buff);
 }
 
-inline std::string get_file_name(std::string topFolder, const char* dataSubFolder, const char* fileName, const char* fileExtension, int fileID)
+inline std::string getFullFilePath(std::string topFolder, const char* dataSubFolder, const char* fileName, const char* fileExtension, int fileID)
 {
     char buff[512];
-    print(buff, "%s/%s/%s.%04d.%s", topFolder.c_str(), dataSubFolder, fileName, fileID,
-        fileExtension);
+    print(buff, "%s/%s/%s.%04d.%s", topFolder.c_str(), dataSubFolder, fileName, fileID, fileExtension);
 
     return std::string(buff);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-inline void write_file(std::string str, const char* fileName)
+inline void writeFile(std::string str, const char* fileName)
 {
     std::ofstream file(fileName, std::ios::out);
     __BNN_AssertMsg(file.is_open(), "Could not open file for writing.");
@@ -186,32 +185,32 @@ inline void write_file(std::string str, const char* fileName)
     file.close();
 }
 
-inline void write_file(std::string str, std::string fileName)
+inline void writeFile(std::string str, std::string fileName)
 {
-    write_file(str, fileName.c_str());
+    writeFile(str, fileName.c_str());
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-inline void write_file(const std::vector<std::string>& vec_str, const char* fileName)
+inline void writeFile(const std::vector<std::string>& vecStr, const char* fileName)
 {
     std::ofstream file(fileName, std::ios::out);
     __BNN_AssertMsg(file.is_open(), "Could not open file for writing.");
 
-    for(size_t i = 0; i < vec_str.size(); ++i)
+    for(auto& str : vecStr)
     {
-        file << vec_str[i] << std::endl;
+        file << str << std::endl;
     }
 
     file.close();
 }
 
-inline void write_file(const std::vector<std::string>& vec_str, std::string fileName)
+inline void writeFile(const std::vector<std::string>& vecStr, std::string fileName)
 {
-    write_file(vec_str, fileName.c_str());
+    writeFile(vecStr, fileName.c_str());
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-inline void write_file(const unsigned char* dataBuffer, size_t dataSize, const char* fileName)
+inline void writeFile(const unsigned char* dataBuffer, size_t dataSize, const char* fileName)
 {
     std::ofstream file(fileName, std::ios::binary | std::ios::out);
     __BNN_AssertMsg(file.is_open(), "Could not open file for writing.");
@@ -220,15 +219,15 @@ inline void write_file(const unsigned char* dataBuffer, size_t dataSize, const c
     file.close();
 }
 
-inline void write_file(const unsigned char* dataBuffer, size_t dataSize, std::string fileName)
+inline void writeFile(const unsigned char* dataBuffer, size_t dataSize, std::string fileName)
 {
-    write_file(dataBuffer, dataSize, fileName.c_str());
+    writeFile(dataBuffer, dataSize, fileName.c_str());
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-inline std::future<void> write_file_async(const unsigned char* dataBuffer, size_t dataSize, const char* fileName)
+inline std::future<void> writeFileAsync(const unsigned char* dataBuffer, size_t dataSize, const char* fileName)
 {
-    std::future<void> futureObj = std::async(std::launch::async, [&]()
+    std::future<void> futureObj = std::async(std::launch::async, [&]
         {
             std::ofstream file(fileName, std::ios::binary | std::ios::out);
             __BNN_AssertMsg(file.is_open(), "Could not open file for writing.");
@@ -240,13 +239,13 @@ inline std::future<void> write_file_async(const unsigned char* dataBuffer, size_
     return futureObj;
 }
 
-inline std::future<void> write_file_async(const unsigned char* dataBuffer, size_t dataSize, std::string fileName)
+inline std::future<void> writeFileAsync(const unsigned char* dataBuffer, size_t dataSize, std::string fileName)
 {
-    return write_file_async(dataBuffer, dataSize, fileName.c_str());
+    return writeFileAsync(dataBuffer, dataSize, fileName.c_str());
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-inline void append_file(std::string str, const char* fileName)
+inline void appendToFile(std::string str, const char* fileName)
 {
     std::ofstream file(fileName, std::ios::out | std::ofstream::app);
     __BNN_AssertMsg(file.is_open(), "Could not open file for writing.");
@@ -255,33 +254,33 @@ inline void append_file(std::string str, const char* fileName)
     file.close();
 }
 
-inline void append_file(std::string str, std::string fileName)
+inline void appendToFile(std::string str, std::string fileName)
 {
-    append_file(str, fileName.c_str());
+    appendToFile(str, fileName.c_str());
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-inline void append_file(const std::vector<std::string>& vec_str, const char* fileName)
+inline void appendToFile(const std::vector<std::string>& vecStr, const char* fileName)
 {
     std::ofstream file(fileName, std::ios::out | std::ofstream::app);
     __BNN_AssertMsg(file.is_open(), "Could not open file for writing.");
 
-    for(size_t i = 0; i < vec_str.size(); ++i)
+    for(auto& str : vecStr)
     {
-        file << vec_str[i] << std::endl;
+        file << str << std::endl;
     }
 
     file.close();
 }
 
 
-inline void append_file(const std::vector<std::string>& vec_str, std::string fileName)
+inline void appendToFile(const std::vector<std::string>& vecStr, std::string fileName)
 {
-    append_file(vec_str, fileName.c_str());
+    appendToFile(vecStr, fileName.c_str());
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-inline bool read_file(unsigned char* dataBuffer, size_t bufferSize, const char* fileName)
+inline bool readFile(unsigned char* dataBuffer, size_t bufferSize, const char* fileName)
 {
     std::ifstream file(fileName, std::ios::binary | std::ios::ate);
 
@@ -304,13 +303,13 @@ inline bool read_file(unsigned char* dataBuffer, size_t bufferSize, const char* 
     return true;
 }
 
-inline bool read_file(unsigned char* dataBuffer, size_t bufferSize, std::string fileName)
+inline bool readFile(unsigned char* dataBuffer, size_t bufferSize, std::string fileName)
 {
-    return read_file(dataBuffer, bufferSize, fileName.c_str());
+    return readFile(dataBuffer, bufferSize, fileName.c_str());
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-inline bool read_file(std::vector<unsigned char>& dataBuffer, const char* fileName)
+inline bool readFile(std::vector<unsigned char>& dataBuffer, const char* fileName)
 {
     std::ifstream file(fileName, std::ios::binary | std::ios::ate);
 
@@ -329,13 +328,13 @@ inline bool read_file(std::vector<unsigned char>& dataBuffer, const char* fileNa
     return true;
 }
 
-inline bool read_file(std::vector<unsigned char>& dataBuffer, std::string fileName)
+inline bool readFile(std::vector<unsigned char>& dataBuffer, std::string fileName)
 {
-    return read_file(dataBuffer, fileName.c_str());
+    return readFile(dataBuffer, fileName.c_str());
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-inline bool read_file(std::vector<std::string>& vec_str, const char* fileName)
+inline bool readFile(std::vector<std::string>& vecStr, const char* fileName)
 {
     std::ifstream file(fileName, std::ios::in);
 
@@ -344,12 +343,12 @@ inline bool read_file(std::vector<std::string>& vec_str, const char* fileName)
         return false;
     }
 
-    vec_str.resize(0);
+    vecStr.resize(0);
     std::string line;
 
     while(std::getline(file, line))
     {
-        vec_str.push_back(line);
+        vecStr.push_back(line);
     }
 
     file.close();
@@ -357,23 +356,23 @@ inline bool read_file(std::vector<std::string>& vec_str, const char* fileName)
     return true;
 }
 
-inline bool read_file(std::vector<std::string>& vec_str, std::string fileName)
+inline bool readFile(std::vector<std::string>& vecStr, std::string fileName)
 {
-    return read_file(vec_str, fileName.c_str());
+    return readFile(vecStr, fileName.c_str());
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // template funcs
 template<class T>
-inline void write_binary_file(const std::vector<T>& dvec, const char* fileName)
+inline void writeBinaryFile(const std::vector<T>& dvec, const char* fileName)
 {
-    write_file((unsigned char*)dvec.data(), dvec.size() * sizeof(T), fileName);
+    writeFile((unsigned char*)dvec.data(), dvec.size() * sizeof(T), fileName);
 }
 
 template<class T>
-inline void write_binary_file(const std::vector<T>& data, std::string fileName)
+inline void writeBinaryFile(const std::vector<T>& data, std::string fileName)
 {
-    write_binary_file(data, fileName.c_str());
+    writeBinaryFile(data, fileName.c_str());
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

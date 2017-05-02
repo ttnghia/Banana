@@ -21,7 +21,7 @@
 #include <vector>
 
 #include <tbb/tbb.h>
-#include "./ParallelClass.h"
+#include "./ParallelObjects.h"
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace ParallelBLAS
@@ -30,38 +30,49 @@ namespace ParallelBLAS
 // dot products
 //
 template<class ScalarType>
-inline ScalarType dot_product(const std::vector<ScalarType>& x, const std::vector<ScalarType>& y)
+inline ScalarType dotProduct(const std::vector<ScalarType>& x, const std::vector<ScalarType>& y)
 {
     assert(x.size() == y.size());
 
-    ParallelClass::vector_dot_product<ScalarType> v(x, y);
-    tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), v);
+    ParallelObjects::VectorDotProduct<ScalarType> vdp(x, y);
+    tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), vdp);
 
-    return v.result;
+    return vdp.result;
 }
 
 template<class ScalarType, class VectorType>
-inline ScalarType vec_dot_product(const std::vector<VectorType>& x, const std::vector<VectorType>& y)
+inline ScalarType dotProduct(const std::vector<VectorType>& x, const std::vector<VectorType>& y)
 {
     assert(x.size() == y.size());
 
-    ParallelClass::vecvec_dot_product<ScalarType, VectorType> v(x, y);
+    ParallelObjects::VectorDotProduct<ScalarType, VectorType> v(x, y);
     tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), v);
 
     return v.result;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+// inf-norm (maximum absolute value)
+//
+template<class ScalarType, class VectorType>
+inline ScalarType maxAbs(const std::vector<VectorType>& x)
+{
+    ParallelObjects::VectorMaxAbs<ScalarType, VectorType> mabs(x);
+    tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), mabs);
+
+    return mabs.result;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // saxpy (y=alpha*x+y)
 //
 template<class ScalarType, class VectorType>
-inline void add_scaled(ScalarType alpha, const std::vector<VectorType>& x,
-                       std::vector<VectorType>& y)
+inline void addScaled(ScalarType alpha, const std::vector<VectorType>& x, std::vector<VectorType>& y)
 {
     tbb::parallel_for(tbb::blocked_range<size_t>(0, x.size()),
-                      [&, alpha](tbb::blocked_range<size_t> r)
+        [&, alpha](tbb::blocked_range<size_t> r)
         {
-            for(size_t i = r.begin(); i != r.end(); ++i)
+            for(size_t i = r.begin(), iEnd = r.end(); i != iEnd; ++i)
             {
                 y[i] += alpha * x[i];
             }
@@ -72,13 +83,12 @@ inline void add_scaled(ScalarType alpha, const std::vector<VectorType>& x,
 // y=x+beta*y
 //
 template<class ScalarType, class VectorType>
-inline void scaled_add(ScalarType beta, const std::vector<VectorType>& x,
-                       std::vector<VectorType>& y)
+inline void scaledAdd(ScalarType beta, const std::vector<VectorType>& x, std::vector<VectorType>& y)
 {
     tbb::parallel_for(tbb::blocked_range<size_t>(0, x.size()),
-                      [&, beta](tbb::blocked_range<size_t> r)
+        [&, beta](tbb::blocked_range<size_t> r)
         {
-            for(size_t i = r.begin(); i != r.end(); ++i)
+            for(size_t i = r.begin(), iEnd = r.end(); i != iEnd; ++i)
             {
                 y[i] = beta * y[i] + x[i];
             }
@@ -92,9 +102,9 @@ template<class ScalarType, class VectorType>
 inline void scale(ScalarType alpha, const std::vector<VectorType>& x)
 {
     tbb::parallel_for(tbb::blocked_range<size_t>(0, x.size()),
-                      [&, alpha](tbb::blocked_range<size_t> r)
+        [&, alpha](tbb::blocked_range<size_t> r)
         {
-            for(size_t i = r.begin(); i != r.end(); ++i)
+            for(size_t i = r.begin(), iEnd = r.end(); i != iEnd; ++i)
             {
                 x[i] *= alpha;
             }

@@ -28,11 +28,11 @@ namespace NumberHelpers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class T>
-std::string format_with_commas(T value, int precision = 2)
+std::string formatWithCommas(T value, int precision = 2)
 {
     struct Numpunct : public std::numpunct<char>
     {
-    protected:
+protected:
         virtual char do_thousands_sep() const
         {
             return ',';
@@ -44,14 +44,14 @@ std::string format_with_commas(T value, int precision = 2)
     };
     std::stringstream ss;
     ss.str("");
-    ss.imbue({std::locale(), new Numpunct});
+    ss.imbue({ std::locale(), new Numpunct });
     ss << std::setprecision(precision) << std::fixed << value;
     return ss.str();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class T>
-std::string format_to_scientific(T value, int precision = 5)
+std::string formatToScientific(T value, int precision = 5)
 {
     std::stringstream ss;
     ss.str("");
@@ -60,8 +60,8 @@ std::string format_to_scientific(T value, int precision = 5)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template <typename T>
-std::string to_string_with_precision(const T value, const int n = 5)
+template<typename T>
+std::string toStringWithPrecision(const T value, const int n = 5)
 {
     std::ostringstream out;
     out << std::setprecision(n) << value;
@@ -70,20 +70,20 @@ std::string to_string_with_precision(const T value, const int n = 5)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class T>
-inline T generate_random_int(T start, T end)
+inline T generateRandomInt(T start, T end)
 {
-    std::random_device rd;
-    std::mt19937 gen(rd());
+    std::random_device               rd;
+    std::mt19937                     gen(rd());
     std::uniform_int_distribution<T> dis(start, end);
 
     return dis(gen);
 }
 
 template<class T>
-inline T generate_random_real(T start, T end)
+inline T generateRandomReal(T start, T end)
 {
-    std::random_device rd;
-    std::mt19937 gen(rd());
+    std::random_device                rd;
+    std::mt19937                      gen(rd());
     std::uniform_real_distribution<T> dis(start, end);
 
     return dis(gen);

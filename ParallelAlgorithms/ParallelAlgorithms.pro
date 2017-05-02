@@ -46,6 +46,6 @@ macx {
 
 HEADERS += \
     Include/ParallelAlgorithms/ParallelBLAS.h \
-    Include/ParallelAlgorithms/ParallelClass.h \
     Include/ParallelAlgorithms/ParallelFuncs.h \
-    Include/ParallelAlgorithms/ParallelSTL.h
+    Include/ParallelAlgorithms/ParallelSTL.h \
+    Include/ParallelAlgorithms/ParallelObjects.h

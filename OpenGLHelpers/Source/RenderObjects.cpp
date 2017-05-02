@@ -500,8 +500,8 @@ void OffScreenRender::setNumColorBuffers(int numColorBuffers)
 
         if(numColorBuffers == 0)
         {
-            glDrawBuffer(GL_NONE);
-            glReadBuffer(GL_NONE);
+            glCall(glDrawBuffer(GL_NONE));
+            glCall(glReadBuffer(GL_NONE));
         }
 
         // check error
@@ -590,8 +590,8 @@ void OffScreenRender::initRenderData()
 
     if(m_NumColorBuffers == 0)
     {
-        glDrawBuffer(GL_NONE);
-        glReadBuffer(GL_NONE);
+        glCall(glDrawBuffer(GL_NONE));
+        glCall(glReadBuffer(GL_NONE));
     }
 
     // check error
@@ -600,7 +600,7 @@ void OffScreenRender::initRenderData()
 #ifdef __Banana_Qt__
         __BNN_Die(QString("OffScreenRender: FrameBuffer is incomplete!"));
 #else
-        __BNN_Die("%s: FrameBuffer is incomplete!\n", m_Shader->getProgramName());
+        __BNN_Die(("%s: FrameBuffer is incomplete!\n", m_Shader->getProgramName().c_str()));
 #endif
     }
 
@@ -617,11 +617,11 @@ void DepthBufferRender::beginRender()
 {
     OffScreenRender::beginRender();
 
-    glClearColor(m_ClearLinearDepthValue, m_ClearLinearDepthValue, m_ClearLinearDepthValue, 1.0);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-    glEnable(GL_DEPTH_TEST);
-    glDepthMask(GL_TRUE);
-    glDepthFunc(GL_LEQUAL);
+    glCall(glClearColor(m_ClearLinearDepthValue, m_ClearLinearDepthValue, m_ClearLinearDepthValue, 1.0));
+    glCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
+    glCall(glEnable(GL_DEPTH_TEST));
+    glCall(glDepthMask(GL_TRUE));
+    glCall(glDepthFunc(GL_LEQUAL));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -629,8 +629,8 @@ void DepthBufferRender::endRender(GLuint defaultFBO /* = 0 */)
 {
     OffScreenRender::endRender(defaultFBO);
 
-    glClearColor(m_DefaultClearColor[0], m_DefaultClearColor[1], m_DefaultClearColor[2], m_DefaultClearColor[3]);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    glCall(glClearColor(m_DefaultClearColor[0], m_DefaultClearColor[1], m_DefaultClearColor[2], m_DefaultClearColor[3]));
+    glCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -890,7 +890,7 @@ void MeshRender::render()
 
     m_Material->bindUniformBuffer();
     m_Shader->bindUniformBlock(m_UBMaterial, m_Material->getBufferBindingPoint());
-    printf("%f\n", m_Exposure);
+
     m_Shader->setUniformValue(m_UExposure, m_Exposure);
 
     if(m_ExternalShadowMaps.size() != 0)
@@ -964,7 +964,7 @@ void MeshRender::renderToLightDepthBuffer(int scrWidth, int scrHeight, GLuint de
     }
 
     m_LightDepthShader->release();
-    glViewport(0, 0, scrWidth, scrHeight);
+    glCall(glViewport(0, 0, scrWidth, scrHeight));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -988,7 +988,7 @@ void MeshRender::renderToCameraDepthBuffer(int scrWidth, int scrHeight, GLuint d
     m_CameraDepthBufferRender->endRender(defaultFBO);
 
     m_LightDepthShader->release();
-    glViewport(0, 0, scrWidth, scrHeight);
+    glCall(glViewport(0, 0, scrWidth, scrHeight));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

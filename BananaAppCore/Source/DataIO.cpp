@@ -106,7 +106,7 @@ int DataIO::find_latest_file_index(int maxIndex)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 bool DataIO::existed_file_index(int fileID)
 {
-    return FileHelpers::file_existed(get_file_name(fileID));
+    return FileHelpers::fileExisted(get_file_name(fileID));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -129,7 +129,7 @@ void DataIO::flush_buffer(int fileID)
     }
 
     const std::string fileName = get_file_name(fileID);
-    FileHelpers::write_file(m_FileBuffer.data(), m_FileBuffer.size(), fileName);
+    FileHelpers::writeFile(m_FileBuffer.data(), m_FileBuffer.size(), fileName);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -143,7 +143,7 @@ void DataIO::flush_buffer_async(int fileID)
     m_WriteFutureObj = std::async(std::launch::async, [&]()
     {
         const std::string fileName = get_file_name(fileID);
-        FileHelpers::write_file(m_FileBuffer.data(), m_FileBuffer.size(), fileName);
+        FileHelpers::writeFile(m_FileBuffer.data(), m_FileBuffer.size(), fileName);
     });
 }
 
@@ -152,7 +152,7 @@ bool DataIO::load_file_index(int fileID)
 {
     const std::string fileName = get_file_name(fileID);
 
-    if(FileHelpers::read_file(m_FileBuffer.buffer(), fileName))
+    if(FileHelpers::readFile(m_FileBuffer.buffer(), fileName))
     {
         return true;
     }
@@ -207,5 +207,5 @@ void DataIO::create_output_folders()
 #else
     sprintf(fullFolderName, "%s/%s", m_DataRootFolder.c_str(), m_DataFolder.c_str());
 #endif
-    FileHelpers::create_folder(fullFolderName);
+    FileHelpers::createFolder(fullFolderName);
 }

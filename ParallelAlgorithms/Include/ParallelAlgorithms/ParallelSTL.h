@@ -23,7 +23,7 @@
 
 
 #include <tbb/tbb.h>
-#include "./ParallelClass.h"
+#include "./ParallelObjects.h"
 #include "./ParallelFuncs.h"
 
 
@@ -36,7 +36,7 @@ namespace ParallelSTL
 template<class ScalarType>
 inline ScalarType abs_max(const std::vector<ScalarType>& x)
 {
-    ParallelClass::vector_max_abs<ScalarType> m(x);
+    ParallelObjects::VectorMaxAbs<ScalarType> m(x);
     tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), m);
 
     return m.result;
@@ -45,7 +45,7 @@ inline ScalarType abs_max(const std::vector<ScalarType>& x)
 template<class ScalarType, class VectorType>
 inline ScalarType vec_abs_max(const std::vector<VectorType>& x)
 {
-    ParallelClass::vecvec_max_abs<ScalarType, VectorType> m(x);
+    ParallelObjects::VectorMaxAbs<ScalarType, VectorType> m(x);
     tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), m);
 
     return m.result;
@@ -56,7 +56,7 @@ inline ScalarType vec_abs_max(const std::vector<VectorType>& x)
 template<class ScalarType>
 inline ScalarType min_element(const std::vector<ScalarType>& x)
 {
-    ParallelClass::vector_min<ScalarType> m(x);
+    ParallelObjects::VectorMinElement<ScalarType> m(x);
     tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), m);
 
     return m.result;
@@ -65,7 +65,7 @@ inline ScalarType min_element(const std::vector<ScalarType>& x)
 template<class ScalarType>
 inline ScalarType max_element(const std::vector<ScalarType>& x)
 {
-    ParallelClass::vector_max<ScalarType> m(x);
+    ParallelObjects::VectorMaxElement<ScalarType> m(x);
     tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), m);
 
     return m.result;
@@ -74,7 +74,7 @@ inline ScalarType max_element(const std::vector<ScalarType>& x)
 template<class ScalarType>
 inline void min_max_element(const std::vector<ScalarType>& x, ScalarType& min_element, ScalarType& max_element)
 {
-    ParallelClass::vector_min_max<ScalarType> m(x);
+    ParallelObjects::vector_min_max<ScalarType> m(x);
     tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), m);
 
     min_element = m.result_min;
