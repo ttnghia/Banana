@@ -774,7 +774,9 @@ std::shared_ptr<ShaderProgram> ShaderProgram::ShaderProgram::getPhongShader(std:
         "uniform int u_HasShadow;\n"
         "uniform sampler2D u_TexSampler;\n"
         "uniform sampler2D u_ShadowMap[NUM_TOTAL_LIGHTS];\n"
-        "#define SHADOW_BIAS -0.05"
+        "#define SHADOW_BIAS -0.05\n"
+        "\n"
+        "uniform float u_Exposure = 1.0f;\n"
         "\n"
         "in VS_OUT\n"
         "{\n"
@@ -837,7 +839,7 @@ std::shared_ptr<ShaderProgram> ShaderProgram::ShaderProgram::getPhongShader(std:
         "    for(int i = 0; i < u_NumLights; ++i)\n"
         "        shadeColor += shadeLight(i, normal, f_FragPos, viewDir, f_TexCoord);\n"
         "\n"
-        "    outColor = vec4(shadeColor, 1.0);\n"
+        "    outColor = vec4(u_Exposure * shadeColor, 1.0);\n"
         "}\n";
 
     std::shared_ptr<ShaderProgram> shader = std::make_shared<ShaderProgram>(programName);

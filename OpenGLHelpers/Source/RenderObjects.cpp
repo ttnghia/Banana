@@ -890,6 +890,8 @@ void MeshRender::render()
 
     m_Material->bindUniformBuffer();
     m_Shader->bindUniformBlock(m_UBMaterial, m_Material->getBufferBindingPoint());
+    printf("%f\n", m_Exposure);
+    m_Shader->setUniformValue(m_UExposure, m_Exposure);
 
     if(m_ExternalShadowMaps.size() != 0)
     {
@@ -1069,6 +1071,11 @@ void MeshRender::resizeShadowMap(int width, int height)
     m_CameraDepthBufferRender->resize(width, height);
 }
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void MeshRender::setExposure(float exposure)
+{
+    m_Exposure = exposure;
+}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MeshRender::setupVAO()
@@ -1149,6 +1156,7 @@ void MeshRender::initRenderData()
         sprintf(buff, "u_ShadowMap[%d]", i);
         m_UShadowMap[i] = m_Shader->getUniformLocation(buff);
     }
+    m_UExposure = m_Shader->getUniformLocation("u_Exposure");
 
     m_UBModelMatrix   = m_Shader->getUniformBlockIndex("ModelMatrix");
     m_UBCamData       = m_Shader->getUniformBlockIndex("CameraData");

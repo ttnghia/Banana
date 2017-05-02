@@ -18,7 +18,7 @@
 #include <QtAppHelpers/ClipPlaneEditor.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-ClipPlaneEditor::ClipPlaneEditor(QWidget* parent) : QWidget(parent), m_ClipPlane(1, 0, 0, -0.5)
+ClipPlaneEditor::ClipPlaneEditor(QWidget* parent) : QWidget(parent), m_ClipPlane(1.0f, 0.0f, 0.0f, -0.5f)
 {
     setupGUI();
     setWindowTitle("Clip Plane Editor");
@@ -71,7 +71,7 @@ void ClipPlaneEditor::setupGUI()
 
     for(int i = 0; i < 4; ++i)
     {
-        m_lblPlanes[i] = new QLabel("-1");
+        m_lblPlanes[i] = new QLabel(QString("%1").arg(m_ClipPlane[i]));
 
         m_sldCoeffs[i] = new QSlider(Qt::Horizontal);
         m_sldCoeffs[i]->setMaximum(200);

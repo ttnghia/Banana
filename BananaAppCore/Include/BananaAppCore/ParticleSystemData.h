@@ -55,7 +55,7 @@ public:
 
     void clearData()
     {
-        for(auto it = m_ArrayData.begin(); it != m_ArrayData.end(); ++it)
+        for(auto it = m_ArrayData.cbegin(), itEnd = m_ArrayData.cend(); it != itEnd; ++it)
         {
             it->second->clear();
         }
@@ -74,7 +74,7 @@ public:
             m_MaxNumParticles = numParticles;
         }
 
-        for(auto it = m_ArrayData.begin(); it != m_ArrayData.end(); ++it)
+        for(auto it = m_ArrayData.cbegin(), itEnd = m_ArrayData.cend(); it != itEnd; ++it)
         {
             const std::string& arrName   = it->first;
             size_t             arraySize = m_NumParticles * m_ArrayElementSize[arrName];
@@ -86,7 +86,7 @@ public:
     {
         m_MaxNumParticles = maxNumParticles;
 
-        for(auto it = m_ArrayData.begin(); it != m_ArrayData.end(); ++it)
+        for(auto it = m_ArrayData.cbegin(), itEnd = m_ArrayData.cend(); it != itEnd; ++it)
         {
             const std::string& arrName   = it->first;
             size_t             arraySize = m_MaxNumParticles * m_ArrayElementSize[arrName];
@@ -96,7 +96,7 @@ public:
 
     void allocate(unsigned int numAllocation)
     {
-        for(auto it = m_ArrayData.begin(); it != m_ArrayData.end(); ++it)
+        for(auto it = m_ArrayData.cbegin(), itEnd = m_ArrayData.cend(); it != itEnd; ++it)
         {
             const std::string& arrName   = it->first;
             size_t             arraySize = numAllocation * m_ArrayElementSize[arrName];
@@ -138,7 +138,7 @@ public:
         {
             T* dataPtr = reinterpret_cast<T*>(getArray(arrName)->data());
 
-            for(unsigned int i = 0; i < m_MaxNumParticles * N; ++i)
+            for(unsigned int i = 0, iEnd = m_MaxNumParticles * N; i < iEnd; ++i)
             {
                 dataPtr[i] = T(0);
             }
@@ -163,7 +163,7 @@ public:
         {
             T* dataPtr = reinterpret_cast<T*>(getArray(arrName)->data());
 
-            for(unsigned int i = 0; i < m_MaxNumParticles * N; ++i)
+            for(unsigned int i = 0, iEnd = m_MaxNumParticles * N; i < iEnd; ++i)
             {
                 dataPtr[i] = T(0);
             }
@@ -240,7 +240,7 @@ public:
         std::mt19937                     gen(rd());
         std::uniform_int_distribution<T> dis(minVal, maxVal);
 
-        for(unsigned int i = 0; i < m_NumParticles * N; ++i)
+        for(unsigned int i = 0, iEnd = m_NumParticles * N; i < iEnd; ++i)
         {
             dataPtr[i] = dis(gen);
         }
@@ -258,7 +258,7 @@ public:
         std::mt19937                      gen(rd());
         std::uniform_real_distribution<T> dis(minVal, maxVal);
 
-        for(unsigned int i = 0; i < m_NumParticles * N; ++i)
+        for(unsigned int i = 0, iEnd = m_NumParticles * N; i < iEnd; ++i)
         {
             dataPtr[i] = dis(gen);
         }

@@ -282,7 +282,7 @@ public:
                QString textureFolder,
                const std::shared_ptr<Material>& material = nullptr, const std::shared_ptr<OpenGLBuffer>& bufferCamData = nullptr) :
         RenderObject(camera, bufferCamData), m_MeshObj(meshObj), m_Lights(light), m_Material(material), m_CurrentTexture(nullptr),
-        m_ShadowBufferWidth(1024), m_ShadowBufferHeight(1024)
+        m_ShadowBufferWidth(1024), m_ShadowBufferHeight(1024), m_Exposure(1.0f)
     {
         initRenderData();
         OpenGLTexture::loadTextures(m_Textures, textureFolder);
@@ -294,7 +294,7 @@ public:
     MeshRender(const std::shared_ptr<MeshObject>& meshObj, const std::shared_ptr<Camera>& camera, const std::shared_ptr<PointLights>& light,
                const std::shared_ptr<Material>& material = nullptr, const std::shared_ptr<OpenGLBuffer>& bufferCamData = nullptr) :
         RenderObject(camera, bufferCamData), m_MeshObj(meshObj), m_Lights(light), m_Material(material), m_CurrentTexture(nullptr),
-        m_ShadowBufferWidth(1024), m_ShadowBufferHeight(1024)
+        m_ShadowBufferWidth(1024), m_ShadowBufferHeight(1024), m_Exposure(1.0f)
     {
         initRenderData();
     }
@@ -309,6 +309,7 @@ public:
     void setRenderTextureIndex(int texIndex);
     void setExternalShadowMaps(const std::vector<std::shared_ptr<OpenGLTexture> >& shadowMaps);
     void resizeShadowMap(int width, int height);
+    void setExposure(float exposure);
     void transform(const glm::vec3& translation, const glm::vec3& scale);
     void setupVAO();
 
@@ -336,6 +337,7 @@ protected:
     GLuint                                       m_UHasShadow;
     GLuint                                       m_UTexSampler;
     GLuint                                       m_UShadowMap[MAX_NUM_LIGHTS];
+    GLuint                                       m_UExposure;
     std::shared_ptr<MeshObject>                  m_MeshObj;
     std::shared_ptr<PointLights>                 m_Lights;
     std::shared_ptr<Material>                    m_Material;
@@ -343,17 +345,18 @@ protected:
     std::shared_ptr<OpenGLTexture>               m_CurrentTexture;
     std::vector<std::shared_ptr<OpenGLTexture> > m_ExternalShadowMaps;
 
-    bool   m_DepthBufferInitialized = false;
-    GLint  m_ShadowBufferWidth;
-    GLint  m_ShadowBufferHeight;
-    GLuint m_LDSAtrVPosition;
-    GLuint m_LDSUBLightMatrices;
-    GLuint m_LDSUBModelMatrix;
-    GLuint m_LDSVAO;
-    GLuint m_CDSAtrVPosition;
-    GLuint m_CDSUBModelMatrix;
-    GLuint m_CDSUBCameraData;
-    GLuint m_CDSVAO;
+    bool    m_DepthBufferInitialized = false;
+    GLint   m_ShadowBufferWidth;
+    GLint   m_ShadowBufferHeight;
+    GLfloat m_Exposure;
+    GLuint  m_LDSAtrVPosition;
+    GLuint  m_LDSUBLightMatrices;
+    GLuint  m_LDSUBModelMatrix;
+    GLuint  m_LDSVAO;
+    GLuint  m_CDSAtrVPosition;
+    GLuint  m_CDSUBModelMatrix;
+    GLuint  m_CDSUBCameraData;
+    GLuint  m_CDSVAO;
 
     std::shared_ptr<ShaderProgram>                   m_LightDepthShader;
     std::shared_ptr<ShaderProgram>                   m_CameraDepthShader;

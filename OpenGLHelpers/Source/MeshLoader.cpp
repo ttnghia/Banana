@@ -143,8 +143,8 @@ void MeshLoader::clearData()
 {
     m_NumTriangles = 0;
 
-    m_BBoxMin = glm::vec3(1e100, 1e100, 1e100);
-    m_BBoxMax = glm::vec3(-1e100, -1e100, -1e100);
+    m_BBoxMin = glm::vec3(1e10, 1e10, 1e10);
+    m_BBoxMax = glm::vec3(-1e10, -1e10, -1e10);
 
     m_Vertices.clear();
     m_VertexNormals.clear();
