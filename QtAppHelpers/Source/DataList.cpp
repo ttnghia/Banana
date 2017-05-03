@@ -18,7 +18,7 @@
 #include <QtAppHelpers/DataList.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-DataList::DataList(QWidget *parent, bool bAddEmptyItem /*= true*/, bool bAddOrderText /*= true*/, QString indexSeparator /*= QString("::")*/) :
+DataList::DataList(QWidget* parent, bool bAddEmptyItem /*= true*/, bool bAddOrderText /*= true*/, QString indexSeparator /*= QString("::")*/) :
     QWidget(parent), m_ListWidget(nullptr), m_bAddEmptyItem(bAddEmptyItem), m_bAddOrderText(bAddOrderText), m_IndexSeparator(indexSeparator)
 {
     setWindowTitle("Data List");
@@ -37,22 +37,23 @@ DataList::~DataList()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void DataList::loadListFromFile(const QString& listFile)
 {
-
+    m_ListFile = listFile;
     QFile textFile(listFile);
     if(!textFile.open(QIODevice::ReadOnly | QIODevice::Text))
     {
-        qDebug() << "Error: Cannot open file" << listFile << "for reading.";
+        QMessageBox::warning(this, "Error", "Cannot open file '" + listFile + "' for reading.");
         return;
     }
 
-    QTextStream in(&textFile);
+    clear();
+    QTextStream in(& textFile);
     while(!in.atEnd())
     {
         addItem(in.readLine());
     }
 
     setListCurrentIndex(0);
-    m_lblStatus->setText(QString("Loaded list from %1").arg(listFile));
+    m_lblStatus->setText(QString("Loaded list from %1").arg(listFile)); \
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -110,7 +111,7 @@ bool DataList::eventFilter(QObject* obj, QEvent* e)
 {
     if(obj == m_ListWidget && e->type() == QEvent::KeyPress)
     {
-        QKeyEvent* key = static_cast<QKeyEvent*>(e);
+        QKeyEvent* key = static_cast < QKeyEvent * > (e);
 
         switch(key->key())
         {
@@ -148,22 +149,36 @@ void DataList::setupGUI()
 
     m_ListWidget->installEventFilter(this);
 
+    ////////////////////////////////////////////////////////////////////////////////
     m_lblStatus = new QLabel(this);
     m_lblStatus->setMargin(5);
     m_lblStatus->setAlignment(Qt::AlignLeft);
 
+    QPushButton* btnReload = new QPushButton("Reload");
+    connect(btnReload, &QPushButton::clicked, [&]
+    {
+        loadListFromFile(m_ListFile);
+    });
+
+    QHBoxLayout* statusLayout = new QHBoxLayout;
+    statusLayout->addWidget(m_lblStatus, 4);
+    statusLayout->addWidget(btnReload, 1);
+
+    ////////////////////////////////////////////////////////////////////////////////
     QVBoxLayout* layout = new QVBoxLayout;
     layout->addWidget(m_ListWidget);
-    layout->addWidget(m_lblStatus);
+    layout->addLayout(statusLayout);
     setLayout(layout);
 
-    connect(m_ListWidget, &QListWidget::currentRowChanged, this, [&](int currentRow)
+    connect(m_ListWidget, &QListWidget::currentRowChanged, [&](int currentRow)
     {
+        if(currentRow < 0)
+            return;
+
         if(!m_bAddEmptyItem || (m_bAddEmptyItem && currentRow != 0))
         {
             emit currentRowChanged(currentRow);
             emit currentTextChanged(m_DataList[m_bAddEmptyItem ? currentRow - 1 : currentRow]);
         }
     });
-
 }

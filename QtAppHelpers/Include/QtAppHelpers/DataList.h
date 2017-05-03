@@ -50,6 +50,7 @@ private:
     bool         m_bAddEmptyItem;
     bool         m_bAddOrderText;
     QString      m_IndexSeparator;
+    QString m_ListFile;
     QListWidget* m_ListWidget;
     QStringList  m_DataList;
     QLabel*      m_lblStatus;
