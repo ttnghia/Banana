@@ -18,7 +18,7 @@ CONFIG += staticlib
 
 include($$[QT_INSTALL_EXAMPLES]/widgets/painting/shared/shared.pri)
 INCLUDEPATH += ./Include
-INCLUDEPATH += $$PWD/../BananaAppcore/Include
+INCLUDEPATH += $$PWD/../BananaCore/Include
 INCLUDEPATH += $$PWD/../OpenGLHelpers/Include
 
 INCLUDEPATH += $$PWD/../Externals/glm

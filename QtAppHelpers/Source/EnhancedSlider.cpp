@@ -63,7 +63,7 @@ EnhancedSlider::EnhancedSlider(int sliderSpan /*= 5*/, QWidget *parent/*= nullpt
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- QLayout* EnhancedSlider::getLayoutWithLabel(QString label, int sldStretch /*= 5*/)
+ QLayout* EnhancedSlider::getLayoutWithLabel(const QString& label, int sldStretch /*= 5*/)
 {
     QHBoxLayout* layout = new QHBoxLayout;
     layout->addWidget(new QLabel(label), 1);
@@ -73,7 +73,7 @@ EnhancedSlider::EnhancedSlider(int sliderSpan /*= 5*/, QWidget *parent/*= nullpt
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- QGroupBox * EnhancedSlider::getGroupBox(QString title)
+ QGroupBox * EnhancedSlider::getGroupBox(const QString& title)
 {
     if(m_GroupBox == nullptr)
     {

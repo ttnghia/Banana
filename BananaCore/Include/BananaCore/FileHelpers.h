@@ -17,7 +17,7 @@
 
 #pragma once
 
-#include <BananaAppCore/Macros.h>
+#include <BananaCore/Macros.h>
 
 #include <cstdlib>
 #include <cstdio>
@@ -41,12 +41,12 @@ inline void createFolder(const char* folderName)
     CreateDirectoryA(folderName, NULL);
 #else
     char buff[512];
-    sprintf(buff, "mkdir -p %s", folderName);
+    __BNN_sprint(buff, "mkdir -p %s", folderName);
     system(buff);
 #endif
 }
 
-inline void createFolder(std::string folderName)
+inline void createFolder(const std::string& folderName)
 {
     createFolder(folderName.c_str());
 }
@@ -71,7 +71,7 @@ inline bool fileExisted(const char* fileName)
     }
 }
 
-inline bool fileExisted(std::string fileName)
+inline bool fileExisted(const std::string& fileName)
 {
     return fileExisted(fileName.c_str());
 }
@@ -92,7 +92,7 @@ inline size_t getFileSize(const char* fileName)
     return fileSize;
 }
 
-inline size_t getFileSize(std::string fileName)
+inline size_t getFileSize(const std::string& fileName)
 {
     return getFileSize(fileName.c_str());
 }
@@ -109,14 +109,14 @@ inline std::string getFolderSize(const char* folderName, int level = 0)
 
     if(level == 0)
     {
-        sprintf(command, "du -h -d0 %s | cut -f1", folderName);
+        __BNN_sprint(command, "du -h -d0 %s | cut -f1", folderName);
     }
     else
     {
-        sprintf(command, "du -h -d%d %s", level, folderName);
+        __BNN_sprint(command, "du -h -d%d %s", level, folderName);
     }
 
-    FILE*       stream = popen(command, "r");
+    FILE* stream = popen(command, "r");
 
     std::string output;
 
@@ -141,42 +141,37 @@ inline std::string getFolderSize(const char* folderName, int level = 0)
 #endif
 }
 
-inline std::string getFolderSize(std::string folderName, int level = 0)
+inline std::string getFolderSize(const std::string& folderName, int level = 0)
 {
     return getFolderSize(folderName.c_str(), level);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#ifdef __Banana_Windows__
-#   define print sprintf_s
-#else
-#   define print sprintf
-#endif
-inline std::string getFullFilePath(std::string topFolder, std::string dataSubFolder, std::string fileName, std::string fileExtension, int fileID)
+inline std::string getFullFilePath(const std::string& topFolder, std::string dataSubFolder, std::string fileName, std::string fileExtension, int fileID)
 {
     char buff[512];
-    print(buff, "%s/%s/%s.%04d.%s", topFolder.c_str(), dataSubFolder.c_str(), fileName.c_str(), fileID, fileExtension.c_str());
+    __BNN_sprint(buff, "%s/%s/%s.%04d.%s", topFolder.c_str(), dataSubFolder.c_str(), fileName.c_str(), fileID, fileExtension.c_str());
     return std::string(buff);
 }
 
 inline std::string getFullFilePath(const char* topFolder, const char* dataSubFolder, const char* fileName, const char* fileExtension, int fileID)
 {
     char buff[512];
-    print(buff, "%s/%s/%s.%04d.%s", topFolder, dataSubFolder, fileName, fileID, fileExtension);
+    __BNN_sprint(buff, "%s/%s/%s.%04d.%s", topFolder, dataSubFolder, fileName, fileID, fileExtension);
 
     return std::string(buff);
 }
 
-inline std::string getFullFilePath(std::string topFolder, const char* dataSubFolder, const char* fileName, const char* fileExtension, int fileID)
+inline std::string getFullFilePath(const std::string& topFolder, const char* dataSubFolder, const char* fileName, const char* fileExtension, int fileID)
 {
     char buff[512];
-    print(buff, "%s/%s/%s.%04d.%s", topFolder.c_str(), dataSubFolder, fileName, fileID, fileExtension);
+    __BNN_sprint(buff, "%s/%s/%s.%04d.%s", topFolder.c_str(), dataSubFolder, fileName, fileID, fileExtension);
 
     return std::string(buff);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-inline void writeFile(std::string str, const char* fileName)
+inline void writeFile(const std::string& str, const char* fileName)
 {
     std::ofstream file(fileName, std::ios::out);
     __BNN_AssertMsg(file.is_open(), "Could not open file for writing.");
@@ -185,7 +180,7 @@ inline void writeFile(std::string str, const char* fileName)
     file.close();
 }
 
-inline void writeFile(std::string str, std::string fileName)
+inline void writeFile(const std::string& str, std::string fileName)
 {
     writeFile(str, fileName.c_str());
 }
@@ -245,7 +240,7 @@ inline std::future<void> writeFileAsync(const unsigned char* dataBuffer, size_t 
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-inline void appendToFile(std::string str, const char* fileName)
+inline void appendToFile(const std::string& str, const char* fileName)
 {
     std::ofstream file(fileName, std::ios::out | std::ofstream::app);
     __BNN_AssertMsg(file.is_open(), "Could not open file for writing.");
@@ -254,7 +249,7 @@ inline void appendToFile(std::string str, const char* fileName)
     file.close();
 }
 
-inline void appendToFile(std::string str, std::string fileName)
+inline void appendToFile(const std::string& str, std::string fileName)
 {
     appendToFile(str, fileName.c_str());
 }
@@ -292,8 +287,7 @@ inline bool readFile(unsigned char* dataBuffer, size_t bufferSize, const char* f
     size_t fileSize = (size_t)file.tellg();
     if(bufferSize < fileSize)
     {
-        delete[] dataBuffer;
-        dataBuffer = new unsigned char[fileSize];
+        realloc(dataBuffer, fileSize);
     }
 
     file.seekg(0, std::ios::beg);
@@ -373,6 +367,18 @@ template<class T>
 inline void writeBinaryFile(const std::vector<T>& data, std::string fileName)
 {
     writeBinaryFile(data, fileName.c_str());
+}
+
+template<class T>
+inline std::future<void> writeBinaryFileAsync(const std::vector<T>& dvec, const char* fileName)
+{
+    return writeFileAsync((unsigned char*)dvec.data(), dvec.size() * sizeof(T), fileName);
+}
+
+template<class T>
+inline std::future<void> writeBinaryFileAsync(const std::vector<T>& data, std::string fileName)
+{
+    return writeBinaryFileAsync(dataBuffer, dataSize, fileName.c_str());
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

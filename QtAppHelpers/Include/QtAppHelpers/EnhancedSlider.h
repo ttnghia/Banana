@@ -25,14 +25,13 @@ class EnhancedSlider : public QWidget
     Q_OBJECT
 
 public:
-    EnhancedSlider(int      sliderSpan = 5,
-                   QWidget *parent = nullptr);
+    EnhancedSlider(int sliderSpan = 5, QWidget* parent = nullptr);
 
-     QSlider*   getSlider() const;
-     QSpinBox*  getSpinBox() const;
-     QLayout*   getLayout() const;
-     QLayout*   getLayoutWithLabel(QString label, int sldStretch = 5);
-     QGroupBox* getGroupBox(QString title = QString(""));
+    QSlider*   getSlider() const;
+    QSpinBox*  getSpinBox() const;
+    QLayout*   getLayout() const;
+    QLayout*   getLayoutWithLabel(const QString& label, int sldStretch = 5);
+    QGroupBox* getGroupBox(const QString& title = QString(""));
 
     void setTracking(bool tracking);
     void setRange(int minVal, int maxVal);

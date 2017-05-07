@@ -32,8 +32,8 @@ public:
 
     QComboBox* getComboBox()const;
     QLayout* getLayout()const;
-    QLayout* getLayoutWithLabel(QString label, int comboStretch = 5);
-    QGroupBox* getGroupBox(QString title = QString(""));
+    QLayout* getLayoutWithLabel(const QString& label, int comboStretch = 5);
+    QGroupBox* getGroupBox(const QString& title = QString(""));
 
     void setCurrentIndex(int index);
     int getCurrentIndex() const;

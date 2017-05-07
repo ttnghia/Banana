@@ -26,25 +26,17 @@
 class OpenGLTexture : public OpenGLCallable
 {
 public:
-    OpenGLTexture() :
-        m_bTextureCreated(false),
-        m_BindedTexUnit(0),
-        m_TexureTarget(GL_TEXTURE_2D)
+    OpenGLTexture() : m_bTextureCreated(false), m_BindedTexUnit(0), m_TexureTarget(GL_TEXTURE_2D)
     {}
 
-    OpenGLTexture(GLenum textureTarget) :
-        m_bTextureCreated(false),
-        m_BindedTexUnit(0),
-        m_TexureTarget(GL_TEXTURE_2D)
+    OpenGLTexture(GLenum textureTarget) : m_bTextureCreated(false), m_BindedTexUnit(0), m_TexureTarget(GL_TEXTURE_2D)
     {
         createTexture(textureTarget);
     }
 
     void createTexture(GLenum textureTarget);
     void generateMipMap();
-    void uploadData(GLenum texTarget, GLint internalFormat,
-                    GLsizei width, GLsizei height,
-                    GLenum dataFormat, GLenum dataType, const GLvoid * data);
+    void uploadData(GLenum texTarget, GLint internalFormat, GLsizei width, GLsizei height, GLenum dataFormat, GLenum dataType, const GLvoid* data);
 
     void setTextureParameter(GLenum filterMode, GLenum value);
     void setAnisotropicFilter(bool enable);
@@ -60,7 +52,9 @@ public:
     void release();
 
 #ifdef __Banana_Qt__
-    static void loadTextures(std::vector<std::shared_ptr<OpenGLTexture> >& textures, QString textureFolder, bool insertNullTex = true, bool bGenMipMap = true);
+    static void        loadTextures(std::vector<std::shared_ptr<OpenGLTexture> >& textures, QString textureFolder, bool insertNullTex = true, bool bGenMipMap = true);
+    static QStringList getTextureFolders(QString texType, QString texRootFolder = QString("Textures"));
+    static QStringList getTextureFiles(QString texType, QString texRootFolder = QString("Textures"));
 #endif
 
 private:

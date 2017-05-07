@@ -1,6 +1,6 @@
 TEMPLATE = subdirs
 
-SUBDIRS += BananaAppCore
+SUBDIRS += BananaCore
 SUBDIRS += OpenGLHelpers
 SUBDIRS += ParallelAlgorithms
 SUBDIRS += QtAppHelpers

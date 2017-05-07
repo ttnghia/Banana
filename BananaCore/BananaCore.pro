@@ -4,7 +4,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 CONFIG += c++14
 
-TARGET = BananaAppCore
+TARGET = BananaCore
 
 TEMPLATE = lib
 
@@ -45,16 +45,16 @@ macx {
 }
 
 HEADERS += \
-    Include/BananaAppCore/AppConfigReader.h \
-    Include/BananaAppCore/DataIO.h \
-    Include/BananaAppCore/FileHelpers.h \
-    Include/BananaAppCore/Macros.h \
-    Include/BananaAppCore/NumberHelpers.h \
-    Include/BananaAppCore/OptionalParameter.h \
-    Include/BananaAppCore/ParticleSystemData.h \
-    Include/BananaAppCore/STLHelpers.h \
-    Include/BananaAppCore/Timer.h \
-    Include/BananaAppCore/TypeNames.h
+    Include/BananaCore/AppConfigReader.h \
+    Include/BananaCore/DataIO.h \
+    Include/BananaCore/FileHelpers.h \
+    Include/BananaCore/Macros.h \
+    Include/BananaCore/NumberHelpers.h \
+    Include/BananaCore/OptionalParameter.h \
+    Include/BananaCore/ParticleSystemData.h \
+    Include/BananaCore/STLHelpers.h \
+    Include/BananaCore/Timer.h \
+    Include/BananaCore/TypeNames.h
 
 SOURCES += \
     Source/DataIO.cpp

@@ -21,12 +21,6 @@
 GLuint OpenGLBuffer::s_TotalBindingPoints = 0;
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-OpenGLBuffer::~OpenGLBuffer()
-{
-    deleteBuffer();
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLBuffer::deleteBuffer()
 {
     if(!m_isBufferCreated)
@@ -37,8 +31,7 @@ void OpenGLBuffer::deleteBuffer()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void OpenGLBuffer::createBuffer(GLenum bufferType, size_t bufferSize,
-                                const GLvoid * buffData, GLenum bufferUsage)
+void OpenGLBuffer::createBuffer(GLenum bufferType, size_t bufferSize, const GLvoid * buffData, GLenum bufferUsage)
 {
     m_BufferType      = bufferType;
     m_BufferUsage     = bufferUsage;

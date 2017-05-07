@@ -11,7 +11,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = QtWidgetTest
 TEMPLATE = app
 
-include (../../../BananaAppCore/BananaAppCore.pri)
+include (../../../BananaCore/BananaCore.pri)
 include (../../../QtAppHelpers/QtAppHelpers.pri)
 include (../../../OpenGLHelpers/OpenGLHelpers.pri)
 

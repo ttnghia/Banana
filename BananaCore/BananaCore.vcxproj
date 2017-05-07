@@ -20,8 +20,9 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{27A187C4-FB19-47E9-AFDF-E6E8CC5B7E18}</ProjectGuid>
-    <RootNamespace>BananaAppCore</RootNamespace>
+    <RootNamespace>BananaCore</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.14393.0</WindowsTargetPlatformVersion>
+    <ProjectName>BananaCore</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
@@ -142,22 +143,21 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <None Include="BananaAppCore.licenseheader" />
+    <None Include="BananaCore.licenseheader" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Include\BananaAppCore\AppConfigReader.h" />
-    <ClInclude Include="Include\BananaAppCore\DataIO.h" />
-    <ClInclude Include="Include\BananaAppCore\FileHelpers.h" />
-    <ClInclude Include="Include\BananaAppCore\Macros.h" />
-    <ClInclude Include="Include\BananaAppCore\NumberHelpers.h" />
-    <ClInclude Include="Include\BananaAppCore\OptionalParameter.h" />
-    <ClInclude Include="Include\BananaAppCore\ParticleSystemData.h" />
-    <ClInclude Include="Include\BananaAppCore\STLHelpers.h" />
-    <ClInclude Include="Include\BananaAppCore\Timer.h" />
-    <ClInclude Include="Include\BananaAppCore\TypeNames.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="Source\DataIO.cpp" />
+    <ClInclude Include="Include\BananaCore\AppConfigReader.h" />
+    <ClInclude Include="Include\BananaCore\CallStack.h" />
+    <ClInclude Include="Include\BananaCore\DataIO.h" />
+    <ClInclude Include="Include\BananaCore\FileHelpers.h" />
+    <ClInclude Include="Include\BananaCore\Macros.h" />
+    <ClInclude Include="Include\BananaCore\MathHelpers.h" />
+    <ClInclude Include="Include\BananaCore\NumberHelpers.h" />
+    <ClInclude Include="Include\BananaCore\OptionalParameter.h" />
+    <ClInclude Include="Include\BananaCore\ParticleSystemData.h" />
+    <ClInclude Include="Include\BananaCore\STLHelpers.h" />
+    <ClInclude Include="Include\BananaCore\Timer.h" />
+    <ClInclude Include="Include\BananaCore\TypeNames.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

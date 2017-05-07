@@ -43,7 +43,7 @@ void OpenGLTexture::OpenGLTexture::generateMipMap()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLTexture::OpenGLTexture::uploadData(GLenum texTarget, GLint internalFormat, GLsizei width, GLsizei height,
-                                              GLenum dataFormat, GLenum dataType, const GLvoid* data)
+        GLenum dataFormat, GLenum dataType, const GLvoid* data)
 {
     assert(m_bTextureCreated);
 
@@ -87,7 +87,7 @@ void OpenGLTexture::setBorderColor(glm::vec4 borderColor)
 
     bind();
     glCall(glTexParameterfv(m_TexureTarget, GL_TEXTURE_BORDER_COLOR,
-            glm::value_ptr(borderColor)));
+                    glm::value_ptr(borderColor)));
     release();
 }
 
@@ -162,6 +162,9 @@ void OpenGLTexture::OpenGLTexture::release()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #ifdef __Banana_Qt__
 #include <QDir>
+#include <QStringList>
+#include <QString>
+
 void OpenGLTexture::loadTextures(std::vector<std::shared_ptr<OpenGLTexture> >& textures, QString textureFolder, bool insertNullTex /*= true*/, bool bGenMipMap /*= true*/)
 {
     // clear current textures
@@ -212,4 +215,23 @@ void OpenGLTexture::loadTextures(std::vector<std::shared_ptr<OpenGLTexture> >& t
         textures.push_back(tex);
     }
 }
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+QStringList OpenGLTexture::getTextureFolders(QString texType, QString texRootFolder /*= QString("Textures")*/)
+{
+    QDir dataDir(QDir::currentPath() + QString("/") + texRootFolder + QString("/") + texType);
+    dataDir.setFilter(QDir::NoDotAndDotDot | QDir::Dirs);
+
+    return dataDir.entryList();
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+QStringList OpenGLTexture::getTextureFiles(QString texType, QString texRootFolder /*= QString("Textures")*/)
+{
+    QDir dataDir(QDir::currentPath() + QString("/") + texRootFolder + QString("/") + texType);
+    dataDir.setFilter(QDir::NoDotAndDotDot | QDir::Files);
+
+    return dataDir.entryList();
+}
+
 #endif

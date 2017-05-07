@@ -17,6 +17,10 @@
 
 #pragma once
 
+#include <BananaCore/Macros.h>
+#include <BananaCore/TypeNames.h>
+#include <BananaCore/FileHelpers.h>
+
 #include <string>
 #include <vector>
 #include <future>
@@ -24,10 +28,7 @@
 #include <algorithm>
 #include <iomanip>
 #include <cstdlib>
-
-#include <BananaAppCore/Macros.h>
-#include <BananaAppCore/TypeNames.h>
-#include <BananaAppCore/FileHelpers.h>
+#include <sstream>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -37,9 +38,16 @@
 class DataBuffer
 {
 public:
-    DataBuffer(size_t bufferSize = 0);
+    DataBuffer(size_t bufferSize = 0)
+    {
+        if(bufferSize > 0)
+            reserve(bufferSize);
+    }
 
-    ~DataBuffer();
+    ~DataBuffer()
+    {
+        clearBuffer();
+    }
 
     size_t size() const
     {
@@ -74,25 +82,34 @@ public:
     //////////////////////////////////////////////////////////////////////
     /// replace data in the buffer with new data
     //////////////////////////////////////////////////////////////////////
-    void set_data(const DataBuffer& dataBuffer);
-    void set_data(const unsigned char* arrData, size_t dataSize);
+    void setData(const DataBuffer& dataBuffer)
+    {
+        clearBuffer();
+        push_back(dataBuffer);
+    }
+
+    void setData(const unsigned char* arrData, size_t dataSize)
+    {
+        clearBuffer();
+        push_back(arrData, dataSize);
+    }
 
     template<class T>
-    void set_to_float(T data)
+    void setFloat(T data)
     {
         clearBuffer();
         push_back<float>(static_cast<float>(data));
     }
 
     template<class T>
-    void set_to_double(T data)
+    void setDouble(T data)
     {
         clearBuffer();
         push_back<double>(static_cast<double>(data));
     }
 
     template<class T>
-    void set_data(T data)
+    void setData(T data)
     {
         clearBuffer();
         push_back<T>(data);
@@ -100,31 +117,41 @@ public:
 
     // need this, it is similar to the one above, but using reference parameter
     template<class T>
-    void set_data(const std::vector<T>& vData, bool bWriteVectorSize = true)
+    void setData(const std::vector<T>& vData, bool bWriteVectorSize = true)
     {
         clearBuffer();
         push_back<T>(vData, bWriteVectorSize);
     }
 
     template<class T>
-    void set_to_float_array(const std::vector<T>& vData, bool bWriteVectorSize = true)
+    void setFloatArray(const std::vector<T>& vData, bool bWriteVectorSize = true)
     {
         clearBuffer();
-        push_back_to_float_array<T>(vData, bWriteVectorSize);
+        pushFloatArray<T>(vData, bWriteVectorSize);
     }
 
     template<class T>
-    void set_to_double_array(const std::vector<T>& vData, bool bWriteVectorSize = true)
+    void setDoubleArray(const std::vector<T>& vData, bool bWriteVectorSize = true)
     {
         clearBuffer();
-        push_back_to_double_array<T>(vData, bWriteVectorSize);
+        pushDoubleArray<T>(vData, bWriteVectorSize);
     }
 
     //////////////////////////////////////////////////////////////////////
     /// append data
     //////////////////////////////////////////////////////////////////////
-    void push_back(const DataBuffer& dataBuffer);
-    void push_back(const unsigned char* arrData, size_t dataSize);
+    void push_back(const DataBuffer& dataBuffer)
+    {
+        push_back((const unsigned char*)dataBuffer.data(), dataBuffer.size());
+    }
+
+    void push_back(const unsigned char* arrData, size_t dataSize)
+    {
+        size_t endOffset = m_Buffer.size();
+        resize(endOffset + dataSize);
+
+        memcpy((void*)&(m_Buffer.data()[endOffset]), arrData, dataSize);
+    }
 
     template<class T>
     void push_back(T value)
@@ -215,7 +242,7 @@ public:
     }
 
     template<class T>
-    void push_back_to_float(T value)
+    void pushFloat(T value)
     {
         size_t dataSize  = sizeof(float);
         size_t endOffset = m_Buffer.size();
@@ -226,7 +253,7 @@ public:
     }
 
     template<class T>
-    void push_back_to_float_array(const std::vector<T>& vData, bool bWriteVectorSize = true)
+    void pushFloatArray(const std::vector<T>& vData, bool bWriteVectorSize = true)
     {
         if(bWriteVectorSize)
         {
@@ -247,7 +274,7 @@ public:
     }
 
     template<class T>
-    void push_back_to_float_array(const Vec_Vec2<T>& vData, bool bWriteVectorSize = true)
+    void pushFloatArray(const Vec_Vec2<T>& vData, bool bWriteVectorSize = true)
     {
         if(bWriteVectorSize)
         {
@@ -270,7 +297,7 @@ public:
     }
 
     template<class T>
-    void push_back_to_float_array(const Vec_Vec3<T>& vData, bool bWriteVectorSize = true)
+    void pushFloatArray(const Vec_Vec3<T>& vData, bool bWriteVectorSize = true)
     {
         if(bWriteVectorSize)
         {
@@ -294,7 +321,7 @@ public:
     }
 
     template<class T>
-    void push_back_to_double(T value)
+    void pushDouble(T value)
     {
         size_t dataSize  = sizeof(double);
         size_t endOffset = m_Buffer.size();
@@ -305,7 +332,7 @@ public:
     }
 
     template<class T>
-    void push_back_to_double_array(const std::vector<T>& vData, bool bWriteVectorSize = true)
+    void pushDoubleArray(const std::vector<T>& vData, bool bWriteVectorSize = true)
     {
         if(bWriteVectorSize)
         {
@@ -326,7 +353,7 @@ public:
     }
 
     template<class T>
-    void push_back_to_double_array(const Vec_Vec2<T>& vData, bool bWriteVectorSize = true)
+    void pushDoubleArray(const Vec_Vec2<T>& vData, bool bWriteVectorSize = true)
     {
         if(bWriteVectorSize)
         {
@@ -349,7 +376,7 @@ public:
     }
 
     template<class T>
-    void push_back_to_double_array(const Vec_Vec3<T>& vData, bool bWriteVectorSize = true)
+    void pushDoubleArray(const Vec_Vec3<T>& vData, bool bWriteVectorSize = true)
     {
         if(bWriteVectorSize)
         {
@@ -376,7 +403,7 @@ public:
     /// get data
     ////////////////////////////////////////////////////////////////////////////////
     template<class T>
-    size_t get_data(T& value, size_t startOffset = 0)
+    size_t getData(T& value, size_t startOffset = 0)
     {
         size_t dataSize = (size_t)sizeof(T);
         assert(startOffset + dataSize <= m_Buffer.size());
@@ -387,7 +414,7 @@ public:
     }
 
     template<class T>
-    size_t get_data(std::vector<T>& vData, size_t startOffset = 0, UInt32 vSize = 0)
+    size_t getData(std::vector<T>& vData, size_t startOffset = 0, UInt32 vSize = 0)
     {
         size_t segmentStart = startOffset;
         size_t segmentSize  = 0;
@@ -414,7 +441,7 @@ public:
     }
 
     template<class T>
-    size_t get_data(Vec_Vec2<T>& vData, size_t startOffset = 0, UInt32 vSize = 0)
+    size_t getData(Vec_Vec2<T>& vData, size_t startOffset = 0, UInt32 vSize = 0)
     {
         size_t segmentStart = startOffset;
         size_t segmentSize  = 0;
@@ -447,7 +474,7 @@ public:
     }
 
     template<class T>
-    size_t get_data(Vec_Vec3<T>& vData, size_t startOffset = 0, UInt32 vSize = 0)
+    size_t getData(Vec_Vec3<T>& vData, size_t startOffset = 0, UInt32 vSize = 0)
     {
         size_t segmentStart = startOffset;
         size_t segmentSize  = 0;
@@ -481,7 +508,7 @@ public:
 
 
     template<class T, int N>
-    size_t get_float_array(std::vector<float>& vData, size_t startOffset = 0, UInt32 vSize = 0)
+    size_t getFloatArray(std::vector<float>& vData, size_t startOffset = 0, UInt32 vSize = 0)
     {
         size_t segmentStart = startOffset;
         size_t segmentSize  = 0;
@@ -514,7 +541,7 @@ public:
     }
 
     template<class T>
-    size_t get_float_array(Vec_Vec2<float>& vData, size_t startOffset = 0, UInt32 vSize = 0)
+    size_t getFloatArray(Vec_Vec2<float>& vData, size_t startOffset = 0, UInt32 vSize = 0)
     {
         size_t segmentStart = startOffset;
         size_t segmentSize  = 0;
@@ -547,7 +574,7 @@ public:
     }
 
     template<class T>
-    size_t get_float_array(Vec_Vec3<float>& vData, size_t startOffset = 0, UInt32 vSize = 0)
+    size_t getFloatArray(Vec_Vec3<float>& vData, size_t startOffset = 0, UInt32 vSize = 0)
     {
         size_t segmentStart = startOffset;
         size_t segmentSize  = 0;
@@ -580,7 +607,7 @@ public:
     }
 
     template<class T, int N>
-    size_t get_double_array(std::vector<double>& vData, size_t startOffset = 0, UInt32 vSize = 0)
+    size_t getDoubleArray(std::vector<double>& vData, size_t startOffset = 0, UInt32 vSize = 0)
     {
         size_t segmentStart = startOffset;
         size_t segmentSize  = 0;
@@ -613,7 +640,7 @@ public:
     }
 
     template<class T>
-    size_t get_double_array(Vec_Vec2<double>& vData, size_t startOffset = 0, UInt32 vSize = 0)
+    size_t getDoubleArray(Vec_Vec2<double>& vData, size_t startOffset = 0, UInt32 vSize = 0)
     {
         size_t segmentStart = startOffset;
         size_t segmentSize  = 0;
@@ -646,7 +673,7 @@ public:
     }
 
     template<class T>
-    size_t get_double_array(Vec_Vec3<T>& vData, size_t startOffset = 0, UInt32 vSize = 0)
+    size_t getDoubleArray(Vec_Vec3<T>& vData, size_t startOffset = 0, UInt32 vSize = 0)
     {
         size_t segmentStart = startOffset;
         size_t segmentSize  = 0;
@@ -680,7 +707,7 @@ public:
 
 
     template<class T>
-    size_t get_data(std::vector<std::vector<T> >& vData, size_t startOffset = 0)
+    size_t getData(std::vector<std::vector<T> >& vData, size_t startOffset = 0)
     {
         size_t segmentStart = startOffset;
         size_t segmentSize  = (size_t)sizeof(UInt32);
@@ -694,13 +721,13 @@ public:
 
         for(UInt32 i = 0; i < numElements; ++i)
         {
-            segmentStart += get_data(vData[i], segmentStart);
+            segmentStart += getData(vData[i], segmentStart);
         }
 
         return (segmentStart - startOffset);
     }
 
-    size_t get_data(unsigned char* arrData, size_t dataSize, size_t startOffset = 0)
+    size_t getData(unsigned char* arrData, size_t dataSize, size_t startOffset = 0)
     {
         assert(startOffset + dataSize <= m_Buffer.size());
         memcpy(arrData, &m_Buffer.data()[startOffset], dataSize);
@@ -725,72 +752,79 @@ public:
 
     ~DataConverter()
     {
-        dataBuffer.clearBuffer();
+        m_DataBuffer.clearBuffer();
     }
 
     template<class T>
-    const unsigned char* to_float_array(const std::vector<T>& vData)
+    const unsigned char* toFloatArray(const std::vector<T>& vData)
     {
-        dataBuffer.set_to_float_array(vData);
+        m_DataBuffer.setFloatArray(vData);
 
-        return dataBuffer.data();
+        return m_DataBuffer.data();
     }
 
     template<class T>
-    const unsigned char* to_float_array(const Vec_Vec2<T>& vData)
+    const unsigned char* toFloatArray(const Vec_Vec2<T>& vData)
     {
-        dataBuffer.set_to_float_array(vData);
+        m_DataBuffer.setFloatArray(vData);
 
-        return dataBuffer.data();
+        return m_DataBuffer.data();
     }
 
     template<class T>
-    const unsigned char* to_float_array(const Vec_Vec3<T>& vData)
+    const unsigned char* toFloatArray(const Vec_Vec3<T>& vData)
     {
-        dataBuffer.set_to_float_array(vData);
+        m_DataBuffer.setFloatArray(vData);
 
-        return dataBuffer.data();
+        return m_DataBuffer.data();
     }
 
     template<class T>
-    const unsigned char* to_double_array(const std::vector<T>& vData)
+    const unsigned char* toDoubleArray(const std::vector<T>& vData)
     {
-        dataBuffer.set_to_double_array(vData);
+        m_DataBuffer.setDoubleArray(vData);
 
-        return dataBuffer.data();
+        return m_DataBuffer.data();
     }
 
     template<class T>
-    const unsigned char* to_double_array(const Vec_Vec2<T>& vData)
+    const unsigned char* toDoubleArray(const Vec_Vec2<T>& vData)
     {
-        dataBuffer.set_to_double_array(vData);
+        m_DataBuffer.setDoubleArray(vData);
 
-        return dataBuffer.data();
+        return m_DataBuffer.data();
     }
 
     template<class T>
-    const unsigned char* to_double_array(const Vec_Vec3<T>& vData)
+    const unsigned char* toDoubleArray(const Vec_Vec3<T>& vData)
     {
-        dataBuffer.set_to_double_array(vData);
+        m_DataBuffer.setDoubleArray(vData);
 
-        return dataBuffer.data();
+        return m_DataBuffer.data();
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    static std::string byte_to_hex_encoder(const unsigned char* arrBytes, size_t arrSize)
+    template<class T>
+    static std::string byteToHex(const T* arrBytes, size_t arrSize)
     {
         std::stringstream ss;
 
         for(size_t i = 0; i < arrSize; ++i)
         {
-            ss << std::hex << std::uppercase << std::setw(2) << (int)arrBytes[i];
+            ss << std::hex << std::uppercase << std::setw(2) << static_cast<int>(arrBytes[i]);
         }
 
         return ss.str();
     }
 
+    template<class T>
+    static std::string byteToHex(const std::vector<T>& vecBytes)
+    {
+        return byteToHex(vecBytes.data(), vecBytes.size());
+    }
+
 private:
-    DataBuffer dataBuffer;
+    DataBuffer m_DataBuffer;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -801,33 +835,128 @@ private:
 class DataIO
 {
 public:
-    DataIO(std::string dataRootFolder, std::string dataFolder,
-           std::string fileName, std::string fileExtension);
-    virtual ~DataIO();
+    DataIO(std::string dataRootFolder, std::string dataFolder, std::string fileName, std::string fileExtension) :
+        m_DataFolder(dataRootFolder),
+        m_DataSubFolder(dataFolder),
+        m_FileName(fileName),
+        m_FileExtension(fileExtension),
+        m_bOutputFolderCreated(false)
+    {}
 
-    int         find_latest_file_index(int maxIndex);
-    bool        existed_file_index(int fileID);
-    void        reset_buffer();
-    void        flush_buffer(int fileID);
-    void        flush_buffer_async(int fileID);
-    bool        load_file_index(int fileID);
-    std::string get_file_name(int fileID);
-
-    DataBuffer& getBuffer();
-    std::string getDataRootFolder();
-    std::string getDataFolder();
-    std::string getFileNamer();
-    std::string getFileExtension();
-
-private:
-    void create_output_folders();
+    virtual ~DataIO()
+    {
+        if(m_WriteFutureObj.valid())
+        {
+            m_WriteFutureObj.wait();
+        }
+    }
 
     ////////////////////////////////////////////////////////////////////////////////
-    bool              m_isOutputFolderCreated;
-    std::string       m_DataRootFolder;
+    int getLatestFileIndex(int maxIndex = 10000)
+    {
+        int latestIndex = -1;
+
+        for(int index = maxIndex; index >= 1; --index)
+        {
+            if(existedFileIndex(index))
+            {
+                latestIndex = index;
+                break;
+            }
+        }
+
+        return latestIndex;
+    }
+
+    bool existedFileIndex(int fileID)
+    {
+        return FileHelpers::fileExisted(getFilePath(fileID));
+    }
+
+    void resetBuffer()
+    {
+        if(m_WriteFutureObj.valid())
+        {
+            m_WriteFutureObj.wait();
+        }
+
+        m_DataBuffer.clearBuffer();
+    }
+
+    void flushBuffer(int fileID)
+    {
+        if(!m_bOutputFolderCreated)
+        {
+            createOutputFolders();
+        }
+
+        FileHelpers::writeFile(m_DataBuffer.data(), m_DataBuffer.size(), getFilePath(fileID));
+    }
+
+    void flushBufferAsync(int fileID)
+    {
+        m_WriteFutureObj = std::async(std::launch::async, [&]()
+        {
+            if(!m_bOutputFolderCreated)
+            {
+                createOutputFolders();
+            }
+
+            FileHelpers::writeFile(m_DataBuffer.data(), m_DataBuffer.size(), getFilePath(fileID));
+        });
+    }
+
+    bool loadFileIndex(int fileID)
+    {
+        return FileHelpers::readFile(m_DataBuffer.buffer(), getFilePath(fileID));
+    }
+
+    std::string getFilePath(int fileID)
+    {
+        char filePath[1024];
+        __BNN_sprint(filePath, "%s/%s/%s.%04d.%s", m_DataFolder.c_str(), m_DataSubFolder.c_str(), m_FileName.c_str(), fileID, m_FileExtension.c_str());
+        return std::string(filePath);
+    }
+
+    const DataBuffer& getBuffer()
+    {
+        return m_DataBuffer;
+    }
+
+    std::string getDataFolder()
+    {
+        return m_DataFolder;
+    }
+
+    std::string getDataSubFolder()
+    {
+        return m_DataSubFolder;
+    }
+
+    std::string getFileName()
+    {
+        return m_FileName;
+    }
+
+    std::string getFileExtension()
+    {
+        return m_FileExtension;
+    }
+
+private:
+    void createOutputFolders()
+    {
+        char outputFolder[512];
+        __BNN_sprint(outputFolder, "%s/%s", m_DataFolder.c_str(), m_DataSubFolder.c_str());
+        FileHelpers::createFolder(outputFolder);
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////
+    bool              m_bOutputFolderCreated;
     std::string       m_DataFolder;
+    std::string       m_DataSubFolder;
     std::string       m_FileName;
     std::string       m_FileExtension;
-    DataBuffer        m_FileBuffer;
+    DataBuffer        m_DataBuffer;
     std::future<void> m_WriteFutureObj;
 };

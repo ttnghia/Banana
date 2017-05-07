@@ -15,43 +15,44 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="BananaAppCore.licenseheader" />
+    <None Include="BananaCore.licenseheader" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Include\BananaAppCore\Macros.h">
+    <ClInclude Include="Include\BananaCore\AppConfigReader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\BananaAppCore\NumberHelpers.h">
+    <ClInclude Include="Include\BananaCore\DataIO.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\BananaAppCore\OptionalParameter.h">
+    <ClInclude Include="Include\BananaCore\FileHelpers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\BananaAppCore\STLHelpers.h">
+    <ClInclude Include="Include\BananaCore\Macros.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\BananaAppCore\Timer.h">
+    <ClInclude Include="Include\BananaCore\NumberHelpers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\BananaAppCore\TypeNames.h">
+    <ClInclude Include="Include\BananaCore\OptionalParameter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\BananaAppCore\FileHelpers.h">
+    <ClInclude Include="Include\BananaCore\ParticleSystemData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\BananaAppCore\DataIO.h">
+    <ClInclude Include="Include\BananaCore\STLHelpers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\BananaAppCore\ParticleSystemData.h">
+    <ClInclude Include="Include\BananaCore\Timer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\BananaAppCore\AppConfigReader.h">
+    <ClInclude Include="Include\BananaCore\TypeNames.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="Source\DataIO.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
+    <ClInclude Include="Include\BananaCore\MathHelpers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\BananaCore\CallStack.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

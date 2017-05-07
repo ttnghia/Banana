@@ -71,18 +71,22 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)Build\$(Configuration)\</OutDir>
     <IntDir>D:\Scratch\MSVC-Build\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
+    <IncludePath>$(SolutionDir)Simulation\Include;$(SolutionDir)BananaCore\Include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugQt|x64'">
     <OutDir>$(SolutionDir)Build\$(Configuration)\</OutDir>
     <IntDir>D:\Scratch\MSVC-Build\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
+    <IncludePath>$(SolutionDir)Simulation\Include;$(SolutionDir)BananaCore\Include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)Build\$(Configuration)\</OutDir>
     <IntDir>D:\Scratch\MSVC-Build\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
+    <IncludePath>$(SolutionDir)Simulation\Include;$(SolutionDir)BananaCore\Include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseQt|x64'">
     <OutDir>$(SolutionDir)Build\$(Configuration)\</OutDir>
     <IntDir>D:\Scratch\MSVC-Build\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
+    <IncludePath>$(SolutionDir)Simulation\Include;$(SolutionDir)BananaCore\Include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -126,6 +130,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <None Include="Simulation.licenseheader" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Include\Simulation\Array2.h" />
+    <ClInclude Include="Include\Simulation\Array3.h" />
+    <ClInclude Include="Include\Simulation\ArrayHelpers.h" />
+    <ClInclude Include="Include\Simulation\DataPrinter.h" />
+    <ClInclude Include="Include\Simulation\SVD.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

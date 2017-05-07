@@ -202,6 +202,22 @@ using Vec_VecMat3x3 = std::vector<std::vector<Mat3x3<ScalarType> > >;
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // vectors of basic types
+using Vec2i = glm::tvec2<Int32>;
+using Vec3i = glm::tvec3<Int32>;
+using Vec4i = glm::tvec4<Int32>;
+
+using Vec2ui = glm::tvec2<UInt32>;
+using Vec3ui = glm::tvec3<UInt32>;
+using Vec4ui = glm::tvec4<UInt32>;
+
+using Vec2f = glm::tvec2<float>;
+using Vec3f = glm::tvec3<float>;
+using Vec4f = glm::tvec4<float>;
+
+using Vec2d = glm::tvec2<double>;
+using Vec3d = glm::tvec3<double>;
+using Vec4d = glm::tvec4<double>;
+
 using Vec_Int8  = std::vector<Int8>;
 using Vec_Int16 = std::vector<Int16>;
 using Vec_Int   = std::vector<Int32>;

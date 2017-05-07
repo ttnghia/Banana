@@ -87,7 +87,7 @@ typedef  QOpenGLFunctions_4_5_Core   OpenGLFunctions;
     }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <BananaAppCore/NumberHelpers.h>
+#include <BananaCore/NumberHelpers.h>
 #include <QtAppHelpers/CustomSplashScreen.h>
 #include <QDir>
 #define __BNNQt_RunMainWindowWinSplashScreen(MainWindowClass, argc, argv, vsync, FSPath)                                      \
@@ -245,39 +245,4 @@ struct Frustum
         neard = _near;
         fard  = _far;
     }
-};
-
-//struct RenderObject
-//{
-//    GLuint vao;
-//    GLuint vbo;
-//    unsigned int num_triangles;
-
-//    bool has_vertex_normal;
-//    bool has_vertex_color;
-//};
-
-struct Resolution2D
-{
-    Resolution2D(int _x, int _y)
-    {
-        x = _x;
-        y = _y;
-    }
-    int x;
-    int y;
-};
-
-struct Resolution3D
-{
-    Resolution3D(int _x, int _y, int _z)
-    {
-        x = _x;
-        y = _y;
-        z = _z;
-    }
-
-    int x;
-    int y;
-    int z;
 };

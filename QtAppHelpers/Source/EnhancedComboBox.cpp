@@ -18,8 +18,7 @@
 #include <QtAppHelpers/EnhancedComboBox.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-EnhancedComboBox::EnhancedComboBox(int      comboBoxSpan /*= 3*/,
-                                   QWidget* parent /*= nullptr*/) :
+EnhancedComboBox::EnhancedComboBox(int comboBoxSpan /*= 3*/, QWidget* parent /*= nullptr*/) :
     QWidget(parent),
     m_ComboBox(nullptr),
     m_GroupBox(nullptr),
@@ -39,9 +38,9 @@ EnhancedComboBox::EnhancedComboBox(int      comboBoxSpan /*= 3*/,
     connect(m_btnNext, SIGNAL(clicked()), this, SLOT(nextItem()));
 
     m_Layout = new QGridLayout;
-    m_Layout->addWidget(m_ComboBox, 0, 0, 1, comboBoxSpan);
-    m_Layout->addWidget(m_btnPrev, 0, comboBoxSpan, 1, 1);
-    m_Layout->addWidget(m_btnNext, 0, comboBoxSpan + 1, 1, 1);
+    m_Layout->addWidget(m_ComboBox, 0, 0,                1, comboBoxSpan);
+    m_Layout->addWidget(m_btnPrev,  0, comboBoxSpan,     1, 1);
+    m_Layout->addWidget(m_btnNext,  0, comboBoxSpan + 1, 1, 1);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -69,7 +68,7 @@ QLayout* EnhancedComboBox::getLayout() const
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-QLayout* EnhancedComboBox::getLayoutWithLabel(QString label, int comboStretch /*= 5*/)
+QLayout* EnhancedComboBox::getLayoutWithLabel(const QString& label, int comboStretch /*= 5*/)
 {
     QHBoxLayout* layout = new QHBoxLayout;
     layout->addWidget(new QLabel(label), 1);
@@ -79,7 +78,7 @@ QLayout* EnhancedComboBox::getLayoutWithLabel(QString label, int comboStretch /*
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-QGroupBox* EnhancedComboBox::getGroupBox(QString title)
+QGroupBox* EnhancedComboBox::getGroupBox(const QString& title)
 {
     if(m_GroupBox == nullptr)
     {

@@ -11,7 +11,7 @@ TEMPLATE = lib
 CONFIG += staticlib
 
 INCLUDEPATH += ./Include
-INCLUDEPATH += $$PWD/../BananaAppCore/Include
+INCLUDEPATH += $$PWD/../BananaCore/Include
 INCLUDEPATH += $$PWD/../QtAppHelpers/Include
 
 INCLUDEPATH += $$PWD/../Externals/glm

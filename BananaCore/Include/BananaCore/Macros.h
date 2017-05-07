@@ -60,6 +60,12 @@ inline void throwIfFailed(HRESULT hr)
 #define M_PI 3.14159265358979323846f
 #endif
 
+#ifdef __Banana_Windows__
+#   define __BNN_sprint sprintf_s
+#else
+#   define __BNN_sprint sprintf
+#endif
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #define __BNN_PrintLine                         \
     {                                           \
@@ -171,12 +177,12 @@ inline void throwIfFailed(HRESULT hr)
 #define __BNN_PerformanceTest_End                           \
     testTimer.tock();                                       \
     printf("Test %s finished. Time: %s\n", strName.c_str(), \
-           testTimer.get_run_time().c_str());               \
+        testTimer.get_run_time().c_str());                  \
     }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // data macros
-#define __BNN_AssertAprx(a, b, threshold)                                    \
-    {                                                                        \
-        __BNN_AssertMsg (threshold > fabs(a - b), "Numbers are not equal."); \
-                                       }
+#define __BNN_AssertAprx(a, b, threshold)                                   \
+    {                                                                       \
+        __BNN_AssertMsg(threshold > fabs(a - b), "Numbers are not equal."); \
+    }

@@ -24,42 +24,39 @@
 class OptionalParameter
 {
 public:
-    OptionalParameter()
-    {}
-    ~OptionalParameter()
-    {
-        m_ParamMap.clear();
-    }
+    OptionalParameter()  = default;
+    ~OptionalParameter() = default;
 
-    void set_param(std::string key, std::string value)
+    ////////////////////////////////////////////////////////////////////////////////
+    void setParam(const std::string& key, const std::string& value)
     {
         m_ParamMap[key] = value;
     }
 
-    bool has_param(const std::string& key)
+    bool hasParam(const std::string& key)
     {
-        return(m_ParamMap.find(key) != m_ParamMap.end());
+        return (m_ParamMap.find(key) != m_ParamMap.end());
     }
 
-    bool get_bool(const std::string& key)
+    bool getBool(const std::string& key)
     {
-        return(m_ParamMap[key] == "true" || m_ParamMap[key] == "True" || m_ParamMap[key] == "TRUE");
+        return (m_ParamMap[key] == "true" || m_ParamMap[key] == "True" || m_ParamMap[key] == "TRUE");
     }
 
-    int get_int(const std::string& key)
+    int getInt(const std::string& key)
     {
         return std::stoi(m_ParamMap[key]);
     }
 
-    template<class T>
-    T get_real(const std::string& key)
+    unsigned int getUInt(const std::string& key)
     {
-        return (T)std::stod(m_ParamMap[key]);
+        return static_cast<unsigned int>(std::stoi(m_ParamMap[key]));
     }
 
-    size_t get_size_t(const std::string& key)
+    template<class T>
+    T getReal(const std::string& key)
     {
-        return (size_t)std::stoul(m_ParamMap[key]);
+        return static_cast<T>(std::stod(m_ParamMap[key]));
     }
 
 private:
