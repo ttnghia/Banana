@@ -17,21 +17,4 @@
   <ItemGroup>
     <None Include="Simulation.licenseheader" />
   </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Include\Simulation\Array2.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\Simulation\Array3.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\Simulation\ArrayHelpers.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\Simulation\SVD.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\Simulation\DataPrinter.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-  </ItemGroup>
 </Project>

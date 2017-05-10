@@ -131,13 +131,6 @@
   <ItemGroup>
     <None Include="Simulation.licenseheader" />
   </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Include\Simulation\Array2.h" />
-    <ClInclude Include="Include\Simulation\Array3.h" />
-    <ClInclude Include="Include\Simulation\ArrayHelpers.h" />
-    <ClInclude Include="Include\Simulation\DataPrinter.h" />
-    <ClInclude Include="Include\Simulation\SVD.h" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -147,15 +147,26 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\BananaCore\AppConfigReader.h" />
+    <ClInclude Include="Include\BananaCore\Array\Array2.h" />
+    <ClInclude Include="Include\BananaCore\Array\Array3.h" />
+    <ClInclude Include="Include\BananaCore\Array\ArrayHelpers.h" />
     <ClInclude Include="Include\BananaCore\CallStack.h" />
     <ClInclude Include="Include\BananaCore\DataIO.h" />
+    <ClInclude Include="Include\BananaCore\DataPrinter.h" />
     <ClInclude Include="Include\BananaCore\FileHelpers.h" />
+    <ClInclude Include="Include\BananaCore\KDTree.h" />
+    <ClInclude Include="Include\BananaCore\LinearAlgebra\BlockPCGSolver.h" />
+    <ClInclude Include="Include\BananaCore\LinearAlgebra\BlockSparseMatrix.h" />
+    <ClInclude Include="Include\BananaCore\LinearAlgebra\PCGSolver.h" />
+    <ClInclude Include="Include\BananaCore\LinearAlgebra\SparseMatrix.h" />
     <ClInclude Include="Include\BananaCore\Macros.h" />
     <ClInclude Include="Include\BananaCore\MathHelpers.h" />
+    <ClInclude Include="Include\BananaCore\MemoryUsage.h" />
     <ClInclude Include="Include\BananaCore\NumberHelpers.h" />
     <ClInclude Include="Include\BananaCore\OptionalParameter.h" />
     <ClInclude Include="Include\BananaCore\ParticleSystemData.h" />
     <ClInclude Include="Include\BananaCore\STLHelpers.h" />
+    <ClInclude Include="Include\BananaCore\SVD.h" />
     <ClInclude Include="Include\BananaCore\Timer.h" />
     <ClInclude Include="Include\BananaCore\TypeNames.h" />
   </ItemGroup>

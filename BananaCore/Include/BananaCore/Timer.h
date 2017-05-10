@@ -59,17 +59,32 @@ public:
             tock();
         }
 
-        m_StringStream.str("");
-        m_StringStream << NumberHelpers::formatWithCommas(m_ElapsedTime);
-        m_StringStream << "ms";
+        m_StrBuilder.str("");
+        m_StrBuilder << NumberHelpers::formatWithCommas(m_ElapsedTime);
+        m_StrBuilder << "ms";
 
-        return m_StringStream.str();
+        return m_StrBuilder.str();
+    }
+
+    std::string getRunTime(const char* caption)
+    {
+        if(m_TimerTicked)
+        {
+            tock();
+        }
+
+        m_StrBuilder.str("");
+        m_StrBuilder << caption;
+        m_StrBuilder << NumberHelpers::formatWithCommas(m_ElapsedTime);
+        m_StrBuilder << "ms";
+
+        return m_StrBuilder.str();
     }
 
 private:
     Clock::time_point m_StartTime;
     Clock::time_point m_EndTime;
-    std::stringstream m_StringStream;
+    std::stringstream m_StrBuilder;
     double            m_ElapsedTime;
     bool              m_TimerTicked;
 };
