@@ -17,55 +17,63 @@
 
 #pragma once
 
-#include <Noodle/Core/Global/TypeNames.h>
+#include <array>
+#include <climits>
+#include <memory>
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class T>
 class Point
 {
 public:
-    Point() : position(Vec3(0, 0, 0)), index(-1)
-    {}
-    Point(const Vec3& pos_, UInt32 index_) : position(pos_), index(index_)
+    Point()
     {}
 
-    Vec3   position;
-    UInt32 index;
-};
-
-class KDNode
-{
-public:
-    KDNode(Point* points_, int count_, const Vec3& boxMin_, const Vec3& boxMax_) :
-        left(nullptr), right(nullptr), axis(-1), split(0.0), isLeaf(1),
-        points(points_), count(count_), boxMin(boxMin_), boxMax(boxMax_)
+    Point(const std::array<T, 3>& pos_, unsigned int index_) : position(pos_), index(index_)
     {}
 
-    KDNode* left;
-    KDNode* right;
-    Point*  points;
+    Point(const std::initializer_list& pos_, unsigned int index_) : position(pos_), index(index_)
+    {}
 
-    int  axis;          // 0==x, 1==y, 2==z
-    int  isLeaf;
-    int  count;
-    Real split;
-
-    Vec3 boxMin;
-    Vec3 boxMax;
+    std::array<T, 3> position = { { 0, 0, 0 } };
+    unsigned int     index    = UINT_MAX;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class T>
+class KDNode
+{
+public:
+    KDNode(const Point<T>* points_, const std::array<T, 3>& boxMin_, const std::array<T, 3>& boxMax_) : points(points_), boxMin(boxMin_), boxMax(boxMax_),
+    {}
+
+    Point<T>*        points;
+    std::array<T, 3> boxMin;
+    std::array<T, 3> boxMax;
+
+    std::shared_ptr<KDNode<T> > leftNode  = nullptr;
+    std::shared_ptr<KDNode<T> > rightNode = nullptr;
+
+    T    split  = 0;
+    char axis   = -1;         // 0==x, 1==y, 2==z
+    bool isLeaf = true;
+};
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class T>
 class KDTree
 {
 public:
-    KDTree(int maxItems) : m_MaxItermPerNode(maxItems)
+    KDTree(unsigned int maxItems) : m_MaxNodeIterm(maxItems)
     {}
 
-    void buildTree(KDNode* treeNode);
-    void printTree(KDNode* treeNode);
-    void getNeighborList(Point& target, KDNode* treeNode, Real radius, Vec_UInt& result);
+    void buildTree(const std::shared_ptr<KDNode<T> >& treeNode);
+    void printTree(const std::shared_ptr<KDNode<T> >& treeNode);
+    void getNeighborList(Point& target, const std::shared_ptr<KDNode<T> >& treeNode, Real radius, Vec_UInt& result);
 
 private:
-    void findNeighbors(Point& target, KDNode* treeNode, Real radius, Vec_UInt& result);
-    Real getMedian(Point* points, int size, int axis);
+    void findNeighbors(Point& target, const std::shared_ptr<KDNode<T> >& treeNode, Real radius, Vec_UInt& result);
+    T    getMedian(Point* points, int size, int axis);
 
-    int m_MaxItermPerNode;
+    unsigned int m_MaxNodeIterm;
 };

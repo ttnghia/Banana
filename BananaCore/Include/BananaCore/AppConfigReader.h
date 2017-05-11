@@ -26,7 +26,7 @@
 class AppConfigReader
 {
 public:
-    AppConfigReader(std::string fileName) : m_bFileLoaded(false)
+    AppConfigReader(const std::string& fileName) : m_bFileLoaded(false)
     {
         loadConfig(fileName);
     }
@@ -36,12 +36,12 @@ public:
         return m_bFileLoaded;
     }
 
-    bool hasParam(std::string paramName)
+    bool hasParam(const std::string& paramName)
     {
         return (m_AppConfigs.find(paramName) != m_AppConfigs.end());
     }
 
-    int getIntValue(std::string paramName)
+    int getIntValue(const std::string& paramName)
     {
         if(hasParam(paramName))
             return std::stoi(m_AppConfigs[paramName]);
@@ -49,7 +49,7 @@ public:
             return 0;
     }
 
-    double getDoubleValue(std::string paramName)
+    double getDoubleValue(const std::string& paramName)
     {
         if(hasParam(paramName))
             return std::stod(m_AppConfigs[paramName]);
@@ -57,7 +57,7 @@ public:
             return 0;
     }
 
-    std::string getStringValue(std::string paramName)
+    std::string getStringValue(const std::string& paramName)
     {
         if(hasParam(paramName))
             return m_AppConfigs[paramName];
@@ -66,7 +66,7 @@ public:
     }
 
 private:
-    void loadConfig(std::string fileName)
+    void loadConfig(const std::string& fileName)
     {
         std::ifstream inFile(fileName);
 

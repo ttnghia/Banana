@@ -252,6 +252,11 @@ public:
         return const_reverse_iterator(cbegin());
     }
 
+    const std::vector<T>& data() const
+    {
+        return m_Data;
+    }
+
     ////////////////////////////////////////////////////////////////////////////////
     size_type sizeX() const
     {

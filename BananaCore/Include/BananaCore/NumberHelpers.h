@@ -42,6 +42,7 @@ protected:
             return "\03";
         }
     };
+
     std::stringstream ss;
     ss.str("");
     ss.imbue({ std::locale(), new Numpunct });
@@ -60,12 +61,42 @@ std::string formatToScientific(T value, int precision = 5)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<typename T>
-std::string toStringWithPrecision(const T value, const int n = 5)
+template<class VectorType>
+inline std::string formatToScientific(const VectorType& vec, int precision = 5)
 {
-    std::ostringstream out;
-    out << std::setprecision(n) << value;
-    return out.str();
+    std::stringstream ss;
+    ss.str("");
+
+    ss << std::string("[");
+    ss << std::setprecision(precision) << std::fixed << std::scientific << vec[0] + std::string(", ");
+    ss << std::setprecision(precision) << std::fixed << std::scientific << vec[1] + std::string(", ");
+    ss << std::setprecision(precision) << std::fixed << std::scientific << vec[2] + std::string("]");
+
+    return ss.str();
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<typename T>
+std::string toString(const T value, const int precision = 5)
+{
+    std::ostringstream ss;
+    ss << std::setprecision(precision) << value;
+    return ss.str();
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class VectorType>
+inline std::string toString(const VectorType& vec, int precision = 5)
+{
+    std::stringstream ss;
+    ss.str("");
+
+    ss << std::string("[");
+    ss << formatWithCommas(vec[0], precision) << std::string(", ");
+    ss << formatWithCommas(vec[1], precision) << std::string(", ");
+    ss << formatWithCommas(vec[2], precision) << std::string("]");
+
+    return ss.str();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

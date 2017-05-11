@@ -25,9 +25,9 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void KDTree::buildTree(KDNode* treeNode)
 {
-    int    longAxis = 0, lc;
-    Real   maxLength, length, median;
-    Vec3   upCorner, dnCorner;
+    int  longAxis = 0, lc;
+    Real maxLength, length, median;
+    Vec3 upCorner, dnCorner;
 
     Point* leftArray;
     Point* rightArray;
@@ -38,7 +38,7 @@ void KDTree::buildTree(KDNode* treeNode)
         lc = treeNode->count;
 
         // this is the only way out
-        if(lc <= m_MaxItermPerNode)
+        if(lc <= m_MaxNodeIterm)
         {
             return;
         }
@@ -52,14 +52,14 @@ void KDTree::buildTree(KDNode* treeNode)
 
             if((length = (upCorner[j] - dnCorner[j])) > maxLength)
             {
-                longAxis = j;
+                longAxis  = j;
                 maxLength = length;
             }
         }
 
-        median = getMedian(treeNode->points, lc, longAxis);
-        treeNode->split = median;
-        treeNode->axis = longAxis;
+        median           = getMedian(treeNode->points, lc, longAxis);
+        treeNode->split  = median;
+        treeNode->axis   = longAxis;
         treeNode->isLeaf = 0;
 
         if(lc % 2 == 0)
@@ -71,19 +71,19 @@ void KDTree::buildTree(KDNode* treeNode)
             leftArrayCount = lc / 2 + 1;
         }
 
-        leftArray = treeNode->points;
+        leftArray  = treeNode->points;
         rightArray = &(treeNode->points[leftArrayCount]);
 
         upCorner[longAxis] = dnCorner[longAxis] = median;
-        treeNode->left = new KDNode(&leftArray[0], leftArrayCount, treeNode->boxMin, upCorner);
-        treeNode->right = new KDNode(&rightArray[0], lc / 2, dnCorner, treeNode->boxMax);
+        treeNode->leftNode = new KDNode(&leftArray[0], leftArrayCount, treeNode->boxMin, upCorner);
+        treeNode->right    = new KDNode(&rightArray[0], lc / 2, dnCorner, treeNode->boxMax);
     }
 
     tbb::parallel_invoke([&]
     {
-        buildTree(treeNode->left);
+        buildTree(treeNode->leftNode);
     },
-                         [&]
+            [&]
     {
         buildTree(treeNode->right);
     });
@@ -95,8 +95,8 @@ void KDTree::printTree(KDNode* treeNode)
     if(treeNode->isLeaf)
     {
         printf("Found leaf node with count %d, bMin=%f,%f,%f, bMax=%f,%f,%f\n     ", treeNode->count,
-               treeNode->boxMin[0], treeNode->boxMin[1], treeNode->boxMin[2],
-               treeNode->boxMax[0], treeNode->boxMax[1], treeNode->boxMax[2]);
+                treeNode->boxMin[0], treeNode->boxMin[1], treeNode->boxMin[2],
+                treeNode->boxMax[0], treeNode->boxMax[1], treeNode->boxMax[2]);
 
         for(int i = 0; i < treeNode->count; ++i)
         {
@@ -132,7 +132,7 @@ void KDTree::printTree(KDNode* treeNode)
 
     printf("Interior node; split value %f on axis %d\n", treeNode->split, treeNode->axis);
 
-    printTree(treeNode->left);
+    printTree(treeNode->leftNode);
     printTree(treeNode->right);
 }
 
@@ -164,8 +164,8 @@ void KDTree::findNeighbors(Point& target, KDNode* treeNode, Real radius, Vec_UIn
     }
     else
     {
-        findNeighbors(target, treeNode->left, radius, result);
-        findNeighbors(target, treeNode->right, radius, result);
+        findNeighbors(target, treeNode->leftNode, radius, result);
+        findNeighbors(target, treeNode->right,    radius, result);
     }
 }
 
