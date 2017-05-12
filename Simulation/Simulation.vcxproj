@@ -131,6 +131,9 @@
   <ItemGroup>
     <None Include="Simulation.licenseheader" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Include\ParticleSampler\SphereSampler.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

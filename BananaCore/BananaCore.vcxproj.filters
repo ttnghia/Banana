@@ -21,9 +21,6 @@
     <ClInclude Include="Include\BananaCore\AppConfigReader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\BananaCore\DataIO.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Include\BananaCore\FileHelpers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -34,9 +31,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Include\BananaCore\OptionalParameter.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\BananaCore\ParticleSystemData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Include\BananaCore\STLHelpers.h">
@@ -63,28 +57,25 @@
     <ClInclude Include="Include\BananaCore\Array\ArrayHelpers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\BananaCore\LinearAlgebra\BlockPCGSolver.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\BananaCore\LinearAlgebra\BlockSparseMatrix.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\BananaCore\LinearAlgebra\PCGSolver.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\BananaCore\LinearAlgebra\SparseMatrix.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\BananaCore\DataPrinter.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Include\BananaCore\SVD.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\BananaCore\KDTree.h">
+    <ClInclude Include="Include\BananaCore\MemoryUsage.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\BananaCore\MemoryUsage.h">
+    <ClInclude Include="Include\BananaCore\Geometry\SignDistanceField.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\BananaCore\Data\DataIO.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\BananaCore\Data\ParticleSystemData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\BananaCore\Data\DataPrinter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\BananaCore\Geometry\KDTree.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

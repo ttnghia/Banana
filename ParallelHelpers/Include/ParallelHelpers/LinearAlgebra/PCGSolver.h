@@ -17,9 +17,9 @@
 
 #pragma once
 
-#include <Noodle/Core/Parallel/ParallelBLAS.h>
-#include <Noodle/Core/LinearAlgebra/SparseMatrix/SparseMatrix.h>
-#include <Noodle/Core/Math/MathUtils.h>
+#include <ParallelHelpers/ParallelBLAS.h>
+#include <ParallelHelpers/LinearAlgebra/SparseMatrix.h>
+#include <BananaCore/MathHelpers.h>
 
 enum Preconditioners
 {
@@ -116,8 +116,8 @@ struct SparseColumnLowerFactor
 
 template<class T>
 void factor_modified_incomplete_cholesky0(const SparseMatrix<T>& matrix,
-                                          SparseColumnLowerFactor<T>& factor,
-                                          T modification_parameter = 0.97, T min_diagonal_ratio = 0.25)
+        SparseColumnLowerFactor<T>& factor,
+        T modification_parameter = 0.97, T min_diagonal_ratio = 0.25)
 {
     // first copy lower triangle of matrix into factor (Note: assuming A is symmetric of course!)
     factor.resize(matrix.m_Size);
@@ -176,7 +176,7 @@ void factor_modified_incomplete_cholesky0(const SparseMatrix<T>& matrix,
         if(factor.m_InvDiag[k] < min_diagonal_ratio * factor.m_aDiag[k])
         {
             factor.m_InvDiag[k] = 1 / sqrt(
-                factor.m_aDiag[k]);    // drop to Gauss-Seidel here if the pivot looks dangerously small
+                    factor.m_aDiag[k]); // drop to Gauss-Seidel here if the pivot looks dangerously small
         }
         else
         {
@@ -192,10 +192,10 @@ void factor_modified_incomplete_cholesky0(const SparseMatrix<T>& matrix,
         // incompletely eliminate L(:,k) from future columns, modifying diagonals
         for(UInt32 p = factor.m_ColStart[k]; p < factor.m_ColStart[k + 1]; ++p)
         {
-            UInt32 j = factor.m_ColIndex[p]; // work on column j
+            UInt32 j          = factor.m_ColIndex[p]; // work on column j
             T      multiplier = factor.m_ColValue[p];
-            T      missing = 0;
-            UInt32 a = factor.m_ColStart[k];
+            T      missing    = 0;
+            UInt32 a          = factor.m_ColStart[k];
             // first look for contributions to missing from dropped entries above the diagonal in column j
             UInt32 b = 0;
 
@@ -266,9 +266,9 @@ void factor_modified_incomplete_cholesky0(const SparseMatrix<T>& matrix,
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class T>
-void factor_modified_incomplete_cholesky0_symmetry(const SparseMatrix<T>&      matrix,
-                                                   SparseColumnLowerFactor<T>& factor,
-                                                   T                           min_diagonal_ratio = 0.25)
+void factor_modified_incomplete_cholesky0_symmetry(const SparseMatrix<T>& matrix,
+        SparseColumnLowerFactor<T>&                                       factor,
+        T                                                                 min_diagonal_ratio = 0.25)
 {
     // first copy lower triangle of matrix into factor (Note: assuming A is symmetric of course!)
     factor.resize(matrix.m_Size);
@@ -318,13 +318,13 @@ void factor_modified_incomplete_cholesky0_symmetry(const SparseMatrix<T>&      m
 
         for(UInt32 p = factor.m_ColStart[k], ps = factor.m_ColStart[k + 1]; p < ps; ++p)
         {
-            UInt32 j = factor.m_ColIndex[p]; // work on column j
+            UInt32 j          = factor.m_ColIndex[p]; // work on column j
             T      multiplier = factor.m_ColValue[p];
 
             factor.m_InvDiag[j] -= multiplier * factor.m_ColValue[p];
 
-            UInt32 a = p + 1;
-            UInt32 b = factor.m_ColStart[j];
+            UInt32 a  = p + 1;
+            UInt32 b  = factor.m_ColStart[j];
             UInt32 as = factor.m_ColStart[k + 1];
             UInt32 bs = factor.m_ColStart[j + 1];
 
@@ -461,7 +461,7 @@ public:
     }
 
     void setSolverParameters(ScalarType tolerance_factor_, int max_iterations_,
-                             ScalarType modified_incomplete_cholesky_parameter_ = 0.97, ScalarType min_diagonal_ratio_ = 0.25)
+            ScalarType modified_incomplete_cholesky_parameter_ = 0.97, ScalarType min_diagonal_ratio_ = 0.25)
     {
         m_ToleranceFactor = tolerance_factor_;
 
@@ -470,9 +470,9 @@ public:
             m_ToleranceFactor = 1e-30;
         }
 
-        m_MaxIterations = max_iterations_;
+        m_MaxIterations                        = max_iterations_;
         modified_incomplete_cholesky_parameter = modified_incomplete_cholesky_parameter_;
-        min_diagonal_ratio = min_diagonal_ratio_;
+        min_diagonal_ratio                     = min_diagonal_ratio_;
     }
 
     void setPreconditioners(Preconditioners precond)
@@ -519,11 +519,11 @@ public:
             multiply(fixed_matrix, z, s);
             double alpha = rho / ParallelBLAS::dotProduct<ScalarType, ScalarType>(s, z);
             tbb::parallel_invoke(
-                [&]
+                    [&]
             {
                 ParallelBLAS::addScaled<ScalarType, ScalarType>(alpha, z, result);
             },
-                [&]
+                    [&]
             {
                 ParallelBLAS::addScaled<ScalarType, ScalarType>(-alpha, s, r);
             });
@@ -537,7 +537,7 @@ public:
             }
 
             double rho_new = ParallelBLAS::dotProduct<ScalarType, ScalarType>(r, r);
-            double beta = rho_new / rho;
+            double beta    = rho_new / rho;
             ParallelBLAS::scaledAdd<ScalarType, ScalarType>(beta, r, z);
             rho = rho_new;
         }
@@ -601,7 +601,7 @@ public:
             {
                 ParallelBLAS::addScaled<ScalarType, ScalarType>(alpha, s, result);
             },
-                                 [&]
+                    [&]
             {
                 ParallelBLAS::addScaled<ScalarType, ScalarType>(-alpha, z, r);
             });
@@ -617,7 +617,7 @@ public:
             apply_preconditioner(r, z);
 
             double rho_new = ParallelBLAS::dotProduct<ScalarType, ScalarType>(z, r);
-            double beta = rho_new / rho;
+            double beta    = rho_new / rho;
             ParallelBLAS::addScaled<ScalarType, ScalarType>(beta, s, z);
             s.swap(z); // s=beta*s+z
             rho = rho_new;
@@ -635,7 +635,7 @@ protected:
     std::vector<ScalarType>             z, s, r;      // temporary vectors for PCG
     FixedSparseMatrix<ScalarType>       fixed_matrix; // used within loop
 
-                                                      // parameters
+    // parameters
     int        m_MaxIterations;
     ScalarType m_ToleranceFactor;
     ScalarType modified_incomplete_cholesky_parameter;

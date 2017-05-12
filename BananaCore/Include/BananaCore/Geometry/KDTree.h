@@ -22,6 +22,7 @@
 #include <memory>
 
 #include <BananaCore/TypeNames.h>
+#include <BananaCore/Geometry/SignDistanceField.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class T>
@@ -110,8 +111,8 @@ public:
             Point<T>*    rightArray     = &(treeNode->points[leftArrayCount]);
 
             upCorner[longestAxis] = dnCorner[longestAxis] = median;
-            treeNode->leftNode    = std::make_shared<KDNode>(leftArray, leftArrayCount, treeNode->boxMin, upCorner);
-            treeNode->rightNode   = std::make_shared<KDNode>(rightArray, nodeCount - leftArrayCount, dnCorner, treeNode->boxMax);
+            treeNode->leftNode    = std::make_shared<KDNode<T> >(leftArray, leftArrayCount, treeNode->boxMin, upCorner);
+            treeNode->rightNode   = std::make_shared<KDNode<T> >(rightArray, nodeCount - leftArrayCount, dnCorner, treeNode->boxMax);
         }
 
         buildTree(treeNode->leftNode);
@@ -126,7 +127,7 @@ public:
             auto boxMin = treeNode->boxMin;
             auto boxMax = treeNode->boxMax;
 
-            printf("Found leaf node with count %u, bMin=[%f,%f,%f], bMax=[%f,%f,%f]\n     ", treeNode->count, boxMin[0], boxMin[1], boxMin[2], boxMax[0], boxMax[1], boxMax[2]);
+            printf("Found leaf node with count = %u, bMin=[%f,%f,%f], bMax=[%f,%f,%f]\n     ", treeNode->count, boxMin[0], boxMin[1], boxMin[2], boxMax[0], boxMax[1], boxMax[2]);
 
             for(unsigned int i = 0; i < treeNode->count; ++i)
             {
@@ -169,16 +170,16 @@ public:
     }
 
 private:
-    void findNeighbors(Point& target, const std::shared_ptr<KDNode<T> >& treeNode, Real radius, Vec_UInt& result)
+    void findNeighbors(const Point& target, const std::shared_ptr<KDNode<T> >& treeNode, T radius, Vec_UInt& result)
     {
-        if(fmax(SignDistanceField::sign_distance_box(target.position, treeNode->boxMin, treeNode->boxMax), 0) > radius)
+        if(fmax(SignDistanceField::distanceToBox(target.position, treeNode->boxMin, treeNode->boxMax), 0) > radius)
         {
             return;
         }
 
         if(treeNode->isLeaf)
         {
-            for(int i = 0; i < treeNode->count; ++i)
+            for(unsigned int i = 0; i < treeNode->count; ++i)
             {
                 if((target.index != treeNode->points[i].index) && (glm::length(target.position - treeNode->points[i].position) < radius))
                 {
@@ -198,7 +199,7 @@ private:
     {
         unsigned int k = (size & 1) ?  size / 2 : size / 2 - 1;
 
-        tbb::parallel_sort(points, points + size, [axis](Point a, Point b)
+        tbb::parallel_sort(points, points + size, [axis](const Point& a, const Point& b)
         {
             return a.position[axis] < b.position[axis];
         });

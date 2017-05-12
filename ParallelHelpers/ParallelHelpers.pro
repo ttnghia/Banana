@@ -4,7 +4,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 CONFIG+=c++14
 
-TARGET = ParallelAlgorithms
+TARGET = ParallelHelpers
 
 TEMPLATE = subdirs
 
@@ -45,7 +45,7 @@ macx {
 }
 
 HEADERS += \
-    Include/ParallelAlgorithms/ParallelBLAS.h \
-    Include/ParallelAlgorithms/ParallelFuncs.h \
-    Include/ParallelAlgorithms/ParallelSTL.h \
-    Include/ParallelAlgorithms/ParallelObjects.h
+    Include/ParallelHelpers/ParallelBLAS.h \
+    Include/ParallelHelpers/ParallelFuncs.h \
+    Include/ParallelHelpers/ParallelSTL.h \
+    Include/ParallelHelpers/ParallelObjects.h

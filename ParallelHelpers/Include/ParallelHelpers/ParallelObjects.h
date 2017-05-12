@@ -88,8 +88,8 @@ class VectorDotProduct
     }
 
 private:
-    const std::vector<Vec2>& m_Vec1;
-    const std::vector<Vec2>& m_Vec2;
+    const std::vector<VectorType>& m_Vec1;
+    const std::vector<VectorType>& m_Vec2;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

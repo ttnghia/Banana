@@ -20,8 +20,9 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{DC0A8C1E-A5B6-4EDE-AD76-609F9A6F2F9C}</ProjectGuid>
-    <RootNamespace>ParallelAlgorithms</RootNamespace>
+    <RootNamespace>ParallelHelpers</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.14393.0</WindowsTargetPlatformVersion>
+    <ProjectName>ParallelHelpers</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
@@ -71,22 +72,22 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)Build\$(Configuration)\</OutDir>
     <IntDir>D:\Scratch\MSVC-Build\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir)Externals\tbb_win\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)Include;$(SolutionDir)Externals\tbb_win\include;$(SolutionDir)BananaCore\Include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugQt|x64'">
     <OutDir>$(SolutionDir)Build\$(Configuration)\</OutDir>
     <IntDir>D:\Scratch\MSVC-Build\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir)Externals\tbb_win\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)Include;$(SolutionDir)Externals\tbb_win\include;$(SolutionDir)BananaCore\Include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)Build\$(Configuration)\</OutDir>
     <IntDir>D:\Scratch\MSVC-Build\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir)Externals\tbb_win\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)Include;$(SolutionDir)Externals\tbb_win\include;$(SolutionDir)BananaCore\Include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseQt|x64'">
     <OutDir>$(SolutionDir)Build\$(Configuration)\</OutDir>
     <IntDir>D:\Scratch\MSVC-Build\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir)Externals\tbb_win\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)Include;$(SolutionDir)Externals\tbb_win\include;$(SolutionDir)BananaCore\Include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -129,13 +130,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <None Include="ParallelAlgorithms.licenseheader" />
+    <None Include="ParallelHelpers.licenseheader" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Include\ParallelAlgorithms\ParallelBLAS.h" />
-    <ClInclude Include="Include\ParallelAlgorithms\ParallelClass.h" />
-    <ClInclude Include="Include\ParallelAlgorithms\ParallelFuncs.h" />
-    <ClInclude Include="Include\ParallelAlgorithms\ParallelSTL.h" />
+    <ClInclude Include="Include\ParallelHelpers\LinearAlgebra\BlockPCGSolver.h" />
+    <ClInclude Include="Include\ParallelHelpers\LinearAlgebra\BlockSparseMatrix.h" />
+    <ClInclude Include="Include\ParallelHelpers\LinearAlgebra\PCGSolver.h" />
+    <ClInclude Include="Include\ParallelHelpers\LinearAlgebra\SparseMatrix.h" />
+    <ClInclude Include="Include\ParallelHelpers\ParallelBLAS.h" />
+    <ClInclude Include="Include\ParallelHelpers\ParallelClass.h" />
+    <ClInclude Include="Include\ParallelHelpers\ParallelFuncs.h" />
+    <ClInclude Include="Include\ParallelHelpers\ParallelObjects.h" />
+    <ClInclude Include="Include\ParallelHelpers\ParallelSTL.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

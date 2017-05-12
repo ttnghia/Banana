@@ -23,8 +23,8 @@
 #include <iostream>
 #include <vector>
 
-#include <Noodle/Core/Global/TypeNames.h>
-#include <Noodle/Core/Math/MathUtils.h>
+#include <BananaCore/TypeNames.h>
+#include <BananaCore/MathHelpers.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<typename T>

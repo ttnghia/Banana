@@ -15,19 +15,34 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="ParallelAlgorithms.licenseheader" />
+    <None Include="ParallelHelpers.licenseheader" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Include\ParallelAlgorithms\ParallelBLAS.h">
+    <ClInclude Include="Include\ParallelHelpers\ParallelClass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\ParallelAlgorithms\ParallelClass.h">
+    <ClInclude Include="Include\ParallelHelpers\ParallelBLAS.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\ParallelAlgorithms\ParallelFuncs.h">
+    <ClInclude Include="Include\ParallelHelpers\ParallelFuncs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\ParallelAlgorithms\ParallelSTL.h">
+    <ClInclude Include="Include\ParallelHelpers\ParallelSTL.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\ParallelHelpers\ParallelObjects.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\ParallelHelpers\LinearAlgebra\BlockPCGSolver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\ParallelHelpers\LinearAlgebra\BlockSparseMatrix.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\ParallelHelpers\LinearAlgebra\PCGSolver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\ParallelHelpers\LinearAlgebra\SparseMatrix.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

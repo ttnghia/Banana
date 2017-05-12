@@ -17,4 +17,9 @@
   <ItemGroup>
     <None Include="Simulation.licenseheader" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Include\ParticleSampler\SphereSampler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
 </Project>
