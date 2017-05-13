@@ -45,9 +45,6 @@
     <ClInclude Include="Include\BananaCore\MathHelpers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\BananaCore\CallStack.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Include\BananaCore\Array\Array2.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -58,9 +55,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Include\BananaCore\SVD.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\BananaCore\MemoryUsage.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Include\BananaCore\Geometry\SignDistanceField.h">
@@ -76,6 +70,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Include\BananaCore\Geometry\KDTree.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\BananaCore\System\MemoryUsage.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\BananaCore\System\CallStack.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\BananaCore\Logger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

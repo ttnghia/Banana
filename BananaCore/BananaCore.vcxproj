@@ -150,7 +150,8 @@
     <ClInclude Include="Include\BananaCore\Array\Array2.h" />
     <ClInclude Include="Include\BananaCore\Array\Array3.h" />
     <ClInclude Include="Include\BananaCore\Array\ArrayHelpers.h" />
-    <ClInclude Include="Include\BananaCore\CallStack.h" />
+    <ClInclude Include="Include\BananaCore\Logger.h" />
+    <ClInclude Include="Include\BananaCore\System\CallStack.h" />
     <ClInclude Include="Include\BananaCore\Data\DataIO.h" />
     <ClInclude Include="Include\BananaCore\Data\DataPrinter.h" />
     <ClInclude Include="Include\BananaCore\FileHelpers.h" />
@@ -158,7 +159,7 @@
     <ClInclude Include="Include\BananaCore\Geometry\KDTree.h" />
     <ClInclude Include="Include\BananaCore\Macros.h" />
     <ClInclude Include="Include\BananaCore\MathHelpers.h" />
-    <ClInclude Include="Include\BananaCore\MemoryUsage.h" />
+    <ClInclude Include="Include\BananaCore\System\MemoryUsage.h" />
     <ClInclude Include="Include\BananaCore\NumberHelpers.h" />
     <ClInclude Include="Include\BananaCore\OptionalParameter.h" />
     <ClInclude Include="Include\BananaCore\Data\ParticleSystemData.h" />

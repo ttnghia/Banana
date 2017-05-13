@@ -132,7 +132,40 @@
     <None Include="Simulation.licenseheader" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Include\ParticleSampler\SphereSampler.h" />
+    <ClInclude Include="Include\FluidSolvers\AnisotropyKernel.h" />
+    <ClInclude Include="Include\FluidSolvers\AnisotropyKernel_Imp.hpp" />
+    <ClInclude Include="Include\FluidSolvers\FLIP2D.h" />
+    <ClInclude Include="Include\FluidSolvers\FLIP2D_Imp.hpp" />
+    <ClInclude Include="Include\FluidSolvers\FLIP3D.h" />
+    <ClInclude Include="Include\FluidSolvers\FLIP3D_Imp.hpp" />
+    <ClInclude Include="Include\FluidSolvers\PCISPHSolver2D.h" />
+    <ClInclude Include="Include\FluidSolvers\PCISPHSolver2D_Imp.hpp" />
+    <ClInclude Include="Include\FluidSolvers\PCISPHSolver3D.h" />
+    <ClInclude Include="Include\FluidSolvers\PCISPHSolver3D_Imp.hpp" />
+    <ClInclude Include="Include\FluidSolvers\SPHSolver2D.h" />
+    <ClInclude Include="Include\FluidSolvers\SPHSolver2D_Imp.hpp" />
+    <ClInclude Include="Include\FluidSolvers\SPHSolver3D.h" />
+    <ClInclude Include="Include\FluidSolvers\SPHSolver3D_Imp.hpp" />
+    <ClInclude Include="Include\ParticleTools\BlueNoiseRelaxation\LloydRelaxation.h" />
+    <ClInclude Include="Include\ParticleTools\ParticleEmitters\BoxEmitter.h" />
+    <ClInclude Include="Include\ParticleTools\ParticleEmitters\CylinderEmitter.h" />
+    <ClInclude Include="Include\ParticleTools\ParticleEmitters\HollowSphereEmitter.h" />
+    <ClInclude Include="Include\ParticleTools\BlueNoiseRelaxation\LloydRelaxation_Imp.hpp" />
+    <ClInclude Include="Include\ParticleTools\ParticleHelpers.h" />
+    <ClInclude Include="Include\ParticleTools\ParticleSamplers\BowlSampler.h" />
+    <ClInclude Include="Include\ParticleTools\ParticleSamplers\BoxSampler.h" />
+    <ClInclude Include="Include\ParticleTools\ParticleSamplers\CylinderSampler.h" />
+    <ClInclude Include="Include\ParticleTools\ParticleSamplers\HollowSphereSampler.h" />
+    <ClInclude Include="Include\ParticleTools\ParticleSamplers\MeshObjSampler.h" />
+    <ClInclude Include="Include\ParticleTools\ParticleSamplers\ParticleSampler.h" />
+    <ClInclude Include="Include\ParticleTools\ParticleSamplers\SphereSampler.h" />
+    <ClInclude Include="Include\ParticleTools\ParticleEmitters\MeshObjEmitter.h" />
+    <ClInclude Include="Include\ParticleTools\ParticleEmitters\ParticleEmitter.h" />
+    <ClInclude Include="Include\ParticleTools\ParticleEmitters\SphereEmitter.h" />
+    <ClInclude Include="Include\ParticleTools\ParticleEmitters\TorusEmitter.h" />
+    <ClInclude Include="Include\ParticleTools\ParticleSamplers\TorusSampler.h" />
+    <ClInclude Include="Include\ParticleTools\BlueNoiseRelaxation\SPHRelaxation.h" />
+    <ClInclude Include="Include\FluidSolvers\FluidSolver.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
