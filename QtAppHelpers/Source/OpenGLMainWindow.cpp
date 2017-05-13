@@ -22,16 +22,12 @@ OpenGLMainWindow::OpenGLMainWindow(QWidget* parent, bool bShowFPS /*= true*/, bo
 {
     qApp->installEventFilter(this);
 
-    m_lblStatusAvgFrameTime = new QLabel(this);
-    m_lblStatusAvgFrameTime->setMargin(5);
-
     m_lblStatusFPS = new QLabel(this);
     m_lblStatusFPS->setMargin(5);
 
     m_lblStatusCamPosition = new QLabel(this);
     m_lblStatusCamPosition->setMargin(5);
 
-    statusBar()->addPermanentWidget(m_lblStatusAvgFrameTime, 1);
     statusBar()->addPermanentWidget(m_lblStatusFPS, 1);
     statusBar()->addPermanentWidget(m_lblStatusCamPosition, 1);
     statusBar()->setMinimumHeight(30);
@@ -39,7 +35,6 @@ OpenGLMainWindow::OpenGLMainWindow(QWidget* parent, bool bShowFPS /*= true*/, bo
 
     if(!bShowFPS)
     {
-        m_lblStatusAvgFrameTime->hide();
         m_lblStatusFPS->hide();
     }
     if(!bShowCamPosition)
@@ -101,12 +96,10 @@ void OpenGLMainWindow::showFPS(bool bShowFPS)
 {
     if(bShowFPS)
     {
-        m_lblStatusAvgFrameTime->show();
         m_lblStatusFPS->show();
     }
     else
     {
-        m_lblStatusAvgFrameTime->hide();
         m_lblStatusFPS->hide();
     }
 }
@@ -145,8 +138,7 @@ void OpenGLMainWindow::setArthurStyle()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLMainWindow::updateStatusFrameRate(double fps)
 {
-    m_lblStatusAvgFrameTime->setText(QString("Avg RenderGL: %1 ms").arg(1000.0 / fps));
-    m_lblStatusFPS->setText(QString("FPS: %1 | VSync: %2").arg(fps).arg(m_VSync ? "On" : "Off"));
+    m_lblStatusFPS->setText(QString("FPS: %1 (%2 ms/frame) | VSync: %3").arg(fps).arg(1000.0 / fps).arg(m_VSync ? "On" : "Off"));
 }
 
 
@@ -167,6 +159,6 @@ void OpenGLMainWindow::setupOpenglWidget(OpenGLWidget* glWidget)
 
     m_GLWidget = glWidget;
     setCentralWidget(m_GLWidget);
-    connect(&m_GLWidget->m_FPSCounter, &FPSCounter::fpsChanged, this, &OpenGLMainWindow::updateStatusFrameRate);
-    connect(m_GLWidget, &OpenGLWidget::cameraPositionChanged, this, &OpenGLMainWindow::updateStatusCameraPosition);
+    connect(&m_GLWidget->m_FPSCounter, &FPSCounter::fpsChanged,              this, &OpenGLMainWindow::updateStatusFrameRate);
+    connect(m_GLWidget,                &OpenGLWidget::cameraPositionChanged, this, &OpenGLMainWindow::updateStatusCameraPosition);
 }

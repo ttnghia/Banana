@@ -52,7 +52,6 @@ protected:
     void setupOpenglWidget(OpenGLWidget* glWidget);
 
     ////////////////////////////////////////////////////////////////////////////////
-    QLabel*       m_lblStatusAvgFrameTime;
     QLabel*       m_lblStatusFPS;
     QLabel*       m_lblStatusCamPosition;
     OpenGLWidget* m_GLWidget;
