@@ -2,10 +2,11 @@ QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-CONFIG+=c++14
+CONFIG += c++14
 
 TARGET = ParallelHelpers
 
+#TEMPLATE = lib
 TEMPLATE = subdirs
 
 #CONFIG += staticlib
@@ -48,4 +49,15 @@ HEADERS += \
     Include/ParallelHelpers/ParallelBLAS.h \
     Include/ParallelHelpers/ParallelFuncs.h \
     Include/ParallelHelpers/ParallelSTL.h \
-    Include/ParallelHelpers/ParallelObjects.h
+    Include/ParallelHelpers/ParallelObjects.h \
+    Include/ParallelHelpers/LinearAlgebra/BlockPCGSolver.h \
+    Include/ParallelHelpers/LinearAlgebra/BlockSparseMatrix.h \
+    Include/ParallelHelpers/LinearAlgebra/PCGSolver.h \
+    Include/ParallelHelpers/LinearAlgebra/SparseMatrix.h
+
+DISTFILES += \
+    ParallelHelpers.pri \
+    ParallelHelpers.licenseheader \
+    ParallelHelpers.vcxproj \
+    ParallelHelpers.vcxproj.filters \
+    README.md

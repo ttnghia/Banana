@@ -6,9 +6,10 @@ CONFIG += c++14
 
 TARGET = BananaCore
 
-TEMPLATE = lib
+#TEMPLATE = lib
+TEMPLATE = subdirs
 
-CONFIG += staticlib
+#CONFIG += staticlib
 
 INCLUDEPATH += ./Include
 INCLUDEPATH += $$PWD/../Externals/glm
@@ -54,7 +55,22 @@ HEADERS += \
     Include/BananaCore/ParticleSystemData.h \
     Include/BananaCore/STLHelpers.h \
     Include/BananaCore/Timer.h \
-    Include/BananaCore/TypeNames.h
+    Include/BananaCore/TypeNames.h \
+    Include/BananaCore/Array/Array2.h \
+    Include/BananaCore/Array/Array3.h \
+    Include/BananaCore/Array/ArrayHelpers.h \
+    Include/BananaCore/Data/DataIO.h \
+    Include/BananaCore/Data/DataPrinter.h \
+    Include/BananaCore/Data/ParticleSystemData.h \
+    Include/BananaCore/Geometry/KDTree.h \
+    Include/BananaCore/Geometry/SignDistanceField.h \
+    Include/BananaCore/CallStack.h \
+    Include/BananaCore/MathHelpers.h \
+    Include/BananaCore/MemoryUsage.h \
+    Include/BananaCore/SVD.h
 
-SOURCES += \
-    Source/DataIO.cpp
+DISTFILES += \
+    BananaCore.pri \
+    BananaCore.licenseheader \
+    BananaCore.vcxproj \
+    BananaCore.vcxproj.filters
