@@ -74,3 +74,9 @@ SOURCES += \
     Source/RenderObjects.cpp \
     Source/ShaderProgram.cpp
 
+DISTFILES += \
+    OpenGLHelpers.pri \
+    OpenGLHelpers.vcxproj.filters \
+    OpenGLHelpers.licenseheader \
+    OpenGLHelpers.vcxproj
+
