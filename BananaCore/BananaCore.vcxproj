@@ -72,22 +72,22 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)Build\$(Configuration)\</OutDir>
     <IntDir>D:\Scratch\MSVC-Build\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir)Externals\yocto-gl;$(SolutionDir)Externals\glm;$(ProjectDir)Include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Externals\yocto-gl;$(SolutionDir)Externals\spdlog\include;$(SolutionDir)Externals\glm;$(ProjectDir)Include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugQt|x64'">
     <OutDir>$(SolutionDir)Build\$(Configuration)\</OutDir>
     <IntDir>D:\Scratch\MSVC-Build\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir)Externals\yocto-gl;$(SolutionDir)Externals\glm;$(ProjectDir)Include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Externals\yocto-gl;$(SolutionDir)Externals\spdlog\include;$(SolutionDir)Externals\glm;$(ProjectDir)Include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)Build\$(Configuration)\</OutDir>
     <IntDir>D:\Scratch\MSVC-Build\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir)Externals\yocto-gl;$(SolutionDir)Externals\glm;$(ProjectDir)Include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Externals\yocto-gl;$(SolutionDir)Externals\spdlog\include;$(SolutionDir)Externals\glm;$(ProjectDir)Include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseQt|x64'">
     <OutDir>$(SolutionDir)Build\$(Configuration)\</OutDir>
     <IntDir>D:\Scratch\MSVC-Build\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir)Externals\yocto-gl;$(SolutionDir)Externals\glm;$(ProjectDir)Include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Externals\yocto-gl;$(SolutionDir)Externals\spdlog\include;$(SolutionDir)Externals\glm;$(ProjectDir)Include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -150,6 +150,7 @@
     <ClInclude Include="Include\BananaCore\Array\Array2.h" />
     <ClInclude Include="Include\BananaCore\Array\Array3.h" />
     <ClInclude Include="Include\BananaCore\Array\ArrayHelpers.h" />
+    <ClInclude Include="Include\BananaCore\Geometry\SignDistanceField_Impl.hpp" />
     <ClInclude Include="Include\BananaCore\Logger.h" />
     <ClInclude Include="Include\BananaCore\System\CallStack.h" />
     <ClInclude Include="Include\BananaCore\Data\DataIO.h" />
@@ -167,6 +168,9 @@
     <ClInclude Include="Include\BananaCore\SVD.h" />
     <ClInclude Include="Include\BananaCore\Timer.h" />
     <ClInclude Include="Include\BananaCore\TypeNames.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\Logger.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

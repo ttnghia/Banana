@@ -45,6 +45,7 @@ inline T cube(const T& x)
     return x * x * x;
 }
 
+////////////////////////////////////////////////////////////////////////////////
 template<class T>
 inline T min(T a1, T a2, T a3)
 {
@@ -108,6 +109,7 @@ inline void minmax(T a1, T a2, T& amin, T& amax)
     }
 }
 
+////////////////////////////////////////////////////////////////////////////////
 template<class T>
 inline void minmax(T a1, T a2, T a3, T& amin, T& amax)
 {
@@ -149,6 +151,7 @@ inline void update_minmax(T a1, T& amin, T& amax)
     }
 }
 
+////////////////////////////////////////////////////////////////////////////////
 template<class T>
 inline void sort(T& a, T& b, T& c)
 {
@@ -163,7 +166,7 @@ inline void sort(T& a, T& b, T& c)
                 temp = c;
                 c    = b;
                 b    = temp;
-            }  // else: a<b<c
+            }   // else: a<b<c
         }
         else   // c<a<b
         {
@@ -200,6 +203,7 @@ inline void sort(T& a, T& b, T& c)
     }
 }
 
+////////////////////////////////////////////////////////////////////////////////
 template<class T>
 inline T clamp(T a, T lower, T upper)
 {
@@ -265,6 +269,7 @@ inline T ramp(T r)
     return smooth_step((r + 1) / 2) * 2 - 1;
 }
 
+////////////////////////////////////////////////////////////////////////////////
 inline int lround(double x)
 {
     if(x > 0)
@@ -309,6 +314,7 @@ inline unsigned int round_down_to_power_of_two(unsigned int n)
     return 1 << exponent;
 }
 
+////////////////////////////////////////////////////////////////////////////////
 // Transforms even the sequence 0,1,2,3,... into reasonably good random numbers
 // Challenge: improve on this in speed and "randomness"!
 // This seems to pass several statistical tests, and is a bijective map (of 32-bit unsigned ints)
@@ -334,6 +340,7 @@ inline unsigned int unhash(unsigned int h)
     return h;
 }
 
+////////////////////////////////////////////////////////////////////////////////
 inline double frand()
 {
     return rand() / static_cast<double>(RAND_MAX);
@@ -359,6 +366,7 @@ inline float randhashf(unsigned int seed, float a, float b)
     return ((b - a) * randhash(seed) / static_cast<float>(UINT_MAX) + a);
 }
 
+////////////////////////////////////////////////////////////////////////////////
 inline int intlog2(int x)
 {
     int exp = -1;
@@ -372,6 +380,7 @@ inline int intlog2(int x)
     return exp;
 }
 
+////////////////////////////////////////////////////////////////////////////////
 template<class T>
 inline void get_barycentric(T x, int& i, T& f, int i_low, int i_high)
 {
@@ -417,6 +426,7 @@ inline void get_bary_below(T x, int& i, T& f, int i_low, int i_high)
     }
 }
 
+////////////////////////////////////////////////////////////////////////////////
 template<class S, class T>
 inline S lerp(const S& value0, const S& value1, T f)
 {
@@ -428,7 +438,8 @@ inline S bilerp(const S& v00, const S& v10,
         const S& v01, const S& v11,
         T fx, T fy)
 {
-    return lerp(lerp(v00, v10, fx),
+    return lerp(
+            lerp(v00, v10, fx),
             lerp(v01, v11, fx),
             fy);
 }
@@ -440,7 +451,8 @@ inline S trilerp(const S& v000, const S& v100,
         const S& v011, const S& v111,
         T fx, T fy, T fz)
 {
-    return lerp(bilerp(v000, v100, v010, v110, fx, fy),
+    return lerp(
+            bilerp(v000, v100, v010, v110, fx, fy),
             bilerp(v001, v101, v011, v111, fx, fy),
             fz);
 }
@@ -456,11 +468,13 @@ inline S quadlerp(const S& v0000, const S& v1000,
         const S& v0111, const S& v1111,
         T fx, T fy, T fz, T ft)
 {
-    return lerp(trilerp(v0000, v1000, v0100, v1100, v0010, v1010, v0110, v1110, fx, fy, fz),
+    return lerp(
+            trilerp(v0000, v1000, v0100, v1100, v0010, v1010, v0110, v1110, fx, fy, fz),
             trilerp(v0001, v1001, v0101, v1101, v0011, v1011, v0111, v1111, fx, fy, fz),
             ft);
 }
 
+////////////////////////////////////////////////////////////////////////////////
 // f should be between 0 and 1, with f=0.5 corresponding to balanced weighting between w0 and w2
 template<class T>
 inline void quadratic_bspline_weights(T f, T& w0, T& w1, T& w2)
@@ -490,15 +504,7 @@ inline S cubic_interp(const S& value_neg1, const S& value0, const S& value1,
     return wneg1 * value_neg1 + w0 * value0 + w1 * value1 + w2 * value2;
 }
 
-template<class T>
-void zero(std::vector<T>& v)
-{
-    for(int i = (int)v.size() - 1; i >= 0; --i)
-    {
-        v[i] = 0;
-    }
-}
-
+////////////////////////////////////////////////////////////////////////////////
 template<class T>
 T abs_max(const std::vector<T>& v)
 {
@@ -518,7 +524,7 @@ T abs_max(const std::vector<T>& v)
 template<class T>
 bool contains(const std::vector<T>& a, T e)
 {
-    for(unsigned int i = 0; i < a.size(); ++i)
+    for(size_t i = 0; i < a.size(); ++i)
         if(a[i] == e)
         {
             return true;
@@ -530,37 +536,13 @@ bool contains(const std::vector<T>& a, T e)
 template<class T>
 void add_unique(std::vector<T>& a, T e)
 {
-    for(unsigned int i = 0; i < a.size(); ++i)
+    for(size_t i = 0; i < a.size(); ++i)
         if(a[i] == e)
         {
             return;
         }
 
     a.push_back(e);
-}
-
-template<class T>
-void insert(std::vector<T>& a, unsigned int index, T e)
-{
-    a.push_back(a.back());
-
-    for(unsigned int i = (unsigned int)a.size() - 1; i > index; --i)
-    {
-        a[i] = a[i - 1];
-    }
-
-    a[index] = e;
-}
-
-template<class T>
-void erase(std::vector<T>& a, unsigned int index)
-{
-    for(unsigned int i = index; i < a.size() - 1; ++i)
-    {
-        a[i] = a[i + 1];
-    }
-
-    a.pop_back();
 }
 
 template<class T>
@@ -591,7 +573,7 @@ void erase_unordered_swap(std::vector<T>& a, unsigned int index)
 template<class T>
 void find_and_erase_unordered(std::vector<T>& a, const T& doomed_element)
 {
-    for(unsigned int i = 0; i < a.size(); ++i)
+    for(size_t i = 0; i < a.size(); ++i)
         if(a[i] == doomed_element)
         {
             erase_unordered(a, i);
@@ -602,7 +584,7 @@ void find_and_erase_unordered(std::vector<T>& a, const T& doomed_element)
 template<class T>
 void replace_once(std::vector<T>& a, const T& old_element, const T& new_element)
 {
-    for(unsigned int i = 0; i < a.size(); ++i)
+    for(size_t i = 0; i < a.size(); ++i)
         if(a[i] == old_element)
         {
             a[i] = new_element;
@@ -618,7 +600,7 @@ void write_matlab(std::ostream& output, const std::vector<T>& a,
     std::streamsize old_precision = output.precision();
     output.precision(significant_digits);
 
-    for(unsigned int i = 0; i < a.size(); ++i)
+    for(size_t i = 0; i < a.size(); ++i)
     {
         output << a[i] << " ";
     }
@@ -634,6 +616,7 @@ void write_matlab(std::ostream& output, const std::vector<T>& a,
     output.precision(old_precision);
 }
 
+////////////////////////////////////////////////////////////////////////////////
 template<class T>
 T sharp_kernel(T r2, T h)
 {

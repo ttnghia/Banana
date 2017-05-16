@@ -16,27 +16,15 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 #pragma once
-class Logger
-{
-public:
-    Logger();
-    ~Logger();
-};
-
-
-
-#pragma once
 
 #include <chrono>
 #include <map>
 #include <string>
 #include <iostream>
 #include <chrono>
+#include <memory>
 
-#include <tbb/tbb.h>
-
-#include <Noodle/Core/Global/TypeNames.h>
-#include <Noodle/Core/Global/Enums.h>
+#include <spdlog/spdlog.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #define WRAPPER           "||"
@@ -44,34 +32,29 @@ public:
 #define INDENT_SIZE       4
 #define MAX_BUFFER_LENGTH 128
 
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<typename Rep, typename Period>
-void getDuration(std::chrono::duration<Rep, Period> t, int& n_days, int& n_hours, int& n_mins, int& n_secs)
-{
-    assert(0 <= t.count());
-
-    // approximate because a day doesn't have a fixed length
-    typedef std::chrono::duration<int, std::ratio<60 * 60 * 24> >   days_t;
-
-    auto days = std::chrono::duration_cast<days_t>(t);
-    auto hours = std::chrono::duration_cast<std::chrono::hours>(t - days);
-    auto mins = std::chrono::duration_cast<std::chrono::minutes>(t - days - hours);
-    auto secs = std::chrono::duration_cast<std::chrono::seconds>(t - days - hours - mins);
-
-    n_days = days.count();
-    n_hours = hours.count();
-    n_mins = mins.count();
-    n_secs = secs.count();
-}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class Monitor
+class Logger
 {
 public:
-    Monitor() : m_LogSource(MonitorSource::NoodleMain)
+    enum LogLevel
+    {
+        NormalLevel = 0,
+        DetailLevel,
+        DebugLevel,
+    };
+
+    enum BuildInSource
+    {
+        MainProgram = 0,
+        Logger,
+        Debugger
+    };
+
+    Logger() : m_LogSourceID(0)
     {}
 
-    Monitor(MonitorSource source) : m_LogSource(source)
+    Logger(int sourceID) : m_LogSourceID(sourceID)
     {}
 
     static void setDataPath(const std::string& dataPath);
@@ -104,53 +87,49 @@ public:
     void printWarning(const std::string& s, int maxSize = 100);
 
     void printLog(const std::string& s);
-    void printLogIndent(const std::string& s, int indentLevel = 1);
+    void printLogIndent(const std::string& s, int indentLevel);
 
     void printDetail(const std::string& s);
-    void printDetailIndent(const std::string& s, int indentLevel = 1);
+    void printDetailIndent(const std::string& s, int indentLevel);
 
     ////////////////////////////////////////////////////////////////////////////////
-    static void newLine(MonitorSource source);
-    static void printSeparator(MonitorSource source);
-    static void printAligned(const std::string& s, MonitorSource source, char padding = PADDING, const std::string& wrapper = WRAPPER, int maxSize = 100);
-    static void printGreeting(const std::string& s, MonitorSource source);
-    static void printWarning(const std::string& s, MonitorSource source, int maxSize = 100);
+    static void newLine(int sourceID);
+    static void printSeparator(int sourceID);
+    static void printAligned(const std::string& s, int sourceID, char padding = PADDING, const std::string& wrapper = WRAPPER, int maxSize = 100);
+    static void printGreeting(const std::string& s, int sourceID);
+    static void printWarning(const std::string& s, int sourceID, int maxSize = 100);
 
-    static void printLog(const std::string& s, MonitorSource source);
-    static void printLogIndent(const std::string& s, MonitorSource source, int indentLevel = 1);
+    static void printLog(const std::string& s, int sourceID);
+    static void printLogIndent(const std::string& s, int sourceID, int indentLevel);
 
-    static void printDetail(const std::string& s, MonitorSource source);
-    static void printDetailIndent(const std::string& s, MonitorSource source, int indentLevel = 1);
+    static void printDetail(const std::string& s, int sourceID);
+    static void printDetailIndent(const std::string& s, int sourceID, int indentLevel);
 
     static void printDebug(const std::string& s);
-    static void printDebugIndent(const std::string& s, int indentLevel = 1);
+    static void printDebugIndent(const std::string& s, int indentLevel);
 
     ////////////////////////////////////////////////////////////////////////////////
     static void initialize();
     static void initialize(const std::string& dataPath);
     static void shutdown();
-    static void checkCriticalCondition(bool condition, const std::string& err);
-    static void criticalError(const std::string err, int maxSize = 100);
 
     static void        computeTotalRunTime();
     static std::string getTotalRunTime();
 
-    static void        flushToFile();
-    static std::string getSourceName(MonitorSource source);
-    static void        getSourceName(MonitorSource source, const std::string& source_name);
+    static std::string getSourceName(int sourceID);
+    static void        getSourceName(int sourceID, const std::string& sourceName);
     static int         getNumSources();
 
-    void setLogSource(MonitorSource source)
+    void setLogSource(int sourceID)
     {
-        m_LogSource = source;
+        m_LogSourceID = sourceID;
     }
 
-    static LogLevel s_LogLevel;
+    static int s_LogLevel;
 
 private:
-    static void printToStdOut(const std::string& s);
-    static void addToBuffer(const std::string& str);
-    static void saveBufferToFile();
+    static void printToStdOut(const std::string& s, int sourceID);
+    static void logToFile(const std::string& s, int sourceID);
 
     static bool m_bPrintStdOut;
     static bool m_bWriteLogToFile;
@@ -164,8 +143,9 @@ private:
     static std::chrono::system_clock::time_point m_ShutdownTime;
     static std::string                           m_TotalRunTime;
 
-    static std::map<MonitorSource, std::string> m_SourceNames;
-    static tbb::concurrent_vector<std::string>  m_LogBuffer;
+    static std::map<int, std::string>                    m_SourceNames;
+    static std::vector<std::shared_ptr<spdlog::logger> > m_FileLogger;
+    static std::vector<std::shared_ptr<spdlog::logger> > m_ConsoleLogger;
 
-    MonitorSource m_LogSource;
+    int m_LogSourceID;
 };

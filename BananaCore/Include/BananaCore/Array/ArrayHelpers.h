@@ -19,8 +19,8 @@
 
 #include <BananaCore/TypeNames.h>
 #include <BananaCore/MathHelpers.h>
-#include <Simulation/Array2.h>
-#include <Simulation/Array3.h>
+#include <BananaCore/Array/Array2.h>
+#include <BananaCore/Array/Array3.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class ScalarType>
@@ -32,15 +32,12 @@ inline ScalarType interpolateLinear(const Vec2& point, const Array2<ScalarType>&
     MathHelpers::get_barycentric(point[0], i, fx, 0, (int)grid.m_SizeX);
     MathHelpers::get_barycentric(point[1], j, fy, 0, (int)grid.m_SizeY);
 
-    return MathHelpers::bilerp(
-            grid(i, j), grid(i + 1, j),
-            grid(i, j + 1), grid(i + 1, j + 1),
-            fx, fy);
+    return MathHelpers::bilerp(grid(i, j), grid(i + 1, j), grid(i, j + 1), grid(i + 1, j + 1), fx, fy);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 template<class ScalarType>
-inline ScalarType interpolate_value_linear(const Vec3& point, const Array3<ScalarType>& grid)
+inline ScalarType interpolateLinear(const Vec3& point, const Array3<ScalarType>& grid)
 {
     int        i, j, k;
     ScalarType fi, fj, fk;
@@ -51,8 +48,7 @@ inline ScalarType interpolate_value_linear(const Vec3& point, const Array3<Scala
 
     return MathHelpers::trilerp(
             grid(i, j, k), grid(i + 1, j, k), grid(i, j + 1, k), grid(i + 1, j + 1, k),
-            grid(i, j, k + 1), grid(i + 1, j, k + 1), grid(i, j + 1, k + 1), grid(i + 1, j + 1,
-                    k + 1),
+            grid(i, j, k + 1), grid(i + 1, j, k + 1), grid(i, j + 1, k + 1), grid(i + 1, j + 1, k + 1),
             fi, fj, fk);
 }
 
@@ -66,8 +62,8 @@ inline ScalarType interpolateCubicBSpline(const Vec2& point, const Array2<Scalar
     MathHelpers::get_barycentric(point[0], i, fi, 0, (int)grid.m_SizeX);
     MathHelpers::get_barycentric(point[1], j, fj, 0, (int)grid.m_SizeY);
 
-    ScalarType sum_weight = 0;
-    ScalarType sum_val    = 0;
+    ScalarType sumW = 0;
+    ScalarType sumVal    = 0;
 
     for(int lj = -1; lj <= 2; ++lj)
     {
@@ -78,15 +74,15 @@ inline ScalarType interpolateCubicBSpline(const Vec2& point, const Array2<Scalar
             if(grid.isValidIndex(ind))
             {
                 const ScalarType weight = MathHelpers::cubic_spline_kernel_2d(fi - (ScalarType)li, fj - (ScalarType)lj);
-                sum_weight += weight;
-                sum_val    += weight * grid(ind);
+                sumW += weight;
+                sumVal    += weight * grid(ind);
             }
         }
     }
 
-    if(sum_weight > ScalarType(1e-30))
+    if(sumW > ScalarType(1e-30))
     {
-        return sum_val / sum_weight;
+        return sumVal / sumW;
     }
     else
     {
@@ -96,17 +92,17 @@ inline ScalarType interpolateCubicBSpline(const Vec2& point, const Array2<Scalar
 
 ////////////////////////////////////////////////////////////////////////////////
 template<class ScalarType>
-inline ScalarType interpolate_value_cubic_bspline(const Vec3& point, const Array3<ScalarType>& grid)
+inline ScalarType interpolateCubicBSpline(const Vec3& point, const Array3<ScalarType>& grid)
 {
-    int i, j, k;
+    int        i, j, k;
     ScalarType fi, fj, fk;
 
     MathHelpers::get_barycentric(point[0], i, fi, 0, (int)grid.m_SizeX);
     MathHelpers::get_barycentric(point[1], j, fj, 0, (int)grid.m_SizeY);
     MathHelpers::get_barycentric(point[2], k, fk, 0, (int)grid.m_SizeZ);
 
-    ScalarType sum_weight = 0;
-    ScalarType sum_val = 0;
+    ScalarType sumW   = 0;
+    ScalarType sumVal = 0;
 
     for(int lk = -1; lk <= 2; ++lk)
     {
@@ -116,20 +112,19 @@ inline ScalarType interpolate_value_cubic_bspline(const Vec3& point, const Array
             {
                 const Vec3i ind = Vec3i(i + li, j + lj, k + lk);
 
-                if(grid.is_valid_index(ind))
+                if(grid.isValidIndex(ind))
                 {
                     const ScalarType weight = MathHelpers::cubic_spline_kernel_3d(fi - (ScalarType)li, fj - (ScalarType)lj, fk - (ScalarType)lk);
-                    sum_weight += weight;
-                    sum_val += weight * grid(ind);
+                    sumW   += weight;
+                    sumVal += weight * grid(ind);
                 }
-
             }
         }
     }
 
-    if(sum_weight > ScalarType(1e-30))
+    if(sumW > 0)
     {
-        return sum_val / sum_weight;
+        return sumVal / sumW;
     }
     else
     {
@@ -168,7 +163,7 @@ inline float interpolate_gradient(Vec2& gradient, const Vec2& point, const Array
 template<class ScalarType>
 inline ScalarType interpolate_gradient(Vec3& gradient, const Vec3& point, const Array3<ScalarType>& grid)
 {
-    int i, j, k;
+    int        i, j, k;
     ScalarType fx, fy, fz;
 
     MathHelpers::get_barycentric(point[0], i, fx, 0, (int)grid.m_SizeX);
@@ -208,11 +203,11 @@ inline ScalarType interpolate_gradient(Vec3& gradient, const Vec3& point, const 
 
     //return value for good measure.
     return MathHelpers::trilerp(
-        v000, v100,
-        v010, v110,
-        v001, v101,
-        v011, v111,
-        fx, fy, fz);
+            v000, v100,
+            v010, v110,
+            v001, v101,
+            v011, v111,
+            fx, fy, fz);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

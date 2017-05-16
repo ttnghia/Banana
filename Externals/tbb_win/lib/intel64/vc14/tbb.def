@@ -848,6 +848,7 @@ __TBB_machine_is_in_transaction
 ?initialize@task_scheduler_init@tbb@@QEAAXH_K@Z
 ?initialize@task_scheduler_init@tbb@@QEAAXH@Z
 ?terminate@task_scheduler_init@tbb@@QEAAXXZ
+?internal_blocking_terminate@task_scheduler_init@tbb@@AEAA_N_N@Z
 
 ?observe@task_scheduler_observer_v3@internal@tbb@@QEAAX_N@Z
 

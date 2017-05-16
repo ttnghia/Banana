@@ -81,5 +81,13 @@
     <ClInclude Include="Include\BananaCore\Logger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Include\BananaCore\Geometry\SignDistanceField_Impl.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\Logger.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
