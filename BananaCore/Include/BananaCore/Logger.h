@@ -117,7 +117,7 @@ public:
     static std::string getTotalRunTime();
 
     static std::string getSourceName(int sourceID);
-    static void        getSourceName(int sourceID, const std::string& sourceName);
+    static void        setSourceName(int sourceID, const std::string& sourceName);
     static int         getNumSources();
 
     void setLogSource(int sourceID)
@@ -133,7 +133,6 @@ private:
 
     static bool m_bPrintStdOut;
     static bool m_bWriteLogToFile;
-    static bool m_bFileOpenFirstTime;
     static bool m_bDataPathReady;
 
     static std::string                           m_DataPath;

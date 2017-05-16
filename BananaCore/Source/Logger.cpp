@@ -20,7 +20,7 @@
 
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-int  Logger::s_LogLevel        = 0;
+int  Logger::s_LogLevel        = LogLevel::NormalLevel;
 bool Logger::m_bPrintStdOut    = true;
 bool Logger::m_bWriteLogToFile = true;
 bool Logger::m_bDataPathReady  = false;
@@ -30,7 +30,7 @@ std::string                           Logger::m_LogFile;
 std::string                           Logger::m_LogTimeFile;
 std::chrono::system_clock::time_point Logger::m_StartupTime;
 std::chrono::system_clock::time_point Logger::m_ShutdownTime;
-std::string                           Logger::m_TotalRunTime = "";
+std::string                           Logger::m_TotalRunTime;
 
 std::map<int, std::string>                    Logger::m_SourceNames;
 std::vector<std::shared_ptr<spdlog::logger> > Logger::m_ConsoleLogger;// = spdlog::stdout_color_mt("console");;
@@ -41,11 +41,12 @@ void Logger::setDataPath(const std::string& dataPath)
 {
     m_DataPath = dataPath;
 
-    int i = 1;
+    int         i = 1;
+    std::string file;
 
     do
     {
-        std::string file = m_DataPath + "/Log/log_" + std::to_string(i) + ".txt";
+        file = m_DataPath + "/Log/log_" + std::to_string(i) + ".txt";
 
         if(!FileHelpers::fileExisted(file))
         {
@@ -158,7 +159,7 @@ void Logger::printGreeting(const std::string& s, int sourceID)
 void Logger::printWarning(const std::string& s, int sourceID, int maxSize)
 {
     const std::string str         = "Warning: " + s + " ";
-    size_t            paddingSize = ((size_t)maxSize - str.length());
+    size_t            paddingSize = (static_cast<size_t>(maxSize) - str.length());
 
     Logger::printLog(str + std::string(paddingSize, '*'), sourceID);
 }
@@ -348,7 +349,7 @@ int Logger::getNumSources()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Logger::getSourceName(int sourceID, const std::string& sourceName)
+void Logger::setSourceName(int sourceID, const std::string& sourceName)
 {
     m_SourceNames[sourceID] = sourceName;
 }
