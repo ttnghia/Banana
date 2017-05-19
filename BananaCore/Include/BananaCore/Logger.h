@@ -44,10 +44,10 @@ public:
         DebugLevel,
     };
 
-    enum BuildInSource
+    enum Source
     {
         MainProgram = 0,
-        Logger,
+        LoggerClass,
         Debugger
     };
 
@@ -57,7 +57,7 @@ public:
     Logger(int sourceID) : m_LogSourceID(sourceID)
     {}
 
-    static void setDataPath(const std::string& dataPath);
+    static void setDataPath(const std::string& dataPath);-
 
     static void enableStdOut()
     {

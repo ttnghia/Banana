@@ -217,7 +217,7 @@ void Logger::printDebug(const std::string& s)
 {
     if(s_LogLevel == LogLevel::DebugLevel)
     {
-        Logger::printLog(s, BuildInSource::Debugger);
+        Logger::printLog(s, Source::Debugger);
     }
 }
 
@@ -226,7 +226,7 @@ void Logger::printDebugIndent(const std::string& s, int indentLevel)
 {
     if(s_LogLevel == LogLevel::DebugLevel)
     {
-        Logger::printLogIndent(s, BuildInSource::Debugger, indentLevel);
+        Logger::printLogIndent(s, Source::Debugger, indentLevel);
     }
 }
 
@@ -280,9 +280,9 @@ void Logger::shutdown()
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    Logger::printLog(m_TotalRunTime, BuildInSource::Logger);
-    Logger::printSeparator(BuildInSource::Logger);
-    Logger::newLine(BuildInSource::Logger);
+    Logger::printLog(m_TotalRunTime, Source::LoggerClass);
+    Logger::printSeparator(Source::LoggerClass);
+    Logger::newLine(Source::LoggerClass);
 }
 
 

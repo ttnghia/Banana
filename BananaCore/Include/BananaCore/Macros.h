@@ -142,6 +142,18 @@ inline void throwIfFailed(HRESULT hr)
     }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#define __BNN_CheckError(condition, msg)                                                      \
+    {                                                                                        \
+        if(!(condition))                                                                     \
+        {                                                                                    \
+            std::string erMsg = std::string("Assertion failed: ") + std::string(#condition); \
+            std::string rsMsg = std::string("Reason: ") + std::string(msg);                  \
+            printf("%s\n%s\n", erMsg.c_str(), rsMsg.c_str());                                \
+            __BNN_PrintLocation                                                              \
+        }                                                                                    \
+    }
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #define __BNN_CalledToUmimplementedFunc                \
     {                                                  \
         __BNN_Die("Called function is unimplemented.") \

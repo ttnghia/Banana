@@ -137,6 +137,8 @@
     <ClInclude Include="Include\ParallelHelpers\LinearAlgebra\BlockSparseMatrix.h" />
     <ClInclude Include="Include\ParallelHelpers\LinearAlgebra\PCGSolver.h" />
     <ClInclude Include="Include\ParallelHelpers\LinearAlgebra\SparseMatrix.h" />
+    <ClInclude Include="Include\ParallelHelpers\LinearAlgebra\BlockSparseMatrix_Impl.hpp" />
+    <ClInclude Include="Include\ParallelHelpers\LinearAlgebra\SparseMatrix_Impl.hpp" />
     <ClInclude Include="Include\ParallelHelpers\ParallelBLAS.h" />
     <ClInclude Include="Include\ParallelHelpers\ParallelClass.h" />
     <ClInclude Include="Include\ParallelHelpers\ParallelFuncs.h" />

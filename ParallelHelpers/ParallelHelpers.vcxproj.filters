@@ -45,5 +45,11 @@
     <ClInclude Include="Include\ParallelHelpers\LinearAlgebra\SparseMatrix.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Include\ParallelHelpers\LinearAlgebra\BlockSparseMatrix_Impl.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\ParallelHelpers\LinearAlgebra\SparseMatrix_Impl.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
