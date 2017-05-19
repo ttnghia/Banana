@@ -40,8 +40,8 @@ private:
     void applyPreconditioner(const std::vector<VectorType>& x, std::vector<VectorType>& result);
 
     std::vector<VectorType>            z, s, r;
-    std::vector<MatrixType>            m_Preconditioner;
-    BlockFixedSparseMatrix<MatrixType> m_FixedMatrix;
+    std::vector<MatrixType>            m_JacobiPreconditioner;
+    BlockFixedSparseMatrix<MatrixType> m_FixedSparseMatrix;
 
     // parameters
     ScalarType m_ToleranceFactor = 1e-20;

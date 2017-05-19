@@ -21,7 +21,7 @@
 #include <vector>
 
 #include <tbb/tbb.h>
-#include "./ParallelObjects.h"
+#include <ParallelHelpers/ParallelObjects.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace ParallelBLAS
@@ -45,15 +45,24 @@ inline ScalarType dotProduct(const std::vector<VectorType>& x, const std::vector
 {
     assert(x.size() == y.size());
 
-    ParallelObjects::VectorDotProduct<ScalarType, VectorType> v(x, y);
-    tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), v);
+    ParallelObjects::VectorDotProduct<ScalarType, VectorType> vdp(x, y);
+    tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), vdp);
 
-    return v.result;
+    return vdp.result;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // inf-norm (maximum absolute value)
 //
+template<class ScalarType>
+inline ScalarType maxAbs(const std::vector<ScalarType>& x)
+{
+    ParallelObjects::VectorMaxAbs<ScalarType> mabs(x);
+    tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), mabs);
+
+    return mabs.result;
+}
+
 template<class ScalarType, class VectorType>
 inline ScalarType maxAbs(const std::vector<VectorType>& x)
 {
@@ -69,8 +78,7 @@ inline ScalarType maxAbs(const std::vector<VectorType>& x)
 template<class ScalarType, class VectorType>
 inline void addScaled(ScalarType alpha, const std::vector<VectorType>& x, std::vector<VectorType>& y)
 {
-    tbb::parallel_for(tbb::blocked_range<size_t>(0, x.size()),
-        [&, alpha](tbb::blocked_range<size_t> r)
+    tbb::parallel_for(tbb::blocked_range<size_t>(0, x.size()), [&, alpha](tbb::blocked_range<size_t> r)
         {
             for(size_t i = r.begin(), iEnd = r.end(); i != iEnd; ++i)
             {
@@ -85,8 +93,7 @@ inline void addScaled(ScalarType alpha, const std::vector<VectorType>& x, std::v
 template<class ScalarType, class VectorType>
 inline void scaledAdd(ScalarType beta, const std::vector<VectorType>& x, std::vector<VectorType>& y)
 {
-    tbb::parallel_for(tbb::blocked_range<size_t>(0, x.size()),
-        [&, beta](tbb::blocked_range<size_t> r)
+    tbb::parallel_for(tbb::blocked_range<size_t>(0, x.size()), [&, beta](tbb::blocked_range<size_t> r)
         {
             for(size_t i = r.begin(), iEnd = r.end(); i != iEnd; ++i)
             {
@@ -101,8 +108,7 @@ inline void scaledAdd(ScalarType beta, const std::vector<VectorType>& x, std::ve
 template<class ScalarType, class VectorType>
 inline void scale(ScalarType alpha, const std::vector<VectorType>& x)
 {
-    tbb::parallel_for(tbb::blocked_range<size_t>(0, x.size()),
-        [&, alpha](tbb::blocked_range<size_t> r)
+    tbb::parallel_for(tbb::blocked_range<size_t>(0, x.size()), [&, alpha](tbb::blocked_range<size_t> r)
         {
             for(size_t i = r.begin(), iEnd = r.end(); i != iEnd; ++i)
             {

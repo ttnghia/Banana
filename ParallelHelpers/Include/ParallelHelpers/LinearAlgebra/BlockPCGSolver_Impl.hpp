@@ -63,7 +63,7 @@ bool BlockPCGSolver<MatrixType, VectorType, ScalarType>::solve(const BlockSparse
         }
     }
 
-    m_FixedMatrix.constructFromSparseMatrix(matrix);
+    m_FixedSparseMatrix.constructFromSparseMatrix(matrix);
     r = rhs;
 
     residual_out = ParallelBLAS::maxAbs<ScalarType, VectorType>(r);
@@ -87,7 +87,7 @@ bool BlockPCGSolver<MatrixType, VectorType, ScalarType>::solve(const BlockSparse
 
     for(UInt32 iteration = 0; iteration < m_MaxIterations; ++iteration)
     {
-        multiply<MatrixType, VectorType>(m_FixedMatrix, z, s);
+        multiply<MatrixType, VectorType>(m_FixedSparseMatrix, z, s);
         ScalarType tmp = ParallelBLAS::dotProduct<ScalarType, VectorType>(s, z);
 
         if(fabs(tmp) < 1e-20 || isnan(tmp))
@@ -148,10 +148,10 @@ bool BlockPCGSolver<MatrixType, VectorType, ScalarType>::solve_precond(const Blo
         }
     }
 
-    m_FixedMatrix.constructFromSparseMatrix(matrix);
+    m_FixedSparseMatrix.constructFromSparseMatrix(matrix);
     r = rhs;
 
-    multiply(m_FixedMatrix, result, s);
+    multiply(m_FixedSparseMatrix, result, s);
     ParallelBLAS::addScaled<ScalarType, VectorType>(-1.0, s, r);
 
     residual_out = ParallelBLAS::maxAbs<ScalarType, VectorType>(r);
@@ -179,7 +179,7 @@ bool BlockPCGSolver<MatrixType, VectorType, ScalarType>::solve_precond(const Blo
 
     for(UInt32 iteration = 0; iteration < m_MaxIterations; ++iteration)
     {
-        multiply(m_FixedMatrix, s, z);
+        multiply(m_FixedSparseMatrix, s, z);
         ScalarType alpha = rho / ParallelBLAS::dotProduct<ScalarType, VectorType>(s, z);
         tbb::parallel_invoke(
                 [&]
@@ -216,16 +216,16 @@ bool BlockPCGSolver<MatrixType, VectorType, ScalarType>::solve_precond(const Blo
 template<class MatrixType, class VectorType, class ScalarType>
 void BlockPCGSolver<MatrixType, VectorType, ScalarType>::formPreconditioner(const BlockSparseMatrix<MatrixType>& matrix)
 {
-    m_Preconditioner.resize(matrix.size());
+    m_JacobiPreconditioner.resize(matrix.size());
 
     static tbb::affinity_partitioner ap;
     tbb::parallel_for(tbb::blocked_range<UInt32>(0, matrix.size()), [&](tbb::blocked_range<UInt32> r)
     {
-        for(UInt32 i = r.begin(); i != r.end(); ++i)
+        for(size_t i = r.begin(), iEnd = r.end(); i != iEnd; ++i)
         {
-            auto& v = matrix.m_ColIndex[i];
+            auto& v = matrix.getIndices(i);
             auto it = std::lower_bound(v.begin(), v.end(), i);
-            m_Preconditioner[i] = (it != v.end()) ? glm::inverse(matrix.m_ColValue[i][std::distance(v.begin(), it)]) : MatrixType(0);
+            m_JacobiPreconditioner[i] = (it != v.end()) ? glm::inverse(matrix.getValues(i)[std::distance(v.begin(), it)]) : MatrixType(0);
         }
     }, ap);     // end parallel_for
 }
@@ -234,8 +234,12 @@ void BlockPCGSolver<MatrixType, VectorType, ScalarType>::formPreconditioner(cons
 template<class MatrixType, class VectorType, class ScalarType>
 void BlockPCGSolver<MatrixType, VectorType, ScalarType>::applyPreconditioner(const std::vector<VectorType>& x, std::vector<VectorType>& result)
 {
-    for(size_t i = 0; i < x.size(); ++i)
+    static tbb::affinity_partitioner ap;
+    tbb::parallel_for(tbb::blocked_range<size_t>(0, x.size()), [&](tbb::blocked_range<UInt32> r)
     {
-        result[i] = m_Preconditioner[i] * x[i];
-    }
+        for(size_t i = r.begin(), iEnd = r.end(); i != iEnd; ++i)
+        {
+            result[i] = m_JacobiPreconditioner[i] * x[i];
+        }
+    }, ap);     // end parallel_for
 }

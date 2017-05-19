@@ -134,8 +134,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\ParallelHelpers\LinearAlgebra\BlockPCGSolver.h" />
+    <ClInclude Include="Include\ParallelHelpers\LinearAlgebra\BlockPCGSolver_Impl.hpp" />
     <ClInclude Include="Include\ParallelHelpers\LinearAlgebra\BlockSparseMatrix.h" />
     <ClInclude Include="Include\ParallelHelpers\LinearAlgebra\PCGSolver.h" />
+    <ClInclude Include="Include\ParallelHelpers\LinearAlgebra\PCGSolver_Impl.hpp" />
     <ClInclude Include="Include\ParallelHelpers\LinearAlgebra\SparseMatrix.h" />
     <ClInclude Include="Include\ParallelHelpers\LinearAlgebra\BlockSparseMatrix_Impl.hpp" />
     <ClInclude Include="Include\ParallelHelpers\LinearAlgebra\SparseMatrix_Impl.hpp" />
