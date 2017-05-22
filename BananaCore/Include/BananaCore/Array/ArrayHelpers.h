@@ -47,9 +47,9 @@ inline ScalarType interpolateLinear(const Vec3& point, const Array3<ScalarType>&
     MathHelpers::get_barycentric(point[2], k, fk, 0, (int)grid.m_SizeZ);
 
     return MathHelpers::trilerp(
-            grid(i, j, k), grid(i + 1, j, k), grid(i, j + 1, k), grid(i + 1, j + 1, k),
-            grid(i, j, k + 1), grid(i + 1, j, k + 1), grid(i, j + 1, k + 1), grid(i + 1, j + 1, k + 1),
-            fi, fj, fk);
+        grid(i, j, k), grid(i + 1, j, k), grid(i, j + 1, k), grid(i + 1, j + 1, k),
+        grid(i, j, k + 1), grid(i + 1, j, k + 1), grid(i, j + 1, k + 1), grid(i + 1, j + 1, k + 1),
+        fi, fj, fk);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -62,8 +62,8 @@ inline ScalarType interpolateCubicBSpline(const Vec2& point, const Array2<Scalar
     MathHelpers::get_barycentric(point[0], i, fi, 0, (int)grid.m_SizeX);
     MathHelpers::get_barycentric(point[1], j, fj, 0, (int)grid.m_SizeY);
 
-    ScalarType sumW = 0;
-    ScalarType sumVal    = 0;
+    ScalarType sumW   = 0;
+    ScalarType sumVal = 0;
 
     for(int lj = -1; lj <= 2; ++lj)
     {
@@ -74,20 +74,16 @@ inline ScalarType interpolateCubicBSpline(const Vec2& point, const Array2<Scalar
             if(grid.isValidIndex(ind))
             {
                 const ScalarType weight = MathHelpers::cubic_spline_kernel_2d(fi - (ScalarType)li, fj - (ScalarType)lj);
-                sumW += weight;
-                sumVal    += weight * grid(ind);
+                sumW   += weight;
+                sumVal += weight * grid(ind);
             }
         }
     }
 
     if(sumW > ScalarType(1e-30))
-    {
         return sumVal / sumW;
-    }
     else
-    {
         return ScalarType(0);
-    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -203,11 +199,11 @@ inline ScalarType interpolate_gradient(Vec3& gradient, const Vec3& point, const 
 
     //return value for good measure.
     return MathHelpers::trilerp(
-            v000, v100,
-            v010, v110,
-            v001, v101,
-            v011, v111,
-            fx, fy, fz);
+        v000, v100,
+        v010, v110,
+        v001, v101,
+        v011, v111,
+        fx, fy, fz);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -235,4 +231,3 @@ inline void write_matlab_array(std::ostream& output, Array2<T>& a, const char* v
 
     output << ";" << std::endl;
 }
-

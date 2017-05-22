@@ -33,7 +33,7 @@ std::chrono::system_clock::time_point Logger::m_ShutdownTime;
 std::string                           Logger::m_TotalRunTime;
 
 std::map<int, std::string>                    Logger::m_SourceNames;
-std::vector<std::shared_ptr<spdlog::logger> > Logger::m_ConsoleLogger;// = spdlog::stdout_color_mt("console");;
+std::vector<std::shared_ptr<spdlog::logger> > Logger::m_ConsoleLogger;    // = spdlog::stdout_color_mt("console");;
 std::vector<std::shared_ptr<spdlog::logger> > Logger::m_FileLogger;
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -245,14 +245,18 @@ void Logger::initialize()
     if(m_bWriteLogToFile)
     {
         FileHelpers::createFolder(std::string(m_DataPath + "/Log"));
-        time_t currentTime = std::chrono::system_clock::to_time_t(m_StartupTime -
-                std::chrono::hours(24));
+        time_t currentTime = std::chrono::system_clock::to_time_t(m_StartupTime - std::chrono::hours(24));
         assert(m_bDataPathReady);
-        struct tm         localTime = *localtime(&currentTime);
+#ifdef __Banana_Windows__
+        struct tm ltime;
+        localtime_s(&ltime, &currentTime);
+#else
+        struct tm ltime = *localtime(&currentTime);
+#endif
         std::stringstream strBuilder;
         strBuilder.str("");
-        strBuilder << "Log created at: " << localTime.tm_mon << "/" << localTime.tm_mday;
-        strBuilder << "/" << (localTime.tm_year + 1900) << ", " << localTime.tm_hour << ":" << localTime.tm_min << ":" << localTime.tm_sec << std::endl;
+        strBuilder << "Log created at: " << ltime.tm_mon << "/" << ltime.tm_mday;
+        strBuilder << "/" << (ltime.tm_year + 1900) << ", " << ltime.tm_hour << ":" << ltime.tm_min << ":" << ltime.tm_sec << std::endl;
 
         FileHelpers::writeFile(strBuilder.str(), m_LogTimeFile);
     }
@@ -268,12 +272,17 @@ void Logger::shutdown()
     {
         assert(m_bDataPathReady);
 
-        time_t            currentTime = std::chrono::system_clock::to_time_t(m_ShutdownTime - std::chrono::hours(24));;
-        struct tm         localTime   = *localtime(&currentTime);
+        time_t currentTime = std::chrono::system_clock::to_time_t(m_ShutdownTime - std::chrono::hours(24));;
+#ifdef __Banana_Windows__
+        struct tm ltime;
+        localtime_s(&ltime, &currentTime);
+#else
+        struct tm ltime = *localtime(&currentTime);
+#endif
         std::stringstream strBuilder;
         strBuilder.str("");
-        strBuilder << "Log finished at: " << localTime.tm_mon << "/" << localTime.tm_mday;
-        strBuilder << "/" << (localTime.tm_year + 1900) << ", " << localTime.tm_hour << ":" << localTime.tm_min << ":" << localTime.tm_sec << std::endl;
+        strBuilder << "Log finished at: " << ltime.tm_mon << "/" << ltime.tm_mday;
+        strBuilder << "/" << (ltime.tm_year + 1900) << ", " << ltime.tm_hour << ":" << ltime.tm_min << ":" << ltime.tm_sec << std::endl;
         strBuilder << m_TotalRunTime;
 
         FileHelpers::appendToFile(strBuilder.str(), m_LogTimeFile);
@@ -307,10 +316,10 @@ void getDuration(std::chrono::duration<Rep, Period> t, int& n_days, int& n_hours
     auto mins  = std::chrono::duration_cast<std::chrono::minutes>(t - days - hours);
     auto secs  = std::chrono::duration_cast<std::chrono::seconds>(t - days - hours - mins);
 
-    n_days  = days.count();
-    n_hours = hours.count();
-    n_mins  = mins.count();
-    n_secs  = secs.count();
+    n_days  = static_cast<int>(days.count());
+    n_hours = static_cast<int>(hours.count());
+    n_mins  = static_cast<int>(mins.count());
+    n_secs  = static_cast<int>(secs.count());
 }
 
 void Logger::computeTotalRunTime()

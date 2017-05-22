@@ -51,13 +51,11 @@ public:
         Debugger
     };
 
-    Logger() : m_LogSourceID(0)
-    {}
+    Logger() : m_LogSourceID(0) {}
 
-    Logger(int sourceID) : m_LogSourceID(sourceID)
-    {}
+    Logger(int sourceID) : m_LogSourceID(sourceID) {}
 
-    static void setDataPath(const std::string& dataPath);-
+    static void setDataPath(const std::string& dataPath);
 
     static void enableStdOut()
     {
@@ -142,9 +140,9 @@ private:
     static std::chrono::system_clock::time_point m_ShutdownTime;
     static std::string                           m_TotalRunTime;
 
-    static std::map<int, std::string>                    m_SourceNames;
-    static std::vector<std::shared_ptr<spdlog::logger> > m_FileLogger;
-    static std::vector<std::shared_ptr<spdlog::logger> > m_ConsoleLogger;
+    static std::map < int, std::string > m_SourceNames;
+    static std::vector < std::shared_ptr < spdlog::logger >> m_FileLogger;
+    static std::vector < std::shared_ptr < spdlog::logger >> m_ConsoleLogger;
 
     int m_LogSourceID;
 };

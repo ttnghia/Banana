@@ -111,25 +111,25 @@ public:
     template<class IndexType>
     const T& operator()(IndexType i, IndexType j) const
     {
-        return m_Data[getLinearizedIndex < IndexType > (i, j)];
+        return m_Data[getLinearizedIndex<IndexType>(i, j)];
     }
 
     template<class IndexType>
     T& operator()(IndexType i, IndexType j)
     {
-        return m_Data[getLinearizedIndex < IndexType > (i, j)];
+        return m_Data[getLinearizedIndex<IndexType>(i, j)];
     }
 
     template<class IndexType>
     const T& operator()(const glm::tvec2<IndexType>& index) const
     {
-        return m_Data[getLinearizedIndex < IndexType > (index[0], index[1])];
+        return m_Data[getLinearizedIndex<IndexType>(index[0], index[1])];
     }
 
     template<class IndexType>
     T& operator()(const glm::tvec2<IndexType>& index)
     {
-        return m_Data[getLinearizedIndex < IndexType > (index[0], index[1])];
+        return m_Data[getLinearizedIndex<IndexType>(index[0], index[1])];
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -253,7 +253,6 @@ public:
     {
         return m_Data;
     }
-
 
     ////////////////////////////////////////////////////////////////////////////////
     size_type sizeX() const

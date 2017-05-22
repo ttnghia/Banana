@@ -20,9 +20,7 @@
 #define TEST_CASE TestCase::TriMeshShadow
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-OpenGLWidgetTestRender::OpenGLWidgetTestRender(QWidget* parent)
-    : OpenGLWidget(parent),
-    m_TestCase(TEST_CASE)
+OpenGLWidgetTestRender::OpenGLWidgetTestRender(QWidget* parent) : OpenGLWidget(parent), m_TestCase(TEST_CASE)
 {}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

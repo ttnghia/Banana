@@ -43,7 +43,8 @@ void BlockPCGSolver<MatrixType, VectorType, ScalarType>::disableZeroInitial()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class MatrixType, class VectorType, class ScalarType>
-bool BlockPCGSolver<MatrixType, VectorType, ScalarType>::solve(const BlockSparseMatrix<MatrixType>& matrix, const std::vector<VectorType>& rhs, std::vector<VectorType>& result, ScalarType& residual_out, UInt32& iterations_out)
+bool BlockPCGSolver<MatrixType, VectorType, ScalarType>::solve(const BlockSparseMatrix<MatrixType>& matrix, const std::vector<VectorType>& rhs, std::vector<VectorType>& result,
+        ScalarType& residual_out, UInt32& iterations_out)
 {
     const UInt32 n = matrix.size();
 
@@ -54,7 +55,7 @@ bool BlockPCGSolver<MatrixType, VectorType, ScalarType>::solve(const BlockSparse
         r.resize(n);
     }
 
-    // zero out the result
+// zero out the result
     if(m_bZeroInitial)
     {
         for(auto vec& : result)
@@ -99,11 +100,11 @@ bool BlockPCGSolver<MatrixType, VectorType, ScalarType>::solve(const BlockSparse
         ScalarType alpha = rho / tmp;
 
         tbb::parallel_invoke(
-                [&]
+            [&]
         {
             ParallelBLAS::addScaled<ScalarType, VectorType>(alpha, z, result);
         },
-                [&]
+            [&]
         {
             ParallelBLAS::addScaled<ScalarType, VectorType>(-alpha, s, r);
         });
@@ -139,7 +140,7 @@ bool BlockPCGSolver<MatrixType, VectorType, ScalarType>::solve_precond(const Blo
         r.resize(n);
     }
 
-    // zero out the result
+// zero out the result
     if(m_bZeroInitial)
     {
         for(size_t i = 0; i < result.size(); ++i)
@@ -182,11 +183,11 @@ bool BlockPCGSolver<MatrixType, VectorType, ScalarType>::solve_precond(const Blo
         multiply(m_FixedSparseMatrix, s, z);
         ScalarType alpha = rho / ParallelBLAS::dotProduct<ScalarType, VectorType>(s, z);
         tbb::parallel_invoke(
-                [&]
+            [&]
         {
             ParallelBLAS::addScaled<ScalarType, VectorType>(alpha, s, result);
         },
-                [&]
+            [&]
         {
             ParallelBLAS::addScaled<ScalarType, VectorType>(-alpha, z, r);
         });

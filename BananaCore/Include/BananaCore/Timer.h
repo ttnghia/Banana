@@ -24,11 +24,11 @@
 
 #include <BananaCore/NumberHelpers.h>
 
-using Clock = std::chrono::high_resolution_clock;
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 class Timer
 {
+using Clock = std::chrono::high_resolution_clock;
 public:
     Timer() : m_TimerTicked(false)
     {}

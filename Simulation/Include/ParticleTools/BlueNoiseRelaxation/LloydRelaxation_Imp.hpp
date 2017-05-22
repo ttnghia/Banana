@@ -62,7 +62,7 @@ public:
         overlap_ratio_threshold(1.55),
         remove_ratio_threshold(1.55),
         check_per_iterations(1),
-        monitor(MonitorSource::ParticleRelaxation)
+        logger(MonitorSource::ParticleRelaxation)
     {
         small_cell_size = particle_radius * 2.5;
         num_small_cells = domainParams->getGridSize(domainParams->domainBMin,
@@ -143,14 +143,14 @@ private:
 
         for(int iter = 0; iter < max_iterations; ++iter)
         {
-            monitor.printLog("Relaxation iteration: " + std::to_string(iter));
+            logger.printLog("Relaxation iteration: " + std::to_string(iter));
             size_t num_clusters = cluster_centers.size();
 
             timer.tick();
             collect_sample_to_cluster(cluster_centers, samples, samples_per_cluster);
             __NOODLE_ASSERT(samples_per_cluster.size() == num_clusters);
             total_time = timer.tock();
-            monitor.printLog(timer.getRunTime("Collect samples to clusters total: "));
+            logger.printLog(timer.getRunTime("Collect samples to clusters total: "));
 
             ////////////////////////////////////////////////////////////////////////////////
             std::copy(cluster_centers.begin(), cluster_centers.end(), cluster_backup.begin());
@@ -180,24 +180,24 @@ private:
             }); // end parallel for
 
             total_time += timer.tock();
-            monitor.printLog(timer.getRunTime("Compute new cluster positions: "));
+            logger.printLog(timer.getRunTime("Compute new cluster positions: "));
 
             VectorMaxElement<Real> md2(move_distance);
             tbb::parallel_reduce(tbb::blocked_range<size_t>(0, move_distance.size()), md2);
             max_moved_percentage = sqrt(md2.result) / particle_radius * 100.0;
-            monitor.printLog("Max moving distance in this iteration: " + NumberHelpers::formatWithCommas(max_moved_percentage) + "% of particle radius");
+            logger.printLog("Max moving distance in this iteration: " + NumberHelpers::formatWithCommas(max_moved_percentage) + "% of particle radius");
 
             if(iter % check_per_iterations == 0)
             {
                 min_cluster_distance = check_min_distance(cluster_centers, num_overlapped_particles);
-                monitor.newLine();
-                monitor.printLog("Min distance: " + NumberHelpers::formatToScientific(
+                logger.newLine();
+                logger.printLog("Min distance: " + NumberHelpers::formatToScientific(
                     min_cluster_distance) +
                     ". Min distance/particle_radius = " +
                     NumberHelpers::formatWithCommas(min_cluster_distance / particle_radius));
-                monitor.printLog("Number of overlapped particles: " +
+                logger.printLog("Number of overlapped particles: " +
                                  NumberHelpers::formatWithCommas(num_overlapped_particles));
-                monitor.newLine();
+                logger.newLine();
             }
 
             if((iter + 1) % 10 == 0 && max_moved_percentage > 10)
@@ -205,12 +205,12 @@ private:
                 sort_sample(samples, samples_per_cluster);
             }
 
-            monitor.printLog("Total iteration time: " + NumberHelpers::formatWithCommas(
+            logger.printLog("Total iteration time: " + NumberHelpers::formatWithCommas(
                 total_time) + "ms");
-            monitor.printLog("Memory usage: " + NumberHelpers::formatWithCommas(
+            logger.printLog("Memory usage: " + NumberHelpers::formatWithCommas(
                 getCurrentRSS() / 1048576.0) +
                 " MB(s). Peak: " + NumberHelpers::formatWithCommas(getPeakRSS() / 1048576.0) + " MB(s).");
-            monitor.newLine();
+            logger.newLine();
 
             if(iter > min_iterations && max_moved_percentage < moving_percentage_threshold)
             {
@@ -223,10 +223,10 @@ private:
                 if(num_overlapped_particles > 0)
                 {
                     UInt32 num_removed_particles = remove_overlapped_particles(cluster_centers);
-                    monitor.printLog("Removed particles: " +
+                    logger.printLog("Removed particles: " +
                                      NumberHelpers::formatWithCommas(num_removed_particles) +
                                      " =======================================");
-                    monitor.newLine();
+                    logger.newLine();
 
                     if(num_removed_particles == 0)
                     {
@@ -239,26 +239,26 @@ private:
 
 
         min_cluster_distance = check_min_distance(cluster_centers, num_overlapped_particles);
-        monitor.printLog("Finished relaxation. Min distance: " +
+        logger.printLog("Finished relaxation. Min distance: " +
                          NumberHelpers::formatToScientific(min_cluster_distance) +
                          ". Min distance/particle_radius = " +
                          NumberHelpers::formatWithCommas(min_cluster_distance / particle_radius));
-        monitor.printLog("Max moving distance in last iteration: " +
+        logger.printLog("Max moving distance in last iteration: " +
                          NumberHelpers::formatWithCommas(max_moved_percentage) +
                          "% of particle radius");
-        monitor.printLog("Number of overlapped particles: " +
+        logger.printLog("Number of overlapped particles: " +
                          NumberHelpers::formatWithCommas(num_overlapped_particles));
 
         if(converged)
         {
-            monitor.printLog("Relaxation converged.");
+            logger.printLog("Relaxation converged.");
         }
         else
         {
-            monitor.printLog("Relaxation did NOT converge.");
+            logger.printLog("Relaxation did NOT converge.");
         }
 
-        monitor.newLine();
+        logger.newLine();
         __NOODLE_ASSERT(min_cluster_distance > overlap_ratio_threshold * particle_radius);
     }
 
@@ -291,13 +291,13 @@ private:
 
         for(int iter = 0; iter < max_iterations; ++iter)
         {
-            monitor.printLog("Relaxation iteration: " + std::to_string(iter));
+            logger.printLog("Relaxation iteration: " + std::to_string(iter));
 
             timer.tick();
             collect_sample_to_cluster(cluster_centers, samples, samples_per_cluster);
             __NOODLE_ASSERT(samples_per_cluster.size() == num_clusters);
             total_time = timer.tock();
-            monitor.printLog(timer.getRunTime("Collect samples to clusters total: "));
+            logger.printLog(timer.getRunTime("Collect samples to clusters total: "));
 
             ////////////////////////////////////////////////////////////////////////////////
             std::copy(cluster_centers.begin(), cluster_centers.end(), cluster_backup.begin());
@@ -327,26 +327,26 @@ private:
             }); // end parallel for
 
             total_time += timer.tock();
-            monitor.printLog(timer.getRunTime("Compute new cluster positions: "));
+            logger.printLog(timer.getRunTime("Compute new cluster positions: "));
 
             VectorMaxElement<Real> md2(move_distance);
             tbb::parallel_reduce(tbb::blocked_range<size_t>(0, move_distance.size()), md2);
             max_moved_percentage = sqrt(md2.result) / particle_radius * 100.0;
-            monitor.printLog("Max moving distance in this iteration: " +
+            logger.printLog("Max moving distance in this iteration: " +
                              NumberHelpers::formatWithCommas(max_moved_percentage) +
                              "% of particle radius");
 
             if(iter % check_per_iterations == 0)
             {
                 min_cluster_distance = check_min_distance(cluster_centers, num_overlapped_particles);
-                monitor.newLine();
-                monitor.printLog("Min distance: " + NumberHelpers::formatToScientific(
+                logger.newLine();
+                logger.printLog("Min distance: " + NumberHelpers::formatToScientific(
                     min_cluster_distance) +
                     ". Min distance/particle_radius = " +
                     NumberHelpers::formatWithCommas(min_cluster_distance / particle_radius));
-                monitor.printLog("Number of overlapped particles: " +
+                logger.printLog("Number of overlapped particles: " +
                                  NumberHelpers::formatWithCommas(num_overlapped_particles));
-                monitor.newLine();
+                logger.newLine();
             }
 
             if((iter + 1) % 10 == 0 && max_moved_percentage > 10)
@@ -354,12 +354,12 @@ private:
                 sort_sample(samples, samples_per_cluster);
             }
 
-            monitor.printLog("Total iteration time: " + NumberHelpers::formatWithCommas(
+            logger.printLog("Total iteration time: " + NumberHelpers::formatWithCommas(
                 total_time) + "ms");
-            monitor.printLog("Memory usage: " + NumberHelpers::formatWithCommas(
+            logger.printLog("Memory usage: " + NumberHelpers::formatWithCommas(
                 getCurrentRSS() / 1048576.0) +
                 " MB(s). Peak: " + NumberHelpers::formatWithCommas(getPeakRSS() / 1048576.0) + " MB(s).");
-            monitor.newLine();
+            logger.newLine();
 
             if(max_moved_percentage < moving_percentage_threshold && iter > min_iterations)
             {
@@ -369,26 +369,26 @@ private:
         } // end iterations
 
         min_cluster_distance = check_min_distance(cluster_centers, num_overlapped_particles);
-        monitor.printLog("Finished relaxation. Min distance: " +
+        logger.printLog("Finished relaxation. Min distance: " +
                          NumberHelpers::formatWithCommas(min_cluster_distance) +
                          ". Min distance/particle_radius = " +
                          NumberHelpers::formatWithCommas(min_cluster_distance / particle_radius));
-        monitor.printLog("Max moving distance in last iteration: " +
+        logger.printLog("Max moving distance in last iteration: " +
                          NumberHelpers::formatWithCommas(max_moved_percentage) +
                          "% of particle radius");
-        monitor.printLog("Number of overlapped particles: " +
+        logger.printLog("Number of overlapped particles: " +
                          NumberHelpers::formatWithCommas(num_overlapped_particles));
 
         if(converged)
         {
-            monitor.printLog("Relaxation converged.");
+            logger.printLog("Relaxation converged.");
         }
         else
         {
-            monitor.printLog("Relaxation did NOT converge.");
+            logger.printLog("Relaxation did NOT converge.");
         }
 
-        monitor.newLine();
+        logger.newLine();
         __NOODLE_ASSERT(min_cluster_distance > overlap_ratio_threshold * particle_radius);
     }
 
@@ -410,7 +410,7 @@ private:
         timer.tick();
         collect_clusters_to_cells(cluster_centers);
         timer.tock();
-        monitor.printLogIndent(timer.getRunTime("Collect clusters to cells: "));
+        logger.printLogIndent(timer.getRunTime("Collect clusters to cells: "));
 
         closest_cluster.resize(num_samples);
         samples_per_cluster.resize(num_clusters);
@@ -464,7 +464,7 @@ private:
             }
         }); // end parallel for
         timer.tock();
-        monitor.printLogIndent(timer.getRunTime("Find nearest cluster for each sample: "));
+        logger.printLogIndent(timer.getRunTime("Find nearest cluster for each sample: "));
 
         ////////////////////////////////////////////////////////////////////////////////
         timer.tick();
@@ -475,7 +475,7 @@ private:
         }
 
         timer.tock();
-        monitor.printLogIndent(timer.getRunTime("Write nearest cluster to sample array: "));
+        logger.printLogIndent(timer.getRunTime("Write nearest cluster to sample array: "));
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -820,7 +820,7 @@ private:
         tmp_samples.clear();
 
         timer.tock();
-        monitor.printLog(timer.getRunTime("Sort samples: ") + " =======================================");
+        logger.printLog(timer.getRunTime("Sort samples: ") + " =======================================");
     }
 
 
@@ -869,7 +869,7 @@ private:
     Real              small_cell_size;
     Vec_UInt          closest_cluster;
 
-    Monitor monitor;
+    Monitor logger;
 };
 
 #endif // LLOYD_ALGORITHM_H

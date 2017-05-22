@@ -146,6 +146,8 @@
     <ClInclude Include="Include\FluidSolvers\SPHSolver2D_Imp.hpp" />
     <ClInclude Include="Include\FluidSolvers\SPHSolver3D.h" />
     <ClInclude Include="Include\FluidSolvers\SPHSolver3D_Imp.hpp" />
+    <ClInclude Include="Include\Grid\Grid.h" />
+    <ClInclude Include="Include\Grid\GridHelpers.h" />
     <ClInclude Include="Include\ParticleTools\BlueNoiseRelaxation\LloydRelaxation.h" />
     <ClInclude Include="Include\ParticleTools\ParticleEmitters\BoxEmitter.h" />
     <ClInclude Include="Include\ParticleTools\ParticleEmitters\CylinderEmitter.h" />
@@ -166,6 +168,9 @@
     <ClInclude Include="Include\ParticleTools\ParticleSamplers\TorusSampler.h" />
     <ClInclude Include="Include\ParticleTools\BlueNoiseRelaxation\SPHRelaxation.h" />
     <ClInclude Include="Include\FluidSolvers\FluidSolver.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Include\Grid\Grid_Impl.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

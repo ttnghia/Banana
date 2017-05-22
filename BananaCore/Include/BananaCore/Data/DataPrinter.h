@@ -44,6 +44,7 @@ void print(const std::vector<T>& array, const std::string& arrayName, size_t max
     Monitor::newLine(EventSource::Debugger);
 }
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class T>
 void print(const Array2<T>& array, const std::string& arrayName, Array2::size_type maxPrint_d0, Array2::size_type maxPrint_d1, int precision = 5)
 {
@@ -73,7 +74,7 @@ void print(const Array2<T>& array, const std::string& arrayName, Array2::size_ty
     Monitor::newLine(EventSource::Debugger);
 }
 
-
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class T>
 void print(const Array3<T>& array, const std::string& arrayName, Array3<T>::size_type maxPrint_d0, Array3<T>::size_type maxPrint_d1, Array3<T>::size_type maxPrint_d2, int precision = 5)
 {
@@ -109,7 +110,7 @@ void print(const Array3<T>& array, const std::string& arrayName, Array3<T>::size
     Monitor::newLine(EventSource::Debugger);
 }
 
-
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class T>
 void print(const Array2<std::vector<T> >& array, const std::string& arrayName, Array2<T>::size_type maxPrint_d0, Array2<T>::size_type maxPrint_d1, int precision = 5)
 {
@@ -150,9 +151,11 @@ void print(const Array2<std::vector<T> >& array, const std::string& arrayName, A
     Monitor::newLine(EventSource::Debugger);
 }
 
-
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class T>
-void print(const Array3<std::vector<T> >& array, const std::string& arrayName, Array3<T>::size_type maxPrint_d0, Array3<T>::size_type maxPrint_d1, Array3<T>::size_type maxPrint_d2, int precision = 5)
+void print(const Array3<std::vector<T> >& array, const std::string& arrayName,
+           Array3<T>::size_type maxPrint_d0, Array3<T>::size_type maxPrint_d1, Array3<T>::size_type maxPrint_d2,
+           int precision = 5)
 {
     Array3<T>::size_type numPrint_d0 = maxPrint_d0 > 0 ? maxPrint_d0 : array.sizeX();
     Array3<T>::size_type numPrint_d1 = maxPrint_d1 > 0 ? maxPrint_d0 : array.sizeY();
