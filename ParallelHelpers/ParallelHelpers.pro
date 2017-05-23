@@ -53,7 +53,11 @@ HEADERS += \
     Include/ParallelHelpers/LinearAlgebra/BlockPCGSolver.h \
     Include/ParallelHelpers/LinearAlgebra/BlockSparseMatrix.h \
     Include/ParallelHelpers/LinearAlgebra/PCGSolver.h \
-    Include/ParallelHelpers/LinearAlgebra/SparseMatrix.h
+    Include/ParallelHelpers/LinearAlgebra/SparseMatrix.h \
+    Include/ParallelHelpers/LinearAlgebra/BlockPCGSolver_Impl.hpp \
+    Include/ParallelHelpers/LinearAlgebra/BlockSparseMatrix_Impl.hpp \
+    Include/ParallelHelpers/LinearAlgebra/PCGSolver_Impl.hpp \
+    Include/ParallelHelpers/LinearAlgebra/SparseMatrix_Impl.hpp
 
 DISTFILES += \
     ParallelHelpers.pri \

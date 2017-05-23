@@ -6,17 +6,18 @@ CONFIG += c++14
 
 TARGET = BananaCore
 
-#TEMPLATE = lib
-TEMPLATE = subdirs
+TEMPLATE = lib
+CONFIG += staticlib
+#TEMPLATE = subdirs
 
-#CONFIG += staticlib
 
 INCLUDEPATH += ./Include
 INCLUDEPATH += $$PWD/../Externals/glm
 INCLUDEPATH += $$PWD/../Externals/catch/include
 INCLUDEPATH += $$PWD/../Externals/progress-cpp
 INCLUDEPATH += $$PWD/../Externals/spdlog/include
-
+INCLUDEPATH += $$PWD/../Externals/tinyobjloader
+INCLUDEPATH += $$PWD/../Externals/tinyply/source
 
 CONFIG(debug, debug|release) {
     message("Debug")
@@ -47,12 +48,10 @@ macx {
 
 HEADERS += \
     Include/BananaCore/AppConfigReader.h \
-    Include/BananaCore/DataIO.h \
     Include/BananaCore/FileHelpers.h \
     Include/BananaCore/Macros.h \
     Include/BananaCore/NumberHelpers.h \
     Include/BananaCore/OptionalParameter.h \
-    Include/BananaCore/ParticleSystemData.h \
     Include/BananaCore/STLHelpers.h \
     Include/BananaCore/Timer.h \
     Include/BananaCore/TypeNames.h \
@@ -64,13 +63,20 @@ HEADERS += \
     Include/BananaCore/Data/ParticleSystemData.h \
     Include/BananaCore/Geometry/KDTree.h \
     Include/BananaCore/Geometry/SignDistanceField.h \
-    Include/BananaCore/CallStack.h \
     Include/BananaCore/MathHelpers.h \
-    Include/BananaCore/MemoryUsage.h \
-    Include/BananaCore/SVD.h
+    Include/BananaCore/SVD.h \
+    Include/BananaCore/Geometry/MeshLoader.h \
+    Include/BananaCore/Geometry/MeshLoader_Impl.hpp \
+    Include/BananaCore/Geometry/SignDistanceField_Impl.hpp \
+    Include/BananaCore/System/CallStack.h \
+    Include/BananaCore/System/MemoryUsage.h \
+    Include/BananaCore/Logger.h
 
 DISTFILES += \
     BananaCore.pri \
     BananaCore.licenseheader \
     BananaCore.vcxproj \
     BananaCore.vcxproj.filters
+
+SOURCES += \
+    Source/Logger.cpp

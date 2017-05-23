@@ -62,7 +62,7 @@ using UInt64 = uint64_t;
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/norm.hpp>
 #include <glm/gtx/transform.hpp>
-#include <glm/gtx/string_cast.hpp >
+#include <glm/gtx/string_cast.hpp>
 
 // Vectors
 template<class ScalarType>

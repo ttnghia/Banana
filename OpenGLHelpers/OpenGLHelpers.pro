@@ -13,10 +13,7 @@ CONFIG += staticlib
 INCLUDEPATH += ./Include
 INCLUDEPATH += $$PWD/../BananaCore/Include
 INCLUDEPATH += $$PWD/../QtAppHelpers/Include
-
 INCLUDEPATH += $$PWD/../Externals/glm
-INCLUDEPATH += $$PWD/../Externals/tinyobjloader
-INCLUDEPATH += $$PWD/../Externals/tinyply/source
 
 
 CONFIG(debug, debug|release) {
@@ -53,7 +50,6 @@ HEADERS += \
     Include/OpenGLHelpers/GridObject.h \
     Include/OpenGLHelpers/Lights.h \
     Include/OpenGLHelpers/Material.h \
-    Include/OpenGLHelpers/MeshLoader.h \
     Include/OpenGLHelpers/MeshObject.h \
     Include/OpenGLHelpers/OpenGLBuffer.h \
     Include/OpenGLHelpers/OpenGLMacros.h \
@@ -67,7 +63,6 @@ SOURCES += \
     Source/Camera.cpp \
     Source/Lights.cpp \
     Source/Material.cpp \
-    Source/MeshLoader.cpp \
     Source/MeshObject.cpp \
     Source/OpenGLBuffer.cpp \
     Source/OpenGLTexture.cpp \
