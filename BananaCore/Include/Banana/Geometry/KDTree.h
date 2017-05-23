@@ -21,8 +21,8 @@
 #include <climits>
 #include <memory>
 
-#include <BananaCore/TypeNames.h>
-#include <BananaCore/Geometry/SignDistanceField.h>
+#include <Banana/TypeNames.h>
+#include <Banana/Geometry/SignDistanceField.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class T>

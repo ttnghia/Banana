@@ -17,8 +17,8 @@
 
 #pragma once
 
-#include <BananaCore/Array/Array2.h>
-#include <BananaCore/Array/Array3.h>
+#include <Banana/Array/Array2.h>
+#include <Banana/Array/Array3.h>
 
 #include <cstdio>
 #include <vector>

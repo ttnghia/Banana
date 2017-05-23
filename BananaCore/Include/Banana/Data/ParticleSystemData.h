@@ -17,7 +17,7 @@
 
 #pragma once
 
-#include <BananaCore/NumberHelpers.h>
+#include <Banana/NumberHelpers.h>
 
 #include <map>
 #include <vector>

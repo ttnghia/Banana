@@ -17,16 +17,16 @@
 
 #pragma once
 
-#include  <BananaCore/Geometry/MeshLoader.h>
+#include <Banana/Geometry/MeshLoader.h>
 
-#include  <OpenGLHelpers/OpenGLBuffer.h>
-#include  <OpenGLHelpers/OpenGLTexture.h>
-#include  <OpenGLHelpers/ShaderProgram.h>
-#include  <OpenGLHelpers/CubeObject.h>
-#include  <OpenGLHelpers/MeshObject.h>
-#include  <OpenGLHelpers/Lights.h>
-#include  <OpenGLHelpers/Material.h>
-#include  <OpenGLHelpers/RenderObjects.h>
+#include <OpenGLHelpers/OpenGLBuffer.h>
+#include <OpenGLHelpers/OpenGLTexture.h>
+#include <OpenGLHelpers/ShaderProgram.h>
+#include <OpenGLHelpers/CubeObject.h>
+#include <OpenGLHelpers/MeshObject.h>
+#include <OpenGLHelpers/Lights.h>
+#include <OpenGLHelpers/Material.h>
+#include <OpenGLHelpers/RenderObjects.h>
 
 #include <QtAppHelpers/QtAppMacros.h>
 #include <QtAppHelpers/OpenGLWidget.h>

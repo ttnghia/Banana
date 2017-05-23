@@ -51,11 +51,25 @@ T distanceToBox(const Vec3<T>& pos, const Vec3<T>& bMin, const Vec3<T>& bMax)
     }
 }
 
+template<class T>
+void SDFBox(const Vec3<T>& bMin, const Vec3<T>& bMax, const Vec3<T>& origin, T cellSize, UInt32 ni, UInt32 nj, UInt32 nk, Array3<T>& SDF, bool bInsideNegative /*= true*/)
+{
+    SDF.resize(ni, nj, nk);
+    SDF.assign((ni + nj + nk) * cellSize); // upper bound on distance
+}
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class T>
-T distanceToSphere(const Vec3<T>& pos, const Vec3<T>& center, T radius)
+T distanceToSphere(const Vec3<T>& pos, const Vec3<T>& sphereCenter, T sphereRadius)
 {
-    return (glm::length(pos - center) - radius);
+    return (glm::length(pos - sphereCenter) - sphereRadius);
+}
+
+template<class T>
+void SDFSphere(const Vec3<T>& sphereCenter, T sphereRadius, const Vec3<T>& origin, T cellSize, UInt32 ni, UInt32 nj, UInt32 nk, Array3<T>& SDF, bool bInsideNegative /*= true*/)
+{
+    SDF.resize(ni, nj, nk);
+    SDF.assign((ni + nj + nk) * cellSize); // upper bound on distance
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -68,6 +82,14 @@ T distanceToHollowSphere(const Vec3<T>& pos, const Vec3<T>& center, T innerRadiu
     return (d1 > d2 ? d1 : d2);
 }
 
+template<class T>
+void SDFHollowSphere(const Vec3<T>& sphereCenter, T innerRadius, T outerRadius, const Vec3<T>& origin, T cellSize, UInt32 ni, UInt32 nj, UInt32 nk,
+                     Array3<T>& SDF, bool bInsideNegative /*= true*/)
+{
+    SDF.resize(ni, nj, nk);
+    SDF.assign((ni + nj + nk) * cellSize); // upper bound on distance
+}
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class T>
 T distanceToBowl(const Vec3<T>& pos, const Vec3<T>& center, T innerRadius, T outerRadius, T thickness, T max_y)
@@ -77,6 +99,14 @@ T distanceToBowl(const Vec3<T>& pos, const Vec3<T>& center, T innerRadius, T out
                          distanceToSphere(pos, center, outerRadius)),
                      pos[1] - max_y),
                 -pos[1]);
+}
+
+template<class T>
+void SDFBowl(const Vec3<T>& bowlCenter, T innerRadius, T outerRadius, T thickness, T max_y,
+             const Vec3<T>& origin, T cellSize, UInt32 ni, UInt32 nj, UInt32 nk, Array3<T>& SDF, bool bInsideNegative /*= true*/)
+{
+    SDF.resize(ni, nj, nk);
+    SDF.assign((ni + nj + nk) * cellSize); // upper bound on distance
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -118,12 +148,21 @@ T distanceToCylinder(const Vec3<T>& pos, const Vec3<T>& cylinderBase, const Vec3
     }
 }
 
+template<class T>
+void SDFCylinder(const Vec3<T>& cylinderBase, const Vec3<T>& cylinderDirection, T cylinderRadius, T cylinderLength,
+                 const Vec3<T>& origin, T cellSize, UInt32 ni, UInt32 nj, UInt32 nk, Array3<T>& SDF, bool bInsideNegative /*= true*/)
+{
+    SDF.resize(ni, nj, nk);
+    SDF.assign((ni + nj + nk) * cellSize); // upper bound on distance
+
+}
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // sign distance field for triangle mesh
 template<class T>
-void distance_field_tri_mesh(const std::vector<Vec3ui>& faces, const std::vector<Vec3<T>>& vertices, const Vec3<T>& origin, T cellSize,
-                             UInt32 ni, UInt32 nj, UInt32 nk, Array3<T>& SDF, bool bInsideNegative, UInt32 exactBand)
+void SDFMesh(const std::vector<Vec3ui>& faces, const std::vector<Vec3<T> >& vertices, const Vec3<T>& origin, T cellSize,
+             UInt32 ni, UInt32 nj, UInt32 nk, Array3<T>& SDF, bool bInsideNegative, UInt32 exactBand /*= 1*/)
 {
     SDF.resize(ni, nj, nk);
     SDF.assign((ni + nj + nk) * cellSize); // upper bound on distance
@@ -154,12 +193,12 @@ void distance_field_tri_mesh(const std::vector<Vec3ui>& faces, const std::vector
                 fjr = ((T)vertices[r][1] - origin[1]) / cellSize,
                 fkr = ((T)vertices[r][2] - origin[2]) / cellSize;
                 // do distances nearby
-                int i0 = MathHelpers::clamp(int(MathHelpers::min(fip, fiq, fir)) - exactBand, 0, ni - 1), i1
-                    = MathHelpers::clamp(int(MathHelpers::max(fip, fiq, fir)) + exactBand + 1, 0, ni - 1);
-                int j0 = MathHelpers::clamp(int(MathHelpers::min(fjp, fjq, fjr)) - exactBand, 0, nj - 1), j1
-                    = MathHelpers::clamp(int(MathHelpers::max(fjp, fjq, fjr)) + exactBand + 1, 0, nj - 1);
-                int k0 = MathHelpers::clamp(int(MathHelpers::min(fkp, fkq, fkr)) - exactBand, 0, nk - 1), k1
-                    = MathHelpers::clamp(int(MathHelpers::max(fkp, fkq, fkr)) + exactBand + 1, 0, nk - 1);
+                int i0 = MathHelpers::clamp(int(MathHelpers::min(fip, fiq, fir)) - exactBand, 0, ni - 1);
+                int i1 = MathHelpers::clamp(int(MathHelpers::max(fip, fiq, fir)) + exactBand + 1, 0, ni - 1);
+                int j0 = MathHelpers::clamp(int(MathHelpers::min(fjp, fjq, fjr)) - exactBand, 0, nj - 1);
+                int j1 = MathHelpers::clamp(int(MathHelpers::max(fjp, fjq, fjr)) + exactBand + 1, 0, nj - 1);
+                int k0 = MathHelpers::clamp(int(MathHelpers::min(fkp, fkq, fkr)) - exactBand, 0, nk - 1);
+                int k1 = MathHelpers::clamp(int(MathHelpers::max(fkp, fkq, fkr)) + exactBand + 1, 0, nk - 1);
 
                 for(int k = k0; k <= k1; ++k)
                     for(int j = j0; j <= j1; ++j)

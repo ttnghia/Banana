@@ -17,8 +17,8 @@
 
 #pragma once
 
-#include <ParallelHelpers/LinearAlgebra/BlockSparseMatrix.h>
-#include <ParallelHelpers/ParallelBLAS.h>
+#include <Banana/LinearAlgebra/BlockSparseMatrix.h>
+#include <Banana/ParallelHelpers/ParallelBLAS.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class MatrixType, class VectorType, class ScalarType>

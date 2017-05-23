@@ -22,7 +22,7 @@
 #include <tiny_obj_loader.h>
 #include <tinyply.h>
 
-#include <BananaCore/TypeNames.h>
+#include <Banana/TypeNames.h>
 
 #ifndef M_PI
 #define M_PI 3.1415926535897932384626433832795
@@ -82,4 +82,4 @@ private:
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <BananaCore/Geometry/MeshLoader_Impl.hpp>
+#include <Banana/Geometry/MeshLoader_Impl.hpp>

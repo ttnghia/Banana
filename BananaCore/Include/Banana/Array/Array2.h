@@ -157,16 +157,16 @@ public:
     void assign(IndexType sizeX, IndexType sizeY, const T& value)
     {
         m_Data.assign(sizeX * sizeY, value);
-        m_SizeX = sizeX;
-        m_SizeY = sizeY;
+        m_SizeX = static_cast<size_type>(sizeX);
+        m_SizeY = static_cast<size_type>(sizeY);
     }
 
     template<class IndexType>
     void assign(IndexType sizeX, IndexType sizeY, const T* copydata)
     {
         m_Data.assign(sizeX * sizeY, copydata);
-        m_SizeX = sizeX;
-        m_SizeY = sizeY;
+        m_SizeX = static_cast<size_type>(sizeX);
+        m_SizeY = static_cast<size_type>(sizeY);
     }
 
     const T& back(void) const
@@ -291,8 +291,8 @@ public:
     void resize(IndexType sizeX, IndexType sizeY)
     {
         m_Data.resize(sizeX * sizeY);
-        m_SizeX = sizeX;
-        m_SizeY = sizeY;
+        m_SizeX = static_cast<size_type>(sizeX);
+        m_SizeY = static_cast<size_type>(sizeY);
     }
 
     template<class IndexType>
@@ -305,8 +305,8 @@ public:
     void resize(IndexType sizeX, IndexType sizeY, const T& value)
     {
         m_Data.resize(sizeX * sizeY, value);
-        m_SizeX = sizeX;
-        m_SizeY = sizeY;
+        m_SizeX = static_cast<size_type>(sizeX);
+        m_SizeY = static_cast<size_type>(sizeY);
     }
 
     template<class IndexType>

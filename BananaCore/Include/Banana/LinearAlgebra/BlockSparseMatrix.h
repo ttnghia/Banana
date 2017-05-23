@@ -21,9 +21,9 @@
 
 #include <iostream>
 
-#include <BananaCore/TypeNames.h>
-#include <BananaCore/Macros.h>
-#include <BananaCore/STLHelpers.h>
+#include <Banana/TypeNames.h>
+#include <Banana/Macros.h>
+#include <Banana/STLHelpers.h>
 
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

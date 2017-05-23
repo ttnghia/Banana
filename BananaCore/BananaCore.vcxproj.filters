@@ -18,76 +18,112 @@
     <None Include="BananaCore.licenseheader" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Include\BananaCore\AppConfigReader.h">
+    <ClInclude Include="Include\Banana\Array\Array2.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\BananaCore\FileHelpers.h">
+    <ClInclude Include="Include\Banana\Array\Array3.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\BananaCore\Macros.h">
+    <ClInclude Include="Include\Banana\Array\ArrayHelpers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\BananaCore\NumberHelpers.h">
+    <ClInclude Include="Include\Banana\Data\DataIO.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\BananaCore\OptionalParameter.h">
+    <ClInclude Include="Include\Banana\Data\DataPrinter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\BananaCore\STLHelpers.h">
+    <ClInclude Include="Include\Banana\Data\ParticleSystemData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\BananaCore\Timer.h">
+    <ClInclude Include="Include\Banana\Geometry\KDTree.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\BananaCore\TypeNames.h">
+    <ClInclude Include="Include\Banana\Geometry\MeshLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\BananaCore\MathHelpers.h">
+    <ClInclude Include="Include\Banana\Geometry\MeshLoader_Impl.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\BananaCore\Array\Array2.h">
+    <ClInclude Include="Include\Banana\Geometry\SignDistanceField.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\BananaCore\Array\Array3.h">
+    <ClInclude Include="Include\Banana\Geometry\SignDistanceField_Impl.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\BananaCore\Array\ArrayHelpers.h">
+    <ClInclude Include="Include\Banana\LinearAlgebra\BlockPCGSolver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\BananaCore\SVD.h">
+    <ClInclude Include="Include\Banana\LinearAlgebra\BlockPCGSolver_Impl.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\BananaCore\Geometry\SignDistanceField.h">
+    <ClInclude Include="Include\Banana\LinearAlgebra\BlockSparseMatrix.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\BananaCore\Data\DataIO.h">
+    <ClInclude Include="Include\Banana\LinearAlgebra\BlockSparseMatrix_Impl.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\BananaCore\Data\ParticleSystemData.h">
+    <ClInclude Include="Include\Banana\LinearAlgebra\PCGSolver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\BananaCore\Data\DataPrinter.h">
+    <ClInclude Include="Include\Banana\LinearAlgebra\PCGSolver_Impl.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\BananaCore\Geometry\KDTree.h">
+    <ClInclude Include="Include\Banana\LinearAlgebra\SparseMatrix.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\BananaCore\System\MemoryUsage.h">
+    <ClInclude Include="Include\Banana\LinearAlgebra\SparseMatrix_Impl.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\BananaCore\System\CallStack.h">
+    <ClInclude Include="Include\Banana\ParallelHelpers\ParallelBLAS.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\BananaCore\Logger.h">
+    <ClInclude Include="Include\Banana\ParallelHelpers\ParallelFuncs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\BananaCore\Geometry\SignDistanceField_Impl.hpp">
+    <ClInclude Include="Include\Banana\ParallelHelpers\ParallelObjects.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\BananaCore\Geometry\MeshLoader.h">
+    <ClInclude Include="Include\Banana\ParallelHelpers\ParallelSTL.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\BananaCore\Geometry\MeshLoader_Impl.hpp">
+    <ClInclude Include="Include\Banana\System\CallStack.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Banana\System\MemoryUsage.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Banana\AppConfigReader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Banana\FileHelpers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Banana\Logger.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Banana\Macros.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Banana\MathHelpers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Banana\NumberHelpers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Banana\OptionalParameter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Banana\STLHelpers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Banana\SVD.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Banana\Timer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Banana\TypeNames.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

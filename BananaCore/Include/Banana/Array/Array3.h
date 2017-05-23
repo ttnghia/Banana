@@ -114,25 +114,25 @@ public:
     template<class IndexType>
     const T& operator()(IndexType i, IndexType j, IndexType k) const
     {
-        return m_Data[getLinearizedIndex < IndexType > (i, j, k)];
+        return m_Data[getLinearizedIndex<IndexType>(i, j, k)];
     }
 
     template<class IndexType>
     T& operator()(IndexType i, IndexType j)
     {
-        return m_Data[getLinearizedIndex < IndexType > (i, j, k)];
+        return m_Data[getLinearizedIndex<IndexType>(i, j, k)];
     }
 
     template<class IndexType>
     const T& operator()(const glm::tvec3<IndexType>& index) const
     {
-        return m_Data[getLinearizedIndex < IndexType > (index)];
+        return m_Data[getLinearizedIndex<IndexType>(index)];
     }
 
     template<class IndexType>
     T& operator()(const glm::tvec3<IndexType>& index)
     {
-        return m_Data[getLinearizedIndex < IndexType > (index)];
+        return m_Data[getLinearizedIndex<IndexType>(index)];
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -161,9 +161,9 @@ public:
     {
         m_Data.assign(sizeX * sizeY * sizeZ, value);
 
-        m_SizeX = sizeX;
-        m_SizeY = sizeY;
-        m_SizeZ = sizeZ;
+        m_SizeX = static_cast<size_type>(sizeX);
+        m_SizeY = static_cast<size_type>(sizeY);
+        m_SizeZ = static_cast<size_type>(sizeZ);
     }
 
     const T& back(void) const
@@ -213,7 +213,6 @@ public:
     {
         return m_Data.end();
     }
-
 
     const T& front(void) const
     {
@@ -299,9 +298,9 @@ public:
     void resize(IndexType sizeX, IndexType sizeY, IndexType sizeZ)
     {
         m_Data.resize(sizeX * sizeY * sizeZ);
-        m_SizeX = sizeX;
-        m_SizeY = sizeY;
-        m_SizeZ = sizeZ;
+        m_SizeX = static_cast<size_type>(sizeX);
+        m_SizeY = static_cast<size_type>(sizeY);
+        m_SizeZ = static_cast<size_type>(sizeZ);
     }
 
     template<class IndexType>
@@ -314,9 +313,9 @@ public:
     void resize(IndexType sizeX, IndexType sizeY, IndexType sizeZ, const T& value)
     {
         m_Data.resize(sizeX * sizeY * sizeZ, value);
-        m_SizeX = sizeX;
-        m_SizeY = sizeY;
-        m_SizeY = sizeZ;
+        m_SizeX = static_cast<size_type>(sizeX);
+        m_SizeY = static_cast<size_type>(sizeY);
+        m_SizeZ = static_cast<size_type>(sizeZ);
     }
 
     template<class IndexType>
@@ -340,19 +339,19 @@ public:
 }; // end class Array3
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-using Array3c = Array3<char>;
-using Array3uc = Array3<unsigned char>;
-using Array3s = Array3<short>;
-using Array3us = Array3<unsigned short>;
-using Array3ll = Array3<long long>;
+using Array3c   = Array3<char>;
+using Array3uc  = Array3<unsigned char>;
+using Array3s   = Array3<short>;
+using Array3us  = Array3<unsigned short>;
+using Array3ll  = Array3<long long>;
 using Array3ull = Array3<unsigned long long>;
-using Array3i = Array3<int>;
-using Array3ui = Array3<unsigned int>;
-using Array3f = Array3<float>;
-using Array3d = Array3<double>;
+using Array3i   = Array3<int>;
+using Array3ui  = Array3<unsigned int>;
+using Array3f   = Array3<float>;
+using Array3d   = Array3<double>;
 
-using Array3_VecChar = Array3<std::vector<char> >;
-using Array3_VecInt = Array3<std::vector<int> >;
-using Array3_VecUInt = Array3<std::vector<unsigned int> >;
-using Array3_VecFloat = Array3<std::vector<float> >;
+using Array3_VecChar   = Array3<std::vector<char> >;
+using Array3_VecInt    = Array3<std::vector<int> >;
+using Array3_VecUInt   = Array3<std::vector<unsigned int> >;
+using Array3_VecFloat  = Array3<std::vector<float> >;
 using Array3_VecDouble = Array3<std::vector<double> >;

@@ -17,9 +17,9 @@
 
 #pragma once
 
-#include <BananaCore/Macros.h>
-#include <BananaCore/TypeNames.h>
-#include <BananaCore/FileHelpers.h>
+#include <Banana/Macros.h>
+#include <Banana/TypeNames.h>
+#include <Banana/FileHelpers.h>
 
 #include <string>
 #include <vector>

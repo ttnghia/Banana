@@ -17,10 +17,10 @@
 
 #pragma once
 
-#include <BananaCore/TypeNames.h>
-#include <BananaCore/MathHelpers.h>
-#include <BananaCore/Array/Array2.h>
-#include <BananaCore/Array/Array3.h>
+#include <Banana/TypeNames.h>
+#include <Banana/MathHelpers.h>
+#include <Banana/Array/Array2.h>
+#include <Banana/Array/Array3.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class ScalarType>

@@ -17,7 +17,7 @@
 
 #pragma once
 
-#include <BananaCore/TypeNames.h>
+#include <Banana/TypeNames.h>
 
 #include <QtWidgets>
 

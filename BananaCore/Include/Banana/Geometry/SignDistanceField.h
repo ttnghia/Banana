@@ -17,8 +17,8 @@
 
 #pragma once
 
-#include <BananaCore/TypeNames.h>
-#include <BananaCore/Array/Array3.h>
+#include <Banana/TypeNames.h>
+#include <Banana/Array/Array3.h>
 
 namespace SignDistanceField
 {
@@ -27,23 +27,45 @@ template<class T>
 T distanceToBox(const Vec3<T>& pos, const Vec3<T>& bMin, const Vec3<T>& bMax);
 
 template<class T>
-T distanceToSphere(const Vec3<T>& pos, const Vec3<T>& center, T radius);
+void SDFBox(const Vec3<T>& bMin, const Vec3<T>& bMax, const Vec3<T>& origin, T cellSize, UInt32 ni, UInt32 nj, UInt32 nk, Array3<T>& SDF, bool bInsideNegative = true);
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class T>
+T distanceToSphere(const Vec3<T>& pos, const Vec3<T>& sphereCenter, T sphereRadius);
+
+template<class T>
+void SDFSphere(const Vec3<T>& sphereCenter, T sphereRadius, const Vec3<T>& origin, T cellSize, UInt32 ni, UInt32 nj, UInt32 nk, Array3<T>& SDF, bool bInsideNegative = true);
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class T>
 T distanceToHollowSphere(const Vec3<T>& pos, const Vec3<T>& center, T innerRadius, T outerRadius);
 
 template<class T>
+void SDFHollowSphere(const Vec3<T>& sphereCenter, T innerRadius, T outerRadius, const Vec3<T>& origin, T cellSize, UInt32 ni, UInt32 nj, UInt32 nk,
+                     Array3<T>& SDF, bool bInsideNegative = true);
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class T>
 T distanceToBowl(const Vec3<T>& pos, const Vec3<T>& center, T innerRadius, T outerRadius, T thickness, T max_y);
 
 template<class T>
+void SDFBowl(const Vec3<T>& bowlCenter, T innerRadius, T outerRadius, T thickness, T max_y,
+             const Vec3<T>& origin, T cellSize, UInt32 ni, UInt32 nj, UInt32 nk, Array3<T>& SDF, bool bInsideNegative = true);
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class T>
 T distanceToCylinder(const Vec3<T>& pos, const Vec3<T>& cylinderBase, const Vec3<T>& cylinderDirection, T cylinderRadius, T cylinderLength);
+
+template<class T>
+void SDFCylinder(const Vec3<T>& cylinderBase, const Vec3<T>& cylinderDirection, T cylinderRadius, T cylinderLength,
+                 const Vec3<T>& origin, T cellSize, UInt32 ni, UInt32 nj, UInt32 nk, Array3<T>& SDF, bool bInsideNegative = true);
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // sign distance field for triangle mesh
 template<class T>
-void distanceFieldMesh(const std::vector<Vec3ui>& faces, const std::vector<Vec3<T> >& vertices, const Vec3<T>& origin, T cellSize,
-                       UInt32 ni, UInt32 nj, UInt32 nk, Array3<T>& SDF, bool bInsideNegative = true, UInt32 exactBand = 1);
+void SDFMesh(const std::vector<Vec3ui>& faces, const std::vector<Vec3<T> >& vertices, const Vec3<T>& origin, T cellSize,
+             UInt32 ni, UInt32 nj, UInt32 nk, Array3<T>& SDF, bool bInsideNegative = true, UInt32 exactBand = 1);
 
 ////////////////////////////////////////////////////////////////////////////////
 // Helpers for distanceFieldMesh
@@ -80,4 +102,4 @@ void cycle_array(T* arr, int size);
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace SignDistanceField
 
-#include <BananaCore/Geometry/SignDistanceField_Impl.hpp>
+#include <Banana/Geometry/SignDistanceField_Impl.hpp>
