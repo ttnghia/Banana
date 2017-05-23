@@ -508,9 +508,9 @@ void OffScreenRender::setNumColorBuffers(int numColorBuffers)
         if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
         {
 #ifdef __Banana_Qt__
-            __BNN_Die(QString("OffScreenRender: FrameBuffer is incomplete!"));
+            __BNN_DIE(QString("OffScreenRender: FrameBuffer is incomplete!"));
 #else
-            __BNN_Die(("%s: FrameBuffer is incomplete!\n", m_Shader->getProgramName().c_str()));
+            __BNN_DIE(("%s: FrameBuffer is incomplete!\n", m_Shader->getProgramName().c_str()));
 #endif
         }
 
@@ -547,9 +547,9 @@ void OffScreenRender::swapColorBuffer(std::shared_ptr<OpenGLTexture>& colorBuffe
     if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
     {
 #ifdef __Banana_Qt__
-        __BNN_Die(QString("OffScreenRender: FrameBuffer is incomplete!"));
+        __BNN_DIE(QString("OffScreenRender: FrameBuffer is incomplete!"));
 #else
-        __BNN_Die(("%s: FrameBuffer is incomplete!\n", m_Shader->getProgramName().c_str()));
+        __BNN_DIE(("%s: FrameBuffer is incomplete!\n", m_Shader->getProgramName().c_str()));
 #endif
     }
 
@@ -598,9 +598,9 @@ void OffScreenRender::initRenderData()
     if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
     {
 #ifdef __Banana_Qt__
-        __BNN_Die(QString("OffScreenRender: FrameBuffer is incomplete!"));
+        __BNN_DIE(QString("OffScreenRender: FrameBuffer is incomplete!"));
 #else
-        __BNN_Die(("%s: FrameBuffer is incomplete!\n", m_Shader->getProgramName().c_str()));
+        __BNN_DIE(("%s: FrameBuffer is incomplete!\n", m_Shader->getProgramName().c_str()));
 #endif
     }
 

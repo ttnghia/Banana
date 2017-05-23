@@ -17,24 +17,24 @@
 
 #pragma once
 
+#include <limits>
 #include <array>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ArrayType, class ScalarType, int GridDimension>
-class Grid
+template<class ArrayType, class ScalarType>
+class Grid2D
 {
 public:
-    Grid() = default;
-    Grid(const ArrayType& bMin, const ArrayType& bMax, ScalarType cellSize) : m_BMin(bMin), m_BMax(bMax)
+    Grid2D() = default;
+    Grid2D(const ArrayType& bMin, const ArrayType& bMax, ScalarType cellSize) : m_BMin(bMin), m_BMax(bMax)
     {
         setCellSize(cellSize);
     }
 
-    void setGrid(const std::array<ScalarType, GridDimension>& bMin, const std::array<ScalarType, GridDimension>& bMax, ScalarType cellSize);
+    void setGrid(const ArrayType& bMin, const ArrayType& bMax, ScalarType cellSize);
 
     unsigned int getNumCellX() const noexcept { return m_NumCells[0]; }
     unsigned int getNumCellY() const noexcept { return m_NumCells[1]; }
-    unsigned int getNumCellZ() const noexcept { return m_NumCells[2]; }
     unsigned int getNumTotalCells() const noexcept { return m_NumTotalCells; }
 
     template<class IndexType>
@@ -48,26 +48,18 @@ public:
     template<class IndexType>
     bool isValidCell(IndexType i, IndexType j)  const noexcept;
 
-    template<class IndexType>
-    bool isValidCell(IndexType i, IndexType j, IndexType k)  const noexcept;
-
     template<class VectorType>
     bool isValidCell(const VectorType& index) const noexcept;
 
 private:
     ArrayType    m_BMin;
     ArrayType    m_BMax;
-    unsigned int m_NumCells[GridDimension];
+    unsigned int m_NumCells[2];
     unsigned int m_NumTotalCells = 0;
-    ScalarType   m_CellSize      = 0;
+    ScalarType   m_CellSize      = std::numeric_limits<ScalarType>::max();;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <Grid/Grid_Impl.hpp>
+#include <Grid/Grid2D_Impl.hpp>
 
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ArrayType, class ScalarType>
-using Grid2D = Grid<ArrayType, ScalarType, 2>;
 
-template<class ArrayType, class ScalarType>
-using Grid3D = Grid<ArrayType, ScalarType, 3>;

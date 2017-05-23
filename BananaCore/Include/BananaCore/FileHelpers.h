@@ -27,7 +27,7 @@
 #include <vector>
 #include <future>
 
-#ifdef __Banana_Windows__
+#ifdef __BANANA_WINDOWS__
 #include <filesystem>
 #include <windows.h>
 #endif
@@ -37,11 +37,11 @@ namespace FileHelpers
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 inline void createFolder(const char* folderName)
 {
-#ifdef __Banana_Windows__
+#ifdef __BANANA_WINDOWS__
     CreateDirectoryA(folderName, NULL);
 #else
     char buff[512];
-    __BNN_sprint(buff, "mkdir -p %s", folderName);
+    __BNN_SPRINT(buff, "mkdir -p %s", folderName);
     system(buff);
 #endif
 }
@@ -55,7 +55,7 @@ inline void createFolder(const std::string& folderName)
 inline bool fileExisted(const char* fileName)
 {
     FILE* file = nullptr;
-#ifdef __Banana_Windows__
+#ifdef __BANANA_WINDOWS__
     fopen_s(&file, fileName, "r");
 #else
     file = fopen(fileName, "r");
@@ -100,8 +100,8 @@ inline size_t getFileSize(const std::string& fileName)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 inline std::string getFolderSize(const char* folderName, int level = 0)
 {
-#ifdef __Banana_Windows__
-    __BNN_CalledToUmimplementedFunc
+#ifdef __BANANA_WINDOWS__
+    __BNN_UNIMPLEMENTED_FUNC
 #else
     const int maxBuffer = 256;
     char buffer[maxBuffer];
@@ -109,11 +109,11 @@ inline std::string getFolderSize(const char* folderName, int level = 0)
 
     if(level == 0)
     {
-        __BNN_sprint(command, "du -h -d0 %s | cut -f1", folderName);
+        __BNN_SPRINT(command, "du -h -d0 %s | cut -f1", folderName);
     }
     else
     {
-        __BNN_sprint(command, "du -h -d%d %s", level, folderName);
+        __BNN_SPRINT(command, "du -h -d%d %s", level, folderName);
     }
 
     FILE* stream = popen(command, "r");
@@ -150,14 +150,14 @@ inline std::string getFolderSize(const std::string& folderName, int level = 0)
 inline std::string getFullFilePath(const std::string& topFolder, std::string dataSubFolder, std::string fileName, std::string fileExtension, int fileID)
 {
     char buff[512];
-    __BNN_sprint(buff, "%s/%s/%s.%04d.%s", topFolder.c_str(), dataSubFolder.c_str(), fileName.c_str(), fileID, fileExtension.c_str());
+    __BNN_SPRINT(buff, "%s/%s/%s.%04d.%s", topFolder.c_str(), dataSubFolder.c_str(), fileName.c_str(), fileID, fileExtension.c_str());
     return std::string(buff);
 }
 
 inline std::string getFullFilePath(const char* topFolder, const char* dataSubFolder, const char* fileName, const char* fileExtension, int fileID)
 {
     char buff[512];
-    __BNN_sprint(buff, "%s/%s/%s.%04d.%s", topFolder, dataSubFolder, fileName, fileID, fileExtension);
+    __BNN_SPRINT(buff, "%s/%s/%s.%04d.%s", topFolder, dataSubFolder, fileName, fileID, fileExtension);
 
     return std::string(buff);
 }
@@ -165,7 +165,7 @@ inline std::string getFullFilePath(const char* topFolder, const char* dataSubFol
 inline std::string getFullFilePath(const std::string& topFolder, const char* dataSubFolder, const char* fileName, const char* fileExtension, int fileID)
 {
     char buff[512];
-    __BNN_sprint(buff, "%s/%s/%s.%04d.%s", topFolder.c_str(), dataSubFolder, fileName, fileID, fileExtension);
+    __BNN_SPRINT(buff, "%s/%s/%s.%04d.%s", topFolder.c_str(), dataSubFolder, fileName, fileID, fileExtension);
 
     return std::string(buff);
 }
@@ -174,7 +174,7 @@ inline std::string getFullFilePath(const std::string& topFolder, const char* dat
 inline void writeFile(const std::string& str, const char* fileName)
 {
     std::ofstream file(fileName, std::ios::out);
-    __BNN_AssertMsg(file.is_open(), "Could not open file for writing.");
+    __BNN_ASSERT_MSG(file.is_open(), "Could not open file for writing.");
 
     file << str;
     file.close();
@@ -189,7 +189,7 @@ inline void writeFile(const std::string& str, std::string fileName)
 inline void writeFile(const std::vector<std::string>& vecStr, const char* fileName)
 {
     std::ofstream file(fileName, std::ios::out);
-    __BNN_AssertMsg(file.is_open(), "Could not open file for writing.");
+    __BNN_ASSERT_MSG(file.is_open(), "Could not open file for writing.");
 
     for(auto& str : vecStr)
     {
@@ -208,7 +208,7 @@ inline void writeFile(const std::vector<std::string>& vecStr, std::string fileNa
 inline void writeFile(const unsigned char* dataBuffer, size_t dataSize, const char* fileName)
 {
     std::ofstream file(fileName, std::ios::binary | std::ios::out);
-    __BNN_AssertMsg(file.is_open(), "Could not open file for writing.");
+    __BNN_ASSERT_MSG(file.is_open(), "Could not open file for writing.");
 
     file.write((char*)dataBuffer, dataSize);
     file.close();
@@ -225,7 +225,7 @@ inline std::future<void> writeFileAsync(const unsigned char* dataBuffer, size_t 
     std::future<void> futureObj = std::async(std::launch::async, [&]
         {
             std::ofstream file(fileName, std::ios::binary | std::ios::out);
-            __BNN_AssertMsg(file.is_open(), "Could not open file for writing.");
+            __BNN_ASSERT_MSG(file.is_open(), "Could not open file for writing.");
 
             file.write((char*)dataBuffer, dataSize);
             file.close();
@@ -243,7 +243,7 @@ inline std::future<void> writeFileAsync(const unsigned char* dataBuffer, size_t 
 inline void appendToFile(const std::string& str, const char* fileName)
 {
     std::ofstream file(fileName, std::ios::out | std::ofstream::app);
-    __BNN_AssertMsg(file.is_open(), "Could not open file for writing.");
+    __BNN_ASSERT_MSG(file.is_open(), "Could not open file for writing.");
 
     file << str;
     file.close();
@@ -258,7 +258,7 @@ inline void appendToFile(const std::string& str, std::string fileName)
 inline void appendToFile(const std::vector<std::string>& vecStr, const char* fileName)
 {
     std::ofstream file(fileName, std::ios::out | std::ofstream::app);
-    __BNN_AssertMsg(file.is_open(), "Could not open file for writing.");
+    __BNN_ASSERT_MSG(file.is_open(), "Could not open file for writing.");
 
     for(auto& str : vecStr)
     {
@@ -287,7 +287,7 @@ inline bool readFile(unsigned char* dataBuffer, size_t bufferSize, const char* f
     size_t fileSize = (size_t)file.tellg();
     if(bufferSize < fileSize)
     {
-        realloc(dataBuffer, fileSize);
+        dataBuffer = reinterpret_cast<unsigned char*>(dataBuffer, fileSize);
     }
 
     file.seekg(0, std::ios::beg);

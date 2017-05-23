@@ -20,10 +20,10 @@
 
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-int  Logger::s_LogLevel        = LogLevel::NormalLevel;
-bool Logger::m_bPrintStdOut    = true;
-bool Logger::m_bWriteLogToFile = true;
-bool Logger::m_bDataPathReady  = false;
+Logger::LogLevel Logger::s_LogLevel        = LogLevel::NormalLevel;
+bool             Logger::m_bPrintStdOut    = true;
+bool             Logger::m_bWriteLogToFile = true;
+bool             Logger::m_bDataPathReady  = false;
 
 std::string                           Logger::m_DataPath;
 std::string                           Logger::m_LogFile;
@@ -78,31 +78,31 @@ void Logger::printSeparator()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Logger::printAligned(const std::string& s, char padding, const std::string& wrapper, int maxSize)
 {
-    Logger::printAligned(s, m_LogSourceID, padding, wrapper, maxSize);
+    Logger::printAligned(m_LogSourceID, s, padding, wrapper, maxSize);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Logger::printGreeting(const std::string& s)
 {
-    Logger::printGreeting(s, m_LogSourceID);
+    Logger::printGreeting(m_LogSourceID, s);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Logger::printWarning(const std::string& s, int maxSize)
 {
-    Logger::printWarning(s, m_LogSourceID, maxSize);
+    Logger::printWarning(m_LogSourceID, s, maxSize);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Logger::printLog(const std::string& s)
 {
-    Logger::printLog(s, m_LogSourceID);
+    Logger::printLog(m_LogSourceID, s);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Logger::printLogIndent(const std::string& s, int indentLevel)
+void Logger::printLogIndent(const std::string& s, int indentLevel /*= 1*/)
 {
-    Logger::printLogIndent(s, m_LogSourceID, indentLevel);
+    Logger::printLogIndent(m_LogSourceID, s, indentLevel);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -115,7 +115,7 @@ void Logger::printDetail(const std::string& s)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Logger::printDetailIndent(const std::string& s, int indentLevel)
+void Logger::printDetailIndent(const std::string& s, int indentLevel /*= 1*/)
 {
     if(s_LogLevel == LogLevel::DetailLevel)
     {
@@ -124,7 +124,7 @@ void Logger::printDetailIndent(const std::string& s, int indentLevel)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Logger::printAligned(const std::string& s, int sourceID, char padding, const std::string& wrapper, int maxSize)
+void Logger::printAligned(int sourceID, const std::string& s, char padding, const std::string& wrapper, int maxSize)
 {
     size_t            length = s.length();
     const std::string str    = length == 0 ? s : std::string(" " + s + " ");
@@ -142,73 +142,73 @@ void Logger::printAligned(const std::string& s, int sourceID, char padding, cons
     finalStr.append((finalLength == static_cast<size_t>(maxSize)) ? std::string(paddingSize, padding) : std::string(paddingSize + 1, padding));
     finalStr.append(wrapper);
 
-    Logger::printLog(finalStr, sourceID);
+    Logger::printLog(sourceID, finalStr);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Logger::printGreeting(const std::string& s, int sourceID)
+void Logger::printGreeting(int sourceID, const std::string& s)
 {
     Logger::printSeparator(sourceID);
-    Logger::printAligned("", sourceID, ' ');
-    Logger::printAligned(s,  sourceID);
-    Logger::printAligned("", sourceID, ' ');
+    Logger::printAligned(sourceID, "", ' ');
+    Logger::printAligned(sourceID, s);
+    Logger::printAligned(sourceID, "", ' ');
     Logger::printSeparator(sourceID);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Logger::printWarning(const std::string& s, int sourceID, int maxSize)
+void Logger::printWarning(int sourceID, const std::string& s, int maxSize)
 {
     const std::string str         = "Warning: " + s + " ";
     size_t            paddingSize = (static_cast<size_t>(maxSize) - str.length());
 
-    Logger::printLog(str + std::string(paddingSize, '*'), sourceID);
+    Logger::printLog(sourceID, str + std::string(paddingSize, '*'));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Logger::newLine(int sourceID)
 {
-    Logger::printLog("", sourceID);
+    Logger::printLog(sourceID, "");
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Logger::printSeparator(int sourceID)
 {
-    Logger::printAligned("", sourceID, '=');
+    Logger::printAligned(sourceID, "", '=');
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Logger::printLog(const std::string& s, int sourceID)
+void Logger::printLog(int sourceID, const std::string& s)
 {
-    printToStdOut(s, sourceID);
-    logToFile(s, sourceID);
+    printToStdOut(sourceID, s);
+    logToFile(sourceID, s);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Logger::printLogIndent(const std::string& s, int sourceID, int indentLevel)
+void Logger::printLogIndent(int sourceID, const std::string& s, int indentLevel /*= 1*/)
 {
     std::string logStr;
     logStr.reserve(1024);
     logStr.append(std::string(INDENT_SIZE * indentLevel, ' '));
     logStr.append(s);
 
-    Logger::printLog(logStr, sourceID);
+    Logger::printLog(sourceID, logStr);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Logger::printDetail(const std::string& s, int sourceID)
+void Logger::printDetail(int sourceID, const std::string& s)
 {
     if(s_LogLevel == LogLevel::DetailLevel)
     {
-        Logger::printLog(s, sourceID);
+        Logger::printLog(sourceID, s);
     }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Logger::printDetailIndent(const std::string& s, int sourceID, int indentLevel)
+void Logger::printDetailIndent(int sourceID, const std::string& s, int indentLevel /*= 1*/)
 {
     if(s_LogLevel == LogLevel::DetailLevel)
     {
-        Logger::printLogIndent(s, sourceID, indentLevel);
+        Logger::printLogIndent(sourceID, s, indentLevel);
     }
 }
 
@@ -217,16 +217,16 @@ void Logger::printDebug(const std::string& s)
 {
     if(s_LogLevel == LogLevel::DebugLevel)
     {
-        Logger::printLog(s, Source::Debugger);
+        Logger::printLog(static_cast<int>(Source::Debugger), s);
     }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Logger::printDebugIndent(const std::string& s, int indentLevel)
+void Logger::printDebugIndent(const std::string& s, int indentLevel /*= 1*/)
 {
     if(s_LogLevel == LogLevel::DebugLevel)
     {
-        Logger::printLogIndent(s, Source::Debugger, indentLevel);
+        Logger::printLogIndent(static_cast<int>(Source::Debugger), s, indentLevel);
     }
 }
 
@@ -247,7 +247,7 @@ void Logger::initialize()
         FileHelpers::createFolder(std::string(m_DataPath + "/Log"));
         time_t currentTime = std::chrono::system_clock::to_time_t(m_StartupTime - std::chrono::hours(24));
         assert(m_bDataPathReady);
-#ifdef __Banana_Windows__
+#ifdef __BANANA_WINDOWS__
         struct tm ltime;
         localtime_s(&ltime, &currentTime);
 #else
@@ -273,7 +273,7 @@ void Logger::shutdown()
         assert(m_bDataPathReady);
 
         time_t currentTime = std::chrono::system_clock::to_time_t(m_ShutdownTime - std::chrono::hours(24));;
-#ifdef __Banana_Windows__
+#ifdef __BANANA_WINDOWS__
         struct tm ltime;
         localtime_s(&ltime, &currentTime);
 #else
@@ -289,11 +289,10 @@ void Logger::shutdown()
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    Logger::printLog(m_TotalRunTime, Source::LoggerClass);
-    Logger::printSeparator(Source::LoggerClass);
-    Logger::newLine(Source::LoggerClass);
+    Logger::printLog(static_cast<int>(Source::LoggerClass), m_TotalRunTime);
+    Logger::printSeparator(static_cast<int>(Source::LoggerClass));
+    Logger::newLine(static_cast<int>(Source::LoggerClass));
 }
-
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 std::string Logger::getTotalRunTime()
@@ -309,7 +308,7 @@ void getDuration(std::chrono::duration<Rep, Period> t, int& n_days, int& n_hours
     assert(0 <= t.count());
 
     // approximate because a day doesn't have a fixed length
-    typedef std::chrono::duration<int, std::ratio<60* 60* 24> >   days_t;
+    typedef std::chrono::duration<int, std::ratio<60* 60* 24> > days_t;
 
     auto days  = std::chrono::duration_cast<days_t>(t);
     auto hours = std::chrono::duration_cast<std::chrono::hours>(t - days);
@@ -352,9 +351,10 @@ std::string Logger::getSourceName(int sourceID)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-int Logger::getNumSources()
+template<class IntType>
+IntType Logger::getNumSources()
 {
-    return static_cast<int>(m_SourceNames.size());
+    return static_cast<IntType>(m_SourceNames.size());
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -364,7 +364,7 @@ void Logger::setSourceName(int sourceID, const std::string& sourceName)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Logger::printToStdOut(const std::string& s, int sourceID)
+void Logger::printToStdOut(int sourceID, const std::string& s)
 {
     if(m_bPrintStdOut)
     {
@@ -373,7 +373,7 @@ void Logger::printToStdOut(const std::string& s, int sourceID)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Logger::logToFile(const std::string& s, int sourceID)
+void Logger::logToFile(int sourceID, const std::string& s)
 {
     if(!m_bWriteLogToFile)
     {

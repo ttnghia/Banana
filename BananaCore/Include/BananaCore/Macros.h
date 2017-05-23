@@ -25,19 +25,19 @@
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #if defined(_WIN32) || defined(_WIN64)
-#   define __Banana_Windows__
+#   define __BANANA_WINDOWS__
 #elif defined(__APPLE__)
-#   define __Banana_Apple__
-#   define __Banana_MacOS__
+#   define __BANANA_APPLE__
+#   define __BANANA_MACX__
 #elif defined(linux) || defined(__linux__)
-#   define __Banana_Linux__
+#   define __BANANA_LINUX__
 #endif
 
-#ifndef __BNN_UnUsed_Variable
-#   define __BNN_UnUsed_Variable(x) ((void)x)
+#ifndef __BNN_UNUSED
+#   define __BNN_UNUSED(x) ((void)x)
 #endif
 
-#ifdef __Banana_Windows__
+#ifdef __BANANA_WINDOWS__
 //  Exclude rarely-used stuff from Windows headers
 #   define WIN32_LEAN_AND_MEAN
 #   define NOMINMAX
@@ -53,28 +53,29 @@ inline void throwIfFailed(HRESULT hr)
         throw std::exception(std::to_string(hr).c_str());
     }
 }
-#endif  // __Banana_Windows__
+
+#endif  // __BANANA_WINDOWS__
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #ifndef M_PI
 #define M_PI 3.14159265358979323846f
 #endif
 
-#ifdef __Banana_Windows__
-#   define __BNN_sprint sprintf_s
+#ifdef __BANANA_WINDOWS__
+#   define __BNN_SPRINT sprintf_s
 #else
-#   define __BNN_sprint sprintf
+#   define __BNN_SPRINT sprintf
 #endif
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#define __BNN_PrintLine                         \
+#define __BNN_PRINT_LINE                        \
     {                                           \
         printf("%d: %s\n", __LINE__, __FILE__); \
         fflush(stdout);                         \
     }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#define __BNN_PrintExp(x)                                                                     \
+#define __BNN_PRINT_EXP(x)                                                                    \
     {                                                                                         \
         std::stringstream ss;                                                                 \
         ss << "Printing at line: " << __LINE__ << ", file: " << __FILE__ << ":" << std::endl; \
@@ -84,7 +85,7 @@ inline void throwIfFailed(HRESULT hr)
     }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#define __BNN_PrintLocation                                   \
+#define __BNN_PRINT_LOCATION                                  \
     {                                                         \
         std::stringstream ss;                                 \
         ss << "Function: " << __func__ << std::endl;          \
@@ -94,107 +95,85 @@ inline void throwIfFailed(HRESULT hr)
     }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#ifndef __BNN_Info
-#   define __BNN_Info(info)    \
+#ifndef __BNN_INFO
+#   define __BNN_INFO(info)    \
     {                          \
         fprintf(stderr, info); \
     }
 #endif
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#ifndef __BNN_Err
-#   define __BNN_Err(err)     \
+#ifndef __BNN_ERROR
+#   define __BNN_ERROR(err)   \
     {                         \
         fprintf(stderr, err); \
-        __BNN_PrintLocation   \
+        __BNN_PRINT_LOCATION  \
     }
 #endif
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#define __BNN_Die(err)      \
+#define __BNN_DIE(err)      \
     {                       \
-        __BNN_Err(err)      \
+        __BNN_ERROR(err)    \
         exit(EXIT_FAILURE); \
     }
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#define __BNN_Assert(condition)                                                              \
+#define __BNN_ASSERT(condition)                                                              \
     {                                                                                        \
         if(!(condition))                                                                     \
         {                                                                                    \
             std::string erMsg = std::string("Assertion failed: ") + std::string(#condition); \
             printf("%s\n", erMsg.c_str());                                                   \
-            __BNN_PrintLocation                                                              \
+            __BNN_PRINT_LOCATION                                                             \
             exit(EXIT_FAILURE);                                                              \
         }                                                                                    \
     }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#define __BNN_AssertMsg(condition, msg)                                                      \
+#define __BNN_ASSERT_MSG(condition, msg)                                                     \
     {                                                                                        \
         if(!(condition))                                                                     \
         {                                                                                    \
             std::string erMsg = std::string("Assertion failed: ") + std::string(#condition); \
             std::string rsMsg = std::string("Reason: ") + std::string(msg);                  \
             printf("%s\n%s\n", erMsg.c_str(), rsMsg.c_str());                                \
-            __BNN_PrintLocation                                                              \
+            __BNN_PRINT_LOCATION                                                             \
             exit(EXIT_FAILURE);                                                              \
         }                                                                                    \
     }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#define __BNN_CheckError(condition, msg)                                                      \
+#define __BNN_CHECK_ERROR(condition, msg)                                                    \
     {                                                                                        \
         if(!(condition))                                                                     \
         {                                                                                    \
             std::string erMsg = std::string("Assertion failed: ") + std::string(#condition); \
             std::string rsMsg = std::string("Reason: ") + std::string(msg);                  \
             printf("%s\n%s\n", erMsg.c_str(), rsMsg.c_str());                                \
-            __BNN_PrintLocation                                                              \
+            __BNN_PRINT_LOCATION                                                             \
         }                                                                                    \
     }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#define __BNN_CalledToUmimplementedFunc                \
-    {                                                  \
-        __BNN_Die("Called function is unimplemented.") \
-    }
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#define __BNN_CalledToWrongPlace                          \
-    {                                                     \
-        __BNN_Die("This function should not be reached.") \
-    }
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#define __BNN_DeniedCallToBaseFunc                                       \
-    {                                                                    \
-        __BNN_Die("This function should not be called from base class.") \
-    }
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#define __BNN_Die_UnknownErr                         \
-    {                                                \
-        __BNN_Die("An unknown error has occured...") \
-    }
+#define __BNN_UNIMPLEMENTED_FUNC          __BNN_DIE("Called function is unimplemented.")
+#define __BNN_CALLED_TO_WRONG_PLACE       __BNN_DIE("This function should not be reached.")
+#define __BNN_DENIED_CALL_TO_BASE_CLASS   __BNN_DIE("This function should not be called from base class.")
+#define __BNN_DENIED_SWITCH_DEFAULT_VALUE __BNN_DIE("Invalid default value in switch statement.")
+#define __BNN_DIE_UNKNOWN_ERROR           __BNN_DIE("An unknown error has occured...")
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // test
-#define __BNN_PerformanceTest_Begin(funcName) \
-    {                                         \
-        Timer testTimer;                      \
-        testTimer.tick();                     \
-        std::string strName(funcName);
+#define __BNN_PERORMANCE_TEST_BEGIN(funcName) \
+    Timer testTimer#funcName;                 \
+    testTimer#funcName.tick();                \
+    std::string str#funcName(funcName);
 
 
-#define __BNN_PerformanceTest_End                           \
-    testTimer.tock();                                       \
-    printf("Test %s finished. Time: %s\n", strName.c_str(), \
-        testTimer.get_run_time().c_str());                  \
-    }
+#define __BNN_PERORMANCE_TEST_END(funcName) \
+    testTimer#funcName.tock();              \
+    printf("Test %s finished. Time: %s\n", str#funcName.c_str(), testTimer#funcName.getRunTime().c_str());
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // data macros
-#define __BNN_AssertAprx(a, b, threshold)                                   \
-    {                                                                       \
-        __BNN_AssertMsg(threshold > fabs(a - b), "Numbers are not equal."); \
-    }
+#define __BNN_ASSERT_EQUAL(a, b)           __BNN_ASSERT_MSG(a == b, "Numbers are not equal.");
+#define __BNN_ASSERT_APPROX_NUMBERS(a, b, threshold) __BNN_ASSERT_MSG(threshold > fabs(a - b), "Numbers are not equal.");

@@ -31,18 +31,18 @@ typedef  QOpenGLFunctions_4_5_Core   OpenGLFunctions;
 
 #include <QDebug>
 #include <QMessageBox>
-#ifdef __BNN_Err
-#   undef __BNN_Err
+#ifdef __BNN_ERROR
+#   undef __BNN_ERROR
 #endif
-#define __BNN_Err(err)                                         \
+#define __BNN_ERROR(err)                                         \
     {                                                          \
         QMessageBox::critical(nullptr, QString("Error"), err); \
     }
 
-#ifdef __BNN_Info
-#   undef __BNN_Info
+#ifdef __BNN_INFO
+#   undef __BNN_INFO
 #endif
-#define __BNN_Info(info)                                          \
+#define __BNN_INFO(info)                                          \
     {                                                             \
         QMessageBox::information(nullptr, QString("Info"), info); \
     }

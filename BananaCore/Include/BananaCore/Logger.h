@@ -32,7 +32,6 @@
 #define INDENT_SIZE       4
 #define MAX_BUFFER_LENGTH 128
 
-
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 class Logger
 {
@@ -52,7 +51,6 @@ public:
     };
 
     Logger() : m_LogSourceID(0) {}
-
     Logger(int sourceID) : m_LogSourceID(sourceID) {}
 
     static void setDataPath(const std::string& dataPath);
@@ -85,26 +83,26 @@ public:
     void printWarning(const std::string& s, int maxSize = 100);
 
     void printLog(const std::string& s);
-    void printLogIndent(const std::string& s, int indentLevel);
+    void printLogIndent(const std::string& s, int indentLevel = 1);
 
     void printDetail(const std::string& s);
-    void printDetailIndent(const std::string& s, int indentLevel);
+    void printDetailIndent(const std::string& s, int indentLevel = 1);
 
     ////////////////////////////////////////////////////////////////////////////////
     static void newLine(int sourceID);
     static void printSeparator(int sourceID);
-    static void printAligned(const std::string& s, int sourceID, char padding = PADDING, const std::string& wrapper = WRAPPER, int maxSize = 100);
-    static void printGreeting(const std::string& s, int sourceID);
-    static void printWarning(const std::string& s, int sourceID, int maxSize = 100);
+    static void printAligned(int sourceID, const std::string& s, char padding = PADDING, const std::string& wrapper = WRAPPER, int maxSize = 100);
+    static void printGreeting(int sourceID, const std::string& s);
+    static void printWarning(int sourceID, const std::string& s, int maxSize = 100);
 
-    static void printLog(const std::string& s, int sourceID);
-    static void printLogIndent(const std::string& s, int sourceID, int indentLevel);
+    static void printLog(int sourceID, const std::string& s);
+    static void printLogIndent(int sourceID, const std::string& s, int indentLevel = 1);
 
-    static void printDetail(const std::string& s, int sourceID);
-    static void printDetailIndent(const std::string& s, int sourceID, int indentLevel);
+    static void printDetail(int sourceID, const std::string& s);
+    static void printDetailIndent(int sourceID, const std::string& s, int indentLevel = 1);
 
     static void printDebug(const std::string& s);
-    static void printDebugIndent(const std::string& s, int indentLevel);
+    static void printDebugIndent(const std::string& s, int indentLevel = 1);
 
     ////////////////////////////////////////////////////////////////////////////////
     static void initialize();
@@ -116,18 +114,20 @@ public:
 
     static std::string getSourceName(int sourceID);
     static void        setSourceName(int sourceID, const std::string& sourceName);
-    static int         getNumSources();
+
+    template<class IntType>
+    static IntType getNumSources();
 
     void setLogSource(int sourceID)
     {
         m_LogSourceID = sourceID;
     }
 
-    static int s_LogLevel;
+    static LogLevel s_LogLevel;
 
 private:
-    static void printToStdOut(const std::string& s, int sourceID);
-    static void logToFile(const std::string& s, int sourceID);
+    static void printToStdOut(int sourceID, const std::string& s);
+    static void logToFile(int sourceID, const std::string& s);
 
     static bool m_bPrintStdOut;
     static bool m_bWriteLogToFile;
@@ -140,9 +140,9 @@ private:
     static std::chrono::system_clock::time_point m_ShutdownTime;
     static std::string                           m_TotalRunTime;
 
-    static std::map < int, std::string > m_SourceNames;
-    static std::vector < std::shared_ptr < spdlog::logger >> m_FileLogger;
-    static std::vector < std::shared_ptr < spdlog::logger >> m_ConsoleLogger;
+    static std::map<int, std::string>                    m_SourceNames;
+    static std::vector<std::shared_ptr<spdlog::logger> > m_FileLogger;
+    static std::vector<std::shared_ptr<spdlog::logger> > m_ConsoleLogger;
 
     int m_LogSourceID;
 };

@@ -914,7 +914,7 @@ public:
     std::string getFilePath(int fileID)
     {
         char filePath[1024];
-        __BNN_sprint(filePath, "%s/%s/%s.%04d.%s", m_DataFolder.c_str(), m_DataSubFolder.c_str(), m_FileName.c_str(), fileID, m_FileExtension.c_str());
+        __BNN_SPRINT(filePath, "%s/%s/%s.%04d.%s", m_DataFolder.c_str(), m_DataSubFolder.c_str(), m_FileName.c_str(), fileID, m_FileExtension.c_str());
         return std::string(filePath);
     }
 
@@ -947,7 +947,7 @@ private:
     void createOutputFolders()
     {
         char outputFolder[512];
-        __BNN_sprint(outputFolder, "%s/%s", m_DataFolder.c_str(), m_DataSubFolder.c_str());
+        __BNN_SPRINT(outputFolder, "%s/%s", m_DataFolder.c_str(), m_DataSubFolder.c_str());
         FileHelpers::createFolder(outputFolder);
     }
 
