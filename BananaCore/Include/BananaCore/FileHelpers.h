@@ -296,7 +296,7 @@ inline bool readFile(unsigned char*& dataBuffer, size_t bufferSize, const char* 
     return true;
 }
 
-inline bool readFile(unsigned char* dataBuffer, size_t bufferSize, const std::string& fileName)
+inline bool readFile(unsigned char*& dataBuffer, size_t bufferSize, const std::string& fileName)
 {
     return readFile(dataBuffer, bufferSize, fileName.c_str());
 }
@@ -363,9 +363,9 @@ inline void writeBinaryFile(const std::vector<T>& dvec, const char* fileName)
 }
 
 template<class T>
-inline void writeBinaryFile(const std::vector<T>& data, const std::string& fileName)
+inline void writeBinaryFile(const std::vector<T>& dvec, const std::string& fileName)
 {
-    writeBinaryFile(data, fileName.c_str());
+    writeBinaryFile(dvec, fileName.c_str());
 }
 
 template<class T>

@@ -28,7 +28,7 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 class Timer
 {
-using Clock = std::chrono::high_resolution_clock;
+    using Clock = std::chrono::high_resolution_clock;
 public:
     Timer() : m_TimerTicked(false)
     {}

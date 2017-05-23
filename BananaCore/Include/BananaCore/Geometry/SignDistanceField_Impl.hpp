@@ -121,95 +121,92 @@ T distanceToCylinder(const Vec3<T>& pos, const Vec3<T>& cylinderBase, const Vec3
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // sign distance field for triangle mesh
-
-void distance_field_tri_mesh(const std::vector<Vec3ui>& tri,
-                             const std::vector<Vec3>& x,
-                             const Vec3& origin, Real grid_size,
-                             int ni, int nj, int nk,
-                             Array3_Real& phi, bool inside_negative, const int exact_band)
+template<class T>
+void distance_field_tri_mesh(const std::vector<Vec3ui>& faces, const std::vector<Vec3<T>>& vertices, const Vec3<T>& origin, T cellSize,
+                             UInt32 ni, UInt32 nj, UInt32 nk, Array3<T>& SDF, bool bInsideNegative, UInt32 exactBand)
 {
-    phi.resize(ni, nj, nk);
-    phi.assign((ni + nj + nk)*grid_size); // upper bound on distance
+    SDF.resize(ni, nj, nk);
+    SDF.assign((ni + nj + nk) * cellSize); // upper bound on distance
     Array3i closest_tri(ni, nj, nk, -1);
     Array3i intersection_count(ni, nj, nk,
                                0); // intersection_count(i,j,k) is # of tri intersections in (i-1,i]x{j}x{k}
     // we begin by initializing distances near the mesh, and figuring out intersection counts
     //    Vec3 ijkmin, ijkmax;
 
-    tbb::parallel_for(tbb::blocked_range<size_t>(0, tri.size()),
+    tbb::parallel_for(tbb::blocked_range<size_t>(0, faces.size()),
                       [&](tbb::blocked_range<size_t> r)
-    {
-        // for(UInt32 t = 0; t < tri.size(); ++t)
-        for(size_t face = r.begin(); face != r.end(); ++face)
         {
-            UInt32 p, q, r;
-            VecUtils::assign(tri[face], p, q, r);
-            // coordinates in grid to high precision
-            Real fip = ((Real)x[p][0] - origin[0]) / grid_size,
-                fjp = ((Real)x[p][1] - origin[1]) / grid_size,
-                fkp = ((Real)x[p][2] - origin[2]) / grid_size;
+            // for(UInt32 t = 0; t < tri.size(); ++t)
+            for(size_t face = r.begin(); face != r.end(); ++face)
+            {
+                UInt32 p, q, r;
+                VecUtils::assign(faces[face], p, q, r);
+                // coordinates in grid to high precision
+                T fip = ((T)vertices[p][0] - origin[0]) / cellSize,
+                fjp = ((T)vertices[p][1] - origin[1]) / cellSize,
+                fkp = ((T)vertices[p][2] - origin[2]) / cellSize;
 
-            Real fiq = ((Real)x[q][0] - origin[0]) / grid_size,
-                fjq = ((Real)x[q][1] - origin[1]) / grid_size,
-                fkq = ((Real)x[q][2] - origin[2]) / grid_size;
+                T fiq = ((T)vertices[q][0] - origin[0]) / cellSize,
+                fjq = ((T)vertices[q][1] - origin[1]) / cellSize,
+                fkq = ((T)vertices[q][2] - origin[2]) / cellSize;
 
-            Real fir = ((Real)x[r][0] - origin[0]) / grid_size,
-                fjr = ((Real)x[r][1] - origin[1]) / grid_size,
-                fkr = ((Real)x[r][2] - origin[2]) / grid_size;
-           // do distances nearby
-            int i0 = MathHelpers::clamp(int(MathHelpers::min(fip, fiq, fir)) - exact_band, 0, ni - 1), i1
-                = MathHelpers::clamp(int(MathHelpers::max(fip, fiq, fir)) + exact_band + 1, 0, ni - 1);
-            int j0 = MathHelpers::clamp(int(MathHelpers::min(fjp, fjq, fjr)) - exact_band, 0, nj - 1), j1
-                = MathHelpers::clamp(int(MathHelpers::max(fjp, fjq, fjr)) + exact_band + 1, 0, nj - 1);
-            int k0 = MathHelpers::clamp(int(MathHelpers::min(fkp, fkq, fkr)) - exact_band, 0, nk - 1), k1
-                = MathHelpers::clamp(int(MathHelpers::max(fkp, fkq, fkr)) + exact_band + 1, 0, nk - 1);
+                T fir = ((T)vertices[r][0] - origin[0]) / cellSize,
+                fjr = ((T)vertices[r][1] - origin[1]) / cellSize,
+                fkr = ((T)vertices[r][2] - origin[2]) / cellSize;
+                // do distances nearby
+                int i0 = MathHelpers::clamp(int(MathHelpers::min(fip, fiq, fir)) - exactBand, 0, ni - 1), i1
+                    = MathHelpers::clamp(int(MathHelpers::max(fip, fiq, fir)) + exactBand + 1, 0, ni - 1);
+                int j0 = MathHelpers::clamp(int(MathHelpers::min(fjp, fjq, fjr)) - exactBand, 0, nj - 1), j1
+                    = MathHelpers::clamp(int(MathHelpers::max(fjp, fjq, fjr)) + exactBand + 1, 0, nj - 1);
+                int k0 = MathHelpers::clamp(int(MathHelpers::min(fkp, fkq, fkr)) - exactBand, 0, nk - 1), k1
+                    = MathHelpers::clamp(int(MathHelpers::max(fkp, fkq, fkr)) + exactBand + 1, 0, nk - 1);
 
-            for(int k = k0; k <= k1; ++k)
-                for(int j = j0; j <= j1; ++j)
-                    for(int i = i0; i <= i1; ++i)
-                    {
-                        Vec3 gx(i * grid_size + origin[0], j * grid_size + origin[1],
-                                k * grid_size + origin[2]);
-                        Real d = point_triangle_distance(gx, x[p], x[q], x[r]);
-
-                        if(d < phi(i, j, k))
+                for(int k = k0; k <= k1; ++k)
+                    for(int j = j0; j <= j1; ++j)
+                        for(int i = i0; i <= i1; ++i)
                         {
-                            phi(i, j, k) = d;
-                            closest_tri(i, j, k) = face;
+                            Vec3 gx(i * cellSize + origin[0], j * cellSize + origin[1],
+                                    k * cellSize + origin[2]);
+                            T d = point_triangle_distance(gx, vertices[p], vertices[q], vertices[r]);
+
+                            if(d < SDF(i, j, k))
+                            {
+                                SDF(i, j, k) = d;
+                                closest_tri(i, j, k) = face;
+                            }
+                        }
+
+                // and do intersection counts
+                j0 = MathHelpers::clamp((int)std::ceil(MathHelpers::min(fjp, fjq, fjr)), 0, nj - 1);
+                j1 = MathHelpers::clamp((int)std::floor(MathHelpers::max(fjp, fjq, fjr)), 0, nj - 1);
+                k0 = MathHelpers::clamp((int)std::ceil(MathHelpers::min(fkp, fkq, fkr)), 0, nk - 1);
+                k1 = MathHelpers::clamp((int)std::floor(MathHelpers::max(fkp, fkq, fkr)), 0, nk - 1);
+
+                for(int k = k0; k <= k1; ++k)
+                    for(int j = j0; j <= j1; ++j)
+                    {
+                        T a, b, c;
+
+                        if(point_in_triangle_2d(j, k, fjp, fkp, fjq, fkq, fjr, fkr, a, b, c))
+                        {
+                            T fi = a * fip + b * fiq + c * fir;  // intersection i coordinate
+                            int i_interval = int(std::ceil(fi)); // intersection is in (i_interval-1,i_interval]
+
+                            if(i_interval < 0)
+                            {
+                                ++intersection_count(0, j,
+                                                     k); // we enlarge the first interval to include everything to the -x direction
+                            }
+                            else if(i_interval < ni)
+                            {
+                                ++intersection_count(i_interval, j, k);
+                            }
+
+                            // we ignore intersections that are beyond the +x side of the grid
                         }
                     }
-
-            // and do intersection counts
-            j0 = MathHelpers::clamp((int)std::ceil(MathHelpers::min(fjp, fjq, fjr)), 0, nj - 1);
-            j1 = MathHelpers::clamp((int)std::floor(MathHelpers::max(fjp, fjq, fjr)), 0, nj - 1);
-            k0 = MathHelpers::clamp((int)std::ceil(MathHelpers::min(fkp, fkq, fkr)), 0, nk - 1);
-            k1 = MathHelpers::clamp((int)std::floor(MathHelpers::max(fkp, fkq, fkr)), 0, nk - 1);
-
-            for(int k = k0; k <= k1; ++k)
-                for(int j = j0; j <= j1; ++j)
-                {
-                    Real a, b, c;
-
-                    if(point_in_triangle_2d(j, k, fjp, fkp, fjq, fkq, fjr, fkr, a, b, c))
-                    {
-                        Real fi = a * fip + b * fiq + c * fir; // intersection i coordinate
-                        int i_interval = int(std::ceil(fi)); // intersection is in (i_interval-1,i_interval]
-
-                        if(i_interval < 0)
-                        {
-                            ++intersection_count(0, j,
-                                                 k);    // we enlarge the first interval to include everything to the -x direction
-                        }
-                        else if(i_interval < ni)
-                        {
-                            ++intersection_count(i_interval, j, k);
-                        }
-
-                        // we ignore intersections that are beyond the +x side of the grid
-                    }
-                }
-        } // end for t
-    }); // end parallel_for
+            } // end for t
+        }); // end parallel_for
 
 
     // and now we fill in the rest of the distances with fast sweeping
@@ -217,47 +214,47 @@ void distance_field_tri_mesh(const std::vector<Vec3ui>& tri,
     {
 #if 1
         tbb::parallel_invoke([&]
-        {
-            sweep(tri, x, phi, closest_tri, origin, grid_size, +1, +1, +1);
-        },
+            {
+                sweep(faces, vertices, SDF, closest_tri, origin, cellSize, +1, +1, +1);
+            },
                              [&]
-        {
-            sweep(tri, x, phi, closest_tri, origin, grid_size, -1, -1, -1);
-        },
-            [&]
-        {
-            sweep(tri, x, phi, closest_tri, origin, grid_size, +1, +1, -1);
-        },
-            [&]
-        {
-            sweep(tri, x, phi, closest_tri, origin, grid_size, -1, -1, +1);
-        },
-            [&]
-        {
-            sweep(tri, x, phi, closest_tri, origin, grid_size, +1, -1, +1);
-        },
-            [&]
-        {
-            sweep(tri, x, phi, closest_tri, origin, grid_size, -1, +1, -1);
-        },
-            [&]
-        {
-            sweep(tri, x, phi, closest_tri, origin, grid_size, +1, -1, -1);
-        },
-            [&]
-        {
-            sweep(tri, x, phi, closest_tri, origin, grid_size, -1, +1, +1);
-        }
-        );
+            {
+                sweep(faces, vertices, SDF, closest_tri, origin, cellSize, -1, -1, -1);
+            },
+                             [&]
+            {
+                sweep(faces, vertices, SDF, closest_tri, origin, cellSize, +1, +1, -1);
+            },
+                             [&]
+            {
+                sweep(faces, vertices, SDF, closest_tri, origin, cellSize, -1, -1, +1);
+            },
+                             [&]
+            {
+                sweep(faces, vertices, SDF, closest_tri, origin, cellSize, +1, -1, +1);
+            },
+                             [&]
+            {
+                sweep(faces, vertices, SDF, closest_tri, origin, cellSize, -1, +1, -1);
+            },
+                             [&]
+            {
+                sweep(faces, vertices, SDF, closest_tri, origin, cellSize, +1, -1, -1);
+            },
+                             [&]
+            {
+                sweep(faces, vertices, SDF, closest_tri, origin, cellSize, -1, +1, +1);
+            }
+                             );
 #else
-        sweep(tri, x, phi, closest_tri, origin, grid_size, +1, +1, +1);
-        sweep(tri, x, phi, closest_tri, origin, grid_size, -1, -1, -1);
-        sweep(tri, x, phi, closest_tri, origin, grid_size, +1, +1, -1);
-        sweep(tri, x, phi, closest_tri, origin, grid_size, -1, -1, +1);
-        sweep(tri, x, phi, closest_tri, origin, grid_size, +1, -1, +1);
-        sweep(tri, x, phi, closest_tri, origin, grid_size, -1, +1, -1);
-        sweep(tri, x, phi, closest_tri, origin, grid_size, +1, -1, -1);
-        sweep(tri, x, phi, closest_tri, origin, grid_size, -1, +1, +1);
+        sweep(faces, vertices, SDF, closest_tri, origin, cellSize, +1, +1, +1);
+        sweep(faces, vertices, SDF, closest_tri, origin, cellSize, -1, -1, -1);
+        sweep(faces, vertices, SDF, closest_tri, origin, cellSize, +1, +1, -1);
+        sweep(faces, vertices, SDF, closest_tri, origin, cellSize, -1, -1, +1);
+        sweep(faces, vertices, SDF, closest_tri, origin, cellSize, +1, -1, +1);
+        sweep(faces, vertices, SDF, closest_tri, origin, cellSize, -1, +1, -1);
+        sweep(faces, vertices, SDF, closest_tri, origin, cellSize, +1, -1, -1);
+        sweep(faces, vertices, SDF, closest_tri, origin, cellSize, -1, +1, +1);
 #endif
     }
 
@@ -272,27 +269,23 @@ void distance_field_tri_mesh(const std::vector<Vec3ui>& tri,
             {
                 total_count += intersection_count(i, j, k);
 
-                if(total_count % 2 == 1) // if parity of intersections so far is odd,
+                if(total_count % 2 == 1)          // if parity of intersections so far is odd,
                 {
-                    phi(i, j, k) = -phi(i, j, k); // we are inside the mesh
+                    SDF(i, j, k) = -SDF(i, j, k); // we are inside the mesh
                 }
 
-                if(!inside_negative)
+                if(!bInsideNegative)
                 {
-                    phi(i, j, k) = -phi(i, j, k);
+                    SDF(i, j, k) = -SDF(i, j, k);
                 }
             }
         }
     }
-
-
 }
-
-
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //Given two signed distance values (line endpoints), determine what fraction of a connecting segment is "inside"
-Real fraction_inside(Real phi_left, Real phi_right)
+T fraction_inside(T phi_left, T phi_right)
 {
     if(phi_left < 0 && phi_right < 0)
     {
@@ -316,12 +309,12 @@ Real fraction_inside(Real phi_left, Real phi_right)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //Given four signed distance values (square corners), determine what fraction of the square is "inside"
-Real fraction_inside(Real phi_bl, Real phi_br, Real phi_tl,
-                     Real phi_tr)
+T fraction_inside(T phi_bl, T phi_br, T phi_tl,
+                  T phi_tr)
 {
     int inside_count = (phi_bl < 0 ? 1 : 0) + (phi_tl < 0 ? 1 : 0) + (phi_br < 0 ? 1 : 0) +
                        (phi_tr < 0 ? 1 : 0);
-    Real list[] = { phi_bl, phi_br, phi_tr, phi_tl };
+    T list[] = { phi_bl, phi_br, phi_tr, phi_tl };
 
     if(inside_count == 4)
     {
@@ -336,8 +329,8 @@ Real fraction_inside(Real phi_bl, Real phi_br, Real phi_tl,
         }
 
         //Work out the area of the exterior triangle
-        Real side0 = 1 - fraction_inside(list[0], list[3]);
-        Real side1 = 1 - fraction_inside(list[0], list[1]);
+        T side0 = 1 - fraction_inside(list[0], list[3]);
+        T side1 = 1 - fraction_inside(list[0], list[1]);
         return 1 - 0.5f * side0 * side1;
     }
     else if(inside_count == 2)
@@ -350,44 +343,44 @@ Real fraction_inside(Real phi_bl, Real phi_br, Real phi_tl,
 
         if(list[1] < 0)   //the matching signs are adjacent
         {
-            Real side_left  = fraction_inside(list[0], list[3]);
-            Real side_right = fraction_inside(list[1], list[2]);
+            T side_left  = fraction_inside(list[0], list[3]);
+            T side_right = fraction_inside(list[1], list[2]);
             return 0.5f * (side_left + side_right);
         }
         else   //matching signs are diagonally opposite
         {
             //determine the centre point's sign to disambiguate this case
-            Real middle_point = 0.25f * (list[0] + list[1] + list[2] + list[3]);
+            T middle_point = 0.25f * (list[0] + list[1] + list[2] + list[3]);
 
             if(middle_point < 0)
             {
-                Real area = 0;
+                T area = 0;
 
                 //first triangle (top left)
-                Real side1 = 1 - fraction_inside(list[0], list[3]);
-                Real side3 = 1 - fraction_inside(list[2], list[3]);
+                T side1 = 1 - fraction_inside(list[0], list[3]);
+                T side3 = 1 - fraction_inside(list[2], list[3]);
 
                 area += 0.5f * side1 * side3;
 
                 //second triangle (top right)
-                Real side2 = 1 - fraction_inside(list[2], list[1]);
-                Real side0 = 1 - fraction_inside(list[0], list[1]);
+                T side2 = 1 - fraction_inside(list[2], list[1]);
+                T side0 = 1 - fraction_inside(list[0], list[1]);
                 area += 0.5f * side0 * side2;
 
                 return 1 - area;
             }
             else
             {
-                Real area = 0;
+                T area = 0;
 
                 //first triangle (bottom left)
-                Real side0 = fraction_inside(list[0], list[1]);
-                Real side1 = fraction_inside(list[0], list[3]);
+                T side0 = fraction_inside(list[0], list[1]);
+                T side1 = fraction_inside(list[0], list[3]);
                 area += 0.5f * side0 * side1;
 
                 //second triangle (top right)
-                Real side2 = fraction_inside(list[2], list[1]);
-                Real side3 = fraction_inside(list[2], list[3]);
+                T side2 = fraction_inside(list[2], list[1]);
+                T side3 = fraction_inside(list[2], list[3]);
                 area += 0.5f * side2 * side3;
                 return area;
             }
@@ -402,8 +395,8 @@ Real fraction_inside(Real phi_bl, Real phi_br, Real phi_tl,
         }
 
         //Work out the area of the interior triangle, and subtract from 1.
-        Real side0 = fraction_inside(list[0], list[3]);
-        Real side1 = fraction_inside(list[0], list[1]);
+        T side0 = fraction_inside(list[0], list[3]);
+        T side1 = fraction_inside(list[0], list[1]);
         return 0.5f * side0 * side1;
     }
     else
@@ -414,19 +407,19 @@ Real fraction_inside(Real phi_bl, Real phi_br, Real phi_tl,
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // find distance x0 is from segment x1-x2
-Real point_segment_distance(const Vec3& x0, const Vec3& x1,
-                            const Vec3& x2)
+T point_segment_distance(const Vec3& x0, const Vec3& x1,
+                         const Vec3& x2)
 {
     Vec3 dx(x2 - x1);
 
 #ifdef __Using_Eigen_Lib__
-    Real m2 = dx.squaredNorm();
+    T m2 = dx.squaredNorm();
     // find parameter value of closest point on segment
-    Real s12 = (Real)(dx.dot(x2 - x0) / m2);
+    T s12 = (T)(dx.dot(x2 - x0) / m2);
 #else
-    Real m2 = glm::length2(dx);
+    T m2 = glm::length2(dx);
     // find parameter value of closest point on segment
-    Real s12 = (Real)(glm::dot(dx, x2 - x0) / m2);
+    T s12 = (T)(glm::dot(dx, x2 - x0) / m2);
 #endif
 
     if(s12 < 0)
@@ -448,28 +441,28 @@ Real point_segment_distance(const Vec3& x0, const Vec3& x1,
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // find distance x0 is from triangle x1-x2-x3
-Real point_triangle_distance(const Vec3& x0, const Vec3& x1,
-                             const Vec3& x2,
-                             const Vec3& x3)
+T point_triangle_distance(const Vec3& x0, const Vec3& x1,
+                          const Vec3& x2,
+                          const Vec3& x3)
 {
     // first find barycentric coordinates of closest point on infinite plane
     Vec3 x13(x1 - x3), x23(x2 - x3), x03(x0 - x3);
 #ifdef __Using_Eigen_Lib__
-    Real m13 = x13.squaredNorm(), m23 = x23.squaredNorm(), d = x13.dot(x23);
+    T m13 = x13.squaredNorm(), m23 = x23.squaredNorm(), d = x13.dot(x23);
 #else
-    Real m13 = glm::length2(x13), m23 = glm::length2(x23), d = glm::dot(x13, x23);
+    T m13 = glm::length2(x13), m23 = glm::length2(x23), d = glm::dot(x13, x23);
 #endif
 
-    Real invdet = 1.f / fmax(m13 * m23 - d * d, 1e-30f);
+    T invdet = 1.f / fmax(m13 * m23 - d * d, 1e-30f);
 #ifdef __Using_Eigen_Lib__
-    Real a = x13.dot(x03), b = x23.dot(x03);
+    T a = x13.dot(x03), b = x23.dot(x03);
 #else
-    Real a = glm::dot(x13, x03), b = glm::dot(x23, x03);
+    T a = glm::dot(x13, x03), b = glm::dot(x23, x03);
 #endif
     // the barycentric coordinates themselves
-    Real w23 = invdet * (m23 * a - d * b);
-    Real w31 = invdet * (m13 * b - d * a);
-    Real w12 = 1 - w23 - w31;
+    T w23 = invdet * (m23 * a - d * b);
+    T w31 = invdet * (m13 * b - d * a);
+    T w12 = 1 - w23 - w31;
 
     if(w23 >= 0 && w31 >= 0 && w12 >= 0)                      // if we're inside the triangle
     {
@@ -496,11 +489,10 @@ Real point_triangle_distance(const Vec3& x0, const Vec3& x1,
     }
 }
 
-
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void check_neighbour(const std::vector<Vec3ui>& tri,
                      const std::vector<Vec3>& x,
-                     Array3_Real& phi, Array3i& closest_tri,
+                     Array3_T& phi, Array3i& closest_tri,
                      const Vec3& gx, UInt32 i0, UInt32 j0, UInt32 k0,
                      int i1, int j1, int k1)
 {
@@ -508,11 +500,11 @@ void check_neighbour(const std::vector<Vec3ui>& tri,
     {
         UInt32 p, q, r;
         VecUtils::assign(tri[closest_tri(i1, j1, k1)], p, q, r);
-        Real d = point_triangle_distance(gx, x[p], x[q], x[r]);
+        T d = point_triangle_distance(gx, x[p], x[q], x[r]);
 
         if(d < phi(i0, j0, k0))
         {
-            phi(i0, j0, k0) = d;
+            phi(i0, j0, k0)         = d;
             closest_tri(i0, j0, k0) = closest_tri(i1, j1, k1);
         }
     }
@@ -521,7 +513,7 @@ void check_neighbour(const std::vector<Vec3ui>& tri,
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void sweep(const std::vector<Vec3ui>& tri,
            const std::vector<Vec3>& x,
-           Array3_Real& phi, Array3i& closest_tri, const Vec3& origin, Real dx,
+           Array3_T& phi, Array3i& closest_tri, const Vec3& origin, T dx,
            int di, int dj, int dk)
 {
     int i0, i1;
@@ -562,7 +554,6 @@ void sweep(const std::vector<Vec3ui>& tri,
     {
         k0 = phi.m_SizeZ - 2;
         k1 = -1;
-
     }
 
     for(int k = k0; k != k1; k += dk)
@@ -571,59 +562,58 @@ void sweep(const std::vector<Vec3ui>& tri,
         {
             for(int i = i0; i != i1; i += di)
             {
-                Vec3 gx(i * dx + origin[0], j * dx + origin[1], k * dx + origin[2]);
+                Vec3 gx(i* dx + origin[0], j* dx + origin[1], k* dx + origin[2]);
 
 #if 1
-                check_neighbour(tri, x, phi, closest_tri, gx, i, j, k, i - di, j, k);
-                check_neighbour(tri, x, phi, closest_tri, gx, i, j, k, i, j - dj, k);
+                check_neighbour(tri, x, phi, closest_tri, gx, i, j, k, i - di, j,      k);
+                check_neighbour(tri, x, phi, closest_tri, gx, i, j, k, i,      j - dj, k);
                 check_neighbour(tri, x, phi, closest_tri, gx, i, j, k, i - di, j - dj, k);
-                check_neighbour(tri, x, phi, closest_tri, gx, i, j, k, i, j, k - dk);
-                check_neighbour(tri, x, phi, closest_tri, gx, i, j, k, i - di, j, k - dk);
-                check_neighbour(tri, x, phi, closest_tri, gx, i, j, k, i, j - dj, k - dk);
+                check_neighbour(tri, x, phi, closest_tri, gx, i, j, k, i,      j,      k - dk);
+                check_neighbour(tri, x, phi, closest_tri, gx, i, j, k, i - di, j,      k - dk);
+                check_neighbour(tri, x, phi, closest_tri, gx, i, j, k, i,      j - dj, k - dk);
                 check_neighbour(tri, x, phi, closest_tri, gx, i, j, k, i - di, j - dj, k - dk);
 #else
                 tbb::parallel_invoke(
                     [&]
-                {
-                    check_neighbour(tri, x, phi, closest_tri, gx, i, j, k, i - di, j, k);
-                },
+                    {
+                        check_neighbour(tri, x, phi, closest_tri, gx, i, j, k, i - di, j, k);
+                    },
                     [&]
-                {
-                    check_neighbour(tri, x, phi, closest_tri, gx, i, j, k, i, j - dj, k);
-                },
+                    {
+                        check_neighbour(tri, x, phi, closest_tri, gx, i, j, k, i, j - dj, k);
+                    },
                     [&]
-                {
-                    check_neighbour(tri, x, phi, closest_tri, gx, i, j, k, i - di, j - dj, k);
-                },
+                    {
+                        check_neighbour(tri, x, phi, closest_tri, gx, i, j, k, i - di, j - dj, k);
+                    },
                     [&]
-                {
-                    check_neighbour(tri, x, phi, closest_tri, gx, i, j, k, i, j, k - dk);
-                },
+                    {
+                        check_neighbour(tri, x, phi, closest_tri, gx, i, j, k, i, j, k - dk);
+                    },
                     [&]
-                {
-                    check_neighbour(tri, x, phi, closest_tri, gx, i, j, k, i - di, j, k - dk);
-                },
+                    {
+                        check_neighbour(tri, x, phi, closest_tri, gx, i, j, k, i - di, j, k - dk);
+                    },
                     [&]
-                {
-                    check_neighbour(tri, x, phi, closest_tri, gx, i, j, k, i, j - dj, k - dk);
-                },
+                    {
+                        check_neighbour(tri, x, phi, closest_tri, gx, i, j, k, i, j - dj, k - dk);
+                    },
                     [&]
-                {
-                    check_neighbour(tri, x, phi, closest_tri, gx, i, j, k, i - di, j - dj, k - dk);
-                }
-                );
+                    {
+                        check_neighbour(tri, x, phi, closest_tri, gx, i, j, k, i - di, j - dj, k - dk);
+                    }
+                    );
 #endif
             }
         }
     }
-
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // calculate twice signed area of triangle (0,0)-(x1,y1)-(x2,y2)
 // return an SOS-determined sign (-1, +1, or 0 only if it's a truly degenerate triangle)
-int orientation(Real x1, Real y1, Real x2, Real y2,
-                Real& twice_signed_area)
+int orientation(T x1, T y1, T x2, T y2,
+                T& twice_signed_area)
 {
     twice_signed_area = y1 * x2 - x1 * y2;
 
@@ -660,9 +650,9 @@ int orientation(Real x1, Real y1, Real x2, Real y2,
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // robust test of (x0,y0) in the triangle (x1,y1)-(x2,y2)-(x3,y3)
 // if true is returned, the barycentric coordinates are set in a,b,c.
-bool point_in_triangle_2d(Real x0, Real y0,
-                          Real x1, Real y1, Real x2, Real y2, Real x3, Real y3,
-                          Real& a, Real& b, Real& c)
+bool point_in_triangle_2d(T x0, T y0,
+                          T x1, T y1, T x2, T y2, T x3, T y3,
+                          T& a, T& b, T& c)
 {
     x1 -= x0;
     x2 -= x0;
@@ -691,7 +681,7 @@ bool point_in_triangle_2d(Real x0, Real y0,
         return false;
     }
 
-    Real sum = a + b + c;
+    T sum = a + b + c;
     __NOODLE_ASSERT(sum !=
                     0); // if the SOS signs match and are nonkero, there's no way all of a, b, and c are zero.
     a /= sum;
@@ -700,12 +690,10 @@ bool point_in_triangle_2d(Real x0, Real y0,
     return true;
 }
 
-
-
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void cycle_array(Real* arr, int size)
+void cycle_array(T* arr, int size)
 {
-    Real t = arr[0];
+    T t = arr[0];
 
     for(int i = 0; i < size - 1; ++i)
     {
