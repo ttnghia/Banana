@@ -140,7 +140,7 @@ void OpenGLWidgetTestRender::initTestRenderMesh(QString meshFile)
     assert(isValid());
 
     ////////////////////////////////////////////////////////////////////////////////
-    m_MeshLoader = std::make_unique<MeshLoader>(meshFile.toStdString());
+    m_MeshLoader = std::make_unique<MeshLoader<float> >(meshFile.toStdString());
     m_MeshObj    = std::make_shared<MeshObject>();
     m_MeshObj->setVertices(m_MeshLoader->getVertices());
     m_MeshObj->setVertexNormal(m_MeshLoader->getVertexNormal());
@@ -198,8 +198,8 @@ void OpenGLWidgetTestRender::initTestRenderMeshWithShadow(QString meshFile, QStr
 #endif
 #if NUM_LIGHTS == 3
     m_Lights->setNumLights(3);
-    m_Lights->setLightPosition(glm::vec4(0, 3, 0, 1.0), 0);
-    m_Lights->setLightPosition(glm::vec4(0, 3, 3, 1.0), 1);
+    m_Lights->setLightPosition(glm::vec4(0, 3, 0, 1.0),  0);
+    m_Lights->setLightPosition(glm::vec4(0, 3, 3, 1.0),  1);
     m_Lights->setLightPosition(glm::vec4(3, 3, -3, 1.0), 2);
     m_Lights->setLightAmbient(glm::vec4(0.05), 0);
     m_Lights->setLightAmbient(glm::vec4(0.05), 1);
@@ -225,7 +225,7 @@ void OpenGLWidgetTestRender::initTestRenderMeshWithShadow(QString meshFile, QStr
     m_PointLightRender = std::make_unique<PointLightRender>(m_Camera, m_Lights);
 
     ////////////////////////////////////////////////////////////////////////////////
-    m_MeshLoader = std::make_unique<MeshLoader>(meshFile.toStdString());
+    m_MeshLoader = std::make_unique<MeshLoader<float> >(meshFile.toStdString());
     m_MeshObj    = std::make_shared<MeshObject>();
     m_MeshObj->setVertices(m_MeshLoader->getVertices());
     m_MeshObj->setVertexNormal(m_MeshLoader->getVertexNormal());
@@ -278,14 +278,15 @@ void OpenGLWidgetTestRender::initOpenGL()
         case TestCase::TriMeshShadow:
 #ifdef _WIN32
             initTestRenderMeshWithShadow(QString("D:/GoogleDrive/DigitalAssets/Models/AirCraft/A-10_Thunderbolt_II/A-10_Thunderbolt_II.obj"),
-            QString("D:/Programming/QtApps/FluidSimulationAndRendering/Textures/Floor/blue_marble.png"));
+                                         QString("D:/Programming/QtApps/FluidSimulationAndRendering/Textures/Floor/blue_marble.png"));
 #else
             initTestRenderMeshWithShadow(QString("/Volumes/Working/GoogleDrive/DigitalAssets/Models/AirCraft/A-10_Thunderbolt_II/A-10_Thunderbolt_II.obj"),
-            QString("/Volumes/Working/Programming/QtApps/FluidSimulationAndRendering/Textures/Floor/blue_marble.png"));
+                                         QString("/Volumes/Working/Programming/QtApps/FluidSimulationAndRendering/Textures/Floor/blue_marble.png"));
 #endif
             break;
     }
 }
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLWidgetTestRender::renderOpenGL()
 {

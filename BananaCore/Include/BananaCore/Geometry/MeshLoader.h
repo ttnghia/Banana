@@ -17,22 +17,47 @@
 
 #pragma once
 
-#include <OpenGLHelpers/Camera.h>
-#include <OpenGLHelpers/OpenGLMacros.h>
-
 #include <fstream>
 
-#include <glm/glm.hpp>
 #include <tiny_obj_loader.h>
 #include <tinyply.h>
+
+#include <BananaCore/TypeNames.h>
 
 #ifndef M_PI
 #define M_PI 3.1415926535897932384626433832795
 #endif
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class T>
 class MeshLoader
 {
+public:
+    MeshLoader();
+    MeshLoader(const std::string& meshFile);
+
+    bool    loadMesh(const std::string& meshFile);
+    Vec3<T> getMeshCenter();
+
+    Vec3<T> getCameraPosition(Vec3<T> camDirection, T fov = 45);
+    T       getCameraDistance(T fov);
+
+    std::vector<T>& getVertices() { assert(m_isMeshReady); return m_Vertices; }
+    std::vector<T>& getVertexNormal(){ assert(m_isMeshReady); return m_VertexNormals; }
+    std::vector<T>& getVertexColor() { assert(m_isMeshReady); return m_VertexColors; }
+    std::vector<T>& getVTexCoord2D(){ assert(m_isMeshReady); return m_VertexTexCoord2D; }
+    std::vector<T>& getVTexCoord3D(){ assert(m_isMeshReady); return m_VertexTexCoord3D; }
+
+private:
+    void checkFileType(const std::string& meshFile);
+    void clearData();
+
+    bool loadObj(const std::string& meshFile);
+    bool loadPly(const std::string& meshFile);
+
+    void computeVertexNormal(T N[3], T v0[3], T v1[3], T v2[3]);
+
+    ////////////////////////////////////////////////////////////////////////////////
     enum class MeshFileType
     {
         OBJFile,
@@ -40,45 +65,21 @@ class MeshLoader
         UnsupportedFileType
     };
 
-public:
-    MeshLoader();
-    MeshLoader(std::string mesh_file);
 
-    bool loadMesh(std::string mesh_file);
-    glm::vec3 getMeshCenter();
-
-    void setDefaultCamera(Camera& camera, float fov = 45);
-    float getCameraDistance(float fov);
-
-    std::vector<float>& getVertices();
-    std::vector<float>& getVertexNormal();
-    std::vector<float>& getVertexColor();
-    std::vector<float>& getVTexCoord2D();
-    std::vector<float>& getVTexCoord3D();
-
-    ////////////////////////////////////////////////////////////////////////////////
     unsigned int m_NumTriangles;
-    bool m_isMeshReady;
+    bool         m_isMeshReady;
 
-private:
-    void checkFileType(std::string mesh_file);
-    void clearData();
-
-    bool load_obj(std::string mesh_file);
-    bool load_ply(std::string mesh_file);
-
-    void computeVertexNormal(float N[3], float v0[3], float v1[3], float v2[3]);
-
-    ////////////////////////////////////////////////////////////////////////////////
     MeshFileType m_MeshFileType;
     std::string  m_LoadingErrorStr;
 
-    std::vector<float> m_Vertices;
-    std::vector<float> m_VertexNormals;
-    std::vector<float> m_VertexColors;
-    std::vector<float> m_VertexTexCoord2D;
-    std::vector<float> m_VertexTexCoord3D;
-    glm::vec3          m_BBoxMin;
-    glm::vec3          m_BBoxMax;
-
+    std::vector<T> m_Vertices;
+    std::vector<T> m_VertexNormals;
+    std::vector<T> m_VertexColors;
+    std::vector<T> m_VertexTexCoord2D;
+    std::vector<T> m_VertexTexCoord3D;
+    Vec3<T>        m_BBoxMin;
+    Vec3<T>        m_BBoxMax;
 };
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#include <BananaCore/Geometry/MeshLoader_Impl.hpp>
