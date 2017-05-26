@@ -24,8 +24,7 @@ class QtAppShaderProgram : public ShaderProgram
 {
 public:
 
-    QtAppShaderProgram()
-    {}
+    QtAppShaderProgram() {}
 
     void addVertexShaderFromResource(const char* fileName);
     void addGeometryShaderFromResource(const char* fileName);

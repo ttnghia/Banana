@@ -132,7 +132,6 @@ protected:
 class OpenGLCallable
 {
 protected:
-    OpenGLCallable()
-    {}
+    OpenGLCallable() {}
 };
 #endif

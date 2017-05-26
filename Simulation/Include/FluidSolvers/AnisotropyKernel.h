@@ -24,8 +24,7 @@ public:
         m_DomainParams(domainParams),
         m_CellParticles(cellParticles),
         m_Particles(particles),
-        m_KernelCellSpan(kernelCellSpan * 2)
-    {}
+        m_KernelCellSpan(kernelCellSpan * 2) {}
 
     void setParticleRadius(Real radius);
     void generateAnisotropy();

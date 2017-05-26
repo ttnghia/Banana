@@ -50,4 +50,4 @@ private:
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <ParallelHelpers/LinearAlgebra/BlockPCGSolver_Impl.hpp>
+#include <Banana/LinearAlgebra/BlockPCGSolver_Impl.hpp>

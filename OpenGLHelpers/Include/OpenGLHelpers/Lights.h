@@ -101,8 +101,7 @@ protected:
 class DirectionalLights : public Lights
 {
 public:
-    DirectionalLights()
-    {}
+    DirectionalLights() {}
 
     struct DirectionalLightData
     {
@@ -185,8 +184,7 @@ private:
 class PointLights : public Lights
 {
 public:
-    PointLights()
-    {}
+    PointLights() {}
 
     struct PointLightData
     {
@@ -266,8 +264,7 @@ private:
 class SpotLights : public Lights
 {
 public:
-    SpotLights()
-    {}
+    SpotLights() {}
 
     struct SpotLightData
     {

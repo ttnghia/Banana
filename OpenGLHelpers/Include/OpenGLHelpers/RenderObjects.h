@@ -190,8 +190,7 @@ public:
     void                            swapColorBuffer(std::shared_ptr<OpenGLTexture>& colorBuffer, int bufferID = 0);
     void                            fastSwapColorBuffer(std::shared_ptr<OpenGLTexture>& colorBuffer, int bufferID = 0);
 
-    virtual void render() override         // do nothing
-    {}
+    virtual void render() override {} // do nothing
 
 protected:
     virtual void initRenderData() override;
@@ -214,8 +213,7 @@ class DepthBufferRender : public OffScreenRender
 {
 public:
     DepthBufferRender(int width = 1024, int height = 1024) :
-        OffScreenRender(width, height, 1, GL_R32F), m_ClearLinearDepthValue(-1.0e6), m_DefaultClearColor(glm::vec4(0.8, 0.8, 0.8, 1.0))
-    {}
+        OffScreenRender(width, height, 1, GL_R32F), m_ClearLinearDepthValue(-1.0e6), m_DefaultClearColor(glm::vec4(0.8, 0.8, 0.8, 1.0)) {}
 
     virtual void beginRender() override;
     virtual void endRender(GLuint defaultFBO /* = 0 */) override;
@@ -378,14 +376,12 @@ public:
     PlaneRender(const std::shared_ptr<Camera>& camera, const std::shared_ptr<PointLights>& light, QString textureFolder,
                 const std::shared_ptr<OpenGLBuffer>& bufferCamData = nullptr) :
         MeshRender(std::make_shared<GridObject>(), camera, light, textureFolder, nullptr, bufferCamData),
-        m_AllowedNonTexRender(true)
-    {}
+        m_AllowedNonTexRender(true) {}
 #endif
 
     PlaneRender(const std::shared_ptr<Camera>& camera, const std::shared_ptr<PointLights>& light, const std::shared_ptr<OpenGLBuffer>& bufferCamData = nullptr) :
         MeshRender(std::make_shared<GridObject>(), camera, light, nullptr, bufferCamData),
-        m_AllowedNonTexRender(true)
-    {}
+        m_AllowedNonTexRender(true) {}
 
     void setAllowNonTextureRender(bool allowNonTex);
     void scaleTexCoord(int scaleX, int scaleY);

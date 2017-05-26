@@ -68,8 +68,7 @@ public:
     //////////////////////////////////////////////////////////////////////////
     //!@name Constructors
 
-    Matrix2()
-    {}																//!< Default constructor
+    Matrix2() {}																//!< Default constructor
     Matrix2(const Matrix2 &matrix)
     {
         CY_MEMCOPY(TYPE, data, matrix.data, 4);
@@ -491,8 +490,7 @@ public:
     //////////////////////////////////////////////////////////////////////////
     //!@name Constructors
 
-    Matrix3()
-    {}																							//!< Default constructor
+    Matrix3() {}																							//!< Default constructor
     Matrix3(const Matrix3 &matrix)
     {
         CY_MEMCOPY(TYPE, data, matrix.data, 9);
@@ -1199,8 +1197,7 @@ public:
     //////////////////////////////////////////////////////////////////////////
     //!@name Constructors
 
-    Matrix34()
-    {}																				//!< Default constructor
+    Matrix34() {}																				//!< Default constructor
     Matrix34(const Matrix34 &matrix)
     {
         CY_MEMCOPY(TYPE, data, matrix.data, 12);
@@ -2006,8 +2003,7 @@ public:
     //////////////////////////////////////////////////////////////////////////
     //!@name Constructors
 
-    Matrix4()
-    {}																	//!< Default constructor
+    Matrix4() {}																	//!< Default constructor
     Matrix4(const Matrix4 &matrix)
     {
         CY_MEMCOPY(TYPE, data, matrix.data, 16);

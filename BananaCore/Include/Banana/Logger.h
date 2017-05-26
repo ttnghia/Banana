@@ -45,9 +45,9 @@ public:
 
     enum Source
     {
-        MainProgram = 0,
-        LoggerClass,
-        Debugger
+        MainProgram = 9990,
+        LoggerClass = 9991,
+        Debugger = 9992
     };
 
     Logger() : m_LogSourceID(0) {}

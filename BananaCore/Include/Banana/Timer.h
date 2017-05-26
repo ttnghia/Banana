@@ -30,8 +30,7 @@ class Timer
 {
     using Clock = std::chrono::high_resolution_clock;
 public:
-    Timer() : m_TimerTicked(false)
-    {}
+    Timer() : m_TimerTicked(false) {}
 
     void tick()
     {

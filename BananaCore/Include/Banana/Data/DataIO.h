@@ -747,8 +747,7 @@ private:
 class DataConverter
 {
 public:
-    DataConverter()
-    {}
+    DataConverter() {}
 
     ~DataConverter()
     {
@@ -840,8 +839,7 @@ public:
         m_DataSubFolder(dataFolder),
         m_FileName(fileName),
         m_FileExtension(fileExtension),
-        m_bOutputFolderCreated(false)
-    {}
+        m_bOutputFolderCreated(false) {}
 
     virtual ~DataIO()
     {

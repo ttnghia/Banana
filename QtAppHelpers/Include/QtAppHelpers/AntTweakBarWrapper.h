@@ -27,8 +27,7 @@
 class AntTweakBarWrapper
 {
 public:
-    AntTweakBarWrapper() : m_AntTweakBar(nullptr)
-    {}
+    AntTweakBarWrapper() : m_AntTweakBar(nullptr) {}
 
     int TwMousePressQt(QMouseEvent* e);
     int TwMouseReleaseQt(QMouseEvent* e);
@@ -45,8 +44,7 @@ public:
     void shutDownAntTweakBar();
 
 protected:
-    virtual void setupTweakBar()
-    {}
+    virtual void setupTweakBar() {}
 
     TwMouseButtonID Qt2TwMouseButtonId(QMouseEvent* e);
 

@@ -41,8 +41,7 @@ private:
     std::vector<std::vector<ScalarType> > m_Value;
 
 public:
-    explicit SparseMatrix(UInt32 size = 0) : m_Size(size), m_Index(size), m_Value(size)
-    {}
+    explicit SparseMatrix(UInt32 size = 0) : m_Size(size), m_Index(size), m_Value(size) {}
 
     unsigned int size() const noexcept;
     void         resize(UInt32 newSize);
@@ -56,7 +55,6 @@ public:
     void setElement(UInt32 i, UInt32 j, ScalarType newValue);
     void addElement(UInt32 i, UInt32 j, ScalarType incrementValue);
     void eraseElement(UInt32 i, UInt32 j);
-
 
     void printDebug() const noexcept;
     void checkSymmetry() const noexcept;
@@ -90,8 +88,7 @@ private:
     std::vector<UInt32> m_RowStart;
 
 public:
-    explicit FixedSparseMatrix(UInt32 size = 0) : m_Size(size), m_Value(0), m_Index(0), m_RowStart(size + 1)
-    {}
+    explicit FixedSparseMatrix(UInt32 size = 0) : m_Size(size), m_Value(0), m_Index(0), m_RowStart(size + 1) {}
 
     void clear(void);
     void resize(UInt32 newSize);
@@ -106,4 +103,4 @@ public:
 
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <ParallelHelpers/LinearAlgebra/SparseMatrix_Impl.hpp>
+#include <Banana/LinearAlgebra/SparseMatrix_Impl.hpp>

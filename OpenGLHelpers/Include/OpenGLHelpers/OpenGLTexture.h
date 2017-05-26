@@ -26,8 +26,7 @@
 class OpenGLTexture : public OpenGLCallable
 {
 public:
-    OpenGLTexture() : m_bTextureCreated(false), m_BindedTexUnit(0), m_TexureTarget(GL_TEXTURE_2D)
-    {}
+    OpenGLTexture() : m_bTextureCreated(false), m_BindedTexUnit(0), m_TexureTarget(GL_TEXTURE_2D) {}
 
     OpenGLTexture(GLenum textureTarget) : m_bTextureCreated(false), m_BindedTexUnit(0), m_TexureTarget(GL_TEXTURE_2D)
     {

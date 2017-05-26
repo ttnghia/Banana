@@ -56,8 +56,7 @@ public:
                    ParticleSamplingParameters* samplingParams_,
                    const Array3_Real& sdf_boundary_,
                    Real particle_radius_) :
-        ParticleEmitter(domainParams_, samplingParams_, sdf_boundary_, particle_radius_)
-    {}
+        ParticleEmitter(domainParams_, samplingParams_, sdf_boundary_, particle_radius_) {}
 
     void set_mesh_params(const std::string& mesh_file_, const Vec3& mesh_center_,
                          Real mesh_scale_);

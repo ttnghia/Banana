@@ -56,8 +56,7 @@ public:
                const Array3_Real& sdf_boundary_,
                Real particle_radius_) :
         ParticleEmitter(domainParams_, samplingParams_, sdf_boundary_, particle_radius_),
-        box_initialized(false)
-    {}
+        box_initialized(false) {}
 
     void set_box_params(const Vec3& box_min_, const Vec3& box_max_);
 

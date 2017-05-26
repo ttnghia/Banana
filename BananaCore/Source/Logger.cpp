@@ -32,7 +32,7 @@ std::chrono::system_clock::time_point Logger::m_StartupTime;
 std::chrono::system_clock::time_point Logger::m_ShutdownTime;
 std::string                           Logger::m_TotalRunTime;
 
-std::map<int, std::string>                    Logger::m_SourceNames;
+std::map<int, std::string>                    Logger::m_SourceNames = { { Logger::MainProgram, "Main"     }, { Logger::LoggerClass, "Logger"   }, { Logger::Debugger,    "Debugger" } };
 std::vector<std::shared_ptr<spdlog::logger> > Logger::m_ConsoleLogger;    // = spdlog::stdout_color_mt("console");;
 std::vector<std::shared_ptr<spdlog::logger> > Logger::m_FileLogger;
 

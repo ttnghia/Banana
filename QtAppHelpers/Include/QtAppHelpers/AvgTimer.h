@@ -36,8 +36,7 @@ public:
         m_TickTockCount(0),
         m_TotalTime(0),
         m_AvgTime(0),
-        m_isTimerStarted(false)
-    {}
+        m_isTimerStarted(false) {}
 
     void tick();
     void tock();

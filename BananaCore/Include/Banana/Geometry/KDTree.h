@@ -29,14 +29,11 @@ template<class T>
 class Point
 {
 public:
-    Point()
-    {}
+    Point() {}
 
-    Point(const Vec3<T>& pos_, unsigned int index_) : position(pos_), index(index_)
-    {}
+    Point(const Vec3<T>& pos_, unsigned int index_) : position(pos_), index(index_) {}
 
-    Point(const std::initializer_list& pos_, unsigned int index_) : position(pos_), index(index_)
-    {}
+    Point(const std::initializer_list& pos_, unsigned int index_) : position(pos_), index(index_) {}
 
     Vec3<T>      position = { { 0, 0, 0 } };
     unsigned int index    = UINT_MAX;
@@ -47,8 +44,7 @@ template<class T>
 class KDNode
 {
 public:
-    KDNode(Point<T>* points_, const Vec3<T>& boxMin_, const Vec3<T>& boxMax_) : points(points_), boxMin(boxMin_), boxMax(boxMax_),
-    {}
+    KDNode(Point<T>* points_, const Vec3<T>& boxMin_, const Vec3<T>& boxMax_) : points(points_), boxMin(boxMin_), boxMax(boxMax_), {}
 
     Point<T>* points;
     Vec3<T>   boxMin;
@@ -68,8 +64,7 @@ template<class T>
 class KDTree
 {
 public:
-    KDTree(unsigned int maxItems) : m_MaxNodeIterm(maxItems)
-    {}
+    KDTree(unsigned int maxItems) : m_MaxNodeIterm(maxItems) {}
 
     ////////////////////////////////////////////////////////////////////////////////
     void buildTree(const std::shared_ptr<KDNode<T> >& treeNode)

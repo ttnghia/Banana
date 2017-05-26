@@ -39,13 +39,11 @@ public:
     // constructor copies the arguments into local storage
     vector_dot_product(const std::vector<ScalarType>& vec1,
                        const std::vector<ScalarType>& vec2)
-        : v1(vec1), v2(vec2), result(0)
-    {}
+        : v1(vec1), v2(vec2), result(0) {}
 
     // splitting constructor
     vector_dot_product(vector_dot_product& vdp, tbb::split)
-        : v1(vdp.v1), v2(vdp.v2), result(0)
-    {}
+        : v1(vdp.v1), v2(vdp.v2), result(0) {}
 
     // overload () so it does a dot product
     void operator() (const tbb::blocked_range<size_t>& r)
@@ -72,13 +70,11 @@ public:
     ScalarType result;  // put the result here
     // constructor copies the arguments into local storage
     vecvec_dot_product(const std::vector<VectorType>& vec1, const std::vector<VectorType>& vec2)
-        : v1(vec1), v2(vec2), result(0)
-    {}
+        : v1(vec1), v2(vec2), result(0) {}
 
     // splitting constructor
     vecvec_dot_product(vecvec_dot_product& vdp, tbb::split)
-        : v1(vdp.v1), v2(vdp.v2), result(0)
-    {}
+        : v1(vdp.v1), v2(vdp.v2), result(0) {}
 
     // overload () so it does a dot product
     void operator() (const tbb::blocked_range<size_t>& r)
@@ -118,13 +114,11 @@ public:
     ScalarType result;  // put the result here
     // constructor copies the arguments into local storage
     vector_min(const std::vector<ScalarType>& vec)
-        : v(vec), result(1e100)
-    {}
+        : v(vec), result(1e100) {}
 
     // splitting constructor
     vector_min(vector_min& vdp, tbb::split)
-        : v(vdp.v), result(1e100)
-    {}
+        : v(vdp.v), result(1e100) {}
 
     // overload () so it does finding max
     void operator() (const tbb::blocked_range<size_t>& r)
@@ -150,13 +144,11 @@ public:
     ScalarType result;  // put the result here
     // constructor copies the arguments into local storage
     vector_max(const std::vector<ScalarType>& vec)
-        : v(vec), result(-1e100)
-    {}
+        : v(vec), result(-1e100) {}
 
     // splitting constructor
     vector_max(vector_max& vdp, tbb::split)
-        : v(vdp.v), result(-1e100)
-    {}
+        : v(vdp.v), result(-1e100) {}
 
     // overload () so it does finding max
     void operator() (const tbb::blocked_range<size_t>& r)
@@ -185,13 +177,11 @@ public:
 
     // constructor copies the arguments into local storage
     vector_min_max(const std::vector<ScalarType>& vec)
-        : v(vec), result_min(1e100), result_max(-1e100)
-    {}
+        : v(vec), result_min(1e100), result_max(-1e100) {}
 
     // splitting constructor
     vector_min_max(vector_min_max& vdp, tbb::split)
-        : v(vdp.v), result_min(1e100), result_max(-1e100)
-    {}
+        : v(vdp.v), result_min(1e100), result_max(-1e100) {}
 
     // overload () so it does finding max
     void operator() (const tbb::blocked_range<size_t>& r)
@@ -220,13 +210,11 @@ public:
     ScalarType result;  // put the result here
     // constructor copies the arguments into local storage
     vector_max_abs(const std::vector<ScalarType>& vec)
-        : v(vec), result(0)
-    {}
+        : v(vec), result(0) {}
 
     // splitting constructor
     vector_max_abs(vector_max_abs& vdp, tbb::split)
-        : v(vdp.v), result(0)
-    {}
+        : v(vdp.v), result(0) {}
 
     // overload () so it does finding max
     void operator() (const tbb::blocked_range<size_t>& r)
@@ -253,13 +241,11 @@ public:
     ScalarType result;  // put the result here
     // constructor copies the arguments into local storage
     vecvec_max_abs(const std::vector<VectorType>& vec)
-        : v(vec), result(0)
-    {}
+        : v(vec), result(0) {}
 
     // splitting constructor
     vecvec_max_abs(vecvec_max_abs& vdp, tbb::split)
-        : v(vdp.v), result(0)
-    {}
+        : v(vdp.v), result(0) {}
 
     // overload () so it does finding max
     void operator() (const tbb::blocked_range<size_t>& r)

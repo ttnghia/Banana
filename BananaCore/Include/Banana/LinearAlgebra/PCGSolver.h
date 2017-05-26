@@ -17,8 +17,8 @@
 
 #pragma once
 
-#include <ParallelHelpers/LinearAlgebra/SparseMatrix.h>
-#include <ParallelHelpers/ParallelBLAS.h>
+#include <Banana/LinearAlgebra/SparseMatrix.h>
+#include <Banana/ParallelHelpers/ParallelBLAS.h>
 
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -93,4 +93,4 @@ private:
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <ParallelHelpers/LinearAlgebra/PCGSolver_Impl.hpp>
+#include <Banana/LinearAlgebra/PCGSolver_Impl.hpp>

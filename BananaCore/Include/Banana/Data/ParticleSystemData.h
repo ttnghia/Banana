@@ -45,8 +45,7 @@ public:
     ParticleSystemData() :
         m_NumParticles(0),
         m_MaxNumParticles(0),
-        m_ParticleRadius(0)
-    {}
+        m_ParticleRadius(0) {}
 
     ~ParticleSystemData()
     {

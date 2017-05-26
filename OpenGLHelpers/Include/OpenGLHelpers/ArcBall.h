@@ -32,8 +32,7 @@ public:
         m_MouseDownPos(0.0, 0.0, 0.0),
         m_CurrentRot(1.0, 0.0, 0.0, 0.0),
         m_RotationEnd(1.0, 0.0, 0.0, 0.0),
-        m_RotationMatrix(glm::mat4(1.0))
-    {}
+        m_RotationMatrix(glm::mat4(1.0)) {}
 
     ////////////////////////////////////////////////////////////////////////////////
     /// sets the window size.

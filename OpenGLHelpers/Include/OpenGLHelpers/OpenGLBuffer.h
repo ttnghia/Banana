@@ -24,8 +24,7 @@
 class OpenGLBuffer : public OpenGLCallable
 {
 public:
-    OpenGLBuffer() : m_isBufferCreated(false), m_BufferSize(0)
-    {}
+    OpenGLBuffer() : m_isBufferCreated(false), m_BufferSize(0) {}
 
     ~OpenGLBuffer()
     {

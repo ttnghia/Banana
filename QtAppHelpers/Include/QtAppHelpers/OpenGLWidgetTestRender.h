@@ -58,8 +58,7 @@ public:
     void initTestRenderMeshWithShadow(QString meshFile, QString floorTexFile);
 
     virtual void initOpenGL();
-    virtual void resizeOpenGLWindow(int, int)
-    {}
+    virtual void resizeOpenGLWindow(int, int) {}
     virtual void renderOpenGL();
 
 private:

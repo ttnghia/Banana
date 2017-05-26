@@ -39,8 +39,7 @@ namespace StackTrace
 struct Entry
 {
     /** Default constructor that clears all fields. */
-    Entry() : line(0)
-    {}
+    Entry() : line(0) {}
 
     std::string file;     ///< filename
     size_t      line;     ///< line number
@@ -125,12 +124,10 @@ public:
         }
     }
 #else
-    CallStack(const int num_discard = 0)
-    {}
+    CallStack(const int num_discard = 0) {}
 #endif
 
-    virtual ~CallStack() noexcept
-    {}
+    virtual ~CallStack() noexcept {}
 
     /** Serializes the entire call-stack into a text string. */
     std::string to_string() const

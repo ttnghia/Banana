@@ -52,8 +52,7 @@ public:
         m_NormalBuffer(nullptr),
         m_TexCoordBuffer(nullptr),
         m_VertexColorBuffer(nullptr),
-        m_IndexBuffer(nullptr)
-    {}
+        m_IndexBuffer(nullptr) {}
 
     ~MeshObject();
 

@@ -117,13 +117,13 @@
     <ClInclude Include="Include\Banana\STLHelpers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Banana\SVD.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Include\Banana\Timer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Include\Banana\TypeNames.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Banana\LinearAlgebra\SVD.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

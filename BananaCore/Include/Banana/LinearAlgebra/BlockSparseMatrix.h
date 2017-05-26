@@ -43,8 +43,7 @@ private:
     std::vector<std::vector<MatrixType> > m_Value;
 
 public:
-    explicit BlockSparseMatrix(UInt32 size = 0) : m_Size(size), m_Index(size), m_Value(size)
-    {}
+    explicit BlockSparseMatrix(UInt32 size = 0) : m_Size(size), m_Index(size), m_Value(size) {}
 
     unsigned int size() const noexcept;
     void         resize(UInt32 newSize);
@@ -104,8 +103,7 @@ private:
     std::vector<UInt32> m_RowStart;
 
 public:
-    explicit BlockFixedSparseMatrix(UInt32 size = 0) : m_Size(size), m_Value(0), m_Index(0), m_RowStart(size + 1)
-    {}
+    explicit BlockFixedSparseMatrix(UInt32 size = 0) : m_Size(size), m_Value(0), m_Index(0), m_RowStart(size + 1) {}
 
     void clear(void);
     void resize(UInt32 newSize);
@@ -120,4 +118,4 @@ public:
 
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <ParallelHelpers/LinearAlgebra/BlockSparseMatrix_Impl.hpp>
+#include <Banana/LinearAlgebra/BlockSparseMatrix_Impl.hpp>

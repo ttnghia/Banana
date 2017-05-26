@@ -56,8 +56,7 @@ public:
                     const Array3_Real& sdf_boundary_,
                     Real particle_radius_) :
         ParticleEmitter(domainParams_, samplingParams_, sdf_boundary_, particle_radius_),
-        cylinder_initialized(false)
-    {}
+        cylinder_initialized(false) {}
 
     void set_cylinder_params(const Vec3& center, const Vec3& direction, Real radius,
                              Real length);

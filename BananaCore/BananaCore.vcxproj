@@ -179,7 +179,7 @@
     <ClInclude Include="Include\Banana\OptionalParameter.h" />
     <ClInclude Include="Include\Banana\Data\ParticleSystemData.h" />
     <ClInclude Include="Include\Banana\STLHelpers.h" />
-    <ClInclude Include="Include\Banana\SVD.h" />
+    <ClInclude Include="Include\Banana\LinearAlgebra\SVD.h" />
     <ClInclude Include="Include\Banana\Timer.h" />
     <ClInclude Include="Include\Banana\TypeNames.h" />
   </ItemGroup>

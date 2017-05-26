@@ -56,8 +56,7 @@ public:
                   const Array3_Real& sdf_boundary_,
                   Real particle_radius_) :
         ParticleEmitter(domainParams_, samplingParams_, sdf_boundary_, particle_radius_),
-        sphere_initialized(false)
-    {}
+        sphere_initialized(false) {}
 
     void set_hollow_sphere_params(const Vec3& center_, Real inner_radius_,
                                   Real outer_radius_);

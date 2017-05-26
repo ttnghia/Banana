@@ -34,8 +34,7 @@ struct BlockSparseMatrix
     std::vector<std::vector<MatrixType> > value;
 
     explicit BlockSparseMatrix(UInt32 n_ = 0)
-        : size(n_), index(n_), value(n_)
-    {}
+        : size(n_), index(n_), value(n_) {}
 
     void clear(void)
     {
@@ -633,8 +632,7 @@ struct BlockFixedSparseMatrix
     std::vector<UInt32> rowstart;
 
     explicit BlockFixedSparseMatrix(UInt32 n_ = 0)
-        : size(n_), value(0), colindex(0), rowstart(n_ + 1)
-    {}
+        : size(n_), value(0), colindex(0), rowstart(n_ + 1) {}
 
     void clear(void)
     {

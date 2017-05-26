@@ -39,27 +39,21 @@ public:
 
     ////////////////////////////////////////////////////////////////////////////////
     // constructors & destructor
-    Array3(void) : m_SizeX(0), m_SizeY(0), m_SizeZ(0)
-    {}
+    Array3(void) : m_SizeX(0), m_SizeY(0), m_SizeZ(0) {}
 
     template<class IndexType>
-    Array3(IndexType sizeX, IndexType sizeY, IndexType sizeZ) : m_SizeX(sizeX), m_SizeY(sizeY), m_SizeZ(sizeZ), m_Data(sizeX * sizeY * sizeZ)
-    {}
+    Array3(IndexType sizeX, IndexType sizeY, IndexType sizeZ) : m_SizeX(sizeX), m_SizeY(sizeY), m_SizeZ(sizeZ), m_Data(sizeX * sizeY * sizeZ) {}
 
     template<class IndexType>
-    Array3(IndexType sizeX, IndexType sizeY, IndexType sizeZ, std::vector<T>& data) : m_SizeX(sizeX), m_SizeY(sizeY), m_SizeZ(sizeZ), m_Data(data)
-    {}
+    Array3(IndexType sizeX, IndexType sizeY, IndexType sizeZ, std::vector<T>& data) : m_SizeX(sizeX), m_SizeY(sizeY), m_SizeZ(sizeZ), m_Data(data) {}
 
     template<class IndexType>
-    Array3(IndexType sizeX, IndexType sizeY, IndexType sizeZ, const T& value) : m_SizeX(sizeX), m_SizeY(sizeY), m_SizeZ(sizeZ), m_Data(sizeX * sizeY * sizeZ, value)
-    {}
+    Array3(IndexType sizeX, IndexType sizeY, IndexType sizeZ, const T& value) : m_SizeX(sizeX), m_SizeY(sizeY), m_SizeZ(sizeZ), m_Data(sizeX * sizeY * sizeZ, value) {}
 
     template<class IndexType>
-    Array3(IndexType sizeX, IndexType sizeY, IndexType sizeZ, T* data) : m_SizeX(sizeX), m_SizeY(sizeY), m_SizeZ(sizeZ), m_Data(sizeX * sizeY * sizeZ, data)
-    {}
+    Array3(IndexType sizeX, IndexType sizeY, IndexType sizeZ, T* data) : m_SizeX(sizeX), m_SizeY(sizeY), m_SizeZ(sizeZ), m_Data(sizeX * sizeY * sizeZ, data) {}
 
-    Array3(const Array3<T>& other) : m_SizeX(other.m_SizeX), m_SizeY(other.m_SizeY), m_SizeZ(other.m_SizeZ), m_Data(other.m_Data)
-    {}
+    Array3(const Array3<T>& other) : m_SizeX(other.m_SizeX), m_SizeY(other.m_SizeY), m_SizeZ(other.m_SizeZ), m_Data(other.m_Data) {}
 
     ~Array3(void)
     {
