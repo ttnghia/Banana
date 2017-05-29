@@ -39,7 +39,7 @@ inline bool contain(const std::vector<T>& vec, T item, size_t& itemIndex)
     auto it = std::lower_bound(vec.begin(), vec.end(), item);
     itemIndex = static_cast<size_t>(std::distance(vec.begin(), it));
 
-    return (it != vec.end());
+    return (it != vec.end() && item == *it);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -69,7 +69,7 @@ inline bool eraseIfExist(std::vector<T>& vec, const T& item)
 {
     auto it = std::lower_bound(vec.begin(), vec.end(), item);
 
-    if(it != vec.end())     // has item
+    if(it != vec.end() && item == *it)     // has item
     {
         vec.erase(it);
         return true;
@@ -84,7 +84,7 @@ inline bool eraseIfExist(std::vector<T>& vec, const T& item, size_t& itemIndex)
     auto it = std::lower_bound(vec.begin(), vec.end(), item);
     itemIndex = static_cast<size_t>(std::distance(vec.begin(), it));
 
-    if(it != vec.end())     // has item
+    if(it != vec.end() && item == *it)     // has item
     {
         vec.erase(it);
         return true;
@@ -92,7 +92,6 @@ inline bool eraseIfExist(std::vector<T>& vec, const T& item, size_t& itemIndex)
 
     return false;
 }
-
 
 template<class T>
 inline bool eraseUnorderedIfExist(std::vector<T>& vec, const T& item)
@@ -143,7 +142,6 @@ T maxAbs(const std::vector<T>& vec)
     return maxVal;
 }
 
-
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class MapType, class KeyType>
 inline bool hasKey(const MapType& map, KeyType key)
@@ -181,8 +179,6 @@ inline bool contain(const std::vector<T>& vec, T item, size_t& itemIndex)
     return false;
 }
 
-
-
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<typename T>
 inline bool eraseIfExist(std::vector<T>& vec, const T& item)
@@ -216,14 +212,12 @@ inline bool eraseIfExist(std::vector<T>& vec, const T& item, size_t& itemIndex)
     return false;
 }
 
-
 template<class T>
 inline void eraseUnordered(std::vector<T>& vec, size_t index)
 {
     vec[index] = vec.back();
     vec.pop_back();
 }
-
 
 template<class T>
 inline bool eraseUnorderedIfExist(std::vector<T>& vec, const T& item)
