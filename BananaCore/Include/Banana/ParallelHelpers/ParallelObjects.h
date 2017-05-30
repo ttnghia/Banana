@@ -62,7 +62,7 @@ class VectorDotProduct
 
     void operator()(const tbb::blocked_range<size_t>& r)
     {
-        for(size_t i = r.begin(), iEnd = r.end(); i != iEnd; i++)
+        for(size_t i = r.begin(), iEnd = r.end(); i != iEnd;++i)
         {
 #ifdef __Using_Eigen_Lib__
             m_Result += (v1[i]).dot(v2[i]);
@@ -100,7 +100,7 @@ public:
 
     void operator()(const tbb::blocked_range<size_t>& r)
     {
-        for(size_t i = r.begin(), iEnd = r.end(); i != iEnd; i++)
+        for(size_t i = r.begin(), iEnd = r.end(); i != iEnd;++i)
         {
             m_Result = m_Result < m_Vector[i] ? m_Result : m_Vector[i];
         }
@@ -114,7 +114,7 @@ public:
     ScalarType getResult() const noexcept { return m_Result; }
 
 private:
-    ScalarType                     m_Result;
+    ScalarType m_Result;
 
     const std::vector<ScalarType>& m_Vector;
 };
@@ -130,7 +130,7 @@ public:
     // overload () so it does finding max
     void operator()(const tbb::blocked_range<size_t>& r)
     {
-        for(size_t i = r.begin(), iEnd = r.end(); i != iEnd; i++)
+        for(size_t i = r.begin(), iEnd = r.end(); i != iEnd;++i)
         {
             m_Result = m_Result > m_Vector[i] ? m_Result : m_Vector[i];
         }
@@ -144,7 +144,7 @@ public:
     ScalarType getResult() const noexcept { return m_Result; }
 
 private:
-    ScalarType                     m_Result;
+    ScalarType m_Result;
 
     const std::vector<ScalarType>& m_Vector;
 };
@@ -159,7 +159,7 @@ public:
 
     void operator()(const tbb::blocked_range<size_t>& r)
     {
-        for(size_t i = r.begin(), iEnd = r.end(); i != iEnd; i++)
+        for(size_t i = r.begin(), iEnd = r.end(); i != iEnd;++i)
         {
             ScalarType tmp = fabs(m_Vector[i]);
             m_Result = m_Result > tmp ? m_Result : tmp;
@@ -174,7 +174,7 @@ public:
     ScalarType getResult() const noexcept { return m_Result; }
 
 private:
-    ScalarType                     m_Result;
+    ScalarType m_Result;
 
     const std::vector<ScalarType>& m_Vector;
 };
@@ -189,7 +189,7 @@ public:
 
     void operator()(const tbb::blocked_range<size_t>& r)
     {
-        for(size_t i = r.begin(), iEnd = r.end(); i != iEnd; i++)
+        for(size_t i = r.begin(), iEnd = r.end(); i != iEnd;++i)
         {
 #ifdef __Using_Eigen_Lib__
             ScalarType tmp = (ScalarType)v[i].cwiseAbs().maxCoeff();
@@ -217,7 +217,7 @@ public:
     ScalarType getResult() const noexcept { return m_Result; }
 
 private:
-    ScalarType                     m_Result;
+    ScalarType m_Result;
 
     const std::vector<VectorType>& m_Vector;
 };
@@ -249,8 +249,8 @@ public:
     ScalarType getMax() const noexcept { return m_ResultMax; }
 
 private:
-    ScalarType                     m_ResultMin;
-    ScalarType                     m_ResultMax;
+    ScalarType m_ResultMin;
+    ScalarType m_ResultMax;
 
     const std::vector<ScalarType>& m_Vector;
 };
@@ -265,7 +265,7 @@ public:
 
     void operator()(const tbb::blocked_range<size_t>& r)
     {
-        for(size_t i = r.begin(), iEnd = r.end(); i != iEnd; i++)
+        for(size_t i = r.begin(), iEnd = r.end(); i != iEnd;++i)
         {
 #ifdef __Using_Eigen_Lib__
             ScalarType mag2 = v[i].squaredNorm();
@@ -292,11 +292,39 @@ public:
     ScalarType getMax() const noexcept { return m_ResultMax; }
 
 private:
-    ScalarType                     m_ResultMin;
-    ScalarType                     m_ResultMax;
+    ScalarType m_ResultMin;
+    ScalarType m_ResultMax;
 
     const std::vector<ScalarType>& m_Vector;
 };
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class ScalarType>
+class VectorSum
+{
+public:
+    VectorSum(const std::vector<ScalarType>& vec) : m_Vector(vec), m_Result(0) {}
+    VectorSum(VectorSum& vsum, tbb::split) : m_Vector(vsum.v), m_Result(0) {}
+
+    void operator()(const tbb::blocked_range<size_t>& r)
+    {
+        for(size_t i = r.begin(), iEnd = r.end(); i != iEnd;++i)
+        {
+            m_Result += m_Vector[i];
+        }
+    }
+
+    void join(VectorSum& vsum)
+    {
+        m_Result += vsum.m_Result;
+    }
+
+    ScalarType getSum() const noexcept { return m_Result; }
+private:
+    const std::vector<ScalarType>& m_Vector;
+    ScalarType                     m_Result;
+};
+
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace ParallelObjects
