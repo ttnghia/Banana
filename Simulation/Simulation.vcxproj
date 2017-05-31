@@ -155,7 +155,7 @@
     <ClInclude Include="Include\ParticleTools\ParticleEmitters\BoxEmitter.h" />
     <ClInclude Include="Include\ParticleTools\ParticleEmitters\CylinderEmitter.h" />
     <ClInclude Include="Include\ParticleTools\ParticleEmitters\HollowSphereEmitter.h" />
-    <ClInclude Include="Include\ParticleTools\BlueNoiseRelaxation\LloydRelaxation_Imp.hpp" />
+    <ClInclude Include="Include\ParticleTools\BlueNoiseRelaxation\LloydRelaxation_Impl.hpp" />
     <ClInclude Include="Include\ParticleTools\ParticleHelpers.h" />
     <ClInclude Include="Include\ParticleTools\ParticleSamplers\BowlSampler.h" />
     <ClInclude Include="Include\ParticleTools\ParticleSamplers\BoxSampler.h" />

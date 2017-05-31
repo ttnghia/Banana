@@ -52,6 +52,7 @@ public:
 
     Logger() : m_LogSourceID(0) {}
     Logger(int sourceID) : m_LogSourceID(sourceID) {}
+    Logger(int sourceID, const std::string& sourceName) : m_LogSourceID(sourceID) { Logger::setSourceName(sourceID, sourceName); }
 
     static void setDataPath(const std::string& dataPath);
 

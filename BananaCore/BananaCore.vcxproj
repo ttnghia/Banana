@@ -150,6 +150,7 @@
     <ClInclude Include="Include\Banana\Array\Array2.h" />
     <ClInclude Include="Include\Banana\Array\Array3.h" />
     <ClInclude Include="Include\Banana\Array\ArrayHelpers.h" />
+    <ClInclude Include="Include\Banana\Geometry\KdTree_Impl.hpp" />
     <ClInclude Include="Include\Banana\Geometry\MeshLoader.h" />
     <ClInclude Include="Include\Banana\Geometry\MeshLoader_Impl.hpp" />
     <ClInclude Include="Include\Banana\Geometry\SignDistanceField_Impl.hpp" />
@@ -171,7 +172,7 @@
     <ClInclude Include="Include\Banana\Data\DataPrinter.h" />
     <ClInclude Include="Include\Banana\FileHelpers.h" />
     <ClInclude Include="Include\Banana\Geometry\SignDistanceField.h" />
-    <ClInclude Include="Include\Banana\Geometry\KDTree.h" />
+    <ClInclude Include="Include\Banana\Geometry\KdTree.h" />
     <ClInclude Include="Include\Banana\Macros.h" />
     <ClInclude Include="Include\Banana\MathHelpers.h" />
     <ClInclude Include="Include\Banana\System\MemoryUsage.h" />

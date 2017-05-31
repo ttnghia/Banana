@@ -26,44 +26,14 @@
 class AppConfigReader
 {
 public:
-    AppConfigReader(const std::string& fileName) : m_bFileLoaded(false)
-    {
-        loadConfig(fileName);
-    }
+    AppConfigReader(const std::string& fileName) : m_bFileLoaded(false) { loadConfig(fileName); }
 
-    bool isFileLoaded()
-    {
-        return m_bFileLoaded;
-    }
+    bool isFileLoaded() { return m_bFileLoaded; }
+    bool hasParam(const std::string& paramName) { return (m_AppConfigs.find(paramName) != m_AppConfigs.end()); }
 
-    bool hasParam(const std::string& paramName)
-    {
-        return (m_AppConfigs.find(paramName) != m_AppConfigs.end());
-    }
-
-    int getIntValue(const std::string& paramName)
-    {
-        if(hasParam(paramName))
-            return std::stoi(m_AppConfigs[paramName]);
-        else
-            return 0;
-    }
-
-    double getDoubleValue(const std::string& paramName)
-    {
-        if(hasParam(paramName))
-            return std::stod(m_AppConfigs[paramName]);
-        else
-            return 0;
-    }
-
-    std::string getStringValue(const std::string& paramName)
-    {
-        if(hasParam(paramName))
-            return m_AppConfigs[paramName];
-        else
-            return std::string("");
-    }
+    int getIntValue(const std::string& paramName) { return hasParam(paramName) ? std::stoi(m_AppConfigs[paramName]) : 0; }
+    double getDoubleValue(const std::string& paramName) { return hasParam(paramName) ? std::stod(m_AppConfigs[paramName]) : 0; }
+    std::string getStringValue(const std::string& paramName)  { return hasParam(paramName) ? m_AppConfigs[paramName] : std::string(""); }
 
 private:
     void loadConfig(const std::string& fileName)
@@ -104,6 +74,8 @@ private:
         m_bFileLoaded = true;
     }
 
+    ////////////////////////////////////////////////////////////////////////////////
     bool m_bFileLoaded;
+
     std::map<std::string, std::string> m_AppConfigs;
 };

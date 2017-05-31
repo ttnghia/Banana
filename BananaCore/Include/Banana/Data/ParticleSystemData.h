@@ -42,16 +42,10 @@ public:
         unsigned int uintValue;
     };
 
-    ParticleSystemData() :
-        m_NumParticles(0),
-        m_MaxNumParticles(0),
-        m_ParticleRadius(0) {}
+    ParticleSystemData() : m_NumParticles(0), m_MaxNumParticles(0), m_ParticleRadius(0) {}
+    ~ParticleSystemData() = default;
 
-    ~ParticleSystemData()
-    {
-        clearData();
-    }
-
+    ////////////////////////////////////////////////////////////////////////////////
     void clearData()
     {
         for(auto it = m_ArrayData.cbegin(), itEnd = m_ArrayData.cend(); it != itEnd; ++it)
@@ -65,6 +59,7 @@ public:
         m_MaxNumParticles = 0;
     }
 
+    ////////////////////////////////////////////////////////////////////////////////
     void resize(unsigned int numParticles)
     {
         m_NumParticles = numParticles;
@@ -81,6 +76,7 @@ public:
         }
     }
 
+    ////////////////////////////////////////////////////////////////////////////////
     void reserve(unsigned int maxNumParticles)
     {
         m_MaxNumParticles = maxNumParticles;
@@ -93,6 +89,7 @@ public:
         }
     }
 
+    ////////////////////////////////////////////////////////////////////////////////
     void allocate(unsigned int numAllocation)
     {
         for(auto it = m_ArrayData.cbegin(), itEnd = m_ArrayData.cend(); it != itEnd; ++it)
@@ -103,12 +100,13 @@ public:
         }
     }
 
-    bool hasScalar(const std::string& dataName)
+    ////////////////////////////////////////////////////////////////////////////////
+    bool hasScalar(const std::string& dataName) const
     {
         return (m_ScalarData.find(dataName) != m_ScalarData.end());
     }
 
-    bool hasArray(const std::string& dataName)
+    bool hasArray(const std::string& dataName) const
     {
         return (m_ArrayData.find(dataName) != m_ArrayData.end());
     }
@@ -144,6 +142,7 @@ public:
         }
     }
 
+    ////////////////////////////////////////////////////////////////////////////////
     template<class T, int N>
     void addArrayIfNotExist(const std::string& arrName, bool iniZero = false)
     {
@@ -169,6 +168,7 @@ public:
         }
     }
 
+    ////////////////////////////////////////////////////////////////////////////////
     void setNumParticles(unsigned int numParticles)
     {
         resize(numParticles);
@@ -195,17 +195,18 @@ public:
     }
 
     //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    unsigned int getNumParticles()
+    unsigned int getNumParticles() const
     {
         return m_NumParticles;
     }
-    unsigned int getMaxNumParticles()
+
+    unsigned int getMaxNumParticles() const
     {
         return m_MaxNumParticles;
     }
 
     template<class T>
-    T getParticleRadius()
+    T getParticleRadius() const
     {
         return static_cast<T>(m_ParticleRadius);
     }
@@ -230,39 +231,41 @@ public:
     template<class T, int N>
     void generateRandomIntData(const std::string& dataName,
                                T                  minVal = 0,
-                               T                  maxVal = std::numeric_limits<T>::max())
+                               T                  maxVal = std::numeric_limits<T> ::max())
     {
-        addArray<T, N>(dataName);
-
-        T*                               dataPtr = reinterpret_cast<T*>(getArray(dataName)->data());
         std::random_device               rd;
         std::mt19937                     gen(rd());
         std::uniform_int_distribution<T> dis(minVal, maxVal);
 
+        addArray<T, N>(dataName);
+        T* dataPtr = reinterpret_cast<T*>(getArray(dataName)->data());
+
         for(unsigned int i = 0, iEnd = m_NumParticles * N; i < iEnd; ++i)
         {
             dataPtr[i] = dis(gen);
         }
     }
 
+    ////////////////////////////////////////////////////////////////////////////////
     template<class T, int N>
     void generateRandomRealData(const std::string& dataName,
                                 T                  minVal = 0,
-                                T                  maxVal = std::numeric_limits<T>::max())
+                                T                  maxVal = std::numeric_limits<T> ::max())
     {
-        addArray<T, N>(dataName);
-
-        T*                                dataPtr = reinterpret_cast<T*>(getArray(dataName)->data());
         std::random_device                rd;
         std::mt19937                      gen(rd());
         std::uniform_real_distribution<T> dis(minVal, maxVal);
 
+        addArray<T, N>(dataName);
+        T* dataPtr = reinterpret_cast<T*>(getArray(dataName)->data());
+
         for(unsigned int i = 0, iEnd = m_NumParticles * N; i < iEnd; ++i)
         {
             dataPtr[i] = dis(gen);
         }
     }
 
+    ////////////////////////////////////////////////////////////////////////////////
     template<class T, class S, int N>
     void generateRampData(const std::string& dataName,
                           std::vector<S>     rangeVals)
@@ -274,7 +277,7 @@ public:
 
         for(unsigned int i = 0; i < m_NumParticles; ++i)
         {
-            size_t segment = static_cast<int>(floor(static_cast<float>(i)) / segmentSize);
+            size_t segment = static_cast<size_t>(floor(static_cast<float>(i)) / segmentSize);
             assert(segment < rangeVals.size() - 1);
 
             T t        = static_cast<T>(i - segmentSize * segment) / segmentSize;

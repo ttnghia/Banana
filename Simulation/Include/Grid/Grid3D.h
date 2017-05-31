@@ -36,6 +36,7 @@ public:
     unsigned int getNumCellX() const noexcept { return m_NumCells[0]; }
     unsigned int getNumCellY() const noexcept { return m_NumCells[1]; }
     unsigned int getNumCellZ() const noexcept { return m_NumCells[2]; }
+    unsigned int getNumCells() const noexcept { return m_NumTotalCells; }
     unsigned int getNumTotalCells() const noexcept { return m_NumTotalCells; }
 
     template<class IndexType>

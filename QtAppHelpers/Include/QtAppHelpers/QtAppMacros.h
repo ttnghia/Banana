@@ -34,7 +34,7 @@ typedef  QOpenGLFunctions_4_5_Core   OpenGLFunctions;
 #ifdef __BNN_ERROR
 #   undef __BNN_ERROR
 #endif
-#define __BNN_ERROR(err)                                         \
+#define __BNN_ERROR(err)                                       \
     {                                                          \
         QMessageBox::critical(nullptr, QString("Error"), err); \
     }

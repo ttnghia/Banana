@@ -18,33 +18,55 @@
 #pragma once
 
 #include <Banana/Logger.h>
+#include <Grid/Grid3D.h>
+
+
+#include <tbb/tbb.h>
+
+//#include <Noodle/Core/Global/Constants.h>
+//#include <Noodle/Core/Global/Enums.h>
+//#include <Noodle/Core/Global/Macros.h>
+//#include <Noodle/Core/Global/Parameters.h>
+//#include <Noodle/Core/Global/TypeNames.h>
+//#include <Noodle/Core/Math/MathUtils.h>
+//#include <Noodle/Core/Monitor/Timer.h>
+//#include <Noodle/Core/Parallel/ParallelObjects.h>
+//#include <Noodle/Core/Monitor/MemoryUsage.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class VectorType, class ScalarType>
 class LloydRelaxation
 {
 public:
-    LloydRelaxation(DomainParameters* domainParams_, ScalarType particle_radius_);
-    ~LloydRelaxation();
+    LloydRelaxation(const VectorType& domainBMin, const VectorType& domainBMax, ScalarType particleRadius);
+    ~LloydRelaxation() = default;
 
-    void relax_particles(std::vector<VectorType>& material_points,
-                         std::vector<VectorType>& particles,
-                         int                      min_iterations = 10,
-                         int                      max_iterations = 100,
-                         bool                     use_candidate_center = false);
+    void relaxParticles(std::vector<VectorType>& denseParticles,
+                        std::vector<VectorType>& particles,
+                        int                      minIterations = 10,
+                        int                      maxIterations = 1000,
+                        bool                     bUseCandidateCenters = false);
 
-    void relax_particles_weighted(const Vec_ScalarType     weights,
-                                  std::vector<VectorType>& material_points,
-                                  std::vector<VectorType>& particles,
-                                  int                      min_iterations = 10,
-                                  int                      max_iterations = 100,
-                                  bool                     use_candidate_center = false);
-    ScalarType moving_percentage_threshold;
-    ScalarType overlap_ratio_threshold;
-    ScalarType remove_ratio_threshold;
-    int        check_per_iterations;
+    void relaxParticlesWeighted(const std::vector<ScalarType>& weights,
+                                std::vector<VectorType>&       denseParticles,
+                                std::vector<VectorType>&       particles,
+                                int                            minIterations = 10,
+                                int                            maxIterations = 1000,
+                                bool                           bUseCandidateCenters = false);
+
+    void setMovingThreshold(ScalarType movingThreshold) { m_MovingThreshold = movingThreshold; }
+    void setOverlapThreshold(ScalarType overlapThreshold) { m_OverlapThreshold = overlapThreshold; }
+    void setRemovingThreshold(ScalarType removingThreshold) { m_RemovingThreshold = removingThreshold; }
+    void setNumCheckIterations(int numCheckIterations) { m_NumCheckIterations = numCheckIterations; }
 
 private:
+    ScalarType   m_MovingThreshold;
+    ScalarType   m_OverlapThreshold;
+    ScalarType   m_RemovingThreshold;
+    unsigned int m_NumCheckIterations;
+
+
+    ////////////////////////////////////////////////////////////////////////////////
     /// Given a set of points in \c samples and a set of cluster centers, clusters
     ///     the samples using Lloyd's algorithm with \c numIterations iterations.
     ///     \c clusterCenters contains the initial position of each cluster's center.
@@ -54,60 +76,50 @@ private:
     ///     If \c useCandidateCenters is set to \c true, the cluster centers will be a subset
     ///     of the samples positions.
 
-    void compute_lloyd_clusters(std::vector<VectorType>& samples,
-                                std::vector<VectorType>& cluster_centers,
-                                int                      min_iterations = 10,
-                                int                      max_iterations = 100,
-                                bool                     use_candidate_center = false);
+    void computeLloydClusters(std::vector<VectorType>& samples,
+                              std::vector<VectorType>& clusterCenters,
+                              int                      minIterations = 10,
+                              int                      maxIterations = 1000,
+                              bool                     bUseCandidateCenters = false);
 
-    void compute_weighted_lloyd_clusters(const Vec_ScalarType&    weights,
-                                         std::vector<VectorType>& samples,
-                                         std::vector<VectorType>& cluster_centers,
-                                         int                      min_iterations = 10,
-                                         int                      max_iterations = 100,
-                                         bool                     use_candidate_center = false);
+    void computeWeightedLloydClusters(const std::vector<ScalarType>& weights,
+                                      std::vector<VectorType>&       samples,
+                                      std::vector<VectorType>&       clusterCenters,
+                                      int                            minIterations = 10,
+                                      int                            maxIterations = 1000,
+                                      bool                           bUseCandidateCenters = false);
 
+    ////////////////////////////////////////////////////////////////////////////////
     ///	Clusters a set of samples by assigning each sample to its closest cluster.
     ///	\c clusterCenter contains the centers of the cluster.
     ///	On return, \c samplesPerCluster will contain for each cluster the indices of the samples in the cluster.
-
-    void collect_sample_to_cluster(const Vec_Vec3& cluster_centers,
-                                   const Vec_Vec3& samples,
-                                   Vec_VecUInt&    samples_per_cluster);
+    void collectSampleToCluster(const std::vector<VectorType>& clusterCenters, const std::vector<VectorType>& samples, Vec_VecUInt& samplesPerCluster);
 
     ////////////////////////////////////////////////////////////////////////////////
     // static functions
-    static size_t compute_median(const std::vector<VectorType>& samples,
-                                 const Vec_UInt&                subset_indices);
-    static void compute_mean(const std::vector<VectorType>& samples,
-                             const Vec_UInt&                subset_indices,
-                             VectorType&                    mean);
-    static size_t compute_weighted_median(const std::vector<VectorType>& samples,
-                                          const Vec_ScalarType&          weights,
-                                          const Vec_UInt&                subset_indices);
-    static void compute_weighted_mean(const std::vector<VectorType>& samples,
-                                      const Vec_ScalarType&          weights,
-                                      const Vec_UInt&                subset_indices,
-                                      Vec3&                          mean);
-    ScalarType check_vector_distance(const std::vector<VectorType>& cluster_centers);
-    ScalarType check_min_distance(const std::vector<VectorType>& cluster_centers,
-                                  UInt32&                        num_overlapped_particles);
-    UInt32 remove_overlapped_particles(std::vector<VectorType>& cluster_centers);
-    void   sort_sample(Vec_Vec3& samples, const Vec_VecUInt& samples_per_cluster);
-    void   collect_clusters_to_cells(const Vec_Vec3& cluster_centers);
-    Vec3i  get_small_cellId(const Vec3& pos);
+    static size_t computeMedian(const std::vector<VectorType>& samples, const Vec_UInt& subsetIndices);
+    static void   computeMean(const std::vector<VectorType>& samples, const Vec_UInt& subsetIndices, VectorType& mean);
+    static size_t compute_weighted_median(const std::vector<VectorType>& samples, const std::vector<ScalarType>& weights, const Vec_UInt& subsetIndices);
+    static void   compute_weighted_mean(const std::vector<VectorType>& samples, const std::vector<ScalarType>& weights, const Vec_UInt& subsetIndices, Vec3<ScalarType>& mean);
+    ScalarType    check_vector_distance(const std::vector<VectorType>& clusterCenters);
+    ScalarType    check_min_distance(const std::vector<VectorType>& clusterCenters,
+                                     UInt32&                        num_overlapped_particles);
+    UInt32 remove_overlapped_particles(std::vector<VectorType>& clusterCenters);
+    void   sort_sample(std::vector<VectorType>& samples, const Vec_VecUInt& samples_per_cluster);
+    void   collect_clusters_to_cells(const std::vector<VectorType>& clusterCenters);
+    Vec3i  get_small_cellId(const Vec3<ScalarType>& pos);
     bool   is_valid_small_cell(const Vec3i& cellId);
 
     ////////////////////////////////////////////////////////////////////////////////
-    DomainParameters* domainParams;
-    ScalarType        particle_radius;
-    Array3_VecUInt    cell3D_particles;
-    Vec3ui            num_small_cells;
-    ScalarType        small_cell_size;
-    Vec_UInt          closest_cluster;
+    VectorType                    m_DomainBMin;
+    VectorType                    m_DomainBMax;
+    ScalarType                    m_ParticleRadius;
+    Vec_UInt                      m_ClosestCluster;
+    Array3_VecUInt                m_CellParticles;
+    Grid3D<ArrayType, ScalarType> m_Grid3D;
 
-    Logger logger;
+    Logger m_Logger;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <ParticleTools/BlueNoiseRelaxation/LloydRelaxation_Imp.hpp>
+#include <ParticleTools/BlueNoiseRelaxation/LloydRelaxation_Impl.hpp>
