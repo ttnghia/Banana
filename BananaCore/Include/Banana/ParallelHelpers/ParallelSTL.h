@@ -32,7 +32,7 @@ namespace ParallelSTL
 // inf-norm (maximum absolute value)
 //
 template<class ScalarType>
-inline ScalarType maxAbs(const std::vector<ScalarType>& x)
+inline ScalarType max_abs(const std::vector<ScalarType>& x)
 {
     ParallelObjects::VectorMaxAbs<ScalarType> mabs(x);
     tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), mabs);
@@ -41,7 +41,7 @@ inline ScalarType maxAbs(const std::vector<ScalarType>& x)
 }
 
 template<class ScalarType, class VectorType>
-inline ScalarType maxAbs(const std::vector<VectorType>& x)
+inline ScalarType max_abs(const std::vector<VectorType>& x)
 {
     ParallelObjects::VectorMaxAbs<ScalarType, VectorType> mabs(x);
     tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), mabs);
@@ -52,7 +52,7 @@ inline ScalarType maxAbs(const std::vector<VectorType>& x)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // min/max element
 template<class ScalarType>
-inline ScalarType minElement(const std::vector<ScalarType>& x)
+inline ScalarType min(const std::vector<ScalarType>& x)
 {
     ParallelObjects::VectorMinElement<ScalarType> vm(x);
     tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), vm);
@@ -61,7 +61,7 @@ inline ScalarType minElement(const std::vector<ScalarType>& x)
 }
 
 template<class ScalarType>
-inline ScalarType maxElement(const std::vector<ScalarType>& x)
+inline ScalarType max(const std::vector<ScalarType>& x)
 {
     ParallelObjects::VectorMaxElement<ScalarType> vm(x);
     tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), vm);
@@ -70,13 +70,29 @@ inline ScalarType maxElement(const std::vector<ScalarType>& x)
 }
 
 template<class ScalarType>
-inline void getMinMax(const std::vector<ScalarType>& x, ScalarType& minElement, ScalarType& maxElement)
+inline void min_max(const std::vector<ScalarType>& x, ScalarType& minElement, ScalarType& maxElement)
 {
     ParallelObjects::VectorMinMaxElements<ScalarType> vmm(x);
     tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), vmm);
 
     minElement = vmm.getMin();
     maxElement = vmm.getMax();
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class ScalarType>
+inline ScalarType sum(const std::vector<ScalarType>& x)
+{
+    ParallelObjects::VectorSum<ScalarType> vSum(x);
+    tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), vSum);
+
+    return vSum.getSum();
+}
+
+template<class ScalarType>
+inline ScalarType average(const std::vector<ScalarType>& x)
+{
+    return ParallelSTL::sum<ScalarType>(x) / static_cast<ScalarType>(x.size());
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
