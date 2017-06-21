@@ -2,7 +2,6 @@ TEMPLATE = subdirs
 
 SUBDIRS += BananaCore
 SUBDIRS += OpenGLHelpers
-SUBDIRS += ParallelHelpers
 SUBDIRS += QtAppHelpers
 #SUBDIRS += RayTracing
 #SUBDIRS += Simulation

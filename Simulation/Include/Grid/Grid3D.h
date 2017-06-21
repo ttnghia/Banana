@@ -17,21 +17,23 @@
 
 #pragma once
 
+#include <Banana/TypeNames.h>
+
 #include <limits>
 #include <array>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ArrayType, class ScalarType>
+template<class ScalarType>
 class Grid3D
 {
 public:
     Grid3D() = default;
-    Grid3D(const ArrayType& bMin, const ArrayType& bMax, ScalarType cellSize) : m_BMin(bMin), m_BMax(bMax)
+    Grid3D(const Vec3<ScalarType>& bMin, const Vec3<ScalarType>& bMax, ScalarType cellSize) : m_BMin(bMin), m_BMax(bMax)
     {
         setCellSize(cellSize);
     }
 
-    void setGrid(const ArrayType& bMin, const ArrayType& bMax, ScalarType cellSize);
+    void setGrid(const Vec3<ScalarType>& bMin, const Vec3<ScalarType>& bMax, ScalarType cellSize);
 
     unsigned int getNumCellX() const noexcept { return m_NumCells[0]; }
     unsigned int getNumCellY() const noexcept { return m_NumCells[1]; }
@@ -50,15 +52,18 @@ public:
     template<class IndexType>
     bool isValidCell(IndexType i, IndexType j, IndexType k)  const noexcept;
 
-    template<class VectorType>
-    bool isValidCell(const VectorType& index) const noexcept;
+    template<class IndexType>
+    bool isValidCell(const Vec3<IndexType>& index) const noexcept;
+
+    template<class IndexType>
+    Vec3<IndexType> getCellIdx(const Vec3<ScalarType>& position) const noexcept;
 
 private:
-    ArrayType    m_BMin;
-    ArrayType    m_BMax;
-    unsigned int m_NumCells[3];
-    unsigned int m_NumTotalCells = 0;
-    ScalarType   m_CellSize      = std::numeric_limits<ScalarType>::max();;
+    Vec3<ScalarType> m_BMin;
+    Vec3<ScalarType> m_BMax;
+    unsigned int     m_NumCells[3];
+    unsigned int     m_NumTotalCells = 0;
+    ScalarType       m_CellSize      = std::numeric_limits<ScalarType>::max();;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

@@ -14,8 +14,8 @@
 //
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ArrayType, class ScalarType>
-void Grid3D<ArrayType, ScalarType>::setGrid(const ArrayType& bMin, const ArrayType& bMax, ScalarType cellSize)
+template<class ScalarType>
+void Grid3D<ScalarType>::setGrid(const Vec3<ScalarType>& bMin, const Vec3<ScalarType>& bMax, ScalarType cellSize)
 {
     m_BMin = bMin;
     m_BMax = bMax;
@@ -23,8 +23,8 @@ void Grid3D<ArrayType, ScalarType>::setGrid(const ArrayType& bMin, const ArrayTy
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ArrayType, class ScalarType>
-void Grid3D<ArrayType, ScalarType>::setCellSize(ScalarType cellSize)
+template<class ScalarType>
+void Grid3D<ScalarType>::setCellSize(ScalarType cellSize)
 {
     assert(cellSize > 0);
     m_CellSize      = cellSize;
@@ -38,9 +38,9 @@ void Grid3D<ArrayType, ScalarType>::setCellSize(ScalarType cellSize)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ArrayType, class ScalarType>
+template<class ScalarType>
 template<class IndexType>
-bool Grid3D<ArrayType, ScalarType>::isValidCell(IndexType i, IndexType j, IndexType k)  const noexcept
+bool Grid3D<ScalarType>::isValidCell(IndexType i, IndexType j, IndexType k)  const noexcept
 {
     return (i >= 0 &&
             j >= 0 &&
@@ -50,9 +50,26 @@ bool Grid3D<ArrayType, ScalarType>::isValidCell(IndexType i, IndexType j, IndexT
             static_cast<unsigned int>(k) < m_NumCells[2]);
 }
 
-template<class ArrayType, class ScalarType>
-template<class VectorType>
-bool Grid3D<ArrayType, ScalarType>::isValidCell(const VectorType& index)  const noexcept
+template<class ScalarType>
+template<class IndexType>
+bool Grid3D<ScalarType>::isValidCell(const Vec3<IndexType>& index)  const noexcept
 {
     return isValidCell(index[0], index[1], index[2]);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class ScalarType>
+template<class IndexType>
+Vec3<IndexType> Grid3D<ScalarType>::getCellIdx(const Vec3<ScalarType>& position)  const noexcept
+{
+    Vec3<ScalarType> validPos = position;
+
+    for(int i = 0; i < 3; ++i)
+    {
+        validPos[i] = fmin(fmax(validPos[i], m_BMin[i], m_BMax[i]));
+    }
+
+    return Vec3<IndexType>(static_cast<IndexType>((validPos[0] - m_BMin[0]) / m_CellSize),
+                           static_cast<IndexType>((validPos[1] - m_BMin[1]) / m_CellSize),
+                           static_cast<IndexType>((validPos[2] - m_BMin[2]) / m_CellSize));
 }

@@ -17,6 +17,12 @@
 
 #pragma once
 
+#include <Banana/TypeNames.h>
+#include <Banana/Logger.h>
+#include <Grid/Grid3D.h>
+
+#include <tbb/tbb.h>
+
 //#include <Noodle/Core/Global/TypeNames.h>
 //#include <Noodle/Core/Global/Parameters.h>
 //#include <Noodle/Core/Monitor/Monitor.h>
@@ -30,11 +36,11 @@
 #define POW9(x) (POW6(x) * CUBE(x))
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class VectorType, class ScalarType>
+template<class ScalarType>
 class SPHRelaxation
 {
 public:
-    SPHRelaxation(std::vector<VectorType>& particles, ScalarType particleRadius, Array3<ScalarType>& sdf_grid_, ScalarType sdf_cell_size_, const std::shared_ptr<DomainParameters>& domainParams_);
+    SPHRelaxation(std::vector<Vec3<ScalarType> >& particles, ScalarType particleRadius, Array3<ScalarType>& sdf_grid_, ScalarType sdf_cell_size_, const std::shared_ptr<DomainParameters>& domainParams_);
     ~SPHRelaxation() = default;
 
     void iterate(int iters);

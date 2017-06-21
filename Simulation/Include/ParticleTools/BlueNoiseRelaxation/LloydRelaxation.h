@@ -17,42 +17,35 @@
 
 #pragma once
 
+#include <Banana/TypeNames.h>
 #include <Banana/Logger.h>
 #include <Grid/Grid3D.h>
 
-
 #include <tbb/tbb.h>
 
-//#include <Noodle/Core/Global/Constants.h>
-//#include <Noodle/Core/Global/Enums.h>
-//#include <Noodle/Core/Global/Macros.h>
-//#include <Noodle/Core/Global/Parameters.h>
-//#include <Noodle/Core/Global/TypeNames.h>
-//#include <Noodle/Core/Math/MathUtils.h>
-//#include <Noodle/Core/Monitor/Timer.h>
-//#include <Noodle/Core/Parallel/ParallelObjects.h>
-//#include <Noodle/Core/Monitor/MemoryUsage.h>
+#include <limits>
+#include <algorithm>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class VectorType, class ScalarType>
+template<class ScalarType>
 class LloydRelaxation
 {
 public:
-    LloydRelaxation(const VectorType& domainBMin, const VectorType& domainBMax, ScalarType particleRadius);
+    LloydRelaxation(const Vec3<ScalarType>& domainBMin, const Vec3<ScalarType>& domainBMax, ScalarType particleRadius);
     ~LloydRelaxation() = default;
 
-    void relaxParticles(std::vector<VectorType>& denseParticles,
-                        std::vector<VectorType>& particles,
-                        int                      minIterations = 10,
-                        int                      maxIterations = 1000,
-                        bool                     bUseCandidateCenters = false);
+    void relaxParticles(std::vector<Vec3<ScalarType> >& denseParticles,
+                        std::vector<Vec3<ScalarType> >& particles,
+                        int                             minIterations = 10,
+                        int                             maxIterations = 1000,
+                        bool                            bUseCandidateCenters = false);
 
-    void relaxParticlesWeighted(const std::vector<ScalarType>& weights,
-                                std::vector<VectorType>&       denseParticles,
-                                std::vector<VectorType>&       particles,
-                                int                            minIterations = 10,
-                                int                            maxIterations = 1000,
-                                bool                           bUseCandidateCenters = false);
+    void relaxParticlesWeighted(const std::vector<ScalarType>&  weights,
+                                std::vector<Vec3<ScalarType> >& denseParticles,
+                                std::vector<Vec3<ScalarType> >& particles,
+                                int                             minIterations = 10,
+                                int                             maxIterations = 1000,
+                                bool                            bUseCandidateCenters = false);
 
     void setMovingThreshold(ScalarType movingThreshold) { m_MovingThreshold = movingThreshold; }
     void setOverlapThreshold(ScalarType overlapThreshold) { m_OverlapThreshold = overlapThreshold; }
@@ -69,56 +62,55 @@ private:
     ////////////////////////////////////////////////////////////////////////////////
     /// Given a set of points in \c samples and a set of cluster centers, clusters
     ///     the samples using Lloyd's algorithm with \c numIterations iterations.
-    ///     \c clusterCenters contains the initial position of each cluster's center.
+    ///     \c clusterCenters contains the initial position of each cluster's64 center.
     ///     After the call, \c clusterCenters will contain the adjusted cluster center positions,
-    ///     and \c samplesPerCluster will contain for every cluster the indices of the samples
+    ///     and \c samplesInCluster will contain for every cluster the indices of the samples
     ///     assigned to the cluster.
     ///     If \c useCandidateCenters is set to \c true, the cluster centers will be a subset
     ///     of the samples positions.
 
-    void computeLloydClusters(std::vector<VectorType>& samples,
-                              std::vector<VectorType>& clusterCenters,
-                              int                      minIterations = 10,
-                              int                      maxIterations = 1000,
-                              bool                     bUseCandidateCenters = false);
+    void computeLloydClusters(std::vector<Vec3<ScalarType> >& samples,
+                              std::vector<Vec3<ScalarType> >& clusterCenters,
+                              int                             minIterations = 10,
+                              int                             maxIterations = 1000,
+                              bool                            bUseCandidateCenters = false);
 
-    void computeWeightedLloydClusters(const std::vector<ScalarType>& weights,
-                                      std::vector<VectorType>&       samples,
-                                      std::vector<VectorType>&       clusterCenters,
-                                      int                            minIterations = 10,
-                                      int                            maxIterations = 1000,
-                                      bool                           bUseCandidateCenters = false);
+    void computeWeightedLloydClusters(const std::vector<ScalarType>&  weights,
+                                      std::vector<Vec3<ScalarType> >& samples,
+                                      std::vector<Vec3<ScalarType> >& clusterCenters,
+                                      int                             minIterations = 10,
+                                      int                             maxIterations = 1000,
+                                      bool                            bUseCandidateCenters = false);
 
     ////////////////////////////////////////////////////////////////////////////////
     ///	Clusters a set of samples by assigning each sample to its closest cluster.
     ///	\c clusterCenter contains the centers of the cluster.
-    ///	On return, \c samplesPerCluster will contain for each cluster the indices of the samples in the cluster.
-    void collectSampleToCluster(const std::vector<VectorType>& clusterCenters, const std::vector<VectorType>& samples, Vec_VecUInt& samplesPerCluster);
+    ///	On return, \c samplesInCluster will contain for each cluster the indices of the samples in the cluster.
+    void collectSampleToCluster(const std::vector<Vec3<ScalarType> >& clusterCenters, const std::vector<Vec3<ScalarType> >& samples, Vec_VecUInt& samplesInCluster);
+
+    size_t computeMedian(const std::vector<Vec3<ScalarType> >& samples, const Vec_UInt& subsetIndices);
+    size_t computeWeightedMedian(const std::vector<Vec3<ScalarType> >& samples, const std::vector<ScalarType>& weights, const Vec_UInt& subsetIndices);
+    void   computeMean(const std::vector<Vec3<ScalarType> >& samples, const Vec_UInt& subsetIndices, Vec3<ScalarType>& mean);
+    void   computeWeightedMean(const std::vector<Vec3<ScalarType> >& samples, const std::vector<ScalarType>& weights, const Vec_UInt& subsetIndices, Vec3<ScalarType>& mean);
+
+    ScalarType computeMinDistance(const std::vector<Vec3<ScalarType> >& clusterCenters);
+    ScalarType computeMinDistance(const std::vector<Vec3<ScalarType> >& clusterCenters, UInt32& numOverlappedParticles);
+
+    UInt32 removeOverlappedParticles(std::vector<Vec3<ScalarType> >& clusterCenters);
+    void   sortSamples(std::vector<Vec3<ScalarType> >& samples, const Vec_VecUInt& samplesInCluster);
+    void   collectClustersToCells(const std::vector<Vec3<ScalarType> >& clusterCenters);
+
 
     ////////////////////////////////////////////////////////////////////////////////
-    // static functions
-    static size_t computeMedian(const std::vector<VectorType>& samples, const Vec_UInt& subsetIndices);
-    static void   computeMean(const std::vector<VectorType>& samples, const Vec_UInt& subsetIndices, VectorType& mean);
-    static size_t compute_weighted_median(const std::vector<VectorType>& samples, const std::vector<ScalarType>& weights, const Vec_UInt& subsetIndices);
-    static void   compute_weighted_mean(const std::vector<VectorType>& samples, const std::vector<ScalarType>& weights, const Vec_UInt& subsetIndices, Vec3<ScalarType>& mean);
-    ScalarType    check_vector_distance(const std::vector<VectorType>& clusterCenters);
-    ScalarType    check_min_distance(const std::vector<VectorType>& clusterCenters,
-                                     UInt32&                        num_overlapped_particles);
-    UInt32 remove_overlapped_particles(std::vector<VectorType>& clusterCenters);
-    void   sort_sample(std::vector<VectorType>& samples, const Vec_VecUInt& samples_per_cluster);
-    void   collect_clusters_to_cells(const std::vector<VectorType>& clusterCenters);
-    Vec3i  get_small_cellId(const Vec3<ScalarType>& pos);
-    bool   is_valid_small_cell(const Vec3i& cellId);
-
-    ////////////////////////////////////////////////////////////////////////////////
-    VectorType                    m_DomainBMin;
-    VectorType                    m_DomainBMax;
-    ScalarType                    m_ParticleRadius;
-    Vec_UInt                      m_ClosestCluster;
-    Array3_VecUInt                m_CellParticles;
-    Grid3D<ArrayType, ScalarType> m_Grid3D;
+    Vec3<ScalarType>   m_DomainBMin;
+    Vec3<ScalarType>   m_DomainBMax;
+    ScalarType         m_ParticleRadius;
+    Vec_UInt           m_ClosestCluster;
+    Array3_VecUInt     m_CellParticles;
+    Grid3D<ScalarType> m_Grid3D;
 
     Logger m_Logger;
+    Timer  m_Timer;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

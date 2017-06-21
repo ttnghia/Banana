@@ -26,6 +26,8 @@
 
 #include <spdlog/spdlog.h>
 
+#include <Banana/System/MemoryUsage.h>
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #define WRAPPER           "||"
 #define PADDING           ' '
@@ -47,7 +49,7 @@ public:
     {
         MainProgram = 9990,
         LoggerClass = 9991,
-        Debugger = 9992
+        Debugger    = 9992
     };
 
     Logger() : m_LogSourceID(0) {}
@@ -89,6 +91,8 @@ public:
     void printDetail(const std::string& s);
     void printDetailIndent(const std::string& s, int indentLevel = 1);
 
+    void printMemoryUsage();
+
     ////////////////////////////////////////////////////////////////////////////////
     static void newLine(int sourceID);
     static void printSeparator(int sourceID);
@@ -104,6 +108,8 @@ public:
 
     static void printDebug(const std::string& s);
     static void printDebugIndent(const std::string& s, int indentLevel = 1);
+
+    static void printMemoryUsage(int sourceID);
 
     ////////////////////////////////////////////////////////////////////////////////
     static void initialize();

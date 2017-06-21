@@ -17,7 +17,7 @@
 
 #include <Banana/Logger.h>
 #include <Banana/FileHelpers.h>
-
+#include <Banana/NumberHelpers.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 Logger::LogLevel Logger::s_LogLevel        = LogLevel::NormalLevel;
@@ -32,7 +32,7 @@ std::chrono::system_clock::time_point Logger::m_StartupTime;
 std::chrono::system_clock::time_point Logger::m_ShutdownTime;
 std::string                           Logger::m_TotalRunTime;
 
-std::map<int, std::string>                    Logger::m_SourceNames = { { Logger::MainProgram, "Main"     }, { Logger::LoggerClass, "Logger"   }, { Logger::Debugger,    "Debugger" } };
+std::map<int, std::string>                    Logger::m_SourceNames = { { Logger::MainProgram, "Main" }, { Logger::LoggerClass, "Logger" }, { Logger::Debugger, "Debugger" } };
 std::vector<std::shared_ptr<spdlog::logger> > Logger::m_ConsoleLogger;    // = spdlog::stdout_color_mt("console");;
 std::vector<std::shared_ptr<spdlog::logger> > Logger::m_FileLogger;
 
@@ -228,6 +228,25 @@ void Logger::printDebugIndent(const std::string& s, int indentLevel /*= 1*/)
     {
         Logger::printLogIndent(static_cast<int>(Source::Debugger), s, indentLevel);
     }
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void Logger::printMemoryUsage()
+{
+    Logger::printMemoryUsage(m_LogSourceID);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void Logger::printMemoryUsage(int sourceID)
+{
+    std::string str;
+    str.reserve(1024);
+    str += std::string("Memory usage: ");
+    str += NumberHelpers::formatWithCommas(static_cast<double>(getCurrentRSS()) / 1048576.0);
+    str += std::string(" MB(s). Peak: ");
+    str += NumberHelpers::formatWithCommas(static_cast<double>(getPeakRSS()) / 1048576.0) + " MB(s).";
+
+    Logger::printLog(sourceID, str);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

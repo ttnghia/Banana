@@ -71,22 +71,22 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)Build\$(Configuration)\</OutDir>
     <IntDir>D:\Scratch\MSVC-Build\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir)Simulation\Include;$(SolutionDir)BananaCore\Include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Simulation\Include;$(SolutionDir)BananaCore\Include;$(SolutionDir)Externals\tbb_win\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugQt|x64'">
     <OutDir>$(SolutionDir)Build\$(Configuration)\</OutDir>
     <IntDir>D:\Scratch\MSVC-Build\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir)Simulation\Include;$(SolutionDir)BananaCore\Include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Simulation\Include;$(SolutionDir)BananaCore\Include;$(SolutionDir)Externals\tbb_win\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)Build\$(Configuration)\</OutDir>
     <IntDir>D:\Scratch\MSVC-Build\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir)Simulation\Include;$(SolutionDir)BananaCore\Include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Simulation\Include;$(SolutionDir)BananaCore\Include;$(SolutionDir)Externals\tbb_win\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseQt|x64'">
     <OutDir>$(SolutionDir)Build\$(Configuration)\</OutDir>
     <IntDir>D:\Scratch\MSVC-Build\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir)Simulation\Include;$(SolutionDir)BananaCore\Include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Simulation\Include;$(SolutionDir)BananaCore\Include;$(SolutionDir)Externals\tbb_win\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -152,6 +152,7 @@
     <ClInclude Include="Include\Grid\Grid3D_Impl.hpp" />
     <ClInclude Include="Include\Grid\GridHelpers.h" />
     <ClInclude Include="Include\ParticleTools\BlueNoiseRelaxation\LloydRelaxation.h" />
+    <ClInclude Include="Include\ParticleTools\BlueNoiseRelaxation\SPHRelaxation_Impl.hpp" />
     <ClInclude Include="Include\ParticleTools\ParticleEmitters\BoxEmitter.h" />
     <ClInclude Include="Include\ParticleTools\ParticleEmitters\CylinderEmitter.h" />
     <ClInclude Include="Include\ParticleTools\ParticleEmitters\HollowSphereEmitter.h" />
