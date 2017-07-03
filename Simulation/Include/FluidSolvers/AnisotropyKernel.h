@@ -17,35 +17,42 @@
 
 #pragma once
 
+#include <Grid/Grid3D.h>
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class ScalarType>
 class AnisotropyGenerator
 {
 public:
-    AnisotropyGenerator(DomainParameters* domainParams, Array3_VecUInt& cellParticles, const Vec_Vec3& particles, Real kernelCellSpan) :
-        m_DomainParams(domainParams),
+    AnisotropyGenerator(const Grid3D<ScalarType>& grid3D, Array3_VecUInt& cellParticles, const Vec_Vec3& particles, ScalarType kernelCellSpan) :
+        m_Grid3D(grid3D),
         m_CellParticles(cellParticles),
         m_Particles(particles),
         m_KernelCellSpan(kernelCellSpan * 2) {}
 
-    void setParticleRadius(Real radius);
+    void setParticleRadius(ScalarType radius);
     void generateAnisotropy();
 
-    Real W(Real d2);
-    Real W(const Vec3& r);
-    Real W(const Vec3& xi, const Vec3& xj);
+    ScalarType W(ScalarType d2);
+    ScalarType W(const Vec3<ScalarType>& r);
+    ScalarType W(const Vec3<ScalarType>& xi, const Vec3<ScalarType>& xj);
 
 public: // interface functions
-    const Vec_Vec3& getKernelCenters();
-    const Vec_Mat3x3& getKernelMatrices();
+    const Vec_Vec3<ScalarType>&    getKernelCenters();
+    const Vec_Mat3x3<ScalarType>& getKernelMatrices();
 
 private: // data
-    const DomainParameters* m_DomainParams;
-    const Array3_VecUInt&   m_CellParticles;
-    const Vec_Vec3&         m_Particles;
-    const Real              m_KernelCellSpan;
-    Real                    m_KernelRadius;
-    Real                    m_KernelRadiusSqr;
-    Real                    m_KernelRadiusInv;
+    const Grid3D<ScalarType>&   m_Grid3D;
+    const Array3_VecUInt&       m_CellParticles;
+    const Vec_Vec3<ScalarType>& m_Particles;
+    const ScalarType            m_KernelCellSpan;
+    ScalarType                  m_KernelRadius;
+    ScalarType                  m_KernelRadiusSqr;
+    ScalarType                  m_KernelRadiusInv;
 
     Vec_Vec3   m_KernelCenters;
     Vec_Mat3x3 m_KernelMatrices;
 };
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#include <FluidSolvers/AnisotropyKernel_Imp.hpp>
