@@ -52,51 +52,52 @@ void SkyBoxRender::loadTextures(QString textureTopFolder)
     for(int i = 0; i < allTexFolders.count(); ++i)
     {
         QString texFolderPath = textureTopFolder + "/" + allTexFolders[i];
-        futureObjs.emplace_back(std::async(std::launch::async, [&, texFolderPath, i]()
-        {
-            ////////////////////////////////////////////////////////////////////////////////
-            // find the extension of texture imageg
-            QString posXFilePath = texFolderPath + "/posx.jpg";
-            QString ext = "jpg";
+        futureObjs.emplace_back(std::async(std::launch::async,
+                                           [&, texFolderPath, i]()
+                                           {
+                                               ////////////////////////////////////////////////////////////////////////////////
+                                               // find the extension of texture imageg
+                                               QString posXFilePath = texFolderPath + "/posx.jpg";
+                                               QString ext = "jpg";
 
-            if(!QFile::exists(posXFilePath))
-            {
-                ext = "png";
-                posXFilePath = texFolderPath + "/posx.png";
-                if(!QFile::exists(posXFilePath))
-                {
-                    return; // only support .png and .jpg
-                }
-            }
+                                               if(!QFile::exists(posXFilePath))
+                                               {
+                                                   ext = "png";
+                                                   posXFilePath = texFolderPath + "/posx.png";
+                                                   if(!QFile::exists(posXFilePath))
+                                                   {
+                                                       return; // only support .png and .jpg
+                                                   }
+                                               }
 
-            ////////////////////////////////////////////////////////////////////////////////
-            // check if all 6 faces exist
-            bool check = true;
-            for(GLuint j = 0; j < 6; ++j)
-            {
-                QString texFilePath = texFolderPath + texFaces[j] + ext;
-                if(!QFile::exists(texFilePath))
-                {
-                    check = false;
-                    break;
-                }
-            }
+                                               ////////////////////////////////////////////////////////////////////////////////
+                                               // check if all 6 faces exist
+                                               bool check = true;
+                                               for(GLuint j = 0; j < 6; ++j)
+                                               {
+                                                   QString texFilePath = texFolderPath + texFaces[j] + ext;
+                                                   if(!QFile::exists(texFilePath))
+                                                   {
+                                                       check = false;
+                                                       break;
+                                                   }
+                                               }
 
-            if(!check)
-            {
-                return;
-            }
+                                               if(!check)
+                                               {
+                                                   return;
+                                               }
 
-            ////////////////////////////////////////////////////////////////////////////////
-            // load the textures
-            loadSuccess[i] = 1;
+                                               ////////////////////////////////////////////////////////////////////////////////
+                                               // load the textures
+                                               loadSuccess[i] = 1;
 
-            for(GLuint j = 0; j < 6; ++j)
-            {
-                QString texFilePath = texFolderPath + texFaces[j] + ext;
-                textureImages[i * 6 + j] = QImage(texFilePath).convertToFormat(QImage::Format_RGBA8888);
-            }
-        }));
+                                               for(GLuint j = 0; j < 6; ++j)
+                                               {
+                                                   QString texFilePath = texFolderPath + texFaces[j] + ext;
+                                                   textureImages[i * 6 + j] = QImage(texFilePath).convertToFormat(QImage::Format_RGBA8888);
+                                               }
+                                           }));
     }
 
     for(std::future<void>& f : futureObjs)
@@ -121,6 +122,7 @@ void SkyBoxRender::loadTextures(QString textureTopFolder)
         addTexture(skyboxTex);
     }
 }
+
 #endif
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -153,6 +155,14 @@ void SkyBoxRender::setRenderTextureIndex(int texIndex)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void SkyBoxRender::scale(float scaleX, float scaleY, float scaleZ)
+{
+    assert(m_CubeObj != nullptr);
+    m_CubeObj->transformObject(scaleX, scaleY, scaleZ);
+    m_CubeObj->uploadDataToGPU();
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 const std::shared_ptr<OpenGLTexture>& SkyBoxRender::getCurrentTexture()
 {
     return m_CurrentTexture;
@@ -173,9 +183,9 @@ void SkyBoxRender::render()
         return;
     }
 
-    m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getViewMatrix()), 0, sizeof(glm::mat4));
-    m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getProjectionMatrix()), sizeof(glm::mat4), sizeof(glm::mat4));
-    m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getCameraPosition()), 5 * sizeof(glm::mat4), sizeof(glm::vec3));
+    m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getViewMatrix()),       0,                     sizeof(glm::mat4));
+    m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getProjectionMatrix()), sizeof(glm::mat4),     sizeof(glm::mat4));
+    m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getCameraPosition()),   5 * sizeof(glm::mat4), sizeof(glm::vec3));
 
     m_Shader->bind();
     m_CurrentTexture->bind();
@@ -210,7 +220,7 @@ void SkyBoxRender::initRenderData()
 
     ////////////////////////////////////////////////////////////////////////////////
     // cube object
-    m_CubeObj = std::make_unique<CubeObject> ();
+    m_CubeObj = std::make_unique<CubeObject>();
     m_CubeObj->uploadDataToGPU();
 
     glCall(glGenVertexArrays(1, &m_VAO));
@@ -255,7 +265,7 @@ void PointLightRender::render()
 {
     assert(m_Camera != nullptr && m_UBufferCamData != nullptr);
 
-    m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getViewMatrix()), 0, sizeof(glm::mat4));
+    m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getViewMatrix()),       0,                 sizeof(glm::mat4));
     m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getProjectionMatrix()), sizeof(glm::mat4), sizeof(glm::mat4));
 
     m_Shader->bind();
@@ -356,7 +366,7 @@ void WireFrameBoxRender::transform(const glm::vec3& translation, const glm::vec3
     glm::mat4 modelMatrix  = glm::scale(glm::translate(glm::mat4(1.0), translation), scale);
     glm::mat4 normalMatrix = glm::transpose(glm::inverse(glm::mat3(modelMatrix)));
 
-    m_UBufferModelMatrix->uploadData(glm::value_ptr(modelMatrix), 0, sizeof(glm::mat4));                  // model matrix
+    m_UBufferModelMatrix->uploadData(glm::value_ptr(modelMatrix),  0,                 sizeof(glm::mat4)); // model matrix
     m_UBufferModelMatrix->uploadData(glm::value_ptr(normalMatrix), sizeof(glm::mat4), sizeof(glm::mat4)); // normal matrix}
 }
 
@@ -378,9 +388,9 @@ void WireFrameBoxRender::render()
     if(m_SelfUpdateCamera)
     {
         m_Camera->updateCameraMatrices();
-        m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getViewMatrix()), 0, sizeof(glm::mat4));
-        m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getProjectionMatrix()), sizeof(glm::mat4), sizeof(glm::mat4));
-        m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getCameraPosition()), 5 * sizeof(glm::mat4), sizeof(glm::vec3));
+        m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getViewMatrix()),       0,                     sizeof(glm::mat4));
+        m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getProjectionMatrix()), sizeof(glm::mat4),     sizeof(glm::mat4));
+        m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getCameraPosition()),   5 * sizeof(glm::mat4), sizeof(glm::vec3));
     }
     m_UBufferCamData->bindBufferBase();
     m_Shader->bindUniformBlock(m_UBCamData, m_UBufferCamData->getBindingPoint());
@@ -427,7 +437,6 @@ void WireFrameBoxRender::initRenderData()
     m_UBufferModelMatrix->createBuffer(GL_UNIFORM_BUFFER, 2 * sizeof(glm::mat4), nullptr, GL_STATIC_DRAW);
     transform(glm::vec3(0, 0, 0), glm::vec3(1, 1, 1));
 }
-
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -699,7 +708,7 @@ void ScreenQuadTextureRender::render()
     m_Shader->bind();
     m_Shader->setUniformValue(m_UTexSampler, 0);
     m_Shader->setUniformValue(m_UValueScale, m_ValueScale);
-    m_Shader->setUniformValue(m_UTexelSize, m_TexelSizeValue);
+    m_Shader->setUniformValue(m_UTexelSize,  m_TexelSizeValue);
 
     glCall(glBindVertexArray(m_VAO));
     glCall(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4); );
@@ -777,6 +786,7 @@ void MeshRender::loadTextures(QString textureFolder)
 {
     OpenGLTexture::loadTextures(m_Textures, textureFolder);
 }
+
 #endif
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -847,10 +857,9 @@ void MeshRender::transform(const glm::vec3& translation, const glm::vec3& scale)
     glm::mat4 modelMatrix  = glm::scale(glm::translate(glm::mat4(1.0), translation), scale);
     glm::mat4 normalMatrix = glm::transpose(glm::inverse(glm::mat3(modelMatrix)));
 
-    m_UBufferModelMatrix->uploadData(glm::value_ptr(modelMatrix), 0, sizeof(glm::mat4));                  // model matrix
+    m_UBufferModelMatrix->uploadData(glm::value_ptr(modelMatrix),  0,                 sizeof(glm::mat4)); // model matrix
     m_UBufferModelMatrix->uploadData(glm::value_ptr(normalMatrix), sizeof(glm::mat4), sizeof(glm::mat4)); // normal matrix
 }
-
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MeshRender::render()
@@ -862,9 +871,9 @@ void MeshRender::render()
     if(m_SelfUpdateCamera)
     {
         m_Camera->updateCameraMatrices();
-        m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getViewMatrix()), 0, sizeof(glm::mat4));
-        m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getProjectionMatrix()), sizeof(glm::mat4), sizeof(glm::mat4));
-        m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getCameraPosition()), 5 * sizeof(glm::mat4), sizeof(glm::vec3));
+        m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getViewMatrix()),       0,                     sizeof(glm::mat4));
+        m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getProjectionMatrix()), sizeof(glm::mat4),     sizeof(glm::mat4));
+        m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getCameraPosition()),   5 * sizeof(glm::mat4), sizeof(glm::vec3));
     }
 
     m_Shader->bind();
@@ -1198,7 +1207,6 @@ void MeshRender::initRenderData()
     // default null texture
     m_Textures.push_back(nullptr);
 }
-
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
