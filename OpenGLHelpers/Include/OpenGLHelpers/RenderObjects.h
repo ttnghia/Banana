@@ -100,6 +100,7 @@ public:
     void                                  clearTextures();
     void                                  addTexture(const std::shared_ptr<OpenGLTexture>& texture);
     void                                  setRenderTextureIndex(int texIndex);
+    void scale(float scaleX, float scaleY, float scaleZ);
 
     virtual void render() override;
 

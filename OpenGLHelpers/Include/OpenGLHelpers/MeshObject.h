@@ -56,8 +56,7 @@ public:
 
     ~MeshObject();
 
-    void transformObject(GLfloat scaleX = 1.0, GLfloat scaleY = 1.0, GLfloat scaleZ = 1.0,
-                         GLfloat translateX = 0.0, GLfloat translateY = 0.0, GLfloat translateZ = 0.0);
+    void transformObject(GLfloat scaleX = 1.0, GLfloat scaleY = 1.0, GLfloat scaleZ = 1.0, GLfloat translateX = 0.0, GLfloat translateY = 0.0, GLfloat translateZ = 0.0);
     void setVertices(const std::vector<GLfloat>& vertices);
     void setVertices(void* vertexData, size_t dataSize);
 
