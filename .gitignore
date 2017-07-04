@@ -4,4 +4,4 @@
 **/Debug/*
 **/Release/*
 Build/**
-*.user
+*.pro.user
