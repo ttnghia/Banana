@@ -34,3 +34,6 @@
 [submodule "Externals/freetype2"]
 	path = Externals/freetype2
 	url = git://git.sv.nongnu.org/freetype/freetype2.git
+[submodule "Externals/eigen"]
+	path = Externals/eigen
+	url = https://github.com/RLovelett/eigen.git
