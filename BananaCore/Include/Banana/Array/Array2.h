@@ -27,15 +27,15 @@ template<class T>
 class Array2
 {
 private:
-    std::vector<T> ::size_type m_SizeX, m_SizeY;
-    std::vector<T>             m_Data;
+    typename std::vector<T> ::size_type m_SizeX, m_SizeY;
+    std::vector<T>                      m_Data;
 
 public:
-    using iterator               = std::vector<T>::iterator;
-    using const_iterator         = std::vector<T>::const_iterator;
-    using reverse_iterator       = std::vector<T>::reverse_iterator;
-    using const_reverse_iterator = std::vector<T>::const_reverse_iterator;
-    using size_type              = std::vector<T>::size_type;
+    using iterator               = typename std::vector<T>::iterator;
+    using const_iterator         = typename std::vector<T>::const_iterator;
+    using reverse_iterator       = typename std::vector<T>::reverse_iterator;
+    using const_reverse_iterator = typename std::vector<T>::const_reverse_iterator;
+    using size_type              = typename std::vector<T>::size_type;
 
     ////////////////////////////////////////////////////////////////////////////////
     // constructors & destructor

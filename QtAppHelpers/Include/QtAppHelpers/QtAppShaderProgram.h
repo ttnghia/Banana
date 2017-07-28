@@ -25,6 +25,7 @@ class QtAppShaderProgram : public ShaderProgram
 public:
 
     QtAppShaderProgram() {}
+    QtAppShaderProgram(const std::string& programName) : ShaderProgram(programName) {}
 
     void addVertexShaderFromResource(const char* fileName);
     void addGeometryShaderFromResource(const char* fileName);

@@ -38,15 +38,12 @@ public:
     unsigned int getNumCellX() const noexcept { return m_NumCells[0]; }
     unsigned int getNumCellY() const noexcept { return m_NumCells[1]; }
     unsigned int getNumCellZ() const noexcept { return m_NumCells[2]; }
-    unsigned int getNumCells() const noexcept { return m_NumTotalCells; }
     unsigned int getNumTotalCells() const noexcept { return m_NumTotalCells; }
-
-    template<class IndexType>
-    unsigned int getNumCells(IndexType dimention) const noexcept { return m_NumCells[dimention]; }
+    Vec3<unsigned int> getNumCells() const noexcept { return m_NumCells; }
 
     ////////////////////////////////////////////////////////////////////////////////
     void setCellSize(ScalarType cellSize);
-    void getCellSize() const noexcept { return m_CellSize; }
+    ScalarType getCellSize() const noexcept { return m_CellSize; }
 
     ////////////////////////////////////////////////////////////////////////////////
     template<class IndexType>
@@ -58,12 +55,18 @@ public:
     template<class IndexType>
     Vec3<IndexType> getCellIdx(const Vec3<ScalarType>& position) const noexcept;
 
+    template<class IndexType>
+    Vec3<IndexType> getValidCellIdx(const Vec3<ScalarType>& position) const noexcept;
+
+    template<class IndexType>
+    Vec3<IndexType> getNearestCellIdx(const Vec3<IndexType>& cellIdx) const noexcept;
+
 private:
-    Vec3<ScalarType> m_BMin;
-    Vec3<ScalarType> m_BMax;
-    unsigned int     m_NumCells[3];
-    unsigned int     m_NumTotalCells = 0;
-    ScalarType       m_CellSize      = std::numeric_limits<ScalarType>::max();;
+    Vec3<ScalarType>   m_BMin;
+    Vec3<ScalarType>   m_BMax;
+    Vec3<unsigned int> m_NumCells;
+    unsigned int       m_NumTotalCells = 0;
+    ScalarType         m_CellSize      = std::numeric_limits<ScalarType>::max();
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

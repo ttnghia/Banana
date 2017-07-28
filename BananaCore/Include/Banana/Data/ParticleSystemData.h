@@ -23,6 +23,7 @@
 #include <vector>
 #include <string>
 #include <cassert>
+#include <climits>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 class ParticleSystemData
@@ -231,7 +232,7 @@ public:
     template<class T, int N>
     void generateRandomIntData(const std::string& dataName,
                                T                  minVal = 0,
-                               T                  maxVal = std::numeric_limits<T> ::max())
+                               T                  maxVal = std::numeric_limits<T>::max())
     {
         std::random_device               rd;
         std::mt19937                     gen(rd());

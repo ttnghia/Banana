@@ -62,14 +62,28 @@ template<class ScalarType>
 template<class IndexType>
 Vec3<IndexType> Grid3D<ScalarType>::getCellIdx(const Vec3<ScalarType>& position)  const noexcept
 {
-    Vec3<ScalarType> validPos = position;
+    return Vec3<IndexType>(static_cast<IndexType>((position[0] - m_BMin[0]) / m_CellSize),
+                           static_cast<IndexType>((position[1] - m_BMin[1]) / m_CellSize),
+                           static_cast<IndexType>((position[2] - m_BMin[2]) / m_CellSize));
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class ScalarType>
+template<class IndexType>
+Vec3<IndexType> Grid3D<ScalarType>::getValidCellIdx(const Vec3<ScalarType>& position)  const noexcept
+{
+    return getNearestCellIdx<IndexType>(getCellIdx<IndexType>(position));
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class ScalarType>
+template<class IndexType>
+Vec3<IndexType> Grid3D<ScalarType>::getNearestCellIdx(const Vec3<IndexType>& cellIdx) const noexcept
+{
+    Vec3<IndexType> nearestCellIdx;
 
     for(int i = 0; i < 3; ++i)
-    {
-        validPos[i] = fmin(fmax(validPos[i], m_BMin[i], m_BMax[i]));
-    }
+        nearestCellIdx[i] = std::max<IndexType>(0, std::min<IndexType>(cellIdx[i], static_cast<IndexType>(m_NumCells[i]) - 1));
 
-    return Vec3<IndexType>(static_cast<IndexType>((validPos[0] - m_BMin[0]) / m_CellSize),
-                           static_cast<IndexType>((validPos[1] - m_BMin[1]) / m_CellSize),
-                           static_cast<IndexType>((validPos[2] - m_BMin[2]) / m_CellSize));
+    return nearestCellIdx;
 }

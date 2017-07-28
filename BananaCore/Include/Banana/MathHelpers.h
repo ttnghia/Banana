@@ -49,6 +49,12 @@ inline T cube(const T& x)
 
 ////////////////////////////////////////////////////////////////////////////////
 template<class T>
+inline T min(T a1, T a2)
+{
+    return std::min(a1, a2);
+}
+
+template<class T>
 inline T min(T a1, T a2, T a3)
 {
     return std::min(a1, std::min(a2, a3));
@@ -70,6 +76,12 @@ template<class T>
 inline T min(T a1, T a2, T a3, T a4, T a5, T a6)
 {
     return min(std::min(a1, a2), std::min(a3, a4), std::min(a5, a6));
+}
+
+template<class T>
+inline T max(T a1, T a2)
+{
+    return std::max(a1, a2);
 }
 
 template<class T>
@@ -168,7 +180,7 @@ inline void sort(T& a, T& b, T& c)
                 temp = c;
                 c    = b;
                 b    = temp;
-            }   // else: a<b<c
+            }  // else: a<b<c
         }
         else   // c<a<b
         {
@@ -353,6 +365,7 @@ inline double randhashd(unsigned int seed)
 {
     return randhash(seed) / static_cast<double>(UINT_MAX);
 }
+
 inline float randhashf(unsigned int seed)
 {
     return randhash(seed) / static_cast<float>(UINT_MAX);
@@ -363,6 +376,7 @@ inline double randhashd(unsigned int seed, double a, double b)
 {
     return (b - a) * randhash(seed) / static_cast<double>(UINT_MAX) + a;
 }
+
 inline float randhashf(unsigned int seed, float a, float b)
 {
     return ((b - a) * randhash(seed) / static_cast<float>(UINT_MAX) + a);
@@ -405,7 +419,6 @@ inline void get_barycentric(T x, int& i, T& f, int i_low, int i_high)
     }
 }
 
-
 template<class T>
 inline void get_bary_below(T x, int& i, T& f, int i_low, int i_high)
 {
@@ -437,43 +450,43 @@ inline S lerp(const S& value0, const S& value1, T f)
 
 template<class S, class T>
 inline S bilerp(const S& v00, const S& v10,
-        const S& v01, const S& v11,
-        T fx, T fy)
+                const S& v01, const S& v11,
+                T fx, T fy)
 {
     return lerp(
-            lerp(v00, v10, fx),
-            lerp(v01, v11, fx),
-            fy);
+        lerp(v00, v10, fx),
+        lerp(v01, v11, fx),
+        fy);
 }
 
 template<class S, class T>
 inline S trilerp(const S& v000, const S& v100,
-        const S& v010, const S& v110,
-        const S& v001, const S& v101,
-        const S& v011, const S& v111,
-        T fx, T fy, T fz)
+                 const S& v010, const S& v110,
+                 const S& v001, const S& v101,
+                 const S& v011, const S& v111,
+                 T fx, T fy, T fz)
 {
     return lerp(
-            bilerp(v000, v100, v010, v110, fx, fy),
-            bilerp(v001, v101, v011, v111, fx, fy),
-            fz);
+        bilerp(v000, v100, v010, v110, fx, fy),
+        bilerp(v001, v101, v011, v111, fx, fy),
+        fz);
 }
 
 template<class S, class T>
 inline S quadlerp(const S& v0000, const S& v1000,
-        const S& v0100, const S& v1100,
-        const S& v0010, const S& v1010,
-        const S& v0110, const S& v1110,
-        const S& v0001, const S& v1001,
-        const S& v0101, const S& v1101,
-        const S& v0011, const S& v1011,
-        const S& v0111, const S& v1111,
-        T fx, T fy, T fz, T ft)
+                  const S& v0100, const S& v1100,
+                  const S& v0010, const S& v1010,
+                  const S& v0110, const S& v1110,
+                  const S& v0001, const S& v1001,
+                  const S& v0101, const S& v1101,
+                  const S& v0011, const S& v1011,
+                  const S& v0111, const S& v1111,
+                  T fx, T fy, T fz, T ft)
 {
     return lerp(
-            trilerp(v0000, v1000, v0100, v1100, v0010, v1010, v0110, v1110, fx, fy, fz),
-            trilerp(v0001, v1001, v0101, v1101, v0011, v1011, v0111, v1111, fx, fy, fz),
-            ft);
+        trilerp(v0000, v1000, v0100, v1100, v0010, v1010, v0110, v1110, fx, fy, fz),
+        trilerp(v0001, v1001, v0101, v1101, v0011, v1011, v0111, v1111, fx, fy, fz),
+        ft);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -499,7 +512,7 @@ inline void cubic_interp_weights(T f, T& wneg1, T& w0, T& w1, T& w2)
 
 template<class S, class T>
 inline S cubic_interp(const S& value_neg1, const S& value0, const S& value1,
-        const S& value2, T f)
+                      const S& value2, T f)
 {
     T wneg1, w0, w1, w2;
     cubic_interp_weights(f, wneg1, w0, w1, w2);
@@ -566,13 +579,11 @@ T cubic_spline_kernel(T f)
     return T(0.5) * x3 - x2 + T(2.0 / 3.0);
 }
 
-
 template<class T>
 T cubic_spline_kernel_2d(T x, T y)
 {
     return cubic_spline_kernel(x) * cubic_spline_kernel(y);
 }
-
 
 template<class T>
 T cubic_spline_kernel_3d(T x, T y, T z)

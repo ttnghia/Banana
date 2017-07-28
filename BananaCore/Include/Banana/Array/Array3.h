@@ -27,15 +27,15 @@ template<class T>
 class Array3
 {
 private:
-    std::vector<T>::size_type m_SizeX, m_SizeY, m_SizeZ;
-    std::vector<T>            m_Data;
+    typename std::vector<T>::size_type m_SizeX, m_SizeY, m_SizeZ;
+    std::vector<T>                     m_Data;
 
 public:
-    using iterator               = std::vector<T>::iterator;
-    using const_iterator         = std::vector<T>::const_iterator;
-    using reverse_iterator       = std::vector<T>::reverse_iterator;
-    using const_reverse_iterator = std::vector<T>::const_reverse_iterator;
-    using size_type              = std::vector<T>::size_type;
+    using iterator               = typename std::vector<T>::iterator;
+    using const_iterator         = typename std::vector<T>::const_iterator;
+    using reverse_iterator       = typename std::vector<T>::reverse_iterator;
+    using const_reverse_iterator = typename std::vector<T>::const_reverse_iterator;
+    using size_type              = typename std::vector<T>::size_type;
 
     ////////////////////////////////////////////////////////////////////////////////
     // constructors & destructor
@@ -102,7 +102,7 @@ public:
     template<class IndexType>
     size_type getLinearizedIndex(const glm::tvec3<IndexType>& index)
     {
-        getLinearizedIndex<IndexType>(index[0], index[1], index[2]);
+        return getLinearizedIndex<IndexType>(index[0], index[1], index[2]);
     }
 
     template<class IndexType>
@@ -218,11 +218,6 @@ public:
     {
         assert(m_Data.size() > 0);
         return m_Data.front();
-    }
-
-    size_type maxSize(void) const
-    {
-        return m_Data.max_size();
     }
 
     reverse_iterator rbegin(void)

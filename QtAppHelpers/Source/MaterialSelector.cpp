@@ -33,28 +33,31 @@ MaterialSelector::MaterialSelector(const Material::MaterialData& material /*= Ma
     palette.setColor(QPalette::Window, floatToQColor(m_CurrentMaterial.diffuse));
     m_MaterialColorPicker = new MaterialColorPicker;
     connect(m_MaterialColorPicker, &MaterialColorPicker::materialChanged, this, [&](const Material::MaterialData& material)
-    {
-        m_CustomMaterial = material;
-        if(m_ComboBox->currentIndex() != m_ComboBox->count() - 1)
-        {
-            m_ComboBox->setCurrentIndex(m_ComboBox->count() - 1);
-        }
-        else
-        {
-            emit materialChanged(material);
-
-            if(m_bDebug)
             {
-                qDebug() << QString("Debug::MaterialChanged: Ambient = [%1, %2, %3], Diffuse = [%4, %5, %6], Specular = [%7, %8, %9]")
-                    .arg(material.ambient[0]).arg(material.ambient[1]).arg(material.ambient[2])
-                    .arg(material.diffuse[0]).arg(material.diffuse[1]).arg(material.diffuse[2])
-                    .arg(material.specular[0]).arg(material.specular[1]).arg(material.specular[2]);
-            }
-        }
-    });
+                m_CustomMaterial = material;
+                QColor color(floatToQColor(material.diffuse));
+                m_ComboBox->setItemData(m_ComboBox->count() - 1, color, Qt::DecorationRole);
+
+                if(m_ComboBox->currentIndex() != m_ComboBox->count() - 1)
+                {
+                    m_ComboBox->setCurrentIndex(m_ComboBox->count() - 1);
+                }
+                else
+                {
+                    emit materialChanged(material);
+
+                    if(m_bDebug)
+                    {
+                        qDebug() << QString("Debug::MaterialChanged: Ambient = [%1, %2, %3], Diffuse = [%4, %5, %6], Specular = [%7, %8, %9]")
+                            .arg(material.ambient[0]).arg(material.ambient[1]).arg(material.ambient[2])
+                            .arg(material.diffuse[0]).arg(material.diffuse[1]).arg(material.diffuse[2])
+                            .arg(material.specular[0]).arg(material.specular[1]).arg(material.specular[2]);
+                    }
+                }
+            });
 
     m_Layout = new QGridLayout;
-    m_Layout->addWidget(m_ComboBox, 0, 0, 1, comboBoxSpan);
+    m_Layout->addWidget(m_ComboBox,            0, 0,            1, comboBoxSpan);
     m_Layout->addWidget(m_MaterialColorPicker, 0, comboBoxSpan, 1, 1);
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -125,7 +128,6 @@ int MaterialSelector::getNumMaterials() const
     return m_ComboBox->count();
 }
 
-
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MaterialSelector::setEnabled(bool enabled)
 {
@@ -177,6 +179,9 @@ void MaterialSelector::setCustomMaterial(const Material::MaterialData& material)
     {
         m_MaterialColorPicker->setWidgetColor(m_CurrentMaterial);
     }
+
+    QColor color(floatToQColor(material.diffuse));
+    m_ComboBox->setItemData(m_ComboBox->count() - 1, color, Qt::DecorationRole);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
