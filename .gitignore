@@ -5,3 +5,5 @@
 **/Release/*
 Build/**
 *.pro.user
+**/tinyply.h
+**/tinyply.cpp

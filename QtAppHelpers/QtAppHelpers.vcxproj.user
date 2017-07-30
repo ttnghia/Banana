@@ -17,7 +17,7 @@
     <QTDIR>C:\Qt\Qt5.9.1\5.9.1\msvc2017_64</QTDIR>
   </PropertyGroup>
   <PropertyGroup>
-    <ShowAllFiles>false</ShowAllFiles>
+    <ShowAllFiles>true</ShowAllFiles>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugQt|x64'">
     <QTDIR>C:\Qt\Qt5.9.1\5.9.1\msvc2017_64</QTDIR>

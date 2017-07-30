@@ -244,7 +244,12 @@ public:
         return const_reverse_iterator(cbegin());
     }
 
-    const std::vector<T>& data() const
+    std::vector<T>& vec_data()
+    {
+        return m_Data;
+    }
+
+    const std::vector<T>& vec_data() const
     {
         return m_Data;
     }

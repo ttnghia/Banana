@@ -16,6 +16,12 @@ macx {
     QMAKE_LIBDIR += $$CUDA_DIR/lib
 #    QMAKE_LIBDIR += $$CUDA_SDK/common/lib
     LIBS += -loptix
+
+    CONFIG(debug, debug|release) {
+        LIBS += $$PWD/../Build/Debug/libRayTracing.a
+    }else {
+        LIBS += $$PWD/../Build/Release/libRayTracing.a
+    }
 }
 
 win32 {
@@ -26,6 +32,20 @@ win32 {
     QMAKE_LIBDIR += $$CUDA_DIR\lib\x64
 #    QMAKE_LIBDIR += $$CUDA_SDK\common\lib\x64 # This is covered by Qt
     LIBS += -loptix.1
+
+    CONFIG(debug, debug|release) {
+        LIBS += $$PWD/../Build/DebugQt/RayTracing.lib
+    }else {
+        LIBS += $$PWD/../Build/ReleaseQt/RayTracing.lib
+    }
+}
+
+win32 {
+    CONFIG(debug, debug|release) {
+        LIBS += $$PWD/Libs/Debug/sutil_sdk.lib
+    }else {
+        LIBS += $$PWD/Libs/Release/sutil_sdk.lib
+    }
 }
 
 INCLUDEPATH += $$CUDA_DIR/include
@@ -33,6 +53,7 @@ INCLUDEPATH += $$CUDA_SDK/common/inc
 
 INCLUDEPATH += $$OPTIX_DIR/include
 INCLUDEPATH += $$OPTIX_DIR/SDK
+INCLUDEPATH += $$OPTIX_DIR/SDK/sutil
 
 QMAKE_LIBDIR += $$OPTIX_DIR/lib64
 LIBS += -lcudart -lcudadevrt
@@ -45,7 +66,7 @@ CUDA_SOURCES += $$files($$_PRO_FILE_PWD_/CUDA/*.cu, true)
 NVCCFLAGS = --ptxas-options=-v -ptx
 
 #set our ptx directory
-PTX_DIR = $$_PRO_FILE_PWD_/CUDA/PTX
+PTX_DIR = $$_PRO_FILE_PWD_/PTX
 message(ptx output directory: $$PTX_DIR)
 
 # join the includes in a line

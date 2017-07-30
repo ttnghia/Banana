@@ -37,6 +37,7 @@ protected:
         {
             return ',';
         }
+
         virtual std::string do_grouping() const
         {
             return "\03";
@@ -86,7 +87,7 @@ std::string toString(const T value, const int precision = 5)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class VectorType>
-inline std::string toString(const VectorType& vec, int precision = 5)
+inline std::string vecToString(const VectorType& vec, int precision = 5)
 {
     std::stringstream ss;
     ss.str("");
@@ -125,5 +126,6 @@ inline T lerp(T a, T b, T t)
 {
     return static_cast<T>(a + t * (b - a));
 }
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace NumberHelpers

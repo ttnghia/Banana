@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.4
+VisualStudioVersion = 15.0.26430.16
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BananaCore", "BananaCore\BananaCore.vcxproj", "{27A187C4-FB19-47E9-AFDF-E6E8CC5B7E18}"
 EndProject
@@ -32,6 +32,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Benchmarks", "Benchmarks", "{E0E2E90E-F4DC-4333-A1C9-818110D592EF}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Simulation", "Simulation\Simulation.vcxproj", "{6278DD55-0398-42A5-A69F-FC9C3194F071}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RayTracing", "RayTracing\RayTracing.vcxproj", "{92376DFA-E300-4232-8D3B-D977B47AA69D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -117,6 +119,18 @@ Global
 		{6278DD55-0398-42A5-A69F-FC9C3194F071}.ReleaseQt|x64.ActiveCfg = ReleaseQt|x64
 		{6278DD55-0398-42A5-A69F-FC9C3194F071}.ReleaseQt|x64.Build.0 = ReleaseQt|x64
 		{6278DD55-0398-42A5-A69F-FC9C3194F071}.ReleaseQt|x86.ActiveCfg = ReleaseQt|x64
+		{92376DFA-E300-4232-8D3B-D977B47AA69D}.Debug|x64.ActiveCfg = Debug|x64
+		{92376DFA-E300-4232-8D3B-D977B47AA69D}.Debug|x64.Build.0 = Debug|x64
+		{92376DFA-E300-4232-8D3B-D977B47AA69D}.Debug|x86.ActiveCfg = Debug|x64
+		{92376DFA-E300-4232-8D3B-D977B47AA69D}.DebugQt|x64.ActiveCfg = DebugQt|x64
+		{92376DFA-E300-4232-8D3B-D977B47AA69D}.DebugQt|x64.Build.0 = DebugQt|x64
+		{92376DFA-E300-4232-8D3B-D977B47AA69D}.DebugQt|x86.ActiveCfg = DebugQt|x64
+		{92376DFA-E300-4232-8D3B-D977B47AA69D}.Release|x64.ActiveCfg = Release|x64
+		{92376DFA-E300-4232-8D3B-D977B47AA69D}.Release|x64.Build.0 = Release|x64
+		{92376DFA-E300-4232-8D3B-D977B47AA69D}.Release|x86.ActiveCfg = Release|x64
+		{92376DFA-E300-4232-8D3B-D977B47AA69D}.ReleaseQt|x64.ActiveCfg = ReleaseQt|x64
+		{92376DFA-E300-4232-8D3B-D977B47AA69D}.ReleaseQt|x64.Build.0 = ReleaseQt|x64
+		{92376DFA-E300-4232-8D3B-D977B47AA69D}.ReleaseQt|x86.ActiveCfg = ReleaseQt|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -130,5 +144,6 @@ Global
 		{06C3CED9-C368-4733-B7C6-FFF07582E6C9} = {67D2A707-A821-4D63-BF60-F7FFB77A1F67}
 		{E0E2E90E-F4DC-4333-A1C9-818110D592EF} = {03812878-0993-4B4C-9A31-079AE81803DE}
 		{6278DD55-0398-42A5-A69F-FC9C3194F071} = {B6E7CB10-66E0-4A1E-8ECD-21288DA8A3B1}
+		{92376DFA-E300-4232-8D3B-D977B47AA69D} = {B6E7CB10-66E0-4A1E-8ECD-21288DA8A3B1}
 	EndGlobalSection
 EndGlobal

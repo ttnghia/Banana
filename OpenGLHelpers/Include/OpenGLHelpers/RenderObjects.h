@@ -100,7 +100,7 @@ public:
     void                                  clearTextures();
     void                                  addTexture(const std::shared_ptr<OpenGLTexture>& texture);
     void                                  setRenderTextureIndex(int texIndex);
-    void scale(float scaleX, float scaleY, float scaleZ);
+    void                                  scale(float scaleX, float scaleY, float scaleZ);
 
     virtual void render() override;
 
@@ -153,6 +153,7 @@ public:
         initRenderData();
     }
 
+    void         setColor(const glm::vec3& color);
     void         transform(const glm::vec3& translation, const glm::vec3& scale);
     void         setBox(const glm::vec3& boxMin, const glm::vec3& boxMax);
     virtual void render() override;

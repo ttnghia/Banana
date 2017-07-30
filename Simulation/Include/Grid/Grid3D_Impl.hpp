@@ -19,7 +19,7 @@ void Grid3D<ScalarType>::setGrid(const Vec3<ScalarType>& bMin, const Vec3<Scalar
 {
     m_BMin = bMin;
     m_BMax = bMax;
-    setCellSize(cellSize)
+    setCellSize(cellSize);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

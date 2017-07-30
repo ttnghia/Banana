@@ -59,6 +59,9 @@
     <ClCompile Include="Source\EnhancedComboBox.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+	<ClCompile Include="Source\EnhancedMessageBox.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="Source\EnhancedSlider.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -105,6 +108,18 @@
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\ReleaseQt\moc_EnhancedComboBox.cpp">
+      <Filter>Generated Files\ReleaseQt</Filter>
+    </ClCompile>
+	<ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\DebugQt\moc_EnhancedMessageBox.cpp">
+      <Filter>Generated Files\DebugQt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\Debug\moc_EnhancedMessageBox.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\Release\moc_EnhancedMessageBox.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\ReleaseQt\moc_EnhancedMessageBox.cpp">
       <Filter>Generated Files\ReleaseQt</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\DebugQt\moc_EnhancedSlider.cpp">
@@ -266,6 +281,21 @@
     <ClCompile Include="Source\ColorPicker.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\BusyBar.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\DebugQt\moc_BusyBar.cpp">
+      <Filter>Generated Files\DebugQt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\Debug\moc_BusyBar.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\Release\moc_BusyBar.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\ReleaseQt\moc_BusyBar.cpp">
+      <Filter>Generated Files\ReleaseQt</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\QtAppHelpers\AntTweakBarWrapper.h">
@@ -281,6 +311,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <CustomBuild Include="Include\QtAppHelpers\EnhancedComboBox.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+	<CustomBuild Include="Include\QtAppHelpers\EnhancedMessageBox.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
     <CustomBuild Include="Include\QtAppHelpers\EnhancedSlider.h">
@@ -306,6 +339,9 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <CustomBuild Include="Include\QtAppHelpers\BusyBar.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
     <CustomBuild Include="Include\QtAppHelpers\OpenGLWidgetTestRender.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
