@@ -21,6 +21,42 @@
 #include <sutil/sutil.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void RayTracer::createOptiXContext(int width, int height)
+{
+    m_AspectRatio = static_cast<float>(width) / static_cast<float>(height);
+    m_Width       = width;
+    m_Height      = height;
+    ////////////////////////////////////////////////////////////////////////////////
+    // Set up context
+    m_OptiXContext = optix::Context::create();
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // create output buffer
+    const unsigned int elmtSize = 4;
+    GLuint             vbo      = 0;
+
+    glCall(glGenBuffers(1, &vbo));
+    glCall(glBindBuffer(GL_ARRAY_BUFFER, vbo));
+    glCall(glBufferData(GL_ARRAY_BUFFER, elmtSize * width * height, 0, GL_STREAM_DRAW));
+    glCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
+
+    m_OutBuffer = m_OptiXContext->createBufferFromGLBO(RT_BUFFER_OUTPUT, vbo);
+    m_OutBuffer->setFormat(RT_FORMAT_UNSIGNED_BYTE4);
+    m_OutBuffer->setSize(width, height);
+
+    m_OptiXContext["output_buffer"]->set(m_OutBuffer);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void RayTracer::resizeViewport(int width, int height)
+{
+    m_AspectRatio = static_cast<float>(width) / static_cast<float>(height);
+    m_Width       = width;
+    m_Height      = height;
+    resizeBuffer(getOptiXOutputBuffer(), width, height);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void RayTracer::destroyOptiXContext()
 {
     if(m_OptiXContext)
@@ -189,31 +225,6 @@ void RayTracer::getOutputAsByteArray(std::vector<unsigned char>& data)
 
     // Now unmap the buffer
     RT_CHECK_ERROR(rtBufferUnmap(m_OutBuffer->get()));
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void RayTracer::createOptiXContext(int width, int height)
-{
-    m_AspectRatio = static_cast<float>(width) / static_cast<float>(height);
-    m_Width       = width;
-    m_Height      = height;
-    ////////////////////////////////////////////////////////////////////////////////
-    // Set up context
-    m_OptiXContext = optix::Context::create();
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // create output buffer
-    m_OutBuffer = m_OptiXContext->createBuffer(RT_BUFFER_OUTPUT, RT_FORMAT_UNSIGNED_BYTE4, width, height);
-    m_OptiXContext["output_buffer"]->set(m_OutBuffer);
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void RayTracer::resizeViewport(int width, int height)
-{
-    m_AspectRatio = static_cast<float>(width) / static_cast<float>(height);
-    m_Width       = width;
-    m_Height      = height;
-    resizeBuffer(getOptiXOutputBuffer(), width, height);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
