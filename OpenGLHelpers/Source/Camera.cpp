@@ -217,9 +217,9 @@ void Camera::translate()
 
     glm::vec3 u = m_CameraUpDirection;
     glm::vec3 v = glm::cross(eyeDir, u);
-    u                 = glm::cross(v, eyeDir);
-    u                 = glm::normalize(u);
-    v                 = glm::normalize(v);
+    u = glm::cross(v, eyeDir);
+    u = glm::normalize(u);
+    v = glm::normalize(v);
 
     m_CameraPosition -= scale * (m_Translation.x * v + m_Translation.y * u);
     m_CameraFocus    -= scale * (m_Translation.x * v + m_Translation.y * u);
@@ -332,6 +332,7 @@ const glm::vec3 Camera::getCameraFocus() const
 {
     return m_CameraFocus;
 }
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 const glm::vec3 Camera::getCameraUpDirection() const
 {
@@ -376,6 +377,12 @@ const glm::mat4 Camera::getInverseViewMatrix() const
 const glm::mat4 Camera::getInverseProjectionMatrix() const
 {
     return m_InverseProjectionMatrix;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+const Camera::Frustum& Camera::getFrustum() const
+{
+    return m_Frustum;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

@@ -72,24 +72,25 @@ public:
     void zoom(float _zooming);
     void zoom();
 
-    const glm::vec3 getCameraPosition() const;
-    const glm::vec3 getCameraFocus() const;
-    const glm::vec3 getCameraUpDirection() const;
-    const glm::vec3 getCameraDirection() const;
-    const glm::mat4 getViewMatrix() const;
-    const glm::mat4 getProjectionMatrix() const;
-    const glm::mat4 getViewProjectionMatrix() const;
-    const glm::mat4 getInverseViewMatrix() const;
-    const glm::mat4 getInverseProjectionMatrix() const;
+    const glm::vec3        getCameraPosition() const;
+    const glm::vec3        getCameraFocus() const;
+    const glm::vec3        getCameraUpDirection() const;
+    const glm::vec3        getCameraDirection() const;
+    const glm::mat4        getViewMatrix() const;
+    const glm::mat4        getProjectionMatrix() const;
+    const glm::mat4        getViewProjectionMatrix() const;
+    const glm::mat4        getInverseViewMatrix() const;
+    const glm::mat4        getInverseProjectionMatrix() const;
+    const Camera::Frustum& getFrustum() const;
 
     bool isCameraChanged();
 
 private:
-    bool      m_bDebug;
-    int       m_WindowWidth;
-    int       m_WindowHeight;
-    bool      m_bIsCameraChanged;
-    bool      m_bReseted;
+    bool m_bDebug;
+    int  m_WindowWidth;
+    int  m_WindowHeight;
+    bool m_bIsCameraChanged;
+    bool m_bReseted;
 
     glm::vec3 m_CameraPosition;
     glm::vec3 m_CameraFocus;
@@ -106,12 +107,12 @@ private:
     glm::mat4 m_InverseProjectionMatrix;
     glm::mat4 m_ViewProjectionMatrix;
 
-    float     m_TranslationLag;
-    float     m_RotationLag;
-    float     m_ZoomingLag;
-    float     m_TranslationSpeed;
-    float     m_RotationSpeed;
-    float     m_ZoomingSpeed;
+    float m_TranslationLag;
+    float m_RotationLag;
+    float m_ZoomingLag;
+    float m_TranslationSpeed;
+    float m_RotationSpeed;
+    float m_ZoomingSpeed;
 
     glm::vec2 m_Translation;
     glm::vec3 m_Rotation;

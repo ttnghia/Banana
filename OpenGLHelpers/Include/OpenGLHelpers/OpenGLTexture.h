@@ -33,6 +33,7 @@ public:
         createTexture(textureTarget);
     }
 
+    bool isCreated() { return m_bTextureCreated; }
     void createTexture(GLenum textureTarget);
     void generateMipMap();
     void uploadData(GLenum texTarget, GLint internalFormat, GLsizei width, GLsizei height, GLenum dataFormat, GLenum dataType, const GLvoid* data);
@@ -42,11 +43,13 @@ public:
     void setBorderColor(glm::vec4 borderColor);
     void setBestParametersWithMipMap();
     void setBestParametersNoMipMap();
+    void setSimplestTexture();
 
     GLuint getTextureID() const
     {
         return m_TextureID;
     }
+
     void bind(GLuint texUnit = 0);
     void release();
 

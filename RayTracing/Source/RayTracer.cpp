@@ -16,6 +16,9 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 #include <RayTracing/RayTracer.h>
+#include <Banana/FileHelpers.h>
+
+#include <sutil/sutil.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void RayTracer::destroyOptiXContext()
@@ -34,48 +37,85 @@ optix::Buffer RayTracer::getOptiXOutputBuffer()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void RayTracer::resizeViewport(int width, int height)
+GLuint RayTracer::getOutputBufferOID() const
 {
-    resizeBuffer(getOptiXOutputBuffer(), width, height);
+    return m_OutBuffer->getGLBOId();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void RayTracer::saveFrame()
+void RayTracer::getOutputAsTexture(const std::shared_ptr<OpenGLTexture>& texture)
 {
-    sutil::writeBufferToFile(outputImage.c_str(), getOutputBuffer());
+    // Check if we have a GL interop display buffer
+    const unsigned int pboId = getOutputBufferOID();
+    assert(pboId != 0);
 
+    if(!texture->isCreated())
+    {
+        texture->createTexture(GL_TEXTURE_2D);
+        texture->setSimplestTexture();
+    }
 
+    // send PBO to texture
+    texture->bind();
+    glCall(glBindBuffer(GL_PIXEL_UNPACK_BUFFER, pboId));
 
+    RTsize elmtSize = m_OutBuffer->getElementSize();
+    if(elmtSize % 8 == 0)
+    {
+        glCall(glPixelStorei(GL_UNPACK_ALIGNMENT, 8));
+    }
+    else if(elmtSize % 4 == 0)
+    {
+        glCall(glPixelStorei(GL_UNPACK_ALIGNMENT, 4));
+    }
+    else if(elmtSize % 2 == 0)
+    {
+        glCall(glPixelStorei(GL_UNPACK_ALIGNMENT, 2));
+    }
+    else
+    {
+        glCall(glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
+    }
 
+    switch(m_OutBuffer->getFormat())
+    {
+        case RT_FORMAT_UNSIGNED_BYTE4:
+            glCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, m_Width, m_Height, 0, GL_BGRA, GL_UNSIGNED_BYTE, 0));
+            break;
+        case RT_FORMAT_FLOAT4:
+            glCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F_ARB, m_Width, m_Height, 0, GL_RGBA, GL_FLOAT, 0));
+            break;
+        case RT_FORMAT_FLOAT3:
+            glCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F_ARB, m_Width, m_Height, 0, GL_RGB, GL_FLOAT, 0));
+            break;
+        case RT_FORMAT_FLOAT:
+            glCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE32F_ARB, m_Width, m_Height, 0, GL_LUMINANCE, GL_FLOAT, 0));
+            break;
+        default:
+            __BNN_DIE("Unknown buffer format");
+    }
 
+    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
+    texture->release();
+}
 
-
-    //void sutil::writeBufferToFile(const char* filename, RTbuffer buffer)
-
-    GLsizei width, height;
-    RTsize  buffer_width, buffer_height;
-
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void RayTracer::getOutputAsByteArray(std::vector<unsigned char>& data)
+{
     GLvoid* imageData;
-    RT_CHECK_ERROR(rtBufferMap(buffer, &imageData));
+    RT_CHECK_ERROR(rtBufferMap(m_OutBuffer->get(), &imageData));
 
-    RT_CHECK_ERROR(rtBufferGetSize2D(buffer, &buffer_width, &buffer_height));
-    width  = static_cast<GLsizei>(buffer_width);
-    height = static_cast<GLsizei>(buffer_height);
+    data.resize(m_Width * m_Height * 3);
 
-    std::vector<unsigned char> pix(width* height * 3);
-
-    RTformat buffer_format;
-    RT_CHECK_ERROR(rtBufferGetFormat(buffer, &buffer_format));
-
-    switch(buffer_format)
+    switch(m_OutBuffer->getFormat())
     {
         case RT_FORMAT_UNSIGNED_BYTE4:
             // Data is BGRA and upside down, so we need to swizzle to RGB
-            for(int j = height - 1; j >= 0; --j)
+            for(int j = m_Height - 1; j >= 0; --j)
             {
-                unsigned char* dst = &pix[0] + (3 * width * (height - 1 - j));
-                unsigned char* src = ((unsigned char*)imageData) + (4 * width * j);
-                for(int i = 0; i < width; i++)
+                unsigned char* dst = &data[0] + (3 * m_Width * (m_Height - 1 - j));
+                unsigned char* src = ((unsigned char*)imageData) + (4 * m_Width * j);
+                for(int i = 0; i < m_Width; i++)
                 {
                     *dst++ = *(src + 2);
                     *dst++ = *(src + 1);
@@ -87,36 +127,36 @@ void RayTracer::saveFrame()
 
         case RT_FORMAT_FLOAT:
             // This buffer is upside down
-            for(int j = height - 1; j >= 0; --j)
+            for(int j = m_Height - 1; j >= 0; --j)
             {
-                unsigned char* dst = &pix[0] + width * (height - 1 - j);
-                float*         src = ((float*)imageData) + (3 * width * j);
-                for(int i = 0; i < width; i++)
+                unsigned char* dst = &data[0] + m_Width * (m_Height - 1 - j);
+                float*         src = ((float*)imageData) + (3 * m_Width * j);
+                for(int i = 0; i < m_Width; i++)
                 {
-                    int          P       = static_cast<int>((*src++) * 255.0f);
-                    unsigned int Clamped = P < 0 ? 0 : P > 0xff ? 0xff : P;
+                    int          P          = static_cast<int>((*src++) * 255.0f);
+                    unsigned int clampedVal = P < 0 ? 0 : P > 0xff ? 0xff : P;
 
                     // write the pixel to all 3 channels
-                    *dst++ = static_cast<unsigned char>(Clamped);
-                    *dst++ = static_cast<unsigned char>(Clamped);
-                    *dst++ = static_cast<unsigned char>(Clamped);
+                    *dst++ = static_cast<unsigned char>(clampedVal);
+                    *dst++ = static_cast<unsigned char>(clampedVal);
+                    *dst++ = static_cast<unsigned char>(clampedVal);
                 }
             }
             break;
 
         case RT_FORMAT_FLOAT3:
             // This buffer is upside down
-            for(int j = height - 1; j >= 0; --j)
+            for(int j = m_Height - 1; j >= 0; --j)
             {
-                unsigned char* dst = &pix[0] + (3 * width * (height - 1 - j));
-                float*         src = ((float*)imageData) + (3 * width * j);
-                for(int i = 0; i < width; i++)
+                unsigned char* dst = &data[0] + (3 * m_Width * (m_Height - 1 - j));
+                float*         src = ((float*)imageData) + (3 * m_Width * j);
+                for(int i = 0; i < m_Width; i++)
                 {
                     for(int elem = 0; elem < 3; ++elem)
                     {
-                        int          P       = static_cast<int>((*src++) * 255.0f);
-                        unsigned int Clamped = P < 0 ? 0 : P > 0xff ? 0xff : P;
-                        *dst++ = static_cast<unsigned char>(Clamped);
+                        int          P          = static_cast<int>((*src++) * 255.0f);
+                        unsigned int clampedVal = P < 0 ? 0 : P > 0xff ? 0xff : P;
+                        *dst++ = static_cast<unsigned char>(clampedVal);
                     }
                 }
             }
@@ -124,17 +164,17 @@ void RayTracer::saveFrame()
 
         case RT_FORMAT_FLOAT4:
             // This buffer is upside down
-            for(int j = height - 1; j >= 0; --j)
+            for(int j = m_Height - 1; j >= 0; --j)
             {
-                unsigned char* dst = &pix[0] + (3 * width * (height - 1 - j));
-                float*         src = ((float*)imageData) + (4 * width * j);
-                for(int i = 0; i < width; i++)
+                unsigned char* dst = &data[0] + (3 * m_Width * (m_Height - 1 - j));
+                float*         src = ((float*)imageData) + (4 * m_Width * j);
+                for(int i = 0; i < m_Width; i++)
                 {
                     for(int elem = 0; elem < 3; ++elem)
                     {
-                        int          P       = static_cast<int>((*src++) * 255.0f);
-                        unsigned int Clamped = P < 0 ? 0 : P > 0xff ? 0xff : P;
-                        *dst++ = static_cast<unsigned char>(Clamped);
+                        int          P          = static_cast<int>((*src++) * 255.0f);
+                        unsigned int clampedVal = P < 0 ? 0 : P > 0xff ? 0xff : P;
+                        *dst++ = static_cast<unsigned char>(clampedVal);
                     }
 
                     // skip alpha
@@ -144,41 +184,47 @@ void RayTracer::saveFrame()
             break;
 
         default:
-            fprintf(stderr, "Unrecognized buffer data type or format.\n");
-            exit(2);
-            break;
-    }
-
-    std::string suffix;
-    std::string fn(filename);
-    if(fn.length() > 4)
-    {
-        suffix = fn.substr(fn.length() - 4);
-    }
-
-    if(suffix == ".ppm")
-    {
-        SavePPM(&pix[0], filename, width, height, 3);
-    }
-    else if(suffix == ".png")
-    {
-        if(!stbi_write_png(filename, (int)width, (int)height, 3, &pix[0], /*row stride in bytes*/ width * 3 * sizeof(unsigned char)))
-        {
-            throw Exception(std::string("Failed to write image: ") + filename);
-        }
-    }
-    else
-    {
-        throw Exception(std::string("Unrecognized output image file extension: ") + filename);
+            __BNN_DIE("Unknown buffer format");
     }
 
     // Now unmap the buffer
-    RT_CHECK_ERROR(rtBufferUnmap(buffer));
+    RT_CHECK_ERROR(rtBufferUnmap(m_OutBuffer->get()));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void RayTracer::setCamera(const optix::float3& eye, const optix::float3& u, const optix::float3& v, const optix::float3& w)
+void RayTracer::createOptiXContext(int width, int height)
 {
+    m_AspectRatio = static_cast<float>(width) / static_cast<float>(height);
+    m_Width       = width;
+    m_Height      = height;
+    ////////////////////////////////////////////////////////////////////////////////
+    // Set up context
+    m_OptiXContext = optix::Context::create();
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // create output buffer
+    m_OutBuffer = m_OptiXContext->createBuffer(RT_BUFFER_OUTPUT, RT_FORMAT_UNSIGNED_BYTE4, width, height);
+    m_OptiXContext["output_buffer"]->set(m_OutBuffer);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void RayTracer::resizeViewport(int width, int height)
+{
+    m_AspectRatio = static_cast<float>(width) / static_cast<float>(height);
+    m_Width       = width;
+    m_Height      = height;
+    resizeBuffer(getOptiXOutputBuffer(), width, height);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void RayTracer::updateCamera()
+{
+    static optix::float3 eye;
+    static optix::float3 u;
+    static optix::float3 v;
+    static optix::float3 w;
+
+    computeEyeUVW(eye, u, v, w);
     m_OptiXContext["eye"]->setFloat(eye);
     m_OptiXContext["U"]->setFloat(u);
     m_OptiXContext["V"]->setFloat(v);
@@ -190,8 +236,7 @@ void RayTracer::resizeBuffer(optix::Buffer buffer, int width, int height)
 {
     buffer->setSize(width, height);
 
-    // Check if we have a GL interop display buffer
-    const unsigned pboId = buffer->getGLBOId();
+    GLuint pboId = buffer->getGLBOId();
     if(pboId)
     {
         buffer->unregisterGLBuffer();
@@ -200,4 +245,27 @@ void RayTracer::resizeBuffer(optix::Buffer buffer, int width, int height)
         glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
         buffer->registerGLBuffer();
     }
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void RayTracer::computeEyeUVW(optix::float3& eye_out, optix::float3& u_out, optix::float3& v_out, optix::float3& w_out)
+{
+    float            ulen, vlen, wlen;
+    const glm::vec3& eye = m_Camera->getCameraPosition();
+    glm::vec3        W   = m_Camera->getCameraFocus() - eye; // Do not normalize W -- it implies focal length
+
+    wlen = glm::length(W);
+    glm::vec3 U = glm::normalize(glm::cross(W, m_Camera->getCameraUpDirection()));
+    glm::vec3 V = glm::normalize(glm::cross(U, W));
+
+    vlen = wlen * tanf(0.5f * M_PIf * m_Camera->getFrustum().m_Fov / 180.0f);
+    ulen = vlen * m_AspectRatio;
+    V   *= vlen;
+    U   *= ulen;
+
+    ////////////////////////////////////////////////////////////////////////////////
+    eye_out = optix::make_float3(eye[0], eye[1], eye[2]);
+    u_out   = optix::make_float3(U[0], U[1], U[2]);
+    v_out   = optix::make_float3(V[0], V[1], V[2]);
+    w_out   = optix::make_float3(W[0], W[1], W[2]);
 }

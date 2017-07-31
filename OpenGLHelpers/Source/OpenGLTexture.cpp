@@ -43,7 +43,7 @@ void OpenGLTexture::OpenGLTexture::generateMipMap()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLTexture::OpenGLTexture::uploadData(GLenum texTarget, GLint internalFormat, GLsizei width, GLsizei height,
-        GLenum dataFormat, GLenum dataType, const GLvoid* data)
+                                              GLenum dataFormat, GLenum dataType, const GLvoid* data)
 {
     assert(m_bTextureCreated);
 
@@ -87,7 +87,7 @@ void OpenGLTexture::setBorderColor(glm::vec4 borderColor)
 
     bind();
     glCall(glTexParameterfv(m_TexureTarget, GL_TEXTURE_BORDER_COLOR,
-                    glm::value_ptr(borderColor)));
+                            glm::value_ptr(borderColor)));
     release();
 }
 
@@ -143,6 +143,21 @@ void OpenGLTexture::setBestParametersNoMipMap()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void OpenGLTexture::setSimplestTexture()
+{
+    assert(m_bTextureCreated);
+
+    bind();
+    glCall(glTexParameteri(m_TexureTarget, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+    glCall(glTexParameteri(m_TexureTarget, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+    glCall(glTexParameteri(m_TexureTarget, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE));
+
+    glCall(glTexParameteri(m_TexureTarget, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
+    glCall(glTexParameteri(m_TexureTarget, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
+    release();
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLTexture::OpenGLTexture::bind(GLuint texUnit /*= 0*/)
 {
     assert(m_bTextureCreated);
@@ -188,9 +203,9 @@ void OpenGLTexture::loadTextures(std::vector<std::shared_ptr<OpenGLTexture> >& t
     {
         QString texFilePath = textureFolder + "/" + allTexFiles[i];
         futureObjs.emplace_back(std::async(std::launch::async, [&, texFilePath, i]()
-        {
-            textureImages[i] = QImage(texFilePath).convertToFormat(QImage::Format_RGBA8888);
-        }));
+                                           {
+                                               textureImages[i] = QImage(texFilePath).convertToFormat(QImage::Format_RGBA8888);
+                                           }));
     }
 
     for(std::future<void>& f : futureObjs)
