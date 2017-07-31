@@ -19,8 +19,8 @@
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 Camera::Camera() :
+    m_bDirty(true),
     m_bDebug(false),
-    m_bIsCameraChanged(false),
     m_bReseted(false),
     m_CameraPosition(glm::vec3(1, 0, 0)),
     m_CameraFocus(glm::vec3(0, 0, 0)),
@@ -50,6 +50,11 @@ void Camera::setDebug(bool bDebug)
     m_bDebug = bDebug;
 }
 
+void Camera::setDirty(bool dirty)
+{
+    m_bDirty = dirty;
+}
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Camera::setDefaultCamera(const glm::vec3& defaultPosition, const glm::vec3& defaultCameraFocus, const glm::vec3& defaultUpDirection)
 {
@@ -75,6 +80,8 @@ void Camera::setFrustum(float fov, float nearZ, float farZ)
     m_Frustum.m_Fov  = fov;
     m_Frustum.m_Near = nearZ;
     m_Frustum.m_Far  = farZ;
+
+    setDirty(true);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -85,6 +92,7 @@ void Camera::resizeWindow(int width, int height)
     m_ProjectionMatrix        = glm::perspective(m_Frustum.m_Fov, static_cast<float>(width) / static_cast<float>(height), m_Frustum.m_Near, m_Frustum.m_Far);
     m_InverseProjectionMatrix = glm::inverse(m_ProjectionMatrix);
     m_ViewProjectionMatrix    = m_ProjectionMatrix * m_ViewMatrix;
+    setDirty(true);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -92,32 +100,32 @@ void Camera::updateCameraMatrices()
 {
     if(m_bReseted)
     {
-        m_bReseted         = false;
-        m_bIsCameraChanged = true;
+        m_bReseted = false;
+        setDirty(true);
         return;
     }
 
-    m_bIsCameraChanged = false;
+    setDirty(false);
 
     if(glm::dot(m_Translation, m_Translation) > 1e-4)
     {
         translate();
-        m_bIsCameraChanged = true;
+        setDirty(true);
     }
 
     if(glm::dot(m_Rotation, m_Rotation) > 1e-4)
     {
         rotate();
-        m_bIsCameraChanged = true;
+        setDirty(true);
     }
 
     if(fabsf(m_Zooming) > 1e-4)
     {
         zoom();
-        m_bIsCameraChanged = true;
+        setDirty(true);
     }
 
-    if(m_bIsCameraChanged)
+    if(m_bDirty)
     {
         m_ViewMatrix           = glm::lookAt(m_CameraPosition, m_CameraFocus, m_CameraUpDirection);
         m_ViewProjectionMatrix = m_ProjectionMatrix * m_ViewMatrix;
@@ -143,6 +151,7 @@ void Camera::reset()
     ////////////////////////////////////////////////////////////////////////////////
     m_ViewMatrix           = glm::lookAt(m_CameraPosition, m_CameraFocus, m_CameraUpDirection);
     m_ViewProjectionMatrix = m_ProjectionMatrix * m_ViewMatrix;
+    setDirty(true);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -223,6 +232,7 @@ void Camera::translate()
 
     m_CameraPosition -= scale * (m_Translation.x * v + m_Translation.y * u);
     m_CameraFocus    -= scale * (m_Translation.x * v + m_Translation.y * u);
+    setDirty(true);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -277,6 +287,7 @@ void Camera::rotate()
 
     m_CameraPosition    = m_CameraFocus - eyeDir;
     m_CameraUpDirection = glm::cross(eyeDir, w);
+    setDirty(true);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -319,6 +330,7 @@ void Camera::zoom()
     }
 
     m_CameraPosition = len * eyeDir + m_CameraFocus;
+    setDirty(true);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -388,5 +400,5 @@ const Camera::Frustum& Camera::getFrustum() const
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 bool Camera::isCameraChanged()
 {
-    return m_bIsCameraChanged;
+    return m_bDirty;
 }

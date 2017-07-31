@@ -48,8 +48,8 @@ public:
     GLuint        getOutputBufferOID() const;
     void          getOutputAsTexture(const std::shared_ptr<OpenGLTexture>& texture);
     void          getOutputAsByteArray(std::vector<unsigned char>& data);
-    void          updateCamera();
     void          validateContext();
+    bool          updateCamera();
 
 protected:
     void resizeBuffer(optix::Buffer, int, int);

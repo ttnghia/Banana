@@ -228,8 +228,17 @@ void RayTracer::getOutputAsByteArray(std::vector<unsigned char>& data)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void RayTracer::updateCamera()
+void RayTracer::validateContext()
 {
+    m_OptiXContext->validate();
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+bool RayTracer::updateCamera()
+{
+    if(!m_Camera->isCameraChanged())
+        return false;
+
     static optix::float3 eye;
     static optix::float3 u;
     static optix::float3 v;
@@ -240,12 +249,8 @@ void RayTracer::updateCamera()
     m_OptiXContext["U"]->setFloat(u);
     m_OptiXContext["V"]->setFloat(v);
     m_OptiXContext["W"]->setFloat(w);
-}
 
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void RayTracer::validateContext()
-{
-    m_OptiXContext->validate();
+    return true;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

@@ -41,6 +41,7 @@ public:
     Camera();
     Camera(const glm::vec3& defaultPosition, const glm::vec3& defaultCameraFocus, const glm::vec3& defaultUpDirection);
     void setDebug(bool bDebug);
+    void setDirty(bool dirty);
 
     void setDefaultCamera(const glm::vec3& defaultPosition, const glm::vec3& defaultCameraFocus, const glm::vec3& defaultUpDirection);
     void setFrustum(float fov, float nearZ, float farZ);
@@ -86,10 +87,10 @@ public:
     bool isCameraChanged();
 
 private:
+    bool m_bDirty;
     bool m_bDebug;
     int  m_WindowWidth;
     int  m_WindowHeight;
-    bool m_bIsCameraChanged;
     bool m_bReseted;
 
     glm::vec3 m_CameraPosition;
