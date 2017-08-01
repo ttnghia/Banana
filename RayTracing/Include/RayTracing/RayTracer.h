@@ -38,6 +38,7 @@ public:
     RayTracer(const std::shared_ptr<Camera>& camera) : m_Camera(camera) {}
     virtual ~RayTracer() { destroyOptiXContext(); }
     void setCamera(const std::shared_ptr<Camera>& camera) { m_Camera = camera; }
+    bool isDone() { return m_bDone; }
 
     virtual void createOptiXContext(int, int);
     virtual void resizeViewport(int, int);
@@ -61,16 +62,16 @@ protected:
     void computeEyeUVW(optix::float3&, optix::float3&, optix::float3&, optix::float3&);
 
     ////////////////////////////////////////////////////////////////////////////////
-    std::shared_ptr<Camera>                      m_Camera       = nullptr;
-    optix::Context                               m_OptiXContext = 0;
-    optix::Buffer                                m_OutBuffer    = 0;
-    std::map<std::string, optix::Material>       m_Materials;
-    std::map<std::string, optix::TextureSampler> m_TexSamplers;
+    std::shared_ptr<Camera>                        m_Camera       = nullptr;
+    optix::Context                                 m_OptiXContext = 0;
+    optix::Buffer                                  m_OutBuffer    = 0;
+    std::map<std::string, optix::Material>         m_Materials;
+    std::map<std::string, optix::TextureSampler>   m_TexSamplers;
+    std::map<std::string, optix::GeometryInstance> m_Geometry;
 
-    unsigned int m_FrameNumber   = 0;
-    float        m_AspectRatio   = 1.0f;
-    int          m_Width         = 0;
-    int          m_Height        = 0;
-    bool         m_bRenderGround = true;
-    bool         m_bRenderSky    = true;
+    unsigned int m_FrameNumber = 0;
+    float        m_AspectRatio = 1.0f;
+    int          m_Width       = 0;
+    int          m_Height      = 0;
+    bool         m_bDone       = false;
 };
