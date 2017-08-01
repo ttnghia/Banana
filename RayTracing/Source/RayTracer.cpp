@@ -138,10 +138,15 @@ void RayTracer::getOutputAsTexture(const std::shared_ptr<OpenGLTexture>& texture
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void RayTracer::getOutputAsByteArray(std::vector<unsigned char>& data)
 {
+    data.resize(m_Width * m_Height * 3);
+    getOutputAsByteArray(data.data());
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void RayTracer::getOutputAsByteArray(unsigned char* data)
+{
     GLvoid* imageData;
     RT_CHECK_ERROR(rtBufferMap(m_OutBuffer->get(), &imageData));
-
-    data.resize(m_Width * m_Height * 3);
 
     switch(m_OutBuffer->getFormat())
     {
@@ -251,6 +256,73 @@ bool RayTracer::updateCamera()
     m_OptiXContext["W"]->setFloat(w);
 
     return true;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+optix::TextureSampler RayTracer::createTexSampler(const std::string& texFile, bool bUseCache /*= true*/)
+{
+    if(bUseCache)
+    {
+        optix::TextureSampler sampler = m_TexSamplers[texFile];
+        if(sampler != 0)
+            return sampler;
+    }
+
+    optix::TextureSampler sampler = m_OptiXContext->createTextureSampler();
+    sampler->setWrapMode(0, RT_WRAP_REPEAT);
+    sampler->setWrapMode(1, RT_WRAP_REPEAT);
+    sampler->setWrapMode(2, RT_WRAP_REPEAT);
+    sampler->setIndexingMode(RT_TEXTURE_INDEX_NORMALIZED_COORDINATES);
+    sampler->setReadMode(RT_TEXTURE_READ_NORMALIZED_FLOAT);
+    sampler->setMaxAnisotropy(1.0f);
+    sampler->setMipLevelCount(1u);
+    sampler->setArraySize(1u);
+
+
+    QImage         img(texFile.c_str());
+    optix::Buffer  buffer     = m_OptiXContext->createBuffer(RT_BUFFER_INPUT, RT_FORMAT_UNSIGNED_BYTE4, img.width(), img.height());
+    unsigned char* bufferData = static_cast<unsigned char*>(buffer->map());
+    memcpy(bufferData, img.convertToFormat(QImage::Format_RGBA8888).bits(), 4 * img.width() * img.height());
+
+    buffer->unmap();
+    sampler->setBuffer(0u, 0u, buffer);
+    sampler->setFilteringModes(RT_FILTER_LINEAR, RT_FILTER_LINEAR, RT_FILTER_NONE);
+
+    return sampler;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+optix::TextureSampler RayTracer::getDummyTexSampler(const glm::vec3& defaultColor /*= glm::vec3(1.0f)*/)
+{
+    static optix::TextureSampler sampler = m_OptiXContext->createTextureSampler();
+    static bool                  created = false;
+    if(created)
+        return sampler;
+
+    ////////////////////////////////////////////////////////////////////////////////
+    sampler->setWrapMode(0, RT_WRAP_REPEAT);
+    sampler->setWrapMode(1, RT_WRAP_REPEAT);
+    sampler->setWrapMode(2, RT_WRAP_REPEAT);
+    sampler->setIndexingMode(RT_TEXTURE_INDEX_NORMALIZED_COORDINATES);
+    sampler->setReadMode(RT_TEXTURE_READ_NORMALIZED_FLOAT);
+    sampler->setMaxAnisotropy(1.0f);
+    sampler->setMipLevelCount(1u);
+    sampler->setArraySize(1u);
+
+    // Create buffer with single texel set to default_color
+    optix::Buffer buffer      = m_OptiXContext->createBuffer(RT_BUFFER_INPUT, RT_FORMAT_FLOAT4, 1u, 1u);
+    float*        buffer_data = static_cast<float*>(buffer->map());
+    buffer_data[0] = defaultColor.x;
+    buffer_data[1] = defaultColor.y;
+    buffer_data[2] = defaultColor.z;
+    buffer_data[3] = 1.0f;
+    buffer->unmap();
+
+    sampler->setBuffer(0u, 0u, buffer);
+    sampler->setFilteringModes(RT_FILTER_LINEAR, RT_FILTER_LINEAR, RT_FILTER_NONE);
+
+    created = true;
+    return sampler;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

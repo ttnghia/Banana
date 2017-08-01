@@ -28,7 +28,7 @@ class MaterialSelector : public QWidget
 
 public:
     MaterialSelector(const Material::MaterialData& material = Material::MT_Emerald, bool defaultCustomMaterial = false,
-                     int comboBoxSpan = 3, QWidget* parent = nullptr);
+                     int comboBoxSpan = 4, QWidget* parent = nullptr);
 
     void       setDefaultCustomMaterial(bool defaultCustomMaterial);
     QComboBox* getComboBox() const;

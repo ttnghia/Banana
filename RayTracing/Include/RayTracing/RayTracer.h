@@ -29,6 +29,7 @@
 #include <OpenGLHelpers/OpenGLMacros.h>
 
 #include <memory>
+#include <map>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 class RayTracer : public OpenGLCallable
@@ -44,12 +45,15 @@ public:
     virtual void createScene()    = 0;
     virtual void render()         = 0;
 
-    optix::Buffer getOptiXOutputBuffer();
-    GLuint        getOutputBufferOID() const;
-    void          getOutputAsTexture(const std::shared_ptr<OpenGLTexture>& texture);
-    void          getOutputAsByteArray(std::vector<unsigned char>& data);
-    void          validateContext();
-    bool          updateCamera();
+    optix::Buffer         getOptiXOutputBuffer();
+    GLuint                getOutputBufferOID() const;
+    void                  getOutputAsTexture(const std::shared_ptr<OpenGLTexture>& texture);
+    void                  getOutputAsByteArray(std::vector<unsigned char>& data);
+    void                  getOutputAsByteArray(unsigned char* data);
+    void                  validateContext();
+    bool                  updateCamera();
+    optix::TextureSampler createTexSampler(const std::string& texFile, bool bUseCache = true);
+    optix::TextureSampler getDummyTexSampler(const glm::vec3& defaultColor = glm::vec3(1.0f));
 
 protected:
     void resizeBuffer(optix::Buffer, int, int);
@@ -57,9 +61,11 @@ protected:
     void computeEyeUVW(optix::float3&, optix::float3&, optix::float3&, optix::float3&);
 
     ////////////////////////////////////////////////////////////////////////////////
-    std::shared_ptr<Camera> m_Camera       = nullptr;
-    optix::Context          m_OptiXContext = 0;
-    optix::Buffer           m_OutBuffer    = 0;
+    std::shared_ptr<Camera>                      m_Camera       = nullptr;
+    optix::Context                               m_OptiXContext = 0;
+    optix::Buffer                                m_OutBuffer    = 0;
+    std::map<std::string, optix::Material>       m_Materials;
+    std::map<std::string, optix::TextureSampler> m_TexSamplers;
 
     unsigned int m_FrameNumber   = 0;
     float        m_AspectRatio   = 1.0f;
