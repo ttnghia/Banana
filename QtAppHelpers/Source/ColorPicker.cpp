@@ -18,16 +18,56 @@
 #include <QtAppHelpers/ColorPicker.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-ColorPicker::ColorPicker(QWidget *parent /*= 0*/) : QWidget(parent), m_CurrentColor(Qt::blue)
+ColorPicker::ColorPicker(QWidget* parent /*= 0*/, QSize size /*= QSize(50, 25)*/) :
+    QWidget(parent), m_DefaultSize(size), m_CurrentColor(Qt::blue), m_GroupBox(nullptr), m_Layout(nullptr)
 {
     setMouseTracking(true);
     setAutoFillBackground(true);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void ColorPicker::setDefaultSize(QSize size)
+{
+    m_DefaultSize = size;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 QSize ColorPicker::sizeHint() const
 {
-    return QSize(50, 25);
+    return m_DefaultSize;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+QLayout* ColorPicker::getLayout(const QString& label, int labelStretch /*= 5*/)
+{
+    if(m_Layout == nullptr)
+    {
+        m_Layout = new QGridLayout;
+
+        if(label.isEmpty())
+        {
+            m_Layout->addWidget(this, 0, 0, 1, 1);
+        }
+        else
+        {
+            m_Layout->addWidget(new QLabel(label), 0, 0,            1, labelStretch, Qt::AlignRight);
+            m_Layout->addWidget(this,              0, labelStretch, 1, 1);
+        }
+    }
+
+    return m_Layout;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+QGroupBox* ColorPicker::getGroupBox(const QString& title /*= QString("")*/, const QString& label /*= QString("")*/)
+{
+    if(m_GroupBox == nullptr)
+    {
+        m_GroupBox = new QGroupBox(title);
+        m_GroupBox->setLayout(getLayout(label));
+    }
+
+    return m_GroupBox;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -47,7 +87,7 @@ QColor ColorPicker::getColor() const
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void ColorPicker::paintEvent(QPaintEvent * e)
+void ColorPicker::paintEvent(QPaintEvent* e)
 {
     QPainter painter(this);
     painter.drawRoundedRect(1, 1, width() - 1, height() - 1, 1, 1);
@@ -56,7 +96,7 @@ void ColorPicker::paintEvent(QPaintEvent * e)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void ColorPicker::mousePressEvent(QMouseEvent *)
+void ColorPicker::mousePressEvent(QMouseEvent*)
 {
     QColor color = QColorDialog::getColor(m_CurrentColor, this);
     if(color.isValid())
@@ -66,17 +106,19 @@ void ColorPicker::mousePressEvent(QMouseEvent *)
         emit colorChanged(static_cast<float>(color.red()) / 255.0,
                           static_cast<float>(color.green()) / 255.0,
                           static_cast<float>(color.blue()) / 255.0);
+
+        emit colorRGBChanged(color);
     }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void ColorPicker::enterEvent(QEvent *)
+void ColorPicker::enterEvent(QEvent*)
 {
     QApplication::setOverrideCursor(QCursor(Qt::PointingHandCursor));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void ColorPicker::leaveEvent(QEvent *)
+void ColorPicker::leaveEvent(QEvent*)
 {
     QApplication::restoreOverrideCursor();
 }

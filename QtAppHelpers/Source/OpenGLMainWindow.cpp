@@ -47,19 +47,15 @@ OpenGLMainWindow::OpenGLMainWindow(QWidget* parent, bool bShowFPS /*= true*/, bo
     m_VSync = (sformat.swapInterval() > 0);
 }
 
-
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 OpenGLMainWindow::~OpenGLMainWindow()
 {
     delete m_GLWidget;
 }
 
-
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-bool OpenGLMainWindow::eventFilter(QObject* obj, QEvent* ev)
+bool OpenGLMainWindow::eventFilter(QObject*, QEvent* ev)
 {
-    (void)obj;
-    ////////////////////////////////////////////////////////////////////////////////
     if(ev->type() == QEvent::KeyPress)
     {
         QKeyEvent* keyEvent = static_cast<QKeyEvent*>(ev);
@@ -75,7 +71,6 @@ bool OpenGLMainWindow::eventFilter(QObject* obj, QEvent* ev)
 
     return false;
 }
-
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 bool OpenGLMainWindow::processKeyPressEvent(QKeyEvent* ev)
@@ -134,20 +129,17 @@ void OpenGLMainWindow::setArthurStyle()
     }
 }
 
-
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLMainWindow::updateStatusFrameRate(double fps)
 {
     m_lblStatusFPS->setText(QString("FPS: %1 (%2 ms/frame) | VSync: %3").arg(fps).arg(1000.0 / fps).arg(m_VSync ? "On" : "Off"));
 }
 
-
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLMainWindow::updateStatusCameraPosition(const glm::vec3& camPosition)
 {
     m_lblStatusCamPosition->setText(QString("Camera: [%1, %2, %3]").arg(camPosition[0]).arg(camPosition[1]).arg(camPosition[2]));
 }
-
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLMainWindow::setupOpenglWidget(OpenGLWidget* glWidget)
