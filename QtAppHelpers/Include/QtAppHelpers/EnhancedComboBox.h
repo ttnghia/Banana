@@ -25,20 +25,20 @@ class EnhancedComboBox : public QWidget
     Q_OBJECT
 
 public:
-    EnhancedComboBox(int comboBoxSpan = 3, QWidget *parent = nullptr);
+    EnhancedComboBox(int comboBoxSpan = 3, QWidget* parent = nullptr);
 
     void enableCycling();
     void disableCycling();
 
-    QComboBox* getComboBox()const;
-    QLayout* getLayout()const;
-    QLayout* getLayoutWithLabel(const QString& label, int comboStretch = 5);
+    QComboBox* getComboBox() const;
+    QLayout*   getLayout() const;
+    QLayout*   getLayoutWithLabel(const QString& label, int comboStretch = 5);
     QGroupBox* getGroupBox(const QString& title = QString(""));
 
     void setCurrentIndex(int index);
-    int getCurrentIndex() const;
+    int  getCurrentIndex() const;
 
-    public slots:
+public slots:
     void setEnabled(bool enabled);
     void prevItem();
     void nextItem();
