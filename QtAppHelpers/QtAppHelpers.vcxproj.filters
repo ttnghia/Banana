@@ -59,6 +59,9 @@
     <ClCompile Include="Source\EnhancedComboBox.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+	<ClCompile Include="Source\PaintArea.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
 	<ClCompile Include="Source\EnhancedMessageBox.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -108,6 +111,18 @@
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\ReleaseQt\moc_EnhancedComboBox.cpp">
+      <Filter>Generated Files\ReleaseQt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\DebugQt\moc_PaintArea.cpp">
+      <Filter>Generated Files\DebugQt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\Debug\moc_PaintArea.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\Release\moc_PaintArea.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\ReleaseQt\moc_PaintArea.cpp">
       <Filter>Generated Files\ReleaseQt</Filter>
     </ClCompile>
 	<ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\DebugQt\moc_EnhancedMessageBox.cpp">
@@ -311,6 +326,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <CustomBuild Include="Include\QtAppHelpers\EnhancedComboBox.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+	<CustomBuild Include="Include\QtAppHelpers\PaintArea.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
 	<CustomBuild Include="Include\QtAppHelpers\EnhancedMessageBox.h">
