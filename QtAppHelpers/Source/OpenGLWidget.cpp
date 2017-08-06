@@ -40,7 +40,9 @@ OpenGLWidget::OpenGLWidget(QWidget* parent) :
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 OpenGLWidget::~OpenGLWidget()
 {
+#ifdef __BNN_USE_ANT_TWEAK_BAR
     shutDownAntTweakBar();
+#endif
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -79,7 +81,10 @@ bool OpenGLWidget::exportScreenToImage(int frame)
     if(m_CapturePath.isEmpty())
         return false;
 
+    makeCurrent();
     glCall(glReadPixels(0, 0, width(), height(), GL_RGB, GL_UNSIGNED_BYTE, m_CaptureImage->bits()));
+    doneCurrent();
+
     m_CaptureImage->mirrored().save(QString(m_CapturePath + "/frame.%1.jpg").arg(frame, 4, 10, QChar('0')));
 
     return true;
@@ -106,10 +111,12 @@ QSize OpenGLWidget::minimumSizeHint() const
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLWidget::mousePressEvent(QMouseEvent* ev)
 {
+#ifdef __BNN_USE_ANT_TWEAK_BAR
     if(TwMousePressQt(this, ev))
     {
         return;
     }
+#endif
 
     if(ev->button() == Qt::LeftButton)
     {
@@ -130,10 +137,12 @@ void OpenGLWidget::mousePressEvent(QMouseEvent* ev)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLWidget::mouseReleaseEvent(QMouseEvent* event)
 {
+#ifdef __BNN_USE_ANT_TWEAK_BAR
     if(TwMouseReleaseQt(this, event))
     {
         return;
     }
+#endif
 
     m_MouseButtonPressed = MouseButton::NoButton;
 }
@@ -141,10 +150,12 @@ void OpenGLWidget::mouseReleaseEvent(QMouseEvent* event)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLWidget::mouseMoveEvent(QMouseEvent* ev)
 {
+#ifdef __BNN_USE_ANT_TWEAK_BAR
     if(TwMouseMotionQt(this, ev))
     {
         return;
     }
+#endif
 
     if(m_MouseButtonPressed == MouseButton::LeftButton)
     {
@@ -177,19 +188,20 @@ void OpenGLWidget::wheelEvent(QWheelEvent* ev)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void OpenGLWidget::showEvent(QShowEvent* ev)
+void OpenGLWidget::showEvent(QShowEvent*)
 {
-    (void)ev;
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLWidget::keyPressEvent(QKeyEvent* ev)
 {
+#ifdef __BNN_USE_ANT_TWEAK_BAR
     if(TwKeyPressQt(ev))
     {
         return;
     }
+#endif
 
     switch(ev->key())
     {
@@ -246,9 +258,10 @@ void OpenGLWidget::initializeGL()
     initializeOpenGLFunctions();
     checkGLErrors();
     // checkGLVersion();
-
+#ifdef __BNN_USE_ANT_TWEAK_BAR
     initializeAntTweakBar();
     setupTweakBar();
+#endif
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_MULTISAMPLE);
@@ -276,8 +289,9 @@ void OpenGLWidget::resizeGL(int w, int h)
 {
     glCall(glViewport(0, 0, w, h));
     m_Camera->resizeWindow((float)w, (float)h);
+#ifdef __BNN_USE_ANT_TWEAK_BAR
     resizeAntTweakBarWindow(w, h);
-
+#endif
     m_CaptureImage.reset(new QImage(w, h, QImage::Format_RGB888));
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -290,9 +304,9 @@ void OpenGLWidget::paintGL()
 {
 #if 0
     glClearColor(rand() / (float)RAND_MAX,
-        rand() / (float)RAND_MAX,
-        rand() / (float)RAND_MAX,
-        1);
+                 rand() / (float)RAND_MAX,
+                 rand() / (float)RAND_MAX,
+                 1);
 #endif
 
     m_FPSCounter.countFrame();
@@ -310,11 +324,11 @@ void OpenGLWidget::uploadCameraData()
     m_Camera->updateCameraMatrices();
     if(m_Camera->isCameraChanged())
     {
-        m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getViewMatrix()), 0, sizeof(glm::mat4));
-        m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getProjectionMatrix()), sizeof(glm::mat4), sizeof(glm::mat4));
-        m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getInverseViewMatrix()), 2 * sizeof(glm::mat4), sizeof(glm::mat4));
+        m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getViewMatrix()),              0,                     sizeof(glm::mat4));
+        m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getProjectionMatrix()),        sizeof(glm::mat4),     sizeof(glm::mat4));
+        m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getInverseViewMatrix()),       2 * sizeof(glm::mat4), sizeof(glm::mat4));
         m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getInverseProjectionMatrix()), 3 * sizeof(glm::mat4), sizeof(glm::mat4));
-        m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getCameraPosition()), 5 * sizeof(glm::mat4), sizeof(glm::vec3));
+        m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getCameraPosition()),          5 * sizeof(glm::mat4), sizeof(glm::vec3));
 
         emit cameraPositionChanged(m_Camera->getCameraPosition());
     }
@@ -375,8 +389,8 @@ void OpenGLWidget::checkGLVersion()
     QString verStr = QString((const char*)glGetString(GL_VERSION));
     emit    emitDebugString(QString("GLVersion: ") + verStr);
 
-    int     major = verStr.left(verStr.indexOf(".")).toInt();
-    int     minor = verStr.mid(verStr.indexOf(".") + 1, 1).toInt();
+    int major = verStr.left(verStr.indexOf(".")).toInt();
+    int minor = verStr.mid(verStr.indexOf(".") + 1, 1).toInt();
 
     if(!(major >= 4 && minor >= 1))
     {
@@ -394,7 +408,7 @@ void OpenGLWidget::checkGLExtensions(QVector<QString> extensions)
     QString extStr = QString((const char*)glGetString(GL_EXTENSIONS));
     emit    emitDebugString(extStr);
 
-    bool    check = true;
+    bool check = true;
 
     for(QString ext : extensions)
     {

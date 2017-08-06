@@ -25,13 +25,7 @@
 // PaintArea class
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-PaintArea::PaintArea(QWidget* parent) :
-    QWidget(parent),
-    m_Image(400, 400, QImage::Format_RGB32),
-    m_BrushColor(Qt::blue),
-    m_BackgroundColor(Qt::white),
-    m_BrushSize(3),
-    m_LastMousePos(-1, -1)
+PaintArea::PaintArea(QWidget* parent) : QWidget(parent)
 {
     setAttribute(Qt::WA_StaticContents);
     setAttribute(Qt::WA_NoBackground);
@@ -151,12 +145,13 @@ void PaintArea::mousePressEvent(QMouseEvent* event)
         }
         else
         {
-            const QRect rect = mousePress(m_BrushStyle, painter,
-                                          event->pos());
+            const QRect rect = mousePress(m_BrushStyle, painter, event->pos());
             update(rect);
 
             m_LastMousePos = event->pos();
         }
+
+        emit paintingStarted();
     }
 }
 
@@ -183,6 +178,8 @@ void PaintArea::mouseReleaseEvent(QMouseEvent* event)
         QRect rect = mouseRelease(m_BrushStyle, painter, event->pos());
         update(rect);
         m_LastMousePos = QPoint(-1, -1);
+
+        emit paintingFinished();
     }
 }
 
@@ -319,7 +316,7 @@ void PaintAreaController::setupGUI()
     m_pkrBrushColor = new ColorPicker(this, QSize(22, 22));
     m_pkrBrushColor->setColor(m_PaintArea != nullptr ? m_PaintArea->getBrushColor() : Qt::gray);
 
-    controlLayout->addWidget(m_pkrBrushColor->getGroupBox("Brush Color:"));
+    controlLayout->addWidget(m_pkrBrushColor->getGroupBox("Brush Color"));
 
     ////////////////////////////////////////////////////////////////////////////////
     // brush size

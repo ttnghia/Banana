@@ -154,7 +154,6 @@ void SDFCylinder(const Vec3<T>& cylinderBase, const Vec3<T>& cylinderDirection, 
 {
     SDF.resize(ni, nj, nk);
     SDF.assign((ni + nj + nk) * cellSize); // upper bound on distance
-
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -174,78 +173,78 @@ void SDFMesh(const std::vector<Vec3ui>& faces, const std::vector<Vec3<T> >& vert
 
     tbb::parallel_for(tbb::blocked_range<size_t>(0, faces.size()),
                       [&](tbb::blocked_range<size_t> r)
-        {
-            // for(UInt32 t = 0; t < tri.size(); ++t)
-            for(size_t face = r.begin(); face != r.end(); ++face)
-            {
-                UInt32 p, q, r;
-                VecUtils::assign(faces[face], p, q, r);
-                // coordinates in grid to high precision
-                T fip = ((T)vertices[p][0] - origin[0]) / cellSize,
-                fjp = ((T)vertices[p][1] - origin[1]) / cellSize,
-                fkp = ((T)vertices[p][2] - origin[2]) / cellSize;
+                      {
+                          // for(UInt32 t = 0; t < tri.size(); ++t)
+                          for(size_t face = r.begin(); face != r.end(); ++face)
+                          {
+                              UInt32 p, q, r;
+                              VecUtils::assign(faces[face], p, q, r);
+                              // coordinates in grid to high precision
+                              T fip = ((T)vertices[p][0] - origin[0]) / cellSize,
+                              fjp = ((T)vertices[p][1] - origin[1]) / cellSize,
+                              fkp = ((T)vertices[p][2] - origin[2]) / cellSize;
 
-                T fiq = ((T)vertices[q][0] - origin[0]) / cellSize,
-                fjq = ((T)vertices[q][1] - origin[1]) / cellSize,
-                fkq = ((T)vertices[q][2] - origin[2]) / cellSize;
+                              T fiq = ((T)vertices[q][0] - origin[0]) / cellSize,
+                              fjq = ((T)vertices[q][1] - origin[1]) / cellSize,
+                              fkq = ((T)vertices[q][2] - origin[2]) / cellSize;
 
-                T fir = ((T)vertices[r][0] - origin[0]) / cellSize,
-                fjr = ((T)vertices[r][1] - origin[1]) / cellSize,
-                fkr = ((T)vertices[r][2] - origin[2]) / cellSize;
-                // do distances nearby
-                int i0 = MathHelpers::clamp(int(MathHelpers::min(fip, fiq, fir)) - exactBand, 0, ni - 1);
-                int i1 = MathHelpers::clamp(int(MathHelpers::max(fip, fiq, fir)) + exactBand + 1, 0, ni - 1);
-                int j0 = MathHelpers::clamp(int(MathHelpers::min(fjp, fjq, fjr)) - exactBand, 0, nj - 1);
-                int j1 = MathHelpers::clamp(int(MathHelpers::max(fjp, fjq, fjr)) + exactBand + 1, 0, nj - 1);
-                int k0 = MathHelpers::clamp(int(MathHelpers::min(fkp, fkq, fkr)) - exactBand, 0, nk - 1);
-                int k1 = MathHelpers::clamp(int(MathHelpers::max(fkp, fkq, fkr)) + exactBand + 1, 0, nk - 1);
+                              T fir = ((T)vertices[r][0] - origin[0]) / cellSize,
+                              fjr = ((T)vertices[r][1] - origin[1]) / cellSize,
+                              fkr = ((T)vertices[r][2] - origin[2]) / cellSize;
+                              // do distances nearby
+                              int i0 = MathHelpers::clamp(int(MathHelpers::min(fip, fiq, fir)) - exactBand, 0, ni - 1);
+                              int i1 = MathHelpers::clamp(int(MathHelpers::max(fip, fiq, fir)) + exactBand + 1, 0, ni - 1);
+                              int j0 = MathHelpers::clamp(int(MathHelpers::min(fjp, fjq, fjr)) - exactBand, 0, nj - 1);
+                              int j1 = MathHelpers::clamp(int(MathHelpers::max(fjp, fjq, fjr)) + exactBand + 1, 0, nj - 1);
+                              int k0 = MathHelpers::clamp(int(MathHelpers::min(fkp, fkq, fkr)) - exactBand, 0, nk - 1);
+                              int k1 = MathHelpers::clamp(int(MathHelpers::max(fkp, fkq, fkr)) + exactBand + 1, 0, nk - 1);
 
-                for(int k = k0; k <= k1; ++k)
-                    for(int j = j0; j <= j1; ++j)
-                        for(int i = i0; i <= i1; ++i)
-                        {
-                            Vec3 gx(i * cellSize + origin[0], j * cellSize + origin[1],
-                                    k * cellSize + origin[2]);
-                            T d = point_triangle_distance(gx, vertices[p], vertices[q], vertices[r]);
+                              for(int k = k0; k <= k1; ++k)
+                                  for(int j = j0; j <= j1; ++j)
+                                      for(int i = i0; i <= i1; ++i)
+                                      {
+                                          Vec3 gx(i * cellSize + origin[0], j * cellSize + origin[1],
+                                                  k * cellSize + origin[2]);
+                                          T d = point_triangle_distance(gx, vertices[p], vertices[q], vertices[r]);
 
-                            if(d < SDF(i, j, k))
-                            {
-                                SDF(i, j, k) = d;
-                                closest_tri(i, j, k) = face;
-                            }
-                        }
+                                          if(d < SDF(i, j, k))
+                                          {
+                                              SDF(i, j, k) = d;
+                                              closest_tri(i, j, k) = face;
+                                          }
+                                      }
 
-                // and do intersection counts
-                j0 = MathHelpers::clamp((int)std::ceil(MathHelpers::min(fjp, fjq, fjr)), 0, nj - 1);
-                j1 = MathHelpers::clamp((int)std::floor(MathHelpers::max(fjp, fjq, fjr)), 0, nj - 1);
-                k0 = MathHelpers::clamp((int)std::ceil(MathHelpers::min(fkp, fkq, fkr)), 0, nk - 1);
-                k1 = MathHelpers::clamp((int)std::floor(MathHelpers::max(fkp, fkq, fkr)), 0, nk - 1);
+                              // and do intersection counts
+                              j0 = MathHelpers::clamp((int)std::ceil(MathHelpers::min(fjp, fjq, fjr)), 0, nj - 1);
+                              j1 = MathHelpers::clamp((int)std::floor(MathHelpers::max(fjp, fjq, fjr)), 0, nj - 1);
+                              k0 = MathHelpers::clamp((int)std::ceil(MathHelpers::min(fkp, fkq, fkr)), 0, nk - 1);
+                              k1 = MathHelpers::clamp((int)std::floor(MathHelpers::max(fkp, fkq, fkr)), 0, nk - 1);
 
-                for(int k = k0; k <= k1; ++k)
-                    for(int j = j0; j <= j1; ++j)
-                    {
-                        T a, b, c;
+                              for(int k = k0; k <= k1; ++k)
+                                  for(int j = j0; j <= j1; ++j)
+                                  {
+                                      T a, b, c;
 
-                        if(point_in_triangle_2d(j, k, fjp, fkp, fjq, fkq, fjr, fkr, a, b, c))
-                        {
-                            T fi = a * fip + b * fiq + c * fir;  // intersection i coordinate
-                            int i_interval = int(std::ceil(fi)); // intersection is in (i_interval-1,i_interval]
+                                      if(point_in_triangle_2d(j, k, fjp, fkp, fjq, fkq, fjr, fkr, a, b, c))
+                                      {
+                                          T fi = a * fip + b * fiq + c * fir;  // intersection i coordinate
+                                          int i_interval = int(std::ceil(fi)); // intersection is in (i_interval-1,i_interval]
 
-                            if(i_interval < 0)
-                            {
-                                ++intersection_count(0, j,
-                                                     k); // we enlarge the first interval to include everything to the -x direction
-                            }
-                            else if(i_interval < ni)
-                            {
-                                ++intersection_count(i_interval, j, k);
-                            }
+                                          if(i_interval < 0)
+                                          {
+                                              ++intersection_count(0, j,
+                                                                   k); // we enlarge the first interval to include everything to the -x direction
+                                          }
+                                          else if(i_interval < ni)
+                                          {
+                                              ++intersection_count(i_interval, j, k);
+                                          }
 
-                            // we ignore intersections that are beyond the +x side of the grid
-                        }
-                    }
-            } // end for t
-        }); // end parallel_for
+                                          // we ignore intersections that are beyond the +x side of the grid
+                                      }
+                                  }
+                          } // end for t
+                      }); // end parallel_for
 
 
     // and now we fill in the rest of the distances with fast sweeping
@@ -324,6 +323,7 @@ void SDFMesh(const std::vector<Vec3ui>& faces, const std::vector<Vec3<T> >& vert
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //Given two signed distance values (line endpoints), determine what fraction of a connecting segment is "inside"
+template<class T>
 T fraction_inside(T phi_left, T phi_right)
 {
     if(phi_left < 0 && phi_right < 0)
@@ -348,8 +348,8 @@ T fraction_inside(T phi_left, T phi_right)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //Given four signed distance values (square corners), determine what fraction of the square is "inside"
-T fraction_inside(T phi_bl, T phi_br, T phi_tl,
-                  T phi_tr)
+template<class T>
+T fraction_inside(T phi_bl, T phi_br, T phi_tl, T phi_tr)
 {
     int inside_count = (phi_bl < 0 ? 1 : 0) + (phi_tl < 0 ? 1 : 0) + (phi_br < 0 ? 1 : 0) +
                        (phi_tr < 0 ? 1 : 0);
@@ -446,10 +446,10 @@ T fraction_inside(T phi_bl, T phi_br, T phi_tl,
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // find distance x0 is from segment x1-x2
-T point_segment_distance(const Vec3& x0, const Vec3& x1,
-                         const Vec3& x2)
+template<class T>
+T point_segment_distance(const Vec3<T>& x0, const Vec3<T>& x1, const Vec3<SignDistanceField::T>& x2)
 {
-    Vec3 dx(x2 - x1);
+    Vec3<T> dx(x2 - x1);
 
 #ifdef __Using_Eigen_Lib__
     T m2 = dx.squaredNorm();
@@ -480,9 +480,8 @@ T point_segment_distance(const Vec3& x0, const Vec3& x1,
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // find distance x0 is from triangle x1-x2-x3
-T point_triangle_distance(const Vec3& x0, const Vec3& x1,
-                          const Vec3& x2,
-                          const Vec3& x3)
+template<class T>
+T point_triangle_distance(const Vec3<T>& x0, const Vec3<T>& x1, const Vec3<T>& x2, const Vec3<T>& x3)
 {
     // first find barycentric coordinates of closest point on infinite plane
     Vec3 x13(x1 - x3), x23(x2 - x3), x03(x0 - x3);
@@ -529,10 +528,11 @@ T point_triangle_distance(const Vec3& x0, const Vec3& x1,
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class T>
 void check_neighbour(const std::vector<Vec3ui>& tri,
-                     const std::vector<Vec3>& x,
-                     Array3_T& phi, Array3i& closest_tri,
-                     const Vec3& gx, UInt32 i0, UInt32 j0, UInt32 k0,
+                     const std::vector<Vec3<T> >& x,
+                     Array3<T>& phi, Array3i& closest_tri,
+                     const Vec3<T>& gx, UInt32 i0, UInt32 j0, UInt32 k0,
                      int i1, int j1, int k1)
 {
     if(closest_tri(i1, j1, k1) >= 0)
@@ -550,9 +550,10 @@ void check_neighbour(const std::vector<Vec3ui>& tri,
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class T>
 void sweep(const std::vector<Vec3ui>& tri,
-           const std::vector<Vec3>& x,
-           Array3_T& phi, Array3i& closest_tri, const Vec3& origin, T dx,
+           const std::vector<Vec3<SignDistanceField::T> >& x,
+           Array3<T>& phi, Array3i& closest_tri, const Vec3<T>& origin, T dx,
            int di, int dj, int dk)
 {
     int i0, i1;
@@ -651,6 +652,7 @@ void sweep(const std::vector<Vec3ui>& tri,
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // calculate twice signed area of triangle (0,0)-(x1,y1)-(x2,y2)
 // return an SOS-determined sign (-1, +1, or 0 only if it's a truly degenerate triangle)
+template<class T>
 int orientation(T x1, T y1, T x2, T y2,
                 T& twice_signed_area)
 {
@@ -689,6 +691,7 @@ int orientation(T x1, T y1, T x2, T y2,
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // robust test of (x0,y0) in the triangle (x1,y1)-(x2,y2)-(x3,y3)
 // if true is returned, the barycentric coordinates are set in a,b,c.
+template<class T>
 bool point_in_triangle_2d(T x0, T y0,
                           T x1, T y1, T x2, T y2, T x3, T y3,
                           T& a, T& b, T& c)
@@ -730,6 +733,7 @@ bool point_in_triangle_2d(T x0, T y0,
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class T>
 void cycle_array(T* arr, int size)
 {
     T t = arr[0];

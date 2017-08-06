@@ -47,9 +47,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\AntTweakBarWrapper.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\AvgTimer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -59,10 +56,10 @@
     <ClCompile Include="Source\EnhancedComboBox.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-	<ClCompile Include="Source\PaintArea.cpp">
+    <ClCompile Include="Source\PaintArea.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-	<ClCompile Include="Source\EnhancedMessageBox.cpp">
+    <ClCompile Include="Source\EnhancedMessageBox.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\EnhancedSlider.cpp">
@@ -125,7 +122,7 @@
     <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\ReleaseQt\moc_PaintArea.cpp">
       <Filter>Generated Files\ReleaseQt</Filter>
     </ClCompile>
-	<ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\DebugQt\moc_EnhancedMessageBox.cpp">
+    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\DebugQt\moc_EnhancedMessageBox.cpp">
       <Filter>Generated Files\DebugQt</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\Debug\moc_EnhancedMessageBox.cpp">
@@ -328,10 +325,10 @@
     <CustomBuild Include="Include\QtAppHelpers\EnhancedComboBox.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
-	<CustomBuild Include="Include\QtAppHelpers\PaintArea.h">
+    <CustomBuild Include="Include\QtAppHelpers\PaintArea.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
-	<CustomBuild Include="Include\QtAppHelpers\EnhancedMessageBox.h">
+    <CustomBuild Include="Include\QtAppHelpers\EnhancedMessageBox.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
     <CustomBuild Include="Include\QtAppHelpers\EnhancedSlider.h">

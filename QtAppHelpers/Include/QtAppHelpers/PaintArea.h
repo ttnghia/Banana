@@ -58,6 +58,10 @@ public:
     LineStyle getLineStyle() const { return m_LineStyle; }
     int getBrushSize() const { return m_BrushSize; }
 
+signals:
+    void paintingStarted();
+    void paintingFinished();
+
 public slots:
     void clear();
     void resize(int width, int height);
@@ -83,14 +87,18 @@ private:
     QRect mouseMove(BrushStyle m_BrushStyle, QPainter& painter, const QPoint& oldPos, const QPoint& newPos);
 
     ////////////////////////////////////////////////////////////////////////////////
-    BrushStyle   m_BrushStyle = PaintArea::BrushStyle::PencilBrush;
-    LineStyle    m_LineStyle  = PaintArea::LineStyle::SolidLine;
-    QImage       m_Image;
-    QColor       m_BackgroundColor;
-    QColor       m_BrushColor;
-    int          m_BrushSize;
-    QPoint       m_LastMousePos;
+    BrushStyle m_BrushStyle      = PaintArea::BrushStyle::PencilBrush;
+    LineStyle  m_LineStyle       = PaintArea::LineStyle::SolidLine;
+    QImage     m_Image           = QImage(400, 400, QImage::Format_RGB32);
+    QColor     m_BackgroundColor = Qt::white;
+    QColor     m_BrushColor      = Qt::blue;
+    int        m_BrushSize       = 3;
+    QPoint     m_LastMousePos    = QPoint(-1, -1);
+    bool       m_bTimeout        = false;
+    int        m_Timeout         = 1000;
+
     QPainterPath m_PendingPath;
+    QTimer       m_Timer;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

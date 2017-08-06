@@ -32,8 +32,10 @@
 #include <memory>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class OpenGLWidget : public QOpenGLWidget, public OpenGLFunctions,
-    public AntTweakBarWrapper
+class OpenGLWidget : public QOpenGLWidget, public OpenGLFunctions
+#ifdef __BNN_USE_ANT_TWEAK_BAR
+    , public AntTweakBarWrapper
+#endif
 {
     Q_OBJECT
 
@@ -49,6 +51,7 @@ public:
     void setClearColor(const glm::vec4& color);
     void setViewFrustum(float fov, float nearZ, float farZ);
 
+    bool exportScreenToImage(int frame);
     ////////////////////////////////////////////////////////////////////////////////
     // => QWidget interface
 public:
@@ -86,16 +89,15 @@ protected:
     void checkGLVersion();
     void checkGLExtensions(QVector<QString> extensions);
 
-    bool exportScreenToImage(int frame);
 
     ////////////////////////////////////////////////////////////////////////////////
-    bool                          m_bPrintDebug;
-    int                           m_WidgetUpdateTimeout;
-    QSize                         m_DefaultSize;
-    glm::vec4                     m_ClearColor;
-    SpecialKey                    m_SpecialKeyPressed;
-    MouseButton                   m_MouseButtonPressed;
-    QString                       m_CapturePath = QString("");
+    bool        m_bPrintDebug;
+    int         m_WidgetUpdateTimeout;
+    QSize       m_DefaultSize;
+    glm::vec4   m_ClearColor;
+    SpecialKey  m_SpecialKeyPressed;
+    MouseButton m_MouseButtonPressed;
+    QString     m_CapturePath = QString("");
 
     std::unique_ptr<QTimer>       m_UpdateTimer    = nullptr;
     std::unique_ptr<QImage>       m_CaptureImage   = nullptr;

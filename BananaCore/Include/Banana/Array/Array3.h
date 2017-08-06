@@ -93,14 +93,14 @@ public:
 
     ////////////////////////////////////////////////////////////////////////////////
     template<class IndexType>
-    size_type getLinearizedIndex(IndexType i, IndexType j, IndexType k)
+    size_type getLinearizedIndex(IndexType i, IndexType j, IndexType k) const
     {
         checkIndex<IndexType>(i, j, k);
         return (static_cast<size_type>(k) * m_SizeY + static_cast<size_type>(j)) * m_SizeX + static_cast<size_type>(i);
     }
 
     template<class IndexType>
-    size_type getLinearizedIndex(const glm::tvec3<IndexType>& index)
+    size_type getLinearizedIndex(const glm::tvec3<IndexType>& index) const
     {
         return getLinearizedIndex<IndexType>(index[0], index[1], index[2]);
     }
@@ -112,7 +112,7 @@ public:
     }
 
     template<class IndexType>
-    T& operator()(IndexType i, IndexType j)
+    T& operator()(IndexType i, IndexType j, IndexType k)
     {
         return m_Data[getLinearizedIndex<IndexType>(i, j, k)];
     }

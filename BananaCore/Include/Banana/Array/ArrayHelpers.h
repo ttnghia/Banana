@@ -24,27 +24,27 @@
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class ScalarType>
-inline ScalarType interpolateLinear(const Vec2& point, const Array2<ScalarType>& grid)
+inline ScalarType interpolateLinear(const Vec2<ScalarType>& point, const Array2<ScalarType>& grid)
 {
     int        i, j;
     ScalarType fx, fy;
 
-    MathHelpers::get_barycentric(point[0], i, fx, 0, (int)grid.m_SizeX);
-    MathHelpers::get_barycentric(point[1], j, fy, 0, (int)grid.m_SizeY);
+    MathHelpers::get_barycentric(point[0], i, fx, 0, (int)grid.sizeX());
+    MathHelpers::get_barycentric(point[1], j, fy, 0, (int)grid.sizeY());
 
     return MathHelpers::bilerp(grid(i, j), grid(i + 1, j), grid(i, j + 1), grid(i + 1, j + 1), fx, fy);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 template<class ScalarType>
-inline ScalarType interpolateLinear(const Vec3& point, const Array3<ScalarType>& grid)
+inline ScalarType interpolateLinear(const Vec3<ScalarType>& point, const Array3<ScalarType>& grid)
 {
     int        i, j, k;
     ScalarType fi, fj, fk;
 
-    MathHelpers::get_barycentric(point[0], i, fi, 0, (int)grid.m_SizeX);
-    MathHelpers::get_barycentric(point[1], j, fj, 0, (int)grid.m_SizeY);
-    MathHelpers::get_barycentric(point[2], k, fk, 0, (int)grid.m_SizeZ);
+    MathHelpers::get_barycentric(point[0], i, fi, 0, (int)grid.sizeX());
+    MathHelpers::get_barycentric(point[1], j, fj, 0, (int)grid.sizeY());
+    MathHelpers::get_barycentric(point[2], k, fk, 0, (int)grid.sizeZ());
 
     return MathHelpers::trilerp(
         grid(i, j, k), grid(i + 1, j, k), grid(i, j + 1, k), grid(i + 1, j + 1, k),
@@ -54,13 +54,13 @@ inline ScalarType interpolateLinear(const Vec3& point, const Array3<ScalarType>&
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class ScalarType>
-inline ScalarType interpolateCubicBSpline(const Vec2& point, const Array2<ScalarType>& grid)
+inline ScalarType interpolateCubicBSpline(const Vec2<ScalarType>& point, const Array2<ScalarType>& grid)
 {
     int        i, j;
     ScalarType fi, fj;
 
-    MathHelpers::get_barycentric(point[0], i, fi, 0, (int)grid.m_SizeX);
-    MathHelpers::get_barycentric(point[1], j, fj, 0, (int)grid.m_SizeY);
+    MathHelpers::get_barycentric(point[0], i, fi, 0, (int)grid.sizeX());
+    MathHelpers::get_barycentric(point[1], j, fj, 0, (int)grid.sizeY());
 
     ScalarType sumW   = 0;
     ScalarType sumVal = 0;
@@ -88,14 +88,14 @@ inline ScalarType interpolateCubicBSpline(const Vec2& point, const Array2<Scalar
 
 ////////////////////////////////////////////////////////////////////////////////
 template<class ScalarType>
-inline ScalarType interpolateCubicBSpline(const Vec3& point, const Array3<ScalarType>& grid)
+inline ScalarType interpolateCubicBSpline(const Vec3<ScalarType>& point, const Array3<ScalarType>& grid)
 {
     int        i, j, k;
     ScalarType fi, fj, fk;
 
-    MathHelpers::get_barycentric(point[0], i, fi, 0, (int)grid.m_SizeX);
-    MathHelpers::get_barycentric(point[1], j, fj, 0, (int)grid.m_SizeY);
-    MathHelpers::get_barycentric(point[2], k, fk, 0, (int)grid.m_SizeZ);
+    MathHelpers::get_barycentric(point[0], i, fi, 0, (int)grid.sizeX());
+    MathHelpers::get_barycentric(point[1], j, fj, 0, (int)grid.sizeY());
+    MathHelpers::get_barycentric(point[2], k, fk, 0, (int)grid.sizeZ());
 
     ScalarType sumW   = 0;
     ScalarType sumVal = 0;
@@ -130,12 +130,12 @@ inline ScalarType interpolateCubicBSpline(const Vec3& point, const Array3<Scalar
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class ScalarType>
-inline float interpolate_gradient(Vec2& gradient, const Vec2& point, const Array2<ScalarType>& grid)
+inline float interpolateGradient(Vec2<ScalarType>& gradient, const Vec2<ScalarType>& point, const Array2<ScalarType>& grid)
 {
     int        i, j;
     ScalarType fx, fy;
-    MathHelpers::get_barycentric(point[0], i, fx, 0, (int)grid.m_SizeX);
-    MathHelpers::get_barycentric(point[1], j, fy, 0, (int)grid.m_SizeY);
+    MathHelpers::get_barycentric(point[0], i, fx, 0, (int)grid.sizeX());
+    MathHelpers::get_barycentric(point[1], j, fy, 0, (int)grid.sizeY());
 
     ScalarType v00 = grid(i, j);
     ScalarType v01 = grid(i, j + 1);
@@ -157,14 +157,14 @@ inline float interpolate_gradient(Vec2& gradient, const Vec2& point, const Array
 
 ////////////////////////////////////////////////////////////////////////////////
 template<class ScalarType>
-inline ScalarType interpolate_gradient(Vec3& gradient, const Vec3& point, const Array3<ScalarType>& grid)
+inline ScalarType interpolateGradient(Vec3<ScalarType>& gradient, const Vec3<ScalarType>& point, const Array3<ScalarType>& grid)
 {
     int        i, j, k;
     ScalarType fx, fy, fz;
 
-    MathHelpers::get_barycentric(point[0], i, fx, 0, (int)grid.m_SizeX);
-    MathHelpers::get_barycentric(point[1], j, fy, 0, (int)grid.m_SizeY);
-    MathHelpers::get_barycentric(point[2], k, fz, 0, (int)grid.m_SizeZ);
+    MathHelpers::get_barycentric(point[0], i, fx, 0, (int)grid.sizeX());
+    MathHelpers::get_barycentric(point[1], j, fy, 0, (int)grid.sizeY());
+    MathHelpers::get_barycentric(point[2], k, fz, 0, (int)grid.sizeZ());
 
     ScalarType v000 = grid(i, j, k);
     ScalarType v001 = grid(i, j, k + 1);
@@ -212,9 +212,9 @@ inline void write_matlab_array(std::ostream& output, Array2<T>& a, const char* v
 {
     output << variable_name << "=[";
 
-    for(int j = 0; j < a.m_SizeY; ++j)
+    for(int j = 0; j < a.sizeY(); ++j)
     {
-        for(int i = 0; i < a.m_SizeX; ++i)
+        for(int i = 0; i < a.sizeX(); ++i)
         {
             output << a(i, j) << " ";
         }

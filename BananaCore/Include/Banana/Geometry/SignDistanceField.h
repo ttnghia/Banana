@@ -76,17 +76,17 @@ template<class T>
 T fractionInside(T phi_bl, T phi_br, T phi_tl, T phi_tr);
 
 template<class T>
-T point_segment_distance(const Vec3& x0, const Vec3& x1, const Vec3& x2);
+T point_segment_distance(const Vec3<T>& x0, const Vec3<T>& x1, const Vec3<T>& x2);
 
 template<class T>
-T point_triangle_distance(const Vec3& x0, const Vec3& x1, const Vec3& x2, const Vec3& x3);
+T point_triangle_distance(const Vec3<T>& x0, const Vec3<T>& x1, const Vec3<T>& x2, const Vec3<T>& x3);
 
 template<class T>
-void check_neighbour(const std::vector<Vec3ui>& tri, const std::vector<Vec3>& x,
-                     Array3_T& phi, Array3i& closest_tri, const Vec3& gx, UInt32 i0, UInt32 j0, UInt32 k0, int i1, int j1, int k1);
+void check_neighbour(const std::vector<Vec3ui>& tri, const std::vector<Vec3<T> >& x,
+                     Array3<T>& phi, Array3i& closest_tri, const Vec3<T>& gx, UInt32 i0, UInt32 j0, UInt32 k0, int i1, int j1, int k1);
 
 template<class T>
-void sweep(const std::vector<Vec3ui>& tri, const std::vector<Vec3>& x, Array3_T& phi, Array3i& closest_tri, const Vec3& origin, T dx,
+void sweep(const std::vector<Vec3ui>& tri, const std::vector<Vec3<T> >& x, Array3<T>& phi, Array3i& closest_tri, const Vec3<T>& origin, T dx,
            int di, int dj, int dk);
 
 template<class T>
