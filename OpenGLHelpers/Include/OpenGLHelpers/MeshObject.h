@@ -25,6 +25,9 @@
 #include <memory>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+namespace Banana
+{
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 class MeshObject : public OpenGLCallable
 {
 public:
@@ -118,32 +121,35 @@ protected:
     std::shared_ptr<OpenGLBuffer> m_VertexColorBuffer;
     std::shared_ptr<OpenGLBuffer> m_IndexBuffer;
 
-    std::vector<GLushort>         m_IndexList;
-    std::vector<GLuint>           m_IndexListLong;
-    std::vector<GLfloat>          m_Vertices;
-    std::vector<GLfloat>          m_VertexNormals;
-    std::vector<GLfloat>          m_VertexTexCoords;
-    std::vector<GLfloat>          m_VertexColors;
+    std::vector<GLushort> m_IndexList;
+    std::vector<GLuint>   m_IndexListLong;
+    std::vector<GLfloat>  m_Vertices;
+    std::vector<GLfloat>  m_VertexNormals;
+    std::vector<GLfloat>  m_VertexTexCoords;
+    std::vector<GLfloat>  m_VertexColors;
 
-    size_t                        m_NumVertices;
-    GLenum                        m_DataTopology;
-    GLenum                        m_CullFaceMode;
+    size_t m_NumVertices;
+    GLenum m_DataTopology;
+    GLenum m_CullFaceMode;
 
-    bool                          m_isMeshVeryLarge;
-    bool                          m_isNoTransformation;
-    bool                          m_isDataReady;
-    bool                          m_isBufferCreated;
-    bool                          m_isGLDataReady;
+    bool m_isMeshVeryLarge;
+    bool m_isNoTransformation;
+    bool m_isDataReady;
+    bool m_isBufferCreated;
+    bool m_isGLDataReady;
 
-    bool                          m_hasVertexNormal;
-    bool                          m_hasVertexTexCoord;
-    bool                          m_hasVertexColor;
-    bool                          m_hasIndexBuffer;
+    bool m_hasVertexNormal;
+    bool m_hasVertexTexCoord;
+    bool m_hasVertexColor;
+    bool m_hasIndexBuffer;
 
-    GLfloat                       m_ScaleX;
-    GLfloat                       m_ScaleY;
-    GLfloat                       m_ScaleZ;
-    GLfloat                       m_TranslateX;
-    GLfloat                       m_TranslateY;
-    GLfloat                       m_TranslateZ;
+    GLfloat m_ScaleX;
+    GLfloat m_ScaleY;
+    GLfloat m_ScaleZ;
+    GLfloat m_TranslateX;
+    GLfloat m_TranslateY;
+    GLfloat m_TranslateZ;
 };
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+} // end namespace Banana

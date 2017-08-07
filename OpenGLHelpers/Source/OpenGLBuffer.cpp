@@ -18,6 +18,9 @@
 #include <OpenGLHelpers/OpenGLBuffer.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+namespace Banana
+{
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 GLuint OpenGLBuffer::s_TotalBindingPoints = 0;
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -31,11 +34,11 @@ void OpenGLBuffer::deleteBuffer()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void OpenGLBuffer::createBuffer(GLenum bufferType, size_t bufferSize, const GLvoid * buffData, GLenum bufferUsage)
+void OpenGLBuffer::createBuffer(GLenum bufferType, size_t bufferSize, const GLvoid* buffData, GLenum bufferUsage)
 {
-    m_BufferType      = bufferType;
-    m_BufferUsage     = bufferUsage;
-    m_BufferSize      = bufferSize;
+    m_BufferType  = bufferType;
+    m_BufferUsage = bufferUsage;
+    m_BufferSize  = bufferSize;
 
     if(m_isBufferCreated)
     {
@@ -70,7 +73,7 @@ void OpenGLBuffer::resize(size_t bufferSize)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void OpenGLBuffer::uploadData(const GLvoid * data, size_t offset, size_t dataSize)
+void OpenGLBuffer::uploadData(const GLvoid* data, size_t offset, size_t dataSize)
 {
     assert(dataSize <= m_BufferSize);
     glCall(glBindBuffer(m_BufferType, m_BufferID));
@@ -134,3 +137,5 @@ bool OpenGLBuffer::isCreated() const
     return m_isBufferCreated;
 }
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+} // end namespace Banana

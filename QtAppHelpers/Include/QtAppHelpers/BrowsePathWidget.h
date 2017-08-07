@@ -20,13 +20,16 @@
 #include <QtWidgets>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+namespace Banana
+{
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 class BrowsePathWidget : public QWidget
 {
     Q_OBJECT
 
 public:
-    BrowsePathWidget(QString caption, bool folderOnly = true, QWidget *parent = 0);
-    BrowsePathWidget(QIcon icon, bool folderOnly = true, QWidget *parent = 0);
+    BrowsePathWidget(QString caption, bool folderOnly = true, QWidget* parent = 0);
+    BrowsePathWidget(QIcon icon, bool folderOnly = true, QWidget* parent = 0);
 
     void setupGui(QWidget* button);
     void setEnabled(bool enabled);
@@ -52,3 +55,6 @@ private:
     QString          m_CurrentPath;
     bool             m_bFolderOnly;
 };
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+} // end namespace Banana

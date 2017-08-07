@@ -20,6 +20,9 @@
 #include <OpenGLHelpers/OpenGLMacros.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+namespace Banana
+{
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // ArcBall implementation, inspired by Ken Shoemake
 class ArcBall
 {
@@ -38,13 +41,13 @@ public:
     /// sets the window size.
     inline void set_windown_size(float _width, float _height)
     {
-        m_WindowWidth = _width;
+        m_WindowWidth  = _width;
         m_WindowHeight = _height;
     }
 
     inline void set_windown_size(int _width, int _height)
     {
-        m_WindowWidth = (float)_width;
+        m_WindowWidth  = (float)_width;
         m_WindowHeight = (float)_height;
     }
 
@@ -95,7 +98,7 @@ public:
     /// marks the end of the dragging.
     inline void end_drag()
     {
-        m_Drag = false; // stop dragging
+        m_Drag        = false;        // stop dragging
         m_RotationEnd = m_CurrentRot; // remember rotation
     }
 
@@ -106,10 +109,12 @@ public:
     {
         return m_CurrentRot;
     }
+
     inline const glm::mat4 get_rotation_matrix() const
     {
         return m_RotationMatrix;
     }
+
     inline const float* get_rotation_data() const
     {
         return glm::value_ptr(m_RotationMatrix);
@@ -122,8 +127,7 @@ private:
     /// maps the specified mouse position to the sphere defined
     /// with center and radius. the resulting vector lies on the
     /// surface of the sphere.
-    inline glm::vec3 map_sphere(const glm::vec3& mouse,
-                                const glm::vec3& center, float r) const
+    inline glm::vec3 map_sphere(const glm::vec3& mouse, const glm::vec3& center, float r) const
     {
         glm::vec3 ballMouse;
 
@@ -132,7 +136,7 @@ private:
 
         if(mag2 > 1.0f)
         {
-            ballMouse /= sqrtf(mag2);
+            ballMouse   /= sqrtf(mag2);
             ballMouse[2] = 0.0f;
         }
         else
@@ -165,22 +169,24 @@ private:
     inline void update()
     {
         glm::vec3 v_from = map_sphere(m_MouseDownPos, m_Center, m_Radius);
-        glm::vec3 v_to = map_sphere(m_MouseNow, m_Center, m_Radius);
+        glm::vec3 v_to   = map_sphere(m_MouseNow, m_Center, m_Radius);
 
-        m_CurrentRot = from_ball_points(v_from, v_to) * m_RotationEnd;
+        m_CurrentRot     = from_ball_points(v_from, v_to) * m_RotationEnd;
         m_RotationMatrix = glm::mat4_cast(m_CurrentRot);
-
     }
 
     //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    float     m_WindowWidth;        // width of window
-    float     m_WindowHeight;       // height of window
-    bool      m_Drag;          // flag: true=dragging, false=nothing
-    float     m_Radius;       // radius of the virtual trackball
-    glm::vec3 m_Center;   // center of the virutal trackball
-    glm::vec3 m_MouseNow;    // current mouse position
+    float     m_WindowWidth;    // width of window
+    float     m_WindowHeight;   // height of window
+    bool      m_Drag;           // flag: true=dragging, false=nothing
+    float     m_Radius;         // radius of the virtual trackball
+    glm::vec3 m_Center;         // center of the virutal trackball
+    glm::vec3 m_MouseNow;       // current mouse position
     glm::vec3 m_MouseDownPos;   // mouse position at the beginning of dragging
-    glm::quat m_CurrentRot;    // current rotation
+    glm::quat m_CurrentRot;     // current rotation
     glm::quat m_RotationEnd;    // rotation after the dragging
-    glm::mat4 m_RotationMatrix;  // current rotation matrix
+    glm::mat4 m_RotationMatrix; // current rotation matrix
 };
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+} // end namespace Banana

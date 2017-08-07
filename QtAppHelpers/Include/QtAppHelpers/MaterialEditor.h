@@ -22,6 +22,9 @@
 #include <QtWidgets>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+namespace Banana
+{
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 inline QColor floatToQColor(const glm::vec4& color)
 {
     return QColor(static_cast<int>(255 * color[0]), static_cast<int>(255 * color[1]), static_cast<int>(255 * color[2]));
@@ -37,7 +40,7 @@ class MaterialEditor : public QDialog
     Q_OBJECT
 
 public:
-    MaterialEditor(const Material::MaterialData& material = Material::MT_Emerald, QWidget *parent = nullptr);
+    MaterialEditor(const Material::MaterialData& material = Material::MT_Emerald, QWidget* parent = nullptr);
 
     void                          setMaterial(const Material::MaterialData& material);
     const Material::MaterialData& getMaterial() const;
@@ -62,21 +65,24 @@ class MaterialColorPicker : public QWidget
     Q_OBJECT
 
 public:
-    MaterialColorPicker(QWidget *parent = nullptr);
+    MaterialColorPicker(QWidget* parent = nullptr);
 
     void  setMaterial(const Material::MaterialData& material);
     void  setWidgetColor(const Material::MaterialData& material);
-    void  paintEvent(QPaintEvent *e);
+    void  paintEvent(QPaintEvent* e);
     QSize sizeHint() const;
 
 signals:
     void materialChanged(const Material::MaterialData& material);
 
 protected:
-    void mousePressEvent(QMouseEvent *);
-    void enterEvent(QEvent *);
-    void leaveEvent(QEvent *);
+    void mousePressEvent(QMouseEvent*);
+    void enterEvent(QEvent*);
+    void leaveEvent(QEvent*);
 
 private:
     MaterialEditor* m_MaterialEditor;
 };
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+} // end namespace Banana

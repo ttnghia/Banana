@@ -29,7 +29,7 @@
 
 #include <string>
 
-        //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 inline std::string GLErr2Str(GLenum err)
 {
     switch(err)
@@ -68,29 +68,29 @@ inline std::string GLErr2Str(GLenum err)
 
 #ifdef _DEBUG
 #   ifdef __Banana_Qt__
-#   define glCall(a)\
-    a; {\
-        GLenum err = glGetError();\
-        if (err!=GL_NO_ERROR) {\
-            std::string str = "GL error when calling '"+std::string(#a)+"'"\
-            ". OpenGL error: "+GLErr2Str(err)+ \
-            ", in file: "+__FILE__+", line: "+std::to_string(__LINE__);\
-            qDebug() << QString::fromStdString(str); \
-            DEBUG_BREAK\
-        }\
-        }
+#   define glCall(a)                                                                                              \
+    a; {                                                                                                          \
+        GLenum err = glGetError();                                                                                \
+        if(err != GL_NO_ERROR){                                                                                   \
+            std::string str = "GL error when calling '" + std::string(#a) + "'"                                   \
+                                                                            ". OpenGL error: " + GLErr2Str(err) + \
+                              ", in file: " + __FILE__ + ", line: " + std::to_string(__LINE__);                   \
+            qDebug() << QString::fromStdString(str);                                                              \
+            DEBUG_BREAK                                                                                           \
+        }                                                                                                         \
+    }
 #   else
-#   define glCall(a)\
-    a; {\
-        GLenum err = glGetError();\
-        if (err!=GL_NO_ERROR) {\
-            std::string str = "GL error when calling '"+std::string(#a)+"'"\
-            ". OpenGL error: "+GLErr2Str(err)+ \
-            ", in file: "+__FILE__+", line: "+std::to_string(__LINE__);\
-            fprintf(stderr, "%s\n", str.c_str()); \
-            DEBUG_BREAK\
-        }\
-        }
+#   define glCall(a)                                                                                              \
+    a; {                                                                                                          \
+        GLenum err = glGetError();                                                                                \
+        if(err != GL_NO_ERROR){                                                                                   \
+            std::string str = "GL error when calling '" + std::string(#a) + "'"                                   \
+                                                                            ". OpenGL error: " + GLErr2Str(err) + \
+                              ", in file: " + __FILE__ + ", line: " + std::to_string(__LINE__);                   \
+            fprintf(stderr, "%s\n", str.c_str());                                                                 \
+            DEBUG_BREAK                                                                                           \
+        }                                                                                                         \
+    }
 #   endif
 #else // NO _DEBUG
 #   define glCall(a) a;
@@ -118,7 +118,8 @@ inline std::string GLErr2Str(GLenum err)
 // Abstract base class for all classes that call opengl functions
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-
+namespace Banana
+{
 #ifdef __Banana_Qt__
 class OpenGLCallable : public OpenGLFunctions
 {
@@ -135,3 +136,6 @@ protected:
     OpenGLCallable() {}
 };
 #endif
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+} // end namespace Banana

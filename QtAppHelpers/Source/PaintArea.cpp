@@ -21,6 +21,9 @@
 #include <QMouseEvent>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+namespace Banana
+{
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // PaintArea class
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -277,33 +280,33 @@ void PaintAreaController::connectPaintArea()
             });
     connect(m_btnClearImg, &QPushButton::clicked, m_PaintArea, &PaintArea::clear);
     connect(m_btnOpenImg,  &QPushButton::clicked, [&]
-    {
-        const QString fileName = QFileDialog::getOpenFileName(this, QString("Open File"), QDir::homePath());
-        if(!fileName.isEmpty())
         {
-            if(!m_PaintArea->openImage(fileName))
+            const QString fileName = QFileDialog::getOpenFileName(this, QString("Open File"), QDir::homePath());
+            if(!fileName.isEmpty())
             {
-                QMessageBox::information(this, QString("PaintArea"), QString("Cannot load image %1.").arg(fileName));
-                return;
+                if(!m_PaintArea->openImage(fileName))
+                {
+                    QMessageBox::information(this, QString("PaintArea"), QString("Cannot load image %1.").arg(fileName));
+                    return;
+                }
+                m_PaintArea->adjustSize();
             }
-            m_PaintArea->adjustSize();
-        }
-    });
+        });
 
     connect(m_btnSaveImg, &QPushButton::clicked, [&]
-    {
-        const QString initialPath = QDir::homePath() + "/untitled.png";
+        {
+            const QString initialPath = QDir::homePath() + "/untitled.png";
 
-        const QString fileName = QFileDialog::getSaveFileName(this, QString("Save As"), initialPath);
-        if(fileName.isEmpty())
-        {
-            return false;
-        }
-        else
-        {
-            return m_PaintArea->saveImage(fileName, "png");
-        }
-    });
+            const QString fileName = QFileDialog::getSaveFileName(this, QString("Save As"), initialPath);
+            if(fileName.isEmpty())
+            {
+                return false;
+            }
+            else
+            {
+                return m_PaintArea->saveImage(fileName, "png");
+            }
+        });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -366,3 +369,6 @@ void PaintAreaController::setupButtons(QBoxLayout* ctrLayout)
     m_btnSaveImg = new QPushButton("Save");
     ctrLayout->addWidget(m_btnSaveImg);
 }
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+} // end namespace Banana

@@ -18,6 +18,9 @@
 #include <QtAppHelpers/DataList.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+namespace Banana
+{
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 DataList::DataList(QWidget* parent, bool bAddEmptyItem /*= true*/, bool bAddOrderText /*= true*/, QString indexSeparator /*= QString("::")*/) :
     QWidget(parent), m_ListWidget(nullptr), m_bAddEmptyItem(bAddEmptyItem), m_bAddOrderText(bAddOrderText), m_IndexSeparator(indexSeparator)
 {
@@ -46,7 +49,7 @@ void DataList::loadListFromFile(const QString& listFile)
     }
 
     clear();
-    QTextStream in(& textFile);
+    QTextStream in(&textFile);
     while(!in.atEnd())
     {
         addItem(in.readLine());
@@ -111,7 +114,7 @@ bool DataList::eventFilter(QObject* obj, QEvent* e)
 {
     if(obj == m_ListWidget && e->type() == QEvent::KeyPress)
     {
-        QKeyEvent* key = static_cast < QKeyEvent * > (e);
+        QKeyEvent* key = static_cast<QKeyEvent*>(e);
 
         switch(key->key())
         {
@@ -129,7 +132,7 @@ bool DataList::eventFilter(QObject* obj, QEvent* e)
                 break;
             default:
                 ;
-        } // end switch
+        }   // end switch
 
         return true;
     }
@@ -156,13 +159,13 @@ void DataList::setupGUI()
 
     QPushButton* btnReload = new QPushButton("Reload");
     connect(btnReload, &QPushButton::clicked, [&]
-    {
-        loadListFromFile(m_ListFile);
-    });
+        {
+            loadListFromFile(m_ListFile);
+        });
 
     QHBoxLayout* statusLayout = new QHBoxLayout;
     statusLayout->addWidget(m_lblStatus, 4);
-    statusLayout->addWidget(btnReload, 1);
+    statusLayout->addWidget(btnReload,   1);
 
     ////////////////////////////////////////////////////////////////////////////////
     QVBoxLayout* layout = new QVBoxLayout;
@@ -171,14 +174,17 @@ void DataList::setupGUI()
     setLayout(layout);
 
     connect(m_ListWidget, &QListWidget::currentRowChanged, [&](int currentRow)
-    {
-        if(currentRow < 0)
-            return;
+            {
+                if(currentRow < 0)
+                    return;
 
-        if(!m_bAddEmptyItem || (m_bAddEmptyItem && currentRow != 0))
-        {
-            emit currentRowChanged(currentRow);
-            emit currentTextChanged(m_DataList[m_bAddEmptyItem ? currentRow - 1 : currentRow]);
-        }
-    });
+                if(!m_bAddEmptyItem || (m_bAddEmptyItem && currentRow != 0))
+                {
+                    emit currentRowChanged(currentRow);
+                    emit currentTextChanged(m_DataList[m_bAddEmptyItem ? currentRow - 1 : currentRow]);
+                }
+            });
 }
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+} // end namespace Banana

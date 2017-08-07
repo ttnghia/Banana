@@ -23,6 +23,10 @@
 #include <QtWidgets>
 #include <vector>
 #include <memory>
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+namespace Banana
+{
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #define MAX_POINT_LIGHT 4
 
@@ -45,12 +49,15 @@ private:
     void applyLights();
     void lightToGUI();
 
-    QCheckBox*                   m_CheckBoxes[MAX_POINT_LIGHT];
-    QLineEdit*                   m_LightAmbients[MAX_POINT_LIGHT][3];
-    QLineEdit*                   m_LightDiffuses[MAX_POINT_LIGHT][3];
-    QLineEdit*                   m_LightSpeculars[MAX_POINT_LIGHT][3];
-    QLineEdit*                   m_LightPositions[MAX_POINT_LIGHT][3];
-    ColorPicker*                 m_ColorSelectors[MAX_POINT_LIGHT][3];
+    QCheckBox*   m_CheckBoxes[MAX_POINT_LIGHT];
+    QLineEdit*   m_LightAmbients[MAX_POINT_LIGHT][3];
+    QLineEdit*   m_LightDiffuses[MAX_POINT_LIGHT][3];
+    QLineEdit*   m_LightSpeculars[MAX_POINT_LIGHT][3];
+    QLineEdit*   m_LightPositions[MAX_POINT_LIGHT][3];
+    ColorPicker* m_ColorSelectors[MAX_POINT_LIGHT][3];
 
     std::shared_ptr<PointLights> m_Lights = nullptr;
 };
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+} // end namespace Banana

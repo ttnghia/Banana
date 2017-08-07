@@ -18,7 +18,10 @@
 #include <QtAppHelpers/EnhancedSlider.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-EnhancedSlider::EnhancedSlider(int sliderSpan /*= 5*/, QWidget *parent/*= nullptr*/) :
+namespace Banana
+{
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+EnhancedSlider::EnhancedSlider(int sliderSpan /*= 5*/, QWidget* parent /*= nullptr*/) :
     QWidget(parent),
     m_SpinBox(nullptr),
     m_Slider(nullptr),
@@ -32,38 +35,38 @@ EnhancedSlider::EnhancedSlider(int sliderSpan /*= 5*/, QWidget *parent/*= nullpt
     m_SpinBox->setRange(0, 100);
 
     connect(m_Slider, &QSlider::valueChanged, m_SpinBox, &QSpinBox::setValue);
-    connect(m_Slider, &QSlider::sliderMoved, this, [&](int value)
-    {
-        QToolTip::showText(QCursor::pos(), QString("%1").arg(value));
-    });
+    connect(m_Slider, &QSlider::sliderMoved,  this,      [&](int value)
+            {
+                QToolTip::showText(QCursor::pos(), QString("%1").arg(value));
+            });
 
     connect(m_SpinBox, SIGNAL(valueChanged(int)), m_Slider, SLOT(setValue(int)));
 
     m_Layout = new QGridLayout;
-    m_Layout->addWidget(m_Slider, 0, 0, 1, sliderSpan);
+    m_Layout->addWidget(m_Slider,  0, 0,          1, sliderSpan);
     m_Layout->addWidget(m_SpinBox, 0, sliderSpan, 1, 1);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- QSlider * EnhancedSlider::getSlider()const
+QSlider* EnhancedSlider::getSlider() const
 {
     return m_Slider;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- QSpinBox * EnhancedSlider::getSpinBox()const
+QSpinBox* EnhancedSlider::getSpinBox() const
 {
     return m_SpinBox;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- QLayout * EnhancedSlider::getLayout()const
+QLayout* EnhancedSlider::getLayout() const
 {
     return m_Layout;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- QLayout* EnhancedSlider::getLayoutWithLabel(const QString& label, int sldStretch /*= 5*/)
+QLayout* EnhancedSlider::getLayoutWithLabel(const QString& label, int sldStretch /*= 5*/)
 {
     QHBoxLayout* layout = new QHBoxLayout;
     layout->addWidget(new QLabel(label), 1);
@@ -73,7 +76,7 @@ EnhancedSlider::EnhancedSlider(int sliderSpan /*= 5*/, QWidget *parent/*= nullpt
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- QGroupBox * EnhancedSlider::getGroupBox(const QString& title)
+QGroupBox* EnhancedSlider::getGroupBox(const QString& title)
 {
     if(m_GroupBox == nullptr)
     {
@@ -137,3 +140,6 @@ void EnhancedSlider::setEnabled(bool enabled)
     m_Slider->setEnabled(enabled);
     m_SpinBox->setEnabled(enabled);
 }
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+} // end namespace Banana

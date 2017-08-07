@@ -18,6 +18,9 @@
 #include <QtAppHelpers/CustomSplashScreen.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+namespace Banana
+{
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 CustomSplashScreen::CustomSplashScreen(const QPixmap& pixmap)
 {
     QSplashScreen::setPixmap(pixmap);
@@ -45,7 +48,7 @@ void CustomSplashScreen::drawContents(QPainter* painter)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void CustomSplashScreen::showStatusMessage(const QString& message, const QColor& color)
 {
-    m_Message = message;
+    m_Message  = message;
     m_MsgColor = color;
     showMessage(m_Message, m_Alignement, m_MsgColor);
 }
@@ -53,6 +56,9 @@ void CustomSplashScreen::showStatusMessage(const QString& message, const QColor&
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void CustomSplashScreen::setMessageRect(QRect msgRect, int alignement)
 {
-    m_MsgRect = msgRect;
+    m_MsgRect    = msgRect;
     m_Alignement = alignement;
 }
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+} // end namespace Banana

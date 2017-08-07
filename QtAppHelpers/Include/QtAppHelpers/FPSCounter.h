@@ -20,6 +20,9 @@
 #include <chrono>
 #include <QObject>
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+namespace Banana
+{
 using Clock = std::chrono::high_resolution_clock;
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -28,8 +31,8 @@ class FPSCounter : public QObject
     Q_OBJECT
 
 public:
-    FPSCounter(QObject * parent = nullptr, double updatePeriod = 2000);
-        void countFrame();
+    FPSCounter(QObject* parent = nullptr, double updatePeriod = 2000);
+    void countFrame();
 
 signals:
     void fpsChanged(double fps);
@@ -39,3 +42,6 @@ private:
     double            m_UpdatePeriod;
     Clock::time_point m_StartTime;
 };
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+} // end namespace Banana

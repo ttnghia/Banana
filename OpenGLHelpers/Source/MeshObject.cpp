@@ -18,6 +18,9 @@
 #include <OpenGLHelpers/MeshObject.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+namespace Banana
+{
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 MeshObject::~MeshObject()
 {
     clearData();
@@ -324,7 +327,7 @@ void MeshObject::uploadDataToGPU()
         dataSize = m_isMeshVeryLarge ? sizeof(GLuint) * m_IndexListLong.size() :
                    sizeof(GLushort) * m_IndexList.size();
         m_IndexBuffer->uploadDataAsync(m_isMeshVeryLarge ? (GLvoid*)m_IndexListLong.data() :
-            (GLvoid*)m_IndexList.data(), 0, dataSize);
+                                       (GLvoid*)m_IndexList.data(), 0, dataSize);
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -510,3 +513,6 @@ void MeshObject::setElementIndex(const std::vector<GLushort>& indices)
     m_IndexList.resize(indices.size());
     std::copy(indices.begin(), indices.end(), m_IndexList.begin());
 }
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+} // end namespace Banana

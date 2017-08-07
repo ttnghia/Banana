@@ -18,6 +18,9 @@
 #include <QtAppHelpers/ClipPlaneEditor.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+namespace Banana
+{
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 ClipPlaneEditor::ClipPlaneEditor(QWidget* parent) : QWidget(parent), m_ClipPlane(1.0f, 0.0f, 0.0f, -0.5f)
 {
     setupGUI();
@@ -77,12 +80,12 @@ void ClipPlaneEditor::setupGUI()
         m_sldCoeffs[i]->setMaximum(200);
         m_sldCoeffs[i]->setValue((m_ClipPlane[i] + 1.0) * 100.0);
         connect(m_sldCoeffs[i], &QSlider::valueChanged, this, [&, i](int value)
-        {
-            m_ClipPlane[i] = 2.0 * (value / 200.0) - 1.0;
-            m_lblPlanes[i]->setText(QString("%1").arg(m_ClipPlane[i]));
+                {
+                    m_ClipPlane[i] = 2.0 * (value / 200.0) - 1.0;
+                    m_lblPlanes[i]->setText(QString("%1").arg(m_ClipPlane[i]));
 
-            emit clipPlaneChanged(m_ClipPlane);
-        });
+                    emit clipPlaneChanged(m_ClipPlane);
+                });
 
 
         planeLayouts[i] = new QHBoxLayout;
@@ -98,9 +101,9 @@ void ClipPlaneEditor::setupGUI()
 
     QPushButton* btnClose = new QPushButton("Close");
     connect(btnClose, &QPushButton::clicked, this, [&]()
-    {
-        hide();
-    });
+            {
+                hide();
+            });
 
     QHBoxLayout* btnLayout = new QHBoxLayout;
     btnLayout->addStretch(1);
@@ -117,3 +120,6 @@ void ClipPlaneEditor::setupGUI()
 
     setLayout(mainLayout);
 }
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+} // end namespace Banana

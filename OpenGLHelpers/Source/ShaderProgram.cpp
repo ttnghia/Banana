@@ -18,6 +18,9 @@
 #include <OpenGLHelpers/ShaderProgram.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+namespace Banana
+{
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void ShaderProgram::addVertexShaderFromSource(const GLchar* shaderSource)
 {
     addShader(GL_VERTEX_SHADER, shaderSource);
@@ -190,9 +193,9 @@ void ShaderProgram::ShaderProgram::bindUniformBlock(GLuint blockIndex, GLuint bi
 void ShaderProgram::setUniformValue(GLint location, const glm::mat4& mat)
 {
     glCall(glUniformMatrix4fv(location,
-            1 /*only setting 1 matrix*/,
-            false /*transpose?*/,
-            glm::value_ptr(mat)));
+                              1 /*only setting 1 matrix*/,
+                              false /*transpose?*/,
+                              glm::value_ptr(mat)));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -978,3 +981,6 @@ std::shared_ptr<ShaderProgram> ShaderProgram::getScreenQuadShaderFromFile(const 
 
     return shader;
 }
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+} // end namespace Banana

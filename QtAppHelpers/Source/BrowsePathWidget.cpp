@@ -18,7 +18,10 @@
 #include <QtAppHelpers/BrowsePathWidget.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-BrowsePathWidget::BrowsePathWidget(QString caption, bool folderOnly /*= true*/, QWidget *parent /*= 0*/) :
+namespace Banana
+{
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+BrowsePathWidget::BrowsePathWidget(QString caption, bool folderOnly /*= true*/, QWidget* parent /*= 0*/) :
     QWidget(parent),
     m_GroupBox(nullptr),
     m_bFolderOnly(folderOnly)
@@ -28,7 +31,7 @@ BrowsePathWidget::BrowsePathWidget(QString caption, bool folderOnly /*= true*/, 
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-BrowsePathWidget::BrowsePathWidget(QIcon icon, bool folderOnly, QWidget * parent) :
+BrowsePathWidget::BrowsePathWidget(QIcon icon, bool folderOnly, QWidget* parent) :
     QWidget(parent),
     m_GroupBox(nullptr),
     m_bFolderOnly(folderOnly)
@@ -39,7 +42,7 @@ BrowsePathWidget::BrowsePathWidget(QIcon icon, bool folderOnly, QWidget * parent
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void BrowsePathWidget::setupGui(QWidget * button)
+void BrowsePathWidget::setupGui(QWidget* button)
 {
     m_txtPath = new QLineEdit;
     m_txtPath->setEnabled(false);
@@ -107,3 +110,6 @@ void BrowsePathWidget::setPath(QString path)
 {
     m_txtPath->setText(path);
 }
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+} // end namespace Banana

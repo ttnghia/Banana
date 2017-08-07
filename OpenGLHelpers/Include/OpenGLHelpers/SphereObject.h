@@ -20,6 +20,9 @@
 #include <OpenGLHelpers/MeshObject.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+namespace Banana
+{
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 class SphereObject : public MeshObject
 {
 public:
@@ -37,13 +40,13 @@ public:
 
         for(int j = 0; j <= numStacks; ++j)
         {
-            GLfloat theta = (GLfloat)j * M_PI / (GLfloat)numStacks;
+            GLfloat theta    = (GLfloat)j * M_PI / (GLfloat)numStacks;
             GLfloat sinTheta = sin(theta);
             GLfloat cosTheta = cos(theta);
 
             for(int i = 0; i <= numSlices; ++i)
             {
-                GLfloat phi = (GLfloat)i * 2.0 * M_PI / (GLfloat)numSlices;
+                GLfloat phi    = (GLfloat)i * 2.0 * M_PI / (GLfloat)numSlices;
                 GLfloat sinPhi = (GLfloat)sin(phi);
                 GLfloat cosPhi = (GLfloat)cos(phi);
 
@@ -61,7 +64,7 @@ public:
                 m_VertexNormals.push_back(vertex[2]);
 
                 // texture coordinate
-                tex[0] = 2.0*(1.0 - (GLfloat)i / (GLfloat)numSlices);
+                tex[0] = 2.0 * (1.0 - (GLfloat)i / (GLfloat)numSlices);
                 tex[1] = 1.0 - (GLfloat)j / (GLfloat)numStacks;
                 m_VertexTexCoords.push_back(tex[0]);
                 m_VertexTexCoords.push_back(tex[1]);
@@ -74,7 +77,7 @@ public:
         {
             for(int i = 0; i < numSlices; ++i)
             {
-                int first = (j * (numSlices + 1)) + i;
+                int first  = (j * (numSlices + 1)) + i;
                 int second = first + numSlices + 1;
 
                 m_IndexList.push_back(first);
@@ -93,5 +96,6 @@ public:
         m_hasVertexNormal   = true;
         m_hasVertexTexCoord = true;
     }
-
 };
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+} // end namespace Banana

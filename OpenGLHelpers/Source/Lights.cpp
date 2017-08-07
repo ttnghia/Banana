@@ -19,6 +19,9 @@
 #include <OpenGLHelpers/Lights.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+namespace Banana
+{
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Light base class
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -216,7 +219,7 @@ void DirectionalLights::uploadDataToGPU()
     if(!m_UniformBuffer.isCreated())
         createUniformBuffer();
 
-    m_UniformBuffer.uploadData(m_Lights, 0, getLightDataSize());
+    m_UniformBuffer.uploadData(m_Lights,           0,                  getLightDataSize());
     m_UniformBuffer.uploadData(&m_NumActiveLights, getLightDataSize(), sizeof(GLint));
 
     updateLightMatrixBuffer();
@@ -227,7 +230,7 @@ void DirectionalLights::updateLightMatrixBuffer()
 {
     for(int i = 0; i < m_NumActiveLights; ++i)
     {
-        glm::mat4 lightView = glm::lookAt(m_SceneCenter - glm::make_vec3(m_Lights[i].direction), m_SceneCenter, glm::vec3(0.0f, -0.91f, 0.01f));
+        glm::mat4 lightView       = glm::lookAt(m_SceneCenter - glm::make_vec3(m_Lights[i].direction), m_SceneCenter, glm::vec3(0.0f, -0.91f, 0.01f));
         glm::mat4 lightProjection = glm::ortho(m_ShadowMinX, m_ShadowMaxX, m_ShadowMinY, m_ShadowMaxY, m_ShadowMinZ, m_ShadowMaxZ);
 
         m_LightMatrices[i].setViewMatrix(lightView);
@@ -360,7 +363,7 @@ void PointLights::uploadDataToGPU()
     if(!m_UniformBuffer.isCreated())
         createUniformBuffer();
 
-    m_UniformBuffer.uploadData(m_Lights, 0, getLightDataSize());
+    m_UniformBuffer.uploadData(m_Lights,           0,                  getLightDataSize());
     m_UniformBuffer.uploadData(&m_NumActiveLights, getLightDataSize(), sizeof(GLint));
 
     updateLightMatrixBuffer();
@@ -371,7 +374,7 @@ void PointLights::updateLightMatrixBuffer()
 {
     for(int i = 0; i < m_NumActiveLights; ++i)
     {
-        glm::mat4 lightView = glm::lookAt(glm::make_vec3(m_Lights[i].position), m_SceneCenter, glm::vec3(0.0f, -0.91f, 0.01f));
+        glm::mat4 lightView       = glm::lookAt(glm::make_vec3(m_Lights[i].position), m_SceneCenter, glm::vec3(0.0f, -0.91f, 0.01f));
         glm::mat4 lightProjection = glm::perspective(glm::radians(m_ShadowFOV), m_ShadowAspect, m_ShadowNearZ, m_ShadowFarZ);
 
         m_LightMatrices[i].setViewMatrix(lightView);
@@ -384,10 +387,10 @@ void PointLights::updateLightMatrixBuffer()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PointLights::setLightViewPerspective(GLfloat fov, GLfloat asspect /*= 1.0*/, GLfloat nearZ /*= 0.1f*/, GLfloat farZ /*= 1000.0f*/)
 {
-    m_ShadowFOV = fov;
+    m_ShadowFOV    = fov;
     m_ShadowAspect = asspect;
-    m_ShadowNearZ = nearZ;
-    m_ShadowFarZ = farZ;
+    m_ShadowNearZ  = nearZ;
+    m_ShadowFarZ   = farZ;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -478,7 +481,7 @@ void SpotLights::uploadLightCutOffAngles(int lightID /*= 0*/)
 {
     assert(lightID < m_NumActiveLights);
     assert(m_UniformBuffer.isCreated());
-    m_UniformBuffer.uploadData(&m_Lights[lightID].innerCutOffAngle, getLightSize() * lightID + 5 * sizeof(glm::vec4), sizeof(GLfloat));
+    m_UniformBuffer.uploadData(&m_Lights[lightID].innerCutOffAngle, getLightSize() * lightID + 5 * sizeof(glm::vec4),                   sizeof(GLfloat));
     m_UniformBuffer.uploadData(&m_Lights[lightID].outerCutOffAngle, getLightSize() * lightID + 5 * sizeof(glm::vec4) + sizeof(GLfloat), sizeof(GLfloat));
 }
 
@@ -553,7 +556,7 @@ void SpotLights::uploadDataToGPU()
     if(!m_UniformBuffer.isCreated())
         createUniformBuffer();
 
-    m_UniformBuffer.uploadData(m_Lights, 0, getLightDataSize());
+    m_UniformBuffer.uploadData(m_Lights,           0,                  getLightDataSize());
     m_UniformBuffer.uploadData(&m_NumActiveLights, getLightDataSize(), sizeof(GLint));
 
     updateLightMatrixBuffer();
@@ -562,10 +565,9 @@ void SpotLights::uploadDataToGPU()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void SpotLights::updateLightMatrixBuffer()
 {
-
     for(int i = 0; i < m_NumActiveLights; ++i)
     {
-        glm::mat4 lightView = glm::lookAt(glm::make_vec3(m_Lights[i].position), m_SceneCenter, glm::vec3(0.0f, -0.91f, 0.01f));
+        glm::mat4 lightView       = glm::lookAt(glm::make_vec3(m_Lights[i].position), m_SceneCenter, glm::vec3(0.0f, -0.91f, 0.01f));
         glm::mat4 lightProjection = glm::perspective(glm::radians(m_ShadowFOV), m_ShadowAspect, m_ShadowNearZ, m_ShadowFarZ);
 
         m_LightMatrices[i].setViewMatrix(lightView);
@@ -578,8 +580,11 @@ void SpotLights::updateLightMatrixBuffer()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void SpotLights::setLightViewPerspective(GLfloat fov, GLfloat asspect /*= 1.0*/, GLfloat nearZ /*= 0.1f*/, GLfloat farZ /*= 1000.0f*/)
 {
-    m_ShadowFOV = fov;
+    m_ShadowFOV    = fov;
     m_ShadowAspect = asspect;
-    m_ShadowNearZ = nearZ;
-    m_ShadowFarZ = farZ;
+    m_ShadowNearZ  = nearZ;
+    m_ShadowFarZ   = farZ;
 }
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+} // end namespace Banana

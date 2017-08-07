@@ -18,6 +18,9 @@
 #include <QtAppHelpers/EnhancedMessageBox.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+namespace Banana
+{
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void EnhancedMessageBox::setAutoClose(bool bAutoClose)
 {
     m_bAutoClose = bAutoClose;
@@ -45,16 +48,19 @@ void EnhancedMessageBox::showEvent(QShowEvent* ev)
         m_ShowedTime = 0;
 
         connect(&m_Timer, &QTimer::timeout, [&]
-        {
-            m_ShowedTime += m_CountDownTime;
-            if(m_ShowedTime >= m_TimeOut)
-                close();
+            {
+                m_ShowedTime += m_CountDownTime;
+                if(m_ShowedTime >= m_TimeOut)
+                    close();
 
-            setWindowTitle(QString("Closing in %1 sec.....").arg((m_TimeOut - m_ShowedTime) / 1000));
-        });
+                setWindowTitle(QString("Closing in %1 sec.....").arg((m_TimeOut - m_ShowedTime) / 1000));
+            });
 
         setWindowTitle(QString("Closing in %1 sec.....").arg((m_TimeOut - m_ShowedTime) / 1000));
 
         m_Timer.start(m_CountDownTime);
     }
 }
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+} // end namespace Banana

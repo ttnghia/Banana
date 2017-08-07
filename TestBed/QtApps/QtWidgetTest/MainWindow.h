@@ -25,6 +25,7 @@
 #include <QtAppHelpers/MaterialEditor.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+using namespace Banana;
 class MainWindow : public OpenGLMainWindow
 {
     Q_OBJECT
@@ -34,11 +35,11 @@ public:
 
 protected:
     virtual void instantiateOpenGLWidget();
-    void keyPressEvent(QKeyEvent*);
+    void         keyPressEvent(QKeyEvent*);
 
 private:
     void setupGUI();
 
     OpenGLWidgetTestRender* m_TestRenderWidget;
-    MaterialEditor* m_MatEditor;
+    MaterialEditor*         m_MatEditor;
 };

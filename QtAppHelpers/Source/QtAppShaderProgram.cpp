@@ -22,6 +22,9 @@
 #include <QtAppHelpers/QtAppShaderProgram.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+namespace Banana
+{
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void QtAppShaderProgram::addVertexShaderFromResource(const char* fileName)
 {
     std::string shaderSouce;
@@ -56,11 +59,14 @@ void QtAppShaderProgram::loadResourceFile(std::string& fileContent, const char* 
     if(!file.open(QFile::ReadOnly | QFile::Text))
     {
         __BNN_DIE(QString("%1: Cannot open file %2 for reading!")
-                .arg(QString::fromStdString(m_ProgramName))
-                .arg(QString(fileName)));
+                      .arg(QString::fromStdString(m_ProgramName))
+                      .arg(QString(fileName)));
     }
 
     QTextStream in(&file);
     fileContent = in.readAll().toStdString();
     file.close();
 }
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+} // end namespace Banana

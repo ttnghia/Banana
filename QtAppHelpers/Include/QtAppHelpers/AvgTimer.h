@@ -21,7 +21,9 @@
 #include <cassert>
 #include <QObject>
 
-
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+namespace Banana
+{
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 class AvgTimer : public QObject
 {
@@ -30,7 +32,7 @@ class AvgTimer : public QObject
 public:
     using Clock = std::chrono::high_resolution_clock;
 
-    AvgTimer(QObject *parent = nullptr, double updatePeriod = 2000) :
+    AvgTimer(QObject* parent = nullptr, double updatePeriod = 2000) :
         QObject(parent),
         m_UpdatePeriod(updatePeriod),
         m_TickTockCount(0),
@@ -58,3 +60,6 @@ private:
     Clock::time_point m_TickTime;
     Clock::time_point m_TockTime;
 };
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+} // end namespace Banana

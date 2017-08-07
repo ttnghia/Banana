@@ -27,6 +27,9 @@
 #include <memory>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+namespace Banana
+{
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 class ShaderProgram : public OpenGLCallable
 {
 public:
@@ -62,6 +65,7 @@ public:
     {
         glCall(glUseProgram(m_ProgramID));
     }
+
     void release()
     {
         glCall(glUseProgram(0));
@@ -127,3 +131,6 @@ public:
     static std::shared_ptr<ShaderProgram> getScreenQuadShader(const char* fragmentShaderSource, std::string programName = std::string("ScreenQuadShader"));
     static std::shared_ptr<ShaderProgram> getScreenQuadShaderFromFile(const char* fragmentShaderFile, std::string programName = std::string("ScreenQuadShader"));
 };
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+} // end namespace Banana

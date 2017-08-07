@@ -20,6 +20,9 @@
 #include <Grid/Grid3D.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+namespace Banana
+{
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class ScalarType>
 class AnisotropyGenerator
 {
@@ -38,7 +41,7 @@ public:
     ScalarType W(const Vec3<ScalarType>& xi, const Vec3<ScalarType>& xj);
 
 public: // interface functions
-    const Vec_Vec3<ScalarType>&    getKernelCenters();
+    const Vec_Vec3<ScalarType>&   getKernelCenters();
     const Vec_Mat3x3<ScalarType>& getKernelMatrices();
 
 private: // data
@@ -55,4 +58,7 @@ private: // data
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <FluidSolvers/AnisotropyKernel_Imp.hpp>
+#include <ParticleSolvers/AnisotropyKernel_Impl.hpp>
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+} // end namespace Banana

@@ -18,6 +18,9 @@
 #include <QtAppHelpers/OpenGLMainWindow.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+namespace Banana
+{
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 OpenGLMainWindow::OpenGLMainWindow(QWidget* parent, bool bShowFPS /*= true*/, bool bShowCamPosition /*= true*/) : QMainWindow(parent), m_GLWidget(nullptr)
 {
     qApp->installEventFilter(this);
@@ -154,3 +157,6 @@ void OpenGLMainWindow::setupOpenglWidget(OpenGLWidget* glWidget)
     connect(&m_GLWidget->m_FPSCounter, &FPSCounter::fpsChanged,              this, &OpenGLMainWindow::updateStatusFrameRate);
     connect(m_GLWidget,                &OpenGLWidget::cameraPositionChanged, this, &OpenGLMainWindow::updateStatusCameraPosition);
 }
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+} // end namespace Banana
