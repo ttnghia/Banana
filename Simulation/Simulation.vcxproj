@@ -132,8 +132,8 @@
     <None Include="Simulation.licenseheader" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Include\ParticleSolvers\AnisotropyKernel.h" />
-    <ClInclude Include="Include\ParticleSolvers\AnisotropyKernel_Impl.hpp" />
+    <ClInclude Include="Include\ParticleSolvers\AnisotropicKernelGenerator.h" />
+    <ClInclude Include="Include\ParticleSolvers\AnisotropicKernelGenerator_Impl.hpp" />
     <ClInclude Include="Include\ParticleSolvers\FLIP2D.h" />
     <ClInclude Include="Include\ParticleSolvers\FLIP2D_Impl.hpp" />
     <ClInclude Include="Include\ParticleSolvers\FLIP3D.h" />

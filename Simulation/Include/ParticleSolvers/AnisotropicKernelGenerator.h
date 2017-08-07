@@ -17,17 +17,21 @@
 
 #pragma once
 
+#include <Banana/LinearAlgebra/SVD.h>
+#include <Banana/MathHelpers.h>
 #include <Grid/Grid3D.h>
+
+#include <tbb/tbb.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class ScalarType>
-class AnisotropyGenerator
+class AnisotropicKernelGenerator
 {
 public:
-    AnisotropyGenerator(const Grid3D<ScalarType>& grid3D, Array3_VecUInt& cellParticles, const Vec_Vec3& particles, ScalarType kernelCellSpan) :
+    AnisotropicKernelGenerator(const Grid3D<ScalarType>& grid3D, Array3_VecUInt& cellParticles, const Vec_Vec3<ScalarType>& particles, ScalarType kernelCellSpan) :
         m_Grid3D(grid3D),
         m_CellParticles(cellParticles),
         m_Particles(particles),
@@ -36,15 +40,15 @@ public:
     void setParticleRadius(ScalarType radius);
     void generateAnisotropy();
 
+    const Vec_Vec3<ScalarType>&   getKernelCenters() const;
+    const Vec_Mat3x3<ScalarType>& getKernelMatrices() const;
+
+private:
     ScalarType W(ScalarType d2);
     ScalarType W(const Vec3<ScalarType>& r);
     ScalarType W(const Vec3<ScalarType>& xi, const Vec3<ScalarType>& xj);
 
-public: // interface functions
-    const Vec_Vec3<ScalarType>&   getKernelCenters();
-    const Vec_Mat3x3<ScalarType>& getKernelMatrices();
-
-private: // data
+    ////////////////////////////////////////////////////////////////////////////////
     const Grid3D<ScalarType>&   m_Grid3D;
     const Array3_VecUInt&       m_CellParticles;
     const Vec_Vec3<ScalarType>& m_Particles;
@@ -53,12 +57,12 @@ private: // data
     ScalarType                  m_KernelRadiusSqr;
     ScalarType                  m_KernelRadiusInv;
 
-    Vec_Vec3   m_KernelCenters;
-    Vec_Mat3x3 m_KernelMatrices;
+    Vec_Vec3<ScalarType>   m_KernelCenters;
+    Vec_Mat3x3<ScalarType> m_KernelMatrices;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <ParticleSolvers/AnisotropyKernel_Impl.hpp>
+#include <ParticleSolvers/AnisotropicKernelGenerator_Impl.hpp>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana

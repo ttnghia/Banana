@@ -14,19 +14,6 @@
 //
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-
-#include <Banana/TypeNames.h>
-#include <Banana/Macros.h>
-#include <Banana/FileHelpers.h>
-#include <Banana/Data/DataIO.h>
-
-#include <iostream>
-#include <string>
-#include <sstream>
-#include <cmath>
-#include <vector>
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class ScalarType>
 Vec2i createGrid(const Vec2<ScalarType>& bmin, const Vec2<ScalarType>& bmax, ScalarType spacing)
 {
@@ -134,7 +121,6 @@ UInt32 loadBinary(const std::string& fileName, Vec_Vec3<ScalarType>& particles, 
     UInt32 numParticles;
     UInt64 segmentStart = 0;
     UInt64 segmentSize;
-
 
     segmentSize = sizeof(UInt32);
     memcpy(&numParticles, &buffer.data()[segmentStart], segmentSize);

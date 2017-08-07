@@ -17,6 +17,15 @@
 
 #pragma once
 
+#include <Banana/TypeNames.h>
+#include <Banana/Macros.h>
+#include <Banana/FileHelpers.h>
+#include <Banana/Data/DataIO.h>
+
+#include <string>
+#include <cmath>
+#include <vector>
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
 {
