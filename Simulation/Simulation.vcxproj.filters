@@ -147,10 +147,10 @@
     <ClInclude Include="Include\ParticleTools\ParticleHelpers_Impl.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\ParticleSolvers\AnisotropicKernelGenerator.h">
+    <ClInclude Include="Include\ParticleTools\AnisotropicKernelGenerator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\ParticleSolvers\AnisotropicKernelGenerator_Impl.hpp">
+    <ClInclude Include="Include\ParticleTools\AnisotropicKernelGenerator_Impl.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
