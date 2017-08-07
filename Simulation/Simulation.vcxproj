@@ -132,6 +132,7 @@
     <None Include="Simulation.licenseheader" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Include\ParticleSolvers\ParticleSolverInterface.h" />
     <ClInclude Include="Include\ParticleTools\AnisotropicKernelGenerator.h" />
     <ClInclude Include="Include\ParticleTools\AnisotropicKernelGenerator_Impl.hpp" />
     <ClInclude Include="Include\ParticleSolvers\FLIP2D.h" />
@@ -175,7 +176,6 @@
     <ClInclude Include="Include\ParticleTools\ParticleEmitters\TorusEmitter.h" />
     <ClInclude Include="Include\ParticleTools\ParticleSamplers\TorusSampler.h" />
     <ClInclude Include="Include\ParticleTools\BlueNoiseRelaxation\SPHRelaxation.h" />
-    <ClInclude Include="Include\ParticleSolvers\ParticleSolver.h" />
     <ClInclude Include="Include\ParticleSolvers\MPMSolver.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
