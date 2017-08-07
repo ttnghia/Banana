@@ -24,6 +24,23 @@ namespace Banana
 namespace ParticleHelpers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class ScalarType>
+Vec2i createGrid(const Vec2<ScalarType>& bmin, const Vec2<ScalarType>& bmax, ScalarType spacing);
+
+template<class ScalarType>
+Vec3i createGrid(const Vec3<ScalarType>& bmin, const Vec3<ScalarType>& bmax, ScalarType spacing);
+
+template<class ScalarType>
+void transform(std::vector<Vec3<ScalarType> >& particles, const Vec3<ScalarType>& translation, const Vec3<ScalarType>& rotation);
+
+template<class ScalarType>
+UInt32 loadBinary(const std::string& fileName, Vec_Vec2<ScalarType>& particles, ScalarType& particleRadius);
+
+template<class ScalarType>
+UInt32 loadBinary(const std::string& fileName, Vec_Vec3<ScalarType>& particles, ScalarType& particleRadius);
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#include <ParticleTools/ParticleHelpers_Impl.hpp>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace ParticleHelpers
