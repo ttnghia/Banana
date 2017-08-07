@@ -163,17 +163,16 @@ inline void throwIfFailed(HRESULT hr)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // test
-#define __BNN_PERORMANCE_TEST_BEGIN(funcName) \
-    Timer testTimer#funcName;                 \
-    testTimer#funcName.tick();                \
-    std::string str#funcName(funcName);
+#define __BNN_PERORMANCE_TEST_BEGIN \
+    Banana::Timer testTimer;        \
+    testTimer.tick();
 
 
 #define __BNN_PERORMANCE_TEST_END(funcName) \
-    testTimer#funcName.tock();              \
-    printf("Test %s finished. Time: %s\n", str#funcName.c_str(), testTimer#funcName.getRunTime().c_str());
+    testTimer.tock();                       \
+    printf("Test %s finished. Time: %s\n", funcName, testTimer.getRunTime().c_str());
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // data macros
-#define __BNN_ASSERT_EQUAL(a, b)           __BNN_ASSERT_MSG(a == b, "Numbers are not equal.");
+#define __BNN_ASSERT_EQUAL(a, b)                     __BNN_ASSERT_MSG(a == b, "Numbers are not equal.");
 #define __BNN_ASSERT_APPROX_NUMBERS(a, b, threshold) __BNN_ASSERT_MSG(threshold > fabs(a - b), "Numbers are not equal.");
