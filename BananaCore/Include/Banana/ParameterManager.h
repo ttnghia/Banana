@@ -21,13 +21,21 @@
 #include <string>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class OptionalParameter
+namespace Banana
+{
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+class ParameterManager
 {
 public:
-    OptionalParameter()  = default;
-    ~OptionalParameter() = default;
+    ParameterManager()  = default;
+    ~ParameterManager() = default;
 
     ////////////////////////////////////////////////////////////////////////////////
+    void clearParams()
+    {
+        m_ParamMap.clear();
+    }
+
     void setParam(const std::string& key, const std::string& value)
     {
         m_ParamMap[key] = value;
@@ -62,3 +70,6 @@ public:
 private:
     std::map<std::string, std::string> m_ParamMap;
 };
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+} // end namespace Banana

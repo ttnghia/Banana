@@ -70,3 +70,24 @@ Vec2<IndexType> Grid2D<ScalarType>::getCellIdx(const Vec2<ScalarType>& position)
     return Vec2<IndexType>(static_cast<IndexType>((validPos[0] - m_BMin[0]) / m_CellSize),
                            static_cast<IndexType>((validPos[1] - m_BMin[1]) / m_CellSize));
 }
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class ScalarType>
+template<class IndexType>
+Vec2<IndexType> Grid2D<ScalarType>::getValidCellIdx(const Vec2<ScalarType>& position)  const noexcept
+{
+    return getNearestValidCellIdx<IndexType>(getCellIdx<IndexType>(position));
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class ScalarType>
+template<class IndexType>
+Vec2<IndexType> Grid2D<ScalarType>::getNearestValidCellIdx(const Vec2<IndexType>& cellIdx) const noexcept
+{
+    Vec2<IndexType> nearestCellIdx;
+
+    for(int i = 0; i < 2; ++i)
+        nearestCellIdx[i] = std::max<IndexType>(0, std::min<IndexType>(cellIdx[i], static_cast<IndexType>(m_NumCells[i]) - 1));
+
+    return nearestCellIdx;
+}

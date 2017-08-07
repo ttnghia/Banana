@@ -20,7 +20,9 @@
 #include <Banana/LinearAlgebra/SparseMatrix.h>
 #include <Banana/ParallelHelpers/ParallelBLAS.h>
 
-
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+namespace Banana
+{
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // A simple compressed sparse column data structure (with separate diagonal)
 // for lower triangular matrices
@@ -31,7 +33,7 @@ struct SparseColumnLowerFactor
     std::vector<ScalarType> m_InvDiag;  // reciprocals of diagonal elements
     std::vector<ScalarType> m_ColValue; // values below the diagonal, listed column by column
     std::vector<UInt32>     m_ColIndex; // a list of all row indices, for each column in turn
-    std::vector<UInt32>     m_ColStart; // where each column begins in rowindex (plus an extra entry at the end, of #nonzeros)
+    std::vector<UInt32>     m_ColStart; // where each column begins in row index (plus an extra entry at the end, of #nonzeros)
     std::vector<ScalarType> m_aDiag;    // just used in factorization: minimum "safe" diagonal entry allowed
 
     explicit SparseColumnLowerFactor(UInt32 size = 0) : m_Size(size), m_InvDiag(size), m_ColStart(size + 1), m_aDiag(size) {}
@@ -94,3 +96,6 @@ private:
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #include <Banana/LinearAlgebra/PCGSolver_Impl.hpp>
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+} // end namespace Banana

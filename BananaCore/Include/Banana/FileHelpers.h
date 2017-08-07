@@ -32,6 +32,9 @@
 #include <windows.h>
 #endif
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+namespace Banana
+{
 namespace FileHelpers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -223,13 +226,13 @@ inline void writeFile(const unsigned char* dataBuffer, size_t dataSize, const st
 inline std::future<void> writeFileAsync(const unsigned char* dataBuffer, size_t dataSize, const char* fileName)
 {
     std::future<void> futureObj = std::async(std::launch::async, [&]
-        {
-            std::ofstream file(fileName, std::ios::binary | std::ios::out);
-            __BNN_ASSERT_MSG(file.is_open(), "Could not open file for writing.");
+            {
+                std::ofstream file(fileName, std::ios::binary | std::ios::out);
+                __BNN_ASSERT_MSG(file.is_open(), "Could not open file for writing.");
 
-            file.write((char*)dataBuffer, dataSize);
-            file.close();
-        });
+                file.write((char*)dataBuffer, dataSize);
+                file.close();
+            });
 
     return futureObj;
 }
@@ -381,4 +384,7 @@ inline std::future<void> writeBinaryFileAsync(const std::vector<T>& dvec, const 
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-} // end namespace FileHelpers
+}   // end namespace FileHelpers
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+} // end namespace Banana

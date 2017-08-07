@@ -38,9 +38,7 @@ public:
     unsigned int getNumCellX() const noexcept { return m_NumCells[0]; }
     unsigned int getNumCellY() const noexcept { return m_NumCells[1]; }
     unsigned int getNumTotalCells() const noexcept { return m_NumTotalCells; }
-
-    template<class IndexType>
-    unsigned int getNumCells(IndexType dimention) const noexcept { return m_NumCells[dimention]; }
+    Vec2<unsigned int> getNumCells() const noexcept { return m_NumCells; }
 
     ////////////////////////////////////////////////////////////////////////////////
     void setCellSize(ScalarType cellSize);
@@ -53,8 +51,15 @@ public:
     template<class IndexType>
     bool isValidCell(const Vec2<IndexType>& index) const noexcept;
 
+    ////////////////////////////////////////////////////////////////////////////////
     template<class IndexType>
     Vec2<IndexType> getCellIdx(const Vec2<ScalarType>& position) const noexcept;
+
+    template<class IndexType>
+    Vec2<IndexType> getValidCellIdx(const Vec2<ScalarType>& position) const noexcept;
+
+    template<class IndexType>
+    Vec2<IndexType> getNearestValidCellIdx(const Vec2<IndexType>& cellIdx) const noexcept;
 
 private:
     Vec2<ScalarType> m_BMin;

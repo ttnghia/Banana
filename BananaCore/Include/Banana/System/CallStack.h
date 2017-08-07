@@ -32,6 +32,10 @@
 
 #define MAX_DEPTH 32
 #endif
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+namespace Banana
+{
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace StackTrace
 {
@@ -114,7 +118,7 @@ public:
             }
             else
             {
-                break; // skip last entries below main
+                break;  // skip last entries below main
             }
 
             if(demangled)
@@ -123,6 +127,7 @@ public:
             }
         }
     }
+
 #else
     CallStack(const int num_discard = 0) {}
 #endif
@@ -145,4 +150,7 @@ public:
     /** Call stack. */
     std::vector<Entry> stack;
 };
-} // namespace stacktrace
+}   // namespace stacktrace
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+} // end namespace Banana

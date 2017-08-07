@@ -52,6 +52,7 @@ public:
     template<class IndexType>
     bool isValidCell(const Vec3<IndexType>& index) const noexcept;
 
+    ////////////////////////////////////////////////////////////////////////////////
     template<class IndexType>
     Vec3<IndexType> getCellIdx(const Vec3<ScalarType>& position) const noexcept;
 
@@ -59,7 +60,7 @@ public:
     Vec3<IndexType> getValidCellIdx(const Vec3<ScalarType>& position) const noexcept;
 
     template<class IndexType>
-    Vec3<IndexType> getNearestCellIdx(const Vec3<IndexType>& cellIdx) const noexcept;
+    Vec3<IndexType> getNearestValidCellIdx(const Vec3<IndexType>& cellIdx) const noexcept;
 
 private:
     Vec3<ScalarType>   m_BMin;

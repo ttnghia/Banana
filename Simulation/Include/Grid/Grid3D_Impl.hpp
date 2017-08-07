@@ -72,13 +72,13 @@ template<class ScalarType>
 template<class IndexType>
 Vec3<IndexType> Grid3D<ScalarType>::getValidCellIdx(const Vec3<ScalarType>& position)  const noexcept
 {
-    return getNearestCellIdx<IndexType>(getCellIdx<IndexType>(position));
+    return getNearestValidCellIdx<IndexType>(getCellIdx<IndexType>(position));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class ScalarType>
 template<class IndexType>
-Vec3<IndexType> Grid3D<ScalarType>::getNearestCellIdx(const Vec3<IndexType>& cellIdx) const noexcept
+Vec3<IndexType> Grid3D<ScalarType>::getNearestValidCellIdx(const Vec3<IndexType>& cellIdx) const noexcept
 {
     Vec3<IndexType> nearestCellIdx;
 

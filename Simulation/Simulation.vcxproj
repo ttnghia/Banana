@@ -132,20 +132,23 @@
     <None Include="Simulation.licenseheader" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Include\FluidSolvers\AnisotropyKernel.h" />
-    <ClInclude Include="Include\FluidSolvers\AnisotropyKernel_Imp.hpp" />
-    <ClInclude Include="Include\FluidSolvers\FLIP2D.h" />
-    <ClInclude Include="Include\FluidSolvers\FLIP2D_Imp.hpp" />
-    <ClInclude Include="Include\FluidSolvers\FLIP3D.h" />
-    <ClInclude Include="Include\FluidSolvers\FLIP3D_Imp.hpp" />
-    <ClInclude Include="Include\FluidSolvers\PCISPHSolver2D.h" />
-    <ClInclude Include="Include\FluidSolvers\PCISPHSolver2D_Imp.hpp" />
-    <ClInclude Include="Include\FluidSolvers\PCISPHSolver3D.h" />
-    <ClInclude Include="Include\FluidSolvers\PCISPHSolver3D_Imp.hpp" />
-    <ClInclude Include="Include\FluidSolvers\SPHSolver2D.h" />
-    <ClInclude Include="Include\FluidSolvers\SPHSolver2D_Imp.hpp" />
-    <ClInclude Include="Include\FluidSolvers\SPHSolver3D.h" />
-    <ClInclude Include="Include\FluidSolvers\SPHSolver3D_Imp.hpp" />
+    <ClInclude Include="Include\ParticleSolvers\AnisotropyKernel.h" />
+    <ClInclude Include="Include\ParticleSolvers\AnisotropyKernel_Impl.hpp" />
+    <ClInclude Include="Include\ParticleSolvers\FLIP2D.h" />
+    <ClInclude Include="Include\ParticleSolvers\FLIP2D_Impl.hpp" />
+    <ClInclude Include="Include\ParticleSolvers\FLIP3D.h" />
+    <ClInclude Include="Include\ParticleSolvers\FLIP3D_Impl.hpp" />
+    <ClInclude Include="Include\ParticleSolvers\MPMSolver_Impl.hpp" />
+    <ClInclude Include="Include\ParticleSolvers\PCISPHSolver2D.h" />
+    <ClInclude Include="Include\ParticleSolvers\PCISPHSolver2D_Impl.hpp" />
+    <ClInclude Include="Include\ParticleSolvers\PCISPHSolver3D.h" />
+    <ClInclude Include="Include\ParticleSolvers\PCISPHSolver3D_Impl.hpp" />
+    <ClInclude Include="Include\ParticleSolvers\PeridynamicsSolver.h" />
+    <ClInclude Include="Include\ParticleSolvers\PeridynamicsSolverl.hpp" />
+    <ClInclude Include="Include\ParticleSolvers\SPHSolver2D.h" />
+    <ClInclude Include="Include\ParticleSolvers\SPHSolver2D_Impl.hpp" />
+    <ClInclude Include="Include\ParticleSolvers\SPHSolver3D.h" />
+    <ClInclude Include="Include\ParticleSolvers\SPHSolver3D_Impl.hpp" />
     <ClInclude Include="Include\Grid\Grid2D.h" />
     <ClInclude Include="Include\Grid\Grid2D_Impl.hpp" />
     <ClInclude Include="Include\Grid\Grid3D.h" />
@@ -171,7 +174,8 @@
     <ClInclude Include="Include\ParticleTools\ParticleEmitters\TorusEmitter.h" />
     <ClInclude Include="Include\ParticleTools\ParticleSamplers\TorusSampler.h" />
     <ClInclude Include="Include\ParticleTools\BlueNoiseRelaxation\SPHRelaxation.h" />
-    <ClInclude Include="Include\FluidSolvers\FluidSolver.h" />
+    <ClInclude Include="Include\ParticleSolvers\ParticleSolver.h" />
+    <ClInclude Include="Include\ParticleSolvers\MPMSolver.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

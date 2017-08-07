@@ -26,15 +26,18 @@
 #define EPSILON 1e-6
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+namespace Banana
+{
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace SVDDecomposition
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 /* This is a novel and fast routine for the reciprocal square root of an
-IEEE float (single precision).
-http://www.lomont.org/Math/Papers/2003/InvSqrt.pdf
-http://playstation2-linux.com/download/p2lsd/fastrsqrt.pdf
-http://www.beyond3d.com/content/articles/8/
-*/
+   IEEE float (single precision).
+   http://www.lomont.org/Math/Papers/2003/InvSqrt.pdf
+   http://playstation2-linux.com/download/p2lsd/fastrsqrt.pdf
+   http://www.beyond3d.com/content/articles/8/
+ */
 
 template<class T>
 inline T rsqrt(T)
@@ -45,14 +48,14 @@ inline T rsqrt(T)
 }
 
 /* This is rsqrt with an additional step of the Newton iteration, for
-increased accuracy. The constant 0x5f37599e makes the relative error
-range from 0 to -0.00000463.
-You can't balance the error by adjusting the constant. */
+   increased accuracy. The constant 0x5f37599e makes the relative error
+   range from 0 to -0.00000463.
+   You can't balance the error by adjusting the constant. */
 template<>
 inline float rsqrt<float>(float x)
 {
     const float xhalf = 0.5f * x;
-    int32_t     i = *(int32_t*)&x; // View x as an int.
+    int32_t     i     = *(int32_t*)&x; // View x as an int.
     i = 0x5f37599e - (i >> 1);         // Initial guess.
     x = *(float*)&i;                   // View i as float.
     x = x * (1.5f - xhalf * x * x);    // Newton step.
@@ -65,7 +68,7 @@ template<>
 inline double rsqrt<double>(double x)
 {
     const double xhalf = 0.5 * x;
-    int64_t      i = *(int64_t*)&x; // View x as an int.
+    int64_t      i     = *(int64_t*)&x; // View x as an int.
     i = 0x5fe6eb50c7b537a9 - (i >> 1);  // Initial guess.
     x = *(double*)&i;                   // View i as float.
     x = x * (1.5 - xhalf * x * x);      // Newton step.
@@ -73,7 +76,6 @@ inline double rsqrt<double>(double x)
     x = x * (1.5 - xhalf * x * x);      // Newton step again.
     return x;
 }
-
 
 template<class T>
 inline T accurateSqrt(T x)
@@ -134,7 +136,6 @@ inline void multAtB(T a11, T a12, T a13, T a21, T a22, T a23, T a31, T a32, T a3
     m33 = a13 * b13 + a23 * b23 + a33 * b33;
 }
 
-
 template<class T>
 inline void quatToMat3(const T* qV, T& m11, T& m12, T& m13, T& m21, T& m22, T& m23, T& m31, T& m32, T& m33)
 {
@@ -164,14 +165,13 @@ inline void quatToMat3(const T* qV, T& m11, T& m12, T& m13, T& m21, T& m22, T& m
     m33 = 1 - 2 * (qxx + qyy);
 }
 
-
 template<class T>
 inline void approximateGivensQuaternion(T a11, T a12, T a22, T& ch, T& sh)
 {
     /*
-    * Given givens angle computed by approximateGivensAngles,
-    * compute the corresponding rotation quaternion.
-    */
+     * Given givens angle computed by approximateGivensAngles,
+     * compute the corresponding rotation quaternion.
+     */
     ch = 2 * (a11 - a22);
     sh = a12;
     bool b = _gamma * sh * sh < ch * ch;
@@ -192,8 +192,8 @@ inline void jacobiConjugation(const int x, const int y, const int z,
     approximateGivensQuaternion(s11, s21, s22, ch, sh);
 
     T scale = ch * ch + sh * sh;
-    T a = (ch * ch - sh * sh) / scale;
-    T b = (2 * sh * ch) / scale;
+    T a     = (ch * ch - sh * sh) / scale;
+    T b     = (2 * sh * ch) / scale;
 
     // make temp copy of S
     T _s11 = s11;
@@ -217,7 +217,7 @@ inline void jacobiConjugation(const int x, const int y, const int z,
     tmp[0] = qV[0] * sh;
     tmp[1] = qV[1] * sh;
     tmp[2] = qV[2] * sh;
-    sh *= qV[3];
+    sh    *= qV[3];
 
     qV[0] *= ch;
     qV[1] *= ch;
@@ -238,12 +238,12 @@ inline void jacobiConjugation(const int x, const int y, const int z,
     _s31 = s21;
     _s32 = s31;
     _s33 = s11;
-    s11 = _s11;
-    s21 = _s21;
-    s22 = _s22;
-    s31 = _s31;
-    s32 = _s32;
-    s33 = _s33;
+    s11  = _s11;
+    s21  = _s21;
+    s22  = _s22;
+    s31  = _s31;
+    s32  = _s32;
+    s33  = _s33;
 }
 
 template<class T>
@@ -255,11 +255,11 @@ inline T dist2(T x, T y, T z)
 // finds transformation that diagonalizes a symmetric matrix
 template<class T>
 inline void jacobiEigenanlysis( // symmetric matrix
-                               T& s11,
-                               T& s21, T& s22,
-                               T& s31, T& s32, T& s33,
-                               // quaternion representation of V
-                               T* qV)
+    T& s11,
+    T& s21, T& s22,
+    T& s31, T& s32, T& s33,
+    // quaternion representation of V
+    T* qV)
 {
     qV[3] = 1;
     qV[0] = 0;
@@ -280,13 +280,13 @@ inline void jacobiEigenanlysis( // symmetric matrix
 
 template<class T>
 inline void sortSingularValues(// matrix that we want to decompose
-                               T& b11, T& b12, T& b13,
-                               T& b21, T& b22, T& b23,
-                               T& b31, T& b32, T& b33,
-                               // sort V simultaneously
-                               T& v11, T& v12, T& v13,
-                               T& v21, T& v22, T& v23,
-                               T& v31, T& v32, T& v33)
+    T& b11, T& b12, T& b13,
+    T& b21, T& b22, T& b23,
+    T& b31, T& b32, T& b33,
+    // sort V simultaneously
+    T& v11, T& v12, T& v13,
+    T& v21, T& v22, T& v23,
+    T& v31, T& v32, T& v33)
 {
     T    rho1 = dist2(b11, b21, b31);
     T    rho2 = dist2(b12, b22, b32);
@@ -317,37 +317,36 @@ inline void sortSingularValues(// matrix that we want to decompose
     condNegSwap(c, v32, v33);
 }
 
-
 template<class T>
 void QRGivensQuaternion(T a1, T a2, T& ch, T& sh)
 {
     // a1 = pivot point on diagonal
     // a2 = lower triangular entry we want to annihilate
     T epsilon = (T)EPSILON;
-    T rho = accurateSqrt<T>(a1 * a1 + a2 * a2);
+    T rho     = accurateSqrt<T>(a1 * a1 + a2 * a2);
 
     sh = rho > epsilon ? a2 : 0;
     ch = fabs(a1) + fmax(rho, epsilon);
     bool b = a1 < 0;
     condSwap(b, sh, ch);
-    T    w = rsqrt<T>(ch * ch + sh * sh);
+    T w = rsqrt<T>(ch * ch + sh * sh);
     ch *= w;
     sh *= w;
 }
 
 template<class T>
 inline void QRDecomposition(// matrix that we want to decompose
-                            T b11, T b12, T b13,
-                            T b21, T b22, T b23,
-                            T b31, T b32, T b33,
-                            // output Q
-                            T& q11, T& q12, T& q13,
-                            T& q21, T& q22, T& q23,
-                            T& q31, T& q32, T& q33,
-                            // output R
-                            T& r11, T& r12, T& r13,
-                            T& r21, T& r22, T& r23,
-                            T& r31, T& r32, T& r33)
+    T b11, T b12, T b13,
+    T b21, T b22, T b23,
+    T b31, T b32, T b33,
+    // output Q
+    T& q11, T& q12, T& q13,
+    T& q21, T& q22, T& q23,
+    T& q31, T& q32, T& q33,
+    // output R
+    T& r11, T& r12, T& r13,
+    T& r21, T& r22, T& r23,
+    T& r31, T& r32, T& r33)
 {
     T ch1, sh1, ch2, sh2, ch3, sh3;
     T a, b;
@@ -420,21 +419,21 @@ inline void QRDecomposition(// matrix that we want to decompose
 
 template<class T>
 void svd(// input A
-         T a11, T a12, T a13,
-         T a21, T a22, T a23,
-         T a31, T a32, T a33,
-         // output U
-         T& u11, T& u12, T& u13,
-         T& u21, T& u22, T& u23,
-         T& u31, T& u32, T& u33,
-         // output S
-         T& s11, T& s12, T& s13,
-         T& s21, T& s22, T& s23,
-         T& s31, T& s32, T& s33,
-         // output V
-         T& v11, T& v12, T& v13,
-         T& v21, T& v22, T& v23,
-         T& v31, T& v32, T& v33)
+    T a11, T a12, T a13,
+    T a21, T a22, T a23,
+    T a31, T a32, T a33,
+    // output U
+    T& u11, T& u12, T& u13,
+    T& u21, T& u22, T& u23,
+    T& u31, T& u32, T& u33,
+    // output S
+    T& s11, T& s12, T& s13,
+    T& s21, T& s22, T& s23,
+    T& s31, T& s32, T& s33,
+    // output V
+    T& v11, T& v12, T& v13,
+    T& v21, T& v22, T& v23,
+    T& v31, T& v32, T& v33)
 {
     // normal equations matrix
     T ATA11, ATA12, ATA13;
@@ -506,5 +505,9 @@ void polarDecomposition(T a11, T a12, T a13,
            v11, v21, v31, v12, v22, v32, v13, v23, v33,
            u11, u12, u13, u21, u22, u23, u31, u32, u33);
 }
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-} // end namespace SVDDecomposition
+}   // end namespace SVDDecomposition
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+} // end namespace Banana

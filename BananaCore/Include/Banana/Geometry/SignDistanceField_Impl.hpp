@@ -14,12 +14,6 @@
 //
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-
-#pragma once
-
-namespace SignDistanceField
-{
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class T>
 T distanceToBox(const Vec3<T>& pos, const Vec3<T>& bMin, const Vec3<T>& bMax)
 {
@@ -252,37 +246,37 @@ void SDFMesh(const std::vector<Vec3ui>& faces, const std::vector<Vec3<T> >& vert
     {
 #if 1
         tbb::parallel_invoke([&]
-            {
-                sweep(faces, vertices, SDF, closest_tri, origin, cellSize, +1, +1, +1);
-            },
+        {
+            sweep(faces, vertices, SDF, closest_tri, origin, cellSize, +1, +1, +1);
+        },
                              [&]
-            {
-                sweep(faces, vertices, SDF, closest_tri, origin, cellSize, -1, -1, -1);
-            },
+        {
+            sweep(faces, vertices, SDF, closest_tri, origin, cellSize, -1, -1, -1);
+        },
                              [&]
-            {
-                sweep(faces, vertices, SDF, closest_tri, origin, cellSize, +1, +1, -1);
-            },
+        {
+            sweep(faces, vertices, SDF, closest_tri, origin, cellSize, +1, +1, -1);
+        },
                              [&]
-            {
-                sweep(faces, vertices, SDF, closest_tri, origin, cellSize, -1, -1, +1);
-            },
+        {
+            sweep(faces, vertices, SDF, closest_tri, origin, cellSize, -1, -1, +1);
+        },
                              [&]
-            {
-                sweep(faces, vertices, SDF, closest_tri, origin, cellSize, +1, -1, +1);
-            },
+        {
+            sweep(faces, vertices, SDF, closest_tri, origin, cellSize, +1, -1, +1);
+        },
                              [&]
-            {
-                sweep(faces, vertices, SDF, closest_tri, origin, cellSize, -1, +1, -1);
-            },
+        {
+            sweep(faces, vertices, SDF, closest_tri, origin, cellSize, -1, +1, -1);
+        },
                              [&]
-            {
-                sweep(faces, vertices, SDF, closest_tri, origin, cellSize, +1, -1, -1);
-            },
+        {
+            sweep(faces, vertices, SDF, closest_tri, origin, cellSize, +1, -1, -1);
+        },
                              [&]
-            {
-                sweep(faces, vertices, SDF, closest_tri, origin, cellSize, -1, +1, +1);
-            }
+        {
+            sweep(faces, vertices, SDF, closest_tri, origin, cellSize, -1, +1, +1);
+        }
                              );
 #else
         sweep(faces, vertices, SDF, closest_tri, origin, cellSize, +1, +1, +1);
@@ -615,33 +609,33 @@ void sweep(const std::vector<Vec3ui>& tri,
 #else
                 tbb::parallel_invoke(
                     [&]
-                    {
-                        check_neighbour(tri, x, phi, closest_tri, gx, i, j, k, i - di, j, k);
-                    },
+                {
+                    check_neighbour(tri, x, phi, closest_tri, gx, i, j, k, i - di, j, k);
+                },
                     [&]
-                    {
-                        check_neighbour(tri, x, phi, closest_tri, gx, i, j, k, i, j - dj, k);
-                    },
+                {
+                    check_neighbour(tri, x, phi, closest_tri, gx, i, j, k, i, j - dj, k);
+                },
                     [&]
-                    {
-                        check_neighbour(tri, x, phi, closest_tri, gx, i, j, k, i - di, j - dj, k);
-                    },
+                {
+                    check_neighbour(tri, x, phi, closest_tri, gx, i, j, k, i - di, j - dj, k);
+                },
                     [&]
-                    {
-                        check_neighbour(tri, x, phi, closest_tri, gx, i, j, k, i, j, k - dk);
-                    },
+                {
+                    check_neighbour(tri, x, phi, closest_tri, gx, i, j, k, i, j, k - dk);
+                },
                     [&]
-                    {
-                        check_neighbour(tri, x, phi, closest_tri, gx, i, j, k, i - di, j, k - dk);
-                    },
+                {
+                    check_neighbour(tri, x, phi, closest_tri, gx, i, j, k, i - di, j, k - dk);
+                },
                     [&]
-                    {
-                        check_neighbour(tri, x, phi, closest_tri, gx, i, j, k, i, j - dj, k - dk);
-                    },
+                {
+                    check_neighbour(tri, x, phi, closest_tri, gx, i, j, k, i, j - dj, k - dk);
+                },
                     [&]
-                    {
-                        check_neighbour(tri, x, phi, closest_tri, gx, i, j, k, i - di, j - dj, k - dk);
-                    }
+                {
+                    check_neighbour(tri, x, phi, closest_tri, gx, i, j, k, i - di, j - dj, k - dk);
+                }
                     );
 #endif
             }
@@ -745,6 +739,3 @@ void cycle_array(T* arr, int size)
 
     arr[size - 1] = t;
 }
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-} // end namespace SignDistanceField

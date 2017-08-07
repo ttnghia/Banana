@@ -40,6 +40,7 @@ class OpenGLWidget : public QOpenGLWidget, public OpenGLFunctions
     Q_OBJECT
 
 public:
+
     OpenGLWidget(QWidget* parent);
     virtual ~OpenGLWidget();
 

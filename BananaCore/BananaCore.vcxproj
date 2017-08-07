@@ -177,7 +177,7 @@
     <ClInclude Include="Include\Banana\MathHelpers.h" />
     <ClInclude Include="Include\Banana\System\MemoryUsage.h" />
     <ClInclude Include="Include\Banana\NumberHelpers.h" />
-    <ClInclude Include="Include\Banana\OptionalParameter.h" />
+    <ClInclude Include="Include\Banana\ParameterManager.h" />
     <ClInclude Include="Include\Banana\Data\ParticleSystemData.h" />
     <ClInclude Include="Include\Banana\STLHelpers.h" />
     <ClInclude Include="Include\Banana\LinearAlgebra\SVD.h" />

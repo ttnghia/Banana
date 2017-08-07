@@ -24,6 +24,9 @@
 #include <vector>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+namespace Banana
+{
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace ParallelFuncs
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -32,12 +35,12 @@ template<class IndexType, class Function>
 inline void parallel_for(IndexType beginIdx, IndexType endIdx, const Function& function)
 {
     tbb::parallel_for(tbb::blocked_range<IndexType>(beginIdx, endIdx), [&](tbb::blocked_range<IndexType> r)
-        {
-            for(IndexType i = r.begin(), iEnd = r.end(); i != iEnd; ++i)
-            {
-                function(i);
-            }
-        });
+                      {
+                          for(IndexType i = r.begin(), iEnd = r.end(); i != iEnd; ++i)
+                          {
+                              function(i);
+                          }
+                      });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -48,12 +51,12 @@ inline void parallel_for(IndexType beginIdxX, IndexType endIdxX,
                          const Function& function)
 {
     ParallelFuncs::parallel_for(beginIdxX, endIdxX, [&](IndexType i)
-        {
-            for(IndexType j = beginIdxY; j < endIdxY; ++j)
-            {
-                function(i, j);
-            }
-        });
+                                {
+                                    for(IndexType j = beginIdxY; j < endIdxY; ++j)
+                                    {
+                                        function(i, j);
+                                    }
+                                });
 }
 
 template<class IndexType, class Function>
@@ -62,12 +65,12 @@ inline void parallel_for_row_major(IndexType beginIdxX, IndexType endIdxX,
                                    const Function& function)
 {
     ParallelFuncs::parallel_for(beginIdxY, endIdxY, [&](IndexType j)
-        {
-            for(IndexType i = beginIdxX; i < endIdxX; ++i)
-            {
-                function(i, j);
-            }
-        });
+                                {
+                                    for(IndexType i = beginIdxX; i < endIdxX; ++i)
+                                    {
+                                        function(i, j);
+                                    }
+                                });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -79,15 +82,15 @@ inline void parallel_for(IndexType beginIdxX, IndexType endIdxX,
                          const Function& function)
 {
     ParallelFuncs::parallel_for(beginIdxX, endIdxX, [&](IndexType i)
-        {
-            for(IndexType j = beginIdxY; j < endIdxY; ++j)
-            {
-                for(IndexType k = beginIdxZ; k < endIdxZ; ++k)
-                {
-                    function(i, j, k);
-                }
-            }
-        });
+                                {
+                                    for(IndexType j = beginIdxY; j < endIdxY; ++j)
+                                    {
+                                        for(IndexType k = beginIdxZ; k < endIdxZ; ++k)
+                                        {
+                                            function(i, j, k);
+                                        }
+                                    }
+                                });
 }
 
 template<class IndexType, class Function>
@@ -97,16 +100,19 @@ inline void parallel_for_row_major(IndexType beginIdxX, IndexType endIdxX,
                                    const Function& function)
 {
     ParallelFuncs::parallel_for(beginIdxZ, endIdxZ, [&](IndexType k)
-        {
-            for(IndexType j = beginIdxY; j < endIdxY; ++j)
-            {
-                for(IndexType i = beginIdxX; i < endIdxX; ++i)
-                {
-                    function(i, j, k);
-                }
-            }
-        });
+                                {
+                                    for(IndexType j = beginIdxY; j < endIdxY; ++j)
+                                    {
+                                        for(IndexType i = beginIdxX; i < endIdxX; ++i)
+                                        {
+                                            function(i, j, k);
+                                        }
+                                    }
+                                });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-}  // namespace ParallelFuncs
+}   // namespace ParallelFuncs
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+} // end namespace Banana

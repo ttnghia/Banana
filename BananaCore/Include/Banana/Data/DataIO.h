@@ -31,6 +31,9 @@
 #include <sstream>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+namespace Banana
+{
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // DataBuffer class
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -506,7 +509,6 @@ public:
         return (segmentStart - startOffset);
     }
 
-
     template<class T, int N>
     size_t getFloatArray(std::vector<float>& vData, size_t startOffset = 0, UInt32 vSize = 0)
     {
@@ -705,7 +707,6 @@ public:
         return (segmentStart - startOffset);
     }
 
-
     template<class T>
     size_t getData(std::vector<std::vector<T> >& vData, size_t startOffset = 0)
     {
@@ -894,14 +895,14 @@ public:
     void flushBufferAsync(int fileID)
     {
         m_WriteFutureObj = std::async(std::launch::async, [&]()
-        {
-            if(!m_bOutputFolderCreated)
-            {
-                createOutputFolders();
-            }
+                                      {
+                                          if(!m_bOutputFolderCreated)
+                                          {
+                                              createOutputFolders();
+                                          }
 
-            FileHelpers::writeFile(m_DataBuffer.data(), m_DataBuffer.size(), getFilePath(fileID));
-        });
+                                          FileHelpers::writeFile(m_DataBuffer.data(), m_DataBuffer.size(), getFilePath(fileID));
+                                      });
     }
 
     bool loadFileIndex(int fileID)
@@ -958,3 +959,5 @@ private:
     DataBuffer        m_DataBuffer;
     std::future<void> m_WriteFutureObj;
 };
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+} // end namespace Banana
