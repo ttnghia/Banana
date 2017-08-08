@@ -17,6 +17,8 @@
 
 #pragma once
 
+#include <Banana/TypeNames.h>
+
 #include <algorithm>
 #include <cassert>
 #include <vector>
