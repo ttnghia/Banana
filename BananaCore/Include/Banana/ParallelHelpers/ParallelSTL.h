@@ -34,19 +34,19 @@ namespace ParallelSTL
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // inf-norm (maximum absolute value)
 //
-template<class ScalarType>
-inline ScalarType max_abs(const std::vector<ScalarType>& x)
+template<class RealType>
+inline RealType max_abs(const std::vector<RealType>& x)
 {
-    ParallelObjects::VectorMaxAbs<ScalarType> mabs(x);
+    ParallelObjects::VectorMaxAbs<RealType> mabs(x);
     tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), mabs);
 
     return mabs.getResult();
 }
 
-template<class ScalarType, class VectorType>
-inline ScalarType max_abs(const std::vector<VectorType>& x)
+template<class RealType, class VectorType>
+inline RealType max_abs(const std::vector<VectorType>& x)
 {
-    ParallelObjects::VectorMaxAbs<ScalarType, VectorType> mabs(x);
+    ParallelObjects::VectorMaxAbs<RealType, VectorType> mabs(x);
     tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), mabs);
 
     return mabs.getResult();
@@ -54,28 +54,28 @@ inline ScalarType max_abs(const std::vector<VectorType>& x)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // min/max element
-template<class ScalarType>
-inline ScalarType min(const std::vector<ScalarType>& x)
+template<class RealType>
+inline RealType min(const std::vector<RealType>& x)
 {
-    ParallelObjects::VectorMinElement<ScalarType> vm(x);
+    ParallelObjects::VectorMinElement<RealType> vm(x);
     tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), vm);
 
     return vm.getResult();
 }
 
-template<class ScalarType>
-inline ScalarType max(const std::vector<ScalarType>& x)
+template<class RealType>
+inline RealType max(const std::vector<RealType>& x)
 {
-    ParallelObjects::VectorMaxElement<ScalarType> vm(x);
+    ParallelObjects::VectorMaxElement<RealType> vm(x);
     tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), vm);
 
     return vm.getResult();
 }
 
-template<class ScalarType>
-inline void min_max(const std::vector<ScalarType>& x, ScalarType& minElement, ScalarType& maxElement)
+template<class RealType>
+inline void min_max(const std::vector<RealType>& x, RealType& minElement, RealType& maxElement)
 {
-    ParallelObjects::VectorMinMaxElements<ScalarType> vmm(x);
+    ParallelObjects::VectorMinMaxElements<RealType> vmm(x);
     tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), vmm);
 
     minElement = vmm.getMin();
@@ -83,33 +83,33 @@ inline void min_max(const std::vector<ScalarType>& x, ScalarType& minElement, Sc
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ScalarType>
-inline ScalarType sum(const std::vector<ScalarType>& x)
+template<class RealType>
+inline RealType sum(const std::vector<RealType>& x)
 {
-    ParallelObjects::VectorSum<ScalarType> vSum(x);
+    ParallelObjects::VectorSum<RealType> vSum(x);
     tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), vSum);
 
     return vSum.getSum();
 }
 
-template<class ScalarType>
-inline ScalarType average(const std::vector<ScalarType>& x)
+template<class RealType>
+inline RealType average(const std::vector<RealType>& x)
 {
-    return ParallelSTL::sum<ScalarType>(x) / static_cast<ScalarType>(x.size());
+    return ParallelSTL::sum<RealType>(x) / static_cast<RealType>(x.size());
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // sorting
-template<class ScalarType>
-inline void sort(std::vector<ScalarType>& v)
+template<class RealType>
+inline void sort(std::vector<RealType>& v)
 {
     tbb::parallel_sort(v);
 }
 
-template<class ScalarType>
-inline void sort_dsd(std::vector<ScalarType>& v)
+template<class RealType>
+inline void sort_dsd(std::vector<RealType>& v)
 {
-    tbb::parallel_sort(std::begin(v), std::end(v), std::greater<ScalarType> ());
+    tbb::parallel_sort(std::begin(v), std::end(v), std::greater<RealType> ());
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

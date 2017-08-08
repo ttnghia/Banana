@@ -413,8 +413,8 @@ void BlockSparseMatrix<MatrixType>::multiply(const BlockSparseMatrix<MatrixType>
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // perform result=alpha*matrix*x
 template<class MatrixType>
-template<class VectorType, class ScalarType>
-void BlockSparseMatrix<MatrixType>::multiply_scaled(const BlockSparseMatrix<MatrixType>& matrix, const std::vector<VectorType>& x, const ScalarType alpha, std::vector<VectorType>& result)
+template<class VectorType, class RealType>
+void BlockSparseMatrix<MatrixType>::multiply_scaled(const BlockSparseMatrix<MatrixType>& matrix, const std::vector<VectorType>& x, const RealType alpha, std::vector<VectorType>& result)
 {
     assert(matrix.size() == static_cast<UInt32>(x.size()));
     result.resize(matrix.size());
@@ -439,8 +439,8 @@ void BlockSparseMatrix<MatrixType>::multiply_scaled(const BlockSparseMatrix<Matr
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // perform result+=alpha*matrix*x
 template<class MatrixType>
-template<class VectorType, class ScalarType>
-void BlockSparseMatrix<MatrixType>::add_multiply_scaled(const BlockSparseMatrix<MatrixType>& matrix, const std::vector<VectorType>& x, const ScalarType alpha, std::vector<VectorType>& result)
+template<class VectorType, class RealType>
+void BlockSparseMatrix<MatrixType>::add_multiply_scaled(const BlockSparseMatrix<MatrixType>& matrix, const std::vector<VectorType>& x, const RealType alpha, std::vector<VectorType>& result)
 {
     assert(matrix.size() == static_cast<UInt32>(x.size()));
     result.resize(matrix.size());
@@ -492,8 +492,8 @@ void BlockSparseMatrix<MatrixType>::multiply_and_subtract(const BlockSparseMatri
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // perform mat = A + alpha*B
 template<class MatrixType>
-template<class ScalarType>
-void BlockSparseMatrix<MatrixType>::add_scaled(const BlockSparseMatrix<MatrixType>& A, const BlockSparseMatrix<MatrixType>& B, const ScalarType alpha, BlockSparseMatrix<MatrixType>& matrix)
+template<class RealType>
+void BlockSparseMatrix<MatrixType>::add_scaled(const BlockSparseMatrix<MatrixType>& A, const BlockSparseMatrix<MatrixType>& B, const RealType alpha, BlockSparseMatrix<MatrixType>& matrix)
 {
     assert(A.size() == B.size());
     assert(A.size() == matrix.size());

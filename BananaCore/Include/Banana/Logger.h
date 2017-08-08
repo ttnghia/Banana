@@ -60,26 +60,9 @@ public:
     Logger(int sourceID, const std::string& sourceName) : m_LogSourceID(sourceID) { Logger::setSourceName(sourceID, sourceName); }
 
     static void setDataPath(const std::string& dataPath);
+    static void enableStdOut(bool bEnable = true) { m_bPrintStdOut = bEnable; }
+    static void enableLogFile(bool bEnable = true) { m_bWriteLogToFile = bEnable; }
 
-    static void enableStdOut()
-    {
-        m_bPrintStdOut = true;
-    }
-
-    static void disableStdOut()
-    {
-        m_bPrintStdOut = false;
-    }
-
-    static void enableLogFile()
-    {
-        m_bWriteLogToFile = true;
-    }
-
-    static void disableLogFile()
-    {
-        m_bWriteLogToFile = false;
-    }
 
     ////////////////////////////////////////////////////////////////////////////////
     void newLine();

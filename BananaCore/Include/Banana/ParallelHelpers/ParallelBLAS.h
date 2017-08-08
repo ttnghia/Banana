@@ -32,23 +32,23 @@ namespace ParallelBLAS
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // dot products
 //
-template<class ScalarType>
-inline ScalarType dotProductScalar(const std::vector<ScalarType>& x, const std::vector<ScalarType>& y)
+template<class RealType>
+inline RealType dotProductScalar(const std::vector<RealType>& x, const std::vector<RealType>& y)
 {
     assert(x.size() == y.size());
 
-    ParallelObjects::VectorDotProduct<ScalarType> vdp(x, y);
+    ParallelObjects::VectorDotProduct<RealType> vdp(x, y);
     tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), vdp);
 
     return vdp.getResult();
 }
 
-template<class ScalarType, class VectorType>
-inline ScalarType dotProduct(const std::vector<VectorType>& x, const std::vector<VectorType>& y)
+template<class RealType, class VectorType>
+inline RealType dotProduct(const std::vector<VectorType>& x, const std::vector<VectorType>& y)
 {
     assert(x.size() == y.size());
 
-    ParallelObjects::VectorDotProduct<ScalarType, VectorType> vdp(x, y);
+    ParallelObjects::VectorDotProduct<RealType, VectorType> vdp(x, y);
     tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), vdp);
 
     return vdp.getResult();
@@ -57,19 +57,19 @@ inline ScalarType dotProduct(const std::vector<VectorType>& x, const std::vector
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // inf-norm (maximum absolute value)
 //
-template<class ScalarType>
-inline ScalarType maxAbsElement(const std::vector<ScalarType>& x)
+template<class RealType>
+inline RealType maxAbsElement(const std::vector<RealType>& x)
 {
-    ParallelObjects::VectorMaxAbs<ScalarType> vmabs(x);
+    ParallelObjects::VectorMaxAbs<RealType> vmabs(x);
     tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), vmabs);
 
     return vmabs.getResult();
 }
 
-template<class ScalarType, class VectorType>
-inline ScalarType maxAbs(const std::vector<VectorType>& x)
+template<class RealType, class VectorType>
+inline RealType maxAbs(const std::vector<VectorType>& x)
 {
-    ParallelObjects::VectorMaxAbs<ScalarType, VectorType> vmabs(x);
+    ParallelObjects::VectorMaxAbs<RealType, VectorType> vmabs(x);
     tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), vmabs);
 
     return m.getResult();
@@ -78,8 +78,8 @@ inline ScalarType maxAbs(const std::vector<VectorType>& x)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // saxpy (y=alpha*x+y)
 //
-template<class ScalarType, class VectorType>
-inline void addScaled(ScalarType alpha, const std::vector<VectorType>& x, std::vector<VectorType>& y)
+template<class RealType, class VectorType>
+inline void addScaled(RealType alpha, const std::vector<VectorType>& x, std::vector<VectorType>& y)
 {
     tbb::parallel_for(tbb::blocked_range<size_t>(0, x.size()), [&, alpha](tbb::blocked_range<size_t> r)
                       {
@@ -93,8 +93,8 @@ inline void addScaled(ScalarType alpha, const std::vector<VectorType>& x, std::v
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // y=x+beta*y
 //
-template<class ScalarType, class VectorType>
-inline void scaledAdd(ScalarType beta, const std::vector<VectorType>& x, std::vector<VectorType>& y)
+template<class RealType, class VectorType>
+inline void scaledAdd(RealType beta, const std::vector<VectorType>& x, std::vector<VectorType>& y)
 {
     tbb::parallel_for(tbb::blocked_range<size_t>(0, x.size()), [&, beta](tbb::blocked_range<size_t> r)
                       {
@@ -108,8 +108,8 @@ inline void scaledAdd(ScalarType beta, const std::vector<VectorType>& x, std::ve
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // x *= alpha
 //
-template<class ScalarType, class VectorType>
-inline void scale(ScalarType alpha, const std::vector<VectorType>& x)
+template<class RealType, class VectorType>
+inline void scale(RealType alpha, const std::vector<VectorType>& x)
 {
     tbb::parallel_for(tbb::blocked_range<size_t>(0, x.size()), [&, alpha](tbb::blocked_range<size_t> r)
                       {

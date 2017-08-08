@@ -27,18 +27,18 @@
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ScalarType>
+template<class RealType>
 class Grid3D
 {
 public:
     Grid3D() = default;
-    Grid3D(const Vec3<ScalarType>& bMin, const Vec3<ScalarType>& bMax, ScalarType cellSize, bool bEnableCellParticleIdx = true) : m_BMin(bMin), m_BMax(bMax)
+    Grid3D(const Vec3<RealType>& bMin, const Vec3<RealType>& bMax, RealType cellSize, bool bEnableCellParticleIdx = true) : m_BMin(bMin), m_BMax(bMax)
     {
         setCellSize(cellSize);
         enableCellParticleIdx(bEnableCellParticleIdx);
     }
 
-    void setGrid(const Vec3<ScalarType>& bMin, const Vec3<ScalarType>& bMax, ScalarType cellSize);
+    void setGrid(const Vec3<RealType>& bMin, const Vec3<RealType>& bMax, RealType cellSize);
 
     unsigned int getNumCellX() const noexcept { return m_NumCells[0]; }
     unsigned int getNumCellY() const noexcept { return m_NumCells[1]; }
@@ -47,8 +47,8 @@ public:
     Vec3<unsigned int> getNumCells() const noexcept { return m_NumCells; }
 
     ////////////////////////////////////////////////////////////////////////////////
-    void setCellSize(ScalarType cellSize);
-    ScalarType getCellSize() const noexcept { return m_CellSize; }
+    void setCellSize(RealType cellSize);
+    RealType getCellSize() const noexcept { return m_CellSize; }
 
     ////////////////////////////////////////////////////////////////////////////////
     template<class IndexType>
@@ -59,31 +59,26 @@ public:
 
     ////////////////////////////////////////////////////////////////////////////////
     template<class IndexType>
-    Vec3<IndexType> getCellIdx(const Vec3<ScalarType>& position) const noexcept;
+    Vec3<IndexType> getCellIdx(const Vec3<RealType>& position) const noexcept;
 
     template<class IndexType>
-    Vec3<IndexType> getValidCellIdx(const Vec3<ScalarType>& position) const noexcept;
+    Vec3<IndexType> getValidCellIdx(const Vec3<RealType>& position) const noexcept;
 
     template<class IndexType>
     Vec3<IndexType> getNearestValidCellIdx(const Vec3<IndexType>& cellIdx) const noexcept;
 
     ////////////////////////////////////////////////////////////////////////////////
-    void enableCellParticleIdx(bool bEnable = true);
-    void collectParticlesToCells(Vec_Vec3<ScalarType>& particles);
-
-    void enableSortParticles(bool bEnable = true);
-    void sortParticleByCell(Vec_Vec3<ScalarType>& particles);
+    void            enableCellParticleIdx(bool bEnable = true);
+    void            collectParticlesToCells(Vec_Vec3<RealType>& particles);
+    const Vec_UInt& getCellParticleIndex();
 
 private:
-    Vec3<ScalarType>   m_BMin          = Vec3<ScalarType>(0);
-    Vec3<ScalarType>   m_BMax          = Vec3<ScalarType>(1);
+    Vec3<RealType>     m_BMin          = Vec3<RealType>(0);
+    Vec3<RealType>     m_BMax          = Vec3<RealType>(1);
     Vec3<unsigned int> m_NumCells      = Vec3<unsigned int>(0);
     unsigned int       m_NumTotalCells = 1;
-    ScalarType         m_CellSize      = ScalarType(1.0);
-
-    bool           m_bSortParticles = false;
-    unsigned int   m_SortFrequency  = 100;
-    Array3_VecUInt m_CellParticleIdx;
+    RealType           m_CellSize      = RealType(1.0);
+    Array3_VecUInt     m_CellParticleIdx;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

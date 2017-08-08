@@ -29,16 +29,16 @@
 namespace ParallelClass
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ScalarType>
+template<class RealType>
 class vector_dot_product
 {
-    const std::vector<ScalarType>& v1;
-    const std::vector<ScalarType>& v2;
+    const std::vector<RealType>& v1;
+    const std::vector<RealType>& v2;
 public:
-    ScalarType result;  // put the result here
+    RealType result;  // put the result here
     // constructor copies the arguments into local storage
-    vector_dot_product(const std::vector<ScalarType>& vec1,
-                       const std::vector<ScalarType>& vec2)
+    vector_dot_product(const std::vector<RealType>& vec1,
+                       const std::vector<RealType>& vec2)
         : v1(vec1), v2(vec2), result(0) {}
 
     // splitting constructor
@@ -61,13 +61,13 @@ public:
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ScalarType, class VectorType>
+template<class RealType, class VectorType>
 class vecvec_dot_product
 {
     const std::vector<VectorType>& v1;
     const std::vector<VectorType>& v2;
 public:
-    ScalarType result;  // put the result here
+    RealType result;  // put the result here
     // constructor copies the arguments into local storage
     vecvec_dot_product(const std::vector<VectorType>& vec1, const std::vector<VectorType>& vec2)
         : v1(vec1), v2(vec2), result(0) {}
@@ -106,14 +106,14 @@ public:
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ScalarType>
+template<class RealType>
 class vector_min
 {
-    const std::vector<ScalarType>& v;
+    const std::vector<RealType>& v;
 public:
-    ScalarType result;  // put the result here
+    RealType result;  // put the result here
     // constructor copies the arguments into local storage
-    vector_min(const std::vector<ScalarType>& vec)
+    vector_min(const std::vector<RealType>& vec)
         : v(vec), result(1e100) {}
 
     // splitting constructor
@@ -136,14 +136,14 @@ public:
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ScalarType>
+template<class RealType>
 class vector_max
 {
-    const std::vector<ScalarType>& v;
+    const std::vector<RealType>& v;
 public:
-    ScalarType result;  // put the result here
+    RealType result;  // put the result here
     // constructor copies the arguments into local storage
-    vector_max(const std::vector<ScalarType>& vec)
+    vector_max(const std::vector<RealType>& vec)
         : v(vec), result(-1e100) {}
 
     // splitting constructor
@@ -167,16 +167,16 @@ public:
 
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ScalarType>
+template<class RealType>
 class vector_min_max
 {
-    const std::vector<ScalarType>& v;
+    const std::vector<RealType>& v;
 public:
-    ScalarType result_min;  // put the result here
-    ScalarType result_max;  // put the result here
+    RealType result_min;  // put the result here
+    RealType result_max;  // put the result here
 
     // constructor copies the arguments into local storage
-    vector_min_max(const std::vector<ScalarType>& vec)
+    vector_min_max(const std::vector<RealType>& vec)
         : v(vec), result_min(1e100), result_max(-1e100) {}
 
     // splitting constructor
@@ -202,14 +202,14 @@ public:
 
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ScalarType>
+template<class RealType>
 class vector_max_abs
 {
-    const std::vector<ScalarType>& v;
+    const std::vector<RealType>& v;
 public:
-    ScalarType result;  // put the result here
+    RealType result;  // put the result here
     // constructor copies the arguments into local storage
-    vector_max_abs(const std::vector<ScalarType>& vec)
+    vector_max_abs(const std::vector<RealType>& vec)
         : v(vec), result(0) {}
 
     // splitting constructor
@@ -221,7 +221,7 @@ public:
     {
         for(size_t i = r.begin(); i != r.end(); i++)
         {
-            ScalarType tmp = fabs(v[i]);
+            RealType tmp = fabs(v[i]);
             result = result > tmp ? result : tmp;
         }
     }
@@ -233,12 +233,12 @@ public:
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ScalarType, class VectorType>
+template<class RealType, class VectorType>
 class vecvec_max_abs
 {
     const std::vector<VectorType>& v;
 public:
-    ScalarType result;  // put the result here
+    RealType result;  // put the result here
     // constructor copies the arguments into local storage
     vecvec_max_abs(const std::vector<VectorType>& vec)
         : v(vec), result(0) {}
@@ -253,23 +253,23 @@ public:
         for(size_t i = r.begin(); i != r.end(); i++)
         {
 #ifdef __Using_Eigen_Lib__
-            ScalarType tmp = (ScalarType)v[i].cwiseAbs().maxCoeff();
+            RealType tmp = (RealType)v[i].cwiseAbs().maxCoeff();
 #else
 #ifdef __Using_GLM_Lib__
-            ScalarType tmp = std::abs(v[i][0]);
+            RealType tmp = std::abs(v[i][0]);
             for(auto k = 1; k < v[i].length(); ++k)
             {
                 tmp = tmp < std::abs(v[i][k]) ? std::abs(v[i][k]) : tmp;
             }
 #else
 #ifdef __Using_Cem_Lib__
-            ScalarType tmp = std::abs(v[i][0]);
+            RealType tmp = std::abs(v[i][0]);
             for(auto k = 1; k < 3; ++k)
             {
                 tmp = tmp < std::abs(v[i][k]) ? std::abs(v[i][k]) : tmp;
             }
 #else
-            ScalarType tmp = std::max(std::abs(v[i][ym::min_element(v[i])]),
+            RealType tmp = std::max(std::abs(v[i][ym::min_element(v[i])]),
                                       std::abs(v[i][ym::max_element(v[i])]));
 #endif // __Using_Cem_Lib__
 #endif // __Using_GLM_Lib__

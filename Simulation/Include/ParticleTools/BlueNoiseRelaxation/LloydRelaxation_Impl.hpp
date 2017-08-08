@@ -14,8 +14,8 @@
 //
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ScalarType>
-LloydRelaxation<ScalarType>::LloydRelaxation(const Vec3<ScalarType>& domainBMin, const Vec3<ScalarType>& domainBMax, ScalarType particleRadius) :
+template<class RealType>
+LloydRelaxation<RealType>::LloydRelaxation(const Vec3<RealType>& domainBMin, const Vec3<RealType>& domainBMax, RealType particleRadius) :
     m_DomainBMin(m_DomainBMin), m_DomainBMax(m_DomainBMax), m_ParticleRadius(particleRadius),
     m_MovingThreshold(3.0),
     m_OverlapThreshold(1.55),
@@ -28,9 +28,9 @@ LloydRelaxation<ScalarType>::LloydRelaxation(const Vec3<ScalarType>& domainBMin,
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ScalarType>
-void LloydRelaxation<ScalarType>::relaxParticles(std::vector<Vec3<ScalarType> >& denseParticles,
-                                                 std::vector<Vec3<ScalarType> >& particles,
+template<class RealType>
+void LloydRelaxation<RealType>::relaxParticles(std::vector<Vec3<RealType> >& denseParticles,
+                                                 std::vector<Vec3<RealType> >& particles,
                                                  int                             minIterations /*= 10*/,
                                                  int                             maxIterations /*= 1000*/,
                                                  bool                            bUseCandidateCenters /*= false*/)
@@ -40,10 +40,10 @@ void LloydRelaxation<ScalarType>::relaxParticles(std::vector<Vec3<ScalarType> >&
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ScalarType>
-void LloydRelaxation<ScalarType>::relaxParticlesWeighted(const std::vector<ScalarType>&  weights,
-                                                         std::vector<Vec3<ScalarType> >& denseParticles,
-                                                         std::vector<Vec3<ScalarType> >& particles,
+template<class RealType>
+void LloydRelaxation<RealType>::relaxParticlesWeighted(const std::vector<RealType>&  weights,
+                                                         std::vector<Vec3<RealType> >& denseParticles,
+                                                         std::vector<Vec3<RealType> >& particles,
                                                          int                             minIterations /*= 10*/,
                                                          int                             maxIterations /*= 1000*/,
                                                          bool                            bUseCandidateCenters /*= false*/)
@@ -53,22 +53,22 @@ void LloydRelaxation<ScalarType>::relaxParticlesWeighted(const std::vector<Scala
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ScalarType>
-void LloydRelaxation<ScalarType>::computeLloydClusters(std::vector<Vec3<ScalarType> >& samples,
-                                                       std::vector<Vec3<ScalarType> >& clusterCenters,
+template<class RealType>
+void LloydRelaxation<RealType>::computeLloydClusters(std::vector<Vec3<RealType> >& samples,
+                                                       std::vector<Vec3<RealType> >& clusterCenters,
                                                        int                             minIterations /*= 10*/,
                                                        int                             maxIterations /*= 1000*/,
                                                        bool                            bUseCandidateCenters /*= false*/)
 {
     Vec_VecUInt                    samplesInCluster;
-    std::vector<Vec3<ScalarType> > clusterBackup;
-    std::vector<ScalarType>        movingDistance;
+    std::vector<Vec3<RealType> > clusterBackup;
+    std::vector<RealType>        movingDistance;
 
-    ScalarType totalTime           = 0;
+    RealType totalTime           = 0;
     UInt32     numOverlapped       = 0;
     bool       converged           = false;
-    ScalarType minClusterDistance  = std::numeric_limits<ScalarType>::max();
-    ScalarType maxMovingPercentage = std::numeric_limits<ScalarType>::max();
+    RealType minClusterDistance  = std::numeric_limits<RealType>::max();
+    RealType maxMovingPercentage = std::numeric_limits<RealType>::max();
 
     ////////////////////////////////////////////////////////////////////////////////
 
@@ -97,7 +97,7 @@ void LloydRelaxation<ScalarType>::computeLloydClusters(std::vector<Vec3<ScalarTy
                               {
                                   __BNN_ASSERT(samplesInCluster[clusterIdx].size() > 0);
 
-                                  Vec3<ScalarType>& center = clusterCenters[clusterIdx];
+                                  Vec3<RealType>& center = clusterCenters[clusterIdx];
 
                                   if(bUseCandidateCenters)
                                   {
@@ -117,7 +117,7 @@ void LloydRelaxation<ScalarType>::computeLloydClusters(std::vector<Vec3<ScalarTy
         m_Logger.printLog(m_Timer.getRunTime("Compute new cluster positions: "));
 
         ////////////////////////////////////////////////////////////////////////////////
-        VectorMaxElement<ScalarType> md2(movingDistance);
+        VectorMaxElement<RealType> md2(movingDistance);
         tbb::parallel_reduce(tbb::blocked_range<size_t>(0, movingDistance.size()), md2);
         maxMovingPercentage = sqrt(md2.result) / m_ParticleRadius * 100.0;
         m_Logger.printLog("Max moving distance in this iteration: " + NumberHelpers::formatWithCommas(maxMovingPercentage) + "% of particle radius");
@@ -186,10 +186,10 @@ void LloydRelaxation<ScalarType>::computeLloydClusters(std::vector<Vec3<ScalarTy
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ScalarType>
-void LloydRelaxation<ScalarType>::computeWeightedLloydClusters(const std::vector<ScalarType>&  weights,
-                                                               std::vector<Vec3<ScalarType> >& samples,
-                                                               std::vector<Vec3<ScalarType> >& clusterCenters,
+template<class RealType>
+void LloydRelaxation<RealType>::computeWeightedLloydClusters(const std::vector<RealType>&  weights,
+                                                               std::vector<Vec3<RealType> >& samples,
+                                                               std::vector<Vec3<RealType> >& clusterCenters,
                                                                int                             minIterations /*= 10*/,
                                                                int                             maxIterations /*= 100*/,
                                                                bool                            bUseCandidateCenters /*= false*/)
@@ -198,14 +198,14 @@ void LloydRelaxation<ScalarType>::computeWeightedLloydClusters(const std::vector
 
 
     Vec_VecUInt                    samplesInCluster;
-    std::vector<Vec3<ScalarType> > clusterBackup;
-    std::vector<ScalarType>        movingDistance;
+    std::vector<Vec3<RealType> > clusterBackup;
+    std::vector<RealType>        movingDistance;
     size_t                         numClusters         = clusterCenters.size();
-    ScalarType                     minClusterDistance  = std::numeric_limits<ScalarType>::max();
-    ScalarType                     maxMovingPercentage = std::numeric_limits<ScalarType>::max();
+    RealType                     minClusterDistance  = std::numeric_limits<RealType>::max();
+    RealType                     maxMovingPercentage = std::numeric_limits<RealType>::max();
 
     UInt32     numOverlapped = 0;
-    ScalarType totalTime     = 0;
+    RealType totalTime     = 0;
 
     bool converged = false;
 
@@ -233,7 +233,7 @@ void LloydRelaxation<ScalarType>::computeWeightedLloydClusters(const std::vector
                               for(size_t clusterIdx = r.begin(); clusterIdx != r.end(); ++clusterIdx)
                               {
                                   __BNN_ASSERT(samplesInCluster[clusterIdx].size() > 0);
-                                  Vec3<ScalarType>& center = clusterCenters[clusterIdx];
+                                  Vec3<RealType>& center = clusterCenters[clusterIdx];
 
                                   if(bUseCandidateCenters)
                                   {
@@ -252,7 +252,7 @@ void LloydRelaxation<ScalarType>::computeWeightedLloydClusters(const std::vector
         totalTime += m_Timer.tock();
         m_Logger.printLog(m_Timer.getRunTime("Compute new cluster positions: "));
 
-        VectorMaxElement<ScalarType> md2(movingDistance);
+        VectorMaxElement<RealType> md2(movingDistance);
         tbb::parallel_reduce(tbb::blocked_range<size_t>(0, movingDistance.size()), md2);
         maxMovingPercentage = sqrt(md2.result) / m_ParticleRadius * 100.0;
         m_Logger.printLog("Max moving distance in this iteration: " + NumberHelpers::formatWithCommas(maxMovingPercentage) + "% of particle radius");
@@ -306,8 +306,8 @@ void LloydRelaxation<ScalarType>::computeWeightedLloydClusters(const std::vector
 ///	Clusters a set of samples by assigning each sample to its closest cluster.
 ///	\c clusterCenter contains the centers of the cluster.
 ///	On return, \c samplesInCluster will contain for each cluster the indices of the samples in the cluster.
-template<class ScalarType>
-void LloydRelaxation<ScalarType>::collectSampleToCluster(const std::vector<Vec3<ScalarType> >& clusterCenters, const std::vector<Vec3<ScalarType> >& samples, Vec_VecUInt& samplesInCluster)
+template<class RealType>
+void LloydRelaxation<RealType>::collectSampleToCluster(const std::vector<Vec3<RealType> >& clusterCenters, const std::vector<Vec3<RealType> >& samples, Vec_VecUInt& samplesInCluster)
 {
     size_t numClusters = clusterCenters.size();
     size_t numSamples  = samples.size();
@@ -332,12 +332,12 @@ void LloydRelaxation<ScalarType>::collectSampleToCluster(const std::vector<Vec3<
                       {
                           for(size_t sampleIdx = r.begin(); sampleIdx != r.end(); ++sampleIdx)
                           {
-                              const Vec3<ScalarType>& sp = samples[sampleIdx];
+                              const Vec3<RealType>& sp = samples[sampleIdx];
                               const Vec3i cellIdx = m_Grid3D.getCellIdx(sp);
 
                               bool bHasNeighbor = false;
                               UInt32 closestClusterIdx = 0;
-                              ScalarType closestClusterD2 = std::numeric_limits<ScalarType>::max();
+                              RealType closestClusterD2 = std::numeric_limits<RealType>::max();
 
 
                               for(Int32 lk : {-1, 0, 1})
@@ -351,8 +351,8 @@ void LloydRelaxation<ScalarType>::collectSampleToCluster(const std::vector<Vec3<
 
                                           for(const UInt32 clusterIdx : m_CellParticles(cellId))
                                           {
-                                              const Vec3<ScalarType>& cp = clusterCenters[clusterIdx];
-                                              const ScalarType d2 = glm::length2(sp - cp);
+                                              const Vec3<RealType>& cp = clusterCenters[clusterIdx];
+                                              const RealType d2 = glm::length2(sp - cp);
 
                                               if(d2 < closestClusterD2)
                                               {
@@ -388,25 +388,25 @@ void LloydRelaxation<ScalarType>::collectSampleToCluster(const std::vector<Vec3<
 ////////////////////////////////////////////////////////////////////////////////
 // static functions
 
-template<class ScalarType>
-size_t LloydRelaxation<ScalarType>::computeMedian(const std::vector<Vec3<ScalarType> >& samples, const Vec_UInt& subsetIndices)
+template<class RealType>
+size_t LloydRelaxation<RealType>::computeMedian(const std::vector<Vec3<RealType> >& samples, const Vec_UInt& subsetIndices)
 {
-    std::vector<ScalarType> dist2(subsetIndices.size(), 0);
+    std::vector<RealType> dist2(subsetIndices.size(), 0);
 
     for(size_t i = 0; i < subsetIndices.size(); ++i)
     {
-        const Vec3<ScalarType>& si = samples[subsetIndices[i]];
+        const Vec3<RealType>& si = samples[subsetIndices[i]];
 
         for(size_t j = 0; j < i; ++j)
         {
-            const Vec3<ScalarType>& sj = samples[subsetIndices[j]];
-            const ScalarType        d2 = glm::length2(si - sj);
+            const Vec3<RealType>& sj = samples[subsetIndices[j]];
+            const RealType        d2 = glm::length2(si - sj);
             dist2[i] += d2;
             dist2[j] += d2;
         }
     }
 
-    ScalarType distMin = dist2[0];
+    RealType distMin = dist2[0];
     size_t     idxMin  = 0;
 
     for(size_t i = 1; i < dist2.size(); ++i)
@@ -422,30 +422,30 @@ size_t LloydRelaxation<ScalarType>::computeMedian(const std::vector<Vec3<ScalarT
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ScalarType>
-size_t LloydRelaxation<ScalarType>::computeWeightedMedian(const std::vector<Vec3<ScalarType> >& samples, const std::vector<ScalarType>& weights, const Vec_UInt& subsetIndices)
+template<class RealType>
+size_t LloydRelaxation<RealType>::computeWeightedMedian(const std::vector<Vec3<RealType> >& samples, const std::vector<RealType>& weights, const Vec_UInt& subsetIndices)
 {
     __BNN_ASSERT(samples.size() == weights.size());
 
-    std::vector<ScalarType> dist2(subsetIndices.size(), 0);
+    std::vector<RealType> dist2(subsetIndices.size(), 0);
 
     for(size_t i = 0; i < subsetIndices.size(); ++i)
     {
-        const Vec3<ScalarType>& si = samples[subsetIndices[i]];
-        const ScalarType        wi = weights[subsetIndices[i]];
+        const Vec3<RealType>& si = samples[subsetIndices[i]];
+        const RealType        wi = weights[subsetIndices[i]];
 
         for(size_t j = 0; j < i; ++j)
         {
-            const Vec3<ScalarType>& sj = samples[subsetIndices[j]];
-            const ScalarType        wj = weights[subsetIndices[j]];
-            ScalarType              d2 = glm::length2(si - sj);
+            const Vec3<RealType>& sj = samples[subsetIndices[j]];
+            const RealType        wj = weights[subsetIndices[j]];
+            RealType              d2 = glm::length2(si - sj);
 
             dist2[i] += d2 * wj;
             dist2[j] += d2 * wi;
         }
     }
 
-    ScalarType distMin = dist2[0];
+    RealType distMin = dist2[0];
     size_t     idxMin  = 0;
 
     for(size_t i = 1; i < dist2.size(); ++i)
@@ -461,32 +461,32 @@ size_t LloydRelaxation<ScalarType>::computeWeightedMedian(const std::vector<Vec3
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ScalarType>
-void LloydRelaxation<ScalarType>::computeMean(const std::vector<Vec3<ScalarType> >& samples, const Vec_UInt& subsetIndices, Vec3<ScalarType>& mean)
+template<class RealType>
+void LloydRelaxation<RealType>::computeMean(const std::vector<Vec3<RealType> >& samples, const Vec_UInt& subsetIndices, Vec3<RealType>& mean)
 {
-    mean = Vec3<ScalarType>(0);
+    mean = Vec3<RealType>(0);
 
     for(auto index : subsetIndices)
     {
         mean += samples[index];
     }
 
-    mean /= (ScalarType)subsetIndices.size();
+    mean /= (RealType)subsetIndices.size();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ScalarType>
-void LloydRelaxation<ScalarType>::computeWeightedMean(const std::vector<Vec3<ScalarType> >& samples, const std::vector<ScalarType>& weights, const Vec_UInt& subsetIndices, Vec3<ScalarType>& mean)
+template<class RealType>
+void LloydRelaxation<RealType>::computeWeightedMean(const std::vector<Vec3<RealType> >& samples, const std::vector<RealType>& weights, const Vec_UInt& subsetIndices, Vec3<RealType>& mean)
 {
-    mean = Vec3<ScalarType>(0);
+    mean = Vec3<RealType>(0);
     __BNN_ASSERT(samples.size() == weights.size());
 
-    ScalarType sumW = 0;
+    RealType sumW = 0;
 
     for(auto index : subsetIndices)
     {
-        const Vec3<ScalarType>& sp = samples[index];
-        const ScalarType        w  = weights[index];
+        const Vec3<RealType>& sp = samples[index];
+        const RealType        w  = weights[index];
         mean += sp * w;
         sumW += w;
     }
@@ -497,19 +497,19 @@ void LloydRelaxation<ScalarType>::computeWeightedMean(const std::vector<Vec3<Sca
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ScalarType>
-ScalarType LloydRelaxation<ScalarType>::computeMinDistance(const std::vector<Vec3<ScalarType> >& clusterCenters)
+template<class RealType>
+RealType LloydRelaxation<RealType>::computeMinDistance(const std::vector<Vec3<RealType> >& clusterCenters)
 {
-    std::vector<ScalarType> dist2(clusterCenters.size(), 0);
+    std::vector<RealType> dist2(clusterCenters.size(), 0);
 
     tbb::parallel_for(tbb::blocked_range<size_t>(0, clusterCenters.size()),
                       [&](tbb::blocked_range<size_t> r)
                       {
                           for(size_t p = r.begin(); p != r.end(); ++p)
                           {
-                              const Vec3<ScalarType>& ppos = clusterCenters[p];
+                              const Vec3<RealType>& ppos = clusterCenters[p];
                               const Vec3i& pcellId = m_Grid3D.getCellIdx(ppos);
-                              ScalarType min_d2 = std::numeric_limits<ScalarType>::max();
+                              RealType min_d2 = std::numeric_limits<RealType>::max();
 
                               for(Int32 lk = -1; lk <= 1; ++lk)
                               {
@@ -526,7 +526,7 @@ ScalarType LloydRelaxation<ScalarType>::computeMinDistance(const std::vector<Vec
                                               if(p == clusterIdx) continue;
 
                                               const auto& qpos = clusterCenters[clusterIdx];
-                                              const ScalarType d2 = glm::length2(ppos - qpos);
+                                              const RealType d2 = glm::length2(ppos - qpos);
 
                                               if(d2 < min_d2)
                                               {
@@ -541,26 +541,26 @@ ScalarType LloydRelaxation<ScalarType>::computeMinDistance(const std::vector<Vec
                           }
                       });
 
-    VectorMinElement<ScalarType> md2(dist2);
+    VectorMinElement<RealType> md2(dist2);
     tbb::parallel_reduce(tbb::blocked_range<size_t>(0, dist2.size()), md2);
 
     return sqrt(md2.result);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ScalarType>
-ScalarType LloydRelaxation<ScalarType>::computeMinDistance(const std::vector<Vec3<ScalarType> >& clusterCenters, UInt32& numOverlappedParticles)
+template<class RealType>
+RealType LloydRelaxation<RealType>::computeMinDistance(const std::vector<Vec3<RealType> >& clusterCenters, UInt32& numOverlappedParticles)
 {
-    std::vector<ScalarType> dist2(clusterCenters.size(), 0);
+    std::vector<RealType> dist2(clusterCenters.size(), 0);
 
     tbb::parallel_for(tbb::blocked_range<size_t>(0, clusterCenters.size()),
                       [&](tbb::blocked_range<size_t> r)
                       {
                           for(size_t p = r.begin(); p != r.end(); ++p)
                           {
-                              const Vec3<ScalarType>& ppos = clusterCenters[p];
+                              const Vec3<RealType>& ppos = clusterCenters[p];
                               const Vec3i& pcellId = m_Grid3D.getCellIdx(ppos);
-                              ScalarType min_d2 = std::numeric_limits<ScalarType>::max();
+                              RealType min_d2 = std::numeric_limits<RealType>::max();
 
                               for(Int32 lk = -1; lk <= 1; ++lk)
                               {
@@ -576,8 +576,8 @@ ScalarType LloydRelaxation<ScalarType>::computeMinDistance(const std::vector<Vec
                                           {
                                               if(p == clusterIdx) continue;
 
-                                              const Vec3<ScalarType>& qpos = clusterCenters[clusterIdx];
-                                              const ScalarType d2 = glm::length2(ppos - qpos);
+                                              const Vec3<RealType>& qpos = clusterCenters[clusterIdx];
+                                              const RealType d2 = glm::length2(ppos - qpos);
 
                                               if(d2 < min_d2) min_d2 = d2;
                                           }
@@ -590,7 +590,7 @@ ScalarType LloydRelaxation<ScalarType>::computeMinDistance(const std::vector<Vec
                       });
 
     numOverlappedParticles = 0;
-    const ScalarType threshold = MathHelpers::sqr(m_OverlapThreshold * m_ParticleRadius);
+    const RealType threshold = MathHelpers::sqr(m_OverlapThreshold * m_ParticleRadius);
 
     for(size_t p = 0; p < dist2.size(); ++p)
     {
@@ -600,28 +600,28 @@ ScalarType LloydRelaxation<ScalarType>::computeMinDistance(const std::vector<Vec
         }
     }
 
-    VectorMinElement<ScalarType> md2(dist2);
+    VectorMinElement<RealType> md2(dist2);
     tbb::parallel_reduce(tbb::blocked_range<size_t>(0, dist2.size()), md2);
 
     return sqrt(md2.result);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ScalarType>
-UInt32 LloydRelaxation<ScalarType>::removeOverlappedParticles(std::vector<Vec3<ScalarType> >& clusterCenters)
+template<class RealType>
+UInt32 LloydRelaxation<RealType>::removeOverlappedParticles(std::vector<Vec3<RealType> >& clusterCenters)
 {
     Vec_Char check_remove;
     check_remove.assign(clusterCenters.size(), 0);
-    const ScalarType threshold = MathHelpers::sqr(m_RemovingThreshold * m_ParticleRadius);
+    const RealType threshold = MathHelpers::sqr(m_RemovingThreshold * m_ParticleRadius);
 
     tbb::parallel_for(tbb::blocked_range<size_t>(0, clusterCenters.size()),
                       [&](tbb::blocked_range<size_t> r)
                       {
                           for(size_t p = r.begin(); p != r.end(); ++p)
                           {
-                              const Vec3<ScalarType>& ppos = clusterCenters[p];
+                              const Vec3<RealType>& ppos = clusterCenters[p];
                               const Vec3i& pcellId = m_Grid3D.getCellIdx(ppos);
-                              ScalarType min_d2 = std::numeric_limits<ScalarType>::max();
+                              RealType min_d2 = std::numeric_limits<RealType>::max();
 
                               for(Int32 lk = -1; lk <= 1; ++lk)
                               {
@@ -643,8 +643,8 @@ UInt32 LloydRelaxation<ScalarType>::removeOverlappedParticles(std::vector<Vec3<S
                                                   continue;
                                               }
 
-                                              const Vec3<ScalarType>& qpos = clusterCenters[q];
-                                              const ScalarType d2 = glm::length2(ppos - qpos);
+                                              const Vec3<RealType>& qpos = clusterCenters[q];
+                                              const RealType d2 = glm::length2(ppos - qpos);
 
                                               if(d2 < min_d2)
                                               {
@@ -678,15 +678,15 @@ UInt32 LloydRelaxation<ScalarType>::removeOverlappedParticles(std::vector<Vec3<S
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ScalarType>
-void LloydRelaxation<ScalarType>::sortSamples(std::vector<Vec3<ScalarType> >& samples, const Vec_VecUInt& samplesInCluster)
+template<class RealType>
+void LloydRelaxation<RealType>::sortSamples(std::vector<Vec3<RealType> >& samples, const Vec_VecUInt& samplesInCluster)
 {
     static Timer m_Timer;
     size_t       numSamples = samples.size();
 
     ////////////////////////////////////////////////////////////////////////////////
     m_Timer.tick();
-    static std::vector<Vec3<ScalarType> > tmp_samples;
+    static std::vector<Vec3<RealType> > tmp_samples;
     tmp_samples.resize(samples.size());
 
     size_t index = 0;
@@ -712,8 +712,8 @@ void LloydRelaxation<ScalarType>::sortSamples(std::vector<Vec3<ScalarType> >& sa
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ScalarType>
-void LloydRelaxation<ScalarType>::collectClustersToCells(const std::vector<Vec3<ScalarType> >& clusterCenters)
+template<class RealType>
+void LloydRelaxation<RealType>::collectClustersToCells(const std::vector<Vec3<RealType> >& clusterCenters)
 {
     for(auto& cell : m_CellParticles)
         cell.resize(0);

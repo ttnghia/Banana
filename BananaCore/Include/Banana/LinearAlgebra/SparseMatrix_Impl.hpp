@@ -20,22 +20,22 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Dynamic compressed sparse row matrix.
 //
-template<class ScalarType>
-unsigned int SparseMatrix<ScalarType>::size() const noexcept
+template<class RealType>
+unsigned int SparseMatrix<RealType>::size() const noexcept
 {
     return m_Size;
 }
 
-template<class ScalarType>
-void SparseMatrix<ScalarType>::resize(UInt32 newSize)
+template<class RealType>
+void SparseMatrix<RealType>::resize(UInt32 newSize)
 {
     m_Size = newSize;
     m_Index.resize(m_Size);
     m_Value.resize(m_Size);
 }
 
-template<class ScalarType>
-void SparseMatrix<ScalarType>::clear(void)
+template<class RealType>
+void SparseMatrix<RealType>::clear(void)
 {
     for(UInt32 i = 0; i < m_Size; ++i)
     {
@@ -45,23 +45,23 @@ void SparseMatrix<ScalarType>::clear(void)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ScalarType>
-const std::vector<UInt32>& SparseMatrix<ScalarType>::getIndices(UInt32 row) const
+template<class RealType>
+const std::vector<UInt32>& SparseMatrix<RealType>::getIndices(UInt32 row) const
 {
     assert(row < m_Size);
     return m_Index[row];
 }
 
-template<class ScalarType>
-const std::vector<UInt32>& SparseMatrix<ScalarType>::getValues(UInt32 row) const
+template<class RealType>
+const std::vector<UInt32>& SparseMatrix<RealType>::getValues(UInt32 row) const
 {
     assert(row < m_Size);
     return m_Value[row];
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ScalarType>
-ScalarType SparseMatrix<ScalarType>::operator()(UInt32 i, UInt32 j) const
+template<class RealType>
+RealType SparseMatrix<RealType>::operator()(UInt32 i, UInt32 j) const
 {
     UInt32 k = 0;
 
@@ -76,8 +76,8 @@ ScalarType SparseMatrix<ScalarType>::operator()(UInt32 i, UInt32 j) const
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ScalarType>
-void SparseMatrix<ScalarType>::setElement(UInt32 i, UInt32 j, ScalarType newValue)
+template<class RealType>
+void SparseMatrix<RealType>::setElement(UInt32 i, UInt32 j, RealType newValue)
 {
     assert(i < m_Size && j < m_Size);
 
@@ -94,8 +94,8 @@ void SparseMatrix<ScalarType>::setElement(UInt32 i, UInt32 j, ScalarType newValu
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ScalarType>
-void SparseMatrix<ScalarType>::addElement(UInt32 i, UInt32 j, ScalarType incrementValue)
+template<class RealType>
+void SparseMatrix<RealType>::addElement(UInt32 i, UInt32 j, RealType incrementValue)
 {
     assert(i < m_Size && j < m_Size);
 
@@ -112,8 +112,8 @@ void SparseMatrix<ScalarType>::addElement(UInt32 i, UInt32 j, ScalarType increme
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ScalarType>
-void SparseMatrix<ScalarType>::eraseElement(UInt32 i, UInt32 j)
+template<class RealType>
+void SparseMatrix<RealType>::eraseElement(UInt32 i, UInt32 j)
 {
     assert(i < m_Size && j < m_Size);
 
@@ -128,8 +128,8 @@ void SparseMatrix<ScalarType>::eraseElement(UInt32 i, UInt32 j)
 
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ScalarType>
-void SparseMatrix<ScalarType>::printDebug() const noexcept
+template<class RealType>
+void SparseMatrix<RealType>::printDebug() const noexcept
 {
     for(UInt32 i = 0; i < m_Size; ++i)
     {
@@ -152,8 +152,8 @@ void SparseMatrix<ScalarType>::printDebug() const noexcept
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ScalarType>
-void SparseMatrix<ScalarType>::checkSymmetry() const noexcept
+template<class RealType>
+void SparseMatrix<RealType>::checkSymmetry() const noexcept
 {
     volatile bool check = true;
     std::cout << "============================== Checking Matrix Symmetry... ==============================" << std::endl;
@@ -195,8 +195,8 @@ void SparseMatrix<ScalarType>::checkSymmetry() const noexcept
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ScalarType>
-void SparseMatrix<ScalarType>::writeMatlabFile(const char* fileName, int showPercentage /*= -1*/) const
+template<class RealType>
+void SparseMatrix<RealType>::writeMatlabFile(const char* fileName, int showPercentage /*= -1*/) const
 {
     std::ofstream file(fileName, std::ios::out);
     if(!file.is_open())
@@ -245,8 +245,8 @@ void SparseMatrix<ScalarType>::writeMatlabFile(const char* fileName, int showPer
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ScalarType>
-void SparseMatrix<ScalarType>::writeBinaryFile(const char* fileName, int showPercentage /*= -1*/) const
+template<class RealType>
+void SparseMatrix<RealType>::writeBinaryFile(const char* fileName, int showPercentage /*= -1*/) const
 {
     std::ofstream file(fileName, std::ios::binary | std::ios::out);
     if(!file.is_open())
@@ -314,8 +314,8 @@ void SparseMatrix<ScalarType>::writeBinaryFile(const char* fileName, int showPer
     printf("File written, num. elements: %u, filename: %s\n", numElements, fileName);
 }
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ScalarType>
-bool SparseMatrix<ScalarType>::loadFromBinaryFile(const char* fileName, int showPercentage /*= -1*/)
+template<class RealType>
+bool SparseMatrix<RealType>::loadFromBinaryFile(const char* fileName, int showPercentage /*= -1*/)
 {
     std::ifstream file(fileName, std::ios::binary | std::ios::ate);
 
@@ -366,8 +366,8 @@ bool SparseMatrix<ScalarType>::loadFromBinaryFile(const char* fileName, int show
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // perform result=matrix*x
-template<class ScalarType>
-void SparseMatrix<ScalarType>::multiply(const SparseMatrix<ScalarType>& matrix, const std::vector<ScalarType>& x, std::vector<ScalarType>& result)
+template<class RealType>
+void SparseMatrix<RealType>::multiply(const SparseMatrix<RealType>& matrix, const std::vector<RealType>& x, std::vector<RealType>& result)
 {
     assert(matrix.size() == static_cast<UInt32>(x.size()));
     result.resize(matrix.size());
@@ -377,7 +377,7 @@ void SparseMatrix<ScalarType>::multiply(const SparseMatrix<ScalarType>& matrix, 
     {
         for(UInt32 i = r.begin(), iEnd = r.end(); i != iEnd; ++i)
         {
-            ScalarType tmpResult = 0;
+            RealType tmpResult = 0;
 
             for(UInt32 j = 0, jEnd = static_cast<UInt32>(matrix.m_Index[i].size()); j < jEnd; ++j)
             {
@@ -391,8 +391,8 @@ void SparseMatrix<ScalarType>::multiply(const SparseMatrix<ScalarType>& matrix, 
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // perform result=result-matrix*x
-template<class ScalarType>
-void SparseMatrix<ScalarType>::multiply_and_subtract(const SparseMatrix<ScalarType>& matrix, const std::vector<ScalarType>& x, std::vector<ScalarType>& result)
+template<class RealType>
+void SparseMatrix<RealType>::multiply_and_subtract(const SparseMatrix<RealType>& matrix, const std::vector<RealType>& x, std::vector<RealType>& result)
 {
     assert(matrix.size() == static_cast<UInt32>(x.size()));
     result.resize(matrix.size());
@@ -402,7 +402,7 @@ void SparseMatrix<ScalarType>::multiply_and_subtract(const SparseMatrix<ScalarTy
     {
         for(UInt32 i = r.begin(), iEnd = r.end(); i != iEnd; ++i)
         {
-            ScalarType tmpResult = result[i];
+            RealType tmpResult = result[i];
 
             for(UInt32 j = 0, jEnd = static_cast<UInt32>(matrix.m_Index[i].size()); j < jEnd; ++j)
             {
@@ -419,24 +419,24 @@ void SparseMatrix<ScalarType>::multiply_and_subtract(const SparseMatrix<ScalarTy
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Fixed version of SparseMatrix
 //
-template<class ScalarType>
-void FixedSparseMatrix<ScalarType>::clear(void)
+template<class RealType>
+void FixedSparseMatrix<RealType>::clear(void)
 {
     m_Value.resize(0);
     m_Index.resize(0);
     m_RowStart.resize(0);
 }
 
-template<class ScalarType>
-void FixedSparseMatrix<ScalarType>::resize(UInt32 newSize)
+template<class RealType>
+void FixedSparseMatrix<RealType>::resize(UInt32 newSize)
 {
     m_Size = newSize;
     m_RowStart.resize(m_Size + 1);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ScalarType>
-void FixedSparseMatrix<ScalarType>::constructFromSparseMatrix(const SparseMatrix<ScalarType>& matrix)
+template<class RealType>
+void FixedSparseMatrix<RealType>::constructFromSparseMatrix(const SparseMatrix<RealType>& matrix)
 {
     resize(matrix.size());
     m_RowStart[0] = 0;
@@ -459,16 +459,16 @@ void FixedSparseMatrix<ScalarType>::constructFromSparseMatrix(const SparseMatrix
 
         for(UInt32 i = r.begin(), iEnd = r.end(); i != iEnd; ++i)
         {
-            memcpy(&m_Value[m_RowStart[i]], matrix.getValues(i).data(), matrix.getValues(i).size() * sizeof(ScalarType));
+            memcpy(&m_Value[m_RowStart[i]], matrix.getValues(i).data(), matrix.getValues(i).size() * sizeof(RealType));
         }
     }, ap);     // end parallel_for
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // perform result=matrix*x
-template<class ScalarType>
-template<class ScalarType>
-void FixedSparseMatrix<ScalarType>::multiply(const FixedSparseMatrix<ScalarType>& matrix, const std::vector<ScalarType>& x, std::vector<ScalarType>& result)
+template<class RealType>
+template<class RealType>
+void FixedSparseMatrix<RealType>::multiply(const FixedSparseMatrix<RealType>& matrix, const std::vector<RealType>& x, std::vector<RealType>& result)
 {
     assert(matrix.size() == static_cast<UInt32>(x.size()));
     result.resize(matrix.size());
@@ -478,7 +478,7 @@ void FixedSparseMatrix<ScalarType>::multiply(const FixedSparseMatrix<ScalarType>
     {
         for(UInt32 i = r.begin(), iEnd = r.end(); i != iEnd; ++i)
         {
-            ScalarType tmpResult = 0;
+            RealType tmpResult = 0;
 
             for(UInt32 j = matrix.m_RowStart[i], jEnd = matrix.m_RowStart[i + 1]; j < jEnd; ++j)
             {
@@ -492,9 +492,9 @@ void FixedSparseMatrix<ScalarType>::multiply(const FixedSparseMatrix<ScalarType>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // perform result=result-matrix*x
-template<class ScalarType>
-template<class ScalarType>
-void FixedSparseMatrix<ScalarType>::multiply_and_subtract(const FixedSparseMatrix<ScalarType>& matrix, const std::vector<ScalarType>& x, std::vector<ScalarType>& result)
+template<class RealType>
+template<class RealType>
+void FixedSparseMatrix<RealType>::multiply_and_subtract(const FixedSparseMatrix<RealType>& matrix, const std::vector<RealType>& x, std::vector<RealType>& result)
 {
     assert(matrix.size() == static_cast<UInt32>(x.size()));
     result.resize(matrix.size());
@@ -505,7 +505,7 @@ void FixedSparseMatrix<ScalarType>::multiply_and_subtract(const FixedSparseMatri
     {
         for(UInt32 i = r.begin(), iEnd = r.end(); i != iEnd; ++i)
         {
-            ScalarType tmpResult = result[i];
+            RealType tmpResult = result[i];
 
             for(UInt32 j = matrix.m_RowStart[i], jEnd = matrix.m_RowStart[i + 1]; j < jEnd; ++j)
             {

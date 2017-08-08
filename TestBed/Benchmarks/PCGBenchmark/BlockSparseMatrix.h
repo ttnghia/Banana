@@ -508,10 +508,10 @@ void multiply(const BlockSparseMatrix<MatrixType>& matrix,
 }
 
 // perform result=alpha*matrix*x
-template<class MatrixType, class VectorType, class ScalarType>
+template<class MatrixType, class VectorType, class RealType>
 void multiply_scaled(const BlockSparseMatrix<MatrixType>& matrix,
                      const std::vector<VectorType>& x,
-                     const ScalarType alpha,
+                     const RealType alpha,
                      std::vector<VectorType>& result)
 {
     __NOODLE_ASSERT(matrix.size == x.size());
@@ -537,10 +537,10 @@ void multiply_scaled(const BlockSparseMatrix<MatrixType>& matrix,
 }
 
 // perform result+=alpha*matrix*x
-template<class MatrixType, class VectorType, class ScalarType>
+template<class MatrixType, class VectorType, class RealType>
 void add_multiply_scaled(const BlockSparseMatrix<MatrixType>& matrix,
                          const std::vector<VectorType>& x,
-                         const ScalarType alpha,
+                         const RealType alpha,
                          std::vector<VectorType>& result)
 {
     __NOODLE_ASSERT(matrix.size == x.size());
@@ -593,10 +593,10 @@ void multiply_and_subtract(const BlockSparseMatrix<MatrixType>& matrix,
 }
 
 // perform mat = A + alpha*B
-template<class MatrixType, class VectorType, class ScalarType>
+template<class MatrixType, class VectorType, class RealType>
 void add_scaled(const BlockSparseMatrix<MatrixType>& A,
                 const BlockSparseMatrix<MatrixType>& B,
-                const ScalarType alpha,
+                const RealType alpha,
                 BlockSparseMatrix<MatrixType>& matrix)
 {
     __NOODLE_ASSERT(A.size == B.size);

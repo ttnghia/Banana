@@ -31,6 +31,7 @@
 
 #include <memory>
 #include <random>
+#include <map>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -39,32 +40,64 @@ namespace Banana
 struct SimulationParameters
 {};
 
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-struct TimeParameters : public SimulationParameters
-{
-    float frameTime     = 1.0f / 30.0f;
-    int   startFrame    = 1;
-    int   finalFrame    = 1;
-    int   framePerState = 0;
-};
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 struct SimulationData
 {};
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class RealType>
+struct TimeParameters : public SimulationParameters
+{
+    RealType frameDuration = 1.0f / 30.0f;
+
+    unsigned int startFrame    = 1;
+    unsigned int finalFrame    = 1;
+    unsigned int framePerState = 1;
+};
+
+struct DataParameters : public SimulationParameters
+{
+    bool         bSaveParticleData = true;
+    bool         bSaveMemoryState  = true;
+    unsigned int framePerState     = 1;
+};
+
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class RealType>
 class ParticleSolver
 {
 public:
-    ParticleSolver() {}
-    virtual ~ParticleSolver() {}
+    ParticleSolver(const std::shared_ptr<TimeParameters>& timeParams, const std::shared_ptr<DataParameters>& dataParams) :
+        m_TimeParams(timeParams), m_DataParams(dataParams) {}
+    virtual ~ParticleSolver() = default;
 
     ////////////////////////////////////////////////////////////////////////////////
-    virtual void advanceFrame() = 0;
-    virtual void makeReady()    = 0;
+    virtual std::string getSolverName()    = 0;
+    virtual void        advanceFrame()     = 0;
+    virtual void        makeReady()        = 0;
+    virtual void        saveParticleData() = 0;
+    virtual void        saveMemoryState()  = 0;
+
+    void setupLogger(bool bLog2Std, bool bLog2File, const std::string& logLocation = std::string(""))
+    {
+        m_Logger.enableStdOut(bLog2Std);
+        m_Logger.enableLogFile(bLog2File);
+
+        // TODO
+        if(bLog2File)
+        {
+            __BNN_ASSERT(!logLocation.empty());
+            m_Logger.setDataPath(logLocation);
+        }
+    }
 
 protected:
     Logger m_Logger;
+
+    std::shared_ptr<TimeParameters<RealType> >      m_TimeParams;
+    std::shared_ptr<DataParameters>                 m_DataParams;
+    std::map<std::string, std::shared_ptr<DataIO> > m_ParticleDataIO;
+    std::map<std::string, std::shared_ptr<DataIO> > m_MemoryStateIO;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

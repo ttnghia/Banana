@@ -8,7 +8,7 @@
 #include "./SparseMatrix.h"
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template <class ScalarType>
+template <class RealType>
 class ConjugateGradientSolver
 {
 public:
@@ -18,7 +18,7 @@ public:
         zero_initial = true;
     }
 
-    void set_solver_parameters(ScalarType tolerance_factor_, int max_iterations_)
+    void set_solver_parameters(RealType tolerance_factor_, int max_iterations_)
     {
         tolerance_factor = tolerance_factor_;
 
@@ -45,10 +45,10 @@ public:
         zero_initial = false;
     }
 
-    bool solve(const SparseMatrix<ScalarType>& matrix,
-               const std::vector<ScalarType>& rhs,
-               std::vector<ScalarType>& result,
-               ScalarType& residual_out, int& iterations_out)
+    bool solve(const SparseMatrix<RealType>& matrix,
+               const std::vector<RealType>& rhs,
+               std::vector<RealType>& result,
+               RealType& residual_out, int& iterations_out)
     {
         UInt32 n = matrix.size;
 
@@ -71,7 +71,7 @@ public:
         fixed_matrix.construct_from_matrix(matrix);
         r = rhs;
 
-        residual_out = ParallelSTL::abs_max<ScalarType>(r);
+        residual_out = ParallelSTL::abs_max<RealType>(r);
 
         if(fabs(residual_out) < tolerance_factor)
         {
@@ -79,8 +79,8 @@ public:
             return true;
         }
 
-        ScalarType tol = tolerance_factor * residual_out;
-        ScalarType rho = ParallelBLAS::dot_product<ScalarType>(r, r);
+        RealType tol = tolerance_factor * residual_out;
+        RealType rho = ParallelBLAS::dot_product<RealType>(r, r);
 
         if(fabs(rho) < tolerance_factor || isnan(rho))
         {
@@ -94,8 +94,8 @@ public:
 
         for(iteration = 0; iteration < max_iterations; ++iteration)
         {
-            multiply<ScalarType>(fixed_matrix, z, s);
-            ScalarType tmp = ParallelBLAS::dot_product<ScalarType>(s, z);
+            multiply<RealType>(fixed_matrix, z, s);
+            RealType tmp = ParallelBLAS::dot_product<RealType>(s, z);
 
 
             if(fabs(tmp) < tolerance_factor || isnan(tmp))
@@ -104,18 +104,18 @@ public:
                 return true;
             }
 
-            ScalarType alpha = rho / tmp;
+            RealType alpha = rho / tmp;
 
             tbb::parallel_invoke([&]
             {
-                ParallelBLAS::add_scaled<ScalarType, ScalarType>(alpha, z, result);
+                ParallelBLAS::add_scaled<RealType, RealType>(alpha, z, result);
             },
                                  [&]
             {
-                ParallelBLAS::add_scaled<ScalarType, ScalarType>(-alpha, s, r);
+                ParallelBLAS::add_scaled<RealType, RealType>(-alpha, s, r);
             });
 
-            residual_out = ParallelSTL::abs_max<ScalarType>(r);
+            residual_out = ParallelSTL::abs_max<RealType>(r);
 
             if(residual_out <= tol)
             {
@@ -123,9 +123,9 @@ public:
                 return true;
             }
 
-            ScalarType rho_new = ParallelBLAS::dot_product<ScalarType>(r, r);
-            ScalarType beta = rho_new / rho;
-            ParallelBLAS::scaled_add<ScalarType, ScalarType>(beta, r, z);
+            RealType rho_new = ParallelBLAS::dot_product<RealType>(r, r);
+            RealType beta = rho_new / rho;
+            ParallelBLAS::scaled_add<RealType, RealType>(beta, r, z);
             rho = rho_new;
         }
 
@@ -137,11 +137,11 @@ public:
 
 private:
 
-    std::vector<ScalarType> z, s, r; // temporary vectors for CG
-    FixedSparseMatrix<ScalarType> fixed_matrix; // used within loop
+    std::vector<RealType> z, s, r; // temporary vectors for CG
+    FixedSparseMatrix<RealType> fixed_matrix; // used within loop
 
     // parameters
-    ScalarType tolerance_factor;
+    RealType tolerance_factor;
     int max_iterations;
     bool zero_initial;
 };

@@ -14,8 +14,8 @@
 //
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ScalarType>
-void Grid3D<ScalarType>::setGrid(const Vec3<ScalarType>& bMin, const Vec3<ScalarType>& bMax, ScalarType cellSize)
+template<class RealType>
+void Grid3D<RealType>::setGrid(const Vec3<RealType>& bMin, const Vec3<RealType>& bMax, RealType cellSize)
 {
     m_BMin = bMin;
     m_BMax = bMax;
@@ -23,8 +23,8 @@ void Grid3D<ScalarType>::setGrid(const Vec3<ScalarType>& bMin, const Vec3<Scalar
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ScalarType>
-void Grid3D<ScalarType>::setCellSize(ScalarType cellSize)
+template<class RealType>
+void Grid3D<RealType>::setCellSize(RealType cellSize)
 {
     assert(cellSize > 0);
     m_CellSize      = cellSize;
@@ -38,9 +38,9 @@ void Grid3D<ScalarType>::setCellSize(ScalarType cellSize)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ScalarType>
+template<class RealType>
 template<class IndexType>
-bool Grid3D<ScalarType>::isValidCell(IndexType i, IndexType j, IndexType k)  const noexcept
+bool Grid3D<RealType>::isValidCell(IndexType i, IndexType j, IndexType k)  const noexcept
 {
     return (i >= 0 &&
             j >= 0 &&
@@ -50,17 +50,17 @@ bool Grid3D<ScalarType>::isValidCell(IndexType i, IndexType j, IndexType k)  con
             static_cast<unsigned int>(k) < m_NumCells[2]);
 }
 
-template<class ScalarType>
+template<class RealType>
 template<class IndexType>
-bool Grid3D<ScalarType>::isValidCell(const Vec3<IndexType>& index)  const noexcept
+bool Grid3D<RealType>::isValidCell(const Vec3<IndexType>& index)  const noexcept
 {
     return isValidCell(index[0], index[1], index[2]);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ScalarType>
+template<class RealType>
 template<class IndexType>
-Vec3<IndexType> Grid3D<ScalarType>::getCellIdx(const Vec3<ScalarType>& position)  const noexcept
+Vec3<IndexType> Grid3D<RealType>::getCellIdx(const Vec3<RealType>& position)  const noexcept
 {
     return Vec3<IndexType>(static_cast<IndexType>((position[0] - m_BMin[0]) / m_CellSize),
                            static_cast<IndexType>((position[1] - m_BMin[1]) / m_CellSize),
@@ -68,17 +68,17 @@ Vec3<IndexType> Grid3D<ScalarType>::getCellIdx(const Vec3<ScalarType>& position)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ScalarType>
+template<class RealType>
 template<class IndexType>
-Vec3<IndexType> Grid3D<ScalarType>::getValidCellIdx(const Vec3<ScalarType>& position)  const noexcept
+Vec3<IndexType> Grid3D<RealType>::getValidCellIdx(const Vec3<RealType>& position)  const noexcept
 {
     return getNearestValidCellIdx<IndexType>(getCellIdx<IndexType>(position));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ScalarType>
+template<class RealType>
 template<class IndexType>
-Vec3<IndexType> Grid3D<ScalarType>::getNearestValidCellIdx(const Vec3<IndexType>& cellIdx) const noexcept
+Vec3<IndexType> Grid3D<RealType>::getNearestValidCellIdx(const Vec3<IndexType>& cellIdx) const noexcept
 {
     Vec3<IndexType> nearestCellIdx;
 
@@ -89,8 +89,8 @@ Vec3<IndexType> Grid3D<ScalarType>::getNearestValidCellIdx(const Vec3<IndexType>
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ScalarType>
-void Grid3D<ScalarType>::enableCellParticleIdx(bool bEnable /* = true */)
+template<class RealType>
+void Grid3D<RealType>::enableCellParticleIdx(bool bEnable /* = true */)
 {
     if(!bEnable)
         m_CellParticleIdx.clear();
@@ -99,8 +99,8 @@ void Grid3D<ScalarType>::enableCellParticleIdx(bool bEnable /* = true */)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ScalarType>
-void Grid3D<ScalarType>::collectParticlesToCells(Vec_Vec3<ScalarType>& particles)
+template<class RealType>
+void Grid3D<RealType>::collectParticlesToCells(Vec_Vec3<RealType>& particles)
 {
     for(auto& cell : m_CellParticleIdx.vec_data())
         cell.resize(0);
@@ -111,44 +111,23 @@ void Grid3D<ScalarType>::collectParticlesToCells(Vec_Vec3<ScalarType>& particles
         auto cellIdx = getValidCellIdx<int>(particles[p]);
         m_CellParticleIdx(cellIdx).push_back(p);
     }
-
-    if(m_bSortParticles)
-    {
-        static unsigned int collectionCount = 0;
-        ++collectionCount;
-
-        if(collectionCount == m_SortFrequency)
-        {
-            collectionCount = 0;
-            sortParticleByCell(particles);
-        }
-    }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ScalarType>
-void Grid3D<ScalarType>::enableSortParticles(bool bEnable /* = true */)
+template<class RealType>
+const Vec_UInt& Banana::Grid3D<RealType>::getCellParticleIndex()
 {
-    m_bSortParticles = bEnable;
-}
+    static Vec_UInt particleIdx;
+    particleIdx.resize(0);
 
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ScalarType>
-void Grid3D<ScalarType>::sortParticleByCell(Vec_Vec3<ScalarType>& particles)
-{
-    static Vec_Vec3<ScalarType>& tmpParticles;
-    tmpParticles.resize(particles.size());
-
-    size_t p = 0;
     for(auto& cell : m_CellParticleIdx.vec_data())
     {
         if(cell.size() > 0)
         {
             for(unsigned int q : cell)
-                tmpParticles[p++] = particles[q];
+                particleIdx.push_back(q);
         }
     }
 
-    assert(p == particles.size());
-    std::copy(tmpParticles.begin(), tmpParticles.end(), particles.begin());
+    return particleIdx;
 }

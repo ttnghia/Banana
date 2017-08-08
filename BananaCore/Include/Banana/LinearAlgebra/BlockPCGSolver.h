@@ -24,19 +24,19 @@
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class MatrixType, class VectorType, class ScalarType>
+template<class MatrixType, class VectorType, class RealType>
 class BlockPCGSolver
 {
 public:
     BlockPCGSolver() {}
 
-    void setSolverParameters(ScalarType toleranceFactor, UInt32 maxIterations);
+    void setSolverParameters(RealType toleranceFactor, UInt32 maxIterations);
     void setZeroInitial(bool bZeroInitial);
     void enableZeroInitial();
     void disableZeroInitial();
 
-    bool solve(const BlockSparseMatrix<MatrixType>& matrix, const std::vector<VectorType>& rhs, std::vector<VectorType>& result, ScalarType& residual_out, UInt32& iterations_out);
-    bool solve_precond(const BlockSparseMatrix<MatrixType>& matrix, const std::vector<VectorType>& rhs, std::vector<VectorType>& result, ScalarType& residual_out, UInt32& iterations_out);
+    bool solve(const BlockSparseMatrix<MatrixType>& matrix, const std::vector<VectorType>& rhs, std::vector<VectorType>& result, RealType& residual_out, UInt32& iterations_out);
+    bool solve_precond(const BlockSparseMatrix<MatrixType>& matrix, const std::vector<VectorType>& rhs, std::vector<VectorType>& result, RealType& residual_out, UInt32& iterations_out);
 
 private:
     void formPreconditioner(const BlockSparseMatrix<MatrixType>& matrix);
@@ -47,7 +47,7 @@ private:
     BlockFixedSparseMatrix<MatrixType> m_FixedSparseMatrix;
 
     // parameters
-    ScalarType m_ToleranceFactor = 1e-20;
+    RealType m_ToleranceFactor = 1e-20;
     UInt32     m_MaxIterations   = 10000;
     bool       m_bZeroInitial    = true;
 };

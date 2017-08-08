@@ -34,11 +34,11 @@ namespace ParallelObjects
 template<class ... T>
 class VectorDotProduct;
 
-template<class ScalarType>
-class VectorDotProduct<ScalarType>
+template<class RealType>
+class VectorDotProduct<RealType>
 {
 public:
-    VectorDotProduct(const std::vector<ScalarType>& vec1, const std::vector<ScalarType>& vec2) : m_Vec1(vec1), m_Vec2(vec2), m_Result(0) {}
+    VectorDotProduct(const std::vector<RealType>& vec1, const std::vector<RealType>& vec2) : m_Vec1(vec1), m_Vec2(vec2), m_Result(0) {}
     VectorDotProduct(VectorDotProduct& vdp, tbb::split) : m_Vec1(vdp.m_Vec1), m_Vec2(vdp.m_Vec2), m_Result(0) {}
 
     void operator()(const tbb::blocked_range<size_t>& r)
@@ -54,18 +54,18 @@ public:
         m_Result += vdp.m_Result;
     }
 
-    ScalarType getResult() const noexcept { return m_Result; }
+    RealType getResult() const noexcept { return m_Result; }
 
 private:
-    ScalarType m_Result;
+    RealType m_Result;
 
-    const std::vector<ScalarType>& m_Vec1;
-    const std::vector<ScalarType>& m_Vec2;
+    const std::vector<RealType>& m_Vec1;
+    const std::vector<RealType>& m_Vec2;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ScalarType, class VectorType>
-class VectorDotProduct<ScalarType, VectorType>
+template<class RealType, class VectorType>
+class VectorDotProduct<RealType, VectorType>
 {
     VectorDotProduct(const std::vector<VectorType>& vec1, const std::vector<VectorType>& vec2) : m_Vec1(vec1), m_Vec2(vec2), m_Result(0) {}
     VectorDotProduct(VectorDotProduct& vdp, tbb::split) : m_Vec1(vdp.m_Vec1), m_Vec2(vdp.m_Vec1), m_Result(0) {}
@@ -91,22 +91,22 @@ class VectorDotProduct<ScalarType, VectorType>
         m_Result += vdp.m_Result;
     }
 
-    ScalarType getResult() const noexcept { return m_Result; }
+    RealType getResult() const noexcept { return m_Result; }
 
 private:
-    ScalarType m_Result;
+    RealType m_Result;
 
     const std::vector<VectorType>& m_Vec1;
     const std::vector<VectorType>& m_Vec2;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ScalarType>
+template<class RealType>
 class VectorMinElement
 {
 public:
-    VectorMinElement(const std::vector<ScalarType>& vec) : m_Vector(vec), m_Result(std::numeric_limits<ScalarType>::max()) {}
-    VectorMinElement(VectorMinElement& vme, tbb::split) : m_Vector(vme.m_Vector), m_Result(std::numeric_limits<ScalarType>::max()) {}
+    VectorMinElement(const std::vector<RealType>& vec) : m_Vector(vec), m_Result(std::numeric_limits<RealType>::max()) {}
+    VectorMinElement(VectorMinElement& vme, tbb::split) : m_Vector(vme.m_Vector), m_Result(std::numeric_limits<RealType>::max()) {}
 
     void operator()(const tbb::blocked_range<size_t>& r)
     {
@@ -121,21 +121,21 @@ public:
         m_Result = m_Result < vme.m_Result ? m_Result : vme.m_Result;
     }
 
-    ScalarType getResult() const noexcept { return m_Result; }
+    RealType getResult() const noexcept { return m_Result; }
 
 private:
-    ScalarType m_Result;
+    RealType m_Result;
 
-    const std::vector<ScalarType>& m_Vector;
+    const std::vector<RealType>& m_Vector;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ScalarType>
+template<class RealType>
 class VectorMaxElement
 {
 public:
-    VectorMaxElement(const std::vector<ScalarType>& vec) : m_Vector(vec), m_Result(std::numeric_limits<ScalarType>::min()) {}
-    VectorMaxElement(VectorMaxElement& vme, tbb::split) : m_Vector(vme.m_Vector), m_Result(std::numeric_limits<ScalarType>::min()) {}
+    VectorMaxElement(const std::vector<RealType>& vec) : m_Vector(vec), m_Result(std::numeric_limits<RealType>::min()) {}
+    VectorMaxElement(VectorMaxElement& vme, tbb::split) : m_Vector(vme.m_Vector), m_Result(std::numeric_limits<RealType>::min()) {}
 
     // overload () so it does finding max
     void operator()(const tbb::blocked_range<size_t>& r)
@@ -151,30 +151,30 @@ public:
         m_Result = m_Result > vme.m_Result ? m_Result : vme.m_Result;
     }
 
-    ScalarType getResult() const noexcept { return m_Result; }
+    RealType getResult() const noexcept { return m_Result; }
 
 private:
-    ScalarType m_Result;
+    RealType m_Result;
 
-    const std::vector<ScalarType>& m_Vector;
+    const std::vector<RealType>& m_Vector;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class ... T>
 class VectorMaxAbs;
 
-template<class ScalarType>
-class VectorMaxAbs<ScalarType>
+template<class RealType>
+class VectorMaxAbs<RealType>
 {
 public:
-    VectorMaxAbs(const std::vector<ScalarType>& vec) : m_Vector(vec), m_Result(0) {}
+    VectorMaxAbs(const std::vector<RealType>& vec) : m_Vector(vec), m_Result(0) {}
     VectorMaxAbs(VectorMaxAbs& vma, tbb::split) : m_Vector(vma.m_Vector), m_Result(0) {}
 
     void operator()(const tbb::blocked_range<size_t>& r)
     {
         for(size_t i = r.begin(), iEnd = r.end(); i != iEnd; ++i)
         {
-            ScalarType tmp = fabs(m_Vector[i]);
+            RealType tmp = fabs(m_Vector[i]);
             m_Result = m_Result > tmp ? m_Result : tmp;
         }
     }
@@ -184,17 +184,17 @@ public:
         m_Result = m_Result > vma.m_Result ? m_Result : vma.m_Result;
     }
 
-    ScalarType getResult() const noexcept { return m_Result; }
+    RealType getResult() const noexcept { return m_Result; }
 
 private:
-    ScalarType m_Result;
+    RealType m_Result;
 
-    const std::vector<ScalarType>& m_Vector;
+    const std::vector<RealType>& m_Vector;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ScalarType, class VectorType>
-class VectorMaxAbs<ScalarType, VectorType>
+template<class RealType, class VectorType>
+class VectorMaxAbs<RealType, VectorType>
 {
 public:
     VectorMaxAbs(const std::vector<VectorType>& vec) : m_Vector(vec), m_Result(0) {}
@@ -205,16 +205,16 @@ public:
         for(size_t i = r.begin(), iEnd = r.end(); i != iEnd; ++i)
         {
 #ifdef __Using_Eigen_Lib__
-            ScalarType tmp = (ScalarType)m_Vector[i].cwiseAbs().maxCoeff();
+            RealType tmp = (RealType)m_Vector[i].cwiseAbs().maxCoeff();
 #else
 #ifdef __Using_GLM_Lib__
-            ScalarType tmp = std::abs(m_Vector[i][0]);
+            RealType tmp = std::abs(m_Vector[i][0]);
             for(auto k = 1; k < m_Vector[i].length(); ++k)
             {
                 tmp = tmp < std::abs(m_Vector[i][k]) ? std::abs(m_Vector[i][k]) : tmp;
             }
 #else
-            ScalarType tmp = std::max(std::abs(m_Vector[i][ym::min_element(m_Vector[i])]), std::abs(m_Vector[i][ym::max_element(m_Vector[i])]));
+            RealType tmp = std::max(std::abs(m_Vector[i][ym::min_element(m_Vector[i])]), std::abs(m_Vector[i][ym::max_element(m_Vector[i])]));
 #endif // __Using_GLM_Lib__
 #endif // __Using_Eigen_Lib__
 
@@ -227,21 +227,21 @@ public:
         m_Result = m_Result > vma.m_Result ? m_Result : vma.m_Result;
     }
 
-    ScalarType getResult() const noexcept { return m_Result; }
+    RealType getResult() const noexcept { return m_Result; }
 
 private:
-    ScalarType m_Result;
+    RealType m_Result;
 
     const std::vector<VectorType>& m_Vector;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ScalarType>
+template<class RealType>
 class VectorMinMaxElements
 {
 public:
-    VectorMinMaxElements(const std::vector<ScalarType>& vec) : m_Vector(vec), m_ResultMin(std::numeric_limits<ScalarType>::max()), m_ResultMax(std::numeric_limits<ScalarType>::min()) {}
-    VectorMinMaxElements(VectorMinMaxElements& vmme, tbb::split) : m_Vector(vmme.m_Vector), m_ResultMin(std::numeric_limits<ScalarType>::max()), m_ResultMax(std::numeric_limits<ScalarType>::min()) {}
+    VectorMinMaxElements(const std::vector<RealType>& vec) : m_Vector(vec), m_ResultMin(std::numeric_limits<RealType>::max()), m_ResultMax(std::numeric_limits<RealType>::min()) {}
+    VectorMinMaxElements(VectorMinMaxElements& vmme, tbb::split) : m_Vector(vmme.m_Vector), m_ResultMin(std::numeric_limits<RealType>::max()), m_ResultMax(std::numeric_limits<RealType>::min()) {}
 
     void operator()(const tbb::blocked_range<size_t>& r)
     {
@@ -258,33 +258,33 @@ public:
         m_ResultMax = m_ResultMax > vmme.m_ResultMax ? m_ResultMax : vmme.m_ResultMax;
     }
 
-    ScalarType getMin() const noexcept { return m_ResultMin; }
-    ScalarType getMax() const noexcept { return m_ResultMax; }
+    RealType getMin() const noexcept { return m_ResultMin; }
+    RealType getMax() const noexcept { return m_ResultMax; }
 
 private:
-    ScalarType m_ResultMin;
-    ScalarType m_ResultMax;
+    RealType m_ResultMin;
+    RealType m_ResultMax;
 
-    const std::vector<ScalarType>& m_Vector;
+    const std::vector<RealType>& m_Vector;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ScalarType, class VectorType>
+template<class RealType, class VectorType>
 class VectorMinMaxNorm2
 {
 public:
-    VectorMinMaxNorm2(const std::vector<ScalarType>& vec) : m_Vector(vec), m_ResultMin(std::numeric_limits<ScalarType>::max()), m_ResultMax(std::numeric_limits<ScalarType>::min()) {}
-    VectorMinMaxNorm2(VectorMinMaxNorm2& vmmn, tbb::split) : m_Vector(vmmn.m_Vector), m_ResultMin(std::numeric_limits<ScalarType>::max()), m_ResultMax(std::numeric_limits<ScalarType>::min()) {}
+    VectorMinMaxNorm2(const std::vector<RealType>& vec) : m_Vector(vec), m_ResultMin(std::numeric_limits<RealType>::max()), m_ResultMax(std::numeric_limits<RealType>::min()) {}
+    VectorMinMaxNorm2(VectorMinMaxNorm2& vmmn, tbb::split) : m_Vector(vmmn.m_Vector), m_ResultMin(std::numeric_limits<RealType>::max()), m_ResultMax(std::numeric_limits<RealType>::min()) {}
 
     void operator()(const tbb::blocked_range<size_t>& r)
     {
         for(size_t i = r.begin(), iEnd = r.end(); i != iEnd; ++i)
         {
 #ifdef __Using_Eigen_Lib__
-            ScalarType mag2 = v[i].squaredNorm();
+            RealType mag2 = v[i].squaredNorm();
 #else
 #ifdef __Using_GLM_Lib__
-            ScalarType mag2 = glm::length2(v[i]);
+            RealType mag2 = glm::length2(v[i]);
 #else             // use default yocto
             magx; // should throw error
 #endif // __Using_GLM_Lib__
@@ -301,22 +301,22 @@ public:
         m_ResultMax = m_ResultMax > vmmn.m_ResultMax ? m_ResultMax : vmmn.m_ResultMax;
     }
 
-    ScalarType getMin() const noexcept { return m_ResultMin; }
-    ScalarType getMax() const noexcept { return m_ResultMax; }
+    RealType getMin() const noexcept { return m_ResultMin; }
+    RealType getMax() const noexcept { return m_ResultMax; }
 
 private:
-    ScalarType m_ResultMin;
-    ScalarType m_ResultMax;
+    RealType m_ResultMin;
+    RealType m_ResultMax;
 
-    const std::vector<ScalarType>& m_Vector;
+    const std::vector<RealType>& m_Vector;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ScalarType>
+template<class RealType>
 class VectorSum
 {
 public:
-    VectorSum(const std::vector<ScalarType>& vec) : m_Vector(vec), m_Result(0) {}
+    VectorSum(const std::vector<RealType>& vec) : m_Vector(vec), m_Result(0) {}
     VectorSum(VectorSum& vsum, tbb::split) : m_Vector(vsum.v), m_Result(0) {}
 
     void operator()(const tbb::blocked_range<size_t>& r)
@@ -332,10 +332,10 @@ public:
         m_Result += vsum.m_Result;
     }
 
-    ScalarType getSum() const noexcept { return m_Result; }
+    RealType getSum() const noexcept { return m_Result; }
 private:
-    const std::vector<ScalarType>& m_Vector;
-    ScalarType                     m_Result;
+    const std::vector<RealType>& m_Vector;
+    RealType                     m_Result;
 };
 
 

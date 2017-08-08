@@ -21,8 +21,8 @@
 // SparseColumnLowerFactor struct
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ScalarType>
-void SparseColumnLowerFactor<ScalarType>::clear(void)
+template<class RealType>
+void SparseColumnLowerFactor<RealType>::clear(void)
 {
     m_Size = 0;
     m_InvDiag.clear();
@@ -33,8 +33,8 @@ void SparseColumnLowerFactor<ScalarType>::clear(void)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ScalarType>
-void SparseColumnLowerFactor<ScalarType>::resize(UInt32 newSize)
+template<class RealType>
+void SparseColumnLowerFactor<RealType>::resize(UInt32 newSize)
 {
     m_Size = newSize;
     m_InvDiag.resize(m_Size);
@@ -43,8 +43,8 @@ void SparseColumnLowerFactor<ScalarType>::resize(UInt32 newSize)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ScalarType>
-void SparseColumnLowerFactor<ScalarType>::writeMatlab(std::ostream& output, const char* variableName)
+template<class RealType>
+void SparseColumnLowerFactor<RealType>::writeMatlab(std::ostream& output, const char* variableName)
 {
     output << variableName << "=sparse([";
 
@@ -91,8 +91,8 @@ void SparseColumnLowerFactor<ScalarType>::writeMatlab(std::ostream& output, cons
 // PCGSolver
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ScalarType>
-void PCGSolver<ScalarType>::setSolverParameters(ScalarType toleranceFactor, int maxIterations, ScalarType MICCL0Param /*= 0.97*/, ScalarType minDiagonalRatio /*= 0.25*/)
+template<class RealType>
+void PCGSolver<RealType>::setSolverParameters(RealType toleranceFactor, int maxIterations, RealType MICCL0Param /*= 0.97*/, RealType minDiagonalRatio /*= 0.25*/)
 {
     m_ToleranceFactor = fmax(toleranceFactor, 1e-30);
 
@@ -101,32 +101,32 @@ void PCGSolver<ScalarType>::setSolverParameters(ScalarType toleranceFactor, int 
     m_MinDiagonalRatio = minDiagonalRatio;
 }
 
-template<class ScalarType>
-void PCGSolver<ScalarType>::setPreconditioners(PreconditionerTypes precond)
+template<class RealType>
+void PCGSolver<RealType>::setPreconditioners(PreconditionerTypes precond)
 {
     m_PreconditionerType = precond;
 }
 
-template<class ScalarType>
-void PCGSolver<ScalarType>::setZeroInitial(bool bZeroInitial)
+template<class RealType>
+void PCGSolver<RealType>::setZeroInitial(bool bZeroInitial)
 {
     m_bZeroInitial = bZeroInitial;
 }
 
-template<class ScalarType>
-void PCGSolver<ScalarType>::enableZeroInitial()
+template<class RealType>
+void PCGSolver<RealType>::enableZeroInitial()
 {
     m_bZeroInitial = true;
 }
 
-template<class ScalarType>
-void PCGSolver<ScalarType>::disableZeroInitial()
+template<class RealType>
+void PCGSolver<RealType>::disableZeroInitial()
 {
     m_bZeroInitial = false;
 }
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ScalarType>
-bool PCGSolver<ScalarType>::solve(const SparseMatrix<ScalarType>& matrix, const std::vector<ScalarType>& rhs, std::vector<ScalarType>& result, ScalarType& residual_out, UInt32& iterations_out)
+template<class RealType>
+bool PCGSolver<RealType>::solve(const SparseMatrix<RealType>& matrix, const std::vector<RealType>& rhs, std::vector<RealType>& result, RealType& residual_out, UInt32& iterations_out)
 {
     UInt32 n = matrix.size();
 
@@ -146,7 +146,7 @@ bool PCGSolver<ScalarType>::solve(const SparseMatrix<ScalarType>& matrix, const 
     m_FixedSparseMatrix.constructFromSparseMatrix(matrix);
     r = rhs;
 
-    residual_out = ParallelBLAS::maxAbs<ScalarType>(r);
+    residual_out = ParallelBLAS::maxAbs<RealType>(r);
 
     if(residual_out < 1e-20)
     {
@@ -154,8 +154,8 @@ bool PCGSolver<ScalarType>::solve(const SparseMatrix<ScalarType>& matrix, const 
         return true;
     }
 
-    ScalarType tol = m_ToleranceFactor * residual_out;
-    ScalarType rho = ParallelBLAS::dotProduct<ScalarType>(r, r);
+    RealType tol = m_ToleranceFactor * residual_out;
+    RealType rho = ParallelBLAS::dotProduct<RealType>(r, r);
 
     if(rho < 1e-20 || isnan(rho))
     {
@@ -168,18 +168,18 @@ bool PCGSolver<ScalarType>::solve(const SparseMatrix<ScalarType>& matrix, const 
     for(UInt32 iteration = 0; iteration < m_MaxIterations; ++iteration)
     {
         multiply(m_FixedSparseMatrix, z, s);
-        ScalarType alpha = rho / ParallelBLAS::dotProduct<ScalarType>(s, z);
+        RealType alpha = rho / ParallelBLAS::dotProduct<RealType>(s, z);
         tbb::parallel_invoke(
                 [&]
         {
-            ParallelBLAS::addScaled<ScalarType, ScalarType>(alpha, z, result);
+            ParallelBLAS::addScaled<RealType, RealType>(alpha, z, result);
         },
                 [&]
         {
-            ParallelBLAS::addScaled<ScalarType, ScalarType>(-alpha, s, r);
+            ParallelBLAS::addScaled<RealType, RealType>(-alpha, s, r);
         });
 
-        residual_out = ParallelBLAS::maxAbs<ScalarType>(r);
+        residual_out = ParallelBLAS::maxAbs<RealType>(r);
 
         if(residual_out < tol)
         {
@@ -187,9 +187,9 @@ bool PCGSolver<ScalarType>::solve(const SparseMatrix<ScalarType>& matrix, const 
             return true;
         }
 
-        ScalarType rho_new = ParallelBLAS::dotProduct<ScalarType>(r, r);
-        ScalarType beta    = rho_new / rho;
-        ParallelBLAS::scaledAdd<ScalarType, ScalarType>(beta, r, z);
+        RealType rho_new = ParallelBLAS::dotProduct<RealType>(r, r);
+        RealType beta    = rho_new / rho;
+        ParallelBLAS::scaledAdd<RealType, RealType>(beta, r, z);
         rho = rho_new;
     }
 
@@ -198,8 +198,8 @@ bool PCGSolver<ScalarType>::solve(const SparseMatrix<ScalarType>& matrix, const 
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ScalarType>
-bool PCGSolver<ScalarType>::solve_precond(const SparseMatrix<ScalarType>& matrix, const std::vector<ScalarType>& rhs, std::vector<ScalarType>& result, ScalarType& residual_out, UInt32& iterations_out)
+template<class RealType>
+bool PCGSolver<RealType>::solve_precond(const SparseMatrix<RealType>& matrix, const std::vector<RealType>& rhs, std::vector<RealType>& result, RealType& residual_out, UInt32& iterations_out)
 {
     UInt32 n = matrix.size();
 
@@ -220,10 +220,10 @@ bool PCGSolver<ScalarType>::solve_precond(const SparseMatrix<ScalarType>& matrix
 
     multiply(m_FixedSparseMatrix, result, s);
     r = rhs;
-    ParallelBLAS::addScaled<ScalarType, ScalarType>(-1.0, s, r);
+    ParallelBLAS::addScaled<RealType, RealType>(-1.0, s, r);
 
 
-    residual_out = ParallelBLAS::maxAbs<ScalarType>(r);
+    residual_out = ParallelBLAS::maxAbs<RealType>(r);
 
     if(residual_out < 1e-20)
     {
@@ -231,12 +231,12 @@ bool PCGSolver<ScalarType>::solve_precond(const SparseMatrix<ScalarType>& matrix
         return true;
     }
 
-    ScalarType tol = m_ToleranceFactor * residual_out;
+    RealType tol = m_ToleranceFactor * residual_out;
 
     formPreconditioner(matrix);
     applyPreconditioner(r, z);
 
-    ScalarType rho = ParallelBLAS::dotProduct<ScalarType>(z, r);
+    RealType rho = ParallelBLAS::dotProduct<RealType>(z, r);
 
     if(rho < 1e-20 || isnan(rho))
     {
@@ -249,17 +249,17 @@ bool PCGSolver<ScalarType>::solve_precond(const SparseMatrix<ScalarType>& matrix
     for(int iteration = 0; iteration < m_MaxIterations; ++iteration)
     {
         multiply(m_FixedSparseMatrix, s, z);
-        ScalarType alpha = rho / ParallelBLAS::dotProduct<ScalarType>(s, z);
+        RealType alpha = rho / ParallelBLAS::dotProduct<RealType>(s, z);
         tbb::parallel_invoke([&]
         {
-            ParallelBLAS::addScaled<ScalarType, ScalarType>(alpha, s, result);
+            ParallelBLAS::addScaled<RealType, RealType>(alpha, s, result);
         },
                 [&]
         {
-            ParallelBLAS::addScaled<ScalarType, ScalarType>(-alpha, z, r);
+            ParallelBLAS::addScaled<RealType, RealType>(-alpha, z, r);
         });
 
-        residual_out = ParallelBLAS::maxAbs<ScalarType>(r);
+        residual_out = ParallelBLAS::maxAbs<RealType>(r);
 
         if(residual_out < tol)
         {
@@ -269,9 +269,9 @@ bool PCGSolver<ScalarType>::solve_precond(const SparseMatrix<ScalarType>& matrix
 
         applyPreconditioner(r, z);
 
-        ScalarType rho_new = ParallelBLAS::dotProduct<ScalarType>(z, r);
-        ScalarType beta    = rho_new / rho;
-        ParallelBLAS::addScaled<ScalarType, ScalarType>(beta, s, z);
+        RealType rho_new = ParallelBLAS::dotProduct<RealType>(z, r);
+        RealType beta    = rho_new / rho;
+        ParallelBLAS::addScaled<RealType, RealType>(beta, s, z);
         s.swap(z); // s=beta*s+z
         rho = rho_new;
     }
@@ -282,8 +282,8 @@ bool PCGSolver<ScalarType>::solve_precond(const SparseMatrix<ScalarType>& matrix
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ScalarType>
-void PCGSolver<ScalarType>::formPreconditioner(const SparseMatrix<ScalarType>& matrix)
+template<class RealType>
+void PCGSolver<RealType>::formPreconditioner(const SparseMatrix<RealType>& matrix)
 {
     switch(m_PreconditionerType)
     {
@@ -301,8 +301,8 @@ void PCGSolver<ScalarType>::formPreconditioner(const SparseMatrix<ScalarType>& m
     }
 }
 
-template<class ScalarType>
-void PCGSolver<ScalarType>::applyPreconditioner(const std::vector<ScalarType>& x, std::vector<ScalarType>& result)
+template<class RealType>
+void PCGSolver<RealType>::applyPreconditioner(const std::vector<RealType>& x, std::vector<RealType>& result)
 {
     if(m_PreconditionerType != PreconditionerTypes::Jacobi)
     {
@@ -314,8 +314,8 @@ void PCGSolver<ScalarType>::applyPreconditioner(const std::vector<ScalarType>& x
         applyJacobiPreconditioner(x, result);
     }
 }
-template<class ScalarType>
-void PCGSolver<ScalarType>::applyJacobiPreconditioner(const std::vector<ScalarType>& x, std::vector<ScalarType>& result)
+template<class RealType>
+void PCGSolver<RealType>::applyJacobiPreconditioner(const std::vector<RealType>& x, std::vector<RealType>& result)
 {
     static tbb::affinity_partitioner ap;
     tbb::parallel_for(tbb::blocked_range<size_t>(0, x.size()), [&](tbb::blocked_range<UInt32> r)
@@ -330,8 +330,8 @@ void PCGSolver<ScalarType>::applyJacobiPreconditioner(const std::vector<ScalarTy
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Solution routines with lower triangular matrix.
 // solve L*result=rhs
-template<class ScalarType>
-void PCGSolver<ScalarType>::solveLower(const SparseColumnLowerFactor<ScalarType>& factor, const std::vector<ScalarType>& rhs, std::vector<ScalarType>& result)
+template<class RealType>
+void PCGSolver<RealType>::solveLower(const SparseColumnLowerFactor<RealType>& factor, const std::vector<RealType>& rhs, std::vector<RealType>& result)
 {
     assert(factor.m_Size == static_cast<UInt32>(rhs.size()));
     assert(factor.m_Size == static_cast<UInt32>(result.size()));
@@ -350,8 +350,8 @@ void PCGSolver<ScalarType>::solveLower(const SparseColumnLowerFactor<ScalarType>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // solve L^T*result=rhs
-template<class ScalarType>
-void PCGSolver<ScalarType>::solveLower_TransposeInPlace(const SparseColumnLowerFactor<ScalarType>& factor, std::vector<ScalarType>& x)
+template<class RealType>
+void PCGSolver<RealType>::solveLower_TransposeInPlace(const SparseColumnLowerFactor<RealType>& factor, std::vector<RealType>& x)
 {
     assert(factor.m_Size == static_cast<UInt32>(x.size()));
     UInt32 i = factor.m_Size;
@@ -371,8 +371,8 @@ void PCGSolver<ScalarType>::solveLower_TransposeInPlace(const SparseColumnLowerF
 
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ScalarType>
-void PCGSolver<ScalarType>::formPreconditioner_Jacobi(const SparseMatrix<ScalarType>& matrix)
+template<class RealType>
+void PCGSolver<RealType>::formPreconditioner_Jacobi(const SparseMatrix<RealType>& matrix)
 {
     m_JacobiPreconditioner.resize(matrix.size());
 
@@ -396,8 +396,8 @@ void PCGSolver<ScalarType>::formPreconditioner_Jacobi(const SparseMatrix<ScalarT
 // results. The minDiagonalRatio parameter is used to detect and correct
 // problems in factorization: if a pivot is this much less than the diagonal
 // entry from the original matrix, the original matrix entry is used instead.
-template<class ScalarType>
-void PCGSolver<ScalarType>::formPreconditioner_MICC0L0(const SparseMatrix<ScalarType>& matrix, SparseColumnLowerFactor<ScalarType>& factor, ScalarType MICCL0Param /*= 0.97*/, ScalarType minDiagonalRatio /*= 0.25*/)
+template<class RealType>
+void PCGSolver<RealType>::formPreconditioner_MICC0L0(const SparseMatrix<RealType>& matrix, SparseColumnLowerFactor<RealType>& factor, RealType MICCL0Param /*= 0.97*/, RealType minDiagonalRatio /*= 0.25*/)
 {
     // first copy lower triangle of matrix into factor (Note: assuming A is symmetric of course!)
     factor.resize(matrix.size());
@@ -477,8 +477,8 @@ void PCGSolver<ScalarType>::formPreconditioner_MICC0L0(const SparseMatrix<Scalar
         for(UInt32 p = factor.m_ColStart[k], pEnd = factor.m_ColStart[k + 1]; p < pEnd; ++p)
         {
             UInt32     j          = factor.m_ColIndex[p]; // work on column j
-            ScalarType multiplier = factor.m_ColValue[p];
-            ScalarType missing    = 0;
+            RealType multiplier = factor.m_ColValue[p];
+            RealType missing    = 0;
             UInt32     a          = factor.m_ColStart[k];
             // first look for contributions to missing from dropped entries above the diagonal in column j
             UInt32 b = 0;
@@ -549,8 +549,8 @@ void PCGSolver<ScalarType>::formPreconditioner_MICC0L0(const SparseMatrix<Scalar
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ScalarType>
-void PCGSolver<ScalarType>::formPreconditioner_Symmetric_MICC0L0(const SparseMatrix<ScalarType>& matrix, SparseColumnLowerFactor<ScalarType>& factor, ScalarType minDiagonalRatio /*= 0.25*/)
+template<class RealType>
+void PCGSolver<RealType>::formPreconditioner_Symmetric_MICC0L0(const SparseMatrix<RealType>& matrix, SparseColumnLowerFactor<RealType>& factor, RealType minDiagonalRatio /*= 0.25*/)
 {
     // first copy lower triangle of matrix into factor (Note: assuming A is symmetric of course!)
     factor.resize(matrix.size());
@@ -605,7 +605,7 @@ void PCGSolver<ScalarType>::formPreconditioner_Symmetric_MICC0L0(const SparseMat
         for(UInt32 p = factor.m_ColStart[k], pEnd = factor.m_ColStart[k + 1]; p < pEnd; ++p)
         {
             UInt32     j          = factor.m_ColIndex[p]; // work on column j
-            ScalarType multiplier = factor.m_ColValue[p];
+            RealType multiplier = factor.m_ColValue[p];
 
             factor.m_InvDiag[j] -= multiplier * factor.m_ColValue[p];
 

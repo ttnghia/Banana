@@ -14,8 +14,8 @@
 //
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class VectorType, class ScalarType>
-SPHRelaxation<VectorType, ScalarType>::SPHRelaxation(std::vector<VectorType>& particles_, ScalarType particle_radius_, Array3_ScalarType& sdf_grid_, ScalarType sdf_cell_size_, const std::shared_ptr<DomainParameters>& domainParams_) :
+template<class VectorType, class RealType>
+SPHRelaxation<VectorType, RealType>::SPHRelaxation(std::vector<VectorType>& particles_, RealType particle_radius_, Array3_RealType& sdf_grid_, RealType sdf_cell_size_, const std::shared_ptr<DomainParameters>& domainParams_) :
     particles(particles_),
     particle_radius(particle_radius_),
     m_SDFGrid(sdf_grid_),
@@ -42,12 +42,12 @@ SPHRelaxation<VectorType, ScalarType>::SPHRelaxation(std::vector<VectorType>& pa
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class VectorType, class ScalarType>
-void SPHRelaxation<VectorType, ScalarType>::iterate(int iters)
+template<class VectorType, class RealType>
+void SPHRelaxation<VectorType, RealType>::iterate(int iters)
 {
     Timer      timer;
-    ScalarType sph_time          = 0;
-    ScalarType colresolving_time = 0;
+    RealType sph_time          = 0;
+    RealType colresolving_time = 0;
 
     collect_particles();
     compute_density();
@@ -60,7 +60,7 @@ void SPHRelaxation<VectorType, ScalarType>::iterate(int iters)
     {
         timer.tick();
 
-        ScalarType dt = cfl(2.0);
+        RealType dt = cfl(2.0);
         __NOODLE_ASSERT_MSG(dt > SMALL_NUMBER, "Timestep is too small...");
 
         compute_forces();
@@ -93,7 +93,7 @@ void SPHRelaxation<VectorType, ScalarType>::iterate(int iters)
         constrain_boundary();
         colresolving_time += timer.tock();
 
-        ScalarType min_dist = findMinDistance();
+        RealType min_dist = findMinDistance();
 
         if(iter % 10 == 0)
         {
@@ -120,8 +120,8 @@ void SPHRelaxation<VectorType, ScalarType>::iterate(int iters)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class VectorType, class ScalarType>
-void SPHRelaxation<VectorType, ScalarType>::compute_kernel_parameters()
+template<class VectorType, class RealType>
+void SPHRelaxation<VectorType, RealType>::compute_kernel_parameters()
 {
     kernel_radius_sqr              = kernel_radius * kernel_radius;
     kernel_coeff_density           = 315.0 / (64.0 * M_PI * POW9(kernel_radius));
@@ -136,8 +136,8 @@ void SPHRelaxation<VectorType, ScalarType>::compute_kernel_parameters()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class VectorType, class ScalarType>
-ScalarType SPHRelaxation<VectorType, ScalarType>::cfl(ScalarType scale)
+template<class VectorType, class RealType>
+RealType SPHRelaxation<VectorType, RealType>::cfl(RealType scale)
 {
     // firstly, calculate the velocity magnitude
     tbb::parallel_for(tbb::blocked_range<size_t>(0, velocity_magnitude.size()),
@@ -150,7 +150,7 @@ ScalarType SPHRelaxation<VectorType, ScalarType>::cfl(ScalarType scale)
                       }); // end parallel_for
 
     // then, find the maximum value
-    ParallelObjects::VectorMaxElement<ScalarType> vme(velocity_magnitude);
+    ParallelObjects::VectorMaxElement<RealType> vme(velocity_magnitude);
 
     tbb::parallel_reduce(tbb::blocked_range<size_t>(0, velocity_magnitude.size()), vme);
 
@@ -158,8 +158,8 @@ ScalarType SPHRelaxation<VectorType, ScalarType>::cfl(ScalarType scale)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class VectorType, class ScalarType>
-void SPHRelaxation<VectorType, ScalarType>::collect_particles()
+template<class VectorType, class RealType>
+void SPHRelaxation<VectorType, RealType>::collect_particles()
 {
     for(size_t i = 0; i < cellParticles.size(); ++i)
     {
@@ -180,8 +180,8 @@ void SPHRelaxation<VectorType, ScalarType>::collect_particles()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class VectorType, class ScalarType>
-void SPHRelaxation<VectorType, ScalarType>::compute_density()
+template<class VectorType, class RealType>
+void SPHRelaxation<VectorType, RealType>::compute_density()
 {
     tbb::parallel_for(tbb::blocked_range<size_t>(0, particles.size()),
                       [&](tbb::blocked_range<size_t> r)
@@ -189,7 +189,7 @@ void SPHRelaxation<VectorType, ScalarType>::compute_density()
                           for(size_t p = r.begin(); p != r.end(); ++p)
                           {
                               VectorType& ppos = particles[p];
-                              ScalarType pden = 0;
+                              RealType pden = 0;
                               VectorTypei cellId = m_DomainParams->getCellIndex(ppos);
 
                               for(int lk = -1; lk <= 1; ++lk)
@@ -228,8 +228,8 @@ void SPHRelaxation<VectorType, ScalarType>::compute_density()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class VectorType, class ScalarType>
-void SPHRelaxation<VectorType, ScalarType>::compute_forces()
+template<class VectorType, class RealType>
+void SPHRelaxation<VectorType, RealType>::compute_forces()
 {
     tbb::parallel_for(tbb::blocked_range<size_t>(0, particles.size()),
                       [&](tbb::blocked_range<size_t> r)
@@ -238,7 +238,7 @@ void SPHRelaxation<VectorType, ScalarType>::compute_forces()
                           {
                               VectorType& ppos = particles[p];
                               VectorType& pvel = velocity[p];
-                              ScalarType pden = density[p];
+                              RealType pden = density[p];
                               VectorType pforce(0, 0, 0);
                               VectorTypei cellId = m_DomainParams->getCellIndex(ppos);
 
@@ -271,26 +271,26 @@ void SPHRelaxation<VectorType, ScalarType>::compute_forces()
                                               }
 
                                               VectorType& qvel = velocity[q];
-                                              ScalarType qden = density[q];
+                                              RealType qden = density[q];
                                               VectorType r = qpos - ppos;
 
                                               // pressure force
-                                              ScalarType pp = STIFFNESS_PRESSURE * fmax(pden - rest_density, 0);
-                                              ScalarType pq = STIFFNESS_PRESSURE * fmax(qden - rest_density, 0);
-                                              VectorType pressure = (ScalarType)(particle_mass * (pp + pq)
+                                              RealType pp = STIFFNESS_PRESSURE * fmax(pden - rest_density, 0);
+                                              RealType pq = STIFFNESS_PRESSURE * fmax(qden - rest_density, 0);
+                                              VectorType pressure = (RealType)(particle_mass * (pp + pq)
                                                                                  / 2.0 / qden) * gradient_pressure_kernel(r);
 
                                               // viscous force
-                                              VectorType viscous = (ScalarType)(VISCOSITY * particle_mass / qden) * (qvel - pvel) *
+                                              VectorType viscous = (RealType)(VISCOSITY * particle_mass / qden) * (qvel - pvel) *
                                                                    laplacian_viscosity_kernel(r);
 
                                               // coherence force
-                                              VectorType coherence = (ScalarType)(SURFACE_TENSION * particle_mass * particle_mass *
+                                              VectorType coherence = (RealType)(SURFACE_TENSION * particle_mass * particle_mass *
                                                                                   2.0 * rest_density / (pden + qden)) *
                                                                      kernel_coherence(r);
 
                                               // near repulsive force
-                                              VectorType nearf = (ScalarType)(STIFFNESS_NEAR *
+                                              VectorType nearf = (RealType)(STIFFNESS_NEAR *
                                                                               particle_mass) * kernel_near(r);
 
                                               pforce += pressure + viscous + coherence + nearf;
@@ -306,15 +306,15 @@ void SPHRelaxation<VectorType, ScalarType>::compute_forces()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class VectorType, class ScalarType>
-void SPHRelaxation<VectorType, ScalarType>::update_velocity(ScalarType dt)
+template<class VectorType, class RealType>
+void SPHRelaxation<VectorType, RealType>::update_velocity(RealType dt)
 {
     tbb::parallel_for(tbb::blocked_range<size_t>(0, velocity.size()),
                       [&, dt](tbb::blocked_range<size_t> r)
                       {
                           for(size_t p = r.begin(); p != r.end(); ++p)
                           {
-                              ScalarType pden = density[p];
+                              RealType pden = density[p];
                               VectorType acc = pden > 0 ? force[p] / density[p] : VectorType(0, 0, 0);
                               velocity[p] += acc * dt;
                           }
@@ -322,8 +322,8 @@ void SPHRelaxation<VectorType, ScalarType>::update_velocity(ScalarType dt)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class VectorType, class ScalarType>
-void SPHRelaxation<VectorType, ScalarType>::update_position(ScalarType dt)
+template<class VectorType, class RealType>
+void SPHRelaxation<VectorType, RealType>::update_position(RealType dt)
 {
     tbb::parallel_for(tbb::blocked_range<size_t>(0, particles.size()),
                       [&, dt](tbb::blocked_range<size_t> r)
@@ -336,8 +336,8 @@ void SPHRelaxation<VectorType, ScalarType>::update_position(ScalarType dt)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class VectorType, class ScalarType>
-void SPHRelaxation<VectorType, ScalarType>::constrain_boundary()
+template<class VectorType, class RealType>
+void SPHRelaxation<VectorType, RealType>::constrain_boundary()
 {
     tbb::parallel_for(tbb::blocked_range<size_t>(0, particles.size()),
                       [&](tbb::blocked_range<size_t> r)
@@ -346,7 +346,7 @@ void SPHRelaxation<VectorType, ScalarType>::constrain_boundary()
                           {
                               VectorType ppos = particles[p];
 
-                              ScalarType phi_val = interpolate_value_linear((ppos - m_DomainParams->domainBMin) / m_SDFCellSize, m_SDFGrid);
+                              RealType phi_val = interpolate_value_linear((ppos - m_DomainParams->domainBMin) / m_SDFCellSize, m_SDFGrid);
 
                               if(phi_val > 0)
                               {
@@ -366,10 +366,10 @@ void SPHRelaxation<VectorType, ScalarType>::constrain_boundary()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class VectorType, class ScalarType>
-void SPHRelaxation<VectorType, ScalarType>::update_rest_density()
+template<class VectorType, class RealType>
+void SPHRelaxation<VectorType, RealType>::update_rest_density()
 {
-    ParallelObjects::VectorMaxElement<ScalarType> m(density);
+    ParallelObjects::VectorMaxElement<RealType> m(density);
 
     tbb::parallel_reduce(tbb::blocked_range<size_t>(0, density.size()), m);
 
@@ -377,8 +377,8 @@ void SPHRelaxation<VectorType, ScalarType>::update_rest_density()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class VectorType, class ScalarType>
-void SPHRelaxation<VectorType, ScalarType>::findParticleMinDistance()
+template<class VectorType, class RealType>
+void SPHRelaxation<VectorType, RealType>::findParticleMinDistance()
 {
     tbb::parallel_for(tbb::blocked_range<size_t>(0, particles.size()),
                       [&](tbb::blocked_range<size_t> r)
@@ -386,7 +386,7 @@ void SPHRelaxation<VectorType, ScalarType>::findParticleMinDistance()
                           for(size_t p = r.begin(); p != r.end(); ++p)
                           {
                               VectorType& ppos = particles[p];
-                              ScalarType min_d = BIG_NUMBER;
+                              RealType min_d = BIG_NUMBER;
                               VectorTypei cellId = m_DomainParams->getCellIndex(ppos);
 
                               for(int lk = -1; lk <= 1; ++lk)
@@ -413,7 +413,7 @@ void SPHRelaxation<VectorType, ScalarType>::findParticleMinDistance()
 
                                               VectorType& qpos = particles[q];
                                               VectorType r = qpos - ppos;
-                                              ScalarType mag2_r = glm::length2(r);
+                                              RealType mag2_r = glm::length2(r);
 
                                               if(min_d > mag2_r)
                                               {
@@ -430,21 +430,21 @@ void SPHRelaxation<VectorType, ScalarType>::findParticleMinDistance()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class VectorType, class ScalarType>
-ScalarType SPHRelaxation<VectorType, ScalarType>::findMinDistance()
+template<class VectorType, class RealType>
+RealType SPHRelaxation<VectorType, RealType>::findMinDistance()
 {
     findParticleMinDistance();
-    ParallelObjects::VectorMinElement<ScalarType> vme(min_distance);
+    ParallelObjects::VectorMinElement<RealType> vme(min_distance);
     tbb::parallel_reduce(tbb::blocked_range<size_t>(0, min_distance.size()), vme);
 
     return vme.result;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class VectorType, class ScalarType>
-void SPHRelaxation<VectorType, ScalarType>::resolve_overlapping()
+template<class VectorType, class RealType>
+void SPHRelaxation<VectorType, RealType>::resolve_overlapping()
 {
-    const ScalarType min_d2 = MathHelpers::sqr(particle_radius);
+    const RealType min_d2 = MathHelpers::sqr(particle_radius);
 
     tbb::parallel_for(tbb::blocked_range<size_t>(0, particles.size()),
                       [&](tbb::blocked_range<size_t> r)
@@ -479,14 +479,14 @@ void SPHRelaxation<VectorType, ScalarType>::resolve_overlapping()
 
                                               VectorType& qpos = particles[q];
                                               VectorType r = qpos - ppos;
-                                              ScalarType mag2_r = glm::length2(r);
+                                              RealType mag2_r = glm::length2(r);
 
                                               if(mag2_r > min_d2)
                                               {
                                                   continue;
                                               }
 
-                                              shift -= (ScalarType)0.5 * r;
+                                              shift -= (RealType)0.5 * r;
                                           }
                                       }
                                   }
@@ -498,13 +498,13 @@ void SPHRelaxation<VectorType, ScalarType>::resolve_overlapping()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class VectorType, class ScalarType>
-ScalarType SPHRelaxation<VectorType, ScalarType>::kernel_density(const VectorType& r)
+template<class VectorType, class RealType>
+RealType SPHRelaxation<VectorType, RealType>::kernel_density(const VectorType& r)
 {
 #ifdef __Using_Eigen_Lib__
-    ScalarType mag2_r = r.squaredNorm();
+    RealType mag2_r = r.squaredNorm();
 #else
-    ScalarType mag2_r = glm::length2(r);
+    RealType mag2_r = glm::length2(r);
 #endif
 
     if(mag2_r < SMALL_NUMBER || mag2_r > kernel_radius_sqr)
@@ -518,13 +518,13 @@ ScalarType SPHRelaxation<VectorType, ScalarType>::kernel_density(const VectorTyp
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class VectorType, class ScalarType>
-VectorType SPHRelaxation<VectorType, ScalarType>::gradient_kernel(const VectorType& r)
+template<class VectorType, class RealType>
+VectorType SPHRelaxation<VectorType, RealType>::gradient_kernel(const VectorType& r)
 {
 #ifdef __Using_Eigen_Lib__
-    ScalarType mag2_r = r.squaredNorm();
+    RealType mag2_r = r.squaredNorm();
 #else
-    ScalarType mag2_r = glm::length2(r);
+    RealType mag2_r = glm::length2(r);
 #endif
 
     if(mag2_r < SMALL_NUMBER || mag2_r > kernel_radius_sqr)
@@ -544,13 +544,13 @@ VectorType SPHRelaxation<VectorType, ScalarType>::gradient_kernel(const VectorTy
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class VectorType, class ScalarType>
-ScalarType SPHRelaxation<VectorType, ScalarType>::laplacian_kernel(const VectorType& r)
+template<class VectorType, class RealType>
+RealType SPHRelaxation<VectorType, RealType>::laplacian_kernel(const VectorType& r)
 {
 #ifdef __Using_Eigen_Lib__
-    ScalarType mag2_r = r.squaredNorm();
+    RealType mag2_r = r.squaredNorm();
 #else
-    ScalarType mag2_r = glm::length2(r);
+    RealType mag2_r = glm::length2(r);
 #endif
 
     if(mag2_r < SMALL_NUMBER || mag2_r > kernel_radius_sqr)
@@ -565,13 +565,13 @@ ScalarType SPHRelaxation<VectorType, ScalarType>::laplacian_kernel(const VectorT
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class VectorType, class ScalarType>
-VectorType SPHRelaxation<VectorType, ScalarType>::gradient_pressure_kernel(const VectorType& r)
+template<class VectorType, class RealType>
+VectorType SPHRelaxation<VectorType, RealType>::gradient_pressure_kernel(const VectorType& r)
 {
 #ifdef __Using_Eigen_Lib__
-    ScalarType mag_r = r.norm();
+    RealType mag_r = r.norm();
 #else
-    ScalarType mag_r = glm::length(r);
+    RealType mag_r = glm::length(r);
 #endif
 
     if(mag_r < SMALL_NUMBER || mag_r > kernel_radius)
@@ -591,13 +591,13 @@ VectorType SPHRelaxation<VectorType, ScalarType>::gradient_pressure_kernel(const
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class VectorType, class ScalarType>
-ScalarType SPHRelaxation<VectorType, ScalarType>::laplacian_viscosity_kernel(const VectorType& r)
+template<class VectorType, class RealType>
+RealType SPHRelaxation<VectorType, RealType>::laplacian_viscosity_kernel(const VectorType& r)
 {
 #ifdef __Using_Eigen_Lib__
-    ScalarType mag_r = r.norm();
+    RealType mag_r = r.norm();
 #else
-    ScalarType mag_r = glm::length(r);
+    RealType mag_r = glm::length(r);
 #endif
 
     if(mag_r < SMALL_NUMBER || mag_r > kernel_radius)
@@ -611,10 +611,10 @@ ScalarType SPHRelaxation<VectorType, ScalarType>::laplacian_viscosity_kernel(con
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class VectorType, class ScalarType>
-VectorType SPHRelaxation<VectorType, ScalarType>::kernel_coherence(const VectorType& r)
+template<class VectorType, class RealType>
+VectorType SPHRelaxation<VectorType, RealType>::kernel_coherence(const VectorType& r)
 {
-    ScalarType mag_r = glm::length(r);
+    RealType mag_r = glm::length(r);
 
     if(mag_r < SMALL_NUMBER || mag_r > kernel_radius)
     {
@@ -622,24 +622,24 @@ VectorType SPHRelaxation<VectorType, ScalarType>::kernel_coherence(const VectorT
     }
     else
     {
-        VectorType result = (ScalarType)kernel_coeff_coherence * glm::normalize(r);
+        VectorType result = (RealType)kernel_coeff_coherence * glm::normalize(r);
 
         if(mag_r < kernel_radius * 0.5)
         {
-            return result * (ScalarType)(2.0 * CUBE(kernel_radius - mag_r) * CUBE(mag_r) - kernel_coeff_h6over64);
+            return result * (RealType)(2.0 * CUBE(kernel_radius - mag_r) * CUBE(mag_r) - kernel_coeff_h6over64);
         }
         else
         {
-            return result * (ScalarType)(CUBE(kernel_radius - mag_r) * CUBE(mag_r));
+            return result * (RealType)(CUBE(kernel_radius - mag_r) * CUBE(mag_r));
         }
     }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class VectorType, class ScalarType>
-VectorType SPHRelaxation<VectorType, ScalarType>::kernel_near(const VectorType& r)
+template<class VectorType, class RealType>
+VectorType SPHRelaxation<VectorType, RealType>::kernel_near(const VectorType& r)
 {
-    ScalarType mag_r = glm::length(r);
+    RealType mag_r = glm::length(r);
 
     if(mag_r > kernel_near_radius)
     {
@@ -647,6 +647,6 @@ VectorType SPHRelaxation<VectorType, ScalarType>::kernel_near(const VectorType& 
     }
     else
     {
-        return (ScalarType)(kernel_coeff_near * MathHelpers::sqr(1.0 - mag_r / kernel_near_radius)) * glm::normalize(r);
+        return (RealType)(kernel_coeff_near * MathHelpers::sqr(1.0 - mag_r / kernel_near_radius)) * glm::normalize(r);
     }
 }

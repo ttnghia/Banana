@@ -26,15 +26,15 @@ namespace Banana
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // A simple compressed sparse column data structure (with separate diagonal)
 // for lower triangular matrices
-template<class ScalarType>
+template<class RealType>
 struct SparseColumnLowerFactor
 {
     UInt32                  m_Size;
-    std::vector<ScalarType> m_InvDiag;  // reciprocals of diagonal elements
-    std::vector<ScalarType> m_ColValue; // values below the diagonal, listed column by column
+    std::vector<RealType> m_InvDiag;  // reciprocals of diagonal elements
+    std::vector<RealType> m_ColValue; // values below the diagonal, listed column by column
     std::vector<UInt32>     m_ColIndex; // a list of all row indices, for each column in turn
     std::vector<UInt32>     m_ColStart; // where each column begins in row index (plus an extra entry at the end, of #nonzeros)
-    std::vector<ScalarType> m_aDiag;    // just used in factorization: minimum "safe" diagonal entry allowed
+    std::vector<RealType> m_aDiag;    // just used in factorization: minimum "safe" diagonal entry allowed
 
     explicit SparseColumnLowerFactor(UInt32 size = 0) : m_Size(size), m_InvDiag(size), m_ColStart(size + 1), m_aDiag(size) {}
 
@@ -44,7 +44,7 @@ struct SparseColumnLowerFactor
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ScalarType>
+template<class RealType>
 class PCGSolver
 {
 public:
@@ -58,39 +58,39 @@ public:
 
     PCGSolver(void) {}
 
-    void setSolverParameters(ScalarType toleranceFactor, int maxIterations, ScalarType MICCL0Param = 0.97, ScalarType minDiagonalRatio = 0.25);
+    void setSolverParameters(RealType toleranceFactor, int maxIterations, RealType MICCL0Param = 0.97, RealType minDiagonalRatio = 0.25);
     void setPreconditioners(PreconditionerTypes precond);
     void setZeroInitial(bool bZeroInitial);
     void enableZeroInitial();
     void disableZeroInitial();
-    bool solve(const SparseMatrix<ScalarType>& matrix, const std::vector<ScalarType>& rhs, std::vector<ScalarType>& result, ScalarType& residual_out, UInt32& iterations_out);
-    bool solve_precond(const SparseMatrix<ScalarType>& matrix, const std::vector<ScalarType>& rhs, std::vector<ScalarType>& result, ScalarType& residual_out, UInt32& iterations_out);
+    bool solve(const SparseMatrix<RealType>& matrix, const std::vector<RealType>& rhs, std::vector<RealType>& result, RealType& residual_out, UInt32& iterations_out);
+    bool solve_precond(const SparseMatrix<RealType>& matrix, const std::vector<RealType>& rhs, std::vector<RealType>& result, RealType& residual_out, UInt32& iterations_out);
 
 private:
-    void formPreconditioner(const SparseMatrix<ScalarType>& matrix);
-    void applyPreconditioner(const std::vector<ScalarType>& x, std::vector<ScalarType>& result);
-    void applyJacobiPreconditioner(const std::vector<ScalarType>& x, std::vector<ScalarType>& result);
+    void formPreconditioner(const SparseMatrix<RealType>& matrix);
+    void applyPreconditioner(const std::vector<RealType>& x, std::vector<RealType>& result);
+    void applyJacobiPreconditioner(const std::vector<RealType>& x, std::vector<RealType>& result);
 
-    void solveLower(const SparseColumnLowerFactor<ScalarType>& factor, const std::vector<ScalarType>& rhs, std::vector<ScalarType>& result);
-    void solveLower_TransposeInPlace(const SparseColumnLowerFactor<ScalarType>& factor, std::vector<ScalarType>& x);
+    void solveLower(const SparseColumnLowerFactor<RealType>& factor, const std::vector<RealType>& rhs, std::vector<RealType>& result);
+    void solveLower_TransposeInPlace(const SparseColumnLowerFactor<RealType>& factor, std::vector<RealType>& x);
 
-    void formPreconditioner_Jacobi(const SparseMatrix<ScalarType>& matrix);
-    void formPreconditioner_MICC0L0(const SparseMatrix<ScalarType>& matrix, SparseColumnLowerFactor<ScalarType>& factor, ScalarType MICCL0Param = 0.97, ScalarType minDiagonalRatio = 0.25);
-    void formPreconditioner_Symmetric_MICC0L0(const SparseMatrix<ScalarType>& matrix, SparseColumnLowerFactor<ScalarType>& factor, ScalarType minDiagonalRatio = 0.25);
+    void formPreconditioner_Jacobi(const SparseMatrix<RealType>& matrix);
+    void formPreconditioner_MICC0L0(const SparseMatrix<RealType>& matrix, SparseColumnLowerFactor<RealType>& factor, RealType MICCL0Param = 0.97, RealType minDiagonalRatio = 0.25);
+    void formPreconditioner_Symmetric_MICC0L0(const SparseMatrix<RealType>& matrix, SparseColumnLowerFactor<RealType>& factor, RealType minDiagonalRatio = 0.25);
 
     ////////////////////////////////////////////////////////////////////////////////
-    std::vector<ScalarType>       z, s, r;
-    FixedSparseMatrix<ScalarType> m_FixedSparseMatrix;
+    std::vector<RealType>       z, s, r;
+    FixedSparseMatrix<RealType> m_FixedSparseMatrix;
 
-    SparseColumnLowerFactor<ScalarType> m_ICCPreconditioner;
-    std::vector<ScalarType>             m_JacobiPreconditioner;
+    SparseColumnLowerFactor<RealType> m_ICCPreconditioner;
+    std::vector<RealType>             m_JacobiPreconditioner;
 
     // solver parameters
     PreconditionerTypes m_PreconditionerType = PreconditionerTypes::MICCL0;
-    ScalarType          m_ToleranceFactor    = 1e-20;
+    RealType          m_ToleranceFactor    = 1e-20;
     UInt32              m_MaxIterations      = 10000;
-    ScalarType          m_MICCL0Param        = 0.97;
-    ScalarType          m_MinDiagonalRatio   = 0.25;
+    RealType          m_MICCL0Param        = 0.97;
+    RealType          m_MinDiagonalRatio   = 0.25;
     bool                m_bZeroInitial       = true;
 };
 

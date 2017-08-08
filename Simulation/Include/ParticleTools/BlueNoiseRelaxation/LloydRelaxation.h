@@ -30,35 +30,35 @@
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ScalarType>
+template<class RealType>
 class LloydRelaxation
 {
 public:
-    LloydRelaxation(const Vec3<ScalarType>& domainBMin, const Vec3<ScalarType>& domainBMax, ScalarType particleRadius);
+    LloydRelaxation(const Vec3<RealType>& domainBMin, const Vec3<RealType>& domainBMax, RealType particleRadius);
     ~LloydRelaxation() = default;
 
-    void relaxParticles(std::vector<Vec3<ScalarType> >& denseParticles,
-                        std::vector<Vec3<ScalarType> >& particles,
+    void relaxParticles(std::vector<Vec3<RealType> >& denseParticles,
+                        std::vector<Vec3<RealType> >& particles,
                         int                             minIterations = 10,
                         int                             maxIterations = 1000,
                         bool                            bUseCandidateCenters = false);
 
-    void relaxParticlesWeighted(const std::vector<ScalarType>&  weights,
-                                std::vector<Vec3<ScalarType> >& denseParticles,
-                                std::vector<Vec3<ScalarType> >& particles,
+    void relaxParticlesWeighted(const std::vector<RealType>&  weights,
+                                std::vector<Vec3<RealType> >& denseParticles,
+                                std::vector<Vec3<RealType> >& particles,
                                 int                             minIterations = 10,
                                 int                             maxIterations = 1000,
                                 bool                            bUseCandidateCenters = false);
 
-    void setMovingThreshold(ScalarType movingThreshold) { m_MovingThreshold = movingThreshold; }
-    void setOverlapThreshold(ScalarType overlapThreshold) { m_OverlapThreshold = overlapThreshold; }
-    void setRemovingThreshold(ScalarType removingThreshold) { m_RemovingThreshold = removingThreshold; }
+    void setMovingThreshold(RealType movingThreshold) { m_MovingThreshold = movingThreshold; }
+    void setOverlapThreshold(RealType overlapThreshold) { m_OverlapThreshold = overlapThreshold; }
+    void setRemovingThreshold(RealType removingThreshold) { m_RemovingThreshold = removingThreshold; }
     void setNumCheckIterations(int numCheckIterations) { m_NumCheckIterations = numCheckIterations; }
 
 private:
-    ScalarType   m_MovingThreshold;
-    ScalarType   m_OverlapThreshold;
-    ScalarType   m_RemovingThreshold;
+    RealType   m_MovingThreshold;
+    RealType   m_OverlapThreshold;
+    RealType   m_RemovingThreshold;
     unsigned int m_NumCheckIterations;
 
 
@@ -72,15 +72,15 @@ private:
     ///     If \c useCandidateCenters is set to \c true, the cluster centers will be a subset
     ///     of the samples positions.
 
-    void computeLloydClusters(std::vector<Vec3<ScalarType> >& samples,
-                              std::vector<Vec3<ScalarType> >& clusterCenters,
+    void computeLloydClusters(std::vector<Vec3<RealType> >& samples,
+                              std::vector<Vec3<RealType> >& clusterCenters,
                               int                             minIterations = 10,
                               int                             maxIterations = 1000,
                               bool                            bUseCandidateCenters = false);
 
-    void computeWeightedLloydClusters(const std::vector<ScalarType>&  weights,
-                                      std::vector<Vec3<ScalarType> >& samples,
-                                      std::vector<Vec3<ScalarType> >& clusterCenters,
+    void computeWeightedLloydClusters(const std::vector<RealType>&  weights,
+                                      std::vector<Vec3<RealType> >& samples,
+                                      std::vector<Vec3<RealType> >& clusterCenters,
                                       int                             minIterations = 10,
                                       int                             maxIterations = 1000,
                                       bool                            bUseCandidateCenters = false);
@@ -89,28 +89,28 @@ private:
     ///	Clusters a set of samples by assigning each sample to its closest cluster.
     ///	\c clusterCenter contains the centers of the cluster.
     ///	On return, \c samplesInCluster will contain for each cluster the indices of the samples in the cluster.
-    void collectSampleToCluster(const std::vector<Vec3<ScalarType> >& clusterCenters, const std::vector<Vec3<ScalarType> >& samples, Vec_VecUInt& samplesInCluster);
+    void collectSampleToCluster(const std::vector<Vec3<RealType> >& clusterCenters, const std::vector<Vec3<RealType> >& samples, Vec_VecUInt& samplesInCluster);
 
-    size_t computeMedian(const std::vector<Vec3<ScalarType> >& samples, const Vec_UInt& subsetIndices);
-    size_t computeWeightedMedian(const std::vector<Vec3<ScalarType> >& samples, const std::vector<ScalarType>& weights, const Vec_UInt& subsetIndices);
-    void   computeMean(const std::vector<Vec3<ScalarType> >& samples, const Vec_UInt& subsetIndices, Vec3<ScalarType>& mean);
-    void   computeWeightedMean(const std::vector<Vec3<ScalarType> >& samples, const std::vector<ScalarType>& weights, const Vec_UInt& subsetIndices, Vec3<ScalarType>& mean);
+    size_t computeMedian(const std::vector<Vec3<RealType> >& samples, const Vec_UInt& subsetIndices);
+    size_t computeWeightedMedian(const std::vector<Vec3<RealType> >& samples, const std::vector<RealType>& weights, const Vec_UInt& subsetIndices);
+    void   computeMean(const std::vector<Vec3<RealType> >& samples, const Vec_UInt& subsetIndices, Vec3<RealType>& mean);
+    void   computeWeightedMean(const std::vector<Vec3<RealType> >& samples, const std::vector<RealType>& weights, const Vec_UInt& subsetIndices, Vec3<RealType>& mean);
 
-    ScalarType computeMinDistance(const std::vector<Vec3<ScalarType> >& clusterCenters);
-    ScalarType computeMinDistance(const std::vector<Vec3<ScalarType> >& clusterCenters, UInt32& numOverlappedParticles);
+    RealType computeMinDistance(const std::vector<Vec3<RealType> >& clusterCenters);
+    RealType computeMinDistance(const std::vector<Vec3<RealType> >& clusterCenters, UInt32& numOverlappedParticles);
 
-    UInt32 removeOverlappedParticles(std::vector<Vec3<ScalarType> >& clusterCenters);
-    void   sortSamples(std::vector<Vec3<ScalarType> >& samples, const Vec_VecUInt& samplesInCluster);
-    void   collectClustersToCells(const std::vector<Vec3<ScalarType> >& clusterCenters);
+    UInt32 removeOverlappedParticles(std::vector<Vec3<RealType> >& clusterCenters);
+    void   sortSamples(std::vector<Vec3<RealType> >& samples, const Vec_VecUInt& samplesInCluster);
+    void   collectClustersToCells(const std::vector<Vec3<RealType> >& clusterCenters);
 
 
     ////////////////////////////////////////////////////////////////////////////////
-    Vec3<ScalarType>   m_DomainBMin;
-    Vec3<ScalarType>   m_DomainBMax;
-    ScalarType         m_ParticleRadius;
+    Vec3<RealType>   m_DomainBMin;
+    Vec3<RealType>   m_DomainBMax;
+    RealType         m_ParticleRadius;
     Vec_UInt           m_ClosestCluster;
     Array3_VecUInt     m_CellParticles;
-    Grid3D<ScalarType> m_Grid3D;
+    Grid3D<RealType> m_Grid3D;
 
     Logger m_Logger;
     Timer  m_Timer;

@@ -72,17 +72,17 @@ public:
     template<class VectorType>
     static void multiply(const BlockSparseMatrix<MatrixType>& matrix, const std::vector<VectorType>& x, std::vector<VectorType>& result);
 
-    template<class VectorType, class ScalarType>
-    static void multiply_scaled(const BlockSparseMatrix<MatrixType>& matrix, const std::vector<VectorType>& x, const ScalarType alpha, std::vector<VectorType>& result);
+    template<class VectorType, class RealType>
+    static void multiply_scaled(const BlockSparseMatrix<MatrixType>& matrix, const std::vector<VectorType>& x, const RealType alpha, std::vector<VectorType>& result);
 
-    template<class VectorType, class ScalarType>
-    static void add_multiply_scaled(const BlockSparseMatrix<MatrixType>& matrix, const std::vector<VectorType>& x, const ScalarType alpha, std::vector<VectorType>& result);
+    template<class VectorType, class RealType>
+    static void add_multiply_scaled(const BlockSparseMatrix<MatrixType>& matrix, const std::vector<VectorType>& x, const RealType alpha, std::vector<VectorType>& result);
 
     template<class VectorType>
     static void multiply_and_subtract(const BlockSparseMatrix<MatrixType>& matrix, const std::vector<VectorType>& x, std::vector<VectorType>& result);
 
-    template<class ScalarType>
-    static void add_scaled(const BlockSparseMatrix<MatrixType>& A, const BlockSparseMatrix<MatrixType>& B, const ScalarType alpha, BlockSparseMatrix<MatrixType>& matrix);
+    template<class RealType>
+    static void add_scaled(const BlockSparseMatrix<MatrixType>& A, const BlockSparseMatrix<MatrixType>& B, const RealType alpha, BlockSparseMatrix<MatrixType>& matrix);
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

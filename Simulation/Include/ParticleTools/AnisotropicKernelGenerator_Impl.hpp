@@ -19,22 +19,22 @@
 #define AniGen_Kr                     4
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ScalarType>
-const Vec_Vec3<ScalarType>& AnisotropicKernelGenerator<ScalarType>::getKernelCenters() const
+template<class RealType>
+const Vec_Vec3<RealType>& AnisotropicKernelGenerator<RealType>::getKernelCenters() const
 {
     return m_KernelCenters;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ScalarType>
-const Vec_Mat3x3<ScalarType>& AnisotropicKernelGenerator<ScalarType>::getKernelMatrices() const
+template<class RealType>
+const Vec_Mat3x3<RealType>& AnisotropicKernelGenerator<RealType>::getKernelMatrices() const
 {
     return m_KernelMatrices;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ScalarType>
-void AnisotropicKernelGenerator<ScalarType>::setParticleRadius(ScalarType radius)
+template<class RealType>
+void AnisotropicKernelGenerator<RealType>::setParticleRadius(RealType radius)
 {
     m_KernelRadius    = 8 * radius;
     m_KernelRadiusSqr = m_KernelRadius * m_KernelRadius;
@@ -42,8 +42,8 @@ void AnisotropicKernelGenerator<ScalarType>::setParticleRadius(ScalarType radius
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ScalarType>
-void AnisotropicKernelGenerator<ScalarType>::generateAnisotropy()
+template<class RealType>
+void AnisotropicKernelGenerator<RealType>::generateAnisotropy()
 {
     ////////////////////////////////////////////////////////////////////////////////
     // allocate memory
@@ -62,7 +62,7 @@ void AnisotropicKernelGenerator<ScalarType>::generateAnisotropy()
                               const Vec3& ppos = m_Particles[p];
                               const Vec3i& pcellId = m_Grid3D.getCellIdx<int>(ppos);
                               Vec3 pposWM(0);
-                              ScalarType sumW = 0;
+                              RealType sumW = 0;
 
                               for(int lk = -m_KernelCellSpan; lk <= m_KernelCellSpan; ++lk)
                               {
@@ -81,10 +81,10 @@ void AnisotropicKernelGenerator<ScalarType>::generateAnisotropy()
                                           {
                                               const Vec3& qpos = m_Particles[q];
                                               const Vec3 xpq = qpos - ppos;
-                                              const ScalarType d2 = glm::length2(xpq);
+                                              const RealType d2 = glm::length2(xpq);
                                               if(d2 < m_KernelRadiusSqr)
                                               {
-                                                  const ScalarType wpq = W(d2);
+                                                  const RealType wpq = W(d2);
                                                   sumW += wpq;
                                                   pposWM += wpq * qpos;
                                               }
@@ -99,7 +99,7 @@ void AnisotropicKernelGenerator<ScalarType>::generateAnisotropy()
 
                               ////////////////////////////////////////////////////////////////////////////////
                               // compute covariance matrix and anisotropy matrix
-                              Mat3x3<ScalarType> C(0);
+                              Mat3x3<RealType> C(0);
                               UInt32 neighborCount = 0;
                               sumW = 0;
 
@@ -120,11 +120,11 @@ void AnisotropicKernelGenerator<ScalarType>::generateAnisotropy()
                                           {
                                               const Vec3& qpos = m_Particles[q];
                                               const Vec3 xpq = qpos - pposWM;
-                                              const ScalarType d2 = glm::length2(xpq);
+                                              const RealType d2 = glm::length2(xpq);
 
                                               if(d2 < m_KernelRadiusSqr)
                                               {
-                                                  const ScalarType wpq = W(d2);
+                                                  const RealType wpq = W(d2);
                                                   sumW += wpq;
                                                   C += wpq * glm::outerProduct(xpq, xpq);
 
@@ -147,39 +147,39 @@ void AnisotropicKernelGenerator<ScalarType>::generateAnisotropy()
                                                     S[0][0], S[0][1], S[0][2], S[1][0], S[1][1], S[1][2], S[2][0], S[2][1], S[2][2],
                                                     V[0][0], V[0][1], V[0][2], V[1][0], V[1][1], V[1][2], V[2][0], V[2][1], V[2][2]);
 
-                              Vec3 sigmas = static_cast<ScalarType>(0.75) * Vec3(1, 1, 1);;
+                              Vec3 sigmas = static_cast<RealType>(0.75) * Vec3(1, 1, 1);;
 
                               if(neighborCount > AniGen_NeighborCountThreshold)
                               {
                                   sigmas = Vec3(S[0][0], std::max(S[1][1], S[0][0] / AniGen_Kr), std::max(S[2][2], S[0][0] / AniGen_Kr));
-                                  ScalarType ks = std::cbrt(1.0 / (sigmas[0] * sigmas[1] * sigmas[2])); // scale so that det(covariance) == 1
+                                  RealType ks = std::cbrt(1.0 / (sigmas[0] * sigmas[1] * sigmas[2])); // scale so that det(covariance) == 1
                                   sigmas *= ks;
                               }
 
-                              m_KernelMatrices[p] = glm::transpose(U) * Mat3x3(Vec3<ScalarType>(sigmas[0], 0, 0),
-                                                                               Vec3<ScalarType>(0, sigmas[1], 0),
-                                                                               Vec3<ScalarType>(0, 0,         sigmas[2])) * U;
+                              m_KernelMatrices[p] = glm::transpose(U) * Mat3x3(Vec3<RealType>(sigmas[0], 0, 0),
+                                                                               Vec3<RealType>(0, sigmas[1], 0),
+                                                                               Vec3<RealType>(0, 0,         sigmas[2])) * U;
                           }
                       });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ScalarType>
-ScalarType AnisotropicKernelGenerator<ScalarType>::W(ScalarType d2)
+template<class RealType>
+RealType AnisotropicKernelGenerator<RealType>::W(RealType d2)
 {
     return (d2 < m_KernelRadiusSqr) ? 1.0 - MathHelpers::cube(sqrt(d2) * m_KernelRadiusInv) : 0;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ScalarType>
-ScalarType AnisotropicKernelGenerator<ScalarType>::W(const Vec3<ScalarType>& r)
+template<class RealType>
+RealType AnisotropicKernelGenerator<RealType>::W(const Vec3<RealType>& r)
 {
     return W(glm::length2(r));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ScalarType>
-ScalarType AnisotropicKernelGenerator<ScalarType>::W(const Vec3<ScalarType>& xi, const Vec3<ScalarType>& xj)
+template<class RealType>
+RealType AnisotropicKernelGenerator<RealType>::W(const Vec3<RealType>& xi, const Vec3<RealType>& xj)
 {
     return W(glm::length2(xi - xj));
 }

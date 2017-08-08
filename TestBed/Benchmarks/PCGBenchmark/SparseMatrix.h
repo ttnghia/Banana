@@ -13,9 +13,9 @@ using Real = real;
 
 #define SQR(x) (x)*(x)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template< typename ScalarType >
-inline typename std::vector<ScalarType>::iterator
-insert_sorted(std::vector<ScalarType>& vec, ScalarType item)
+template< typename RealType >
+inline typename std::vector<RealType>::iterator
+insert_sorted(std::vector<RealType>& vec, RealType item)
 {
     return vec.insert(std::upper_bound(vec.begin(), vec.end(), item), item);
 }
@@ -23,7 +23,7 @@ insert_sorted(std::vector<ScalarType>& vec, ScalarType item)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Dynamic compressed sparse row matrix.
 //
-template<class ScalarType>
+template<class RealType>
 struct SparseMatrix
 {
     // dimension
@@ -33,7 +33,7 @@ struct SparseMatrix
     std::vector<std::vector<UInt32> > index;
 
     // values corresponding to index
-    std::vector<std::vector<ScalarType> > value;
+    std::vector<std::vector<RealType> > value;
 
     explicit SparseMatrix(UInt32 n_ = 0)
         : size(n_), index(n_), value(n_) {}
@@ -73,7 +73,7 @@ struct SparseMatrix
         value.resize(size);
     }
 
-    const ScalarType operator()(UInt32 i, UInt32 j) const
+    const RealType operator()(UInt32 i, UInt32 j) const
     {
         auto iter = std::lower_bound(index[i].begin(), index[i].end(), j);
 
@@ -87,7 +87,7 @@ struct SparseMatrix
         }
     }
 
-    void set_element(UInt32 i, UInt32 j, ScalarType new_value)
+    void set_element(UInt32 i, UInt32 j, RealType new_value)
     {
         assert(i < size && j < size);
 
@@ -106,7 +106,7 @@ struct SparseMatrix
     }
 
 
-    void add_to_element(UInt32 i, UInt32 j, ScalarType increment_value)
+    void add_to_element(UInt32 i, UInt32 j, RealType increment_value)
     {
         assert(i < size && j < size);
 
@@ -365,7 +365,7 @@ struct SparseMatrix
 
         for(UInt32 k = 0; k < number_elements; ++k)
         {
-            const ScalarType tmp = data_ptr[num_processed];
+            const RealType tmp = data_ptr[num_processed];
 
             set_element(row_ptr[num_processed], column_ptr[num_processed], tmp);
             set_element(column_ptr[num_processed], row_ptr[num_processed], tmp);
@@ -393,10 +393,10 @@ struct SparseMatrix
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // perform result=matrix*x
 
-template<class ScalarType>
-void multiply(const SparseMatrix<ScalarType>& matrix,
-              const std::vector<ScalarType>& x,
-              std::vector<ScalarType>& result)
+template<class RealType>
+void multiply(const SparseMatrix<RealType>& matrix,
+              const std::vector<RealType>& x,
+              std::vector<RealType>& result)
 {
     assert(matrix.size == x.size());
     result.resize(matrix.size);
@@ -407,7 +407,7 @@ void multiply(const SparseMatrix<ScalarType>& matrix,
     {
         for(size_t i = r.begin(); i != r.end(); ++i)
         {
-            ScalarType tmpResult = 0;
+            RealType tmpResult = 0;
 
             for(size_t j = 0; j < matrix.index[i].size(); ++j)
             {
@@ -421,11 +421,11 @@ void multiply(const SparseMatrix<ScalarType>& matrix,
 }
 
 // perform result=alpha*matrix*x
-template<class ScalarType>
-void multiply_scaled(const SparseMatrix<ScalarType>& matrix,
-                     const std::vector<ScalarType>& x,
-                     const ScalarType alpha,
-                     std::vector<ScalarType>& result)
+template<class RealType>
+void multiply_scaled(const SparseMatrix<RealType>& matrix,
+                     const std::vector<RealType>& x,
+                     const RealType alpha,
+                     std::vector<RealType>& result)
 {
     assert(matrix.size == x.size());
     result.resize(matrix.size);
@@ -436,7 +436,7 @@ void multiply_scaled(const SparseMatrix<ScalarType>& matrix,
     {
         for(size_t i = r.begin(); i != r.end(); ++i)
         {
-            ScalarType tmpResult = 0;
+            RealType tmpResult = 0;
 
             for(size_t j = 0; j < matrix.index[i].size(); ++j)
             {
@@ -451,11 +451,11 @@ void multiply_scaled(const SparseMatrix<ScalarType>& matrix,
 
 
 // perform mat = A + alpha*B
-template<class ScalarType>
-void add_scaled(const SparseMatrix<ScalarType>& A,
-                const SparseMatrix<ScalarType>& B,
-                const ScalarType alpha,
-                SparseMatrix<ScalarType>& matrix)
+template<class RealType>
+void add_scaled(const SparseMatrix<RealType>& A,
+                const SparseMatrix<RealType>& B,
+                const RealType alpha,
+                SparseMatrix<RealType>& matrix)
 {
     assert(A.size == B.size);
     assert(A.size == matrix.size);
@@ -481,14 +481,14 @@ void add_scaled(const SparseMatrix<ScalarType>& A,
 // modifying the matrix, but can be significantly faster for matrix-vector
 // multiplies due to better data locality.
 
-template<class ScalarType>
+template<class RealType>
 struct FixedSparseMatrix
 {
     // dimension
     UInt32 size;
 
     // nonzero values row by row
-    std::vector<ScalarType> value;
+    std::vector<RealType> value;
 
     // corresponding column indices
     std::vector<UInt32> colindex;
@@ -513,7 +513,7 @@ struct FixedSparseMatrix
         rowstart.resize(size + 1);
     }
 
-    void construct_from_matrix(const SparseMatrix<ScalarType>& matrix)
+    void construct_from_matrix(const SparseMatrix<RealType>& matrix)
     {
         resize(matrix.size);
         rowstart[0] = 0;
@@ -579,10 +579,10 @@ struct FixedSparseMatrix
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // perform result=matrix*x
-template<class ScalarType>
-void multiply(const FixedSparseMatrix<ScalarType>& matrix,
-              const std::vector<ScalarType>& x,
-              std::vector<ScalarType>& result)
+template<class RealType>
+void multiply(const FixedSparseMatrix<RealType>& matrix,
+              const std::vector<RealType>& x,
+              std::vector<RealType>& result)
 {
     assert(matrix.size == x.size());
     //    result.resize(matrix.n);
@@ -593,7 +593,7 @@ void multiply(const FixedSparseMatrix<ScalarType>& matrix,
     {
         for(size_t i = r.begin(); i != r.end(); ++i)
         {
-            ScalarType tmpResult = 0;
+            RealType tmpResult = 0;
 
             const UInt32 rowend = matrix.rowstart[i + 1];
 

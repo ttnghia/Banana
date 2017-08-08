@@ -27,38 +27,38 @@
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ScalarType>
+template<class RealType>
 class AnisotropicKernelGenerator
 {
 public:
-    AnisotropicKernelGenerator(const Grid3D<ScalarType>& grid3D, Array3_VecUInt& cellParticles, const Vec_Vec3<ScalarType>& particles, ScalarType kernelCellSpan) :
+    AnisotropicKernelGenerator(const Grid3D<RealType>& grid3D, Array3_VecUInt& cellParticles, const Vec_Vec3<RealType>& particles, RealType kernelCellSpan) :
         m_Grid3D(grid3D),
         m_CellParticles(cellParticles),
         m_Particles(particles),
         m_KernelCellSpan(kernelCellSpan * 2) {}
 
-    void setParticleRadius(ScalarType radius);
+    void setParticleRadius(RealType radius);
     void generateAnisotropy();
 
-    const Vec_Vec3<ScalarType>&   getKernelCenters() const;
-    const Vec_Mat3x3<ScalarType>& getKernelMatrices() const;
+    const Vec_Vec3<RealType>&   getKernelCenters() const;
+    const Vec_Mat3x3<RealType>& getKernelMatrices() const;
 
 private:
-    ScalarType W(ScalarType d2);
-    ScalarType W(const Vec3<ScalarType>& r);
-    ScalarType W(const Vec3<ScalarType>& xi, const Vec3<ScalarType>& xj);
+    RealType W(RealType d2);
+    RealType W(const Vec3<RealType>& r);
+    RealType W(const Vec3<RealType>& xi, const Vec3<RealType>& xj);
 
     ////////////////////////////////////////////////////////////////////////////////
-    const Grid3D<ScalarType>&   m_Grid3D;
+    const Grid3D<RealType>&   m_Grid3D;
     const Array3_VecUInt&       m_CellParticles;
-    const Vec_Vec3<ScalarType>& m_Particles;
-    const ScalarType            m_KernelCellSpan;
-    ScalarType                  m_KernelRadius;
-    ScalarType                  m_KernelRadiusSqr;
-    ScalarType                  m_KernelRadiusInv;
+    const Vec_Vec3<RealType>& m_Particles;
+    const RealType            m_KernelCellSpan;
+    RealType                  m_KernelRadius;
+    RealType                  m_KernelRadiusSqr;
+    RealType                  m_KernelRadiusInv;
 
-    Vec_Vec3<ScalarType>   m_KernelCenters;
-    Vec_Mat3x3<ScalarType> m_KernelMatrices;
+    Vec_Vec3<RealType>   m_KernelCenters;
+    Vec_Mat3x3<RealType> m_KernelMatrices;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

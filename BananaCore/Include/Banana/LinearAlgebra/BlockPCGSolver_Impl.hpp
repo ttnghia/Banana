@@ -16,35 +16,35 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class MatrixType, class VectorType, class ScalarType>
-void BlockPCGSolver<MatrixType, VectorType, ScalarType>::setSolverParameters(ScalarType toleranceFactor, UInt32 maxIterations)
+template<class MatrixType, class VectorType, class RealType>
+void BlockPCGSolver<MatrixType, VectorType, RealType>::setSolverParameters(RealType toleranceFactor, UInt32 maxIterations)
 {
     m_ToleranceFactor = fmax(toleranceFactor, 1e-30);
     m_MaxIterations   = maxIterations;
 }
 
-template<class MatrixType, class VectorType, class ScalarType>
-void BlockPCGSolver<MatrixType, VectorType, ScalarType>::setZeroInitial(bool bZeroInitial)
+template<class MatrixType, class VectorType, class RealType>
+void BlockPCGSolver<MatrixType, VectorType, RealType>::setZeroInitial(bool bZeroInitial)
 {
     m_bZeroInitial = bZeroInitial;
 }
 
-template<class MatrixType, class VectorType, class ScalarType>
-void BlockPCGSolver<MatrixType, VectorType, ScalarType>::enableZeroInitial()
+template<class MatrixType, class VectorType, class RealType>
+void BlockPCGSolver<MatrixType, VectorType, RealType>::enableZeroInitial()
 {
     m_bZeroInitial = true;
 }
 
-template<class MatrixType, class VectorType, class ScalarType>
-void BlockPCGSolver<MatrixType, VectorType, ScalarType>::disableZeroInitial()
+template<class MatrixType, class VectorType, class RealType>
+void BlockPCGSolver<MatrixType, VectorType, RealType>::disableZeroInitial()
 {
     m_bZeroInitial = false;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class MatrixType, class VectorType, class ScalarType>
-bool BlockPCGSolver<MatrixType, VectorType, ScalarType>::solve(const BlockSparseMatrix<MatrixType>& matrix, const std::vector<VectorType>& rhs, std::vector<VectorType>& result,
-        ScalarType& residual_out, UInt32& iterations_out)
+template<class MatrixType, class VectorType, class RealType>
+bool BlockPCGSolver<MatrixType, VectorType, RealType>::solve(const BlockSparseMatrix<MatrixType>& matrix, const std::vector<VectorType>& rhs, std::vector<VectorType>& result,
+        RealType& residual_out, UInt32& iterations_out)
 {
     const UInt32 n = matrix.size();
 
@@ -67,7 +67,7 @@ bool BlockPCGSolver<MatrixType, VectorType, ScalarType>::solve(const BlockSparse
     m_FixedSparseMatrix.constructFromSparseMatrix(matrix);
     r = rhs;
 
-    residual_out = ParallelBLAS::maxAbs<ScalarType, VectorType>(r);
+    residual_out = ParallelBLAS::maxAbs<RealType, VectorType>(r);
 
     if(residual_out < 1e-20)
     {
@@ -75,8 +75,8 @@ bool BlockPCGSolver<MatrixType, VectorType, ScalarType>::solve(const BlockSparse
         return true;
     }
 
-    ScalarType tol = m_ToleranceFactor * residual_out;
-    ScalarType rho = ParallelBLAS::dotProduct<ScalarType, VectorType>(r, r);
+    RealType tol = m_ToleranceFactor * residual_out;
+    RealType rho = ParallelBLAS::dotProduct<RealType, VectorType>(r, r);
 
     if(fabs(rho) < 1e-20 || isnan(rho))
     {
@@ -89,7 +89,7 @@ bool BlockPCGSolver<MatrixType, VectorType, ScalarType>::solve(const BlockSparse
     for(UInt32 iteration = 0; iteration < m_MaxIterations; ++iteration)
     {
         multiply<MatrixType, VectorType>(m_FixedSparseMatrix, z, s);
-        ScalarType tmp = ParallelBLAS::dotProduct<ScalarType, VectorType>(s, z);
+        RealType tmp = ParallelBLAS::dotProduct<RealType, VectorType>(s, z);
 
         if(fabs(tmp) < 1e-20 || isnan(tmp))
         {
@@ -97,19 +97,19 @@ bool BlockPCGSolver<MatrixType, VectorType, ScalarType>::solve(const BlockSparse
             return true;
         }
 
-        ScalarType alpha = rho / tmp;
+        RealType alpha = rho / tmp;
 
         tbb::parallel_invoke(
             [&]
         {
-            ParallelBLAS::addScaled<ScalarType, VectorType>(alpha, z, result);
+            ParallelBLAS::addScaled<RealType, VectorType>(alpha, z, result);
         },
             [&]
         {
-            ParallelBLAS::addScaled<ScalarType, VectorType>(-alpha, s, r);
+            ParallelBLAS::addScaled<RealType, VectorType>(-alpha, s, r);
         });
 
-        residual_out = ParallelBLAS::maxAbs<ScalarType, VectorType>(r);
+        residual_out = ParallelBLAS::maxAbs<RealType, VectorType>(r);
 
         if(residual_out < tol)
         {
@@ -117,9 +117,9 @@ bool BlockPCGSolver<MatrixType, VectorType, ScalarType>::solve(const BlockSparse
             return true;
         }
 
-        ScalarType rho_new = ParallelBLAS::dotProduct<ScalarType, VectorType>(r, r);
-        ScalarType beta    = rho_new / rho;
-        ParallelBLAS::scaledAdd<ScalarType, VectorType>(beta, r, z);
+        RealType rho_new = ParallelBLAS::dotProduct<RealType, VectorType>(r, r);
+        RealType beta    = rho_new / rho;
+        ParallelBLAS::scaledAdd<RealType, VectorType>(beta, r, z);
         rho = rho_new;
     }
 
@@ -128,8 +128,8 @@ bool BlockPCGSolver<MatrixType, VectorType, ScalarType>::solve(const BlockSparse
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class MatrixType, class VectorType, class ScalarType>
-bool BlockPCGSolver<MatrixType, VectorType, ScalarType>::solve_precond(const BlockSparseMatrix<MatrixType>& matrix, const std::vector<VectorType>& rhs, std::vector<VectorType>& result, ScalarType& residual_out, UInt32& iterations_out)
+template<class MatrixType, class VectorType, class RealType>
+bool BlockPCGSolver<MatrixType, VectorType, RealType>::solve_precond(const BlockSparseMatrix<MatrixType>& matrix, const std::vector<VectorType>& rhs, std::vector<VectorType>& result, RealType& residual_out, UInt32& iterations_out)
 {
     UInt32 n = matrix.size();
 
@@ -153,9 +153,9 @@ bool BlockPCGSolver<MatrixType, VectorType, ScalarType>::solve_precond(const Blo
     r = rhs;
 
     multiply(m_FixedSparseMatrix, result, s);
-    ParallelBLAS::addScaled<ScalarType, VectorType>(-1.0, s, r);
+    ParallelBLAS::addScaled<RealType, VectorType>(-1.0, s, r);
 
-    residual_out = ParallelBLAS::maxAbs<ScalarType, VectorType>(r);
+    residual_out = ParallelBLAS::maxAbs<RealType, VectorType>(r);
 
     if(fabs(residual_out) < 1e-20)
     {
@@ -163,12 +163,12 @@ bool BlockPCGSolver<MatrixType, VectorType, ScalarType>::solve_precond(const Blo
         return true;
     }
 
-    ScalarType tol = m_ToleranceFactor * residual_out;
+    RealType tol = m_ToleranceFactor * residual_out;
 
     formPreconditioner(matrix);
     applyPreconditioner(r, z);
 
-    ScalarType rho = ParallelBLAS::dotProduct<ScalarType, VectorType>(z, r);
+    RealType rho = ParallelBLAS::dotProduct<RealType, VectorType>(z, r);
 
     if(fabs(rho) < 1e-20 || isnan(rho))
     {
@@ -181,18 +181,18 @@ bool BlockPCGSolver<MatrixType, VectorType, ScalarType>::solve_precond(const Blo
     for(UInt32 iteration = 0; iteration < m_MaxIterations; ++iteration)
     {
         multiply(m_FixedSparseMatrix, s, z);
-        ScalarType alpha = rho / ParallelBLAS::dotProduct<ScalarType, VectorType>(s, z);
+        RealType alpha = rho / ParallelBLAS::dotProduct<RealType, VectorType>(s, z);
         tbb::parallel_invoke(
             [&]
         {
-            ParallelBLAS::addScaled<ScalarType, VectorType>(alpha, s, result);
+            ParallelBLAS::addScaled<RealType, VectorType>(alpha, s, result);
         },
             [&]
         {
-            ParallelBLAS::addScaled<ScalarType, VectorType>(-alpha, z, r);
+            ParallelBLAS::addScaled<RealType, VectorType>(-alpha, z, r);
         });
 
-        residual_out = ParallelBLAS::maxAbs<ScalarType, VectorType>(r);
+        residual_out = ParallelBLAS::maxAbs<RealType, VectorType>(r);
 
         if(residual_out < tol)
         {
@@ -202,9 +202,9 @@ bool BlockPCGSolver<MatrixType, VectorType, ScalarType>::solve_precond(const Blo
 
         applyPreconditioner(r, z);
 
-        ScalarType rho_new = ParallelBLAS::dotProduct<ScalarType, VectorType>(z, r);
-        ScalarType beta    = rho_new / rho;
-        ParallelBLAS::addScaled<ScalarType, VectorType>(beta, s, z);
+        RealType rho_new = ParallelBLAS::dotProduct<RealType, VectorType>(z, r);
+        RealType beta    = rho_new / rho;
+        ParallelBLAS::addScaled<RealType, VectorType>(beta, s, z);
         s.swap(z);     // s=beta*s+z
         rho = rho_new;
     }
@@ -214,8 +214,8 @@ bool BlockPCGSolver<MatrixType, VectorType, ScalarType>::solve_precond(const Blo
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class MatrixType, class VectorType, class ScalarType>
-void BlockPCGSolver<MatrixType, VectorType, ScalarType>::formPreconditioner(const BlockSparseMatrix<MatrixType>& matrix)
+template<class MatrixType, class VectorType, class RealType>
+void BlockPCGSolver<MatrixType, VectorType, RealType>::formPreconditioner(const BlockSparseMatrix<MatrixType>& matrix)
 {
     m_JacobiPreconditioner.resize(matrix.size());
 
@@ -232,8 +232,8 @@ void BlockPCGSolver<MatrixType, VectorType, ScalarType>::formPreconditioner(cons
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class MatrixType, class VectorType, class ScalarType>
-void BlockPCGSolver<MatrixType, VectorType, ScalarType>::applyPreconditioner(const std::vector<VectorType>& x, std::vector<VectorType>& result)
+template<class MatrixType, class VectorType, class RealType>
+void BlockPCGSolver<MatrixType, VectorType, RealType>::applyPreconditioner(const std::vector<VectorType>& x, std::vector<VectorType>& result)
 {
     static tbb::affinity_partitioner ap;
     tbb::parallel_for(tbb::blocked_range<size_t>(0, x.size()), [&](tbb::blocked_range<UInt32> r)

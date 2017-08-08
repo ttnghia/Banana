@@ -65,143 +65,143 @@ using UInt64 = uint64_t;
 #include <glm/gtx/string_cast.hpp>
 
 // Vectors
-template<class ScalarType>
-using Vec2 = glm::tvec2<ScalarType>;
+template<class RealType>
+using Vec2 = glm::tvec2<RealType>;
 
-template<class ScalarType>
-using Vec3 = glm::tvec3<ScalarType>;
+template<class RealType>
+using Vec3 = glm::tvec3<RealType>;
 
-template<class ScalarType>
-using Vec4 = glm::tvec4<ScalarType>;
+template<class RealType>
+using Vec4 = glm::tvec4<RealType>;
 
 // matrices
-template<class ScalarType>
-using Mat2x2 = glm::mat<2, 2, ScalarType>;
-template<class ScalarType>
-const Mat2x2<ScalarType> Identity2x2 = glm::mat<2, 2, ScalarType>(1.0);
+template<class RealType>
+using Mat2x2 = glm::mat<2, 2, RealType>;
+template<class RealType>
+const Mat2x2<RealType> Identity2x2 = glm::mat<2, 2, RealType>(1.0);
 
-template<class ScalarType>
-using Mat3x3 = glm::mat<3, 3, ScalarType>;
-template<class ScalarType>
-const Mat3x3<ScalarType> Identity3x3 = glm::mat<3, 3, ScalarType>(1.0);
+template<class RealType>
+using Mat3x3 = glm::mat<3, 3, RealType>;
+template<class RealType>
+const Mat3x3<RealType> Identity3x3 = glm::mat<3, 3, RealType>(1.0);
 
-template<class ScalarType>
-using Mat3x4 = glm::mat<3, 4, ScalarType>;
+template<class RealType>
+using Mat3x4 = glm::mat<3, 4, RealType>;
 
-template<class ScalarType>
-using Mat4x3 = glm::mat<4, 3, ScalarType>;
+template<class RealType>
+using Mat4x3 = glm::mat<4, 3, RealType>;
 
-template<class ScalarType>
-using Mat4x4 = glm::mat<4, 4, ScalarType>;
-template<class ScalarType>
-const Mat4x4<ScalarType> Identity4x4 = glm::mat<4, 4, ScalarType>(1.0);
+template<class RealType>
+using Mat4x4 = glm::mat<4, 4, RealType>;
+template<class RealType>
+const Mat4x4<RealType> Identity4x4 = glm::mat<4, 4, RealType>(1.0);
 
 // vectors of vectors
-template<class ScalarType>
-using  Vec_Real = std::vector<ScalarType>;
+template<class RealType>
+using  Vec_Real = std::vector<RealType>;
 
-template<class ScalarType>
-using  Vec_Vec2 = std::vector<Vec2<ScalarType> >;
+template<class RealType>
+using  Vec_Vec2 = std::vector<Vec2<RealType> >;
 
-template<class ScalarType>
-using Vec_Vec3 = std::vector<Vec3<ScalarType> >;
+template<class RealType>
+using Vec_Vec3 = std::vector<Vec3<RealType> >;
 
-template<class ScalarType>
-using Vec_Vec4 = std::vector<Vec4<ScalarType> >;
+template<class RealType>
+using Vec_Vec4 = std::vector<Vec4<RealType> >;
 
 // vectors of matrices
-template<class ScalarType>
-using Vec_Mat2x2 = std::vector<Mat2x2<ScalarType> >;
+template<class RealType>
+using Vec_Mat2x2 = std::vector<Mat2x2<RealType> >;
 
-template<class ScalarType>
-using  Vec_Mat3x3 = std::vector<Mat3x3<ScalarType> >;
+template<class RealType>
+using  Vec_Mat3x3 = std::vector<Mat3x3<RealType> >;
 
-template<class ScalarType>
-using Vec_Mat3x4 = std::vector<Mat3x4<ScalarType> >;
+template<class RealType>
+using Vec_Mat3x4 = std::vector<Mat3x4<RealType> >;
 
-template<class ScalarType>
-using Vec_Mat4x3 = std::vector<Mat4x3<ScalarType> >;
+template<class RealType>
+using Vec_Mat4x3 = std::vector<Mat4x3<RealType> >;
 
-template<class ScalarType>
-using Vec_Mat4x4 = std::vector<Mat4x4<ScalarType> >;
+template<class RealType>
+using Vec_Mat4x4 = std::vector<Mat4x4<RealType> >;
 
 // vectors of vector of vectors
-template<class ScalarType>
-using Vec_VecVec3 = std::vector<std::vector<Vec3<ScalarType> > >;
+template<class RealType>
+using Vec_VecVec3 = std::vector<std::vector<Vec3<RealType> > >;
 
 // vectors of vector of matrices
-template<class ScalarType>
-using Vec_VecMat3x3 = std::vector<std::vector<Mat3x3<ScalarType> > >;
+template<class RealType>
+using Vec_VecMat3x3 = std::vector<std::vector<Mat3x3<RealType> > >;
 
 #else // not using glm lib
 
 #include <yocto/yocto_math.h>
 
 // Vectors
-template<class ScalarType>
-using Vec2 = ym::vec<ScalarType, 2>;
+template<class RealType>
+using Vec2 = ym::vec<RealType, 2>;
 
-template<class ScalarType>
-using Vec3 = ym::vec<ScalarType, 3>;
+template<class RealType>
+using Vec3 = ym::vec<RealType, 3>;
 
-template<class ScalarType>
-using Vec4 = ym::vec<ScalarType, 4>;
+template<class RealType>
+using Vec4 = ym::vec<RealType, 4>;
 
 // matrices
-template<class ScalarType>
-using Mat2x2 = ym::mat<ScalarType, 2, 2>;
-template<class ScalarType>
-const Mat2x2<ScalarType> Identity2x2 = ym::identity_mat<ScalarType, 2>();
+template<class RealType>
+using Mat2x2 = ym::mat<RealType, 2, 2>;
+template<class RealType>
+const Mat2x2<RealType> Identity2x2 = ym::identity_mat<RealType, 2>();
 
-template<class ScalarType>
-using Mat3x3 = ym::mat<ScalarType, 3, 3>;
-template<class ScalarType>
-const Mat3x3<ScalarType> Identity3x3 = ym::identity_mat<ScalarType, 3>();
+template<class RealType>
+using Mat3x3 = ym::mat<RealType, 3, 3>;
+template<class RealType>
+const Mat3x3<RealType> Identity3x3 = ym::identity_mat<RealType, 3>();
 
-template<class ScalarType>
-using Mat3x4 = ym::mat<ScalarType, 3, 4>;
+template<class RealType>
+using Mat3x4 = ym::mat<RealType, 3, 4>;
 
-template<class ScalarType>
-using Mat4x3 = ym::mat<ScalarType, 4, 3>;
+template<class RealType>
+using Mat4x3 = ym::mat<RealType, 4, 3>;
 
-template<class ScalarType>
-using Mat4x4 = ym::mat<ScalarType, 4, 4>;
-template<class ScalarType>
-const Mat4x4<ScalarType> Identity4x4 = ym::identity_mat<ScalarType, 4>();
+template<class RealType>
+using Mat4x4 = ym::mat<RealType, 4, 4>;
+template<class RealType>
+const Mat4x4<RealType> Identity4x4 = ym::identity_mat<RealType, 4>();
 
 // vectors of vectors
-template<class ScalarType>
-using Vec_Vec2 = std::vector<Vec2<ScalarType> >;
+template<class RealType>
+using Vec_Vec2 = std::vector<Vec2<RealType> >;
 
-template<class ScalarType>
-using Vec_Vec3 = std::vector<Vec3<ScalarType> >;
+template<class RealType>
+using Vec_Vec3 = std::vector<Vec3<RealType> >;
 
-template<class ScalarType>
-using Vec_Vec4 = std::vector<Vec4<ScalarType> >;
+template<class RealType>
+using Vec_Vec4 = std::vector<Vec4<RealType> >;
 
 // vectors of matrices
-template<class ScalarType>
-using Vec_Mat2x2 = std::vector<Mat2x2<ScalarType> >;
+template<class RealType>
+using Vec_Mat2x2 = std::vector<Mat2x2<RealType> >;
 
-template<class ScalarType>
-using  Vec_Mat3x3 = std::vector<Mat3x3<ScalarType> >;
+template<class RealType>
+using  Vec_Mat3x3 = std::vector<Mat3x3<RealType> >;
 
-template<class ScalarType>
-using Vec_Mat3x4 = std::vector<Mat3x4<ScalarType> >;
+template<class RealType>
+using Vec_Mat3x4 = std::vector<Mat3x4<RealType> >;
 
-template<class ScalarType>
-using Vec_Mat4x3 = std::vector<Mat4x3<ScalarType> >;
+template<class RealType>
+using Vec_Mat4x3 = std::vector<Mat4x3<RealType> >;
 
-template<class ScalarType>
-using Vec_Mat4x4 = std::vector<Mat4x4<ScalarType> >;
+template<class RealType>
+using Vec_Mat4x4 = std::vector<Mat4x4<RealType> >;
 
 // vectors of vector of vectors
-template<class ScalarType>
-using Vec_VecVec3 = std::vector<std::vector<Vec3<ScalarType> > >;
+template<class RealType>
+using Vec_VecVec3 = std::vector<std::vector<Vec3<RealType> > >;
 
 // vectors of vector of matrices
-template<class ScalarType>
-using Vec_VecMat3x3 = std::vector<std::vector<Mat3x3<ScalarType> > >;
+template<class RealType>
+using Vec_VecMat3x3 = std::vector<std::vector<Mat3x3<RealType> > >;
 #endif // __Using_GLM_Lib__
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

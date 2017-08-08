@@ -33,35 +33,35 @@ namespace Banana
 #define POW9(x) (POW6(x) * CUBE(x))
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ScalarType>
+template<class RealType>
 class SPHRelaxation
 {
 public:
-    SPHRelaxation(std::vector<Vec3<ScalarType> >& particles, ScalarType particleRadius, Array3<ScalarType>& sdf_grid_, ScalarType sdf_cell_size_, const std::shared_ptr<DomainParameters>& domainParams_);
+    SPHRelaxation(std::vector<Vec3<RealType> >& particles, RealType particleRadius, Array3<RealType>& sdf_grid_, RealType sdf_cell_size_, const std::shared_ptr<DomainParameters>& domainParams_);
     ~SPHRelaxation() = default;
 
     void iterate(int iters);
 
 private:
     void       compute_kernel_parameters();
-    ScalarType kernel_density(const VectorType& r);
+    RealType kernel_density(const VectorType& r);
     VectorType gradient_kernel(const VectorType& r);
-    ScalarType laplacian_kernel(const VectorType& r);
+    RealType laplacian_kernel(const VectorType& r);
     VectorType gradient_pressure_kernel(const VectorType& r);
-    ScalarType laplacian_viscosity_kernel(const VectorType& r);
+    RealType laplacian_viscosity_kernel(const VectorType& r);
     VectorType kernel_coherence(const VectorType& r);
     VectorType kernel_near(const VectorType& r);
 
-    ScalarType cfl(ScalarType scale);
+    RealType cfl(RealType scale);
     void       collect_particles();
     void       compute_density();
     void       compute_forces();
-    void       update_velocity(ScalarType dt);
-    void       update_position(ScalarType dt);
+    void       update_velocity(RealType dt);
+    void       update_position(RealType dt);
     void       constrain_boundary();
     void       update_rest_density();
     void       findParticleMinDistance();
-    ScalarType findMinDistance();
+    RealType findMinDistance();
     void       resolve_overlapping();
 
     std::vector<VectorType>& particles;
@@ -71,28 +71,28 @@ private:
     std::vector<ScarlarType> velocity_magnitude;
     std::vector<ScarlarType> min_distance;
 
-    ScalarType     particle_mass;
-    ScalarType     particle_radius;
-    ScalarType     cell_size;
-    ScalarType     rest_density;
+    RealType     particle_mass;
+    RealType     particle_radius;
+    RealType     cell_size;
+    RealType     rest_density;
     Array3_VecUInt cellParticles;
     VectorTypeui   numCells;
 
     // kernel
-    ScalarType kernel_radius;
-    ScalarType kernel_radius_sqr;
-    ScalarType kernel_coeff_density;
-    ScalarType kernel_coeff_gradient;
-    ScalarType kernel_coeff_laplace;
-    ScalarType kernel_coeff_gradient_pressure;
-    ScalarType kernel_coeff_laplace_viscous;
-    ScalarType kernel_coeff_coherence;
-    ScalarType kernel_coeff_h6over64;
-    ScalarType kernel_coeff_near;
-    ScalarType kernel_near_radius;
+    RealType kernel_radius;
+    RealType kernel_radius_sqr;
+    RealType kernel_coeff_density;
+    RealType kernel_coeff_gradient;
+    RealType kernel_coeff_laplace;
+    RealType kernel_coeff_gradient_pressure;
+    RealType kernel_coeff_laplace_viscous;
+    RealType kernel_coeff_coherence;
+    RealType kernel_coeff_h6over64;
+    RealType kernel_coeff_near;
+    RealType kernel_near_radius;
 
-    Array3_ScalarType&                m_SDFGrid;
-    ScalarType                        m_SDFCellSize;
+    Array3_RealType&                m_SDFGrid;
+    RealType                        m_SDFCellSize;
     std::shared_ptr<DomainParameters> m_DomainParams;
 
     Monitor m_Monitor;

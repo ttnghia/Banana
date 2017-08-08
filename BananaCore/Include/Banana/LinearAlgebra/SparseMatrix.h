@@ -31,7 +31,7 @@ namespace Banana
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Dynamic compressed sparse row matrix
 //
-template<class ScalarType>
+template<class RealType>
 class SparseMatrix
 {
 private:
@@ -41,7 +41,7 @@ private:
     std::vector<std::vector<UInt32> > m_Index;
 
     // values corresponding to indices
-    std::vector<std::vector<ScalarType> > m_Value;
+    std::vector<std::vector<RealType> > m_Value;
 
 public:
     explicit SparseMatrix(UInt32 size = 0) : m_Size(size), m_Index(size), m_Value(size) {}
@@ -53,10 +53,10 @@ public:
     const std::vector<UInt32>& getIndices(UInt32 row) const;
     const std::vector<UInt32>& getValues(UInt32 row) const;
 
-    ScalarType operator ()(UInt32 i, UInt32 j) const;
+    RealType operator ()(UInt32 i, UInt32 j) const;
 
-    void setElement(UInt32 i, UInt32 j, ScalarType newValue);
-    void addElement(UInt32 i, UInt32 j, ScalarType incrementValue);
+    void setElement(UInt32 i, UInt32 j, RealType newValue);
+    void addElement(UInt32 i, UInt32 j, RealType incrementValue);
     void eraseElement(UInt32 i, UInt32 j);
 
     void printDebug() const noexcept;
@@ -67,22 +67,22 @@ public:
     bool loadFromBinaryFile(const char* fileName, int showPercentage = -1);
 
     ////////////////////////////////////////////////////////////////////////////////
-    static void multiply(const SparseMatrix<ScalarType>& matrix, const std::vector<ScalarType>& x, std::vector<ScalarType>& result);
-    static void multiply_and_subtract(const SparseMatrix<ScalarType>& matrix, const std::vector<ScalarType>& x, std::vector<ScalarType>& result);
+    static void multiply(const SparseMatrix<RealType>& matrix, const std::vector<RealType>& x, std::vector<RealType>& result);
+    static void multiply_and_subtract(const SparseMatrix<RealType>& matrix, const std::vector<RealType>& x, std::vector<RealType>& result);
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Fixed version of SparseMatrix. This can be significantly faster for matrix-vector
 // multiplies due to better data locality.
-template<class ScalarType>
+template<class RealType>
 class FixedSparseMatrix
 {
 private:
     UInt32 m_Size;
 
     // nonzero values row by row
-    std::vector<ScalarType> m_Value;
+    std::vector<RealType> m_Value;
 
     // corresponding column indices
     std::vector<UInt32> m_Index;
@@ -95,13 +95,13 @@ public:
 
     void clear(void);
     void resize(UInt32 newSize);
-    void constructFromSparseMatrix(const SparseMatrix<ScalarType>& fixedMatrix);
+    void constructFromSparseMatrix(const SparseMatrix<RealType>& fixedMatrix);
 
-    template<class ScalarType>
-    static void multiply(const FixedSparseMatrix<ScalarType>& matrix, const std::vector<ScalarType>& x, std::vector<ScalarType>& result);
+    template<class RealType>
+    static void multiply(const FixedSparseMatrix<RealType>& matrix, const std::vector<RealType>& x, std::vector<RealType>& result);
 
-    template<class ScalarType>
-    static void multiply_and_subtract(const FixedSparseMatrix<ScalarType>& matrix, const std::vector<ScalarType>& x, std::vector<ScalarType>& result);
+    template<class RealType>
+    static void multiply_and_subtract(const FixedSparseMatrix<RealType>& matrix, const std::vector<RealType>& x, std::vector<RealType>& result);
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
