@@ -29,11 +29,11 @@ namespace Banana
 template<class RealType>
 struct SparseColumnLowerFactor
 {
-    UInt32                  m_Size;
+    UInt32                m_Size;
     std::vector<RealType> m_InvDiag;  // reciprocals of diagonal elements
     std::vector<RealType> m_ColValue; // values below the diagonal, listed column by column
-    std::vector<UInt32>     m_ColIndex; // a list of all row indices, for each column in turn
-    std::vector<UInt32>     m_ColStart; // where each column begins in row index (plus an extra entry at the end, of #nonzeros)
+    std::vector<UInt32>   m_ColIndex; // a list of all row indices, for each column in turn
+    std::vector<UInt32>   m_ColStart; // where each column begins in row index (plus an extra entry at the end, of #nonzeros)
     std::vector<RealType> m_aDiag;    // just used in factorization: minimum "safe" diagonal entry allowed
 
     explicit SparseColumnLowerFactor(UInt32 size = 0) : m_Size(size), m_InvDiag(size), m_ColStart(size + 1), m_aDiag(size) {}
@@ -56,7 +56,7 @@ public:
     };
 
 
-    PCGSolver(void) {}
+    PCGSolver() = default;
 
     void setSolverParameters(RealType toleranceFactor, int maxIterations, RealType MICCL0Param = 0.97, RealType minDiagonalRatio = 0.25);
     void setPreconditioners(PreconditionerTypes precond);
@@ -87,10 +87,10 @@ private:
 
     // solver parameters
     PreconditionerTypes m_PreconditionerType = PreconditionerTypes::MICCL0;
-    RealType          m_ToleranceFactor    = 1e-20;
+    RealType            m_ToleranceFactor    = 1e-20;
     UInt32              m_MaxIterations      = 10000;
-    RealType          m_MICCL0Param        = 0.97;
-    RealType          m_MinDiagonalRatio   = 0.25;
+    RealType            m_MICCL0Param        = 0.97;
+    RealType            m_MinDiagonalRatio   = 0.25;
     bool                m_bZeroInitial       = true;
 };
 

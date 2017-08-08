@@ -97,10 +97,7 @@ public:
     void resize(UInt32 newSize);
     void constructFromSparseMatrix(const SparseMatrix<RealType>& fixedMatrix);
 
-    template<class RealType>
     static void multiply(const FixedSparseMatrix<RealType>& matrix, const std::vector<RealType>& x, std::vector<RealType>& result);
-
-    template<class RealType>
     static void multiply_and_subtract(const FixedSparseMatrix<RealType>& matrix, const std::vector<RealType>& x, std::vector<RealType>& result);
 };
 

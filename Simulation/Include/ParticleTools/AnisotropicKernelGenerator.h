@@ -50,7 +50,7 @@ private:
 
     ////////////////////////////////////////////////////////////////////////////////
     const Grid3D<RealType>&   m_Grid3D;
-    const Array3_VecUInt&       m_CellParticles;
+    const Array3_VecUInt&     m_CellParticles;
     const Vec_Vec3<RealType>& m_Particles;
     const RealType            m_KernelCellSpan;
     RealType                  m_KernelRadius;
@@ -62,7 +62,7 @@ private:
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <ParticleSolvers/AnisotropicKernelGenerator_Impl.hpp>
+#include <ParticleTools/AnisotropicKernelGenerator_Impl.hpp>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana

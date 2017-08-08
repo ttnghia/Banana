@@ -47,7 +47,7 @@ inline bool contain(const std::vector<T>& vec, T item, size_t& itemIndex)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<typename T>
-inline void insertSorted(std::vector<T>& vec, const T& item, std::vector<T> ::iterator& it)
+inline void insertSorted(std::vector<T>& vec, const T& item, typename std::vector<T>::iterator& it)
 {
     it = vec.insert(std::upper_bound(vec.begin(), vec.end(), item), item);
 }

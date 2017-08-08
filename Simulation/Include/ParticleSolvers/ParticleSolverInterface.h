@@ -67,7 +67,7 @@ template<class RealType>
 class ParticleSolver
 {
 public:
-    ParticleSolver(const std::shared_ptr<TimeParameters>& timeParams, const std::shared_ptr<DataParameters>& dataParams) :
+    ParticleSolver(const std::shared_ptr<TimeParameters<RealType> >& timeParams, const std::shared_ptr<DataParameters>& dataParams) :
         m_TimeParams(timeParams), m_DataParams(dataParams) {}
     virtual ~ParticleSolver() = default;
 

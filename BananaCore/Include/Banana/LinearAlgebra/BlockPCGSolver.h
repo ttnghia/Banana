@@ -28,7 +28,7 @@ template<class MatrixType, class VectorType, class RealType>
 class BlockPCGSolver
 {
 public:
-    BlockPCGSolver() {}
+    BlockPCGSolver() = default;
 
     void setSolverParameters(RealType toleranceFactor, UInt32 maxIterations);
     void setZeroInitial(bool bZeroInitial);
@@ -44,12 +44,12 @@ private:
 
     std::vector<VectorType>            z, s, r;
     std::vector<MatrixType>            m_JacobiPreconditioner;
-    BlockFixedSparseMatrix<MatrixType> m_FixedSparseMatrix;
+    FixedBlockSparseMatrix<MatrixType> m_FixedSparseMatrix;
 
     // parameters
     RealType m_ToleranceFactor = 1e-20;
-    UInt32     m_MaxIterations   = 10000;
-    bool       m_bZeroInitial    = true;
+    UInt32   m_MaxIterations   = 10000;
+    bool     m_bZeroInitial    = true;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

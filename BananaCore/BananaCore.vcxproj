@@ -185,6 +185,8 @@
     <ClInclude Include="Include\Banana\TypeNames.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Include\Banana\Geometry\_Geometry_Test.cpp" />
+    <ClCompile Include="Include\Banana\LinearAlgebra\_LinearAlgebra_Test.cpp" />
     <ClCompile Include="Source\Logger.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
