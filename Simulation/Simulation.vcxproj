@@ -135,10 +135,8 @@
     <ClInclude Include="Include\ParticleSolvers\ParticleSolverInterface.h" />
     <ClInclude Include="Include\ParticleTools\AnisotropicKernelGenerator.h" />
     <ClInclude Include="Include\ParticleTools\AnisotropicKernelGenerator_Impl.hpp" />
-    <ClInclude Include="Include\ParticleSolvers\FLIP2D.h" />
-    <ClInclude Include="Include\ParticleSolvers\FLIP2D_Impl.hpp" />
-    <ClInclude Include="Include\ParticleSolvers\FLIP3D.h" />
-    <ClInclude Include="Include\ParticleSolvers\FLIP3D_Impl.hpp" />
+    <ClInclude Include="Include\ParticleSolvers\FLIPSolver.h" />
+    <ClInclude Include="Include\ParticleSolvers\FLIPSolver_Impl.hpp" />
     <ClInclude Include="Include\ParticleSolvers\MPMSolver_Impl.hpp" />
     <ClInclude Include="Include\ParticleSolvers\PCISPHSolver2D.h" />
     <ClInclude Include="Include\ParticleSolvers\PCISPHSolver2D_Impl.hpp" />
@@ -146,10 +144,8 @@
     <ClInclude Include="Include\ParticleSolvers\PCISPHSolver3D_Impl.hpp" />
     <ClInclude Include="Include\ParticleSolvers\PeridynamicsSolver.h" />
     <ClInclude Include="Include\ParticleSolvers\PeridynamicsSolverl.hpp" />
-    <ClInclude Include="Include\ParticleSolvers\SPHSolver2D.h" />
-    <ClInclude Include="Include\ParticleSolvers\SPHSolver2D_Impl.hpp" />
-    <ClInclude Include="Include\ParticleSolvers\SPHSolver3D.h" />
-    <ClInclude Include="Include\ParticleSolvers\SPHSolver3D_Impl.hpp" />
+    <ClInclude Include="Include\ParticleSolvers\SPHSolver.h" />
+    <ClInclude Include="Include\ParticleSolvers\SPHSolver_Impl.hpp" />
     <ClInclude Include="Include\Grid\Grid2D.h" />
     <ClInclude Include="Include\Grid\Grid2D_Impl.hpp" />
     <ClInclude Include="Include\Grid\Grid3D.h" />
@@ -157,6 +153,7 @@
     <ClInclude Include="Include\Grid\GridHelpers.h" />
     <ClInclude Include="Include\ParticleTools\BlueNoiseRelaxation\LloydRelaxation.h" />
     <ClInclude Include="Include\ParticleTools\BlueNoiseRelaxation\SPHRelaxation_Impl.hpp" />
+    <ClInclude Include="Include\ParticleTools\KernelFunctions.h" />
     <ClInclude Include="Include\ParticleTools\ParticleEmitters\BoxEmitter.h" />
     <ClInclude Include="Include\ParticleTools\ParticleEmitters\CylinderEmitter.h" />
     <ClInclude Include="Include\ParticleTools\ParticleEmitters\HollowSphereEmitter.h" />

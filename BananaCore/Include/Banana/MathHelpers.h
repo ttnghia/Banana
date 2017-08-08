@@ -50,6 +50,36 @@ inline T cube(const T& x)
     return x * x * x;
 }
 
+template<class T>
+inline T pow4(const T& x)
+{
+    return cube(x) * x;
+}
+
+template<class T>
+inline T pow5(const T& x)
+{
+    return pow4(x) * x;
+}
+
+template<class T>
+inline T pow6(const T& x)
+{
+    return pow5(x) * x;
+}
+
+template<class T>
+inline T pow7(const T& x)
+{
+    return pow6(x) * x;
+}
+
+template<class T>
+inline T pow8(const T& x)
+{
+    return pow7(x) * x;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 template<class T>
 inline T min(T a1, T a2)

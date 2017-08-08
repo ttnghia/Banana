@@ -87,3 +87,68 @@ Vec3<IndexType> Grid3D<ScalarType>::getNearestValidCellIdx(const Vec3<IndexType>
 
     return nearestCellIdx;
 }
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class ScalarType>
+void Grid3D<ScalarType>::enableCellParticleIdx(bool bEnable /* = true */)
+{
+    if(!bEnable)
+        m_CellParticleIdx.clear();
+    else
+        m_CellParticleIdx.resize(getNumCells());
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class ScalarType>
+void Grid3D<ScalarType>::collectParticlesToCells(Vec_Vec3<ScalarType>& particles)
+{
+    for(auto& cell : m_CellParticleIdx.vec_data())
+        cell.resize(0);
+
+    // cannot run in parallel....
+    for(UInt32 p = 0, p_end = static_cast<UInt32>(m_CellParticleIdx.size()); p < p_end; ++p)
+    {
+        auto cellIdx = getValidCellIdx<int>(particles[p]);
+        m_CellParticleIdx(cellIdx).push_back(p);
+    }
+
+    if(m_bSortParticles)
+    {
+        static unsigned int collectionCount = 0;
+        ++collectionCount;
+
+        if(collectionCount == m_SortFrequency)
+        {
+            collectionCount = 0;
+            sortParticleByCell(particles);
+        }
+    }
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class ScalarType>
+void Grid3D<ScalarType>::enableSortParticles(bool bEnable /* = true */)
+{
+    m_bSortParticles = bEnable;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class ScalarType>
+void Grid3D<ScalarType>::sortParticleByCell(Vec_Vec3<ScalarType>& particles)
+{
+    static Vec_Vec3<ScalarType>& tmpParticles;
+    tmpParticles.resize(particles.size());
+
+    size_t p = 0;
+    for(auto& cell : m_CellParticleIdx.vec_data())
+    {
+        if(cell.size() > 0)
+        {
+            for(unsigned int q : cell)
+                tmpParticles[p++] = particles[q];
+        }
+    }
+
+    assert(p == particles.size());
+    std::copy(tmpParticles.begin(), tmpParticles.end(), particles.begin());
+}

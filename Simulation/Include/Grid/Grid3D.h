@@ -18,6 +18,7 @@
 #pragma once
 
 #include <Banana/TypeNames.h>
+#include <Banana/Array/Array3.h>
 
 #include <limits>
 #include <array>
@@ -31,9 +32,10 @@ class Grid3D
 {
 public:
     Grid3D() = default;
-    Grid3D(const Vec3<ScalarType>& bMin, const Vec3<ScalarType>& bMax, ScalarType cellSize) : m_BMin(bMin), m_BMax(bMax)
+    Grid3D(const Vec3<ScalarType>& bMin, const Vec3<ScalarType>& bMax, ScalarType cellSize, bool bEnableCellParticleIdx = true) : m_BMin(bMin), m_BMax(bMax)
     {
         setCellSize(cellSize);
+        enableCellParticleIdx(bEnableCellParticleIdx);
     }
 
     void setGrid(const Vec3<ScalarType>& bMin, const Vec3<ScalarType>& bMax, ScalarType cellSize);
@@ -65,12 +67,23 @@ public:
     template<class IndexType>
     Vec3<IndexType> getNearestValidCellIdx(const Vec3<IndexType>& cellIdx) const noexcept;
 
+    ////////////////////////////////////////////////////////////////////////////////
+    void enableCellParticleIdx(bool bEnable = true);
+    void collectParticlesToCells(Vec_Vec3<ScalarType>& particles);
+
+    void enableSortParticles(bool bEnable = true);
+    void sortParticleByCell(Vec_Vec3<ScalarType>& particles);
+
 private:
-    Vec3<ScalarType>   m_BMin;
-    Vec3<ScalarType>   m_BMax;
-    Vec3<unsigned int> m_NumCells;
-    unsigned int       m_NumTotalCells = 0;
-    ScalarType         m_CellSize      = std::numeric_limits<ScalarType>::max();
+    Vec3<ScalarType>   m_BMin          = Vec3<ScalarType>(0);
+    Vec3<ScalarType>   m_BMax          = Vec3<ScalarType>(1);
+    Vec3<unsigned int> m_NumCells      = Vec3<unsigned int>(0);
+    unsigned int       m_NumTotalCells = 1;
+    ScalarType         m_CellSize      = ScalarType(1.0);
+
+    bool           m_bSortParticles = false;
+    unsigned int   m_SortFrequency  = 100;
+    Array3_VecUInt m_CellParticleIdx;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

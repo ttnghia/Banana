@@ -98,6 +98,9 @@ const Mat4x4<ScalarType> Identity4x4 = glm::mat<4, 4, ScalarType>(1.0);
 
 // vectors of vectors
 template<class ScalarType>
+using  Vec_Real = std::vector<ScalarType>;
+
+template<class ScalarType>
 using  Vec_Vec2 = std::vector<Vec2<ScalarType> >;
 
 template<class ScalarType>
