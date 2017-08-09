@@ -17,58 +17,145 @@
 
 #pragma once
 
-#include <map>
+#include <unordered_map>
 #include <string>
+#include <cassert>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class KeyType>
 class ParameterManager
 {
+    enum TypeID
+    {
+        TYPE_INT = 0,
+        TYPE_UNSIGNED_INT,
+        TYPE_FLOAT,
+        TYPE_DOUBLE,
+        TYPE_POINTER
+    };
+
+    union VariantData
+    {
+        VariantData(void) = default;
+        VariantData(void* value) : data_pointer(value) {}
+        VariantData(double value) : data_double(value) {}
+        VariantData(float value) : data_float(value) {}
+        VariantData(int value) : data_int(value) {}
+        VariantData(unsigned int value) : data_uint(value) {}
+
+        ////////////////////////////////////////////////////////////////////////////////
+        void*        data_pointer;
+        double       data_double;
+        float        data_float;
+        int          data_int;
+        unsigned int data_uint;
+    };
+
+    struct VariantField
+    {
+        VariantData data;
+        int         typeId;
+    };
+
 public:
     ParameterManager()  = default;
     ~ParameterManager() = default;
 
-    ////////////////////////////////////////////////////////////////////////////////
     void clearParams()
     {
-        m_ParamMap.clear();
+        m_VariantData.clear();
+        m_StringData.clear();
     }
 
-    void setParam(const std::string& key, const std::string& value)
+    bool hasVariantParam(const KeyType& key)
     {
-        m_ParamMap[key] = value;
+        return (m_VariantData.find(key) != m_VariantData.end());
     }
 
-    bool hasParam(const std::string& key)
+    bool hasStringParam(const KeyType& key)
     {
-        return (m_ParamMap.find(key) != m_ParamMap.end());
+        return (m_StringData.find(key) != m_StringData.end());
     }
 
-    bool getBool(const std::string& key)
+    ////////////////////////////////////////////////////////////////////////////////
+    void setInt(const KeyType& key, int value)
     {
-        return (m_ParamMap[key] == "true" || m_ParamMap[key] == "True" || m_ParamMap[key] == "TRUE");
+        m_VariantData[key] = { value, TYPE_INT };
     }
 
-    int getInt(const std::string& key)
+    void setUInt(const KeyType& key, unsigned int value)
     {
-        return std::stoi(m_ParamMap[key]);
+        m_VariantData[key] = { value, TYPE_UNSIGNED_INT };
     }
 
-    unsigned int getUInt(const std::string& key)
+    void setFloat(const KeyType& key, float value)
     {
-        return static_cast<unsigned int>(std::stoi(m_ParamMap[key]));
+        m_VariantData[key] = { value, TYPE_FLOAT};
     }
 
-    template<class T>
-    T getReal(const std::string& key)
+    void setDouble(const KeyType& key, double value)
     {
-        return static_cast<T>(std::stod(m_ParamMap[key]));
+        m_VariantData[key] = { value, TYPE_DOUBLE };
+    }
+
+    void setVoidPtr(const KeyType& key, void* value)
+    {
+        m_VariantData[key] = { value, TYPE_POINTER };
+    }
+
+    void setString(const KeyType& key, const std::string& value)
+    {
+        m_StringData[key] = value;
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////
+    int getInt(const KeyType& key)
+    {
+        assert(hasVariantParam(key));
+        assert(m_VariantData[key].typeId == TYPE_INT);
+        return m_VariantData[key].data.data_int;
+    }
+
+    unsigned int getUInt(const KeyType& key)
+    {
+        assert(hasVariantParam(key));
+        assert(m_VariantData[key].typeId == TYPE_UNSIGNED_INT);
+        return m_VariantData[key].data.data_uint;
+    }
+
+    float getFloat(const KeyType& key)
+    {
+        assert(hasVariantParam(key));
+        assert(m_VariantData[key].typeId == TYPE_FLOAT);
+        return m_VariantData[key].data.data_float;
+    }
+
+    double getDouble(const KeyType& key)
+    {
+        assert(hasVariantParam(key));
+        assert(m_VariantData[key].typeId == TYPE_DOUBLE);
+        return m_VariantData[key].data.data_double;
+    }
+
+    void* getVoidPtr(const KeyType& key)
+    {
+        assert(hasVariantParam(key));
+        assert(m_VariantData[key].typeId == TYPE_POINTER);
+        return m_VariantData[key].data.data_pointer;
+    }
+
+    const std::string& getString(const KeyType& key)
+    {
+        assert(hasStringParam(key));
+        return m_StringData[key];
     }
 
 private:
-    std::map<std::string, std::string> m_ParamMap;
+    std::unordered_map<KeyType, VariantField> m_VariantData;
+    std::unordered_map<KeyType, std::string>  m_StringData;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

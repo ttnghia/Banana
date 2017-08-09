@@ -109,7 +109,9 @@ template<class RealType>
 class SPHSolver : public ParticleSolver<RealType>
 {
 public:
-    SPHSolver(const std::shared_ptr<TimeParameters<RealType> >& timeParams, const std::shared_ptr<DataParameters>& dataParams, const std::shared_ptr<SPHParameters<RealType> >& simParams) :
+    SPHSolver(const std::shared_ptr<TimeParameters<RealType> >& timeParams,
+              const std::shared_ptr<DataParameters>&            dataParams,
+              const std::shared_ptr<SPHParameters<RealType> >&  simParams) :
         ParticleSolver<RealType>(timeParams, dataParams), m_SimParams(simParams) {}
     virtual ~SPHSolver() {}
 
@@ -135,7 +137,6 @@ protected:
     ////////////////////////////////////////////////////////////////////////////////
     std::shared_ptr<SPHParameters<RealType> > m_SimParams;
     std::unique_ptr<SPHData<RealType> >       m_SimData = std::make_unique<SPHData<RealType> >();
-
 
     PrecomputedKernel<RealType, CubicKernel<RealType>, 10000> m_CubicKernel;
     PrecomputedKernel<RealType, SpikyKernel<RealType>, 10000> m_SpikyKernel;

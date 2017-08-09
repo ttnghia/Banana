@@ -104,6 +104,8 @@ inline size_t getFileSize(const std::string& fileName)
 inline std::string getFolderSize(const char* folderName, int level = 0)
 {
 #ifdef __BANANA_WINDOWS__
+    (void)folderName;
+    (void)level;
     __BNN_UNIMPLEMENTED_FUNC
 #else
     const int maxBuffer = 256;

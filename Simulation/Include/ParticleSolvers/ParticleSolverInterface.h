@@ -45,13 +45,12 @@ struct SimulationData
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-struct TimeParameters : public SimulationParameters
+struct GlobalParameters : public SimulationParameters
 {
-    RealType frameDuration = 1.0f / 30.0f;
-
+    RealType     frameDuration = 1.0 / 30.0;
     unsigned int startFrame    = 1;
     unsigned int finalFrame    = 1;
-    unsigned int framePerState = 1;
+    unsigned int nThreads      = 0;
 };
 
 struct DataParameters : public SimulationParameters
@@ -67,7 +66,7 @@ template<class RealType>
 class ParticleSolver
 {
 public:
-    ParticleSolver(const std::shared_ptr<TimeParameters<RealType> >& timeParams, const std::shared_ptr<DataParameters>& dataParams) :
+    ParticleSolver(const std::shared_ptr<GlobalParameters<RealType> >& timeParams, const std::shared_ptr<DataParameters>& dataParams) :
         m_TimeParams(timeParams), m_DataParams(dataParams) {}
     virtual ~ParticleSolver() = default;
 
@@ -94,7 +93,7 @@ public:
 protected:
     Logger m_Logger;
 
-    std::shared_ptr<TimeParameters<RealType> >      m_TimeParams;
+    std::shared_ptr<GlobalParameters<RealType> >    m_TimeParams;
     std::shared_ptr<DataParameters>                 m_DataParams;
     std::map<std::string, std::shared_ptr<DataIO> > m_ParticleDataIO;
     std::map<std::string, std::shared_ptr<DataIO> > m_MemoryStateIO;

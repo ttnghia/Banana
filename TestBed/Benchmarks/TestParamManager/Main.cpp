@@ -24,52 +24,53 @@
 #include <time.h>
 #include <string>
 
+using Real = double;
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 class Parameters
 {
 public:
-    float param1 = 0;
-    float param2 = 0;
-    float param3 = 0;
-    float param4 = 0;
-    float param5 = 0;
-    float param6 = 0;
-    float param7 = 0;
-    float param8 = 0;
+    Real param1 = 0;
+    Real param2 = 0;
+    Real param3 = 0;
+    Real param4 = 0;
+    Real param5 = 0;
+    Real param6 = 0;
+    Real param7 = 0;
+    Real param8 = 0;
 
     void set(int idx)
     {
         switch(idx)
         {
             case 1:
-                param1 += float(rand()) / float(RAND_MAX);
+                param1 += Real(rand()) / Real(RAND_MAX);
                 break;
             case 2:
-                param2 += float(rand()) / float(RAND_MAX);
+                param2 += Real(rand()) / Real(RAND_MAX);
                 break;
             case 3:
-                param3 += float(rand()) / float(RAND_MAX);
+                param3 += Real(rand()) / Real(RAND_MAX);
                 break;
             case 4:
-                param4 += float(rand()) / float(RAND_MAX);
+                param4 += Real(rand()) / Real(RAND_MAX);
                 break;
             case 5:
-                param5 += float(rand()) / float(RAND_MAX);
+                param5 += Real(rand()) / Real(RAND_MAX);
                 break;
             case 6:
-                param6 += float(rand()) / float(RAND_MAX);
+                param6 += Real(rand()) / Real(RAND_MAX);
                 break;
             case 7:
-                param7 += float(rand()) / float(RAND_MAX);
+                param7 += Real(rand()) / Real(RAND_MAX);
                 break;
             case 8:
-                param8 += float(rand()) / float(RAND_MAX);
+                param8 += Real(rand()) / Real(RAND_MAX);
                 break;
         }
     }
 
-    float get(int idx)
+    Real get(int idx)
     {
         switch(idx)
         {
@@ -94,23 +95,49 @@ public:
 };
 
 #define  NUM_LOOP 1e8
+//#define INT_KEY
+
+enum Keys
+{
+    param1 = 0,
+    param2,
+    param3,
+    param4,
+    param5,
+    param6,
+    param7,
+    param8,
+};
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 int main()
 {
     srand(time(NULL));
-    Parameters               params;
-    Banana::ParameterManager paramManager;
-    paramManager.setParam("param1", "0");
-    paramManager.setParam("param2", "0");
-    paramManager.setParam("param3", "0");
-    paramManager.setParam("param4", "0");
-    paramManager.setParam("param5", "0");
-    paramManager.setParam("param6", "0");
-    paramManager.setParam("param7", "0");
-    paramManager.setParam("param8", "0");
+    Parameters params;
+#ifndef INT_KEY
+    Banana::ParameterManager<std::string> paramManager;
+    paramManager.setDouble("param1", 0);
+    paramManager.setDouble("param2", 0);
+    paramManager.setDouble("param3", 0);
+    paramManager.setDouble("param4", 0);
+    paramManager.setDouble("param5", 0);
+    paramManager.setDouble("param6", 0);
+    paramManager.setDouble("param7", 0);
+    paramManager.setDouble("param8", 0);
+#else
+    Banana::ParameterManager<Keys> paramManager;
+    paramManager.setDouble(param1,   0);
+    paramManager.setDouble(param2,   0);
+    paramManager.setDouble(param3,   0);
+    paramManager.setDouble(param4,   0);
+    paramManager.setDouble(param5,   0);
+    paramManager.setDouble(param6,   0);
+    paramManager.setDouble(param7,   0);
+    paramManager.setDouble(param8,   0);
+#endif
 
     {
-        float sum = 0;
+        Real sum = 0;
         __BNN_PERORMANCE_TEST_BEGIN
 
         for(int i = 0; i < NUM_LOOP; ++i)
@@ -128,7 +155,7 @@ int main()
 
 
     {
-        float sum = 0;
+        Real sum = 0;
         __BNN_PERORMANCE_TEST_BEGIN
 
         for(int i = 0; i < NUM_LOOP; ++i)
@@ -138,63 +165,123 @@ int main()
 
             if(randOp == 0)
             {
+#ifndef INT_KEY
                 switch(randNum)
                 {
                     case 1:
-                        paramManager.setParam("param1", "0");
+                        paramManager.setDouble("param1", Real(rand()) / Real(RAND_MAX));
                         break;
                     case 2:
-                        paramManager.setParam("param2", "0");
+                        paramManager.setDouble("param2", Real(rand()) / Real(RAND_MAX));
                         break;
                     case 3:
-                        paramManager.setParam("param3", "0");
+                        paramManager.setDouble("param3", Real(rand()) / Real(RAND_MAX));
                         break;
                     case 4:
-                        paramManager.setParam("param4", "0");
+                        paramManager.setDouble("param4", Real(rand()) / Real(RAND_MAX));
                         break;
                     case 5:
-                        paramManager.setParam("param5", "0");
+                        paramManager.setDouble("param5", Real(rand()) / Real(RAND_MAX));
                         break;
                     case 6:
-                        paramManager.setParam("param6", "0");
+                        paramManager.setDouble("param6", Real(rand()) / Real(RAND_MAX));
                         break;
                     case 7:
-                        paramManager.setParam("param7", "0");
+                        paramManager.setDouble("param7", Real(rand()) / Real(RAND_MAX));
                         break;
                     case 8:
-                        paramManager.setParam("param8", "0");
+                        paramManager.setDouble("param8", Real(rand()) / Real(RAND_MAX));
                         break;
                 }
+#else
+                switch(randNum)
+                {
+                    case 1:
+                        paramManager.setDouble(param1, Real(rand()) / Real(RAND_MAX));
+                        break;
+                    case 2:
+                        paramManager.setDouble(param2, Real(rand()) / Real(RAND_MAX));
+                        break;
+                    case 3:
+                        paramManager.setDouble(param3, Real(rand()) / Real(RAND_MAX));
+                        break;
+                    case 4:
+                        paramManager.setDouble(param4, Real(rand()) / Real(RAND_MAX));
+                        break;
+                    case 5:
+                        paramManager.setDouble(param5, Real(rand()) / Real(RAND_MAX));
+                        break;
+                    case 6:
+                        paramManager.setDouble(param6, Real(rand()) / Real(RAND_MAX));
+                        break;
+                    case 7:
+                        paramManager.setDouble(param7, Real(rand()) / Real(RAND_MAX));
+                        break;
+                    case 8:
+                        paramManager.setDouble(param8, Real(rand()) / Real(RAND_MAX));
+                        break;
+                }
+#endif
             }
             else
             {
+#ifndef INT_KEY
                 switch(randNum)
                 {
                     case 1:
-                        sum += paramManager.getReal<float>("param1");
+                        sum += paramManager.getDouble("param1");
                         break;
                     case 2:
-                        sum += paramManager.getReal<float>("param2");
+                        sum += paramManager.getDouble("param2");
                         break;
                     case 3:
-                        sum += paramManager.getReal<float>("param3");
+                        sum += paramManager.getDouble("param3");
                         break;
                     case 4:
-                        sum += paramManager.getReal<float>("param4");
+                        sum += paramManager.getDouble("param4");
                         break;
                     case 5:
-                        sum += paramManager.getReal<float>("param5");
+                        sum += paramManager.getDouble("param5");
                         break;
                     case 6:
-                        sum += paramManager.getReal<float>("param6");
+                        sum += paramManager.getDouble("param6");
                         break;
                     case 7:
-                        sum += paramManager.getReal<float>("param7");
+                        sum += paramManager.getDouble("param7");
                         break;
                     case 8:
-                        sum += paramManager.getReal<float>("param8");
+                        sum += paramManager.getDouble("param8");
                         break;
                 }
+#else
+                switch(randNum)
+                {
+                    case 1:
+                        sum += paramManager.getDouble(param1);
+                        break;
+                    case 2:
+                        sum += paramManager.getDouble(param2);
+                        break;
+                    case 3:
+                        sum += paramManager.getDouble(param3);
+                        break;
+                    case 4:
+                        sum += paramManager.getDouble(param4);
+                        break;
+                    case 5:
+                        sum += paramManager.getDouble(param5);
+                        break;
+                    case 6:
+                        sum += paramManager.getDouble(param6);
+                        break;
+                    case 7:
+                        sum += paramManager.getDouble(param7);
+                        break;
+                    case 8:
+                        sum += paramManager.getDouble(param8);
+                        break;
+                }
+#endif
             }
         }
 
