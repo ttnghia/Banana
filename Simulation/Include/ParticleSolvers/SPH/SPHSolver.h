@@ -18,7 +18,7 @@
 #pragma once
 
 #include <ParticleSolvers/ParticleSolverInterface.h>
-#include <ParticleTools/KernelFunctions.h>
+#include <ParticleSolvers/SPH/KernelFunctions.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -109,7 +109,7 @@ template<class RealType>
 class SPHSolver : public ParticleSolver<RealType>
 {
 public:
-    SPHSolver(const std::shared_ptr<TimeParameters>& timeParams, const std::shared_ptr<DataParameters>& dataParams, const std::shared_ptr<MPMParameters>& simParams) :
+    SPHSolver(const std::shared_ptr<TimeParameters<RealType> >& timeParams, const std::shared_ptr<DataParameters>& dataParams, const std::shared_ptr<SPHParameters<RealType> >& simParams) :
         ParticleSolver<RealType>(timeParams, dataParams), m_SimParams(simParams) {}
     virtual ~SPHSolver() {}
 
@@ -120,7 +120,7 @@ public:
     virtual void saveParticleData() override;
     virtual void saveMemoryState() override;
 
-private:
+protected:
     void     generateBoundaryParticles();
     RealType computeCFLTimeStep();
     void     advanceVelocity(RealType timeStep);
@@ -143,7 +143,7 @@ private:
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <ParticleSolvers/SPHSolver_Impl.hpp>
+#include <ParticleSolvers/SPH/SPHSolver_Impl.hpp>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana
