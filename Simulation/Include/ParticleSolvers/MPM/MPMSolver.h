@@ -29,7 +29,7 @@ struct MPMParameters : public SimulationParameters
 {};
 
 template<class RealType>
-struct MPMData : public SimulationData
+struct MPMData : public SolverData
 {
     Vec_Vec3<RealType> particles;
     Vec_Vec3<RealType> velocity;

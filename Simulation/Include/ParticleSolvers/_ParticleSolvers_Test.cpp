@@ -17,13 +17,13 @@
 //#include <ParticleSolvers/FLIP/FLIPSolver.h>
 //#include <ParticleSolvers/MPM/MPMSolver.h>
 //#include <ParticleSolvers/Peridynamics/PeridynamicsSolver.h>
-//#include <ParticleSolvers/SPH/SPHSolver.h>
+#include <ParticleSolvers/SPH/SPHSolver.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//namespace _ParticleSolvers_Test
-//{
+namespace _ParticleSolvers_Test
+{
 //Banana::FLIPSolver<float>         solver1;
 //Banana::MPMSolver<float>          solver2;
 //Banana::PeridynamicsSolver<float> solver3;
-//Banana::SPHSolver<float>          solver4;
-//}
+Banana::SPHSolver<float> solver4;
+}

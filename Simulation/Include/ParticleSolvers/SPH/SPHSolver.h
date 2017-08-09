@@ -35,11 +35,11 @@ namespace Banana
 #define DEFAULT_VISCOSITY            0.01
 
 template<class RealType>
-struct SPHParameters : public SimulationParameters
+struct SPHParameters
 {
     SPHParameters()
     {
-        updateParams();
+        makeReady();
     }
 
     RealType defaultTimestep = 1.0e-4;
@@ -53,16 +53,16 @@ struct SPHParameters : public SimulationParameters
     RealType viscosity          = DEFAULT_VISCOSITY;
     RealType kernelRadius       = 1.0 / RealType(DEFAULT_RESOLUTION);
 
+    RealType boundaryRestitution     = DEFAULT_BOUNDARY_RESTITUTION;
+    RealType attractivePressureRatio = 0.1;
+    RealType restDensity             = 1000.0;
+    RealType densityVariationRatio   = 10.0;
+
     bool bCorrectDensity        = false;
     bool bUseBoundaryParticles  = false;
     bool bUseAttractivePressure = false;
     bool bApplyGravity          = true;
     bool bEnableSortParticle    = true;
-
-    RealType boundaryRestitution     = DEFAULT_BOUNDARY_RESTITUTION;
-    RealType attractivePressureRatio = 0.1;
-    RealType restDensity             = 1000.0;
-    RealType densityVariationRatio   = 10.0;
 
     // the following need to be computed
     RealType particleMass;
@@ -71,7 +71,7 @@ struct SPHParameters : public SimulationParameters
     RealType nearKernelRadius;
     RealType restDensitySqr;
 
-    void updateParams()
+    void makeReady()
     {
         particleRadius   = kernelRadius / 4.0;
         kernelRadiusSqr  = kernelRadius * kernelRadius;
@@ -84,13 +84,15 @@ struct SPHParameters : public SimulationParameters
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-struct SPHData : public SimulationData
+struct SPHSolverData
 {
     Grid3D<RealType>   grid3D;
     Vec_Vec3<RealType> particles;
     Vec_Vec3<RealType> velocity;
     Vec_Real<RealType> density;
     Vec_Vec3<RealType> pressureForces;
+    Vec_Vec3<RealType> surfaceTensionForces;
+    Vec_Vec3<RealType> diffuseVelocity;
 
     Vec_Vec3<RealType> bd_particles_lx;
     Vec_Vec3<RealType> bd_particles_ux;
@@ -98,6 +100,20 @@ struct SPHData : public SimulationData
     Vec_Vec3<RealType> bd_particles_uy;
     Vec_Vec3<RealType> bd_particles_lz;
     Vec_Vec3<RealType> bd_particles_uz;
+
+    ////////////////////////////////////////////////////////////////////////////////
+    void makeReady()
+    {
+        velocity.resize(particles.size(), Vec3<RealType>(0));
+        density.resize(particles.size(), 0);
+        pressureForces.resize(particles.size(), Vec3<RealType>(0));
+        surfaceTensionForces.resize(particles.size(), Vec3<RealType>(0));
+        diffuseVelocity.resize(particles.size(), Vec3<RealType>(0));
+
+        // todo: add boundary sampler
+        //if(m_SimParams->bUseBoundaryParticles)
+        //    generateBoundaryParticles();
+    }
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -109,11 +125,9 @@ template<class RealType>
 class SPHSolver : public ParticleSolver<RealType>
 {
 public:
-    SPHSolver(const std::shared_ptr<TimeParameters<RealType> >& timeParams,
-              const std::shared_ptr<DataParameters>&            dataParams,
-              const std::shared_ptr<SPHParameters<RealType> >&  simParams) :
-        ParticleSolver<RealType>(timeParams, dataParams), m_SimParams(simParams) {}
+    SPHSolver(const std::shared_ptr<GlobalParameters<RealType> >& globalParams) : ParticleSolver<RealType>(globalParams) {}
     virtual ~SPHSolver() {}
+    std::shared_ptr<SPHParameters<RealType> > getSolverParams() { return m_SimParams; }
 
     ////////////////////////////////////////////////////////////////////////////////
     virtual std::string getSolverName() override { return std::string("SPHSolver"); }
@@ -121,6 +135,10 @@ public:
     virtual void advanceFrame() override;
     virtual void saveParticleData() override;
     virtual void saveMemoryState() override;
+
+    virtual unsigned int        getNumParticles() override { return static_cast<unsigned int>(m_SimData->particles.size()); }
+    virtual Vec_Vec3<RealType>& getParticles() override { return m_SimData->particles; }
+    virtual Vec_Vec3<RealType>& getVelocity() override { return m_SimData->velocity; }
 
 protected:
     void     generateBoundaryParticles();
@@ -135,8 +153,8 @@ protected:
     void     moveParticles(RealType timeStep);
 
     ////////////////////////////////////////////////////////////////////////////////
-    std::shared_ptr<SPHParameters<RealType> > m_SimParams;
-    std::unique_ptr<SPHData<RealType> >       m_SimData = std::make_unique<SPHData<RealType> >();
+    std::shared_ptr<SPHParameters<RealType> > m_SimParams = std::make_shared<SPHParameters<RealType> >();
+    std::unique_ptr<SPHSolverData<RealType> > m_SimData   = std::make_unique<SPHSolverData<RealType> >();
 
     PrecomputedKernel<RealType, CubicKernel<RealType>, 10000> m_CubicKernel;
     PrecomputedKernel<RealType, SpikyKernel<RealType>, 10000> m_SpikyKernel;

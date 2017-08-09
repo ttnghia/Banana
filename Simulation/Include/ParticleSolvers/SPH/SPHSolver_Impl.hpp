@@ -23,14 +23,9 @@ void Banana::SPHSolver<RealType>::makeReady()
 
     m_SimData->grid3D.setGrid(m_SimParams->boxMin, m_SimParams->boxMax, m_SimParams->kernelRadius);
     m_SimData->grid3D.enableCellParticleIdx();
-    m_SimData->grid3D.enableSortParticles(m_SimParams->bEnableSortParticle);
+    m_SimParams->makeReady();
 
-    if(m_SimData->velocity.size() != m_SimData->particles.size())
-        m_SimData->velocity.resize(m_SimData->particles.size(), Vec3<RealType>(0));
-
-    m_SimData->density.resize(m_SimData->particles.size(), 0);
-    m_SimData->pressureForces.resize(m_SimData->particles.size(), Vec3<RealType>(0));
-
+    // todo: move this to simdata
     if(m_SimParams->bUseBoundaryParticles)
         generateBoundaryParticles();
 
@@ -51,13 +46,13 @@ void Banana::SPHSolver<RealType>::advanceFrame()
     ////////////////////////////////////////////////////////////////////////////////
     frameTimer.tick();
 
-    while(frameTime < m_TimeParams->frameDuration)
+    while(frameTime < m_GlobalParams->frameDuration)
     {
         subStepTimer.tick();
 
         ////////////////////////////////////////////////////////////////////////////////
 
-        RealType remainingTime = m_TimeParams->frameDuration - frameTime;
+        RealType remainingTime = m_GlobalParams->frameDuration - frameTime;
         RealType substep       = MathHelpers::min(computeCFLTimeStep(), remainingTime);
 
         m_SimData->grid3D.collectParticlesToCells(m_SimData->particles);
@@ -70,8 +65,8 @@ void Banana::SPHSolver<RealType>::advanceFrame()
         subStepTimer.tock();
 
         m_Monitor.printLog("Finished step " + NumberHelpers::formatWithCommas(substepCount) + " of size " + NumberHelpers::formatToScientific(substep) +
-                           "(" + NumberHelpers::formatWithCommas(substep / m_TimeParams->frameDuration * 100) + "% of the frame, to " +
-                           NumberHelpers::formatWithCommas(100 * (frameTime + substep) / m_TimeParams->frameDuration) + "% of the frame).");
+                           "(" + NumberHelpers::formatWithCommas(substep / m_GlobalParams->frameDuration * 100) + "% of the frame, to " +
+                           NumberHelpers::formatWithCommas(100 * (frameTime + substep) / m_GlobalParams->frameDuration) + "% of the frame).");
         m_Monitor.printLog(subStepTimer.getRunTime("Substep time: "));
         m_Monitor.newLine();
     } // end while
@@ -89,7 +84,7 @@ void Banana::SPHSolver<RealType>::advanceFrame()
 template<class RealType>
 void Banana::SPHSolver<RealType>::saveParticleData()
 {
-    if(!m_DataParams->bSaveParticleData)
+    if(!m_GlobalParams->bSaveParticleData)
         return;
 }
 
@@ -97,13 +92,13 @@ void Banana::SPHSolver<RealType>::saveParticleData()
 template<class RealType>
 void Banana::SPHSolver<RealType>::saveMemoryState()
 {
-    if(!m_DataParams->bSaveMemoryState)
+    if(!m_GlobalParams->bSaveMemoryState)
         return;
 
     static unsigned int frameCount = 0;
     ++frameCount;
 
-    if(frameCount < m_DataParams->framePerState)
+    if(frameCount < m_GlobalParams->framePerState)
         return;
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -580,8 +575,8 @@ void Banana::SPHSolver<RealType>::computeSurfaceTensionForces()
 template<class RealType>
 void Banana::SPHSolver<RealType>::computeViscosity()
 {
-    static Vec_Vec3<RealType> diffusedVelocity;
-    diffusedVelocity.resize(m_SimData->velocity.size());
+    static Vec_Vec3<RealType> diffuseVelocity;
+    diffuseVelocity.resize(m_SimData->velocity.size());
 
     tbb::parallel_for(tbb::blocked_range<size_t>(0, m_SimData->particles.size()),
                       [&](tbb::blocked_range<size_t> r)
@@ -630,7 +625,7 @@ void Banana::SPHSolver<RealType>::computeViscosity()
                                   }
                               }
 
-                              diffusedVelocity[p] = diffuse_vel * m_SimParams->particleMass;
+                              diffuseVelocity[p] = diffuse_vel * m_SimParams->particleMass;
                           }
                       }); // end parallel_for
 
@@ -640,7 +635,7 @@ void Banana::SPHSolver<RealType>::computeViscosity()
                       {
                           for(size_t p = r.begin(); p != r.end(); ++p)
                           {
-                              m_SimData->velocity[p] += diffusedVelocity[p] * m_SimParams->viscosity;
+                              m_SimData->velocity[p] += diffuseVelocity[p] * m_SimParams->viscosity;
                           }
                       }); // end parallel_for
 }

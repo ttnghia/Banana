@@ -37,24 +37,15 @@
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-struct SimulationParameters
-{};
-
-struct SimulationData
-{};
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-struct GlobalParameters : public SimulationParameters
+struct GlobalParameters
 {
     RealType     frameDuration = 1.0 / 30.0;
     unsigned int startFrame    = 1;
     unsigned int finalFrame    = 1;
     unsigned int nThreads      = 0;
-};
 
-struct DataParameters : public SimulationParameters
-{
+    ////////////////////////////////////////////////////////////////////////////////
     bool         bSaveParticleData = true;
     bool         bSaveMemoryState  = true;
     unsigned int framePerState     = 1;
@@ -66,8 +57,7 @@ template<class RealType>
 class ParticleSolver
 {
 public:
-    ParticleSolver(const std::shared_ptr<GlobalParameters<RealType> >& timeParams, const std::shared_ptr<DataParameters>& dataParams) :
-        m_TimeParams(timeParams), m_DataParams(dataParams) {}
+    ParticleSolver(const std::shared_ptr<GlobalParameters<RealType> >& globalParams) : m_GlobalParams(globalParams) {}
     virtual ~ParticleSolver() = default;
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -76,6 +66,10 @@ public:
     virtual void        makeReady()        = 0;
     virtual void        saveParticleData() = 0;
     virtual void        saveMemoryState()  = 0;
+
+    virtual unsigned int        getNumParticles() = 0;
+    virtual Vec_Vec3<RealType>& getParticles()    = 0;
+    virtual Vec_Vec3<RealType>& getVelocity()     = 0;
 
     void setupLogger(bool bLog2Std, bool bLog2File, const std::string& logLocation = std::string(""))
     {
@@ -93,8 +87,7 @@ public:
 protected:
     Logger m_Logger;
 
-    std::shared_ptr<GlobalParameters<RealType> >    m_TimeParams;
-    std::shared_ptr<DataParameters>                 m_DataParams;
+    std::shared_ptr<GlobalParameters<RealType> >    m_GlobalParams;
     std::map<std::string, std::shared_ptr<DataIO> > m_ParticleDataIO;
     std::map<std::string, std::shared_ptr<DataIO> > m_MemoryStateIO;
 };

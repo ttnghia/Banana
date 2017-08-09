@@ -60,7 +60,7 @@ struct FLIPParameters : public SimulationParameters
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-struct FLIPData : public SimulationData
+struct FLIPData : public SolverData
 {
     Grid3D<RealType>   grid3D;
     Vec_Vec3<RealType> particles;
@@ -95,7 +95,7 @@ private:
 
     ////////////////////////////////////////////////////////////////////////////////
     std::shared_ptr<FLIPParameters<RealType> > m_SimParams;
-    std::unique_ptr<FLIPData<RealType> >       m_SimData = std::make_unique<SPHData<RealType> >();
+    std::unique_ptr<FLIPData<RealType> >       m_SimData = std::make_unique<SPHSolverData<RealType> >();
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
