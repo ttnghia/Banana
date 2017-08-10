@@ -35,7 +35,7 @@ namespace ParallelSTL
 // inf-norm (maximum absolute value)
 //
 template<class RealType>
-inline RealType max_abs(const std::vector<RealType>& x)
+inline RealType maxAbs(const std::vector<RealType>& x)
 {
     ParallelObjects::VectorMaxAbs<RealType> mabs(x);
     tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), mabs);
@@ -44,7 +44,7 @@ inline RealType max_abs(const std::vector<RealType>& x)
 }
 
 template<class RealType, class VectorType>
-inline RealType max_abs(const std::vector<VectorType>& x)
+inline RealType maxAbs(const std::vector<VectorType>& x)
 {
     ParallelObjects::VectorMaxAbs<RealType, VectorType> mabs(x);
     tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), mabs);
@@ -72,6 +72,15 @@ inline RealType max(const std::vector<RealType>& x)
     return vm.getResult();
 }
 
+template<class RealType, class VectorType>
+inline RealType maxNorm2(const std::vector<VectorType>& x)
+{
+    ParallelObjects::VectorMaxNorm2<RealType, VectorType> vm(x);
+    tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), vm);
+
+    return vm.getResult();
+}
+
 template<class RealType>
 inline void min_max(const std::vector<RealType>& x, RealType& minElement, RealType& maxElement)
 {
@@ -80,6 +89,16 @@ inline void min_max(const std::vector<RealType>& x, RealType& minElement, RealTy
 
     minElement = vmm.getMin();
     maxElement = vmm.getMax();
+}
+
+template<class RealType, class VectorType>
+inline void min_max_norm2(const std::vector<VectorType>& x, RealType& minNorm2, RealType& maxNorm2)
+{
+    ParallelObjects::VectorMinMaxNorm2<RealType, VectorType> vmm(x);
+    tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), vmm);
+
+    minNorm2 = vmm.getMin();
+    maxNorm2 = vmm.getMax();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

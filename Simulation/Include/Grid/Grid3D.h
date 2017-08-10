@@ -19,9 +19,11 @@
 
 #include <Banana/TypeNames.h>
 #include <Banana/Array/Array3.h>
+#include <Banana/ParallelHelpers/ParallelFuncs.h>
 
 #include <limits>
 #include <array>
+
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -70,7 +72,8 @@ public:
     // particle processing
     void            constraintToGrid(Vec_Vec3<RealType>& particles);
     void            collectIndexToCells(Vec_Vec3<RealType>& particles);
-    void            getNeighborList(const Vec3<RealType>& ppos, Vec_UInt& neighborList, int cellSpan = 1);
+    void            findNeighborList(const Vec_Vec3<RealType>& particles, Vec_VecUInt& neighborList, int cellSpan = 1);
+    void            findNeighborList(const Vec3<RealType>& ppos, Vec_UInt& neighborList, int cellSpan = 1);
     const Vec_UInt& getParticleIdxSortedByCell();
 
 private:

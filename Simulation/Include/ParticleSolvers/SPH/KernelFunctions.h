@@ -29,72 +29,72 @@
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
+template<class RealType>
 class CubicKernel
 {
 protected:
-    Real m_radius;
-    Real m_k;
-    Real m_l;
-    Real m_W_zero;
+    RealType m_radius;
+    RealType m_k;
+    RealType m_l;
+    RealType m_W_zero;
 public:
-    Real getRadius()
+    RealType getRadius()
     {
         return m_radius;
     }
 
-    void setRadius(Real val)
+    void setRadius(RealType val)
     {
         m_radius = val;
-        const Real pi = static_cast<Real>(M_PI);
+        const RealType pi = static_cast<RealType>(M_PI);
 
-        const Real h3 = m_radius * m_radius * m_radius;
-        m_k      = 8.0 / (pi * h3);
-        m_l      = 48.0 / (pi * h3);
-        m_W_zero = W(Vec3<Real>(0));
+        const RealType h3 = m_radius * m_radius * m_radius;
+        m_k      = RealType(8.0) / (pi * h3);
+        m_l      = RealType(48.0) / (pi * h3);
+        m_W_zero = W(Vec3<RealType>(0));
     }
 
 public:
-    Real W(const Real r)
+    RealType W(const RealType r)
     {
-        Real       res = 0.0;
-        const Real q   = r / m_radius;
-        if(q <= 1.0)
+        RealType       res = 0;
+        const RealType q   = r / m_radius;
+        if(q <= RealType(1.0))
         {
-            if(q <= 0.5)
+            if(q <= RealType(0.5))
             {
-                const Real q2 = q * q;
-                const Real q3 = q2 * q;
-                res = m_k * (6.0 * q3 - 6.0 * q2 + 1.0);
+                const RealType q2 = q * q;
+                const RealType q3 = q2 * q;
+                res = m_k * (RealType(6.0) * q3 - RealType(6.0) * q2 + RealType(1.0));
             }
             else
             {
-                res = m_k * (2.0 * pow(1.0 - q, 3));
+                res = m_k * (RealType(2.0) * pow(RealType(1.0) - q, 3));
             }
         }
         return res;
     }
 
-    Real W(const Vec3<Real>& r)
+    RealType W(const Vec3<RealType>& r)
     {
         return W(glm::length(r));
     }
 
-    Vec3<Real> gradW(const Vec3<Real>& r)
+    Vec3<RealType> gradW(const Vec3<RealType>& r)
     {
-        Vec3<Real> res = Vec3<Real>(0);
-        const Real rl  = glm::length(r);
-        const Real q   = rl / m_radius;
-        if(q <= 1.0 && rl > 1.0e-6)
+        Vec3<RealType> res = Vec3<RealType>(0);
+        const RealType rl  = glm::length(r);
+        const RealType q   = rl / m_radius;
+        if(q <= RealType(1.0) && rl > RealType(1.0e-6))
         {
-            const Vec3<Real> gradq = r * ((Real)1.0 / (rl * m_radius));
-            if(q <= 0.5)
+            const Vec3<RealType> gradq = r * (RealType(1.0) / (rl * m_radius));
+            if(q <= RealType(0.5))
             {
-                res = m_l * q * ((Real)3.0 * q - (Real)2.0) * gradq;
+                res = m_l * q * (RealType(3.0) * q - RealType(2.0)) * gradq;
             }
             else
             {
-                const Real factor = 1.0 - q;
+                const RealType factor = RealType(1.0) - q;
                 res = m_l * (-factor * factor) * gradq;
             }
         }
@@ -102,36 +102,36 @@ public:
         return res;
     }
 
-    Real W_zero()
+    RealType W_zero()
     {
         return m_W_zero;
     }
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
+template<class RealType>
 class Poly6Kernel
 {
 protected:
-    Real m_radius;
-    Real m_k;
-    Real m_l;
-    Real m_m;
-    Real m_W_zero;
+    RealType m_radius;
+    RealType m_k;
+    RealType m_l;
+    RealType m_m;
+    RealType m_W_zero;
 public:
-    Real getRadius()
+    RealType getRadius()
     {
         return m_radius;
     }
 
-    void setRadius(Real val)
+    void setRadius(RealType val)
     {
         m_radius = val;
-        const Real pi = static_cast<Real>(M_PI);
-        m_k      = 315.0 / (64.0 * pi * pow(m_radius, 9));
-        m_l      = -945.0 / (32.0 * pi * pow(m_radius, 9));
+        const RealType pi = static_cast<RealType>(M_PI);
+        m_k      = RealType(315.0) / (RealType(64.0) * pi * pow(m_radius, 9));
+        m_l      = RealType(-945.0) / (RealType(32.0) * pi * pow(m_radius, 9));
         m_m      = m_l;
-        m_W_zero = W(Vec3<Real>(0));
+        m_W_zero = W(Vec3<RealType>(0));
     }
 
 public:
@@ -140,11 +140,11 @@ public:
      * W(r,h) = (315/(64 pi h^9))(h^2-|r|^2)^3
      *        = (315/(64 pi h^9))(h^2-r*r)^3
      */
-    Real W(const Real r)
+    RealType W(const RealType r)
     {
-        Real       res     = 0.0;
-        const Real r2      = r * r;
-        const Real radius2 = m_radius * m_radius;
+        RealType       res     = 0;
+        const RealType r2      = r * r;
+        const RealType radius2 = m_radius * m_radius;
         if(r2 <= radius2)
         {
             res = pow(radius2 - r2, 3) * m_k;
@@ -152,11 +152,11 @@ public:
         return res;
     }
 
-    Real W(const Vec3<Real>& r)
+    RealType W(const Vec3<RealType>& r)
     {
-        Real       res     = 0.0;
-        const Real r2      = glm::length2(r);
-        const Real radius2 = m_radius * m_radius;
+        RealType       res     = 0;
+        const RealType r2      = glm::length2(r);
+        const RealType radius2 = m_radius * m_radius;
         if(r2 <= radius2)
         {
             res = pow(radius2 - r2, 3) * m_k;
@@ -168,14 +168,14 @@ public:
      * grad(W(r,h)) = r(-945/(32 pi h^9))(h^2-|r|^2)^2
      *              = r(-945/(32 pi h^9))(h^2-r*r)^2
      */
-    Vec3<Real> gradW(const Vec3<Real>& r)
+    Vec3<RealType> gradW(const Vec3<RealType>& r)
     {
-        Vec3<Real> res     = Vec3<Real>(0);
-        const Real r2      = glm::length2(r);
-        const Real radius2 = m_radius * m_radius;
+        Vec3<RealType> res     = Vec3<RealType>(0);
+        const RealType r2      = glm::length2(r);
+        const RealType radius2 = m_radius * m_radius;
         if(r2 <= radius2)
         {
-            Real tmp = radius2 - r2;
+            RealType tmp = radius2 - r2;
             res = m_l * tmp * tmp * r;
         }
 
@@ -186,50 +186,50 @@ public:
      * laplacian(W(r,h)) = (-945/(32 pi h^9))(h^2-|r|^2)(-7|r|^2+3h^2)
      *                   = (-945/(32 pi h^9))(h^2-r*r)(3 h^2-7 r*r)
      */
-    Real laplacianW(const Vec3<Real>& r)
+    RealType laplacianW(const Vec3<RealType>& r)
     {
-        Real       res     = 0;
-        const Real r2      = glm::length2(r);
-        const Real radius2 = m_radius * m_radius;
+        RealType       res     = 0;
+        const RealType r2      = glm::length2(r);
+        const RealType radius2 = m_radius * m_radius;
         if(r2 <= radius2)
         {
-            Real tmp  = radius2 - r2;
-            Real tmp2 = 3 * radius2 - 7 * r2;
+            RealType tmp  = radius2 - r2;
+            RealType tmp2 = RealType(3.0) * radius2 - RealType(7.0) * r2;
             res = m_m * tmp * tmp2;
         }
 
         return res;
     }
 
-    Real W_zero()
+    RealType W_zero()
     {
         return m_W_zero;
     }
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
+template<class RealType>
 class SpikyKernel
 {
 protected:
-    Real m_radius;
-    Real m_k;
-    Real m_l;
-    Real m_W_zero;
+    RealType m_radius;
+    RealType m_k;
+    RealType m_l;
+    RealType m_W_zero;
 public:
-    Real getRadius()
+    RealType getRadius()
     {
         return m_radius;
     }
 
-    void setRadius(Real val)
+    void setRadius(RealType val)
     {
         m_radius = val;
-        const Real radius6 = pow(m_radius, 6);
-        const Real pi      = static_cast<Real>(M_PI);
-        m_k      = 15.0 / (pi * radius6);
-        m_l      = -45.0 / (pi * radius6);
-        m_W_zero = W(Vec3<Real>(0));
+        const RealType radius6 = pow(m_radius, 6);
+        const RealType pi      = RealType(M_PI);
+        m_k      = RealType(15.0) / (pi * radius6);
+        m_l      = RealType(-45.0) / (pi * radius6);
+        m_W_zero = W(Vec3<RealType>(0));
     }
 
 public:
@@ -237,27 +237,27 @@ public:
     /**
      * W(r,h) = 15/(pi*h^6) * (h-r)^3
      */
-    Real W(const Real r)
+    RealType W(const RealType r)
     {
-        Real       res     = 0.0;
-        const Real r2      = r * r;
-        const Real radius2 = m_radius * m_radius;
+        RealType       res     = 0;
+        const RealType r2      = r * r;
+        const RealType radius2 = m_radius * m_radius;
         if(r2 <= radius2)
         {
-            const Real hr3 = pow(m_radius - sqrt(r2), 3);
+            const RealType hr3 = pow(m_radius - sqrt(r2), 3);
             res = m_k * hr3;
         }
         return res;
     }
 
-    Real W(const Vec3<Real>& r)
+    RealType W(const Vec3<RealType>& r)
     {
-        Real       res     = 0.0;
-        const Real r2      = glm::length2(r);
-        const Real radius2 = m_radius * m_radius;
+        RealType       res     = 0;
+        const RealType r2      = glm::length2(r);
+        const RealType radius2 = m_radius * m_radius;
         if(r2 <= radius2)
         {
-            const Real hr3 = pow(m_radius - sqrt(r2), 3);
+            const RealType hr3 = pow(m_radius - sqrt(r2), 3);
             res = m_k * hr3;
         }
         return res;
@@ -266,50 +266,50 @@ public:
     /**
      * grad(W(r,h)) = -r(45/(pi*h^6) * (h-r)^2)
      */
-    Vec3<Real> gradW(const Vec3<Real>& r)
+    Vec3<RealType> gradW(const Vec3<RealType>& r)
     {
-        Vec3<Real> res     = Vec3<Real>(0);
-        const Real r2      = glm::length2(r);
-        const Real radius2 = m_radius * m_radius;
+        Vec3<RealType> res     = Vec3<RealType>(0);
+        const RealType r2      = glm::length2(r);
+        const RealType radius2 = m_radius * m_radius;
         if(r2 <= radius2)
         {
-            const Real r_l = sqrt(r2);
-            const Real hr  = m_radius - r_l;
-            const Real hr2 = hr * hr;
-            res = m_l * hr2 * r * (static_cast<Real>(1.0) / r_l);
+            const RealType r_l = sqrt(r2);
+            const RealType hr  = m_radius - r_l;
+            const RealType hr2 = hr * hr;
+            res = m_l * hr2 * r * (static_cast<RealType>(1.0) / r_l);
         }
 
         return res;
     }
 
-    Real W_zero()
+    RealType W_zero()
     {
         return m_W_zero;
     }
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
+template<class RealType>
 class CohesionKernel
 {
 protected:
-    Real m_radius;
-    Real m_k;
-    Real m_c;
-    Real m_W_zero;
+    RealType m_radius;
+    RealType m_k;
+    RealType m_c;
+    RealType m_W_zero;
 public:
-    Real getRadius()
+    RealType getRadius()
     {
         return m_radius;
     }
 
-    void setRadius(Real val)
+    void setRadius(RealType val)
     {
         m_radius = val;
-        const Real pi = static_cast<Real>(M_PI);
-        m_k      = 32. / (pi * pow(m_radius, 9));
-        m_c      = pow(m_radius, 6) / 64.0;
-        m_W_zero = W(Vec3<Real>(0));
+        const RealType pi = static_cast<RealType>(M_PI);
+        m_k      = RealType(32.0) / (pi * pow(m_radius, 9));
+        m_c      = pow(m_radius, 6) / RealType(64.0);
+        m_W_zero = W(Vec3<RealType>(0));
     }
 
 public:
@@ -318,65 +318,65 @@ public:
      * W(r,h) = (32/(pi h^9))(h-r)^3*r^3					if h/2 < r <= h
      *          (32/(pi h^9))(2*(h-r)^3*r^3 - h^6/64		if 0 < r <= h/2
      */
-    Real W(const Real r)
+    RealType W(const RealType r)
     {
-        Real       res     = 0.0;
-        const Real r2      = r * r;
-        const Real radius2 = m_radius * m_radius;
+        RealType       res     = 0;
+        const RealType r2      = r * r;
+        const RealType radius2 = m_radius * m_radius;
         if(r2 <= radius2)
         {
-            const Real r1 = sqrt(r2);
-            const Real r3 = r2 * r1;
-            if(r1 > 0.5 * m_radius)
+            const RealType r1 = sqrt(r2);
+            const RealType r3 = r2 * r1;
+            if(r1 > RealType(0.5) * m_radius)
                 res = m_k * pow(m_radius - r1, 3) * r3;
             else
-                res = m_k * 2.0 * pow(m_radius - r1, 3) * r3 - m_c;
+                res = m_k * RealType(2.0) * pow(m_radius - r1, 3) * r3 - m_c;
         }
         return res;
     }
 
-    Real W(const Vec3<Real>& r)
+    RealType W(const Vec3<RealType>& r)
     {
-        Real       res     = 0.0;
-        const Real r2      = glm::length2(r);
-        const Real radius2 = m_radius * m_radius;
+        RealType       res     = 0;
+        const RealType r2      = glm::length2(r);
+        const RealType radius2 = m_radius * m_radius;
         if(r2 <= radius2)
         {
-            const Real r1 = sqrt(r2);
-            const Real r3 = r2 * r1;
-            if(r1 > 0.5 * m_radius)
+            const RealType r1 = sqrt(r2);
+            const RealType r3 = r2 * r1;
+            if(r1 > RealType(0.5) * m_radius)
                 res = m_k * pow(m_radius - r1, 3) * r3;
             else
-                res = m_k * 2.0 * pow(m_radius - r1, 3) * r3 - m_c;
+                res = m_k * RealType(2.0) * pow(m_radius - r1, 3) * r3 - m_c;
         }
         return res;
     }
 
-    Real W_zero()
+    RealType W_zero()
     {
         return m_W_zero;
     }
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
+template<class RealType>
 class AdhesionKernel
 {
 protected:
-    Real m_radius;
-    Real m_k;
-    Real m_W_zero;
+    RealType m_radius;
+    RealType m_k;
+    RealType m_W_zero;
 public:
-    Real getRadius()
+    RealType getRadius()
     {
         return m_radius;
     }
 
-    void setRadius(Real val)
+    void setRadius(RealType val)
     {
         m_radius = val;
-        m_k      = 0.007 / pow(m_radius, 3.25);
-        m_W_zero = W(Vec3<Real>(0));
+        m_k      = RealType(0.007) / pow(m_radius, RealType(3.25));
+        m_W_zero = W(Vec3<RealType>(0));
     }
 
 public:
@@ -384,35 +384,35 @@ public:
     /**
      * W(r,h) = (0.007/h^3.25)(-4r^2/h + 6r -2h)^0.25					if h/2 < r <= h
      */
-    Real W(const Real r)
+    RealType W(const RealType r)
     {
-        Real       res     = 0.0;
-        const Real r2      = r * r;
-        const Real radius2 = m_radius * m_radius;
+        RealType       res     = 0;
+        const RealType r2      = r * r;
+        const RealType radius2 = m_radius * m_radius;
         if(r2 <= radius2)
         {
-            const Real r = sqrt(r2);
-            if(r > 0.5 * m_radius)
-                res = m_k * pow(-4.0 * r2 / m_radius + 6.0 * r - 2.0 * m_radius, 0.25);
+            const RealType r = sqrt(r2);
+            if(r > RealType(0.5) * m_radius)
+                res = m_k * pow(RealType(-4.0) * r2 / m_radius + RealType(6.0) * r - RealType(2.0) * m_radius, RealType(0.25));
         }
         return res;
     }
 
-    Real W(const Vec3<Real>& r)
+    RealType W(const Vec3<RealType>& r)
     {
-        Real       res     = 0.0;
-        const Real r2      = glm::length2(r);
-        const Real radius2 = m_radius * m_radius;
+        RealType       res     = 0;
+        const RealType r2      = glm::length2(r);
+        const RealType radius2 = m_radius * m_radius;
         if(r2 <= radius2)
         {
-            const Real r = sqrt(r2);
-            if(r > 0.5 * m_radius)
-                res = m_k * pow(-4.0 * r2 / m_radius + 6.0 * r - 2.0 * m_radius, 0.25);
+            const RealType r = sqrt(r2);
+            if(r > RealType(0.5) * m_radius)
+                res = m_k * pow(RealType(-4.0) * r2 / m_radius + RealType(6.0) * r - RealType(2.0) * m_radius, RealType(0.25));
         }
         return res;
     }
 
-    Real W_zero()
+    RealType W_zero()
     {
         return m_W_zero;
     }
@@ -420,60 +420,60 @@ public:
 
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real, class KernelType, unsigned int resolution = 1000u>
+template<class RealType, class KernelType, unsigned int resolution = 1000u>
 class PrecomputedKernel
 {
 protected:
     KernelType kernel;
-    Real       m_W[resolution];
-    Real       m_gradW[resolution + 1];
-    Real       m_radius;
-    Real       m_radius2;
-    Real       m_invStepSize;
-    Real       m_W_zero;
+    RealType   m_W[resolution];
+    RealType   m_gradW[resolution + 1];
+    RealType   m_radius;
+    RealType   m_radius2;
+    RealType   m_invStepSize;
+    RealType   m_W_zero;
 public:
-    Real getRadius()
+    RealType getRadius()
     {
         return m_radius;
     }
 
-    void setRadius(Real val)
+    void setRadius(RealType val)
     {
         m_radius  = val;
         m_radius2 = val * val;
         kernel.setRadius(val);
-        const Real stepSize = m_radius / (Real)resolution;
-        m_invStepSize = 1.0 / stepSize;
+        const RealType stepSize = m_radius / (RealType)resolution;
+        m_invStepSize = RealType(1.0) / stepSize;
         for(unsigned int i = 0; i < resolution; i++)
         {
-            const Real posX = stepSize * (Real)i;               // Store kernel values in the middle of an interval
+            const RealType posX = stepSize * (RealType)i;               // Store kernel values in the middle of an interval
             m_W[i] = kernel.W(posX);
-            if(posX > 1.0e-6)
-                m_gradW[i] = kernel.gradW(Vec3<Real>(posX, 0.0, 0.0))[0] / posX;
+            if(posX > RealType(1.0e-6))
+                m_gradW[i] = kernel.gradW(Vec3<RealType>(posX, 0, 0))[0] / posX;
             else
-                m_gradW[i] = 0.0;
+                m_gradW[i] = 0;
         }
-        m_gradW[resolution] = 0.0;
-        m_W_zero            = W(0.0);
+        m_gradW[resolution] = 0;
+        m_W_zero            = W(0);
     }
 
 public:
-    Real W(const Vec3<Real>& r)
+    RealType W(const Vec3<RealType>& r)
     {
-        Real       res = 0.0;
-        const Real r2  = glm::length2(r);
+        RealType       res = 0;
+        const RealType r2  = glm::length2(r);
         if(r2 <= m_radius2)
         {
-            const Real         r   = sqrt(r2);
+            const RealType     r   = sqrt(r2);
             const unsigned int pos = std::min<unsigned int>((unsigned int)(r * m_invStepSize), resolution);
             res = m_W[pos];
         }
         return res;
     }
 
-    Real W(const Real r)
+    RealType W(const RealType r)
     {
-        Real res = 0.0;
+        RealType res = 0;
         if(r <= m_radius)
         {
             const unsigned int pos = std::min<unsigned int>((unsigned int)(r * m_invStepSize), resolution);
@@ -482,13 +482,13 @@ public:
         return res;
     }
 
-    Vec3<Real> gradW(const Vec3<Real>& r)
+    Vec3<RealType> gradW(const Vec3<RealType>& r)
     {
-        Vec3<Real> res = Vec3<Real>(0);
-        const Real r2  = glm::length2(r);
+        Vec3<RealType> res = Vec3<RealType>(0);
+        const RealType r2  = glm::length2(r);
         if(r2 <= m_radius2)
         {
-            const Real         rl  = sqrt(r2);
+            const RealType     rl  = sqrt(r2);
             const unsigned int pos = std::min<unsigned int>((unsigned int)(rl * m_invStepSize), resolution);
             res = m_gradW[pos] * r;
         }
@@ -496,7 +496,7 @@ public:
         return res;
     }
 
-    Real W_zero()
+    RealType W_zero()
     {
         return m_W_zero;
     }

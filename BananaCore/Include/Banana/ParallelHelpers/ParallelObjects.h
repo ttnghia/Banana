@@ -204,19 +204,11 @@ public:
     {
         for(size_t i = r.begin(), iEnd = r.end(); i != iEnd; ++i)
         {
-#ifdef __Using_Eigen_Lib__
-            RealType tmp = (RealType)m_Vector[i].cwiseAbs().maxCoeff();
-#else
-#ifdef __Using_GLM_Lib__
             RealType tmp = std::abs(m_Vector[i][0]);
             for(auto k = 1; k < m_Vector[i].length(); ++k)
             {
                 tmp = tmp < std::abs(m_Vector[i][k]) ? std::abs(m_Vector[i][k]) : tmp;
             }
-#else
-            RealType tmp = std::max(std::abs(m_Vector[i][ym::min_element(m_Vector[i])]), std::abs(m_Vector[i][ym::max_element(m_Vector[i])]));
-#endif // __Using_GLM_Lib__
-#endif // __Using_Eigen_Lib__
 
             m_Result = m_Result > tmp ? m_Result : tmp;
         }
@@ -230,8 +222,36 @@ public:
     RealType getResult() const noexcept { return m_Result; }
 
 private:
-    RealType m_Result;
+    RealType                       m_Result;
+    const std::vector<VectorType>& m_Vector;
+};
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class RealType, class VectorType>
+class VectorMaxNorm2
+{
+public:
+    VectorMaxNorm2(const std::vector<VectorType>& vec) : m_Vector(vec), m_ResultMax(std::numeric_limits<RealType>::min()) {}
+    VectorMaxNorm2(VectorMaxNorm2& vmmn, tbb::split) : m_Vector(vmmn.m_Vector), m_ResultMax(std::numeric_limits<RealType>::min()) {}
+
+    void operator()(const tbb::blocked_range<size_t>& r)
+    {
+        for(size_t i = r.begin(), iEnd = r.end(); i != iEnd; ++i)
+        {
+            RealType mag2 = glm::length2(m_Vector[i]);
+            m_ResultMax = m_ResultMax > mag2 ? m_ResultMax : mag2;
+        }
+    }
+
+    void join(VectorMaxNorm2& vmmn)
+    {
+        m_ResultMax = m_ResultMax > vmmn.m_ResultMax ? m_ResultMax : vmmn.m_ResultMax;
+    }
+
+    RealType getResult() const noexcept { return m_ResultMax; }
+
+private:
+    RealType                       m_ResultMax;
     const std::vector<VectorType>& m_Vector;
 };
 
@@ -273,23 +293,14 @@ template<class RealType, class VectorType>
 class VectorMinMaxNorm2
 {
 public:
-    VectorMinMaxNorm2(const std::vector<RealType>& vec) : m_Vector(vec), m_ResultMin(std::numeric_limits<RealType>::max()), m_ResultMax(std::numeric_limits<RealType>::min()) {}
+    VectorMinMaxNorm2(const std::vector<VectorType>& vec) : m_Vector(vec), m_ResultMin(std::numeric_limits<RealType>::max()), m_ResultMax(std::numeric_limits<RealType>::min()) {}
     VectorMinMaxNorm2(VectorMinMaxNorm2& vmmn, tbb::split) : m_Vector(vmmn.m_Vector), m_ResultMin(std::numeric_limits<RealType>::max()), m_ResultMax(std::numeric_limits<RealType>::min()) {}
 
     void operator()(const tbb::blocked_range<size_t>& r)
     {
         for(size_t i = r.begin(), iEnd = r.end(); i != iEnd; ++i)
         {
-#ifdef __Using_Eigen_Lib__
-            RealType mag2 = v[i].squaredNorm();
-#else
-#ifdef __Using_GLM_Lib__
-            RealType mag2 = glm::length2(v[i]);
-#else             // use default yocto
-            magx; // should throw error
-#endif // __Using_GLM_Lib__
-#endif            // __Using_Eigen_Lib__
-
+            RealType mag2 = glm::length2(m_Vector[i]);
             m_ResultMin = m_ResultMin < mag2 ? m_ResultMin : mag2;
             m_ResultMax = m_ResultMax > mag2 ? m_ResultMax : mag2;
         }
@@ -308,7 +319,7 @@ private:
     RealType m_ResultMin;
     RealType m_ResultMax;
 
-    const std::vector<RealType>& m_Vector;
+    const std::vector<VectorType>& m_Vector;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

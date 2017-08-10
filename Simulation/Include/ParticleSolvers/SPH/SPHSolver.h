@@ -42,8 +42,8 @@ struct SPHParameters
         makeReady();
     }
 
-    RealType defaultTimestep = 1.0e-4;
-    RealType CFLFactor       = 0.5;
+    RealType defaultTimestep = RealType(1.0e-4);
+    RealType CFLFactor       = RealType(0.5);
 
     Vec3<RealType> boxMin = Vec3<RealType>(0);
     Vec3<RealType> boxMax = Vec3<RealType>(1.0);
@@ -54,9 +54,9 @@ struct SPHParameters
     RealType kernelRadius       = RealType(1.0 / DEFAULT_RESOLUTION);
 
     RealType boundaryRestitution     = RealType(DEFAULT_BOUNDARY_RESTITUTION);
-    RealType attractivePressureRatio = 0.1;
-    RealType restDensity             = 1000.0;
-    RealType densityVariationRatio   = 10.0;
+    RealType attractivePressureRatio = RealType(0.1);
+    RealType restDensity             = RealType(1000.0);
+    RealType densityVariationRatio   = RealType(10.0);
 
     bool bCorrectDensity        = false;
     bool bUseBoundaryParticles  = false;
@@ -73,11 +73,11 @@ struct SPHParameters
 
     void makeReady()
     {
-        particleRadius   = kernelRadius / 4.0;
+        particleRadius   = kernelRadius / RealType(4.0);
         kernelRadiusSqr  = kernelRadius * kernelRadius;
-        nearKernelRadius = particleRadius * 2.5;
+        nearKernelRadius = particleRadius * RealType(2.5);
 
-        particleMass   = pow(2.0 * particleRadius, 3) * restDensity * 0.9;
+        particleMass   = pow(RealType(2.0) * particleRadius, 3) * restDensity * RealType(0.9);
         restDensitySqr = restDensity * restDensity;
     }
 };
@@ -101,6 +101,8 @@ struct SPHSolverData
     Vec_Vec3<RealType> bd_particles_lz;
     Vec_Vec3<RealType> bd_particles_uz;
 
+    Vec_VecUInt neighborList;
+
     ////////////////////////////////////////////////////////////////////////////////
     void makeReady()
     {
@@ -109,7 +111,7 @@ struct SPHSolverData
         pressureForces.resize(particles.size(), Vec3<RealType>(0));
         surfaceTensionForces.resize(particles.size(), Vec3<RealType>(0));
         diffuseVelocity.resize(particles.size(), Vec3<RealType>(0));
-
+        neighborList.resize(particles.size());
         // todo: add boundary sampler
         //if(m_SimParams->bUseBoundaryParticles)
         //    generateBoundaryParticles();

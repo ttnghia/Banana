@@ -25,9 +25,8 @@
 #include <Banana/Utils/Timer.h>
 #include <Banana/Data/DataIO.h>
 #include <Banana/ParallelHelpers/ParallelSTL.h>
+#include <Banana/ParallelHelpers/ParallelFuncs.h>
 #include <Grid/Grid3D.h>
-
-#include <tbb/tbb.h>
 
 #include <memory>
 #include <random>

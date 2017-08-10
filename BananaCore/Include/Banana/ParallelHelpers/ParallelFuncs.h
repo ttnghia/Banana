@@ -34,7 +34,8 @@ namespace ParallelFuncs
 template<class IndexType, class Function>
 inline void parallel_for(IndexType beginIdx, IndexType endIdx, const Function& function)
 {
-    tbb::parallel_for(tbb::blocked_range<IndexType>(beginIdx, endIdx), [&](tbb::blocked_range<IndexType> r)
+    tbb::parallel_for(tbb::blocked_range<IndexType>(beginIdx, endIdx),
+                      [&](tbb::blocked_range<IndexType> r)
                       {
                           for(IndexType i = r.begin(), iEnd = r.end(); i != iEnd; ++i)
                           {
@@ -46,11 +47,12 @@ inline void parallel_for(IndexType beginIdx, IndexType endIdx, const Function& f
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // parallel for 2D
 template<class IndexType, class Function>
-inline void parallel_for(IndexType beginIdxX, IndexType endIdxX,
-                         IndexType beginIdxY, IndexType endIdxY,
-                         const Function& function)
+inline void parallel_for_row_major(IndexType beginIdxX, IndexType endIdxX,
+                                   IndexType beginIdxY, IndexType endIdxY,
+                                   const Function& function)
 {
-    ParallelFuncs::parallel_for(beginIdxX, endIdxX, [&](IndexType i)
+    ParallelFuncs::parallel_for(beginIdxX, endIdxX,
+                                [&](IndexType i)
                                 {
                                     for(IndexType j = beginIdxY; j < endIdxY; ++j)
                                     {
@@ -60,11 +62,12 @@ inline void parallel_for(IndexType beginIdxX, IndexType endIdxX,
 }
 
 template<class IndexType, class Function>
-inline void parallel_for_row_major(IndexType beginIdxX, IndexType endIdxX,
-                                   IndexType beginIdxY, IndexType endIdxY,
-                                   const Function& function)
+inline void parallel_for(IndexType beginIdxX, IndexType endIdxX,
+                         IndexType beginIdxY, IndexType endIdxY,
+                         const Function& function)
 {
-    ParallelFuncs::parallel_for(beginIdxY, endIdxY, [&](IndexType j)
+    ParallelFuncs::parallel_for(beginIdxY, endIdxY,
+                                [&](IndexType j)
                                 {
                                     for(IndexType i = beginIdxX; i < endIdxX; ++i)
                                     {
@@ -76,12 +79,13 @@ inline void parallel_for_row_major(IndexType beginIdxX, IndexType endIdxX,
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // parallel for 3D
 template<class IndexType, class Function>
-inline void parallel_for(IndexType beginIdxX, IndexType endIdxX,
-                         IndexType beginIdxY, IndexType endIdxY,
-                         IndexType beginIdxZ, IndexType endIdxZ,
-                         const Function& function)
+inline void parallel_for_row_major(IndexType beginIdxX, IndexType endIdxX,
+                                   IndexType beginIdxY, IndexType endIdxY,
+                                   IndexType beginIdxZ, IndexType endIdxZ,
+                                   const Function& function)
 {
-    ParallelFuncs::parallel_for(beginIdxX, endIdxX, [&](IndexType i)
+    ParallelFuncs::parallel_for(beginIdxX, endIdxX,
+                                [&](IndexType i)
                                 {
                                     for(IndexType j = beginIdxY; j < endIdxY; ++j)
                                     {
@@ -94,12 +98,13 @@ inline void parallel_for(IndexType beginIdxX, IndexType endIdxX,
 }
 
 template<class IndexType, class Function>
-inline void parallel_for_row_major(IndexType beginIdxX, IndexType endIdxX,
-                                   IndexType beginIdxY, IndexType endIdxY,
-                                   IndexType beginIdxZ, IndexType endIdxZ,
-                                   const Function& function)
+inline void parallel_for(IndexType beginIdxX, IndexType endIdxX,
+                         IndexType beginIdxY, IndexType endIdxY,
+                         IndexType beginIdxZ, IndexType endIdxZ,
+                         const Function& function)
 {
-    ParallelFuncs::parallel_for(beginIdxZ, endIdxZ, [&](IndexType k)
+    ParallelFuncs::parallel_for(beginIdxZ, endIdxZ,
+                                [&](IndexType k)
                                 {
                                     for(IndexType j = beginIdxY; j < endIdxY; ++j)
                                     {

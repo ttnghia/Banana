@@ -19,7 +19,7 @@ void Banana::SPHSolver<RealType>::makeReady()
 {
     m_CubicKernel.setRadius(m_SimParams->kernelRadius);
     m_SpikyKernel.setRadius(m_SimParams->kernelRadius);
-    m_NearSpikyKernel.setRadius(1.5 * m_SimParams->particleRadius);
+    m_NearSpikyKernel.setRadius(RealType(1.5) * m_SimParams->particleRadius);
 
     m_SimData->grid3D.setGrid(m_SimParams->boxMin, m_SimParams->boxMax, m_SimParams->kernelRadius);
     m_SimParams->makeReady();
@@ -55,6 +55,7 @@ void Banana::SPHSolver<RealType>::advanceFrame()
         RealType substep       = MathHelpers::min(computeCFLTimeStep(), remainingTime);
 
         m_SimData->grid3D.collectIndexToCells(m_SimData->particles);
+        m_SimData->grid3D.findNeighborList(m_SimData->particles, m_SimData->neighborList);
         advanceVelocity(substep);
         moveParticles(substep);
         frameTime += substep;
@@ -118,10 +119,10 @@ void Banana::SPHSolver<RealType>::generateBoundaryParticles()
 
     std::random_device                       rd;
     std::mt19937                             gen(rd());
-    std::uniform_real_distribution<RealType> dis01(0, 0.1 * m_SimParams->particleRadius);
-    std::uniform_real_distribution<RealType> dis13(0.1 * m_SimParams->particleRadius, 0.3 * m_SimParams->particleRadius);
+    std::uniform_real_distribution<RealType> dis01(0, RealType(0.1) * m_SimParams->particleRadius);
+    std::uniform_real_distribution<RealType> dis13(RealType(0.1) * m_SimParams->particleRadius, RealType(0.3) * m_SimParams->particleRadius);
 
-    const RealType spacing_ratio = 1.7;
+    const RealType spacing_ratio = RealType(1.7);
     const RealType spacing       = m_SimParams->particleRadius * spacing_ratio;
 
     const int            num_particles_1d = 1 + static_cast<int>(ceil((2 + 1) * m_SimParams->kernelRadius / spacing));
@@ -162,27 +163,11 @@ void Banana::SPHSolver<RealType>::generateBoundaryParticles()
 template<class RealType>
 RealType Banana::SPHSolver<RealType>::computeCFLTimeStep()
 {
-    ////////////////////////////////////////////////////////////////////////////////
-    // firstly, compute the magnitude of velocity
-    static std::vector<RealType> mag2Velocity;
-    mag2Velocity.resize(m_SimData->velocity.size());
+    RealType maxVel = sqrt(ParallelSTL::maxNorm2<RealType>(m_SimData->velocity));
+    RealType CFLTimeStep = maxVel > RealType(1e-8) ? m_SimParams->CFLFactor* RealType(0.4) * (RealType(2.0) * m_SimParams->particleRadius / maxVel) : RealType(1e10);
 
-    tbb::parallel_for(tbb::blocked_range<size_t>(0, mag2Velocity.size()),
-                      [&](tbb::blocked_range<size_t> r)
-                      {
-                          for(size_t p = r.begin(); p != r.end(); ++p)
-                          {
-                              mag2Velocity[p] = glm::length2(m_SimData->velocity[p]);
-                          }
-                      }); // end parallel_for
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // then, find the maximum value
-    RealType maxVel      = sqrt(ParallelSTL::max<RealType>(mag2Velocity));
-    RealType CFLTimeStep = maxVel > 1e-8 ? m_SimParams->CFLFactor * 0.4f * (2.0f * m_SimParams->particleRadius / maxVel) : 1e10;
-
-    CFLTimeStep = fmax(CFLTimeStep, m_SimParams->defaultTimestep * 0.01);
-    CFLTimeStep = fmin(CFLTimeStep, m_SimParams->defaultTimestep * 100.0);
+    CFLTimeStep = MathHelpers::max(CFLTimeStep, m_SimParams->defaultTimestep * RealType(0.01));
+    CFLTimeStep = MathHelpers::min(CFLTimeStep, m_SimParams->defaultTimestep * RealType(100.0));
 
     return CFLTimeStep;
 }
@@ -203,6 +188,9 @@ void Banana::SPHSolver<RealType>::advanceVelocity(RealType timeStep)
 template<class RealType>
 void Banana::SPHSolver<RealType>::computeDensity()
 {
+    assert(m_SimData->particles.size() == m_SimData->neighborList.size());
+    assert(m_SimData->particles.size() == m_SimData->density.size());
+
     const RealType valid_lx    = m_SimParams->boxMin[0] + m_SimParams->kernelRadius;
     const RealType valid_ux    = m_SimParams->boxMax[0] - m_SimParams->kernelRadius;
     const RealType valid_ly    = m_SimParams->boxMin[1] + m_SimParams->kernelRadius;
@@ -212,94 +200,72 @@ void Banana::SPHSolver<RealType>::computeDensity()
     const RealType min_density = m_SimParams->restDensity / m_SimParams->densityVariationRatio;
     const RealType max_density = m_SimParams->restDensity * m_SimParams->densityVariationRatio;
 
-    tbb::parallel_for(tbb::blocked_range<size_t>(0, m_SimData->particles.size()),
-                      [&](tbb::blocked_range<size_t> r)
-                      {
-                          for(size_t p = r.begin(); p != r.end(); ++p)
-                          {
-                              const Vec3<RealType>& ppos = m_SimData->particles[p];
-                              const Vec3i& pcellId = m_SimData->grid3D.getCellIdx<int>(ppos);
-                              RealType pden = m_CubicKernel.W_zero();
+    ParallelFuncs::parallel_for<UInt32>(0, static_cast<UInt32>(m_SimData->particles.size()),
+                                        [&](UInt32 p)
+                                        {
+                                            const Vec3<RealType>& ppos = m_SimData->particles[p];
+                                            RealType pden = m_CubicKernel.W_zero();
 
-                              for(int lk = -1; lk <= 1; ++lk)
-                              {
-                                  for(int lj = -1; lj <= 1; ++lj)
-                                  {
-                                      for(int li = -1; li <= 1; ++li)
-                                      {
-                                          const Vec3i cellId = pcellId + Vec3i(li, lj, lk);
+                                            for(UInt32 q: m_SimData->neighborList[p])
+                                            {
+                                                if(p == q)
+                                                    continue;
 
-                                          if(!m_SimData->grid3D.isValidCell<int>(cellId))
-                                          {
-                                              continue;
-                                          }
+                                                const Vec3<RealType>& qpos = m_SimData->particles[q];
+                                                const Vec3<RealType> r = qpos - ppos;
 
-                                          for(UInt32 q : m_SimData->cellParticles(cellId))
-                                          {
-                                              if((UInt32)p == q)
-                                              {
-                                                  continue;
-                                              }
-
-                                              const Vec3<RealType>& qpos = m_SimData->particles[q];
-                                              const Vec3<RealType> r = qpos - ppos;
-
-                                              pden += m_CubicKernel.W(r);
-                                          }
-                                      }
-                                  }
-                              } // end loop over neighbor cells
+                                                pden += m_CubicKernel.W(r);
+                                            } // end loop over neighbor cells
 
 
-                              ////////////////////////////////////////////////////////////////////////////////
-                              if(m_SimParams->bUseBoundaryParticles)
-                              {
-                                  const Vec3<RealType> ppos_scaled = ppos - m_SimParams->kernelRadius * Vec3<RealType>(floor(ppos[1] / m_SimParams->kernelRadius),
-                                                                                                                       floor(ppos[1] / m_SimParams->kernelRadius),
-                                                                                                                       floor(ppos[2] / m_SimParams->kernelRadius));
-                                  // => lx/ux
-                                  if(ppos[0] < valid_lx || ppos[0] > valid_ux)
-                                  {
-                                      const Vec_Vec3<RealType>& bparticles = (ppos[0] < valid_lx) ? m_SimData->bd_particles_lx : m_SimData->bd_particles_ux;
+                                            ////////////////////////////////////////////////////////////////////////////////
+                                            if(m_SimParams->bUseBoundaryParticles)
+                                            {
+                                                const Vec3<RealType> ppos_scaled = ppos - m_SimParams->kernelRadius * Vec3<RealType>(floor(ppos[1] / m_SimParams->kernelRadius),
+                                                                                                                                     floor(ppos[1] / m_SimParams->kernelRadius),
+                                                                                                                                     floor(ppos[2] / m_SimParams->kernelRadius));
+                                                // => lx/ux
+                                                if(ppos[0] < valid_lx || ppos[0] > valid_ux)
+                                                {
+                                                    const Vec_Vec3<RealType>& bparticles = (ppos[0] < valid_lx) ? m_SimData->bd_particles_lx : m_SimData->bd_particles_ux;
 
-                                      for(const Vec3<RealType>& qpos : bparticles)
-                                      {
-                                          const Vec3<RealType> r = qpos - ppos_scaled;
-                                          pden += m_CubicKernel.W(r);
-                                      }
-                                  }
-
-
-                                  // => ly/uy
-                                  if(ppos[1] < valid_ly || ppos[1] > valid_uy)
-                                  {
-                                      const Vec_Vec3<RealType>& bparticles = (ppos[1] < valid_ly) ? m_SimData->bd_particles_ly : m_SimData->bd_particles_uy;
-
-                                      for(const Vec3<RealType>& qpos : bparticles)
-                                      {
-                                          const Vec3<RealType> r = qpos - ppos_scaled;
-                                          pden += m_CubicKernel.W(r);
-                                      }
-                                  }
+                                                    for(const Vec3<RealType>& qpos : bparticles)
+                                                    {
+                                                        const Vec3<RealType> r = qpos - ppos_scaled;
+                                                        pden += m_CubicKernel.W(r);
+                                                    }
+                                                }
 
 
-                                  // => lz/uz
-                                  if(ppos[2] < valid_lz || ppos[2] > valid_uz)
-                                  {
-                                      const Vec_Vec3<RealType>& bparticles = (ppos[2] < valid_lz) ? m_SimData->bd_particles_lz : m_SimData->bd_particles_uz;
+                                                // => ly/uy
+                                                if(ppos[1] < valid_ly || ppos[1] > valid_uy)
+                                                {
+                                                    const Vec_Vec3<RealType>& bparticles = (ppos[1] < valid_ly) ? m_SimData->bd_particles_ly : m_SimData->bd_particles_uy;
 
-                                      for(const Vec3<RealType>& qpos : bparticles)
-                                      {
-                                          const Vec3<RealType> r = qpos - ppos_scaled;
-                                          pden += m_CubicKernel.W(r);
-                                      }
-                                  }
-                              } // if(m_SimParams->bUseBoundaryParticles)
+                                                    for(const Vec3<RealType>& qpos : bparticles)
+                                                    {
+                                                        const Vec3<RealType> r = qpos - ppos_scaled;
+                                                        pden += m_CubicKernel.W(r);
+                                                    }
+                                                }
 
-                              ////////////////////////////////////////////////////////////////////////////////
-                              m_SimData->density[p] = pden < 1.0 ? 0 : fmin(fmax(pden * m_SimParams->particleMass, min_density), max_density);
-                          }
-                      }); // end parallel_for
+
+                                                // => lz/uz
+                                                if(ppos[2] < valid_lz || ppos[2] > valid_uz)
+                                                {
+                                                    const Vec_Vec3<RealType>& bparticles = (ppos[2] < valid_lz) ? m_SimData->bd_particles_lz : m_SimData->bd_particles_uz;
+
+                                                    for(const Vec3<RealType>& qpos : bparticles)
+                                                    {
+                                                        const Vec3<RealType> r = qpos - ppos_scaled;
+                                                        pden += m_CubicKernel.W(r);
+                                                    }
+                                                }
+                                            } // if(m_SimParams->bUseBoundaryParticles)
+
+                                            ////////////////////////////////////////////////////////////////////////////////
+                                            m_SimData->density[p] = pden < 1.0 ? 0 : fmin(MathHelpers::max(pden * m_SimParams->particleMass, min_density), max_density);
+                                        }); // end parallel_for
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -308,6 +274,8 @@ void Banana::SPHSolver<RealType>::correctDensity()
 {
     if(!m_SimParams->bCorrectDensity)
         return;
+    assert(m_SimData->particles.size() == m_SimData->neighborList.size());
+    assert(m_SimData->particles.size() == m_SimData->density.size());
 
     const RealType valid_lx    = m_SimParams->boxMin[0] + m_SimParams->kernelRadius;
     const RealType valid_ux    = m_SimParams->boxMax[0] - m_SimParams->kernelRadius;
@@ -321,104 +289,82 @@ void Banana::SPHSolver<RealType>::correctDensity()
     static std::vector<RealType> tmp_density;
     tmp_density.resize(m_SimData->density.size());
 
-    tbb::parallel_for(tbb::blocked_range<size_t>(0, m_SimData->particles.size()),
-                      [&](tbb::blocked_range<size_t> r)
-                      {
-                          for(size_t p = r.begin(); p != r.end(); ++p)
-                          {
-                              const Vec3<RealType>& ppos = m_SimData->particles[p];
-                              const Vec3i& pcellId = m_SimData->grid3D.getCellIdx<int>(ppos);
-                              RealType tmp = m_CubicKernel.W_zero() / m_SimData->density[p];
+    ParallelFuncs::parallel_for<UInt32>(0, static_cast<UInt32>(m_SimData->particles.size()),
+                                        [&](UInt32 p)
+                                        {
+                                            const Vec3<RealType>& ppos = m_SimData->particles[p];
+                                            RealType tmp = m_CubicKernel.W_zero() / m_SimData->density[p];
 
-                              for(int lk = -1; lk <= 1; ++lk)
-                              {
-                                  for(int lj = -1; lj <= 1; ++lj)
-                                  {
-                                      for(int li = -1; li <= 1; ++li)
-                                      {
-                                          const Vec3i cellId = pcellId + Vec3i(li, lj, lk);
+                                            for(UInt32 q : m_SimData->neighborList[p])
+                                            {
+                                                if(p == q)
+                                                    continue;
 
-                                          if(!m_SimData->grid3D.isValidCell<int>(cellId))
-                                          {
-                                              continue;
-                                          }
+                                                const Vec3<RealType>& qpos = m_SimData->particles[q];
+                                                const Vec3<RealType> r = qpos - ppos;
+                                                const RealType qden = m_SimData->density[q];
 
-                                          for(UInt32 q : m_SimData->cellParticles(cellId))
-                                          {
-                                              if((UInt32)p == q)
-                                              {
-                                                  continue;
-                                              }
+                                                if(qden < 1e-8)
+                                                {
+                                                    continue;
+                                                }
 
-                                              const Vec3<RealType>& qpos = m_SimData->particles[q];
-                                              const Vec3<RealType> r = qpos - ppos;
-                                              const RealType qden = m_SimData->density[q];
-
-                                              if(qden < 1e-8)
-                                              {
-                                                  continue;
-                                              }
-
-                                              tmp += m_CubicKernel.W(r) / qden;
-                                          }
-                                      }
-                                  }
-                              } // end loop over neighbor cells
+                                                tmp += m_CubicKernel.W(r) / qden;
+                                            } // end loop over neighbor cells
 
 
 
-                              ////////////////////////////////////////////////////////////////////////////////
-                              // ==> correct density for the boundary particles
-                              if(m_SimParams->bUseBoundaryParticles)
-                              {
-                                  const Vec3<RealType> ppos_scaled = ppos - m_SimParams->kernelRadius * Vec3<RealType>(floor(ppos[0] / m_SimParams->kernelRadius),
-                                                                                                                       floor(ppos[1] / m_SimParams->kernelRadius),
-                                                                                                                       floor(ppos[2] / m_SimParams->kernelRadius));
+                                            ////////////////////////////////////////////////////////////////////////////////
+                                            // ==> correct density for the boundary particles
+                                            if(m_SimParams->bUseBoundaryParticles)
+                                            {
+                                                const Vec3<RealType> ppos_scaled = ppos - m_SimParams->kernelRadius * Vec3<RealType>(floor(ppos[0] / m_SimParams->kernelRadius),
+                                                                                                                                     floor(ppos[1] / m_SimParams->kernelRadius),
+                                                                                                                                     floor(ppos[2] / m_SimParams->kernelRadius));
 
-                                  // => lx/ux
-                                  if(ppos[0] < valid_lx || ppos[0] > valid_ux)
-                                  {
-                                      const Vec_Vec3<RealType>& bparticles = (ppos[0] < valid_lx) ? m_SimData->bd_particles_lx : m_SimData->bd_particles_ux;
+                                                // => lx/ux
+                                                if(ppos[0] < valid_lx || ppos[0] > valid_ux)
+                                                {
+                                                    const Vec_Vec3<RealType>& bparticles = (ppos[0] < valid_lx) ? m_SimData->bd_particles_lx : m_SimData->bd_particles_ux;
 
-                                      for(const Vec3<RealType>& qpos : bparticles)
-                                      {
-                                          const Vec3<RealType> r = qpos - ppos_scaled;
+                                                    for(const Vec3<RealType>& qpos : bparticles)
+                                                    {
+                                                        const Vec3<RealType> r = qpos - ppos_scaled;
 
-                                          tmp += m_CubicKernel.W(r) / m_SimParams->restDensity;
-                                      }
-                                  }
-
-
-                                  // => ly/uy
-                                  if(ppos[1] < valid_ly || ppos[1] > valid_uy)
-                                  {
-                                      const Vec_Vec3<RealType>& bparticles = (ppos[1] < valid_ly) ? m_SimData->bd_particles_ly : m_SimData->bd_particles_uy;
-
-                                      for(const Vec3<RealType>& qpos : bparticles)
-                                      {
-                                          const Vec3<RealType> r = qpos - ppos_scaled;
-                                          tmp += m_CubicKernel.W(r) / m_SimParams->restDensity;
-                                      }
-                                  }
+                                                        tmp += m_CubicKernel.W(r) / m_SimParams->restDensity;
+                                                    }
+                                                }
 
 
-                                  // => lz/uz
-                                  if(ppos[2] < valid_lz || ppos[2] > valid_uz)
-                                  {
-                                      const Vec_Vec3<RealType>& bparticles = (ppos[2] < valid_lz) ? m_SimData->bd_particles_lz : m_SimData->bd_particles_uz;
+                                                // => ly/uy
+                                                if(ppos[1] < valid_ly || ppos[1] > valid_uy)
+                                                {
+                                                    const Vec_Vec3<RealType>& bparticles = (ppos[1] < valid_ly) ? m_SimData->bd_particles_ly : m_SimData->bd_particles_uy;
 
-                                      for(const Vec3<RealType>& qpos : bparticles)
-                                      {
-                                          const Vec3<RealType> r = qpos - ppos_scaled;
+                                                    for(const Vec3<RealType>& qpos : bparticles)
+                                                    {
+                                                        const Vec3<RealType> r = qpos - ppos_scaled;
+                                                        tmp += m_CubicKernel.W(r) / m_SimParams->restDensity;
+                                                    }
+                                                }
 
-                                          tmp += m_CubicKernel.W(r) / m_SimParams->restDensity;
-                                      }
-                                  }
-                              } // if(m_SimParams->bUseBoundaryParticles)
 
-                              tmp_density[p] = tmp > 1e-8 ? m_SimData->density[p] / fmin(tmp * m_SimParams->particleMass, max_density) : 0;
-                          }
-                      }); // end parallel_for
+                                                // => lz/uz
+                                                if(ppos[2] < valid_lz || ppos[2] > valid_uz)
+                                                {
+                                                    const Vec_Vec3<RealType>& bparticles = (ppos[2] < valid_lz) ? m_SimData->bd_particles_lz : m_SimData->bd_particles_uz;
+
+                                                    for(const Vec3<RealType>& qpos : bparticles)
+                                                    {
+                                                        const Vec3<RealType> r = qpos - ppos_scaled;
+
+                                                        tmp += m_CubicKernel.W(r) / m_SimParams->restDensity;
+                                                    }
+                                                }
+                                            } // if(m_SimParams->bUseBoundaryParticles)
+
+                                            tmp_density[p] = tmp > 1e-8 ? m_SimData->density[p] / fmin(tmp * m_SimParams->particleMass, max_density) : 0;
+                                        }); // end parallel_for
 
     std::copy(tmp_density.begin(), tmp_density.end(), m_SimData->density.begin());
 }
@@ -427,6 +373,9 @@ void Banana::SPHSolver<RealType>::correctDensity()
 template<class RealType>
 void Banana::SPHSolver<RealType>::computePressureForces()
 {
+    assert(m_SimData->particles.size() == m_SimData->neighborList.size());
+    assert(m_SimData->particles.size() == m_SimData->pressureForces.size());
+
     const RealType valid_lx = m_SimParams->boxMin[0] + m_SimParams->kernelRadius;
     const RealType valid_ux = m_SimParams->boxMax[0] - m_SimParams->kernelRadius;
     const RealType valid_ly = m_SimParams->boxMin[1] + m_SimParams->kernelRadius;
@@ -434,223 +383,165 @@ void Banana::SPHSolver<RealType>::computePressureForces()
     const RealType valid_lz = m_SimParams->boxMin[2] + m_SimParams->kernelRadius;
     const RealType valid_uz = m_SimParams->boxMax[2] - m_SimParams->kernelRadius;
 
-    tbb::parallel_for(tbb::blocked_range<size_t>(0, m_SimData->particles.size()),
-                      [&](tbb::blocked_range<size_t> r)
-                      {
-                          for(size_t p = r.begin(); p != r.end(); ++p)
-                          {
-                              const RealType pden = m_SimData->density[p];
+    ParallelFuncs::parallel_for<UInt32>(0, static_cast<UInt32>(m_SimData->particles.size()),
+                                        [&](UInt32 p)
+                                        {
+                                            const RealType pden = m_SimData->density[p];
 
-                              Vec3<RealType> pressure_accel(0, 0, 0);
+                                            Vec3<RealType> pressure_accel(0, 0, 0);
 
-                              if(pden < 1e-8)
-                              {
-                                  m_SimData->pressureAcc[p] = pressure_accel;
-                                  continue;
-                              }
+                                            if(pden < 1e-8)
+                                            {
+                                                m_SimData->pressureForces[p] = pressure_accel;
+                                                return;
+                                            }
 
-                              const RealType pdrho = POW7(pden / m_SimParams->restDensity) - 1.0;
-                              const RealType ppressure = m_SimParams->bUseAttractivePressure ? fmax(pdrho, pdrho * m_SimParams->attractivePressureRatio) : fmax(pdrho, 0);
+                                            const RealType pdrho = MathHelpers::pow7(pden / m_SimParams->restDensity) - RealType(1.0);
+                                            const RealType ppressure = m_SimParams->bUseAttractivePressure ? MathHelpers::max(pdrho, pdrho * m_SimParams->attractivePressureRatio) : MathHelpers::max(pdrho, RealType(0));
+                                            const Vec3<RealType>& ppos = m_SimData->particles[p];
 
-                              const Vec3<RealType>& ppos = m_SimData->particles[p];
-                              const Vec3i pcellId = m_SimData->grid3D.getCellIdx<int>(ppos);
+                                            for(UInt32 q : m_SimData->neighborList[p])
+                                            {
+                                                if(p == q)
+                                                    return;
 
-                              for(int lk = -1; lk <= 1; ++lk)
-                              {
-                                  for(int lj = -1; lj <= 1; ++lj)
-                                  {
-                                      for(int li = -1; li <= 1; ++li)
-                                      {
-                                          const Vec3i cellId = pcellId + Vec3i(li, lj, lk);
+                                                const Vec3<RealType>& qpos = m_SimData->particles[q];
+                                                const RealType qden = m_SimData->density[q];
 
-                                          if(!m_SimData->grid3D.isValidCell<int>(cellId))
-                                          {
-                                              continue;
-                                          }
+                                                if(qden < 1e-8)
+                                                {
+                                                    return;
+                                                }
 
-                                          for(UInt32 q : m_SimData->cellParticles(cellId))
-                                          {
-                                              if((UInt32)p == q)
-                                              {
-                                                  continue;
-                                              }
+                                                const Vec3<RealType> r = qpos - ppos;
+                                                if(glm::length2(r) > m_SimParams->kernelRadiusSqr)
+                                                {
+                                                    return;
+                                                }
 
-                                              const Vec3<RealType>& qpos = m_SimData->particles[q];
-                                              const RealType qden = m_SimData->density[q];
+                                                const RealType qdrho = MathHelpers::pow7(qden / m_SimParams->restDensity) - RealType(1.0);
+                                                const RealType qpressure = m_SimParams->bUseAttractivePressure ? MathHelpers::max(qdrho, qdrho * m_SimParams->attractivePressureRatio) : MathHelpers::max(qdrho, RealType(0));
 
-                                              if(qden < 1e-8)
-                                              {
-                                                  continue;
-                                              }
-
-                                              const Vec3<RealType> r = qpos - ppos;
-                                              if(glm::length2(r) > m_SimParams->kernelRadiusSqr)
-                                              {
-                                                  continue;
-                                              }
-
-                                              const RealType qdrho = POW7(qden / m_SimParams->restDensity) - 1.0;
-                                              const RealType qpressure = m_SimParams->bUseAttractivePressure ? fmax(qdrho, qdrho * m_SimParams->attractivePressureRatio) : fmax(qdrho, 0);
-
-                                              const Vec3<RealType> pressure = (ppressure / (pden * pden) + qpressure / (qden * qden)) * m_SpikyKernel.gradW(r);
-                                              pressure_accel += pressure;
-                                          }
-                                      }
-                                  }
-                              } // end loop over neighbor cells
-
-                              ////////////////////////////////////////////////////////////////////////////////
-                              // ==> correct density for the boundary particles
-                              if(m_SimParams->bUseBoundaryParticles)
-                              {
-                                  // => lx/ux
-                                  if(ppos[0] < valid_lx || ppos[0] > valid_ux)
-                                  {
-                                      const Vec3<RealType> ppos_scaled = ppos - m_SimParams->kernelRadius * Vec3<RealType>(0,
-                                                                                                                           floor(ppos[1] / m_SimParams->kernelRadius),
-                                                                                                                           floor(ppos[2] / m_SimParams->kernelRadius));
-
-                                      const Vec_Vec3<RealType>& bparticles = (ppos[0] < valid_lx) ? m_SimData->bd_particles_lx : m_SimData->bd_particles_ux;
-
-                                      for(const Vec3<RealType>& qpos : bparticles)
-                                      {
-                                          const Vec3<RealType> r = qpos - ppos_scaled;
-                                          const Vec3<RealType> pressure = (ppressure / (pden * pden)) * m_SpikyKernel.gradW(r);
-                                          pressure_accel += pressure;
-                                      }
-                                  }
+                                                const Vec3<RealType> pressure = (ppressure / (pden * pden) + qpressure / (qden * qden)) * m_SpikyKernel.gradW(r);
+                                                pressure_accel += pressure;
+                                            } // end loop over neighbor cells
 
 
-                                  // => ly/uy
-                                  if(ppos[1] < valid_ly || ppos[1] > valid_uy)
-                                  {
-                                      const Vec3<RealType> ppos_scaled = ppos - m_SimParams->kernelRadius * Vec3<RealType>(floor(ppos[0] / m_SimParams->kernelRadius),
-                                                                                                                           0,
-                                                                                                                           floor(ppos[2] / m_SimParams->kernelRadius));
+                                            ////////////////////////////////////////////////////////////////////////////////
+                                            // ==> correct density for the boundary particles
+                                            if(m_SimParams->bUseBoundaryParticles)
+                                            {
+                                                const Vec3<RealType> ppos_scaled = ppos - m_SimParams->kernelRadius * Vec3<RealType>(floor(ppos[0] / m_SimParams->kernelRadius),
+                                                                                                                                     floor(ppos[1] / m_SimParams->kernelRadius),
+                                                                                                                                     floor(ppos[2] / m_SimParams->kernelRadius));
 
-                                      const Vec_Vec3<RealType>& bparticles = (ppos[1] < valid_ly) ? m_SimData->bd_particles_ly : m_SimData->bd_particles_uy;
+                                                // => lx/ux
+                                                if(ppos[0] < valid_lx || ppos[0] > valid_ux)
+                                                {
+                                                    const Vec_Vec3<RealType>& bparticles = (ppos[0] < valid_lx) ? m_SimData->bd_particles_lx : m_SimData->bd_particles_ux;
 
-                                      for(const Vec3<RealType>& qpos : bparticles)
-                                      {
-                                          const Vec3<RealType> r = qpos - ppos_scaled;
-                                          const Vec3<RealType> pressure = (ppressure / (pden * pden)) * m_SpikyKernel.gradW(r);
-                                          pressure_accel += pressure;
-                                      }
-                                  }
-
-
-                                  // => lz/uz
-                                  if(ppos[2] < valid_lz || ppos[2] > valid_uz)
-                                  {
-                                      const Vec3<RealType> ppos_scaled = ppos - m_SimParams->kernelRadius * Vec3<RealType>(floor(ppos[0] / m_SimParams->kernelRadius),
-                                                                                                                           floor(ppos[1] / m_SimParams->kernelRadius),
-                                                                                                                           0);
+                                                    for(const Vec3<RealType>& qpos : bparticles)
+                                                    {
+                                                        const Vec3<RealType> r = qpos - ppos_scaled;
+                                                        const Vec3<RealType> pressure = (ppressure / (pden * pden)) * m_SpikyKernel.gradW(r);
+                                                        pressure_accel += pressure;
+                                                    }
+                                                }
 
 
-                                      const Vec_Vec3<RealType>& bparticles = (ppos[2] < valid_lz) ? m_SimData->bd_particles_lz : m_SimData->bd_particles_uz;
+                                                // => ly/uy
+                                                if(ppos[1] < valid_ly || ppos[1] > valid_uy)
+                                                {
+                                                    const Vec_Vec3<RealType>& bparticles = (ppos[1] < valid_ly) ? m_SimData->bd_particles_ly : m_SimData->bd_particles_uy;
 
-                                      for(const Vec3<RealType>& qpos : bparticles)
-                                      {
-                                          const Vec3<RealType> r = qpos - ppos_scaled;
-                                          const Vec3<RealType> pressure = (ppressure / (pden * pden)) * m_SpikyKernel.gradW(r);
-                                          pressure_accel += pressure;
-                                      }
-                                  }
-                              }
-                              // <= end boundary density correction
+                                                    for(const Vec3<RealType>& qpos : bparticles)
+                                                    {
+                                                        const Vec3<RealType> r = qpos - ppos_scaled;
+                                                        const Vec3<RealType> pressure = (ppressure / (pden * pden)) * m_SpikyKernel.gradW(r);
+                                                        pressure_accel += pressure;
+                                                    }
+                                                }
 
-                              ////////////////////////////////////////////////////////////////////////////////
-                              m_SimData->pressureAcc[p] = pressure_accel * m_SimParams->particleMass * m_SimParams->pressureStiffness;
-                          }
-                      }); // end parallel_for
+
+                                                // => lz/uz
+                                                if(ppos[2] < valid_lz || ppos[2] > valid_uz)
+                                                {
+                                                    const Vec_Vec3<RealType>& bparticles = (ppos[2] < valid_lz) ? m_SimData->bd_particles_lz : m_SimData->bd_particles_uz;
+
+                                                    for(const Vec3<RealType>& qpos : bparticles)
+                                                    {
+                                                        const Vec3<RealType> r = qpos - ppos_scaled;
+                                                        const Vec3<RealType> pressure = (ppressure / (pden * pden)) * m_SpikyKernel.gradW(r);
+                                                        pressure_accel += pressure;
+                                                    }
+                                                }
+                                            }
+                                            // <= end boundary density correction
+
+                                            ////////////////////////////////////////////////////////////////////////////////
+                                            m_SimData->pressureForces[p] = pressure_accel * m_SimParams->particleMass * m_SimParams->pressureStiffness;
+                                        }); // end parallel_for
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
 void Banana::SPHSolver<RealType>::computeSurfaceTensionForces()
-{}
+{
+    assert(m_SimData->particles.size() == m_SimData->neighborList.size());
+    assert(m_SimData->particles.size() == m_SimData->surfaceTensionForces.size());
+}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
 void Banana::SPHSolver<RealType>::computeViscosity()
 {
+    assert(m_SimData->particles.size() == m_SimData->neighborList.size());
+    assert(m_SimData->particles.size() == m_SimData->diffuseVelocity.size());
+
     static Vec_Vec3<RealType> diffuseVelocity;
     diffuseVelocity.resize(m_SimData->velocity.size());
 
-    tbb::parallel_for(tbb::blocked_range<size_t>(0, m_SimData->particles.size()),
-                      [&](tbb::blocked_range<size_t> r)
-                      {
-                          for(size_t p = r.begin(); p != r.end(); ++p)
-                          {
-                              const Vec3<RealType>& ppos = m_SimData->particles[p];
-                              const Vec3<RealType>& pvel = m_SimData->velocity[p];
-                              const Vec3i pcellId = m_SimData->grid3D.getCellIdx<int>(ppos);
+    ParallelFuncs::parallel_for<UInt32>(0, static_cast<UInt32>(m_SimData->particles.size()),
+                                        [&](UInt32 p)
+                                        {
+                                            const Vec3<RealType>& ppos = m_SimData->particles[p];
+                                            const Vec3<RealType>& pvel = m_SimData->velocity[p];
+                                            const Vec3i pcellId = m_SimData->grid3D.getCellIdx<int>(ppos);
 
-                              Vec3<RealType> diffuse_vel = Vec3<RealType>(0);
+                                            Vec3<RealType> diffuse_vel = Vec3<RealType>(0);
 
-                              for(int lk = -1; lk <= 1; ++lk)
-                              {
-                                  for(int lj = -1; lj <= 1; ++lj)
-                                  {
-                                      for(int li = -1; li <= 1; ++li)
-                                      {
-                                          const Vec3i cellId = pcellId + Vec3i(li, lj, lk);
+                                            for(UInt32 q : m_SimData->neighborList[p])
+                                            {
+                                                if(p == q)
+                                                    continue;
 
-                                          if(!m_SimData->grid3D.isValidCell<int>(cellId))
-                                          {
-                                              continue;
-                                          }
+                                                const Vec3<RealType>& qpos = m_SimData->particles[q];
+                                                const Vec3<RealType>& qvel = m_SimData->velocity[q];
+                                                const RealType qden = m_SimData->density[q];
+                                                const Vec3<RealType> r = qpos - ppos;
 
-                                          for(UInt32 q : m_SimData->cellParticles(cellId))
-                                          {
-                                              if((UInt32)p == q)
-                                              {
-                                                  continue;
-                                              }
+                                                if(glm::length2(r) > m_SimParams->kernelRadiusSqr)
+                                                {
+                                                    return;
+                                                }
 
-                                              const Vec3<RealType>& qpos = m_SimData->particles[q];
-                                              const Vec3<RealType>& qvel = m_SimData->velocity[q];
-                                              const RealType qden = m_SimData->density[q];
-                                              const Vec3<RealType> r = qpos - ppos;
+                                                diffuse_vel += (1.0f / qden) * (qvel - pvel) * m_CubicKernel.W(r);
+                                            } // end loop over neighbor cells
 
-                                              if(glm::length2(r) > m_SimParams->kernelRadiusSqr)
-                                              {
-                                                  continue;
-                                              }
-
-                                              diffuse_vel += (1.0f / qden) * (qvel - pvel) * m_CubicKernel.W(r);
-                                          }
-                                      }
-                                  }
-                              }
-
-                              diffuseVelocity[p] = diffuse_vel * m_SimParams->particleMass;
-                          }
-                      }); // end parallel_for
+                                            diffuseVelocity[p] = diffuse_vel * m_SimParams->particleMass;
+                                        }); // end parallel_for
 
 
-    tbb::parallel_for(tbb::blocked_range<size_t>(0, m_SimData->velocity.size()),
-                      [&](tbb::blocked_range<size_t> r)
-                      {
-                          for(size_t p = r.begin(); p != r.end(); ++p)
-                          {
-                              m_SimData->velocity[p] += diffuseVelocity[p] * m_SimParams->viscosity;
-                          }
-                      }); // end parallel_for
+    ParallelFuncs::parallel_for<size_t>(0, m_SimData->velocity.size(),
+                                        [&](size_t p) { m_SimData->velocity[p] += diffuseVelocity[p] * m_SimParams->viscosity; });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
 void Banana::SPHSolver<RealType>::updateVelocity(RealType timeStep)
 {
-    tbb::parallel_for(tbb::blocked_range<size_t>(0, m_SimData->velocity.size()),
-                      [&, timeStep](tbb::blocked_range<size_t> r)
-                      {
-                          for(size_t p = r.begin(); p != r.end(); ++p)
-                          {
-                              m_SimData->velocity[p] += m_SimData->pressureForces[p] * timeStep;
-                          }
-                      }); // end parallel_for
+    ParallelFuncs::parallel_for<size_t>(0, m_SimData->velocity.size(),
+                                        [&](size_t p) { m_SimData->velocity[p] += m_SimData->pressureForces[p] * timeStep; });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -660,35 +551,32 @@ void Banana::SPHSolver<RealType>::moveParticles(RealType timeStep)
     const Vec3<RealType> bMin = m_SimParams->boxMin + Vec3<RealType>(m_SimParams->particleRadius);
     const Vec3<RealType> bMax = m_SimParams->boxMax - Vec3<RealType>(m_SimParams->particleRadius);
 
-    tbb::parallel_for(tbb::blocked_range<size_t>(0, m_SimData->particles.size()),
-                      [&, timeStep](tbb::blocked_range<size_t> r)
-                      {
-                          for(size_t p = r.begin(); p != r.end(); ++p)
-                          {
-                              Vec3<RealType> pvel = m_SimData->velocity[p];
-                              Vec3<RealType> ppos = m_SimData->particles[p] + pvel * timeStep;
+    ParallelFuncs::parallel_for<size_t>(0, m_SimData->particles.size(),
+                                        [&](size_t p)
+                                        {
+                                            Vec3<RealType> pvel = m_SimData->velocity[p];
+                                            Vec3<RealType> ppos = m_SimData->particles[p] + pvel * timeStep;
 
-                              bool velChanged = false;
+                                            bool velChanged = false;
 
-                              for(int l = 0; l < 3; ++l)
-                              {
-                                  if(ppos[l] < bMin[l])
-                                  {
-                                      ppos[l] = bMin[l];
-                                      pvel[l] *= -m_SimParams->boundaryRestitution;
-                                      velChanged = true;
-                                  }
-                                  else if(ppos[l] > bMax[l])
-                                  {
-                                      ppos[l] = bMax[l];
-                                      pvel[l] *= -m_SimParams->boundaryRestitution;
-                                      velChanged = true;
-                                  }
-                              }
+                                            for(int l = 0; l < 3; ++l)
+                                            {
+                                                if(ppos[l] < bMin[l])
+                                                {
+                                                    ppos[l] = bMin[l];
+                                                    pvel[l] *= -m_SimParams->boundaryRestitution;
+                                                    velChanged = true;
+                                                }
+                                                else if(ppos[l] > bMax[l])
+                                                {
+                                                    ppos[l] = bMax[l];
+                                                    pvel[l] *= -m_SimParams->boundaryRestitution;
+                                                    velChanged = true;
+                                                }
+                                            }
 
-                              m_SimData->particles[p] = ppos;
-                              if(velChanged)
-                                  m_SimData->velocity[p] = pvel;
-                          }
-                      }); // end parallel_for
+                                            m_SimData->particles[p] = ppos;
+                                            if(velChanged)
+                                                m_SimData->velocity[p] = pvel;
+                                        }); // end parallel_for
 }

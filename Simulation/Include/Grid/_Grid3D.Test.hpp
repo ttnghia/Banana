@@ -49,6 +49,6 @@ TEST_CASE("Test Grid3D", "[Grid3D]")
     particles.push_back(p1);
     particles.push_back(p2);
     grid.collectIndexToCells(particles);
-    grid.getNeighborList(p1, neighborList);
+    grid.findNeighborList(p1, neighborList);
     REQUIRE(neighborList.size() == 2);
 }
