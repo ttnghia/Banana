@@ -16,8 +16,8 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 #include <Banana/Macros.h>
-#include <Banana/ParameterManager.h>
-#include <Banana/Timer.h>
+#include <Banana/Utils/ParameterManager.h>
+#include <Banana/Utils/Timer.h>
 
 #include <cstdio>
 #include <cstdlib>

@@ -35,6 +35,8 @@ void Grid3D<RealType>::setCellSize(RealType cellSize)
         m_NumCells[i]    = static_cast<unsigned int>(ceil((m_BMax[i] - m_BMin[i]) / m_CellSize));
         m_NumTotalCells *= m_NumCells[i];
     }
+
+    m_bCellIdxNeedResize = true;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -60,19 +62,19 @@ bool Grid3D<RealType>::isValidCell(const Vec3<IndexType>& index)  const noexcept
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
 template<class IndexType>
-Vec3<IndexType> Grid3D<RealType>::getCellIdx(const Vec3<RealType>& position)  const noexcept
+Vec3<IndexType> Grid3D<RealType>::getCellIdx(const Vec3<RealType>& ppos)  const noexcept
 {
-    return Vec3<IndexType>(static_cast<IndexType>((position[0] - m_BMin[0]) / m_CellSize),
-                           static_cast<IndexType>((position[1] - m_BMin[1]) / m_CellSize),
-                           static_cast<IndexType>((position[2] - m_BMin[2]) / m_CellSize));
+    return Vec3<IndexType>(static_cast<IndexType>((ppos[0] - m_BMin[0]) / m_CellSize),
+                           static_cast<IndexType>((ppos[1] - m_BMin[1]) / m_CellSize),
+                           static_cast<IndexType>((ppos[2] - m_BMin[2]) / m_CellSize));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
 template<class IndexType>
-Vec3<IndexType> Grid3D<RealType>::getValidCellIdx(const Vec3<RealType>& position)  const noexcept
+Vec3<IndexType> Grid3D<RealType>::getValidCellIdx(const Vec3<RealType>& ppos)  const noexcept
 {
-    return getNearestValidCellIdx<IndexType>(getCellIdx<IndexType>(position));
+    return getNearestValidCellIdx<IndexType>(getCellIdx<IndexType>(ppos));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -90,32 +92,85 @@ Vec3<IndexType> Grid3D<RealType>::getNearestValidCellIdx(const Vec3<IndexType>& 
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-void Grid3D<RealType>::enableCellParticleIdx(bool bEnable /* = true */)
+void Banana::Grid3D<RealType>::constraintToGrid(Vec_Vec3<RealType>& particles)
 {
-    if(!bEnable)
-        m_CellParticleIdx.clear();
-    else
-        m_CellParticleIdx.resize(getNumCells());
+    const RealType       epsilon = 1e-9;
+    const Vec3<RealType> minPos  = m_BMin + Vec3<RealType>(epsilon);
+    const Vec3<RealType> maxPos  = m_BMax - Vec3<RealType>(epsilon);
+
+    for(size_t p = 0, pend = particles.size(); p < pend; ++p)
+    {
+        Vec3<RealType> pos   = particles[p];
+        bool           dirty = false;
+
+        for(int i = 0; i < 3; ++i)
+        {
+            if(pos[i] < minPos[i] || pos[i] > maxPos[i])
+            {
+                dirty  = true;
+                pos[i] = MathHelpers::max(minPos[i], MathHelpers::min(pos[i], maxPos[i]));
+            }
+        }
+
+        if(dirty)
+            particles[p] = pos;
+    }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-void Grid3D<RealType>::collectParticlesToCells(Vec_Vec3<RealType>& particles)
+void Grid3D<RealType>::collectIndexToCells(Vec_Vec3<RealType>& particles)
 {
+    if(m_bCellIdxNeedResize)
+    {
+        m_CellParticleIdx.resize(getNumCells());
+        m_bCellIdxNeedResize = false;
+    }
+
     for(auto& cell : m_CellParticleIdx.vec_data())
         cell.resize(0);
 
     // cannot run in parallel....
-    for(UInt32 p = 0, p_end = static_cast<UInt32>(m_CellParticleIdx.size()); p < p_end; ++p)
+    for(UInt32 p = 0, p_end = static_cast<UInt32>(particles.size()); p < p_end; ++p)
     {
-        auto cellIdx = getValidCellIdx<int>(particles[p]);
+        auto cellIdx = getCellIdx<int>(particles[p]);
         m_CellParticleIdx(cellIdx).push_back(p);
     }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-const Vec_UInt& Banana::Grid3D<RealType>::getCellParticleIndex()
+void Banana::Grid3D<RealType>::getNeighborList(const Vec3<RealType>& ppos, Vec_UInt& neighborList, int cellSpan /*= 1*/)
+{
+    neighborList.resize(0);
+
+    Vec3i cellIdx = getCellIdx<int>(ppos);
+
+    for(int lk = -cellSpan; lk <= cellSpan; ++lk)
+    {
+        for(int lj = -cellSpan; lj <= cellSpan; ++lj)
+        {
+            for(int li = -cellSpan; li <= cellSpan; ++li)
+            {
+                const Vec3i neighborCellIdx = Vec3i(cellIdx[0] + li, cellIdx[1] + lj, cellIdx[2] + lk);
+
+                if(!isValidCell(neighborCellIdx))
+                {
+                    continue;
+                }
+
+                const Vec_UInt& cell = m_CellParticleIdx(neighborCellIdx);
+
+                if(cell.size() > 0)
+                    neighborList.insert(neighborList.end(), cell.begin(), cell.end());
+            }
+        }
+    } // end loop over neighbor cells
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class RealType>
+const Vec_UInt& Banana::Grid3D<RealType>::getParticleIdxSortedByCell()
 {
     static Vec_UInt particleIdx;
     particleIdx.resize(0);
@@ -123,10 +178,7 @@ const Vec_UInt& Banana::Grid3D<RealType>::getCellParticleIndex()
     for(auto& cell : m_CellParticleIdx.vec_data())
     {
         if(cell.size() > 0)
-        {
-            for(unsigned int q : cell)
-                particleIdx.push_back(q);
-        }
+            particleIdx.insert(particleIdx.end(), cell.begin(), cell.end());
     }
 
     return particleIdx;

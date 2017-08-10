@@ -22,7 +22,6 @@ void Banana::SPHSolver<RealType>::makeReady()
     m_NearSpikyKernel.setRadius(1.5 * m_SimParams->particleRadius);
 
     m_SimData->grid3D.setGrid(m_SimParams->boxMin, m_SimParams->boxMax, m_SimParams->kernelRadius);
-    m_SimData->grid3D.enableCellParticleIdx();
     m_SimParams->makeReady();
 
     // todo: move this to simdata
@@ -55,7 +54,7 @@ void Banana::SPHSolver<RealType>::advanceFrame()
         RealType remainingTime = m_GlobalParams->frameDuration - frameTime;
         RealType substep       = MathHelpers::min(computeCFLTimeStep(), remainingTime);
 
-        m_SimData->grid3D.collectParticlesToCells(m_SimData->particles);
+        m_SimData->grid3D.collectIndexToCells(m_SimData->particles);
         advanceVelocity(substep);
         moveParticles(substep);
         frameTime += substep;
@@ -64,16 +63,16 @@ void Banana::SPHSolver<RealType>::advanceFrame()
         ////////////////////////////////////////////////////////////////////////////////
         subStepTimer.tock();
 
-        m_Monitor.printLog("Finished step " + NumberHelpers::formatWithCommas(substepCount) + " of size " + NumberHelpers::formatToScientific(substep) +
-                           "(" + NumberHelpers::formatWithCommas(substep / m_GlobalParams->frameDuration * 100) + "% of the frame, to " +
-                           NumberHelpers::formatWithCommas(100 * (frameTime + substep) / m_GlobalParams->frameDuration) + "% of the frame).");
-        m_Monitor.printLog(subStepTimer.getRunTime("Substep time: "));
-        m_Monitor.newLine();
+        m_Logger.printLog("Finished step " + NumberHelpers::formatWithCommas(substepCount) + " of size " + NumberHelpers::formatToScientific<RealType>(substep) +
+                          "(" + NumberHelpers::formatWithCommas(substep / m_GlobalParams->frameDuration * 100) + "% of the frame, to " +
+                          NumberHelpers::formatWithCommas(100 * (frameTime + substep) / m_GlobalParams->frameDuration) + "% of the frame).");
+        m_Logger.printLog(subStepTimer.getRunTime("Substep time: "));
+        m_Logger.newLine();
     } // end while
 
     ////////////////////////////////////////////////////////////////////////////////
-    m_Monitor.printLog("Frame finished. Frame duration: " + NumberHelpers::formatWithCommas(frameTime) + subStepTimer.getRunTime(" (s). Run time: "));
-    m_Monitor.newLine();
+    m_Logger.printLog("Frame finished. Frame duration: " + NumberHelpers::formatWithCommas(frameTime) + subStepTimer.getRunTime(" (s). Run time: "));
+    m_Logger.newLine();
 
     ////////////////////////////////////////////////////////////////////////////////
     saveParticleData();
@@ -649,7 +648,7 @@ void Banana::SPHSolver<RealType>::updateVelocity(RealType timeStep)
                       {
                           for(size_t p = r.begin(); p != r.end(); ++p)
                           {
-                              m_SimData->velocity[p] += m_SimData->pressureAcc[p] * timeStep;
+                              m_SimData->velocity[p] += m_SimData->pressureForces[p] * timeStep;
                           }
                       }); // end parallel_for
 }
@@ -662,12 +661,12 @@ void Banana::SPHSolver<RealType>::moveParticles(RealType timeStep)
     const Vec3<RealType> bMax = m_SimParams->boxMax - Vec3<RealType>(m_SimParams->particleRadius);
 
     tbb::parallel_for(tbb::blocked_range<size_t>(0, m_SimData->particles.size()),
-                      [&, dt](tbb::blocked_range<size_t> r)
+                      [&, timeStep](tbb::blocked_range<size_t> r)
                       {
                           for(size_t p = r.begin(); p != r.end(); ++p)
                           {
                               Vec3<RealType> pvel = m_SimData->velocity[p];
-                              Vec3<RealType> ppos = m_SimData->particles[p] + pvel * dt;
+                              Vec3<RealType> ppos = m_SimData->particles[p] + pvel * timeStep;
 
                               bool velChanged = false;
 

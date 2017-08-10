@@ -44,12 +44,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)Build\$(Configuration)\</OutDir>
     <IntDir>D:\Scratch\MSVC-Build\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir)Externals\spdlog\include;$(SolutionDir)Externals\glm;$(SolutionDir)Simulation\Include;$(SolutionDir)BananaCore\Include;$(SolutionDir)Externals\tbb_win\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Externals\catch\include;$(SolutionDir)Externals\spdlog\include;$(SolutionDir)Externals\glm;$(SolutionDir)Simulation\Include;$(SolutionDir)BananaCore\Include;$(SolutionDir)Externals\tbb_win\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)Build\$(Configuration)\</OutDir>
     <IntDir>D:\Scratch\MSVC-Build\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir)Externals\spdlog\include;$(SolutionDir)Externals\glm;$(SolutionDir)Simulation\Include;$(SolutionDir)BananaCore\Include;$(SolutionDir)Externals\tbb_win\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Externals\catch\include;$(SolutionDir)Externals\spdlog\include;$(SolutionDir)Externals\glm;$(SolutionDir)Simulation\Include;$(SolutionDir)BananaCore\Include;$(SolutionDir)Externals\tbb_win\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -77,6 +77,8 @@
     <None Include="Simulation.licenseheader" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Include\Grid\_Grid3D.Test.hpp" />
+    <ClInclude Include="Include\ParticleSolvers\_ParticleSolvers.Test.hpp" />
     <ClInclude Include="Include\ParticleSolvers\ParticleSolverInterface.h" />
     <ClInclude Include="Include\ParticleTools\AnisotropicKernelGenerator.h" />
     <ClInclude Include="Include\ParticleTools\AnisotropicKernelGenerator.Impl.hpp" />
@@ -102,7 +104,7 @@
     <ClInclude Include="Include\ParticleTools\Emitters\HollowSphereEmitter.h" />
     <ClInclude Include="Include\ParticleTools\BlueNoiseRelaxation\LloydRelaxation.Impl.hpp" />
     <ClInclude Include="Include\ParticleTools\ParticleHelpers.h" />
-    <ClInclude Include="Include\ParticleTools\ParticleHelpers_Impl.hpp" />
+    <ClInclude Include="Include\ParticleTools\ParticleHelpers.Impl.hpp" />
     <ClInclude Include="Include\ParticleTools\ObjectSamplers\BowlSampler.h" />
     <ClInclude Include="Include\ParticleTools\ObjectSamplers\BoxSampler.h" />
     <ClInclude Include="Include\ParticleTools\ObjectSamplers\CylinderSampler.h" />
@@ -119,9 +121,7 @@
     <ClInclude Include="Include\ParticleSolvers\MPM\MPMSolver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Include\Grid\_Grid_Test.cpp" />
-    <ClCompile Include="Include\ParticleSolvers\_ParticleSolvers_Test.cpp" />
-    <ClCompile Include="Include\ParticleTools\_ParticleTools_Test.cpp" />
+    <ClCompile Include="Include\ParticleTools\_ParticleTools.Test.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

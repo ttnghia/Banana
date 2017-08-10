@@ -14,16 +14,41 @@
 //
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//#include <ParticleSolvers/FLIP/FLIPSolver.h>
-//#include <ParticleSolvers/MPM/MPMSolver.h>
-//#include <ParticleSolvers/Peridynamics/PeridynamicsSolver.h>
-#include <ParticleSolvers/SPH/SPHSolver.h>
+
+#pragma once
+
+#include <Grid/Grid3D.h>
+#include <Banana/Macros.h>
+#include <Banana/TypeNames.h>
+
+#include <catch.hpp>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace _ParticleSolvers_Test
+TEST_CASE("Test Grid3D", "[Grid3D]")
 {
-//Banana::FLIPSolver<float>         solver1;
-//Banana::MPMSolver<float>          solver2;
-//Banana::PeridynamicsSolver<float> solver3;
-//Banana::SPHSolver<float> solver4;
+    Banana::Grid3D<float> grid1;
+    (void)grid1;
+
+    ////////////////////////////////////////////////////////////////////////////////
+    Banana::Grid3D<float> grid(Vec3<float>(0), Vec3<float>(1), 0.1f);
+    REQUIRE(grid.getNumCellX() == 10);
+    REQUIRE(grid.getNumCellY() == 10);
+    REQUIRE(grid.getNumCellZ() == 10);
+
+    REQUIRE(grid.isValidCell(Vec3i(1, 2, 3)));
+    REQUIRE(!grid.isValidCell(Vec3i(1, 2, -1)));
+
+    REQUIRE(grid.getNearestValidCellIdx(Vec3i(1, 2, -1)) == Vec3i(1, 2, 0));
+    REQUIRE(grid.getValidCellIdx<int>(Vec3f(0.15, 0.25, -0.5)) == Vec3i(1, 2, 0));
+
+    //////////////////////////////////////////////////////////////////////////////////
+    Vec_Vec3<float> particles;
+    Vec_UInt        neighborList;
+    Vec3f           p1 = Vec3f(0.15, 0.25, 0.5);
+    Vec3f           p2 = Vec3f(0.25, 0.25, 0.5);
+    particles.push_back(p1);
+    particles.push_back(p2);
+    grid.collectIndexToCells(particles);
+    grid.getNeighborList(p1, neighborList);
+    REQUIRE(neighborList.size() == 2);
 }

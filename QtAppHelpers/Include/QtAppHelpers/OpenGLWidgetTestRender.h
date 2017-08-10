@@ -22,11 +22,11 @@
 #include <OpenGLHelpers/OpenGLBuffer.h>
 #include <OpenGLHelpers/OpenGLTexture.h>
 #include <OpenGLHelpers/ShaderProgram.h>
-#include <OpenGLHelpers/CubeObject.h>
-#include <OpenGLHelpers/MeshObject.h>
 #include <OpenGLHelpers/Lights.h>
 #include <OpenGLHelpers/Material.h>
 #include <OpenGLHelpers/RenderObjects.h>
+#include <OpenGLHelpers/MeshObjects/CubeObject.h>
+#include <OpenGLHelpers/MeshObjects/MeshObject.h>
 
 #include <QtAppHelpers/QtAppMacros.h>
 #include <QtAppHelpers/OpenGLWidget.h>

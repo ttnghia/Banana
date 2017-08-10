@@ -136,26 +136,26 @@
     <ClCompile Include="Source\Camera.cpp" />
     <ClCompile Include="Source\Lights.cpp" />
     <ClCompile Include="Source\Material.cpp" />
-    <ClCompile Include="Source\MeshObject.cpp" />
+    <ClCompile Include="Source\MeshObjects\MeshObject.cpp" />
     <ClCompile Include="Source\OpenGLBuffer.cpp" />
     <ClCompile Include="Source\OpenGLTexture.cpp" />
     <ClCompile Include="Source\ShaderProgram.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\OpenGLHelpers\ArcBall.h" />
-    <ClInclude Include="Include\OpenGLHelpers\WireFrameBoxObject.h" />
+    <ClInclude Include="Include\OpenGLHelpers\MeshObjects\WireFrameBoxObject.h" />
     <ClInclude Include="Include\OpenGLHelpers\Camera.h" />
-    <ClInclude Include="Include\OpenGLHelpers\CubeObject.h" />
-    <ClInclude Include="Include\OpenGLHelpers\GridObject.h" />
+    <ClInclude Include="Include\OpenGLHelpers\MeshObjects\CubeObject.h" />
+    <ClInclude Include="Include\OpenGLHelpers\MeshObjects\GridObject.h" />
     <ClInclude Include="Include\OpenGLHelpers\Lights.h" />
     <ClInclude Include="Include\OpenGLHelpers\Material.h" />
-    <ClInclude Include="Include\OpenGLHelpers\MeshObject.h" />
+    <ClInclude Include="Include\OpenGLHelpers\MeshObjects\MeshObject.h" />
     <ClInclude Include="Include\OpenGLHelpers\OpenGLBuffer.h" />
     <ClInclude Include="Include\OpenGLHelpers\OpenGLMacros.h" />
     <ClInclude Include="Include\OpenGLHelpers\OpenGLTexture.h" />
     <ClInclude Include="Include\OpenGLHelpers\RenderObjects.h" />
     <ClInclude Include="Include\OpenGLHelpers\ShaderProgram.h" />
-    <ClInclude Include="Include\OpenGLHelpers\SphereObject.h" />
+    <ClInclude Include="Include\OpenGLHelpers\MeshObjects\SphereObject.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="OpenGLHelpers.licenseheader" />

@@ -19,10 +19,10 @@
 
 #include <Banana/TypeNames.h>
 #include <Banana/Macros.h>
-#include <Banana/Logger.h>
-#include <Banana/FileHelpers.h>
-#include <Banana/MathHelpers.h>
-#include <Banana/Timer.h>
+#include <Banana/Utils/Logger.h>
+#include <Banana/Utils/FileHelpers.h>
+#include <Banana/Utils/MathHelpers.h>
+#include <Banana/Utils/Timer.h>
 #include <Banana/Data/DataIO.h>
 #include <Banana/ParallelHelpers/ParallelSTL.h>
 #include <Grid/Grid3D.h>

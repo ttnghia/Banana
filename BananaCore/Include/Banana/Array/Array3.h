@@ -271,7 +271,7 @@ public:
         return m_SizeZ;
     }
 
-    size_type dataSize(void) const
+    size_type size(void) const
     {
         return m_Data.size();
     }

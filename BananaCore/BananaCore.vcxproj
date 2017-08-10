@@ -45,12 +45,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)Build\$(Configuration)\</OutDir>
     <IntDir>D:\Scratch\MSVC-Build\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir)Externals\tinyply\source;$(SolutionDir)Externals\tinyobjloader;$(SolutionDir)Externals\yocto-gl;$(SolutionDir)Externals\spdlog\include;$(SolutionDir)Externals\glm;$(ProjectDir)Include;$(SolutionDir)Externals\tbb_win\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Externals\catch\include;$(SolutionDir)Externals\tinyply\source;$(SolutionDir)Externals\tinyobjloader;$(SolutionDir)Externals\yocto-gl;$(SolutionDir)Externals\spdlog\include;$(SolutionDir)Externals\glm;$(ProjectDir)Include;$(SolutionDir)Externals\tbb_win\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)Build\$(Configuration)\</OutDir>
     <IntDir>D:\Scratch\MSVC-Build\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir)Externals\tinyply\source;$(SolutionDir)Externals\tinyobjloader;$(SolutionDir)Externals\yocto-gl;$(SolutionDir)Externals\spdlog\include;$(SolutionDir)Externals\glm;$(ProjectDir)Include;$(SolutionDir)Externals\tbb_win\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Externals\catch\include;$(SolutionDir)Externals\tinyply\source;$(SolutionDir)Externals\tinyobjloader;$(SolutionDir)Externals\yocto-gl;$(SolutionDir)Externals\spdlog\include;$(SolutionDir)Externals\glm;$(ProjectDir)Include;$(SolutionDir)Externals\tbb_win\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -84,15 +84,17 @@
     <None Include="BananaCore.licenseheader" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Include\Banana\AppConfigReader.h" />
+    <ClInclude Include="Include\Banana\Utils\AppConfigReader.h" />
     <ClInclude Include="Include\Banana\Array\Array2.h" />
     <ClInclude Include="Include\Banana\Array\Array3.h" />
     <ClInclude Include="Include\Banana\Array\ArrayHelpers.h" />
+    <ClInclude Include="Include\Banana\Geometry\_Geometry.Test.hpp" />
     <ClInclude Include="Include\Banana\Geometry\KdTree.Impl.hpp" />
     <ClInclude Include="Include\Banana\Geometry\MeshLoader.h" />
     <ClInclude Include="Include\Banana\Geometry\MeshLoader.Impl.hpp" />
     <ClInclude Include="Include\Banana\Geometry\SignDistanceField.Impl.hpp" />
-    <ClInclude Include="Include\Banana\Logger.h" />
+    <ClInclude Include="Include\Banana\LinearAlgebra\_LinearAlgebra.Test.hpp" />
+    <ClInclude Include="Include\Banana\Utils\Logger.h" />
     <ClInclude Include="Include\Banana\LinearAlgebra\BlockPCGSolver.h" />
     <ClInclude Include="Include\Banana\LinearAlgebra\BlockPCGSolver.Impl.hpp" />
     <ClInclude Include="Include\Banana\LinearAlgebra\BlockSparseMatrix.h" />
@@ -105,27 +107,26 @@
     <ClInclude Include="Include\Banana\ParallelHelpers\ParallelFuncs.h" />
     <ClInclude Include="Include\Banana\ParallelHelpers\ParallelObjects.h" />
     <ClInclude Include="Include\Banana\ParallelHelpers\ParallelSTL.h" />
+    <ClInclude Include="Include\Banana\ParallelHelpers\_ParallelHelpers.Test.hpp" />
     <ClInclude Include="Include\Banana\System\CallStack.h" />
     <ClInclude Include="Include\Banana\Data\DataIO.h" />
     <ClInclude Include="Include\Banana\Data\DataPrinter.h" />
-    <ClInclude Include="Include\Banana\FileHelpers.h" />
+    <ClInclude Include="Include\Banana\Utils\FileHelpers.h" />
     <ClInclude Include="Include\Banana\Geometry\SignDistanceField.h" />
     <ClInclude Include="Include\Banana\Geometry\KdTree.h" />
     <ClInclude Include="Include\Banana\Macros.h" />
-    <ClInclude Include="Include\Banana\MathHelpers.h" />
+    <ClInclude Include="Include\Banana\Utils\MathHelpers.h" />
     <ClInclude Include="Include\Banana\System\MemoryUsage.h" />
-    <ClInclude Include="Include\Banana\NumberHelpers.h" />
-    <ClInclude Include="Include\Banana\ParameterManager.h" />
+    <ClInclude Include="Include\Banana\Utils\NumberHelpers.h" />
+    <ClInclude Include="Include\Banana\Utils\ParameterManager.h" />
     <ClInclude Include="Include\Banana\Data\ParticleSystemData.h" />
-    <ClInclude Include="Include\Banana\STLHelpers.h" />
+    <ClInclude Include="Include\Banana\Utils\STLHelpers.h" />
     <ClInclude Include="Include\Banana\LinearAlgebra\SVD.h" />
-    <ClInclude Include="Include\Banana\Timer.h" />
+    <ClInclude Include="Include\Banana\Utils\Timer.h" />
     <ClInclude Include="Include\Banana\TypeNames.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Include\Banana\Geometry\_Geometry_Test.cpp" />
-    <ClCompile Include="Include\Banana\LinearAlgebra\_LinearAlgebra_Test.cpp" />
-    <ClCompile Include="Source\Logger.cpp" />
+    <ClCompile Include="Source\Utils\Logger.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

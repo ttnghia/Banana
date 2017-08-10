@@ -19,7 +19,7 @@
 
 #include <array>
 
-#include <OpenGLHelpers/MeshObject.h>
+#include <OpenGLHelpers/MeshObjects/MeshObject.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana

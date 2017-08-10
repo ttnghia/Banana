@@ -24,18 +24,12 @@
     <Filter Include="Externals">
       <UniqueIdentifier>{f7753dd8-81d1-4c22-9ef5-f6785e46564c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Geometry">
-      <UniqueIdentifier>{82a8ebe7-989e-4e4e-8070-8f14e8acfea7}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\Material.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\MeshObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\OpenGLBuffer.cpp">
@@ -57,6 +51,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\Lights.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\MeshObjects\MeshObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -88,20 +85,20 @@
     <ClInclude Include="Include\OpenGLHelpers\Lights.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\OpenGLHelpers\MeshObject.h">
-      <Filter>Header Files\Geometry</Filter>
+    <ClInclude Include="Include\OpenGLHelpers\MeshObjects\CubeObject.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\OpenGLHelpers\SphereObject.h">
-      <Filter>Header Files\Geometry</Filter>
+    <ClInclude Include="Include\OpenGLHelpers\MeshObjects\GridObject.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\OpenGLHelpers\CubeObject.h">
-      <Filter>Header Files\Geometry</Filter>
+    <ClInclude Include="Include\OpenGLHelpers\MeshObjects\MeshObject.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\OpenGLHelpers\GridObject.h">
-      <Filter>Header Files\Geometry</Filter>
+    <ClInclude Include="Include\OpenGLHelpers\MeshObjects\SphereObject.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\OpenGLHelpers\WireFrameBoxObject.h">
-      <Filter>Header Files\Geometry</Filter>
+    <ClInclude Include="Include\OpenGLHelpers\MeshObjects\WireFrameBoxObject.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

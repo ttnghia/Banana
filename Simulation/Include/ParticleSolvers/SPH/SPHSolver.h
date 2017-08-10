@@ -48,12 +48,12 @@ struct SPHParameters
     Vec3<RealType> boxMin = Vec3<RealType>(0);
     Vec3<RealType> boxMax = Vec3<RealType>(1.0);
 
-    RealType pressureStiffness  = DEFAULT_PRESSURE_STIFFNESS;
-    RealType nearForceStiffness = DEFAULT_NEAR_FORCE_STIFFNESS;
-    RealType viscosity          = DEFAULT_VISCOSITY;
-    RealType kernelRadius       = 1.0 / RealType(DEFAULT_RESOLUTION);
+    RealType pressureStiffness  = RealType(DEFAULT_PRESSURE_STIFFNESS);
+    RealType nearForceStiffness = RealType(DEFAULT_NEAR_FORCE_STIFFNESS);
+    RealType viscosity          = RealType(DEFAULT_VISCOSITY);
+    RealType kernelRadius       = RealType(1.0 / DEFAULT_RESOLUTION);
 
-    RealType boundaryRestitution     = DEFAULT_BOUNDARY_RESTITUTION;
+    RealType boundaryRestitution     = RealType(DEFAULT_BOUNDARY_RESTITUTION);
     RealType attractivePressureRatio = 0.1;
     RealType restDensity             = 1000.0;
     RealType densityVariationRatio   = 10.0;

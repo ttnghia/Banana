@@ -19,7 +19,7 @@
 
 #include <Banana/Macros.h>
 #include <Banana/TypeNames.h>
-#include <Banana/FileHelpers.h>
+#include <Banana/Utils/FileHelpers.h>
 
 #include <string>
 #include <vector>

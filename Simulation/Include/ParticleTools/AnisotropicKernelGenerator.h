@@ -18,7 +18,7 @@
 #pragma once
 
 #include <Banana/LinearAlgebra/SVD.h>
-#include <Banana/MathHelpers.h>
+#include <Banana/Utils/MathHelpers.h>
 #include <Grid/Grid3D.h>
 
 #include <tbb/tbb.h>

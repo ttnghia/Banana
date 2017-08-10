@@ -22,7 +22,7 @@
 #include <cassert>
 #include <sstream>
 
-#include <Banana/NumberHelpers.h>
+#include <Banana/Utils/NumberHelpers.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana

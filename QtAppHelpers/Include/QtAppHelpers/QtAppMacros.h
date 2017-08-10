@@ -87,7 +87,7 @@ typedef  QOpenGLFunctions_4_5_Core   OpenGLFunctions;
     }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <Banana/NumberHelpers.h>
+#include <Banana/Utils/NumberHelpers.h>
 #include <QtAppHelpers/CustomSplashScreen.h>
 #include <QDir>
 #define __BNNQt_RunMainWindowWinSplashScreen(MainWindowClass, argc, argv, vsync, FSPath)                                      \

@@ -32,10 +32,9 @@ class Grid3D
 {
 public:
     Grid3D() = default;
-    Grid3D(const Vec3<RealType>& bMin, const Vec3<RealType>& bMax, RealType cellSize, bool bEnableCellParticleIdx = true) : m_BMin(bMin), m_BMax(bMax)
+    Grid3D(const Vec3<RealType>& bMin, const Vec3<RealType>& bMax, RealType cellSize) : m_BMin(bMin), m_BMax(bMax)
     {
         setCellSize(cellSize);
-        enableCellParticleIdx(bEnableCellParticleIdx);
     }
 
     void setGrid(const Vec3<RealType>& bMin, const Vec3<RealType>& bMax, RealType cellSize);
@@ -59,18 +58,20 @@ public:
 
     ////////////////////////////////////////////////////////////////////////////////
     template<class IndexType>
-    Vec3<IndexType> getCellIdx(const Vec3<RealType>& position) const noexcept;
+    Vec3<IndexType> getCellIdx(const Vec3<RealType>& ppos) const noexcept;
 
     template<class IndexType>
-    Vec3<IndexType> getValidCellIdx(const Vec3<RealType>& position) const noexcept;
+    Vec3<IndexType> getValidCellIdx(const Vec3<RealType>& ppos) const noexcept;
 
     template<class IndexType>
     Vec3<IndexType> getNearestValidCellIdx(const Vec3<IndexType>& cellIdx) const noexcept;
 
     ////////////////////////////////////////////////////////////////////////////////
-    void            enableCellParticleIdx(bool bEnable = true);
-    void            collectParticlesToCells(Vec_Vec3<RealType>& particles);
-    const Vec_UInt& getCellParticleIndex();
+    // particle processing
+    void            constraintToGrid(Vec_Vec3<RealType>& particles);
+    void            collectIndexToCells(Vec_Vec3<RealType>& particles);
+    void            getNeighborList(const Vec3<RealType>& ppos, Vec_UInt& neighborList, int cellSpan = 1);
+    const Vec_UInt& getParticleIdxSortedByCell();
 
 private:
     Vec3<RealType>     m_BMin          = Vec3<RealType>(0);
@@ -79,6 +80,7 @@ private:
     unsigned int       m_NumTotalCells = 1;
     RealType           m_CellSize      = RealType(1.0);
     Array3_VecUInt     m_CellParticleIdx;
+    bool               m_bCellIdxNeedResize = false;  // to track and resize the m_CellParticleIdx array
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

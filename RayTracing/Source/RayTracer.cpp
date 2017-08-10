@@ -16,7 +16,7 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 #include <RayTracing/RayTracer.h>
-#include <Banana/FileHelpers.h>
+#include <Banana/Utils/FileHelpers.h>
 
 #include <sutil/sutil.h>
 

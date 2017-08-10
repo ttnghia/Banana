@@ -24,6 +24,8 @@
 #include <locale>
 #include <random>
 
+#include <Banana/TypeNames.h>
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
 {
@@ -66,8 +68,8 @@ std::string formatToScientific(T value, int precision = 5)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class VectorType>
-inline std::string formatToScientific(const VectorType& vec, int precision = 5)
+template<class T>
+inline std::string formatToScientific(const Vec3<T>& vec, int precision = 5)
 {
     std::stringstream ss;
     ss.str("");
@@ -90,8 +92,8 @@ std::string toString(const T value, const int precision = 5)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class VectorType>
-inline std::string vecToString(const VectorType& vec, int precision = 5)
+template<class T>
+inline std::string toString(const Vec3<T>& vec, int precision = 5)
 {
     std::stringstream ss;
     ss.str("");
