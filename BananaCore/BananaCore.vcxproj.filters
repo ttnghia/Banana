@@ -36,37 +36,19 @@
     <ClInclude Include="Include\Banana\Data\ParticleSystemData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Banana\Geometry\MeshLoader_Impl.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Include\Banana\Geometry\SignDistanceField.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\Banana\Geometry\SignDistanceField_Impl.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Include\Banana\LinearAlgebra\BlockPCGSolver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Banana\LinearAlgebra\BlockPCGSolver_Impl.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Include\Banana\LinearAlgebra\BlockSparseMatrix.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\Banana\LinearAlgebra\BlockSparseMatrix_Impl.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Include\Banana\LinearAlgebra\PCGSolver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Banana\LinearAlgebra\PCGSolver_Impl.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Include\Banana\LinearAlgebra\SparseMatrix.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\Banana\LinearAlgebra\SparseMatrix_Impl.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Include\Banana\ParallelHelpers\ParallelBLAS.h">
@@ -117,9 +99,6 @@
     <ClInclude Include="Include\Banana\LinearAlgebra\SVD.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Banana\Geometry\KdTree_Impl.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Include\Banana\Geometry\KdTree.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -127,6 +106,27 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Include\Banana\ParameterManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Banana\Geometry\MeshLoader.Impl.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Banana\Geometry\SignDistanceField.Impl.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Banana\LinearAlgebra\BlockPCGSolver.Impl.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Banana\LinearAlgebra\BlockSparseMatrix.Impl.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Banana\LinearAlgebra\PCGSolver.Impl.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Banana\LinearAlgebra\SparseMatrix.Impl.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Banana\Geometry\KdTree.Impl.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
