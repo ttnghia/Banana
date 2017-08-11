@@ -22,9 +22,9 @@
 #include <OpenGLHelpers/ShaderProgram.h>
 #include <OpenGLHelpers/OpenGLBuffer.h>
 #include <OpenGLHelpers/OpenGLTexture.h>
-#include <OpenGLHelpers/CubeObject.h>
-#include <OpenGLHelpers/GridObject.h>
-#include <OpenGLHelpers/WireFrameBoxObject.h>
+#include <OpenGLHelpers/MeshObjects/CubeObject.h>
+#include <OpenGLHelpers/MeshObjects/GridObject.h>
+#include <OpenGLHelpers/MeshObjects/WireFrameBoxObject.h>
 
 #include <OpenGLHelpers/Lights.h>
 #include <OpenGLHelpers/Material.h>
