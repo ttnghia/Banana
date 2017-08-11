@@ -40,12 +40,12 @@ using namespace Banana;
 #  define M_PI 3.14159265359
 #endif
 
-
+//#define TEST_GRID3D
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 std::vector<Vec3<Real> > positions;
 Grid3D<Real>             grid3D = Grid3D<Real>(Vec3<Real>(0), Vec3<Real>(1), Real(1.0 / 128.0));
 
-const size_t N               = 100;
+const size_t N               = 200;
 const size_t N_enright_steps = 50;
 
 const Real r_omega  = Real(0.15);
@@ -135,6 +135,8 @@ void compare_with_bruteforce_search(NeighborhoodSearch<Real> const& nsearch)
             }
         }
     }
+
+    std::cout << "    ...Grid search and NSearch have the same result." << std::endl << std::endl;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -188,6 +190,8 @@ void compare_single_query_with_bruteforce_search(NeighborhoodSearch<Real>& nsear
             }
         }
     }
+
+    std::cout << "    ...Grid search and NSearch have the same result." << std::endl << std::endl;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -212,13 +216,14 @@ Vec3<Real> enright_velocity_field(Vec3<Real> const& x)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void advect()
 {
+    const Real timestep = Real(0.1);
     ParallelFuncs::parallel_for<size_t>(0, positions.size(), [&](size_t i)
                                         {
                                             Vec3<Real>& x = positions[i];
                                             Vec3<Real> v = enright_velocity_field(x);
-                                            x[0] += Real(0.05) * v[0];
-                                            x[1] += Real(0.05) * v[1];
-                                            x[2] += Real(0.05) * v[1];
+                                            x[0] += timestep * v[0];
+                                            x[1] += timestep * v[1];
+                                            x[2] += timestep * v[1];
                                         });
 }
 
@@ -301,9 +306,10 @@ TEST_CASE("Test CompactNSearch", "[CompactNSearch]")
         nsearch.find_neighbors();
         auto runTime = std::chrono::duration_cast<std::chrono::milliseconds>(Clock::now() - t0).count();
         std::cout << "After z_sort: neighborhood search took " << NumberHelpers::formatWithCommas(runTime) << "ms" << std::endl << std::endl;
+
+        //compare_single_query_with_bruteforce_search(nsearch);
     }
 
-    //compare_single_query_with_bruteforce_search(nsearch);
     //compare_with_bruteforce_search(nsearch);
 
 
@@ -311,6 +317,7 @@ TEST_CASE("Test CompactNSearch", "[CompactNSearch]")
 
     ////////////////////////////////////////////////////////////////////////////////
     // search using grid3d
+#ifdef TEST_GRID3D
     std::vector<std::vector<unsigned int> > neighborsByCell(positions.size());
 
     {
@@ -324,14 +331,27 @@ TEST_CASE("Test CompactNSearch", "[CompactNSearch]")
 
         compare_with_grid_search(nsearch, neighborsByCell);
     }
+#endif
 
     std::cout << "Average index distance after z-sort    = " << NumberHelpers::formatWithCommas(compute_average_distance(nsearch)) << std::endl;
 
     std::cout << "Moving points:" << std::endl;
     for(int i = 0; i < N_enright_steps; ++i)
     {
-        std::cout << "Enright step " << i << ". ";
+        std::cout << std::endl << "Enright step " << i << ". ";
         advect();
+
+        {
+            for(auto& ppos : positions)
+            {
+                if(min_x > ppos[0])
+                    min_x = ppos[0];
+                if(max_x < ppos[0])
+                    max_x = ppos[0];
+            }
+            std::cout << "Min x = " << min_x << ", Max x = " << max_x << std::endl;
+        }
+
         {
             auto t0 = Clock::now();
             nsearch.find_neighbors();
@@ -342,6 +362,7 @@ TEST_CASE("Test CompactNSearch", "[CompactNSearch]")
             //compare_single_query_with_bruteforce_search(nsearch);
         }
 
+#ifdef TEST_GRID3D
         {
             auto t0 = Clock::now();
             grid3D.collectIndexToCells(positions);
@@ -352,6 +373,7 @@ TEST_CASE("Test CompactNSearch", "[CompactNSearch]")
 
             compare_with_grid_search(nsearch, neighborsByCell);
         }
+#endif
 
         nsearch.z_sort();
         for(auto i = 0u; i < nsearch.n_point_sets(); ++i)
@@ -366,13 +388,16 @@ TEST_CASE("Test CompactNSearch", "[CompactNSearch]")
             auto runTime = std::chrono::duration_cast<std::chrono::milliseconds>(Clock::now() - t0).count();
             std::cout << "Neighborhood search afer z_sort took " << NumberHelpers::formatWithCommas(runTime) << "ms" << std::endl;
         }
+
+#ifdef TEST_GRID3D
         {
             auto t0 = Clock::now();
             grid3D.collectIndexToCells(positions);
             int cellSpan = int(ceil(radius / grid3D.getCellSize()));
             grid3D.getNeighborList(positions, neighborsByCell, radius2, cellSpan);
             auto runTime = std::chrono::duration_cast<std::chrono::milliseconds>(Clock::now() - t0).count();
-            std::cout << "Using Grid3D to find neighborhood after z_sort took " << NumberHelpers::formatWithCommas(runTime) << "ms" << std::endl << std::endl;
+            std::cout << "Using Grid3D to find neighborhood after z_sort took " << NumberHelpers::formatWithCommas(runTime) << "ms" << std::endl;
         }
+#endif
     }
 }

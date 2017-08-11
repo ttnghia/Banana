@@ -14,6 +14,8 @@
 //
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+// Adapted from https://github.com/InteractiveComputerGraphics/CompactNSearch by Dan Koschier
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 #pragma once
 
@@ -213,7 +215,6 @@ public:
     }
 
 private:
-
     void init();
     void update_hash_table(std::vector<unsigned int>& to_delete);
     void erase_empty_entries(std::vector<unsigned int> const& to_delete);
@@ -223,13 +224,12 @@ private:
     HashKey cell_index(RealType const* x) const;
 
 private:
-
-
     std::vector<PointSet<RealType> > m_point_sets;
     ActivationTable                  m_activation_table, m_old_activation_table;
 
-    RealType                                                 m_inv_cell_size;
-    RealType                                                 m_r2;
+    RealType m_inv_cell_size;
+    RealType m_r2;
+
     std::unordered_map<HashKey, unsigned int, SpatialHasher> m_map;
     std::vector<HashEntry>                                   m_entries;
 

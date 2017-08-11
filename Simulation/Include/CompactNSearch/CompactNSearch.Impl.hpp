@@ -17,30 +17,24 @@
 // Determines Morten value according to z-curve.
 inline uint_fast64_t z_value(HashKey const& key)
 {
-    return morton3D_64_encode(
-        static_cast<uint_fast32_t>(static_cast<int64_t>(key.k[0]) -
-                                   (std::numeric_limits<int>::lowest() + 1)),
-        static_cast<uint_fast32_t>(static_cast<int64_t>(key.k[1]) -
-                                   (std::numeric_limits<int>::lowest() + 1)),
-        static_cast<uint_fast32_t>(static_cast<int64_t>(key.k[2]) -
-                                   (std::numeric_limits<int>::lowest() + 1))
-        );
+    return morton3D_64_encode(static_cast<uint_fast32_t>(static_cast<int64_t>(key.k[0]) - (std::numeric_limits<int>::lowest() + 1)),
+                              static_cast<uint_fast32_t>(static_cast<int64_t>(key.k[1]) - (std::numeric_limits<int>::lowest() + 1)),
+                              static_cast<uint_fast32_t>(static_cast<int64_t>(key.k[2]) - (std::numeric_limits<int>::lowest() + 1)));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-NeighborhoodSearch<RealType>::NeighborhoodSearch(RealType r, bool erase_empty_cells)
-    : m_r2(r * r), m_inv_cell_size(static_cast<Real>(1.0 / r))
-    , m_erase_empty_cells(erase_empty_cells)
-    , m_initialized(false)
+NeighborhoodSearch<RealType>::NeighborhoodSearch(RealType r, bool erase_empty_cells) :
+    m_r2(r * r), m_inv_cell_size(static_cast<Real>(1.0 / r)), m_erase_empty_cells(erase_empty_cells), m_initialized(false)
 {
     if(r <= 0.0)
     {
-        std::cerr << "WARNING: Neighborhood search may not be initialized with a zero or negative"
-                  << " search radius. This may lead to unexpected behavior." << std::endl;
+        std::cerr << "WARNING: Neighborhood search may not be initialized with a zero or negative search radius."
+                  << " This may lead to unexpected behavior." << std::endl;
     }
 }
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Computes triple index to a world space position x.
 template<class RealType>
 HashKey NeighborhoodSearch<RealType>::cell_index(RealType const* x) const
@@ -54,6 +48,7 @@ HashKey NeighborhoodSearch<RealType>::cell_index(RealType const* x) const
     return ret;
 }
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Determines permutation table for point array.
 template<class RealType>
 void NeighborhoodSearch<RealType>::z_sort()
@@ -69,9 +64,11 @@ void NeighborhoodSearch<RealType>::z_sort()
                       return z_value(cell_index(d.point(a))) < z_value(cell_index(d.point(b)));
                   });
     }
+
     m_initialized = false;
 }
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Build hash table and entry array from scratch.
 template<class RealType>
 void NeighborhoodSearch<RealType>::init()
@@ -87,6 +84,7 @@ void NeighborhoodSearch<RealType>::init()
         d.m_locks.resize(m_point_sets.size());
         for(auto& l : d.m_locks)
             l.resize(d.n_points());
+
         for(unsigned int i = 0; i < d.n_points(); i++)
         {
             HashKey const& key = cell_index(d.point(i));
@@ -119,6 +117,7 @@ void NeighborhoodSearch<RealType>::init()
     m_initialized = true;
 }
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
 void NeighborhoodSearch<RealType>::resize_point_set(unsigned int index, RealType const* x, std::size_t size)
 {
@@ -144,8 +143,10 @@ void NeighborhoodSearch<RealType>::resize_point_set(unsigned int index, RealType
             HashKey const& key = point_set.m_keys[i];
             auto           it  = m_map.find(key);
             m_entries[it->second].erase({ index, i });
+
             if(m_activation_table.is_searching_neighbors(index))
                 m_entries[it->second].n_searching_points--;
+
             if(m_erase_empty_cells)
             {
                 if(m_entries[it->second].n_indices() == 0)
@@ -188,6 +189,7 @@ void NeighborhoodSearch<RealType>::resize_point_set(unsigned int index, RealType
         l.resize(point_set.n_points());
 }
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
 void NeighborhoodSearch<RealType>::update_activation_table()
 {
@@ -200,15 +202,14 @@ void NeighborhoodSearch<RealType>::update_activation_table()
             for(auto const& idx : entry.indices)
             {
                 if(m_activation_table.is_searching_neighbors(idx.point_set_id))
-                {
                     ++n;
-                }
             }
         }
         m_old_activation_table = m_activation_table;
     }
 }
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
 void NeighborhoodSearch<RealType>::find_neighbors(bool points_changed_)
 {
@@ -220,6 +221,7 @@ void NeighborhoodSearch<RealType>::find_neighbors(bool points_changed_)
     query();
 }
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
 void NeighborhoodSearch<RealType>::update_point_sets()
 {
@@ -234,6 +236,7 @@ void NeighborhoodSearch<RealType>::update_point_sets()
     {
         if(!d.is_dynamic()) continue;
         d.m_keys.swap(d.m_old_keys);
+
         for(unsigned int i = 0; i < d.n_points(); ++i)
         {
             d.m_keys[i] = cell_index(d.point(i));
@@ -245,19 +248,23 @@ void NeighborhoodSearch<RealType>::update_point_sets()
     {
         to_delete.reserve(m_entries.size());
     }
+
     update_hash_table(to_delete);
+
     if(m_erase_empty_cells)
     {
         erase_empty_entries(to_delete);
     }
 }
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
 void NeighborhoodSearch<RealType>::find_neighbors(unsigned int point_set_id, unsigned int point_index, std::vector<std::vector<unsigned int> >& neighbors)
 {
     query(point_set_id, point_index, neighbors);
 }
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
 void NeighborhoodSearch<RealType>::erase_empty_entries(std::vector<unsigned int> const& to_delete)
 {
@@ -265,10 +272,7 @@ void NeighborhoodSearch<RealType>::erase_empty_entries(std::vector<unsigned int>
         return;
 
     // Indicated empty cells.
-    m_entries.erase(std::remove_if(m_entries.begin(), m_entries.end(), [](HashEntry const& entry)
-                                   {
-                                       return entry.indices.empty();
-                                   }), m_entries.end());
+    m_entries.erase(std::remove_if(m_entries.begin(), m_entries.end(), [](HashEntry const& entry) { return entry.indices.empty(); }), m_entries.end());
 
     {
         auto it = m_map.begin();
@@ -289,11 +293,7 @@ void NeighborhoodSearch<RealType>::erase_empty_entries(std::vector<unsigned int>
     }
 
     std::vector<std::pair<HashKey const, unsigned int>*> kvps(m_map.size());
-    std::transform(m_map.begin(), m_map.end(), kvps.begin(),
-                   [](std::pair<HashKey const, unsigned int>& kvp)
-                   {
-                       return &kvp;
-                   });
+    std::transform(m_map.begin(), m_map.end(), kvps.begin(), [](std::pair<HashKey const, unsigned int>& kvp) { return &kvp; });
 
     ParallelFuncs::parallel_for<size_t>(0, kvps.size(),
                                         [&](size_t it)
@@ -312,6 +312,7 @@ void NeighborhoodSearch<RealType>::erase_empty_entries(std::vector<unsigned int>
                                         });
 }
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
 void NeighborhoodSearch<RealType>::update_hash_table(std::vector<unsigned int>& to_delete)
 {
@@ -354,14 +355,11 @@ void NeighborhoodSearch<RealType>::update_hash_table(std::vector<unsigned int>& 
         }
     }
 
-    to_delete.erase(std::remove_if(to_delete.begin(), to_delete.end(),
-                                   [&](unsigned int index)
-                                   {
-                                       return m_entries[index].n_indices() != 0;
-                                   }), to_delete.end());
+    to_delete.erase(std::remove_if(to_delete.begin(), to_delete.end(), [&](unsigned int index) { return m_entries[index].n_indices() != 0; }), to_delete.end());
     std::sort(to_delete.begin(), to_delete.end(), std::greater<unsigned int>());
 }
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
 void NeighborhoodSearch<RealType>::query()
 {
@@ -383,13 +381,9 @@ void NeighborhoodSearch<RealType>::query()
     }
 
     std::vector<std::pair<HashKey const, unsigned int> const*> kvps(m_map.size());
-    std::transform(m_map.begin(), m_map.end(), kvps.begin(),
-                   [](std::pair<HashKey const, unsigned int> const& kvp)
-                   {
-                       return &kvp;
-                   });
+    std::transform(m_map.begin(), m_map.end(), kvps.begin(), [](std::pair<HashKey const, unsigned int> const& kvp) { return &kvp; });
 
-// Perform neighborhood search.
+    // Perform neighborhood search.
     ParallelFuncs::parallel_for<size_t>(0, kvps.size(),
                                         [&](size_t it)
                                         {
@@ -440,8 +434,7 @@ void NeighborhoodSearch<RealType>::query()
                                                     }
                                                 }
                                             }
-                                        }
-                                        );
+                                        });
 
 
     std::vector<std::array<bool, 27> > visited(m_entries.size(), { false });
@@ -561,11 +554,12 @@ void NeighborhoodSearch<RealType>::query(unsigned int point_set_id, unsigned int
             n.reserve(INITIAL_NUMBER_OF_NEIGHBORS);
     }
 
-    RealType const*                         xa       = d.point(point_index);
-    HashKey                                 hash_key = cell_index(xa);
-    auto                                    it       = m_map.find(hash_key);
-    std::pair<HashKey const, unsigned int>& kvp      = *it;
-    HashEntry const&                        entry    = m_entries[kvp.second];
+    RealType const* xa       = d.point(point_index);
+    HashKey         hash_key = cell_index(xa);
+
+    auto                                    it    = m_map.find(hash_key);
+    std::pair<HashKey const, unsigned int>& kvp   = *it;
+    HashEntry const&                        entry = m_entries[kvp.second];
 
     // Perform neighborhood search.
     for(unsigned int b = 0; b < entry.n_indices(); ++b)
