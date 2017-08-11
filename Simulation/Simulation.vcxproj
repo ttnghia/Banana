@@ -77,6 +77,20 @@
     <None Include="Simulation.licenseheader" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Include\CompactNSearch\CompactNSearch.h" />
+    <ClInclude Include="Include\CompactNSearch\CompactNSearch.Impl.hpp" />
+    <ClInclude Include="Include\CompactNSearch\Config.h" />
+    <ClInclude Include="Include\CompactNSearch\DataStructures.h" />
+    <ClInclude Include="Include\CompactNSearch\Morton\Morton.h" />
+    <ClInclude Include="Include\CompactNSearch\Morton\Morton2D.h" />
+    <ClInclude Include="Include\CompactNSearch\Morton\Morton2D_LUTs.h" />
+    <ClInclude Include="Include\CompactNSearch\Morton\Morton3D.h" />
+    <ClInclude Include="Include\CompactNSearch\Morton\Morton3D_LUTs.h" />
+    <ClInclude Include="Include\CompactNSearch\Morton\Morton_BMI.h" />
+    <ClInclude Include="Include\CompactNSearch\Morton\Morton_Common.h" />
+    <ClInclude Include="Include\CompactNSearch\Morton\Morton_LUT_generators.h" />
+    <ClInclude Include="Include\CompactNSearch\PointSet.h" />
+    <ClInclude Include="Include\CompactNSearch\_CompactNSearch.Test.hpp" />
     <ClInclude Include="Include\Grid\_Grid3D.Test.hpp" />
     <ClInclude Include="Include\ParticleSolvers\_ParticleSolvers.Test.hpp" />
     <ClInclude Include="Include\ParticleSolvers\ParticleSolverInterface.h" />
@@ -97,7 +111,8 @@
     <ClInclude Include="Include\ParticleTools\BlueNoiseRelaxation\LloydRelaxation.h" />
     <ClInclude Include="Include\ParticleTools\BlueNoiseRelaxation\SPHRelaxation.Impl.hpp" />
     <ClInclude Include="Include\ParticleSolvers\SPH\KernelFunctions.h" />
-    <ClInclude Include="Include\ParticleTools\BoundarySamplers\BoxBoundarySampler.h" />
+    <ClInclude Include="Include\ParticleTools\BoundaryObjects\BoundaryObjectInterface.h" />
+    <ClInclude Include="Include\ParticleTools\BoundaryObjects\BoxBoundaryObject.h" />
     <ClInclude Include="Include\ParticleTools\Emitters\BoxEmitter.h" />
     <ClInclude Include="Include\ParticleTools\Emitters\CylinderEmitter.h" />
     <ClInclude Include="Include\ParticleTools\Emitters\HollowSphereEmitter.h" />

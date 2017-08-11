@@ -40,3 +40,6 @@
 [submodule "Externals/OpenNN"]
 	path = Externals/OpenNN
 	url = https://github.com/Artelnics/OpenNN.git
+[submodule "Externals/json"]
+	path = Externals/json
+	url = https://github.com/nlohmann/json.git

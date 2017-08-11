@@ -51,7 +51,7 @@ void Banana::SPHSolver<RealType>::advanceFrame()
         RealType substep       = MathHelpers::min(computeCFLTimeStep(), remainingTime);
 
         m_SimData->grid3D.collectIndexToCells(m_SimData->particles);
-        m_SimData->grid3D.findNeighborList(m_SimData->particles, m_SimData->neighborList);
+        m_SimData->grid3D.getNeighborList(m_SimData->particles, m_SimData->neighborList);
         advanceVelocity(substep);
         moveParticles(substep);
         frameTime += substep;
@@ -449,7 +449,6 @@ void Banana::SPHSolver<RealType>::computeViscosity()
                                         {
                                             const Vec3<RealType>& ppos = m_SimData->particles[p];
                                             const Vec3<RealType>& pvel = m_SimData->velocity[p];
-                                            const Vec3i pcellId = m_SimData->grid3D.getCellIdx<int>(ppos);
 
                                             Vec3<RealType> diffuse_vel = Vec3<RealType>(0);
 

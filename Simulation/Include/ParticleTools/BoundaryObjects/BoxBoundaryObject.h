@@ -17,7 +17,7 @@
 
 #pragma once
 
-#include <Banana/TypeNames.h>
+#include <ParticleTools/BoundaryObjects/BoundaryObjectInterface.h>
 
 #include <random>
 
@@ -26,21 +26,22 @@ namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-class BoxBoundarySampler
+class BoxBoundaryObject : public BoundaryObject<RealType>
 {
-public:
-    static void sampleParticles(const Vec3<RealType>& bMin, const Vec3<RealType>& bMax, Vec_Vec3<RealType>& bdParticles,
-                                RealType spacing, int numBDLayers = 2)
+protected:
+    virtual void generateBoundaryParticles(RealType spacing, int numBDLayers = 2) override
     {
-        bdParticles.resize(0);
+        m_BDParticles.resize(0);
         std::random_device rd;
         std::mt19937       gen(rd());
 
         std::normal_distribution<RealType> disSmall(0, RealType(0.02) * spacing);
         std::normal_distribution<RealType> disLarge(0, RealType(0.1) * spacing);
 
-        Vec3<RealType> boundaryBMin = bMin - Vec3<RealType>(spacing * (RealType(numBDLayers) - RealType(0.5)));
-        Vec3<RealType> boundaryBMax = bMax + Vec3<RealType>(spacing * (RealType(numBDLayers) - RealType(0.501)));
+        const auto&          bMin         = m_Grid3D->getBMin();
+        const auto&          bMax         = m_Grid3D->getBMax();
+        const Vec3<RealType> boundaryBMin = bMin - Vec3<RealType>(spacing * (RealType(numBDLayers) - RealType(0.5)));
+        const Vec3<RealType> boundaryBMax = bMax + Vec3<RealType>(spacing * (RealType(numBDLayers) - RealType(0.501)));
 
         ////////////////////////////////////////////////////////////////////////////////
         for(RealType x = boundaryBMin[0]; x <= boundaryBMax[0]; x += spacing)
@@ -70,7 +71,7 @@ public:
                     if(gridPos[2] < bMin[2] || gridPos[2] > bMax[2])
                         ppos[2] = gridPos[2] + disSmall(gen);
 
-                    bdParticles.push_back(ppos);
+                    m_BDParticles.push_back(ppos);
                 }
             }
         }

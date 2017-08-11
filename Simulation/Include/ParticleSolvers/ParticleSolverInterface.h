@@ -28,7 +28,7 @@
 #include <Banana/ParallelHelpers/ParallelFuncs.h>
 #include <Grid/Grid3D.h>
 
-#include <ParticleTools/BoundarySamplers/BoxBoundarySampler.h>
+#include <ParticleTools/BoundaryObjects/BoundaryObject.h>
 
 #include <memory>
 #include <map>
@@ -90,6 +90,9 @@ protected:
     std::shared_ptr<GlobalParameters<RealType> >    m_GlobalParams;
     std::map<std::string, std::shared_ptr<DataIO> > m_ParticleDataIO;
     std::map<std::string, std::shared_ptr<DataIO> > m_MemoryStateIO;
+
+    Grid3D<RealType>                           m_Grid3D;
+    std::unique_ptr<BoundaryObject<RealType> > m_BoundaryObject;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

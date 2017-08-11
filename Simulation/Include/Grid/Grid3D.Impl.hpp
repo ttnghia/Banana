@@ -141,14 +141,14 @@ void Grid3D<RealType>::collectIndexToCells(Vec_Vec3<RealType>& particles)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-void Banana::Grid3D<RealType>::findNeighborList(const Vec_Vec3<RealType>& particles, Vec_VecUInt& neighborList, int cellSpan /*= 1*/)
+void Banana::Grid3D<RealType>::getNeighborList(const Vec_Vec3<RealType>& particles, Vec_VecUInt& neighborList, int cellSpan /*= 1*/)
 {
-    ParallelFuncs::parallel_for<size_t>(0, particles.size(), [&](size_t p) { findNeighborList(particles[p], neighborList[p]); });
+    ParallelFuncs::parallel_for<size_t>(0, particles.size(), [&](size_t p) { getNeighborList(particles[p], neighborList[p]); });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-void Banana::Grid3D<RealType>::findNeighborList(const Vec3<RealType>& ppos, Vec_UInt& neighborList, int cellSpan /*= 1*/)
+void Banana::Grid3D<RealType>::getNeighborList(const Vec3<RealType>& ppos, Vec_UInt& neighborList, int cellSpan /*= 1*/)
 {
     neighborList.resize(0);
 
@@ -163,9 +163,7 @@ void Banana::Grid3D<RealType>::findNeighborList(const Vec3<RealType>& ppos, Vec_
                 const Vec3i neighborCellIdx = Vec3i(cellIdx[0] + li, cellIdx[1] + lj, cellIdx[2] + lk);
 
                 if(!isValidCell(neighborCellIdx))
-                {
                     continue;
-                }
 
                 const Vec_UInt& cell = m_CellParticleIdx(neighborCellIdx);
 

@@ -86,7 +86,6 @@ struct SPHParameters
 template<class RealType>
 struct SPHSolverData
 {
-    Grid3D<RealType>   grid3D;
     Vec_Vec3<RealType> particles;
     Vec_Vec3<RealType> velocity;
     Vec_Real<RealType> density;
@@ -94,13 +93,14 @@ struct SPHSolverData
     Vec_Vec3<RealType> surfaceTensionForces;
     Vec_Vec3<RealType> diffuseVelocity;
 
-    Vec_VecUInt        neighborList;
-    Vec_Vec3<RealType> bdParticles;
+    Vec_VecUInt neighborList;
+
+
 
     ////////////////////////////////////////////////////////////////////////////////
     void makeReady(const std::shared_ptr<SPHParameters<RealType> >& simParams)
     {
-        grid3D.setGrid(simParams->boxMin, simParams->boxMax, simParams->kernelRadius);
+        m_Grid3D.setGrid(simParams->boxMin, simParams->boxMax, simParams->kernelRadius);
 
         velocity.resize(particles.size(), Vec3<RealType>(0));
         density.resize(particles.size(), 0);
@@ -110,7 +110,7 @@ struct SPHSolverData
 
         neighborList.resize(particles.size());
         if(simParams->bUseBoundaryParticles)
-            BoxBoundarySampler<RealType>::sampleParticles(simParams->boxMin, simParams->boxMax, bdParticles, RealType(1.7) * simParams->particleRadius);
+            BoxBoundaryObject<RealType>::sampleParticles(simParams->boxMin, simParams->boxMax, bdParticles, RealType(1.7) * simParams->particleRadius);
     }
 };
 
