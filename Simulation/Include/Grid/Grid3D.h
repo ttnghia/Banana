@@ -77,6 +77,8 @@ public:
     void            collectIndexToCells(Vec_Vec3<RealType>& particles);
     void            getNeighborList(const Vec_Vec3<RealType>& particles, Vec_VecUInt& neighborList, int cellSpan = 1);
     void            getNeighborList(const Vec3<RealType>& ppos, Vec_UInt& neighborList, int cellSpan = 1);
+    void            getNeighborList(const Vec_Vec3<RealType>& particles, Vec_VecUInt& neighborList, RealType d2, int cellSpan = 1);
+    void            getNeighborList(const Vec_Vec3<RealType>& particles, const Vec3<RealType>& ppos, Vec_UInt& neighborList, RealType d2, int cellSpan = 1);
     const Vec_UInt& getParticleIdxSortedByCell();
 
 private:

@@ -176,6 +176,49 @@ void Banana::Grid3D<RealType>::getNeighborList(const Vec3<RealType>& ppos, Vec_U
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
+void Banana::Grid3D<RealType>::getNeighborList(const Vec_Vec3<RealType>& particles, Vec_VecUInt& neighborList, RealType d2, int cellSpan /*= 1*/)
+{
+    ParallelFuncs::parallel_for<size_t>(0, particles.size(), [&](size_t p) { getNeighborList(particles, particles[p], neighborList[p], d2); });
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class RealType>
+void Banana::Grid3D<RealType>::getNeighborList(const Vec_Vec3<RealType>& particles, const Vec3<RealType>& ppos, Vec_UInt& neighborList, RealType d2, int cellSpan /*= 1*/)
+{
+    neighborList.resize(0);
+
+    Vec3i cellIdx = getCellIdx<int>(ppos);
+
+    for(int lk = -cellSpan; lk <= cellSpan; ++lk)
+    {
+        for(int lj = -cellSpan; lj <= cellSpan; ++lj)
+        {
+            for(int li = -cellSpan; li <= cellSpan; ++li)
+            {
+                const Vec3i neighborCellIdx = Vec3i(cellIdx[0] + li, cellIdx[1] + lj, cellIdx[2] + lk);
+
+                if(!isValidCell(neighborCellIdx))
+                    continue;
+
+                const Vec_UInt& cell = m_CellParticleIdx(neighborCellIdx);
+
+                if(cell.size() > 0)
+                {
+                    for(unsigned int q : cell)
+                    {
+                        RealType pqd2 = glm::length2(ppos - particles[q]);
+
+                        if(pqd2 > 0 && pqd2 < d2)
+                            neighborList.push_back(q);
+                    }
+                }
+            }
+        }
+    } // end loop over neighbor cells
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class RealType>
 const Vec_UInt& Banana::Grid3D<RealType>::getParticleIdxSortedByCell()
 {
     static Vec_UInt particleIdx;
