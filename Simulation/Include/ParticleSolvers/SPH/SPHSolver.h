@@ -94,27 +94,23 @@ struct SPHSolverData
     Vec_Vec3<RealType> surfaceTensionForces;
     Vec_Vec3<RealType> diffuseVelocity;
 
-    Vec_Vec3<RealType> bd_particles_lx;
-    Vec_Vec3<RealType> bd_particles_ux;
-    Vec_Vec3<RealType> bd_particles_ly;
-    Vec_Vec3<RealType> bd_particles_uy;
-    Vec_Vec3<RealType> bd_particles_lz;
-    Vec_Vec3<RealType> bd_particles_uz;
-
-    Vec_VecUInt neighborList;
+    Vec_VecUInt        neighborList;
+    Vec_Vec3<RealType> bdParticles;
 
     ////////////////////////////////////////////////////////////////////////////////
-    void makeReady()
+    void makeReady(const std::shared_ptr<SPHParameters<RealType> >& simParams)
     {
+        grid3D.setGrid(simParams->boxMin, simParams->boxMax, simParams->kernelRadius);
+
         velocity.resize(particles.size(), Vec3<RealType>(0));
         density.resize(particles.size(), 0);
         pressureForces.resize(particles.size(), Vec3<RealType>(0));
         surfaceTensionForces.resize(particles.size(), Vec3<RealType>(0));
         diffuseVelocity.resize(particles.size(), Vec3<RealType>(0));
+
         neighborList.resize(particles.size());
-        // todo: add boundary sampler
-        //if(m_SimParams->bUseBoundaryParticles)
-        //    generateBoundaryParticles();
+        if(simParams->bUseBoundaryParticles)
+            BoxBoundarySampler<RealType>::sampleParticles(simParams->boxMin, simParams->boxMax, bdParticles, RealType(1.7) * simParams->particleRadius);
     }
 };
 
@@ -143,7 +139,6 @@ public:
     virtual Vec_Vec3<RealType>& getVelocity() override { return m_SimData->velocity; }
 
 protected:
-    void     generateBoundaryParticles();
     RealType computeCFLTimeStep();
     void     advanceVelocity(RealType timeStep);
     void     computeDensity();

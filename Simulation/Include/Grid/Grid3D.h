@@ -41,6 +41,8 @@ public:
 
     void setGrid(const Vec3<RealType>& bMin, const Vec3<RealType>& bMax, RealType cellSize);
 
+    Vec3<RealType> getBMin() const noexcept { return m_BMin; }
+    Vec3<RealType> getBMax() const noexcept { return m_BMax; }
     unsigned int getNumCellX() const noexcept { return m_NumCells[0]; }
     unsigned int getNumCellY() const noexcept { return m_NumCells[1]; }
     unsigned int getNumCellZ() const noexcept { return m_NumCells[2]; }

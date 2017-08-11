@@ -21,12 +21,8 @@ void Banana::SPHSolver<RealType>::makeReady()
     m_SpikyKernel.setRadius(m_SimParams->kernelRadius);
     m_NearSpikyKernel.setRadius(RealType(1.5) * m_SimParams->particleRadius);
 
-    m_SimData->grid3D.setGrid(m_SimParams->boxMin, m_SimParams->boxMax, m_SimParams->kernelRadius);
     m_SimParams->makeReady();
-
-    // todo: move this to simdata
-    if(m_SimParams->bUseBoundaryParticles)
-        generateBoundaryParticles();
+    m_SimData->makeReady(m_SimParams);
 
     ////////////////////////////////////////////////////////////////////////////////
     m_Logger.printLog("Solver ready!");
@@ -104,59 +100,6 @@ void Banana::SPHSolver<RealType>::saveMemoryState()
     ////////////////////////////////////////////////////////////////////////////////
     // save state
     frameCount = 0;
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-void Banana::SPHSolver<RealType>::generateBoundaryParticles()
-{
-    m_SimData->bd_particles_lx.clear();
-    m_SimData->bd_particles_ux.clear();
-    m_SimData->bd_particles_ly.clear();
-    m_SimData->bd_particles_uy.clear();
-    m_SimData->bd_particles_lz.clear();
-    m_SimData->bd_particles_uz.clear();
-
-    std::random_device                       rd;
-    std::mt19937                             gen(rd());
-    std::uniform_real_distribution<RealType> dis01(0, RealType(0.1) * m_SimParams->particleRadius);
-    std::uniform_real_distribution<RealType> dis13(RealType(0.1) * m_SimParams->particleRadius, RealType(0.3) * m_SimParams->particleRadius);
-
-    const RealType spacing_ratio = RealType(1.7);
-    const RealType spacing       = m_SimParams->particleRadius * spacing_ratio;
-
-    const int            num_particles_1d = 1 + static_cast<int>(ceil((2 + 1) * m_SimParams->kernelRadius / spacing));
-    const int            num_layers       = static_cast<int>(ceil(m_SimParams->kernelRadius / spacing));
-    const Vec2<RealType> corner           = Vec2<RealType>(1, 1) * (-m_SimParams->kernelRadius + m_SimParams->particleRadius);
-
-    for(int l1 = 0; l1 < num_particles_1d; ++l1)
-    {
-        for(int l2 = 0; l2 < num_particles_1d; ++l2)
-        {
-            const Vec2<RealType> plane_pos = corner + Vec2<RealType>(l1, l2) * spacing;
-
-            for(int l3 = 0; l3 < num_layers; ++l3)
-            {
-                const RealType layer_pos = m_SimParams->particleRadius + spacing * l3;
-
-                Vec3<RealType> pos_lx = Vec3<RealType>(m_SimParams->boxMin[0] - layer_pos, plane_pos[0], plane_pos[1]) + Vec3<RealType>(dis01(gen), dis13(gen), dis13(gen));
-                Vec3<RealType> pos_ux = Vec3<RealType>(m_SimParams->boxMax[0] + layer_pos, plane_pos[0], plane_pos[1]) + Vec3<RealType>(dis01(gen), dis13(gen), dis13(gen));
-                Vec3<RealType> pos_ly = Vec3<RealType>(plane_pos[0], m_SimParams->boxMin[1] - layer_pos, plane_pos[1]) + Vec3<RealType>(dis13(gen), dis01(gen), dis13(gen));
-                Vec3<RealType> pos_uy = Vec3<RealType>(plane_pos[0], m_SimParams->boxMax[1] + layer_pos, plane_pos[1]) + Vec3<RealType>(dis13(gen), dis01(gen), dis13(gen));
-                Vec3<RealType> pos_lz = Vec3<RealType>(plane_pos[0], plane_pos[1], m_SimParams->boxMin[2] - layer_pos) + Vec3<RealType>(dis13(gen), dis13(gen), dis01(gen));
-                Vec3<RealType> pos_uz = Vec3<RealType>(plane_pos[0], plane_pos[1], m_SimParams->boxMax[2] + layer_pos) + Vec3<RealType>(dis13(gen), dis13(gen), dis01(gen));
-
-                m_SimData->bd_particles_lx.push_back(pos_lx);
-                m_SimData->bd_particles_ux.push_back(pos_ux);
-
-                m_SimData->bd_particles_ly.push_back(pos_ly);
-                m_SimData->bd_particles_uy.push_back(pos_uy);
-
-                m_SimData->bd_particles_lz.push_back(pos_lz);
-                m_SimData->bd_particles_uz.push_back(pos_uz);
-            }
-        }
-    }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

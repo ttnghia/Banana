@@ -98,7 +98,6 @@
     <ClInclude Include="Include\ParticleTools\BlueNoiseRelaxation\SPHRelaxation.Impl.hpp" />
     <ClInclude Include="Include\ParticleSolvers\SPH\KernelFunctions.h" />
     <ClInclude Include="Include\ParticleTools\BoundarySamplers\BoxBoundarySampler.h" />
-    <ClInclude Include="Include\ParticleTools\BoundarySamplers\BoxBoundarySampler.Impl.hpp" />
     <ClInclude Include="Include\ParticleTools\Emitters\BoxEmitter.h" />
     <ClInclude Include="Include\ParticleTools\Emitters\CylinderEmitter.h" />
     <ClInclude Include="Include\ParticleTools\Emitters\HollowSphereEmitter.h" />

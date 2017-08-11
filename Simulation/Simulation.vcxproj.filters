@@ -129,9 +129,6 @@
     <ClInclude Include="Include\ParticleTools\BlueNoiseRelaxation\SPHRelaxation.Impl.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\ParticleTools\BoundarySamplers\BoxBoundarySampler.Impl.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Include\ParticleTools\AnisotropicKernelGenerator.Impl.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
