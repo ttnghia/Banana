@@ -17,17 +17,19 @@
 
 #pragma once
 
-#include <Config.h>
 #include <iostream>
 
-namespace CompactNSearch
+namespace Banana
 {
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class RealType>
 class NeighborhoodSearch;
 
 /**
  * @class PointSet.
  * Represents a set of points in three-dimensional space.
  */
+template<class RealType>
 class PointSet
 {
 public:
@@ -100,13 +102,12 @@ public:
      * "z_sort" of class "NeighborhoodSearch". Please note that the method "z_sort" of class
      * "Neighborhood search" has to be called beforehand.
      */
-    template<typename T>
+    template<class T>
     void sort_field(T* lst) const;
 
 private:
-
-    friend NeighborhoodSearch;
-    PointSet(Real const* x, std::size_t n, bool dynamic)
+    friend NeighborhoodSearch<RealType>;
+    PointSet(RealType const* x, std::size_t n, bool dynamic)
         : m_x(x), m_n(n), m_dynamic(dynamic), m_neighbors(n)
         , m_keys(n,
         {
@@ -118,7 +119,7 @@ private:
         m_old_keys = m_keys;
     }
 
-    void resize(Real const* x, std::size_t n)
+    void resize(RealType const* x, std::size_t n)
     {
         m_x = x;
         m_n = n;
@@ -135,13 +136,13 @@ private:
         m_neighbors.resize(n);
     }
 
-    Real const* point(unsigned int i) const { return &m_x[3 * i]; }
+    RealType const* point(unsigned int i) const { return &m_x[3 * i]; }
 
 private:
 
-    Real const* m_x;
-    std::size_t m_n;
-    bool        m_dynamic;
+    RealType const* m_x;
+    std::size_t     m_n;
+    bool            m_dynamic;
 
     std::vector<std::vector<std::vector<unsigned int> > > m_neighbors;
 
@@ -150,8 +151,10 @@ private:
     std::vector<unsigned int>           m_sort_table;
 };
 
-template<typename T> void
-PointSet::sort_field(T* lst) const
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class RealType>
+template<class T> void
+PointSet<RealType>::sort_field(T* lst) const
 {
     if(m_sort_table.empty())
     {
@@ -169,5 +172,6 @@ PointSet::sort_field(T* lst) const
 #endif
                    [&](int i){ return tmp[i]; });
 }
-}
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+} // end namespace Banana

@@ -16,22 +16,29 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 #pragma once
+#define NOMINMAX
 
 
-#include <CompactNSearch>
+#include <Banana/ParallelHelpers/ParallelFuncs.h>
+#include <CompactNSearch/CompactNSearch.h>
 
 #include <iostream>
 #include <vector>
 #include <array>
-#include <cmath>
 #include <limits>
+#include <cmath>
 #include <chrono>
 #include <random>
 
-#include <omp.h>
+using Real = float;
+using namespace Banana;
 
-using namespace CompactNSearch;
+#ifndef M_PI
+#  define M_PI 3.14159265359
+#endif
 
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 std::vector<std::array<Real, 3> > positions;
 
 std::size_t const N = 30;
@@ -43,7 +50,7 @@ Real const radius   = 2.0 * (2.0 * r_omega / static_cast<Real>(N - 1));
 std::size_t const N_enright_steps = 50;
 
 Real
-compute_average_number_of_neighbors(NeighborhoodSearch const& nsearch)
+compute_average_number_of_neighbors(NeighborhoodSearch<Real> const& nsearch)
 {
     unsigned long res = 0;
     auto const&   d   = nsearch.point_set(0);
@@ -55,7 +62,7 @@ compute_average_number_of_neighbors(NeighborhoodSearch const& nsearch)
 }
 
 Real
-compute_average_distance(NeighborhoodSearch const& nsearch)
+compute_average_distance(NeighborhoodSearch<Real> const& nsearch)
 {
     unsigned long long res   = 0;
     auto const&        d     = nsearch.point_set(0);
@@ -100,10 +107,10 @@ brute_force_search(std::size_t n_positions)
 }
 
 void
-compare_with_bruteforce_search(NeighborhoodSearch const& nsearch)
+compare_with_bruteforce_search(NeighborhoodSearch<Real> const& nsearch)
 {
-    PointSet const& d0                    = nsearch.point_set(0);
-    auto            brute_force_neighbors = brute_force_search(d0.n_points());
+    PointSet<Real> const& d0                    = nsearch.point_set(0);
+    auto                  brute_force_neighbors = brute_force_search(d0.n_points());
     for(int i = 0; i < d0.n_points(); ++i)
     {
         auto const& bfn = brute_force_neighbors[i];
@@ -122,10 +129,10 @@ compare_with_bruteforce_search(NeighborhoodSearch const& nsearch)
 }
 
 void
-compare_single_query_with_bruteforce_search(NeighborhoodSearch& nsearch)
+compare_single_query_with_bruteforce_search(NeighborhoodSearch<Real>& nsearch)
 {
     std::vector<std::vector<unsigned int> > neighbors;
-    PointSet const&                         d0                    = nsearch.point_set(0);
+    PointSet<Real> const&                   d0                    = nsearch.point_set(0);
     auto                                    brute_force_neighbors = brute_force_search(d0.n_points());
     for(int i = 0; i < d0.n_points(); ++i)
     {
@@ -166,22 +173,18 @@ enright_velocity_field(std::array<Real, 3> const& x)
              } };
 }
 
-void
-advect()
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void advect()
 {
-#ifdef _MSC_VER
-    concurrency::parallel_for_each
-#else
-    __gnu_parallel::for_each
-#endif
-        (positions.begin(), positions.end(), [&](std::array<Real, 3>& x)
-        {
-            std::array<Real, 3> v = enright_velocity_field(x);
-            x[0] += 0.005 * v[0];
-            x[1] += 0.005 * v[1];
-            x[2] += 0.005 * v[1];
-        }
-        );
+    ParallelFuncs::parallel_for<size_t>(0, positions.size(), [&](size_t i)
+                                        {
+                                            std::array<Real, 3>& x = positions[i];
+                                            std::array<Real, 3> v = enright_velocity_field(x);
+                                            x[0] += 0.005 * v[0];
+                                            x[1] += 0.005 * v[1];
+                                            x[2] += 0.005 * v[1];
+                                        }
+                                        );
 }
 
 int main(int argc, char* argv[])
@@ -222,7 +225,7 @@ int main(int argc, char* argv[])
     }
     std::random_shuffle(positions.begin(), positions.end());
 
-    NeighborhoodSearch nsearch(radius, true);
+    NeighborhoodSearch<Real> nsearch(radius, true);
     nsearch.add_point_set(positions.front().data(), positions.size(), true, true);
     nsearch.add_point_set(positions.front().data(), positions.size(), true, true);
     nsearch.find_neighbors();
@@ -248,8 +251,8 @@ int main(int argc, char* argv[])
     }
     nsearch.find_neighbors();
 
-    //compare_single_query_with_bruteforce_search(nsearch);
-    //compare_with_bruteforce_search(nsearch);
+    compare_single_query_with_bruteforce_search(nsearch);
+    compare_with_bruteforce_search(nsearch);
 
     std::cout << "Average index distance after z-sort    = " << compute_average_distance(nsearch) << std::endl;
 
@@ -261,8 +264,8 @@ int main(int argc, char* argv[])
         auto t0 = std::chrono::high_resolution_clock::now();
         nsearch.find_neighbors();
         std::cout << "Neighborhood search took " << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - t0).count() << "ms" << std::endl;
-        //compare_with_bruteforce_search(nsearch);
-        //compare_single_query_with_bruteforce_search(nsearch);
+        compare_with_bruteforce_search(nsearch);
+        compare_single_query_with_bruteforce_search(nsearch);
     }
 
     return 0;

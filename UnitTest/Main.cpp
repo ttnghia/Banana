@@ -19,11 +19,11 @@
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // BananaCore project
-
-#include <Banana/Geometry/_Geometry.Test.hpp>
+//#include <Banana/Geometry/_Geometry.Test.hpp>
 
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Simulation project
-#include <Grid/_Grid3D.Test.hpp>
-#include <ParticleSolvers/_ParticleSolvers.Test.hpp>
+#include <CompactNSearch/_CompactNSearch.Test.hpp>
+//#include <Grid/_Grid3D.Test.hpp>
+//#include <ParticleSolvers/_ParticleSolvers.Test.hpp>

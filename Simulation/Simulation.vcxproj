@@ -79,7 +79,6 @@
   <ItemGroup>
     <ClInclude Include="Include\CompactNSearch\CompactNSearch.h" />
     <ClInclude Include="Include\CompactNSearch\CompactNSearch.Impl.hpp" />
-    <ClInclude Include="Include\CompactNSearch\Config.h" />
     <ClInclude Include="Include\CompactNSearch\DataStructures.h" />
     <ClInclude Include="Include\CompactNSearch\Morton\Morton.h" />
     <ClInclude Include="Include\CompactNSearch\Morton\Morton2D.h" />

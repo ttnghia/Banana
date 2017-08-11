@@ -150,9 +150,6 @@
     <ClInclude Include="Include\CompactNSearch\CompactNSearch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\CompactNSearch\Config.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Include\CompactNSearch\DataStructures.h">
       <Filter>Header Files</Filter>
     </ClInclude>

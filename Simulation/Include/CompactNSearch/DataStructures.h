@@ -17,13 +17,15 @@
 
 #pragma once
 
-#include "Config.h"
 
 #include <atomic>
 #include <vector>
 
-namespace CompactNSearch
+namespace Banana
 {
+#define INITIAL_NUMBER_OF_INDICES 50
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 struct PointID
 {
     unsigned int point_set_id;
@@ -35,6 +37,7 @@ struct PointID
     }
 };
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 struct HashKey
 {
     HashKey() = default;
@@ -53,10 +56,9 @@ struct HashKey
 
     bool operator==(HashKey const& other) const
     {
-        return
-            k[0] == other.k[0] &&
-            k[1] == other.k[1] &&
-            k[2] == other.k[2];
+        return (k[0] == other.k[0] &&
+                k[1] == other.k[1] &&
+                k[2] == other.k[2]);
     }
 
     bool operator!=(HashKey const& other) const
@@ -64,9 +66,11 @@ struct HashKey
         return !(*this == other);
     }
 
+    ////////////////////////////////////////////////////////////////////////////////
     int k[3];
 };
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 struct HashEntry
 {
     HashEntry() : n_searching_points(0u)
@@ -96,21 +100,23 @@ struct HashEntry
         return static_cast<unsigned int>(indices.size());
     }
 
+    ////////////////////////////////////////////////////////////////////////////////
     std::vector<PointID> indices;
     unsigned int         n_searching_points;
 };
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 struct SpatialHasher
 {
     std::size_t operator()(HashKey const& k) const
     {
-        return
-            73856093 * k.k[0] ^
-            19349663 * k.k[1] ^
-            83492791 * k.k[2];
+        return (73856093 * k.k[0] ^
+                19349663 * k.k[1] ^
+                83492791 * k.k[2]);
     }
 };
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 class Spinlock
 {
 public:
@@ -130,10 +136,10 @@ public:
     Spinlock& operator=(Spinlock const& other) { return *this; }
 
 private:
-
     std::atomic_flag m_lock = ATOMIC_FLAG_INIT;
 };
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 class ActivationTable
 {
 private:
@@ -219,4 +225,6 @@ public:
         return false;
     }
 };
-}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+} // end namespace Banana
