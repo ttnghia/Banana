@@ -14,42 +14,25 @@
 //
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+#pragma once
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+namespace Banana
+{
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
 template<class RealType>
-void Banana::MPMSolver<RealType>::makeReady()
+void Banana::SceneLoader<RealType>::loadScene(const std::string& sceneFile)
+{}
+
+template<class RealType>
+void Banana::SceneLoader<RealType>::loadFrameParams(const nlohmann::json& jParams, const std::shared_ptr<FrameParameters<RealType> >& frameParams)
+{}
+
+template<class RealType>
+void Banana::SceneLoader<RealType>::loadObjectParams(const nlohmann::json& jParams)
 {}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-void Banana::MPMSolver<RealType>::advanceFrame()
-{
-    patchPtr   pch = NULL;
-    constitPtr cst = NULL;
-    shapePtr   shp = NULL;
-    timeIntPtr tmi = NULL;
-    initRun(pch, cst, tmi, shp);
-
-    do
-    {
-        shp->updateContribList();
-        report.progress("connectivity table size", pch->con.size());
-        pch->timeStep = tmi->nextTimeStep(*pch);
-
-        printf("Timstep: %f\n", pch->timeStep);
-
-        tmi->advance(pch->timeStep);
-        pch->elapsedTime += pch->timeStep;
-        report.progress("elapsedTime", pch->elapsedTime);
-        ++pch->incCount;
-        report.progress("incCount",    pch->incCount);
-        progressIndicator(*pch, startClock);
-        report.writeAll();
-    } while(pch->afterStep());
-}
-
-template<class RealType>
-void Banana::MPMSolver<RealType>::saveParticleData()
-{}
-
-template<class RealType>
-void Banana::MPMSolver<RealType>::saveMemoryState()
-{}
+} // end namespace Banana

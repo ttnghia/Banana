@@ -44,12 +44,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)Build\$(Configuration)\</OutDir>
     <IntDir>D:\Scratch\MSVC-Build\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir)Externals\catch\include;$(SolutionDir)Externals\spdlog\include;$(SolutionDir)Externals\glm;$(SolutionDir)Simulation\Include;$(SolutionDir)BananaCore\Include;$(SolutionDir)Externals\tbb_win\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Externals\json\src;$(SolutionDir)Externals\catch\include;$(SolutionDir)Externals\spdlog\include;$(SolutionDir)Externals\glm;$(SolutionDir)Simulation\Include;$(SolutionDir)BananaCore\Include;$(SolutionDir)Externals\tbb_win\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)Build\$(Configuration)\</OutDir>
     <IntDir>D:\Scratch\MSVC-Build\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir)Externals\catch\include;$(SolutionDir)Externals\spdlog\include;$(SolutionDir)Externals\glm;$(SolutionDir)Simulation\Include;$(SolutionDir)BananaCore\Include;$(SolutionDir)Externals\tbb_win\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Externals\json\src;$(SolutionDir)Externals\catch\include;$(SolutionDir)Externals\spdlog\include;$(SolutionDir)Externals\glm;$(SolutionDir)Simulation\Include;$(SolutionDir)BananaCore\Include;$(SolutionDir)Externals\tbb_win\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -93,7 +93,14 @@
     <ClInclude Include="Include\Grid\_Grid3D.Test.hpp" />
     <ClInclude Include="Include\ParticleSolvers\FLIP\FLIPData.h" />
     <ClInclude Include="Include\ParticleSolvers\MPM\MPMData.h" />
+    <ClInclude Include="Include\ParticleSolvers\MPM\MPMMaterial.h" />
+    <ClInclude Include="Include\ParticleSolvers\MPM\MPMMaterial.Impl.hpp" />
+    <ClInclude Include="Include\ParticleSolvers\MPM\ShapeFunctions.h" />
+    <ClInclude Include="Include\ParticleSolvers\MPM\ShapeFunctions.Impl.hpp" />
+    <ClInclude Include="Include\ParticleSolvers\ParticleSolverData.h" />
     <ClInclude Include="Include\ParticleSolvers\Peridynamics\PeridynamicsData.h" />
+    <ClInclude Include="Include\ParticleSolvers\SceneLoader.h" />
+    <ClInclude Include="Include\ParticleSolvers\SceneLoader.Impl.hpp" />
     <ClInclude Include="Include\ParticleSolvers\SPH\WCSPH\WCSPHData.h" />
     <ClInclude Include="Include\ParticleSolvers\_ParticleSolvers.Test.hpp" />
     <ClInclude Include="Include\ParticleSolvers\ParticleSolverInterface.h" />

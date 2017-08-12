@@ -14,42 +14,30 @@
 //
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-void Banana::MPMSolver<RealType>::makeReady()
-{}
+
+#pragma once
+
+#include <string>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-void Banana::MPMSolver<RealType>::advanceFrame()
+namespace Banana
 {
-    patchPtr   pch = NULL;
-    constitPtr cst = NULL;
-    shapePtr   shp = NULL;
-    timeIntPtr tmi = NULL;
-    initRun(pch, cst, tmi, shp);
-
-    do
-    {
-        shp->updateContribList();
-        report.progress("connectivity table size", pch->con.size());
-        pch->timeStep = tmi->nextTimeStep(*pch);
-
-        printf("Timstep: %f\n", pch->timeStep);
-
-        tmi->advance(pch->timeStep);
-        pch->elapsedTime += pch->timeStep;
-        report.progress("elapsedTime", pch->elapsedTime);
-        ++pch->incCount;
-        report.progress("incCount",    pch->incCount);
-        progressIndicator(*pch, startClock);
-        report.writeAll();
-    } while(pch->afterStep());
-}
-
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-void Banana::MPMSolver<RealType>::saveParticleData()
-{}
+struct FrameParameters
+{
+    RealType     frameDuration = RealType(1.0 / 30.0);
+    unsigned int finalFrame    = 1;
+    unsigned int finishedFrame = 0;
+    unsigned int nThreads      = 0;
 
-template<class RealType>
-void Banana::MPMSolver<RealType>::saveMemoryState()
-{}
+    ////////////////////////////////////////////////////////////////////////////////
+    bool         bSaveParticleData = true;
+    bool         bSaveMemoryState  = true;
+    unsigned int framePerState     = 1;
+    std::string  dataPath          = std::string("");
+};
+
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+} // end namespace Banana
