@@ -84,6 +84,7 @@
     <None Include="BananaCore.licenseheader" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Include\Banana\Utils\CommandLineParser.h" />
     <ClInclude Include="Include\Banana\Utils\JSONReader.h" />
     <ClInclude Include="Include\Banana\Utils\AppConfigReader.h" />
     <ClInclude Include="Include\Banana\Array\Array2.h" />

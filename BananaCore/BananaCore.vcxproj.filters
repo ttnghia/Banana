@@ -141,6 +141,9 @@
     <ClInclude Include="Include\Banana\Utils\JSONReader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Include\Banana\Utils\CommandLineParser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Utils\Logger.cpp">
