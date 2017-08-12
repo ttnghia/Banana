@@ -18,20 +18,21 @@
 #pragma once
 
 #include <ParticleSolvers/ParticleSolverInterface.h>
-#include <ParticleSolvers/MPM/MPMData.h>
+#include <ParticleSolvers/SPH/KernelFunctions.h>
+#include <ParticleSolvers/SPH/WCSPH/WCSPHData.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-class MPMSolver : public ParticleSolver<RealType>
+class WCSPHSolver : public ParticleSolver<RealType>
 {
 public:
-    MPMSolver()  = default;
-    ~MPMSolver() = default;
+    WCSPHSolver()  = default;
+    ~WCSPHSolver() = default;
 
-    std::shared_ptr<SimulationParametersMPM<RealType> > getSolverParams() { return m_SimParams; }
+    std::shared_ptr<SimulationParametersWCSPH<RealType> > getSolverParams() { return m_SimParams; }
 
     ////////////////////////////////////////////////////////////////////////////////
     virtual void makeReady() override;
@@ -39,19 +40,33 @@ public:
     virtual void saveParticleData() override;
     virtual void saveMemoryState() override;
 
-    virtual std::string getSolverName() override { return std::string("MPMSolver"); }
+    virtual std::string getSolverName() override { return std::string("WCSPHSolver"); }
     virtual unsigned int        getNumParticles() override { return static_cast<unsigned int>(m_SimData->positions.size()); }
     virtual Vec_Vec3<RealType>& getPositions() override { return m_SimData->positions; }
     virtual Vec_Vec3<RealType>& getVelocity() override { return m_SimData->velocity; }
 
-private:
-    std::shared_ptr<SimulationParametersMPM<RealType> > m_SimParams = std::make_shared<SimulationParametersWCSPH<RealType> >();
-    std::unique_ptr<SimulationDataMPM<RealType> >       m_SimData   = std::make_unique<SimulationDataWCSPH<RealType> >();
+protected:
+    RealType computeCFLTimeStep();
+    void     advanceVelocity(RealType timeStep);
+    void     computeDensity();
+    void     correctDensity();
+    void     computePressureForces();
+    void     computeSurfaceTensionForces();
+    void     computeViscosity();
+    void     updateVelocity(RealType timeStep);
+    void     moveParticles(RealType timeStep);
+
+    ////////////////////////////////////////////////////////////////////////////////
+    std::shared_ptr<SimulationParametersWCSPH<RealType> > m_SimParams = std::make_shared<SimulationParametersWCSPH<RealType> >();
+    std::unique_ptr<SimulationDataWCSPH<RealType> >       m_SimData   = std::make_unique<SimulationDataWCSPH<RealType> >();
+
+    PrecomputedKernel<RealType, CubicKernel<RealType>, 10000> m_CubicKernel;
+    PrecomputedKernel<RealType, SpikyKernel<RealType>, 10000> m_SpikyKernel;
+    PrecomputedKernel<RealType, SpikyKernel<RealType>, 10000> m_NearSpikyKernel;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <ParticleSolvers/MPM/MPMSolver.Impl.hpp>
-
+#include <ParticleSolvers/SPH/WCSPH/WCSPHSolver.Impl.hpp>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana

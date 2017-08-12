@@ -45,10 +45,10 @@ using namespace Banana;
 std::vector<Vec3<Real> > positions;
 Grid3D<Real>             grid3D = Grid3D<Real>(Vec3<Real>(0), Vec3<Real>(1), Real(1.0 / 128.0));
 
-const size_t N               = 200;
+const size_t N               = 100;
 const size_t N_enright_steps = 50;
 
-const Real r_omega  = Real(0.15);
+const Real r_omega  = Real(0.75);
 const Real r_omega2 = r_omega * r_omega;
 const Real radius   = Real(2.0) * (Real(2.0) * r_omega / static_cast<Real>(N - 1));
 const Real radius2  = radius * radius;
@@ -91,23 +91,24 @@ std::vector<std::vector<unsigned int> > brute_force_search(size_t n_positions)
 {
     std::vector<std::vector<unsigned int> > brute_force_neighbors(n_positions);
 
-    for(int i = 0; i < n_positions; ++i)
-    {
-        std::vector<unsigned int>& neighbors = brute_force_neighbors[i];
+    ParallelFuncs::parallel_for<size_t>(0, n_positions,
+                                        [&](size_t i)
+                                        {
+                                            std::vector<unsigned int>& neighbors = brute_force_neighbors[i];
+                                            Vec3<Real> const& xa = positions[i];
 
-        for(int j = 0; j < n_positions; ++j)
-        {
-            if(i == j)
-                continue;
+                                            for(int j = 0; j < n_positions; ++j)
+                                            {
+                                                if(i == j)
+                                                    continue;
 
-            Vec3<Real> const& xa = positions[i];
-            Vec3<Real> const& xb = positions[j];
+                                                Vec3<Real> const& xb = positions[j];
 
-            Real l2 = glm::length2(xa - xb);
-            if(l2 <= radius * radius)
-                neighbors.push_back(j);
-        }
-    }
+                                                Real l2 = glm::length2(xa - xb);
+                                                if(l2 <= radius * radius)
+                                                    neighbors.push_back(j);
+                                            }
+                                        });
 
     return std::move(brute_force_neighbors);
 }
@@ -216,7 +217,7 @@ Vec3<Real> enright_velocity_field(Vec3<Real> const& x)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void advect()
 {
-    const Real timestep = Real(0.1);
+    const Real timestep = Real(0.01);
     ParallelFuncs::parallel_for<size_t>(0, positions.size(), [&](size_t i)
                                         {
                                             Vec3<Real>& x = positions[i];
@@ -357,8 +358,8 @@ TEST_CASE("Test CompactNSearch", "[CompactNSearch]")
             nsearch.find_neighbors();
             auto runTime = std::chrono::duration_cast<std::chrono::milliseconds>(Clock::now() - t0).count();
             std::cout << "Neighborhood search took " << NumberHelpers::formatWithCommas(runTime) << "ms" << std::endl;
-
-            //compare_with_bruteforce_search(nsearch);
+            std::cout << "Average index distance = " << NumberHelpers::formatWithCommas(compute_average_distance(nsearch)) << std::endl;
+            compare_with_bruteforce_search(nsearch);
             //compare_single_query_with_bruteforce_search(nsearch);
         }
 
@@ -386,7 +387,8 @@ TEST_CASE("Test CompactNSearch", "[CompactNSearch]")
             auto t0 = Clock::now();
             nsearch.find_neighbors();
             auto runTime = std::chrono::duration_cast<std::chrono::milliseconds>(Clock::now() - t0).count();
-            std::cout << "Neighborhood search afer z_sort took " << NumberHelpers::formatWithCommas(runTime) << "ms" << std::endl;
+            std::cout << "Neighborhood search after z_sort took " << NumberHelpers::formatWithCommas(runTime) << "ms" << std::endl;
+            std::cout << "Average index distance = " << NumberHelpers::formatWithCommas(compute_average_distance(nsearch)) << std::endl;
         }
 
 #ifdef TEST_GRID3D

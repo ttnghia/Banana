@@ -16,19 +16,3 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 #pragma once
-
-//#include <ParticleSolvers/FLIP/FLIPSolver.h>
-//#include <ParticleSolvers/MPM/MPMSolver.h>
-//#include <ParticleSolvers/Peridynamics/PeridynamicsSolver.h>
-#include <ParticleSolvers/SPH/SPHSolver.h>
-
-#include <catch.hpp>
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-TEST_CASE("Test Particle Solver", "[ParticleSolvers]")
-{
-    //Banana::FLIPSolver<float>         solver1;
-    //Banana::MPMSolver<float>          solver2;
-    //Banana::PeridynamicsSolver<float> solver3;
-    Banana::WCSPHSolver<float> solver4(nullptr);
-}

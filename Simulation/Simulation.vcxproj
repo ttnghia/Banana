@@ -91,6 +91,10 @@
     <ClInclude Include="Include\CompactNSearch\PointSet.h" />
     <ClInclude Include="Include\CompactNSearch\_CompactNSearch.Test.hpp" />
     <ClInclude Include="Include\Grid\_Grid3D.Test.hpp" />
+    <ClInclude Include="Include\ParticleSolvers\FLIP\FLIPData.h" />
+    <ClInclude Include="Include\ParticleSolvers\MPM\MPMData.h" />
+    <ClInclude Include="Include\ParticleSolvers\Peridynamics\PeridynamicsData.h" />
+    <ClInclude Include="Include\ParticleSolvers\SPH\WCSPH\WCSPHData.h" />
     <ClInclude Include="Include\ParticleSolvers\_ParticleSolvers.Test.hpp" />
     <ClInclude Include="Include\ParticleSolvers\ParticleSolverInterface.h" />
     <ClInclude Include="Include\ParticleTools\AnisotropicKernelGenerator.h" />
@@ -98,12 +102,12 @@
     <ClInclude Include="Include\ParticleSolvers\FLIP\FLIPSolver.h" />
     <ClInclude Include="Include\ParticleSolvers\FLIP\FLIPSolver.Impl.hpp" />
     <ClInclude Include="Include\ParticleSolvers\MPM\MPMSolver.Impl.hpp" />
-    <ClInclude Include="Include\ParticleSolvers\SPH\PCISPHSolver.h" />
-    <ClInclude Include="Include\ParticleSolvers\SPH\PCISPHSolver.Impl.hpp" />
+    <ClInclude Include="Include\ParticleSolvers\SPH\PCISPH\PCISPHSolver.h" />
+    <ClInclude Include="Include\ParticleSolvers\SPH\PCISPH\PCISPHSolver.Impl.hpp" />
     <ClInclude Include="Include\ParticleSolvers\Peridynamics\PeridynamicsSolver.h" />
     <ClInclude Include="Include\ParticleSolvers\Peridynamics\PeridynamicsSolver.Impl.hpp" />
-    <ClInclude Include="Include\ParticleSolvers\SPH\SPHSolver.h" />
-    <ClInclude Include="Include\ParticleSolvers\SPH\SPHSolver.Impl.hpp" />
+    <ClInclude Include="Include\ParticleSolvers\SPH\WCSPH\WCSPHSolver.h" />
+    <ClInclude Include="Include\ParticleSolvers\SPH\WCSPH\WCSPHSolver.Impl.hpp" />
     <ClInclude Include="Include\Grid\Grid3D.h" />
     <ClInclude Include="Include\Grid\Grid3D.Impl.hpp" />
     <ClInclude Include="Include\Grid\GridHelpers.h" />

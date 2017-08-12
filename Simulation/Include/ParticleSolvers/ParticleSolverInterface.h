@@ -26,9 +26,9 @@
 #include <Banana/Data/DataIO.h>
 #include <Banana/ParallelHelpers/ParallelSTL.h>
 #include <Banana/ParallelHelpers/ParallelFuncs.h>
-#include <Grid/Grid3D.h>
+#include <CompactNSearch/CompactNSearch.h>
 
-#include <ParticleTools/BoundaryObjects/BoundaryObject.h>
+#include <ParticleTools/BoundaryObjects/BoundaryObjectInterface.h>
 
 #include <memory>
 #include <map>
@@ -38,17 +38,19 @@ namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-struct GlobalParameters
+struct FrameParameters
 {
-    RealType     frameDuration = 1.0 / 30.0;
+    RealType     frameDuration = RealType(1.0 / 30.0);
     unsigned int startFrame    = 1;
     unsigned int finalFrame    = 1;
+    unsigned int finishedFrame = 0;
     unsigned int nThreads      = 0;
 
     ////////////////////////////////////////////////////////////////////////////////
     bool         bSaveParticleData = true;
     bool         bSaveMemoryState  = true;
     unsigned int framePerState     = 1;
+    std::string  dataPath          = std::string("");
 };
 
 
@@ -57,43 +59,51 @@ template<class RealType>
 class ParticleSolver
 {
 public:
-    ParticleSolver(const std::shared_ptr<GlobalParameters<RealType> >& globalParams) : m_GlobalParams(globalParams) {}
+    ParticleSolver()          = default;
     virtual ~ParticleSolver() = default;
 
-    ////////////////////////////////////////////////////////////////////////////////
-    virtual std::string getSolverName()    = 0;
-    virtual void        advanceFrame()     = 0;
-    virtual void        makeReady()        = 0;
-    virtual void        saveParticleData() = 0;
-    virtual void        saveMemoryState()  = 0;
+    std::shared_ptr<FrameParameters<RealType> > getFrameParams() const noexcept { return m_FrameParams; }
+    void setFrameParams(std::shared_ptr<FrameParameters<RealType> > frameParams) { m_FrameParams = frameParams; }
 
+    ////////////////////////////////////////////////////////////////////////////////
+    virtual void makeReady()        = 0;
+    virtual void advanceFrame()     = 0;
+    virtual void saveParticleData() = 0;
+    virtual void saveMemoryState()  = 0;
+
+    virtual std::string         getSolverName()   = 0;
     virtual unsigned int        getNumParticles() = 0;
-    virtual Vec_Vec3<RealType>& getParticles()    = 0;
+    virtual Vec_Vec3<RealType>& getPositions()    = 0;
     virtual Vec_Vec3<RealType>& getVelocity()     = 0;
 
-    void setupLogger(bool bLog2Std, bool bLog2File, const std::string& logLocation = std::string(""))
-    {
-        m_Logger.enableStdOut(bLog2Std);
-        m_Logger.enableLogFile(bLog2File);
-
-        // TODO
-        if(bLog2File)
-        {
-            __BNN_ASSERT(!logLocation.empty());
-            m_Logger.setDataPath(logLocation);
-        }
-    }
+    void setupLogger(bool bLog2Std, bool bLog2File, const std::string& dataPath = std::string(""));
 
 protected:
     Logger m_Logger;
 
-    std::shared_ptr<GlobalParameters<RealType> >    m_GlobalParams;
+    std::shared_ptr<FrameParameters<RealType> >     m_FrameParams = std::make_shared<FrameParameters<RealType> >();
     std::map<std::string, std::shared_ptr<DataIO> > m_ParticleDataIO;
     std::map<std::string, std::shared_ptr<DataIO> > m_MemoryStateIO;
 
-    Grid3D<RealType>                           m_Grid3D;
+    NeighborhoodSearch<RealType>               m_NSearch;
     std::unique_ptr<BoundaryObject<RealType> > m_BoundaryObject;
 };
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class RealType>
+void Banana::ParticleSolver<RealType>::setupLogger(bool bLog2Std, bool bLog2File, const std::string& dataPath /*= std::string("")*/)
+{
+    m_Logger.enableStdOut(bLog2Std);
+    m_Logger.enableLogFile(bLog2File);
+
+    // TODO
+    if(bLog2File)
+    {
+        __BNN_ASSERT(!dataPath.empty());
+        m_Logger.setDataPath(dataPath);
+        m_Logger.setSourceName(getSolverName());
+    }
+}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana

@@ -76,7 +76,7 @@ template<class RealType>
 class FLIPSolver : public ParticleSolver<RealType>
 {
 public:
-    FLIPSolver(const std::shared_ptr<TimeParameters>& timeParams, const std::shared_ptr<DataParameters>& dataParams, const std::shared_ptr<MPMParameters>& simParams) :
+    FLIPSolver(const std::shared_ptr<TimeParameters>& timeParams, const std::shared_ptr<DataParameters>& dataParams, const std::shared_ptr<SimulationParametersMPM>& simParams) :
         ParticleSolver<RealType>(timeParams, dataParams), m_SimParams(simParams) {}
     virtual ~FLIPSolver() {}
 
@@ -95,7 +95,7 @@ private:
 
     ////////////////////////////////////////////////////////////////////////////////
     std::shared_ptr<FLIPParameters<RealType> > m_SimParams;
-    std::unique_ptr<FLIPData<RealType> >       m_SimData = std::make_unique<SPHSolverData<RealType> >();
+    std::unique_ptr<FLIPData<RealType> >       m_SimData = std::make_unique<SimulationDataWCSPH<RealType> >();
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

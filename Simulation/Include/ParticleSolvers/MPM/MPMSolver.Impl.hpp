@@ -22,3 +22,12 @@ void Banana::MPMSolver<RealType>::makeReady()
 template<class RealType>
 void Banana::MPMSolver<RealType>::advanceFrame()
 {}
+
+
+template<class RealType>
+void Banana::MPMSolver<RealType>::saveParticleData()
+{}
+
+template<class RealType>
+void Banana::MPMSolver<RealType>::saveMemoryState()
+{}

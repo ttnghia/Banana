@@ -17,41 +17,55 @@
 
 #pragma once
 
-#include <ParticleSolvers/ParticleSolverInterface.h>
-#include <ParticleSolvers/MPM/MPMData.h>
+#include <Noodle/Core/Solvers/SPHSolver.h>
+
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-class MPMSolver : public ParticleSolver<RealType>
+class PCISPHSolver : public WCSPHSolver
 {
 public:
-    MPMSolver()  = default;
-    ~MPMSolver() = default;
+    PCISPHSolver(std::shared_ptr<ParameterManager>& params, SimulationParametersWCSPH* SPHParams) :
+        WCSPHSolver(params, SPHParams),
+        max_pcisph_iterations(SPHParams->maxIterationPCISPH),
+        density_error_threshold(SPHParams->densityErrorThreshold)
+    {
+        eta = density_error_threshold * 0.01 * m_RestDensity;
+    }
 
-    std::shared_ptr<SimulationParametersMPM<RealType> > getSolverParams() { return m_SimParams; }
+    virtual void makeReady() override;
+    virtual void advanceVelocity(Real timestep) override;
+
+protected:
+    virtual std::string getSolverName() override
+    {
+        return std::string("PCISPHSolver");
+    }
+
+    void         compute_beta_delta(Real timestep);
+    void         predict_velocity_position(Real timestep);
+    void         update_density_pressure();
+    Real         get_max_density_error();
+    virtual void computePressureAcceleration() override;
+    virtual void computeViscosity() override;
 
     ////////////////////////////////////////////////////////////////////////////////
-    virtual void makeReady() override;
-    virtual void advanceFrame() override;
-    virtual void saveParticleData() override;
-    virtual void saveMemoryState() override;
+    Vec_Real pressure;
+    Vec_Real density_error;
+    Vec_Vec3 predicted_position;
+    Vec_Vec3 predictedVelocity;
 
-    virtual std::string getSolverName() override { return std::string("MPMSolver"); }
-    virtual unsigned int        getNumParticles() override { return static_cast<unsigned int>(m_SimData->positions.size()); }
-    virtual Vec_Vec3<RealType>& getPositions() override { return m_SimData->positions; }
-    virtual Vec_Vec3<RealType>& getVelocity() override { return m_SimData->velocity; }
+    Real delta;
+    Real eta;
 
-private:
-    std::shared_ptr<SimulationParametersMPM<RealType> > m_SimParams = std::make_shared<SimulationParametersWCSPH<RealType> >();
-    std::unique_ptr<SimulationDataMPM<RealType> >       m_SimData   = std::make_unique<SimulationDataWCSPH<RealType> >();
+    const int  max_pcisph_iterations;
+    const Real density_error_threshold;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <ParticleSolvers/MPM/MPMSolver.Impl.hpp>
-
+#include <ParticleSolvers/SPH/PCISPHSolver.Impl.hpp>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana
