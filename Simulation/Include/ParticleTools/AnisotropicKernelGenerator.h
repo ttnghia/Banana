@@ -19,7 +19,8 @@
 
 #include <Banana/LinearAlgebra/SVD.h>
 #include <Banana/Utils/MathHelpers.h>
-#include <Grid/Grid3D.h>
+#include <Banana/Array/Array3.h>
+#include <Grid/Grid3DHashing.h>
 
 #include <tbb/tbb.h>
 
@@ -27,11 +28,12 @@
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+// TODO: replace grid3d by compact hashing
 template<class RealType>
 class AnisotropicKernelGenerator
 {
 public:
-    AnisotropicKernelGenerator(const Grid3D<RealType>& grid3D, Array3_VecUInt& cellParticles, const Vec_Vec3<RealType>& particles, RealType kernelCellSpan) :
+    AnisotropicKernelGenerator(const Grid3DHashing<RealType>& grid3D, Array3_VecUInt& cellParticles, const Vec_Vec3<RealType>& particles, RealType kernelCellSpan) :
         m_Grid3D(grid3D),
         m_CellParticles(cellParticles),
         m_Particles(particles),
@@ -49,13 +51,12 @@ private:
     RealType W(const Vec3<RealType>& xi, const Vec3<RealType>& xj);
 
     ////////////////////////////////////////////////////////////////////////////////
-    const Grid3D<RealType>&   m_Grid3D;
-    const Array3_VecUInt&     m_CellParticles;
-    const Vec_Vec3<RealType>& m_Particles;
-    const RealType            m_KernelCellSpan;
-    RealType                  m_KernelRadius;
-    RealType                  m_KernelRadiusSqr;
-    RealType                  m_KernelRadiusInv;
+    const Grid3DHashing<RealType>& m_Grid3D;
+    const Vec_Vec3<RealType>&      m_Particles;
+    const RealType                 m_KernelCellSpan;
+    RealType                       m_KernelRadius;
+    RealType                       m_KernelRadiusSqr;
+    RealType                       m_KernelRadiusInv;
 
     Vec_Vec3<RealType>   m_KernelCenters;
     Vec_Mat3x3<RealType> m_KernelMatrices;

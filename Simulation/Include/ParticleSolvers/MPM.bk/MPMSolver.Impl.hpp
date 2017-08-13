@@ -14,25 +14,42 @@
 //
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-
-#pragma once
-
-//#include <ParticleSolvers/FLIP/FLIPSolver.h>
-#include <ParticleSolvers/MPM/MPMSolver.h>
-//#include <ParticleSolvers/Peridynamics/PeridynamicsSolver.h>
-//#include <ParticleSolvers/SPH/WCSPHSolver.h>
-
-#include <catch.hpp>
+template<class RealType>
+void Banana::MPMSolver<RealType>::makeReady()
+{}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-TEST_CASE("Test Particle Solver", "[ParticleSolvers]")
+template<class RealType>
+void Banana::MPMSolver<RealType>::advanceFrame()
 {
-    //Banana::FLIPSolver<float>         solver1;
-
+#if 0
+    try
     {
-        Banana::MPMSolver<float> solver2;
-        solver2.advanceFrame();
+        shp->updateContribList();
+        report.progress("connectivity table size", pch->con.size());
+        pch->timeStep = tmi->nextTimeStep(*pch);
+
+        printf("Timstep: %f\n", pch->timeStep);
+
+        tmi->advance(pch->timeStep);
+        pch->elapsedTime += pch->timeStep;
+        report.progress("elapsedTime", pch->elapsedTime);
+        ++pch->incCount;
+        report.progress("incCount",    pch->incCount);
+        progressIndicator(*pch, startClock);
+        report.writeAll();
     }
-    //Banana::PeridynamicsSolver<float> solver3;
-    //Banana::WCSPHSolver<float> solver4(nullptr);
+    catch(const std::exception& ex)
+    {
+        m_Logger.crash(std::string("Exception: ") + std::string(ex.what()));
+    }
+#endif
 }
+
+template<class RealType>
+void Banana::MPMSolver<RealType>::saveParticleData()
+{}
+
+template<class RealType>
+void Banana::MPMSolver<RealType>::saveMemoryState()
+{}

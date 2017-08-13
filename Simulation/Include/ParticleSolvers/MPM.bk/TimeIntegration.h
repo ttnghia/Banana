@@ -1,43 +1,34 @@
-// Copyright 2009,2011 Philip Wallstedt
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //
-// This software is covered by the following FreeBSD-style license:
+//  Copyright (c) 2017 by
+//       __      _     _         _____
+//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _
+//   /  \/ / _` | '_ \| |/ _` |   / /\/ '__| | | |/ _ \| '_ \ / _` |
+//  / /\  / (_| | | | | | (_| |  / /  | |  | |_| | (_) | | | | (_| |
+//  \_\ \/ \__, |_| |_|_|\__,_|  \/   |_|   \__,_|\___/|_| |_|\__, |
+//         |___/                                              |___/
 //
-// Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following
-// conditions are met:
+//  <nghiatruong.vn@gmail.com>
+//  All rights reserved.
 //
-// 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
-// 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following
-//    disclaimer in the documentation and/or other materials provided with the distribution.
-//
-// This software is provided "as is" and any express or implied warranties, including, but not limited to, the implied warranties
-// of merchantability and fitness for a particular purpose are disclaimed.  In no event shall any authors or contributors be
-// liable for any direct, indirect, incidental, special, exemplary, or consequential damages (including, but not limited to,
-// procurement of substitute goods or services; loss of use, data, or profits; or business interruption) however caused and on any
-// theory of liability, whether in contract, strict liability, or tort (including negligence or otherwise) arising in any way out
-// of the use of this software, even if advised of the possibility of such damage.
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-#ifndef TIMEINT_H
-#define TIMEINT_H
-
-#include<fstream>
-#include"main.h"
-
-#include <Olicado/system/sys_utils.h>
-
-
-
-
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Several algorithmic variations are used, but they all provide these functions
-class timeIntSC
+template<class RealType>
+class TimeIntegration
 {
 protected:
-    const Real initialTime;
-    Real       nominalStep, Nstep;
+    const RealType initialTime;
+    RealType       nominalStep, Nstep;
+
 public:
-    timeIntSC(const patch& pch, const constitutiveSC& cst) : initialTime(pch.elapsedTime)
+    TimeIntegration(const patch& pch, const constitutiveSC& cst) : initialTime(pch.elapsedTime)
     {
-        const Real CFL = comLineArg("CFL", .5);
-        Real       minh = pch.dx;
+        const RealType CFL  = comLineArg("CFL", .5);
+        RealType       minh = pch.dx;
 
         if(pch.dy < minh)
         {
@@ -50,20 +41,20 @@ public:
         }
 
         nominalStep = CFL * minh / cst.waveSpeed();
-        const Real totTime = pch.finalTime - initialTime;
-        Nstep = comLineArg("Nstep", totTime / nominalStep); // allow Nstep to modify nominalStep
+        const RealType totTime = pch.finalTime - initialTime;
+        Nstep       = comLineArg("Nstep", totTime / nominalStep); // allow Nstep to modify nominalStep
         nominalStep = comLineArg("dtOveride",
                                  totTime / Nstep);                // allow dtOveride to modify nominalStep
                                                                   // If nominalStep is not modified, then nominalStep = totTime/(totTime/nominalStep) = nominalStep
         report.param("timeStep", nominalStep);
     }
 
-    virtual ~timeIntSC() {}
-    virtual void advance(const Real&) = 0;
-    Real nextTimeStep(const patch& pch) const
+    virtual ~TimeIntegration() {}
+    virtual void advance(const RealType&) = 0;
+    RealType nextTimeStep(const patch& pch) const
     {
-        const Real allowedRoundoff = nominalStep * machEps * Real(pch.incCount);
-        const Real timeRemaining = pch.finalTime - pch.elapsedTime;
+        const RealType allowedRoundoff = nominalStep * machEps * RealType(pch.incCount);
+        const RealType timeRemaining   = pch.finalTime - pch.elapsedTime;
 
         if(timeRemaining < nominalStep + allowedRoundoff)
         {
@@ -83,40 +74,41 @@ public:
 protected:
     virtual void makeRes(nodeArray<Vector3>&,
                          nodeArray<Vector3>&,
-                         const Real&)
+                         const RealType&)
     {
         throw"timeIntSC: implicit solvers must overide this";
     }
 };
 
 
-
-using namespace std;
-
-class momentum: public timeIntSC
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class RealType>
+class momentum : public TimeIntegration
 {
-    Real prevStep;
-    patch& pch;
+    RealType        prevStep;
+    patch&          pch;
     constitutiveSC& cst;
 public:
-    momentum(patch& p, constitutiveSC& c): timeIntSC(p, c), pch(p), cst(c)
+    momentum(patch& p, constitutiveSC& c) : TimeIntegration(p, c), pch(p), cst(c)
     {
         prevStep = 0.;
     }
-    void advance(const Real&);
+
+    void advance(const RealType&);
 };
 
-class cenDif: public timeIntSC
+class cenDif : public TimeIntegration
 {
-    Real prevStep;
-    patch& pch;
+    RealType        prevStep;
+    patch&          pch;
     constitutiveSC& cst;
 public:
-    cenDif(patch& p, constitutiveSC& c): timeIntSC(p, c), pch(p), cst(c)
+    cenDif(patch& p, constitutiveSC& c) : TimeIntegration(p, c), pch(p), cst(c)
     {
         prevStep = 0.;
     }
-    void advance(const Real&);
+
+    void advance(const RealType&);
 };
 
 
@@ -134,7 +126,7 @@ public:
 
 
 
-void momentum::advance(const Real& dt)
+void momentum::advance(const RealType& dt)
 {
     integrate(pch, pch.massP, pch.massN);
 
@@ -215,7 +207,7 @@ void momentum::advance(const Real& dt)
     cst.update(dt);
 }
 
-void cenDif::advance(const Real& dt)
+void cenDif::advance(const RealType& dt)
 {
     for(int i = 0; i < Npart(); ++i)
     {
@@ -328,64 +320,21 @@ void makeTimeInt(timeIntPtr& ti, patch& pch, constitutiveSC* cst, string s)
     }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//////// implicit methods /////////////////////
-
-inline Real dot(const nodeArray<Vector3>& a, const nodeArray<Vector3>& b)
-{
-    Real s;
-
-    for(int i = 0; i < Nnode(); ++i)
-    {
-        s += a[i].dot(b[i]);
-    }
-
-    assert(s == s); // checking for nan
-    return s + tiny;
-}
-
 template<bool sym>
-class dynamic
+class DynamicSystem
 {
-    unsigned countRes;
-    patch& pch;
-    constitutiveSC& cst;
+    unsigned                  countRes;
+    patch&                    pch;
+    constitutiveSC&           cst;
     const nodeArray<Vector3>& vStart;
 public:
-    dynamic(patch& p, constitutiveSC& c, const nodeArray<Vector3>& v0): pch(p), cst(c),
+    DynamicSystem(patch& p, constitutiveSC& c, const nodeArray<Vector3>& v0) : pch(p), cst(c),
         vStart(v0)
     {
         countRes = 0;
     }
-    void makeRes(nodeArray<Vector3>& v, nodeArray<Vector3>& res, const Real& delt)
+
+    void makeRes(nodeArray<Vector3>& v, nodeArray<Vector3>& res, const RealType& delt)
     {
         pch.gridVelocityBC(v);
         cst.revert();
@@ -405,7 +354,8 @@ public:
             res[i] -= v[i];
         }
 
-        if(sym)for(int i = 0; i < Nnode(); ++i)
+        if(sym)
+            for(int i = 0; i < Nnode(); ++i)
             {
                 res[i] *= pch.massN[i];
             }
@@ -414,19 +364,20 @@ public:
     }
 };
 
-class staticNewt
+class StaticNewton
 {
-    unsigned countRes;
-    patch& pch;
-    constitutiveSC& cst;
+    unsigned                  countRes;
+    patch&                    pch;
+    constitutiveSC&           cst;
     const nodeArray<Vector3>& vStart;
 public:
-    staticNewt(patch& p, constitutiveSC& c, const nodeArray<Vector3>& v0): pch(p), cst(c),
+    StaticNewton(patch& p, constitutiveSC& c, const nodeArray<Vector3>& v0) : pch(p), cst(c),
         vStart(v0)
     {
         countRes = 0;
     }
-    void makeRes(nodeArray<Vector3>& v, nodeArray<Vector3>& Z, const Real& delt)
+
+    void makeRes(nodeArray<Vector3>& v, nodeArray<Vector3>& Z, const RealType& delt)
     {
         pch.gridVelocityBC(v);
         cst.revert();
@@ -451,28 +402,28 @@ public:
 };
 
 template<typename eqT>
-class NewtSys: public eqT
+class NewtonSystem : public eqT
 {
-    nodeArray<Vector3>vPert, Zpert;
-    const Real fd;
+    nodeArray<Vector3>        vPert, Zpert;
+    const RealType            fd;
     const nodeArray<Vector3>& velN;
     const nodeArray<Vector3>& Zcurr;
 public:
-    NewtSys(patch& p,
-            constitutiveSC& c,
-            const nodeArray<Vector3>& v0,
-            const nodeArray<Vector3>& zc):
+    NewtonSystem(patch&                    p,
+                 constitutiveSC&           c,
+                 const nodeArray<Vector3>& v0,
+                 const nodeArray<Vector3>& zc) :
         eqT(p, c, v0),
         fd(sqrt(machEps)),
         velN(p.velN),
         Zcurr(zc) {}
-    void makeDiff(const nodeArray<Vector3>& s, nodeArray<Vector3>& DZ, const Real& delt)
+    void makeDiff(const nodeArray<Vector3>& s, nodeArray<Vector3>& DZ, const RealType& delt)
     {
-        const Real dotss = dot(s, s);
-        const Real dotvv = dot(velN, velN);
-        Real scale2 = dotvv / dotss;
-        const Real maxTol = 1e100;
-        const Real minTol = 1e0;
+        const RealType dotss  = dot(s, s);
+        const RealType dotvv  = dot(velN, velN);
+        RealType       scale2 = dotvv / dotss;
+        const RealType maxTol = 1e100;
+        const RealType minTol = 1e0;
 
         if(scale2 > maxTol)
         {
@@ -484,7 +435,7 @@ public:
             scale2 = minTol;
         }
 
-        const Real fd = sqrt(machEps * scale2);
+        const RealType fd = sqrt(machEps * scale2);
 
         for(int i = 0; i < Nnode(); ++i)
         {
@@ -500,23 +451,23 @@ public:
     }
 };
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //////// Krylov solvers ///////////////////
-
 template<typename sysT>
-class conjGrad: public sysT
+class ConjGrad : public sysT
 {
-    nodeArray<Vector3>res, P, Q;
-    const Real ratioGMRES, slack;
-    Real minRatio;
-    const int iterLim;
-    int Kiter;
+    nodeArray<Vector3>        res, P, Q;
+    const RealType            ratioGMRES, slack;
+    RealType                  minRatio;
+    const int                 iterLim;
+    int                       Kiter;
     const nodeArray<Vector3>& Zcurr;
-    nodeArray<Vector3>& vInc;
-    ofstream cgfile;
-    unsigned ct;
-    unsigned CGdivergeCount;
+    nodeArray<Vector3>&       vInc;
+    ofstream                  cgfile;
+    unsigned                  ct;
+    unsigned                  CGdivergeCount;
 public:
-    int solve(const Real& rhoNewton, const Real& delt)
+    int solve(const RealType& rhoNewton, const RealType& delt)
     {
         for(int i = 0; i < Nnode(); ++i)
         {
@@ -524,9 +475,9 @@ public:
         }
 
         P = res;
-        Real rhoNew2 = rhoNewton * rhoNewton;
-        int lastGoodIdx = 0;
-        Real lastGoodRes = 0.;
+        RealType rhoNew2     = rhoNewton * rhoNewton;
+        int      lastGoodIdx = 0;
+        RealType lastGoodRes = 0.;
         minRatio = huge;
 
         for(Kiter = 0; true; ++Kiter)
@@ -538,8 +489,8 @@ public:
             }
 
             sysT::makeDiff(P, Q, delt);
-            const Real dotpq = dot(P, Q);
-            const Real alpha = rhoNew2 / dotpq;
+            const RealType dotpq = dot(P, Q);
+            const RealType alpha = rhoNew2 / dotpq;
 
             for(int i = 0; i < Nnode(); ++i)
             {
@@ -551,9 +502,9 @@ public:
                 res[i] -= alpha * Q[i];
             }
 
-            const Real rhoOld2 = rhoNew2;
+            const RealType rhoOld2 = rhoNew2;
             rhoNew2 = dot(res, res);
-            const Real ratio = sqrt(rhoNew2) / rhoNewton;
+            const RealType ratio = sqrt(rhoNew2) / rhoNewton;
 
             if(ratio < minRatio)
             {
@@ -587,7 +538,7 @@ public:
                 }
             }
 
-            const Real beta = rhoNew2 / rhoOld2;
+            const RealType beta = rhoNew2 / rhoOld2;
 
             for(int i = 0; i < Nnode(); ++i)
             {
@@ -601,11 +552,12 @@ public:
         cgfile << endl;
         return Kiter;
     }
-    conjGrad(patch& p,
-             constitutiveSC& c,
+
+    ConjGrad(patch&                    p,
+             constitutiveSC&           c,
              const nodeArray<Vector3>& v0,
              const nodeArray<Vector3>& zc,
-             nodeArray<Vector3>& vi):
+             nodeArray<Vector3>&       vi) :
         sysT(p, c, v0, zc),
         ratioGMRES(comLineArg("gmTol", sqrt(machEps))),
         slack(comLineArg("CGslack", 100.)), // further work needed to get this tolerance right
@@ -614,34 +566,36 @@ public:
         vInc(vi)
     {
         cgfile.open("cgpq.xls");
-        ct = 0;
+        ct             = 0;
         CGdivergeCount = 0;
     }
 };
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<typename sysT>
-class GMRES: public sysT
+class GMRES : public sysT
 {
-    vector<Real>gNorm, cGiv, sGiv, yMin;
-    vector<vector<Real> >Hess;
-    vector<nodeArray<Vector3> >qRes;
-    vector<unsigned>histogram;
-    const Real ratioGMRES;
-    const unsigned Nstor;
-    unsigned countBasis;
-    const nodeArray<Vector3>& Zcurr;
-    nodeArray<Vector3>& vInc;
-    void multGivens(const int k, Real& x, Real& y)
+    vector<RealType>            gNorm, cGiv, sGiv, yMin;
+    vector<vector<RealType> >   Hess;
+    vector<nodeArray<Vector3> > qRes;
+    vector<unsigned>            histogram;
+    const RealType              ratioGMRES;
+    const unsigned              Nstor;
+    unsigned                    countBasis;
+    const nodeArray<Vector3>&   Zcurr;
+    nodeArray<Vector3>&         vInc;
+    void multGivens(const int k, RealType& x, RealType& y)
     {
-        const Real tmp = -sGiv[k] * x + cGiv[k] * y;
+        const RealType tmp = -sGiv[k] * x + cGiv[k] * y;
         x = cGiv[k] * x + sGiv[k] * y;
         y = tmp;
     }
+
 public:
-    int solve(const Real& rhoNewton, const Real& delt)
+    int solve(const RealType& rhoNewton, const RealType& delt)
     {
-        Real rhoCurr = rhoNewton;
-        Real rhoPrev = huge;
+        RealType rhoCurr = rhoNewton;
+        RealType rhoPrev = huge;
 
         for(int i = 0; i < Nnode(); ++i)
         {
@@ -692,11 +646,11 @@ public:
                 multGivens(i, Hess[i][Kiter], Hess[i + 1][Kiter]);
             }
 
-            const Real h0 = Hess[Kiter][Kiter];
-            const Real h1 = Hess[Kiter + 1][Kiter];
-            const Real nu = sqrt(h0 * h0 + h1 * h1);
-            cGiv[Kiter] = Hess[Kiter][Kiter] / nu;
-            sGiv[Kiter] = Hess[Kiter + 1][Kiter] / nu;
+            const RealType h0 = Hess[Kiter][Kiter];
+            const RealType h1 = Hess[Kiter + 1][Kiter];
+            const RealType nu = sqrt(h0 * h0 + h1 * h1);
+            cGiv[Kiter]        = Hess[Kiter][Kiter] / nu;
+            sGiv[Kiter]        = Hess[Kiter + 1][Kiter] / nu;
             Hess[Kiter][Kiter] = cGiv[Kiter] * Hess[Kiter][Kiter] + sGiv[Kiter] * Hess[Kiter +
                                                                                        1][Kiter];
             Hess[Kiter + 1][Kiter] = 0.;
@@ -747,11 +701,12 @@ public:
 
         return Kiter;
     }
-    GMRES(patch& p,
-          constitutiveSC& c,
+
+    GMRES(patch&                    p,
+          constitutiveSC&           c,
           const nodeArray<Vector3>& v0,
           const nodeArray<Vector3>& zc,
-          nodeArray<Vector3>& vi):
+          nodeArray<Vector3>&       vi) :
         sysT(p, c, v0, zc),
         ratioGMRES(comLineArg("gmTol", sqrt(machEps))),
         Nstor(comLineArg("Nstor", 128)),
@@ -764,7 +719,7 @@ public:
         gNorm.resize(Nstor + 1);
         yMin.resize(Nstor + 1);
         qRes.resize(Nstor + 1, nodeArray<Vector3>());
-        Hess.resize(Nstor + 1, vector<Real>(Nstor));
+        Hess.resize(Nstor + 1, vector<RealType>(Nstor));
         histogram.resize(Nstor);
 
         for(unsigned i = 0; i < histogram.size(); ++i)
@@ -774,6 +729,7 @@ public:
 
         countBasis = 0;
     }
+
     ~GMRES()
     {
         cerr << "Histogram of required GMRES iterations per call" << endl;
@@ -793,32 +749,33 @@ public:
 //////// Newton-Krylov ////////////////////////
 
 template<typename solverT>
-class NewtonKrylov: public solverT
+class NewtonKrylov : public solverT
 {
-    ofstream newtFile;
-    nodeArray<Vector3>vInc, Zcurr, vTry;
-    const Real ratioNewton, ignoreResidualBelow;
-    Real rhoStart;
-    const unsigned NewtLim, maxLoadIter;
-    patch& pch;
-    constitutiveSC& cst;
+    ofstream                  newtFile;
+    nodeArray<Vector3>        vInc, Zcurr, vTry;
+    const RealType            ratioNewton, ignoreResidualBelow;
+    RealType                  rhoStart;
+    const unsigned            NewtLim, maxLoadIter;
+    patch&                    pch;
+    constitutiveSC&           cst;
     const nodeArray<Vector3>& vStart;
 public:
-    Real startRes()const
+    RealType startRes() const
     {
         return rhoStart;
     }
-    void solve(nodeArray<Vector3>& velN, const Real& delt)
+
+    void solve(nodeArray<Vector3>& velN, const RealType& delt)
     {
-        Real loadResPrev = huge;
+        RealType loadResPrev = huge;
 
         for(unsigned Nload = 0; Nload < maxLoadIter; ++Nload)
         {
             cst.revert();
             pch.makeExternalForces(delt);
             solverT::makeRes(velN, Zcurr, delt);
-            Real rhoCurr = sqrt(dot(Zcurr, Zcurr));
-            Real rhoPrev = huge;
+            RealType rhoCurr = sqrt(dot(Zcurr, Zcurr));
+            RealType rhoPrev = huge;
 
             if(Nload == 0)
             {
@@ -828,7 +785,7 @@ public:
             else
             {
                 cerr << Nload << " load res: abs / rel " << rhoCurr / rhoStart << " / " << rhoCurr /
-                     loadResPrev << endl;
+                    loadResPrev << endl;
 
                 if(rhoCurr < rhoStart * ratioNewton)
                 {
@@ -872,7 +829,7 @@ public:
                     rhoCurr = sqrt(dot(Zcurr, Zcurr));
                     newtFile << rhoCurr / rhoStart << tab << rhoCurr / rhoPrev << tab << Kiter + 1 << endl;
                     report.progress("rhoCurr/rhoStart", rhoCurr / rhoStart);
-                    report.progress("rhoCurr/rhoPrev", rhoCurr / rhoPrev);
+                    report.progress("rhoCurr/rhoPrev",  rhoCurr / rhoPrev);
                     report.writeProgress();
 
                     if(rhoCurr < rhoStart * ratioNewton)
@@ -904,9 +861,10 @@ public:
             }
         }
     }
-    NewtonKrylov(patch& p,
-                 constitutiveSC& c,
-                 const nodeArray<Vector3>& v0):
+
+    NewtonKrylov(patch&                    p,
+                 constitutiveSC&           c,
+                 const nodeArray<Vector3>& v0) :
         solverT(p, c, v0, Zcurr, vInc),
         ratioNewton(comLineArg("NewtTol", sqrt(machEps))),
         ignoreResidualBelow(comLineArg("ignore", tiny)),
@@ -920,45 +878,48 @@ public:
         newtFile.open("newton.xls");
         newtFile.precision(14);
     }
+
     ~NewtonKrylov()
     {
         newtFile.close();
     }
 };
 
-//////// drivers ///////////////////////
-
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+// Solvers
 template<typename NewtT>
-class quasiStatic: public NewtT, public timeIntSC
+class QuasiStatic : public NewtT, public TimeIntegration
 {
-    nodeArray<Vector3>vStart;
-    Real theta;
-    Real startRes;
-    patch& pch;
-    constitutiveSC& cst;
+    nodeArray<Vector3> vStart;
+    RealType           theta;
+    RealType           startRes;
+    patch&             pch;
+    constitutiveSC&    cst;
 public:
-    quasiStatic(patch& p,
-                constitutiveSC& cc):
+    QuasiStatic(patch&          p,
+                constitutiveSC& cc) :
         NewtT(p, cc, vStart),
-        timeIntSC(p, cc),
+        TimeIntegration(p, cc),
         //NewtT(p,cc,p.velN),
         theta(comLineArg("theta", .5)),
         startRes(-huge),
         pch(p),
         cst(cc) {}
-    void advance(const Real& dt)
+    void advance(const RealType& dt)
     {
         integrate(pch, pch.massP, pch.massN);
-        Real maxMass = 0.;
+        RealType maxMass = 0.;
 
-        for(int i = 0; i < Nnode(); ++i)if(pch.massN[i] > maxMass)
+        for(int i = 0; i < Nnode(); ++i)
+            if(pch.massN[i] > maxMass)
             {
                 maxMass = pch.massN[i];
             }
 
-        const Real minMass = machEps * maxMass;
+        const RealType minMass = machEps * maxMass;
 
-        for(int i = 0; i < Nnode(); ++i)if(pch.massN[i] < minMass)
+        for(int i = 0; i < Nnode(); ++i)
+            if(pch.massN[i] < minMass)
             {
                 pch.massN[i] = minMass;
             }
@@ -996,36 +957,38 @@ public:
     }
 };
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<typename NewtT>
-class implicitDynamic: public NewtT, public timeIntSC
+class ImplicitDynamic : public NewtT, public TimeIntegration
 {
-    nodeArray<Vector3>vStart;
-    const Real theta;
-    patch& pch;
-    constitutiveSC& cst;
+    nodeArray<Vector3> vStart;
+    const RealType     theta;
+    patch&             pch;
+    constitutiveSC&    cst;
 public:
-    implicitDynamic(patch& p,
-                    constitutiveSC& cc):
+    ImplicitDynamic(patch&          p,
+                    constitutiveSC& cc) :
         NewtT(p, cc, vStart),
-        timeIntSC(p, cc),
+        TimeIntegration(p, cc),
         //NewtT(p,cc,p.velN),
         theta(comLineArg("theta", .5)),
         pch(p),
         cst(cc) {}
-    void advance(const Real& dt)
+    void advance(const RealType& dt)
     {
-
         integrate(pch, pch.massP, pch.massN);
-        Real maxMass = 0.;
+        RealType maxMass = 0.;
 
-        for(int i = 0; i < Nnode(); ++i)if(pch.massN[i] > maxMass)
+        for(int i = 0; i < Nnode(); ++i)
+            if(pch.massN[i] > maxMass)
             {
                 maxMass = pch.massN[i];
             }
 
-        const Real minMass = machEps * maxMass;
+        const RealType minMass = machEps * maxMass;
 
-        for(int i = 0; i < Nnode(); ++i)if(pch.massN[i] < minMass)
+        for(int i = 0; i < Nnode(); ++i)
+            if(pch.massN[i] < minMass)
             {
                 pch.massN[i] = minMass;
             }
@@ -1077,10 +1040,10 @@ public:
     }
 };
 
-typedef quasiStatic<NewtonKrylov<GMRES<NewtSys<staticNewt> > > >            quasiGM;
-typedef quasiStatic<NewtonKrylov<conjGrad<NewtSys<staticNewt> > > >         quasiCG;
-typedef implicitDynamic<NewtonKrylov<GMRES<NewtSys<dynamic<false> > > > >   dynGM;
-typedef implicitDynamic<NewtonKrylov<conjGrad<NewtSys<dynamic<true> > > > > dynCG;
+typedef QuasiStatic<NewtonKrylov<GMRES<NewtonSystem<StaticNewton> > > >                  quasiGM;
+typedef QuasiStatic<NewtonKrylov<ConjGrad<NewtonSystem<StaticNewton> > > >               quasiCG;
+typedef ImplicitDynamic<NewtonKrylov<GMRES<NewtonSystem<DynamicSystem<false> > > > >     dynGM;
+typedef ImplicitDynamic<NewtonKrylov<ConjGrad<NewtonSystem<DynamicSystem<true> > > > >   dynCG;
 
 
 

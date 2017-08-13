@@ -31,6 +31,8 @@
 #include <ParticleSolvers/ParticleSolverData.h>
 #include <ParticleTools/BoundaryObjects/BoundaryObjectInterface.h>
 
+#include <json.hpp>
+
 #include <memory>
 #include <map>
 #include <fstream>
@@ -75,8 +77,8 @@ protected:
     std::map<std::string, std::shared_ptr<DataIO> > m_ParticleDataIO;
     std::map<std::string, std::shared_ptr<DataIO> > m_MemoryStateIO;
 
-    NeighborhoodSearch<RealType>               m_NSearch;
-    std::unique_ptr<BoundaryObject<RealType> > m_BoundaryObject;
+    std::unique_ptr<NeighborhoodSearch<RealType> > m_NSearch;
+    std::unique_ptr<BoundaryObject<RealType> >     m_BoundaryObject;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

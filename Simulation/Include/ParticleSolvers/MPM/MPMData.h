@@ -36,191 +36,73 @@ struct SimulationDataMPM
 
 
 
-struct partSurface
+struct material
 {
-    Vector3 norm;
-    Real    area;
-    int     p;
-    partSurface(const Vector3& a, const Real& b, const int& c) : norm(a), area(b), p(c) {}
+    double x, y;                //position
+    double vx, vy;              //velocity
+    double grad_velocity[2][2]; //gradient of velocity
+    double ax, ay;              //acceleration
+    double mass;
+    double vol;                 //volume
+    double basis_fn[4];         //Array containing the basis_fn value for  the particle for 4
+                                //nodes surrounding it
+
+    double grad_x_basis_fn[4];  //This contains the gradient values of the basis function
+                                // present above with respect to "x"
+    double grad_y_basis_fn[4];  //This contains the gradient values of the basis functions
+                                // present above with respect to "y"
+
+    double stress[2][2];        //The stress of the material
+
+    double change_Fp[2][2];     //Change in deformation gradiant
+    double Fp[2][2];            //Deformation Gradiant
+    int    cell_i, cell_j;      //i and j value of the containing cell
+    double E;                   //Young's modulus
+    double body_force_x, body_force_y;
 };
 
-struct patch
+struct IJ
 {
-    // const patch-wide values
-    const Vector3 regionLo;               // minimum x and y of region
-    const Vector3 regionHi;               // maximum x and y of region
-    const Real    dx;                     // x-dir cell size
-    const Real    dy;                     // y-dir cell size
-    const Real    dz;                     // z-dir cell size
-    const int     I;                      // I columns of nodes
-    const int     J;                      // J rows of nodes
-    const int     K;                      // K layers of nodes
-                                          // patch-wide variables
-    Real                     elapsedTime; // elapsed time within the simulation
-    Real                     finalTime;   // Expected final state of the simulation
-    Real                     timeStep;    // current time step (set in main)
-    int                      incCount;    // Number of time steps taken
-    vector<ContributionData> con;         // particle-node shape and gradient contributions
-    vector<partSurface>      surfList;    // list of surfaces on particles
-                                          // particle variables
-    partArray<Matrix33> velGradP;         // velocity gradient
-    partArray<Matrix33> defGradP;         // deformation gradient
-    partArray<Matrix33> stressP;          // stress
-    partArray<Vector3>  refPosP;          // initial position
-    partArray<Vector3>  curPosP;          // position
-    partArray<Vector3>  velP;             // velocity
-    partArray<Vector3>  momP;             // momentum
-    partArray<Vector3>  velIncP;          // velocity increment
-    partArray<Vector3>  posIncP;          // position increment
-    partArray<Vector3>  halfLenP;         // particle size
-    partArray<Real>     massP;            // mass
-    partArray<Real>     volumeP;          // volume
-    partArray<Real>     refVolP;          // Initial volume
-                                          // node variables
-    nodeArray<Real>    massN;             // node mass
-    nodeArray<Vector3> curPosN;           // node position
-    nodeArray<Vector3> velN;              // node velocity
-    nodeArray<Vector3> momN;              // node momentum
-    nodeArray<Vector3> fintN;             // internal force on the node
-    nodeArray<Vector3> gravityN;          // external acceleration
-    nodeArray<Vector3> velIncN;           // grid velocity increment
-                                          // inline methods
-                                          // These functions find the cell within which a particle is contained
-                                          // The lower left node of the cell is always defined as the "parent" node of that cell.
-    Real rsx(const Real x) const
-    {
-        return (x - regionLo[0]) / dx + 1;
-    }
-
-    Real rsy(const Real y) const
-    {
-        return (y - regionLo[1]) / dy + 1;
-    }
-
-    Real rsz(const Real z) const
-    {
-        return (z - regionLo[2]) / dz + 1;
-    }
-
-    int rsi(const Real x) const
-    {
-        return int(floor(rsx(x)));
-    }
-
-    int rsj(const Real y) const
-    {
-        return int(floor(rsy(y)));
-    }
-
-    int rsk(const Real z) const
-    {
-        return int(floor(rsz(z)));
-    }
-
-    int inCell(const Vector3& p) const // find the cell into which x,y,z falls
-    {
-        const int i = rsi(p[0]);
-        const int j = rsj(p[1]);
-        const int k = rsk(p[2]);
-
-        if(i > 0 && i < I - 1 && j > 0 && j < J - 1 && k > 0 && k < K - 1)
-        {
-            return k * I * J + j * I + i;
-        }
-        else
-        {
-            throw"inCell:outside findable region";
-        }
-    }
-
-    bool inRegion(const Vector3& p) const
-    {
-        return (regionLo[0] <= p[0]
-                && regionLo[1] <= p[1]
-                && regionLo[2] <= p[2]
-                && p[0] < regionHi[0]
-                && p[1] < regionHi[1]
-                && p[2] < regionHi[2]);
-    }
-
-    // This is a variation on finding the cell.  However, this is for
-    // GIMP particles where portions of a particle may fall in up to
-    // eight cells.  Hence, we return the lowest and left-est node to
-    // which the particle may contribute.
-    int inCell8(const Vector3& p) const
-    {
-        const Real& x = p[0];
-        const Real& y = p[1];
-        const Real& z = p[2];
-        const int   i = rsi(x);
-        const int   j = rsj(y);
-        const int   k = rsk(z);
-
-        if(!(i > 0 && i < I - 1 && j > 0 && j < J - 1 && k > 0 && k < K - 1))
-        {
-            throw"inCell8:outside findable region";
-        }
-
-        const Real enx = rsx(x) - Real(rsi(x));
-        const Real eny = rsy(y) - Real(rsj(y));
-        const Real enz = rsz(z) - Real(rsk(z));
-        const int  io  = (enx < .5 ? i - 1 : i);
-        const int  jo  = (eny < .5 ? j - 1 : j);
-        const int  ko  = (enz < .5 ? k - 1 : k);
-        return ko * I * J + jo * I + io;
-    }
-
-    // declared methods
-    patch(const int Nx, const int Ny, const int Nz, const Vector3 lo, const Vector3 hi);
-    virtual bool afterStep() = 0;
-    virtual void gridVelocityBC(vector<Vector3>&) {};
-    virtual void makeExternalForces(const Real&) {};
-    virtual ~patch() {}
+    int x, y; //These are actually the location of the points in the 2D array of the "struct material" instance created.
 };
 
 
-
-
-
-
-
-
-patch::patch(const int Nx, const int Ny, const int Nz, const Vector3 lo, const Vector3 hi) :
-    regionLo(lo),
-    regionHi(hi),
-    dx((hi[0] - lo[0]) / Real(Nx)),
-    dy((hi[1] - lo[1]) / Real(Ny)),
-    dz((hi[2] - lo[2]) / Real(Nz)),
-    I(Nx + 3), // must keep full boundary layer for GIMP
-    J(Ny + 3),
-    K(Nz + 3)
+/*A mesh in a 2D space consists of collection of cells.
+   A cell can be considered a square with 4 nodes {0,1,2 and 3}
+   In the structure below, we denote a cell by the node 0.
+   Since we have a constant spacing "h" we can derive the rest of the nodes.
+   We use an instance of this "struct mesh" both in the context of a cell and in the context of the "node 0" of the cell.
+ */
+struct mesh
 {
-    globalNodeArrays.resizeAll(I * J * K);
-    elapsedTime = 0.;   // default
-    finalTime   = huge; // default (go forever)
-    incCount    = 0;
-    // laying out nodes in a grid
-    for(int k = 0; k < K; ++k)
-    {
-        const Real z = (k - 1) * dz + regionLo[2];
-        for(int j = 0; j < J; ++j)
-        {
-            const Real y = (j - 1) * dy + regionLo[1];
-            for(int i = 0; i < I; ++i)
-            {
-                const Real x = (i - 1) * dx + regionLo[0];
-                curPosN[k * I * J + j * I + i] = Vector3(x, y, z);
-            }
-        }
-    }
-    report.param("regionLo",   regionLo);
-    report.param("regionHi",   regionHi);
-    report.param("cell sizes", Vector3(dx, dy, dz));
-    report.param("Icols",      I);
-    report.param("Jrows",      J);
-    report.param("Klayers",    K);
-    report.param("Nnode",      Nnode());
-}
+    double     x, y;              //x and y position of the node 0 of a cell
+    struct  IJ points_list[1000]; //List containing the information about the points contained in the cell
+    int        num_points;        //Number of points contained in a cell
+    double     f_int_x, f_int_y;  //Internal forces
+    double     f_ext_x, f_ext_y;  //External forces
+    double     a_x, a_y;          //Acceleration
+    double     v_x, v_y;          //Velocity
+    double     node_mass;         //Mass of a node
+};
+
+
+/*Common Parameters*/
+
+double h = 0.1;             //Spacing between the node points
+double b = 0.025;           //Spacing between particles
+double h_2;                 //h^2 value
+
+const int body_size_x = 40; //There are 40 particles in x-direction
+const int body_size_y = 20; //There are 20 particles in the y-direction
+const int mesh_size   = 15; //There are 15 node points each in either direction
+
+
+double time_step;
+double del_time = 1.0e-8; //Time step increased by this value for each iteration.
+int    counter  = 0;
+
+
+
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana

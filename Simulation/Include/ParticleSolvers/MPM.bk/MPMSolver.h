@@ -17,29 +17,41 @@
 
 #pragma once
 
-#include <Banana/TypeNames.h>
-
-#include <cassert>
+#include <ParticleSolvers/ParticleSolverInterface.h>
+#include <ParticleSolvers/MPM/MPMData.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-class BoundaryObject
+class MPMSolver : public ParticleSolver<RealType>
 {
 public:
-    BoundaryObject() = default;
+    MPMSolver()  = default;
+    ~MPMSolver() = default;
 
-    template<class IndexType>
-    const Vec3<RealType>& getBDParticle(IndexType idx) const { assert(static_cast<size_t>(idx) < m_BDParticles.size()); return m_BDParticles[idx]; }
-    const Vec_Vec3<RealType>& getBDParticles() const noexcept { return m_BDParticles; }
+    std::shared_ptr<SimulationParametersMPM<RealType> > getSolverParams() { return m_SimParams; }
 
-    virtual void generateBoundaryParticles(RealType spacing, int numBDLayers = 2) = 0;
+    ////////////////////////////////////////////////////////////////////////////////
+    virtual void makeReady() override;
+    virtual void advanceFrame() override;
+    virtual void saveParticleData() override;
+    virtual void saveMemoryState() override;
 
-protected:
-    Vec_Vec3<RealType> m_BDParticles;
+    virtual std::string getSolverName() override { return std::string("MPMSolver"); }
+    virtual unsigned int        getNumParticles() override { return static_cast<unsigned int>(m_SimData->positions.size()); }
+    virtual Vec_Vec3<RealType>& getPositions() override { return m_SimData->positions; }
+    virtual Vec_Vec3<RealType>& getVelocity() override { return m_SimData->velocity; }
+
+private:
+    std::shared_ptr<SimulationParametersMPM<RealType> > m_SimParams = std::make_shared<SimulationParametersWCSPH<RealType> >();
+    std::unique_ptr<SimulationDataMPM<RealType> >       m_SimData   = std::make_unique<SimulationDataWCSPH<RealType> >();
 };
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#include <ParticleSolvers/MPM/MPMSolver.Impl.hpp>
+
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana

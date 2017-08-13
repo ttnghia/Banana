@@ -18,13 +18,7 @@
 #pragma once
 
 #include <Banana/TypeNames.h>
-#include <Banana/Array/Array3.h>
 #include <Banana/ParallelHelpers/ParallelFuncs.h>
-#include <Grid/Grid3D.h>
-
-#include <limits>
-#include <array>
-
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -51,7 +45,7 @@ public:
     Vec3<unsigned int> getNumCells() const noexcept { return m_NumCells; }
 
     ////////////////////////////////////////////////////////////////////////////////
-    void setCellSize(RealType cellSize);
+    virtual void setCellSize(RealType cellSize);
     RealType getCellSize() const noexcept { return m_CellSize; }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -73,27 +67,122 @@ public:
 
     ////////////////////////////////////////////////////////////////////////////////
     // particle processing
-    void            constraintToGrid(Vec_Vec3<RealType>& particles);
-    void            collectIndexToCells(Vec_Vec3<RealType>& particles);
-    void            getNeighborList(const Vec_Vec3<RealType>& particles, Vec_VecUInt& neighborList, int cellSpan = 1);
-    void            getNeighborList(const Vec3<RealType>& ppos, Vec_UInt& neighborList, int cellSpan = 1);
-    void            getNeighborList(const Vec_Vec3<RealType>& particles, Vec_VecUInt& neighborList, RealType d2, int cellSpan = 1);
-    void            getNeighborList(const Vec_Vec3<RealType>& particles, const Vec3<RealType>& ppos, Vec_UInt& neighborList, RealType d2, int cellSpan = 1);
-    const Vec_UInt& getParticleIdxSortedByCell();
+    void constraintToGrid(Vec_Vec3<RealType>& particles);
 
-private:
+protected:
     Vec3<RealType>     m_BMin          = Vec3<RealType>(0);
     Vec3<RealType>     m_BMax          = Vec3<RealType>(1);
     Vec3<unsigned int> m_NumCells      = Vec3<unsigned int>(0);
     unsigned int       m_NumTotalCells = 1;
     RealType           m_CellSize      = RealType(1.0);
-    Array3_VecUInt     m_CellParticleIdx;
-    bool               m_bCellIdxNeedResize = false;  // to track and resize the m_CellParticleIdx array
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <Grid/Grid3D.Impl.hpp>
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+// Implementation
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class RealType>
+void Grid3D<RealType>::setGrid(const Vec3<RealType>& bMin, const Vec3<RealType>& bMax, RealType cellSize)
+{
+    m_BMin = bMin;
+    m_BMax = bMax;
+    setCellSize(cellSize);
+}
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class RealType>
+void Grid3D<RealType>::setCellSize(RealType cellSize)
+{
+    assert(cellSize > 0);
+    m_CellSize      = cellSize;
+    m_NumTotalCells = 1;
+
+    for(int i = 0; i < 3; ++i)
+    {
+        m_NumCells[i]    = static_cast<unsigned int>(ceil((m_BMax[i] - m_BMin[i]) / m_CellSize));
+        m_NumTotalCells *= m_NumCells[i];
+    }
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class RealType>
+template<class IndexType>
+bool Grid3D<RealType>::isValidCell(IndexType i, IndexType j, IndexType k)  const noexcept
+{
+    return (i >= 0 &&
+            j >= 0 &&
+            k >= 0 &&
+            static_cast<unsigned int>(i) < m_NumCells[0] &&
+            static_cast<unsigned int>(j) < m_NumCells[1] &&
+            static_cast<unsigned int>(k) < m_NumCells[2]);
+}
+
+template<class RealType>
+template<class IndexType>
+bool Grid3D<RealType>::isValidCell(const Vec3<IndexType>& index)  const noexcept
+{
+    return isValidCell(index[0], index[1], index[2]);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class RealType>
+template<class IndexType>
+Vec3<IndexType> Grid3D<RealType>::getCellIdx(const Vec3<RealType>& ppos)  const noexcept
+{
+    return Vec3<IndexType>(static_cast<IndexType>((ppos[0] - m_BMin[0]) / m_CellSize),
+                           static_cast<IndexType>((ppos[1] - m_BMin[1]) / m_CellSize),
+                           static_cast<IndexType>((ppos[2] - m_BMin[2]) / m_CellSize));
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class RealType>
+template<class IndexType>
+Vec3<IndexType> Grid3D<RealType>::getValidCellIdx(const Vec3<RealType>& ppos)  const noexcept
+{
+    return getNearestValidCellIdx<IndexType>(getCellIdx<IndexType>(ppos));
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class RealType>
+template<class IndexType>
+Vec3<IndexType> Grid3D<RealType>::getNearestValidCellIdx(const Vec3<IndexType>& cellIdx) const noexcept
+{
+    Vec3<IndexType> nearestCellIdx;
+
+    for(int i = 0; i < 3; ++i)
+        nearestCellIdx[i] = std::max<IndexType>(0, std::min<IndexType>(cellIdx[i], static_cast<IndexType>(m_NumCells[i]) - 1));
+
+    return nearestCellIdx;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class RealType>
+void Banana::Grid3D<RealType>::constraintToGrid(Vec_Vec3<RealType>& particles)
+{
+    const RealType       epsilon = 1e-9;
+    const Vec3<RealType> minPos  = m_BMin + Vec3<RealType>(epsilon);
+    const Vec3<RealType> maxPos  = m_BMax - Vec3<RealType>(epsilon);
+
+    ParallelFuncs::parallel_for<size_t>(0, particles.size(),
+                                        [&](size_t p)
+                                        {
+                                            Vec3<RealType> pos = particles[p];
+                                            bool dirty = false;
+
+                                            for(int i = 0; i < 3; ++i)
+                                            {
+                                                if(pos[i] < minPos[i] || pos[i] > maxPos[i])
+                                                {
+                                                    dirty = true;
+                                                    pos[i] = MathHelpers::max(minPos[i], MathHelpers::min(pos[i], maxPos[i]));
+                                                }
+                                            }
+
+                                            if(dirty)
+                                                particles[p] = pos;
+                                        });
+}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana

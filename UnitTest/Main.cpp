@@ -24,6 +24,6 @@
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Simulation project
-#include <CompactNSearch/_CompactNSearch.Test.hpp>
+//#include <CompactNSearch/_CompactNSearch.Test.hpp>
 //#include <Grid/_Grid3D.Test.hpp>
-//#include <ParticleSolvers/_ParticleSolvers.Test.hpp>
+#include <ParticleSolvers/_ParticleSolvers.Test.hpp>
