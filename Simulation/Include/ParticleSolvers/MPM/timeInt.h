@@ -27,6 +27,69 @@
 
 
 
+// Several algorithmic variations are used, but they all provide these functions
+class timeIntSC
+{
+protected:
+    const Real initialTime;
+    Real       nominalStep, Nstep;
+public:
+    timeIntSC(const patch& pch, const constitutiveSC& cst) : initialTime(pch.elapsedTime)
+    {
+        const Real CFL = comLineArg("CFL", .5);
+        Real       minh = pch.dx;
+
+        if(pch.dy < minh)
+        {
+            minh = pch.dy;
+        }
+
+        if(pch.dz < minh)
+        {
+            minh = pch.dz;
+        }
+
+        nominalStep = CFL * minh / cst.waveSpeed();
+        const Real totTime = pch.finalTime - initialTime;
+        Nstep = comLineArg("Nstep", totTime / nominalStep); // allow Nstep to modify nominalStep
+        nominalStep = comLineArg("dtOveride",
+                                 totTime / Nstep);                // allow dtOveride to modify nominalStep
+                                                                  // If nominalStep is not modified, then nominalStep = totTime/(totTime/nominalStep) = nominalStep
+        report.param("timeStep", nominalStep);
+    }
+
+    virtual ~timeIntSC() {}
+    virtual void advance(const Real&) = 0;
+    Real nextTimeStep(const patch& pch) const
+    {
+        const Real allowedRoundoff = nominalStep * machEps * Real(pch.incCount);
+        const Real timeRemaining = pch.finalTime - pch.elapsedTime;
+
+        if(timeRemaining < nominalStep + allowedRoundoff)
+        {
+            return timeRemaining;
+        }
+        else
+        {
+            return nominalStep;
+        }
+    }
+
+    int intEstSteps()
+    {
+        return int(round(Nstep));
+    }
+
+protected:
+    virtual void makeRes(nodeArray<Vector3>&,
+                         nodeArray<Vector3>&,
+                         const Real&)
+    {
+        throw"timeIntSC: implicit solvers must overide this";
+    }
+};
+
+
 
 using namespace std;
 

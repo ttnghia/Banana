@@ -17,6 +17,8 @@
 
 #pragma once
 
+#include <exception>
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
 {
@@ -34,36 +36,36 @@ struct MPMMaterial
         isoHardMod(d),
         kinHardMod(e)
     {
-        if(density < 0.) throw earlyExit("invalid density");
-        if(Y < 0.) throw earlyExit("invalid Young's modulus");
-        if(P > .5 - numeric_limits<RealType>::epsilon() || P < 0.) throw earlyExit("invalid Poisson's ratio");
-        if(yieldStress < 0.) throw earlyExit("invalid yield stress - no plasticity found in plastic model");
-        if(isoHardMod < 0.) throw earlyExit("invalid isotropic hardening modulus");
-        if(kinHardMod < 0.) throw earlyExit("invalid kinematic hardening modulus");
+        if(density < 0.) throw std::exception("invalid density");
+        if(Y < 0.) throw std::exception("invalid Young's modulus");
+        if(P > .5 - numeric_limits<RealType>::epsilon() || P < 0.) throw std::exception("invalid Poisson's ratio");
+        if(yieldStress < 0.) throw std::exception("invalid yield stress - no plasticity found in plastic model");
+        if(isoHardMod < 0.) throw std::exception("invalid isotropic hardening modulus");
+        if(kinHardMod < 0.) throw std::exception("invalid kinematic hardening modulus");
     }
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-struct ConstitutiveSC
+struct ConstitutiveModel
 {
     virtual void update(const Real&) = 0;
     virtual void revert()
     {
-        throw earlyExit("ConstitutiveSC: revert() and save() must be defined if using implicit methods");
+        throw std::exception("ConstitutiveSC: revert() and save() must be defined if using implicit methods");
     }
 
     virtual void save()
     {
-        throw earlyExit("ConstitutiveSC: revert() and save() must be defined if using implicit methods");
+        throw std::exception("ConstitutiveSC: revert() and save() must be defined if using implicit methods");
     }
 
     virtual Real waveSpeed() const = 0;
-    virtual ~ConstitutiveSC() {}
+    virtual ~ConstitutiveModel() {}
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-struct NeoHookean : public ConstitutiveSC
+struct NeoHookean : public ConstitutiveModel
 {
     vector<Matrix33>           defGrad0, stress0;
     vector<RealType>           volume0;
@@ -93,12 +95,12 @@ struct NeoHookean : public ConstitutiveSC
         volume(vl),
         stress(st)
     {
-        if(Npart() < 1) throw earlyExit("NeoHookean:no particles to initialize!");
+        if(Npart() < 1) throw std::exception("NeoHookean:no particles to initialize!");
     }
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-struct UpdatedElastic : public ConstitutiveSC
+struct UpdatedElastic : public ConstitutiveModel
 {
     vector<Matrix33>           stress0, defGrad0;
     vector<RealType>           volume0;
@@ -128,7 +130,7 @@ struct UpdatedElastic : public ConstitutiveSC
 };
 
 
-struct J2plasticLinearIsoKin : public ConstitutiveSC
+struct J2plasticLinearIsoKin : public ConstitutiveModel
 {
     struct point
     {

@@ -36,23 +36,6 @@ struct SimulationDataMPM
 
 
 
-
-// Rather than re-construct the shape and gradient weights within
-// each interpolation function we find them once per time step and store them.
-struct contrib
-{
-    Vector3 G;
-    Real    w;
-    int     p, i;
-    contrib(const int P, const int I, const Real W, const Vector3 GG)
-    {
-        p = P;
-        i = I;
-        w = W;
-        G = GG;
-    }
-};
-
 struct partSurface
 {
     Vector3 norm;
@@ -64,46 +47,46 @@ struct partSurface
 struct patch
 {
     // const patch-wide values
-    const Vector3 regionLo;          // minimum x and y of region
-    const Vector3 regionHi;          // maximum x and y of region
-    const Real    dx;                // x-dir cell size
-    const Real    dy;                // y-dir cell size
-    const Real    dz;                // z-dir cell size
-    const int     I;                 // I columns of nodes
-    const int     J;                 // J rows of nodes
-    const int     K;                 // K layers of nodes
-                                     // patch-wide variables
-    Real                elapsedTime; // elapsed time within the simulation
-    Real                finalTime;   // Expected final state of the simulation
-    Real                timeStep;    // current time step (set in main)
-    int                 incCount;    // Number of time steps taken
-    vector<contrib>     con;         // particle-node shape and gradient contributions
-    vector<partSurface> surfList;    // list of surfaces on particles
-                                     // particle variables
-    partArray<Matrix33> velGradP;    // velocity gradient
-    partArray<Matrix33> defGradP;    // deformation gradient
-    partArray<Matrix33> stressP;     // stress
-    partArray<Vector3>  refPosP;     // initial position
-    partArray<Vector3>  curPosP;     // position
-    partArray<Vector3>  velP;        // velocity
-    partArray<Vector3>  momP;        // momentum
-    partArray<Vector3>  velIncP;     // velocity increment
-    partArray<Vector3>  posIncP;     // position increment
-    partArray<Vector3>  halfLenP;    // particle size
-    partArray<Real>     massP;       // mass
-    partArray<Real>     volumeP;     // volume
-    partArray<Real>     refVolP;     // Initial volume
-                                     // node variables
-    nodeArray<Real>    massN;        // node mass
-    nodeArray<Vector3> curPosN;      // node position
-    nodeArray<Vector3> velN;         // node velocity
-    nodeArray<Vector3> momN;         // node momentum
-    nodeArray<Vector3> fintN;        // internal force on the node
-    nodeArray<Vector3> gravityN;     // external acceleration
-    nodeArray<Vector3> velIncN;      // grid velocity increment
-                                     // inline methods
-                                     // These functions find the cell within which a particle is contained
-                                     // The lower left node of the cell is always defined as the "parent" node of that cell.
+    const Vector3 regionLo;               // minimum x and y of region
+    const Vector3 regionHi;               // maximum x and y of region
+    const Real    dx;                     // x-dir cell size
+    const Real    dy;                     // y-dir cell size
+    const Real    dz;                     // z-dir cell size
+    const int     I;                      // I columns of nodes
+    const int     J;                      // J rows of nodes
+    const int     K;                      // K layers of nodes
+                                          // patch-wide variables
+    Real                     elapsedTime; // elapsed time within the simulation
+    Real                     finalTime;   // Expected final state of the simulation
+    Real                     timeStep;    // current time step (set in main)
+    int                      incCount;    // Number of time steps taken
+    vector<ContributionData> con;         // particle-node shape and gradient contributions
+    vector<partSurface>      surfList;    // list of surfaces on particles
+                                          // particle variables
+    partArray<Matrix33> velGradP;         // velocity gradient
+    partArray<Matrix33> defGradP;         // deformation gradient
+    partArray<Matrix33> stressP;          // stress
+    partArray<Vector3>  refPosP;          // initial position
+    partArray<Vector3>  curPosP;          // position
+    partArray<Vector3>  velP;             // velocity
+    partArray<Vector3>  momP;             // momentum
+    partArray<Vector3>  velIncP;          // velocity increment
+    partArray<Vector3>  posIncP;          // position increment
+    partArray<Vector3>  halfLenP;         // particle size
+    partArray<Real>     massP;            // mass
+    partArray<Real>     volumeP;          // volume
+    partArray<Real>     refVolP;          // Initial volume
+                                          // node variables
+    nodeArray<Real>    massN;             // node mass
+    nodeArray<Vector3> curPosN;           // node position
+    nodeArray<Vector3> velN;              // node velocity
+    nodeArray<Vector3> momN;              // node momentum
+    nodeArray<Vector3> fintN;             // internal force on the node
+    nodeArray<Vector3> gravityN;          // external acceleration
+    nodeArray<Vector3> velIncN;           // grid velocity increment
+                                          // inline methods
+                                          // These functions find the cell within which a particle is contained
+                                          // The lower left node of the cell is always defined as the "parent" node of that cell.
     Real rsx(const Real x) const
     {
         return (x - regionLo[0]) / dx + 1;

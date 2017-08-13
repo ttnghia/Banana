@@ -22,28 +22,72 @@ void Banana::MPMSolver<RealType>::makeReady()
 template<class RealType>
 void Banana::MPMSolver<RealType>::advanceFrame()
 {
-    patchPtr   pch = NULL;
-    constitPtr cst = NULL;
-    shapePtr   shp = NULL;
-    timeIntPtr tmi = NULL;
-    initRun(pch, cst, tmi, shp);
-
-    do
+    try
     {
-        shp->updateContribList();
-        report.progress("connectivity table size", pch->con.size());
-        pch->timeStep = tmi->nextTimeStep(*pch);
-
-        printf("Timstep: %f\n", pch->timeStep);
-
-        tmi->advance(pch->timeStep);
-        pch->elapsedTime += pch->timeStep;
-        report.progress("elapsedTime", pch->elapsedTime);
-        ++pch->incCount;
-        report.progress("incCount",    pch->incCount);
-        progressIndicator(*pch, startClock);
+        const clock_t startClock = clock();
+        globalArgMap.init(argc, argv);
+        report.init();
+        patchPtr   pch = NULL;
+        constitPtr cst = NULL;
+        shapePtr   shp = NULL;
+        timeIntPtr tmi = NULL;
+        initRun(pch, cst, tmi, shp);
+        globalArgMap.reportUnusedTags();
         report.writeAll();
-    } while(pch->afterStep());
+
+
+
+        try
+        {
+            do
+            {
+                shp->updateContribList();
+                report.progress("connectivity table size", pch->con.size());
+                pch->timeStep = tmi->nextTimeStep(*pch);
+
+                printf("Timstep: %f\n", pch->timeStep);
+
+                tmi->advance(pch->timeStep);
+                pch->elapsedTime += pch->timeStep;
+                report.progress("elapsedTime", pch->elapsedTime);
+                ++pch->incCount;
+                report.progress("incCount",    pch->incCount);
+                progressIndicator(*pch, startClock);
+                report.writeAll();
+            } while(pch->afterStep());
+        }
+        catch(const earlyExit& error)
+        {
+            crash(string("Defined Exception:") + string(error.what()));
+        }
+        catch(const exception& error)
+        {
+            crash(string("Standard Exception:") + string(error.what()));
+        }
+        catch(...)
+        {
+            crash(string("Unknown Exception:"));
+        }
+
+        delete tmi;
+        delete shp;
+        delete cst;
+        delete pch;
+        report.param("wallTime", Real(clock() - startClock) / CLOCKS_PER_SEC);
+        report.writeAll();
+    }
+    catch(const earlyExit& error)
+    {
+        crash(string("Non-loop Defined Exception:") + string(error.what()));
+    }
+    catch(const exception& error)
+    {
+        crash(string("Non-loop Standard Exception:") + string(error.what()));
+    }
+    catch(...)
+    {
+        crash(string("Non-loop Unknown Exception:"));
+    }
 }
 
 template<class RealType>

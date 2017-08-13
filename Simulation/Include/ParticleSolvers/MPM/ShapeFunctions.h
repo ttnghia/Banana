@@ -17,176 +17,195 @@
 
 #pragma once
 
-
+#include <Banana/TypeNames.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-struct shapeSC
+namespace Banana
 {
-    virtual void updateContribList() = 0;
-    virtual ~shapeSC() {}
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+// Rather than re-construct the shape and gradient weights within
+// each interpolation function we find them once per time step and store them.
+template<class RealType>
+struct ContributionData
+{
+    ContributionData(unsigned int p_, unsigned int i_, RealType w_, const Vec3<RealType>& G_) : p(p_), i(i_), w(w_), G(G_) { }
+
+    Vec3<RealType> G;
+    RealType       w;
+    unsigned int   p, i;
 };
-typedef shapeSC * shapePtr;
 
-void makeShape(shapePtr & shp, patch & pch, string);
-
-// integration and interpolation operators
-void integrate(const patch& pch, const partArray<Real>& pu, nodeArray<Real>& gu);
-void integrate(const patch& pch, const partArray<Vector3>& pu, nodeArray<Vector3>& gu);
-void divergence(const patch& pch, nodeArray<Vector3>& gu);
-void interpolate(const patch& pch, partArray<Vector3>& pu, const nodeArray<Vector3>& gu);
-void gradient(const patch& pch, partArray<Matrix33>& pu, const nodeArray<Vector3>& gu);
-
-// io.cpp - utility functions for setting up arrangements of particles
-void fillBox(patch& pch, const Vector3& b, const Vector3& e, Vector3 ppe = Vector3(2., 2.,
-                                                                                   2.));
-int partProbe(const patch& pch, const Vector3& pos);
-int nodeProbe(const patch& pch, const Vector3& pos);
-
-// constitutive super class
-struct constitutiveSC
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+struct ShapeFunction
 {
-    virtual void update(const Real&) = 0;
-    virtual void revert()
+    virtual void updateContributeList() = 0;
+    virtual ~ShapeFunction() = default;
+};
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+// The standard piecewise-linear shape functions used in MPM
+class LinearShapeFunction : public ShapeFunction
+{
+    patch& pch;
+    Real S(const Real& x, const Real& h)
     {
-        throw earlyExit("constitutiveSC: revert() and save() must be defined if using implicit methods");
+        return 1. - abs(x) / h;
     }
 
-    virtual void save()
+    Real G(const Real& x, const Real& h)
     {
-        throw earlyExit("constitutiveSC: revert() and save() must be defined if using implicit methods");
+        return -sgn(x) / h;
     }
 
-    virtual Real waveSpeed() const = 0;
-    virtual ~constitutiveSC() {}
-};
-typedef constitutiveSC * constitPtr;
+    void setWeightGrad(patch& pch, const int p, const int k)
+    {
+        const Vector3 r(pch.curPosP[p] - pch.curPosN[k]);
+        const Real    Sx = S(r[0], pch.dx);
+        const Real    Sy = S(r[1], pch.dy);
+        const Real    Sz = S(r[2], pch.dz);
+        const Real    Gx = G(r[0], pch.dx);
+        const Real    Gy = G(r[1], pch.dy);
+        const Real    Gz = G(r[2], pch.dz);
+        const Real    w  = Sx * Sy * Sz;
+        const Real    x  = Gx * Sy * Sz;
+        const Real    y  = Gy * Sx * Sz;
+        const Real    z  = Gz * Sx * Sy;
+        pch.con.push_back(ContributionData(p, k, w, Vector3(x, y, z)));
+    }
 
-// Several algorithmic variations are used, but they all provide these functions
-class timeIntSC
-{
-protected:
-    const Real initialTime;
-    Real       nominalStep, Nstep;
 public:
-    timeIntSC(const patch& pch, const constitutiveSC& cst) : initialTime(pch.elapsedTime)
+    LinearShapeFunction(patch& p) : pch(p) {}
+    void updateContributeList()
     {
-        const Real CFL  = comLineArg("CFL", .5);
-        Real       minh = pch.dx;
+        const int& I = pch.I;
+        const int& J = pch.J;
+        pch.con.clear();
 
-        if(pch.dy < minh)
+        for(int p = 0; p < Npart(); p++)
         {
-            minh = pch.dy;
+            const int n = pch.inCell(pch.curPosP[p]);
+            setWeightGrad(pch, p, n);
+            setWeightGrad(pch, p, n + 1);
+            setWeightGrad(pch, p, n + I);
+            setWeightGrad(pch, p, n + I + 1);
+            setWeightGrad(pch, p, n + I * J);
+            setWeightGrad(pch, p, n + I * J + 1);
+            setWeightGrad(pch, p, n + I * J + I);
+            setWeightGrad(pch, p, n + I * J + I + 1);
         }
-
-        if(pch.dz < minh)
-        {
-            minh = pch.dz;
-        }
-
-        nominalStep = CFL * minh / cst.waveSpeed();
-        const Real totTime = pch.finalTime - initialTime;
-        Nstep       = comLineArg("Nstep", totTime / nominalStep); // allow Nstep to modify nominalStep
-        nominalStep = comLineArg("dtOveride",
-                                 totTime / Nstep);                // allow dtOveride to modify nominalStep
-                                                                  // If nominalStep is not modified, then nominalStep = totTime/(totTime/nominalStep) = nominalStep
-        report.param("timeStep", nominalStep);
-    }
-
-    virtual ~timeIntSC() {}
-    virtual void advance(const Real&) = 0;
-    Real nextTimeStep(const patch& pch) const
-    {
-        const Real allowedRoundoff = nominalStep * machEps * Real(pch.incCount);
-        const Real timeRemaining   = pch.finalTime - pch.elapsedTime;
-
-        if(timeRemaining < nominalStep + allowedRoundoff)
-        {
-            return timeRemaining;
-        }
-        else
-        {
-            return nominalStep;
-        }
-    }
-
-    int intEstSteps()
-    {
-        return int(round(Nstep));
-    }
-
-protected:
-    virtual void makeRes(nodeArray<Vector3>&,
-                         nodeArray<Vector3>&,
-                         const Real&)
-    {
-        throw"timeIntSC: implicit solvers must overide this";
     }
 };
-typedef timeIntSC * timeIntPtr;
-void makeTimeInt(timeIntPtr& ti, patch& pch, constitutiveSC* cst, string s);
 
-// Convenience class for a geometric series of load factors
-// Useful for non-linear problems such as pull-in
-class geomStepSeries
+// The special adaptive spline shape functions for GIMP that are most accurate
+class GIMP : public ShapeFunction
 {
-    Real dt;
-    Real beta;
-    int  N;
-    bool alreadyInit;
+    Vector3 halfLenP;
+    int     p;
+    patch&  pch;
+    Real S(const Real& x, const Real& h, const Real& l)
+    {
+        const Real r = abs(x);
+
+        if(r < l)
+        {
+            return 1. - (r * r + l * l) / (2. * h * l);
+        }
+
+        if(r < h - l)
+        {
+            return 1. - r / h;
+        }
+
+        if(r < h + l)
+        {
+            return (h + l - r) * (h + l - r) / (4. * h * l);
+        }
+
+        return 0.;
+    }
+
+    Real G(const Real& x, const Real& h, const Real& l)
+    {
+        const Real r = abs(x);
+
+        if(r < l)
+        {
+            return -x / (h * l);
+        }
+
+        if(r < h - l)
+        {
+            return -sgn(x) / h;
+        }
+
+        if(r < h + l)
+        {
+            return (h + l - r) / (-2. * sgn(x) * h * l);
+        }
+
+        return 0.;
+    }
+
+    void setWeightGrad(const int k)
+    {
+        const Vector3 r(pch.curPosP[p] - pch.curPosN[k]);
+        const Real    Sx = S(r[0], pch.dx, halfLenP[0]);
+        const Real    Sy = S(r[1], pch.dy, halfLenP[1]);
+        const Real    Sz = S(r[2], pch.dz, halfLenP[2]);
+        const Real    Gx = G(r[0], pch.dx, halfLenP[0]);
+        const Real    Gy = G(r[1], pch.dy, halfLenP[1]);
+        const Real    Gz = G(r[2], pch.dz, halfLenP[2]);
+        const Real    w  = Sx * Sy * Sz;
+        const Real    x  = Gx * Sy * Sz;
+        const Real    y  = Gy * Sx * Sz;
+        const Real    z  = Gz * Sx * Sy;
+        pch.con.push_back(ContributionData(p, k, w, Vector3(x, y, z)));
+    }
+
 public:
-    geomStepSeries()
+    GIMP(patch& p) : pch(p) {}
+    void updateContributeList()
     {
-        alreadyInit = false;
-    }
+        const int& I = pch.I;
+        const int& J = pch.J;
+        pch.con.clear();
 
-    void init(Real lastFactor, int totSteps)
-    {
-        if(alreadyInit)
+        for(p = 0; p < Npart(); p++)
         {
-            throw earlyExit("geomStepSeries may only be initialized once!");
+            halfLenP = pch.halfLenP[p];
+            const int n = pch.inCell8(pch.curPosP[p]);
+            setWeightGrad(n);
+            setWeightGrad(n + 1);
+            setWeightGrad(n + 2);
+            setWeightGrad(n + I);
+            setWeightGrad(n + I + 1);
+            setWeightGrad(n + I + 2);
+            setWeightGrad(n + I + I);
+            setWeightGrad(n + I + I + 1);
+            setWeightGrad(n + I + I + 2);
+            setWeightGrad(n + I * J);
+            setWeightGrad(n + I * J + 1);
+            setWeightGrad(n + I * J + 2);
+            setWeightGrad(n + I * J + I);
+            setWeightGrad(n + I * J + I + 1);
+            setWeightGrad(n + I * J + I + 2);
+            setWeightGrad(n + I * J + I + I);
+            setWeightGrad(n + I * J + I + I + 1);
+            setWeightGrad(n + I * J + I + I + 2);
+            setWeightGrad(n + 2 * I * J);
+            setWeightGrad(n + 2 * I * J + 1);
+            setWeightGrad(n + 2 * I * J + 2);
+            setWeightGrad(n + 2 * I * J + I);
+            setWeightGrad(n + 2 * I * J + I + 1);
+            setWeightGrad(n + 2 * I * J + I + 2);
+            setWeightGrad(n + 2 * I * J + I + I);
+            setWeightGrad(n + 2 * I * J + I + I + 1);
+            setWeightGrad(n + 2 * I * J + I + I + 2);
         }
-
-        dt = lastFactor;
-        N  = totSteps;
-
-        if(totSteps > 1 && abs(1. / Real(totSteps) - lastFactor) > machEps)
-        {
-            beta = 1.1;
-            Real fcurr = 1. - dt * (pow(beta, N) - 1.) / (beta - 1.);
-            Real fprev = 0.;
-
-            for(int c = 0; c < 2 || abs(fcurr) < fprev; ++c)
-            {
-                fprev = abs(fcurr);
-                const Real df = dt * ((pow(beta, N) - 1.) / ((beta - 1.) * (beta - 1.)) - (pow(beta,
-                                                                                               N) * Real(N)) / (beta * (beta - 1.)));
-                beta -= fcurr / df;
-                fcurr = 1. - dt * (pow(beta, N) - 1.) / (beta - 1.);
-                cerr << "geomStepSeries: Newton-Raphson: f / beta: " << fcurr << " / " << beta << endl;
-            }
-
-            cerr << "geomStepSeries: beta: " << beta << endl;
-            cerr << "geomStepSeries: first factor: " << factorI(0) << endl;
-        }
-        else
-        {
-            beta = 1.;
-        }
-
-        alreadyInit = true;
-    }
-
-    Real factorI(const int I) const
-    {
-        if(beta == 1.)
-        {
-            return Real(I + 1) * dt;
-        }
-
-        return 1. - dt * (pow(beta, N - (I + 1)) - 1.) / (beta - 1.); // big to small
-                                                                      //return dt*(pow(beta,(I+1))-1.)/(beta-1.);    // small to big (should check before use)
     }
 };
 
-// Every input file must define initRun
-void initRun(patchPtr&, constitPtr&, timeIntPtr&, shapePtr&);
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#include <ParticleSolvers/MPM/ShapeFunctions.Impl.hpp>
+} // end namespace Banana
+  //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
