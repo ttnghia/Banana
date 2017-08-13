@@ -46,6 +46,8 @@ public:
     virtual Vec_Vec3<RealType>& getVelocity() override { return m_SimData->velocity; }
 
 protected:
+    virtual void loadSimParams(const nlohmann::json& jParams) override;
+
     RealType computeCFLTimeStep();
     void     advanceVelocity(RealType timeStep);
     void     computeDensity();

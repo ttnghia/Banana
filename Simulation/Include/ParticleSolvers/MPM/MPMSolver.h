@@ -39,16 +39,14 @@ public:
     virtual void saveParticleData() override;
     virtual void saveMemoryState() override;
 
-    virtual std::string getSolverName() override { return std::string("MPMSolver"); }
+    virtual std::string         getSolverName() override { return std::string("MPMSolver"); }
     virtual unsigned int        getNumParticles() override { return static_cast<unsigned int>(m_SimData->positions.size()); }
     virtual Vec_Vec3<RealType>& getPositions() override { return m_SimData->positions; }
     virtual Vec_Vec3<RealType>& getVelocity() override { return m_SimData->velocity; }
 
 private:
-    virtual void loadSimParams(const nlohmann::json& jParams) override {}
-
-    std::shared_ptr<SimulationParametersMPM<RealType> > m_SimParams = std::make_shared<SimulationParametersMPM<RealType> >();
-    std::unique_ptr<SimulationDataMPM<RealType> >       m_SimData   = std::make_unique<SimulationDataMPM<RealType> >();
+    std::shared_ptr<SimulationParametersMPM<RealType> > m_SimParams = std::make_shared<SimulationParametersWCSPH<RealType> >();
+    std::unique_ptr<SimulationDataMPM<RealType> >       m_SimData   = std::make_unique<SimulationDataWCSPH<RealType> >();
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

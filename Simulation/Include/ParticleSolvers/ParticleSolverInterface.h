@@ -23,6 +23,7 @@
 #include <Banana/Utils/FileHelpers.h>
 #include <Banana/Utils/MathHelpers.h>
 #include <Banana/Utils/Timer.h>
+#include <Banana/Utils/JSONHelpers.h>
 #include <Banana/Data/DataIO.h>
 #include <Banana/ParallelHelpers/ParallelSTL.h>
 #include <Banana/ParallelHelpers/ParallelFuncs.h>
@@ -50,6 +51,7 @@ public:
 
     std::shared_ptr<FrameParameters<RealType> > getFrameParams() const noexcept { return m_FrameParams; }
     void setFrameParams(std::shared_ptr<FrameParameters<RealType> > frameParams) { m_FrameParams = frameParams; }
+    void doSimulation();
 
     ////////////////////////////////////////////////////////////////////////////////
     virtual void makeReady()        = 0;
@@ -84,9 +86,28 @@ protected:
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
+void Banana::ParticleSolver<RealType>::doSimulation()
+{
+    makeReady();
+
+    while(true)
+    {
+        float frameTime = 0;
+        while(frameTime < 0.0333333333)
+        {
+            advanceFrame();
+            frameTime += 0.0333333333;
+        }
+
+        frameTime;
+    }
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class RealType>
 void Banana::ParticleSolver<RealType>::loadScene(const std::string& sceneFile)
 {
-    std::cout << "Load scene file: " << fileName << "\n";
+    std::cout << "Load scene file: " << sceneFile << "\n";
 
     std::ifstream inputFile(sceneFile);
     if(!inputFile.is_open())
@@ -128,14 +149,14 @@ void Banana::ParticleSolver<RealType>::loadScene(const std::string& sceneFile)
 template<class RealType>
 void Banana::ParticleSolver<RealType>::loadFrameParams(const nlohmann::json& jParams)
 {
-    JSONHelpers::readValue(jParams["FrameDuration"],    m_FrameParams->frameDuration);
-    JSONHelpers::readValue(jParams["FinalFrame"],       m_FrameParams->finalFrame);
-    JSONHelpers::readValue(jParams["NThreads"],         m_FrameParams->nThreads);
+    JSONHelpers::readValue(jParams["FrameDuration"], m_FrameParams->frameDuration);
+    JSONHelpers::readValue(jParams["FinalFrame"],    m_FrameParams->finalFrame);
+    JSONHelpers::readValue(jParams["NThreads"],      m_FrameParams->nThreads);
 
-    JSONHelpers::readValue(jParams["SaveParticleData"], m_FrameParams->bSaveParticleData);
-    JSONHelpers::readValue(jParams["SaveMemoryState"],  m_FrameParams->bSaveMemoryState);
-    JSONHelpers::readValue(jParams["FramePerState"],    m_FrameParams->framePerState);
-    JSONHelpers::readValue(jParams["DataPath"],         m_FrameParams->dataPath);
+    JSONHelpers::readBool(jParams["SaveParticleData"], m_FrameParams->bSaveParticleData);
+    JSONHelpers::readBool(jParams["SaveMemoryState"],  m_FrameParams->bSaveMemoryState);
+    JSONHelpers::readValue(jParams["FramePerState"], m_FrameParams->framePerState);
+    JSONHelpers::readValue(jParams["DataPath"],      m_FrameParams->dataPath);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

@@ -15,32 +15,33 @@
 #-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
+QT       += core gui
+
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+
+TARGET = ParticleSolverTest
+TEMPLATE = app
+
 INCLUDEPATH += $$PWD/Include
-INCLUDEPATH += $$PWD/../Externals/spdlog/include
-INCLUDEPATH += $$PWD/../Externals/json/src
 
-CONFIG += c++14
+include (../../Banana/BananaCore/BananaCore.pri)
+include (../../Banana/QtAppHelpers/QtAppHelpers.pri)
+include (../../Banana/OpenGLHelpers/OpenGLHelpers.pri)
+include (../../Banana/Simulation/Simulation.pri)
 
-win32 {
-    #QMAKE_CXXFLAGS += /std:c++latest
-    CONFIG(debug, debug|release) {
-        LIBS += $$PWD/../Build/Debug/BananaCore.lib
-    }else {
-        LIBS += $$PWD/../Build/Release/BananaCore.lib
-    }
+HEADERS += \
+    Include/MainWindow.h \
+    Include/Common.h \
+    Include/Simulator.h \
+    Include/RenderWidget.h \
+    Include/Controller.h
 
-    INCLUDEPATH += $$PWD/../Externals/tbb_win/include
-    LIBS += -ltbb -L$$PWD/../Externals/tbb_win/lib/intel64/vc14
-}
+SOURCES += \
+    Source/Main.cpp \
+    Source/MainWindow.cpp \
+    Source/Simulator.cpp \
+    Source/RenderWidget.cpp \
+    Source/Controller.cpp
 
-macx {
-    CONFIG(debug, debug|release) {
-        LIBS += $$PWD/../Build/Debug/libBananaCore.a
-    }else {
-        LIBS += $$PWD/../Build/Release/libBananaCore.a
-    }
-
-    INCLUDEPATH += $$PWD/../Externals/tbb_osx/include
-    LIBS += -ltbb -L$$PWD/../Externals/tbb_osx/lib
-}
-
+RESOURCES += \
+    Shader.qrc

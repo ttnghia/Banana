@@ -15,42 +15,13 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-template<class RealType>
-void Banana::MPMSolver<RealType>::makeReady()
-{}
+#include "MainWindow.h"
+
+#include <Banana/Utils/AppConfigReader.h>
+#include <QApplication>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-void Banana::MPMSolver<RealType>::advanceFrame()
+int main(int argc, char* argv[])
 {
-#if 0
-    try
-    {
-        shp->updateContribList();
-        report.progress("connectivity table size", pch->con.size());
-        pch->timeStep = tmi->nextTimeStep(*pch);
-
-        printf("Timstep: %f\n", pch->timeStep);
-
-        tmi->advance(pch->timeStep);
-        pch->elapsedTime += pch->timeStep;
-        report.progress("elapsedTime", pch->elapsedTime);
-        ++pch->incCount;
-        report.progress("incCount",    pch->incCount);
-        progressIndicator(*pch, startClock);
-        report.writeAll();
-    }
-    catch(const std::exception& ex)
-    {
-        m_Logger.crash(std::string("Exception: ") + std::string(ex.what()));
-    }
-#endif
+    __BNNQt_RunMainWindow(MainWindow, argc, argv, true);
 }
-
-template<class RealType>
-void Banana::MPMSolver<RealType>::saveParticleData()
-{}
-
-template<class RealType>
-void Banana::MPMSolver<RealType>::saveMemoryState()
-{}

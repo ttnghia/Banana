@@ -15,42 +15,48 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-template<class RealType>
-void Banana::MPMSolver<RealType>::makeReady()
-{}
+#pragma once
+
+#include <Banana/Macros.h>
+#include <ParticleSolvers/SPH/WCSPH/WCSPHSolver.h>
+
+#include <QObject>
+#include <QStringList>
+
+#include "Common.h"
+
+#define PARTICLE_SOLVER WCSPHSolver
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-void Banana::MPMSolver<RealType>::advanceFrame()
+class Simulator : public QObject
 {
-#if 0
-    try
-    {
-        shp->updateContribList();
-        report.progress("connectivity table size", pch->con.size());
-        pch->timeStep = tmi->nextTimeStep(*pch);
+    Q_OBJECT
 
-        printf("Timstep: %f\n", pch->timeStep);
+public:
+    Simulator(const std::shared_ptr<ParticleSystemData>& particleData) : m_ParticleData(particleData) {}
 
-        tmi->advance(pch->timeStep);
-        pch->elapsedTime += pch->timeStep;
-        report.progress("elapsedTime", pch->elapsedTime);
-        ++pch->incCount;
-        report.progress("incCount",    pch->incCount);
-        progressIndicator(*pch, startClock);
-        report.writeAll();
-    }
-    catch(const std::exception& ex)
-    {
-        m_Logger.crash(std::string("Exception: ") + std::string(ex.what()));
-    }
-#endif
-}
+    bool isRunning() { return !m_bStop; }
+    void stop();
+    void reset();
+    void startSimulation();
 
-template<class RealType>
-void Banana::MPMSolver<RealType>::saveParticleData()
-{}
+public slots:
+    void doSimulation();
+    void changeScene(const QString& scene);
+    void setupScene();
 
-template<class RealType>
-void Banana::MPMSolver<RealType>::saveMemoryState()
-{}
+signals:
+    void simulationFinished();
+    void systemTimeChanged(float time);
+    void numParticleChanged(unsigned int numParticles);
+    void particleChanged();
+    void frameFinished();
+
+protected:
+    volatile bool                       m_bStop        = true;
+    std::shared_ptr<ParticleSystemData> m_ParticleData = nullptr;
+
+    std::unique_ptr<PARTICLE_SOLVER<float> > m_ParticleSolver = std::make_unique<PARTICLE_SOLVER<float> >();
+    std::future<void>                        m_SimulationFutureObj;
+    QString                                  m_Scene;
+};

@@ -25,7 +25,7 @@ inline uint_fast64_t z_value(HashKey const& key)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
 NeighborhoodSearch<RealType>::NeighborhoodSearch(RealType r, bool erase_empty_cells) :
-    m_r2(r * r), m_inv_cell_size(static_cast<Real>(1.0 / r)), m_erase_empty_cells(erase_empty_cells), m_initialized(false)
+    m_r2(r * r), m_inv_cell_size(static_cast<RealType>(1.0 / r)), m_erase_empty_cells(erase_empty_cells), m_initialized(false)
 {
     if(r <= 0.0)
     {
@@ -42,8 +42,10 @@ HashKey NeighborhoodSearch<RealType>::cell_index(RealType const* x) const
     HashKey ret;
     for(unsigned int i = 0; i < 3; ++i)
     {
-        if(x[i] >= 0.0) ret.k[i] = static_cast<int>(m_inv_cell_size * x[i]);
-        else ret.k[i] = static_cast<int>(m_inv_cell_size * x[i]) - 1;
+        if(x[i] >= 0.0)
+            ret.k[i] = static_cast<int>(m_inv_cell_size * x[i]);
+        else
+            ret.k[i] = static_cast<int>(m_inv_cell_size * x[i]) - 1;
     }
     return ret;
 }
@@ -234,7 +236,8 @@ void NeighborhoodSearch<RealType>::update_point_sets()
     // Precompute cell indices.
     for(PointSet<RealType>& d : m_point_sets)
     {
-        if(!d.is_dynamic()) continue;
+        if(!d.is_dynamic())
+            continue;
         d.m_keys.swap(d.m_old_keys);
 
         for(unsigned int i = 0; i < d.n_points(); ++i)
@@ -322,7 +325,8 @@ void NeighborhoodSearch<RealType>::update_hash_table(std::vector<unsigned int>& 
         PointSet<RealType>& d = m_point_sets[j];
         for(unsigned int i = 0; i < d.n_points(); ++i)
         {
-            if(d.m_keys[i] == d.m_old_keys[i]) continue;
+            if(d.m_keys[i] == d.m_old_keys[i])
+                continue;
 
             HashKey const& key = d.m_keys[i];
             auto           it  = m_map.find(key);

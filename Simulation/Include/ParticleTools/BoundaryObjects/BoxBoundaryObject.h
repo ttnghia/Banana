@@ -28,55 +28,95 @@ namespace Banana
 template<class RealType>
 class BoxBoundaryObject : public BoundaryObject<RealType>
 {
-protected:
-    virtual void generateBoundaryParticles(RealType spacing, int numBDLayers = 2) override
+public:
+    BoxBoundaryObject() = default;
+    BoxBoundaryObject(const Vec3<RealType>& bMin, const Vec3<RealType>& bMax) : m_BMin(bMin), mBMax(bMax) {}
+
+    void         setBox(const Vec3<RealType>& bMin, const Vec3<RealType>& bMax);
+    virtual void generateBoundaryParticles(RealType spacing, int numBDLayers = 2) override;
+    virtual bool constrainToBoundary(Vec3<RealType>& ppos, Vec3<RealType>& pvel, RealType restitution = 0.1) override;
+
+private:
+    Vec3<RealType> m_BMin, m_BMax;
+};
+
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+// Implementation
+template<class RealType>
+void Banana::BoxBoundaryObject<RealType>::setBox(const Vec3<RealType>& bMin, const Vec3<RealType>& bMax)
+{
+    m_BMin = bMin;
+    m_BMax = bMax;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class RealType>
+void Banana::BoxBoundaryObject<RealType>::generateBoundaryParticles(RealType spacing, int numBDLayers /*= 2*/)
+{
+    m_BDParticles.resize(0);
+    std::random_device rd;
+    std::mt19937       gen(rd());
+
+    std::normal_distribution<RealType> disSmall(0, RealType(0.02) * spacing);
+    std::normal_distribution<RealType> disLarge(0, RealType(0.1) * spacing);
+
+    const Vec3<RealType> boundaryBMin = m_BMin - Vec3<RealType>(spacing * (RealType(numBDLayers) - RealType(0.5)));
+    const Vec3<RealType> boundaryBMax = m_BMax + Vec3<RealType>(spacing * (RealType(numBDLayers) - RealType(0.501)));
+
+    ////////////////////////////////////////////////////////////////////////////////
+    for(RealType x = boundaryBMin[0]; x <= boundaryBMax[0]; x += spacing)
     {
-        m_BDParticles.resize(0);
-        std::random_device rd;
-        std::mt19937       gen(rd());
+        if(x > m_BMin[0] && x < m_BMax[0])
+            x = m_BMax[0] + spacing * RealType(0.5);
 
-        std::normal_distribution<RealType> disSmall(0, RealType(0.02) * spacing);
-        std::normal_distribution<RealType> disLarge(0, RealType(0.1) * spacing);
-
-        const auto&          bMin         = m_Grid3D->getBMin();
-        const auto&          bMax         = m_Grid3D->getBMax();
-        const Vec3<RealType> boundaryBMin = bMin - Vec3<RealType>(spacing * (RealType(numBDLayers) - RealType(0.5)));
-        const Vec3<RealType> boundaryBMax = bMax + Vec3<RealType>(spacing * (RealType(numBDLayers) - RealType(0.501)));
-
-        ////////////////////////////////////////////////////////////////////////////////
-        for(RealType x = boundaryBMin[0]; x <= boundaryBMax[0]; x += spacing)
+        for(RealType y = boundaryBMin[1]; y <= boundaryBMax[1]; y += spacing)
         {
-            if(x > bMin[0] && x < bMax[0])
-                x = bMax[0] + spacing * RealType(0.5);
+            if(y > m_BMin[1] && y < m_BMax[1])
+                y = m_BMax[1] + spacing * RealType(0.5);
 
-            for(RealType y = boundaryBMin[1]; y <= boundaryBMax[1]; y += spacing)
+            for(RealType z = boundaryBMin[2]; z <= boundaryBMax[2]; z += spacing)
             {
-                if(y > bMin[1] && y < bMax[1])
-                    y = bMax[1] + spacing * RealType(0.5);
+                if(z > m_BMin[2] && z < bMax[2])
+                    z = bMax[2] + spacing * RealType(0.5);
 
-                for(RealType z = boundaryBMin[2]; z <= boundaryBMax[2]; z += spacing)
-                {
-                    if(z > bMin[2] && z < bMax[2])
-                        z = bMax[2] + spacing * RealType(0.5);
+                const Vec3<RealType> gridPos(x, y, z);
+                Vec3<RealType>       ppos = gridPos + Vec3<RealType>(disLarge(gen), disLarge(gen), disLarge(gen));
 
-                    const Vec3<RealType> gridPos(x, y, z);
-                    Vec3<RealType>       ppos = gridPos + Vec3<RealType>(disLarge(gen), disLarge(gen), disLarge(gen));
+                if(gridPos[0] < m_BMin[0] || gridPos[0] > bMax[0])
+                    ppos[0] = gridPos[0] + disSmall(gen);
 
-                    if(gridPos[0] < bMin[0] || gridPos[0] > bMax[0])
-                        ppos[0] = gridPos[0] + disSmall(gen);
+                if(gridPos[1] < m_BMin[1] || gridPos[1] > bMax[1])
+                    ppos[1] = gridPos[1] + disSmall(gen);
 
-                    if(gridPos[1] < bMin[1] || gridPos[1] > bMax[1])
-                        ppos[1] = gridPos[1] + disSmall(gen);
+                if(gridPos[2] < m_BMin[2] || gridPos[2] > bMax[2])
+                    ppos[2] = gridPos[2] + disSmall(gen);
 
-                    if(gridPos[2] < bMin[2] || gridPos[2] > bMax[2])
-                        ppos[2] = gridPos[2] + disSmall(gen);
-
-                    m_BDParticles.push_back(ppos);
-                }
+                m_BDParticles.push_back(ppos);
             }
         }
     }
-};
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class RealType>
+bool Banana::BoxBoundaryObject<RealType>::constrainToBoundary(Vec3<RealType>& pPos, Vec3<RealType>& pVel, RealType restitution /*= 0.1*/)
+{
+    bool velChanged = false;
+
+    for(int l = 0; l < 3; ++l)
+    {
+        if(pPos[l] < m_BMin[l] || pPos[l] > m_BMax[l])
+        {
+            pPos[l]    = MathHelpers::min(MathHelpers::max(pPos[l], m_BMin[l]), m_BMax[l]);
+            pVel[l]   *= -restitution;
+            velChanged = true;
+        }
+    }
+
+    return velChanged;
+}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana

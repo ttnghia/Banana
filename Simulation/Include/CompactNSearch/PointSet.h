@@ -71,6 +71,17 @@ public:
     }
 
     /**
+     * Fetches all neighbors of point i in the given point set.
+     * @param point_set Point set index of other point set where neighbors have been searched.
+     * @param i Point index for which the neighbors should be returned.
+     * @returns Indices of neighboring point i in point set point_set.
+     */
+    const std::vector<unsigned int>& neighbors(unsigned int point_set, unsigned int i) const
+    {
+        return m_neighbors[point_set][i];
+    }
+
+    /**
      * Fetches id pair of kth neighbor of point i in the given point set.
      * @param point_set Point set index of other point set where neighbors have been searched.
      * @param i Point index for which the neighbor id should be returned.

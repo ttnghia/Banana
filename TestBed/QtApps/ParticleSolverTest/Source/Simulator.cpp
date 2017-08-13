@@ -15,83 +15,83 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-#pragma once
-
-#include <Banana/TypeNames.h>
-
-#include <json.hpp>
-#include <vector>
+#include "Simulator.h"
+#include <QDebug>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace Banana
+void Simulator::startSimulation()
 {
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace JSONHelpers
-{
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class T>
-static bool readValue(const nlohmann::json& j, T& v)
-{
-    if(j.is_null())
-        return false;
+    m_bStop = false;
 
-    v = j.get<T>();
-    return true;
+    if(m_SimulationFutureObj.valid())
+        m_SimulationFutureObj.wait();
+
+    m_SimulationFutureObj = std::async(std::launch::async, [&] { doSimulation(); });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class T>
-static bool readVector(const nlohmann::json& j, Vec2<T>& vec)
+void Simulator::doSimulation()
 {
-    unsigned int index = 0;
-    if(j.is_null())
-        return false;
+    Q_ASSERT(m_ParticleData != nullptr);
 
-    std::vector<T> values = j.get<std::vector<T> >();
-    __BNN_ASSERT(values.size() == 2);
+    ////////////////////////////////////////////////////////////////////////////////
+    m_ParticleSolver->makeReady();
 
-    for(unsigned int i = 0; i < values.size(); i++)
-        vec[i] = values[i];
-
-    return true;
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class T>
-static bool readVector(const nlohmann::json& j, Vec3<T>& vec)
-{
-    unsigned int index = 0;
-    if(j.is_null())
-        return false;
-
-    std::vector<T> values = j.get<std::vector<T> >();
-    __BNN_ASSERT(values.size() == 3);
-
-    for(unsigned int i = 0; i < values.size(); i++)
-        vec[i] = values[i];
-
-    return true;
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class T>
-bool readValue<bool>(const nlohmann::json& j, bool& v)
-{
-    if(j.is_null())
-        return false;
-
-    if(j.is_number_integer())
+    for(unsigned int frame = 1; frame <= m_ParticleSolver->getFrameParams()->finalFrame; ++frame)
     {
-        int val = j.get<int>();
-        v = (val != 0);
-    }
-    else
-        v = j.get<bool>();
+        m_ParticleSolver->advanceFrame();
+        float sysTime = m_ParticleSolver->getFrameParams()->frameDuration * static_cast<float>(frame);
 
-    return true;
+        emit systemTimeChanged(sysTime);
+        emit particleChanged();
+        emit frameFinished();
+
+        if(m_bStop)
+            break;
+    }
+
+    if(!m_bStop)
+    {
+        m_bStop = true;
+        emit simulationFinished();
+    }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-} // end namespace JSONHelpers
+void Simulator::stop()
+{
+    m_bStop = true;
+}
+
+void Simulator::reset()
+{
+    m_bStop = true;
+    setupScene();
+}
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-} // end namespace Banana
+void Simulator::changeScene(const QString& scene)
+{
+    m_Scene = scene;
+    setupScene();
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void Simulator::setupScene()
+{
+    emit systemTimeChanged(0);
+
+    // wait until the simulation stop before modifying the scene
+    if(m_SimulationFutureObj.valid())
+        m_SimulationFutureObj.wait();
+
+    ////////////////////////////////////////////////////////////////////////////////
+    m_ParticleSolver->loadScene(m_Scene.toStdString());
+    m_ParticleData->setNumParticles(m_ParticleSolver->getNumParticles());
+    m_ParticleData->setUInt("ColorRandomReady", 0);
+    m_ParticleData->setUInt("ColorRampReady",   0);
+    m_ParticleData->setParticleRadius(m_ParticleSolver->getSolverParams()->particleRadius);
+
+    emit particleChanged();
+    emit numParticleChanged(m_ParticleSolver->getNumParticles());
+}

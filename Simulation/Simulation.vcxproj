@@ -96,6 +96,8 @@
     <ClInclude Include="Include\ParticleSolvers\MPM\MPMData.h" />
     <ClInclude Include="Include\ParticleSolvers\MPM\MPMMaterial.h" />
     <ClInclude Include="Include\ParticleSolvers\MPM\MPMMaterial.Impl.hpp" />
+    <ClInclude Include="Include\ParticleSolvers\MPM\MPMSolver.h" />
+    <ClInclude Include="Include\ParticleSolvers\MPM\MPMSolver.Impl.hpp" />
     <ClInclude Include="Include\ParticleSolvers\MPM\ShapeFunctions.h" />
     <ClInclude Include="Include\ParticleSolvers\MPM\ShapeFunctions.Impl.hpp" />
     <ClInclude Include="Include\ParticleSolvers\MPM\TimeIntegration.h" />
@@ -110,7 +112,6 @@
     <ClInclude Include="Include\ParticleTools\AnisotropicKernelGenerator.Impl.hpp" />
     <ClInclude Include="Include\ParticleSolvers\FLIP\FLIPSolver.h" />
     <ClInclude Include="Include\ParticleSolvers\FLIP\FLIPSolver.Impl.hpp" />
-    <ClInclude Include="Include\ParticleSolvers\MPM\MPMSolver.Impl.hpp" />
     <ClInclude Include="Include\ParticleSolvers\SPH\PCISPH\PCISPHSolver.h" />
     <ClInclude Include="Include\ParticleSolvers\SPH\PCISPH\PCISPHSolver.Impl.hpp" />
     <ClInclude Include="Include\ParticleSolvers\Peridynamics\PeridynamicsSolver.h" />
@@ -143,7 +144,6 @@
     <ClInclude Include="Include\ParticleTools\Emitters\TorusEmitter.h" />
     <ClInclude Include="Include\ParticleTools\ObjectSamplers\TorusSampler.h" />
     <ClInclude Include="Include\ParticleTools\BlueNoiseRelaxation\SPHRelaxation.h" />
-    <ClInclude Include="Include\ParticleSolvers\MPM\MPMSolver.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Include\ParticleTools\_ParticleTools.Test.cpp" />

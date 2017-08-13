@@ -123,7 +123,8 @@ public:
 
     void lock()
     {
-        while(m_lock.test_and_set(std::memory_order_acquire)) ;
+        while(m_lock.test_and_set(std::memory_order_acquire))
+            ;
     }
 
     void unlock()
@@ -132,8 +133,8 @@ public:
     }
 
     Spinlock() = default;
-    Spinlock(Spinlock const& other) {};
-    Spinlock& operator=(Spinlock const& other) { return *this; }
+    Spinlock(const Spinlock&) {}
+    Spinlock& operator=(const Spinlock&) { return *this; }
 
 private:
     std::atomic_flag m_lock = ATOMIC_FLAG_INIT;

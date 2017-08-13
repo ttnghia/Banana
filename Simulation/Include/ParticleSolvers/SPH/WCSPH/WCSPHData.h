@@ -30,7 +30,7 @@
 template<class RealType>
 struct SimulationParametersWCSPH
 {
-    imulationParametersSPH()
+    SimulationParametersWCSPH()
     {
         makeReady();
     }
@@ -87,17 +87,12 @@ struct SimulationDataWCSPH
     Vec_Vec3<RealType> diffuseVelocity;
 
     ////////////////////////////////////////////////////////////////////////////////
-    void makeReady(const std::shared_ptr<SimulationParametersWCSPH<RealType> >& simParams)
+    void makeReady()
     {
-        m_Grid3D.setGrid(simParams->boxMin, simParams->boxMax, simParams->kernelRadius);
-
         velocity.resize(positions.size(), Vec3<RealType>(0));
         density.resize(positions.size(), 0);
         pressureForces.resize(positions.size(), Vec3<RealType>(0));
         surfaceTensionForces.resize(positions.size(), Vec3<RealType>(0));
         diffuseVelocity.resize(positions.size(), Vec3<RealType>(0));
-
-        if(simParams->bUseBoundaryParticles)
-            BoxBoundaryObject<RealType>::generateBoundaryParticles(simParams->boxMin, simParams->boxMax, bdParticles, RealType(1.7) * simParams->particleRadius);
     }
 };
