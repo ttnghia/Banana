@@ -31,6 +31,7 @@
  #endif // _MSC_VER
  */
 
+#include <limits>
 #include <vector>
 #include <cstdint>
 
@@ -271,3 +272,16 @@ using UIPair64 = std::pair<UInt64, UInt64>;
 using FloatPair  = std::pair<float, float>;
 using DoublePair = std::pair<double, double>;
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#ifndef M_PI
+#  define M_PI 3.1415926535897932384626433832795028841971694
+#endif
+
+template<class RealType>
+inline RealType MEpsilon() { return std::numeric_limits<RealType>::epsilon(); }
+
+template<class RealType>
+inline RealType Tiny() { return std::numeric_limits<RealType>::min(); }
+
+template<class RealType>
+inline RealType Huge() { return std::numeric_limits<RealType>::max(); }

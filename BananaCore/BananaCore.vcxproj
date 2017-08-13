@@ -124,6 +124,7 @@
     <ClInclude Include="Include\Banana\Data\ParticleSystemData.h" />
     <ClInclude Include="Include\Banana\Utils\STLHelpers.h" />
     <ClInclude Include="Include\Banana\LinearAlgebra\SVD.h" />
+    <ClInclude Include="Include\Banana\Utils\TensorHelpers.h" />
     <ClInclude Include="Include\Banana\Utils\Timer.h" />
     <ClInclude Include="Include\Banana\TypeNames.h" />
   </ItemGroup>
