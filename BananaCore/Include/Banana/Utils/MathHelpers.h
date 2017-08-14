@@ -388,9 +388,16 @@ inline unsigned int unhash(unsigned int h)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-inline double frand()
+template<class T>
+inline T frand()
 {
-    return rand() / static_cast<double>(RAND_MAX);
+    return static_cast<T>(rand()) / static_cast<T>(RAND_MAX);
+}
+
+template<class T>
+inline T frand11()
+{
+    return (static_cast<T>(rand()) / static_cast<T>(RAND_MAX)) * static_cast<T>(2.0) - static_cast<T>(1.0);
 }
 
 // returns repeatable stateless pseudo-random number in [0,1]

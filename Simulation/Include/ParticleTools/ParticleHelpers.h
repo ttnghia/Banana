@@ -21,6 +21,9 @@
 #include <Banana/Macros.h>
 #include <Banana/Data/DataIO.h>
 #include <Banana/Utils/FileHelpers.h>
+#include <Banana/Utils/MathHelpers.h>
+#include <ParticleTools/BlueNoiseRelaxation/LloydRelaxation.h>
+#include <ParticleTools/BlueNoiseRelaxation/SPHBasedRelaxation.h>
 
 #include <string>
 #include <cmath>
@@ -51,6 +54,21 @@ UInt32 loadBinary(const std::string& fileName, Vec_Vec3<RealType>& particles, Re
 
 template<class RealType, class VectorType>
 void saveBinary(const std::string& fileName, std::vector<VectorType>& particles, RealType& particleRadius);
+
+template<class RealType>
+void jitter(Vec3<RealType>& ppos, RealType maxJitter);
+
+template<class RealType>
+void clamp(Vec3<RealType>& ppos, const Vec3<RealType>& bmin, const Vec3<RealType>& bmax, RealType margin = 0);
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+enum RelaxationMethod
+{
+    LloydRelaxationMethod,
+    SPHBasedRelaxationMethod
+};
+template<class RealType>
+void relaxPosition(const Vec_Vec3<RealType>& particles, RelaxationMethod method);
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #include <ParticleTools/ParticleHelpers.Impl.hpp>

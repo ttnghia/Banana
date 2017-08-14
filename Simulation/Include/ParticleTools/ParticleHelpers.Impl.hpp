@@ -164,3 +164,45 @@ void ParticleHelpers<RealType, VectorType>::saveBinary(const std::string& fileNa
 
     FileHelpers::writeBinaryFile(fileName, buffer.buffer());
 }
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class RealType>
+void jitter(Vec3<RealType>& ppos, RealType maxJitter)
+{
+    ppos += maxJitter * Vec3<RealType>(MathHelpers::frand11<RealType>(),
+                                       MathHelpers::frand11<RealType>(),
+                                       MathHelpers::frand11<RealType>())
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class RealType>
+void clamp(Vec3<RealType>& ppos, const Vec3<RealType>& bmin, const Vec3<RealType>& bmax, RealType margin /*= 0*/)
+{
+    for(int i = 0; i < 3; ++i)
+    {
+        if(ppos[i] < bmin[i] + margin ||
+           ppos[i] > bmax[i] - margin)
+            ppos[i] = MathHelpers::min(MathHelpers::max(ppos[i], bmin[i] + margin),
+                                       bmax[i] - margin);
+    }
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class RealType>
+void relaxPosition(const Vec_Vec3<RealType>& particles, RelaxationMethod method)
+{
+    if(method == LloydRelaxationMethod)
+    {
+        //x;
+        //LloydRelaxation lloyd(domainParams, particle_radius);
+        //lloyd.moving_percentage_threshold = samplingParams->movingPercentageThreshold;
+        //lloyd.overlap_ratio_threshold = samplingParams->overlapRatioThreshold;
+        //lloyd.remove_ratio_threshold = samplingParams->overlapRatioThreshold;
+
+        //lloyd.relax_particles(samples, particles, 10, 3000);
+    }
+    else
+    {
+        //x;
+    }
+}

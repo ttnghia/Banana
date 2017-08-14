@@ -121,7 +121,7 @@
     <ClInclude Include="Include\Grid\Grid3D.h" />
     <ClInclude Include="Include\Grid\GridHelpers.h" />
     <ClInclude Include="Include\ParticleTools\BlueNoiseRelaxation\LloydRelaxation.h" />
-    <ClInclude Include="Include\ParticleTools\BlueNoiseRelaxation\SPHRelaxation.Impl.hpp" />
+    <ClInclude Include="Include\ParticleTools\BlueNoiseRelaxation\SPHBasedRelaxation.Impl.hpp" />
     <ClInclude Include="Include\ParticleSolvers\SPH\KernelFunctions.h" />
     <ClInclude Include="Include\ParticleTools\BoundaryObjects\BoundaryObjectInterface.h" />
     <ClInclude Include="Include\ParticleTools\BoundaryObjects\BoxBoundaryObject.h" />
@@ -143,7 +143,7 @@
     <ClInclude Include="Include\ParticleTools\Emitters\SphereEmitter.h" />
     <ClInclude Include="Include\ParticleTools\Emitters\TorusEmitter.h" />
     <ClInclude Include="Include\ParticleTools\ParticleObjects\TorusSampler.h" />
-    <ClInclude Include="Include\ParticleTools\BlueNoiseRelaxation\SPHRelaxation.h" />
+    <ClInclude Include="Include\ParticleTools\BlueNoiseRelaxation\SPHBasedRelaxation.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Include\ParticleTools\_ParticleTools.Test.cpp" />
