@@ -33,6 +33,9 @@ public:
     std::string& name() { return m_ObjName; }
     std::string& meshFile() { return m_MeshFile; }
     std::string& particleCacheFile() { return m_CacheFile; }
+    RealType& particleRadius() { return m_ParticleRadius; }
+    bool& loadFromCache() { return m_bLoadFromCache; }
+    bool& relaxPosition() { return m_bRelaxPosition; }
 
     Vec3<RealType>& translation() { return m_Translation; }
     Vec3<RealType>& rotation() { return m_Rotation; }
@@ -46,23 +49,52 @@ public:
     unsigned int getNumParticles() const noexcept { return static_cast<unsigned int>(m_Particles.size()); }
     const Vec_Vec3<RealType>& getParticles() const noexcept { return m_Particles; }
 
-    virtual void makeObj(RealType particleRadius) = 0;
+    void makeObj();
 
 protected:
-    std::string m_ObjName;
-    std::string m_MeshFile;
-    std::string m_CacheFile;
+    virtual void generateParticles() = 0;
 
-    Vec3<RealType> m_Translation;
-    Vec3<RealType> m_Rotation;
-    Vec3<RealType> m_Scale;
+    std::string m_ObjName   = "NoName";
+    std::string m_MeshFile  = "";
+    std::string m_CacheFile = "";
 
-    Vec3<RealType> m_AABBMin;
-    Vec3<RealType> m_AABBMax;
-    Vec3<RealType> m_ObjCenter;
+    Vec3<RealType> m_Translation = Vec3<RealType>(0);
+    Vec3<RealType> m_Rotation    = Vec3<RealType>(0);
+    Vec3<RealType> m_Scale       = Vec3<RealType>(1);
+
+    Vec3<RealType> m_AABBMin   = Vec3<RealType>(0);
+    Vec3<RealType> m_AABBMax   = Vec3<RealType>(0);
+    Vec3<RealType> m_ObjCenter = Vec3<RealType>(0);
 
     Vec_Vec3<RealType> m_Particles;
+    RealType           m_ParticleRadius = 0;
+    bool               m_bLoadFromCache = false;
+    bool               m_bRelaxPosition = false;
 };
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+// Implementation
+template<class RealType>
+void Banana::ParticleObject<RealType>::makeObj()
+{
+    if(m_bLoadFromCache)
+    {
+        __BNN_ASSERT(!m_CacheFile.empty());
+        m_Particles.resize(0);
+        ParticleHelpers::loadBinary(m_CacheFile, m_Particles, m_ParticleRadius);
+    }
+    else
+    {
+        generateParticles();
+
+        // TODO
+        //if(m_bRelaxPosition)
+
+        if(!m_CacheFile.empty())
+            ParticleHelpers::saveBinary(m_CacheFile, m_Particles, m_ParticleRadius);
+    }
+}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana

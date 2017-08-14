@@ -756,49 +756,49 @@ public:
     }
 
     template<class T>
-    const unsigned char* toFloatArray(const std::vector<T>& vData)
+    const unsigned char* toFloatArray(const std::vector<T>& vData, bool bWriteVectorSize = true)
     {
-        m_DataBuffer.setFloatArray(vData);
+        m_DataBuffer.setFloatArray(vData, bWriteVectorSize);
 
         return m_DataBuffer.data();
     }
 
     template<class T>
-    const unsigned char* toFloatArray(const Vec_Vec2<T>& vData)
+    const unsigned char* toFloatArray(const Vec_Vec2<T>& vData, bool bWriteVectorSize = true)
     {
-        m_DataBuffer.setFloatArray(vData);
+        m_DataBuffer.setFloatArray(vData, , bWriteVectorSize);
 
         return m_DataBuffer.data();
     }
 
     template<class T>
-    const unsigned char* toFloatArray(const Vec_Vec3<T>& vData)
+    const unsigned char* toFloatArray(const Vec_Vec3<T>& vData, bool bWriteVectorSize = true)
     {
-        m_DataBuffer.setFloatArray(vData);
+        m_DataBuffer.setFloatArray(vData, bWriteVectorSize);
 
         return m_DataBuffer.data();
     }
 
     template<class T>
-    const unsigned char* toDoubleArray(const std::vector<T>& vData)
+    const unsigned char* toDoubleArray(const std::vector<T>& vData, bool bWriteVectorSize = true)
     {
-        m_DataBuffer.setDoubleArray(vData);
+        m_DataBuffer.setDoubleArray(vData, bWriteVectorSize);
 
         return m_DataBuffer.data();
     }
 
     template<class T>
-    const unsigned char* toDoubleArray(const Vec_Vec2<T>& vData)
+    const unsigned char* toDoubleArray(const Vec_Vec2<T>& vData, bool bWriteVectorSize = true)
     {
-        m_DataBuffer.setDoubleArray(vData);
+        m_DataBuffer.setDoubleArray(vData, bWriteVectorSize);
 
         return m_DataBuffer.data();
     }
 
     template<class T>
-    const unsigned char* toDoubleArray(const Vec_Vec3<T>& vData)
+    const unsigned char* toDoubleArray(const Vec_Vec3<T>& vData, bool bWriteVectorSize = true)
     {
-        m_DataBuffer.setDoubleArray(vData);
+        m_DataBuffer.setDoubleArray(vData, bWriteVectorSize);
 
         return m_DataBuffer.data();
     }

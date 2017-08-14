@@ -100,12 +100,12 @@ UInt32 ParticleHelpers<RealType>::loadBinary(const std::string& fileName, Vec_Ve
     __BNN_ASSERT(segmentStart == buffer.size());
 
     ////////////////////////////////////////////////////////////////////////////////
-    particles.resize(numParticles);
+    particles.reserve(particles.size() + static_cast<size_t>(numParticles));
 
     for(UInt32 i = 0; i < numParticles; ++i)
     {
-        particles[i] = Vec2<RealType>(particleData[i * 2],
-                                      particleData[i * 2 + 1]);
+        particles.emplace_back(Vec2<RealType>(particleData[i * 2],
+                                              particleData[i * 2 + 1]));
     }
 
     return numParticles;
@@ -137,14 +137,30 @@ UInt32 ParticleHelpers<RealType>::loadBinary(const std::string& fileName, Vec_Ve
     __BNN_ASSERT(segmentStart == buffer.size());
 
     ////////////////////////////////////////////////////////////////////////////////
-    particles.resize(numParticles);
+    particles.reserve(particles.size() + static_cast<size_t>(numParticles));
 
     for(UInt32 i = 0; i < numParticles; ++i)
     {
-        particles[i] = Vec3<RealType>(particleData[i * 3],
-                                      particleData[i * 3 + 1],
-                                      particleData[i * 3 + 2]);
+        particles.emplace_back(Vec3<RealType>(particleData[i * 3],
+                                              particleData[i * 3 + 1],
+                                              particleData[i * 3 + 2]));
     }
 
     return numParticles;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class RealType, class VectorType>
+void ParticleHelpers<RealType, VectorType>::saveBinary(const std::string& fileName, std::vector<VectorType>& particles, RealType& particleRadius)
+{
+    static_assert(sizeof(RealType) * 2 == sizeof(VectorType) || sizeof(RealType) * 3 == sizeof(VectorType), "Inconsistent type of particle radius and vector data!");
+
+    DataBuffer buffer;
+    UInt32     numParticles = static_cast<UInt32>(particles.size());
+
+    buffer.push_back(numParticles);
+    buffer.push_back(particleRadius);
+    buffer.pushFloatArray(particles, false);
+
+    FileHelpers::writeBinaryFile(fileName, buffer.buffer());
 }

@@ -132,7 +132,7 @@
     <ClInclude Include="Include\ParticleTools\ParticleHelpers.h" />
     <ClInclude Include="Include\ParticleTools\ParticleHelpers.Impl.hpp" />
     <ClInclude Include="Include\ParticleTools\ParticleObjects\BowlSampler.h" />
-    <ClInclude Include="Include\ParticleTools\ParticleObjects\BoxSampler.h" />
+    <ClInclude Include="Include\ParticleTools\ParticleObjects\BoxObject.h" />
     <ClInclude Include="Include\ParticleTools\ParticleObjects\CylinderSampler.h" />
     <ClInclude Include="Include\ParticleTools\ParticleObjects\HollowSphereSampler.h" />
     <ClInclude Include="Include\ParticleTools\ParticleObjects\MeshObjSampler.h" />
