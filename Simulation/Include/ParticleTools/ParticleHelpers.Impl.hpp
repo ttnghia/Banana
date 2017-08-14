@@ -15,7 +15,7 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-Vec2i createGrid(const Vec2<RealType>& bmin, const Vec2<RealType>& bmax, RealType spacing)
+Vec2i ParticleHelpers<RealType>::createGrid(const Vec2<RealType>& bmin, const Vec2<RealType>& bmax, RealType spacing)
 {
     Vec2<RealType> fgrid = (bmax - bmin) / spacing;
 
@@ -24,7 +24,7 @@ Vec2i createGrid(const Vec2<RealType>& bmin, const Vec2<RealType>& bmax, RealTyp
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-Vec3i createGrid(const Vec3<RealType>& bmin, const Vec3<RealType>& bmax, RealType spacing)
+Vec3i ParticleHelpers<RealType>::createGrid(const Vec3<RealType>& bmin, const Vec3<RealType>& bmax, RealType spacing)
 {
     Vec3<RealType> fgrid = (bmax - bmin) / spacing;
 
@@ -33,7 +33,7 @@ Vec3i createGrid(const Vec3<RealType>& bmin, const Vec3<RealType>& bmax, RealTyp
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-void transform(Vec_Vec3<RealType>& particles, const Vec3<RealType>& translation, const Vec3<RealType>& rotation)
+void ParticleHelpers<RealType>::transform(Vec_Vec3<RealType>& particles, const Vec3<RealType>& translation, const Vec3<RealType>& rotation)
 {
     RealType azimuth = rotation[0];
     RealType elevation = rotation[1];
@@ -69,14 +69,14 @@ void transform(Vec_Vec3<RealType>& particles, const Vec3<RealType>& translation,
             tmp[j] = glm::dot(R[j], particles[i]);
 
         particles[i] = Vec3<RealType>(tmp[0] + translation[0],
-                                        tmp[1] + translation[1],
-                                        tmp[2] + translation[2]);
+                                      tmp[1] + translation[1],
+                                      tmp[2] + translation[2]);
     }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-UInt32 loadBinary(const std::string& fileName, Vec_Vec2<RealType>& particles, RealType& particleRadius)
+UInt32 ParticleHelpers<RealType>::loadBinary(const std::string& fileName, Vec_Vec2<RealType>& particles, RealType& particleRadius)
 {
     DataBuffer buffer;
     __BNN_ASSERT_MSG(FileHelpers::readFile(buffer.buffer(), fileName), "Could not open file for reading.");
@@ -105,7 +105,7 @@ UInt32 loadBinary(const std::string& fileName, Vec_Vec2<RealType>& particles, Re
     for(UInt32 i = 0; i < numParticles; ++i)
     {
         particles[i] = Vec2<RealType>(particleData[i * 2],
-                                        particleData[i * 2 + 1]);
+                                      particleData[i * 2 + 1]);
     }
 
     return numParticles;
@@ -113,7 +113,7 @@ UInt32 loadBinary(const std::string& fileName, Vec_Vec2<RealType>& particles, Re
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-UInt32 loadBinary(const std::string& fileName, Vec_Vec3<RealType>& particles, RealType& particleRadius)
+UInt32 ParticleHelpers<RealType>::loadBinary(const std::string& fileName, Vec_Vec3<RealType>& particles, RealType& particleRadius)
 {
     DataBuffer buffer;
     __BNN_ASSERT_MSG(FileHelpers::readFile(buffer.buffer(), fileName), "Could not open file for reading.");
@@ -142,8 +142,8 @@ UInt32 loadBinary(const std::string& fileName, Vec_Vec3<RealType>& particles, Re
     for(UInt32 i = 0; i < numParticles; ++i)
     {
         particles[i] = Vec3<RealType>(particleData[i * 3],
-                                        particleData[i * 3 + 1],
-                                        particleData[i * 3 + 2]);
+                                      particleData[i * 3 + 1],
+                                      particleData[i * 3 + 2]);
     }
 
     return numParticles;

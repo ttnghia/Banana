@@ -40,7 +40,7 @@ template<class RealType>
 Vec3i createGrid(const Vec3<RealType>& bmin, const Vec3<RealType>& bmax, RealType spacing);
 
 template<class RealType>
-void transform(std::vector<Vec3<RealType> >& particles, const Vec3<RealType>& translation, const Vec3<RealType>& rotation);
+void transform(Vec_Vec3<RealType>& particles, const Vec3<RealType>& translation, const Vec3<RealType>& rotation);
 
 template<class RealType>
 UInt32 loadBinary(const std::string& fileName, Vec_Vec2<RealType>& particles, RealType& particleRadius);

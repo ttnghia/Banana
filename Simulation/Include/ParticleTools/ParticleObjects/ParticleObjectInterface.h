@@ -17,89 +17,52 @@
 
 #pragma once
 
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <tbb/tbb.h>
-
+#include <ParticleTools/ParticleHelpers.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+namespace Banana
+{
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class RealType>
 class ParticleObject
 {
 public:
-    ParticleObject(DomainParameters*           domainParams_,
-                   ParticleSamplingParameters* samplingParams_,
-                   const Array3_Real&          sdf_boundary_) :
-        domainParams(domainParams_),
-        samplingParams(samplingParams_),
-        sdf_boundary(sdf_boundary_),
-        sdf_grid_ready(false),
-        aabb_ready(false),
-        obj_name("untitled"),
-        monitor(MonitorSource::ParticleGenerator)
-    {
-        init_sdf_grid(samplingParams->sdfResolution);
-    }
+    ParticleObject()  = default;
+    ~ParticleObject() = default;
 
-    ~ObjectBuilder()
-    {
-        sdf_grid.clear();
-    }
+    std::string& name() { return m_ObjName; }
+    std::string& meshFile() { return m_MeshFile; }
+    std::string& particleCacheFile() { return m_CacheFile; }
 
-    void set_obj_name(const std::string& name)
-    {
-        obj_name = name;
-    }
+    Vec3<RealType>& translation() { return m_Translation; }
+    Vec3<RealType>& rotation() { return m_Rotation; }
+    Vec3<RealType>& scale() { return m_Scale; }
 
-    UInt32 generate_particle(Vec_Vec3& particles, Real particle_radius);
+    const Vec3<RealType>& aabbMin() const noexcept { return m_AABBMin; }
+    const Vec3<RealType>& aabbMax() const noexcept { return m_AABBMax; }
+    const Vec3<RealType>& objCenter() const noexcept { return m_ObjCenter; }
 
-    Vec3         get_jitter(Real particle_radius);
-    Real         get_sdf_cell_size();
-    Array3_Real& get_sdf(bool negative_inside = true);
+    void transformParticles(const Vec3<RealType>& translation, const Vec3<RealType>& rotation) { ParticleHelpers::transform(m_Particles, m_Translation, m_Rotation); }
+    unsigned int getNumParticles() const noexcept { return static_cast<unsigned int>(m_Particles.size()); }
+    const Vec_Vec3<RealType>& getParticles() const noexcept { return m_Particles; }
+
+    virtual void makeObj(RealType particleRadius) = 0;
 
 protected:
-    virtual std::string get_generator_name() = 0;
-    virtual bool        check_all_params()   = 0;
-    virtual void        compute_aabb()       = 0;
+    std::string m_ObjName;
+    std::string m_MeshFile;
+    std::string m_CacheFile;
 
-    virtual Real object_sdf_value(const Vec3& pos)
-    {
-        __NOODLE_UNUSED(pos);
-        __NOODLE_DENIED_CALL_TO_BASE_FUNC
-    }
+    Vec3<RealType> m_Translation;
+    Vec3<RealType> m_Rotation;
+    Vec3<RealType> m_Scale;
 
-    virtual void pos_process(Vec_Vec3& particles, Real particle_radius,
-                             Real threshold)
-    {
-        __NOODLE_UNUSED(particles);
-        __NOODLE_UNUSED(particle_radius);
-        __NOODLE_UNUSED(threshold);
-    }
+    Vec3<RealType> m_AABBMin;
+    Vec3<RealType> m_AABBMax;
+    Vec3<RealType> m_ObjCenter;
 
-    virtual void compute_sdf(bool negative_inside = true);
-
-    ////////////////////////////////////////////////////////////////////////////////
-    UInt32 sample_particle(Vec_Vec3& particles,
-                           Real      particle_radius);
-    void relax_position(Vec_Vec3& samples, Vec_Vec3& particles,
-                        Real particle_radius);
-    void init_sdf_grid(int sdf_resolution);
-    void invalidate_data()
-    {
-        sdf_grid_ready = false;
-        aabb_ready     = false;
-    }
-
-    ////////////////////////////////////////////////////////////////////////////////
-    Vec3 obj_bbmin;
-    Vec3 obj_bbmax;
-
-    Real        sdf_cell_size;
-    Array3_Real sdf_grid;
-    bool        sdf_grid_ready;
-    bool        aabb_ready;
-
-    std::string                 obj_name;
-    Monitor                     monitor;
-    DomainParameters*           domainParams;
-    ParticleSamplingParameters* samplingParams;
-    const Array3_Real&          sdf_boundary;
+    Vec_Vec3<RealType> m_Particles;
 };
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+} // end namespace Banana
