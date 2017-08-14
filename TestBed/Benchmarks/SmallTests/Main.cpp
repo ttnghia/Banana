@@ -15,28 +15,7 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-#pragma once
-
-//#include <ParticleSolvers/FLIP/FLIPSolver.h>
-//#include <ParticleSolvers/MPM/MPMSolver.h>
-//#include <ParticleSolvers/Peridynamics/PeridynamicsSolver.h>
-//#include <ParticleSolvers/SPH/WCSPHSolver.h>
-
-#include <catch.hpp>
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//TEST_CASE("Test Particle Solver", "[ParticleSolvers]")
-//{
-//Banana::FLIPSolver<float>         solver1;
-
-//{
-//    Banana::MPMSolver<float> solver2;
-//    solver2.advanceFrame();
-//}
-//Banana::PeridynamicsSolver<float> solver3;
-//Banana::WCSPHSolver<float> solver4(nullptr);
-//}
+#define CATCH_CONFIG_MAIN // This tells Catch to provide a main() - only do this in one cpp file
 
 
-//Microsoft (R) C/C++ Optimizing Compiler Version 19.00.23506 for x86
-
+#include "TestMap.h"

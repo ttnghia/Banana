@@ -34,7 +34,7 @@ public:
 
     void         setBox(const Vec3<RealType>& bMin, const Vec3<RealType>& bMax);
     virtual void generateBoundaryParticles(RealType spacing, int numBDLayers = 2) override;
-    virtual bool constrainToBoundary(Vec3<RealType>& ppos, Vec3<RealType>& pvel, RealType restitution = 0.1) override;
+    virtual bool constrainToBoundary(Vec3<RealType>& ppos, Vec3<RealType>& pvel, RealType restitution = RealType(0.1)) override;
 
 private:
     Vec3<RealType> m_BMin, m_BMax;
@@ -101,7 +101,7 @@ void Banana::BoxBoundaryObject<RealType>::generateBoundaryParticles(RealType spa
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-bool Banana::BoxBoundaryObject<RealType>::constrainToBoundary(Vec3<RealType>& pPos, Vec3<RealType>& pVel, RealType restitution /*= 0.1*/)
+bool Banana::BoxBoundaryObject<RealType>::constrainToBoundary(Vec3<RealType>& pPos, Vec3<RealType>& pVel, RealType restitution /*= RealType(0.1)*/)
 {
     bool velChanged = false;
 

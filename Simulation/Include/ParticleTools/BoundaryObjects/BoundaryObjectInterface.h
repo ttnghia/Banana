@@ -38,8 +38,8 @@ public:
     const Vec_Vec3<RealType>& getBDParticles() const noexcept { return m_BDParticles; }
     unsigned int getNumBDParticles() const noexcept { return m_BDParticles.size(); }
 
-    virtual void generateBoundaryParticles(RealType spacing, int numBDLayers = 2)                            = 0;
-    virtual bool constrainToBoundary(Vec3<RealType>& ppos, Vec3<RealType>& pvel, RealType restitution = 0.1) = 0;
+    virtual void generateBoundaryParticles(RealType spacing, int numBDLayers = 2)                                      = 0;
+    virtual bool constrainToBoundary(Vec3<RealType>& ppos, Vec3<RealType>& pvel, RealType restitution = RealType(0.1)) = 0;
 
 protected:
     Vec_Vec3<RealType> m_BDParticles;

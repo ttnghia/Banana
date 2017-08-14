@@ -140,14 +140,14 @@ public:
         return m_SizeX == other.m_SizeX && m_SizeY == other.m_SizeY && m_SizeZ == other.m_SizeZ && m_Data == other.m_Data;
     }
 
-    bool operator!=(const Array3<T>& x) const
+    bool operator!=(const Array3<T>& other) const
     {
-        return m_SizeX != x.m_SizeX || m_SizeY != x.m_SizeY || m_SizeZ != x.m_SizeZ || m_Data != x.m_Data;
+        return m_SizeX != other.m_SizeX || m_SizeY != other.m_SizeY || m_SizeZ != other.m_SizeZ || m_Data != other.m_Data;
     }
 
-    bool equalSize(const Array3<T>& x) const
+    bool equalSize(const Array3<T>& other) const
     {
-        return m_SizeX == x.m_SizeX && m_SizeY == x.m_SizeY && m_SizeZ == x.m_SizeZ;
+        return m_SizeX == other.m_SizeX && m_SizeY == other.m_SizeY && m_SizeZ == other.m_SizeZ;
     }
 
     void assign(const T& value)

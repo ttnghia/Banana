@@ -18,18 +18,21 @@
 #pragma once
 
 #include <Banana/TypeNames.h>
-#include <Banana/MathHelpers.h>
 #include <Banana/Array/Array2.h>
 #include <Banana/Array/Array3.h>
+#include <Banana/Utils/MathHelpers.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+namespace ArrayHelpers
+{
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
 inline RealType interpolateLinear(const Vec2<RealType>& point, const Array2<RealType>& grid)
 {
-    int        i, j;
+    int      i, j;
     RealType fx, fy;
 
     MathHelpers::get_barycentric(point[0], i, fx, 0, (int)grid.sizeX());
@@ -42,7 +45,7 @@ inline RealType interpolateLinear(const Vec2<RealType>& point, const Array2<Real
 template<class RealType>
 inline RealType interpolateLinear(const Vec3<RealType>& point, const Array3<RealType>& grid)
 {
-    int        i, j, k;
+    int      i, j, k;
     RealType fi, fj, fk;
 
     MathHelpers::get_barycentric(point[0], i, fi, 0, (int)grid.sizeX());
@@ -59,7 +62,7 @@ inline RealType interpolateLinear(const Vec3<RealType>& point, const Array3<Real
 template<class RealType>
 inline RealType interpolateCubicBSpline(const Vec2<RealType>& point, const Array2<RealType>& grid)
 {
-    int        i, j;
+    int      i, j;
     RealType fi, fj;
 
     MathHelpers::get_barycentric(point[0], i, fi, 0, (int)grid.sizeX());
@@ -93,7 +96,7 @@ inline RealType interpolateCubicBSpline(const Vec2<RealType>& point, const Array
 template<class RealType>
 inline RealType interpolateCubicBSpline(const Vec3<RealType>& point, const Array3<RealType>& grid)
 {
-    int        i, j, k;
+    int      i, j, k;
     RealType fi, fj, fk;
 
     MathHelpers::get_barycentric(point[0], i, fi, 0, (int)grid.sizeX());
@@ -135,7 +138,7 @@ inline RealType interpolateCubicBSpline(const Vec3<RealType>& point, const Array
 template<class RealType>
 inline float interpolateGradient(Vec2<RealType>& gradient, const Vec2<RealType>& point, const Array2<RealType>& grid)
 {
-    int        i, j;
+    int      i, j;
     RealType fx, fy;
     MathHelpers::get_barycentric(point[0], i, fx, 0, (int)grid.sizeX());
     MathHelpers::get_barycentric(point[1], j, fy, 0, (int)grid.sizeY());
@@ -162,7 +165,7 @@ inline float interpolateGradient(Vec2<RealType>& gradient, const Vec2<RealType>&
 template<class RealType>
 inline RealType interpolateGradient(Vec3<RealType>& gradient, const Vec3<RealType>& point, const Array3<RealType>& grid)
 {
-    int        i, j, k;
+    int      i, j, k;
     RealType fx, fy, fz;
 
     MathHelpers::get_barycentric(point[0], i, fx, 0, (int)grid.sizeX());
@@ -235,5 +238,7 @@ inline void write_matlab_array(std::ostream& output, Array2<T>& a, const char* v
     output << ";" << std::endl;
 }
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+} // end namespace ArrayHelpers
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana
