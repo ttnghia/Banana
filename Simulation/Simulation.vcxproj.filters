@@ -48,30 +48,6 @@
     <ClInclude Include="Include\ParticleSolvers\FLIP\FLIPSolver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\ParticleTools\ObjectSamplers\BowlSampler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\ParticleTools\ObjectSamplers\BoxSampler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\ParticleTools\ObjectSamplers\CylinderSampler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\ParticleTools\ObjectSamplers\HollowSphereSampler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\ParticleTools\ObjectSamplers\MeshObjSampler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\ParticleTools\ObjectSamplers\ParticleSampler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\ParticleTools\ObjectSamplers\SphereSampler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\ParticleTools\ObjectSamplers\TorusSampler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Include\ParticleTools\Emitters\BoxEmitter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -217,6 +193,30 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Include\ParticleSolvers\MPM\MPMSolver.Impl.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\ParticleTools\ParticleObjects\BowlSampler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\ParticleTools\ParticleObjects\BoxSampler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\ParticleTools\ParticleObjects\CylinderSampler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\ParticleTools\ParticleObjects\HollowSphereSampler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\ParticleTools\ParticleObjects\MeshObjSampler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\ParticleTools\ParticleObjects\SphereSampler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\ParticleTools\ParticleObjects\TorusSampler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\ParticleTools\ParticleObjects\ParticleObjectInterface.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

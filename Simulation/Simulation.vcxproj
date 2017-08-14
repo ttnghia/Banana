@@ -131,18 +131,18 @@
     <ClInclude Include="Include\ParticleTools\BlueNoiseRelaxation\LloydRelaxation.Impl.hpp" />
     <ClInclude Include="Include\ParticleTools\ParticleHelpers.h" />
     <ClInclude Include="Include\ParticleTools\ParticleHelpers.Impl.hpp" />
-    <ClInclude Include="Include\ParticleTools\ObjectSamplers\BowlSampler.h" />
-    <ClInclude Include="Include\ParticleTools\ObjectSamplers\BoxSampler.h" />
-    <ClInclude Include="Include\ParticleTools\ObjectSamplers\CylinderSampler.h" />
-    <ClInclude Include="Include\ParticleTools\ObjectSamplers\HollowSphereSampler.h" />
-    <ClInclude Include="Include\ParticleTools\ObjectSamplers\MeshObjSampler.h" />
-    <ClInclude Include="Include\ParticleTools\ObjectSamplers\ParticleSampler.h" />
-    <ClInclude Include="Include\ParticleTools\ObjectSamplers\SphereSampler.h" />
+    <ClInclude Include="Include\ParticleTools\ParticleObjects\BowlSampler.h" />
+    <ClInclude Include="Include\ParticleTools\ParticleObjects\BoxSampler.h" />
+    <ClInclude Include="Include\ParticleTools\ParticleObjects\CylinderSampler.h" />
+    <ClInclude Include="Include\ParticleTools\ParticleObjects\HollowSphereSampler.h" />
+    <ClInclude Include="Include\ParticleTools\ParticleObjects\MeshObjSampler.h" />
+    <ClInclude Include="Include\ParticleTools\ParticleObjects\ParticleObjectInterface.h" />
+    <ClInclude Include="Include\ParticleTools\ParticleObjects\SphereSampler.h" />
     <ClInclude Include="Include\ParticleTools\Emitters\MeshObjEmitter.h" />
     <ClInclude Include="Include\ParticleTools\Emitters\ParticleEmitter.h" />
     <ClInclude Include="Include\ParticleTools\Emitters\SphereEmitter.h" />
     <ClInclude Include="Include\ParticleTools\Emitters\TorusEmitter.h" />
-    <ClInclude Include="Include\ParticleTools\ObjectSamplers\TorusSampler.h" />
+    <ClInclude Include="Include\ParticleTools\ParticleObjects\TorusSampler.h" />
     <ClInclude Include="Include\ParticleTools\BlueNoiseRelaxation\SPHRelaxation.h" />
   </ItemGroup>
   <ItemGroup>

@@ -24,10 +24,10 @@ TEMPLATE = app
 
 INCLUDEPATH += $$PWD/Include
 
-include (../../Banana/BananaCore/BananaCore.pri)
-include (../../Banana/QtAppHelpers/QtAppHelpers.pri)
-include (../../Banana/OpenGLHelpers/OpenGLHelpers.pri)
-include (../../Banana/Simulation/Simulation.pri)
+include(D:/Programming/Banana/BananaCore/BananaCore.pri)
+include(D:/Programming/Banana/QtAppHelpers/QtAppHelpers.pri)
+include(D:/Programming/Banana/OpenGLHelpers/OpenGLHelpers.pri)
+include(D:/Programming/Banana/Simulation/Simulation.pri)
 
 HEADERS += \
     Include/MainWindow.h \

@@ -17,7 +17,24 @@
 
 template<class RealType>
 void Banana::WCSPHSolver<RealType>::loadSimParams(const nlohmann::json& jParams)
-{}
+{
+    JSONHelpers::readVector(jParams["BoxMin"], m_SimParams->boxMin);
+    JSONHelpers::readVector(jParams["BoxMax"], m_SimParams->boxMax);
+
+    JSONHelpers::readValue(jParams["PressureStiffness"],  m_SimParams->pressureStiffness);
+    JSONHelpers::readValue(jParams["NearForceStiffness"], m_SimParams->nearForceStiffness);
+    JSONHelpers::readValue(jParams["Viscosity"],          m_SimParams->viscosity);;
+    JSONHelpers::readValue(jParams["KernelRadius"],       m_SimParams->kernelRadius);
+
+    JSONHelpers::readBool(jParams["CorrectDensity"],        m_SimParams->bCorrectDensity);
+    JSONHelpers::readBool(jParams["UseBoundaryParticles"],  m_SimParams->bUseBoundaryParticles);
+    JSONHelpers::readBool(jParams["UseAttractivePressure"], m_SimParams->bUseAttractivePressure);
+    JSONHelpers::readBool(jParams["ApplyGravity"],          m_SimParams->bApplyGravity);
+    JSONHelpers::readBool(jParams["EnableSortParticle"],    m_SimParams->bEnableSortParticle);
+
+    JSONHelpers::readValue(jParams["BoundaryRestitution"],     m_SimParams->boxMax);
+    JSONHelpers::readValue(jParams["AttractivePressureRatio"], m_SimParams->boxMax);
+}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
@@ -122,7 +139,7 @@ template<class RealType>
 RealType Banana::WCSPHSolver<RealType>::computeCFLTimeStep()
 {
     RealType maxVel = sqrt(ParallelSTL::maxNorm2<RealType>(m_SimData->velocity));
-    RealType CFLTimeStep = maxVel > RealType(1e-8) ? m_SimParams->CFLFactor* RealType(0.4) * (RealType(2.0) * m_SimParams->particleRadius / maxVel) : RealType(1e10);
+    RealType CFLTimeStep = maxVel > RealType(Tiny<RealType>()) ? m_SimParams->CFLFactor* RealType(0.4) * (RealType(2.0) * m_SimParams->particleRadius / maxVel) : RealType(1e10);
 
     CFLTimeStep = MathHelpers::max(CFLTimeStep, m_SimParams->defaultTimestep * RealType(0.01));
     CFLTimeStep = MathHelpers::min(CFLTimeStep, m_SimParams->defaultTimestep * RealType(100.0));
@@ -170,7 +187,7 @@ void Banana::WCSPHSolver<RealType>::computeDensity()
                                                 const Vec3<RealType> r = qpos - pPos;
 
                                                 pden += m_CubicKernel.W(r);
-                                            } // end loop over neighbor cells
+                                            }
 
 
                                             ////////////////////////////////////////////////////////////////////////////////
@@ -215,7 +232,11 @@ void Banana::WCSPHSolver<RealType>::correctDensity()
                                         [&](UInt32 p)
                                         {
                                             const Vec3<RealType>& pPos = m_SimData->positions[p];
-                                            RealType tmp = m_CubicKernel.W_zero() / m_SimData->density[p];
+                                            RealType pden = m_SimData->density[p];
+                                            if(pden < Tiny<RealType> ())
+                                                return;
+
+                                            RealType tmp = m_CubicKernel.W_zero() / pden;
 
                                             for(UInt32 q : fluidPointSet.neighbors(0, p))
                                             {
@@ -223,18 +244,12 @@ void Banana::WCSPHSolver<RealType>::correctDensity()
                                                 const Vec3<RealType> r = qpos - pPos;
                                                 const RealType qden = m_SimData->density[q];
 
-                                                if(qden < 1e-8)
-                                                {
+                                                if(qden < Tiny<RealType> ())
                                                     continue;
-                                                }
 
                                                 tmp += m_CubicKernel.W(r) / qden;
                                             } // end loop over neighbor cells
 
-
-
-                                            ////////////////////////////////////////////////////////////////////////////////
-                                            // ==> correct density for the boundary particles
                                             if(m_SimParams->bUseBoundaryParticles)
                                             {
                                                 for(UInt32 q : fluidPointSet.neighbors(1, p))
@@ -245,7 +260,7 @@ void Banana::WCSPHSolver<RealType>::correctDensity()
                                                 }
                                             }
 
-                                            tmp_density[p] = tmp > 1e-8 ? m_SimData->density[p] / fmin(tmp * m_SimParams->particleMass, max_density) : 0;
+                                            tmp_density[p] = tmp > Tiny<RealType>() ? m_SimData->density[p] / fmin(tmp * m_SimParams->particleMass, max_density) : 0;
                                         }); // end parallel_for
 
     std::copy(tmp_density.begin(), tmp_density.end(), m_SimData->density.begin());
@@ -272,7 +287,7 @@ void Banana::WCSPHSolver<RealType>::computePressureForces()
 
                                             Vec3<RealType> pressure_accel(0, 0, 0);
 
-                                            if(pden < 1e-8)
+                                            if(pden < Tiny<RealType>())
                                             {
                                                 m_SimData->pressureForces[p] = pressure_accel;
                                                 return;
@@ -287,7 +302,7 @@ void Banana::WCSPHSolver<RealType>::computePressureForces()
                                                 const Vec3<RealType>& qpos = m_SimData->positions[q];
                                                 const RealType qden = m_SimData->density[q];
 
-                                                if(qden < 1e-8)
+                                                if(qden < Tiny<RealType>())
                                                 {
                                                     return;
                                                 }
@@ -380,7 +395,10 @@ template<class RealType>
 void Banana::WCSPHSolver<RealType>::updateVelocity(RealType timeStep)
 {
     ParallelFuncs::parallel_for<size_t>(0, m_SimData->velocity.size(),
-                                        [&](size_t p) { m_SimData->velocity[p] += m_SimData->pressureForces[p] * timeStep; });
+                                        [&](size_t p)
+                                        {
+                                            m_SimData->velocity[p] += (m_SimData->pressureForces[p] + m_SimData->surfaceTensionForces[p]) * timeStep;
+                                        });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

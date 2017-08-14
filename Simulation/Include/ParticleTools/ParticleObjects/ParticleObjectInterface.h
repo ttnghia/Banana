@@ -22,12 +22,12 @@
 
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class  ParticleSampler
+class ParticleObject
 {
 public:
-    ParticleSampler(DomainParameters * domainParams_,
-            ParticleSamplingParameters * samplingParams_,
-            const Array3_Real &sdf_boundary_) :
+    ParticleObject(DomainParameters*           domainParams_,
+                   ParticleSamplingParameters* samplingParams_,
+                   const Array3_Real&          sdf_boundary_) :
         domainParams(domainParams_),
         samplingParams(samplingParams_),
         sdf_boundary(sdf_boundary_),
@@ -67,7 +67,7 @@ protected:
     }
 
     virtual void pos_process(Vec_Vec3& particles, Real particle_radius,
-            Real threshold)
+                             Real threshold)
     {
         __NOODLE_UNUSED(particles);
         __NOODLE_UNUSED(particle_radius);
