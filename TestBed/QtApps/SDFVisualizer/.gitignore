@@ -1,0 +1,8 @@
+**/.vs
+**/*.db
+**/*.opendb
+**/Debug/*
+**/Release/*
+**/GeneratedFiles/*
+Capture/*.*
+SDFVisualizer.pro.user

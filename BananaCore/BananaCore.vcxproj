@@ -85,6 +85,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\Banana\Array\SparseArray3.h" />
+    <ClInclude Include="Include\Banana\Geometry\GeometryObjects.h" />
     <ClInclude Include="Include\Banana\Utils\CommandLineParser.h" />
     <ClInclude Include="Include\Banana\Utils\JSONHelpers.h" />
     <ClInclude Include="Include\Banana\Utils\AppConfigReader.h" />

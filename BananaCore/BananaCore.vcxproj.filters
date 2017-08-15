@@ -150,6 +150,9 @@
     <ClInclude Include="Include\Banana\Array\SparseArray3.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Include\Banana\Geometry\GeometryObjects.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Utils\Logger.cpp">
