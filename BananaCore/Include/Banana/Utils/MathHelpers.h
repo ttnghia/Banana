@@ -39,45 +39,136 @@ namespace MathHelpers
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class T>
-inline T sqr(const T& x)
+inline T sqr(T x)
 {
     return x * x;
 }
 
 template<class T>
-inline T cube(const T& x)
+inline T cube(T x)
 {
     return x * x * x;
 }
 
 template<class T>
-inline T pow4(const T& x)
+inline T pow3(T x)
 {
-    return cube(x) * x;
+    return x * x * x;
 }
 
 template<class T>
-inline T pow5(const T& x)
+inline T pow4(T x)
+{
+    return sqr(sqr(x));
+}
+
+template<class T>
+inline T pow5(T x)
 {
     return pow4(x) * x;
 }
 
 template<class T>
-inline T pow6(const T& x)
+inline T pow6(T x)
 {
-    return pow5(x) * x;
+    return pow3(sqr(x));
 }
 
 template<class T>
-inline T pow7(const T& x)
+inline T pow7(T x)
 {
     return pow6(x) * x;
 }
 
 template<class T>
-inline T pow8(const T& x)
+inline T pow8(T x)
 {
-    return pow7(x) * x;
+    return sqr(pow4(x));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+template<class T>
+inline T norm2(T x1, T x2)
+{
+    return std::sqrt(sqr(x1) + sqr(x2));
+}
+
+template<class T>
+inline T norm2(T x1, T x2, T x3)
+{
+    return std::sqrt(sqr(x1) + sqr(x2) + sqr(x3));
+}
+
+template<class T>
+inline T norm3(T x1, T x2)
+{
+    return std::pow(pow3(x1) + pow3(x2), T(1.0 / 3.0));
+}
+
+template<class T>
+inline T norm3(T x1, T x2, T x3)
+{
+    return std::pow(pow3(x1) + pow3(x2) + pow3(x3), T(1.0 / 3.0));
+}
+
+template<class T>
+inline T norm4(T x1, T x2)
+{
+    return std::pow(pow4(x1) + pow4(x2), T(1.0 / 4.0));
+}
+
+template<class T>
+inline T norm4(T x1, T x2, T x3)
+{
+    return std::pow(pow4(x1) + pow4(x2) + pow4(x3), T(1.0 / 4.0));
+}
+
+template<class T>
+inline T norm5(T x1, T x2)
+{
+    return std::pow(pow5(x1) + pow5(x2), T(1.0 / 5.0));
+}
+
+template<class T>
+inline T norm5(T x1, T x2, T x3)
+{
+    return std::pow(pow5(x1) + pow5(x2) + pow5(x3), T(1.0 / 5.0));
+}
+
+template<class T>
+inline T norm6(T x1, T x2)
+{
+    return std::pow(pow6(x1) + pow6(x2), T(1.0 / 6.0));
+}
+
+template<class T>
+inline T norm6(T x1, T x2, T x3)
+{
+    return std::pow(pow6(x1) + pow6(x2) + pow6(x3), T(1.0 / 6.0));
+}
+
+template<class T>
+inline T norm7(T x1, T x2)
+{
+    return std::pow(pow7(x1) + pow7(x2), T(1.0 / 7.0));
+}
+
+template<class T>
+inline T norm7(T x1, T x2, T x3)
+{
+    return std::pow(pow7(x1) + pow7(x2) + pow7(x3), T(1.0 / 7.0));
+}
+
+template<class T>
+inline T norm8(T x1, T x2)
+{
+    return std::pow(pow8(x1) + pow8(x2), T(1.0 / 8.0));
+}
+
+template<class T>
+inline T norm8(T x1, T x2, T x3)
+{
+    return std::pow(pow8(x1) + pow8(x2) + pow8(x3), T(1.0 / 8.0));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -110,6 +201,33 @@ inline T min(T a1, T a2, T a3, T a4, T a5, T a6)
 {
     return min(std::min(a1, a2), std::min(a3, a4), std::min(a5, a6));
 }
+
+////////////////////////////////////////////////////////////////////////////////
+// exponential smooth min (k = 32);
+template<class T>
+inline T smin_exp(T a, T b, T k = T(32.0))
+{
+    T res = exp(-k * a) + exp(-k * b);
+    return -log(res) / k;
+}
+
+// polynomial smooth min (k = 0.1);
+template<class T>
+inline T smin_poly(T a, T b, T k = T(0.1))
+{
+    T h = clamp(T(0.5) + T(0.5) * (b - a) / k, T(0.0), T(1.0));
+    return lerp(b, a, h) - k * h * (T(1.0) - h);
+}
+
+// power smooth min (k = 8);
+template<class T>
+inline T smin_pow(T a, T b, T k = T(8.0))
+{
+    a = pow(a, k); b = pow(b, k);
+    return pow((a * b) / (a + b), T(1.0) / k);
+}
+
+////////////////////////////////////////////////////////////////////////////////
 
 template<class T>
 inline T max(T a1, T a2)
@@ -213,7 +331,7 @@ inline void sort(T& a, T& b, T& c)
                 temp = c;
                 c    = b;
                 b    = temp;
-            }       // else: a<b<c
+            }  // else: a<b<c
         }
         else   // c<a<b
         {

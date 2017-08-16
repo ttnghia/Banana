@@ -37,14 +37,104 @@ void SDFGrid::generateParticles()
     switch(m_SDFObjectType)
     {
         case Box:
-            m_SDFObject = std::make_unique<GeometryObjects::BoxObject<float> >();
+            m_SDFObject = std::make_shared<GeometryObjects::BoxObject<float> >();
             break;
         case Sphere:
-            m_SDFObject = std::make_unique<GeometryObjects::SphereObject<float> >();
+            m_SDFObject = std::make_shared<GeometryObjects::SphereObject<float> >();
             break;
+        case Torus:
+            m_SDFObject = std::make_shared<GeometryObjects::TorusObject<float> >();
+            break;
+        case Torus28:
+            m_SDFObject = std::make_shared<GeometryObjects::Torus28Object<float> >();
+            break;
+        case Torus2Inf:
+            m_SDFObject = std::make_shared<GeometryObjects::Torus2InfObject<float> >();
+            break;
+        case Torus88:
+            m_SDFObject = std::make_shared<GeometryObjects::Torus88Object<float> >();
+            break;
+        case TorusInfInf:
+            m_SDFObject = std::make_shared<GeometryObjects::TorusInfInfObject<float> >();
+            break;
+        case Cylinder:
+            m_SDFObject = std::make_shared<GeometryObjects::CylinderObject<float> >();
+            break;
+        case Cone:
+            m_SDFObject = std::make_shared<GeometryObjects::ConeObject<float> >();
+            break;
+        case Plane:
+            m_SDFObject = std::make_shared<GeometryObjects::PlaneObject<float> >();
+            break;
+        case TriangularPrism:
+            m_SDFObject = std::make_shared<GeometryObjects::TriangularPrismObject<float> >();
+            break;
+        case HexagonalPrism:
+            m_SDFObject = std::make_shared<GeometryObjects::HexagonalPrismObject<float> >();
+            break;
+        case Capsule:
+            m_SDFObject = std::make_shared<GeometryObjects::CapsuleObject<float> >();
+            break;
+        case Ellipsoid:
+            m_SDFObject = std::make_shared<GeometryObjects::EllipsoidObject<float> >();
+            break;
+        case BoxSphereUnion:
+        {
+            m_SDFObject = std::make_shared<GeometryObjects::CSGObject<float> >();
+            std::shared_ptr<GeometryObjects::CSGObject<float> > csgObj = std::dynamic_pointer_cast<GeometryObjects::CSGObject<float> >(m_SDFObject);
+            csgObj->addObject(std::make_shared<GeometryObjects::BoxObject<float> >());
+            csgObj->addObject(std::make_shared<GeometryObjects::SphereObject<float> >(), GeometryObjects::CSGOperations::Union);
+            break;
+        }
+        case BoxSubtractSphere:
+        {
+            m_SDFObject = std::make_shared<GeometryObjects::CSGObject<float> >();
+            std::shared_ptr<GeometryObjects::CSGObject<float> > csgObj = std::dynamic_pointer_cast<GeometryObjects::CSGObject<float> >(m_SDFObject);
+            csgObj->addObject(std::make_shared<GeometryObjects::BoxObject<float> >());
+            csgObj->addObject(std::make_shared<GeometryObjects::SphereObject<float> >(), GeometryObjects::CSGOperations::Subtraction);
+            break;
+        }
+        case BoxSphereIntersection:
+        {
+            m_SDFObject = std::make_shared<GeometryObjects::CSGObject<float> >();
+            std::shared_ptr<GeometryObjects::CSGObject<float> > csgObj = std::dynamic_pointer_cast<GeometryObjects::CSGObject<float> >(m_SDFObject);
+            csgObj->addObject(std::make_shared<GeometryObjects::BoxObject<float> >());
+            csgObj->addObject(std::make_shared<GeometryObjects::SphereObject<float> >(), GeometryObjects::CSGOperations::Intersection);
+            break;
+        }
+        case BoxSphereBlendExp:
+        {
+            m_SDFObject = std::make_shared<GeometryObjects::CSGObject<float> >();
+            std::shared_ptr<GeometryObjects::CSGObject<float> > csgObj = std::dynamic_pointer_cast<GeometryObjects::CSGObject<float> >(m_SDFObject);
+            csgObj->addObject(std::make_shared<GeometryObjects::BoxObject<float> >());
+            csgObj->addObject(std::make_shared<GeometryObjects::SphereObject<float> >(), GeometryObjects::CSGOperations::BlendExp);
+            break;
+        }
+        case BoxSphereBlendPoly:
+        {
+            m_SDFObject = std::make_shared<GeometryObjects::CSGObject<float> >();
+            std::shared_ptr<GeometryObjects::CSGObject<float> > csgObj = std::dynamic_pointer_cast<GeometryObjects::CSGObject<float> >(m_SDFObject);
+            csgObj->addObject(std::make_shared<GeometryObjects::BoxObject<float> >());
+            csgObj->addObject(std::make_shared<GeometryObjects::SphereObject<float> >(), GeometryObjects::CSGOperations::BlendPoly);
+            break;
+        }
+        case TorusTwist:
+        {
+            m_SDFObject = std::make_shared<GeometryObjects::CSGObject<float> >();
+            std::shared_ptr<GeometryObjects::CSGObject<float> > csgObj = std::dynamic_pointer_cast<GeometryObjects::CSGObject<float> >(m_SDFObject);
+            csgObj->addObject(std::make_shared<GeometryObjects::TorusObject<float> >());
+            csgObj->setDeformOp(GeometryObjects::DomainDeformation::Twist);
+            break;
+        }
+        case BoxBend:
+        {
+            m_SDFObject = std::make_shared<GeometryObjects::CSGObject<float> >();
+            std::shared_ptr<GeometryObjects::CSGObject<float> > csgObj = std::dynamic_pointer_cast<GeometryObjects::CSGObject<float> >(m_SDFObject);
+            csgObj->addObject(std::make_shared<GeometryObjects::BoxObject<float> >());
+            csgObj->setDeformOp(GeometryObjects::DomainDeformation::CheapBend);
+            break;
+        }
     }
-
-    Q_ASSERT(m_SDFObject != nullptr);
 
     Q_ASSERT(m_ParticleData != nullptr);
 

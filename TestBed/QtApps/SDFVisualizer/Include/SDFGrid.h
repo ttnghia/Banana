@@ -48,6 +48,6 @@ private:
     SDFObjectTypes                                           m_SDFObjectType = Box;
     int                                                      m_Resolution    = 32;
     std::shared_ptr<ParticleSystemData>                      m_ParticleData;
-    std::unique_ptr<GeometryObjects::GeometryObject<float> > m_SDFObject;
+    std::shared_ptr<GeometryObjects::GeometryObject<float> > m_SDFObject;
     std::future<void>                                        m_SDFGenerationFutureObj;
 };

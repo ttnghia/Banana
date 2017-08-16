@@ -31,7 +31,7 @@ MainWindow::MainWindow(QWidget* parent) : OpenGLMainWindow(parent)
     setWindowTitle("Signed Distance Field Visualizer");
     setFocusPolicy(Qt::StrongFocus);
     showFPS(false);
-    showCameraPosition(false);
+//    showCameraPosition(false);
 
     ////////////////////////////////////////////////////////////////////////////////
     m_SDFGrid = std::make_unique<SDFGrid>(m_RenderWidget->getParticleDataObj());

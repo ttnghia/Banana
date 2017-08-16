@@ -60,10 +60,33 @@
 enum SDFObjectTypes
 {
     Box = 0,
-    Sphere
+    Sphere,
+    Torus,
+    Torus28,
+    Torus2Inf,
+    Torus88,
+    TorusInfInf,
+    Cylinder,
+    Cone,
+    Plane,
+    TriangularPrism,
+    HexagonalPrism,
+    Capsule,
+    Ellipsoid,
+    BoxSphereUnion,
+    BoxSubtractSphere,
+    BoxSphereIntersection,
+    BoxSphereBlendExp,
+    BoxSphereBlendPoly,
+    TorusTwist,
+    BoxBend
 };
 
-#define SDFObjectNames { QString("Box"), QString("Sphere") }
+#define SDFObjectNames { QString("Box"), QString("Sphere"), QString("Torus"), QString("Torus28"), QString("Torus2Inf"), QString("Torus88"), QString("TorusInfInf"),     \
+                         QString("Cylinder"), QString("Cone"), QString("Plane"), QString("TriangularPrism"), QString("HexagonalPrism"), QString("Capsule"),             \
+                         QString("Ellipsoid"), QString("BoxSphereUnion"), QString("BoxSubtractSphere"), QString("BoxSphereIntersection"), QString("BoxSphereBlendExp"), \
+                         QString("BoxSphereBlendPoly"), QString("TorusTwist"), QString("BoxBend")                                                                       \
+}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
