@@ -17,9 +17,12 @@
 
 #pragma once
 
+#include <Banana/TypeNames.h>
+
 #include <unordered_map>
 #include <string>
 #include <cassert>
+#include <array>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -32,8 +35,9 @@ class ParameterManager
     {
         TYPE_INT = 0,
         TYPE_UNSIGNED_INT,
-        TYPE_FLOAT,
-        TYPE_DOUBLE,
+        TYPE_REAL,
+        TYPE_VEC3,
+        TYPE_VEC4,
         TYPE_POINTER
     };
 
@@ -41,15 +45,15 @@ class ParameterManager
     {
         VariantData(void) = default;
         VariantData(void* value) : data_pointer(value) {}
-        VariantData(double value) : data_double(value) {}
-        VariantData(float value) : data_float(value) {}
+        VariantData(double value) : data_real(value) {}
+        VariantData(float value) : data_real(value) {}
         VariantData(int value) : data_int(value) {}
         VariantData(unsigned int value) : data_uint(value) {}
 
         ////////////////////////////////////////////////////////////////////////////////
         void*        data_pointer;
-        double       data_double;
-        float        data_float;
+        double       data_vec[4];
+        double       data_real;
         int          data_int;
         unsigned int data_uint;
     };
@@ -81,32 +85,57 @@ public:
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    void setInt(const KeyType& key, int value)
+    void set(const KeyType& key, int value)
     {
         m_VariantData[key] = { value, TYPE_INT };
     }
 
-    void setUInt(const KeyType& key, unsigned int value)
+    void set(const KeyType& key, unsigned int value)
     {
         m_VariantData[key] = { value, TYPE_UNSIGNED_INT };
     }
 
-    void setFloat(const KeyType& key, float value)
+    void set(const KeyType& key, float value)
     {
-        m_VariantData[key] = { value, TYPE_FLOAT};
+        m_VariantData[key] = { static_cast<double>(value), TYPE_REAL };
     }
 
-    void setDouble(const KeyType& key, double value)
+    void set(const KeyType& key, double value)
     {
-        m_VariantData[key] = { value, TYPE_DOUBLE };
+        m_VariantData[key] = { value, TYPE_REAL };
     }
 
-    void setVoidPtr(const KeyType& key, void* value)
+    void set(const KeyType& key, void* value)
     {
         m_VariantData[key] = { value, TYPE_POINTER };
     }
 
-    void setString(const KeyType& key, const std::string& value)
+    template<class RealType>
+    void set(const KeyType& key, const Vec3<RealType> value)
+    {
+        VariantField field;
+        field.typeId           = TYPE_VEC3;
+        field.data.data_vec[0] = static_cast<double>(value[0]);
+        field.data.data_vec[1] = static_cast<double>(value[1]);
+        field.data.data_vec[2] = static_cast<double>(value[2]);
+
+        m_VariantData[key] = field;
+    }
+
+    template<class RealType>
+    void set(const KeyType& key, const Vec4<RealType> value)
+    {
+        VariantField field;
+        field.typeId           = TYPE_VEC4;
+        field.data.data_vec[0] = value[0];
+        field.data.data_vec[1] = value[1];
+        field.data.data_vec[2] = value[2];
+        field.data.data_vec[3] = value[3];
+
+        m_VariantData[key] = field;
+    }
+
+    void set(const KeyType& key, const std::string& value)
     {
         m_StringData[key] = value;
     }
@@ -114,30 +143,72 @@ public:
     ////////////////////////////////////////////////////////////////////////////////
     int getInt(const KeyType& key)
     {
-        assert(hasVariantParam(key));
-        assert(m_VariantData[key].typeId == TYPE_INT);
-        return m_VariantData[key].data.data_int;
+        assert(hasVariantParam(key) || hasStringParam(key));
+        if(hasVariantParam(key))
+        {
+            assert(m_VariantData[key].typeId == TYPE_INT);
+            return m_VariantData[key].data.data_int;
+        }
+        else
+        {
+            return stoi(m_StringData[key]);
+        }
     }
 
     unsigned int getUInt(const KeyType& key)
     {
-        assert(hasVariantParam(key));
-        assert(m_VariantData[key].typeId == TYPE_UNSIGNED_INT);
-        return m_VariantData[key].data.data_uint;
+        assert(hasVariantParam(key) || hasStringParam(key));
+        if(hasVariantParam(key))
+        {
+            assert(m_VariantData[key].typeId == TYPE_UNSIGNED_INT);
+            return m_VariantData[key].data.data_uint;
+        }
+        else
+        {
+            return static_cast<unsigned int> stoi(m_StringData[key]);
+        }
     }
 
-    float getFloat(const KeyType& key)
+    template<class RealType>
+    RealType getReal(const KeyType& key)
     {
-        assert(hasVariantParam(key));
-        assert(m_VariantData[key].typeId == TYPE_FLOAT);
-        return m_VariantData[key].data.data_float;
+        assert(hasVariantParam(key) || hasStringParam(key));
+        if(hasVariantParam(key))
+        {
+            assert(m_VariantData[key].typeId == TYPE_REAL);
+            return static_cast<RealType>(m_VariantData[key].data.data_real);
+        }
+        else
+        {
+            return static_cast<RealType>(stod(m_StringData[key]));
+        }
     }
 
-    double getDouble(const KeyType& key)
+    template<class RealType>
+    Vec3<RealType> getVec3(const KeyType& key)
     {
         assert(hasVariantParam(key));
-        assert(m_VariantData[key].typeId == TYPE_DOUBLE);
-        return m_VariantData[key].data.data_double;
+        assert(m_VariantData[key].typeId == TYPE_VEC3);
+        Vec3<RealType> v;
+        v[0] = static_cast<RealType>(m_VariantData[key].data.data_vec[0]);
+        v[1] = static_cast<RealType>(m_VariantData[key].data.data_vec[1]);
+        v[2] = static_cast<RealType>(m_VariantData[key].data.data_vec[2]);
+
+        return v;
+    }
+
+    template<class RealType>
+    Vec4<RealType> getVec4(const KeyType& key)
+    {
+        assert(hasVariantParam(key));
+        assert(m_VariantData[key].typeId == TYPE_VEC4);
+        Vec3<RealType> v;
+        v[0] = static_cast<RealType>(m_VariantData[key].data.data_vec[0]);
+        v[1] = static_cast<RealType>(m_VariantData[key].data.data_vec[1]);
+        v[2] = static_cast<RealType>(m_VariantData[key].data.data_vec[2]);
+        v[3] = static_cast<RealType>(m_VariantData[key].data.data_vec[3]);
+
+        return v;
     }
 
     void* getVoidPtr(const KeyType& key)
