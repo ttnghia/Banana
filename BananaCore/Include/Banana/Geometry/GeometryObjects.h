@@ -20,6 +20,12 @@
 #include <Banana/TypeNames.h>
 #include <Banana/Macros.h>
 #include <Banana/Utils/MathHelpers.h>
+#include <Banana/Utils/NumberHelpers.h>
+#include <Banana/Grid/Grid3D.h>
+#include <Banana/Array/Array3.h>
+#include <Banana/Array/ArrayHelpers.h>
+#include <Banana/Geometry/MeshLoader.h>
+
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -27,6 +33,7 @@ namespace Banana
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace GeometryObjects
 {
+#define MAX_ABS_SIGNED_DISTANCE RealType(sqrt(8.0))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // GeometryObjects Interface
@@ -257,7 +264,7 @@ public:
         Vec2<RealType> c = glm::normalize(Vec2<RealType>(1, 1)); // normal to cone surface
         // c must be normalized
         RealType q = MathHelpers::norm2(ppos[0], ppos[2]);
-        return glm::dot(c, Vec2<RealType>(q, ppos[1]));
+        return MathHelpers::max(glm::dot(c, Vec2<RealType>(q, ppos[1])), -ppos[1] - RealType(1.0));
     }
 
     Vec3<RealType>& sphereCenter() { return m_SphereCenter; }
@@ -381,6 +388,33 @@ protected:
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class RealType>
+class TriMeshObject : public GeometryObject<RealType>
+{
+public:
+    virtual std::string name() override { return "TriangleMeshObject"; }
+    virtual RealType signedDistance(const Vec3<RealType>& ppos) override;
+
+    std::string& meshFile() { return m_TriMeshFile; }
+    RealType& step() { return m_Step; }
+    RealType& expanding() { return m_Expanding; }
+
+    void makeSDF();
+    const Array3<RealType>& getSDF() const noexcept { return m_SDFData; }
+protected:
+
+
+    ////////////////////////////////////////////////////////////////////////////////
+    bool        m_bSDFReady = false;
+    std::string m_TriMeshFile;
+
+    RealType         m_Step      = RealType(1.0 / 256.0);
+    RealType         m_Expanding = RealType(0.1);
+    Grid3D<RealType> m_Grid3D;
+    Array3<RealType> m_SDFData;
+};
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 enum CSGOperations
 {
     Overwrite,
@@ -488,6 +522,9 @@ protected:
     std::vector<CSGData> m_Objects;
     DomainDeformation    m_DeformOp = None;
 };
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#include <Banana/Geometry/GeometryObject.Impl.hpp>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace GeometryObjects

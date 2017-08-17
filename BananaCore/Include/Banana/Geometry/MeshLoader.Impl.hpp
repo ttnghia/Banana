@@ -62,7 +62,7 @@ bool MeshLoader<T>::loadMesh(const std::string& meshFile)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class T>
-Vec3<T> MeshLoader<T>::getMeshCenter()
+Vec3<T> MeshLoader<T>::getMeshCenter() const
 {
     return T(0.5) * (m_BBoxMin + m_BBoxMax);
 }
@@ -112,7 +112,9 @@ void MeshLoader<T>::clearData()
     m_BBoxMin = Vec3<T>(1e10, 1e10, 1e10);
     m_BBoxMax = Vec3<T>(-1e10, -1e10, -1e10);
 
+    m_Faces.resize(0);
     m_Vertices.resize(0);
+    m_FaceVertices.resize(0);
     m_VertexNormals.resize(0);
     m_VertexColors.resize(0);
     m_VertexTexCoord2D.resize(0);
@@ -132,6 +134,7 @@ bool MeshLoader<T>::loadObj(const std::string& meshFile)
 
 
     bool result = tinyobj::LoadObj(&attrib, &obj_shapes, &obj_materials, &m_LoadingErrorStr, meshFile.c_str(), NULL);
+    m_FaceVertices = attrib.vertices;
 
     if(!m_LoadingErrorStr.empty())
     {
@@ -164,6 +167,10 @@ bool MeshLoader<T>::loadObj(const std::string& meshFile)
                 int f0 = idx0.vertex_index;
                 int f1 = idx1.vertex_index;
                 int f2 = idx2.vertex_index;
+                m_Faces.push_back(static_cast<unsigned int>(f0));
+                m_Faces.push_back(static_cast<unsigned int>(f1));
+                m_Faces.push_back(static_cast<unsigned int>(f2));
+
                 assert(f0 >= 0);
                 assert(f1 >= 0);
                 assert(f2 >= 0);
@@ -262,12 +269,10 @@ bool MeshLoader<T>::loadPly(const std::string& meshFile)
         // Define containers to hold the extracted data. The type must match
         // the property type given in the header. Tinyply will interally allocate the
         // the appropriate amount of memory.
-        std::vector<T>       verts;
         std::vector<T>       norms;
         std::vector<uint8_t> colors;
 
-        std::vector<uint32_t> faces;
-        std::vector<T>        uvCoords;
+        std::vector<T> uvCoords;
         //        std::vector<uint8_t> faceColors;
 
         size_t vertexCount       = 0;
@@ -279,15 +284,18 @@ bool MeshLoader<T>::loadPly(const std::string& meshFile)
         // The count returns the number of instances of the property group. The vectors
         // above will be resized into a multiple of the property group size as
         // they are "flattened"... i.e. verts = {x, y, z, x, y, z, ...}
-        vertexCount = file.request_properties_from_element("vertex", { "x", "y", "z" }, verts);
+        vertexCount = file.request_properties_from_element("vertex", { "x", "y", "z" }, m_FaceVertices);
         normalCount = file.request_properties_from_element("vertex", { "nx", "ny", "nz" }, norms);
         colorCount  = file.request_properties_from_element("vertex", { "red", "green", "blue", "alpha" }, colors);
+
+        //printf("vertexCount: %lu\n", vertexCount);
 
         // For properties that are list types, it is possibly to specify the expected count (ideal if a
         // consumer of this library knows the layout of their format a-priori). Otherwise, tinyply
         // defers allocation of memory until the first instance of the property has been found
         // as implemented in file.read(ss)
-        faceCount         = file.request_properties_from_element("face", { "vertex_indices" }, faces, 3);
+        m_Faces.resize(0);
+        faceCount         = file.request_properties_from_element("face", { "vertex_indices" }, m_Faces, 3);
         faceTexcoordCount = file.request_properties_from_element("face", { "texcoord" }, uvCoords, 6);
         //        faceColorCount = file.request_properties_from_element("face", {"red", "green", "blue", "alpha"}, faceColors);
 
@@ -296,21 +304,21 @@ bool MeshLoader<T>::loadPly(const std::string& meshFile)
 
         ////////////////////////////////////////////////////////////////////////////////
         // => convert data
-        for(size_t f = 0; f < faces.size() / 3; f++)
+        for(size_t f = 0; f < m_Faces.size() / 3; f++)
         {
             ++m_NumTriangles;
 
-            uint32_t f0 = faces[3 * f + 0];
-            uint32_t f1 = faces[3 * f + 1];
-            uint32_t f2 = faces[3 * f + 2];
+            uint32_t f0 = m_Faces[3 * f + 0];
+            uint32_t f1 = m_Faces[3 * f + 1];
+            uint32_t f2 = m_Faces[3 * f + 2];
 
             T v[3][3];
 
             for(int k = 0; k < 3; k++)
             {
-                v[0][k] = verts[3 * f0 + k];
-                v[1][k] = verts[3 * f1 + k];
-                v[2][k] = verts[3 * f2 + k];
+                v[0][k] = m_FaceVertices[3 * f0 + k];
+                v[1][k] = m_FaceVertices[3 * f1 + k];
+                v[2][k] = m_FaceVertices[3 * f2 + k];
 
                 m_BBoxMin[k] = std::min(v[0][k], m_BBoxMin[k]);
                 m_BBoxMin[k] = std::min(v[1][k], m_BBoxMin[k]);

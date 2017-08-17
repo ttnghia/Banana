@@ -13,13 +13,14 @@ layout(std140) uniform CameraData
 
 uniform float u_PointRadius;
 uniform float u_PointScale;
+uniform vec4  u_ClipPlane;
 
 //------------------------------------------------------------------------------------------
-in vec3       v_Position;
-in vec3       v_Color;
+in vec3  v_Position;
+in float v_ColorScale;
 
-out vec3      f_ViewCenter;
-out vec3      f_Color;
+out vec3  f_ViewCenter;
+out float f_ColorScale;
 //------------------------------------------------------------------------------------------
 void main()
 {
@@ -27,9 +28,10 @@ void main()
     vec3  posEye   = vec3(eyeCoord);
     float dist     = length(posEye);
 
-    f_ViewCenter       = posEye;
-    f_Color            = v_Color;
+    f_ViewCenter = posEye;
+    f_ColorScale = v_ColorScale;
 
-    gl_PointSize = u_PointRadius * (u_PointScale / dist);
-    gl_Position  = projectionMatrix * eyeCoord;
+    gl_PointSize       = u_PointRadius * (u_PointScale / dist);
+    gl_Position        = projectionMatrix * eyeCoord;
+    gl_ClipDistance[0] = dot(vec4(v_Position, 1.0), u_ClipPlane);
 }

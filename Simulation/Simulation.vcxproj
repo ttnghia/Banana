@@ -90,8 +90,6 @@
     <ClInclude Include="Include\CompactNSearch\Morton\Morton_LUT_generators.h" />
     <ClInclude Include="Include\CompactNSearch\PointSet.h" />
     <ClInclude Include="Include\CompactNSearch\_CompactNSearch.Test.hpp" />
-    <ClInclude Include="Include\Grid\Grid3DHashing.h" />
-    <ClInclude Include="Include\Grid\_Grid3D.Test.hpp" />
     <ClInclude Include="Include\ParticleSolvers\FLIP\FLIPData.h" />
     <ClInclude Include="Include\ParticleSolvers\MPM\MPMData.h" />
     <ClInclude Include="Include\ParticleSolvers\MPM\MPMMaterial.h" />
@@ -118,8 +116,6 @@
     <ClInclude Include="Include\ParticleSolvers\Peridynamics\PeridynamicsSolver.Impl.hpp" />
     <ClInclude Include="Include\ParticleSolvers\SPH\WCSPH\WCSPHSolver.h" />
     <ClInclude Include="Include\ParticleSolvers\SPH\WCSPH\WCSPHSolver.Impl.hpp" />
-    <ClInclude Include="Include\Grid\Grid3D.h" />
-    <ClInclude Include="Include\Grid\GridHelpers.h" />
     <ClInclude Include="Include\ParticleTools\BlueNoiseRelaxation\LloydRelaxation.h" />
     <ClInclude Include="Include\ParticleTools\BlueNoiseRelaxation\SPHBasedRelaxation.Impl.hpp" />
     <ClInclude Include="Include\ParticleSolvers\SPH\KernelFunctions.h" />

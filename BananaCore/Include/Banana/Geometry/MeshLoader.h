@@ -40,16 +40,20 @@ public:
     MeshLoader(const std::string& meshFile);
 
     bool    loadMesh(const std::string& meshFile);
-    Vec3<T> getMeshCenter();
+    Vec3<T> getMeshCenter() const;
+    const Vec3<T>& getAABBMin() const { return m_BBoxMin; }
+    const Vec3<T>& getAABBMax() const { return m_BBoxMax; }
 
     Vec3<T> getCameraPosition(Vec3<T> camDirection, T fov = 45);
     T       getCameraDistance(T fov);
 
-    std::vector<T>& getVertices() { assert(m_isMeshReady); return m_Vertices; }
-    std::vector<T>& getVertexNormal(){ assert(m_isMeshReady); return m_VertexNormals; }
-    std::vector<T>& getVertexColor() { assert(m_isMeshReady); return m_VertexColors; }
-    std::vector<T>& getVTexCoord2D(){ assert(m_isMeshReady); return m_VertexTexCoord2D; }
-    std::vector<T>& getVTexCoord3D(){ assert(m_isMeshReady); return m_VertexTexCoord3D; }
+    const std::vector<uint32_t>& getFaces() const { assert(m_isMeshReady); return m_Faces; }
+    const std::vector<T>& getVertexNormal() const { assert(m_isMeshReady); return m_VertexNormals; }
+    const std::vector<T>& getVertexColor() const { assert(m_isMeshReady); return m_VertexColors; }
+    const std::vector<T>& getVTexCoord2D() const { assert(m_isMeshReady); return m_VertexTexCoord2D; }
+    const std::vector<T>& getVTexCoord3D() const { assert(m_isMeshReady); return m_VertexTexCoord3D; }
+    const std::vector<T>& getVertices() const { assert(m_isMeshReady); return m_Vertices; }
+    const std::vector<T>& getFaceVertices() const { assert(m_isMeshReady); return m_FaceVertices; }
 
 private:
     void checkFileType(const std::string& meshFile);
@@ -75,13 +79,15 @@ private:
     MeshFileType m_MeshFileType;
     std::string  m_LoadingErrorStr;
 
-    std::vector<T> m_Vertices;
-    std::vector<T> m_VertexNormals;
-    std::vector<T> m_VertexColors;
-    std::vector<T> m_VertexTexCoord2D;
-    std::vector<T> m_VertexTexCoord3D;
-    Vec3<T>        m_BBoxMin;
-    Vec3<T>        m_BBoxMax;
+    std::vector<uint32_t> m_Faces;
+    std::vector<T>        m_Vertices;
+    std::vector<T>        m_FaceVertices;
+    std::vector<T>        m_VertexNormals;
+    std::vector<T>        m_VertexColors;
+    std::vector<T>        m_VertexTexCoord2D;
+    std::vector<T>        m_VertexTexCoord3D;
+    Vec3<T>               m_BBoxMin;
+    Vec3<T>               m_BBoxMax;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

@@ -53,6 +53,7 @@ private:
     void setupParticleSizeControllers(QBoxLayout* ctrLayout);
     void setupParticleDisplayControllers(QBoxLayout* ctrLayout);
     void setupSDFObjectControllers(QBoxLayout* ctrLayout);
+    void setupButtons(QBoxLayout* ctrLayout);
 
     ////////////////////////////////////////////////////////////////////////////////
     EnhancedComboBox* m_cbSkyTexture;
@@ -64,6 +65,9 @@ private:
     QCheckBox*        m_chkHideNegativeParticles;
     QCheckBox*        m_chkHidePositiveParticles;
     EnhancedComboBox* m_cbSDFObject;
+
+    QPushButton* m_btnEditClipPlane;
+    QPushButton* m_btnEnableClipPlane;
 
     PointLightEditor* m_LightEditor;
 };

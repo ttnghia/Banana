@@ -64,6 +64,20 @@ void MainWindow::instantiateOpenGLWidget()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+bool MainWindow::processKeyPressEvent(QKeyEvent* event)
+{
+    switch(event->key())
+    {
+        case Qt::Key_X:
+            m_Controller->m_btnEnableClipPlane->click();
+            return true;
+
+        default:
+            return OpenGLMainWindow::processKeyPressEvent(event);
+    }
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MainWindow::updateStatusMemoryUsage()
 {
     m_lblStatusMemoryUsage->setText(QString("Memory usage: %1 (MBs)").arg(QString::fromStdString(NumberHelpers::formatWithCommas(getCurrentRSS() / 1048576.0))));
@@ -113,6 +127,11 @@ void MainWindow::setupStatusBar()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MainWindow::connectWidgets()
 {
+    connect(m_ClipPlaneEditor.get(),                     SIGNAL(clipPlaneChanged(glm::vec4)),             m_RenderWidget, SLOT(setClipPlane(glm::vec4)));
+    connect(m_Controller->m_btnEditClipPlane,            &QPushButton::clicked,                           [&] { m_ClipPlaneEditor->show(); });
+    connect(m_Controller->m_btnEnableClipPlane,          &QPushButton::clicked,                           m_RenderWidget, &RenderWidget::enableClipPlane);
+
+    ////////////////////////////////////////////////////////////////////////////////
     connect(m_Controller->m_cbSkyTexture->getComboBox(), SIGNAL(currentIndexChanged(int)),                m_RenderWidget, SLOT(setSkyBoxTexture(int)));
     connect(m_Controller->m_msNegativeParticleMaterial,  SIGNAL(materialChanged(Material::MaterialData)), m_RenderWidget, SLOT(setNegativeParticleMaterial(Material::MaterialData)));
     connect(m_Controller->m_msPositiveParticleMaterial,  SIGNAL(materialChanged(Material::MaterialData)), m_RenderWidget, SLOT(setPositiveParticleMaterial(Material::MaterialData)));

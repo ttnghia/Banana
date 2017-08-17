@@ -23,7 +23,7 @@
 
 #include <QtAppHelpers/OpenGLMainWindow.h>
 #include <QtAppHelpers/BrowsePathWidget.h>
-#include <QtAppHelpers/OpenGLWidgetTestRender.h>
+#include <QtAppHelpers/ClipPlaneEditor.h>
 #include <QtAppHelpers/BusyBar.h>
 
 #include <QEvent>
@@ -39,6 +39,7 @@ public:
 
 protected:
     virtual void instantiateOpenGLWidget();
+    virtual bool processKeyPressEvent(QKeyEvent* event) override;
     virtual void showEvent(QShowEvent* ev);
 
 public slots:
@@ -56,5 +57,6 @@ private:
     QLabel*       m_lblStatusMemoryUsage = nullptr;
     BusyBar*      m_BusyBar;
 
-    std::unique_ptr<SDFGrid> m_SDFGrid = nullptr;
+    std::unique_ptr<SDFGrid>         m_SDFGrid         = nullptr;
+    std::unique_ptr<ClipPlaneEditor> m_ClipPlaneEditor = std::make_unique<ClipPlaneEditor>();
 };

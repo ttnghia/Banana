@@ -85,7 +85,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\Banana\Array\SparseArray3.h" />
+    <ClInclude Include="Include\Banana\Geometry\GeometryObject.Impl.hpp" />
     <ClInclude Include="Include\Banana\Geometry\GeometryObjects.h" />
+    <ClInclude Include="Include\Banana\Grid\Grid3D.h" />
+    <ClInclude Include="Include\Banana\Grid\Grid3DHashing.h" />
+    <ClInclude Include="Include\Banana\Grid\GridHelpers.h" />
+    <ClInclude Include="Include\Banana\Grid\_Grid3D.Test.hpp" />
     <ClInclude Include="Include\Banana\Utils\CommandLineParser.h" />
     <ClInclude Include="Include\Banana\Utils\JSONHelpers.h" />
     <ClInclude Include="Include\Banana\Utils\AppConfigReader.h" />
@@ -122,7 +127,7 @@
     <ClInclude Include="Include\Banana\Utils\MathHelpers.h" />
     <ClInclude Include="Include\Banana\System\MemoryUsage.h" />
     <ClInclude Include="Include\Banana\Utils\NumberHelpers.h" />
-    <ClInclude Include="Include\Banana\Utils\ParameterManager.h" />
+    <ClInclude Include="Include\Banana\Data\ParameterManager.h" />
     <ClInclude Include="Include\Banana\Data\ParticleSystemData.h" />
     <ClInclude Include="Include\Banana\Utils\STLHelpers.h" />
     <ClInclude Include="Include\Banana\LinearAlgebra\SVD.h" />

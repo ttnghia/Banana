@@ -193,6 +193,7 @@ void RenderWidget::updateParticleData()
     ////////////////////////////////////////////////////////////////////////////////
     // position buffer
     m_RDataParticle.buffPosition->uploadDataAsync(m_ParticleData->getArray("Position")->data(), 0, m_ParticleData->getArray("Position")->size());
+    m_RDataParticle.buffColorScale->uploadDataAsync(m_ParticleData->getArray("ColorScale")->data(), 0, m_ParticleData->getArray("ColorScale")->size());
 
     ////////////////////////////////////////////////////////////////////////////////
     doneCurrent();
@@ -211,8 +212,8 @@ void RenderWidget::initRDataParticle()
     m_RDataParticle.shader->link();
     m_ExternalShaders.push_back(m_RDataParticle.shader);
 
-    m_RDataParticle.v_Position = m_RDataParticle.shader->getAtributeLocation("v_Position");
-    m_RDataParticle.v_Color    = m_RDataParticle.shader->getAtributeLocation("v_Color");
+    m_RDataParticle.v_Position   = m_RDataParticle.shader->getAtributeLocation("v_Position");
+    m_RDataParticle.v_ColorScale = m_RDataParticle.shader->getAtributeLocation("v_ColorScale");
 
     m_RDataParticle.ub_CamData  = m_RDataParticle.shader->getUniformBlockIndex("CameraData");
     m_RDataParticle.ub_Light    = m_RDataParticle.shader->getUniformBlockIndex("Lights");
@@ -220,16 +221,14 @@ void RenderWidget::initRDataParticle()
 
     m_RDataParticle.u_PointRadius = m_RDataParticle.shader->getUniformLocation("u_PointRadius");
     m_RDataParticle.u_PointScale  = m_RDataParticle.shader->getUniformLocation("u_PointScale");
-    m_RDataParticle.u_HasVColor   = m_RDataParticle.shader->getUniformLocation("u_HasVColor");
+
+    m_RDataParticle.u_ClipPlane = m_RDataParticle.shader->getUniformLocation("u_ClipPlane");
 
     m_RDataParticle.buffPosition = std::make_unique<OpenGLBuffer>();
     m_RDataParticle.buffPosition->createBuffer(GL_ARRAY_BUFFER, 1, nullptr, GL_DYNAMIC_DRAW);
 
-    m_RDataParticle.buffColorRandom = std::make_unique<OpenGLBuffer>();
-    m_RDataParticle.buffColorRandom->createBuffer(GL_ARRAY_BUFFER, 1);
-
-    m_RDataParticle.buffColorRamp = std::make_unique<OpenGLBuffer>();
-    m_RDataParticle.buffColorRamp->createBuffer(GL_ARRAY_BUFFER, 1);
+    m_RDataParticle.buffColorScale = std::make_unique<OpenGLBuffer>();
+    m_RDataParticle.buffColorScale->createBuffer(GL_ARRAY_BUFFER, 1, nullptr, GL_DYNAMIC_DRAW);
 
     m_RDataParticle.negativeParticleMaterial = std::make_unique<Material>();
     m_RDataParticle.negativeParticleMaterial->setMaterial(CUSTOM_PARTICLE_MATERIAL_INSIDE);
@@ -242,18 +241,23 @@ void RenderWidget::initRDataParticle()
     glCall(glGenVertexArrays(1, &m_RDataParticle.VAO));
 
     m_RDataParticle.initialized = true;
-    initFluidVAOs();
+    initParticleVAOs();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void RenderWidget::initFluidVAOs()
+void RenderWidget::initParticleVAOs()
 {
     Q_ASSERT(m_RDataParticle.initialized);
     glCall(glBindVertexArray(m_RDataParticle.VAO));
-    glCall(glEnableVertexAttribArray(m_RDataParticle.v_Position));
 
+    glCall(glEnableVertexAttribArray(m_RDataParticle.v_Position));
     m_RDataParticle.buffPosition->bind();
     glCall(glVertexAttribPointer(m_RDataParticle.v_Position, 3, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<GLvoid*>(0)));
+
+    glCall(glEnableVertexAttribArray(m_RDataParticle.v_ColorScale));
+    m_RDataParticle.buffColorScale->bind();
+    glCall(glVertexAttribPointer(m_RDataParticle.v_ColorScale, 1, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<GLvoid*>(0)));
+
     glCall(glBindVertexArray(0));
 }
 
@@ -271,7 +275,7 @@ void RenderWidget::renderParticles()
     m_RDataParticle.shader->bindUniformBlock(m_RDataParticle.ub_Light, m_Lights->getBufferBindingPoint());
 
     m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_PointScale, m_RDataParticle.pointScale);
-    m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_HasVColor,  0);
+    m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_ClipPlane,  m_ClipPlane);
 
     glCall(glBindVertexArray(m_RDataParticle.VAO));
     glCall(glEnable(GL_VERTEX_PROGRAM_POINT_SIZE));
@@ -299,8 +303,6 @@ void RenderWidget::renderParticles()
 void RenderWidget::initParticleDataObj()
 {
     Q_ASSERT(m_ParticleData != nullptr);
-    m_ParticleData->setUInt("DataFrame",     0);
-    m_ParticleData->setUInt("FrameExported", 0);
     m_ParticleData->addArray<GLfloat, 3>("Position");
 
 #if 1
@@ -327,16 +329,12 @@ void RenderWidget::initParticleDataObj()
     }
 #endif
 
-    m_ParticleData->addArray<GLfloat, 3>("ColorRandom");
-    m_ParticleData->addArray<GLfloat, 3>("ColorRamp");
-    m_ParticleData->setUInt("ColorRandomReady", 0);
-    m_ParticleData->setUInt("ColorRampReady",   0);
-
     unsigned int numTotal    = sizeXYZ * sizeXYZ * sizeXYZ;
     unsigned int numNegative = sizeXYZ * sizeXYZ * sizeXYZ / 2;
     unsigned int numPositive = numTotal - numNegative;
     m_ParticleData->setUInt("NumNegative", numNegative);
     m_ParticleData->setUInt("NumPositive", numPositive);
+    m_ParticleData->addArray<GLfloat, 1>("ColorScale", true, 1.0f);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -368,6 +366,34 @@ void RenderWidget::reloadTextures()
     msgBox.setStandardButtons(QMessageBox::Ok);
     msgBox.setAutoClose(true);
     msgBox.exec();
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void RenderWidget::enableClipPlane(bool bEnable /*= true*/)
+{
+    if(!isValid())
+    {
+        return;
+    }
+
+    makeCurrent();
+
+    if(bEnable)
+    {
+        glCall(glEnable(GL_CLIP_PLANE0));
+    }
+    else
+    {
+        glCall(glDisable(GL_CLIP_PLANE0));
+    }
+
+    doneCurrent();
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void RenderWidget::setClipPlane(const glm::vec4& clipPlane)
+{
+    m_ClipPlane = clipPlane;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

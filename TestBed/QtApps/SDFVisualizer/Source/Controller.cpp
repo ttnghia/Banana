@@ -31,6 +31,7 @@ void Controller::setupGUI()
     setupParticleDisplayControllers(controlLayout);
     setupSDFObjectControllers(controlLayout);
     controlLayout->addStretch(1);
+    setupButtons(controlLayout);
 
     m_LightEditor = new PointLightEditor(nullptr, this);
     QWidget* mainControls = new QWidget;
@@ -122,11 +123,11 @@ void Controller::setupGridResolutionControllers(QBoxLayout* ctrLayout)
 void Controller::setupParticleSizeControllers(QBoxLayout* ctrLayout)
 {
     m_slNegativeParticleSize = new QSlider(Qt::Horizontal);
-    m_slNegativeParticleSize->setRange(1, 100);
+    m_slNegativeParticleSize->setRange(1, 120);
     m_slNegativeParticleSize->setValue(70);
 
     m_slPositiveParticleSize = new QSlider(Qt::Horizontal);
-    m_slPositiveParticleSize->setRange(1, 100);
+    m_slPositiveParticleSize->setRange(1, 120);
     m_slPositiveParticleSize->setValue(10);
 
     QGridLayout* layoutParticleSize = new QGridLayout;
@@ -168,4 +169,15 @@ void Controller::setupSDFObjectControllers(QBoxLayout* ctrLayout)
     m_cbSDFObject = new EnhancedComboBox;
     m_cbSDFObject->getComboBox()->addItems(SDFObjectNames);
     ctrLayout->addWidget(m_cbSDFObject->getGroupBox("SDF Objects"));
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void Controller::setupButtons(QBoxLayout* ctrLayout)
+{
+    m_btnEditClipPlane   = new QPushButton("Edit Clip Plane");
+    m_btnEnableClipPlane = new QPushButton("Clip View");
+    m_btnEnableClipPlane->setCheckable(true);
+
+    ctrLayout->addWidget(m_btnEditClipPlane);
+    ctrLayout->addWidget(m_btnEnableClipPlane);
 }

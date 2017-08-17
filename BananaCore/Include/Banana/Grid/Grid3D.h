@@ -49,6 +49,8 @@ public:
     RealType getCellSize() const noexcept { return m_CellSize; }
 
     ////////////////////////////////////////////////////////////////////////////////
+    bool isInsideGrid(const Vec3<RealType>& ppos) const noexcept;
+
     template<class IndexType>
     bool isValidCell(IndexType i, IndexType j, IndexType k)  const noexcept;
 
@@ -103,6 +105,19 @@ void Grid3D<RealType>::setCellSize(RealType cellSize)
         m_NumCells[i]    = static_cast<unsigned int>(ceil((m_BMax[i] - m_BMin[i]) / m_CellSize));
         m_NumTotalCells *= m_NumCells[i];
     }
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class RealType>
+bool Grid3D<RealType>::isInsideGrid(const Vec3<RealType>& ppos) const noexcept
+{
+    for(int i = 0; i < 3; ++i)
+    {
+        if(ppos[i] < m_BMin[i] || ppos[i] > m_BMax[i])
+            return false;
+    }
+
+    return true;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

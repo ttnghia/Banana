@@ -21,8 +21,10 @@
 
 #include <Banana/Data/ParticleSystemData.h>
 #include <Banana/Geometry/GeometryObjects.h>
-
+#include <Banana/ParallelHelpers/ParallelFuncs.h>
 #include <QObject>
+
+#include <Banana/Utils/Timer.h>
 
 #include <memory>
 #include <future>

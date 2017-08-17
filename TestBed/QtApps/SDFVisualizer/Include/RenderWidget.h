@@ -71,6 +71,8 @@ public slots:
     void hidePositiveParticles(bool bHide);
 
     void reloadTextures();
+    void enableClipPlane(bool bEnable = true);
+    void setClipPlane(const glm::vec4& clipPlane);
 
 signals:
     void lightsObjChanged(const std::shared_ptr<PointLights>& lights);
@@ -98,21 +100,20 @@ private:
     {
         std::shared_ptr<QtAppShaderProgram> shader                   = nullptr;
         std::unique_ptr<OpenGLBuffer>       buffPosition             = nullptr;
-        std::unique_ptr<OpenGLBuffer>       buffColorRandom          = nullptr;
-        std::unique_ptr<OpenGLBuffer>       buffColorRamp            = nullptr;
+        std::unique_ptr<OpenGLBuffer>       buffColorScale           = nullptr;
         std::unique_ptr<Material>           negativeParticleMaterial = nullptr;
         std::unique_ptr<Material>           positiveParticleMaterial = nullptr;
 
         GLuint VAO;
         GLint  v_Position;
-        GLint  v_Color;
+        GLint  v_ColorScale;
         GLuint ub_CamData;
         GLuint ub_Light;
         GLuint ub_Material;
         GLuint u_PointRadius;
         GLuint u_PointScale;
         GLuint u_IsPointView;
-        GLuint u_HasVColor;
+        GLuint u_ClipPlane;
 
         GLuint  numNegativeParticles;
         GLuint  numPositiveParticles;
@@ -131,7 +132,7 @@ private:
 
 
     void initRDataParticle();
-    void initFluidVAOs();
+    void initParticleVAOs();
     void renderParticles();
     void initParticleDataObj();
     void initCaptureDir();
@@ -140,8 +141,9 @@ private:
     std::vector<std::shared_ptr<ShaderProgram> > m_ExternalShaders;
     std::shared_ptr<PointLights>                 m_Lights;
 
-    GLfloat m_NegativeParticleSizeScale = 0.7f;
-    GLfloat m_PositveParticleSizeScale  = 0.1f;
+    GLfloat   m_NegativeParticleSizeScale = 0.7f;
+    GLfloat   m_PositveParticleSizeScale  = 0.1f;
+    glm::vec4 m_ClipPlane                 = DEFAULT_CLIP_PLANE;
 
     std::unique_ptr<SkyBoxRender>       m_SkyBoxRender       = nullptr;
     std::unique_ptr<PlaneRender>        m_PlaneRender        = nullptr;

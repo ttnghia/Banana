@@ -26,7 +26,7 @@ INCLUDEPATH += $$PWD/Include
 
 include(D:/Programming/Banana/BananaCore/BananaCore.pri)
 include(D:/Programming/Banana/QtAppHelpers/QtAppHelpers.pri)
-include(D:/Programming/Banana/OpenGLHelpers/OpenGLHelpers.pri)
+include(D:/Programming/Banana/OpenGLHelpers/OpenGLHelpers.pri)`
 
 HEADERS += \
     Include/MainWindow.h \
@@ -44,3 +44,5 @@ SOURCES += \
 
 RESOURCES += \
     Shader.qrc
+
+QMAKE_CXXFLAGS += /fp:strict

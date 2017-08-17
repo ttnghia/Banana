@@ -134,6 +134,26 @@ void SDFGrid::generateParticles()
             csgObj->setDeformOp(GeometryObjects::DomainDeformation::CheapBend);
             break;
         }
+        case TriMeshObj:
+        {
+            m_SDFObject = std::make_shared<GeometryObjects::TriMeshObject<float> >();
+            std::shared_ptr<GeometryObjects::TriMeshObject<float> > meshObj = std::dynamic_pointer_cast<GeometryObjects::TriMeshObject<float> >(m_SDFObject);
+//            meshObj->meshFile() = "D:/Programming/Banana/Assets/PLY/bunny.ply";
+            meshObj->meshFile() = "D:/Programming/Noodle/Data/Mesh/Bunny.obj";
+//            meshObj->meshFile() = "D:/Programming/Banana/Assets/PLY/icosahedron_ascii.ply";
+            meshObj->step() = float(1.0 / 128.0);
+            meshObj->makeSDF();
+            break;
+        }
+    }
+
+    std::shared_ptr<GeometryObjects::TriMeshObject<float> > meshObj = std::dynamic_pointer_cast<GeometryObjects::TriMeshObject<float> >(m_SDFObject);
+
+    if(meshObj != nullptr)
+    {
+        auto sdf = meshObj->getSDF();
+//        for(float x : sdf.vec_data())
+//            qDebug() << x;
     }
 
     Q_ASSERT(m_ParticleData != nullptr);
@@ -145,18 +165,24 @@ void SDFGrid::generateParticles()
     m_ParticleData->setNumParticles(numParticles);
     m_ParticleData->setParticleRadius(particleRadius);
 
-    unsigned char*                   dataPtr = (m_ParticleData->getArray("Position")->data());
+    unsigned char* dataPtr       = (m_ParticleData->getArray("Position")->data());
+    unsigned char* colorScalePtr = (m_ParticleData->getArray("ColorScale")->data());
+
     static std::vector<Vec3<float> > negativeParticles;
     static std::vector<Vec3<float> > positiveParticles;
+    static std::vector<float>        negativeColorScale;
+    static std::vector<float>        positiveColorScale;
+
     negativeParticles.reserve(numParticles);
     positiveParticles.reserve(numParticles);
-
-    negativeParticles.resize(0);
-    positiveParticles.resize(0);
+    negativeColorScale.reserve(numParticles);
+    positiveColorScale.reserve(numParticles);
 
     const Vec3<float> corner(-1.0f + particleRadius);
-    unsigned int      numNegative = 0;
-    unsigned int      numPositive = 0;
+    unsigned int      numNegative            = 0;
+    unsigned int      numPositive            = 0;
+    float             maxPositiveDistance    = 0;
+    float             maxAbsNegativeDistance = 0;
 
     for(int i = 0; i < m_Resolution; ++i)
     {
@@ -168,26 +194,54 @@ void SDFGrid::generateParticles()
                                                                static_cast<float>(j) / static_cast<float>(m_Resolution),
                                                                static_cast<float>(k) / static_cast<float>(m_Resolution));
 
-                if(m_SDFObject->isInside(ppos))
+                float distance = m_SDFObject->signedDistance(ppos);
+                if(distance < 0)
                 {
                     ++numNegative;
                     negativeParticles.push_back(ppos);
+
+                    negativeColorScale.push_back(distance);
+                    maxAbsNegativeDistance = (maxAbsNegativeDistance < abs(distance)) ? abs(distance) : maxAbsNegativeDistance;
                 }
                 else
                 {
                     ++numPositive;
                     positiveParticles.push_back(ppos);
+
+                    positiveColorScale.push_back(distance);
+                    maxPositiveDistance = (maxPositiveDistance < distance) ? distance : maxPositiveDistance;
                 }
             }
         }
     }
 
-    std::memcpy(dataPtr,                                   negativeParticles.data(), numNegative * sizeof(float) * 3);
-    std::memcpy(&dataPtr[numNegative * sizeof(float) * 3], positiveParticles.data(), numPositive * sizeof(float) * 3);
+    ParallelFuncs::parallel_for<size_t>(0, negativeColorScale.size(),
+                                        [&](size_t i)
+                                        {
+                                            negativeColorScale[i] = 1.0f - sqrt(-negativeColorScale[i] / maxAbsNegativeDistance);
+                                        });
+    ParallelFuncs::parallel_for<size_t>(0, positiveColorScale.size(),
+                                        [&](size_t i)
+                                        {
+                                            positiveColorScale[i] = 1.0f - sqrt(positiveColorScale[i] / maxPositiveDistance);
+                                        });
+
+    std::memcpy(dataPtr,                                      negativeParticles.data(),  numNegative * sizeof(float) * 3);
+    std::memcpy(&dataPtr[numNegative * sizeof(float) * 3],    positiveParticles.data(),  numPositive * sizeof(float) * 3);
+
+    std::memcpy(colorScalePtr,                                negativeColorScale.data(), numNegative * sizeof(float));
+    std::memcpy(&colorScalePtr[numNegative * sizeof(float) ], positiveColorScale.data(), numPositive * sizeof(float));
+
     m_ParticleData->setUInt("NumNegative", numNegative);
     m_ParticleData->setUInt("NumPositive", numPositive);
-
     emit dataReady();
+
+    ////////////////////////////////////////////////////////////////////////////////
+    negativeParticles.resize(0);
+    positiveParticles.resize(0);
+
+    negativeColorScale.resize(0);
+    positiveColorScale.resize(0);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

@@ -34,11 +34,10 @@ layout(std140) uniform Material
     float shininess;
 } material;
 
-uniform int u_HasVColor;
 uniform float u_PointRadius;
 
 in vec3 f_ViewCenter;
-in vec3 f_Color;
+in float f_ColorScale;
 
 out vec4 outColor;
 
@@ -47,7 +46,8 @@ vec3 shadeLight(int lightID, vec3 normal, vec3 fragPos, vec3 viewDir)
 {
     vec3 lightDir = normalize(vec3(/*viewMatrix */ lights[lightID].position) - fragPos);
     vec3 halfDir = normalize(lightDir - viewDir);
-    vec4 surfaceColor = (u_HasVColor == 1)? vec4(f_Color, 1.0): material.diffuse;
+    vec3 negColor = vec3(1.0) - vec3(material.diffuse);
+    vec4 surfaceColor = vec4(mix(negColor, vec3(material.diffuse), f_ColorScale), 1.0);
 
     vec4 ambientColor = lights[lightID].ambient * material.ambient;
     vec4 diffuseColor = lights[lightID].diffuse * vec4(max(dot(normal, lightDir), 0.0)) * surfaceColor;

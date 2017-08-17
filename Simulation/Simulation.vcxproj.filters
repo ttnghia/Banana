@@ -24,12 +24,6 @@
     <ClInclude Include="Include\ParticleTools\ParticleHelpers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Grid\GridHelpers.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\Grid\Grid3D.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Include\ParticleTools\AnisotropicKernelGenerator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -79,9 +73,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Include\ParticleTools\ParticleHelpers.Impl.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\Grid\_Grid3D.Test.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Include\ParticleSolvers\_ParticleSolvers.Test.hpp">
@@ -175,9 +166,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Include\ParticleSolvers\MPM\TimeIntegration.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\Grid\Grid3DHashing.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Include\ParticleSolvers\MPM\MPMData.h">

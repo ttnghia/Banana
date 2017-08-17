@@ -117,7 +117,7 @@ public:
 
     //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     template<class T, int N>
-    void addArray(const std::string& arrName, bool iniZero = false)
+    void addArray(const std::string& arrName, bool bInit = false, T initVal = T(0))
     {
         size_t arraySize    = m_NumParticles * sizeof(T) * N;
         size_t maxArraySize = m_MaxNumParticles * sizeof(T) * N;
@@ -135,13 +135,13 @@ public:
             m_ArrayData[arrName]->resize(arraySize);
         }
 
-        if(iniZero)
+        if(bInit)
         {
             T* dataPtr = reinterpret_cast<T*>(getArray(arrName)->data());
 
             for(unsigned int i = 0, iEnd = m_MaxNumParticles * N; i < iEnd; ++i)
             {
-                dataPtr[i] = T(0);
+                dataPtr[i] = initVal;
             }
         }
     }
