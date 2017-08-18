@@ -31,7 +31,7 @@ MainWindow::MainWindow(QWidget* parent) : OpenGLMainWindow(parent)
     setWindowTitle("Signed Distance Field Visualizer");
     setFocusPolicy(Qt::StrongFocus);
     showFPS(false);
-//    showCameraPosition(false);
+    showCameraPosition(false);
 
     ////////////////////////////////////////////////////////////////////////////////
     m_SDFGrid = std::make_unique<SDFGrid>(m_RenderWidget->getParticleDataObj());
@@ -83,6 +83,11 @@ void MainWindow::updateStatusMemoryUsage()
     m_lblStatusMemoryUsage->setText(QString("Memory usage: %1 (MBs)").arg(QString::fromStdString(NumberHelpers::formatWithCommas(getCurrentRSS() / 1048576.0))));
 }
 
+void MainWindow::updateStatusSDFGenerationTime(double runTime)
+{
+    m_lblStatusSDFGenerationTime->setText(QString("SDF generation: %1 (milliseconds)").arg(runTime));
+}
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MainWindow::finilizeSDFGeneration()
 {
@@ -122,6 +127,10 @@ void MainWindow::setupStatusBar()
         updateStatusMemoryUsage();
     });
     memTimer->start(5000);
+
+    m_lblStatusSDFGenerationTime = new QLabel(this);
+    m_lblStatusSDFGenerationTime->setMargin(5);
+    statusBar()->addPermanentWidget(m_lblStatusSDFGenerationTime, 1);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -130,6 +139,7 @@ void MainWindow::connectWidgets()
     connect(m_ClipPlaneEditor.get(),                     SIGNAL(clipPlaneChanged(glm::vec4)),             m_RenderWidget, SLOT(setClipPlane(glm::vec4)));
     connect(m_Controller->m_btnEditClipPlane,            &QPushButton::clicked,                           [&] { m_ClipPlaneEditor->show(); });
     connect(m_Controller->m_btnEnableClipPlane,          &QPushButton::clicked,                           m_RenderWidget, &RenderWidget::enableClipPlane);
+    connect(m_SDFGrid.get(),                             &SDFGrid::generationTimeChanged,                 this,           &MainWindow::updateStatusSDFGenerationTime);
 
     ////////////////////////////////////////////////////////////////////////////////
     connect(m_Controller->m_cbSkyTexture->getComboBox(), SIGNAL(currentIndexChanged(int)),                m_RenderWidget, SLOT(setSkyBoxTexture(int)));

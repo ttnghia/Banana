@@ -15,7 +15,7 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-Vec2i ParticleHelpers<RealType>::createGrid(const Vec2<RealType>& bmin, const Vec2<RealType>& bmax, RealType spacing)
+Vec2i Banana::ParticleHelpers::createGrid<RealType>(const Vec2<RealType>& bmin, const Vec2<RealType>& bmax, RealType spacing)
 {
     Vec2<RealType> fgrid = (bmax - bmin) / spacing;
 
@@ -24,7 +24,7 @@ Vec2i ParticleHelpers<RealType>::createGrid(const Vec2<RealType>& bmin, const Ve
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-Vec3i ParticleHelpers<RealType>::createGrid(const Vec3<RealType>& bmin, const Vec3<RealType>& bmax, RealType spacing)
+Vec3i Banana::ParticleHelpers::createGrid<RealType>(const Vec3<RealType>& bmin, const Vec3<RealType>& bmax, RealType spacing)
 {
     Vec3<RealType> fgrid = (bmax - bmin) / spacing;
 
@@ -33,7 +33,7 @@ Vec3i ParticleHelpers<RealType>::createGrid(const Vec3<RealType>& bmin, const Ve
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-void ParticleHelpers<RealType>::transform(Vec_Vec3<RealType>& particles, const Vec3<RealType>& translation, const Vec3<RealType>& rotation)
+void Banana::ParticleHelpers::transform<RealType>(Vec_Vec3<RealType>& particles, const Vec3<RealType>& translation, const Vec3<RealType>& rotation)
 {
     RealType azimuth = rotation[0];
     RealType elevation = rotation[1];
@@ -76,7 +76,7 @@ void ParticleHelpers<RealType>::transform(Vec_Vec3<RealType>& particles, const V
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-UInt32 ParticleHelpers<RealType>::loadBinary(const std::string& fileName, Vec_Vec2<RealType>& particles, RealType& particleRadius)
+UInt32 Banana::ParticleHelpers::loadBinary<RealType>(const std::string& fileName, Vec_Vec2<RealType>& particles, RealType& particleRadius)
 {
     DataBuffer buffer;
     __BNN_ASSERT_MSG(FileHelpers::readFile(buffer.buffer(), fileName), "Could not open file for reading.");
@@ -113,7 +113,7 @@ UInt32 ParticleHelpers<RealType>::loadBinary(const std::string& fileName, Vec_Ve
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-UInt32 ParticleHelpers<RealType>::loadBinary(const std::string& fileName, Vec_Vec3<RealType>& particles, RealType& particleRadius)
+UInt32 Banana::ParticleHelpers::loadBinary<RealType>(const std::string& fileName, Vec_Vec3<RealType>& particles, RealType& particleRadius)
 {
     DataBuffer buffer;
     __BNN_ASSERT_MSG(FileHelpers::readFile(buffer.buffer(), fileName), "Could not open file for reading.");
@@ -151,7 +151,7 @@ UInt32 ParticleHelpers<RealType>::loadBinary(const std::string& fileName, Vec_Ve
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType, class VectorType>
-void ParticleHelpers<RealType, VectorType>::saveBinary(const std::string& fileName, std::vector<VectorType>& particles, RealType& particleRadius)
+void ParticleHelpers::saveBinary<RealType, VectorType>(const std::string& fileName, std::vector<VectorType>& particles, RealType& particleRadius)
 {
     static_assert(sizeof(RealType) * 2 == sizeof(VectorType) || sizeof(RealType) * 3 == sizeof(VectorType), "Inconsistent type of particle radius and vector data!");
 
@@ -167,7 +167,7 @@ void ParticleHelpers<RealType, VectorType>::saveBinary(const std::string& fileNa
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-void jitter(Vec3<RealType>& ppos, RealType maxJitter)
+void Banana::ParticleHelpers::jitter<RealType>(Vec3<RealType>& ppos, RealType maxJitter)
 {
     ppos += maxJitter * Vec3<RealType>(MathHelpers::frand11<RealType>(),
                                        MathHelpers::frand11<RealType>(),
@@ -176,7 +176,7 @@ void jitter(Vec3<RealType>& ppos, RealType maxJitter)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-void clamp(Vec3<RealType>& ppos, const Vec3<RealType>& bmin, const Vec3<RealType>& bmax, RealType margin /*= 0*/)
+void Banana::ParticleHelpers::clamp<RealType>(Vec3<RealType>& ppos, const Vec3<RealType>& bmin, const Vec3<RealType>& bmax, RealType margin /*= 0*/)
 {
     for(int i = 0; i < 3; ++i)
     {
@@ -189,7 +189,7 @@ void clamp(Vec3<RealType>& ppos, const Vec3<RealType>& bmin, const Vec3<RealType
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-void relaxPosition(const Vec_Vec3<RealType>& particles, RelaxationMethod method)
+void Banana::ParticleHelpers::relaxPosition<RealType>(const Vec_Vec3<RealType>& particles, RelaxationMethod method)
 {
     if(method == LloydRelaxationMethod)
     {

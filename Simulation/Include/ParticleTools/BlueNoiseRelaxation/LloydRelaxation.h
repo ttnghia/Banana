@@ -18,8 +18,8 @@
 #pragma once
 
 #include <Banana/TypeNames.h>
-#include <Banana/Logger.h>
-#include <Grid/Grid3D.h>
+#include <Banana/Utils/Logger.h>
+#include <Banana/Grid/Grid3D.h>
 
 #include <tbb/tbb.h>
 
@@ -39,16 +39,16 @@ public:
 
     void relaxParticles(std::vector<Vec3<RealType> >& denseParticles,
                         std::vector<Vec3<RealType> >& particles,
-                        int                             minIterations = 10,
-                        int                             maxIterations = 1000,
-                        bool                            bUseCandidateCenters = false);
+                        int                           minIterations = 10,
+                        int                           maxIterations = 1000,
+                        bool                          bUseCandidateCenters = false);
 
     void relaxParticlesWeighted(const std::vector<RealType>&  weights,
                                 std::vector<Vec3<RealType> >& denseParticles,
                                 std::vector<Vec3<RealType> >& particles,
-                                int                             minIterations = 10,
-                                int                             maxIterations = 1000,
-                                bool                            bUseCandidateCenters = false);
+                                int                           minIterations = 10,
+                                int                           maxIterations = 1000,
+                                bool                          bUseCandidateCenters = false);
 
     void setMovingThreshold(RealType movingThreshold) { m_MovingThreshold = movingThreshold; }
     void setOverlapThreshold(RealType overlapThreshold) { m_OverlapThreshold = overlapThreshold; }
@@ -56,9 +56,9 @@ public:
     void setNumCheckIterations(int numCheckIterations) { m_NumCheckIterations = numCheckIterations; }
 
 private:
-    RealType   m_MovingThreshold;
-    RealType   m_OverlapThreshold;
-    RealType   m_RemovingThreshold;
+    RealType     m_MovingThreshold;
+    RealType     m_OverlapThreshold;
+    RealType     m_RemovingThreshold;
     unsigned int m_NumCheckIterations;
 
 
@@ -74,16 +74,16 @@ private:
 
     void computeLloydClusters(std::vector<Vec3<RealType> >& samples,
                               std::vector<Vec3<RealType> >& clusterCenters,
-                              int                             minIterations = 10,
-                              int                             maxIterations = 1000,
-                              bool                            bUseCandidateCenters = false);
+                              int                           minIterations = 10,
+                              int                           maxIterations = 1000,
+                              bool                          bUseCandidateCenters = false);
 
     void computeWeightedLloydClusters(const std::vector<RealType>&  weights,
                                       std::vector<Vec3<RealType> >& samples,
                                       std::vector<Vec3<RealType> >& clusterCenters,
-                                      int                             minIterations = 10,
-                                      int                             maxIterations = 1000,
-                                      bool                            bUseCandidateCenters = false);
+                                      int                           minIterations = 10,
+                                      int                           maxIterations = 1000,
+                                      bool                          bUseCandidateCenters = false);
 
     ////////////////////////////////////////////////////////////////////////////////
     ///	Clusters a set of samples by assigning each sample to its closest cluster.
@@ -108,8 +108,8 @@ private:
     Vec3<RealType>   m_DomainBMin;
     Vec3<RealType>   m_DomainBMax;
     RealType         m_ParticleRadius;
-    Vec_UInt           m_ClosestCluster;
-    Array3_VecUInt     m_CellParticles;
+    Vec_UInt         m_ClosestCluster;
+    Array3_VecUInt   m_CellParticles;
     Grid3D<RealType> m_Grid3D;
 
     Logger m_Logger;

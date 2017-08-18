@@ -44,6 +44,7 @@ protected:
 
 public slots:
     void updateStatusMemoryUsage();
+    void updateStatusSDFGenerationTime(double runTime);
     void finilizeSDFGeneration();
 
 private:
@@ -52,9 +53,10 @@ private:
     void connectWidgets();
 
     ////////////////////////////////////////////////////////////////////////////////
-    RenderWidget* m_RenderWidget         = nullptr;
-    Controller*   m_Controller           = nullptr;
-    QLabel*       m_lblStatusMemoryUsage = nullptr;
+    RenderWidget* m_RenderWidget               = nullptr;
+    Controller*   m_Controller                 = nullptr;
+    QLabel*       m_lblStatusMemoryUsage       = nullptr;
+    QLabel*       m_lblStatusSDFGenerationTime = nullptr;
     BusyBar*      m_BusyBar;
 
     std::unique_ptr<SDFGrid>         m_SDFGrid         = nullptr;

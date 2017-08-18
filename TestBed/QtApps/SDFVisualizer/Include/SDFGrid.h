@@ -22,6 +22,7 @@
 #include <Banana/Data/ParticleSystemData.h>
 #include <Banana/Geometry/GeometryObjects.h>
 #include <Banana/ParallelHelpers/ParallelFuncs.h>
+#include <Banana/Utils/Timer.h>
 #include <QObject>
 
 #include <Banana/Utils/Timer.h>
@@ -43,6 +44,7 @@ public slots:
 
 signals:
     void dataReady();
+    void generationTimeChanged(float time);
 
 private:
     void generateParticles();
@@ -52,4 +54,5 @@ private:
     std::shared_ptr<ParticleSystemData>                      m_ParticleData;
     std::shared_ptr<GeometryObjects::GeometryObject<float> > m_SDFObject;
     std::future<void>                                        m_SDFGenerationFutureObj;
+    Timer                                                    m_Timer;
 };

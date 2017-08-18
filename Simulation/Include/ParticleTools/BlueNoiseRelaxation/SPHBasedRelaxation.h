@@ -18,8 +18,8 @@
 #pragma once
 
 #include <Banana/TypeNames.h>
-#include <Banana/Logger.h>
-#include <Grid/Grid3D.h>
+#include <Banana/Utils/Logger.h>
+#include <Banana/Grid/Grid3D.h>
 
 #include <tbb/tbb.h>
 
@@ -33,6 +33,7 @@ namespace Banana
 #define POW9(x) (POW6(x) * CUBE(x))
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#if 0
 template<class RealType>
 class SPHRelaxation
 {
@@ -44,25 +45,25 @@ public:
 
 private:
     void       compute_kernel_parameters();
-    RealType kernel_density(const VectorType& r);
+    RealType   kernel_density(const VectorType& r);
     VectorType gradient_kernel(const VectorType& r);
-    RealType laplacian_kernel(const VectorType& r);
+    RealType   laplacian_kernel(const VectorType& r);
     VectorType gradient_pressure_kernel(const VectorType& r);
-    RealType laplacian_viscosity_kernel(const VectorType& r);
+    RealType   laplacian_viscosity_kernel(const VectorType& r);
     VectorType kernel_coherence(const VectorType& r);
     VectorType kernel_near(const VectorType& r);
 
     RealType cfl(RealType scale);
-    void       collect_particles();
-    void       compute_density();
-    void       compute_forces();
-    void       update_velocity(RealType dt);
-    void       update_position(RealType dt);
-    void       constrain_boundary();
-    void       update_rest_density();
-    void       findParticleMinDistance();
+    void     collect_particles();
+    void     compute_density();
+    void     compute_forces();
+    void     update_velocity(RealType dt);
+    void     update_position(RealType dt);
+    void     constrain_boundary();
+    void     update_rest_density();
+    void     findParticleMinDistance();
     RealType findMinDistance();
-    void       resolve_overlapping();
+    void     resolve_overlapping();
 
     std::vector<VectorType>& particles;
     std::vector<VectorType>  velocity;
@@ -71,10 +72,10 @@ private:
     std::vector<ScarlarType> velocity_magnitude;
     std::vector<ScarlarType> min_distance;
 
-    RealType     particle_mass;
-    RealType     particle_radius;
-    RealType     cell_size;
-    RealType     rest_density;
+    RealType       particle_mass;
+    RealType       particle_radius;
+    RealType       cell_size;
+    RealType       rest_density;
     Array3_VecUInt cellParticles;
     VectorTypeui   numCells;
 
@@ -91,8 +92,8 @@ private:
     RealType kernel_coeff_near;
     RealType kernel_near_radius;
 
-    Array3_RealType&                m_SDFGrid;
-    RealType                        m_SDFCellSize;
+    Array3_RealType&                  m_SDFGrid;
+    RealType                          m_SDFCellSize;
     std::shared_ptr<DomainParameters> m_DomainParams;
 
     Monitor m_Monitor;
@@ -100,6 +101,6 @@ private:
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #include <ParticleTools/BlueNoiseRelaxation/SPHRelaxation.Impl.hpp>
-
+#endif
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana

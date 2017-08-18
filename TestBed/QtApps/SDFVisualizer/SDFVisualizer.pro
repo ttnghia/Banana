@@ -45,4 +45,4 @@ SOURCES += \
 RESOURCES += \
     Shader.qrc
 
-QMAKE_CXXFLAGS += /fp:strict
+#CONFIG+= static

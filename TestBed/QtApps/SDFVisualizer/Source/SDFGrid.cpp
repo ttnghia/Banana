@@ -34,6 +34,8 @@ void SDFGrid::setResolution(int resolution)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void SDFGrid::generateParticles()
 {
+    m_Timer.tick();
+
     switch(m_SDFObjectType)
     {
         case Box:
@@ -234,6 +236,7 @@ void SDFGrid::generateParticles()
 
     m_ParticleData->setUInt("NumNegative", numNegative);
     m_ParticleData->setUInt("NumPositive", numPositive);
+    emit generationTimeChanged(m_Timer.tock());
     emit dataReady();
 
     ////////////////////////////////////////////////////////////////////////////////
