@@ -18,19 +18,19 @@
 #pragma once
 
 #include <Banana/TypeNames.h>
+#include <ParticleSolvers/ParticleSolverData.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #define DEFAULT_RESOLUTION           24
-#define DEFAULT_BOUNDARY_RESTITUTION 0.1
 #define DEFAULT_PRESSURE_STIFFNESS   50000.0
 #define DEFAULT_NEAR_FORCE_STIFFNESS 50000.0
 #define DEFAULT_VISCOSITY            0.01
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-struct SimulationParametersWCSPH
+struct SimulationParameters_WCSPH
 {
-    SimulationParametersWCSPH()
+    SimulationParameters_WCSPH()
     {
         makeReady();
     }
@@ -77,7 +77,7 @@ struct SimulationParametersWCSPH
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-struct SimulationDataWCSPH
+struct SimulationData_WCSPH
 {
     Vec_Vec3<RealType> positions;
     Vec_Vec3<RealType> velocity;

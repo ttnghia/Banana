@@ -26,6 +26,7 @@
 
 #include <spdlog/spdlog.h>
 
+#include <Banana/Utils/Timer.h>
 #include <Banana/System/MemoryUsage.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -58,6 +59,7 @@ public:
     Logger() : m_LogSourceID(0) {}
     Logger(int sourceID) : m_LogSourceID(sourceID) {}
     Logger(int sourceID, const std::string& sourceName) : m_LogSourceID(sourceID) { Logger::setSourceName(sourceID, sourceName); }
+    Logger(const std::string& sourceName) : m_LogSourceID(++m_NumSources) { Logger::setSourceName(m_LogSourceID, sourceName); }
 
     static void setDataPath(const std::string& dataPath);
     static void enableStdOut(bool bEnable = true) { m_bPrintStdOut = bEnable; }
@@ -70,6 +72,18 @@ public:
     void printAligned(const std::string& s, char padding = PADDING, const std::string& wrapper = WRAPPER, int maxSize = 100);
     void printGreeting(const std::string& s);
     void printWarning(const std::string& s, int maxSize = 100);
+
+    template<class Function>
+    void printTime(const char* caption, const Function& function)
+    {
+        Logger::printLog(m_LogSourceID, Timer::getRunTime<Function>(caption, function));
+    }
+
+    void printTime(const char* caption, Timer& timer);
+
+    template<class Function>
+    void printTimeIndent(const char* caption, const Function& function);
+    void printTimeIndent(const char* caption, Timer& timer);
 
     void printLog(const std::string& s);
     void printLogIndent(const std::string& s, int indentLevel = 1);
@@ -125,6 +139,7 @@ private:
     static bool m_bPrintStdOut;
     static bool m_bWriteLogToFile;
     static bool m_bDataPathReady;
+    static unsigned int m_NumSources;
 
     static std::string                           m_DataPath;
     static std::string                           m_LogFile;

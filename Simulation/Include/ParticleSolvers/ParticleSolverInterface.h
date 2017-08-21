@@ -27,6 +27,7 @@
 #include <Banana/Data/DataIO.h>
 #include <Banana/ParallelHelpers/ParallelSTL.h>
 #include <Banana/ParallelHelpers/ParallelFuncs.h>
+#include <Banana/ParallelHelpers/ParallelBLAS.h>
 #include <CompactNSearch/CompactNSearch.h>
 
 #include <ParticleSolvers/ParticleSolverData.h>
@@ -36,7 +37,6 @@
 #include <json.hpp>
 
 #include <memory>
-#include <map>
 #include <fstream>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -60,10 +60,8 @@ public:
     virtual void saveParticleData() = 0;
     virtual void saveMemoryState()  = 0;
 
-    virtual std::string         getSolverName()   = 0;
-    virtual unsigned int        getNumParticles() = 0;
-    virtual Vec_Vec3<RealType>& getPositions()    = 0;
-    virtual Vec_Vec3<RealType>& getVelocity()     = 0;
+    virtual std::string  getSolverName()   = 0;
+    virtual unsigned int getNumParticles() = 0;
 
     void loadScene(const std::string& sceneFile);
     void setupLogger(bool bLog2Std, bool bLog2File);
@@ -74,15 +72,32 @@ protected:
     virtual void loadSimParams(const nlohmann::json& jParams) = 0;
 
     ////////////////////////////////////////////////////////////////////////////////
-    Logger m_Logger;
+    std::unique_ptr<Logger>                        m_Logger  = nullptr;
+    std::unique_ptr<NeighborhoodSearch<RealType> > m_NSearch = nullptr;
 
-    std::shared_ptr<FrameParameters<RealType> >     m_FrameParams = std::make_shared<FrameParameters<RealType> >();
-    std::map<std::string, std::shared_ptr<DataIO> > m_ParticleDataIO;
-    std::map<std::string, std::shared_ptr<DataIO> > m_MemoryStateIO;
-
-    std::unique_ptr<NeighborhoodSearch<RealType> >           m_NSearch;
+    std::shared_ptr<FrameParameters<RealType> >              m_FrameParams = std::make_shared<FrameParameters<RealType> >();
+    std::vector<std::shared_ptr<DataIO> >                    m_ParticleDataIO;
+    std::vector<std::shared_ptr<DataIO> >                    m_MemoryStateIO;
     std::vector<std::shared_ptr<BoundaryObject<RealType> > > m_BoundaryObjects;
     std::vector<std::shared_ptr<ParticleObject<RealType> > > m_ParticleObjects;
+};
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class RealType>
+class ParticleSolver2D : public ParticleSolver<RealType>
+{
+public:
+    virtual Vec_Vec2<RealType>& getParticlePositions()  = 0;
+    virtual Vec_Vec2<RealType>& getParticleVelocities() = 0;
+};
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class RealType>
+class ParticleSolver3D : public ParticleSolver<RealType>
+{
+public:
+    virtual Vec_Vec3<RealType>& getParticlePositions()  = 0;
+    virtual Vec_Vec3<RealType>& getParticleVelocities() = 0;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -92,16 +107,9 @@ void Banana::ParticleSolver<RealType>::doSimulation()
 {
     makeReady();
 
-    while(true)
+    while(unsigned int frame = 0; frame < m_FrameParams->finalFrame; ++frame)
     {
-        float frameTime = 0;
-        while(frameTime < 0.0333333333)
-        {
-            advanceFrame();
-            frameTime += 0.0333333333;
-        }
-
-        frameTime;
+        advanceFrame();
     }
 }
 

@@ -44,7 +44,7 @@ inline RealType maxAbs(const std::vector<RealType>& x)
 }
 
 template<class RealType, class VectorType>
-inline RealType maxAbs(const std::vector<VectorType>& x)
+inline RealType maxVecAbs(const std::vector<VectorType>& x)
 {
     ParallelObjects::VectorMaxAbs<RealType, VectorType> mabs(x);
     tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), mabs);

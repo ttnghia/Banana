@@ -17,12 +17,19 @@
 
 #pragma once
 
-#include <Banana/LinearAlgebra/SparseMatrix.h>
+#include <Banana/LinearAlgebra/SparseMatrix/SparseMatrix.h>
 #include <Banana/ParallelHelpers/ParallelBLAS.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
 {
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+enum class PreconditionerTypes
+{
+    JACOBI,
+    MICCL0,
+    MICCL0_SYMMETRIC
+};
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // A simple compressed sparse column data structure (with separate diagonal)
 // for lower triangular matrices
@@ -48,14 +55,6 @@ template<class RealType>
 class PCGSolver
 {
 public:
-    enum class PreconditionerTypes
-    {
-        Jacobi,
-        MICCL0,
-        Symmetric_MICCL0
-    };
-
-
     PCGSolver() = default;
 
     void setSolverParameters(RealType toleranceFactor, int maxIterations, RealType MICCL0Param = 0.97, RealType minDiagonalRatio = 0.25);
@@ -87,15 +86,15 @@ private:
 
     // solver parameters
     PreconditionerTypes m_PreconditionerType = PreconditionerTypes::MICCL0;
-    RealType            m_ToleranceFactor    = 1e-20;
+    RealType            m_ToleranceFactor    = RealType(1e-20);
     UInt32              m_MaxIterations      = 10000;
-    RealType            m_MICCL0Param        = 0.97;
-    RealType            m_MinDiagonalRatio   = 0.25;
+    RealType            m_MICCL0Param        = RealType(0.97);
+    RealType            m_MinDiagonalRatio   = RealType(0.25);
     bool                m_bZeroInitial       = true;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <Banana/LinearAlgebra/PCGSolver.Impl.hpp>
+#include <Banana/LinearAlgebra/LinearSolvers/PCGSolver.Impl.hpp>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana

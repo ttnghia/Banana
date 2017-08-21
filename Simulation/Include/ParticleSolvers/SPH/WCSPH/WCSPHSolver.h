@@ -20,6 +20,7 @@
 #include <ParticleSolvers/ParticleSolverInterface.h>
 #include <ParticleSolvers/SPH/KernelFunctions.h>
 #include <ParticleSolvers/SPH/WCSPH/WCSPHData.h>
+#include <CompactNSearch/CompactNSearch.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -32,7 +33,7 @@ public:
     WCSPHSolver()  = default;
     ~WCSPHSolver() = default;
 
-    std::shared_ptr<SimulationParametersWCSPH<RealType> > getSolverParams() { return m_SimParams; }
+    std::shared_ptr<SimulationParameters_WCSPH<RealType> > getSolverParams() { return m_SimParams; }
 
     ////////////////////////////////////////////////////////////////////////////////
     virtual void makeReady() override;
@@ -42,8 +43,8 @@ public:
 
     virtual std::string getSolverName() override { return std::string("WCSPHSolver"); }
     virtual unsigned int        getNumParticles() override { return static_cast<unsigned int>(m_SimData->positions.size()); }
-    virtual Vec_Vec3<RealType>& getPositions() override { return m_SimData->positions; }
-    virtual Vec_Vec3<RealType>& getVelocity() override { return m_SimData->velocity; }
+    virtual Vec_Vec3<RealType>& getParticlePositions() override { return m_SimData->positions; }
+    virtual Vec_Vec3<RealType>& getParticleVelocities() override { return m_SimData->velocity; }
 
 protected:
     virtual void loadSimParams(const nlohmann::json& jParams) override;
@@ -59,8 +60,8 @@ protected:
     void     moveParticles(RealType timeStep);
 
     ////////////////////////////////////////////////////////////////////////////////
-    std::shared_ptr<SimulationParametersWCSPH<RealType> > m_SimParams = std::make_shared<SimulationParametersWCSPH<RealType> >();
-    std::unique_ptr<SimulationDataWCSPH<RealType> >       m_SimData   = std::make_unique<SimulationDataWCSPH<RealType> >();
+    std::shared_ptr<SimulationParameters_WCSPH<RealType> > m_SimParams = std::make_shared<SimulationParameters_WCSPH<RealType> >();
+    std::unique_ptr<SimulationData_WCSPH<RealType> >       m_SimData   = std::make_unique<SimulationData_WCSPH<RealType> >();
 
     PrecomputedKernel<RealType, CubicKernel<RealType>, 10000> m_CubicKernel;
     PrecomputedKernel<RealType, SpikyKernel<RealType>, 10000> m_SpikyKernel;

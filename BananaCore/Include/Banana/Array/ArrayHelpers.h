@@ -29,6 +29,8 @@ namespace Banana
 namespace ArrayHelpers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
 inline RealType interpolateLinear(const Vec2<RealType>& point, const Array2<RealType>& grid)
 {
@@ -56,6 +58,34 @@ inline RealType interpolateLinear(const Vec3<RealType>& point, const Array3<Real
         grid(i, j, k), grid(i + 1, j, k), grid(i, j + 1, k), grid(i + 1, j + 1, k),
         grid(i, j, k + 1), grid(i + 1, j, k + 1), grid(i, j + 1, k + 1), grid(i + 1, j + 1, k + 1),
         fi, fj, fk);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+template<class RealType>
+inline Vec2<RealType> grad_bilerp(const RealType& v00, const RealType& v10,
+                                  const RealType& v01, const RealType& v11,
+                                  RealType fx, RealType fy)
+{
+    return Vec2<RealType>(fy - 1.0, fx - 1.0) * v00 +
+           Vec2<RealType>(1.0 - fy, -fx) * v10 +
+           Vec2<RealType>(-fy,      1.0 - fx) * v01 +
+           Vec2<RealType>(fy,       fx) * v11;
+}
+
+template<class RealType>
+Vec2<RealType> affine_interpolate_value(const Vec2<RealType>& point, const Array2<RealType>& grid)
+{
+    int      i, j;
+    RealType fx, fy;
+
+    get_barycentric(point[0], i, fx, 0, grid.ni);
+    get_barycentric(point[1], j, fy, 0, grid.nj);
+
+    return grad_bilerp(
+        grid(i, j), grid(i + 1, j),
+        grid(i, j + 1), grid(i + 1, j + 1),
+        fx, fy);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

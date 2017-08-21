@@ -55,27 +55,6 @@ inline RealType dotProduct(const std::vector<VectorType>& x, const std::vector<V
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-// inf-norm (maximum absolute value)
-//
-template<class RealType>
-inline RealType maxAbsElement(const std::vector<RealType>& x)
-{
-    ParallelObjects::VectorMaxAbs<RealType> vmabs(x);
-    tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), vmabs);
-
-    return vmabs.getResult();
-}
-
-template<class RealType, class VectorType>
-inline RealType maxAbs(const std::vector<VectorType>& x)
-{
-    ParallelObjects::VectorMaxAbs<RealType, VectorType> vmabs(x);
-    tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), vmabs);
-
-    return m.getResult();
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // saxpy (y=alpha*x+y)
 //
 template<class RealType, class VectorType>

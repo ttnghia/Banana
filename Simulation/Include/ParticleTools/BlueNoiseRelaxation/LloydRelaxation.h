@@ -19,7 +19,9 @@
 
 #include <Banana/TypeNames.h>
 #include <Banana/Utils/Logger.h>
+#include <Banana/Array/Array3.h>
 #include <Banana/Grid/Grid3D.h>
+#include <Banana/Utils/Timer.h>
 
 #include <tbb/tbb.h>
 

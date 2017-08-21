@@ -23,19 +23,23 @@
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#define DEFAULT_BOUNDARY_RESTITUTION 0.1
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
 struct FrameParameters
 {
     RealType     frameDuration = RealType(1.0 / 30.0);
     unsigned int finalFrame    = 1;
     unsigned int finishedFrame = 0;
+    unsigned int startFrame    = 0;
     unsigned int nThreads      = 0;
 
     ////////////////////////////////////////////////////////////////////////////////
     bool         bSaveParticleData = true;
     bool         bSaveMemoryState  = true;
     unsigned int framePerState     = 1;
-    std::string  dataPath          = std::string("");
+    std::string  dataPath          = std::string(".");
 };
 
 

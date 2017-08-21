@@ -27,7 +27,7 @@ namespace Banana
 class PCISPHSolver : public WCSPHSolver
 {
 public:
-    PCISPHSolver(std::shared_ptr<ParameterManager>& params, SimulationParametersWCSPH* SPHParams) :
+    PCISPHSolver(std::shared_ptr<ParameterManager>& params, SimulationParameters_WCSPH* SPHParams) :
         WCSPHSolver(params, SPHParams),
         max_pcisph_iterations(SPHParams->maxIterationPCISPH),
         density_error_threshold(SPHParams->densityErrorThreshold)

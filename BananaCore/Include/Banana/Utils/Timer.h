@@ -37,7 +37,6 @@ public:
     void tick()
     {
         assert(!m_TimerTicked);
-
         m_StartTime   = Clock::now();
         m_TimerTicked = true;
     }
@@ -45,7 +44,6 @@ public:
     double tock()
     {
         assert(m_TimerTicked);
-
         m_EndTime     = Clock::now();
         m_TimerTicked = false;
         m_ElapsedTime = std::chrono::duration<double, std::milli>(m_EndTime - m_StartTime).count();
@@ -56,9 +54,7 @@ public:
     std::string getRunTime()
     {
         if(m_TimerTicked)
-        {
             tock();
-        }
 
         m_StrBuilder.str("");
         m_StrBuilder << NumberHelpers::formatWithCommas(m_ElapsedTime);
@@ -70,9 +66,7 @@ public:
     std::string getRunTime(const char* caption)
     {
         if(m_TimerTicked)
-        {
             tock();
-        }
 
         m_StrBuilder.str("");
         m_StrBuilder << caption;
@@ -80,6 +74,18 @@ public:
         m_StrBuilder << "ms";
 
         return m_StrBuilder.str();
+    }
+
+    template<class Function>
+    static std::string getRunTime(const char* caption, const Function& function)
+    {
+        Timer timer;
+
+        timer.tick();
+        function();
+        timer.tock();
+
+        return timer.getRunTime(caption);
     }
 
 private:

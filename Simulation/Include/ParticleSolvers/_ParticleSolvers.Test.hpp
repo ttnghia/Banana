@@ -17,7 +17,7 @@
 
 #pragma once
 
-//#include <ParticleSolvers/FLIP/FLIPSolver.h>
+#include <ParticleSolvers/FLIP/FLIP3DSolver.h>
 //#include <ParticleSolvers/MPM/MPMSolver.h>
 //#include <ParticleSolvers/Peridynamics/PeridynamicsSolver.h>
 //#include <ParticleSolvers/SPH/WCSPHSolver.h>
@@ -25,9 +25,9 @@
 #include <catch.hpp>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//TEST_CASE("Test Particle Solver", "[ParticleSolvers]")
-//{
-//Banana::FLIPSolver<float>         solver1;
+TEST_CASE("Test Particle Solver", "[ParticleSolvers]")
+{
+    Banana::FLIP3DSolver<float> solver1;
 
 //{
 //    Banana::MPMSolver<float> solver2;
@@ -35,8 +35,5 @@
 //}
 //Banana::PeridynamicsSolver<float> solver3;
 //Banana::WCSPHSolver<float> solver4(nullptr);
-//}
-
-
-//Microsoft (R) C/C++ Optimizing Compiler Version 19.00.23506 for x86
+}
 

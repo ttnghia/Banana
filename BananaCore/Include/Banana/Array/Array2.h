@@ -96,14 +96,14 @@ public:
 
     ////////////////////////////////////////////////////////////////////////////////
     template<class IndexType>
-    size_type getLinearizedIndex(IndexType i, IndexType j)
+    size_type getLinearizedIndex(IndexType i, IndexType j) const
     {
         checkIndex<IndexType>(i, j);
         return static_cast<size_type>(j) * m_SizeX + static_cast<size_type>(i);
     }
 
     template<class IndexType>
-    size_type getLinearizedIndex(const glm::tvec2<IndexType>& index)
+    size_type getLinearizedIndex(const glm::tvec2<IndexType>& index) const
     {
         getLinearizedIndex<IndexType>(index[0], index[1]);
     }

@@ -40,25 +40,33 @@ void Banana::WCSPHSolver<RealType>::loadSimParams(const nlohmann::json& jParams)
 template<class RealType>
 void Banana::WCSPHSolver<RealType>::makeReady()
 {
-    m_SimParams->makeReady();
-    m_SimData->makeReady();
+    m_Logger = std::make_unique<Logger>();
+    m_Logger->printLog(Timer::getRunTime("Allocate solver memory: ",
+                                         [&]()
+                                         {
+                                             m_SimParams->makeReady();
+                                             m_SimData->makeReady();
 
-    m_CubicKernel.setRadius(m_SimParams->kernelRadius);
-    m_SpikyKernel.setRadius(m_SimParams->kernelRadius);
-    m_NearSpikyKernel.setRadius(RealType(1.5) * m_SimParams->particleRadius);
+                                             m_CubicKernel.setRadius(m_SimParams->kernelRadius);
+                                             m_SpikyKernel.setRadius(m_SimParams->kernelRadius);
+                                             m_NearSpikyKernel.setRadius(RealType(1.5) * m_SimParams->particleRadius);
 
-    m_NSearch = std::make_unique<NeighborhoodSearch<RealType> >(m_SimParams->kernelRadius);
-    m_NSearch->add_point_set(glm::value_ptr(m_SimData->positions.front()), m_SimData->positions.size(), true, true);
+                                             m_NSearch = std::make_unique<NeighborhoodSearch<RealType> >(m_SimParams->kernelRadius);
+                                             m_NSearch->add_point_set(glm::value_ptr(m_SimData->positions.front()), m_SimData->positions.size(), true, true);
 
-    if(m_SimParams->bUseBoundaryParticles)
-    {
-        __BNN_ASSERT(m_BoundaryObject != nullptr);
-        m_BoundaryObject->generateBoundaryParticles(RealType(1.7) * m_SimParams->particleRadius);
-        m_NSearch->add_point_set(glm::value_ptr(m_BoundaryObject->getBDParticles().front()), m_BoundaryObject->getBDParticles().size(), true, true);
-    }
+                                             if(m_SimParams->bUseBoundaryParticles)
+                                             {
+                                                 __BNN_ASSERT(m_BoundaryObjects.size() != 0);
+                                                 for(auto& bdObj : m_BoundaryObjects)
+                                                 {
+                                                     bdObj->generateBoundaryParticles(RealType(1.7) * m_SimParams->particleRadius);
+                                                     m_NSearch->add_point_set(glm::value_ptr(bdObj->getBDParticles().front()), bdObj->getBDParticles().size(), true, true);
+                                                 }
+                                             }
+                                         }));
 
     ////////////////////////////////////////////////////////////////////////////////
-    m_Logger.printLog("Solver ready!");
+    m_Logger->printLog("Solver ready!");
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -92,16 +100,16 @@ void Banana::WCSPHSolver<RealType>::advanceFrame()
         ////////////////////////////////////////////////////////////////////////////////
         subStepTimer.tock();
 
-        m_Logger.printLog("Finished step " + NumberHelpers::formatWithCommas(substepCount) + " of size " + NumberHelpers::formatToScientific<RealType>(substep) +
-                          "(" + NumberHelpers::formatWithCommas(substep / m_FrameParams->frameDuration * 100) + "% of the frame, to " +
-                          NumberHelpers::formatWithCommas(100 * (frameTime + substep) / m_FrameParams->frameDuration) + "% of the frame).");
-        m_Logger.printLog(subStepTimer.getRunTime("Substep time: "));
-        m_Logger.newLine();
+        m_Logger->printLog("Finished step " + NumberHelpers::formatWithCommas(substepCount) + " of size " + NumberHelpers::formatToScientific<RealType>(substep) +
+                           "(" + NumberHelpers::formatWithCommas(substep / m_FrameParams->frameDuration * 100) + "% of the frame, to " +
+                           NumberHelpers::formatWithCommas(100 * (frameTime + substep) / m_FrameParams->frameDuration) + "% of the frame).");
+        m_Logger->printLog(subStepTimer.getRunTime("Substep time: "));
+        m_Logger->newLine();
     } // end while
 
     ////////////////////////////////////////////////////////////////////////////////
-    m_Logger.printLog("Frame finished. Frame duration: " + NumberHelpers::formatWithCommas(frameTime) + subStepTimer.getRunTime(" (s). Run time: "));
-    m_Logger.newLine();
+    m_Logger->printLog("Frame finished. Frame duration: " + NumberHelpers::formatWithCommas(frameTime) + subStepTimer.getRunTime(" (s). Run time: "));
+    m_Logger->newLine();
 
     ////////////////////////////////////////////////////////////////////////////////
     saveParticleData();
@@ -138,7 +146,7 @@ void Banana::WCSPHSolver<RealType>::saveMemoryState()
 template<class RealType>
 RealType Banana::WCSPHSolver<RealType>::computeCFLTimeStep()
 {
-    RealType maxVel = sqrt(ParallelSTL::maxNorm2<RealType>(m_SimData->velocity));
+    RealType maxVel = sqrt(ParallelSTL::maxNorm2<RealType>(m_SimData->velocities));
     RealType CFLTimeStep = maxVel > RealType(Tiny<RealType>()) ? m_SimParams->CFLFactor* RealType(0.4) * (RealType(2.0) * m_SimParams->particleRadius / maxVel) : RealType(1e10);
 
     CFLTimeStep = MathHelpers::max(CFLTimeStep, m_SimParams->defaultTimestep * RealType(0.01));

@@ -36,11 +36,11 @@ inline bool contain(const std::vector<T>& vec, T item)
     return std::binary_search(vec.begin(), vec.end(), item);
 }
 
-template<class T>
-inline bool contain(const std::vector<T>& vec, T item, size_t& itemIndex)
+template<class T, class IndexType>
+inline bool contain(const std::vector<T>& vec, T item, IndexType& itemIndex)
 {
     auto it = std::lower_bound(vec.begin(), vec.end(), item);
-    itemIndex = static_cast<size_t>(std::distance(vec.begin(), it));
+    itemIndex = static_cast<IndexType>(std::distance(vec.begin(), it));
 
     return (it != vec.end() && item == *it);
 }

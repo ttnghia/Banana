@@ -92,7 +92,10 @@
     <ClInclude Include="Include\CompactNSearch\Morton\Morton_LUT_generators.h" />
     <ClInclude Include="Include\CompactNSearch\PointSet.h" />
     <ClInclude Include="Include\CompactNSearch\_CompactNSearch.Test.hpp" />
-    <ClInclude Include="Include\ParticleSolvers\FLIP\FLIPData.h" />
+    <ClInclude Include="Include\ParticleSolvers\FLIP\FLIP2DData.h" />
+    <ClInclude Include="Include\ParticleSolvers\FLIP\FLIP2DSolver.h" />
+    <ClInclude Include="Include\ParticleSolvers\FLIP\FLIP2DSolver.Impl.hpp" />
+    <ClInclude Include="Include\ParticleSolvers\FLIP\FLIP3DData.h" />
     <ClInclude Include="Include\ParticleSolvers\MPM\MPMData.h" />
     <ClInclude Include="Include\ParticleSolvers\MPM\MPMMaterial.h" />
     <ClInclude Include="Include\ParticleSolvers\MPM\MPMMaterial.Impl.hpp" />
@@ -110,8 +113,8 @@
     <ClInclude Include="Include\ParticleSolvers\ParticleSolverInterface.h" />
     <ClInclude Include="Include\ParticleTools\AnisotropicKernelGenerator.h" />
     <ClInclude Include="Include\ParticleTools\AnisotropicKernelGenerator.Impl.hpp" />
-    <ClInclude Include="Include\ParticleSolvers\FLIP\FLIPSolver.h" />
-    <ClInclude Include="Include\ParticleSolvers\FLIP\FLIPSolver.Impl.hpp" />
+    <ClInclude Include="Include\ParticleSolvers\FLIP\FLIP3DSolver.h" />
+    <ClInclude Include="Include\ParticleSolvers\FLIP\FLIP3DSolver.Impl.hpp" />
     <ClInclude Include="Include\ParticleSolvers\SPH\PCISPH\PCISPHSolver.h" />
     <ClInclude Include="Include\ParticleSolvers\SPH\PCISPH\PCISPHSolver.Impl.hpp" />
     <ClInclude Include="Include\ParticleSolvers\Peridynamics\PeridynamicsSolver.h" />

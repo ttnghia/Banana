@@ -16,7 +16,7 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 #include <Banana/Macros.h>
-#include <Banana/Utils/ParameterManager.h>
+#include <Banana/Data/ParameterManager.h>
 #include <Banana/Utils/Timer.h>
 
 #include <cstdio>
@@ -116,24 +116,24 @@ int main()
     Parameters params;
 #ifndef INT_KEY
     Banana::ParameterManager<std::string> paramManager;
-    paramManager.setDouble("param1", 0);
-    paramManager.setDouble("param2", 0);
-    paramManager.setDouble("param3", 0);
-    paramManager.setDouble("param4", 0);
-    paramManager.setDouble("param5", 0);
-    paramManager.setDouble("param6", 0);
-    paramManager.setDouble("param7", 0);
-    paramManager.setDouble("param8", 0);
+    paramManager.set("param1", 0);
+    paramManager.set("param2", 0);
+    paramManager.set("param3", 0);
+    paramManager.set("param4", 0);
+    paramManager.set("param5", 0);
+    paramManager.set("param6", 0);
+    paramManager.set("param7", 0);
+    paramManager.set("param8", 0);
 #else
     Banana::ParameterManager<Keys> paramManager;
-    paramManager.setDouble(param1,   0);
-    paramManager.setDouble(param2,   0);
-    paramManager.setDouble(param3,   0);
-    paramManager.setDouble(param4,   0);
-    paramManager.setDouble(param5,   0);
-    paramManager.setDouble(param6,   0);
-    paramManager.setDouble(param7,   0);
-    paramManager.setDouble(param8,   0);
+    paramManager.set(param1,   0);
+    paramManager.set(param2,   0);
+    paramManager.set(param3,   0);
+    paramManager.set(param4,   0);
+    paramManager.set(param5,   0);
+    paramManager.set(param6,   0);
+    paramManager.set(param7,   0);
+    paramManager.set(param8,   0);
 #endif
 
     {
@@ -169,56 +169,56 @@ int main()
                 switch(randNum)
                 {
                     case 1:
-                        paramManager.setDouble("param1", Real(rand()) / Real(RAND_MAX));
+                        paramManager.set("param1", Real(rand()) / Real(RAND_MAX));
                         break;
                     case 2:
-                        paramManager.setDouble("param2", Real(rand()) / Real(RAND_MAX));
+                        paramManager.set("param2", Real(rand()) / Real(RAND_MAX));
                         break;
                     case 3:
-                        paramManager.setDouble("param3", Real(rand()) / Real(RAND_MAX));
+                        paramManager.set("param3", Real(rand()) / Real(RAND_MAX));
                         break;
                     case 4:
-                        paramManager.setDouble("param4", Real(rand()) / Real(RAND_MAX));
+                        paramManager.set("param4", Real(rand()) / Real(RAND_MAX));
                         break;
                     case 5:
-                        paramManager.setDouble("param5", Real(rand()) / Real(RAND_MAX));
+                        paramManager.set("param5", Real(rand()) / Real(RAND_MAX));
                         break;
                     case 6:
-                        paramManager.setDouble("param6", Real(rand()) / Real(RAND_MAX));
+                        paramManager.set("param6", Real(rand()) / Real(RAND_MAX));
                         break;
                     case 7:
-                        paramManager.setDouble("param7", Real(rand()) / Real(RAND_MAX));
+                        paramManager.set("param7", Real(rand()) / Real(RAND_MAX));
                         break;
                     case 8:
-                        paramManager.setDouble("param8", Real(rand()) / Real(RAND_MAX));
+                        paramManager.set("param8", Real(rand()) / Real(RAND_MAX));
                         break;
                 }
 #else
                 switch(randNum)
                 {
                     case 1:
-                        paramManager.setDouble(param1, Real(rand()) / Real(RAND_MAX));
+                        paramManager.set(param1, Real(rand()) / Real(RAND_MAX));
                         break;
                     case 2:
-                        paramManager.setDouble(param2, Real(rand()) / Real(RAND_MAX));
+                        paramManager.set(param2, Real(rand()) / Real(RAND_MAX));
                         break;
                     case 3:
-                        paramManager.setDouble(param3, Real(rand()) / Real(RAND_MAX));
+                        paramManager.set(param3, Real(rand()) / Real(RAND_MAX));
                         break;
                     case 4:
-                        paramManager.setDouble(param4, Real(rand()) / Real(RAND_MAX));
+                        paramManager.set(param4, Real(rand()) / Real(RAND_MAX));
                         break;
                     case 5:
-                        paramManager.setDouble(param5, Real(rand()) / Real(RAND_MAX));
+                        paramManager.set(param5, Real(rand()) / Real(RAND_MAX));
                         break;
                     case 6:
-                        paramManager.setDouble(param6, Real(rand()) / Real(RAND_MAX));
+                        paramManager.set(param6, Real(rand()) / Real(RAND_MAX));
                         break;
                     case 7:
-                        paramManager.setDouble(param7, Real(rand()) / Real(RAND_MAX));
+                        paramManager.set(param7, Real(rand()) / Real(RAND_MAX));
                         break;
                     case 8:
-                        paramManager.setDouble(param8, Real(rand()) / Real(RAND_MAX));
+                        paramManager.set(param8, Real(rand()) / Real(RAND_MAX));
                         break;
                 }
 #endif
@@ -229,56 +229,56 @@ int main()
                 switch(randNum)
                 {
                     case 1:
-                        sum += paramManager.getDouble("param1");
+                        sum += paramManager.getReal<double>("param1");
                         break;
                     case 2:
-                        sum += paramManager.getDouble("param2");
+                        sum += paramManager.getReal<double>("param2");
                         break;
                     case 3:
-                        sum += paramManager.getDouble("param3");
+                        sum += paramManager.getReal<double>("param3");
                         break;
                     case 4:
-                        sum += paramManager.getDouble("param4");
+                        sum += paramManager.getReal<double>("param4");
                         break;
                     case 5:
-                        sum += paramManager.getDouble("param5");
+                        sum += paramManager.getReal<double>("param5");
                         break;
                     case 6:
-                        sum += paramManager.getDouble("param6");
+                        sum += paramManager.getReal<double>("param6");
                         break;
                     case 7:
-                        sum += paramManager.getDouble("param7");
+                        sum += paramManager.getReal<double>("param7");
                         break;
                     case 8:
-                        sum += paramManager.getDouble("param8");
+                        sum += paramManager.getReal<double>("param8");
                         break;
                 }
 #else
                 switch(randNum)
                 {
                     case 1:
-                        sum += paramManager.getDouble(param1);
+                        sum += paramManager.getReal<double>(param1);
                         break;
                     case 2:
-                        sum += paramManager.getDouble(param2);
+                        sum += paramManager.getReal<double>(param2);
                         break;
                     case 3:
-                        sum += paramManager.getDouble(param3);
+                        sum += paramManager.getReal<double>(param3);
                         break;
                     case 4:
-                        sum += paramManager.getDouble(param4);
+                        sum += paramManager.getReal<double>(param4);
                         break;
                     case 5:
-                        sum += paramManager.getDouble(param5);
+                        sum += paramManager.getReal<double>(param5);
                         break;
                     case 6:
-                        sum += paramManager.getDouble(param6);
+                        sum += paramManager.getReal<double>(param6);
                         break;
                     case 7:
-                        sum += paramManager.getDouble(param7);
+                        sum += paramManager.getReal<double>(param7);
                         break;
                     case 8:
-                        sum += paramManager.getDouble(param8);
+                        sum += paramManager.getReal<double>(param8);
                         break;
                 }
 #endif

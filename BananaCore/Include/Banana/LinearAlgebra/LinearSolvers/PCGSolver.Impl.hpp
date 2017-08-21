@@ -54,7 +54,7 @@ void SparseColumnLowerFactor<RealType>::writeMatlab(std::ostream& output, const 
 
         for(UInt32 j = m_ColStart[i]; j < m_ColStart[i + 1]; ++j)
         {
-            output << " " << m_ColIndex[j] + 1;
+            output << " " << getIndices(j) + 1;
         }
     }
 
@@ -85,7 +85,6 @@ void SparseColumnLowerFactor<RealType>::writeMatlab(std::ostream& output, const 
     output << "], " << m_Size << ", " << m_Size << ");" << std::endl;
 }
 
-
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // PCGSolver
@@ -94,7 +93,7 @@ void SparseColumnLowerFactor<RealType>::writeMatlab(std::ostream& output, const 
 template<class RealType>
 void PCGSolver<RealType>::setSolverParameters(RealType toleranceFactor, int maxIterations, RealType MICCL0Param /*= 0.97*/, RealType minDiagonalRatio /*= 0.25*/)
 {
-    m_ToleranceFactor = fmax(toleranceFactor, 1e-30);
+    m_ToleranceFactor = fmax(toleranceFactor, RealType(1e-30));
 
     m_MaxIterations    = maxIterations;
     m_MICCL0Param      = MICCL0Param;
@@ -124,6 +123,7 @@ void PCGSolver<RealType>::disableZeroInitial()
 {
     m_bZeroInitial = false;
 }
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
 bool PCGSolver<RealType>::solve(const SparseMatrix<RealType>& matrix, const std::vector<RealType>& rhs, std::vector<RealType>& result, RealType& residual_out, UInt32& iterations_out)
@@ -155,7 +155,7 @@ bool PCGSolver<RealType>::solve(const SparseMatrix<RealType>& matrix, const std:
     }
 
     RealType tol = m_ToleranceFactor * residual_out;
-    RealType rho = ParallelBLAS::dotProduct<RealType>(r, r);
+    RealType rho = ParallelBLAS::dotProductScalar<RealType>(r, r);
 
     if(rho < 1e-20 || isnan(rho))
     {
@@ -168,13 +168,13 @@ bool PCGSolver<RealType>::solve(const SparseMatrix<RealType>& matrix, const std:
     for(UInt32 iteration = 0; iteration < m_MaxIterations; ++iteration)
     {
         multiply(m_FixedSparseMatrix, z, s);
-        RealType alpha = rho / ParallelBLAS::dotProduct<RealType>(s, z);
+        RealType alpha = rho / ParallelBLAS::dotProductScalar<RealType>(s, z);
         tbb::parallel_invoke(
-                [&]
+            [&]
         {
             ParallelBLAS::addScaled<RealType, RealType>(alpha, z, result);
         },
-                [&]
+            [&]
         {
             ParallelBLAS::addScaled<RealType, RealType>(-alpha, s, r);
         });
@@ -187,7 +187,7 @@ bool PCGSolver<RealType>::solve(const SparseMatrix<RealType>& matrix, const std:
             return true;
         }
 
-        RealType rho_new = ParallelBLAS::dotProduct<RealType>(r, r);
+        RealType rho_new = ParallelBLAS::dotProductScalar<RealType>(r, r);
         RealType beta    = rho_new / rho;
         ParallelBLAS::scaledAdd<RealType, RealType>(beta, r, z);
         rho = rho_new;
@@ -218,12 +218,12 @@ bool PCGSolver<RealType>::solve_precond(const SparseMatrix<RealType>& matrix, co
 
     m_FixedSparseMatrix.constructFromSparseMatrix(matrix);
 
-    multiply(m_FixedSparseMatrix, result, s);
+    FixedSparseMatrix<RealType>::multiply(m_FixedSparseMatrix, result, s);
     r = rhs;
     ParallelBLAS::addScaled<RealType, RealType>(-1.0, s, r);
 
 
-    residual_out = ParallelBLAS::maxAbs<RealType>(r);
+    residual_out = ParallelSTL::maxAbs<RealType>(r);
 
     if(residual_out < 1e-20)
     {
@@ -236,7 +236,7 @@ bool PCGSolver<RealType>::solve_precond(const SparseMatrix<RealType>& matrix, co
     formPreconditioner(matrix);
     applyPreconditioner(r, z);
 
-    RealType rho = ParallelBLAS::dotProduct<RealType>(z, r);
+    RealType rho = ParallelBLAS::dotProductScalar<RealType>(z, r);
 
     if(rho < 1e-20 || isnan(rho))
     {
@@ -246,20 +246,20 @@ bool PCGSolver<RealType>::solve_precond(const SparseMatrix<RealType>& matrix, co
 
     s = z;
 
-    for(int iteration = 0; iteration < m_MaxIterations; ++iteration)
+    for(UInt32 iteration = 0; iteration < m_MaxIterations; ++iteration)
     {
-        multiply(m_FixedSparseMatrix, s, z);
-        RealType alpha = rho / ParallelBLAS::dotProduct<RealType>(s, z);
+        FixedSparseMatrix<RealType>::multiply(m_FixedSparseMatrix, s, z);
+        RealType alpha = rho / ParallelBLAS::dotProductScalar<RealType>(s, z);
         tbb::parallel_invoke([&]
         {
             ParallelBLAS::addScaled<RealType, RealType>(alpha, s, result);
         },
-                [&]
+                             [&]
         {
             ParallelBLAS::addScaled<RealType, RealType>(-alpha, z, r);
         });
 
-        residual_out = ParallelBLAS::maxAbs<RealType>(r);
+        residual_out = ParallelSTL::maxAbs<RealType>(r);
 
         if(residual_out < tol)
         {
@@ -269,7 +269,7 @@ bool PCGSolver<RealType>::solve_precond(const SparseMatrix<RealType>& matrix, co
 
         applyPreconditioner(r, z);
 
-        RealType rho_new = ParallelBLAS::dotProduct<RealType>(z, r);
+        RealType rho_new = ParallelBLAS::dotProductScalar<RealType>(z, r);
         RealType beta    = rho_new / rho;
         ParallelBLAS::addScaled<RealType, RealType>(beta, s, z);
         s.swap(z); // s=beta*s+z
@@ -287,7 +287,7 @@ void PCGSolver<RealType>::formPreconditioner(const SparseMatrix<RealType>& matri
 {
     switch(m_PreconditionerType)
     {
-        case PreconditionerTypes::Jacobi:
+        case PreconditionerTypes::JACOBI:
             formPreconditioner_Jacobi(matrix);
             break;
 
@@ -295,7 +295,7 @@ void PCGSolver<RealType>::formPreconditioner(const SparseMatrix<RealType>& matri
             formPreconditioner_MICC0L0(matrix, m_ICCPreconditioner);
             break;
 
-        case PreconditionerTypes::Symmetric_MICCL0:
+        case PreconditionerTypes::MICCL0_SYMMETRIC:
             formPreconditioner_Symmetric_MICC0L0(matrix, m_ICCPreconditioner);
             break;
     }
@@ -304,7 +304,7 @@ void PCGSolver<RealType>::formPreconditioner(const SparseMatrix<RealType>& matri
 template<class RealType>
 void PCGSolver<RealType>::applyPreconditioner(const std::vector<RealType>& x, std::vector<RealType>& result)
 {
-    if(m_PreconditionerType != PreconditionerTypes::Jacobi)
+    if(m_PreconditionerType != PreconditionerTypes::JACOBI)
     {
         solveLower(m_ICCPreconditioner, x, result);
         solveLower_TransposeInPlace(m_ICCPreconditioner, result);
@@ -314,17 +314,19 @@ void PCGSolver<RealType>::applyPreconditioner(const std::vector<RealType>& x, st
         applyJacobiPreconditioner(x, result);
     }
 }
+
 template<class RealType>
 void PCGSolver<RealType>::applyJacobiPreconditioner(const std::vector<RealType>& x, std::vector<RealType>& result)
 {
     static tbb::affinity_partitioner ap;
-    tbb::parallel_for(tbb::blocked_range<size_t>(0, x.size()), [&](tbb::blocked_range<UInt32> r)
-    {
-        for(size_t i = r.begin(), iEnd = r.end(); i != iEnd; ++i)
-        {
-            result[i] = m_JacobiPreconditioner[i] * x[i];
-        }
-    }, ap);     // end parallel_for
+    tbb::parallel_for(tbb::blocked_range<size_t>(0, x.size()),
+                      [&](tbb::blocked_range<size_t> r)
+                      {
+                          for(size_t i = r.begin(), iEnd = r.end(); i != iEnd; ++i)
+                          {
+                              result[i] = m_JacobiPreconditioner[i] * x[i];
+                          }
+                      }, ap); // end parallel_for
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -369,7 +371,6 @@ void PCGSolver<RealType>::solveLower_TransposeInPlace(const SparseColumnLowerFac
     } while(i != 0);
 }
 
-
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
 void PCGSolver<RealType>::formPreconditioner_Jacobi(const SparseMatrix<RealType>& matrix)
@@ -378,16 +379,15 @@ void PCGSolver<RealType>::formPreconditioner_Jacobi(const SparseMatrix<RealType>
 
     static tbb::affinity_partitioner ap;
     tbb::parallel_for(tbb::blocked_range<UInt32>(0, matrix.size()), [&](tbb::blocked_range<UInt32> r)
-    {
-        for(size_t i = r.begin(), iEnd = r.end(); i != iEnd; ++i)
-        {
-            auto& v = matrix.getIndices(i);
-            auto it = std::lower_bound(v.begin(), v.end(), i);
-            m_JacobiPreconditioner[i] = (it != v.end()) ? 1.0 / matrix.getValues(i)[std::distance(v.begin(), it)] : 0;
-        }
-    }, ap);     // end parallel_for
+                      {
+                          for(UInt32 i = r.begin(), iEnd = r.end(); i != iEnd; ++i)
+                          {
+                              auto& v = matrix.getIndices(i);
+                              auto it = std::lower_bound(v.begin(), v.end(), i);
+                              m_JacobiPreconditioner[i] = (it != v.end()) ? RealType(1.0) / matrix.getValues(i)[std::distance(v.begin(), it)] : 0;
+                          }
+                      }, ap); // end parallel_for
 }
-
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Incomplete Cholesky factorization, level zero, with option for modified version.
@@ -415,16 +415,16 @@ void PCGSolver<RealType>::formPreconditioner_MICC0L0(const SparseMatrix<RealType
     {
         factor.m_ColStart[i] = static_cast<UInt32>(factor.m_ColIndex.size());
 
-        for(UInt32 j = 0, jEnd = static_cast<UInt32>(matrix.m_ColIndex[i].size()); j < jEnd; ++j)
+        for(UInt32 j = 0, jEnd = static_cast<UInt32>(matrix.getIndices(i).size()); j < jEnd; ++j)
         {
-            if(matrix.m_ColIndex[i][j] > i)
+            if(matrix.getIndices(i)[j] > i)
             {
-                factor.m_ColIndex.push_back(matrix.m_ColIndex[i][j]);
-                factor.m_ColValue.push_back(matrix.m_ColValue[i][j]);
+                factor.m_ColIndex.push_back(matrix.getIndices(i)[j]);
+                factor.m_ColValue.push_back(matrix.getValues(i)[j]);
             }
-            else if(matrix.m_ColIndex[i][j] == i)
+            else if(matrix.getIndices(i)[j] == i)
             {
-                factor.m_InvDiag[i] = factor.m_aDiag[i] = matrix.m_ColValue[i][j];
+                factor.m_InvDiag[i] = factor.m_aDiag[i] = matrix.getValues(i)[j];
             }
         }
     }
@@ -476,23 +476,23 @@ void PCGSolver<RealType>::formPreconditioner_MICC0L0(const SparseMatrix<RealType
         // incompletely eliminate L(:,k) from future columns, modifying diagonals
         for(UInt32 p = factor.m_ColStart[k], pEnd = factor.m_ColStart[k + 1]; p < pEnd; ++p)
         {
-            UInt32     j          = factor.m_ColIndex[p]; // work on column j
+            UInt32   j          = factor.m_ColIndex[p];   // work on column j
             RealType multiplier = factor.m_ColValue[p];
             RealType missing    = 0;
-            UInt32     a          = factor.m_ColStart[k];
+            UInt32   a          = factor.m_ColStart[k];
             // first look for contributions to missing from dropped entries above the diagonal in column j
             UInt32 b = 0;
 
             while(a < factor.m_ColStart[k + 1] && factor.m_ColIndex[a] < j)
             {
                 // look for factor.rowindex[a] in matrix.index[j] starting at b
-                while(b < matrix.m_ColIndex[j].size())
+                while(b < matrix.getIndices(j).size())
                 {
-                    if(matrix.m_ColIndex[j][b] < factor.m_ColIndex[a])
+                    if(matrix.getIndices(j)[b] < factor.m_ColIndex[a])
                     {
                         ++b;
                     }
-                    else if(matrix.m_ColIndex[j][b] == factor.m_ColIndex[a])
+                    else if(matrix.getIndices(j)[b] == factor.m_ColIndex[a])
                     {
                         break;
                     }
@@ -567,16 +567,16 @@ void PCGSolver<RealType>::formPreconditioner_Symmetric_MICC0L0(const SparseMatri
     {
         factor.m_ColStart[i] = static_cast<UInt32>(factor.m_ColIndex.size());
 
-        for(UInt32 j = 0, jEnd = static_cast<UInt32>(matrix.m_ColIndex[i].size()); j < jEnd; ++j)
+        for(UInt32 j = 0, jEnd = static_cast<UInt32>(matrix.getIndices(i).size()); j < jEnd; ++j)
         {
-            if(matrix.m_ColIndex[i][j] > i)
+            if(matrix.getIndices(i)[j] > i)
             {
-                factor.m_ColIndex.push_back(matrix.m_ColIndex[i][j]);
-                factor.m_ColValue.push_back(matrix.m_ColValue[i][j]);
+                factor.m_ColIndex.push_back(matrix.getIndices(i)[j]);
+                factor.m_ColValue.push_back(matrix.getValues(i)[j]);
             }
-            else if(matrix.m_ColIndex[i][j] == i)
+            else if(matrix.getIndices(i)[j] == i)
             {
-                factor.m_InvDiag[i] = factor.m_aDiag[i] = matrix.m_ColValue[i][j];
+                factor.m_InvDiag[i] = factor.m_aDiag[i] = matrix.getValues(i)[j];
             }
         }
     }
@@ -604,7 +604,7 @@ void PCGSolver<RealType>::formPreconditioner_Symmetric_MICC0L0(const SparseMatri
 
         for(UInt32 p = factor.m_ColStart[k], pEnd = factor.m_ColStart[k + 1]; p < pEnd; ++p)
         {
-            UInt32     j          = factor.m_ColIndex[p]; // work on column j
+            UInt32   j          = factor.m_ColIndex[p];   // work on column j
             RealType multiplier = factor.m_ColValue[p];
 
             factor.m_InvDiag[j] -= multiplier * factor.m_ColValue[p];
@@ -634,4 +634,3 @@ void PCGSolver<RealType>::formPreconditioner_Symmetric_MICC0L0(const SparseMatri
         }
     }
 }
-

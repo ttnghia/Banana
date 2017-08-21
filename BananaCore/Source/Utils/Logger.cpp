@@ -27,6 +27,7 @@ Logger::LogLevel Logger::s_LogLevel        = LogLevel::NormalLevel;
 bool             Logger::m_bPrintStdOut    = true;
 bool             Logger::m_bWriteLogToFile = true;
 bool             Logger::m_bDataPathReady  = false;
+unsigned int     Logger::m_NumSources      = 0;
 
 std::string                           Logger::m_DataPath;
 std::string                           Logger::m_LogFile;
@@ -94,6 +95,24 @@ void Logger::printGreeting(const std::string& s)
 void Logger::printWarning(const std::string& s, int maxSize)
 {
     Logger::printWarning(m_LogSourceID, s, maxSize);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void Banana::Logger::printTime(const char* caption, Timer& timer)
+{
+    Logger::printLog(m_LogSourceID, timer.getRunTime(caption));
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class Function>
+void Banana::Logger::printTimeIndent(const char* caption, const Function& function)
+{
+    Logger::printLogIndent(m_LogSourceID, Timer::getRunTime(caption, function()));
+}
+
+void Banana::Logger::printTimeIndent(const char* caption, Timer& timer)
+{
+    Logger::printLogIndent(m_LogSourceID, timer.getRunTime(caption));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

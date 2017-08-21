@@ -44,9 +44,7 @@ public:
     void operator()(const tbb::blocked_range<size_t>& r)
     {
         for(size_t i = r.begin(), iEnd = r.end(); i != iEnd; ++i)
-        {
             m_Result += m_Vec1[i] * m_Vec2[i];
-        }
     }
 
     void join(VectorDotProduct& vdp)
@@ -67,23 +65,14 @@ private:
 template<class RealType, class VectorType>
 class VectorDotProduct<RealType, VectorType>
 {
+public:
     VectorDotProduct(const std::vector<VectorType>& vec1, const std::vector<VectorType>& vec2) : m_Vec1(vec1), m_Vec2(vec2), m_Result(0) {}
     VectorDotProduct(VectorDotProduct& vdp, tbb::split) : m_Vec1(vdp.m_Vec1), m_Vec2(vdp.m_Vec1), m_Result(0) {}
 
     void operator()(const tbb::blocked_range<size_t>& r)
     {
         for(size_t i = r.begin(), iEnd = r.end(); i != iEnd; ++i)
-        {
-#ifdef __Using_Eigen_Lib__
-            m_Result += (m_Vec1[i]).dot(m_Vec2[i]);
-#else
-#ifdef __Using_GLM_Lib__
             m_Result += glm::dot(m_Vec1[i], m_Vec2[i]);
-#else               // use default yocto
-            m_Result += ym::dot(m_Vec1[i], m_Vec2[i]);
-#endif // __Using_GLM_Lib__
-#endif              // __Using_Eigen_Lib__
-        }
     }
 
     void join(VectorDotProduct& vdp)

@@ -22,7 +22,7 @@
 #include <iostream>
 
 #include <Banana/TypeNames.h>
-#include <Banana/STLHelpers.h>
+#include <Banana/Utils/STLHelpers.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -38,20 +38,22 @@ private:
     UInt32 m_Size;
 
     // for each row, a list of all column indices (sorted)
-    std::vector<std::vector<UInt32> > m_Index;
+    std::vector<std::vector<UInt32> > m_ColIndex;
 
     // values corresponding to indices
-    std::vector<std::vector<RealType> > m_Value;
+    std::vector<std::vector<RealType> > m_ColValue;
 
 public:
-    explicit SparseMatrix(UInt32 size = 0) : m_Size(size), m_Index(size), m_Value(size) {}
+    explicit SparseMatrix(UInt32 size = 0) : m_Size(size), m_ColIndex(size), m_ColValue(size) {}
 
     unsigned int size() const noexcept;
     void         resize(UInt32 newSize);
     void         clear(void);
 
-    const std::vector<UInt32>& getIndices(UInt32 row) const;
-    const std::vector<UInt32>& getValues(UInt32 row) const;
+    std::vector<UInt32>&         getIndices(UInt32 row);
+    std::vector<RealType>&       getValues(UInt32 row);
+    const std::vector<UInt32>&   getIndices(UInt32 row) const;
+    const std::vector<RealType>& getValues(UInt32 row) const;
 
     RealType operator ()(UInt32 i, UInt32 j) const;
 
@@ -82,27 +84,36 @@ private:
     UInt32 m_Size;
 
     // nonzero values row by row
-    std::vector<RealType> m_Value;
+    std::vector<RealType> m_ColValue;
 
     // corresponding column indices
-    std::vector<UInt32> m_Index;
+    std::vector<UInt32> m_ColIndex;
 
     // where each row starts in value and col index (and last entry is one past the end, the number of non zeros)
     std::vector<UInt32> m_RowStart;
 
 public:
-    explicit FixedSparseMatrix(UInt32 size = 0) : m_Size(size), m_Value(0), m_Index(0), m_RowStart(size + 1) {}
+    explicit FixedSparseMatrix(UInt32 size = 0) : m_Size(size), m_ColValue(0), m_ColIndex(0), m_RowStart(size + 1) {}
 
-    void clear(void);
-    void resize(UInt32 newSize);
-    void constructFromSparseMatrix(const SparseMatrix<RealType>& fixedMatrix);
+    unsigned int size() const noexcept;
+    void         resize(UInt32 newSize);
+    void         clear(void);
+    void         constructFromSparseMatrix(const SparseMatrix<RealType>& fixedMatrix);
 
+    std::vector<UInt32>&         getIndices(UInt32 row);
+    std::vector<UInt32>&         getRowStarts(UInt32 row);
+    std::vector<RealType>&       getValues(UInt32 row);
+    const std::vector<UInt32>&   getIndices(UInt32 row) const;
+    const std::vector<UInt32>&   getRowStarts(UInt32 row) const;
+    const std::vector<RealType>& getValues(UInt32 row) const;
+
+    ////////////////////////////////////////////////////////////////////////////////
     static void multiply(const FixedSparseMatrix<RealType>& matrix, const std::vector<RealType>& x, std::vector<RealType>& result);
     static void multiply_and_subtract(const FixedSparseMatrix<RealType>& matrix, const std::vector<RealType>& x, std::vector<RealType>& result);
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <Banana/LinearAlgebra/SparseMatrix.Impl.hpp>
+#include <Banana/LinearAlgebra/SparseMatrix/SparseMatrix.Impl.hpp>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana

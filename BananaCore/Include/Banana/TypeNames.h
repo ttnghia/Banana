@@ -31,6 +31,7 @@
  #endif // _MSC_VER
  */
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #include <limits>
 #include <vector>
 #include <cstdint>
@@ -39,7 +40,6 @@
 #ifndef __Using_Yocto_Lib__
 #define __Using_GLM_Lib__
 #endif
-
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 using Int8  = int8_t;
@@ -54,7 +54,6 @@ using UInt64 = uint64_t;
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #ifdef __Using_GLM_Lib__
-
 #define GLM_FORCE_CXX14
 #define GLM_FORCE_INLINE
 #define GLM_ENABLE_EXPERIMENTAL
@@ -97,7 +96,10 @@ using Mat4x4 = glm::mat<4, 4, RealType>;
 template<class RealType>
 const Mat4x4<RealType> Identity4x4 = glm::mat<4, 4, RealType>(1.0);
 
-// vectors of vectors
+// vectors
+template<class T>
+using Vec = std::vector<T>;
+
 template<class RealType>
 using  Vec_Real = std::vector<RealType>;
 
@@ -133,9 +135,7 @@ using Vec_VecVec3 = std::vector<std::vector<Vec3<RealType> > >;
 // vectors of vector of matrices
 template<class RealType>
 using Vec_VecMat3x3 = std::vector<std::vector<Mat3x3<RealType> > >;
-
 #else // not using glm lib
-
 #include <yocto/yocto_math.h>
 
 // Vectors

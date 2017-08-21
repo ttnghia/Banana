@@ -134,6 +134,16 @@ public:
         return m_Data.end();
     }
 
+    std::unordered_map<Key, T>& map_data()
+    {
+        return m_Data;
+    }
+
+    const std::unordered_map<Key, T>& map_data() const
+    {
+        return m_Data;
+    }
+
     ////////////////////////////////////////////////////////////////////////////////
     size_type size(void) const
     {

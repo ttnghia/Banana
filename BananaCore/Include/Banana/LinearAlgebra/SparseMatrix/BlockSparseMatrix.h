@@ -39,20 +39,22 @@ private:
     UInt32 m_Size;
 
     // for each row, a list of all column indices (sorted)
-    std::vector<std::vector<UInt32> > m_Index;
+    std::vector<std::vector<UInt32> > m_ColIndex;
 
     // values corresponding to indices
-    std::vector<std::vector<MatrixType> > m_Value;
+    std::vector<std::vector<MatrixType> > m_ColValue;
 
 public:
-    explicit BlockSparseMatrix(UInt32 size = 0) : m_Size(size), m_Index(size), m_Value(size) {}
+    explicit BlockSparseMatrix(UInt32 size = 0) : m_Size(size), m_ColIndex(size), m_ColValue(size) {}
 
     unsigned int size() const noexcept;
     void         resize(UInt32 newSize);
     void         clear(void);
 
-    const std::vector<UInt32>& getIndices(UInt32 row) const;
-    const std::vector<UInt32>& getValues(UInt32 row) const;
+    std::vector<UInt32>&         getIndices(UInt32 row);
+    std::vector<RealType>&       getValues(UInt32 row);
+    const std::vector<UInt32>&   getIndices(UInt32 row) const;
+    const std::vector<RealType>& getValues(UInt32 row) const;
 
     const MatrixType& operator ()(UInt32 i, UInt32 j) const;
 
@@ -96,21 +98,30 @@ private:
     UInt32 m_Size;
 
     // nonzero values row by row
-    std::vector<MatrixType> m_Value;
+    std::vector<MatrixType> m_ColValue;
 
     // corresponding column indices
-    std::vector<UInt32> m_Index;
+    std::vector<UInt32> m_ColIndex;
 
     // where each row starts in value and col index (and last entry is one past the end, the number of non zeros)
     std::vector<UInt32> m_RowStart;
 
 public:
-    explicit FixedBlockSparseMatrix(UInt32 size = 0) : m_Size(size), m_Value(0), m_Index(0), m_RowStart(size + 1) {}
+    explicit FixedBlockSparseMatrix(UInt32 size = 0) : m_Size(size), m_ColValue(0), m_ColIndex(0), m_RowStart(size + 1) {}
 
-    void clear(void);
-    void resize(UInt32 newSize);
-    void constructFromSparseMatrix(const BlockSparseMatrix<MatrixType>& fixedMatrix);
+    unsigned int size() const noexcept;
+    void         resize(UInt32 newSize);
+    void         clear(void);
+    void         constructFromSparseMatrix(const BlockSparseMatrix<MatrixType>& fixedMatrix);
 
+    std::vector<UInt32>&         getIndices(UInt32 row);
+    std::vector<UInt32>&         getRowStarts(UInt32 row);
+    std::vector<RealType>&       getValues(UInt32 row);
+    const std::vector<UInt32>&   getIndices(UInt32 row) const;
+    const std::vector<UInt32>&   getRowStarts(UInt32 row) const;
+    const std::vector<RealType>& getValues(UInt32 row) const;
+
+    ////////////////////////////////////////////////////////////////////////////////
     template<class VectorType>
     static void multiply(const FixedBlockSparseMatrix<MatrixType>& matrix, const std::vector<VectorType>& x, std::vector<VectorType>& result);
 

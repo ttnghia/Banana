@@ -88,34 +88,34 @@ public:
     void setData(const DataBuffer& dataBuffer)
     {
         clearBuffer();
-        push_back(dataBuffer);
+        append(dataBuffer);
     }
 
     void setData(const unsigned char* arrData, size_t dataSize)
     {
         clearBuffer();
-        push_back(arrData, dataSize);
+        append(arrData, dataSize);
     }
 
     template<class T>
     void setFloat(T data)
     {
         clearBuffer();
-        push_back<float>(static_cast<float>(data));
+        append<float>(static_cast<float>(data));
     }
 
     template<class T>
     void setDouble(T data)
     {
         clearBuffer();
-        push_back<double>(static_cast<double>(data));
+        append<double>(static_cast<double>(data));
     }
 
     template<class T>
     void setData(T data)
     {
         clearBuffer();
-        push_back<T>(data);
+        append<T>(data);
     }
 
     // need this, it is similar to the one above, but using reference parameter
@@ -123,32 +123,32 @@ public:
     void setData(const std::vector<T>& vData, bool bWriteVectorSize = true)
     {
         clearBuffer();
-        push_back<T>(vData, bWriteVectorSize);
+        append<T>(vData, bWriteVectorSize);
     }
 
     template<class T>
     void setFloatArray(const std::vector<T>& vData, bool bWriteVectorSize = true)
     {
         clearBuffer();
-        pushFloatArray<T>(vData, bWriteVectorSize);
+        appendFloatArray<T>(vData, bWriteVectorSize);
     }
 
     template<class T>
     void setDoubleArray(const std::vector<T>& vData, bool bWriteVectorSize = true)
     {
         clearBuffer();
-        pushDoubleArray<T>(vData, bWriteVectorSize);
+        appendDoubleArray<T>(vData, bWriteVectorSize);
     }
 
     //////////////////////////////////////////////////////////////////////
     /// append data
     //////////////////////////////////////////////////////////////////////
-    void push_back(const DataBuffer& dataBuffer)
+    void append(const DataBuffer& dataBuffer)
     {
-        push_back((const unsigned char*)dataBuffer.data(), dataBuffer.size());
+        append((const unsigned char*)dataBuffer.data(), dataBuffer.size());
     }
 
-    void push_back(const unsigned char* arrData, size_t dataSize)
+    void append(const unsigned char* arrData, size_t dataSize)
     {
         size_t endOffset = m_Buffer.size();
         resize(endOffset + dataSize);
@@ -157,7 +157,7 @@ public:
     }
 
     template<class T>
-    void push_back(T value)
+    void append(T value)
     {
         size_t dataSize  = sizeof(T);
         size_t endOffset = m_Buffer.size();
@@ -168,13 +168,13 @@ public:
     }
 
     template<class T>
-    void push_back(const std::vector<T>& vData, bool bWriteVectorSize = true)
+    void append(const std::vector<T>& vData, bool bWriteVectorSize = true)
     {
         // any vector data begins with the number of vector elements
         if(bWriteVectorSize)
         {
             const UInt32 numElements = (UInt32)vData.size();
-            push_back(numElements);
+            append(numElements);
         }
 
         size_t dataSize  = vData.size() * sizeof(T);
@@ -185,12 +185,12 @@ public:
     }
 
     template<class T>
-    void push_back(const Vec_Vec2<T>& vData, bool bWriteVectorSize = true)
+    void append(const Vec_Vec2<T>& vData, bool bWriteVectorSize = true)
     {
         if(bWriteVectorSize)
         {
             const UInt32 numElements = (UInt32)vData.size();
-            push_back(numElements);
+            append(numElements);
         }
 
         size_t dataSize  = vData.size() * sizeof(T) * 2;
@@ -208,12 +208,12 @@ public:
     }
 
     template<class T>
-    void push_back(const Vec_Vec3<T>& vData, bool bWriteVectorSize = true)
+    void append(const Vec_Vec3<T>& vData, bool bWriteVectorSize = true)
     {
         if(bWriteVectorSize)
         {
             const UInt32 numElements = (UInt32)vData.size();
-            push_back(numElements);
+            append(numElements);
         }
 
         size_t dataSize  = vData.size() * sizeof(T) * 3;
@@ -232,20 +232,20 @@ public:
     }
 
     template<class T>
-    void push_back(const std::vector<std::vector<T> >& vData)
+    void append(const std::vector<std::vector<T> >& vData)
     {
         const UInt32 numElements = (UInt32)vData.size();
-        push_back(numElements);
+        append(numElements);
 
         for(size_t i = 0; i < vData.size(); ++i)
         {
             const std::vector<T>& vec = vData[i];
-            push_back(vec);
+            append(vec);
         }
     }
 
     template<class T>
-    void pushFloat(T value)
+    void appendFloat(T value)
     {
         size_t dataSize  = sizeof(float);
         size_t endOffset = m_Buffer.size();
@@ -256,12 +256,12 @@ public:
     }
 
     template<class T>
-    void pushFloatArray(const std::vector<T>& vData, bool bWriteVectorSize = true)
+    void appendFloatArray(const std::vector<T>& vData, bool bWriteVectorSize = true)
     {
         if(bWriteVectorSize)
         {
             const UInt32 numElements = (UInt32)vData.size();
-            push_back(numElements);
+            append(numElements);
         }
 
         size_t dataSize  = vData.size() * sizeof(float);
@@ -277,12 +277,12 @@ public:
     }
 
     template<class T>
-    void pushFloatArray(const Vec_Vec2<T>& vData, bool bWriteVectorSize = true)
+    void appendFloatArray(const Vec_Vec2<T>& vData, bool bWriteVectorSize = true)
     {
         if(bWriteVectorSize)
         {
             const UInt32 numElements = (UInt32)vData.size();
-            push_back(numElements);
+            append(numElements);
         }
 
         size_t dataSize  = vData.size() * sizeof(float) * 2;
@@ -300,12 +300,12 @@ public:
     }
 
     template<class T>
-    void pushFloatArray(const Vec_Vec3<T>& vData, bool bWriteVectorSize = true)
+    void appendFloatArray(const Vec_Vec3<T>& vData, bool bWriteVectorSize = true)
     {
         if(bWriteVectorSize)
         {
             const UInt32 numElements = (UInt32)vData.size();
-            push_back(numElements);
+            append(numElements);
         }
 
         size_t dataSize  = vData.size() * sizeof(float) * 3;
@@ -324,7 +324,7 @@ public:
     }
 
     template<class T>
-    void pushDouble(T value)
+    void appendDouble(T value)
     {
         size_t dataSize  = sizeof(double);
         size_t endOffset = m_Buffer.size();
@@ -335,12 +335,12 @@ public:
     }
 
     template<class T>
-    void pushDoubleArray(const std::vector<T>& vData, bool bWriteVectorSize = true)
+    void appendDoubleArray(const std::vector<T>& vData, bool bWriteVectorSize = true)
     {
         if(bWriteVectorSize)
         {
             const UInt32 numElements = (UInt32)vData.size();
-            push_back(numElements);
+            append(numElements);
         }
 
         size_t dataSize  = vData.size() * sizeof(double);
@@ -356,12 +356,12 @@ public:
     }
 
     template<class T>
-    void pushDoubleArray(const Vec_Vec2<T>& vData, bool bWriteVectorSize = true)
+    void appendDoubleArray(const Vec_Vec2<T>& vData, bool bWriteVectorSize = true)
     {
         if(bWriteVectorSize)
         {
             const UInt32 numElements = (UInt32)vData.size();
-            push_back(numElements);
+            append(numElements);
         }
 
         size_t dataSize  = vData.size() * sizeof(double) * 2;
@@ -379,12 +379,12 @@ public:
     }
 
     template<class T>
-    void pushDoubleArray(const Vec_Vec3<T>& vData, bool bWriteVectorSize = true)
+    void appendDoubleArray(const Vec_Vec3<T>& vData, bool bWriteVectorSize = true)
     {
         if(bWriteVectorSize)
         {
             const UInt32 numElements = (UInt32)vData.size();
-            push_back(numElements);
+            append(numElements);
         }
 
         size_t dataSize  = vData.size() * sizeof(double) * 3;
@@ -835,19 +835,22 @@ private:
 class DataIO
 {
 public:
-    DataIO(std::string dataRootFolder, std::string dataFolder, std::string fileName, std::string fileExtension) :
+    DataIO(const std::string& dataRootFolder,
+           const std::string& dataFolder,
+           const std::string& fileName,
+           const std::string& fileExtension,
+           const std::string& dataName) :
         m_DataFolder(dataRootFolder),
         m_DataSubFolder(dataFolder),
         m_FileName(fileName),
         m_FileExtension(fileExtension),
+        m_DataName(dataName),
         m_bOutputFolderCreated(false) {}
 
     virtual ~DataIO()
     {
         if(m_WriteFutureObj.valid())
-        {
             m_WriteFutureObj.wait();
-        }
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -855,9 +858,9 @@ public:
     {
         int latestIndex = -1;
 
-        for(int index = maxIndex; index >= 1; --index)
+        for(int index = maxIndex; index > 0; --index)
         {
-            if(existedFileIndex(index))
+            if(!existedFileIndex(index))
             {
                 latestIndex = index;
                 break;
@@ -872,7 +875,7 @@ public:
         return FileHelpers::fileExisted(getFilePath(fileID));
     }
 
-    void resetBuffer()
+    void clearBuffer()
     {
         if(m_WriteFutureObj.valid())
         {
@@ -917,29 +920,39 @@ public:
         return std::string(filePath);
     }
 
-    const DataBuffer& getBuffer()
+    const DataBuffer& getBuffer() const
     {
         return m_DataBuffer;
     }
 
-    std::string getDataFolder()
+    DataBuffer& getBuffer()
+    {
+        return m_DataBuffer;
+    }
+
+    std::string& dataFolder()
     {
         return m_DataFolder;
     }
 
-    std::string getDataSubFolder()
+    std::string& dataSubFolder()
     {
         return m_DataSubFolder;
     }
 
-    std::string getFileName()
+    std::string& fileName()
     {
         return m_FileName;
     }
 
-    std::string getFileExtension()
+    std::string& fileExtension()
     {
         return m_FileExtension;
+    }
+
+    std::string& dataName()
+    {
+        return m_DataName;
     }
 
 private:
@@ -956,6 +969,7 @@ private:
     std::string       m_DataSubFolder;
     std::string       m_FileName;
     std::string       m_FileExtension;
+    std::string       m_DataName;
     DataBuffer        m_DataBuffer;
     std::future<void> m_WriteFutureObj;
 };

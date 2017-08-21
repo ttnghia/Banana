@@ -603,7 +603,7 @@ inline void get_bary_below(T x, int& i, T& f, int i_low, int i_high)
 template<class S, class T>
 inline S lerp(const S& value0, const S& value1, T f)
 {
-    return (1 - f) * value0 + f * value1;
+    return (T(1.0) - f) * value0 + f * value1;
 }
 
 template<class S, class T>
@@ -747,6 +747,20 @@ template<class T>
 T cubic_spline_kernel_3d(T x, T y, T z)
 {
     return cubic_spline_kernel(x) * cubic_spline_kernel(y) * cubic_spline_kernel(z);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class T>
+void cycle_array(T* arr, int size)
+{
+    T t = arr[0];
+
+    for(int i = 0; i < size - 1; ++i)
+    {
+        arr[i] = arr[i + 1];
+    }
+
+    arr[size - 1] = t;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

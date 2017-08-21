@@ -25,30 +25,24 @@ namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-class Grid3D
+class Grid2D
 {
 public:
-    Grid3D() = default;
-    Grid3D(const Vec3<RealType>& bMin, const Vec3<RealType>& bMax, RealType cellSize) : m_BMin(bMin), m_BMax(bMax)
+    Grid2D() = default;
+    Grid2D(const Vec2<RealType>& bMin, const Vec2<RealType>& bMax, RealType cellSize) : m_BMin(bMin), m_BMax(bMax)
     {
         setCellSize(cellSize);
     }
 
-    void setGrid(const Vec3<RealType>& bMin, const Vec3<RealType>& bMax, RealType cellSize);
+    void setGrid(const Vec2<RealType>& bMin, const Vec2<RealType>& bMax, RealType cellSize);
 
-    const Vec3<RealType>& getBMin() const noexcept { return m_BMin; }
-    const Vec3<RealType>& getBMax() const noexcept { return m_BMax; }
+    const Vec2<RealType>& getBMin() const noexcept { return m_BMin; }
+    const Vec2<RealType>& getBMax() const noexcept { return m_BMax; }
     unsigned int getNumCellX() const noexcept { return m_NumCells[0]; }
     unsigned int getNumCellY() const noexcept { return m_NumCells[1]; }
     unsigned int getNumCellZ() const noexcept { return m_NumCells[2]; }
     unsigned int getNumTotalCells() const noexcept { return m_NumTotalCells; }
-    const Vec3<unsigned int>& getNumCells() const noexcept { return m_NumCells; }
-
-    template<class IndexType>
-    IndexType getLinearizedIndex(IndexType i, IndexType j, IndexType k) const
-    {
-        return (k * static_cast<IndexType>(getNumCellY()) + j) * static_cast<IndexType>(getNumCellX()) + i;
-    }
+    const Vec2<unsigned int>& getNumCells() const noexcept { return m_NumCells; }
 
     ////////////////////////////////////////////////////////////////////////////////
     virtual void setCellSize(RealType cellSize);
@@ -57,34 +51,34 @@ public:
     RealType getCellSizeSquared() const noexcept { return m_CellSizeSqr; }
 
     ////////////////////////////////////////////////////////////////////////////////
-    bool isInsideGrid(const Vec3<RealType>& ppos) const noexcept;
+    bool isInsideGrid(const Vec2<RealType>& ppos) const noexcept;
 
     template<class IndexType>
     bool isValidCell(IndexType i, IndexType j, IndexType k)  const noexcept;
 
     template<class IndexType>
-    bool isValidCell(const Vec3<IndexType>& index) const noexcept;
+    bool isValidCell(const Vec2<IndexType>& index) const noexcept;
 
     ////////////////////////////////////////////////////////////////////////////////
-    Vec3<RealType> getGridCoordinate(const Vec3<RealType>& ppos) const { return (ppos - m_BMin) / m_CellSize; }
+    Vec2<RealType> getGridCoordinate(const Vec2<RealType>& ppos) const { return (ppos - m_BMin) / m_CellSize; }
 
     template<class IndexType>
-    Vec3<IndexType> getCellIdx(const Vec3<RealType>& ppos) const noexcept;
+    Vec2<IndexType> getCellIdx(const Vec2<RealType>& ppos) const noexcept;
 
     template<class IndexType>
-    Vec3<IndexType> getValidCellIdx(const Vec3<RealType>& ppos) const noexcept;
+    Vec2<IndexType> getValidCellIdx(const Vec2<RealType>& ppos) const noexcept;
 
     template<class IndexType>
-    Vec3<IndexType> getNearestValidCellIdx(const Vec3<IndexType>& cellIdx) const noexcept;
+    Vec2<IndexType> getNearestValidCellIdx(const Vec2<IndexType>& cellIdx) const noexcept;
 
     ////////////////////////////////////////////////////////////////////////////////
     // particle processing
-    void constraintToGrid(Vec_Vec3<RealType>& particles);
+    void constraintToGrid(Vec_Vec2<RealType>& particles);
 
 protected:
-    Vec3<RealType>     m_BMin          = Vec3<RealType>(0);
-    Vec3<RealType>     m_BMax          = Vec3<RealType>(1);
-    Vec3<unsigned int> m_NumCells      = Vec3<unsigned int>(0);
+    Vec2<RealType>     m_BMin          = Vec2<RealType>(0);
+    Vec2<RealType>     m_BMax          = Vec2<RealType>(1);
+    Vec2<unsigned int> m_NumCells      = Vec2<unsigned int>(0);
     unsigned int       m_NumTotalCells = 1;
     RealType           m_CellSize      = RealType(1.0);
     RealType           m_HalfCellSize  = RealType(0.5);
@@ -97,7 +91,7 @@ protected:
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-void Grid3D<RealType>::setGrid(const Vec3<RealType>& bMin, const Vec3<RealType>& bMax, RealType cellSize)
+void Grid2D<RealType>::setGrid(const Vec2<RealType>& bMin, const Vec2<RealType>& bMax, RealType cellSize)
 {
     m_BMin = bMin;
     m_BMax = bMax;
@@ -106,7 +100,7 @@ void Grid3D<RealType>::setGrid(const Vec3<RealType>& bMin, const Vec3<RealType>&
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-void Grid3D<RealType>::setCellSize(RealType cellSize)
+void Grid2D<RealType>::setCellSize(RealType cellSize)
 {
     assert(cellSize > 0);
     m_CellSize      = cellSize;
@@ -123,7 +117,7 @@ void Grid3D<RealType>::setCellSize(RealType cellSize)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-bool Grid3D<RealType>::isInsideGrid(const Vec3<RealType>& ppos) const noexcept
+bool Grid2D<RealType>::isInsideGrid(const Vec2<RealType>& ppos) const noexcept
 {
     for(int i = 0; i < 3; ++i)
     {
@@ -137,7 +131,7 @@ bool Grid3D<RealType>::isInsideGrid(const Vec3<RealType>& ppos) const noexcept
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
 template<class IndexType>
-bool Grid3D<RealType>::isValidCell(IndexType i, IndexType j, IndexType k)  const noexcept
+bool Grid2D<RealType>::isValidCell(IndexType i, IndexType j, IndexType k)  const noexcept
 {
     return (i >= 0 &&
             j >= 0 &&
@@ -149,7 +143,7 @@ bool Grid3D<RealType>::isValidCell(IndexType i, IndexType j, IndexType k)  const
 
 template<class RealType>
 template<class IndexType>
-bool Grid3D<RealType>::isValidCell(const Vec3<IndexType>& index)  const noexcept
+bool Grid2D<RealType>::isValidCell(const Vec2<IndexType>& index)  const noexcept
 {
     return isValidCell(index[0], index[1], index[2]);
 }
@@ -157,9 +151,9 @@ bool Grid3D<RealType>::isValidCell(const Vec3<IndexType>& index)  const noexcept
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
 template<class IndexType>
-Vec3<IndexType> Grid3D<RealType>::getCellIdx(const Vec3<RealType>& ppos)  const noexcept
+Vec2<IndexType> Grid2D<RealType>::getCellIdx(const Vec2<RealType>& ppos)  const noexcept
 {
-    return Vec3<IndexType>(static_cast<IndexType>((ppos[0] - m_BMin[0]) / m_CellSize),
+    return Vec2<IndexType>(static_cast<IndexType>((ppos[0] - m_BMin[0]) / m_CellSize),
                            static_cast<IndexType>((ppos[1] - m_BMin[1]) / m_CellSize),
                            static_cast<IndexType>((ppos[2] - m_BMin[2]) / m_CellSize));
 }
@@ -167,7 +161,7 @@ Vec3<IndexType> Grid3D<RealType>::getCellIdx(const Vec3<RealType>& ppos)  const 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
 template<class IndexType>
-Vec3<IndexType> Grid3D<RealType>::getValidCellIdx(const Vec3<RealType>& ppos)  const noexcept
+Vec2<IndexType> Grid2D<RealType>::getValidCellIdx(const Vec2<RealType>& ppos)  const noexcept
 {
     return getNearestValidCellIdx<IndexType>(getCellIdx<IndexType>(ppos));
 }
@@ -175,9 +169,9 @@ Vec3<IndexType> Grid3D<RealType>::getValidCellIdx(const Vec3<RealType>& ppos)  c
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
 template<class IndexType>
-Vec3<IndexType> Grid3D<RealType>::getNearestValidCellIdx(const Vec3<IndexType>& cellIdx) const noexcept
+Vec2<IndexType> Grid2D<RealType>::getNearestValidCellIdx(const Vec2<IndexType>& cellIdx) const noexcept
 {
-    Vec3<IndexType> nearestCellIdx;
+    Vec2<IndexType> nearestCellIdx;
 
     for(int i = 0; i < 3; ++i)
         nearestCellIdx[i] = std::max<IndexType>(0, std::min<IndexType>(cellIdx[i], static_cast<IndexType>(m_NumCells[i]) - 1));
@@ -187,16 +181,16 @@ Vec3<IndexType> Grid3D<RealType>::getNearestValidCellIdx(const Vec3<IndexType>& 
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-void Banana::Grid3D<RealType>::constraintToGrid(Vec_Vec3<RealType>& particles)
+void Banana::Grid2D<RealType>::constraintToGrid(Vec_Vec2<RealType>& particles)
 {
     const RealType       epsilon = 1e-9;
-    const Vec3<RealType> minPos  = m_BMin + Vec3<RealType>(epsilon);
-    const Vec3<RealType> maxPos  = m_BMax - Vec3<RealType>(epsilon);
+    const Vec2<RealType> minPos  = m_BMin + Vec2<RealType>(epsilon);
+    const Vec2<RealType> maxPos  = m_BMax - Vec2<RealType>(epsilon);
 
     ParallelFuncs::parallel_for<size_t>(0, particles.size(),
                                         [&](size_t p)
                                         {
-                                            Vec3<RealType> pos = particles[p];
+                                            Vec2<RealType> pos = particles[p];
                                             bool dirty = false;
 
                                             for(int i = 0; i < 3; ++i)

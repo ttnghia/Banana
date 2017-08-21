@@ -28,16 +28,20 @@ class Grid3DHashing : public Grid3D<RealType>
 {
 public:
     Grid3DHashing() = default;
-    Grid3DHashing(const Vec3<RealType>& bMin, const Vec3<RealType>& bMax, RealType cellSize) : Grid3D(bMin, bMax, cellSize) {}
+    Grid3DHashing(const Vec3<RealType>& bMin, const Vec3<RealType>& bMax, RealType cellSize) : Grid3D(bMin, bMax, cellSize), m_bCellIdxNeedResize(true) {}
 
     virtual void setCellSize(RealType cellSize) override;
 
-    void            collectIndexToCells(Vec_Vec3<RealType>& particles);
-    void            getNeighborList(const Vec_Vec3<RealType>& particles, Vec_VecUInt& neighborList, int cellSpan = 1);
-    void            getNeighborList(const Vec3<RealType>& ppos, Vec_UInt& neighborList, int cellSpan = 1);
-    void            getNeighborList(const Vec_Vec3<RealType>& particles, Vec_VecUInt& neighborList, RealType d2, int cellSpan = 1);
-    void            getNeighborList(const Vec_Vec3<RealType>& particles, const Vec3<RealType>& ppos, Vec_UInt& neighborList, RealType d2, int cellSpan = 1);
+    void collectIndexToCells(const Vec_Vec3<RealType>& particles);
+    void getNeighborList(const Vec_Vec3<RealType>& particles, Vec_VecUInt& neighborList, int cellSpan = 1);
+    void getNeighborList(const Vec3<RealType>& ppos, Vec_UInt& neighborList, int cellSpan = 1);
+    void getNeighborList(const Vec_Vec3<RealType>& particles, Vec_VecUInt& neighborList, RealType d2, int cellSpan = 1);
+    void getNeighborList(const Vec_Vec3<RealType>& particles, const Vec3<RealType>& ppos, Vec_UInt& neighborList, RealType d2, int cellSpan = 1);
+
     const Vec_UInt& getParticleIdxSortedByCell();
+
+    template<class IndexType>
+    const Vec_UInt& getParticleIdx(const Vec3<IndexType>& cellIdx) const { return m_CellParticleIdx(cellIdx); }
 
 private:
     Array3_VecUInt m_CellParticleIdx;
@@ -58,7 +62,7 @@ void Grid3DHashing<RealType>::setCellSize(RealType cellSize)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-void Grid3DHashing<RealType>::collectIndexToCells(Vec_Vec3<RealType>& particles)
+void Grid3DHashing<RealType>::collectIndexToCells(const Vec_Vec3<RealType>& particles)
 {
     if(m_bCellIdxNeedResize)
     {

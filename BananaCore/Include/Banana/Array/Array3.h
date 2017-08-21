@@ -165,6 +165,12 @@ public:
         m_SizeZ = static_cast<size_type>(sizeZ);
     }
 
+    void copyDataFrom(const Array3<T>& other)
+    {
+        assert(equalSize(other));
+        m_Data = other.m_Data;
+    }
+
     const T& back(void) const
     {
         assert(m_Data.size() > 0);

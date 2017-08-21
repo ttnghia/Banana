@@ -45,8 +45,8 @@ public:
     virtual Vec_Vec3<RealType>& getVelocity() override { return m_SimData->velocity; }
 
 private:
-    std::shared_ptr<SimulationParametersMPM<RealType> > m_SimParams = std::make_shared<SimulationParametersWCSPH<RealType> >();
-    std::unique_ptr<SimulationDataMPM<RealType> >       m_SimData   = std::make_unique<SimulationDataWCSPH<RealType> >();
+    std::shared_ptr<SimulationParametersMPM<RealType> > m_SimParams = std::make_shared<SimulationParameters_WCSPH<RealType> >();
+    std::unique_ptr<SimulationDataMPM<RealType> >       m_SimData   = std::make_unique<SimulationData_WCSPH<RealType> >();
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
