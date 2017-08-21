@@ -78,14 +78,13 @@ inline bool readVector(const nlohmann::json& j, Vec2<T>& vec)
 template<class T>
 inline bool readVector(const nlohmann::json& j, Vec3<T>& vec)
 {
-    unsigned int index = 0;
     if(j.is_null())
         return false;
 
     std::vector<T> values = j.get<std::vector<T> >();
     __BNN_ASSERT(values.size() == 3);
 
-    for(unsigned int i = 0; i < values.size(); i++)
+    for(size_t i = 0; i < values.size(); i++)
         vec[i] = values[i];
 
     return true;

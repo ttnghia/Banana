@@ -32,8 +32,8 @@ void Banana::WCSPHSolver<RealType>::loadSimParams(const nlohmann::json& jParams)
     JSONHelpers::readBool(jParams["ApplyGravity"],          m_SimParams->bApplyGravity);
     JSONHelpers::readBool(jParams["EnableSortParticle"],    m_SimParams->bEnableSortParticle);
 
-    JSONHelpers::readValue(jParams["BoundaryRestitution"],     m_SimParams->boxMax);
-    JSONHelpers::readValue(jParams["AttractivePressureRatio"], m_SimParams->boxMax);
+    JSONHelpers::readVector(jParams["BoundaryRestitution"],     m_SimParams->boxMax);
+    JSONHelpers::readVector(jParams["AttractivePressureRatio"], m_SimParams->boxMax);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -203,7 +203,7 @@ void Banana::WCSPHSolver<RealType>::computeDensity()
                                             {
                                                 for(UInt32 q : fluidPointSet.neighbors(1, p))
                                                 {
-                                                    const Vec3<RealType>& qpos = m_BoundaryObject->getBDParticle(q);
+                                                    const Vec3<RealType>& qpos = m_BoundaryObjects[0]->getBDParticle(q);
                                                     const Vec3<RealType> r = qpos - pPos;
 
                                                     pden += m_CubicKernel.W(r);
@@ -262,7 +262,7 @@ void Banana::WCSPHSolver<RealType>::correctDensity()
                                             {
                                                 for(UInt32 q : fluidPointSet.neighbors(1, p))
                                                 {
-                                                    const Vec3<RealType>& qpos = m_BoundaryObject->getBDParticle(q);
+                                                    const Vec3<RealType>& qpos = m_BoundaryObjects[0]->getBDParticle(q);
                                                     const Vec3<RealType> r = qpos - pPos;
                                                     tmp += m_CubicKernel.W(r) / m_SimParams->restDensity;
                                                 }
@@ -330,7 +330,7 @@ void Banana::WCSPHSolver<RealType>::computePressureForces()
                                             {
                                                 for(UInt32 q : fluidPointSet.neighbors(1, p))
                                                 {
-                                                    const Vec3<RealType>& qpos = m_BoundaryObject->getBDParticle(q);
+                                                    const Vec3<RealType>& qpos = m_BoundaryObjects[0]->getBDParticle(q);
                                                     const Vec3<RealType> r = qpos - pPos;
 
                                                     const Vec3<RealType> pressure = (ppressure / (pden * pden)) * m_SpikyKernel.gradW(r);
@@ -358,21 +358,21 @@ void Banana::WCSPHSolver<RealType>::computeViscosity()
     const PointSet<RealType>& fluidPointSet = m_NSearch->point_set(0);
 
     static Vec_Vec3<RealType> diffuseVelocity;
-    diffuseVelocity.resize(m_SimData->velocity.size());
+    diffuseVelocity.resize(m_SimData->velocities.size());
 
 
     ParallelFuncs::parallel_for<UInt32>(0, static_cast<UInt32>(m_SimData->positions.size()),
                                         [&](UInt32 p)
                                         {
                                             const Vec3<RealType>& pPos = m_SimData->positions[p];
-                                            const Vec3<RealType>& pvel = m_SimData->velocity[p];
+                                            const Vec3<RealType>& pvel = m_SimData->velocities[p];
 
                                             Vec3<RealType> diffuse_vel = Vec3<RealType>(0);
 
                                             for(UInt32 q : fluidPointSet.neighbors(0, p))
                                             {
                                                 const Vec3<RealType>& qpos = m_SimData->positions[q];
-                                                const Vec3<RealType>& qvel = m_SimData->velocity[q];
+                                                const Vec3<RealType>& qvel = m_SimData->velocities[q];
                                                 const RealType qden = m_SimData->density[q];
                                                 const Vec3<RealType> r = qpos - pPos;
 
@@ -383,7 +383,7 @@ void Banana::WCSPHSolver<RealType>::computeViscosity()
                                             {
                                                 for(UInt32 q : fluidPointSet.neighbors(1, p))
                                                 {
-                                                    const Vec3<RealType>& qpos = m_BoundaryObject->getBDParticle(q);
+                                                    const Vec3<RealType>& qpos = m_BoundaryObjects[0]->getBDParticle(q);
                                                     const Vec3<RealType> r = qpos - pPos;
 
                                                     diffuse_vel -= (1.0f / m_SimParams->restDensity) * m_CubicKernel.W(r) * pvel;
@@ -394,18 +394,18 @@ void Banana::WCSPHSolver<RealType>::computeViscosity()
                                         }); // end parallel_for
 
 
-    ParallelFuncs::parallel_for<size_t>(0, m_SimData->velocity.size(),
-                                        [&](size_t p) { m_SimData->velocity[p] += diffuseVelocity[p] * m_SimParams->viscosity; });
+    ParallelFuncs::parallel_for<size_t>(0, m_SimData->velocities.size(),
+                                        [&](size_t p) { m_SimData->velocities[p] += diffuseVelocity[p] * m_SimParams->viscosity; });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
 void Banana::WCSPHSolver<RealType>::updateVelocity(RealType timeStep)
 {
-    ParallelFuncs::parallel_for<size_t>(0, m_SimData->velocity.size(),
+    ParallelFuncs::parallel_for<size_t>(0, m_SimData->velocities.size(),
                                         [&](size_t p)
                                         {
-                                            m_SimData->velocity[p] += (m_SimData->pressureForces[p] + m_SimData->surfaceTensionForces[p]) * timeStep;
+                                            m_SimData->velocities[p] += (m_SimData->pressureForces[p] + m_SimData->surfaceTensionForces[p]) * timeStep;
                                         });
 }
 
@@ -419,11 +419,11 @@ void Banana::WCSPHSolver<RealType>::moveParticles(RealType timeStep)
     ParallelFuncs::parallel_for<size_t>(0, m_SimData->positions.size(),
                                         [&](size_t p)
                                         {
-                                            Vec3<RealType> pVel = m_SimData->velocity[p];
+                                            Vec3<RealType> pVel = m_SimData->velocities[p];
                                             Vec3<RealType> pPos = m_SimData->positions[p] + pVel * timeStep;
 
-                                            if(m_BoundaryObject->constrainToBoundary(pPos, pVel, m_SimParams->boundaryRestitution))
-                                                m_SimData->velocity[p] = pVel;
+                                            if(m_BoundaryObjects[0]->constrainToBoundary(pPos, pVel, m_SimParams->boundaryRestitution))
+                                                m_SimData->velocities[p] = pVel;
                                             m_SimData->positions[p] = pPos;
                                         }); // end parallel_for
 }

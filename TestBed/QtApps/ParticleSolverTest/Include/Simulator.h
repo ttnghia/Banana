@@ -19,6 +19,7 @@
 
 #include <Banana/Macros.h>
 #include <ParticleSolvers/SPH/WCSPH/WCSPHSolver.h>
+#include <ParticleSolvers/FLIP/FLIP3DSolver.h>
 
 #include <QObject>
 #include <QStringList>

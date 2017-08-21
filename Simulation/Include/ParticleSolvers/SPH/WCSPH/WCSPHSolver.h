@@ -27,7 +27,7 @@ namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-class WCSPHSolver : public ParticleSolver<RealType>
+class WCSPHSolver : public ParticleSolver3D<RealType>
 {
 public:
     WCSPHSolver()  = default;
@@ -44,7 +44,7 @@ public:
     virtual std::string getSolverName() override { return std::string("WCSPHSolver"); }
     virtual unsigned int        getNumParticles() override { return static_cast<unsigned int>(m_SimData->positions.size()); }
     virtual Vec_Vec3<RealType>& getParticlePositions() override { return m_SimData->positions; }
-    virtual Vec_Vec3<RealType>& getParticleVelocities() override { return m_SimData->velocity; }
+    virtual Vec_Vec3<RealType>& getParticleVelocities() override { return m_SimData->velocities; }
 
 protected:
     virtual void loadSimParams(const nlohmann::json& jParams) override;

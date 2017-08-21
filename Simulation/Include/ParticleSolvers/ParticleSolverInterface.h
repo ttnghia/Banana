@@ -126,8 +126,8 @@ void Banana::ParticleSolver<RealType>::loadScene(const std::string& sceneFile)
         return;
     }
 
-    nlohmann::json j;
-    j << inputFile;
+    nlohmann::json jParams;
+    jParams << inputFile;
 
     __BNN_ASSERT(jParams.find("FrameParameters") != jParams.end());
     __BNN_ASSERT(jParams.find("ObjectParameters") != jParams.end());
@@ -136,22 +136,22 @@ void Banana::ParticleSolver<RealType>::loadScene(const std::string& sceneFile)
     ////////////////////////////////////////////////////////////////////////////////
     // read frame parameters
     {
-        nlohmann::json jParams = j["FrameParameters"];
-        loadFrameParams(jParams);
+        nlohmann::json jFrameParams = jParams["FrameParameters"];
+        loadFrameParams(jFrameParams);
     }
 
     ////////////////////////////////////////////////////////////////////////////////
     // read simulation parameters
     {
-        nlohmann::json jParams = j["SimulationParameters"];
-        loadSimParams(jParams); // do this by specific solver
+        nlohmann::json jSimParams = jParams["SimulationParameters"];
+        loadSimParams(jSimParams); // do this by specific solver
     }
 
     ////////////////////////////////////////////////////////////////////////////////
     // read object parameters and generate scene
     {
-        nlohmann::json jParams = j["ObjectParameters"];
-        loadObjectParams(jParams);
+        nlohmann::json jObjectParams = jParams["ObjectParameters"];
+        loadObjectParams(jObjectParams);
     }
 }
 
@@ -173,7 +173,7 @@ void Banana::ParticleSolver<RealType>::loadFrameParams(const nlohmann::json& jPa
 template<class RealType>
 void Banana::ParticleSolver<RealType>::loadObjectParams(const nlohmann::json& jParams)
 {
-    void(jParams);
+    (void)jParams;
 #if 0
     ////////////////////////////////////////////////////////////////////////////////
     // read boundary objects

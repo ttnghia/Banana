@@ -80,7 +80,7 @@ template<class RealType>
 struct SimulationData_WCSPH
 {
     Vec_Vec3<RealType> positions;
-    Vec_Vec3<RealType> velocity;
+    Vec_Vec3<RealType> velocities;
     Vec_Real<RealType> density;
     Vec_Vec3<RealType> pressureForces;
     Vec_Vec3<RealType> surfaceTensionForces;
@@ -89,7 +89,7 @@ struct SimulationData_WCSPH
     ////////////////////////////////////////////////////////////////////////////////
     void makeReady()
     {
-        velocity.resize(positions.size(), Vec3<RealType>(0));
+        velocities.resize(positions.size(), Vec3<RealType>(0));
         density.resize(positions.size(), 0);
         pressureForces.resize(positions.size(), Vec3<RealType>(0));
         surfaceTensionForces.resize(positions.size(), Vec3<RealType>(0));
