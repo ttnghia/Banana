@@ -28,10 +28,15 @@ win32 {
         message("QtAppHelpers -- Debug")
         QMAKE_CXXFLAGS += /DEBUG /Zi /D "_DEBUG" /wd"4305"
         LIBS += $$PWD/../Build/DebugQt/QtAppHelpers.lib
-    }else {
+    }
+    else {
         message("QtAppHelpers -- Release")
         QMAKE_CXXFLAGS += /O2 /Ob2 /GL /Qpar /wd"4305"
-        LIBS += $$PWD/../Build/ReleaseQt/QtAppHelpers.lib
+        static {
+            LIBS += $$PWD/../Build/ReleaseStaticBuild/QtAppHelpers.lib
+        } else {
+            LIBS += $$PWD/../Build/ReleaseQt/QtAppHelpers.lib
+        }
     }
 }
 
@@ -42,7 +47,8 @@ macx {
         message("QtAppHelpers -- Debug")
         QMAKE_CXXFLAGS += -O0 -g
         LIBS += $$PWD/../Build/Debug/libQtAppHelpers.a
-    }else {
+    }
+    else {
         message("QtAppHelpers -- Release")
         QMAKE_CXXFLAGS += -O3
         LIBS += $$PWD/../Build/Release/libQtAppHelpers.a
@@ -54,14 +60,14 @@ include($$[QT_INSTALL_EXAMPLES]/widgets/painting/shared/shared.pri)
 
 INCLUDEPATH += $$PWD/Include
 INCLUDEPATH += $$PWD/../Externals/glm
-INCLUDEPATH += $$PWD/../Externals/AntTweakBar/include
+#INCLUDEPATH += $$PWD/../Externals/AntTweakBar/include
 
-win32 {
-    LIBS += -lAntTweakBar64 -L$$PWD/../Externals/AntTweakBar/lib
-}
-macx {
-    LIBS += -lAntTweakBar -L$$PWD/../Externals/AntTweakBar/lib
-}
+#win32 {
+#    LIBS += -lAntTweakBar64 -L$$PWD/../Externals/AntTweakBar/lib
+#}
+#macx {
+#    LIBS += -lAntTweakBar -L$$PWD/../Externals/AntTweakBar/lib
+#}
 
 #message(Qt version: $$[QT_VERSION])
 #message(Qt is installed in $$[QT_INSTALL_PREFIX])

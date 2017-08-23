@@ -10,6 +10,11 @@
     <QTDIR>C:\Qt\Qt5.9.1\5.9.1\msvc2017_64</QTDIR>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">
+    <LocalDebuggerEnvironment>PATH=$(QTDIR)\bin%3b"$(QTDIR)\bin%3b$(QTDIR)\bin%3b"$(QTDIR)\bin%3b$(QTDIR)\bin%3b$(SolutionDir)TestBed\QtApps\OpenGLTest\Libs%3b$(QTDIR)\bin%3b$(PATH)</LocalDebuggerEnvironment>
+    <QTDIR>C:\Qt\Qt5.9.1\5.9.1\msvc2017_64</QTDIR>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
   <PropertyGroup>
     <ShowAllFiles>false</ShowAllFiles>
   </PropertyGroup>

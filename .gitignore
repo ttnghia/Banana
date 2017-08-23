@@ -3,6 +3,7 @@
 **/*.opendb
 **/Debug/*
 **/Release/*
+**/ReleaseStaticBuild/*
 Build/**
 *.pro.user
 **/tinyply.h

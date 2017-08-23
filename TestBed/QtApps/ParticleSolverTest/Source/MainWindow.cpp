@@ -187,11 +187,11 @@ void MainWindow::connectWidgets()
 
     ////////////////////////////////////////////////////////////////////////////////
     // simulation
-    connect(m_Controller->m_cbSimulationScene, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
-            [&](int index)
-            {
+//    connect(m_Controller->m_cbSimulationScene, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+//            [&](int index)
+//            {
 //                m_Simulator->changeScene(static_cast<SimulationScenes::Scene>(index));
-            });
+//            });
 
     connect(m_Controller->m_btnStartStopSimulation, &QPushButton::clicked, [&]
     {

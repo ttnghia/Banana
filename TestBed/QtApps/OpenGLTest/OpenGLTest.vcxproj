@@ -1,6 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="ReleaseStaticBuild|x64">
+      <Configuration>ReleaseStaticBuild</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Release|x64">
       <Configuration>Release</Configuration>
       <Platform>x64</Platform>
@@ -26,6 +30,14 @@
     <PrimaryOutput>OpenGLTest</PrimaryOutput>
     <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'" Label="Configuration">
+    <PlatformToolSet>v141</PlatformToolSet>
+    <ATLMinimizesCRunTimeLibraryUsage>false</ATLMinimizesCRunTimeLibraryUsage>
+    <CharacterSet>NotSet</CharacterSet>
+    <ConfigurationType>Application</ConfigurationType>
+    <PrimaryOutput>OpenGLTest</PrimaryOutput>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <PlatformToolSet>v141</PlatformToolSet>
     <ATLMinimizesCRunTimeLibraryUsage>false</ATLMinimizesCRunTimeLibraryUsage>
@@ -38,16 +50,24 @@
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" />
   </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" />
+  </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)$(Configuration)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">$(ProjectDir)$(Configuration)\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">D:\Scratch\MSVC-Build\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">D:\Scratch\MSVC-Build\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">OpenGLTest</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">OpenGLTest</TargetName>
     <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</IgnoreImportLibrary>
+    <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</IgnoreImportLibrary>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">false</LinkIncremental>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)$(Configuration)\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">D:\Scratch\MSVC-Build\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">OpenGLTest</TargetName>
@@ -57,6 +77,9 @@
     <IncludePath>$(SolutionDir)Externals\tinyply\source;$(SolutionDir)Externals\tinyobjloader;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>$(SolutionDir)Externals\tinyply\source;$(SolutionDir)Externals\tinyobjloader;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">
     <IncludePath>$(SolutionDir)Externals\tinyply\source;$(SolutionDir)Externals\tinyobjloader;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -83,7 +106,52 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>$(QTDIR)\lib\qtmain.lib;shell32.lib;D:\Programming\Banana\Build\ReleaseQt\QtAppHelpers.lib;AntTweakBar64.lib;D:\Programming\Banana\Build\ReleaseQt\OpenGLHelpers.lib;$(QTDIR)\lib\Qt5OpenGL.lib;$(QTDIR)\lib\Qt5Widgets.lib;$(QTDIR)\lib\Qt5Gui.lib;$(QTDIR)\lib\Qt5Core.lib;opengl32.lib;glu32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(QTDIR)\lib\qtmain.lib;shell32.lib;D:\Programming\Banana\Build\ReleaseQt\QtAppHelpers.lib;D:\Programming\Banana\Build\ReleaseQt\OpenGLHelpers.lib;$(QTDIR)\lib\Qt5OpenGL.lib;$(QTDIR)\lib\Qt5Widgets.lib;$(QTDIR)\lib\Qt5Gui.lib;$(QTDIR)\lib\Qt5Core.lib;opengl32.lib;glu32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(QTDIR)\lib;C:\utils\my_sql\my_sql\lib;C:\utils\postgresql\pgsql\lib;$(QTDIR)\lib;D:\Programming\Banana\Externals\AntTweakBar\lib;D:\Programming\Banana\Externals\glew-2.0.0\lib\Release\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>"/MANIFESTDEPENDENCY:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' publicKeyToken='6595b64144ccf1df' language='*' processorArchitecture='*'" %(AdditionalOptions)</AdditionalOptions>
+      <DataExecutionPrevention>true</DataExecutionPrevention>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <IgnoreImportLibrary>true</IgnoreImportLibrary>
+      <LinkIncremental>false</LinkIncremental>
+      <OutputFile>$(OutDir)\OpenGLTest.exe</OutputFile>
+      <RandomizedBaseAddress>true</RandomizedBaseAddress>
+      <SubSystem>Console</SubSystem>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Link>
+    <Midl>
+      <DefaultCharType>Unsigned</DefaultCharType>
+      <EnableErrorChecks>None</EnableErrorChecks>
+      <WarningLevel>0</WarningLevel>
+    </Midl>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_WINDOWS;UNICODE;WIN32;WIN64;QT_OPENGL_SUPPORT;QT_NO_DEBUG;QT_OPENGL_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_CORE_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>.;.\..\..\..\BananaCore\Include;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared;.\..\..\..\QtAppHelpers\Include;.\..\..\..\Externals\glm;.\..\..\..\Externals\AntTweakBar\include;.\..\..\..\OpenGLHelpers\Include;.\..\..\..\Externals\glew-2.0.0\include;$(QTDIR)\include;$(QTDIR)\include\QtOpenGL;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtCore;.\release;$(QTDIR)\mkspecs\win32-msvc2015;D:\Scratch\MSVC-Build\Banana\TestBed\OpenGLTest\$(ConfigurationName);D:\Scratch\MSVC-Build\Banana\TestBed\OpenGLTest\GeneratedFiles;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/std:c++latest -Zc:strictStrings -Zc:throwingNew /Qpar -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
+      <AssemblerListingLocation>release\</AssemblerListingLocation>
+      <BrowseInformation>false</BrowseInformation>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <DisableSpecificWarnings>4577;4467;4305;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <Optimization>MaxSpeed</Optimization>
+      <PreprocessorDefinitions>_WINDOWS;UNICODE;WIN32;WIN64;QT_OPENGL_SUPPORT;QT_NO_DEBUG;QT_OPENGL_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_CORE_LIB;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessToFile>false</PreprocessToFile>
+      <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <WarningLevel>Level3</WarningLevel>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>$(QTDIR)\lib\qtmain.lib;shell32.lib;D:\Programming\Banana\Build\ReleaseQt\QtAppHelpers.lib;D:\Programming\Banana\Build\ReleaseQt\OpenGLHelpers.lib;$(QTDIR)\lib\Qt5OpenGL.lib;$(QTDIR)\lib\Qt5Widgets.lib;$(QTDIR)\lib\Qt5Gui.lib;$(QTDIR)\lib\Qt5Core.lib;opengl32.lib;glu32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(QTDIR)\lib;C:\utils\my_sql\my_sql\lib;C:\utils\postgresql\pgsql\lib;$(QTDIR)\lib;D:\Programming\Banana\Externals\AntTweakBar\lib;D:\Programming\Banana\Externals\glew-2.0.0\lib\Release\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>"/MANIFESTDEPENDENCY:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' publicKeyToken='6595b64144ccf1df' language='*' processorArchitecture='*'" %(AdditionalOptions)</AdditionalOptions>
       <DataExecutionPrevention>true</DataExecutionPrevention>
@@ -126,7 +194,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>$(QTDIR)\lib\qtmaind.lib;shell32.lib;D:\Programming\Banana\Build\DebugQt\QtAppHelpers.lib;AntTweakBar64.lib;D:\Programming\Banana\Build\DebugQt\OpenGLHelpers.lib;$(QTDIR)\lib\Qt5OpenGLd.lib;$(QTDIR)\lib\Qt5Widgetsd.lib;$(QTDIR)\lib\Qt5Guid.lib;$(QTDIR)\lib\Qt5Cored.lib;opengl32.lib;glu32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(QTDIR)\lib\qtmaind.lib;shell32.lib;D:\Programming\Banana\Build\DebugQt\QtAppHelpers.lib;D:\Programming\Banana\Build\DebugQt\OpenGLHelpers.lib;$(QTDIR)\lib\Qt5OpenGLd.lib;$(QTDIR)\lib\Qt5Widgetsd.lib;$(QTDIR)\lib\Qt5Guid.lib;$(QTDIR)\lib\Qt5Cored.lib;opengl32.lib;glu32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(QTDIR)\lib;C:\utils\my_sql\my_sql\lib;C:\utils\postgresql\pgsql\lib;$(QTDIR)\lib;D:\Programming\Banana\Externals\AntTweakBar\lib;D:\Programming\Banana\Externals\glew-2.0.0\lib\Release\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions>"/MANIFESTDEPENDENCY:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' publicKeyToken='6595b64144ccf1df' language='*' processorArchitecture='*'" %(AdditionalOptions)</AdditionalOptions>
       <DataExecutionPrevention>true</DataExecutionPrevention>
@@ -149,17 +217,22 @@
   <ItemGroup>
     <ClCompile Include="..\..\..\..\..\Scratch\MSVC-Build\Banana\TestBed\OpenGLTest\Debug\moc_arthurwidgets.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\..\..\..\..\Scratch\MSVC-Build\Banana\TestBed\OpenGLTest\Debug\moc_hoverpoints.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\..\..\..\..\Scratch\MSVC-Build\Banana\TestBed\OpenGLTest\Debug\moc_MainWindow.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\..\..\..\..\Scratch\MSVC-Build\Banana\TestBed\OpenGLTest\GeneratedFiles\qrc_shared.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
       </PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">
       </PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\..\..\..\..\Scratch\MSVC-Build\Banana\TestBed\OpenGLTest\Release\moc_arthurwidgets.cpp">
@@ -180,40 +253,53 @@
   <ItemGroup>
     <CustomBuild Include="MainWindow.h">
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "D:\Scratch\MSVC-Build\Banana\TestBed\OpenGLTest\$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DUNICODE -DWIN32 -DWIN64 -DQT_OPENGL_SUPPORT -DQT_NO_DEBUG -DQT_OPENGL_LIB -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB -DNDEBUG  "-I." "-I.\..\..\..\BananaCore\Include" "-IC:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared" "-I.\..\..\..\QtAppHelpers\Include" "-I.\..\..\..\Externals\glm" "-I.\..\..\..\Externals\AntTweakBar\include" "-I.\..\..\..\OpenGLHelpers\Include" "-I.\..\..\..\Externals\glew-2.0.0\include" "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtOpenGL" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I.\release" "-I$(QTDIR)\mkspecs\win32-msvc2015" "-ID:\Scratch\MSVC-Build\Banana\TestBed\OpenGLTest\$(ConfigurationName)\." "-ID:\Scratch\MSVC-Build\Banana\TestBed\OpenGLTest\GeneratedFiles"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "D:\Scratch\MSVC-Build\Banana\TestBed\OpenGLTest\$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DUNICODE -DWIN32 -DWIN64 -DQT_OPENGL_SUPPORT -DQT_NO_DEBUG -DQT_OPENGL_LIB -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB -DNDEBUG  "-I." "-I.\..\..\..\BananaCore\Include" "-IC:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared" "-I.\..\..\..\QtAppHelpers\Include" "-I.\..\..\..\Externals\glm" "-I.\..\..\..\Externals\AntTweakBar\include" "-I.\..\..\..\OpenGLHelpers\Include" "-I.\..\..\..\Externals\glew-2.0.0\include" "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtOpenGL" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I.\release" "-I$(QTDIR)\mkspecs\win32-msvc2015" "-ID:\Scratch\MSVC-Build\Banana\TestBed\OpenGLTest\$(ConfigurationName)\." "-ID:\Scratch\MSVC-Build\Banana\TestBed\OpenGLTest\GeneratedFiles"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Moc%27ing MainWindow.h...</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">Moc%27ing MainWindow.h...</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "D:\Scratch\MSVC-Build\Banana\TestBed\OpenGLTest\$(ConfigurationName)\moc_%(Filename).cpp"  -DEBUG -D_WINDOWS -DUNICODE -DWIN32 -DWIN64 -DQT_OPENGL_SUPPORT -DQT_OPENGL_LIB -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB  "-I." "-I.\..\..\..\BananaCore\Include" "-IC:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared" "-I.\..\..\..\QtAppHelpers\Include" "-I.\..\..\..\Externals\glm" "-I.\..\..\..\Externals\AntTweakBar\include" "-I.\..\..\..\OpenGLHelpers\Include" "-I.\..\..\..\Externals\glew-2.0.0\include" "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtOpenGL" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I.\debug" "-I$(QTDIR)\mkspecs\win32-msvc2015" "-ID:\Scratch\MSVC-Build\Banana\TestBed\OpenGLTest\$(ConfigurationName)\." "-ID:\Scratch\MSVC-Build\Banana\TestBed\OpenGLTest\GeneratedFiles"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Moc%27ing MainWindow.h...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\..\..\..\Scratch\MSVC-Build\Banana\TestBed\OpenGLTest\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\..\..\..\Scratch\MSVC-Build\Banana\TestBed\OpenGLTest\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">..\..\..\..\..\Scratch\MSVC-Build\Banana\TestBed\OpenGLTest\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
     </CustomBuild>
     <ClInclude Include="C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\arthurstyle.h" />
     <CustomBuild Include="C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\arthurwidgets.h">
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "D:\Scratch\MSVC-Build\Banana\TestBed\OpenGLTest\$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DUNICODE -DWIN32 -DWIN64 -DQT_OPENGL_SUPPORT -DQT_NO_DEBUG -DQT_OPENGL_LIB -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB -DNDEBUG  "-I." "-I.\..\..\..\BananaCore\Include" "-IC:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared" "-I.\..\..\..\QtAppHelpers\Include" "-I.\..\..\..\Externals\glm" "-I.\..\..\..\Externals\AntTweakBar\include" "-I.\..\..\..\OpenGLHelpers\Include" "-I.\..\..\..\Externals\glew-2.0.0\include" "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtOpenGL" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I.\release" "-I$(QTDIR)\mkspecs\win32-msvc2015" "-ID:\Scratch\MSVC-Build\Banana\TestBed\OpenGLTest\$(ConfigurationName)\." "-ID:\Scratch\MSVC-Build\Banana\TestBed\OpenGLTest\GeneratedFiles"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "D:\Scratch\MSVC-Build\Banana\TestBed\OpenGLTest\$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DUNICODE -DWIN32 -DWIN64 -DQT_OPENGL_SUPPORT -DQT_NO_DEBUG -DQT_OPENGL_LIB -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB -DNDEBUG  "-I." "-I.\..\..\..\BananaCore\Include" "-IC:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared" "-I.\..\..\..\QtAppHelpers\Include" "-I.\..\..\..\Externals\glm" "-I.\..\..\..\Externals\AntTweakBar\include" "-I.\..\..\..\OpenGLHelpers\Include" "-I.\..\..\..\Externals\glew-2.0.0\include" "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtOpenGL" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I.\release" "-I$(QTDIR)\mkspecs\win32-msvc2015" "-ID:\Scratch\MSVC-Build\Banana\TestBed\OpenGLTest\$(ConfigurationName)\." "-ID:\Scratch\MSVC-Build\Banana\TestBed\OpenGLTest\GeneratedFiles"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Moc%27ing arthurwidgets.h...</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">Moc%27ing arthurwidgets.h...</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "D:\Scratch\MSVC-Build\Banana\TestBed\OpenGLTest\$(ConfigurationName)\moc_%(Filename).cpp"  -DEBUG -D_WINDOWS -DUNICODE -DWIN32 -DWIN64 -DQT_OPENGL_SUPPORT -DQT_OPENGL_LIB -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB  "-I." "-I.\..\..\..\BananaCore\Include" "-IC:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared" "-I.\..\..\..\QtAppHelpers\Include" "-I.\..\..\..\Externals\glm" "-I.\..\..\..\Externals\AntTweakBar\include" "-I.\..\..\..\OpenGLHelpers\Include" "-I.\..\..\..\Externals\glew-2.0.0\include" "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtOpenGL" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I.\debug" "-I$(QTDIR)\mkspecs\win32-msvc2015" "-ID:\Scratch\MSVC-Build\Banana\TestBed\OpenGLTest\$(ConfigurationName)\." "-ID:\Scratch\MSVC-Build\Banana\TestBed\OpenGLTest\GeneratedFiles"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Moc%27ing arthurwidgets.h...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\..\..\..\Scratch\MSVC-Build\Banana\TestBed\OpenGLTest\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\..\..\..\Scratch\MSVC-Build\Banana\TestBed\OpenGLTest\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">..\..\..\..\..\Scratch\MSVC-Build\Banana\TestBed\OpenGLTest\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
     </CustomBuild>
     <CustomBuild Include="C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\hoverpoints.h">
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "D:\Scratch\MSVC-Build\Banana\TestBed\OpenGLTest\$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DUNICODE -DWIN32 -DWIN64 -DQT_OPENGL_SUPPORT -DQT_NO_DEBUG -DQT_OPENGL_LIB -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB -DNDEBUG  "-I." "-I.\..\..\..\BananaCore\Include" "-IC:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared" "-I.\..\..\..\QtAppHelpers\Include" "-I.\..\..\..\Externals\glm" "-I.\..\..\..\Externals\AntTweakBar\include" "-I.\..\..\..\OpenGLHelpers\Include" "-I.\..\..\..\Externals\glew-2.0.0\include" "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtOpenGL" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I.\release" "-I$(QTDIR)\mkspecs\win32-msvc2015" "-ID:\Scratch\MSVC-Build\Banana\TestBed\OpenGLTest\$(ConfigurationName)\." "-ID:\Scratch\MSVC-Build\Banana\TestBed\OpenGLTest\GeneratedFiles"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "D:\Scratch\MSVC-Build\Banana\TestBed\OpenGLTest\$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DUNICODE -DWIN32 -DWIN64 -DQT_OPENGL_SUPPORT -DQT_NO_DEBUG -DQT_OPENGL_LIB -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB -DNDEBUG  "-I." "-I.\..\..\..\BananaCore\Include" "-IC:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared" "-I.\..\..\..\QtAppHelpers\Include" "-I.\..\..\..\Externals\glm" "-I.\..\..\..\Externals\AntTweakBar\include" "-I.\..\..\..\OpenGLHelpers\Include" "-I.\..\..\..\Externals\glew-2.0.0\include" "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtOpenGL" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I.\release" "-I$(QTDIR)\mkspecs\win32-msvc2015" "-ID:\Scratch\MSVC-Build\Banana\TestBed\OpenGLTest\$(ConfigurationName)\." "-ID:\Scratch\MSVC-Build\Banana\TestBed\OpenGLTest\GeneratedFiles"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Moc%27ing hoverpoints.h...</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">Moc%27ing hoverpoints.h...</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "D:\Scratch\MSVC-Build\Banana\TestBed\OpenGLTest\$(ConfigurationName)\moc_%(Filename).cpp"  -DEBUG -D_WINDOWS -DUNICODE -DWIN32 -DWIN64 -DQT_OPENGL_SUPPORT -DQT_OPENGL_LIB -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB  "-I." "-I.\..\..\..\BananaCore\Include" "-IC:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared" "-I.\..\..\..\QtAppHelpers\Include" "-I.\..\..\..\Externals\glm" "-I.\..\..\..\Externals\AntTweakBar\include" "-I.\..\..\..\OpenGLHelpers\Include" "-I.\..\..\..\Externals\glew-2.0.0\include" "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtOpenGL" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I.\debug" "-I$(QTDIR)\mkspecs\win32-msvc2015" "-ID:\Scratch\MSVC-Build\Banana\TestBed\OpenGLTest\$(ConfigurationName)\." "-ID:\Scratch\MSVC-Build\Banana\TestBed\OpenGLTest\GeneratedFiles"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Moc%27ing hoverpoints.h...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\..\..\..\Scratch\MSVC-Build\Banana\TestBed\OpenGLTest\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\..\..\..\Scratch\MSVC-Build\Banana\TestBed\OpenGLTest\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">..\..\..\..\..\Scratch\MSVC-Build\Banana\TestBed\OpenGLTest\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="debug\moc_predefs.h.cbt">
       <FileType>Document</FileType>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\mkspecs\features\data\dummy.cpp;%(AdditionalInputs)</AdditionalInputs>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">cl -Bx"$(QTDIR)\bin\qmake.exe" -nologo -Zc:wchar_t -FS -Zc:strictStrings -Zc:throwingNew /DEBUG /Zi /D _DEBUG -Zi -MDd -GR -W3 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 -wd4577 -wd4467 -E -Za $(QTDIR)\mkspecs\features\data\dummy.cpp 2&gt;NUL &gt;debug\moc_predefs.h</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Generate moc_predefs.h</Message>
@@ -222,9 +308,13 @@
     <CustomBuild Include="release\moc_predefs.h.cbt">
       <FileType>Document</FileType>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)\mkspecs\features\data\dummy.cpp;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">$(QTDIR)\mkspecs\features\data\dummy.cpp;%(AdditionalInputs)</AdditionalInputs>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">cl -Bx"$(QTDIR)\bin\qmake.exe" -nologo -Zc:wchar_t -FS -Zc:strictStrings -Zc:throwingNew /O2 /Ob2 /GL /Qpar -O2 -MD -GR -W3 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 -wd4577 -wd4467 -E -Za $(QTDIR)\mkspecs\features\data\dummy.cpp 2&gt;NUL &gt;release\moc_predefs.h</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">cl -Bx"$(QTDIR)\bin\qmake.exe" -nologo -Zc:wchar_t -FS -Zc:strictStrings -Zc:throwingNew /O2 /Ob2 /GL /Qpar -O2 -MD -GR -W3 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 -wd4577 -wd4467 -E -Za $(QTDIR)\mkspecs\features\data\dummy.cpp 2&gt;NUL &gt;release\moc_predefs.h</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Generate moc_predefs.h</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">Generate moc_predefs.h</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">release\moc_predefs.h;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">release\moc_predefs.h;%(Outputs)</Outputs>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </CustomBuild>
   </ItemGroup>
@@ -232,129 +322,163 @@
     <None Include="C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\button_normal_cap_left.png">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\button_normal_cap_right.png">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\button_normal_stretch.png">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\button_pressed_cap_left.png">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\button_pressed_cap_right.png">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\button_pressed_stretch.png">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\frame_bottom.png">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\frame_bottomleft.png">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\frame_bottomright.png">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\frame_left.png">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\frame_right.png">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\frame_top.png">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\frame_topleft.png">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\frame_topright.png">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\groupframe_bottom_left.png">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\groupframe_bottom_right.png">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\groupframe_bottom_stretch.png">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\groupframe_left_stretch.png">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\groupframe_right_stretch.png">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\groupframe_top_stretch.png">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\groupframe_topleft.png">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\groupframe_topright.png">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\line_dash_dot.png">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\line_dash_dot_dot.png">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\line_dashed.png">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\line_dotted.png">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\line_solid.png">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\radiobutton-on.png">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\radiobutton_off.png">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\radiobutton_on.png">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </None>
     <CustomBuild Include="C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\shared.qrc">
       <FileType>Document</FileType>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(FullPath);C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\button_normal_cap_left.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\button_normal_cap_right.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\button_normal_stretch.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\button_pressed_cap_left.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\button_pressed_cap_right.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\button_pressed_stretch.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\radiobutton-on.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\radiobutton_on.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\radiobutton_off.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\slider_bar.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\slider_thumb_on.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\groupframe_topleft.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\groupframe_topright.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\groupframe_bottom_left.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\groupframe_bottom_right.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\groupframe_top_stretch.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\groupframe_bottom_stretch.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\groupframe_left_stretch.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\groupframe_right_stretch.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\frame_topleft.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\frame_topright.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\frame_bottomleft.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\frame_bottomright.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\frame_left.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\frame_top.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\frame_right.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\frame_bottom.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\title_cap_left.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\title_cap_right.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\title_stretch.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\line_dash_dot.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\line_dotted.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\line_dashed.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\line_solid.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\line_dash_dot_dot.png;%(AdditionalInputs)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">%(FullPath);C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\button_normal_cap_left.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\button_normal_cap_right.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\button_normal_stretch.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\button_pressed_cap_left.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\button_pressed_cap_right.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\button_pressed_stretch.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\radiobutton-on.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\radiobutton_on.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\radiobutton_off.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\slider_bar.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\slider_thumb_on.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\groupframe_topleft.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\groupframe_topright.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\groupframe_bottom_left.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\groupframe_bottom_right.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\groupframe_top_stretch.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\groupframe_bottom_stretch.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\groupframe_left_stretch.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\groupframe_right_stretch.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\frame_topleft.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\frame_topright.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\frame_bottomleft.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\frame_bottomright.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\frame_left.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\frame_top.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\frame_right.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\frame_bottom.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\title_cap_left.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\title_cap_right.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\title_stretch.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\line_dash_dot.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\line_dotted.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\line_dashed.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\line_solid.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\line_dash_dot_dot.png;%(AdditionalInputs)</AdditionalInputs>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\rcc.exe" -name "%(Filename)" -no-compress "%(FullPath)" -o D:\Scratch\MSVC-Build\Banana\TestBed\OpenGLTest\GeneratedFiles\qrc_%(Filename).cpp</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">"$(QTDIR)\bin\rcc.exe" -name "%(Filename)" -no-compress "%(FullPath)" -o D:\Scratch\MSVC-Build\Banana\TestBed\OpenGLTest\GeneratedFiles\qrc_%(Filename).cpp</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Rcc%27ing %(Identity)...</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">Rcc%27ing %(Identity)...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">D:\Scratch\MSVC-Build\Banana\TestBed\OpenGLTest\GeneratedFiles\qrc_%(Filename).cpp;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">D:\Scratch\MSVC-Build\Banana\TestBed\OpenGLTest\GeneratedFiles\qrc_%(Filename).cpp;%(Outputs)</Outputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(FullPath);C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\button_normal_cap_left.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\button_normal_cap_right.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\button_normal_stretch.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\button_pressed_cap_left.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\button_pressed_cap_right.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\button_pressed_stretch.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\radiobutton-on.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\radiobutton_on.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\radiobutton_off.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\slider_bar.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\slider_thumb_on.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\groupframe_topleft.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\groupframe_topright.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\groupframe_bottom_left.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\groupframe_bottom_right.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\groupframe_top_stretch.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\groupframe_bottom_stretch.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\groupframe_left_stretch.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\groupframe_right_stretch.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\frame_topleft.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\frame_topright.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\frame_bottomleft.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\frame_bottomright.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\frame_left.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\frame_top.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\frame_right.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\frame_bottom.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\title_cap_left.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\title_cap_right.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\title_stretch.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\line_dash_dot.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\line_dotted.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\line_dashed.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\line_solid.png;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\line_dash_dot_dot.png;%(AdditionalInputs)</AdditionalInputs>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(QTDIR)\bin\rcc.exe" -name "%(Filename)" -no-compress "%(FullPath)" -o D:\Scratch\MSVC-Build\Banana\TestBed\OpenGLTest\GeneratedFiles\qrc_%(Filename).cpp</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Rcc%27ing %(Identity)...</Message>
@@ -363,22 +487,27 @@
     <None Include="C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\slider_bar.png">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\slider_thumb_on.png">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\title_cap_left.png">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\title_cap_right.png">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\images\title_stretch.png">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="OpenGLTest.licenseheader" />
   </ItemGroup>

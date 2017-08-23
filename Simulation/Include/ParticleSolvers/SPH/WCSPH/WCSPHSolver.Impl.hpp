@@ -171,7 +171,7 @@ void Banana::WCSPHSolver<RealType>::advanceVelocity(RealType timeStep)
 template<class RealType>
 void Banana::WCSPHSolver<RealType>::computeDensity()
 {
-    assert(m_SimData->positions.size() == m_SimData->density.size());
+    assert(m_SimData->positions.size() == m_SimData->densities.size());
 
     const RealType            valid_lx      = m_SimParams->boxMin[0] + m_SimParams->kernelRadius;
     const RealType            valid_ux      = m_SimParams->boxMax[0] - m_SimParams->kernelRadius;
@@ -221,7 +221,7 @@ void Banana::WCSPHSolver<RealType>::correctDensity()
 {
     if(!m_SimParams->bCorrectDensity)
         return;
-    assert(m_SimData->positions.size() == m_SimData->density.size());
+    assert(m_SimData->positions.size() == m_SimData->densities.size());
 
     const RealType            valid_lx      = m_SimParams->boxMin[0] + m_SimParams->kernelRadius;
     const RealType            valid_ux      = m_SimParams->boxMax[0] - m_SimParams->kernelRadius;

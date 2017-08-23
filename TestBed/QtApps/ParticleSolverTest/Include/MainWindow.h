@@ -58,7 +58,7 @@ private:
 
     ////////////////////////////////////////////////////////////////////////////////
     std::unique_ptr<Simulator> m_Simulator             = nullptr;
-    RenderWidget*         m_RenderWidget          = nullptr;
+    RenderWidget*              m_RenderWidget          = nullptr;
     Controller*                m_Controller            = nullptr;
     QLabel*                    m_lblStatusNumParticles = nullptr;
     QLabel*                    m_lblStatusSimInfo      = nullptr;

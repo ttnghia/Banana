@@ -310,9 +310,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Include\QtAppHelpers\AntTweakBarWrapper.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <CustomBuild Include="Include\QtAppHelpers\AvgTimer.h">
       <Filter>Header Files</Filter>
     </CustomBuild>

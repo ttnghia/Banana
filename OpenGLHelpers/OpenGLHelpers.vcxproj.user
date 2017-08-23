@@ -15,6 +15,11 @@
     <QTDIR>C:\Qt\Qt5.9.1\5.9.1\msvc2017_64</QTDIR>
     <LocalDebuggerEnvironment>PATH=$(QTDIR)\bin%3b$(PATH)</LocalDebuggerEnvironment>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">
+    <QTDIR_STATIC>C:\Qt\5.9.1-static</QTDIR_STATIC>
+    <LocalDebuggerEnvironment>PATH=$(QTDIR)\bin%3b$(QTDIR_STATIC)\bin%3b$(PATH)</LocalDebuggerEnvironment>
+    <QTDIR>C:\Qt\Qt5.9.1\5.9.1\msvc2017_64</QTDIR>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseQt|x64'">
     <QTDIR>C:\Qt\Qt5.9.1\5.9.1\msvc2017_64</QTDIR>
     <LocalDebuggerEnvironment>PATH=$(QTDIR)\bin%3b$(PATH)</LocalDebuggerEnvironment>

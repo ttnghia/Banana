@@ -21,12 +21,25 @@ INCLUDEPATH += $$PWD/../Externals/json/src
 
 CONFIG += c++14
 
+static {
+    CONFIG += static
+    DEFINES += STATIC
+    message("~~~ static build ~~~") # this is for information, that the static build is done
+}
+else {
+    message("~~~ dynamic build ~~~")
+}
+
 win32 {
     #QMAKE_CXXFLAGS += /std:c++latest
     CONFIG(debug, debug|release) {
         LIBS += $$PWD/../Build/Debug/BananaCore.lib
     }else {
-        LIBS += $$PWD/../Build/Release/BananaCore.lib
+        static {
+            LIBS += $$PWD/../Build/ReleaseStaticBuild/BananaCore.lib
+        } else {
+            LIBS += $$PWD/../Build/Release/BananaCore.lib
+        }
     }
 
     INCLUDEPATH += $$PWD/../Externals/tbb_win/include

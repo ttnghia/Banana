@@ -20,7 +20,7 @@
 #include <QtAppHelpers/QtAppMacros.h>
 #include <QtAppHelpers/AvgTimer.h>
 #include <QtAppHelpers/FPSCounter.h>
-#include <QtAppHelpers/AntTweakBarWrapper.h>
+//#include <QtAppHelpers/AntTweakBarWrapper.h>
 
 #include <OpenGLHelpers/Camera.h>
 #include <OpenGLHelpers/OpenGLBuffer.h>

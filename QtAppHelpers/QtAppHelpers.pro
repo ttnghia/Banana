@@ -58,7 +58,7 @@ macx {
 }
 
 HEADERS += \
-    Include/QtAppHelpers/AntTweakBarWrapper.h \
+#    Include/QtAppHelpers/AntTweakBarWrapper.h \
     Include/QtAppHelpers/AvgTimer.h \
     Include/QtAppHelpers/BrowsePathWidget.h \
     Include/QtAppHelpers/ClipPlaneEditor.h \
