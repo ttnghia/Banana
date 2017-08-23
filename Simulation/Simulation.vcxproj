@@ -96,6 +96,14 @@
     <ClInclude Include="Include\ParticleSolvers\FLIP\FLIP2DSolver.h" />
     <ClInclude Include="Include\ParticleSolvers\FLIP\FLIP2DSolver.Impl.hpp" />
     <ClInclude Include="Include\ParticleSolvers\FLIP\FLIP3DData.h" />
+    <ClInclude Include="Include\ParticleSolvers\MPM.bk\MPMData.h" />
+    <ClInclude Include="Include\ParticleSolvers\MPM.bk\MPMMaterial.h" />
+    <ClInclude Include="Include\ParticleSolvers\MPM.bk\MPMMaterial.Impl.hpp" />
+    <ClInclude Include="Include\ParticleSolvers\MPM.bk\MPMSolver.h" />
+    <ClInclude Include="Include\ParticleSolvers\MPM.bk\MPMSolver.Impl.hpp" />
+    <ClInclude Include="Include\ParticleSolvers\MPM.bk\ShapeFunctions.h" />
+    <ClInclude Include="Include\ParticleSolvers\MPM.bk\ShapeFunctions.Impl.hpp" />
+    <ClInclude Include="Include\ParticleSolvers\MPM.bk\TimeIntegration.h" />
     <ClInclude Include="Include\ParticleSolvers\MPM\MPMData.h" />
     <ClInclude Include="Include\ParticleSolvers\MPM\MPMMaterial.h" />
     <ClInclude Include="Include\ParticleSolvers\MPM\MPMMaterial.Impl.hpp" />

@@ -211,7 +211,7 @@ void Banana::WCSPHSolver<RealType>::computeDensity()
                                             }
 
                                             ////////////////////////////////////////////////////////////////////////////////
-                                            m_SimData->density[p] = pden < 1.0 ? 0 : fmin(MathHelpers::max(pden * m_SimParams->particleMass, min_density), max_density);
+                                            m_SimData->densities[p] = pden < 1.0 ? 0 : fmin(MathHelpers::max(pden * m_SimParams->particleMass, min_density), max_density);
                                         }); // end parallel_for
 }
 
@@ -233,14 +233,11 @@ void Banana::WCSPHSolver<RealType>::correctDensity()
     const RealType            max_density   = m_SimParams->restDensity * m_SimParams->densityVariationRatio;
     const PointSet<RealType>& fluidPointSet = m_NSearch->point_set(0);
 
-    static std::vector<RealType> tmp_density;
-    tmp_density.resize(m_SimData->density.size());
-
     ParallelFuncs::parallel_for<UInt32>(0, static_cast<UInt32>(m_SimData->positions.size()),
                                         [&](UInt32 p)
                                         {
                                             const Vec3<RealType>& pPos = m_SimData->positions[p];
-                                            RealType pden = m_SimData->density[p];
+                                            RealType pden = m_SimData->densities[p];
                                             if(pden < Tiny<RealType> ())
                                                 return;
 
@@ -250,7 +247,7 @@ void Banana::WCSPHSolver<RealType>::correctDensity()
                                             {
                                                 const Vec3<RealType>& qpos = m_SimData->positions[q];
                                                 const Vec3<RealType> r = qpos - pPos;
-                                                const RealType qden = m_SimData->density[q];
+                                                const RealType qden = m_SimData->densities[q];
 
                                                 if(qden < Tiny<RealType> ())
                                                     continue;
@@ -268,10 +265,10 @@ void Banana::WCSPHSolver<RealType>::correctDensity()
                                                 }
                                             }
 
-                                            tmp_density[p] = tmp > Tiny<RealType>() ? m_SimData->density[p] / fmin(tmp * m_SimParams->particleMass, max_density) : 0;
+                                            m_SimData->densities_tmp[p] = tmp > Tiny<RealType>() ? m_SimData->densities[p] / fmin(tmp * m_SimParams->particleMass, max_density) : 0;
                                         }); // end parallel_for
 
-    std::copy(tmp_density.begin(), tmp_density.end(), m_SimData->density.begin());
+    std::copy(m_SimData->densities_tmp.begin(), m_SimData->densities_tmp.end(), m_SimData->densities.begin());
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -291,7 +288,7 @@ void Banana::WCSPHSolver<RealType>::computePressureForces()
     ParallelFuncs::parallel_for<UInt32>(0, static_cast<UInt32>(m_SimData->positions.size()),
                                         [&](UInt32 p)
                                         {
-                                            const RealType pden = m_SimData->density[p];
+                                            const RealType pden = m_SimData->densities[p];
 
                                             Vec3<RealType> pressure_accel(0, 0, 0);
 
@@ -308,7 +305,7 @@ void Banana::WCSPHSolver<RealType>::computePressureForces()
                                             for(UInt32 q : fluidPointSet.neighbors(0, p))
                                             {
                                                 const Vec3<RealType>& qpos = m_SimData->positions[q];
-                                                const RealType qden = m_SimData->density[q];
+                                                const RealType qden = m_SimData->densities[q];
 
                                                 if(qden < Tiny<RealType>())
                                                 {
@@ -373,7 +370,7 @@ void Banana::WCSPHSolver<RealType>::computeViscosity()
                                             {
                                                 const Vec3<RealType>& qpos = m_SimData->positions[q];
                                                 const Vec3<RealType>& qvel = m_SimData->velocities[q];
-                                                const RealType qden = m_SimData->density[q];
+                                                const RealType qden = m_SimData->densities[q];
                                                 const Vec3<RealType> r = qpos - pPos;
 
                                                 diffuse_vel += (1.0f / qden) * (qvel - pvel) * m_CubicKernel.W(r);

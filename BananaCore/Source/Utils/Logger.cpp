@@ -19,15 +19,17 @@
 #include <Banana/Utils/FileHelpers.h>
 #include <Banana/Utils/NumberHelpers.h>
 
+#include <csignal>
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 Logger::LogLevel Logger::s_LogLevel        = LogLevel::NormalLevel;
 bool             Logger::m_bPrintStdOut    = true;
-bool             Logger::m_bWriteLogToFile = true;
+bool             Logger::m_bWriteLogToFile = false;
 bool             Logger::m_bDataPathReady  = false;
-unsigned int     Logger::m_NumSources      = 0;
+unsigned int     Logger::m_NumSources      = 1;
 
 std::string                           Logger::m_DataPath;
 std::string                           Logger::m_LogFile;
@@ -36,9 +38,9 @@ std::chrono::system_clock::time_point Logger::m_StartupTime;
 std::chrono::system_clock::time_point Logger::m_ShutdownTime;
 std::string                           Logger::m_TotalRunTime;
 
-std::map<int, std::string>                    Logger::m_SourceNames = { { Logger::MainProgram, "Main" }, { Logger::LoggerClass, "Logger" }, { Logger::Debugger, "Debugger" } };
-std::vector<std::shared_ptr<spdlog::logger> > Logger::m_ConsoleLogger;    // = spdlog::stdout_color_mt("console");;
-std::vector<std::shared_ptr<spdlog::logger> > Logger::m_FileLogger;
+std::vector<std::string>        Logger::m_SourceNames   = { std::string("Main") };
+std::shared_ptr<spdlog::logger> Logger::m_ConsoleLogger = spdlog::stdout_color_mt("console");;
+std::shared_ptr<spdlog::logger> Logger::m_FileLogger    = nullptr;
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Logger::setDataPath(const std::string& dataPath)
@@ -146,7 +148,7 @@ void Logger::printDetailIndent(const std::string& s, int indentLevel /*= 1*/)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Logger::printAligned(int sourceID, const std::string& s, char padding, const std::string& wrapper, int maxSize)
+void Logger::printAligned(unsigned int sourceID, const std::string& s, char padding, const std::string& wrapper, int maxSize /*= 100*/)
 {
     size_t            length = s.length();
     const std::string str    = length == 0 ? s : std::string(" " + s + " ");
@@ -168,7 +170,7 @@ void Logger::printAligned(int sourceID, const std::string& s, char padding, cons
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Logger::printGreeting(int sourceID, const std::string& s)
+void Logger::printGreeting(unsigned int sourceID, const std::string& s)
 {
     Logger::printSeparator(sourceID);
     Logger::printAligned(sourceID, "", ' ');
@@ -178,7 +180,7 @@ void Logger::printGreeting(int sourceID, const std::string& s)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Logger::printWarning(int sourceID, const std::string& s, int maxSize)
+void Logger::printWarning(unsigned int sourceID, const std::string& s, int maxSize)
 {
     const std::string str         = "Warning: " + s + " ";
     size_t            paddingSize = (static_cast<size_t>(maxSize) - str.length());
@@ -187,26 +189,26 @@ void Logger::printWarning(int sourceID, const std::string& s, int maxSize)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Logger::newLine(int sourceID)
+void Logger::newLine(unsigned int sourceID /*= 0*/)
 {
     Logger::printLog(sourceID, "");
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Logger::printSeparator(int sourceID)
+void Logger::printSeparator(unsigned int sourceID /*= 0*/)
 {
     Logger::printAligned(sourceID, "", '=');
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Logger::printLog(int sourceID, const std::string& s)
+void Logger::printLog(unsigned int sourceID, const std::string& s)
 {
     printToStdOut(sourceID, s);
     logToFile(sourceID, s);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Logger::printLogIndent(int sourceID, const std::string& s, int indentLevel /*= 1*/)
+void Logger::printLogIndent(unsigned int sourceID, const std::string& s, int indentLevel /*= 1*/)
 {
     std::string logStr;
     logStr.reserve(1024);
@@ -217,7 +219,7 @@ void Logger::printLogIndent(int sourceID, const std::string& s, int indentLevel 
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Logger::printDetail(int sourceID, const std::string& s)
+void Logger::printDetail(unsigned int sourceID, const std::string& s)
 {
     if(s_LogLevel == LogLevel::DetailLevel)
     {
@@ -226,7 +228,7 @@ void Logger::printDetail(int sourceID, const std::string& s)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Logger::printDetailIndent(int sourceID, const std::string& s, int indentLevel /*= 1*/)
+void Logger::printDetailIndent(unsigned int sourceID, const std::string& s, int indentLevel /*= 1*/)
 {
     if(s_LogLevel == LogLevel::DetailLevel)
     {
@@ -259,7 +261,7 @@ void Logger::printMemoryUsage()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Logger::printMemoryUsage(int sourceID)
+void Logger::printMemoryUsage(unsigned int sourceID)
 {
     std::string str;
     str.reserve(1024);
@@ -330,6 +332,8 @@ void Logger::shutdown()
     }
 
     ////////////////////////////////////////////////////////////////////////////////
+    // TODO
+    Logger::printMemoryUsage(0);
     Logger::printLog(static_cast<int>(Source::LoggerClass), m_TotalRunTime);
     Logger::printSeparator(static_cast<int>(Source::LoggerClass));
     Logger::newLine(static_cast<int>(Source::LoggerClass));
@@ -379,16 +383,9 @@ void Logger::computeTotalRunTime()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-std::string Logger::getSourceName(int sourceID)
+std::string Logger::getSourceName(unsigned int sourceID)
 {
-    if(m_SourceNames.find(sourceID) != m_SourceNames.end())
-    {
-        return m_SourceNames[sourceID];
-    }
-    else
-    {
-        return std::string("UnknownSource");
-    }
+    __BNN_ASSERT(sourceID < m_NumSources);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -399,22 +396,23 @@ IntType Logger::getNumSources()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Logger::setSourceName(int sourceID, const std::string& sourceName)
+void Logger::setSourceName(unsigned int sourceID, const std::string& sourceName)
 {
     m_SourceNames[sourceID] = sourceName;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Logger::printToStdOut(int sourceID, const std::string& s)
+void Logger::printToStdOut(unsigned int sourceID, const std::string& s)
 {
+    // todo
     if(m_bPrintStdOut)
     {
-        m_ConsoleLogger[sourceID]->info(s);
+        m_ConsoleLogger->info(s);
     }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Logger::logToFile(int sourceID, const std::string& s)
+void Logger::logToFile(unsigned int sourceID, const std::string& s)
 {
     if(!m_bWriteLogToFile)
     {
@@ -423,7 +421,46 @@ void Logger::logToFile(int sourceID, const std::string& s)
 
     assert(m_bDataPathReady);
 
-    m_FileLogger[sourceID]->info(s);
+    // TODO
+    m_FileLogger->info(s);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void Logger::signalHandler(unsigned int signum)
+{
+    Logger::newLine(0);
+
+    switch(signum)
+    {
+        case SIGABRT:
+            printWarning(0, "Signal Abort");
+            break;
+
+        case SIGFPE:
+            printWarning(0, "Signal Floating-Point Exception");
+            break;
+
+        case SIGINT:
+            printWarning(0, "Signal Interrupt(User pressed Ctrl+C)");
+            break;
+
+        case SIGSEGV:
+            printWarning(0, "Signal Segmentation Violation");
+            break;
+
+        case SIGTERM:
+            printWarning(0, "Signal Terminate");
+            break;
+
+        default:
+            printWarning(0, "Unknown signal caught: " + std::to_string(signum));
+    }
+
+    Logger::newLine(0);
+    printLog(0, "Cleanup and exit program..........");
+    shutdown();
+
+    exit(signum);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

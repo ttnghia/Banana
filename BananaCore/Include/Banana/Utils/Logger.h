@@ -57,8 +57,8 @@ public:
     };
 
     Logger() : m_LogSourceID(0) {}
-    Logger(int sourceID) : m_LogSourceID(sourceID) {}
-    Logger(int sourceID, const std::string& sourceName) : m_LogSourceID(sourceID) { Logger::setSourceName(sourceID, sourceName); }
+    Logger(unsigned int sourceID) : m_LogSourceID(sourceID) {}
+    Logger(unsigned int sourceID, const std::string& sourceName) : m_LogSourceID(sourceID) { Logger::setSourceName(sourceID, sourceName); }
     Logger(const std::string& sourceName) : m_LogSourceID(++m_NumSources) { Logger::setSourceName(m_LogSourceID, sourceName); }
 
     static void setDataPath(const std::string& dataPath);
@@ -94,22 +94,22 @@ public:
     void printMemoryUsage();
 
     ////////////////////////////////////////////////////////////////////////////////
-    static void newLine(int sourceID);
-    static void printSeparator(int sourceID);
-    static void printAligned(int sourceID, const std::string& s, char padding = PADDING, const std::string& wrapper = WRAPPER, int maxSize = 100);
-    static void printGreeting(int sourceID, const std::string& s);
-    static void printWarning(int sourceID, const std::string& s, int maxSize = 100);
+    static void newLine(unsigned int sourceID);
+    static void printSeparator(unsigned int sourceID);
+    static void printAligned(unsigned int sourceID, const std::string& s, char padding = PADDING, const std::string& wrapper = WRAPPER, int maxSize = 100);
+    static void printGreeting(unsigned int sourceID, const std::string& s);
+    static void printWarning(unsigned int sourceID, const std::string& s, int maxSize = 100);
 
-    static void printLog(int sourceID, const std::string& s);
-    static void printLogIndent(int sourceID, const std::string& s, int indentLevel = 1);
+    static void printLog(unsigned int sourceID, const std::string& s);
+    static void printLogIndent(unsigned int sourceID, const std::string& s, int indentLevel = 1);
 
-    static void printDetail(int sourceID, const std::string& s);
-    static void printDetailIndent(int sourceID, const std::string& s, int indentLevel = 1);
+    static void printDetail(unsigned int sourceID, const std::string& s);
+    static void printDetailIndent(unsigned int sourceID, const std::string& s, int indentLevel = 1);
 
     static void printDebug(const std::string& s);
     static void printDebugIndent(const std::string& s, int indentLevel = 1);
 
-    static void printMemoryUsage(int sourceID);
+    static void printMemoryUsage(unsigned int sourceID);
 
     ////////////////////////////////////////////////////////////////////////////////
     static void initialize();
@@ -119,27 +119,28 @@ public:
     static void        computeTotalRunTime();
     static std::string getTotalRunTime();
 
-    static std::string getSourceName(int sourceID);
-    static void        setSourceName(int sourceID, const std::string& sourceName);
+    static std::string getSourceName(unsigned int sourceID);
+    static void        setSourceName(unsigned int sourceID, const std::string& sourceName);
 
     template<class IntType>
     static IntType getNumSources();
 
-    void setLogSource(int sourceID)
+    void setLogSource(unsigned int sourceID)
     {
         m_LogSourceID = sourceID;
     }
 
     static LogLevel s_LogLevel;
 
+    static void signalHandler(unsigned int signum);
+
 private:
-    static void printToStdOut(int sourceID, const std::string& s);
-    static void logToFile(int sourceID, const std::string& s);
+    static void printToStdOut(unsigned int sourceID, const std::string& s);
+    static void logToFile(unsigned int sourceID, const std::string& s);
 
     static bool m_bPrintStdOut;
     static bool m_bWriteLogToFile;
     static bool m_bDataPathReady;
-    static unsigned int m_NumSources;
 
     static std::string                           m_DataPath;
     static std::string                           m_LogFile;
@@ -148,9 +149,10 @@ private:
     static std::chrono::system_clock::time_point m_ShutdownTime;
     static std::string                           m_TotalRunTime;
 
-    static std::map<int, std::string>                    m_SourceNames;
-    static std::vector<std::shared_ptr<spdlog::logger> > m_FileLogger;
-    static std::vector<std::shared_ptr<spdlog::logger> > m_ConsoleLogger;
+    static unsigned int                    m_NumSources;
+    static std::vector<std::string>        m_SourceNames;
+    static std::shared_ptr<spdlog::logger> m_FileLogger;
+    static std::shared_ptr<spdlog::logger> m_ConsoleLogger;
 
     int m_LogSourceID;
 };

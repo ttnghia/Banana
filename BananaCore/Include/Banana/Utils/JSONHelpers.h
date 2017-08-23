@@ -84,7 +84,7 @@ inline bool readVector(const nlohmann::json& j, Vec3<T>& vec)
     std::vector<T> values = j.get<std::vector<T> >();
     __BNN_ASSERT(values.size() == 3);
 
-    for(size_t i = 0; i < values.size(); i++)
+    for(int i = 0; i < 3; i++)
         vec[i] = values[i];
 
     return true;

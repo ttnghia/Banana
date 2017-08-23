@@ -17,53 +17,50 @@
 
 #pragma once
 
+#include <Banana/TypeNames.h>
+#include <ParticleSolvers/ParticleSolverData.h>
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
 struct SimulationParameters_MPM
-{};
+{
+    SimulationParameters_MPM() { makeReady(); }
+
+    ////////////////////////////////////////////////////////////////////////////////
+    void makeReady()
+    {
+        //
+    }
+};
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
 struct SimulationData_MPM
 {
-    Vec_Vec3<RealType> positions;
-    Vec_Vec3<RealType> velocity;
-};
+    Vec_Vec3<RealType>   positions;
+    Vec_Vec3<RealType>   velocities;
+    Vec_Mat3x3<RealType> velocityGrads;
+    Vec_Vec3<RealType>   accelerations;
+    Vec_Real<RealType>   particleMasses;
+    Vec_Real<RealType>   particleVolume;
 
+    Vec_Vec4<RealType> basis_fn;           //Array containing the basis_fn value for  the particle for 4 nodes surrounding it
+    Vec_Vec4<RealType> basis_fn_grads_x;   //This contains the gradient values of the basis function present above with respect to "x"
+    Vec_Vec4<RealType> basis_fn_grads;     //This contains the gradient values of the basis functions present above with respect to "y"
 
+    Vec_Mat3x3<RealType> particleStresses; //The stress of the material
+    Vec_Mat3x3<RealType> changeFp;         //Change in deformation gradient
+    Vec_Mat3x3<RealType> Fp;               // Deformation gradient
+    double               E;                //Young's modulus
+    Vec_Vec3<RealType>   bodyForces;
 
-
-struct material
-{
-    double x, y;                //position
-    double vx, vy;              //velocity
-    double grad_velocity[2][2]; //gradient of velocity
-    double ax, ay;              //acceleration
-    double mass;
-    double vol;                 //volume
-    double basis_fn[4];         //Array containing the basis_fn value for  the particle for 4
-                                //nodes surrounding it
-
-    double grad_x_basis_fn[4];  //This contains the gradient values of the basis function
-                                // present above with respect to "x"
-    double grad_y_basis_fn[4];  //This contains the gradient values of the basis functions
-                                // present above with respect to "y"
-
-    double stress[2][2];        //The stress of the material
-
-    double change_Fp[2][2];     //Change in deformation gradiant
-    double Fp[2][2];            //Deformation Gradiant
-    int    cell_i, cell_j;      //i and j value of the containing cell
-    double E;                   //Young's modulus
-    double body_force_x, body_force_y;
-};
-
-struct IJ
-{
-    int x, y; //These are actually the location of the points in the 2D array of the "struct material" instance created.
+    void makeReady()
+    {
+        velocities.resize(positions.size(), Vec3<RealType>(0));
+    }
 };
 
 
@@ -75,14 +72,14 @@ struct IJ
  */
 struct mesh
 {
-    double     x, y;              //x and y position of the node 0 of a cell
-    struct  IJ points_list[1000]; //List containing the information about the points contained in the cell
-    int        num_points;        //Number of points contained in a cell
-    double     f_int_x, f_int_y;  //Internal forces
-    double     f_ext_x, f_ext_y;  //External forces
-    double     a_x, a_y;          //Acceleration
-    double     v_x, v_y;          //Velocity
-    double     node_mass;         //Mass of a node
+    double x, y;                  //x and y position of the node 0 of a cell
+    //struct  IJ points_list[1000]; //List containing the information about the points contained in the cell
+    int    num_points;            //Number of points contained in a cell
+    double f_int_x, f_int_y;      //Internal forces
+    double f_ext_x, f_ext_y;      //External forces
+    double a_x, a_y;              //Acceleration
+    double v_x, v_y;              //Velocity
+    double node_mass;             //Mass of a node
 };
 
 

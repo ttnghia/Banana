@@ -36,17 +36,21 @@ public:
 
     ////////////////////////////////////////////////////////////////////////////////
     virtual std::string getSolverName() override { return std::string("FLIP3DSolver"); }
+    virtual std::string greetingMessage() override { return std::string("Fluid Simulation using FLIP-3D Solver"); }
     virtual unsigned int        getNumParticles() override { return static_cast<unsigned int>(m_SimData->positions.size()); }
     virtual Vec_Vec3<RealType>& getParticlePositions() override { return m_SimData->positions; }
     virtual Vec_Vec3<RealType>& getParticleVelocities() override { return m_SimData->velocities; }
 
     virtual void makeReady() override;
     virtual void advanceFrame() override;
-    virtual void saveParticleData() override;
-    virtual void saveMemoryState() override;
-
 private:
     virtual void loadSimParams(const nlohmann::json& jParams) override;
+    virtual void printParameters() override {}
+    virtual void setupDataIO() override;
+    virtual void saveParticleData() override;
+    virtual void saveMemoryState() override;
+    virtual void loadMemoryStates() {}
+    virtual void advanceScene() {}
 
     RealType computeCFLTimestep();
     void     advanceVelocity(RealType timeStep);
@@ -64,7 +68,6 @@ private:
 
 
 protected:
-    void setupDataIO();
     void loadLatestState();
 
     void velocityToGrid();

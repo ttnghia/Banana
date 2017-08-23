@@ -30,10 +30,7 @@
 template<class RealType>
 struct SimulationParameters_WCSPH
 {
-    SimulationParameters_WCSPH()
-    {
-        makeReady();
-    }
+    SimulationParameters_WCSPH() { makeReady(); }
 
     RealType defaultTimestep = RealType(1.0e-4);
     RealType CFLFactor       = RealType(0.5);
@@ -70,7 +67,7 @@ struct SimulationParameters_WCSPH
         kernelRadiusSqr  = kernelRadius * kernelRadius;
         nearKernelRadius = particleRadius * RealType(2.5);
 
-        particleMass   = pow(RealType(2.0) * particleRadius, 3) * restDensity * RealType(0.9);
+        particleMass   = MathHelpers::cube(RealType(2.0) * particleRadius) * restDensity * RealType(0.9);
         restDensitySqr = restDensity * restDensity;
     }
 };
@@ -81,7 +78,8 @@ struct SimulationData_WCSPH
 {
     Vec_Vec3<RealType> positions;
     Vec_Vec3<RealType> velocities;
-    Vec_Real<RealType> density;
+    Vec_Real<RealType> densities;
+    Vec_Real<RealType> densities_tmp;
     Vec_Vec3<RealType> pressureForces;
     Vec_Vec3<RealType> surfaceTensionForces;
     Vec_Vec3<RealType> diffuseVelocity;
@@ -90,7 +88,8 @@ struct SimulationData_WCSPH
     void makeReady()
     {
         velocities.resize(positions.size(), Vec3<RealType>(0));
-        density.resize(positions.size(), 0);
+        densities.resize(positions.size(), 0);
+        densities_tmp.resize(positions.size(), 0);
         pressureForces.resize(positions.size(), Vec3<RealType>(0));
         surfaceTensionForces.resize(positions.size(), Vec3<RealType>(0));
         diffuseVelocity.resize(positions.size(), Vec3<RealType>(0));

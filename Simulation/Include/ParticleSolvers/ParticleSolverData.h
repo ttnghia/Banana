@@ -17,6 +17,7 @@
 
 #pragma once
 
+#include <Banana/Utils/MathHelpers.h>
 #include <string>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -30,16 +31,17 @@ template<class RealType>
 struct FrameParameters
 {
     RealType     frameDuration = RealType(1.0 / 30.0);
+    unsigned int startFrame    = 1;
     unsigned int finalFrame    = 1;
     unsigned int finishedFrame = 0;
-    unsigned int startFrame    = 0;
     unsigned int nThreads      = 0;
 
     ////////////////////////////////////////////////////////////////////////////////
+    bool         bLoadMemoryStates = true;
     bool         bSaveParticleData = true;
     bool         bSaveMemoryState  = true;
     unsigned int framePerState     = 1;
-    std::string  dataPath          = std::string(".");
+    std::string  dataPath          = std::string("./SimData");
 };
 
 

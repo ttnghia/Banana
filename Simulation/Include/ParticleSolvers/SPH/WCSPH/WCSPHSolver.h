@@ -20,7 +20,6 @@
 #include <ParticleSolvers/ParticleSolverInterface.h>
 #include <ParticleSolvers/SPH/KernelFunctions.h>
 #include <ParticleSolvers/SPH/WCSPH/WCSPHData.h>
-#include <CompactNSearch/CompactNSearch.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -38,16 +37,20 @@ public:
     ////////////////////////////////////////////////////////////////////////////////
     virtual void makeReady() override;
     virtual void advanceFrame() override;
-    virtual void saveParticleData() override;
-    virtual void saveMemoryState() override;
-
     virtual std::string getSolverName() override { return std::string("WCSPHSolver"); }
+    virtual std::string greetingMessage() override { return std::string("Fluid Simulation using WCSPH Solver"); }
     virtual unsigned int        getNumParticles() override { return static_cast<unsigned int>(m_SimData->positions.size()); }
     virtual Vec_Vec3<RealType>& getParticlePositions() override { return m_SimData->positions; }
     virtual Vec_Vec3<RealType>& getParticleVelocities() override { return m_SimData->velocities; }
 
 protected:
     virtual void loadSimParams(const nlohmann::json& jParams) override;
+    virtual void printParameters() override {}
+    virtual void setupDataIO() override {}
+    virtual void saveParticleData() override;
+    virtual void saveMemoryState() override;
+    virtual void loadMemoryStates() override {}
+    virtual void advanceScene() override {}
 
     RealType computeCFLTimeStep();
     void     advanceVelocity(RealType timeStep);

@@ -34,6 +34,8 @@
 #include <ParticleTools/BoundaryObjects/BoundaryObjectInterface.h>
 #include <ParticleTools/ParticleObjects/ParticleObjectInterface.h>
 
+#include <tbb/tbb.h>
+
 #include <json.hpp>
 
 #include <memory>
@@ -55,12 +57,10 @@ public:
     void doSimulation();
 
     ////////////////////////////////////////////////////////////////////////////////
-    virtual void makeReady()        = 0;
-    virtual void advanceFrame()     = 0;
-    virtual void saveParticleData() = 0;
-    virtual void saveMemoryState()  = 0;
-
+    virtual void         makeReady()       = 0;
+    virtual void         advanceFrame()    = 0;
     virtual std::string  getSolverName()   = 0;
+    virtual std::string  greetingMessage() = 0;
     virtual unsigned int getNumParticles() = 0;
 
     void loadScene(const std::string& sceneFile);
@@ -70,10 +70,18 @@ protected:
     void         loadFrameParams(const nlohmann::json& jParams);
     void         loadObjectParams(const nlohmann::json& jParams);
     virtual void loadSimParams(const nlohmann::json& jParams) = 0;
+    virtual void printParameters()                            = 0;
+    virtual void setupDataIO()                                = 0;
+    virtual void saveParticleData()                           = 0;
+    virtual void saveMemoryState()                            = 0;
+    virtual void loadMemoryStates()                           = 0;
+    virtual void advanceScene() {}
+
 
     ////////////////////////////////////////////////////////////////////////////////
-    std::unique_ptr<Logger>                        m_Logger  = nullptr;
-    std::unique_ptr<NeighborhoodSearch<RealType> > m_NSearch = nullptr;
+    std::unique_ptr<tbb::task_scheduler_init>      m_ThreadInit = nullptr;
+    std::unique_ptr<Logger>                        m_Logger     = nullptr;
+    std::unique_ptr<NeighborhoodSearch<RealType> > m_NSearch    = nullptr;
 
     std::shared_ptr<FrameParameters<RealType> >              m_FrameParams = std::make_shared<FrameParameters<RealType> >();
     std::vector<std::shared_ptr<DataIO> >                    m_ParticleDataIO;
@@ -105,12 +113,29 @@ public:
 template<class RealType>
 void Banana::ParticleSolver<RealType>::doSimulation()
 {
+    m_Logger.printGreeting(greetingMessage());
+    FileHelpers::createFolder(m_FrameParams->dataPath);
+    if(m_FrameParams->bLoadMemoryStates)
+        loadMemoryStates();
     makeReady();
 
-    while(unsigned int frame = 0; frame < m_FrameParams->finalFrame; ++frame)
+    ////////////////////////////////////////////////////////////////////////////////
+    m_ThreadInit.reset();
+    m_ThreadInit = std::make_unique<tbb::task_scheduler_init>(m_SimParams->nThreads == 0 ? tbb::task_scheduler_init::automatic : m_SimParams->nThreads);
+    m_Logger.printAligned("Start Simulation", '=');
+
+    while(auto frame = m_FrameParams->startFrame; frame < m_FrameParams->finalFrame; ++frame)
     {
+        advanceScene();
         advanceFrame();
     }
+
+    ////////////////////////////////////////////////////////////////////////////////
+    m_Logger.newLine();
+    m_Logger.printAligned("End Simulation", '=');
+    m_Logger.printLog("Total frames: " + NumberHelpers::formatWithCommas(m_FrameParams->finalFrame - m_FrameParams->->startFrame + 1));
+    m_Logger.printLog("Data path: " + m_FrameParams->dataPath);
+    //m_Logger.printLog("Data: \n" + FileHelpers::getFolderSize(m_FrameParams->dataPath, 1));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
