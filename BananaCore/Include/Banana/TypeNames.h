@@ -36,11 +36,6 @@
 #include <vector>
 #include <cstdint>
 
-// this definition should depend of each project
-#ifndef __Using_Yocto_Lib__
-#define __Using_GLM_Lib__
-#endif
-
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 using Int8  = int8_t;
 using Int16 = int16_t;
@@ -53,8 +48,6 @@ using UInt32 = uint32_t;
 using UInt64 = uint64_t;
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#ifdef __Using_GLM_Lib__
-#define GLM_FORCE_CXX14
 #define GLM_FORCE_INLINE
 #define GLM_ENABLE_EXPERIMENTAL
 
@@ -135,75 +128,6 @@ using Vec_VecVec3 = std::vector<std::vector<Vec3<RealType> > >;
 // vectors of vector of matrices
 template<class RealType>
 using Vec_VecMat3x3 = std::vector<std::vector<Mat3x3<RealType> > >;
-#else // not using glm lib
-#include <yocto/yocto_math.h>
-
-// Vectors
-template<class RealType>
-using Vec2 = ym::vec<RealType, 2>;
-
-template<class RealType>
-using Vec3 = ym::vec<RealType, 3>;
-
-template<class RealType>
-using Vec4 = ym::vec<RealType, 4>;
-
-// matrices
-template<class RealType>
-using Mat2x2 = ym::mat<RealType, 2, 2>;
-template<class RealType>
-const Mat2x2<RealType> Identity2x2 = ym::identity_mat<RealType, 2>();
-
-template<class RealType>
-using Mat3x3 = ym::mat<RealType, 3, 3>;
-template<class RealType>
-const Mat3x3<RealType> Identity3x3 = ym::identity_mat<RealType, 3>();
-
-template<class RealType>
-using Mat3x4 = ym::mat<RealType, 3, 4>;
-
-template<class RealType>
-using Mat4x3 = ym::mat<RealType, 4, 3>;
-
-template<class RealType>
-using Mat4x4 = ym::mat<RealType, 4, 4>;
-template<class RealType>
-const Mat4x4<RealType> Identity4x4 = ym::identity_mat<RealType, 4>();
-
-// vectors of vectors
-template<class RealType>
-using Vec_Vec2 = std::vector<Vec2<RealType> >;
-
-template<class RealType>
-using Vec_Vec3 = std::vector<Vec3<RealType> >;
-
-template<class RealType>
-using Vec_Vec4 = std::vector<Vec4<RealType> >;
-
-// vectors of matrices
-template<class RealType>
-using Vec_Mat2x2 = std::vector<Mat2x2<RealType> >;
-
-template<class RealType>
-using  Vec_Mat3x3 = std::vector<Mat3x3<RealType> >;
-
-template<class RealType>
-using Vec_Mat3x4 = std::vector<Mat3x4<RealType> >;
-
-template<class RealType>
-using Vec_Mat4x3 = std::vector<Mat4x3<RealType> >;
-
-template<class RealType>
-using Vec_Mat4x4 = std::vector<Mat4x4<RealType> >;
-
-// vectors of vector of vectors
-template<class RealType>
-using Vec_VecVec3 = std::vector<std::vector<Vec3<RealType> > >;
-
-// vectors of vector of matrices
-template<class RealType>
-using Vec_VecMat3x3 = std::vector<std::vector<Mat3x3<RealType> > >;
-#endif // __Using_GLM_Lib__
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // vectors of basic types

@@ -145,6 +145,8 @@ void OpenGLWidget::mouseReleaseEvent(QMouseEvent* event)
     {
         return;
     }
+#else
+    __BNN_UNUSED(event);
 #endif
 
     m_MouseButtonPressed = MouseButton::NoButton;

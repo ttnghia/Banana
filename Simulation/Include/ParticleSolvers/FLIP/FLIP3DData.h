@@ -41,10 +41,10 @@ struct  SimulationParameters_FLIP3D
         makeReady();
     }
 
-    RealType            defaultTimestep     = 1.0e-4;
+    RealType            defaultTimestep     = RealType(1.0e-4);
     RealType            CFLFactor           = RealType(1.0);
     RealType            PIC_FLIP_ratio      = RealType(0.97);
-    RealType            boundaryRestitution = DEFAULT_BOUNDARY_RESTITUTION;
+    RealType            boundaryRestitution = RealType(DEFAULT_BOUNDARY_RESTITUTION);
     RealType            kernelRadius        = RealType(1.0 / DEFAULT_RESOLUTION);
     InterpolationKernel kernelFunc          = InterpolationKernel::Linear;
 
