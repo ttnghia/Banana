@@ -41,30 +41,32 @@ struct  SimulationParameters_FLIP3D
         makeReady();
     }
 
-    RealType defaultTimestep       = 1.0e-4;
-    RealType CFLFactor             = RealType(1.0);
-    RealType PIC_FLIP_ratio        = RealType(0.97);
-    bool     bApplyGravity         = true;
-    bool     bEnableSortParticle   = true;
-    bool     bApplyRepulsiveForces = false;
+    RealType            defaultTimestep     = 1.0e-4;
+    RealType            CFLFactor           = RealType(1.0);
+    RealType            PIC_FLIP_ratio      = RealType(0.97);
+    RealType            boundaryRestitution = DEFAULT_BOUNDARY_RESTITUTION;
+    RealType            kernelRadius        = RealType(1.0 / DEFAULT_RESOLUTION);
+    InterpolationKernel kernelFunc          = InterpolationKernel::Linear;
 
-    RealType       boundaryRestitution = DEFAULT_BOUNDARY_RESTITUTION;
-    Vec3<RealType> boxMin              = Vec3<RealType>(0);
-    Vec3<RealType> boxMax              = Vec3<RealType>(1.0);
+    bool bApplyGravity         = true;
+    bool bEnableSortParticle   = true;
+    bool bApplyRepulsiveForces = false;
+
+    unsigned int sortFrequency = 100;
+
+    Vec3<RealType> boxMin = Vec3<RealType>(-1.0);
+    Vec3<RealType> boxMax = Vec3<RealType>(1.0);
 
     // the following need to be computed
     RealType particleRadius;
-    RealType kernelRadius;
     RealType kernelRadiusSqr;
     RealType nearKernelRadius;
-
-
     RealType sdf_radius;             // radius for level set fluid
 
-    // map data from params variable
-    InterpolationKernel kernelFunc;
-    RealType            repulsive_support_sqr;
-    RealType            K_repulsive_force;
+
+
+    RealType repulsive_support_sqr;
+    RealType K_repulsive_force;
 
     RealType     CGRelativeTolerance = RealType(1e-20);
     unsigned int maxCGIteration      = 10000;
@@ -76,6 +78,25 @@ struct  SimulationParameters_FLIP3D
         nearKernelRadius = particleRadius * RealType(2.5);
 
         sdf_radius = kernelRadius * RealType(1.01 * sqrt(3.0) / 2.0);
+    }
+
+    void printParams(const std::shared_ptr<Logger>& logger)
+    {
+        logger->printLog("FLIP-3D simulation parameters:");
+        logger->printLogIndent("Default timestep: " + NumberHelpers::formatToScientific(defaultTimestep));
+        logger->printLogIndent("CFL factor: " + std::to_string(CFLFactor));
+        logger->printLogIndent("PIC/FLIP ratio: " + std::to_string(PIC_FLIP_ratio));
+
+        logger->printLogIndent("Kernel radius: " + std::to_string(kernelRadius));
+        logger->printLogIndent("Particle radius: " + std::to_string(particleRadius));
+        logger->printLogIndent("Boundary restitution: " + std::to_string(boundaryRestitution));
+
+        logger->printLogIndent("Apply gravity: " + (bApplyGravity ? std::string("Yes") : std::string("No")));
+        logger->printLogIndent("Apply repulsive forces: " + (bApplyRepulsiveForces ? std::string("Yes") : std::string("No")));
+        logger->printLogIndent("Sort particles during simulation: " + (bEnableSortParticle ? std::string("Yes") : std::string("No")));
+        if(bEnableSortParticle)
+            logger->printLogIndent("Sort frequency: " + std::to_string(sortFrequency));
+        //logger->newLine();
     }
 };
 
@@ -130,6 +151,7 @@ struct SimulationData_FLIP3D
 
     void makeReady(unsigned int ni, unsigned int nj, unsigned int nk)
     {
+        velocities.resize(positions.size(), Vec3<RealType>(0));
         neighborList.resize(positions.size());
 
         u.resize(ni + 1, nj, nk);
@@ -157,6 +179,8 @@ struct SimulationData_FLIP3D
         old_valid_w.resize(ni, nj, nk + 1);
 
         fluidSDF.resize(ni, nj, nk);
+        temp_fluidSDF.resize(ni, nj, nk);
+        boundarySDF.resize(ni + 1, nj + 1, nk + 1);
 
         matrix.resize(ni * nj * nk);
         rhs.resize(ni * nj * nk);

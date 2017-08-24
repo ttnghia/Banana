@@ -24,7 +24,6 @@
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#define DEFAULT_RESOLUTION           24
 #define DEFAULT_PRESSURE_STIFFNESS   50000.0
 #define DEFAULT_NEAR_FORCE_STIFFNESS 50000.0
 #define DEFAULT_VISCOSITY            0.01
@@ -38,7 +37,7 @@ struct SimulationParameters_WCSPH
     RealType defaultTimestep = RealType(1.0e-4);
     RealType CFLFactor       = RealType(0.5);
 
-    Vec3<RealType> boxMin = Vec3<RealType>(0);
+    Vec3<RealType> boxMin = Vec3<RealType>(-1.0);
     Vec3<RealType> boxMax = Vec3<RealType>(1.0);
 
     RealType pressureStiffness  = RealType(DEFAULT_PRESSURE_STIFFNESS);
@@ -55,7 +54,9 @@ struct SimulationParameters_WCSPH
     bool bUseBoundaryParticles  = false;
     bool bUseAttractivePressure = false;
     bool bApplyGravity          = true;
-    bool bEnableSortParticle    = true;
+    bool bEnableSortParticle    = false;
+
+    unsigned int sortFrequency = 100;
 
     // the following need to be computed
     RealType particleMass;
@@ -64,6 +65,7 @@ struct SimulationParameters_WCSPH
     RealType nearKernelRadius;
     RealType restDensitySqr;
 
+    ////////////////////////////////////////////////////////////////////////////////
     void makeReady()
     {
         particleRadius   = kernelRadius / RealType(4.0);
@@ -72,6 +74,28 @@ struct SimulationParameters_WCSPH
 
         particleMass   = MathHelpers::cube(RealType(2.0) * particleRadius) * restDensity * RealType(0.9);
         restDensitySqr = restDensity * restDensity;
+    }
+
+    void printParams(const std::shared_ptr<Logger>& logger)
+    {
+        logger->printLog("SPH simulation parameters:");
+        logger->printLogIndent("Default timestep: " + NumberHelpers::formatToScientific(defaultTimestep));
+        logger->printLogIndent("CFL factor: " + std::to_string(CFLFactor));
+        logger->printLogIndent("Pressure stiffness: " + NumberHelpers::formatWithCommas(pressureStiffness));
+        logger->printLogIndent("Near force stiffness: " + NumberHelpers::formatWithCommas(nearForceStiffness));
+        logger->printLogIndent("Viscosity: " + std::to_string(viscosity));
+        logger->printLogIndent("Kernel radius: " + std::to_string(kernelRadius));
+        logger->printLogIndent("Boundary restitution: " + std::to_string(boundaryRestitution));
+        logger->printLogIndent("Particle mass: " + std::to_string(particleMass));
+        logger->printLogIndent("Particle radius: " + std::to_string(particleRadius));
+
+        logger->printLogIndent("Correct density: " + (bCorrectDensity ? std::string("Yes") : std::string("No")));
+        logger->printLogIndent("Generate boundary particles: " + (bUseBoundaryParticles ? std::string("Yes") : std::string("No")));
+        logger->printLogIndent("Apply gravity: " + (bApplyGravity ? std::string("Yes") : std::string("No")));
+        logger->printLogIndent("Sort particles during simulation: " + (bEnableSortParticle ? std::string("Yes") : std::string("No")));
+        if(bEnableSortParticle)
+            logger->printLogIndent("Sort frequency: " + std::to_string(sortFrequency));
+        //logger->newLine();
     }
 };
 

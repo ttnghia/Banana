@@ -30,7 +30,7 @@ class BoxBoundaryObject : public BoundaryObject<RealType>
 {
 public:
     BoxBoundaryObject() = default;
-    BoxBoundaryObject(const Vec3<RealType>& bMin, const Vec3<RealType>& bMax) : m_BMin(bMin), mBMax(bMax) {}
+    BoxBoundaryObject(const Vec3<RealType>& bMin, const Vec3<RealType>& bMax) : m_BMin(bMin), m_BMax(bMax) {}
 
     void         setBox(const Vec3<RealType>& bMin, const Vec3<RealType>& bMax);
     virtual void generateBoundaryParticles(RealType spacing, int numBDLayers = 2) override;
@@ -78,19 +78,19 @@ void Banana::BoxBoundaryObject<RealType>::generateBoundaryParticles(RealType spa
 
             for(RealType z = boundaryBMin[2]; z <= boundaryBMax[2]; z += spacing)
             {
-                if(z > m_BMin[2] && z < bMax[2])
-                    z = bMax[2] + spacing * RealType(0.5);
+                if(z > m_BMin[2] && z < m_BMax[2])
+                    z = m_BMax[2] + spacing * RealType(0.5);
 
                 const Vec3<RealType> gridPos(x, y, z);
                 Vec3<RealType>       ppos = gridPos + Vec3<RealType>(disLarge(gen), disLarge(gen), disLarge(gen));
 
-                if(gridPos[0] < m_BMin[0] || gridPos[0] > bMax[0])
+                if(gridPos[0] < m_BMin[0] || gridPos[0] > m_BMax[0])
                     ppos[0] = gridPos[0] + disSmall(gen);
 
-                if(gridPos[1] < m_BMin[1] || gridPos[1] > bMax[1])
+                if(gridPos[1] < m_BMin[1] || gridPos[1] > m_BMax[1])
                     ppos[1] = gridPos[1] + disSmall(gen);
 
-                if(gridPos[2] < m_BMin[2] || gridPos[2] > bMax[2])
+                if(gridPos[2] < m_BMin[2] || gridPos[2] > m_BMax[2])
                     ppos[2] = gridPos[2] + disSmall(gen);
 
                 m_BDParticles.push_back(ppos);

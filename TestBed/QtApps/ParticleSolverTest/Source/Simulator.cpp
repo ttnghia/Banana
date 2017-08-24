@@ -36,6 +36,8 @@ void Simulator::doSimulation()
 
     ////////////////////////////////////////////////////////////////////////////////
     m_ParticleSolver->makeReady();
+    static tbb::task_scheduler_init threadInit = tbb::task_scheduler_init::automatic;
+    (void)threadInit;
 
     for(unsigned int frame = 1; frame <= m_ParticleSolver->getGlobalParams()->finalFrame; ++frame)
     {
@@ -82,6 +84,40 @@ void Simulator::changeScene(const QString& scene)
     ////////////////////////////////////////////////////////////////////////////////
     QString sceneFile = QDir::currentPath() + "/Scenes/" + scene;
     m_ParticleSolver->loadScene(sceneFile.toStdString());
+
+
+
+
+    auto& particles = m_ParticleSolver->getParticlePositions();
+
+
+    Vec3<float> center(0.0f, 0.0f, 0.0f);
+    float       radius  = 0.5f;
+    Vec3<float> bMin    = center - Vec3<float>(radius);
+    float       spacing = 2.0f * m_ParticleSolver->getSolverParams()->particleRadius;
+    Vec3<int>   grid    = Vec3<int>(1) * static_cast<int>(2.0f * radius / spacing);
+
+    particles.resize(0);
+    for(int i = 0; i < grid[0]; ++i)
+    {
+        for(int j = 0; j < grid[1]; ++j)
+        {
+            for(int k = 0; k < grid[2]; ++k)
+            {
+                Vec3<float> ppos = bMin + spacing * Vec3<float>(i, j, k);
+                if(glm::length(ppos - center) > radius)
+                    continue;
+                particles.push_back(ppos);
+            }
+        }
+    }
+
+
+//    qDebug() << particles.size();
+
+
+
+
     m_ParticleData->setNumParticles(m_ParticleSolver->getNumParticles());
     m_ParticleData->setUInt("ColorRandomReady", 0);
     m_ParticleData->setUInt("ColorRampReady",   0);

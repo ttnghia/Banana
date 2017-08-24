@@ -31,7 +31,8 @@
 #include <CompactNSearch/CompactNSearch.h>
 
 #include <ParticleSolvers/ParticleSolverData.h>
-#include <ParticleTools/BoundaryObjects/BoundaryObjectInterface.h>
+
+#include <ParticleTools/BoundaryObjects/BoundaryObjects>
 #include <ParticleTools/ParticleObjects/ParticleObjectInterface.h>
 
 #include <tbb/tbb.h>

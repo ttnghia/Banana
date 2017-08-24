@@ -44,6 +44,7 @@ void Banana::WCSPHSolver<RealType>::makeReady()
                            [&]()
                            {
                                m_SimParams->makeReady();
+                               m_SimParams->printParams(m_Logger);
                                m_SimData->makeReady();
 
                                m_CubicKernel.setRadius(m_SimParams->kernelRadius);
@@ -52,6 +53,8 @@ void Banana::WCSPHSolver<RealType>::makeReady()
 
                                m_NSearch = std::make_unique<NeighborhoodSearch<RealType> >(m_SimParams->kernelRadius);
                                m_NSearch->add_point_set(glm::value_ptr(m_SimData->positions.front()), m_SimData->positions.size(), true, true);
+
+                               m_BoundaryObjects.push_back(std::make_shared<BoxBoundaryObject<RealType> >(m_SimParams->boxMin, m_SimParams->boxMax));
 
                                if(m_SimParams->bUseBoundaryParticles)
                                {
@@ -107,7 +110,8 @@ void Banana::WCSPHSolver<RealType>::advanceFrame()
     } // end while
 
     ////////////////////////////////////////////////////////////////////////////////
-    m_Logger->printLog("Frame finished. Frame duration: " + NumberHelpers::formatWithCommas(frameTime) + subStepTimer.getRunTime(" (s). Run time: "));
+    frameTimer.tock();
+    m_Logger->printLog("Frame finished. Frame duration: " + NumberHelpers::formatWithCommas(frameTime) + frameTimer.getRunTime(" (s). Run time: "));
     m_Logger->newLine();
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -161,7 +165,7 @@ void Banana::WCSPHSolver<RealType>::advanceVelocity(RealType timeStep)
     computeDensity();
     correctDensity();
     computePressureForces();
-    computeSurfaceTensionForces();
+    //computeSurfaceTensionForces();
     computeViscosity();
     updateVelocity(timeStep);
 }
@@ -200,6 +204,7 @@ void Banana::WCSPHSolver<RealType>::computeDensity()
                                             ////////////////////////////////////////////////////////////////////////////////
                                             if(m_SimParams->bUseBoundaryParticles)
                                             {
+                                                //__BNN_PRINT_EXP(fluidPointSet.n_neighbors(0, p));
                                                 for(UInt32 q : fluidPointSet.neighbors(1, p))
                                                 {
                                                     const Vec3<RealType>& qpos = m_BoundaryObjects[0]->getBDParticle(q);
@@ -289,11 +294,11 @@ void Banana::WCSPHSolver<RealType>::computePressureForces()
                                         {
                                             const RealType pden = m_SimData->densities[p];
 
-                                            Vec3<RealType> pressure_accel(0, 0, 0);
+                                            Vec3<RealType> pressureAccel(0, 0, 0);
 
                                             if(pden < Tiny<RealType>())
                                             {
-                                                m_SimData->pressureForces[p] = pressure_accel;
+                                                m_SimData->pressureForces[p] = pressureAccel;
                                                 return;
                                             }
 
@@ -316,7 +321,7 @@ void Banana::WCSPHSolver<RealType>::computePressureForces()
 
                                                 const Vec3<RealType> r = qpos - pPos;
                                                 const Vec3<RealType> pressure = (ppressure / (pden * pden) + qpressure / (qden * qden)) * m_SpikyKernel.gradW(r);
-                                                pressure_accel += pressure;
+                                                pressureAccel += pressure;
                                             } // end loop over neighbor cells
 
 
@@ -330,12 +335,12 @@ void Banana::WCSPHSolver<RealType>::computePressureForces()
                                                     const Vec3<RealType> r = qpos - pPos;
 
                                                     const Vec3<RealType> pressure = (ppressure / (pden * pden)) * m_SpikyKernel.gradW(r);
-                                                    pressure_accel += pressure;
+                                                    pressureAccel += pressure;
                                                 }
                                             }
 
                                             ////////////////////////////////////////////////////////////////////////////////
-                                            m_SimData->pressureForces[p] = pressure_accel * m_SimParams->particleMass * m_SimParams->pressureStiffness;
+                                            m_SimData->pressureForces[p] = pressureAccel * m_SimParams->particleMass * m_SimParams->pressureStiffness;
                                         }); // end parallel_for
 }
 
@@ -353,17 +358,13 @@ void Banana::WCSPHSolver<RealType>::computeViscosity()
     assert(m_SimData->positions.size() == m_SimData->diffuseVelocity.size());
     const PointSet<RealType>& fluidPointSet = m_NSearch->point_set(0);
 
-    static Vec_Vec3<RealType> diffuseVelocity;
-    diffuseVelocity.resize(m_SimData->velocities.size());
-
-
     ParallelFuncs::parallel_for<UInt32>(0, static_cast<UInt32>(m_SimData->positions.size()),
                                         [&](UInt32 p)
                                         {
                                             const Vec3<RealType>& pPos = m_SimData->positions[p];
                                             const Vec3<RealType>& pvel = m_SimData->velocities[p];
 
-                                            Vec3<RealType> diffuse_vel = Vec3<RealType>(0);
+                                            Vec3<RealType> diffVel = Vec3<RealType>(0);
 
                                             for(UInt32 q : fluidPointSet.neighbors(0, p))
                                             {
@@ -372,7 +373,7 @@ void Banana::WCSPHSolver<RealType>::computeViscosity()
                                                 const RealType qden = m_SimData->densities[q];
                                                 const Vec3<RealType> r = qpos - pPos;
 
-                                                diffuse_vel += (1.0f / qden) * (qvel - pvel) * m_CubicKernel.W(r);
+                                                diffVel += (1.0f / qden) * (qvel - pvel) * m_CubicKernel.W(r);
                                             } // end loop over neighbor cells
 
                                             if(m_SimParams->bUseBoundaryParticles)
@@ -382,16 +383,16 @@ void Banana::WCSPHSolver<RealType>::computeViscosity()
                                                     const Vec3<RealType>& qpos = m_BoundaryObjects[0]->getBDParticle(q);
                                                     const Vec3<RealType> r = qpos - pPos;
 
-                                                    diffuse_vel -= (1.0f / m_SimParams->restDensity) * m_CubicKernel.W(r) * pvel;
+                                                    diffVel -= (1.0f / m_SimParams->restDensity) * m_CubicKernel.W(r) * pvel;
                                                 }
                                             }
 
-                                            diffuseVelocity[p] = diffuse_vel * m_SimParams->particleMass;
+                                            m_SimData->diffuseVelocity[p] = diffVel * m_SimParams->particleMass;
                                         }); // end parallel_for
 
 
     ParallelFuncs::parallel_for<size_t>(0, m_SimData->velocities.size(),
-                                        [&](size_t p) { m_SimData->velocities[p] += diffuseVelocity[p] * m_SimParams->viscosity; });
+                                        [&](size_t p) { m_SimData->velocities[p] += m_SimData->diffuseVelocity[p] * m_SimParams->viscosity; });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

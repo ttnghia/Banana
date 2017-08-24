@@ -465,8 +465,10 @@ void FixedSparseMatrix<RealType>::constructFromSparseMatrix(const SparseMatrix<R
         m_RowStart[i + 1] = m_RowStart[i] + static_cast<UInt32>(matrix.getIndices(i).size());
     }
 
-    m_ColValue.resize(m_RowStart[m_Size]);
-    m_ColIndex.resize(m_RowStart[m_Size]);
+    // in cases the matrix has empty row, accessing start row index may be out of range
+    // so, add one extra element for padding
+    m_ColIndex.resize(m_RowStart[m_Size] + 1);
+    m_ColValue.resize(m_RowStart[m_Size] + 1);
 
     static tbb::affinity_partitioner ap;
     tbb::parallel_for(tbb::blocked_range<UInt32>(0, matrix.size()), [&](tbb::blocked_range<UInt32> r)

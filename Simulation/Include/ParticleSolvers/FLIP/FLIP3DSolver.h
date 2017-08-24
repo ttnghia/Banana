@@ -33,7 +33,7 @@ class FLIP3DSolver : public ParticleSolver3D<RealType>
 public:
     FLIP3DSolver() { setupLogger(); }
 
-    std::shared_ptr<SimulationParameters_FLIP3D<RealType> > getSimParams() const noexcept { return m_SimParams; }
+    std::shared_ptr<SimulationParameters_FLIP3D<RealType> > getSolverParams() { return m_SimParams; }
 
     ////////////////////////////////////////////////////////////////////////////////
     virtual std::string getSolverName() override { return std::string("FLIP3DSolver"); }
@@ -58,8 +58,8 @@ private:
     void     moveParticles(RealType timeStep);
 
     ////////////////////////////////////////////////////////////////////////////////
-    std::shared_ptr<SimulationParameters_FLIP3D<RealType> > m_SimParams;
-    std::unique_ptr<SimulationData_FLIP3D<RealType> >       m_SimData = std::make_unique<SimulationData_FLIP3D<RealType> >();
+    std::shared_ptr<SimulationParameters_FLIP3D<RealType> > m_SimParams = std::make_shared<SimulationParameters_FLIP3D<RealType> >();
+    std::unique_ptr<SimulationData_FLIP3D<RealType> >       m_SimData   = std::make_unique<SimulationData_FLIP3D<RealType> >();
     Grid3DHashing<RealType>                                 m_Grid3D;
     PCGSolver<RealType>                                     m_PCGSolver;
 

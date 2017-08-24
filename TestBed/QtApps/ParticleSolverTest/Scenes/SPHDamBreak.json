@@ -1,7 +1,7 @@
 {
 	"GlobalParameters": 
 	{
-		"FrameDuration": 0.01,
+		"FrameDuration": 0.001,
 		"FinalFrame": 100
 	},
 	"SimulationParameters": 

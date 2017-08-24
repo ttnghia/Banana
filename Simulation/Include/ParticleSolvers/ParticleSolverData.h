@@ -26,6 +26,8 @@ namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #define DEFAULT_BOUNDARY_RESTITUTION 0.1
+#define DEFAULT_RESOLUTION           32
+
 class Logger;
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -41,8 +43,8 @@ struct GlobalParameters
 
     ////////////////////////////////////////////////////////////////////////////////
     bool         bLoadMemoryStates = true;
-    bool         bSaveParticleData = true;
-    bool         bSaveMemoryState  = true;
+    bool         bSaveParticleData = false;
+    bool         bSaveMemoryState  = false;
     unsigned int framePerState     = 1;
     std::string  dataPath          = std::string("./SimData");
 

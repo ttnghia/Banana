@@ -36,14 +36,14 @@ public:
     std::shared_ptr<SimulationParameters_WCSPH<RealType> > getSolverParams() { return m_SimParams; }
 
     ////////////////////////////////////////////////////////////////////////////////
-    virtual void makeReady() override;
-    virtual void advanceFrame() override;
     virtual std::string getSolverName() override { return std::string("WCSPHSolver"); }
     virtual std::string getGreetingMessage() override { return std::string("Fluid Simulation using WCSPH Solver"); }
     virtual unsigned int        getNumParticles() override { return static_cast<unsigned int>(m_SimData->positions.size()); }
     virtual Vec_Vec3<RealType>& getParticlePositions() override { return m_SimData->positions; }
     virtual Vec_Vec3<RealType>& getParticleVelocities() override { return m_SimData->velocities; }
 
+    virtual void makeReady() override;
+    virtual void advanceFrame() override;
 protected:
     virtual void loadSimParams(const nlohmann::json& jParams) override;
     virtual void printParameters() override {}

@@ -18,8 +18,8 @@
 template<class RealType>
 void Banana::FLIP3DSolver<RealType>::loadSimParams(const nlohmann::json& jParams)
 {
-    JSONHelpers::readVector(jParams["BoxMin"], m_SimParams->boxMin);
-    JSONHelpers::readVector(jParams["BoxMax"], m_SimParams->boxMax);
+    JSONHelpers::readVector(jParams, m_SimParams->boxMin, "BoxMin");
+    JSONHelpers::readVector(jParams, m_SimParams->boxMax, "BoxMax");
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -30,6 +30,7 @@ void Banana::FLIP3DSolver<RealType>::makeReady()
                            [&]()
                            {
                                m_SimParams->makeReady();
+                               m_SimParams->printParams(m_Logger);
                                m_Grid3D.setGrid(m_SimParams->boxMin, m_SimParams->boxMax, m_SimParams->kernelRadius);
                                m_SimData->makeReady(m_Grid3D.getNumCellX(), m_Grid3D.getNumCellY(), m_Grid3D.getNumCellZ());
 

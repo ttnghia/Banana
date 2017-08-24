@@ -240,6 +240,9 @@
     <ClInclude Include="Include\ParticleSolvers\MPM.bk\TimeIntegration.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Include\ParticleTools\BoundaryObjects\BoundaryObjects">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Include\ParticleTools\_ParticleTools.Test.cpp">

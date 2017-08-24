@@ -27,6 +27,7 @@
 #include "Common.h"
 
 #define PARTICLE_SOLVER WCSPHSolver
+#define PARTICLE_SOLVER FLIP3DSolver
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 class Simulator : public QObject
@@ -60,10 +61,10 @@ signals:
     void frameFinished();
 
 protected:
-    volatile bool                       m_bStop        = true;
-    std::shared_ptr<ParticleSystemData> m_ParticleData = nullptr;
-
+    std::shared_ptr<ParticleSystemData>      m_ParticleData = nullptr;
     std::unique_ptr<PARTICLE_SOLVER<float> > m_ParticleSolver;
-    std::future<void>                        m_SimulationFutureObj;
-    QString                                  m_Scene;
+
+    std::future<void> m_SimulationFutureObj;
+    QString           m_Scene;
+    volatile bool     m_bStop = true;
 };
