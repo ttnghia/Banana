@@ -54,6 +54,10 @@ inline void throwIfFailed(HRESULT hr)
     }
 }
 
+#if defined(DEBUG) || defined(_DEBUG)
+#  define __BANANA_DEBUG__
+#endif
+
 #endif  // __BANANA_WINDOWS__
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -118,7 +122,19 @@ inline void throwIfFailed(HRESULT hr)
         exit(EXIT_FAILURE); \
     }
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#define __BNN_ASSERT(condition)                                                              \
+#ifdef __BANANA_DEBUG__
+#  define __BNN_ASSERT(condition)                                                            \
+    {                                                                                        \
+        if(!(condition))                                                                     \
+        {                                                                                    \
+            std::string erMsg = std::string("Assertion failed: ") + std::string(#condition); \
+            printf("%s\n", erMsg.c_str());                                                   \
+            __BNN_PRINT_LOCATION                                                             \
+            DebugBreak();                                                                    \
+        }                                                                                    \
+    }
+#else
+#  define __BNN_ASSERT(condition)                                                            \
     {                                                                                        \
         if(!(condition))                                                                     \
         {                                                                                    \
@@ -128,9 +144,23 @@ inline void throwIfFailed(HRESULT hr)
             exit(EXIT_FAILURE);                                                              \
         }                                                                                    \
     }
+#endif
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#define __BNN_ASSERT_MSG(condition, msg)                                                     \
+#ifdef __BANANA_DEBUG__
+#  define __BNN_ASSERT_MSG(condition, msg)                                                   \
+    {                                                                                        \
+        if(!(condition))                                                                     \
+        {                                                                                    \
+            std::string erMsg = std::string("Assertion failed: ") + std::string(#condition); \
+            std::string rsMsg = std::string("Reason: ") + std::string(msg);                  \
+            printf("%s\n%s\n", erMsg.c_str(), rsMsg.c_str());                                \
+            __BNN_PRINT_LOCATION                                                             \
+            DebugBreak();                                                                    \
+        }                                                                                    \
+    }
+#else
+#  define __BNN_ASSERT_MSG(condition, msg)                                                   \
     {                                                                                        \
         if(!(condition))                                                                     \
         {                                                                                    \
@@ -141,6 +171,7 @@ inline void throwIfFailed(HRESULT hr)
             exit(EXIT_FAILURE);                                                              \
         }                                                                                    \
     }
+#endif
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #define __BNN_CHECK_ERROR(condition, msg)                                                    \

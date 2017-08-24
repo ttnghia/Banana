@@ -21,13 +21,14 @@
 #include <map>
 #include <string>
 #include <iostream>
-#include <chrono>
 #include <memory>
+#include <csignal>
 
 #include <spdlog/spdlog.h>
 
-#include <Banana/Utils/Timer.h>
 #include <Banana/System/MemoryUsage.h>
+#include <Banana/Utils/Timer.h>
+#include <Banana/Macros.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -45,116 +46,81 @@ public:
     enum LogLevel
     {
         NormalLevel = 0,
-        DetailLevel,
         DebugLevel,
     };
 
-    enum Source
+    Logger(const std::string& instanceName)
     {
-        MainProgram = 9990,
-        LoggerClass = 9991,
-        Debugger    = 9992
-    };
+        __BNN_ASSERT(s_bInitialized);
+        m_ConsoleLogger = std::make_shared<spdlog::logger>(instanceName, s_ConsoleSink);
 
-    Logger() : m_LogSourceID(0) {}
-    Logger(unsigned int sourceID) : m_LogSourceID(sourceID) {}
-    Logger(unsigned int sourceID, const std::string& sourceName) : m_LogSourceID(sourceID) { Logger::setSourceName(sourceID, sourceName); }
-    Logger(const std::string& sourceName) : m_LogSourceID(++m_NumSources) { Logger::setSourceName(m_LogSourceID, sourceName); }
-
-    static void setDataPath(const std::string& dataPath);
-    static void enableStdOut(bool bEnable = true) { m_bPrintStdOut = bEnable; }
-    static void enableLogFile(bool bEnable = true) { m_bWriteLogToFile = bEnable; }
-
-
-    ////////////////////////////////////////////////////////////////////////////////
-    void newLine();
-    void printSeparator();
-    void printAligned(const std::string& s, char padding = PADDING, const std::string& wrapper = WRAPPER, int maxSize = 100);
-    void printGreeting(const std::string& s);
-    void printWarning(const std::string& s, int maxSize = 100);
-
-    template<class Function>
-    void printTime(const char* caption, const Function& function)
-    {
-        Logger::printLog(m_LogSourceID, Timer::getRunTime<Function>(caption, function));
+        if(s_LogFileSink != nullptr)
+            m_FileLogger = std::make_shared<spdlog::async_logger>(instanceName, s_LogFileSink, 1024);
     }
 
-    void printTime(const char* caption, Timer& timer);
-
-    template<class Function>
-    void printTimeIndent(const char* caption, const Function& function);
-    void printTimeIndent(const char* caption, Timer& timer);
-
-    void printLog(const std::string& s);
-    void printLogIndent(const std::string& s, int indentLevel = 1);
-
-    void printDetail(const std::string& s);
-    void printDetailIndent(const std::string& s, int indentLevel = 1);
-
-    void printMemoryUsage();
+    static std::shared_ptr<Logger> create(const std::string& instanceName)
+    {
+        return std::make_shared<Logger>(instanceName);
+    }
 
     ////////////////////////////////////////////////////////////////////////////////
-    static void newLine(unsigned int sourceID);
-    static void printSeparator(unsigned int sourceID);
-    static void printAligned(unsigned int sourceID, const std::string& s, char padding = PADDING, const std::string& wrapper = WRAPPER, int maxSize = 100);
-    static void printGreeting(unsigned int sourceID, const std::string& s);
-    static void printWarning(unsigned int sourceID, const std::string& s, int maxSize = 100);
+    void newLine() { printLog(""); }
+    void printSeparator();
+    void printAligned(const std::string& s, char padding = PADDING, const std::string& wrapper = WRAPPER, unsigned int maxSize = 100);
+    void printGreeting(const std::string& s);
+    void printWarning(const std::string& s, unsigned int maxSize = 100);
+    void printError(const std::string& s, unsigned int maxSize = 100);
 
-    static void printLog(unsigned int sourceID, const std::string& s);
-    static void printLogIndent(unsigned int sourceID, const std::string& s, int indentLevel = 1);
+    template<class Function>
+    void printRunTime(const char* caption, const Function& function) { printLog(Timer::getRunTime<Function>(caption, function)); }
+    template<class Function>
+    void printRunTimeIndent(const char* caption, const Function& function) { printLogIndent(Timer::getRunTime<Function>(caption, function)); }
 
-    static void printDetail(unsigned int sourceID, const std::string& s);
-    static void printDetailIndent(unsigned int sourceID, const std::string& s, int indentLevel = 1);
+    void printRunTime(const char* caption, Timer& timer) { printLog(timer.getRunTime(caption)); }
+    void printRunTimeIndent(const char* caption, Timer& timer) { printLogIndent(timer.getRunTime(caption)); }
 
-    static void printDebug(const std::string& s);
-    static void printDebugIndent(const std::string& s, int indentLevel = 1);
+    void printLog(const std::string& s);
+    void printLogIndent(const std::string& s, unsigned int indentLevel = 1);
 
-    static void printMemoryUsage(unsigned int sourceID);
+    void printDebug(const std::string& s);
+    void printDebugIndent(const std::string& s, unsigned int indentLevel = 1);
+
+    void printMemoryUsage();
 
     ////////////////////////////////////////////////////////////////////////////////
     static void initialize();
     static void initialize(const std::string& dataPath);
     static void shutdown();
+    static void setLoglevel(LogLevel logLevel) { s_LogLevel = logLevel; }
 
-    static void        computeTotalRunTime();
+    static void setDataPath(const std::string& dataPath) { s_DataPath = dataPath; }
+    static void enableLog2Console(bool bEnable = true) { s_bPrint2Console = bEnable; }
+    static void enableLog2File(bool bEnable = true) { s_bWriteLog2File = bEnable; }
+
     static std::string getTotalRunTime();
 
-    static std::string getSourceName(unsigned int sourceID);
-    static void        setSourceName(unsigned int sourceID, const std::string& sourceName);
-
-    template<class IntType>
-    static IntType getNumSources();
-
-    void setLogSource(unsigned int sourceID)
-    {
-        m_LogSourceID = sourceID;
-    }
-
-    static LogLevel s_LogLevel;
-
-    static void signalHandler(unsigned int signum);
-
 private:
-    static void printToStdOut(unsigned int sourceID, const std::string& s);
-    static void logToFile(unsigned int sourceID, const std::string& s);
+    static void signalHandler(int signum);
 
-    static bool m_bPrintStdOut;
-    static bool m_bWriteLogToFile;
-    static bool m_bDataPathReady;
+    ////////////////////////////////////////////////////////////////////////////////
+    static LogLevel s_LogLevel;
+    static bool     s_bPrint2Console;
+    static bool     s_bWriteLog2File;
+    static bool     s_bInitialized;
 
-    static std::string                           m_DataPath;
-    static std::string                           m_LogFile;
-    static std::string                           m_LogTimeFile;
-    static std::chrono::system_clock::time_point m_StartupTime;
-    static std::chrono::system_clock::time_point m_ShutdownTime;
-    static std::string                           m_TotalRunTime;
+    static std::string                           s_DataPath;
+    static std::string                           s_TimeLogFile;
+    static std::chrono::system_clock::time_point s_StartupTime;
+    static std::chrono::system_clock::time_point s_ShutdownTime;
 
-    static unsigned int                    m_NumSources;
-    static std::vector<std::string>        m_SourceNames;
-    static std::shared_ptr<spdlog::logger> m_FileLogger;
-    static std::shared_ptr<spdlog::logger> m_ConsoleLogger;
+    static std::shared_ptr<spdlog::sinks::stdout_sink_mt>      s_ConsoleSink;
+    static std::shared_ptr<spdlog::sinks::simple_file_sink_mt> s_LogFileSink;
 
-    int m_LogSourceID;
+    static std::shared_ptr<Logger> s_MainFuncLogger;
+
+    ////////////////////////////////////////////////////////////////////////////////
+    std::shared_ptr<spdlog::logger>       m_ConsoleLogger = nullptr;
+    std::shared_ptr<spdlog::async_logger> m_FileLogger    = nullptr;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

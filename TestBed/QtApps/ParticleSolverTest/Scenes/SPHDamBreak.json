@@ -1,33 +1,14 @@
 {
-	"FrameConfigs": 
+	"GlobalParameters": 
 	{
-		"SaveDataPath": "D:/Scratch/SimData/DamBreak",
-		"FrameTime": 0.0333333333
+		"FrameDuration": 0.01,
+		"FinalFrame": 100
 	},
-	"Configuration": 
+	"SimulationParameters": 
 	{
-		"timeStepSize": 0.001,
-		"particleRadius": 0.0125, 
-		"density0": 1000, 
-		"simulationMethod": 4,
-		"viscosity": 0.03,
-		"viscosityMethod": 2,
-		"gravitation": [0,-9.81,0], 
-		"surfaceTension": 0.2,
-		"surfaceTensionMethod": 0,
-		"cflMethod": 1, 
-		"cflFactor": 0.3,
-		"cflMaxTimeStepSize": 0.005,
-		"maxIterations": 100,
-		"maxError": 0.01,
-		"maxIterationsV": 100,
-		"maxErrorV": 0.1,		
-		"stiffness": 50000,
-		"exponent": 7,
-		"velocityUpdateMethod": 0,
-		"enableDivergenceSolver": true		
+		"PressureStiffness": 60000
 	},
-	"RigidBodies": [
+	"ObjectParameters": [
 		{
 			"geometryFile": "../models/UnitBox.obj",
 			"translation": [0,2,0],
@@ -38,16 +19,7 @@
 			"isDynamic": false,
 			"isWall": true
 		}
-	],
-	"FluidBlocks": [
-		{
-			"denseMode": 0,
-			"start": [-0.5, 0.025, -0.5],
-			"end": [0.5, 2.025, 0.5],
-			"translation": [-1.45, 0.0, 0.0],
-			"scale": [1, 1, 1]
-		}
-	]	
+	]
 }
 
 

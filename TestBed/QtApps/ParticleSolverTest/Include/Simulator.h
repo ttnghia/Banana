@@ -34,17 +34,23 @@ class Simulator : public QObject
     Q_OBJECT
 
 public:
-    Simulator(const std::shared_ptr<ParticleSystemData>& particleData) : m_ParticleData(particleData) {}
+    Simulator()
+    {
+        Logger::initialize();
+        m_ParticleSolver = std::make_unique<PARTICLE_SOLVER<float> >();
+    }
+
+    void setParticleSystemData(const std::shared_ptr<ParticleSystemData>& particleData) { m_ParticleData = particleData; }
 
     bool isRunning() { return !m_bStop; }
     void stop();
     void reset();
     void startSimulation();
+    const std::unique_ptr<PARTICLE_SOLVER<float> >& getSolver() const { return m_ParticleSolver; }
 
 public slots:
     void doSimulation();
     void changeScene(const QString& scene);
-    void setupScene();
 
 signals:
     void simulationFinished();
@@ -57,7 +63,7 @@ protected:
     volatile bool                       m_bStop        = true;
     std::shared_ptr<ParticleSystemData> m_ParticleData = nullptr;
 
-    std::unique_ptr<PARTICLE_SOLVER<float> > m_ParticleSolver = std::make_unique<PARTICLE_SOLVER<float> >();
+    std::unique_ptr<PARTICLE_SOLVER<float> > m_ParticleSolver;
     std::future<void>                        m_SimulationFutureObj;
     QString                                  m_Scene;
 };

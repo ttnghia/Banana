@@ -37,10 +37,10 @@ void Simulator::doSimulation()
     ////////////////////////////////////////////////////////////////////////////////
     m_ParticleSolver->makeReady();
 
-    for(unsigned int frame = 1; frame <= m_ParticleSolver->getFrameParams()->finalFrame; ++frame)
+    for(unsigned int frame = 1; frame <= m_ParticleSolver->getGlobalParams()->finalFrame; ++frame)
     {
         m_ParticleSolver->advanceFrame();
-        float sysTime = m_ParticleSolver->getFrameParams()->frameDuration * static_cast<float>(frame);
+        float sysTime = m_ParticleSolver->getGlobalParams()->frameDuration * static_cast<float>(frame);
 
         emit systemTimeChanged(sysTime);
         emit particleChanged();
@@ -66,19 +66,13 @@ void Simulator::stop()
 void Simulator::reset()
 {
     m_bStop = true;
-    setupScene();
+    changeScene(m_Scene);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Simulator::changeScene(const QString& scene)
 {
     m_Scene = scene;
-    setupScene();
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Simulator::setupScene()
-{
     emit systemTimeChanged(0);
 
     // wait until the simulation stop before modifying the scene
@@ -86,7 +80,8 @@ void Simulator::setupScene()
         m_SimulationFutureObj.wait();
 
     ////////////////////////////////////////////////////////////////////////////////
-    m_ParticleSolver->loadScene(m_Scene.toStdString());
+    QString sceneFile = QDir::currentPath() + "/Scenes/" + scene;
+    m_ParticleSolver->loadScene(sceneFile.toStdString());
     m_ParticleData->setNumParticles(m_ParticleSolver->getNumParticles());
     m_ParticleData->setUInt("ColorRandomReady", 0);
     m_ParticleData->setUInt("ColorRampReady",   0);

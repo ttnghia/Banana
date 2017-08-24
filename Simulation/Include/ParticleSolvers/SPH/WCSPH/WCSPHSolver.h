@@ -29,7 +29,8 @@ template<class RealType>
 class WCSPHSolver : public ParticleSolver3D<RealType>
 {
 public:
-    WCSPHSolver()  = default;
+    WCSPHSolver() { setupLogger(); }
+
     ~WCSPHSolver() = default;
 
     std::shared_ptr<SimulationParameters_WCSPH<RealType> > getSolverParams() { return m_SimParams; }
@@ -38,7 +39,7 @@ public:
     virtual void makeReady() override;
     virtual void advanceFrame() override;
     virtual std::string getSolverName() override { return std::string("WCSPHSolver"); }
-    virtual std::string greetingMessage() override { return std::string("Fluid Simulation using WCSPH Solver"); }
+    virtual std::string getGreetingMessage() override { return std::string("Fluid Simulation using WCSPH Solver"); }
     virtual unsigned int        getNumParticles() override { return static_cast<unsigned int>(m_SimData->positions.size()); }
     virtual Vec_Vec3<RealType>& getParticlePositions() override { return m_SimData->positions; }
     virtual Vec_Vec3<RealType>& getParticleVelocities() override { return m_SimData->velocities; }

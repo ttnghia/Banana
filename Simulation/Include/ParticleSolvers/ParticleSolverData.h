@@ -18,6 +18,7 @@
 #pragma once
 
 #include <Banana/Utils/MathHelpers.h>
+#include <Banana/Utils/NumberHelpers.h>
 #include <string>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -25,12 +26,14 @@ namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #define DEFAULT_BOUNDARY_RESTITUTION 0.1
+class Logger;
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-struct FrameParameters
+struct GlobalParameters
 {
-    RealType     frameDuration = RealType(1.0 / 30.0);
+    RealType frameDuration = RealType(1.0 / 30.0);
+
     unsigned int startFrame    = 1;
     unsigned int finalFrame    = 1;
     unsigned int finishedFrame = 0;
@@ -42,6 +45,20 @@ struct FrameParameters
     bool         bSaveMemoryState  = true;
     unsigned int framePerState     = 1;
     std::string  dataPath          = std::string("./SimData");
+
+    bool bPrintLog2Console = true;
+    bool bPrintLog2File    = false;
+
+    ////////////////////////////////////////////////////////////////////////////////
+    void printParams(const std::shared_ptr<Logger>& logger)
+    {
+        logger->printLog("Global parameters:");
+        logger->printLogIndent("Number of working threads: " + std::to_string(nThreads));
+        logger->printLogIndent("Data path: " + dataPath);
+        logger->printLogIndent("Frame duration: " + NumberHelpers::formatToScientific(frameDuration));
+        logger->printLogIndent("Final frame: " + std::to_string(finalFrame));
+        logger->newLine();
+    }
 };
 
 

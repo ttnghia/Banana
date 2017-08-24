@@ -34,8 +34,6 @@ MainWindow::MainWindow(QWidget* parent) : OpenGLMainWindow(parent)
     showFPS(false);
     showCameraPosition(false);
 
-    ////////////////////////////////////////////////////////////////////////////////
-    m_Simulator = std::make_unique<Simulator>(m_RenderWidget->getParticleDataObj());
     connectWidgets();
 }
 
@@ -50,9 +48,9 @@ void MainWindow::showEvent(QShowEvent* ev)
         showed = true;
 
         Q_ASSERT(m_Simulator != nullptr);
-        m_Simulator->setupScene();
         updateStatusMemoryUsage();
         updateStatusSimulationTime(0);
+        m_Simulator->changeScene(m_Controller->m_cbSimulationScene->currentText());
     }
 }
 
@@ -64,7 +62,9 @@ void MainWindow::instantiateOpenGLWidget()
         delete m_GLWidget;
     }
 
-    m_RenderWidget = new RenderWidget(this);
+    m_Simulator    = std::make_unique<Simulator>();
+    m_RenderWidget = new RenderWidget(m_Simulator->getSolver()->getParticlePositions(), this);
+    m_Simulator->setParticleSystemData(m_RenderWidget->getParticleDataObj());
     setupOpenglWidget(m_RenderWidget);
 }
 
@@ -187,13 +187,9 @@ void MainWindow::connectWidgets()
 
     ////////////////////////////////////////////////////////////////////////////////
     // simulation
-//    connect(m_Controller->m_cbSimulationScene, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
-//            [&](int index)
-//            {
-//                m_Simulator->changeScene(static_cast<SimulationScenes::Scene>(index));
-//            });
+    connect(m_Controller->m_cbSimulationScene,      &QComboBox::currentTextChanged, [&](const QString& scene) { m_Simulator->changeScene(scene); });
 
-    connect(m_Controller->m_btnStartStopSimulation, &QPushButton::clicked, [&]
+    connect(m_Controller->m_btnStartStopSimulation, &QPushButton::clicked,          [&]
     {
         bool isRunning = m_Simulator->isRunning();
 

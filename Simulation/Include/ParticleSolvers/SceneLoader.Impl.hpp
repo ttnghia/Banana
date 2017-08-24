@@ -27,7 +27,7 @@ void Banana::SceneLoader<RealType>::loadScene(const std::string& sceneFile)
 {}
 
 template<class RealType>
-void Banana::SceneLoader<RealType>::loadFrameParams(const nlohmann::json& jParams, const std::shared_ptr<FrameParameters<RealType> >& frameParams)
+void Banana::SceneLoader<RealType>::loadFrameParams(const nlohmann::json& jParams, const std::shared_ptr<GlobalParameters<RealType> >& frameParams)
 {}
 
 template<class RealType>

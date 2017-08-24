@@ -394,7 +394,7 @@ void NeighborhoodSearch<RealType>::query()
                                             std::pair<HashKey const, unsigned int> const* kvp_ = kvps[it];
                                             auto const& kvp = *kvp_;
                                             HashEntry const& entry = m_entries[kvp.second];
-                                            HashKey const& key = kvp.first;
+//                                            HashKey const& key = kvp.first;
 
                                             if(entry.n_searching_points == 0u)
                                             {

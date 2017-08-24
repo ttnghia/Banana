@@ -53,6 +53,8 @@ private:
 
     ////////////////////////////////////////////////////////////////////////////////
     QComboBox*     m_cbSimulationScene;
+    QComboBox*     m_cbResolution;
+    QLineEdit*     m_txtStopTime;
     QSignalMapper* m_smParticleColorMode;
 
     EnhancedComboBox* m_cbSkyTexture;

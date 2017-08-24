@@ -19,7 +19,7 @@
 #include <tbb/tbb.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-RenderWidget::RenderWidget(QWidget* parent) : OpenGLWidget(parent)
+RenderWidget::RenderWidget(const Vec_Vec3<float>& particlePosition, QWidget* parent) : m_ParticlePositions(particlePosition), OpenGLWidget(parent)
 {
     m_DefaultSize = QSize(1200, 1000);
     setCamera(DEFAULT_CAMERA_POSITION, DEFAULT_CAMERA_FOCUS);
@@ -208,7 +208,7 @@ void RenderWidget::updateParticleData()
 
     ////////////////////////////////////////////////////////////////////////////////
     // position buffer
-    m_RDataParticle.buffPosition->uploadDataAsync(m_ParticleData->getArray("Position")->data(), 0, m_ParticleData->getArray("Position")->size());
+    m_RDataParticle.buffPosition->uploadDataAsync(m_ParticlePositions.data(), 0, m_ParticlePositions.size() * 3 * sizeof(float));
 
     ////////////////////////////////////////////////////////////////////////////////
     // also upload the particle color data
@@ -344,7 +344,7 @@ void RenderWidget::initParticleDataObj()
     Q_ASSERT(m_ParticleData != nullptr);
     m_ParticleData->setUInt("DataFrame",     0);
     m_ParticleData->setUInt("FrameExported", 0);
-    m_ParticleData->addArray<GLfloat, 3>("Position");
+//    m_ParticleData->addArray<GLfloat, 3>("Position");
 
 #if 0
     const int     sizeXYZ = 20;

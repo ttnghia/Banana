@@ -65,7 +65,7 @@ public:
     SceneLoader(const std::string& sceneFile)
     {}
 
-    void loadFrameParams(const nlohmann::json& jParams, const std::shared_ptr<FrameParameters<RealType> >& frameParams);
+    void loadFrameParams(const nlohmann::json& jParams, const std::shared_ptr<GlobalParameters<RealType> >& frameParams);
     void loadObjectParams(const nlohmann::json& jParams);
 
 private:

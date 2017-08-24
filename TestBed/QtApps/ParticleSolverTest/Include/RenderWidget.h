@@ -42,8 +42,7 @@ class RenderWidget : public OpenGLWidget
     Q_OBJECT
 
 public:
-
-    RenderWidget(QWidget* parent = 0);
+    RenderWidget(const Vec_Vec3<float>& particlePosition, QWidget* parent = 0);
 
     void setCamera(const glm::vec3& cameraPosition, const glm::vec3& cameraFocus);
     void setBox(const glm::vec3& boxMin, const glm::vec3& boxMax);
@@ -120,7 +119,7 @@ private:
     } m_RDataParticle;
 
     std::shared_ptr<ParticleSystemData> m_ParticleData = std::make_shared<ParticleSystemData>();
-
+    const Vec_Vec3<float>&              m_ParticlePositions;
 
     void initRDataParticle();
     void initFluidVAOs();

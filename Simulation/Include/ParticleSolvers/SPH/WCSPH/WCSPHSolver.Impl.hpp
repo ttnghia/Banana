@@ -18,52 +18,51 @@
 template<class RealType>
 void Banana::WCSPHSolver<RealType>::loadSimParams(const nlohmann::json& jParams)
 {
-    JSONHelpers::readVector(jParams["BoxMin"], m_SimParams->boxMin);
-    JSONHelpers::readVector(jParams["BoxMax"], m_SimParams->boxMax);
+    JSONHelpers::readVector(jParams, m_SimParams->boxMin, "BoxMin");
+    JSONHelpers::readVector(jParams, m_SimParams->boxMax, "BoxMax");
 
-    JSONHelpers::readValue(jParams["PressureStiffness"],  m_SimParams->pressureStiffness);
-    JSONHelpers::readValue(jParams["NearForceStiffness"], m_SimParams->nearForceStiffness);
-    JSONHelpers::readValue(jParams["Viscosity"],          m_SimParams->viscosity);;
-    JSONHelpers::readValue(jParams["KernelRadius"],       m_SimParams->kernelRadius);
+    JSONHelpers::readValue(jParams, m_SimParams->pressureStiffness,  "PressureStiffness");
+    JSONHelpers::readValue(jParams, m_SimParams->nearForceStiffness, "NearForceStiffness");
+    JSONHelpers::readValue(jParams, m_SimParams->viscosity,          "Viscosity");
+    JSONHelpers::readValue(jParams, m_SimParams->kernelRadius,       "KernelRadius");
 
-    JSONHelpers::readBool(jParams["CorrectDensity"],        m_SimParams->bCorrectDensity);
-    JSONHelpers::readBool(jParams["UseBoundaryParticles"],  m_SimParams->bUseBoundaryParticles);
-    JSONHelpers::readBool(jParams["UseAttractivePressure"], m_SimParams->bUseAttractivePressure);
-    JSONHelpers::readBool(jParams["ApplyGravity"],          m_SimParams->bApplyGravity);
-    JSONHelpers::readBool(jParams["EnableSortParticle"],    m_SimParams->bEnableSortParticle);
+    JSONHelpers::readBool(jParams, m_SimParams->bCorrectDensity,        "CorrectDensity");
+    JSONHelpers::readBool(jParams, m_SimParams->bUseBoundaryParticles,  "UseBoundaryParticles");
+    JSONHelpers::readBool(jParams, m_SimParams->bUseAttractivePressure, "UseAttractivePressure");
+    JSONHelpers::readBool(jParams, m_SimParams->bApplyGravity,          "ApplyGravity");
+    JSONHelpers::readBool(jParams, m_SimParams->bEnableSortParticle,    "EnableSortParticle");
 
-    JSONHelpers::readVector(jParams["BoundaryRestitution"],     m_SimParams->boxMax);
-    JSONHelpers::readVector(jParams["AttractivePressureRatio"], m_SimParams->boxMax);
+    JSONHelpers::readVector(jParams, m_SimParams->boxMax, "BoundaryRestitution");
+    JSONHelpers::readVector(jParams, m_SimParams->boxMax, "AttractivePressureRatio");
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
 void Banana::WCSPHSolver<RealType>::makeReady()
 {
-    m_Logger = std::make_unique<Logger>();
-    m_Logger->printLog(Timer::getRunTime("Allocate solver memory: ",
-                                         [&]()
-                                         {
-                                             m_SimParams->makeReady();
-                                             m_SimData->makeReady();
+    m_Logger->printRunTime("Allocate solver memory: ",
+                           [&]()
+                           {
+                               m_SimParams->makeReady();
+                               m_SimData->makeReady();
 
-                                             m_CubicKernel.setRadius(m_SimParams->kernelRadius);
-                                             m_SpikyKernel.setRadius(m_SimParams->kernelRadius);
-                                             m_NearSpikyKernel.setRadius(RealType(1.5) * m_SimParams->particleRadius);
+                               m_CubicKernel.setRadius(m_SimParams->kernelRadius);
+                               m_SpikyKernel.setRadius(m_SimParams->kernelRadius);
+                               m_NearSpikyKernel.setRadius(RealType(1.5) * m_SimParams->particleRadius);
 
-                                             m_NSearch = std::make_unique<NeighborhoodSearch<RealType> >(m_SimParams->kernelRadius);
-                                             m_NSearch->add_point_set(glm::value_ptr(m_SimData->positions.front()), m_SimData->positions.size(), true, true);
+                               m_NSearch = std::make_unique<NeighborhoodSearch<RealType> >(m_SimParams->kernelRadius);
+                               m_NSearch->add_point_set(glm::value_ptr(m_SimData->positions.front()), m_SimData->positions.size(), true, true);
 
-                                             if(m_SimParams->bUseBoundaryParticles)
-                                             {
-                                                 __BNN_ASSERT(m_BoundaryObjects.size() != 0);
-                                                 for(auto& bdObj : m_BoundaryObjects)
-                                                 {
-                                                     bdObj->generateBoundaryParticles(RealType(1.7) * m_SimParams->particleRadius);
-                                                     m_NSearch->add_point_set(glm::value_ptr(bdObj->getBDParticles().front()), bdObj->getBDParticles().size(), true, true);
-                                                 }
-                                             }
-                                         }));
+                               if(m_SimParams->bUseBoundaryParticles)
+                               {
+                                   __BNN_ASSERT(m_BoundaryObjects.size() != 0);
+                                   for(auto& bdObj : m_BoundaryObjects)
+                                   {
+                                       bdObj->generateBoundaryParticles(RealType(1.7) * m_SimParams->particleRadius);
+                                       m_NSearch->add_point_set(glm::value_ptr(bdObj->getBDParticles().front()), bdObj->getBDParticles().size(), true, true);
+                                   }
+                               }
+                           });
 
     ////////////////////////////////////////////////////////////////////////////////
     m_Logger->printLog("Solver ready!");
@@ -82,13 +81,13 @@ void Banana::WCSPHSolver<RealType>::advanceFrame()
     ////////////////////////////////////////////////////////////////////////////////
     frameTimer.tick();
 
-    while(frameTime < m_FrameParams->frameDuration)
+    while(frameTime < m_GlobalParams->frameDuration)
     {
         subStepTimer.tick();
 
         ////////////////////////////////////////////////////////////////////////////////
 
-        RealType remainingTime = m_FrameParams->frameDuration - frameTime;
+        RealType remainingTime = m_GlobalParams->frameDuration - frameTime;
         RealType substep       = MathHelpers::min(computeCFLTimeStep(), remainingTime);
 
         m_NSearch->find_neighbors();
@@ -101,8 +100,8 @@ void Banana::WCSPHSolver<RealType>::advanceFrame()
         subStepTimer.tock();
 
         m_Logger->printLog("Finished step " + NumberHelpers::formatWithCommas(substepCount) + " of size " + NumberHelpers::formatToScientific<RealType>(substep) +
-                           "(" + NumberHelpers::formatWithCommas(substep / m_FrameParams->frameDuration * 100) + "% of the frame, to " +
-                           NumberHelpers::formatWithCommas(100 * (frameTime + substep) / m_FrameParams->frameDuration) + "% of the frame).");
+                           "(" + NumberHelpers::formatWithCommas(substep / m_GlobalParams->frameDuration * 100) + "% of the frame, to " +
+                           NumberHelpers::formatWithCommas(100 * (frameTime + substep) / m_GlobalParams->frameDuration) + "% of the frame).");
         m_Logger->printLog(subStepTimer.getRunTime("Substep time: "));
         m_Logger->newLine();
     } // end while
@@ -120,7 +119,7 @@ void Banana::WCSPHSolver<RealType>::advanceFrame()
 template<class RealType>
 void Banana::WCSPHSolver<RealType>::saveParticleData()
 {
-    if(!m_FrameParams->bSaveParticleData)
+    if(!m_GlobalParams->bSaveParticleData)
         return;
 }
 
@@ -128,13 +127,13 @@ void Banana::WCSPHSolver<RealType>::saveParticleData()
 template<class RealType>
 void Banana::WCSPHSolver<RealType>::saveMemoryState()
 {
-    if(!m_FrameParams->bSaveMemoryState)
+    if(!m_GlobalParams->bSaveMemoryState)
         return;
 
     static unsigned int frameCount = 0;
     ++frameCount;
 
-    if(frameCount < m_FrameParams->framePerState)
+    if(frameCount < m_GlobalParams->framePerState)
         return;
 
     ////////////////////////////////////////////////////////////////////////////////

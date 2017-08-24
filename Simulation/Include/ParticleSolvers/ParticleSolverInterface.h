@@ -52,22 +52,23 @@ public:
     ParticleSolver()          = default;
     virtual ~ParticleSolver() = default;
 
-    std::shared_ptr<FrameParameters<RealType> > getFrameParams() const noexcept { return m_FrameParams; }
-    void setFrameParams(std::shared_ptr<FrameParameters<RealType> > frameParams) { m_FrameParams = frameParams; }
+    const std::unique_ptr<GlobalParameters<RealType> >& getGlobalParams() const noexcept { return m_GlobalParams; }
+    const std::shared_ptr<Logger>& getLogger() const noexcept { return m_Logger; }
     void doSimulation();
 
     ////////////////////////////////////////////////////////////////////////////////
-    virtual void         makeReady()       = 0;
-    virtual void         advanceFrame()    = 0;
-    virtual std::string  getSolverName()   = 0;
-    virtual std::string  greetingMessage() = 0;
-    virtual unsigned int getNumParticles() = 0;
+    virtual void         makeReady()          = 0;
+    virtual void         advanceFrame()       = 0;
+    virtual std::string  getSolverName()      = 0;
+    virtual std::string  getGreetingMessage() = 0;
+    virtual unsigned int getNumParticles()    = 0;
 
-    void loadScene(const std::string& sceneFile);
-    void setupLogger(bool bLog2Std, bool bLog2File);
+    void        loadScene(const std::string& sceneFile);
+    static bool loadDataPath(const std::string& sceneFile, std::string& dataPath);
 
 protected:
-    void         loadFrameParams(const nlohmann::json& jParams);
+    void         setupLogger();
+    void         loadGlobalParams(const nlohmann::json& jParams);
     void         loadObjectParams(const nlohmann::json& jParams);
     virtual void loadSimParams(const nlohmann::json& jParams) = 0;
     virtual void printParameters()                            = 0;
@@ -80,10 +81,10 @@ protected:
 
     ////////////////////////////////////////////////////////////////////////////////
     std::unique_ptr<tbb::task_scheduler_init>      m_ThreadInit = nullptr;
-    std::unique_ptr<Logger>                        m_Logger     = nullptr;
     std::unique_ptr<NeighborhoodSearch<RealType> > m_NSearch    = nullptr;
+    std::shared_ptr<Logger>                        m_Logger     = nullptr;
 
-    std::shared_ptr<FrameParameters<RealType> >              m_FrameParams = std::make_shared<FrameParameters<RealType> >();
+    std::unique_ptr<GlobalParameters<RealType> >             m_GlobalParams = std::make_unique<GlobalParameters<RealType> >();
     std::vector<std::shared_ptr<DataIO> >                    m_ParticleDataIO;
     std::vector<std::shared_ptr<DataIO> >                    m_MemoryStateIO;
     std::vector<std::shared_ptr<BoundaryObject<RealType> > > m_BoundaryObjects;
@@ -113,60 +114,59 @@ public:
 template<class RealType>
 void Banana::ParticleSolver<RealType>::doSimulation()
 {
-    m_Logger.printGreeting(greetingMessage());
-    FileHelpers::createFolder(m_FrameParams->dataPath);
-    if(m_FrameParams->bLoadMemoryStates)
+    FileHelpers::createFolder(m_GlobalParams->dataPath);
+    if(m_GlobalParams->bLoadMemoryStates)
         loadMemoryStates();
     makeReady();
 
     ////////////////////////////////////////////////////////////////////////////////
     m_ThreadInit.reset();
-    m_ThreadInit = std::make_unique<tbb::task_scheduler_init>(m_SimParams->nThreads == 0 ? tbb::task_scheduler_init::automatic : m_SimParams->nThreads);
-    m_Logger.printAligned("Start Simulation", '=');
+    m_ThreadInit = std::make_unique<tbb::task_scheduler_init>(m_GlobalParams->nThreads == 0 ? tbb::task_scheduler_init::automatic : m_GlobalParams->nThreads);
+    m_Logger->printAligned("Start Simulation", '=');
 
-    while(auto frame = m_FrameParams->startFrame; frame < m_FrameParams->finalFrame; ++frame)
+    while(auto frame = m_GlobalParams->startFrame; frame < m_GlobalParams->finalFrame; ++frame)
     {
         advanceScene();
         advanceFrame();
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    m_Logger.newLine();
-    m_Logger.printAligned("End Simulation", '=');
-    m_Logger.printLog("Total frames: " + NumberHelpers::formatWithCommas(m_FrameParams->finalFrame - m_FrameParams->->startFrame + 1));
-    m_Logger.printLog("Data path: " + m_FrameParams->dataPath);
-    //m_Logger.printLog("Data: \n" + FileHelpers::getFolderSize(m_FrameParams->dataPath, 1));
+    m_Logger->newLine();
+    m_Logger->printAligned("End Simulation", '=');
+    m_Logger->printLog("Total frames: " + NumberHelpers::formatWithCommas(m_GlobalParams->finalFrame - m_GlobalParams->->startFrame + 1));
+    m_Logger->printLog("Data path: " + m_GlobalParams->dataPath);
+    //m_Logger->printLog("Data: \n" + FileHelpers::getFolderSize(m_GlobalParams->dataPath, 1));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
 void Banana::ParticleSolver<RealType>::loadScene(const std::string& sceneFile)
 {
-    std::cout << "Load scene file: " << sceneFile << "\n";
-
     std::ifstream inputFile(sceneFile);
     if(!inputFile.is_open())
     {
-        std::cerr << "Cannot open file!\n";
+        m_Logger->printError("Cannot open scene file: " + sceneFile);
         return;
     }
+    m_Logger->printLog("Load scene file: " + sceneFile);
 
     nlohmann::json jParams;
     jParams << inputFile;
 
-    __BNN_ASSERT(jParams.find("FrameParameters") != jParams.end());
+    // Only object parameters are required. Global parameters and simulation parameters can be default
     __BNN_ASSERT(jParams.find("ObjectParameters") != jParams.end());
-    __BNN_ASSERT(jParams.find("SimulationParameters") != jParams.end());
 
     ////////////////////////////////////////////////////////////////////////////////
     // read frame parameters
+    if(jParams.find("GlobalParameters") != jParams.end())
     {
-        nlohmann::json jFrameParams = jParams["FrameParameters"];
-        loadFrameParams(jFrameParams);
+        nlohmann::json jFrameParams = jParams["GlobalParameters"];
+        loadGlobalParams(jFrameParams);
     }
 
     ////////////////////////////////////////////////////////////////////////////////
     // read simulation parameters
+    if(jParams.find("SimulationParameters") != jParams.end())
     {
         nlohmann::json jSimParams = jParams["SimulationParameters"];
         loadSimParams(jSimParams); // do this by specific solver
@@ -182,16 +182,39 @@ void Banana::ParticleSolver<RealType>::loadScene(const std::string& sceneFile)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-void Banana::ParticleSolver<RealType>::loadFrameParams(const nlohmann::json& jParams)
+bool Banana::ParticleSolver<RealType>::loadDataPath(const std::string& sceneFile, std::string& dataPath)
 {
-    JSONHelpers::readValue(jParams["FrameDuration"], m_FrameParams->frameDuration);
-    JSONHelpers::readValue(jParams["FinalFrame"],    m_FrameParams->finalFrame);
-    JSONHelpers::readValue(jParams["NThreads"],      m_FrameParams->nThreads);
+    std::ifstream inputFile(sceneFile);
+    if(!inputFile.is_open())
+    {
+        return false;
+    }
 
-    JSONHelpers::readBool(jParams["SaveParticleData"], m_FrameParams->bSaveParticleData);
-    JSONHelpers::readBool(jParams["SaveMemoryState"],  m_FrameParams->bSaveMemoryState);
-    JSONHelpers::readValue(jParams["FramePerState"], m_FrameParams->framePerState);
-    JSONHelpers::readValue(jParams["DataPath"],      m_FrameParams->dataPath);
+    nlohmann::json jParams;
+    jParams << inputFile;
+
+    if(jParams.find("GlobalParameters") == jParams.end())
+        return false;
+    else
+        return JSONHelpers::readValue(jParams["DataPath"], dataPath);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class RealType>
+void Banana::ParticleSolver<RealType>::loadGlobalParams(const nlohmann::json& jParams)
+{
+    JSONHelpers::readValue(jParams, m_GlobalParams->frameDuration, "FrameDuration");
+    JSONHelpers::readValue(jParams, m_GlobalParams->finalFrame,    "FinalFrame");
+    JSONHelpers::readValue(jParams, m_GlobalParams->nThreads,      "NThreads");
+
+    JSONHelpers::readBool(jParams, m_GlobalParams->bSaveParticleData, "SaveParticleData");
+    JSONHelpers::readBool(jParams, m_GlobalParams->bSaveMemoryState,  "SaveMemoryState");
+    JSONHelpers::readValue(jParams, m_GlobalParams->framePerState, "FramePerState");
+    JSONHelpers::readValue(jParams, m_GlobalParams->dataPath,      "DataPath");
+
+    ////////////////////////////////////////////////////////////////////////////////
+    m_GlobalParams->printParams(m_Logger);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -276,18 +299,17 @@ void Banana::ParticleSolver<RealType>::loadObjectParams(const nlohmann::json& jP
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-void Banana::ParticleSolver<RealType>::setupLogger(bool bLog2Std, bool bLog2File)
+void Banana::ParticleSolver<RealType>::setupLogger()
 {
-    m_Logger.enableStdOut(bLog2Std);
-    m_Logger.enableLogFile(bLog2File);
+    m_Logger = Logger::create(getSolverName());
+    m_Logger->printGreeting(getGreetingMessage());
+
+    m_Logger->enableLog2Console(m_GlobalParams->bPrintLog2Console);
+    m_Logger->enableLog2File(m_GlobalParams->bPrintLog2File);
 
     // TODO
-    if(bLog2File)
-    {
-        __BNN_ASSERT(!dataPath.empty());
-        m_Logger.setDataPath(dataPath);
-        m_Logger.setSourceName(getSolverName());
-    }
+    if(m_GlobalParams->bPrintLog2File)
+        m_Logger->setDataPath(m_GlobalParams->dataPath);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

@@ -26,20 +26,19 @@ void Banana::FLIP3DSolver<RealType>::loadSimParams(const nlohmann::json& jParams
 template<class RealType>
 void Banana::FLIP3DSolver<RealType>::makeReady()
 {
-    m_Logger = std::make_unique<Logger>();
-    m_Logger->printTime("Allocate solver memory: ",
-                        [&]()
-                        {
-                            m_SimParams->makeReady();
-                            m_Grid3D.setGrid(m_SimParams->boxMin, m_SimParams->boxMax, m_SimParams->kernelRadius);
-                            m_SimData->makeReady(m_Grid3D.getNumCellX(), m_Grid3D.getNumCellY(), m_Grid3D.getNumCellZ());
+    m_Logger->printRunTime("Allocate solver memory: ",
+                           [&]()
+                           {
+                               m_SimParams->makeReady();
+                               m_Grid3D.setGrid(m_SimParams->boxMin, m_SimParams->boxMax, m_SimParams->kernelRadius);
+                               m_SimData->makeReady(m_Grid3D.getNumCellX(), m_Grid3D.getNumCellY(), m_Grid3D.getNumCellZ());
 
-                            m_PCGSolver.setSolverParameters(m_SimParams->CGRelativeTolerance, m_SimParams->maxCGIteration);
-                            m_PCGSolver.setPreconditioners(PreconditionerTypes::MICCL0_SYMMETRIC);
+                               m_PCGSolver.setSolverParameters(m_SimParams->CGRelativeTolerance, m_SimParams->maxCGIteration);
+                               m_PCGSolver.setPreconditioners(PreconditionerTypes::MICCL0_SYMMETRIC);
 
-                            m_NSearch = std::make_unique<NeighborhoodSearch<RealType> >(m_SimParams->kernelRadius);
-                            m_NSearch->add_point_set(glm::value_ptr(m_SimData->positions.front()), m_SimData->getNumParticles(), true, true);
-                        });
+                               m_NSearch = std::make_unique<NeighborhoodSearch<RealType> >(m_SimParams->kernelRadius);
+                               m_NSearch->add_point_set(glm::value_ptr(m_SimData->positions.front()), m_SimData->getNumParticles(), true, true);
+                           });
 
     ////////////////////////////////////////////////////////////////////////////////
     m_Logger->printLog("Solver ready!");
@@ -57,12 +56,12 @@ void Banana::FLIP3DSolver<RealType>::advanceFrame()
 
     frameTimer.tick();
     ////////////////////////////////////////////////////////////////////////////////
-    while(frameTime < m_FrameParams->frameDuration)
+    while(frameTime < m_GlobalParams->frameDuration)
     {
         subStepTimer.tick();
 
         ////////////////////////////////////////////////////////////////////////////////
-        RealType remainingTime = m_FrameParams->frameDuration - frameTime;
+        RealType remainingTime = m_GlobalParams->frameDuration - frameTime;
         RealType substep       = MathHelpers::min(computeCFLTimestep(), remainingTime);
 
         //m_NSearch->find_neighbors();
@@ -75,8 +74,8 @@ void Banana::FLIP3DSolver<RealType>::advanceFrame()
 
         subStepTimer.tock();
         m_Logger->printLog("Finished step " + NumberHelpers::formatWithCommas(substepCount) + " of size " + NumberHelpers::formatToScientific<RealType>(substep) +
-                           "(" + NumberHelpers::formatWithCommas(substep / m_FrameParams->frameDuration * 100) + "% of the frame, to " +
-                           NumberHelpers::formatWithCommas(100 * (frameTime + substep) / m_FrameParams->frameDuration) + "% of the frame).");
+                           "(" + NumberHelpers::formatWithCommas(substep / m_GlobalParams->frameDuration * 100) + "% of the frame, to " +
+                           NumberHelpers::formatWithCommas(100 * (frameTime + substep) / m_GlobalParams->frameDuration) + "% of the frame).");
         m_Logger->printLog(subStepTimer.getRunTime("Substep time: "));
         m_Logger->newLine();
     } // end while
@@ -87,7 +86,7 @@ void Banana::FLIP3DSolver<RealType>::advanceFrame()
     m_Logger->newLine();
 
     ////////////////////////////////////////////////////////////////////////////////
-    ++m_FrameParams->finishedFrame;
+    ++m_GlobalParams->finishedFrame;
     saveParticleData();
     saveMemoryState();
 }
@@ -104,13 +103,13 @@ void Banana::FLIP3DSolver<RealType>::saveParticleData()
             dataIO->getBuffer().append(static_cast<UInt32>(m_SimData->getNumParticles()));
             dataIO->getBuffer().appendFloat(m_SimParams->particleRadius);
             dataIO->getBuffer().appendFloatArray(m_SimData->positions, false);
-            dataIO->flushBufferAsync(m_FrameParams->finishedFrame);
+            dataIO->flushBufferAsync(m_GlobalParams->finishedFrame);
         }
         else if(dataIO->dataName() == "FrameVelocity")
         {
             dataIO->clearBuffer();
             dataIO->getBuffer().appendFloatArray(m_SimData->velocities);
-            dataIO->flushBufferAsync(m_FrameParams->finishedFrame);
+            dataIO->flushBufferAsync(m_GlobalParams->finishedFrame);
         }
         else
         {
@@ -131,13 +130,13 @@ void Banana::FLIP3DSolver<RealType>::saveMemoryState()
             dataIO->getBuffer().append(static_cast<UInt32>(m_SimData->getNumParticles()));
             dataIO->getBuffer().append(m_SimParams->particleRadius);
             dataIO->getBuffer().append(m_SimData->positions, false);
-            dataIO->flushBufferAsync(m_FrameParams->finishedFrame);
+            dataIO->flushBufferAsync(m_GlobalParams->finishedFrame);
         }
         else if(dataIO->dataName() == "StateVelocity")
         {
             dataIO->clearBuffer();
             dataIO->getBuffer().append(m_SimData->velocities);
-            dataIO->flushBufferAsync(m_FrameParams->finishedFrame);
+            dataIO->flushBufferAsync(m_GlobalParams->finishedFrame);
         }
         else
         {
@@ -161,7 +160,7 @@ void Banana::FLIP3DSolver<RealType>::advanceVelocity(RealType timestep)
         timer.tick();
         computeFluidWeights();
         timer.tock();
-        m_Logger->printTime("Compute cell weights: ", timer);
+        m_Logger->printRunTime("Compute cell weights: ", timer);
         weight_computed = true;
     }
 
@@ -171,7 +170,7 @@ void Banana::FLIP3DSolver<RealType>::advanceVelocity(RealType timestep)
         timer.tick();
         computeRepulsiveVelocity(timestep);
         timer.tock();
-        m_Logger->printTime("Add repulsive force to m_SimData->positions: ", timer);
+        m_Logger->printRunTime("Add repulsive force to m_SimData->positions: ", timer);
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -191,7 +190,7 @@ void Banana::FLIP3DSolver<RealType>::advanceVelocity(RealType timestep)
         extrapolateVelocity(m_SimData->v, m_SimData->temp_v, m_SimData->v_valid, m_SimData->old_valid_v);
         extrapolateVelocity(m_SimData->w, m_SimData->temp_w, m_SimData->w_valid, m_SimData->old_valid_w);
         timer.tock();
-        m_Logger->printTime("Extrapolate interpolated velocity: ", timer);
+        m_Logger->printRunTime("Extrapolate interpolated velocity: ", timer);
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -199,7 +198,7 @@ void Banana::FLIP3DSolver<RealType>::advanceVelocity(RealType timestep)
         timer.tick();
         constrainVelocity();
         timer.tock();
-        m_Logger->printTime("Constrain interpolated velocity: ", timer);
+        m_Logger->printRunTime("Constrain interpolated velocity: ", timer);
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -208,7 +207,7 @@ void Banana::FLIP3DSolver<RealType>::advanceVelocity(RealType timestep)
         timer.tick();
         backupGridVelocity();
         timer.tock();
-        m_Logger->printTime("Backup grid velocity: ", timer);
+        m_Logger->printRunTime("Backup grid velocity: ", timer);
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -218,7 +217,7 @@ void Banana::FLIP3DSolver<RealType>::advanceVelocity(RealType timestep)
         timer.tick();
         addGravity(timestep);
         timer.tock();
-        m_Logger->printTime("Add gravity: ", timer);
+        m_Logger->printRunTime("Add gravity: ", timer);
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -227,7 +226,7 @@ void Banana::FLIP3DSolver<RealType>::advanceVelocity(RealType timestep)
         timer.tick();
         pressureProjection(timestep);
         timer.tock();
-        m_Logger->printTime("Pressure projection total time: ", timer);
+        m_Logger->printRunTime("Pressure projection total time: ", timer);
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -240,7 +239,7 @@ void Banana::FLIP3DSolver<RealType>::advanceVelocity(RealType timestep)
         extrapolateVelocity(m_SimData->v, m_SimData->temp_v, m_SimData->v_valid, m_SimData->old_valid_v);
         extrapolateVelocity(m_SimData->w, m_SimData->temp_w, m_SimData->w_valid, m_SimData->old_valid_w);
         timer.tock();
-        m_Logger->printTime("Grid velocity extrapolation: ", timer);
+        m_Logger->printRunTime("Grid velocity extrapolation: ", timer);
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -250,7 +249,7 @@ void Banana::FLIP3DSolver<RealType>::advanceVelocity(RealType timestep)
         timer.tick();
         constrainVelocity();
         timer.tock();
-        m_Logger->printTime("Constrain boundary grid velocities: ", timer);
+        m_Logger->printRunTime("Constrain boundary grid velocities: ", timer);
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -259,7 +258,7 @@ void Banana::FLIP3DSolver<RealType>::advanceVelocity(RealType timestep)
         computeVelocityChanges();
         updateParticleVelocity();
         timer.tock();
-        m_Logger->printTime("Interpolate velocity from to grid to m_SimData->positions: ", timer);
+        m_Logger->printRunTime("Interpolate velocity from to grid to m_SimData->positions: ", timer);
     }
 }
 
@@ -294,7 +293,7 @@ void Banana::FLIP3DSolver<RealType>::moveParticles(RealType timestep)
                                         });
     ////////////////////////////////////////////////////////////////////////////////
     timer.tock();
-    m_Logger->printTime("Move m_SimData->positions: ", timer);
+    m_Logger->printRunTime("Move m_SimData->positions: ", timer);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -332,7 +331,7 @@ void Banana::FLIP3DSolver<RealType>::computeRepulsiveVelocity(RealType timestep)
                                         });
     ////////////////////////////////////////////////////////////////////////////////
     timer.tock();
-    m_Logger->printTime("Add repulsive velocity: ", timer);
+    m_Logger->printRunTime("Add repulsive velocity: ", timer);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -342,7 +341,7 @@ void Banana::FLIP3DSolver<RealType>::loadLatestState()
     int latestStateIdx = -1;
 
     for(auto& dataIO : m_MemoryStateIO)
-        latestStateIdx = MathHelpers::max(latestStateIdx, dataIO->getLatestFileIndex(m_FrameParams->finalFrame));
+        latestStateIdx = MathHelpers::max(latestStateIdx, dataIO->getLatestFileIndex(m_GlobalParams->finalFrame));
 
     if(latestStateIdx < 0)
         return;
@@ -378,11 +377,11 @@ void Banana::FLIP3DSolver<RealType>::loadLatestState()
 template<class RealType>
 void Banana::FLIP3DSolver<RealType>::setupDataIO()
 {
-    m_MemoryStateIO.push_back(std::make_unique<DataIO>(m_FrameParams->dataPath, "FluidState", "state", "pos", "StatePosition"));
-    m_MemoryStateIO.push_back(std::make_unique<DataIO>(m_FrameParams->dataPath, "FluidState", "state", "vel", "StateVelocity"));
+    m_MemoryStateIO.push_back(std::make_unique<DataIO>(m_GlobalParams->dataPath, "FluidState", "state", "pos", "StatePosition"));
+    m_MemoryStateIO.push_back(std::make_unique<DataIO>(m_GlobalParams->dataPath, "FluidState", "state", "vel", "StateVelocity"));
 
-    m_ParticleDataIO.push_back(std::make_unique<DataIO>(m_FrameParams->dataPath, "FluidFrame", "frame", "pos", "FramePosition"));
-    m_ParticleDataIO.push_back(std::make_unique<DataIO>(m_FrameParams->dataPath, "FluidFrame", "frame", "vel", "FrameVelocity"));
+    m_ParticleDataIO.push_back(std::make_unique<DataIO>(m_GlobalParams->dataPath, "FluidFrame", "frame", "pos", "FramePosition"));
+    m_ParticleDataIO.push_back(std::make_unique<DataIO>(m_GlobalParams->dataPath, "FluidFrame", "frame", "vel", "FrameVelocity"));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -726,31 +725,31 @@ void Banana::FLIP3DSolver<RealType>::pressureProjection(RealType timestep)
     timer.tick();
     computeFluidSDF();
     timer.tock();
-    m_Logger->printTimeIndent("Compute liquid SDF: ", timer);
+    m_Logger->printRunTimeIndent("Compute liquid SDF: ", timer);
 
     ////////////////////////////////////////////////////////////////////////////////
     timer.tick();
     computeMatrix(timestep);
     timer.tock();
-    m_Logger->printTimeIndent("Compute pressure matrix: ", timer);
+    m_Logger->printRunTimeIndent("Compute pressure matrix: ", timer);
     ////////////////////////////////////////////////////////////////////////////////
 
     timer.tick();
     computeRhs();
     timer.tock();
-    m_Logger->printTimeIndent("Compute RHS: ", timer);
+    m_Logger->printRunTimeIndent("Compute RHS: ", timer);
     ////////////////////////////////////////////////////////////////////////////////
 
     timer.tick();
     solveSystem();
     timer.tock();
-    m_Logger->printTimeIndent("Solve pressure linear system: ", timer);
+    m_Logger->printRunTimeIndent("Solve pressure linear system: ", timer);
     ////////////////////////////////////////////////////////////////////////////////
 
     timer.tick();
     updateVelocity(timestep);
     timer.tock();
-    m_Logger->printTimeIndent("Update grid velocity: ", timer);
+    m_Logger->printRunTimeIndent("Update grid velocity: ", timer);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

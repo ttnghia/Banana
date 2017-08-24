@@ -56,12 +56,7 @@ void Controller::loadTextures()
     int currentSkyTexID = m_cbSkyTexture->getComboBox()->currentIndex();
     m_cbSkyTexture->getComboBox()->clear();
     m_cbSkyTexture->getComboBox()->addItem("None");
-    QStringList skyTexFolders = getTextureFolders("Sky");
-
-    foreach(QString tex, skyTexFolders)
-    {
-        m_cbSkyTexture->getComboBox()->addItem(tex);
-    }
+    m_cbSkyTexture->getComboBox()->addItems(getTextureFolders("Sky"));
 
     m_cbSkyTexture->getComboBox()->setCurrentIndex(currentSkyTexID > 0 ? currentSkyTexID : 0);
 
@@ -69,13 +64,8 @@ void Controller::loadTextures()
     // floor textures
     int currentFloorTexID = m_cbFloorTexture->getComboBox()->currentIndex();
     m_cbFloorTexture->getComboBox()->clear();
-    QStringList floorTexFolders = getTextureFiles("Floor");
     m_cbFloorTexture->getComboBox()->addItem("None");
-
-    foreach(QString tex, floorTexFolders)
-    {
-        m_cbFloorTexture->getComboBox()->addItem(tex);
-    }
+    m_cbFloorTexture->getComboBox()->addItems(getTextureFiles("Floor"));
 
     m_cbFloorTexture->getComboBox()->setCurrentIndex(currentFloorTexID > 0 ? currentFloorTexID : 0);
 }
@@ -83,6 +73,41 @@ void Controller::loadTextures()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Controller::setupSimulationControllers(QVBoxLayout* ctrLayout)
 {
+    m_cbSimulationScene = new QComboBox;
+    m_cbSimulationScene->addItems(getSceneFiles());
+
+    m_cbResolution = new QComboBox;
+    int resolutionIdx = 0;
+    for(int i = 8; i <= 256; i += 8)
+    {
+        if(i == 24)
+            resolutionIdx = m_cbResolution->count();
+        m_cbResolution->addItem(QString("%1").arg(i));
+    }
+    m_cbResolution->setCurrentIndex(resolutionIdx);
+
+    m_txtStopTime = new QLineEdit;
+    m_txtStopTime->setFixedWidth(100);
+    m_txtStopTime->setText("5.0");
+
+    ////////////////////////////////////////////////////////////////////////////////
+    int          row                 = 0;
+    QGridLayout* simControllerLayout = new QGridLayout;
+    simControllerLayout->addWidget(new QLabel("Scene: "),        row, 0, 1, 2);
+    simControllerLayout->addWidget(m_cbSimulationScene,          row, 2, 1, 1);
+
+    ++row;
+    simControllerLayout->addWidget(new QLabel("Resolution: "),   row, 0, 1, 2);
+    simControllerLayout->addWidget(m_cbResolution,               row, 2, 1, 1);
+
+    ++row;
+    simControllerLayout->addWidget(new QLabel("Stop time(s): "), row, 0, 1, 2);
+    simControllerLayout->addWidget(m_txtStopTime,                row, 2, 1, 1);
+
+    QGroupBox* grpSimControllers = new QGroupBox;
+    grpSimControllers->setTitle("Simulation Parameters");
+    grpSimControllers->setLayout(simControllerLayout);
+
     ////////////////////////////////////////////////////////////////////////////////
     QString capturePath = QDir::currentPath() + QString("/Capture/");
     m_OutputPath = new BrowsePathWidget("Browse");
@@ -104,6 +129,7 @@ void Controller::setupSimulationControllers(QVBoxLayout* ctrLayout)
     btnSimControlLayout->addWidget(m_btnStartStopSimulation, 0, 0, 1, 1);
 
     ////////////////////////////////////////////////////////////////////////////////
+    ctrLayout->addWidget(grpSimControllers);
     ctrLayout->addWidget(grpOutput);
     ctrLayout->addStretch();
     ctrLayout->addLayout(btnSimControlLayout);

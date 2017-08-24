@@ -31,12 +31,13 @@ template<class RealType>
 class FLIP3DSolver : public ParticleSolver3D<RealType>
 {
 public:
-    FLIP3DSolver() = default;
+    FLIP3DSolver() { setupLogger(); }
+
     std::shared_ptr<SimulationParameters_FLIP3D<RealType> > getSimParams() const noexcept { return m_SimParams; }
 
     ////////////////////////////////////////////////////////////////////////////////
     virtual std::string getSolverName() override { return std::string("FLIP3DSolver"); }
-    virtual std::string greetingMessage() override { return std::string("Fluid Simulation using FLIP-3D Solver"); }
+    virtual std::string getGreetingMessage() override { return std::string("Fluid Simulation using FLIP-3D Solver"); }
     virtual unsigned int        getNumParticles() override { return static_cast<unsigned int>(m_SimData->positions.size()); }
     virtual Vec_Vec3<RealType>& getParticlePositions() override { return m_SimData->positions; }
     virtual Vec_Vec3<RealType>& getParticleVelocities() override { return m_SimData->velocities; }
