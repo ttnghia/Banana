@@ -17,7 +17,7 @@
 
 #pragma once
 
-#include <ParticleTools/BoundaryObjects/BoundaryObjectInterface.h>
+#include <SimulationObjects/BoundaryObjects/BoundaryObjectInterface.h>
 
 #include <random>
 

@@ -30,9 +30,6 @@ class WCSPHSolver : public ParticleSolver3D<RealType>
 {
 public:
     WCSPHSolver() { setupLogger(); }
-
-    ~WCSPHSolver() = default;
-
     std::shared_ptr<SimulationParameters_WCSPH<RealType> > getSolverParams() { return m_SimParams; }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -44,6 +41,7 @@ public:
 
     virtual void makeReady() override;
     virtual void advanceFrame() override;
+    virtual void sortParticles() override;
 protected:
     virtual void loadSimParams(const nlohmann::json& jParams) override;
     virtual void printParameters() override {}

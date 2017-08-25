@@ -17,23 +17,4 @@
 
 #pragma once
 
-#include <ParticleSolvers/FLIP/FLIP3DSolver.h>
-//#include <ParticleSolvers/MPM/MPMSolver.h>
-//#include <ParticleSolvers/Peridynamics/PeridynamicsSolver.h>
-#include <ParticleSolvers/SPH/WCSPH/WCSPHSolver.h>
-
-#include <catch.hpp>
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-TEST_CASE("Test Particle Solver", "[ParticleSolvers]")
-{
-    Banana::FLIP3DSolver<float> solver1;
-
-//{
-//    Banana::MPMSolver<float> solver2;
-//    solver2.advanceFrame();
-//}
-//Banana::PeridynamicsSolver<float> solver3;
-    Banana::WCSPHSolver<float> solver4;
-}
-
+#include <SimulationObjects/ParticleObjects/ParticleObjectInterface.h>

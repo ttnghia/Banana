@@ -30,7 +30,6 @@ void Banana::WCSPHSolver<RealType>::loadSimParams(const nlohmann::json& jParams)
     JSONHelpers::readBool(jParams, m_SimParams->bUseBoundaryParticles,  "UseBoundaryParticles");
     JSONHelpers::readBool(jParams, m_SimParams->bUseAttractivePressure, "UseAttractivePressure");
     JSONHelpers::readBool(jParams, m_SimParams->bApplyGravity,          "ApplyGravity");
-    JSONHelpers::readBool(jParams, m_SimParams->bEnableSortParticle,    "EnableSortParticle");
 
     JSONHelpers::readVector(jParams, m_SimParams->boxMax, "BoundaryRestitution");
     JSONHelpers::readVector(jParams, m_SimParams->boxMax, "AttractivePressureRatio");
@@ -118,6 +117,31 @@ void Banana::WCSPHSolver<RealType>::advanceFrame()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
+void Banana::WCSPHSolver<RealType>::sortParticles()
+{
+    assert(m_NSearch != nullptr);
+
+    static Timer  timer;
+    static UInt32 frameCount = 0;
+    ++frameCount;
+
+    if(frameCount < m_GlobalParams->sortFrequency)
+        return;
+
+    ////////////////////////////////////////////////////////////////////////////////
+    frameCount = 0;
+    m_Logger->printRunTime("Compute Z-sort rule: ",            timer, [&]() { m_NSearch->z_sort(); });
+
+    m_Logger->printRunTime("Sort data by particle position: ", timer,
+                           [&]()
+                           {
+                               auto const& d = m_NSearch->point_set(0);
+                               //d.sort_field(positions.data());
+                           });
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class RealType>
 void Banana::WCSPHSolver<RealType>::saveParticleData()
 {
     if(!m_GlobalParams->bSaveParticleData)
@@ -181,7 +205,7 @@ void Banana::WCSPHSolver<RealType>::computeDensity()
     const RealType            max_density   = m_SimParams->restDensity * m_SimParams->densityVariationRatio;
     const PointSet<RealType>& fluidPointSet = m_NSearch->point_set(0);
 
-    ParallelFuncs::parallel_for<UInt32>(0, static_cast<UInt32>(m_SimData->positions.size()),
+    ParallelFuncs::parallel_for<UInt32>(0, m_SimData->getNumParticles(),
                                         [&](UInt32 p)
                                         {
                                             const Vec3<RealType>& pPos = m_SimData->positions[p];
@@ -223,7 +247,7 @@ void Banana::WCSPHSolver<RealType>::correctDensity()
     const RealType            max_density   = m_SimParams->restDensity * m_SimParams->densityVariationRatio;
     const PointSet<RealType>& fluidPointSet = m_NSearch->point_set(0);
 
-    ParallelFuncs::parallel_for<UInt32>(0, static_cast<UInt32>(m_SimData->positions.size()),
+    ParallelFuncs::parallel_for<UInt32>(0, m_SimData->getNumParticles(),
                                         [&](UInt32 p)
                                         {
                                             const Vec3<RealType>& pPos = m_SimData->positions[p];
@@ -270,7 +294,7 @@ void Banana::WCSPHSolver<RealType>::computePressureForces()
     assert(m_SimData->positions.size() == m_SimData->pressureForces.size());
 
     const PointSet<RealType>& fluidPointSet = m_NSearch->point_set(0);
-    ParallelFuncs::parallel_for<UInt32>(0, static_cast<UInt32>(m_SimData->positions.size()),
+    ParallelFuncs::parallel_for<UInt32>(0, m_SimData->getNumParticles(),
                                         [&](UInt32 p)
                                         {
                                             const RealType pden = m_SimData->densities[p];
@@ -342,7 +366,7 @@ void Banana::WCSPHSolver<RealType>::computeViscosity()
     assert(m_SimData->positions.size() == m_SimData->diffuseVelocity.size());
 
     const PointSet<RealType>& fluidPointSet = m_NSearch->point_set(0);
-    ParallelFuncs::parallel_for<UInt32>(0, static_cast<UInt32>(m_SimData->positions.size()),
+    ParallelFuncs::parallel_for<UInt32>(0, m_SimData->getNumParticles(),
                                         [&](UInt32 p)
                                         {
                                             const Vec3<RealType>& pPos = m_SimData->positions[p];
@@ -399,6 +423,7 @@ void Banana::WCSPHSolver<RealType>::updateVelocity(RealType timeStep)
                                         });
 }
 
+-
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
 void Banana::WCSPHSolver<RealType>::moveParticles(RealType timeStep)

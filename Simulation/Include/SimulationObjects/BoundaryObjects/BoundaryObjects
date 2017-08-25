@@ -17,4 +17,4 @@
 
 #pragma once
 
-#include <ParticleTools/BoundaryObjects/BoxBoundaryObject.h>
+#include <SimulationObjects/BoundaryObjects/BoxBoundaryObject.h>

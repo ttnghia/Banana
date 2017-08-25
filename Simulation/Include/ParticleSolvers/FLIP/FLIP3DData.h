@@ -26,21 +26,15 @@
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-enum class InterpolationKernel
-{
-    Linear,
-    CubicSpline
-};
+enum InterpolationKernel { Linear, CubicSpline };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
 struct  SimulationParameters_FLIP3D
 {
-    SimulationParameters_FLIP3D()
-    {
-        makeReady();
-    }
+    SimulationParameters_FLIP3D() { makeReady(); }
 
+    ////////////////////////////////////////////////////////////////////////////////
     RealType            defaultTimestep     = RealType(1.0e-4);
     RealType            CFLFactor           = RealType(1.0);
     RealType            PIC_FLIP_ratio      = RealType(0.97);
@@ -49,10 +43,7 @@ struct  SimulationParameters_FLIP3D
     InterpolationKernel kernelFunc          = InterpolationKernel::Linear;
 
     bool bApplyGravity         = true;
-    bool bEnableSortParticle   = true;
     bool bApplyRepulsiveForces = false;
-
-    unsigned int sortFrequency = 100;
 
     Vec3<RealType> boxMin = Vec3<RealType>(-1.0);
     Vec3<RealType> boxMax = Vec3<RealType>(1.0);
@@ -71,6 +62,7 @@ struct  SimulationParameters_FLIP3D
     RealType     CGRelativeTolerance = RealType(1e-20);
     unsigned int maxCGIteration      = 10000;
 
+    ////////////////////////////////////////////////////////////////////////////////
     void makeReady()
     {
         particleRadius   = kernelRadius / RealType(4.0);
@@ -80,6 +72,7 @@ struct  SimulationParameters_FLIP3D
         sdf_radius = kernelRadius * RealType(1.01 * sqrt(3.0) / 2.0);
     }
 
+    ////////////////////////////////////////////////////////////////////////////////
     void printParams(const std::shared_ptr<Logger>& logger)
     {
         logger->printLog("FLIP-3D simulation parameters:");
@@ -93,10 +86,7 @@ struct  SimulationParameters_FLIP3D
 
         logger->printLogIndent("Apply gravity: " + (bApplyGravity ? std::string("Yes") : std::string("No")));
         logger->printLogIndent("Apply repulsive forces: " + (bApplyRepulsiveForces ? std::string("Yes") : std::string("No")));
-        logger->printLogIndent("Sort particles during simulation: " + (bEnableSortParticle ? std::string("Yes") : std::string("No")));
-        if(bEnableSortParticle)
-            logger->printLogIndent("Sort frequency: " + std::to_string(sortFrequency));
-        //logger->newLine();
+        logger->newLine();
     }
 };
 

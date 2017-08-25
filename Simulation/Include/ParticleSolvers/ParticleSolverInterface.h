@@ -32,11 +32,10 @@
 
 #include <ParticleSolvers/ParticleSolverData.h>
 
-#include <ParticleTools/BoundaryObjects/BoundaryObjects>
-#include <ParticleTools/ParticleObjects/ParticleObjectInterface.h>
+#include <SimulationObjects/BoundaryObjects/BoundaryObjects>
+#include <SimulationObjects/ParticleObjects/ParticleObjects>
 
 #include <tbb/tbb.h>
-
 #include <json.hpp>
 
 #include <memory>
@@ -55,17 +54,18 @@ public:
 
     const std::unique_ptr<GlobalParameters<RealType> >& getGlobalParams() const noexcept { return m_GlobalParams; }
     const std::shared_ptr<Logger>& getLogger() const noexcept { return m_Logger; }
-    void doSimulation();
+    static bool loadDataPath(const std::string& sceneFile, std::string& dataPath);
+    void        loadScene(const std::string& sceneFile);
+    void        doSimulation();
 
     ////////////////////////////////////////////////////////////////////////////////
-    virtual void         makeReady()          = 0;
-    virtual void         advanceFrame()       = 0;
     virtual std::string  getSolverName()      = 0;
     virtual std::string  getGreetingMessage() = 0;
     virtual unsigned int getNumParticles()    = 0;
 
-    void        loadScene(const std::string& sceneFile);
-    static bool loadDataPath(const std::string& sceneFile, std::string& dataPath);
+    virtual void makeReady()     = 0;
+    virtual void advanceFrame()  = 0;
+    virtual void sortParticles() = 0;
 
 protected:
     void         setupLogger();
@@ -139,6 +139,7 @@ void Banana::ParticleSolver<RealType>::doSimulation()
                                {
                                    advanceScene();
                                    advanceFrame();
+                                   sortParticles();
                                });
 
         ////////////////////////////////////////////////////////////////////////////////
@@ -223,9 +224,10 @@ void Banana::ParticleSolver<RealType>::loadGlobalParams(const nlohmann::json& jP
     JSONHelpers::readValue(jParams, m_GlobalParams->frameDuration, "FrameDuration");
     JSONHelpers::readValue(jParams, m_GlobalParams->finalFrame,    "FinalFrame");
     JSONHelpers::readValue(jParams, m_GlobalParams->nThreads,      "NThreads");
+    JSONHelpers::readBool(jParams, m_GlobalParams->bEnableSortParticle, "EnableSortParticle");
 
-    JSONHelpers::readBool(jParams, m_GlobalParams->bSaveParticleData, "SaveParticleData");
-    JSONHelpers::readBool(jParams, m_GlobalParams->bSaveMemoryState,  "SaveMemoryState");
+    JSONHelpers::readBool(jParams, m_GlobalParams->bSaveParticleData,   "SaveParticleData");
+    JSONHelpers::readBool(jParams, m_GlobalParams->bSaveMemoryState,    "SaveMemoryState");
     JSONHelpers::readValue(jParams, m_GlobalParams->framePerState, "FramePerState");
     JSONHelpers::readValue(jParams, m_GlobalParams->dataPath,      "DataPath");
 

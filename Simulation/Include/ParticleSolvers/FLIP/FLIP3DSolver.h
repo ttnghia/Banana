@@ -44,6 +44,8 @@ public:
 
     virtual void makeReady() override;
     virtual void advanceFrame() override;
+    virtual void sortParticles() override;
+
 private:
     virtual void loadSimParams(const nlohmann::json& jParams) override;
     virtual void printParameters() override {}

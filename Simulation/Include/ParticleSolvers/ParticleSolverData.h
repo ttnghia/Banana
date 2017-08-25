@@ -48,6 +48,10 @@ struct GlobalParameters
     unsigned int framePerState     = 1;
     std::string  dataPath          = std::string("./SimData");
 
+    bool         bEnableSortParticle = false;
+    unsigned int sortFrequency       = 10;
+
+    ////////////////////////////////////////////////////////////////////////////////
     bool bPrintLog2Console = true;
     bool bPrintLog2File    = false;
 
@@ -59,6 +63,9 @@ struct GlobalParameters
         logger->printLogIndent("Data path: " + dataPath);
         logger->printLogIndent("Frame duration: " + NumberHelpers::formatToScientific(frameDuration));
         logger->printLogIndent("Final frame: " + std::to_string(finalFrame));
+        logger->printLogIndent("Sort particles during simulation: " + (bEnableSortParticle ? std::string("Yes") : std::string("No")));
+        if(bEnableSortParticle)
+            logger->printLogIndent("Sort frequency: " + std::to_string(sortFrequency));
         logger->newLine();
     }
 };

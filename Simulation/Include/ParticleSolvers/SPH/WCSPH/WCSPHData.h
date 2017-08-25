@@ -54,9 +54,7 @@ struct SimulationParameters_WCSPH
     bool bUseBoundaryParticles  = false;
     bool bUseAttractivePressure = false;
     bool bApplyGravity          = true;
-    bool bEnableSortParticle    = false;
 
-    unsigned int sortFrequency = 100;
 
     // the following need to be computed
     RealType particleMass;
@@ -92,10 +90,7 @@ struct SimulationParameters_WCSPH
         logger->printLogIndent("Correct density: " + (bCorrectDensity ? std::string("Yes") : std::string("No")));
         logger->printLogIndent("Generate boundary particles: " + (bUseBoundaryParticles ? std::string("Yes") : std::string("No")));
         logger->printLogIndent("Apply gravity: " + (bApplyGravity ? std::string("Yes") : std::string("No")));
-        logger->printLogIndent("Sort particles during simulation: " + (bEnableSortParticle ? std::string("Yes") : std::string("No")));
-        if(bEnableSortParticle)
-            logger->printLogIndent("Sort frequency: " + std::to_string(sortFrequency));
-        //logger->newLine();
+        logger->newLine();
     }
 };
 
@@ -112,6 +107,8 @@ struct SimulationData_WCSPH
     Vec_Vec3<RealType> diffuseVelocity;
 
     ////////////////////////////////////////////////////////////////////////////////
+    UInt32 getNumParticles() { return static_cast<UInt32>(positions.size()); }
+
     void makeReady()
     {
         velocities.resize(positions.size(), Vec3<RealType>(0));

@@ -94,6 +94,31 @@ void Banana::FLIP3DSolver<RealType>::advanceFrame()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
+void Banana::FLIP3DSolver<RealType>::sortParticles()
+{
+    assert(m_NSearch != nullptr);
+
+    static Timer  timer;
+    static UInt32 frameCount = 0;
+    ++frameCount;
+
+    if(frameCount < m_GlobalParams->sortFrequency)
+        return;
+
+    ////////////////////////////////////////////////////////////////////////////////
+    frameCount = 0;
+    m_Logger->printRunTime("Compute Z-sort rule: ",            timer, [&]() { m_NSearch->z_sort(); });
+
+    m_Logger->printRunTime("Sort data by particle position: ", timer,
+                           [&]()
+                           {
+                               auto const& d = m_NSearch->point_set(0);
+                               //d.sort_field(positions.data());
+                           });
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class RealType>
 void Banana::FLIP3DSolver<RealType>::saveParticleData()
 {
     for(auto& dataIO : m_ParticleDataIO)

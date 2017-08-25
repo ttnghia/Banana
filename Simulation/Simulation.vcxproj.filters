@@ -36,27 +36,6 @@
     <ClInclude Include="Include\ParticleSolvers\Peridynamics\PeridynamicsSolver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\ParticleTools\Emitters\BoxEmitter.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\ParticleTools\Emitters\CylinderEmitter.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\ParticleTools\Emitters\HollowSphereEmitter.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\ParticleTools\Emitters\MeshObjEmitter.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\ParticleTools\Emitters\ParticleEmitter.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\ParticleTools\Emitters\SphereEmitter.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\ParticleTools\Emitters\TorusEmitter.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Include\ParticleSolvers\Peridynamics\PeridynamicsSolver.Impl.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -70,12 +49,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Include\ParticleSolvers\_ParticleSolvers.Test.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\ParticleTools\BoundaryObjects\BoxBoundaryObject.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\ParticleTools\BoundaryObjects\BoundaryObjectInterface.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Include\CompactNSearch\_CompactNSearch.Test.hpp">
@@ -168,30 +141,6 @@
     <ClInclude Include="Include\ParticleSolvers\MPM\MPMSolver.Impl.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\ParticleTools\ParticleObjects\BowlSampler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\ParticleTools\ParticleObjects\CylinderSampler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\ParticleTools\ParticleObjects\HollowSphereSampler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\ParticleTools\ParticleObjects\MeshObjSampler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\ParticleTools\ParticleObjects\SphereSampler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\ParticleTools\ParticleObjects\TorusSampler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\ParticleTools\ParticleObjects\ParticleObjectInterface.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\ParticleTools\ParticleObjects\BoxObject.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Include\ParticleTools\BlueNoiseRelaxation\SPHBasedRelaxation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -240,7 +189,61 @@
     <ClInclude Include="Include\ParticleSolvers\MPM.bk\TimeIntegration.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\ParticleTools\BoundaryObjects\BoundaryObjects">
+    <ClInclude Include="Include\SimulationObjects\BoundaryObjects\BoundaryObjectInterface.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\SimulationObjects\BoundaryObjects\BoundaryObjects">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\SimulationObjects\BoundaryObjects\BoxBoundaryObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\SimulationObjects\ParticleObjects\BowlSampler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\SimulationObjects\ParticleObjects\BoxObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\SimulationObjects\ParticleObjects\CylinderSampler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\SimulationObjects\ParticleObjects\HollowSphereSampler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\SimulationObjects\ParticleObjects\MeshObjSampler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\SimulationObjects\ParticleObjects\ParticleObjectInterface.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\SimulationObjects\ParticleObjects\SphereSampler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\SimulationObjects\ParticleObjects\TorusSampler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\SimulationObjects\ParticleEmitters\BoxEmitter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\SimulationObjects\ParticleEmitters\CylinderEmitter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\SimulationObjects\ParticleEmitters\HollowSphereEmitter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\SimulationObjects\ParticleEmitters\MeshObjEmitter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\SimulationObjects\ParticleEmitters\ParticleEmitter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\SimulationObjects\ParticleEmitters\SphereEmitter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\SimulationObjects\ParticleEmitters\TorusEmitter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\SimulationObjects\ParticleObjects\ParticleObjects">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
