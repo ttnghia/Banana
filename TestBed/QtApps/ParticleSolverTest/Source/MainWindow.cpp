@@ -32,7 +32,7 @@ MainWindow::MainWindow(QWidget* parent) : OpenGLMainWindow(parent)
     setWindowTitle("Simple Snow Simulation");
     setFocusPolicy(Qt::StrongFocus);
     showFPS(false);
-    showCameraPosition(false);
+//    showCameraPosition(false);
 
     connectWidgets();
 }

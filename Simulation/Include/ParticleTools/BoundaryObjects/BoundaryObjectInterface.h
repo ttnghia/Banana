@@ -36,7 +36,7 @@ public:
     const Vec3<RealType>& getBDParticle(IndexType idx) const { assert(static_cast<size_t>(idx) < m_BDParticles.size()); return m_BDParticles[idx]; }
 
     const Vec_Vec3<RealType>& getBDParticles() const noexcept { return m_BDParticles; }
-    unsigned int getNumBDParticles() const noexcept { return m_BDParticles.size(); }
+    unsigned int getNumBDParticles() const noexcept { return static_cast<unsigned int>(m_BDParticles.size()); }
 
     virtual void generateBoundaryParticles(RealType spacing, int numBDLayers = 2)                                      = 0;
     virtual bool constrainToBoundary(Vec3<RealType>& ppos, Vec3<RealType>& pvel, RealType restitution = RealType(0.1)) = 0;

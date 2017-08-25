@@ -26,7 +26,7 @@ namespace Banana
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #define DEFAULT_PRESSURE_STIFFNESS   50000.0
 #define DEFAULT_NEAR_FORCE_STIFFNESS 50000.0
-#define DEFAULT_VISCOSITY            0.01
+#define DEFAULT_VISCOSITY            0.05
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
@@ -43,7 +43,7 @@ struct SimulationParameters_WCSPH
     RealType pressureStiffness  = RealType(DEFAULT_PRESSURE_STIFFNESS);
     RealType nearForceStiffness = RealType(DEFAULT_NEAR_FORCE_STIFFNESS);
     RealType viscosity          = RealType(DEFAULT_VISCOSITY);
-    RealType kernelRadius       = RealType(1.0 / DEFAULT_RESOLUTION);
+    RealType kernelRadius       = RealType(2.0 / DEFAULT_RESOLUTION);
 
     RealType boundaryRestitution     = RealType(DEFAULT_BOUNDARY_RESTITUTION);
     RealType attractivePressureRatio = RealType(0.1);

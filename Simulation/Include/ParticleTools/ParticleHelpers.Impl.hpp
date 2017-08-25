@@ -18,8 +18,7 @@ template<class RealType>
 Vec2i Banana::ParticleHelpers::createGrid<RealType>(const Vec2<RealType>& bmin, const Vec2<RealType>& bmax, RealType spacing)
 {
     Vec2<RealType> fgrid = (bmax - bmin) / spacing;
-
-    return Vec2i(static_cast<int>(fgrid[0]), static_cast<int>(fgrid[1]));
+    return Vec2i(static_cast<int>(round(fgrid[0])), static_cast<int>(round(fgrid[1])));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -27,8 +26,7 @@ template<class RealType>
 Vec3i Banana::ParticleHelpers::createGrid<RealType>(const Vec3<RealType>& bmin, const Vec3<RealType>& bmax, RealType spacing)
 {
     Vec3<RealType> fgrid = (bmax - bmin) / spacing;
-
-    return Vec3i(static_cast<int>(fgrid[0]), static_cast<int>(fgrid[1]), static_cast<int>(fgrid[2]));
+    return Vec3i(static_cast<int>(round(fgrid[0])), static_cast<int>(round(fgrid[1])), static_cast<int>(round(fgrid[2])));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

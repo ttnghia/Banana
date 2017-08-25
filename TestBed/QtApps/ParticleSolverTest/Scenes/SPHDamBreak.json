@@ -2,10 +2,11 @@
 	"GlobalParameters": 
 	{
 		"FrameDuration": 0.001,
-		"FinalFrame": 100
+		"FinalFrame": 10000
 	},
 	"SimulationParameters": 
 	{
+	    "UseBoundaryParticles": true,
 		"PressureStiffness": 60000
 	},
 	"ObjectParameters": [

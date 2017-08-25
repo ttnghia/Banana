@@ -34,9 +34,10 @@ void Simulator::doSimulation()
 {
     Q_ASSERT(m_ParticleData != nullptr);
 
-#if 0
+#if 1
     ////////////////////////////////////////////////////////////////////////////////
     m_ParticleSolver->makeReady();
+
     static tbb::task_scheduler_init threadInit = tbb::task_scheduler_init::automatic;
     (void)threadInit;
 
@@ -48,7 +49,7 @@ void Simulator::doSimulation()
         emit systemTimeChanged(sysTime);
         emit particleChanged();
         emit frameFinished();
-
+        qDebug() << "frame finish";
         if(m_bStop)
             break;
     }

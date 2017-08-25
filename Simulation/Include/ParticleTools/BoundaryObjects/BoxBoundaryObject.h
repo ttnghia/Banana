@@ -40,10 +40,11 @@ private:
     Vec3<RealType> m_BMin, m_BMax;
 };
 
-
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Implementation
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
 void Banana::BoxBoundaryObject<RealType>::setBox(const Vec3<RealType>& bMin, const Vec3<RealType>& bMax)
 {
@@ -62,38 +63,146 @@ void Banana::BoxBoundaryObject<RealType>::generateBoundaryParticles(RealType spa
     std::normal_distribution<RealType> disSmall(0, RealType(0.02) * spacing);
     std::normal_distribution<RealType> disLarge(0, RealType(0.1) * spacing);
 
-    const Vec3<RealType> boundaryBMin = m_BMin - Vec3<RealType>(spacing * (RealType(numBDLayers) - RealType(0.5)));
-    const Vec3<RealType> boundaryBMax = m_BMax + Vec3<RealType>(spacing * (RealType(numBDLayers) - RealType(0.501)));
+    ////////////////////////////////////////////////////////////////////////////////
+    // plane x < 0
+    {
+        Vec3<RealType> minLX = m_BMin - Vec3<RealType>(spacing * (RealType(numBDLayers) - RealType(0.499)));
+        Vec3<RealType> maxLX = m_BMax + Vec3<RealType>(spacing * (RealType(numBDLayers) - RealType(0.499)));
+        maxLX[0] = m_BMin[0];
+        Vec3i gridLX = ParticleHelpers::createGrid(minLX, maxLX, spacing);
+
+        for(int x = 0; x < gridLX[0]; ++x)
+        {
+            for(int y = 0; y <= gridLX[1]; ++y)
+            {
+                for(int z = 0; z <= gridLX[2]; ++z)
+                {
+                    const Vec3<RealType> gridPos = minLX + Vec3<RealType>(x, y, z) * spacing;
+                    Vec3<RealType>       ppos    = gridPos + Vec3<RealType>(disSmall(gen), disLarge(gen), disLarge(gen));
+                    m_BDParticles.push_back(ppos);
+                }
+            }
+        }
+    }
 
     ////////////////////////////////////////////////////////////////////////////////
-    for(RealType x = boundaryBMin[0]; x <= boundaryBMax[0]; x += spacing)
+    // plane x > 0
     {
-        if(x > m_BMin[0] && x < m_BMax[0])
-            x = m_BMax[0] + spacing * RealType(0.5);
+        Vec3<RealType> minUX = m_BMin - Vec3<RealType>(spacing * (RealType(numBDLayers) - RealType(0.499)));
+        Vec3<RealType> maxUX = m_BMax + Vec3<RealType>(spacing * (RealType(numBDLayers) - RealType(0.499)));
+        minUX[0] = m_BMax[0];
+        Vec3i gridUX = ParticleHelpers::createGrid(minUX, maxUX, spacing);
 
-        for(RealType y = boundaryBMin[1]; y <= boundaryBMax[1]; y += spacing)
+        for(int x = 0; x < gridUX[0]; ++x)
         {
-            if(y > m_BMin[1] && y < m_BMax[1])
-                y = m_BMax[1] + spacing * RealType(0.5);
-
-            for(RealType z = boundaryBMin[2]; z <= boundaryBMax[2]; z += spacing)
+            for(int y = 0; y <= gridUX[1]; ++y)
             {
-                if(z > m_BMin[2] && z < m_BMax[2])
-                    z = m_BMax[2] + spacing * RealType(0.5);
+                for(int z = 0; z <= gridUX[2]; ++z)
+                {
+                    const Vec3<RealType> gridPos = minUX + Vec3<RealType>(x, y, z) * spacing;
+                    Vec3<RealType>       ppos    = gridPos + Vec3<RealType>(disSmall(gen), disLarge(gen), disLarge(gen));
+                    m_BDParticles.push_back(ppos);
+                }
+            }
+        }
+    }
 
-                const Vec3<RealType> gridPos(x, y, z);
-                Vec3<RealType>       ppos = gridPos + Vec3<RealType>(disLarge(gen), disLarge(gen), disLarge(gen));
+    ////////////////////////////////////////////////////////////////////////////////
+    // plane y < 0
+    {
+        Vec3<RealType> minLY = m_BMin - Vec3<RealType>(spacing * (RealType(numBDLayers) - RealType(0.499)));
+        Vec3<RealType> maxLY = m_BMax + Vec3<RealType>(spacing * (RealType(numBDLayers) - RealType(0.499)));
+        minLY[0] = m_BMin[0] + spacing * RealType(0.5);
+        maxLY[0] = m_BMax[0] - spacing * RealType(0.5);
+        maxLY[1] = m_BMin[1];
+        Vec3i gridLY = ParticleHelpers::createGrid(minLY, maxLY, spacing);
 
-                if(gridPos[0] < m_BMin[0] || gridPos[0] > m_BMax[0])
-                    ppos[0] = gridPos[0] + disSmall(gen);
+        for(int x = 0; x <= gridLY[0]; ++x)
+        {
+            for(int y = 0; y < gridLY[1]; ++y)
+            {
+                for(int z = 0; z <= gridLY[2]; ++z)
+                {
+                    const Vec3<RealType> gridPos = minLY + Vec3<RealType>(x, y, z) * spacing;
+                    Vec3<RealType>       ppos    = gridPos + Vec3<RealType>(disLarge(gen), disSmall(gen), disLarge(gen));
+                    m_BDParticles.push_back(ppos);
+                }
+            }
+        }
+    }
 
-                if(gridPos[1] < m_BMin[1] || gridPos[1] > m_BMax[1])
-                    ppos[1] = gridPos[1] + disSmall(gen);
+    ////////////////////////////////////////////////////////////////////////////////
+    // plane y > 0
+    {
+        Vec3<RealType> minUY = m_BMin - Vec3<RealType>(spacing * (RealType(numBDLayers) - RealType(0.499)));
+        Vec3<RealType> maxUY = m_BMax + Vec3<RealType>(spacing * (RealType(numBDLayers) - RealType(0.499)));
+        minUY[0] = m_BMin[0] + spacing * RealType(0.5);
+        maxUY[0] = m_BMax[0] - spacing * RealType(0.5);
+        minUY[1] = m_BMax[1];
+        Vec3i gridUY = ParticleHelpers::createGrid(minUY, maxUY, spacing);
 
-                if(gridPos[2] < m_BMin[2] || gridPos[2] > m_BMax[2])
-                    ppos[2] = gridPos[2] + disSmall(gen);
+        for(int x = 0; x <= gridUY[0]; ++x)
+        {
+            for(int y = 0; y < gridUY[1]; ++y)
+            {
+                for(int z = 0; z <= gridUY[2]; ++z)
+                {
+                    const Vec3<RealType> gridPos = minUY + Vec3<RealType>(x, y, z) * spacing;
+                    Vec3<RealType>       ppos    = gridPos + Vec3<RealType>(disLarge(gen), disSmall(gen), disLarge(gen));
+                    m_BDParticles.push_back(ppos);
+                }
+            }
+        }
+    }
 
-                m_BDParticles.push_back(ppos);
+    ////////////////////////////////////////////////////////////////////////////////
+    // plane z < 0
+    {
+        Vec3<RealType> minLZ = m_BMin - Vec3<RealType>(spacing * (RealType(numBDLayers) - RealType(0.499)));
+        Vec3<RealType> maxLZ = m_BMax + Vec3<RealType>(spacing * (RealType(numBDLayers) - RealType(0.499)));
+        minLZ[0] = m_BMin[0] + spacing * RealType(0.5);
+        maxLZ[0] = m_BMax[0] - spacing * RealType(0.5);
+        minLZ[1] = m_BMin[1] + spacing * RealType(0.5);
+        maxLZ[1] = m_BMax[1] - spacing * RealType(0.5);
+        maxLZ[2] = m_BMin[2];
+        Vec3i gridLZ = ParticleHelpers::createGrid(minLZ, maxLZ, spacing);
+
+        for(int x = 0; x <= gridLZ[0]; ++x)
+        {
+            for(int y = 0; y <= gridLZ[1]; ++y)
+            {
+                for(int z = 0; z < gridLZ[2]; ++z)
+                {
+                    const Vec3<RealType> gridPos = minLZ + Vec3<RealType>(x, y, z) * spacing;
+                    Vec3<RealType>       ppos    = gridPos + Vec3<RealType>(disLarge(gen), disLarge(gen), disSmall(gen));
+                    m_BDParticles.push_back(ppos);
+                }
+            }
+        }
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // plane z > 0
+    {
+        Vec3<RealType> minUZ = m_BMin - Vec3<RealType>(spacing * (RealType(numBDLayers) - RealType(0.499)));
+        Vec3<RealType> maxUZ = m_BMax + Vec3<RealType>(spacing * (RealType(numBDLayers) - RealType(0.499)));
+        minUZ[0] = m_BMin[0] + spacing * RealType(0.5);
+        maxUZ[0] = m_BMax[0] - spacing * RealType(0.5);
+        minUZ[1] = m_BMin[1] + spacing * RealType(0.5);
+        maxUZ[1] = m_BMax[1] - spacing * RealType(0.5);
+        minUZ[2] = m_BMax[2];
+        Vec3i gridUX = ParticleHelpers::createGrid(minUZ, maxUZ, spacing);
+
+        for(int x = 0; x <= gridUX[0]; ++x)
+        {
+            for(int y = 0; y <= gridUX[1]; ++y)
+            {
+                for(int z = 0; z < gridUX[2]; ++z)
+                {
+                    const Vec3<RealType> gridPos = minUZ + Vec3<RealType>(x, y, z) * spacing;
+                    Vec3<RealType>       ppos    = gridPos + Vec3<RealType>(disLarge(gen), disLarge(gen), disSmall(gen));
+                    m_BDParticles.push_back(ppos);
+                }
             }
         }
     }

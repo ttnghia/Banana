@@ -80,7 +80,7 @@ void Controller::setupSimulationControllers(QVBoxLayout* ctrLayout)
     int resolutionIdx = 0;
     for(int i = 8; i <= 256; i += 8)
     {
-        if(i == 24)
+        if(i == 32)
             resolutionIdx = m_cbResolution->count();
         m_cbResolution->addItem(QString("%1").arg(i));
     }
