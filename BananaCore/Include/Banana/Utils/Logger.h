@@ -71,14 +71,21 @@ public:
     void printWarning(const std::string& s, unsigned int maxSize = 100);
     void printError(const std::string& s, unsigned int maxSize = 100);
 
+    ////////////////////////////////////////////////////////////////////////////////
     template<class Function>
     void printRunTime(const char* caption, const Function& function) { printLog(Timer::getRunTime<Function>(caption, function)); }
     template<class Function>
     void printRunTimeIndent(const char* caption, const Function& function) { printLogIndent(Timer::getRunTime<Function>(caption, function)); }
 
+    template<class Function>
+    void printRunTime(const char* caption, Timer& timer, const Function& function) { timer.tick(); function(); timer.tock(); printLog(timer.getRunTime(caption)); }
+    template<class Function>
+    void printRunTimeIndent(const char* caption, Timer& timer, const Function& function) { timer.tick(); function(); timer.tock(); printLogIndent(timer.getRunTime(caption)); }
+
     void printRunTime(const char* caption, Timer& timer) { printLog(timer.getRunTime(caption)); }
     void printRunTimeIndent(const char* caption, Timer& timer) { printLogIndent(timer.getRunTime(caption)); }
 
+    ////////////////////////////////////////////////////////////////////////////////
     void printLog(const std::string& s);
     void printLogIndent(const std::string& s, unsigned int indentLevel = 1);
 

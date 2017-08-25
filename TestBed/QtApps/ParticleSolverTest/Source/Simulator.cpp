@@ -34,6 +34,7 @@ void Simulator::doSimulation()
 {
     Q_ASSERT(m_ParticleData != nullptr);
 
+#if 0
     ////////////////////////////////////////////////////////////////////////////////
     m_ParticleSolver->makeReady();
     static tbb::task_scheduler_init threadInit = tbb::task_scheduler_init::automatic;
@@ -57,6 +58,9 @@ void Simulator::doSimulation()
         m_bStop = true;
         emit simulationFinished();
     }
+#else
+    m_ParticleSolver->doSimulation();
+#endif
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

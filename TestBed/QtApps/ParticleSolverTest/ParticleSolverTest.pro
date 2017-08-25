@@ -21,6 +21,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = ParticleSolverTest
 TEMPLATE = app
+CONFIG += console
 
 INCLUDEPATH += $$PWD/Include
 

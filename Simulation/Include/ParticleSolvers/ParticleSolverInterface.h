@@ -124,17 +124,32 @@ void Banana::ParticleSolver<RealType>::doSimulation()
     m_ThreadInit.reset();
     m_ThreadInit = std::make_unique<tbb::task_scheduler_init>(m_GlobalParams->nThreads == 0 ? tbb::task_scheduler_init::automatic : m_GlobalParams->nThreads);
     m_Logger->printAligned("Start Simulation", '=');
+    static Timer frameTimer;
 
-    while(auto frame = m_GlobalParams->startFrame; frame < m_GlobalParams->finalFrame; ++frame)
+    for(auto frame = m_GlobalParams->startFrame; frame < m_GlobalParams->finalFrame; ++frame)
     {
-        advanceScene();
-        advanceFrame();
+        m_Logger->newLine();
+        m_Logger->printAligned("Frame " + NumberHelpers::formatWithCommas(frame), '=');
+        m_Logger->newLine();
+
+        ////////////////////////////////////////////////////////////////////////////////
+        static std::string strMsg = std::string("Frame finished. Frame duration: ") + NumberHelpers::formatWithCommas(m_GlobalParams->frameDuration) + std::string(" (s). Run time: ");
+        m_Logger->printRunTime(strMsg.c_str(), frameTimer,
+                               [&]()
+                               {
+                                   advanceScene();
+                                   advanceFrame();
+                               });
+
+        ////////////////////////////////////////////////////////////////////////////////
+        m_Logger->printMemoryUsage();
+        m_Logger->newLine();
     }
 
     ////////////////////////////////////////////////////////////////////////////////
     m_Logger->newLine();
     m_Logger->printAligned("End Simulation", '=');
-    m_Logger->printLog("Total frames: " + NumberHelpers::formatWithCommas(m_GlobalParams->finalFrame - m_GlobalParams->->startFrame + 1));
+    m_Logger->printLog("Total frames: " + NumberHelpers::formatWithCommas(m_GlobalParams->finalFrame - m_GlobalParams->startFrame + 1));
     m_Logger->printLog("Data path: " + m_GlobalParams->dataPath);
     //m_Logger->printLog("Data: \n" + FileHelpers::getFolderSize(m_GlobalParams->dataPath, 1));
 }

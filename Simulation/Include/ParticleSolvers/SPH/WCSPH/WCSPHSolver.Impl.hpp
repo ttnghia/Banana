@@ -69,6 +69,7 @@ void Banana::WCSPHSolver<RealType>::makeReady()
 
     ////////////////////////////////////////////////////////////////////////////////
     m_Logger->printLog("Solver ready!");
+    m_Logger->newLine();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -78,41 +79,31 @@ void Banana::WCSPHSolver<RealType>::advanceFrame()
     RealType frameTime    = 0;
     int      substepCount = 0;
 
-    static Timer frameTimer;
     static Timer subStepTimer;
 
     ////////////////////////////////////////////////////////////////////////////////
-    frameTimer.tick();
-
     while(frameTime < m_GlobalParams->frameDuration)
     {
-        subStepTimer.tick();
+        m_Logger->printRunTime("Sub-step time: ", subStepTimer,
+                               [&]()
+                               {
+                                   RealType remainingTime = m_GlobalParams->frameDuration - frameTime;
+                                   RealType substep = MathHelpers::min(computeCFLTimeStep(), remainingTime);
+
+                                   m_NSearch->find_neighbors();
+                                   advanceVelocity(substep);
+                                   moveParticles(substep);
+                                   frameTime += substep;
+                                   ++substepCount;
+
+                                   m_Logger->printLog("Finished step " + NumberHelpers::formatWithCommas(substepCount) + " of size " + NumberHelpers::formatToScientific<RealType>(substep) +
+                                                      "(" + NumberHelpers::formatWithCommas(substep / m_GlobalParams->frameDuration * 100) + "% of the frame, to " +
+                                                      NumberHelpers::formatWithCommas(100 * (frameTime) / m_GlobalParams->frameDuration) + "% of the frame).");
+                               });
 
         ////////////////////////////////////////////////////////////////////////////////
-
-        RealType remainingTime = m_GlobalParams->frameDuration - frameTime;
-        RealType substep       = MathHelpers::min(computeCFLTimeStep(), remainingTime);
-
-        m_NSearch->find_neighbors();
-        advanceVelocity(substep);
-        moveParticles(substep);
-        frameTime += substep;
-        ++substepCount;
-
-        ////////////////////////////////////////////////////////////////////////////////
-        subStepTimer.tock();
-
-        m_Logger->printLog("Finished step " + NumberHelpers::formatWithCommas(substepCount) + " of size " + NumberHelpers::formatToScientific<RealType>(substep) +
-                           "(" + NumberHelpers::formatWithCommas(substep / m_GlobalParams->frameDuration * 100) + "% of the frame, to " +
-                           NumberHelpers::formatWithCommas(100 * (frameTime + substep) / m_GlobalParams->frameDuration) + "% of the frame).");
-        m_Logger->printLog(subStepTimer.getRunTime("Substep time: "));
         m_Logger->newLine();
     } // end while
-
-    ////////////////////////////////////////////////////////////////////////////////
-    frameTimer.tock();
-    m_Logger->printLog("Frame finished. Frame duration: " + NumberHelpers::formatWithCommas(frameTime) + frameTimer.getRunTime(" (s). Run time: "));
-    m_Logger->newLine();
 
     ////////////////////////////////////////////////////////////////////////////////
     saveParticleData();
