@@ -16,27 +16,6 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 template<class RealType>
-void Banana::WCSPHSolver<RealType>::loadSimParams(const nlohmann::json& jParams)
-{
-    JSONHelpers::readVector(jParams, m_SimParams->boxMin, "BoxMin");
-    JSONHelpers::readVector(jParams, m_SimParams->boxMax, "BoxMax");
-
-    JSONHelpers::readValue(jParams, m_SimParams->pressureStiffness,  "PressureStiffness");
-    JSONHelpers::readValue(jParams, m_SimParams->nearForceStiffness, "NearForceStiffness");
-    JSONHelpers::readValue(jParams, m_SimParams->viscosityFluid,     "ViscosityFluid");
-    JSONHelpers::readValue(jParams, m_SimParams->viscosityBoundary,  "ViscosityBoundary");
-    JSONHelpers::readValue(jParams, m_SimParams->kernelRadius,       "KernelRadius");
-
-    JSONHelpers::readBool(jParams, m_SimParams->bCorrectDensity,        "CorrectDensity");
-    JSONHelpers::readBool(jParams, m_SimParams->bUseBoundaryParticles,  "UseBoundaryParticles");
-    JSONHelpers::readBool(jParams, m_SimParams->bUseAttractivePressure, "UseAttractivePressure");
-
-    JSONHelpers::readVector(jParams, m_SimParams->boxMax, "BoundaryRestitution");
-    JSONHelpers::readVector(jParams, m_SimParams->boxMax, "AttractivePressureRatio");
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
 void Banana::WCSPHSolver<RealType>::makeReady()
 {
     m_Logger->printRunTime("Allocate solver memory: ",
@@ -51,7 +30,7 @@ void Banana::WCSPHSolver<RealType>::makeReady()
                                m_NearSpikyKernel.setRadius(RealType(1.5) * m_SimParams->particleRadius);
 
                                m_NSearch = std::make_unique<NeighborhoodSearch<RealType> >(m_SimParams->kernelRadius);
-                               m_NSearch->add_point_set(glm::value_ptr(m_SimData->positions.front()), m_SimData->positions.size(), true, true);
+                               m_NSearch->add_point_set(glm::value_ptr(m_SimData->positions.front()), m_SimData->getNumParticles(), true, true);
 
 
 
@@ -79,7 +58,7 @@ void Banana::WCSPHSolver<RealType>::makeReady()
 
     ////////////////////////////////////////////////////////////////////////////////
     // sort the fluid particles
-    m_Logger->printRunTime("Sort data by particle positions: ",
+    m_Logger->printRunTime("Sort particle positions and velocities: ",
                            [&]()
                            {
                                auto const& d = m_NSearch->point_set(0);
@@ -114,7 +93,6 @@ void Banana::WCSPHSolver<RealType>::advanceFrame()
     RealType     frameTime    = 0;
     int          substepCount = 0;
 
-
     ////////////////////////////////////////////////////////////////////////////////
     while(frameTime < m_GlobalParams->frameDuration)
     {
@@ -122,13 +100,14 @@ void Banana::WCSPHSolver<RealType>::advanceFrame()
                                [&]()
                                {
                                    RealType remainingTime = m_GlobalParams->frameDuration - frameTime;
-                                   RealType substep = MathHelpers::min(computeCFLTimeStep(), remainingTime);
+                                   RealType substep = MathHelpers::min(computeCFLTimestep(), remainingTime);
+                                   ////////////////////////////////////////////////////////////////////////////////
                                    m_Logger->printRunTime("Find neighbors: ",               funcTimer, [&]() { m_NSearch->find_neighbors(); });
                                    m_Logger->printRunTime("====> Advance velocity total: ", funcTimer, [&]() { advanceVelocity(substep); });
                                    m_Logger->printRunTime("Move particles: ",               funcTimer, [&]() { moveParticles(substep); });
+                                   ////////////////////////////////////////////////////////////////////////////////
                                    frameTime += substep;
                                    ++substepCount;
-
                                    m_Logger->printLog("Finished step " + NumberHelpers::formatWithCommas(substepCount) + " of size " + NumberHelpers::formatToScientific<RealType>(substep) +
                                                       "(" + NumberHelpers::formatWithCommas(substep / m_GlobalParams->frameDuration * 100) + "% of the frame, to " +
                                                       NumberHelpers::formatWithCommas(100 * (frameTime) / m_GlobalParams->frameDuration) + "% of the frame).");
@@ -139,6 +118,7 @@ void Banana::WCSPHSolver<RealType>::advanceFrame()
     } // end while
 
     ////////////////////////////////////////////////////////////////////////////////
+    ++m_GlobalParams->finishedFrame;
     saveParticleData();
     saveMemoryState();
 }
@@ -170,10 +150,79 @@ void Banana::WCSPHSolver<RealType>::sortParticles()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-void Banana::WCSPHSolver<RealType>::saveParticleData()
+void Banana::WCSPHSolver<RealType>::loadSimParams(const nlohmann::json& jParams)
 {
-    if(!m_GlobalParams->bSaveParticleData)
+    JSONHelpers::readValue(jParams, m_SimParams->particleRadius, "ParticleRadius");
+
+    JSONHelpers::readVector(jParams, m_SimParams->boxMin, "BoxMin");
+    JSONHelpers::readVector(jParams, m_SimParams->boxMax, "BoxMax");
+
+    JSONHelpers::readValue(jParams, m_SimParams->pressureStiffness,  "PressureStiffness");
+    JSONHelpers::readValue(jParams, m_SimParams->nearForceStiffness, "NearForceStiffness");
+    JSONHelpers::readValue(jParams, m_SimParams->viscosityFluid,     "ViscosityFluid");
+    JSONHelpers::readValue(jParams, m_SimParams->viscosityBoundary,  "ViscosityBoundary");
+    JSONHelpers::readValue(jParams, m_SimParams->kernelRadius,       "KernelRadius");
+
+    JSONHelpers::readBool(jParams, m_SimParams->bCorrectDensity,        "CorrectDensity");
+    JSONHelpers::readBool(jParams, m_SimParams->bUseBoundaryParticles,  "UseBoundaryParticles");
+    JSONHelpers::readBool(jParams, m_SimParams->bUseAttractivePressure, "UseAttractivePressure");
+
+    JSONHelpers::readValue(jParams, m_SimParams->boundaryRestitution,     "BoundaryRestitution");
+    JSONHelpers::readValue(jParams, m_SimParams->attractivePressureRatio, "AttractivePressureRatio");
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class RealType>
+void Banana::WCSPHSolver<RealType>::setupDataIO()
+{
+    m_MemoryStateIO.push_back(std::make_unique<DataIO>(m_GlobalParams->dataPath, "SPHState", "state", "pos", "StatePosition"));
+    m_MemoryStateIO.push_back(std::make_unique<DataIO>(m_GlobalParams->dataPath, "SPHState", "state", "vel", "StateVelocity"));
+
+    m_ParticleDataIO.push_back(std::make_unique<DataIO>(m_GlobalParams->dataPath, "SPHFrame", "frame", "pos", "FramePosition"));
+    m_ParticleDataIO.push_back(std::make_unique<DataIO>(m_GlobalParams->dataPath, "SPHFrame", "frame", "vel", "FrameVelocity"));
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class RealType>
+void Banana::WCSPHSolver<RealType>::loadMemoryState()
+{
+    if(!m_GlobalParams->bLoadMemoryState)
         return;
+
+    ////////////////////////////////////////////////////////////////////////////////
+    int latestStateIdx = -1;
+
+    for(auto& dataIO : m_MemoryStateIO)
+        latestStateIdx = MathHelpers::max(latestStateIdx, dataIO->getLatestFileIndex(m_GlobalParams->finalFrame));
+
+    if(latestStateIdx < 0)
+        return;
+
+    for(auto& dataIO : m_MemoryStateIO)
+    {
+        dataIO->loadFileIndex(latestStateIdx);
+
+        if(dataIO->dataName() == "StatePosition")
+        {
+            RealType particleRadius;
+            dataIO->getBuffer().getData<RealType>(particleRadius, sizeof(UInt32));
+            __BNN_ASSERT_APPROX_NUMBERS(m_SimParams->particleRadius, particleRadius, MEpsilon<RealType>());
+
+            UInt32 numParticles;
+            dataIO->getBuffer().getData<UInt32>(numParticles, 0);
+            dataIO->getBuffer().getData<RealType>(m_SimData->positions, sizeof(UInt32) + sizeof(RealType), numParticles);
+        }
+        else if(dataIO->dataName() == "StateVelocity")
+        {
+            dataIO->getBuffer().getData<RealType>(m_SimData->velocities);
+        }
+        else
+        {
+            __BNN_DIE("Invalid particle data!");
+        }
+    }
+
+    assert(m_SimData->velocities.size() == m_SimData->positions.size());
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -192,11 +241,62 @@ void Banana::WCSPHSolver<RealType>::saveMemoryState()
     ////////////////////////////////////////////////////////////////////////////////
     // save state
     frameCount = 0;
+    for(auto& dataIO : m_MemoryStateIO)
+    {
+        if(dataIO->dataName() == "StatePosition")
+        {
+            dataIO->clearBuffer();
+            dataIO->getBuffer().append(static_cast<UInt32>(m_SimData->getNumParticles()));
+            dataIO->getBuffer().append(m_SimParams->particleRadius);
+            dataIO->getBuffer().append(m_SimData->positions, false);
+            dataIO->flushBufferAsync(m_GlobalParams->finishedFrame);
+        }
+        else if(dataIO->dataName() == "StateVelocity")
+        {
+            dataIO->clearBuffer();
+            dataIO->getBuffer().append(m_SimData->velocities);
+            dataIO->flushBufferAsync(m_GlobalParams->finishedFrame);
+        }
+        else
+        {
+            __BNN_DIE("Invalid particle data!");
+        }
+    }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-RealType Banana::WCSPHSolver<RealType>::computeCFLTimeStep()
+void Banana::WCSPHSolver<RealType>::saveParticleData()
+{
+    if(!m_GlobalParams->bSaveParticleData)
+        return;
+
+    for(auto& dataIO : m_ParticleDataIO)
+    {
+        if(dataIO->dataName() == "FramePosition")
+        {
+            dataIO->clearBuffer();
+            dataIO->getBuffer().append(static_cast<UInt32>(m_SimData->getNumParticles()));
+            dataIO->getBuffer().appendFloat(m_SimParams->particleRadius);
+            dataIO->getBuffer().appendFloatArray(m_SimData->positions, false);
+            dataIO->flushBufferAsync(m_GlobalParams->finishedFrame);
+        }
+        else if(dataIO->dataName() == "FrameVelocity")
+        {
+            dataIO->clearBuffer();
+            dataIO->getBuffer().appendFloatArray(m_SimData->velocities);
+            dataIO->flushBufferAsync(m_GlobalParams->finishedFrame);
+        }
+        else
+        {
+            __BNN_DIE("Invalid particle data!");
+        }
+    }
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class RealType>
+RealType Banana::WCSPHSolver<RealType>::computeCFLTimestep()
 {
     RealType maxVel = sqrt(ParallelSTL::maxNorm2<RealType>(m_SimData->velocities));
     RealType CFLTimeStep = maxVel > RealType(Tiny<RealType>()) ? m_SimParams->CFLFactor* RealType(0.4) * (RealType(2.0) * m_SimParams->particleRadius / maxVel) : RealType(1e10);

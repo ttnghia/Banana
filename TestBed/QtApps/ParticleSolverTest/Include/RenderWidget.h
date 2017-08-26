@@ -117,7 +117,7 @@ private:
 
         GLint isPointView = 0;
         GLint hasVColor   = 1;
-        GLint pColorMode  = ParticleColorMode::Random;
+        GLint pColorMode  = ParticleColorMode::Ramp;
         bool  initialized = false;
     } m_RDataParticle;
 

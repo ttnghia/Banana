@@ -50,7 +50,7 @@ void Simulator::doSimulation()
         emit systemTimeChanged(sysTime);
         emit particleChanged();
         emit frameFinished();
-        qDebug() << "frame finish";
+
         if(m_bStop)
             break;
     }

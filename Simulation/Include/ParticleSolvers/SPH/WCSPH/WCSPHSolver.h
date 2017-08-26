@@ -44,14 +44,12 @@ public:
     virtual void sortParticles() override;
 protected:
     virtual void loadSimParams(const nlohmann::json& jParams) override;
-    virtual void printParameters() override {}
-    virtual void setupDataIO() override {}
-    virtual void saveParticleData() override;
+    virtual void setupDataIO() override;
+    virtual void loadMemoryState() override;
     virtual void saveMemoryState() override;
-    virtual void loadMemoryStates() override {}
-    virtual void advanceScene() override {}
+    virtual void saveParticleData() override;
 
-    RealType computeCFLTimeStep();
+    RealType computeCFLTimestep();
     void     advanceVelocity(RealType timeStep);
     void     computeDensity();
     void     correctDensity();

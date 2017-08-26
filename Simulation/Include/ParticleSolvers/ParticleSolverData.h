@@ -26,7 +26,6 @@ namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #define DEFAULT_BOUNDARY_RESTITUTION 0.1
-#define DEFAULT_RESOLUTION           32
 #define DEFAULT_FRAME_RATE           30
 class Logger;
 
@@ -42,7 +41,7 @@ struct GlobalParameters
     unsigned int nThreads      = 0;
 
     ////////////////////////////////////////////////////////////////////////////////
-    bool         bLoadMemoryStates = true;
+    bool         bLoadMemoryState  = true;
     bool         bSaveParticleData = false;
     bool         bSaveMemoryState  = false;
     unsigned int framePerState     = 1;
@@ -67,7 +66,9 @@ struct GlobalParameters
         logger->printLogIndent("Apply gravity: " + (bApplyGravity ? std::string("Yes") : std::string("No")));
         logger->printLogIndent("Sort particles during simulation: " + (bEnableSortParticle ? std::string("Yes") : std::string("No")));
         if(bEnableSortParticle)
+        {
             logger->printLogIndent("Sort frequency: " + std::to_string(sortFrequency));
+        }
         logger->newLine();
     }
 };

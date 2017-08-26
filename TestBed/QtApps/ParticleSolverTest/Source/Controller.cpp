@@ -191,7 +191,7 @@ void Controller::setupColorControllers(QBoxLayout* ctrLayout)
     QRadioButton* rdbColorRamp    = new QRadioButton("Ramp");
     QRadioButton* rdbColorUniform = new QRadioButton("Uniform");
 
-    rdbColorRandom->setChecked(true);
+    rdbColorRamp->setChecked(true);
 
     QGridLayout* colorModeLayout = new QGridLayout;
     colorModeLayout->addWidget(rdbColorRandom,  0, 0);

@@ -764,6 +764,127 @@ void cycle_array(T* arr, int size)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+// value < 0 is inside
+template<class T>
+T fraction_inside(T left_val, T right_val)
+{
+    if(left_val < 0 && right_val < 0)
+    {
+        return T(1.0);
+    }
+
+    if(left_val < 0 && right_val >= 0)
+    {
+        return left_val / (left_val - right_val);
+    }
+
+    if(left_val >= 0 && right_val < 0)
+    {
+        return right_val / (right_val - left_val);
+    }
+
+    return T(0);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//Given four signed distance values (square corners), determine what fraction of the square is "inside"
+template<class T>
+T fraction_inside(T phi_bl, T phi_br, T phi_tl, T phi_tr)
+{
+    int      inside_count = (phi_bl < 0 ? 1 : 0) + (phi_tl < 0 ? 1 : 0) + (phi_br < 0 ? 1 : 0) + (phi_tr < 0 ? 1 : 0);
+    T list[] = {phi_bl, phi_br, phi_tr, phi_tl};
+
+    if(inside_count == 4)
+    {
+        return T(1.0);
+    }
+    else if(inside_count == 3)
+    {
+        //rotate until the positive value is in the first position
+        while(list[0] < 0)
+        {
+            MathHelpers::cycle_array(list, 4);
+        }
+
+        //Work out the area of the exterior triangle
+        T side0 = T(1.0) - fraction_inside(list[0], list[3]);
+        T side1 = T(1.0) - fraction_inside(list[0], list[1]);
+        return T(1.0) - T(0.5) * side0 * side1;
+    }
+    else if(inside_count == 2)
+    {
+        //rotate until a negative value is in the first position, and the next negative is in either slot 1 or 2.
+        while(list[0] >= 0 || !(list[1] < 0 || list[2] < 0))
+        {
+            MathHelpers::cycle_array(list, 4);
+        }
+
+        if(list[1] < 0)   //the matching signs are adjacent
+        {
+            T side_left = fraction_inside(list[0], list[3]);
+            T side_right = fraction_inside(list[1], list[2]);
+            return T(0.5) * (side_left + side_right);
+        }
+        else   //matching signs are diagonally opposite
+        {
+            //determine the centre point's sign to disambiguate this case
+            T middle_point = T(0.25) * (list[0] + list[1] + list[2] + list[3]);
+
+            if(middle_point < 0)
+            {
+                T area = T(0);
+
+                //first triangle (top left)
+                T side1 = T(1.0) - fraction_inside(list[0], list[3]);
+                T side3 = T(1.0) - fraction_inside(list[2], list[3]);
+
+                area += T(0.5) * side1 * side3;
+
+                //second triangle (top right)
+                T side2 = T(1.0) - fraction_inside(list[2], list[1]);
+                T side0 = T(1.0) - fraction_inside(list[0], list[1]);
+                area += T(0.5) * side0 * side2;
+
+                return T(1.0) - area;
+            }
+            else
+            {
+                T area = T(0);
+
+                //first triangle (bottom left)
+                T side0 = fraction_inside(list[0], list[1]);
+                T side1 = fraction_inside(list[0], list[3]);
+                area += T(0.5) * side0 * side1;
+
+                //second triangle (top right)
+                T side2 = fraction_inside(list[2], list[1]);
+                T side3 = fraction_inside(list[2], list[3]);
+                area += T(0.5) * side2 * side3;
+                return area;
+            }
+        }
+    }
+    else if(inside_count == 1)
+    {
+        //rotate until the negative value is in the first position
+        while(list[0] >= 0)
+        {
+            MathHelpers::cycle_array(list, 4);
+        }
+
+        //Work out the area of the interior triangle, and subtract from 1.
+        T side0 = fraction_inside(list[0], list[3]);
+        T side1 = fraction_inside(list[0], list[1]);
+        return T(0.5) * side0 * side1;
+    }
+    else
+    {
+        return T(0);
+    }
+}
+
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace MathHelpers
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

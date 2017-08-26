@@ -19,7 +19,6 @@
 
 #include <ParticleSolvers/ParticleSolverInterface.h>
 #include <ParticleSolvers/FLIP/FLIP3DData.h>
-#include <Banana/Array/ArrayHelpers.h>
 #include <Banana/LinearAlgebra/LinearSolvers/PCGSolver.h>
 #include <Banana/Grid/Grid3DHashing.h>
 
@@ -48,16 +47,39 @@ public:
 
 private:
     virtual void loadSimParams(const nlohmann::json& jParams) override;
-    virtual void printParameters() override {}
     virtual void setupDataIO() override;
-    virtual void saveParticleData() override;
+    virtual void loadMemoryState() override;
     virtual void saveMemoryState() override;
-    virtual void loadMemoryStates() {}
-    virtual void advanceScene() {}
+    virtual void saveParticleData() override;
 
     RealType computeCFLTimestep();
     void     advanceVelocity(RealType timeStep);
     void     moveParticles(RealType timeStep);
+
+    void computeFluidWeights();
+    void addRepulsiveVelocity2Particles(RealType timestep);
+    void velocityToGrid();
+    void extrapolateVelocity();
+    void extrapolateVelocity(Array3<RealType>& grid, Array3<RealType>& temp_grid, Array3c& valid, Array3c& old_valid);
+    void constrainVelocity();
+    void addGravity(RealType timestep);
+    void pressureProjection(RealType timestep);
+    ////////////////////////////////////////////////////////////////////////////////
+    // pressure projection functions =>
+    void computeFluidSDF();
+    void computeMatrix(RealType timestep);
+    void computeRhs();
+    void solveSystem();
+    void updateVelocity(RealType timestep);
+    ////////////////////////////////////////////////////////////////////////////////
+    void computeChangesGridVelocity();
+    void velocityToParticles();
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // helper functions
+    bool           isInside(const Vec3<RealType>& pos, const Vec3<RealType>& bMin, const Vec3<RealType>& bMax);
+    Vec3<RealType> getVelocityFromGrid(const Vec3<RealType>& ppos);
+    Vec3<RealType> getVelocityChangesFromGrid(const Vec3<RealType>& ppos);
 
     ////////////////////////////////////////////////////////////////////////////////
     std::shared_ptr<SimulationParameters_FLIP3D<RealType> > m_SimParams = std::make_shared<SimulationParameters_FLIP3D<RealType> >();
@@ -65,50 +87,8 @@ private:
     Grid3DHashing<RealType>                                 m_Grid3D;
     PCGSolver<RealType>                                     m_PCGSolver;
 
-    void computeRepulsiveVelocity(RealType timestep);
-
-    void addGravity(RealType timestep);
-
-
-protected:
-    void loadLatestState();
-
-    void velocityToGrid();
-    void updateParticleVelocity();
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // velocity integration functions
-    void     computeFluidWeights();
-    RealType fractionInside(RealType phi_left, RealType phi_right);
-    RealType fractionInside(RealType phi_bl, RealType phi_br, RealType phi_tl, RealType phi_tr);
-
-    void extrapolateVelocity(Array3<RealType>& grid, Array3<RealType>& temp_grid, Array3c& valid, Array3c& old_valid);
-    void constrainVelocity();
-
-    void backupGridVelocity();
-    void pressureProjection(RealType timestep);
-
-    void computeVelocityChanges();
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // pressure projection functions
-    void computeFluidSDF();
-
-    void computeMatrix(RealType timestep);
-    void computeRhs();
-    void solveSystem();
-
-    void updateVelocity(RealType timestep);
-
-    Vec3<RealType> getVelocityChangesFromGrid(const Vec3<RealType>& ppos);
-    Vec3<RealType> getVelocityFromGrid(const Vec3<RealType>& ppos);
-
-    int      getKernelSpan();
-    RealType weightKernel(const Vec3<RealType>& dxdydz);
-    RealType interpolateValue(const Vec3<RealType>& point, const Array3<RealType>& grid);
-
-    bool isInside(const Vec3<RealType>& pos, const Vec3<RealType>& bMin, const Vec3<RealType>& bMax);
-    bool isOutside(const Vec3<RealType>& pos, const Vec3<RealType>& bMin, const Vec3<RealType>& bMax);
+    std::function<RealType(const Vec3<RealType>&, const Array3<RealType>&)> m_InterpolateValue = nullptr;
+    std::function<RealType(const Vec3<RealType>&)>                          m_WeightKernel     = nullptr;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

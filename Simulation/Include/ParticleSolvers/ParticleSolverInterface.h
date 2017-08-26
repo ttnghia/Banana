@@ -40,6 +40,7 @@
 
 #include <memory>
 #include <fstream>
+#include <functional>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -68,16 +69,16 @@ public:
     virtual void sortParticles() = 0;
 
 protected:
-    void         setupLogger();
-    void         loadGlobalParams(const nlohmann::json& jParams);
-    void         loadObjectParams(const nlohmann::json& jParams);
+    void setupLogger();
+    void loadGlobalParams(const nlohmann::json& jParams);
+    void loadObjectParams(const nlohmann::json& jParams);
+    void advanceScene() {}
+
     virtual void loadSimParams(const nlohmann::json& jParams) = 0;
-    virtual void printParameters()                            = 0;
     virtual void setupDataIO()                                = 0;
-    virtual void saveParticleData()                           = 0;
+    virtual void loadMemoryState()                            = 0;
     virtual void saveMemoryState()                            = 0;
-    virtual void loadMemoryStates()                           = 0;
-    virtual void advanceScene() {}
+    virtual void saveParticleData()                           = 0;
 
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -115,8 +116,8 @@ public:
 template<class RealType>
 void Banana::ParticleSolver<RealType>::doSimulation()
 {
-    FileHelpers::createFolder(m_GlobalParams->dataPath);
-    if(m_GlobalParams->bLoadMemoryStates)
+    setupDataIO();
+    if(m_GlobalParams->bLoadMemoryState)
         loadMemoryStates();
     makeReady();
 
@@ -213,7 +214,7 @@ bool Banana::ParticleSolver<RealType>::loadDataPath(const std::string& sceneFile
     if(jParams.find("GlobalParameters") == jParams.end())
         return false;
     else
-        return JSONHelpers::readValue(jParams["DataPath"], dataPath);
+        return JSONHelpers::readValue(jParams, dataPath, "DataPath");
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -229,13 +230,17 @@ void Banana::ParticleSolver<RealType>::loadGlobalParams(const nlohmann::json& jP
     JSONHelpers::readBool(jParams, m_GlobalParams->bEnableSortParticle, "EnableSortParticle");
     JSONHelpers::readValue(jParams, m_GlobalParams->sortFrequency, "SortFrequency");
 
+    JSONHelpers::readBool(jParams, m_GlobalParams->bLoadMemoryState,  "LoadMemoryState");
     JSONHelpers::readBool(jParams, m_GlobalParams->bSaveParticleData, "SaveParticleData");
     JSONHelpers::readBool(jParams, m_GlobalParams->bSaveMemoryState,  "SaveMemoryState");
+    JSONHelpers::readBool(jParams, m_GlobalParams->bPrintLog2File,    "PrintLogToFile");
     JSONHelpers::readValue(jParams, m_GlobalParams->framePerState, "FramePerState");
     JSONHelpers::readValue(jParams, m_GlobalParams->dataPath,      "DataPath");
 
     ////////////////////////////////////////////////////////////////////////////////
     m_GlobalParams->printParams(m_Logger);
+    if(m_GlobalParams->bSaveParticleData || m_GlobalParams->bSaveMemoryState || m_GlobalParams->bPrintLog2File)
+        FileHelpers::createFolder(m_GlobalParams->dataPath);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -325,12 +330,8 @@ void Banana::ParticleSolver<RealType>::setupLogger()
     m_Logger = Logger::create(getSolverName());
     m_Logger->printGreeting(getGreetingMessage());
 
-    m_Logger->enableLog2Console(m_GlobalParams->bPrintLog2Console);
-    m_Logger->enableLog2File(m_GlobalParams->bPrintLog2File);
-
-    // TODO
-    if(m_GlobalParams->bPrintLog2File)
-        m_Logger->setDataPath(m_GlobalParams->dataPath);
+    Logger::enableLog2Console(m_GlobalParams->bPrintLog2Console);
+    Logger::enableLog2File(m_GlobalParams->bPrintLog2File);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

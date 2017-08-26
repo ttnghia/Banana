@@ -27,7 +27,7 @@
 #include "Common.h"
 
 #define PARTICLE_SOLVER WCSPHSolver
-//#define PARTICLE_SOLVER FLIP3DSolver
+#define PARTICLE_SOLVER FLIP3DSolver
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 class Simulator : public QObject

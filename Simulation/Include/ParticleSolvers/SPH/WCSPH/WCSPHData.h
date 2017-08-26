@@ -43,8 +43,8 @@ struct SimulationParameters_WCSPH
     RealType pressureStiffness  = RealType(DEFAULT_PRESSURE_STIFFNESS);
     RealType nearForceStiffness = RealType(DEFAULT_NEAR_FORCE_STIFFNESS);
     RealType viscosityFluid     = RealType(DEFAULT_VISCOSITY);
-    RealType viscosityBoundary  = RealType(DEFAULT_VISCOSITY * 0.01);
-    RealType kernelRadius       = RealType(2.0 / DEFAULT_RESOLUTION);
+    RealType viscosityBoundary  = RealType(DEFAULT_VISCOSITY * 0.001);
+    RealType particleRadius     = RealType(2.0 / 32.0 / 4.0);
 
     RealType boundaryRestitution     = RealType(DEFAULT_BOUNDARY_RESTITUTION);
     RealType attractivePressureRatio = RealType(0.1);
@@ -56,8 +56,8 @@ struct SimulationParameters_WCSPH
     bool bUseAttractivePressure = false;
 
     // the following need to be computed
+    RealType kernelRadius;
     RealType particleMass;
-    RealType particleRadius;
     RealType kernelRadiusSqr;
     RealType nearKernelRadius;
     RealType restDensitySqr;
@@ -65,7 +65,7 @@ struct SimulationParameters_WCSPH
     ////////////////////////////////////////////////////////////////////////////////
     void makeReady()
     {
-        particleRadius   = kernelRadius / RealType(4.0);
+        kernelRadius     = particleRadius * RealType(4.0);
         kernelRadiusSqr  = kernelRadius * kernelRadius;
         nearKernelRadius = particleRadius * RealType(2.5);
 
