@@ -66,6 +66,8 @@ public slots:
     void setParticleMaterial(const Material::MaterialData& material);
 
     void reloadTextures();
+    void enableClipPlane(bool bEnable = true);
+    void setClipPlane(const glm::vec4& clipPlane);
 
 signals:
     void lightsObjChanged(const std::shared_ptr<PointLights>& lights);
@@ -107,6 +109,7 @@ private:
         GLuint u_PointScale;
         GLuint u_IsPointView;
         GLuint u_HasVColor;
+        GLuint u_ClipPlane;
 
         GLuint  numParticles;
         GLfloat pointRadius;
@@ -129,6 +132,8 @@ private:
     void initCaptureDir();
 
     ////////////////////////////////////////////////////////////////////////////////
+    glm::vec4 m_ClipPlane = DEFAULT_CLIP_PLANE;
+
     std::vector<std::shared_ptr<ShaderProgram> > m_ExternalShaders;
     std::shared_ptr<PointLights>                 m_Lights;
 

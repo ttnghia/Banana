@@ -44,6 +44,7 @@ void Simulator::doSimulation()
     for(unsigned int frame = 1; frame <= m_ParticleSolver->getGlobalParams()->finalFrame; ++frame)
     {
         m_ParticleSolver->advanceFrame();
+        m_ParticleSolver->sortParticles();
         float sysTime = m_ParticleSolver->getGlobalParams()->frameDuration * static_cast<float>(frame);
 
         emit systemTimeChanged(sysTime);
@@ -120,6 +121,9 @@ void Simulator::changeScene(const QString& scene)
 
 //    qDebug() << particles.size();
 
+
+
+//    m_ParticleSolver->makeReady();
 
 
 

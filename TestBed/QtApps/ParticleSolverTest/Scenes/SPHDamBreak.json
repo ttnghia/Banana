@@ -2,7 +2,8 @@
 	"GlobalParameters": 
 	{
 		"FrameDuration": 0.001,
-		"FinalFrame": 10000
+		"FinalFrame": 10000,
+        "EnableSortParticle": true
 	},
 	"SimulationParameters": 
 	{

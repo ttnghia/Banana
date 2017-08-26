@@ -238,6 +238,7 @@ void RenderWidget::initRDataParticle()
 
     m_RDataParticle.u_PointRadius = m_RDataParticle.shader->getUniformLocation("u_PointRadius");
     m_RDataParticle.u_PointScale  = m_RDataParticle.shader->getUniformLocation("u_PointScale");
+    m_RDataParticle.u_ClipPlane   = m_RDataParticle.shader->getUniformLocation("u_ClipPlane");
     m_RDataParticle.u_HasVColor   = m_RDataParticle.shader->getUniformLocation("u_HasVColor");
 
     m_RDataParticle.buffPosition = std::make_unique<OpenGLBuffer>();
@@ -330,6 +331,7 @@ void RenderWidget::renderParticles()
     m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_PointRadius, m_RDataParticle.pointRadius);
     m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_PointScale,  m_RDataParticle.pointScale);
     m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_HasVColor,   m_RDataParticle.hasVColor);
+    m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_ClipPlane,   m_ClipPlane);
 
     glCall(glBindVertexArray(m_RDataParticle.VAO));
     glCall(glEnable(GL_VERTEX_PROGRAM_POINT_SIZE));
@@ -405,6 +407,34 @@ void RenderWidget::reloadTextures()
     msgBox.setStandardButtons(QMessageBox::Ok);
     msgBox.setAutoClose(true);
     msgBox.exec();
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void RenderWidget::enableClipPlane(bool bEnable /*= true*/)
+{
+    if(!isValid())
+    {
+        return;
+    }
+
+    makeCurrent();
+
+    if(bEnable)
+    {
+        glCall(glEnable(GL_CLIP_PLANE0));
+    }
+    else
+    {
+        glCall(glDisable(GL_CLIP_PLANE0));
+    }
+
+    doneCurrent();
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void RenderWidget::setClipPlane(const glm::vec4& clipPlane)
+{
+    m_ClipPlane = clipPlane;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

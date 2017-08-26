@@ -224,10 +224,13 @@ void Banana::ParticleSolver<RealType>::loadGlobalParams(const nlohmann::json& jP
     JSONHelpers::readValue(jParams, m_GlobalParams->frameDuration, "FrameDuration");
     JSONHelpers::readValue(jParams, m_GlobalParams->finalFrame,    "FinalFrame");
     JSONHelpers::readValue(jParams, m_GlobalParams->nThreads,      "NThreads");
-    JSONHelpers::readBool(jParams, m_GlobalParams->bEnableSortParticle, "EnableSortParticle");
 
-    JSONHelpers::readBool(jParams, m_GlobalParams->bSaveParticleData,   "SaveParticleData");
-    JSONHelpers::readBool(jParams, m_GlobalParams->bSaveMemoryState,    "SaveMemoryState");
+    JSONHelpers::readBool(jParams, m_GlobalParams->bApplyGravity,       "ApplyGravity");
+    JSONHelpers::readBool(jParams, m_GlobalParams->bEnableSortParticle, "EnableSortParticle");
+    JSONHelpers::readValue(jParams, m_GlobalParams->sortFrequency, "SortFrequency");
+
+    JSONHelpers::readBool(jParams, m_GlobalParams->bSaveParticleData, "SaveParticleData");
+    JSONHelpers::readBool(jParams, m_GlobalParams->bSaveMemoryState,  "SaveMemoryState");
     JSONHelpers::readValue(jParams, m_GlobalParams->framePerState, "FramePerState");
     JSONHelpers::readValue(jParams, m_GlobalParams->dataPath,      "DataPath");
 

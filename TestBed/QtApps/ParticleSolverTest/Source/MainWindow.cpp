@@ -77,6 +77,10 @@ bool MainWindow::processKeyPressEvent(QKeyEvent* event)
             m_Controller->m_btnStartStopSimulation->click();
             return true;
 
+        case Qt::Key_X:
+            m_Controller->m_btnEnableClipPlane->click();
+            return true;
+
         default:
             return OpenGLMainWindow::processKeyPressEvent(event);
     }
@@ -169,6 +173,9 @@ void MainWindow::setupStatusBar()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MainWindow::connectWidgets()
 {
+    connect(m_ClipPlaneEditor.get(),                       SIGNAL(clipPlaneChanged(glm::vec4)),             m_RenderWidget, SLOT(setClipPlane(glm::vec4)));
+    connect(m_Controller->m_btnEditClipPlane,              &QPushButton::clicked,                           [&] { m_ClipPlaneEditor->show(); });
+    connect(m_Controller->m_btnEnableClipPlane,            &QPushButton::clicked,                           m_RenderWidget, &RenderWidget::enableClipPlane);
     ////////////////////////////////////////////////////////////////////////////////
     // textures
     connect(m_Controller->m_cbSkyTexture->getComboBox(),   SIGNAL(currentIndexChanged(int)),                m_RenderWidget, SLOT(setSkyBoxTexture(int)));

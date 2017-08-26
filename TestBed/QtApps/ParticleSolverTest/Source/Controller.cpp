@@ -125,8 +125,15 @@ void Controller::setupSimulationControllers(QVBoxLayout* ctrLayout)
 
     ////////////////////////////////////////////////////////////////////////////////
     m_btnStartStopSimulation = new QPushButton("Start");
+
+    m_btnEditClipPlane   = new QPushButton("Edit Clip Plane");
+    m_btnEnableClipPlane = new QPushButton("Clip View");
+    m_btnEnableClipPlane->setCheckable(true);
+
     QGridLayout* btnSimControlLayout = new QGridLayout;
     btnSimControlLayout->addWidget(m_btnStartStopSimulation, 0, 0, 1, 1);
+    btnSimControlLayout->addWidget(m_btnEnableClipPlane,     1, 0, 1, 1);
+    btnSimControlLayout->addWidget(m_btnEditClipPlane,       2, 0, 1, 1);
 
     ////////////////////////////////////////////////////////////////////////////////
     ctrLayout->addWidget(grpSimControllers);

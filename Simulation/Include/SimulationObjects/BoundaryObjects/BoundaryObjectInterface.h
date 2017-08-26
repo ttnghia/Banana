@@ -30,19 +30,23 @@ template<class RealType>
 class BoundaryObject
 {
 public:
-    BoundaryObject() = default;
+    BoundaryObject() {}
+    BoundaryObject(RealType margin) : m_Margin(margin) {}
+    BoundaryObject(RealType margin, RealType restitution) : m_Margin(margin), m_RestitutionCoeff(restitution) {}
 
     template<class IndexType>
     const Vec3<RealType>& getBDParticle(IndexType idx) const { assert(static_cast<size_t>(idx) < m_BDParticles.size()); return m_BDParticles[idx]; }
 
-    const Vec_Vec3<RealType>& getBDParticles() const noexcept { return m_BDParticles; }
+    Vec_Vec3<RealType>& getBDParticles() { return m_BDParticles; }
     unsigned int getNumBDParticles() const noexcept { return static_cast<unsigned int>(m_BDParticles.size()); }
 
-    virtual void generateBoundaryParticles(RealType spacing, int numBDLayers = 2)                                      = 0;
-    virtual bool constrainToBoundary(Vec3<RealType>& ppos, Vec3<RealType>& pvel, RealType restitution = RealType(0.1)) = 0;
+    virtual void generateBoundaryParticles(RealType spacing, int numBDLayers = 2) = 0;
+    virtual bool constrainToBoundary(Vec3<RealType>& ppos, Vec3<RealType>& pvel)  = 0;
 
 protected:
     Vec_Vec3<RealType> m_BDParticles;
+    RealType           m_Margin           = RealType(0.0);
+    RealType           m_RestitutionCoeff = RealType(0.1);
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

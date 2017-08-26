@@ -27,14 +27,14 @@ namespace Banana
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #define DEFAULT_BOUNDARY_RESTITUTION 0.1
 #define DEFAULT_RESOLUTION           32
-
+#define DEFAULT_FRAME_RATE           30
 class Logger;
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
 struct GlobalParameters
 {
-    RealType frameDuration = RealType(1.0 / 30.0);
+    RealType frameDuration = RealType(1.0 / DEFAULT_FRAME_RATE);
 
     unsigned int startFrame    = 1;
     unsigned int finalFrame    = 1;
@@ -48,8 +48,9 @@ struct GlobalParameters
     unsigned int framePerState     = 1;
     std::string  dataPath          = std::string("./SimData");
 
+    bool         bApplyGravity       = true;
     bool         bEnableSortParticle = false;
-    unsigned int sortFrequency       = 10;
+    unsigned int sortFrequency       = DEFAULT_FRAME_RATE;
 
     ////////////////////////////////////////////////////////////////////////////////
     bool bPrintLog2Console = true;
@@ -63,6 +64,7 @@ struct GlobalParameters
         logger->printLogIndent("Data path: " + dataPath);
         logger->printLogIndent("Frame duration: " + NumberHelpers::formatToScientific(frameDuration));
         logger->printLogIndent("Final frame: " + std::to_string(finalFrame));
+        logger->printLogIndent("Apply gravity: " + (bApplyGravity ? std::string("Yes") : std::string("No")));
         logger->printLogIndent("Sort particles during simulation: " + (bEnableSortParticle ? std::string("Yes") : std::string("No")));
         if(bEnableSortParticle)
             logger->printLogIndent("Sort frequency: " + std::to_string(sortFrequency));

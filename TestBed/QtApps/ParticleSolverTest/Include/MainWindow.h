@@ -24,6 +24,7 @@
 #include <QtAppHelpers/OpenGLMainWindow.h>
 #include <QtAppHelpers/BrowsePathWidget.h>
 #include <QtAppHelpers/OpenGLWidgetTestRender.h>
+#include <QtAppHelpers/ClipPlaneEditor.h>
 #include <QtAppHelpers/BusyBar.h>
 
 #include <QEvent>
@@ -66,5 +67,6 @@ private:
     QLabel*                    m_lblStatusSimTime      = nullptr;
     BusyBar*                   m_BusyBar;
 
-    int m_FrameNumber = 0;
+    int                              m_FrameNumber     = 0;
+    std::unique_ptr<ClipPlaneEditor> m_ClipPlaneEditor = std::make_unique<ClipPlaneEditor>();
 };

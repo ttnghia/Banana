@@ -24,17 +24,21 @@ CONFIG += c++14
 static {
     CONFIG += static
     DEFINES += STATIC
-    message("~~~ static build ~~~") # this is for information, that the static build is done
+    message("~~~ Static build ~~~") # this is for information, that the static build is done
 }
 else {
-    message("~~~ dynamic build ~~~")
+    message("~~~ Dynamic build ~~~")
 }
 
 win32 {
     #QMAKE_CXXFLAGS += /std:c++latest
     CONFIG(debug, debug|release) {
+        message("Banana -- Debug")
+        QMAKE_CXXFLAGS += /DEBUG /Zi /D "_DEBUG" /wd"4305"
         LIBS += $$PWD/../Build/Debug/BananaCore.lib
     }else {
+        message("Banana -- Release")
+        QMAKE_CXXFLAGS += /O2 /Ob2 /GL /Qpar /wd"4305"
         static {
             LIBS += $$PWD/../Build/ReleaseStaticBuild/BananaCore.lib
         } else {
@@ -56,4 +60,3 @@ macx {
     INCLUDEPATH += $$PWD/../Externals/tbb_osx/include
     LIBS += -ltbb -L$$PWD/../Externals/tbb_osx/lib
 }
-

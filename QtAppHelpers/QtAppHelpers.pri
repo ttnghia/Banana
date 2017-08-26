@@ -14,24 +14,15 @@
 #
 #-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-
-macx {
-  QMAKE_MAC_SDK = macosx10.12
-  QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.12
-}
-
-#CONFIG += warn_off
 CONFIG += c++14
 
 win32 {
     CONFIG(debug, debug|release) {
         message("QtAppHelpers -- Debug")
-        QMAKE_CXXFLAGS += /DEBUG /Zi /D "_DEBUG" /wd"4305"
         LIBS += $$PWD/../Build/DebugQt/QtAppHelpers.lib
     }
     else {
         message("QtAppHelpers -- Release")
-        QMAKE_CXXFLAGS += /O2 /Ob2 /GL /Qpar /wd"4305"
         static {
             LIBS += $$PWD/../Build/ReleaseStaticBuild/QtAppHelpers.lib
         } else {

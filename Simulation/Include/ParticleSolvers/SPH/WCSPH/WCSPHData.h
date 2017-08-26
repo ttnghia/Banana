@@ -42,7 +42,8 @@ struct SimulationParameters_WCSPH
 
     RealType pressureStiffness  = RealType(DEFAULT_PRESSURE_STIFFNESS);
     RealType nearForceStiffness = RealType(DEFAULT_NEAR_FORCE_STIFFNESS);
-    RealType viscosity          = RealType(DEFAULT_VISCOSITY);
+    RealType viscosityFluid     = RealType(DEFAULT_VISCOSITY);
+    RealType viscosityBoundary  = RealType(DEFAULT_VISCOSITY * 0.01);
     RealType kernelRadius       = RealType(2.0 / DEFAULT_RESOLUTION);
 
     RealType boundaryRestitution     = RealType(DEFAULT_BOUNDARY_RESTITUTION);
@@ -53,8 +54,6 @@ struct SimulationParameters_WCSPH
     bool bCorrectDensity        = false;
     bool bUseBoundaryParticles  = false;
     bool bUseAttractivePressure = false;
-    bool bApplyGravity          = true;
-
 
     // the following need to be computed
     RealType particleMass;
@@ -81,7 +80,8 @@ struct SimulationParameters_WCSPH
         logger->printLogIndent("CFL factor: " + std::to_string(CFLFactor));
         logger->printLogIndent("Pressure stiffness: " + NumberHelpers::formatWithCommas(pressureStiffness));
         logger->printLogIndent("Near force stiffness: " + NumberHelpers::formatWithCommas(nearForceStiffness));
-        logger->printLogIndent("Viscosity: " + std::to_string(viscosity));
+        logger->printLogIndent("Viscosity fluid-fluid: " + std::to_string(viscosityFluid));
+        logger->printLogIndent("Viscosity fluid-boundary: " + std::to_string(viscosityBoundary));
         logger->printLogIndent("Kernel radius: " + std::to_string(kernelRadius));
         logger->printLogIndent("Boundary restitution: " + std::to_string(boundaryRestitution));
         logger->printLogIndent("Particle mass: " + std::to_string(particleMass));
@@ -89,7 +89,6 @@ struct SimulationParameters_WCSPH
 
         logger->printLogIndent("Correct density: " + (bCorrectDensity ? std::string("Yes") : std::string("No")));
         logger->printLogIndent("Generate boundary particles: " + (bUseBoundaryParticles ? std::string("Yes") : std::string("No")));
-        logger->printLogIndent("Apply gravity: " + (bApplyGravity ? std::string("Yes") : std::string("No")));
         logger->newLine();
     }
 };

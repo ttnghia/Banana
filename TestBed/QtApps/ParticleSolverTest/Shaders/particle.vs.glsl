@@ -13,6 +13,7 @@ layout(std140) uniform CameraData
 
 uniform float u_PointRadius;
 uniform float u_PointScale;
+uniform vec4  u_ClipPlane;
 
 //------------------------------------------------------------------------------------------
 in vec3       v_Position;
@@ -32,4 +33,5 @@ void main()
 
     gl_PointSize = u_PointRadius * (u_PointScale / dist);
     gl_Position  = projectionMatrix * eyeCoord;
+    gl_ClipDistance[0] = dot(vec4(v_Position, 1.0), u_ClipPlane);
 }

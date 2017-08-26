@@ -42,7 +42,6 @@ struct  SimulationParameters_FLIP3D
     RealType            kernelRadius        = RealType(1.0 / DEFAULT_RESOLUTION);
     InterpolationKernel kernelFunc          = InterpolationKernel::Linear;
 
-    bool bApplyGravity         = true;
     bool bApplyRepulsiveForces = false;
 
     Vec3<RealType> boxMin = Vec3<RealType>(-1.0);

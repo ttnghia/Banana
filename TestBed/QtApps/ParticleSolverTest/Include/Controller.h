@@ -66,6 +66,8 @@ private:
     QCheckBox*        m_chkEnableOutput;
     BrowsePathWidget* m_OutputPath;
     QPushButton*      m_btnStartStopSimulation;
+    QPushButton*      m_btnEditClipPlane;
+    QPushButton*      m_btnEnableClipPlane;
 
     PointLightEditor* m_LightEditor;
 };

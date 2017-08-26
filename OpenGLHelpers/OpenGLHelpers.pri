@@ -34,7 +34,6 @@ win32 {
             LIBS += $$PWD/../Build/ReleaseQt/OpenGLHelpers.lib
         }
     }
-#    LIBS += -lglew32 -L$$PWD/../Externals/glew-2.0.0/lib/Release/x64
 }
 
 

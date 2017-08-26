@@ -18,8 +18,9 @@
 #pragma once
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#define DEFAULT_CAMERA_POSITION glm::vec3(-3.0, 0.8, 0.0)
+#define DEFAULT_CAMERA_POSITION glm::vec3(3.0, 0.8, 0.0)
 #define DEFAULT_CAMERA_FOCUS    glm::vec3(0, -0.2, 0)
+#define DEFAULT_CLIP_PLANE      glm::vec4(-1.0f, 0.0f, 0.0f, 0.0f)
 
 #define CUSTOM_PARTICLE_MATERIAL         \
     {                                    \
