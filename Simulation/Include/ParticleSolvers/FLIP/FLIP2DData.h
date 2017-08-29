@@ -20,8 +20,8 @@
 #include <Banana/Setup.h>
 #include <Banana/Array/Array2.h>
 #include <Banana/LinearAlgebra/SparseMatrix/SparseMatrix.h>
-#include <ParticleSolvers/ParticleSolverData.h>
 #include <Banana/Geometry/GeometryObject2D.h>
+#include <ParticleSolvers/ParticleSolverData.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -53,7 +53,6 @@ enum BOUNDARY_TYPE
 template<class Real>
 struct Boundary
 {
-    __BNN_SETUP_DATA_TYPE(Real)
     Boundary(const Vec2r& center_, const Vec2r& parameter_, BOUNDARY_TYPE type_, bool inside)
         : center(center_), parameter(parameter_), type(type_), sign(inside ? -1.0 : 1.0) {}
 
@@ -71,23 +70,21 @@ struct Boundary
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
 struct SimulationParameters_FLIP2D
 {
-    __BNN_SETUP_DATA_TYPE(Real)
-    enum InterpolationKernel { Linear, CubicSpline };
+    enum Kernel { Linear, CubicSpline };
     SimulationParameters_FLIP2D() { makeReady(); }
 
     ////////////////////////////////////////////////////////////////////////////////
-    Real                defaultTimestep         = Real(1.0e-4);
-    Real                CFLFactor               = Real(1.0);
-    Real                PIC_FLIP_ratio          = Real(0.97);
-    Real                boundaryRestitution     = Real(DEFAULT_BOUNDARY_RESTITUTION);
-    Real                particleRadius          = Real(2.0 / 32.0 / 4.0);
-    InterpolationKernel kernelFunc              = InterpolationKernel::Linear;
-    Real                repulsiveForceStiffness = Real(1e7);
-    Real                CGRelativeTolerance     = Real(1e-20);
-    unsigned int        maxCGIteration          = 10000;
+    Real   defaultTimestep         = Real(1.0e-4);
+    Real   CFLFactor               = Real(1.0);
+    Real   PIC_FLIP_ratio          = Real(0.97);
+    Real   boundaryRestitution     = Real(DEFAULT_BOUNDARY_RESTITUTION);
+    Real   particleRadius          = Real(2.0 / 32.0 / 4.0);
+    Kernel kernelFunc              = Kernel::Linear;
+    Real   repulsiveForceStiffness = Real(1e7);
+    Real   CGRelativeTolerance     = Real(1e-20);
+    UInt   maxCGIteration          = 10000;
 
     bool bApplyRepulsiveForces = false;
 
@@ -111,7 +108,7 @@ struct SimulationParameters_FLIP2D
         nearKernelRadiusSqr = nearKernelRadius * nearKernelRadius;
 
         sdfRadius  = kernelRadius * Real(1.01 * sqrt(2.0) / 2.0);
-        kernelSpan = (kernelFunc == InterpolationKernel::Linear) ? 1 : 2;
+        kernelSpan = (kernelFunc == Kernel::Linear) ? 1 : 2;
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -138,32 +135,30 @@ struct SimulationParameters_FLIP2D
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
 struct SimulationData_FLIP2D
 {
-    __BNN_SETUP_DATA_TYPE(Real)
-    Vec_Vec2r positions;
-    Vec_Vec2r        positions_tmp;
-    Vec_Vec2r        velocities;
-    Vec_VecUInt      neighborList;
-    Vec_Mat2x2<Real> affineMatrix;
+    Vec_Vec2r   positions;
+    Vec_Vec2r   positions_tmp;
+    Vec_Vec2r   velocities;
+    Vec_VecUInt neighborList;
+    Vec_Mat2x2r affineMatrix;
 
     // grid velocity
-    Array2<Real> u, v;
-    Array2<Real> du, dv;
-    Array2<Real> u_temp, v_temp;
-    Array2<Real> u_old, v_old;
-    Array2<Real> u_weights, v_weights;
-    Array2c      u_valid, v_valid;
-    Array2c      u_valid_old, v_valid_old;
+    Array2r u, v;
+    Array2r du, dv;
+    Array2r u_temp, v_temp;
+    Array2r u_old, v_old;
+    Array2r u_weights, v_weights;
+    Array2c u_valid, v_valid;
+    Array2c u_valid_old, v_valid_old;
 
 
-    Array2<Real> fluidSDF;
-    Array2<Real> boundarySDF;
+    Array2r fluidSDF;
+    Array2r boundarySDF;
 
-    SparseMatrix<Real> matrix;
-    std::vector<Real>  rhs;
-    std::vector<Real>  pressure;
+    SparseMatrix matrix;
+    Vec_Real     rhs;
+    Vec_Real     pressure;
 
     ////////////////////////////////////////////////////////////////////////////////
     UInt getNumParticles() { return static_cast<UInt>(positions.size()); }

@@ -14,22 +14,28 @@
 //
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-void Banana::FLIP2DSolver<Real>::makeReady()
+
+#include <ParticleSolvers/FLIP/FLIP2DSolver.h>
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+namespace Banana
+{
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void FLIP2DSolver::makeReady()
 {
     m_Logger->printRunTime("Allocate solver memory: ",
                            [&]()
                            {
                                m_SimParams->makeReady();
                                m_SimParams->printParams(m_Logger);
-                               if(m_SimParams->kernelFunc == SimulationParameters_FLIP2D<Real>::Linear)
+                               if(m_SimParams->kernelFunc == SimulationParameters_FLIP2D::Linear)
                                {
-                                   m_InterpolateValue = static_cast<Real (*)(const Vec2r&, const Array2<Real>&)>(&ArrayHelpers::interpolateValueLinear);
+                                   m_InterpolateValue = static_cast<Real (*)(const Vec2r&, const Array2r&)>(&ArrayHelpers::interpolateValueLinear);
                                    m_WeightKernel = [](const Vec2r& dxdy) { return MathHelpers::bilinear_kernel(dxdy[0], dxdy[1]); };
                                }
                                else
                                {
-                                   m_InterpolateValue = static_cast<Real (*)(const Vec2r&, const Array2<Real>&)>(&ArrayHelpers::interpolateValueCubicBSpline);
+                                   m_InterpolateValue = static_cast<Real (*)(const Vec2r&, const Array2r&)>(&ArrayHelpers::interpolateValueCubicBSpline);
                                    m_WeightKernel = [](const Vec2r& dxdy) { return MathHelpers::cubic_spline_kernel_2d(dxdy[0], dxdy[1]); };
                                }
 
@@ -42,20 +48,20 @@ void Banana::FLIP2DSolver<Real>::makeReady()
 
 
                                // todo: remove
-                               GeometryObject2D::BoxObject<Real> box;
+                               GeometryObject2D::BoxObject box;
                                box.boxMin() = m_SimParams->boxMin + Vec2r(m_SimParams->kernelRadius);
                                box.boxMax() = m_SimParams->boxMax - Vec2r(m_SimParams->kernelRadius);
                                ParallelFuncs::parallel_for<UInt>(0, m_Grid.getNumCellX() + 1,
-                                                                   0, m_Grid.getNumCellY() + 1,
-                                                                   [&](UInt i, UInt j)
-                                                                   {
-                                                                       const Vec2r gridPos = Vec2r(i, j) * m_SimParams->kernelRadius + m_SimParams->boxMin;
-                                                                       m_SimData->boundarySDF(i, j) = compute_phi(gridPos);
-                                                                   });
+                                                                 0, m_Grid.getNumCellY() + 1,
+                                                                 [&](UInt i, UInt j)
+                                                                 {
+                                                                     const Vec2r gridPos = Vec2r(i, j) * m_SimParams->kernelRadius + m_SimParams->boxMin;
+                                                                     m_SimData->boundarySDF(i, j) = compute_phi(gridPos);
+                                                                 });
                                m_Logger->printWarning("Computed boundary SDF");
                            });
 
-    ////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
     m_Logger->printRunTime("Sort particle positions and velocities: ",
                            [&]()
                            {
@@ -64,14 +70,13 @@ void Banana::FLIP2DSolver<Real>::makeReady()
                                m_Grid.sortData(m_SimData->velocities);
                            });
 
-    ////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
     m_Logger->printLog("Solver ready!");
     m_Logger->newLine();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-void Banana::FLIP2DSolver<Real>::advanceFrame()
+void FLIP2DSolver::advanceFrame()
 {
     static Timer subStepTimer;
     static Timer funcTimer;
@@ -99,9 +104,9 @@ void Banana::FLIP2DSolver<Real>::advanceFrame()
                                                       NumberHelpers::formatWithCommas(100 * (frameTime) / m_GlobalParams->frameDuration) + "% of the frame).");
                                });
 
-        ////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
         m_Logger->newLine();
-    } // end while
+    }   // end while
 
     ////////////////////////////////////////////////////////////////////////////////
     ++m_GlobalParams->finishedFrame;
@@ -110,8 +115,7 @@ void Banana::FLIP2DSolver<Real>::advanceFrame()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-void Banana::FLIP2DSolver<Real>::sortParticles()
+void FLIP2DSolver::sortParticles()
 {
     static UInt frameCount = 0;
     ++frameCount;
@@ -133,8 +137,7 @@ void Banana::FLIP2DSolver<Real>::sortParticles()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-void Banana::FLIP2DSolver<Real>::loadSimParams(const nlohmann::json& jParams)
+void FLIP2DSolver::loadSimParams(const nlohmann::json& jParams)
 {
     JSONHelpers::readVector(jParams, m_SimParams->boxMin, "BoxMin");
     JSONHelpers::readVector(jParams, m_SimParams->boxMax, "BoxMax");
@@ -148,8 +151,7 @@ void Banana::FLIP2DSolver<Real>::loadSimParams(const nlohmann::json& jParams)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-void Banana::FLIP2DSolver<Real>::setupDataIO()
+void FLIP2DSolver::setupDataIO()
 {
     m_MemoryStateIO.push_back(std::make_unique<DataIO>(m_GlobalParams->dataPath, "FLIPState", "state", "pos", "StatePosition"));
     m_MemoryStateIO.push_back(std::make_unique<DataIO>(m_GlobalParams->dataPath, "FLIPState", "state", "vel", "StateVelocity"));
@@ -159,8 +161,7 @@ void Banana::FLIP2DSolver<Real>::setupDataIO()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-void Banana::FLIP2DSolver<Real>::loadMemoryState()
+void FLIP2DSolver::loadMemoryState()
 {
     if(!m_GlobalParams->bLoadMemoryState)
         return;
@@ -201,13 +202,12 @@ void Banana::FLIP2DSolver<Real>::loadMemoryState()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-void Banana::FLIP2DSolver<Real>::saveMemoryState()
+void FLIP2DSolver::saveMemoryState()
 {
     if(!m_GlobalParams->bSaveMemoryState)
         return;
 
-    static unsigned int frameCount = 0;
+    static UInt frameCount = 0;
     ++frameCount;
 
     if(frameCount < m_GlobalParams->framePerState)
@@ -240,8 +240,7 @@ void Banana::FLIP2DSolver<Real>::saveMemoryState()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-void Banana::FLIP2DSolver<Real>::saveParticleData()
+void FLIP2DSolver::saveParticleData()
 {
     if(!m_GlobalParams->bSaveParticleData)
         return;
@@ -270,8 +269,7 @@ void Banana::FLIP2DSolver<Real>::saveParticleData()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-Real Banana::FLIP2DSolver<Real>::computeCFLTimestep()
+Real FLIP2DSolver::computeCFLTimestep()
 {
     Real maxVel = MathHelpers::max(ParallelSTL::maxAbs(m_SimData->u.vec_data()),
                                    ParallelSTL::maxAbs(m_SimData->v.vec_data()));
@@ -280,8 +278,7 @@ Real Banana::FLIP2DSolver<Real>::computeCFLTimestep()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-void Banana::FLIP2DSolver<Real>::advanceVelocity(Real timestep)
+void FLIP2DSolver::advanceVelocity(Real timestep)
 {
     static Timer funcTimer;
 
@@ -305,32 +302,30 @@ void Banana::FLIP2DSolver<Real>::advanceVelocity(Real timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-void Banana::FLIP2DSolver<Real>::moveParticles(Real timestep)
+void FLIP2DSolver::moveParticles(Real timestep)
 {
     ParallelFuncs::parallel_for<UInt>(0, m_SimData->getNumParticles(),
-                                        [&](UInt p)
-                                        {
-                                            Vec2r ppos = m_SimData->positions[p] + m_SimData->velocities[p] * timestep;
-                                            const Vec2r gridPos = m_Grid.getGridCoordinate(ppos);
-                                            const Real phiVal = ArrayHelpers::interpolateValueLinear(gridPos, m_SimData->boundarySDF);
+                                      [&](UInt p)
+                                      {
+                                          Vec2r ppos = m_SimData->positions[p] + m_SimData->velocities[p] * timestep;
+                                          const Vec2r gridPos = m_Grid.getGridCoordinate(ppos);
+                                          const Real phiVal = ArrayHelpers::interpolateValueLinear(gridPos, m_SimData->boundarySDF);
 
-                                            if(phiVal < 0)
-                                            {
-                                                Vec2r grad = ArrayHelpers::interpolateGradient(gridPos, m_SimData->boundarySDF);
-                                                Real mag2Grad = glm::length2(grad);
+                                          if(phiVal < 0)
+                                          {
+                                              Vec2r grad = ArrayHelpers::interpolateGradient(gridPos, m_SimData->boundarySDF);
+                                              Real mag2Grad = glm::length2(grad);
 
-                                                if(mag2Grad > Tiny)
-                                                    ppos -= phiVal * grad / sqrt(mag2Grad);
-                                            }
+                                              if(mag2Grad > Tiny)
+                                                  ppos -= phiVal * grad / sqrt(mag2Grad);
+                                          }
 
-                                            m_SimData->positions[p] = ppos;
-                                        });
+                                          m_SimData->positions[p] = ppos;
+                                      });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-void Banana::FLIP2DSolver<Real>::correctPositions(Real timestep)
+void FLIP2DSolver::correctPositions(Real timestep)
 {
     const Real radius    = m_Grid.getCellSize() / Real(sqrt(2.0));
     const Real threshold = Real(0.01) * radius;
@@ -338,166 +333,162 @@ void Banana::FLIP2DSolver<Real>::correctPositions(Real timestep)
     // todo: check if this is needed, as this could be done before
     m_Grid.getNeighborList(m_SimData->positions, m_SimData->neighborList, m_SimParams->kernelSpan);
     ParallelFuncs::parallel_for<UInt>(0, m_SimData->getNumParticles(),
-                                        [&](UInt p)
-                                        {
-                                            const Vec2r& ppos = m_SimData->positions[p];
-                                            const Vec_UInt& neighbors = m_SimData->neighborList[p];
-                                            Vec2r spring(0);
+                                      [&](UInt p)
+                                      {
+                                          const Vec2r& ppos = m_SimData->positions[p];
+                                          const Vec_UInt& neighbors = m_SimData->neighborList[p];
+                                          Vec2r spring(0);
 
-                                            for(UInt q : neighbors)
-                                            {
-                                                const Vec2r& qpos = m_SimData->positions[q];
-                                                Real dist = glm::length(ppos - qpos);
-                                                Real w = Real(50.0) * MathHelpers::smooth_kernel(dist * dist, radius);
+                                          for(UInt q : neighbors)
+                                          {
+                                              const Vec2r& qpos = m_SimData->positions[q];
+                                              Real dist = glm::length(ppos - qpos);
+                                              Real w = Real(50.0) * MathHelpers::smooth_kernel(dist * dist, radius);
 
-                                                if(dist > threshold)
-                                                    spring += w * (ppos - qpos) / dist * radius;
-                                                else
-                                                    spring += threshold / timestep * Vec2r(Real((rand() & 0xFF) / 255.0),
-                                                                                           Real((rand() & 0xFF) / 255.0));
-                                            }
+                                              if(dist > threshold)
+                                                  spring += w * (ppos - qpos) / dist * radius;
+                                              else
+                                                  spring += threshold / timestep * Vec2r(Real((rand() & 0xFF) / 255.0),
+                                                                                         Real((rand() & 0xFF) / 255.0));
+                                          }
 
-                                            auto newPos = ppos + spring * timestep;
+                                          auto newPos = ppos + spring * timestep;
 
-                                            // todo: this should be done by boundary object
-                                            const Vec2r gridPos = m_Grid.getGridCoordinate(newPos);
-                                            const Real phiVal = ArrayHelpers::interpolateValueLinear(gridPos, m_SimData->boundarySDF);
+                                          // todo: this should be done by boundary object
+                                          const Vec2r gridPos = m_Grid.getGridCoordinate(newPos);
+                                          const Real phiVal = ArrayHelpers::interpolateValueLinear(gridPos, m_SimData->boundarySDF);
 
-                                            if(phiVal < 0)
-                                            {
-                                                Vec2r grad = ArrayHelpers::interpolateGradient(gridPos, m_SimData->boundarySDF);
-                                                Real mag2Grad = glm::length2(grad);
+                                          if(phiVal < 0)
+                                          {
+                                              Vec2r grad = ArrayHelpers::interpolateGradient(gridPos, m_SimData->boundarySDF);
+                                              Real mag2Grad = glm::length2(grad);
 
-                                                if(mag2Grad > Tiny)
-                                                    newPos -= phiVal * grad / sqrt(mag2Grad);
-                                            }
+                                              if(mag2Grad > Tiny)
+                                                  newPos -= phiVal * grad / sqrt(mag2Grad);
+                                          }
 
-                                            m_SimData->positions_tmp[p] = newPos;
-                                        });
+                                          m_SimData->positions_tmp[p] = newPos;
+                                      });
 
     m_SimData->positions = m_SimData->positions_tmp;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //Compute finite-volume style face-weights for fluid from nodal signed distances
-template<class Real>
-void Banana::FLIP2DSolver<Real>::computeFluidWeights()
+void FLIP2DSolver::computeFluidWeights()
 {
     ParallelFuncs::parallel_for<UInt>(0, m_Grid.getNumCellX() + 1,
-                                        0, m_Grid.getNumCellY() + 1,
-                                        [&](UInt i, UInt j)
-                                        {
-                                            bool valid_index_u = m_SimData->u_weights.isValidIndex(i, j);
-                                            bool valid_index_v = m_SimData->v_weights.isValidIndex(i, j);
+                                      0, m_Grid.getNumCellY() + 1,
+                                      [&](UInt i, UInt j)
+                                      {
+                                          bool valid_index_u = m_SimData->u_weights.isValidIndex(i, j);
+                                          bool valid_index_v = m_SimData->v_weights.isValidIndex(i, j);
 
-                                            if(valid_index_u)
-                                            {
-                                                const Real tmp = Real(1.0) - MathHelpers::fraction_inside(m_SimData->boundarySDF(i, j),
-                                                                                                          m_SimData->boundarySDF(i, j + 1));
-                                                m_SimData->u_weights(i, j) = MathHelpers::clamp(tmp, Real(0), Real(1.0));
-                                            }
+                                          if(valid_index_u)
+                                          {
+                                              const Real tmp = Real(1.0) - MathHelpers::fraction_inside(m_SimData->boundarySDF(i, j),
+                                                                                                        m_SimData->boundarySDF(i, j + 1));
+                                              m_SimData->u_weights(i, j) = MathHelpers::clamp(tmp, Real(0), Real(1.0));
+                                          }
 
-                                            if(valid_index_v)
-                                            {
-                                                const Real tmp = Real(1.0) - MathHelpers::fraction_inside(m_SimData->boundarySDF(i, j),
-                                                                                                          m_SimData->boundarySDF(i, j + 1));
-                                                m_SimData->v_weights(i, j) = MathHelpers::clamp(tmp, Real(0), Real(1.0));
-                                            }
-                                        });
+                                          if(valid_index_v)
+                                          {
+                                              const Real tmp = Real(1.0) - MathHelpers::fraction_inside(m_SimData->boundarySDF(i, j),
+                                                                                                        m_SimData->boundarySDF(i, j + 1));
+                                              m_SimData->v_weights(i, j) = MathHelpers::clamp(tmp, Real(0), Real(1.0));
+                                          }
+                                      });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-void Banana::FLIP2DSolver<Real>::velocityToGrid()
+void FLIP2DSolver::velocityToGrid()
 {
     const Vec2r span = Vec2r(m_Grid.getCellSize() * static_cast<Real>(m_SimParams->kernelSpan));
 
     ParallelFuncs::parallel_for<UInt>(0, m_Grid.getNumCellX() + 1,
-                                        0, m_Grid.getNumCellY() + 1,
-                                        [&](UInt i, UInt j)
-                                        {
-                                            const Vec2r pu = Vec2r(i, j + 0.5) * m_Grid.getCellSize() + m_Grid.getBMin();
-                                            const Vec2r pv = Vec2r(i + 0.5, j) * m_Grid.getCellSize() + m_Grid.getBMin();
+                                      0, m_Grid.getNumCellY() + 1,
+                                      [&](UInt i, UInt j)
+                                      {
+                                          const Vec2r pu = Vec2r(i, j + 0.5) * m_Grid.getCellSize() + m_Grid.getBMin();
+                                          const Vec2r pv = Vec2r(i + 0.5, j) * m_Grid.getCellSize() + m_Grid.getBMin();
 
-                                            const Vec2r puMin = pu - span;
-                                            const Vec2r pvMin = pv - span;
+                                          const Vec2r puMin = pu - span;
+                                          const Vec2r pvMin = pv - span;
 
-                                            const Vec2r puMax = pu + span;
-                                            const Vec2r pvMax = pv + span;
+                                          const Vec2r puMax = pu + span;
+                                          const Vec2r pvMax = pv + span;
 
-                                            Real sum_weight_u = Real(0);
-                                            Real sum_weight_v = Real(0);
+                                          Real sum_weight_u = Real(0);
+                                          Real sum_weight_v = Real(0);
 
-                                            Real sum_u = Real(0);
-                                            Real sum_v = Real(0);
+                                          Real sum_u = Real(0);
+                                          Real sum_v = Real(0);
 
-                                            bool valid_index_u = m_SimData->u.isValidIndex(i, j);
-                                            bool valid_index_v = m_SimData->v.isValidIndex(i, j);
+                                          bool valid_index_u = m_SimData->u.isValidIndex(i, j);
+                                          bool valid_index_v = m_SimData->v.isValidIndex(i, j);
 
-                                            // loop over neighbor cells (kernelSpan^3 cells)
-                                            for(Int lj = -m_SimParams->kernelSpan; lj <= m_SimParams->kernelSpan; ++lj)
-                                            {
-                                                for(Int li = -m_SimParams->kernelSpan; li <= m_SimParams->kernelSpan; ++li)
-                                                {
-                                                    const Vec2i cellId = Vec2i(static_cast<Int>(i), static_cast<Int>(j)) + Vec2i(li, lj);
-                                                    if(!m_Grid.isValidCell(cellId))
-                                                        continue;
+                                          // loop over neighbor cells (kernelSpan^3 cells)
+                                          for(Int lj = -m_SimParams->kernelSpan; lj <= m_SimParams->kernelSpan; ++lj)
+                                          {
+                                              for(Int li = -m_SimParams->kernelSpan; li <= m_SimParams->kernelSpan; ++li)
+                                              {
+                                                  const Vec2i cellId = Vec2i(static_cast<Int>(i), static_cast<Int>(j)) + Vec2i(li, lj);
+                                                  if(!m_Grid.isValidCell(cellId))
+                                                      continue;
 
-                                                    for(const UInt p : m_Grid.getParticleIdxInCell(cellId))
-                                                    {
-                                                        const Vec2r& ppos = m_SimData->positions[p];
-                                                        const Vec2r& pvel = m_SimData->velocities[p];
+                                                  for(const UInt p : m_Grid.getParticleIdxInCell(cellId))
+                                                  {
+                                                      const Vec2r& ppos = m_SimData->positions[p];
+                                                      const Vec2r& pvel = m_SimData->velocities[p];
 
-                                                        if(valid_index_u && isInside(ppos, puMin, puMax))
-                                                        {
-                                                            const Real weight = m_WeightKernel((ppos - pu) / m_Grid.getCellSize());
+                                                      if(valid_index_u && isInside(ppos, puMin, puMax))
+                                                      {
+                                                          const Real weight = m_WeightKernel((ppos - pu) / m_Grid.getCellSize());
 
-                                                            if(weight > Tiny)
-                                                            {
-                                                                sum_u += weight * pvel[0];
-                                                                sum_weight_u += weight;
-                                                            }
-                                                        }
+                                                          if(weight > Tiny)
+                                                          {
+                                                              sum_u += weight * pvel[0];
+                                                              sum_weight_u += weight;
+                                                          }
+                                                      }
 
-                                                        if(valid_index_v && isInside(ppos, pvMin, pvMax))
-                                                        {
-                                                            const Real weight = m_WeightKernel((ppos - pv) / m_Grid.getCellSize());
+                                                      if(valid_index_v && isInside(ppos, pvMin, pvMax))
+                                                      {
+                                                          const Real weight = m_WeightKernel((ppos - pv) / m_Grid.getCellSize());
 
-                                                            if(weight > Tiny)
-                                                            {
-                                                                sum_v += weight * pvel[1];
-                                                                sum_weight_v += weight;
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            } // end loop over neighbor cells
+                                                          if(weight > Tiny)
+                                                          {
+                                                              sum_v += weight * pvel[1];
+                                                              sum_weight_v += weight;
+                                                          }
+                                                      }
+                                                  }
+                                              }
+                                          } // end loop over neighbor cells
 
-                                            if(valid_index_u)
-                                            {
-                                                m_SimData->u(i, j) = (sum_weight_u > Tiny) ? sum_u / sum_weight_u : Real(0);
-                                                m_SimData->u_valid(i, j) = (sum_weight_u > Tiny) ? 1 : 0;
-                                            }
+                                          if(valid_index_u)
+                                          {
+                                              m_SimData->u(i, j) = (sum_weight_u > Tiny) ? sum_u / sum_weight_u : Real(0);
+                                              m_SimData->u_valid(i, j) = (sum_weight_u > Tiny) ? 1 : 0;
+                                          }
 
-                                            if(valid_index_v)
-                                            {
-                                                m_SimData->v(i, j) = (sum_weight_v > Tiny) ? sum_v / sum_weight_v : Real(0);
-                                                m_SimData->v_valid(i, j) = (sum_weight_v > Tiny) ? 1 : 0;
-                                            }
-                                        });
+                                          if(valid_index_v)
+                                          {
+                                              m_SimData->v(i, j) = (sum_weight_v > Tiny) ? sum_v / sum_weight_v : Real(0);
+                                              m_SimData->v_valid(i, j) = (sum_weight_v > Tiny) ? 1 : 0;
+                                          }
+                                      });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-void Banana::FLIP2DSolver<Real>::extrapolateVelocity()
+void FLIP2DSolver::extrapolateVelocity()
 {
     extrapolateVelocity(m_SimData->u, m_SimData->u_temp, m_SimData->u_valid, m_SimData->u_valid_old);
     extrapolateVelocity(m_SimData->v, m_SimData->v_temp, m_SimData->v_valid, m_SimData->v_valid_old);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-void Banana::FLIP2DSolver<Real>::extrapolateVelocity(Array2<Real>& grid, Array2<Real>& temp_grid, Array2c& valid, Array2c& old_valid)
+void FLIP2DSolver::extrapolateVelocity(Array2r& grid, Array2r& temp_grid, Array2c& valid, Array2c& old_valid)
 {
     temp_grid.copyDataFrom(grid);
     for(Int layers = 0; layers < 10; ++layers)
@@ -505,51 +496,51 @@ void Banana::FLIP2DSolver<Real>::extrapolateVelocity(Array2<Real>& grid, Array2<
         bool stop = true;
         old_valid.copyDataFrom(valid);
         ParallelFuncs::parallel_for<UInt>(1, m_Grid.getNumCellX() - 1,
-                                            1, m_Grid.getNumCellY() - 1,
-                                            [&](UInt i, UInt j)
-                                            {
-                                                if(old_valid(i, j))
-                                                {
-                                                    return;
-                                                }
+                                          1, m_Grid.getNumCellY() - 1,
+                                          [&](UInt i, UInt j)
+                                          {
+                                              if(old_valid(i, j))
+                                              {
+                                                  return;
+                                              }
 
-                                                Real sum = Real(0);
-                                                unsigned int count = 0;
+                                              Real sum = Real(0);
+                                              UInt count = 0;
 
-                                                // TODO
-                                                if(old_valid(i + 1, j))
-                                                {
-                                                    sum += grid(i + 1, j);
-                                                    ++count;
-                                                }
+                                              // TODO
+                                              if(old_valid(i + 1, j))
+                                              {
+                                                  sum += grid(i + 1, j);
+                                                  ++count;
+                                              }
 
-                                                if(old_valid(i - 1, j))
-                                                {
-                                                    sum += grid(i - 1, j);
-                                                    ++count;
-                                                }
+                                              if(old_valid(i - 1, j))
+                                              {
+                                                  sum += grid(i - 1, j);
+                                                  ++count;
+                                              }
 
-                                                if(old_valid(i, j + 1))
-                                                {
-                                                    sum += grid(i, j + 1);
-                                                    ++count;
-                                                }
+                                              if(old_valid(i, j + 1))
+                                              {
+                                                  sum += grid(i, j + 1);
+                                                  ++count;
+                                              }
 
-                                                if(old_valid(i, j - 1))
-                                                {
-                                                    sum += grid(i, j - 1);
-                                                    ++count;
-                                                }
+                                              if(old_valid(i, j - 1))
+                                              {
+                                                  sum += grid(i, j - 1);
+                                                  ++count;
+                                              }
 
-                                                if(count > 0)
-                                                {
-                                                    stop = false;
-                                                    temp_grid(i, j) = sum / static_cast<Real>(count);
-                                                    valid(i, j) = 1;
-                                                }
-                                            });
+                                              if(count > 0)
+                                              {
+                                                  stop = false;
+                                                  temp_grid(i, j) = sum / static_cast<Real>(count);
+                                                  valid(i, j) = 1;
+                                              }
+                                          });
 
-        // if nothing changed in the last iteration: stop
+// if nothing changed in the last iteration: stop
         if(stop)
             break;
 
@@ -559,8 +550,7 @@ void Banana::FLIP2DSolver<Real>::extrapolateVelocity(Array2<Real>& grid, Array2<
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-void Banana::FLIP2DSolver<Real>::constrainVelocity()
+void FLIP2DSolver::constrainVelocity()
 {
     m_SimData->u_temp.copyDataFrom(m_SimData->u);
     m_SimData->v_temp.copyDataFrom(m_SimData->v);
@@ -604,14 +594,13 @@ void Banana::FLIP2DSolver<Real>::constrainVelocity()
                                             }
                                         });
 
-    ////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
     m_SimData->u.copyDataFrom(m_SimData->u_temp);
     m_SimData->v.copyDataFrom(m_SimData->v_temp);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-void Banana::FLIP2DSolver<Real>::addGravity(Real timestep)
+void FLIP2DSolver::addGravity(Real timestep)
 {
     ParallelFuncs::parallel_for<size_t>(0, m_SimData->v.sizeX(),
                                         0, m_SimData->v.sizeY(),
@@ -622,8 +611,7 @@ void Banana::FLIP2DSolver<Real>::addGravity(Real timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-void Banana::FLIP2DSolver<Real>::pressureProjection(Real timestep)
+void FLIP2DSolver::pressureProjection(Real timestep)
 {
     static Timer funcTimer;
 
@@ -636,8 +624,7 @@ void Banana::FLIP2DSolver<Real>::pressureProjection(Real timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-void Banana::FLIP2DSolver<Real>::computeFluidSDF()
+void FLIP2DSolver::computeFluidSDF()
 {
     m_SimData->fluidSDF.assign(m_SimParams->sdfRadius);
 
@@ -665,25 +652,24 @@ void Banana::FLIP2DSolver<Real>::computeFluidSDF()
     ////////////////////////////////////////////////////////////////////////////////
     //extend phi slightly into solids (this is a simple, naive approach, but works reasonably well)
     ParallelFuncs::parallel_for<UInt>(0, m_Grid.getNumCellX(),
-                                        0, m_Grid.getNumCellY(),
-                                        [&](int i, int j)
-                                        {
-                                            if(m_SimData->fluidSDF(i, j) < m_Grid.getHalfCellSize())
-                                            {
-                                                const Real phiValSolid = Real(0.25) * (m_SimData->boundarySDF(i, j) +
-                                                                                       m_SimData->boundarySDF(i + 1, j) +
-                                                                                       m_SimData->boundarySDF(i, j + 1) +
-                                                                                       m_SimData->boundarySDF(i + 1, j + 1));
+                                      0, m_Grid.getNumCellY(),
+                                      [&](int i, int j)
+                                      {
+                                          if(m_SimData->fluidSDF(i, j) < m_Grid.getHalfCellSize())
+                                          {
+                                              const Real phiValSolid = Real(0.25) * (m_SimData->boundarySDF(i, j) +
+                                                                                     m_SimData->boundarySDF(i + 1, j) +
+                                                                                     m_SimData->boundarySDF(i, j + 1) +
+                                                                                     m_SimData->boundarySDF(i + 1, j + 1));
 
-                                                if(phiValSolid < 0)
-                                                    m_SimData->fluidSDF(i, j) = -m_Grid.getHalfCellSize();
-                                            }
-                                        });
+                                              if(phiValSolid < 0)
+                                                  m_SimData->fluidSDF(i, j) = -m_Grid.getHalfCellSize();
+                                          }
+                                      });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-inline void Banana::FLIP2DSolver<Real>::computeMatrix(Real timestep)
+void FLIP2DSolver::computeMatrix(Real timestep)
 {
     m_SimData->matrix.clear();
 
@@ -693,7 +679,7 @@ inline void Banana::FLIP2DSolver<Real>::computeMatrix(Real timestep)
         for(UInt i = 1; i < m_Grid.getNumCellX() - 1; ++i)
         {
             const UInt cellIdx    = m_Grid.getLinearizedIndex(i, j);
-            const Real   center_phi = m_SimData->fluidSDF(i, j);
+            const Real center_phi = m_SimData->fluidSDF(i, j);
 
             if(center_phi < 0)
             {
@@ -760,43 +746,41 @@ inline void Banana::FLIP2DSolver<Real>::computeMatrix(Real timestep)
                 ////////////////////////////////////////////////////////////////////////////////
                 // center
                 m_SimData->matrix.addElement(cellIdx, cellIdx, center_term);
-            } // end if(centre_phi < 0)
+            }   // end if(centre_phi < 0)
         }
     }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-inline void Banana::FLIP2DSolver<Real>::computeRhs()
+void FLIP2DSolver::computeRhs()
 {
     m_SimData->rhs.assign(m_SimData->rhs.size(), 0);
     ParallelFuncs::parallel_for<UInt>(1, m_Grid.getNumCellX() - 1,
-                                        1, m_Grid.getNumCellY() - 1,
-                                        [&](UInt i, UInt j)
-                                        {
-                                            const UInt idx = m_Grid.getLinearizedIndex(i, j);
-                                            const Real center_phi = m_SimData->fluidSDF(i, j);
+                                      1, m_Grid.getNumCellY() - 1,
+                                      [&](UInt i, UInt j)
+                                      {
+                                          const UInt idx = m_Grid.getLinearizedIndex(i, j);
+                                          const Real center_phi = m_SimData->fluidSDF(i, j);
 
-                                            if(center_phi < 0)
-                                            {
-                                                Real tmp = Real(0);
+                                          if(center_phi < 0)
+                                          {
+                                              Real tmp = Real(0);
 
-                                                tmp -= m_SimData->u_weights(i + 1, j) * m_SimData->u(i + 1, j);
-                                                tmp += m_SimData->u_weights(i, j) * m_SimData->u(i, j);
+                                              tmp -= m_SimData->u_weights(i + 1, j) * m_SimData->u(i + 1, j);
+                                              tmp += m_SimData->u_weights(i, j) * m_SimData->u(i, j);
 
-                                                tmp -= m_SimData->v_weights(i, j + 1) * m_SimData->v(i, j + 1);
-                                                tmp += m_SimData->v_weights(i, j) * m_SimData->v(i, j);
+                                              tmp -= m_SimData->v_weights(i, j + 1) * m_SimData->v(i, j + 1);
+                                              tmp += m_SimData->v_weights(i, j) * m_SimData->v(i, j);
 
-                                                m_SimData->rhs[idx] = tmp;
-                                            } // end if(centre_phi < 0)
-                                        });
+                                              m_SimData->rhs[idx] = tmp;
+                                          } // end if(centre_phi < 0)
+                                      });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-inline void Banana::FLIP2DSolver<Real>::solveSystem()
+void FLIP2DSolver::solveSystem()
 {
-    Real   tolerance  = Real(0);
+    Real tolerance  = Real(0);
     UInt iterations = 0;
 
     bool success = m_PCGSolver.solve_precond(m_SimData->matrix, m_SimData->rhs, m_SimData->pressure, tolerance, iterations);
@@ -809,36 +793,35 @@ inline void Banana::FLIP2DSolver<Real>::solveSystem()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-inline void Banana::FLIP2DSolver<Real>::updateVelocity(Real timestep)
+void FLIP2DSolver::updateVelocity(Real timestep)
 {
     m_SimData->u_valid.assign(0);
     m_SimData->v_valid.assign(0);
 
     ParallelFuncs::parallel_for<UInt>(0, m_Grid.getNumCellX(),
-                                        0, m_Grid.getNumCellY(),
-                                        [&](UInt i, UInt j)
-                                        {
-                                            const UInt idx = m_Grid.getLinearizedIndex(i, j);
+                                      0, m_Grid.getNumCellY(),
+                                      [&](UInt i, UInt j)
+                                      {
+                                          const UInt idx = m_Grid.getLinearizedIndex(i, j);
 
-                                            const Real center_phi = m_SimData->fluidSDF(i, j);
-                                            const Real left_phi = i > 0 ? m_SimData->fluidSDF(i - 1, j) : 0;
-                                            const Real bottom_phi = j > 0 ? m_SimData->fluidSDF(i, j - 1) : 0;
+                                          const Real center_phi = m_SimData->fluidSDF(i, j);
+                                          const Real left_phi = i > 0 ? m_SimData->fluidSDF(i - 1, j) : 0;
+                                          const Real bottom_phi = j > 0 ? m_SimData->fluidSDF(i, j - 1) : 0;
 
-                                            if(i > 0 && (center_phi < 0 || left_phi < 0) && m_SimData->u_weights(i, j) > 0)
-                                            {
-                                                Real theta = MathHelpers::min(Real(0.01), MathHelpers::fraction_inside(left_phi, center_phi));
-                                                m_SimData->u(i, j) -= timestep * (m_SimData->pressure[idx] - m_SimData->pressure[idx - 1]) / theta;
-                                                m_SimData->u_valid(i, j) = 1;
-                                            }
+                                          if(i > 0 && (center_phi < 0 || left_phi < 0) && m_SimData->u_weights(i, j) > 0)
+                                          {
+                                              Real theta = MathHelpers::min(Real(0.01), MathHelpers::fraction_inside(left_phi, center_phi));
+                                              m_SimData->u(i, j) -= timestep * (m_SimData->pressure[idx] - m_SimData->pressure[idx - 1]) / theta;
+                                              m_SimData->u_valid(i, j) = 1;
+                                          }
 
-                                            if(j > 0 && (center_phi < 0 || bottom_phi < 0) && m_SimData->v_weights(i, j) > 0)
-                                            {
-                                                Real theta = MathHelpers::min(Real(0.01), MathHelpers::fraction_inside(bottom_phi, center_phi));
-                                                m_SimData->v(i, j) -= timestep * (m_SimData->pressure[idx] - m_SimData->pressure[idx - m_Grid.getNumCellX()]) / theta;
-                                                m_SimData->v_valid(i, j) = 1;
-                                            }
-                                        });
+                                          if(j > 0 && (center_phi < 0 || bottom_phi < 0) && m_SimData->v_weights(i, j) > 0)
+                                          {
+                                              Real theta = MathHelpers::min(Real(0.01), MathHelpers::fraction_inside(bottom_phi, center_phi));
+                                              m_SimData->v(i, j) -= timestep * (m_SimData->pressure[idx] - m_SimData->pressure[idx - m_Grid.getNumCellX()]) / theta;
+                                              m_SimData->v_valid(i, j) = 1;
+                                          }
+                                      });
 
     for(size_t i = 0; i < m_SimData->u_valid.size(); ++i)
     {
@@ -854,8 +837,7 @@ inline void Banana::FLIP2DSolver<Real>::updateVelocity(Real timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-void Banana::FLIP2DSolver<Real>::computeChangesGridVelocity()
+void FLIP2DSolver::computeChangesGridVelocity()
 {
     ParallelFuncs::parallel_for<size_t>(0, m_SimData->u.size(),
                                         [&](size_t i) { m_SimData->du.vec_data()[i] = m_SimData->u.vec_data()[i] - m_SimData->u_old.vec_data()[i]; });
@@ -864,27 +846,25 @@ void Banana::FLIP2DSolver<Real>::computeChangesGridVelocity()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-void Banana::FLIP2DSolver<Real>::velocityToParticles()
+void FLIP2DSolver::velocityToParticles()
 {
     ParallelFuncs::parallel_for<UInt>(0, m_SimData->getNumParticles(),
-                                        [&](UInt p)
-                                        {
-                                            const Vec2r& ppos = m_SimData->positions[p];
-                                            const Vec2r& pvel = m_SimData->velocities[p];
+                                      [&](UInt p)
+                                      {
+                                          const Vec2r& ppos = m_SimData->positions[p];
+                                          const Vec2r& pvel = m_SimData->velocities[p];
 
-                                            const Vec2r gridPos = m_Grid.getGridCoordinate(ppos);
-                                            const Vec2r oldVel = getVelocityFromGrid(gridPos);
-                                            const Vec2r dVel = getVelocityChangesFromGrid(gridPos);
+                                          const Vec2r gridPos = m_Grid.getGridCoordinate(ppos);
+                                          const Vec2r oldVel = getVelocityFromGrid(gridPos);
+                                          const Vec2r dVel = getVelocityChangesFromGrid(gridPos);
 
-                                            m_SimData->velocities[p] = MathHelpers::lerp(oldVel, pvel + dVel, m_SimParams->PIC_FLIP_ratio);
-                                            //m_SimData->affineMatrix[p] = MathHelpers::lerp(getAffineMatrix(gridPos), pvel + dVel, m_SimParams->PIC_FLIP_ratio);
-                                        });
+                                          m_SimData->velocities[p] = MathHelpers::lerp(oldVel, pvel + dVel, m_SimParams->PIC_FLIP_ratio);
+                                          //m_SimData->affineMatrix[p] = MathHelpers::lerp(getAffineMatrix(gridPos), pvel + dVel, m_SimParams->PIC_FLIP_ratio);
+                                      });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-bool Banana::FLIP2DSolver<Real>::isInside(const Vec2r& pos, const Vec2r& bMin, const Vec2r& bMax)
+bool FLIP2DSolver::isInside(const Vec2r& pos, const Vec2r& bMin, const Vec2r& bMax)
 {
     return (pos[0] > bMin[0] &&
             pos[1] > bMin[1] &&
@@ -894,8 +874,7 @@ bool Banana::FLIP2DSolver<Real>::isInside(const Vec2r& pos, const Vec2r& bMin, c
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //Interpolate velocity from the MAC grid.
-template<class Real>
-Vec2r Banana::FLIP2DSolver<Real>::getVelocityFromGrid(const Vec2r& gridPos)
+Vec2r FLIP2DSolver::getVelocityFromGrid(const Vec2r& gridPos)
 {
     Real vu = m_InterpolateValue(gridPos - Vec2r(0, 0.5), m_SimData->u);
     Real vv = m_InterpolateValue(gridPos - Vec2r(0.5, 0), m_SimData->v);
@@ -904,8 +883,7 @@ Vec2r Banana::FLIP2DSolver<Real>::getVelocityFromGrid(const Vec2r& gridPos)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-inline Vec2r Banana::FLIP2DSolver<Real>::getVelocityChangesFromGrid(const Vec2r& gridPos)
+Vec2r FLIP2DSolver::getVelocityChangesFromGrid(const Vec2r& gridPos)
 {
     Real changed_vu = m_InterpolateValue(gridPos - Vec2r(0, 0.5), m_SimData->du);
     Real changed_vv = m_InterpolateValue(gridPos - Vec2r(0.5, 0), m_SimData->dv);
@@ -914,15 +892,17 @@ inline Vec2r Banana::FLIP2DSolver<Real>::getVelocityChangesFromGrid(const Vec2r&
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-Mat2x2<Real> Banana::FLIP2DSolver<Real>::getAffineMatrix(const Vec2r& gridPos)
+Mat2x2r FLIP2DSolver::getAffineMatrix(const Vec2r& gridPos)
 {
     Real vu = m_InterpolateValue(gridPos - Vec<Real>(0, 0.5), m_SimData->u);
     Real vv = m_InterpolateValue(gridPos - Vec<Real>(0.5, 0), m_SimData->v);
 
-    Mat2x2<Real> C;
+    Mat2x2r C;
     C[0] = ArrayHelpers::interpolateValueAffine(p0, u) / m_Grid.getCellSize();
     C[1] = ArrayHelpers::interpolateValueAffine(p1, v) / m_Grid.getCellSize();
 
     return C;
 }
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+} // end namespace Banana

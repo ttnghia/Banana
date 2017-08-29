@@ -21,18 +21,12 @@
 #include <cmath>
 #include <algorithm>
 
-#ifndef M_PI
-#define M_PI 3.1415926535897932384626433832795
-#endif
-
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
 class CubicKernel
 {
-    __BNN_SETUP_DATA_TYPE(Real)
 protected:
     Real m_radius;
     Real m_k;
@@ -110,10 +104,8 @@ public:
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
 class Poly6Kernel
 {
-    __BNN_SETUP_DATA_TYPE(Real)
 protected:
     Real m_radius;
     Real m_k;
@@ -210,10 +202,8 @@ public:
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
 class SpikyKernel
 {
-    __BNN_SETUP_DATA_TYPE(Real)
 protected:
     Real m_radius;
     Real m_k;
@@ -292,10 +282,8 @@ public:
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
 class CohesionKernel
 {
-    __BNN_SETUP_DATA_TYPE(Real)
 protected:
     Real m_radius;
     Real m_k;
@@ -363,10 +351,8 @@ public:
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
 class AdhesionKernel
 {
-    __BNN_SETUP_DATA_TYPE(Real)
 protected:
     Real m_radius;
     Real m_k;
@@ -425,10 +411,9 @@ public:
 
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real, class KernelType, unsigned int resolution = 1000u>
+template<class KernelType, unsigned int resolution = 1000u>
 class PrecomputedKernel
 {
-    __BNN_SETUP_DATA_TYPE(Real)
 protected:
     KernelType kernel;
     Real       m_W[resolution];

@@ -21,25 +21,24 @@
 #include <Banana/LinearAlgebra/LinearSolvers/PCGSolver.h>
 #include <Banana/Grid/Grid2DHashing.h>
 
-#include <ParticleSolvers/ParticleSolverInterface.h>
+#include <ParticleSolvers/ParticleSolver.h>
 #include <ParticleSolvers/FLIP/FLIP2DData.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-class FLIP2DSolver : public ParticleSolver2D<Real>
+class FLIP2DSolver : public ParticleSolver2D
 {
 public:
     FLIP2DSolver() { setupLogger(); }
 
-    std::shared_ptr<SimulationParameters_FLIP2D<Real> > getSolverParams() { return m_SimParams; }
+    std::shared_ptr<SimulationParameters_FLIP2D> getSolverParams() { return m_SimParams; }
 
     ////////////////////////////////////////////////////////////////////////////////
     virtual std::string getSolverName() override { return std::string("FLIP2DSolver"); }
     virtual std::string getGreetingMessage() override { return std::string("Fluid Simulation using FLIP-2D Solver"); }
-    virtual unsigned int        getNumParticles() override { return m_SimData->getNumParticles(); }
+    virtual UInt        getNumParticles() override { return m_SimData->getNumParticles(); }
     virtual Vec_Vec2r& getParticlePositions() override { return m_SimData->positions; }
     virtual Vec_Vec2r& getParticleVelocities() override { return m_SimData->velocities; }
 
@@ -62,7 +61,7 @@ private:
     void computeFluidWeights();
     void velocityToGrid();
     void extrapolateVelocity();
-    void extrapolateVelocity(Array2<Real>& grid, Array2<Real>& temp_grid, Array2c& valid, Array2c& old_valid);
+    void extrapolateVelocity(Array2r& grid, Array2r& temp_grid, Array2c& valid, Array2c& old_valid);
     void constrainVelocity();
     void addGravity(Real timestep);
     void pressureProjection(Real timestep);
@@ -78,19 +77,19 @@ private:
     void velocityToParticles();
     ////////////////////////////////////////////////////////////////////////////////
     // helper functions
-    bool         isInside(const Vec2r& pos, const Vec2r& bMin, const Vec2r& bMax);
-    Vec2r        getVelocityFromGrid(const Vec2r& gridPos);
-    Vec2r        getVelocityChangesFromGrid(const Vec2r& gridPos);
-    Mat2x2<Real> getAffineMatrix(const Vec2r& gridPos);
+    bool    isInside(const Vec2r& pos, const Vec2r& bMin, const Vec2r& bMax);
+    Vec2r   getVelocityFromGrid(const Vec2r& gridPos);
+    Vec2r   getVelocityChangesFromGrid(const Vec2r& gridPos);
+    Mat2x2r getAffineMatrix(const Vec2r& gridPos);
 
     ////////////////////////////////////////////////////////////////////////////////
-    std::unique_ptr<SimulationData_FLIP2D<Real> >       m_SimData   = std::make_unique<SimulationData_FLIP2D<Real> >();
-    std::shared_ptr<SimulationParameters_FLIP2D<Real> > m_SimParams = std::make_shared<SimulationParameters_FLIP2D<Real> >();
-    Grid2DHashing<Real>                                 m_Grid;
-    PCGSolver<Real>                                     m_PCGSolver;
+    std::unique_ptr<SimulationData_FLIP2D>       m_SimData   = std::make_unique<SimulationData_FLIP2D>();
+    std::shared_ptr<SimulationParameters_FLIP2D> m_SimParams = std::make_shared<SimulationParameters_FLIP2D>();
+    Grid2DHashing                                m_Grid;
+    PCGSolver<Real>                              m_PCGSolver;
 
-    std::function<Real(const Vec2r&, const Array2<Real>&)> m_InterpolateValue = nullptr;
-    std::function<Real(const Vec2r&)>                      m_WeightKernel     = nullptr;
+    std::function<Real(const Vec2r&, const Array2r&)> m_InterpolateValue = nullptr;
+    std::function<Real(const Vec2r&)>                 m_WeightKernel     = nullptr;
 
 
 
@@ -102,7 +101,7 @@ private:
 //        return compute_phi(pos, *root_boundary);
     }
 
-    Real compute_phi(const Vec2r& pos, const Boundary<Real>& b) const
+    Real compute_phi(const Vec2r& pos, const Boundary& b) const
     {
         switch(b.type)
         {
@@ -160,7 +159,7 @@ private:
     {
         Vec2r nhat = Vec2r(cos(theta), sin(theta));
         Vec2r dx   = position - centre;
-        return sqrt(dx.transpose() * (Mat2x2<Real>::Identity() - nhat * nhat.transpose()) * dx) - radius;
+        return sqrt(dx.transpose() * (Mat2x2r::Identity() - nhat * nhat.transpose()) * dx) - radius;
     }
 
     inline Real union_phi(const Real& d1, const Real& d2) const
@@ -183,9 +182,6 @@ private:
         return max(-circle_phi(position, centre, radius0), circle_phi(position, centre, radius1));
     }
 };
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <ParticleSolvers/FLIP/FLIP2DSolver.Impl.hpp>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana

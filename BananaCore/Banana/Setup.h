@@ -155,6 +155,7 @@ using Vec_UInt64 = Vector<UInt64>;
 using Vec_Char   = Vector<char>;
 using Vec_Float  = Vector<float>;
 using Vec_Double = Vector<double>;
+using Vec_Real   = Vector<Real>;
 
 // vectors of vectors
 using Vec_VecInt8  = Vector<Vector<Int8> >;
@@ -172,6 +173,7 @@ using Vec_VecUInt64 = Vector<Vector<UInt64> >;
 using Vec_VecChar   = Vector<Vector<char> >;
 using Vec_VecFloat  = Vector<Vector<float> >;
 using Vec_VecDouble = Vector<Vector<double> >;
+using Vec_VecReal   = Vector<Vector<Real> >;
 
 // others
 using IPair8  = std::pair<Int8, Int8>;

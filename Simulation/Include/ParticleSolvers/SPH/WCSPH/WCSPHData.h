@@ -29,10 +29,8 @@ namespace Banana
 #define DEFAULT_VISCOSITY            0.05
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
 struct SimulationParameters_WCSPH
 {
-    __BNN_SETUP_DATA_TYPE(Real)
     SimulationParameters_WCSPH() { makeReady(); }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -96,11 +94,8 @@ struct SimulationParameters_WCSPH
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
 struct SimulationData_WCSPH
 {
-    __BNN_SETUP_DATA_TYPE(Real)
-
     Vec_Vec3r positions;
     Vec_Vec3r velocities;
     Vec_Real  densities;

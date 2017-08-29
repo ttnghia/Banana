@@ -17,7 +17,7 @@
 
 #pragma once
 
-#include <ParticleSolvers/ParticleSolverInterface.h>
+#include <ParticleSolvers/ParticleSolver.h>
 #include <ParticleSolvers/FLIP/FLIP3DData.h>
 #include <Banana/LinearAlgebra/LinearSolvers/PCGSolver.h>
 #include <Banana/Grid/Grid3DHashing.h>
@@ -26,14 +26,12 @@
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-class FLIP3DSolver : public ParticleSolver3D<Real>
+class FLIP3DSolver : public ParticleSolver3D
 {
-    __BNN_SETUP_DATA_TYPE(Real)
 public:
     FLIP3DSolver() { setupLogger(); }
 
-    std::shared_ptr<SimulationParameters_FLIP3D<Real> > getSolverParams() { return m_SimParams; }
+    std::shared_ptr<SimulationParameters_FLIP3D> getSolverParams() { return m_SimParams; }
 
     ////////////////////////////////////////////////////////////////////////////////
     virtual std::string getSolverName() override { return std::string("FLIP3DSolver"); }
@@ -62,7 +60,7 @@ private:
     void addRepulsiveVelocity2Particles(Real timestep);
     void velocityToGrid();
     void extrapolateVelocity();
-    void extrapolateVelocity(Array3<Real>& grid, Array3<Real>& temp_grid, Array3c& valid, Array3c& old_valid);
+    void extrapolateVelocity(Array3r& grid, Array3r& temp_grid, Array3c& valid, Array3c& old_valid);
     void constrainVelocity();
     void addGravity(Real timestep);
     void pressureProjection(Real timestep);
@@ -84,17 +82,14 @@ private:
     Vec3r getVelocityChangesFromGrid(const Vec3r& ppos);
 
     ////////////////////////////////////////////////////////////////////////////////
-    std::shared_ptr<SimulationParameters_FLIP3D<Real> > m_SimParams = std::make_shared<SimulationParameters_FLIP3D<Real> >();
-    std::unique_ptr<SimulationData_FLIP3D<Real> >       m_SimData   = std::make_unique<SimulationData_FLIP3D<Real> >();
-    Grid3DHashing<Real>                                 m_Grid;
-    PCGSolver<Real>                                     m_PCGSolver;
+    std::shared_ptr<SimulationParameters_FLIP3D> m_SimParams = std::make_shared<SimulationParameters_FLIP3D>();
+    std::unique_ptr<SimulationData_FLIP3D>       m_SimData   = std::make_unique<SimulationData_FLIP3D>();
+    Grid3DHashing                                m_Grid;
+    PCGSolver<Real>                              m_PCGSolver;
 
-    std::function<Real(const Vec3r&, const Array3<Real>&)> m_InterpolateValue = nullptr;
-    std::function<Real(const Vec3r&)>                      m_WeightKernel     = nullptr;
+    std::function<Real(const Vec3r&, const Array3r&)> m_InterpolateValue = nullptr;
+    std::function<Real(const Vec3r&)>                 m_WeightKernel     = nullptr;
 };
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <ParticleSolvers/FLIP/FLIP3DSolver.Impl.hpp>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana

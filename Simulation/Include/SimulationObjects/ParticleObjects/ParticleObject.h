@@ -24,11 +24,8 @@
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
 class ParticleObject
 {
-protected:
-    __BNN_SETUP_DATA_TYPE(Real)
 public:
     ParticleObject()  = default;
     ~ParticleObject() = default;
@@ -81,8 +78,7 @@ protected:
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Implementation
-template<class Real>
-void Banana::ParticleObject<Real>::makeObj()
+void Banana::ParticleObject::makeObj()
 {
     if(!m_CacheFile.empty() && FileHelpers::fileExisted(m_CacheFile))
     {
@@ -105,8 +101,7 @@ void Banana::ParticleObject<Real>::makeObj()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-void Banana::ParticleObject<Real>::computeAABB()
+void Banana::ParticleObject::computeAABB()
 {
     for(auto& ppos : m_Particles)
     {

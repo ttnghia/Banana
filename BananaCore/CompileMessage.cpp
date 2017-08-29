@@ -19,9 +19,9 @@
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #ifdef BANANA_DOUBLE_PRECISION
-__BNN_COMPILER_MESSAGE("Compile Banana with double precision floating point number.")
+__BNN_COMPILER_MESSAGE("Compile Banana with double precision floating point number")
 #else
-__BNN_COMPILER_MESSAGE("Compile Banana with single precision floating point number.")
+__BNN_COMPILER_MESSAGE("Compile Banana with single precision floating point number")
 #endif
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

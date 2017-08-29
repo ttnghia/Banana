@@ -17,7 +17,7 @@
 
 #pragma once
 
-#include <ParticleSolvers/ParticleSolverInterface.h>
+#include <ParticleSolvers/ParticleSolver.h>
 #include <ParticleSolvers/SPH/KernelFunctions.h>
 #include <ParticleSolvers/SPH/WCSPH/WCSPHData.h>
 
@@ -25,17 +25,16 @@
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-class WCSPHSolver : public ParticleSolver3D<Real>
+class WCSPHSolver : public ParticleSolver3D
 {
 public:
     WCSPHSolver() { setupLogger(); }
-    std::shared_ptr<SimulationParameters_WCSPH<Real> > getSolverParams() { return m_SimParams; }
+    std::shared_ptr<SimulationParameters_WCSPH> getSolverParams() { return m_SimParams; }
 
     ////////////////////////////////////////////////////////////////////////////////
-    virtual std::string getSolverName() override { return std::string("WCSPHSolver"); }
-    virtual std::string getGreetingMessage() override { return std::string("Fluid Simulation using WCSPH Solver"); }
-    virtual unsigned int        getNumParticles() override { return static_cast<unsigned int>(m_SimData->positions.size()); }
+    virtual String getSolverName() override { return String("WCSPHSolver"); }
+    virtual String getGreetingMessage() override { return String("Fluid Simulation using WCSPH Solver"); }
+    virtual UInt        getNumParticles() override { return static_cast<UInt>(m_SimData->positions.size()); }
     virtual Vec_Vec3r& getParticlePositions() override { return m_SimData->positions; }
     virtual Vec_Vec3r& getParticleVelocities() override { return m_SimData->velocities; }
 
@@ -60,16 +59,13 @@ protected:
     void moveParticles(Real timeStep);
 
     ////////////////////////////////////////////////////////////////////////////////
-    std::shared_ptr<SimulationParameters_WCSPH<Real> > m_SimParams = std::make_shared<SimulationParameters_WCSPH<Real> >();
-    std::unique_ptr<SimulationData_WCSPH<Real> >       m_SimData   = std::make_unique<SimulationData_WCSPH<Real> >();
+    std::shared_ptr<SimulationParameters_WCSPH> m_SimParams = std::make_shared<SimulationParameters_WCSPH>();
+    std::unique_ptr<SimulationData_WCSPH>       m_SimData   = std::make_unique<SimulationData_WCSPH>();
 
-    PrecomputedKernel<Real, CubicKernel<Real>, 10000> m_CubicKernel;
-    PrecomputedKernel<Real, SpikyKernel<Real>, 10000> m_SpikyKernel;
-    PrecomputedKernel<Real, SpikyKernel<Real>, 10000> m_NearSpikyKernel;
+    PrecomputedKernel<CubicKernel, 10000> m_CubicKernel;
+    PrecomputedKernel<SpikyKernel, 10000> m_SpikyKernel;
+    PrecomputedKernel<SpikyKernel, 10000> m_NearSpikyKernel;
 };
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <ParticleSolvers/SPH/WCSPH/WCSPHSolver.Impl.hpp>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana

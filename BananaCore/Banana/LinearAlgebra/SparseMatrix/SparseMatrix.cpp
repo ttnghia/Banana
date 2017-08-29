@@ -15,27 +15,33 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
+#include <Banana/LinearAlgebra/SparseMatrix/SparseMatrix.h>
 
+#include <Banana/Utils/STLHelpers.h>
+#include <tbb/tbb.h>
+#include <iostream>
+#include <fstream>
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+namespace Banana
+{
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Dynamic compressed sparse row matrix.
 //
-template<class Real>
-unsigned int SparseMatrix<Real>::size() const noexcept
+UInt SparseMatrix::size() const noexcept
 {
     return m_Size;
 }
 
-template<class Real>
-void SparseMatrix<Real>::resize(UInt newSize)
+void SparseMatrix::resize(UInt newSize)
 {
     m_Size = newSize;
     m_ColIndex.resize(m_Size);
     m_ColValue.resize(m_Size);
 }
 
-template<class Real>
-void SparseMatrix<Real>::clear(void)
+void SparseMatrix::clear(void)
 {
     for(UInt i = 0; i < m_Size; ++i)
     {
@@ -45,37 +51,32 @@ void SparseMatrix<Real>::clear(void)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-Vec_UInt& SparseMatrix<Real>::getIndices(UInt row)
+Vec_UInt& SparseMatrix::getIndices(UInt row)
 {
     assert(row < m_Size);
     return m_ColIndex[row];
 }
 
-template<class Real>
-const Vec_UInt& SparseMatrix<Real>::getIndices(UInt row) const
+const Vec_UInt& SparseMatrix::getIndices(UInt row) const
 {
     assert(row < m_Size);
     return m_ColIndex[row];
 }
 
-template<class Real>
-Vec_Real& SparseMatrix<Real>::getValues(UInt row)
+Vec_Real& SparseMatrix::getValues(UInt row)
 {
     assert(row < m_Size);
     return m_ColValue[row];
 }
 
-template<class Real>
-const Vec_Real& SparseMatrix<Real>::getValues(UInt row) const
+const Vec_Real& SparseMatrix::getValues(UInt row) const
 {
     assert(row < m_Size);
     return m_ColValue[row];
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-Real SparseMatrix<Real>::operator()(UInt i, UInt j) const
+Real SparseMatrix::operator()(UInt i, UInt j) const
 {
     UInt k = 0;
 
@@ -90,8 +91,7 @@ Real SparseMatrix<Real>::operator()(UInt i, UInt j) const
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-void SparseMatrix<Real>::setElement(UInt i, UInt j, Real newValue)
+void SparseMatrix::setElement(UInt i, UInt j, Real newValue)
 {
     assert(i < m_Size && j < m_Size);
 
@@ -108,8 +108,7 @@ void SparseMatrix<Real>::setElement(UInt i, UInt j, Real newValue)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-void SparseMatrix<Real>::addElement(UInt i, UInt j, Real incrementValue)
+void SparseMatrix::addElement(UInt i, UInt j, Real incrementValue)
 {
     assert(i < m_Size && j < m_Size);
 
@@ -126,8 +125,7 @@ void SparseMatrix<Real>::addElement(UInt i, UInt j, Real incrementValue)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-void SparseMatrix<Real>::eraseElement(UInt i, UInt j)
+void SparseMatrix::eraseElement(UInt i, UInt j)
 {
     assert(i < m_Size && j < m_Size);
 
@@ -141,8 +139,7 @@ void SparseMatrix<Real>::eraseElement(UInt i, UInt j)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-void SparseMatrix<Real>::printDebug() const noexcept
+void SparseMatrix::printDebug() const noexcept
 {
     for(UInt i = 0; i < m_Size; ++i)
     {
@@ -165,8 +162,7 @@ void SparseMatrix<Real>::printDebug() const noexcept
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-void SparseMatrix<Real>::checkSymmetry() const noexcept
+void SparseMatrix::checkSymmetry() const noexcept
 {
     volatile bool check = true;
     std::cout << "============================== Checking Matrix Symmetry... ==============================" << std::endl;
@@ -208,8 +204,7 @@ void SparseMatrix<Real>::checkSymmetry() const noexcept
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-void SparseMatrix<Real>::writeMatlabFile(const char* fileName, int showPercentage /*= -1*/) const
+void SparseMatrix::writeMatlabFile(const char* fileName, int showPercentage /*= -1*/) const
 {
     std::ofstream file(fileName, std::ios::out);
     if(!file.is_open())
@@ -258,8 +253,7 @@ void SparseMatrix<Real>::writeMatlabFile(const char* fileName, int showPercentag
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-void SparseMatrix<Real>::writeBinaryFile(const char* fileName, int showPercentage /*= -1*/) const
+void SparseMatrix::writeBinaryFile(const char* fileName, int showPercentage /*= -1*/) const
 {
     std::ofstream file(fileName, std::ios::binary | std::ios::out);
     if(!file.is_open())
@@ -287,8 +281,8 @@ void SparseMatrix<Real>::writeBinaryFile(const char* fileName, int showPercentag
     }
 
 
-    UInt   onePercent   = static_cast<UInt>(numElements / 100.0);
-    UInt   numProcessed = 0;
+    UInt     onePercent   = static_cast<UInt>(numElements / 100.0);
+    UInt     numProcessed = 0;
     Vec_UInt rowIndex(numElements);
     Vec_UInt colIndex(numElements);
     Vec_Real data(numElements);
@@ -328,8 +322,7 @@ void SparseMatrix<Real>::writeBinaryFile(const char* fileName, int showPercentag
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-bool SparseMatrix<Real>::loadFromBinaryFile(const char* fileName, int showPercentage /*= -1*/)
+bool SparseMatrix::loadFromBinaryFile(const char* fileName, int showPercentage /*= -1*/)
 {
     std::ifstream file(fileName, std::ios::binary | std::ios::ate);
 
@@ -339,7 +332,7 @@ bool SparseMatrix<Real>::loadFromBinaryFile(const char* fileName, int showPercen
         return false;
     }
 
-    UInt            fileSize = (UInt)file.tellg();
+    UInt              fileSize = (UInt)file.tellg();
     std::vector<char> buffer(fileSize);
 
     file.seekg(0, std::ios::beg);
@@ -351,11 +344,11 @@ bool SparseMatrix<Real>::loadFromBinaryFile(const char* fileName, int showPercen
     UInt newSize     = 0;
     UInt numElements = 0;
 
-    memcpy(&newSize,     buffer.data(),                  sizeof(UInt));
+    memcpy(&newSize,     buffer.data(),                sizeof(UInt));
     memcpy(&numElements, &buffer.data()[sizeof(UInt)], sizeof(UInt));
     UInt* row_ptr    = reinterpret_cast<UInt*>(&buffer.data()[sizeof(UInt) * 2]);
     UInt* column_ptr = reinterpret_cast<UInt*>(&buffer.data()[(numElements + 2) * sizeof(UInt)]);
-    Real*   data_ptr   = reinterpret_cast<Real*>(&buffer.data()[(numElements * 2 + 2) * sizeof(UInt)]);
+    Real* data_ptr   = reinterpret_cast<Real*>(&buffer.data()[(numElements * 2 + 2) * sizeof(UInt)]);
 
     resize(newSize);
     UInt onePercent   = static_cast<UInt>(numElements / 100.0);
@@ -380,8 +373,7 @@ bool SparseMatrix<Real>::loadFromBinaryFile(const char* fileName, int showPercen
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // perform result=matrix*x
-template<class Real>
-void SparseMatrix<Real>::multiply(const SparseMatrix<Real>& matrix, const Vec_Real& x, Vec_Real& result)
+void SparseMatrix::multiply(const SparseMatrix& matrix, const Vec_Real& x, Vec_Real& result)
 {
     assert(matrix.size() == static_cast<UInt>(x.size()));
     result.resize(matrix.size());
@@ -405,8 +397,7 @@ void SparseMatrix<Real>::multiply(const SparseMatrix<Real>& matrix, const Vec_Re
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // perform result=result-matrix*x
-template<class Real>
-void SparseMatrix<Real>::multiply_and_subtract(const SparseMatrix<Real>& matrix, const Vec_Real& x, Vec_Real& result)
+void SparseMatrix::multiply_and_subtract(const SparseMatrix& matrix, const Vec_Real& x, Vec_Real& result)
 {
     assert(matrix.size() == static_cast<UInt>(x.size()));
     result.resize(matrix.size());
@@ -432,21 +423,18 @@ void SparseMatrix<Real>::multiply_and_subtract(const SparseMatrix<Real>& matrix,
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Fixed version of SparseMatrix
 //
-template<class Real>
-unsigned int FixedSparseMatrix<Real>::size() const noexcept
+UInt FixedSparseMatrix::size() const noexcept
 {
     return m_Size;
 }
 
-template<class Real>
-void FixedSparseMatrix<Real>::resize(UInt newSize)
+void FixedSparseMatrix::resize(UInt newSize)
 {
     m_Size = newSize;
     m_RowStart.resize(m_Size + 1);
 }
 
-template<class Real>
-void FixedSparseMatrix<Real>::clear(void)
+void FixedSparseMatrix::clear(void)
 {
     m_ColValue.resize(0);
     m_ColIndex.resize(0);
@@ -454,8 +442,7 @@ void FixedSparseMatrix<Real>::clear(void)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-void FixedSparseMatrix<Real>::constructFromSparseMatrix(const SparseMatrix<Real>& matrix)
+void FixedSparseMatrix::constructFromSparseMatrix(const SparseMatrix& matrix)
 {
     resize(matrix.size());
     m_RowStart[0] = 0;
@@ -486,43 +473,37 @@ void FixedSparseMatrix<Real>::constructFromSparseMatrix(const SparseMatrix<Real>
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-Vec_UInt& FixedSparseMatrix<Real>::getIndices(UInt row)
+Vec_UInt& FixedSparseMatrix::getIndices(UInt row)
 {
     assert(row < m_Size);
     return m_ColIndex[row];
 }
 
-template<class Real>
-const Vec_UInt& FixedSparseMatrix<Real>::getIndices(UInt row) const
+const Vec_UInt& FixedSparseMatrix::getIndices(UInt row) const
 {
     assert(row < m_Size);
     return m_ColIndex[row];
 }
 
-template<class Real>
-Vec_UInt& FixedSparseMatrix<Real>::getRowStarts(UInt row)
+Vec_UInt& FixedSparseMatrix::getRowStarts(UInt row)
 {
     assert(row < m_Size);
     return m_RowStart[row];
 }
 
-template<class Real>
-const Vec_UInt& FixedSparseMatrix<Real>::getRowStarts(UInt row) const
+const Vec_UInt& FixedSparseMatrix::getRowStarts(UInt row) const
 {
     assert(row < m_Size);
     return m_RowStart[row];
 }
 
-template<class Real>
-Vec_Real& FixedSparseMatrix<Real>::getValues(UInt row)
+Vec_Real& FixedSparseMatrix::getValues(UInt row)
 {
     assert(row < m_Size);
     return m_ColValue[row];
 }
 
-template<class Real>
-const Vec_Real& FixedSparseMatrix<Real>::getValues(UInt row) const
+const Vec_Real& FixedSparseMatrix::getValues(UInt row) const
 {
     assert(row < m_Size);
     return m_ColValue[row];
@@ -530,8 +511,7 @@ const Vec_Real& FixedSparseMatrix<Real>::getValues(UInt row) const
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // perform result=matrix*x
-template<class Real>
-void FixedSparseMatrix<Real>::multiply(const FixedSparseMatrix<Real>& matrix, const Vec_Real& x, Vec_Real& result)
+void FixedSparseMatrix::multiply(const FixedSparseMatrix& matrix, const Vec_Real& x, Vec_Real& result)
 {
     assert(matrix.size() == static_cast<UInt>(x.size()));
     result.resize(matrix.size());
@@ -555,8 +535,7 @@ void FixedSparseMatrix<Real>::multiply(const FixedSparseMatrix<Real>& matrix, co
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // perform result=result-matrix*x
-template<class Real>
-void FixedSparseMatrix<Real>::multiply_and_subtract(const FixedSparseMatrix<Real>& matrix, const Vec_Real& x, Vec_Real& result)
+void FixedSparseMatrix::multiply_and_subtract(const FixedSparseMatrix& matrix, const Vec_Real& x, Vec_Real& result)
 {
     assert(matrix.size() == static_cast<UInt>(x.size()));
     result.resize(matrix.size());
@@ -578,3 +557,6 @@ void FixedSparseMatrix<Real>::multiply_and_subtract(const FixedSparseMatrix<Real
                           }
                       }, ap); // end parallel_for
 }
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+} // end namespa

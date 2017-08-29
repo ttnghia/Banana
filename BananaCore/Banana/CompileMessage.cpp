@@ -15,25 +15,29 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-#pragma once
-
-#include <ParticleSolvers/FLIP/FLIP3DSolver.h>
-//#include <ParticleSolvers/MPM/MPMSolver.h>
-//#include <ParticleSolvers/Peridynamics/PeridynamicsSolver.h>
-#include <ParticleSolvers/SPH/WCSPH/WCSPHSolver.h>
-
-#include <catch.hpp>
+#include <Banana/Setup.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-TEST_CASE("Test Particle Solver", "[ParticleSolvers]")
-{
-    Banana::FLIP3DSolver solver1;
+#ifdef BANANA_DOUBLE_PRECISION
+__BNN_COMPILER_MESSAGE("Compile Banana with double precision floating point number")
+#else
+__BNN_COMPILER_MESSAGE("Compile Banana with single precision floating point number")
+#endif
 
-//{
-//    Banana::MPMSolver solver2;
-//    solver2.advanceFrame();
-//}
-//Banana::PeridynamicsSolver solver3;
-    Banana::WCSPHSolver solver4;
-}
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#if defined(__clang__)
+__BNN_COMPILER_MESSAGE("Compiler: clang")
+#elif defined(__ICC) || defined(__INTEL_COMPILER)
+__BNN_COMPILER_MESSAGE("Compiler: Intel")
+#elif defined(__GNUC__) || defined(__GNUG__)
+__BNN_COMPILER_MESSAGE("Compiler: GNU")
+#elif defined(_MSC_VER)
+__BNN_COMPILER_MESSAGE("Compiler: Visual Studio C++")
+#endif
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#ifdef NDEBUG
+__BNN_COMPILER_MESSAGE("Config: Release")
+#else
+__BNN_COMPILER_MESSAGE("Config: Debug")
+#endif

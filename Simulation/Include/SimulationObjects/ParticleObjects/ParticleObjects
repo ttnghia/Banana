@@ -17,4 +17,4 @@
 
 #pragma once
 
-#include <SimulationObjects/ParticleObjects/ParticleObjectInterface.h>
+#include <SimulationObjects/ParticleObjects/ParticleObject.h>

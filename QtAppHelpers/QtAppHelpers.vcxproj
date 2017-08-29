@@ -115,19 +115,19 @@
     <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='DebugQt|x64'">true</IgnoreImportLibrary>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir)BananaCore\Include;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared;$(SolutionDir)Externals\tinyply\source;$(SolutionDir)Externals\tinyobjloader;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)BananaCore;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared;$(SolutionDir)Externals\tinyply\source;$(SolutionDir)Externals\tinyobjloader;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugQt|x64'">
-    <IncludePath>$(SolutionDir)BananaCore\Include;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared;$(SolutionDir)Externals\tinyply\source;$(SolutionDir)Externals\tinyobjloader;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)BananaCore;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared;$(SolutionDir)Externals\tinyply\source;$(SolutionDir)Externals\tinyobjloader;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)BananaCore\Include;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared;$(SolutionDir)Externals\tinyply\source;$(SolutionDir)Externals\tinyobjloader;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)BananaCore;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared;$(SolutionDir)Externals\tinyply\source;$(SolutionDir)Externals\tinyobjloader;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">
-    <IncludePath>$(SolutionDir)BananaCore\Include;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared;$(SolutionDir)Externals\tinyply\source;$(SolutionDir)Externals\tinyobjloader;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)BananaCore;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared;$(SolutionDir)Externals\tinyply\source;$(SolutionDir)Externals\tinyobjloader;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseQt|x64'">
-    <IncludePath>$(SolutionDir)BananaCore\Include;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared;$(SolutionDir)Externals\tinyply\source;$(SolutionDir)Externals\tinyobjloader;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)BananaCore;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared;$(SolutionDir)Externals\tinyply\source;$(SolutionDir)Externals\tinyobjloader;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>

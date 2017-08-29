@@ -59,17 +59,17 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)Build\$(Configuration)\</OutDir>
     <IntDir>D:\Scratch\MSVC-Build\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir)Externals\json\src;$(SolutionDir)Externals\catch\include;$(SolutionDir)Externals\tinyply\source;$(SolutionDir)Externals\tinyobjloader;$(SolutionDir)Externals\yocto-gl;$(SolutionDir)Externals\spdlog\include;$(SolutionDir)Externals\glm;$(ProjectDir)Include;$(SolutionDir)Externals\tbb_win\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Externals\json\src;$(SolutionDir)Externals\catch\include;$(SolutionDir)Externals\tinyply\source;$(SolutionDir)Externals\tinyobjloader;$(SolutionDir)Externals\yocto-gl;$(SolutionDir)Externals\spdlog\include;$(SolutionDir)Externals\glm;$(SolutionDir)Externals\tbb_win\include;$(ProjectDir);$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)Build\$(Configuration)\</OutDir>
     <IntDir>D:\Scratch\MSVC-Build\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir)Externals\json\src;$(SolutionDir)Externals\catch\include;$(SolutionDir)Externals\tinyply\source;$(SolutionDir)Externals\tinyobjloader;$(SolutionDir)Externals\yocto-gl;$(SolutionDir)Externals\spdlog\include;$(SolutionDir)Externals\glm;$(ProjectDir)Include;$(SolutionDir)Externals\tbb_win\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Externals\json\src;$(SolutionDir)Externals\catch\include;$(SolutionDir)Externals\tinyply\source;$(SolutionDir)Externals\tinyobjloader;$(SolutionDir)Externals\yocto-gl;$(SolutionDir)Externals\spdlog\include;$(SolutionDir)Externals\glm;$(SolutionDir)Externals\tbb_win\include;$(ProjectDir);$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">
     <OutDir>$(SolutionDir)Build\$(Configuration)\</OutDir>
     <IntDir>D:\Scratch\MSVC-Build\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir)Externals\json\src;$(SolutionDir)Externals\catch\include;$(SolutionDir)Externals\tinyply\source;$(SolutionDir)Externals\tinyobjloader;$(SolutionDir)Externals\yocto-gl;$(SolutionDir)Externals\spdlog\include;$(SolutionDir)Externals\glm;$(ProjectDir)Include;$(SolutionDir)Externals\tbb_win\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Externals\json\src;$(SolutionDir)Externals\catch\include;$(SolutionDir)Externals\tinyply\source;$(SolutionDir)Externals\tinyobjloader;$(SolutionDir)Externals\yocto-gl;$(SolutionDir)Externals\spdlog\include;$(SolutionDir)Externals\glm;$(SolutionDir)Externals\tbb_win\include;$(ProjectDir);$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -124,64 +124,64 @@
     <None Include="BananaCore.licenseheader" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Include\Banana\Array\SparseArray3.h" />
-    <ClInclude Include="Include\Banana\Geometry\GeometryObject2D.h" />
-    <ClInclude Include="Include\Banana\Geometry\GeometryObject3D.h" />
-    <ClInclude Include="Include\Banana\Grid\Grid2D.h" />
-    <ClInclude Include="Include\Banana\Grid\Grid2DHashing.h" />
-    <ClInclude Include="Include\Banana\Grid\Grid3D.h" />
-    <ClInclude Include="Include\Banana\Grid\Grid3DHashing.h" />
-    <ClInclude Include="Include\Banana\Grid\GridHelpers.h" />
-    <ClInclude Include="Include\Banana\Grid\_Grid3D.Test.hpp" />
-    <ClInclude Include="Include\Banana\Utils\CommandLineParser.h" />
-    <ClInclude Include="Include\Banana\Utils\JSONHelpers.h" />
-    <ClInclude Include="Include\Banana\Utils\AppConfigReader.h" />
-    <ClInclude Include="Include\Banana\Array\Array2.h" />
-    <ClInclude Include="Include\Banana\Array\Array3.h" />
-    <ClInclude Include="Include\Banana\Array\ArrayHelpers.h" />
-    <ClInclude Include="Include\Banana\Geometry\MeshLoader.h" />
-    <ClInclude Include="Include\Banana\Geometry\MeshLoader.Impl.hpp" />
-    <ClInclude Include="Include\Banana\LinearAlgebra\_LinearAlgebra.Test.hpp" />
-    <ClInclude Include="Include\Banana\Utils\Logger.h" />
-    <ClInclude Include="Include\Banana\LinearAlgebra\LinearSolvers\BlockPCGSolver.h" />
-    <ClInclude Include="Include\Banana\LinearAlgebra\LinearSolvers\BlockPCGSolver.Impl.hpp" />
-    <ClInclude Include="Include\Banana\LinearAlgebra\SparseMatrix\BlockSparseMatrix.h" />
-    <ClInclude Include="Include\Banana\LinearAlgebra\SparseMatrix\BlockSparseMatrix.Impl.hpp" />
-    <ClInclude Include="Include\Banana\LinearAlgebra\LinearSolvers\PCGSolver.h" />
-    <ClInclude Include="Include\Banana\LinearAlgebra\LinearSolvers\PCGSolver.Impl.hpp" />
-    <ClInclude Include="Include\Banana\LinearAlgebra\SparseMatrix\SparseMatrix.h" />
-    <ClInclude Include="Include\Banana\LinearAlgebra\SparseMatrix\SparseMatrix.Impl.hpp" />
-    <ClInclude Include="Include\Banana\ParallelHelpers\ParallelBLAS.h" />
-    <ClInclude Include="Include\Banana\ParallelHelpers\ParallelFuncs.h" />
-    <ClInclude Include="Include\Banana\ParallelHelpers\ParallelObjects.h" />
-    <ClInclude Include="Include\Banana\ParallelHelpers\ParallelSTL.h" />
-    <ClInclude Include="Include\Banana\ParallelHelpers\_ParallelHelpers.Test.hpp" />
-    <ClInclude Include="Include\Banana\System\CallStack.h" />
-    <ClInclude Include="Include\Banana\Data\DataIO.h" />
-    <ClInclude Include="Include\Banana\Data\DataPrinter.h" />
-    <ClInclude Include="Include\Banana\Utils\FileHelpers.h" />
-    <ClInclude Include="Include\Banana\Geometry\KdTree.h" />
-    <ClInclude Include="Include\Banana\Macros.h" />
-    <ClInclude Include="Include\Banana\Utils\MathHelpers.h" />
-    <ClInclude Include="Include\Banana\System\MemoryUsage.h" />
-    <ClInclude Include="Include\Banana\Utils\NumberHelpers.h" />
-    <ClInclude Include="Include\Banana\Data\ParameterManager.h" />
-    <ClInclude Include="Include\Banana\Data\ParticleSystemData.h" />
-    <ClInclude Include="Include\Banana\Utils\STLHelpers.h" />
-    <ClInclude Include="Include\Banana\LinearAlgebra\SVD.h" />
-    <ClInclude Include="Include\Banana\Utils\TensorHelpers.h" />
-    <ClInclude Include="Include\Banana\Utils\Timer.h" />
-    <ClInclude Include="Include\Banana\Setup.h" />
+    <ClInclude Include="Banana\Array\SparseArray3.h" />
+    <ClInclude Include="Banana\Geometry\GeometryObject2D.h" />
+    <ClInclude Include="Banana\Geometry\GeometryObject3D.h" />
+    <ClInclude Include="Banana\Grid\Grid2D.h" />
+    <ClInclude Include="Banana\Grid\Grid2DHashing.h" />
+    <ClInclude Include="Banana\Grid\Grid3D.h" />
+    <ClInclude Include="Banana\Grid\Grid3DHashing.h" />
+    <ClInclude Include="Banana\Grid\GridHelpers.h" />
+    <ClInclude Include="Banana\Grid\_Grid3D.Test.hpp" />
+    <ClInclude Include="Banana\Utils\CommandLineParser.h" />
+    <ClInclude Include="Banana\Utils\JSONHelpers.h" />
+    <ClInclude Include="Banana\Utils\AppConfigReader.h" />
+    <ClInclude Include="Banana\Array\Array2.h" />
+    <ClInclude Include="Banana\Array\Array3.h" />
+    <ClInclude Include="Banana\Array\ArrayHelpers.h" />
+    <ClInclude Include="Banana\Geometry\MeshLoader.h" />
+    <ClInclude Include="Banana\Geometry\MeshLoader.Impl.hpp" />
+    <ClInclude Include="Banana\LinearAlgebra\_LinearAlgebra.Test.hpp" />
+    <ClInclude Include="Banana\Utils\Logger.h" />
+    <ClInclude Include="Banana\LinearAlgebra\LinearSolvers\BlockPCGSolver.h" />
+    <ClInclude Include="Banana\LinearAlgebra\LinearSolvers\BlockPCGSolver.Impl.hpp" />
+    <ClInclude Include="Banana\LinearAlgebra\SparseMatrix\BlockSparseMatrix.h" />
+    <ClInclude Include="Banana\LinearAlgebra\SparseMatrix\BlockSparseMatrix.Impl.hpp" />
+    <ClInclude Include="Banana\LinearAlgebra\LinearSolvers\PCGSolver.h" />
+    <ClInclude Include="Banana\LinearAlgebra\LinearSolvers\PCGSolver.Impl.hpp" />
+    <ClInclude Include="Banana\LinearAlgebra\SparseMatrix\SparseMatrix.h" />
+    <ClInclude Include="Banana\ParallelHelpers\ParallelBLAS.h" />
+    <ClInclude Include="Banana\ParallelHelpers\ParallelFuncs.h" />
+    <ClInclude Include="Banana\ParallelHelpers\ParallelObjects.h" />
+    <ClInclude Include="Banana\ParallelHelpers\ParallelSTL.h" />
+    <ClInclude Include="Banana\ParallelHelpers\_ParallelHelpers.Test.hpp" />
+    <ClInclude Include="Banana\System\CallStack.h" />
+    <ClInclude Include="Banana\Data\DataIO.h" />
+    <ClInclude Include="Banana\Data\DataPrinter.h" />
+    <ClInclude Include="Banana\Utils\FileHelpers.h" />
+    <ClInclude Include="Banana\Geometry\KdTree.h" />
+    <ClInclude Include="Banana\Macros.h" />
+    <ClInclude Include="Banana\Utils\MathHelpers.h" />
+    <ClInclude Include="Banana\System\MemoryUsage.h" />
+    <ClInclude Include="Banana\Utils\NumberHelpers.h" />
+    <ClInclude Include="Banana\Data\ParameterManager.h" />
+    <ClInclude Include="Banana\Data\ParticleSystemData.h" />
+    <ClInclude Include="Banana\Utils\STLHelpers.h" />
+    <ClInclude Include="Banana\LinearAlgebra\SVD.h" />
+    <ClInclude Include="Banana\Utils\TensorHelpers.h" />
+    <ClInclude Include="Banana\Utils\Timer.h" />
+    <ClInclude Include="Banana\Setup.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Include\Banana\CompileMessage.cpp" />
-    <ClCompile Include="Include\Banana\Geometry\GeometryObject3D.cpp" />
-    <ClCompile Include="Include\Banana\Geometry\KdTree.cpp" />
-    <ClCompile Include="Include\Banana\Grid\Grid2D.cpp" />
-    <ClCompile Include="Include\Banana\Grid\Grid2DHashing.cpp" />
-    <ClCompile Include="Include\Banana\Grid\Grid3D.cpp" />
-    <ClCompile Include="Include\Banana\Grid\Grid3DHashing.cpp" />
-    <ClCompile Include="Include\Banana\Utils\Logger.cpp" />
+    <ClCompile Include="Banana\CompileMessage.cpp" />
+    <ClCompile Include="Banana\Geometry\GeometryObject3D.cpp" />
+    <ClCompile Include="Banana\Geometry\KdTree.cpp" />
+    <ClCompile Include="Banana\Grid\Grid2D.cpp" />
+    <ClCompile Include="Banana\Grid\Grid2DHashing.cpp" />
+    <ClCompile Include="Banana\Grid\Grid3D.cpp" />
+    <ClCompile Include="Banana\Grid\Grid3DHashing.cpp" />
+    <ClCompile Include="Banana\LinearAlgebra\SparseMatrix\SparseMatrix.cpp" />
+    <ClCompile Include="Banana\Utils\Logger.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

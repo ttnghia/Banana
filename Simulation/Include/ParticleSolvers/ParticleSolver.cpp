@@ -25,7 +25,7 @@ void ParticleSolver::doSimulation()
 {
     setupDataIO();
     if(m_GlobalParams->bLoadMemoryState)
-        loadMemoryStates();
+        loadMemoryState();
     makeReady();
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -41,7 +41,7 @@ void ParticleSolver::doSimulation()
         m_Logger->newLine();
 
         ////////////////////////////////////////////////////////////////////////////////
-        static std::string strMsg = std::string("Frame finished. Frame duration: ") + NumberHelpers::formatWithCommas(m_GlobalParams->frameDuration) + std::string(" (s). Run time: ");
+        static String strMsg = String("Frame finished. Frame duration: ") + NumberHelpers::formatWithCommas(m_GlobalParams->frameDuration) + String(" (s). Run time: ");
         m_Logger->printRunTime(strMsg.c_str(), frameTimer,
                                [&]()
                                {
@@ -64,7 +64,7 @@ void ParticleSolver::doSimulation()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void ParticleSolver::loadScene(const std::string& sceneFile)
+void ParticleSolver::loadScene(const String& sceneFile)
 {
     std::ifstream inputFile(sceneFile);
     if(!inputFile.is_open())
@@ -105,7 +105,7 @@ void ParticleSolver::loadScene(const std::string& sceneFile)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-bool ParticleSolver::loadDataPath(const std::string& sceneFile, std::string& dataPath)
+bool ParticleSolver::loadDataPath(const String& sceneFile, String& dataPath)
 {
     std::ifstream inputFile(sceneFile);
     if(!inputFile.is_open())
@@ -159,10 +159,10 @@ void ParticleSolver::loadObjectParams(const nlohmann::json& jParams)
         nlohmann::json jBoundaryObjects = j["RigidBoundary"];
         for(auto& jBoundaryObj : jBoundaryObjects)
         {
-            std::string meshFile         = "";
-            std::string particleFile     = "";
-            const bool  bMesh            = JSONHelpers::readValue(jBoundaryObj["MeshFile"], meshFile);
-            const bool  bCachedParticles = JSONHelpers::readValue(jBoundaryObj["ParticleFile"], particleFile);
+            String     meshFile         = "";
+            String     particleFile     = "";
+            const bool bMesh            = JSONHelpers::readValue(jBoundaryObj["MeshFile"], meshFile);
+            const bool bCachedParticles = JSONHelpers::readValue(jBoundaryObj["ParticleFile"], particleFile);
 
             if(bMesh || bCachedParticles)
             {
@@ -196,10 +196,10 @@ void ParticleSolver::loadObjectParams(const nlohmann::json& jParams)
         nlohmann::json jParticleObjects = j["ParticleObjects"];
         for(auto& jParticleObj : jParticleObjects)
         {
-            std::string meshFile         = "";
-            std::string particleFile     = "";
-            bool        bMesh            = JSONHelpers::readValue(jParticleObj["MeshFile"], meshFile);
-            bool        bCachedParticles = JSONHelpers::readValue(jParticleObj["ParticleFile"], particleFile);
+            String meshFile         = "";
+            String particleFile     = "";
+            bool   bMesh            = JSONHelpers::readValue(jParticleObj["MeshFile"], meshFile);
+            bool   bCachedParticles = JSONHelpers::readValue(jParticleObj["ParticleFile"], particleFile);
 
             if(bMesh || bCachedParticles)
             {

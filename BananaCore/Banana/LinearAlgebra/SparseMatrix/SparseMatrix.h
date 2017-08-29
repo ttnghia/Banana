@@ -17,12 +17,7 @@
 
 #pragma once
 
-#include <tbb/tbb.h>
-
-#include <iostream>
-
 #include <Banana/Setup.h>
-#include <Banana/Utils/STLHelpers.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -31,7 +26,6 @@ namespace Banana
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Dynamic compressed sparse row matrix
 //
-template<class Real>
 class SparseMatrix
 {
 private:
@@ -46,9 +40,9 @@ private:
 public:
     explicit SparseMatrix(UInt size = 0) : m_Size(size), m_ColIndex(size), m_ColValue(size) {}
 
-    unsigned int size() const noexcept;
-    void         resize(UInt newSize);
-    void         clear(void);
+    UInt size() const noexcept;
+    void resize(UInt newSize);
+    void clear(void);
 
     Vec_UInt&       getIndices(UInt row);
     Vec_Real&       getValues(UInt row);
@@ -69,15 +63,14 @@ public:
     bool loadFromBinaryFile(const char* fileName, int showPercentage = -1);
 
     ////////////////////////////////////////////////////////////////////////////////
-    static void multiply(const SparseMatrix<Real>& matrix, const Vec_Real& x, Vec_Real& result);
-    static void multiply_and_subtract(const SparseMatrix<Real>& matrix, const Vec_Real& x, Vec_Real& result);
+    static void multiply(const SparseMatrix& matrix, const Vec_Real& x, Vec_Real& result);
+    static void multiply_and_subtract(const SparseMatrix& matrix, const Vec_Real& x, Vec_Real& result);
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Fixed version of SparseMatrix. This can be significantly faster for matrix-vector
 // multiplies due to better data locality.
-template<class Real>
 class FixedSparseMatrix
 {
 private:
@@ -95,10 +88,10 @@ private:
 public:
     explicit FixedSparseMatrix(UInt size = 0) : m_Size(size), m_ColValue(0), m_ColIndex(0), m_RowStart(size + 1) {}
 
-    unsigned int size() const noexcept;
-    void         resize(UInt newSize);
-    void         clear(void);
-    void         constructFromSparseMatrix(const SparseMatrix<Real>& fixedMatrix);
+    UInt size() const noexcept;
+    void resize(UInt newSize);
+    void clear(void);
+    void constructFromSparseMatrix(const SparseMatrix& fixedMatrix);
 
     Vec_UInt&       getIndices(UInt row);
     Vec_UInt&       getRowStarts(UInt row);
@@ -108,12 +101,9 @@ public:
     const Vec_Real& getValues(UInt row) const;
 
     ////////////////////////////////////////////////////////////////////////////////
-    static void multiply(const FixedSparseMatrix<Real>& matrix, const Vec_Real& x, Vec_Real& result);
-    static void multiply_and_subtract(const FixedSparseMatrix<Real>& matrix, const Vec_Real& x, Vec_Real& result);
+    static void multiply(const FixedSparseMatrix& matrix, const Vec_Real& x, Vec_Real& result);
+    static void multiply_and_subtract(const FixedSparseMatrix& matrix, const Vec_Real& x, Vec_Real& result);
 };
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <Banana/LinearAlgebra/SparseMatrix/SparseMatrix.Impl.hpp>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana

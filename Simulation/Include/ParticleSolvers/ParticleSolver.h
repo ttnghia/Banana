@@ -53,14 +53,14 @@ public:
 
     const std::unique_ptr<GlobalParameters>& getGlobalParams() const noexcept { return m_GlobalParams; }
     const std::shared_ptr<Logger>& getLogger() const noexcept { return m_Logger; }
-    static bool loadDataPath(const std::string& sceneFile, std::string& dataPath);
-    void        loadScene(const std::string& sceneFile);
+    static bool loadDataPath(const String& sceneFile, String& dataPath);
+    void        loadScene(const String& sceneFile);
     void        doSimulation();
 
     ////////////////////////////////////////////////////////////////////////////////
-    virtual std::string  getSolverName()      = 0;
-    virtual std::string  getGreetingMessage() = 0;
-    virtual unsigned int getNumParticles()    = 0;
+    virtual String getSolverName()      = 0;
+    virtual String getGreetingMessage() = 0;
+    virtual UInt   getNumParticles()    = 0;
 
     virtual void makeReady()     = 0;
     virtual void advanceFrame()  = 0;

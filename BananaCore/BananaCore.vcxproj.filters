@@ -18,174 +18,174 @@
     <None Include="BananaCore.licenseheader" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Include\Banana\Array\Array2.h">
+    <ClInclude Include="Banana\Array\Array2.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Banana\Array\Array3.h">
+    <ClInclude Include="Banana\Array\Array3.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Banana\Array\ArrayHelpers.h">
+    <ClInclude Include="Banana\Array\ArrayHelpers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Banana\Data\DataIO.h">
+    <ClInclude Include="Banana\Array\SparseArray3.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Banana\Data\DataPrinter.h">
+    <ClInclude Include="Banana\Data\DataIO.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Banana\Data\ParticleSystemData.h">
+    <ClInclude Include="Banana\Data\DataPrinter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Banana\ParallelHelpers\ParallelBLAS.h">
+    <ClInclude Include="Banana\Data\ParameterManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Banana\ParallelHelpers\ParallelFuncs.h">
+    <ClInclude Include="Banana\Data\ParticleSystemData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Banana\ParallelHelpers\ParallelObjects.h">
+    <ClInclude Include="Banana\Geometry\GeometryObject2D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Banana\ParallelHelpers\ParallelSTL.h">
+    <ClInclude Include="Banana\Geometry\GeometryObject3D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Banana\System\CallStack.h">
+    <ClInclude Include="Banana\Geometry\KdTree.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Banana\System\MemoryUsage.h">
+    <ClInclude Include="Banana\Geometry\MeshLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Banana\LinearAlgebra\SVD.h">
+    <ClInclude Include="Banana\Geometry\MeshLoader.Impl.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Banana\Geometry\KdTree.h">
+    <ClInclude Include="Banana\Grid\_Grid3D.Test.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Banana\Geometry\MeshLoader.h">
+    <ClInclude Include="Banana\Grid\Grid2D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Banana\Geometry\MeshLoader.Impl.hpp">
+    <ClInclude Include="Banana\Grid\Grid2DHashing.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Banana\LinearAlgebra\_LinearAlgebra.Test.hpp">
+    <ClInclude Include="Banana\Grid\Grid3D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Banana\ParallelHelpers\_ParallelHelpers.Test.hpp">
+    <ClInclude Include="Banana\Grid\Grid3DHashing.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Banana\Utils\AppConfigReader.h">
+    <ClInclude Include="Banana\Grid\GridHelpers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Banana\Utils\FileHelpers.h">
+    <ClInclude Include="Banana\LinearAlgebra\LinearSolvers\BlockPCGSolver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Banana\Utils\Logger.h">
+    <ClInclude Include="Banana\LinearAlgebra\LinearSolvers\BlockPCGSolver.Impl.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Banana\Utils\MathHelpers.h">
+    <ClInclude Include="Banana\LinearAlgebra\LinearSolvers\PCGSolver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Banana\Utils\NumberHelpers.h">
+    <ClInclude Include="Banana\LinearAlgebra\LinearSolvers\PCGSolver.Impl.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Banana\Utils\STLHelpers.h">
+    <ClInclude Include="Banana\LinearAlgebra\SparseMatrix\BlockSparseMatrix.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Banana\Utils\Timer.h">
+    <ClInclude Include="Banana\LinearAlgebra\SparseMatrix\BlockSparseMatrix.Impl.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Banana\Macros.h">
+    <ClInclude Include="Banana\LinearAlgebra\SparseMatrix\SparseMatrix.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Banana\LinearAlgebra\LinearSolvers\BlockPCGSolver.h">
+    <ClInclude Include="Banana\LinearAlgebra\_LinearAlgebra.Test.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Banana\LinearAlgebra\LinearSolvers\BlockPCGSolver.Impl.hpp">
+    <ClInclude Include="Banana\LinearAlgebra\SVD.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Banana\LinearAlgebra\LinearSolvers\PCGSolver.h">
+    <ClInclude Include="Banana\ParallelHelpers\_ParallelHelpers.Test.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Banana\LinearAlgebra\LinearSolvers\PCGSolver.Impl.hpp">
+    <ClInclude Include="Banana\ParallelHelpers\ParallelBLAS.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Banana\LinearAlgebra\SparseMatrix\BlockSparseMatrix.h">
+    <ClInclude Include="Banana\ParallelHelpers\ParallelFuncs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Banana\LinearAlgebra\SparseMatrix\BlockSparseMatrix.Impl.hpp">
+    <ClInclude Include="Banana\ParallelHelpers\ParallelObjects.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Banana\LinearAlgebra\SparseMatrix\SparseMatrix.h">
+    <ClInclude Include="Banana\ParallelHelpers\ParallelSTL.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Banana\LinearAlgebra\SparseMatrix\SparseMatrix.Impl.hpp">
+    <ClInclude Include="Banana\System\CallStack.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Banana\Utils\CommandLineParser.h">
+    <ClInclude Include="Banana\System\MemoryUsage.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Banana\Utils\TensorHelpers.h">
+    <ClInclude Include="Banana\Utils\AppConfigReader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Banana\Utils\JSONHelpers.h">
+    <ClInclude Include="Banana\Utils\CommandLineParser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Banana\Array\SparseArray3.h">
+    <ClInclude Include="Banana\Utils\FileHelpers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Banana\Data\ParameterManager.h">
+    <ClInclude Include="Banana\Utils\JSONHelpers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Banana\Grid\_Grid3D.Test.hpp">
+    <ClInclude Include="Banana\Utils\Logger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Banana\Grid\Grid3D.h">
+    <ClInclude Include="Banana\Utils\MathHelpers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Banana\Grid\Grid3DHashing.h">
+    <ClInclude Include="Banana\Utils\NumberHelpers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Banana\Grid\GridHelpers.h">
+    <ClInclude Include="Banana\Utils\STLHelpers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Banana\Grid\Grid2D.h">
+    <ClInclude Include="Banana\Utils\TensorHelpers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Banana\Geometry\GeometryObject3D.h">
+    <ClInclude Include="Banana\Utils\Timer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Banana\Geometry\GeometryObject2D.h">
+    <ClInclude Include="Banana\Macros.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Banana\Grid\Grid2DHashing.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\Banana\Setup.h">
+    <ClInclude Include="Banana\Setup.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Include\Banana\CompileMessage.cpp">
+    <ClCompile Include="Banana\Geometry\GeometryObject3D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Include\Banana\Geometry\GeometryObject3D.cpp">
+    <ClCompile Include="Banana\Geometry\KdTree.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Include\Banana\Geometry\KdTree.cpp">
+    <ClCompile Include="Banana\Grid\Grid2D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Include\Banana\Grid\Grid2D.cpp">
+    <ClCompile Include="Banana\Grid\Grid2DHashing.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Include\Banana\Grid\Grid3D.cpp">
+    <ClCompile Include="Banana\Grid\Grid3D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Include\Banana\Grid\Grid3DHashing.cpp">
+    <ClCompile Include="Banana\Grid\Grid3DHashing.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Include\Banana\Grid\Grid2DHashing.cpp">
+    <ClCompile Include="Banana\Utils\Logger.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Include\Banana\Utils\Logger.cpp">
+    <ClCompile Include="Banana\CompileMessage.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Banana\LinearAlgebra\SparseMatrix\SparseMatrix.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -20,6 +20,7 @@
 #include <Banana/Setup.h>
 #include <Banana/Utils/MathHelpers.h>
 #include <Banana/Utils/NumberHelpers.h>
+#include <Banana/Utils/Logger.h>
 #include <string>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

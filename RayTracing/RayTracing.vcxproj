@@ -90,27 +90,27 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)Build\$(Configuration)\</OutDir>
     <IntDir>D:\Scratch\MSVC-Build\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir)Externals\glm;$(SolutionDir)QtAppHelpers\Include;$(SolutionDir)BananaCore\Include;$(SolutionDir)OpenGLHelpers\Include;$(ProjectDir)Include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Externals\glm;$(SolutionDir)QtAppHelpers\Include;$(SolutionDir)BananaCore;$(SolutionDir)OpenGLHelpers\Include;$(ProjectDir)Include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugQt|x64'">
     <OutDir>$(SolutionDir)Build\$(Configuration)\</OutDir>
     <IntDir>D:\Scratch\MSVC-Build\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir)Externals\glm;$(SolutionDir)QtAppHelpers\Include;$(SolutionDir)BananaCore\Include;$(SolutionDir)OpenGLHelpers\Include;$(ProjectDir)Include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Externals\glm;$(SolutionDir)QtAppHelpers\Include;$(SolutionDir)BananaCore;$(SolutionDir)OpenGLHelpers\Include;$(ProjectDir)Include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)Build\$(Configuration)\</OutDir>
     <IntDir>D:\Scratch\MSVC-Build\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir)Externals\glm;$(SolutionDir)QtAppHelpers\Include;$(SolutionDir)BananaCore\Include;$(SolutionDir)OpenGLHelpers\Include;$(ProjectDir)Include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Externals\glm;$(SolutionDir)QtAppHelpers\Include;$(SolutionDir)BananaCore;$(SolutionDir)OpenGLHelpers\Include;$(ProjectDir)Include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">
     <OutDir>$(SolutionDir)Build\$(Configuration)\</OutDir>
     <IntDir>D:\Scratch\MSVC-Build\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir)Externals\glm;$(SolutionDir)QtAppHelpers\Include;$(SolutionDir)BananaCore\Include;$(SolutionDir)OpenGLHelpers\Include;$(ProjectDir)Include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Externals\glm;$(SolutionDir)QtAppHelpers\Include;$(SolutionDir)BananaCore;$(SolutionDir)OpenGLHelpers\Include;$(ProjectDir)Include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseQt|x64'">
     <OutDir>$(SolutionDir)Build\$(Configuration)\</OutDir>
     <IntDir>D:\Scratch\MSVC-Build\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir)Externals\glm;$(SolutionDir)QtAppHelpers\Include;$(SolutionDir)BananaCore\Include;$(SolutionDir)OpenGLHelpers\Include;$(ProjectDir)Include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Externals\glm;$(SolutionDir)QtAppHelpers\Include;$(SolutionDir)BananaCore;$(SolutionDir)OpenGLHelpers\Include;$(ProjectDir)Include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
