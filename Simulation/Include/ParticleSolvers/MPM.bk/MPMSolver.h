@@ -24,14 +24,14 @@
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-class MPMSolver : public ParticleSolver<RealType>
+template<class Real>
+class MPMSolver : public ParticleSolver<Real>
 {
 public:
     MPMSolver()  = default;
     ~MPMSolver() = default;
 
-    std::shared_ptr<SimulationParametersMPM<RealType> > getSolverParams() { return m_SimParams; }
+    std::shared_ptr<SimulationParametersMPM<Real> > getSolverParams() { return m_SimParams; }
 
     ////////////////////////////////////////////////////////////////////////////////
     virtual void makeReady() override;
@@ -40,9 +40,9 @@ public:
     virtual void saveMemoryState() override;
 
     virtual std::string getSolverName() override { return std::string("MPMSolver"); }
-    virtual unsigned int        getNumParticles() override { return static_cast<unsigned int>(m_SimData->positions.size()); }
-    virtual Vec_Vec3<RealType>& getPositions() override { return m_SimData->positions; }
-    virtual Vec_Vec3<RealType>& getVelocity() override { return m_SimData->velocity; }
+    virtual UInt        getNumParticles() override { return static_cast<UInt>(m_SimData->positions.size()); }
+    virtual Vec_Vec3r& getPositions() override { return m_SimData->positions; }
+    virtual Vec_Vec3r& getVelocity() override { return m_SimData->velocity; }
 
 private:
     virtual void loadSimParams(const nlohmann::json& jParams) override {}
@@ -59,8 +59,8 @@ private:
 
 
 
-    std::shared_ptr<SimulationParametersMPM<RealType> > m_SimParams = std::make_shared<SimulationParametersMPM<RealType> >();
-    std::unique_ptr<SimulationDataMPM<RealType> >       m_SimData   = std::make_unique<SimulationDataMPM<RealType> >();
+    std::shared_ptr<SimulationParametersMPM<Real> > m_SimParams = std::make_shared<SimulationParametersMPM<Real> >();
+    std::unique_ptr<SimulationDataMPM<Real> >       m_SimData   = std::make_unique<SimulationDataMPM<Real> >();
 
 
     double h = 0.1;             //Spacing between the node points

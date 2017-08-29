@@ -14,21 +14,21 @@
 //
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class T>
-MeshLoader<T>::MeshLoader() : m_isMeshReady(false)
+template<class Real>
+MeshLoader<Real>::MeshLoader() : m_isMeshReady(false)
 {
     clearData();
 }
 
-template<class T>
-MeshLoader<T>::MeshLoader(const std::string& meshFile) : m_isMeshReady(false)
+template<class Real>
+MeshLoader<Real>::MeshLoader(const std::string& meshFile) : m_isMeshReady(false)
 {
     loadMesh(meshFile);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class T>
-bool MeshLoader<T>::loadMesh(const std::string& meshFile)
+template<class Real>
+bool MeshLoader<Real>::loadMesh(const std::string& meshFile)
 {
     checkFileType(meshFile);
 
@@ -61,31 +61,31 @@ bool MeshLoader<T>::loadMesh(const std::string& meshFile)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class T>
-Vec3<T> MeshLoader<T>::getMeshCenter() const
+template<class Real>
+Vec3r MeshLoader<Real>::getMeshCenter() const
 {
-    return T(0.5) * (m_BBoxMin + m_BBoxMax);
+    return Real(0.5) * (m_AABBMin + m_AABBMax);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class T>
-Vec3<T> MeshLoader<T>::getCameraPosition(Vec3<T> camDirection, T fov /*= 45*/)
+template<class Real>
+Vec3r MeshLoader<Real>::getCameraPosition(Vec3r camDirection, Real fov /*= 45*/)
 {
-    return camDirection * getCameraDistance(fov * T(0.75)) + getMeshCenter();
+    return camDirection * getCameraDistance(fov * Real(0.75)) + getMeshCenter();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class T>
-T MeshLoader<T>::getCameraDistance(T fov)
+template<class Real>
+Real MeshLoader<Real>::getCameraDistance(Real fov)
 {
-    T halfLength = (m_BBoxMax.y - m_BBoxMin.y) * T(0.5);
+    Real halfLength = (m_AABBMax.y - m_AABBMin.y) * Real(0.5);
 
-    return (halfLength / std::tan(fov * T(0.5 * M_PI / 180.0)));
+    return (halfLength / std::tan(fov * Real(0.5 * M_PI / 180.0)));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class T>
-void MeshLoader<T>::checkFileType(const std::string& meshFile)
+template<class Real>
+void MeshLoader<Real>::checkFileType(const std::string& meshFile)
 {
     const std::string extension = meshFile.substr(meshFile.rfind('.') + 1);
     m_MeshFileType = MeshFileType::UnsupportedFileType;
@@ -104,13 +104,13 @@ void MeshLoader<T>::checkFileType(const std::string& meshFile)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class T>
-void MeshLoader<T>::clearData()
+template<class Real>
+void MeshLoader<Real>::clearData()
 {
     m_NumTriangles = 0;
 
-    m_BBoxMin = Vec3<T>(1e10, 1e10, 1e10);
-    m_BBoxMax = Vec3<T>(-1e10, -1e10, -1e10);
+    m_AABBMin = Vec3r(1e10, 1e10, 1e10);
+    m_AABBMax = Vec3r(-1e10, -1e10, -1e10);
 
     m_Faces.resize(0);
     m_Vertices.resize(0);
@@ -125,8 +125,8 @@ void MeshLoader<T>::clearData()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class T>
-bool MeshLoader<T>::loadObj(const std::string& meshFile)
+template<class Real>
+bool MeshLoader<Real>::loadObj(const std::string& meshFile)
 {
     std::vector<tinyobj::shape_t>    obj_shapes;
     std::vector<tinyobj::material_t> obj_materials;
@@ -160,7 +160,7 @@ bool MeshLoader<T>::loadObj(const std::string& meshFile)
             tinyobj::index_t idx1 = obj_shapes[s].mesh.indices[3 * f + 1];
             tinyobj::index_t idx2 = obj_shapes[s].mesh.indices[3 * f + 2];
 
-            T v[3][3];
+            Real v[3][3];
 
             for(int k = 0; k < 3; k++)
             {
@@ -179,16 +179,16 @@ bool MeshLoader<T>::loadObj(const std::string& meshFile)
                 v[1][k] = attrib.vertices[3 * f1 + k];
                 v[2][k] = attrib.vertices[3 * f2 + k];
 
-                m_BBoxMin[k] = std::min(v[0][k], m_BBoxMin[k]);
-                m_BBoxMin[k] = std::min(v[1][k], m_BBoxMin[k]);
-                m_BBoxMin[k] = std::min(v[2][k], m_BBoxMin[k]);
+                m_AABBMin[k] = std::min(v[0][k], m_AABBMin[k]);
+                m_AABBMin[k] = std::min(v[1][k], m_AABBMin[k]);
+                m_AABBMin[k] = std::min(v[2][k], m_AABBMin[k]);
 
-                m_BBoxMax[k] = std::max(v[0][k], m_BBoxMax[k]);
-                m_BBoxMax[k] = std::max(v[1][k], m_BBoxMax[k]);
-                m_BBoxMax[k] = std::max(v[2][k], m_BBoxMax[k]);
+                m_AABBMax[k] = std::max(v[0][k], m_AABBMax[k]);
+                m_AABBMax[k] = std::max(v[1][k], m_AABBMax[k]);
+                m_AABBMax[k] = std::max(v[2][k], m_AABBMax[k]);
             }
 
-            T n[3][3];
+            Real n[3][3];
 
             if(attrib.normals.size() > 0)
             {
@@ -229,21 +229,21 @@ bool MeshLoader<T>::loadObj(const std::string& meshFile)
                 m_VertexNormals.push_back(n[k][2]);
 
                 // Use normal as color.
-                T c[3] = { n[k][0], n[k][1], n[k][2] };
-                T len2 = c[0] * c[0] + c[1] * c[1] + c[2] * c[2];
+                Real c[3] = { n[k][0], n[k][1], n[k][2] };
+                Real len2 = c[0] * c[0] + c[1] * c[1] + c[2] * c[2];
 
                 if(len2 > 0)
                 {
-                    T len = T(sqrt(len2));
+                    Real len = Real(sqrt(len2));
 
                     c[0] /= len;
                     c[1] /= len;
                     c[2] /= len;
                 }
 
-                m_VertexColors.push_back(c[0] * T(0.5) + T(0.5));
-                m_VertexColors.push_back(c[1] * T(0.5) + T(0.5));
-                m_VertexColors.push_back(c[2] * T(0.5) + T(0.5));
+                m_VertexColors.push_back(c[0] * Real(0.5) + Real(0.5));
+                m_VertexColors.push_back(c[1] * Real(0.5) + Real(0.5));
+                m_VertexColors.push_back(c[2] * Real(0.5) + Real(0.5));
             }
         } // end process current shape
     }
@@ -253,8 +253,8 @@ bool MeshLoader<T>::loadObj(const std::string& meshFile)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class T>
-bool MeshLoader<T>::loadPly(const std::string& meshFile)
+template<class Real>
+bool MeshLoader<Real>::loadPly(const std::string& meshFile)
 {
     // Tinyply can and will throw exceptions at you!
     try
@@ -269,10 +269,10 @@ bool MeshLoader<T>::loadPly(const std::string& meshFile)
         // Define containers to hold the extracted data. The type must match
         // the property type given in the header. Tinyply will interally allocate the
         // the appropriate amount of memory.
-        std::vector<T>       norms;
+        std::vector<Real>    norms;
         std::vector<uint8_t> colors;
 
-        std::vector<T> uvCoords;
+        std::vector<Real> uvCoords;
         //        std::vector<uint8_t> faceColors;
 
         size_t vertexCount       = 0;
@@ -312,7 +312,7 @@ bool MeshLoader<T>::loadPly(const std::string& meshFile)
             uint32_t f1 = m_Faces[3 * f + 1];
             uint32_t f2 = m_Faces[3 * f + 2];
 
-            T v[3][3];
+            Real v[3][3];
 
             for(int k = 0; k < 3; k++)
             {
@@ -320,16 +320,16 @@ bool MeshLoader<T>::loadPly(const std::string& meshFile)
                 v[1][k] = m_FaceVertices[3 * f1 + k];
                 v[2][k] = m_FaceVertices[3 * f2 + k];
 
-                m_BBoxMin[k] = std::min(v[0][k], m_BBoxMin[k]);
-                m_BBoxMin[k] = std::min(v[1][k], m_BBoxMin[k]);
-                m_BBoxMin[k] = std::min(v[2][k], m_BBoxMin[k]);
+                m_AABBMin[k] = std::min(v[0][k], m_AABBMin[k]);
+                m_AABBMin[k] = std::min(v[1][k], m_AABBMin[k]);
+                m_AABBMin[k] = std::min(v[2][k], m_AABBMin[k]);
 
-                m_BBoxMax[k] = std::max(v[0][k], m_BBoxMax[k]);
-                m_BBoxMax[k] = std::max(v[1][k], m_BBoxMax[k]);
-                m_BBoxMax[k] = std::max(v[2][k], m_BBoxMax[k]);
+                m_AABBMax[k] = std::max(v[0][k], m_AABBMax[k]);
+                m_AABBMax[k] = std::max(v[1][k], m_AABBMax[k]);
+                m_AABBMax[k] = std::max(v[2][k], m_AABBMax[k]);
             }
 
-            T n[3][3];
+            Real n[3][3];
 
             if(norms.size() > 0)
             {
@@ -363,21 +363,21 @@ bool MeshLoader<T>::loadPly(const std::string& meshFile)
                 m_VertexNormals.push_back(n[k][2]);
 
                 // Use normal as color.
-                T c[3] = { n[k][0], n[k][1], n[k][2] };
-                T len2 = c[0] * c[0] + c[1] * c[1] + c[2] * c[2];
+                Real c[3] = { n[k][0], n[k][1], n[k][2] };
+                Real len2 = c[0] * c[0] + c[1] * c[1] + c[2] * c[2];
 
                 if(len2 > 0)
                 {
-                    T len = T(sqrt(len2));
+                    Real len = Real(sqrt(len2));
 
                     c[0] /= len;
                     c[1] /= len;
                     c[2] /= len;
                 }
 
-                m_VertexColors.push_back(c[0] * T(0.5) + T(0.5));
-                m_VertexColors.push_back(c[1] * T(0.5) + T(0.5));
-                m_VertexColors.push_back(c[2] * T(0.5) + T(0.5));
+                m_VertexColors.push_back(c[0] * Real(0.5) + Real(0.5));
+                m_VertexColors.push_back(c[1] * Real(0.5) + Real(0.5));
+                m_VertexColors.push_back(c[2] * Real(0.5) + Real(0.5));
             }
         } // end process current shape
     }
@@ -390,15 +390,15 @@ bool MeshLoader<T>::loadPly(const std::string& meshFile)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class T>
-void MeshLoader<T>::computeVertexNormal(T N[3], T v0[3], T v1[3], T v2[3])
+template<class Real>
+void MeshLoader<Real>::computeVertexNormal(Real N[3], Real v0[3], Real v1[3], Real v2[3])
 {
-    T v10[3];
+    Real v10[3];
     v10[0] = v1[0] - v0[0];
     v10[1] = v1[1] - v0[1];
     v10[2] = v1[2] - v0[2];
 
-    T v20[3];
+    Real v20[3];
     v20[0] = v2[0] - v0[0];
     v20[1] = v2[1] - v0[1];
     v20[2] = v2[2] - v0[2];
@@ -407,11 +407,11 @@ void MeshLoader<T>::computeVertexNormal(T N[3], T v0[3], T v1[3], T v2[3])
     N[1] = v20[2] * v10[0] - v20[0] * v10[2];
     N[2] = v20[0] * v10[1] - v20[1] * v10[0];
 
-    T len2 = N[0] * N[0] + N[1] * N[1] + N[2] * N[2];
+    Real len2 = N[0] * N[0] + N[1] * N[1] + N[2] * N[2];
 
     if(len2 > 0)
     {
-        T len = T(sqrt(len2));
+        Real len = Real(sqrt(len2));
 
         N[0] /= len;
         N[1] /= len;

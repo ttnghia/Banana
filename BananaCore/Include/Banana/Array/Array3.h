@@ -17,7 +17,7 @@
 
 #pragma once
 
-#include <Banana/TypeNames.h>
+#include <Banana/Setup.h>
 
 #include <algorithm>
 #include <cassert>
@@ -32,15 +32,15 @@ template<class T>
 class Array3
 {
 private:
-    typename std::vector<T>::size_type m_SizeX, m_SizeY, m_SizeZ;
-    std::vector<T>                     m_Data;
+    typename Vector<T>::size_type m_SizeX, m_SizeY, m_SizeZ;
+    Vector<T>                     m_Data;
 
 public:
-    using iterator               = typename std::vector<T>::iterator;
-    using const_iterator         = typename std::vector<T>::const_iterator;
-    using reverse_iterator       = typename std::vector<T>::reverse_iterator;
-    using const_reverse_iterator = typename std::vector<T>::const_reverse_iterator;
-    using size_type              = typename std::vector<T>::size_type;
+    using iterator               = typename Vector<T>::iterator;
+    using const_iterator         = typename Vector<T>::const_iterator;
+    using reverse_iterator       = typename Vector<T>::reverse_iterator;
+    using const_reverse_iterator = typename Vector<T>::const_reverse_iterator;
+    using size_type              = typename Vector<T>::size_type;
 
     ////////////////////////////////////////////////////////////////////////////////
     // constructors & destructor
@@ -50,7 +50,7 @@ public:
     Array3(IndexType sizeX, IndexType sizeY, IndexType sizeZ) : m_SizeX(sizeX), m_SizeY(sizeY), m_SizeZ(sizeZ), m_Data(sizeX * sizeY * sizeZ) {}
 
     template<class IndexType>
-    Array3(IndexType sizeX, IndexType sizeY, IndexType sizeZ, std::vector<T>& data) : m_SizeX(sizeX), m_SizeY(sizeY), m_SizeZ(sizeZ), m_Data(data) {}
+    Array3(IndexType sizeX, IndexType sizeY, IndexType sizeZ, Vector<T>& data) : m_SizeX(sizeX), m_SizeY(sizeY), m_SizeZ(sizeZ), m_Data(data) {}
 
     template<class IndexType>
     Array3(IndexType sizeX, IndexType sizeY, IndexType sizeZ, const T& value) : m_SizeX(sizeX), m_SizeY(sizeY), m_SizeZ(sizeZ), m_Data(sizeX * sizeY * sizeZ, value) {}
@@ -78,7 +78,7 @@ public:
     }
 
     template<class IndexType>
-    bool isValidIndex(const glm::tvec3<IndexType>& index) const
+    bool isValidIndex(const Vec3<IndexType>& index) const
     {
         return isValidIndex<IndexType>(index[0], index[1], index[2]);
     }
@@ -105,7 +105,7 @@ public:
     }
 
     template<class IndexType>
-    size_type getLinearizedIndex(const glm::tvec3<IndexType>& index) const
+    size_type getLinearizedIndex(const Vec3<IndexType>& index) const
     {
         return getLinearizedIndex<IndexType>(index[0], index[1], index[2]);
     }
@@ -123,13 +123,13 @@ public:
     }
 
     template<class IndexType>
-    const T& operator()(const glm::tvec3<IndexType>& index) const
+    const T& operator()(const Vec3<IndexType>& index) const
     {
         return m_Data[getLinearizedIndex<IndexType>(index)];
     }
 
     template<class IndexType>
-    T& operator()(const glm::tvec3<IndexType>& index)
+    T& operator()(const Vec3<IndexType>& index)
     {
         return m_Data[getLinearizedIndex<IndexType>(index)];
     }
@@ -251,12 +251,12 @@ public:
         return const_reverse_iterator(cbegin());
     }
 
-    std::vector<T>& vec_data()
+    Vector<T>& vec_data()
     {
         return m_Data;
     }
 
-    const std::vector<T>& vec_data() const
+    const Vector<T>& vec_data() const
     {
         return m_Data;
     }
@@ -294,7 +294,7 @@ public:
     }
 
     template<class IndexType>
-    void reserve(const glm::tvec3<IndexType>& newSize)
+    void reserve(const Vec3<IndexType>& newSize)
     {
         m_Data.reserve(newSize[0] * newSize[1] * newSize[2]);
     }
@@ -309,7 +309,7 @@ public:
     }
 
     template<class IndexType>
-    void resize(const glm::tvec3<IndexType>& newSize)
+    void resize(const Vec3<IndexType>& newSize)
     {
         resize<IndexType>(newSize[0], newSize[1], newSize[2]);
     }
@@ -324,7 +324,7 @@ public:
     }
 
     template<class IndexType>
-    void resize(const glm::tvec3<IndexType>& newSize, const T& value)
+    void resize(const Vec3<IndexType>& newSize, const T& value)
     {
         resize<IndexType>(newSize[0], newSize[1], newSize[2], value);
     }
@@ -354,6 +354,7 @@ using Array3i   = Array3<int>;
 using Array3ui  = Array3<unsigned int>;
 using Array3f   = Array3<float>;
 using Array3d   = Array3<double>;
+using Array3r   = Array3<Real>;
 
 using Array3_VecChar   = Array3<std::vector<char> >;
 using Array3_VecInt    = Array3<std::vector<int> >;

@@ -17,7 +17,7 @@
 
 #pragma once
 
-#include <Banana/TypeNames.h>
+#include <Banana/Setup.h>
 #include <Banana/Array/Array3.h>
 #include <Banana/LinearAlgebra/SparseMatrix/SparseMatrix.h>
 #include <ParticleSolvers/ParticleSolverData.h>
@@ -29,45 +29,47 @@ namespace Banana
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
+template<class Real>
 struct  SimulationParameters_FLIP3D
 {
+    __BNN_SETUP_DATA_TYPE(Real)
+
     enum InterpolationKernel { Linear, CubicSpline };
     SimulationParameters_FLIP3D() { makeReady(); }
 
     ////////////////////////////////////////////////////////////////////////////////
-    RealType            defaultTimestep         = RealType(1.0e-4);
-    RealType            CFLFactor               = RealType(1.0);
-    RealType            PIC_FLIP_ratio          = RealType(0.97);
-    RealType            boundaryRestitution     = RealType(DEFAULT_BOUNDARY_RESTITUTION);
-    RealType            particleRadius          = RealType(2.0 / 32.0 / 4.0);
+    Real                defaultTimestep         = Real(1.0e-4);
+    Real                CFLFactor               = Real(1.0);
+    Real                PIC_FLIP_ratio          = Real(0.97);
+    Real                boundaryRestitution     = Real(DEFAULT_BOUNDARY_RESTITUTION);
+    Real                particleRadius          = Real(2.0 / 32.0 / 4.0);
     InterpolationKernel kernelFunc              = InterpolationKernel::Linear;
-    RealType            repulsiveForceStiffness = RealType(1e7);
-    RealType            CGRelativeTolerance     = RealType(1e-20);
+    Real                repulsiveForceStiffness = Real(1e7);
+    Real                CGRelativeTolerance     = Real(1e-20);
     unsigned int        maxCGIteration          = 10000;
 
     bool bApplyRepulsiveForces = false;
 
-    Vec3<RealType> boxMin = Vec3<RealType>(-1.0);
-    Vec3<RealType> boxMax = Vec3<RealType>(1.0);
+    Vec3r boxMin = Vec3r(-1.0);
+    Vec3r boxMax = Vec3r(1.0);
 
     // the following need to be computed
-    int      kernelSpan;
-    RealType kernelRadius;
-    RealType kernelRadiusSqr;
-    RealType nearKernelRadius;
-    RealType nearKernelRadiusSqr;
-    RealType sdfRadius;                                                                // radius for level set fluid
+    int  kernelSpan;
+    Real kernelRadius;
+    Real kernelRadiusSqr;
+    Real nearKernelRadius;
+    Real nearKernelRadiusSqr;
+    Real sdfRadius;                                                                // radius for level set fluid
 
     ////////////////////////////////////////////////////////////////////////////////
     void makeReady()
     {
-        kernelRadius        = particleRadius * RealType(4.0);
+        kernelRadius        = particleRadius * Real(4.0);
         kernelRadiusSqr     = kernelRadius * kernelRadius;
-        nearKernelRadius    = particleRadius * RealType(2.5);
+        nearKernelRadius    = particleRadius * Real(2.5);
         nearKernelRadiusSqr = nearKernelRadius * nearKernelRadius;
 
-        sdfRadius  = kernelRadius * RealType(1.01 * sqrt(3.0) / 2.0);
+        sdfRadius  = kernelRadius * Real(1.01 * sqrt(3.0) / 2.0);
         kernelSpan = (kernelFunc == InterpolationKernel::Linear) ? 1 : 2;
     }
 
@@ -95,39 +97,41 @@ struct  SimulationParameters_FLIP3D
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
+template<class Real>
 struct SimulationData_FLIP3D
 {
-    Vec_Vec3<RealType> positions;
-    Vec_Vec3<RealType> positions_tmp;
-    Vec_Vec3<RealType> velocities;
-    Vec_VecUInt        neighborList;
+    __BNN_SETUP_DATA_TYPE(Real)
+
+    Vec_Vec3r positions;
+    Vec_Vec3r   positions_tmp;
+    Vec_Vec3r   velocities;
+    Vec_VecUInt neighborList;
 
 
     ////////////////////////////////////////////////////////////////////////////////
     //Fluid grid data for velocity
-    Array3<RealType> u, v, w;
-    Array3<RealType> du, dv, dw;
-    Array3<RealType> u_old, v_old, w_old;
-    Array3<RealType> u_weights, v_weights, w_weights;
-    Array3c          u_valid, v_valid, w_valid;
+    Array3<Real> u, v, w;
+    Array3<Real> du, dv, dw;
+    Array3<Real> u_old, v_old, w_old;
+    Array3<Real> u_weights, v_weights, w_weights;
+    Array3c      u_valid, v_valid, w_valid;
 
     // temp array
-    Array3<RealType> u_temp, v_temp, w_temp;
-    Array3c          u_valid_old, v_valid_old, w_valid_old;
+    Array3<Real> u_temp, v_temp, w_temp;
+    Array3c      u_valid_old, v_valid_old, w_valid_old;
 
-    Array3<RealType> fluidSDF;
-    Array3<RealType> boundarySDF;
+    Array3<Real> fluidSDF;
+    Array3<Real> boundarySDF;
 
 
     ////////////////////////////////////////////////////////////////////////////////
     //Solver
-    SparseMatrix<RealType> matrix;
-    std::vector<RealType>  rhs;
-    std::vector<RealType>  pressure;
+    SparseMatrix<Real> matrix;
+    Vec_Real           rhs;
+    Vec_Real           pressure;
 
     ////////////////////////////////////////////////////////////////////////////////
-    UInt32 getNumParticles() { return static_cast<UInt32>(positions.size()); }
+    UInt getNumParticles() { return static_cast<UInt>(positions.size()); }
 
     void reserve(unsigned int numParticles)
     {
@@ -139,7 +143,7 @@ struct SimulationData_FLIP3D
     void makeReady(unsigned int ni, unsigned int nj, unsigned int nk)
     {
         positions_tmp.resize(positions.size());
-        velocities.resize(positions.size(), Vec3<RealType>(0));
+        velocities.resize(positions.size(), Vec3r(0));
         neighborList.resize(positions.size());
 
         u.resize(ni + 1, nj, nk, 0);

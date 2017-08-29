@@ -34,19 +34,19 @@ namespace ParallelSTL
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // inf-norm (maximum absolute value)
 //
-template<class RealType>
-inline RealType maxAbs(const std::vector<RealType>& x)
+template<class Real>
+inline Real maxAbs(const std::vector<Real>& x)
 {
-    ParallelObjects::VectorMaxAbs<RealType> mabs(x);
+    ParallelObjects::VectorMaxAbs<Real> mabs(x);
     tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), mabs);
 
     return mabs.getResult();
 }
 
-template<class RealType, class VectorType>
-inline RealType maxVecAbs(const std::vector<VectorType>& x)
+template<class Real, class VectorType>
+inline Real maxVecAbs(const std::vector<VectorType>& x)
 {
-    ParallelObjects::VectorMaxAbs<RealType, VectorType> mabs(x);
+    ParallelObjects::VectorMaxAbs<Real, VectorType> mabs(x);
     tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), mabs);
 
     return mabs.getResult();
@@ -54,47 +54,47 @@ inline RealType maxVecAbs(const std::vector<VectorType>& x)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // min/max element
-template<class RealType>
-inline RealType min(const std::vector<RealType>& x)
+template<class Real>
+inline Real min(const std::vector<Real>& x)
 {
-    ParallelObjects::VectorMinElement<RealType> vm(x);
+    ParallelObjects::VectorMinElement<Real> vm(x);
     tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), vm);
 
     return vm.getResult();
 }
 
-template<class RealType>
-inline RealType max(const std::vector<RealType>& x)
+template<class Real>
+inline Real max(const std::vector<Real>& x)
 {
-    ParallelObjects::VectorMaxElement<RealType> vm(x);
+    ParallelObjects::VectorMaxElement<Real> vm(x);
     tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), vm);
 
     return vm.getResult();
 }
 
-template<class RealType, class VectorType>
-inline RealType maxNorm2(const std::vector<VectorType>& x)
+template<class Real, class VectorType>
+inline Real maxNorm2(const std::vector<VectorType>& x)
 {
-    ParallelObjects::VectorMaxNorm2<RealType, VectorType> vm(x);
+    ParallelObjects::VectorMaxNorm2<Real, VectorType> vm(x);
     tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), vm);
 
     return vm.getResult();
 }
 
-template<class RealType>
-inline void min_max(const std::vector<RealType>& x, RealType& minElement, RealType& maxElement)
+template<class Real>
+inline void min_max(const std::vector<Real>& x, Real& minElement, Real& maxElement)
 {
-    ParallelObjects::VectorMinMaxElements<RealType> vmm(x);
+    ParallelObjects::VectorMinMaxElements<Real> vmm(x);
     tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), vmm);
 
     minElement = vmm.getMin();
     maxElement = vmm.getMax();
 }
 
-template<class RealType, class VectorType>
-inline void min_max_norm2(const std::vector<VectorType>& x, RealType& minNorm2, RealType& maxNorm2)
+template<class Real, class VectorType>
+inline void min_max_norm2(const std::vector<VectorType>& x, Real& minNorm2, Real& maxNorm2)
 {
-    ParallelObjects::VectorMinMaxNorm2<RealType, VectorType> vmm(x);
+    ParallelObjects::VectorMinMaxNorm2<Real, VectorType> vmm(x);
     tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), vmm);
 
     minNorm2 = vmm.getMin();
@@ -102,33 +102,33 @@ inline void min_max_norm2(const std::vector<VectorType>& x, RealType& minNorm2, 
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-inline RealType sum(const std::vector<RealType>& x)
+template<class Real>
+inline Real sum(const std::vector<Real>& x)
 {
-    ParallelObjects::VectorSum<RealType> vSum(x);
+    ParallelObjects::VectorSum<Real> vSum(x);
     tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), vSum);
 
     return vSum.getSum();
 }
 
-template<class RealType>
-inline RealType average(const std::vector<RealType>& x)
+template<class Real>
+inline Real average(const std::vector<Real>& x)
 {
-    return ParallelSTL::sum<RealType>(x) / static_cast<RealType>(x.size());
+    return ParallelSTL::sum<Real>(x) / static_cast<Real>(x.size());
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // sorting
-template<class RealType>
-inline void sort(std::vector<RealType>& v)
+template<class Real>
+inline void sort(std::vector<Real>& v)
 {
     tbb::parallel_sort(v);
 }
 
-template<class RealType>
-inline void sort_dsd(std::vector<RealType>& v)
+template<class Real>
+inline void sort_dsd(std::vector<Real>& v)
 {
-    tbb::parallel_sort(std::begin(v), std::end(v), std::greater<RealType> ());
+    tbb::parallel_sort(std::begin(v), std::end(v), std::greater<Real> ());
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

@@ -38,7 +38,7 @@ Array3_Real& ObjectBuilder::get_sdf(bool negative_inside)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-UInt32 ObjectBuilder::generate_particle(Vec_Vec3& particles,
+UInt ObjectBuilder::generate_particle(Vec_Vec3& particles,
                                         Real                                      particle_radius)
 {
     if(samplingParams->bLoadParticleFromFile)
@@ -51,14 +51,14 @@ UInt32 ObjectBuilder::generate_particle(Vec_Vec3& particles,
         Vec_Vec3          tmp_particles;
         particles.clear();
 
-        UInt32 num_loaded = ParticleUtils::load_binary(file_name, tmp_particles, tmp_radius);
+        UInt num_loaded = ParticleUtils::load_binary(file_name, tmp_particles, tmp_radius);
         __NOODLE_ASSERT_APPROX_NUMBERS(tmp_radius, particle_radius, 1e-10);
         monitor.printLog("Particle file: " + file_name);
         monitor.printLog("Loaded particles: " + NumberHelpers::formatWithCommas(num_loaded));
 
         particles.insert(particles.end(), tmp_particles.begin(), tmp_particles.end());
 
-        return (UInt32)particles.size();
+        return (UInt)particles.size();
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -71,7 +71,7 @@ UInt32 ObjectBuilder::generate_particle(Vec_Vec3& particles,
 
     ////////////////////////////////////////////////////////////////////////////////
     timer.tick();
-    UInt32 num_generated = (samplingParams->samplingMethod ==
+    UInt num_generated = (samplingParams->samplingMethod ==
                             ParticleSamplingMethod::JitterAndRelaxation) ?
         sample_particle(particles, particle_radius * 0.9) :
         sample_particle(particles, particle_radius);
@@ -87,7 +87,7 @@ UInt32 ObjectBuilder::generate_particle(Vec_Vec3& particles,
         samplingParams->jitterPercentage = 0.1;
 
         timer.tick();
-        UInt32 num_samples = sample_particle(samples,
+        UInt num_samples = sample_particle(samples,
                                              particle_radius / samplingParams->ratioDenseSampling);
         timer.tock();
         monitor.printLog("Generated high density particles: " + NumberHelpers::formatWithCommas(
@@ -112,11 +112,11 @@ UInt32 ObjectBuilder::generate_particle(Vec_Vec3& particles,
     monitor.printLog(timer.getRunTime("Pos process: "));
 
     ////////////////////////////////////////////////////////////////////////////////
-    return (UInt32)particles.size();
+    return (UInt)particles.size();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-UInt32 ObjectBuilder::sample_particle(Vec_Vec3& particles,
+UInt ObjectBuilder::sample_particle(Vec_Vec3& particles,
                                       Real                                    particle_radius)
 {
     monitor.printLog("Generating particles by " + get_generator_name() + "...");
@@ -143,7 +143,7 @@ UInt32 ObjectBuilder::sample_particle(Vec_Vec3& particles,
                      std::to_string(grid[0]) + ", " +
                      std::to_string(grid[1]) + ", " +
                      std::to_string(grid[2]) + "]");
-    UInt32 num_generated_particles = 0;
+    UInt num_generated_particles = 0;
 
     for(int x = 0; x < grid[0]; ++x)
     {
@@ -213,14 +213,14 @@ void ObjectBuilder::compute_sdf(bool negative_inside)
     Timer timer;
     timer.tick();
 
-    tbb::parallel_for(tbb::blocked_range<UInt32>(0, sdf_grid.m_SizeZ),
-                      [&](tbb::blocked_range<UInt32> r)
+    tbb::parallel_for(tbb::blocked_range<UInt>(0, sdf_grid.m_SizeZ),
+                      [&](tbb::blocked_range<UInt> r)
     {
-        for(UInt32 k = r.begin(); k != r.end(); ++k)
+        for(UInt k = r.begin(); k != r.end(); ++k)
         {
-            for(UInt32 j = 0; j < sdf_grid.m_SizeY; ++j)
+            for(UInt j = 0; j < sdf_grid.m_SizeY; ++j)
             {
-                for(UInt32 i = 0; i < sdf_grid.m_SizeX; ++i)
+                for(UInt i = 0; i < sdf_grid.m_SizeX; ++i)
                 {
                     const Vec3 pos = domainParams->domainBMin + sdf_cell_size * Vec3(i, j, k);
                     sdf_grid(i, j, k) = negative_inside ? object_sdf_value(pos) : -object_sdf_value(pos);

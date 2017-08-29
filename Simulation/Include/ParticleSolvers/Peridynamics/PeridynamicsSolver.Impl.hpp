@@ -167,9 +167,9 @@ void PeridynamicsSolver::advance_velocity(Real timestep, const MergingSplittingD
 
     if(integration_scheme == IntegrationScheme::ImplicitNewmarkBeta)
     {
-        tbb::parallel_for(tbb::blocked_range<UInt32>(0, particleParams->num_active_particles), [&](tbb::blocked_range<UInt32> r)
+        tbb::parallel_for(tbb::blocked_range<UInt>(0, particleParams->num_active_particles), [&](tbb::blocked_range<UInt> r)
                           {
-                              for(UInt32 p = r.begin(); p != r.end(); ++p)
+                              for(UInt p = r.begin(); p != r.end(); ++p)
                               {
                                   velocity[p] = (velocity[p] + velocity_old[p]) * (Real)0.5;
                               }
@@ -208,9 +208,9 @@ void PeridynamicsSolver::predict_velocity_explicit(Real timestep)
     const Real   beta = timestep;
 
     timer.tick();
-    tbb::parallel_for(tbb::blocked_range<UInt32>(0, particleParams->num_active_particles), [&](tbb::blocked_range<UInt32> r)
+    tbb::parallel_for(tbb::blocked_range<UInt>(0, particleParams->num_active_particles), [&](tbb::blocked_range<UInt> r)
                       {
-                          for(UInt32 p = r.begin(); p != r.end(); ++p)
+                          for(UInt p = r.begin(); p != r.end(); ++p)
                           {
                               predicted_velocity[p] = velocity[p] + particle_forces[p] / particle_mass[p] * beta;
                           }
@@ -249,9 +249,9 @@ void PeridynamicsSolver::predict_velocity_implicit(Real timestep)
     ////////////////////////////////////////////////////////////////////////////////
     timer.tick();
 
-    tbb::parallel_for(tbb::blocked_range<UInt32>(0, particleParams->num_active_particles), [&](tbb::blocked_range<UInt32> r)
+    tbb::parallel_for(tbb::blocked_range<UInt>(0, particleParams->num_active_particles), [&](tbb::blocked_range<UInt> r)
                       {
-                          for(UInt32 p = r.begin(); p != r.end(); ++p)
+                          for(UInt p = r.begin(); p != r.end(); ++p)
                           {
                               Vec3 tmp = (integration_scheme == IntegrationScheme::ImplicitNewmarkBeta) ? (solution[p] * (Real)0.5) : solution[p];
                               predicted_velocity[p] = velocity[p] + tmp;
@@ -323,11 +323,11 @@ void PeridynamicsSolver::move_particles(Real timestep)
     static Timer timer;
     timer.tick();
 
-    tbb::parallel_for(tbb::blocked_range<UInt32>(0,
+    tbb::parallel_for(tbb::blocked_range<UInt>(0,
                                                  particleParams->num_active_particles),
-                      [&, timestep](tbb::blocked_range<UInt32> r)
+                      [&, timestep](tbb::blocked_range<UInt> r)
                       {
-                          for(UInt32 p = r.begin(); p != r.end(); ++p)
+                          for(UInt p = r.begin(); p != r.end(); ++p)
                           {
                               const Vec3& pvel = velocity[p];
 
@@ -371,7 +371,7 @@ void PeridynamicsSolver::move_particles(Real timestep)
 
                                       for(size_t i = 0; i < mlist.size(); ++i)
                                       {
-                                          const UInt32 q = mlist[i];
+                                          const UInt q = mlist[i];
                                           old_pos[i] = particles[q];
                                       }
 
@@ -379,7 +379,7 @@ void PeridynamicsSolver::move_particles(Real timestep)
 
                                       for(size_t i = 0; i < mlist.size(); ++i)
                                       {
-                                          const UInt32 q = mlist[i];
+                                          const UInt q = mlist[i];
                                           //                        particles[q] = new_pos[i];
                                           particles[q] = Vec3(std::min(upper_bound[0], std::max(new_pos[i][0], lower_bound[0])),
                                                               std::min(upper_bound[1], std::max(new_pos[i][1], lower_bound[1])),
@@ -407,7 +407,7 @@ void PeridynamicsSolver::move_particles(Real timestep)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // particles colliding only they don't have bond
-bool PeridynamicsSolver::are_colliding(UInt32 p, UInt32 q)
+bool PeridynamicsSolver::are_colliding(UInt p, UInt q)
 {
 #if 0
     const Vector_UInt& pbonds = bond_list[p];
@@ -435,8 +435,8 @@ void PeridynamicsSolver::save_frame(int frame)
             case DataFile::FramePosition:
             {
                 dataIO->reset_buffer();
-                dataIO->getBuffer().push_back(static_cast<UInt32>(particles.size()));
-                dataIO->getBuffer().push_back(static_cast<UInt32>(particleParams->num_active_particles));
+                dataIO->getBuffer().push_back(static_cast<UInt>(particles.size()));
+                dataIO->getBuffer().push_back(static_cast<UInt>(particleParams->num_active_particles));
                 dataIO->getBuffer().push_back_to_float(particle_radius);
                 dataIO->getBuffer().push_back_to_float_array(particles, false);
                 dataIO->flush_buffer_async(frame);
@@ -454,8 +454,8 @@ void PeridynamicsSolver::save_frame(int frame)
             case DataFile::FrameParticleMarker:
             {
                 dataIO->reset_buffer();
-                dataIO->getBuffer().push_back(static_cast<UInt32>(particles.size()));
-                dataIO->getBuffer().push_back(static_cast<UInt32>(particleParams->num_components));
+                dataIO->getBuffer().push_back(static_cast<UInt>(particles.size()));
+                dataIO->getBuffer().push_back(static_cast<UInt>(particleParams->num_components));
                 dataIO->getBuffer().push_back(particle_marker, false);
                 dataIO->flush_buffer_async(frame);
             }
@@ -498,8 +498,8 @@ void PeridynamicsSolver::save_state(int frame)
             case DataFile::StatePosition:
             {
                 dataIO->reset_buffer();
-                dataIO->getBuffer().push_back(static_cast<UInt32>(particles.size()));
-                dataIO->getBuffer().push_back(static_cast<UInt32>(particleParams->num_active_particles));
+                dataIO->getBuffer().push_back(static_cast<UInt>(particles.size()));
+                dataIO->getBuffer().push_back(static_cast<UInt>(particleParams->num_active_particles));
                 dataIO->getBuffer().push_back(particle_radius);
                 dataIO->getBuffer().push_back(particles, false);
                 dataIO->flush_buffer_async(frame);
@@ -571,16 +571,16 @@ int PeridynamicsSolver::load_latest_state()
     // position
     Real particle_radius;
     dataIOs[DataFile::StatePosition]->load_file_index(latest_frame);
-    dataIOs[DataFile::StatePosition]->getBuffer().get_data<Real>(particle_radius, 2 * sizeof(UInt32));
+    dataIOs[DataFile::StatePosition]->getBuffer().get_data<Real>(particle_radius, 2 * sizeof(UInt));
     __NOODLE_ASSERT_APPROX_NUMBERS(particleParams->particle_radius, particle_radius, 1e-8);
 
-    dataIOs[DataFile::StatePosition]->getBuffer().get_data<UInt32>(particleParams->num_particles, 0);
-    dataIOs[DataFile::StatePosition]->getBuffer().get_data<UInt32>(particleParams->num_active_particles, sizeof(UInt32));
-    dataIOs[DataFile::StatePosition]->getBuffer().get_data<Real>(particles, 2 * sizeof(UInt32) + sizeof(Real), particleParams->num_particles);
+    dataIOs[DataFile::StatePosition]->getBuffer().get_data<UInt>(particleParams->num_particles, 0);
+    dataIOs[DataFile::StatePosition]->getBuffer().get_data<UInt>(particleParams->num_active_particles, sizeof(UInt));
+    dataIOs[DataFile::StatePosition]->getBuffer().get_data<Real>(particles, 2 * sizeof(UInt) + sizeof(Real), particleParams->num_particles);
 
     // position at t=0
     dataIOs[DataFile::StatePosition]->load_file_index(0);
-    dataIOs[DataFile::StatePosition]->getBuffer().get_data<Real>(particles_t0, 2 * sizeof(UInt32) + sizeof(Real), particleParams->num_particles);
+    dataIOs[DataFile::StatePosition]->getBuffer().get_data<Real>(particles_t0, 2 * sizeof(UInt) + sizeof(Real), particleParams->num_particles);
 
     ////////////////////////////////////////////////////////////////////////////////
     // velocity
@@ -729,11 +729,11 @@ void PeridynamicsSolver::build_linear_system(Real dt, const MergingSplittingData
     rhs.assign(rhs.size(), Vec3(0));
 
     ////////////////////////////////////////////////////////////////////////////////
-    tbb::parallel_for(tbb::blocked_range<UInt32>(0,
+    tbb::parallel_for(tbb::blocked_range<UInt>(0,
                                                  particleParams->num_active_particles),
-                      [&](tbb::blocked_range<UInt32> r)
+                      [&](tbb::blocked_range<UInt> r)
                       {
-                          for(UInt32 p = r.begin(); p != r.end(); ++p)
+                          for(UInt p = r.begin(); p != r.end(); ++p)
                           {
                               if(!is_active(p))
                               {
@@ -766,7 +766,7 @@ void PeridynamicsSolver::build_linear_system(Real dt, const MergingSplittingData
                                       __NOODLE_ASSERT(merlit_data->merge_list[p].size() > 1);
 
                                       // process the merge list, including the root and the leaf
-                                      for(UInt32 q : merlit_data->merge_list[p])
+                                      for(UInt q : merlit_data->merge_list[p])
                                       {
                                           __NOODLE_ASSERT(merlit_data->merged[q] > 0);
                                           compute_particle_forces(sumLHS, sumRHS, pforce, merlit_data, q, true, dt);
@@ -792,13 +792,13 @@ void PeridynamicsSolver::build_linear_system(Real dt, const MergingSplittingData
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PeridynamicsSolver::compute_particle_forces(Mat3x3& sumLHS, Vec3& sumRHS, Vec3& pforce, const MergingSplittingData* merlit_data,
-                                                 UInt32 p, bool p_merged, Real dt)
+                                                 UInt p, bool p_merged, Real dt)
 {
     const Real fdx_coeff = (integration_scheme == IntegrationScheme::ImplicitNewmarkBeta) ? MathUtils::sqr(dt) / 4.0 : MathUtils::sqr(dt);
     const Real fdv_coeff = (integration_scheme == IntegrationScheme::ImplicitNewmarkBeta) ? dt * 0.5 : dt;
 
 
-    const UInt32 p_merged_to = p_merged ? merlit_data->merge_to[p] : p;
+    const UInt p_merged_to = p_merged ? merlit_data->merge_to[p] : p;
     const Vec3&  pvel        = p_merged ? velocity[p_merged_to] : velocity[p];
 
     const Vec3& ppos = particles[p];
@@ -814,13 +814,13 @@ void PeridynamicsSolver::compute_particle_forces(Mat3x3& sumLHS, Vec3& sumRHS, V
     Real smin = 0.0;
     Real ss0;
 
-    for(UInt32 bondIndex = 0; bondIndex < pbonds.size(); ++bondIndex)
+    for(UInt bondIndex = 0; bondIndex < pbonds.size(); ++bondIndex)
     {
-        const UInt32 q = pbonds[bondIndex];
+        const UInt q = pbonds[bondIndex];
         __NOODLE_ASSERT(q != p);
 
         const bool   q_merged    = (merlit_data != nullptr) ? merlit_data->merged[q] > 0 : false;
-        const UInt32 q_merged_to = q_merged ? merlit_data->merge_to[q] : q;
+        const UInt q_merged_to = q_merged ? merlit_data->merge_to[q] : q;
 
         // do not accumulate force between two merged particles
         if(q_merged && (p == q_merged_to || q == p_merged_to))
@@ -894,10 +894,10 @@ void PeridynamicsSolver::compute_explicit_forces(const MergingSplittingData*)
     static Timer timer;
     timer.tick();
 
-    tbb::parallel_for(tbb::blocked_range<UInt32>(0, particleParams->num_active_particles),
-                      [&](tbb::blocked_range<UInt32> r)
+    tbb::parallel_for(tbb::blocked_range<UInt>(0, particleParams->num_active_particles),
+                      [&](tbb::blocked_range<UInt> r)
                       {
-                          for(UInt32 p = r.begin(); p != r.end(); ++p)
+                          for(UInt p = r.begin(); p != r.end(); ++p)
                           {
                               if(!is_active(p))
                               {
@@ -915,9 +915,9 @@ void PeridynamicsSolver::compute_explicit_forces(const MergingSplittingData*)
                               const Vec_Real& pd0 = bond_d0[p];
                               __NOODLE_ASSERT(pbonds.size() == pd0.size());
 
-                              for(UInt32 bondIndex = 0; bondIndex < pbonds.size(); ++bondIndex)
+                              for(UInt bondIndex = 0; bondIndex < pbonds.size(); ++bondIndex)
                               {
-                                  const UInt32 q = pbonds[bondIndex];
+                                  const UInt q = pbonds[bondIndex];
                                   __NOODLE_ASSERT(q != p);
 
                                   Vec3 eij = particles[q] - ppos;
@@ -993,10 +993,10 @@ void PeridynamicsSolver::solve_system()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PeridynamicsSolver::update_velocity()
 {
-    tbb::parallel_for(tbb::blocked_range<UInt32>(0, particleParams->num_active_particles),
-                      [&](tbb::blocked_range<UInt32> r)
+    tbb::parallel_for(tbb::blocked_range<UInt>(0, particleParams->num_active_particles),
+                      [&](tbb::blocked_range<UInt> r)
                       {
-                          for(UInt32 p = r.begin(); p != r.end(); ++p)
+                          for(UInt p = r.begin(); p != r.end(); ++p)
                           {
                               velocity[p] += solution[p];
                           }
@@ -1024,14 +1024,14 @@ bool PeridynamicsSolver::remove_broken_bonds()
     volatile bool hasBrokenBond = false;
 
     ////////////////////////////////////////////////////////////////////////////////
-    for(UInt32 p = 0; p < broken_bonds.size(); ++p)
+    for(UInt p = 0; p < broken_bonds.size(); ++p)
     {
         if(broken_bonds[p].size() > 0)
         {
             for(auto it = broken_bonds[p].rbegin(); it != broken_bonds[p].rend(); ++it)
             {
                 hasBrokenBond = true;
-                const UInt32 bondIndex = (UInt32)(*it);
+                const UInt bondIndex = (UInt)(*it);
 
                 tbb::parallel_invoke(
                     [&, bondIndex]
@@ -1047,11 +1047,11 @@ bool PeridynamicsSolver::remove_broken_bonds()
     }
 
     // if there is only 1/2 bonds remain, then just delete it
-    for(UInt32 p = 0; p < (UInt32)bond_list.size(); ++p)
+    for(UInt p = 0; p < (UInt)bond_list.size(); ++p)
     {
         if(bond_list[p].size() <= 2)
         {
-            for(UInt32 q : bond_list[p])
+            for(UInt q : bond_list[p])
             {
                 for(int i = (int)bond_list[q].size() - 1; i >= 0; --i)
                 {
@@ -1099,10 +1099,10 @@ void PeridynamicsSolver::find_connected_components()
     particle_marker.assign(particle_marker.size(), -1);
 
     // label from first particle
-    UInt32 num_processed_particles = 0;
+    UInt num_processed_particles = 0;
     num_processed_particles += spawn_component(0, 0, 0);
 
-    UInt32 total_component      = 1; // need?
+    UInt total_component      = 1; // need?
     Int8   current_component_id = 0;
 
     bool new_label = false;
@@ -1112,7 +1112,7 @@ void PeridynamicsSolver::find_connected_components()
     {
         labeled = false;
 
-        for(UInt32 p = 0; p < particles.size(); ++p)
+        for(UInt p = 0; p < particles.size(); ++p)
         {
             // find any particle that has not been label
             // and that particle has a labeled neighbor
@@ -1133,7 +1133,7 @@ void PeridynamicsSolver::find_connected_components()
                 // find the component index from neighbor
                 Int8 neighbor_component_id = -1;
 
-                for(UInt32 q : bond_list[p])
+                for(UInt q : bond_list[p])
                 {
                     if(particle_marker[q] >= 0)
                     {
@@ -1175,15 +1175,15 @@ void PeridynamicsSolver::find_connected_components()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-UInt32 PeridynamicsSolver::spawn_component(UInt32 p, int depth, Int8 component)
+UInt PeridynamicsSolver::spawn_component(UInt p, int depth, Int8 component)
 {
     particle_marker[p] = component;
-    UInt32 num_processed_particles = 1;
+    UInt num_processed_particles = 1;
 
     // max depth = 1000 to avoid stack overflow due to many time recursively call this func
     if(depth < 1000)
     {
-        for(UInt32 q : bond_list[p])
+        for(UInt q : bond_list[p])
         {
             if(particle_marker[q] >= 0)
             {

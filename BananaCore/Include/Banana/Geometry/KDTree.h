@@ -21,64 +21,57 @@
 #include <climits>
 #include <memory>
 
-#include <Banana/TypeNames.h>
-#include <Banana/Geometry/SignDistanceField.h>
+#include <Banana/Setup.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class T>
 struct Point
 {
     Point() {}
-    Point(const Vec3<T>& pos_, unsigned int index_) : position(pos_), index(index_) {}
-    Point(const std::initializer_list& pos_, unsigned int index_) : position(pos_), index(index_) {}
+    Point(const Vec3r& pos_, UInt index_) : position(pos_), index(index_) {}
+    Point(const std::initializer_list& pos_, UInt index_) : position(pos_), index(index_) {}
 
-    Vec3<T>      position = { { 0, 0, 0 } };
-    unsigned int index    = UINT_MAX;
+    Vec3r position(0);
+    UInt  index = UINT_MAX;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class T>
 struct KDNode
 {
-    KDNode(Point<T>* points_, const Vec3<T>& boxMin_, const Vec3<T>& boxMax_) : points(points_), boxMin(boxMin_), boxMax(boxMax_), {}
+    KDNode(Point* points_, const Vec3r& boxMin_, const Vec3r& boxMax_) : points(points_), boxMin(boxMin_), boxMax(boxMax_), {}
 
-    Point<T>* points;
-    Vec3<T>   boxMin;
-    Vec3<T>   boxMax;
+    Point* points;
+    Vec3r  boxMin;
+    Vec3r  boxMax;
 
-    std::shared_ptr<KDNode<T> > leftNode  = nullptr;
-    std::shared_ptr<KDNode<T> > rightNode = nullptr;
+    std::shared_ptr<KDNode> leftNode  = nullptr;
+    std::shared_ptr<KDNode> rightNode = nullptr;
 
-    unsigned int count  = 0;
-    unsigned int axis   = 0;         // 0==x, 1==y, 2==z
-    T            split  = 0;
-    bool         isLeaf = true;
+    UInt count  = 0;
+    UInt axis   = 0;         // 0==x, 1==y, 2==z
+    Real split  = 0;
+    bool isLeaf = true;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class T>
 class KdTree
 {
 public:
-    KdTree(unsigned int maxItems) : m_MaxItermsPerNode(maxItems) {}
+    KdTree(UInt maxItems) : m_MaxItermsPerNode(maxItems) {}
 
-    void buildTree(const std::shared_ptr<KDNode<T> >& treeNode);
-    void printTree(const std::shared_ptr<KDNode<T> >& treeNode);
-    void getNeighborList(const Point<T>& target, const std::shared_ptr<KDNode<T> >& treeNode, T radius, Vec_UInt& result);
+    void buildTree(const std::shared_ptr<KDNode>& treeNode);
+    void printTree(const std::shared_ptr<KDNode>& treeNode);
+    void getNeighborList(const Point& target, const std::shared_ptr<KDNode>& treeNode, Real radius, Vec_UInt& result);
 
 private:
-    void findNeighbors(const Point<T>& target, const std::shared_ptr<KDNode<T> >& treeNode, T radius, Vec_UInt& result);
-    T    getMedian(Point<T>* points, unsigned int size, unsigned int axis);
+    void findNeighbors(const Point& target, const std::shared_ptr<KDNode>& treeNode, Real radius, Vec_UInt& result);
+    Real getMedian(Point* points, UInt size, UInt axis);
 
     ////////////////////////////////////////////////////////////////////////////////
-    unsigned int m_MaxItermsPerNode;
+    UInt m_MaxItermsPerNode;
 };
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <Banana/Geometry/KdTree.Impl.hpp>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana

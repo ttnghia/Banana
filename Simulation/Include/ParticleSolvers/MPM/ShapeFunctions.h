@@ -17,7 +17,7 @@
 
 #pragma once
 
-#include <Banana/TypeNames.h>
+#include <Banana/Setup.h>
 #include <Grid/Grid3D.h>
 
 #include <cmath>
@@ -28,14 +28,14 @@ namespace Banana
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Rather than re-construct the shape and gradient weights within
 // each interpolation function we find them once per time step and store them.
-template<class RealType>
+template<class Real>
 struct ContributionData
 {
-    ContributionData(unsigned int p_, unsigned int i_, RealType w_, const Vec3<RealType>& G_) : p(p_), i(i_), w(w_), G(G_) { }
+    ContributionData(unsigned int p_, unsigned int i_, Real w_, const Vec3<Real>& G_) : p(p_), i(i_), w(w_), G(G_) { }
 
-    Vec3<RealType> G;
-    RealType       w;
-    unsigned int   p, i;
+    Vec3<Real>   G;
+    Real         w;
+    unsigned int p, i;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -48,7 +48,7 @@ public:
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // The standard piecewise-linear shape functions used in MPM
-template<class RealType>
+template<class Real>
 class LinearShapeFunction : public ShapeFunction
 {
 public:
@@ -74,30 +74,30 @@ public:
     }
 
 private:
-    RealType S(RealType x, RealType h)
+    Real S(Real x, Real h)
     {
         return 1. - abs(x) / h;
     }
 
-    RealType G(RealType x, RealType h)
+    Real G(Real x, Real h)
     {
         return -sgn(x) / h;
     }
 
     void setWeightGrad(Grid3D& m_Grid3D, const int p, const int k)
     {
-        const Vec3<RealType> r(m_Grid3D.curPosP[p] - m_Grid3D.curPosN[k]);
-        const RealType       Sx = S(r[0], m_Grid3D.dx);
-        const RealType       Sy = S(r[1], m_Grid3D.dy);
-        const RealType       Sz = S(r[2], m_Grid3D.dz);
-        const RealType       Gx = G(r[0], m_Grid3D.dx);
-        const RealType       Gy = G(r[1], m_Grid3D.dy);
-        const RealType       Gz = G(r[2], m_Grid3D.dz);
-        const RealType       w  = Sx * Sy * Sz;
-        const RealType       x  = Gx * Sy * Sz;
-        const RealType       y  = Gy * Sx * Sz;
-        const RealType       z  = Gz * Sx * Sy;
-        m_Grid3D.con.push_back(ContributionData(p, k, w, Vec3<RealType>(x, y, z)));
+        const Vec3<Real> r(m_Grid3D.curPosP[p] - m_Grid3D.curPosN[k]);
+        const Real       Sx = S(r[0], m_Grid3D.dx);
+        const Real       Sy = S(r[1], m_Grid3D.dy);
+        const Real       Sz = S(r[2], m_Grid3D.dz);
+        const Real       Gx = G(r[0], m_Grid3D.dx);
+        const Real       Gy = G(r[1], m_Grid3D.dy);
+        const Real       Gz = G(r[2], m_Grid3D.dz);
+        const Real       w  = Sx * Sy * Sz;
+        const Real       x  = Gx * Sy * Sz;
+        const Real       y  = Gy * Sx * Sz;
+        const Real       z  = Gz * Sx * Sy;
+        m_Grid3D.con.push_back(ContributionData(p, k, w, Vec3<Real>(x, y, z)));
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -106,7 +106,7 @@ private:
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // The special adaptive spline shape functions for GIMP that are most accurate
-template<class RealType>
+template<class Real>
 class GIMP : public ShapeFunction
 {
 public:
@@ -152,9 +152,9 @@ public:
     }
 
 private:
-    RealType S(RealType x, RealType h, RealType l)
+    Real S(Real x, Real h, Real l)
     {
-        const RealType r = abs(x);
+        const Real r = abs(x);
 
         if(r < l)
         {
@@ -174,9 +174,9 @@ private:
         return 0.;
     }
 
-    RealType G(RealType x, RealType h, RealType l)
+    Real G(Real x, Real h, Real l)
     {
-        const RealType r = abs(x);
+        const Real r = abs(x);
 
         if(r < l)
         {
@@ -198,24 +198,24 @@ private:
 
     void setWeightGrad(const int k)
     {
-        const Vec3<RealType> r(m_Grid3D.curPosP[p] - m_Grid3D.curPosN[k]);
-        const RealType       Sx = S(r[0], m_Grid3D.dx, halfLenP[0]);
-        const RealType       Sy = S(r[1], m_Grid3D.dy, halfLenP[1]);
-        const RealType       Sz = S(r[2], m_Grid3D.dz, halfLenP[2]);
-        const RealType       Gx = G(r[0], m_Grid3D.dx, halfLenP[0]);
-        const RealType       Gy = G(r[1], m_Grid3D.dy, halfLenP[1]);
-        const RealType       Gz = G(r[2], m_Grid3D.dz, halfLenP[2]);
-        const RealType       w  = Sx * Sy * Sz;
-        const RealType       x  = Gx * Sy * Sz;
-        const RealType       y  = Gy * Sx * Sz;
-        const RealType       z  = Gz * Sx * Sy;
-        m_Grid3D.con.push_back(ContributionData(p, k, w, Vec3<RealType>(x, y, z)));
+        const Vec3<Real> r(m_Grid3D.curPosP[p] - m_Grid3D.curPosN[k]);
+        const Real       Sx = S(r[0], m_Grid3D.dx, halfLenP[0]);
+        const Real       Sy = S(r[1], m_Grid3D.dy, halfLenP[1]);
+        const Real       Sz = S(r[2], m_Grid3D.dz, halfLenP[2]);
+        const Real       Gx = G(r[0], m_Grid3D.dx, halfLenP[0]);
+        const Real       Gy = G(r[1], m_Grid3D.dy, halfLenP[1]);
+        const Real       Gz = G(r[2], m_Grid3D.dz, halfLenP[2]);
+        const Real       w  = Sx * Sy * Sz;
+        const Real       x  = Gx * Sy * Sz;
+        const Real       y  = Gy * Sx * Sz;
+        const Real       z  = Gz * Sx * Sy;
+        m_Grid3D.con.push_back(ContributionData(p, k, w, Vec3<Real>(x, y, z)));
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    Vec3<RealType> halfLenP;
-    int            p;
-    Grid3D&        m_Grid3D;
+    Vec3<Real> halfLenP;
+    int        p;
+    Grid3D&    m_Grid3D;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

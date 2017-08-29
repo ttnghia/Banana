@@ -22,14 +22,14 @@
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
+template<class Real>
 class NeighborhoodSearch;
 
 /**
  * @class PointSet.
  * Represents a set of points in three-dimensional space.
  */
-template<class RealType>
+template<class Real>
 class PointSet
 {
 public:
@@ -117,8 +117,8 @@ public:
     void sort_field(T* lst) const;
 
 private:
-    friend NeighborhoodSearch<RealType>;
-    PointSet(RealType const* x, std::size_t n, bool dynamic)
+    friend NeighborhoodSearch<Real>;
+    PointSet(Real const* x, std::size_t n, bool dynamic)
         : m_x(x), m_n(n), m_dynamic(dynamic), m_neighbors(n)
         , m_keys(n,
         {
@@ -130,7 +130,7 @@ private:
         m_old_keys = m_keys;
     }
 
-    void resize(RealType const* x, std::size_t n)
+    void resize(Real const* x, std::size_t n)
     {
         m_x = x;
         m_n = n;
@@ -147,13 +147,13 @@ private:
         m_neighbors.resize(n);
     }
 
-    RealType const* point(unsigned int i) const { return &m_x[3 * i]; }
+    Real const* point(unsigned int i) const { return &m_x[3 * i]; }
 
 private:
 
-    RealType const* m_x;
-    std::size_t     m_n;
-    bool            m_dynamic;
+    Real const* m_x;
+    std::size_t m_n;
+    bool        m_dynamic;
 
     std::vector<std::vector<std::vector<unsigned int> > > m_neighbors;
 
@@ -163,9 +163,9 @@ private:
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
+template<class Real>
 template<class T> void
-PointSet<RealType>::sort_field(T* lst) const
+PointSet<Real>::sort_field(T* lst) const
 {
     if(m_sort_table.empty())
     {

@@ -22,32 +22,32 @@
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-class BoxObject : public ParticleObject<RealType>
+template<class Real>
+class BoxObject : public ParticleObject<Real>
 {
 public:
     BoxObject()  = default;
     ~BoxObject() = default;
 
-    Vec3<RealType>& boxMin() { return m_BoxMin; }
-    Vec3<RealType>& boxMax() { return m_BoxMax; }
+    Vec3r& boxMin() { return m_BoxMin; }
+    Vec3r& boxMax() { return m_BoxMax; }
 
 protected:
     virtual void generateParticles();
 
-    Vec3<RealType> m_BoxMin = Vec3<RealType>(0);
-    Vec3<RealType> m_BoxMax = Vec3<RealType>(0);
+    Vec3r m_BoxMin = Vec3r(0);
+    Vec3r m_BoxMax = Vec3r(0);
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Implementation
-template<class RealType>
-void Banana::BoxObject<RealType>::generateParticles()
+template<class Real>
+void Banana::BoxObject<Real>::generateParticles()
 {
-    RealType       spacing = 2.0 * m_ParticleRadius;
-    Vec3i          grid    = ParticleHelpers::createGrid(m_BoxMin, m_BoxMax, spacing);
-    Vec3<RealType> minPos  = m_BoxMin + Vec3<RealType>(m_ParticleRadius);
+    Real  spacing = 2.0 * m_ParticleRadius;
+    Vec3i grid    = ParticleHelpers::createGrid(m_BoxMin, m_BoxMax, spacing);
+    Vec3r minPos  = m_BoxMin + Vec3r(m_ParticleRadius);
     srand(static_cast<unsigned int>(time(NULL)));
 
     for(int x = 0; x < grid[0]; ++x)
@@ -56,7 +56,7 @@ void Banana::BoxObject<RealType>::generateParticles()
         {
             for(int z = 0; z < grid[2]; ++z)
             {
-                Vec3<RealType> ppos = minPos + spacing * Vec3<RealType>(x, y, z);
+                Vec3r ppos = minPos + spacing * Vec3r(x, y, z);
                 ParticleHelpers::jitter(ppos, m_SamplingJitter * m_ParticleRadius);
                 ParticleHelpers::clamp(ppos, m_BoxMin, m_BoxMax, m_ParticleRadius);
 

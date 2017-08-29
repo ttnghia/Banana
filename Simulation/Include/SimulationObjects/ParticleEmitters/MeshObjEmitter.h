@@ -46,7 +46,7 @@ public:
 #define TRIMESH_EMITTER_H
 
 #include <Noodle/Core/Particle/ParticleEmitters/ParticleEmitter.h>
-#include <Noodle/Core/Global/Macros.h>
+#include <Noodle/Core/Global/Setup.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 class TriMeshEmitter : public ParticleEmitter

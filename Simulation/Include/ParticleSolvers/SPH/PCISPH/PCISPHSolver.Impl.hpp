@@ -238,9 +238,9 @@ void PCISPHSolver::update_density_pressure()
                                               continue;
                                           }
 
-                                          for(UInt32 q : cellParticles(cellId))
+                                          for(UInt q : cellParticles(cellId))
                                           {
-                                              if((UInt32)p == q)
+                                              if((UInt)p == q)
                                               {
                                                   continue;
                                               }
@@ -364,9 +364,9 @@ void PCISPHSolver::computePressureAcceleration()
                                               continue;
                                           }
 
-                                          for(UInt32 q : cellParticles(cellId))
+                                          for(UInt q : cellParticles(cellId))
                                           {
-                                              if((UInt32)p == q)
+                                              if((UInt)p == q)
                                               {
                                                   continue;
                                               }
@@ -495,9 +495,9 @@ void PCISPHSolver::computeViscosity()
                                               continue;
                                           }
 
-                                          for(UInt32 q : cellParticles(cellId))
+                                          for(UInt q : cellParticles(cellId))
                                           {
-                                              if((UInt32)p == q)
+                                              if((UInt)p == q)
                                               {
                                                   continue;
                                               }

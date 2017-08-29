@@ -17,14 +17,14 @@
 
 #pragma once
 
-#include <Banana/TypeNames.h>
+#include <Banana/Setup.h>
 #include <ParticleSolvers/ParticleSolverData.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
+template<class Real>
 struct SimulationParameters_MPM
 {
     SimulationParameters_MPM() { makeReady(); }
@@ -37,29 +37,32 @@ struct SimulationParameters_MPM
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
+template<class Real>
 struct SimulationData_MPM
 {
-    Vec_Vec3<RealType>   positions;
-    Vec_Vec3<RealType>   velocities;
-    Vec_Mat3x3<RealType> velocityGrads;
-    Vec_Vec3<RealType>   accelerations;
-    Vec_Real<RealType>   particleMasses;
-    Vec_Real<RealType>   particleVolume;
+    __BNN_SETUP_DATA_TYPE(Real)
 
-    Vec_Vec4<RealType> basis_fn;           //Array containing the basis_fn value for  the particle for 4 nodes surrounding it
-    Vec_Vec4<RealType> basis_fn_grads_x;   //This contains the gradient values of the basis function present above with respect to "x"
-    Vec_Vec4<RealType> basis_fn_grads;     //This contains the gradient values of the basis functions present above with respect to "y"
+    ////////////////////////////////////////////////////////////////////////////////
+    Vec_Vec3r positions;
+    Vec_Vec3r   velocities;
+    Vec_Mat3x3r velocityGrads;
+    Vec_Vec3r   accelerations;
+    Vec_Real    particleMasses;
+    Vec_Real    particleVolume;
 
-    Vec_Mat3x3<RealType> particleStresses; //The stress of the material
-    Vec_Mat3x3<RealType> changeFp;         //Change in deformation gradient
-    Vec_Mat3x3<RealType> Fp;               // Deformation gradient
-    double               E;                //Young's modulus
-    Vec_Vec3<RealType>   bodyForces;
+    Vec_Vec4r basis_fn;           //Array containing the basis_fn value for  the particle for 4 nodes surrounding it
+    Vec_Vec4r basis_fn_grads_x;   //This contains the gradient values of the basis function present above with respect to "x"
+    Vec_Vec4r basis_fn_grads;     //This contains the gradient values of the basis functions present above with respect to "y"
+
+    Vec_Mat3x3r particleStresses; //The stress of the material
+    Vec_Mat3x3r changeFp;         //Change in deformation gradient
+    Vec_Mat3x3r Fp;               // Deformation gradient
+    double      E;                //Young's modulus
+    Vec_Vec3r   bodyForces;
 
     void makeReady()
     {
-        velocities.resize(positions.size(), Vec3<RealType>(0));
+        velocities.resize(positions.size(), Vec3<Real>(0));
     }
 };
 

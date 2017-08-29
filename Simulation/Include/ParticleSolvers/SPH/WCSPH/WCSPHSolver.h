@@ -25,19 +25,19 @@
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-class WCSPHSolver : public ParticleSolver3D<RealType>
+template<class Real>
+class WCSPHSolver : public ParticleSolver3D<Real>
 {
 public:
     WCSPHSolver() { setupLogger(); }
-    std::shared_ptr<SimulationParameters_WCSPH<RealType> > getSolverParams() { return m_SimParams; }
+    std::shared_ptr<SimulationParameters_WCSPH<Real> > getSolverParams() { return m_SimParams; }
 
     ////////////////////////////////////////////////////////////////////////////////
     virtual std::string getSolverName() override { return std::string("WCSPHSolver"); }
     virtual std::string getGreetingMessage() override { return std::string("Fluid Simulation using WCSPH Solver"); }
     virtual unsigned int        getNumParticles() override { return static_cast<unsigned int>(m_SimData->positions.size()); }
-    virtual Vec_Vec3<RealType>& getParticlePositions() override { return m_SimData->positions; }
-    virtual Vec_Vec3<RealType>& getParticleVelocities() override { return m_SimData->velocities; }
+    virtual Vec_Vec3r& getParticlePositions() override { return m_SimData->positions; }
+    virtual Vec_Vec3r& getParticleVelocities() override { return m_SimData->velocities; }
 
     virtual void makeReady() override;
     virtual void advanceFrame() override;
@@ -49,23 +49,23 @@ protected:
     virtual void saveMemoryState() override;
     virtual void saveParticleData() override;
 
-    RealType computeCFLTimestep();
-    void     advanceVelocity(RealType timeStep);
-    void     computeDensity();
-    void     correctDensity();
-    void     computePressureForces();
-    void     computeSurfaceTensionForces();
-    void     computeViscosity();
-    void     updateVelocity(RealType timeStep);
-    void     moveParticles(RealType timeStep);
+    Real computeCFLTimestep();
+    void advanceVelocity(Real timeStep);
+    void computeDensity();
+    void correctDensity();
+    void computePressureForces();
+    void computeSurfaceTensionForces();
+    void computeViscosity();
+    void updateVelocity(Real timeStep);
+    void moveParticles(Real timeStep);
 
     ////////////////////////////////////////////////////////////////////////////////
-    std::shared_ptr<SimulationParameters_WCSPH<RealType> > m_SimParams = std::make_shared<SimulationParameters_WCSPH<RealType> >();
-    std::unique_ptr<SimulationData_WCSPH<RealType> >       m_SimData   = std::make_unique<SimulationData_WCSPH<RealType> >();
+    std::shared_ptr<SimulationParameters_WCSPH<Real> > m_SimParams = std::make_shared<SimulationParameters_WCSPH<Real> >();
+    std::unique_ptr<SimulationData_WCSPH<Real> >       m_SimData   = std::make_unique<SimulationData_WCSPH<Real> >();
 
-    PrecomputedKernel<RealType, CubicKernel<RealType>, 10000> m_CubicKernel;
-    PrecomputedKernel<RealType, SpikyKernel<RealType>, 10000> m_SpikyKernel;
-    PrecomputedKernel<RealType, SpikyKernel<RealType>, 10000> m_NearSpikyKernel;
+    PrecomputedKernel<Real, CubicKernel<Real>, 10000> m_CubicKernel;
+    PrecomputedKernel<Real, SpikyKernel<Real>, 10000> m_SpikyKernel;
+    PrecomputedKernel<Real, SpikyKernel<Real>, 10000> m_NearSpikyKernel;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

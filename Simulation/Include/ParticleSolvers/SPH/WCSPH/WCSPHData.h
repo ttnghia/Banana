@@ -17,7 +17,7 @@
 
 #pragma once
 
-#include <Banana/TypeNames.h>
+#include <Banana/Setup.h>
 #include <ParticleSolvers/ParticleSolverData.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -29,47 +29,49 @@ namespace Banana
 #define DEFAULT_VISCOSITY            0.05
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
+template<class Real>
 struct SimulationParameters_WCSPH
 {
+    __BNN_SETUP_DATA_TYPE(Real)
     SimulationParameters_WCSPH() { makeReady(); }
 
-    RealType defaultTimestep = RealType(1.0e-4);
-    RealType CFLFactor       = RealType(0.5);
+    ////////////////////////////////////////////////////////////////////////////////
+    Real defaultTimestep = Real(1.0e-4);
+    Real CFLFactor       = Real(0.5);
 
-    Vec3<RealType> boxMin = Vec3<RealType>(-1.0);
-    Vec3<RealType> boxMax = Vec3<RealType>(1.0);
+    Vec3r boxMin = Vec3r(-1.0);
+    Vec3r boxMax = Vec3r(1.0);
 
-    RealType pressureStiffness  = RealType(DEFAULT_PRESSURE_STIFFNESS);
-    RealType nearForceStiffness = RealType(DEFAULT_NEAR_FORCE_STIFFNESS);
-    RealType viscosityFluid     = RealType(DEFAULT_VISCOSITY);
-    RealType viscosityBoundary  = RealType(DEFAULT_VISCOSITY * 0.001);
-    RealType particleRadius     = RealType(2.0 / 32.0 / 4.0);
+    Real pressureStiffness  = Real(DEFAULT_PRESSURE_STIFFNESS);
+    Real nearForceStiffness = Real(DEFAULT_NEAR_FORCE_STIFFNESS);
+    Real viscosityFluid     = Real(DEFAULT_VISCOSITY);
+    Real viscosityBoundary  = Real(DEFAULT_VISCOSITY * 0.001);
+    Real particleRadius     = Real(2.0 / 32.0 / 4.0);
 
-    RealType boundaryRestitution     = RealType(DEFAULT_BOUNDARY_RESTITUTION);
-    RealType attractivePressureRatio = RealType(0.1);
-    RealType restDensity             = RealType(1000.0);
-    RealType densityVariationRatio   = RealType(10.0);
+    Real boundaryRestitution     = Real(DEFAULT_BOUNDARY_RESTITUTION);
+    Real attractivePressureRatio = Real(0.1);
+    Real restDensity             = Real(1000.0);
+    Real densityVariationRatio   = Real(10.0);
 
     bool bCorrectDensity        = false;
     bool bUseBoundaryParticles  = false;
     bool bUseAttractivePressure = false;
 
     // the following need to be computed
-    RealType kernelRadius;
-    RealType particleMass;
-    RealType kernelRadiusSqr;
-    RealType nearKernelRadius;
-    RealType restDensitySqr;
+    Real kernelRadius;
+    Real particleMass;
+    Real kernelRadiusSqr;
+    Real nearKernelRadius;
+    Real restDensitySqr;
 
     ////////////////////////////////////////////////////////////////////////////////
     void makeReady()
     {
-        kernelRadius     = particleRadius * RealType(4.0);
+        kernelRadius     = particleRadius * Real(4.0);
         kernelRadiusSqr  = kernelRadius * kernelRadius;
-        nearKernelRadius = particleRadius * RealType(2.5);
+        nearKernelRadius = particleRadius * Real(2.5);
 
-        particleMass   = MathHelpers::cube(RealType(2.0) * particleRadius) * restDensity * RealType(0.9);
+        particleMass   = MathHelpers::cube(Real(2.0) * particleRadius) * restDensity * Real(0.9);
         restDensitySqr = restDensity * restDensity;
     }
 
@@ -94,28 +96,30 @@ struct SimulationParameters_WCSPH
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
+template<class Real>
 struct SimulationData_WCSPH
 {
-    Vec_Vec3<RealType> positions;
-    Vec_Vec3<RealType> velocities;
-    Vec_Real<RealType> densities;
-    Vec_Real<RealType> densities_tmp;
-    Vec_Vec3<RealType> pressureForces;
-    Vec_Vec3<RealType> surfaceTensionForces;
-    Vec_Vec3<RealType> diffuseVelocity;
+    __BNN_SETUP_DATA_TYPE(Real)
+
+    Vec_Vec3r positions;
+    Vec_Vec3r velocities;
+    Vec_Real  densities;
+    Vec_Real  densities_tmp;
+    Vec_Vec3r pressureForces;
+    Vec_Vec3r surfaceTensionForces;
+    Vec_Vec3r diffuseVelocity;
 
     ////////////////////////////////////////////////////////////////////////////////
-    UInt32 getNumParticles() { return static_cast<UInt32>(positions.size()); }
+    UInt getNumParticles() { return static_cast<UInt>(positions.size()); }
 
     void makeReady()
     {
-        velocities.resize(positions.size(), Vec3<RealType>(0));
+        velocities.resize(positions.size(), Vec3r(0));
         densities.resize(positions.size(), 0);
         densities_tmp.resize(positions.size(), 0);
-        pressureForces.resize(positions.size(), Vec3<RealType>(0));
-        surfaceTensionForces.resize(positions.size(), Vec3<RealType>(0));
-        diffuseVelocity.resize(positions.size(), Vec3<RealType>(0));
+        pressureForces.resize(positions.size(), Vec3r(0));
+        surfaceTensionForces.resize(positions.size(), Vec3r(0));
+        diffuseVelocity.resize(positions.size(), Vec3r(0));
     }
 };
 

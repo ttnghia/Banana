@@ -23,49 +23,49 @@
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
+template<class Real>
 struct BoundaryObjectData
 {
-    std::string      cacheFile;
-    std::string      meshFile;
-    Vec3<RealType>   translation;
-    Mat3x3<RealType> rotation;
-    Vec3<RealType>   scale;
-    RealType         density;
-    bool             dynamic;
-    bool             isWall;
-    Vec3<RealType>   color;
+    std::string  cacheFile;
+    std::string  meshFile;
+    Vec3r        translation;
+    Mat3x3<Real> rotation;
+    Vec3r        scale;
+    Real         density;
+    bool         dynamic;
+    bool         isWall;
+    Vec3r        color;
 
-    Array3<RealType> SDF;
+    Array3<Real> SDF;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
+template<class Real>
 struct ParticleObjectData
 {
-    std::string      cacheFile;
-    std::string      meshFile;
-    Vec3<RealType>   translation;
-    Mat3x3<RealType> rotation;
-    RealType         scale;
+    std::string  cacheFile;
+    std::string  meshFile;
+    Vec3r        translation;
+    Mat3x3<Real> rotation;
+    Real         scale;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
+template<class Real>
 struct SceneObjectParameters
 {
     void;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
+template<class Real>
 class SceneLoader
 {
 public:
     SceneLoader(const std::string& sceneFile)
     {}
 
-    void loadFrameParams(const nlohmann::json& jParams, const std::shared_ptr<GlobalParameters<RealType> >& frameParams);
+    void loadFrameParams(const nlohmann::json& jParams, const std::shared_ptr<GlobalParameters<Real> >& frameParams);
     void loadObjectParams(const nlohmann::json& jParams);
 
 private:

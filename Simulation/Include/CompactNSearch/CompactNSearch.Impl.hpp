@@ -23,9 +23,9 @@ inline uint_fast64_t z_value(HashKey const& key)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-NeighborhoodSearch<RealType>::NeighborhoodSearch(RealType r, bool erase_empty_cells) :
-    m_r2(r * r), m_inv_cell_size(static_cast<RealType>(1.0 / r)), m_erase_empty_cells(erase_empty_cells), m_initialized(false)
+template<class Real>
+NeighborhoodSearch<Real>::NeighborhoodSearch(Real r, bool erase_empty_cells) :
+    m_r2(r * r), m_inv_cell_size(static_cast<Real>(1.0 / r)), m_erase_empty_cells(erase_empty_cells), m_initialized(false)
 {
     if(r <= 0.0)
     {
@@ -36,8 +36,8 @@ NeighborhoodSearch<RealType>::NeighborhoodSearch(RealType r, bool erase_empty_ce
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Computes triple index to a world space position x.
-template<class RealType>
-HashKey NeighborhoodSearch<RealType>::cell_index(RealType const* x) const
+template<class Real>
+HashKey NeighborhoodSearch<Real>::cell_index(Real const* x) const
 {
     HashKey ret;
     for(unsigned int i = 0; i < 3; ++i)
@@ -52,10 +52,10 @@ HashKey NeighborhoodSearch<RealType>::cell_index(RealType const* x) const
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Determines permutation table for point array.
-template<class RealType>
-void NeighborhoodSearch<RealType>::z_sort()
+template<class Real>
+void NeighborhoodSearch<Real>::z_sort()
 {
-    for(PointSet<RealType>& d : m_point_sets)
+    for(PointSet<Real>& d : m_point_sets)
     {
         d.m_sort_table.resize(d.n_points());
         std::iota(d.m_sort_table.begin(), d.m_sort_table.end(), 0);
@@ -72,8 +72,8 @@ void NeighborhoodSearch<RealType>::z_sort()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Build hash table and entry array from scratch.
-template<class RealType>
-void NeighborhoodSearch<RealType>::init()
+template<class Real>
+void NeighborhoodSearch<Real>::init()
 {
     m_entries.clear();
     m_map.clear();
@@ -82,7 +82,7 @@ void NeighborhoodSearch<RealType>::init()
     std::vector<HashKey> temp_keys;
     for(unsigned int j = 0; j < m_point_sets.size(); ++j)
     {
-        PointSet<RealType>& d = m_point_sets[j];
+        PointSet<Real>& d = m_point_sets[j];
         d.m_locks.resize(m_point_sets.size());
         for(auto& l : d.m_locks)
             l.resize(d.n_points());
@@ -120,11 +120,11 @@ void NeighborhoodSearch<RealType>::init()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-void NeighborhoodSearch<RealType>::resize_point_set(unsigned int index, RealType const* x, std::size_t size)
+template<class Real>
+void NeighborhoodSearch<Real>::resize_point_set(unsigned int index, Real const* x, std::size_t size)
 {
-    PointSet<RealType>& point_set = m_point_sets[index];
-    std::size_t         old_size  = point_set.n_points();
+    PointSet<Real>& point_set = m_point_sets[index];
+    std::size_t     old_size  = point_set.n_points();
 
     if(!m_initialized)
     {
@@ -192,8 +192,8 @@ void NeighborhoodSearch<RealType>::resize_point_set(unsigned int index, RealType
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-void NeighborhoodSearch<RealType>::update_activation_table()
+template<class Real>
+void NeighborhoodSearch<Real>::update_activation_table()
 {
     if(m_activation_table != m_old_activation_table)
     {
@@ -212,8 +212,8 @@ void NeighborhoodSearch<RealType>::update_activation_table()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-void NeighborhoodSearch<RealType>::find_neighbors(bool points_changed_)
+template<class Real>
+void NeighborhoodSearch<Real>::find_neighbors(bool points_changed_)
 {
     if(points_changed_)
     {
@@ -224,8 +224,8 @@ void NeighborhoodSearch<RealType>::find_neighbors(bool points_changed_)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-void NeighborhoodSearch<RealType>::update_point_sets()
+template<class Real>
+void NeighborhoodSearch<Real>::update_point_sets()
 {
     if(!m_initialized)
     {
@@ -234,7 +234,7 @@ void NeighborhoodSearch<RealType>::update_point_sets()
     }
 
     // Precompute cell indices.
-    for(PointSet<RealType>& d : m_point_sets)
+    for(PointSet<Real>& d : m_point_sets)
     {
         if(!d.is_dynamic())
             continue;
@@ -261,15 +261,15 @@ void NeighborhoodSearch<RealType>::update_point_sets()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-void NeighborhoodSearch<RealType>::find_neighbors(unsigned int point_set_id, unsigned int point_index, std::vector<std::vector<unsigned int> >& neighbors)
+template<class Real>
+void NeighborhoodSearch<Real>::find_neighbors(unsigned int point_set_id, unsigned int point_index, std::vector<std::vector<unsigned int> >& neighbors)
 {
     query(point_set_id, point_index, neighbors);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-void NeighborhoodSearch<RealType>::erase_empty_entries(std::vector<unsigned int> const& to_delete)
+template<class Real>
+void NeighborhoodSearch<Real>::erase_empty_entries(std::vector<unsigned int> const& to_delete)
 {
     if(to_delete.empty())
         return;
@@ -316,13 +316,13 @@ void NeighborhoodSearch<RealType>::erase_empty_entries(std::vector<unsigned int>
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-void NeighborhoodSearch<RealType>::update_hash_table(std::vector<unsigned int>& to_delete)
+template<class Real>
+void NeighborhoodSearch<Real>::update_hash_table(std::vector<unsigned int>& to_delete)
 {
     // Indicate points changing inheriting cell.
     for(unsigned int j = 0; j < m_point_sets.size(); ++j)
     {
-        PointSet<RealType>& d = m_point_sets[j];
+        PointSet<Real>& d = m_point_sets[j];
         for(unsigned int i = 0; i < d.n_points(); ++i)
         {
             if(d.m_keys[i] == d.m_old_keys[i])
@@ -364,12 +364,12 @@ void NeighborhoodSearch<RealType>::update_hash_table(std::vector<unsigned int>& 
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-void NeighborhoodSearch<RealType>::query()
+template<class Real>
+void NeighborhoodSearch<Real>::query()
 {
     for(unsigned int i = 0; i < m_point_sets.size(); i++)
     {
-        PointSet<RealType>& d = m_point_sets[i];
+        PointSet<Real>& d = m_point_sets[i];
         d.m_neighbors.resize(m_point_sets.size());
         for(unsigned int j = 0; j < d.m_neighbors.size(); j++)
         {
@@ -404,11 +404,11 @@ void NeighborhoodSearch<RealType>::query()
                                             for(unsigned int a = 0; a < entry.n_indices(); ++a)
                                             {
                                                 PointID const& va = entry.indices[a];
-                                                PointSet<RealType>& da = m_point_sets[va.point_set_id];
+                                                PointSet<Real>& da = m_point_sets[va.point_set_id];
                                                 for(unsigned int b = a + 1; b < entry.n_indices(); ++b)
                                                 {
                                                     PointID const& vb = entry.indices[b];
-                                                    PointSet<RealType>& db = m_point_sets[vb.point_set_id];
+                                                    PointSet<Real>& db = m_point_sets[vb.point_set_id];
 
                                                     if(!m_activation_table.is_active(va.point_set_id, vb.point_set_id) &&
                                                        !m_activation_table.is_active(vb.point_set_id, va.point_set_id))
@@ -416,10 +416,10 @@ void NeighborhoodSearch<RealType>::query()
                                                         continue;
                                                     }
 
-                                                    RealType const* xa = da.point(va.point_id);
-                                                    RealType const* xb = db.point(vb.point_id);
-                                                    RealType tmp = xa[0] - xb[0];
-                                                    RealType l2 = tmp * tmp;
+                                                    Real const* xa = da.point(va.point_id);
+                                                    Real const* xb = db.point(vb.point_id);
+                                                    Real tmp = xa[0] - xb[0];
+                                                    Real l2 = tmp * tmp;
                                                     tmp = xa[1] - xb[1];
                                                     l2 += tmp * tmp;
                                                     tmp = xa[2] - xb[2];
@@ -505,9 +505,9 @@ void NeighborhoodSearch<RealType>::query()
                                                             for(unsigned int j = 0; j < n_ind; ++j)
                                                             {
                                                                 PointID const& vb = entry_.indices[j];
-                                                                PointSet<RealType>& db = m_point_sets[vb.point_set_id];
+                                                                PointSet<Real>& db = m_point_sets[vb.point_set_id];
 
-                                                                PointSet<RealType>& da = m_point_sets[va.point_set_id];
+                                                                PointSet<Real>& da = m_point_sets[va.point_set_id];
 
                                                                 if(!m_activation_table.is_active(va.point_set_id, vb.point_set_id) &&
                                                                    !m_activation_table.is_active(vb.point_set_id, va.point_set_id))
@@ -515,10 +515,10 @@ void NeighborhoodSearch<RealType>::query()
                                                                     continue;
                                                                 }
 
-                                                                RealType const* xa = da.point(va.point_id);
-                                                                RealType const* xb = db.point(vb.point_id);
-                                                                RealType tmp = xa[0] - xb[0];
-                                                                RealType l2 = tmp * tmp;
+                                                                Real const* xa = da.point(va.point_id);
+                                                                Real const* xb = db.point(vb.point_id);
+                                                                Real tmp = xa[0] - xb[0];
+                                                                Real l2 = tmp * tmp;
                                                                 tmp = xa[1] - xb[1];
                                                                 l2 += tmp * tmp;
                                                                 tmp = xa[2] - xb[2];
@@ -545,11 +545,11 @@ void NeighborhoodSearch<RealType>::query()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-void NeighborhoodSearch<RealType>::query(unsigned int point_set_id, unsigned int point_index, std::vector<std::vector<unsigned int> >& neighbors)
+template<class Real>
+void NeighborhoodSearch<Real>::query(unsigned int point_set_id, unsigned int point_index, std::vector<std::vector<unsigned int> >& neighbors)
 {
     neighbors.resize(m_point_sets.size());
-    PointSet<RealType>& d = m_point_sets[point_set_id];
+    PointSet<Real>& d = m_point_sets[point_set_id];
     for(unsigned int j = 0; j < m_point_sets.size(); j++)
     {
         auto& n = neighbors[j];
@@ -558,8 +558,8 @@ void NeighborhoodSearch<RealType>::query(unsigned int point_set_id, unsigned int
             n.reserve(INITIAL_NUMBER_OF_NEIGHBORS);
     }
 
-    RealType const* xa       = d.point(point_index);
-    HashKey         hash_key = cell_index(xa);
+    Real const* xa       = d.point(point_index);
+    HashKey     hash_key = cell_index(xa);
 
     auto                                    it    = m_map.find(hash_key);
     std::pair<HashKey const, unsigned int>& kvp   = *it;
@@ -576,10 +576,10 @@ void NeighborhoodSearch<RealType>::query(unsigned int point_set_id, unsigned int
                 continue;
             }
 
-            PointSet<RealType>& db  = m_point_sets[vb.point_set_id];
-            RealType const*     xb  = db.point(vb.point_id);
-            RealType            tmp = xa[0] - xb[0];
-            RealType            l2  = tmp * tmp;
+            PointSet<Real>& db  = m_point_sets[vb.point_set_id];
+            Real const*     xb  = db.point(vb.point_id);
+            Real            tmp = xa[0] - xb[0];
+            Real            l2  = tmp * tmp;
             tmp = xa[1] - xb[1];
             l2 += tmp * tmp;
             tmp = xa[2] - xb[2];
@@ -621,11 +621,11 @@ void NeighborhoodSearch<RealType>::query(unsigned int point_set_id, unsigned int
                     {
                         continue;
                     }
-                    PointSet<RealType>& db = m_point_sets[vb.point_set_id];
+                    PointSet<Real>& db = m_point_sets[vb.point_set_id];
 
-                    RealType const* xb  = db.point(vb.point_id);
-                    RealType        tmp = xa[0] - xb[0];
-                    RealType        l2  = tmp * tmp;
+                    Real const* xb  = db.point(vb.point_id);
+                    Real        tmp = xa[0] - xb[0];
+                    Real        l2  = tmp * tmp;
                     tmp = xa[1] - xb[1];
                     l2 += tmp * tmp;
                     tmp = xa[2] - xb[2];

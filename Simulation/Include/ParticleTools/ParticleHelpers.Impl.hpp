@@ -14,38 +14,38 @@
 //
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-Vec2i Banana::ParticleHelpers::createGrid<RealType>(const Vec2<RealType>& bmin, const Vec2<RealType>& bmax, RealType spacing)
+template<class Real>
+Vec2i Banana::ParticleHelpers::createGrid<Real>(const Vec2<Real>& bmin, const Vec2<Real>& bmax, Real spacing)
 {
-    Vec2<RealType> fgrid = (bmax - bmin) / spacing;
+    Vec2<Real> fgrid = (bmax - bmin) / spacing;
     return Vec2i(static_cast<int>(round(fgrid[0])), static_cast<int>(round(fgrid[1])));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-Vec3i Banana::ParticleHelpers::createGrid<RealType>(const Vec3<RealType>& bmin, const Vec3<RealType>& bmax, RealType spacing)
+template<class Real>
+Vec3i Banana::ParticleHelpers::createGrid<Real>(const Vec3<Real>& bmin, const Vec3<Real>& bmax, Real spacing)
 {
-    Vec3<RealType> fgrid = (bmax - bmin) / spacing;
+    Vec3<Real> fgrid = (bmax - bmin) / spacing;
     return Vec3i(static_cast<int>(round(fgrid[0])), static_cast<int>(round(fgrid[1])), static_cast<int>(round(fgrid[2])));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-void Banana::ParticleHelpers::transform<RealType>(Vec_Vec3<RealType>& particles, const Vec3<RealType>& translation, const Vec3<RealType>& rotation)
+template<class Real>
+void Banana::ParticleHelpers::transform<Real>(Vec_Vec3<Real>& particles, const Vec3<Real>& translation, const Vec3<Real>& rotation)
 {
-    RealType azimuth = rotation[0];
-    RealType elevation = rotation[1];
-    RealType roll = rotation[2];
-    RealType sinA, cosA, sinE, cosE, sinR, cosR;
+    Real azimuth = rotation[0];
+    Real elevation = rotation[1];
+    Real roll = rotation[2];
+    Real sinA, cosA, sinE, cosE, sinR, cosR;
 
-    Vec3<RealType> R[3];
+    Vec3<Real> R[3];
 
-    sinA = (RealType)sin(azimuth);
-    cosA = (RealType)cos(azimuth);
-    sinE = (RealType)sin(elevation);
-    cosE = (RealType)cos(elevation);
-    sinR = (RealType)sin(roll);
-    cosR = (RealType)cos(roll);
+    sinA = (Real)sin(azimuth);
+    cosA = (Real)cos(azimuth);
+    sinE = (Real)sin(elevation);
+    cosE = (Real)cos(elevation);
+    sinR = (Real)sin(roll);
+    cosR = (Real)cos(roll);
 
     R[0][0] = cosR * cosA - sinR * sinA * sinE;
     R[0][1] = sinR * cosA + cosR * sinA * sinE;
@@ -61,100 +61,100 @@ void Banana::ParticleHelpers::transform<RealType>(Vec_Vec3<RealType>& particles,
 
     for(size_t i = 0, iend = particles.size(); i != iend; ++i)
     {
-        RealType tmp[3];
+        Real tmp[3];
 
         for(int j = 0; j < 3; ++j)
             tmp[j] = glm::dot(R[j], particles[i]);
 
-        particles[i] = Vec3<RealType>(tmp[0] + translation[0],
-                                      tmp[1] + translation[1],
-                                      tmp[2] + translation[2]);
+        particles[i] = Vec3<Real>(tmp[0] + translation[0],
+                                  tmp[1] + translation[1],
+                                  tmp[2] + translation[2]);
     }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-UInt32 Banana::ParticleHelpers::loadBinary<RealType>(const std::string& fileName, Vec_Vec2<RealType>& particles, RealType& particleRadius)
+template<class Real>
+UInt Banana::ParticleHelpers::loadBinary<Real>(const std::string& fileName, Vec_Vec2<Real>& particles, Real& particleRadius)
 {
     DataBuffer buffer;
     __BNN_ASSERT_MSG(FileHelpers::readFile(buffer.buffer(), fileName), "Could not open file for reading.");
 
-    UInt32 numParticles;
+    UInt numParticles;
     UInt64 segmentStart = 0;
     UInt64 segmentSize;
 
-    segmentSize = sizeof(UInt32);
+    segmentSize = sizeof(UInt);
     memcpy(&numParticles, &buffer.data()[segmentStart], segmentSize);
     segmentStart += segmentSize;
 
-    segmentSize = sizeof(RealType);
+    segmentSize = sizeof(Real);
     memcpy(&particleRadius, &buffer.data()[segmentStart], segmentSize);
     segmentStart += segmentSize;
 
-    RealType* particleData = reinterpret_cast<RealType*>(&buffer.data()[segmentStart]);
+    Real* particleData = reinterpret_cast<Real*>(&buffer.data()[segmentStart]);
     __BNN_ASSERT(particleData != nullptr);
-    segmentSize   = numParticles * sizeof(RealType) * 2;
+    segmentSize   = numParticles * sizeof(Real) * 2;
     segmentStart += segmentSize;
     __BNN_ASSERT(segmentStart == buffer.size());
 
     ////////////////////////////////////////////////////////////////////////////////
     particles.reserve(particles.size() + static_cast<size_t>(numParticles));
 
-    for(UInt32 i = 0; i < numParticles; ++i)
+    for(UInt i = 0; i < numParticles; ++i)
     {
-        particles.emplace_back(Vec2<RealType>(particleData[i * 2],
-                                              particleData[i * 2 + 1]));
+        particles.emplace_back(Vec2<Real>(particleData[i * 2],
+                                          particleData[i * 2 + 1]));
     }
 
     return numParticles;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-UInt32 Banana::ParticleHelpers::loadBinary<RealType>(const std::string& fileName, Vec_Vec3<RealType>& particles, RealType& particleRadius)
+template<class Real>
+UInt Banana::ParticleHelpers::loadBinary<Real>(const std::string& fileName, Vec_Vec3<Real>& particles, Real& particleRadius)
 {
     DataBuffer buffer;
     __BNN_ASSERT_MSG(FileHelpers::readFile(buffer.buffer(), fileName), "Could not open file for reading.");
 
-    UInt32 numParticles;
+    UInt numParticles;
     UInt64 segmentStart = 0;
     UInt64 segmentSize;
 
-    segmentSize = sizeof(UInt32);
+    segmentSize = sizeof(UInt);
     memcpy(&numParticles, &buffer.data()[segmentStart], segmentSize);
     segmentStart += segmentSize;
 
-    segmentSize = sizeof(RealType);
+    segmentSize = sizeof(Real);
     memcpy(&particleRadius, &buffer.data()[segmentStart], segmentSize);
     segmentStart += segmentSize;
 
-    RealType* particleData = reinterpret_cast<RealType*>(&buffer.data()[segmentStart]);
+    Real* particleData = reinterpret_cast<Real*>(&buffer.data()[segmentStart]);
     __BNN_ASSERT(particleData != nullptr);
-    segmentSize   = numParticles * sizeof(RealType) * 3;
+    segmentSize   = numParticles * sizeof(Real) * 3;
     segmentStart += segmentSize;
     __BNN_ASSERT(segmentStart == buffer.size());
 
     ////////////////////////////////////////////////////////////////////////////////
     particles.reserve(particles.size() + static_cast<size_t>(numParticles));
 
-    for(UInt32 i = 0; i < numParticles; ++i)
+    for(UInt i = 0; i < numParticles; ++i)
     {
-        particles.emplace_back(Vec3<RealType>(particleData[i * 3],
-                                              particleData[i * 3 + 1],
-                                              particleData[i * 3 + 2]));
+        particles.emplace_back(Vec3<Real>(particleData[i * 3],
+                                          particleData[i * 3 + 1],
+                                          particleData[i * 3 + 2]));
     }
 
     return numParticles;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType, class VectorType>
-void ParticleHelpers::saveBinary<RealType, VectorType>(const std::string& fileName, std::vector<VectorType>& particles, RealType& particleRadius)
+template<class Real, class VectorType>
+void ParticleHelpers::saveBinary<Real, VectorType>(const std::string& fileName, std::vector<VectorType>& particles, Real& particleRadius)
 {
-    static_assert(sizeof(RealType) * 2 == sizeof(VectorType) || sizeof(RealType) * 3 == sizeof(VectorType), "Inconsistent type of particle radius and vector data!");
+    static_assert(sizeof(Real) * 2 == sizeof(VectorType) || sizeof(Real) * 3 == sizeof(VectorType), "Inconsistent type of particle radius and vector data!");
 
     DataBuffer buffer;
-    UInt32     numParticles = static_cast<UInt32>(particles.size());
+    UInt     numParticles = static_cast<UInt>(particles.size());
 
     buffer.push_back(numParticles);
     buffer.push_back(particleRadius);
@@ -164,17 +164,17 @@ void ParticleHelpers::saveBinary<RealType, VectorType>(const std::string& fileNa
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-void Banana::ParticleHelpers::jitter<RealType>(Vec3<RealType>& ppos, RealType maxJitter)
+template<class Real>
+void Banana::ParticleHelpers::jitter<Real>(Vec3<Real>& ppos, Real maxJitter)
 {
-    ppos += maxJitter * Vec3<RealType>(MathHelpers::frand11<RealType>(),
-                                       MathHelpers::frand11<RealType>(),
-                                       MathHelpers::frand11<RealType>())
+    ppos += maxJitter * Vec3<Real>(MathHelpers::frand11<Real>(),
+                                   MathHelpers::frand11<Real>(),
+                                   MathHelpers::frand11<Real>())
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-void Banana::ParticleHelpers::clamp<RealType>(Vec3<RealType>& ppos, const Vec3<RealType>& bmin, const Vec3<RealType>& bmax, RealType margin /*= 0*/)
+template<class Real>
+void Banana::ParticleHelpers::clamp<Real>(Vec3<Real>& ppos, const Vec3<Real>& bmin, const Vec3<Real>& bmax, Real margin /*= 0*/)
 {
     for(int i = 0; i < 3; ++i)
     {
@@ -186,8 +186,8 @@ void Banana::ParticleHelpers::clamp<RealType>(Vec3<RealType>& ppos, const Vec3<R
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-void Banana::ParticleHelpers::relaxPosition<RealType>(const Vec_Vec3<RealType>& particles, RelaxationMethod method)
+template<class Real>
+void Banana::ParticleHelpers::relaxPosition<Real>(const Vec_Vec3<Real>& particles, RelaxationMethod method)
 {
     if(method == LloydRelaxationMethod)
     {

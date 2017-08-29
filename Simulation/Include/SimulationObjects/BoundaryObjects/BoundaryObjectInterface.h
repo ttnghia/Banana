@@ -17,7 +17,7 @@
 
 #pragma once
 
-#include <Banana/TypeNames.h>
+#include <Banana/Setup.h>
 #include <Banana/Utils/MathHelpers.h>
 
 #include <cassert>
@@ -26,27 +26,29 @@
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
+template<class Real>
 class BoundaryObject
 {
+protected:
+    __BNN_SETUP_DATA_TYPE(Real)
 public:
     BoundaryObject() {}
-    BoundaryObject(RealType margin) : m_Margin(margin) {}
-    BoundaryObject(RealType margin, RealType restitution) : m_Margin(margin), m_RestitutionCoeff(restitution) {}
+    BoundaryObject(Real margin) : m_Margin(margin) {}
+    BoundaryObject(Real margin, Real restitution) : m_Margin(margin), m_RestitutionCoeff(restitution) {}
 
     template<class IndexType>
-    const Vec3<RealType>& getBDParticle(IndexType idx) const { assert(static_cast<size_t>(idx) < m_BDParticles.size()); return m_BDParticles[idx]; }
+    const Vec3r& getBDParticle(IndexType idx) const { assert(static_cast<size_t>(idx) < m_BDParticles.size()); return m_BDParticles[idx]; }
 
-    Vec_Vec3<RealType>& getBDParticles() { return m_BDParticles; }
-    unsigned int getNumBDParticles() const noexcept { return static_cast<unsigned int>(m_BDParticles.size()); }
+    Vec_Vec3r& getBDParticles() { return m_BDParticles; }
+    UInt getNumBDParticles() const noexcept { return static_cast<unsigned int>(m_BDParticles.size()); }
 
-    virtual void generateBoundaryParticles(RealType spacing, int numBDLayers = 2) = 0;
-    virtual bool constrainToBoundary(Vec3<RealType>& ppos, Vec3<RealType>& pvel)  = 0;
+    virtual void generateBoundaryParticles(Real spacing, int numBDLayers = 2) = 0;
+    virtual bool constrainToBoundary(Vec3r& ppos, Vec3r& pvel)                = 0;
 
 protected:
-    Vec_Vec3<RealType> m_BDParticles;
-    RealType           m_Margin           = RealType(0.0);
-    RealType           m_RestitutionCoeff = RealType(0.1);
+    Vec_Vec3r m_BDParticles;
+    Real      m_Margin           = Real(0.0);
+    Real      m_RestitutionCoeff = Real(0.1);
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

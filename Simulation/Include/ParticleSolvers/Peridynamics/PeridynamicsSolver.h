@@ -24,7 +24,7 @@
 
 
 #include <Noodle/Core/Global/Constants.h>
-#include <Noodle/Core/Global/TypeNames.h>
+#include <Noodle/Core/Global/Setup.h>
 #include <Noodle/Core/Monitor/Monitor.h>
 #include <Noodle/Core/Solvers/ParticleSolver.h>
 #include <Noodle/Core/LinearAlgebra/LinearSolvers/BlockPCGSolver.h>
@@ -72,7 +72,7 @@ public:
         return true;
     }
 
-    virtual bool are_colliding(UInt32 p, UInt32 q) override;
+    virtual bool are_colliding(UInt p, UInt q) override;
 
     // IO functions
     virtual void save_frame(int frame) override;
@@ -98,7 +98,7 @@ protected:
     virtual void compute_cfl_timestep() override;
 
     void   build_linear_system(Real dt, const MergingSplittingData* merlit_data);
-    void   compute_particle_forces(Mat3x3& sumLHS, Vec3& sumRHS, Vec3& pforce, const MergingSplittingData* merlit_data, UInt32 p, bool merged, Real dt);
+    void   compute_particle_forces(Mat3x3& sumLHS, Vec3& sumRHS, Vec3& pforce, const MergingSplittingData* merlit_data, UInt p, bool merged, Real dt);
     void   compute_explicit_forces(const MergingSplittingData*);
     void   compute_force_derivative(const Vec3& eij, Real dij, Real d0, Mat3x3& springDx, Mat3x3& dampingDx);
     void   solve_system();
@@ -107,7 +107,7 @@ protected:
     bool   remove_broken_bonds();
     void   compute_remaining_bond_ratio();
     void   find_connected_components();
-    UInt32 spawn_component(UInt32 p, int depth, Int8 component);
+    UInt spawn_component(UInt p, int depth, Int8 component);
 
     ////////////////////////////////////////////////////////////////////////////////
 

@@ -14,12 +14,13 @@
 //
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class T>
-void KdTree<T>::buildTree(const std::shared_ptr<KDNode<T> >& treeNode)
+
+#if 0
+void KdTree::buildTree(const std::shared_ptr<KDNode>& treeNode)
 {
     if(treeNode->isLeaf)
     {
-        unsigned int nodeCount = treeNode->count;
+        UInt nodeCount = treeNode->count;
 
         // this is the only way out
         if(nodeCount <= m_MaxItermsPerNode)
@@ -27,17 +28,17 @@ void KdTree<T>::buildTree(const std::shared_ptr<KDNode<T> >& treeNode)
             return;
         }
 
-        Vec3<T> upCorner, dnCorner;
+        Vec3r upCorner, dnCorner;
 
-        unsigned int longestAxis = 0;
-        T            maxLength   = -1e20;
+        UInt longestAxis = 0;
+        Real maxLength   = -1e20;
 
-        for(unsigned int j = 0; j < 3; ++j)
+        for(UInt j = 0; j < 3; ++j)
         {
             upCorner[j] = treeNode->boxMax[j];
             dnCorner[j] = treeNode->boxMin[j];
 
-            T length = upCorner[j] - dnCorner[j];
+            Real length = upCorner[j] - dnCorner[j];
             if(length > maxLength)
             {
                 longestAxis = j;
@@ -45,18 +46,18 @@ void KdTree<T>::buildTree(const std::shared_ptr<KDNode<T> >& treeNode)
             }
         }
 
-        T median = getMedian(treeNode->points, nodeCount, longestAxis);
+        Real median = getMedian(treeNode->points, nodeCount, longestAxis);
         treeNode->split  = median;
         treeNode->axis   = longestAxis;
         treeNode->isLeaf = false;
 
-        unsigned int leftArrayCount = nodeCount / 2;
-        Point<T>*    leftArray      = treeNode->points;
-        Point<T>*    rightArray     = &(treeNode->points[leftArrayCount]);
+        UInt   leftArrayCount = nodeCount / 2;
+        Point* leftArray      = treeNode->points;
+        Point* rightArray     = &(treeNode->points[leftArrayCount]);
 
         upCorner[longestAxis] = dnCorner[longestAxis] = median;
-        treeNode->leftNode    = std::make_shared<KDNode<T> >(leftArray, leftArrayCount, treeNode->boxMin, upCorner);
-        treeNode->rightNode   = std::make_shared<KDNode<T> >(rightArray, nodeCount - leftArrayCount, dnCorner, treeNode->boxMax);
+        treeNode->leftNode    = std::make_shared<KDNode>(leftArray, leftArrayCount, treeNode->boxMin, upCorner);
+        treeNode->rightNode   = std::make_shared<KDNode>(rightArray, nodeCount - leftArrayCount, dnCorner, treeNode->boxMax);
     }
 
     buildTree(treeNode->leftNode);
@@ -64,8 +65,7 @@ void KdTree<T>::buildTree(const std::shared_ptr<KDNode<T> >& treeNode)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class T>
-void KdTree<T>::printTree(const std::shared_ptr<KDNode<T> >& treeNode)
+void KdTree::printTree(const std::shared_ptr<KDNode>& treeNode)
 {
     if(treeNode->isLeaf && treeNode->count >= 1)
     {
@@ -74,7 +74,7 @@ void KdTree<T>::printTree(const std::shared_ptr<KDNode<T> >& treeNode)
 
         printf("Found leaf node with count = %u, bMin=[%f,%f,%f], bMax=[%f,%f,%f]\n     ", treeNode->count, boxMin[0], boxMin[1], boxMin[2], boxMax[0], boxMax[1], boxMax[2]);
 
-        for(unsigned int i = 0; i < treeNode->count; ++i)
+        for(UInt i = 0; i < treeNode->count; ++i)
         {
             auto p = treeNode->points[i].position;
 
@@ -87,7 +87,7 @@ void KdTree<T>::printTree(const std::shared_ptr<KDNode<T> >& treeNode)
         }
 
 
-        for(unsigned int i = 0; i < treeNode->count - 1; ++i)
+        for(UInt i = 0; i < treeNode->count - 1; ++i)
         {
             printf("%u, ", treeNode->points[i].index);
         }
@@ -107,8 +107,7 @@ void KdTree<T>::printTree(const std::shared_ptr<KDNode<T> >& treeNode)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class T>
-void KdTree<T>::getNeighborList(const Point<T>& target, const std::shared_ptr<KDNode<T> >& treeNode, T radius, Vec_UInt& result)
+void KdTree::getNeighborList(const Point& target, const std::shared_ptr<KDNode>& treeNode, Real radius, Vec_UInt& result)
 {
     result.resize(0);
     findNeighbors(target, treeNode, radius, result);
@@ -116,8 +115,7 @@ void KdTree<T>::getNeighborList(const Point<T>& target, const std::shared_ptr<KD
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class T>
-void KdTree<T>::findNeighbors(const Point<T>& target, const std::shared_ptr<KDNode<T> >& treeNode, T radius, Vec_UInt& result)
+void KdTree::findNeighbors(const Point& target, const std::shared_ptr<KDNode>& treeNode, Real radius, Vec_UInt& result)
 {
     if(fmax(SignDistanceField::distanceToBox(target.position, treeNode->boxMin, treeNode->boxMax), 0) > radius)
     {
@@ -126,9 +124,9 @@ void KdTree<T>::findNeighbors(const Point<T>& target, const std::shared_ptr<KDNo
 
     if(treeNode->isLeaf)
     {
-        T r2 = radius * radius;
+        Real r2 = radius * radius;
 
-        for(unsigned int i = 0; i < treeNode->count; ++i)
+        for(UInt i = 0; i < treeNode->count; ++i)
         {
             if((target.index != treeNode->points[i].index) &&
                (glm::length2(target.position - treeNode->points[i].position) < r2))
@@ -145,12 +143,14 @@ void KdTree<T>::findNeighbors(const Point<T>& target, const std::shared_ptr<KDNo
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class T>
-T KdTree<T>::getMedian(Point<T>* points, unsigned int size, unsigned int axis)
-{
-    unsigned int k = (size & 1) ?  size / 2 : size / 2 - 1;
 
-    tbb::parallel_sort(points, points + size, [axis](const Point<T>& a, const Point<T>& b) { return a.position[axis] < b.position[axis]; });
+Real KdTree::getMedian(Point* points, UInt size, UInt axis)
+{
+    UInt k = (size & 1) ? size / 2 : size / 2 - 1;
+
+    tbb::parallel_sort(points, points + size, [axis](const Point& a, const Point& b) { return a.position[axis] < b.position[axis]; });
 
     return (points[k].position[axis]);
 }
+
+#endif

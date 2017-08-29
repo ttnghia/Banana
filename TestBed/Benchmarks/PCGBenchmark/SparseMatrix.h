@@ -7,7 +7,7 @@
 #include <iostream>
 #include <vector>
 
-#include <Banana/TypeNames.h>
+#include <Banana/Setup.h>
 
 using Real = real;
 
@@ -27,15 +27,15 @@ template<class RealType>
 struct SparseMatrix
 {
     // dimension
-    UInt32 size;
+    UInt size;
 
     // for each row, a list of all column indices (sorted)
-    std::vector<std::vector<UInt32> > index;
+    std::vector<std::vector<UInt> > index;
 
     // values corresponding to index
     std::vector<std::vector<RealType> > value;
 
-    explicit SparseMatrix(UInt32 n_ = 0)
+    explicit SparseMatrix(UInt n_ = 0)
         : size(n_), index(n_), value(n_) {}
 
     void clear(void)
@@ -59,21 +59,21 @@ struct SparseMatrix
 
     void zero(void)
     {
-        for(UInt32 i = 0; i < size; ++i)
+        for(UInt i = 0; i < size; ++i)
         {
             index[i].resize(0);
             value[i].resize(0);
         }
     }
 
-    void resize(UInt32 n_)
+    void resize(UInt n_)
     {
         size = n_;
         index.resize(size);
         value.resize(size);
     }
 
-    const RealType operator()(UInt32 i, UInt32 j) const
+    const RealType operator()(UInt i, UInt j) const
     {
         auto iter = std::lower_bound(index[i].begin(), index[i].end(), j);
 
@@ -87,7 +87,7 @@ struct SparseMatrix
         }
     }
 
-    void set_element(UInt32 i, UInt32 j, RealType new_value)
+    void set_element(UInt i, UInt j, RealType new_value)
     {
         assert(i < size && j < size);
 
@@ -106,7 +106,7 @@ struct SparseMatrix
     }
 
 
-    void add_to_element(UInt32 i, UInt32 j, RealType increment_value)
+    void add_to_element(UInt i, UInt j, RealType increment_value)
     {
         assert(i < size && j < size);
 
@@ -126,10 +126,10 @@ struct SparseMatrix
         }
     }
 
-    void erase_element(UInt32 i, UInt32 j)
+    void erase_element(UInt i, UInt j)
     {
         auto iter = std::lower_bound(index[i].begin(), index[i].end(), j);
-        UInt32 k = iter - index[i].begin();
+        UInt k = iter - index[i].begin();
 
         if((iter != index[i].end()) && (*iter == j))
         {
@@ -138,23 +138,23 @@ struct SparseMatrix
         }
     }
 
-    bool has_data(UInt32 i, UInt32 j)
+    bool has_data(UInt i, UInt j)
     {
         auto iter = std::lower_bound(index[i].begin(), index[i].end(), j);
-        //        UInt32 k = iter - index[i].begin();
+        //        UInt k = iter - index[i].begin();
 
         return ((iter != index[i].end()) && (*iter == j));
     }
 
 
     // assumes matrix has symmetric structure - so the indices in row i tell us which columns to delete i from
-    void symmetric_remove_row_and_column(UInt32 i)
+    void symmetric_remove_row_and_column(UInt i)
     {
-        for(UInt32 a = 0; a < index[i].size(); ++a)
+        for(UInt a = 0; a < index[i].size(); ++a)
         {
-            UInt32 j = index[i][a]; //
+            UInt j = index[i][a]; //
 
-            for(UInt32 b = 0; b < index[j].size(); ++b)
+            for(UInt b = 0; b < index[j].size(); ++b)
             {
                 if(index[j][b] == i)
                 {
@@ -173,9 +173,9 @@ struct SparseMatrix
     {
         output << variable_name << "=sparse([";
 
-        for(UInt32 i = 0; i < size; ++i)
+        for(UInt i = 0; i < size; ++i)
         {
-            for(UInt32 j = 0; j < index[i].size(); ++j)
+            for(UInt j = 0; j < index[i].size(); ++j)
             {
                 output << i + 1 << " ";
             }
@@ -183,9 +183,9 @@ struct SparseMatrix
 
         output << "],...\n  [";
 
-        for(UInt32 i = 0; i < size; ++i)
+        for(UInt i = 0; i < size; ++i)
         {
-            for(UInt32 j = 0; j < index[i].size(); ++j)
+            for(UInt j = 0; j < index[i].size(); ++j)
             {
                 output << index[i][j] + 1 << " ";
             }
@@ -193,9 +193,9 @@ struct SparseMatrix
 
         output << "],...\n  [";
 
-        for(UInt32 i = 0; i < size; ++i)
+        for(UInt i = 0; i < size; ++i)
         {
-            for(UInt32 j = 0; j < value[i].size(); ++j)
+            for(UInt j = 0; j < value[i].size(); ++j)
             {
                 output << value[i][j] << " ";
             }
@@ -206,7 +206,7 @@ struct SparseMatrix
 
     void print_debug()
     {
-        for(UInt32 i = 0; i < size; ++i)
+        for(UInt i = 0; i < size; ++i)
         {
             if(index[i].size() == 0)
             {
@@ -215,7 +215,7 @@ struct SparseMatrix
 
             std::cout << "Line " << i << ": " << std::endl;
 
-            for(UInt32 j = 0; j < index[i].size(); ++j)
+            for(UInt j = 0; j < index[i].size(); ++j)
             {
                 std::cout << index[i][j] << "(" << value[i][j] << "), " << std::endl;
             }
@@ -281,7 +281,7 @@ struct SparseMatrix
             return;
         }
 
-        UInt32 number_elements = 0;
+        UInt number_elements = 0;
 
         for(size_t i = 0; i < size; ++i)
         {
@@ -295,15 +295,15 @@ struct SparseMatrix
         }
 
 
-        UInt32 one_percentage = (UInt32)(number_elements / 100);
-        UInt32 num_processed = 0;
+        UInt one_percentage = (UInt)(number_elements / 100);
+        UInt num_processed = 0;
         float* data_ptr = new float[number_elements];
-        UInt32* row_ptr = new UInt32[number_elements];
-        UInt32* column_ptr = new UInt32[number_elements];
+        UInt* row_ptr = new UInt[number_elements];
+        UInt* column_ptr = new UInt[number_elements];
 
-        for(UInt32 i = 0; i < size; ++i)
+        for(UInt i = 0; i < size; ++i)
         {
-            for(UInt32 j = i; j < size; ++j)
+            for(UInt j = i; j < size; ++j)
             {
                 if(has_data(i, j))
                 {
@@ -322,9 +322,9 @@ struct SparseMatrix
             }
         }
 
-        fwrite(&number_elements, 1, sizeof(UInt32), fptr);
-        fwrite(row_ptr, 1, number_elements * sizeof(UInt32), fptr);
-        fwrite(column_ptr, 1, number_elements * sizeof(UInt32), fptr);
+        fwrite(&number_elements, 1, sizeof(UInt), fptr);
+        fwrite(row_ptr, 1, number_elements * sizeof(UInt), fptr);
+        fwrite(column_ptr, 1, number_elements * sizeof(UInt), fptr);
         fwrite(data_ptr, 1, number_elements * sizeof(float), fptr);
         fclose(fptr);
         printf("File written, num. elements: %u, filename: %s\n", number_elements, fileName);
@@ -349,21 +349,21 @@ struct SparseMatrix
             return false;
         }
 
-        UInt32 number_elements = 0;
+        UInt number_elements = 0;
 
-        fread(&number_elements, 1, sizeof(UInt32), fptr);
+        fread(&number_elements, 1, sizeof(UInt), fptr);
         float* data_ptr = new float[number_elements];
-        UInt32* row_ptr = new UInt32[number_elements];
-        UInt32* column_ptr = new UInt32[number_elements];
+        UInt* row_ptr = new UInt[number_elements];
+        UInt* column_ptr = new UInt[number_elements];
 
-        fread(row_ptr, 1, number_elements * sizeof(UInt32), fptr);
-        fread(column_ptr, 1, number_elements * sizeof(UInt32), fptr);
+        fread(row_ptr, 1, number_elements * sizeof(UInt), fptr);
+        fread(column_ptr, 1, number_elements * sizeof(UInt), fptr);
         fread(data_ptr, 1, number_elements * sizeof(float), fptr);
 
-        UInt32 one_percentage = (UInt32)(number_elements / 100);
-        UInt32 num_processed = 0;
+        UInt one_percentage = (UInt)(number_elements / 100);
+        UInt num_processed = 0;
 
-        for(UInt32 k = 0; k < number_elements; ++k)
+        for(UInt k = 0; k < number_elements; ++k)
         {
             const RealType tmp = data_ptr[num_processed];
 
@@ -485,18 +485,18 @@ template<class RealType>
 struct FixedSparseMatrix
 {
     // dimension
-    UInt32 size;
+    UInt size;
 
     // nonzero values row by row
     std::vector<RealType> value;
 
     // corresponding column indices
-    std::vector<UInt32> colindex;
+    std::vector<UInt> colindex;
 
     // where each row starts in value and colindex (and last entry is one past the end, the number of nonzeros)
-    std::vector<UInt32> rowstart;
+    std::vector<UInt> rowstart;
 
-    explicit FixedSparseMatrix(UInt32 n_ = 0)
+    explicit FixedSparseMatrix(UInt n_ = 0)
         : size(n_), value(0), colindex(0), rowstart(n_ + 1) {}
 
     void clear(void)
@@ -518,7 +518,7 @@ struct FixedSparseMatrix
         resize(matrix.size);
         rowstart[0] = 0;
 
-        for(UInt32 i = 0; i < size; ++i)
+        for(UInt i = 0; i < size; ++i)
         {
             rowstart[i + 1] = rowstart[i] + matrix.index[i].size();
         }
@@ -532,7 +532,7 @@ struct FixedSparseMatrix
         {
             for(size_t i = r.begin(); i != r.end(); ++i)
             {
-                for(UInt32 k = 0; k < matrix.index[i].size(); ++k)
+                for(UInt k = 0; k < matrix.index[i].size(); ++k)
                 {
                     value[rowstart[i] + k] = matrix.value[i][k];
                     colindex[rowstart[i] + k] = matrix.index[i][k];
@@ -545,9 +545,9 @@ struct FixedSparseMatrix
     {
         output << variable_name << "=sparse([";
 
-        for(UInt32 i = 0; i < size; ++i)
+        for(UInt i = 0; i < size; ++i)
         {
-            for(UInt32 j = rowstart[i]; j < rowstart[i + 1]; ++j)
+            for(UInt j = rowstart[i]; j < rowstart[i + 1]; ++j)
             {
                 output << i + 1 << " ";
             }
@@ -555,9 +555,9 @@ struct FixedSparseMatrix
 
         output << "],...\n  [";
 
-        for(UInt32 i = 0; i < size; ++i)
+        for(UInt i = 0; i < size; ++i)
         {
-            for(UInt32 j = rowstart[i]; j < rowstart[i + 1]; ++j)
+            for(UInt j = rowstart[i]; j < rowstart[i + 1]; ++j)
             {
                 output << colindex[j] + 1 << " ";
             }
@@ -565,9 +565,9 @@ struct FixedSparseMatrix
 
         output << "],...\n  [";
 
-        for(UInt32 i = 0; i < size; ++i)
+        for(UInt i = 0; i < size; ++i)
         {
-            for(UInt32 j = rowstart[i]; j < rowstart[i + 1]; ++j)
+            for(UInt j = rowstart[i]; j < rowstart[i + 1]; ++j)
             {
                 output << value[j] << " ";
             }
@@ -595,9 +595,9 @@ void multiply(const FixedSparseMatrix<RealType>& matrix,
         {
             RealType tmpResult = 0;
 
-            const UInt32 rowend = matrix.rowstart[i + 1];
+            const UInt rowend = matrix.rowstart[i + 1];
 
-            for(UInt32 j = matrix.rowstart[i]; j < rowend; ++j)
+            for(UInt j = matrix.rowstart[i]; j < rowend; ++j)
             {
                 tmpResult += matrix.value[j] * x[matrix.colindex[j]];
             }

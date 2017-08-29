@@ -15,14 +15,14 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-template<class RealType>
-void Banana::MPMSolver<RealType>::makeReady()
+template<class Real>
+void Banana::MPMSolver<Real>::makeReady()
 {}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-template<class RealType>
-void Banana::MPMSolver<RealType>::gather_mass(struct mesh** cell_point, int dest_x, int dest_y, int src_x, int src_y, int node_id, struct material** point)
+template<class Real>
+void Banana::MPMSolver<Real>::gather_mass(struct mesh** cell_point, int dest_x, int dest_y, int src_x, int src_y, int node_id, struct material** point)
 {
     int k;
     int i, j;
@@ -34,8 +34,8 @@ void Banana::MPMSolver<RealType>::gather_mass(struct mesh** cell_point, int dest
     }
 }
 
-template<class RealType>
-void Banana::MPMSolver<RealType>::calculate_velocity(struct mesh** cell_point, int dest_x, int dest_y, int src_x, int src_y, int node_id, struct material** point)
+template<class Real>
+void Banana::MPMSolver<Real>::calculate_velocity(struct mesh** cell_point, int dest_x, int dest_y, int src_x, int src_y, int node_id, struct material** point)
 {
     int k;
     int i, j;
@@ -48,8 +48,8 @@ void Banana::MPMSolver<RealType>::calculate_velocity(struct mesh** cell_point, i
     }
 }
 
-template<class RealType>
-void Banana::MPMSolver<RealType>::calculate_grad_velocity(struct material** point, int i, int j, struct mesh** cell_point)
+template<class Real>
+void Banana::MPMSolver<Real>::calculate_grad_velocity(struct material** point, int i, int j, struct mesh** cell_point)
 {
     int x_cell, y_cell;
     x_cell = point[i][j].cell_i;
@@ -77,8 +77,8 @@ void Banana::MPMSolver<RealType>::calculate_grad_velocity(struct material** poin
     point[i][j].grad_velocity[1][1] += point[i][j].grad_y_basis_fn[3] * cell_point[x_cell][y_cell + 1].v_y;
 }
 
-template<class RealType>
-void Banana::MPMSolver<RealType>::deformation_gradient(struct material** point, int i, int j)
+template<class Real>
+void Banana::MPMSolver<Real>::deformation_gradient(struct material** point, int i, int j)
 {
     int    k, l;
     double temp[2][2];
@@ -102,8 +102,8 @@ void Banana::MPMSolver<RealType>::deformation_gradient(struct material** point, 
     }
 }
 
-template<class RealType>
-void Banana::MPMSolver<RealType>::stress(struct material** point, int i, int j)
+template<class Real>
+void Banana::MPMSolver<Real>::stress(struct material** point, int i, int j)
 {
     point[i][j].stress[0][0] = point[i][j].E * (point[i][j].Fp[0][0] - 1.0);
     point[i][j].stress[0][1] = point[i][j].E * (point[i][j].Fp[0][1] - 0.0);
@@ -111,8 +111,8 @@ void Banana::MPMSolver<RealType>::stress(struct material** point, int i, int j)
     point[i][j].stress[1][1] = point[i][j].E * (point[i][j].Fp[1][1] - 1.0);
 }
 
-template<class RealType>
-void Banana::MPMSolver<RealType>::int_ext_force(struct mesh** cell_point, int dest_x, int dest_y, int src_x, int src_y, int node_id, struct material** point)
+template<class Real>
+void Banana::MPMSolver<Real>::int_ext_force(struct mesh** cell_point, int dest_x, int dest_y, int src_x, int src_y, int node_id, struct material** point)
 {
     int k;
     int i, j;
@@ -129,8 +129,8 @@ void Banana::MPMSolver<RealType>::int_ext_force(struct mesh** cell_point, int de
     }
 }
 
-template<class RealType>
-void Banana::MPMSolver<RealType>::update_node_acceleration_velocity(struct mesh** cell_point, int i, int j)
+template<class Real>
+void Banana::MPMSolver<Real>::update_node_acceleration_velocity(struct mesh** cell_point, int i, int j)
 {
     double temp;
     cell_point[i][j].a_x = (cell_point[i][j].f_int_x + cell_point[i][j].f_ext_x) / cell_point[i][j].node_mass;
@@ -140,8 +140,8 @@ void Banana::MPMSolver<RealType>::update_node_acceleration_velocity(struct mesh*
     cell_point[i][j].v_y += (cell_point[i][j].a_y * del_time);
 }
 
-template<class RealType>
-void Banana::MPMSolver<RealType>::update_particle_velocity_position(struct material** point, int i, int j, struct mesh** cell_point)
+template<class Real>
+void Banana::MPMSolver<Real>::update_particle_velocity_position(struct material** point, int i, int j, struct mesh** cell_point)
 {
     int x_cell, y_cell;
 
@@ -171,8 +171,8 @@ void Banana::MPMSolver<RealType>::update_particle_velocity_position(struct mater
     point[i][j].y += (point[i][j].basis_fn[3] * cell_point[x_cell][y_cell + 1].v_y * del_time);
 }
 
-template<class RealType>
-void Banana::MPMSolver<RealType>::advanceFrame()
+template<class Real>
+void Banana::MPMSolver<Real>::advanceFrame()
 {
     //Dynamically allocate memory for material
     point = (struct material**)malloc(sizeof(material*) * body_size_x);
@@ -750,10 +750,10 @@ void Banana::MPMSolver<RealType>::advanceFrame()
     free(cell_point);
 }
 
-template<class RealType>
-void Banana::MPMSolver<RealType>::saveParticleData()
+template<class Real>
+void Banana::MPMSolver<Real>::saveParticleData()
 {}
 
-template<class RealType>
-void Banana::MPMSolver<RealType>::saveMemoryState()
+template<class Real>
+void Banana::MPMSolver<Real>::saveMemoryState()
 {}

@@ -79,6 +79,7 @@
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;UNICODE;WIN32;WIN64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>/std:c++latest</AdditionalOptions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <MinimalRebuild>false</MinimalRebuild>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -125,8 +126,6 @@
   <ItemGroup>
     <ClInclude Include="Include\Banana\Array\SparseArray3.h" />
     <ClInclude Include="Include\Banana\Geometry\GeometryObject2D.h" />
-    <ClInclude Include="Include\Banana\Geometry\GeometryObject2D.Impl.hpp" />
-    <ClInclude Include="Include\Banana\Geometry\GeometryObject3D.Impl.hpp" />
     <ClInclude Include="Include\Banana\Geometry\GeometryObject3D.h" />
     <ClInclude Include="Include\Banana\Grid\Grid2D.h" />
     <ClInclude Include="Include\Banana\Grid\Grid2DHashing.h" />
@@ -140,11 +139,8 @@
     <ClInclude Include="Include\Banana\Array\Array2.h" />
     <ClInclude Include="Include\Banana\Array\Array3.h" />
     <ClInclude Include="Include\Banana\Array\ArrayHelpers.h" />
-    <ClInclude Include="Include\Banana\Geometry\_Geometry.Test.hpp" />
-    <ClInclude Include="Include\Banana\Geometry\KdTree.Impl.hpp" />
     <ClInclude Include="Include\Banana\Geometry\MeshLoader.h" />
     <ClInclude Include="Include\Banana\Geometry\MeshLoader.Impl.hpp" />
-    <ClInclude Include="Include\Banana\Geometry\SignDistanceField.Impl.hpp" />
     <ClInclude Include="Include\Banana\LinearAlgebra\_LinearAlgebra.Test.hpp" />
     <ClInclude Include="Include\Banana\Utils\Logger.h" />
     <ClInclude Include="Include\Banana\LinearAlgebra\LinearSolvers\BlockPCGSolver.h" />
@@ -164,7 +160,6 @@
     <ClInclude Include="Include\Banana\Data\DataIO.h" />
     <ClInclude Include="Include\Banana\Data\DataPrinter.h" />
     <ClInclude Include="Include\Banana\Utils\FileHelpers.h" />
-    <ClInclude Include="Include\Banana\Geometry\SignDistanceField.h" />
     <ClInclude Include="Include\Banana\Geometry\KdTree.h" />
     <ClInclude Include="Include\Banana\Macros.h" />
     <ClInclude Include="Include\Banana\Utils\MathHelpers.h" />
@@ -176,9 +171,16 @@
     <ClInclude Include="Include\Banana\LinearAlgebra\SVD.h" />
     <ClInclude Include="Include\Banana\Utils\TensorHelpers.h" />
     <ClInclude Include="Include\Banana\Utils\Timer.h" />
-    <ClInclude Include="Include\Banana\TypeNames.h" />
+    <ClInclude Include="Include\Banana\Setup.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Include\Banana\CompileMessage.cpp" />
+    <ClCompile Include="Include\Banana\Geometry\GeometryObject3D.cpp" />
+    <ClCompile Include="Include\Banana\Geometry\KdTree.cpp" />
+    <ClCompile Include="Include\Banana\Grid\Grid2D.cpp" />
+    <ClCompile Include="Include\Banana\Grid\Grid2DHashing.cpp" />
+    <ClCompile Include="Include\Banana\Grid\Grid3D.cpp" />
+    <ClCompile Include="Include\Banana\Grid\Grid3DHashing.cpp" />
     <ClCompile Include="Source\Utils\Logger.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

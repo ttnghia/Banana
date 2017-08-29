@@ -33,63 +33,66 @@ enum class PreconditionerTypes
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // A simple compressed sparse column data structure (with separate diagonal)
 // for lower triangular matrices
-template<class RealType>
+template<class Real>
 struct SparseColumnLowerFactor
 {
-    UInt32                m_Size;
-    std::vector<RealType> m_InvDiag;  // reciprocals of diagonal elements
-    std::vector<RealType> m_ColValue; // values below the diagonal, listed column by column
-    std::vector<UInt32>   m_ColIndex; // a list of all row indices, for each column in turn
-    std::vector<UInt32>   m_ColStart; // where each column begins in row index (plus an extra entry at the end, of #nonzeros)
-    std::vector<RealType> m_aDiag;    // just used in factorization: minimum "safe" diagonal entry allowed
+    __BNN_SETUP_DATA_TYPE(Real)
 
-    explicit SparseColumnLowerFactor(UInt32 size = 0) : m_Size(size), m_InvDiag(size), m_ColStart(size + 1), m_aDiag(size) {}
+    UInt m_Size;
+    Vec_Real m_InvDiag;  // reciprocals of diagonal elements
+    Vec_Real m_ColValue; // values below the diagonal, listed column by column
+    Vec_UInt m_ColIndex; // a list of all row indices, for each column in turn
+    Vec_UInt m_ColStart; // where each column begins in row index (plus an extra entry at the end, of #nonzeros)
+    Vec_Real m_aDiag;    // just used in factorization: minimum "safe" diagonal entry allowed
+
+    explicit SparseColumnLowerFactor(UInt size = 0) : m_Size(size), m_InvDiag(size), m_ColStart(size + 1), m_aDiag(size) {}
 
     void clear(void);
-    void resize(UInt32 newSize);
+    void resize(UInt newSize);
     void writeMatlab(std::ostream& output, const char* variableName);
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
+template<class Real>
 class PCGSolver
 {
+    __BNN_SETUP_DATA_TYPE(Real)
 public:
     PCGSolver() = default;
 
-    void setSolverParameters(RealType toleranceFactor, int maxIterations, RealType MICCL0Param = 0.97, RealType minDiagonalRatio = 0.25);
+    void setSolverParameters(Real toleranceFactor, int maxIterations, Real MICCL0Param = 0.97, Real minDiagonalRatio = 0.25);
     void setPreconditioners(PreconditionerTypes precond);
     void setZeroInitial(bool bZeroInitial);
     void enableZeroInitial();
     void disableZeroInitial();
-    bool solve(const SparseMatrix<RealType>& matrix, const std::vector<RealType>& rhs, std::vector<RealType>& result, RealType& residual_out, UInt32& iterations_out);
-    bool solve_precond(const SparseMatrix<RealType>& matrix, const std::vector<RealType>& rhs, std::vector<RealType>& result, RealType& residual_out, UInt32& iterations_out);
+    bool solve(const SparseMatrix<Real>& matrix, const Vec_Real& rhs, Vec_Real& result, Real& residual_out, UInt& iterations_out);
+    bool solve_precond(const SparseMatrix<Real>& matrix, const Vec_Real& rhs, Vec_Real& result, Real& residual_out, UInt& iterations_out);
 
 private:
-    void formPreconditioner(const SparseMatrix<RealType>& matrix);
-    void applyPreconditioner(const std::vector<RealType>& x, std::vector<RealType>& result);
-    void applyJacobiPreconditioner(const std::vector<RealType>& x, std::vector<RealType>& result);
+    void formPreconditioner(const SparseMatrix<Real>& matrix);
+    void applyPreconditioner(const Vec_Real& x, Vec_Real& result);
+    void applyJacobiPreconditioner(const Vec_Real& x, Vec_Real& result);
 
-    void solveLower(const SparseColumnLowerFactor<RealType>& factor, const std::vector<RealType>& rhs, std::vector<RealType>& result);
-    void solveLower_TransposeInPlace(const SparseColumnLowerFactor<RealType>& factor, std::vector<RealType>& x);
+    void solveLower(const SparseColumnLowerFactor<Real>& factor, const Vec_Real& rhs, Vec_Real& result);
+    void solveLower_TransposeInPlace(const SparseColumnLowerFactor<Real>& factor, Vec_Real& x);
 
-    void formPreconditioner_Jacobi(const SparseMatrix<RealType>& matrix);
-    void formPreconditioner_MICC0L0(const SparseMatrix<RealType>& matrix, SparseColumnLowerFactor<RealType>& factor, RealType MICCL0Param = 0.97, RealType minDiagonalRatio = 0.25);
-    void formPreconditioner_Symmetric_MICC0L0(const SparseMatrix<RealType>& matrix, SparseColumnLowerFactor<RealType>& factor, RealType minDiagonalRatio = 0.25);
+    void formPreconditioner_Jacobi(const SparseMatrix<Real>& matrix);
+    void formPreconditioner_MICC0L0(const SparseMatrix<Real>& matrix, SparseColumnLowerFactor<Real>& factor, Real MICCL0Param = 0.97, Real minDiagonalRatio = 0.25);
+    void formPreconditioner_Symmetric_MICC0L0(const SparseMatrix<Real>& matrix, SparseColumnLowerFactor<Real>& factor, Real minDiagonalRatio = 0.25);
 
     ////////////////////////////////////////////////////////////////////////////////
-    std::vector<RealType>       z, s, r;
-    FixedSparseMatrix<RealType> m_FixedSparseMatrix;
+    Vec_Real                z, s, r;
+    FixedSparseMatrix<Real> m_FixedSparseMatrix;
 
-    SparseColumnLowerFactor<RealType> m_ICCPreconditioner;
-    std::vector<RealType>             m_JacobiPreconditioner;
+    SparseColumnLowerFactor<Real> m_ICCPreconditioner;
+    Vec_Real                      m_JacobiPreconditioner;
 
     // solver parameters
     PreconditionerTypes m_PreconditionerType = PreconditionerTypes::MICCL0;
-    RealType            m_ToleranceFactor    = RealType(1e-20);
-    UInt32              m_MaxIterations      = 10000;
-    RealType            m_MICCL0Param        = RealType(0.97);
-    RealType            m_MinDiagonalRatio   = RealType(0.25);
+    Real                m_ToleranceFactor    = Real(1e-20);
+    UInt              m_MaxIterations      = 10000;
+    Real                m_MICCL0Param        = Real(0.97);
+    Real                m_MinDiagonalRatio   = Real(0.25);
     bool                m_bZeroInitial       = true;
 };
 

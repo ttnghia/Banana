@@ -24,19 +24,19 @@
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class MatrixType, class VectorType, class RealType>
+template<class MatrixType, class VectorType, class Real>
 class BlockPCGSolver
 {
 public:
     BlockPCGSolver() = default;
 
-    void setSolverParameters(RealType toleranceFactor, UInt32 maxIterations);
+    void setSolverParameters(Real toleranceFactor, UInt maxIterations);
     void setZeroInitial(bool bZeroInitial);
     void enableZeroInitial();
     void disableZeroInitial();
 
-    bool solve(const BlockSparseMatrix<MatrixType>& matrix, const std::vector<VectorType>& rhs, std::vector<VectorType>& result, RealType& residual_out, UInt32& iterations_out);
-    bool solve_precond(const BlockSparseMatrix<MatrixType>& matrix, const std::vector<VectorType>& rhs, std::vector<VectorType>& result, RealType& residual_out, UInt32& iterations_out);
+    bool solve(const BlockSparseMatrix<MatrixType>& matrix, const std::vector<VectorType>& rhs, std::vector<VectorType>& result, Real& residual_out, UInt& iterations_out);
+    bool solve_precond(const BlockSparseMatrix<MatrixType>& matrix, const std::vector<VectorType>& rhs, std::vector<VectorType>& result, Real& residual_out, UInt& iterations_out);
 
 private:
     void formPreconditioner(const BlockSparseMatrix<MatrixType>& matrix);
@@ -47,13 +47,13 @@ private:
     FixedBlockSparseMatrix<MatrixType> m_FixedSparseMatrix;
 
     // parameters
-    RealType m_ToleranceFactor = 1e-20;
-    UInt32   m_MaxIterations   = 10000;
-    bool     m_bZeroInitial    = true;
+    Real   m_ToleranceFactor = 1e-20;
+    UInt m_MaxIterations   = 10000;
+    bool   m_bZeroInitial    = true;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <Banana/LinearAlgebra/BlockPCGSolver.Impl.hpp>
+#include <Banana/LinearAlgebra/LinearSolvers/BlockPCGSolver.Impl.hpp>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana

@@ -43,7 +43,7 @@
 
 #define SOLVER_TOLERANCE 1e-20
 
-#include <Banana/TypeNames.h>
+#include <Banana/Setup.h>
 #include <Banana/Timer.h>      
 #include <spdlog/spdlog.h>
 #include <ProgressBar.hpp>
@@ -141,8 +141,8 @@ void load_data(BlockSparseMatrix<Mat3x3D>& mat, std::vector<Vec3D>& rhs)
         exit(-1);
     }
 
-    UInt32 size;
-    fread(&size, 1, sizeof(UInt32), fptr);
+    UInt size;
+    fread(&size, 1, sizeof(UInt), fptr);
     float *data_ptr = new float[3 * size];
     fread(data_ptr, 1, size * 3 * sizeof(float), fptr);
 
@@ -187,9 +187,9 @@ void copy_data(BlockSparseMatrix<Mat3x3D>& mat_src, const std::vector<Vec3D>& rh
                ublas_matrix& mat_dst, std::vector<real>& rhs_dst)
 {
     size_t num_elements = 0;
-    for(UInt32 i = 0; i < mat_src.size; ++i)
+    for(UInt i = 0; i < mat_src.size; ++i)
     {
-        for(UInt32 j = 0; j < mat_src.index[i].size(); ++j)
+        for(UInt j = 0; j < mat_src.index[i].size(); ++j)
         {
             num_elements += mat_src.index[i].size() * 3;
         }
@@ -198,20 +198,20 @@ void copy_data(BlockSparseMatrix<Mat3x3D>& mat_src, const std::vector<Vec3D>& rh
     printf("Num total element: %lu\n", num_elements);
     mat_dst.reserve(num_elements);
 
-    for(UInt32 i = 0; i < mat_src.size; ++i)
+    for(UInt i = 0; i < mat_src.size; ++i)
     {
-        for(UInt32 j = 0; j < mat_src.index[i].size(); ++j)
+        for(UInt j = 0; j < mat_src.index[i].size(); ++j)
         {
             const Mat3x3D& tmp = mat_src.value[i][j];
-            const UInt32 colIndex = mat_src.index[i][j];
+            const UInt colIndex = mat_src.index[i][j];
 
 #ifdef __Using_GLM_Lib__
             const real* tmp_ptr = glm::value_ptr(tmp);
 #endif
 
-            for(UInt32 l1 = 0; l1 < 3; ++l1)
+            for(UInt l1 = 0; l1 < 3; ++l1)
             {
-                for(UInt32 l2 = 0; l2 < 3; ++l2)
+                for(UInt l2 = 0; l2 < 3; ++l2)
                 {
 
 #ifdef __Using_Eigen_Lib__

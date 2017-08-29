@@ -17,7 +17,7 @@
 
 #pragma once
 
-#include <Banana/Macros.h>
+#include <Banana/Setup.h>
 #include <ParticleSolvers/SPH/WCSPH/WCSPHSolver.h>
 #include <ParticleSolvers/FLIP/FLIP3DSolver.h>
 #include <ParticleSolvers/FLIP/FLIP2DSolver.h>
@@ -29,7 +29,7 @@
 
 #define PARTICLE_SOLVER WCSPHSolver
 #define PARTICLE_SOLVER FLIP3DSolver
-//#define PARTICLE_SOLVER FLIP2DSolver
+#define PARTICLE_SOLVER FLIP2DSolver
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 class Simulator : public QObject

@@ -24,7 +24,7 @@
 #include <locale>
 #include <random>
 
-#include <Banana/TypeNames.h>
+#include <Banana/Setup.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -33,8 +33,8 @@ namespace Banana
 namespace NumberHelpers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class T>
-std::string formatWithCommas(T value, int precision = 2)
+template<class Real>
+std::string formatWithCommas(Real value, int precision = 2)
 {
     struct Numpunct : public std::numpunct<char>
     {
@@ -58,8 +58,8 @@ protected:
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class T>
-std::string formatToScientific(T value, int precision = 5)
+template<class Real>
+std::string formatToScientific(Real value, int precision = 5)
 {
     std::stringstream ss;
     ss.str("");
@@ -68,8 +68,8 @@ std::string formatToScientific(T value, int precision = 5)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class T>
-inline std::string formatToScientific(const Vec3<T>& vec, int precision = 5)
+template<class Real>
+inline std::string formatToScientific(const Vec3<Real>& vec, int precision = 5)
 {
     std::stringstream ss;
     ss.str("");
@@ -83,8 +83,8 @@ inline std::string formatToScientific(const Vec3<T>& vec, int precision = 5)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<typename T>
-std::string toString(const T value, const int precision = 5)
+template<typename Real>
+std::string toString(const Real value, const int precision = 5)
 {
     std::ostringstream ss;
     ss << std::setprecision(precision) << value;
@@ -92,8 +92,8 @@ std::string toString(const T value, const int precision = 5)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class T>
-inline std::string toString(const Vec3<T>& vec, int precision = 5)
+template<class Real>
+inline std::string toString(const Vec3<Real>& vec, int precision = 5)
 {
     std::stringstream ss;
     ss.str("");
@@ -107,30 +107,24 @@ inline std::string toString(const Vec3<T>& vec, int precision = 5)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class T>
-inline T generateRandomInt(T start, T end)
+template<class Real>
+inline Real generateRandomInt(Real start, Real end)
 {
-    std::random_device               rd;
-    std::mt19937                     gen(rd());
-    std::uniform_int_distribution<T> dis(start, end);
+    std::random_device                  rd;
+    std::mt19937                        gen(rd());
+    std::uniform_int_distribution<Real> dis(start, end);
 
     return dis(gen);
 }
 
-template<class T>
-inline T generateRandomReal(T start, T end)
+template<class Real>
+inline Real generateRandomReal(Real start, Real end)
 {
-    std::random_device                rd;
-    std::mt19937                      gen(rd());
-    std::uniform_real_distribution<T> dis(start, end);
+    std::random_device                   rd;
+    std::mt19937                         gen(rd());
+    std::uniform_real_distribution<Real> dis(start, end);
 
     return dis(gen);
-}
-
-template<class T>
-inline T lerp(T a, T b, T t)
-{
-    return static_cast<T>(a + t * (b - a));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

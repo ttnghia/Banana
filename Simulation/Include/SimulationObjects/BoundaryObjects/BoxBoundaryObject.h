@@ -25,33 +25,34 @@
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-class BoxBoundaryObject : public BoundaryObject<RealType>
+template<class Real>
+class BoxBoundaryObject : public BoundaryObject<Real>
 {
 public:
     BoxBoundaryObject() = default;
-    BoxBoundaryObject(const Vec3<RealType>& bMin, const Vec3<RealType>& bMax) : m_BMin(bMin), m_BMax(bMax) {}
-    BoxBoundaryObject(const Vec3<RealType>& bMin, const Vec3<RealType>& bMax, RealType margin) :
+    BoxBoundaryObject(const Vec3r& bMin, const Vec3r& bMax) : m_BMin(bMin), m_BMax(bMax) {}
+    BoxBoundaryObject(const Vec3r& bMin, const Vec3r& bMax, Real margin) :
         BoundaryObject(margin), m_BMin(bMin), m_BMax(bMax), m_MovingBMin(bMin), m_MovingBMax(bMax)
     {
         computeMovingBox();
     }
 
-    BoxBoundaryObject(const Vec3<RealType>& bMin, const Vec3<RealType>& bMax, RealType margin, RealType restitution) :
+    BoxBoundaryObject(const Vec3r& bMin, const Vec3r& bMax, Real margin, Real restitution) :
         BoundaryObject(margin, restitution), m_BMin(bMin), m_BMax(bMax), m_MovingBMin(bMin), m_MovingBMax(bMax)
     {
         computeMovingBox();
     }
 
-    void         setBox(const Vec3<RealType>& bMin, const Vec3<RealType>& bMax);
-    virtual void generateBoundaryParticles(RealType spacing, int numBDLayers = 2) override;
-    virtual bool constrainToBoundary(Vec3<RealType>& ppos, Vec3<RealType>& pvel) override;
+    void         setBox(const Vec3r& bMin, const Vec3r& bMax);
+    virtual void generateBoundaryParticles(Real spacing, int numBDLayers = 2) override;
+    virtual bool constrainToBoundary(Vec3r& ppos, Vec3r& pvel) override;
 
 private:
     void computeMovingBox();
 
-    Vec3<RealType> m_BMin, m_BMax;
-    Vec3<RealType> m_MovingBMin, m_MovingBMax;
+    ////////////////////////////////////////////////////////////////////////////////
+    Vec3r m_BMin, m_BMax;
+    Vec3r m_MovingBMin, m_MovingBMax;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -59,8 +60,8 @@ private:
 // Implementation
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-void Banana::BoxBoundaryObject<RealType>::setBox(const Vec3<RealType>& bMin, const Vec3<RealType>& bMax)
+template<class Real>
+void Banana::BoxBoundaryObject<Real>::setBox(const Vec3r& bMin, const Vec3r& bMax)
 {
     m_BMin = bMin;
     m_BMax = bMax;
@@ -68,29 +69,29 @@ void Banana::BoxBoundaryObject<RealType>::setBox(const Vec3<RealType>& bMin, con
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-void Banana::BoxBoundaryObject<RealType>::computeMovingBox()
+template<class Real>
+void Banana::BoxBoundaryObject<Real>::computeMovingBox()
 {
-    m_MovingBMin = m_BMin + Vec3<RealType>(m_Margin);
-    m_MovingBMax = m_BMax - Vec3<RealType>(m_Margin);
+    m_MovingBMin = m_BMin + Vec3r(m_Margin);
+    m_MovingBMax = m_BMax - Vec3r(m_Margin);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-void Banana::BoxBoundaryObject<RealType>::generateBoundaryParticles(RealType spacing, int numBDLayers /*= 2*/)
+template<class Real>
+void Banana::BoxBoundaryObject<Real>::generateBoundaryParticles(Real spacing, int numBDLayers /*= 2*/)
 {
     m_BDParticles.resize(0);
     std::random_device rd;
     std::mt19937       gen(rd());
 
-    std::normal_distribution<RealType> disSmall(0, RealType(0.02) * spacing);
-    std::normal_distribution<RealType> disLarge(0, RealType(0.1) * spacing);
+    std::normal_distribution<Real> disSmall(0, Real(0.02) * spacing);
+    std::normal_distribution<Real> disLarge(0, Real(0.1) * spacing);
 
     ////////////////////////////////////////////////////////////////////////////////
     // plane x < 0
     {
-        Vec3<RealType> minLX = m_BMin - Vec3<RealType>(spacing * RealType(numBDLayers * 1.001));
-        Vec3<RealType> maxLX = m_BMax + Vec3<RealType>(spacing * RealType(numBDLayers * 1.001));
+        Vec3r minLX = m_BMin - Vec3r(spacing * Real(numBDLayers * 1.001));
+        Vec3r maxLX = m_BMax + Vec3r(spacing * Real(numBDLayers * 1.001));
         maxLX[0] = m_BMin[0];
         Vec3i gridLX = ParticleHelpers::createGrid(minLX, maxLX, spacing);
 
@@ -100,8 +101,8 @@ void Banana::BoxBoundaryObject<RealType>::generateBoundaryParticles(RealType spa
             {
                 for(int z = 0; z < gridLX[2]; ++z)
                 {
-                    const Vec3<RealType> gridPos = minLX + Vec3<RealType>(x + 0.5, y + 0.5, z + 0.5) * spacing;
-                    Vec3<RealType>       ppos    = gridPos + Vec3<RealType>(disSmall(gen), disLarge(gen), disLarge(gen));
+                    const Vec3r gridPos = minLX + Vec3r(x + 0.5, y + 0.5, z + 0.5) * spacing;
+                    Vec3r       ppos    = gridPos + Vec3r(disSmall(gen), disLarge(gen), disLarge(gen));
                     m_BDParticles.push_back(ppos);
                 }
             }
@@ -111,8 +112,8 @@ void Banana::BoxBoundaryObject<RealType>::generateBoundaryParticles(RealType spa
     ////////////////////////////////////////////////////////////////////////////////
     // plane x > 0
     {
-        Vec3<RealType> minUX = m_BMin - Vec3<RealType>(spacing * RealType(numBDLayers * 1.001));
-        Vec3<RealType> maxUX = m_BMax + Vec3<RealType>(spacing * RealType(numBDLayers * 1.001));
+        Vec3r minUX = m_BMin - Vec3r(spacing * Real(numBDLayers * 1.001));
+        Vec3r maxUX = m_BMax + Vec3r(spacing * Real(numBDLayers * 1.001));
         minUX[0] = m_BMax[0];
         Vec3i gridUX = ParticleHelpers::createGrid(minUX, maxUX, spacing);
 
@@ -122,8 +123,8 @@ void Banana::BoxBoundaryObject<RealType>::generateBoundaryParticles(RealType spa
             {
                 for(int z = 0; z < gridUX[2]; ++z)
                 {
-                    const Vec3<RealType> gridPos = minUX + Vec3<RealType>(x + 0.5, y + 0.5, z + 0.5) * spacing;
-                    Vec3<RealType>       ppos    = gridPos + Vec3<RealType>(disSmall(gen), disLarge(gen), disLarge(gen));
+                    const Vec3r gridPos = minUX + Vec3r(x + 0.5, y + 0.5, z + 0.5) * spacing;
+                    Vec3r       ppos    = gridPos + Vec3r(disSmall(gen), disLarge(gen), disLarge(gen));
                     m_BDParticles.push_back(ppos);
                 }
             }
@@ -133,8 +134,8 @@ void Banana::BoxBoundaryObject<RealType>::generateBoundaryParticles(RealType spa
     ////////////////////////////////////////////////////////////////////////////////
     // plane y < 0
     {
-        Vec3<RealType> minLY = m_BMin - Vec3<RealType>(spacing * RealType(numBDLayers) * 1.001);
-        Vec3<RealType> maxLY = m_BMax + Vec3<RealType>(spacing * RealType(numBDLayers) * 1.001);
+        Vec3r minLY = m_BMin - Vec3r(spacing * Real(numBDLayers) * 1.001);
+        Vec3r maxLY = m_BMax + Vec3r(spacing * Real(numBDLayers) * 1.001);
         minLY[0] = m_BMin[0];
         maxLY[0] = m_BMax[0];
         maxLY[1] = m_BMin[1];
@@ -146,8 +147,8 @@ void Banana::BoxBoundaryObject<RealType>::generateBoundaryParticles(RealType spa
             {
                 for(int z = 0; z < gridLY[2]; ++z)
                 {
-                    const Vec3<RealType> gridPos = minLY + Vec3<RealType>(x + 0.5, y + 0.5, z + 0.5) * spacing;
-                    Vec3<RealType>       ppos    = gridPos + Vec3<RealType>(disLarge(gen), disSmall(gen), disLarge(gen));
+                    const Vec3r gridPos = minLY + Vec3r(x + 0.5, y + 0.5, z + 0.5) * spacing;
+                    Vec3r       ppos    = gridPos + Vec3r(disLarge(gen), disSmall(gen), disLarge(gen));
                     m_BDParticles.push_back(ppos);
                 }
             }
@@ -157,8 +158,8 @@ void Banana::BoxBoundaryObject<RealType>::generateBoundaryParticles(RealType spa
     ////////////////////////////////////////////////////////////////////////////////
     // plane y > 0
     {
-        Vec3<RealType> minUY = m_BMin - Vec3<RealType>(spacing * RealType(numBDLayers) * 1.001);
-        Vec3<RealType> maxUY = m_BMax + Vec3<RealType>(spacing * RealType(numBDLayers) * 1.001);
+        Vec3r minUY = m_BMin - Vec3r(spacing * Real(numBDLayers) * 1.001);
+        Vec3r maxUY = m_BMax + Vec3r(spacing * Real(numBDLayers) * 1.001);
         minUY[0] = m_BMin[0];
         maxUY[0] = m_BMax[0];
         minUY[1] = m_BMax[1];
@@ -170,8 +171,8 @@ void Banana::BoxBoundaryObject<RealType>::generateBoundaryParticles(RealType spa
             {
                 for(int z = 0; z < gridUY[2]; ++z)
                 {
-                    const Vec3<RealType> gridPos = minUY + Vec3<RealType>(x + 0.5, y + 0.5, z + 0.5) * spacing;
-                    Vec3<RealType>       ppos    = gridPos + Vec3<RealType>(disLarge(gen), disSmall(gen), disLarge(gen));
+                    const Vec3r gridPos = minUY + Vec3r(x + 0.5, y + 0.5, z + 0.5) * spacing;
+                    Vec3r       ppos    = gridPos + Vec3r(disLarge(gen), disSmall(gen), disLarge(gen));
                     m_BDParticles.push_back(ppos);
                 }
             }
@@ -181,8 +182,8 @@ void Banana::BoxBoundaryObject<RealType>::generateBoundaryParticles(RealType spa
     ////////////////////////////////////////////////////////////////////////////////
     // plane z < 0
     {
-        Vec3<RealType> minLZ = m_BMin - Vec3<RealType>(spacing * RealType(numBDLayers) * 1.001);
-        Vec3<RealType> maxLZ = m_BMax + Vec3<RealType>(spacing * RealType(numBDLayers) * 1.001);
+        Vec3r minLZ = m_BMin - Vec3r(spacing * Real(numBDLayers) * 1.001);
+        Vec3r maxLZ = m_BMax + Vec3r(spacing * Real(numBDLayers) * 1.001);
         minLZ[0] = m_BMin[0];
         maxLZ[0] = m_BMax[0];
         minLZ[1] = m_BMin[1];
@@ -196,8 +197,8 @@ void Banana::BoxBoundaryObject<RealType>::generateBoundaryParticles(RealType spa
             {
                 for(int z = 0; z < gridLZ[2]; ++z)
                 {
-                    const Vec3<RealType> gridPos = minLZ + Vec3<RealType>(x + 0.5, y + 0.5, z + 0.5) * spacing;
-                    Vec3<RealType>       ppos    = gridPos + Vec3<RealType>(disLarge(gen), disLarge(gen), disSmall(gen));
+                    const Vec3r gridPos = minLZ + Vec3r(x + 0.5, y + 0.5, z + 0.5) * spacing;
+                    Vec3r       ppos    = gridPos + Vec3r(disLarge(gen), disLarge(gen), disSmall(gen));
                     m_BDParticles.push_back(ppos);
                 }
             }
@@ -207,8 +208,8 @@ void Banana::BoxBoundaryObject<RealType>::generateBoundaryParticles(RealType spa
     ////////////////////////////////////////////////////////////////////////////////
     // plane z > 0
     {
-        Vec3<RealType> minUZ = m_BMin - Vec3<RealType>(spacing * RealType(numBDLayers) * 1.001);
-        Vec3<RealType> maxUZ = m_BMax + Vec3<RealType>(spacing * RealType(numBDLayers) * 1.001);
+        Vec3r minUZ = m_BMin - Vec3r(spacing * Real(numBDLayers) * 1.001);
+        Vec3r maxUZ = m_BMax + Vec3r(spacing * Real(numBDLayers) * 1.001);
         minUZ[0] = m_BMin[0];
         maxUZ[0] = m_BMax[0];
         minUZ[1] = m_BMin[1];
@@ -222,8 +223,8 @@ void Banana::BoxBoundaryObject<RealType>::generateBoundaryParticles(RealType spa
             {
                 for(int z = 0; z < gridUX[2]; ++z)
                 {
-                    const Vec3<RealType> gridPos = minUZ + Vec3<RealType>(x + 0.5, y + 0.5, z + 0.5) * spacing;
-                    Vec3<RealType>       ppos    = gridPos + Vec3<RealType>(disLarge(gen), disLarge(gen), disSmall(gen));
+                    const Vec3r gridPos = minUZ + Vec3r(x + 0.5, y + 0.5, z + 0.5) * spacing;
+                    Vec3r       ppos    = gridPos + Vec3r(disLarge(gen), disLarge(gen), disSmall(gen));
                     m_BDParticles.push_back(ppos);
                 }
             }
@@ -232,8 +233,8 @@ void Banana::BoxBoundaryObject<RealType>::generateBoundaryParticles(RealType spa
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-bool Banana::BoxBoundaryObject<RealType>::constrainToBoundary(Vec3<RealType>& pPos, Vec3<RealType>& pVel)
+template<class Real>
+bool Banana::BoxBoundaryObject<Real>::constrainToBoundary(Vec3r& pPos, Vec3r& pVel)
 {
     bool velChanged = false;
 

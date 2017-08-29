@@ -14,8 +14,8 @@
 //
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-LloydRelaxation<RealType>::LloydRelaxation(const Vec3<RealType>& domainBMin, const Vec3<RealType>& domainBMax, RealType particleRadius) :
+template<class Real>
+LloydRelaxation<Real>::LloydRelaxation(const Vec3<Real>& domainBMin, const Vec3<Real>& domainBMax, Real particleRadius) :
     m_DomainBMin(m_DomainBMin), m_DomainBMax(m_DomainBMax), m_ParticleRadius(particleRadius),
     m_MovingThreshold(3.0),
     m_OverlapThreshold(1.55),
@@ -28,47 +28,47 @@ LloydRelaxation<RealType>::LloydRelaxation(const Vec3<RealType>& domainBMin, con
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-void LloydRelaxation<RealType>::relaxParticles(std::vector<Vec3<RealType> >& denseParticles,
-                                                 std::vector<Vec3<RealType> >& particles,
-                                                 int                             minIterations /*= 10*/,
-                                                 int                             maxIterations /*= 1000*/,
-                                                 bool                            bUseCandidateCenters /*= false*/)
+template<class Real>
+void LloydRelaxation<Real>::relaxParticles(std::vector<Vec3<Real> >& denseParticles,
+                                           std::vector<Vec3<Real> >& particles,
+                                           int                       minIterations /*= 10*/,
+                                           int                       maxIterations /*= 1000*/,
+                                           bool                      bUseCandidateCenters /*= false*/)
 {
     __BNN_ASSERT(denseParticles.size() > 4 * particles.size());
     computeLloydClusters(denseParticles, particles, minIterations, maxIterations, bUseCandidateCenters);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-void LloydRelaxation<RealType>::relaxParticlesWeighted(const std::vector<RealType>&  weights,
-                                                         std::vector<Vec3<RealType> >& denseParticles,
-                                                         std::vector<Vec3<RealType> >& particles,
-                                                         int                             minIterations /*= 10*/,
-                                                         int                             maxIterations /*= 1000*/,
-                                                         bool                            bUseCandidateCenters /*= false*/)
+template<class Real>
+void LloydRelaxation<Real>::relaxParticlesWeighted(const std::vector<Real>&  weights,
+                                                   std::vector<Vec3<Real> >& denseParticles,
+                                                   std::vector<Vec3<Real> >& particles,
+                                                   int                       minIterations /*= 10*/,
+                                                   int                       maxIterations /*= 1000*/,
+                                                   bool                      bUseCandidateCenters /*= false*/)
 {
     __BNN_ASSERT(denseParticles.size() > 4 * particles.size());
     computeWeightedLloydClusters(weights, denseParticles, particles, minIterations, maxIterations, bUseCandidateCenters);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-void LloydRelaxation<RealType>::computeLloydClusters(std::vector<Vec3<RealType> >& samples,
-                                                       std::vector<Vec3<RealType> >& clusterCenters,
-                                                       int                             minIterations /*= 10*/,
-                                                       int                             maxIterations /*= 1000*/,
-                                                       bool                            bUseCandidateCenters /*= false*/)
+template<class Real>
+void LloydRelaxation<Real>::computeLloydClusters(std::vector<Vec3<Real> >& samples,
+                                                 std::vector<Vec3<Real> >& clusterCenters,
+                                                 int                       minIterations /*= 10*/,
+                                                 int                       maxIterations /*= 1000*/,
+                                                 bool                      bUseCandidateCenters /*= false*/)
 {
-    Vec_VecUInt                    samplesInCluster;
-    std::vector<Vec3<RealType> > clusterBackup;
-    std::vector<RealType>        movingDistance;
+    Vec_VecUInt              samplesInCluster;
+    std::vector<Vec3<Real> > clusterBackup;
+    std::vector<Real>        movingDistance;
 
-    RealType totalTime           = 0;
-    UInt32     numOverlapped       = 0;
-    bool       converged           = false;
-    RealType minClusterDistance  = std::numeric_limits<RealType>::max();
-    RealType maxMovingPercentage = std::numeric_limits<RealType>::max();
+    Real   totalTime           = 0;
+    UInt numOverlapped       = 0;
+    bool   converged           = false;
+    Real   minClusterDistance  = std::numeric_limits<Real>::max();
+    Real   maxMovingPercentage = std::numeric_limits<Real>::max();
 
     ////////////////////////////////////////////////////////////////////////////////
 
@@ -97,7 +97,7 @@ void LloydRelaxation<RealType>::computeLloydClusters(std::vector<Vec3<RealType> 
                               {
                                   __BNN_ASSERT(samplesInCluster[clusterIdx].size() > 0);
 
-                                  Vec3<RealType>& center = clusterCenters[clusterIdx];
+                                  Vec3<Real>& center = clusterCenters[clusterIdx];
 
                                   if(bUseCandidateCenters)
                                   {
@@ -117,7 +117,7 @@ void LloydRelaxation<RealType>::computeLloydClusters(std::vector<Vec3<RealType> 
         m_Logger.printLog(m_Timer.getRunTime("Compute new cluster positions: "));
 
         ////////////////////////////////////////////////////////////////////////////////
-        VectorMaxElement<RealType> md2(movingDistance);
+        VectorMaxElement<Real> md2(movingDistance);
         tbb::parallel_reduce(tbb::blocked_range<size_t>(0, movingDistance.size()), md2);
         maxMovingPercentage = sqrt(md2.result) / m_ParticleRadius * 100.0;
         m_Logger.printLog("Max moving distance in this iteration: " + NumberHelpers::formatWithCommas(maxMovingPercentage) + "% of particle radius");
@@ -152,7 +152,7 @@ void LloydRelaxation<RealType>::computeLloydClusters(std::vector<Vec3<RealType> 
 
             if(numOverlapped > 0)
             {
-                UInt32 numRemoved = removeOverlappedParticles(clusterCenters);
+                UInt numRemoved = removeOverlappedParticles(clusterCenters);
                 m_Logger.printLog("Removed particles: " + NumberHelpers::formatWithCommas(numRemoved) + " =======================================");
                 m_Logger.newLine();
 
@@ -186,26 +186,26 @@ void LloydRelaxation<RealType>::computeLloydClusters(std::vector<Vec3<RealType> 
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-void LloydRelaxation<RealType>::computeWeightedLloydClusters(const std::vector<RealType>&  weights,
-                                                               std::vector<Vec3<RealType> >& samples,
-                                                               std::vector<Vec3<RealType> >& clusterCenters,
-                                                               int                             minIterations /*= 10*/,
-                                                               int                             maxIterations /*= 100*/,
-                                                               bool                            bUseCandidateCenters /*= false*/)
+template<class Real>
+void LloydRelaxation<Real>::computeWeightedLloydClusters(const std::vector<Real>&  weights,
+                                                         std::vector<Vec3<Real> >& samples,
+                                                         std::vector<Vec3<Real> >& clusterCenters,
+                                                         int                       minIterations /*= 10*/,
+                                                         int                       maxIterations /*= 100*/,
+                                                         bool                      bUseCandidateCenters /*= false*/)
 {
     __BNN_ASSERT(samples.size() == weights.size());
 
 
-    Vec_VecUInt                    samplesInCluster;
-    std::vector<Vec3<RealType> > clusterBackup;
-    std::vector<RealType>        movingDistance;
-    size_t                         numClusters         = clusterCenters.size();
-    RealType                     minClusterDistance  = std::numeric_limits<RealType>::max();
-    RealType                     maxMovingPercentage = std::numeric_limits<RealType>::max();
+    Vec_VecUInt              samplesInCluster;
+    std::vector<Vec3<Real> > clusterBackup;
+    std::vector<Real>        movingDistance;
+    size_t                   numClusters         = clusterCenters.size();
+    Real                     minClusterDistance  = std::numeric_limits<Real>::max();
+    Real                     maxMovingPercentage = std::numeric_limits<Real>::max();
 
-    UInt32     numOverlapped = 0;
-    RealType totalTime     = 0;
+    UInt numOverlapped = 0;
+    Real   totalTime     = 0;
 
     bool converged = false;
 
@@ -233,7 +233,7 @@ void LloydRelaxation<RealType>::computeWeightedLloydClusters(const std::vector<R
                               for(size_t clusterIdx = r.begin(); clusterIdx != r.end(); ++clusterIdx)
                               {
                                   __BNN_ASSERT(samplesInCluster[clusterIdx].size() > 0);
-                                  Vec3<RealType>& center = clusterCenters[clusterIdx];
+                                  Vec3<Real>& center = clusterCenters[clusterIdx];
 
                                   if(bUseCandidateCenters)
                                   {
@@ -252,7 +252,7 @@ void LloydRelaxation<RealType>::computeWeightedLloydClusters(const std::vector<R
         totalTime += m_Timer.tock();
         m_Logger.printLog(m_Timer.getRunTime("Compute new cluster positions: "));
 
-        VectorMaxElement<RealType> md2(movingDistance);
+        VectorMaxElement<Real> md2(movingDistance);
         tbb::parallel_reduce(tbb::blocked_range<size_t>(0, movingDistance.size()), md2);
         maxMovingPercentage = sqrt(md2.result) / m_ParticleRadius * 100.0;
         m_Logger.printLog("Max moving distance in this iteration: " + NumberHelpers::formatWithCommas(maxMovingPercentage) + "% of particle radius");
@@ -306,8 +306,8 @@ void LloydRelaxation<RealType>::computeWeightedLloydClusters(const std::vector<R
 ///	Clusters a set of samples by assigning each sample to its closest cluster.
 ///	\c clusterCenter contains the centers of the cluster.
 ///	On return, \c samplesInCluster will contain for each cluster the indices of the samples in the cluster.
-template<class RealType>
-void LloydRelaxation<RealType>::collectSampleToCluster(const std::vector<Vec3<RealType> >& clusterCenters, const std::vector<Vec3<RealType> >& samples, Vec_VecUInt& samplesInCluster)
+template<class Real>
+void LloydRelaxation<Real>::collectSampleToCluster(const std::vector<Vec3<Real> >& clusterCenters, const std::vector<Vec3<Real> >& samples, Vec_VecUInt& samplesInCluster)
 {
     size_t numClusters = clusterCenters.size();
     size_t numSamples  = samples.size();
@@ -332,27 +332,27 @@ void LloydRelaxation<RealType>::collectSampleToCluster(const std::vector<Vec3<Re
                       {
                           for(size_t sampleIdx = r.begin(); sampleIdx != r.end(); ++sampleIdx)
                           {
-                              const Vec3<RealType>& sp = samples[sampleIdx];
+                              const Vec3<Real>& sp = samples[sampleIdx];
                               const Vec3i cellIdx = m_Grid3D.getCellIdx(sp);
 
                               bool bHasNeighbor = false;
-                              UInt32 closestClusterIdx = 0;
-                              RealType closestClusterD2 = std::numeric_limits<RealType>::max();
+                              UInt closestClusterIdx = 0;
+                              Real closestClusterD2 = std::numeric_limits<Real>::max();
 
 
-                              for(Int32 lk : {-1, 0, 1})
+                              for(Int lk : { -1, 0, 1 })
                               {
-                                  for(Int32 lj : {-1, 0, 1})
+                                  for(Int lj : { -1, 0, 1 })
                                   {
-                                      for(Int32 li : {-1, 0, 1})
+                                      for(Int li : { -1, 0, 1 })
                                       {
                                           const Vec3i cellId = cellIdx + Vec3i(li, lj, lk);
                                           if(!m_Grid3D.isValidCell(cellId)) continue;
 
-                                          for(const UInt32 clusterIdx : m_CellParticles(cellId))
+                                          for(const UInt clusterIdx : m_CellParticles(cellId))
                                           {
-                                              const Vec3<RealType>& cp = clusterCenters[clusterIdx];
-                                              const RealType d2 = glm::length2(sp - cp);
+                                              const Vec3<Real>& cp = clusterCenters[clusterIdx];
+                                              const Real d2 = glm::length2(sp - cp);
 
                                               if(d2 < closestClusterD2)
                                               {
@@ -388,26 +388,26 @@ void LloydRelaxation<RealType>::collectSampleToCluster(const std::vector<Vec3<Re
 ////////////////////////////////////////////////////////////////////////////////
 // static functions
 
-template<class RealType>
-size_t LloydRelaxation<RealType>::computeMedian(const std::vector<Vec3<RealType> >& samples, const Vec_UInt& subsetIndices)
+template<class Real>
+size_t LloydRelaxation<Real>::computeMedian(const std::vector<Vec3<Real> >& samples, const Vec_UInt& subsetIndices)
 {
-    std::vector<RealType> dist2(subsetIndices.size(), 0);
+    std::vector<Real> dist2(subsetIndices.size(), 0);
 
     for(size_t i = 0; i < subsetIndices.size(); ++i)
     {
-        const Vec3<RealType>& si = samples[subsetIndices[i]];
+        const Vec3<Real>& si = samples[subsetIndices[i]];
 
         for(size_t j = 0; j < i; ++j)
         {
-            const Vec3<RealType>& sj = samples[subsetIndices[j]];
-            const RealType        d2 = glm::length2(si - sj);
+            const Vec3<Real>& sj = samples[subsetIndices[j]];
+            const Real        d2 = glm::length2(si - sj);
             dist2[i] += d2;
             dist2[j] += d2;
         }
     }
 
-    RealType distMin = dist2[0];
-    size_t     idxMin  = 0;
+    Real   distMin = dist2[0];
+    size_t idxMin  = 0;
 
     for(size_t i = 1; i < dist2.size(); ++i)
     {
@@ -422,31 +422,31 @@ size_t LloydRelaxation<RealType>::computeMedian(const std::vector<Vec3<RealType>
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-size_t LloydRelaxation<RealType>::computeWeightedMedian(const std::vector<Vec3<RealType> >& samples, const std::vector<RealType>& weights, const Vec_UInt& subsetIndices)
+template<class Real>
+size_t LloydRelaxation<Real>::computeWeightedMedian(const std::vector<Vec3<Real> >& samples, const std::vector<Real>& weights, const Vec_UInt& subsetIndices)
 {
     __BNN_ASSERT(samples.size() == weights.size());
 
-    std::vector<RealType> dist2(subsetIndices.size(), 0);
+    std::vector<Real> dist2(subsetIndices.size(), 0);
 
     for(size_t i = 0; i < subsetIndices.size(); ++i)
     {
-        const Vec3<RealType>& si = samples[subsetIndices[i]];
-        const RealType        wi = weights[subsetIndices[i]];
+        const Vec3<Real>& si = samples[subsetIndices[i]];
+        const Real        wi = weights[subsetIndices[i]];
 
         for(size_t j = 0; j < i; ++j)
         {
-            const Vec3<RealType>& sj = samples[subsetIndices[j]];
-            const RealType        wj = weights[subsetIndices[j]];
-            RealType              d2 = glm::length2(si - sj);
+            const Vec3<Real>& sj = samples[subsetIndices[j]];
+            const Real        wj = weights[subsetIndices[j]];
+            Real              d2 = glm::length2(si - sj);
 
             dist2[i] += d2 * wj;
             dist2[j] += d2 * wi;
         }
     }
 
-    RealType distMin = dist2[0];
-    size_t     idxMin  = 0;
+    Real   distMin = dist2[0];
+    size_t idxMin  = 0;
 
     for(size_t i = 1; i < dist2.size(); ++i)
     {
@@ -461,32 +461,32 @@ size_t LloydRelaxation<RealType>::computeWeightedMedian(const std::vector<Vec3<R
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-void LloydRelaxation<RealType>::computeMean(const std::vector<Vec3<RealType> >& samples, const Vec_UInt& subsetIndices, Vec3<RealType>& mean)
+template<class Real>
+void LloydRelaxation<Real>::computeMean(const std::vector<Vec3<Real> >& samples, const Vec_UInt& subsetIndices, Vec3<Real>& mean)
 {
-    mean = Vec3<RealType>(0);
+    mean = Vec3<Real>(0);
 
     for(auto index : subsetIndices)
     {
         mean += samples[index];
     }
 
-    mean /= (RealType)subsetIndices.size();
+    mean /= (Real)subsetIndices.size();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-void LloydRelaxation<RealType>::computeWeightedMean(const std::vector<Vec3<RealType> >& samples, const std::vector<RealType>& weights, const Vec_UInt& subsetIndices, Vec3<RealType>& mean)
+template<class Real>
+void LloydRelaxation<Real>::computeWeightedMean(const std::vector<Vec3<Real> >& samples, const std::vector<Real>& weights, const Vec_UInt& subsetIndices, Vec3<Real>& mean)
 {
-    mean = Vec3<RealType>(0);
+    mean = Vec3<Real>(0);
     __BNN_ASSERT(samples.size() == weights.size());
 
-    RealType sumW = 0;
+    Real sumW = 0;
 
     for(auto index : subsetIndices)
     {
-        const Vec3<RealType>& sp = samples[index];
-        const RealType        w  = weights[index];
+        const Vec3<Real>& sp = samples[index];
+        const Real        w  = weights[index];
         mean += sp * w;
         sumW += w;
     }
@@ -497,25 +497,25 @@ void LloydRelaxation<RealType>::computeWeightedMean(const std::vector<Vec3<RealT
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-RealType LloydRelaxation<RealType>::computeMinDistance(const std::vector<Vec3<RealType> >& clusterCenters)
+template<class Real>
+Real LloydRelaxation<Real>::computeMinDistance(const std::vector<Vec3<Real> >& clusterCenters)
 {
-    std::vector<RealType> dist2(clusterCenters.size(), 0);
+    std::vector<Real> dist2(clusterCenters.size(), 0);
 
     tbb::parallel_for(tbb::blocked_range<size_t>(0, clusterCenters.size()),
                       [&](tbb::blocked_range<size_t> r)
                       {
                           for(size_t p = r.begin(); p != r.end(); ++p)
                           {
-                              const Vec3<RealType>& ppos = clusterCenters[p];
+                              const Vec3<Real>& ppos = clusterCenters[p];
                               const Vec3i& pcellId = m_Grid3D.getCellIdx(ppos);
-                              RealType min_d2 = std::numeric_limits<RealType>::max();
+                              Real min_d2 = std::numeric_limits<Real>::max();
 
-                              for(Int32 lk = -1; lk <= 1; ++lk)
+                              for(Int lk = -1; lk <= 1; ++lk)
                               {
-                                  for(Int32 lj = -1; lj <= 1; ++lj)
+                                  for(Int lj = -1; lj <= 1; ++lj)
                                   {
-                                      for(Int32 li = -1; li <= 1; ++li)
+                                      for(Int li = -1; li <= 1; ++li)
                                       {
                                           const Vec3i cellId = pcellId + Vec3i(li, lj, lk);
 
@@ -526,7 +526,7 @@ RealType LloydRelaxation<RealType>::computeMinDistance(const std::vector<Vec3<Re
                                               if(p == clusterIdx) continue;
 
                                               const auto& qpos = clusterCenters[clusterIdx];
-                                              const RealType d2 = glm::length2(ppos - qpos);
+                                              const Real d2 = glm::length2(ppos - qpos);
 
                                               if(d2 < min_d2)
                                               {
@@ -541,43 +541,43 @@ RealType LloydRelaxation<RealType>::computeMinDistance(const std::vector<Vec3<Re
                           }
                       });
 
-    VectorMinElement<RealType> md2(dist2);
+    VectorMinElement<Real> md2(dist2);
     tbb::parallel_reduce(tbb::blocked_range<size_t>(0, dist2.size()), md2);
 
     return sqrt(md2.result);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-RealType LloydRelaxation<RealType>::computeMinDistance(const std::vector<Vec3<RealType> >& clusterCenters, UInt32& numOverlappedParticles)
+template<class Real>
+Real LloydRelaxation<Real>::computeMinDistance(const std::vector<Vec3<Real> >& clusterCenters, UInt& numOverlappedParticles)
 {
-    std::vector<RealType> dist2(clusterCenters.size(), 0);
+    std::vector<Real> dist2(clusterCenters.size(), 0);
 
     tbb::parallel_for(tbb::blocked_range<size_t>(0, clusterCenters.size()),
                       [&](tbb::blocked_range<size_t> r)
                       {
                           for(size_t p = r.begin(); p != r.end(); ++p)
                           {
-                              const Vec3<RealType>& ppos = clusterCenters[p];
+                              const Vec3<Real>& ppos = clusterCenters[p];
                               const Vec3i& pcellId = m_Grid3D.getCellIdx(ppos);
-                              RealType min_d2 = std::numeric_limits<RealType>::max();
+                              Real min_d2 = std::numeric_limits<Real>::max();
 
-                              for(Int32 lk = -1; lk <= 1; ++lk)
+                              for(Int lk = -1; lk <= 1; ++lk)
                               {
-                                  for(Int32 lj = -1; lj <= 1; ++lj)
+                                  for(Int lj = -1; lj <= 1; ++lj)
                                   {
-                                      for(Int32 li = -1; li <= 1; ++li)
+                                      for(Int li = -1; li <= 1; ++li)
                                       {
                                           const Vec3i cellId = pcellId + Vec3i(li, lj, lk);
 
                                           if(!m_Grid3D.isValidCell(cellId)) continue;
 
-                                          for(const UInt32 clusterIdx : m_CellParticles(cellId))
+                                          for(const UInt clusterIdx : m_CellParticles(cellId))
                                           {
                                               if(p == clusterIdx) continue;
 
-                                              const Vec3<RealType>& qpos = clusterCenters[clusterIdx];
-                                              const RealType d2 = glm::length2(ppos - qpos);
+                                              const Vec3<Real>& qpos = clusterCenters[clusterIdx];
+                                              const Real d2 = glm::length2(ppos - qpos);
 
                                               if(d2 < min_d2) min_d2 = d2;
                                           }
@@ -590,7 +590,7 @@ RealType LloydRelaxation<RealType>::computeMinDistance(const std::vector<Vec3<Re
                       });
 
     numOverlappedParticles = 0;
-    const RealType threshold = MathHelpers::sqr(m_OverlapThreshold * m_ParticleRadius);
+    const Real threshold = MathHelpers::sqr(m_OverlapThreshold * m_ParticleRadius);
 
     for(size_t p = 0; p < dist2.size(); ++p)
     {
@@ -600,34 +600,34 @@ RealType LloydRelaxation<RealType>::computeMinDistance(const std::vector<Vec3<Re
         }
     }
 
-    VectorMinElement<RealType> md2(dist2);
+    VectorMinElement<Real> md2(dist2);
     tbb::parallel_reduce(tbb::blocked_range<size_t>(0, dist2.size()), md2);
 
     return sqrt(md2.result);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-UInt32 LloydRelaxation<RealType>::removeOverlappedParticles(std::vector<Vec3<RealType> >& clusterCenters)
+template<class Real>
+UInt LloydRelaxation<Real>::removeOverlappedParticles(std::vector<Vec3<Real> >& clusterCenters)
 {
     Vec_Char check_remove;
     check_remove.assign(clusterCenters.size(), 0);
-    const RealType threshold = MathHelpers::sqr(m_RemovingThreshold * m_ParticleRadius);
+    const Real threshold = MathHelpers::sqr(m_RemovingThreshold * m_ParticleRadius);
 
     tbb::parallel_for(tbb::blocked_range<size_t>(0, clusterCenters.size()),
                       [&](tbb::blocked_range<size_t> r)
                       {
                           for(size_t p = r.begin(); p != r.end(); ++p)
                           {
-                              const Vec3<RealType>& ppos = clusterCenters[p];
+                              const Vec3<Real>& ppos = clusterCenters[p];
                               const Vec3i& pcellId = m_Grid3D.getCellIdx(ppos);
-                              RealType min_d2 = std::numeric_limits<RealType>::max();
+                              Real min_d2 = std::numeric_limits<Real>::max();
 
-                              for(Int32 lk = -1; lk <= 1; ++lk)
+                              for(Int lk = -1; lk <= 1; ++lk)
                               {
-                                  for(Int32 lj = -1; lj <= 1; ++lj)
+                                  for(Int lj = -1; lj <= 1; ++lj)
                                   {
-                                      for(Int32 li = -1; li <= 1; ++li)
+                                      for(Int li = -1; li <= 1; ++li)
                                       {
                                           const Vec3i cellId = pcellId + Vec3i(li, lj, lk);
 
@@ -636,15 +636,15 @@ UInt32 LloydRelaxation<RealType>::removeOverlappedParticles(std::vector<Vec3<Rea
                                               continue;
                                           }
 
-                                          for(const UInt32 q : m_CellParticles(cellId))
+                                          for(const UInt q : m_CellParticles(cellId))
                                           {
                                               if(p <= q)
                                               {
                                                   continue;
                                               }
 
-                                              const Vec3<RealType>& qpos = clusterCenters[q];
-                                              const RealType d2 = glm::length2(ppos - qpos);
+                                              const Vec3<Real>& qpos = clusterCenters[q];
+                                              const Real d2 = glm::length2(ppos - qpos);
 
                                               if(d2 < min_d2)
                                               {
@@ -663,7 +663,7 @@ UInt32 LloydRelaxation<RealType>::removeOverlappedParticles(std::vector<Vec3<Rea
                           }
                       });
 
-    UInt32 num_removed = 0;
+    UInt num_removed = 0;
 
     for(size_t i = check_remove.size(); i-- > 0; )
     {
@@ -678,15 +678,15 @@ UInt32 LloydRelaxation<RealType>::removeOverlappedParticles(std::vector<Vec3<Rea
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-void LloydRelaxation<RealType>::sortSamples(std::vector<Vec3<RealType> >& samples, const Vec_VecUInt& samplesInCluster)
+template<class Real>
+void LloydRelaxation<Real>::sortSamples(std::vector<Vec3<Real> >& samples, const Vec_VecUInt& samplesInCluster)
 {
     static Timer m_Timer;
     size_t       numSamples = samples.size();
 
     ////////////////////////////////////////////////////////////////////////////////
     m_Timer.tick();
-    static std::vector<Vec3<RealType> > tmp_samples;
+    static std::vector<Vec3<Real> > tmp_samples;
     tmp_samples.resize(samples.size());
 
     size_t index = 0;
@@ -712,8 +712,8 @@ void LloydRelaxation<RealType>::sortSamples(std::vector<Vec3<RealType> >& sample
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-void LloydRelaxation<RealType>::collectClustersToCells(const std::vector<Vec3<RealType> >& clusterCenters)
+template<class Real>
+void LloydRelaxation<Real>::collectClustersToCells(const std::vector<Vec3<Real> >& clusterCenters)
 {
     for(auto& cell : m_CellParticles)
         cell.resize(0);

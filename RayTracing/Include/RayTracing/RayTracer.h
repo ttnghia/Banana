@@ -23,7 +23,7 @@
 #include <optixu/optixu_aabb_namespace.h>
 #include <optixu/optixu_math_stream_namespace.h>
 
-#include <Banana/TypeNames.h>
+#include <Banana/Setup.h>
 #include <OpenGLHelpers/Camera.h>
 #include <OpenGLHelpers/OpenGLTexture.h>
 #include <OpenGLHelpers/OpenGLMacros.h>

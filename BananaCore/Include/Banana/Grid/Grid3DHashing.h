@@ -18,28 +18,28 @@
 #pragma once
 
 #include <Banana/Grid/Grid3D.h>
+#include <Banana/Array/Array3.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-class Grid3DHashing : public Grid3D<RealType>
+class Grid3DHashing : public Grid3D
 {
 public:
     Grid3DHashing() = default;
-    Grid3DHashing(const Vec3<RealType>& bMin, const Vec3<RealType>& bMax, RealType cellSize) : Grid3D(bMin, bMax, cellSize), m_bCellIdxNeedResize(true) {}
+    Grid3DHashing(const Vec3r& bMin, const Vec3r& bMax, Real cellSize) : Grid3D(bMin, bMax, cellSize), m_bCellIdxNeedResize(true) {}
 
-    virtual void setCellSize(RealType cellSize) override;
+    virtual void setCellSize(Real cellSize) override;
 
-    void collectIndexToCells(const Vec_Vec3<RealType>& particles);
-    void getNeighborList(const Vec_Vec3<RealType>& particles, Vec_VecUInt& neighborList, int cellSpan = 1);
-    void getNeighborList(const Vec3<RealType>& ppos, Vec_UInt& neighborList, int cellSpan = 1);
-    void getNeighborList(const Vec_Vec3<RealType>& particles, Vec_VecUInt& neighborList, RealType d2, int cellSpan = 1);
-    void getNeighborList(const Vec_Vec3<RealType>& particles, const Vec3<RealType>& ppos, Vec_UInt& neighborList, RealType d2, int cellSpan = 1);
+    void collectIndexToCells(const Vec_Vec3r& particles);
+    void getNeighborList(const Vec_Vec3r& particles, Vec_VecUInt& neighborList, int cellSpan = 1);
+    void getNeighborList(const Vec3r& ppos, Vec_UInt& neighborList, int cellSpan = 1);
+    void getNeighborList(const Vec_Vec3r& particles, Vec_VecUInt& neighborList, Real d2, int cellSpan = 1);
+    void getNeighborList(const Vec_Vec3r& particles, const Vec3r& ppos, Vec_UInt& neighborList, Real d2, int cellSpan = 1);
 
     const Vec_UInt& getParticleIdxSortedByCell();
-    void            sortData(Vec_Vec3<RealType>& data);
+    void            sortData(Vec_Vec3r& data);
 
     template<class IndexType>
     const Vec_UInt& getParticleIdxInCell(const Vec3<IndexType>& cellIdx) const { return m_CellParticleIdx(cellIdx); }
@@ -49,154 +49,6 @@ private:
     Vec_UInt       m_ParticleIdx;
     bool           m_bCellIdxNeedResize = false;      // to track and resize the m_CellParticleIdx array
 };
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-// Implementation
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-void Grid3DHashing<RealType>::setCellSize(RealType cellSize)
-{
-    Grid3D<RealType>::setCellSize(cellSize);
-    m_bCellIdxNeedResize = true;
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-void Grid3DHashing<RealType>::collectIndexToCells(const Vec_Vec3<RealType>& particles)
-{
-    if(m_bCellIdxNeedResize)
-    {
-        m_CellParticleIdx.resize(getNumCells());
-        m_bCellIdxNeedResize = false;
-    }
-
-    for(auto& cell : m_CellParticleIdx.vec_data())
-        cell.resize(0);
-
-    // cannot run in parallel....
-    for(UInt32 p = 0, p_end = static_cast<UInt32>(particles.size()); p < p_end; ++p)
-    {
-        auto cellIdx = getCellIdx<int>(particles[p]);
-        m_CellParticleIdx(cellIdx).push_back(p);
-    }
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // reset particle index vector
-    m_ParticleIdx.resize(0);
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-void Banana::Grid3DHashing<RealType>::getNeighborList(const Vec_Vec3<RealType>& particles, Vec_VecUInt& neighborList, int cellSpan /*= 1*/)
-{
-    ParallelFuncs::parallel_for<size_t>(0, particles.size(), [&](size_t p) { getNeighborList(particles[p], neighborList[p], cellSpan); });
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-void Banana::Grid3DHashing<RealType>::getNeighborList(const Vec3<RealType>& ppos, Vec_UInt& neighborList, int cellSpan /*= 1*/)
-{
-    neighborList.resize(0);
-
-    Vec3i cellIdx = getCellIdx<int>(ppos);
-
-    for(int lk = -cellSpan; lk <= cellSpan; ++lk)
-    {
-        for(int lj = -cellSpan; lj <= cellSpan; ++lj)
-        {
-            for(int li = -cellSpan; li <= cellSpan; ++li)
-            {
-                const Vec3i neighborCellIdx = Vec3i(cellIdx[0] + li, cellIdx[1] + lj, cellIdx[2] + lk);
-
-                if(!isValidCell(neighborCellIdx))
-                    continue;
-
-                const Vec_UInt& cell = m_CellParticleIdx(neighborCellIdx);
-
-                if(cell.size() > 0)
-                    neighborList.insert(neighborList.end(), cell.begin(), cell.end());
-            }
-        }
-    }   // end loop over neighbor cells
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-void Banana::Grid3DHashing<RealType>::getNeighborList(const Vec_Vec3<RealType>& particles, Vec_VecUInt& neighborList, RealType d2, int cellSpan /*= 1*/)
-{
-    ParallelFuncs::parallel_for<size_t>(0, particles.size(), [&](size_t p) { getNeighborList(particles, particles[p], neighborList[p], d2, cellSpan); });
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-void Banana::Grid3DHashing<RealType>::getNeighborList(const Vec_Vec3<RealType>& particles, const Vec3<RealType>& ppos, Vec_UInt& neighborList, RealType d2, int cellSpan /*= 1*/)
-{
-    neighborList.resize(0);
-
-    Vec3i cellIdx = getCellIdx<int>(ppos);
-
-    for(int lk = -cellSpan; lk <= cellSpan; ++lk)
-    {
-        for(int lj = -cellSpan; lj <= cellSpan; ++lj)
-        {
-            for(int li = -cellSpan; li <= cellSpan; ++li)
-            {
-                const Vec3i neighborCellIdx = Vec3i(cellIdx[0] + li, cellIdx[1] + lj, cellIdx[2] + lk);
-
-                if(!isValidCell(neighborCellIdx))
-                    continue;
-
-                const Vec_UInt& cell = m_CellParticleIdx(neighborCellIdx);
-
-                if(cell.size() > 0)
-                {
-                    for(unsigned int q : cell)
-                    {
-                        RealType pqd2 = glm::length2(ppos - particles[q]);
-
-                        if(pqd2 > 0 && pqd2 < d2)
-                            neighborList.push_back(q);
-                    }
-                }
-            }
-        }
-    }   // end loop over neighbor cells
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-const Vec_UInt& Banana::Grid3DHashing<RealType>::getParticleIdxSortedByCell()
-{
-    if(m_ParticleIdx.size() > 0)
-        return m_ParticleIdx;
-
-    for(auto& cell : m_CellParticleIdx.vec_data())
-    {
-        if(cell.size() > 0)
-            m_ParticleIdx.insert(m_ParticleIdx.end(), cell.begin(), cell.end());
-    }
-
-    return m_ParticleIdx;
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-void Banana::Grid3DHashing<RealType>::sortData(Vec_Vec3<RealType>& data)
-{
-    const auto& sortedIdx = getParticleIdxSortedByCell();
-    assert(sortedIdx.size() == data.size());
-
-    Vec_Vec3<RealType> tmp(data.begin(), data.end());
-    std::transform(sortedIdx.cbegin(), sortedIdx.cend(),
-#ifdef _MSC_VER
-                   stdext::unchecked_array_iterator<Vec3<RealType>*>(data.data()),
-#else
-                   data,
-#endif
-                   [&](UInt32 i) { return tmp[i]; });
-}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana

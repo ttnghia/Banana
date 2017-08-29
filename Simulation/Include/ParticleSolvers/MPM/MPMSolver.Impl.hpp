@@ -15,13 +15,13 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-template<class RealType>
-void Banana::MPMSolver<RealType>::makeReady()
+template<class Real>
+void Banana::MPMSolver<Real>::makeReady()
 {}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-void Banana::MPMSolver<RealType>::advanceFrame()
+template<class Real>
+void Banana::MPMSolver<Real>::advanceFrame()
 {
 #if 0
     try
@@ -47,10 +47,10 @@ void Banana::MPMSolver<RealType>::advanceFrame()
 #endif
 }
 
-template<class RealType>
-void Banana::MPMSolver<RealType>::saveParticleData()
+template<class Real>
+void Banana::MPMSolver<Real>::saveParticleData()
 {}
 
-template<class RealType>
-void Banana::MPMSolver<RealType>::saveMemoryState()
+template<class Real>
+void Banana::MPMSolver<Real>::saveMemoryState()
 {}

@@ -75,7 +75,7 @@
 #include <Banana/Timer.h>      
 #include <spdlog/spdlog.h>
 #include <ProgressBar.hpp>
-#include "./TypeNames.h"
+#include "./Setup.h"
 
 
 #ifdef USING_TBB
@@ -125,8 +125,8 @@ void load_data(BlockSparseMatrix<Mat3x3D>& mat, std::vector<Vec3D>& rhs)
         exit(-1);
     }
 
-    UInt32 size;
-    fread(&size, 1, sizeof(UInt32), fptr);
+    UInt size;
+    fread(&size, 1, sizeof(UInt), fptr);
     float *data_ptr = new float[3 * size];
     size_t num_read = fread(data_ptr, 1, size * 3 * sizeof(float), fptr);
     assert(num_read == size * 3 * sizeof(float));
@@ -173,18 +173,18 @@ void copy_data(BlockSparseMatrix<Mat3x3D>& mat_src, const std::vector<Vec3D>& rh
 {
     mat_dst.zero();
     mat_dst.resize(mat_src.size * 3);
-    for(UInt32 i = 0; i < mat_src.size; ++i)
+    for(UInt i = 0; i < mat_src.size; ++i)
     {
-        for(UInt32 j = 0; j < 3; ++j)
+        for(UInt j = 0; j < 3; ++j)
         {
             mat_dst.index[i * 3 + j].resize(mat_src.index[i].size() * 3);
             mat_dst.value[i * 3 + j].resize(mat_src.value[i].size() * 3);
         }
     }
 
-    for(UInt32 i = 0; i < mat_src.size; ++i)
+    for(UInt i = 0; i < mat_src.size; ++i)
     {
-        for(UInt32 j = 0; j < mat_src.index[i].size(); ++j)
+        for(UInt j = 0; j < mat_src.index[i].size(); ++j)
         {
             const Mat3x3D& tmp = mat_src.value[i][j];
 
@@ -192,9 +192,9 @@ void copy_data(BlockSparseMatrix<Mat3x3D>& mat_src, const std::vector<Vec3D>& rh
             const real* tmp_ptr = glm::value_ptr(tmp);
 #endif
 
-            for(UInt32 l1 = 0; l1 < 3; ++l1)
+            for(UInt l1 = 0; l1 < 3; ++l1)
             {
-                for(UInt32 l2 = 0; l2 < 3; ++l2)
+                for(UInt l2 = 0; l2 < 3; ++l2)
                 {
                     mat_dst.index[i * 3 + l1][j * 3 + l2] = mat_src.index[i][j] * 3 + l2;
 

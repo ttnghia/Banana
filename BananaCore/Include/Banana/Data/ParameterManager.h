@@ -17,7 +17,7 @@
 
 #pragma once
 
-#include <Banana/TypeNames.h>
+#include <Banana/Setup.h>
 
 #include <unordered_map>
 #include <string>
@@ -110,8 +110,8 @@ public:
         m_VariantData[key] = { value, TYPE_POINTER };
     }
 
-    template<class RealType>
-    void set(const KeyType& key, const Vec3<RealType> value)
+    template<class Real>
+    void set(const KeyType& key, const Vec3<Real> value)
     {
         VariantField field;
         field.typeId           = TYPE_VEC3;
@@ -122,8 +122,8 @@ public:
         m_VariantData[key] = field;
     }
 
-    template<class RealType>
-    void set(const KeyType& key, const Vec4<RealType> value)
+    template<class Real>
+    void set(const KeyType& key, const Vec4<Real> value)
     {
         VariantField field;
         field.typeId           = TYPE_VEC4;
@@ -169,44 +169,44 @@ public:
         }
     }
 
-    template<class RealType>
-    RealType getReal(const KeyType& key)
+    template<class Real>
+    Real getReal(const KeyType& key)
     {
         assert(hasVariantParam(key) || hasStringParam(key));
         if(hasVariantParam(key))
         {
             assert(m_VariantData[key].typeId == TYPE_REAL);
-            return static_cast<RealType>(m_VariantData[key].data.data_real);
+            return static_cast<Real>(m_VariantData[key].data.data_real);
         }
         else
         {
-            return static_cast<RealType>(stod(m_StringData[key]));
+            return static_cast<Real>(stod(m_StringData[key]));
         }
     }
 
-    template<class RealType>
-    Vec3<RealType> getVec3(const KeyType& key)
+    template<class Real>
+    Vec3<Real> getVec3(const KeyType& key)
     {
         assert(hasVariantParam(key));
         assert(m_VariantData[key].typeId == TYPE_VEC3);
-        Vec3<RealType> v;
-        v[0] = static_cast<RealType>(m_VariantData[key].data.data_vec[0]);
-        v[1] = static_cast<RealType>(m_VariantData[key].data.data_vec[1]);
-        v[2] = static_cast<RealType>(m_VariantData[key].data.data_vec[2]);
+        Vec3<Real> v;
+        v[0] = static_cast<Real>(m_VariantData[key].data.data_vec[0]);
+        v[1] = static_cast<Real>(m_VariantData[key].data.data_vec[1]);
+        v[2] = static_cast<Real>(m_VariantData[key].data.data_vec[2]);
 
         return v;
     }
 
-    template<class RealType>
-    Vec4<RealType> getVec4(const KeyType& key)
+    template<class Real>
+    Vec4<Real> getVec4(const KeyType& key)
     {
         assert(hasVariantParam(key));
         assert(m_VariantData[key].typeId == TYPE_VEC4);
-        Vec3<RealType> v;
-        v[0] = static_cast<RealType>(m_VariantData[key].data.data_vec[0]);
-        v[1] = static_cast<RealType>(m_VariantData[key].data.data_vec[1]);
-        v[2] = static_cast<RealType>(m_VariantData[key].data.data_vec[2]);
-        v[3] = static_cast<RealType>(m_VariantData[key].data.data_vec[3]);
+        Vec3<Real> v;
+        v[0] = static_cast<Real>(m_VariantData[key].data.data_vec[0]);
+        v[1] = static_cast<Real>(m_VariantData[key].data.data_vec[1]);
+        v[2] = static_cast<Real>(m_VariantData[key].data.data_vec[2]);
+        v[3] = static_cast<Real>(m_VariantData[key].data.data_vec[3]);
 
         return v;
     }

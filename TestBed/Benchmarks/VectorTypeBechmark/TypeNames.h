@@ -34,12 +34,12 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 using Int8 = int8_t;
 using Int16 = int16_t;
-using Int32 = int32_t;
+using Int = int32_t;
 using  Int64 = int64_t;
 
 using UInt8 = uint8_t;
 using UInt16 = uint16_t;
-using UInt32 = uint32_t;
+using UInt = uint32_t;
 using UInt64 = uint64_t;
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -129,11 +129,11 @@ EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(VectorType<float>) \
 EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(VectorType<double>) \
 EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(VectorType<Int8>) \
 EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(VectorType<Int16>) \
-EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(VectorType<Int32>) \
+EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(VectorType<Int>) \
 EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(VectorType<Int64>) \
 EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(VectorType<UInt8>) \
 EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(VectorType<UInt16>) \
-EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(VectorType<UInt32>) \
+EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(VectorType<UInt>) \
 EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(VectorType<UInt64>)
 
 
@@ -316,14 +316,14 @@ using Vec_VecMat3x3 = std::vector<std::vector<Mat3x3<RealType> > >;
 // vectors of basic types
 using Vec_Int8 = std::vector<Int8>;
 using Vec_Int16 = std::vector<Int16>;
-using Vec_Int = std::vector<Int32>;
-using Vec_Int32 = std::vector<Int32>;
+using Vec_Int = std::vector<Int>;
+using Vec_Int32 = std::vector<Int>;
 using Vec_Int64 = std::vector<Int64>;
 
 using Vec_UInt8 = std::vector<UInt8>;
 using Vec_UInt16 = std::vector<UInt16>;
-using Vec_UInt = std::vector<UInt32>;
-using Vec_UInt32 = std::vector<UInt32>;
+using Vec_UInt = std::vector<UInt>;
+using Vec_UInt32 = std::vector<UInt>;
 using Vec_UInt64 = std::vector<UInt64>;
 
 using Vec_Char = std::vector<char>;
@@ -333,14 +333,14 @@ using Vec_Double = std::vector<double>;
 // vectors of vectors
 using Vec_VecInt8 = std::vector<std::vector<Int8> >;
 using Vec_VecInt16 = std::vector<std::vector<Int16> >;
-using Vec_VecInt = std::vector<std::vector<Int32> >;
-using Vec_VecInt32 = std::vector<std::vector<Int32> >;
+using Vec_VecInt = std::vector<std::vector<Int> >;
+using Vec_VecInt32 = std::vector<std::vector<Int> >;
 using Vec_VecInt64 = std::vector<std::vector<Int64> >;
 
 using Vec_VecUInt8 = std::vector<std::vector<UInt8> >;
 using Vec_VecUInt16 = std::vector<std::vector<UInt16> >;
-using Vec_VecUInt = std::vector<std::vector<UInt32> >;
-using Vec_VecUInt32 = std::vector<std::vector<UInt32> >;
+using Vec_VecUInt = std::vector<std::vector<UInt> >;
+using Vec_VecUInt32 = std::vector<std::vector<UInt> >;
 using Vec_VecUInt64 = std::vector<std::vector<UInt64> >;
 
 using Vec_VecChar = std::vector<std::vector<char> >;
@@ -348,8 +348,8 @@ using Vec_VecFloat = std::vector<std::vector<float> >;
 using Vec_VecDouble = std::vector<std::vector<double> >;
 
 // others
-typedef std::pair<Int32, Int32>  IPair;
-typedef std::pair<UInt32, UInt32>  UIntPair;
+typedef std::pair<Int, Int>  IPair;
+typedef std::pair<UInt, UInt>  UIntPair;
 typedef std::pair<float, float>  FloatPair;
 typedef std::pair<double, double>  DoublePair;
 

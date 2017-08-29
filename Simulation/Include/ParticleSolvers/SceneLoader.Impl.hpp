@@ -22,16 +22,16 @@ namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-template<class RealType>
-void Banana::SceneLoader<RealType>::loadScene(const std::string& sceneFile)
+template<class Real>
+void Banana::SceneLoader<Real>::loadScene(const std::string& sceneFile)
 {}
 
-template<class RealType>
-void Banana::SceneLoader<RealType>::loadFrameParams(const nlohmann::json& jParams, const std::shared_ptr<GlobalParameters<RealType> >& frameParams)
+template<class Real>
+void Banana::SceneLoader<Real>::loadFrameParams(const nlohmann::json& jParams, const std::shared_ptr<GlobalParameters<Real> >& frameParams)
 {}
 
-template<class RealType>
-void Banana::SceneLoader<RealType>::loadObjectParams(const nlohmann::json& jParams)
+template<class Real>
+void Banana::SceneLoader<Real>::loadObjectParams(const nlohmann::json& jParams)
 {}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

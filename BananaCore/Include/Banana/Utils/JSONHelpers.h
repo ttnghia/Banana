@@ -17,8 +17,7 @@
 
 #pragma once
 
-#include <Banana/TypeNames.h>
-#include <Banana/Macros.h>
+#include <Banana/Setup.h>
 
 #include <json.hpp>
 #include <vector>
@@ -30,8 +29,8 @@ namespace Banana
 namespace JSONHelpers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class T>
-inline bool readValue(const nlohmann::json& j, T& v, const std::string& valueName)
+template<class Real>
+inline bool readValue(const nlohmann::json& j, Real& v, const std::string& valueName)
 {
     if(j.find(valueName) == j.end())
         return false;
@@ -40,7 +39,7 @@ inline bool readValue(const nlohmann::json& j, T& v, const std::string& valueNam
     if(jval.is_null())
         return false;
 
-    v = jval.get<T>();
+    v = jval.get<Real>();
     return true;
 }
 
@@ -66,8 +65,8 @@ inline bool readBool(const nlohmann::json& j, bool& v, const std::string& valueN
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class T>
-inline bool readVector(const nlohmann::json& j, Vec2<T>& vec, const std::string& valueName)
+template<class Real>
+inline bool readVector(const nlohmann::json& j, Vec2<Real>& vec, const std::string& valueName)
 {
     if(j.find(valueName) == j.end())
         return false;
@@ -77,7 +76,7 @@ inline bool readVector(const nlohmann::json& j, Vec2<T>& vec, const std::string&
     if(jval.is_null())
         return false;
 
-    std::vector<T> values = jval.get<std::vector<T> >();
+    std::vector<Real> values = jval.get<std::vector<Real> >();
     __BNN_ASSERT(values.size() == 2);
 
     for(unsigned int i = 0; i < values.size(); i++)
@@ -87,8 +86,8 @@ inline bool readVector(const nlohmann::json& j, Vec2<T>& vec, const std::string&
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class T>
-inline bool readVector(const nlohmann::json& j, Vec3<T>& vec, const std::string& valueName)
+template<class Real>
+inline bool readVector(const nlohmann::json& j, Vec3<Real>& vec, const std::string& valueName)
 {
     if(j.find(valueName) == j.end())
         return false;
@@ -97,7 +96,7 @@ inline bool readVector(const nlohmann::json& j, Vec3<T>& vec, const std::string&
     if(jval.is_null())
         return false;
 
-    std::vector<T> values = jval.get<std::vector<T> >();
+    std::vector<Real> values = jval.get<std::vector<Real> >();
     __BNN_ASSERT(values.size() == 3);
 
     for(int i = 0; i < 3; i++)

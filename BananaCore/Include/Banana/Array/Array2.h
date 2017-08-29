@@ -17,7 +17,7 @@
 
 #pragma once
 
-#include <Banana/TypeNames.h>
+#include <Banana/Setup.h>
 
 #include <algorithm>
 #include <cassert>
@@ -32,15 +32,15 @@ template<class T>
 class Array2
 {
 private:
-    typename std::vector<T> ::size_type m_SizeX, m_SizeY;
-    std::vector<T>                      m_Data;
+    typename Vector<T>::size_type m_SizeX, m_SizeY;
+    Vector<T>                     m_Data;
 
 public:
-    using iterator               = typename std::vector<T>::iterator;
-    using const_iterator         = typename std::vector<T>::const_iterator;
-    using reverse_iterator       = typename std::vector<T>::reverse_iterator;
-    using const_reverse_iterator = typename std::vector<T>::const_reverse_iterator;
-    using size_type              = typename std::vector<T>::size_type;
+    using iterator               = typename Vector<T>::iterator;
+    using const_iterator         = typename Vector<T>::const_iterator;
+    using reverse_iterator       = typename Vector<T>::reverse_iterator;
+    using const_reverse_iterator = typename Vector<T>::const_reverse_iterator;
+    using size_type              = typename Vector<T>::size_type;
 
     ////////////////////////////////////////////////////////////////////////////////
     // constructors & destructor
@@ -50,7 +50,7 @@ public:
     Array2(IndexType sizeX, IndexType sizeY) : m_SizeX(sizeX), m_SizeY(sizeY), m_Data(sizeX * sizeY) {}
 
     template<class IndexType>
-    Array2(IndexType sizeX, IndexType sizeY, const std::vector<T>& data) : m_SizeX(sizeX), m_SizeY(sizeY), m_Data(data) {}
+    Array2(IndexType sizeX, IndexType sizeY, const Vector<T>& data) : m_SizeX(sizeX), m_SizeY(sizeY), m_Data(data) {}
 
     template<class IndexType>
     Array2(IndexType sizeX, IndexType sizeY, const T& value) : m_SizeX(sizeX), m_SizeY(sizeY), m_Data(sizeX * sizeY, value) {}
@@ -76,7 +76,7 @@ public:
     }
 
     template<class IndexType>
-    bool isValidIndex(const glm::tvec2<IndexType>& index) const
+    bool isValidIndex(const Vec2<IndexType>& index) const
     {
         return isValidIndex<IndexType>(index[0], index[1]);
     }
@@ -103,7 +103,7 @@ public:
     }
 
     template<class IndexType>
-    size_type getLinearizedIndex(const glm::tvec2<IndexType>& index) const
+    size_type getLinearizedIndex(const Vec2<IndexType>& index) const
     {
         getLinearizedIndex<IndexType>(index[0], index[1]);
     }
@@ -255,12 +255,12 @@ public:
         return const_reverse_iterator(cbegin());
     }
 
-    std::vector<T>& vec_data()
+    Vector<T>& vec_data()
     {
         return m_Data;
     }
 
-    const std::vector<T>& vec_data() const
+    const Vector<T>& vec_data() const
     {
         return m_Data;
     }
@@ -350,12 +350,13 @@ using Array2i   = Array2<int>;
 using Array2ui  = Array2<unsigned int>;
 using Array2f   = Array2<float>;
 using Array2d   = Array2<double>;
+using Array2r   = Array2<Real>;
 
-using Array2_VecChar   = Array2<std::vector<char> >;
-using Array2_VecInt    = Array2<std::vector<int> >;
-using Array2_VecUInt   = Array2<std::vector<unsigned int> >;
-using Array2_VecFloat  = Array2<std::vector<float> >;
-using Array2_VecDouble = Array2<std::vector<double> >;
+using Array2_VecChar   = Array2<Vector<char> >;
+using Array2_VecInt    = Array2<Vector<int> >;
+using Array2_VecUInt   = Array2<Vector<unsigned int> >;
+using Array2_VecFloat  = Array2<Vector<float> >;
+using Array2_VecDouble = Array2<Vector<double> >;
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana

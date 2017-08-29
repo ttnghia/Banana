@@ -17,7 +17,7 @@
 
 #pragma once
 
-#include <Banana/TypeNames.h>
+#include <Banana/Setup.h>
 #include <Banana/Utils/Logger.h>
 #include <Banana/Grid/Grid3D.h>
 

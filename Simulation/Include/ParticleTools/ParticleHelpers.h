@@ -17,8 +17,7 @@
 
 #pragma once
 
-#include <Banana/TypeNames.h>
-#include <Banana/Macros.h>
+#include <Banana/Setup.h>
 #include <Banana/Data/DataIO.h>
 #include <Banana/Utils/FileHelpers.h>
 #include <Banana/Utils/MathHelpers.h>
@@ -37,29 +36,29 @@ namespace Banana
 namespace ParticleHelpers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-Vec2i createGrid(const Vec2<RealType>& bmin, const Vec2<RealType>& bmax, RealType spacing);
+template<class Real>
+Vec2i createGrid(const Vec2<Real>& bmin, const Vec2<Real>& bmax, Real spacing);
 
-template<class RealType>
-Vec3i createGrid(const Vec3<RealType>& bmin, const Vec3<RealType>& bmax, RealType spacing);
+template<class Real>
+Vec3i createGrid(const Vec3<Real>& bmin, const Vec3<Real>& bmax, Real spacing);
 
-template<class RealType>
-void transform(Vec_Vec3<RealType>& particles, const Vec3<RealType>& translation, const Vec3<RealType>& rotation);
+template<class Real>
+void transform(Vec_Vec3<Real>& particles, const Vec3<Real>& translation, const Vec3<Real>& rotation);
 
-template<class RealType>
-UInt32 loadBinary(const std::string& fileName, Vec_Vec2<RealType>& particles, RealType& particleRadius);
+template<class Real>
+UInt loadBinary(const std::string& fileName, Vec_Vec2<Real>& particles, Real& particleRadius);
 
-template<class RealType>
-UInt32 loadBinary(const std::string& fileName, Vec_Vec3<RealType>& particles, RealType& particleRadius);
+template<class Real>
+UInt loadBinary(const std::string& fileName, Vec_Vec3<Real>& particles, Real& particleRadius);
 
-template<class RealType, class VectorType>
-void saveBinary(const std::string& fileName, std::vector<VectorType>& particles, RealType& particleRadius);
+template<class Real, class VectorType>
+void saveBinary(const std::string& fileName, std::vector<VectorType>& particles, Real& particleRadius);
 
-template<class RealType>
-void jitter(Vec3<RealType>& ppos, RealType maxJitter);
+template<class Real>
+void jitter(Vec3<Real>& ppos, Real maxJitter);
 
-template<class RealType>
-void clamp(Vec3<RealType>& ppos, const Vec3<RealType>& bmin, const Vec3<RealType>& bmax, RealType margin = 0);
+template<class Real>
+void clamp(Vec3<Real>& ppos, const Vec3<Real>& bmin, const Vec3<Real>& bmax, Real margin = 0);
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 enum RelaxationMethod
@@ -67,8 +66,8 @@ enum RelaxationMethod
     LloydRelaxationMethod,
     SPHBasedRelaxationMethod
 };
-template<class RealType>
-void relaxPosition(const Vec_Vec3<RealType>& particles, RelaxationMethod method);
+template<class Real>
+void relaxPosition(const Vec_Vec3<Real>& particles, RelaxationMethod method);
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #include <ParticleTools/ParticleHelpers.Impl.hpp>

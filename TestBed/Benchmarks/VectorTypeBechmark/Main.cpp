@@ -38,7 +38,7 @@
 #include <Banana/Timer.h>      
 #include <spdlog/spdlog.h>
 #include <ProgressBar.hpp>
-#include "./TypeNames.h"
+#include "./Setup.h"
 
 #define CATCH_CONFIG_MAIN
 #include <catch.hpp>

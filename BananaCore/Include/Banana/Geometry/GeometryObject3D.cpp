@@ -15,79 +15,79 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-
+#if 0
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // sign distance field for triangle mesh
-template<class RealType>
-void computeSDFMesh(const std::vector<Vec3ui>& faces, const std::vector<Vec3<RealType> >& vertices, const Vec3<RealType>& origin, RealType cellSize,
-                    UInt32 ni, UInt32 nj, UInt32 nk, Array3<RealType>& SDF, int exactBand = 1)
+template<class Real>
+void computeSDFMesh(const std::vector<Vec3ui>& faces, const std::vector<Vec3r>& vertices, const Vec3r& origin, Real cellSize,
+                    UInt ni, UInt nj, UInt nk, Array3<Real>& SDF, int exactBand = 1)
 {
     __BNN_ASSERT(ni > 0 && nj > 0 && nk > 0);
 
     SDF.resize(ni, nj, nk);
-    SDF.assign(RealType(ni + nj + nk) * cellSize);       // upper bound on distance
+    SDF.assign(Real(ni + nj + nk) * cellSize);       // upper bound on distance
     Array3ui closest_tri(ni, nj, nk, 0xffffffff);
 
     // intersection_count(i,j,k) is # of tri intersections in (i-1,i]x{j}x{k}
     // we begin by initializing distances near the mesh, and figuring out intersection counts
     Array3ui intersectionCount(ni, nj, nk, 0u);
 
-    for(UInt32 face = 0, faceEnd = static_cast<UInt32>(faces.size()); face < faceEnd; ++face)
+    for(UInt face = 0, faceEnd = static_cast<UInt>(faces.size()); face < faceEnd; ++face)
     {
-        UInt32 p = faces[face][0];
-        UInt32 q = faces[face][1];
-        UInt32 r = faces[face][2];
+        UInt p = faces[face][0];
+        UInt q = faces[face][1];
+        UInt r = faces[face][2];
 
         // coordinates in grid to high precision
-        Vec3<RealType> fp = (vertices[p] - origin) / cellSize;
-        Vec3<RealType> fq = (vertices[q] - origin) / cellSize;
-        Vec3<RealType> fr = (vertices[r] - origin) / cellSize;
+        Vec3r fp = (vertices[p] - origin) / cellSize;
+        Vec3r fq = (vertices[q] - origin) / cellSize;
+        Vec3r fr = (vertices[r] - origin) / cellSize;
 
         // do distances nearby
-        Int32 i0 = MathHelpers::clamp(static_cast<Int32>(MathHelpers::min(fp[0], fq[0], fr[0])) - exactBand, 0, static_cast<Int32>(ni - 1));
-        Int32 i1 = MathHelpers::clamp(static_cast<Int32>(MathHelpers::max(fp[0], fq[0], fr[0])) + exactBand + 1, 0, static_cast<Int32>(ni - 1));
-        Int32 j0 = MathHelpers::clamp(static_cast<Int32>(MathHelpers::min(fp[1], fq[1], fr[1])) - exactBand, 0, static_cast<Int32>(nj - 1));
-        Int32 j1 = MathHelpers::clamp(static_cast<Int32>(MathHelpers::max(fp[1], fq[1], fr[1])) + exactBand + 1, 0, static_cast<Int32>(nj - 1));
-        Int32 k0 = MathHelpers::clamp(static_cast<Int32>(MathHelpers::min(fp[2], fq[2], fr[2])) - exactBand, 0, static_cast<Int32>(nk - 1));
-        Int32 k1 = MathHelpers::clamp(static_cast<Int32>(MathHelpers::max(fp[2], fq[2], fr[2])) + exactBand + 1, 0, static_cast<Int32>(nk - 1));
+        Int i0 = MathHelpers::clamp(static_cast<Int>(MathHelpers::min(fp[0], fq[0], fr[0])) - exactBand, 0, static_cast<Int>(ni - 1));
+        Int i1 = MathHelpers::clamp(static_cast<Int>(MathHelpers::max(fp[0], fq[0], fr[0])) + exactBand + 1, 0, static_cast<Int>(ni - 1));
+        Int j0 = MathHelpers::clamp(static_cast<Int>(MathHelpers::min(fp[1], fq[1], fr[1])) - exactBand, 0, static_cast<Int>(nj - 1));
+        Int j1 = MathHelpers::clamp(static_cast<Int>(MathHelpers::max(fp[1], fq[1], fr[1])) + exactBand + 1, 0, static_cast<Int>(nj - 1));
+        Int k0 = MathHelpers::clamp(static_cast<Int>(MathHelpers::min(fp[2], fq[2], fr[2])) - exactBand, 0, static_cast<Int>(nk - 1));
+        Int k1 = MathHelpers::clamp(static_cast<Int>(MathHelpers::max(fp[2], fq[2], fr[2])) + exactBand + 1, 0, static_cast<Int>(nk - 1));
 
-        ParallelFuncs::parallel_for<Int32>(i0, i1 + 1, j0, j1 + 1, k0, k1 + 1,
-                                           [&](Int32 i, Int32 j, Int32 k)
-                                           {
-                                               Vec3<RealType> gx = Vec3<RealType>(i, j, k) * cellSize + origin;
-                                               RealType d = point_triangle_distance(gx, vertices[p], vertices[q], vertices[r]);
+        ParallelFuncs::parallel_for<Int>(i0, i1 + 1, j0, j1 + 1, k0, k1 + 1,
+                                         [&](Int i, Int j, Int k)
+                                         {
+                                             Vec3r gx = Vec3r(i, j, k) * cellSize + origin;
+                                             Real d = point_triangle_distance(gx, vertices[p], vertices[q], vertices[r]);
 
-                                               if(d < SDF(i, j, k))
-                                               {
-                                                   SDF(i, j, k) = d;
-                                                   closest_tri(i, j, k) = face;
-                                               }
-                                           });
+                                             if(d < SDF(i, j, k))
+                                             {
+                                                 SDF(i, j, k) = d;
+                                                 closest_tri(i, j, k) = face;
+                                             }
+                                         });
 
         // and do intersection counts
-        j0 = MathHelpers::clamp(static_cast<Int32>(std::ceil(MathHelpers::min(fp[1], fq[1], fr[1]))) - 10, 0, static_cast<Int32>(nj - 1));
-        j1 = MathHelpers::clamp(static_cast<Int32>(std::floor(MathHelpers::max(fp[1], fq[1], fr[1]))) + 10, 0, static_cast<Int32>(nj - 1));
-        k0 = MathHelpers::clamp(static_cast<Int32>(std::ceil(MathHelpers::min(fp[2], fq[2], fr[2]))) - 10, 0, static_cast<Int32>(nk - 1));
-        k1 = MathHelpers::clamp(static_cast<Int32>(std::floor(MathHelpers::max(fp[2], fq[2], fr[2]))) + 10, 0, static_cast<Int32>(nk - 1));
+        j0 = MathHelpers::clamp(static_cast<Int>(std::ceil(MathHelpers::min(fp[1], fq[1], fr[1]))) - 10, 0, static_cast<Int>(nj - 1));
+        j1 = MathHelpers::clamp(static_cast<Int>(std::floor(MathHelpers::max(fp[1], fq[1], fr[1]))) + 10, 0, static_cast<Int>(nj - 1));
+        k0 = MathHelpers::clamp(static_cast<Int>(std::ceil(MathHelpers::min(fp[2], fq[2], fr[2]))) - 10, 0, static_cast<Int>(nk - 1));
+        k1 = MathHelpers::clamp(static_cast<Int>(std::floor(MathHelpers::max(fp[2], fq[2], fr[2]))) + 10, 0, static_cast<Int>(nk - 1));
 
-        for(Int32 k = k0; k <= k1; ++k)
+        for(Int k = k0; k <= k1; ++k)
         {
-            for(Int32 j = j0; j <= j1; ++j)
+            for(Int j = j0; j <= j1; ++j)
             {
-                RealType a, b, c;
+                Real a, b, c;
 
-                if(point_in_triangle_2d(static_cast<RealType>(j), static_cast<RealType>(k), fp[1], fp[2], fq[1], fq[2], fr[1], fr[2], a, b, c))
+                if(point_in_triangle_2d(static_cast<Real>(j), static_cast<Real>(k), fp[1], fp[2], fq[1], fq[2], fr[1], fr[2], a, b, c))
                 {
                     // intersection i coordinate
-                    RealType fi = a * fp[0] + b * fq[0] + c * fr[0];
+                    Real fi = a * fp[0] + b * fq[0] + c * fr[0];
 
                     // intersection is in (i_interval-1,i_interval]
-                    Int32 i_interval = MathHelpers::max(static_cast<Int32>(std::ceil(fi)), 0);
+                    Int i_interval = MathHelpers::max(static_cast<Int>(std::ceil(fi)), 0);
 
                     // we enlarge the first interval to include everything to the -x direction
                     // we ignore intersections that are beyond the +x side of the grid
-                    if(i_interval < static_cast<Int32>(ni))
+                    if(i_interval < static_cast<Int>(ni))
                         ++intersectionCount(i_interval, j, k);
                 }
             }
@@ -97,7 +97,7 @@ void computeSDFMesh(const std::vector<Vec3ui>& faces, const std::vector<Vec3<Rea
 
 #if 1
     // and now we fill in the rest of the distances with fast sweeping
-    for(UInt32 pass = 0; pass < 2; ++pass)
+    for(UInt pass = 0; pass < 2; ++pass)
     {
 #if 0
         tbb::parallel_invoke([&]
@@ -146,34 +146,34 @@ void computeSDFMesh(const std::vector<Vec3ui>& faces, const std::vector<Vec3<Rea
     }
 #endif
     // then figure out signs (inside/outside) from intersection counts
-    ParallelFuncs::parallel_for<UInt32>(0, nk,
-                                        [&](UInt32 k)
-                                        {
-                                            for(UInt32 j = 0; j < nj; ++j)
-                                            {
-                                                UInt32 total_count = 0;
+    ParallelFuncs::parallel_for<UInt>(0, nk,
+                                      [&](UInt k)
+                                      {
+                                          for(UInt j = 0; j < nj; ++j)
+                                          {
+                                              UInt total_count = 0;
 
-                                                for(UInt32 i = 0; i < ni; ++i)
-                                                {
-                                                    total_count += intersectionCount(i, j, k);
+                                              for(UInt i = 0; i < ni; ++i)
+                                              {
+                                                  total_count += intersectionCount(i, j, k);
 
-                                                    if(total_count & 1)                // if parity of intersections so far is odd,
-                                                        SDF(i, j, k) = -SDF(i, j, k);  // we are inside the mesh
-                                                }
-                                            }
-                                        });
+                                                  if(total_count & 1)                // if parity of intersections so far is odd,
+                                                      SDF(i, j, k) = -SDF(i, j, k);  // we are inside the mesh
+                                              }
+                                          }
+                                      });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // find distance x0 is from segment x1-x2
-template<class RealType>
-RealType point_segment_distance(const Vec3<RealType>& x0, const Vec3<RealType>& x1, const Vec3<RealType>& x2)
+template<class Real>
+Real point_segment_distance(const Vec3r& x0, const Vec3r& x1, const Vec3r& x2)
 {
-    Vec3<RealType> dx(x2 - x1);
+    Vec3r dx(x2 - x1);
 
-    RealType m2 = glm::length2(dx);
+    Real m2 = glm::length2(dx);
     // find parameter value of closest point on segment
-    RealType s12 = (glm::dot(dx, x2 - x0) / m2);
+    Real s12 = (glm::dot(dx, x2 - x0) / m2);
 
     if(s12 < 0)
     {
@@ -189,20 +189,20 @@ RealType point_segment_distance(const Vec3<RealType>& x0, const Vec3<RealType>& 
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // find distance x0 is from triangle x1-x2-x3
-template<class RealType>
-RealType point_triangle_distance(const Vec3<RealType>& x0, const Vec3<RealType>& x1, const Vec3<RealType>& x2, const Vec3<RealType>& x3)
+template<class Real>
+Real point_triangle_distance(const Vec3r& x0, const Vec3r& x1, const Vec3r& x2, const Vec3r& x3)
 {
     // first find barycentric coordinates of closest point on infinite plane
-    Vec3<RealType> x13(x1 - x3), x23(x2 - x3), x03(x0 - x3);
-    RealType       m13 = glm::length2(x13), m23 = glm::length2(x23), d = glm::dot(x13, x23);
+    Vec3r x13(x1 - x3), x23(x2 - x3), x03(x0 - x3);
+    Real  m13 = glm::length2(x13), m23 = glm::length2(x23), d = glm::dot(x13, x23);
 
-    RealType invdet = 1.f / fmax(m13 * m23 - d * d, 1e-30f);
-    RealType a = glm::dot(x13, x03), b = glm::dot(x23, x03);
+    Real invdet = 1.f / fmax(m13 * m23 - d * d, 1e-30f);
+    Real a = glm::dot(x13, x03), b = glm::dot(x23, x03);
 
     // the barycentric coordinates themselves
-    RealType w23 = invdet * (m23 * a - d * b);
-    RealType w31 = invdet * (m13 * b - d * a);
-    RealType w12 = 1 - w23 - w31;
+    Real w23 = invdet * (m23 * a - d * b);
+    Real w31 = invdet * (m13 * b - d * a);
+    Real w12 = 1 - w23 - w31;
 
     if(w23 >= 0 && w31 >= 0 && w12 >= 0)                      // if we're inside the triangle
     {
@@ -226,21 +226,21 @@ RealType point_triangle_distance(const Vec3<RealType>& x0, const Vec3<RealType>&
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
+template<class Real>
 void check_neighbour(const std::vector<Vec3ui>& tri,
-                     const std::vector<Vec3<RealType> >& x,
-                     Array3<RealType>& phi, Array3ui& closest_tri,
-                     const Vec3<RealType>& gx,
-                     Int32 i0, Int32 j0, Int32 k0,
-                     Int32 i1, Int32 j1, Int32 k1)
+                     const std::vector<Vec3r>& x,
+                     Array3<Real>& phi, Array3ui& closest_tri,
+                     const Vec3r& gx,
+                     Int i0, Int j0, Int k0,
+                     Int i1, Int j1, Int k1)
 {
     if(closest_tri(i1, j1, k1) != 0xffffffff)
     {
-        UInt32 p = tri[closest_tri(i1, j1, k1)][0];
-        UInt32 q = tri[closest_tri(i1, j1, k1)][1];
-        UInt32 r = tri[closest_tri(i1, j1, k1)][2];
+        UInt p = tri[closest_tri(i1, j1, k1)][0];
+        UInt q = tri[closest_tri(i1, j1, k1)][1];
+        UInt r = tri[closest_tri(i1, j1, k1)][2];
 
-        RealType d = point_triangle_distance(gx, x[p], x[q], x[r]);
+        Real d = point_triangle_distance(gx, x[p], x[q], x[r]);
 
         if(d < phi(i0, j0, k0))
         {
@@ -251,24 +251,24 @@ void check_neighbour(const std::vector<Vec3ui>& tri,
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
+template<class Real>
 void sweep(const std::vector<Vec3ui>& tri,
-           const std::vector<Vec3<RealType> >& x,
-           Array3<RealType>& phi, Array3ui& closest_tri, const Vec3<RealType>& origin, RealType dx,
+           const std::vector<Vec3r>& x,
+           Array3<Real>& phi, Array3ui& closest_tri, const Vec3r& origin, Real dx,
            int di, int dj, int dk)
 {
-    Int32 i0, i1;
-    Int32 j0, j1;
-    Int32 k0, k1;
+    Int i0, i1;
+    Int j0, j1;
+    Int k0, k1;
 
     if(di > 0)
     {
         i0 = 1;
-        i1 = static_cast<Int32>(phi.sizeX());
+        i1 = static_cast<Int>(phi.sizeX());
     }
     else
     {
-        i0 = static_cast<Int32>(phi.sizeX()) - 2;
+        i0 = static_cast<Int>(phi.sizeX()) - 2;
         i1 = -1;
     }
 
@@ -276,35 +276,35 @@ void sweep(const std::vector<Vec3ui>& tri,
     if(dj > 0)
     {
         j0 = 1;
-        j1 = static_cast<Int32>(phi.sizeY());
+        j1 = static_cast<Int>(phi.sizeY());
     }
     else
     {
-        j0 = static_cast<Int32>(phi.sizeY()) - 2;
+        j0 = static_cast<Int>(phi.sizeY()) - 2;
         j1 = -1;
     }
 
     if(dk > 0)
     {
         k0 = 1;
-        k1 = static_cast<Int32>(phi.sizeZ());
+        k1 = static_cast<Int>(phi.sizeZ());
     }
     else
     {
-        k0 = static_cast<Int32>(phi.sizeZ()) - 2;
+        k0 = static_cast<Int>(phi.sizeZ()) - 2;
         k1 = -1;
     }
 
-//    ParallelFuncs::parallel_for<Int32>(i0, i1 + 1, j0, j1 + 1, k0, k1 + 1,
-//                                       [&](Int32 i, Int32 j, Int32 k)
+    //    ParallelFuncs::parallel_for<Int>(i0, i1 + 1, j0, j1 + 1, k0, k1 + 1,
+    //                                       [&](Int i, Int j, Int k)
 
-    for(Int32 k = k0; k != k1; k += dk)
+    for(Int k = k0; k != k1; k += dk)
     {
-        for(Int32 j = j0; j != j1; j += dj)
+        for(Int j = j0; j != j1; j += dj)
         {
-            for(Int32 i = i0; i != i1; i += di)
+            for(Int i = i0; i != i1; i += di)
             {
-                Vec3<RealType> gx = Vec3<RealType>(i, j, k) * dx + origin;
+                Vec3r gx = Vec3r(i, j, k) * dx + origin;
 
 #if 1
                 check_neighbour(tri, x, phi, closest_tri, gx, i, j, k, i - di, j,      k);
@@ -354,9 +354,9 @@ void sweep(const std::vector<Vec3ui>& tri,
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // calculate twice signed area of triangle (0,0)-(x1,y1)-(x2,y2)
 // return an SOS-determined sign (-1, +1, or 0 only if it's a truly degenerate triangle)
-template<class RealType>
-int orientation(RealType x1, RealType y1, RealType x2, RealType y2,
-                RealType& twice_signed_area)
+template<class Real>
+int orientation(Real x1, Real y1, Real x2, Real y2,
+                Real& twice_signed_area)
 {
     twice_signed_area = y1 * x2 - x1 * y2;
 
@@ -393,10 +393,10 @@ int orientation(RealType x1, RealType y1, RealType x2, RealType y2,
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // robust test of (x0,y0) in the triangle (x1,y1)-(x2,y2)-(x3,y3)
 // if true is returned, the barycentric coordinates are set in a,b,c.
-template<class RealType>
-bool point_in_triangle_2d(RealType x0, RealType y0,
-                          RealType x1, RealType y1, RealType x2, RealType y2, RealType x3, RealType y3,
-                          RealType& a, RealType& b, RealType& c)
+template<class Real>
+bool point_in_triangle_2d(Real x0, Real y0,
+                          Real x1, Real y1, Real x2, Real y2, Real x3, Real y3,
+                          Real& a, Real& b, Real& c)
 {
     x1 -= x0;
     x2 -= x0;
@@ -425,7 +425,7 @@ bool point_in_triangle_2d(RealType x0, RealType y0,
         return false;
     }
 
-    RealType sum = a + b + c;
+    Real sum = a + b + c;
     __BNN_ASSERT(sum != 0);                     // if the SOS signs match and are nonkero, there's no way all of a, b, and c are zero.
     a /= sum;
     b /= sum;
@@ -434,10 +434,10 @@ bool point_in_triangle_2d(RealType x0, RealType y0,
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-void cycle_array(RealType* arr, int size)
+template<class Real>
+void cycle_array(Real* arr, int size)
 {
-    RealType t = arr[0];
+    Real t = arr[0];
 
     for(int i = 0; i < size - 1; ++i)
     {
@@ -448,42 +448,42 @@ void cycle_array(RealType* arr, int size)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-void Banana::GeometryObject3D::TriMeshObject<RealType>::makeSDF()
+template<class Real>
+void Banana::GeometryObject3D::TriMeshObject<Real>::makeSDF()
 {
     ////////////////////////////////////////////////////////////////////////////////
     // Load mesh
-    MeshLoader<RealType> meshLoader;
+    MeshLoader<Real> meshLoader;
     __BNN_ASSERT(meshLoader.loadMesh(m_TriMeshFile));
 
-    Vec3<RealType> bbmin = meshLoader.getAABBMin();
-    Vec3<RealType> bbmax = meshLoader.getAABBMax();
+    Vec3r bbmin = meshLoader.getAABBMin();
+    Vec3r bbmax = meshLoader.getAABBMax();
 
-    Vec3<RealType> diff    = bbmax - bbmin;
-    RealType       maxSize = fmaxf(fmaxf(fabs(diff[0]), fabs(diff[1])), fabs(diff[2]));
-    RealType       scale   = RealType(1.0) / maxSize;
+    Vec3r diff    = bbmax - bbmin;
+    Real  maxSize = fmaxf(fmaxf(fabs(diff[0]), fabs(diff[1])), fabs(diff[2]));
+    Real  scale   = Real(1.0) / maxSize;
 
     // multiply all vertices by scale to make the mesh having max(w, h, d) = 1
     bbmin *= scale;
     bbmax *= scale;
 
     // expand the bounding box
-    Vec3<RealType> meshCenter = (bbmax + bbmin) * RealType(0.5);
-    auto           cmin       = bbmin - meshCenter;
-    auto           cmax       = bbmax - meshCenter;
+    Vec3r meshCenter = (bbmax + bbmin) * Real(0.5);
+    auto  cmin       = bbmin - meshCenter;
+    auto  cmax       = bbmax - meshCenter;
 
-    bbmin = meshCenter + glm::normalize(cmin) * glm::length(cmin) * RealType(1.0 + m_Expanding);
-    bbmax = meshCenter + glm::normalize(cmax) * glm::length(cmax) * RealType(1.0 + m_Expanding);
+    bbmin = meshCenter + glm::normalize(cmin) * glm::length(cmin) * Real(1.0 + m_Expanding);
+    bbmax = meshCenter + glm::normalize(cmax) * glm::length(cmax) * Real(1.0 + m_Expanding);
 
     // to move the mesh center to origin
     bbmin -= meshCenter;
     bbmax -= meshCenter;
 
-    std::vector<Vec3<RealType> > vertexList(meshLoader.getFaceVertices().size() / 3);
-    std::vector<Vec3ui>          faceList(meshLoader.getFaces().size() / 3);
+    std::vector<Vec3r>  vertexList(meshLoader.getFaceVertices().size() / 3);
+    std::vector<Vec3ui> faceList(meshLoader.getFaces().size() / 3);
 
-    std::memcpy(vertexList.data(), meshLoader.getFaceVertices().data(), meshLoader.getFaceVertices().size() * sizeof(RealType));
-    std::memcpy(faceList.data(),   meshLoader.getFaces().data(),        meshLoader.getFaces().size() * sizeof(UInt32));
+    std::memcpy(vertexList.data(), meshLoader.getFaceVertices().data(), meshLoader.getFaceVertices().size() * sizeof(Real));
+    std::memcpy(faceList.data(),   meshLoader.getFaces().data(),        meshLoader.getFaces().size() * sizeof(UInt));
 
     for(auto& vertex : vertexList)
     {
@@ -502,8 +502,8 @@ void Banana::GeometryObject3D::TriMeshObject<RealType>::makeSDF()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-RealType Banana::GeometryObject3D::TriMeshObject<RealType>::signedDistance(const Vec3<RealType>& ppos)
+template<class Real>
+Real Banana::GeometryObject3D::TriMeshObject<Real>::signedDistance(const Vec3r& ppos)
 {
     if(!m_bSDFReady)
         makeSDF();
@@ -511,6 +511,8 @@ RealType Banana::GeometryObject3D::TriMeshObject<RealType>::signedDistance(const
     if(!m_Grid3D.isInsideGrid(ppos))
         return MAX_ABS_SIGNED_DISTANCE;
 
-    auto cellIdx = m_Grid3D.getCellIdx<UInt32>(ppos);
+    auto cellIdx = m_Grid3D.getCellIdx<UInt>(ppos);
     return ArrayHelpers::interpolateValueLinear((ppos - m_Grid3D.getBMin()) / m_Step, m_SDFData);
 }
+
+#endif

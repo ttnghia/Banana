@@ -17,8 +17,7 @@
 
 #pragma once
 
-#include <Banana/Macros.h>
-#include <Banana/TypeNames.h>
+#include <Banana/Setup.h>
 #include <Banana/Utils/FileHelpers.h>
 
 #include <string>
@@ -173,7 +172,7 @@ public:
         // any vector data begins with the number of vector elements
         if(bWriteVectorSize)
         {
-            const UInt32 numElements = (UInt32)vData.size();
+            const UInt numElements = (UInt)vData.size();
             append(numElements);
         }
 
@@ -189,7 +188,7 @@ public:
     {
         if(bWriteVectorSize)
         {
-            const UInt32 numElements = (UInt32)vData.size();
+            const UInt numElements = (UInt)vData.size();
             append(numElements);
         }
 
@@ -212,7 +211,7 @@ public:
     {
         if(bWriteVectorSize)
         {
-            const UInt32 numElements = (UInt32)vData.size();
+            const UInt numElements = (UInt)vData.size();
             append(numElements);
         }
 
@@ -234,7 +233,7 @@ public:
     template<class T>
     void append(const std::vector<std::vector<T> >& vData)
     {
-        const UInt32 numElements = (UInt32)vData.size();
+        const UInt numElements = (UInt)vData.size();
         append(numElements);
 
         for(size_t i = 0; i < vData.size(); ++i)
@@ -260,7 +259,7 @@ public:
     {
         if(bWriteVectorSize)
         {
-            const UInt32 numElements = (UInt32)vData.size();
+            const UInt numElements = (UInt)vData.size();
             append(numElements);
         }
 
@@ -281,7 +280,7 @@ public:
     {
         if(bWriteVectorSize)
         {
-            const UInt32 numElements = (UInt32)vData.size();
+            const UInt numElements = (UInt)vData.size();
             append(numElements);
         }
 
@@ -304,7 +303,7 @@ public:
     {
         if(bWriteVectorSize)
         {
-            const UInt32 numElements = (UInt32)vData.size();
+            const UInt numElements = (UInt)vData.size();
             append(numElements);
         }
 
@@ -339,7 +338,7 @@ public:
     {
         if(bWriteVectorSize)
         {
-            const UInt32 numElements = (UInt32)vData.size();
+            const UInt numElements = (UInt)vData.size();
             append(numElements);
         }
 
@@ -360,7 +359,7 @@ public:
     {
         if(bWriteVectorSize)
         {
-            const UInt32 numElements = (UInt32)vData.size();
+            const UInt numElements = (UInt)vData.size();
             append(numElements);
         }
 
@@ -383,7 +382,7 @@ public:
     {
         if(bWriteVectorSize)
         {
-            const UInt32 numElements = (UInt32)vData.size();
+            const UInt numElements = (UInt)vData.size();
             append(numElements);
         }
 
@@ -417,15 +416,15 @@ public:
     }
 
     template<class T>
-    size_t getData(std::vector<T>& vData, size_t startOffset = 0, UInt32 vSize = 0)
+    size_t getData(std::vector<T>& vData, size_t startOffset = 0, UInt vSize = 0)
     {
         size_t segmentStart = startOffset;
         size_t segmentSize  = 0;
-        UInt32 numElements  = vSize;
+        UInt   numElements  = vSize;
 
         if(numElements == 0)
         {
-            segmentSize = (size_t)sizeof(UInt32);
+            segmentSize = (size_t)sizeof(UInt);
             assert(segmentStart + segmentSize <= m_Buffer.size());
 
             memcpy(&numElements, &m_Buffer.data()[segmentStart], segmentSize);
@@ -444,15 +443,15 @@ public:
     }
 
     template<class T>
-    size_t getData(Vec_Vec2<T>& vData, size_t startOffset = 0, UInt32 vSize = 0)
+    size_t getData(Vec_Vec2<T>& vData, size_t startOffset = 0, UInt vSize = 0)
     {
         size_t segmentStart = startOffset;
         size_t segmentSize  = 0;
-        UInt32 numElements  = vSize;
+        UInt   numElements  = vSize;
 
         if(numElements == 0)
         {
-            segmentSize = (size_t)sizeof(UInt32);
+            segmentSize = (size_t)sizeof(UInt);
             assert(segmentStart + segmentSize <= m_Buffer.size());
 
             memcpy(&numElements, &m_Buffer.data()[segmentStart], segmentSize);
@@ -477,15 +476,15 @@ public:
     }
 
     template<class T>
-    size_t getData(Vec_Vec3<T>& vData, size_t startOffset = 0, UInt32 vSize = 0)
+    size_t getData(Vec_Vec3<T>& vData, size_t startOffset = 0, UInt vSize = 0)
     {
         size_t segmentStart = startOffset;
         size_t segmentSize  = 0;
-        UInt32 numElements  = vSize;
+        UInt   numElements  = vSize;
 
         if(numElements == 0)
         {
-            segmentSize = (size_t)sizeof(UInt32);
+            segmentSize = (size_t)sizeof(UInt);
             assert(segmentStart + segmentSize <= m_Buffer.size());
 
             memcpy(&numElements, &m_Buffer.data()[segmentStart], segmentSize);
@@ -510,15 +509,15 @@ public:
     }
 
     template<class T, int N>
-    size_t getFloatArray(std::vector<float>& vData, size_t startOffset = 0, UInt32 vSize = 0)
+    size_t getFloatArray(std::vector<float>& vData, size_t startOffset = 0, UInt vSize = 0)
     {
         size_t segmentStart = startOffset;
         size_t segmentSize  = 0;
-        UInt32 numElements  = vSize;
+        UInt   numElements  = vSize;
 
         if(numElements == 0)
         {
-            segmentSize = (size_t)sizeof(UInt32);
+            segmentSize = (size_t)sizeof(UInt);
             assert(segmentStart + segmentSize <= m_Buffer.size());
 
             memcpy(&numElements, &m_Buffer.data()[segmentStart], segmentSize);
@@ -543,15 +542,15 @@ public:
     }
 
     template<class T>
-    size_t getFloatArray(Vec_Vec2<float>& vData, size_t startOffset = 0, UInt32 vSize = 0)
+    size_t getFloatArray(Vec_Vec2<float>& vData, size_t startOffset = 0, UInt vSize = 0)
     {
         size_t segmentStart = startOffset;
         size_t segmentSize  = 0;
-        UInt32 numElements  = vSize;
+        UInt   numElements  = vSize;
 
         if(numElements == 0)
         {
-            segmentSize = (size_t)sizeof(UInt32);
+            segmentSize = (size_t)sizeof(UInt);
             assert(segmentStart + segmentSize <= m_Buffer.size());
 
             memcpy(&numElements, &m_Buffer.data()[segmentStart], segmentSize);
@@ -576,15 +575,15 @@ public:
     }
 
     template<class T>
-    size_t getFloatArray(Vec_Vec3<float>& vData, size_t startOffset = 0, UInt32 vSize = 0)
+    size_t getFloatArray(Vec_Vec3<float>& vData, size_t startOffset = 0, UInt vSize = 0)
     {
         size_t segmentStart = startOffset;
         size_t segmentSize  = 0;
-        UInt32 numElements  = vSize;
+        UInt   numElements  = vSize;
 
         if(numElements == 0)
         {
-            segmentSize = (size_t)sizeof(UInt32);
+            segmentSize = (size_t)sizeof(UInt);
             assert(segmentStart + segmentSize <= m_Buffer.size());
 
             memcpy(&numElements, &m_Buffer.data()[segmentStart], segmentSize);
@@ -609,15 +608,15 @@ public:
     }
 
     template<class T, int N>
-    size_t getDoubleArray(std::vector<double>& vData, size_t startOffset = 0, UInt32 vSize = 0)
+    size_t getDoubleArray(std::vector<double>& vData, size_t startOffset = 0, UInt vSize = 0)
     {
         size_t segmentStart = startOffset;
         size_t segmentSize  = 0;
-        UInt32 numElements  = vSize;
+        UInt   numElements  = vSize;
 
         if(numElements == 0)
         {
-            segmentSize = (size_t)sizeof(UInt32);
+            segmentSize = (size_t)sizeof(UInt);
             assert(segmentStart + segmentSize <= m_Buffer.size());
 
             memcpy(&numElements, &m_Buffer.data()[segmentStart], segmentSize);
@@ -642,15 +641,15 @@ public:
     }
 
     template<class T>
-    size_t getDoubleArray(Vec_Vec2<double>& vData, size_t startOffset = 0, UInt32 vSize = 0)
+    size_t getDoubleArray(Vec_Vec2<double>& vData, size_t startOffset = 0, UInt vSize = 0)
     {
         size_t segmentStart = startOffset;
         size_t segmentSize  = 0;
-        UInt32 numElements  = vSize;
+        UInt   numElements  = vSize;
 
         if(numElements == 0)
         {
-            segmentSize = (size_t)sizeof(UInt32);
+            segmentSize = (size_t)sizeof(UInt);
             assert(segmentStart + segmentSize <= m_Buffer.size());
 
             memcpy(&numElements, &m_Buffer.data()[segmentStart], segmentSize);
@@ -675,15 +674,15 @@ public:
     }
 
     template<class T>
-    size_t getDoubleArray(Vec_Vec3<T>& vData, size_t startOffset = 0, UInt32 vSize = 0)
+    size_t getDoubleArray(Vec_Vec3<T>& vData, size_t startOffset = 0, UInt vSize = 0)
     {
         size_t segmentStart = startOffset;
         size_t segmentSize  = 0;
-        UInt32 numElements  = vSize;
+        UInt   numElements  = vSize;
 
         if(numElements == 0)
         {
-            segmentSize = (size_t)sizeof(UInt32);
+            segmentSize = (size_t)sizeof(UInt);
             assert(segmentStart + segmentSize <= m_Buffer.size());
 
             memcpy(&numElements, &m_Buffer.data()[segmentStart], segmentSize);
@@ -711,16 +710,16 @@ public:
     size_t getData(std::vector<std::vector<T> >& vData, size_t startOffset = 0)
     {
         size_t segmentStart = startOffset;
-        size_t segmentSize  = (size_t)sizeof(UInt32);
+        size_t segmentSize  = (size_t)sizeof(UInt);
         assert(segmentStart + segmentSize <= m_Buffer.size());
 
-        UInt32 numElements;
+        UInt numElements;
         memcpy(&numElements, &m_Buffer.data()[segmentStart], segmentSize);
         segmentStart += segmentSize;
 
         vData.resize(numElements);
 
-        for(UInt32 i = 0; i < numElements; ++i)
+        for(UInt i = 0; i < numElements; ++i)
         {
             segmentStart += getData(vData[i], segmentStart);
         }
@@ -748,7 +747,7 @@ private:
 class DataConverter
 {
 public:
-    DataConverter() {}
+    DataConverter() = default;
 
     ~DataConverter()
     {

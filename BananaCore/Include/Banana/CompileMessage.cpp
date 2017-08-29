@@ -14,15 +14,30 @@
 //
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <Banana/Geometry/KDTree.h>
-#include <Banana/Geometry/MeshLoader.h>
 
-#include <catch.hpp>
+#include <Banana/Setup.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-TEST_CASE("Test Build Geometry Objects", "[GeometryObjects]")
-{
-    Banana::KdTree<float>     tree(100);
-    Banana::MeshLoader<float> loader;
-}
+#ifdef BANANA_DOUBLE_PRECISION
+#  pragma message("Compile Banana with double precision floating point number.")
+#else
+#  pragma message("Compile Banana with single precision floating point number.")
+#endif
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#if defined(__clang__)
+#  pragma message("Compiler: clang")
+#elif defined(__ICC) || defined(__INTEL_COMPILER)
+#  pragma message("Compiler: Intel")
+#elif defined(__GNUC__) || defined(__GNUG__)
+#  pragma message("Compiler: GNU")
+#elif defined(_MSC_VER)
+#  pragma message("Compiler: Visual Studio C++")
+#endif
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#ifdef NDEBUG
+#  pragma message("Config: Release")
+#else
+#  pragma message("Config: Debug")
+#endif

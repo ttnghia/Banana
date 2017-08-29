@@ -50,7 +50,7 @@ public:
                std::vector<VectorType>& result,
                RealType& residual_out, int& iterations_out)
     {
-        UInt32 n = matrix.size;
+        UInt n = matrix.size;
 
         if(z.size() != n)
         {

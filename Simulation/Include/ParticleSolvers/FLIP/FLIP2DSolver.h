@@ -28,20 +28,20 @@
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-class FLIP2DSolver : public ParticleSolver2D<RealType>
+template<class Real>
+class FLIP2DSolver : public ParticleSolver2D<Real>
 {
 public:
     FLIP2DSolver() { setupLogger(); }
 
-    std::shared_ptr<SimulationParameters_FLIP2D<RealType> > getSolverParams() { return m_SimParams; }
+    std::shared_ptr<SimulationParameters_FLIP2D<Real> > getSolverParams() { return m_SimParams; }
 
     ////////////////////////////////////////////////////////////////////////////////
     virtual std::string getSolverName() override { return std::string("FLIP2DSolver"); }
     virtual std::string getGreetingMessage() override { return std::string("Fluid Simulation using FLIP-2D Solver"); }
     virtual unsigned int        getNumParticles() override { return m_SimData->getNumParticles(); }
-    virtual Vec_Vec2<RealType>& getParticlePositions() override { return m_SimData->positions; }
-    virtual Vec_Vec2<RealType>& getParticleVelocities() override { return m_SimData->velocities; }
+    virtual Vec_Vec2r& getParticlePositions() override { return m_SimData->positions; }
+    virtual Vec_Vec2r& getParticleVelocities() override { return m_SimData->velocities; }
 
     virtual void makeReady() override;
     virtual void advanceFrame() override;
@@ -54,55 +54,55 @@ private:
     virtual void saveMemoryState()  override;
     virtual void saveParticleData() override;
 
-    RealType computeCFLTimestep();
-    void     advanceVelocity(RealType timestep);
-    void     moveParticles(RealType timeStep);
-    void     correctPositions(RealType timestep);
+    Real computeCFLTimestep();
+    void advanceVelocity(Real timestep);
+    void moveParticles(Real timeStep);
+    void correctPositions(Real timestep);
 
     void computeFluidWeights();
     void velocityToGrid();
     void extrapolateVelocity();
-    void extrapolateVelocity(Array2<RealType>& grid, Array2<RealType>& temp_grid, Array2c& valid, Array2c& old_valid);
+    void extrapolateVelocity(Array2<Real>& grid, Array2<Real>& temp_grid, Array2c& valid, Array2c& old_valid);
     void constrainVelocity();
-    void addGravity(RealType timestep);
-    void pressureProjection(RealType timestep);
+    void addGravity(Real timestep);
+    void pressureProjection(Real timestep);
     ////////////////////////////////////////////////////////////////////////////////
     // pressure projection functions =>
     void computeFluidSDF();
-    void computeMatrix(RealType timestep);
+    void computeMatrix(Real timestep);
     void computeRhs();
     void solveSystem();
-    void updateVelocity(RealType timestep);
+    void updateVelocity(Real timestep);
     ////////////////////////////////////////////////////////////////////////////////
     void computeChangesGridVelocity();
     void velocityToParticles();
     ////////////////////////////////////////////////////////////////////////////////
     // helper functions
-    bool             isInside(const Vec2<RealType>& pos, const Vec2<RealType>& bMin, const Vec2<RealType>& bMax);
-    Vec2<RealType>   getVelocityFromGrid(const Vec2<RealType>& gridPos);
-    Vec2<RealType>   getVelocityChangesFromGrid(const Vec2<RealType>& gridPos);
-    Mat2x2<RealType> getAffineMatrix(const Vec2<RealType>& gridPos);
+    bool         isInside(const Vec2r& pos, const Vec2r& bMin, const Vec2r& bMax);
+    Vec2r        getVelocityFromGrid(const Vec2r& gridPos);
+    Vec2r        getVelocityChangesFromGrid(const Vec2r& gridPos);
+    Mat2x2<Real> getAffineMatrix(const Vec2r& gridPos);
 
     ////////////////////////////////////////////////////////////////////////////////
-    std::unique_ptr<SimulationData_FLIP2D<RealType> >       m_SimData   = std::make_unique<SimulationData_FLIP2D<RealType> >();
-    std::shared_ptr<SimulationParameters_FLIP2D<RealType> > m_SimParams = std::make_shared<SimulationParameters_FLIP2D<RealType> >();
-    Grid2DHashing<RealType>                                 m_Grid;
-    PCGSolver<RealType>                                     m_PCGSolver;
+    std::unique_ptr<SimulationData_FLIP2D<Real> >       m_SimData   = std::make_unique<SimulationData_FLIP2D<Real> >();
+    std::shared_ptr<SimulationParameters_FLIP2D<Real> > m_SimParams = std::make_shared<SimulationParameters_FLIP2D<Real> >();
+    Grid2DHashing<Real>                                 m_Grid;
+    PCGSolver<Real>                                     m_PCGSolver;
 
-    std::function<RealType(const Vec2<RealType>&, const Array2<RealType>&)> m_InterpolateValue = nullptr;
-    std::function<RealType(const Vec2<RealType>&)>                          m_WeightKernel     = nullptr;
+    std::function<Real(const Vec2r&, const Array2<Real>&)> m_InterpolateValue = nullptr;
+    std::function<Real(const Vec2r&)>                      m_WeightKernel     = nullptr;
 
 
 
     ////////////////////////////////////////////////////////////////////////////////
     // todo: remove
-    RealType compute_phi(const Vec2<RealType>& pos) const
+    Real compute_phi(const Vec2r& pos) const
     {
         return 0;
 //        return compute_phi(pos, *root_boundary);
     }
 
-    RealType compute_phi(const Vec2<RealType>& pos, const Boundary<RealType>& b) const
+    Real compute_phi(const Vec2r& pos, const Boundary<Real>& b) const
     {
         switch(b.type)
         {
@@ -127,58 +127,58 @@ private:
         }
     }
 
-    inline RealType circle_phi(const Vec2<RealType>& position, const Vec2<RealType>& centre, RealType radius) const
+    inline Real circle_phi(const Vec2r& position, const Vec2r& centre, Real radius) const
     {
         return ((position - centre).norm() - radius);
     }
 
-    inline RealType box_phi(const Vec2<RealType>& position, const Vec2<RealType>& centre, const Vec2<RealType>& expand) const
+    inline Real box_phi(const Vec2r& position, const Vec2r& centre, const Vec2r& expand) const
     {
-        RealType dx  = fabs(position[0] - centre[0]) - expand[0];
-        RealType dy  = fabs(position[1] - centre[1]) - expand[1];
-        RealType dax = max(dx, 0.0);
-        RealType day = max(dy, 0.0);
+        Real dx  = fabs(position[0] - centre[0]) - expand[0];
+        Real dy  = fabs(position[1] - centre[1]) - expand[1];
+        Real dax = max(dx, 0.0);
+        Real day = max(dy, 0.0);
         return min(max(dx, dy), 0.0) + sqrt(dax * dax + day * day);
     }
 
-    inline RealType hexagon_phi(const Vec2<RealType>& position, const Vec2<RealType>& centre, RealType radius) const
+    inline Real hexagon_phi(const Vec2r& position, const Vec2r& centre, Real radius) const
     {
-        RealType dx = fabs(position[0] - centre[0]);
-        RealType dy = fabs(position[1] - centre[1]);
+        Real dx = fabs(position[0] - centre[0]);
+        Real dy = fabs(position[1] - centre[1]);
         return max((dx * 0.866025 + dy * 0.5), dy) - radius;
     }
 
-    inline RealType triangle_phi(const Vec2<RealType>& position, const Vec2<RealType>& centre, RealType radius) const
+    inline Real triangle_phi(const Vec2r& position, const Vec2r& centre, Real radius) const
     {
-        RealType px = position[0] - centre[0];
-        RealType py = position[1] - centre[1];
-        RealType dx = fabs(px);
+        Real px = position[0] - centre[0];
+        Real py = position[1] - centre[1];
+        Real dx = fabs(px);
         return max(dx * 0.866025 + py * 0.5, -py) - radius * 0.5;
     }
 
-    inline RealType cylinder_phi(const Vec2<RealType>& position, const Vec2<RealType>& centre, RealType theta, RealType radius) const
+    inline Real cylinder_phi(const Vec2r& position, const Vec2r& centre, Real theta, Real radius) const
     {
-        Vec2<RealType> nhat = Vec2<RealType>(cos(theta), sin(theta));
-        Vec2<RealType> dx   = position - centre;
-        return sqrt(dx.transpose() * (Mat2x2<RealType>::Identity() - nhat * nhat.transpose()) * dx) - radius;
+        Vec2r nhat = Vec2r(cos(theta), sin(theta));
+        Vec2r dx   = position - centre;
+        return sqrt(dx.transpose() * (Mat2x2<Real>::Identity() - nhat * nhat.transpose()) * dx) - radius;
     }
 
-    inline RealType union_phi(const RealType& d1, const RealType& d2) const
+    inline Real union_phi(const Real& d1, const Real& d2) const
     {
         return min(d1, d2);
     }
 
-    inline RealType intersection_phi(const RealType& d1, const RealType& d2) const
+    inline Real intersection_phi(const Real& d1, const Real& d2) const
     {
         return max(d1, d2);
     }
 
-    inline RealType substraction_phi(const RealType& d1, const RealType& d2) const
+    inline Real substraction_phi(const Real& d1, const Real& d2) const
     {
         return max(-d1, d2);
     }
 
-    inline RealType torus_phi(const Vec2<RealType>& position, const Vec2<RealType>& centre, RealType radius0, RealType radius1) const
+    inline Real torus_phi(const Vec2r& position, const Vec2r& centre, Real radius0, Real radius1) const
     {
         return max(-circle_phi(position, centre, radius0), circle_phi(position, centre, radius1));
     }

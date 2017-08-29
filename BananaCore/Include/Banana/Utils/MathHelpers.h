@@ -713,7 +713,7 @@ inline T smooth_kernel_laplacian(T r2, T h)
 }
 
 template<class T>
-T bilinear_kernel(T dx, T dy)
+inline T bilinear_kernel(T dx, T dy)
 {
     if(dx > T(1.0) || dy > T(1.0))
     {
@@ -724,7 +724,7 @@ T bilinear_kernel(T dx, T dy)
 }
 
 template<class T>
-T tril_kernel(T dx, T dy, T dz)
+inline T tril_kernel(T dx, T dy, T dz)
 {
     if(dx > T(1.0) || dy > T(1.0) || dz > T(1.0))
     {
@@ -735,7 +735,7 @@ T tril_kernel(T dx, T dy, T dz)
 }
 
 template<class T>
-T spiky_kernel(T r, T h)
+inline T spiky_kernel(T r, T h)
 {
     if(r > h)
     {
@@ -751,7 +751,7 @@ T spiky_kernel(T r, T h)
 }
 
 template<class T>
-T cubic_spline_kernel(T f)
+inline T cubic_spline_kernel(T f)
 {
     T x  = f > 0 ? f : -f;
     T x2 = x * x;
@@ -772,20 +772,20 @@ T cubic_spline_kernel(T f)
 }
 
 template<class T>
-T cubic_spline_kernel_2d(T x, T y)
+inline T cubic_spline_kernel_2d(T x, T y)
 {
     return cubic_spline_kernel(x) * cubic_spline_kernel(y);
 }
 
 template<class T>
-T cubic_spline_kernel_3d(T x, T y, T z)
+inline T cubic_spline_kernel_3d(T x, T y, T z)
 {
     return cubic_spline_kernel(x) * cubic_spline_kernel(y) * cubic_spline_kernel(z);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class T>
-void cycle_array(T* arr, int size)
+inline void cycle_array(T* arr, int size)
 {
     T t = arr[0];
 
@@ -800,7 +800,7 @@ void cycle_array(T* arr, int size)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // value < 0 is inside
 template<class T>
-T fraction_inside(T left_val, T right_val)
+inline T fraction_inside(T left_val, T right_val)
 {
     if(left_val < 0 && right_val < 0)
     {

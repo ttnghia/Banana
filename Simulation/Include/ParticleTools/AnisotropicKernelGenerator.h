@@ -29,37 +29,38 @@ namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // TODO: replace grid3d by compact hashing
-template<class RealType>
+template<class Real>
 class AnisotropicKernelGenerator
 {
+    __BNN_SETUP_DATA_TYPE(Real)
 public:
-    AnisotropicKernelGenerator(const Grid3DHashing<RealType>& grid3D, Array3_VecUInt& cellParticles, const Vec_Vec3<RealType>& particles, RealType kernelCellSpan) :
+    AnisotropicKernelGenerator(const Grid3DHashing<Real>& grid3D, Array3_VecUInt& cellParticles, const Vec_Vec3r& particles, Real kernelCellSpan) :
         m_Grid3D(grid3D),
         m_CellParticles(cellParticles),
         m_Particles(particles),
         m_KernelCellSpan(kernelCellSpan * 2) {}
 
-    void setParticleRadius(RealType radius);
+    void setParticleRadius(Real radius);
     void generateAnisotropy();
 
-    const Vec_Vec3<RealType>&   getKernelCenters() const;
-    const Vec_Mat3x3<RealType>& getKernelMatrices() const;
+    const Vec_Vec3r&   getKernelCenters() const;
+    const Vec_Mat3x3r& getKernelMatrices() const;
 
 private:
-    RealType W(RealType d2);
-    RealType W(const Vec3<RealType>& r);
-    RealType W(const Vec3<RealType>& xi, const Vec3<RealType>& xj);
+    Real W(Real d2);
+    Real W(const Vec3r& r);
+    Real W(const Vec3r& xi, const Vec3r& xj);
 
     ////////////////////////////////////////////////////////////////////////////////
-    const Grid3DHashing<RealType>& m_Grid3D;
-    const Vec_Vec3<RealType>&      m_Particles;
-    const RealType                 m_KernelCellSpan;
-    RealType                       m_KernelRadius;
-    RealType                       m_KernelRadiusSqr;
-    RealType                       m_KernelRadiusInv;
+    const Grid3DHashing<Real>& m_Grid3D;
+    const Vec_Vec3r&           m_Particles;
+    const Real                 m_KernelCellSpan;
+    Real                       m_KernelRadius;
+    Real                       m_KernelRadiusSqr;
+    Real                       m_KernelRadiusInv;
 
-    Vec_Vec3<RealType>   m_KernelCenters;
-    Vec_Mat3x3<RealType> m_KernelMatrices;
+    Vec_Vec3r   m_KernelCenters;
+    Vec_Mat3x3r m_KernelMatrices;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

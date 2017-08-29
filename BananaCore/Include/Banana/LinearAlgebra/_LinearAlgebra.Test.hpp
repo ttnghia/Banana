@@ -20,7 +20,7 @@
 #include <Banana/LinearAlgebra/PCGSolver.h>
 #include <Banana/LinearAlgebra/SparseMatrix.h>
 
-#include <Banana/TypeNames.h>
+#include <Banana/Setup.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //namespace _LinearAlgebra_Test

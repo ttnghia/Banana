@@ -48,7 +48,7 @@ struct NeighborhoodSearchNotInitialized : public std::exception
  * Stores point data multiple set of points in which neighborhood information for a fixed
  * radius r should be generated.
  */
-template<class RealType>
+template<class Real>
 class NeighborhoodSearch
 {
 public:
@@ -59,7 +59,7 @@ public:
      * @param r Search radius. If two points are closer to each other than a distance r they are considered neighbors.
      * @param erase_empty_cells If true. Empty cells in spatial hashing grid are erased if the points move.
      */
-    NeighborhoodSearch(RealType r, bool erase_empty_cells = false);
+    NeighborhoodSearch(Real r, bool erase_empty_cells = false);
 
     /**
      * Destructor.
@@ -70,13 +70,13 @@ public:
      * Get method to access a point set.
      * @param i Index of the point set to retrieve.
      */
-    const PointSet<RealType>& point_set(unsigned int i) const { return m_point_sets[i]; }
+    const PointSet<Real>& point_set(unsigned int i) const { return m_point_sets[i]; }
 
     /**
      * Get method to access a point set.
      * @param i Index of the point set to retrieve.
      */
-    PointSet<RealType>& point_set(unsigned int i)       { return m_point_sets[i]; }
+    PointSet<Real>& point_set(unsigned int i)       { return m_point_sets[i]; }
 
 
     /**
@@ -87,12 +87,12 @@ public:
     /**
      * Get method to access the list of point sets.
      */
-    std::vector<PointSet<RealType> > const& point_sets() const { return m_point_sets; }
+    std::vector<PointSet<Real> > const& point_sets() const { return m_point_sets; }
 
     /**
      * Get method to access the list of point sets.
      */
-    std::vector<PointSet<RealType> >& point_sets()       { return m_point_sets; }
+    std::vector<PointSet<Real> >& point_sets()       { return m_point_sets; }
 
     /**
      * Increases the size of a point set under the assumption that the existing points remain at
@@ -102,7 +102,7 @@ public:
      * real values.
      * @param n Number of points.
      */
-    void resize_point_set(unsigned int i, RealType const* x, std::size_t n);
+    void resize_point_set(unsigned int i, Real const* x, std::size_t n);
 
     /**
      * Creates and adds a new set of points.
@@ -115,7 +115,7 @@ public:
      * @returns Returns unique identifier in form of an index assigned to the newly created point
      * set.
      */
-    unsigned int add_point_set(RealType const* x, std::size_t n, bool is_dynamic = true,
+    unsigned int add_point_set(Real const* x, std::size_t n, bool is_dynamic = true,
                                bool search_neighbors = true, bool find_neighbors = true)
     {
         m_point_sets.push_back({ x, n, is_dynamic });
@@ -164,16 +164,16 @@ public:
     /*
      * @returns Returns the radius in which point neighbors are searched.
      */
-    RealType radius() const { return std::sqrt(m_r2); }
+    Real radius() const { return std::sqrt(m_r2); }
 
     /**
      * Sets the radius in which point point neighbors are searched.
      * @param r Search radius.
      */
-    void set_radius(RealType r)
+    void set_radius(Real r)
     {
         m_r2            = r * r;
-        m_inv_cell_size = static_cast<RealType>(1.0 / r);
+        m_inv_cell_size = static_cast<Real>(1.0 / r);
         m_initialized   = false;
     }
 
@@ -221,14 +221,14 @@ private:
     void query();
     void query(unsigned int point_set_id, unsigned int point_index, std::vector<std::vector<unsigned int> >& neighbors);
 
-    HashKey cell_index(RealType const* x) const;
+    HashKey cell_index(Real const* x) const;
 
 private:
-    std::vector<PointSet<RealType> > m_point_sets;
-    ActivationTable                  m_activation_table, m_old_activation_table;
+    std::vector<PointSet<Real> > m_point_sets;
+    ActivationTable              m_activation_table, m_old_activation_table;
 
-    RealType m_inv_cell_size;
-    RealType m_r2;
+    Real m_inv_cell_size;
+    Real m_r2;
 
     std::unordered_map<HashKey, unsigned int, SpatialHasher> m_map;
     std::vector<HashEntry>                                   m_entries;

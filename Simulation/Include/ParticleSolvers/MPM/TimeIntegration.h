@@ -17,18 +17,18 @@
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Several algorithmic variations are used, but they all provide these functions
-template<class RealType>
+template<class Real>
 class TimeIntegration
 {
 protected:
-    const RealType initialTime;
-    RealType       nominalStep, Nstep;
+    const Real initialTime;
+    Real       nominalStep, Nstep;
 
 public:
     TimeIntegration(const patch& pch, const constitutiveSC& cst) : initialTime(pch.elapsedTime)
     {
-        const RealType CFL  = comLineArg("CFL", .5);
-        RealType       minh = pch.dx;
+        const Real CFL  = comLineArg("CFL", .5);
+        Real       minh = pch.dx;
 
         if(pch.dy < minh)
         {
@@ -41,7 +41,7 @@ public:
         }
 
         nominalStep = CFL * minh / cst.waveSpeed();
-        const RealType totTime = pch.finalTime - initialTime;
+        const Real totTime = pch.finalTime - initialTime;
         Nstep       = comLineArg("Nstep", totTime / nominalStep); // allow Nstep to modify nominalStep
         nominalStep = comLineArg("dtOveride",
                                  totTime / Nstep);                // allow dtOveride to modify nominalStep
@@ -50,11 +50,11 @@ public:
     }
 
     virtual ~TimeIntegration() {}
-    virtual void advance(const RealType&) = 0;
-    RealType nextTimeStep(const patch& pch) const
+    virtual void advance(const Real&) = 0;
+    Real nextTimeStep(const patch& pch) const
     {
-        const RealType allowedRoundoff = nominalStep * machEps * RealType(pch.incCount);
-        const RealType timeRemaining   = pch.finalTime - pch.elapsedTime;
+        const Real allowedRoundoff = nominalStep * machEps * Real(pch.incCount);
+        const Real timeRemaining   = pch.finalTime - pch.elapsedTime;
 
         if(timeRemaining < nominalStep + allowedRoundoff)
         {
@@ -74,7 +74,7 @@ public:
 protected:
     virtual void makeRes(nodeArray<Vector3>&,
                          nodeArray<Vector3>&,
-                         const RealType&)
+                         const Real&)
     {
         throw"timeIntSC: implicit solvers must overide this";
     }
@@ -82,10 +82,10 @@ protected:
 
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
+template<class Real>
 class momentum : public TimeIntegration
 {
-    RealType        prevStep;
+    Real            prevStep;
     patch&          pch;
     constitutiveSC& cst;
 public:
@@ -94,12 +94,12 @@ public:
         prevStep = 0.;
     }
 
-    void advance(const RealType&);
+    void advance(const Real&);
 };
 
 class cenDif : public TimeIntegration
 {
-    RealType        prevStep;
+    Real            prevStep;
     patch&          pch;
     constitutiveSC& cst;
 public:
@@ -108,7 +108,7 @@ public:
         prevStep = 0.;
     }
 
-    void advance(const RealType&);
+    void advance(const Real&);
 };
 
 
@@ -126,7 +126,7 @@ public:
 
 
 
-void momentum::advance(const RealType& dt)
+void momentum::advance(const Real& dt)
 {
     integrate(pch, pch.massP, pch.massN);
 
@@ -207,7 +207,7 @@ void momentum::advance(const RealType& dt)
     cst.update(dt);
 }
 
-void cenDif::advance(const RealType& dt)
+void cenDif::advance(const Real& dt)
 {
     for(int i = 0; i < Npart(); ++i)
     {
@@ -334,7 +334,7 @@ public:
         countRes = 0;
     }
 
-    void makeRes(nodeArray<Vector3>& v, nodeArray<Vector3>& res, const RealType& delt)
+    void makeRes(nodeArray<Vector3>& v, nodeArray<Vector3>& res, const Real& delt)
     {
         pch.gridVelocityBC(v);
         cst.revert();
@@ -377,7 +377,7 @@ public:
         countRes = 0;
     }
 
-    void makeRes(nodeArray<Vector3>& v, nodeArray<Vector3>& Z, const RealType& delt)
+    void makeRes(nodeArray<Vector3>& v, nodeArray<Vector3>& Z, const Real& delt)
     {
         pch.gridVelocityBC(v);
         cst.revert();
@@ -405,7 +405,7 @@ template<typename eqT>
 class NewtonSystem : public eqT
 {
     nodeArray<Vector3>        vPert, Zpert;
-    const RealType            fd;
+    const Real                fd;
     const nodeArray<Vector3>& velN;
     const nodeArray<Vector3>& Zcurr;
 public:
@@ -417,13 +417,13 @@ public:
         fd(sqrt(machEps)),
         velN(p.velN),
         Zcurr(zc) {}
-    void makeDiff(const nodeArray<Vector3>& s, nodeArray<Vector3>& DZ, const RealType& delt)
+    void makeDiff(const nodeArray<Vector3>& s, nodeArray<Vector3>& DZ, const Real& delt)
     {
-        const RealType dotss  = dot(s, s);
-        const RealType dotvv  = dot(velN, velN);
-        RealType       scale2 = dotvv / dotss;
-        const RealType maxTol = 1e100;
-        const RealType minTol = 1e0;
+        const Real dotss  = dot(s, s);
+        const Real dotvv  = dot(velN, velN);
+        Real       scale2 = dotvv / dotss;
+        const Real maxTol = 1e100;
+        const Real minTol = 1e0;
 
         if(scale2 > maxTol)
         {
@@ -435,7 +435,7 @@ public:
             scale2 = minTol;
         }
 
-        const RealType fd = sqrt(machEps * scale2);
+        const Real fd = sqrt(machEps * scale2);
 
         for(int i = 0; i < Nnode(); ++i)
         {
@@ -457,8 +457,8 @@ template<typename sysT>
 class ConjGrad : public sysT
 {
     nodeArray<Vector3>        res, P, Q;
-    const RealType            ratioGMRES, slack;
-    RealType                  minRatio;
+    const Real                ratioGMRES, slack;
+    Real                      minRatio;
     const int                 iterLim;
     int                       Kiter;
     const nodeArray<Vector3>& Zcurr;
@@ -467,7 +467,7 @@ class ConjGrad : public sysT
     unsigned                  ct;
     unsigned                  CGdivergeCount;
 public:
-    int solve(const RealType& rhoNewton, const RealType& delt)
+    int solve(const Real& rhoNewton, const Real& delt)
     {
         for(int i = 0; i < Nnode(); ++i)
         {
@@ -475,9 +475,9 @@ public:
         }
 
         P = res;
-        RealType rhoNew2     = rhoNewton * rhoNewton;
-        int      lastGoodIdx = 0;
-        RealType lastGoodRes = 0.;
+        Real rhoNew2     = rhoNewton * rhoNewton;
+        int  lastGoodIdx = 0;
+        Real lastGoodRes = 0.;
         minRatio = huge;
 
         for(Kiter = 0; true; ++Kiter)
@@ -489,8 +489,8 @@ public:
             }
 
             sysT::makeDiff(P, Q, delt);
-            const RealType dotpq = dot(P, Q);
-            const RealType alpha = rhoNew2 / dotpq;
+            const Real dotpq = dot(P, Q);
+            const Real alpha = rhoNew2 / dotpq;
 
             for(int i = 0; i < Nnode(); ++i)
             {
@@ -502,9 +502,9 @@ public:
                 res[i] -= alpha * Q[i];
             }
 
-            const RealType rhoOld2 = rhoNew2;
+            const Real rhoOld2 = rhoNew2;
             rhoNew2 = dot(res, res);
-            const RealType ratio = sqrt(rhoNew2) / rhoNewton;
+            const Real ratio = sqrt(rhoNew2) / rhoNewton;
 
             if(ratio < minRatio)
             {
@@ -538,7 +538,7 @@ public:
                 }
             }
 
-            const RealType beta = rhoNew2 / rhoOld2;
+            const Real beta = rhoNew2 / rhoOld2;
 
             for(int i = 0; i < Nnode(); ++i)
             {
@@ -575,27 +575,27 @@ public:
 template<typename sysT>
 class GMRES : public sysT
 {
-    vector<RealType>            gNorm, cGiv, sGiv, yMin;
-    vector<vector<RealType> >   Hess;
+    vector<Real>                gNorm, cGiv, sGiv, yMin;
+    vector<vector<Real> >       Hess;
     vector<nodeArray<Vector3> > qRes;
     vector<unsigned>            histogram;
-    const RealType              ratioGMRES;
+    const Real                  ratioGMRES;
     const unsigned              Nstor;
     unsigned                    countBasis;
     const nodeArray<Vector3>&   Zcurr;
     nodeArray<Vector3>&         vInc;
-    void multGivens(const int k, RealType& x, RealType& y)
+    void multGivens(const int k, Real& x, Real& y)
     {
-        const RealType tmp = -sGiv[k] * x + cGiv[k] * y;
+        const Real tmp = -sGiv[k] * x + cGiv[k] * y;
         x = cGiv[k] * x + sGiv[k] * y;
         y = tmp;
     }
 
 public:
-    int solve(const RealType& rhoNewton, const RealType& delt)
+    int solve(const Real& rhoNewton, const Real& delt)
     {
-        RealType rhoCurr = rhoNewton;
-        RealType rhoPrev = huge;
+        Real rhoCurr = rhoNewton;
+        Real rhoPrev = huge;
 
         for(int i = 0; i < Nnode(); ++i)
         {
@@ -646,9 +646,9 @@ public:
                 multGivens(i, Hess[i][Kiter], Hess[i + 1][Kiter]);
             }
 
-            const RealType h0 = Hess[Kiter][Kiter];
-            const RealType h1 = Hess[Kiter + 1][Kiter];
-            const RealType nu = sqrt(h0 * h0 + h1 * h1);
+            const Real h0 = Hess[Kiter][Kiter];
+            const Real h1 = Hess[Kiter + 1][Kiter];
+            const Real nu = sqrt(h0 * h0 + h1 * h1);
             cGiv[Kiter]        = Hess[Kiter][Kiter] / nu;
             sGiv[Kiter]        = Hess[Kiter + 1][Kiter] / nu;
             Hess[Kiter][Kiter] = cGiv[Kiter] * Hess[Kiter][Kiter] + sGiv[Kiter] * Hess[Kiter +
@@ -719,7 +719,7 @@ public:
         gNorm.resize(Nstor + 1);
         yMin.resize(Nstor + 1);
         qRes.resize(Nstor + 1, nodeArray<Vector3>());
-        Hess.resize(Nstor + 1, vector<RealType>(Nstor));
+        Hess.resize(Nstor + 1, vector<Real>(Nstor));
         histogram.resize(Nstor);
 
         for(unsigned i = 0; i < histogram.size(); ++i)
@@ -753,29 +753,29 @@ class NewtonKrylov : public solverT
 {
     ofstream                  newtFile;
     nodeArray<Vector3>        vInc, Zcurr, vTry;
-    const RealType            ratioNewton, ignoreResidualBelow;
-    RealType                  rhoStart;
+    const Real                ratioNewton, ignoreResidualBelow;
+    Real                      rhoStart;
     const unsigned            NewtLim, maxLoadIter;
     patch&                    pch;
     constitutiveSC&           cst;
     const nodeArray<Vector3>& vStart;
 public:
-    RealType startRes() const
+    Real startRes() const
     {
         return rhoStart;
     }
 
-    void solve(nodeArray<Vector3>& velN, const RealType& delt)
+    void solve(nodeArray<Vector3>& velN, const Real& delt)
     {
-        RealType loadResPrev = huge;
+        Real loadResPrev = huge;
 
         for(unsigned Nload = 0; Nload < maxLoadIter; ++Nload)
         {
             cst.revert();
             pch.makeExternalForces(delt);
             solverT::makeRes(velN, Zcurr, delt);
-            RealType rhoCurr = sqrt(dot(Zcurr, Zcurr));
-            RealType rhoPrev = huge;
+            Real rhoCurr = sqrt(dot(Zcurr, Zcurr));
+            Real rhoPrev = huge;
 
             if(Nload == 0)
             {
@@ -891,8 +891,8 @@ template<typename NewtT>
 class QuasiStatic : public NewtT, public TimeIntegration
 {
     nodeArray<Vector3> vStart;
-    RealType           theta;
-    RealType           startRes;
+    Real               theta;
+    Real               startRes;
     patch&             pch;
     constitutiveSC&    cst;
 public:
@@ -905,10 +905,10 @@ public:
         startRes(-huge),
         pch(p),
         cst(cc) {}
-    void advance(const RealType& dt)
+    void advance(const Real& dt)
     {
         integrate(pch, pch.massP, pch.massN);
-        RealType maxMass = 0.;
+        Real maxMass = 0.;
 
         for(int i = 0; i < Nnode(); ++i)
             if(pch.massN[i] > maxMass)
@@ -916,7 +916,7 @@ public:
                 maxMass = pch.massN[i];
             }
 
-        const RealType minMass = machEps * maxMass;
+        const Real minMass = machEps * maxMass;
 
         for(int i = 0; i < Nnode(); ++i)
             if(pch.massN[i] < minMass)
@@ -962,7 +962,7 @@ template<typename NewtT>
 class ImplicitDynamic : public NewtT, public TimeIntegration
 {
     nodeArray<Vector3> vStart;
-    const RealType     theta;
+    const Real         theta;
     patch&             pch;
     constitutiveSC&    cst;
 public:
@@ -974,10 +974,10 @@ public:
         theta(comLineArg("theta", .5)),
         pch(p),
         cst(cc) {}
-    void advance(const RealType& dt)
+    void advance(const Real& dt)
     {
         integrate(pch, pch.massP, pch.massN);
-        RealType maxMass = 0.;
+        Real maxMass = 0.;
 
         for(int i = 0; i < Nnode(); ++i)
             if(pch.massN[i] > maxMass)
@@ -985,7 +985,7 @@ public:
                 maxMass = pch.massN[i];
             }
 
-        const RealType minMass = machEps * maxMass;
+        const Real minMass = machEps * maxMass;
 
         for(int i = 0; i < Nnode(); ++i)
             if(pch.massN[i] < minMass)

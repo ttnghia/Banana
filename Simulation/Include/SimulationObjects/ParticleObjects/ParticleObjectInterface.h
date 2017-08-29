@@ -17,17 +17,18 @@
 
 #pragma once
 
-#include <Banana/TypeNames.h>
-#include <Banana/Macros.h>
+#include <Banana/Setup.h>
 #include <ParticleTools/ParticleHelpers.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
+template<class Real>
 class ParticleObject
 {
+protected:
+    __BNN_SETUP_DATA_TYPE(Real)
 public:
     ParticleObject()  = default;
     ~ParticleObject() = default;
@@ -35,22 +36,22 @@ public:
     std::string& name() { return m_ObjName; }
     std::string& meshFile() { return m_MeshFile; }
     std::string& particleCacheFile() { return m_CacheFile; }
-    RealType& particleRadius() { return m_ParticleRadius; }
-    RealType& samplingJitter() { return m_SamplingJitter; }
+    Real& particleRadius() { return m_ParticleRadius; }
+    Real& samplingJitter() { return m_SamplingJitter; }
     bool& relaxPosition() { return m_bRelaxPosition; }
     ParticleHelpers::RelaxationMethod& relaxPositionMethod() { return m_RelaxMethod; }
 
-    Vec3<RealType>& translation() { return m_Translation; }
-    Vec3<RealType>& rotation() { return m_Rotation; }
-    Vec3<RealType>& scale() { return m_Scale; }
+    Vec3r& translation() { return m_Translation; }
+    Vec3r& rotation() { return m_Rotation; }
+    Vec3r& scale() { return m_Scale; }
 
-    const Vec3<RealType>& aabbMin() const noexcept { return m_AABBMin; }
-    const Vec3<RealType>& aabbMax() const noexcept { return m_AABBMax; }
-    const Vec3<RealType>& objCenter() const noexcept { return m_ObjCenter; }
+    const Vec3r& aabbMin() const noexcept { return m_AABBMin; }
+    const Vec3r& aabbMax() const noexcept { return m_AABBMax; }
+    const Vec3r& objCenter() const noexcept { return m_ObjCenter; }
 
-    void transformParticles(const Vec3<RealType>& translation, const Vec3<RealType>& rotation) { ParticleHelpers::transform(m_Particles, m_Translation, m_Rotation); }
+    void transformParticles(const Vec3r& translation, const Vec3r& rotation) { ParticleHelpers::transform(m_Particles, m_Translation, m_Rotation); }
     unsigned int getNumParticles() const noexcept { return static_cast<unsigned int>(m_Particles.size()); }
-    const Vec_Vec3<RealType>& getParticles() const noexcept { return m_Particles; }
+    const Vec_Vec3r& getParticles() const noexcept { return m_Particles; }
 
     void makeObj();
 
@@ -62,17 +63,17 @@ protected:
     std::string m_MeshFile  = "";
     std::string m_CacheFile = "";
 
-    Vec3<RealType> m_Translation = Vec3<RealType>(0);
-    Vec3<RealType> m_Rotation    = Vec3<RealType>(0);
-    Vec3<RealType> m_Scale       = Vec3<RealType>(1);
+    Vec3r m_Translation = Vec3r(0);
+    Vec3r m_Rotation    = Vec3r(0);
+    Vec3r m_Scale       = Vec3r(1);
 
-    Vec3<RealType> m_AABBMin   = Vec3<RealType>(Huge<RealType>());
-    Vec3<RealType> m_AABBMax   = Vec3<RealType>(Tiny<RealType>());
-    Vec3<RealType> m_ObjCenter = Vec3<RealType>(0);
+    Vec3r m_AABBMin   = Vec3r(Huge);
+    Vec3r m_AABBMax   = Vec3r(Tiny);
+    Vec3r m_ObjCenter = Vec3r(0);
 
-    Vec_Vec3<RealType>                m_Particles;
-    RealType                          m_ParticleRadius = 0;
-    RealType                          m_SamplingJitter = 0.1;
+    Vec_Vec3r                         m_Particles;
+    Real                              m_ParticleRadius = 0;
+    Real                              m_SamplingJitter = 0.1;
     bool                              m_bRelaxPosition = false;
     ParticleHelpers::RelaxationMethod m_RelaxMethod    = ParticleHelpers::RelaxationMethod::SPHBasedRelaxationMethod;
 };
@@ -80,8 +81,8 @@ protected:
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Implementation
-template<class RealType>
-void Banana::ParticleObject<RealType>::makeObj()
+template<class Real>
+void Banana::ParticleObject<Real>::makeObj()
 {
     if(!m_CacheFile.empty() && FileHelpers::fileExisted(m_CacheFile))
     {
@@ -104,8 +105,8 @@ void Banana::ParticleObject<RealType>::makeObj()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-void Banana::ParticleObject<RealType>::computeAABB()
+template<class Real>
+void Banana::ParticleObject<Real>::computeAABB()
 {
     for(auto& ppos : m_Particles)
     {
@@ -119,7 +120,7 @@ void Banana::ParticleObject<RealType>::computeAABB()
         }
     }
 
-    m_ObjCenter = (m_AABBMin + m_AABBMax) * RealType(0.5);
+    m_ObjCenter = (m_AABBMin + m_AABBMax) * Real(0.5);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

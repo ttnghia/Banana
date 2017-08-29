@@ -22,38 +22,35 @@
 #include <tiny_obj_loader.h>
 #include <tinyply.h>
 
-#include <Banana/TypeNames.h>
-
-#ifndef M_PI
-#define M_PI 3.1415926535897932384626433832795
-#endif
+#include <Banana/Setup.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class T>
+// This class need to be a template, as it can be used in simulation(double) and rendering(float)
+template<class Real>
 class MeshLoader
 {
 public:
     MeshLoader();
     MeshLoader(const std::string& meshFile);
 
-    bool    loadMesh(const std::string& meshFile);
-    Vec3<T> getMeshCenter() const;
-    const Vec3<T>& getAABBMin() const { return m_BBoxMin; }
-    const Vec3<T>& getAABBMax() const { return m_BBoxMax; }
+    bool  loadMesh(const std::string& meshFile);
+    Vec3r getMeshCenter() const;
+    const Vec3r& getAABBMin() const { return m_AABBMin; }
+    const Vec3r& getAABBMax() const { return m_AABBMax; }
 
-    Vec3<T> getCameraPosition(Vec3<T> camDirection, T fov = 45);
-    T       getCameraDistance(T fov);
+    Vec3r getCameraPosition(Vec3r camDirection, Real fov = 45);
+    Real  getCameraDistance(Real fov);
 
-    const std::vector<uint32_t>& getFaces() const { assert(m_isMeshReady); return m_Faces; }
-    const std::vector<T>& getVertexNormal() const { assert(m_isMeshReady); return m_VertexNormals; }
-    const std::vector<T>& getVertexColor() const { assert(m_isMeshReady); return m_VertexColors; }
-    const std::vector<T>& getVTexCoord2D() const { assert(m_isMeshReady); return m_VertexTexCoord2D; }
-    const std::vector<T>& getVTexCoord3D() const { assert(m_isMeshReady); return m_VertexTexCoord3D; }
-    const std::vector<T>& getVertices() const { assert(m_isMeshReady); return m_Vertices; }
-    const std::vector<T>& getFaceVertices() const { assert(m_isMeshReady); return m_FaceVertices; }
+    const Vec_UInt& getFaces() const { assert(m_isMeshReady); return m_Faces; }
+    const Vec_Real& getVertexNormal() const { assert(m_isMeshReady); return m_VertexNormals; }
+    const Vec_Real& getVertexColor() const { assert(m_isMeshReady); return m_VertexColors; }
+    const Vec_Real& getVTexCoord2D() const { assert(m_isMeshReady); return m_VertexTexCoord2D; }
+    const Vec_Real& getVTexCoord3D() const { assert(m_isMeshReady); return m_VertexTexCoord3D; }
+    const Vec_Real& getVertices() const { assert(m_isMeshReady); return m_Vertices; }
+    const Vec_Real& getFaceVertices() const { assert(m_isMeshReady); return m_FaceVertices; }
 
 private:
     void checkFileType(const std::string& meshFile);
@@ -62,7 +59,7 @@ private:
     bool loadObj(const std::string& meshFile);
     bool loadPly(const std::string& meshFile);
 
-    void computeVertexNormal(T N[3], T v0[3], T v1[3], T v2[3]);
+    void computeVertexNormal(Real N[3], Real v0[3], Real v1[3], Real v2[3]);
 
     ////////////////////////////////////////////////////////////////////////////////
     enum class MeshFileType
@@ -72,22 +69,21 @@ private:
         UnsupportedFileType
     };
 
-
     unsigned int m_NumTriangles;
     bool         m_isMeshReady;
 
     MeshFileType m_MeshFileType;
     std::string  m_LoadingErrorStr;
 
-    std::vector<uint32_t> m_Faces;
-    std::vector<T>        m_Vertices;
-    std::vector<T>        m_FaceVertices;
-    std::vector<T>        m_VertexNormals;
-    std::vector<T>        m_VertexColors;
-    std::vector<T>        m_VertexTexCoord2D;
-    std::vector<T>        m_VertexTexCoord3D;
-    Vec3<T>               m_BBoxMin;
-    Vec3<T>               m_BBoxMax;
+    Vec_UInt m_Faces;
+    Vec_Real m_Vertices;
+    Vec_Real m_FaceVertices;
+    Vec_Real m_VertexNormals;
+    Vec_Real m_VertexColors;
+    Vec_Real m_VertexTexCoord2D;
+    Vec_Real m_VertexTexCoord3D;
+    Vec3r    m_AABBMin;
+    Vec3r    m_AABBMax;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

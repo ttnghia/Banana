@@ -18,7 +18,7 @@
 #pragma once
 #define NOMINMAX
 
-#include <Banana/TypeNames.h>
+#include <Banana/Setup.h>
 #include <Banana/Utils/NumberHelpers.h>
 #include <Banana/ParallelHelpers/ParallelFuncs.h>
 #include <CompactNSearch/CompactNSearch.h>

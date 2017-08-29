@@ -19,8 +19,8 @@
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // could optimize revert so arrays are swapped rather than copied
-template<class RealType>
-void NeoHookean<RealType>::revert()
+template<class Real>
+void NeoHookean<Real>::revert()
 {
     for(int i = 0; i < Npart(); ++i)
     {
@@ -40,8 +40,8 @@ void NeoHookean<RealType>::revert()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // could optimize save so resize is only called once
-template<class RealType>
-void NeoHookean<RealType>::save()
+template<class Real>
+void NeoHookean<Real>::save()
 {
     defGrad0.resize(Npart());
     stress0.resize(Npart());
@@ -64,8 +64,8 @@ void NeoHookean<RealType>::save()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-void NeoHookean<RealType>::update(RealType delt)
+template<class Real>
+void NeoHookean<Real>::update(Real delt)
 {
     for(int i = 0; i < Npart(); ++i)
     {
@@ -78,8 +78,8 @@ void NeoHookean<RealType>::update(RealType delt)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // could optimize revert so arrays are swapped rather than copied
-template<class RealType>
-void UpdatedElastic<RealType>::revert()
+template<class Real>
+void UpdatedElastic<Real>::revert()
 {
     for(int i = 0; i < Npart(); ++i)
     {
@@ -99,8 +99,8 @@ void UpdatedElastic<RealType>::revert()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // could optimize save so resize is only called once
-template<class RealType>
-void UpdatedElastic<RealType>::save()
+template<class Real>
+void UpdatedElastic<Real>::save()
 {
     defGrad0.resize(Npart());
     stress0.resize(Npart());
@@ -123,13 +123,13 @@ void UpdatedElastic<RealType>::save()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-void UpdatedElastic<RealType>::update(RealType delt)
+template<class Real>
+void UpdatedElastic<Real>::update(Real delt)
 {
     for(int i = 0; i < Npart(); ++i)
     {
         defGrad[i] += inner(velGrad[i], defGrad[i]) * delt; // Nanson works for all
-        const Mat3x3<RealType> strainInc(.5 * (velGrad[i] + velGrad[i].transpose()) * delt);
+        const Mat3x3<Real> strainInc(.5 * (velGrad[i] + velGrad[i].transpose()) * delt);
         //defGrad[i]+=strainInc; // Nanson works with shear problem, but not with fixed-fixed beam
         const Real evol = strainInc.trace();
         volume[i] += evol * volume[i];
@@ -139,8 +139,8 @@ void UpdatedElastic<RealType>::update(RealType delt)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // could optimize revert so arrays are swapped rather than copied
-template<class RealType>
-void J2plasticLinearIsoKin<RealType>::revert()
+template<class Real>
+void J2plasticLinearIsoKin<Real>::revert()
 {
     for(int i = 0; i < Npart(); ++i)
     {
@@ -165,8 +165,8 @@ void J2plasticLinearIsoKin<RealType>::revert()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // could optimize save so resize is only called once
-template<class RealType>
-void J2plasticLinearIsoKin<RealType>::save()
+template<class Real>
+void J2plasticLinearIsoKin<Real>::save()
 {
     defGrad0.resize(Npart());
     stress0.resize(Npart());
@@ -195,22 +195,22 @@ void J2plasticLinearIsoKin<RealType>::save()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-void J2plasticLinearIsoKin<RealType>::update(RealType delt)
+template<class Real>
+void J2plasticLinearIsoKin<Real>::update(Real delt)
 {
     for(int i = 0; i < Npart(); ++i)
     {
         defGrad[i] += inner(velGrad[i], defGrad[i]) * delt;
-        point&                 pt = pnt[i];
-        const Mat3x3<RealType> strainInc(.5 * (velGrad[i] + velGrad[i].transpose()) * delt);
-        const Real             evol = strainInc.trace();
+        point&             pt = pnt[i];
+        const Mat3x3<Real> strainInc(.5 * (velGrad[i] + velGrad[i].transpose()) * delt);
+        const Real         evol = strainInc.trace();
         volume[i] += volume[i] * evol;
         pt.strain += strainInc;
-        const Mat3x3<RealType> devStrainInc(dev(strainInc));
-        const Mat3x3<RealType> dilStressInc(I3(bulkModK* evol));
-        const Mat3x3<RealType> trialStress(dev(stress[i]) + 2. * shearModG* devStrainInc);
-        const Real             hardLaw     = yieldStress + isoHardMod * pt.internalAlpha;
-        const Real             ffYieldCond = trialStress.norm() - sqrtTwoThirds * hardLaw;
+        const Mat3x3<Real> devStrainInc(dev(strainInc));
+        const Mat3x3<Real> dilStressInc(I3(bulkModK* evol));
+        const Mat3x3<Real> trialStress(dev(stress[i]) + 2. * shearModG* devStrainInc);
+        const Real         hardLaw     = yieldStress + isoHardMod * pt.internalAlpha;
+        const Real         ffYieldCond = trialStress.norm() - sqrtTwoThirds * hardLaw;
 
         if(ffYieldCond <= 0.)
         {
@@ -218,10 +218,10 @@ void J2plasticLinearIsoKin<RealType>::update(RealType delt)
         }
         else
         {
-            const Mat3x3<RealType> unitStress(trialStress / trialStress.norm());
-            const Real             gammaInc = ffYieldCond / (2. * (shearModG + oneThird *
-                                                                   (isoHardMod + kinHardMod)));
-            const Mat3x3<RealType> plasticStrainInc(gammaInc* unitStress);
+            const Mat3x3<Real> unitStress(trialStress / trialStress.norm());
+            const Real         gammaInc = ffYieldCond / (2. * (shearModG + oneThird *
+                                                               (isoHardMod + kinHardMod)));
+            const Mat3x3<Real> plasticStrainInc(gammaInc* unitStress);
             pt.internalAlpha += sqrtTwoThirds * gammaInc;
             pt.backStress    += (sqrtTwoThirds * kinHardMod * gammaInc) * unitStress;
             pt.plasticStrain += plasticStrainInc;

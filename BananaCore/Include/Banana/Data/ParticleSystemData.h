@@ -116,15 +116,15 @@ public:
     }
 
     //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    template<class T, int N>
-    void addArray(const std::string& arrName, bool bInit = false, T initVal = T(0))
+    template<class Real, int N>
+    void addArray(const std::string& arrName, bool bInit = false, Real initVal = Real(0))
     {
-        size_t arraySize    = m_NumParticles * sizeof(T) * N;
-        size_t maxArraySize = m_MaxNumParticles * sizeof(T) * N;
+        size_t arraySize    = m_NumParticles * sizeof(Real) * N;
+        size_t maxArraySize = m_MaxNumParticles * sizeof(Real) * N;
 
         if(!hasArray(arrName))
         {
-            m_ArrayElementSize[arrName] = sizeof(T) * N;
+            m_ArrayElementSize[arrName] = sizeof(Real) * N;
             m_ArrayData[arrName]        = new std::vector<unsigned char>;
             m_ArrayData[arrName]->reserve(maxArraySize);
             m_ArrayData[arrName]->resize(arraySize);
@@ -137,7 +137,7 @@ public:
 
         if(bInit)
         {
-            T* dataPtr = reinterpret_cast<T*>(getArray(arrName)->data());
+            Real* dataPtr = reinterpret_cast<Real*>(getArray(arrName)->data());
 
             for(unsigned int i = 0, iEnd = m_MaxNumParticles * N; i < iEnd; ++i)
             {
@@ -147,27 +147,27 @@ public:
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    template<class T, int N>
+    template<class Real, int N>
     void addArrayIfNotExist(const std::string& arrName, bool iniZero = false)
     {
         if(hasArray(arrName))
             return;
 
-        size_t arraySize    = m_NumParticles * sizeof(T) * N;
-        size_t maxArraySize = m_MaxNumParticles * sizeof(T) * N;
+        size_t arraySize    = m_NumParticles * sizeof(Real) * N;
+        size_t maxArraySize = m_MaxNumParticles * sizeof(Real) * N;
 
-        m_ArrayElementSize[arrName] = sizeof(T) * N;
+        m_ArrayElementSize[arrName] = sizeof(Real) * N;
         m_ArrayData[arrName]        = new std::vector<unsigned char>;
         m_ArrayData[arrName]->reserve(maxArraySize);
         m_ArrayData[arrName]->resize(arraySize);
 
         if(iniZero)
         {
-            T* dataPtr = reinterpret_cast<T*>(getArray(arrName)->data());
+            Real* dataPtr = reinterpret_cast<Real*>(getArray(arrName)->data());
 
             for(unsigned int i = 0, iEnd = m_MaxNumParticles * N; i < iEnd; ++i)
             {
-                dataPtr[i] = T(0);
+                dataPtr[i] = Real(0);
             }
         }
     }
@@ -178,8 +178,8 @@ public:
         resize(numParticles);
     }
 
-    template<class T>
-    void setParticleRadius(T particleRadius)
+    template<class Real>
+    void setParticleRadius(Real particleRadius)
     {
         m_ParticleRadius = static_cast<double>(particleRadius);
     }
@@ -209,10 +209,10 @@ public:
         return m_MaxNumParticles;
     }
 
-    template<class T>
-    T getParticleRadius() const
+    template<class Real>
+    Real getParticleRadius() const
     {
-        return static_cast<T>(m_ParticleRadius);
+        return static_cast<Real>(m_ParticleRadius);
     }
 
     unsigned int getUInt(const std::string& dataName)
@@ -232,17 +232,17 @@ public:
     }
 
     //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    template<class T, int N>
+    template<class Real, int N>
     void generateRandomIntData(const std::string& dataName,
-                               T                  minVal = 0,
-                               T                  maxVal = std::numeric_limits<T>::max())
+                               Real               minVal = 0,
+                               Real               maxVal = std::numeric_limits<Real>::max())
     {
-        std::random_device               rd;
-        std::mt19937                     gen(rd());
-        std::uniform_int_distribution<T> dis(minVal, maxVal);
+        std::random_device                  rd;
+        std::mt19937                        gen(rd());
+        std::uniform_int_distribution<Real> dis(minVal, maxVal);
 
-        addArray<T, N>(dataName);
-        T* dataPtr = reinterpret_cast<T*>(getArray(dataName)->data());
+        addArray<Real, N>(dataName);
+        Real* dataPtr = reinterpret_cast<Real*>(getArray(dataName)->data());
 
         for(unsigned int i = 0, iEnd = m_NumParticles * N; i < iEnd; ++i)
         {
@@ -251,17 +251,17 @@ public:
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    template<class T, int N>
+    template<class Real, int N>
     void generateRandomRealData(const std::string& dataName,
-                                T                  minVal = 0,
-                                T                  maxVal = std::numeric_limits<T> ::max())
+                                Real               minVal = 0,
+                                Real               maxVal = std::numeric_limits<Real> ::max())
     {
-        std::random_device                rd;
-        std::mt19937                      gen(rd());
-        std::uniform_real_distribution<T> dis(minVal, maxVal);
+        std::random_device                   rd;
+        std::mt19937                         gen(rd());
+        std::uniform_real_distribution<Real> dis(minVal, maxVal);
 
-        addArray<T, N>(dataName);
-        T* dataPtr = reinterpret_cast<T*>(getArray(dataName)->data());
+        addArray<Real, N>(dataName);
+        Real* dataPtr = reinterpret_cast<Real*>(getArray(dataName)->data());
 
         for(unsigned int i = 0, iEnd = m_NumParticles * N; i < iEnd; ++i)
         {
@@ -270,23 +270,23 @@ public:
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    template<class T, class S, int N>
+    template<class Real, class S, int N>
     void generateRampData(const std::string& dataName,
                           std::vector<S>     rangeVals)
     {
-        addArray<T, N>(dataName);
+        addArray<Real, N>(dataName);
 
-        T* dataPtr     = reinterpret_cast<T*>(getArray(dataName)->data());
-        T  segmentSize = static_cast<T>(m_NumParticles) / static_cast<T>(rangeVals.size() - 1);
+        Real* dataPtr     = reinterpret_cast<Real*>(getArray(dataName)->data());
+        Real  segmentSize = static_cast<Real>(m_NumParticles) / static_cast<Real>(rangeVals.size() - 1);
 
         for(unsigned int i = 0; i < m_NumParticles; ++i)
         {
             size_t segment = static_cast<size_t>(floor(static_cast<float>(i)) / segmentSize);
             assert(segment < rangeVals.size() - 1);
 
-            T t        = static_cast<T>(i - segmentSize * segment) / segmentSize;
-            S startVal = rangeVals[segment];
-            S endVal   = rangeVals[segment + 1];
+            Real t        = static_cast<Real>(i - segmentSize * segment) / segmentSize;
+            S    startVal = rangeVals[segment];
+            S    endVal   = rangeVals[segment + 1];
 
             for(int j = 0; j < N; ++j)
             {

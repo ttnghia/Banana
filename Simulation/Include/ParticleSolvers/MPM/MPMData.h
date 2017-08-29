@@ -21,40 +21,41 @@
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
+template<class Real>
 struct SimulationParametersMPM
 {};
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
+template<class Real>
 struct SimulationDataMPM
 {
-    Vec_Vec3<RealType> positions;
-    Vec_Vec3<RealType> velocity;
+    Vec_Vec3r positions;
+    Vec_Vec3r velocity;
 };
 
 
 
-
+template<class Real>
 struct partSurface
 {
-    Vector3 norm;
-    Real    area;
-    int     p;
-    partSurface(const Vector3& a, const Real& b, const int& c) : norm(a), area(b), p(c) {}
+    Vec3r norm;
+    Real  area;
+    int   p;
+    partSurface(const Vec3r& a, const Real& b, const int& c) : norm(a), area(b), p(c) {}
 };
 
+template<class Real>
 struct patch
 {
     // const patch-wide values
-    const Vector3 regionLo;               // minimum x and y of region
-    const Vector3 regionHi;               // maximum x and y of region
-    const Real    dx;                     // x-dir cell size
-    const Real    dy;                     // y-dir cell size
-    const Real    dz;                     // z-dir cell size
-    const int     I;                      // I columns of nodes
-    const int     J;                      // J rows of nodes
-    const int     K;                      // K layers of nodes
+    const Vec3r regionLo;                 // minimum x and y of region
+    const Vec3r regionHi;                 // maximum x and y of region
+    const Real  dx;                       // x-dir cell size
+    const Real  dy;                       // y-dir cell size
+    const Real  dz;                       // z-dir cell size
+    const int   I;                        // I columns of nodes
+    const int   J;                        // J rows of nodes
+    const int   K;                        // K layers of nodes
                                           // patch-wide variables
     Real                     elapsedTime; // elapsed time within the simulation
     Real                     finalTime;   // Expected final state of the simulation
@@ -66,24 +67,24 @@ struct patch
     partArray<Matrix33> velGradP;         // velocity gradient
     partArray<Matrix33> defGradP;         // deformation gradient
     partArray<Matrix33> stressP;          // stress
-    partArray<Vector3>  refPosP;          // initial position
-    partArray<Vector3>  curPosP;          // position
-    partArray<Vector3>  velP;             // velocity
-    partArray<Vector3>  momP;             // momentum
-    partArray<Vector3>  velIncP;          // velocity increment
-    partArray<Vector3>  posIncP;          // position increment
-    partArray<Vector3>  halfLenP;         // particle size
+    partArray<Vec3r>    refPosP;          // initial position
+    partArray<Vec3r>    curPosP;          // position
+    partArray<Vec3r>    velP;             // velocity
+    partArray<Vec3r>    momP;             // momentum
+    partArray<Vec3r>    velIncP;          // velocity increment
+    partArray<Vec3r>    posIncP;          // position increment
+    partArray<Vec3r>    halfLenP;         // particle size
     partArray<Real>     massP;            // mass
     partArray<Real>     volumeP;          // volume
     partArray<Real>     refVolP;          // Initial volume
                                           // node variables
-    nodeArray<Real>    massN;             // node mass
-    nodeArray<Vector3> curPosN;           // node position
-    nodeArray<Vector3> velN;              // node velocity
-    nodeArray<Vector3> momN;              // node momentum
-    nodeArray<Vector3> fintN;             // internal force on the node
-    nodeArray<Vector3> gravityN;          // external acceleration
-    nodeArray<Vector3> velIncN;           // grid velocity increment
+    nodeArray<Real>  massN;               // node mass
+    nodeArray<Vec3r> curPosN;             // node position
+    nodeArray<Vec3r> velN;                // node velocity
+    nodeArray<Vec3r> momN;                // node momentum
+    nodeArray<Vec3r> fintN;               // internal force on the node
+    nodeArray<Vec3r> gravityN;            // external acceleration
+    nodeArray<Vec3r> velIncN;             // grid velocity increment
                                           // inline methods
                                           // These functions find the cell within which a particle is contained
                                           // The lower left node of the cell is always defined as the "parent" node of that cell.
@@ -117,7 +118,7 @@ struct patch
         return int(floor(rsz(z)));
     }
 
-    int inCell(const Vector3& p) const // find the cell into which x,y,z falls
+    int inCell(const Vec3r& p) const // find the cell into which x,y,z falls
     {
         const int i = rsi(p[0]);
         const int j = rsj(p[1]);
@@ -133,7 +134,7 @@ struct patch
         }
     }
 
-    bool inRegion(const Vector3& p) const
+    bool inRegion(const Vec3r& p) const
     {
         return (regionLo[0] <= p[0]
                 && regionLo[1] <= p[1]
@@ -147,7 +148,7 @@ struct patch
     // GIMP particles where portions of a particle may fall in up to
     // eight cells.  Hence, we return the lowest and left-est node to
     // which the particle may contribute.
-    int inCell8(const Vector3& p) const
+    int inCell8(const Vec3r& p) const
     {
         const Real& x = p[0];
         const Real& y = p[1];
@@ -171,9 +172,9 @@ struct patch
     }
 
     // declared methods
-    patch(const int Nx, const int Ny, const int Nz, const Vector3 lo, const Vector3 hi);
+    patch(const int Nx, const int Ny, const int Nz, const Vec3r lo, const Vec3r hi);
     virtual bool afterStep() = 0;
-    virtual void gridVelocityBC(vector<Vector3>&) {};
+    virtual void gridVelocityBC(vector<Vec3r>&) {};
     virtual void makeExternalForces(const Real&) {};
     virtual ~patch() {}
 };
@@ -185,7 +186,7 @@ struct patch
 
 
 
-patch::patch(const int Nx, const int Ny, const int Nz, const Vector3 lo, const Vector3 hi) :
+patch::patch(const int Nx, const int Ny, const int Nz, const Vec3r lo, const Vec3r hi) :
     regionLo(lo),
     regionHi(hi),
     dx((hi[0] - lo[0]) / Real(Nx)),
@@ -209,13 +210,13 @@ patch::patch(const int Nx, const int Ny, const int Nz, const Vector3 lo, const V
             for(int i = 0; i < I; ++i)
             {
                 const Real x = (i - 1) * dx + regionLo[0];
-                curPosN[k * I * J + j * I + i] = Vector3(x, y, z);
+                curPosN[k * I * J + j * I + i] = Vec3r(x, y, z);
             }
         }
     }
     report.param("regionLo",   regionLo);
     report.param("regionHi",   regionHi);
-    report.param("cell sizes", Vector3(dx, dy, dz));
+    report.param("cell sizes", Vec3r(dx, dy, dz));
     report.param("Icols",      I);
     report.param("Jrows",      J);
     report.param("Klayers",    K);

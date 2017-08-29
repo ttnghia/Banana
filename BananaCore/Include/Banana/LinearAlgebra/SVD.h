@@ -39,8 +39,8 @@ namespace SVDDecomposition
    http://www.beyond3d.com/content/articles/8/
  */
 
-template<class T>
-inline T rsqrt(T)
+template<class Real>
+inline Real rsqrt(Real)
 {
     fprintf(stderr, "Wrong call to unimplemented function.\n    Line: %d, file: %s\n", __LINE__, __FILE__);
     fflush(stderr);
@@ -77,36 +77,36 @@ inline double rsqrt<double>(double x)
     return x;
 }
 
-template<class T>
-inline T accurateSqrt(T x)
+template<class Real>
+inline Real accurateSqrt(Real x)
 {
-    return x * rsqrt<T>(x);
+    return x * rsqrt<Real>(x);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class T>
-inline void condSwap(bool c, T& X, T& Y)
+template<class Real>
+inline void condSwap(bool c, Real& X, Real& Y)
 {
     // used in step 2
-    T Z = X;
+    Real Z = X;
     X = c ? Y : X;
     Y = c ? Z : Y;
 }
 
-template<class T>
-inline void condNegSwap(bool c, T& X, T& Y)
+template<class Real>
+inline void condNegSwap(bool c, Real& X, Real& Y)
 {
     // used in step 2 and 3
-    T Z = -X;
+    Real Z = -X;
     X = c ? Y : X;
     Y = c ? Z : Y;
 }
 
 // matrix multiplication M = A * B
-template<class T>
-inline void multAB(T a11, T a12, T a13, T a21, T a22, T a23, T a31, T a32, T a33,
-                   T b11, T b12, T b13, T b21, T b22, T b23, T b31, T b32, T b33,
-                   T& m11, T& m12, T& m13, T& m21, T& m22, T& m23, T& m31, T& m32, T& m33)
+template<class Real>
+inline void multAB(Real a11, Real a12, Real a13, Real a21, Real a22, Real a23, Real a31, Real a32, Real a33,
+                   Real b11, Real b12, Real b13, Real b21, Real b22, Real b23, Real b31, Real b32, Real b33,
+                   Real& m11, Real& m12, Real& m13, Real& m21, Real& m22, Real& m23, Real& m31, Real& m32, Real& m33)
 {
     m11 = a11 * b11 + a12 * b21 + a13 * b31;
     m12 = a11 * b12 + a12 * b22 + a13 * b32;
@@ -120,10 +120,10 @@ inline void multAB(T a11, T a12, T a13, T a21, T a22, T a23, T a31, T a32, T a33
 }
 
 // matrix multiplication M = Transpose[A] * B
-template<class T>
-inline void multAtB(T a11, T a12, T a13, T a21, T a22, T a23, T a31, T a32, T a33,
-                    T b11, T b12, T b13, T b21, T b22, T b23, T b31, T b32, T b33,
-                    T& m11, T& m12, T& m13, T& m21, T& m22, T& m23, T& m31, T& m32, T& m33)
+template<class Real>
+inline void multAtB(Real a11, Real a12, Real a13, Real a21, Real a22, Real a23, Real a31, Real a32, Real a33,
+                    Real b11, Real b12, Real b13, Real b21, Real b22, Real b23, Real b31, Real b32, Real b33,
+                    Real& m11, Real& m12, Real& m13, Real& m21, Real& m22, Real& m23, Real& m31, Real& m32, Real& m33)
 {
     m11 = a11 * b11 + a21 * b21 + a31 * b31;
     m12 = a11 * b12 + a21 * b22 + a31 * b32;
@@ -136,23 +136,23 @@ inline void multAtB(T a11, T a12, T a13, T a21, T a22, T a23, T a31, T a32, T a3
     m33 = a13 * b13 + a23 * b23 + a33 * b33;
 }
 
-template<class T>
-inline void quatToMat3(const T* qV, T& m11, T& m12, T& m13, T& m21, T& m22, T& m23, T& m31, T& m32, T& m33)
+template<class Real>
+inline void quatToMat3(const Real* qV, Real& m11, Real& m12, Real& m13, Real& m21, Real& m22, Real& m23, Real& m31, Real& m32, Real& m33)
 {
-    T w = qV[3];
-    T x = qV[0];
-    T y = qV[1];
-    T z = qV[2];
+    Real w = qV[3];
+    Real x = qV[0];
+    Real y = qV[1];
+    Real z = qV[2];
 
-    T qxx = x * x;
-    T qyy = y * y;
-    T qzz = z * z;
-    T qxz = x * z;
-    T qxy = x * y;
-    T qyz = y * z;
-    T qwx = w * x;
-    T qwy = w * y;
-    T qwz = w * z;
+    Real qxx = x * x;
+    Real qyy = y * y;
+    Real qzz = z * z;
+    Real qxz = x * z;
+    Real qxy = x * y;
+    Real qyz = y * z;
+    Real qwx = w * x;
+    Real qwy = w * y;
+    Real qwz = w * z;
 
     m11 = 1 - 2 * (qyy + qzz);
     m12 = 2 * (qxy - qwz);
@@ -165,8 +165,8 @@ inline void quatToMat3(const T* qV, T& m11, T& m12, T& m13, T& m21, T& m22, T& m
     m33 = 1 - 2 * (qxx + qyy);
 }
 
-template<class T>
-inline void approximateGivensQuaternion(T a11, T a12, T a22, T& ch, T& sh)
+template<class Real>
+inline void approximateGivensQuaternion(Real a11, Real a12, Real a22, Real& ch, Real& sh)
 {
     /*
      * Given givens angle computed by approximateGivensAngles,
@@ -178,30 +178,30 @@ inline void approximateGivensQuaternion(T a11, T a12, T a22, T& ch, T& sh)
     // fast rsqrt function suffices
     // rsqrt2 (https://code.google.com/p/lppython/source/browse/algorithm/HDcode/newCode/rsqrt.c?r=26)
     // is even faster but results in too much error
-    T w = rsqrt<T>(ch * ch + sh * sh);
-    ch = b ? w * ch : (T)_cstar;
-    sh = b ? w * sh : (T)_sstar;
+    Real w = rsqrt<Real>(ch * ch + sh * sh);
+    ch = b ? w * ch : (Real)_cstar;
+    sh = b ? w * sh : (Real)_sstar;
 }
 
-template<class T>
+template<class Real>
 inline void jacobiConjugation(const int x, const int y, const int z,
-                              T& s11, T& s21, T& s22, T& s31, T& s32, T& s33,
-                              T* qV)
+                              Real& s11, Real& s21, Real& s22, Real& s31, Real& s32, Real& s33,
+                              Real* qV)
 {
-    T ch, sh;
+    Real ch, sh;
     approximateGivensQuaternion(s11, s21, s22, ch, sh);
 
-    T scale = ch * ch + sh * sh;
-    T a     = (ch * ch - sh * sh) / scale;
-    T b     = (2 * sh * ch) / scale;
+    Real scale = ch * ch + sh * sh;
+    Real a     = (ch * ch - sh * sh) / scale;
+    Real b     = (2 * sh * ch) / scale;
 
     // make temp copy of S
-    T _s11 = s11;
-    T _s21 = s21;
-    T _s22 = s22;
-    T _s31 = s31;
-    T _s32 = s32;
-    T _s33 = s33;
+    Real _s11 = s11;
+    Real _s21 = s21;
+    Real _s22 = s22;
+    Real _s31 = s31;
+    Real _s32 = s32;
+    Real _s33 = s33;
 
     // perform conjugation S = Q'*S*Q
     // Q already implicitly solved from a, b
@@ -213,7 +213,7 @@ inline void jacobiConjugation(const int x, const int y, const int z,
     s33 = _s33;
 
     // update cumulative rotation qV
-    T tmp[3];
+    Real tmp[3];
     tmp[0] = qV[0] * sh;
     tmp[1] = qV[1] * sh;
     tmp[2] = qV[2] * sh;
@@ -246,20 +246,20 @@ inline void jacobiConjugation(const int x, const int y, const int z,
     s33  = _s33;
 }
 
-template<class T>
-inline T dist2(T x, T y, T z)
+template<class Real>
+inline Real dist2(Real x, Real y, Real z)
 {
     return x * x + y * y + z * z;
 }
 
 // finds transformation that diagonalizes a symmetric matrix
-template<class T>
+template<class Real>
 inline void jacobiEigenanlysis( // symmetric matrix
-    T& s11,
-    T& s21, T& s22,
-    T& s31, T& s32, T& s33,
+    Real& s11,
+    Real& s21, Real& s22,
+    Real& s31, Real& s32, Real& s33,
     // quaternion representation of V
-    T* qV)
+    Real* qV)
 {
     qV[3] = 1;
     qV[0] = 0;
@@ -278,19 +278,19 @@ inline void jacobiEigenanlysis( // symmetric matrix
     }
 }
 
-template<class T>
+template<class Real>
 inline void sortSingularValues(// matrix that we want to decompose
-    T& b11, T& b12, T& b13,
-    T& b21, T& b22, T& b23,
-    T& b31, T& b32, T& b33,
+    Real& b11, Real& b12, Real& b13,
+    Real& b21, Real& b22, Real& b23,
+    Real& b31, Real& b32, Real& b33,
     // sort V simultaneously
-    T& v11, T& v12, T& v13,
-    T& v21, T& v22, T& v23,
-    T& v31, T& v32, T& v33)
+    Real& v11, Real& v12, Real& v13,
+    Real& v21, Real& v22, Real& v23,
+    Real& v31, Real& v32, Real& v33)
 {
-    T    rho1 = dist2(b11, b21, b31);
-    T    rho2 = dist2(b12, b22, b32);
-    T    rho3 = dist2(b13, b23, b33);
+    Real rho1 = dist2(b11, b21, b31);
+    Real rho2 = dist2(b12, b22, b32);
+    Real rho3 = dist2(b13, b23, b33);
     bool c;
     c = rho1 < rho2;
     condNegSwap(c, b11, b12);
@@ -317,39 +317,39 @@ inline void sortSingularValues(// matrix that we want to decompose
     condNegSwap(c, v32, v33);
 }
 
-template<class T>
-void QRGivensQuaternion(T a1, T a2, T& ch, T& sh)
+template<class Real>
+void QRGivensQuaternion(Real a1, Real a2, Real& ch, Real& sh)
 {
     // a1 = pivot point on diagonal
     // a2 = lower triangular entry we want to annihilate
-    T epsilon = (T)EPSILON;
-    T rho     = accurateSqrt<T>(a1 * a1 + a2 * a2);
+    Real epsilon = (Real)EPSILON;
+    Real rho     = accurateSqrt<Real>(a1 * a1 + a2 * a2);
 
     sh = rho > epsilon ? a2 : 0;
     ch = fabs(a1) + fmax(rho, epsilon);
     bool b = a1 < 0;
     condSwap(b, sh, ch);
-    T w = rsqrt<T>(ch * ch + sh * sh);
+    Real w = rsqrt<Real>(ch * ch + sh * sh);
     ch *= w;
     sh *= w;
 }
 
-template<class T>
+template<class Real>
 inline void QRDecomposition(// matrix that we want to decompose
-    T b11, T b12, T b13,
-    T b21, T b22, T b23,
-    T b31, T b32, T b33,
+    Real b11, Real b12, Real b13,
+    Real b21, Real b22, Real b23,
+    Real b31, Real b32, Real b33,
     // output Q
-    T& q11, T& q12, T& q13,
-    T& q21, T& q22, T& q23,
-    T& q31, T& q32, T& q33,
+    Real& q11, Real& q12, Real& q13,
+    Real& q21, Real& q22, Real& q23,
+    Real& q31, Real& q32, Real& q33,
     // output R
-    T& r11, T& r12, T& r13,
-    T& r21, T& r22, T& r23,
-    T& r31, T& r32, T& r33)
+    Real& r11, Real& r12, Real& r13,
+    Real& r21, Real& r22, Real& r23,
+    Real& r31, Real& r32, Real& r33)
 {
-    T ch1, sh1, ch2, sh2, ch3, sh3;
-    T a, b;
+    Real ch1, sh1, ch2, sh2, ch3, sh3;
+    Real a, b;
 
     // first givens rotation (ch,0,0,sh)
     QRGivensQuaternion(b11, b21, ch1, sh1);
@@ -400,9 +400,9 @@ inline void QRDecomposition(// matrix that we want to decompose
     // the number of Ting point operations for three quaternion multiplications
     // is more or less comparable to the explicit form of the joined matrix.
     // certainly more memory-efficient!
-    T sh12 = sh1 * sh1;
-    T sh22 = sh2 * sh2;
-    T sh32 = sh3 * sh3;
+    Real sh12 = sh1 * sh1;
+    Real sh22 = sh2 * sh2;
+    Real sh32 = sh3 * sh3;
 
     q11 = (-1 + 2 * sh12) * (-1 + 2 * sh22);
     q12 = 4 * ch2 * ch3 * (-1 + 2 * sh12) * sh2 * sh3 + 2 * ch1 * sh1 * (-1 + 2 * sh32);
@@ -417,41 +417,41 @@ inline void QRDecomposition(// matrix that we want to decompose
     q33 = (-1 + 2 * sh22) * (-1 + 2 * sh32);
 }
 
-template<class T>
+template<class Real>
 void svd(// input A
-    T a11, T a12, T a13,
-    T a21, T a22, T a23,
-    T a31, T a32, T a33,
+    Real a11, Real a12, Real a13,
+    Real a21, Real a22, Real a23,
+    Real a31, Real a32, Real a33,
     // output U
-    T& u11, T& u12, T& u13,
-    T& u21, T& u22, T& u23,
-    T& u31, T& u32, T& u33,
+    Real& u11, Real& u12, Real& u13,
+    Real& u21, Real& u22, Real& u23,
+    Real& u31, Real& u32, Real& u33,
     // output S
-    T& s11, T& s12, T& s13,
-    T& s21, T& s22, T& s23,
-    T& s31, T& s32, T& s33,
+    Real& s11, Real& s12, Real& s13,
+    Real& s21, Real& s22, Real& s23,
+    Real& s31, Real& s32, Real& s33,
     // output V
-    T& v11, T& v12, T& v13,
-    T& v21, T& v22, T& v23,
-    T& v31, T& v32, T& v33)
+    Real& v11, Real& v12, Real& v13,
+    Real& v21, Real& v22, Real& v23,
+    Real& v31, Real& v32, Real& v33)
 {
     // normal equations matrix
-    T ATA11, ATA12, ATA13;
-    T ATA21, ATA22, ATA23;
-    T ATA31, ATA32, ATA33;
+    Real ATA11, ATA12, ATA13;
+    Real ATA21, ATA22, ATA23;
+    Real ATA31, ATA32, ATA33;
 
     multAtB(a11, a12, a13, a21, a22, a23, a31, a32, a33,
             a11, a12, a13, a21, a22, a23, a31, a32, a33,
             ATA11, ATA12, ATA13, ATA21, ATA22, ATA23, ATA31, ATA32, ATA33);
 
     // symmetric eigenalysis
-    T qV[4];
+    Real qV[4];
     jacobiEigenanlysis(ATA11, ATA21, ATA22, ATA31, ATA32, ATA33, qV);
     quatToMat3(qV, v11, v12, v13, v21, v22, v23, v31, v32, v33);
 
-    T b11, b12, b13;
-    T b21, b22, b23;
-    T b31, b32, b33;
+    Real b11, b12, b13;
+    Real b21, b22, b23;
+    Real b31, b32, b33;
     multAB(a11, a12, a13, a21, a22, a23, a31, a32, a33,
            v11, v12, v13, v21, v22, v23, v31, v32, v33,
            b11, b12, b13, b21, b22, b23, b31, b32, b33);
@@ -468,22 +468,22 @@ void svd(// input A
 
 /// polar decomposition can be reconstructed trivially from SVD result
 // A = UP
-template<class T>
-void polarDecomposition(T a11, T a12, T a13,
-                        T a21, T a22, T a23,
-                        T a31, T a32, T a33,
+template<class Real>
+void polarDecomposition(Real a11, Real a12, Real a13,
+                        Real a21, Real a22, Real a23,
+                        Real a31, Real a32, Real a33,
                         // output U
-                        T& u11, T& u12, T& u13,
-                        T& u21, T& u22, T& u23,
-                        T& u31, T& u32, T& u33,
+                        Real& u11, Real& u12, Real& u13,
+                        Real& u21, Real& u22, Real& u23,
+                        Real& u31, Real& u32, Real& u33,
                         // output P
-                        T& p11, T& p12, T& p13,
-                        T& p21, T& p22, T& p23,
-                        T& p31, T& p32, T& p33)
+                        Real& p11, Real& p12, Real& p13,
+                        Real& p21, Real& p22, Real& p23,
+                        Real& p31, Real& p32, Real& p33)
 {
-    T w11, w12, w13, w21, w22, w23, w31, w32, w33;
-    T s11, s12, s13, s21, s22, s23, s31, s32, s33;
-    T v11, v12, v13, v21, v22, v23, v31, v32, v33;
+    Real w11, w12, w13, w21, w22, w23, w31, w32, w33;
+    Real s11, s12, s13, s21, s22, s23, s31, s32, s33;
+    Real v11, v12, v13, v21, v22, v23, v31, v32, v33;
 
     svd(a11, a12, a13, a21, a22, a23, a31, a32, a33,
         w11, w12, w13, w21, w22, w23, w31, w32, w33,
@@ -491,7 +491,7 @@ void polarDecomposition(T a11, T a12, T a13,
         v11, v12, v13, v21, v22, v23, v31, v32, v33);
 
     // P = VSV'
-    T t11, t12, t13, t21, t22, t23, t31, t32, t33;
+    Real t11, t12, t13, t21, t22, t23, t31, t32, t33;
     multAB(v11, v12, v13, v21, v22, v23, v31, v32, v33,
            s11, s12, s13, s21, s22, s23, s31, s32, s33,
            t11, t12, t13, t21, t22, t23, t31, t32, t33);

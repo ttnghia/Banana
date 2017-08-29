@@ -77,8 +77,8 @@ ParticleEmitter::ParticleEmitter(DomainParameters*           domainParams_,
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void ParticleEmitter::setEmitterParams(const Vec3& v0, UInt32 max_particles_,
-                                       UInt32 max_times_, Real allow_distance_)
+void ParticleEmitter::setEmitterParams(const Vec3& v0, UInt max_particles_,
+                                       UInt max_times_, Real allow_distance_)
 {
     initial_velocity = v0;
 
@@ -159,14 +159,14 @@ void ParticleEmitter::add_emitter_sdf(Array3_Real& gsdf_grid, Real padding)
     Timer timer;
     timer.tick();
 
-    tbb::parallel_for(tbb::blocked_range<UInt32>(0, gsdf_grid.m_SizeZ),
-                      [&](tbb::blocked_range<UInt32> r)
+    tbb::parallel_for(tbb::blocked_range<UInt>(0, gsdf_grid.m_SizeZ),
+                      [&](tbb::blocked_range<UInt> r)
     {
-        for(UInt32 k = r.begin(); k != r.end(); ++k)
+        for(UInt k = r.begin(); k != r.end(); ++k)
         {
-            for(UInt32 j = 0; j < gsdf_grid.m_SizeY; ++j)
+            for(UInt j = 0; j < gsdf_grid.m_SizeY; ++j)
             {
-                for(UInt32 i = 0; i < gsdf_grid.m_SizeX; ++i)
+                for(UInt i = 0; i < gsdf_grid.m_SizeX; ++i)
                 {
                     const Vec3 pos = domainParams->domainBMin +
                         domainParams->cellSize * Vec3(i, j, k);
@@ -262,8 +262,8 @@ void ParticleEmitter::add_particles(Vec_Vec3& new_particles,
                                     Vec_Vec3&                             particles,
                                     Array3_VecUInt&                       cellParticles)
 {
-    static std::map<UInt32, bool>     cell_positions_filled;
-    static std::map<UInt32, Vec_Vec3> cell_positions;
+    static std::map<UInt, bool>     cell_positions_filled;
+    static std::map<UInt, Vec_Vec3> cell_positions;
 
     new_particles.clear();
     cell_positions_filled.clear();
@@ -278,7 +278,7 @@ void ParticleEmitter::add_particles(Vec_Vec3& new_particles,
             const Vec3   epos = pos + particle_generator->get_jitter(particle_radius);
 
             const Vec3i& cellId = domainParams->getCellIndex(epos);
-            const UInt32 cellLinearizedId = cellParticles.getLinearizedIndex(cellId);
+            const UInt cellLinearizedId = cellParticles.getLinearizedIndex(cellId);
 
             if(!cell_positions_filled[cellLinearizedId])
             {
@@ -328,7 +328,7 @@ void ParticleEmitter::get_neighbor_particles(Vec_Vec3& neighbor_particles,
 
                 const Vec_UInt& cell = cellParticles(ind);
 
-                for(const UInt32 q : cell)
+                for(const UInt q : cell)
                 {
                     neighbor_particles.push_back(particles[q]);
                 }

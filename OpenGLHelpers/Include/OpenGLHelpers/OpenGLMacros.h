@@ -18,7 +18,7 @@
 #pragma once
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <Banana/Macros.h>
+#include <Banana/Setup.h>
 
 #if defined(QT_GUI_LIB) || defined(QT_CORE_LIB)
 #   include <QtAppHelpers/QtAppMacros.h>

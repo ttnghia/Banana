@@ -45,10 +45,10 @@ public:
 
 #include <tbb/tbb.h>
 
-#include <Noodle/Core/Global/TypeNames.h>
+#include <Noodle/Core/Global/Setup.h>
 #include <Noodle/Core/Global/Enums.h>
 #include <Noodle/Core/Global/Constants.h>
-#include <Noodle/Core/Global/Macros.h>
+#include <Noodle/Core/Global/Setup.h>
 #include <Noodle/Core/Math/MathUtils.h>
 #include <Noodle/Core/Monitor/Monitor.h>
 #include <Noodle/Core/Monitor/Timer.h>
@@ -68,8 +68,8 @@ public:
                     const Array3_Real& sdf_boundary_,
                     Real particle_radius_);
 
-    void setEmitterParams(const Vec3& v0, UInt32 max_particles_ = 0,
-                          UInt32 max_times_ = 0, Real allow_distance_ = 2.0);
+    void setEmitterParams(const Vec3& v0, UInt max_particles_ = 0,
+                          UInt max_times_ = 0, Real allow_distance_ = 2.0);
     void makeReady();
     void emit_all_particles(bool status);
     void emitParticles(Vec_Vec3& particles, Vec_Vec3& velocity,
@@ -107,10 +107,10 @@ protected:
     Vec_Vec3 emitter_particles;
 
     Vec3 initial_velocity;
-    UInt32 emitted_times;
-    UInt32 max_times;
-    UInt32 emitted_particles;
-    UInt32 max_particles;
+    UInt emitted_times;
+    UInt max_times;
+    UInt emitted_particles;
+    UInt max_particles;
 
     bool params_initialized;
     bool emitter_ready;

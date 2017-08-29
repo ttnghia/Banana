@@ -17,7 +17,7 @@
 
 #pragma once
 
-#include <Banana/TypeNames.h>
+#include <Banana/Setup.h>
 #include <Banana/Array/Array2.h>
 #include <Banana/LinearAlgebra/SparseMatrix/SparseMatrix.h>
 #include <ParticleSolvers/ParticleSolverData.h>
@@ -50,65 +50,67 @@ enum BOUNDARY_TYPE
     BT_COUNT
 };
 
-template<class RealType>
+template<class Real>
 struct Boundary
 {
-    Boundary(const Vec2<RealType>& center_, const Vec2<RealType>& parameter_, BOUNDARY_TYPE type_, bool inside)
+    __BNN_SETUP_DATA_TYPE(Real)
+    Boundary(const Vec2r& center_, const Vec2r& parameter_, BOUNDARY_TYPE type_, bool inside)
         : center(center_), parameter(parameter_), type(type_), sign(inside ? -1.0 : 1.0) {}
 
     Boundary(Boundary* op0_, Boundary* op1_, BOUNDARY_TYPE type_)
         : op0(op0_), op1(op1_), type(type_), sign(op0_ ? op0_->sign : false) {}
 
-    Vec2<RealType> center;
-    Vec2<RealType> parameter;
+    Vec2r center;
+    Vec2r parameter;
 
     Boundary* op0;
     Boundary* op1;
 
     BOUNDARY_TYPE type;
-    RealType      sign;
+    Real          sign;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
+template<class Real>
 struct SimulationParameters_FLIP2D
 {
+    __BNN_SETUP_DATA_TYPE(Real)
     enum InterpolationKernel { Linear, CubicSpline };
     SimulationParameters_FLIP2D() { makeReady(); }
 
     ////////////////////////////////////////////////////////////////////////////////
-    RealType            defaultTimestep         = RealType(1.0e-4);
-    RealType            CFLFactor               = RealType(1.0);
-    RealType            PIC_FLIP_ratio          = RealType(0.97);
-    RealType            boundaryRestitution     = RealType(DEFAULT_BOUNDARY_RESTITUTION);
-    RealType            particleRadius          = RealType(2.0 / 32.0 / 4.0);
+    Real                defaultTimestep         = Real(1.0e-4);
+    Real                CFLFactor               = Real(1.0);
+    Real                PIC_FLIP_ratio          = Real(0.97);
+    Real                boundaryRestitution     = Real(DEFAULT_BOUNDARY_RESTITUTION);
+    Real                particleRadius          = Real(2.0 / 32.0 / 4.0);
     InterpolationKernel kernelFunc              = InterpolationKernel::Linear;
-    RealType            repulsiveForceStiffness = RealType(1e7);
-    RealType            CGRelativeTolerance     = RealType(1e-20);
+    Real                repulsiveForceStiffness = Real(1e7);
+    Real                CGRelativeTolerance     = Real(1e-20);
     unsigned int        maxCGIteration          = 10000;
 
     bool bApplyRepulsiveForces = false;
 
-    Vec2<RealType> boxMin = Vec2<RealType>(-1.0);
-    Vec2<RealType> boxMax = Vec2<RealType>(1.0);
+    Vec2r boxMin = Vec2r(-1.0);
+    Vec2r boxMax = Vec2r(1.0);
 
     // the following need to be computed
-    int      kernelSpan;
-    RealType kernelRadius;
-    RealType kernelRadiusSqr;
-    RealType nearKernelRadius;
-    RealType nearKernelRadiusSqr;
-    RealType sdfRadius;                                                                // radius for level set fluid
+    int  kernelSpan;
+    Real kernelRadius;
+    Real kernelRadiusSqr;
+    Real nearKernelRadius;
+    Real nearKernelRadiusSqr;
+    Real sdfRadius;                                                                // radius for level set fluid
 
     ////////////////////////////////////////////////////////////////////////////////
     void makeReady()
     {
-        kernelRadius        = particleRadius * RealType(4.0);
+        kernelRadius        = particleRadius * Real(4.0);
         kernelRadiusSqr     = kernelRadius * kernelRadius;
-        nearKernelRadius    = particleRadius * RealType(2.5);
+        nearKernelRadius    = particleRadius * Real(2.5);
         nearKernelRadiusSqr = nearKernelRadius * nearKernelRadius;
 
-        sdfRadius  = kernelRadius * RealType(1.01 * sqrt(2.0) / 2.0);
+        sdfRadius  = kernelRadius * Real(1.01 * sqrt(2.0) / 2.0);
         kernelSpan = (kernelFunc == InterpolationKernel::Linear) ? 1 : 2;
     }
 
@@ -136,36 +138,37 @@ struct SimulationParameters_FLIP2D
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
+template<class Real>
 struct SimulationData_FLIP2D
 {
-    Vec_Vec2<RealType>   positions;
-    Vec_Vec2<RealType>   positions_tmp;
-    Vec_Vec2<RealType>   velocities;
-    Vec_VecUInt          neighborList;
-    Vec_Mat2x2<RealType> affineMatrix;
+    __BNN_SETUP_DATA_TYPE(Real)
+    Vec_Vec2r positions;
+    Vec_Vec2r        positions_tmp;
+    Vec_Vec2r        velocities;
+    Vec_VecUInt      neighborList;
+    Vec_Mat2x2<Real> affineMatrix;
 
     // grid velocity
-    Array2<RealType> u, v;
-    Array2<RealType> du, dv;
-    Array2<RealType> u_temp, v_temp;
-    Array2<RealType> u_old, v_old;
-    Array2<RealType> u_weights, v_weights;
-    Array2c          u_valid, v_valid;
-    Array2c          u_valid_old, v_valid_old;
+    Array2<Real> u, v;
+    Array2<Real> du, dv;
+    Array2<Real> u_temp, v_temp;
+    Array2<Real> u_old, v_old;
+    Array2<Real> u_weights, v_weights;
+    Array2c      u_valid, v_valid;
+    Array2c      u_valid_old, v_valid_old;
 
 
-    Array2<RealType> fluidSDF;
-    Array2<RealType> boundarySDF;
+    Array2<Real> fluidSDF;
+    Array2<Real> boundarySDF;
 
-    SparseMatrix<RealType> matrix;
-    std::vector<RealType>  rhs;
-    std::vector<RealType>  pressure;
+    SparseMatrix<Real> matrix;
+    std::vector<Real>  rhs;
+    std::vector<Real>  pressure;
 
     ////////////////////////////////////////////////////////////////////////////////
-    UInt32 getNumParticles() { return static_cast<UInt32>(positions.size()); }
+    UInt getNumParticles() { return static_cast<UInt>(positions.size()); }
 
-    void reserve(UInt32 numParticles)
+    void reserve(UInt numParticles)
     {
         positions.reserve(numParticles);
         velocities.reserve(numParticles);
@@ -173,11 +176,11 @@ struct SimulationData_FLIP2D
         affineMatrix.reserve(numParticles);
     }
 
-    void makeReady(UInt32 ni, UInt32 nj)
+    void makeReady(UInt ni, UInt nj)
     {
         // particle data
         positions_tmp.resize(positions.size());
-        velocities.resize(positions.size(), Vec3<RealType>(0));
+        velocities.resize(positions.size(), Vec3<Real>(0));
         neighborList.resize(positions.size());
         affineMatrix.resize(positions.size());
 

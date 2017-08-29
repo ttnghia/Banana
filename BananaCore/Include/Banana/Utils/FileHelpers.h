@@ -17,7 +17,7 @@
 
 #pragma once
 
-#include <Banana/Macros.h>
+#include <Banana/Setup.h>
 
 #include <cstdlib>
 #include <cstdio>

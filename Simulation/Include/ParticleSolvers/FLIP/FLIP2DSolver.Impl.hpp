@@ -14,23 +14,23 @@
 //
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-void Banana::FLIP2DSolver<RealType>::makeReady()
+template<class Real>
+void Banana::FLIP2DSolver<Real>::makeReady()
 {
     m_Logger->printRunTime("Allocate solver memory: ",
                            [&]()
                            {
                                m_SimParams->makeReady();
                                m_SimParams->printParams(m_Logger);
-                               if(m_SimParams->kernelFunc == SimulationParameters_FLIP2D<RealType>::Linear)
+                               if(m_SimParams->kernelFunc == SimulationParameters_FLIP2D<Real>::Linear)
                                {
-                                   m_InterpolateValue = static_cast<RealType (*)(const Vec2<RealType>&, const Array2<RealType>&)>(&ArrayHelpers::interpolateValueLinear);
-                                   m_WeightKernel = [](const Vec2<RealType>& dxdy) { return MathHelpers::bilinear_kernel(dxdy[0], dxdy[1]); };
+                                   m_InterpolateValue = static_cast<Real (*)(const Vec2r&, const Array2<Real>&)>(&ArrayHelpers::interpolateValueLinear);
+                                   m_WeightKernel = [](const Vec2r& dxdy) { return MathHelpers::bilinear_kernel(dxdy[0], dxdy[1]); };
                                }
                                else
                                {
-                                   m_InterpolateValue = static_cast<RealType (*)(const Vec2<RealType>&, const Array2<RealType>&)>(&ArrayHelpers::interpolateValueCubicBSpline);
-                                   m_WeightKernel = [](const Vec2<RealType>& dxdy) { return MathHelpers::cubic_spline_kernel_2d(dxdy[0], dxdy[1]); };
+                                   m_InterpolateValue = static_cast<Real (*)(const Vec2r&, const Array2<Real>&)>(&ArrayHelpers::interpolateValueCubicBSpline);
+                                   m_WeightKernel = [](const Vec2r& dxdy) { return MathHelpers::cubic_spline_kernel_2d(dxdy[0], dxdy[1]); };
                                }
 
                                m_Grid.setGrid(m_SimParams->boxMin, m_SimParams->boxMax, m_SimParams->kernelRadius);
@@ -42,14 +42,14 @@ void Banana::FLIP2DSolver<RealType>::makeReady()
 
 
                                // todo: remove
-                               GeometryObject2D::BoxObject<RealType> box;
-                               box.boxMin() = m_SimParams->boxMin + Vec2<RealType>(m_SimParams->kernelRadius);
-                               box.boxMax() = m_SimParams->boxMax - Vec2<RealType>(m_SimParams->kernelRadius);
-                               ParallelFuncs::parallel_for<UInt32>(0, m_Grid.getNumCellX() + 1,
+                               GeometryObject2D::BoxObject<Real> box;
+                               box.boxMin() = m_SimParams->boxMin + Vec2r(m_SimParams->kernelRadius);
+                               box.boxMax() = m_SimParams->boxMax - Vec2r(m_SimParams->kernelRadius);
+                               ParallelFuncs::parallel_for<UInt>(0, m_Grid.getNumCellX() + 1,
                                                                    0, m_Grid.getNumCellY() + 1,
-                                                                   [&](UInt32 i, UInt32 j)
+                                                                   [&](UInt i, UInt j)
                                                                    {
-                                                                       const Vec2<RealType> gridPos = Vec2<RealType>(i, j) * m_SimParams->kernelRadius + m_SimParams->boxMin;
+                                                                       const Vec2r gridPos = Vec2r(i, j) * m_SimParams->kernelRadius + m_SimParams->boxMin;
                                                                        m_SimData->boundarySDF(i, j) = compute_phi(gridPos);
                                                                    });
                                m_Logger->printWarning("Computed boundary SDF");
@@ -70,12 +70,12 @@ void Banana::FLIP2DSolver<RealType>::makeReady()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-void Banana::FLIP2DSolver<RealType>::advanceFrame()
+template<class Real>
+void Banana::FLIP2DSolver<Real>::advanceFrame()
 {
     static Timer subStepTimer;
     static Timer funcTimer;
-    RealType     frameTime    = 0;
+    Real         frameTime    = 0;
     int          substepCount = 0;
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -84,8 +84,8 @@ void Banana::FLIP2DSolver<RealType>::advanceFrame()
         m_Logger->printRunTime("Sub-step time: ", subStepTimer,
                                [&]()
                                {
-                                   RealType remainingTime = m_GlobalParams->frameDuration - frameTime;
-                                   RealType substep = MathHelpers::min(computeCFLTimestep(), remainingTime);
+                                   Real remainingTime = m_GlobalParams->frameDuration - frameTime;
+                                   Real substep = MathHelpers::min(computeCFLTimestep(), remainingTime);
                                    ////////////////////////////////////////////////////////////////////////////////
                                    m_Logger->printRunTime("Find neighbors: ",               funcTimer, [&]() { m_Grid.collectIndexToCells(m_SimData->positions); });
                                    m_Logger->printRunTime("====> Advance velocity total: ", funcTimer, [&]() { advanceVelocity(substep); });
@@ -94,7 +94,7 @@ void Banana::FLIP2DSolver<RealType>::advanceFrame()
                                    ////////////////////////////////////////////////////////////////////////////////
                                    frameTime += substep;
                                    ++substepCount;
-                                   m_Logger->printLog("Finished step " + NumberHelpers::formatWithCommas(substepCount) + " of size " + NumberHelpers::formatToScientific<RealType>(substep) +
+                                   m_Logger->printLog("Finished step " + NumberHelpers::formatWithCommas(substepCount) + " of size " + NumberHelpers::formatToScientific<Real>(substep) +
                                                       "(" + NumberHelpers::formatWithCommas(substep / m_GlobalParams->frameDuration * 100) + "% of the frame, to " +
                                                       NumberHelpers::formatWithCommas(100 * (frameTime) / m_GlobalParams->frameDuration) + "% of the frame).");
                                });
@@ -110,10 +110,10 @@ void Banana::FLIP2DSolver<RealType>::advanceFrame()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-void Banana::FLIP2DSolver<RealType>::sortParticles()
+template<class Real>
+void Banana::FLIP2DSolver<Real>::sortParticles()
 {
-    static UInt32 frameCount = 0;
+    static UInt frameCount = 0;
     ++frameCount;
 
     if(frameCount < m_GlobalParams->sortFrequency)
@@ -133,8 +133,8 @@ void Banana::FLIP2DSolver<RealType>::sortParticles()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-void Banana::FLIP2DSolver<RealType>::loadSimParams(const nlohmann::json& jParams)
+template<class Real>
+void Banana::FLIP2DSolver<Real>::loadSimParams(const nlohmann::json& jParams)
 {
     JSONHelpers::readVector(jParams, m_SimParams->boxMin, "BoxMin");
     JSONHelpers::readVector(jParams, m_SimParams->boxMax, "BoxMax");
@@ -148,8 +148,8 @@ void Banana::FLIP2DSolver<RealType>::loadSimParams(const nlohmann::json& jParams
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-void Banana::FLIP2DSolver<RealType>::setupDataIO()
+template<class Real>
+void Banana::FLIP2DSolver<Real>::setupDataIO()
 {
     m_MemoryStateIO.push_back(std::make_unique<DataIO>(m_GlobalParams->dataPath, "FLIPState", "state", "pos", "StatePosition"));
     m_MemoryStateIO.push_back(std::make_unique<DataIO>(m_GlobalParams->dataPath, "FLIPState", "state", "vel", "StateVelocity"));
@@ -159,8 +159,8 @@ void Banana::FLIP2DSolver<RealType>::setupDataIO()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-void Banana::FLIP2DSolver<RealType>::loadMemoryState()
+template<class Real>
+void Banana::FLIP2DSolver<Real>::loadMemoryState()
 {
     if(!m_GlobalParams->bLoadMemoryState)
         return;
@@ -180,17 +180,17 @@ void Banana::FLIP2DSolver<RealType>::loadMemoryState()
 
         if(dataIO->dataName() == "StatePosition")
         {
-            RealType particleRadius;
-            dataIO->getBuffer().getData<RealType>(particleRadius, sizeof(UInt32));
-            __BNN_ASSERT_APPROX_NUMBERS(m_SimParams->particleRadius, particleRadius, MEpsilon<RealType>());
+            Real particleRadius;
+            dataIO->getBuffer().getData<Real>(particleRadius, sizeof(UInt));
+            __BNN_ASSERT_APPROX_NUMBERS(m_SimParams->particleRadius, particleRadius, MEpsilon);
 
-            UInt32 numParticles;
-            dataIO->getBuffer().getData<UInt32>(numParticles, 0);
-            dataIO->getBuffer().getData<RealType>(m_SimData->positions, sizeof(UInt32) + sizeof(RealType), numParticles);
+            UInt numParticles;
+            dataIO->getBuffer().getData<UInt>(numParticles, 0);
+            dataIO->getBuffer().getData<Real>(m_SimData->positions, sizeof(UInt) + sizeof(Real), numParticles);
         }
         else if(dataIO->dataName() == "StateVelocity")
         {
-            dataIO->getBuffer().getData<RealType>(m_SimData->velocities);
+            dataIO->getBuffer().getData<Real>(m_SimData->velocities);
         }
         else
         {
@@ -201,8 +201,8 @@ void Banana::FLIP2DSolver<RealType>::loadMemoryState()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-void Banana::FLIP2DSolver<RealType>::saveMemoryState()
+template<class Real>
+void Banana::FLIP2DSolver<Real>::saveMemoryState()
 {
     if(!m_GlobalParams->bSaveMemoryState)
         return;
@@ -221,7 +221,7 @@ void Banana::FLIP2DSolver<RealType>::saveMemoryState()
         if(dataIO->dataName() == "StatePosition")
         {
             dataIO->clearBuffer();
-            dataIO->getBuffer().append(static_cast<UInt32>(m_SimData->getNumParticles()));
+            dataIO->getBuffer().append(static_cast<UInt>(m_SimData->getNumParticles()));
             dataIO->getBuffer().append(m_SimParams->particleRadius);
             dataIO->getBuffer().append(m_SimData->positions, false);
             dataIO->flushBufferAsync(m_GlobalParams->finishedFrame);
@@ -240,8 +240,8 @@ void Banana::FLIP2DSolver<RealType>::saveMemoryState()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-void Banana::FLIP2DSolver<RealType>::saveParticleData()
+template<class Real>
+void Banana::FLIP2DSolver<Real>::saveParticleData()
 {
     if(!m_GlobalParams->bSaveParticleData)
         return;
@@ -251,7 +251,7 @@ void Banana::FLIP2DSolver<RealType>::saveParticleData()
         if(dataIO->dataName() == "FramePosition")
         {
             dataIO->clearBuffer();
-            dataIO->getBuffer().append(static_cast<UInt32>(m_SimData->getNumParticles()));
+            dataIO->getBuffer().append(static_cast<UInt>(m_SimData->getNumParticles()));
             dataIO->getBuffer().appendFloat(m_SimParams->particleRadius);
             dataIO->getBuffer().appendFloatArray(m_SimData->positions, false);
             dataIO->flushBufferAsync(m_GlobalParams->finishedFrame);
@@ -270,18 +270,18 @@ void Banana::FLIP2DSolver<RealType>::saveParticleData()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-RealType Banana::FLIP2DSolver<RealType>::computeCFLTimestep()
+template<class Real>
+Real Banana::FLIP2DSolver<Real>::computeCFLTimestep()
 {
-    RealType maxVel = MathHelpers::max(ParallelSTL::maxAbs(m_SimData->u.vec_data()),
-                                       ParallelSTL::maxAbs(m_SimData->v.vec_data()));
+    Real maxVel = MathHelpers::max(ParallelSTL::maxAbs(m_SimData->u.vec_data()),
+                                   ParallelSTL::maxAbs(m_SimData->v.vec_data()));
 
-    return maxVel > Tiny<RealType>() ? (m_Grid.getCellSize() / maxVel * m_SimParams->CFLFactor) : m_SimParams->defaultTimestep;
+    return maxVel > Tiny ? (m_Grid.getCellSize() / maxVel * m_SimParams->CFLFactor) : m_SimParams->defaultTimestep;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-void Banana::FLIP2DSolver<RealType>::advanceVelocity(RealType timestep)
+template<class Real>
+void Banana::FLIP2DSolver<Real>::advanceVelocity(Real timestep)
 {
     static Timer funcTimer;
 
@@ -305,22 +305,22 @@ void Banana::FLIP2DSolver<RealType>::advanceVelocity(RealType timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-void Banana::FLIP2DSolver<RealType>::moveParticles(RealType timestep)
+template<class Real>
+void Banana::FLIP2DSolver<Real>::moveParticles(Real timestep)
 {
-    ParallelFuncs::parallel_for<UInt32>(0, m_SimData->getNumParticles(),
-                                        [&](UInt32 p)
+    ParallelFuncs::parallel_for<UInt>(0, m_SimData->getNumParticles(),
+                                        [&](UInt p)
                                         {
-                                            Vec2<RealType> ppos = m_SimData->positions[p] + m_SimData->velocities[p] * timestep;
-                                            const Vec2<RealType> gridPos = m_Grid.getGridCoordinate(ppos);
-                                            const RealType phiVal = ArrayHelpers::interpolateValueLinear(gridPos, m_SimData->boundarySDF);
+                                            Vec2r ppos = m_SimData->positions[p] + m_SimData->velocities[p] * timestep;
+                                            const Vec2r gridPos = m_Grid.getGridCoordinate(ppos);
+                                            const Real phiVal = ArrayHelpers::interpolateValueLinear(gridPos, m_SimData->boundarySDF);
 
                                             if(phiVal < 0)
                                             {
-                                                Vec2<RealType> grad = ArrayHelpers::interpolateGradient(gridPos, m_SimData->boundarySDF);
-                                                RealType mag2Grad = glm::length2(grad);
+                                                Vec2r grad = ArrayHelpers::interpolateGradient(gridPos, m_SimData->boundarySDF);
+                                                Real mag2Grad = glm::length2(grad);
 
-                                                if(mag2Grad > Tiny<RealType>())
+                                                if(mag2Grad > Tiny)
                                                     ppos -= phiVal * grad / sqrt(mag2Grad);
                                             }
 
@@ -329,46 +329,46 @@ void Banana::FLIP2DSolver<RealType>::moveParticles(RealType timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-void Banana::FLIP2DSolver<RealType>::correctPositions(RealType timestep)
+template<class Real>
+void Banana::FLIP2DSolver<Real>::correctPositions(Real timestep)
 {
-    const RealType radius    = m_Grid.getCellSize() / RealType(sqrt(2.0));
-    const RealType threshold = RealType(0.01) * radius;
+    const Real radius    = m_Grid.getCellSize() / Real(sqrt(2.0));
+    const Real threshold = Real(0.01) * radius;
 
     // todo: check if this is needed, as this could be done before
     m_Grid.getNeighborList(m_SimData->positions, m_SimData->neighborList, m_SimParams->kernelSpan);
-    ParallelFuncs::parallel_for<UInt32>(0, m_SimData->getNumParticles(),
-                                        [&](UInt32 p)
+    ParallelFuncs::parallel_for<UInt>(0, m_SimData->getNumParticles(),
+                                        [&](UInt p)
                                         {
-                                            const Vec2<RealType>& ppos = m_SimData->positions[p];
+                                            const Vec2r& ppos = m_SimData->positions[p];
                                             const Vec_UInt& neighbors = m_SimData->neighborList[p];
-                                            Vec2<RealType> spring(0);
+                                            Vec2r spring(0);
 
-                                            for(UInt32 q : neighbors)
+                                            for(UInt q : neighbors)
                                             {
-                                                const Vec2<RealType>& qpos = m_SimData->positions[q];
-                                                RealType dist = glm::length(ppos - qpos);
-                                                RealType w = RealType(50.0) * MathHelpers::smooth_kernel(dist * dist, radius);
+                                                const Vec2r& qpos = m_SimData->positions[q];
+                                                Real dist = glm::length(ppos - qpos);
+                                                Real w = Real(50.0) * MathHelpers::smooth_kernel(dist * dist, radius);
 
                                                 if(dist > threshold)
                                                     spring += w * (ppos - qpos) / dist * radius;
                                                 else
-                                                    spring += threshold / timestep * Vec2<RealType>(RealType((rand() & 0xFF) / 255.0),
-                                                                                                    RealType((rand() & 0xFF) / 255.0));
+                                                    spring += threshold / timestep * Vec2r(Real((rand() & 0xFF) / 255.0),
+                                                                                           Real((rand() & 0xFF) / 255.0));
                                             }
 
                                             auto newPos = ppos + spring * timestep;
 
                                             // todo: this should be done by boundary object
-                                            const Vec2<RealType> gridPos = m_Grid.getGridCoordinate(newPos);
-                                            const RealType phiVal = ArrayHelpers::interpolateValueLinear(gridPos, m_SimData->boundarySDF);
+                                            const Vec2r gridPos = m_Grid.getGridCoordinate(newPos);
+                                            const Real phiVal = ArrayHelpers::interpolateValueLinear(gridPos, m_SimData->boundarySDF);
 
                                             if(phiVal < 0)
                                             {
-                                                Vec2<RealType> grad = ArrayHelpers::interpolateGradient(gridPos, m_SimData->boundarySDF);
-                                                RealType mag2Grad = glm::length2(grad);
+                                                Vec2r grad = ArrayHelpers::interpolateGradient(gridPos, m_SimData->boundarySDF);
+                                                Real mag2Grad = glm::length2(grad);
 
-                                                if(mag2Grad > Tiny<RealType>())
+                                                if(mag2Grad > Tiny)
                                                     newPos -= phiVal * grad / sqrt(mag2Grad);
                                             }
 
@@ -380,79 +380,79 @@ void Banana::FLIP2DSolver<RealType>::correctPositions(RealType timestep)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //Compute finite-volume style face-weights for fluid from nodal signed distances
-template<class RealType>
-void Banana::FLIP2DSolver<RealType>::computeFluidWeights()
+template<class Real>
+void Banana::FLIP2DSolver<Real>::computeFluidWeights()
 {
-    ParallelFuncs::parallel_for<UInt32>(0, m_Grid.getNumCellX() + 1,
+    ParallelFuncs::parallel_for<UInt>(0, m_Grid.getNumCellX() + 1,
                                         0, m_Grid.getNumCellY() + 1,
-                                        [&](UInt32 i, UInt32 j)
+                                        [&](UInt i, UInt j)
                                         {
                                             bool valid_index_u = m_SimData->u_weights.isValidIndex(i, j);
                                             bool valid_index_v = m_SimData->v_weights.isValidIndex(i, j);
 
                                             if(valid_index_u)
                                             {
-                                                const RealType tmp = RealType(1.0) - MathHelpers::fraction_inside(m_SimData->boundarySDF(i, j),
-                                                                                                                  m_SimData->boundarySDF(i, j + 1));
-                                                m_SimData->u_weights(i, j) = MathHelpers::clamp(tmp, RealType(0), RealType(1.0));
+                                                const Real tmp = Real(1.0) - MathHelpers::fraction_inside(m_SimData->boundarySDF(i, j),
+                                                                                                          m_SimData->boundarySDF(i, j + 1));
+                                                m_SimData->u_weights(i, j) = MathHelpers::clamp(tmp, Real(0), Real(1.0));
                                             }
 
                                             if(valid_index_v)
                                             {
-                                                const RealType tmp = RealType(1.0) - MathHelpers::fraction_inside(m_SimData->boundarySDF(i, j),
-                                                                                                                  m_SimData->boundarySDF(i, j + 1));
-                                                m_SimData->v_weights(i, j) = MathHelpers::clamp(tmp, RealType(0), RealType(1.0));
+                                                const Real tmp = Real(1.0) - MathHelpers::fraction_inside(m_SimData->boundarySDF(i, j),
+                                                                                                          m_SimData->boundarySDF(i, j + 1));
+                                                m_SimData->v_weights(i, j) = MathHelpers::clamp(tmp, Real(0), Real(1.0));
                                             }
                                         });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-void Banana::FLIP2DSolver<RealType>::velocityToGrid()
+template<class Real>
+void Banana::FLIP2DSolver<Real>::velocityToGrid()
 {
-    const Vec2<RealType> span = Vec2<RealType>(m_Grid.getCellSize() * static_cast<RealType>(m_SimParams->kernelSpan));
+    const Vec2r span = Vec2r(m_Grid.getCellSize() * static_cast<Real>(m_SimParams->kernelSpan));
 
-    ParallelFuncs::parallel_for<UInt32>(0, m_Grid.getNumCellX() + 1,
+    ParallelFuncs::parallel_for<UInt>(0, m_Grid.getNumCellX() + 1,
                                         0, m_Grid.getNumCellY() + 1,
-                                        [&](UInt32 i, UInt32 j)
+                                        [&](UInt i, UInt j)
                                         {
-                                            const Vec2<RealType> pu = Vec2<RealType>(i, j + 0.5) * m_Grid.getCellSize() + m_Grid.getBMin();
-                                            const Vec2<RealType> pv = Vec2<RealType>(i + 0.5, j) * m_Grid.getCellSize() + m_Grid.getBMin();
+                                            const Vec2r pu = Vec2r(i, j + 0.5) * m_Grid.getCellSize() + m_Grid.getBMin();
+                                            const Vec2r pv = Vec2r(i + 0.5, j) * m_Grid.getCellSize() + m_Grid.getBMin();
 
-                                            const Vec2<RealType> puMin = pu - span;
-                                            const Vec2<RealType> pvMin = pv - span;
+                                            const Vec2r puMin = pu - span;
+                                            const Vec2r pvMin = pv - span;
 
-                                            const Vec2<RealType> puMax = pu + span;
-                                            const Vec2<RealType> pvMax = pv + span;
+                                            const Vec2r puMax = pu + span;
+                                            const Vec2r pvMax = pv + span;
 
-                                            RealType sum_weight_u = RealType(0);
-                                            RealType sum_weight_v = RealType(0);
+                                            Real sum_weight_u = Real(0);
+                                            Real sum_weight_v = Real(0);
 
-                                            RealType sum_u = RealType(0);
-                                            RealType sum_v = RealType(0);
+                                            Real sum_u = Real(0);
+                                            Real sum_v = Real(0);
 
                                             bool valid_index_u = m_SimData->u.isValidIndex(i, j);
                                             bool valid_index_v = m_SimData->v.isValidIndex(i, j);
 
                                             // loop over neighbor cells (kernelSpan^3 cells)
-                                            for(Int32 lj = -m_SimParams->kernelSpan; lj <= m_SimParams->kernelSpan; ++lj)
+                                            for(Int lj = -m_SimParams->kernelSpan; lj <= m_SimParams->kernelSpan; ++lj)
                                             {
-                                                for(Int32 li = -m_SimParams->kernelSpan; li <= m_SimParams->kernelSpan; ++li)
+                                                for(Int li = -m_SimParams->kernelSpan; li <= m_SimParams->kernelSpan; ++li)
                                                 {
-                                                    const Vec2i cellId = Vec2i(static_cast<Int32>(i), static_cast<Int32>(j)) + Vec2i(li, lj);
+                                                    const Vec2i cellId = Vec2i(static_cast<Int>(i), static_cast<Int>(j)) + Vec2i(li, lj);
                                                     if(!m_Grid.isValidCell(cellId))
                                                         continue;
 
-                                                    for(const UInt32 p : m_Grid.getParticleIdxInCell(cellId))
+                                                    for(const UInt p : m_Grid.getParticleIdxInCell(cellId))
                                                     {
-                                                        const Vec2<RealType>& ppos = m_SimData->positions[p];
-                                                        const Vec2<RealType>& pvel = m_SimData->velocities[p];
+                                                        const Vec2r& ppos = m_SimData->positions[p];
+                                                        const Vec2r& pvel = m_SimData->velocities[p];
 
                                                         if(valid_index_u && isInside(ppos, puMin, puMax))
                                                         {
-                                                            const RealType weight = m_WeightKernel((ppos - pu) / m_Grid.getCellSize());
+                                                            const Real weight = m_WeightKernel((ppos - pu) / m_Grid.getCellSize());
 
-                                                            if(weight > Tiny<RealType>())
+                                                            if(weight > Tiny)
                                                             {
                                                                 sum_u += weight * pvel[0];
                                                                 sum_weight_u += weight;
@@ -461,9 +461,9 @@ void Banana::FLIP2DSolver<RealType>::velocityToGrid()
 
                                                         if(valid_index_v && isInside(ppos, pvMin, pvMax))
                                                         {
-                                                            const RealType weight = m_WeightKernel((ppos - pv) / m_Grid.getCellSize());
+                                                            const Real weight = m_WeightKernel((ppos - pv) / m_Grid.getCellSize());
 
-                                                            if(weight > Tiny<RealType>())
+                                                            if(weight > Tiny)
                                                             {
                                                                 sum_v += weight * pvel[1];
                                                                 sum_weight_v += weight;
@@ -475,45 +475,45 @@ void Banana::FLIP2DSolver<RealType>::velocityToGrid()
 
                                             if(valid_index_u)
                                             {
-                                                m_SimData->u(i, j) = (sum_weight_u > Tiny<RealType>()) ? sum_u / sum_weight_u : RealType(0);
-                                                m_SimData->u_valid(i, j) = (sum_weight_u > Tiny<RealType>()) ? 1 : 0;
+                                                m_SimData->u(i, j) = (sum_weight_u > Tiny) ? sum_u / sum_weight_u : Real(0);
+                                                m_SimData->u_valid(i, j) = (sum_weight_u > Tiny) ? 1 : 0;
                                             }
 
                                             if(valid_index_v)
                                             {
-                                                m_SimData->v(i, j) = (sum_weight_v > Tiny<RealType>()) ? sum_v / sum_weight_v : RealType(0);
-                                                m_SimData->v_valid(i, j) = (sum_weight_v > Tiny<RealType>()) ? 1 : 0;
+                                                m_SimData->v(i, j) = (sum_weight_v > Tiny) ? sum_v / sum_weight_v : Real(0);
+                                                m_SimData->v_valid(i, j) = (sum_weight_v > Tiny) ? 1 : 0;
                                             }
                                         });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-void Banana::FLIP2DSolver<RealType>::extrapolateVelocity()
+template<class Real>
+void Banana::FLIP2DSolver<Real>::extrapolateVelocity()
 {
     extrapolateVelocity(m_SimData->u, m_SimData->u_temp, m_SimData->u_valid, m_SimData->u_valid_old);
     extrapolateVelocity(m_SimData->v, m_SimData->v_temp, m_SimData->v_valid, m_SimData->v_valid_old);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-void Banana::FLIP2DSolver<RealType>::extrapolateVelocity(Array2<RealType>& grid, Array2<RealType>& temp_grid, Array2c& valid, Array2c& old_valid)
+template<class Real>
+void Banana::FLIP2DSolver<Real>::extrapolateVelocity(Array2<Real>& grid, Array2<Real>& temp_grid, Array2c& valid, Array2c& old_valid)
 {
     temp_grid.copyDataFrom(grid);
-    for(Int32 layers = 0; layers < 10; ++layers)
+    for(Int layers = 0; layers < 10; ++layers)
     {
         bool stop = true;
         old_valid.copyDataFrom(valid);
-        ParallelFuncs::parallel_for<UInt32>(1, m_Grid.getNumCellX() - 1,
+        ParallelFuncs::parallel_for<UInt>(1, m_Grid.getNumCellX() - 1,
                                             1, m_Grid.getNumCellY() - 1,
-                                            [&](UInt32 i, UInt32 j)
+                                            [&](UInt i, UInt j)
                                             {
                                                 if(old_valid(i, j))
                                                 {
                                                     return;
                                                 }
 
-                                                RealType sum = RealType(0);
+                                                Real sum = Real(0);
                                                 unsigned int count = 0;
 
                                                 // TODO
@@ -544,7 +544,7 @@ void Banana::FLIP2DSolver<RealType>::extrapolateVelocity(Array2<RealType>& grid,
                                                 if(count > 0)
                                                 {
                                                     stop = false;
-                                                    temp_grid(i, j) = sum / static_cast<RealType>(count);
+                                                    temp_grid(i, j) = sum / static_cast<Real>(count);
                                                     valid(i, j) = 1;
                                                 }
                                             });
@@ -559,8 +559,8 @@ void Banana::FLIP2DSolver<RealType>::extrapolateVelocity(Array2<RealType>& grid,
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-void Banana::FLIP2DSolver<RealType>::constrainVelocity()
+template<class Real>
+void Banana::FLIP2DSolver<Real>::constrainVelocity()
 {
     m_SimData->u_temp.copyDataFrom(m_SimData->u);
     m_SimData->v_temp.copyDataFrom(m_SimData->v);
@@ -570,16 +570,16 @@ void Banana::FLIP2DSolver<RealType>::constrainVelocity()
                                         0, m_SimData->u.sizeY(),
                                         [&](size_t i, size_t j)
                                         {
-                                            if(m_SimData->u_weights(i, j) < Tiny<RealType>())
+                                            if(m_SimData->u_weights(i, j) < Tiny)
                                             {
-                                                const Vec2<RealType> gridPos = Vec2<RealType>(i, j + 0.5);
-                                                Vec2<RealType> vel = getVelocityFromGrid(gridPos);
-                                                Vec2<RealType> normal = ArrayHelpers::interpolateGradient(gridPos, m_SimData->boundarySDF);
-                                                RealType mag2Normal = glm::length2(normal);
-                                                if(mag2Normal > Tiny<RealType>())
+                                                const Vec2r gridPos = Vec2r(i, j + 0.5);
+                                                Vec2r vel = getVelocityFromGrid(gridPos);
+                                                Vec2r normal = ArrayHelpers::interpolateGradient(gridPos, m_SimData->boundarySDF);
+                                                Real mag2Normal = glm::length2(normal);
+                                                if(mag2Normal > Tiny)
                                                     normal /= sqrt(mag2Normal);
 
-                                                RealType perp_component = glm::dot(vel, normal);
+                                                Real perp_component = glm::dot(vel, normal);
                                                 vel -= perp_component * normal;
                                                 m_SimData->u_temp(i, j) = vel[0];
                                             }
@@ -589,16 +589,16 @@ void Banana::FLIP2DSolver<RealType>::constrainVelocity()
                                         0, m_SimData->v.sizeY(),
                                         [&](size_t i, size_t j)
                                         {
-                                            if(m_SimData->v_weights(i, j) < Tiny<RealType>())
+                                            if(m_SimData->v_weights(i, j) < Tiny)
                                             {
-                                                const Vec2<RealType> gridPos = Vec2<RealType>(i + 0.5, j);
-                                                Vec2<RealType> vel = getVelocityFromGrid(gridPos);
-                                                Vec2<RealType> normal = ArrayHelpers::interpolateGradient(gridPos, m_SimData->boundarySDF);
-                                                RealType mag2Normal = glm::length2(normal);
-                                                if(mag2Normal > Tiny<RealType>())
+                                                const Vec2r gridPos = Vec2r(i + 0.5, j);
+                                                Vec2r vel = getVelocityFromGrid(gridPos);
+                                                Vec2r normal = ArrayHelpers::interpolateGradient(gridPos, m_SimData->boundarySDF);
+                                                Real mag2Normal = glm::length2(normal);
+                                                if(mag2Normal > Tiny)
                                                     normal /= sqrt(mag2Normal);
 
-                                                RealType perp_component = glm::dot(vel, normal);
+                                                Real perp_component = glm::dot(vel, normal);
                                                 vel -= perp_component * normal;
                                                 m_SimData->v_temp(i, j) = vel[1];
                                             }
@@ -610,20 +610,20 @@ void Banana::FLIP2DSolver<RealType>::constrainVelocity()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-void Banana::FLIP2DSolver<RealType>::addGravity(RealType timestep)
+template<class Real>
+void Banana::FLIP2DSolver<Real>::addGravity(Real timestep)
 {
     ParallelFuncs::parallel_for<size_t>(0, m_SimData->v.sizeX(),
                                         0, m_SimData->v.sizeY(),
                                         [&](size_t i, size_t j)
                                         {
-                                            m_SimData->v(i, j) -= RealType(9.8) * timestep;
+                                            m_SimData->v(i, j) -= Real(9.8) * timestep;
                                         });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-void Banana::FLIP2DSolver<RealType>::pressureProjection(RealType timestep)
+template<class Real>
+void Banana::FLIP2DSolver<Real>::pressureProjection(Real timestep)
 {
     static Timer funcTimer;
 
@@ -636,26 +636,26 @@ void Banana::FLIP2DSolver<RealType>::pressureProjection(RealType timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-void Banana::FLIP2DSolver<RealType>::computeFluidSDF()
+template<class Real>
+void Banana::FLIP2DSolver<Real>::computeFluidSDF()
 {
     m_SimData->fluidSDF.assign(m_SimParams->sdfRadius);
 
     // cannot run in parallel
-    for(UInt32 p = 0; p < m_SimData->getNumParticles(); ++p)
+    for(UInt p = 0; p < m_SimData->getNumParticles(); ++p)
     {
         const Vec2i cellId   = m_Grid.getCellIdx<int>(m_SimData->positions[p]);
         const Vec2i cellDown = Vec2i(MathHelpers::max(0, cellId[0] - 1),
                                      MathHelpers::max(0, cellId[1] - 1));
-        const Vec2i cellUp = Vec2i(MathHelpers::min(cellId[0] + 1, static_cast<Int32>(m_Grid.getNumCellX()) - 1),
-                                   MathHelpers::min(cellId[1] + 1, static_cast<Int32>(m_Grid.getNumCellY()) - 1));
+        const Vec2i cellUp = Vec2i(MathHelpers::min(cellId[0] + 1, static_cast<Int>(m_Grid.getNumCellX()) - 1),
+                                   MathHelpers::min(cellId[1] + 1, static_cast<Int>(m_Grid.getNumCellY()) - 1));
 
         ParallelFuncs::parallel_for<int>(cellDown[0], cellUp[0],
                                          cellDown[1], cellUp[1],
                                          [&](int i, int j)
                                          {
-                                             const Vec2<RealType> sample = Vec2<RealType>(i + 0.5, j + 0.5) * m_Grid.getCellSize() + m_Grid.getBMin();
-                                             const RealType phiVal = glm::length(sample - m_SimData->positions[p]) - m_SimParams->sdfRadius;
+                                             const Vec2r sample = Vec2r(i + 0.5, j + 0.5) * m_Grid.getCellSize() + m_Grid.getBMin();
+                                             const Real phiVal = glm::length(sample - m_SimData->positions[p]) - m_SimParams->sdfRadius;
 
                                              if(phiVal < m_SimData->fluidSDF(i, j))
                                                  m_SimData->fluidSDF(i, j) = phiVal;
@@ -664,16 +664,16 @@ void Banana::FLIP2DSolver<RealType>::computeFluidSDF()
 
     ////////////////////////////////////////////////////////////////////////////////
     //extend phi slightly into solids (this is a simple, naive approach, but works reasonably well)
-    ParallelFuncs::parallel_for<UInt32>(0, m_Grid.getNumCellX(),
+    ParallelFuncs::parallel_for<UInt>(0, m_Grid.getNumCellX(),
                                         0, m_Grid.getNumCellY(),
                                         [&](int i, int j)
                                         {
                                             if(m_SimData->fluidSDF(i, j) < m_Grid.getHalfCellSize())
                                             {
-                                                const RealType phiValSolid = RealType(0.25) * (m_SimData->boundarySDF(i, j) +
-                                                                                               m_SimData->boundarySDF(i + 1, j) +
-                                                                                               m_SimData->boundarySDF(i, j + 1) +
-                                                                                               m_SimData->boundarySDF(i + 1, j + 1));
+                                                const Real phiValSolid = Real(0.25) * (m_SimData->boundarySDF(i, j) +
+                                                                                       m_SimData->boundarySDF(i + 1, j) +
+                                                                                       m_SimData->boundarySDF(i, j + 1) +
+                                                                                       m_SimData->boundarySDF(i + 1, j + 1));
 
                                                 if(phiValSolid < 0)
                                                     m_SimData->fluidSDF(i, j) = -m_Grid.getHalfCellSize();
@@ -682,32 +682,32 @@ void Banana::FLIP2DSolver<RealType>::computeFluidSDF()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-inline void Banana::FLIP2DSolver<RealType>::computeMatrix(RealType timestep)
+template<class Real>
+inline void Banana::FLIP2DSolver<Real>::computeMatrix(Real timestep)
 {
     m_SimData->matrix.clear();
 
     //Build the linear system for pressure
-    for(UInt32 j = 1; j < m_Grid.getNumCellY() - 1; ++j)
+    for(UInt j = 1; j < m_Grid.getNumCellY() - 1; ++j)
     {
-        for(UInt32 i = 1; i < m_Grid.getNumCellX() - 1; ++i)
+        for(UInt i = 1; i < m_Grid.getNumCellX() - 1; ++i)
         {
-            const UInt32   cellIdx    = m_Grid.getLinearizedIndex(i, j);
-            const RealType center_phi = m_SimData->fluidSDF(i, j);
+            const UInt cellIdx    = m_Grid.getLinearizedIndex(i, j);
+            const Real   center_phi = m_SimData->fluidSDF(i, j);
 
             if(center_phi < 0)
             {
-                const RealType right_phi  = m_SimData->fluidSDF(i + 1, j);
-                const RealType left_phi   = m_SimData->fluidSDF(i - 1, j);
-                const RealType top_phi    = m_SimData->fluidSDF(i, j + 1);
-                const RealType bottom_phi = m_SimData->fluidSDF(i, j - 1);
+                const Real right_phi  = m_SimData->fluidSDF(i + 1, j);
+                const Real left_phi   = m_SimData->fluidSDF(i - 1, j);
+                const Real top_phi    = m_SimData->fluidSDF(i, j + 1);
+                const Real bottom_phi = m_SimData->fluidSDF(i, j - 1);
 
-                const RealType right_term  = m_SimData->u_weights(i + 1, j) * timestep;
-                const RealType left_term   = m_SimData->u_weights(i, j) * timestep;
-                const RealType top_term    = m_SimData->v_weights(i, j + 1) * timestep;
-                const RealType bottom_term = m_SimData->v_weights(i, j) * timestep;
+                const Real right_term  = m_SimData->u_weights(i + 1, j) * timestep;
+                const Real left_term   = m_SimData->u_weights(i, j) * timestep;
+                const Real top_term    = m_SimData->v_weights(i, j + 1) * timestep;
+                const Real bottom_term = m_SimData->v_weights(i, j) * timestep;
 
-                RealType center_term = 0;
+                Real center_term = 0;
 
                 // right neighbor
                 if(right_phi < 0)
@@ -717,7 +717,7 @@ inline void Banana::FLIP2DSolver<RealType>::computeMatrix(RealType timestep)
                 }
                 else
                 {
-                    RealType theta = MathHelpers::min(RealType(0.01), MathHelpers::fraction_inside(center_phi, right_phi));
+                    Real theta = MathHelpers::min(Real(0.01), MathHelpers::fraction_inside(center_phi, right_phi));
                     center_term += right_term / theta;
                 }
 
@@ -729,7 +729,7 @@ inline void Banana::FLIP2DSolver<RealType>::computeMatrix(RealType timestep)
                 }
                 else
                 {
-                    RealType theta = MathHelpers::min(RealType(0.01), MathHelpers::fraction_inside(center_phi, left_phi));
+                    Real theta = MathHelpers::min(Real(0.01), MathHelpers::fraction_inside(center_phi, left_phi));
                     center_term += left_term / theta;
                 }
 
@@ -741,7 +741,7 @@ inline void Banana::FLIP2DSolver<RealType>::computeMatrix(RealType timestep)
                 }
                 else
                 {
-                    RealType theta = MathHelpers::min(RealType(0.01), MathHelpers::fraction_inside(center_phi, top_phi));
+                    Real theta = MathHelpers::min(Real(0.01), MathHelpers::fraction_inside(center_phi, top_phi));
                     center_term += top_term / theta;
                 }
 
@@ -753,7 +753,7 @@ inline void Banana::FLIP2DSolver<RealType>::computeMatrix(RealType timestep)
                 }
                 else
                 {
-                    RealType theta = MathHelpers::min(RealType(0.01), MathHelpers::fraction_inside(center_phi, bottom_phi));
+                    Real theta = MathHelpers::min(Real(0.01), MathHelpers::fraction_inside(center_phi, bottom_phi));
                     center_term += bottom_term / theta;
                 }
 
@@ -766,20 +766,20 @@ inline void Banana::FLIP2DSolver<RealType>::computeMatrix(RealType timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-inline void Banana::FLIP2DSolver<RealType>::computeRhs()
+template<class Real>
+inline void Banana::FLIP2DSolver<Real>::computeRhs()
 {
     m_SimData->rhs.assign(m_SimData->rhs.size(), 0);
-    ParallelFuncs::parallel_for<UInt32>(1, m_Grid.getNumCellX() - 1,
+    ParallelFuncs::parallel_for<UInt>(1, m_Grid.getNumCellX() - 1,
                                         1, m_Grid.getNumCellY() - 1,
-                                        [&](UInt32 i, UInt32 j)
+                                        [&](UInt i, UInt j)
                                         {
-                                            const UInt32 idx = m_Grid.getLinearizedIndex(i, j);
-                                            const RealType center_phi = m_SimData->fluidSDF(i, j);
+                                            const UInt idx = m_Grid.getLinearizedIndex(i, j);
+                                            const Real center_phi = m_SimData->fluidSDF(i, j);
 
                                             if(center_phi < 0)
                                             {
-                                                RealType tmp = RealType(0);
+                                                Real tmp = Real(0);
 
                                                 tmp -= m_SimData->u_weights(i + 1, j) * m_SimData->u(i + 1, j);
                                                 tmp += m_SimData->u_weights(i, j) * m_SimData->u(i, j);
@@ -793,11 +793,11 @@ inline void Banana::FLIP2DSolver<RealType>::computeRhs()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-inline void Banana::FLIP2DSolver<RealType>::solveSystem()
+template<class Real>
+inline void Banana::FLIP2DSolver<Real>::solveSystem()
 {
-    RealType tolerance  = RealType(0);
-    UInt32   iterations = 0;
+    Real   tolerance  = Real(0);
+    UInt iterations = 0;
 
     bool success = m_PCGSolver.solve_precond(m_SimData->matrix, m_SimData->rhs, m_SimData->pressure, tolerance, iterations);
 
@@ -809,32 +809,32 @@ inline void Banana::FLIP2DSolver<RealType>::solveSystem()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-inline void Banana::FLIP2DSolver<RealType>::updateVelocity(RealType timestep)
+template<class Real>
+inline void Banana::FLIP2DSolver<Real>::updateVelocity(Real timestep)
 {
     m_SimData->u_valid.assign(0);
     m_SimData->v_valid.assign(0);
 
-    ParallelFuncs::parallel_for<UInt32>(0, m_Grid.getNumCellX(),
+    ParallelFuncs::parallel_for<UInt>(0, m_Grid.getNumCellX(),
                                         0, m_Grid.getNumCellY(),
-                                        [&](UInt32 i, UInt32 j)
+                                        [&](UInt i, UInt j)
                                         {
-                                            const UInt32 idx = m_Grid.getLinearizedIndex(i, j);
+                                            const UInt idx = m_Grid.getLinearizedIndex(i, j);
 
-                                            const RealType center_phi = m_SimData->fluidSDF(i, j);
-                                            const RealType left_phi = i > 0 ? m_SimData->fluidSDF(i - 1, j) : 0;
-                                            const RealType bottom_phi = j > 0 ? m_SimData->fluidSDF(i, j - 1) : 0;
+                                            const Real center_phi = m_SimData->fluidSDF(i, j);
+                                            const Real left_phi = i > 0 ? m_SimData->fluidSDF(i - 1, j) : 0;
+                                            const Real bottom_phi = j > 0 ? m_SimData->fluidSDF(i, j - 1) : 0;
 
                                             if(i > 0 && (center_phi < 0 || left_phi < 0) && m_SimData->u_weights(i, j) > 0)
                                             {
-                                                RealType theta = MathHelpers::min(RealType(0.01), MathHelpers::fraction_inside(left_phi, center_phi));
+                                                Real theta = MathHelpers::min(Real(0.01), MathHelpers::fraction_inside(left_phi, center_phi));
                                                 m_SimData->u(i, j) -= timestep * (m_SimData->pressure[idx] - m_SimData->pressure[idx - 1]) / theta;
                                                 m_SimData->u_valid(i, j) = 1;
                                             }
 
                                             if(j > 0 && (center_phi < 0 || bottom_phi < 0) && m_SimData->v_weights(i, j) > 0)
                                             {
-                                                RealType theta = MathHelpers::min(RealType(0.01), MathHelpers::fraction_inside(bottom_phi, center_phi));
+                                                Real theta = MathHelpers::min(Real(0.01), MathHelpers::fraction_inside(bottom_phi, center_phi));
                                                 m_SimData->v(i, j) -= timestep * (m_SimData->pressure[idx] - m_SimData->pressure[idx - m_Grid.getNumCellX()]) / theta;
                                                 m_SimData->v_valid(i, j) = 1;
                                             }
@@ -854,8 +854,8 @@ inline void Banana::FLIP2DSolver<RealType>::updateVelocity(RealType timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-void Banana::FLIP2DSolver<RealType>::computeChangesGridVelocity()
+template<class Real>
+void Banana::FLIP2DSolver<Real>::computeChangesGridVelocity()
 {
     ParallelFuncs::parallel_for<size_t>(0, m_SimData->u.size(),
                                         [&](size_t i) { m_SimData->du.vec_data()[i] = m_SimData->u.vec_data()[i] - m_SimData->u_old.vec_data()[i]; });
@@ -864,18 +864,18 @@ void Banana::FLIP2DSolver<RealType>::computeChangesGridVelocity()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-void Banana::FLIP2DSolver<RealType>::velocityToParticles()
+template<class Real>
+void Banana::FLIP2DSolver<Real>::velocityToParticles()
 {
-    ParallelFuncs::parallel_for<UInt32>(0, m_SimData->getNumParticles(),
-                                        [&](UInt32 p)
+    ParallelFuncs::parallel_for<UInt>(0, m_SimData->getNumParticles(),
+                                        [&](UInt p)
                                         {
-                                            const Vec2<RealType>& ppos = m_SimData->positions[p];
-                                            const Vec2<RealType>& pvel = m_SimData->velocities[p];
+                                            const Vec2r& ppos = m_SimData->positions[p];
+                                            const Vec2r& pvel = m_SimData->velocities[p];
 
-                                            const Vec2<RealType> gridPos = m_Grid.getGridCoordinate(ppos);
-                                            const Vec2<RealType> oldVel = getVelocityFromGrid(gridPos);
-                                            const Vec2<RealType> dVel = getVelocityChangesFromGrid(gridPos);
+                                            const Vec2r gridPos = m_Grid.getGridCoordinate(ppos);
+                                            const Vec2r oldVel = getVelocityFromGrid(gridPos);
+                                            const Vec2r dVel = getVelocityChangesFromGrid(gridPos);
 
                                             m_SimData->velocities[p] = MathHelpers::lerp(oldVel, pvel + dVel, m_SimParams->PIC_FLIP_ratio);
                                             //m_SimData->affineMatrix[p] = MathHelpers::lerp(getAffineMatrix(gridPos), pvel + dVel, m_SimParams->PIC_FLIP_ratio);
@@ -883,8 +883,8 @@ void Banana::FLIP2DSolver<RealType>::velocityToParticles()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-bool Banana::FLIP2DSolver<RealType>::isInside(const Vec2<RealType>& pos, const Vec2<RealType>& bMin, const Vec2<RealType>& bMax)
+template<class Real>
+bool Banana::FLIP2DSolver<Real>::isInside(const Vec2r& pos, const Vec2r& bMin, const Vec2r& bMax)
 {
     return (pos[0] > bMin[0] &&
             pos[1] > bMin[1] &&
@@ -894,33 +894,33 @@ bool Banana::FLIP2DSolver<RealType>::isInside(const Vec2<RealType>& pos, const V
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //Interpolate velocity from the MAC grid.
-template<class RealType>
-Vec2<RealType> Banana::FLIP2DSolver<RealType>::getVelocityFromGrid(const Vec2<RealType>& gridPos)
+template<class Real>
+Vec2r Banana::FLIP2DSolver<Real>::getVelocityFromGrid(const Vec2r& gridPos)
 {
-    RealType vu = m_InterpolateValue(gridPos - Vec2<RealType>(0, 0.5), m_SimData->u);
-    RealType vv = m_InterpolateValue(gridPos - Vec2<RealType>(0.5, 0), m_SimData->v);
+    Real vu = m_InterpolateValue(gridPos - Vec2r(0, 0.5), m_SimData->u);
+    Real vv = m_InterpolateValue(gridPos - Vec2r(0.5, 0), m_SimData->v);
 
-    return Vec2<RealType>(vu, vv);
+    return Vec2r(vu, vv);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-inline Vec2<RealType> Banana::FLIP2DSolver<RealType>::getVelocityChangesFromGrid(const Vec2<RealType>& gridPos)
+template<class Real>
+inline Vec2r Banana::FLIP2DSolver<Real>::getVelocityChangesFromGrid(const Vec2r& gridPos)
 {
-    RealType changed_vu = m_InterpolateValue(gridPos - Vec2<RealType>(0, 0.5), m_SimData->du);
-    RealType changed_vv = m_InterpolateValue(gridPos - Vec2<RealType>(0.5, 0), m_SimData->dv);
+    Real changed_vu = m_InterpolateValue(gridPos - Vec2r(0, 0.5), m_SimData->du);
+    Real changed_vv = m_InterpolateValue(gridPos - Vec2r(0.5, 0), m_SimData->dv);
 
-    return Vec2<RealType>(changed_vu, changed_vv);
+    return Vec2r(changed_vu, changed_vv);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-Mat2x2<RealType> Banana::FLIP2DSolver<RealType>::getAffineMatrix(const Vec2<RealType>& gridPos)
+template<class Real>
+Mat2x2<Real> Banana::FLIP2DSolver<Real>::getAffineMatrix(const Vec2r& gridPos)
 {
-    RealType vu = m_InterpolateValue(gridPos - Vec<RealType>(0, 0.5), m_SimData->u);
-    RealType vv = m_InterpolateValue(gridPos - Vec<RealType>(0.5, 0), m_SimData->v);
+    Real vu = m_InterpolateValue(gridPos - Vec<Real>(0, 0.5), m_SimData->u);
+    Real vv = m_InterpolateValue(gridPos - Vec<Real>(0.5, 0), m_SimData->v);
 
-    Mat2x2<RealType> C;
+    Mat2x2<Real> C;
     C[0] = ArrayHelpers::interpolateValueAffine(p0, u) / m_Grid.getCellSize();
     C[1] = ArrayHelpers::interpolateValueAffine(p1, v) / m_Grid.getCellSize();
 

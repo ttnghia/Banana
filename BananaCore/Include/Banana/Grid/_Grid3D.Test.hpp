@@ -17,20 +17,19 @@
 
 #pragma once
 
-#include <Grid/Grid3D.h>
-#include <Banana/Macros.h>
-#include <Banana/TypeNames.h>
+#include <Banana/Grid/Grid3D.h>
+#include <Banana/Grid/Grid3DHashing.h>
 
 #include <catch.hpp>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 TEST_CASE("Test Grid3D", "[Grid3D]")
 {
-    Banana::Grid3D<float> grid1;
+    Banana::Grid3D grid1;
     (void)grid1;
 
     ////////////////////////////////////////////////////////////////////////////////
-    Banana::Grid3D<float> grid(Vec3<float>(0), Vec3<float>(1), 0.1f);
+    Banana::Grid3DHashing grid(Vec3r(0), Vec3r(1), 0.1f);
     REQUIRE(grid.getNumCellX() == 10);
     REQUIRE(grid.getNumCellY() == 10);
     REQUIRE(grid.getNumCellZ() == 10);
@@ -42,10 +41,10 @@ TEST_CASE("Test Grid3D", "[Grid3D]")
     REQUIRE(grid.getValidCellIdx<int>(Vec3f(0.15, 0.25, -0.5)) == Vec3i(1, 2, 0));
 
     //////////////////////////////////////////////////////////////////////////////////
-    Vec_Vec3<float> particles;
-    Vec_UInt        neighborList;
-    Vec3f           p1 = Vec3f(0.15, 0.25, 0.5);
-    Vec3f           p2 = Vec3f(0.25, 0.25, 0.5);
+    Vec_Vec3r particles;
+    Vec_UInt  neighborList;
+    Vec3f     p1 = Vec3f(0.15, 0.25, 0.5);
+    Vec3f     p2 = Vec3f(0.25, 0.25, 0.5);
     particles.push_back(p1);
     particles.push_back(p2);
     grid.collectIndexToCells(particles);

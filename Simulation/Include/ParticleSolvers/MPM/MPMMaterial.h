@@ -23,33 +23,33 @@
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
+template<class Real>
 struct MPMMaterial
 {
-    const RealType density, bulkModK, shearModG, yieldStress, isoHardMod, kinHardMod;
+    const Real density, bulkModK, shearModG, yieldStress, isoHardMod, kinHardMod;
 
-    MPMMaterial(const RealType dens, const RealType Y, const RealType P, const RealType c, const RealType d, const RealType e) :
+    MPMMaterial(const Real dens, const Real Y, const Real P, const Real c, const Real d, const Real e) :
         density(dens),
-        bulkModK(Y / (RealType(3.0) * (RealType(1.0) - RealType(2.0) * P))),
-        shearModG(Y / (RealType(2.0) * (RealType(1.0) + P))),
+        bulkModK(Y / (Real(3.0) * (Real(1.0) - Real(2.0) * P))),
+        shearModG(Y / (Real(2.0) * (Real(1.0) + P))),
         yieldStress(c),
         isoHardMod(d),
         kinHardMod(e)
     {
-        if(density < RealType(0.0)) throw std::exception("invalid density");
-        if(Y < RealType(0.0)) throw std::exception("invalid Young's modulus");
-        if(P > RealType(0.5) - std::numeric_limits<RealType>::epsilon() || P < RealType(0.0)) throw std::exception("invalid Poisson's ratio");
-        if(yieldStress < RealType(0.0)) throw std::exception("invalid yield stress - no plasticity found in plastic model");
-        if(isoHardMod < RealType(0.0)) throw std::exception("invalid isotropic hardening modulus");
-        if(kinHardMod < RealType(0.0)) throw std::exception("invalid kinematic hardening modulus");
+        if(density < Real(0.0)) throw std::exception("invalid density");
+        if(Y < Real(0.0)) throw std::exception("invalid Young's modulus");
+        if(P > Real(0.5) - std::numeric_limits<Real>::epsilon() || P < Real(0.0)) throw std::exception("invalid Poisson's ratio");
+        if(yieldStress < Real(0.0)) throw std::exception("invalid yield stress - no plasticity found in plastic model");
+        if(isoHardMod < Real(0.0)) throw std::exception("invalid isotropic hardening modulus");
+        if(kinHardMod < Real(0.0)) throw std::exception("invalid kinematic hardening modulus");
     }
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
+template<class Real>
 struct ConstitutiveModel
 {
-    virtual void update(RealType) = 0;
+    virtual void update(Real) = 0;
     virtual void revert()
     {
         throw std::exception("ConstitutiveSC: revert() and save() must be defined if using implicit methods");
@@ -65,14 +65,14 @@ struct ConstitutiveModel
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-struct NeoHookean : public ConstitutiveModel<RealType>
+template<class Real>
+struct NeoHookean : public ConstitutiveModel<Real>
 {
-    NeoHookean(const RealType Y, const RealType P, const RealType D,
-               const std::vector<Mat3x3<RealType> >& vg,
-               std::vector<Mat3x3<RealType> >& dg,
-               std::vector<RealType>& vl,
-               std::vector<Mat3x3<RealType> >& st) :
+    NeoHookean(const Real Y, const Real P, const Real D,
+               const Vec_Mat3x3r& vg,
+               Vec_Mat3x3r& dg,
+               Vec_Real& vl,
+               Vec_Mat3x3r& st) :
         Ymod(Y),
         Pois(P),
         Dens(D),
@@ -86,30 +86,30 @@ struct NeoHookean : public ConstitutiveModel<RealType>
         if(Npart() < 1) throw std::exception("NeoHookean: no particles to initialize!");
     }
 
-    RealType waveSpeed() const { return sqrt((lam + 3. * mu) / Dens); }
-    void update(RealType);
+    Real waveSpeed() const { return sqrt((lam + 3. * mu) / Dens); }
+    void update(Real);
     void revert();
     void save();
 
     ////////////////////////////////////////////////////////////////////////////////
-    std::vector<Mat3x3<RealType> >        defGrad0, stress0;
-    std::vector<RealType>                 volume0;
-    const RealType                        Ymod, Pois, Dens, lam, mu;
-    const std::vector<Mat3x3<RealType> >& velGrad;
-    std::vector<Mat3x3<RealType> >&       defGrad;
-    std::vector<RealType>&                volume;
-    std::vector<Mat3x3<RealType> >&       stress;
+    Vec_Mat3x3r        defGrad0, stress0;
+    Vec_Real           volume0;
+    const Real         Ymod, Pois, Dens, lam, mu;
+    const Vec_Mat3x3r& velGrad;
+    Vec_Mat3x3r&       defGrad;
+    Vec_Real&          volume;
+    Vec_Mat3x3r&       stress;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-struct UpdatedElastic : public ConstitutiveModel<RealType>
+template<class Real>
+struct UpdatedElastic : public ConstitutiveModel<Real>
 {
-    UpdatedElastic(const std::vector<Mat3x3<RealType> >& vg,
-                   std::vector<Mat3x3<RealType> >&       dg,
-                   std::vector<RealType>&                vl,
-                   std::vector<Mat3x3<RealType> >&       st,
-                   const material&                       a) :
+    UpdatedElastic(const Vec_Mat3x3r& vg,
+                   Vec_Mat3x3r&       dg,
+                   Vec_Real&          vl,
+                   Vec_Mat3x3r&       st,
+                   const material&    a) :
         twoThirds(2. / 3.),
         bulkModK(a.bulkModK),
         shearModG(a.shearModG),
@@ -119,30 +119,30 @@ struct UpdatedElastic : public ConstitutiveModel<RealType>
         volume(vl),
         stress(st)
     {}
-    RealType waveSpeed() const { return sqrt((bulkModK + shearModG * 7. / 3.) / density); }
-    void update(RealType);
+    Real waveSpeed() const { return sqrt((bulkModK + shearModG * 7. / 3.) / density); }
+    void update(Real);
     void revert();
     void save();
 
     ////////////////////////////////////////////////////////////////////////////////
-    std::vector<Mat3x3<RealType> >        stress0, defGrad0;
-    std::vector<RealType>                 volume0;
-    const RealType                        twoThirds, bulkModK, shearModG, density;
-    const std::vector<Mat3x3<RealType> >& velGrad;
-    std::vector<Mat3x3<RealType> >&       defGrad;
-    std::vector<RealType>&                volume;
-    std::vector<Mat3x3<RealType> >&       stress;
+    Vec_Mat3x3r        stress0, defGrad0;
+    Vec_Real           volume0;
+    const Real         twoThirds, bulkModK, shearModG, density;
+    const Vec_Mat3x3r& velGrad;
+    Vec_Mat3x3r&       defGrad;
+    Vec_Real&          volume;
+    Vec_Mat3x3r&       stress;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-struct J2plasticLinearIsoKin : public ConstitutiveModel<RealType>
+template<class Real>
+struct J2plasticLinearIsoKin : public ConstitutiveModel<Real>
 {
-    J2plasticLinearIsoKin(const material&                       mt,
-                          const std::vector<Mat3x3<RealType> >& vg,
-                          std::vector<Mat3x3<RealType> >&       dg,
-                          std::vector<RealType>&                vl,
-                          std::vector<Mat3x3<RealType> >&       st) :
+    J2plasticLinearIsoKin(const material&    mt,
+                          const Vec_Mat3x3r& vg,
+                          Vec_Mat3x3r&       dg,
+                          Vec_Real&          vl,
+                          Vec_Mat3x3r&       st) :
         oneThird(1. / 3.),
         sqrtTwoThirds(sqrt(2. / 3.)),
         density(mt.density),
@@ -165,25 +165,25 @@ struct J2plasticLinearIsoKin : public ConstitutiveModel<RealType>
         }
     }
 
-    RealType waveSpeed() const { return sqrt((bulkModK + shearModG * 7. / 3.) / density); }
-    void update(RealType);
+    Real waveSpeed() const { return sqrt((bulkModK + shearModG * 7. / 3.) / density); }
+    void update(Real);
     void revert();
     void save();
 
     ////////////////////////////////////////////////////////////////////////////////
     struct point
     {
-        Mat3x3<RealType> strain, plasticStrain, backStress;
-        RealType         internalAlpha;
+        Mat3x3<Real> strain, plasticStrain, backStress;
+        Real         internalAlpha;
     };
-    std::vector<Mat3x3<RealType> >        stress0, defGrad0;
-    std::vector<RealType>                 volume0;
-    std::vector<point>                    pnt, pnt0;
-    const RealType                        oneThird, sqrtTwoThirds, density, bulkModK, shearModG, yieldStress, isoHardMod, kinHardMod;
-    const std::vector<Mat3x3<RealType> >& velGrad;
-    std::vector<Mat3x3<RealType> >&       defGrad;
-    std::vector<RealType>&                volume;
-    std::vector<Mat3x3<RealType> >&       stress;
+    Vec_Mat3x3r        stress0, defGrad0;
+    Vec_Real           volume0;
+    std::vector<point> pnt, pnt0;
+    const Real         oneThird, sqrtTwoThirds, density, bulkModK, shearModG, yieldStress, isoHardMod, kinHardMod;
+    const Vec_Mat3x3r& velGrad;
+    Vec_Mat3x3r&       defGrad;
+    Vec_Real&          volume;
+    Vec_Mat3x3r&       stress;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

@@ -30,26 +30,26 @@ namespace Banana
 class Logger;
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
+template<class Real>
 struct GlobalParameters
 {
-    RealType frameDuration = RealType(1.0 / DEFAULT_FRAME_RATE);
+    Real frameDuration = Real(1.0 / DEFAULT_FRAME_RATE);
 
-    unsigned int startFrame    = 1;
-    unsigned int finalFrame    = 1;
-    unsigned int finishedFrame = 0;
-    unsigned int nThreads      = 0;
+    UInt startFrame    = 1;
+    UInt finalFrame    = 1;
+    UInt finishedFrame = 0;
+    UInt nThreads      = 0;
 
     ////////////////////////////////////////////////////////////////////////////////
-    bool         bLoadMemoryState  = true;
-    bool         bSaveParticleData = false;
-    bool         bSaveMemoryState  = false;
-    unsigned int framePerState     = 1;
-    std::string  dataPath          = std::string("./SimData");
+    bool        bLoadMemoryState  = true;
+    bool        bSaveParticleData = false;
+    bool        bSaveMemoryState  = false;
+    UInt      framePerState     = 1;
+    std::string dataPath          = std::string("./SimData");
 
-    bool         bApplyGravity       = true;
-    bool         bEnableSortParticle = false;
-    unsigned int sortFrequency       = DEFAULT_FRAME_RATE;
+    bool   bApplyGravity       = true;
+    bool   bEnableSortParticle = false;
+    UInt sortFrequency       = DEFAULT_FRAME_RATE;
 
     ////////////////////////////////////////////////////////////////////////////////
     bool bPrintLog2Console = true;
