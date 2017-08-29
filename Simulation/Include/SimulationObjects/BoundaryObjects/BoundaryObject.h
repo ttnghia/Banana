@@ -26,11 +26,8 @@
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
 class BoundaryObject
 {
-protected:
-    __BNN_SETUP_DATA_TYPE(Real)
 public:
     BoundaryObject() {}
     BoundaryObject(Real margin) : m_Margin(margin) {}

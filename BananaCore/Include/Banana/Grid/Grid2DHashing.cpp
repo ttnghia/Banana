@@ -16,16 +16,20 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 #include <Banana/Grid/Grid2DHashing.h>
+#include <Banana/ParallelHelpers/ParallelFuncs.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Banana::Grid2DHashing::setCellSize(Real cellSize)
+namespace Banana
+{
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void Grid2DHashing::setCellSize(Real cellSize)
 {
     Grid2D::setCellSize(cellSize);
     m_bCellIdxNeedResize = true;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Banana::Grid2DHashing::collectIndexToCells(const Vec_Vec2r& particles)
+void Grid2DHashing::collectIndexToCells(const Vec_Vec2r& particles)
 {
     if(m_bCellIdxNeedResize)
     {
@@ -49,13 +53,13 @@ void Banana::Grid2DHashing::collectIndexToCells(const Vec_Vec2r& particles)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Banana::Grid2DHashing::getNeighborList(const Vec_Vec2r& particles, Vec_VecUInt& neighborList, int cellSpan /*= 1*/)
+void Grid2DHashing::getNeighborList(const Vec_Vec2r& particles, Vec_VecUInt& neighborList, int cellSpan /*= 1*/)
 {
     ParallelFuncs::parallel_for<size_t>(0, particles.size(), [&](size_t p) { getNeighborList(particles[p], neighborList[p], cellSpan); });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Banana::Grid2DHashing::getNeighborList(const Vec2r& ppos, Vec_UInt& neighborList, int cellSpan /*= 1*/)
+void Grid2DHashing::getNeighborList(const Vec2r& ppos, Vec_UInt& neighborList, int cellSpan /*= 1*/)
 {
     neighborList.resize(0);
 
@@ -79,13 +83,13 @@ void Banana::Grid2DHashing::getNeighborList(const Vec2r& ppos, Vec_UInt& neighbo
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Banana::Grid2DHashing::getNeighborList(const Vec_Vec2r& particles, Vec_VecUInt& neighborList, Real d2, int cellSpan /*= 1*/)
+void Grid2DHashing::getNeighborList(const Vec_Vec2r& particles, Vec_VecUInt& neighborList, Real d2, int cellSpan /*= 1*/)
 {
     ParallelFuncs::parallel_for<size_t>(0, particles.size(), [&](size_t p) { getNeighborList(particles, particles[p], neighborList[p], d2, cellSpan); });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Banana::Grid2DHashing::getNeighborList(const Vec_Vec2r& particles, const Vec2r& ppos, Vec_UInt& neighborList, Real d2, int cellSpan /*= 1*/)
+void Grid2DHashing::getNeighborList(const Vec_Vec2r& particles, const Vec2r& ppos, Vec_UInt& neighborList, Real d2, int cellSpan /*= 1*/)
 {
     neighborList.resize(0);
 
@@ -117,7 +121,7 @@ void Banana::Grid2DHashing::getNeighborList(const Vec_Vec2r& particles, const Ve
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-const Vec_UInt& Banana::Grid2DHashing::getParticleIdxSortedByCell()
+const Vec_UInt& Grid2DHashing::getParticleIdxSortedByCell()
 {
     if(m_ParticleIdx.size() > 0)
         return m_ParticleIdx;
@@ -132,7 +136,7 @@ const Vec_UInt& Banana::Grid2DHashing::getParticleIdxSortedByCell()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Banana::Grid2DHashing::sortData(Vec_Vec2r& data)
+void Grid2DHashing::sortData(Vec_Vec2r& data)
 {
     const auto& sortedIdx = getParticleIdxSortedByCell();
     assert(sortedIdx.size() == data.size());
@@ -146,3 +150,6 @@ void Banana::Grid2DHashing::sortData(Vec_Vec2r& data)
 #endif
                    [&](UInt i) { return tmp[i]; });
 }
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+} // end namespace Banana

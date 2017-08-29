@@ -14,17 +14,15 @@
 //
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-// Determines Morten value according to z-curve.
-inline uint_fast64_t z_value(HashKey const& key)
-{
-    return morton3D_64_encode(static_cast<uint_fast32_t>(static_cast<int64_t>(key.k[0]) - (std::numeric_limits<int>::lowest() + 1)),
-                              static_cast<uint_fast32_t>(static_cast<int64_t>(key.k[1]) - (std::numeric_limits<int>::lowest() + 1)),
-                              static_cast<uint_fast32_t>(static_cast<int64_t>(key.k[2]) - (std::numeric_limits<int>::lowest() + 1)));
-}
+
+#include <CompactNSearch/CompactNSearch.h>
+#include <Banana/ParallelHelpers/ParallelFuncs.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-NeighborhoodSearch<Real>::NeighborhoodSearch(Real r, bool erase_empty_cells) :
+namespace Banana
+{
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+NeighborhoodSearch::NeighborhoodSearch(Real r, bool erase_empty_cells) :
     m_r2(r * r), m_inv_cell_size(static_cast<Real>(1.0 / r)), m_erase_empty_cells(erase_empty_cells), m_initialized(false)
 {
     if(r <= 0.0)
@@ -36,11 +34,10 @@ NeighborhoodSearch<Real>::NeighborhoodSearch(Real r, bool erase_empty_cells) :
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Computes triple index to a world space position x.
-template<class Real>
-HashKey NeighborhoodSearch<Real>::cell_index(Real const* x) const
+HashKey NeighborhoodSearch::cell_index(Real const* x) const
 {
     HashKey ret;
-    for(unsigned int i = 0; i < 3; ++i)
+    for(UInt i = 0; i < 3; ++i)
     {
         if(x[i] >= 0.0)
             ret.k[i] = static_cast<int>(m_inv_cell_size * x[i]);
@@ -52,16 +49,15 @@ HashKey NeighborhoodSearch<Real>::cell_index(Real const* x) const
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Determines permutation table for point array.
-template<class Real>
-void NeighborhoodSearch<Real>::z_sort()
+void NeighborhoodSearch::z_sort()
 {
-    for(PointSet<Real>& d : m_point_sets)
+    for(PointSet& d : m_point_sets)
     {
         d.m_sort_table.resize(d.n_points());
         std::iota(d.m_sort_table.begin(), d.m_sort_table.end(), 0);
 
         std::sort(d.m_sort_table.begin(), d.m_sort_table.end(),
-                  [&](unsigned int a, unsigned int b)
+                  [&](UInt a, UInt b)
                   {
                       return z_value(cell_index(d.point(a))) < z_value(cell_index(d.point(b)));
                   });
@@ -72,22 +68,21 @@ void NeighborhoodSearch<Real>::z_sort()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Build hash table and entry array from scratch.
-template<class Real>
-void NeighborhoodSearch<Real>::init()
+void NeighborhoodSearch::init()
 {
     m_entries.clear();
     m_map.clear();
 
     // Determine existing entries.
-    std::vector<HashKey> temp_keys;
-    for(unsigned int j = 0; j < m_point_sets.size(); ++j)
+    Vector<HashKey> temp_keys;
+    for(UInt j = 0; j < m_point_sets.size(); ++j)
     {
-        PointSet<Real>& d = m_point_sets[j];
+        PointSet& d = m_point_sets[j];
         d.m_locks.resize(m_point_sets.size());
         for(auto& l : d.m_locks)
             l.resize(d.n_points());
 
-        for(unsigned int i = 0; i < d.n_points(); i++)
+        for(UInt i = 0; i < d.n_points(); i++)
         {
             HashKey const& key = cell_index(d.point(i));
             d.m_keys[i] = d.m_old_keys[i] = key;
@@ -99,7 +94,7 @@ void NeighborhoodSearch<Real>::init()
                 if(m_activation_table.is_searching_neighbors(j))
                     m_entries.back().n_searching_points++;
                 temp_keys.push_back(key);
-                m_map[key] = static_cast<unsigned int>(m_entries.size() - 1);
+                m_map[key] = static_cast<UInt>(m_entries.size() - 1);
             }
             else
             {
@@ -111,7 +106,7 @@ void NeighborhoodSearch<Real>::init()
     }
 
     m_map.clear();
-    for(unsigned int i = 0; i < m_entries.size(); ++i)
+    for(UInt i = 0; i < m_entries.size(); ++i)
     {
         m_map.emplace(temp_keys[i], i);
     }
@@ -120,11 +115,10 @@ void NeighborhoodSearch<Real>::init()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-void NeighborhoodSearch<Real>::resize_point_set(unsigned int index, Real const* x, std::size_t size)
+void NeighborhoodSearch::resize_point_set(UInt index, Real const* x, std::size_t size)
 {
-    PointSet<Real>& point_set = m_point_sets[index];
-    std::size_t     old_size  = point_set.n_points();
+    PointSet&   point_set = m_point_sets[index];
+    std::size_t old_size  = point_set.n_points();
 
     if(!m_initialized)
     {
@@ -134,13 +128,13 @@ void NeighborhoodSearch<Real>::resize_point_set(unsigned int index, Real const* 
     // Delete old entries. (Shrink)
     if(old_size > size)
     {
-        std::vector<unsigned int> to_delete;
+        Vec_UInt to_delete;
         if(m_erase_empty_cells)
         {
             to_delete.reserve(m_entries.size());
         }
 
-        for(unsigned int i = static_cast<unsigned int>(size); i < old_size; i++)
+        for(UInt i = static_cast<UInt>(size); i < old_size; i++)
         {
             HashKey const& key = point_set.m_keys[i];
             auto           it  = m_map.find(key);
@@ -166,7 +160,7 @@ void NeighborhoodSearch<Real>::resize_point_set(unsigned int index, Real const* 
     point_set.resize(x, size);
 
     // Insert new entries. (Grow)
-    for(unsigned int i = static_cast<unsigned int>(old_size); i < point_set.n_points(); i++)
+    for(UInt i = static_cast<UInt>(old_size); i < point_set.n_points(); i++)
     {
         HashKey key = cell_index(point_set.point(i));
         point_set.m_keys[i] = point_set.m_old_keys[i] = key;
@@ -176,7 +170,7 @@ void NeighborhoodSearch<Real>::resize_point_set(unsigned int index, Real const* 
             m_entries.push_back({ { index, i } });
             if(m_activation_table.is_searching_neighbors(index))
                 m_entries.back().n_searching_points++;
-            m_map[key] = static_cast<unsigned int>(m_entries.size() - 1);
+            m_map[key] = static_cast<UInt>(m_entries.size() - 1);
         }
         else
         {
@@ -192,8 +186,7 @@ void NeighborhoodSearch<Real>::resize_point_set(unsigned int index, Real const* 
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-void NeighborhoodSearch<Real>::update_activation_table()
+void NeighborhoodSearch::update_activation_table()
 {
     if(m_activation_table != m_old_activation_table)
     {
@@ -212,8 +205,7 @@ void NeighborhoodSearch<Real>::update_activation_table()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-void NeighborhoodSearch<Real>::find_neighbors(bool points_changed_)
+void NeighborhoodSearch::find_neighbors(bool points_changed_)
 {
     if(points_changed_)
     {
@@ -224,8 +216,7 @@ void NeighborhoodSearch<Real>::find_neighbors(bool points_changed_)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-void NeighborhoodSearch<Real>::update_point_sets()
+void NeighborhoodSearch::update_point_sets()
 {
     if(!m_initialized)
     {
@@ -234,19 +225,19 @@ void NeighborhoodSearch<Real>::update_point_sets()
     }
 
     // Precompute cell indices.
-    for(PointSet<Real>& d : m_point_sets)
+    for(PointSet& d : m_point_sets)
     {
         if(!d.is_dynamic())
             continue;
         d.m_keys.swap(d.m_old_keys);
 
-        for(unsigned int i = 0; i < d.n_points(); ++i)
+        for(UInt i = 0; i < d.n_points(); ++i)
         {
             d.m_keys[i] = cell_index(d.point(i));
         }
     }
 
-    std::vector<unsigned int> to_delete;
+    Vec_UInt to_delete;
     if(m_erase_empty_cells)
     {
         to_delete.reserve(m_entries.size());
@@ -261,15 +252,13 @@ void NeighborhoodSearch<Real>::update_point_sets()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-void NeighborhoodSearch<Real>::find_neighbors(unsigned int point_set_id, unsigned int point_index, std::vector<std::vector<unsigned int> >& neighbors)
+void NeighborhoodSearch::find_neighbors(UInt point_set_id, UInt point_index, Vec_VecUInt& neighbors)
 {
     query(point_set_id, point_index, neighbors);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-void NeighborhoodSearch<Real>::erase_empty_entries(std::vector<unsigned int> const& to_delete)
+void NeighborhoodSearch::erase_empty_entries(Vec_UInt const& to_delete)
 {
     if(to_delete.empty())
         return;
@@ -295,20 +284,20 @@ void NeighborhoodSearch<Real>::erase_empty_entries(std::vector<unsigned int> con
         }
     }
 
-    std::vector<std::pair<HashKey const, unsigned int>*> kvps(m_map.size());
-    std::transform(m_map.begin(), m_map.end(), kvps.begin(), [](std::pair<HashKey const, unsigned int>& kvp) { return &kvp; });
+    Vector<std::pair<HashKey const, UInt>*> kvps(m_map.size());
+    std::transform(m_map.begin(), m_map.end(), kvps.begin(), [](std::pair<HashKey const, UInt>& kvp) { return &kvp; });
 
     ParallelFuncs::parallel_for<size_t>(0, kvps.size(),
                                         [&](size_t it)
                                         {
-                                            std::pair<HashKey const, unsigned int>* kvp_ = kvps[it];
+                                            std::pair<HashKey const, UInt>* kvp_ = kvps[it];
                                             auto& kvp = *kvp_;
 
-                                            for(unsigned int i = 0; i < to_delete.size(); ++i)
+                                            for(UInt i = 0; i < to_delete.size(); ++i)
                                             {
                                                 if(kvp.second >= to_delete[i])
                                                 {
-                                                    kvp.second -= static_cast<unsigned int>(to_delete.size() - i);
+                                                    kvp.second -= static_cast<UInt>(to_delete.size() - i);
                                                     break;
                                                 }
                                             }
@@ -316,14 +305,13 @@ void NeighborhoodSearch<Real>::erase_empty_entries(std::vector<unsigned int> con
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-void NeighborhoodSearch<Real>::update_hash_table(std::vector<unsigned int>& to_delete)
+void NeighborhoodSearch::update_hash_table(Vec_UInt& to_delete)
 {
     // Indicate points changing inheriting cell.
-    for(unsigned int j = 0; j < m_point_sets.size(); ++j)
+    for(UInt j = 0; j < m_point_sets.size(); ++j)
     {
-        PointSet<Real>& d = m_point_sets[j];
-        for(unsigned int i = 0; i < d.n_points(); ++i)
+        PointSet& d = m_point_sets[j];
+        for(UInt i = 0; i < d.n_points(); ++i)
         {
             if(d.m_keys[i] == d.m_old_keys[i])
                 continue;
@@ -335,7 +323,7 @@ void NeighborhoodSearch<Real>::update_hash_table(std::vector<unsigned int>& to_d
                 m_entries.push_back({ { j, i } });
                 if(m_activation_table.is_searching_neighbors(j))
                     m_entries.back().n_searching_points++;
-                m_map.insert({ key, static_cast<unsigned int>(m_entries.size() - 1) });
+                m_map.insert({ key, static_cast<UInt>(m_entries.size() - 1) });
             }
             else
             {
@@ -345,7 +333,7 @@ void NeighborhoodSearch<Real>::update_hash_table(std::vector<unsigned int>& to_d
                     entry.n_searching_points++;
             }
 
-            unsigned int entry_index = m_map[d.m_old_keys[i]];
+            UInt entry_index = m_map[d.m_old_keys[i]];
             m_entries[entry_index].erase({ j, i });
             if(m_activation_table.is_searching_neighbors(j))
                 m_entries[entry_index].n_searching_points--;
@@ -359,19 +347,18 @@ void NeighborhoodSearch<Real>::update_hash_table(std::vector<unsigned int>& to_d
         }
     }
 
-    to_delete.erase(std::remove_if(to_delete.begin(), to_delete.end(), [&](unsigned int index) { return m_entries[index].n_indices() != 0; }), to_delete.end());
-    std::sort(to_delete.begin(), to_delete.end(), std::greater<unsigned int>());
+    to_delete.erase(std::remove_if(to_delete.begin(), to_delete.end(), [&](UInt index) { return m_entries[index].n_indices() != 0; }), to_delete.end());
+    std::sort(to_delete.begin(), to_delete.end(), std::greater<UInt>());
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-void NeighborhoodSearch<Real>::query()
+void NeighborhoodSearch::query()
 {
-    for(unsigned int i = 0; i < m_point_sets.size(); i++)
+    for(UInt i = 0; i < m_point_sets.size(); i++)
     {
-        PointSet<Real>& d = m_point_sets[i];
+        PointSet& d = m_point_sets[i];
         d.m_neighbors.resize(m_point_sets.size());
-        for(unsigned int j = 0; j < d.m_neighbors.size(); j++)
+        for(UInt j = 0; j < d.m_neighbors.size(); j++)
         {
             auto& n = d.m_neighbors[j];
             n.resize(d.n_points());
@@ -384,14 +371,14 @@ void NeighborhoodSearch<Real>::query()
         }
     }
 
-    std::vector<std::pair<HashKey const, unsigned int> const*> kvps(m_map.size());
-    std::transform(m_map.begin(), m_map.end(), kvps.begin(), [](std::pair<HashKey const, unsigned int> const& kvp) { return &kvp; });
+    Vector<std::pair<HashKey const, UInt> const*> kvps(m_map.size());
+    std::transform(m_map.begin(), m_map.end(), kvps.begin(), [](std::pair<HashKey const, UInt> const& kvp) { return &kvp; });
 
     // Perform neighborhood search.
     ParallelFuncs::parallel_for<size_t>(0, kvps.size(),
                                         [&](size_t it)
                                         {
-                                            std::pair<HashKey const, unsigned int> const* kvp_ = kvps[it];
+                                            std::pair<HashKey const, UInt> const* kvp_ = kvps[it];
                                             auto const& kvp = *kvp_;
                                             HashEntry const& entry = m_entries[kvp.second];
 //                                            HashKey const& key = kvp.first;
@@ -401,14 +388,14 @@ void NeighborhoodSearch<Real>::query()
                                                 return;
                                             }
 
-                                            for(unsigned int a = 0; a < entry.n_indices(); ++a)
+                                            for(UInt a = 0; a < entry.n_indices(); ++a)
                                             {
                                                 PointID const& va = entry.indices[a];
-                                                PointSet<Real>& da = m_point_sets[va.point_set_id];
-                                                for(unsigned int b = a + 1; b < entry.n_indices(); ++b)
+                                                PointSet& da = m_point_sets[va.point_set_id];
+                                                for(UInt b = a + 1; b < entry.n_indices(); ++b)
                                                 {
                                                     PointID const& vb = entry.indices[b];
-                                                    PointSet<Real>& db = m_point_sets[vb.point_set_id];
+                                                    PointSet& db = m_point_sets[vb.point_set_id];
 
                                                     if(!m_activation_table.is_active(va.point_set_id, vb.point_set_id) &&
                                                        !m_activation_table.is_active(vb.point_set_id, va.point_set_id))
@@ -441,13 +428,13 @@ void NeighborhoodSearch<Real>::query()
                                         });
 
 
-    std::vector<std::array<bool, 27> > visited(m_entries.size(), { false });
-    std::vector<Spinlock>              entry_locks(m_entries.size());
+    Vector<std::array<bool, 27> > visited(m_entries.size(), { false });
+    Vector<Spinlock>              entry_locks(m_entries.size());
 
     ParallelFuncs::parallel_for<size_t>(0, kvps.size(),
                                         [&](size_t it)
                                         {
-                                            std::pair<HashKey const, unsigned int> const* kvp_ = kvps[it];
+                                            std::pair<HashKey const, UInt> const* kvp_ = kvps[it];
                                             auto const& kvp = *kvp_;
                                             HashEntry const& entry = m_entries[kvp.second];
 
@@ -478,7 +465,7 @@ void NeighborhoodSearch<Real>::query()
                                                         if(it == m_map.end())
                                                             continue;
 
-                                                        std::array<unsigned int, 2> entry_ids {{ kvp.second, it->second } };
+                                                        std::array<UInt, 2> entry_ids {{ kvp.second, it->second } };
                                                         if(entry_ids[0] > entry_ids[1])
                                                             std::swap(entry_ids[0], entry_ids[1]);
                                                         entry_locks[entry_ids[0]].lock();
@@ -497,17 +484,17 @@ void NeighborhoodSearch<Real>::query()
                                                         entry_locks[entry_ids[1]].unlock();
                                                         entry_locks[entry_ids[0]].unlock();
 
-                                                        for(unsigned int i = 0; i < entry.n_indices(); ++i)
+                                                        for(UInt i = 0; i < entry.n_indices(); ++i)
                                                         {
                                                             PointID const& va = entry.indices[i];
                                                             HashEntry const& entry_ = m_entries[it->second];
-                                                            unsigned int n_ind = entry_.n_indices();
-                                                            for(unsigned int j = 0; j < n_ind; ++j)
+                                                            UInt n_ind = entry_.n_indices();
+                                                            for(UInt j = 0; j < n_ind; ++j)
                                                             {
                                                                 PointID const& vb = entry_.indices[j];
-                                                                PointSet<Real>& db = m_point_sets[vb.point_set_id];
+                                                                PointSet& db = m_point_sets[vb.point_set_id];
 
-                                                                PointSet<Real>& da = m_point_sets[va.point_set_id];
+                                                                PointSet& da = m_point_sets[va.point_set_id];
 
                                                                 if(!m_activation_table.is_active(va.point_set_id, vb.point_set_id) &&
                                                                    !m_activation_table.is_active(vb.point_set_id, va.point_set_id))
@@ -545,12 +532,11 @@ void NeighborhoodSearch<Real>::query()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-void NeighborhoodSearch<Real>::query(unsigned int point_set_id, unsigned int point_index, std::vector<std::vector<unsigned int> >& neighbors)
+void NeighborhoodSearch::query(UInt point_set_id, UInt point_index, Vec_VecUInt& neighbors)
 {
     neighbors.resize(m_point_sets.size());
-    PointSet<Real>& d = m_point_sets[point_set_id];
-    for(unsigned int j = 0; j < m_point_sets.size(); j++)
+    PointSet& d = m_point_sets[point_set_id];
+    for(UInt j = 0; j < m_point_sets.size(); j++)
     {
         auto& n = neighbors[j];
         n.clear();
@@ -561,12 +547,12 @@ void NeighborhoodSearch<Real>::query(unsigned int point_set_id, unsigned int poi
     Real const* xa       = d.point(point_index);
     HashKey     hash_key = cell_index(xa);
 
-    auto                                    it    = m_map.find(hash_key);
-    std::pair<HashKey const, unsigned int>& kvp   = *it;
-    HashEntry const&                        entry = m_entries[kvp.second];
+    auto                            it    = m_map.find(hash_key);
+    std::pair<HashKey const, UInt>& kvp   = *it;
+    HashEntry const&                entry = m_entries[kvp.second];
 
     // Perform neighborhood search.
-    for(unsigned int b = 0; b < entry.n_indices(); ++b)
+    for(UInt b = 0; b < entry.n_indices(); ++b)
     {
         PointID const& vb = entry.indices[b];
         if((point_set_id != vb.point_set_id) || (point_index != vb.point_id))
@@ -576,10 +562,10 @@ void NeighborhoodSearch<Real>::query(unsigned int point_set_id, unsigned int poi
                 continue;
             }
 
-            PointSet<Real>& db  = m_point_sets[vb.point_set_id];
-            Real const*     xb  = db.point(vb.point_id);
-            Real            tmp = xa[0] - xb[0];
-            Real            l2  = tmp * tmp;
+            PointSet&   db  = m_point_sets[vb.point_set_id];
+            Real const* xb  = db.point(vb.point_id);
+            Real        tmp = xa[0] - xb[0];
+            Real        l2  = tmp * tmp;
             tmp = xa[1] - xb[1];
             l2 += tmp * tmp;
             tmp = xa[2] - xb[2];
@@ -608,20 +594,20 @@ void NeighborhoodSearch<Real>::query(unsigned int point_set_id, unsigned int poi
                 if(it == m_map.end())
                     continue;
 
-                std::array<unsigned int, 2> entry_ids {{ kvp.second, it->second } };
+                std::array<UInt, 2> entry_ids {{ kvp.second, it->second } };
                 if(entry_ids[0] > entry_ids[1])
                     std::swap(entry_ids[0], entry_ids[1]);
 
                 HashEntry const& entry_ = m_entries[it->second];
-                unsigned int     n_ind  = entry_.n_indices();
-                for(unsigned int j = 0; j < n_ind; ++j)
+                UInt             n_ind  = entry_.n_indices();
+                for(UInt j = 0; j < n_ind; ++j)
                 {
                     PointID const& vb = entry_.indices[j];
                     if(!m_activation_table.is_active(point_set_id, vb.point_set_id))
                     {
                         continue;
                     }
-                    PointSet<Real>& db = m_point_sets[vb.point_set_id];
+                    PointSet& db = m_point_sets[vb.point_set_id];
 
                     Real const* xb  = db.point(vb.point_id);
                     Real        tmp = xa[0] - xb[0];
@@ -640,3 +626,6 @@ void NeighborhoodSearch<Real>::query(unsigned int point_set_id, unsigned int poi
         }
     }
 }
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+} // end namespace Banana

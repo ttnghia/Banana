@@ -115,7 +115,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\CompactNSearch\CompactNSearch.h" />
-    <ClInclude Include="Include\CompactNSearch\CompactNSearch.Impl.hpp" />
     <ClInclude Include="Include\CompactNSearch\DataStructures.h" />
     <ClInclude Include="Include\CompactNSearch\Morton\Morton.h" />
     <ClInclude Include="Include\CompactNSearch\Morton\Morton2D.h" />
@@ -153,7 +152,7 @@
     <ClInclude Include="Include\ParticleSolvers\SceneLoader.Impl.hpp" />
     <ClInclude Include="Include\ParticleSolvers\SPH\WCSPH\WCSPHData.h" />
     <ClInclude Include="Include\ParticleSolvers\_ParticleSolvers.Test.hpp" />
-    <ClInclude Include="Include\ParticleSolvers\ParticleSolverInterface.h" />
+    <ClInclude Include="Include\ParticleSolvers\ParticleSolver.h" />
     <ClInclude Include="Include\ParticleTools\AnisotropicKernelGenerator.h" />
     <ClInclude Include="Include\ParticleTools\AnisotropicKernelGenerator.Impl.hpp" />
     <ClInclude Include="Include\ParticleSolvers\FLIP\FLIP3DSolver.h" />
@@ -167,7 +166,7 @@
     <ClInclude Include="Include\ParticleTools\BlueNoiseRelaxation\LloydRelaxation.h" />
     <ClInclude Include="Include\ParticleTools\BlueNoiseRelaxation\SPHBasedRelaxation.Impl.hpp" />
     <ClInclude Include="Include\ParticleSolvers\SPH\KernelFunctions.h" />
-    <ClInclude Include="Include\SimulationObjects\BoundaryObjects\BoundaryObjectInterface.h" />
+    <ClInclude Include="Include\SimulationObjects\BoundaryObjects\BoundaryObject.h" />
     <ClInclude Include="Include\SimulationObjects\BoundaryObjects\BoundaryObjects" />
     <ClInclude Include="Include\SimulationObjects\BoundaryObjects\BoxBoundaryObject.h" />
     <ClInclude Include="Include\SimulationObjects\ParticleEmitters\BoxEmitter.h" />
@@ -175,7 +174,6 @@
     <ClInclude Include="Include\SimulationObjects\ParticleEmitters\HollowSphereEmitter.h" />
     <ClInclude Include="Include\ParticleTools\BlueNoiseRelaxation\LloydRelaxation.Impl.hpp" />
     <ClInclude Include="Include\ParticleTools\ParticleHelpers.h" />
-    <ClInclude Include="Include\ParticleTools\ParticleHelpers.Impl.hpp" />
     <ClInclude Include="Include\SimulationObjects\ParticleObjects\BowlSampler.h" />
     <ClInclude Include="Include\SimulationObjects\ParticleObjects\BoxObject.h" />
     <ClInclude Include="Include\SimulationObjects\ParticleObjects\CylinderSampler.h" />
@@ -192,7 +190,10 @@
     <ClInclude Include="Include\ParticleTools\BlueNoiseRelaxation\SPHBasedRelaxation.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Include\CompactNSearch\CompactNSearch.cpp" />
+    <ClCompile Include="Include\ParticleSolvers\ParticleSolver.cpp" />
     <ClCompile Include="Include\ParticleTools\_ParticleTools.Test.cpp" />
+    <ClCompile Include="Include\SimulationObjects\BoundaryObjects\BoxBoundaryObject.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

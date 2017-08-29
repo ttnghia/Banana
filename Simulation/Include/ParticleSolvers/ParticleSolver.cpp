@@ -15,107 +15,13 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-#pragma once
-
-#include <Banana/Setup.h>
-#include <Banana/Utils/Logger.h>
-#include <Banana/Utils/FileHelpers.h>
-#include <Banana/Utils/MathHelpers.h>
-#include <Banana/Utils/Timer.h>
-#include <Banana/Utils/JSONHelpers.h>
-#include <Banana/Data/DataIO.h>
-#include <Banana/ParallelHelpers/ParallelSTL.h>
-#include <Banana/ParallelHelpers/ParallelFuncs.h>
-#include <Banana/ParallelHelpers/ParallelBLAS.h>
-#include <CompactNSearch/CompactNSearch.h>
-
-#include <ParticleSolvers/ParticleSolverData.h>
-
-#include <SimulationObjects/BoundaryObjects/BoundaryObjects>
-#include <SimulationObjects/ParticleObjects/ParticleObjects>
-
-#include <tbb/tbb.h>
-#include <json.hpp>
-
-#include <memory>
-#include <fstream>
-#include <functional>
+#include <ParticleSolvers/ParticleSolver.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-class ParticleSolver
-{
-protected:
-    __BNN_SETUP_DATA_TYPE(Real)
-public:
-    ParticleSolver()          = default;
-    virtual ~ParticleSolver() = default;
-
-    const std::unique_ptr<GlobalParameters<Real> >& getGlobalParams() const noexcept { return m_GlobalParams; }
-    const std::shared_ptr<Logger>& getLogger() const noexcept { return m_Logger; }
-    static bool loadDataPath(const std::string& sceneFile, std::string& dataPath);
-    void        loadScene(const std::string& sceneFile);
-    void        doSimulation();
-
-    ////////////////////////////////////////////////////////////////////////////////
-    virtual std::string  getSolverName()      = 0;
-    virtual std::string  getGreetingMessage() = 0;
-    virtual unsigned int getNumParticles()    = 0;
-
-    virtual void makeReady()     = 0;
-    virtual void advanceFrame()  = 0;
-    virtual void sortParticles() = 0;
-
-protected:
-    void setupLogger();
-    void loadGlobalParams(const nlohmann::json& jParams);
-    void loadObjectParams(const nlohmann::json& jParams);
-    void advanceScene() {}
-
-    virtual void loadSimParams(const nlohmann::json& jParams) = 0;
-    virtual void setupDataIO()                                = 0;
-    virtual void loadMemoryState()                            = 0;
-    virtual void saveMemoryState()                            = 0;
-    virtual void saveParticleData()                           = 0;
-
-
-    ////////////////////////////////////////////////////////////////////////////////
-    std::unique_ptr<tbb::task_scheduler_init>  m_ThreadInit = nullptr;
-    std::unique_ptr<NeighborhoodSearch<Real> > m_NSearch    = nullptr;
-    std::shared_ptr<Logger>                    m_Logger     = nullptr;
-
-    std::unique_ptr<GlobalParameters<Real> >             m_GlobalParams = std::make_unique<GlobalParameters<Real> >();
-    std::vector<std::shared_ptr<DataIO> >                m_ParticleDataIO;
-    std::vector<std::shared_ptr<DataIO> >                m_MemoryStateIO;
-    std::vector<std::shared_ptr<BoundaryObject<Real> > > m_BoundaryObjects;
-    std::vector<std::shared_ptr<ParticleObject<Real> > > m_ParticleObjects;
-};
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-class ParticleSolver2D : public ParticleSolver<Real>
-{
-public:
-    virtual Vec_Vec2r& getParticlePositions()  = 0;
-    virtual Vec_Vec2r& getParticleVelocities() = 0;
-};
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-class ParticleSolver3D : public ParticleSolver<Real>
-{
-public:
-    virtual Vec_Vec3r& getParticlePositions()  = 0;
-    virtual Vec_Vec3r& getParticleVelocities() = 0;
-};
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-void Banana::ParticleSolver<Real>::doSimulation()
+void ParticleSolver::doSimulation()
 {
     setupDataIO();
     if(m_GlobalParams->bLoadMemoryState)
@@ -158,8 +64,7 @@ void Banana::ParticleSolver<Real>::doSimulation()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-void Banana::ParticleSolver<Real>::loadScene(const std::string& sceneFile)
+void ParticleSolver::loadScene(const std::string& sceneFile)
 {
     std::ifstream inputFile(sceneFile);
     if(!inputFile.is_open())
@@ -200,8 +105,7 @@ void Banana::ParticleSolver<Real>::loadScene(const std::string& sceneFile)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-bool Banana::ParticleSolver<Real>::loadDataPath(const std::string& sceneFile, std::string& dataPath)
+bool ParticleSolver::loadDataPath(const std::string& sceneFile, std::string& dataPath)
 {
     std::ifstream inputFile(sceneFile);
     if(!inputFile.is_open())
@@ -220,8 +124,7 @@ bool Banana::ParticleSolver<Real>::loadDataPath(const std::string& sceneFile, st
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-void Banana::ParticleSolver<Real>::loadGlobalParams(const nlohmann::json& jParams)
+void ParticleSolver::loadGlobalParams(const nlohmann::json& jParams)
 {
     JSONHelpers::readValue(jParams, m_GlobalParams->frameDuration, "FrameDuration");
     JSONHelpers::readValue(jParams, m_GlobalParams->finalFrame,    "FinalFrame");
@@ -245,8 +148,7 @@ void Banana::ParticleSolver<Real>::loadGlobalParams(const nlohmann::json& jParam
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-void Banana::ParticleSolver<Real>::loadObjectParams(const nlohmann::json& jParams)
+void ParticleSolver::loadObjectParams(const nlohmann::json& jParams)
 {
     (void)jParams;
 #if 0
@@ -325,8 +227,7 @@ void Banana::ParticleSolver<Real>::loadObjectParams(const nlohmann::json& jParam
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-void Banana::ParticleSolver<Real>::setupLogger()
+void ParticleSolver::setupLogger()
 {
     m_Logger = Logger::create(getSolverName());
     m_Logger->printGreeting(getGreetingMessage());

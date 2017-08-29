@@ -18,11 +18,10 @@
 #pragma once
 #define NOMINMAX
 
-#include <Banana/Setup.h>
 #include <Banana/Utils/NumberHelpers.h>
 #include <Banana/ParallelHelpers/ParallelFuncs.h>
 #include <CompactNSearch/CompactNSearch.h>
-#include <Grid/Grid3D.h>
+#include <Banana/Grid/Grid3D.h>
 #include <catch.hpp>
 
 #include <iostream>
@@ -36,14 +35,11 @@
 using Real  = double;
 using Clock = std::chrono::high_resolution_clock;
 using namespace Banana;
-#ifndef M_PI
-#  define M_PI 3.14159265359
-#endif
 
 //#define TEST_GRID3D
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-std::vector<Vec3<Real> > positions;
-Grid3D<Real>             grid3D = Grid3D<Real>(Vec3<Real>(0), Vec3<Real>(1), Real(1.0 / 128.0));
+Vector<Vec3r > positions;
+Grid3D             grid3D = Grid3D(Vec3r(0), Vec3r(1), Real(1.0 / 128.0));
 
 const size_t N               = 100;
 const size_t N_enright_steps = 50;
@@ -54,7 +50,7 @@ const Real radius   = Real(2.0) * (Real(2.0) * r_omega / static_cast<Real>(N - 1
 const Real radius2  = radius * radius;
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-Real compute_average_number_of_neighbors(NeighborhoodSearch<Real> const& nsearch)
+Real compute_average_number_of_neighbors(NeighborhoodSearch const& nsearch)
 {
     unsigned long res = 0;
     const auto&   d   = nsearch.point_set(0);
@@ -66,7 +62,7 @@ Real compute_average_number_of_neighbors(NeighborhoodSearch<Real> const& nsearch
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-Real compute_average_distance(NeighborhoodSearch<Real> const& nsearch)
+Real compute_average_distance(NeighborhoodSearch const& nsearch)
 {
     unsigned long long res   = 0;
     auto const&        d     = nsearch.point_set(0);
@@ -78,7 +74,7 @@ Real compute_average_distance(NeighborhoodSearch<Real> const& nsearch)
 
         for(int j = 0; j < nn; ++j)
         {
-            unsigned int k = d.neighbor(0, i, j);
+            UInt k = d.neighbor(0, i, j);
             res += std::abs(i - static_cast<int>(k));
             count++;
         }
@@ -87,22 +83,22 @@ Real compute_average_distance(NeighborhoodSearch<Real> const& nsearch)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-std::vector<std::vector<unsigned int> > brute_force_search(size_t n_positions)
+Vector<Vector<UInt> > brute_force_search(size_t n_positions)
 {
-    std::vector<std::vector<unsigned int> > brute_force_neighbors(n_positions);
+    Vector<Vector<UInt> > brute_force_neighbors(n_positions);
 
     ParallelFuncs::parallel_for<size_t>(0, n_positions,
                                         [&](size_t i)
                                         {
-                                            std::vector<unsigned int>& neighbors = brute_force_neighbors[i];
-                                            Vec3<Real> const& xa = positions[i];
+                                            Vector<UInt>& neighbors = brute_force_neighbors[i];
+                                            Vec3r const& xa = positions[i];
 
                                             for(int j = 0; j < n_positions; ++j)
                                             {
                                                 if(i == j)
                                                     continue;
 
-                                                Vec3<Real> const& xb = positions[j];
+                                                Vec3r const& xb = positions[j];
 
                                                 Real l2 = glm::length2(xa - xb);
                                                 if(l2 <= radius * radius)
@@ -114,9 +110,9 @@ std::vector<std::vector<unsigned int> > brute_force_search(size_t n_positions)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void compare_with_bruteforce_search(NeighborhoodSearch<Real> const& nsearch)
+void compare_with_bruteforce_search(NeighborhoodSearch const& nsearch)
 {
-    const PointSet<Real>& d0                    = nsearch.point_set(0);
+    const PointSet& d0                    = nsearch.point_set(0);
     auto                  brute_force_neighbors = brute_force_search(d0.n_points());
 
     for(int i = 0; i < d0.n_points(); ++i)
@@ -141,9 +137,9 @@ void compare_with_bruteforce_search(NeighborhoodSearch<Real> const& nsearch)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void compare_with_grid_search(NeighborhoodSearch<Real> const& nsearch, std::vector<std::vector<unsigned int> >& gridSearchResult)
+void compare_with_grid_search(NeighborhoodSearch const& nsearch, Vector<Vector<UInt> >& gridSearchResult)
 {
-    const PointSet<Real>& d0 = nsearch.point_set(0);
+    const PointSet& d0 = nsearch.point_set(0);
 
     for(int i = 0; i < d0.n_points(); ++i)
     {
@@ -167,10 +163,10 @@ void compare_with_grid_search(NeighborhoodSearch<Real> const& nsearch, std::vect
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void compare_single_query_with_bruteforce_search(NeighborhoodSearch<Real>& nsearch)
+void compare_single_query_with_bruteforce_search(NeighborhoodSearch& nsearch)
 {
-    std::vector<std::vector<unsigned int> > neighbors;
-    const PointSet<Real>&                   d0                    = nsearch.point_set(0);
+    Vector<Vector<UInt> > neighbors;
+    const PointSet&                   d0                    = nsearch.point_set(0);
     auto                                    brute_force_neighbors = brute_force_search(d0.n_points());
 
     for(int i = 0; i < d0.n_points(); ++i)
@@ -196,7 +192,7 @@ void compare_single_query_with_bruteforce_search(NeighborhoodSearch<Real>& nsear
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-Vec3<Real> enright_velocity_field(Vec3<Real> const& x)
+Vec3r enright_velocity_field(Vec3r const& x)
 {
     Real sin_pi_x_2 = std::sin(Real(M_PI) * x[0]);
     Real sin_pi_y_2 = std::sin(Real(M_PI) * x[1]);
@@ -209,7 +205,7 @@ Vec3<Real> enright_velocity_field(Vec3<Real> const& x)
     Real sin_2_pi_y = static_cast<Real>(std::sin(Real(2.0 * M_PI) * x[1]));
     Real sin_2_pi_z = static_cast<Real>(std::sin(Real(2.0 * M_PI) * x[2]));
 
-    return Vec3<Real>(static_cast<Real>(2.0) * sin_pi_x_2 * sin_2_pi_y * sin_2_pi_z,
+    return Vec3r(static_cast<Real>(2.0) * sin_pi_x_2 * sin_2_pi_y * sin_2_pi_z,
                       -sin_2_pi_x * sin_pi_y_2 * sin_2_pi_z,
                       -sin_2_pi_x * sin_2_pi_y * sin_pi_z_2);
 }
@@ -220,8 +216,8 @@ void advect()
     const Real timestep = Real(0.01);
     ParallelFuncs::parallel_for<size_t>(0, positions.size(), [&](size_t i)
                                         {
-                                            Vec3<Real>& x = positions[i];
-                                            Vec3<Real> v = enright_velocity_field(x);
+                                            Vec3r& x = positions[i];
+                                            Vec3r v = enright_velocity_field(x);
                                             x[0] += timestep * v[0];
                                             x[1] += timestep * v[1];
                                             x[2] += timestep * v[1];
@@ -235,13 +231,13 @@ TEST_CASE("Test CompactNSearch", "[CompactNSearch]")
     Real max_x = std::numeric_limits<Real>::min();
     positions.reserve(N * N * N);
 
-    for(unsigned int i = 0; i < N; ++i)
+    for(UInt i = 0; i < N; ++i)
     {
-        for(unsigned int j = 0; j < N; ++j)
+        for(UInt j = 0; j < N; ++j)
         {
-            for(unsigned int k = 0; k < N; ++k)
+            for(UInt k = 0; k < N; ++k)
             {
-                Vec3<Real> x = Vec3<Real>(r_omega * (2.0 * static_cast<Real>(i) / static_cast<Real>(N - 1) - 1.0),
+                Vec3r x = Vec3r(r_omega * (2.0 * static_cast<Real>(i) / static_cast<Real>(N - 1) - 1.0),
                                           r_omega * (2.0 * static_cast<Real>(j) / static_cast<Real>(N - 1) - 1.0),
                                           r_omega * (2.0 * static_cast<Real>(k) / static_cast<Real>(N - 1) - 1.0));
 
@@ -265,7 +261,7 @@ TEST_CASE("Test CompactNSearch", "[CompactNSearch]")
     }
     std::random_shuffle(positions.begin(), positions.end());
 
-    NeighborhoodSearch<Real> nsearch(radius, true);
+    NeighborhoodSearch nsearch(radius, true);
     nsearch.add_point_set(glm::value_ptr(positions.front()), positions.size(), true, true);
     //nsearch.add_point_set(glm::value_ptr(positions.front()), positions.size(), true, true);
 
@@ -277,9 +273,9 @@ TEST_CASE("Test CompactNSearch", "[CompactNSearch]")
     }
 
     //nsearch.update_point_sets();
-    //std::vector<std::vector<unsigned int> > neighbors2;
+    //Vector<Vector<UInt> > neighbors2;
     //nsearch.find_neighbors(0, 1, neighbors2);
-    //std::vector<std::vector<unsigned int> > neighbors3;
+    //Vector<Vector<UInt> > neighbors3;
     //nsearch.find_neighbors(1, 2, neighbors3);
 
     std::cout << "#Points                                = " << NumberHelpers::formatWithCommas(positions.size()) << std::endl;
@@ -319,7 +315,7 @@ TEST_CASE("Test CompactNSearch", "[CompactNSearch]")
     ////////////////////////////////////////////////////////////////////////////////
     // search using grid3d
 #ifdef TEST_GRID3D
-    std::vector<std::vector<unsigned int> > neighborsByCell(positions.size());
+    Vector<Vector<UInt> > neighborsByCell(positions.size());
 
     {
         auto t0 = Clock::now();

@@ -17,6 +17,7 @@
 
 #pragma once
 
+#include <Banana/Setup.h>
 #include <Banana/Utils/MathHelpers.h>
 #include <Banana/Utils/NumberHelpers.h>
 #include <string>
@@ -30,7 +31,6 @@ namespace Banana
 class Logger;
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
 struct GlobalParameters
 {
     Real frameDuration = Real(1.0 / DEFAULT_FRAME_RATE);
@@ -41,14 +41,14 @@ struct GlobalParameters
     UInt nThreads      = 0;
 
     ////////////////////////////////////////////////////////////////////////////////
-    bool        bLoadMemoryState  = true;
-    bool        bSaveParticleData = false;
-    bool        bSaveMemoryState  = false;
-    UInt      framePerState     = 1;
-    std::string dataPath          = std::string("./SimData");
+    bool   bLoadMemoryState  = true;
+    bool   bSaveParticleData = false;
+    bool   bSaveMemoryState  = false;
+    UInt   framePerState     = 1;
+    String dataPath          = String("./SimData");
 
-    bool   bApplyGravity       = true;
-    bool   bEnableSortParticle = false;
+    bool bApplyGravity       = true;
+    bool bEnableSortParticle = false;
     UInt sortFrequency       = DEFAULT_FRAME_RATE;
 
     ////////////////////////////////////////////////////////////////////////////////

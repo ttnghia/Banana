@@ -18,7 +18,6 @@
 #pragma once
 
 #include <Banana/Setup.h>
-#include <Banana/ParallelHelpers/ParallelFuncs.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -43,12 +42,6 @@ public:
     UInt getNumTotalCells() const noexcept { return m_NumTotalCells; }
     const Vec2ui& getNumCells() const noexcept { return m_NumCells; }
 
-    template<class IndexType>
-    IndexType getLinearizedIndex(IndexType i, IndexType j) const
-    {
-        return j * static_cast<IndexType>(getNumCellX()) + i;
-    }
-
     ////////////////////////////////////////////////////////////////////////////////
     virtual void setCellSize(Real cellSize);
     Real getCellSize() const noexcept { return m_CellSize; }
@@ -56,29 +49,58 @@ public:
     Real getCellSizeSquared() const noexcept { return m_CellSizeSqr; }
 
     ////////////////////////////////////////////////////////////////////////////////
-    bool isInsideGrid(const Vec2r& ppos) const noexcept;
+    template<class IndexType>
+    IndexType getLinearizedIndex(IndexType i, IndexType j) const
+    {
+        return j * static_cast<IndexType>(getNumCellX()) + i;
+    }
 
     template<class IndexType>
-    bool isValidCell(IndexType i, IndexType j, IndexType k)  const noexcept;
+    bool isValidCell(IndexType i, IndexType j, IndexType k)  const noexcept
+    {
+        return (i >= 0 &&
+                j >= 0 &&
+                k >= 0 &&
+                static_cast<UInt>(i) < m_NumCells[0] &&
+                static_cast<UInt>(j) < m_NumCells[1] &&
+                static_cast<UInt>(k) < m_NumCells[2]);
+    }
 
     template<class IndexType>
-    bool isValidCell(const Vec2<IndexType>& index) const noexcept;
-
-    ////////////////////////////////////////////////////////////////////////////////
-    Vec2r getGridCoordinate(const Vec2r& ppos) const { return (ppos - m_BMin) / m_CellSize; }
-
-    template<class IndexType>
-    Vec2<IndexType> getCellIdx(const Vec2r& ppos) const noexcept;
+    bool isValidCell(const Vec2<IndexType>& index) const noexcept
+    {
+        return isValidCell(index[0], index[1], index[2]);
+    }
 
     template<class IndexType>
-    Vec2<IndexType> getValidCellIdx(const Vec2r& ppos) const noexcept;
+    Vec2<IndexType> getCellIdx(const Vec2r& ppos) const noexcept
+    {
+        return Vec2<IndexType>(static_cast<IndexType>((ppos[0] - m_BMin[0]) / m_CellSize),
+                               static_cast<IndexType>((ppos[1] - m_BMin[1]) / m_CellSize));
+    }
 
     template<class IndexType>
-    Vec2<IndexType> getNearestValidCellIdx(const Vec2<IndexType>& cellIdx) const noexcept;
+    Vec2<IndexType> getValidCellIdx(const Vec2r& ppos) const noexcept
+    {
+        return getNearestValidCellIdx<IndexType>(getCellIdx<IndexType>(ppos));
+    }
+
+    template<class IndexType>
+    Vec2<IndexType> getNearestValidCellIdx(const Vec2<IndexType>& cellIdx) const noexcept
+    {
+        Vec2<IndexType> nearestCellIdx;
+
+        for(int i = 0; i < 3; ++i)
+            nearestCellIdx[i] = std::max<IndexType>(0, std::min<IndexType>(cellIdx[i], static_cast<IndexType>(m_NumCells[i]) - 1));
+
+        return nearestCellIdx;
+    }
 
     ////////////////////////////////////////////////////////////////////////////////
     // particle processing
+    bool isInsideGrid(const Vec2r& ppos) const noexcept;
     void constraintToGrid(Vec_Vec2r& particles);
+    Vec2r getGridCoordinate(const Vec2r& ppos) const { return (ppos - m_BMin) / m_CellSize; }
 
 protected:
     Vec2r  m_BMin          = Vec2r(0);

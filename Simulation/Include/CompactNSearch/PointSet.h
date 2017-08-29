@@ -17,19 +17,19 @@
 
 #pragma once
 
+#include <Banana/Setup.h>
 #include <iostream>
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
 class NeighborhoodSearch;
 
 /**
  * @class PointSet.
  * Represents a set of points in three-dimensional space.
  */
-template<class Real>
 class PointSet
 {
 public:
@@ -65,9 +65,9 @@ public:
      * @param i Point index.
      * @returns Number of points neighboring point i in point set point_set.
      */
-    std::size_t n_neighbors(unsigned int point_set, unsigned int i) const
+    std::size_t n_neighbors(UInt point_set, UInt i) const
     {
-        return static_cast<unsigned int>(m_neighbors[point_set][i].size());
+        return static_cast<UInt>(m_neighbors[point_set][i].size());
     }
 
     /**
@@ -76,7 +76,7 @@ public:
      * @param i Point index for which the neighbors should be returned.
      * @returns Indices of neighboring point i in point set point_set.
      */
-    const std::vector<unsigned int>& neighbors(unsigned int point_set, unsigned int i) const
+    const Vec_UInt& neighbors(UInt point_set, UInt i) const
     {
         return m_neighbors[point_set][i];
     }
@@ -88,7 +88,7 @@ public:
      * @param k Represents kth neighbor of point i.
      * @returns Index of neighboring point i in point set point_set.
      */
-    unsigned int neighbor(unsigned int point_set, unsigned int i, unsigned int k) const
+    UInt neighbor(UInt point_set, UInt i, UInt k) const
     {
         return m_neighbors[point_set][i][k];
     }
@@ -114,10 +114,27 @@ public:
      * "Neighborhood search" has to be called beforehand.
      */
     template<class T>
-    void sort_field(T* lst) const;
+    void sort_field(T* lst) const
+    {
+        if(m_sort_table.empty())
+        {
+            std::cerr << "WARNING: No sort table was generated for the current point set. "
+                      << "First invoke the method 'z_sort' of the class 'NeighborhoodSearch.'" << std::endl;
+            return;
+        }
+
+        Vector<T> tmp(lst, lst + m_sort_table.size());
+        std::transform(m_sort_table.begin(), m_sort_table.end(),
+#ifdef _MSC_VER
+                       stdext::unchecked_array_iterator<T*>(lst),
+#else
+                       lst,
+#endif
+                       [&](int i){ return tmp[i]; });
+    }
 
 private:
-    friend NeighborhoodSearch<Real>;
+    friend NeighborhoodSearch;
     PointSet(Real const* x, std::size_t n, bool dynamic)
         : m_x(x), m_n(n), m_dynamic(dynamic), m_neighbors(n)
         , m_keys(n,
@@ -147,7 +164,7 @@ private:
         m_neighbors.resize(n);
     }
 
-    Real const* point(unsigned int i) const { return &m_x[3 * i]; }
+    Real const* point(UInt i) const { return &m_x[3 * i]; }
 
 private:
 
@@ -155,34 +172,12 @@ private:
     std::size_t m_n;
     bool        m_dynamic;
 
-    std::vector<std::vector<std::vector<unsigned int> > > m_neighbors;
+    Vector<Vector<Vec_UInt> > m_neighbors;
 
-    std::vector<HashKey>                m_keys, m_old_keys;
-    std::vector<std::vector<Spinlock> > m_locks;
-    std::vector<unsigned int>           m_sort_table;
+    Vector<HashKey>           m_keys, m_old_keys;
+    Vector<Vector<Spinlock> > m_locks;
+    Vec_UInt                  m_sort_table;
 };
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-template<class T> void
-PointSet<Real>::sort_field(T* lst) const
-{
-    if(m_sort_table.empty())
-    {
-        std::cerr << "WARNING: No sort table was generated for the current point set. "
-                  << "First invoke the method 'z_sort' of the class 'NeighborhoodSearch.'" << std::endl;
-        return;
-    }
-
-    std::vector<T> tmp(lst, lst + m_sort_table.size());
-    std::transform(m_sort_table.begin(), m_sort_table.end(),
-#ifdef _MSC_VER
-                   stdext::unchecked_array_iterator<T*>(lst),
-#else
-                   lst,
-#endif
-                   [&](int i){ return tmp[i]; });
-}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana

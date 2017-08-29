@@ -27,9 +27,6 @@
     <ClInclude Include="Include\ParticleTools\AnisotropicKernelGenerator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\ParticleSolvers\ParticleSolverInterface.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Include\ParticleSolvers\SPH\KernelFunctions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -43,9 +40,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Include\ParticleTools\AnisotropicKernelGenerator.Impl.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\ParticleTools\ParticleHelpers.Impl.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Include\ParticleSolvers\_ParticleSolvers.Test.hpp">
@@ -85,9 +79,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Include\CompactNSearch\Morton\Morton3D_LUTs.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\CompactNSearch\CompactNSearch.Impl.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Include\ParticleSolvers\SPH\WCSPH\WCSPHSolver.h">
@@ -189,9 +180,6 @@
     <ClInclude Include="Include\ParticleSolvers\MPM.bk\TimeIntegration.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\SimulationObjects\BoundaryObjects\BoundaryObjectInterface.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Include\SimulationObjects\BoundaryObjects\BoundaryObjects">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -246,9 +234,24 @@
     <ClInclude Include="Include\SimulationObjects\ParticleObjects\ParticleObjects">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Include\ParticleSolvers\ParticleSolver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\SimulationObjects\BoundaryObjects\BoundaryObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Include\ParticleTools\_ParticleTools.Test.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Include\CompactNSearch\CompactNSearch.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Include\ParticleSolvers\ParticleSolver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Include\SimulationObjects\BoundaryObjects\BoxBoundaryObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

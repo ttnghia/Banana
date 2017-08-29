@@ -35,6 +35,7 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
 {
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #define INITIAL_NUMBER_OF_NEIGHBORS 50
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -48,7 +49,7 @@ struct NeighborhoodSearchNotInitialized : public std::exception
  * Stores point data multiple set of points in which neighborhood information for a fixed
  * radius r should be generated.
  */
-template<class Real>
+
 class NeighborhoodSearch
 {
 public:
@@ -70,13 +71,13 @@ public:
      * Get method to access a point set.
      * @param i Index of the point set to retrieve.
      */
-    const PointSet<Real>& point_set(unsigned int i) const { return m_point_sets[i]; }
+    const PointSet& point_set(UInt i) const { return m_point_sets[i]; }
 
     /**
      * Get method to access a point set.
      * @param i Index of the point set to retrieve.
      */
-    PointSet<Real>& point_set(unsigned int i)       { return m_point_sets[i]; }
+    PointSet& point_set(UInt i)       { return m_point_sets[i]; }
 
 
     /**
@@ -87,12 +88,12 @@ public:
     /**
      * Get method to access the list of point sets.
      */
-    std::vector<PointSet<Real> > const& point_sets() const { return m_point_sets; }
+    Vector<PointSet> const& point_sets() const { return m_point_sets; }
 
     /**
      * Get method to access the list of point sets.
      */
-    std::vector<PointSet<Real> >& point_sets()       { return m_point_sets; }
+    Vector<PointSet>& point_sets()       { return m_point_sets; }
 
     /**
      * Increases the size of a point set under the assumption that the existing points remain at
@@ -102,7 +103,7 @@ public:
      * real values.
      * @param n Number of points.
      */
-    void resize_point_set(unsigned int i, Real const* x, std::size_t n);
+    void resize_point_set(UInt i, Real const* x, std::size_t n);
 
     /**
      * Creates and adds a new set of points.
@@ -115,12 +116,12 @@ public:
      * @returns Returns unique identifier in form of an index assigned to the newly created point
      * set.
      */
-    unsigned int add_point_set(Real const* x, std::size_t n, bool is_dynamic = true,
-                               bool search_neighbors = true, bool find_neighbors = true)
+    UInt add_point_set(Real const* x, std::size_t n, bool is_dynamic = true,
+                       bool search_neighbors = true, bool find_neighbors = true)
     {
         m_point_sets.push_back({ x, n, is_dynamic });
         m_activation_table.add_point_set(search_neighbors, find_neighbors);
-        return static_cast<unsigned int>(m_point_sets.size() - 1);
+        return static_cast<UInt>(m_point_sets.size() - 1);
     }
 
     /**
@@ -133,7 +134,7 @@ public:
      * Performs the actual query for a single point. This method return a list of neighboring points. Note: That points_changed() must be called each time
      * when the positions of a point set changed.
      */
-    void find_neighbors(unsigned int point_set_id, unsigned int point_index, std::vector<std::vector<unsigned int> >& neighbors);
+    void find_neighbors(UInt point_set_id, UInt point_index, Vec_VecUInt& neighbors);
 
     /**
      * Update neighborhood search data structures after a position change.
@@ -182,7 +183,7 @@ public:
      *   @param j Index of point set of which points should/shouldn't be found by point set i.
      *   @param active Flag in order to (de)activate that points in i find point in j.
      */
-    void set_active(unsigned int i, unsigned int j, bool active)
+    void set_active(UInt i, UInt j, bool active)
     {
         m_activation_table.set_active(i, j, active);
     }
@@ -193,7 +194,7 @@ public:
      *   @param search_neighbors If true/false enables/disables that point set i searches points in all other point sets.
      *   @param find_neighbors If true/false enable/disables that point set i is found by all other point sets.
      */
-    void set_active(unsigned int i, bool search_neighbors = true, bool find_neighbors = true)
+    void set_active(UInt i, bool search_neighbors = true, bool find_neighbors = true)
     {
         m_activation_table.set_active(i, search_neighbors, find_neighbors);
     }
@@ -209,36 +210,40 @@ public:
      *   @param i Searching point set.
      *   @param j Set of points to be found by i.
      */
-    bool is_active(unsigned int i, unsigned int j) const
+    bool is_active(UInt i, UInt j) const
     {
         return m_activation_table.is_active(i, j);
     }
 
 private:
     void init();
-    void update_hash_table(std::vector<unsigned int>& to_delete);
-    void erase_empty_entries(std::vector<unsigned int> const& to_delete);
+    void update_hash_table(Vec_UInt& to_delete);
+    void erase_empty_entries(Vec_UInt const& to_delete);
     void query();
-    void query(unsigned int point_set_id, unsigned int point_index, std::vector<std::vector<unsigned int> >& neighbors);
+    void query(UInt point_set_id, UInt point_index, Vec_VecUInt& neighbors);
 
     HashKey cell_index(Real const* x) const;
 
-private:
-    std::vector<PointSet<Real> > m_point_sets;
-    ActivationTable              m_activation_table, m_old_activation_table;
+    // Determines Morten value according to z-curve.
+    inline uint_fast64_t z_value(HashKey const& key)
+    {
+        return morton3D_64_encode(static_cast<uint_fast32_t>(static_cast<int64_t>(key.k[0]) - (std::numeric_limits<int>::lowest() + 1)),
+                                  static_cast<uint_fast32_t>(static_cast<int64_t>(key.k[1]) - (std::numeric_limits<int>::lowest() + 1)),
+                                  static_cast<uint_fast32_t>(static_cast<int64_t>(key.k[2]) - (std::numeric_limits<int>::lowest() + 1)));
+    }
+
+    Vector<PointSet> m_point_sets;
+    ActivationTable  m_activation_table, m_old_activation_table;
 
     Real m_inv_cell_size;
     Real m_r2;
 
-    std::unordered_map<HashKey, unsigned int, SpatialHasher> m_map;
-    std::vector<HashEntry>                                   m_entries;
+    std::unordered_map<HashKey, UInt, SpatialHasher> m_map;
+    Vector<HashEntry>                                m_entries;
 
     bool m_erase_empty_cells;
     bool m_initialized;
 };
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <CompactNSearch/CompactNSearch.Impl.hpp>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana
