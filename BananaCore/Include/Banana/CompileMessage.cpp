@@ -19,25 +19,25 @@
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #ifdef BANANA_DOUBLE_PRECISION
-#  pragma message("Compile Banana with double precision floating point number.")
+__BNN_COMPILER_MESSAGE("Compile Banana with double precision floating point number.")
 #else
-#  pragma message("Compile Banana with single precision floating point number.")
+__BNN_COMPILER_MESSAGE("Compile Banana with single precision floating point number.")
 #endif
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #if defined(__clang__)
-#  pragma message("Compiler: clang")
+__BNN_COMPILER_MESSAGE("Compiler: clang")
 #elif defined(__ICC) || defined(__INTEL_COMPILER)
-#  pragma message("Compiler: Intel")
+__BNN_COMPILER_MESSAGE("Compiler: Intel")
 #elif defined(__GNUC__) || defined(__GNUG__)
-#  pragma message("Compiler: GNU")
+__BNN_COMPILER_MESSAGE("Compiler: GNU")
 #elif defined(_MSC_VER)
-#  pragma message("Compiler: Visual Studio C++")
+__BNN_COMPILER_MESSAGE("Compiler: Visual Studio C++")
 #endif
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #ifdef NDEBUG
-#  pragma message("Config: Release")
+__BNN_COMPILER_MESSAGE("Config: Release")
 #else
-#  pragma message("Config: Debug")
+__BNN_COMPILER_MESSAGE("Config: Debug")
 #endif
