@@ -181,7 +181,7 @@
     <ClCompile Include="Include\Banana\Grid\Grid2DHashing.cpp" />
     <ClCompile Include="Include\Banana\Grid\Grid3D.cpp" />
     <ClCompile Include="Include\Banana\Grid\Grid3DHashing.cpp" />
-    <ClCompile Include="Source\Utils\Logger.cpp" />
+    <ClCompile Include="Include\Banana\Utils\Logger.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

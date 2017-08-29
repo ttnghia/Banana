@@ -17,10 +17,7 @@
 #include <Banana/Grid/Grid2D.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace Banana
-{
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Grid2D::setGrid(const Vec2r& bMin, const Vec2r& bMax, Real cellSize)
+void Banana::Grid2D::setGrid(const Vec2r& bMin, const Vec2r& bMax, Real cellSize)
 {
     m_BMin = bMin;
     m_BMax = bMax;
@@ -28,7 +25,7 @@ void Grid2D::setGrid(const Vec2r& bMin, const Vec2r& bMax, Real cellSize)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Grid2D::setCellSize(Real cellSize)
+void Banana::Grid2D::setCellSize(Real cellSize)
 {
     assert(cellSize > 0);
     m_CellSize      = cellSize;
@@ -44,7 +41,7 @@ void Grid2D::setCellSize(Real cellSize)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-bool Grid2D::isInsideGrid(const Vec2r& ppos) const noexcept
+bool Banana::Grid2D::isInsideGrid(const Vec2r& ppos) const noexcept
 {
     for(int i = 0; i < 3; ++i)
     {
@@ -57,7 +54,7 @@ bool Grid2D::isInsideGrid(const Vec2r& ppos) const noexcept
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class IndexType>
-bool Grid2D::isValidCell(IndexType i, IndexType j, IndexType k)  const noexcept
+bool Banana::Grid2D::isValidCell(IndexType i, IndexType j, IndexType k)  const noexcept
 {
     return (i >= 0 &&
             j >= 0 &&
@@ -68,14 +65,14 @@ bool Grid2D::isValidCell(IndexType i, IndexType j, IndexType k)  const noexcept
 }
 
 template<class IndexType>
-bool Grid2D::isValidCell(const Vec2<IndexType>& index)  const noexcept
+bool Banana::Grid2D::isValidCell(const Vec2<IndexType>& index)  const noexcept
 {
     return isValidCell(index[0], index[1], index[2]);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class IndexType>
-Vec2<IndexType> Grid2D::getCellIdx(const Vec2r& ppos)  const noexcept
+Vec2<IndexType> Banana::Grid2D::getCellIdx(const Vec2r& ppos)  const noexcept
 {
     return Vec2<IndexType>(static_cast<IndexType>((ppos[0] - m_BMin[0]) / m_CellSize),
                            static_cast<IndexType>((ppos[1] - m_BMin[1]) / m_CellSize));
@@ -83,14 +80,14 @@ Vec2<IndexType> Grid2D::getCellIdx(const Vec2r& ppos)  const noexcept
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class IndexType>
-Vec2<IndexType> Grid2D::getValidCellIdx(const Vec2r& ppos)  const noexcept
+Vec2<IndexType> Banana::Grid2D::getValidCellIdx(const Vec2r& ppos)  const noexcept
 {
     return getNearestValidCellIdx<IndexType>(getCellIdx<IndexType>(ppos));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class IndexType>
-Vec2<IndexType> Grid2D::getNearestValidCellIdx(const Vec2<IndexType>& cellIdx) const noexcept
+Vec2<IndexType> Banana::Grid2D::getNearestValidCellIdx(const Vec2<IndexType>& cellIdx) const noexcept
 {
     Vec2<IndexType> nearestCellIdx;
 
@@ -101,7 +98,7 @@ Vec2<IndexType> Grid2D::getNearestValidCellIdx(const Vec2<IndexType>& cellIdx) c
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Banana::Grid2D::constraintToGrid(Vec_Vec2r& particles)
+void Banana::Banana::Grid2D::constraintToGrid(Vec_Vec2r& particles)
 {
     const Real  epsilon = 1e-9;
     const Vec2r minPos  = m_BMin + Vec2r(epsilon);
@@ -126,6 +123,3 @@ void Banana::Grid2D::constraintToGrid(Vec_Vec2r& particles)
                                                 particles[p] = pos;
                                         });
 }
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-} // end namespace Banana

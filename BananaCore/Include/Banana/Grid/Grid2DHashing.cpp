@@ -18,17 +18,14 @@
 #include <Banana/Grid/Grid2DHashing.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace Banana
-{
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Grid2DHashing::setCellSize(Real cellSize)
+void Banana::Grid2DHashing::setCellSize(Real cellSize)
 {
     Grid2D::setCellSize(cellSize);
     m_bCellIdxNeedResize = true;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Grid2DHashing::collectIndexToCells(const Vec_Vec2r& particles)
+void Banana::Grid2DHashing::collectIndexToCells(const Vec_Vec2r& particles)
 {
     if(m_bCellIdxNeedResize)
     {
@@ -149,6 +146,3 @@ void Banana::Grid2DHashing::sortData(Vec_Vec2r& data)
 #endif
                    [&](UInt i) { return tmp[i]; });
 }
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-} // end namespace Banana

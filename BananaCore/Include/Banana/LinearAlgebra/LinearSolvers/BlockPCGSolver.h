@@ -17,7 +17,7 @@
 
 #pragma once
 
-#include <Banana/LinearAlgebra/BlockSparseMatrix.h>
+#include <Banana/LinearAlgebra/SparseMatrix/BlockSparseMatrix.h>
 #include <Banana/ParallelHelpers/ParallelBLAS.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -47,9 +47,9 @@ private:
     FixedBlockSparseMatrix<MatrixType> m_FixedSparseMatrix;
 
     // parameters
-    Real   m_ToleranceFactor = 1e-20;
+    Real m_ToleranceFactor = 1e-20;
     UInt m_MaxIterations   = 10000;
-    bool   m_bZeroInitial    = true;
+    bool m_bZeroInitial    = true;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

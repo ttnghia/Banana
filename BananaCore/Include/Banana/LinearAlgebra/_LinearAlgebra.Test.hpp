@@ -14,11 +14,11 @@
 //
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <Banana/LinearAlgebra/BlockPCGSolver.h>
-#include <Banana/LinearAlgebra/BlockSparseMatrix.h>
+#include <Banana/LinearAlgebra/SparseMatrix/BlockSparseMatrix.h>
+#include <Banana/LinearAlgebra/SparseMatrix/SparseMatrix.h>
 
-#include <Banana/LinearAlgebra/PCGSolver.h>
-#include <Banana/LinearAlgebra/SparseMatrix.h>
+#include <Banana/LinearAlgebra/LinearSolvers/BlockPCGSolver.h>
+#include <Banana/LinearAlgebra/LinearSolvers/PCGSolver.h>
 
 #include <Banana/Setup.h>
 

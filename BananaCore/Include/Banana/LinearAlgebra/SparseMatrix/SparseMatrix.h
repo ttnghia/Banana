@@ -34,7 +34,6 @@ namespace Banana
 template<class Real>
 class SparseMatrix
 {
-    __BNN_SETUP_DATA_TYPE(Real)
 private:
     UInt m_Size;
 
@@ -81,7 +80,6 @@ public:
 template<class Real>
 class FixedSparseMatrix
 {
-    __BNN_SETUP_DATA_TYPE(Real)
 private:
     UInt m_Size;
 

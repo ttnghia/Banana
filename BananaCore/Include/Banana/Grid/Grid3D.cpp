@@ -18,9 +18,7 @@
 #include <Banana/Grid/Grid3D.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace Banana
-{
-void Grid3D::setGrid(const Vec3r& bMin, const Vec3r& bMax, Real cellSize)
+void Banana::Grid3D::setGrid(const Vec3r& bMin, const Vec3r& bMax, Real cellSize)
 {
     m_BMin = bMin;
     m_BMax = bMax;
@@ -28,7 +26,7 @@ void Grid3D::setGrid(const Vec3r& bMin, const Vec3r& bMax, Real cellSize)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Grid3D::setCellSize(Real cellSize)
+void Banana::Grid3D::setCellSize(Real cellSize)
 {
     assert(cellSize > 0);
     m_CellSize      = cellSize;
@@ -44,7 +42,7 @@ void Grid3D::setCellSize(Real cellSize)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-bool Grid3D::isInsideGrid(const Vec3r& ppos) const noexcept
+bool Banana::Grid3D::isInsideGrid(const Vec3r& ppos) const noexcept
 {
     for(int i = 0; i < 3; ++i)
     {
@@ -57,7 +55,7 @@ bool Grid3D::isInsideGrid(const Vec3r& ppos) const noexcept
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class IndexType>
-bool Grid3D::isValidCell(IndexType i, IndexType j, IndexType k)  const noexcept
+bool Banana::Grid3D::isValidCell(IndexType i, IndexType j, IndexType k)  const noexcept
 {
     return (i >= 0 &&
             j >= 0 &&
@@ -68,14 +66,14 @@ bool Grid3D::isValidCell(IndexType i, IndexType j, IndexType k)  const noexcept
 }
 
 template<class IndexType>
-bool Grid3D::isValidCell(const Vec3<IndexType>& index)  const noexcept
+bool Banana::Grid3D::isValidCell(const Vec3<IndexType>& index)  const noexcept
 {
     return isValidCell(index[0], index[1], index[2]);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class IndexType>
-Vec3<IndexType> Grid3D::getCellIdx(const Vec3r& ppos)  const noexcept
+Vec3<IndexType> Banana::Grid3D::getCellIdx(const Vec3r& ppos)  const noexcept
 {
     return Vec3<IndexType>(static_cast<IndexType>((ppos[0] - m_BMin[0]) / m_CellSize),
                            static_cast<IndexType>((ppos[1] - m_BMin[1]) / m_CellSize),
@@ -84,14 +82,14 @@ Vec3<IndexType> Grid3D::getCellIdx(const Vec3r& ppos)  const noexcept
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class IndexType>
-Vec3<IndexType> Grid3D::getValidCellIdx(const Vec3r& ppos)  const noexcept
+Vec3<IndexType> Banana::Grid3D::getValidCellIdx(const Vec3r& ppos)  const noexcept
 {
     return getNearestValidCellIdx<IndexType>(getCellIdx<IndexType>(ppos));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class IndexType>
-Vec3<IndexType> Grid3D::getNearestValidCellIdx(const Vec3<IndexType>& cellIdx) const noexcept
+Vec3<IndexType> Banana::Grid3D::getNearestValidCellIdx(const Vec3<IndexType>& cellIdx) const noexcept
 {
     Vec3<IndexType> nearestCellIdx;
 
@@ -127,6 +125,3 @@ void Banana::Grid3D::constraintToGrid(Vec_Vec3r& particles)
                                                 particles[p] = pos;
                                         });
 }
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-} // end namespace Banana

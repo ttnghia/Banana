@@ -34,7 +34,6 @@ namespace Banana
 template<class MatrixType>
 class BlockSparseMatrix
 {
-    __BNN_SETUP_DATA_TYPE(Real)
 private:
     UInt m_Size;
 
@@ -48,8 +47,8 @@ public:
     explicit BlockSparseMatrix(UInt size = 0) : m_Size(size), m_ColIndex(size), m_ColValue(size) {}
 
     UInt size() const noexcept;
-    void   resize(UInt newSize);
-    void   clear(void);
+    void resize(UInt newSize);
+    void clear(void);
 
     Vec_UInt&       getIndices(UInt row);
     Vec_Real&       getValues(UInt row);
@@ -110,9 +109,9 @@ public:
     explicit FixedBlockSparseMatrix(UInt size = 0) : m_Size(size), m_ColValue(0), m_ColIndex(0), m_RowStart(size + 1) {}
 
     UInt size() const noexcept;
-    void   resize(UInt newSize);
-    void   clear(void);
-    void   constructFromSparseMatrix(const BlockSparseMatrix<MatrixType>& fixedMatrix);
+    void resize(UInt newSize);
+    void clear(void);
+    void constructFromSparseMatrix(const BlockSparseMatrix<MatrixType>& fixedMatrix);
 
     Vec_UInt&       getIndices(UInt row);
     Vec_UInt&       getRowStarts(UInt row);
@@ -131,7 +130,7 @@ public:
 
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <Banana/LinearAlgebra/BlockSparseMatrix.Impl.hpp>
+#include <Banana/LinearAlgebra/SparseMatrix/BlockSparseMatrix.Impl.hpp>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana
