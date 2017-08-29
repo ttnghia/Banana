@@ -240,6 +240,9 @@
     <ClInclude Include="Include\SimulationObjects\BoundaryObjects\BoundaryObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Include\ParticleTools\ParticleHelpers.Impl.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Include\ParticleTools\_ParticleTools.Test.cpp">

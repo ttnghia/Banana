@@ -14,31 +14,140 @@
 //
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-Vec2i Banana::ParticleHelpers::createGrid<Real>(const Vec2<Real>& bmin, const Vec2<Real>& bmax, Real spacing)
+
+#include <ParticleTools/ParticleHelpers.h>
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+namespace Banana
 {
-    Vec2<Real> fgrid = (bmax - bmin) / spacing;
-    return Vec2i(static_cast<int>(round(fgrid[0])), static_cast<int>(round(fgrid[1])));
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class IndexType>
+Vec2<IndexType> ParticleHelpers::createGrid(const Vec2r& bmin, const Vec2r& bmax, Real spacing)
+{
+    Vec2r fgrid = (bmax - bmin) / spacing;
+    return Vec2<IndexType>(static_cast<IndexType>(round(fgrid[0])),
+                           static_cast<IndexType>(round(fgrid[1])));
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class IndexType>
+Vec3<IndexType> ParticleHelpers::createGrid<Real>(const Vec3r& bmin, const Vec3r& bmax, Real spacing)
+{
+    Vec3r fgrid = (bmax - bmin) / spacing;
+    return Vec3<IndexType>(static_cast<IndexType>(round(fgrid[0])),
+                           static_cast<IndexType>(round(fgrid[1])),
+                           static_cast<IndexType>(round(fgrid[2])));
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class VectorType>
+UInt ParticleHelpers::loadBinary(const String& fileName, Vector<VectorType>& particles, Real& particleRadius)
+{
+    DataBuffer buffer;
+    __BNN_ASSERT_MSG(FileHelpers::readFile(buffer.buffer(), fileName), "Could not open file for reading.");
+
+    UInt   dimension = sizeof(VectorType) / sizeof(Real);
+    float  fRadius;
+    UInt   numParticles;
+    UInt64 segmentStart = 0;
+    UInt64 segmentSize;
+
+    segmentSize = sizeof(UInt);
+    memcpy(&numParticles, &buffer.data()[segmentStart], segmentSize);
+    segmentStart += segmentSize;
+
+    segmentSize = sizeof(float);
+    memcpy(&fRadius, &buffer.data()[segmentStart], segmentSize);
+    segmentStart += segmentSize;
+
+    float* particleData = reinterpret_cast<float*>(&buffer.data()[segmentStart]);
+    __BNN_ASSERT(particleData != nullptr);
+    segmentSize   = numParticles * sizeof(float) * dimension;
+    segmentStart += segmentSize;
+    __BNN_ASSERT(segmentStart == buffer.size());
+
+    ////////////////////////////////////////////////////////////////////////////////
+    particles.reserve(particles.size() + static_cast<size_t>(numParticles));
+
+    for(UInt i = 0; i < numParticles; ++i)
+    {
+        VectorType ppos;
+        for(UInt j = 0; j < dimension; ++j)
+            ppos[j] = Real(particleData[i * dimension + j]);
+        particles.push_back(v);
+    }
+
+    return numParticles;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class Real, class VectorType>
+void ParticleHelpers::saveBinary<Real, VectorType>(const String& fileName, Vector<VectorType>& particles, Real& particleRadius)
+{
+    static_assert(sizeof(Real) * 2 == sizeof(VectorType) || sizeof(Real) * 3 == sizeof(VectorType), "Inconsistent type of particle radius and vector data!");
+
+    DataBuffer buffer;
+    buffer.append(static_cast<UInt>(particles.size()));
+    buffer.appendFloat(particleRadius);
+    buffer.appendFloatArray(particles, false);
+    FileHelpers::writeBinaryFile(fileName, buffer.buffer());
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class VectorType>
+void ParticleHelpers::jitter(VectorType& ppos, Real maxJitter)
+{
+    VectorType pjitter;
+    for(UInt j = 0; j < pjitter.length(); ++j)
+        pjitter[j] = MathHelpers::frand11<Real>();
+
+    ppos += maxJitter * pjitter;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class VectorType>
+void ParticleHelpers::clamp(VectorType& ppos, const VectorType& bmin, const VectorType& bmax, Real margin /*= 0*/)
+{
+    UInt dimension = sizeof(VectorType) / sizeof(Real);
+    for(UInt i = 0; i < dimension; ++i)
+    {
+        if(ppos[i] < bmin[i] + margin ||
+           ppos[i] > bmax[i] - margin)
+            ppos[i] = MathHelpers::min(MathHelpers::max(ppos[i],
+                                                        bmin[i] + margin),
+                                       bmax[i] - margin);
+    }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class Real>
-Vec3i Banana::ParticleHelpers::createGrid<Real>(const Vec3<Real>& bmin, const Vec3<Real>& bmax, Real spacing)
+void ParticleHelpers::relaxPosition<Real>(const Vec_Vec3r& particles, RelaxationMethod method)
 {
-    Vec3<Real> fgrid = (bmax - bmin) / spacing;
-    return Vec3i(static_cast<int>(round(fgrid[0])), static_cast<int>(round(fgrid[1])), static_cast<int>(round(fgrid[2])));
+    if(method == LloydRelaxationMethod)
+    {
+        //x;
+        //LloydRelaxation lloyd(domainParams, particle_radius);
+        //lloyd.moving_percentage_threshold = samplingParams->movingPercentageThreshold;
+        //lloyd.overlap_ratio_threshold = samplingParams->overlapRatioThreshold;
+        //lloyd.remove_ratio_threshold = samplingParams->overlapRatioThreshold;
+
+        //lloyd.relax_particles(samples, particles, 10, 3000);
+    }
+    else
+    {
+        //x;
+    }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-void Banana::ParticleHelpers::transform<Real>(Vec_Vec3<Real>& particles, const Vec3<Real>& translation, const Vec3<Real>& rotation)
+void transform(Vec_Vec3r& particles, const Vec3r& translation, const Vec3r& rotation)
 {
     Real azimuth = rotation[0];
     Real elevation = rotation[1];
     Real roll = rotation[2];
     Real sinA, cosA, sinE, cosE, sinR, cosR;
 
-    Vec3<Real> R[3];
+    Vec3r R[3];
 
     sinA = (Real)sin(azimuth);
     cosA = (Real)cos(azimuth);
@@ -66,141 +175,11 @@ void Banana::ParticleHelpers::transform<Real>(Vec_Vec3<Real>& particles, const V
         for(int j = 0; j < 3; ++j)
             tmp[j] = glm::dot(R[j], particles[i]);
 
-        particles[i] = Vec3<Real>(tmp[0] + translation[0],
-                                  tmp[1] + translation[1],
-                                  tmp[2] + translation[2]);
+        particles[i] = Vec3r(tmp[0] + translation[0],
+                             tmp[1] + translation[1],
+                             tmp[2] + translation[2]);
     }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-UInt Banana::ParticleHelpers::loadBinary<Real>(const std::string& fileName, Vec_Vec2<Real>& particles, Real& particleRadius)
-{
-    DataBuffer buffer;
-    __BNN_ASSERT_MSG(FileHelpers::readFile(buffer.buffer(), fileName), "Could not open file for reading.");
-
-    UInt numParticles;
-    UInt64 segmentStart = 0;
-    UInt64 segmentSize;
-
-    segmentSize = sizeof(UInt);
-    memcpy(&numParticles, &buffer.data()[segmentStart], segmentSize);
-    segmentStart += segmentSize;
-
-    segmentSize = sizeof(Real);
-    memcpy(&particleRadius, &buffer.data()[segmentStart], segmentSize);
-    segmentStart += segmentSize;
-
-    Real* particleData = reinterpret_cast<Real*>(&buffer.data()[segmentStart]);
-    __BNN_ASSERT(particleData != nullptr);
-    segmentSize   = numParticles * sizeof(Real) * 2;
-    segmentStart += segmentSize;
-    __BNN_ASSERT(segmentStart == buffer.size());
-
-    ////////////////////////////////////////////////////////////////////////////////
-    particles.reserve(particles.size() + static_cast<size_t>(numParticles));
-
-    for(UInt i = 0; i < numParticles; ++i)
-    {
-        particles.emplace_back(Vec2<Real>(particleData[i * 2],
-                                          particleData[i * 2 + 1]));
-    }
-
-    return numParticles;
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-UInt Banana::ParticleHelpers::loadBinary<Real>(const std::string& fileName, Vec_Vec3<Real>& particles, Real& particleRadius)
-{
-    DataBuffer buffer;
-    __BNN_ASSERT_MSG(FileHelpers::readFile(buffer.buffer(), fileName), "Could not open file for reading.");
-
-    UInt numParticles;
-    UInt64 segmentStart = 0;
-    UInt64 segmentSize;
-
-    segmentSize = sizeof(UInt);
-    memcpy(&numParticles, &buffer.data()[segmentStart], segmentSize);
-    segmentStart += segmentSize;
-
-    segmentSize = sizeof(Real);
-    memcpy(&particleRadius, &buffer.data()[segmentStart], segmentSize);
-    segmentStart += segmentSize;
-
-    Real* particleData = reinterpret_cast<Real*>(&buffer.data()[segmentStart]);
-    __BNN_ASSERT(particleData != nullptr);
-    segmentSize   = numParticles * sizeof(Real) * 3;
-    segmentStart += segmentSize;
-    __BNN_ASSERT(segmentStart == buffer.size());
-
-    ////////////////////////////////////////////////////////////////////////////////
-    particles.reserve(particles.size() + static_cast<size_t>(numParticles));
-
-    for(UInt i = 0; i < numParticles; ++i)
-    {
-        particles.emplace_back(Vec3<Real>(particleData[i * 3],
-                                          particleData[i * 3 + 1],
-                                          particleData[i * 3 + 2]));
-    }
-
-    return numParticles;
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real, class VectorType>
-void ParticleHelpers::saveBinary<Real, VectorType>(const std::string& fileName, std::vector<VectorType>& particles, Real& particleRadius)
-{
-    static_assert(sizeof(Real) * 2 == sizeof(VectorType) || sizeof(Real) * 3 == sizeof(VectorType), "Inconsistent type of particle radius and vector data!");
-
-    DataBuffer buffer;
-    UInt     numParticles = static_cast<UInt>(particles.size());
-
-    buffer.push_back(numParticles);
-    buffer.push_back(particleRadius);
-    buffer.pushFloatArray(particles, false);
-
-    FileHelpers::writeBinaryFile(fileName, buffer.buffer());
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-void Banana::ParticleHelpers::jitter<Real>(Vec3<Real>& ppos, Real maxJitter)
-{
-    ppos += maxJitter * Vec3<Real>(MathHelpers::frand11<Real>(),
-                                   MathHelpers::frand11<Real>(),
-                                   MathHelpers::frand11<Real>())
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-void Banana::ParticleHelpers::clamp<Real>(Vec3<Real>& ppos, const Vec3<Real>& bmin, const Vec3<Real>& bmax, Real margin /*= 0*/)
-{
-    for(int i = 0; i < 3; ++i)
-    {
-        if(ppos[i] < bmin[i] + margin ||
-           ppos[i] > bmax[i] - margin)
-            ppos[i] = MathHelpers::min(MathHelpers::max(ppos[i], bmin[i] + margin),
-                                       bmax[i] - margin);
-    }
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-void Banana::ParticleHelpers::relaxPosition<Real>(const Vec_Vec3<Real>& particles, RelaxationMethod method)
-{
-    if(method == LloydRelaxationMethod)
-    {
-        //x;
-        //LloydRelaxation lloyd(domainParams, particle_radius);
-        //lloyd.moving_percentage_threshold = samplingParams->movingPercentageThreshold;
-        //lloyd.overlap_ratio_threshold = samplingParams->overlapRatioThreshold;
-        //lloyd.remove_ratio_threshold = samplingParams->overlapRatioThreshold;
-
-        //lloyd.relax_particles(samples, particles, 10, 3000);
-    }
-    else
-    {
-        //x;
-    }
-}
+} // end namespace Banana

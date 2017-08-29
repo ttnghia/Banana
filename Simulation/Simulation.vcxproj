@@ -166,6 +166,7 @@
     <ClInclude Include="Include\ParticleTools\BlueNoiseRelaxation\LloydRelaxation.h" />
     <ClInclude Include="Include\ParticleTools\BlueNoiseRelaxation\SPHBasedRelaxation.Impl.hpp" />
     <ClInclude Include="Include\ParticleSolvers\SPH\KernelFunctions.h" />
+    <ClInclude Include="Include\ParticleTools\ParticleHelpers.Impl.hpp" />
     <ClInclude Include="Include\SimulationObjects\BoundaryObjects\BoundaryObject.h" />
     <ClInclude Include="Include\SimulationObjects\BoundaryObjects\BoundaryObjects" />
     <ClInclude Include="Include\SimulationObjects\BoundaryObjects\BoxBoundaryObject.h" />
