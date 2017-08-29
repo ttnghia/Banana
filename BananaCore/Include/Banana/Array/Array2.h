@@ -148,6 +148,12 @@ public:
         return m_SizeX == other.m_SizeX && m_SizeY == other.m_SizeY;
     }
 
+    void copyDataFrom(const Array2<T>& other)
+    {
+        assert(equalSize(other));
+        m_Data = other.m_Data;
+    }
+
     void assign(const T& value)
     {
         m_Data.assign(m_Data.size(), value);

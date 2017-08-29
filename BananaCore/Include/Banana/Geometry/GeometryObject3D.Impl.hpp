@@ -449,7 +449,7 @@ void cycle_array(RealType* arr, int size)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-void Banana::GeometryObjects::TriMeshObject<RealType>::makeSDF()
+void Banana::GeometryObject3D::TriMeshObject<RealType>::makeSDF()
 {
     ////////////////////////////////////////////////////////////////////////////////
     // Load mesh
@@ -503,7 +503,7 @@ void Banana::GeometryObjects::TriMeshObject<RealType>::makeSDF()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-RealType Banana::GeometryObjects::TriMeshObject<RealType>::signedDistance(const Vec3<RealType>& ppos)
+RealType Banana::GeometryObject3D::TriMeshObject<RealType>::signedDistance(const Vec3<RealType>& ppos)
 {
     if(!m_bSDFReady)
         makeSDF();
@@ -512,5 +512,5 @@ RealType Banana::GeometryObjects::TriMeshObject<RealType>::signedDistance(const 
         return MAX_ABS_SIGNED_DISTANCE;
 
     auto cellIdx = m_Grid3D.getCellIdx<UInt32>(ppos);
-    return ArrayHelpers::interpolateLinear((ppos - m_Grid3D.getBMin()) / m_Step, m_SDFData);
+    return ArrayHelpers::interpolateValueLinear((ppos - m_Grid3D.getBMin()) / m_Step, m_SDFData);
 }

@@ -23,19 +23,19 @@ void Banana::FLIP3DSolver<RealType>::makeReady()
                            {
                                m_SimParams->makeReady();
                                m_SimParams->printParams(m_Logger);
-                               if(m_SimParams->kernelFunc == InterpolationKernel::Linear)
+                               if(m_SimParams->kernelFunc == SimulationParameters_FLIP3D<RealType>::Linear)
                                {
-                                   m_InterpolateValue = static_cast<RealType (*)(const Vec3<RealType>&, const Array3<RealType>&)>(&ArrayHelpers::interpolateLinear);
+                                   m_InterpolateValue = static_cast<RealType (*)(const Vec3<RealType>&, const Array3<RealType>&)>(&ArrayHelpers::interpolateValueLinear);
                                    m_WeightKernel = [](const Vec3<RealType>& dxdydz) { return MathHelpers::tril_kernel(dxdydz[0], dxdydz[1], dxdydz[2]); };
                                }
                                else
                                {
-                                   m_InterpolateValue = static_cast<RealType (*)(const Vec3<RealType>&, const Array3<RealType>&)>(&ArrayHelpers::interpolateCubicBSpline);
+                                   m_InterpolateValue = static_cast<RealType (*)(const Vec3<RealType>&, const Array3<RealType>&)>(&ArrayHelpers::interpolateValueCubicBSpline);
                                    m_WeightKernel = [](const Vec3<RealType>& dxdydz) { return MathHelpers::cubic_spline_kernel_3d(dxdydz[0], dxdydz[1], dxdydz[2]); };
                                }
 
-                               m_Grid3D.setGrid(m_SimParams->boxMin, m_SimParams->boxMax, m_SimParams->kernelRadius);
-                               m_SimData->makeReady(m_Grid3D.getNumCellX(), m_Grid3D.getNumCellY(), m_Grid3D.getNumCellZ());
+                               m_Grid.setGrid(m_SimParams->boxMin, m_SimParams->boxMax, m_SimParams->kernelRadius);
+                               m_SimData->makeReady(m_Grid.getNumCellX(), m_Grid.getNumCellY(), m_Grid.getNumCellZ());
 
                                m_PCGSolver.setSolverParameters(m_SimParams->CGRelativeTolerance, m_SimParams->maxCGIteration);
                                m_PCGSolver.setPreconditioners(PreconditionerTypes::MICCL0_SYMMETRIC);
@@ -47,16 +47,16 @@ void Banana::FLIP3DSolver<RealType>::makeReady()
 
 
 
-
-                               GeometryObjects::BoxObject<RealType> box;
+                               // todo: remove this
+                               GeometryObject3D::BoxObject<RealType> box;
                                box.boxMin() = m_SimParams->boxMin + Vec3<RealType>(m_SimParams->kernelRadius);
                                box.boxMax() = m_SimParams->boxMax - Vec3<RealType>(m_SimParams->kernelRadius);
-                               ParallelFuncs::parallel_for<UInt32>(0, m_Grid3D.getNumCellX() + 1,
-                                                                   0, m_Grid3D.getNumCellY() + 1,
-                                                                   0, m_Grid3D.getNumCellZ() + 1,
+                               ParallelFuncs::parallel_for<UInt32>(0, m_Grid.getNumCellX() + 1,
+                                                                   0, m_Grid.getNumCellY() + 1,
+                                                                   0, m_Grid.getNumCellZ() + 1,
                                                                    [&](UInt32 i, UInt32 j, UInt32 k)
                                                                    {
-                                                                       const Vec3<RealType> gridPos = Vec3<RealType>(i, j, k);
+                                                                       const Vec3<RealType> gridPos = Vec3<RealType>(i, j, k) * m_SimParams->kernelRadius + m_SimParams->boxMin;
                                                                        m_SimData->boundarySDF(i, j, k) = box.signedDistance(gridPos);
                                                                    });
                                m_Logger->printWarning("Computed boundary SDF");
@@ -64,11 +64,11 @@ void Banana::FLIP3DSolver<RealType>::makeReady()
 
     ////////////////////////////////////////////////////////////////////////////////
     // sort the particles
-    m_Logger->printRunTime("Compute Z-sort rule: ", [&]() { m_NSearch->z_sort(); });
     m_Logger->printRunTime("Sort particle positions and velocities: ",
                            [&]()
                            {
-                               auto const& d = m_NSearch->point_set(0);
+                               m_NSearch->z_sort();
+                               const auto& d = m_NSearch->point_set(0);
                                d.sort_field(&m_SimData->positions[0]);
                                d.sort_field(&m_SimData->velocities[0]);
                            });
@@ -96,9 +96,10 @@ void Banana::FLIP3DSolver<RealType>::advanceFrame()
                                    RealType remainingTime = m_GlobalParams->frameDuration - frameTime;
                                    RealType substep = MathHelpers::min(computeCFLTimestep(), remainingTime);
                                    ////////////////////////////////////////////////////////////////////////////////
-                                   m_Logger->printRunTime("Find neighbors: ",               funcTimer, [&]() { m_Grid3D.collectIndexToCells(m_SimData->positions); });
+                                   m_Logger->printRunTime("Find neighbors: ",               funcTimer, [&]() { m_Grid.collectIndexToCells(m_SimData->positions); });
                                    m_Logger->printRunTime("====> Advance velocity total: ", funcTimer, [&]() { advanceVelocity(substep); });
                                    m_Logger->printRunTime("Move particles: ",               funcTimer, [&]() { moveParticles(substep); });
+                                   m_Logger->printRunTime("Correct particle positions: ",   funcTimer, [&]() { correctPositions(substep); });
                                    ////////////////////////////////////////////////////////////////////////////////
                                    frameTime += substep;
                                    ++substepCount;
@@ -132,14 +133,15 @@ void Banana::FLIP3DSolver<RealType>::sortParticles()
     ////////////////////////////////////////////////////////////////////////////////
     frameCount = 0;
     static Timer timer;
-    m_Logger->printRunTime("Compute Z-sort rule: ",            timer, [&]() { m_NSearch->z_sort(); });
     m_Logger->printRunTime("Sort data by particle position: ", timer,
                            [&]()
                            {
-                               auto const& d = m_NSearch->point_set(0);
+                               m_NSearch->z_sort();
+                               const auto& d = m_NSearch->point_set(0);
                                d.sort_field(&m_SimData->positions[0]);
                                d.sort_field(&m_SimData->velocities[0]);
                            });
+    m_Logger->newLine();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -287,7 +289,7 @@ RealType Banana::FLIP3DSolver<RealType>::computeCFLTimestep()
                                        ParallelSTL::maxAbs(m_SimData->v.vec_data()),
                                        ParallelSTL::maxAbs(m_SimData->w.vec_data()));
 
-    return maxVel > Tiny<RealType>() ? (m_Grid3D.getCellSize() / maxVel * m_SimParams->CFLFactor) : m_SimParams->defaultTimestep;
+    return maxVel > Tiny<RealType>() ? (m_Grid.getCellSize() / maxVel * m_SimParams->CFLFactor) : m_SimParams->defaultTimestep;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -329,19 +331,16 @@ void Banana::FLIP3DSolver<RealType>::moveParticles(RealType timestep)
                                         [&](UInt32 p)
                                         {
                                             Vec3<RealType> ppos = m_SimData->positions[p] + m_SimData->velocities[p] * timestep;
-                                            const Vec3<RealType> gridPos = m_Grid3D.getGridCoordinate(ppos);
-                                            const RealType phiVal = ArrayHelpers::interpolateLinear(gridPos, m_SimData->boundarySDF);
+                                            const Vec3<RealType> gridPos = m_Grid.getGridCoordinate(ppos);
+                                            const RealType phiVal = ArrayHelpers::interpolateValueLinear(gridPos, m_SimData->boundarySDF);
 
                                             if(phiVal < 0)
                                             {
-                                                Vec3<RealType> grad;
-                                                ArrayHelpers::interpolateGradient(grad, gridPos, m_SimData->boundarySDF);
+                                                Vec3<RealType> grad = ArrayHelpers::interpolateGradient(gridPos, m_SimData->boundarySDF);
+                                                RealType mag2Grad = glm::length2(grad);
 
-                                                if(glm::length2(grad) > 0)
-                                                {
-                                                    grad = glm::normalize(grad);
-                                                    ppos -= phiVal * grad;
-                                                }
+                                                if(mag2Grad > Tiny<RealType>())
+                                                    ppos -= phiVal * grad / sqrt(mag2Grad);
                                             }
 
                                             m_SimData->positions[p] = ppos;
@@ -349,13 +348,64 @@ void Banana::FLIP3DSolver<RealType>::moveParticles(RealType timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class RealType>
+void Banana::FLIP3DSolver<RealType>::correctPositions(RealType timestep)
+{
+    const RealType radius    = m_Grid.getCellSize() * RealType(sqrt(3.0) / 2);
+    const RealType threshold = RealType(0.01) * radius;
+
+    // todo: check if this is needed, as this could be done before
+    m_Grid.getNeighborList(m_SimData->positions, m_SimData->neighborList, m_SimParams->kernelSpan);
+
+    for(UInt32 p = 0; p < m_SimData->getNumParticles(); ++p)
+    {
+        const Vec3<RealType>& ppos      = m_SimData->positions[p];
+        const Vec_UInt&       neighbors = m_SimData->neighborList[p];
+        Vec3<RealType>        spring(0);
+
+        for(UInt32 q : neighbors)
+        {
+            const Vec3<RealType>& qpos = m_SimData->positions[q];
+            RealType              dist = glm::length(ppos - qpos);
+            RealType              w    = RealType(50.0) * MathHelpers::smooth_kernel(dist * dist, radius);
+
+            if(dist > threshold)
+                spring += w * (ppos - qpos) / dist * radius;
+            else
+                spring += threshold / timestep * Vec3<RealType>(RealType((rand() & 0xFF) / 255.0),
+                                                                RealType((rand() & 0xFF) / 255.0),
+                                                                RealType((rand() & 0xFF) / 255.0));
+        }
+
+        auto newPos = ppos + spring * timestep;
+
+        // todo: this should be done by boundary object
+        const Vec3<RealType> gridPos = m_Grid.getGridCoordinate(newPos);
+        const RealType       phiVal  = ArrayHelpers::interpolateValueLinear(gridPos, m_SimData->boundarySDF);
+
+        if(phiVal < 0)
+        {
+            Vec3<RealType> grad     = ArrayHelpers::interpolateGradient(gridPos, m_SimData->boundarySDF);
+            RealType       mag2Grad = glm::length2(grad);
+
+            if(mag2Grad > Tiny<RealType>())
+                newPos -= phiVal * grad / sqrt(mag2Grad);
+        }
+
+        m_SimData->positions_tmp[p] = newPos;
+    }
+
+    m_SimData->positions = m_SimData->positions_tmp;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //Compute finite-volume style face-weights for fluid from nodal signed distances
 template<class RealType>
 void Banana::FLIP3DSolver<RealType>::computeFluidWeights()
 {
-    ParallelFuncs::parallel_for<UInt32>(0, m_Grid3D.getNumCellX() + 1,
-                                        0, m_Grid3D.getNumCellY() + 1,
-                                        0, m_Grid3D.getNumCellZ() + 1,
+    ParallelFuncs::parallel_for<UInt32>(0, m_Grid.getNumCellX() + 1,
+                                        0, m_Grid.getNumCellY() + 1,
+                                        0, m_Grid.getNumCellZ() + 1,
                                         [&](UInt32 i, UInt32 j, UInt32 k)
                                         {
                                             bool valid_index_u = m_SimData->u_weights.isValidIndex(i, j, k);
@@ -396,7 +446,7 @@ template<class RealType>
 void Banana::FLIP3DSolver<RealType>::addRepulsiveVelocity2Particles(RealType timestep)
 {
     const RealType K_r = m_SimParams->repulsiveForceStiffness / timestep;
-    m_Grid3D.getNeighborList(m_SimData->positions, m_SimData->neighborList, m_SimParams->nearKernelRadiusSqr);
+    m_Grid.getNeighborList(m_SimData->positions, m_SimData->neighborList, m_SimParams->nearKernelRadiusSqr);
     ////////////////////////////////////////////////////////////////////////////////
 
     ParallelFuncs::parallel_for<UInt32>(0, m_SimData->getNumParticles(),
@@ -425,16 +475,16 @@ void Banana::FLIP3DSolver<RealType>::addRepulsiveVelocity2Particles(RealType tim
 template<class RealType>
 void Banana::FLIP3DSolver<RealType>::velocityToGrid()
 {
-    const Vec3<RealType> span = Vec3<RealType>(m_Grid3D.getCellSize() * static_cast<RealType>(m_SimParams->kernelSpan));
+    const Vec3<RealType> span = Vec3<RealType>(m_Grid.getCellSize() * static_cast<RealType>(m_SimParams->kernelSpan));
 
-    ParallelFuncs::parallel_for<UInt32>(0, m_Grid3D.getNumCellX() + 1,
-                                        0, m_Grid3D.getNumCellY() + 1,
-                                        0, m_Grid3D.getNumCellZ() + 1,
+    ParallelFuncs::parallel_for<UInt32>(0, m_Grid.getNumCellX() + 1,
+                                        0, m_Grid.getNumCellY() + 1,
+                                        0, m_Grid.getNumCellZ() + 1,
                                         [&](UInt32 i, UInt32 j, UInt32 k)
                                         {
-                                            const Vec3<RealType> pu = Vec3<RealType>(i, j + 0.5, k + 0.5) * m_Grid3D.getCellSize() + m_Grid3D.getBMin();
-                                            const Vec3<RealType> pv = Vec3<RealType>(i + 0.5, j, k + 0.5) * m_Grid3D.getCellSize() + m_Grid3D.getBMin();
-                                            const Vec3<RealType> pw = Vec3<RealType>(i + 0.5, j + 0.5, k) * m_Grid3D.getCellSize() + m_Grid3D.getBMin();
+                                            const Vec3<RealType> pu = Vec3<RealType>(i, j + 0.5, k + 0.5) * m_Grid.getCellSize() + m_Grid.getBMin();
+                                            const Vec3<RealType> pv = Vec3<RealType>(i + 0.5, j, k + 0.5) * m_Grid.getCellSize() + m_Grid.getBMin();
+                                            const Vec3<RealType> pw = Vec3<RealType>(i + 0.5, j + 0.5, k) * m_Grid.getCellSize() + m_Grid.getBMin();
 
                                             const Vec3<RealType> puMin = pu - span;
                                             const Vec3<RealType> pvMin = pv - span;
@@ -464,17 +514,17 @@ void Banana::FLIP3DSolver<RealType>::velocityToGrid()
                                                     for(Int32 li = -m_SimParams->kernelSpan; li <= m_SimParams->kernelSpan; ++li)
                                                     {
                                                         const Vec3i cellId = Vec3i(static_cast<Int32>(i), static_cast<Int32>(j), static_cast<Int32>(k)) + Vec3i(li, lj, lk);
-                                                        if(!m_Grid3D.isValidCell(cellId))
+                                                        if(!m_Grid.isValidCell(cellId))
                                                             continue;
 
-                                                        for(const UInt32 p : m_Grid3D.getParticleIdx(cellId))
+                                                        for(const UInt32 p : m_Grid.getParticleIdxInCell(cellId))
                                                         {
                                                             const Vec3<RealType>& ppos = m_SimData->positions[p];
                                                             const Vec3<RealType>& pvel = m_SimData->velocities[p];
 
                                                             if(valid_index_u && isInside(ppos, puMin, puMax))
                                                             {
-                                                                const RealType weight = m_WeightKernel((ppos - pu) / m_Grid3D.getCellSize());
+                                                                const RealType weight = m_WeightKernel((ppos - pu) / m_Grid.getCellSize());
 
                                                                 if(weight > Tiny<RealType>())
                                                                 {
@@ -485,7 +535,7 @@ void Banana::FLIP3DSolver<RealType>::velocityToGrid()
 
                                                             if(valid_index_v && isInside(ppos, pvMin, pvMax))
                                                             {
-                                                                const RealType weight = m_WeightKernel((ppos - pv) / m_Grid3D.getCellSize());
+                                                                const RealType weight = m_WeightKernel((ppos - pv) / m_Grid.getCellSize());
 
                                                                 if(weight > Tiny<RealType>())
                                                                 {
@@ -496,7 +546,7 @@ void Banana::FLIP3DSolver<RealType>::velocityToGrid()
 
                                                             if(valid_index_w && isInside(ppos, pwMin, pwMax))
                                                             {
-                                                                const RealType weight = m_WeightKernel((ppos - pw) / m_Grid3D.getCellSize());
+                                                                const RealType weight = m_WeightKernel((ppos - pw) / m_Grid.getCellSize());
 
                                                                 if(weight > Tiny<RealType>())
                                                                 {
@@ -533,9 +583,9 @@ void Banana::FLIP3DSolver<RealType>::velocityToGrid()
 template<class RealType>
 void Banana::FLIP3DSolver<RealType>::extrapolateVelocity()
 {
-    extrapolateVelocity(m_SimData->u, m_SimData->temp_u, m_SimData->u_valid, m_SimData->old_valid_u);
-    extrapolateVelocity(m_SimData->v, m_SimData->temp_v, m_SimData->v_valid, m_SimData->old_valid_v);
-    extrapolateVelocity(m_SimData->w, m_SimData->temp_w, m_SimData->w_valid, m_SimData->old_valid_w);
+    extrapolateVelocity(m_SimData->u, m_SimData->u_temp, m_SimData->u_valid, m_SimData->u_valid_old);
+    extrapolateVelocity(m_SimData->v, m_SimData->v_temp, m_SimData->v_valid, m_SimData->v_valid_old);
+    extrapolateVelocity(m_SimData->w, m_SimData->w_temp, m_SimData->w_valid, m_SimData->w_valid_old);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -548,9 +598,9 @@ void Banana::FLIP3DSolver<RealType>::extrapolateVelocity(Array3<RealType>& grid,
     {
         bool stop = true;
         old_valid.copyDataFrom(valid);
-        ParallelFuncs::parallel_for<UInt32>(1, m_Grid3D.getNumCellX() - 1,
-                                            1, m_Grid3D.getNumCellY() - 1,
-                                            1, m_Grid3D.getNumCellZ() - 1,
+        ParallelFuncs::parallel_for<UInt32>(1, m_Grid.getNumCellX() - 1,
+                                            1, m_Grid.getNumCellY() - 1,
+                                            1, m_Grid.getNumCellZ() - 1,
                                             [&](UInt32 i, UInt32 j, UInt32 k)
                                             {
                                                 if(old_valid(i, j, k))
@@ -624,9 +674,9 @@ void Banana::FLIP3DSolver<RealType>::constrainVelocity()
     //(At lower grid resolutions, the normal estimate from the signed
     //distance function can be poor, so it doesn't work quite as well.
     //An exact normal would do better if we had it for the geometry.)
-    m_SimData->temp_u.copyDataFrom(m_SimData->u);
-    m_SimData->temp_v.copyDataFrom(m_SimData->v);
-    m_SimData->temp_w.copyDataFrom(m_SimData->w);
+    m_SimData->u_temp.copyDataFrom(m_SimData->u);
+    m_SimData->v_temp.copyDataFrom(m_SimData->v);
+    m_SimData->w_temp.copyDataFrom(m_SimData->w);
 
     ////////////////////////////////////////////////////////////////////////////////
     ParallelFuncs::parallel_for<size_t>(0, m_SimData->u.sizeX(),
@@ -638,13 +688,14 @@ void Banana::FLIP3DSolver<RealType>::constrainVelocity()
                                             {
                                                 const Vec3<RealType> gridPos = Vec3<RealType>(i, j + 0.5, k + 0.5);
                                                 Vec3<RealType> vel = getVelocityFromGrid(gridPos);
-                                                Vec3<RealType> normal(0);
+                                                Vec3<RealType> normal = ArrayHelpers::interpolateGradient(gridPos, m_SimData->boundarySDF);
+                                                RealType mag2Normal = glm::length2(normal);
+                                                if(mag2Normal > Tiny<RealType>())
+                                                    normal /= sqrt(mag2Normal);
 
-                                                ArrayHelpers::interpolateGradient(normal, gridPos, m_SimData->boundarySDF);
-                                                normal = glm::normalize(normal);
                                                 RealType perp_component = glm::dot(vel, normal);
                                                 vel -= perp_component * normal;
-                                                m_SimData->temp_u(i, j, k) = vel[0];
+                                                m_SimData->u_temp(i, j, k) = vel[0];
                                             }
                                         });
 
@@ -657,13 +708,14 @@ void Banana::FLIP3DSolver<RealType>::constrainVelocity()
                                             {
                                                 const Vec3<RealType> gridPos = Vec3<RealType>(i + 0.5, j, k + 0.5);
                                                 Vec3<RealType> vel = getVelocityFromGrid(gridPos);
-                                                Vec3<RealType> normal(0);
+                                                Vec3<RealType> normal = ArrayHelpers::interpolateGradient(gridPos, m_SimData->boundarySDF);
+                                                RealType mag2Normal = glm::length2(normal);
+                                                if(mag2Normal > Tiny<RealType>())
+                                                    normal /= sqrt(mag2Normal);
 
-                                                ArrayHelpers::interpolateGradient(normal, gridPos, m_SimData->boundarySDF);
-                                                normal = glm::normalize(normal);
                                                 RealType perp_component = glm::dot(vel, normal);
                                                 vel -= perp_component * normal;
-                                                m_SimData->temp_v(i, j, k) = vel[1];
+                                                m_SimData->v_temp(i, j, k) = vel[1];
                                             }
                                         });
 
@@ -676,20 +728,21 @@ void Banana::FLIP3DSolver<RealType>::constrainVelocity()
                                             {
                                                 const Vec3<RealType> gridPos = Vec3<RealType>(i + 0.5, j + 0.5, k);
                                                 Vec3<RealType> vel = getVelocityFromGrid(gridPos);
-                                                Vec3<RealType> normal(0);
+                                                Vec3<RealType> normal = ArrayHelpers::interpolateGradient(gridPos, m_SimData->boundarySDF);
+                                                RealType mag2Normal = glm::length2(normal);
+                                                if(mag2Normal > Tiny<RealType>())
+                                                    normal /= sqrt(mag2Normal);
 
-                                                ArrayHelpers::interpolateGradient(normal, gridPos, m_SimData->boundarySDF);
-                                                normal = glm::normalize(normal);
                                                 RealType perp_component = glm::dot(vel, normal);
                                                 vel -= perp_component * normal;
-                                                m_SimData->temp_w(i, j, k) = vel[2];
+                                                m_SimData->w_temp(i, j, k) = vel[2];
                                             }
                                         });
 
     ////////////////////////////////////////////////////////////////////////////////
-    m_SimData->u.copyDataFrom(m_SimData->temp_u);
-    m_SimData->v.copyDataFrom(m_SimData->temp_v);
-    m_SimData->w.copyDataFrom(m_SimData->temp_w);
+    m_SimData->u.copyDataFrom(m_SimData->u_temp);
+    m_SimData->v.copyDataFrom(m_SimData->v_temp);
+    m_SimData->w.copyDataFrom(m_SimData->w_temp);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -731,20 +784,20 @@ void Banana::FLIP3DSolver<RealType>::computeFluidSDF()
     // cannot run in parallel
     for(UInt32 p = 0; p < m_SimData->getNumParticles(); ++p)
     {
-        const Vec3i cellId   = m_Grid3D.getCellIdx<int>(m_SimData->positions[p]);
+        const Vec3i cellId   = m_Grid.getCellIdx<int>(m_SimData->positions[p]);
         const Vec3i cellDown = Vec3i(MathHelpers::max(0, cellId[0] - 1),
                                      MathHelpers::max(0, cellId[1] - 1),
                                      MathHelpers::max(0, cellId[2] - 1));
-        const Vec3i cellUp = Vec3i(MathHelpers::min(cellId[0] + 1, static_cast<Int32>(m_Grid3D.getNumCellX()) - 1),
-                                   MathHelpers::min(cellId[1] + 1, static_cast<Int32>(m_Grid3D.getNumCellY()) - 1),
-                                   MathHelpers::min(cellId[2] + 1, static_cast<Int32>(m_Grid3D.getNumCellZ()) - 1));
+        const Vec3i cellUp = Vec3i(MathHelpers::min(cellId[0] + 1, static_cast<Int32>(m_Grid.getNumCellX()) - 1),
+                                   MathHelpers::min(cellId[1] + 1, static_cast<Int32>(m_Grid.getNumCellY()) - 1),
+                                   MathHelpers::min(cellId[2] + 1, static_cast<Int32>(m_Grid.getNumCellZ()) - 1));
 
         ParallelFuncs::parallel_for<int>(cellDown[0], cellUp[0],
                                          cellDown[1], cellUp[1],
                                          cellDown[2], cellUp[2],
                                          [&](int i, int j, int k)
                                          {
-                                             const Vec3<RealType> sample = Vec3<RealType>(i + 0.5, j + 0.5, k + 0.5) * m_Grid3D.getCellSize() + m_Grid3D.getBMin();
+                                             const Vec3<RealType> sample = Vec3<RealType>(i + 0.5, j + 0.5, k + 0.5) * m_Grid.getCellSize() + m_Grid.getBMin();
                                              const RealType phiVal = glm::length(sample - m_SimData->positions[p]) - m_SimParams->sdfRadius;
 
                                              if(phiVal < m_SimData->fluidSDF(i, j, k))
@@ -754,14 +807,12 @@ void Banana::FLIP3DSolver<RealType>::computeFluidSDF()
 
     ////////////////////////////////////////////////////////////////////////////////
     //extend phi slightly into solids (this is a simple, naive approach, but works reasonably well)
-    m_SimData->temp_fluidSDF.copyDataFrom(m_SimData->fluidSDF);
-
-    ParallelFuncs::parallel_for<UInt32>(0, m_Grid3D.getNumCellX(),
-                                        0, m_Grid3D.getNumCellY(),
-                                        0, m_Grid3D.getNumCellZ(),
+    ParallelFuncs::parallel_for<UInt32>(0, m_Grid.getNumCellX(),
+                                        0, m_Grid.getNumCellY(),
+                                        0, m_Grid.getNumCellZ(),
                                         [&](int i, int j, int k)
                                         {
-                                            if(m_SimData->fluidSDF(i, j, k) < m_Grid3D.getHalfCellSize())
+                                            if(m_SimData->fluidSDF(i, j, k) < m_Grid.getHalfCellSize())
                                             {
                                                 const RealType phiValSolid = RealType(0.125) * (m_SimData->boundarySDF(i, j, k) +
                                                                                                 m_SimData->boundarySDF(i + 1, j, k) +
@@ -773,11 +824,9 @@ void Banana::FLIP3DSolver<RealType>::computeFluidSDF()
                                                                                                 m_SimData->boundarySDF(i + 1, j + 1, k + 1));
 
                                                 if(phiValSolid < 0)
-                                                    m_SimData->temp_fluidSDF(i, j, k) = -m_Grid3D.getHalfCellSize();
+                                                    m_SimData->fluidSDF(i, j, k) = -m_Grid.getHalfCellSize();
                                             }
                                         });
-
-    m_SimData->fluidSDF.copyDataFrom(m_SimData->temp_fluidSDF);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -786,13 +835,13 @@ void Banana::FLIP3DSolver<RealType>::computeMatrix(RealType timestep)
 {
     m_SimData->matrix.clear();
 
-    for(UInt32 k = 1; k < m_Grid3D.getNumCellZ() - 1; ++k)
+    for(UInt32 k = 1; k < m_Grid.getNumCellZ() - 1; ++k)
     {
-        for(UInt32 j = 1; j < m_Grid3D.getNumCellY() - 1; ++j)
+        for(UInt32 j = 1; j < m_Grid.getNumCellY() - 1; ++j)
         {
-            for(UInt32 i = 1; i < m_Grid3D.getNumCellX() - 1; ++i)
+            for(UInt32 i = 1; i < m_Grid.getNumCellX() - 1; ++i)
             {
-                const UInt32 cellIdx = m_Grid3D.getLinearizedIndex(i, j, k);
+                const UInt32 cellIdx = m_Grid.getLinearizedIndex(i, j, k);
 
                 const RealType center_phi = m_SimData->fluidSDF(i, j, k);
 
@@ -842,7 +891,7 @@ void Banana::FLIP3DSolver<RealType>::computeMatrix(RealType timestep)
                     if(top_phi < 0)
                     {
                         center_term += top_term;
-                        m_SimData->matrix.addElement(cellIdx, cellIdx + m_Grid3D.getNumCellX(), -top_term);
+                        m_SimData->matrix.addElement(cellIdx, cellIdx + m_Grid.getNumCellX(), -top_term);
                     }
                     else
                     {
@@ -854,7 +903,7 @@ void Banana::FLIP3DSolver<RealType>::computeMatrix(RealType timestep)
                     if(bottom_phi < 0)
                     {
                         center_term += bottom_term;
-                        m_SimData->matrix.addElement(cellIdx, cellIdx - m_Grid3D.getNumCellX(), -bottom_term);
+                        m_SimData->matrix.addElement(cellIdx, cellIdx - m_Grid.getNumCellX(), -bottom_term);
                     }
                     else
                     {
@@ -866,7 +915,7 @@ void Banana::FLIP3DSolver<RealType>::computeMatrix(RealType timestep)
                     if(far_phi < 0)
                     {
                         center_term += far_term;
-                        m_SimData->matrix.addElement(cellIdx, cellIdx + m_Grid3D.getNumCellX() * m_Grid3D.getNumCellY(), -far_term);
+                        m_SimData->matrix.addElement(cellIdx, cellIdx + m_Grid.getNumCellX() * m_Grid.getNumCellY(), -far_term);
                     }
                     else
                     {
@@ -878,7 +927,7 @@ void Banana::FLIP3DSolver<RealType>::computeMatrix(RealType timestep)
                     if(near_phi < 0)
                     {
                         center_term += near_term;
-                        m_SimData->matrix.addElement(cellIdx, cellIdx - m_Grid3D.getNumCellX() * m_Grid3D.getNumCellY(), -near_term);
+                        m_SimData->matrix.addElement(cellIdx, cellIdx - m_Grid.getNumCellX() * m_Grid.getNumCellY(), -near_term);
                     }
                     else
                     {
@@ -900,13 +949,12 @@ template<class RealType>
 void Banana::FLIP3DSolver<RealType>::computeRhs()
 {
     m_SimData->rhs.assign(m_SimData->rhs.size(), 0);
-
-    ParallelFuncs::parallel_for<UInt32>(1, m_Grid3D.getNumCellX() - 1,
-                                        1, m_Grid3D.getNumCellY() - 1,
-                                        1, m_Grid3D.getNumCellZ() - 1,
+    ParallelFuncs::parallel_for<UInt32>(1, m_Grid.getNumCellX() - 1,
+                                        1, m_Grid.getNumCellY() - 1,
+                                        1, m_Grid.getNumCellZ() - 1,
                                         [&](UInt32 i, UInt32 j, UInt32 k)
                                         {
-                                            const UInt32 idx = m_Grid3D.getLinearizedIndex(i, j, k);
+                                            const UInt32 idx = m_Grid.getLinearizedIndex(i, j, k);
                                             const RealType center_phi = m_SimData->fluidSDF(i, j, k);
 
                                             if(center_phi < 0)
@@ -951,12 +999,12 @@ void Banana::FLIP3DSolver<RealType>::updateVelocity(RealType timestep)
     m_SimData->v_valid.assign(0);
     m_SimData->w_valid.assign(0);
 
-    ParallelFuncs::parallel_for<UInt32>(0, m_Grid3D.getNumCellX(),
-                                        0, m_Grid3D.getNumCellY(),
-                                        0, m_Grid3D.getNumCellZ(),
+    ParallelFuncs::parallel_for<UInt32>(0, m_Grid.getNumCellX(),
+                                        0, m_Grid.getNumCellY(),
+                                        0, m_Grid.getNumCellZ(),
                                         [&](UInt32 i, UInt32 j, UInt32 k)
                                         {
-                                            const UInt32 idx = m_Grid3D.getLinearizedIndex(i, j, k);
+                                            const UInt32 idx = m_Grid.getLinearizedIndex(i, j, k);
 
                                             const RealType center_phi = m_SimData->fluidSDF(i, j, k);
                                             const RealType left_phi = i > 0 ? m_SimData->fluidSDF(i - 1, j, k) : 0;
@@ -973,14 +1021,14 @@ void Banana::FLIP3DSolver<RealType>::updateVelocity(RealType timestep)
                                             if(j > 0 && (center_phi < 0 || bottom_phi < 0) && m_SimData->v_weights(i, j, k) > 0)
                                             {
                                                 RealType theta = MathHelpers::min(RealType(0.01), MathHelpers::fraction_inside(bottom_phi, center_phi));
-                                                m_SimData->v(i, j, k) -= timestep * (m_SimData->pressure[idx] - m_SimData->pressure[idx - m_Grid3D.getNumCellX()]) / theta;
+                                                m_SimData->v(i, j, k) -= timestep * (m_SimData->pressure[idx] - m_SimData->pressure[idx - m_Grid.getNumCellX()]) / theta;
                                                 m_SimData->v_valid(i, j, k) = 1;
                                             }
 
                                             if(k > 0 && m_SimData->w_weights(i, j, k) > 0 && (center_phi < 0 || near_phi < 0))
                                             {
                                                 RealType theta = MathHelpers::min(RealType(0.01), MathHelpers::fraction_inside(near_phi, center_phi));
-                                                m_SimData->w(i, j, k) -= timestep * (m_SimData->pressure[idx] - m_SimData->pressure[idx - m_Grid3D.getNumCellX() * m_Grid3D.getNumCellY()]) / theta;
+                                                m_SimData->w(i, j, k) -= timestep * (m_SimData->pressure[idx] - m_SimData->pressure[idx - m_Grid.getNumCellX() * m_Grid.getNumCellY()]) / theta;
                                                 m_SimData->w_valid(i, j, k) = 1;
                                             }
                                         });
@@ -1012,7 +1060,7 @@ void Banana::FLIP3DSolver<RealType>::computeChangesGridVelocity()
                                         [&](size_t i) { m_SimData->du.vec_data()[i] = m_SimData->u.vec_data()[i] - m_SimData->u_old.vec_data()[i]; });
     ParallelFuncs::parallel_for<size_t>(0, m_SimData->v.size(),
                                         [&](size_t i) { m_SimData->dv.vec_data()[i] = m_SimData->v.vec_data()[i] - m_SimData->v_old.vec_data()[i]; });
-    ParallelFuncs::parallel_for<size_t>(0, m_SimData->u.size(),
+    ParallelFuncs::parallel_for<size_t>(0, m_SimData->w.size(),
                                         [&](size_t i) { m_SimData->dw.vec_data()[i] = m_SimData->w.vec_data()[i] - m_SimData->w_old.vec_data()[i]; });
 }
 
@@ -1026,7 +1074,7 @@ void Banana::FLIP3DSolver<RealType>::velocityToParticles()
                                             const Vec3<RealType>& ppos = m_SimData->positions[p];
                                             const Vec3<RealType>& pvel = m_SimData->velocities[p];
 
-                                            const Vec3<RealType> gridPos = m_Grid3D.getGridCoordinate(ppos);
+                                            const Vec3<RealType> gridPos = m_Grid.getGridCoordinate(ppos);
                                             const Vec3<RealType> oldVel = getVelocityFromGrid(gridPos);
                                             const Vec3<RealType> dVel = getVelocityChangesFromGrid(gridPos);
 

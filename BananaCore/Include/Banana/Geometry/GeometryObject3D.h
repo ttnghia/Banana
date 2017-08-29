@@ -31,7 +31,7 @@
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace GeometryObjects
+namespace GeometryObject3D
 {
 #define MAX_ABS_SIGNED_DISTANCE RealType(sqrt(8.0))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -125,7 +125,7 @@ template<class RealType>
 class TorusObject : public GeometryObject<RealType>
 {
 public:
-    virtual std::string name() override { return "SphereObject"; }
+    virtual std::string name() override { return "TorusObject"; }
     virtual RealType signedDistance(const Vec3<RealType>& ppos) override
     {
         Vec2<RealType> t(0.6, 0.2);
@@ -134,20 +134,19 @@ public:
         return glm::length(q) - t.y;
     }
 
-    Vec3<RealType>& sphereCenter() { return m_SphereCenter; }
-    RealType& sphereRadius() { return m_SphereRadius; }
+    RealType& innerRadius() { return m_InnerRadius; }
+    RealType& outerRadius() { return m_OuterRadius; }
 
 protected:
-    Vec3<RealType> m_SphereCenter = Vec3<RealType>(0);
-    RealType       m_SphereRadius = 0;
+    RealType m_InnerRadius = 0;
+    RealType m_OuterRadius = 0;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-class Torus28Object : public GeometryObject<RealType>
+class Torus28Object : public TorusObject<RealType>
 {
 public:
-    virtual std::string name() override { return "SphereObject"; }
     virtual RealType signedDistance(const Vec3<RealType>& ppos) override
     {
         Vec2<RealType> t(0.6, 0.2);
@@ -155,21 +154,13 @@ public:
         Vec2<RealType> q = Vec2<RealType>(MathHelpers::norm2(ppos[0], ppos[2]) - t.x, ppos.y);
         return MathHelpers::norm8(q[0], q[1]) - t.y;
     }
-
-    Vec3<RealType>& sphereCenter() { return m_SphereCenter; }
-    RealType& sphereRadius() { return m_SphereRadius; }
-
-protected:
-    Vec3<RealType> m_SphereCenter = Vec3<RealType>(0);
-    RealType       m_SphereRadius = 0;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-class Torus2InfObject : public GeometryObject<RealType>
+class Torus2InfObject : public TorusObject<RealType>
 {
 public:
-    virtual std::string name() override { return "SphereObject"; }
     virtual RealType signedDistance(const Vec3<RealType>& ppos) override
     {
         Vec2<RealType> t(0.6, 0.2);
@@ -177,21 +168,13 @@ public:
         Vec2<RealType> q = Vec2<RealType>(MathHelpers::norm2(ppos[0], ppos[2]) - t.x, ppos.y);
         return MathHelpers::max(std::abs(q[0]), std::abs(q[1])) - t.y;
     }
-
-    Vec3<RealType>& sphereCenter() { return m_SphereCenter; }
-    RealType& sphereRadius() { return m_SphereRadius; }
-
-protected:
-    Vec3<RealType> m_SphereCenter = Vec3<RealType>(0);
-    RealType       m_SphereRadius = 0;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-class Torus88Object : public GeometryObject<RealType>
+class Torus88Object : public TorusObject<RealType>
 {
 public:
-    virtual std::string name() override { return "SphereObject"; }
     virtual RealType signedDistance(const Vec3<RealType>& ppos) override
     {
         Vec2<RealType> t(0.6, 0.2);
@@ -199,21 +182,13 @@ public:
         Vec2<RealType> q = Vec2<RealType>(MathHelpers::norm8(ppos[0], ppos[2]) - t.x, ppos.y);
         return MathHelpers::norm8(q[0], q[1]) - t.y;
     }
-
-    Vec3<RealType>& sphereCenter() { return m_SphereCenter; }
-    RealType& sphereRadius() { return m_SphereRadius; }
-
-protected:
-    Vec3<RealType> m_SphereCenter = Vec3<RealType>(0);
-    RealType       m_SphereRadius = 0;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-class TorusInfInfObject : public GeometryObject<RealType>
+class TorusInfInfObject : public TorusObject<RealType>
 {
 public:
-    virtual std::string name() override { return "SphereObject"; }
     virtual RealType signedDistance(const Vec3<RealType>& ppos) override
     {
         Vec2<RealType> t(0.6, 0.2);
@@ -221,13 +196,6 @@ public:
         Vec2<RealType> q = Vec2<RealType>(MathHelpers::max(std::abs(ppos[0]), std::abs(ppos[2])) - t.x, ppos.y);
         return MathHelpers::max(std::abs(q[0]), std::abs(q[1])) - t.y;
     }
-
-    Vec3<RealType>& sphereCenter() { return m_SphereCenter; }
-    RealType& sphereRadius() { return m_SphereRadius; }
-
-protected:
-    Vec3<RealType> m_SphereCenter = Vec3<RealType>(0);
-    RealType       m_SphereRadius = 0;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -235,7 +203,7 @@ template<class RealType>
 class CylinderObject : public GeometryObject<RealType>
 {
 public:
-    virtual std::string name() override { return "SphereObject"; }
+    virtual std::string name() override { return "CylinderObject"; }
     virtual RealType signedDistance(const Vec3<RealType>& ppos) override
     {
         //Vec3<RealType> c(0.0, 0.0, 1.0); // ,base position, base radius
@@ -245,12 +213,12 @@ public:
         return MathHelpers::min(MathHelpers::max(d.x, d.y), RealType(0.0)) + MathHelpers::norm2(MathHelpers::max(d[0], RealType(0.0)), MathHelpers::max(d[1], RealType(0.0)));
     }
 
-    Vec3<RealType>& sphereCenter() { return m_SphereCenter; }
-    RealType& sphereRadius() { return m_SphereRadius; }
+    RealType& radius() { return m_Radius; }
+    RealType& height() { return m_Height; }
 
 protected:
-    Vec3<RealType> m_SphereCenter = Vec3<RealType>(0);
-    RealType       m_SphereRadius = 0;
+    RealType m_Radius = 0;
+    RealType m_Height = 0;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -258,7 +226,7 @@ template<class RealType>
 class ConeObject : public GeometryObject<RealType>
 {
 public:
-    virtual std::string name() override { return "SphereObject"; }
+    virtual std::string name() override { return "ConeObject"; }
     virtual RealType signedDistance(const Vec3<RealType>& ppos) override
     {
         Vec2<RealType> c = glm::normalize(Vec2<RealType>(1, 1)); // normal to cone surface
@@ -267,12 +235,10 @@ public:
         return MathHelpers::max(glm::dot(c, Vec2<RealType>(q, ppos[1])), -ppos[1] - RealType(1.0));
     }
 
-    Vec3<RealType>& sphereCenter() { return m_SphereCenter; }
-    RealType& sphereRadius() { return m_SphereRadius; }
+    Vec3<RealType>& surfaceNormal() { return m_Normal; }
 
 protected:
-    Vec3<RealType> m_SphereCenter = Vec3<RealType>(0);
-    RealType       m_SphereRadius = 0;
+    Vec3<RealType> m_Normal = Vec3<RealType>(0);
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -280,7 +246,7 @@ template<class RealType>
 class PlaneObject : public GeometryObject<RealType>
 {
 public:
-    virtual std::string name() override { return "SphereObject"; }
+    virtual std::string name() override { return "PlaneObject"; }
     virtual RealType signedDistance(const Vec3<RealType>& ppos) override
     {
         Vec3<RealType> n(1, 1, 1);
@@ -288,12 +254,12 @@ public:
         return glm::dot(ppos, n) + w;
     }
 
-    Vec3<RealType>& sphereCenter() { return m_SphereCenter; }
-    RealType& sphereRadius() { return m_SphereRadius; }
+    Vec3<RealType>& normal() { return m_Normal; }
+    RealType& offset() { return m_Offset; }
 
 protected:
-    Vec3<RealType> m_SphereCenter = Vec3<RealType>(0);
-    RealType       m_SphereRadius = 0;
+    Vec3<RealType> m_Normal = Vec3<RealType>(0);
+    RealType       m_Offset = 0;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -301,7 +267,7 @@ template<class RealType>
 class TriangularPrismObject : public GeometryObject<RealType>
 {
 public:
-    virtual std::string name() override { return "SphereObject"; }
+    virtual std::string name() override { return "TriangularPrismObject"; }
     virtual RealType signedDistance(const Vec3<RealType>& ppos) override
     {
         Vec2<RealType> h(1.0, 0.5); // h, w
@@ -310,12 +276,12 @@ public:
         return MathHelpers::max(q[2] - h[1], MathHelpers::max(q[0] * RealType(0.866025) + ppos[1] * RealType(0.5), -ppos[1]) - h[0] * RealType(0.5));
     }
 
-    Vec3<RealType>& sphereCenter() { return m_SphereCenter; }
-    RealType& sphereRadius() { return m_SphereRadius; }
+    RealType& width() { return m_Width; }
+    RealType& height() { return m_Height; }
 
 protected:
-    Vec3<RealType> m_SphereCenter = Vec3<RealType>(0);
-    RealType       m_SphereRadius = 0;
+    RealType m_Width  = 0;
+    RealType m_Height = 0;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -323,7 +289,7 @@ template<class RealType>
 class HexagonalPrismObject : public GeometryObject<RealType>
 {
 public:
-    virtual std::string name() override { return "SphereObject"; }
+    virtual std::string name() override { return "HexagonalPrismObject"; }
     virtual RealType signedDistance(const Vec3<RealType>& ppos) override
     {
         Vec2<RealType> h(1.0, 0.5); // h, w
@@ -332,12 +298,12 @@ public:
                                 MathHelpers::max(q[0] * RealType(0.866025) + q[1] * RealType(0.5), q[1]) - h[0]);
     }
 
-    Vec3<RealType>& sphereCenter() { return m_SphereCenter; }
-    RealType& sphereRadius() { return m_SphereRadius; }
+    RealType& width() { return m_Width; }
+    RealType& height() { return m_Height; }
 
 protected:
-    Vec3<RealType> m_SphereCenter = Vec3<RealType>(0);
-    RealType       m_SphereRadius = 0;
+    RealType m_Width  = 0;
+    RealType m_Height = 0;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -345,7 +311,7 @@ template<class RealType>
 class CapsuleObject : public GeometryObject<RealType>
 {
 public:
-    virtual std::string name() override { return "SphereObject"; }
+    virtual std::string name() override { return "CapsuleObject"; }
     virtual RealType signedDistance(const Vec3<RealType>& ppos) override
     {
         Vec3<RealType> a(0, 0, -0.7); // end point a
@@ -358,12 +324,10 @@ public:
         return glm::length(pa - ba * h) - r;
     }
 
-    Vec3<RealType>& sphereCenter() { return m_SphereCenter; }
-    RealType& sphereRadius() { return m_SphereRadius; }
+    Vec3<RealType>& vertex(int idx) { return m_Vertices[idx]; }
 
 protected:
-    Vec3<RealType> m_SphereCenter = Vec3<RealType>(0);
-    RealType       m_SphereRadius = 0;
+    Vec3<RealType> m_Vertices[2];
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -371,7 +335,7 @@ template<class RealType>
 class EllipsoidObject : public GeometryObject<RealType>
 {
 public:
-    virtual std::string name() override { return "SphereObject"; }
+    virtual std::string name() override { return "EllipsoidObject"; }
     virtual RealType signedDistance(const Vec3<RealType>& ppos) override
     {
         Vec3<RealType> r(0.7, 0.5, 0.2);
@@ -379,12 +343,10 @@ public:
         return (MathHelpers::norm2(ppos[0] / r[0], ppos[1] / r[1], ppos[2] / r[2]) - RealType(1.0)) * MathHelpers::min(MathHelpers::min(r.x, r.y), r.z);
     }
 
-    Vec3<RealType>& sphereCenter() { return m_SphereCenter; }
-    RealType& sphereRadius() { return m_SphereRadius; }
+    Vec3<RealType>& radius() { return m_Radius; }
 
 protected:
-    Vec3<RealType> m_SphereCenter = Vec3<RealType>(0);
-    RealType       m_SphereRadius = 0;
+    Vec3<RealType> m_Radius = Vec3<RealType>(0);
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -392,7 +354,7 @@ template<class RealType>
 class TriMeshObject : public GeometryObject<RealType>
 {
 public:
-    virtual std::string name() override { return "TriangleMeshObject"; }
+    virtual std::string name() override { return "TriMeshObject"; }
     virtual RealType signedDistance(const Vec3<RealType>& ppos) override;
 
     std::string& meshFile() { return m_TriMeshFile; }
@@ -524,10 +486,10 @@ protected:
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <Banana/Geometry/GeometryObject.Impl.hpp>
+#include <Banana/Geometry/GeometryObject3D.Impl.hpp>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-}   // end namespace GeometryObjects
+}   // end namespace GeometryObject3D
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana

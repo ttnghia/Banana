@@ -146,6 +146,7 @@ void Banana::WCSPHSolver<RealType>::sortParticles()
                                d.sort_field(&m_SimData->positions[0]);
                                d.sort_field(&m_SimData->velocities[0]);
                            });
+    m_Logger->newLine();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

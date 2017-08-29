@@ -147,13 +147,7 @@
     <ClInclude Include="Include\Banana\Array\SparseArray3.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\Banana\Geometry\GeometryObjects.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Include\Banana\Data\ParameterManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\Banana\Geometry\GeometryObject.Impl.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Include\Banana\Grid\_Grid3D.Test.hpp">
@@ -169,6 +163,21 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Include\Banana\Grid\Grid2D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Banana\Geometry\GeometryObject3D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Banana\Geometry\GeometryObject3D.Impl.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Banana\Geometry\GeometryObject2D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Banana\Geometry\GeometryObject2D.Impl.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Banana\Grid\Grid2DHashing.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

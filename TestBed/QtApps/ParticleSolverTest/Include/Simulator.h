@@ -20,6 +20,7 @@
 #include <Banana/Macros.h>
 #include <ParticleSolvers/SPH/WCSPH/WCSPHSolver.h>
 #include <ParticleSolvers/FLIP/FLIP3DSolver.h>
+#include <ParticleSolvers/FLIP/FLIP2DSolver.h>
 
 #include <QObject>
 #include <QStringList>
@@ -28,6 +29,7 @@
 
 #define PARTICLE_SOLVER WCSPHSolver
 #define PARTICLE_SOLVER FLIP3DSolver
+//#define PARTICLE_SOLVER FLIP2DSolver
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 class Simulator : public QObject

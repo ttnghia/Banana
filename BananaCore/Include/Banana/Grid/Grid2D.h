@@ -44,6 +44,12 @@ public:
     unsigned int getNumTotalCells() const noexcept { return m_NumTotalCells; }
     const Vec2<unsigned int>& getNumCells() const noexcept { return m_NumCells; }
 
+    template<class IndexType>
+    IndexType getLinearizedIndex(IndexType i, IndexType j) const
+    {
+        return j * static_cast<IndexType>(getNumCellX()) + i;
+    }
+
     ////////////////////////////////////////////////////////////////////////////////
     virtual void setCellSize(RealType cellSize);
     RealType getCellSize() const noexcept { return m_CellSize; }
@@ -154,8 +160,7 @@ template<class IndexType>
 Vec2<IndexType> Grid2D<RealType>::getCellIdx(const Vec2<RealType>& ppos)  const noexcept
 {
     return Vec2<IndexType>(static_cast<IndexType>((ppos[0] - m_BMin[0]) / m_CellSize),
-                           static_cast<IndexType>((ppos[1] - m_BMin[1]) / m_CellSize),
-                           static_cast<IndexType>((ppos[2] - m_BMin[2]) / m_CellSize));
+                           static_cast<IndexType>((ppos[1] - m_BMin[1]) / m_CellSize));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

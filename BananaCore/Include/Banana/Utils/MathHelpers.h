@@ -331,7 +331,7 @@ inline void sort(T& a, T& b, T& c)
                 temp = c;
                 c    = b;
                 b    = temp;
-            }  // else: a<b<c
+            }       // else: a<b<c
         }
         else   // c<a<b
         {
@@ -411,45 +411,46 @@ inline T smooth_step(T r)
     {
         return 0;
     }
-    else if(r > 1)
+    else if(r > T(1.0))
     {
-        return 1;
+        return T(1.0);
     }
 
-    return r * r * r * (static_cast<T>(10) + r * (static_cast<T>(-15) + r * static_cast<T>(6)));
+    return r * r * r * (T(10.0) + r * (T(-15.0) + r * T(6.0)));
 }
 
 // only makes sense with T=float or double
 template<class T>
 inline T smooth_step(T r, T r_lower, T r_upper, T value_lower, T value_upper)
 {
-    return value_lower + smooth_step((r - r_lower) / (r_upper - r_lower)) *
-           (value_upper - value_lower);
+    return value_lower + smooth_step((r - r_lower) / (r_upper - r_lower)) * (value_upper - value_lower);
 }
 
 // only makes sense with T=float or double
 template<class T>
 inline T ramp(T r)
 {
-    return smooth_step((r + 1) / 2) * 2 - 1;
+    return smooth_step((r + T(1.0)) / T(2.0)) * T(2.0) - T(1.0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-inline int lround(double x)
+template<class T>
+inline int lround(T x)
 {
     if(x > 0)
     {
-        return (x - floor(x) < 0.5) ? (int)floor(x) : (int)ceil(x);
+        return (x - floor(x) < T(0.5)) ? (int)floor(x) : (int)ceil(x);
     }
     else
     {
-        return (x - floor(x) <= 0.5) ? (int)floor(x) : (int)ceil(x);
+        return (x - floor(x) <= T(0.5)) ? (int)floor(x) : (int)ceil(x);
     }
 }
 
-inline double remainder(double x, double y)
+template<class T>
+inline double remainder(T x, T y)
 {
-    return x - std::floor(x / y + 0.5) * y;
+    return x - std::floor(x / y + T(0.5)) * y;
 }
 
 inline unsigned int round_up_to_power_of_two(unsigned int n)
@@ -580,8 +581,8 @@ inline void get_barycentric(T x, int& i, T& f, int i_low, int i_high)
 template<class T>
 inline void get_bary_below(T x, int& i, T& f, int i_low, int i_high)
 {
-    T s = std::floor(x - 0.5);
-    i = (int)s;
+    T s = std::floor(x - T(0.5));
+    i = int(s);
 
     if(i < i_low)
     {
@@ -591,11 +592,11 @@ inline void get_bary_below(T x, int& i, T& f, int i_low, int i_high)
     else if(i > i_high - 2)
     {
         i = i_high - 2;
-        f = 1;
+        f = T(1.0);
     }
     else
     {
-        f = (T)(x - 0.5 - s);
+        f = T(x - T(0.5) - s);
     }
 }
 
@@ -652,7 +653,7 @@ inline S quadlerp(const S& v0000, const S& v1000,
 template<class T>
 inline void quadratic_bspline_weights(T f, T& w0, T& w1, T& w2)
 {
-    w0 = T(0.5) * sqr(f - 1);
+    w0 = T(0.5) * sqr(f - T(1.0));
     w1 = T(0.75) - sqr(f - T(0.5));;
     w2 = T(0.5) * sqr(f);
 }
@@ -662,10 +663,10 @@ template<class T>
 inline void cubic_interp_weights(T f, T& wneg1, T& w0, T& w1, T& w2)
 {
     T f2(f* f), f3(f2 * f);
-    wneg1 = -T(1. / 3) * f + T(1. / 2) * f2 - T(1. / 6) * f3;
-    w0    = 1 - f2 + T(1. / 2) * (f3 - f);
-    w1    = f + T(1. / 2) * (f2 - f3);
-    w2    = T(1. / 6) * (f3 - f);
+    wneg1 = -T(1.0 / 3.0) * f + T(1.0 / 2.0) * f2 - T(1.0 / 6.0) * f3;
+    w0    = T(1.0) - f2 + T(1.0 / 2.0) * (f3 - f);
+    w1    = f + T(1.0 / 2.0) * (f2 - f3);
+    w2    = T(1.0 / 6.0) * (f3 - f);
 }
 
 template<class S, class T>
@@ -686,18 +687,51 @@ T sharp_kernel(T r2, T h)
         return 0;
     }
 
-    return fmax(h * h / fmax(r2, 1.0e-5) - 1.0, 0.0);
+    return fmax(h * h / fmax(r2, T(1.0e-5)) - T(1.0), T(0));
+}
+
+template<class T>
+T smooth_kernel(T r2, T h)
+{
+    return fmax(pow(T(1.0) - r2 / (h * h), T(3.0)), T(0));
+}
+
+template<class T>
+T poly6_kernel(T r2, T h)
+{
+    if(r2 <= h * h)
+        return T(4.0 / (M_PI * pow(h, 8.0))) * pow(h * h - r2, T(3.0));
+    else
+        return 0;
+}
+
+template<class T>
+inline T smooth_kernel_laplacian(T r2, T h)
+{
+    T x2 = T(sqrt(r2 / (h * h)));
+    return x2 > T(1.0) ? 0 : (T(1.0) - x2);
+}
+
+template<class T>
+T bilinear_kernel(T dx, T dy)
+{
+    if(dx > T(1.0) || dy > T(1.0))
+    {
+        return 0;
+    }
+
+    return (T(1.0) - dx) * (T(1.0) - dy);
 }
 
 template<class T>
 T tril_kernel(T dx, T dy, T dz)
 {
-    if(dx > 1 || dy > 1 || dz > 1)
+    if(dx > T(1.0) || dy > T(1.0) || dz > T(1.0))
     {
-        return 0.0;
+        return 0;
     }
 
-    return (1 - dx) * (1 - dy) * (1 - dz);
+    return (T(1.0) - dx) * (T(1.0) - dy) * (T(1.0) - dz);
 }
 
 template<class T>
@@ -705,13 +739,13 @@ T spiky_kernel(T r, T h)
 {
     if(r > h)
     {
-        return 0.0;
+        return 0;
     }
 
     T rh = r / h;
     rh = rh * rh;
 
-    T val = 315.0 / 64.0 / M_PI * (1.0 - rh) * (1.0 - rh) * (1.0 - rh);
+    T val = T(315.0 / 64.0 / M_PI) * (T(1.0) - rh) * (T(1.0) - rh) * (T(1.0) - rh);
 
     return val;
 }
@@ -719,7 +753,7 @@ T spiky_kernel(T r, T h)
 template<class T>
 T cubic_spline_kernel(T f)
 {
-    T x  = f > T(0) ? f : -f;
+    T x  = f > 0 ? f : -f;
     T x2 = x * x;
     T x3 = x2 * x;
 
@@ -791,8 +825,8 @@ T fraction_inside(T left_val, T right_val)
 template<class T>
 T fraction_inside(T phi_bl, T phi_br, T phi_tl, T phi_tr)
 {
-    int      inside_count = (phi_bl < 0 ? 1 : 0) + (phi_tl < 0 ? 1 : 0) + (phi_br < 0 ? 1 : 0) + (phi_tr < 0 ? 1 : 0);
-    T list[] = {phi_bl, phi_br, phi_tr, phi_tl};
+    int inside_count = (phi_bl < 0 ? 1 : 0) + (phi_tl < 0 ? 1 : 0) + (phi_br < 0 ? 1 : 0) + (phi_tr < 0 ? 1 : 0);
+    T   list[]       = { phi_bl, phi_br, phi_tr, phi_tl };
 
     if(inside_count == 4)
     {
@@ -821,11 +855,11 @@ T fraction_inside(T phi_bl, T phi_br, T phi_tl, T phi_tr)
 
         if(list[1] < 0)   //the matching signs are adjacent
         {
-            T side_left = fraction_inside(list[0], list[3]);
+            T side_left  = fraction_inside(list[0], list[3]);
             T side_right = fraction_inside(list[1], list[2]);
             return T(0.5) * (side_left + side_right);
         }
-        else   //matching signs are diagonally opposite
+        else    //matching signs are diagonally opposite
         {
             //determine the centre point's sign to disambiguate this case
             T middle_point = T(0.25) * (list[0] + list[1] + list[2] + list[3]);
@@ -882,7 +916,6 @@ T fraction_inside(T phi_bl, T phi_br, T phi_tl, T phi_tr)
         return T(0);
     }
 }
-
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace MathHelpers

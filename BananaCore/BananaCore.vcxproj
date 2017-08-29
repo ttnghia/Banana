@@ -124,9 +124,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\Banana\Array\SparseArray3.h" />
-    <ClInclude Include="Include\Banana\Geometry\GeometryObject.Impl.hpp" />
-    <ClInclude Include="Include\Banana\Geometry\GeometryObjects.h" />
+    <ClInclude Include="Include\Banana\Geometry\GeometryObject2D.h" />
+    <ClInclude Include="Include\Banana\Geometry\GeometryObject2D.Impl.hpp" />
+    <ClInclude Include="Include\Banana\Geometry\GeometryObject3D.Impl.hpp" />
+    <ClInclude Include="Include\Banana\Geometry\GeometryObject3D.h" />
     <ClInclude Include="Include\Banana\Grid\Grid2D.h" />
+    <ClInclude Include="Include\Banana\Grid\Grid2DHashing.h" />
     <ClInclude Include="Include\Banana\Grid\Grid3D.h" />
     <ClInclude Include="Include\Banana\Grid\Grid3DHashing.h" />
     <ClInclude Include="Include\Banana\Grid\GridHelpers.h" />

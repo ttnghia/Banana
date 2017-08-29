@@ -19,22 +19,20 @@
 
 #include <Banana/TypeNames.h>
 #include <Banana/Array/Array3.h>
-#include <Banana/Array/ArrayHelpers.h>
 #include <Banana/LinearAlgebra/SparseMatrix/SparseMatrix.h>
 #include <ParticleSolvers/ParticleSolverData.h>
-
-#include <Banana/Geometry/GeometryObjects.h>
+#include <Banana/Geometry/GeometryObject3D.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-enum InterpolationKernel { Linear, CubicSpline };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
 struct  SimulationParameters_FLIP3D
 {
+    enum InterpolationKernel { Linear, CubicSpline };
     SimulationParameters_FLIP3D() { makeReady(); }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -101,33 +99,24 @@ template<class RealType>
 struct SimulationData_FLIP3D
 {
     Vec_Vec3<RealType> positions;
+    Vec_Vec3<RealType> positions_tmp;
     Vec_Vec3<RealType> velocities;
     Vec_VecUInt        neighborList;
-
-
-    // todo: remove
-    tbb::mutex u_mutex;
-    tbb::mutex v_mutex;
-    tbb::mutex w_mutex;
-    tbb::mutex weight_u_mutex;
-    tbb::mutex weight_v_mutex;
-    tbb::mutex weight_w_mutex;
-
 
 
     ////////////////////////////////////////////////////////////////////////////////
     //Fluid grid data for velocity
     Array3<RealType> u, v, w;
-    Array3<RealType> u_old, v_old, w_old;
     Array3<RealType> du, dv, dw;
+    Array3<RealType> u_old, v_old, w_old;
     Array3<RealType> u_weights, v_weights, w_weights;
     Array3c          u_valid, v_valid, w_valid;
 
     // temp array
-    Array3<RealType> temp_u, temp_v, temp_w;
-    Array3c          old_valid_u, old_valid_v, old_valid_w;
+    Array3<RealType> u_temp, v_temp, w_temp;
+    Array3c          u_valid_old, v_valid_old, w_valid_old;
 
-    Array3<RealType> fluidSDF, temp_fluidSDF;
+    Array3<RealType> fluidSDF;
     Array3<RealType> boundarySDF;
 
 
@@ -149,35 +138,35 @@ struct SimulationData_FLIP3D
 
     void makeReady(unsigned int ni, unsigned int nj, unsigned int nk)
     {
+        positions_tmp.resize(positions.size());
         velocities.resize(positions.size(), Vec3<RealType>(0));
         neighborList.resize(positions.size());
 
         u.resize(ni + 1, nj, nk, 0);
         u_old.resize(ni + 1, nj, nk, 0);
         du.resize(ni + 1, nj, nk, 0);
-        temp_u.resize(ni + 1, nj, nk, 0);
+        u_temp.resize(ni + 1, nj, nk, 0);
         u_weights.resize(ni + 1, nj, nk, 0);
         u_valid.resize(ni + 1, nj, nk, 0);
-        old_valid_u.resize(ni + 1, nj, nk, 0);
+        u_valid_old.resize(ni + 1, nj, nk, 0);
 
         v.resize(ni, nj + 1, nk, 0);
         v_old.resize(ni, nj + 1, nk, 0);
         dv.resize(ni, nj + 1, nk, 0);
-        temp_v.resize(ni, nj + 1, nk, 0);
+        v_temp.resize(ni, nj + 1, nk, 0);
         v_weights.resize(ni, nj + 1, nk, 0);
         v_valid.resize(ni, nj + 1, nk, 0);
-        old_valid_v.resize(ni, nj + 1, nk, 0);
+        v_valid_old.resize(ni, nj + 1, nk, 0);
 
         w.resize(ni, nj, nk + 1, 0);
         w_old.resize(ni, nj, nk + 1, 0);
         dw.resize(ni, nj, nk + 1, 0);
-        temp_w.resize(ni, nj, nk + 1, 0);
+        w_temp.resize(ni, nj, nk + 1, 0);
         w_weights.resize(ni, nj, nk + 1, 0);
         w_valid.resize(ni, nj, nk + 1, 0);
-        old_valid_w.resize(ni, nj, nk + 1, 0);
+        w_valid_old.resize(ni, nj, nk + 1, 0);
 
         fluidSDF.resize(ni, nj, nk, 0);
-        temp_fluidSDF.resize(ni, nj, nk, 0);
         boundarySDF.resize(ni + 1, nj + 1, nk + 1, 0);
 
         matrix.resize(ni * nj * nk);
@@ -187,9 +176,8 @@ struct SimulationData_FLIP3D
 
     void backupGridVelocity()
     {
-        w_old.copyDataFrom(w);
-        v_old.copyDataFrom(v);
         u_old.copyDataFrom(u);
+        v_old.copyDataFrom(v);
     }
 };
 

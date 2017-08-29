@@ -37,7 +37,7 @@ public:
     ////////////////////////////////////////////////////////////////////////////////
     virtual std::string getSolverName() override { return std::string("FLIP3DSolver"); }
     virtual std::string getGreetingMessage() override { return std::string("Fluid Simulation using FLIP-3D Solver"); }
-    virtual unsigned int        getNumParticles() override { return static_cast<unsigned int>(m_SimData->positions.size()); }
+    virtual unsigned int        getNumParticles() override { return m_SimData->getNumParticles(); }
     virtual Vec_Vec3<RealType>& getParticlePositions() override { return m_SimData->positions; }
     virtual Vec_Vec3<RealType>& getParticleVelocities() override { return m_SimData->velocities; }
 
@@ -53,8 +53,9 @@ private:
     virtual void saveParticleData() override;
 
     RealType computeCFLTimestep();
-    void     advanceVelocity(RealType timeStep);
+    void     advanceVelocity(RealType timestep);
     void     moveParticles(RealType timeStep);
+    void     correctPositions(RealType timestep);
 
     void computeFluidWeights();
     void addRepulsiveVelocity2Particles(RealType timestep);
@@ -84,7 +85,7 @@ private:
     ////////////////////////////////////////////////////////////////////////////////
     std::shared_ptr<SimulationParameters_FLIP3D<RealType> > m_SimParams = std::make_shared<SimulationParameters_FLIP3D<RealType> >();
     std::unique_ptr<SimulationData_FLIP3D<RealType> >       m_SimData   = std::make_unique<SimulationData_FLIP3D<RealType> >();
-    Grid3DHashing<RealType>                                 m_Grid3D;
+    Grid3DHashing<RealType>                                 m_Grid;
     PCGSolver<RealType>                                     m_PCGSolver;
 
     std::function<RealType(const Vec3<RealType>&, const Array3<RealType>&)> m_InterpolateValue = nullptr;
