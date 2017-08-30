@@ -84,9 +84,6 @@
     <ClInclude Include="Banana\LinearAlgebra\LinearSolvers\PCGSolver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Banana\LinearAlgebra\LinearSolvers\PCGSolver.Impl.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Banana\LinearAlgebra\SparseMatrix\BlockSparseMatrix.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -186,6 +183,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Banana\LinearAlgebra\SparseMatrix\SparseMatrix.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Banana\LinearAlgebra\LinearSolvers\PCGSolver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

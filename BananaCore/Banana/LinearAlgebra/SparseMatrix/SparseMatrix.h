@@ -26,28 +26,21 @@ namespace Banana
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Dynamic compressed sparse row matrix
 //
-class SparseMatrix
+struct SparseMatrix
 {
-private:
-    UInt m_Size;
+public:
+    UInt nRows;
 
     // for each row, a list of all column indices (sorted)
-    Vec_VecUInt m_ColIndex;
+    Vec_VecUInt colIndex;
 
     // values corresponding to indices
-    Vec_VecReal m_ColValue;
+    Vec_VecReal colValue;
 
-public:
-    explicit SparseMatrix(UInt size = 0) : m_Size(size), m_ColIndex(size), m_ColValue(size) {}
+    explicit SparseMatrix(UInt size = 0) : nRows(size), colIndex(size), colValue(size) {}
 
-    UInt size() const noexcept;
     void resize(UInt newSize);
     void clear(void);
-
-    Vec_UInt&       getIndices(UInt row);
-    Vec_Real&       getValues(UInt row);
-    const Vec_UInt& getIndices(UInt row) const;
-    const Vec_Real& getValues(UInt row) const;
 
     Real operator ()(UInt i, UInt j) const;
 
@@ -55,12 +48,8 @@ public:
     void addElement(UInt i, UInt j, Real incrementValue);
     void eraseElement(UInt i, UInt j);
 
-    void printDebug() const noexcept;
+    void printDebug(UInt maxRows = 0) const noexcept;
     void checkSymmetry() const noexcept;
-
-    void writeMatlabFile(const char* fileName, int showPercentage = -1) const;
-    void writeBinaryFile(const char* fileName, int showPercentage = -1) const;
-    bool loadFromBinaryFile(const char* fileName, int showPercentage = -1);
 
     ////////////////////////////////////////////////////////////////////////////////
     static void multiply(const SparseMatrix& matrix, const Vec_Real& x, Vec_Real& result);
@@ -71,34 +60,24 @@ public:
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Fixed version of SparseMatrix. This can be significantly faster for matrix-vector
 // multiplies due to better data locality.
-class FixedSparseMatrix
+struct FixedSparseMatrix
 {
-private:
-    UInt m_Size;
+    UInt nRows;
 
     // nonzero values row by row
-    Vec_Real m_ColValue;
+    Vec_Real colValue;
 
     // corresponding column indices
-    Vec_UInt m_ColIndex;
+    Vec_UInt colIndex;
 
     // where each row starts in value and col index (and last entry is one past the end, the number of non zeros)
-    Vec_UInt m_RowStart;
+    Vec_UInt rowStart;
 
-public:
-    explicit FixedSparseMatrix(UInt size = 0) : m_Size(size), m_ColValue(0), m_ColIndex(0), m_RowStart(size + 1) {}
+    explicit FixedSparseMatrix(UInt size = 0) : nRows(size), colValue(0), colIndex(0), rowStart(size + 1) {}
 
-    UInt size() const noexcept;
     void resize(UInt newSize);
     void clear(void);
     void constructFromSparseMatrix(const SparseMatrix& fixedMatrix);
-
-    Vec_UInt&       getIndices(UInt row);
-    Vec_UInt&       getRowStarts(UInt row);
-    Vec_Real&       getValues(UInt row);
-    const Vec_UInt& getIndices(UInt row) const;
-    const Vec_UInt& getRowStarts(UInt row) const;
-    const Vec_Real& getValues(UInt row) const;
 
     ////////////////////////////////////////////////////////////////////////////////
     static void multiply(const FixedSparseMatrix& matrix, const Vec_Real& x, Vec_Real& result);

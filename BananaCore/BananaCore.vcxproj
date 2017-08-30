@@ -148,7 +148,6 @@
     <ClInclude Include="Banana\LinearAlgebra\SparseMatrix\BlockSparseMatrix.h" />
     <ClInclude Include="Banana\LinearAlgebra\SparseMatrix\BlockSparseMatrix.Impl.hpp" />
     <ClInclude Include="Banana\LinearAlgebra\LinearSolvers\PCGSolver.h" />
-    <ClInclude Include="Banana\LinearAlgebra\LinearSolvers\PCGSolver.Impl.hpp" />
     <ClInclude Include="Banana\LinearAlgebra\SparseMatrix\SparseMatrix.h" />
     <ClInclude Include="Banana\ParallelHelpers\ParallelBLAS.h" />
     <ClInclude Include="Banana\ParallelHelpers\ParallelFuncs.h" />
@@ -180,6 +179,7 @@
     <ClCompile Include="Banana\Grid\Grid2DHashing.cpp" />
     <ClCompile Include="Banana\Grid\Grid3D.cpp" />
     <ClCompile Include="Banana\Grid\Grid3DHashing.cpp" />
+    <ClCompile Include="Banana\LinearAlgebra\LinearSolvers\PCGSolver.cpp" />
     <ClCompile Include="Banana\LinearAlgebra\SparseMatrix\SparseMatrix.cpp" />
     <ClCompile Include="Banana\Utils\Logger.cpp" />
   </ItemGroup>

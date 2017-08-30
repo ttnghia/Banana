@@ -19,9 +19,9 @@
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #ifdef BANANA_DOUBLE_PRECISION
-__BNN_COMPILER_MESSAGE("Compile Banana with double precision floating point number")
+__BNN_COMPILER_MESSAGE("Banana computation with precision: double")
 #else
-__BNN_COMPILER_MESSAGE("Compile Banana with single precision floating point number")
+__BNN_COMPILER_MESSAGE("Banana computation with precision: float")
 #endif
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -37,7 +37,11 @@ __BNN_COMPILER_MESSAGE("Compiler: Visual Studio C++")
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #ifdef NDEBUG
-__BNN_COMPILER_MESSAGE("Config: Release")
+__BNN_COMPILER_MESSAGE("Build: Release")
 #else
-__BNN_COMPILER_MESSAGE("Config: Debug")
+__BNN_COMPILER_MESSAGE("Build: Debug")
 #endif
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+// Get rid of warning LNK4221
+void dummy() {}

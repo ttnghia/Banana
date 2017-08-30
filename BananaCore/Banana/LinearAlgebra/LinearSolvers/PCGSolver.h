@@ -18,86 +18,78 @@
 #pragma once
 
 #include <Banana/LinearAlgebra/SparseMatrix/SparseMatrix.h>
-#include <Banana/ParallelHelpers/ParallelBLAS.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-enum class PreconditionerTypes
-{
-    JACOBI,
-    MICCL0,
-    MICCL0_SYMMETRIC
-};
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // A simple compressed sparse column data structure (with separate diagonal)
 // for lower triangular matrices
-template<class Real>
 struct SparseColumnLowerFactor
 {
-    __BNN_SETUP_DATA_TYPE(Real)
+    UInt     nRows;
+    Vec_Real invDiag;  // reciprocals of diagonal elements
+    Vec_UInt colIndex; // a list of all row indices, for each column in turn
+    Vec_Real colValue; // values below the diagonal, listed column by column
+    Vec_UInt colStart; // where each column begins in row index (plus an extra entry at the end, of #nonzeros)
+    Vec_Real aDiag;    // just used in factorization: minimum "safe" diagonal entry allowed
 
-    UInt m_Size;
-    Vec_Real m_InvDiag;  // reciprocals of diagonal elements
-    Vec_Real m_ColValue; // values below the diagonal, listed column by column
-    Vec_UInt m_ColIndex; // a list of all row indices, for each column in turn
-    Vec_UInt m_ColStart; // where each column begins in row index (plus an extra entry at the end, of #nonzeros)
-    Vec_Real m_aDiag;    // just used in factorization: minimum "safe" diagonal entry allowed
-
-    explicit SparseColumnLowerFactor(UInt size = 0) : m_Size(size), m_InvDiag(size), m_ColStart(size + 1), m_aDiag(size) {}
+    explicit SparseColumnLowerFactor(UInt size = 0) : nRows(size), invDiag(size), colStart(size + 1), aDiag(size) {}
 
     void clear(void);
     void resize(UInt newSize);
-    void writeMatlab(std::ostream& output, const char* variableName);
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
 class PCGSolver
 {
-    __BNN_SETUP_DATA_TYPE(Real)
 public:
+    enum Preconditioner
+    {
+        JACOBI,
+        MICCL0,
+        MICCL0_SYMMETRIC
+    };
+
     PCGSolver() = default;
 
-    void setSolverParameters(Real toleranceFactor, int maxIterations, Real MICCL0Param = 0.97, Real minDiagonalRatio = 0.25);
-    void setPreconditioners(PreconditionerTypes precond);
-    void setZeroInitial(bool bZeroInitial);
-    void enableZeroInitial();
-    void disableZeroInitial();
-    bool solve(const SparseMatrix<Real>& matrix, const Vec_Real& rhs, Vec_Real& result, Real& residual_out, UInt& iterations_out);
-    bool solve_precond(const SparseMatrix<Real>& matrix, const Vec_Real& rhs, Vec_Real& result, Real& residual_out, UInt& iterations_out);
+    void setPreconditioners(Preconditioner precond) { m_PreconditionerType = precond; }
+    void setZeroInitial(bool bZeroInitial) { m_bZeroInitial = bZeroInitial; }
+    void enableZeroInitial() { m_bZeroInitial = true; }
+    void disableZeroInitial() { m_bZeroInitial = false; }
+    void setSolverParameters(Real toleranceFactor, int maxIterations, Real MICCL0Param = Real(0.97), Real minDiagonalRatio = Real(0.25));
+    bool solve(const SparseMatrix& matrix, const Vec_Real& rhs, Vec_Real& result, Real& residual_out, UInt& iterations_out);
+    bool solve_precond(const SparseMatrix& matrix, const Vec_Real& rhs, Vec_Real& result, Real& residual_out, UInt& iterations_out);
 
 private:
-    void formPreconditioner(const SparseMatrix<Real>& matrix);
+    void resize(UInt size);
+    void formPreconditioner(const SparseMatrix& matrix);
     void applyPreconditioner(const Vec_Real& x, Vec_Real& result);
     void applyJacobiPreconditioner(const Vec_Real& x, Vec_Real& result);
 
-    void solveLower(const SparseColumnLowerFactor<Real>& factor, const Vec_Real& rhs, Vec_Real& result);
-    void solveLower_TransposeInPlace(const SparseColumnLowerFactor<Real>& factor, Vec_Real& x);
+    void solveLower(const Vec_Real& rhs, Vec_Real& result);
+    void solveLower_TransposeInPlace(Vec_Real& x);
 
-    void formPreconditioner_Jacobi(const SparseMatrix<Real>& matrix);
-    void formPreconditioner_MICC0L0(const SparseMatrix<Real>& matrix, SparseColumnLowerFactor<Real>& factor, Real MICCL0Param = 0.97, Real minDiagonalRatio = 0.25);
-    void formPreconditioner_Symmetric_MICC0L0(const SparseMatrix<Real>& matrix, SparseColumnLowerFactor<Real>& factor, Real minDiagonalRatio = 0.25);
+    void formPreconditioner_Jacobi(const SparseMatrix& matrix);
+    void formPreconditioner_MICC0L0(const SparseMatrix& matrix, Real MICCL0Param = Real(0.97), Real minDiagonalRatio = Real(0.25));
+    void formPreconditioner_Symmetric_MICC0L0(const SparseMatrix& matrix, Real minDiagonalRatio = Real(0.25));
 
     ////////////////////////////////////////////////////////////////////////////////
-    Vec_Real                z, s, r;
-    FixedSparseMatrix<Real> m_FixedSparseMatrix;
+    Vec_Real          z, s, r;
+    FixedSparseMatrix m_FixedSparseMatrix;
 
-    SparseColumnLowerFactor<Real> m_ICCPreconditioner;
-    Vec_Real                      m_JacobiPreconditioner;
+    SparseColumnLowerFactor m_ICCPrecond;
+    Vec_Real                m_JacobiPrecond;
 
     // solver parameters
-    PreconditionerTypes m_PreconditionerType = PreconditionerTypes::MICCL0;
-    Real                m_ToleranceFactor    = Real(1e-20);
-    UInt              m_MaxIterations      = 10000;
-    Real                m_MICCL0Param        = Real(0.97);
-    Real                m_MinDiagonalRatio   = Real(0.25);
-    bool                m_bZeroInitial       = true;
+    Preconditioner m_PreconditionerType = Preconditioner::MICCL0;
+    Real           m_ToleranceFactor    = Real(1e-20);
+    UInt           m_MaxIterations      = 10000;
+    Real           m_MICCL0Param        = Real(0.97);
+    Real           m_MinDiagonalRatio   = Real(0.25);
+    bool           m_bZeroInitial       = true;
 };
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <Banana/LinearAlgebra/LinearSolvers/PCGSolver.Impl.hpp>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana
