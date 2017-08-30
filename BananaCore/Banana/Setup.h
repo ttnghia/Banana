@@ -26,12 +26,12 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // define the floating point precision for all projects
 
-#if defined(SINGLE_PRECISION) || defined(LOW_PRECISION)
-#  define BANANA_SINGLE_PRECISION
-using Real = float;
-#else
+#if defined(DOUBLE_PRECISION) || defined(HIGH_PRECISION)
 #  define BANANA_DOUBLE_PRECISION
 using Real = double;
+#else
+#  define BANANA_SINGLE_PRECISION
+using Real = float;
 #endif
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -66,9 +66,6 @@ template<class Type>
 using Vector = std::vector<Type>;
 
 template<class Type>
-using Vec_Vec = std::vector<std::vector<Type> >;
-
-template<class Type>
 using Vec2 = glm::tvec2<Type>;
 
 template<class Type>
@@ -84,13 +81,29 @@ template<class Type>
 using Mat3x3 = glm::mat<3, 3, Type>;
 
 template<class Type>
-using Mat3x4 = glm::mat<3, 4, Type>;
-
-template<class Type>
-using Mat4x3 = glm::mat<4, 3, Type>;
-
-template<class Type>
 using Mat4x4 = glm::mat<4, 4, Type>;
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class Type>
+using Vec_Vec = Vector<Vector<Type> >;
+
+template<class Type>
+using Vec_Vec2 = Vector<Vec2<Type> >;
+
+template<class Type>
+using Vec_Vec3 = Vector<Vec3<Type> >;
+
+template<class Type>
+using Vec_Vec4 = Vector<Vec4<Type> >;
+
+template<class Type>
+using Vec_Mat2x2 = Vector<Mat2x2<Type> >;
+
+template<class Type>
+using Vec_Mat3x3 = Vector<Mat3x3<Type> >;
+
+template<class Type>
+using Vec_Mat4x4 = Vector<Mat4x4<Type> >;
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // floating point type
@@ -103,8 +116,6 @@ using Vec4r = Vec4<Real>;
 // matrices
 using Mat2x2r = Mat2x2<Real>;
 using Mat3x3r = Mat3x3<Real>;
-using Mat3x4r = Mat3x4<Real>;
-using Mat4x3r = Mat4x3<Real>;
 using Mat4x4r = Mat4x4<Real>;
 
 // vectors
@@ -115,8 +126,6 @@ using Vec_Vec4r = Vector<Vec4r>;
 // vectors of matrices
 using Vec_Mat2x2r = Vector<Mat2x2r>;
 using Vec_Mat3x3r = Vector<Mat3x3r>;
-using Vec_Mat3x4r = Vector<Mat3x4r>;
-using Vec_Mat4x3r = Vector<Mat4x3r>;
 using Vec_Mat4x4r = Vector<Mat4x4r>;
 
 // vectors of vector of ...

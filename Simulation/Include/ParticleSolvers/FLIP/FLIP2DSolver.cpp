@@ -43,7 +43,7 @@ void FLIP2DSolver::makeReady()
                                m_SimData->makeReady(m_Grid.getNumCellX(), m_Grid.getNumCellY());
 
                                m_PCGSolver.setSolverParameters(m_SimParams->CGRelativeTolerance, m_SimParams->maxCGIteration);
-                               m_PCGSolver.setPreconditioners(PreconditionerTypes::MICCL0_SYMMETRIC);
+                               m_PCGSolver.setPreconditioners(PCGSolver::MICCL0_SYMMETRIC);
 
 
 
@@ -894,12 +894,12 @@ Vec2r FLIP2DSolver::getVelocityChangesFromGrid(const Vec2r& gridPos)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 Mat2x2r FLIP2DSolver::getAffineMatrix(const Vec2r& gridPos)
 {
-    Real vu = m_InterpolateValue(gridPos - Vec<Real>(0, 0.5), m_SimData->u);
-    Real vv = m_InterpolateValue(gridPos - Vec<Real>(0.5, 0), m_SimData->v);
+    //Real vu = m_InterpolateValue(gridPos - Vec<Real>(0, 0.5), m_SimData->u);
+    //Real vv = m_InterpolateValue(gridPos - Vec<Real>(0.5, 0), m_SimData->v);
 
-    Mat2x2r C;
-    C[0] = ArrayHelpers::interpolateValueAffine(p0, u) / m_Grid.getCellSize();
-    C[1] = ArrayHelpers::interpolateValueAffine(p1, v) / m_Grid.getCellSize();
+    Mat2x2r C(0);
+    //C[0] = ArrayHelpers::interpolateValueAffine(p0, vu) / m_Grid.getCellSize();
+    //C[1] = ArrayHelpers::interpolateValueAffine(p1, vv) / m_Grid.getCellSize();
 
     return C;
 }

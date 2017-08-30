@@ -15,42 +15,51 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-#pragma once
-
-#include <SimulationObjects/BoundaryObjects/BoundaryObject.h>
+#include <SimulationObjects/ParticleObjects/ParticleObject.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class BoxBoundaryObject : public BoundaryObject
+void ParticleObject::makeObj()
 {
-public:
-    BoxBoundaryObject() = default;
-    BoxBoundaryObject(const Vec3r& bMin, const Vec3r& bMax) : m_BMin(bMin), m_BMax(bMax) {}
-    BoxBoundaryObject(const Vec3r& bMin, const Vec3r& bMax, Real margin) :
-        BoundaryObject(margin), m_BMin(bMin), m_BMax(bMax), m_MovingBMin(bMin), m_MovingBMax(bMax)
+    if(!m_CacheFile.empty() && FileHelpers::fileExisted(m_CacheFile))
     {
-        computeMovingBox();
+        m_Particles.resize(0);
+        ParticleHelpers::loadBinary(m_CacheFile, m_Particles, m_ParticleRadius);
+    }
+    else
+    {
+        __BNN_ASSERT(m_ParticleRadius > 0);
+        generateParticles();
+
+        if(m_bRelaxPosition)
+            ParticleHelpers::relaxPosition(m_Particles, m_RelaxMethod);
+
+        if(!m_CacheFile.empty())
+            ParticleHelpers::saveBinary(m_CacheFile, m_Particles, m_ParticleRadius);
     }
 
-    BoxBoundaryObject(const Vec3r& bMin, const Vec3r& bMax, Real margin, Real restitution) :
-        BoundaryObject(margin, restitution), m_BMin(bMin), m_BMax(bMax), m_MovingBMin(bMin), m_MovingBMax(bMax)
+    computeAABB();
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void ParticleObject::computeAABB()
+{
+    for(auto& ppos : m_Particles)
     {
-        computeMovingBox();
+        for(int l = 0; l < 3; ++l)
+        {
+            if(m_AABBMin[l] > ppos[l])
+                m_AABBMin[l] = ppos[l];
+
+            if(m_AABBMax[l] < ppos[l])
+                m_AABBMax[l] = ppos[l];
+        }
     }
 
-    void         setBox(const Vec3r& bMin, const Vec3r& bMax);
-    virtual void generateBoundaryParticles(Real spacing, Int numBDLayers = 2) override;
-    virtual bool constrainToBoundary(Vec3r& ppos, Vec3r& pvel) override;
-
-private:
-    void computeMovingBox();
-
-    ////////////////////////////////////////////////////////////////////////////////
-    Vec3r m_BMin, m_BMax;
-    Vec3r m_MovingBMin, m_MovingBMax;
-};
+    m_ObjCenter = (m_AABBMin + m_AABBMax) * Real(0.5);
+}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana

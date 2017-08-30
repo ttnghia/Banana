@@ -50,7 +50,6 @@ enum BOUNDARY_TYPE
     BT_COUNT
 };
 
-template<class Real>
 struct Boundary
 {
     Boundary(const Vec2r& center_, const Vec2r& parameter_, BOUNDARY_TYPE type_, bool inside)

@@ -21,10 +21,10 @@ INCLUDEPATH += $$PWD/Include
 win32 {
     CONFIG(debug, debug|release) {
         message("Simulation -- Debug")
-#        LIBS += $$PWD/../Build/Debug/Simulation.lib
+        LIBS += $$PWD/../Build/Debug/Simulation.lib
     }else {
         message("Simulation -- Release")
-#        LIBS += $$PWD/../Build/Release/Simulation.lib
+        LIBS += $$PWD/../Build/Release/Simulation.lib
     }
 }
 

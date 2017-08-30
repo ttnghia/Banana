@@ -60,10 +60,6 @@ bool Grid2D::isInsideGrid(const Vec2r& ppos) const noexcept
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Grid2D::constraintToGrid(Vec_Vec2r& particles)
 {
-    const Real  epsilon = 1e-9;
-    const Vec2r minPos  = m_BMin + Vec2r(epsilon);
-    const Vec2r maxPos  = m_BMax - Vec2r(epsilon);
-
     ParallelFuncs::parallel_for<size_t>(0, particles.size(),
                                         [&](size_t p)
                                         {
@@ -72,10 +68,10 @@ void Grid2D::constraintToGrid(Vec_Vec2r& particles)
 
                                             for(int i = 0; i < 3; ++i)
                                             {
-                                                if(pos[i] < minPos[i] || pos[i] > maxPos[i])
+                                                if(pos[i] < m_BMin[i] || pos[i] > m_BMax[i])
                                                 {
                                                     dirty = true;
-                                                    pos[i] = MathHelpers::max(minPos[i], MathHelpers::min(pos[i], maxPos[i]));
+                                                    pos[i] = MathHelpers::max(m_BMin[i], MathHelpers::min(pos[i], m_BMax[i]));
                                                 }
                                             }
 

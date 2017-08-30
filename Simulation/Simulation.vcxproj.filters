@@ -257,5 +257,11 @@
     <ClCompile Include="Include\ParticleSolvers\FLIP\FLIP3DSolver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Include\ParticleTools\ParticleHelpers.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Include\SimulationObjects\ParticleObjects\ParticleObject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

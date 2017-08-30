@@ -59,7 +59,7 @@ inline Real interpolateValueLinear(const Vec3r& point, const Array3r& grid)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-Vec2r grad_bilerp(Real v00, Real v10, Real v01, Real v11, Real fx, Real fy)
+inline Vec2r grad_bilerp(Real v00, Real v10, Real v01, Real v11, Real fx, Real fy)
 {
     return Vec2r(fy - 1.0, fx - 1.0) * v00 +
            Vec2r(1.0 - fy, -fx) * v10 +

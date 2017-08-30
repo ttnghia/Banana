@@ -51,7 +51,8 @@ public:
 
     void transform(const Vec3r& translate, const Vec3r& rotate)
     {
-        //
+        __BNN_UNUSED(translate);
+        __BNN_UNUSED(rotate);
     }
 
 protected:
@@ -359,7 +360,7 @@ public:
     Real& expanding() { return m_Expanding; }
 
     void makeSDF();
-    const Array3<Real>& getSDF() const noexcept { return m_SDFData; }
+    const Array3r& getSDF() const noexcept { return m_SDFData; }
 protected:
 
 
@@ -367,10 +368,10 @@ protected:
     bool        m_bSDFReady = false;
     std::string m_TriMeshFile;
 
-    Real         m_Step      = Real(1.0 / 256.0);
-    Real         m_Expanding = Real(0.1);
-    Grid3D<Real> m_Grid3D;
-    Array3<Real> m_SDFData;
+    Real    m_Step      = Real(1.0 / 256.0);
+    Real    m_Expanding = Real(0.1);
+    Grid3D  m_Grid3D;
+    Array3r m_SDFData;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

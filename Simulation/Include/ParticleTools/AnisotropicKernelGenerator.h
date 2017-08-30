@@ -29,14 +29,11 @@ namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // TODO: replace grid3d by compact hashing
-template<class Real>
 class AnisotropicKernelGenerator
 {
-    __BNN_SETUP_DATA_TYPE(Real)
 public:
-    AnisotropicKernelGenerator(const Grid3DHashing<Real>& grid3D, Array3_VecUInt& cellParticles, const Vec_Vec3r& particles, Real kernelCellSpan) :
+    AnisotropicKernelGenerator(const Grid3DHashing& grid3D, const Vec_Vec3r& particles, Real kernelCellSpan) :
         m_Grid3D(grid3D),
-        m_CellParticles(cellParticles),
         m_Particles(particles),
         m_KernelCellSpan(kernelCellSpan * 2) {}
 
@@ -52,19 +49,19 @@ private:
     Real W(const Vec3r& xi, const Vec3r& xj);
 
     ////////////////////////////////////////////////////////////////////////////////
-    const Grid3DHashing<Real>& m_Grid3D;
-    const Vec_Vec3r&           m_Particles;
-    const Real                 m_KernelCellSpan;
-    Real                       m_KernelRadius;
-    Real                       m_KernelRadiusSqr;
-    Real                       m_KernelRadiusInv;
+    const Grid3DHashing& m_Grid3D;
+    const Vec_Vec3r&     m_Particles;
+    const Real           m_KernelCellSpan;
+    Real                 m_KernelRadius;
+    Real                 m_KernelRadiusSqr;
+    Real                 m_KernelRadiusInv;
 
     Vec_Vec3r   m_KernelCenters;
     Vec_Mat3x3r m_KernelMatrices;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <ParticleTools/AnisotropicKernelGenerator.Impl.hpp>
+//#include <ParticleTools/AnisotropicKernelGenerator.Impl.hpp>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana

@@ -61,10 +61,6 @@ bool Grid3D::isInsideGrid(const Vec3r& ppos) const noexcept
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Grid3D::constraintToGrid(Vec_Vec3r& particles)
 {
-    const Real  epsilon = 1e-9;
-    const Vec3r minPos  = m_BMin + Vec3r(epsilon);
-    const Vec3r maxPos  = m_BMax - Vec3r(epsilon);
-
     ParallelFuncs::parallel_for<size_t>(0, particles.size(),
                                         [&](size_t p)
                                         {
@@ -73,10 +69,10 @@ void Grid3D::constraintToGrid(Vec_Vec3r& particles)
 
                                             for(int i = 0; i < 3; ++i)
                                             {
-                                                if(pos[i] < minPos[i] || pos[i] > maxPos[i])
+                                                if(pos[i] < m_BMin[i] || pos[i] > m_BMax[i])
                                                 {
                                                     dirty = true;
-                                                    pos[i] = MathHelpers::max(minPos[i], MathHelpers::min(pos[i], maxPos[i]));
+                                                    pos[i] = MathHelpers::max(m_BMin[i], MathHelpers::min(pos[i], m_BMax[i]));
                                                 }
                                             }
 

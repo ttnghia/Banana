@@ -85,7 +85,7 @@ private:
     std::shared_ptr<SimulationParameters_FLIP3D> m_SimParams = std::make_shared<SimulationParameters_FLIP3D>();
     std::unique_ptr<SimulationData_FLIP3D>       m_SimData   = std::make_unique<SimulationData_FLIP3D>();
     Grid3DHashing                                m_Grid;
-    PCGSolver<Real>                              m_PCGSolver;
+    PCGSolver                                    m_PCGSolver;
 
     std::function<Real(const Vec3r&, const Array3r&)> m_InterpolateValue = nullptr;
     std::function<Real(const Vec3r&)>                 m_WeightKernel     = nullptr;

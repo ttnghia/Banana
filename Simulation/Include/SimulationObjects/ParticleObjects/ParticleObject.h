@@ -46,7 +46,7 @@ public:
     const Vec3r& aabbMax() const noexcept { return m_AABBMax; }
     const Vec3r& objCenter() const noexcept { return m_ObjCenter; }
 
-    void transformParticles(const Vec3r& translation, const Vec3r& rotation) { ParticleHelpers::transform(m_Particles, m_Translation, m_Rotation); }
+    void transformParticles(const Vec3r& translation, const Vec3r& rotation) { ParticleHelpers::transform(m_Particles, translation, rotation); }
     unsigned int getNumParticles() const noexcept { return static_cast<unsigned int>(m_Particles.size()); }
     const Vec_Vec3r& getParticles() const noexcept { return m_Particles; }
 
@@ -70,53 +70,10 @@ protected:
 
     Vec_Vec3r                         m_Particles;
     Real                              m_ParticleRadius = 0;
-    Real                              m_SamplingJitter = 0.1;
+    Real                              m_SamplingJitter = Real(0.1);
     bool                              m_bRelaxPosition = false;
     ParticleHelpers::RelaxationMethod m_RelaxMethod    = ParticleHelpers::RelaxationMethod::SPHBasedRelaxationMethod;
 };
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-// Implementation
-void Banana::ParticleObject::makeObj()
-{
-    if(!m_CacheFile.empty() && FileHelpers::fileExisted(m_CacheFile))
-    {
-        m_Particles.resize(0);
-        ParticleHelpers::loadBinary(m_CacheFile, m_Particles, m_ParticleRadius);
-    }
-    else
-    {
-        __BNN_ASSERT(m_ParticleRadius > 0);
-        generateParticles();
-
-        if(m_bRelaxPosition)
-            ParticleHelpers::relaxPosition(m_Particles, m_RelaxMethod);
-
-        if(!m_CacheFile.empty())
-            ParticleHelpers::saveBinary(m_CacheFile, m_Particles, m_ParticleRadius);
-    }
-
-    computeAABB();
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Banana::ParticleObject::computeAABB()
-{
-    for(auto& ppos : m_Particles)
-    {
-        for(int l = 0; l < 3; ++l)
-        {
-            if(m_AABBMin[l] > ppos[l])
-                m_AABBMin[l] = ppos[l];
-
-            if(m_AABBMax[l] < ppos[l])
-                m_AABBMax[l] = ppos[l];
-        }
-    }
-
-    m_ObjCenter = (m_AABBMin + m_AABBMax) * Real(0.5);
-}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana

@@ -17,7 +17,7 @@
 
 #pragma once
 
-#include <Banana/Utils/NumberHelpers.h>
+#include <Banana/Utils/MathHelpers.h>
 
 #include <map>
 #include <vector>
@@ -290,7 +290,7 @@ public:
 
             for(int j = 0; j < N; ++j)
             {
-                dataPtr[N * i + j] = NumberHelpers::lerp(startVal[j], endVal[j], t);
+                dataPtr[N * i + j] = MathHelpers::lerp(startVal[j], endVal[j], t);
             }
         }
     }

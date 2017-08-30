@@ -51,7 +51,8 @@ public:
 
     void transform(const Vec2r& translate, const Vec2r& rotate)
     {
-        //
+        __BNN_UNUSED(translate);
+        __BNN_UNUSED(rotate);
     }
 
 protected:
@@ -108,7 +109,7 @@ public:
     Real& sphereRadius() { return m_SphereRadius; }
 
 protected:
-    Vec2r m_SphereCenter = Vec2r(0, 0.5, 0);
+    Vec2r m_SphereCenter = Vec2r(0, 0.5);
     Real  m_SphereRadius = Real(0.5);
 };
 
@@ -190,8 +191,10 @@ public:
     virtual std::string name() override { return "TriangleObject"; }
     virtual Real signedDistance(const Vec2r& ppos) override
     {
-        Real dx = 0;
-        return max(dx * 0.866025 + py * 0.5, -py) - radius * 0.5;
+        __BNN_UNUSED(ppos);
+//        Real dx = 0;
+        //return max(dx * 0.866025 + py * 0.5, -py) - radius * 0.5;
+        return 0;
     }
 
     Vec2r& vertex(int idx) { return m_Vertices[idx]; }
@@ -225,9 +228,9 @@ public:
     virtual std::string name() override { return "HexagonObject"; }
     virtual Real signedDistance(const Vec2r& ppos) override
     {
-        Real dx = fabs(position[0] - centre[0]);
-        Real dy = fabs(position[1] - centre[1]);
-        return max((dx * 0.866025 + dy * 0.5), dy) - radius;
+        Real dx = fabs(ppos[0] - m_SphereCenter[0]);
+        Real dy = fabs(ppos[1] - m_SphereCenter[1]);
+        return MathHelpers::max((dx * Real(0.866025) + dy * Real(0.5)), dy) - m_SphereRadius;
     }
 
     Vec2r& sphereCenter() { return m_SphereCenter; }
@@ -245,14 +248,16 @@ public:
     virtual std::string name() override { return "SphereObject"; }
     virtual Real signedDistance(const Vec2r& ppos) override
     {
-        Vec2r a(0, 0, -0.7); // end point a
-        Vec2r b(0, 0, 0.7);  // end point b
-        Real  r = 0.3;
+        __BNN_UNUSED(ppos);
+        //Vec2r a(0, 0, -0.7); // end point a
+        //Vec2r b(0, 0, 0.7);  // end point b
+        //Real  r = 0.3;
 
-        Vec2r pa = ppos - a, ba = b - a;
+        //Vec2r pa = ppos - a, ba = b - a;
 
-        Real h = MathHelpers::clamp(glm::dot(pa, ba) / glm::dot(ba, ba), Real(0.0), Real(1.0));
-        return glm::length(pa - ba * h) - r;
+        //Real h = MathHelpers::clamp(glm::dot(pa, ba) / glm::dot(ba, ba), Real(0.0), Real(1.0));
+        //return glm::length(pa - ba * h) - r;
+        return 0;
     }
 
     Vec2r& sphereCenter() { return m_SphereCenter; }
@@ -270,9 +275,11 @@ public:
     virtual std::string name() override { return "SphereObject"; }
     virtual Real signedDistance(const Vec2r& ppos) override
     {
-        Vec2r r(0.7, 0.5, 0.2);
+        __BNN_UNUSED(ppos);
+        //Vec2r r(0.7, 0.5, 0.2);
 
-        return (MathHelpers::norm2(ppos[0] / r[0], ppos[1] / r[1], ppos[2] / r[2]) - Real(1.0)) * MathHelpers::min(MathHelpers::min(r.x, r.y), r.z);
+        //return (MathHelpers::norm2(ppos[0] / r[0], ppos[1] / r[1], ppos[2] / r[2]) - Real(1.0)) * MathHelpers::min(MathHelpers::min(r.x, r.y), r.z);
+        return 0;
     }
 
     Vec2r& sphereCenter() { return m_SphereCenter; }
@@ -295,7 +302,7 @@ public:
     Real& expanding() { return m_Expanding; }
 
     void makeSDF();
-    const Array3<Real>& getSDF() const noexcept { return m_SDFData; }
+    const Array3r& getSDF() const noexcept { return m_SDFData; }
 protected:
 
 
@@ -303,10 +310,10 @@ protected:
     bool        m_bSDFReady = false;
     std::string m_TriMeshFile;
 
-    Real         m_Step      = Real(1.0 / 256.0);
-    Real         m_Expanding = Real(0.1);
-    Grid3D<Real> m_Grid3D;
-    Array3<Real> m_SDFData;
+    Real    m_Step      = Real(1.0 / 256.0);
+    Real    m_Expanding = Real(0.1);
+    Grid3D  m_Grid3D;
+    Array3r m_SDFData;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -396,12 +403,14 @@ protected:
 
     Vec2r twist(const Vec2r& ppos)
     {
-        Real         c = cos(Real(5.0) * ppos.z);
-        Real         s = sin(Real(5.0) * ppos.z);
-        Mat2x2<Real> m = Mat2x2<Real>(c, -s, s, c);
+        __BNN_UNUSED(ppos);
+        //Real         c = cos(Real(5.0) * ppos.z);
+        //Real         s = sin(Real(5.0) * ppos.z);
+        //Mat2x2<Real> m = Mat2x2<Real>(c, -s, s, c);
         //Mat2x2<RealType> m = Mat2x2<RealType>(c, s, -s, c);
 
-        return Vec2r(m * Vec2r(ppos[0], ppos[1]), ppos.z);
+        //return Vec2r(m * Vec2r(ppos[0], ppos[1]), ppos.z);
+        return Vec2r(0);
     }
 
     Vec2r cheapBend(const Vec2r& ppos)
@@ -411,7 +420,8 @@ protected:
         //Mat2x2<RealType> m = Mat2x2<RealType>(c, -s, s, c);
         Mat2x2<Real> m = Mat2x2<Real>(c, s, -s, c);
 
-        return Vec2r(m * Vec2r(ppos[0], ppos[1]), ppos.z);
+        //return Vec2r(m * Vec2r(ppos[0], ppos[1]), ppos.z);
+        return Vec2r(0);
     }
 
     Vector<CSGData>   m_Objects;

@@ -86,7 +86,7 @@ private:
     std::unique_ptr<SimulationData_FLIP2D>       m_SimData   = std::make_unique<SimulationData_FLIP2D>();
     std::shared_ptr<SimulationParameters_FLIP2D> m_SimParams = std::make_shared<SimulationParameters_FLIP2D>();
     Grid2DHashing                                m_Grid;
-    PCGSolver<Real>                              m_PCGSolver;
+    PCGSolver                                    m_PCGSolver;
 
     std::function<Real(const Vec2r&, const Array2r&)> m_InterpolateValue = nullptr;
     std::function<Real(const Vec2r&)>                 m_WeightKernel     = nullptr;
@@ -97,6 +97,7 @@ private:
     // todo: remove
     Real compute_phi(const Vec2r& pos) const
     {
+        __BNN_UNUSED(pos);
         return 0;
 //        return compute_phi(pos, *root_boundary);
     }
@@ -108,15 +109,15 @@ private:
             case BT_BOX:
                 return b.sign * box_phi(pos, b.center, b.parameter);
             case BT_CIRCLE:
-                return b.sign * circle_phi(pos, b.center, b.parameter(0));
+                return b.sign * circle_phi(pos, b.center, b.parameter[0]);
             case BT_TORUS:
-                return b.sign * torus_phi(pos, b.center, b.parameter(0), b.parameter(1));
+                return b.sign * torus_phi(pos, b.center, b.parameter[0], b.parameter[1]);
             case BT_TRIANGLE:
-                return b.sign * triangle_phi(pos, b.center, b.parameter(0));
+                return b.sign * triangle_phi(pos, b.center, b.parameter[0]);
             case BT_HEXAGON:
-                return b.sign * hexagon_phi(pos, b.center, b.parameter(0));
+                return b.sign * hexagon_phi(pos, b.center, b.parameter[0]);
             case BT_CYLINDER:
-                return b.sign * cylinder_phi(pos, b.center, b.parameter(0), b.parameter(1));
+                return b.sign * cylinder_phi(pos, b.center, b.parameter[0], b.parameter[1]);
             case BT_UNION:
                 return union_phi(compute_phi(pos, *b.op0), compute_phi(pos, *b.op1));
             case BT_INTERSECTION:
@@ -128,23 +129,23 @@ private:
 
     inline Real circle_phi(const Vec2r& position, const Vec2r& centre, Real radius) const
     {
-        return ((position - centre).norm() - radius);
+        return (glm::length(position - centre) - radius);
     }
 
     inline Real box_phi(const Vec2r& position, const Vec2r& centre, const Vec2r& expand) const
     {
         Real dx  = fabs(position[0] - centre[0]) - expand[0];
         Real dy  = fabs(position[1] - centre[1]) - expand[1];
-        Real dax = max(dx, 0.0);
-        Real day = max(dy, 0.0);
-        return min(max(dx, dy), 0.0) + sqrt(dax * dax + day * day);
+        Real dax = MathHelpers::max(dx, Real(0.0));
+        Real day = MathHelpers::max(dy, Real(0.0));
+        return MathHelpers::min(MathHelpers::max(dx, dy), Real(0.0)) + sqrt(dax * dax + day * day);
     }
 
     inline Real hexagon_phi(const Vec2r& position, const Vec2r& centre, Real radius) const
     {
         Real dx = fabs(position[0] - centre[0]);
         Real dy = fabs(position[1] - centre[1]);
-        return max((dx * 0.866025 + dy * 0.5), dy) - radius;
+        return MathHelpers::max((dx * Real(0.866025) + dy * Real(0.5)), dy) - radius;
     }
 
     inline Real triangle_phi(const Vec2r& position, const Vec2r& centre, Real radius) const
@@ -152,14 +153,19 @@ private:
         Real px = position[0] - centre[0];
         Real py = position[1] - centre[1];
         Real dx = fabs(px);
-        return max(dx * 0.866025 + py * 0.5, -py) - radius * 0.5;
+        return MathHelpers::max(dx * Real(0.866025) + py * Real(0.5), -py) - radius * Real(0.5);
     }
 
     inline Real cylinder_phi(const Vec2r& position, const Vec2r& centre, Real theta, Real radius) const
     {
-        Vec2r nhat = Vec2r(cos(theta), sin(theta));
-        Vec2r dx   = position - centre;
-        return sqrt(dx.transpose() * (Mat2x2r::Identity() - nhat * nhat.transpose()) * dx) - radius;
+        __BNN_UNUSED(position);
+        __BNN_UNUSED(centre);
+        __BNN_UNUSED(theta);
+        __BNN_UNUSED(radius);
+        //Vec2r nhat = Vec2r(cos(theta), sin(theta));
+        //Vec2r dx   = position - centre;
+        //return sqrt(glm::transpose(dx) * (Mat2x2r(1.0) - nhat * glm::transpose(nhat)) * dx) - radius;
+        return 0;
     }
 
     inline Real union_phi(const Real& d1, const Real& d2) const

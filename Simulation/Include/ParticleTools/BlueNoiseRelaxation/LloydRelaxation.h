@@ -32,7 +32,6 @@
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
 class LloydRelaxation
 {
 public:
@@ -102,8 +101,8 @@ private:
     Real computeMinDistance(const std::vector<Vec3<Real> >& clusterCenters, UInt& numOverlappedParticles);
 
     UInt removeOverlappedParticles(std::vector<Vec3<Real> >& clusterCenters);
-    void   sortSamples(std::vector<Vec3<Real> >& samples, const Vec_VecUInt& samplesInCluster);
-    void   collectClustersToCells(const std::vector<Vec3<Real> >& clusterCenters);
+    void sortSamples(std::vector<Vec3<Real> >& samples, const Vec_VecUInt& samplesInCluster);
+    void collectClustersToCells(const std::vector<Vec3<Real> >& clusterCenters);
 
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -112,14 +111,14 @@ private:
     Real           m_ParticleRadius;
     Vec_UInt       m_ClosestCluster;
     Array3_VecUInt m_CellParticles;
-    Grid3D<Real>   m_Grid3D;
+    Grid3D         m_Grid3D;
 
     Logger m_Logger;
     Timer  m_Timer;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <ParticleTools/BlueNoiseRelaxation/LloydRelaxation.Impl.hpp>
+//#include <ParticleTools/BlueNoiseRelaxation/LloydRelaxation.Impl.hpp>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana

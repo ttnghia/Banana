@@ -43,7 +43,7 @@ void FLIP3DSolver::makeReady()
                                m_SimData->makeReady(m_Grid.getNumCellX(), m_Grid.getNumCellY(), m_Grid.getNumCellZ());
 
                                m_PCGSolver.setSolverParameters(m_SimParams->CGRelativeTolerance, m_SimParams->maxCGIteration);
-                               m_PCGSolver.setPreconditioners(PreconditionerTypes::MICCL0_SYMMETRIC);
+                               m_PCGSolver.setPreconditioners(PCGSolver::MICCL0_SYMMETRIC);
 
                                m_NSearch = std::make_unique<NeighborhoodSearch>(m_SimParams->kernelRadius);
                                m_NSearch->add_point_set(glm::value_ptr(m_SimData->positions.front()), m_SimData->getNumParticles(), true, true);
@@ -53,7 +53,7 @@ void FLIP3DSolver::makeReady()
 
 
                                // todo: remove this
-                               GeometryObject3D::BoxObject<Real> box;
+                               GeometryObject3D::BoxObject box;
                                box.boxMin() = m_SimParams->boxMin + Vec3r(m_SimParams->kernelRadius);
                                box.boxMax() = m_SimParams->boxMax - Vec3r(m_SimParams->kernelRadius);
                                ParallelFuncs::parallel_for<UInt>(0, m_Grid.getNumCellX() + 1,

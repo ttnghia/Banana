@@ -29,7 +29,7 @@
 
 #define PARTICLE_SOLVER WCSPHSolver
 #define PARTICLE_SOLVER FLIP3DSolver
-#define PARTICLE_SOLVER FLIP2DSolver
+//#define PARTICLE_SOLVER FLIP2DSolver
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 class Simulator : public QObject
@@ -40,7 +40,7 @@ public:
     Simulator()
     {
         Logger::initialize();
-        m_ParticleSolver = std::make_unique<PARTICLE_SOLVER<float> >();
+        m_ParticleSolver = std::make_unique<PARTICLE_SOLVER>();
     }
 
     void setParticleSystemData(const std::shared_ptr<ParticleSystemData>& particleData) { m_ParticleData = particleData; }
@@ -49,7 +49,7 @@ public:
     void stop();
     void reset();
     void startSimulation();
-    const std::unique_ptr<PARTICLE_SOLVER<float> >& getSolver() const { return m_ParticleSolver; }
+    const std::unique_ptr<PARTICLE_SOLVER>& getSolver() const { return m_ParticleSolver; }
 
 public slots:
     void doSimulation();
@@ -63,8 +63,8 @@ signals:
     void frameFinished();
 
 protected:
-    std::shared_ptr<ParticleSystemData>      m_ParticleData = nullptr;
-    std::unique_ptr<PARTICLE_SOLVER<float> > m_ParticleSolver;
+    std::shared_ptr<ParticleSystemData> m_ParticleData = nullptr;
+    std::unique_ptr<PARTICLE_SOLVER>    m_ParticleSolver;
 
     std::future<void> m_SimulationFutureObj;
     QString           m_Scene;
