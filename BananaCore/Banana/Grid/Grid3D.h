@@ -103,6 +103,11 @@ public:
     bool isInsideGrid(const Vec3r& ppos) const noexcept;
     Vec3r getGridCoordinate(const Vec3r& ppos) const { return (ppos - m_BMin) / m_CellSize; }
 
+    template<class IndexType>
+    Vec3r getWorldCoordinate(const Vec3<IndexType>& cellIdx) const { return Vec3r(cellIdx[0], cellIdx[1], cellIdx[2]) * m_CellSize + m_BMin; }
+    template<class IndexType>
+    Vec3r getWorldCoordinate(IndexType i, IndexType j, IndexType k) const { return Vec3r(i, j, k) * m_CellSize + m_BMin; }
+
 protected:
     Vec3r  m_BMin          = Vec3r(0);
     Vec3r  m_BMax          = Vec3r(1);

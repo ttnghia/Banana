@@ -29,7 +29,7 @@ MainWindow::MainWindow(QWidget* parent) : OpenGLMainWindow(parent)
     setupStatusBar();
     setArthurStyle();
 
-    setWindowTitle("Simple Snow Simulation");
+    setWindowTitle("Particle Simulation");
     setFocusPolicy(Qt::StrongFocus);
     showFPS(false);
 //    showCameraPosition(false);

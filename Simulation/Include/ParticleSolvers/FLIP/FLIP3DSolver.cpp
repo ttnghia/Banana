@@ -54,15 +54,15 @@ void FLIP3DSolver::makeReady()
 
                                // todo: remove this
                                GeometryObject3D::BoxObject box;
-                               box.boxMin() = m_SimParams->domainBMin;
-                               box.boxMax() = m_SimParams->domainBMax;
+                               box.boxMin() = m_SimParams->movingBMin;
+                               box.boxMax() = m_SimParams->movingBMax;
                                ParallelFuncs::parallel_for<UInt>(0, m_Grid.getNumCellX() + 1,
                                                                  0, m_Grid.getNumCellY() + 1,
                                                                  0, m_Grid.getNumCellZ() + 1,
                                                                  [&](UInt i, UInt j, UInt k)
                                                                  {
-                                                                     const Vec3r gridPos = Vec3r(i, j, k) * m_SimParams->kernelRadius + m_SimParams->domainBMin;
-                                                                     m_SimData->boundarySDF(i, j, k) = -box.signedDistance(gridPos);
+                                                                     const Vec3r pPos = m_Grid.getWorldCoordinate(i, j, k);
+                                                                     m_SimData->boundarySDF(i, j, k) = -box.signedDistance(pPos);
                                                                  });
                                m_Logger->printWarning("Computed boundary SDF");
                            });
@@ -293,6 +293,8 @@ Real FLIP3DSolver::computeCFLTimestep()
 void FLIP3DSolver::advanceVelocity(Real timestep)
 {
     static Timer funcTimer;
+    static int   frame = 0;
+    frame++;
 
     ////////////////////////////////////////////////////////////////////////////////
     static bool weight_computed = false;
@@ -302,19 +304,52 @@ void FLIP3DSolver::advanceVelocity(Real timestep)
         weight_computed = true;
     }
 
-    if(m_SimParams->bApplyRepulsiveForces)
+    //if(m_SimParams->bApplyRepulsiveForces)
     {
-        m_Logger->printRunTime("Add repulsive force to particle: ", funcTimer, [&]() { addRepulsiveVelocity2Particles(timestep); });
+        //m_Logger->printRunTime("Add repulsive force to particle: ", funcTimer, [&]() { addRepulsiveVelocity2Particles(timestep); });
     }
 
+
+
+
+
+    //DataPrinter::printToFile("D:/new_u_weight." + std::to_string(frame) + ".txt", m_SimData->u_weights, "u_weights");
+    //DataPrinter::printToFile("D:/new_v_weight." + std::to_string(frame) + ".txt", m_SimData->v_weights, "v_weights");
+    //DataPrinter::printToFile("D:/new_w_weight." + std::to_string(frame) + ".txt", m_SimData->w_weights, "w_weights");
+
+
+
+
+
+
+
+
+
     m_Logger->printRunTime("Interpolate velocity from particles to grid: ", funcTimer, [&]() { velocityToGrid(); });
-    m_Logger->printRunTime("Extrapolate grid velocity: : ",                 funcTimer, [&]() { extrapolateVelocity(); });
-    m_Logger->printRunTime("Constrain grid velocity: ",                     funcTimer, [&]() { constrainVelocity(); });
-    m_Logger->printRunTime("Backup grid velocities: ",                      funcTimer, [&]() { m_SimData->backupGridVelocity(); });
+
+
+    //DataPrinter::printToFile("D:/new_u." + std::to_string(frame) + ".txt", m_SimData->u, "u");
+    //DataPrinter::printToFile("D:/new_v." + std::to_string(frame) + ".txt", m_SimData->v, "v");
+    //DataPrinter::printToFile("D:/new_w." + std::to_string(frame) + ".txt", m_SimData->w, "w");
+
+
+
+    //DataPrinter::printToFile("D:/new_u_valid." + std::to_string(frame) + ".txt", m_SimData->u_valid, "u_valid");
+    //DataPrinter::printToFile("D:/new_v_valid." + std::to_string(frame) + ".txt", m_SimData->v_valid, "v_valid");
+    //DataPrinter::printToFile("D:/new_w_valid." + std::to_string(frame) + ".txt", m_SimData->w_valid, "w_valid");
+
+
+
+
+    m_Logger->printRunTime("Backup grid velocities: ", funcTimer, [&]() { m_SimData->backupGridVelocity(); });
+
+
+    //m_Logger->printRunTime("Extrapolate grid velocity: : ",                 funcTimer, [&]() { extrapolateVelocity(); });
+    //m_Logger->printRunTime("Constrain grid velocity: ",                     funcTimer, [&]() { constrainVelocity(); });
     m_Logger->printRunTime("Add gravity: ",                                 funcTimer, [&]() { addGravity(timestep); });
     m_Logger->printRunTime("====> Pressure projection: ",                   funcTimer, [&]() { pressureProjection(timestep); });
-    m_Logger->printRunTime("Extrapolate grid velocity: : ",                 funcTimer, [&]() { extrapolateVelocity(); });
-    m_Logger->printRunTime("Constrain grid velocity: ",                     funcTimer, [&]() { constrainVelocity(); });
+    //m_Logger->printRunTime("Extrapolate grid velocity: : ",                 funcTimer, [&]() { extrapolateVelocity(); });
+    //m_Logger->printRunTime("Constrain grid velocity: ",                     funcTimer, [&]() { constrainVelocity(); });
     m_Logger->printRunTime("Compute changes of grid velocity: ",            funcTimer, [&]() { computeChangesGridVelocity(); });
     m_Logger->printRunTime("Interpolate velocity from grid to particles: ", funcTimer, [&]() { velocityToParticles(); });
 }
@@ -764,18 +799,19 @@ void FLIP3DSolver::pressureProjection(Real timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void FLIP3DSolver::computeFluidSDF()
 {
-    m_SimData->fluidSDF.assign(m_SimParams->sdfRadius);
+    m_SimData->fluidSDF.assign(m_Grid.getCellSize() * Real(3.0));
 
     // cannot run in parallel
     for(UInt p = 0; p < m_SimData->getNumParticles(); ++p)
     {
-        const Vec3i cellId   = m_Grid.getCellIdx<int>(m_SimData->positions[p]);
+        const Vec3r ppos     = m_SimData->positions[p];
+        const Vec3i cellId   = m_Grid.getCellIdx<int>(ppos);
         const Vec3i cellDown = Vec3i(MathHelpers::max(0, cellId[0] - 1),
                                      MathHelpers::max(0, cellId[1] - 1),
                                      MathHelpers::max(0, cellId[2] - 1));
-        const Vec3i cellUp = Vec3i(MathHelpers::min(cellId[0] + 1, static_cast<Int>(m_Grid.getNumCellX()) - 1),
-                                   MathHelpers::min(cellId[1] + 1, static_cast<Int>(m_Grid.getNumCellY()) - 1),
-                                   MathHelpers::min(cellId[2] + 1, static_cast<Int>(m_Grid.getNumCellZ()) - 1));
+        const Vec3i cellUp = Vec3i(MathHelpers::min(cellId[0] + 2, static_cast<Int>(m_Grid.getNumCellX())),
+                                   MathHelpers::min(cellId[1] + 2, static_cast<Int>(m_Grid.getNumCellY())),
+                                   MathHelpers::min(cellId[2] + 2, static_cast<Int>(m_Grid.getNumCellZ())));
 
         ParallelFuncs::parallel_for<int>(cellDown[0], cellUp[0],
                                          cellDown[1], cellUp[1],
@@ -783,7 +819,7 @@ void FLIP3DSolver::computeFluidSDF()
                                          [&](int i, int j, int k)
                                          {
                                              const Vec3r sample = Vec3r(i + 0.5, j + 0.5, k + 0.5) * m_Grid.getCellSize() + m_Grid.getBMin();
-                                             const Real phiVal = glm::length(sample - m_SimData->positions[p]) - m_SimParams->sdfRadius;
+                                             const Real phiVal = glm::length(sample - ppos) - m_SimParams->sdfRadius;
 
                                              if(phiVal < m_SimData->fluidSDF(i, j, k))
                                                  m_SimData->fluidSDF(i, j, k) = phiVal;
@@ -937,9 +973,7 @@ void FLIP3DSolver::computeRhs()
                                       1, m_Grid.getNumCellZ() - 1,
                                       [&](UInt i, UInt j, UInt k)
                                       {
-                                          const UInt idx = m_Grid.getLinearizedIndex(i, j, k);
                                           const Real center_phi = m_SimData->fluidSDF(i, j, k);
-
                                           if(center_phi < 0)
                                           {
                                               Real tmp = Real(0);
@@ -953,6 +987,7 @@ void FLIP3DSolver::computeRhs()
                                               tmp -= m_SimData->w_weights(i, j, k + 1) * m_SimData->w(i, j, k + 1);
                                               tmp += m_SimData->w_weights(i, j, k) * m_SimData->w(i, j, k);
 
+                                              const UInt idx = m_Grid.getLinearizedIndex(i, j, k);
                                               m_SimData->rhs[idx] = tmp;
                                           } // end if(centre_phi < 0)
                                       });
@@ -970,7 +1005,15 @@ void FLIP3DSolver::solveSystem()
                        ". Final tolerance: " + NumberHelpers::formatToScientific(tolerance));
 
     if(!success)
-        m_Logger->printWarning("Pressure projection failed to solved!********************************************************************************");
+        m_Logger->printWarning("Pressure projection failed to solved!");
+
+    if(!success)
+        exit(EXIT_FAILURE);
+
+    printf("\n\npressure: ");
+    for(size_t i = 0; i < m_SimData->pressure.size(); ++i)
+        if(m_SimData->pressure[i] > 0) printf("%f,    ", m_SimData->pressure[i]);
+    printf("\n");
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -992,21 +1035,21 @@ void FLIP3DSolver::updateVelocity(Real timestep)
                                           const Real bottom_phi = j > 0 ? m_SimData->fluidSDF(i, j - 1, k) : 0;
                                           const Real near_phi = k > 0 ? m_SimData->fluidSDF(i, j, k - 1) : 0;
 
-                                          if(i > 0 && (center_phi < 0 || left_phi < 0) && m_SimData->u_weights(i, j, k) > 0)
+                                          if(i > 0 && i < m_Grid.getNumCellX() - 1 && (center_phi < 0 || left_phi < 0) && m_SimData->u_weights(i, j, k) > 0)
                                           {
                                               Real theta = MathHelpers::min(Real(0.01), MathHelpers::fraction_inside(left_phi, center_phi));
                                               m_SimData->u(i, j, k) -= timestep * (m_SimData->pressure[idx] - m_SimData->pressure[idx - 1]) / theta;
                                               m_SimData->u_valid(i, j, k) = 1;
                                           }
 
-                                          if(j > 0 && (center_phi < 0 || bottom_phi < 0) && m_SimData->v_weights(i, j, k) > 0)
+                                          if(j > 0 && j < m_Grid.getNumCellY() - 1 && (center_phi < 0 || bottom_phi < 0) && m_SimData->v_weights(i, j, k) > 0)
                                           {
                                               Real theta = MathHelpers::min(Real(0.01), MathHelpers::fraction_inside(bottom_phi, center_phi));
                                               m_SimData->v(i, j, k) -= timestep * (m_SimData->pressure[idx] - m_SimData->pressure[idx - m_Grid.getNumCellX()]) / theta;
                                               m_SimData->v_valid(i, j, k) = 1;
                                           }
 
-                                          if(k > 0 && m_SimData->w_weights(i, j, k) > 0 && (center_phi < 0 || near_phi < 0))
+                                          if(k > 0 && k < m_Grid.getNumCellZ() - 1 && m_SimData->w_weights(i, j, k) > 0 && (center_phi < 0 || near_phi < 0))
                                           {
                                               Real theta = MathHelpers::min(Real(0.01), MathHelpers::fraction_inside(near_phi, center_phi));
                                               m_SimData->w(i, j, k) -= timestep * (m_SimData->pressure[idx] - m_SimData->pressure[idx - m_Grid.getNumCellX() * m_Grid.getNumCellY()]) / theta;

@@ -39,12 +39,12 @@ struct  SimulationParameters_FLIP3D
     Real   CFLFactor               = Real(1.0);
     Real   PIC_FLIP_ratio          = Real(0.97);
     Real   boundaryRestitution     = Real(DEFAULT_BOUNDARY_RESTITUTION);
-    Real   particleRadius          = Real(2.0 / 32.0 / 4.0);
+    Real   particleRadius          = Real(2.0 / 16.0 / 4.0);
     Kernel kernelFunc              = Kernel::Linear;
-    Real   repulsiveForceStiffness = Real(1e7);
+    Real   repulsiveForceStiffness = Real(1e9);
     UInt   expandCells             = 2;
-    Real   CGRelativeTolerance     = Real(1e-20);
-    UInt   maxCGIteration          = 10000;
+    Real   CGRelativeTolerance     = Real(1e-15);
+    UInt   maxCGIteration          = 1000;
 
     bool bApplyRepulsiveForces = false;
 
@@ -67,10 +67,10 @@ struct  SimulationParameters_FLIP3D
     {
         kernelRadius        = particleRadius * Real(4.0);
         kernelRadiusSqr     = kernelRadius * kernelRadius;
-        nearKernelRadius    = particleRadius * Real(2.5);
+        nearKernelRadius    = particleRadius * Real(3.0);
         nearKernelRadiusSqr = nearKernelRadius * nearKernelRadius;
 
-        sdfRadius  = kernelRadius * Real(1.001 * sqrt(3.0) / 2.0);
+        sdfRadius  = kernelRadius * Real(1.01 * sqrt(3.0) / 2.0);
         kernelSpan = (kernelFunc == Kernel::Linear) ? 1 : 2;
 
         domainBMin = movingBMin - Vec3r(kernelRadius * expandCells);

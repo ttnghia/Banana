@@ -82,33 +82,35 @@ void Logger::printGreeting(const std::string& s)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Logger::printWarning(const std::string& s, unsigned int maxSize)
 {
-    const std::string str = "Warning: " + s + " ";
+    std::string str = "Warning: ";
+    str += s;
+    str += " ";
 
     size_t paddingSize = (static_cast<size_t>(maxSize) - str.length());
-    printLog(str + std::string(paddingSize, '*'));
+    str += std::string(paddingSize, '*');
+    printLog(str);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Logger::printError(const std::string& s, unsigned int maxSize)
 {
-    const std::string str = "Error: " + s + " ";
+    std::string str = "Error: ";
+    str += s;
+    str += " ";
 
     size_t paddingSize = (static_cast<size_t>(maxSize) - str.length());
-    printLog(str + std::string(paddingSize, '*'));
+    str += std::string(paddingSize, '*');
+    printLog(str);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Logger::printLog(const std::string& s)
 {
     if(s_bPrint2Console)
-    {
         m_ConsoleLogger->info(s);
-    }
 
     if(s_bWriteLog2File)
-    {
         m_FileLogger->info(s);
-    }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

@@ -19,6 +19,8 @@
 
 #include <Banana/Array/Array2.h>
 #include <Banana/Array/Array3.h>
+#include <Banana/Utils/Logger.h>
+#include <Banana/Utils/FileHelpers.h>
 
 #include <cstdio>
 #include <vector>
@@ -29,104 +31,190 @@ namespace Banana
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace DataPrinter
 {
-extern class Monitor;
-
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class T>
-void print(const std::vector<T>& array, const std::string& arrayName, size_t maxPrint, int precision = 5)
+void print(const std::vector<T>& array, const String& arrayName, size_t maxPrint = 0, int precision = 5)
 {
     size_t numPrint = maxPrint > 0 ? maxPrint : array.size();
 
-    Monitor::printAligned(arrayName, EventSource::Debugger);
+    Logger logger("DataPrinter");
+    logger.printAligned(arrayName);
 
     for(size_t p = 0; p < numPrint; ++p)
     {
-        Monitor::printAligned(NumberHelpers::formatWithCommas(p, precision) + ": " + NumberHelpers::toString(array[p]), EventSource::Debugger);
+        logger.printAligned(NumberHelpers::formatWithCommas(p, precision) + ": " + NumberHelpers::toString(array[p]));
     }
 
-    Monitor::newLine(EventSource::Debugger);
+    logger.newLine();
+}
+
+template<class T>
+void printToFile(const String& fileName, const std::vector<T>& array, const String& arrayName, size_t maxPrint = 0, int precision = 5)
+{
+    size_t numPrint = maxPrint > 0 ? maxPrint : array.size();
+
+    Vector<String> fileContent;
+    fileContent.push_back(arrayName);
+
+    for(size_t p = 0; p < numPrint; ++p)
+    {
+        fileContent(NumberHelpers::formatWithCommas(p, precision) + ": " + NumberHelpers::toString(array[p]));
+    }
+
+    FileHelpers::writeFile(fileContent, fileName);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class T>
-void print(const Array2<T>& array, const std::string& arrayName, Array2::size_type maxPrint_d0, Array2::size_type maxPrint_d1, int precision = 5)
+void print(const Array2<T>& array, const String& arrayName, size_t maxPrint_d0 = 0, size_t maxPrint_d1 = 0, int precision = 5)
 {
-    Array2::size_type numPrint_d0 = maxPrint_d0 > 0 ? maxPrint_d0 : array.sizeX();
-    Array2::size_type numPrint_d1 = maxPrint_d1 > 0 ? maxPrint_d0 : array.sizeY();
+    size_t numPrint_d0 = maxPrint_d0 > 0 ? maxPrint_d0 : array.sizeX();
+    size_t numPrint_d1 = maxPrint_d1 > 0 ? maxPrint_d0 : array.sizeY();
 
-    Monitor::printAligned(arrayName, EventSource::Debugger);
+    Logger logger("DataPrinter");
+    logger.printAligned(arrayName);
 
     std::stringstream ss;
 
-    for(Array2::size_type j = 0; j < numPrint_d1; ++j)
+    for(size_t i = 0; i < numPrint_d0 - 1; ++i)
     {
-        Monitor::printAligned(NumberHelpers::formatWithCommas(i) + ": ", EventSource::Debugger);
+        logger.printAligned(NumberHelpers::formatWithCommas(i) + ": ");
 
         ss.str("");
 
-        for(Array2::size_type i = 0; i < numPrint_d0 - 1; ++i)
+        for(size_t j = 0; j < numPrint_d1; ++j)
         {
             ss << NumberHelpers::formatWithCommas(array(i, j), precision) << ", ";
         }
 
         ss << NumberHelpers::formatWithCommas(array(numPrint_d0 - 1, j), precision);
 
-        Monitor::printLog(ss.str(), EventSource::Debugger);
+        logger.printLog(ss.str());
     }
 
-    Monitor::newLine(EventSource::Debugger);
+    logger.newLine();
+}
+
+template<class T>
+void printToFile(const String& fileName, const Array2<T>& array, const String& arrayName, size_t maxPrint_d0 = 0, size_t maxPrint_d1 = 0, int precision = 5)
+{
+    size_t numPrint_d0 = maxPrint_d0 > 0 ? maxPrint_d0 : array.sizeX();
+    size_t numPrint_d1 = maxPrint_d1 > 0 ? maxPrint_d0 : array.sizeY();
+
+    Vector<String> fileContent;
+    fileContent.push_back(arrayName);
+
+    std::stringstream ss;
+
+    for(size_t i = 0; i < numPrint_d0 - 1; ++i)
+    {
+        logger.printAligned(NumberHelpers::formatWithCommas(i) + ": ");
+
+        ss.str("");
+
+        for(size_t j = 0; j < numPrint_d1; ++j)
+        {
+            ss << NumberHelpers::formatWithCommas(array(i, j), precision) << ", ";
+        }
+
+        ss << NumberHelpers::formatWithCommas(array(numPrint_d0 - 1, j), precision);
+
+        fileContent.push_back(ss.str());
+    }
+
+    FileHelpers::writeFile(fileContent, fileName);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class T>
-void print(const Array3<T>& array, const std::string& arrayName, Array3<T>::size_type maxPrint_d0, Array3<T>::size_type maxPrint_d1, Array3<T>::size_type maxPrint_d2, int precision = 5)
+void print(const Array3<T>& array, const String& arrayName,
+           size_t maxPrint_d0 = 0, size_t maxPrint_d1 = 0, size_t maxPrint_d2 = 0, int precision = 5)
 {
-    Array3<T>::size_type numPrint_d0 = maxPrint_d0 > 0 ? maxPrint_d0 : array.sizeX();
-    Array3<T>::size_type numPrint_d1 = maxPrint_d1 > 0 ? maxPrint_d0 : array.sizeY();
-    Array3<T>::size_type numPrint_d2 = maxPrint_d2 > 0 ? maxPrint_d0 : array.sizeZ();
+    size_t numPrint_d0 = maxPrint_d0 > 0 ? maxPrint_d0 : array.sizeX();
+    size_t numPrint_d1 = maxPrint_d1 > 0 ? maxPrint_d0 : array.sizeY();
+    size_t numPrint_d2 = maxPrint_d2 > 0 ? maxPrint_d0 : array.sizeZ();
 
-    Monitor::printAligned(arrayName, EventSource::Debugger);
+    Logger logger("DataPrinter");
+    logger.printAligned(arrayName);
 
     std::stringstream ss;
 
-    for(Array3<T>::size_type k = 0; k < numPrint_d2; ++k)
+    for(size_t i = 0; i < numPrint_d0 - 1; ++i)
     {
-        Monitor::printAligned(NumberHelpers::formatWithCommas(i) + ": ", EventSource::Debugger);
+        logger.printAligned(NumberHelpers::formatWithCommas(i) + ": ");
 
-        for(Array3<T>::size_type j = 0; j < numPrint_d1; ++j)
+        for(size_t j = 0; j < numPrint_d1; ++j)
         {
             ss.str("");
 
-            for(Array3<T>::size_type i = 0; i < numPrint_d0 - 1; ++i)
+            for(size_t k = 0; k < numPrint_d2; ++k)
             {
                 ss << NumberHelpers::formatWithCommas(array(i, j, k), precision) << ", ";
             }
 
-            ss << NumberHelpers::formatWithCommas(array(numPrint_d0 - 1, j, k), precision);
+            ss << NumberHelpers::formatWithCommas(array(i, j, numPrint_d2 - 1), precision);
 
-            Monitor::printLog(ss.str(), EventSource::Debugger);
+            logger.printLog(ss.str());
         }
 
-        Monitor::newLine(EventSource::Debugger);
+        logger.newLine();
     }
 
-    Monitor::newLine(EventSource::Debugger);
+    logger.newLine();
+}
+
+template<class T>
+void printToFile(const String& fileName, const Array3<T>& array, const String& arrayName,
+                 size_t maxPrint_d0 = 0, size_t maxPrint_d1 = 0, size_t maxPrint_d2 = 0, int precision = 5)
+{
+    size_t numPrint_d0 = maxPrint_d0 > 0 ? maxPrint_d0 : array.sizeX();
+    size_t numPrint_d1 = maxPrint_d1 > 0 ? maxPrint_d0 : array.sizeY();
+    size_t numPrint_d2 = maxPrint_d2 > 0 ? maxPrint_d0 : array.sizeZ();
+
+    Vector<String> fileContent;
+    fileContent.push_back(arrayName);
+
+    std::stringstream ss;
+
+    for(size_t i = 0; i < numPrint_d0 - 1; ++i)
+    {
+        fileContent.push_back("Line: " + NumberHelpers::formatWithCommas(i) + ": ");
+
+        for(size_t j = 0; j < numPrint_d1; ++j)
+        {
+            ss.str("");
+
+            for(size_t k = 0; k < numPrint_d2; ++k)
+            {
+                ss << NumberHelpers::formatWithCommas(array(i, j, k), precision) << ", ";
+            }
+
+            ss << NumberHelpers::formatWithCommas(array(i, j, numPrint_d2 - 1), precision);
+
+            fileContent.push_back(ss.str());
+        }
+
+        fileContent.push_back("");
+    }
+
+    FileHelpers::writeFile(fileContent, fileName);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class T>
-void print(const Array2<std::vector<T> >& array, const std::string& arrayName, Array2<T>::size_type maxPrint_d0, Array2<T>::size_type maxPrint_d1, int precision = 5)
+void print(const Array2<std::vector<T> >& array, const String& arrayName, size_t maxPrint_d0, size_t maxPrint_d1, int precision = 5)
 {
-    Array3<T>::size_type numPrint_d0 = maxPrint_d0 > 0 ? maxPrint_d0 : array.sizeX();
-    Array3<T>::size_type numPrint_d1 = maxPrint_d1 > 0 ? maxPrint_d0 : array.sizeY();
+    size_t numPrint_d0 = maxPrint_d0 > 0 ? maxPrint_d0 : array.sizeX();
+    size_t numPrint_d1 = maxPrint_d1 > 0 ? maxPrint_d0 : array.sizeY();
 
-    Monitor::printAligned(arrayName, EventSource::Debugger);
+    Logger logger("DataPrinter");
+    logger.printAligned(arrayName);
 
     std::stringstream ss;
 
-    for(Array3<T>::size_type j = 0; j < numPrint_d1; ++j)
+    for(size_t i = 0; i < numPrint_d0; ++i)
     {
-        for(Array3<T>::size_type i = 0; i < numPrint_d0; ++i)
+        for(size_t j = 0; j < numPrint_d1; ++j)
         {
             const std::vector<T>& cell = array(i, j);
 
@@ -146,33 +234,34 @@ void print(const Array2<std::vector<T> >& array, const std::string& arrayName, A
 
             ss << NumberHelpers::formatWithCommas(cell[cell.size() - 1]);
 
-            Monitor::printLog(ss.str(), EventSource::Debugger);
+            logger.printLog(ss.str());
         }
     }
 
 
-    Monitor::newLine(EventSource::Debugger);
+    logger.newLine();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class T>
-void print(const Array3<std::vector<T> >& array, const std::string& arrayName,
-           Array3<T>::size_type maxPrint_d0, Array3<T>::size_type maxPrint_d1, Array3<T>::size_type maxPrint_d2,
+void print(const Array3<std::vector<T> >& array, const String& arrayName,
+           size_t maxPrint_d0, size_t maxPrint_d1, size_t maxPrint_d2,
            int precision = 5)
 {
-    Array3<T>::size_type numPrint_d0 = maxPrint_d0 > 0 ? maxPrint_d0 : array.sizeX();
-    Array3<T>::size_type numPrint_d1 = maxPrint_d1 > 0 ? maxPrint_d0 : array.sizeY();
-    Array3<T>::size_type numPrint_d2 = maxPrint_d2 > 0 ? maxPrint_d0 : array.sizeZ();
+    size_t numPrint_d0 = maxPrint_d0 > 0 ? maxPrint_d0 : array.sizeX();
+    size_t numPrint_d1 = maxPrint_d1 > 0 ? maxPrint_d0 : array.sizeY();
+    size_t numPrint_d2 = maxPrint_d2 > 0 ? maxPrint_d0 : array.sizeZ();
 
-    Monitor::printAligned(arrayName, EventSource::Debugger);
+    Logger logger("DataPrinter");
+    logger.printAligned(arrayName);
 
     std::stringstream ss;
 
-    for(Array3<T>::size_type k = 0; k < numPrint_d2; ++k)
+    for(size_t i = 0; i < numPrint_d0; ++i)
     {
-        for(Array3<T>::size_type j = 0; j < numPrint_d1; ++j)
+        for(size_t j = 0; j < numPrint_d1; ++j)
         {
-            for(Array3<T>::size_type i = 0; i < numPrint_d0; ++i)
+            for(size_t k = 0; k < numPrint_d2; ++k)
             {
                 const std::vector<T>& cell = array(i, j, k);
 
@@ -193,12 +282,12 @@ void print(const Array3<std::vector<T> >& array, const std::string& arrayName,
 
                 ss << NumberHelpers::formatWithCommas(cell[cell.size() - 1]);
 
-                Monitor::printLog(ss.str(), EventSource::Debugger);
+                logger.printLog(ss.str());
             }
         }
     }
 
-    Monitor::newLine(EventSource::Debugger);
+    logger.newLine();
 }
 }   // end namespace DataPrinter
 

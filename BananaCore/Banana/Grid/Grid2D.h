@@ -49,6 +49,7 @@ public:
     Real getCellSizeSquared() const noexcept { return m_CellSizeSqr; }
 
     ////////////////////////////////////////////////////////////////////////////////
+    // Index processing
     template<class IndexType>
     IndexType getLinearizedIndex(IndexType i, IndexType j) const
     {
@@ -97,10 +98,15 @@ public:
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    // particle processing
+    // Particle processing
     bool isInsideGrid(const Vec2r& ppos) const noexcept;
     void constraintToGrid(Vec_Vec2r& particles);
     Vec2r getGridCoordinate(const Vec2r& ppos) const { return (ppos - m_BMin) / m_CellSize; }
+
+    template<class IndexType>
+    Vec2r getWorldCoordinate(const Vec2<IndexType>& cellIdx) const { return Vec2r(cellIdx[0], cellIdx[1]) * m_CellSize + m_BMin; }
+    template<class IndexType>
+    Vec2r getWorldCoordinate(IndexType i, IndexType j) const { return Vec2r(i, j) * m_CellSize + m_BMin; }
 
 protected:
     Vec2r  m_BMin          = Vec2r(0);

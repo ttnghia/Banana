@@ -16,6 +16,7 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 #include <Banana/LinearAlgebra/SparseMatrix/SparseMatrix.h>
+#include <Banana/Utils/FileHelpers.h>
 #include <Banana/Utils/STLHelpers.h>
 #include <Banana/ParallelHelpers/ParallelFuncs.h>
 
@@ -167,6 +168,29 @@ void SparseMatrix::checkSymmetry() const noexcept
     }
 
     std::cout << std::endl;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void SparseMatrix::printTextFile(const char* fileName)
+{
+    Vector<String> matContent;
+
+    for(UInt i = 0; i < nRows; ++i)
+    {
+        if(colIndex[i].size() == 0) continue;
+
+        for(size_t j = 0; j < colIndex[i].size(); ++j)
+        {
+            String str = std::to_string(i + 1);
+            str += "    ";
+            str += std::to_string(j + 1);
+            str += "    ";
+            str += std::to_string(colValue[i][j]);
+            matContent.push_back(str);
+        }
+    }
+
+    FileHelpers::writeFile(matContent, fileName);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

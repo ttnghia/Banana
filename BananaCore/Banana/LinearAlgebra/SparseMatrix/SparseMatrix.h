@@ -50,6 +50,7 @@ public:
 
     void printDebug(UInt maxRows = 0) const noexcept;
     void checkSymmetry() const noexcept;
+    void printTextFile(const char* fileName);
 
     ////////////////////////////////////////////////////////////////////////////////
     static void multiply(const SparseMatrix& matrix, const Vec_Real& x, Vec_Real& result);

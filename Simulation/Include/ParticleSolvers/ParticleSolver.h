@@ -24,6 +24,7 @@
 #include <Banana/Utils/Timer.h>
 #include <Banana/Utils/JSONHelpers.h>
 #include <Banana/Data/DataIO.h>
+#include <Banana/Data/DataPrinter.h>
 #include <Banana/ParallelHelpers/ParallelSTL.h>
 #include <Banana/ParallelHelpers/ParallelFuncs.h>
 #include <Banana/ParallelHelpers/ParallelBLAS.h>
