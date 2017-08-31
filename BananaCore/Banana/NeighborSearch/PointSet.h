@@ -17,6 +17,8 @@
 
 #pragma once
 
+#include <Banana/NeighborSearch/DataStructures.h>
+
 #include <Banana/Setup.h>
 #include <iostream>
 
@@ -24,7 +26,7 @@
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class NeighborhoodSearch;
+class NeighborSearch;
 
 /**
  * @class PointSet.
@@ -134,7 +136,7 @@ public:
     }
 
 private:
-    friend NeighborhoodSearch;
+    friend NeighborSearch;
     PointSet(Real const* x, std::size_t n, bool dynamic)
         : m_x(x), m_n(n), m_dynamic(dynamic), m_neighbors(n)
         , m_keys(n,

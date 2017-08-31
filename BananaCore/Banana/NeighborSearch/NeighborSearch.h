@@ -19,9 +19,9 @@
 
 #pragma once
 
-#include <CompactNSearch/DataStructures.h>
-#include <CompactNSearch/PointSet.h>
-#include <CompactNSearch/Morton/Morton.h>
+#include <Banana/NeighborSearch/DataStructures.h>
+#include <Banana/NeighborSearch/PointSet.h>
+#include <Banana/NeighborSearch/Morton/Morton.h>
 
 #include <unordered_map>
 #include <exception>
@@ -50,7 +50,7 @@ struct NeighborhoodSearchNotInitialized : public std::exception
  * radius r should be generated.
  */
 
-class NeighborhoodSearch
+class NeighborSearch
 {
 public:
 
@@ -60,12 +60,12 @@ public:
      * @param r Search radius. If two points are closer to each other than a distance r they are considered neighbors.
      * @param erase_empty_cells If true. Empty cells in spatial hashing grid are erased if the points move.
      */
-    NeighborhoodSearch(Real r, bool erase_empty_cells = false);
+    NeighborSearch(Real r, bool erase_empty_cells = false);
 
     /**
      * Destructor.
      */
-    virtual ~NeighborhoodSearch() = default;
+    virtual ~NeighborSearch() = default;
 
     /**
      * Get method to access a point set.

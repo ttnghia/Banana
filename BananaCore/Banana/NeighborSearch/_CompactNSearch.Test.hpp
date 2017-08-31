@@ -38,8 +38,8 @@ using namespace Banana;
 
 //#define TEST_GRID3D
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-Vector<Vec3r > positions;
-Grid3D             grid3D = Grid3D(Vec3r(0), Vec3r(1), Real(1.0 / 128.0));
+Vector<Vec3r> positions;
+Grid3D        grid3D = Grid3D(Vec3r(0), Vec3r(1), Real(1.0 / 128.0));
 
 const size_t N               = 100;
 const size_t N_enright_steps = 50;
@@ -50,7 +50,7 @@ const Real radius   = Real(2.0) * (Real(2.0) * r_omega / static_cast<Real>(N - 1
 const Real radius2  = radius * radius;
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-Real compute_average_number_of_neighbors(NeighborhoodSearch const& nsearch)
+Real compute_average_number_of_neighbors(NeighborSearch const& nsearch)
 {
     unsigned long res = 0;
     const auto&   d   = nsearch.point_set(0);
@@ -62,7 +62,7 @@ Real compute_average_number_of_neighbors(NeighborhoodSearch const& nsearch)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-Real compute_average_distance(NeighborhoodSearch const& nsearch)
+Real compute_average_distance(NeighborSearch const& nsearch)
 {
     unsigned long long res   = 0;
     auto const&        d     = nsearch.point_set(0);
@@ -110,10 +110,10 @@ Vector<Vector<UInt> > brute_force_search(size_t n_positions)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void compare_with_bruteforce_search(NeighborhoodSearch const& nsearch)
+void compare_with_bruteforce_search(NeighborSearch const& nsearch)
 {
     const PointSet& d0                    = nsearch.point_set(0);
-    auto                  brute_force_neighbors = brute_force_search(d0.n_points());
+    auto            brute_force_neighbors = brute_force_search(d0.n_points());
 
     for(int i = 0; i < d0.n_points(); ++i)
     {
@@ -137,7 +137,7 @@ void compare_with_bruteforce_search(NeighborhoodSearch const& nsearch)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void compare_with_grid_search(NeighborhoodSearch const& nsearch, Vector<Vector<UInt> >& gridSearchResult)
+void compare_with_grid_search(NeighborSearch const& nsearch, Vector<Vector<UInt> >& gridSearchResult)
 {
     const PointSet& d0 = nsearch.point_set(0);
 
@@ -163,11 +163,11 @@ void compare_with_grid_search(NeighborhoodSearch const& nsearch, Vector<Vector<U
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void compare_single_query_with_bruteforce_search(NeighborhoodSearch& nsearch)
+void compare_single_query_with_bruteforce_search(NeighborSearch& nsearch)
 {
     Vector<Vector<UInt> > neighbors;
-    const PointSet&                   d0                    = nsearch.point_set(0);
-    auto                                    brute_force_neighbors = brute_force_search(d0.n_points());
+    const PointSet&       d0                    = nsearch.point_set(0);
+    auto                  brute_force_neighbors = brute_force_search(d0.n_points());
 
     for(int i = 0; i < d0.n_points(); ++i)
     {
@@ -206,8 +206,8 @@ Vec3r enright_velocity_field(Vec3r const& x)
     Real sin_2_pi_z = static_cast<Real>(std::sin(Real(2.0 * M_PI) * x[2]));
 
     return Vec3r(static_cast<Real>(2.0) * sin_pi_x_2 * sin_2_pi_y * sin_2_pi_z,
-                      -sin_2_pi_x * sin_pi_y_2 * sin_2_pi_z,
-                      -sin_2_pi_x * sin_2_pi_y * sin_pi_z_2);
+                 -sin_2_pi_x * sin_pi_y_2 * sin_2_pi_z,
+                 -sin_2_pi_x * sin_2_pi_y * sin_pi_z_2);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -238,8 +238,8 @@ TEST_CASE("Test CompactNSearch", "[CompactNSearch]")
             for(UInt k = 0; k < N; ++k)
             {
                 Vec3r x = Vec3r(r_omega * (2.0 * static_cast<Real>(i) / static_cast<Real>(N - 1) - 1.0),
-                                          r_omega * (2.0 * static_cast<Real>(j) / static_cast<Real>(N - 1) - 1.0),
-                                          r_omega * (2.0 * static_cast<Real>(k) / static_cast<Real>(N - 1) - 1.0));
+                                r_omega * (2.0 * static_cast<Real>(j) / static_cast<Real>(N - 1) - 1.0),
+                                r_omega * (2.0 * static_cast<Real>(k) / static_cast<Real>(N - 1) - 1.0));
 
                 Real l2 = x[0] * x[0] + x[1] * x[1] + x[2] * x[2];
 
@@ -261,7 +261,7 @@ TEST_CASE("Test CompactNSearch", "[CompactNSearch]")
     }
     std::random_shuffle(positions.begin(), positions.end());
 
-    NeighborhoodSearch nsearch(radius, true);
+    NeighborSearch nsearch(radius, true);
     nsearch.add_point_set(glm::value_ptr(positions.front()), positions.size(), true, true);
     //nsearch.add_point_set(glm::value_ptr(positions.front()), positions.size(), true, true);
 

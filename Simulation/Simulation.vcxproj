@@ -115,18 +115,6 @@
     <None Include="Simulation.licenseheader" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Include\CompactNSearch\CompactNSearch.h" />
-    <ClInclude Include="Include\CompactNSearch\DataStructures.h" />
-    <ClInclude Include="Include\CompactNSearch\Morton\Morton.h" />
-    <ClInclude Include="Include\CompactNSearch\Morton\Morton2D.h" />
-    <ClInclude Include="Include\CompactNSearch\Morton\Morton2D_LUTs.h" />
-    <ClInclude Include="Include\CompactNSearch\Morton\Morton3D.h" />
-    <ClInclude Include="Include\CompactNSearch\Morton\Morton3D_LUTs.h" />
-    <ClInclude Include="Include\CompactNSearch\Morton\Morton_BMI.h" />
-    <ClInclude Include="Include\CompactNSearch\Morton\Morton_Common.h" />
-    <ClInclude Include="Include\CompactNSearch\Morton\Morton_LUT_generators.h" />
-    <ClInclude Include="Include\CompactNSearch\PointSet.h" />
-    <ClInclude Include="Include\CompactNSearch\_CompactNSearch.Test.hpp" />
     <ClInclude Include="Include\ParticleSolvers\FLIP\FLIP2DData.h" />
     <ClInclude Include="Include\ParticleSolvers\FLIP\FLIP2DSolver.h" />
     <ClInclude Include="Include\ParticleSolvers\FLIP\FLIP3DData.h" />
@@ -189,7 +177,6 @@
     <ClInclude Include="Include\ParticleTools\BlueNoiseRelaxation\SPHBasedRelaxation.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Include\CompactNSearch\CompactNSearch.cpp" />
     <ClCompile Include="Include\ParticleSolvers\FLIP\FLIP2DSolver.cpp" />
     <ClCompile Include="Include\ParticleSolvers\FLIP\FLIP3DSolver.cpp" />
     <ClCompile Include="Include\ParticleSolvers\ParticleSolver.cpp" />

@@ -133,6 +133,18 @@
     <ClInclude Include="Banana\Grid\Grid3DHashing.h" />
     <ClInclude Include="Banana\Grid\GridHelpers.h" />
     <ClInclude Include="Banana\Grid\_Grid3D.Test.hpp" />
+    <ClInclude Include="Banana\NeighborSearch\DataStructures.h" />
+    <ClInclude Include="Banana\NeighborSearch\Morton\Morton.h" />
+    <ClInclude Include="Banana\NeighborSearch\Morton\Morton2D.h" />
+    <ClInclude Include="Banana\NeighborSearch\Morton\Morton2D_LUTs.h" />
+    <ClInclude Include="Banana\NeighborSearch\Morton\Morton3D.h" />
+    <ClInclude Include="Banana\NeighborSearch\Morton\Morton3D_LUTs.h" />
+    <ClInclude Include="Banana\NeighborSearch\Morton\Morton_BMI.h" />
+    <ClInclude Include="Banana\NeighborSearch\Morton\Morton_Common.h" />
+    <ClInclude Include="Banana\NeighborSearch\Morton\Morton_LUT_generators.h" />
+    <ClInclude Include="Banana\NeighborSearch\NeighborSearch.h" />
+    <ClInclude Include="Banana\NeighborSearch\PointSet.h" />
+    <ClInclude Include="Banana\NeighborSearch\_CompactNSearch.Test.hpp" />
     <ClInclude Include="Banana\Utils\CommandLineParser.h" />
     <ClInclude Include="Banana\Utils\JSONHelpers.h" />
     <ClInclude Include="Banana\Utils\AppConfigReader.h" />
@@ -181,6 +193,7 @@
     <ClCompile Include="Banana\Grid\Grid3DHashing.cpp" />
     <ClCompile Include="Banana\LinearAlgebra\LinearSolvers\PCGSolver.cpp" />
     <ClCompile Include="Banana\LinearAlgebra\SparseMatrix\SparseMatrix.cpp" />
+    <ClCompile Include="Banana\NeighborSearch\NeighborSearch.cpp" />
     <ClCompile Include="Banana\Utils\Logger.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

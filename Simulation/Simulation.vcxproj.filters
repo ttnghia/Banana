@@ -45,42 +45,6 @@
     <ClInclude Include="Include\ParticleSolvers\_ParticleSolvers.Test.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\CompactNSearch\_CompactNSearch.Test.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\CompactNSearch\CompactNSearch.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\CompactNSearch\DataStructures.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\CompactNSearch\PointSet.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\CompactNSearch\Morton\Morton.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\CompactNSearch\Morton\Morton_BMI.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\CompactNSearch\Morton\Morton_Common.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\CompactNSearch\Morton\Morton_LUT_generators.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\CompactNSearch\Morton\Morton2D.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\CompactNSearch\Morton\Morton2D_LUTs.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\CompactNSearch\Morton\Morton3D.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\CompactNSearch\Morton\Morton3D_LUTs.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Include\ParticleSolvers\SPH\WCSPH\WCSPHSolver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -237,9 +201,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Include\ParticleTools\_ParticleTools.Test.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Include\CompactNSearch\CompactNSearch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Include\ParticleSolvers\ParticleSolver.cpp">

@@ -27,7 +27,7 @@
 #include <Banana/ParallelHelpers/ParallelSTL.h>
 #include <Banana/ParallelHelpers/ParallelFuncs.h>
 #include <Banana/ParallelHelpers/ParallelBLAS.h>
-#include <CompactNSearch/CompactNSearch.h>
+#include <Banana/NeighborSearch/NeighborSearch.h>
 
 #include <ParticleSolvers/ParticleSolverData.h>
 
@@ -81,7 +81,7 @@ protected:
 
     ////////////////////////////////////////////////////////////////////////////////
     std::unique_ptr<tbb::task_scheduler_init> m_ThreadInit = nullptr;
-    std::unique_ptr<NeighborhoodSearch>       m_NSearch    = nullptr;
+    std::unique_ptr<NeighborSearch>           m_NSearch    = nullptr;
     std::shared_ptr<Logger>                   m_Logger     = nullptr;
 
     std::unique_ptr<GlobalParameters>             m_GlobalParams = std::make_unique<GlobalParameters>();

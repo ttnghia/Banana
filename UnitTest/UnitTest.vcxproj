@@ -88,7 +88,7 @@
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <AdditionalDependencies>$(SolutionDir)Build\Debug\BananaCore.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(SolutionDir)Build\Debug\BananaCore.lib;$(SolutionDir)Build\Debug\OpenGLHelpers.lib;$(SolutionDir)Build\Debug\QtAppHelpers.lib;$(SolutionDir)Build\Debug\RayTracing.lib;$(SolutionDir)Build\Debug\Simulation.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -107,7 +107,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <SubSystem>Console</SubSystem>
-      <AdditionalDependencies>$(SolutionDir)Build\Release\BananaCore.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(SolutionDir)Build\Release\BananaCore.lib;$(SolutionDir)Build\Release\OpenGLHelpers.lib;$(SolutionDir)Build\Release\QtAppHelpers.lib;$(SolutionDir)Build\Release\RayTracing.lib;$(SolutionDir)Build\Release\Simulation.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">
@@ -121,12 +121,13 @@
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <PreprocessorDefinitions>_WINDOWS;UNICODE;WIN32;WIN64;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <SubSystem>Console</SubSystem>
-      <AdditionalDependencies>$(SolutionDir)Build\Release\BananaCore.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(SolutionDir)Build\ReleaseStaticBuild\BananaCore.lib;$(SolutionDir)Build\ReleaseStaticBuild\OpenGLHelpers.lib;$(SolutionDir)Build\ReleaseStaticBuild\QtAppHelpers.lib;$(SolutionDir)Build\ReleaseStaticBuild\RayTracing.lib;$(SolutionDir)Build\ReleaseStaticBuild\Simulation.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

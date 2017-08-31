@@ -15,14 +15,14 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-#include <CompactNSearch/CompactNSearch.h>
+#include <Banana/NeighborSearch/NeighborSearch.h>
 #include <Banana/ParallelHelpers/ParallelFuncs.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-NeighborhoodSearch::NeighborhoodSearch(Real r, bool erase_empty_cells) :
+NeighborSearch::NeighborSearch(Real r, bool erase_empty_cells) :
     m_r2(r * r), m_inv_cell_size(static_cast<Real>(1.0 / r)), m_erase_empty_cells(erase_empty_cells), m_initialized(false)
 {
     if(r <= 0.0)
@@ -34,7 +34,7 @@ NeighborhoodSearch::NeighborhoodSearch(Real r, bool erase_empty_cells) :
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Computes triple index to a world space position x.
-HashKey NeighborhoodSearch::cell_index(Real const* x) const
+HashKey NeighborSearch::cell_index(Real const* x) const
 {
     HashKey ret;
     for(UInt i = 0; i < 3; ++i)
@@ -49,7 +49,7 @@ HashKey NeighborhoodSearch::cell_index(Real const* x) const
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Determines permutation table for point array.
-void NeighborhoodSearch::z_sort()
+void NeighborSearch::z_sort()
 {
     for(PointSet& d : m_point_sets)
     {
@@ -68,7 +68,7 @@ void NeighborhoodSearch::z_sort()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Build hash table and entry array from scratch.
-void NeighborhoodSearch::init()
+void NeighborSearch::init()
 {
     m_entries.clear();
     m_map.clear();
@@ -115,7 +115,7 @@ void NeighborhoodSearch::init()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void NeighborhoodSearch::resize_point_set(UInt index, Real const* x, std::size_t size)
+void NeighborSearch::resize_point_set(UInt index, Real const* x, std::size_t size)
 {
     PointSet&   point_set = m_point_sets[index];
     std::size_t old_size  = point_set.n_points();
@@ -186,7 +186,7 @@ void NeighborhoodSearch::resize_point_set(UInt index, Real const* x, std::size_t
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void NeighborhoodSearch::update_activation_table()
+void NeighborSearch::update_activation_table()
 {
     if(m_activation_table != m_old_activation_table)
     {
@@ -205,7 +205,7 @@ void NeighborhoodSearch::update_activation_table()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void NeighborhoodSearch::find_neighbors(bool points_changed_)
+void NeighborSearch::find_neighbors(bool points_changed_)
 {
     if(points_changed_)
     {
@@ -216,7 +216,7 @@ void NeighborhoodSearch::find_neighbors(bool points_changed_)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void NeighborhoodSearch::update_point_sets()
+void NeighborSearch::update_point_sets()
 {
     if(!m_initialized)
     {
@@ -252,13 +252,13 @@ void NeighborhoodSearch::update_point_sets()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void NeighborhoodSearch::find_neighbors(UInt point_set_id, UInt point_index, Vec_VecUInt& neighbors)
+void NeighborSearch::find_neighbors(UInt point_set_id, UInt point_index, Vec_VecUInt& neighbors)
 {
     query(point_set_id, point_index, neighbors);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void NeighborhoodSearch::erase_empty_entries(Vec_UInt const& to_delete)
+void NeighborSearch::erase_empty_entries(Vec_UInt const& to_delete)
 {
     if(to_delete.empty())
         return;
@@ -305,7 +305,7 @@ void NeighborhoodSearch::erase_empty_entries(Vec_UInt const& to_delete)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void NeighborhoodSearch::update_hash_table(Vec_UInt& to_delete)
+void NeighborSearch::update_hash_table(Vec_UInt& to_delete)
 {
     // Indicate points changing inheriting cell.
     for(UInt j = 0; j < m_point_sets.size(); ++j)
@@ -352,7 +352,7 @@ void NeighborhoodSearch::update_hash_table(Vec_UInt& to_delete)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void NeighborhoodSearch::query()
+void NeighborSearch::query()
 {
     for(UInt i = 0; i < m_point_sets.size(); i++)
     {
@@ -532,7 +532,7 @@ void NeighborhoodSearch::query()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void NeighborhoodSearch::query(UInt point_set_id, UInt point_index, Vec_VecUInt& neighbors)
+void NeighborSearch::query(UInt point_set_id, UInt point_index, Vec_VecUInt& neighbors)
 {
     neighbors.resize(m_point_sets.size());
     PointSet& d = m_point_sets[point_set_id];

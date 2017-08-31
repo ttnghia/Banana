@@ -34,7 +34,7 @@ void WCSPHSolver::makeReady()
                                m_SpikyKernel.setRadius(m_SimParams->kernelRadius);
                                m_NearSpikyKernel.setRadius(Real(1.5) * m_SimParams->particleRadius);
 
-                               m_NSearch = std::make_unique<NeighborhoodSearch>(m_SimParams->kernelRadius);
+                               m_NSearch = std::make_unique<NeighborSearch>(m_SimParams->kernelRadius);
                                m_NSearch->add_point_set(glm::value_ptr(m_SimData->positions.front()), m_SimData->getNumParticles(), true, true);
 
 
