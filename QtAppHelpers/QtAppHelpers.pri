@@ -20,13 +20,16 @@ win32 {
     CONFIG(debug, debug|release) {
         message("QtAppHelpers -- Debug")
         LIBS += $$PWD/../Build/DebugQt/QtAppHelpers.lib
+        PRE_TARGETDEPS += $$PWD/../Build/DebugQt/QtAppHelpers.lib
     }
     else {
         message("QtAppHelpers -- Release")
         static {
             LIBS += $$PWD/../Build/ReleaseStaticBuild/QtAppHelpers.lib
+            PRE_TARGETDEPS += $$PWD/../Build/ReleaseStaticBuild/QtAppHelpers.lib
         } else {
             LIBS += $$PWD/../Build/ReleaseQt/QtAppHelpers.lib
+            PRE_TARGETDEPS += $$PWD/../Build/ReleaseQt/QtAppHelpers.lib
         }
     }
 }
@@ -38,11 +41,13 @@ macx {
         message("QtAppHelpers -- Debug")
         QMAKE_CXXFLAGS += -O0 -g
         LIBS += $$PWD/../Build/Debug/libQtAppHelpers.a
+        PRE_TARGETDEPS += $$PWD/../Build/Debug/libQtAppHelpers.a
     }
     else {
         message("QtAppHelpers -- Release")
         QMAKE_CXXFLAGS += -O3
         LIBS += $$PWD/../Build/Release/libQtAppHelpers.a
+        PRE_TARGETDEPS += $$PWD/../Build/Release/libQtAppHelpers.a
     }
 }
 

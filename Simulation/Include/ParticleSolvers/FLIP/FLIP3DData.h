@@ -42,21 +42,25 @@ struct  SimulationParameters_FLIP3D
     Real   particleRadius          = Real(2.0 / 32.0 / 4.0);
     Kernel kernelFunc              = Kernel::Linear;
     Real   repulsiveForceStiffness = Real(1e7);
+    UInt   expandCells             = 2;
     Real   CGRelativeTolerance     = Real(1e-20);
     UInt   maxCGIteration          = 10000;
 
     bool bApplyRepulsiveForces = false;
 
-    Vec3r boxMin = Vec3r(-1.0);
-    Vec3r boxMax = Vec3r(1.0);
+
+    Vec3r movingBMin = Vec3r(-1.0);
+    Vec3r movingBMax = Vec3r(1.0);
 
     // the following need to be computed
-    int  kernelSpan;
-    Real kernelRadius;
-    Real kernelRadiusSqr;
-    Real nearKernelRadius;
-    Real nearKernelRadiusSqr;
-    Real sdfRadius;                                                                // radius for level set fluid
+    Vec3r domainBMin;
+    Vec3r domainBMax;
+    int   kernelSpan;
+    Real  kernelRadius;
+    Real  kernelRadiusSqr;
+    Real  nearKernelRadius;
+    Real  nearKernelRadiusSqr;
+    Real  sdfRadius;                                                               // radius for level set fluid
 
     ////////////////////////////////////////////////////////////////////////////////
     void makeReady()
@@ -66,8 +70,11 @@ struct  SimulationParameters_FLIP3D
         nearKernelRadius    = particleRadius * Real(2.5);
         nearKernelRadiusSqr = nearKernelRadius * nearKernelRadius;
 
-        sdfRadius  = kernelRadius * Real(1.01 * sqrt(3.0) / 2.0);
+        sdfRadius  = kernelRadius * Real(1.001 * sqrt(3.0) / 2.0);
         kernelSpan = (kernelFunc == Kernel::Linear) ? 1 : 2;
+
+        domainBMin = movingBMin - Vec3r(kernelRadius * expandCells);
+        domainBMax = movingBMax + Vec3r(kernelRadius * expandCells);
     }
 
     ////////////////////////////////////////////////////////////////////////////////

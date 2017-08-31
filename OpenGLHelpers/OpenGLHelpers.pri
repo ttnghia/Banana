@@ -26,12 +26,15 @@ win32 {
     CONFIG(debug, debug|release) {
         message("OpenGLHelpers -- Debug")
         LIBS += $$PWD/../Build/DebugQt/OpenGLHelpers.lib
+        PRE_TARGETDEPS += $$PWD/../Build/DebugQt/OpenGLHelpers.lib
     }else {
         message("OpenGLHelpers -- Release")
         static {
             LIBS += $$PWD/../Build/ReleaseStaticBuild/OpenGLHelpers.lib
+            PRE_TARGETDEPS += $$PWD/../Build/ReleaseStaticBuild/OpenGLHelpers.lib
         } else {
             LIBS += $$PWD/../Build/ReleaseQt/OpenGLHelpers.lib
+            PRE_TARGETDEPS += $$PWD/../Build/ReleaseQt/OpenGLHelpers.lib
         }
     }
 }
@@ -41,8 +44,10 @@ macx {
     CONFIG(debug, debug|release) {
         message("OpenGLHelpers -- Debug")
         LIBS += $$PWD/../Build/Debug/libOpenGLHelpers.a
+        PRE_TARGETDEPS += $$PWD/../Build/Debug/libOpenGLHelpers.a
     }else {
         message("OpenGLHelpers -- Release")
         LIBS += $$PWD/../Build/Release/libOpenGLHelpers.a
+        PRE_TARGETDEPS += $$PWD/../Build/Release/libOpenGLHelpers.a
     }
 }

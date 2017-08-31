@@ -22,9 +22,11 @@ win32 {
     CONFIG(debug, debug|release) {
         message("Simulation -- Debug")
         LIBS += $$PWD/../Build/Debug/Simulation.lib
+        PRE_TARGETDEPS += $$PWD/../Build/Debug/Simulation.lib
     }else {
         message("Simulation -- Release")
         LIBS += $$PWD/../Build/Release/Simulation.lib
+        PRE_TARGETDEPS += $$PWD/../Build/Release/Simulation.lib
     }
 }
 
@@ -37,9 +39,11 @@ macx {
         message("Simulation -- Debug")
         QMAKE_CXXFLAGS += -O0 -g
         LIBS += $$PWD/../Build/Debug/libSimulation.a
+        PRE_TARGETDEPS += $$PWD/../Build/Debug/libSimulation.a
     }else {
         message("Simulation -- Release")
         QMAKE_CXXFLAGS += -O3
         LIBS += $$PWD/../Build/Release/libSimulation.a
+        PRE_TARGETDEPS += $$PWD/../Build/Release/libSimulation.a
     }
 }

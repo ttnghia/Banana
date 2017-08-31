@@ -39,7 +39,7 @@ void FLIP3DSolver::makeReady()
                                    m_WeightKernel = [](const Vec3r& dxdydz) { return MathHelpers::cubic_spline_kernel_3d(dxdydz[0], dxdydz[1], dxdydz[2]); };
                                }
 
-                               m_Grid.setGrid(m_SimParams->boxMin, m_SimParams->boxMax, m_SimParams->kernelRadius);
+                               m_Grid.setGrid(m_SimParams->domainBMin, m_SimParams->domainBMax, m_SimParams->kernelRadius);
                                m_SimData->makeReady(m_Grid.getNumCellX(), m_Grid.getNumCellY(), m_Grid.getNumCellZ());
 
                                m_PCGSolver.setSolverParameters(m_SimParams->CGRelativeTolerance, m_SimParams->maxCGIteration);
@@ -54,15 +54,15 @@ void FLIP3DSolver::makeReady()
 
                                // todo: remove this
                                GeometryObject3D::BoxObject box;
-                               box.boxMin() = m_SimParams->boxMin + Vec3r(m_SimParams->kernelRadius);
-                               box.boxMax() = m_SimParams->boxMax - Vec3r(m_SimParams->kernelRadius);
+                               box.boxMin() = m_SimParams->domainBMin;
+                               box.boxMax() = m_SimParams->domainBMax;
                                ParallelFuncs::parallel_for<UInt>(0, m_Grid.getNumCellX() + 1,
                                                                  0, m_Grid.getNumCellY() + 1,
                                                                  0, m_Grid.getNumCellZ() + 1,
                                                                  [&](UInt i, UInt j, UInt k)
                                                                  {
-                                                                     const Vec3r gridPos = Vec3r(i, j, k) * m_SimParams->kernelRadius + m_SimParams->boxMin;
-                                                                     m_SimData->boundarySDF(i, j, k) = box.signedDistance(gridPos);
+                                                                     const Vec3r gridPos = Vec3r(i, j, k) * m_SimParams->kernelRadius + m_SimParams->domainBMin;
+                                                                     m_SimData->boundarySDF(i, j, k) = -box.signedDistance(gridPos);
                                                                  });
                                m_Logger->printWarning("Computed boundary SDF");
                            });
@@ -103,7 +103,7 @@ void FLIP3DSolver::advanceFrame()
                                    m_Logger->printRunTime("Find neighbors: ",               funcTimer, [&]() { m_Grid.collectIndexToCells(m_SimData->positions); });
                                    m_Logger->printRunTime("====> Advance velocity total: ", funcTimer, [&]() { advanceVelocity(substep); });
                                    m_Logger->printRunTime("Move particles: ",               funcTimer, [&]() { moveParticles(substep); });
-                                   m_Logger->printRunTime("Correct particle positions: ",   funcTimer, [&]() { correctPositions(substep); });
+                                   //m_Logger->printRunTime("Correct particle positions: ",   funcTimer, [&]() { correctPositions(substep); });
                                    ////////////////////////////////////////////////////////////////////////////////
                                    frameTime += substep;
                                    ++substepCount;
@@ -150,8 +150,8 @@ void FLIP3DSolver::sortParticles()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void FLIP3DSolver::loadSimParams(const nlohmann::json& jParams)
 {
-    JSONHelpers::readVector(jParams, m_SimParams->boxMin, "BoxMin");
-    JSONHelpers::readVector(jParams, m_SimParams->boxMax, "BoxMax");
+    JSONHelpers::readVector(jParams, m_SimParams->movingBMin, "BoxMin");
+    JSONHelpers::readVector(jParams, m_SimParams->movingBMax, "BoxMax");
 
     JSONHelpers::readValue(jParams, m_SimParams->particleRadius,      "ParticleRadius");
     JSONHelpers::readValue(jParams, m_SimParams->PIC_FLIP_ratio,      "PIC_FLIP_Ratio");
@@ -964,7 +964,7 @@ void FLIP3DSolver::solveSystem()
     Real tolerance  = Real(0);
     UInt iterations = 0;
 
-    bool success = m_PCGSolver.solve_precond(m_SimData->matrix, m_SimData->rhs, m_SimData->pressure, tolerance, iterations);
+    bool success = m_PCGSolver.solve(m_SimData->matrix, m_SimData->rhs, m_SimData->pressure, tolerance, iterations);
 
     m_Logger->printLog("Conjugate Gradient iterations: " + NumberHelpers::formatWithCommas(iterations) +
                        ". Final tolerance: " + NumberHelpers::formatToScientific(tolerance));

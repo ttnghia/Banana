@@ -36,13 +36,16 @@ win32 {
         message("Banana -- Debug")
         QMAKE_CXXFLAGS += /DEBUG /Zi /D "_DEBUG" /wd"4305"
         LIBS += $$PWD/../Build/Debug/BananaCore.lib
+        PRE_TARGETDEPS += $$PWD/../Build/Debug/BananaCore.lib
     }else {
         message("Banana -- Release")
         QMAKE_CXXFLAGS += /O2 /Ob2 /GL /Qpar /wd"4305"
         static {
             LIBS += $$PWD/../Build/ReleaseStaticBuild/BananaCore.lib
+            PRE_TARGETDEPS += $$PWD/../Build/ReleaseStaticBuild/BananaCore.lib
         } else {
             LIBS += $$PWD/../Build/Release/BananaCore.lib
+            PRE_TARGETDEPS += $$PWD/../Build/Release/BananaCore.lib
         }
     }
 
@@ -53,8 +56,10 @@ win32 {
 macx {
     CONFIG(debug, debug|release) {
         LIBS += $$PWD/../Build/Debug/libBananaCore.a
+        PRE_TARGETDEPS += $$PWD/../Build/Debug/libBananaCore.a
     }else {
         LIBS += $$PWD/../Build/Release/libBananaCore.a
+        PRE_TARGETDEPS += $$PWD/../Build/Release/libBananaCore.a
     }
 
     INCLUDEPATH += $$PWD/../Externals/tbb_osx/include
