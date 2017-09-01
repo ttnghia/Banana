@@ -17,6 +17,7 @@
 
 #include <Banana/LinearAlgebra/SparseMatrix/SparseMatrix.h>
 #include <Banana/Utils/FileHelpers.h>
+#include <Banana/Utils/NumberHelpers.h>
 #include <Banana/Utils/STLHelpers.h>
 #include <Banana/ParallelHelpers/ParallelFuncs.h>
 
@@ -121,7 +122,7 @@ void SparseMatrix::printDebug(UInt maxRows /*= 0*/) const noexcept
 
         for(UInt j = 0; j < colIndex[i].size(); ++j)
         {
-            std::cout << colIndex[i][j] << "(" << colValue[i][j] << "), ";
+            std::cout << colIndex[i][j] << "(" << NumberHelpers::formatToScientific(colValue[i][j]) << "), ";
         }
 
         std::cout << std::endl;
@@ -183,7 +184,7 @@ void SparseMatrix::printTextFile(const char* fileName)
         {
             String str = std::to_string(i + 1);
             str += "    ";
-            str += std::to_string(j + 1);
+            str += std::to_string(colIndex[i][j] + 1);
             str += "    ";
             str += std::to_string(colValue[i][j]);
             matContent.push_back(str);

@@ -713,8 +713,11 @@ inline T smooth_kernel_laplacian(T r2, T h)
 }
 
 template<class T>
-inline T bilinear_kernel(T dx, T dy)
+inline T bilinear_kernel(T dx_, T dy_)
 {
+    T dx = dx_ > 0 ? dx_ : -dx_;
+    T dy = dy_ > 0 ? dy_ : -dy_;
+
     if(dx > T(1.0) || dy > T(1.0))
     {
         return 0;
@@ -724,8 +727,12 @@ inline T bilinear_kernel(T dx, T dy)
 }
 
 template<class T>
-inline T tril_kernel(T dx, T dy, T dz)
+inline T tril_kernel(T dx_, T dy_, T dz_)
 {
+    T dx = dx_ > 0 ? dx_ : -dx_;
+    T dy = dy_ > 0 ? dy_ : -dy_;
+    T dz = dz_ > 0 ? dz_ : -dz_;
+
     if(dx > T(1.0) || dy > T(1.0) || dz > T(1.0))
     {
         return 0;

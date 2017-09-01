@@ -1,9 +1,10 @@
 {
 	"GlobalParameters": 
 	{
-		"FrameDuration": 0.001,
+		"FrameDuration": 0.01,
 		"FinalFrame": 10000,
-        "EnableSortParticle": true
+        "EnableSortParticle": true,
+		"NThreads" : 1
 	},
 	"SimulationParameters": 
 	{

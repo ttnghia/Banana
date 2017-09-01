@@ -39,7 +39,7 @@ struct  SimulationParameters_FLIP3D
     Real   CFLFactor               = Real(1.0);
     Real   PIC_FLIP_ratio          = Real(0.97);
     Real   boundaryRestitution     = Real(DEFAULT_BOUNDARY_RESTITUTION);
-    Real   particleRadius          = Real(2.0 / 16.0 / 4.0);
+    Real   particleRadius          = Real(2.0 / 8.0 / 4.0);
     Kernel kernelFunc              = Kernel::Linear;
     Real   repulsiveForceStiffness = Real(1e9);
     UInt   expandCells             = 2;
@@ -71,7 +71,7 @@ struct  SimulationParameters_FLIP3D
         nearKernelRadiusSqr = nearKernelRadius * nearKernelRadius;
 
         sdfRadius  = kernelRadius * Real(1.01 * sqrt(3.0) / 2.0);
-        kernelSpan = (kernelFunc == Kernel::Linear) ? 1 : 2;
+        kernelSpan = (kernelFunc == Kernel::Linear) ? 2 : 2;
 
         domainBMin = movingBMin - Vec3r(kernelRadius * expandCells);
         domainBMax = movingBMax + Vec3r(kernelRadius * expandCells);
@@ -114,8 +114,8 @@ struct SimulationData_FLIP3D
     Array3r u, v, w;
     Array3r du, dv, dw;
     Array3r u_old, v_old, w_old;
-    Array3r u_weights, v_weights, w_weights;
-    Array3c u_valid, v_valid, w_valid;
+    Array3r u_weights, v_weights, w_weights; // mark the domain area that can be occupied by fluid
+    Array3c u_valid, v_valid, w_valid;       // mark the current faces that are influenced by particles during velocity mapping
 
     // temp array
     Array3r u_temp, v_temp, w_temp;
@@ -183,6 +183,7 @@ struct SimulationData_FLIP3D
     {
         u_old.copyDataFrom(u);
         v_old.copyDataFrom(v);
+        w_old.copyDataFrom(w);
     }
 };
 

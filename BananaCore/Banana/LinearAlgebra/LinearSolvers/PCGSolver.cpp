@@ -99,7 +99,13 @@ bool PCGSolver::solve(const SparseMatrix& matrix, const Vec_Real& rhs, Vec_Real&
     for(UInt iteration = 0; iteration < m_MaxIterations; ++iteration)
     {
         FixedSparseMatrix::multiply(m_FixedSparseMatrix, z, s);
-        Real alpha = rho / ParallelBLAS::dotProductScalar<Real>(s, z);
+        Real tmp = ParallelBLAS::dotProductScalar<Real>(s, z);
+        if(tmp < Tiny)
+        {
+            iterations_out = iteration + 1;
+            return true;
+        }
+        Real alpha = rho / tmp;
         ParallelBLAS::addScaled<Real, Real>(alpha,  z, result);
         ParallelBLAS::addScaled<Real, Real>(-alpha, s, r);
 
