@@ -39,9 +39,9 @@ struct  SimulationParameters_FLIP3D
     Real   CFLFactor               = Real(1.0);
     Real   PIC_FLIP_ratio          = Real(0.97);
     Real   boundaryRestitution     = Real(DEFAULT_BOUNDARY_RESTITUTION);
-    Real   particleRadius          = Real(2.0 / 32.0 / 4.0);
+    Real   particleRadius          = Real(2.0 / 64.0 / 4.0);
     Kernel kernelFunc              = Kernel::Linear;
-    Real   repulsiveForceStiffness = Real(1e9);
+    Real   repulsiveForceStiffness = Real(1e-3);
     UInt   expandCells             = 2;
     Real   CGRelativeTolerance     = Real(1e-15);
     UInt   maxCGIteration          = 10000;
@@ -67,7 +67,7 @@ struct  SimulationParameters_FLIP3D
     {
         kernelRadius        = particleRadius * Real(4.0);
         kernelRadiusSqr     = kernelRadius * kernelRadius;
-        nearKernelRadius    = particleRadius * Real(3.0);
+        nearKernelRadius    = particleRadius * Real(3.01);
         nearKernelRadiusSqr = nearKernelRadius * nearKernelRadius;
 
         sdfRadius  = kernelRadius * Real(1.01 * sqrt(3.0) / 2.0);
@@ -84,14 +84,16 @@ struct  SimulationParameters_FLIP3D
         logger->printLogIndent("Default timestep: " + NumberHelpers::formatToScientific(defaultTimestep));
         logger->printLogIndent("CFL factor: " + std::to_string(CFLFactor));
         logger->printLogIndent("PIC/FLIP ratio: " + std::to_string(PIC_FLIP_ratio));
+        logger->printLogIndent("Kernel function: " + (kernelFunc == Kernel::Linear ? String("Linear") : String("Cubic BSpline")));
 
         logger->printLogIndent("Kernel radius: " + std::to_string(kernelRadius));
         logger->printLogIndent("Boundary restitution: " + std::to_string(boundaryRestitution));
-        logger->printLogIndent("Apply repulsive forces: " + (bApplyRepulsiveForces ? std::string("Yes") : std::string("No")));
+        logger->printLogIndent("Apply repulsive forces: " + (bApplyRepulsiveForces ? String("Yes") : String("No")));
         if(bApplyRepulsiveForces)
         {
             logger->printLogIndent("Repulsive force stiffness: " + NumberHelpers::formatToScientific(repulsiveForceStiffness));
         }
+
 
         logger->printLogIndent("Particle radius: " + std::to_string(particleRadius));
         logger->printLogIndent("ConjugateGradient solver tolerance: " + NumberHelpers::formatToScientific(CGRelativeTolerance));

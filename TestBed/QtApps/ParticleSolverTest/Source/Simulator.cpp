@@ -16,6 +16,9 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 #include "Simulator.h"
+
+#include <ParticleTools/ParticleHelpers.h>
+
 #include <QDebug>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -117,8 +120,9 @@ void Simulator::changeScene(const QString& scene)
             for(int k = 0; k < grid[2]; ++k)
             {
                 Vec3<float> ppos = bMin + spacing * Vec3<float>(i, j, k);
-//                if(glm::length(ppos - center) > radius)
-//                    continue;
+                if(glm::length(ppos - center) > radius)
+                    continue;
+                ParticleHelpers::jitter(ppos, 0.5 * spacing);
                 particles.push_back(ppos);
             }
         }

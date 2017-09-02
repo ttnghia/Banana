@@ -153,12 +153,23 @@ void FLIP3DSolver::loadSimParams(const nlohmann::json& jParams)
     JSONHelpers::readVector(jParams, m_SimParams->movingBMin, "BoxMin");
     JSONHelpers::readVector(jParams, m_SimParams->movingBMax, "BoxMax");
 
+
     JSONHelpers::readValue(jParams, m_SimParams->particleRadius,      "ParticleRadius");
     JSONHelpers::readValue(jParams, m_SimParams->PIC_FLIP_ratio,      "PIC_FLIP_Ratio");
 
     JSONHelpers::readValue(jParams, m_SimParams->boundaryRestitution, "BoundaryRestitution");
     JSONHelpers::readValue(jParams, m_SimParams->CGRelativeTolerance, "CGRelativeTolerance");
     JSONHelpers::readValue(jParams, m_SimParams->maxCGIteration,      "MaxCGIteration");
+
+    JSONHelpers::readBool(jParams, m_SimParams->bApplyRepulsiveForces, "ApplyRepulsiveForces");
+    JSONHelpers::readBool(jParams, m_SimParams->bApplyRepulsiveForces, "ApplyRepulsiveForce");
+
+    String tmp = "LinearKernel";
+    JSONHelpers::readValue(jParams, tmp, "KernelFunction");
+    if(tmp == "LinearKernel" || tmp == "Linear")
+        m_SimParams->kernelFunc = SimulationParameters_FLIP3D::Linear;
+    else
+        m_SimParams->kernelFunc = SimulationParameters_FLIP3D::CubicSpline;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -316,7 +327,7 @@ void FLIP3DSolver::advanceVelocity(Real timestep)
     //m_Logger->printRunTime("Constrain grid velocity: ",                     funcTimer, [&]() { constrainVelocity(); });
     m_Logger->printRunTime("Backup grid velocities: ",                      funcTimer, [&]() { m_SimData->backupGridVelocity(); });
     m_Logger->printRunTime("Add gravity: ",                                 funcTimer, [&]() { addGravity(timestep); });
-    m_Logger->printRunTime("====> Pressure projection: ",                   funcTimer, [&]() { pressureProjection(timestep); });
+    m_Logger->printRunTime("====> Pressure projection total: ",             funcTimer, [&]() { pressureProjection(timestep); });
     m_Logger->printRunTime("Extrapolate grid velocity: : ",                 funcTimer, [&]() { extrapolateVelocity(); });
     m_Logger->printRunTime("Constrain grid velocity: ",                     funcTimer, [&]() { constrainVelocity(); });
     m_Logger->printRunTime("Compute changes of grid velocity: ",            funcTimer, [&]() { computeChangesGridVelocity(); });
@@ -441,7 +452,6 @@ void FLIP3DSolver::computeFluidWeights()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void FLIP3DSolver::addRepulsiveVelocity2Particles(Real timestep)
 {
-    const Real K_r = m_SimParams->repulsiveForceStiffness / timestep;
     m_Grid.getNeighborList(m_SimData->positions, m_SimData->neighborList, m_SimParams->nearKernelRadiusSqr);
     ////////////////////////////////////////////////////////////////////////////////
 
@@ -456,14 +466,13 @@ void FLIP3DSolver::addRepulsiveVelocity2Particles(Real timestep)
                                           {
                                               const Vec3r& qpos = m_SimData->positions[q];
                                               const Vec3r xpq = ppos - qpos;
-                                              const Real d2 = glm::length2(xpq);
+                                              const Real d = glm::length(xpq);
 
-                                              const Real x = Real(1.0) - d2 / m_SimParams->nearKernelRadiusSqr;
-                                              // pvel += K_r * (x * x * x) * (xpq / d);
-                                              pvel += (K_r * x) * xpq;
+                                              const Real x = Real(1.0) - d / m_SimParams->nearKernelRadius;
+                                              pvel += (x * x / d) * xpq;
                                           }
 
-                                          m_SimData->velocities[p] += pvel;
+                                          m_SimData->velocities[p] += m_SimParams->repulsiveForceStiffness * pvel;
                                       });
 }
 
@@ -860,7 +869,7 @@ void FLIP3DSolver::computeMatrix(Real timestep)
                     }
                     else
                     {
-                        Real theta = MathHelpers::min(Real(0.01), MathHelpers::fraction_inside(center_phi, right_phi));
+                        Real theta = MathHelpers::max(Real(0.01), MathHelpers::fraction_inside(center_phi, right_phi));
                         center_term += right_term / theta;
                     }
 
@@ -872,7 +881,7 @@ void FLIP3DSolver::computeMatrix(Real timestep)
                     }
                     else
                     {
-                        Real theta = MathHelpers::min(Real(0.01), MathHelpers::fraction_inside(center_phi, left_phi));
+                        Real theta = MathHelpers::max(Real(0.01), MathHelpers::fraction_inside(center_phi, left_phi));
                         center_term += left_term / theta;
                     }
 
@@ -884,7 +893,7 @@ void FLIP3DSolver::computeMatrix(Real timestep)
                     }
                     else
                     {
-                        Real theta = MathHelpers::min(Real(0.01), MathHelpers::fraction_inside(center_phi, top_phi));
+                        Real theta = MathHelpers::max(Real(0.01), MathHelpers::fraction_inside(center_phi, top_phi));
                         center_term += top_term / theta;
                     }
 
@@ -896,7 +905,7 @@ void FLIP3DSolver::computeMatrix(Real timestep)
                     }
                     else
                     {
-                        Real theta = MathHelpers::min(Real(0.01), MathHelpers::fraction_inside(center_phi, bottom_phi));
+                        Real theta = MathHelpers::max(Real(0.01), MathHelpers::fraction_inside(center_phi, bottom_phi));
                         center_term += bottom_term / theta;
                     }
 
@@ -908,7 +917,7 @@ void FLIP3DSolver::computeMatrix(Real timestep)
                     }
                     else
                     {
-                        Real theta = MathHelpers::min(Real(0.01), MathHelpers::fraction_inside(center_phi, far_phi));
+                        Real theta = MathHelpers::max(Real(0.01), MathHelpers::fraction_inside(center_phi, far_phi));
                         center_term += far_term / theta;
                     }
 
@@ -920,7 +929,7 @@ void FLIP3DSolver::computeMatrix(Real timestep)
                     }
                     else
                     {
-                        Real theta = MathHelpers::min(Real(0.01), MathHelpers::fraction_inside(center_phi, near_phi));
+                        Real theta = MathHelpers::max(Real(0.01), MathHelpers::fraction_inside(center_phi, near_phi));
                         center_term += near_term / theta;
                     }
 

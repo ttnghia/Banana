@@ -9,7 +9,11 @@
 	"SimulationParameters": 
 	{
 	    "UseBoundaryParticles": true,
-		"PressureStiffness": 60000
+		"ApplyRepulsiveForce" : true,
+		"PressureStiffness": 60000,
+		"PIC_FLIP_Ratio" : 0.98,
+		"KernelFunction" : "Linear",
+		"CGRelativeTolerance" : 1e-17
 	},
 	"ObjectParameters": [
 		{
