@@ -36,7 +36,12 @@ void Simulator::doSimulation()
 
 #if 1
     ////////////////////////////////////////////////////////////////////////////////
-    m_ParticleSolver->makeReady();
+    static bool ready = false;
+    if(!ready)
+    {
+        m_ParticleSolver->makeReady();
+        ready = true;
+    }
 
 //    static tbb::task_scheduler_init threadInit = tbb::task_scheduler_init::automatic;
     static tbb::task_scheduler_init threadInit(1);
@@ -45,7 +50,7 @@ void Simulator::doSimulation()
     for(unsigned int frame = 1; frame <= m_ParticleSolver->getGlobalParams()->finalFrame; ++frame)
     {
         m_ParticleSolver->advanceFrame();
-//        m_ParticleSolver->sortParticles();
+        m_ParticleSolver->sortParticles();
         float sysTime = m_ParticleSolver->getGlobalParams()->frameDuration * static_cast<float>(frame);
 
         emit systemTimeChanged(sysTime);
@@ -99,7 +104,7 @@ void Simulator::changeScene(const QString& scene)
 
 
     Vec3<float> center(0.0f, -0.25f, 0.0f);
-    float       radius  = 0.25f;
+    float       radius  = 0.5f;
     Vec3<float> bMin    = center - Vec3<float>(radius - m_ParticleSolver->getSolverParams()->particleRadius);
     float       spacing = 2.0f * m_ParticleSolver->getSolverParams()->particleRadius;
     Vec3<int>   grid    = Vec3<int>(1) * static_cast<int>(2.0f * radius / spacing);

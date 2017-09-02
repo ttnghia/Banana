@@ -18,210 +18,210 @@
     <None Include="Simulation.licenseheader" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Include\ParticleTools\BlueNoiseRelaxation\LloydRelaxation.h">
+    <ClInclude Include="ParticleSolvers\FLIP\FLIP2DData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\ParticleTools\ParticleHelpers.h">
+    <ClInclude Include="ParticleSolvers\FLIP\FLIP2DSolver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\ParticleTools\AnisotropicKernelGenerator.h">
+    <ClInclude Include="ParticleSolvers\FLIP\FLIP3DData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\ParticleSolvers\SPH\KernelFunctions.h">
+    <ClInclude Include="ParticleSolvers\FLIP\FLIP3DSolver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\ParticleSolvers\Peridynamics\PeridynamicsSolver.h">
+    <ClInclude Include="ParticleSolvers\MPM\MPMData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\ParticleSolvers\Peridynamics\PeridynamicsSolver.Impl.hpp">
+    <ClInclude Include="ParticleSolvers\MPM\MPMMaterial.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\ParticleTools\BlueNoiseRelaxation\LloydRelaxation.Impl.hpp">
+    <ClInclude Include="ParticleSolvers\MPM\MPMMaterial.Impl.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\ParticleTools\AnisotropicKernelGenerator.Impl.hpp">
+    <ClInclude Include="ParticleSolvers\MPM\MPMSolver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\ParticleSolvers\_ParticleSolvers.Test.hpp">
+    <ClInclude Include="ParticleSolvers\MPM\MPMSolver.Impl.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\ParticleSolvers\SPH\WCSPH\WCSPHSolver.h">
+    <ClInclude Include="ParticleSolvers\MPM\ShapeFunctions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\ParticleSolvers\SPH\PCISPH\PCISPHSolver.h">
+    <ClInclude Include="ParticleSolvers\MPM\ShapeFunctions.Impl.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\ParticleSolvers\SPH\PCISPH\PCISPHSolver.Impl.hpp">
+    <ClInclude Include="ParticleSolvers\MPM\TimeIntegration.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\ParticleSolvers\SPH\WCSPH\WCSPHData.h">
+    <ClInclude Include="ParticleSolvers\MPM.bk\MPMData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\ParticleSolvers\Peridynamics\PeridynamicsData.h">
+    <ClInclude Include="ParticleSolvers\MPM.bk\MPMMaterial.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\ParticleSolvers\ParticleSolverData.h">
+    <ClInclude Include="ParticleSolvers\MPM.bk\MPMMaterial.Impl.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\ParticleSolvers\SceneLoader.h">
+    <ClInclude Include="ParticleSolvers\MPM.bk\MPMSolver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\ParticleSolvers\SceneLoader.Impl.hpp">
+    <ClInclude Include="ParticleSolvers\MPM.bk\MPMSolver.Impl.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\ParticleSolvers\MPM\MPMMaterial.h">
+    <ClInclude Include="ParticleSolvers\MPM.bk\ShapeFunctions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\ParticleSolvers\MPM\MPMMaterial.Impl.hpp">
+    <ClInclude Include="ParticleSolvers\MPM.bk\ShapeFunctions.Impl.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\ParticleSolvers\MPM\ShapeFunctions.h">
+    <ClInclude Include="ParticleSolvers\MPM.bk\TimeIntegration.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\ParticleSolvers\MPM\ShapeFunctions.Impl.hpp">
+    <ClInclude Include="ParticleSolvers\Peridynamics\PeridynamicsData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\ParticleSolvers\MPM\TimeIntegration.h">
+    <ClInclude Include="ParticleSolvers\Peridynamics\PeridynamicsSolver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\ParticleSolvers\MPM\MPMData.h">
+    <ClInclude Include="ParticleSolvers\Peridynamics\PeridynamicsSolver.Impl.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\ParticleSolvers\MPM\MPMSolver.h">
+    <ClInclude Include="ParticleSolvers\SPH\PCISPH\PCISPHSolver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\ParticleSolvers\MPM\MPMSolver.Impl.hpp">
+    <ClInclude Include="ParticleSolvers\SPH\PCISPH\PCISPHSolver.Impl.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\ParticleTools\BlueNoiseRelaxation\SPHBasedRelaxation.h">
+    <ClInclude Include="ParticleSolvers\SPH\WCSPH\WCSPHData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\ParticleTools\BlueNoiseRelaxation\SPHBasedRelaxation.Impl.hpp">
+    <ClInclude Include="ParticleSolvers\SPH\WCSPH\WCSPHSolver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\ParticleSolvers\FLIP\FLIP2DData.h">
+    <ClInclude Include="ParticleSolvers\SPH\KernelFunctions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\ParticleSolvers\FLIP\FLIP2DSolver.h">
+    <ClInclude Include="ParticleSolvers\_ParticleSolvers.Test.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\ParticleSolvers\FLIP\FLIP3DData.h">
+    <ClInclude Include="ParticleSolvers\ParticleSolver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\ParticleSolvers\FLIP\FLIP3DSolver.h">
+    <ClInclude Include="ParticleSolvers\ParticleSolverData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\ParticleSolvers\MPM.bk\MPMData.h">
+    <ClInclude Include="ParticleSolvers\SceneLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\ParticleSolvers\MPM.bk\MPMMaterial.h">
+    <ClInclude Include="ParticleSolvers\SceneLoader.Impl.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\ParticleSolvers\MPM.bk\MPMMaterial.Impl.hpp">
+    <ClInclude Include="ParticleTools\BlueNoiseRelaxation\LloydRelaxation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\ParticleSolvers\MPM.bk\MPMSolver.h">
+    <ClInclude Include="ParticleTools\BlueNoiseRelaxation\LloydRelaxation.Impl.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\ParticleSolvers\MPM.bk\MPMSolver.Impl.hpp">
+    <ClInclude Include="ParticleTools\BlueNoiseRelaxation\SPHBasedRelaxation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\ParticleSolvers\MPM.bk\ShapeFunctions.h">
+    <ClInclude Include="ParticleTools\BlueNoiseRelaxation\SPHBasedRelaxation.Impl.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\ParticleSolvers\MPM.bk\ShapeFunctions.Impl.hpp">
+    <ClInclude Include="ParticleTools\AnisotropicKernelGenerator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\ParticleSolvers\MPM.bk\TimeIntegration.h">
+    <ClInclude Include="ParticleTools\AnisotropicKernelGenerator.Impl.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\SimulationObjects\BoundaryObjects\BoundaryObjects">
+    <ClInclude Include="ParticleTools\ParticleHelpers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\SimulationObjects\BoundaryObjects\BoxBoundaryObject.h">
+    <ClInclude Include="ParticleTools\ParticleHelpers.Impl.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\SimulationObjects\ParticleObjects\BowlSampler.h">
+    <ClInclude Include="SimulationObjects\BoundaryObjects\BoundaryObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\SimulationObjects\ParticleObjects\BoxObject.h">
+    <ClInclude Include="SimulationObjects\BoundaryObjects\BoundaryObjects">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\SimulationObjects\ParticleObjects\CylinderSampler.h">
+    <ClInclude Include="SimulationObjects\BoundaryObjects\BoxBoundaryObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\SimulationObjects\ParticleObjects\HollowSphereSampler.h">
+    <ClInclude Include="SimulationObjects\ParticleEmitters\BoxEmitter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\SimulationObjects\ParticleObjects\MeshObjSampler.h">
+    <ClInclude Include="SimulationObjects\ParticleEmitters\CylinderEmitter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\SimulationObjects\ParticleObjects\SphereSampler.h">
+    <ClInclude Include="SimulationObjects\ParticleEmitters\HollowSphereEmitter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\SimulationObjects\ParticleObjects\TorusSampler.h">
+    <ClInclude Include="SimulationObjects\ParticleEmitters\MeshObjEmitter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\SimulationObjects\ParticleEmitters\BoxEmitter.h">
+    <ClInclude Include="SimulationObjects\ParticleEmitters\ParticleEmitter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\SimulationObjects\ParticleEmitters\CylinderEmitter.h">
+    <ClInclude Include="SimulationObjects\ParticleEmitters\SphereEmitter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\SimulationObjects\ParticleEmitters\HollowSphereEmitter.h">
+    <ClInclude Include="SimulationObjects\ParticleEmitters\TorusEmitter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\SimulationObjects\ParticleEmitters\MeshObjEmitter.h">
+    <ClInclude Include="SimulationObjects\ParticleObjects\BowlSampler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\SimulationObjects\ParticleEmitters\ParticleEmitter.h">
+    <ClInclude Include="SimulationObjects\ParticleObjects\BoxObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\SimulationObjects\ParticleEmitters\SphereEmitter.h">
+    <ClInclude Include="SimulationObjects\ParticleObjects\CylinderSampler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\SimulationObjects\ParticleEmitters\TorusEmitter.h">
+    <ClInclude Include="SimulationObjects\ParticleObjects\HollowSphereSampler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\SimulationObjects\ParticleObjects\ParticleObjects">
+    <ClInclude Include="SimulationObjects\ParticleObjects\MeshObjSampler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\ParticleSolvers\ParticleSolver.h">
+    <ClInclude Include="SimulationObjects\ParticleObjects\ParticleObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\SimulationObjects\BoundaryObjects\BoundaryObject.h">
+    <ClInclude Include="SimulationObjects\ParticleObjects\ParticleObjects">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\ParticleTools\ParticleHelpers.Impl.hpp">
+    <ClInclude Include="SimulationObjects\ParticleObjects\SphereSampler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\SimulationObjects\ParticleObjects\ParticleObject.h">
+    <ClInclude Include="SimulationObjects\ParticleObjects\TorusSampler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Include\ParticleTools\_ParticleTools.Test.cpp">
+    <ClCompile Include="ParticleSolvers\FLIP\FLIP2DSolver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Include\ParticleSolvers\ParticleSolver.cpp">
+    <ClCompile Include="ParticleSolvers\FLIP\FLIP3DSolver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Include\SimulationObjects\BoundaryObjects\BoxBoundaryObject.cpp">
+    <ClCompile Include="ParticleSolvers\SPH\WCSPH\WCSPHSolver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Include\ParticleSolvers\SPH\WCSPH\WCSPHSolver.cpp">
+    <ClCompile Include="ParticleSolvers\ParticleSolver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Include\ParticleSolvers\FLIP\FLIP2DSolver.cpp">
+    <ClCompile Include="ParticleTools\_ParticleTools.Test.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Include\ParticleSolvers\FLIP\FLIP3DSolver.cpp">
+    <ClCompile Include="ParticleTools\ParticleHelpers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Include\ParticleTools\ParticleHelpers.cpp">
+    <ClCompile Include="SimulationObjects\BoundaryObjects\BoxBoundaryObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Include\SimulationObjects\ParticleObjects\ParticleObject.cpp">
+    <ClCompile Include="SimulationObjects\ParticleObjects\ParticleObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
