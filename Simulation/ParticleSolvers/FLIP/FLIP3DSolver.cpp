@@ -39,13 +39,13 @@ void FLIP3DSolver::makeReady()
                                    m_WeightKernel = [](const Vec3r& dxdydz) { return MathHelpers::cubic_spline_kernel_3d(dxdydz[0], dxdydz[1], dxdydz[2]); };
                                }
 
-                               m_Grid.setGrid(m_SimParams->domainBMin, m_SimParams->domainBMax, m_SimParams->kernelRadius);
+                               m_Grid.setGrid(m_SimParams->domainBMin, m_SimParams->domainBMax, m_SimParams->cellSize);
                                m_SimData->makeReady(m_Grid.getNumCellX(), m_Grid.getNumCellY(), m_Grid.getNumCellZ());
 
                                m_PCGSolver.setSolverParameters(m_SimParams->CGRelativeTolerance, m_SimParams->maxCGIteration);
                                m_PCGSolver.setPreconditioners(PCGSolver::MICCL0_SYMMETRIC);
 
-                               m_NSearch = std::make_unique<NeighborSearch>(m_SimParams->kernelRadius);
+                               m_NSearch = std::make_unique<NeighborSearch>(m_SimParams->cellSize);
                                m_NSearch->add_point_set(glm::value_ptr(m_SimData->positions.front()), m_SimData->getNumParticles(), true, true);
 
 
@@ -163,13 +163,20 @@ void FLIP3DSolver::loadSimParams(const nlohmann::json& jParams)
 
     JSONHelpers::readBool(jParams, m_SimParams->bApplyRepulsiveForces, "ApplyRepulsiveForces");
     JSONHelpers::readBool(jParams, m_SimParams->bApplyRepulsiveForces, "ApplyRepulsiveForce");
+    JSONHelpers::readValue(jParams, m_SimParams->repulsiveForceStiffness, "RepulsiveForceStiffness");
 
     String tmp = "LinearKernel";
-    JSONHelpers::readValue(jParams, tmp, "KernelFunction");
+    JSONHelpers::readValue(jParams, tmp,                                  "KernelFunction");
     if(tmp == "LinearKernel" || tmp == "Linear")
         m_SimParams->kernelFunc = SimulationParameters_FLIP3D::Linear;
     else
-        m_SimParams->kernelFunc = SimulationParameters_FLIP3D::CubicSpline;
+        m_SimParams->kernelFunc = SimulationParameters_FLIP3D::CubicBSpline;
+
+
+
+
+    // todo: remove
+    __BNN_ASSERT(JSONHelpers::readValue(jParams, m_SimParams->particleFile, "ParticleFile"));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

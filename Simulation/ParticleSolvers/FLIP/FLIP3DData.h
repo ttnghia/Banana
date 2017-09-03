@@ -29,9 +29,10 @@ namespace Banana
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-struct  SimulationParameters_FLIP3D
+
+struct SimulationParameters_FLIP3D
 {
-    enum Kernel { Linear, CubicSpline };
+    enum Kernel { Linear, CubicBSpline, SwirlyLinear, SwirlyCubicBSpline };
     SimulationParameters_FLIP3D() { makeReady(); }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -40,11 +41,11 @@ struct  SimulationParameters_FLIP3D
     Real   PIC_FLIP_ratio          = Real(0.97);
     Real   boundaryRestitution     = Real(DEFAULT_BOUNDARY_RESTITUTION);
     Real   particleRadius          = Real(2.0 / 64.0 / 4.0);
-    Kernel kernelFunc              = Kernel::Linear;
     Real   repulsiveForceStiffness = Real(1e-3);
     UInt   expandCells             = 2;
     Real   CGRelativeTolerance     = Real(1e-15);
     UInt   maxCGIteration          = 10000;
+    Kernel kernelFunc              = Kernel::Linear;
 
     bool bApplyRepulsiveForces = false;
 
@@ -56,25 +57,28 @@ struct  SimulationParameters_FLIP3D
     Vec3r domainBMin;
     Vec3r domainBMax;
     int   kernelSpan;
-    Real  kernelRadius;
+    Real  cellSize;
     Real  kernelRadiusSqr;
     Real  nearKernelRadius;
     Real  nearKernelRadiusSqr;
     Real  sdfRadius;                                                               // radius for level set fluid
 
+
+    // todo: remove
+    String particleFile;
+
     ////////////////////////////////////////////////////////////////////////////////
     void makeReady()
     {
-        kernelRadius        = particleRadius * Real(4.0);
-        kernelRadiusSqr     = kernelRadius * kernelRadius;
+        cellSize            = particleRadius * Real(4.0);
         nearKernelRadius    = particleRadius * Real(3.01);
         nearKernelRadiusSqr = nearKernelRadius * nearKernelRadius;
 
-        sdfRadius  = kernelRadius * Real(1.01 * sqrt(3.0) / 2.0);
-        kernelSpan = (kernelFunc == Kernel::Linear) ? 1 : 2;
+        sdfRadius  = cellSize * Real(1.01 * sqrt(3.0) / 2.0);
+        kernelSpan = (kernelFunc == Kernel::Linear || kernelFunc == Kernel::SwirlyLinear) ? 1 : 2;
 
-        domainBMin = movingBMin - Vec3r(kernelRadius * expandCells);
-        domainBMax = movingBMax + Vec3r(kernelRadius * expandCells);
+        domainBMin = movingBMin - Vec3r(cellSize * expandCells);
+        domainBMax = movingBMax + Vec3r(cellSize * expandCells);
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -86,7 +90,10 @@ struct  SimulationParameters_FLIP3D
         logger->printLogIndent("PIC/FLIP ratio: " + std::to_string(PIC_FLIP_ratio));
         logger->printLogIndent("Kernel function: " + (kernelFunc == Kernel::Linear ? String("Linear") : String("Cubic BSpline")));
 
-        logger->printLogIndent("Kernel radius: " + std::to_string(kernelRadius));
+        logger->printLogIndent("Cell size: " + std::to_string(cellSize));
+        logger->printLogIndent("Moving BMin: " + NumberHelpers::toString(movingBMin));
+        logger->printLogIndent("Moving BMax: " + NumberHelpers::toString(movingBMax));
+
         logger->printLogIndent("Boundary restitution: " + std::to_string(boundaryRestitution));
         logger->printLogIndent("Apply repulsive forces: " + (bApplyRepulsiveForces ? String("Yes") : String("No")));
         if(bApplyRepulsiveForces)
@@ -95,9 +102,10 @@ struct  SimulationParameters_FLIP3D
         }
 
 
-        logger->printLogIndent("Particle radius: " + std::to_string(particleRadius));
         logger->printLogIndent("ConjugateGradient solver tolerance: " + NumberHelpers::formatToScientific(CGRelativeTolerance));
         logger->printLogIndent("Max CG iterations: " + NumberHelpers::formatToScientific(maxCGIteration));
+
+        logger->printLogIndent("Particle radius: " + std::to_string(particleRadius));
         logger->newLine();
     }
 };

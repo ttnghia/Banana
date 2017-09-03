@@ -82,7 +82,8 @@ bool OpenGLMainWindow::processKeyPressEvent(QKeyEvent* ev)
     {
         case Qt::Key_Escape:
             close();
-            exit(EXIT_SUCCESS);
+            __BANANA_EARLY_TERMINATION
+        //exit(EXIT_SUCCESS);
 
         default:
             return false;

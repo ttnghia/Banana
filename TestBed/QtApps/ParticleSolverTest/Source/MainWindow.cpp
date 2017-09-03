@@ -194,9 +194,21 @@ void MainWindow::connectWidgets()
 
     ////////////////////////////////////////////////////////////////////////////////
     // simulation
-    connect(m_Controller->m_cbSimulationScene,      &QComboBox::currentTextChanged, [&](const QString& scene) { m_Simulator->changeScene(scene); });
+    connect(m_Controller->m_cbSimulationScene, &QComboBox::currentTextChanged, [&](const QString& scene) { m_Simulator->changeScene(scene); });
+    connect(m_Simulator.get(),                 &Simulator::boxChanged,         [&](const glm::vec3& boxMin, const glm::vec3& boxMax)
+            {
+                m_RenderWidget->setBox(boxMin, boxMax);
+                Vec3r camPos((boxMin.x + boxMax.x) * 0.5f,
+                             (boxMin.y + boxMax.y) * 0.5f + (boxMax.y - boxMin.y) * 0.3,
+                             (boxMin.z + boxMax.z) * 0.5f + (boxMax.z - boxMin.z) * 1.5);
 
-    connect(m_Controller->m_btnStartStopSimulation, &QPushButton::clicked,          [&]
+                Vec3r camFocus((boxMin.x + boxMax.x) * 0.5f,
+                               (boxMin.y + boxMax.y) * 0.5f - (boxMax.y - boxMin.y) * 0.1,
+                               (boxMin.z + boxMax.z) * 0.5f);
+                m_RenderWidget->setCamera(camPos, camFocus);
+            });
+
+    connect(m_Controller->m_btnStartStopSimulation, &QPushButton::clicked, [&]
     {
         bool isRunning = m_Simulator->isRunning();
 

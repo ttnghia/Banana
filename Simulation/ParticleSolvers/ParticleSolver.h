@@ -56,6 +56,7 @@ public:
     const std::shared_ptr<Logger>& getLogger() const noexcept { return m_Logger; }
     static bool loadDataPath(const String& sceneFile, String& dataPath);
     void        loadScene(const String& sceneFile);
+    void        setupLogger();
     void        doSimulation();
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -68,7 +69,6 @@ public:
     virtual void sortParticles() = 0;
 
 protected:
-    void setupLogger();
     void loadGlobalParams(const nlohmann::json& jParams);
     void loadObjectParams(const nlohmann::json& jParams);
     void advanceScene() {}

@@ -67,7 +67,7 @@ public:
     void newLine() { printLog(""); }
     void printSeparator();
     void printAligned(const std::string& s, char padding = PADDING, const std::string& wrapper = WRAPPER, unsigned int maxSize = 100);
-    void printGreeting(const std::string& s);
+    void printTextBox(const std::string& s);
     void printWarning(const std::string& s, unsigned int maxSize = 100);
     void printError(const std::string& s, unsigned int maxSize = 100);
 

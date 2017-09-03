@@ -70,7 +70,7 @@ void Logger::printAligned(const std::string& s, char padding, const std::string&
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Logger::printGreeting(const std::string& s)
+void Logger::printTextBox(const std::string& s)
 {
     printSeparator();
     printAligned("", ' ');
@@ -194,6 +194,7 @@ void Logger::initialize()
 
     if(s_bWriteLog2File)
     {
+        FileHelpers::createFolder(std::string(s_DataPath + "/Log"));
         unsigned int i = 1;
         std::string  file;
 
@@ -212,9 +213,6 @@ void Logger::initialize()
 
             __BNN_ASSERT(i < 1000);
         } while(true);
-
-        FileHelpers::createFolder(std::string(s_DataPath + "/Log"));
-        s_MainFuncLogger = Logger::create("Main");
 
         ////////////////////////////////////////////////////////////////////////////////
         time_t currentTime = std::chrono::system_clock::to_time_t(s_StartupTime - std::chrono::hours(24));
@@ -241,7 +239,9 @@ void Logger::initialize()
     signal(SIGSEGV, Logger::signalHandler);
     signal(SIGTERM, Logger::signalHandler);
 
-    s_bInitialized = true;
+    ////////////////////////////////////////////////////////////////////////////////
+    s_bInitialized   = true;
+    s_MainFuncLogger = Logger::create("Main");
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

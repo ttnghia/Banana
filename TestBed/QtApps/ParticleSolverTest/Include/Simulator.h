@@ -26,9 +26,11 @@
 #include <QStringList>
 
 #include "Common.h"
+#include "FLIP3DSolverQt.h"
 
 //#define PARTICLE_SOLVER WCSPHSolver
-#define PARTICLE_SOLVER FLIP3DSolver
+//#define PARTICLE_SOLVER FLIP3DSolver
+#define PARTICLE_SOLVER FLIP3DSolverQt
 //#define PARTICLE_SOLVER FLIP2DSolver
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -37,12 +39,8 @@ class Simulator : public QObject
     Q_OBJECT
 
 public:
-    Simulator()
-    {
-        Logger::initialize();
-        m_ParticleSolver = std::make_unique<PARTICLE_SOLVER>();
-    }
-
+    Simulator();
+    ~Simulator() { Logger::shutdown(); }
     void setParticleSystemData(const std::shared_ptr<ParticleSystemData>& particleData) { m_ParticleData = particleData; }
 
     bool isRunning() { return !m_bStop; }
@@ -61,6 +59,7 @@ signals:
     void numParticleChanged(unsigned int numParticles);
     void particleChanged();
     void frameFinished();
+    void boxChanged(const glm::vec3& boxMin, const glm::vec3& boxMax);
 
 protected:
     std::shared_ptr<ParticleSystemData> m_ParticleData = nullptr;

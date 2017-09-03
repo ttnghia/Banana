@@ -685,6 +685,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugQt|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseQt|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\Release\moc_OpenGLWidget.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugQt|x64'">true</ExcludedFromBuild>

@@ -35,14 +35,16 @@ HEADERS += \
     Include/Common.h \
     Include/Simulator.h \
     Include/RenderWidget.h \
-    Include/Controller.h
+    Include/Controller.h \
+    Include/FLIP3DSolverQt.h
 
 SOURCES += \
     Source/Main.cpp \
     Source/MainWindow.cpp \
     Source/Simulator.cpp \
     Source/RenderWidget.cpp \
-    Source/Controller.cpp
+    Source/Controller.cpp \
+    Source/FLIP3DSolverQt.cpp
 
 RESOURCES += \
     Shader.qrc

@@ -1,0 +1,454 @@
+[2017-09-02 18:22:08.153] [FLIP3DSolver] [info] ||================================================================================================||
+[2017-09-02 18:22:08.154] [FLIP3DSolver] [info] ||                                                                                                ||
+[2017-09-02 18:22:08.154] [FLIP3DSolver] [info] ||                             Fluid Simulation using FLIP-3D Solver                              ||
+[2017-09-02 18:22:08.154] [FLIP3DSolver] [info] ||                                                                                                ||
+[2017-09-02 18:22:08.154] [FLIP3DSolver] [info] ||================================================================================================||
+[2017-09-02 18:22:09.915] [FLIP3DSolver] [info] Load scene file: D:/Programming/Banana/TestBed/QtApps/ParticleSolverTest/Scenes/FLIP.json
+[2017-09-02 18:22:09.916] [FLIP3DSolver] [info] Global parameters:
+[2017-09-02 18:22:09.916] [FLIP3DSolver] [info]     Number of working threads: 0
+[2017-09-02 18:22:09.916] [FLIP3DSolver] [info]     Data path: ./SimData
+[2017-09-02 18:22:09.916] [FLIP3DSolver] [info]     Frame duration: 3.33333e-02
+[2017-09-02 18:22:09.916] [FLIP3DSolver] [info]     Final frame: 1000
+[2017-09-02 18:22:09.916] [FLIP3DSolver] [info]     Apply gravity: Yes
+[2017-09-02 18:22:09.916] [FLIP3DSolver] [info]     Sort particles during simulation: Yes
+[2017-09-02 18:22:09.916] [FLIP3DSolver] [info]     Sort frequency: 30
+[2017-09-02 18:22:09.916] [FLIP3DSolver] [info] 
+[2017-09-02 18:22:09.917] [FLIP3DSolver] [info] FLIP-3D simulation parameters:
+[2017-09-02 18:22:09.917] [FLIP3DSolver] [info]     Default timestep: 1.00000e-04
+[2017-09-02 18:22:09.917] [FLIP3DSolver] [info]     CFL factor: 1.000000
+[2017-09-02 18:22:09.917] [FLIP3DSolver] [info]     PIC/FLIP ratio: 0.970000
+[2017-09-02 18:22:09.917] [FLIP3DSolver] [info]     Kernel function: Linear
+[2017-09-02 18:22:09.917] [FLIP3DSolver] [info]     Cell size: 1.000000
+[2017-09-02 18:22:09.917] [FLIP3DSolver] [info]     Moving BMin: [0.00000, 0.00000, 0.00000]
+[2017-09-02 18:22:09.917] [FLIP3DSolver] [info]     Moving BMax: [64.00000, 64.00000, 64.00000]
+[2017-09-02 18:22:09.917] [FLIP3DSolver] [info]     Boundary restitution: 0.100000
+[2017-09-02 18:22:09.917] [FLIP3DSolver] [info]     Apply repulsive forces: Yes
+[2017-09-02 18:22:09.917] [FLIP3DSolver] [info]     Repulsive force stiffness: 1.00000e-03
+[2017-09-02 18:22:09.917] [FLIP3DSolver] [info]     ConjugateGradient solver tolerance: 1.00000e-17
+[2017-09-02 18:22:09.917] [FLIP3DSolver] [info]     Max CG iterations: 10000
+[2017-09-02 18:22:09.918] [FLIP3DSolver] [info]     Particle radius: 0.250000
+[2017-09-02 18:22:09.918] [FLIP3DSolver] [info] 
+[2017-09-02 18:22:09.932] [FLIP3DSolver] [info] Warning: Computed boundary SDF *********************************************************************
+[2017-09-02 18:22:09.932] [FLIP3DSolver] [info] Allocate solver memory: 14.52ms
+[2017-09-02 18:22:09.982] [FLIP3DSolver] [info] Sort particle positions and velocities: 49.54ms
+[2017-09-02 18:22:09.982] [FLIP3DSolver] [info] Solver ready!
+[2017-09-02 18:22:09.982] [FLIP3DSolver] [info] 
+[2017-09-02 18:22:12.068] [FLIP3DSolver] [info] 
+[2017-09-02 18:22:12.068] [FLIP3DSolver] [info] ||=========================================== Frame 1 ============================================||
+[2017-09-02 18:22:12.068] [FLIP3DSolver] [info] 
+[2017-09-02 18:22:12.076] [FLIP3DSolver] [info] Find neighbors: 7.53ms
+[2017-09-02 18:22:12.081] [FLIP3DSolver] [info] Compute cell weights: 4.23ms
+[2017-09-02 18:22:12.116] [FLIP3DSolver] [info] Add repulsive force to particle: 35.51ms
+[2017-09-02 18:22:12.137] [FLIP3DSolver] [info] Interpolate velocity from particles to grid: 21.03ms
+[2017-09-02 18:22:12.138] [FLIP3DSolver] [info] Backup grid velocities: 0.37ms
+[2017-09-02 18:22:12.138] [FLIP3DSolver] [info] Add gravity: 0.38ms
+[2017-09-02 18:22:12.241] [FLIP3DSolver] [info] Compute liquid SDF: 102.33ms
+[2017-09-02 18:22:12.264] [FLIP3DSolver] [info] Compute pressure matrix: 22.99ms
+[2017-09-02 18:22:12.265] [FLIP3DSolver] [info] Compute RHS: 0.53ms
+[2017-09-02 18:22:12.446] [FLIP3DSolver] [info] Conjugate Gradient iterations: 96. Final tolerance: 1.04569e-20
+[2017-09-02 18:22:12.447] [FLIP3DSolver] [info] Solve linear system: 181.61ms
+[2017-09-02 18:22:12.449] [FLIP3DSolver] [info] Update grid velocity: 2.20ms
+[2017-09-02 18:22:12.449] [FLIP3DSolver] [info] ====> Pressure projection total: 310.54ms
+[2017-09-02 18:22:12.497] [FLIP3DSolver] [info] Extrapolate grid velocity: : 48.10ms
+[2017-09-02 18:22:12.508] [FLIP3DSolver] [info] Constrain grid velocity: 11.15ms
+[2017-09-02 18:22:12.509] [FLIP3DSolver] [info] Compute changes of grid velocity: 0.51ms
+[2017-09-02 18:22:12.516] [FLIP3DSolver] [info] Interpolate velocity from grid to particles: 6.93ms
+[2017-09-02 18:22:12.516] [FLIP3DSolver] [info] ====> Advance velocity total: 439.94ms
+[2017-09-02 18:22:12.518] [FLIP3DSolver] [info] Move particles: 1.17ms
+[2017-09-02 18:22:12.518] [FLIP3DSolver] [info] Finished step 1 of size 1.00000e-04(0.30% of the frame, to 0.30% of the frame).
+[2017-09-02 18:22:12.518] [FLIP3DSolver] [info] Sub-step time: 449.90ms
+[2017-09-02 18:22:12.518] [FLIP3DSolver] [info] 
+[2017-09-02 18:22:12.520] [FLIP3DSolver] [info] Find neighbors: 1.58ms
+[2017-09-02 18:22:12.543] [FLIP3DSolver] [info] Add repulsive force to particle: 22.15ms
+[2017-09-02 18:22:12.567] [FLIP3DSolver] [info] Interpolate velocity from particles to grid: 24.03ms
+[2017-09-02 18:22:12.567] [FLIP3DSolver] [info] Backup grid velocities: 0.27ms
+[2017-09-02 18:22:12.567] [FLIP3DSolver] [info] Add gravity: 0.29ms
+[2017-09-02 18:22:12.670] [FLIP3DSolver] [info] Compute liquid SDF: 102.91ms
+[2017-09-02 18:22:12.675] [FLIP3DSolver] [info] Compute pressure matrix: 4.72ms
+[2017-09-02 18:22:12.676] [FLIP3DSolver] [info] Compute RHS: 0.54ms
+[2017-09-02 18:22:12.852] [FLIP3DSolver] [info] Conjugate Gradient iterations: 97. Final tolerance: 2.44393e-18
+[2017-09-02 18:22:12.852] [FLIP3DSolver] [info] Solve linear system: 176.37ms
+[2017-09-02 18:22:12.855] [FLIP3DSolver] [info] Update grid velocity: 2.19ms
+[2017-09-02 18:22:12.855] [FLIP3DSolver] [info] ====> Pressure projection total: 287.35ms
+[2017-09-02 18:22:12.901] [FLIP3DSolver] [info] Extrapolate grid velocity: : 46.05ms
+[2017-09-02 18:22:12.913] [FLIP3DSolver] [info] Constrain grid velocity: 11.96ms
+[2017-09-02 18:22:12.914] [FLIP3DSolver] [info] Compute changes of grid velocity: 0.50ms
+[2017-09-02 18:22:12.921] [FLIP3DSolver] [info] Interpolate velocity from grid to particles: 6.21ms
+[2017-09-02 18:22:12.921] [FLIP3DSolver] [info] ====> Advance velocity total: 400.90ms
+[2017-09-02 18:22:12.924] [FLIP3DSolver] [info] Move particles: 1.23ms
+[2017-09-02 18:22:12.924] [FLIP3DSolver] [info] Finished step 2 of size 3.32333e-02(99.70% of the frame, to 100.00% of the frame).
+[2017-09-02 18:22:12.924] [FLIP3DSolver] [info] Sub-step time: 405.84ms
+[2017-09-02 18:22:12.924] [FLIP3DSolver] [info] 
+[2017-09-02 18:22:12.925] [FLIP3DSolver] [info] Frame finished. Frame duration: 0.03 (s). Run time: 856.38ms
+[2017-09-02 18:22:12.925] [FLIP3DSolver] [info] Memory usage: 182.58 MB(s). Peak: 182.58 MB(s).
+[2017-09-02 18:22:12.925] [FLIP3DSolver] [info] 
+[2017-09-02 18:22:12.925] [FLIP3DSolver] [info] 
+[2017-09-02 18:22:12.926] [FLIP3DSolver] [info] ||=========================================== Frame 2 ============================================||
+[2017-09-02 18:22:12.926] [FLIP3DSolver] [info] 
+[2017-09-02 18:22:12.928] [FLIP3DSolver] [info] Find neighbors: 1.73ms
+[2017-09-02 18:22:12.952] [FLIP3DSolver] [info] Add repulsive force to particle: 21.02ms
+[2017-09-02 18:22:12.974] [FLIP3DSolver] [info] Interpolate velocity from particles to grid: 21.81ms
+[2017-09-02 18:22:12.975] [FLIP3DSolver] [info] Backup grid velocities: 0.33ms
+[2017-09-02 18:22:12.975] [FLIP3DSolver] [info] Add gravity: 0.35ms
+[2017-09-02 18:22:13.084] [FLIP3DSolver] [info] Compute liquid SDF: 108.49ms
+[2017-09-02 18:22:13.089] [FLIP3DSolver] [info] Compute pressure matrix: 4.99ms
+[2017-09-02 18:22:13.090] [FLIP3DSolver] [info] Compute RHS: 0.55ms
+[2017-09-02 18:22:13.252] [FLIP3DSolver] [info] Conjugate Gradient iterations: 98. Final tolerance: 9.54086e-18
+[2017-09-02 18:22:13.254] [FLIP3DSolver] [info] Solve linear system: 162.32ms
+[2017-09-02 18:22:13.257] [FLIP3DSolver] [info] Update grid velocity: 2.60ms
+[2017-09-02 18:22:13.257] [FLIP3DSolver] [info] ====> Pressure projection total: 281.66ms
+[2017-09-02 18:22:13.300] [FLIP3DSolver] [info] Extrapolate grid velocity: : 42.70ms
+[2017-09-02 18:22:13.312] [FLIP3DSolver] [info] Constrain grid velocity: 11.61ms
+[2017-09-02 18:22:13.313] [FLIP3DSolver] [info] Compute changes of grid velocity: 0.78ms
+[2017-09-02 18:22:13.322] [FLIP3DSolver] [info] Interpolate velocity from grid to particles: 6.03ms
+[2017-09-02 18:22:13.322] [FLIP3DSolver] [info] ====> Advance velocity total: 393.61ms
+[2017-09-02 18:22:13.324] [FLIP3DSolver] [info] Move particles: 1.05ms
+[2017-09-02 18:22:13.324] [FLIP3DSolver] [info] Finished step 1 of size 3.33333e-02(100.00% of the frame, to 100.00% of the frame).
+[2017-09-02 18:22:13.324] [FLIP3DSolver] [info] Sub-step time: 398.07ms
+[2017-09-02 18:22:13.325] [FLIP3DSolver] [info] 
+[2017-09-02 18:22:13.325] [FLIP3DSolver] [info] Frame finished. Frame duration: 0.03 (s). Run time: 398.68ms
+[2017-09-02 18:22:13.325] [FLIP3DSolver] [info] Memory usage: 185.18 MB(s). Peak: 185.18 MB(s).
+[2017-09-02 18:22:13.325] [FLIP3DSolver] [info] 
+[2017-09-02 18:22:13.326] [FLIP3DSolver] [info] 
+[2017-09-02 18:22:13.326] [FLIP3DSolver] [info] ||=========================================== Frame 3 ============================================||
+[2017-09-02 18:22:13.326] [FLIP3DSolver] [info] 
+[2017-09-02 18:22:13.328] [FLIP3DSolver] [info] Find neighbors: 1.62ms
+[2017-09-02 18:22:13.351] [FLIP3DSolver] [info] Add repulsive force to particle: 20.06ms
+[2017-09-02 18:22:13.373] [FLIP3DSolver] [info] Interpolate velocity from particles to grid: 21.49ms
+[2017-09-02 18:22:13.373] [FLIP3DSolver] [info] Backup grid velocities: 0.35ms
+[2017-09-02 18:22:13.374] [FLIP3DSolver] [info] Add gravity: 0.29ms
+[2017-09-02 18:22:13.481] [FLIP3DSolver] [info] Compute liquid SDF: 107.37ms
+[2017-09-02 18:22:13.486] [FLIP3DSolver] [info] Compute pressure matrix: 4.82ms
+[2017-09-02 18:22:13.488] [FLIP3DSolver] [info] Compute RHS: 0.57ms
+[2017-09-02 18:22:13.644] [FLIP3DSolver] [info] Conjugate Gradient iterations: 100. Final tolerance: 3.38152e-17
+[2017-09-02 18:22:13.646] [FLIP3DSolver] [info] Solve linear system: 156.49ms
+[2017-09-02 18:22:13.648] [FLIP3DSolver] [info] Update grid velocity: 2.41ms
+[2017-09-02 18:22:13.648] [FLIP3DSolver] [info] ====> Pressure projection total: 274.49ms
+[2017-09-02 18:22:13.691] [FLIP3DSolver] [info] Extrapolate grid velocity: : 41.98ms
+[2017-09-02 18:22:13.701] [FLIP3DSolver] [info] Constrain grid velocity: 9.79ms
+[2017-09-02 18:22:13.701] [FLIP3DSolver] [info] Compute changes of grid velocity: 0.40ms
+[2017-09-02 18:22:13.709] [FLIP3DSolver] [info] Interpolate velocity from grid to particles: 5.97ms
+[2017-09-02 18:22:13.710] [FLIP3DSolver] [info] ====> Advance velocity total: 381.47ms
+[2017-09-02 18:22:13.711] [FLIP3DSolver] [info] Move particles: 1.05ms
+[2017-09-02 18:22:13.711] [FLIP3DSolver] [info] Finished step 1 of size 3.33333e-02(100.00% of the frame, to 100.00% of the frame).
+[2017-09-02 18:22:13.712] [FLIP3DSolver] [info] Sub-step time: 385.36ms
+[2017-09-02 18:22:13.712] [FLIP3DSolver] [info] 
+[2017-09-02 18:22:13.712] [FLIP3DSolver] [info] Frame finished. Frame duration: 0.03 (s). Run time: 385.80ms
+[2017-09-02 18:22:13.712] [FLIP3DSolver] [info] Memory usage: 185.18 MB(s). Peak: 185.18 MB(s).
+[2017-09-02 18:22:13.712] [FLIP3DSolver] [info] 
+[2017-09-02 18:22:13.713] [FLIP3DSolver] [info] 
+[2017-09-02 18:22:13.713] [FLIP3DSolver] [info] ||=========================================== Frame 4 ============================================||
+[2017-09-02 18:22:13.713] [FLIP3DSolver] [info] 
+[2017-09-02 18:22:13.715] [FLIP3DSolver] [info] Find neighbors: 1.75ms
+[2017-09-02 18:22:13.737] [FLIP3DSolver] [info] Add repulsive force to particle: 21.28ms
+[2017-09-02 18:22:13.759] [FLIP3DSolver] [info] Interpolate velocity from particles to grid: 21.41ms
+[2017-09-02 18:22:13.759] [FLIP3DSolver] [info] Backup grid velocities: 0.31ms
+[2017-09-02 18:22:13.759] [FLIP3DSolver] [info] Add gravity: 0.29ms
+[2017-09-02 18:22:13.867] [FLIP3DSolver] [info] Compute liquid SDF: 107.56ms
+[2017-09-02 18:22:13.872] [FLIP3DSolver] [info] Compute pressure matrix: 4.80ms
+[2017-09-02 18:22:13.873] [FLIP3DSolver] [info] Compute RHS: 0.48ms
+[2017-09-02 18:22:14.042] [FLIP3DSolver] [info] Conjugate Gradient iterations: 106. Final tolerance: 4.36561e-17
+[2017-09-02 18:22:14.043] [FLIP3DSolver] [info] Solve linear system: 169.21ms
+[2017-09-02 18:22:14.045] [FLIP3DSolver] [info] Update grid velocity: 2.20ms
+[2017-09-02 18:22:14.046] [FLIP3DSolver] [info] ====> Pressure projection total: 285.95ms
+[2017-09-02 18:22:14.088] [FLIP3DSolver] [info] Extrapolate grid velocity: : 41.96ms
+[2017-09-02 18:22:14.097] [FLIP3DSolver] [info] Constrain grid velocity: 9.64ms
+[2017-09-02 18:22:14.098] [FLIP3DSolver] [info] Compute changes of grid velocity: 0.53ms
+[2017-09-02 18:22:14.105] [FLIP3DSolver] [info] Interpolate velocity from grid to particles: 6.19ms
+[2017-09-02 18:22:14.105] [FLIP3DSolver] [info] ====> Advance velocity total: 389.77ms
+[2017-09-02 18:22:14.107] [FLIP3DSolver] [info] Move particles: 1.04ms
+[2017-09-02 18:22:14.108] [FLIP3DSolver] [info] Finished step 1 of size 3.33333e-02(100.00% of the frame, to 100.00% of the frame).
+[2017-09-02 18:22:14.108] [FLIP3DSolver] [info] Sub-step time: 395.06ms
+[2017-09-02 18:22:14.109] [FLIP3DSolver] [info] 
+[2017-09-02 18:22:14.109] [FLIP3DSolver] [info] Frame finished. Frame duration: 0.03 (s). Run time: 395.57ms
+[2017-09-02 18:22:14.109] [FLIP3DSolver] [info] Memory usage: 185.18 MB(s). Peak: 185.18 MB(s).
+[2017-09-02 18:22:14.109] [FLIP3DSolver] [info] 
+[2017-09-02 18:22:14.109] [FLIP3DSolver] [info] 
+[2017-09-02 18:22:14.110] [FLIP3DSolver] [info] ||=========================================== Frame 5 ============================================||
+[2017-09-02 18:22:14.110] [FLIP3DSolver] [info] 
+[2017-09-02 18:22:14.112] [FLIP3DSolver] [info] Find neighbors: 1.66ms
+[2017-09-02 18:22:14.134] [FLIP3DSolver] [info] Add repulsive force to particle: 20.00ms
+[2017-09-02 18:22:14.157] [FLIP3DSolver] [info] Interpolate velocity from particles to grid: 21.77ms
+[2017-09-02 18:22:14.157] [FLIP3DSolver] [info] Backup grid velocities: 0.57ms
+[2017-09-02 18:22:14.158] [FLIP3DSolver] [info] Add gravity: 0.31ms
+[2017-09-02 18:22:14.265] [FLIP3DSolver] [info] Compute liquid SDF: 106.24ms
+[2017-09-02 18:22:14.270] [FLIP3DSolver] [info] Compute pressure matrix: 5.30ms
+[2017-09-02 18:22:14.272] [FLIP3DSolver] [info] Compute RHS: 0.81ms
+[2017-09-02 18:22:14.450] [FLIP3DSolver] [info] Conjugate Gradient iterations: 109. Final tolerance: 3.30057e-17
+[2017-09-02 18:22:14.452] [FLIP3DSolver] [info] Solve linear system: 178.87ms
+[2017-09-02 18:22:14.454] [FLIP3DSolver] [info] Update grid velocity: 2.45ms
+[2017-09-02 18:22:14.455] [FLIP3DSolver] [info] ====> Pressure projection total: 296.13ms
+[2017-09-02 18:22:14.497] [FLIP3DSolver] [info] Extrapolate grid velocity: : 42.18ms
+[2017-09-02 18:22:14.507] [FLIP3DSolver] [info] Constrain grid velocity: 10.27ms
+[2017-09-02 18:22:14.508] [FLIP3DSolver] [info] Compute changes of grid velocity: 0.68ms
+[2017-09-02 18:22:14.514] [FLIP3DSolver] [info] Interpolate velocity from grid to particles: 6.11ms
+[2017-09-02 18:22:14.514] [FLIP3DSolver] [info] ====> Advance velocity total: 402.28ms
+[2017-09-02 18:22:14.516] [FLIP3DSolver] [info] Move particles: 1.12ms
+[2017-09-02 18:22:14.517] [FLIP3DSolver] [info] Finished step 1 of size 3.33333e-02(100.00% of the frame, to 100.00% of the frame).
+[2017-09-02 18:22:14.517] [FLIP3DSolver] [info] Sub-step time: 406.85ms
+[2017-09-02 18:22:14.517] [FLIP3DSolver] [info] 
+[2017-09-02 18:22:14.517] [FLIP3DSolver] [info] Frame finished. Frame duration: 0.03 (s). Run time: 407.36ms
+[2017-09-02 18:22:14.518] [FLIP3DSolver] [info] Memory usage: 185.20 MB(s). Peak: 185.20 MB(s).
+[2017-09-02 18:22:14.518] [FLIP3DSolver] [info] 
+[2017-09-02 18:22:14.518] [FLIP3DSolver] [info] 
+[2017-09-02 18:22:14.518] [FLIP3DSolver] [info] ||=========================================== Frame 6 ============================================||
+[2017-09-02 18:22:14.519] [FLIP3DSolver] [info] 
+[2017-09-02 18:22:14.521] [FLIP3DSolver] [info] Find neighbors: 2.01ms
+[2017-09-02 18:22:14.543] [FLIP3DSolver] [info] Add repulsive force to particle: 21.60ms
+[2017-09-02 18:22:14.565] [FLIP3DSolver] [info] Interpolate velocity from particles to grid: 22.26ms
+[2017-09-02 18:22:14.566] [FLIP3DSolver] [info] Backup grid velocities: 0.29ms
+[2017-09-02 18:22:14.567] [FLIP3DSolver] [info] Add gravity: 0.35ms
+[2017-09-02 18:22:14.675] [FLIP3DSolver] [info] Compute liquid SDF: 108.12ms
+[2017-09-02 18:22:14.680] [FLIP3DSolver] [info] Compute pressure matrix: 4.79ms
+[2017-09-02 18:22:14.680] [FLIP3DSolver] [info] Compute RHS: 0.52ms
+[2017-09-02 18:22:14.862] [FLIP3DSolver] [info] Conjugate Gradient iterations: 109. Final tolerance: 3.34676e-17
+[2017-09-02 18:22:14.863] [FLIP3DSolver] [info] Solve linear system: 181.47ms
+[2017-09-02 18:22:14.866] [FLIP3DSolver] [info] Update grid velocity: 3.11ms
+[2017-09-02 18:22:14.866] [FLIP3DSolver] [info] ====> Pressure projection total: 299.32ms
+[2017-09-02 18:22:14.913] [FLIP3DSolver] [info] Extrapolate grid velocity: : 46.73ms
+[2017-09-02 18:22:14.924] [FLIP3DSolver] [info] Constrain grid velocity: 10.83ms
+[2017-09-02 18:22:14.926] [FLIP3DSolver] [info] Compute changes of grid velocity: 0.59ms
+[2017-09-02 18:22:14.934] [FLIP3DSolver] [info] Interpolate velocity from grid to particles: 7.51ms
+[2017-09-02 18:22:14.934] [FLIP3DSolver] [info] ====> Advance velocity total: 412.95ms
+[2017-09-02 18:22:14.936] [FLIP3DSolver] [info] Move particles: 1.25ms
+[2017-09-02 18:22:14.936] [FLIP3DSolver] [info] Finished step 1 of size 3.33333e-02(100.00% of the frame, to 100.00% of the frame).
+[2017-09-02 18:22:14.937] [FLIP3DSolver] [info] Sub-step time: 417.50ms
+[2017-09-02 18:22:14.937] [FLIP3DSolver] [info] 
+[2017-09-02 18:22:14.938] [FLIP3DSolver] [info] Frame finished. Frame duration: 0.03 (s). Run time: 418.50ms
+[2017-09-02 18:22:14.938] [FLIP3DSolver] [info] Memory usage: 185.19 MB(s). Peak: 185.20 MB(s).
+[2017-09-02 18:22:14.939] [FLIP3DSolver] [info] 
+[2017-09-02 18:22:14.939] [FLIP3DSolver] [info] 
+[2017-09-02 18:22:14.939] [FLIP3DSolver] [info] ||=========================================== Frame 7 ============================================||
+[2017-09-02 18:22:14.939] [FLIP3DSolver] [info] 
+[2017-09-02 18:22:14.942] [FLIP3DSolver] [info] Find neighbors: 1.74ms
+[2017-09-02 18:22:14.968] [FLIP3DSolver] [info] Add repulsive force to particle: 25.67ms
+[2017-09-02 18:22:14.992] [FLIP3DSolver] [info] Interpolate velocity from particles to grid: 24.15ms
+[2017-09-02 18:22:14.993] [FLIP3DSolver] [info] Backup grid velocities: 0.27ms
+[2017-09-02 18:22:14.994] [FLIP3DSolver] [info] Add gravity: 0.34ms
+[2017-09-02 18:22:15.100] [FLIP3DSolver] [info] Compute liquid SDF: 106.66ms
+[2017-09-02 18:22:15.107] [FLIP3DSolver] [info] Compute pressure matrix: 6.33ms
+[2017-09-02 18:22:15.108] [FLIP3DSolver] [info] Compute RHS: 0.78ms
+[2017-09-02 18:22:15.292] [FLIP3DSolver] [info] Conjugate Gradient iterations: 111. Final tolerance: 1.15855e-17
+[2017-09-02 18:22:15.293] [FLIP3DSolver] [info] Solve linear system: 184.08ms
+[2017-09-02 18:22:15.295] [FLIP3DSolver] [info] Update grid velocity: 2.26ms
+[2017-09-02 18:22:15.296] [FLIP3DSolver] [info] ====> Pressure projection total: 301.84ms
+[2017-09-02 18:22:15.338] [FLIP3DSolver] [info] Extrapolate grid velocity: : 42.53ms
+[2017-09-02 18:22:15.349] [FLIP3DSolver] [info] Constrain grid velocity: 10.47ms
+[2017-09-02 18:22:15.350] [FLIP3DSolver] [info] Compute changes of grid velocity: 0.60ms
+[2017-09-02 18:22:15.356] [FLIP3DSolver] [info] Interpolate velocity from grid to particles: 6.25ms
+[2017-09-02 18:22:15.356] [FLIP3DSolver] [info] ====> Advance velocity total: 414.16ms
+[2017-09-02 18:22:15.358] [FLIP3DSolver] [info] Move particles: 1.20ms
+[2017-09-02 18:22:15.359] [FLIP3DSolver] [info] Finished step 1 of size 3.33333e-02(100.00% of the frame, to 100.00% of the frame).
+[2017-09-02 18:22:15.359] [FLIP3DSolver] [info] Sub-step time: 419.35ms
+[2017-09-02 18:22:15.359] [FLIP3DSolver] [info] 
+[2017-09-02 18:22:15.360] [FLIP3DSolver] [info] Frame finished. Frame duration: 0.03 (s). Run time: 419.81ms
+[2017-09-02 18:22:15.360] [FLIP3DSolver] [info] Memory usage: 185.19 MB(s). Peak: 185.20 MB(s).
+[2017-09-02 18:22:15.360] [FLIP3DSolver] [info] 
+[2017-09-02 18:22:15.360] [FLIP3DSolver] [info] 
+[2017-09-02 18:22:15.360] [FLIP3DSolver] [info] ||=========================================== Frame 8 ============================================||
+[2017-09-02 18:22:15.361] [FLIP3DSolver] [info] 
+[2017-09-02 18:22:15.363] [FLIP3DSolver] [info] Find neighbors: 1.72ms
+[2017-09-02 18:22:15.385] [FLIP3DSolver] [info] Add repulsive force to particle: 22.01ms
+[2017-09-02 18:22:15.408] [FLIP3DSolver] [info] Interpolate velocity from particles to grid: 22.48ms
+[2017-09-02 18:22:15.410] [FLIP3DSolver] [info] Backup grid velocities: 0.32ms
+[2017-09-02 18:22:15.410] [FLIP3DSolver] [info] Add gravity: 0.35ms
+[2017-09-02 18:22:15.519] [FLIP3DSolver] [info] Compute liquid SDF: 108.31ms
+[2017-09-02 18:22:15.524] [FLIP3DSolver] [info] Compute pressure matrix: 4.84ms
+[2017-09-02 18:22:15.524] [FLIP3DSolver] [info] Compute RHS: 0.50ms
+[2017-09-02 18:22:15.694] [FLIP3DSolver] [info] Conjugate Gradient iterations: 107. Final tolerance: 1.85082e-17
+[2017-09-02 18:22:15.695] [FLIP3DSolver] [info] Solve linear system: 169.50ms
+[2017-09-02 18:22:15.697] [FLIP3DSolver] [info] Update grid velocity: 2.27ms
+[2017-09-02 18:22:15.697] [FLIP3DSolver] [info] ====> Pressure projection total: 286.70ms
+[2017-09-02 18:22:15.741] [FLIP3DSolver] [info] Extrapolate grid velocity: : 43.61ms
+[2017-09-02 18:22:15.751] [FLIP3DSolver] [info] Constrain grid velocity: 9.97ms
+[2017-09-02 18:22:15.752] [FLIP3DSolver] [info] Compute changes of grid velocity: 0.54ms
+[2017-09-02 18:22:15.758] [FLIP3DSolver] [info] Interpolate velocity from grid to particles: 6.36ms
+[2017-09-02 18:22:15.758] [FLIP3DSolver] [info] ====> Advance velocity total: 395.14ms
+[2017-09-02 18:22:15.760] [FLIP3DSolver] [info] Move particles: 1.19ms
+[2017-09-02 18:22:15.760] [FLIP3DSolver] [info] Finished step 1 of size 3.33333e-02(100.00% of the frame, to 100.00% of the frame).
+[2017-09-02 18:22:15.761] [FLIP3DSolver] [info] Sub-step time: 399.61ms
+[2017-09-02 18:22:15.761] [FLIP3DSolver] [info] 
+[2017-09-02 18:22:15.761] [FLIP3DSolver] [info] Frame finished. Frame duration: 0.03 (s). Run time: 400.10ms
+[2017-09-02 18:22:15.761] [FLIP3DSolver] [info] Memory usage: 185.19 MB(s). Peak: 185.20 MB(s).
+[2017-09-02 18:22:15.761] [FLIP3DSolver] [info] 
+[2017-09-02 18:22:15.762] [FLIP3DSolver] [info] 
+[2017-09-02 18:22:15.762] [FLIP3DSolver] [info] ||=========================================== Frame 9 ============================================||
+[2017-09-02 18:22:15.762] [FLIP3DSolver] [info] 
+[2017-09-02 18:22:15.764] [FLIP3DSolver] [info] Find neighbors: 1.69ms
+[2017-09-02 18:22:15.786] [FLIP3DSolver] [info] Add repulsive force to particle: 21.70ms
+[2017-09-02 18:22:15.809] [FLIP3DSolver] [info] Interpolate velocity from particles to grid: 22.93ms
+[2017-09-02 18:22:15.810] [FLIP3DSolver] [info] Backup grid velocities: 0.30ms
+[2017-09-02 18:22:15.811] [FLIP3DSolver] [info] Add gravity: 0.35ms
+[2017-09-02 18:22:15.919] [FLIP3DSolver] [info] Compute liquid SDF: 108.49ms
+[2017-09-02 18:22:15.924] [FLIP3DSolver] [info] Compute pressure matrix: 4.71ms
+[2017-09-02 18:22:15.925] [FLIP3DSolver] [info] Compute RHS: 0.51ms
+[2017-09-02 18:22:16.092] [FLIP3DSolver] [info] Conjugate Gradient iterations: 107. Final tolerance: 2.23638e-17
+[2017-09-02 18:22:16.093] [FLIP3DSolver] [info] Solve linear system: 166.98ms
+[2017-09-02 18:22:16.095] [FLIP3DSolver] [info] Update grid velocity: 2.21ms
+[2017-09-02 18:22:16.095] [FLIP3DSolver] [info] ====> Pressure projection total: 284.29ms
+[2017-09-02 18:22:16.138] [FLIP3DSolver] [info] Extrapolate grid velocity: : 42.70ms
+[2017-09-02 18:22:16.149] [FLIP3DSolver] [info] Constrain grid velocity: 10.24ms
+[2017-09-02 18:22:16.149] [FLIP3DSolver] [info] Compute changes of grid velocity: 0.56ms
+[2017-09-02 18:22:16.155] [FLIP3DSolver] [info] Interpolate velocity from grid to particles: 6.16ms
+[2017-09-02 18:22:16.156] [FLIP3DSolver] [info] ====> Advance velocity total: 391.21ms
+[2017-09-02 18:22:16.158] [FLIP3DSolver] [info] Move particles: 1.06ms
+[2017-09-02 18:22:16.159] [FLIP3DSolver] [info] Finished step 1 of size 3.33333e-02(100.00% of the frame, to 100.00% of the frame).
+[2017-09-02 18:22:16.160] [FLIP3DSolver] [info] Sub-step time: 397.17ms
+[2017-09-02 18:22:16.160] [FLIP3DSolver] [info] 
+[2017-09-02 18:22:16.160] [FLIP3DSolver] [info] Frame finished. Frame duration: 0.03 (s). Run time: 397.90ms
+[2017-09-02 18:22:16.160] [FLIP3DSolver] [info] Memory usage: 184.19 MB(s). Peak: 185.20 MB(s).
+[2017-09-02 18:22:16.161] [FLIP3DSolver] [info] 
+[2017-09-02 18:22:16.161] [FLIP3DSolver] [info] 
+[2017-09-02 18:22:16.161] [FLIP3DSolver] [info] ||=========================================== Frame 10 ===========================================||
+[2017-09-02 18:22:16.161] [FLIP3DSolver] [info] 
+[2017-09-02 18:22:16.164] [FLIP3DSolver] [info] Find neighbors: 1.85ms
+[2017-09-02 18:22:16.186] [FLIP3DSolver] [info] Add repulsive force to particle: 21.82ms
+[2017-09-02 18:22:16.208] [FLIP3DSolver] [info] Interpolate velocity from particles to grid: 22.37ms
+[2017-09-02 18:22:16.209] [FLIP3DSolver] [info] Backup grid velocities: 0.37ms
+[2017-09-02 18:22:16.210] [FLIP3DSolver] [info] Add gravity: 0.29ms
+[2017-09-02 18:22:16.318] [FLIP3DSolver] [info] Compute liquid SDF: 108.08ms
+[2017-09-02 18:22:16.323] [FLIP3DSolver] [info] Compute pressure matrix: 4.77ms
+[2017-09-02 18:22:16.323] [FLIP3DSolver] [info] Compute RHS: 0.50ms
+[2017-09-02 18:22:16.495] [FLIP3DSolver] [info] Conjugate Gradient iterations: 107. Final tolerance: 4.13864e-17
+[2017-09-02 18:22:16.496] [FLIP3DSolver] [info] Solve linear system: 171.25ms
+[2017-09-02 18:22:16.498] [FLIP3DSolver] [info] Update grid velocity: 2.32ms
+[2017-09-02 18:22:16.498] [FLIP3DSolver] [info] ====> Pressure projection total: 288.22ms
+[2017-09-02 18:22:16.543] [FLIP3DSolver] [info] Extrapolate grid velocity: : 44.94ms
+[2017-09-02 18:22:16.556] [FLIP3DSolver] [info] Constrain grid velocity: 12.68ms
+[2017-09-02 18:22:16.557] [FLIP3DSolver] [info] Compute changes of grid velocity: 0.52ms
+[2017-09-02 18:22:16.564] [FLIP3DSolver] [info] Interpolate velocity from grid to particles: 6.18ms
+[2017-09-02 18:22:16.565] [FLIP3DSolver] [info] ====> Advance velocity total: 400.63ms
+[2017-09-02 18:22:16.566] [FLIP3DSolver] [info] Move particles: 1.29ms
+[2017-09-02 18:22:16.567] [FLIP3DSolver] [info] Finished step 1 of size 3.33333e-02(100.00% of the frame, to 100.00% of the frame).
+[2017-09-02 18:22:16.567] [FLIP3DSolver] [info] Sub-step time: 405.64ms
+[2017-09-02 18:22:16.567] [FLIP3DSolver] [info] 
+[2017-09-02 18:22:16.568] [FLIP3DSolver] [info] Frame finished. Frame duration: 0.03 (s). Run time: 406.08ms
+[2017-09-02 18:22:16.568] [FLIP3DSolver] [info] Memory usage: 184.18 MB(s). Peak: 185.20 MB(s).
+[2017-09-02 18:22:16.568] [FLIP3DSolver] [info] 
+[2017-09-02 18:22:16.568] [FLIP3DSolver] [info] 
+[2017-09-02 18:22:16.569] [FLIP3DSolver] [info] ||=========================================== Frame 11 ===========================================||
+[2017-09-02 18:22:16.569] [FLIP3DSolver] [info] 
+[2017-09-02 18:22:16.571] [FLIP3DSolver] [info] Find neighbors: 1.75ms
+[2017-09-02 18:22:16.594] [FLIP3DSolver] [info] Add repulsive force to particle: 22.38ms
+[2017-09-02 18:22:16.617] [FLIP3DSolver] [info] Interpolate velocity from particles to grid: 22.97ms
+[2017-09-02 18:22:16.618] [FLIP3DSolver] [info] Backup grid velocities: 0.38ms
+[2017-09-02 18:22:16.619] [FLIP3DSolver] [info] Add gravity: 0.36ms
+[2017-09-02 18:22:16.727] [FLIP3DSolver] [info] Compute liquid SDF: 108.17ms
+[2017-09-02 18:22:16.732] [FLIP3DSolver] [info] Compute pressure matrix: 4.74ms
+[2017-09-02 18:22:16.732] [FLIP3DSolver] [info] Compute RHS: 0.50ms
+[2017-09-02 18:22:16.898] [FLIP3DSolver] [info] Conjugate Gradient iterations: 105. Final tolerance: 6.18170e-17
+[2017-09-02 18:22:16.900] [FLIP3DSolver] [info] Solve linear system: 165.88ms
+[2017-09-02 18:22:16.902] [FLIP3DSolver] [info] Update grid velocity: 2.30ms
+[2017-09-02 18:22:16.903] [FLIP3DSolver] [info] ====> Pressure projection total: 283.72ms
+[2017-09-02 18:22:16.947] [FLIP3DSolver] [info] Extrapolate grid velocity: : 43.85ms
+[2017-09-02 18:22:16.958] [FLIP3DSolver] [info] Constrain grid velocity: 11.30ms
+[2017-09-02 18:22:16.959] [FLIP3DSolver] [info] Compute changes of grid velocity: 0.51ms
+[2017-09-02 18:22:16.966] [FLIP3DSolver] [info] Interpolate velocity from grid to particles: 6.22ms
+[2017-09-02 18:22:16.967] [FLIP3DSolver] [info] ====> Advance velocity total: 394.90ms
+[2017-09-02 18:22:16.968] [FLIP3DSolver] [info] Move particles: 1.12ms
+[2017-09-02 18:22:16.968] [FLIP3DSolver] [info] Finished step 1 of size 3.33333e-02(100.00% of the frame, to 100.00% of the frame).
+[2017-09-02 18:22:16.968] [FLIP3DSolver] [info] Sub-step time: 398.97ms
+[2017-09-02 18:22:16.969] [FLIP3DSolver] [info] 
+[2017-09-02 18:22:16.969] [FLIP3DSolver] [info] Frame finished. Frame duration: 0.03 (s). Run time: 399.58ms
+[2017-09-02 18:22:16.969] [FLIP3DSolver] [info] Memory usage: 184.18 MB(s). Peak: 185.20 MB(s).
+[2017-09-02 18:22:16.969] [FLIP3DSolver] [info] 
+[2017-09-02 18:22:16.970] [FLIP3DSolver] [info] 
+[2017-09-02 18:22:16.970] [FLIP3DSolver] [info] ||=========================================== Frame 12 ===========================================||
+[2017-09-02 18:22:16.970] [FLIP3DSolver] [info] 
+[2017-09-02 18:22:16.972] [FLIP3DSolver] [info] Find neighbors: 1.72ms
+[2017-09-02 18:22:16.995] [FLIP3DSolver] [info] Add repulsive force to particle: 22.74ms
+[2017-09-02 18:22:17.017] [FLIP3DSolver] [info] Interpolate velocity from particles to grid: 21.69ms
+[2017-09-02 18:22:17.017] [FLIP3DSolver] [info] Backup grid velocities: 0.29ms
+[2017-09-02 18:22:17.018] [FLIP3DSolver] [info] Add gravity: 0.34ms
+[2017-09-02 18:22:17.127] [FLIP3DSolver] [info] Compute liquid SDF: 109.06ms
+[2017-09-02 18:22:17.132] [FLIP3DSolver] [info] Compute pressure matrix: 4.73ms
+[2017-09-02 18:22:17.133] [FLIP3DSolver] [info] Compute RHS: 0.58ms
+[2017-09-02 18:22:17.304] [FLIP3DSolver] [info] Conjugate Gradient iterations: 109. Final tolerance: 4.56151e-17
+[2017-09-02 18:22:17.306] [FLIP3DSolver] [info] Solve linear system: 171.32ms
+[2017-09-02 18:22:17.309] [FLIP3DSolver] [info] Update grid velocity: 2.51ms
+[2017-09-02 18:22:17.309] [FLIP3DSolver] [info] ====> Pressure projection total: 290.99ms
+[2017-09-02 18:22:17.352] [FLIP3DSolver] [info] Extrapolate grid velocity: : 42.48ms
+[2017-09-02 18:22:17.362] [FLIP3DSolver] [info] Constrain grid velocity: 9.95ms
+[2017-09-02 18:22:17.363] [FLIP3DSolver] [info] Compute changes of grid velocity: 0.57ms
+[2017-09-02 18:22:17.369] [FLIP3DSolver] [info] Interpolate velocity from grid to particles: 6.06ms
+[2017-09-02 18:22:17.369] [FLIP3DSolver] [info] ====> Advance velocity total: 396.86ms
+[2017-09-02 18:22:17.370] [FLIP3DSolver] [info] Move particles: 1.09ms
+[2017-09-02 18:22:17.371] [FLIP3DSolver] [info] Finished step 1 of size 3.33333e-02(100.00% of the frame, to 100.00% of the frame).
+[2017-09-02 18:22:17.372] [FLIP3DSolver] [info] Sub-step time: 400.69ms
+[2017-09-02 18:22:17.372] [FLIP3DSolver] [info] 
+[2017-09-02 18:22:17.373] [FLIP3DSolver] [info] Frame finished. Frame duration: 0.03 (s). Run time: 402.54ms
+[2017-09-02 18:22:17.373] [FLIP3DSolver] [info] Memory usage: 184.19 MB(s). Peak: 185.20 MB(s).
+[2017-09-02 18:22:17.374] [FLIP3DSolver] [info] 
+[2017-09-02 18:22:17.374] [FLIP3DSolver] [info] 
+[2017-09-02 18:22:17.374] [FLIP3DSolver] [info] ||=========================================== Frame 13 ===========================================||
+[2017-09-02 18:22:17.374] [FLIP3DSolver] [info] 
+[2017-09-02 18:22:17.376] [FLIP3DSolver] [info] Find neighbors: 1.70ms
+[2017-09-02 18:22:17.399] [FLIP3DSolver] [info] Add repulsive force to particle: 22.12ms
+[2017-09-02 18:22:17.421] [FLIP3DSolver] [info] Interpolate velocity from particles to grid: 21.85ms
+[2017-09-02 18:22:17.421] [FLIP3DSolver] [info] Backup grid velocities: 0.30ms
+[2017-09-02 18:22:17.421] [FLIP3DSolver] [info] Add gravity: 0.34ms
+[2017-09-02 18:22:17.529] [FLIP3DSolver] [info] Compute liquid SDF: 107.10ms
+[2017-09-02 18:22:17.533] [FLIP3DSolver] [info] Compute pressure matrix: 4.80ms
+[2017-09-02 18:22:17.534] [FLIP3DSolver] [info] Compute RHS: 0.73ms
+[2017-09-02 18:22:17.702] [FLIP3DSolver] [info] Conjugate Gradient iterations: 107. Final tolerance: 3.96525e-17
+[2017-09-02 18:22:17.703] [FLIP3DSolver] [info] Solve linear system: 167.61ms
+[2017-09-02 18:22:17.706] [FLIP3DSolver] [info] Update grid velocity: 2.35ms
+[2017-09-02 18:22:17.706] [FLIP3DSolver] [info] ====> Pressure projection total: 284.24ms
+[2017-09-02 18:22:17.749] [FLIP3DSolver] [info] Extrapolate grid velocity: : 42.86ms
+[2017-09-02 18:22:17.759] [FLIP3DSolver] [info] Constrain grid velocity: 10.63ms
+[2017-09-02 18:22:17.760] [FLIP3DSolver] [info] Compute changes of grid velocity: 0.51ms
+[2017-09-02 18:22:17.766] [FLIP3DSolver] [info] Interpolate velocity from grid to particles: 6.03ms
+[2017-09-02 18:22:17.766] [FLIP3DSolver] [info] ====> Advance velocity total: 389.77ms
+[2017-09-02 18:22:17.768] [FLIP3DSolver] [info] Move particles: 1.12ms
+[2017-09-02 18:22:17.769] [FLIP3DSolver] [info] Finished step 1 of size 3.33333e-02(100.00% of the frame, to 100.00% of the frame).
+[2017-09-02 18:22:17.769] [FLIP3DSolver] [info] Sub-step time: 394.47ms
+[2017-09-02 18:22:17.769] [FLIP3DSolver] [info] 
+[2017-09-02 18:22:17.769] [FLIP3DSolver] [info] Frame finished. Frame duration: 0.03 (s). Run time: 394.97ms
+[2017-09-02 18:22:17.770] [FLIP3DSolver] [info] Memory usage: 184.20 MB(s). Peak: 185.20 MB(s).
+[2017-09-02 18:22:17.770] [FLIP3DSolver] [info] 
+[2017-09-02 18:22:17.771] [FLIP3DSolver] [info] 
+[2017-09-02 18:22:17.771] [FLIP3DSolver] [info] ||=========================================== Frame 14 ===========================================||
+[2017-09-02 18:22:17.771] [FLIP3DSolver] [info] 
+[2017-09-02 18:22:17.773] [FLIP3DSolver] [info] Find neighbors: 1.97ms
+[2017-09-02 18:22:17.796] [FLIP3DSolver] [info] Add repulsive force to particle: 22.36ms
+[2017-09-02 18:22:17.818] [FLIP3DSolver] [info] Interpolate velocity from particles to grid: 21.84ms
+[2017-09-02 18:22:17.818] [FLIP3DSolver] [info] Backup grid velocities: 0.31ms
+[2017-09-02 18:22:17.819] [FLIP3DSolver] [info] Add gravity: 0.35ms
+[2017-09-02 18:22:17.923] [FLIP3DSolver] [info] Compute liquid SDF: 104.08ms
+[2017-09-02 18:22:17.928] [FLIP3DSolver] [info] Compute pressure matrix: 4.93ms
+[2017-09-02 18:22:17.929] [FLIP3DSolver] [info] Compute RHS: 0.47ms
+[2017-09-02 18:22:18.096] [FLIP3DSolver] [info] Conjugate Gradient iterations: 107. Final tolerance: 5.40964e-17
+[2017-09-02 18:22:18.097] [FLIP3DSolver] [info] Solve linear system: 167.48ms
+[2017-09-02 18:22:18.100] [FLIP3DSolver] [info] Update grid velocity: 2.52ms
+[2017-09-02 18:22:18.100] [FLIP3DSolver] [info] ====> Pressure projection total: 281.14ms
+[2017-09-02 18:22:18.143] [FLIP3DSolver] [info] Extrapolate grid velocity: : 43.00ms
+[2017-09-02 18:22:18.153] [FLIP3DSolver] [info] Constrain grid velocity: 9.84ms
+[2017-09-02 18:22:18.154] [FLIP3DSolver] [info] Compute changes of grid velocity: 0.40ms
+[2017-09-02 18:22:18.162] [FLIP3DSolver] [info] Interpolate velocity from grid to particles: 6.19ms
+[2017-09-02 18:22:18.163] [FLIP3DSolver] [info] ====> Advance velocity total: 389.08ms
+[2017-09-02 18:22:18.164] [FLIP3DSolver] [info] Move particles: 1.06ms
+[2017-09-02 18:22:18.164] [FLIP3DSolver] [info] Finished step 1 of size 3.33333e-02(100.00% of the frame, to 100.00% of the frame).
+[2017-09-02 18:22:18.165] [FLIP3DSolver] [info] Sub-step time: 393.47ms
+[2017-09-02 18:22:18.165] [FLIP3DSolver] [info] 
+[2017-09-02 18:22:18.165] [FLIP3DSolver] [info] Frame finished. Frame duration: 0.03 (s). Run time: 393.88ms
+[2017-09-02 18:22:18.165] [FLIP3DSolver] [info] Memory usage: 184.68 MB(s). Peak: 185.20 MB(s).
+[2017-09-02 18:22:18.166] [FLIP3DSolver] [info] 
+[2017-09-02 18:22:18.166] [FLIP3DSolver] [info] 
+[2017-09-02 18:22:18.166] [FLIP3DSolver] [info] ||=========================================== Frame 15 ===========================================||
+[2017-09-02 18:22:18.166] [FLIP3DSolver] [info] 
+[2017-09-02 18:22:18.168] [FLIP3DSolver] [info] Find neighbors: 1.77ms
+[2017-09-02 18:22:18.192] [FLIP3DSolver] [info] Add repulsive force to particle: 22.75ms
+[2017-09-02 18:22:18.215] [FLIP3DSolver] [info] Interpolate velocity from particles to grid: 22.43ms
+[2017-09-02 18:22:18.216] [FLIP3DSolver] [info] Backup grid velocities: 0.35ms
+[2017-09-02 18:22:18.216] [FLIP3DSolver] [info] Add gravity: 0.32ms
+[2017-09-02 18:22:18.324] [FLIP3DSolver] [info] 
+[2017-09-02 18:22:18.329] [FLIP3DSolver] [info] 
+[2017-09-02 18:22:18.330] [FLIP3DSolver] [info] 
+[2017-09-02 18:22:18.313] [Main] [info] 
+[2017-09-02 18:22:18.314] [Main] [info] Warning: Signal Terminate **************************************************************************
+[2017-09-02 18:22:18.314] [Main] [info] 
+[2017-09-02 18:22:18.314] [Main] [info] Cleanup and exit program..........
+[2017-09-02 18:22:18.320] [Main] [info] Memory usage: 184.98 MB(s). Peak: 185.20 MB(s).
+[2017-09-02 18:22:18.321] [Main] [info] Total time: 0(days), 0(hours), 0(mins), 10(secs).
+[2017-09-02 18:22:18.321] [Main] [info] ||================================================================================================||
+[2017-09-02 18:22:18.321] [Main] [info] 

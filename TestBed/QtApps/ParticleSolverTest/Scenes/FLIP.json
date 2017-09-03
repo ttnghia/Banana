@@ -1,0 +1,20 @@
+{
+	"GlobalParameters": 
+	{
+		"FrameDuration" : 0.03333333333,
+		"FinalFrame" : 1000,
+        "EnableSortParticle" : true
+	},
+	"SimulationParameters": 
+	{
+		"ApplyRepulsiveForce" : true,
+		"RepulsiveForceStiffness" : 1e-3,
+		"PIC_FLIP_Ratio" : 0.97,
+		"CGRelativeTolerance" : 1e-17,
+		"MaxCGIteration" : 10000,
+		"BoxMin" : [0, 0, 0],
+		"BoxMax" : [64, 64, 64],
+		"ParticleRadius" : 0.25,
+		"ParticleFile" : "Data/pnt0000.dat"
+	}
+}

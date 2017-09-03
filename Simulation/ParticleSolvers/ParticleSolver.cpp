@@ -21,6 +21,16 @@
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void ParticleSolver::setupLogger()
+{
+    m_Logger = Logger::create(getSolverName());
+    m_Logger->printTextBox(getGreetingMessage());
+
+    Logger::enableLog2Console(m_GlobalParams->bPrintLog2Console);
+    Logger::enableLog2File(m_GlobalParams->bPrintLog2File);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void ParticleSolver::doSimulation()
 {
     setupDataIO();
@@ -57,9 +67,13 @@ void ParticleSolver::doSimulation()
 
     ////////////////////////////////////////////////////////////////////////////////
     m_Logger->newLine();
-    m_Logger->printAligned("End Simulation", '=');
+    m_Logger->printAligned("Simulation finished", '+');
     m_Logger->printLog("Total frames: " + NumberHelpers::formatWithCommas(m_GlobalParams->finalFrame - m_GlobalParams->startFrame + 1));
     m_Logger->printLog("Data path: " + m_GlobalParams->dataPath);
+    m_Logger->newLine();
+    m_Logger->printTextBox("End Computation");
+
+
     //m_Logger->printLog("Data: \n" + FileHelpers::getFolderSize(m_GlobalParams->dataPath, 1));
 }
 
@@ -77,7 +91,7 @@ void ParticleSolver::loadScene(const String& sceneFile)
     nlohmann::json jParams = nlohmann::json::parse(inputFile);
 
     // Only object parameters are required. Global parameters and simulation parameters can be default
-    __BNN_ASSERT(jParams.find("ObjectParameters") != jParams.end());
+    //__BNN_ASSERT(jParams.find("ObjectParameters") != jParams.end());
 
     ////////////////////////////////////////////////////////////////////////////////
     // read frame parameters
@@ -98,8 +112,8 @@ void ParticleSolver::loadScene(const String& sceneFile)
     ////////////////////////////////////////////////////////////////////////////////
     // read object parameters and generate scene
     {
-        nlohmann::json jObjectParams = jParams["ObjectParameters"];
-        loadObjectParams(jObjectParams);
+        //nlohmann::json jObjectParams = jParams["ObjectParameters"];
+        //loadObjectParams(jObjectParams);
     }
 }
 
@@ -221,16 +235,6 @@ void ParticleSolver::loadObjectParams(const nlohmann::json& jParams)
         }
     }
 #endif
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void ParticleSolver::setupLogger()
-{
-    m_Logger = Logger::create(getSolverName());
-    m_Logger->printGreeting(getGreetingMessage());
-
-    Logger::enableLog2Console(m_GlobalParams->bPrintLog2Console);
-    Logger::enableLog2File(m_GlobalParams->bPrintLog2File);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

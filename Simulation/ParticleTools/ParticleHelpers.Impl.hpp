@@ -91,7 +91,7 @@ template<class VectorType>
 void ParticleHelpers::jitter(VectorType& ppos, Real maxJitter)
 {
     VectorType pjitter;
-    for(UInt j = 0; j < pjitter.length(); ++j)
+    for(Int j = 0; j < pjitter.length(); ++j)
         pjitter[j] = MathHelpers::frand11<Real>();
 
     ppos += maxJitter * pjitter;
