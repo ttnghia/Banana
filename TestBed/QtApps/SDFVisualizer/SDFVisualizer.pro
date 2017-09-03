@@ -45,4 +45,4 @@ SOURCES += \
 RESOURCES += \
     Shader.qrc
 
-#CONFIG+= static
+CONFIG+= static

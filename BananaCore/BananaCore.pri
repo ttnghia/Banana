@@ -25,8 +25,7 @@ static {
     CONFIG += static
     DEFINES += STATIC
     message("~~~ Static build ~~~") # this is for information, that the static build is done
-}
-else {
+} else {
     message("~~~ Dynamic build ~~~")
 }
 
@@ -37,7 +36,7 @@ win32 {
         QMAKE_CXXFLAGS += /DEBUG /Zi /D "_DEBUG" /wd"4305"
         LIBS += $$PWD/../Build/Debug/BananaCore.lib
         PRE_TARGETDEPS += $$PWD/../Build/Debug/BananaCore.lib
-    }else {
+    } else {
         message("Banana -- Release")
         QMAKE_CXXFLAGS += /O2 /Ob2 /GL /Qpar /wd"4305"
         static {

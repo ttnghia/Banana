@@ -168,15 +168,20 @@ bool load_points(Vec_Vec3r& positions, const String& fileName)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Simulator::changeScene(const QString& scene)
 {
-    m_Scene = scene;
+    __BNN_PRINT_LINE
+        m_Scene = scene;
+    __BNN_PRINT_LINE
     emit systemTimeChanged(0);
-
+    __BNN_PRINT_LINE
     // wait until the simulation stop before modifying the scene
     if(m_SimulationFutureObj.valid())
         m_SimulationFutureObj.wait();
-
+    __BNN_PRINT_LINE
     ////////////////////////////////////////////////////////////////////////////////
     QString sceneFile = QDir::currentPath() + "/Scenes/" + scene;
+    __BNN_PRINT_LINE
+        qDebug() << sceneFile;
+
     m_ParticleSolver->loadScene(sceneFile.toStdString());
 
 

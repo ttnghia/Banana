@@ -27,7 +27,7 @@ win32 {
         message("OpenGLHelpers -- Debug")
         LIBS += $$PWD/../Build/DebugQt/OpenGLHelpers.lib
         PRE_TARGETDEPS += $$PWD/../Build/DebugQt/OpenGLHelpers.lib
-    }else {
+    } else {
         message("OpenGLHelpers -- Release")
         static {
             LIBS += $$PWD/../Build/ReleaseStaticBuild/OpenGLHelpers.lib

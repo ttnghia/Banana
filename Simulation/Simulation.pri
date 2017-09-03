@@ -25,8 +25,13 @@ win32 {
         PRE_TARGETDEPS += $$PWD/../Build/Debug/Simulation.lib
     }else {
         message("Simulation -- Release")
-        LIBS += $$PWD/../Build/Release/Simulation.lib
-        PRE_TARGETDEPS += $$PWD/../Build/Release/Simulation.lib
+        static {
+            LIBS += $$PWD/../Build/ReleaseStaticBuild/Simulation.lib
+            PRE_TARGETDEPS += $$PWD/../Build/ReleaseStaticBuild/Simulation.lib
+        } else {
+            LIBS += $$PWD/../Build/Release/Simulation.lib
+            PRE_TARGETDEPS += $$PWD/../Build/Release/Simulation.lib
+        }
     }
 }
 

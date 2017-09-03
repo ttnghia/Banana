@@ -35,12 +35,15 @@ MainWindow::MainWindow(QWidget* parent) : OpenGLMainWindow(parent)
 //    showCameraPosition(false);
 
     connectWidgets();
+    __BNN_PRINT_LINE
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MainWindow::showEvent(QShowEvent* ev)
 {
+    __BNN_PRINT_LINE
     QMainWindow::showEvent(ev);
+    __BNN_PRINT_LINE
 
     static bool showed = false;
     if(!showed)
@@ -48,9 +51,12 @@ void MainWindow::showEvent(QShowEvent* ev)
         showed = true;
 
         Q_ASSERT(m_Simulator != nullptr);
-        updateStatusMemoryUsage();
-        updateStatusSimulationTime(0);
-        m_Simulator->changeScene(m_Controller->m_cbSimulationScene->currentText());
+        __BNN_PRINT_LINE
+            updateStatusMemoryUsage();
+        __BNN_PRINT_LINE
+            updateStatusSimulationTime(0);
+        __BNN_PRINT_LINE
+//        m_Simulator->changeScene(m_Controller->m_cbSimulationScene->currentText());
     }
 }
 

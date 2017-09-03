@@ -74,38 +74,15 @@ void Controller::loadTextures()
 void Controller::setupSimulationControllers(QVBoxLayout* ctrLayout)
 {
     m_cbSimulationScene = new QComboBox;
+    m_cbSimulationScene->addItem("None");
     m_cbSimulationScene->addItems(getSceneFiles());
 
-    m_cbResolution = new QComboBox;
-    int resolutionIdx = 0;
-    for(int i = 8; i <= 256; i += 8)
-    {
-        if(i == 32)
-            resolutionIdx = m_cbResolution->count();
-        m_cbResolution->addItem(QString("%1").arg(i));
-    }
-    m_cbResolution->setCurrentIndex(resolutionIdx);
-
-    m_txtStopTime = new QLineEdit;
-    m_txtStopTime->setFixedWidth(100);
-    m_txtStopTime->setText("5.0");
-
     ////////////////////////////////////////////////////////////////////////////////
-    int          row                 = 0;
-    QGridLayout* simControllerLayout = new QGridLayout;
-    simControllerLayout->addWidget(new QLabel("Scene: "),        row, 0, 1, 2);
-    simControllerLayout->addWidget(m_cbSimulationScene,          row, 2, 1, 1);
-
-    ++row;
-    simControllerLayout->addWidget(new QLabel("Resolution: "),   row, 0, 1, 2);
-    simControllerLayout->addWidget(m_cbResolution,               row, 2, 1, 1);
-
-    ++row;
-    simControllerLayout->addWidget(new QLabel("Stop time(s): "), row, 0, 1, 2);
-    simControllerLayout->addWidget(m_txtStopTime,                row, 2, 1, 1);
+    QVBoxLayout* simControllerLayout = new QVBoxLayout;
+    simControllerLayout->addWidget(m_cbSimulationScene);
 
     QGroupBox* grpSimControllers = new QGroupBox;
-    grpSimControllers->setTitle("Simulation Parameters");
+    grpSimControllers->setTitle("Scene");
     grpSimControllers->setLayout(simControllerLayout);
 
     ////////////////////////////////////////////////////////////////////////////////

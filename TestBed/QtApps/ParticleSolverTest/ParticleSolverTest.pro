@@ -23,6 +23,8 @@ TARGET = ParticleSolverTest
 TEMPLATE = app
 CONFIG += console
 
+#CONFIG+= static
+
 INCLUDEPATH += $$PWD/Include
 
 include(D:/Programming/Banana/BananaCore/BananaCore.pri)

@@ -29,7 +29,6 @@ namespace Banana
 class OpenGLMainWindow : public QMainWindow
 {
     Q_OBJECT
-
 public:
     OpenGLMainWindow(QWidget* parent, bool bShowFPS = true, bool bShowCamPosition = true);
     virtual ~OpenGLMainWindow();

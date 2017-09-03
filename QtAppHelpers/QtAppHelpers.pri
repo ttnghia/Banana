@@ -21,8 +21,7 @@ win32 {
         message("QtAppHelpers -- Debug")
         LIBS += $$PWD/../Build/DebugQt/QtAppHelpers.lib
         PRE_TARGETDEPS += $$PWD/../Build/DebugQt/QtAppHelpers.lib
-    }
-    else {
+    } else {
         message("QtAppHelpers -- Release")
         static {
             LIBS += $$PWD/../Build/ReleaseStaticBuild/QtAppHelpers.lib

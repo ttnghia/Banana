@@ -352,6 +352,18 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseQt|x64'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\DebugQt\moc_OpenGLMainWindow.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseQt|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\DebugQt\moc_OpenGLWidget.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseQt|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\DebugQt\moc_PaintArea.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
@@ -383,18 +395,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseQt|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\DebugQt\moc_MaterialSelector.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseQt|x64'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\DebugQt\moc_OpenGLMainWindow.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseQt|x64'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\DebugQt\moc_OpenGLWidget.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
@@ -454,6 +454,18 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseQt|x64'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\Debug\moc_OpenGLMainWindow.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugQt|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseQt|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\Debug\moc_OpenGLWidget.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugQt|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseQt|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\Debug\moc_PaintArea.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugQt|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
@@ -485,18 +497,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseQt|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\Debug\moc_MaterialSelector.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugQt|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseQt|x64'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\Debug\moc_OpenGLMainWindow.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugQt|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseQt|x64'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\Debug\moc_OpenGLWidget.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugQt|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
@@ -556,6 +556,18 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\ReleaseQt\moc_OpenGLMainWindow.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugQt|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\ReleaseQt\moc_OpenGLWidget.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugQt|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\ReleaseQt\moc_PaintArea.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugQt|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
@@ -592,18 +604,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\ReleaseQt\moc_OpenGLMainWindow.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugQt|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\ReleaseQt\moc_OpenGLWidget.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugQt|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\ReleaseQt\moc_OpenGLWidgetTestRender.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugQt|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
@@ -615,6 +615,18 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\ReleaseStaticBuild\moc_OpenGLMainWindow.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugQt|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseQt|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\ReleaseStaticBuild\moc_OpenGLWidget.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugQt|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseQt|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\Release\moc_BusyBar.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugQt|x64'">true</ExcludedFromBuild>
@@ -651,6 +663,18 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseQt|x64'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\Release\moc_OpenGLMainWindow.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugQt|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseQt|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\Release\moc_OpenGLWidget.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugQt|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseQt|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\Release\moc_PaintArea.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugQt|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
@@ -680,18 +704,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugQt|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseQt|x64'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\Release\moc_OpenGLMainWindow.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugQt|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseQt|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\Release\moc_OpenGLWidget.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugQt|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseQt|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\Release\moc_OpenGLWidgetTestRender.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='DebugQt|x64'">true</ExcludedFromBuild>
@@ -1013,14 +1025,14 @@
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='ReleaseQt|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
     </CustomBuild>
     <CustomBuild Include="Include\QtAppHelpers\OpenGLMainWindow.h">
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "D:\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DUNICODE -DWIN32 -DWIN64 -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB -DNDEBUG  "-I." "-I.\Include" "-I.\..\Externals\glm" "-I.\..\Externals\AntTweakBar\include" "-I.\..\OpenGLHelpers\Include" "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I.\release" "-I$(QTDIR)\mkspecs\win32-msvc2015" "-ID:\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\." "-I.\Include\QtAppHelpers"</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">"$(QTDIR_STATIC)\bin\moc.exe"  "%(FullPath)" -o "D:\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DUNICODE -DWIN32 -DWIN64 -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB -DNDEBUG -DSTATIC "-I." "-I.\Include" "-I.\..\Externals\glm" "-I.\..\Externals\AntTweakBar\include" "-I.\..\OpenGLHelpers\Include" "-I$(QTDIR_STATIC)\include" "-I$(QTDIR_STATIC)\include\QtWidgets" "-I$(QTDIR_STATIC)\include\QtGui" "-I$(QTDIR_STATIC)\include\QtANGLE" "-I$(QTDIR_STATIC)\include\QtCore" "-I.\release" "-I$(QTDIR_STATIC)\mkspecs\win32-msvc2015" "-ID:\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\." "-I.\Include\QtAppHelpers"</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='ReleaseQt|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "D:\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DUNICODE -DWIN32 -DWIN64 -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB -DNDEBUG  "-I." "-I.\Include" "-I.\..\Externals\glm" "-I.\..\Externals\AntTweakBar\include" "-I.\..\OpenGLHelpers\Include" "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I.\release" "-I$(QTDIR)\mkspecs\win32-msvc2015" "-ID:\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\." "-I.\Include\QtAppHelpers"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DUNICODE -DWIN32 -DWIN64 -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB -DNDEBUG "-I." "-I.\Include" "-I.\..\Externals\glm" "-I.\..\Externals\AntTweakBar\include" "-I.\..\OpenGLHelpers\Include" "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I.\release" "-I$(QTDIR)\mkspecs\win32-msvc2015" "-ID:\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\." "-I.\Include\QtAppHelpers"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DUNICODE -DWIN32 -DWIN64 -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB -DNDEBUG "-I." "-I.\Include" "-I.\..\Externals\glm" "-I.\..\Externals\AntTweakBar\include" "-I.\..\OpenGLHelpers\Include" "-I$(QTDIR_STATIC)\include" "-I$(QTDIR_STATIC)\include\QtWidgets" "-I$(QTDIR_STATIC)\include\QtGui" "-I$(QTDIR_STATIC)\include\QtANGLE" "-I$(QTDIR_STATIC)\include\QtCore" "-I.\release" "-I$(QTDIR_STATIC)\mkspecs\win32-msvc2015" "-ID:\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\." "-I.\Include\QtAppHelpers"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ReleaseQt|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DUNICODE -DWIN32 -DWIN64 -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB -DNDEBUG "-I." "-I.\Include" "-I.\..\Externals\glm" "-I.\..\Externals\AntTweakBar\include" "-I.\..\OpenGLHelpers\Include" "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I.\release" "-I$(QTDIR)\mkspecs\win32-msvc2015" "-ID:\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\." "-I.\Include\QtAppHelpers"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Moc%27ing OpenGLMainWindow.h...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">Moc%27ing OpenGLMainWindow.h...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='ReleaseQt|x64'">Moc%27ing OpenGLMainWindow.h...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "D:\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\moc_%(Filename).cpp"  -D_DEBUG -D_WINDOWS -DUNICODE -DWIN32 -DWIN64 -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB  "-I.\NCREMENTAL:NO" "-I." "-I.\Include" "-I.\..\Externals\glm" "-I.\..\Externals\AntTweakBar\include" "-I.\..\OpenGLHelpers\Include" "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\mkspecs\win32-msvc2015" "-ID:\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\." "-I.\Include\QtAppHelpers"</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='DebugQt|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "D:\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\moc_%(Filename).cpp"  -D_DEBUG -D_WINDOWS -DUNICODE -DWIN32 -DWIN64 -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB  "-I.\NCREMENTAL:NO" "-I." "-I.\Include" "-I.\..\Externals\glm" "-I.\..\Externals\AntTweakBar\include" "-I.\..\OpenGLHelpers\Include" "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\mkspecs\win32-msvc2015" "-ID:\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\." "-I.\Include\QtAppHelpers"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\moc_%(Filename).cpp"  -D_DEBUG -D_WINDOWS -DUNICODE -DWIN32 -DWIN64 -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB "-I.\NCREMENTAL:NO" "-I." "-I.\Include" "-I.\..\Externals\glm" "-I.\..\Externals\AntTweakBar\include" "-I.\..\OpenGLHelpers\Include" "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\mkspecs\win32-msvc2015" "-ID:\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\." "-I.\Include\QtAppHelpers"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='DebugQt|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\moc_%(Filename).cpp"  -D_DEBUG -D_WINDOWS -DUNICODE -DWIN32 -DWIN64 -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB "-I.\NCREMENTAL:NO" "-I." "-I.\Include" "-I.\..\Externals\glm" "-I.\..\Externals\AntTweakBar\include" "-I.\..\OpenGLHelpers\Include" "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\mkspecs\win32-msvc2015" "-ID:\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\." "-I.\Include\QtAppHelpers"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Moc%27ing OpenGLMainWindow.h...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='DebugQt|x64'">Moc%27ing OpenGLMainWindow.h...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
@@ -1029,20 +1041,20 @@
       <Outputs Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='ReleaseQt|x64'">..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='DebugQt|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">$(QTDIR_STATIC)\bin\moc.exe;%(FullPath)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='ReleaseQt|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
     </CustomBuild>
     <CustomBuild Include="Include\QtAppHelpers\OpenGLWidget.h">
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "D:\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DUNICODE -DWIN32 -DWIN64 -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB -DNDEBUG  "-I." "-I.\Include" "-I.\..\Externals\glm" "-I.\..\Externals\AntTweakBar\include" "-I.\..\OpenGLHelpers\Include" "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I.\release" "-I$(QTDIR)\mkspecs\win32-msvc2015" "-ID:\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\." "-I.\Include\QtAppHelpers"</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">"$(QTDIR_STATIC)\bin\moc.exe"  "%(FullPath)" -o "D:\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DUNICODE -DWIN32 -DWIN64 -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB -DNDEBUG -DSTATIC "-I." "-I.\Include" "-I.\..\Externals\glm" "-I.\..\Externals\AntTweakBar\include" "-I.\..\OpenGLHelpers\Include" "-I$(QTDIR_STATIC)\include" "-I$(QTDIR_STATIC)\include\QtWidgets" "-I$(QTDIR_STATIC)\include\QtGui" "-I$(QTDIR_STATIC)\include\QtANGLE" "-I$(QTDIR_STATIC)\include\QtCore" "-I.\release" "-I$(QTDIR_STATIC)\mkspecs\win32-msvc2015" "-ID:\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\." "-I.\Include\QtAppHelpers"</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='ReleaseQt|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "D:\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DUNICODE -DWIN32 -DWIN64 -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB -DNDEBUG  "-I." "-I.\Include" "-I.\..\Externals\glm" "-I.\..\Externals\AntTweakBar\include" "-I.\..\OpenGLHelpers\Include" "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I.\release" "-I$(QTDIR)\mkspecs\win32-msvc2015" "-ID:\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\." "-I.\Include\QtAppHelpers"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DUNICODE -DWIN32 -DWIN64 -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB -DNDEBUG "-I." "-I.\Include" "-I.\..\Externals\glm" "-I.\..\Externals\AntTweakBar\include" "-I.\..\OpenGLHelpers\Include" "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I.\release" "-I$(QTDIR)\mkspecs\win32-msvc2015" "-ID:\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\." "-I.\Include\QtAppHelpers"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DUNICODE -DWIN32 -DWIN64 -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB -DNDEBUG "-I." "-I.\Include" "-I.\..\Externals\glm" "-I.\..\Externals\AntTweakBar\include" "-I.\..\OpenGLHelpers\Include" "-I$(QTDIR_STATIC)\include" "-I$(QTDIR_STATIC)\include\QtWidgets" "-I$(QTDIR_STATIC)\include\QtGui" "-I$(QTDIR_STATIC)\include\QtANGLE" "-I$(QTDIR_STATIC)\include\QtCore" "-I.\release" "-I$(QTDIR_STATIC)\mkspecs\win32-msvc2015" "-ID:\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\." "-I.\Include\QtAppHelpers"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='ReleaseQt|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DUNICODE -DWIN32 -DWIN64 -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB -DNDEBUG "-I." "-I.\Include" "-I.\..\Externals\glm" "-I.\..\Externals\AntTweakBar\include" "-I.\..\OpenGLHelpers\Include" "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I.\release" "-I$(QTDIR)\mkspecs\win32-msvc2015" "-ID:\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\." "-I.\Include\QtAppHelpers"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Moc%27ing OpenGLWidget.h...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">Moc%27ing OpenGLWidget.h...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='ReleaseQt|x64'">Moc%27ing OpenGLWidget.h...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "D:\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\moc_%(Filename).cpp"  -D_DEBUG -D_WINDOWS -DUNICODE -DWIN32 -DWIN64 -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB  "-I.\NCREMENTAL:NO" "-I." "-I.\Include" "-I.\..\Externals\glm" "-I.\..\Externals\AntTweakBar\include" "-I.\..\OpenGLHelpers\Include" "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\mkspecs\win32-msvc2015" "-ID:\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\." "-I.\Include\QtAppHelpers"</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='DebugQt|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "D:\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\moc_%(Filename).cpp"  -D_DEBUG -D_WINDOWS -DUNICODE -DWIN32 -DWIN64 -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB  "-I.\NCREMENTAL:NO" "-I." "-I.\Include" "-I.\..\Externals\glm" "-I.\..\Externals\AntTweakBar\include" "-I.\..\OpenGLHelpers\Include" "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\mkspecs\win32-msvc2015" "-ID:\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\." "-I.\Include\QtAppHelpers"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\moc_%(Filename).cpp"  -D_DEBUG -D_WINDOWS -DUNICODE -DWIN32 -DWIN64 -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB "-I.\NCREMENTAL:NO" "-I." "-I.\Include" "-I.\..\Externals\glm" "-I.\..\Externals\AntTweakBar\include" "-I.\..\OpenGLHelpers\Include" "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\mkspecs\win32-msvc2015" "-ID:\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\." "-I.\Include\QtAppHelpers"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='DebugQt|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\moc_%(Filename).cpp"  -D_DEBUG -D_WINDOWS -DUNICODE -DWIN32 -DWIN64 -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB "-I.\NCREMENTAL:NO" "-I." "-I.\Include" "-I.\..\Externals\glm" "-I.\..\Externals\AntTweakBar\include" "-I.\..\OpenGLHelpers\Include" "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\mkspecs\win32-msvc2015" "-ID:\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\." "-I.\Include\QtAppHelpers"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Moc%27ing OpenGLWidget.h...</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='DebugQt|x64'">Moc%27ing OpenGLWidget.h...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
@@ -1051,9 +1063,9 @@
       <Outputs Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='ReleaseQt|x64'">..\..\..\Scratch\MSVC-Build\Banana\QtAppHelpers\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='DebugQt|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">$(QTDIR_STATIC)\bin\moc.exe;%(FullPath)</AdditionalInputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='ReleaseQt|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
     </CustomBuild>
     <CustomBuild Include="Include\QtAppHelpers\MaterialSelector.h">
