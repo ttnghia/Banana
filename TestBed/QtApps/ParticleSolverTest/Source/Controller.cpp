@@ -74,7 +74,7 @@ void Controller::loadTextures()
 void Controller::setupSimulationControllers(QVBoxLayout* ctrLayout)
 {
     m_cbSimulationScene = new QComboBox;
-    m_cbSimulationScene->addItem("None");
+//    m_cbSimulationScene->addItem("None");
     m_cbSimulationScene->addItems(getSceneFiles());
 
     ////////////////////////////////////////////////////////////////////////////////

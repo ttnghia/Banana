@@ -23,8 +23,8 @@
 #   include <QOpenGLFunctions_4_1_Core>
 typedef  QOpenGLFunctions_4_1_Core   OpenGLFunctions;
 #else
-#   include <QOpenGLFunctions_4_5_Core>
-typedef  QOpenGLFunctions_4_5_Core   OpenGLFunctions;
+#   include <QOpenGLFunctions_4_1_Core>
+typedef  QOpenGLFunctions_4_1_Core   OpenGLFunctions;
 #endif
 
 #define __Banana_Qt__
