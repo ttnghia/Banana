@@ -13,7 +13,7 @@
 		"CGRelativeTolerance" : 1e-17,
 		"MaxCGIteration" : 10000,
 		"BoxMin" : [0, 0, 0],
-		"BoxMax" : [64, 64, 64],
+		"BoxMax" : [20, 64, 64],
 		"ParticleRadius" : 0.25,
 		"ParticleFile" : "Data/pnt0000.dat"
 	}
