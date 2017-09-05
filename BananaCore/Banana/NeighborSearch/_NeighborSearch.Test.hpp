@@ -20,8 +20,8 @@
 
 #include <Banana/Utils/NumberHelpers.h>
 #include <Banana/ParallelHelpers/ParallelFuncs.h>
-#include <CompactNSearch/CompactNSearch.h>
-#include <Banana/Grid/Grid3D.h>
+#include <Banana/NeighborSearch/NeighborSearch.h>
+#include <Banana/Grid/Grid3DHashing.h>
 #include <catch.hpp>
 
 #include <iostream>
@@ -30,18 +30,18 @@
 #include <limits>
 #include <cmath>
 #include <chrono>
+#include <algorithm>
 #include <random>
 
-using Real  = double;
 using Clock = std::chrono::high_resolution_clock;
 using namespace Banana;
 
 //#define TEST_GRID3D
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 Vector<Vec3r> positions;
-Grid3D        grid3D = Grid3D(Vec3r(0), Vec3r(1), Real(1.0 / 128.0));
+Grid3DHashing grid3D = Grid3DHashing(Vec3r(-2), Vec3r(2), Real(1.0 / 128.0));
 
-const size_t N               = 100;
+const size_t N               = 50;
 const size_t N_enright_steps = 50;
 
 const Real r_omega  = Real(0.75);
@@ -95,7 +95,7 @@ Vector<Vector<UInt> > brute_force_search(size_t n_positions)
 
                                             for(int j = 0; j < n_positions; ++j)
                                             {
-                                                if(i == j)
+                                                if(i == size_t(j))
                                                     continue;
 
                                                 Vec3r const& xb = positions[j];
@@ -121,7 +121,16 @@ void compare_with_bruteforce_search(NeighborSearch const& nsearch)
 
         if(bfn.size() != d0.n_neighbors(0, i))
         {
-            std::cerr << "ERROR: Not the same number of neighbors." << std::endl;
+            std::cerr << "ERROR: Not the same number of neighbors: " << bfn.size() << " != " << d0.n_neighbors(0, i) << std::endl;
+            std::cerr << "NSearch: ";
+            for(auto x : d0.neighbors(0, i))
+                std::cerr << x << ", ";
+            std::cerr << std::endl;
+
+            std::cerr << "Brute force: ";
+            for(auto x : bfn)
+                std::cerr << x << ", ";
+            std::cerr << std::endl << std::endl;
         }
 
         for(int j = 0; j < d0.n_neighbors(0, i); ++j)
@@ -259,7 +268,7 @@ TEST_CASE("Test CompactNSearch", "[CompactNSearch]")
             }
         }
     }
-    std::random_shuffle(positions.begin(), positions.end());
+    //std::random_shuffle(positions.begin(), positions.end());
 
     NeighborSearch nsearch(radius, true);
     nsearch.add_point_set(glm::value_ptr(positions.front()), positions.size(), true, true);
@@ -270,6 +279,7 @@ TEST_CASE("Test CompactNSearch", "[CompactNSearch]")
         nsearch.find_neighbors();
         auto runTime = std::chrono::duration_cast<std::chrono::milliseconds>(Clock::now() - t0).count();
         std::cout << "Before z_sort: neighborhood search took " << NumberHelpers::formatWithCommas(runTime) << "ms" << std::endl << std::endl;
+        compare_with_bruteforce_search(nsearch);
     }
 
     //nsearch.update_point_sets();
@@ -303,7 +313,7 @@ TEST_CASE("Test CompactNSearch", "[CompactNSearch]")
         nsearch.find_neighbors();
         auto runTime = std::chrono::duration_cast<std::chrono::milliseconds>(Clock::now() - t0).count();
         std::cout << "After z_sort: neighborhood search took " << NumberHelpers::formatWithCommas(runTime) << "ms" << std::endl << std::endl;
-
+        compare_with_bruteforce_search(nsearch);
         //compare_single_query_with_bruteforce_search(nsearch);
     }
 

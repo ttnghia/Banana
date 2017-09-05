@@ -347,7 +347,7 @@ void Logger::signalHandler(int signum)
     s_MainFuncLogger->printLog("Cleanup and exit program..........");
     shutdown();
 
-    exit(signum);
+    exit(EXIT_SUCCESS);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

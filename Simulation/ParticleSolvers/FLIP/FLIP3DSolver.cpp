@@ -54,8 +54,8 @@ void FLIP3DSolver::makeReady()
 
                                // todo: remove this
                                GeometryObject3D::BoxObject box;
-                               box.boxMin() = m_SimParams->movingBMin + Vec3r(m_SimParams->particleRadius);
-                               box.boxMax() = m_SimParams->movingBMax - Vec3r(m_SimParams->particleRadius);
+                               box.boxMin() = m_SimParams->movingBMin - Vec3r(0.001);
+                               box.boxMax() = m_SimParams->movingBMax + Vec3r(0.001);
                                ParallelFuncs::parallel_for<UInt>(0, m_Grid.getNumCellX() + 1,
                                                                  0, m_Grid.getNumCellY() + 1,
                                                                  0, m_Grid.getNumCellZ() + 1,
@@ -349,7 +349,7 @@ void FLIP3DSolver::moveParticles(Real timestep)
                                       {
                                           Vec3r ppos = m_SimData->positions[p] + m_SimData->velocities[p] * timestep;
                                           const Vec3r gridPos = m_Grid.getGridCoordinate(ppos);
-                                          const Real phiVal = ArrayHelpers::interpolateValueLinear(gridPos, m_SimData->boundarySDF);
+                                          const Real phiVal = ArrayHelpers::interpolateValueLinear(gridPos, m_SimData->boundarySDF) - m_SimParams->particleRadius;
 
                                           if(phiVal < 0)
                                           {

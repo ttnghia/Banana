@@ -40,9 +40,9 @@ HashKey NeighborSearch::cell_index(Real const* x) const
     for(UInt i = 0; i < 3; ++i)
     {
         if(x[i] >= 0.0)
-            ret.k[i] = static_cast<int>(m_inv_cell_size * x[i]);
+            ret.k[i] = static_cast<int>(m_inv_cell_size * (x[i] - Real(SHIFT_POSITION)));
         else
-            ret.k[i] = static_cast<int>(m_inv_cell_size * x[i]) - 1;
+            ret.k[i] = static_cast<int>(m_inv_cell_size * (x[i] - Real(SHIFT_POSITION))) - 1;
     }
     return ret;
 }

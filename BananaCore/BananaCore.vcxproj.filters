@@ -180,9 +180,6 @@
     <ClInclude Include="Banana\NeighborSearch\Morton\Morton3D_LUTs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Banana\NeighborSearch\_CompactNSearch.Test.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Banana\NeighborSearch\DataStructures.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -190,6 +187,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Banana\NeighborSearch\NeighborSearch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Banana\NeighborSearch\_NeighborSearch.Test.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
