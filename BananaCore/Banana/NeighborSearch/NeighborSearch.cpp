@@ -34,17 +34,27 @@ NeighborSearch::NeighborSearch(Real r, bool erase_empty_cells) :
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Computes triple index to a world space position x.
-HashKey NeighborSearch::cell_index(Real const* x) const
+HashKey NeighborSearch::cell_index(const Real* x) const
 {
     HashKey ret;
     for(UInt i = 0; i < 3; ++i)
     {
-        if(x[i] >= 0.0)
-            ret.k[i] = static_cast<int>(m_inv_cell_size * (x[i] - Real(SHIFT_POSITION)));
+        Real tmp = x[i] - Real(SHIFT_POSITION);
+        if(tmp >= 0.0)
+            ret.k[i] = static_cast<int>(m_inv_cell_size * tmp);
         else
-            ret.k[i] = static_cast<int>(m_inv_cell_size * (x[i] - Real(SHIFT_POSITION))) - 1;
+            ret.k[i] = static_cast<int>(m_inv_cell_size * tmp) - 1;
     }
     return ret;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+// Determines Morten value according to z-curve.
+inline uint_fast64_t NeighborSearch::z_value(HashKey const& key)
+{
+    return morton3D_64_encode(static_cast<uint_fast32_t>(static_cast<int64_t>(key.k[0]) - (std::numeric_limits<int>::lowest() + 1)),
+                              static_cast<uint_fast32_t>(static_cast<int64_t>(key.k[1]) - (std::numeric_limits<int>::lowest() + 1)),
+                              static_cast<uint_fast32_t>(static_cast<int64_t>(key.k[2]) - (std::numeric_limits<int>::lowest() + 1)));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -115,7 +125,7 @@ void NeighborSearch::init()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void NeighborSearch::resize_point_set(UInt index, Real const* x, std::size_t size)
+void NeighborSearch::resize_point_set(UInt index, const Real* x, std::size_t size)
 {
     PointSet&   point_set = m_point_sets[index];
     std::size_t old_size  = point_set.n_points();
@@ -381,7 +391,7 @@ void NeighborSearch::query()
                                             std::pair<HashKey const, UInt> const* kvp_ = kvps[it];
                                             auto const& kvp = *kvp_;
                                             HashEntry const& entry = m_entries[kvp.second];
-//                                            HashKey const& key = kvp.first;
+                                            HashKey const& key = kvp.first;
 
                                             if(entry.n_searching_points == 0u)
                                             {
@@ -403,8 +413,8 @@ void NeighborSearch::query()
                                                         continue;
                                                     }
 
-                                                    Real const* xa = da.point(va.point_id);
-                                                    Real const* xb = db.point(vb.point_id);
+                                                    const Real* xa = da.point(va.point_id);
+                                                    const Real* xb = db.point(vb.point_id);
                                                     Real tmp = xa[0] - xb[0];
                                                     Real l2 = tmp * tmp;
                                                     tmp = xa[1] - xb[1];
@@ -502,8 +512,8 @@ void NeighborSearch::query()
                                                                     continue;
                                                                 }
 
-                                                                Real const* xa = da.point(va.point_id);
-                                                                Real const* xb = db.point(vb.point_id);
+                                                                const Real* xa = da.point(va.point_id);
+                                                                const Real* xb = db.point(vb.point_id);
                                                                 Real tmp = xa[0] - xb[0];
                                                                 Real l2 = tmp * tmp;
                                                                 tmp = xa[1] - xb[1];
@@ -544,7 +554,7 @@ void NeighborSearch::query(UInt point_set_id, UInt point_index, Vec_VecUInt& nei
             n.reserve(INITIAL_NUMBER_OF_NEIGHBORS);
     }
 
-    Real const* xa       = d.point(point_index);
+    const Real* xa       = d.point(point_index);
     HashKey     hash_key = cell_index(xa);
 
     auto                            it    = m_map.find(hash_key);
@@ -563,7 +573,7 @@ void NeighborSearch::query(UInt point_set_id, UInt point_index, Vec_VecUInt& nei
             }
 
             PointSet&   db  = m_point_sets[vb.point_set_id];
-            Real const* xb  = db.point(vb.point_id);
+            const Real* xb  = db.point(vb.point_id);
             Real        tmp = xa[0] - xb[0];
             Real        l2  = tmp * tmp;
             tmp = xa[1] - xb[1];
@@ -609,7 +619,7 @@ void NeighborSearch::query(UInt point_set_id, UInt point_index, Vec_VecUInt& nei
                     }
                     PointSet& db = m_point_sets[vb.point_set_id];
 
-                    Real const* xb  = db.point(vb.point_id);
+                    const Real* xb  = db.point(vb.point_id);
                     Real        tmp = xa[0] - xb[0];
                     Real        l2  = tmp * tmp;
                     tmp = xa[1] - xb[1];

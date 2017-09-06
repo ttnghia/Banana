@@ -17,10 +17,12 @@
 
 #pragma once
 
+#include <Banana/Setup.h>
 
 #include <atomic>
 #include <vector>
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
 {
 #define INITIAL_NUMBER_OF_INDICES 50
@@ -29,8 +31,8 @@ namespace Banana
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 struct PointID
 {
-    unsigned int point_set_id;
-    unsigned int point_id;
+    UInt point_set_id;
+    UInt point_id;
 
     bool operator==(PointID const& other) const
     {
@@ -96,14 +98,14 @@ struct HashEntry
             indices.erase(it);
     }
 
-    unsigned int n_indices() const
+    UInt n_indices() const
     {
-        return static_cast<unsigned int>(indices.size());
+        return static_cast<UInt>(indices.size());
     }
 
     ////////////////////////////////////////////////////////////////////////////////
     std::vector<PointID> indices;
-    unsigned int         n_searching_points;
+    UInt                 n_searching_points;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -181,7 +183,7 @@ public:
 
     /** Activate/Deactivate that neighbors in point set index2 are found when searching for neighbors of point set index1.
      */
-    void set_active(unsigned int index1, unsigned int index2, bool active)
+    void set_active(UInt index1, UInt index2, bool active)
     {
         m_table[index1][index2] = static_cast<unsigned char>(active);
     }
@@ -189,7 +191,7 @@ public:
     /** Activate/Deactivate all point set pairs containing the given index. If search_neighbors is true, neighbors in all other point sets are searched.
      * If find_neighbors is true, the new point set is activated in the neighborhood search of all other point sets.
      */
-    void set_active(unsigned int index, bool search_neighbors = true, bool find_neighbors = true)
+    void set_active(UInt index, bool search_neighbors = true, bool find_neighbors = true)
     {
         auto size = m_table.size();
         for(auto i = 0u; i < size; i++)
@@ -210,12 +212,12 @@ public:
                 m_table[i][j] = static_cast<unsigned char>(active);
     }
 
-    bool is_active(unsigned int index1, unsigned int index2) const
+    bool is_active(UInt index1, UInt index2) const
     {
         return m_table[index1][index2] != 0;
     }
 
-    bool is_searching_neighbors(unsigned int const index) const
+    bool is_searching_neighbors(UInt const index) const
     {
         for(auto i = 0u; i < m_table[index].size(); i++)
         {

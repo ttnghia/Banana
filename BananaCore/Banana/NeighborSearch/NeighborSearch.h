@@ -77,7 +77,7 @@ public:
      * Get method to access a point set.
      * @param i Index of the point set to retrieve.
      */
-    PointSet& point_set(UInt i)       { return m_point_sets[i]; }
+    PointSet& point_set(UInt i) { return m_point_sets[i]; }
 
 
     /**
@@ -93,7 +93,7 @@ public:
     /**
      * Get method to access the list of point sets.
      */
-    Vector<PointSet>& point_sets()       { return m_point_sets; }
+    Vector<PointSet>& point_sets() { return m_point_sets; }
 
     /**
      * Increases the size of a point set under the assumption that the existing points remain at
@@ -222,16 +222,10 @@ private:
     void query();
     void query(UInt point_set_id, UInt point_index, Vec_VecUInt& neighbors);
 
-    HashKey cell_index(Real const* x) const;
+    HashKey       cell_index(Real const* x) const;
+    uint_fast64_t z_value(HashKey const& key);     // Determines Morten value according to z-curve
 
-    // Determines Morten value according to z-curve.
-    inline uint_fast64_t z_value(HashKey const& key)
-    {
-        return morton3D_64_encode(static_cast<uint_fast32_t>(static_cast<int64_t>(key.k[0]) - (std::numeric_limits<int>::lowest() + 1)),
-                                  static_cast<uint_fast32_t>(static_cast<int64_t>(key.k[1]) - (std::numeric_limits<int>::lowest() + 1)),
-                                  static_cast<uint_fast32_t>(static_cast<int64_t>(key.k[2]) - (std::numeric_limits<int>::lowest() + 1)));
-    }
-
+    ////////////////////////////////////////////////////////////////////////////////
     Vector<PointSet> m_point_sets;
     ActivationTable  m_activation_table, m_old_activation_table;
 

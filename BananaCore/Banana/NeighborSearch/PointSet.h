@@ -19,7 +19,6 @@
 
 #include <Banana/NeighborSearch/DataStructures.h>
 
-#include <Banana/Setup.h>
 #include <iostream>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -132,12 +131,12 @@ public:
 #else
                        lst,
 #endif
-                       [&](int i){ return tmp[i]; });
+                       [&](int i) { return tmp[i]; });
     }
 
 private:
     friend NeighborSearch;
-    PointSet(Real const* x, std::size_t n, bool dynamic)
+    PointSet(const Real* x, std::size_t n, bool dynamic)
         : m_x(x), m_n(n), m_dynamic(dynamic), m_neighbors(n)
         , m_keys(n,
         {
@@ -149,7 +148,7 @@ private:
         m_old_keys = m_keys;
     }
 
-    void resize(Real const* x, std::size_t n)
+    void resize(const Real* x, std::size_t n)
     {
         m_x = x;
         m_n = n;
@@ -166,11 +165,11 @@ private:
         m_neighbors.resize(n);
     }
 
-    Real const* point(UInt i) const { return &m_x[3 * i]; }
+    const Real* point(UInt i) const { return &m_x[3 * i]; }
 
 private:
 
-    Real const* m_x;
+    const Real* m_x;
     std::size_t m_n;
     bool        m_dynamic;
 

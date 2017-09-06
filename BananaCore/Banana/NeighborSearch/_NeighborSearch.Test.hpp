@@ -19,6 +19,7 @@
 #define NOMINMAX
 
 #include <Banana/Utils/NumberHelpers.h>
+#include <Banana/Utils/MathHelpers.h>
 #include <Banana/ParallelHelpers/ParallelFuncs.h>
 #include <Banana/NeighborSearch/NeighborSearch.h>
 #include <Banana/Grid/Grid3DHashing.h>
@@ -46,7 +47,7 @@ const size_t N_enright_steps = 50;
 
 const Real r_omega  = Real(0.75);
 const Real r_omega2 = r_omega * r_omega;
-const Real radius   = Real(2.0) * (Real(2.0) * r_omega / static_cast<Real>(N - 1));
+const Real radius   = Real(2.001) * (Real(2.0) * r_omega / static_cast<Real>(N - 1));
 const Real radius2  = radius * radius;
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -101,7 +102,7 @@ Vector<Vector<UInt> > brute_force_search(size_t n_positions)
                                                 Vec3r const& xb = positions[j];
 
                                                 Real l2 = glm::length2(xa - xb);
-                                                if(l2 <= radius * radius)
+                                                if(l2 < radius * radius)
                                                     neighbors.push_back(j);
                                             }
                                         });
@@ -121,15 +122,17 @@ void compare_with_bruteforce_search(NeighborSearch const& nsearch)
 
         if(bfn.size() != d0.n_neighbors(0, i))
         {
-            std::cerr << "ERROR: Not the same number of neighbors: " << bfn.size() << " != " << d0.n_neighbors(0, i) << std::endl;
-            std::cerr << "NSearch: ";
-            for(auto x : d0.neighbors(0, i))
-                std::cerr << x << ", ";
-            std::cerr << std::endl;
+            std::cerr << "*************************************ERROR: Not the same number of neighbors: " << bfn.size() << " != " << d0.n_neighbors(0, i) << std::endl;
 
-            std::cerr << "Brute force: ";
+            int diff = 0;
+            for(auto x : d0.neighbors(0, i))
+                diff = diff ^ int(x);
+
             for(auto x : bfn)
-                std::cerr << x << ", ";
+                diff = diff ^ int(x);
+
+            std::cerr << "Difference: " << diff << ", r2 = " << glm::length2(positions[i] - positions[diff]) / radius2
+                      << ", r = " << glm::length(positions[i] - positions[diff]) / radius;
             std::cerr << std::endl << std::endl;
         }
 
@@ -142,7 +145,7 @@ void compare_with_bruteforce_search(NeighborSearch const& nsearch)
         }
     }
 
-    std::cout << "    ...Grid search and NSearch have the same result." << std::endl << std::endl;
+    std::cout << "    ...brute force search and NSearch have the same result." << std::endl << std::endl;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -246,9 +249,9 @@ TEST_CASE("Test CompactNSearch", "[CompactNSearch]")
         {
             for(UInt k = 0; k < N; ++k)
             {
-                Vec3r x = Vec3r(r_omega * (2.0 * static_cast<Real>(i) / static_cast<Real>(N - 1) - 1.0),
-                                r_omega * (2.0 * static_cast<Real>(j) / static_cast<Real>(N - 1) - 1.0),
-                                r_omega * (2.0 * static_cast<Real>(k) / static_cast<Real>(N - 1) - 1.0));
+                Vec3r x = Vec3r(r_omega * (2.0 * (static_cast<Real>(i) + MathHelpers::frand11<float>()) / static_cast<Real>(N - 1) - 1.0),
+                                r_omega * (2.0 * (static_cast<Real>(j) + MathHelpers::frand11<float>()) / static_cast<Real>(N - 1) - 1.0),
+                                r_omega * (2.0 * (static_cast<Real>(k) + MathHelpers::frand11<float>()) / static_cast<Real>(N - 1) - 1.0));
 
                 Real l2 = x[0] * x[0] + x[1] * x[1] + x[2] * x[2];
 
@@ -385,8 +388,11 @@ TEST_CASE("Test CompactNSearch", "[CompactNSearch]")
         nsearch.z_sort();
         for(auto i = 0u; i < nsearch.n_point_sets(); ++i)
         {
-            auto const& d = nsearch.point_set(i);
+            auto const& d  = nsearch.point_set(i);
+            auto        t0 = Clock::now();
             d.sort_field(positions.data());
+            auto runTime = std::chrono::duration_cast<std::chrono::milliseconds>(Clock::now() - t0).count();
+            std::cout << "Sort field took " << NumberHelpers::formatWithCommas(runTime) << "ms" << std::endl;
         }
 
         {
