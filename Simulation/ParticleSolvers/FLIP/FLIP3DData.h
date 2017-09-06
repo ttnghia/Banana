@@ -49,7 +49,6 @@ struct SimulationParameters_FLIP3D
 
     bool bApplyRepulsiveForces = false;
 
-
     Vec3r movingBMin = Vec3r(-1.0);
     Vec3r movingBMax = Vec3r(1.0);
 
@@ -90,9 +89,15 @@ struct SimulationParameters_FLIP3D
         logger->printLogIndent("PIC/FLIP ratio: " + std::to_string(PIC_FLIP_ratio));
         logger->printLogIndent("Kernel function: " + (kernelFunc == Kernel::Linear ? String("Linear") : String("Cubic BSpline")));
 
-        logger->printLogIndent("Cell size: " + std::to_string(cellSize));
         logger->printLogIndent("Moving BMin: " + NumberHelpers::toString(movingBMin));
         logger->printLogIndent("Moving BMax: " + NumberHelpers::toString(movingBMax));
+        logger->printLogIndent("Cell size: " + std::to_string(cellSize));
+        logger->printLogIndent("Grid resolution: " + NumberHelpers::toString(Vec3ui(static_cast<UInt>(ceil((domainBMax[0] - domainBMin[0]) / cellSize)),
+                                                                                    static_cast<UInt>(ceil((domainBMax[1] - domainBMin[1]) / cellSize)),
+                                                                                    static_cast<UInt>(ceil((domainBMax[2] - domainBMin[2]) / cellSize)))));
+        logger->printLogIndent("Moving grid resolution: " + NumberHelpers::toString(Vec3ui(static_cast<UInt>(ceil((movingBMax[0] - movingBMin[0]) / cellSize)),
+                                                                                           static_cast<UInt>(ceil((movingBMax[1] - movingBMin[1]) / cellSize)),
+                                                                                           static_cast<UInt>(ceil((movingBMax[2] - movingBMin[2]) / cellSize)))));
 
         logger->printLogIndent("Boundary restitution: " + std::to_string(boundaryRestitution));
         logger->printLogIndent("Apply repulsive forces: " + (bApplyRepulsiveForces ? String("Yes") : String("No")));

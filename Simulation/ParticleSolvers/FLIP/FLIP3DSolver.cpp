@@ -330,8 +330,8 @@ void FLIP3DSolver::advanceVelocity(Real timestep)
     m_Logger->printRunTime("Interpolate velocity from particles to grid: ", funcTimer, [&]() { velocityToGrid(); });
 
 
-    //m_Logger->printRunTime("Extrapolate grid velocity: : ",                 funcTimer, [&]() { extrapolateVelocity(); });
-    //m_Logger->printRunTime("Constrain grid velocity: ",                     funcTimer, [&]() { constrainVelocity(); });
+    m_Logger->printRunTime("Extrapolate grid velocity: : ",                 funcTimer, [&]() { extrapolateVelocity(); });
+    m_Logger->printRunTime("Constrain grid velocity: ",                     funcTimer, [&]() { constrainVelocity(); });
     m_Logger->printRunTime("Backup grid velocities: ",                      funcTimer, [&]() { m_SimData->backupGridVelocity(); });
     m_Logger->printRunTime("Add gravity: ",                                 funcTimer, [&]() { addGravity(timestep); });
     m_Logger->printRunTime("====> Pressure projection total: ",             funcTimer, [&]() { pressureProjection(timestep); });
@@ -613,14 +613,11 @@ void FLIP3DSolver::extrapolateVelocity(Array3r& grid, Array3r& temp_grid, Array3
                                           [&](UInt i, UInt j, UInt k)
                                           {
                                               if(old_valid(i, j, k))
-                                              {
                                                   return;
-                                              }
 
                                               Real sum = Real(0);
                                               unsigned int count = 0;
 
-                                              // TODO
                                               if(old_valid(i + 1, j, k))
                                               {
                                                   sum += grid(i + 1, j, k);
@@ -657,6 +654,7 @@ void FLIP3DSolver::extrapolateVelocity(Array3r& grid, Array3r& temp_grid, Array3
                                                   ++count;
                                               }
 
+                                              ////////////////////////////////////////////////////////////////////////////////
                                               if(count > 0)
                                               {
                                                   stop = false;
@@ -958,8 +956,7 @@ void FLIP3DSolver::computeRhs()
                                       1, m_Grid.getNumCellZ() - 1,
                                       [&](UInt i, UInt j, UInt k)
                                       {
-                                          const Real center_phi = m_SimData->fluidSDF(i, j, k);
-                                          if(center_phi < 0)
+                                          if(m_SimData->fluidSDF(i, j, k) < 0)
                                           {
                                               Real tmp = Real(0);
 
@@ -974,7 +971,7 @@ void FLIP3DSolver::computeRhs()
 
                                               const UInt idx = m_Grid.getLinearizedIndex(i, j, k);
                                               m_SimData->rhs[idx] = tmp;
-                                          } // end if(centre_phi < 0)
+                                          }
                                       });
 }
 
@@ -985,7 +982,6 @@ void FLIP3DSolver::solveSystem()
     UInt iterations = 0;
 
     bool success = m_PCGSolver.solve_precond(m_SimData->matrix, m_SimData->rhs, m_SimData->pressure, tolerance, iterations);
-
     m_Logger->printLog("Conjugate Gradient iterations: " + NumberHelpers::formatWithCommas(iterations) +
                        ". Final tolerance: " + NumberHelpers::formatToScientific(tolerance));
 
