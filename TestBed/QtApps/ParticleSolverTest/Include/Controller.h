@@ -68,4 +68,7 @@ private:
     QPushButton*      m_btnEnableClipPlane;
 
     PointLightEditor* m_LightEditor;
+    ColorPicker*      m_ColorPicker;
+    QCheckBox*        m_RenderBox;
+    EnhancedSlider*   m_RadiusScale;
 };

@@ -238,7 +238,15 @@ void MainWindow::connectWidgets()
         QMetaObject::invokeMethod(this, "finishSimulation", Qt::QueuedConnection);
     });
 
-    connect(m_Simulator.get(), &Simulator::numParticleChanged, this,           &MainWindow::updateStatusNumParticles);
-    connect(m_Simulator.get(), &Simulator::systemTimeChanged,  this,           &MainWindow::updateStatusSimulationTime);
-    connect(m_Simulator.get(), &Simulator::particleChanged,    m_RenderWidget, &RenderWidget::updateParticleData);
+    connect(m_Simulator.get(),           &Simulator::numParticleChanged, this,           &MainWindow::updateStatusNumParticles);
+    connect(m_Simulator.get(),           &Simulator::systemTimeChanged,  this,           &MainWindow::updateStatusSimulationTime);
+    connect(m_Simulator.get(),           &Simulator::particleChanged,    m_RenderWidget, &RenderWidget::updateParticleData);
+    connect(m_Controller->m_ColorPicker, &ColorPicker::colorChanged,     [&](float r, float g, float b)
+            {
+                glm::vec4 color(r, g, b, 1.0);
+                m_RenderWidget->setClearColor(color);
+            });
+
+    connect(m_Controller->m_RenderBox,                &QCheckBox::clicked,    m_RenderWidget, &RenderWidget::enableRenderBox);
+    connect(m_Controller->m_RadiusScale->getSlider(), &QSlider::valueChanged, m_RenderWidget, &RenderWidget::setParticleRadiusScale);
 }

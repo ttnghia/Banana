@@ -77,15 +77,22 @@ bool PCGSolver::solve(const SparseMatrix& matrix, const Vec_Real& rhs, Vec_Real&
     m_FixedSparseMatrix.constructFromSparseMatrix(matrix);
     r = rhs;
 
-    residual_out = ParallelSTL::maxAbs<Real>(r);
+    //residual_out = ParallelSTL::maxAbs<Real>(r);
 
-    if(residual_out < Tiny)
+    //if(residual_out < Tiny)
+    //{
+    //    iterations_out = 0;
+    //    return true;
+    //}
+
+    residual_out = ParallelBLAS::dotProductScalar<Real>(r, r);
+    if(residual_out < m_ToleranceFactor * m_ToleranceFactor)
     {
         iterations_out = 0;
         return true;
     }
 
-    Real tol = m_ToleranceFactor * residual_out;
+    Real tol = m_ToleranceFactor * m_ToleranceFactor;
     Real rho = ParallelBLAS::dotProductScalar<Real>(r, r);
 
     if(rho < Tiny || isnan(rho))
@@ -109,15 +116,22 @@ bool PCGSolver::solve(const SparseMatrix& matrix, const Vec_Real& rhs, Vec_Real&
         ParallelBLAS::addScaled<Real, Real>(alpha,  z, result);
         ParallelBLAS::addScaled<Real, Real>(-alpha, s, r);
 
-        residual_out = ParallelSTL::maxAbs<Real>(r);
-        if(residual_out < tol)
+        //residual_out = ParallelSTL::maxAbs<Real>(r);
+        //if(residual_out < tol)
+        //{
+        //    iterations_out = iteration + 1;
+        //    return true;
+        //}
+
+        Real rho_new = ParallelBLAS::dotProductScalar<Real>(r, r);
+        if(rho_new < tol)
         {
+            residual_out   = rho_new;
             iterations_out = iteration + 1;
             return true;
         }
 
-        Real rho_new = ParallelBLAS::dotProductScalar<Real>(r, r);
-        Real beta    = rho_new / rho;
+        Real beta = rho_new / rho;
         ParallelBLAS::scaledAdd<Real, Real>(beta, r, z);
         rho = rho_new;
     }
@@ -138,14 +152,17 @@ bool PCGSolver::solve_precond(const SparseMatrix& matrix, const Vec_Real& rhs, V
     m_FixedSparseMatrix.constructFromSparseMatrix(matrix);
     r = rhs;
 
-    residual_out = ParallelSTL::maxAbs<Real>(r);
-    if(residual_out < Tiny)
+    //residual_out = ParallelSTL::maxAbs<Real>(r);
+
+
+    residual_out = ParallelBLAS::dotProductScalar<Real>(r, r);
+    if(residual_out < m_ToleranceFactor * m_ToleranceFactor)
     {
         iterations_out = 0;
         return true;
     }
 
-    Real tol = m_ToleranceFactor * residual_out;
+    Real tol = m_ToleranceFactor * m_ToleranceFactor;
     formPreconditioner(matrix);
     applyPreconditioner(r, z);
 
@@ -165,16 +182,25 @@ bool PCGSolver::solve_precond(const SparseMatrix& matrix, const Vec_Real& rhs, V
         ParallelBLAS::addScaled<Real, Real>(alpha,  s, result);
         ParallelBLAS::addScaled<Real, Real>(-alpha, z, r);
 
-        residual_out = ParallelSTL::maxAbs<Real>(r);
-        if(residual_out < tol)
+        //residual_out = ParallelSTL::maxAbs<Real>(r);
+        //if(residual_out < tol)
+        //{
+        //    iterations_out = iteration + 1;
+        //    return true;
+        //}
+
+        applyPreconditioner(r, z);
+        Real rho_new = ParallelBLAS::dotProductScalar<Real>(z, r);
+
+        if(rho_new < tol)
         {
+            residual_out   = rho_new;
             iterations_out = iteration + 1;
             return true;
         }
 
-        applyPreconditioner(r, z);
-        Real rho_new = ParallelBLAS::dotProductScalar<Real>(z, r);
-        Real beta    = rho_new / rho;
+
+        Real beta = rho_new / rho;
         ParallelBLAS::addScaled<Real, Real>(beta, s, z);
         s.swap(z); // s=beta*s+z
         rho = rho_new;

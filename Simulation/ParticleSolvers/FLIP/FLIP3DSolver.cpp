@@ -53,30 +53,33 @@ void FLIP3DSolver::makeReady()
 
 
                                // todo: remove this
-                               GeometryObject3D::BoxObject box;
-                               box.boxMin() = m_SimParams->movingBMin - Vec3r(0.001);
-                               box.boxMax() = m_SimParams->movingBMax + Vec3r(0.001);
+                               m_BDBox.setMargin(m_SimParams->particleRadius);
+                               m_BDBox.setBox(m_SimParams->movingBMin, m_SimParams->movingBMax);
+
+                               m_Box.boxMin() = m_SimParams->movingBMin - Vec3r(0.001);
+                               m_Box.boxMax() = m_SimParams->movingBMax + Vec3r(0.001);
+
                                ParallelFuncs::parallel_for<UInt>(0, m_Grid.getNumCellX() + 1,
                                                                  0, m_Grid.getNumCellY() + 1,
                                                                  0, m_Grid.getNumCellZ() + 1,
                                                                  [&](UInt i, UInt j, UInt k)
                                                                  {
                                                                      const Vec3r pPos = m_Grid.getWorldCoordinate(i, j, k);
-                                                                     m_SimData->boundarySDF(i, j, k) = -box.signedDistance(pPos);
+                                                                     m_SimData->boundarySDF(i, j, k) = -m_Box.signedDistance(pPos);
                                                                  });
                                m_Logger->printWarning("Computed boundary SDF");
                            });
 
     ////////////////////////////////////////////////////////////////////////////////
     // sort the particles
-    m_Logger->printRunTime("Sort particle positions and velocities: ",
-                           [&]()
-                           {
-                               m_NSearch->z_sort();
-                               const auto& d = m_NSearch->point_set(0);
-                               d.sort_field(&m_SimData->positions[0]);
-                               d.sort_field(&m_SimData->velocities[0]);
-                           });
+    //m_Logger->printRunTime("Sort particle positions and velocities: ",
+    //                       [&]()
+    //                       {
+    //                           m_NSearch->z_sort();
+    //                           const auto& d = m_NSearch->point_set(0);
+    //                           d.sort_field(&m_SimData->positions[0]);
+    //                           d.sort_field(&m_SimData->velocities[0]);
+    //                       });
 
     ////////////////////////////////////////////////////////////////////////////////
     m_Logger->printLog("Solver ready!");
@@ -125,26 +128,26 @@ void FLIP3DSolver::advanceFrame()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void FLIP3DSolver::sortParticles()
 {
-    assert(m_NSearch != nullptr);
+    //assert(m_NSearch != nullptr);
 
-    static UInt frameCount = 0;
-    ++frameCount;
+    //static UInt frameCount = 0;
+    //++frameCount;
 
-    if(frameCount < m_GlobalParams->sortFrequency)
-        return;
+    //if(frameCount < m_GlobalParams->sortFrequency)
+    //    return;
 
-    ////////////////////////////////////////////////////////////////////////////////
-    frameCount = 0;
-    static Timer timer;
-    m_Logger->printRunTime("Sort data by particle position: ", timer,
-                           [&]()
-                           {
-                               m_NSearch->z_sort();
-                               const auto& d = m_NSearch->point_set(0);
-                               d.sort_field(&m_SimData->positions[0]);
-                               d.sort_field(&m_SimData->velocities[0]);
-                           });
-    m_Logger->newLine();
+    //////////////////////////////////////////////////////////////////////////////////
+    //frameCount = 0;
+    //static Timer timer;
+    //m_Logger->printRunTime("Sort data by particle position: ", timer,
+    //                       [&]()
+    //                       {
+    //                           m_NSearch->z_sort();
+    //                           const auto& d = m_NSearch->point_set(0);
+    //                           d.sort_field(&m_SimData->positions[0]);
+    //                           d.sort_field(&m_SimData->velocities[0]);
+    //                       });
+    //m_Logger->newLine();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -348,17 +351,18 @@ void FLIP3DSolver::moveParticles(Real timestep)
                                       [&](UInt p)
                                       {
                                           Vec3r ppos = m_SimData->positions[p] + m_SimData->velocities[p] * timestep;
-                                          const Vec3r gridPos = m_Grid.getGridCoordinate(ppos);
-                                          const Real phiVal = ArrayHelpers::interpolateValueLinear(gridPos, m_SimData->boundarySDF) - m_SimParams->particleRadius;
+                                          /*const Vec3r gridPos = m_Grid.getGridCoordinate(ppos);
+                                             const Real phiVal = ArrayHelpers::interpolateValueLinear(gridPos, m_SimData->boundarySDF) - m_SimParams->particleRadius;
 
-                                          if(phiVal < 0)
-                                          {
+                                             if(phiVal < 0)
+                                             {
                                               Vec3r grad = ArrayHelpers::interpolateGradient(gridPos, m_SimData->boundarySDF);
                                               Real mag2Grad = glm::length2(grad);
 
                                               if(mag2Grad > Tiny)
                                                   ppos -= phiVal * grad / sqrt(mag2Grad);
-                                          }
+                                             }*/
+                                          m_BDBox.constrainToBoundary(ppos);
 
                                           m_SimData->positions[p] = ppos;
                                       });
@@ -985,6 +989,7 @@ void FLIP3DSolver::solveSystem()
     UInt iterations = 0;
 
     bool success = m_PCGSolver.solve_precond(m_SimData->matrix, m_SimData->rhs, m_SimData->pressure, tolerance, iterations);
+    //bool success = m_PCGSolver.solve(m_SimData->matrix, m_SimData->rhs, m_SimData->pressure, tolerance, iterations);
 
     m_Logger->printLog("Conjugate Gradient iterations: " + NumberHelpers::formatWithCommas(iterations) +
                        ". Final tolerance: " + NumberHelpers::formatToScientific(tolerance));

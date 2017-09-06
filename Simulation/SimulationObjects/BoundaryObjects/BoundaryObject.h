@@ -41,6 +41,9 @@ public:
 
     virtual void generateBoundaryParticles(Real spacing, int numBDLayers = 2) = 0;
     virtual bool constrainToBoundary(Vec3r& ppos, Vec3r& pvel)                = 0;
+    virtual bool constrainToBoundary(Vec3r& ppos)                             = 0;
+
+    void setMargin(Real margin) { m_Margin = margin; }
 
 protected:
     Vec_Vec3r m_BDParticles;

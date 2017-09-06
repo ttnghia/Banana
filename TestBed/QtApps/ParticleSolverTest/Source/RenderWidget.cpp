@@ -180,6 +180,9 @@ void RenderWidget::initRDataBox()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void RenderWidget::renderBox()
 {
+    if(!m_bRenderBox)
+        return;
+
     Q_ASSERT(m_WireFrameBoxRender != nullptr);
     m_WireFrameBoxRender->render();
 }
@@ -328,7 +331,7 @@ void RenderWidget::renderParticles()
     m_RDataParticle.material->bindUniformBuffer();
     m_RDataParticle.shader->bindUniformBlock(m_RDataParticle.ub_Material, m_RDataParticle.material->getBufferBindingPoint());
 
-    m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_PointRadius, m_RDataParticle.pointRadius);
+    m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_PointRadius, m_RDataParticle.pointRadius * m_RDataParticle.radiusScale);
     m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_PointScale,  m_RDataParticle.pointScale);
     m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_HasVColor,   m_RDataParticle.hasVColor);
     m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_ClipPlane,   m_ClipPlane);
@@ -435,6 +438,16 @@ void RenderWidget::enableClipPlane(bool bEnable /*= true*/)
 void RenderWidget::setClipPlane(const glm::vec4& clipPlane)
 {
     m_ClipPlane = clipPlane;
+}
+
+void RenderWidget::enableRenderBox(bool bEnable)
+{
+    m_bRenderBox = bEnable;
+}
+
+void RenderWidget::setParticleRadiusScale(int scale)
+{
+    m_RDataParticle.radiusScale = float(scale) / 100.0f;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

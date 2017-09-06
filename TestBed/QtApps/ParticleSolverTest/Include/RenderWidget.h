@@ -68,6 +68,8 @@ public slots:
     void reloadTextures();
     void enableClipPlane(bool bEnable = true);
     void setClipPlane(const glm::vec4& clipPlane);
+    void enableRenderBox(bool bEnable);
+    void setParticleRadiusScale(int scale);
 
 signals:
     void lightsObjChanged(const std::shared_ptr<PointLights>& lights);
@@ -114,6 +116,7 @@ private:
         GLuint  numParticles;
         GLfloat pointRadius;
         GLfloat pointScale;
+        GLfloat radiusScale = 1.0f;
 
         GLint isPointView = 0;
         GLint hasVColor   = 1;
@@ -141,4 +144,6 @@ private:
     std::unique_ptr<PlaneRender>        m_PlaneRender        = nullptr;
     std::unique_ptr<PointLightRender>   m_LightRender        = nullptr;
     std::unique_ptr<WireFrameBoxRender> m_WireFrameBoxRender = nullptr;
+
+    bool m_bRenderBox = true;
 };

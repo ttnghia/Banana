@@ -70,6 +70,9 @@ void OpenGLWidget::setDefaultSize(QSize size)
 void OpenGLWidget::setClearColor(const glm::vec4& color)
 {
     m_ClearColor = color;
+    makeCurrent();
+    resetClearColor();
+    doneCurrent();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

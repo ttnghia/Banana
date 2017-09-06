@@ -162,6 +162,30 @@ void Controller::setupTextureControllers(QBoxLayout* ctrLayout)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Controller::setupColorControllers(QBoxLayout* ctrLayout)
 {
+    m_ColorPicker = new ColorPicker;
+    QColor color;
+    color.setRed(0.38f * 255);
+    color.setGreen(0.52f * 255);
+    color.setBlue(0.1f * 255);
+    m_ColorPicker->setColor(color);
+    m_RenderBox = new QCheckBox("Render Bounding Box");
+    m_RenderBox->setChecked(true);
+
+    QVBoxLayout* layoutBackground = new QVBoxLayout;
+    layoutBackground->addWidget(m_ColorPicker);
+    QFrame* line = new QFrame();
+    line->setFrameShape(QFrame::HLine);
+    line->setFrameShadow(QFrame::Sunken);
+    layoutBackground->addWidget(line);
+    layoutBackground->addWidget(m_RenderBox);
+
+    QGroupBox* grBacground = new QGroupBox;
+    grBacground->setTitle(tr("Background and Bounding Box"));
+    grBacground->setLayout(layoutBackground);
+    ctrLayout->addWidget(grBacground);
+
+
+
     ////////////////////////////////////////////////////////////////////////////////
     /// color modes
     QRadioButton* rdbColorRandom  = new QRadioButton("Random");
@@ -203,4 +227,10 @@ void Controller::setupColorControllers(QBoxLayout* ctrLayout)
     QGroupBox* particleColorGroup = new QGroupBox("Uniform Color");
     particleColorGroup->setLayout(particleColorLayout);
     ctrLayout->addWidget(particleColorGroup);
+
+    ////////////////////////////////////////////////////////////////////////////////
+    m_RadiusScale = new EnhancedSlider;
+    m_RadiusScale->setRange(1, 300);
+    m_RadiusScale->getSlider()->setValue(100);
+    ctrLayout->addWidget(m_RadiusScale->getGroupBox("Particle Radius Scale"));
 }

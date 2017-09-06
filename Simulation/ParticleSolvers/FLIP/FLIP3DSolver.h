@@ -89,6 +89,9 @@ private:
 
     std::function<Real(const Vec3r&, const Array3r&)> m_InterpolateValue = nullptr;
     std::function<Real(const Vec3r&)>                 m_WeightKernel     = nullptr;
+
+    GeometryObject3D::BoxObject m_Box;
+    BoxBoundaryObject           m_BDBox;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

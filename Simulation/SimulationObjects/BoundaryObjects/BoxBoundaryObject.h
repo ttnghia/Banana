@@ -43,6 +43,7 @@ public:
     void         setBox(const Vec3r& bMin, const Vec3r& bMax);
     virtual void generateBoundaryParticles(Real spacing, Int numBDLayers = 2) override;
     virtual bool constrainToBoundary(Vec3r& ppos, Vec3r& pvel) override;
+    virtual bool constrainToBoundary(Vec3r& ppos) override;
 
 private:
     void computeMovingBox();

@@ -211,4 +211,20 @@ bool BoxBoundaryObject::constrainToBoundary(Vec3r& pPos, Vec3r& pVel)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+bool BoxBoundaryObject::constrainToBoundary(Vec3r& pPos)
+{
+    bool posChanged = false;
+    for(Int l = 0; l < 3; ++l)
+    {
+        if(pPos[l] < m_MovingBMin[l] || pPos[l] > m_MovingBMax[l])
+        {
+            posChanged = true;
+            pPos[l]    = MathHelpers::min(MathHelpers::max(pPos[l], m_MovingBMin[l]), m_MovingBMax[l]);
+        }
+    }
+
+    return posChanged;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana
