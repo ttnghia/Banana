@@ -206,7 +206,10 @@ void Camera::translate_by_mouse(int x, int y)
     glm::vec2 mouseMoved      = m_LastMousePos - currentMousePos;
     m_LastMousePos = currentMousePos;
 
-    mouseMoved   *= 0.01f;
+    glm::vec3 eyeDir = m_CameraFocus - m_CameraPosition;
+    float     scale  = eyeDir.length() * 0.01f;
+
+    mouseMoved   *= scale;
     m_Translation = glm::vec2(-mouseMoved.x, mouseMoved.y);
 
     translate();
@@ -215,7 +218,10 @@ void Camera::translate_by_mouse(int x, int y)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Camera::translate(glm::vec2 _translation)
 {
-    m_Translation = _translation;
+    glm::vec3 eyeDir = m_CameraFocus - m_CameraPosition;
+    float     scale  = eyeDir.length() * 0.5f;
+
+    m_Translation = _translation * scale;
     translate();
 }
 
