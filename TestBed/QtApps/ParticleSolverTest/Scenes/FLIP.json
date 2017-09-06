@@ -6,12 +6,15 @@
 	},
 	"SimulationParameters": 
 	{
-		"PIC_FLIP_Ratio" : 0.99,
+		"BoundaryRestitution" : 0.1,
+		"PIC_FLIP_Ratio" : 0.97,
 		"CGRelativeTolerance" : 1e-3,
 		"MaxCGIteration" : 10000,
-		"BoxMin" : [1.0, 1.0, 1.0],
-		"BoxMax" : [63, 63, 63],
+		"BoxMin" : [1.51, 1.51, 1.51],
+		"BoxMax" : [62.49, 62.49, 62.49],
+		"DomainMin" : [0, 0, 0],
+		"DomainMax" : [64, 64, 64],
 		"ParticleRadius" : 0.25,
-		"ParticleFile" : "Data/pnt0000.dat"
+		"ParticleFile" : "Data/pnt0001.dat"
 	}
 }

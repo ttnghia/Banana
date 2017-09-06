@@ -55,9 +55,10 @@ void FLIP3DSolver::makeReady()
                                // todo: remove this
                                m_BDBox.setMargin(m_SimParams->particleRadius);
                                m_BDBox.setBox(m_SimParams->movingBMin, m_SimParams->movingBMax);
+                               m_BDBox.setRestitution(m_SimParams->boundaryRestitution);
 
-                               m_Box.boxMin() = m_SimParams->movingBMin - Vec3r(0.001);
-                               m_Box.boxMax() = m_SimParams->movingBMax + Vec3r(0.001);
+                               m_Box.boxMin() = m_SimParams->movingBMin - Vec3r(0.000000000001);
+                               m_Box.boxMax() = m_SimParams->movingBMax + Vec3r(0.000000000001);
 
                                ParallelFuncs::parallel_for<UInt>(0, m_Grid.getNumCellX() + 1,
                                                                  0, m_Grid.getNumCellY() + 1,
@@ -156,6 +157,9 @@ void FLIP3DSolver::loadSimParams(const nlohmann::json& jParams)
 {
     JSONHelpers::readVector(jParams, m_SimParams->movingBMin, "BoxMin");
     JSONHelpers::readVector(jParams, m_SimParams->movingBMax, "BoxMax");
+
+    JSONHelpers::readVector(jParams, m_SimParams->domainBMin, "DomainMin");
+    JSONHelpers::readVector(jParams, m_SimParams->domainBMax, "DomainMax");
 
 
     JSONHelpers::readValue(jParams, m_SimParams->particleRadius,      "ParticleRadius");
@@ -351,7 +355,8 @@ void FLIP3DSolver::moveParticles(Real timestep)
     ParallelFuncs::parallel_for<UInt>(0, m_SimData->getNumParticles(),
                                       [&](UInt p)
                                       {
-                                          Vec3r ppos = m_SimData->positions[p] + m_SimData->velocities[p] * timestep;
+                                          Vec3r pvel = m_SimData->velocities[p];
+                                          Vec3r ppos = m_SimData->positions[p] + pvel * timestep;
                                           /*const Vec3r gridPos = m_Grid.getGridCoordinate(ppos);
                                              const Real phiVal = ArrayHelpers::interpolateValueLinear(gridPos, m_SimData->boundarySDF) - m_SimParams->particleRadius;
 
@@ -363,8 +368,8 @@ void FLIP3DSolver::moveParticles(Real timestep)
                                               if(mag2Grad > Tiny)
                                                   ppos -= phiVal * grad / sqrt(mag2Grad);
                                              }*/
-                                          m_BDBox.constrainToBoundary(ppos);
-
+                                          if(m_BDBox.constrainToBoundary(ppos, pvel))
+                                              m_SimData->velocities[p] = pvel;
                                           m_SimData->positions[p] = ppos;
                                       });
 }

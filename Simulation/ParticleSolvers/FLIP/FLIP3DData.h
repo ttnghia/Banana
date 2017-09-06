@@ -77,8 +77,8 @@ struct SimulationParameters_FLIP3D
         sdfRadius  = cellSize * Real(1.01 * sqrt(3.0) / 2.0);
         kernelSpan = (kernelFunc == Kernel::Linear || kernelFunc == Kernel::SwirlyLinear) ? 1 : 2;
 
-        domainBMin = movingBMin - Vec3r(cellSize * expandCells);
-        domainBMax = movingBMax + Vec3r(cellSize * expandCells);
+        //domainBMin = movingBMin - Vec3r(cellSize * expandCells);
+        //domainBMax = movingBMax + Vec3r(cellSize * expandCells);
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -93,6 +93,8 @@ struct SimulationParameters_FLIP3D
         logger->printLogIndent("Cell size: " + std::to_string(cellSize));
         logger->printLogIndent("Moving BMin: " + NumberHelpers::toString(movingBMin));
         logger->printLogIndent("Moving BMax: " + NumberHelpers::toString(movingBMax));
+        logger->printLogIndent("Domain BMin: " + NumberHelpers::toString(domainBMin));
+        logger->printLogIndent("Domain BMax: " + NumberHelpers::toString(domainBMax));
 
         logger->printLogIndent("Boundary restitution: " + std::to_string(boundaryRestitution));
         logger->printLogIndent("Apply repulsive forces: " + (bApplyRepulsiveForces ? String("Yes") : String("No")));

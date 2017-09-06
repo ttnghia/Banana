@@ -44,6 +44,7 @@ public:
     virtual bool constrainToBoundary(Vec3r& ppos)                             = 0;
 
     void setMargin(Real margin) { m_Margin = margin; }
+    void setRestitution(Real restitution) { m_RestitutionCoeff = restitution; }
 
 protected:
     Vec_Vec3r m_BDParticles;
