@@ -2,11 +2,11 @@
 	"GlobalParameters": 
 	{
 		"FrameDuration" : 0.03333333333,
-		"FinalFrame" : 1000
+		"FinalFrame" : 10
 	},
 	"SimulationParameters": 
 	{
-		"BoundaryRestitution" : 0.1,
+		"BoundaryRestitution" : 0.0,
 		"PIC_FLIP_Ratio" : 0.97,
 		"CGRelativeTolerance" : 1e-3,
 		"MaxCGIteration" : 10000,

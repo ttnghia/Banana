@@ -233,7 +233,7 @@ void Logger::initialize()
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    signal(SIGABRT, Logger::signalHandler);
+    //signal(SIGABRT, Logger::signalHandler);
     signal(SIGFPE,  Logger::signalHandler);
     signal(SIGINT,  Logger::signalHandler);
     signal(SIGSEGV, Logger::signalHandler);
@@ -319,10 +319,6 @@ void Logger::signalHandler(int signum)
 
     switch(signum)
     {
-        case SIGABRT:
-            s_MainFuncLogger->printWarning("Signal Abort");
-            break;
-
         case SIGFPE:
             s_MainFuncLogger->printWarning("Signal Floating-Point Exception");
             break;
@@ -347,7 +343,7 @@ void Logger::signalHandler(int signum)
     s_MainFuncLogger->printLog("Cleanup and exit program..........");
     shutdown();
 
-    exit(EXIT_SUCCESS);
+    raise(SIGABRT);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
