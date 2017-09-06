@@ -100,8 +100,9 @@ void FLIP3DSolver::advanceFrame()
         m_Logger->printRunTime("Sub-step time: ", subStepTimer,
                                [&]()
                                {
-                                   Real remainingTime = m_GlobalParams->frameDuration - frameTime;
-                                   Real substep = MathHelpers::min(computeCFLTimestep(), remainingTime);
+                                   //Real remainingTime = m_GlobalParams->frameDuration - frameTime;
+                                   //Real substep = MathHelpers::min(computeCFLTimestep(), remainingTime);
+                                   Real substep = m_GlobalParams->frameDuration;
                                    ////////////////////////////////////////////////////////////////////////////////
                                    m_Logger->printRunTime("Find neighbors: ",               funcTimer, [&]() { m_Grid.collectIndexToCells(m_SimData->positions); });
                                    m_Logger->printRunTime("====> Advance velocity total: ", funcTimer, [&]() { advanceVelocity(substep); });
@@ -765,7 +766,7 @@ void FLIP3DSolver::addGravity(Real timestep)
                                         0, m_SimData->v.sizeZ(),
                                         [&](size_t i, size_t j, size_t k)
                                         {
-                                            m_SimData->v(i, j, k) -= Real(9.8) * timestep;
+                                            m_SimData->v(i, j, k) -= Real(0.981) * timestep;
                                         });
 }
 

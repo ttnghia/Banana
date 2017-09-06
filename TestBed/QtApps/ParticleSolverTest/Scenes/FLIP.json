@@ -6,7 +6,7 @@
 	},
 	"SimulationParameters": 
 	{
-		"PIC_FLIP_Ratio" : 0.97,
+		"PIC_FLIP_Ratio" : 0.99,
 		"CGRelativeTolerance" : 1e-3,
 		"MaxCGIteration" : 10000,
 		"BoxMin" : [1.0, 1.0, 1.0],

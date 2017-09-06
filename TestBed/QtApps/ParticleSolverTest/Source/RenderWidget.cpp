@@ -90,7 +90,7 @@ void RenderWidget::initRDataLight()
     m_Lights = std::make_shared<PointLights>();
     m_Lights->setNumLights(1);
 
-    m_Lights->setLightPosition(glm::vec4(-1000, 1000, 1000, 1.0), 0);
+    m_Lights->setLightPosition(glm::vec4(1000, 1000, 1000, 1.0), 0);
     //    m_Lights->setLightPosition(glm::vec4(0, 100, 100, 1.0), 1);
     //    m_Lights->setLightDiffuse(glm::vec4(1.0), 0);
     //    m_Lights->setLightDiffuse(glm::vec4(0.7), 1);
