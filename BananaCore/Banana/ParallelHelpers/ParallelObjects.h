@@ -17,8 +17,9 @@
 
 #pragma once
 
+#include <Banana/Setup.h>
+
 #include <limits>
-#include <vector>
 #include <tbb/tbb.h>
 
 #undef min
@@ -38,12 +39,12 @@ template<class T>
 class VectorDotProduct<T>
 {
 public:
-    VectorDotProduct(const std::vector<T>& vec1, const std::vector<T>& vec2) : m_Vec1(vec1), m_Vec2(vec2), m_Result(0) {}
+    VectorDotProduct(const Vector<T>& vec1, const Vector<T>& vec2) : m_Vec1(vec1), m_Vec2(vec2), m_Result(0) {}
     VectorDotProduct(VectorDotProduct& vdp, tbb::split) : m_Vec1(vdp.m_Vec1), m_Vec2(vdp.m_Vec2), m_Result(0) {}
 
     void operator()(const tbb::blocked_range<size_t>& r)
     {
-        for(size_t i = r.begin(), iEnd = r.end(); i != iEnd; ++i)
+        for(size_t i = r.begin(); i != r.end(); ++i)
             m_Result += m_Vec1[i] * m_Vec2[i];
     }
 
@@ -57,8 +58,8 @@ public:
 private:
     T m_Result;
 
-    const std::vector<T>& m_Vec1;
-    const std::vector<T>& m_Vec2;
+    const Vector<T>& m_Vec1;
+    const Vector<T>& m_Vec2;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -66,12 +67,12 @@ template<class T, class VectorType>
 class VectorDotProduct<T, VectorType>
 {
 public:
-    VectorDotProduct(const std::vector<VectorType>& vec1, const std::vector<VectorType>& vec2) : m_Vec1(vec1), m_Vec2(vec2), m_Result(0) {}
+    VectorDotProduct(const Vector<VectorType>& vec1, const Vector<VectorType>& vec2) : m_Vec1(vec1), m_Vec2(vec2), m_Result(0) {}
     VectorDotProduct(VectorDotProduct& vdp, tbb::split) : m_Vec1(vdp.m_Vec1), m_Vec2(vdp.m_Vec1), m_Result(0) {}
 
     void operator()(const tbb::blocked_range<size_t>& r)
     {
-        for(size_t i = r.begin(), iEnd = r.end(); i != iEnd; ++i)
+        for(size_t i = r.begin(); i != r.end(); ++i)
             m_Result += glm::dot(m_Vec1[i], m_Vec2[i]);
     }
 
@@ -85,8 +86,8 @@ public:
 private:
     T m_Result;
 
-    const std::vector<VectorType>& m_Vec1;
-    const std::vector<VectorType>& m_Vec2;
+    const Vector<VectorType>& m_Vec1;
+    const Vector<VectorType>& m_Vec2;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -94,12 +95,12 @@ template<class T>
 class VectorMinElement
 {
 public:
-    VectorMinElement(const std::vector<T>& vec) : m_Vector(vec), m_Result(std::numeric_limits<T>::max()) {}
+    VectorMinElement(const Vector<T>& vec) : m_Vector(vec), m_Result(std::numeric_limits<T>::max()) {}
     VectorMinElement(VectorMinElement& vme, tbb::split) : m_Vector(vme.m_Vector), m_Result(std::numeric_limits<T>::max()) {}
 
     void operator()(const tbb::blocked_range<size_t>& r)
     {
-        for(size_t i = r.begin(), iEnd = r.end(); i != iEnd; ++i)
+        for(size_t i = r.begin(); i != r.end(); ++i)
         {
             m_Result = m_Result < m_Vector[i] ? m_Result : m_Vector[i];
         }
@@ -115,7 +116,7 @@ public:
 private:
     T m_Result;
 
-    const std::vector<T>& m_Vector;
+    const Vector<T>& m_Vector;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -123,13 +124,13 @@ template<class T>
 class VectorMaxElement
 {
 public:
-    VectorMaxElement(const std::vector<T>& vec) : m_Vector(vec), m_Result(std::numeric_limits<T>::min()) {}
+    VectorMaxElement(const Vector<T>& vec) : m_Vector(vec), m_Result(std::numeric_limits<T>::min()) {}
     VectorMaxElement(VectorMaxElement& vme, tbb::split) : m_Vector(vme.m_Vector), m_Result(std::numeric_limits<T>::min()) {}
 
     // overload () so it does finding max
     void operator()(const tbb::blocked_range<size_t>& r)
     {
-        for(size_t i = r.begin(), iEnd = r.end(); i != iEnd; ++i)
+        for(size_t i = r.begin(); i != r.end(); ++i)
         {
             m_Result = m_Result > m_Vector[i] ? m_Result : m_Vector[i];
         }
@@ -145,7 +146,7 @@ public:
 private:
     T m_Result;
 
-    const std::vector<T>& m_Vector;
+    const Vector<T>& m_Vector;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -156,12 +157,12 @@ template<class T>
 class VectorMaxAbs<T>
 {
 public:
-    VectorMaxAbs(const std::vector<T>& vec) : m_Vector(vec), m_Result(0) {}
+    VectorMaxAbs(const Vector<T>& vec) : m_Vector(vec), m_Result(0) {}
     VectorMaxAbs(VectorMaxAbs& vma, tbb::split) : m_Vector(vma.m_Vector), m_Result(0) {}
 
     void operator()(const tbb::blocked_range<size_t>& r)
     {
-        for(size_t i = r.begin(), iEnd = r.end(); i != iEnd; ++i)
+        for(size_t i = r.begin(); i != r.end(); ++i)
         {
             T tmp = fabs(m_Vector[i]);
             m_Result = m_Result > tmp ? m_Result : tmp;
@@ -178,7 +179,7 @@ public:
 private:
     T m_Result;
 
-    const std::vector<T>& m_Vector;
+    const Vector<T>& m_Vector;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -186,12 +187,12 @@ template<class T, class VectorType>
 class VectorMaxAbs<T, VectorType>
 {
 public:
-    VectorMaxAbs(const std::vector<VectorType>& vec) : m_Vector(vec), m_Result(0) {}
+    VectorMaxAbs(const Vector<VectorType>& vec) : m_Vector(vec), m_Result(0) {}
     VectorMaxAbs(VectorMaxAbs& vma, tbb::split) : m_Vector(vma.m_Vector), m_Result(0) {}
 
     void operator()(const tbb::blocked_range<size_t>& r)
     {
-        for(size_t i = r.begin(), iEnd = r.end(); i != iEnd; ++i)
+        for(size_t i = r.begin(); i != r.end(); ++i)
         {
             T tmp = std::abs(m_Vector[i][0]);
             for(auto k = 1; k < m_Vector[i].length(); ++k)
@@ -211,8 +212,8 @@ public:
     T getResult() const noexcept { return m_Result; }
 
 private:
-    T                              m_Result;
-    const std::vector<VectorType>& m_Vector;
+    T                         m_Result;
+    const Vector<VectorType>& m_Vector;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -220,12 +221,12 @@ template<class T, class VectorType>
 class VectorMaxNorm2
 {
 public:
-    VectorMaxNorm2(const std::vector<VectorType>& vec) : m_Vector(vec), m_ResultMax(std::numeric_limits<T>::min()) {}
+    VectorMaxNorm2(const Vector<VectorType>& vec) : m_Vector(vec), m_ResultMax(std::numeric_limits<T>::min()) {}
     VectorMaxNorm2(VectorMaxNorm2& vmmn, tbb::split) : m_Vector(vmmn.m_Vector), m_ResultMax(std::numeric_limits<T>::min()) {}
 
     void operator()(const tbb::blocked_range<size_t>& r)
     {
-        for(size_t i = r.begin(), iEnd = r.end(); i != iEnd; ++i)
+        for(size_t i = r.begin(); i != r.end(); ++i)
         {
             T mag2 = glm::length2(m_Vector[i]);
             m_ResultMax = m_ResultMax > mag2 ? m_ResultMax : mag2;
@@ -240,8 +241,8 @@ public:
     T getResult() const noexcept { return m_ResultMax; }
 
 private:
-    T                              m_ResultMax;
-    const std::vector<VectorType>& m_Vector;
+    T                         m_ResultMax;
+    const Vector<VectorType>& m_Vector;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -249,19 +250,19 @@ template<class T>
 class VectorMinMaxElements
 {
 public:
-    VectorMinMaxElements(const std::vector<T>& vec) : m_Vector(vec), m_ResultMin(std::numeric_limits<T>::max()), m_ResultMax(std::numeric_limits<T>::min()) {}
-    VectorMinMaxElements(VectorMinMaxElements& vmme, tbb::split) : m_Vector(vmme.m_Vector), m_ResultMin(std::numeric_limits<T>::max()), m_ResultMax(std::numeric_limits<T>::min()) {}
+    VectorMinMaxElements(const Vector<T>& vec) : m_Vector(vec), m_ResultMin(std::numeric_limits<T>::max()), m_ResultMax(std::numeric_limits<T>::min()) {}
+    VectorMinMaxElements(VectorMinMaxElements<T>& vmme, tbb::split) : m_Vector(vmme.m_Vector), m_ResultMin(std::numeric_limits<T>::max()), m_ResultMax(std::numeric_limits<T>::min()) {}
 
     void operator()(const tbb::blocked_range<size_t>& r)
     {
-        for(size_t i = r.begin(), iend = r.end(); i != iend; ++i)
+        for(size_t i = r.begin(); i != r.end(); ++i)
         {
             m_ResultMin = m_ResultMin < m_Vector[i] ? m_ResultMin : m_Vector[i];
             m_ResultMax = m_ResultMax > m_Vector[i] ? m_ResultMax : m_Vector[i];
         }
     }
 
-    void join(VectorMinMaxElements& vmme)
+    void join(VectorMinMaxElements<T>& vmme)
     {
         m_ResultMin = m_ResultMin < vmme.m_ResultMin ? m_ResultMin : vmme.m_ResultMin;
         m_ResultMax = m_ResultMax > vmme.m_ResultMax ? m_ResultMax : vmme.m_ResultMax;
@@ -274,7 +275,49 @@ private:
     T m_ResultMin;
     T m_ResultMax;
 
-    const std::vector<T>& m_Vector;
+    const Vector<T>& m_Vector;
+};
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class VectorType>
+class VectorMinMaxVectorElements
+{
+public:
+    VectorMinMaxVectorElements(const Vector<VectorType>& vec) :
+        m_Vector(vec), m_ResultMin(VectorType(std::numeric_limits<T>::max())), m_ResultMax(VectorType(std::numeric_limits<T>::min())) {}
+    VectorMinMaxVectorElements(VectorMinMaxVectorElements<VectorType>& vmme, tbb::split) :
+        m_Vector(vmme.m_Vector), m_ResultMin(VectorType(std::numeric_limits<T>::max())), m_ResultMax(VectorType(std::numeric_limits<T>::min())) {}
+
+    void operator()(const tbb::blocked_range<size_t>& r)
+    {
+        for(size_t i = r.begin(); i != r.end(); ++i)
+        {
+            const auto& vec = m_Vector[i];
+            for(int j = 0; j < vec.length(); ++j)
+            {
+                m_ResultMin[j] = (m_ResultMin[j] < vec[j]) ? m_ResultMin[j] : vec[j];
+                m_ResultMax[j] = (m_ResultMax[j] > vec[j]) ? m_ResultMax[j] : vec[j];
+            }
+        }
+    }
+
+    void join(VectorMinMaxVectorElements<VectorType>& vmme)
+    {
+        for(int j = 0; j < m_ResultMin.length(); ++j)
+        {
+            m_ResultMin[j] = (m_ResultMin[j] < vmme.m_ResultMin[j]) ? m_ResultMin[j] : vmme.m_ResultMin[j];
+            m_ResultMax[j] = (m_ResultMax[j] > vmme.m_ResultMax[j]) ? m_ResultMax[j] : vmme.m_ResultMax[j];
+        }
+    }
+
+    const VectorType& getMin() const noexcept { return m_ResultMin; }
+    const VectorType& getMax() const noexcept { return m_ResultMax; }
+
+private:
+    VectorType m_ResultMin;
+    VectorType m_ResultMax;
+
+    const Vector<VectorType>& m_Vector;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -282,12 +325,12 @@ template<class T, class VectorType>
 class VectorMinMaxNorm2
 {
 public:
-    VectorMinMaxNorm2(const std::vector<VectorType>& vec) : m_Vector(vec), m_ResultMin(std::numeric_limits<T>::max()), m_ResultMax(std::numeric_limits<T>::min()) {}
+    VectorMinMaxNorm2(const Vector<VectorType>& vec) : m_Vector(vec), m_ResultMin(std::numeric_limits<T>::max()), m_ResultMax(std::numeric_limits<T>::min()) {}
     VectorMinMaxNorm2(VectorMinMaxNorm2& vmmn, tbb::split) : m_Vector(vmmn.m_Vector), m_ResultMin(std::numeric_limits<T>::max()), m_ResultMax(std::numeric_limits<T>::min()) {}
 
     void operator()(const tbb::blocked_range<size_t>& r)
     {
-        for(size_t i = r.begin(), iEnd = r.end(); i != iEnd; ++i)
+        for(size_t i = r.begin(); i != r.end(); ++i)
         {
             T mag2 = glm::length2(m_Vector[i]);
             m_ResultMin = m_ResultMin < mag2 ? m_ResultMin : mag2;
@@ -308,7 +351,7 @@ private:
     T m_ResultMin;
     T m_ResultMax;
 
-    const std::vector<VectorType>& m_Vector;
+    const Vector<VectorType>& m_Vector;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -316,12 +359,12 @@ template<class T>
 class VectorSum
 {
 public:
-    VectorSum(const std::vector<T>& vec) : m_Vector(vec), m_Result(0) {}
+    VectorSum(const Vector<T>& vec) : m_Vector(vec), m_Result(0) {}
     VectorSum(VectorSum& vsum, tbb::split) : m_Vector(vsum.v), m_Result(0) {}
 
     void operator()(const tbb::blocked_range<size_t>& r)
     {
-        for(size_t i = r.begin(), iEnd = r.end(); i != iEnd; ++i)
+        for(size_t i = r.begin(); i != r.end(); ++i)
         {
             m_Result += m_Vector[i];
         }
@@ -334,8 +377,8 @@ public:
 
     T getSum() const noexcept { return m_Result; }
 private:
-    const std::vector<T>& m_Vector;
-    T                     m_Result;
+    const Vector<T>& m_Vector;
+    T                m_Result;
 };
 
 

@@ -39,11 +39,11 @@ UInt ParticleHelpers::loadBinary(const String& fileName, Vector<VectorType>& par
     DataBuffer buffer;
     __BNN_ASSERT_MSG(FileHelpers::readFile(buffer.buffer(), fileName), "Could not open file for reading.");
 
-    UInt   dimension = sizeof(VectorType) / sizeof(Real);
-    float  fRadius;
-    UInt   numParticles;
-    UInt64 segmentStart = 0;
-    UInt64 segmentSize;
+    const UInt dimension = sizeof(VectorType) / sizeof(Real);
+    float      fRadius;
+    UInt       numParticles;
+    UInt64     segmentStart = 0;
+    UInt64     segmentSize;
 
     segmentSize = sizeof(UInt);
     memcpy(&numParticles, &buffer.data()[segmentStart], segmentSize);
@@ -110,4 +110,42 @@ void ParticleHelpers::clamp(VectorType& ppos, const VectorType& bmin, const Vect
                                                         bmin[i] + margin),
                                        bmax[i] - margin);
     }
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class VectorType>
+void Banana::ParticleHelpers::compress(const Vector<VectorType>& positions, VectorType& bmin, VectorType& bmax, Vec_UInt16& compressedData)
+{
+    compressedData.resize(dimension * positions.size());
+    ParallelSTL::min_max_vector<VectorType>(positions, bmin, bmax);
+    const VectorType diff      = bmax - bmin;
+    const int        dimension = diff.length();
+
+    ParallelFuncs::parallel_for<size_t>(0, positions.size(),
+                                        [&](size_t i)
+                                        {
+                                            const VectorType& vec = positions[i];
+                                            for(int j = 0; j < dimension; ++j)
+                                                compressedData[i * dimension + j] = static_cast<UInt16>(std::numeric_limits<UInt16>::max() * (vec[j] - bmin[j]) * diff[j]);
+                                        });
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class VectorType>
+void Banana::ParticleHelpers::decompress(Vector<VectorType>& positions, const VectorType& bmin, const VectorType& bmax, const Vec_UInt16& compressedData)
+{
+    const VectorType diff      = bmax - bmin;
+    const UInt       dimension = static_cast<UInt>(diff.length());
+    __BNN_ASSERT((compressedData.size() / dimension) * dimension == compressedData.size());
+    positions.resize(compressedData.size() / dimension);
+
+    ParallelFuncs::parallel_for<size_t>(0, positions.size(),
+                                        [&](size_t i)
+                                        {
+                                            VectorType vec;
+                                            for(int j = 0; j < dimension; ++j)
+                                                vec[j] = static_cast<decltype(diff[j])>(compressedData[i * dimension + j]) * diff[j] /
+                                                         static_cast<decltype(diff[j])>(std::numeric_limits<UInt16>::max()) + bmin[j];
+                                            positions[i] = vec;
+                                        });
 }

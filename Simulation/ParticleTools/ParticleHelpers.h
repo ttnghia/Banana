@@ -44,10 +44,12 @@ template<class VectorType> UInt           loadBinary(const String& fileName, Vec
 template<class VectorType> void           saveBinary(const String& fileName, Vector<VectorType>& particles, Real& particleRadius);
 template<class VectorType> void           jitter(VectorType& ppos, Real maxJitter);
 template<class VectorType> void           clamp(VectorType& ppos, const VectorType& bmin, const VectorType& bmax, Real margin = 0);
+template<class VectorType> void           compress(const Vector<VectorType>& positions, VectorType& bmin, VectorType& bmax, Vec_UInt16& compressedData);
+template<class VectorType> void           decompress(Vector<VectorType>& positions, const VectorType& bmin, const VectorType& bmax, const Vec_UInt16& compressedData);
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-// non-template functions must be defined in separate cpp file
+// non-template functions must be defined in separate .cpp file
 enum RelaxationMethod
 {
     LloydRelaxationMethod,

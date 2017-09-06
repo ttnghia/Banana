@@ -81,6 +81,16 @@ inline T maxNorm2(const std::vector<VectorType>& x)
     return vm.getResult();
 }
 
+template<class VectorType>
+inline void min_max_vector(const std::vector<VectorType>& x, VectorType& minElement, VectorType& maxElement)
+{
+    ParallelObjects::VectorMinMaxVectorElements<VectorType> vmm(x);
+    tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), vmm);
+
+    minElement = vmm.getMin();
+    maxElement = vmm.getMax();
+}
+
 template<class T>
 inline void min_max(const std::vector<T>& x, T& minElement, T& maxElement)
 {

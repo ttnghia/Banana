@@ -46,107 +46,40 @@ public:
             reserve(bufferSize);
     }
 
-    ~DataBuffer()
-    {
-        clearBuffer();
-    }
+    size_t size() const { return m_Buffer.size(); }
+    void resize(size_t bufferSize) { m_Buffer.resize(bufferSize); }
+    void reserve(size_t bufferSize) { m_Buffer.reserve(bufferSize); }
+    void clearBuffer() { m_Buffer.resize(0); }
 
-    size_t size() const
-    {
-        return static_cast<size_t>(m_Buffer.size());
-    }
-
-    void resize(size_t bufferSize)
-    {
-        m_Buffer.resize(bufferSize);
-    }
-
-    void reserve(size_t bufferSize)
-    {
-        m_Buffer.reserve(bufferSize);
-    }
-
-    const unsigned char* data() const
-    {
-        return m_Buffer.data();
-    }
-
-    std::vector<unsigned char>& buffer()
-    {
-        return m_Buffer;
-    }
-
-    void clearBuffer()
-    {
-        m_Buffer.resize(0);
-    }
+    const unsigned char* data() const { return m_Buffer.data(); }
+    Vector<unsigned char>& buffer() { return m_Buffer; }
 
     //////////////////////////////////////////////////////////////////////
-    /// replace data in the buffer with new data
-    //////////////////////////////////////////////////////////////////////
-    void setData(const DataBuffer& dataBuffer)
-    {
-        clearBuffer();
-        append(dataBuffer);
-    }
-
-    void setData(const unsigned char* arrData, size_t dataSize)
-    {
-        clearBuffer();
-        append(arrData, dataSize);
-    }
+    void setData(const DataBuffer& dataBuffer) { clearBuffer(); append(dataBuffer); }
+    void setData(const unsigned char* arrData, size_t dataSize) { clearBuffer(); append(arrData, dataSize); }
 
     template<class T>
-    void setFloat(T data)
-    {
-        clearBuffer();
-        append<float>(static_cast<float>(data));
-    }
+    void setFloat(T data) { clearBuffer(); append<float>(static_cast<float>(data)); }
 
     template<class T>
-    void setDouble(T data)
-    {
-        clearBuffer();
-        append<double>(static_cast<double>(data));
-    }
+    void setDouble(T data) { clearBuffer(); append<double>(static_cast<double>(data)); }
 
     template<class T>
-    void setData(T data)
-    {
-        clearBuffer();
-        append<T>(data);
-    }
+    void setData(T data) { clearBuffer(); append<T>(data); }
 
     // need this, it is similar to the one above, but using reference parameter
     template<class T>
-    void setData(const std::vector<T>& vData, bool bWriteVectorSize = true)
-    {
-        clearBuffer();
-        append<T>(vData, bWriteVectorSize);
-    }
+    void setData(const Vector<T>& vData, bool bWriteVectorSize = true) { clearBuffer(); append<T>(vData, bWriteVectorSize); }
 
     template<class T>
-    void setFloatArray(const std::vector<T>& vData, bool bWriteVectorSize = true)
-    {
-        clearBuffer();
-        appendFloatArray<T>(vData, bWriteVectorSize);
-    }
+    void setFloatArray(const Vector<T>& vData, bool bWriteVectorSize = true) { clearBuffer(); appendFloatArray<T>(vData, bWriteVectorSize); }
 
     template<class T>
-    void setDoubleArray(const std::vector<T>& vData, bool bWriteVectorSize = true)
-    {
-        clearBuffer();
-        appendDoubleArray<T>(vData, bWriteVectorSize);
-    }
+    void setDoubleArray(const Vector<T>& vData, bool bWriteVectorSize = true) { clearBuffer(); appendDoubleArray<T>(vData, bWriteVectorSize); }
 
     //////////////////////////////////////////////////////////////////////
-    /// append data
-    //////////////////////////////////////////////////////////////////////
-    void append(const DataBuffer& dataBuffer)
-    {
-        append((const unsigned char*)dataBuffer.data(), dataBuffer.size());
-    }
-
+    // append data
+    void append(const DataBuffer& dataBuffer) { append((const unsigned char*)dataBuffer.data(), dataBuffer.size()); }
     void append(const unsigned char* arrData, size_t dataSize)
     {
         size_t endOffset = m_Buffer.size();
@@ -167,13 +100,13 @@ public:
     }
 
     template<class T>
-    void append(const std::vector<T>& vData, bool bWriteVectorSize = true)
+    void append(const Vector<T>& vData, bool bWriteVectorSize = true)
     {
         // any vector data begins with the number of vector elements
         if(bWriteVectorSize)
         {
-            const UInt numElements = (UInt)vData.size();
-            append(numElements);
+            const UInt numElements = static_cast<UInt>(vData.size());
+            append<UInt>(numElements);
         }
 
         size_t dataSize  = vData.size() * sizeof(T);
@@ -188,22 +121,15 @@ public:
     {
         if(bWriteVectorSize)
         {
-            const UInt numElements = (UInt)vData.size();
-            append(numElements);
+            const UInt numElements = static_cast<UInt>(vData.size());
+            append<UInt>(numElements);
         }
 
         size_t dataSize  = vData.size() * sizeof(T) * 2;
         size_t endOffset = m_Buffer.size();
         resize(endOffset + dataSize);
 
-        T* buff_ptr = (T*)&(m_Buffer.data()[endOffset]);
-
-        for(size_t i = 0; i < vData.size(); ++i)
-        {
-            const Vec2<T>& vec = vData[i];
-            buff_ptr[i * 2]     = vec[0];
-            buff_ptr[i * 2 + 1] = vec[1];
-        }
+        memcpy((void*)&(m_Buffer.data()[endOffset]), (void*)vData.data(), dataSize);
     }
 
     template<class T>
@@ -211,34 +137,26 @@ public:
     {
         if(bWriteVectorSize)
         {
-            const UInt numElements = (UInt)vData.size();
-            append(numElements);
+            const UInt numElements = static_cast<UInt>(vData.size());
+            append<UInt>(numElements);
         }
 
         size_t dataSize  = vData.size() * sizeof(T) * 3;
         size_t endOffset = m_Buffer.size();
         resize(endOffset + dataSize);
 
-        T* buff_ptr = (T*)&(m_Buffer.data()[endOffset]);
-
-        for(size_t i = 0; i < vData.size(); ++i)
-        {
-            const Vec3<T>& vec = vData[i];
-            buff_ptr[i * 3]     = vec[0];
-            buff_ptr[i * 3 + 1] = vec[1];
-            buff_ptr[i * 3 + 2] = vec[2];
-        }
+        memcpy((void*)&(m_Buffer.data()[endOffset]), (void*)vData.data(), dataSize);
     }
 
     template<class T>
-    void append(const std::vector<std::vector<T> >& vData)
+    void append(const Vector<Vector<T> >& vData)
     {
-        const UInt numElements = (UInt)vData.size();
-        append(numElements);
+        const UInt numElements = static_cast<UInt>(vData.size());
+        append<UInt>(numElements);
 
         for(size_t i = 0; i < vData.size(); ++i)
         {
-            const std::vector<T>& vec = vData[i];
+            const Vector<T>& vec = vData[i];
             append(vec);
         }
     }
@@ -255,12 +173,12 @@ public:
     }
 
     template<class T>
-    void appendFloatArray(const std::vector<T>& vData, bool bWriteVectorSize = true)
+    void appendFloatArray(const Vector<T>& vData, bool bWriteVectorSize = true)
     {
         if(bWriteVectorSize)
         {
-            const UInt numElements = (UInt)vData.size();
-            append(numElements);
+            const UInt numElements = static_cast<UInt>(vData.size());
+            append<UInt>(numElements);
         }
 
         size_t dataSize  = vData.size() * sizeof(float);
@@ -280,8 +198,8 @@ public:
     {
         if(bWriteVectorSize)
         {
-            const UInt numElements = (UInt)vData.size();
-            append(numElements);
+            const UInt numElements = static_cast<UInt>(vData.size());
+            append<UInt>(numElements);
         }
 
         size_t dataSize  = vData.size() * sizeof(float) * 2;
@@ -303,8 +221,8 @@ public:
     {
         if(bWriteVectorSize)
         {
-            const UInt numElements = (UInt)vData.size();
-            append(numElements);
+            const UInt numElements = static_cast<UInt>(vData.size());
+            append<UInt>(numElements);
         }
 
         size_t dataSize  = vData.size() * sizeof(float) * 3;
@@ -334,12 +252,12 @@ public:
     }
 
     template<class T>
-    void appendDoubleArray(const std::vector<T>& vData, bool bWriteVectorSize = true)
+    void appendDoubleArray(const Vector<T>& vData, bool bWriteVectorSize = true)
     {
         if(bWriteVectorSize)
         {
-            const UInt numElements = (UInt)vData.size();
-            append(numElements);
+            const UInt numElements = static_cast<UInt>(vData.size());
+            append<UInt>(numElements);
         }
 
         size_t dataSize  = vData.size() * sizeof(double);
@@ -359,8 +277,8 @@ public:
     {
         if(bWriteVectorSize)
         {
-            const UInt numElements = (UInt)vData.size();
-            append(numElements);
+            const UInt numElements = static_cast<UInt>(vData.size());
+            append<UInt>(numElements);
         }
 
         size_t dataSize  = vData.size() * sizeof(double) * 2;
@@ -382,8 +300,8 @@ public:
     {
         if(bWriteVectorSize)
         {
-            const UInt numElements = (UInt)vData.size();
-            append(numElements);
+            const UInt numElements = static_cast<UInt>(vData.size());
+            append<UInt>(numElements);
         }
 
         size_t dataSize  = vData.size() * sizeof(double) * 3;
@@ -402,8 +320,7 @@ public:
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    /// get data
-    ////////////////////////////////////////////////////////////////////////////////
+    // get data
     template<class T>
     size_t getData(T& value, size_t startOffset = 0)
     {
@@ -416,7 +333,7 @@ public:
     }
 
     template<class T>
-    size_t getData(std::vector<T>& vData, size_t startOffset = 0, UInt vSize = 0)
+    size_t getData(Vector<T>& vData, size_t startOffset = 0, UInt vSize = 0)
     {
         size_t segmentStart = startOffset;
         size_t segmentSize  = 0;
@@ -509,7 +426,7 @@ public:
     }
 
     template<class T, int N>
-    size_t getFloatArray(std::vector<float>& vData, size_t startOffset = 0, UInt vSize = 0)
+    size_t getFloatArray(Vector<float>& vData, size_t startOffset = 0, UInt vSize = 0)
     {
         size_t segmentStart = startOffset;
         size_t segmentSize  = 0;
@@ -608,7 +525,7 @@ public:
     }
 
     template<class T, int N>
-    size_t getDoubleArray(std::vector<double>& vData, size_t startOffset = 0, UInt vSize = 0)
+    size_t getDoubleArray(Vector<double>& vData, size_t startOffset = 0, UInt vSize = 0)
     {
         size_t segmentStart = startOffset;
         size_t segmentSize  = 0;
@@ -707,7 +624,7 @@ public:
     }
 
     template<class T>
-    size_t getData(std::vector<std::vector<T> >& vData, size_t startOffset = 0)
+    size_t getData(Vector<Vector<T> >& vData, size_t startOffset = 0)
     {
         size_t segmentStart = startOffset;
         size_t segmentSize  = (size_t)sizeof(UInt);
@@ -736,7 +653,7 @@ public:
     }
 
 private:
-    std::vector<unsigned char> m_Buffer;
+    Vector<unsigned char> m_Buffer;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -749,16 +666,10 @@ class DataConverter
 public:
     DataConverter() = default;
 
-    ~DataConverter()
-    {
-        m_DataBuffer.clearBuffer();
-    }
-
     template<class T>
-    const unsigned char* toFloatArray(const std::vector<T>& vData, bool bWriteVectorSize = true)
+    const unsigned char* toFloatArray(const Vector<T>& vData, bool bWriteVectorSize = true)
     {
         m_DataBuffer.setFloatArray(vData, bWriteVectorSize);
-
         return m_DataBuffer.data();
     }
 
@@ -766,7 +677,6 @@ public:
     const unsigned char* toFloatArray(const Vec_Vec2<T>& vData, bool bWriteVectorSize = true)
     {
         m_DataBuffer.setFloatArray(vData, , bWriteVectorSize);
-
         return m_DataBuffer.data();
     }
 
@@ -774,15 +684,13 @@ public:
     const unsigned char* toFloatArray(const Vec_Vec3<T>& vData, bool bWriteVectorSize = true)
     {
         m_DataBuffer.setFloatArray(vData, bWriteVectorSize);
-
         return m_DataBuffer.data();
     }
 
     template<class T>
-    const unsigned char* toDoubleArray(const std::vector<T>& vData, bool bWriteVectorSize = true)
+    const unsigned char* toDoubleArray(const Vector<T>& vData, bool bWriteVectorSize = true)
     {
         m_DataBuffer.setDoubleArray(vData, bWriteVectorSize);
-
         return m_DataBuffer.data();
     }
 
@@ -790,7 +698,6 @@ public:
     const unsigned char* toDoubleArray(const Vec_Vec2<T>& vData, bool bWriteVectorSize = true)
     {
         m_DataBuffer.setDoubleArray(vData, bWriteVectorSize);
-
         return m_DataBuffer.data();
     }
 
@@ -798,13 +705,12 @@ public:
     const unsigned char* toDoubleArray(const Vec_Vec3<T>& vData, bool bWriteVectorSize = true)
     {
         m_DataBuffer.setDoubleArray(vData, bWriteVectorSize);
-
         return m_DataBuffer.data();
     }
 
     ////////////////////////////////////////////////////////////////////////////////
     template<class T>
-    static std::string byteToHex(const T* arrBytes, size_t arrSize)
+    static String byteToHex(const T* arrBytes, size_t arrSize)
     {
         std::stringstream ss;
 
@@ -817,7 +723,7 @@ public:
     }
 
     template<class T>
-    static std::string byteToHex(const std::vector<T>& vecBytes)
+    static String byteToHex(const Vector<T>& vecBytes)
     {
         return byteToHex(vecBytes.data(), vecBytes.size());
     }
@@ -834,11 +740,11 @@ private:
 class DataIO
 {
 public:
-    DataIO(const std::string& dataRootFolder,
-           const std::string& dataFolder,
-           const std::string& fileName,
-           const std::string& fileExtension,
-           const std::string& dataName) :
+    DataIO(const String& dataRootFolder,
+           const String& dataFolder,
+           const String& fileName,
+           const String& fileExtension,
+           const String& dataName) :
         m_DataFolder(dataRootFolder),
         m_DataSubFolder(dataFolder),
         m_FileName(fileName),
@@ -855,34 +761,23 @@ public:
     ////////////////////////////////////////////////////////////////////////////////
     int getLatestFileIndex(int maxIndex = 10000)
     {
-        int latestIndex = -1;
-
-        for(int index = maxIndex; index > 0; --index)
+        for(int index = 0; index < maxIndex; ++index)
         {
             if(!existedFileIndex(index))
             {
-                latestIndex = index;
-                break;
+                return index - 1;
             }
         }
 
-        return latestIndex;
+        return -1;
     }
 
-    bool existedFileIndex(int fileID)
-    {
-        return FileHelpers::fileExisted(getFilePath(fileID));
-    }
+    bool existedFileIndex(int fileID) { return FileHelpers::fileExisted(getFilePath(fileID)); }
+    bool loadFileIndex(int fileID) { return FileHelpers::readFile(m_DataBuffer.buffer(), getFilePath(fileID)); }
 
-    void clearBuffer()
-    {
-        if(m_WriteFutureObj.valid())
-        {
-            m_WriteFutureObj.wait();
-        }
-
-        m_DataBuffer.clearBuffer();
-    }
+    ////////////////////////////////////////////////////////////////////////////////
+    void waitForBuffer() { if(m_WriteFutureObj.valid()) m_WriteFutureObj.wait(); }
+    void clearBuffer() { waitForBuffer();  m_DataBuffer.clearBuffer(); }
 
     void flushBuffer(int fileID)
     {
@@ -907,52 +802,22 @@ public:
                                       });
     }
 
-    bool loadFileIndex(int fileID)
-    {
-        return FileHelpers::readFile(m_DataBuffer.buffer(), getFilePath(fileID));
-    }
-
-    std::string getFilePath(int fileID)
+    ////////////////////////////////////////////////////////////////////////////////
+    String getFilePath(int fileID)
     {
         char filePath[1024];
         __BNN_SPRINT(filePath, "%s/%s/%s.%04d.%s", m_DataFolder.c_str(), m_DataSubFolder.c_str(), m_FileName.c_str(), fileID, m_FileExtension.c_str());
-        return std::string(filePath);
+        return String(filePath);
     }
 
-    const DataBuffer& getBuffer() const
-    {
-        return m_DataBuffer;
-    }
+    const DataBuffer& getBuffer() const { return m_DataBuffer; }
+    DataBuffer& getBuffer() { return m_DataBuffer; }
 
-    DataBuffer& getBuffer()
-    {
-        return m_DataBuffer;
-    }
-
-    std::string& dataFolder()
-    {
-        return m_DataFolder;
-    }
-
-    std::string& dataSubFolder()
-    {
-        return m_DataSubFolder;
-    }
-
-    std::string& fileName()
-    {
-        return m_FileName;
-    }
-
-    std::string& fileExtension()
-    {
-        return m_FileExtension;
-    }
-
-    std::string& dataName()
-    {
-        return m_DataName;
-    }
+    String& dataFolder() { return m_DataFolder; }
+    String& dataSubFolder() { return m_DataSubFolder; }
+    String& fileName() { return m_FileName; }
+    String& fileExtension() { return m_FileExtension; }
+    String& dataName() { return m_DataName; }
 
 private:
     void createOutputFolders()
@@ -964,11 +829,11 @@ private:
 
     ////////////////////////////////////////////////////////////////////////////////
     bool              m_bOutputFolderCreated;
-    std::string       m_DataFolder;
-    std::string       m_DataSubFolder;
-    std::string       m_FileName;
-    std::string       m_FileExtension;
-    std::string       m_DataName;
+    String            m_DataFolder;
+    String            m_DataSubFolder;
+    String            m_FileName;
+    String            m_FileExtension;
+    String            m_DataName;
     DataBuffer        m_DataBuffer;
     std::future<void> m_WriteFutureObj;
 };
