@@ -67,9 +67,15 @@ void OpenGLWidget::setDefaultSize(QSize size)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void OpenGLWidget::setClearColor(const glm::vec4& color)
+void OpenGLWidget::setClearColor(const Vec3f& color)
 {
     m_ClearColor = color;
+    if(isValid())
+    {
+        makeCurrent();
+        resetClearColor();
+        doneCurrent();
+    }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -261,8 +267,8 @@ void OpenGLWidget::keyReleaseEvent(QKeyEvent*)
 void OpenGLWidget::initializeGL()
 {
     initializeOpenGLFunctions();
+    //checkGLVersion();
     checkGLErrors();
-    // checkGLVersion();
 #ifdef __BNN_USE_ANT_TWEAK_BAR
     initializeAntTweakBar();
     setupTweakBar();
@@ -342,7 +348,7 @@ void OpenGLWidget::uploadCameraData()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLWidget::resetClearColor()
 {
-    glClearColor(m_ClearColor[0], m_ClearColor[1], m_ClearColor[2], m_ClearColor[3]);
+    glClearColor(m_ClearColor[0], m_ClearColor[1], m_ClearColor[2], 1.0f);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

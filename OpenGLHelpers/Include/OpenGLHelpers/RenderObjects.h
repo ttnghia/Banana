@@ -156,15 +156,15 @@ public:
         initRenderData();
     }
 
-    void         setColor(const glm::vec3& color);
-    void         transform(const glm::vec3& translation, const glm::vec3& scale);
-    void         setBox(const glm::vec3& boxMin, const glm::vec3& boxMax);
+    void         setColor(const Vec3f& color);
+    void         transform(const Vec3f& translation, const Vec3f& scale);
+    void         setBox(const Vec3f& boxMin, const Vec3f& boxMax);
     virtual void render() override;
 
 private:
     virtual void initRenderData() override;
 
-    glm::vec3                           m_BoxColor;
+    Vec3f                               m_BoxColor;
     GLuint                              m_AtrVPosition;
     GLuint                              m_UColor;
     std::unique_ptr<WireFrameBoxObject> m_WireFrameBoxObj;
@@ -218,22 +218,22 @@ class DepthBufferRender : public OffScreenRender
 {
 public:
     DepthBufferRender(int width = 1024, int height = 1024) :
-        OffScreenRender(width, height, 1, GL_R32F), m_ClearLinearDepthValue(-1.0e6), m_DefaultClearColor(glm::vec4(0.8, 0.8, 0.8, 1.0)) {}
+        OffScreenRender(width, height, 1, GL_R32F), m_ClearLinearDepthValue(-1.0e6), m_DefaultClearColor(Vec3f(0.8, 0.8, 0.8)) {}
 
     virtual void beginRender() override;
     virtual void endRender(GLuint defaultFBO /* = 0 */) override;
 
     virtual void setNumColorBuffers(int numColorBuffers) override;
 
-    void                            setDefaultClearColor(const glm::vec4& clearColor);
+    void                            setDefaultClearColor(const Vec3f& clearColor);
     void                            setClearDepthValue(GLfloat clearValue);
     std::shared_ptr<OpenGLTexture>& getDepthBuffer();
 
 private:
     virtual void initRenderData() override;
 
-    GLfloat   m_ClearLinearDepthValue;
-    glm::vec4 m_DefaultClearColor;
+    GLfloat m_ClearLinearDepthValue;
+    Vec3f   m_DefaultClearColor;
 };
 
 
@@ -313,7 +313,7 @@ public:
     void setExternalShadowMaps(const std::vector<std::shared_ptr<OpenGLTexture> >& shadowMaps);
     void resizeShadowMap(int width, int height);
     void setExposure(float exposure);
-    void transform(const glm::vec3& translation, const glm::vec3& scale);
+    void transform(const Vec3f& translation, const Vec3f& scale);
     void setupVAO();
 
     std::shared_ptr<OpenGLTexture>&              getLightShadowMap(int lightID = 0);
@@ -322,7 +322,7 @@ public:
 
     virtual void render() override;
 
-    virtual void initDepthBufferData(const glm::vec4& defaultClearColor);
+    virtual void initDepthBufferData(const Vec3f& defaultClearColor);
     virtual void renderToLightDepthBuffer(int scrWidth, int scrHeight, GLuint defaultFBO = 0);
     virtual void renderToCameraDepthBuffer(int scrWidth, int scrHeight, GLuint defaultFBO = 0);
 

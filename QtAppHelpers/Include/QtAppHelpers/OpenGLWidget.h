@@ -52,7 +52,8 @@ public:
     void setPrintDebug(bool pdebug);
     void setUpdateTimeout(int timeout);
     void setDefaultSize(QSize size);
-    void setClearColor(const glm::vec4& color);
+    void setClearColor(const Vec3f& color);
+    void resetClearColor();
     void setViewFrustum(float fov, float nearZ, float farZ);
 
     bool exportScreenToImage(int frame);
@@ -88,7 +89,6 @@ protected:
     virtual void renderOpenGL()                   = 0;
 
     void uploadCameraData();
-    void resetClearColor();
     void checkGLErrors();
     void checkGLVersion();
     void checkGLExtensions(QVector<QString> extensions);
@@ -98,7 +98,7 @@ protected:
     bool        m_bPrintDebug;
     int         m_WidgetUpdateTimeout;
     QSize       m_DefaultSize;
-    glm::vec4   m_ClearColor;
+    Vec3f       m_ClearColor;
     SpecialKey  m_SpecialKeyPressed;
     MouseButton m_MouseButtonPressed;
     QString     m_CapturePath = QString("");
