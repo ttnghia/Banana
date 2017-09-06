@@ -766,7 +766,7 @@ void FLIP3DSolver::addGravity(Real timestep)
                                         0, m_SimData->v.sizeZ(),
                                         [&](size_t i, size_t j, size_t k)
                                         {
-                                            m_SimData->v(i, j, k) -= Real(0.981) * timestep;
+                                            m_SimData->v(i, j, k) -= Real(9.81) * timestep;
                                         });
 }
 
