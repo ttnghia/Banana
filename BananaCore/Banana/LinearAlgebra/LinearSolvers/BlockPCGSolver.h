@@ -30,13 +30,17 @@ class BlockPCGSolver
 public:
     BlockPCGSolver() = default;
 
+    Real tolerance() const noexcept { return m_OutResidual; }
+    UInt iterations() const noexcept { return m_OutIterations; }
+
+    ////////////////////////////////////////////////////////////////////////////////
     void setSolverParameters(Real toleranceFactor, UInt maxIterations);
     void setZeroInitial(bool bZeroInitial);
     void enableZeroInitial();
     void disableZeroInitial();
 
-    bool solve(const BlockSparseMatrix<MatrixType>& matrix, const std::vector<VectorType>& rhs, std::vector<VectorType>& result, Real& residual_out, UInt& iterations_out);
-    bool solve_precond(const BlockSparseMatrix<MatrixType>& matrix, const std::vector<VectorType>& rhs, std::vector<VectorType>& result, Real& residual_out, UInt& iterations_out);
+    bool solve(const BlockSparseMatrix<MatrixType>& matrix, const std::vector<VectorType>& rhs, std::vector<VectorType>& result);
+    bool solve_precond(const BlockSparseMatrix<MatrixType>& matrix, const std::vector<VectorType>& rhs, std::vector<VectorType>& result);
 
 private:
     void formPreconditioner(const BlockSparseMatrix<MatrixType>& matrix);
@@ -50,6 +54,11 @@ private:
     Real m_ToleranceFactor = 1e-20;
     UInt m_MaxIterations   = 10000;
     bool m_bZeroInitial    = true;
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // output
+    Real m_OutResidual   = 0;
+    Real m_OutIterations = 0;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

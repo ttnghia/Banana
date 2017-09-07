@@ -66,7 +66,7 @@ void PCGSolver::resize(UInt size)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-bool PCGSolver::solve(const SparseMatrix& matrix, const Vec_Real& rhs, Vec_Real& result, Real& residual_out, UInt& iterations_out)
+bool PCGSolver::solve(const SparseMatrix& matrix, const Vec_Real& rhs, Vec_Real& result)
 {
     resize(matrix.nRows);
 
@@ -77,20 +77,20 @@ bool PCGSolver::solve(const SparseMatrix& matrix, const Vec_Real& rhs, Vec_Real&
     m_FixedSparseMatrix.constructFromSparseMatrix(matrix);
     r = rhs;
 
-    residual_out = ParallelSTL::maxAbs<Real>(r);
+    m_OutResidual = ParallelSTL::maxAbs<Real>(r);
 
-    if(residual_out < Tiny)
+    if(m_OutResidual < Tiny)
     {
-        iterations_out = 0;
+        m_OutIterations = 0;
         return true;
     }
 
-    Real tol = m_ToleranceFactor * residual_out;
+    Real tol = m_ToleranceFactor * m_OutResidual;
     Real rho = ParallelBLAS::dotProductScalar<Real>(r, r);
 
     if(rho < Tiny || isnan(rho))
     {
-        iterations_out = 0;
+        m_OutIterations = 0;
         return false;
     }
 
@@ -102,17 +102,17 @@ bool PCGSolver::solve(const SparseMatrix& matrix, const Vec_Real& rhs, Vec_Real&
         Real tmp = ParallelBLAS::dotProductScalar<Real>(s, z);
         if(tmp < Tiny)
         {
-            iterations_out = iteration + 1;
+            m_OutIterations = iteration + 1;
             return true;
         }
         Real alpha = rho / tmp;
         ParallelBLAS::addScaled<Real, Real>(alpha,  z, result);
         ParallelBLAS::addScaled<Real, Real>(-alpha, s, r);
 
-        residual_out = ParallelSTL::maxAbs<Real>(r);
-        if(residual_out < tol)
+        m_OutResidual = ParallelSTL::maxAbs<Real>(r);
+        if(m_OutResidual < tol)
         {
-            iterations_out = iteration + 1;
+            m_OutIterations = iteration + 1;
             return true;
         }
 
@@ -122,12 +122,12 @@ bool PCGSolver::solve(const SparseMatrix& matrix, const Vec_Real& rhs, Vec_Real&
         rho = rho_new;
     }
 
-    iterations_out = m_MaxIterations;
+    m_OutIterations = m_MaxIterations;
     return false;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-bool PCGSolver::solve_precond(const SparseMatrix& matrix, const Vec_Real& rhs, Vec_Real& result, Real& residual_out, UInt& iterations_out)
+bool PCGSolver::solve_precond(const SparseMatrix& matrix, const Vec_Real& rhs, Vec_Real& result)
 {
     resize(matrix.nRows);
 
@@ -138,21 +138,21 @@ bool PCGSolver::solve_precond(const SparseMatrix& matrix, const Vec_Real& rhs, V
     m_FixedSparseMatrix.constructFromSparseMatrix(matrix);
     r = rhs;
 
-    residual_out = ParallelSTL::maxAbs<Real>(r);
-    if(residual_out < Tiny)
+    m_OutResidual = ParallelSTL::maxAbs<Real>(r);
+    if(m_OutResidual < Tiny)
     {
-        iterations_out = 0;
+        m_OutIterations = 0;
         return true;
     }
 
-    Real tol = m_ToleranceFactor * residual_out;
+    Real tol = m_ToleranceFactor * m_OutResidual;
     formPreconditioner(matrix);
     applyPreconditioner(r, z);
 
     Real rho = ParallelBLAS::dotProductScalar<Real>(z, r);
     if(rho < Tiny || isnan(rho))
     {
-        iterations_out = 0;
+        m_OutIterations = 0;
         return false;
     }
 
@@ -165,10 +165,10 @@ bool PCGSolver::solve_precond(const SparseMatrix& matrix, const Vec_Real& rhs, V
         ParallelBLAS::addScaled<Real, Real>(alpha,  s, result);
         ParallelBLAS::addScaled<Real, Real>(-alpha, z, r);
 
-        residual_out = ParallelSTL::maxAbs<Real>(r);
-        if(residual_out < tol)
+        m_OutResidual = ParallelSTL::maxAbs<Real>(r);
+        if(m_OutResidual < tol)
         {
-            iterations_out = iteration + 1;
+            m_OutIterations = iteration + 1;
             return true;
         }
 
@@ -180,7 +180,7 @@ bool PCGSolver::solve_precond(const SparseMatrix& matrix, const Vec_Real& rhs, V
         rho = rho_new;
     }
 
-    iterations_out = m_MaxIterations;
+    m_OutIterations = m_MaxIterations;
     return false;
 }
 

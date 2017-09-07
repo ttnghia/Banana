@@ -28,7 +28,7 @@ void FLIP2DSolver::makeReady()
                            {
                                m_SimParams->makeReady();
                                m_SimParams->printParams(m_Logger);
-                               if(m_SimParams->kernelFunc == SimulationParameters_FLIP2D::Linear)
+                               if(m_SimParams->kernelFunc == P2GKernels::Linear)
                                {
                                    m_InterpolateValue = static_cast<Real (*)(const Vec2r&, const Array2r&)>(&ArrayHelpers::interpolateValueLinear);
                                    m_WeightKernel = [](const Vec2r& dxdy) { return MathHelpers::bilinear_kernel(dxdy[0], dxdy[1]); };
@@ -39,7 +39,7 @@ void FLIP2DSolver::makeReady()
                                    m_WeightKernel = [](const Vec2r& dxdy) { return MathHelpers::cubic_spline_kernel_2d(dxdy[0], dxdy[1]); };
                                }
 
-                               m_Grid.setGrid(m_SimParams->boxMin, m_SimParams->boxMax, m_SimParams->kernelRadius);
+                               m_Grid.setGrid(m_SimParams->movingBMin, m_SimParams->movingBMax, m_SimParams->cellSize);
                                m_SimData->makeReady(m_Grid.getNumCellX(), m_Grid.getNumCellY());
 
                                m_PCGSolver.setSolverParameters(m_SimParams->CGRelativeTolerance, m_SimParams->maxCGIteration);
@@ -49,14 +49,14 @@ void FLIP2DSolver::makeReady()
 
                                // todo: remove
                                GeometryObject2D::BoxObject box;
-                               box.boxMin() = m_SimParams->boxMin + Vec2r(m_SimParams->kernelRadius);
-                               box.boxMax() = m_SimParams->boxMax - Vec2r(m_SimParams->kernelRadius);
+                               box.boxMin() = m_SimParams->movingBMin + Vec2r(m_SimParams->cellSize);
+                               box.boxMax() = m_SimParams->movingBMax - Vec2r(m_SimParams->cellSize);
                                ParallelFuncs::parallel_for<UInt>(0, m_Grid.getNumCellX() + 1,
                                                                  0, m_Grid.getNumCellY() + 1,
                                                                  [&](UInt i, UInt j)
                                                                  {
-                                                                     const Vec2r gridPos = Vec2r(i, j) * m_SimParams->kernelRadius + m_SimParams->boxMin;
-                                                                     m_SimData->boundarySDF(i, j) = compute_phi(gridPos);
+                                                                     const Vec2r gridPos = m_Grid.getWorldCoordinate(i, j);
+                                                                     m_SimData->boundarySDF(i, j) = -box.signedDistance(gridPos);
                                                                  });
                                m_Logger->printWarning("Computed boundary SDF");
                            });
@@ -139,8 +139,8 @@ void FLIP2DSolver::sortParticles()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void FLIP2DSolver::loadSimParams(const nlohmann::json& jParams)
 {
-    JSONHelpers::readVector(jParams, m_SimParams->boxMin, "BoxMin");
-    JSONHelpers::readVector(jParams, m_SimParams->boxMax, "BoxMax");
+    JSONHelpers::readVector(jParams, m_SimParams->movingBMin, "BoxMin");
+    JSONHelpers::readVector(jParams, m_SimParams->movingBMax, "BoxMax");
 
     JSONHelpers::readValue(jParams, m_SimParams->particleRadius,      "ParticleRadius");
     JSONHelpers::readValue(jParams, m_SimParams->PIC_FLIP_ratio,      "PIC_FLIP_Ratio");
@@ -441,7 +441,7 @@ void FLIP2DSolver::velocityToGrid()
                                                       const Vec2r& ppos = m_SimData->positions[p];
                                                       const Vec2r& pvel = m_SimData->velocities[p];
 
-                                                      if(valid_index_u && isInside(ppos, puMin, puMax))
+                                                      if(valid_index_u && ParticleHelpers::isInside(ppos, puMin, puMax))
                                                       {
                                                           const Real weight = m_WeightKernel((ppos - pu) / m_Grid.getCellSize());
 
@@ -452,7 +452,7 @@ void FLIP2DSolver::velocityToGrid()
                                                           }
                                                       }
 
-                                                      if(valid_index_v && isInside(ppos, pvMin, pvMax))
+                                                      if(valid_index_v && ParticleHelpers::isInside(ppos, pvMin, pvMax))
                                                       {
                                                           const Real weight = m_WeightKernel((ppos - pv) / m_Grid.getCellSize());
 
@@ -780,14 +780,9 @@ void FLIP2DSolver::computeRhs()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void FLIP2DSolver::solveSystem()
 {
-    Real tolerance  = Real(0);
-    UInt iterations = 0;
-
-    bool success = m_PCGSolver.solve_precond(m_SimData->matrix, m_SimData->rhs, m_SimData->pressure, tolerance, iterations);
-
-    m_Logger->printLog("Conjugate Gradient iterations: " + NumberHelpers::formatWithCommas(iterations) +
-                       ". Final tolerance: " + NumberHelpers::formatToScientific(tolerance));
-
+    bool success = m_PCGSolver.solve_precond(m_SimData->matrix, m_SimData->rhs, m_SimData->pressure);
+    m_Logger->printLog("Conjugate Gradient iterations: " + NumberHelpers::formatWithCommas(m_PCGSolver.iterations()) +
+                       ". Final residual: " + NumberHelpers::formatToScientific(m_PCGSolver.residual()));
     if(!success)
         m_Logger->printWarning("Pressure projection failed to solved!********************************************************************************");
 }
@@ -861,15 +856,6 @@ void FLIP2DSolver::velocityToParticles()
                                           m_SimData->velocities[p] = MathHelpers::lerp(oldVel, pvel + dVel, m_SimParams->PIC_FLIP_ratio);
                                           //m_SimData->affineMatrix[p] = MathHelpers::lerp(getAffineMatrix(gridPos), pvel + dVel, m_SimParams->PIC_FLIP_ratio);
                                       });
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-bool FLIP2DSolver::isInside(const Vec2r& pos, const Vec2r& bMin, const Vec2r& bMax)
-{
-    return (pos[0] > bMin[0] &&
-            pos[1] > bMin[1] &&
-            pos[0] < bMax[0] &&
-            pos[1] < bMax[1]);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

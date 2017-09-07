@@ -27,27 +27,23 @@
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-
 struct SimulationParameters_FLIP3D
 {
-    enum Kernel { Linear, CubicBSpline, SwirlyLinear, SwirlyCubicBSpline };
     SimulationParameters_FLIP3D() { makeReady(); }
 
     ////////////////////////////////////////////////////////////////////////////////
-    Real   defaultTimestep         = Real(1.0e-4);
-    Real   CFLFactor               = Real(1.0);
-    Real   PIC_FLIP_ratio          = Real(0.97);
-    Real   boundaryRestitution     = Real(DEFAULT_BOUNDARY_RESTITUTION);
-    Real   particleRadius          = Real(2.0 / 64.0 / 4.0);
-    Real   repulsiveForceStiffness = Real(1e-3);
-    UInt   expandCells             = 2;
-    Real   CGRelativeTolerance     = Real(1e-15);
-    UInt   maxCGIteration          = 10000;
-    Kernel kernelFunc              = Kernel::Linear;
+    Real       defaultTimestep     = Real(1.0e-4);
+    Real       CFLFactor           = Real(1.0);
+    Real       PIC_FLIP_ratio      = Real(0.97);
+    Real       boundaryRestitution = Real(DEFAULT_BOUNDARY_RESTITUTION);
+    Real       particleRadius      = Real(2.0 / 64.0 / 4.0);
+    P2GKernels kernelFunc          = P2GKernels::Linear;
+    UInt       expandCells         = 2;
+    Real       CGRelativeTolerance = Real(1e-15);
+    UInt       maxCGIteration      = 10000;
 
-    bool bApplyRepulsiveForces = false;
+    bool bApplyRepulsiveForces   = false;
+    Real repulsiveForceStiffness = Real(1e-3);
 
     Vec3r movingBMin = Vec3r(-1.0);
     Vec3r movingBMax = Vec3r(1.0);
@@ -57,14 +53,9 @@ struct SimulationParameters_FLIP3D
     Vec3r domainBMax;
     int   kernelSpan;
     Real  cellSize;
-    Real  kernelRadiusSqr;
     Real  nearKernelRadius;
     Real  nearKernelRadiusSqr;
-    Real  sdfRadius;                                                               // radius for level set fluid
-
-
-    // todo: remove
-    String particleFile;
+    Real  sdfRadius;
 
     ////////////////////////////////////////////////////////////////////////////////
     void makeReady()
@@ -74,7 +65,7 @@ struct SimulationParameters_FLIP3D
         nearKernelRadiusSqr = nearKernelRadius * nearKernelRadius;
 
         sdfRadius  = cellSize * Real(1.01 * sqrt(3.0) / 2.0);
-        kernelSpan = (kernelFunc == Kernel::Linear || kernelFunc == Kernel::SwirlyLinear) ? 1 : 2;
+        kernelSpan = (kernelFunc == P2GKernels::Linear || kernelFunc == P2GKernels::SwirlyLinear) ? 1 : 2;
 
         domainBMin = movingBMin - Vec3r(cellSize * expandCells);
         domainBMax = movingBMax + Vec3r(cellSize * expandCells);
@@ -87,8 +78,8 @@ struct SimulationParameters_FLIP3D
         logger->printLogIndent("Default timestep: " + NumberHelpers::formatToScientific(defaultTimestep));
         logger->printLogIndent("CFL factor: " + std::to_string(CFLFactor));
         logger->printLogIndent("PIC/FLIP ratio: " + std::to_string(PIC_FLIP_ratio));
-        logger->printLogIndent("Kernel function: " + (kernelFunc == Kernel::Linear ? String("Linear") : String("Cubic BSpline")));
 
+        logger->printLogIndent("Kernel function: " + (kernelFunc == P2GKernels::Linear ? String("Linear") : String("Cubic BSpline")));
         logger->printLogIndent("Moving BMin: " + NumberHelpers::toString(movingBMin));
         logger->printLogIndent("Moving BMax: " + NumberHelpers::toString(movingBMax));
         logger->printLogIndent("Cell size: " + std::to_string(cellSize));

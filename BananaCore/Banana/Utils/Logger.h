@@ -114,6 +114,7 @@ private:
     static bool     s_bPrint2Console;
     static bool     s_bWriteLog2File;
     static bool     s_bInitialized;
+    static bool     s_bShutdown;
 
     static std::string                           s_DataPath;
     static std::string                           s_TimeLogFile;

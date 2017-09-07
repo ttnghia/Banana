@@ -1,3 +1,4 @@
+#include "ParticleHelpers.h"
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //
@@ -84,6 +85,19 @@ void ParticleHelpers::saveBinary(const String& fileName, Vector<VectorType>& par
     buffer.appendFloat(particleRadius);
     buffer.appendFloatArray(particles, false);
     FileHelpers::writeBinaryFile(buffer.buffer(), fileName);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class VectorType>
+bool Banana::ParticleHelpers::isInside(const VectorType& ppos, const VectorType& bmin, const VectorType& bmax)
+{
+    for(int i = 0; i < ppos.length(); ++i)
+    {
+        if(ppos[i] < bmin[i] || ppos[i] > bmax[i])
+            return false;
+    }
+
+    return true;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

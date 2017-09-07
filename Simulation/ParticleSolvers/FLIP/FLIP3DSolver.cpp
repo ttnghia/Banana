@@ -28,7 +28,7 @@ void FLIP3DSolver::makeReady()
                            {
                                m_SimParams->makeReady();
                                m_SimParams->printParams(m_Logger);
-                               if(m_SimParams->kernelFunc == SimulationParameters_FLIP3D::Linear)
+                               if(m_SimParams->kernelFunc == P2GKernels::Linear)
                                {
                                    m_InterpolateValue = static_cast<Real (*)(const Vec3r&, const Array3r&)>(&ArrayHelpers::interpolateValueLinear);
                                    m_WeightKernel = [](const Vec3r& dxdydz) { return MathHelpers::tril_kernel(dxdydz[0], dxdydz[1], dxdydz[2]); };
@@ -168,15 +168,9 @@ void FLIP3DSolver::loadSimParams(const nlohmann::json& jParams)
     String tmp = "LinearKernel";
     JSONHelpers::readValue(jParams, tmp,                                  "KernelFunction");
     if(tmp == "LinearKernel" || tmp == "Linear")
-        m_SimParams->kernelFunc = SimulationParameters_FLIP3D::Linear;
+        m_SimParams->kernelFunc = P2GKernels::Linear;
     else
-        m_SimParams->kernelFunc = SimulationParameters_FLIP3D::CubicBSpline;
-
-
-
-
-    // todo: remove
-    __BNN_ASSERT(JSONHelpers::readValue(jParams, m_SimParams->particleFile, "ParticleFile"));
+        m_SimParams->kernelFunc = P2GKernels::CubicBSpline;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -533,7 +527,7 @@ void FLIP3DSolver::velocityToGrid()
                                                           const Vec3r& ppos = m_SimData->positions[p];
                                                           const Vec3r& pvel = m_SimData->velocities[p];
 
-                                                          if(valid_index_u && isInside(ppos, puMin, puMax))
+                                                          if(valid_index_u && ParticleHelpers::isInside(ppos, puMin, puMax))
                                                           {
                                                               const Real weight = m_WeightKernel((ppos - pu) / m_Grid.getCellSize());
 
@@ -544,7 +538,7 @@ void FLIP3DSolver::velocityToGrid()
                                                               }
                                                           }
 
-                                                          if(valid_index_v && isInside(ppos, pvMin, pvMax))
+                                                          if(valid_index_v && ParticleHelpers::isInside(ppos, pvMin, pvMax))
                                                           {
                                                               const Real weight = m_WeightKernel((ppos - pv) / m_Grid.getCellSize());
 
@@ -555,7 +549,7 @@ void FLIP3DSolver::velocityToGrid()
                                                               }
                                                           }
 
-                                                          if(valid_index_w && isInside(ppos, pwMin, pwMax))
+                                                          if(valid_index_w && ParticleHelpers::isInside(ppos, pwMin, pwMax))
                                                           {
                                                               const Real weight = m_WeightKernel((ppos - pw) / m_Grid.getCellSize());
 
@@ -603,18 +597,25 @@ void FLIP3DSolver::extrapolateVelocity()
 void FLIP3DSolver::extrapolateVelocity(Array3r& grid, Array3r& temp_grid, Array3c& valid, Array3c& old_valid)
 {
     temp_grid.copyDataFrom(grid);
-    for(Int layers = 0; layers < 10; ++layers)
+    bool forward = true;
+
+    for(Int layers = 0; layers < m_SimParams->kernelSpan; ++layers)
     {
         bool stop = true;
         old_valid.copyDataFrom(valid);
         ParallelFuncs::parallel_for<UInt>(1, m_Grid.getNumCellX() - 1,
                                           1, m_Grid.getNumCellY() - 1,
                                           1, m_Grid.getNumCellZ() - 1,
-                                          [&](UInt i, UInt j, UInt k)
+                                          [&](UInt ii, UInt jj, UInt kk)
                                           {
+                                              UInt i = forward ? ii : m_Grid.getNumCellX() - ii - 1;
+                                              UInt j = forward ? jj : m_Grid.getNumCellX() - jj - 1;
+                                              UInt k = forward ? kk : m_Grid.getNumCellX() - kk - 1;
+
                                               if(old_valid(i, j, k))
                                                   return;
 
+                                              ////////////////////////////////////////////////////////////////////////////////
                                               Real sum = Real(0);
                                               unsigned int count = 0;
 
@@ -663,6 +664,7 @@ void FLIP3DSolver::extrapolateVelocity(Array3r& grid, Array3r& temp_grid, Array3
                                               }
                                           });
 
+        forward = !forward;
         // if nothing changed in the last iteration: stop
         if(stop)
             break;
@@ -978,13 +980,9 @@ void FLIP3DSolver::computeRhs()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void FLIP3DSolver::solveSystem()
 {
-    Real tolerance  = Real(0);
-    UInt iterations = 0;
-
-    bool success = m_PCGSolver.solve_precond(m_SimData->matrix, m_SimData->rhs, m_SimData->pressure, tolerance, iterations);
-    m_Logger->printLog("Conjugate Gradient iterations: " + NumberHelpers::formatWithCommas(iterations) +
-                       ". Final tolerance: " + NumberHelpers::formatToScientific(tolerance));
-
+    bool success = m_PCGSolver.solve_precond(m_SimData->matrix, m_SimData->rhs, m_SimData->pressure);
+    m_Logger->printLog("Conjugate Gradient iterations: " + NumberHelpers::formatWithCommas(m_PCGSolver.iterations()) +
+                       ". Final residual: " + NumberHelpers::formatToScientific(m_PCGSolver.residual()));
     if(!success)
     {
         m_Logger->printWarning("Pressure projection failed to solved!");
@@ -1078,17 +1076,6 @@ void FLIP3DSolver::velocityToParticles()
 
                                           m_SimData->velocities[p] = MathHelpers::lerp(oldVel, pvel + dVel, m_SimParams->PIC_FLIP_ratio);
                                       });
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-bool FLIP3DSolver::isInside(const Vec3r& pos, const Vec3r& bMin, const Vec3r& bMax)
-{
-    return (pos[0] > bMin[0] &&
-            pos[1] > bMin[1] &&
-            pos[2] > bMin[2] &&
-            pos[0] < bMax[0] &&
-            pos[1] < bMax[1] &&
-            pos[2] < bMax[2]);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

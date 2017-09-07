@@ -27,6 +27,7 @@ Logger::LogLevel Logger::s_LogLevel       = LogLevel::NormalLevel;
 bool             Logger::s_bPrint2Console = true;
 bool             Logger::s_bWriteLog2File = false;
 bool             Logger::s_bInitialized   = false;
+bool             Logger::s_bShutdown      = false;
 
 std::string                           Logger::s_DataPath    = std::string(".");
 std::string                           Logger::s_TimeLogFile = std::string("time.txt");
@@ -246,6 +247,11 @@ void Logger::initialize()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Logger::shutdown()
 {
+    if(s_bShutdown)
+        return;
+    s_bShutdown = true;
+
+    ////////////////////////////////////////////////////////////////////////////////
     s_ShutdownTime = std::chrono::system_clock::now();
     std::string totalRunTime = getTotalRunTime();
 

@@ -29,7 +29,6 @@ namespace Banana
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #define DEFAULT_BOUNDARY_RESTITUTION 0.1
 #define DEFAULT_FRAME_RATE           30
-class Logger;
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 struct GlobalParameters
@@ -50,7 +49,7 @@ struct GlobalParameters
 
     bool bApplyGravity       = true;
     bool bEnableSortParticle = false;
-    UInt sortFrequency       = DEFAULT_FRAME_RATE;
+    UInt sortFrequency       = 10;
 
     ////////////////////////////////////////////////////////////////////////////////
     bool bPrintLog2Console = true;
@@ -75,6 +74,8 @@ struct GlobalParameters
     }
 };
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+enum class P2GKernels { Linear, CubicBSpline, SwirlyLinear, SwirlyCubicBSpline };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana

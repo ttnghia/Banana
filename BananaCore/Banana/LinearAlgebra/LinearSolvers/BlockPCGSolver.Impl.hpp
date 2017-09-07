@@ -43,8 +43,7 @@ void BlockPCGSolver<MatrixType, VectorType, Real>::disableZeroInitial()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class MatrixType, class VectorType, class Real>
-bool BlockPCGSolver<MatrixType, VectorType, Real>::solve(const BlockSparseMatrix<MatrixType>& matrix, const std::vector<VectorType>& rhs, std::vector<VectorType>& result,
-                                                         Real& residual_out, UInt& iterations_out)
+bool BlockPCGSolver<MatrixType, VectorType, Real>::solve(const BlockSparseMatrix<MatrixType>& matrix, const std::vector<VectorType>& rhs, std::vector<VectorType>& result)
 {
     const UInt n = matrix.size();
 
@@ -67,20 +66,20 @@ bool BlockPCGSolver<MatrixType, VectorType, Real>::solve(const BlockSparseMatrix
     m_FixedSparseMatrix.constructFromSparseMatrix(matrix);
     r = rhs;
 
-    residual_out = ParallelBLAS::maxAbs<Real, VectorType>(r);
+    m_OutResidual = ParallelBLAS::maxAbs<Real, VectorType>(r);
 
-    if(residual_out < 1e-20)
+    if(m_OutResidual < 1e-20)
     {
-        iterations_out = 0;
+        m_OutIterations = 0;
         return true;
     }
 
-    Real tol = m_ToleranceFactor * residual_out;
+    Real tol = m_ToleranceFactor * m_OutResidual;
     Real rho = ParallelBLAS::dotProduct<Real, VectorType>(r, r);
 
     if(fabs(rho) < 1e-20 || isnan(rho))
     {
-        iterations_out = 0;
+        m_OutIterations = 0;
         return true;
     }
 
@@ -93,7 +92,7 @@ bool BlockPCGSolver<MatrixType, VectorType, Real>::solve(const BlockSparseMatrix
 
         if(fabs(tmp) < 1e-20 || isnan(tmp))
         {
-            iterations_out = iteration;
+            m_OutIterations = iteration;
             return true;
         }
 
@@ -109,11 +108,11 @@ bool BlockPCGSolver<MatrixType, VectorType, Real>::solve(const BlockSparseMatrix
             ParallelBLAS::addScaled<Real, VectorType>(-alpha, s, r);
         });
 
-        residual_out = ParallelBLAS::maxAbs<Real, VectorType>(r);
+        m_OutResidual = ParallelBLAS::maxAbs<Real, VectorType>(r);
 
-        if(residual_out < tol)
+        if(m_OutResidual < tol)
         {
-            iterations_out = iteration + 1;
+            m_OutIterations = iteration + 1;
             return true;
         }
 
@@ -123,13 +122,13 @@ bool BlockPCGSolver<MatrixType, VectorType, Real>::solve(const BlockSparseMatrix
         rho = rho_new;
     }
 
-    iterations_out = m_MaxIterations;
+    m_OutIterations = m_MaxIterations;
     return false;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class MatrixType, class VectorType, class Real>
-bool BlockPCGSolver<MatrixType, VectorType, Real>::solve_precond(const BlockSparseMatrix<MatrixType>& matrix, const std::vector<VectorType>& rhs, std::vector<VectorType>& result, Real& residual_out, UInt& iterations_out)
+bool BlockPCGSolver<MatrixType, VectorType, Real>::solve_precond(const BlockSparseMatrix<MatrixType>& matrix, const std::vector<VectorType>& rhs, std::vector<VectorType>& result)
 {
     UInt n = matrix.size();
 
@@ -155,15 +154,15 @@ bool BlockPCGSolver<MatrixType, VectorType, Real>::solve_precond(const BlockSpar
     multiply(m_FixedSparseMatrix, result, s);
     ParallelBLAS::addScaled<Real, VectorType>(-1.0, s, r);
 
-    residual_out = ParallelBLAS::maxAbs<Real, VectorType>(r);
+    m_OutResidual = ParallelBLAS::maxAbs<Real, VectorType>(r);
 
-    if(fabs(residual_out) < 1e-20)
+    if(fabs(m_OutResidual) < 1e-20)
     {
-        iterations_out = 0;
+        m_OutIterations = 0;
         return true;
     }
 
-    Real tol = m_ToleranceFactor * residual_out;
+    Real tol = m_ToleranceFactor * m_OutResidual;
 
     formPreconditioner(matrix);
     applyPreconditioner(r, z);
@@ -172,7 +171,7 @@ bool BlockPCGSolver<MatrixType, VectorType, Real>::solve_precond(const BlockSpar
 
     if(fabs(rho) < 1e-20 || isnan(rho))
     {
-        iterations_out = 0;
+        m_OutIterations = 0;
         return true;
     }
 
@@ -192,11 +191,11 @@ bool BlockPCGSolver<MatrixType, VectorType, Real>::solve_precond(const BlockSpar
             ParallelBLAS::addScaled<Real, VectorType>(-alpha, z, r);
         });
 
-        residual_out = ParallelBLAS::maxAbs<Real, VectorType>(r);
+        m_OutResidual = ParallelBLAS::maxAbs<Real, VectorType>(r);
 
-        if(residual_out < tol)
+        if(m_OutResidual < tol)
         {
-            iterations_out = iteration + 1;
+            m_OutIterations = iteration + 1;
             return true;
         }
 
@@ -209,7 +208,7 @@ bool BlockPCGSolver<MatrixType, VectorType, Real>::solve_precond(const BlockSpar
         rho = rho_new;
     }
 
-    iterations_out = m_MaxIterations;
+    m_OutIterations = m_MaxIterations;
     return false;
 }
 

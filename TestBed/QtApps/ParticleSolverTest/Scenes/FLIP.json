@@ -2,15 +2,16 @@
 	"GlobalParameters": 
 	{
 		"FrameDuration" : 0.03333333333,
-		"FinalFrame" : 20,
-        "EnableSortParticle" : true
+		"FinalFrame" : 200,
+        "EnableSortParticle" : true,
+		"SortFrequency" : 10
 	},
 	"SimulationParameters": 
 	{
 		"ApplyRepulsiveForce" : true,
 		"RepulsiveForceStiffness" : 1e-3,
 		"PIC_FLIP_Ratio" : 0.97,
-		"CGRelativeTolerance" : 1e-17,
+		"CGRelativeTolerance" : 1e-15,
 		"MaxCGIteration" : 10000,
 		"BoxMin" : [-1, -1, -1],
 		"BoxMax" : [1, 1, 1],

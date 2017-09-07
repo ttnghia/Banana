@@ -42,6 +42,7 @@ template<class IndexType> Vec2<IndexType> createGrid(const Vec2r& bmin, const Ve
 template<class IndexType> Vec3<IndexType> createGrid(const Vec3r& bmin, const Vec3r& bmax, Real spacing);
 template<class VectorType> UInt           loadBinary(const String& fileName, Vector<VectorType>& particles, Real& particleRadius);
 template<class VectorType> void           saveBinary(const String& fileName, Vector<VectorType>& particles, Real& particleRadius);
+template<class VectorType> bool           isInside(const VectorType& ppos, const VectorType& bmin, const VectorType& bmax);
 template<class VectorType> void           jitter(VectorType& ppos, Real maxJitter);
 template<class VectorType> void           clamp(VectorType& ppos, const VectorType& bmin, const VectorType& bmax, Real margin = 0);
 template<class VectorType> void           compress(const Vector<VectorType>& positions, VectorType& bmin, VectorType& bmax, Vec_UInt16& compressedData);

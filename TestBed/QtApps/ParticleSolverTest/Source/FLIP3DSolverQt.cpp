@@ -50,5 +50,5 @@ void FLIP3DSolverQt::endSimulation()
     m_Logger->printLog("Total frames: " + NumberHelpers::formatWithCommas(m_GlobalParams->finalFrame - m_GlobalParams->startFrame + 1));
     m_Logger->printLog("Data path: " + m_GlobalParams->dataPath);
     m_Logger->newLine();
-    m_Logger->printTextBox("End Computation");
+    Logger::shutdown();
 }

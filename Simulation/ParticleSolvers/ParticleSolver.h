@@ -49,8 +49,8 @@ namespace Banana
 class ParticleSolver
 {
 public:
-    ParticleSolver()          = default;
-    virtual ~ParticleSolver() = default;
+    ParticleSolver() = default;
+    virtual ~ParticleSolver() { Logger::shutdown(); }
 
     const std::unique_ptr<GlobalParameters>& getGlobalParams() const noexcept { return m_GlobalParams; }
     const std::shared_ptr<Logger>& getLogger() const noexcept { return m_Logger; }

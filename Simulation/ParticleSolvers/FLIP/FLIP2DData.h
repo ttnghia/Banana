@@ -27,87 +27,45 @@
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-enum ParticleType
-{
-    PT_LIQUID,
-    PT_SOLID
-};
-
-
-
-enum BOUNDARY_TYPE
-{
-    BT_CIRCLE,
-    BT_BOX,
-    BT_HEXAGON,
-    BT_TRIANGLE,
-    BT_TORUS,
-    BT_CYLINDER,
-
-    BT_INTERSECTION,
-    BT_UNION,
-
-    BT_COUNT
-};
-
-struct Boundary
-{
-    Boundary(const Vec2r& center_, const Vec2r& parameter_, BOUNDARY_TYPE type_, bool inside)
-        : center(center_), parameter(parameter_), type(type_), sign(inside ? -1.0 : 1.0) {}
-
-    Boundary(Boundary* op0_, Boundary* op1_, BOUNDARY_TYPE type_)
-        : op0(op0_), op1(op1_), type(type_), sign(op0_ ? op0_->sign : false) {}
-
-    Vec2r center;
-    Vec2r parameter;
-
-    Boundary* op0;
-    Boundary* op1;
-
-    BOUNDARY_TYPE type;
-    Real          sign;
-};
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 struct SimulationParameters_FLIP2D
 {
-    enum Kernel { Linear, CubicSpline };
     SimulationParameters_FLIP2D() { makeReady(); }
 
     ////////////////////////////////////////////////////////////////////////////////
-    Real   defaultTimestep         = Real(1.0e-4);
-    Real   CFLFactor               = Real(1.0);
-    Real   PIC_FLIP_ratio          = Real(0.97);
-    Real   boundaryRestitution     = Real(DEFAULT_BOUNDARY_RESTITUTION);
-    Real   particleRadius          = Real(2.0 / 32.0 / 4.0);
-    Kernel kernelFunc              = Kernel::Linear;
-    Real   repulsiveForceStiffness = Real(1e7);
-    Real   CGRelativeTolerance     = Real(1e-20);
-    UInt   maxCGIteration          = 10000;
+    Real       defaultTimestep     = Real(1.0e-4);
+    Real       CFLFactor           = Real(1.0);
+    Real       PIC_FLIP_ratio      = Real(0.97);
+    Real       boundaryRestitution = Real(DEFAULT_BOUNDARY_RESTITUTION);
+    Real       particleRadius      = Real(2.0 / 64.0 / 4.0);
+    P2GKernels kernelFunc          = P2GKernels::Linear;
+    UInt       expandCells         = 2;
+    Real       CGRelativeTolerance = Real(1e-15);
+    UInt       maxCGIteration      = 10000;
 
-    bool bApplyRepulsiveForces = false;
+    bool bApplyRepulsiveForces   = false;
+    Real repulsiveForceStiffness = Real(1e-3);
 
-    Vec2r boxMin = Vec2r(-1.0);
-    Vec2r boxMax = Vec2r(1.0);
+    Vec2r movingBMin = Vec2r(-1.0);
+    Vec2r movingBMax = Vec2r(1.0);
 
     // the following need to be computed
-    int  kernelSpan;
-    Real kernelRadius;
-    Real kernelRadiusSqr;
-    Real nearKernelRadius;
-    Real nearKernelRadiusSqr;
-    Real sdfRadius;                                                                // radius for level set fluid
+    Vec3r domainBMin;
+    Vec3r domainBMax;
+    int   kernelSpan;
+    Real  cellSize;
+    Real  nearKernelRadius;
+    Real  nearKernelRadiusSqr;
+    Real  sdfRadius;
 
     ////////////////////////////////////////////////////////////////////////////////
     void makeReady()
     {
-        kernelRadius        = particleRadius * Real(4.0);
-        kernelRadiusSqr     = kernelRadius * kernelRadius;
+        cellSize            = particleRadius * Real(4.0);
         nearKernelRadius    = particleRadius * Real(2.5);
         nearKernelRadiusSqr = nearKernelRadius * nearKernelRadius;
 
-        sdfRadius  = kernelRadius * Real(1.01 * sqrt(2.0) / 2.0);
-        kernelSpan = (kernelFunc == Kernel::Linear) ? 1 : 2;
+        sdfRadius  = cellSize * Real(1.01 * sqrt(2.0) / 2.0);
+        kernelSpan = (kernelFunc == P2GKernels::Linear || kernelFunc == P2GKernels::SwirlyLinear) ? 1 : 2;
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -118,7 +76,8 @@ struct SimulationParameters_FLIP2D
         logger->printLogIndent("CFL factor: " + std::to_string(CFLFactor));
         logger->printLogIndent("PIC/FLIP ratio: " + std::to_string(PIC_FLIP_ratio));
 
-        logger->printLogIndent("Kernel radius: " + std::to_string(kernelRadius));
+        logger->printLogIndent("Kernel function: " + (kernelFunc == P2GKernels::Linear ? String("Linear") : String("Cubic BSpline")));
+        logger->printLogIndent("Kernel radius: " + std::to_string(cellSize));
         logger->printLogIndent("Boundary restitution: " + std::to_string(boundaryRestitution));
         logger->printLogIndent("Apply repulsive forces: " + (bApplyRepulsiveForces ? std::string("Yes") : std::string("No")));
         if(bApplyRepulsiveForces)

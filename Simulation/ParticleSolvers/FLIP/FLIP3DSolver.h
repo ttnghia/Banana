@@ -17,10 +17,11 @@
 
 #pragma once
 
+#include <Banana/Array/ArrayHelpers.h>
+#include <Banana/Grid/Grid3DHashing.h>
+#include <Banana/LinearAlgebra/LinearSolvers/PCGSolver.h>
 #include <ParticleSolvers/ParticleSolver.h>
 #include <ParticleSolvers/FLIP/FLIP3DData.h>
-#include <Banana/LinearAlgebra/LinearSolvers/PCGSolver.h>
-#include <Banana/Grid/Grid3DHashing.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -34,9 +35,9 @@ public:
     std::shared_ptr<SimulationParameters_FLIP3D> getSolverParams() { return m_SimParams; }
 
     ////////////////////////////////////////////////////////////////////////////////
-    virtual std::string getSolverName() override { return std::string("FLIP3DSolver"); }
-    virtual std::string getGreetingMessage() override { return std::string("Fluid Simulation using FLIP-3D Solver"); }
-    virtual unsigned int        getNumParticles() override { return m_SimData->getNumParticles(); }
+    virtual String getSolverName() override { return String("FLIP3DSolver"); }
+    virtual String getGreetingMessage() override { return String("Fluid Simulation using FLIP-3D Solver"); }
+    virtual UInt   getNumParticles() override { return m_SimData->getNumParticles(); }
     virtual Vec_Vec3r& getParticlePositions() override { return m_SimData->positions; }
     virtual Vec_Vec3r& getParticleVelocities() override { return m_SimData->velocities; }
 
@@ -77,18 +78,17 @@ private:
 
     ////////////////////////////////////////////////////////////////////////////////
     // helper functions
-    bool  isInside(const Vec3r& pos, const Vec3r& bMin, const Vec3r& bMax);
     Vec3r getVelocityFromGrid(const Vec3r& ppos);
     Vec3r getVelocityChangesFromGrid(const Vec3r& ppos);
 
     ////////////////////////////////////////////////////////////////////////////////
-    std::shared_ptr<SimulationParameters_FLIP3D> m_SimParams = std::make_shared<SimulationParameters_FLIP3D>();
-    std::unique_ptr<SimulationData_FLIP3D>       m_SimData   = std::make_unique<SimulationData_FLIP3D>();
-    Grid3DHashing                                m_Grid;
-    PCGSolver                                    m_PCGSolver;
-
+    std::shared_ptr<SimulationParameters_FLIP3D>      m_SimParams        = std::make_shared<SimulationParameters_FLIP3D>();
+    std::unique_ptr<SimulationData_FLIP3D>            m_SimData          = std::make_unique<SimulationData_FLIP3D>();
     std::function<Real(const Vec3r&, const Array3r&)> m_InterpolateValue = nullptr;
     std::function<Real(const Vec3r&)>                 m_WeightKernel     = nullptr;
+
+    Grid3DHashing m_Grid;
+    PCGSolver     m_PCGSolver;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

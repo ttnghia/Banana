@@ -53,14 +53,17 @@ public:
     };
 
     PCGSolver() = default;
+    Real residual() const noexcept { return m_OutResidual; }
+    UInt iterations() const noexcept { return m_OutIterations; }
 
+    ////////////////////////////////////////////////////////////////////////////////
     void setPreconditioners(Preconditioner precond) { m_PreconditionerType = precond; }
     void setZeroInitial(bool bZeroInitial) { m_bZeroInitial = bZeroInitial; }
     void enableZeroInitial() { m_bZeroInitial = true; }
     void disableZeroInitial() { m_bZeroInitial = false; }
     void setSolverParameters(Real toleranceFactor, int maxIterations, Real MICCL0Param = Real(0.97), Real minDiagonalRatio = Real(0.25));
-    bool solve(const SparseMatrix& matrix, const Vec_Real& rhs, Vec_Real& result, Real& residual_out, UInt& iterations_out);
-    bool solve_precond(const SparseMatrix& matrix, const Vec_Real& rhs, Vec_Real& result, Real& residual_out, UInt& iterations_out);
+    bool solve(const SparseMatrix& matrix, const Vec_Real& rhs, Vec_Real& result);
+    bool solve_precond(const SparseMatrix& matrix, const Vec_Real& rhs, Vec_Real& result);
 
 private:
     void resize(UInt size);
@@ -76,12 +79,14 @@ private:
     void formPreconditioner_Symmetric_MICC0L0(const SparseMatrix& matrix, Real minDiagonalRatio = Real(0.25));
 
     ////////////////////////////////////////////////////////////////////////////////
+    // solver variables
     Vec_Real          z, s, r;
     FixedSparseMatrix m_FixedSparseMatrix;
 
     SparseColumnLowerFactor m_ICCPrecond;
     Vec_Real                m_JacobiPrecond;
 
+    ////////////////////////////////////////////////////////////////////////////////
     // solver parameters
     Preconditioner m_PreconditionerType = Preconditioner::MICCL0;
     Real           m_ToleranceFactor    = Real(1e-20);
@@ -89,6 +94,11 @@ private:
     Real           m_MICCL0Param        = Real(0.97);
     Real           m_MinDiagonalRatio   = Real(0.25);
     bool           m_bZeroInitial       = true;
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // output
+    Real m_OutResidual   = 0;
+    UInt m_OutIterations = 0;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

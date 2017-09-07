@@ -40,14 +40,21 @@ class Camera
     };
 
 public:
+    enum Projection
+    {
+        PerspectiveProjection,
+        OrthographicProjection
+    };
 
     Camera();
-    Camera(const glm::vec3& defaultPosition, const glm::vec3& defaultCameraFocus, const glm::vec3& defaultUpDirection);
+    Camera(const Vec3f& defaultPosition, const Vec3f& defaultCameraFocus, const Vec3f& defaultUpDirection);
     void setDebug(bool bDebug);
     void setDirty(bool dirty);
 
-    void setDefaultCamera(const glm::vec3& defaultPosition, const glm::vec3& defaultCameraFocus, const glm::vec3& defaultUpDirection);
+    void setDefaultCamera(const Vec3f& defaultPosition, const Vec3f& defaultCameraFocus, const Vec3f& defaultUpDirection);
+    void setProjection(Projection projection);
     void setFrustum(float fov, float nearZ, float farZ);
+    void setOrthoBox(const Vec3f& bMin, const Vec3f& bMax);
     void resizeWindow(int width, int height);
     void reset();
 
@@ -65,26 +72,26 @@ public:
 
     void set_last_mouse_pos(int x, int y);
     void translate_by_mouse(int x, int y);
-    void translate(glm::vec2 _translation);
+    void translate(Vec2f _translation);
     void translate();
 
     void rotate_by_mouse(int x, int y);
-    void rotate(glm::vec3 _rotation);
+    void rotate(Vec3f _rotation);
     void rotate();
 
     void zoom_by_mouse(int x, int y);
     void zoom(float _zooming);
     void zoom();
 
-    const glm::vec3        getCameraPosition() const;
-    const glm::vec3        getCameraFocus() const;
-    const glm::vec3        getCameraUpDirection() const;
-    const glm::vec3        getCameraDirection() const;
-    const glm::mat4        getViewMatrix() const;
-    const glm::mat4        getProjectionMatrix() const;
-    const glm::mat4        getViewProjectionMatrix() const;
-    const glm::mat4        getInverseViewMatrix() const;
-    const glm::mat4        getInverseProjectionMatrix() const;
+    const Vec3f            getCameraPosition() const;
+    const Vec3f            getCameraFocus() const;
+    const Vec3f            getCameraUpDirection() const;
+    const Vec3f            getCameraDirection() const;
+    const Mat4x4f          getViewMatrix() const;
+    const Mat4x4f          getProjectionMatrix() const;
+    const Mat4x4f          getViewProjectionMatrix() const;
+    const Mat4x4f          getInverseViewMatrix() const;
+    const Mat4x4f          getInverseProjectionMatrix() const;
     const Camera::Frustum& getFrustum() const;
 
     bool isCameraChanged();
@@ -96,20 +103,23 @@ private:
     int  m_WindowHeight;
     bool m_bReseted;
 
-    glm::vec3 m_CameraPosition;
-    glm::vec3 m_CameraFocus;
-    glm::vec3 m_CameraUpDirection;
+    Vec3f m_CameraPosition;
+    Vec3f m_CameraFocus;
+    Vec3f m_CameraUpDirection;
 
-    glm::vec3 m_DefaultCameraPosition;
-    glm::vec3 m_DefaultCameraFocus;
-    glm::vec3 m_DefaultUpDirection;
-    glm::vec2 m_LastMousePos;
+    Vec3f m_DefaultCameraPosition;
+    Vec3f m_DefaultCameraFocus;
+    Vec3f m_DefaultUpDirection;
+    Vec2f m_LastMousePos;
 
-    Frustum   m_Frustum;
-    glm::mat4 m_ViewMatrix;
-    glm::mat4 m_ProjectionMatrix;
-    glm::mat4 m_InverseProjectionMatrix;
-    glm::mat4 m_ViewProjectionMatrix;
+    Frustum m_Frustum;
+    Vec3f   m_OrthoBMin;
+    Vec3f   m_OrthoBMax;
+
+    Mat4x4f m_ViewMatrix;
+    Mat4x4f m_ProjectionMatrix;
+    Mat4x4f m_InverseProjectionMatrix;
+    Mat4x4f m_ViewProjectionMatrix;
 
     float m_TranslationLag;
     float m_RotationLag;
@@ -118,9 +128,11 @@ private:
     float m_RotationSpeed;
     float m_ZoomingSpeed;
 
-    glm::vec2 m_Translation;
-    glm::vec3 m_Rotation;
-    float     m_Zooming;
+    Vec2f m_Translation;
+    Vec3f m_Rotation;
+    float m_Zooming;
+
+    Projection m_Projection;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
