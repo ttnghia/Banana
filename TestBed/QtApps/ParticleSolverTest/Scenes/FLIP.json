@@ -2,7 +2,7 @@
 	"GlobalParameters": 
 	{
 		"FrameDuration" : 0.03333333333,
-		"FinalFrame" : 10,
+		"FinalFrame" : 100,
         "EnableSortParticle" : true,
 		"SortFrequency" : 10
 	},

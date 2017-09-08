@@ -48,8 +48,8 @@ void Banana::MPM3DSolver::makeReady()
 
                                // todo: remove this
                                GeometryObject3D::BoxObject box;
-                               box.boxMin() = m_SimParams->movingBMin - Vec3r(0.001);
-                               box.boxMax() = m_SimParams->movingBMax + Vec3r(0.001);
+                               box.boxMin() = m_SimParams->movingBMin - Vec3r(0.001f);
+                               box.boxMax() = m_SimParams->movingBMax + Vec3r(0.001f);
                                ParallelFuncs::parallel_for<UInt>(0, m_Grid.getNumCellX() + 1,
                                                                  0, m_Grid.getNumCellY() + 1,
                                                                  0, m_Grid.getNumCellZ() + 1,
@@ -134,7 +134,7 @@ void MPM3DSolver::sortParticles()
                                d.sort_field(&particleData().velocities[0]);
                                d.sort_field(&particleData().particleVolume[0]);
                                d.sort_field(&particleData().particleMass[0]);
-                               d.sort_field(&particleData().particleDensity[0]);
+                               d.sort_field(&particleData().particleDensities[0]);
                            });
     m_Logger->newLine();
 }
@@ -300,7 +300,7 @@ void MPM3DSolver::advanceVelocityExplicit(Real timestep)
     //First, compute the forces
     //We store force in velocity_new, since we're not using that variable at the moment
     ParallelFuncs::parallel_for<UINT>(0, getNumParticles(),
-    [&](UINT p)
+    [&](UInt p)
     {
         //Solve for grid internal forces
         const Mat3x3r & energy = particleData().energyDerivatives[p];
@@ -332,7 +332,8 @@ void MPM3DSolver::advanceVelocityExplicit(Real timestep)
                                       [&](UInt i)
     {
         if(gridData().active.data()[i])
-            gridData().velocitiesNew.data()[i] = gridData().velocities.data()[i] + timestep * (Vec3r(0, -9.81,0) - gridData().velocitiesNew.data()[i]/ gridData().gridMass.data()[i]);
+            gridData().velocitiesNew.data()[i] = gridData().velocities.data()[i] +
+            timestep * (Vec3r(0, -9.81,0) - gridData().velocitiesNew.data()[i]/ gridData().gridMass.data()[i]);
     });
 
     constrainGridVelocity();
