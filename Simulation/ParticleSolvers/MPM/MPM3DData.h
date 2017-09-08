@@ -16,70 +16,70 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 #pragma once
-
 #include <Banana/Setup.h>
 #include <Banana/Array/Array3.h>
-#include <Banana/LinearAlgebra/SparseMatrix/SparseMatrix.h>
-#include <Banana/Geometry/GeometryObject3D.h>
 #include <ParticleSolvers/ParticleSolverData.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-struct SimulationParameters_FLIP3D
+struct SimulationParameters_MPM3D
 {
-    SimulationParameters_FLIP3D() { makeReady(); }
+    SimulationParameters_MPM3D() { makeReady(); }
 
     ////////////////////////////////////////////////////////////////////////////////
-    Real       defaultTimestep     = Real(1.0e-4);
-    Real       CFLFactor           = Real(1.0);
-    Real       PIC_FLIP_ratio      = Real(0.97);
-    Real       boundaryRestitution = Real(DEFAULT_BOUNDARY_RESTITUTION);
-    Real       particleRadius      = Real(2.0 / 64.0 / 4.0);
-    P2GKernels kernelFunc          = P2GKernels::Linear;
-    UInt       expandCells         = 2;
-    Real       CGRelativeTolerance = Real(1e-15);
-    UInt       maxCGIteration      = 10000;
+    Real defaultTimestep     = Real(1.0e-4);
+    Real maxTimestep         = Real(5.0e-4);
+    Real CFLFactor           = Real(0.04);
+    Real PIC_FLIP_ratio      = Real(0.97);
+    Real boundaryRestitution = Real(DEFAULT_BOUNDARY_RESTITUTION);
+    Real particleRadius      = Real(1.0 / 32.0 / 4.0);
 
-    bool bApplyRepulsiveForces   = false;
-    Real repulsiveForceStiffness = Real(1e-3);
+    Real thresholdCompression = Real(1.0 - 1.9e-2); //Fracture threshold for compression (1-2.5e-2)
+    Real thresholdStretching  = Real(1.0 + 7.5e-3); //Fracture threshold for stretching (1+7.5e-3)
+    Real hardening            = Real(5.0);          //How much plastic deformation strengthens material (10)
+    Real materialDensity      = Real(100.0);        //Density of snow in kg/m^2 (400 for 3d)
+    Real YoungsModulus        = Real(1.5e5);        //Young's modulus (springiness) (1.4e5)
+    Real PoissonsRatio        = Real(0.2);          //Poisson's ratio (transverse/axial strain ratio) (.2)
+    Real implicitRatio        = Real(0);            //Percentage that should be implicit vs explicit for velocity update
+    Real CGRelativeTolerance  = Real(1e-15);
+    UInt maxCGIteration       = 10000;
+
+    //Nodes: use (y*size[0] + x) to index, where zero is the bottom-left corner (e.g. like a cartesian grid)
+    Real node_area;
+    UInt nodes_length;
 
     Vec3r movingBMin = Vec3r(-1.0);
     Vec3r movingBMax = Vec3r(1.0);
 
     // the following need to be computed
+    Real  lambda, mu;                               //Lame parameters (_s denotes starting configuration)
     Vec3r domainBMin;
     Vec3r domainBMax;
     int   kernelSpan;
     Real  cellSize;
-    Real  nearKernelRadius;
-    Real  nearKernelRadiusSqr;
-    Real  sdfRadius;
 
     ////////////////////////////////////////////////////////////////////////////////
     void makeReady()
     {
-        cellSize            = particleRadius * Real(4.0);
-        nearKernelRadius    = particleRadius * Real(3.01);
-        nearKernelRadiusSqr = nearKernelRadius * nearKernelRadius;
+        cellSize = particleRadius * Real(4.0);
+        //kernelSpan = (kernelFunc == P2GKernels::Linear || kernelFunc == P2GKernels::SwirlyLinear) ? 1 : 2;
+        domainBMin = movingBMin;
+        domainBMax = movingBMax;
 
-        sdfRadius  = cellSize * Real(1.01 * sqrt(3.0) / 2.0);
-        kernelSpan = (kernelFunc == P2GKernels::Linear || kernelFunc == P2GKernels::SwirlyLinear) ? 1 : 2;
-
-        domainBMin = movingBMin - Vec3r(cellSize * expandCells);
-        domainBMax = movingBMax + Vec3r(cellSize * expandCells);
+        lambda = YoungsModulus * PoissonsRatio / ((Real(1.0) + PoissonsRatio) * (Real(1.0) - Real(2.0) * PoissonsRatio)),
+        mu     = YoungsModulus / (Real(2.0) + Real(2.0) * PoissonsRatio);
     }
 
     ////////////////////////////////////////////////////////////////////////////////
     void printParams(const std::shared_ptr<Logger>& logger)
     {
-        logger->printLog("FLIP-3D simulation parameters:");
+        logger->printLog("MPM-3D simulation parameters:");
         logger->printLogIndent("Default timestep: " + NumberHelpers::formatToScientific(defaultTimestep));
         logger->printLogIndent("CFL factor: " + std::to_string(CFLFactor));
         logger->printLogIndent("PIC/FLIP ratio: " + std::to_string(PIC_FLIP_ratio));
 
-        logger->printLogIndent("Kernel function: " + (kernelFunc == P2GKernels::Linear ? String("Linear") : String("Cubic BSpline")));
         logger->printLogIndent("Moving BMin: " + NumberHelpers::toString(movingBMin));
         logger->printLogIndent("Moving BMax: " + NumberHelpers::toString(movingBMax));
         logger->printLogIndent("Cell size: " + std::to_string(cellSize));
@@ -91,13 +91,6 @@ struct SimulationParameters_FLIP3D
                                                                                            static_cast<UInt>(ceil((movingBMax[2] - movingBMin[2]) / cellSize)))));
 
         logger->printLogIndent("Boundary restitution: " + std::to_string(boundaryRestitution));
-        logger->printLogIndent("Apply repulsive forces: " + (bApplyRepulsiveForces ? String("Yes") : String("No")));
-        if(bApplyRepulsiveForces)
-        {
-            logger->printLogIndent("Repulsive force stiffness: " + NumberHelpers::formatToScientific(repulsiveForceStiffness));
-        }
-
-
         logger->printLogIndent("ConjugateGradient solver tolerance: " + NumberHelpers::formatToScientific(CGRelativeTolerance));
         logger->printLogIndent("Max CG iterations: " + NumberHelpers::formatToScientific(maxCGIteration));
 
@@ -107,7 +100,7 @@ struct SimulationParameters_FLIP3D
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-struct SimulationData_FLIP3D
+struct SimulationData_MPM3D
 {
     struct ParticleData
     {
@@ -115,83 +108,72 @@ struct SimulationData_FLIP3D
         Vec_Vec3r   positions_tmp;
         Vec_Vec3r   velocities;
         Vec_VecUInt neighborList;
+
+        Vec_Real    particleVolume, particleMass, particleDensity;
+        Vec_Mat3x3r velocityGradient;
+
+        Vec_Mat3x3r deformGradElastic, deformGradPlastic; //Deformation gradient (elastic and plastic parts)
+
+        Vec_Mat3x3r svd_w, svd_v;                         //Cached SVD's for elastic deformation gradient
+        Vec_Vec3r   svd_e;
+
+        Vec_Mat3x3r polar_r, polar_s; //Cached polar decomposition
+
+        Vec_Vec3r gridPositions;      //Grid interpolation weights
+        Vec_Vec3r weight_gradient;
+        Vec_Real  weights;
     } particleData;
+
 
     ////////////////////////////////////////////////////////////////////////////////
     struct GridData
     {
-        Array3r u, v, w;
-        Array3r du, dv, dw;
-        Array3r u_old, v_old, w_old;
-        Array3r u_weights, v_weights, w_weights; // mark the domain area that can be occupied by fluid
-        Array3c u_valid, v_valid, w_valid;       // mark the current faces that are influenced by particles during velocity mapping
+        Array3r       gridMass;
+        Array3c       active;
+        Array3<Vec3r> gridVelocity, gridVelocityNew;
 
-        // temp array
-        Array3r u_temp, v_temp, w_temp;
-        Array3c u_valid_old, v_valid_old, w_valid_old;
-
-        Array3r fluidSDF;
-        Array3r boundarySDF;
+        //All the following variables are used by the implicit linear solver
+        Array3c       imp_active; //are we still solving for vf
+        Array3<Vec3r> force,
+                      err,        //error of estimate
+                      r,          //residual of estimate
+                      p,          //residual gradient? squared residual?
+                      Ep, Er;     //yeah, I really don't know how this works...
+        Array3r rEr;              //r.dot(Er)
     } gridData;
 
-    ////////////////////////////////////////////////////////////////////////////////
-    SparseMatrix matrix;
-    Vec_Real     rhs;
-    Vec_Real     pressure;
+
 
     ////////////////////////////////////////////////////////////////////////////////
     void reserve(UInt numParticles)
     {
         particleData.positions.reserve(numParticles);
         particleData.velocities.reserve(numParticles);
-        particleData.neighborList.reserve(numParticles);
+
+        particleData.particleVolume.reserve(numParticles);
+        particleData.particleMass.reserve(numParticles);
+        particleData.particleDensity.reserve(numParticles);
+        particleData.velocityGradient.reserve(numParticles);
+
+        particleData.deformGradElastic.reserve(numParticles);
+        particleData.deformGradPlastic.reserve(numParticles);
+
+        particleData.svd_w.reserve(numParticles);
+        particleData.svd_v.reserve(numParticles);
+        particleData.svd_e.reserve(numParticles);
+
+        particleData.polar_r.reserve(numParticles);
+        particleData.polar_s.reserve(numParticles);
+        particleData.gridPositions.reserve(numParticles);
+
+        // TODO: check 16 or ....
+        particleData.weight_gradient.reserve(numParticles * 16);
+        particleData.weights.reserve(numParticles * 16);
     }
 
     void makeReady(UInt ni, UInt nj, UInt nk)
-    {
-        particleData.positions_tmp.resize(particleData.positions.size());
-        particleData.velocities.resize(particleData.positions.size(), Vec3r(0));
-        particleData.neighborList.resize(particleData.positions.size());
-
-        gridData.u.resize(ni + 1, nj, nk, 0);
-        gridData.u_old.resize(ni + 1, nj, nk, 0);
-        gridData.du.resize(ni + 1, nj, nk, 0);
-        gridData.u_temp.resize(ni + 1, nj, nk, 0);
-        gridData.u_weights.resize(ni + 1, nj, nk, 0);
-        gridData.u_valid.resize(ni + 1, nj, nk, 0);
-        gridData.u_valid_old.resize(ni + 1, nj, nk, 0);
-
-        gridData.v.resize(ni, nj + 1, nk, 0);
-        gridData.v_old.resize(ni, nj + 1, nk, 0);
-        gridData.dv.resize(ni, nj + 1, nk, 0);
-        gridData.v_temp.resize(ni, nj + 1, nk, 0);
-        gridData.v_weights.resize(ni, nj + 1, nk, 0);
-        gridData.v_valid.resize(ni, nj + 1, nk, 0);
-        gridData.v_valid_old.resize(ni, nj + 1, nk, 0);
-
-        gridData.w.resize(ni, nj, nk + 1, 0);
-        gridData.w_old.resize(ni, nj, nk + 1, 0);
-        gridData.dw.resize(ni, nj, nk + 1, 0);
-        gridData.w_temp.resize(ni, nj, nk + 1, 0);
-        gridData.w_weights.resize(ni, nj, nk + 1, 0);
-        gridData.w_valid.resize(ni, nj, nk + 1, 0);
-        gridData.w_valid_old.resize(ni, nj, nk + 1, 0);
-
-        gridData.fluidSDF.resize(ni, nj, nk, 0);
-        gridData.boundarySDF.resize(ni + 1, nj + 1, nk + 1, 0);
-
-        matrix.resize(ni * nj * nk);
-        rhs.resize(ni * nj * nk);
-        pressure.resize(ni * nj * nk);
-    }
-
-    void backupGridVelocity()
-    {
-        gridData.u_old.copyDataFrom(gridData.u);
-        gridData.v_old.copyDataFrom(gridData.v);
-        gridData.w_old.copyDataFrom(gridData.w);
-    }
+    {}
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-} // end namespa
+} // end namespace Banana

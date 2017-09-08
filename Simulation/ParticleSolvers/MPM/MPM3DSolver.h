@@ -17,26 +17,26 @@
 
 #pragma once
 
-#include <Banana/Array/ArrayHelpers.h>
 #include <Banana/Grid/Grid3DHashing.h>
 #include <Banana/LinearAlgebra/LinearSolvers/PCGSolver.h>
 #include <ParticleSolvers/ParticleSolver.h>
-#include <ParticleSolvers/FLIP/FLIP3DData.h>
+#include <ParticleSolvers/MPM/MPM3DData.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class FLIP3DSolver : public ParticleSolver3D
+class MPM3DSolver : public ParticleSolver3D
 {
 public:
-    FLIP3DSolver() { setupLogger(); }
+    MPM3DSolver()  = default;
+    ~MPM3DSolver() = default;
 
-    std::shared_ptr<SimulationParameters_FLIP3D> getSolverParams() { return m_SimParams; }
+    std::shared_ptr<SimulationParameters_MPM3D> getSolverParams() { return m_SimParams; }
 
     ////////////////////////////////////////////////////////////////////////////////
-    virtual String getSolverName() override { return String("FLIP3DSolver"); }
-    virtual String getGreetingMessage() override { return String("Fluid Simulation using FLIP-3D Solver"); }
+    virtual String getSolverName() override { return String("MPM3DSolver"); }
+    virtual String getGreetingMessage() override { return String("Simulation using MPM-3D Solver"); }
     virtual UInt   getNumParticles() override { return particleData().positions.size(); }
     virtual Vec_Vec3r& getParticlePositions() override { return particleData().positions; }
     virtual Vec_Vec3r& getParticleVelocities() override { return particleData().velocities; }
@@ -53,42 +53,28 @@ private:
     virtual void saveParticleData() override;
 
     Real computeCFLTimestep();
-    void advanceVelocity(Real timestep);
-    void moveParticles(Real timeStep);
-
-    void computeFluidWeights();
-    void addRepulsiveVelocity2Particles(Real timestep);
+    void advanceVelocityExplicit(Real timestep);
+    void advanceVelocityImplicit(Real timestep);
+    void computeImplicitForces(Real timestep);
+    void initializeGridMass();
     void velocityToGrid();
-    void extrapolateVelocity();
-    void extrapolateVelocity(Array3r& grid, Array3r& temp_grid, Array3c& valid, Array3c& old_valid);
-    void constrainGridVelocity();
+    void computeParticleVolumes();
     void addGravity(Real timestep);
-    void pressureProjection(Real timestep);
-    ////////////////////////////////////////////////////////////////////////////////
-    // pressure projection functions =>
-    void computeFluidSDF();
-    void computeMatrix(Real timestep);
-    void computeRhs();
-    void solveSystem();
-    void updateVelocity(Real timestep);
-    ////////////////////////////////////////////////////////////////////////////////
-    void computeChangesGridVelocity();
+    void constrainGridVelocity();
     void velocityToParticles();
 
-    ////////////////////////////////////////////////////////////////////////////////
-    // helper functions
-    Vec3r getVelocityFromGrid(const Vec3r& ppos);
-    Vec3r getVelocityChangesFromGrid(const Vec3r& ppos);
+    void moveParticles(Real timeStep);
+    void updateGradient();
+    void applyPlasticity();
+    void updateEnergyDerivative();
+    void computeDeltaForce();         //Computes stress force delta, for implicit velocity update
 
     ////////////////////////////////////////////////////////////////////////////////
-    SimulationData_FLIP3D::ParticleData& particleData() { return m_SimData->particleData; }
-    SimulationData_FLIP3D::GridData& gridData() { return m_SimData->gridData; }
+    SimulationData_MPM3D::ParticleData& particleData() { return m_SimData->particleData; }
+    SimulationData_MPM3D::GridData& gridData() { return m_SimData->gridData; }
 
-    ////////////////////////////////////////////////////////////////////////////////
-    std::shared_ptr<SimulationParameters_FLIP3D>      m_SimParams        = std::make_shared<SimulationParameters_FLIP3D>();
-    std::unique_ptr<SimulationData_FLIP3D>            m_SimData          = std::make_unique<SimulationData_FLIP3D>();
-    std::function<Real(const Vec3r&, const Array3r&)> m_InterpolateValue = nullptr;
-    std::function<Real(const Vec3r&)>                 m_WeightKernel     = nullptr;
+    std::shared_ptr<SimulationParameters_MPM3D> m_SimParams = std::make_shared<SimulationParameters_MPM3D>();
+    std::unique_ptr<SimulationData_MPM3D>       m_SimData   = std::make_unique<SimulationData_MPM3D>();
 
     Grid3DHashing m_Grid;
     PCGSolver     m_PCGSolver;

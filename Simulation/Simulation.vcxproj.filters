@@ -30,25 +30,16 @@
     <ClInclude Include="ParticleSolvers\FLIP\FLIP3DSolver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ParticleSolvers\MPM\MPMData.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ParticleSolvers\MPM\MPMMaterial.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ParticleSolvers\MPM\MPMMaterial.Impl.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ParticleSolvers\MPM\MPMSolver.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ParticleSolvers\MPM\MPMSolver.Impl.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ParticleSolvers\MPM\ShapeFunctions.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ParticleSolvers\MPM\ShapeFunctions.Impl.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ParticleSolvers\MPM\TimeIntegration.h">
@@ -198,6 +189,12 @@
     <ClInclude Include="SimulationObjects\ParticleObjects\TorusSampler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ParticleSolvers\MPM\MPM3DSolver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticleSolvers\MPM\MPM3DData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ParticleSolvers\FLIP\FLIP2DSolver.cpp">
@@ -222,6 +219,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="SimulationObjects\ParticleObjects\ParticleObject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleSolvers\MPM\MPM3DSolver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

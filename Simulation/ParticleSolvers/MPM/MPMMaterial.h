@@ -23,7 +23,6 @@
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
 struct MPMMaterial
 {
     const Real density, bulkModK, shearModG, yieldStress, isoHardMod, kinHardMod;
@@ -46,7 +45,6 @@ struct MPMMaterial
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
 struct ConstitutiveModel
 {
     virtual void update(Real) = 0;
@@ -65,7 +63,6 @@ struct ConstitutiveModel
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
 struct NeoHookean : public ConstitutiveModel<Real>
 {
     NeoHookean(const Real Y, const Real P, const Real D,
@@ -102,7 +99,6 @@ struct NeoHookean : public ConstitutiveModel<Real>
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
 struct UpdatedElastic : public ConstitutiveModel<Real>
 {
     UpdatedElastic(const Vec_Mat3x3r& vg,
@@ -135,7 +131,6 @@ struct UpdatedElastic : public ConstitutiveModel<Real>
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
 struct J2plasticLinearIsoKin : public ConstitutiveModel<Real>
 {
     J2plasticLinearIsoKin(const material&    mt,
