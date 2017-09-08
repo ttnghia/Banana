@@ -19,7 +19,6 @@
 
 #include <Banana/Setup.h>
 
-#include <atomic>
 #include <vector>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -117,30 +116,6 @@ struct SpatialHasher
                 19349663 * k.k[1] ^
                 83492791 * k.k[2]);
     }
-};
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class Spinlock
-{
-public:
-
-    void lock()
-    {
-        while(m_lock.test_and_set(std::memory_order_acquire))
-            ;
-    }
-
-    void unlock()
-    {
-        m_lock.clear(std::memory_order_release);
-    }
-
-    Spinlock() = default;
-    Spinlock(const Spinlock&) {}
-    Spinlock& operator=(const Spinlock&) { return *this; }
-
-private:
-    std::atomic_flag m_lock = ATOMIC_FLAG_INIT;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

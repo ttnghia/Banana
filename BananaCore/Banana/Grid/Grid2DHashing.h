@@ -19,6 +19,7 @@
 
 #include <Banana/Grid/Grid2D.h>
 #include <Banana/Array/Array2.h>
+#include <Banana/ParallelHelpers/ParallelObjects.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -46,9 +47,11 @@ public:
     const Vec_UInt& getParticleIdxInCell(const Vec2<IndexType>& cellIdx) const { return m_CellParticleIdx(cellIdx); }
 
 private:
-    Array2_VecUInt m_CellParticleIdx;
-    Vec_UInt       m_ParticleIdx;
-    bool           m_bCellIdxNeedResize = false;      // to track and resize the m_CellParticleIdx array
+    Vec_UInt m_ParticleIdx;
+    bool     m_bCellIdxNeedResize = false;            // to track and resize the m_CellParticleIdx array
+
+    Array2_VecUInt                    m_CellParticleIdx;
+    Array2<ParallelObjects::SpinLock> m_Lock;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

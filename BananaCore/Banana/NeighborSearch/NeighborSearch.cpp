@@ -438,8 +438,8 @@ void NeighborSearch::query()
                                         });
 
 
-    Vector<std::array<bool, 27> > visited(m_entries.size(), { false });
-    Vector<Spinlock>              entry_locks(m_entries.size());
+    Vector<std::array<bool, 27> >     visited(m_entries.size(), { false });
+    Vector<ParallelObjects::SpinLock> entry_locks(m_entries.size());
 
     ParallelFuncs::parallel_for<size_t>(0, kvps.size(),
                                         [&](size_t it)

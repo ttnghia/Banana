@@ -34,18 +34,21 @@ void Grid2DHashing::collectIndexToCells(const Vec_Vec2r& particles)
     if(m_bCellIdxNeedResize)
     {
         m_CellParticleIdx.resize(getNumCells());
+        m_Lock.resize(getNumCells());
         m_bCellIdxNeedResize = false;
     }
 
     for(auto& cell : m_CellParticleIdx.data())
         cell.resize(0);
 
-    // cannot run in parallel....
-    for(UInt p = 0, p_end = static_cast<UInt>(particles.size()); p < p_end; ++p)
-    {
-        auto cellIdx = getCellIdx<int>(particles[p]);
-        m_CellParticleIdx(cellIdx).push_back(p);
-    }
+    ParallelFuncs::parallel_for<UInt>(0, static_cast<UInt>(particles.size()),
+                                      [&](UInt p)
+                                      {
+                                          auto cellIdx = getCellIdx<int>(particles[p]);
+                                          m_Lock(cellIdx).lock();
+                                          m_CellParticleIdx(cellIdx).push_back(p);
+                                          m_Lock(cellIdx).unlock();
+                                      });
 
     ////////////////////////////////////////////////////////////////////////////////
     // reset particle index vector
@@ -58,19 +61,23 @@ void Grid2DHashing::collectIndexToCells(const Vec_Vec2r& particles, Vec_Vec2i& p
     if(m_bCellIdxNeedResize)
     {
         m_CellParticleIdx.resize(getNumCells());
+        m_Lock.resize(getNumCells());
         m_bCellIdxNeedResize = false;
     }
 
     for(auto& cell : m_CellParticleIdx.data())
         cell.resize(0);
 
-    // cannot run in parallel....
-    for(UInt p = 0, p_end = static_cast<UInt>(particles.size()); p < p_end; ++p)
-    {
-        auto cellIdx = getCellIdx<int>(particles[p]);
-        m_CellParticleIdx(cellIdx).push_back(p);
-        particleCellIdx[p] = cellIdx;
-    }
+    ParallelFuncs::parallel_for<UInt>(0, static_cast<UInt>(particles.size()),
+                                      [&](UInt p)
+                                      {
+                                          auto cellIdx = getCellIdx<int>(particles[p]);
+                                          particleCellIdx[p] = cellIdx;
+
+                                          m_Lock(cellIdx).lock();
+                                          m_CellParticleIdx(cellIdx).push_back(p);
+                                          m_Lock(cellIdx).unlock();
+                                      });
 
     ////////////////////////////////////////////////////////////////////////////////
     // reset particle index vector

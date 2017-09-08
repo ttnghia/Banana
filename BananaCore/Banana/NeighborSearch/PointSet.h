@@ -18,6 +18,7 @@
 #pragma once
 
 #include <Banana/NeighborSearch/DataStructures.h>
+#include <Banana/ParallelHelpers/ParallelObjects.h>
 
 #include <iostream>
 
@@ -173,11 +174,11 @@ private:
     std::size_t m_n;
     bool        m_dynamic;
 
-    Vector<Vector<Vec_UInt> > m_neighbors;
+    Vector<HashKey> m_keys, m_old_keys;
+    Vec_UInt        m_sort_table;
 
-    Vector<HashKey>           m_keys, m_old_keys;
-    Vector<Vector<Spinlock> > m_locks;
-    Vec_UInt                  m_sort_table;
+    Vector<Vector<Vec_UInt> >                  m_neighbors;
+    Vector<Vector<ParallelObjects::SpinLock> > m_locks;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

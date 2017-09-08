@@ -19,6 +19,7 @@
 
 #include <Banana/Setup.h>
 
+#include <atomic>
 #include <limits>
 #include <tbb/tbb.h>
 
@@ -31,6 +32,29 @@ namespace Banana
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace ParallelObjects
 {
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+class SpinLock
+{
+public:
+    SpinLock() = default;
+    SpinLock(const SpinLock&) {}
+    SpinLock& operator=(const SpinLock&) { return *this; }
+
+    void lock()
+    {
+        while(m_Lock.test_and_set(std::memory_order_acquire))
+            ;
+    }
+
+    void unlock()
+    {
+        m_Lock.clear(std::memory_order_release);
+    }
+
+private:
+    std::atomic_flag m_Lock = ATOMIC_FLAG_INIT;
+};
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class ... T>
 class VectorDotProduct;
