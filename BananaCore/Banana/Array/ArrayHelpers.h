@@ -101,7 +101,7 @@ inline Real interpolateValueCubicBSpline(const Vec2r& point, const Array2r& grid
 
             if(grid.isValidIndex(ind))
             {
-                const Real weight = MathHelpers::cubic_spline_kernel_2d(fi - (Real)li, fj - (Real)lj);
+                const Real weight = MathHelpers::cubic_bspline_2d(fi - (Real)li, fj - (Real)lj);
                 sumW   += weight;
                 sumVal += weight * grid(ind);
             }
@@ -137,7 +137,7 @@ inline Real interpolateValueCubicBSpline(const Vec3r& point, const Array3r& grid
 
                 if(grid.isValidIndex(ind))
                 {
-                    const Real weight = MathHelpers::cubic_spline_kernel_3d(fi - (Real)li, fj - (Real)lj, fk - (Real)lk);
+                    const Real weight = MathHelpers::cubic_bspline_3d(fi - (Real)li, fj - (Real)lj, fk - (Real)lk);
                     sumW   += weight;
                     sumVal += weight * grid(ind);
                 }

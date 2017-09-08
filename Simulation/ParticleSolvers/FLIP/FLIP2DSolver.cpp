@@ -36,7 +36,7 @@ void FLIP2DSolver::makeReady()
                                else
                                {
                                    m_InterpolateValue = static_cast<Real (*)(const Vec2r&, const Array2r&)>(&ArrayHelpers::interpolateValueCubicBSpline);
-                                   m_WeightKernel = [](const Vec2r& dxdy) { return MathHelpers::cubic_spline_kernel_2d(dxdy[0], dxdy[1]); };
+                                   m_WeightKernel = [](const Vec2r& dxdy) { return MathHelpers::cubic_bspline_2d(dxdy[0], dxdy[1]); };
                                }
 
                                m_Grid.setGrid(m_SimParams->movingBMin, m_SimParams->movingBMax, m_SimParams->cellSize);
@@ -271,8 +271,8 @@ void FLIP2DSolver::saveParticleData()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 Real FLIP2DSolver::computeCFLTimestep()
 {
-    Real maxVel = MathHelpers::max(ParallelSTL::maxAbs(m_SimData->u.vec_data()),
-                                   ParallelSTL::maxAbs(m_SimData->v.vec_data()));
+    Real maxVel = MathHelpers::max(ParallelSTL::maxAbs(m_SimData->u.data()),
+                                   ParallelSTL::maxAbs(m_SimData->v.data()));
 
     return maxVel > Tiny ? (m_Grid.getCellSize() / maxVel * m_SimParams->CFLFactor) : m_SimParams->defaultTimestep;
 }
@@ -820,14 +820,14 @@ void FLIP2DSolver::updateVelocity(Real timestep)
 
     for(size_t i = 0; i < m_SimData->u_valid.size(); ++i)
     {
-        if(m_SimData->u_valid.vec_data()[i] == 0)
-            m_SimData->u.vec_data()[i] = 0;
+        if(m_SimData->u_valid.data()[i] == 0)
+            m_SimData->u.data()[i] = 0;
     }
 
     for(size_t i = 0; i < m_SimData->v_valid.size(); ++i)
     {
-        if(m_SimData->v_valid.vec_data()[i] == 0)
-            m_SimData->v.vec_data()[i] = 0;
+        if(m_SimData->v_valid.data()[i] == 0)
+            m_SimData->v.data()[i] = 0;
     }
 }
 
@@ -835,9 +835,9 @@ void FLIP2DSolver::updateVelocity(Real timestep)
 void FLIP2DSolver::computeChangesGridVelocity()
 {
     ParallelFuncs::parallel_for<size_t>(0, m_SimData->u.size(),
-                                        [&](size_t i) { m_SimData->du.vec_data()[i] = m_SimData->u.vec_data()[i] - m_SimData->u_old.vec_data()[i]; });
+                                        [&](size_t i) { m_SimData->du.data()[i] = m_SimData->u.data()[i] - m_SimData->u_old.data()[i]; });
     ParallelFuncs::parallel_for<size_t>(0, m_SimData->v.size(),
-                                        [&](size_t i) { m_SimData->dv.vec_data()[i] = m_SimData->v.vec_data()[i] - m_SimData->v_old.vec_data()[i]; });
+                                        [&](size_t i) { m_SimData->dv.data()[i] = m_SimData->v.data()[i] - m_SimData->v_old.data()[i]; });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

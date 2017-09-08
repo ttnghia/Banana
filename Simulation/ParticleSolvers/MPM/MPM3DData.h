@@ -47,23 +47,25 @@ struct SimulationParameters_MPM3D
     UInt maxCGIteration       = 10000;
 
     //Nodes: use (y*size[0] + x) to index, where zero is the bottom-left corner (e.g. like a cartesian grid)
-    Real node_area;
+    Real cellVolume;
     UInt nodes_length;
 
     Vec3r movingBMin = Vec3r(-1.0);
     Vec3r movingBMax = Vec3r(1.0);
 
     // the following need to be computed
-    Real  lambda, mu;                               //Lame parameters (_s denotes starting configuration)
-    Vec3r domainBMin;
-    Vec3r domainBMax;
-    int   kernelSpan;
-    Real  cellSize;
+    Real       lambda, mu;                          //Lame parameters (_s denotes starting configuration)
+    Vec3r      domainBMin;
+    Vec3r      domainBMax;
+    int        kernelSpan;
+    P2GKernels p2gKernel;
+    Real       cellSize;
 
     ////////////////////////////////////////////////////////////////////////////////
     void makeReady()
     {
-        cellSize = particleRadius * Real(4.0);
+        cellSize   = particleRadius * Real(4.0);
+        cellVolume = MathHelpers::cube(cellSize);
         //kernelSpan = (kernelFunc == P2GKernels::Linear || kernelFunc == P2GKernels::SwirlyLinear) ? 1 : 2;
         domainBMin = movingBMin;
         domainBMax = movingBMax;
@@ -102,35 +104,35 @@ struct SimulationParameters_MPM3D
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 struct SimulationData_MPM3D
 {
-    struct ParticleData
+    struct ParticleSimData
     {
         Vec_Vec3r   positions;
         Vec_Vec3r   positions_tmp;
         Vec_Vec3r   velocities;
         Vec_VecUInt neighborList;
 
-        Vec_Real    particleVolume, particleMass, particleDensity;
-        Vec_Mat3x3r velocityGradient;
+        Vec_Real    particleVolumes, particleMasses, particleDensities;
+        Vec_Mat3x3r velocityGradients;
+        Vec_Mat3x3r energyDerivatives;
 
-        Vec_Mat3x3r deformGradElastic, deformGradPlastic; //Deformation gradient (elastic and plastic parts)
+        Vec_Mat3x3r deformGradElastics, deformGradPlastics; //Deformation gradient (elastic and plastic parts)
 
-        Vec_Mat3x3r svd_w, svd_v;                         //Cached SVD's for elastic deformation gradient
+        Vec_Mat3x3r svd_w, svd_v;                           //Cached SVD's for elastic deformation gradient
         Vec_Vec3r   svd_e;
 
         Vec_Mat3x3r polar_r, polar_s; //Cached polar decomposition
 
-        Vec_Vec3r gridPositions;      //Grid interpolation weights
-        Vec_Vec3r weight_gradient;
-        Vec_Real  weights;
-    } particleData;
+        Vec_Vec3i particleCellIdx;    //Grid interpolation weights
+    } particleSimData;
 
 
-    ////////////////////////////////////////////////////////////////////////////////
-    struct GridData
+    struct GridSimData
     {
         Array3r       gridMass;
         Array3c       active;
-        Array3<Vec3r> gridVelocity, gridVelocityNew;
+        Array3<Vec3r> velocities, velocitiesNew;
+        Array3r       weights;
+        Array3<Vec3r> weightGrads;
 
         //All the following variables are used by the implicit linear solver
         Array3c       imp_active; //are we still solving for vf
@@ -140,39 +142,44 @@ struct SimulationData_MPM3D
                       p,          //residual gradient? squared residual?
                       Ep, Er;     //yeah, I really don't know how this works...
         Array3r rEr;              //r.dot(Er)
-    } gridData;
-
+    } gridSimData;
 
 
     ////////////////////////////////////////////////////////////////////////////////
     void reserve(UInt numParticles)
     {
-        particleData.positions.reserve(numParticles);
-        particleData.velocities.reserve(numParticles);
+        particleSimData.positions.reserve(numParticles);
+        particleSimData.velocities.reserve(numParticles);
 
-        particleData.particleVolume.reserve(numParticles);
-        particleData.particleMass.reserve(numParticles);
-        particleData.particleDensity.reserve(numParticles);
-        particleData.velocityGradient.reserve(numParticles);
+        particleSimData.particleVolumes.reserve(numParticles);
+        particleSimData.particleMasses.reserve(numParticles);
+        particleSimData.particleDensities.reserve(numParticles);
+        particleSimData.velocityGradients.reserve(numParticles);
 
-        particleData.deformGradElastic.reserve(numParticles);
-        particleData.deformGradPlastic.reserve(numParticles);
+        particleSimData.deformGradElastics.reserve(numParticles);
+        particleSimData.deformGradPlastics.reserve(numParticles);
 
-        particleData.svd_w.reserve(numParticles);
-        particleData.svd_v.reserve(numParticles);
-        particleData.svd_e.reserve(numParticles);
+        particleSimData.svd_w.reserve(numParticles);
+        particleSimData.svd_v.reserve(numParticles);
+        particleSimData.svd_e.reserve(numParticles);
 
-        particleData.polar_r.reserve(numParticles);
-        particleData.polar_s.reserve(numParticles);
-        particleData.gridPositions.reserve(numParticles);
-
-        // TODO: check 16 or ....
-        particleData.weight_gradient.reserve(numParticles * 16);
-        particleData.weights.reserve(numParticles * 16);
+        particleSimData.polar_r.reserve(numParticles);
+        particleSimData.polar_s.reserve(numParticles);
+        particleSimData.particleCellIdx.reserve(numParticles);
     }
 
     void makeReady(UInt ni, UInt nj, UInt nk)
-    {}
+    {
+        //To start out with, we assume the deformation gradient is zero
+        //Or in other words, all particle velocities are the same
+        //def_elastic.loadIdentity();
+        //def_plastic.loadIdentity();
+        //svd_e.setData(1, 1);
+        //svd_w.loadIdentity();
+        //svd_v.loadIdentity();
+        //polar_r.loadIdentity();
+        //polar_s.loadIdentity();
+    }
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

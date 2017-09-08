@@ -37,7 +37,7 @@ void Grid2DHashing::collectIndexToCells(const Vec_Vec2r& particles)
         m_bCellIdxNeedResize = false;
     }
 
-    for(auto& cell : m_CellParticleIdx.vec_data())
+    for(auto& cell : m_CellParticleIdx.data())
         cell.resize(0);
 
     // cannot run in parallel....
@@ -45,6 +45,31 @@ void Grid2DHashing::collectIndexToCells(const Vec_Vec2r& particles)
     {
         auto cellIdx = getCellIdx<int>(particles[p]);
         m_CellParticleIdx(cellIdx).push_back(p);
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // reset particle index vector
+    m_ParticleIdx.resize(0);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void Grid2DHashing::collectIndexToCells(const Vec_Vec2r& particles, Vec_Vec2i& particleCellIdx)
+{
+    if(m_bCellIdxNeedResize)
+    {
+        m_CellParticleIdx.resize(getNumCells());
+        m_bCellIdxNeedResize = false;
+    }
+
+    for(auto& cell : m_CellParticleIdx.data())
+        cell.resize(0);
+
+    // cannot run in parallel....
+    for(UInt p = 0, p_end = static_cast<UInt>(particles.size()); p < p_end; ++p)
+    {
+        auto cellIdx = getCellIdx<int>(particles[p]);
+        m_CellParticleIdx(cellIdx).push_back(p);
+        particleCellIdx[p] = cellIdx;
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -126,7 +151,7 @@ const Vec_UInt& Grid2DHashing::getParticleIdxSortedByCell()
     if(m_ParticleIdx.size() > 0)
         return m_ParticleIdx;
 
-    for(auto& cell : m_CellParticleIdx.vec_data())
+    for(auto& cell : m_CellParticleIdx.data())
     {
         if(cell.size() > 0)
             m_ParticleIdx.insert(m_ParticleIdx.end(), cell.begin(), cell.end());

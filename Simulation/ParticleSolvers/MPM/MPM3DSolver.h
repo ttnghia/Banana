@@ -37,7 +37,7 @@ public:
     ////////////////////////////////////////////////////////////////////////////////
     virtual String getSolverName() override { return String("MPM3DSolver"); }
     virtual String getGreetingMessage() override { return String("Simulation using MPM-3D Solver"); }
-    virtual UInt   getNumParticles() override { return particleData().positions.size(); }
+    virtual UInt   getNumParticles() override { return static_cast<UInt>(particleData().positions.size()); }
     virtual Vec_Vec3r& getParticlePositions() override { return particleData().positions; }
     virtual Vec_Vec3r& getParticleVelocities() override { return particleData().velocities; }
 
@@ -70,8 +70,8 @@ private:
     void computeDeltaForce();         //Computes stress force delta, for implicit velocity update
 
     ////////////////////////////////////////////////////////////////////////////////
-    SimulationData_MPM3D::ParticleData& particleData() { return m_SimData->particleData; }
-    SimulationData_MPM3D::GridData& gridData() { return m_SimData->gridData; }
+    SimulationData_MPM3D::ParticleSimData& particleData() { return m_SimData->particleSimData; }
+    SimulationData_MPM3D::GridSimData& gridData() { return m_SimData->gridSimData; }
 
     std::shared_ptr<SimulationParameters_MPM3D> m_SimParams = std::make_shared<SimulationParameters_MPM3D>();
     std::unique_ptr<SimulationData_MPM3D>       m_SimData   = std::make_unique<SimulationData_MPM3D>();

@@ -35,9 +35,6 @@
 #include <glm/gtx/string_cast.hpp>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <Banana/Macros.h>
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // define the floating point precision for all projects
 
@@ -57,84 +54,53 @@ using Int   = int32_t;
 using Int32 = int32_t;
 using Int64 = int64_t;
 
+////////////////////////////////////////////////////////////////////////////////
 using UInt8  = uint8_t;
 using UInt16 = uint16_t;
 using UInt   = uint32_t;
 using UInt32 = uint32_t;
 using UInt64 = uint64_t;
 
+////////////////////////////////////////////////////////////////////////////////
 using String = std::string;
+
+////////////////////////////////////////////////////////////////////////////////
+using PairInt8  = std::pair<Int8, Int8>;
+using PairInt16 = std::pair<Int16, Int16>;
+using PairInt32 = std::pair<Int, Int>;
+using PairInt   = std::pair<Int, Int>;
+using PairInt64 = std::pair<Int64, Int64>;
+
+////////////////////////////////////////////////////////////////////////////////
+using PairUInt8  = std::pair<UInt8, UInt8>;
+using PairUInt16 = std::pair<UInt16, UInt16>;
+using PairUInt32 = std::pair<UInt, UInt>;
+using PairUInt   = std::pair<UInt, UInt>;
+using PairUInt64 = std::pair<UInt64, UInt64>;
+
+////////////////////////////////////////////////////////////////////////////////
+using Pairf    = std::pair<float, float>;
+using Paird    = std::pair<double, double>;
+using PairReal = std::pair<double, double>;
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // generic types
-template<class Type>
-using Vector = std::vector<Type>;
+template<class Type> using Vector = std::vector<Type>;
+template<class Type> using Vec2   = glm::tvec2<Type>;
+template<class Type> using Vec3   = glm::tvec3<Type>;
+template<class Type> using Vec4   = glm::tvec4<Type>;
+template<class Type> using Mat2x2 = glm::mat<2, 2, Type>;
+template<class Type> using Mat3x3 = glm::mat<3, 3, Type>;
+template<class Type> using Mat4x4 = glm::mat<4, 4, Type>;
 
-template<class Type>
-using Vec2 = glm::tvec2<Type>;
-
-template<class Type>
-using Vec3 = glm::tvec3<Type>;
-
-template<class Type>
-using Vec4 = glm::tvec4<Type>;
-
-template<class Type>
-using Mat2x2 = glm::mat<2, 2, Type>;
-
-template<class Type>
-using Mat3x3 = glm::mat<3, 3, Type>;
-
-template<class Type>
-using Mat4x4 = glm::mat<4, 4, Type>;
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Type>
-using Vec_Vec = Vector<Vector<Type> >;
-
-template<class Type>
-using Vec_Vec2 = Vector<Vec2<Type> >;
-
-template<class Type>
-using Vec_Vec3 = Vector<Vec3<Type> >;
-
-template<class Type>
-using Vec_Vec4 = Vector<Vec4<Type> >;
-
-template<class Type>
-using Vec_Mat2x2 = Vector<Mat2x2<Type> >;
-
-template<class Type>
-using Vec_Mat3x3 = Vector<Mat3x3<Type> >;
-
-template<class Type>
-using Vec_Mat4x4 = Vector<Mat4x4<Type> >;
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-// floating point type
-// Vectors
-using Vec2r = Vec2<Real>;
-using Vec3r = Vec3<Real>;
-using Vec4r = Vec4<Real>;
-
-// matrices
-using Mat2x2r = Mat2x2<Real>;
-using Mat3x3r = Mat3x3<Real>;
-using Mat4x4r = Mat4x4<Real>;
-
-// vectors
-using Vec_Vec2r = Vector<Vec2r>;
-using Vec_Vec3r = Vector<Vec3r>;
-using Vec_Vec4r = Vector<Vec4r>;
-
-// vectors of matrices
-using Vec_Mat2x2r = Vector<Mat2x2r>;
-using Vec_Mat3x3r = Vector<Mat3x3r>;
-using Vec_Mat4x4r = Vector<Mat4x4r>;
-
-// vectors of vector of ...
-using Vec_VecVec3r   = Vector<Vector<Vec3r> >;
-using Vec_VecMat3x3r = Vector<Vector<Mat3x3r> >;
+////////////////////////////////////////////////////////////////////////////////
+template<class Type> using Vec_Vec    = Vector<Vector<Type> >;
+template<class Type> using Vec_Vec2   = Vector<Vec2<Type> >;
+template<class Type> using Vec_Vec3   = Vector<Vec3<Type> >;
+template<class Type> using Vec_Vec4   = Vector<Vec4<Type> >;
+template<class Type> using Vec_Mat2x2 = Vector<Mat2x2<Type> >;
+template<class Type> using Vec_Mat3x3 = Vector<Mat3x3<Type> >;
+template<class Type> using Vec_Mat4x4 = Vector<Mat4x4<Type> >;
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 using Vec2i = Vec2<Int>;
@@ -153,6 +119,10 @@ using Vec2d = Vec2<double>;
 using Vec3d = Vec3<double>;
 using Vec4d = Vec4<double>;
 
+using Vec2r = Vec2<Real>;
+using Vec3r = Vec3<Real>;
+using Vec4r = Vec4<Real>;
+
 using Mat2x2f = Mat2x2<float>;
 using Mat3x3f = Mat3x3<float>;
 using Mat4x4f = Mat4x4<float>;
@@ -161,6 +131,11 @@ using Mat2x2d = Mat2x2<double>;
 using Mat3x3d = Mat3x3<double>;
 using Mat4x4d = Mat4x4<double>;
 
+using Mat2x2r = Mat2x2<Real>;
+using Mat3x3r = Mat3x3<Real>;
+using Mat4x4r = Mat4x4<Real>;
+
+////////////////////////////////////////////////////////////////////////////////
 using Vec_Int8  = Vector<Int8>;
 using Vec_Int16 = Vector<Int16>;
 using Vec_Int   = Vector<Int>;
@@ -178,7 +153,39 @@ using Vec_Float  = Vector<float>;
 using Vec_Double = Vector<double>;
 using Vec_Real   = Vector<Real>;
 
-// vectors of vectors
+using Vec_Vec2i = Vector<Vec2i>;
+using Vec_Vec3i = Vector<Vec3i>;
+using Vec_Vec4i = Vector<Vec4i>;
+
+using Vec_Vec2ui = Vector<Vec2ui>;
+using Vec_Vec3ui = Vector<Vec3ui>;
+using Vec_Vec4ui = Vector<Vec4ui>;
+
+using Vec_Vec2f = Vector<Vec2f>;
+using Vec_Vec3f = Vector<Vec3f>;
+using Vec_Vec4f = Vector<Vec4f>;
+
+using Vec_Vec2d = Vector<Vec2d>;
+using Vec_Vec3d = Vector<Vec3d>;
+using Vec_Vec4d = Vector<Vec4d>;
+
+using Vec_Vec2r = Vector<Vec2r>;
+using Vec_Vec3r = Vector<Vec3r>;
+using Vec_Vec4r = Vector<Vec4r>;
+
+using Vec_Mat2x2f = Vector<Mat2x2f>;
+using Vec_Mat3x3f = Vector<Mat3x3f>;
+using Vec_Mat4x4f = Vector<Mat4x4f>;
+
+using Vec_Mat2x2d = Vector<Mat2x2d>;
+using Vec_Mat3x3d = Vector<Mat3x3d>;
+using Vec_Mat4x4d = Vector<Mat4x4d>;
+
+using Vec_Mat2x2r = Vector<Mat2x2r>;
+using Vec_Mat3x3r = Vector<Mat3x3r>;
+using Vec_Mat4x4r = Vector<Mat4x4r>;
+
+////////////////////////////////////////////////////////////////////////////////
 using Vec_VecInt8  = Vector<Vector<Int8> >;
 using Vec_VecInt16 = Vector<Vector<Int16> >;
 using Vec_VecInt   = Vector<Vector<Int> >;
@@ -196,18 +203,38 @@ using Vec_VecFloat  = Vector<Vector<float> >;
 using Vec_VecDouble = Vector<Vector<double> >;
 using Vec_VecReal   = Vector<Vector<Real> >;
 
-// others
-using IPair8  = std::pair<Int8, Int8>;
-using IPair16 = std::pair<Int16, Int16>;
-using IPair32 = std::pair<Int, Int>;
-using IPair   = std::pair<Int, Int>;
-using IPair64 = std::pair<Int64, Int64>;
+using Vec_VecVec2i = Vector<Vector<Vec2i> >;
+using Vec_VecVec3i = Vector<Vector<Vec3i> >;
+using Vec_VecVec4i = Vector<Vector<Vec4i> >;
 
-using UIPair8  = std::pair<UInt8, UInt8>;
-using UIPair16 = std::pair<UInt16, UInt16>;
-using UIPair32 = std::pair<UInt, UInt>;
-using UIPair   = std::pair<UInt, UInt>;
-using UIPair64 = std::pair<UInt64, UInt64>;
+using Vec_VecVec2ui = Vector<Vector<Vec2ui> >;
+using Vec_VecVec3ui = Vector<Vector<Vec3ui> >;
+using Vec_VecVec4ui = Vector<Vector<Vec4ui> >;
 
-using FloatPair  = std::pair<float, float>;
-using DoublePair = std::pair<double, double>;
+using Vec_VecVec2f = Vector<Vector<Vec2f> >;
+using Vec_VecVec3f = Vector<Vector<Vec3f> >;
+using Vec_VecVec4f = Vector<Vector<Vec4f> >;
+
+using Vec_VecVec2d = Vector<Vector<Vec2d> >;
+using Vec_VecVec3d = Vector<Vector<Vec3d> >;
+using Vec_VecVec4d = Vector<Vector<Vec4d> >;
+
+using Vec_VecVec2r = Vector<Vector<Vec2r> >;
+using Vec_VecVec3r = Vector<Vector<Vec3r> >;
+using Vec_VecVec4r = Vector<Vector<Vec4r> >;
+
+using Vec_VecMat2x2f = Vector<Vector<Mat2x2f> >;
+using Vec_VecMat3x3f = Vector<Vector<Mat3x3f> >;
+using Vec_VecMat4x4f = Vector<Vector<Mat4x4f> >;
+
+using Vec_VecMat2x2d = Vector<Vector<Mat2x2d> >;
+using Vec_VecMat3x3d = Vector<Vector<Mat3x3d> >;
+using Vec_VecMat4x4d = Vector<Vector<Mat4x4d> >;
+
+using Vec_VecMat2x2r = Vector<Vector<Mat2x2r> >;
+using Vec_VecMat3x3r = Vector<Vector<Mat3x3r> >;
+using Vec_VecMat4x4r = Vector<Vector<Mat4x4r> >;
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+// include macros after typename definitions
+#include <Banana/Macros.h>

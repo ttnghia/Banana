@@ -221,8 +221,5 @@
     <ClCompile Include="SimulationObjects\ParticleObjects\ParticleObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ParticleSolvers\MPM\MPM3DSolver.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
 </Project>

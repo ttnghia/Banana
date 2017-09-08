@@ -215,7 +215,7 @@ inline T smin_exp(T a, T b, T k = T(32.0))
 template<class T>
 inline T smin_poly(T a, T b, T k = T(0.1))
 {
-    T h = clamp(T(0.5) + T(0.5) * (b - a) / k, T(0.0), T(1.0));
+    T h = clamp(T(0.5) + T(0.5) * (b - a) / k, T(0), T(1.0));
     return lerp(b, a, h) - k * h * (T(1.0) - h);
 }
 
@@ -758,36 +758,47 @@ inline T spiky_kernel(T r, T h)
 }
 
 template<class T>
-inline T cubic_spline_kernel(T f)
+inline T cubic_bspline(T f)
 {
     T x  = f > 0 ? f : -f;
     T x2 = x * x;
     T x3 = x2 * x;
 
     if(x >= T(2.0))
-    {
-        return T(0.0);
-    }
+        return T(0);
 
     if(x >= T(1.0))
-    {
         return -x3 / T(6.0) + x2 - T(2.0) * x + T(4.0 / 3.0);
-    }
 
     // else, x < 1.0
     return T(0.5) * x3 - x2 + T(2.0 / 3.0);
 }
 
 template<class T>
-inline T cubic_spline_kernel_2d(T x, T y)
+inline T cubic_bspline_2d(T x, T y)
 {
-    return cubic_spline_kernel(x) * cubic_spline_kernel(y);
+    return cubic_bspline(x) * cubic_bspline(y);
 }
 
 template<class T>
-inline T cubic_spline_kernel_3d(T x, T y, T z)
+inline T cubic_bspline_3d(T x, T y, T z)
 {
-    return cubic_spline_kernel(x) * cubic_spline_kernel(y) * cubic_spline_kernel(z);
+    return cubic_bspline(x) * cubic_bspline(y) * cubic_bspline(z);
+}
+
+template<class T>
+inline T cubic_bspline_grad(T x)
+{
+    T abs_x = f > 0 ? x : -x;
+
+    if(x >= T(2.0))
+        return T(0);
+
+    if(x >= T(1.0))
+        return -x * abs_x / T(2.0) + T(2.0) * x - T(2.0) * x / abs_x;
+
+    // else, x < 1.0
+    return T(1.5) * x * abs_x - T(2.0) * x;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

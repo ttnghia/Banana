@@ -17,7 +17,6 @@
 
 #pragma once
 
-#include <Banana/Array/ArrayHelpers.h>
 #include <Banana/Grid/Grid3DHashing.h>
 #include <Banana/LinearAlgebra/LinearSolvers/PCGSolver.h>
 #include <ParticleSolvers/ParticleSolver.h>
@@ -37,7 +36,7 @@ public:
     ////////////////////////////////////////////////////////////////////////////////
     virtual String getSolverName() override { return String("FLIP3DSolver"); }
     virtual String getGreetingMessage() override { return String("Fluid Simulation using FLIP-3D Solver"); }
-    virtual UInt   getNumParticles() override { return particleData().positions.size(); }
+    virtual UInt   getNumParticles() override { return static_cast<UInt>(particleData().positions.size()); }
     virtual Vec_Vec3r& getParticlePositions() override { return particleData().positions; }
     virtual Vec_Vec3r& getParticleVelocities() override { return particleData().velocities; }
 
@@ -81,8 +80,8 @@ private:
     Vec3r getVelocityChangesFromGrid(const Vec3r& ppos);
 
     ////////////////////////////////////////////////////////////////////////////////
-    SimulationData_FLIP3D::ParticleData& particleData() { return m_SimData->particleData; }
-    SimulationData_FLIP3D::GridData& gridData() { return m_SimData->gridData; }
+    SimulationData_FLIP3D::ParticleSimData& particleData() { return m_SimData->particleSimData; }
+    SimulationData_FLIP3D::GridSimData& gridData() { return m_SimData->gridSimData; }
 
     ////////////////////////////////////////////////////////////////////////////////
     std::shared_ptr<SimulationParameters_FLIP3D>      m_SimParams        = std::make_shared<SimulationParameters_FLIP3D>();

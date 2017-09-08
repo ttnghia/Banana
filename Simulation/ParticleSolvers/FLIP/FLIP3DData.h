@@ -20,7 +20,6 @@
 #include <Banana/Setup.h>
 #include <Banana/Array/Array3.h>
 #include <Banana/LinearAlgebra/SparseMatrix/SparseMatrix.h>
-#include <Banana/Geometry/GeometryObject3D.h>
 #include <ParticleSolvers/ParticleSolverData.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -37,7 +36,7 @@ struct SimulationParameters_FLIP3D
     Real       PIC_FLIP_ratio      = Real(0.97);
     Real       boundaryRestitution = Real(DEFAULT_BOUNDARY_RESTITUTION);
     Real       particleRadius      = Real(2.0 / 64.0 / 4.0);
-    P2GKernels kernelFunc          = P2GKernels::Linear;
+    P2GKernels p2gKernel           = P2GKernels::Linear;
     UInt       expandCells         = 2;
     Real       CGRelativeTolerance = Real(1e-15);
     UInt       maxCGIteration      = 10000;
@@ -65,7 +64,7 @@ struct SimulationParameters_FLIP3D
         nearKernelRadiusSqr = nearKernelRadius * nearKernelRadius;
 
         sdfRadius  = cellSize * Real(1.01 * sqrt(3.0) / 2.0);
-        kernelSpan = (kernelFunc == P2GKernels::Linear || kernelFunc == P2GKernels::SwirlyLinear) ? 1 : 2;
+        kernelSpan = (p2gKernel == P2GKernels::Linear || p2gKernel == P2GKernels::SwirlyLinear) ? 1 : 2;
 
         domainBMin = movingBMin - Vec3r(cellSize * expandCells);
         domainBMax = movingBMax + Vec3r(cellSize * expandCells);
@@ -79,7 +78,7 @@ struct SimulationParameters_FLIP3D
         logger->printLogIndent("CFL factor: " + std::to_string(CFLFactor));
         logger->printLogIndent("PIC/FLIP ratio: " + std::to_string(PIC_FLIP_ratio));
 
-        logger->printLogIndent("Kernel function: " + (kernelFunc == P2GKernels::Linear ? String("Linear") : String("Cubic BSpline")));
+        logger->printLogIndent("Kernel function: " + (p2gKernel == P2GKernels::Linear ? String("Linear") : String("Cubic BSpline")));
         logger->printLogIndent("Moving BMin: " + NumberHelpers::toString(movingBMin));
         logger->printLogIndent("Moving BMax: " + NumberHelpers::toString(movingBMax));
         logger->printLogIndent("Cell size: " + std::to_string(cellSize));
@@ -109,16 +108,16 @@ struct SimulationParameters_FLIP3D
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 struct SimulationData_FLIP3D
 {
-    struct ParticleData
+    struct ParticleSimData
     {
         Vec_Vec3r   positions;
         Vec_Vec3r   positions_tmp;
         Vec_Vec3r   velocities;
         Vec_VecUInt neighborList;
-    } particleData;
+    } particleSimData;
 
     ////////////////////////////////////////////////////////////////////////////////
-    struct GridData
+    struct GridSimData
     {
         Array3r u, v, w;
         Array3r du, dv, dw;
@@ -132,7 +131,7 @@ struct SimulationData_FLIP3D
 
         Array3r fluidSDF;
         Array3r boundarySDF;
-    } gridData;
+    } gridSimData;
 
     ////////////////////////////////////////////////////////////////////////////////
     SparseMatrix matrix;
@@ -142,43 +141,43 @@ struct SimulationData_FLIP3D
     ////////////////////////////////////////////////////////////////////////////////
     void reserve(UInt numParticles)
     {
-        particleData.positions.reserve(numParticles);
-        particleData.velocities.reserve(numParticles);
-        particleData.neighborList.reserve(numParticles);
+        particleSimData.positions.reserve(numParticles);
+        particleSimData.velocities.reserve(numParticles);
+        particleSimData.neighborList.reserve(numParticles);
     }
 
     void makeReady(UInt ni, UInt nj, UInt nk)
     {
-        particleData.positions_tmp.resize(particleData.positions.size());
-        particleData.velocities.resize(particleData.positions.size(), Vec3r(0));
-        particleData.neighborList.resize(particleData.positions.size());
+        particleSimData.positions_tmp.resize(particleSimData.positions.size());
+        particleSimData.velocities.resize(particleSimData.positions.size(), Vec3r(0));
+        particleSimData.neighborList.resize(particleSimData.positions.size());
 
-        gridData.u.resize(ni + 1, nj, nk, 0);
-        gridData.u_old.resize(ni + 1, nj, nk, 0);
-        gridData.du.resize(ni + 1, nj, nk, 0);
-        gridData.u_temp.resize(ni + 1, nj, nk, 0);
-        gridData.u_weights.resize(ni + 1, nj, nk, 0);
-        gridData.u_valid.resize(ni + 1, nj, nk, 0);
-        gridData.u_valid_old.resize(ni + 1, nj, nk, 0);
+        gridSimData.u.resize(ni + 1, nj, nk, 0);
+        gridSimData.u_old.resize(ni + 1, nj, nk, 0);
+        gridSimData.du.resize(ni + 1, nj, nk, 0);
+        gridSimData.u_temp.resize(ni + 1, nj, nk, 0);
+        gridSimData.u_weights.resize(ni + 1, nj, nk, 0);
+        gridSimData.u_valid.resize(ni + 1, nj, nk, 0);
+        gridSimData.u_valid_old.resize(ni + 1, nj, nk, 0);
 
-        gridData.v.resize(ni, nj + 1, nk, 0);
-        gridData.v_old.resize(ni, nj + 1, nk, 0);
-        gridData.dv.resize(ni, nj + 1, nk, 0);
-        gridData.v_temp.resize(ni, nj + 1, nk, 0);
-        gridData.v_weights.resize(ni, nj + 1, nk, 0);
-        gridData.v_valid.resize(ni, nj + 1, nk, 0);
-        gridData.v_valid_old.resize(ni, nj + 1, nk, 0);
+        gridSimData.v.resize(ni, nj + 1, nk, 0);
+        gridSimData.v_old.resize(ni, nj + 1, nk, 0);
+        gridSimData.dv.resize(ni, nj + 1, nk, 0);
+        gridSimData.v_temp.resize(ni, nj + 1, nk, 0);
+        gridSimData.v_weights.resize(ni, nj + 1, nk, 0);
+        gridSimData.v_valid.resize(ni, nj + 1, nk, 0);
+        gridSimData.v_valid_old.resize(ni, nj + 1, nk, 0);
 
-        gridData.w.resize(ni, nj, nk + 1, 0);
-        gridData.w_old.resize(ni, nj, nk + 1, 0);
-        gridData.dw.resize(ni, nj, nk + 1, 0);
-        gridData.w_temp.resize(ni, nj, nk + 1, 0);
-        gridData.w_weights.resize(ni, nj, nk + 1, 0);
-        gridData.w_valid.resize(ni, nj, nk + 1, 0);
-        gridData.w_valid_old.resize(ni, nj, nk + 1, 0);
+        gridSimData.w.resize(ni, nj, nk + 1, 0);
+        gridSimData.w_old.resize(ni, nj, nk + 1, 0);
+        gridSimData.dw.resize(ni, nj, nk + 1, 0);
+        gridSimData.w_temp.resize(ni, nj, nk + 1, 0);
+        gridSimData.w_weights.resize(ni, nj, nk + 1, 0);
+        gridSimData.w_valid.resize(ni, nj, nk + 1, 0);
+        gridSimData.w_valid_old.resize(ni, nj, nk + 1, 0);
 
-        gridData.fluidSDF.resize(ni, nj, nk, 0);
-        gridData.boundarySDF.resize(ni + 1, nj + 1, nk + 1, 0);
+        gridSimData.fluidSDF.resize(ni, nj, nk, 0);
+        gridSimData.boundarySDF.resize(ni + 1, nj + 1, nk + 1, 0);
 
         matrix.resize(ni * nj * nk);
         rhs.resize(ni * nj * nk);
@@ -187,9 +186,9 @@ struct SimulationData_FLIP3D
 
     void backupGridVelocity()
     {
-        gridData.u_old.copyDataFrom(gridData.u);
-        gridData.v_old.copyDataFrom(gridData.v);
-        gridData.w_old.copyDataFrom(gridData.w);
+        gridSimData.u_old.copyDataFrom(gridSimData.u);
+        gridSimData.v_old.copyDataFrom(gridSimData.v);
+        gridSimData.w_old.copyDataFrom(gridSimData.w);
     }
 };
 

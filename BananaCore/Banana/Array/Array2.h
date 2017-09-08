@@ -255,12 +255,12 @@ public:
         return const_reverse_iterator(cbegin());
     }
 
-    Vector<T>& vec_data()
+    Vector<T>& data()
     {
         return m_Data;
     }
 
-    const Vector<T>& vec_data() const
+    const Vector<T>& data() const
     {
         return m_Data;
     }
