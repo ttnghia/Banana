@@ -44,13 +44,13 @@ public:
     void            sortData(Vec_Vec3r& data);
 
     template<class IndexType>
-    const Vec_UInt& getParticleIdxInCell(const Vec3<IndexType>& cellIdx) const { return m_CellParticleIdx(cellIdx); }
+    const Vec_UInt& getParticleIdxInCell(const Vec3<IndexType>& cellIdx) const { return m_ParticleIdxInCell(cellIdx); }
 
 private:
-    Vec_UInt m_ParticleIdx;
+    Vec_UInt m_ParticleIdxSortedByCell;
     bool     m_bCellIdxNeedResize = false;                          // to track and resize the m_CellParticleIdx array
 
-    Array3_VecUInt                    m_CellParticleIdx;
+    Array3_VecUInt                    m_ParticleIdxInCell;
     Array3<ParallelObjects::SpinLock> m_Lock;
 };
 

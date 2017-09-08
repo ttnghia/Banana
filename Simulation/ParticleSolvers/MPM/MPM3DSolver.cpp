@@ -85,7 +85,7 @@ void Banana::MPM3DSolver::advanceFrame()
                                    Real substep = MathHelpers::min(computeCFLTimestep(), remainingTime);
                                    ////////////////////////////////////////////////////////////////////////////////
                                    m_Logger->printRunTime("Find neighbors: ",               funcTimer,
-                                                          [&]() { m_Grid.collectIndexToCells(particleData().positions, particleData().gridIdx); });
+                                                          [&]() { m_Grid.collectIndexToCells(particleData().positions, particleData().particleCellIdx); });
                                    m_Logger->printRunTime("====> Advance velocity total: ", funcTimer, [&]() { advanceVelocity(substep); });
                                    m_Logger->printRunTime("Move particles: ",               funcTimer, [&]() { moveParticles(substep); });
                                    //m_Logger->printRunTime("Correct particle positions: ",   funcTimer, [&]() { correctPositions(substep); });
@@ -328,7 +328,7 @@ void MPM3DSolver::advanceVelocityExplicit(Real timestep)
     });
 
     //Now we have all grid forces, compute velocities (euler integration)
-    ParallelFuncs::parallel_for<UInt>(0, gridData().active.size(),
+    ParallelFuncs::parallel_for<UInt>(0, m_Grid.getNumTotalCells(),
                                       [&](UInt i)
     {
         if(gridData().active.data()[i])
@@ -356,7 +356,7 @@ void MPM3DSolver::advanceVelocityImplicit(Real timestep)
     //iteratively refine our guess until the error is small enough.
 
     //INITIALIZE LINEAR SOLVE
-    ParallelFuncs::parallel_for<UInt>(0, gridData().active.size(),
+    ParallelFuncs::parallel_for<UInt>(0, m_Grid.getNumTotalCells(),
                                       [&](UInt i)
     {
         gridData().imp_active.data()[i] = gridData().active.data()[i];
@@ -374,7 +374,7 @@ void MPM3DSolver::advanceVelocityImplicit(Real timestep)
     //As said before, we need to compute vf-E*vf as our initial "r" residual
     computeImplicitForces();
 
-    ParallelFuncs::parallel_for<UInt>(0, gridData().active.size(),
+    ParallelFuncs::parallel_for<UInt>(0, m_Grid.getNumTotalCells(),
                                       [&](UInt i)
     {
         if(gridData().imp_active.data()[i])
@@ -392,7 +392,7 @@ void MPM3DSolver::advanceVelocityImplicit(Real timestep)
     computeImplicitForces();
     //Ep starts out the same as Er
 
-    ParallelFuncs::parallel_for<UInt>(0, gridData().active.size(),
+    ParallelFuncs::parallel_for<UInt>(0, m_Grid.getNumTotalCells(),
                                       [&](UInt i)
     {
         if(gridData().imp_active.data()[i])
@@ -400,33 +400,35 @@ void MPM3DSolver::advanceVelocityImplicit(Real timestep)
     });
 
     //LINEAR SOLVE
-    for(int i = 0; i < m_SimParams->maxCGIteration; i++)
+    for(int iter = 0; iter < m_SimParams->maxCGIteration; iter++)
     {
         bool done = true;
-        for(int idx = 0; idx < nodes_length; idx++)
+
+        ParallelFuncs::parallel_for<UInt>(0, m_Grid.getNumTotalCells(),
+                                          [&](UInt i)
         {
-            GridNode& n = nodes[idx];
             //Only perform calculations on nodes that haven't been solved yet
-            if(n.imp_active)
+            if(gridData().imp_active.data()[i])
             {
                 //Alright, so we'll handle each node's solve separately
                 //First thing to do is update our vf guess
-                float div   = n.Ep.dot(n.Ep);
-                float alpha = n.rEr / div;
-                n.err = alpha * n.p;
+                float div = gridData().Ep.data()[i].dot(gridData().Ep.data()[i]);
+                float alpha = gridData().rEr / div;
+                gridData().err = alpha * gridData().p;
                 //If the error is small enough, we're done
-                float err = n.err.length();
+                float err = gridData().err.length();
                 if(err < MAX_IMPLICIT_ERR || err > MIN_IMPLICIT_ERR || isnan(err))
                 {
-                    n.imp_active = false;
+                    gridData().imp_active = false;
                     continue;
                 }
                 else done = false;
                 //Update vf and residual
-                n.velocity_new += n.err;
-                n.r            -= alpha * n.Ep;
+                gridData().velocitiesNew += gridData().err;
+                gridData().r -= alpha * gridData().Ep;
             }
-        }
+        });
+
         //If all the velocities converged, we're done
         if(done) break;
 

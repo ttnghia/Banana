@@ -723,30 +723,35 @@ void FLIP3DSolver::computeFluidSDF()
 {
     gridData().fluidSDF.assign(m_Grid.getCellSize() * Real(3.0));
 
-    // cannot run in parallel
-    for(UInt p = 0; p < getNumParticles(); ++p)
-    {
-        const Vec3r ppos     = particleData().positions[p];
-        const Vec3i cellIdx  = m_Grid.getCellIdx<int>(ppos);
-        const Vec3i cellDown = Vec3i(MathHelpers::max(0, cellIdx [0] - 1),
-                                     MathHelpers::max(0, cellIdx [1] - 1),
-                                     MathHelpers::max(0, cellIdx [2] - 1));
-        const Vec3i cellUp = Vec3i(MathHelpers::min(cellIdx [0] + 2, static_cast<Int>(m_Grid.getNumCellX())),
-                                   MathHelpers::min(cellIdx [1] + 2, static_cast<Int>(m_Grid.getNumCellY())),
-                                   MathHelpers::min(cellIdx [2] + 2, static_cast<Int>(m_Grid.getNumCellZ())));
+    ParallelFuncs::parallel_for<UInt>(0, getNumParticles(),
+                                      [&](UInt p)
+                                      {
+                                          const Vec3r ppos = particleData().positions[p];
+                                          const Vec3i cellIdx = m_Grid.getCellIdx<int>(ppos);
+                                          const Vec3i cellDown = Vec3i(MathHelpers::max(0, cellIdx[0] - 1),
+                                                                       MathHelpers::max(0, cellIdx[1] - 1),
+                                                                       MathHelpers::max(0, cellIdx[2] - 1));
+                                          const Vec3i cellUp = Vec3i(MathHelpers::min(cellIdx[0] + 1, static_cast<Int>(m_Grid.getNumCellX())),
+                                                                     MathHelpers::min(cellIdx[1] + 1, static_cast<Int>(m_Grid.getNumCellY())),
+                                                                     MathHelpers::min(cellIdx[2] + 1, static_cast<Int>(m_Grid.getNumCellZ())));
 
-        ParallelFuncs::parallel_for<int>(cellDown[0], cellUp[0],
-                                         cellDown[1], cellUp[1],
-                                         cellDown[2], cellUp[2],
-                                         [&](int i, int j, int k)
-                                         {
-                                             const Vec3r sample = Vec3r(i + 0.5, j + 0.5, k + 0.5) * m_Grid.getCellSize() + m_Grid.getBMin();
-                                             const Real phiVal = glm::length(sample - ppos) - m_SimParams->sdfRadius;
+                                          for(int k = cellDown[2]; k <= cellUp[2]; ++k)
+                                          {
+                                              for(int j = cellDown[1]; j <= cellUp[1]; ++j)
+                                              {
+                                                  for(int i = cellDown[0]; i <= cellUp[0]; ++i)
+                                                  {
+                                                      const Vec3r sample = Vec3r(i + 0.5, j + 0.5, k + 0.5) * m_Grid.getCellSize() + m_Grid.getBMin();
+                                                      const Real phiVal = glm::length(sample - ppos) - m_SimParams->sdfRadius;
 
-                                             if(phiVal < gridData().fluidSDF(i, j, k))
-                                                 gridData().fluidSDF(i, j, k) = phiVal;
-                                         });
-    }
+                                                      gridData().fluidSDFLock(i, j, k).lock();
+                                                      if(phiVal < gridData().fluidSDF(i, j, k))
+                                                          gridData().fluidSDF(i, j, k) = phiVal;
+                                                      gridData().fluidSDFLock(i, j, k).unlock();
+                                                  }
+                                              }
+                                          }
+                                      });
 
     ////////////////////////////////////////////////////////////////////////////////
     //extend phi slightly into solids (this is a simple, naive approach, but works reasonably well)
@@ -777,113 +782,108 @@ void FLIP3DSolver::computeMatrix(Real timestep)
 {
     m_SimData->matrix.clear();
 
-    for(UInt k = 1; k < m_Grid.getNumCellZ() - 1; ++k)
-    {
-        for(UInt j = 1; j < m_Grid.getNumCellY() - 1; ++j)
-        {
-            for(UInt i = 1; i < m_Grid.getNumCellX() - 1; ++i)
-            {
-                const UInt cellIdx = m_Grid.getLinearizedIndex(i, j, k);
+    ParallelFuncs::parallel_for<UInt>(1, m_Grid.getNumCellX() - 1,
+                                      1, m_Grid.getNumCellY() - 1,
+                                      1, m_Grid.getNumCellZ() - 1,
+                                      [&](UInt i, UInt j, UInt k)
+                                      {
+                                          const Real center_phi = gridData().fluidSDF(i, j, k);
+                                          if(center_phi > 0)
+                                              return;
 
-                const Real center_phi = gridData().fluidSDF(i, j, k);
+                                          const Real right_phi = gridData().fluidSDF(i + 1, j, k);
+                                          const Real left_phi = gridData().fluidSDF(i - 1, j, k);
+                                          const Real top_phi = gridData().fluidSDF(i, j + 1, k);
+                                          const Real bottom_phi = gridData().fluidSDF(i, j - 1, k);
+                                          const Real far_phi = gridData().fluidSDF(i, j, k + 1);
+                                          const Real near_phi = gridData().fluidSDF(i, j, k - 1);
 
-                if(center_phi < 0)
-                {
-                    const Real right_phi  = gridData().fluidSDF(i + 1, j, k);
-                    const Real left_phi   = gridData().fluidSDF(i - 1, j, k);
-                    const Real top_phi    = gridData().fluidSDF(i, j + 1, k);
-                    const Real bottom_phi = gridData().fluidSDF(i, j - 1, k);
-                    const Real far_phi    = gridData().fluidSDF(i, j, k + 1);
-                    const Real near_phi   = gridData().fluidSDF(i, j, k - 1);
+                                          const Real right_term = gridData().u_weights(i + 1, j, k) * timestep;
+                                          const Real left_term = gridData().u_weights(i, j, k) * timestep;
+                                          const Real top_term = gridData().v_weights(i, j + 1, k) * timestep;
+                                          const Real bottom_term = gridData().v_weights(i, j, k) * timestep;
+                                          const Real far_term = gridData().w_weights(i, j, k + 1) * timestep;
+                                          const Real near_term = gridData().w_weights(i, j, k) * timestep;
 
-                    const Real right_term  = gridData().u_weights(i + 1, j, k) * timestep;
-                    const Real left_term   = gridData().u_weights(i, j, k) * timestep;
-                    const Real top_term    = gridData().v_weights(i, j + 1, k) * timestep;
-                    const Real bottom_term = gridData().v_weights(i, j, k) * timestep;
-                    const Real far_term    = gridData().w_weights(i, j, k + 1) * timestep;
-                    const Real near_term   = gridData().w_weights(i, j, k) * timestep;
+                                          const UInt cellIdx = m_Grid.getLinearizedIndex(i, j, k);
+                                          Real center_term = 0;
 
-                    Real center_term = 0;
+                                          // right neighbor
+                                          if(right_phi < 0)
+                                          {
+                                              center_term += right_term;
+                                              m_SimData->matrix.addElement(cellIdx, cellIdx + 1, -right_term);
+                                          }
+                                          else
+                                          {
+                                              Real theta = MathHelpers::max(Real(0.01), MathHelpers::fraction_inside(center_phi, right_phi));
+                                              center_term += right_term / theta;
+                                          }
 
-                    // right neighbor
-                    if(right_phi < 0)
-                    {
-                        center_term += right_term;
-                        m_SimData->matrix.addElement(cellIdx, cellIdx + 1, -right_term);
-                    }
-                    else
-                    {
-                        Real theta = MathHelpers::max(Real(0.01), MathHelpers::fraction_inside(center_phi, right_phi));
-                        center_term += right_term / theta;
-                    }
+                                          //left neighbor
+                                          if(left_phi < 0)
+                                          {
+                                              center_term += left_term;
+                                              m_SimData->matrix.addElement(cellIdx, cellIdx - 1, -left_term);
+                                          }
+                                          else
+                                          {
+                                              Real theta = MathHelpers::max(Real(0.01), MathHelpers::fraction_inside(center_phi, left_phi));
+                                              center_term += left_term / theta;
+                                          }
 
-                    //left neighbor
-                    if(left_phi < 0)
-                    {
-                        center_term += left_term;
-                        m_SimData->matrix.addElement(cellIdx, cellIdx - 1, -left_term);
-                    }
-                    else
-                    {
-                        Real theta = MathHelpers::max(Real(0.01), MathHelpers::fraction_inside(center_phi, left_phi));
-                        center_term += left_term / theta;
-                    }
+                                          //top neighbor
+                                          if(top_phi < 0)
+                                          {
+                                              center_term += top_term;
+                                              m_SimData->matrix.addElement(cellIdx, cellIdx + m_Grid.getNumCellX(), -top_term);
+                                          }
+                                          else
+                                          {
+                                              Real theta = MathHelpers::max(Real(0.01), MathHelpers::fraction_inside(center_phi, top_phi));
+                                              center_term += top_term / theta;
+                                          }
 
-                    //top neighbor
-                    if(top_phi < 0)
-                    {
-                        center_term += top_term;
-                        m_SimData->matrix.addElement(cellIdx, cellIdx + m_Grid.getNumCellX(), -top_term);
-                    }
-                    else
-                    {
-                        Real theta = MathHelpers::max(Real(0.01), MathHelpers::fraction_inside(center_phi, top_phi));
-                        center_term += top_term / theta;
-                    }
+                                          //bottom neighbor
+                                          if(bottom_phi < 0)
+                                          {
+                                              center_term += bottom_term;
+                                              m_SimData->matrix.addElement(cellIdx, cellIdx - m_Grid.getNumCellX(), -bottom_term);
+                                          }
+                                          else
+                                          {
+                                              Real theta = MathHelpers::max(Real(0.01), MathHelpers::fraction_inside(center_phi, bottom_phi));
+                                              center_term += bottom_term / theta;
+                                          }
 
-                    //bottom neighbor
-                    if(bottom_phi < 0)
-                    {
-                        center_term += bottom_term;
-                        m_SimData->matrix.addElement(cellIdx, cellIdx - m_Grid.getNumCellX(), -bottom_term);
-                    }
-                    else
-                    {
-                        Real theta = MathHelpers::max(Real(0.01), MathHelpers::fraction_inside(center_phi, bottom_phi));
-                        center_term += bottom_term / theta;
-                    }
+                                          //far neighbor
+                                          if(far_phi < 0)
+                                          {
+                                              center_term += far_term;
+                                              m_SimData->matrix.addElement(cellIdx, cellIdx + m_Grid.getNumCellX() * m_Grid.getNumCellY(), -far_term);
+                                          }
+                                          else
+                                          {
+                                              Real theta = MathHelpers::max(Real(0.01), MathHelpers::fraction_inside(center_phi, far_phi));
+                                              center_term += far_term / theta;
+                                          }
 
-                    //far neighbor
-                    if(far_phi < 0)
-                    {
-                        center_term += far_term;
-                        m_SimData->matrix.addElement(cellIdx, cellIdx + m_Grid.getNumCellX() * m_Grid.getNumCellY(), -far_term);
-                    }
-                    else
-                    {
-                        Real theta = MathHelpers::max(Real(0.01), MathHelpers::fraction_inside(center_phi, far_phi));
-                        center_term += far_term / theta;
-                    }
+                                          //near neighbor
+                                          if(near_phi < 0)
+                                          {
+                                              center_term += near_term;
+                                              m_SimData->matrix.addElement(cellIdx, cellIdx - m_Grid.getNumCellX() * m_Grid.getNumCellY(), -near_term);
+                                          }
+                                          else
+                                          {
+                                              Real theta = MathHelpers::max(Real(0.01), MathHelpers::fraction_inside(center_phi, near_phi));
+                                              center_term += near_term / theta;
+                                          }
 
-                    //near neighbor
-                    if(near_phi < 0)
-                    {
-                        center_term += near_term;
-                        m_SimData->matrix.addElement(cellIdx, cellIdx - m_Grid.getNumCellX() * m_Grid.getNumCellY(), -near_term);
-                    }
-                    else
-                    {
-                        Real theta = MathHelpers::max(Real(0.01), MathHelpers::fraction_inside(center_phi, near_phi));
-                        center_term += near_term / theta;
-                    }
-
-                    ////////////////////////////////////////////////////////////////////////////////
-                    // center
-                    m_SimData->matrix.addElement(cellIdx, cellIdx, center_term);
-                }   // end if(centre_phi < 0)
-            }
-        }
-    }
+                                          ////////////////////////////////////////////////////////////////////////////////
+                                          // center
+                                          m_SimData->matrix.addElement(cellIdx, cellIdx, center_term);
+                                      });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -895,22 +895,22 @@ void FLIP3DSolver::computeRhs()
                                       1, m_Grid.getNumCellZ() - 1,
                                       [&](UInt i, UInt j, UInt k)
                                       {
-                                          if(gridData().fluidSDF(i, j, k) < 0)
-                                          {
-                                              Real tmp = Real(0);
+                                          if(gridData().fluidSDF(i, j, k) > 0)
+                                              return;
 
-                                              tmp -= gridData().u_weights(i + 1, j, k) * gridData().u(i + 1, j, k);
-                                              tmp += gridData().u_weights(i, j, k) * gridData().u(i, j, k);
+                                          Real tmp = Real(0);
 
-                                              tmp -= gridData().v_weights(i, j + 1, k) * gridData().v(i, j + 1, k);
-                                              tmp += gridData().v_weights(i, j, k) * gridData().v(i, j, k);
+                                          tmp -= gridData().u_weights(i + 1, j, k) * gridData().u(i + 1, j, k);
+                                          tmp += gridData().u_weights(i, j, k) * gridData().u(i, j, k);
 
-                                              tmp -= gridData().w_weights(i, j, k + 1) * gridData().w(i, j, k + 1);
-                                              tmp += gridData().w_weights(i, j, k) * gridData().w(i, j, k);
+                                          tmp -= gridData().v_weights(i, j + 1, k) * gridData().v(i, j + 1, k);
+                                          tmp += gridData().v_weights(i, j, k) * gridData().v(i, j, k);
 
-                                              const UInt idx = m_Grid.getLinearizedIndex(i, j, k);
-                                              m_SimData->rhs[idx] = tmp;
-                                          }
+                                          tmp -= gridData().w_weights(i, j, k + 1) * gridData().w(i, j, k + 1);
+                                          tmp += gridData().w_weights(i, j, k) * gridData().w(i, j, k);
+
+                                          const UInt idx = m_Grid.getLinearizedIndex(i, j, k);
+                                          m_SimData->rhs[idx] = tmp;
                                       });
 }
 

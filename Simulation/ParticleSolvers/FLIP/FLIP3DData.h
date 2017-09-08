@@ -19,6 +19,7 @@
 
 #include <Banana/Setup.h>
 #include <Banana/Array/Array3.h>
+#include <Banana/ParallelHelpers/ParallelObjects.h>
 #include <Banana/LinearAlgebra/SparseMatrix/SparseMatrix.h>
 #include <ParticleSolvers/ParticleSolverData.h>
 
@@ -129,8 +130,9 @@ struct SimulationData_FLIP3D
         Array3r u_temp, v_temp, w_temp;
         Array3c u_valid_old, v_valid_old, w_valid_old;
 
-        Array3r fluidSDF;
-        Array3r boundarySDF;
+        Array3<ParallelObjects::SpinLock> fluidSDFLock;
+        Array3r                           fluidSDF;
+        Array3r                           boundarySDF;
     } gridSimData;
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -176,6 +178,7 @@ struct SimulationData_FLIP3D
         gridSimData.w_valid.resize(ni, nj, nk + 1, 0);
         gridSimData.w_valid_old.resize(ni, nj, nk + 1, 0);
 
+        gridSimData.fluidSDFLock.resize(ni, nj, nk);
         gridSimData.fluidSDF.resize(ni, nj, nk, 0);
         gridSimData.boundarySDF.resize(ni + 1, nj + 1, nk + 1, 0);
 

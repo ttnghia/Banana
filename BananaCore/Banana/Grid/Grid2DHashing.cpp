@@ -33,12 +33,12 @@ void Grid2DHashing::collectIndexToCells(const Vec_Vec2r& particles)
 {
     if(m_bCellIdxNeedResize)
     {
-        m_CellParticleIdx.resize(getNumCells());
+        m_ParticleIdxInCell.resize(getNumCells());
         m_Lock.resize(getNumCells());
         m_bCellIdxNeedResize = false;
     }
 
-    for(auto& cell : m_CellParticleIdx.data())
+    for(auto& cell : m_ParticleIdxInCell.data())
         cell.resize(0);
 
     ParallelFuncs::parallel_for<UInt>(0, static_cast<UInt>(particles.size()),
@@ -46,13 +46,13 @@ void Grid2DHashing::collectIndexToCells(const Vec_Vec2r& particles)
                                       {
                                           auto cellIdx = getCellIdx<int>(particles[p]);
                                           m_Lock(cellIdx).lock();
-                                          m_CellParticleIdx(cellIdx).push_back(p);
+                                          m_ParticleIdxInCell(cellIdx).push_back(p);
                                           m_Lock(cellIdx).unlock();
                                       });
 
     ////////////////////////////////////////////////////////////////////////////////
     // reset particle index vector
-    m_ParticleIdx.resize(0);
+    m_ParticleIdxSortedByCell.resize(0);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -60,12 +60,12 @@ void Grid2DHashing::collectIndexToCells(const Vec_Vec2r& particles, Vec_Vec2i& p
 {
     if(m_bCellIdxNeedResize)
     {
-        m_CellParticleIdx.resize(getNumCells());
+        m_ParticleIdxInCell.resize(getNumCells());
         m_Lock.resize(getNumCells());
         m_bCellIdxNeedResize = false;
     }
 
-    for(auto& cell : m_CellParticleIdx.data())
+    for(auto& cell : m_ParticleIdxInCell.data())
         cell.resize(0);
 
     ParallelFuncs::parallel_for<UInt>(0, static_cast<UInt>(particles.size()),
@@ -75,13 +75,13 @@ void Grid2DHashing::collectIndexToCells(const Vec_Vec2r& particles, Vec_Vec2i& p
                                           particleCellIdx[p] = cellIdx;
 
                                           m_Lock(cellIdx).lock();
-                                          m_CellParticleIdx(cellIdx).push_back(p);
+                                          m_ParticleIdxInCell(cellIdx).push_back(p);
                                           m_Lock(cellIdx).unlock();
                                       });
 
     ////////////////////////////////////////////////////////////////////////////////
     // reset particle index vector
-    m_ParticleIdx.resize(0);
+    m_ParticleIdxSortedByCell.resize(0);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -106,7 +106,7 @@ void Grid2DHashing::getNeighborList(const Vec2r& ppos, Vec_UInt& neighborList, i
             if(!isValidCell(neighborCellIdx))
                 continue;
 
-            const Vec_UInt& cell = m_CellParticleIdx(neighborCellIdx);
+            const Vec_UInt& cell = m_ParticleIdxInCell(neighborCellIdx);
 
             if(cell.size() > 0)
                 neighborList.insert(neighborList.end(), cell.begin(), cell.end());
@@ -136,7 +136,7 @@ void Grid2DHashing::getNeighborList(const Vec_Vec2r& particles, const Vec2r& ppo
             if(!isValidCell(neighborCellIdx))
                 continue;
 
-            const Vec_UInt& cell = m_CellParticleIdx(neighborCellIdx);
+            const Vec_UInt& cell = m_ParticleIdxInCell(neighborCellIdx);
 
             if(cell.size() > 0)
             {
@@ -155,16 +155,16 @@ void Grid2DHashing::getNeighborList(const Vec_Vec2r& particles, const Vec2r& ppo
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 const Vec_UInt& Grid2DHashing::getParticleIdxSortedByCell()
 {
-    if(m_ParticleIdx.size() > 0)
-        return m_ParticleIdx;
+    if(m_ParticleIdxSortedByCell.size() > 0)
+        return m_ParticleIdxSortedByCell;
 
-    for(auto& cell : m_CellParticleIdx.data())
+    for(auto& cell : m_ParticleIdxInCell.data())
     {
         if(cell.size() > 0)
-            m_ParticleIdx.insert(m_ParticleIdx.end(), cell.begin(), cell.end());
+            m_ParticleIdxSortedByCell.insert(m_ParticleIdxSortedByCell.end(), cell.begin(), cell.end());
     }
 
-    return m_ParticleIdx;
+    return m_ParticleIdxSortedByCell;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

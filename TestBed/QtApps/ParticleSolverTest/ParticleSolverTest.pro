@@ -27,10 +27,10 @@ CONFIG += console
 
 INCLUDEPATH += $$PWD/Include
 
-include(D:/Programming/Banana/BananaCore/BananaCore.pri)
-include(D:/Programming/Banana/QtAppHelpers/QtAppHelpers.pri)
-include(D:/Programming/Banana/OpenGLHelpers/OpenGLHelpers.pri)
-include(D:/Programming/Banana/Simulation/Simulation.pri)
+include(../../../BananaCore/BananaCore.pri)
+include(../../../QtAppHelpers/QtAppHelpers.pri)
+include(../../../OpenGLHelpers/OpenGLHelpers.pri)
+include(../../../Simulation/Simulation.pri)
 
 HEADERS += \
     Include/MainWindow.h \

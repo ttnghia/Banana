@@ -34,6 +34,9 @@ using namespace Banana;
 
 #define NUM_DATA 300
 #define NUM_TEST 100'000'000
+
+#define NUM_DATA 200
+#define NUM_TEST 100'000
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 TEST_CASE("Test Simple Map Data", "[TestMap]")
 {
