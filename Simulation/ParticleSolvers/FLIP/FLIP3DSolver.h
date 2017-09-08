@@ -34,9 +34,9 @@ public:
     std::shared_ptr<SimulationParameters_FLIP3D> getSolverParams() { return m_SimParams; }
 
     ////////////////////////////////////////////////////////////////////////////////
-    virtual String getSolverName() override { return String("FLIP3DSolver"); }
-    virtual String getGreetingMessage() override { return String("Fluid Simulation using FLIP-3D Solver"); }
-    virtual UInt   getNumParticles() override { return static_cast<UInt>(particleData().positions.size()); }
+    virtual String     getSolverName() override { return String("FLIP3DSolver"); }
+    virtual String     getGreetingMessage() override { return String("Fluid Simulation using FLIP-3D Solver"); }
+    virtual UInt       getNumParticles() override { return static_cast<UInt>(particleData().positions.size()); }
     virtual Vec_Vec3r& getParticlePositions() override { return particleData().positions; }
     virtual Vec_Vec3r& getParticleVelocities() override { return particleData().velocities; }
 
@@ -81,7 +81,7 @@ private:
 
     ////////////////////////////////////////////////////////////////////////////////
     SimulationData_FLIP3D::ParticleSimData& particleData() { return m_SimData->particleSimData; }
-    SimulationData_FLIP3D::GridSimData& gridData() { return m_SimData->gridSimData; }
+    SimulationData_FLIP3D::GridSimData&     gridData() { return m_SimData->gridSimData; }
 
     ////////////////////////////////////////////////////////////////////////////////
     std::shared_ptr<SimulationParameters_FLIP3D>      m_SimParams        = std::make_shared<SimulationParameters_FLIP3D>();

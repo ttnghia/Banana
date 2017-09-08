@@ -386,16 +386,33 @@ inline T clamp(T a, T lower, T upper)
     }
 }
 
+template<class T>
+inline T clamp01(T a)
+{
+    if(a < T(0))
+    {
+        return T(0);
+    }
+    else if(a > T(1.0))
+    {
+        return T(1.0);
+    }
+    else
+    {
+        return a;
+    }
+}
+
 template<class T, class S>
 inline T clamp(T a, S lower, S upper)
 {
-    if(a < lower)
+    if(a < T(lower))
     {
-        return lower;
+        return T(lower);
     }
-    else if(a > upper)
+    else if(a > T(upper))
     {
-        return upper;
+        return T(upper);
     }
     else
     {

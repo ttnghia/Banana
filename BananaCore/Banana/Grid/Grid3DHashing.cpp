@@ -29,7 +29,7 @@ void Grid3DHashing::setCellSize(Real cellSize)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Grid3DHashing::collectIndexToCells(const Vec_Vec3r& particles)
+void Grid3DHashing::collectIndexToCells(const Vec_Vec3r& positions)
 {
     if(m_bCellIdxNeedResize)
     {
@@ -41,10 +41,10 @@ void Grid3DHashing::collectIndexToCells(const Vec_Vec3r& particles)
     for(auto& cell : m_ParticleIdxInCell.data())
         cell.resize(0);
 
-    ParallelFuncs::parallel_for<UInt>(0, static_cast<UInt>(particles.size()),
+    ParallelFuncs::parallel_for<UInt>(0, static_cast<UInt>(positions.size()),
                                       [&](UInt p)
                                       {
-                                          auto cellIdx = getCellIdx<int>(particles[p]);
+                                          auto cellIdx = getCellIdx<int>(positions[p]);
                                           m_Lock(cellIdx).lock();
                                           m_ParticleIdxInCell(cellIdx).push_back(p);
                                           m_Lock(cellIdx).unlock();
@@ -56,7 +56,7 @@ void Grid3DHashing::collectIndexToCells(const Vec_Vec3r& particles)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Grid3DHashing::collectIndexToCells(const Vec_Vec3r& particles, Vec_Vec3i& particleCellIdx)
+void Grid3DHashing::collectIndexToCells(const Vec_Vec3r& positions, Vec_Vec3i& particleCellIdx)
 {
     if(m_bCellIdxNeedResize)
     {
@@ -68,10 +68,10 @@ void Grid3DHashing::collectIndexToCells(const Vec_Vec3r& particles, Vec_Vec3i& p
     for(auto& cell : m_ParticleIdxInCell.data())
         cell.resize(0);
 
-    ParallelFuncs::parallel_for<UInt>(0, static_cast<UInt>(particles.size()),
+    ParallelFuncs::parallel_for<UInt>(0, static_cast<UInt>(positions.size()),
                                       [&](UInt p)
                                       {
-                                          auto cellIdx = getCellIdx<int>(particles[p]);
+                                          auto cellIdx = getCellIdx<int>(positions[p]);
                                           particleCellIdx[p] = cellIdx;
 
                                           m_Lock(cellIdx).lock();
@@ -85,9 +85,9 @@ void Grid3DHashing::collectIndexToCells(const Vec_Vec3r& particles, Vec_Vec3i& p
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Grid3DHashing::getNeighborList(const Vec_Vec3r& particles, Vec_VecUInt& neighborList, int cellSpan /*= 1*/)
+void Grid3DHashing::getNeighborList(const Vec_Vec3r& positions, Vec_VecUInt& neighborList, int cellSpan /*= 1*/)
 {
-    ParallelFuncs::parallel_for<size_t>(0, particles.size(), [&](size_t p) { getNeighborList(particles[p], neighborList[p], cellSpan); });
+    ParallelFuncs::parallel_for<size_t>(0, positions.size(), [&](size_t p) { getNeighborList(positions[p], neighborList[p], cellSpan); });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -118,13 +118,13 @@ void Grid3DHashing::getNeighborList(const Vec3r& ppos, Vec_UInt& neighborList, i
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Grid3DHashing::getNeighborList(const Vec_Vec3r& particles, Vec_VecUInt& neighborList, Real d2, int cellSpan /*= 1*/)
+void Grid3DHashing::getNeighborList(const Vec_Vec3r& positions, Vec_VecUInt& neighborList, Real d2, int cellSpan /*= 1*/)
 {
-    ParallelFuncs::parallel_for<size_t>(0, particles.size(), [&](size_t p) { getNeighborList(particles, particles[p], neighborList[p], d2, cellSpan); });
+    ParallelFuncs::parallel_for<size_t>(0, positions.size(), [&](size_t p) { getNeighborList(positions, positions[p], neighborList[p], d2, cellSpan); });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Grid3DHashing::getNeighborList(const Vec_Vec3r& particles, const Vec3r& ppos, Vec_UInt& neighborList, Real d2, int cellSpan /*= 1*/)
+void Grid3DHashing::getNeighborList(const Vec_Vec3r& positions, const Vec3r& ppos, Vec_UInt& neighborList, Real d2, int cellSpan /*= 1*/)
 {
     neighborList.resize(0);
 
@@ -145,9 +145,9 @@ void Grid3DHashing::getNeighborList(const Vec_Vec3r& particles, const Vec3r& ppo
 
                 if(cell.size() > 0)
                 {
-                    for(unsigned int q : cell)
+                    for(UInt q : cell)
                     {
-                        Real pqd2 = glm::length2(ppos - particles[q]);
+                        Real pqd2 = glm::length2(ppos - positions[q]);
 
                         if(pqd2 > 0 && pqd2 < d2)
                             neighborList.push_back(q);

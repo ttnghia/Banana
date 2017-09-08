@@ -29,7 +29,7 @@ void Grid2DHashing::setCellSize(Real cellSize)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Grid2DHashing::collectIndexToCells(const Vec_Vec2r& particles)
+void Grid2DHashing::collectIndexToCells(const Vec_Vec2r& positions)
 {
     if(m_bCellIdxNeedResize)
     {
@@ -41,10 +41,10 @@ void Grid2DHashing::collectIndexToCells(const Vec_Vec2r& particles)
     for(auto& cell : m_ParticleIdxInCell.data())
         cell.resize(0);
 
-    ParallelFuncs::parallel_for<UInt>(0, static_cast<UInt>(particles.size()),
+    ParallelFuncs::parallel_for<UInt>(0, static_cast<UInt>(positions.size()),
                                       [&](UInt p)
                                       {
-                                          auto cellIdx = getCellIdx<int>(particles[p]);
+                                          auto cellIdx = getCellIdx<int>(positions[p]);
                                           m_Lock(cellIdx).lock();
                                           m_ParticleIdxInCell(cellIdx).push_back(p);
                                           m_Lock(cellIdx).unlock();
@@ -56,7 +56,7 @@ void Grid2DHashing::collectIndexToCells(const Vec_Vec2r& particles)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Grid2DHashing::collectIndexToCells(const Vec_Vec2r& particles, Vec_Vec2i& particleCellIdx)
+void Grid2DHashing::collectIndexToCells(const Vec_Vec2r& positions, Vec_Vec2i& particleCellIdx)
 {
     if(m_bCellIdxNeedResize)
     {
@@ -68,10 +68,10 @@ void Grid2DHashing::collectIndexToCells(const Vec_Vec2r& particles, Vec_Vec2i& p
     for(auto& cell : m_ParticleIdxInCell.data())
         cell.resize(0);
 
-    ParallelFuncs::parallel_for<UInt>(0, static_cast<UInt>(particles.size()),
+    ParallelFuncs::parallel_for<UInt>(0, static_cast<UInt>(positions.size()),
                                       [&](UInt p)
                                       {
-                                          auto cellIdx = getCellIdx<int>(particles[p]);
+                                          auto cellIdx = getCellIdx<int>(positions[p]);
                                           particleCellIdx[p] = cellIdx;
 
                                           m_Lock(cellIdx).lock();
@@ -85,9 +85,9 @@ void Grid2DHashing::collectIndexToCells(const Vec_Vec2r& particles, Vec_Vec2i& p
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Grid2DHashing::getNeighborList(const Vec_Vec2r& particles, Vec_VecUInt& neighborList, int cellSpan /*= 1*/)
+void Grid2DHashing::getNeighborList(const Vec_Vec2r& positions, Vec_VecUInt& neighborList, int cellSpan /*= 1*/)
 {
-    ParallelFuncs::parallel_for<size_t>(0, particles.size(), [&](size_t p) { getNeighborList(particles[p], neighborList[p], cellSpan); });
+    ParallelFuncs::parallel_for<size_t>(0, positions.size(), [&](size_t p) { getNeighborList(positions[p], neighborList[p], cellSpan); });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -115,13 +115,13 @@ void Grid2DHashing::getNeighborList(const Vec2r& ppos, Vec_UInt& neighborList, i
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Grid2DHashing::getNeighborList(const Vec_Vec2r& particles, Vec_VecUInt& neighborList, Real d2, int cellSpan /*= 1*/)
+void Grid2DHashing::getNeighborList(const Vec_Vec2r& positions, Vec_VecUInt& neighborList, Real d2, int cellSpan /*= 1*/)
 {
-    ParallelFuncs::parallel_for<size_t>(0, particles.size(), [&](size_t p) { getNeighborList(particles, particles[p], neighborList[p], d2, cellSpan); });
+    ParallelFuncs::parallel_for<size_t>(0, positions.size(), [&](size_t p) { getNeighborList(positions, positions[p], neighborList[p], d2, cellSpan); });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Grid2DHashing::getNeighborList(const Vec_Vec2r& particles, const Vec2r& ppos, Vec_UInt& neighborList, Real d2, int cellSpan /*= 1*/)
+void Grid2DHashing::getNeighborList(const Vec_Vec2r& positions, const Vec2r& ppos, Vec_UInt& neighborList, Real d2, int cellSpan /*= 1*/)
 {
     neighborList.resize(0);
 
@@ -142,7 +142,7 @@ void Grid2DHashing::getNeighborList(const Vec_Vec2r& particles, const Vec2r& ppo
             {
                 for(unsigned int q : cell)
                 {
-                    Real pqd2 = glm::length2(ppos - particles[q]);
+                    Real pqd2 = glm::length2(ppos - positions[q]);
 
                     if(pqd2 > 0 && pqd2 < d2)
                         neighborList.push_back(q);

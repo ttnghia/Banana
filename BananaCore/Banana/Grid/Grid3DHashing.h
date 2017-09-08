@@ -33,12 +33,12 @@ public:
 
     virtual void setCellSize(Real cellSize) override;
 
-    void collectIndexToCells(const Vec_Vec3r& particles);
-    void collectIndexToCells(const Vec_Vec3r& particles, Vec_Vec3i& particleCellIdx);
-    void getNeighborList(const Vec_Vec3r& particles, Vec_VecUInt& neighborList, int cellSpan = 1);
+    void collectIndexToCells(const Vec_Vec3r& positions);
+    void collectIndexToCells(const Vec_Vec3r& positions, Vec_Vec3i& particleCellIdx);
+    void getNeighborList(const Vec_Vec3r& positions, Vec_VecUInt& neighborList, int cellSpan = 1);
     void getNeighborList(const Vec3r& ppos, Vec_UInt& neighborList, int cellSpan = 1);
-    void getNeighborList(const Vec_Vec3r& particles, Vec_VecUInt& neighborList, Real d2, int cellSpan = 1);
-    void getNeighborList(const Vec_Vec3r& particles, const Vec3r& ppos, Vec_UInt& neighborList, Real d2, int cellSpan = 1);
+    void getNeighborList(const Vec_Vec3r& positions, Vec_VecUInt& neighborList, Real d2, int cellSpan = 1);
+    void getNeighborList(const Vec_Vec3r& positions, const Vec3r& ppos, Vec_UInt& neighborList, Real d2, int cellSpan = 1);
 
     const Vec_UInt& getParticleIdxSortedByCell();
     void            sortData(Vec_Vec3r& data);

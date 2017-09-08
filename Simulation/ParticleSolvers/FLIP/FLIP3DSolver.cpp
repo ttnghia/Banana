@@ -360,29 +360,29 @@ void FLIP3DSolver::computeFluidWeights()
 
                                           if(valid_index_u)
                                           {
-                                              const Real tmp = Real(1.0) - MathHelpers::fraction_inside(gridData().boundarySDF(i, j, k),
+                                              const Real tmp = Real(1.0) - MathHelpers::fraction_inside(gridData().boundarySDF(i, j,     k),
                                                                                                         gridData().boundarySDF(i, j + 1, k),
-                                                                                                        gridData().boundarySDF(i, j, k + 1),
+                                                                                                        gridData().boundarySDF(i, j,     k + 1),
                                                                                                         gridData().boundarySDF(i, j + 1, k + 1));
-                                                                                                        gridData().u_weights(i, j, k) = MathHelpers::clamp(tmp, Real(0), Real(1.0));
+                                              gridData().u_weights(i, j, k) = MathHelpers::clamp01(tmp);
                                           }
 
                                           if(valid_index_v)
                                           {
-                                              const Real tmp = Real(1.0) - MathHelpers::fraction_inside(gridData().boundarySDF(i, j, k),
-                                                                                                        gridData().boundarySDF(i, j, k + 1),
+                                              const Real tmp = Real(1.0) - MathHelpers::fraction_inside(gridData().boundarySDF(i,     j, k),
+                                                                                                        gridData().boundarySDF(i,     j, k + 1),
                                                                                                         gridData().boundarySDF(i + 1, j, k),
                                                                                                         gridData().boundarySDF(i + 1, j, k + 1));
-                                                                                                        gridData().v_weights(i, j, k) = MathHelpers::clamp(tmp, Real(0), Real(1.0));
+                                              gridData().v_weights(i, j, k) = MathHelpers::clamp01(tmp);
                                           }
 
                                           if(valid_index_w)
                                           {
-                                              const Real tmp = Real(1.0) - MathHelpers::fraction_inside(gridData().boundarySDF(i, j, k),
-                                                                                                        gridData().boundarySDF(i, j + 1, k),
-                                                                                                        gridData().boundarySDF(i + 1, j, k),
+                                              const Real tmp = Real(1.0) - MathHelpers::fraction_inside(gridData().boundarySDF(i,     j,     k),
+                                                                                                        gridData().boundarySDF(i,     j + 1, k),
+                                                                                                        gridData().boundarySDF(i + 1, j,     k),
                                                                                                         gridData().boundarySDF(i + 1, j + 1, k));
-                                                                                                        gridData().w_weights(i, j, k) = MathHelpers::clamp(tmp, Real(0), Real(1.0));
+                                              gridData().w_weights(i, j, k) = MathHelpers::clamp01(tmp);
                                           }
                                       });
 }
@@ -762,13 +762,13 @@ void FLIP3DSolver::computeFluidSDF()
                                       {
                                           if(gridData().fluidSDF(i, j, k) < m_Grid.getHalfCellSize())
                                           {
-                                              const Real phiValSolid = Real(0.125) * (gridData().boundarySDF(i, j, k) +
-                                                                                      gridData().boundarySDF(i + 1, j, k) +
-                                                                                      gridData().boundarySDF(i, j + 1, k) +
+                                              const Real phiValSolid = Real(0.125) * (gridData().boundarySDF(i,     j,     k) +
+                                                                                      gridData().boundarySDF(i + 1, j,     k) +
+                                                                                      gridData().boundarySDF(i,     j + 1, k) +
                                                                                       gridData().boundarySDF(i + 1, j + 1, k) +
-                                                                                      gridData().boundarySDF(i, j, k + 1) +
-                                                                                      gridData().boundarySDF(i + 1, j, k + 1) +
-                                                                                      gridData().boundarySDF(i, j + 1, k + 1) +
+                                                                                      gridData().boundarySDF(i,     j,     k + 1) +
+                                                                                      gridData().boundarySDF(i + 1, j,     k + 1) +
+                                                                                      gridData().boundarySDF(i,     j + 1, k + 1) +
                                                                                       gridData().boundarySDF(i + 1, j + 1, k + 1));
 
                                               if(phiValSolid < 0)

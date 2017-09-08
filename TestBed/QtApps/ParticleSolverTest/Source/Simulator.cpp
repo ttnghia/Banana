@@ -144,7 +144,7 @@ void Simulator::changeScene(const QString& scene)
                 Vec3<float> ppos = bMin + spacing * Vec3<float>(i, j, k);
                 if(glm::length(ppos - center) > radius)
                     continue;
-                ParticleHelpers::jitter(ppos, 1.0 * spacing);
+                ParticleHelpers::jitter(ppos, 0.0 * spacing);
                 particles.push_back(ppos);
             }
         }
