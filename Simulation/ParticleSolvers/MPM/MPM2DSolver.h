@@ -53,6 +53,8 @@ protected:
     virtual void saveParticleData() override;
 
     Real computeCFLTimestep();
+    void advanceVelocity(Real timestep);
+    void updateParticles(Real timestep);
 
     ////////////////////////////////////////////////////////////////////////////////
     // grid processing
@@ -62,7 +64,7 @@ protected:
     //Map grid volumes back to particles (first timestep only)
     void calculateVolumes();
     //Compute grid velocities
-    void explicitVelocities(const Vec2f& gravity, Real timestep);
+    void explicitVelocities(Real timestep);
     void implicitVelocities(Real timestep);
     void recomputeImplicitForces(Real timestep);
     //Map grid velocities back to particles
@@ -76,19 +78,14 @@ protected:
     // particle
 
 
-    //Update particle data
-    void update(Real timestep);
+    void updateParticlePositions(Real timestep);
+    void updateGradient(Real timestep);
+    void applyPlasticity();
 
-    //Update position, based on velocity
-    void updatePos(UInt i, Real timestep);
-    //Update deformation gradient
-    void updateGradient(UInt i, Real timestep);
-    void applyPlasticity(UInt i);
-    //Compute stress tensor
-    Mat2x2f energyDerivative(UInt i);
+    Mat2x2r computeEnergyDerivative(UInt p);
 
     //Computes stress force delta, for implicit velocity update
-    Vec2f deltaForce(UInt i, const Vec2f& u, const Vec2f& weight_grad, Real timestep);
+    Vec2r deltaForce(UInt i, const Vec2r& u, const Vec2r& weight_grad, Real timestep);
 
     ////////////////////////////////////////////////////////////////////////////////
     SimulationData_MPM2D::ParticleSimData& particleData() { return m_SimData->particleSimData; }

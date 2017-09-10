@@ -58,9 +58,9 @@ void FLIP3DSolver::makeReady()
                                GeometryObject3D::BoxObject box;
                                box.boxMin() = m_SimParams->movingBMin - Vec3r(0.001f);
                                box.boxMax() = m_SimParams->movingBMax + Vec3r(0.001f);
-                               ParallelFuncs::parallel_for<UInt>(0, m_Grid.getNumCellX() + 1,
-                                                                 0, m_Grid.getNumCellY() + 1,
-                                                                 0, m_Grid.getNumCellZ() + 1,
+                               ParallelFuncs::parallel_for<UInt>(0, m_Grid.getNumNodeX(),
+                                                                 0, m_Grid.getNumNodeY(),
+                                                                 0, m_Grid.getNumNodeZ(),
                                                                  [&](UInt i, UInt j, UInt k)
                                                                  {
                                                                      const Vec3r pPos = m_Grid.getWorldCoordinate(i, j, k);

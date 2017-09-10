@@ -99,6 +99,7 @@ class ParticleSolver2D : public ParticleSolver
 public:
     virtual Vec_Vec2r& getParticlePositions()  = 0;
     virtual Vec_Vec2r& getParticleVelocities() = 0;
+    constexpr UInt     solverDimension() const noexcept { return 2u; }
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -107,6 +108,7 @@ class ParticleSolver3D : public ParticleSolver
 public:
     virtual Vec_Vec3r& getParticlePositions()  = 0;
     virtual Vec_Vec3r& getParticleVelocities() = 0;
+    constexpr UInt     solverDimension() const noexcept { return 3u; }
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

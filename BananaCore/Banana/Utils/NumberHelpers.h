@@ -34,6 +34,27 @@ namespace NumberHelpers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
+inline RealType generateRandomInt(RealType start, RealType end)
+{
+    std::random_device                      rd;
+    std::mt19937                            gen(rd());
+    std::uniform_int_distribution<RealType> dis(start, end);
+
+    return dis(gen);
+}
+
+template<class RealType>
+inline RealType generateRandomReal(RealType start, RealType end)
+{
+    std::random_device                       rd;
+    std::mt19937                             gen(rd());
+    std::uniform_real_distribution<RealType> dis(start, end);
+
+    return dis(gen);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class RealType>
 String formatWithCommas(RealType value, int precision = 2)
 {
     struct Numpunct : public std::numpunct<char>
@@ -155,24 +176,16 @@ inline String toString(const Mat3x3<RealType>& vec, int precision = 5)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-inline RealType generateRandomInt(RealType start, RealType end)
+template<class T, class S>
+inline Vec2<T> convert(const Vec2<S>& vec)
 {
-    std::random_device                      rd;
-    std::mt19937                            gen(rd());
-    std::uniform_int_distribution<RealType> dis(start, end);
-
-    return dis(gen);
+    return Vec2<T>(static_cast<T>(vec[0]), static_cast<T>(vec[1]));
 }
 
-template<class RealType>
-inline RealType generateRandomReal(RealType start, RealType end)
+template<class T, class S>
+inline Vec3<T> convert(const Vec3<S>& vec)
 {
-    std::random_device                       rd;
-    std::mt19937                             gen(rd());
-    std::uniform_real_distribution<RealType> dis(start, end);
-
-    return dis(gen);
+    return Vec3<T>(static_cast<T>(vec[0]), static_cast<T>(vec[1]), static_cast<T>(vec[2]));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

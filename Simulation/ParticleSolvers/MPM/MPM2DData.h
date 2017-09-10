@@ -34,8 +34,12 @@ struct SimulationParameters_MPM2D
     Real CFLFactor           = Real(0.04);
     Real PIC_FLIP_ratio      = Real(0.97);
     Real boundaryRestitution = Real(DEFAULT_BOUNDARY_RESTITUTION);
+    Real gravity             = Real(-9.81);
 
-    Real particleRadius = Real(1.0 / 32.0 / 4.0);
+    Real particleRadius      = Real(1.0 / 64.0 / 4.0);
+    Real CGRelativeTolerance = Real(1e-15);
+    UInt maxCGIteration      = 10000;
+    UInt expandCells         = 2;
 
     Real thresholdCompression = Real(1.0 - 1.9e-2); //Fracture threshold for compression (1-2.5e-2)
     Real thresholdStretching  = Real(1.0 + 7.5e-3); //Fracture threshold for stretching (1+7.5e-3)
@@ -44,16 +48,14 @@ struct SimulationParameters_MPM2D
     Real YoungsModulus        = Real(1.5e5);        //Young's modulus (springiness) (1.4e5)
     Real PoissonsRatio        = Real(0.2);          //Poisson's ratio (transverse/axial strain ratio) (.2)
     Real implicitRatio        = Real(0);            //Percentage that should be implicit vs explicit for velocity update
-    Real CGRelativeTolerance  = Real(1e-15);
-    UInt maxCGIteration       = 10000;
 
-    Real maxImplicitError = Real(1e4);      //Maximum allowed error for conjugate residual
-    Real minImplicitError = Real(1e-4);     //Minimum allowed error for conjugate residual
+    Real maxImplicitError = Real(1e4);              //Maximum allowed error for conjugate residual
+    Real minImplicitError = Real(1e-4);             //Minimum allowed error for conjugate residual
 
     P2GKernels p2gKernel = P2GKernels::CubicBSpline;
     int        kernelSpan;
 
-    Real cellVolume;
+    Real cellArea;
 
     Vec2r movingBMin = Vec2r(-1.0);
     Vec2r movingBMax = Vec2r(1.0);
@@ -68,18 +70,18 @@ struct SimulationParameters_MPM2D
     ////////////////////////////////////////////////////////////////////////////////
     void makeReady()
     {
-        cellSize   = particleRadius * Real(4.0);
-        cellVolume = MathHelpers::cube(cellSize);
-        //kernelSpan = (kernelFunc == P2GKernels::Linear || kernelFunc == P2GKernels::SwirlyLinear) ? 1 : 2;
-        domainBMin = movingBMin;
-        domainBMax = movingBMax;
+        particleMass = particleRadius * particleRadius * materialDensity;
+
+        cellSize = particleRadius * Real(4.0);
+        cellArea = cellSize * cellSize;
 
         lambda = YoungsModulus * PoissonsRatio / ((Real(1.0) + PoissonsRatio) * (Real(1.0) - Real(2.0) * PoissonsRatio)),
         mu     = YoungsModulus / (Real(2.0) + Real(2.0) * PoissonsRatio);
 
         kernelSpan = (p2gKernel == P2GKernels::Linear || p2gKernel == P2GKernels::SwirlyLinear) ? 1 : 2;
 
-        particleMass = particleRadius * particleRadius * materialDensity;
+        domainBMin = movingBMin - Vec2r(cellSize * expandCells);
+        domainBMax = movingBMax + Vec2r(cellSize * expandCells);
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -116,63 +118,86 @@ struct SimulationData_MPM2D
         //    Vec_VecUInt neighborList;
 
         //    Vec_Mat2x2r energyDerivatives;
-        Vec_Vec2f   positions, velocities;
+        Vec_Vec2r   positions, velocities;
         Vec_Real    volumes, densities;
-        Vec_Mat2x2f velocityGradients;
+        Vec_Mat2x2r velocityGradients;
 
         //Deformation gradient (elastic and plastic parts)
-        Vec_Mat2x2f elasticDeformGrad, plasticDeformGrad;
+        Vec_Mat2x2r elasticDeformGrad, plasticDeformGrad;
 
         //Cached SVD's for elastic deformation gradient
-        Vec_Mat2x2f svd_w, svd_v;
-        Vec_Vec2f   svd_e;
+        Vec_Mat2x2r svd_w, svd_v;
+        Vec_Vec2r   svd_e;
 
         //Cached polar decomposition
-        Vec_Mat2x2f polar_r, polar_s;
+        Vec_Mat2x2r polar_r, polar_s;
 
         //Grid interpolation weights
-        Vec_Vec2f particleGridPos;
-        Vec_Vec2f weightGradient; // * 16
-        Vec_Real  weights;        // * 16
+        Vec_Vec2r particleGridPos;
+        Vec_Vec2r weightGradients; // * 16
+        Vec_Real  weights;         // * 16
 
-        void addParticle(const Vec2f& pos, const Vec2f& vel)
+        void addParticle(const Vec2r& pos, const Vec2r& vel)
         {
             positions.push_back(pos);
             velocities.push_back(vel);
             volumes.push_back(0);
             densities.push_back(0);
-            velocityGradients.push_back(Mat2x2f(1.0));
+            velocityGradients.push_back(Mat2x2r(1.0));
 
-            elasticDeformGrad.push_back(Mat2x2f(1.0));
-            plasticDeformGrad.push_back(Mat2x2f(1.0));
-            svd_e.push_back(Vec2f(1, 1));
-            svd_w.push_back(Mat2x2f(1.0));
-            svd_v.push_back(Mat2x2f(1.0));
-            polar_r.push_back(Mat2x2f(1.0));
-            polar_s.push_back(Mat2x2f(1.0));
+            elasticDeformGrad.push_back(Mat2x2r(1.0));
+            plasticDeformGrad.push_back(Mat2x2r(1.0));
+            svd_w.push_back(Mat2x2r(1.0));
+            svd_e.push_back(Vec2r(1.0));
+            svd_v.push_back(Mat2x2r(1.0));
+            polar_r.push_back(Mat2x2r(1.0));
+            polar_s.push_back(Mat2x2r(1.0));
 
+            particleGridPos.push_back(Vec2r(0));
 
-            particleGridPos.push_back(Vec2f(0));
             for(int i = 0; i < 16; ++i)
             {
-                weightGradient.push_back(Vec2f(0));
-                weights.push_back(0);
+                weightGradients.push_back(Vec2r(0));
+                weights.push_back(Real(0));
             }
+        }
+
+        ////////////////////////////////////////////////////////////////////////////////
+        void reserve(UInt numParticles)
+        {
+            positions.reserve(numParticles);
+            velocities.reserve(numParticles);
+            volumes.reserve(numParticles);
+            densities.reserve(numParticles);
+            velocityGradients.reserve(numParticles);
+
+            elasticDeformGrad.reserve(numParticles);
+            plasticDeformGrad.reserve(numParticles);
+
+            svd_w.reserve(numParticles);
+            svd_e.reserve(numParticles);
+            svd_v.reserve(numParticles);
+
+            polar_r.reserve(numParticles);
+            polar_s.reserve(numParticles);
+
+            particleGridPos.reserve(numParticles);
+
+            weightGradients.reserve(numParticles * 16);
+            weights.reserve(numParticles * 16);
         }
     } particleSimData;
 
 
-
-
+    ////////////////////////////////////////////////////////////////////////////////
     struct GridSimData
     {
-        Vec2f origin, size, cellsize;
+        //Vec2r origin, size, cellsize;
         //    PointCloud* obj;
-        float node_area;
+        //float node_area;
         //Nodes: use (y*size[0] + x) to index, where zero is the bottom-left corner (e.g. like a cartesian grid)
-        UInt nodes_length;
+        //UInt nodes_length;
         //GridNode*                         nodes;
-        Vector<ParallelObjects::SpinLock> nodeLocks;
 
 
 
@@ -181,61 +206,68 @@ struct SimulationData_MPM2D
 
         // grid node
 
-        Vec_Real  mass;
-        Vec_Int   active;
-        Vec_Int   imp_active;
-        Vec_Vec2f velocity, velocity_new;
-        Vec_Vec2f force,
-                  err,    //error of estimate
-                  r,      //residual of estimate
-                  p,      //residual gradient? squared residual?
-                  Ep, Er; //yeah, I really don't know how this works...
-        Vec_Real rEr;     //r.dot(Er)
+        //Vec_Real  mass;
+        //Vec_Int   active;
+        //Vec_Int   imp_active;
+        //Vec_Vec2r velocity, velocity_new;
+        //Vec_Vec2r force,
+        //    err,    //error of estimate
+        //    r,      //residual of estimate
+        //    p,      //residual gradient? squared residual?
+        //    Ep, Er; //yeah, I really don't know how this works...
+        //Vec_Real rEr;     //r.dot(Er)
+
+        Array2r mass;
+
+        Array2c       active;
+        Array2c       imp_active;
+        Array2<Vec2r> velocity, velocity_new;
+        Array2<Vec2r> force,
+                      err,    //error of estimate
+                      r,      //residual of estimate
+                      p,      //residual gradient? squared residual?
+                      Ep, Er; //yeah, I really don't know how this works...
+        Array2r rDotEr;       //r.dot(Er)
         // end gridnode
 
+        Array2<ParallelObjects::SpinLock> nodeLocks;
+        Array2r                           boundarySDF;
 
-        Array2r boundarySDF;
-
-        void makeReady(Vec2f pos, Vec2f dims, Vec2f cells)
+        ////////////////////////////////////////////////////////////////////////////////
+        void resize(Vec2ui gridSize)
         {
-            //    obj          = object;
-            origin   = pos;
-            cellsize = Vec2f(dims[0] / cells[0], dims[1] / cells[1]);
+            mass.resize(gridSize);
+            active.resize(gridSize);
+            imp_active.resize(gridSize);
+            velocity.resize(gridSize);
+            velocity_new.resize(gridSize);
+            force.resize(gridSize);
+            err.resize(gridSize);
+            r.resize(gridSize);
+            p.resize(gridSize);
+            Ep.resize(gridSize);
+            Er.resize(gridSize);
+            rDotEr.resize(gridSize);
 
-            size         = cells + Vec2f(1);
-            nodes_length = TensorHelpers::product<UInt>(size);
-
-            //nodes        = new GridNode[nodes_length];
-            // grid node
-            resetGrid();
-            //end  grid node
-
-
-
-
-
-
-            nodeLocks.resize(nodes_length);
-            node_area = TensorHelpers::product<float>(cellsize);
-
-
-            boundarySDF.resize((UInt)size[0], (UInt)size[1]);
+            boundarySDF.resize(gridSize);
+            nodeLocks.resize(gridSize);
         }
 
+        ////////////////////////////////////////////////////////////////////////////////
         void resetGrid()
         {
-            mass.assign(nodes_length, 0);
-            active.assign(nodes_length, 0);
-            imp_active.assign(nodes_length, 0);
-            velocity.assign(nodes_length, Vec2f(0));
-            velocity_new.assign(nodes_length, Vec2f(0));
-            force.assign(nodes_length, Vec2f(0));
-            err.assign(nodes_length, Vec2f(0));
-            r.assign(nodes_length, Vec2f(0));
-            p.assign(nodes_length, Vec2f(0));
-            Ep.assign(nodes_length, Vec2f(0));
-            Er.assign(nodes_length, Vec2f(0));
-            rEr.assign(nodes_length, 0);
+            mass.assign(Real(0));
+            active.assign(char(0));
+            imp_active.assign(char(0));
+            velocity.assign(Vec2r(0));
+            velocity_new.assign(Vec2r(0));
+            force.assign(Vec2r(0));
+            err.assign(Vec2r(0));
+            r.assign(Vec2r(0));
+            p.assign(Vec2r(0));
+            Ep.assign(Vec2r(0));
+            Er.assign(Vec2r(0));
+            rDotEr.assign(Real(0));
         }
     } gridSimData;
 
@@ -254,43 +286,6 @@ struct SimulationData_MPM2D
     //              p,          //residual gradient? squared residual?
     //              Ep, Er;     //yeah, I really don't know how this works...
     //Array3r rEr;              //r.dot(Er)
-
-
-
-    ////////////////////////////////////////////////////////////////////////////////
-    void reserve(UInt numParticles)
-    {
-        particleSimData.positions.reserve(numParticles);
-        particleSimData.velocities.reserve(numParticles);
-
-        particleSimData.volumes.reserve(numParticles);
-        particleSimData.densities.reserve(numParticles);
-        particleSimData.velocityGradients.reserve(numParticles);
-
-        particleSimData.elasticDeformGrad.reserve(numParticles);
-        particleSimData.plasticDeformGrad.reserve(numParticles);
-
-        particleSimData.svd_w.reserve(numParticles);
-        particleSimData.svd_v.reserve(numParticles);
-        particleSimData.svd_e.reserve(numParticles);
-
-        particleSimData.polar_r.reserve(numParticles);
-        particleSimData.polar_s.reserve(numParticles);
-        particleSimData.particleGridPos.reserve(numParticles);
-    }
-
-//    void makeReady(UInt ni, UInt nj, UInt nk)
-//    {
-    //To start out with, we assume the deformation gradient is zero
-    //Or in other words, all particle velocities are the same
-    //def_elastic.loadIdentity();
-    //def_plastic.loadIdentity();
-    //svd_e.setData(1, 1);
-    //svd_w.loadIdentity();
-    //svd_v.loadIdentity();
-    //polar_r.loadIdentity();
-    //polar_s.loadIdentity();
-//    }
 };
 
 

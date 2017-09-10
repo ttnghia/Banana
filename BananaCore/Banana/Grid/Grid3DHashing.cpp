@@ -17,6 +17,7 @@
 
 #include <Banana/Grid/Grid3DHashing.h>
 #include <Banana/ParallelHelpers/ParallelFuncs.h>
+#include <Banana/Utils/NumberHelpers.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -73,6 +74,36 @@ void Grid3DHashing::collectIndexToCells(const Vec_Vec3r& positions, Vec_Vec3i& p
                                       {
                                           auto cellIdx = getCellIdx<int>(positions[p]);
                                           particleCellIdx[p] = cellIdx;
+
+                                          m_Lock(cellIdx).lock();
+                                          m_ParticleIdxInCell(cellIdx).push_back(p);
+                                          m_Lock(cellIdx).unlock();
+                                      });
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // reset particle index vector
+    m_ParticleIdxSortedByCell.resize(0);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void Grid3DHashing::collectIndexToCells(const Vec_Vec3r& positions, Vec_Vec3r& particleCellPos)
+{
+    if(m_bCellIdxNeedResize)
+    {
+        m_ParticleIdxInCell.resize(getNumCells());
+        m_Lock.resize(getNumCells());
+        m_bCellIdxNeedResize = false;
+    }
+
+    for(auto& cell : m_ParticleIdxInCell.data())
+        cell.resize(0);
+
+    ParallelFuncs::parallel_for<UInt>(0, static_cast<UInt>(positions.size()),
+                                      [&](UInt p)
+                                      {
+                                          auto cellPos = getCellIdx<Real>(positions[p]);
+                                          Vec3i cellIdx = NumberHelpers::convert<Int>(cellPos);
+                                          particleCellPos[p] = cellPos;
 
                                           m_Lock(cellIdx).lock();
                                           m_ParticleIdxInCell(cellIdx).push_back(p);

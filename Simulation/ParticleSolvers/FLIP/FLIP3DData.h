@@ -36,6 +36,7 @@ struct SimulationParameters_FLIP3D
     Real       CFLFactor           = Real(1.0);
     Real       PIC_FLIP_ratio      = Real(0.97);
     Real       boundaryRestitution = Real(DEFAULT_BOUNDARY_RESTITUTION);
+    Real       gravity             = Real(9.81);
     Real       particleRadius      = Real(2.0 / 64.0 / 4.0);
     P2GKernels p2gKernel           = P2GKernels::Linear;
     UInt       expandCells         = 2;

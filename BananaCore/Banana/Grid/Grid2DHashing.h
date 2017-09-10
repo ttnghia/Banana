@@ -35,6 +35,7 @@ public:
 
     void collectIndexToCells(const Vec_Vec2r& positions);
     void collectIndexToCells(const Vec_Vec2r& positions, Vec_Vec2i& particleCellIdx);
+    void collectIndexToCells(const Vec_Vec2r& positions, Vec_Vec2r& particleCellPos);
     void getNeighborList(const Vec_Vec2r& positions, Vec_VecUInt& neighborList, int cellSpan = 1);
     void getNeighborList(const Vec2r& ppos, Vec_UInt& neighborList, int cellSpan = 1);
     void getNeighborList(const Vec_Vec2r& positions, Vec_VecUInt& neighborList, Real d2, int cellSpan = 1);

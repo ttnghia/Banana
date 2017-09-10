@@ -38,10 +38,13 @@ void Grid2D::setCellSize(Real cellSize)
     m_CellSizeSqr   = m_CellSize * m_CellSize;
     m_NumTotalCells = 1;
 
-    for(int i = 0; i < 3; ++i)
+    for(int i = 0; i < m_NumCells.length(); ++i)
     {
-        m_NumCells[i]    = static_cast<UInt>(ceil((m_BMax[i] - m_BMin[i]) / m_CellSize));
+        m_NumCells[i] = static_cast<UInt>(ceil((m_BMax[i] - m_BMin[i]) / m_CellSize));
+        m_NumNodes[i] = m_NumCells[i] + 1u;
+
         m_NumTotalCells *= m_NumCells[i];
+        m_NumTotalNodes *= m_NumNodes[i];
     }
 }
 

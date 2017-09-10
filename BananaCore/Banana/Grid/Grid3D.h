@@ -36,17 +36,24 @@ public:
 
     const Vec3r& getBMin() const noexcept { return m_BMin; }
     const Vec3r& getBMax() const noexcept { return m_BMax; }
-    UInt getNumCellX() const noexcept { return m_NumCells[0]; }
-    UInt getNumCellY() const noexcept { return m_NumCells[1]; }
-    UInt getNumCellZ() const noexcept { return m_NumCells[2]; }
-    UInt getNumTotalCells() const noexcept { return m_NumTotalCells; }
+
+    UInt          getNumCellX() const noexcept { return m_NumCells[0]; }
+    UInt          getNumCellY() const noexcept { return m_NumCells[1]; }
+    UInt          getNumCellZ() const noexcept { return m_NumCells[2]; }
+    UInt          getNumTotalCells() const noexcept { return m_NumTotalCells; }
     const Vec3ui& getNumCells() const noexcept { return m_NumCells; }
+
+    UInt          getNumNodeX() const noexcept { return m_NumNodes[0]; }
+    UInt          getNumNodeY() const noexcept { return m_NumNodes[1]; }
+    UInt          getNumNodeZ() const noexcept { return m_NumNodes[2]; }
+    UInt          getNumTotalNodes() const noexcept { return m_NumTotalNodes; }
+    const Vec3ui& getNumNodes() const noexcept { return m_NumNodes; }
 
     ////////////////////////////////////////////////////////////////////////////////
     virtual void setCellSize(Real cellSize);
-    Real getCellSize() const noexcept { return m_CellSize; }
-    Real getHalfCellSize() const noexcept { return m_HalfCellSize; }
-    Real getCellSizeSquared() const noexcept { return m_CellSizeSqr; }
+    Real         getCellSize() const noexcept { return m_CellSize; }
+    Real         getHalfCellSize() const noexcept { return m_HalfCellSize; }
+    Real         getCellSizeSquared() const noexcept { return m_CellSizeSqr; }
 
     ////////////////////////////////////////////////////////////////////////////////
     template<class IndexType>
@@ -70,6 +77,23 @@ public:
     bool isValidCell(const Vec3<IndexType>& index) const noexcept
     {
         return isValidCell(index[0], index[1], index[2]);
+    }
+
+    template<class IndexType>
+    bool isValidNode(IndexType i, IndexType j, IndexType k)  const noexcept
+    {
+        return (i >= 0 &&
+                j >= 0 &&
+                k >= 0 &&
+                static_cast<UInt>(i) < m_NumNodes[0] &&
+                static_cast<UInt>(j) < m_NumNodes[1] &&
+                static_cast<UInt>(k) < m_NumNodes[2]);
+    }
+
+    template<class IndexType>
+    bool isValidNode(const Vec3<IndexType>& index) const noexcept
+    {
+        return isValidNode(index[0], index[1], index[2]);
     }
 
     template<class IndexType>
@@ -99,8 +123,8 @@ public:
 
     ////////////////////////////////////////////////////////////////////////////////
     // particle processing
-    void constraintToGrid(Vec_Vec3r& particles);
-    bool isInsideGrid(const Vec3r& ppos) const noexcept;
+    void  constraintToGrid(Vec_Vec3r& particles);
+    bool  isInsideGrid(const Vec3r& ppos) const noexcept;
     Vec3r getGridCoordinate(const Vec3r& ppos) const { return (ppos - m_BMin) / m_CellSize; }
 
     template<class IndexType>
@@ -112,7 +136,9 @@ protected:
     Vec3r  m_BMin          = Vec3r(0);
     Vec3r  m_BMax          = Vec3r(1);
     Vec3ui m_NumCells      = Vec3<UInt>(0);
+    Vec3ui m_NumNodes      = Vec3<UInt>(0);
     UInt   m_NumTotalCells = 1;
+    UInt   m_NumTotalNodes = 1;
     Real   m_CellSize      = Real(1.0);
     Real   m_HalfCellSize  = Real(0.5);
     Real   m_CellSizeSqr   = Real(1.0);
