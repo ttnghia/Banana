@@ -531,31 +531,35 @@ inline T frand()
 }
 
 template<class T>
+inline T frand(T a, T b)
+{
+    return (static_cast<T>(rand()) / static_cast<T>(RAND_MAX)) * (b - a) + a;
+}
+
+template<class T>
 inline T frand11()
 {
-    return (static_cast<T>(rand()) / static_cast<T>(RAND_MAX)) * static_cast<T>(2.0) - static_cast<T>(1.0);
+    return frand(T(-1.0), T(1.0));
 }
 
 // returns repeatable stateless pseudo-random number in [0,1]
-inline double randhashd(unsigned int seed)
+template<class T>
+inline T frandhash(unsigned int seed)
 {
-    return randhash(seed) / static_cast<double>(UINT_MAX);
-}
-
-inline float randhashf(unsigned int seed)
-{
-    return randhash(seed) / static_cast<float>(UINT_MAX);
+    return T(randhash(seed)) / static_cast<T>(UINT_MAX);
 }
 
 // returns repeatable stateless pseudo-random number in [a,b]
-inline double randhashd(unsigned int seed, double a, double b)
+template<class T>
+inline T frandhash(T a, T b, unsigned int seed)
 {
-    return (b - a) * randhash(seed) / static_cast<double>(UINT_MAX) + a;
+    return (b - a) * (randhash(seed) / static_cast<T>(UINT_MAX)) + a;
 }
 
-inline float randhashf(unsigned int seed, float a, float b)
+template<class T>
+inline T frandhash11(unsigned int seed)
 {
-    return ((b - a) * randhash(seed) / static_cast<float>(UINT_MAX) + a);
+    return frandhash(T(-1.0), T(1.0), seed);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
