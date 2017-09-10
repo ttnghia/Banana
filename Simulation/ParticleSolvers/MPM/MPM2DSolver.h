@@ -54,25 +54,6 @@ protected:
 
     Real computeCFLTimestep();
 
-    ////////////////////////////////////////////////////////////////////////////////
-    SimulationData_MPM2D::ParticleSimData& particleData() { return m_SimData->particleSimData; }
-    SimulationData_MPM2D::GridSimData&     gridData() { return m_SimData->gridSimData; }
-
-    std::shared_ptr<SimulationParameters_MPM2D> m_SimParams = std::make_shared<SimulationParameters_MPM2D>();
-    std::unique_ptr<SimulationData_MPM2D>       m_SimData   = std::make_unique<SimulationData_MPM2D>();
-
-    Grid2DHashing m_Grid;
-    PCGSolver     m_PCGSolver;
-
-
-
-
-
-
-
-
-    ;
-
 
     //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     // grid data
@@ -119,92 +100,15 @@ protected:
     //Computes stress force delta, for implicit velocity update
     Vec2f deltaForce(int i, const Vec2f& u, const Vec2f& weight_grad, Real timestep);
 
+    ////////////////////////////////////////////////////////////////////////////////
+    SimulationData_MPM2D::ParticleSimData& particleData() { return m_SimData->particleSimData; }
+    SimulationData_MPM2D::GridSimData&     gridData() { return m_SimData->gridSimData; }
 
+    std::shared_ptr<SimulationParameters_MPM2D> m_SimParams = std::make_shared<SimulationParameters_MPM2D>();
+    std::unique_ptr<SimulationData_MPM2D>       m_SimData   = std::make_unique<SimulationData_MPM2D>();
 
-
-
-
-
-
-
-    struct ParticleSimData
-    {
-        int size;
-        //        std::vector<Particle> particles;
-        float max_velocity;
-
-
-
-
-
-
-
-        Vec_Vec2f   position, velocity;
-        Vec_Real    volume, density;
-        Vec_Mat2x2f velocity_gradient;
-
-        //Deformation gradient (elastic and plastic parts)
-        Vec_Mat2x2f def_elastic, def_plastic;
-
-        //Cached SVD's for elastic deformation gradient
-        Vec_Mat2x2f svd_w, svd_v;
-        Vec_Vec2f   svd_e;
-
-        //Cached polar decomposition
-        Vec_Mat2x2f polar_r, polar_s;
-
-        //Grid interpolation weights
-        Vec_Vec2f grid_position;
-        Vec_Vec2f weight_gradient; // * 16
-        Vec_Real  weights;         // * 16
-
-        void addParticle(const Vec2f& pos, const Vec2f& vel)
-        {
-            position.push_back(pos);
-            velocity.push_back(vel);
-            volume.push_back(0);
-            density.push_back(0);
-            velocity_gradient.push_back(Mat2x2f(1.0));
-
-            def_elastic.push_back(Mat2x2f(1.0));
-            def_plastic.push_back(Mat2x2f(1.0));
-            svd_e.push_back(Vec2f(1, 1));
-            svd_w.push_back(Mat2x2f(1.0));
-            svd_v.push_back(Mat2x2f(1.0));
-            polar_r.push_back(Mat2x2f(1.0));
-            polar_s.push_back(Mat2x2f(1.0));
-
-
-            grid_position.push_back(Vec2f(0));
-            for(int i = 0; i < 16; ++i)
-            {
-                weight_gradient.push_back(Vec2f(0));
-                weights.push_back(0);
-            }
-        }
-    } particleSimData;
-
-
-    struct GridSimData
-    {
-        Vec2f origin, size, cellsize;
-        //    PointCloud* obj;
-        float node_area;
-        //Nodes: use (y*size[0] + x) to index, where zero is the bottom-left corner (e.g. like a cartesian grid)
-        int       nodes_length;
-        GridNode* nodes;
-
-        void makeReady(Vec2f pos, Vec2f dims, Vec2i cells)
-        {
-            //    obj          = object;
-            origin       = pos;
-            cellsize     = Vec2f(dims[0] / cells[0], dims[1] / cells[1]);
-            size         = cells + Vec2i(1);
-            nodes_length = TensorHelpers::product<int>(size);
-            nodes        = new GridNode[nodes_length];
-            node_area    = TensorHelpers::product<float>(cellsize);
-        }
-    } gridSimData;
+    Grid2DHashing m_Grid;
+    PCGSolver     m_PCGSolver;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

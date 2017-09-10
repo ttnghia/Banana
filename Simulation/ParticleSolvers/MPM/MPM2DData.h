@@ -109,47 +109,153 @@ struct SimulationParameters_MPM2D
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+typedef struct GridNode
+{
+    float mass;
+    bool  active;
+    Vec2f velocity, velocity_new;
+
+    //All the following variables are used by the implicit linear solver
+    bool  imp_active;   //are we still solving for vf
+    Vec2f force,
+          err,          //error of estimate
+          r,            //residual of estimate
+          p,            //residual gradient? squared residual?
+          Ep, Er;       //yeah, I really don't know how this works...
+    float rEr;          //r.dot(Er)
+} GridNode;
+
+
+
+
 struct SimulationData_MPM2D
 {
+    //struct ParticleSimData
+    //{
+    //    Vec_Vec2r   positions;
+    //    Vec_Vec2r   positions_tmp;
+    //    Vec_Vec2r   velocities;
+    //    Vec_VecUInt neighborList;
+
+    //    Vec_Real    particleVolumes, particleMasses, particleDensities;
+    //    Vec_Mat2x2r velocityGradients;
+    //    Vec_Mat2x2r energyDerivatives;
+
+    //    Vec_Mat2x2r deformGradElastics, deformGradPlastics; //Deformation gradient (elastic and plastic parts)
+
+    //    Vec_Mat2x2r svd_w, svd_v;                           //Cached SVD's for elastic deformation gradient
+    //    Vec_Vec2r   svd_e;
+
+    //    Vec_Mat2x2r polar_r, polar_s; //Cached polar decomposition
+
+    //    Vec_Vec3i particleCellIdx;    //Grid interpolation weights
+    //} particleSimData;
+
+
+
+
     struct ParticleSimData
     {
-        Vec_Vec2r   positions;
-        Vec_Vec2r   positions_tmp;
-        Vec_Vec2r   velocities;
-        Vec_VecUInt neighborList;
+        int size;
+        //        std::vector<Particle> particles;
+        float max_velocity;
 
-        Vec_Real    particleVolumes, particleMasses, particleDensities;
-        Vec_Mat2x2r velocityGradients;
-        Vec_Mat2x2r energyDerivatives;
 
-        Vec_Mat2x2r deformGradElastics, deformGradPlastics; //Deformation gradient (elastic and plastic parts)
 
-        Vec_Mat2x2r svd_w, svd_v;                           //Cached SVD's for elastic deformation gradient
-        Vec_Vec2r   svd_e;
 
-        Vec_Mat2x2r polar_r, polar_s; //Cached polar decomposition
 
-        Vec_Vec3i particleCellIdx;    //Grid interpolation weights
+
+
+        Vec_Vec2f   positions, velocities;
+        Vec_Real    volumes, densities;
+        Vec_Mat2x2f velocityGradients;
+
+        //Deformation gradient (elastic and plastic parts)
+        Vec_Mat2x2f elasticDeformGrad, plasticDeformGrad;
+
+        //Cached SVD's for elastic deformation gradient
+        Vec_Mat2x2f svd_w, svd_v;
+        Vec_Vec2f   svd_e;
+
+        //Cached polar decomposition
+        Vec_Mat2x2f polar_r, polar_s;
+
+        //Grid interpolation weights
+        Vec_Vec2f particleGridPos;
+        Vec_Vec2f weightGradient; // * 16
+        Vec_Real  weights;        // * 16
+
+        void addParticle(const Vec2f& pos, const Vec2f& vel)
+        {
+            positions.push_back(pos);
+            velocities.push_back(vel);
+            volumes.push_back(0);
+            densities.push_back(0);
+            velocityGradients.push_back(Mat2x2f(1.0));
+
+            elasticDeformGrad.push_back(Mat2x2f(1.0));
+            plasticDeformGrad.push_back(Mat2x2f(1.0));
+            svd_e.push_back(Vec2f(1, 1));
+            svd_w.push_back(Mat2x2f(1.0));
+            svd_v.push_back(Mat2x2f(1.0));
+            polar_r.push_back(Mat2x2f(1.0));
+            polar_s.push_back(Mat2x2f(1.0));
+
+
+            particleGridPos.push_back(Vec2f(0));
+            for(int i = 0; i < 16; ++i)
+            {
+                weightGradient.push_back(Vec2f(0));
+                weights.push_back(0);
+            }
+        }
     } particleSimData;
+
+
+
+
+
 
 
     struct GridSimData
     {
-        Array3r       gridMass;
-        Array3c       active;
-        Array3<Vec2r> velocities, velocitiesNew;
-        Array3r       weights;
-        Array3<Vec2r> weightGrads;
+        Vec2f origin, size, cellsize;
+        //    PointCloud* obj;
+        float node_area;
+        //Nodes: use (y*size[0] + x) to index, where zero is the bottom-left corner (e.g. like a cartesian grid)
+        int       nodes_length;
+        GridNode* nodes;
 
-        //All the following variables are used by the implicit linear solver
-        Array3c       imp_active; //are we still solving for vf
-        Array3<Vec2r> force,
-                      err,        //error of estimate
-                      r,          //residual of estimate
-                      p,          //residual gradient? squared residual?
-                      Ep, Er;     //yeah, I really don't know how this works...
-        Array3r rEr;              //r.dot(Er)
+        void makeReady(Vec2f pos, Vec2f dims, Vec2i cells)
+        {
+            //    obj          = object;
+            origin       = pos;
+            cellsize     = Vec2f(dims[0] / cells[0], dims[1] / cells[1]);
+            size         = cells + Vec2i(1);
+            nodes_length = TensorHelpers::product<int>(size);
+            nodes        = new GridNode[nodes_length];
+            node_area    = TensorHelpers::product<float>(cellsize);
+        }
     } gridSimData;
+
+
+    //struct GridSimData
+    //{
+    //    Array3r       gridMass;
+    //    Array3c       active;
+    //    Array3<Vec2r> velocities, velocitiesNew;
+    //    Array3r       weights;
+    //    Array3<Vec2r> weightGrads;
+
+    //    //All the following variables are used by the implicit linear solver
+    //    Array3c       imp_active; //are we still solving for vf
+    //    Array3<Vec2r> force,
+    //                  err,        //error of estimate
+    //                  r,          //residual of estimate
+    //                  p,          //residual gradient? squared residual?
+    //                  Ep, Er;     //yeah, I really don't know how this works...
+    //    Array3r rEr;              //r.dot(Er)
+    //} gridSimData;
 
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -158,13 +264,12 @@ struct SimulationData_MPM2D
         particleSimData.positions.reserve(numParticles);
         particleSimData.velocities.reserve(numParticles);
 
-        particleSimData.particleVolumes.reserve(numParticles);
-        particleSimData.particleMasses.reserve(numParticles);
-        particleSimData.particleDensities.reserve(numParticles);
+        particleSimData.volumes.reserve(numParticles);
+        particleSimData.densities.reserve(numParticles);
         particleSimData.velocityGradients.reserve(numParticles);
 
-        particleSimData.deformGradElastics.reserve(numParticles);
-        particleSimData.deformGradPlastics.reserve(numParticles);
+        particleSimData.elasticDeformGrad.reserve(numParticles);
+        particleSimData.plasticDeformGrad.reserve(numParticles);
 
         particleSimData.svd_w.reserve(numParticles);
         particleSimData.svd_v.reserve(numParticles);
@@ -172,7 +277,7 @@ struct SimulationData_MPM2D
 
         particleSimData.polar_r.reserve(numParticles);
         particleSimData.polar_s.reserve(numParticles);
-        particleSimData.particleCellIdx.reserve(numParticles);
+        particleSimData.particleGridPos.reserve(numParticles);
     }
 
 //    void makeReady(UInt ni, UInt nj, UInt nk)
@@ -189,21 +294,7 @@ struct SimulationData_MPM2D
 //    }
 };
 
-typedef struct GridNode
-{
-    float mass;
-    bool  active;
-    Vec2f velocity, velocity_new;
 
-    //All the following variables are used by the implicit linear solver
-    bool  imp_active;     //are we still solving for vf
-    Vec2f force,
-          err,            //error of estimate
-          r,              //residual of estimate
-          p,              //residual gradient? squared residual?
-          Ep, Er;         //yeah, I really don't know how this works...
-    float rEr;            //r.dot(Er)
-} GridNode;
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana
