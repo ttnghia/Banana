@@ -23,6 +23,7 @@
 #include <functional>
 #include <vector>
 
+#define __Banana_No_Parallel
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
 {
@@ -34,6 +35,12 @@ namespace ParallelFuncs
 template<class IndexType, class Function>
 inline void parallel_for(IndexType beginIdx, IndexType endIdx, const Function& function)
 {
+#if defined(__Banana_No_Parallel) || defined(__Banana_Disable_Parallel) || defined(__BNN_NO_PARALLEL) || defined(__BNN_DISABLE_PARALLEL)
+    for(IndexType i = beginIdx; i < endIdx; ++i)
+    {
+        function(i);
+    }
+#else
     tbb::parallel_for(tbb::blocked_range<IndexType>(beginIdx, endIdx),
                       [&](tbb::blocked_range<IndexType> r)
                       {
@@ -42,6 +49,7 @@ inline void parallel_for(IndexType beginIdx, IndexType endIdx, const Function& f
                               function(i);
                           }
                       });
+#endif
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

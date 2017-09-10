@@ -57,9 +57,15 @@ public:
 
     ////////////////////////////////////////////////////////////////////////////////
     template<class IndexType>
-    IndexType getLinearizedIndex(IndexType i, IndexType j, IndexType k) const
+    IndexType getCellLinearizedIndex(IndexType i, IndexType j, IndexType k) const
     {
         return (k * static_cast<IndexType>(getNumCellY()) + j) * static_cast<IndexType>(getNumCellX()) + i;
+    }
+
+    template<class IndexType>
+    IndexType getNodeLinearizedIndex(IndexType i, IndexType j, IndexType k) const
+    {
+        return (k * static_cast<IndexType>(getNumNodeY()) + j) * static_cast<IndexType>(getNumNodeX()) + i;
     }
 
     template<class IndexType>

@@ -39,13 +39,11 @@ public:
 
     UInt          getNumCellX() const noexcept { return m_NumCells[0]; }
     UInt          getNumCellY() const noexcept { return m_NumCells[1]; }
-    UInt          getNumCellZ() const noexcept { return m_NumCells[2]; }
     UInt          getNumTotalCells() const noexcept { return m_NumTotalCells; }
     const Vec2ui& getNumCells() const noexcept { return m_NumCells; }
 
     UInt          getNumNodeX() const noexcept { return m_NumNodes[0]; }
     UInt          getNumNodeY() const noexcept { return m_NumNodes[1]; }
-    UInt          getNumNodeZ() const noexcept { return m_NumNodes[2]; }
     UInt          getNumTotalNodes() const noexcept { return m_NumTotalNodes; }
     const Vec2ui& getNumNodes() const noexcept { return m_NumNodes; }
 
@@ -58,9 +56,15 @@ public:
     ////////////////////////////////////////////////////////////////////////////////
     // Index processing
     template<class IndexType>
-    IndexType getLinearizedIndex(IndexType i, IndexType j) const
+    IndexType getCellLinearizedIndex(IndexType i, IndexType j) const
     {
         return j * static_cast<IndexType>(getNumCellX()) + i;
+    }
+
+    template<class IndexType>
+    IndexType getNodeLinearizedIndex(IndexType i, IndexType j) const
+    {
+        return j * static_cast<IndexType>(getNumNodeX()) + i;
     }
 
     template<class IndexType>

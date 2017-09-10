@@ -805,7 +805,7 @@ void FLIP3DSolver::computeMatrix(Real timestep)
                                           const Real far_term = gridData().w_weights(i, j, k + 1) * timestep;
                                           const Real near_term = gridData().w_weights(i, j, k) * timestep;
 
-                                          const UInt cellIdx = m_Grid.getLinearizedIndex(i, j, k);
+                                          const UInt cellIdx = m_Grid.getCellLinearizedIndex(i, j, k);
                                           Real center_term = 0;
 
                                           // right neighbor
@@ -909,7 +909,7 @@ void FLIP3DSolver::computeRhs()
                                           tmp -= gridData().w_weights(i, j, k + 1) * gridData().w(i, j, k + 1);
                                           tmp += gridData().w_weights(i, j, k) * gridData().w(i, j, k);
 
-                                          const UInt idx = m_Grid.getLinearizedIndex(i, j, k);
+                                          const UInt idx = m_Grid.getCellLinearizedIndex(i, j, k);
                                           m_SimData->rhs[idx] = tmp;
                                       });
 }
@@ -939,7 +939,7 @@ void FLIP3DSolver::updateVelocity(Real timestep)
                                       0, m_Grid.getNumCellZ(),
                                       [&](UInt i, UInt j, UInt k)
                                       {
-                                          const UInt idx = m_Grid.getLinearizedIndex(i, j, k);
+                                          const UInt idx = m_Grid.getCellLinearizedIndex(i, j, k);
 
                                           const Real center_phi = gridData().fluidSDF(i, j, k);
                                           const Real left_phi = i > 0 ? gridData().fluidSDF(i - 1, j, k) : 0;

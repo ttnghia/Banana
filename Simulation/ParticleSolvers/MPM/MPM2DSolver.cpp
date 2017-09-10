@@ -25,7 +25,7 @@
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Banana::MPM2DSolver::makeReady()
+void MPM2DSolver::makeReady()
 {
     m_Logger->printRunTime("Allocate solver memory: ",
                            [&]()
@@ -72,7 +72,7 @@ void Banana::MPM2DSolver::makeReady()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Banana::MPM2DSolver::advanceFrame()
+void MPM2DSolver::advanceFrame()
 {
     static Timer subStepTimer;
     static Timer funcTimer;
@@ -222,7 +222,7 @@ void MPM2DSolver::loadMemoryState()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Banana::MPM2DSolver::saveMemoryState()
+void MPM2DSolver::saveMemoryState()
 {
     if(!m_GlobalParams->bSaveMemoryState)
         return;
@@ -260,7 +260,7 @@ void Banana::MPM2DSolver::saveMemoryState()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Banana::MPM2DSolver::saveParticleData()
+void MPM2DSolver::saveParticleData()
 {
     if(!m_GlobalParams->bSaveParticleData)
         return;
@@ -309,6 +309,7 @@ void MPM2DSolver::advanceVelocity(Real timestep)
     m_Logger->printRunTime("Constrain grid velocity: ", funcTimer, [&]() { constrainGridVelocity(timestep); });
 
     m_Logger->printRunTime("Velocity explicit integration: ", funcTimer, [&]() { explicitVelocities(timestep); });
+    m_Logger->printRunTime("Constrain grid velocity: ", funcTimer, [&]() { constrainGridVelocity(timestep); });
 
     if(m_SimParams->implicitRatio > Tiny)
         m_Logger->printRunTime("Velocity implicit integration: ", funcTimer, [&]() { implicitVelocities(timestep); });
@@ -332,8 +333,6 @@ void MPM2DSolver::updateParticles(Real timestep)
 // todo: consider each node, and accumulate particle data, rather than  consider each particles
 void MPM2DSolver::massToGrid()
 {
-    //Map particle data to grid
-    //for(Int i = 0; i < getNumParticles(); i++)
     ParallelFuncs::parallel_for<UInt>(0, getNumParticles(),
                                       [&](UInt p)
                                       {
@@ -491,7 +490,6 @@ void MPM2DSolver::explicitVelocities(Real timestep)
                                                 gridData().velocity_new.data()[i] = gridData().velocity.data()[i] +
                                                                                     timestep * (Vec2r(0, m_SimParams->gravity) - gridData().velocity_new.data()[i] / gridData().mass.data()[i]);
                                         });
-    constrainGridVelocity(timestep);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -715,12 +713,12 @@ void MPM2DSolver::constrainGridVelocity(Real timestep)
                                               Vec2r velocity_new = gridData().velocity_new(x, y);
                                               Vec2r new_pos = gridData().velocity_new(x, y) * delta_scale + Vec2r(x, y);
 
-                                              //Left border, right border
                                               for(UInt i = 0; i < solverDimension(); ++i)
                                               {
                                                   if(new_pos[i] < Real(m_SimParams->kernelSpan) || new_pos[i] > Real(m_Grid.getNumNodes()[i] - m_SimParams->kernelSpan - 1))
                                                   {
-                                                      velocity_new[i] *= (Real(1.0) - m_SimParams->boundaryRestitution);
+                                                      velocity_new[i] = 0;
+                                                      velocity_new[solverDimension() - i - 1] *= m_SimParams->boundaryRestitution;
                                                       velChanged = true;
                                                   }
                                               }
@@ -745,7 +743,10 @@ void MPM2DSolver::constrainParticleVelocity(Real timestep)
                                           for(UInt i = 0; i < solverDimension(); ++i)
                                           {
                                               if(new_pos[i] < Real(m_SimParams->kernelSpan - 1) || new_pos[0] > Real(m_Grid.getNumNodes()[i] - m_SimParams->kernelSpan))
+                                              {
                                                   pVel[i] *= -m_SimParams->boundaryRestitution;
+                                                  velChanged = true;
+                                              }
                                           }
 
                                           if(velChanged)
@@ -761,17 +762,17 @@ void MPM2DSolver::updateParticlePositions(Real timestep)
                                       [&](UInt p)
                                       {
                                           Vec2r ppos = particleData().positions[p] + particleData().velocities[p] * timestep;
-                                          const Vec2r gridPos = particleData().particleGridPos[p];
-                                          const Real phiVal = ArrayHelpers::interpolateValueLinear(gridPos, gridData().boundarySDF) - m_SimParams->particleRadius;
+                                          //const Vec2r gridPos = particleData().particleGridPos[p];
+                                          //const Real phiVal = ArrayHelpers::interpolateValueLinear(gridPos, gridData().boundarySDF) - m_SimParams->particleRadius;
 
-                                          if(phiVal < 0)
-                                          {
-                                              Vec2r grad = ArrayHelpers::interpolateGradient(gridPos, gridData().boundarySDF);
-                                              Real mag2Grad = glm::length2(grad);
+                                          //if(phiVal < 0)
+                                          //{
+                                          //    Vec2r grad = ArrayHelpers::interpolateGradient(gridPos, gridData().boundarySDF);
+                                          //    Real mag2Grad = glm::length2(grad);
 
-                                              if(mag2Grad > Tiny)
-                                                  ppos -= phiVal * grad / sqrt(mag2Grad);
-                                          }
+                                          //    if(mag2Grad > Tiny)
+                                          //        ppos -= phiVal * grad / sqrt(mag2Grad);
+                                          //}
 
                                           particleData().positions[p] = ppos;
                                       });
@@ -798,7 +799,9 @@ void MPM2DSolver::applyPlasticity()
     ParallelFuncs::parallel_for<UInt>(0, getNumParticles(),
                                       [&](UInt p)
                                       {
-                                          Mat2x2r f_all = particleData().elasticDeformGrad[p] * particleData().plasticDeformGrad[p];
+                                          Mat2x2r elasticDeformGrad = particleData().elasticDeformGrad[p];
+                                          Mat2x2r plasticDeformGrad = particleData().plasticDeformGrad[p];
+                                          Mat2x2r f_all = elasticDeformGrad * plasticDeformGrad;
 
                                           //We compute the SVD decomposition
                                           //The singular values (basically a scale transform) tell us if
@@ -807,12 +810,12 @@ void MPM2DSolver::applyPlasticity()
                                           // todo: improve SVD
                                           Mat2x2r svd_w, svd_v;
                                           Vec2r svd_e;
-                                          SVDDecomposition::svd(particleData().elasticDeformGrad[p], svd_w, svd_e, svd_v);
-                                          particleData().svd_v[p] = glm::transpose(particleData().svd_v[p]);
-                                          particleData().svd_w[p] = glm::transpose(particleData().svd_w[p]);
+                                          SVDDecomposition::svd(elasticDeformGrad, svd_w, svd_e, svd_v);
+                                          svd_w = glm::transpose(svd_w);
+                                          svd_v = glm::transpose(svd_v);
                                           // <= improve
 
-                                          Mat2x2r svd_v_trans = glm::transpose(particleData().svd_v[p]);
+                                          Mat2x2r svd_v_trans = glm::transpose(svd_v);
                                           //Clamp singular values to within elastic region
                                           for(UInt j = 0; j < solverDimension(); ++j)
                                               svd_e[j] = MathHelpers::clamp(svd_e[j], m_SimParams->thresholdCompression, m_SimParams->thresholdStretching);
@@ -825,11 +828,11 @@ void MPM2DSolver::applyPlasticity()
 
                                           //Recompute elastic and plastic gradient
                                           //We're basically just putting the SVD back together again
-                                          Mat2x2r v_cpy(particleData().svd_v[p]), w_cpy(particleData().svd_w[p]);
-                                          TensorHelpers::diagProductInv(v_cpy, particleData().svd_e[p]);
-                                          TensorHelpers::diagProduct(w_cpy, particleData().svd_e[p]);
-                                          Mat2x2r plasticDeformGrad = v_cpy * glm::transpose(svd_w) * f_all;
-                                          Mat2x2r elasticDeformGrad = w_cpy * glm::transpose(svd_v);
+                                          Mat2x2r v_cpy(svd_v), w_cpy(svd_w);
+                                          TensorHelpers::diagProductInv(v_cpy, svd_e);
+                                          TensorHelpers::diagProduct(w_cpy, svd_e);
+                                          plasticDeformGrad = v_cpy * glm::transpose(svd_w) * f_all;
+                                          elasticDeformGrad = w_cpy * glm::transpose(svd_v);
 
                                           ////////////////////////////////////////////////////////////////////////////////
                                           particleData().svd_w[p] = svd_w;

@@ -678,7 +678,7 @@ void FLIP2DSolver::computeMatrix(Real timestep)
     {
         for(UInt i = 1; i < m_Grid.getNumCellX() - 1; ++i)
         {
-            const UInt cellIdx    = m_Grid.getLinearizedIndex(i, j);
+            const UInt cellIdx    = m_Grid.getCellLinearizedIndex(i, j);
             const Real center_phi = m_SimData->fluidSDF(i, j);
 
             if(center_phi < 0)
@@ -759,7 +759,7 @@ void FLIP2DSolver::computeRhs()
                                       1, m_Grid.getNumCellY() - 1,
                                       [&](UInt i, UInt j)
                                       {
-                                          const UInt idx = m_Grid.getLinearizedIndex(i, j);
+                                          const UInt idx = m_Grid.getCellLinearizedIndex(i, j);
                                           const Real center_phi = m_SimData->fluidSDF(i, j);
 
                                           if(center_phi < 0)
@@ -797,7 +797,7 @@ void FLIP2DSolver::updateVelocity(Real timestep)
                                       0, m_Grid.getNumCellY(),
                                       [&](UInt i, UInt j)
                                       {
-                                          const UInt idx = m_Grid.getLinearizedIndex(i, j);
+                                          const UInt idx = m_Grid.getCellLinearizedIndex(i, j);
 
                                           const Real center_phi = m_SimData->fluidSDF(i, j);
                                           const Real left_phi = i > 0 ? m_SimData->fluidSDF(i - 1, j) : 0;

@@ -101,40 +101,40 @@ public:
 
     ////////////////////////////////////////////////////////////////////////////////
     template<class IndexType>
-    size_type getLinearizedIndex(IndexType i, IndexType j, IndexType k) const
+    size_type getCellLinearizedIndex(IndexType i, IndexType j, IndexType k) const
     {
         checkIndex<IndexType>(i, j, k);
         return (static_cast<size_type>(k) * m_SizeY + static_cast<size_type>(j)) * m_SizeX + static_cast<size_type>(i);
     }
 
     template<class IndexType>
-    size_type getLinearizedIndex(const Vec3<IndexType>& index) const
+    size_type getCellLinearizedIndex(const Vec3<IndexType>& index) const
     {
-        return getLinearizedIndex<IndexType>(index[0], index[1], index[2]);
+        return getCellLinearizedIndex<IndexType>(index[0], index[1], index[2]);
     }
 
     template<class IndexType>
     const T& operator ()(IndexType i, IndexType j, IndexType k) const
     {
-        return m_Data[getLinearizedIndex<IndexType>(i, j, k)];
+        return m_Data[getCellLinearizedIndex<IndexType>(i, j, k)];
     }
 
     template<class IndexType>
     T& operator ()(IndexType i, IndexType j, IndexType k)
     {
-        return m_Data[getLinearizedIndex<IndexType>(i, j, k)];
+        return m_Data[getCellLinearizedIndex<IndexType>(i, j, k)];
     }
 
     template<class IndexType>
     const T& operator ()(const Vec3<IndexType>& index) const
     {
-        return m_Data[getLinearizedIndex<IndexType>(index)];
+        return m_Data[getCellLinearizedIndex<IndexType>(index)];
     }
 
     template<class IndexType>
     T& operator ()(const Vec3<IndexType>& index)
     {
-        return m_Data[getLinearizedIndex<IndexType>(index)];
+        return m_Data[getCellLinearizedIndex<IndexType>(index)];
     }
 
     ////////////////////////////////////////////////////////////////////////////////

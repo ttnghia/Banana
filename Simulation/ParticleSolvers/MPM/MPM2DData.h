@@ -36,10 +36,10 @@ struct SimulationParameters_MPM2D
     Real boundaryRestitution = Real(DEFAULT_BOUNDARY_RESTITUTION);
     Real gravity             = Real(-9.81);
 
-    Real particleRadius      = Real(1.0 / 64.0 / 4.0);
+    Real particleRadius      = Real(1.0 / 32.0 / 4.0);
     Real CGRelativeTolerance = Real(1e-15);
     UInt maxCGIteration      = 10000;
-    UInt expandCells         = 2;
+    UInt expandCells         = 0;
 
     Real thresholdCompression = Real(1.0 - 1.9e-2); //Fracture threshold for compression (1-2.5e-2)
     Real thresholdStretching  = Real(1.0 + 7.5e-3); //Fracture threshold for stretching (1+7.5e-3)
@@ -92,13 +92,17 @@ struct SimulationParameters_MPM2D
         logger->printLogIndent("CFL factor: " + std::to_string(CFLFactor));
         logger->printLogIndent("PIC/FLIP ratio: " + std::to_string(PIC_FLIP_ratio));
 
-        logger->printLogIndent("Moving BMin: " + NumberHelpers::toString(movingBMin));
-        logger->printLogIndent("Moving BMax: " + NumberHelpers::toString(movingBMax));
+        logger->printLogIndent("Domain box: " + NumberHelpers::toString(domainBMin) + String(" -> ") + NumberHelpers::toString(domainBMax));
+        logger->printLogIndent("Moving box: " + NumberHelpers::toString(movingBMin) + String(" -> ") + NumberHelpers::toString(movingBMax));
         logger->printLogIndent("Cell size: " + std::to_string(cellSize));
-        logger->printLogIndent("Grid resolution: " + NumberHelpers::toString(Vec2ui(static_cast<UInt>(ceil((domainBMax[0] - domainBMin[0]) / cellSize)),
-                                                                                    static_cast<UInt>(ceil((domainBMax[1] - domainBMin[1]) / cellSize)))));
-        logger->printLogIndent("Moving grid resolution: " + NumberHelpers::toString(Vec2ui(static_cast<UInt>(ceil((movingBMax[0] - movingBMin[0]) / cellSize)),
-                                                                                           static_cast<UInt>(ceil((movingBMax[1] - movingBMin[1]) / cellSize)))));
+        Vec2ui numDomainCells(static_cast<UInt>(ceil((domainBMax[0] - domainBMin[0]) / cellSize)),
+                              static_cast<UInt>(ceil((domainBMax[1] - domainBMin[1]) / cellSize)));
+        Vec2ui numMovingCells(static_cast<UInt>(ceil((movingBMax[0] - movingBMin[0]) / cellSize)),
+                              static_cast<UInt>(ceil((movingBMax[1] - movingBMin[1]) / cellSize)));
+        logger->printLogIndent("Number of cells: " + std::to_string(numDomainCells[0] * numDomainCells[1]));
+        logger->printLogIndent("Number of nodes: " + std::to_string((numDomainCells[0] + 1u) * (numDomainCells[1] + 1u)));
+        logger->printLogIndent("Grid resolution: " + NumberHelpers::toString(numDomainCells));
+        logger->printLogIndent("Moving grid resolution: " + NumberHelpers::toString(numMovingCells));
 
         logger->printLogIndent("Boundary restitution: " + std::to_string(boundaryRestitution));
         logger->printLogIndent("ConjugateGradient solver tolerance: " + NumberHelpers::formatToScientific(CGRelativeTolerance));

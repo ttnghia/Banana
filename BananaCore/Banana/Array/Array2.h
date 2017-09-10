@@ -100,40 +100,40 @@ public:
 
     ////////////////////////////////////////////////////////////////////////////////
     template<class IndexType>
-    size_type getLinearizedIndex(IndexType i, IndexType j) const
+    size_type getCellLinearizedIndex(IndexType i, IndexType j) const
     {
         checkIndex<IndexType>(i, j);
         return static_cast<size_type>(j) * m_SizeX + static_cast<size_type>(i);
     }
 
     template<class IndexType>
-    size_type getLinearizedIndex(const Vec2<IndexType>& index) const
+    size_type getCellLinearizedIndex(const Vec2<IndexType>& index) const
     {
-        getLinearizedIndex<IndexType>(index[0], index[1]);
+        getCellLinearizedIndex<IndexType>(index[0], index[1]);
     }
 
     template<class IndexType>
     const T& operator ()(IndexType i, IndexType j) const
     {
-        return m_Data[getLinearizedIndex<IndexType>(i, j)];
+        return m_Data[getCellLinearizedIndex<IndexType>(i, j)];
     }
 
     template<class IndexType>
     T& operator ()(IndexType i, IndexType j)
     {
-        return m_Data[getLinearizedIndex<IndexType>(i, j)];
+        return m_Data[getCellLinearizedIndex<IndexType>(i, j)];
     }
 
     template<class IndexType>
     const T& operator ()(const glm::tvec2<IndexType>& index) const
     {
-        return m_Data[getLinearizedIndex<IndexType>(index[0], index[1])];
+        return m_Data[getCellLinearizedIndex<IndexType>(index[0], index[1])];
     }
 
     template<class IndexType>
     T& operator ()(const glm::tvec2<IndexType>& index)
     {
-        return m_Data[getLinearizedIndex<IndexType>(index[0], index[1])];
+        return m_Data[getCellLinearizedIndex<IndexType>(index[0], index[1])];
     }
 
     ////////////////////////////////////////////////////////////////////////////////
