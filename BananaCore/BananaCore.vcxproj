@@ -133,6 +133,7 @@
     <ClInclude Include="Banana\Grid\Grid3DHashing.h" />
     <ClInclude Include="Banana\Grid\GridHelpers.h" />
     <ClInclude Include="Banana\Grid\_Grid3D.Test.hpp" />
+    <ClInclude Include="Banana\LinearAlgebra\SVD.Impl.hpp" />
     <ClInclude Include="Banana\NeighborSearch\DataStructures.h" />
     <ClInclude Include="Banana\NeighborSearch\Morton\Morton.h" />
     <ClInclude Include="Banana\NeighborSearch\Morton\Morton2D.h" />

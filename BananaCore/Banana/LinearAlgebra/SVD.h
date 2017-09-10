@@ -20,6 +20,8 @@
 #include <cmath>
 #include <cstdint>
 
+#include <Banana/Setup.h>
+
 #define _gamma  5.828427124  // FOUR_GAMMA_SQUARED = sqrt(8)+3;
 #define _cstar  0.923879532  // cos(pi/8)
 #define _sstar  0.3826834323 // sin(p/8)
@@ -39,8 +41,8 @@ namespace SVDDecomposition
    http://www.beyond3d.com/content/articles/8/
  */
 
-template<class Real>
-inline Real rsqrt(Real)
+template<class RealType>
+inline RealType rsqrt(RealType)
 {
     fprintf(stderr, "Wrong call to unimplemented function.\n    Line: %d, file: %s\n", __LINE__, __FILE__);
     fflush(stderr);
@@ -77,36 +79,36 @@ inline double rsqrt<double>(double x)
     return x;
 }
 
-template<class Real>
-inline Real accurateSqrt(Real x)
+template<class RealType>
+inline RealType accurateSqrt(RealType x)
 {
-    return x * rsqrt<Real>(x);
+    return x * rsqrt<RealType>(x);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-inline void condSwap(bool c, Real& X, Real& Y)
+template<class RealType>
+inline void condSwap(bool c, RealType& X, RealType& Y)
 {
     // used in step 2
-    Real Z = X;
+    RealType Z = X;
     X = c ? Y : X;
     Y = c ? Z : Y;
 }
 
-template<class Real>
-inline void condNegSwap(bool c, Real& X, Real& Y)
+template<class RealType>
+inline void condNegSwap(bool c, RealType& X, RealType& Y)
 {
     // used in step 2 and 3
-    Real Z = -X;
+    RealType Z = -X;
     X = c ? Y : X;
     Y = c ? Z : Y;
 }
 
 // matrix multiplication M = A * B
-template<class Real>
-inline void multAB(Real a11, Real a12, Real a13, Real a21, Real a22, Real a23, Real a31, Real a32, Real a33,
-                   Real b11, Real b12, Real b13, Real b21, Real b22, Real b23, Real b31, Real b32, Real b33,
-                   Real& m11, Real& m12, Real& m13, Real& m21, Real& m22, Real& m23, Real& m31, Real& m32, Real& m33)
+template<class RealType>
+inline void multAB(RealType a11, RealType a12, RealType a13, RealType a21, RealType a22, RealType a23, RealType a31, RealType a32, RealType a33,
+                   RealType b11, RealType b12, RealType b13, RealType b21, RealType b22, RealType b23, RealType b31, RealType b32, RealType b33,
+                   RealType& m11, RealType& m12, RealType& m13, RealType& m21, RealType& m22, RealType& m23, RealType& m31, RealType& m32, RealType& m33)
 {
     m11 = a11 * b11 + a12 * b21 + a13 * b31;
     m12 = a11 * b12 + a12 * b22 + a13 * b32;
@@ -120,10 +122,10 @@ inline void multAB(Real a11, Real a12, Real a13, Real a21, Real a22, Real a23, R
 }
 
 // matrix multiplication M = Transpose[A] * B
-template<class Real>
-inline void multAtB(Real a11, Real a12, Real a13, Real a21, Real a22, Real a23, Real a31, Real a32, Real a33,
-                    Real b11, Real b12, Real b13, Real b21, Real b22, Real b23, Real b31, Real b32, Real b33,
-                    Real& m11, Real& m12, Real& m13, Real& m21, Real& m22, Real& m23, Real& m31, Real& m32, Real& m33)
+template<class RealType>
+inline void multAtB(RealType a11, RealType a12, RealType a13, RealType a21, RealType a22, RealType a23, RealType a31, RealType a32, RealType a33,
+                    RealType b11, RealType b12, RealType b13, RealType b21, RealType b22, RealType b23, RealType b31, RealType b32, RealType b33,
+                    RealType& m11, RealType& m12, RealType& m13, RealType& m21, RealType& m22, RealType& m23, RealType& m31, RealType& m32, RealType& m33)
 {
     m11 = a11 * b11 + a21 * b21 + a31 * b31;
     m12 = a11 * b12 + a21 * b22 + a31 * b32;
@@ -136,23 +138,23 @@ inline void multAtB(Real a11, Real a12, Real a13, Real a21, Real a22, Real a23, 
     m33 = a13 * b13 + a23 * b23 + a33 * b33;
 }
 
-template<class Real>
-inline void quatToMat3(const Real* qV, Real& m11, Real& m12, Real& m13, Real& m21, Real& m22, Real& m23, Real& m31, Real& m32, Real& m33)
+template<class RealType>
+inline void quatToMat3(const RealType* qV, RealType& m11, RealType& m12, RealType& m13, RealType& m21, RealType& m22, RealType& m23, RealType& m31, RealType& m32, RealType& m33)
 {
-    Real w = qV[3];
-    Real x = qV[0];
-    Real y = qV[1];
-    Real z = qV[2];
+    RealType w = qV[3];
+    RealType x = qV[0];
+    RealType y = qV[1];
+    RealType z = qV[2];
 
-    Real qxx = x * x;
-    Real qyy = y * y;
-    Real qzz = z * z;
-    Real qxz = x * z;
-    Real qxy = x * y;
-    Real qyz = y * z;
-    Real qwx = w * x;
-    Real qwy = w * y;
-    Real qwz = w * z;
+    RealType qxx = x * x;
+    RealType qyy = y * y;
+    RealType qzz = z * z;
+    RealType qxz = x * z;
+    RealType qxy = x * y;
+    RealType qyz = y * z;
+    RealType qwx = w * x;
+    RealType qwy = w * y;
+    RealType qwz = w * z;
 
     m11 = 1 - 2 * (qyy + qzz);
     m12 = 2 * (qxy - qwz);
@@ -165,8 +167,8 @@ inline void quatToMat3(const Real* qV, Real& m11, Real& m12, Real& m13, Real& m2
     m33 = 1 - 2 * (qxx + qyy);
 }
 
-template<class Real>
-inline void approximateGivensQuaternion(Real a11, Real a12, Real a22, Real& ch, Real& sh)
+template<class RealType>
+inline void approximateGivensQuaternion(RealType a11, RealType a12, RealType a22, RealType& ch, RealType& sh)
 {
     /*
      * Given givens angle computed by approximateGivensAngles,
@@ -178,30 +180,30 @@ inline void approximateGivensQuaternion(Real a11, Real a12, Real a22, Real& ch, 
     // fast rsqrt function suffices
     // rsqrt2 (https://code.google.com/p/lppython/source/browse/algorithm/HDcode/newCode/rsqrt.c?r=26)
     // is even faster but results in too much error
-    Real w = rsqrt<Real>(ch * ch + sh * sh);
-    ch = b ? w * ch : (Real)_cstar;
-    sh = b ? w * sh : (Real)_sstar;
+    RealType w = rsqrt<RealType>(ch * ch + sh * sh);
+    ch = b ? w * ch : (RealType)_cstar;
+    sh = b ? w * sh : (RealType)_sstar;
 }
 
-template<class Real>
+template<class RealType>
 inline void jacobiConjugation(const int x, const int y, const int z,
-                              Real& s11, Real& s21, Real& s22, Real& s31, Real& s32, Real& s33,
-                              Real* qV)
+                              RealType& s11, RealType& s21, RealType& s22, RealType& s31, RealType& s32, RealType& s33,
+                              RealType* qV)
 {
-    Real ch, sh;
+    RealType ch, sh;
     approximateGivensQuaternion(s11, s21, s22, ch, sh);
 
-    Real scale = ch * ch + sh * sh;
-    Real a     = (ch * ch - sh * sh) / scale;
-    Real b     = (2 * sh * ch) / scale;
+    RealType scale = ch * ch + sh * sh;
+    RealType a     = (ch * ch - sh * sh) / scale;
+    RealType b     = (2 * sh * ch) / scale;
 
     // make temp copy of S
-    Real _s11 = s11;
-    Real _s21 = s21;
-    Real _s22 = s22;
-    Real _s31 = s31;
-    Real _s32 = s32;
-    Real _s33 = s33;
+    RealType _s11 = s11;
+    RealType _s21 = s21;
+    RealType _s22 = s22;
+    RealType _s31 = s31;
+    RealType _s32 = s32;
+    RealType _s33 = s33;
 
     // perform conjugation S = Q'*S*Q
     // Q already implicitly solved from a, b
@@ -213,7 +215,7 @@ inline void jacobiConjugation(const int x, const int y, const int z,
     s33 = _s33;
 
     // update cumulative rotation qV
-    Real tmp[3];
+    RealType tmp[3];
     tmp[0] = qV[0] * sh;
     tmp[1] = qV[1] * sh;
     tmp[2] = qV[2] * sh;
@@ -246,20 +248,20 @@ inline void jacobiConjugation(const int x, const int y, const int z,
     s33  = _s33;
 }
 
-template<class Real>
-inline Real dist2(Real x, Real y, Real z)
+template<class RealType>
+inline RealType dist2(RealType x, RealType y, RealType z)
 {
     return x * x + y * y + z * z;
 }
 
 // finds transformation that diagonalizes a symmetric matrix
-template<class Real>
+template<class RealType>
 inline void jacobiEigenanlysis( // symmetric matrix
-    Real& s11,
-    Real& s21, Real& s22,
-    Real& s31, Real& s32, Real& s33,
+    RealType& s11,
+    RealType& s21, RealType& s22,
+    RealType& s31, RealType& s32, RealType& s33,
     // quaternion representation of V
-    Real* qV)
+    RealType* qV)
 {
     qV[3] = 1;
     qV[0] = 0;
@@ -278,20 +280,20 @@ inline void jacobiEigenanlysis( // symmetric matrix
     }
 }
 
-template<class Real>
+template<class RealType>
 inline void sortSingularValues(// matrix that we want to decompose
-    Real& b11, Real& b12, Real& b13,
-    Real& b21, Real& b22, Real& b23,
-    Real& b31, Real& b32, Real& b33,
+    RealType& b11, RealType& b12, RealType& b13,
+    RealType& b21, RealType& b22, RealType& b23,
+    RealType& b31, RealType& b32, RealType& b33,
     // sort V simultaneously
-    Real& v11, Real& v12, Real& v13,
-    Real& v21, Real& v22, Real& v23,
-    Real& v31, Real& v32, Real& v33)
+    RealType& v11, RealType& v12, RealType& v13,
+    RealType& v21, RealType& v22, RealType& v23,
+    RealType& v31, RealType& v32, RealType& v33)
 {
-    Real rho1 = dist2(b11, b21, b31);
-    Real rho2 = dist2(b12, b22, b32);
-    Real rho3 = dist2(b13, b23, b33);
-    bool c;
+    RealType rho1 = dist2(b11, b21, b31);
+    RealType rho2 = dist2(b12, b22, b32);
+    RealType rho3 = dist2(b13, b23, b33);
+    bool     c;
     c = rho1 < rho2;
     condNegSwap(c, b11, b12);
     condNegSwap(c, v11, v12);
@@ -317,39 +319,39 @@ inline void sortSingularValues(// matrix that we want to decompose
     condNegSwap(c, v32, v33);
 }
 
-template<class Real>
-void QRGivensQuaternion(Real a1, Real a2, Real& ch, Real& sh)
+template<class RealType>
+void QRGivensQuaternion(RealType a1, RealType a2, RealType& ch, RealType& sh)
 {
     // a1 = pivot point on diagonal
     // a2 = lower triangular entry we want to annihilate
-    Real epsilon = (Real)EPSILON;
-    Real rho     = accurateSqrt<Real>(a1 * a1 + a2 * a2);
+    RealType epsilon = (RealType)EPSILON;
+    RealType rho     = accurateSqrt<RealType>(a1 * a1 + a2 * a2);
 
     sh = rho > epsilon ? a2 : 0;
     ch = fabs(a1) + fmax(rho, epsilon);
     bool b = a1 < 0;
     condSwap(b, sh, ch);
-    Real w = rsqrt<Real>(ch * ch + sh * sh);
+    RealType w = rsqrt<RealType>(ch * ch + sh * sh);
     ch *= w;
     sh *= w;
 }
 
-template<class Real>
+template<class RealType>
 inline void QRDecomposition(// matrix that we want to decompose
-    Real b11, Real b12, Real b13,
-    Real b21, Real b22, Real b23,
-    Real b31, Real b32, Real b33,
+    RealType b11, RealType b12, RealType b13,
+    RealType b21, RealType b22, RealType b23,
+    RealType b31, RealType b32, RealType b33,
     // output Q
-    Real& q11, Real& q12, Real& q13,
-    Real& q21, Real& q22, Real& q23,
-    Real& q31, Real& q32, Real& q33,
+    RealType& q11, RealType& q12, RealType& q13,
+    RealType& q21, RealType& q22, RealType& q23,
+    RealType& q31, RealType& q32, RealType& q33,
     // output R
-    Real& r11, Real& r12, Real& r13,
-    Real& r21, Real& r22, Real& r23,
-    Real& r31, Real& r32, Real& r33)
+    RealType& r11, RealType& r12, RealType& r13,
+    RealType& r21, RealType& r22, RealType& r23,
+    RealType& r31, RealType& r32, RealType& r33)
 {
-    Real ch1, sh1, ch2, sh2, ch3, sh3;
-    Real a, b;
+    RealType ch1, sh1, ch2, sh2, ch3, sh3;
+    RealType a, b;
 
     // first givens rotation (ch,0,0,sh)
     QRGivensQuaternion(b11, b21, ch1, sh1);
@@ -400,9 +402,9 @@ inline void QRDecomposition(// matrix that we want to decompose
     // the number of Ting point operations for three quaternion multiplications
     // is more or less comparable to the explicit form of the joined matrix.
     // certainly more memory-efficient!
-    Real sh12 = sh1 * sh1;
-    Real sh22 = sh2 * sh2;
-    Real sh32 = sh3 * sh3;
+    RealType sh12 = sh1 * sh1;
+    RealType sh22 = sh2 * sh2;
+    RealType sh32 = sh3 * sh3;
 
     q11 = (-1 + 2 * sh12) * (-1 + 2 * sh22);
     q12 = 4 * ch2 * ch3 * (-1 + 2 * sh12) * sh2 * sh3 + 2 * ch1 * sh1 * (-1 + 2 * sh32);
@@ -417,41 +419,41 @@ inline void QRDecomposition(// matrix that we want to decompose
     q33 = (-1 + 2 * sh22) * (-1 + 2 * sh32);
 }
 
-template<class Real>
+template<class RealType>
 void svd(// input A
-    Real a11, Real a12, Real a13,
-    Real a21, Real a22, Real a23,
-    Real a31, Real a32, Real a33,
+    RealType a11, RealType a12, RealType a13,
+    RealType a21, RealType a22, RealType a23,
+    RealType a31, RealType a32, RealType a33,
     // output U
-    Real& u11, Real& u12, Real& u13,
-    Real& u21, Real& u22, Real& u23,
-    Real& u31, Real& u32, Real& u33,
+    RealType& u11, RealType& u12, RealType& u13,
+    RealType& u21, RealType& u22, RealType& u23,
+    RealType& u31, RealType& u32, RealType& u33,
     // output S
-    Real& s11, Real& s12, Real& s13,
-    Real& s21, Real& s22, Real& s23,
-    Real& s31, Real& s32, Real& s33,
+    RealType& s11, RealType& s12, RealType& s13,
+    RealType& s21, RealType& s22, RealType& s23,
+    RealType& s31, RealType& s32, RealType& s33,
     // output V
-    Real& v11, Real& v12, Real& v13,
-    Real& v21, Real& v22, Real& v23,
-    Real& v31, Real& v32, Real& v33)
+    RealType& v11, RealType& v12, RealType& v13,
+    RealType& v21, RealType& v22, RealType& v23,
+    RealType& v31, RealType& v32, RealType& v33)
 {
     // normal equations matrix
-    Real ATA11, ATA12, ATA13;
-    Real ATA21, ATA22, ATA23;
-    Real ATA31, ATA32, ATA33;
+    RealType ATA11, ATA12, ATA13;
+    RealType ATA21, ATA22, ATA23;
+    RealType ATA31, ATA32, ATA33;
 
     multAtB(a11, a12, a13, a21, a22, a23, a31, a32, a33,
             a11, a12, a13, a21, a22, a23, a31, a32, a33,
             ATA11, ATA12, ATA13, ATA21, ATA22, ATA23, ATA31, ATA32, ATA33);
 
     // symmetric eigenalysis
-    Real qV[4];
+    RealType qV[4];
     jacobiEigenanlysis(ATA11, ATA21, ATA22, ATA31, ATA32, ATA33, qV);
     quatToMat3(qV, v11, v12, v13, v21, v22, v23, v31, v32, v33);
 
-    Real b11, b12, b13;
-    Real b21, b22, b23;
-    Real b31, b32, b33;
+    RealType b11, b12, b13;
+    RealType b21, b22, b23;
+    RealType b31, b32, b33;
     multAB(a11, a12, a13, a21, a22, a23, a31, a32, a33,
            v11, v12, v13, v21, v22, v23, v31, v32, v33,
            b11, b12, b13, b21, b22, b23, b31, b32, b33);
@@ -468,22 +470,22 @@ void svd(// input A
 
 /// polar decomposition can be reconstructed trivially from SVD result
 // A = UP
-template<class Real>
-void polarDecomposition(Real a11, Real a12, Real a13,
-                        Real a21, Real a22, Real a23,
-                        Real a31, Real a32, Real a33,
+template<class RealType>
+void polarDecomposition(RealType a11, RealType a12, RealType a13,
+                        RealType a21, RealType a22, RealType a23,
+                        RealType a31, RealType a32, RealType a33,
                         // output U
-                        Real& u11, Real& u12, Real& u13,
-                        Real& u21, Real& u22, Real& u23,
-                        Real& u31, Real& u32, Real& u33,
+                        RealType& u11, RealType& u12, RealType& u13,
+                        RealType& u21, RealType& u22, RealType& u23,
+                        RealType& u31, RealType& u32, RealType& u33,
                         // output P
-                        Real& p11, Real& p12, Real& p13,
-                        Real& p21, Real& p22, Real& p23,
-                        Real& p31, Real& p32, Real& p33)
+                        RealType& p11, RealType& p12, RealType& p13,
+                        RealType& p21, RealType& p22, RealType& p23,
+                        RealType& p31, RealType& p32, RealType& p33)
 {
-    Real w11, w12, w13, w21, w22, w23, w31, w32, w33;
-    Real s11, s12, s13, s21, s22, s23, s31, s32, s33;
-    Real v11, v12, v13, v21, v22, v23, v31, v32, v33;
+    RealType w11, w12, w13, w21, w22, w23, w31, w32, w33;
+    RealType s11, s12, s13, s21, s22, s23, s31, s32, s33;
+    RealType v11, v12, v13, v21, v22, v23, v31, v32, v33;
 
     svd(a11, a12, a13, a21, a22, a23, a31, a32, a33,
         w11, w12, w13, w21, w22, w23, w31, w32, w33,
@@ -491,7 +493,7 @@ void polarDecomposition(Real a11, Real a12, Real a13,
         v11, v12, v13, v21, v22, v23, v31, v32, v33);
 
     // P = VSV'
-    Real t11, t12, t13, t21, t22, t23, t31, t32, t33;
+    RealType t11, t12, t13, t21, t22, t23, t31, t32, t33;
     multAB(v11, v12, v13, v21, v22, v23, v31, v32, v33,
            s11, s12, s13, s21, s22, s23, s31, s32, s33,
            t11, t12, t13, t21, t22, t23, t31, t32, t33);
@@ -505,6 +507,16 @@ void polarDecomposition(Real a11, Real a12, Real a13,
            v11, v21, v31, v12, v22, v32, v13, v23, v33,
            u11, u12, u13, u21, u22, u23, u31, u32, u33);
 }
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//#define Tiny 1e-6
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class RealType>
+void svd(const Mat2x2<RealType>& mat, Mat2x2<RealType>& w, Vec2<RealType>& e, Mat2x2<RealType>& v);
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#include <Banana/LinearAlgebra/SVD.Impl.hpp>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace SVDDecomposition

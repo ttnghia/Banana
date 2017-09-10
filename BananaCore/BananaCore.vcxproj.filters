@@ -192,6 +192,9 @@
     <ClInclude Include="Banana\LinearAlgebra\TensorHelpers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Banana\LinearAlgebra\SVD.Impl.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Banana\Geometry\GeometryObject3D.cpp">
