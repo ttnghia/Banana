@@ -52,17 +52,17 @@ void MPM2DSolver::makeReady()
 
 
                                // todo: remove this
-                               GeometryObject2D::BoxObject box;
-                               box.boxMin() = m_SimParams->movingBMin - Vec2r(0.0);
-                               box.boxMax() = m_SimParams->movingBMax + Vec2r(0.0);
-                               ParallelFuncs::parallel_for<UInt>(0, m_Grid.getNumNodeX(),
-                                                                 0, m_Grid.getNumNodeY(),
-                                                                 [&](UInt i, UInt j)
-                                                                 {
-                                                                     const Vec2r pPos = m_Grid.getWorldCoordinate(i, j);
-                                                                     gridData().boundarySDF(i, j) = -box.signedDistance(pPos);
-                                                                 });
-                               m_Logger->printWarning("Computed boundary SDF");
+                               //GeometryObject2D::BoxObject box;
+                               //box.boxMin() = m_SimParams->movingBMin - Vec2r(0.0);
+                               //box.boxMax() = m_SimParams->movingBMax + Vec2r(0.0);
+                               //ParallelFuncs::parallel_for<UInt>(0, m_Grid.getNumNodeX(),
+                               //                                  0, m_Grid.getNumNodeY(),
+                               //                                  [&](UInt i, UInt j)
+                               //                                  {
+                               //                                      const Vec2r pPos = m_Grid.getWorldCoordinate(i, j);
+                               //                                      gridData().boundarySDF(i, j) = -box.signedDistance(pPos);
+                               //                                  });
+                               //m_Logger->printWarning("Computed boundary SDF");
                            });
 
     ////////////////////////////////////////////////////////////////////////////////

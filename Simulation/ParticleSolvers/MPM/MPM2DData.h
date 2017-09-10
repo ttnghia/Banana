@@ -36,10 +36,10 @@ struct SimulationParameters_MPM2D
     Real boundaryRestitution = Real(DEFAULT_BOUNDARY_RESTITUTION);
     Real gravity             = Real(-9.81);
 
-    Real particleRadius      = Real(1.0 / 32.0 / 4.0);
+    Real particleRadius      = Real(1.0 / 64.0 / 4.0);
     Real CGRelativeTolerance = Real(1e-15);
     UInt maxCGIteration      = 10000;
-    UInt expandCells         = 0;
+    UInt expandCells         = 2;
 
     Real thresholdCompression = Real(1.0 - 1.9e-2); //Fracture threshold for compression (1-2.5e-2)
     Real thresholdStretching  = Real(1.0 + 7.5e-3); //Fracture threshold for stretching (1+7.5e-3)
