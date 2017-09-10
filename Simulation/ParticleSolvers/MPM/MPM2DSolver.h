@@ -18,8 +18,7 @@
 #pragma once
 
 #include <Banana/Grid/Grid2DHashing.h>
-#include <Banana/LinearAlgebra/LinearSolvers/PCGSolver.h>
-#include <Banana/LinearAlgebra/TensorHelpers.h>
+//#include <Banana/LinearAlgebra/LinearSolvers/PCGSolver.h>
 #include <ParticleSolvers/ParticleSolver.h>
 #include <ParticleSolvers/MPM/MPM2DData.h>
 
@@ -58,34 +57,28 @@ protected:
 
     ////////////////////////////////////////////////////////////////////////////////
     // grid processing
+    void massToGrid();
+    void velocityToGrid(Real timestep);
+    void constrainGridVelocity(Real timestep);
 
-    void initializeMass();
-    void initializeVelocities(Real timestep);
-    //Map grid volumes back to particles (first timestep only)
-    void calculateVolumes();
     //Compute grid velocities
     void explicitVelocities(Real timestep);
     void implicitVelocities(Real timestep);
     void recomputeImplicitForces(Real timestep);
+
     //Map grid velocities back to particles
-    void updateVelocities(Real timestep);
+    void velocityToParticles(Real timestep);
+    void constrainParticleVelocity(Real timestep);
 
-    //Collision detection
-    void collisionGrid(Real timestep);
-    void collisionParticles(Real timestep);
-
-    //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    // particle
-
-
+    ////////////////////////////////////////////////////////////////////////////////
+    // particle processing
+    void calculateParticleVolumes();
     void updateParticlePositions(Real timestep);
-    void updateGradient(Real timestep);
+    void updateGradients(Real timestep);
     void applyPlasticity();
 
     Mat2x2r computeEnergyDerivative(UInt p);
-
-    //Computes stress force delta, for implicit velocity update
-    Vec2r deltaForce(UInt i, const Vec2r& u, const Vec2r& weight_grad, Real timestep);
+    Vec2r   computeDeltaForce(UInt p, const Vec2r& u, const Vec2r& weight_grad, Real timestep);  //Computes stress force delta, for implicit velocity update
 
     ////////////////////////////////////////////////////////////////////////////////
     SimulationData_MPM2D::ParticleSimData& particleData() { return m_SimData->particleSimData; }
@@ -95,7 +88,7 @@ protected:
     std::unique_ptr<SimulationData_MPM2D>       m_SimData   = std::make_unique<SimulationData_MPM2D>();
 
     Grid2DHashing m_Grid;
-    PCGSolver     m_PCGSolver;
+    //PCGSolver     m_PCGSolver;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

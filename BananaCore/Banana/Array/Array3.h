@@ -22,7 +22,8 @@
 #include <algorithm>
 #include <cassert>
 #include <vector>
-#include <istream>
+#include <sstream>
+#include <cstdlib>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -90,7 +91,9 @@ public:
 
         if(!bIndexValid)
         {
-            std::cout << "Invalid Array3 index: i = " << i << " / sizeX = " << m_SizeX << ", j = " << j << " / sizeY = " << m_SizeY << ", k = " << k << " / sizeZ = " << m_SizeZ << std::endl;
+            std::stringstream ss;
+            ss << "Invalid Array3 index: i = " << i << " / sizeX = " << m_SizeX << ", j = " << j << " / sizeY = " << m_SizeY << ", k = " << k << " / sizeZ = " << m_SizeZ;
+            printf("%s\n", ss.str().c_str());
         }
 
         assert(bIndexValid);
@@ -111,36 +114,36 @@ public:
     }
 
     template<class IndexType>
-    const T& operator()(IndexType i, IndexType j, IndexType k) const
+    const T& operator ()(IndexType i, IndexType j, IndexType k) const
     {
         return m_Data[getLinearizedIndex<IndexType>(i, j, k)];
     }
 
     template<class IndexType>
-    T& operator()(IndexType i, IndexType j, IndexType k)
+    T& operator ()(IndexType i, IndexType j, IndexType k)
     {
         return m_Data[getLinearizedIndex<IndexType>(i, j, k)];
     }
 
     template<class IndexType>
-    const T& operator()(const Vec3<IndexType>& index) const
+    const T& operator ()(const Vec3<IndexType>& index) const
     {
         return m_Data[getLinearizedIndex<IndexType>(index)];
     }
 
     template<class IndexType>
-    T& operator()(const Vec3<IndexType>& index)
+    T& operator ()(const Vec3<IndexType>& index)
     {
         return m_Data[getLinearizedIndex<IndexType>(index)];
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    bool operator==(const Array3<T>& other) const
+    bool operator ==(const Array3<T>& other) const
     {
         return m_SizeX == other.m_SizeX && m_SizeY == other.m_SizeY && m_SizeZ == other.m_SizeZ && m_Data == other.m_Data;
     }
 
-    bool operator!=(const Array3<T>& other) const
+    bool operator !=(const Array3<T>& other) const
     {
         return m_SizeX != other.m_SizeX || m_SizeY != other.m_SizeY || m_SizeZ != other.m_SizeZ || m_Data != other.m_Data;
     }

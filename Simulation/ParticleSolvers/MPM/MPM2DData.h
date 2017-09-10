@@ -137,7 +137,7 @@ struct SimulationData_MPM2D
         Vec_Vec2r weightGradients; // * 16
         Vec_Real  weights;         // * 16
 
-        void addParticle(const Vec2r& pos, const Vec2r& vel)
+        void addParticle(const Vec2r& pos, const Vec2r& vel = Vec2r(0))
         {
             positions.push_back(pos);
             velocities.push_back(vel);
@@ -192,43 +192,18 @@ struct SimulationData_MPM2D
     ////////////////////////////////////////////////////////////////////////////////
     struct GridSimData
     {
-        //Vec2r origin, size, cellsize;
-        //    PointCloud* obj;
-        //float node_area;
-        //Nodes: use (y*size[0] + x) to index, where zero is the bottom-left corner (e.g. like a cartesian grid)
-        //UInt nodes_length;
-        //GridNode*                         nodes;
-
-
-
-
-
-
-        // grid node
-
-        //Vec_Real  mass;
-        //Vec_Int   active;
-        //Vec_Int   imp_active;
-        //Vec_Vec2r velocity, velocity_new;
-        //Vec_Vec2r force,
-        //    err,    //error of estimate
-        //    r,      //residual of estimate
-        //    p,      //residual gradient? squared residual?
-        //    Ep, Er; //yeah, I really don't know how this works...
-        //Vec_Real rEr;     //r.dot(Er)
-
-        Array2r mass;
-
+        Array2r       mass;
         Array2c       active;
-        Array2c       imp_active;
         Array2<Vec2r> velocity, velocity_new;
+
+        // variable for implicit velocity solving
+        Array2c       imp_active;
         Array2<Vec2r> force,
                       err,    //error of estimate
                       r,      //residual of estimate
                       p,      //residual gradient? squared residual?
                       Ep, Er; //yeah, I really don't know how this works...
         Array2r rDotEr;       //r.dot(Er)
-        // end gridnode
 
         Array2<ParallelObjects::SpinLock> nodeLocks;
         Array2r                           boundarySDF;
@@ -238,9 +213,9 @@ struct SimulationData_MPM2D
         {
             mass.resize(gridSize);
             active.resize(gridSize);
-            imp_active.resize(gridSize);
             velocity.resize(gridSize);
             velocity_new.resize(gridSize);
+            imp_active.resize(gridSize);
             force.resize(gridSize);
             err.resize(gridSize);
             r.resize(gridSize);
@@ -270,25 +245,7 @@ struct SimulationData_MPM2D
             rDotEr.assign(Real(0));
         }
     } gridSimData;
-
-
-    //Array3r       gridMass;
-    //Array3c       active;
-    //Array3<Vec2r> velocities, velocitiesNew;
-    //Array3r       weights;
-    //Array3<Vec2r> weightGrads;
-
-    ////All the following variables are used by the implicit linear solver
-    //Array3c       imp_active; //are we still solving for vf
-    //Array3<Vec2r> force,
-    //              err,        //error of estimate
-    //              r,          //residual of estimate
-    //              p,          //residual gradient? squared residual?
-    //              Ep, Er;     //yeah, I really don't know how this works...
-    //Array3r rEr;              //r.dot(Er)
 };
-
-
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana

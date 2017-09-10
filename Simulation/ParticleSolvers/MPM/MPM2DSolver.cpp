@@ -19,6 +19,7 @@
 #include <Banana/Geometry/GeometryObject2D.h>
 #include <Banana/LinearAlgebra/SVD.h>
 #include <Banana/ParallelHelpers/ParallelSTL.h>
+#include <Banana/LinearAlgebra/TensorHelpers.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -41,6 +42,11 @@ void Banana::MPM2DSolver::makeReady()
                                //m_NSearch = std::make_unique<NeighborSearch>(m_SimParams->cellSize);
                                //m_NSearch->add_point_set(glm::value_ptr(particleData().positions.front()), getNumParticles(), true, true);
 
+
+                               //We need to estimate particle volumes before we start
+                               m_Grid.collectIndexToCells(particleData().positions, particleData().particleGridPos);
+                               massToGrid();
+                               calculateParticleVolumes();
 
 
 
@@ -85,7 +91,7 @@ void Banana::MPM2DSolver::advanceFrame()
                                    m_Logger->printRunTime("Find neighbors: ", funcTimer,
                                                           [&]() { m_Grid.collectIndexToCells(particleData().positions, particleData().particleGridPos); });
                                    m_Logger->printRunTime("====> Advance velocity total: ", funcTimer, [&]() { advanceVelocity(substep); });
-                                   m_Logger->printRunTime("Move particles: ", funcTimer, [&]() { updateParticles(substep); });
+                                   m_Logger->printRunTime("====> Update particles total: ", funcTimer, [&]() { updateParticles(substep); });
                                    //m_Logger->printRunTime("Correct particle positions: ",   funcTimer, [&]() { correctPositions(substep); });
                                    ////////////////////////////////////////////////////////////////////////////////
 
@@ -294,35 +300,38 @@ Real MPM2DSolver::computeCFLTimestep()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MPM2DSolver::advanceVelocity(Real timestep)
 {
-    initializeMass();
-    initializeVelocities(timestep);
+    static Timer funcTimer;
 
-    explicitVelocities(timestep);
+    ////////////////////////////////////////////////////////////////////////////////
+    m_Logger->printRunTime("Reset grid data: ", funcTimer, [&]() { gridData().resetGrid(); });
+    m_Logger->printRunTime("Compute mass for grid nodes: ", funcTimer, [&]() { massToGrid(); });
+    m_Logger->printRunTime("Interpolate velocity from particles to grid: ", funcTimer, [&]() { velocityToGrid(timestep); });
+    m_Logger->printRunTime("Constrain grid velocity: ", funcTimer, [&]() { constrainGridVelocity(timestep); });
+
+    m_Logger->printRunTime("Velocity explicit integration: ", funcTimer, [&]() { explicitVelocities(timestep); });
+
     if(m_SimParams->implicitRatio > Tiny)
-        implicitVelocities(timestep);
+        m_Logger->printRunTime("Velocity implicit integration: ", funcTimer, [&]() { implicitVelocities(timestep); });
 
-    //Map back to particles
-    updateVelocities(timestep);
+    m_Logger->printRunTime("Interpolate velocity from grid to particles: ", funcTimer, [&]() { velocityToParticles(timestep); });
+    m_Logger->printRunTime("Constrain particle velocity: ", funcTimer, [&]() { constrainParticleVelocity(timestep); });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MPM2DSolver::updateParticles(Real timestep)
 {
-    updateParticlePositions(timestep);
-    updateGradient(timestep);
-    applyPlasticity();
+    static Timer funcTimer;
+
+    ////////////////////////////////////////////////////////////////////////////////
+    m_Logger->printRunTime("Move particles: ", funcTimer, [&]() { updateParticlePositions(timestep); });
+    m_Logger->printRunTime("Update particle gradients: ", funcTimer, [&]() { updateGradients(timestep); });
+    m_Logger->printRunTime("Apply Plasticity: ", funcTimer, [&]() { applyPlasticity(); });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // todo: consider each node, and accumulate particle data, rather than  consider each particles
-void MPM2DSolver::initializeMass()
+void MPM2DSolver::massToGrid()
 {
-    //Reset the grid
-    //If the grid is sparsely filled, it may be better to reset individual nodes
-    //Also, not all these variables need to be zeroed, so... yeah
-    //memset(gridData().nodes, 0, sizeof(GridNode) * gridData().nodes_length);
-    gridData().resetGrid();
-
     //Map particle data to grid
     //for(Int i = 0; i < getNumParticles(); i++)
     ParallelFuncs::parallel_for<UInt>(0, getNumParticles(),
@@ -370,7 +379,7 @@ void MPM2DSolver::initializeMass()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MPM2DSolver::initializeVelocities(Real timestep)
+void MPM2DSolver::velocityToGrid(Real timestep)
 {
     //We interpolate velocity after mass, to conserve momentum
     ParallelFuncs::parallel_for<UInt>(0, getNumParticles(),
@@ -405,13 +414,12 @@ void MPM2DSolver::initializeVelocities(Real timestep)
                                             if(gridData().active.data()[i])
                                                 gridData().velocity.data()[i] /= gridData().mass.data()[i];
                                         });
-    collisionGrid(timestep);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //Maps volume from the grid to particles
 //This should only be called once, at the beginning of the simulation
-void MPM2DSolver::calculateVolumes()
+void MPM2DSolver::calculateParticleVolumes()
 {
     //Estimate each particles volume (for force calculations)
     ParallelFuncs::parallel_for<UInt>(0, getNumParticles(),
@@ -483,7 +491,7 @@ void MPM2DSolver::explicitVelocities(Real timestep)
                                                 gridData().velocity_new.data()[i] = gridData().velocity.data()[i] +
                                                                                     timestep * (Vec2r(0, m_SimParams->gravity) - gridData().velocity_new.data()[i] / gridData().mass.data()[i]);
                                         });
-    collisionGrid(timestep);
+    constrainGridVelocity(timestep);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -621,7 +629,7 @@ void MPM2DSolver::recomputeImplicitForces(Real timestep)
                                                   {
                                                       //I don't think there is any way to cache intermediary
                                                       //results for reuse with each iteration, unfortunately
-                                                      gridData().force(x, y) += deltaForce(p, gridData().r(x, y), particleData().weightGradients[p * 16 + idx], timestep);
+                                                      gridData().force(x, y) += computeDeltaForce(p, gridData().r(x, y), particleData().weightGradients[p * 16 + idx], timestep);
                                                   }
                                                   gridData().nodeLocks(x, y).unlock();
                                               }
@@ -641,7 +649,7 @@ void MPM2DSolver::recomputeImplicitForces(Real timestep)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //Map grid velocities back to particles
-void MPM2DSolver::updateVelocities(Real timestep)
+void MPM2DSolver::velocityToParticles(Real timestep)
 {
     ParallelFuncs::parallel_for<UInt>(0, getNumParticles(),
                                       [&](UInt p)
@@ -686,11 +694,10 @@ void MPM2DSolver::updateVelocities(Real timestep)
                                           //VISUALIZATION: Update density
                                           particleData().densities[p] = pdensity / m_SimParams->cellArea;
                                       });
-    collisionParticles(timestep);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MPM2DSolver::collisionGrid(Real timestep)
+void MPM2DSolver::constrainGridVelocity(Real timestep)
 {
     Vec2r delta_scale = Vec2r(timestep);
     delta_scale /= m_SimParams->cellSize;
@@ -709,7 +716,7 @@ void MPM2DSolver::collisionGrid(Real timestep)
                                               Vec2r new_pos = gridData().velocity_new(x, y) * delta_scale + Vec2r(x, y);
 
                                               //Left border, right border
-                                              for(int i = 0; i < solverDimension(); ++i)
+                                              for(UInt i = 0; i < solverDimension(); ++i)
                                               {
                                                   if(new_pos[i] < Real(m_SimParams->kernelSpan) || new_pos[i] > Real(m_Grid.getNumNodes()[i] - m_SimParams->kernelSpan - 1))
                                                   {
@@ -725,7 +732,7 @@ void MPM2DSolver::collisionGrid(Real timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MPM2DSolver::collisionParticles(Real timestep)
+void MPM2DSolver::constrainParticleVelocity(Real timestep)
 {
     ParallelFuncs::parallel_for<UInt>(0, getNumParticles(),
                                       [&](UInt p)
@@ -735,7 +742,7 @@ void MPM2DSolver::collisionParticles(Real timestep)
                                           Vec2r new_pos = particleData().particleGridPos[p] + pVel * timestep / m_SimParams->cellSize;
 
                                           //Left border, right border
-                                          for(int i = 0; i < solverDimension(); ++i)
+                                          for(UInt i = 0; i < solverDimension(); ++i)
                                           {
                                               if(new_pos[i] < Real(m_SimParams->kernelSpan - 1) || new_pos[0] > Real(m_Grid.getNumNodes()[i] - m_SimParams->kernelSpan))
                                                   pVel[i] *= -m_SimParams->boundaryRestitution;
@@ -771,7 +778,7 @@ void MPM2DSolver::updateParticlePositions(Real timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MPM2DSolver::updateGradient(Real timestep)
+void MPM2DSolver::updateGradients(Real timestep)
 {
     ParallelFuncs::parallel_for<UInt>(0, getNumParticles(),
                                       [&](UInt p)
@@ -853,7 +860,7 @@ Mat2x2r MPM2DSolver::computeEnergyDerivative(UInt p)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-Vec2r MPM2DSolver::deltaForce(UInt p, const Vec2r& u, const Vec2r& weight_grad, Real timestep)
+Vec2r MPM2DSolver::computeDeltaForce(UInt p, const Vec2r& u, const Vec2r& weight_grad, Real timestep)
 {
     //For detailed explanation, check out the implicit math pdf for details
     //Before we do the force calculation, we need deltaF, deltaR, and delta(JF^-T)
