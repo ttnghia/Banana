@@ -300,19 +300,13 @@ void Banana::MPM2DSolver::saveParticleData()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 Real MPM2DSolver::computeCFLTimestep()
 {
-    float max_vel = particleData().max_velocity, f;
-    if(max_vel > 1e-8)
-    {
-        //We should really take the min(cellsize) I think, if the grid is not square
-        f = m_SimParams->CFLFactor * gridData().cellsize[0] / sqrt(max_vel);
-    }
-    return f > m_SimParams->maxTimestep ? m_SimParams->maxTimestep : f;
+    Real maxVel      = sqrt(ParallelSTL::maxNorm2<Real>(particleData().velocities));
+    Real CFLTimeStep = maxVel > Real(Tiny) ? m_SimParams->CFLFactor* gridData().cellsize[0] / sqrt(maxVel) : Huge;
+
+    return MathHelpers::min(MathHelpers::max(CFLTimeStep, m_SimParams->minTimestep), m_SimParams->maxTimestep);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-// grid
-
-//Maps mass and velocity to the grid
 void MPM2DSolver::initializeMass()
 {
     //Reset the grid
@@ -321,75 +315,87 @@ void MPM2DSolver::initializeMass()
     memset(gridData().nodes, 0, sizeof(GridNode) * gridData().nodes_length);
 
     //Map particle data to grid
-    for(int i = 0; i < particleData().size; i++)
-    {
-        //Particle position to grid coordinates
-        //This will give errors if the particle is outside the grid bounds
-        particleData().particleGridPos[i] = (particleData().positions[i] - gridData().origin) / gridData().cellsize;
-        float ox = particleData().particleGridPos[i][0], oy = particleData().particleGridPos[i][1];
+    //for(int i = 0; i < getNumParticles(); i++)
+    ParallelFuncs::parallel_for<UInt>(0, getNumParticles(),
+                                      [&](UInt i)
+                                      {
+                                          //Particle position to grid coordinates
+                                          //This will give errors if the particle is outside the grid bounds
+                                          particleData().particleGridPos[i] = (particleData().positions[i] - gridData().origin) / gridData().cellsize;
+                                          float ox = particleData().particleGridPos[i][0], oy = particleData().particleGridPos[i][1];
 
 
-        //Shape function gives a blending radius of two;
-        //so we do computations within a 2x2 square for each particle
-        for(int idx = 0, y = oy - 1, y_end = y + 3; y <= y_end; y++)
-        {
-            //Y-dimension interpolation
-            float y_pos = oy - y,
-                  wy    = MathHelpers::cubic_bspline(y_pos),
-                  dy    = MathHelpers::cubic_bspline_grad(y_pos);
+                                          //Shape function gives a blending radius of two;
+                                          //so we do computations within a 2x2 square for each particle
+                                          for(int idx = 0, y = oy - 1, y_end = y + 3; y <= y_end; y++)
+                                          {
+                                              //Y-dimension interpolation
+                                              float y_pos = oy - y,
+                                              wy = MathHelpers::cubic_bspline(y_pos),
+                                              dy = MathHelpers::cubic_bspline_grad(y_pos);
 
-            for(int x = ox - 1, x_end = x + 3; x <= x_end; x++, idx++)
-            {
-                //X-dimension interpolation
-                float x_pos = ox - x,
-                      wx    = MathHelpers::cubic_bspline(x_pos),
-                      dx    = MathHelpers::cubic_bspline_grad(x_pos);
+                                              for(int x = ox - 1, x_end = x + 3; x <= x_end; x++, idx++)
+                                              {
+                                                  //X-dimension interpolation
+                                                  float x_pos = ox - x,
+                                                  wx = MathHelpers::cubic_bspline(x_pos),
+                                                  dx = MathHelpers::cubic_bspline_grad(x_pos);
 
-                //Final weight is dyadic product of weights in each dimension
-                float weight = wx * wy;
-                particleData().weights[i * 16 + idx] = weight;
+                                                  //Final weight is dyadic product of weights in each dimension
+                                                  float weight = wx * wy;
+                                                  particleData().weights[i * 16 + idx] = weight;
 
-                //Weight gradient is a vector of partial derivatives
-                particleData().weightGradient[i * 16 + idx] = Vec2f(dx * wy, wx * dy);
-                //I don't know why we need to do this... JT did it, doesn't appear in tech paper
-                particleData().weightGradient[i * 16 + idx] /= gridData().cellsize;
+                                                  //Weight gradient is a vector of partial derivatives
+                                                  particleData().weightGradient[i * 16 + idx] = Vec2f(dx * wy, wx * dy);
+                                                  //I don't know why we need to do this... JT did it, doesn't appear in tech paper
+                                                  particleData().weightGradient[i * 16 + idx] /= gridData().cellsize;
 
-                //Interpolate mass
-                gridData().nodes[(int)(y * gridData().size[0] + x)].mass += weight * m_SimParams->particleMass;
-            }
-        }
-    }
+                                                  //Interpolate mass
+                                                  auto nodeIdx = (int)(y * gridData().size[0] + x);
+                                                  gridData().nodeLocks[nodeIdx].lock();
+                                                  gridData().nodes[nodeIdx].mass += weight * m_SimParams->particleMass;
+                                                  gridData().nodeLocks[nodeIdx].unlock();
+                                              }
+                                          }
+                                      });
 }
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MPM2DSolver::initializeVelocities(Real timestep)
 {
     //We interpolate velocity after mass, to conserve momentum
-    for(int i = 0; i < particleData().size; i++)
-    {
-        int ox = particleData().particleGridPos[i][0],
-            oy = particleData().particleGridPos[i][1];
-        for(int idx = 0, y = oy - 1, y_end = y + 3; y <= y_end; y++)
-        {
-            for(int x = ox - 1, x_end = x + 3; x <= x_end; x++, idx++)
-            {
-                float w = particleData().weights[i * 16 + idx];
-                if(w > Tiny)
-                {
-                    //Interpolate velocity
-                    int n = (int)(y * gridData().size[0] + x);
-                    //We could also do a separate loop to divide by nodes[n].mass only once
-                    gridData().nodes[n].velocity += particleData().velocities[i] * w * m_SimParams->particleMass;
-                    gridData().nodes[n].active    = true;
-                }
-            }
-        }
-    }
-    for(int i = 0; i < gridData().nodes_length; i++)
-    {
-        GridNode& node = gridData().nodes[i];
-        if(node.active)
-            node.velocity /= node.mass;
-    }
+    ParallelFuncs::parallel_for<UInt>(0, getNumParticles(),
+                                      [&](UInt i)
+                                      {
+                                          int ox = particleData().particleGridPos[i][0],
+                                          oy = particleData().particleGridPos[i][1];
+                                          for(int idx = 0, y = oy - 1, y_end = y + 3; y <= y_end; y++)
+                                          {
+                                              for(int x = ox - 1, x_end = x + 3; x <= x_end; x++, idx++)
+                                              {
+                                                  float w = particleData().weights[i * 16 + idx];
+                                                  if(w > Tiny)
+                                                  {
+                                                      //Interpolate velocity
+
+                                                      auto nodeIdx = (int)(y * gridData().size[0] + x);
+                                                      gridData().nodeLocks[nodeIdx].lock();
+                                                      //We could also do a separate loop to divide by nodes[n].mass only once
+                                                      gridData().nodes[nodeIdx].velocity += particleData().velocities[i] * w * m_SimParams->particleMass;
+                                                      gridData().nodes[nodeIdx].active = true;
+                                                      gridData().nodeLocks[nodeIdx].unlock();
+                                                  }
+                                              }
+                                          }
+                                      });
+
+    ParallelFuncs::parallel_for<Int>(0, gridData().nodes_length,
+                                     [&](UInt i)
+                                     {
+                                         GridNode& node = gridData().nodes[i];
+                                         if(node.active)
+                                             node.velocity /= node.mass;
+                                     });
     collisionGrid(timestep);
 }
 
@@ -398,28 +404,29 @@ void MPM2DSolver::initializeVelocities(Real timestep)
 void MPM2DSolver::calculateVolumes()
 {
     //Estimate each particles volume (for force calculations)
-    for(int i = 0; i < particleData().size; i++)
-    {
-        int ox = particleData().particleGridPos[i][0],
-            oy = particleData().particleGridPos[i][1];
-        //First compute particle density
-        particleData().densities[i] = 0;
-        for(int idx = 0, y = oy - 1, y_end = y + 3; y <= y_end; y++)
-        {
-            for(int x = ox - 1, x_end = x + 3; x <= x_end; x++, idx++)
-            {
-                float w = particleData().weights[i * 16 + idx];
-                if(w > Tiny)
-                {
-                    //Node density is trivial
-                    particleData().densities[i] += w * gridData().nodes[(int)(y * gridData().size[0] + x)].mass;
-                }
-            }
-        }
-        particleData().densities[i] /= gridData().node_area;
-        //Volume for each particle can be found from density
-        particleData().volumes[i] = m_SimParams->particleMass / particleData().densities[i];
-    }
+    ParallelFuncs::parallel_for<UInt>(0, getNumParticles(),
+                                      [&](UInt i)
+                                      {
+                                          int ox = particleData().particleGridPos[i][0],
+                                          oy = particleData().particleGridPos[i][1];
+                                          //First compute particle density
+                                          particleData().densities[i] = 0;
+                                          for(int idx = 0, y = oy - 1, y_end = y + 3; y <= y_end; y++)
+                                          {
+                                              for(int x = ox - 1, x_end = x + 3; x <= x_end; x++, idx++)
+                                              {
+                                                  float w = particleData().weights[i * 16 + idx];
+                                                  if(w > Tiny)
+                                                  {
+                                                      //Node density is trivial
+                                                      particleData().densities[i] += w * gridData().nodes[(int)(y * gridData().size[0] + x)].mass;
+                                                  }
+                                              }
+                                          }
+                                          particleData().densities[i] /= gridData().node_area;
+                                          //Volume for each particle can be found from density
+                                          particleData().volumes[i] = m_SimParams->particleMass / particleData().densities[i];
+                                      });
 }
 
 //Calculate next timestep velocities for use in implicit integration
@@ -427,34 +434,38 @@ void MPM2DSolver::explicitVelocities(const Vec2f& gravity, Real timestep)
 {
     //First, compute the forces
     //We store force in velocity_new, since we're not using that variable at the moment
-    for(int i = 0; i < particleData().size; i++)
-    {
-        //Solve for grid internal forces
-        Mat2x2f energy = energyDerivative(i);
-        int     ox     = particleData().particleGridPos[i][0],
-                oy     = particleData().particleGridPos[i][1];
-        for(int idx = 0, y = oy - 1, y_end = y + 3; y <= y_end; y++)
-        {
-            for(int x = ox - 1, x_end = x + 3; x <= x_end; x++, idx++)
-            {
-                float w = particleData().weights[i * 16 + idx];
-                if(w > Tiny)
-                {
-                    //Weight the force onto nodes
-                    int n = (int)(y * gridData().size[0] + x);
-                    gridData().nodes[n].velocity_new += energy * particleData().weightGradient[i * 16 + idx];
-                }
-            }
-        }
-    }
+    ParallelFuncs::parallel_for<UInt>(0, getNumParticles(),
+                                      [&](UInt i)
+                                      {
+                                          //Solve for grid internal forces
+                                          Mat2x2f energy = energyDerivative(i);
+                                          int ox = particleData().particleGridPos[i][0],
+                                          oy = particleData().particleGridPos[i][1];
+                                          for(int idx = 0, y = oy - 1, y_end = y + 3; y <= y_end; y++)
+                                          {
+                                              for(int x = ox - 1, x_end = x + 3; x <= x_end; x++, idx++)
+                                              {
+                                                  float w = particleData().weights[i * 16 + idx];
+                                                  if(w > Tiny)
+                                                  {
+                                                      //Weight the force onto nodes
+                                                      int nodeIdx = (int)(y * gridData().size[0] + x);
+                                                      gridData().nodeLocks[nodeIdx].lock();
+                                                      gridData().nodes[nodeIdx].velocity_new += energy * particleData().weightGradient[i * 16 + idx];
+                                                      gridData().nodeLocks[nodeIdx].unlock();
+                                                  }
+                                              }
+                                          }
+                                      });
 
     //Now we have all grid forces, compute velocities (euler integration)
-    for(int i = 0; i < gridData().nodes_length; i++)
-    {
-        GridNode& node = gridData().nodes[i];
-        if(node.active)
-            node.velocity_new = node.velocity + timestep * (gravity - node.velocity_new / node.mass);
-    }
+    ParallelFuncs::parallel_for<Int>(0, gridData().nodes_length,
+                                     [&](UInt i)
+                                     {
+                                         GridNode& node = gridData().nodes[i];
+                                         if(node.active)
+                                             node.velocity_new = node.velocity + timestep * (gravity - node.velocity_new / node.mass);
+                                     });
     collisionGrid(timestep);
 }
 
@@ -473,170 +484,188 @@ void MPM2DSolver::implicitVelocities(Real timestep)
     //iteratively refine our guess until the error is small enough.
 
     //INITIALIZE LINEAR SOLVE
-    for(int idx = 0; idx < gridData().nodes_length; idx++)
-    {
-        GridNode& n = gridData().nodes[idx];
-        n.imp_active = n.active;
-        if(n.imp_active)
-        {
-            //recomputeImplicitForces will compute Er, given r
-            //Initially, we want vf - E*vf; so we'll temporarily set r to vf
-            n.r = n.velocity_new;
-            //Also set the error to 1
-            n.err = Vec2f(1);
-        }
-    }
+    ParallelFuncs::parallel_for<Int>(0, gridData().nodes_length,
+                                     [&](UInt idx)
+                                     {
+                                         GridNode& n = gridData().nodes[idx];
+                                         n.imp_active = n.active;
+                                         if(n.imp_active)
+                                         {
+                                             //recomputeImplicitForces will compute Er, given r
+                                             //Initially, we want vf - E*vf; so we'll temporarily set r to vf
+                                             n.r = n.velocity_new;
+                                             //Also set the error to 1
+                                             n.err = Vec2f(1);
+                                         }
+                                     });
+
     //As said before, we need to compute vf-E*vf as our initial "r" residual
     recomputeImplicitForces(timestep);
-    for(int idx = 0; idx < gridData().nodes_length; idx++)
-    {
-        GridNode& n = gridData().nodes[idx];
-        if(n.imp_active)
-        {
-            n.r = n.velocity_new - n.Er;
-            //p starts out equal to residual
-            n.p = n.r;
-            //cache r.dot(Er)
-            n.rEr = glm::dot(n.r, n.Er);
-        }
-    }
+
+
+    ParallelFuncs::parallel_for<Int>(0, gridData().nodes_length,
+                                     [&](UInt idx)
+                                     {
+                                         GridNode& n = gridData().nodes[idx];
+                                         if(n.imp_active)
+                                         {
+                                             n.r = n.velocity_new - n.Er;
+                                             //p starts out equal to residual
+                                             n.p = n.r;
+                                             //cache r.dot(Er)
+                                             n.rEr = glm::dot(n.r, n.Er);
+                                         }
+                                     });
+
     //Since we updated r, we need to recompute Er
     recomputeImplicitForces(timestep);
+
     //Ep starts out the same as Er
-    for(int idx = 0; idx < gridData().nodes_length; idx++)
-    {
-        GridNode& n = gridData().nodes[idx];
-        if(n.imp_active)
-            n.Ep = n.Er;
-    }
+    ParallelFuncs::parallel_for<Int>(0, gridData().nodes_length,
+                                     [&](UInt idx)
+                                     {
+                                         GridNode& n = gridData().nodes[idx];
+                                         if(n.imp_active)
+                                             n.Ep = n.Er;
+                                     });
 
     //LINEAR SOLVE
     for(UInt i = 0; i < m_SimParams->maxCGIteration; i++)
     {
         bool done = true;
-        for(int idx = 0; idx < gridData().nodes_length; idx++)
-        {
-            GridNode& n = gridData().nodes[idx];
-            //Only perform calculations on nodes that haven't been solved yet
-            if(n.imp_active)
-            {
-                //Alright, so we'll handle each node's solve separately
-                //First thing to do is update our vf guess
-                float div   = glm::dot(n.Ep, n.Ep);
-                float alpha = n.rEr / div;
-                n.err = alpha * n.p;
-                //If the error is small enough, we're done
-                float err = n.err.length();
-                if(err < m_SimParams->maxImplicitError || err > m_SimParams->minImplicitError || isnan(err))
-                {
-                    n.imp_active = false;
-                    continue;
-                }
-                else
-                    done = false;
-                //Update vf and residual
-                n.velocity_new += n.err;
-                n.r            -= alpha * n.Ep;
-            }
-        }
+
+        ParallelFuncs::parallel_for<Int>(0, gridData().nodes_length,
+                                         [&](UInt idx)
+                                         {
+                                             GridNode& n = gridData().nodes[idx];
+                                             //Only perform calculations on nodes that haven't been solved yet
+                                             if(n.imp_active)
+                                             {
+                                                 //Alright, so we'll handle each node's solve separately
+                                                 //First thing to do is update our vf guess
+                                                 float div = glm::dot(n.Ep, n.Ep);
+                                                 float alpha = n.rEr / div;
+                                                 n.err = alpha * n.p;
+                                                 //If the error is small enough, we're done
+                                                 float err = n.err.length();
+                                                 if(err < m_SimParams->maxImplicitError || err > m_SimParams->minImplicitError || isnan(err))
+                                                 {
+                                                     n.imp_active = false;
+                                                     return;
+                                                 }
+                                                 else
+                                                     done = false;
+                                                 //Update vf and residual
+                                                 n.velocity_new += n.err;
+                                                 n.r -= alpha * n.Ep;
+                                             }
+                                         });
         //If all the velocities converged, we're done
         if(done)
             break;
         //Otherwise we recompute Er, so we can compute our next guess
         recomputeImplicitForces(timestep);
+
         //Calculate the gradient for our next guess
-        for(int idx = 0; idx < gridData().nodes_length; idx++)
-        {
-            GridNode& n = gridData().nodes[idx];
-            if(n.imp_active)
-            {
-                float temp = glm::dot(n.r, n.Er);
-                float beta = temp / n.rEr;
-                n.rEr = temp;
-                //Update p
-                n.p *= beta;
-                n.p += n.r;
-                //Update Ep
-                n.Ep *= beta;
-                n.Ep += n.Er;
-            }
-        }
+        ParallelFuncs::parallel_for<Int>(0, gridData().nodes_length,
+                                         [&](UInt idx)
+                                         {
+                                             GridNode& n = gridData().nodes[idx];
+                                             if(n.imp_active)
+                                             {
+                                                 float temp = glm::dot(n.r, n.Er);
+                                                 float beta = temp / n.rEr;
+                                                 n.rEr = temp;
+                                                 //Update p
+                                                 n.p *= beta;
+                                                 n.p += n.r;
+                                                 //Update Ep
+                                                 n.Ep *= beta;
+                                                 n.Ep += n.Er;
+                                             }
+                                         });
     }
 }
 
 void MPM2DSolver::recomputeImplicitForces(Real timestep)
 {
-    for(int i = 0; i < particleData().size; i++)
-    {
-        int ox = particleData().particleGridPos[i][0],
-            oy = particleData().particleGridPos[i][1];
-        for(int idx = 0, y = oy - 1, y_end = y + 3; y <= y_end; y++)
-        {
-            for(int x = ox - 1, x_end = x + 3; x <= x_end; x++, idx++)
-            {
-                GridNode& n = gridData().nodes[(int)(y * gridData().size[0] + x)];
-                if(n.imp_active)
-                {
-                    //I don't think there is any way to cache intermediary
-                    //results for reuse with each iteration, unfortunately
-                    n.force += deltaForce(i, n.r, particleData().weightGradient[i * 16 + idx], timestep);
-                }
-            }
-        }
-    }
+    ParallelFuncs::parallel_for<UInt>(0, getNumParticles(),
+                                      [&](UInt i)
+                                      {
+                                          int ox = particleData().particleGridPos[i][0],
+                                          oy = particleData().particleGridPos[i][1];
+                                          for(int idx = 0, y = oy - 1, y_end = y + 3; y <= y_end; y++)
+                                          {
+                                              for(int x = ox - 1, x_end = x + 3; x <= x_end; x++, idx++)
+                                              {
+                                                  int nodeIdx = (int)(y * gridData().size[0] + x);
+                                                  gridData().nodeLocks[nodeIdx].lock();
+                                                  GridNode& n = gridData().nodes[nodeIdx];
+                                                  if(n.imp_active)
+                                                  {
+                                                      //I don't think there is any way to cache intermediary
+                                                      //results for reuse with each iteration, unfortunately
+                                                      n.force += deltaForce(i, n.r, particleData().weightGradient[i * 16 + idx], timestep);
+                                                  }
+                                                  gridData().nodeLocks[nodeIdx].unlock();
+                                              }
+                                          }
+                                      });
 
     //We have delta force for each node; to get Er, we use the following formula:
     //	r - IMPLICIT_RATIO*TIMESTEP*delta_force/mass
-    for(int idx = 0; idx < gridData().nodes_length; idx++)
-    {
-        GridNode& n = gridData().nodes[idx];
-        if(n.imp_active)
-            n.Er = n.r - m_SimParams->implicitRatio * timestep / n.mass * n.force;
-    }
+    ParallelFuncs::parallel_for<Int>(0, gridData().nodes_length,
+                                     [&](UInt idx)
+                                     {
+                                         GridNode& n = gridData().nodes[idx];
+                                         if(n.imp_active)
+                                             n.Er = n.r - m_SimParams->implicitRatio * timestep / n.mass * n.force;
+                                     });
 }
 
 //Map grid velocities back to particles
 void MPM2DSolver::updateVelocities(Real timestep)
 {
-    for(int i = 0; i < particleData().size; i++)
-    {
-        //We calculate PIC and FLIP velocities separately
-        Vec2f pic(0), flip = particleData().velocities[i];
-        //Also keep track of velocity gradient
-        Mat2x2f& grad = particleData().velocityGradients[i];
-        grad = Mat2x2f(0.0);
-        //VISUALIZATION PURPOSES ONLY:
-        //Recompute density
-        particleData().densities[i] = 0;
+    ParallelFuncs::parallel_for<UInt>(0, getNumParticles(),
+                                      [&](UInt i)
+                                      {
+                                          //We calculate PIC and FLIP velocities separately
+                                          Vec2f pic(0), flip = particleData().velocities[i];
+                                          //Also keep track of velocity gradient
+                                          Mat2x2f& grad = particleData().velocityGradients[i];
+                                          grad = Mat2x2f(0.0);
+                                          //VISUALIZATION PURPOSES ONLY:
+                                          //Recompute density
+                                          particleData().densities[i] = 0;
 
-        int ox = particleData().particleGridPos[i][0],
-            oy = particleData().particleGridPos[i][1];
-        for(int idx = 0, y = oy - 1, y_end = y + 3; y <= y_end; y++)
-        {
-            for(int x = ox - 1, x_end = x + 3; x <= x_end; x++, idx++)
-            {
-                float w = particleData().weights[i * 16 + idx];
-                if(w > Tiny)
-                {
-                    GridNode& node = gridData().nodes[(int)(y * gridData().size[0] + x)];
-                    //Particle in cell
-                    pic += node.velocity_new * w;
-                    //Fluid implicit particle
-                    flip += (node.velocity_new - node.velocity) * w;
-                    //Velocity gradient
-                    grad += glm::outerProduct(node.velocity_new, particleData().weightGradient[i * 16 + idx]);
-                    //VISUALIZATION ONLY: Update density
-                    particleData().densities[i] += w * node.mass;
+                                          int ox = particleData().particleGridPos[i][0],
+                                          oy = particleData().particleGridPos[i][1];
+                                          for(int idx = 0, y = oy - 1, y_end = y + 3; y <= y_end; y++)
+                                          {
+                                              for(int x = ox - 1, x_end = x + 3; x <= x_end; x++, idx++)
+                                              {
+                                                  float w = particleData().weights[i * 16 + idx];
+                                                  if(w > Tiny)
+                                                  {
+                                                      GridNode& node = gridData().nodes[(int)(y * gridData().size[0] + x)];
+                                                      //Particle in cell
+                                                      pic += node.velocity_new * w;
+                                                      //Fluid implicit particle
+                                                      flip += (node.velocity_new - node.velocity) * w;
+                                                      //Velocity gradient
+                                                      grad += glm::outerProduct(node.velocity_new, particleData().weightGradient[i * 16 + idx]);
+                                                      //VISUALIZATION ONLY: Update density
+                                                      particleData().densities[i] += w * node.mass;
 
-                    //                    printf("i = %d, node id = %d,  node new vel = %f, %f, w= %f\n", i, (int)(y * size[0] + x), node.velocity_new[0], node.velocity_new[1], w);
-                }
-            }
-        }
-        //Final velocity is a linear combination of PIC and FLIP components
-        particleData().velocities[i] = flip * m_SimParams->PIC_FLIP_ratio + pic * (1 - m_SimParams->PIC_FLIP_ratio);
-        //VISUALIZATION: Update density
-        particleData().densities[i] /= gridData().node_area;
-    }
+                                                      //                    printf("i = %d, node id = %d,  node new vel = %f, %f, w= %f\n", i, (int)(y * size[0] + x), node.velocity_new[0], node.velocity_new[1], w);
+                                                  }
+                                              }
+                                          }
+                                          //Final velocity is a linear combination of PIC and FLIP components
+                                          particleData().velocities[i] = flip * m_SimParams->PIC_FLIP_ratio + pic * (1 - m_SimParams->PIC_FLIP_ratio);
+                                          //VISUALIZATION: Update density
+                                          particleData().densities[i] /= gridData().node_area;
+                                      });
     collisionParticles(timestep);
 }
 
@@ -644,62 +673,62 @@ void MPM2DSolver::collisionGrid(Real timestep)
 {
     Vec2f delta_scale = Vec2f(timestep);
     delta_scale /= gridData().cellsize;
-    for(int y = 0, idx = 0; y < gridData().size[1]; y++)
-    {
-        for(int x = 0; x < gridData().size[0]; x++, idx++)
-        {
-            //Get grid node (equivalent to (y*size[0] + x))
-            GridNode& node = gridData().nodes[idx];
-            //Check to see if this node needs to be computed
-            if(node.active)
-            {
-                //Collision response
-                //TODO: make this work for arbitrary collision geometry
-                Vec2f new_pos = node.velocity_new * delta_scale + Vec2f(x, y);
-                //Left border, right border
-                if(new_pos[0] < m_SimParams->kernelSpan || new_pos[0] > gridData().size[0] - m_SimParams->kernelSpan - 1)
-                {
-                    node.velocity_new[0]  = 0;
-                    node.velocity_new[1] *= (1.0 - m_SimParams->boundaryRestitution);
-                }
-                //Bottom border, top border
-                if(new_pos[1] < m_SimParams->kernelSpan || new_pos[1] > gridData().size[1] - m_SimParams->kernelSpan - 1)
-                {
-                    node.velocity_new[0] *= (1.0 - m_SimParams->boundaryRestitution);
-                    node.velocity_new[1]  = 0;
-                }
-            }
-        }
-    }
+
+    ParallelFuncs::parallel_for<UInt>(0, gridData().size[0],
+                                      0, gridData().size[1],
+                                      [&](UInt x, UInt y)
+                                      {
+                                          //Get grid node (equivalent to (y*size[0] + x))
+                                          int nodeIdx = (int)(y * gridData().size[0] + x);
+
+                                          GridNode& node = gridData().nodes[nodeIdx];
+                                          //Check to see if this node needs to be computed
+                                          if(node.active)
+                                          {
+                                              //Collision response
+                                              //TODO: make this work for arbitrary collision geometry
+                                              Vec2f new_pos = node.velocity_new * delta_scale + Vec2f(x, y);
+                                              //Left border, right border
+                                              if(new_pos[0] < m_SimParams->kernelSpan || new_pos[0] > gridData().size[0] - m_SimParams->kernelSpan - 1)
+                                              {
+                                                  node.velocity_new[0] = 0;
+                                                  node.velocity_new[1] *= (1.0 - m_SimParams->boundaryRestitution);
+                                              }
+                                              //Bottom border, top border
+                                              if(new_pos[1] < m_SimParams->kernelSpan || new_pos[1] > gridData().size[1] - m_SimParams->kernelSpan - 1)
+                                              {
+                                                  node.velocity_new[0] *= (1.0 - m_SimParams->boundaryRestitution);
+                                                  node.velocity_new[1] = 0;
+                                              }
+                                          }
+                                      });
 }
 
 void MPM2DSolver::collisionParticles(Real timestep)
 {
-    for(int i = 0; i < particleData().size; i++)
-    {
-        Vec2f new_pos = particleData().particleGridPos[i] + timestep * particleData().velocities[i] / gridData().cellsize;
-        //Left border, right border
-        if(new_pos[0] < m_SimParams->kernelSpan - 1 || new_pos[0] > gridData().size[0] - m_SimParams->kernelSpan)
-            particleData().velocities[i][0] = -(1.0 - m_SimParams->boundaryRestitution) * particleData().velocities[i][0];
-        //Bottom border, top border
-        if(new_pos[1] < m_SimParams->kernelSpan - 1 || new_pos[1] > gridData().size[1] - m_SimParams->kernelSpan)
-            particleData().velocities[i][1] = -(1.0 - m_SimParams->boundaryRestitution) * particleData().velocities[i][1];
-    }
+    ParallelFuncs::parallel_for<UInt>(0, getNumParticles(),
+                                      [&](UInt i)
+                                      {
+                                          Vec2f new_pos = particleData().particleGridPos[i] + timestep * particleData().velocities[i] / gridData().cellsize;
+                                          //Left border, right border
+                                          if(new_pos[0] < m_SimParams->kernelSpan - 1 || new_pos[0] > gridData().size[0] - m_SimParams->kernelSpan)
+                                              particleData().velocities[i][0] = -(1.0 - m_SimParams->boundaryRestitution) * particleData().velocities[i][0];
+                                          //Bottom border, top border
+                                          if(new_pos[1] < m_SimParams->kernelSpan - 1 || new_pos[1] > gridData().size[1] - m_SimParams->kernelSpan)
+                                              particleData().velocities[i][1] = -(1.0 - m_SimParams->boundaryRestitution) * particleData().velocities[i][1];
+                                      });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MPM2DSolver::update(Real timestep)
 {
-    particleData().max_velocity = 0;
-    for(int i = 0; i < particleData().size; i++)
-    {
-        updatePos(i, timestep);
-        updateGradient(i, timestep);
-        applyPlasticity(i);
-        float vel = glm::length2(particleData().velocities[i]);
-        if(vel > particleData().max_velocity)
-            particleData().max_velocity = vel;
-    }
+    ParallelFuncs::parallel_for<UInt>(0, getNumParticles(),
+                                      [&](UInt i)
+                                      {
+                                          updatePos(i, timestep);
+                                          updateGradient(i, timestep);
+                                          applyPlasticity(i);
+                                      });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

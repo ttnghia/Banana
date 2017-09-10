@@ -54,11 +54,9 @@ protected:
 
     Real computeCFLTimestep();
 
+    ////////////////////////////////////////////////////////////////////////////////
+    // grid processing
 
-    //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    // grid data
-
-    //Map particles to grid
     void initializeMass();
     void initializeVelocities(Real timestep);
     //Map grid volumes back to particles (first timestep only)

@@ -29,6 +29,7 @@ struct SimulationParameters_MPM2D
     SimulationParameters_MPM2D() { makeReady(); }
 
     ////////////////////////////////////////////////////////////////////////////////
+    Real minTimestep         = Real(1.0e-6);
     Real maxTimestep         = Real(5.0e-4);
     Real CFLFactor           = Real(0.04);
     Real PIC_FLIP_ratio      = Real(0.97);
@@ -156,16 +157,6 @@ struct SimulationData_MPM2D
 
     struct ParticleSimData
     {
-        int size;
-        //        std::vector<Particle> particles;
-        float max_velocity;
-
-
-
-
-
-
-
         Vec_Vec2f   positions, velocities;
         Vec_Real    volumes, densities;
         Vec_Mat2x2f velocityGradients;
@@ -223,8 +214,9 @@ struct SimulationData_MPM2D
         //    PointCloud* obj;
         float node_area;
         //Nodes: use (y*size[0] + x) to index, where zero is the bottom-left corner (e.g. like a cartesian grid)
-        int       nodes_length;
-        GridNode* nodes;
+        int                               nodes_length;
+        GridNode*                         nodes;
+        Vector<ParallelObjects::SpinLock> nodeLocks;
 
         void makeReady(Vec2f pos, Vec2f dims, Vec2i cells)
         {
@@ -234,7 +226,8 @@ struct SimulationData_MPM2D
             size         = cells + Vec2i(1);
             nodes_length = TensorHelpers::product<int>(size);
             nodes        = new GridNode[nodes_length];
-            node_area    = TensorHelpers::product<float>(cellsize);
+            nodeLocks.resize(nodes_length);
+            node_area = TensorHelpers::product<float>(cellsize);
         }
     } gridSimData;
 
