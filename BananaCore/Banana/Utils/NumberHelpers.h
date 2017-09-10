@@ -33,8 +33,8 @@ namespace Banana
 namespace NumberHelpers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-std::string formatWithCommas(Real value, int precision = 2)
+template<class RealType>
+String formatWithCommas(RealType value, int precision = 2)
 {
     struct Numpunct : public std::numpunct<char>
     {
@@ -44,7 +44,7 @@ protected:
             return ',';
         }
 
-        virtual std::string do_grouping() const
+        virtual String do_grouping() const
         {
             return "\03";
         }
@@ -58,8 +58,8 @@ protected:
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-std::string formatToScientific(Real value, int precision = 5)
+template<class RealType>
+String formatToScientific(RealType value, int precision = 5)
 {
     std::stringstream ss;
     ss.str("");
@@ -68,23 +68,23 @@ std::string formatToScientific(Real value, int precision = 5)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-inline std::string formatToScientific(const Vec3<Real>& vec, int precision = 5)
+template<class RealType>
+inline String formatToScientific(const Vec3<RealType>& vec, int precision = 5)
 {
     std::stringstream ss;
     ss.str("");
 
-    ss << std::string("[");
-    ss << std::setprecision(precision) << std::fixed << std::scientific << vec[0] + std::string(", ");
-    ss << std::setprecision(precision) << std::fixed << std::scientific << vec[1] + std::string(", ");
-    ss << std::setprecision(precision) << std::fixed << std::scientific << vec[2] + std::string("]");
+    ss << String("[");
+    ss << std::setprecision(precision) << std::fixed << std::scientific << vec[0] + String(", ");
+    ss << std::setprecision(precision) << std::fixed << std::scientific << vec[1] + String(", ");
+    ss << std::setprecision(precision) << std::fixed << std::scientific << vec[2] + String("]");
 
     return ss.str();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<typename Real>
-std::string toString(const Real value, const int precision = 5)
+template<typename RealType>
+String toString(const RealType value, const int precision = 5)
 {
     std::ostringstream ss;
     ss << std::setprecision(precision) << value;
@@ -92,37 +92,85 @@ std::string toString(const Real value, const int precision = 5)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-inline std::string toString(const Vec3<Real>& vec, int precision = 5)
+template<class RealType>
+inline String toString(const Vec2<RealType>& vec, int precision = 5)
 {
     std::stringstream ss;
     ss.str("");
 
-    ss << std::string("[");
-    ss << formatWithCommas(vec[0], precision) << std::string(", ");
-    ss << formatWithCommas(vec[1], precision) << std::string(", ");
-    ss << formatWithCommas(vec[2], precision) << std::string("]");
+    ss << String("[");
+    ss << formatWithCommas(vec[0], precision) << String(", ");
+    ss << formatWithCommas(vec[1], precision) << String("]");
 
     return ss.str();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-inline Real generateRandomInt(Real start, Real end)
+template<class RealType>
+inline String toString(const Vec3<RealType>& vec, int precision = 5)
 {
-    std::random_device                  rd;
-    std::mt19937                        gen(rd());
-    std::uniform_int_distribution<Real> dis(start, end);
+    std::stringstream ss;
+    ss.str("");
+
+    ss << String("[");
+    ss << formatWithCommas(vec[0], precision) << String(", ");
+    ss << formatWithCommas(vec[1], precision) << String(", ");
+    ss << formatWithCommas(vec[2], precision) << String("]");
+
+    return ss.str();
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class RealType>
+inline String toString(const Mat2x2<RealType>& mat, int precision = 5)
+{
+    std::stringstream ss;
+    ss.str("");
+
+    ss << String("[");
+    ss << formatWithCommas(mat[0][0], precision) << String(", ") << formatWithCommas(mat[0][1], precision) << String("; ");
+    ss << formatWithCommas(mat[1][0], precision) << String(", ") << formatWithCommas(mat[1][1], precision) << String("]");
+
+    return ss.str();
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class RealType>
+inline String toString(const Mat3x3<RealType>& vec, int precision = 5)
+{
+    std::stringstream ss;
+    ss.str("");
+
+    ss << String("[");
+    ss << formatWithCommas(mat[0][0], precision) << String(", ") << formatWithCommas(mat[0][1], precision) << String(", ") << formatWithCommas(mat[0][2], precision);
+    ss << String("; ");
+
+    ss << formatWithCommas(mat[1][0], precision) << String(", ") << formatWithCommas(mat[1][1], precision) << String(", ") << formatWithCommas(mat[1][2], precision);
+    ss << String("; ");
+
+    ss << formatWithCommas(mat[2][0], precision) << String(", ") << formatWithCommas(mat[2][1], precision) << String(", ") << formatWithCommas(mat[2][2], precision);
+    ss << String("]");
+
+    return ss.str();
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class RealType>
+inline RealType generateRandomInt(RealType start, RealType end)
+{
+    std::random_device                      rd;
+    std::mt19937                            gen(rd());
+    std::uniform_int_distribution<RealType> dis(start, end);
 
     return dis(gen);
 }
 
-template<class Real>
-inline Real generateRandomReal(Real start, Real end)
+template<class RealType>
+inline RealType generateRandomReal(RealType start, RealType end)
 {
-    std::random_device                   rd;
-    std::mt19937                         gen(rd());
-    std::uniform_real_distribution<Real> dis(start, end);
+    std::random_device                       rd;
+    std::mt19937                             gen(rd());
+    std::uniform_real_distribution<RealType> dis(start, end);
 
     return dis(gen);
 }

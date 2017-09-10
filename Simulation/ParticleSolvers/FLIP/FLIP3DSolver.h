@@ -44,7 +44,7 @@ public:
     virtual void advanceFrame() override;
     virtual void sortParticles() override;
 
-private:
+protected:
     virtual void loadSimParams(const nlohmann::json& jParams) override;
     virtual void setupDataIO() override;
     virtual void loadMemoryState() override;

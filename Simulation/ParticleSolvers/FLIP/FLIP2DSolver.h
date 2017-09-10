@@ -35,9 +35,9 @@ public:
     std::shared_ptr<SimulationParameters_FLIP2D> getSolverParams() { return m_SimParams; }
 
     ////////////////////////////////////////////////////////////////////////////////
-    virtual String getSolverName() override { return String("FLIP2DSolver"); }
-    virtual String getGreetingMessage() override { return String("Fluid Simulation using FLIP-2D Solver"); }
-    virtual UInt   getNumParticles() override { return m_SimData->getNumParticles(); }
+    virtual String     getSolverName() override { return String("FLIP2DSolver"); }
+    virtual String     getGreetingMessage() override { return String("Fluid Simulation using FLIP-2D Solver"); }
+    virtual UInt       getNumParticles() override { return m_SimData->getNumParticles(); }
     virtual Vec_Vec2r& getParticlePositions() override { return m_SimData->positions; }
     virtual Vec_Vec2r& getParticleVelocities() override { return m_SimData->velocities; }
 
@@ -45,7 +45,7 @@ public:
     virtual void advanceFrame() override;
     virtual void sortParticles() override;
 
-private:
+protected:
     virtual void loadSimParams(const nlohmann::json& jParams) override;
     virtual void setupDataIO() override;
     virtual void loadMemoryState() override;

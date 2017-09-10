@@ -195,6 +195,12 @@
     <ClInclude Include="ParticleSolvers\MPM\MPM3DData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ParticleSolvers\MPM\MPM2DData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticleSolvers\MPM\MPM2DSolver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ParticleSolvers\FLIP\FLIP2DSolver.cpp">
@@ -219,6 +225,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="SimulationObjects\ParticleObjects\ParticleObject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleSolvers\MPM\MPM2DSolver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

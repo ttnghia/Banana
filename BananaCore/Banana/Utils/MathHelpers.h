@@ -806,12 +806,12 @@ inline T cubic_bspline_3d(T x, T y, T z)
 template<class T>
 inline T cubic_bspline_grad(T x)
 {
-    T abs_x = f > 0 ? x : -x;
+    T abs_x = x > 0 ? x : -x;
 
-    if(x >= T(2.0))
+    if(abs_x >= T(2.0))
         return T(0);
 
-    if(x >= T(1.0))
+    if(abs_x >= T(1.0))
         return -x * abs_x / T(2.0) + T(2.0) * x - T(2.0) * x / abs_x;
 
     // else, x < 1.0

@@ -144,9 +144,6 @@
     <ClInclude Include="Banana\Utils\STLHelpers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Banana\Utils\TensorHelpers.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Banana\Utils\Timer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -190,6 +187,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Banana\NeighborSearch\_NeighborSearch.Test.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Banana\LinearAlgebra\TensorHelpers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
