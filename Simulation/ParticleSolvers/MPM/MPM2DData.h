@@ -93,12 +93,10 @@ struct SimulationParameters_MPM2D
         logger->printLogIndent("Moving BMin: " + NumberHelpers::toString(movingBMin));
         logger->printLogIndent("Moving BMax: " + NumberHelpers::toString(movingBMax));
         logger->printLogIndent("Cell size: " + std::to_string(cellSize));
-        logger->printLogIndent("Grid resolution: " + NumberHelpers::toString(Vec3ui(static_cast<UInt>(ceil((domainBMax[0] - domainBMin[0]) / cellSize)),
-                                                                                    static_cast<UInt>(ceil((domainBMax[1] - domainBMin[1]) / cellSize)),
-                                                                                    static_cast<UInt>(ceil((domainBMax[2] - domainBMin[2]) / cellSize)))));
-        logger->printLogIndent("Moving grid resolution: " + NumberHelpers::toString(Vec3ui(static_cast<UInt>(ceil((movingBMax[0] - movingBMin[0]) / cellSize)),
-                                                                                           static_cast<UInt>(ceil((movingBMax[1] - movingBMin[1]) / cellSize)),
-                                                                                           static_cast<UInt>(ceil((movingBMax[2] - movingBMin[2]) / cellSize)))));
+        logger->printLogIndent("Grid resolution: " + NumberHelpers::toString(Vec2ui(static_cast<UInt>(ceil((domainBMax[0] - domainBMin[0]) / cellSize)),
+                                                                                    static_cast<UInt>(ceil((domainBMax[1] - domainBMin[1]) / cellSize)))));
+        logger->printLogIndent("Moving grid resolution: " + NumberHelpers::toString(Vec2ui(static_cast<UInt>(ceil((movingBMax[0] - movingBMin[0]) / cellSize)),
+                                                                                           static_cast<UInt>(ceil((movingBMax[1] - movingBMin[1]) / cellSize)))));
 
         logger->printLogIndent("Boundary restitution: " + std::to_string(boundaryRestitution));
         logger->printLogIndent("ConjugateGradient solver tolerance: " + NumberHelpers::formatToScientific(CGRelativeTolerance));
@@ -196,6 +194,7 @@ struct SimulationData_MPM2D
         // end gridnode
 
 
+        Array2r boundarySDF;
 
         void makeReady(Vec2f pos, Vec2f dims, Vec2f cells)
         {
@@ -208,18 +207,7 @@ struct SimulationData_MPM2D
 
             //nodes        = new GridNode[nodes_length];
             // grid node
-            mass.resize(nodes_length, 0);
-            active.resize(nodes_length, 0);
-            imp_active.resize(nodes_length, 0);
-            velocity.resize(nodes_length, Vec2f(0));
-            velocity_new.resize(nodes_length, Vec2f(0));
-            force.resize(nodes_length, Vec2f(0));
-            err.resize(nodes_length, Vec2f(0));
-            r.resize(nodes_length, Vec2f(0));
-            p.resize(nodes_length, Vec2f(0));
-            Ep.resize(nodes_length, Vec2f(0));
-            Er.resize(nodes_length, Vec2f(0));
-            rEr.resize(nodes_length, 0);
+            resetGrid();
             //end  grid node
 
 
@@ -229,6 +217,9 @@ struct SimulationData_MPM2D
 
             nodeLocks.resize(nodes_length);
             node_area = TensorHelpers::product<float>(cellsize);
+
+
+            boundarySDF.resize((UInt)size[0], (UInt)size[1]);
         }
 
         void resetGrid()
