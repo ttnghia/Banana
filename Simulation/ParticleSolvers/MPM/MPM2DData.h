@@ -110,53 +110,14 @@ struct SimulationParameters_MPM2D
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-typedef struct GridNode
-{
-    float mass;
-    bool  active;
-    Vec2f velocity, velocity_new;
-
-    //All the following variables are used by the implicit linear solver
-    bool  imp_active;   //are we still solving for vf
-    Vec2f force,
-          err,          //error of estimate
-          r,            //residual of estimate
-          p,            //residual gradient? squared residual?
-          Ep, Er;       //yeah, I really don't know how this works...
-    float rEr;          //r.dot(Er)
-} GridNode;
-
-
-
-
 struct SimulationData_MPM2D
 {
-    //struct ParticleSimData
-    //{
-    //    Vec_Vec2r   positions;
-    //    Vec_Vec2r   positions_tmp;
-    //    Vec_Vec2r   velocities;
-    //    Vec_VecUInt neighborList;
-
-    //    Vec_Real    particleVolumes, particleMasses, particleDensities;
-    //    Vec_Mat2x2r velocityGradients;
-    //    Vec_Mat2x2r energyDerivatives;
-
-    //    Vec_Mat2x2r deformGradElastics, deformGradPlastics; //Deformation gradient (elastic and plastic parts)
-
-    //    Vec_Mat2x2r svd_w, svd_v;                           //Cached SVD's for elastic deformation gradient
-    //    Vec_Vec2r   svd_e;
-
-    //    Vec_Mat2x2r polar_r, polar_s; //Cached polar decomposition
-
-    //    Vec_Vec3i particleCellIdx;    //Grid interpolation weights
-    //} particleSimData;
-
-
-
-
     struct ParticleSimData
     {
+        //    Vec_Vec2r   positions_tmp;
+        //    Vec_VecUInt neighborList;
+
+        //    Vec_Mat2x2r energyDerivatives;
         Vec_Vec2f   positions, velocities;
         Vec_Real    volumes, densities;
         Vec_Mat2x2f velocityGradients;
@@ -205,50 +166,104 @@ struct SimulationData_MPM2D
 
 
 
-
-
-
     struct GridSimData
     {
         Vec2f origin, size, cellsize;
         //    PointCloud* obj;
         float node_area;
         //Nodes: use (y*size[0] + x) to index, where zero is the bottom-left corner (e.g. like a cartesian grid)
-        int                               nodes_length;
-        GridNode*                         nodes;
+        UInt nodes_length;
+        //GridNode*                         nodes;
         Vector<ParallelObjects::SpinLock> nodeLocks;
 
-        void makeReady(Vec2f pos, Vec2f dims, Vec2i cells)
+
+
+
+
+
+        // grid node
+
+        Vec_Real  mass;
+        Vec_Int   active;
+        Vec_Int   imp_active;
+        Vec_Vec2f velocity, velocity_new;
+        Vec_Vec2f force,
+                  err,    //error of estimate
+                  r,      //residual of estimate
+                  p,      //residual gradient? squared residual?
+                  Ep, Er; //yeah, I really don't know how this works...
+        Vec_Real rEr;     //r.dot(Er)
+        // end gridnode
+
+
+
+        void makeReady(Vec2f pos, Vec2f dims, Vec2f cells)
         {
             //    obj          = object;
-            origin       = pos;
-            cellsize     = Vec2f(dims[0] / cells[0], dims[1] / cells[1]);
-            size         = cells + Vec2i(1);
-            nodes_length = TensorHelpers::product<int>(size);
-            nodes        = new GridNode[nodes_length];
+            origin   = pos;
+            cellsize = Vec2f(dims[0] / cells[0], dims[1] / cells[1]);
+
+            size         = cells + Vec2f(1);
+            nodes_length = TensorHelpers::product<UInt>(size);
+
+            //nodes        = new GridNode[nodes_length];
+            // grid node
+            mass.resize(nodes_length, 0);
+            active.resize(nodes_length, 0);
+            imp_active.resize(nodes_length, 0);
+            velocity.resize(nodes_length, Vec2f(0));
+            velocity_new.resize(nodes_length, Vec2f(0));
+            force.resize(nodes_length, Vec2f(0));
+            err.resize(nodes_length, Vec2f(0));
+            r.resize(nodes_length, Vec2f(0));
+            p.resize(nodes_length, Vec2f(0));
+            Ep.resize(nodes_length, Vec2f(0));
+            Er.resize(nodes_length, Vec2f(0));
+            rEr.resize(nodes_length, 0);
+            //end  grid node
+
+
+
+
+
+
             nodeLocks.resize(nodes_length);
             node_area = TensorHelpers::product<float>(cellsize);
+        }
+
+        void resetGrid()
+        {
+            mass.assign(nodes_length, 0);
+            active.assign(nodes_length, 0);
+            imp_active.assign(nodes_length, 0);
+            velocity.assign(nodes_length, Vec2f(0));
+            velocity_new.assign(nodes_length, Vec2f(0));
+            force.assign(nodes_length, Vec2f(0));
+            err.assign(nodes_length, Vec2f(0));
+            r.assign(nodes_length, Vec2f(0));
+            p.assign(nodes_length, Vec2f(0));
+            Ep.assign(nodes_length, Vec2f(0));
+            Er.assign(nodes_length, Vec2f(0));
+            rEr.assign(nodes_length, 0);
         }
     } gridSimData;
 
 
-    //struct GridSimData
-    //{
-    //    Array3r       gridMass;
-    //    Array3c       active;
-    //    Array3<Vec2r> velocities, velocitiesNew;
-    //    Array3r       weights;
-    //    Array3<Vec2r> weightGrads;
+    //Array3r       gridMass;
+    //Array3c       active;
+    //Array3<Vec2r> velocities, velocitiesNew;
+    //Array3r       weights;
+    //Array3<Vec2r> weightGrads;
 
-    //    //All the following variables are used by the implicit linear solver
-    //    Array3c       imp_active; //are we still solving for vf
-    //    Array3<Vec2r> force,
-    //                  err,        //error of estimate
-    //                  r,          //residual of estimate
-    //                  p,          //residual gradient? squared residual?
-    //                  Ep, Er;     //yeah, I really don't know how this works...
-    //    Array3r rEr;              //r.dot(Er)
-    //} gridSimData;
+    ////All the following variables are used by the implicit linear solver
+    //Array3c       imp_active; //are we still solving for vf
+    //Array3<Vec2r> force,
+    //              err,        //error of estimate
+    //              r,          //residual of estimate
+    //              p,          //residual gradient? squared residual?
+    //              Ep, Er;     //yeah, I really don't know how this works...
+    //Array3r rEr;              //r.dot(Er)
+
 
 
     ////////////////////////////////////////////////////////////////////////////////

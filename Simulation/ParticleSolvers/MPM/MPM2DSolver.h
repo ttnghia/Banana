@@ -76,27 +76,19 @@ protected:
     // particle
 
 
-
-
     //Update particle data
     void update(Real timestep);
 
-
-
-
-
-
-
     //Update position, based on velocity
-    void updatePos(int i, Real timestep);
+    void updatePos(UInt i, Real timestep);
     //Update deformation gradient
-    void updateGradient(int i, Real timestep);
-    void applyPlasticity(int i);
+    void updateGradient(UInt i, Real timestep);
+    void applyPlasticity(UInt i);
     //Compute stress tensor
-    Mat2x2f energyDerivative(int i);
+    Mat2x2f energyDerivative(UInt i);
 
     //Computes stress force delta, for implicit velocity update
-    Vec2f deltaForce(int i, const Vec2f& u, const Vec2f& weight_grad, Real timestep);
+    Vec2f deltaForce(UInt i, const Vec2f& u, const Vec2f& weight_grad, Real timestep);
 
     ////////////////////////////////////////////////////////////////////////////////
     SimulationData_MPM2D::ParticleSimData& particleData() { return m_SimData->particleSimData; }
