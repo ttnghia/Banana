@@ -112,8 +112,11 @@ void MainWindow::updateStatusSimulationTime(float time)
 void MainWindow::finishFrame()
 {
     ++m_FrameNumber;
-    if(m_Controller->m_chkEnableOutput->isChecked())
+    if(m_bExportImg)
+    {
         m_RenderWidget->exportScreenToImage(m_FrameNumber);
+        m_Simulator->resume();
+    }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -207,6 +210,13 @@ void MainWindow::connectWidgets()
                                (boxMin.z + boxMax.z) * 0.5f);
                 m_RenderWidget->setCamera(camPos, camFocus);
             });
+
+    connect(m_Controller->m_chkEnableOutput, &QCheckBox::clicked, [&](bool checked)
+            {
+                m_bExportImg = checked;
+                m_Simulator->enableExportImg(checked);
+            });
+
 
     connect(m_Controller->m_btnStartStopSimulation, &QPushButton::clicked, [&]
     {

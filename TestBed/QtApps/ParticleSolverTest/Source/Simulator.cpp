@@ -44,6 +44,12 @@ void Simulator::startSimulation()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void Simulator::resume()
+{
+    m_bWaitForSavingImg = false;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Simulator::doSimulation()
 {
     Q_ASSERT(m_ParticleData != nullptr);
@@ -88,6 +94,13 @@ void Simulator::doSimulation()
         emit systemTimeChanged(m_ParticleSolver->getGlobalParams()->evolvedTime());
         emit particleChanged();
         emit frameFinished();
+
+        if(m_bExportImg)
+        {
+            m_bWaitForSavingImg = true;
+            while(m_bWaitForSavingImg)
+                ;
+        }
     }
 
     m_ParticleSolver->endSimulation();
@@ -159,4 +172,10 @@ void Simulator::changeScene(const QString& scene)
 
     emit particleChanged();
     emit numParticleChanged(m_ParticleSolver->getNumParticles());
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void Simulator::enableExportImg(bool bEnable)
+{
+    m_bExportImg = bEnable;
 }

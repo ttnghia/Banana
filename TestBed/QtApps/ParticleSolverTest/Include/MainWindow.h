@@ -68,5 +68,6 @@ private:
     BusyBar*                   m_BusyBar;
 
     int                              m_FrameNumber     = 0;
+    bool                             m_bExportImg      = false;
     std::unique_ptr<ClipPlaneEditor> m_ClipPlaneEditor = std::make_unique<ClipPlaneEditor>();
 };

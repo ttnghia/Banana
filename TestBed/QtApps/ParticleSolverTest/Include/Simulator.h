@@ -47,11 +47,13 @@ public:
     void stop();
     void reset();
     void startSimulation();
+    void resume();
     const std::unique_ptr<PARTICLE_SOLVER>& getSolver() const { return m_ParticleSolver; }
 
 public slots:
     void doSimulation();
     void changeScene(const QString& scene);
+    void enableExportImg(bool bEnable);
 
 signals:
     void simulationFinished();
@@ -67,5 +69,7 @@ protected:
 
     std::future<void> m_SimulationFutureObj;
     QString           m_Scene;
-    volatile bool     m_bStop = true;
+    volatile bool     m_bStop             = true;
+    volatile bool     m_bWaitForSavingImg = false;
+    volatile bool     m_bExportImg        = false;
 };
