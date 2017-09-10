@@ -84,9 +84,8 @@ void Simulator::doSimulation()
     for(UInt frame = 1; frame <= m_ParticleSolver->getGlobalParams()->finalFrame; ++frame)
     {
         m_ParticleSolver->doSimulationFrame(frame);
-        float sysTime = m_ParticleSolver->getGlobalParams()->frameDuration * static_cast<float>(m_ParticleSolver->getGlobalParams()->finishedFrame);
 
-        emit systemTimeChanged(sysTime);
+        emit systemTimeChanged(m_ParticleSolver->getGlobalParams()->evolvedTime());
         emit particleChanged();
         emit frameFinished();
     }

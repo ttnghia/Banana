@@ -35,10 +35,11 @@ struct GlobalParameters
 {
     Real frameDuration = Real(1.0 / DEFAULT_FRAME_RATE);
 
+    UInt nThreads      = 0;
     UInt startFrame    = 1;
     UInt finalFrame    = 1;
     UInt finishedFrame = 0;
-    UInt nThreads      = 0;
+    Real evolvedTime() const { return frameDuration * static_cast<Real>(finishedFrame); }
 
     ////////////////////////////////////////////////////////////////////////////////
     bool   bLoadMemoryState  = true;

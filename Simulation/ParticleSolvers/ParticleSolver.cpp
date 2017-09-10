@@ -51,7 +51,8 @@ void ParticleSolver::doSimulation()
         m_Logger->newLine();
 
         ////////////////////////////////////////////////////////////////////////////////
-        static String strMsg = String("Frame finished. Frame duration: ") + NumberHelpers::formatWithCommas(m_GlobalParams->frameDuration) + String(" (s). Run time: ");
+        static String strMsg = String("Frame finished. Frame duration: ") + NumberHelpers::formatToScientific(m_GlobalParams->frameDuration) +
+                               String("(s) (~") + std::to_string(static_cast<int>(round(Real(1.0) / m_GlobalParams->frameDuration))) + String(" fps). Run time: ");
         m_Logger->printRunTime(strMsg.c_str(), frameTimer,
                                [&]()
                                {

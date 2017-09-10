@@ -53,7 +53,8 @@ public:
     virtual ~ParticleSolver() { Logger::shutdown(); }
 
     const std::unique_ptr<GlobalParameters>& getGlobalParams() const noexcept { return m_GlobalParams; }
-    const std::shared_ptr<Logger>& getLogger() const noexcept { return m_Logger; }
+    const std::shared_ptr<Logger>&           getLogger() const noexcept { return m_Logger; }
+
     static bool loadDataPath(const String& sceneFile, String& dataPath);
     void        loadScene(const String& sceneFile);
     void        setupLogger();
