@@ -24,6 +24,9 @@
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+namespace ParticleSolvers
+{
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #define DEFAULT_PRESSURE_STIFFNESS   50000.0
 #define DEFAULT_NEAR_FORCE_STIFFNESS 50000.0
 #define DEFAULT_VISCOSITY            0.05
@@ -47,7 +50,7 @@ struct SimulationParameters_WCSPH
     Real viscosityBoundary  = Real(DEFAULT_VISCOSITY * 0.001);
     Real particleRadius     = Real(2.0 / 32.0 / 4.0);
 
-    Real boundaryRestitution     = Real(DEFAULT_BOUNDARY_RESTITUTION);
+    Real boundaryRestitution     = Real(ParticleSolverConstants::DefaultBoundaryRestitution);
     Real attractivePressureRatio = Real(0.1);
     Real restDensity             = Real(1000.0);
     Real densityVariationRatio   = Real(10.0);
@@ -77,7 +80,7 @@ struct SimulationParameters_WCSPH
     void printParams(const std::shared_ptr<Logger>& logger)
     {
         logger->printLog("SPH simulation parameters:");
-        logger->printLogIndent("Default timestep: " + NumberHelpers::formatToScientific(defaultTimestep));
+        logger->printLogIndent("Max timestep: " + NumberHelpers::formatToScientific(maxTimestep));
         logger->printLogIndent("CFL factor: " + std::to_string(CFLFactor));
         logger->printLogIndent("Pressure stiffness: " + NumberHelpers::formatWithCommas(pressureStiffness));
         logger->printLogIndent("Near force stiffness: " + NumberHelpers::formatWithCommas(nearForceStiffness));
@@ -118,6 +121,8 @@ struct SimulationData_WCSPH
         diffuseVelocity.resize(positions.size(), Vec3r(0));
     }
 };
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+};  // end namespace ParticleSolvers
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana

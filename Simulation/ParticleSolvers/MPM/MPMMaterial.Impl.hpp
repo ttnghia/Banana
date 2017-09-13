@@ -18,9 +18,12 @@
 #pragma once
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+namespace ParticleSolvers
+{
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // could optimize revert so arrays are swapped rather than copied
 template<class Real>
-void NeoHookean<Real>::revert()
+void NeoHookean<Real >::revert()
 {
     for(int i = 0; i < Npart(); ++i)
     {
@@ -41,7 +44,7 @@ void NeoHookean<Real>::revert()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // could optimize save so resize is only called once
 template<class Real>
-void NeoHookean<Real>::save()
+void NeoHookean<Real >::save()
 {
     defGrad0.resize(Npart());
     stress0.resize(Npart());
@@ -65,7 +68,7 @@ void NeoHookean<Real>::save()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class Real>
-void NeoHookean<Real>::update(Real delt)
+void NeoHookean<Real >::update(Real delt)
 {
     for(int i = 0; i < Npart(); ++i)
     {
@@ -79,7 +82,7 @@ void NeoHookean<Real>::update(Real delt)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // could optimize revert so arrays are swapped rather than copied
 template<class Real>
-void UpdatedElastic<Real>::revert()
+void UpdatedElastic<Real >::revert()
 {
     for(int i = 0; i < Npart(); ++i)
     {
@@ -100,7 +103,7 @@ void UpdatedElastic<Real>::revert()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // could optimize save so resize is only called once
 template<class Real>
-void UpdatedElastic<Real>::save()
+void UpdatedElastic<Real >::save()
 {
     defGrad0.resize(Npart());
     stress0.resize(Npart());
@@ -124,7 +127,7 @@ void UpdatedElastic<Real>::save()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class Real>
-void UpdatedElastic<Real>::update(Real delt)
+void UpdatedElastic<Real >::update(Real delt)
 {
     for(int i = 0; i < Npart(); ++i)
     {
@@ -140,7 +143,7 @@ void UpdatedElastic<Real>::update(Real delt)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // could optimize revert so arrays are swapped rather than copied
 template<class Real>
-void J2plasticLinearIsoKin<Real>::revert()
+void J2plasticLinearIsoKin<Real >::revert()
 {
     for(int i = 0; i < Npart(); ++i)
     {
@@ -166,7 +169,7 @@ void J2plasticLinearIsoKin<Real>::revert()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // could optimize save so resize is only called once
 template<class Real>
-void J2plasticLinearIsoKin<Real>::save()
+void J2plasticLinearIsoKin<Real >::save()
 {
     defGrad0.resize(Npart());
     stress0.resize(Npart());
@@ -196,7 +199,7 @@ void J2plasticLinearIsoKin<Real>::save()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class Real>
-void J2plasticLinearIsoKin<Real>::update(Real delt)
+void J2plasticLinearIsoKin<Real >::update(Real delt)
 {
     for(int i = 0; i < Npart(); ++i)
     {
@@ -229,3 +232,6 @@ void J2plasticLinearIsoKin<Real>::update(Real delt)
         }
     }
 }
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+};  // end namespace ParticleSolvers

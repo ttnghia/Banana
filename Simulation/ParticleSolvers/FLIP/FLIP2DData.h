@@ -19,12 +19,15 @@
 
 #include <Banana/Setup.h>
 #include <Banana/Array/Array2.h>
-#include <Banana/LinearAlgebra/SparseMatrix/SparseMatrix.h>
 #include <Banana/Geometry/GeometryObject2D.h>
+#include <Banana/LinearAlgebra/SparseMatrix/SparseMatrix.h>
 #include <ParticleSolvers/ParticleSolverData.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
+{
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+namespace ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 struct SimulationParameters_FLIP2D
@@ -32,17 +35,17 @@ struct SimulationParameters_FLIP2D
     SimulationParameters_FLIP2D() { makeReady(); }
 
     ////////////////////////////////////////////////////////////////////////////////
-    Real       minTimestep         = Real(1.0e-6);
-    Real       maxTimestep         = Real(5.0e-4);
-    Real       CFLFactor           = Real(1.0);
-    Real       PIC_FLIP_ratio      = Real(0.97);
-    Real       boundaryRestitution = Real(DEFAULT_BOUNDARY_RESTITUTION);
-    Real       gravity             = Real(9.81);
-    Real       particleRadius      = Real(2.0 / 64.0 / 4.0);
-    P2GKernels p2gKernel           = P2GKernels::Linear;
-    UInt       expandCells         = 2;
-    Real       CGRelativeTolerance = Real(1e-15);
-    UInt       maxCGIteration      = 10000;
+    Real                                          minTimestep         = Real(1.0e-6);
+    Real                                          maxTimestep         = Real(5.0e-4);
+    Real                                          CFLFactor           = Real(1.0);
+    Real                                          PIC_FLIP_ratio      = Real(0.97);
+    Real                                          boundaryRestitution = Real(ParticleSolverConstants::DefaultBoundaryRestitution);
+    Real                                          gravity             = Real(9.81);
+    Real                                          particleRadius      = Real(2.0 / 64.0 / 4.0);
+    ParticleSolverConstants::InterpolationKernels p2gKernel           = ParticleSolverConstants::InterpolationKernels::Linear;
+    UInt                                          expandCells         = 2;
+    Real                                          CGRelativeTolerance = Real(1e-15);
+    UInt                                          maxCGIteration      = 10000;
 
     bool bApplyRepulsiveForces   = false;
     Real repulsiveForceStiffness = Real(1e-3);
@@ -67,7 +70,7 @@ struct SimulationParameters_FLIP2D
         nearKernelRadiusSqr = nearKernelRadius * nearKernelRadius;
 
         sdfRadius  = cellSize * Real(1.01 * sqrt(2.0) / 2.0);
-        kernelSpan = (p2gKernel == P2GKernels::Linear || p2gKernel == P2GKernels::SwirlyLinear) ? 1 : 2;
+        kernelSpan = (p2gKernel == ParticleSolverConstants::InterpolationKernels::Linear || p2gKernel == ParticleSolverConstants::InterpolationKernels::Swirly) ? 1 : 2;
 
         domainBMin = movingBMin - Vec2r(cellSize * expandCells);
         domainBMax = movingBMax + Vec2r(cellSize * expandCells);
@@ -77,11 +80,11 @@ struct SimulationParameters_FLIP2D
     void printParams(const std::shared_ptr<Logger>& logger)
     {
         logger->printLog("FLIP-2D simulation parameters:");
-        logger->printLogIndent("Default timestep: " + NumberHelpers::formatToScientific(defaultTimestep));
+        logger->printLogIndent("Max timestep: " + NumberHelpers::formatToScientific(maxTimestep));
         logger->printLogIndent("CFL factor: " + std::to_string(CFLFactor));
         logger->printLogIndent("PIC/FLIP ratio: " + std::to_string(PIC_FLIP_ratio));
 
-        logger->printLogIndent("Kernel function: " + (kernelFunc == P2GKernels::Linear ? String("Linear") : String("Cubic BSpline")));
+        //logger->printLogIndent("Kernel function: " + (kernelFunc == ParticleSolverConstants::InterpolationKernels::Linear ? String("Linear") : String("Cubic BSpline")));
         logger->printLogIndent("Kernel radius: " + std::to_string(cellSize));
         logger->printLogIndent("Boundary restitution: " + std::to_string(boundaryRestitution));
         logger->printLogIndent("Apply repulsive forces: " + (bApplyRepulsiveForces ? std::string("Yes") : std::string("No")));
@@ -173,6 +176,9 @@ struct SimulationData_FLIP2D
     }
 };
 
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+};  // end namespace ParticleSolvers
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana

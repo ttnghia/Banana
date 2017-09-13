@@ -25,6 +25,9 @@
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+namespace ParticleSolvers
+{
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MPM2DSolver::makeReady()
 {
     m_Logger->printRunTime("Allocate solver memory: ",
@@ -104,7 +107,7 @@ void MPM2DSolver::advanceFrame()
 
         ////////////////////////////////////////////////////////////////////////////////
         m_Logger->newLine();
-    }   // end while
+    }       // end while
 
     ////////////////////////////////////////////////////////////////////////////////
     ++m_GlobalParams->finishedFrame;
@@ -488,7 +491,7 @@ void MPM2DSolver::explicitVelocities(Real timestep)
                                         {
                                             if(gridData().active.data()[i])
                                                 gridData().velocity_new.data()[i] = gridData().velocity.data()[i] +
-                                                                                    timestep * (Vec2r(0, m_SimParams->gravity) - gridData().velocity_new.data()[i] / gridData().mass.data()[i]);
+                                                                                    timestep * (ParticleSolverConstants::DefaultGravity2D - gridData().velocity_new.data()[i] / gridData().mass.data()[i]);
                                         });
 }
 
@@ -928,6 +931,9 @@ Vec2r MPM2DSolver::computeDeltaForce(UInt p, const Vec2r& u, const Vec2r& weight
     //Parentheses are important; M*M*V is slower than M*(M*V)
     return particleData().volumes[p] * (Ap * (glm::transpose(elasticDeformGrad) * weight_grad));
 }
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+};  // end namespace ParticleSolvers
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana

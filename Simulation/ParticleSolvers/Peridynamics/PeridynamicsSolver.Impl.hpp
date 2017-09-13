@@ -14,6 +14,10 @@
 //
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+namespace ParticleSolvers
+{
 void PeridynamicsSolver::make_ready()
 {
     Timer timer;
@@ -324,7 +328,7 @@ void PeridynamicsSolver::move_particles(Real timestep)
     timer.tick();
 
     tbb::parallel_for(tbb::blocked_range<UInt>(0,
-                                                 particleParams->num_active_particles),
+                                               particleParams->num_active_particles),
                       [&, timestep](tbb::blocked_range<UInt> r)
                       {
                           for(UInt p = r.begin(); p != r.end(); ++p)
@@ -730,7 +734,7 @@ void PeridynamicsSolver::build_linear_system(Real dt, const MergingSplittingData
 
     ////////////////////////////////////////////////////////////////////////////////
     tbb::parallel_for(tbb::blocked_range<UInt>(0,
-                                                 particleParams->num_active_particles),
+                                               particleParams->num_active_particles),
                       [&](tbb::blocked_range<UInt> r)
                       {
                           for(UInt p = r.begin(); p != r.end(); ++p)
@@ -798,8 +802,8 @@ void PeridynamicsSolver::compute_particle_forces(Mat3x3& sumLHS, Vec3& sumRHS, V
     const Real fdv_coeff = (integration_scheme == IntegrationScheme::ImplicitNewmarkBeta) ? dt * 0.5 : dt;
 
 
-    const UInt p_merged_to = p_merged ? merlit_data->merge_to[p] : p;
-    const Vec3&  pvel        = p_merged ? velocity[p_merged_to] : velocity[p];
+    const UInt  p_merged_to = p_merged ? merlit_data->merge_to[p] : p;
+    const Vec3& pvel        = p_merged ? velocity[p_merged_to] : velocity[p];
 
     const Vec3& ppos = particles[p];
 
@@ -819,7 +823,7 @@ void PeridynamicsSolver::compute_particle_forces(Mat3x3& sumLHS, Vec3& sumRHS, V
         const UInt q = pbonds[bondIndex];
         __NOODLE_ASSERT(q != p);
 
-        const bool   q_merged    = (merlit_data != nullptr) ? merlit_data->merged[q] > 0 : false;
+        const bool q_merged    = (merlit_data != nullptr) ? merlit_data->merged[q] > 0 : false;
         const UInt q_merged_to = q_merged ? merlit_data->merge_to[q] : q;
 
         // do not accumulate force between two merged particles
@@ -1035,13 +1039,13 @@ bool PeridynamicsSolver::remove_broken_bonds()
 
                 tbb::parallel_invoke(
                     [&, bondIndex]
-                {
-                    bond_list[p].erase(bond_list[p].begin() + bondIndex);
-                },
+                    {
+                        bond_list[p].erase(bond_list[p].begin() + bondIndex);
+                    },
                     [&, bondIndex]
-                {
-                    bond_d0[p].erase(bond_d0[p].begin() + bondIndex);
-                });
+                    {
+                        bond_d0[p].erase(bond_d0[p].begin() + bondIndex);
+                    });
             }
         }
     }
@@ -1103,7 +1107,7 @@ void PeridynamicsSolver::find_connected_components()
     num_processed_particles += spawn_component(0, 0, 0);
 
     UInt total_component      = 1; // need?
-    Int8   current_component_id = 0;
+    Int8 current_component_id = 0;
 
     bool new_label = false;
     bool labeled;
@@ -1196,3 +1200,6 @@ UInt PeridynamicsSolver::spawn_component(UInt p, int depth, Int8 component)
 
     return num_processed_particles;
 }
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+};  // end namespace ParticleSolvers

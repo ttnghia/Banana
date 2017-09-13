@@ -27,22 +27,26 @@
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+namespace ParticleSolvers
+{
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 struct SimulationParameters_FLIP3D
 {
     SimulationParameters_FLIP3D() { makeReady(); }
 
     ////////////////////////////////////////////////////////////////////////////////
-    Real       minTimestep         = Real(1.0e-6);
-    Real       maxTimestep         = Real(5.0e-4);
-    Real       CFLFactor           = Real(1.0);
-    Real       PIC_FLIP_ratio      = Real(0.97);
-    Real       boundaryRestitution = Real(DEFAULT_BOUNDARY_RESTITUTION);
-    Real       gravity             = Real(9.81);
-    Real       particleRadius      = Real(2.0 / 64.0 / 4.0);
-    P2GKernels p2gKernel           = P2GKernels::Linear;
-    UInt       expandCells         = 2;
-    Real       CGRelativeTolerance = Real(1e-15);
-    UInt       maxCGIteration      = 10000;
+    Real minTimestep         = Real(1.0e-6);
+    Real maxTimestep         = Real(5.0e-4);
+    Real CFLFactor           = Real(1.0);
+    Real PIC_FLIP_ratio      = Real(0.97);
+    Real boundaryRestitution = Real(ParticleSolverConstants::DefaultBoundaryRestitution);
+    Real gravity             = Real(9.81);
+    Real particleRadius      = Real(2.0 / 64.0 / 4.0);
+    UInt expandCells         = 2;
+    Real CGRelativeTolerance = Real(1e-15);
+    UInt maxCGIteration      = 10000;
+
+    ParticleSolverConstants::InterpolationKernels p2gKernel = ParticleSolverConstants::InterpolationKernels::Linear;
 
     bool bApplyRepulsiveForces   = false;
     Real repulsiveForceStiffness = Real(1e-3);
@@ -67,7 +71,7 @@ struct SimulationParameters_FLIP3D
         nearKernelRadiusSqr = nearKernelRadius * nearKernelRadius;
 
         sdfRadius  = cellSize * Real(1.01 * sqrt(3.0) / 2.0);
-        kernelSpan = (p2gKernel == P2GKernels::Linear || p2gKernel == P2GKernels::SwirlyLinear) ? 1 : 2;
+        kernelSpan = (p2gKernel == ParticleSolverConstants::InterpolationKernels::Linear || p2gKernel == ParticleSolverConstants::InterpolationKernels::Swirly) ? 1 : 2;
 
         domainBMin = movingBMin - Vec3r(cellSize * expandCells);
         domainBMax = movingBMax + Vec3r(cellSize * expandCells);
@@ -77,11 +81,11 @@ struct SimulationParameters_FLIP3D
     void printParams(const std::shared_ptr<Logger>& logger)
     {
         logger->printLog("FLIP-3D simulation parameters:");
-        logger->printLogIndent("Default timestep: " + NumberHelpers::formatToScientific(defaultTimestep));
+        logger->printLogIndent("Max timestep: " + NumberHelpers::formatToScientific(maxTimestep));
         logger->printLogIndent("CFL factor: " + std::to_string(CFLFactor));
         logger->printLogIndent("PIC/FLIP ratio: " + std::to_string(PIC_FLIP_ratio));
 
-        logger->printLogIndent("Kernel function: " + (p2gKernel == P2GKernels::Linear ? String("Linear") : String("Cubic BSpline")));
+        logger->printLogIndent("Kernel function: " + (p2gKernel == ParticleSolverConstants::InterpolationKernels::Linear ? String("Linear") : String("Cubic BSpline")));
         logger->printLogIndent("Moving BMin: " + NumberHelpers::toString(movingBMin));
         logger->printLogIndent("Moving BMax: " + NumberHelpers::toString(movingBMax));
         logger->printLogIndent("Cell size: " + std::to_string(cellSize));
@@ -196,6 +200,8 @@ struct SimulationData_FLIP3D
         gridSimData.w_old.copyDataFrom(gridSimData.w);
     }
 };
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+};  // end namespace ParticleSolvers
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespa

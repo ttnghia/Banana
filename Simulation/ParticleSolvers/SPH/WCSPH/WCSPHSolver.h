@@ -25,6 +25,9 @@
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+namespace ParticleSolvers
+{
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 class WCSPHSolver : public ParticleSolver3D
 {
 public:
@@ -32,9 +35,9 @@ public:
     std::shared_ptr<SimulationParameters_WCSPH> getSolverParams() { return m_SimParams; }
 
     ////////////////////////////////////////////////////////////////////////////////
-    virtual String getSolverName() override { return String("WCSPHSolver"); }
-    virtual String getGreetingMessage() override { return String("Fluid Simulation using WCSPH Solver"); }
-    virtual UInt        getNumParticles() override { return static_cast<UInt>(m_SimData->positions.size()); }
+    virtual String     getSolverName() override { return String("WCSPHSolver"); }
+    virtual String     getGreetingMessage() override { return String("Fluid Simulation using WCSPH Solver"); }
+    virtual UInt       getNumParticles() override { return static_cast<UInt>(m_SimData->positions.size()); }
     virtual Vec_Vec3r& getParticlePositions() override { return m_SimData->positions; }
     virtual Vec_Vec3r& getParticleVelocities() override { return m_SimData->velocities; }
 
@@ -67,5 +70,7 @@ protected:
     PrecomputedKernel<SpikyKernel, 10000> m_NearSpikyKernel;
 };
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+};  // end namespace ParticleSolvers
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana

@@ -35,6 +35,9 @@
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+namespace ParticleSolvers
+{
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 class PeridynamicsSolver : public ParticleSolver
 {
 public:
@@ -97,16 +100,16 @@ protected:
     virtual void setup_data_io() override;
     virtual void compute_cfl_timestep() override;
 
-    void   build_linear_system(Real dt, const MergingSplittingData* merlit_data);
-    void   compute_particle_forces(Mat3x3& sumLHS, Vec3& sumRHS, Vec3& pforce, const MergingSplittingData* merlit_data, UInt p, bool merged, Real dt);
-    void   compute_explicit_forces(const MergingSplittingData*);
-    void   compute_force_derivative(const Vec3& eij, Real dij, Real d0, Mat3x3& springDx, Mat3x3& dampingDx);
-    void   solve_system();
-    void   update_velocity();
-    void   clear_broken_bond_list();
-    bool   remove_broken_bonds();
-    void   compute_remaining_bond_ratio();
-    void   find_connected_components();
+    void build_linear_system(Real dt, const MergingSplittingData* merlit_data);
+    void compute_particle_forces(Mat3x3& sumLHS, Vec3& sumRHS, Vec3& pforce, const MergingSplittingData* merlit_data, UInt p, bool merged, Real dt);
+    void compute_explicit_forces(const MergingSplittingData*);
+    void compute_force_derivative(const Vec3& eij, Real dij, Real d0, Mat3x3& springDx, Mat3x3& dampingDx);
+    void solve_system();
+    void update_velocity();
+    void clear_broken_bond_list();
+    bool remove_broken_bonds();
+    void compute_remaining_bond_ratio();
+    void find_connected_components();
     UInt spawn_component(UInt p, int depth, Int8 component);
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -134,6 +137,8 @@ protected:
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #include <ParticleSolvers/Peridynamics/PeridynamicsSolver.Impl.hpp>
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+};  // end namespace ParticleSolvers
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana

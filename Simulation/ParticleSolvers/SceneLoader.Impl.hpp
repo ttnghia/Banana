@@ -21,18 +21,24 @@
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+namespace ParticleSolvers
+{
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 template<class Real>
-void Banana::SceneLoader<Real>::loadScene(const std::string& sceneFile)
+void Banana::SceneLoader<Real >::loadScene(const std::string& sceneFile)
 {}
 
 template<class Real>
-void Banana::SceneLoader<Real>::loadFrameParams(const nlohmann::json& jParams, const std::shared_ptr<GlobalParameters<Real> >& frameParams)
+void Banana::SceneLoader<Real >::loadFrameParams(const nlohmann::json& jParams, const std::shared_ptr<GlobalParameters<Real> >& frameParams)
 {}
 
 template<class Real>
-void Banana::SceneLoader<Real>::loadObjectParams(const nlohmann::json& jParams)
+void Banana::SceneLoader<Real >::loadObjectParams(const nlohmann::json& jParams)
 {}
 
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+};  // end namespace ParticleSolvers
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana

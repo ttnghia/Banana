@@ -16,6 +16,9 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+namespace ParticleSolvers
+{
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Several algorithmic variations are used, but they all provide these functions
 template<class Real>
 class TimeIntegration
@@ -51,7 +54,7 @@ public:
 
     virtual ~TimeIntegration() {}
     virtual void advance(const Real&) = 0;
-    Real nextTimeStep(const patch& pch) const
+    Real         nextTimeStep(const patch& pch) const
     {
         const Real allowedRoundoff = nominalStep * machEps * Real(pch.incCount);
         const Real timeRemaining   = pch.finalTime - pch.elapsedTime;
@@ -1044,7 +1047,7 @@ typedef QuasiStatic<NewtonKrylov<GMRES<NewtonSystem<StaticNewton> > > >         
 typedef QuasiStatic<NewtonKrylov<ConjGrad<NewtonSystem<StaticNewton> > > >               quasiCG;
 typedef ImplicitDynamic<NewtonKrylov<GMRES<NewtonSystem<DynamicSystem<false> > > > >     dynGM;
 typedef ImplicitDynamic<NewtonKrylov<ConjGrad<NewtonSystem<DynamicSystem<true> > > > >   dynCG;
-
-
-
 #endif
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+};  // end namespace ParticleSolvers

@@ -21,6 +21,9 @@
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+namespace ParticleSolvers
+{
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void FLIP2DSolver::makeReady()
 {
     m_Logger->printRunTime("Allocate solver memory: ",
@@ -28,7 +31,8 @@ void FLIP2DSolver::makeReady()
                            {
                                m_SimParams->makeReady();
                                m_SimParams->printParams(m_Logger);
-                               if(m_SimParams->kernelFunc == P2GKernels::Linear)
+
+                               if(m_SimParams->p2gKernel == ParticleSolverConstants::InterpolationKernels::Linear)
                                {
                                    m_InterpolateValue = static_cast<Real (*)(const Vec2r&, const Array2r&)>(&ArrayHelpers::interpolateValueLinear);
                                    m_WeightKernel = [](const Vec2r& dxdy) { return MathHelpers::bilinear_kernel(dxdy[0], dxdy[1]); };
@@ -106,7 +110,7 @@ void FLIP2DSolver::advanceFrame()
 
 ////////////////////////////////////////////////////////////////////////////////
         m_Logger->newLine();
-    }   // end while
+    }       // end while
 
     ////////////////////////////////////////////////////////////////////////////////
     ++m_GlobalParams->finishedFrame;
@@ -274,7 +278,7 @@ Real FLIP2DSolver::computeCFLTimestep()
     Real maxVel = MathHelpers::max(ParallelSTL::maxAbs(m_SimData->u.data()),
                                    ParallelSTL::maxAbs(m_SimData->v.data()));
 
-    return maxVel > Tiny ? (m_Grid.getCellSize() / maxVel * m_SimParams->CFLFactor) : m_SimParams->defaultTimestep;
+    return maxVel > Tiny ? (m_Grid.getCellSize() / maxVel * m_SimParams->CFLFactor) : m_SimParams->maxTimestep;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -746,7 +750,7 @@ void FLIP2DSolver::computeMatrix(Real timestep)
                 ////////////////////////////////////////////////////////////////////////////////
                 // center
                 m_SimData->matrix.addElement(cellIdx, cellIdx, center_term);
-            }   // end if(centre_phi < 0)
+            }       // end if(centre_phi < 0)
         }
     }
 }
@@ -889,6 +893,9 @@ Mat2x2r FLIP2DSolver::getAffineMatrix(const Vec2r& gridPos)
 
     return C;
 }
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+};  // end namespace ParticleSolvers
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana

@@ -23,6 +23,9 @@
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+namespace ParticleSolvers
+{
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void FLIP3DSolver::makeReady()
 {
     m_Logger->printRunTime("Allocate solver memory: ",
@@ -30,7 +33,7 @@ void FLIP3DSolver::makeReady()
                            {
                                m_SimParams->makeReady();
                                m_SimParams->printParams(m_Logger);
-                               if(m_SimParams->p2gKernel == P2GKernels::Linear)
+                               if(m_SimParams->p2gKernel == ParticleSolverConstants::InterpolationKernels::Linear)
                                {
                                    m_InterpolateValue = static_cast<Real (*)(const Vec3r&, const Array3r&)>(&ArrayHelpers::interpolateValueLinear);
                                    m_WeightKernel = [](const Vec3r& dxdydz) { return MathHelpers::tril_kernel(dxdydz[0], dxdydz[1], dxdydz[2]); };
@@ -106,7 +109,7 @@ void FLIP3DSolver::advanceFrame()
 
         ////////////////////////////////////////////////////////////////////////////////
         m_Logger->newLine();
-    }   // end while
+    }       // end while
 
     ////////////////////////////////////////////////////////////////////////////////
     ++m_GlobalParams->finishedFrame;
@@ -155,9 +158,9 @@ void FLIP3DSolver::loadSimParams(const nlohmann::json& jParams)
     String tmp = "LinearKernel";
     JSONHelpers::readValue(jParams, tmp,                                  "KernelFunction");
     if(tmp == "LinearKernel" || tmp == "Linear")
-        m_SimParams->p2gKernel = P2GKernels::Linear;
+        m_SimParams->p2gKernel = ParticleSolverConstants::InterpolationKernels::Linear;
     else
-        m_SimParams->p2gKernel = P2GKernels::CubicBSpline;
+        m_SimParams->p2gKernel = ParticleSolverConstants::InterpolationKernels::CubicBSpline;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -285,7 +288,7 @@ Real FLIP3DSolver::computeCFLTimestep()
                                    ParallelSTL::maxAbs(gridData().v.data()),
                                    ParallelSTL::maxAbs(gridData().w.data()));
 
-    return maxVel > Tiny ? (m_Grid.getCellSize() / maxVel * m_SimParams->CFLFactor) : m_SimParams->defaultTimestep;
+    return maxVel > Tiny ? (m_Grid.getCellSize() / maxVel * m_SimParams->CFLFactor) : m_SimParams->maxTimestep;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -1035,6 +1038,9 @@ Vec3r FLIP3DSolver::getVelocityChangesFromGrid(const Vec3r& gridPos)
 
     return Vec3r(changed_vu, changed_vv, changed_vw);
 }
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+};  // end namespace ParticleSolvers
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana

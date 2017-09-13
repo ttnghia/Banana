@@ -21,6 +21,9 @@
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+namespace ParticleSolvers
+{
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void WCSPHSolver::makeReady()
 {
     m_Logger->printRunTime("Allocate solver memory: ",
@@ -119,7 +122,7 @@ void WCSPHSolver::advanceFrame()
 
 ////////////////////////////////////////////////////////////////////////////////
         m_Logger->newLine();
-    }   // end while
+    }       // end while
 
     ////////////////////////////////////////////////////////////////////////////////
     ++m_GlobalParams->finishedFrame;
@@ -299,8 +302,8 @@ Real WCSPHSolver::computeCFLTimestep()
     Real maxVel = sqrt(ParallelSTL::maxNorm2<Real>(m_SimData->velocities));
     Real CFLTimeStep = maxVel > Real(Tiny) ? m_SimParams->CFLFactor* Real(0.4) * (Real(2.0) * m_SimParams->particleRadius / maxVel) : Real(1e10);
 
-    CFLTimeStep = MathHelpers::max(CFLTimeStep, m_SimParams->defaultTimestep * Real(0.01));
-    CFLTimeStep = MathHelpers::min(CFLTimeStep, m_SimParams->defaultTimestep * Real(100.0));
+    CFLTimeStep = MathHelpers::max(CFLTimeStep, m_SimParams->minTimestep);
+    CFLTimeStep = MathHelpers::min(CFLTimeStep, m_SimParams->maxTimestep);
 
     return CFLTimeStep;
 }
@@ -554,6 +557,9 @@ void WCSPHSolver::moveParticles(Real timeStep)
                                             m_SimData->positions[p] = pPos;
                                         }); // end parallel_for
 }
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+};  // end namespace ParticleSolvers
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana

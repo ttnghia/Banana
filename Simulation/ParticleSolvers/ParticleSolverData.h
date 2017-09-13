@@ -27,13 +27,38 @@
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#define DEFAULT_BOUNDARY_RESTITUTION 0.9
-#define DEFAULT_FRAME_RATE           30
+namespace ParticleSolverConstants
+{
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+static const UInt DefaultFrameRate   = 30u;
+static const Real DefaultMinTimestep = Real(1.0e-6);
+static const Real DefaultMaxTimestep = Real(1.0e-3);
 
+static const UInt DefaultExpandCells                 = 2u;
+static const Real DefaultRatioCellSizeParticleRadius = Real(4.0);
+static const Real DefaultCellSize                    = Real(1.0 / 64.0);
+
+static const Real DefaultBoundaryRestitution = Real(0.9);
+
+static const Vec2r DefaultGravity2D = Vec2r(0, -9.81);
+static const Vec3r DefaultGravity3D = Vec3r(0, -9.81, 0);
+
+static const UInt DefaultMaxCGIteration      = 10'000u;
+static const Real DefaultCGRelativeTolerance = Real(1e-15);
+
+static const Real Default_PIC_FLIP_Ratio = Real(0.97);
+enum class InterpolationKernels { Linear, CubicBSpline, GIMP, Swirly };
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+};  // end namespace ParticleSolverConstants
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+namespace ParticleSolvers
+{
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 struct GlobalParameters
 {
-    Real frameDuration = Real(1.0 / DEFAULT_FRAME_RATE);
+    Real frameDuration = Real(1.0 / ParticleSolverConstants::DefaultFrameRate);
 
     UInt nThreads      = 0;
     UInt startFrame    = 1;
@@ -76,7 +101,7 @@ struct GlobalParameters
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-enum class P2GKernels { Linear, CubicBSpline, SwirlyLinear, SwirlyCubicBSpline };
+};  // end namespace ParticleSolvers
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana

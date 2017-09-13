@@ -30,12 +30,13 @@ public:
     ParticleObject()  = default;
     ~ParticleObject() = default;
 
-    std::string& name() { return m_ObjName; }
-    std::string& meshFile() { return m_MeshFile; }
-    std::string& particleCacheFile() { return m_CacheFile; }
-    Real& particleRadius() { return m_ParticleRadius; }
-    Real& samplingJitter() { return m_SamplingJitter; }
-    bool& relaxPosition() { return m_bRelaxPosition; }
+    String& name() { return m_ObjName; }
+    String& meshFile() { return m_MeshFile; }
+    String& particleCacheFile() { return m_CacheFile; }
+    Real&   particleRadius() { return m_ParticleRadius; }
+    Real&   samplingJitter() { return m_SamplingJitter; }
+    bool&   relaxPosition() { return m_bRelaxPosition; }
+
     ParticleHelpers::RelaxationMethod& relaxPositionMethod() { return m_RelaxMethod; }
 
     Vec3r& translation() { return m_Translation; }
@@ -46,8 +47,8 @@ public:
     const Vec3r& aabbMax() const noexcept { return m_AABBMax; }
     const Vec3r& objCenter() const noexcept { return m_ObjCenter; }
 
-    void transformParticles(const Vec3r& translation, const Vec3r& rotation) { ParticleHelpers::transform(m_Particles, translation, rotation); }
-    unsigned int getNumParticles() const noexcept { return static_cast<unsigned int>(m_Particles.size()); }
+    void             transformParticles(const Vec3r& translation, const Vec3r& rotation) { ParticleHelpers::transform(m_Particles, translation, rotation); }
+    UInt             getNumParticles() const noexcept { return static_cast<UInt>(m_Particles.size()); }
     const Vec_Vec3r& getParticles() const noexcept { return m_Particles; }
 
     void makeObj();
@@ -56,9 +57,9 @@ protected:
     void         computeAABB();
     virtual void generateParticles() = 0;
 
-    std::string m_ObjName   = "NoName";
-    std::string m_MeshFile  = "";
-    std::string m_CacheFile = "";
+    String m_ObjName   = "NoName";
+    String m_MeshFile  = "";
+    String m_CacheFile = "";
 
     Vec3r m_Translation = Vec3r(0);
     Vec3r m_Rotation    = Vec3r(0);

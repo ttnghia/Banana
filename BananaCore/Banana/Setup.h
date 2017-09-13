@@ -86,9 +86,9 @@ using PairReal = std::pair<double, double>;
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // generic types
 template<class Type> using Vector = std::vector<Type>;
-template<class Type> using Vec2   = glm::tvec2<Type>;
-template<class Type> using Vec3   = glm::tvec3<Type>;
-template<class Type> using Vec4   = glm::tvec4<Type>;
+template<class Type> using Vec2   = glm::vec<2, Type>;
+template<class Type> using Vec3   = glm::vec<3, Type>;
+template<class Type> using Vec4   = glm::vec<4, Type>;
 template<class Type> using Mat2x2 = glm::mat<2, 2, Type>;
 template<class Type> using Mat3x3 = glm::mat<3, 3, Type>;
 template<class Type> using Mat4x4 = glm::mat<4, 4, Type>;

@@ -17,8 +17,7 @@
 
 #pragma once
 
-#include <ParticleSolvers/ParticleSolverData.h>
-#include <json.hpp>
+#include <Banana/Setup.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -27,55 +26,78 @@ namespace Banana
 namespace ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-struct BoundaryObjectData2D
+template<class RealType>
+struct ShapeFunction
 {
-    std::string  cacheFile;
-    std::string  meshFile;
-    Vec3r        translation;
-    Mat3x3<Real> rotation;
-    Vec3r        scale;
-    Real         density;
-    bool         dynamic;
-    bool         isWall;
-    Vec3r        color;
+    virtual Int      cellSpan()       = 0;
+    virtual RealType w(RealType x)    = 0;
+    virtual RealType grad(RealType x) = 0;
 
-    Array3r SDF;
+    virtual RealType w(Vec2<RealType> x) { return (w(x[0]) * w(x[1])); }
+    virtual RealType w(Vec3<RealType> x) { return (w(x[0]) * w(x[1]) * w(x[2])); }
+    virtual RealType grad(Vec2<RealType> x) { return (grad(x[0]) * grad(x[1])); }
+    virtual RealType grad(Vec3<RealType> x) { return (grad(x[0]) * grad(x[1]) * grad(x[2])); }
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-struct ParticleObjectData2D
+template<class RealType>
+struct LinearShapeFunction : public ShapeFunction<RealType>
 {
-    std::string  cacheFile;
-    std::string  meshFile;
-    Vec3r        translation;
-    Mat3x3<Real> rotation;
-    Real         scale;
+    virtual Int cellSpan()   override { return 1; }
+
+    virtual RealType w(RealType x)    override
+    {
+        RealType x_abs = x > 0 ? x : -x;
+        return x_abs > RealType(1.0) ? RealType(0) :  (RealType(1.0) - x_abs);
+    }
+
+    virtual RealType grad(RealType x) override
+    {
+        RealType x_abs = x > 0 ? x : -x;
+        return -x / x_abs;
+    }
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-struct SceneObjectParameters
+template<class RealType>
+struct CubicBSplineShapeFunction : public ShapeFunction<RealType>
 {
-    void;
+    virtual Int cellSpan()   override { return 2; }
+
+    virtual RealType w(RealType x)    override
+    {
+        RealType x1 = x > 0 ? x : -x;
+        RealType x2 = x * x;
+        RealType x3 = x2 * x;
+
+        if(x1 >= RealType(2.0))
+            return RealType(0);
+
+        if(x1 >= RealType(1.0))
+            return -x3 / RealType(6.0) + x2 - RealType(2.0) * x1 + RealType(4.0 / 3.0);
+
+        // else, x1 < 1.0
+        return RealType(0.5) * x3 - x2 + RealType(2.0 / 3.0);
+    }
+
+    virtual RealType grad(RealType x) override
+    {
+        RealType abs_x = x > 0 ? x : -x;
+
+        if(abs_x >= RealType(2.0))
+            return RealType(0);
+
+        if(abs_x >= RealType(1.0))
+            return -x * abs_x / RealType(2.0) + RealType(2.0) * x - RealType(2.0) * x / abs_x;
+
+        // else, x < 1.0
+        return RealType(1.5) * x * abs_x - RealType(2.0) * x;
+    }
 };
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class SceneLoader
-{
-public:
-    SceneLoader(const std::string& sceneFile)
-    {}
-
-    void loadFrameParams(const nlohmann::json& jParams, const std::shared_ptr<GlobalParameters<Real> >& frameParams);
-    void loadObjectParams(const nlohmann::json& jParams);
-
-private:
-};
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <ParticleSolvers/SceneLoader.Impl.hpp>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 };  // end namespace ParticleSolvers
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana
+  //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

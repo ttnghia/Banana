@@ -93,7 +93,9 @@ inline QStringList getSceneFiles()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #include <Banana/Setup.h>
 #include <Banana/Data/ParticleSystemData.h>
+#include <ParticleSolvers/ParticleSolver.h>
 #include <memory>
 #include <QVector3D>
 #include <QDebug>
 using namespace Banana;
+using namespace Banana::ParticleSolvers;

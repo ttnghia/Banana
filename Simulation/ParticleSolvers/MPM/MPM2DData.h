@@ -24,64 +24,64 @@
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+namespace ParticleSolvers
+{
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 struct SimulationParameters_MPM2D
 {
     SimulationParameters_MPM2D() { makeReady(); }
 
     ////////////////////////////////////////////////////////////////////////////////
-    Real minTimestep         = Real(1.0e-6);
-    Real maxTimestep         = Real(5.0e-4);
     Real CFLFactor           = Real(0.04);
-    Real PIC_FLIP_ratio      = Real(0.97);
-    Real boundaryRestitution = Real(DEFAULT_BOUNDARY_RESTITUTION);
-    Real gravity             = Real(-9.81);
+    Real PIC_FLIP_ratio      = ParticleSolverConstants::Default_PIC_FLIP_Ratio;
+    Real minTimestep         = ParticleSolverConstants::DefaultMinTimestep;
+    Real maxTimestep         = ParticleSolverConstants::DefaultMaxTimestep;
+    Real boundaryRestitution = ParticleSolverConstants::DefaultBoundaryRestitution;
 
-    Real particleRadius      = Real(1.0 / 64.0 / 2.0);
-    Real CGRelativeTolerance = Real(1e-15);
-    UInt maxCGIteration      = 10000;
-    UInt expandCells         = 2;
+    Real CGRelativeTolerance = ParticleSolverConstants::DefaultCGRelativeTolerance;
+    UInt maxCGIteration      = ParticleSolverConstants::DefaultMaxCGIteration;
 
-    Real thresholdCompression = Real(1.0 - 1.9e-2); //Fracture threshold for compression (1-2.5e-2)
-    Real thresholdStretching  = Real(1.0 + 7.5e-3); //Fracture threshold for stretching (1+7.5e-3)
-    Real hardening            = Real(5.0);          //How much plastic deformation strengthens material (10)
-    Real materialDensity      = Real(100.0);        //Density of snow in kg/m^2 (400 for 3d)
-    Real YoungsModulus        = Real(1.5e5);        //Young's modulus (springiness) (1.4e5)
-    Real PoissonsRatio        = Real(0.2);          //Poisson's ratio (transverse/axial strain ratio) (.2)
-    Real implicitRatio        = Real(0);            //Percentage that should be implicit vs explicit for velocity update
+    Real thresholdCompression = Real(1.0 - 1.9e-2);  //Fracture threshold for compression (1-2.5e-2)
+    Real thresholdStretching  = Real(1.0 + 7.5e-3);  //Fracture threshold for stretching (1+7.5e-3)
+    Real hardening            = Real(5.0);           //How much plastic deformation strengthens material (10)
+    Real materialDensity      = Real(100.0);         //Density of snow in kg/m^2 (400 for 3d)
+    Real YoungsModulus        = Real(1.5e5);         //Young's modulus (springiness) (1.4e5)
+    Real PoissonsRatio        = Real(0.2);           //Poisson's ratio (transverse/axial strain ratio) (.2)
+    Real implicitRatio        = Real(0);             //Percentage that should be implicit vs explicit for velocity update
 
-    Real maxImplicitError = Real(1e4);              //Maximum allowed error for conjugate residual
-    Real minImplicitError = Real(1e-4);             //Minimum allowed error for conjugate residual
+    Real maxImplicitError = Real(1e4);               //Maximum allowed error for conjugate residual
+    Real minImplicitError = Real(1e-4);              //Minimum allowed error for conjugate residual
 
-    P2GKernels p2gKernel = P2GKernels::CubicBSpline;
-    int        kernelSpan;
+    ParticleSolverConstants::InterpolationKernels kernel     = ParticleSolverConstants::InterpolationKernels::CubicBSpline;
+    Int                                           kernelSpan = 2;
 
-    Real cellArea;
-
-    Vec2r movingBMin = Vec2r(-1.0);
-    Vec2r movingBMax = Vec2r(1.0);
+    Real  cellSize                    = ParticleSolverConstants::DefaultCellSize;
+    Real  ratioCellSizeParticleRadius = Real(2.0);
+    Vec2r domainBMin                  = Vec2r(0.0);
+    Vec2r domainBMax                  = Vec2r(1.0);
 
     // the following need to be computed
-    Real  lambda, mu;                               //Lame parameters (_s denotes starting configuration)
-    Vec2r domainBMin;
-    Vec2r domainBMax;
-    Real  cellSize;
-    Real  particleMass;
+    Real particleRadius;
+    Real particleMass;
+
+    Real  cellArea;
+    Vec2r movingBMin;
+    Vec2r movingBMax;
+
+    Real lambda, mu; //Lame parameters (_s denotes starting configuration)
 
     ////////////////////////////////////////////////////////////////////////////////
     void makeReady()
     {
-        particleMass = particleRadius * particleRadius * materialDensity;
+        particleRadius = cellSize / ratioCellSizeParticleRadius;
+        particleMass   = particleRadius * particleRadius * materialDensity;
 
-        cellSize = particleRadius * Real(2.0);
-        cellArea = cellSize * cellSize;
+        cellArea   = cellSize * cellSize;
+        movingBMin = domainBMin + Vec2r(cellSize * ParticleSolverConstants::DefaultExpandCells);
+        movingBMax = domainBMax - Vec2r(cellSize * ParticleSolverConstants::DefaultExpandCells);
 
         lambda = YoungsModulus * PoissonsRatio / ((Real(1.0) + PoissonsRatio) * (Real(1.0) - Real(2.0) * PoissonsRatio)),
         mu     = YoungsModulus / (Real(2.0) + Real(2.0) * PoissonsRatio);
-
-        kernelSpan = (p2gKernel == P2GKernels::Linear || p2gKernel == P2GKernels::SwirlyLinear) ? 1 : 2;
-
-        domainBMin = movingBMin - Vec2r(cellSize * expandCells);
-        domainBMax = movingBMax + Vec2r(cellSize * expandCells);
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -138,8 +138,8 @@ struct SimulationData_MPM2D
 
         //Grid interpolation weights
         Vec_Vec2r particleGridPos;
-        Vec_Vec2r weightGradients; // * 16
-        Vec_Real  weights;         // * 16
+        Vec_Vec2r weightGradients;         // * 16
+        Vec_Real  weights;                 // * 16
 
         void addParticle(const Vec2r& pos, const Vec2r& vel = Vec2r(0))
         {
@@ -203,11 +203,11 @@ struct SimulationData_MPM2D
         // variable for implicit velocity solving
         Array2c       imp_active;
         Array2<Vec2r> force,
-                      err,    //error of estimate
-                      r,      //residual of estimate
-                      p,      //residual gradient? squared residual?
-                      Ep, Er; //yeah, I really don't know how this works...
-        Array2r rDotEr;       //r.dot(Er)
+                      err,            //error of estimate
+                      r,              //residual of estimate
+                      p,              //residual gradient? squared residual?
+                      Ep, Er;         //yeah, I really don't know how this works...
+        Array2r rDotEr;               //r.dot(Er)
 
         Array2<ParallelObjects::SpinLock> nodeLocks;
         Array2r                           boundarySDF;
@@ -250,6 +250,8 @@ struct SimulationData_MPM2D
         }
     } gridSimData;
 };
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+};      // end namespace ParticleSolvers
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana
