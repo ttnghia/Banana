@@ -33,6 +33,19 @@ namespace Banana
 namespace NumberHelpers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class IndexType, int N, class RealType>
+VecX<N, IndexType> createGrid(const VecX<N, RealType>& bmin, const VecX<N, RealType>& bmax, RealType spacing)
+{
+    VecX<N, RealType>  fgrid = (bmax - bmin) / spacing;
+    VecX<N, IndexType> result;
+
+    for(Int i = 0; i < N; ++i)
+        result[i] = static_cast<IndexType>(round(fgrid[i]));
+
+    return result;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
 inline RealType generateRandomInt(RealType start, RealType end)
 {

@@ -15,25 +15,6 @@
 //
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class IndexType>
-Vec2<IndexType> ParticleHelpers::createGrid(const Vec2r& bmin, const Vec2r& bmax, Real spacing)
-{
-    Vec2r fgrid = (bmax - bmin) / spacing;
-    return Vec2<IndexType>(static_cast<IndexType>(round(fgrid[0])),
-                           static_cast<IndexType>(round(fgrid[1])));
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class IndexType>
-Vec3<IndexType> ParticleHelpers::createGrid(const Vec3r& bmin, const Vec3r& bmax, Real spacing)
-{
-    Vec3r fgrid = (bmax - bmin) / spacing;
-    return Vec3<IndexType>(static_cast<IndexType>(round(fgrid[0])),
-                           static_cast<IndexType>(round(fgrid[1])),
-                           static_cast<IndexType>(round(fgrid[2])));
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class VectorType>
 UInt ParticleHelpers::loadBinary(const String& fileName, Vector<VectorType>& particles, Real& particleRadius)
 {

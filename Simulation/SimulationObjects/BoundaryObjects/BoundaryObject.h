@@ -18,12 +18,17 @@
 #pragma once
 
 #include <Banana/Setup.h>
+#include <Banana/Array/Array2.h>
+#include <Banana/Array/Array3.h>
 #include <Banana/Utils/MathHelpers.h>
 
 #include <cassert>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
+{
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+namespace SimulationObjects
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 class BoundaryObject
@@ -33,20 +38,45 @@ public:
     BoundaryObject(Real margin) : m_Margin(margin) {}
     BoundaryObject(Real margin, Real restitution) : m_Margin(margin), m_RestitutionCoeff(restitution) {}
 
+    virtual void generateBoundaryParticles(Real spacing, int numBDLayers = 2) {}
+    virtual void generateSignedDistanceField(Real sdfCellSize = Real(1.0 / 256.0)) {}
+    virtual bool constrainToBoundary(Vec3r& ppos, Vec3r& pvel) = 0;
+
+protected:
+    Real m_Margin           = Real(0.0);
+    Real m_RestitutionCoeff = Real(0.1);
+};
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+class BoundaryObject2D : public BoundaryObject
+{
+    UInt       getNumBDParticles() const noexcept { return static_cast<UInt>(m_BDParticles.size()); }
+    Vec_Vec2r& getBDParticles() { return m_BDParticles; }
+
+    template<class IndexType>
+    const Vec2r& getBDParticle(IndexType idx) const { assert(static_cast<size_t>(idx) < m_BDParticles.size()); return m_BDParticles[idx]; }
+
+protected:
+    Vec_Vec2r m_BDParticles;
+    Array2r   m_SDF;
+};
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+class BoundaryObject3D : public BoundaryObject
+{
+    UInt       getNumBDParticles() const noexcept { return static_cast<UInt>(m_BDParticles.size()); }
+    Vec_Vec3r& getBDParticles() { return m_BDParticles; }
+
     template<class IndexType>
     const Vec3r& getBDParticle(IndexType idx) const { assert(static_cast<size_t>(idx) < m_BDParticles.size()); return m_BDParticles[idx]; }
 
-    Vec_Vec3r& getBDParticles() { return m_BDParticles; }
-    UInt getNumBDParticles() const noexcept { return static_cast<unsigned int>(m_BDParticles.size()); }
-
-    virtual void generateBoundaryParticles(Real spacing, int numBDLayers = 2) = 0;
-    virtual bool constrainToBoundary(Vec3r& ppos, Vec3r& pvel)                = 0;
-
 protected:
     Vec_Vec3r m_BDParticles;
-    Real      m_Margin           = Real(0.0);
-    Real      m_RestitutionCoeff = Real(0.1);
+    Array3r   m_SDF;
 };
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+}   // end namespace SimulationObjects
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana
