@@ -34,8 +34,9 @@ struct SimulationParameters_WCSPH
     SimulationParameters_WCSPH() { makeReady(); }
 
     ////////////////////////////////////////////////////////////////////////////////
-    Real defaultTimestep = Real(1.0e-4);
-    Real CFLFactor       = Real(0.5);
+    Real minTimestep = Real(1.0e-6);
+    Real maxTimestep = Real(5.0e-4);
+    Real CFLFactor   = Real(0.5);
 
     Vec3r boxMin = Vec3r(-1.0);
     Vec3r boxMax = Vec3r(1.0);

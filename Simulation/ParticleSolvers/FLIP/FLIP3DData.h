@@ -32,7 +32,8 @@ struct SimulationParameters_FLIP3D
     SimulationParameters_FLIP3D() { makeReady(); }
 
     ////////////////////////////////////////////////////////////////////////////////
-    Real       defaultTimestep     = Real(1.0e-4);
+    Real       minTimestep         = Real(1.0e-6);
+    Real       maxTimestep         = Real(5.0e-4);
     Real       CFLFactor           = Real(1.0);
     Real       PIC_FLIP_ratio      = Real(0.97);
     Real       boundaryRestitution = Real(DEFAULT_BOUNDARY_RESTITUTION);
@@ -62,7 +63,7 @@ struct SimulationParameters_FLIP3D
     void makeReady()
     {
         cellSize            = particleRadius * Real(4.0);
-        nearKernelRadius    = particleRadius * Real(3.01);
+        nearKernelRadius    = particleRadius * Real(2.5);
         nearKernelRadiusSqr = nearKernelRadius * nearKernelRadius;
 
         sdfRadius  = cellSize * Real(1.01 * sqrt(3.0) / 2.0);

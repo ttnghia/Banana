@@ -36,7 +36,7 @@ struct SimulationParameters_MPM2D
     Real boundaryRestitution = Real(DEFAULT_BOUNDARY_RESTITUTION);
     Real gravity             = Real(-9.81);
 
-    Real particleRadius      = Real(1.0 / 64.0 / 4.0);
+    Real particleRadius      = Real(1.0 / 64.0 / 2.0);
     Real CGRelativeTolerance = Real(1e-15);
     UInt maxCGIteration      = 10000;
     UInt expandCells         = 2;
@@ -72,7 +72,7 @@ struct SimulationParameters_MPM2D
     {
         particleMass = particleRadius * particleRadius * materialDensity;
 
-        cellSize = particleRadius * Real(4.0);
+        cellSize = particleRadius * Real(2.0);
         cellArea = cellSize * cellSize;
 
         lambda = YoungsModulus * PoissonsRatio / ((Real(1.0) + PoissonsRatio) * (Real(1.0) - Real(2.0) * PoissonsRatio)),

@@ -32,13 +32,14 @@ struct SimulationParameters_FLIP2D
     SimulationParameters_FLIP2D() { makeReady(); }
 
     ////////////////////////////////////////////////////////////////////////////////
-    Real       defaultTimestep     = Real(1.0e-4);
+    Real       minTimestep         = Real(1.0e-6);
+    Real       maxTimestep         = Real(5.0e-4);
     Real       CFLFactor           = Real(1.0);
     Real       PIC_FLIP_ratio      = Real(0.97);
     Real       boundaryRestitution = Real(DEFAULT_BOUNDARY_RESTITUTION);
     Real       gravity             = Real(9.81);
     Real       particleRadius      = Real(2.0 / 64.0 / 4.0);
-    P2GKernels kernelFunc          = P2GKernels::Linear;
+    P2GKernels p2gKernel           = P2GKernels::Linear;
     UInt       expandCells         = 2;
     Real       CGRelativeTolerance = Real(1e-15);
     UInt       maxCGIteration      = 10000;
@@ -50,8 +51,8 @@ struct SimulationParameters_FLIP2D
     Vec2r movingBMax = Vec2r(1.0);
 
     // the following need to be computed
-    Vec3r domainBMin;
-    Vec3r domainBMax;
+    Vec2r domainBMin;
+    Vec2r domainBMax;
     int   kernelSpan;
     Real  cellSize;
     Real  nearKernelRadius;
@@ -66,7 +67,10 @@ struct SimulationParameters_FLIP2D
         nearKernelRadiusSqr = nearKernelRadius * nearKernelRadius;
 
         sdfRadius  = cellSize * Real(1.01 * sqrt(2.0) / 2.0);
-        kernelSpan = (kernelFunc == P2GKernels::Linear || kernelFunc == P2GKernels::SwirlyLinear) ? 1 : 2;
+        kernelSpan = (p2gKernel == P2GKernels::Linear || p2gKernel == P2GKernels::SwirlyLinear) ? 1 : 2;
+
+        domainBMin = movingBMin - Vec2r(cellSize * expandCells);
+        domainBMax = movingBMax + Vec2r(cellSize * expandCells);
     }
 
     ////////////////////////////////////////////////////////////////////////////////
