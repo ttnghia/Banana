@@ -55,8 +55,8 @@ public:
     ParticleSolver() = default;
     virtual ~ParticleSolver() { Logger::shutdown(); }
 
-    const std::unique_ptr<GlobalParameters>& getGlobalParams() const noexcept { return m_GlobalParams; }
-    const std::shared_ptr<Logger>&           getLogger() const noexcept { return m_Logger; }
+    const UniquePtr<GlobalParameters>& getGlobalParams() const noexcept { return m_GlobalParams; }
+    const SharedPtr<Logger>&           getLogger() const noexcept { return m_Logger; }
 
     static bool loadDataPath(const String& sceneFile, String& dataPath);
     void        loadScene(const String& sceneFile);
@@ -85,15 +85,13 @@ protected:
 
 
     ////////////////////////////////////////////////////////////////////////////////
-    std::unique_ptr<tbb::task_scheduler_init> m_ThreadInit = nullptr;
-    std::unique_ptr<NeighborSearch>           m_NSearch    = nullptr;
-    std::shared_ptr<Logger>                   m_Logger     = nullptr;
+    UniquePtr<tbb::task_scheduler_init> m_ThreadInit = nullptr;
+    UniquePtr<NeighborSearch>           m_NSearch    = nullptr;
+    SharedPtr<Logger>                   m_Logger     = nullptr;
 
-    std::unique_ptr<GlobalParameters>             m_GlobalParams = std::make_unique<GlobalParameters>();
-    std::vector<std::shared_ptr<DataIO> >         m_ParticleDataIO;
-    std::vector<std::shared_ptr<DataIO> >         m_MemoryStateIO;
-    std::vector<std::shared_ptr<BoundaryObject> > m_BoundaryObjects;
-    std::vector<std::shared_ptr<ParticleObject> > m_ParticleObjects;
+    UniquePtr<GlobalParameters> m_GlobalParams = std::make_unique<GlobalParameters>();
+    Vector<SharedPtr<DataIO> >  m_ParticleDataIO;
+    Vector<SharedPtr<DataIO> >  m_MemoryStateIO;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -103,6 +101,10 @@ public:
     virtual Vec_Vec2r& getParticlePositions()  = 0;
     virtual Vec_Vec2r& getParticleVelocities() = 0;
     constexpr UInt     solverDimension() const noexcept { return 2u; }
+
+protected:
+    Vector<SharedPtr<SimulationObjects::BoundaryObject2D> > m_BoundaryObjects;
+    Vector<SharedPtr<SimulationObjects::ParticleObject2D> > m_ParticleObjects;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -112,6 +114,10 @@ public:
     virtual Vec_Vec3r& getParticlePositions()  = 0;
     virtual Vec_Vec3r& getParticleVelocities() = 0;
     constexpr UInt     solverDimension() const noexcept { return 3u; }
+
+protected:
+    Vector<SharedPtr<SimulationObjects::BoundaryObject3D> > m_BoundaryObjects;
+    Vector<SharedPtr<SimulationObjects::ParticleObject3D> > m_ParticleObjects;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

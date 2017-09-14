@@ -21,7 +21,7 @@
 #include <Banana/Array/Array2.h>
 #include <Banana/Array/Array3.h>
 #include <Banana/Utils/MathHelpers.h>
-
+#include <ParticleSolvers/ParticleSolverData.h>
 #include <cassert>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -34,45 +34,64 @@ namespace SimulationObjects
 class BoundaryObject
 {
 public:
-    BoundaryObject() {}
-    BoundaryObject(Real margin) : m_Margin(margin) {}
-    BoundaryObject(Real margin, Real restitution) : m_Margin(margin), m_RestitutionCoeff(restitution) {}
+    BoundaryObject() = default;
+    Real& margin() { return m_Margin; }
+    Real& restitution() { return m_RestitutionCoeff; }
 
-    virtual void generateBoundaryParticles(Real spacing, int numBDLayers = 2) {}
+    ////////////////////////////////////////////////////////////////////////////////
+    virtual void makeReady() {}
+    virtual void generateBoundaryParticles(Real spacing, int numBDLayers = 2, bool saveCache = false) {}
     virtual void generateSignedDistanceField(Real sdfCellSize = Real(1.0 / 256.0)) {}
-    virtual bool constrainToBoundary(Vec3r& ppos, Vec3r& pvel) = 0;
+    virtual bool hasSDF() const noexcept { return false; }
+    virtual bool isDynamic() const noexcept { return false; }
 
 protected:
     Real m_Margin           = Real(0.0);
-    Real m_RestitutionCoeff = Real(0.1);
+    Real m_RestitutionCoeff = ParticleSolverConstants::DefaultBoundaryRestitution;
+
+    String cacheFile;
+    String meshFile;
 };
+
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 class BoundaryObject2D : public BoundaryObject
 {
-    UInt       getNumBDParticles() const noexcept { return static_cast<UInt>(m_BDParticles.size()); }
-    Vec_Vec2r& getBDParticles() { return m_BDParticles; }
+public:
+    virtual UInt getNumBDParticles() const noexcept { return static_cast<UInt>(m_BDParticles.size()); }
+    Vec_Vec2r&   getBDParticles() { return m_BDParticles; }
+    Array2r&     getSDF() { return m_SDF; }
 
-    template<class IndexType>
-    const Vec2r& getBDParticle(IndexType idx) const { assert(static_cast<size_t>(idx) < m_BDParticles.size()); return m_BDParticles[idx]; }
+    virtual bool constrainToBoundary(Vec2r& ppos, Vec2r& pvel) = 0;
+    virtual bool hasSDF() const noexcept override { return m_SDF.size() > 0; }
 
 protected:
     Vec_Vec2r m_BDParticles;
     Array2r   m_SDF;
+
+    Vec2r        m_Translation = Vec2r(0);
+    Mat2x2<Real> m_Rotation    = Mat2x2r(1.0);
+    Vec2r        m_Scale       = Vec2r(1.0);
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 class BoundaryObject3D : public BoundaryObject
 {
+public:
     UInt       getNumBDParticles() const noexcept { return static_cast<UInt>(m_BDParticles.size()); }
     Vec_Vec3r& getBDParticles() { return m_BDParticles; }
+    Array3r&   getSDF() { return m_SDF; }
 
-    template<class IndexType>
-    const Vec3r& getBDParticle(IndexType idx) const { assert(static_cast<size_t>(idx) < m_BDParticles.size()); return m_BDParticles[idx]; }
+    virtual bool constrainToBoundary(Vec3r& ppos, Vec3r& pvel) = 0;
+    virtual bool hasSDF() const noexcept override { return m_SDF.size() > 0; }
 
 protected:
     Vec_Vec3r m_BDParticles;
     Array3r   m_SDF;
+
+    Vec3r        m_Translation = Vec3r(0);
+    Mat3x3<Real> m_Rotation    = Mat3x3r(1.0);
+    Vec3r        m_Scale       = Vec3r(1.0);
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

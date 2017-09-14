@@ -15,7 +15,9 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-#include <SimulationObjects/ParticleObjects/ParticleObject.h>
+#pragma once
+
+#include <SimulationObjects/BoundaryObjects/BoundaryObject.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -24,45 +26,18 @@ namespace Banana
 namespace SimulationObjects
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void ParticleObject3D::makeObj()
+class BoxBoundary2D : public BoundaryObject2D
 {
-    if(!m_CacheFile.empty() && FileHelpers::fileExisted(m_CacheFile))
-    {
-        m_Particles.resize(0);
-        ParticleHelpers::loadBinary(m_CacheFile, m_Particles, m_ParticleRadius);
-    }
-    else
-    {
-        __BNN_ASSERT(m_ParticleRadius > 0);
-        generateParticles();
+public:
+    BoxBoundary2D(const Vec2r& bMin, const Vec2r& bMax) : m_BMin(bMin), m_BMax(bMax) { }
 
-        if(m_bRelaxPosition)
-            ParticleHelpers::relaxPosition(m_Particles, m_RelaxMethod);
+    void         setBox(const Vec2r& bMin, const Vec2r& bMax);
+    virtual void generateBoundaryParticles(Real spacing, Int numBDLayers = 2) override;
+    virtual bool constrainToBoundary(Vec2r& ppos, Vec2r& pvel) override;
 
-        if(!m_CacheFile.empty())
-            ParticleHelpers::saveBinary(m_CacheFile, m_Particles, m_ParticleRadius);
-    }
-
-    computeAABB();
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void ParticleObject3D::computeAABB()
-{
-    for(auto& ppos : m_Particles)
-    {
-        for(int l = 0; l < 3; ++l)
-        {
-            if(m_AABBMin[l] > ppos[l])
-                m_AABBMin[l] = ppos[l];
-
-            if(m_AABBMax[l] < ppos[l])
-                m_AABBMax[l] = ppos[l];
-        }
-    }
-
-    m_ObjCenter = (m_AABBMin + m_AABBMax) * Real(0.5);
-}
+private:
+    Vec2r m_BMin, m_BMax;
+};
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace SimulationObjects

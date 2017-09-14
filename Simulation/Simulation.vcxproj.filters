@@ -132,12 +132,6 @@
     <ClInclude Include="SimulationObjects\BoundaryObjects\BoundaryObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SimulationObjects\BoundaryObjects\BoundaryObjects">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SimulationObjects\BoundaryObjects\BoxBoundaryObject.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="SimulationObjects\ParticleEmitters\BoxEmitter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -201,6 +195,15 @@
     <ClInclude Include="ParticleSolvers\ShapeFunctions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="SimulationObjects\BoundaryObjects\BoxBoundary2D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SimulationObjects\BoundaryObjects\BoxBoundary3D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SimulationObjects\BoundaryObjects\BoundaryObjects">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ParticleSolvers\FLIP\FLIP2DSolver.cpp">
@@ -221,13 +224,16 @@
     <ClCompile Include="ParticleTools\ParticleHelpers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SimulationObjects\BoundaryObjects\BoxBoundaryObject.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="SimulationObjects\ParticleObjects\ParticleObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ParticleSolvers\MPM\MPM2DSolver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SimulationObjects\BoundaryObjects\BoxBoundary2D.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SimulationObjects\BoundaryObjects\BoxBoundary3D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

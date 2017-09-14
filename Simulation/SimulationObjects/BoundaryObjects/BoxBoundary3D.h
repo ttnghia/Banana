@@ -26,33 +26,17 @@ namespace Banana
 namespace SimulationObjects
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class BoxBoundaryObject : public BoundaryObject3D
+class BoxBoundary3D : public BoundaryObject3D
 {
 public:
-    BoxBoundaryObject() = default;
-    BoxBoundaryObject(const Vec3r& bMin, const Vec3r& bMax) : m_BMin(bMin), m_BMax(bMax) {}
-    BoxBoundaryObject(const Vec3r& bMin, const Vec3r& bMax, Real margin) :
-        BoundaryObject3D(margin), m_BMin(bMin), m_BMax(bMax), m_MovingBMin(bMin), m_MovingBMax(bMax)
-    {
-        computeMovingBox();
-    }
-
-    BoxBoundaryObject(const Vec3r& bMin, const Vec3r& bMax, Real margin, Real restitution) :
-        BoundaryObject3D(margin, restitution), m_BMin(bMin), m_BMax(bMax), m_MovingBMin(bMin), m_MovingBMax(bMax)
-    {
-        computeMovingBox();
-    }
+    BoxBoundary3D(const Vec3r& bMin, const Vec3r& bMax) : m_BMin(bMin), m_BMax(bMax) {}
 
     void         setBox(const Vec3r& bMin, const Vec3r& bMax);
     virtual void generateBoundaryParticles(Real spacing, Int numBDLayers = 2) override;
     virtual bool constrainToBoundary(Vec3r& ppos, Vec3r& pvel) override;
 
 private:
-    void computeMovingBox();
-
-    ////////////////////////////////////////////////////////////////////////////////
     Vec3r m_BMin, m_BMax;
-    Vec3r m_MovingBMin, m_MovingBMax;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

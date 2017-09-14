@@ -45,7 +45,7 @@ void WCSPHSolver::makeReady()
 
 
 
-                               m_BoundaryObjects.push_back(std::make_shared<BoxBoundaryObject>(m_SimParams->boxMin, m_SimParams->boxMax, m_SimParams->particleRadius));
+                               m_BoundaryObjects.push_back(std::make_shared<SimulationObjects::BoxBoundary3D>(m_SimParams->boxMin, m_SimParams->boxMax));
 
                                if(m_SimParams->bUseBoundaryParticles)
                                {
@@ -352,7 +352,7 @@ void WCSPHSolver::computeDensity()
                                           {
                                               for(UInt q : fluidPointSet.neighbors(1, p))
                                               {
-                                                  const Vec3r& qPos = m_BoundaryObjects[0]->getBDParticle(q);
+                                                  const Vec3r& qPos = m_BoundaryObjects[0]->getBDParticles()[q];
                                                   const Vec3r r = qPos - pPos;
 
                                                   pden += m_CubicKernel.W(r);
@@ -400,7 +400,7 @@ void WCSPHSolver::correctDensity()
                                           {
                                               for(UInt q : fluidPointSet.neighbors(1, p))
                                               {
-                                                  const Vec3r& qpos = m_BoundaryObjects[0]->getBDParticle(q);
+                                                  const Vec3r& qpos = m_BoundaryObjects[0]->getBDParticles()[q];
                                                   const Vec3r r = qpos - pPos;
                                                   tmp += m_CubicKernel.W(r) / m_SimParams->restDensity;
                                               }
@@ -464,7 +464,7 @@ void WCSPHSolver::computePressureForces()
                                           {
                                               for(UInt q : fluidPointSet.neighbors(1, p))
                                               {
-                                                  const Vec3r& qpos = m_BoundaryObjects[0]->getBDParticle(q);
+                                                  const Vec3r& qpos = m_BoundaryObjects[0]->getBDParticles()[q];
                                                   const Vec3r r = qpos - pPos;
 
                                                   const Vec3r pressure = (ppressure / (pden * pden)) * m_SpikyKernel.gradW(r);
@@ -515,7 +515,7 @@ void WCSPHSolver::computeViscosity()
                                           {
                                               for(UInt q : fluidPointSet.neighbors(1, p))
                                               {
-                                                  const Vec3r& qpos = m_BoundaryObjects[0]->getBDParticle(q);
+                                                  const Vec3r& qpos = m_BoundaryObjects[0]->getBDParticles()[q];
                                                   const Vec3r r = qpos - pPos;
 
                                                   diffVelBoundary -= (Real(1.0) / m_SimParams->restDensity) * m_CubicKernel.W(r) * pvel;

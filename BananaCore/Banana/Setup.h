@@ -21,6 +21,7 @@
 #include <vector>
 #include <cstdint>
 #include <string>
+#include <memory>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #define GLM_FORCE_INLINE
@@ -104,6 +105,12 @@ template<class Type> using Vec_Vec4   = Vector<Vec4<Type> >;
 template<class Type> using Vec_Mat2x2 = Vector<Mat2x2<Type> >;
 template<class Type> using Vec_Mat3x3 = Vector<Mat3x3<Type> >;
 template<class Type> using Vec_Mat4x4 = Vector<Mat4x4<Type> >;
+
+template<class Type>
+using SharedPtr = std::shared_ptr<Type>;
+
+template<class Type>
+using UniquePtr = std::unique_ptr<Type>;
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 using Vec2i = Vec2<Int>;

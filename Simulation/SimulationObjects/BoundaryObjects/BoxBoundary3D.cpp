@@ -15,30 +15,27 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-#include <SimulationObjects/BoundaryObjects/BoxBoundaryObject.h>
+#include <Banana/Utils/NumberHelpers.h>
 #include <ParticleTools/ParticleHelpers.h>
+#include <SimulationObjects/BoundaryObjects/BoxBoundary3D.h>
+
 #include <random>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void BoxBoundaryObject::setBox(const Vec3r& bMin, const Vec3r& bMax)
+namespace SimulationObjects
+{
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void BoxBoundary3D::setBox(const Vec3r& bMin, const Vec3r& bMax)
 {
     m_BMin = bMin;
     m_BMax = bMax;
-    computeMovingBox();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void BoxBoundaryObject::computeMovingBox()
-{
-    m_MovingBMin = m_BMin + Vec3r(m_Margin);
-    m_MovingBMax = m_BMax - Vec3r(m_Margin);
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void BoxBoundaryObject::generateBoundaryParticles(Real spacing, Int numBDLayers /*= 2*/)
+void BoxBoundary3D::generateBoundaryParticles(Real spacing, Int numBDLayers /*= 2*/)
 {
     m_BDParticles.resize(0);
     std::random_device rd;
@@ -53,7 +50,7 @@ void BoxBoundaryObject::generateBoundaryParticles(Real spacing, Int numBDLayers 
         Vec3r minLX = m_BMin - Vec3r(spacing * Real(numBDLayers * Real(1.001)));
         Vec3r maxLX = m_BMax + Vec3r(spacing * Real(numBDLayers * Real(1.001)));
         maxLX[0] = m_BMin[0];
-        Vec3i gridLX = ParticleHelpers::createGrid<Int>(minLX, maxLX, spacing);
+        Vec3i gridLX = NumberHelpers::createGrid<Int>(minLX, maxLX, spacing);
 
         for(Int x = 0; x < gridLX[0]; ++x)
         {
@@ -75,7 +72,7 @@ void BoxBoundaryObject::generateBoundaryParticles(Real spacing, Int numBDLayers 
         Vec3r minUX = m_BMin - Vec3r(spacing * Real(numBDLayers * Real(1.001)));
         Vec3r maxUX = m_BMax + Vec3r(spacing * Real(numBDLayers * Real(1.001)));
         minUX[0] = m_BMax[0];
-        Vec3i gridUX = ParticleHelpers::createGrid<Int>(minUX, maxUX, spacing);
+        Vec3i gridUX = NumberHelpers::createGrid<Int>(minUX, maxUX, spacing);
 
         for(Int x = 0; x < gridUX[0]; ++x)
         {
@@ -99,7 +96,7 @@ void BoxBoundaryObject::generateBoundaryParticles(Real spacing, Int numBDLayers 
         minLY[0] = m_BMin[0];
         maxLY[0] = m_BMax[0];
         maxLY[1] = m_BMin[1];
-        Vec3i gridLY = ParticleHelpers::createGrid<Int>(minLY, maxLY, spacing);
+        Vec3i gridLY = NumberHelpers::createGrid<Int>(minLY, maxLY, spacing);
 
         for(Int x = 0; x < gridLY[0]; ++x)
         {
@@ -123,7 +120,7 @@ void BoxBoundaryObject::generateBoundaryParticles(Real spacing, Int numBDLayers 
         minUY[0] = m_BMin[0];
         maxUY[0] = m_BMax[0];
         minUY[1] = m_BMax[1];
-        Vec3i gridUY = ParticleHelpers::createGrid<Int>(minUY, maxUY, spacing);
+        Vec3i gridUY = NumberHelpers::createGrid<Int>(minUY, maxUY, spacing);
 
         for(Int x = 0; x < gridUY[0]; ++x)
         {
@@ -149,7 +146,7 @@ void BoxBoundaryObject::generateBoundaryParticles(Real spacing, Int numBDLayers 
         minLZ[1] = m_BMin[1];
         maxLZ[1] = m_BMax[1];
         maxLZ[2] = m_BMin[2];
-        Vec3i gridLZ = ParticleHelpers::createGrid<Int>(minLZ, maxLZ, spacing);
+        Vec3i gridLZ = NumberHelpers::createGrid<Int>(minLZ, maxLZ, spacing);
 
         for(Int x = 0; x < gridLZ[0]; ++x)
         {
@@ -175,7 +172,7 @@ void BoxBoundaryObject::generateBoundaryParticles(Real spacing, Int numBDLayers 
         minUZ[1] = m_BMin[1];
         maxUZ[1] = m_BMax[1];
         minUZ[2] = m_BMax[2];
-        Vec3i gridUX = ParticleHelpers::createGrid<Int>(minUZ, maxUZ, spacing);
+        Vec3i gridUX = NumberHelpers::createGrid<Int>(minUZ, maxUZ, spacing);
 
         for(Int x = 0; x < gridUX[0]; ++x)
         {
@@ -193,15 +190,15 @@ void BoxBoundaryObject::generateBoundaryParticles(Real spacing, Int numBDLayers 
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-bool BoxBoundaryObject::constrainToBoundary(Vec3r& pPos, Vec3r& pVel)
+bool BoxBoundary3D::constrainToBoundary(Vec3r& pPos, Vec3r& pVel)
 {
     bool velChanged = false;
 
-    for(Int l = 0; l < 3; ++l)
+    for(Int l = 0; l < pPos.length(); ++l)
     {
-        if(pPos[l] < m_MovingBMin[l] || pPos[l] > m_MovingBMax[l])
+        if(pPos[l] < m_BMin[l] || pPos[l] > m_BMax[l])
         {
-            pPos[l]    = MathHelpers::min(MathHelpers::max(pPos[l], m_MovingBMin[l]), m_MovingBMax[l]);
+            pPos[l]    = MathHelpers::min(MathHelpers::max(pPos[l], m_BMin[l]), m_BMax[l]);
             pVel[l]   *= -m_RestitutionCoeff;
             velChanged = true;
         }
@@ -209,6 +206,9 @@ bool BoxBoundaryObject::constrainToBoundary(Vec3r& pPos, Vec3r& pVel)
 
     return velChanged;
 }
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+}   // end namespace SimulationObjects
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana

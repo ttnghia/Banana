@@ -156,7 +156,8 @@
     <ClInclude Include="ParticleTools\ParticleHelpers.Impl.hpp" />
     <ClInclude Include="SimulationObjects\BoundaryObjects\BoundaryObject.h" />
     <ClInclude Include="SimulationObjects\BoundaryObjects\BoundaryObjects" />
-    <ClInclude Include="SimulationObjects\BoundaryObjects\BoxBoundaryObject.h" />
+    <ClInclude Include="SimulationObjects\BoundaryObjects\BoxBoundary2D.h" />
+    <ClInclude Include="SimulationObjects\BoundaryObjects\BoxBoundary3D.h" />
     <ClInclude Include="SimulationObjects\ParticleEmitters\BoxEmitter.h" />
     <ClInclude Include="SimulationObjects\ParticleEmitters\CylinderEmitter.h" />
     <ClInclude Include="SimulationObjects\ParticleEmitters\HollowSphereEmitter.h" />
@@ -185,7 +186,8 @@
     <ClCompile Include="ParticleSolvers\SPH\WCSPH\WCSPHSolver.cpp" />
     <ClCompile Include="ParticleTools\ParticleHelpers.cpp" />
     <ClCompile Include="ParticleTools\_ParticleTools.Test.cpp" />
-    <ClCompile Include="SimulationObjects\BoundaryObjects\BoxBoundaryObject.cpp" />
+    <ClCompile Include="SimulationObjects\BoundaryObjects\BoxBoundary2D.cpp" />
+    <ClCompile Include="SimulationObjects\BoundaryObjects\BoxBoundary3D.cpp" />
     <ClCompile Include="SimulationObjects\ParticleObjects\ParticleObject.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
