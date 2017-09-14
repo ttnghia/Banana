@@ -89,6 +89,12 @@ inline void throwIfFailed(HRESULT hr)
 #define _STR(x)            #x
 #define __BNN_TO_STRING(x) _STR(x)
 
+#ifdef __BANANA_WINDOWS__
+#define __BNN_FORCE_INLINE __forceinline
+#else
+#define __BNN_FORCE_INLINE __attribute__((always_inline))
+#endif
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #define __BNN_COMPILER_MESSAGE(msg) \
     __pragma(message("+++>" msg))

@@ -35,7 +35,7 @@ void BoxBoundary3D::setBox(const Vec3r& bMin, const Vec3r& bMax)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void BoxBoundary3D::generateBoundaryParticles(Real spacing, Int numBDLayers /*= 2*/)
+void BoxBoundary3D::generateBoundaryParticles(Real spacing, Int numBDLayers /*= 2*/, bool saveCache /*= false*/)
 {
     m_BDParticles.resize(0);
     std::random_device rd;

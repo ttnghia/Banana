@@ -21,7 +21,7 @@
 #include <Banana/Utils/MathHelpers.h>
 #include <Banana/Utils/NumberHelpers.h>
 #include <Banana/Grid/Grid3D.h>
-#include <Banana/Array/Array3.h>
+#include <Banana/Array/Array.h>
 #include <Banana/Array/ArrayHelpers.h>
 #include <Banana/Geometry/MeshLoader.h>
 
@@ -44,7 +44,7 @@ public:
     virtual std::string name()                            = 0;
     virtual Real        signedDistance(const Vec2r& ppos) = 0;
 
-    bool                  isInside(const Vec2r& ppos) { return signedDistance(ppos) < 0; }
+    bool         isInside(const Vec2r& ppos) { return signedDistance(ppos) < 0; }
     const Vec2r& aabbBoxMin() const noexcept { return m_AABBBoxMin; }
     const Vec2r& aabbBoxMax() const noexcept { return m_AABBMax; }
     const Vec2r& objCenter() const noexcept { return m_ObjCenter; }
@@ -70,7 +70,7 @@ class BoxObject : public GeometryObject
 {
 public:
     virtual std::string name() override { return "BoxObject"; };
-    virtual Real signedDistance(const Vec2r& ppos) override
+    virtual Real        signedDistance(const Vec2r& ppos) override
     {
         if(ppos[0] > m_BoxMin[0] && ppos[0] < m_BoxMax[0] &&
            ppos[1] > m_BoxMin[1] && ppos[1] < m_BoxMax[1])
@@ -100,13 +100,13 @@ class CircleObject : public GeometryObject
 {
 public:
     virtual std::string name() override { return "CircleObject"; }
-    virtual Real signedDistance(const Vec2r& ppos) override
+    virtual Real        signedDistance(const Vec2r& ppos) override
     {
         return glm::length(ppos - m_SphereCenter) - m_SphereRadius;
     }
 
     Vec2r& sphereCenter() { return m_SphereCenter; }
-    Real& sphereRadius() { return m_SphereRadius; }
+    Real&  sphereRadius() { return m_SphereRadius; }
 
 protected:
     Vec2r m_SphereCenter = Vec2r(0, 0.5);
@@ -119,7 +119,7 @@ class TorusObject : public GeometryObject
 {
 public:
     virtual std::string name() override { return "TorusObject"; }
-    virtual Real signedDistance(const Vec2r& ppos) override
+    virtual Real        signedDistance(const Vec2r& ppos) override
     {
         Real innerVal = glm::length(ppos - m_SphereCenter) - m_InnerRadius;
         Real outerVal = glm::length(ppos - m_SphereCenter) - m_OuterRadius;
@@ -127,8 +127,8 @@ public:
     }
 
     Vec2r& torusCenter() { return m_SphereCenter; }
-    Real& innerRadius() { return m_InnerRadius; }
-    Real& outerRadius() { return m_OuterRadius; }
+    Real&  innerRadius() { return m_InnerRadius; }
+    Real&  outerRadius() { return m_OuterRadius; }
 
 protected:
     Vec2r m_SphereCenter = Vec2r(0);
@@ -189,7 +189,7 @@ class TriangleObject : public GeometryObject
 {
 public:
     virtual std::string name() override { return "TriangleObject"; }
-    virtual Real signedDistance(const Vec2r& ppos) override
+    virtual Real        signedDistance(const Vec2r& ppos) override
     {
         __BNN_UNUSED(ppos);
 //        Real dx = 0;
@@ -208,13 +208,13 @@ class PlaneObject : public GeometryObject
 {
 public:
     virtual std::string name() override { return "PlaneObject"; }
-    virtual Real signedDistance(const Vec2r& ppos) override
+    virtual Real        signedDistance(const Vec2r& ppos) override
     {
         return glm::dot(ppos, m_Normal) + m_Offset;
     }
 
     Vec2r& normal() { return m_Normal; }
-    Real& offset() { return m_Offset; }
+    Real&  offset() { return m_Offset; }
 
 protected:
     Vec2r m_Normal = Vec2r(0);
@@ -226,7 +226,7 @@ class HexagonObject : public GeometryObject
 {
 public:
     virtual std::string name() override { return "HexagonObject"; }
-    virtual Real signedDistance(const Vec2r& ppos) override
+    virtual Real        signedDistance(const Vec2r& ppos) override
     {
         Real dx = fabs(ppos[0] - m_SphereCenter[0]);
         Real dy = fabs(ppos[1] - m_SphereCenter[1]);
@@ -234,7 +234,7 @@ public:
     }
 
     Vec2r& sphereCenter() { return m_SphereCenter; }
-    Real& sphereRadius() { return m_SphereRadius; }
+    Real&  sphereRadius() { return m_SphereRadius; }
 
 protected:
     Vec2r m_SphereCenter = Vec2r(0);
@@ -246,7 +246,7 @@ class CapsuleObject : public GeometryObject
 {
 public:
     virtual std::string name() override { return "SphereObject"; }
-    virtual Real signedDistance(const Vec2r& ppos) override
+    virtual Real        signedDistance(const Vec2r& ppos) override
     {
         __BNN_UNUSED(ppos);
         //Vec2r a(0, 0, -0.7); // end point a
@@ -261,7 +261,7 @@ public:
     }
 
     Vec2r& sphereCenter() { return m_SphereCenter; }
-    Real& sphereRadius() { return m_SphereRadius; }
+    Real&  sphereRadius() { return m_SphereRadius; }
 
 protected:
     Vec2r m_SphereCenter = Vec2r(0);
@@ -273,7 +273,7 @@ class EllipsoidObject : public GeometryObject
 {
 public:
     virtual std::string name() override { return "SphereObject"; }
-    virtual Real signedDistance(const Vec2r& ppos) override
+    virtual Real        signedDistance(const Vec2r& ppos) override
     {
         __BNN_UNUSED(ppos);
         //Vec2r r(0.7, 0.5, 0.2);
@@ -283,7 +283,7 @@ public:
     }
 
     Vec2r& sphereCenter() { return m_SphereCenter; }
-    Real& sphereRadius() { return m_SphereRadius; }
+    Real&  sphereRadius() { return m_SphereRadius; }
 
 protected:
     Vec2r m_SphereCenter = Vec2r(0);
@@ -295,13 +295,13 @@ class TriMeshObject : public GeometryObject
 {
 public:
     virtual std::string name() override { return "TriangleMeshObject"; }
-    virtual Real signedDistance(const Vec2r& ppos) override;
+    virtual Real        signedDistance(const Vec2r& ppos) override;
 
     std::string& meshFile() { return m_TriMeshFile; }
-    Real& step() { return m_Step; }
-    Real& expanding() { return m_Expanding; }
+    Real&        step() { return m_Step; }
+    Real&        expanding() { return m_Expanding; }
 
-    void makeSDF();
+    void           makeSDF();
     const Array3r& getSDF() const noexcept { return m_SDFData; }
 protected:
 
@@ -345,7 +345,7 @@ public:
     };
 
     virtual std::string name() override { return "SphereObject"; }
-    virtual Real signedDistance(const Vec2r& ppos_) override
+    virtual Real        signedDistance(const Vec2r& ppos_) override
     {
         Vec2r ppos = domainDeform(ppos_);
 

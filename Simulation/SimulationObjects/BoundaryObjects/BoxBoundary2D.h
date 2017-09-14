@@ -32,7 +32,7 @@ public:
     BoxBoundary2D(const Vec2r& bMin, const Vec2r& bMax) : m_BMin(bMin), m_BMax(bMax) { }
 
     void         setBox(const Vec2r& bMin, const Vec2r& bMax);
-    virtual void generateBoundaryParticles(Real spacing, Int numBDLayers = 2) override;
+    virtual void generateBoundaryParticles(Real spacing, Int numBDLayers = 2, bool saveCache = false) override;
     virtual bool constrainToBoundary(Vec2r& ppos, Vec2r& pvel) override;
 
 private:

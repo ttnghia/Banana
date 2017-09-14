@@ -18,7 +18,7 @@
 #pragma once
 
 #include <Banana/Grid/Grid3D.h>
-#include <Banana/Array/Array3.h>
+#include <Banana/Array/Array.h>
 #include <Banana/ParallelHelpers/ParallelObjects.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -51,8 +51,8 @@ private:
     Vec_UInt m_ParticleIdxSortedByCell;
     bool     m_bCellIdxNeedResize = false;                          // to track and resize the m_CellParticleIdx array
 
-    Array3_VecUInt                    m_ParticleIdxInCell;
-    Array3<ParallelObjects::SpinLock> m_Lock;
+    Array3_VecUInt m_ParticleIdxInCell;
+    Array3SpinLock m_Lock;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

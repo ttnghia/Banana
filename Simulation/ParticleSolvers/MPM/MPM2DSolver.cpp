@@ -410,7 +410,7 @@ void MPM2DSolver::velocityToGrid(Real timestep)
                                           }
                                       });
 
-    ParallelFuncs::parallel_for<size_t>(0, gridData().active.size(),
+    ParallelFuncs::parallel_for<size_t>(0, gridData().active.dataSize(),
                                         [&](size_t i)
                                         {
                                             if(gridData().active.data()[i])
@@ -486,7 +486,7 @@ void MPM2DSolver::explicitVelocities(Real timestep)
                                       });
 
     //Now we have all grid forces, compute velocities (euler integration)
-    ParallelFuncs::parallel_for<size_t>(0, gridData().active.size(),
+    ParallelFuncs::parallel_for<size_t>(0, gridData().active.dataSize(),
                                         [&](size_t i)
                                         {
                                             if(gridData().active.data()[i])
@@ -511,7 +511,7 @@ void MPM2DSolver::implicitVelocities(Real timestep)
     //iteratively refine our guess until the error is small enough.
 
     //INITIALIZE LINEAR SOLVE
-    ParallelFuncs::parallel_for<size_t>(0, gridData().imp_active.size(),
+    ParallelFuncs::parallel_for<size_t>(0, gridData().imp_active.dataSize(),
                                         [&](size_t i)
                                         {
                                             gridData().imp_active.data()[i] = gridData().active.data()[i];
@@ -528,7 +528,7 @@ void MPM2DSolver::implicitVelocities(Real timestep)
     //As said before, we need to compute vf-E*vf as our initial "r" residual
     recomputeImplicitForces(timestep);
 
-    ParallelFuncs::parallel_for<size_t>(0, gridData().imp_active.size(),
+    ParallelFuncs::parallel_for<size_t>(0, gridData().imp_active.dataSize(),
                                         [&](size_t i)
                                         {
                                             if(gridData().imp_active.data()[i])
@@ -545,7 +545,7 @@ void MPM2DSolver::implicitVelocities(Real timestep)
     recomputeImplicitForces(timestep);
 
     //Ep starts out the same as Er
-    ParallelFuncs::parallel_for<size_t>(0, gridData().imp_active.size(),
+    ParallelFuncs::parallel_for<size_t>(0, gridData().imp_active.dataSize(),
                                         [&](size_t i)
                                         {
                                             if(gridData().imp_active.data()[i])
@@ -557,7 +557,7 @@ void MPM2DSolver::implicitVelocities(Real timestep)
     {
         bool done = true;
 
-        ParallelFuncs::parallel_for<size_t>(0, gridData().imp_active.size(),
+        ParallelFuncs::parallel_for<size_t>(0, gridData().imp_active.dataSize(),
                                             [&](size_t i)
                                             {
                                                 //Only perform calculations on nodes that haven't been solved yet
@@ -590,7 +590,7 @@ void MPM2DSolver::implicitVelocities(Real timestep)
         recomputeImplicitForces(timestep);
 
         //Calculate the gradient for our next guess
-        ParallelFuncs::parallel_for<size_t>(0, gridData().imp_active.size(),
+        ParallelFuncs::parallel_for<size_t>(0, gridData().imp_active.dataSize(),
                                             [&](size_t i)
                                             {
                                                 if(gridData().imp_active.data()[i])
@@ -639,7 +639,7 @@ void MPM2DSolver::recomputeImplicitForces(Real timestep)
 
     //We have delta force for each node; to get Er, we use the following formula:
     //	r - IMPLICIT_RATIO*TIMESTEP*delta_force/mass
-    ParallelFuncs::parallel_for<size_t>(0, gridData().imp_active.size(),
+    ParallelFuncs::parallel_for<size_t>(0, gridData().imp_active.dataSize(),
                                         [&](size_t i)
                                         {
                                             if(gridData().imp_active.data()[i])

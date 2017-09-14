@@ -21,7 +21,7 @@
 #include <Banana/Utils/MathHelpers.h>
 #include <Banana/Utils/NumberHelpers.h>
 #include <Banana/Grid/Grid3D.h>
-#include <Banana/Array/Array3.h>
+#include <Banana/Array/Array.h>
 #include <Banana/Array/ArrayHelpers.h>
 #include <Banana/Geometry/MeshLoader.h>
 
@@ -44,7 +44,7 @@ public:
     virtual std::string name()                            = 0;
     virtual Real        signedDistance(const Vec3r& ppos) = 0;
 
-    bool                  isInside(const Vec3r& ppos) { return signedDistance(ppos) < 0; }
+    bool         isInside(const Vec3r& ppos) { return signedDistance(ppos) < 0; }
     const Vec3r& aabbBoxMin() const noexcept { return m_AABBBoxMin; }
     const Vec3r& aabbBoxMax() const noexcept { return m_AABBMax; }
     const Vec3r& objCenter() const noexcept { return m_ObjCenter; }
@@ -70,7 +70,7 @@ class BoxObject : public GeometryObject
 {
 public:
     virtual std::string name() override { return "BoxObject"; };
-    virtual Real signedDistance(const Vec3r& ppos) override
+    virtual Real        signedDistance(const Vec3r& ppos) override
     {
         if(ppos[0] > m_BoxMin[0] && ppos[0] < m_BoxMax[0] &&
            ppos[1] > m_BoxMin[1] && ppos[1] < m_BoxMax[1] &&
@@ -104,13 +104,13 @@ class SphereObject : public GeometryObject
 {
 public:
     virtual std::string name() override { return "SphereObject"; }
-    virtual Real signedDistance(const Vec3r& ppos) override
+    virtual Real        signedDistance(const Vec3r& ppos) override
     {
         return glm::length(ppos - m_SphereCenter) - m_SphereRadius;
     }
 
     Vec3r& sphereCenter() { return m_SphereCenter; }
-    Real& sphereRadius() { return m_SphereRadius; }
+    Real&  sphereRadius() { return m_SphereRadius; }
 
 protected:
     Vec3r m_SphereCenter = Vec3r(0, 0.5, 0);
@@ -124,7 +124,7 @@ class TorusObject : public GeometryObject
 {
 public:
     virtual std::string name() override { return "TorusObject"; }
-    virtual Real signedDistance(const Vec3r& ppos) override
+    virtual Real        signedDistance(const Vec3r& ppos) override
     {
         Vec2<Real> t(0.6, 0.2);
 
@@ -202,7 +202,7 @@ class CylinderObject : public GeometryObject
 {
 public:
     virtual std::string name() override { return "CylinderObject"; }
-    virtual Real signedDistance(const Vec3r& ppos) override
+    virtual Real        signedDistance(const Vec3r& ppos) override
     {
         //Vec3<RealType> c(0.0, 0.0, 1.0); // ,base position, base radius
         //return glm::length(Vec2<RealType>(ppos[0], ppos[2]) - Vec2<RealType>(c[0], c[1])) - c[2];
@@ -225,7 +225,7 @@ class ConeObject : public GeometryObject
 {
 public:
     virtual std::string name() override { return "ConeObject"; }
-    virtual Real signedDistance(const Vec3r& ppos) override
+    virtual Real        signedDistance(const Vec3r& ppos) override
     {
         Vec2<Real> c = glm::normalize(Vec2<Real>(1, 1)); // normal to cone surface
         // c must be normalized
@@ -245,7 +245,7 @@ class PlaneObject : public GeometryObject
 {
 public:
     virtual std::string name() override { return "PlaneObject"; }
-    virtual Real signedDistance(const Vec3r& ppos) override
+    virtual Real        signedDistance(const Vec3r& ppos) override
     {
         Vec3r n(1, 1, 1);
         Real  w = 0;
@@ -253,7 +253,7 @@ public:
     }
 
     Vec3r& normal() { return m_Normal; }
-    Real& offset() { return m_Offset; }
+    Real&  offset() { return m_Offset; }
 
 protected:
     Vec3r m_Normal = Vec3r(0);
@@ -266,7 +266,7 @@ class TriangularPrismObject : public GeometryObject
 {
 public:
     virtual std::string name() override { return "TriangularPrismObject"; }
-    virtual Real signedDistance(const Vec3r& ppos) override
+    virtual Real        signedDistance(const Vec3r& ppos) override
     {
         Vec2<Real> h(1.0, 0.5); // h, w
         Vec3r      q(std::abs(ppos[0]), std::abs(ppos[1]), std::abs(ppos[2]));
@@ -288,7 +288,7 @@ class HexagonalPrismObject : public GeometryObject
 {
 public:
     virtual std::string name() override { return "HexagonalPrismObject"; }
-    virtual Real signedDistance(const Vec3r& ppos) override
+    virtual Real        signedDistance(const Vec3r& ppos) override
     {
         Vec2<Real> h(1.0, 0.5); // h, w
         Vec3r      q(std::abs(ppos[0]), std::abs(ppos[1]), std::abs(ppos[2]));
@@ -310,7 +310,7 @@ class CapsuleObject : public GeometryObject
 {
 public:
     virtual std::string name() override { return "CapsuleObject"; }
-    virtual Real signedDistance(const Vec3r& ppos) override
+    virtual Real        signedDistance(const Vec3r& ppos) override
     {
         Vec3r a(0, 0, -0.7); // end point a
         Vec3r b(0, 0, 0.7);  // end point b
@@ -334,7 +334,7 @@ class EllipsoidObject : public GeometryObject
 {
 public:
     virtual std::string name() override { return "EllipsoidObject"; }
-    virtual Real signedDistance(const Vec3r& ppos) override
+    virtual Real        signedDistance(const Vec3r& ppos) override
     {
         Vec3r r(0.7, 0.5, 0.2);
 
@@ -353,13 +353,13 @@ class TriMeshObject : public GeometryObject
 {
 public:
     virtual std::string name() override { return "TriMeshObject"; }
-    virtual Real signedDistance(const Vec3r& ppos) override;
+    virtual Real        signedDistance(const Vec3r& ppos) override;
 
     std::string& meshFile() { return m_TriMeshFile; }
-    Real& step() { return m_Step; }
-    Real& expanding() { return m_Expanding; }
+    Real&        step() { return m_Step; }
+    Real&        expanding() { return m_Expanding; }
 
-    void makeSDF();
+    void           makeSDF();
     const Array3r& getSDF() const noexcept { return m_SDFData; }
 protected:
 
@@ -403,7 +403,7 @@ public:
     };
 
     virtual std::string name() override { return "SphereObject"; }
-    virtual Real signedDistance(const Vec3r& ppos_) override
+    virtual Real        signedDistance(const Vec3r& ppos_) override
     {
         Vec3r ppos = domainDeform(ppos_);
 

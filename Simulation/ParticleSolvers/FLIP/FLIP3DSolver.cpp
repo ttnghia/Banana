@@ -627,9 +627,7 @@ void FLIP3DSolver::constrainGridVelocity()
     gridData().w_temp.copyDataFrom(gridData().w);
 
     ////////////////////////////////////////////////////////////////////////////////
-    ParallelFuncs::parallel_for<size_t>(0, gridData().u.sizeX(),
-                                        0, gridData().u.sizeY(),
-                                        0, gridData().u.sizeZ(),
+    ParallelFuncs::parallel_for<size_t>(gridData().u.size(),
                                         [&](size_t i, size_t j, size_t k)
                                         {
                                             if(gridData().u_weights(i, j, k) < Tiny)
@@ -647,9 +645,7 @@ void FLIP3DSolver::constrainGridVelocity()
                                             }
                                         });
 
-    ParallelFuncs::parallel_for<size_t>(0, gridData().v.sizeX(),
-                                        0, gridData().v.sizeY(),
-                                        0, gridData().v.sizeZ(),
+    ParallelFuncs::parallel_for<size_t>(gridData().v.size(),
                                         [&](size_t i, size_t j, size_t k)
                                         {
                                             if(gridData().v_weights(i, j, k) < Tiny)
@@ -667,9 +663,7 @@ void FLIP3DSolver::constrainGridVelocity()
                                             }
                                         });
 
-    ParallelFuncs::parallel_for<size_t>(0, gridData().w.sizeX(),
-                                        0, gridData().w.sizeY(),
-                                        0, gridData().w.sizeZ(),
+    ParallelFuncs::parallel_for<size_t>(gridData().w.size(),
                                         [&](size_t i, size_t j, size_t k)
                                         {
                                             if(gridData().w_weights(i, j, k) < Tiny)
@@ -696,9 +690,7 @@ void FLIP3DSolver::constrainGridVelocity()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void FLIP3DSolver::addGravity(Real timestep)
 {
-    ParallelFuncs::parallel_for<size_t>(0, gridData().v.sizeX(),
-                                        0, gridData().v.sizeY(),
-                                        0, gridData().v.sizeZ(),
+    ParallelFuncs::parallel_for<size_t>(gridData().v.size(),
                                         [&](size_t i, size_t j, size_t k)
                                         {
                                             gridData().v(i, j, k) -= Real(9.81) * timestep;
@@ -971,19 +963,19 @@ void FLIP3DSolver::updateVelocity(Real timestep)
                                           }
                                       });
 
-    for(size_t i = 0; i < gridData().u_valid.size(); ++i)
+    for(size_t i = 0; i < gridData().u_valid.dataSize(); ++i)
     {
         if(gridData().u_valid.data()[i] == 0)
             gridData().u.data()[i] = 0;
     }
 
-    for(size_t i = 0; i < gridData().v_valid.size(); ++i)
+    for(size_t i = 0; i < gridData().v_valid.dataSize(); ++i)
     {
         if(gridData().v_valid.data()[i] == 0)
             gridData().v.data()[i] = 0;
     }
 
-    for(size_t i = 0; i < gridData().w_valid.size(); ++i)
+    for(size_t i = 0; i < gridData().w_valid.dataSize(); ++i)
     {
         if(gridData().w_valid.data()[i] == 0)
             gridData().w.data()[i] = 0;
@@ -993,11 +985,11 @@ void FLIP3DSolver::updateVelocity(Real timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void FLIP3DSolver::computeChangesGridVelocity()
 {
-    ParallelFuncs::parallel_for<size_t>(0, gridData().u.size(),
+    ParallelFuncs::parallel_for<size_t>(0, gridData().u.dataSize(),
                                         [&](size_t i) { gridData().du.data()[i] = gridData().u.data()[i] - gridData().u_old.data()[i]; });
-    ParallelFuncs::parallel_for<size_t>(0, gridData().v.size(),
+    ParallelFuncs::parallel_for<size_t>(0, gridData().v.dataSize(),
                                         [&](size_t i) { gridData().dv.data()[i] = gridData().v.data()[i] - gridData().v_old.data()[i]; });
-    ParallelFuncs::parallel_for<size_t>(0, gridData().w.size(),
+    ParallelFuncs::parallel_for<size_t>(0, gridData().w.dataSize(),
                                         [&](size_t i) { gridData().dw.data()[i] = gridData().w.data()[i] - gridData().w_old.data()[i]; });
 }
 

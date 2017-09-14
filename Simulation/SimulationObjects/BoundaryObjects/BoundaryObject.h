@@ -18,8 +18,7 @@
 #pragma once
 
 #include <Banana/Setup.h>
-#include <Banana/Array/Array2.h>
-#include <Banana/Array/Array3.h>
+#include <Banana/Array/Array.h>
 #include <Banana/Utils/MathHelpers.h>
 #include <ParticleSolvers/ParticleSolverData.h>
 #include <cassert>
@@ -63,7 +62,7 @@ public:
     Array2r&     getSDF() { return m_SDF; }
 
     virtual bool constrainToBoundary(Vec2r& ppos, Vec2r& pvel) = 0;
-    virtual bool hasSDF() const noexcept override { return m_SDF.size() > 0; }
+    virtual bool hasSDF() const noexcept override { return m_SDF.dataSize() > 0; }
 
 protected:
     Vec_Vec2r m_BDParticles;
@@ -83,7 +82,7 @@ public:
     Array3r&   getSDF() { return m_SDF; }
 
     virtual bool constrainToBoundary(Vec3r& ppos, Vec3r& pvel) = 0;
-    virtual bool hasSDF() const noexcept override { return m_SDF.size() > 0; }
+    virtual bool hasSDF() const noexcept override { return m_SDF.dataSize() > 0; }
 
 protected:
     Vec_Vec3r m_BDParticles;

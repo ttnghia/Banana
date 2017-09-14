@@ -17,7 +17,7 @@
 
 #pragma once
 #include <Banana/Setup.h>
-#include <Banana/Array/Array3.h>
+#include <Banana/Array/Array.h>
 #include <ParticleSolvers/ParticleSolverData.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -196,21 +196,21 @@ struct SimulationData_MPM2D
     ////////////////////////////////////////////////////////////////////////////////
     struct GridSimData
     {
-        Array2r       mass;
-        Array2c       active;
-        Array2<Vec2r> velocity, velocity_new;
+        Array2r         mass;
+        Array2c         active;
+        Array<2, Vec2r> velocity, velocity_new;
 
         // variable for implicit velocity solving
-        Array2c       imp_active;
-        Array2<Vec2r> force,
-                      err,            //error of estimate
-                      r,              //residual of estimate
-                      p,              //residual gradient? squared residual?
-                      Ep, Er;         //yeah, I really don't know how this works...
+        Array2c         imp_active;
+        Array<2, Vec2r> force,
+                        err,          //error of estimate
+                        r,            //residual of estimate
+                        p,            //residual gradient? squared residual?
+                        Ep, Er;       //yeah, I really don't know how this works...
         Array2r rDotEr;               //r.dot(Er)
 
-        Array2<ParallelObjects::SpinLock> nodeLocks;
-        Array2r                           boundarySDF;
+        Array2SpinLock nodeLocks;
+        Array2r        boundarySDF;
 
         ////////////////////////////////////////////////////////////////////////////////
         void resize(Vec2ui gridSize)

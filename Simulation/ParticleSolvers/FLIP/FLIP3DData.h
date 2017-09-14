@@ -18,7 +18,7 @@
 #pragma once
 
 #include <Banana/Setup.h>
-#include <Banana/Array/Array3.h>
+#include <Banana/Array/Array.h>
 #include <Banana/ParallelHelpers/ParallelObjects.h>
 #include <Banana/LinearAlgebra/SparseMatrix/SparseMatrix.h>
 #include <ParticleSolvers/ParticleSolverData.h>
@@ -136,9 +136,9 @@ struct SimulationData_FLIP3D
         Array3r u_temp, v_temp, w_temp;
         Array3c u_valid_old, v_valid_old, w_valid_old;
 
-        Array3<ParallelObjects::SpinLock> fluidSDFLock;
-        Array3r                           fluidSDF;
-        Array3r                           boundarySDF;
+        Array3SpinLock fluidSDFLock;
+        Array3r        fluidSDF;
+        Array3r        boundarySDF;
     } gridSimData;
 
     ////////////////////////////////////////////////////////////////////////////////

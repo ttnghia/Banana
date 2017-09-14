@@ -124,6 +124,7 @@
     <None Include="BananaCore.licenseheader" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Banana\Array\Array.h" />
     <ClInclude Include="Banana\Array\SparseArray3.h" />
     <ClInclude Include="Banana\Geometry\GeometryObject2D.h" />
     <ClInclude Include="Banana\Geometry\GeometryObject3D.h" />
@@ -149,8 +150,6 @@
     <ClInclude Include="Banana\Utils\CommandLineParser.h" />
     <ClInclude Include="Banana\Utils\JSONHelpers.h" />
     <ClInclude Include="Banana\Utils\AppConfigReader.h" />
-    <ClInclude Include="Banana\Array\Array2.h" />
-    <ClInclude Include="Banana\Array\Array3.h" />
     <ClInclude Include="Banana\Array\ArrayHelpers.h" />
     <ClInclude Include="Banana\Geometry\MeshLoader.h" />
     <ClInclude Include="Banana\Geometry\MeshLoader.Impl.hpp" />

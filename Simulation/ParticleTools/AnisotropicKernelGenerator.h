@@ -19,7 +19,7 @@
 
 #include <Banana/LinearAlgebra/SVD.h>
 #include <Banana/Utils/MathHelpers.h>
-#include <Banana/Array/Array3.h>
+#include <Banana/Array/Array.h>
 #include <Banana/Grid/Grid3DHashing.h>
 
 #include <tbb/tbb.h>

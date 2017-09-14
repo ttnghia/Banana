@@ -17,13 +17,15 @@
 
 #pragma once
 
+#include <Banana/Setup.h>
+
 #include <tbb/tbb.h>
 
 #include <algorithm>
 #include <functional>
 #include <vector>
 
-#define __Banana_No_Parallel
+//#define __Banana_No_Parallel
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
 {
@@ -31,7 +33,6 @@ namespace Banana
 namespace ParallelFuncs
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-// parallel for
 template<class IndexType, class Function>
 inline void parallel_for(IndexType beginIdx, IndexType endIdx, const Function& function)
 {
@@ -50,6 +51,12 @@ inline void parallel_for(IndexType beginIdx, IndexType endIdx, const Function& f
                           }
                       });
 #endif
+}
+
+template<class IndexType, class Function>
+inline void parallel_for(IndexType endIdx, const Function& function)
+{
+    ParallelFuncs::parallel_for(IndexType(0), endIdx, function);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -82,6 +89,18 @@ inline void parallel_for(IndexType beginIdxX, IndexType endIdxX,
                                         function(i, j);
                                     }
                                 });
+}
+
+template<class IndexType, class Function>
+inline void parallel_for_row_major(const Vec2<IndexType>& endIdx, const Function& function)
+{
+    ParallelFuncs::parallel_for_row_major(IndexType(0), endIdx[0], IndexType(0), endIdx[1], function);
+}
+
+template<class IndexType, class Function>
+inline void parallel_for(const Vec2<IndexType>& endIdx, const Function& function)
+{
+    ParallelFuncs::parallel_for(IndexType(0), endIdx[0], IndexType(0), endIdx[1], function);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -122,6 +141,18 @@ inline void parallel_for(IndexType beginIdxX, IndexType endIdxX,
                                         }
                                     }
                                 });
+}
+
+template<class IndexType, class Function>
+inline void parallel_for_row_major(const Vec3<IndexType>& endIdx, const Function& function)
+{
+    ParallelFuncs::parallel_for_row_major(IndexType(0), endIdx[0], IndexType(0), endIdx[1], IndexType(0), endIdx[2], function);
+}
+
+template<class IndexType, class Function>
+inline void parallel_for(const Vec3<IndexType>& endIdx, const Function& function)
+{
+    ParallelFuncs::parallel_for(IndexType(0), endIdx[0], IndexType(0), endIdx[1], IndexType(0), endIdx[2], function);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

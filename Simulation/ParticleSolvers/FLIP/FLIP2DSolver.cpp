@@ -560,8 +560,7 @@ void FLIP2DSolver::constrainVelocity()
     m_SimData->v_temp.copyDataFrom(m_SimData->v);
 
     ////////////////////////////////////////////////////////////////////////////////
-    ParallelFuncs::parallel_for<size_t>(0, m_SimData->u.sizeX(),
-                                        0, m_SimData->u.sizeY(),
+    ParallelFuncs::parallel_for<size_t>(m_SimData->u.size(),
                                         [&](size_t i, size_t j)
                                         {
                                             if(m_SimData->u_weights(i, j) < Tiny)
@@ -579,8 +578,7 @@ void FLIP2DSolver::constrainVelocity()
                                             }
                                         });
 
-    ParallelFuncs::parallel_for<size_t>(0, m_SimData->v.sizeX(),
-                                        0, m_SimData->v.sizeY(),
+    ParallelFuncs::parallel_for<size_t>(m_SimData->v.size(),
                                         [&](size_t i, size_t j)
                                         {
                                             if(m_SimData->v_weights(i, j) < Tiny)
@@ -606,8 +604,7 @@ void FLIP2DSolver::constrainVelocity()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void FLIP2DSolver::addGravity(Real timestep)
 {
-    ParallelFuncs::parallel_for<size_t>(0, m_SimData->v.sizeX(),
-                                        0, m_SimData->v.sizeY(),
+    ParallelFuncs::parallel_for<size_t>(m_SimData->v.size(),
                                         [&](size_t i, size_t j)
                                         {
                                             m_SimData->v(i, j) -= Real(9.8) * timestep;
@@ -822,13 +819,13 @@ void FLIP2DSolver::updateVelocity(Real timestep)
                                           }
                                       });
 
-    for(size_t i = 0; i < m_SimData->u_valid.size(); ++i)
+    for(size_t i = 0; i < m_SimData->u_valid.dataSize(); ++i)
     {
         if(m_SimData->u_valid.data()[i] == 0)
             m_SimData->u.data()[i] = 0;
     }
 
-    for(size_t i = 0; i < m_SimData->v_valid.size(); ++i)
+    for(size_t i = 0; i < m_SimData->v_valid.dataSize(); ++i)
     {
         if(m_SimData->v_valid.data()[i] == 0)
             m_SimData->v.data()[i] = 0;
@@ -838,9 +835,9 @@ void FLIP2DSolver::updateVelocity(Real timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void FLIP2DSolver::computeChangesGridVelocity()
 {
-    ParallelFuncs::parallel_for<size_t>(0, m_SimData->u.size(),
+    ParallelFuncs::parallel_for<size_t>(0, m_SimData->u.dataSize(),
                                         [&](size_t i) { m_SimData->du.data()[i] = m_SimData->u.data()[i] - m_SimData->u_old.data()[i]; });
-    ParallelFuncs::parallel_for<size_t>(0, m_SimData->v.size(),
+    ParallelFuncs::parallel_for<size_t>(0, m_SimData->v.dataSize(),
                                         [&](size_t i) { m_SimData->dv.data()[i] = m_SimData->v.data()[i] - m_SimData->v_old.data()[i]; });
 }
 
