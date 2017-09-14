@@ -55,8 +55,7 @@ void FLIP2DSolver::makeReady()
                                GeometryObject2D::BoxObject box;
                                box.boxMin() = m_SimParams->movingBMin + Vec2r(m_SimParams->cellSize);
                                box.boxMax() = m_SimParams->movingBMax - Vec2r(m_SimParams->cellSize);
-                               ParallelFuncs::parallel_for<UInt>(0, m_Grid.getNumCellX() + 1,
-                                                                 0, m_Grid.getNumCellY() + 1,
+                               ParallelFuncs::parallel_for<UInt>(m_Grid.getNumNodes(),
                                                                  [&](UInt i, UInt j)
                                                                  {
                                                                      const Vec2r gridPos = m_Grid.getWorldCoordinate(i, j);
@@ -381,8 +380,7 @@ void FLIP2DSolver::correctPositions(Real timestep)
 //Compute finite-volume style face-weights for fluid from nodal signed distances
 void FLIP2DSolver::computeFluidWeights()
 {
-    ParallelFuncs::parallel_for<UInt>(0, m_Grid.getNumCellX() + 1,
-                                      0, m_Grid.getNumCellY() + 1,
+    ParallelFuncs::parallel_for<UInt>(m_Grid.getNumNodes(),
                                       [&](UInt i, UInt j)
                                       {
                                           bool valid_index_u = m_SimData->u_weights.isValidIndex(i, j);
@@ -409,8 +407,7 @@ void FLIP2DSolver::velocityToGrid()
 {
     const Vec2r span = Vec2r(m_Grid.getCellSize() * static_cast<Real>(m_SimParams->kernelSpan));
 
-    ParallelFuncs::parallel_for<UInt>(0, m_Grid.getNumCellX() + 1,
-                                      0, m_Grid.getNumCellY() + 1,
+    ParallelFuncs::parallel_for<UInt>(m_Grid.getNumNodes(),
                                       [&](UInt i, UInt j)
                                       {
                                           const Vec2r pu = Vec2r(i, j + 0.5) * m_Grid.getCellSize() + m_Grid.getBMin();
@@ -652,8 +649,7 @@ void FLIP2DSolver::computeFluidSDF()
 
     ////////////////////////////////////////////////////////////////////////////////
     //extend phi slightly into solids (this is a simple, naive approach, but works reasonably well)
-    ParallelFuncs::parallel_for<UInt>(0, m_Grid.getNumCellX(),
-                                      0, m_Grid.getNumCellY(),
+    ParallelFuncs::parallel_for<UInt>(m_Grid.getNumNodes(),
                                       [&](int i, int j)
                                       {
                                           if(m_SimData->fluidSDF(i, j) < m_Grid.getHalfCellSize())
@@ -794,8 +790,7 @@ void FLIP2DSolver::updateVelocity(Real timestep)
     m_SimData->u_valid.assign(0);
     m_SimData->v_valid.assign(0);
 
-    ParallelFuncs::parallel_for<UInt>(0, m_Grid.getNumCellX(),
-                                      0, m_Grid.getNumCellY(),
+    ParallelFuncs::parallel_for<UInt>(m_Grid.getNumNodes(),
                                       [&](UInt i, UInt j)
                                       {
                                           const UInt idx = m_Grid.getCellLinearizedIndex(i, j);

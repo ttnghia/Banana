@@ -352,9 +352,7 @@ void FLIP3DSolver::moveParticles(Real timestep)
 //Compute finite-volume style face-weights for fluid from nodal signed distances
 void FLIP3DSolver::computeFluidWeights()
 {
-    ParallelFuncs::parallel_for<UInt>(0, m_Grid.getNumCellX() + 1,
-                                      0, m_Grid.getNumCellY() + 1,
-                                      0, m_Grid.getNumCellZ() + 1,
+    ParallelFuncs::parallel_for<UInt>(m_Grid.getNumNodes(),
                                       [&](UInt i, UInt j, UInt k)
                                       {
                                           bool valid_index_u = gridData().u_weights.isValidIndex(i, j, k);
@@ -422,9 +420,7 @@ void FLIP3DSolver::velocityToGrid()
 {
     const Vec3r span = Vec3r(m_Grid.getCellSize() * static_cast<Real>(m_SimParams->kernelSpan));
 
-    ParallelFuncs::parallel_for<UInt>(0, m_Grid.getNumCellX() + 1,
-                                      0, m_Grid.getNumCellY() + 1,
-                                      0, m_Grid.getNumCellZ() + 1,
+    ParallelFuncs::parallel_for<UInt>(m_Grid.getNumNodes(),
                                       [&](UInt i, UInt j, UInt k)
                                       {
                                           const Vec3r pu = Vec3r(i, j + 0.5, k + 0.5) * m_Grid.getCellSize() + m_Grid.getBMin();
@@ -750,9 +746,7 @@ void FLIP3DSolver::computeFluidSDF()
 
     ////////////////////////////////////////////////////////////////////////////////
     //extend phi slightly into solids (this is a simple, naive approach, but works reasonably well)
-    ParallelFuncs::parallel_for<UInt>(0, m_Grid.getNumCellX(),
-                                      0, m_Grid.getNumCellY(),
-                                      0, m_Grid.getNumCellZ(),
+    ParallelFuncs::parallel_for<UInt>(m_Grid.getNumCells(),
                                       [&](int i, int j, int k)
                                       {
                                           if(gridData().fluidSDF(i, j, k) < m_Grid.getHalfCellSize())
@@ -929,9 +923,7 @@ void FLIP3DSolver::updateVelocity(Real timestep)
     gridData().v_valid.assign(0);
     gridData().w_valid.assign(0);
 
-    ParallelFuncs::parallel_for<UInt>(0, m_Grid.getNumCellX(),
-                                      0, m_Grid.getNumCellY(),
-                                      0, m_Grid.getNumCellZ(),
+    ParallelFuncs::parallel_for<UInt>(m_Grid.getNumCells(),
                                       [&](UInt i, UInt j, UInt k)
                                       {
                                           const UInt idx = m_Grid.getCellLinearizedIndex(i, j, k);

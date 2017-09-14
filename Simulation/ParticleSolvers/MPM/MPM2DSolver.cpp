@@ -703,8 +703,7 @@ void MPM2DSolver::constrainGridVelocity(Real timestep)
     Vec2r delta_scale = Vec2r(timestep);
     delta_scale /= m_SimParams->cellSize;
 
-    ParallelFuncs::parallel_for<UInt>(0, m_Grid.getNumNodeX(),
-                                      0, m_Grid.getNumNodeY(),
+    ParallelFuncs::parallel_for<UInt>(m_Grid.getNumNodes(),
                                       [&](UInt x, UInt y)
                                       {
                                           //Check to see if this node needs to be computed
