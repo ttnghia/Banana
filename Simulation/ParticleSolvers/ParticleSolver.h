@@ -34,6 +34,7 @@
 
 #include <SimulationObjects/BoundaryObjects/BoundaryObjects>
 #include <SimulationObjects/ParticleObjects/ParticleObjects>
+#include <SimulationObjects/ParticleEmitters/ParticleEmitters>
 
 #include <tbb/tbb.h>
 #include <json.hpp>
@@ -72,8 +73,7 @@ public:
     virtual void sortParticles() = 0;
 
 protected:
-    void advanceScene() {}
-
+    virtual void advanceScene()                               = 0;
     virtual void loadSimParams(const nlohmann::json& jParams) = 0;
     virtual void setupDataIO()                                = 0;
     virtual void loadMemoryState()                            = 0;
@@ -100,8 +100,17 @@ public:
     static constexpr UInt solverDimension() noexcept { return 2u; }
 
 protected:
-    Vector<SharedPtr<SimulationObjects::BoundaryObject2D> > m_BoundaryObjects;
-    Vector<SharedPtr<SimulationObjects::ParticleObject2D> > m_ParticleObjects;
+    virtual void advanceScene() override
+    {
+        for(auto& obj : m_BoundaryObjects)
+            obj->advanceFrame();
+        for(auto& obj : m_ParticleEmitters)
+            obj->advanceFrame();
+    }
+
+    Vector<SharedPtr<SimulationObjects::BoundaryObject2D> >  m_BoundaryObjects;
+    Vector<SharedPtr<SimulationObjects::ParticleObject2D> >  m_ParticleObjects;
+    Vector<SharedPtr<SimulationObjects::ParticleEmitter2D> > m_ParticleEmitters;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -113,8 +122,17 @@ public:
     static constexpr UInt solverDimension() noexcept { return 3u; }
 
 protected:
-    Vector<SharedPtr<SimulationObjects::BoundaryObject3D> > m_BoundaryObjects;
-    Vector<SharedPtr<SimulationObjects::ParticleObject3D> > m_ParticleObjects;
+    virtual void advanceScene() override
+    {
+        for(auto& obj : m_BoundaryObjects)
+            obj->advanceFrame();
+        for(auto& obj : m_ParticleEmitters)
+            obj->advanceFrame();
+    }
+
+    Vector<SharedPtr<SimulationObjects::BoundaryObject3D> >  m_BoundaryObjects;
+    Vector<SharedPtr<SimulationObjects::ParticleObject3D> >  m_ParticleObjects;
+    Vector<SharedPtr<SimulationObjects::ParticleEmitter3D> > m_ParticleEmitters;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

@@ -20,6 +20,8 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 #include <SimulationObjects/BoundaryObjects/BoundaryObjects>
+#include <SimulationObjects/ParticleObjects/ParticleObjects>
+#include <SimulationObjects/ParticleEmitters/ParticleEmitters>
 
 #include <cassert>
 #include <locale>
@@ -33,15 +35,42 @@ namespace SimulationObjectFactory
 SharedPtr<SimulationObjects::BoundaryObject2D> createBoundaryObject2D(const String& geometryType);
 SharedPtr<SimulationObjects::BoundaryObject3D> createBoundaryObject3D(const String& geometryType);
 
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void createGeometry(const String& geometryType, SharedPtr<SimulationObjects::BoundaryObject2D>& geometryObj)
+void createBoundaryObject(const String& geometryType, SharedPtr<SimulationObjects::BoundaryObject2D>& boundaryObj)
 {
-    geometryObj = createBoundaryObject2D(geometryType);
+    boundaryObj = createBoundaryObject2D(geometryType);
 }
 
-void createGeometry(const String& geometryType, SharedPtr<SimulationObjects::BoundaryObject3D>& geometryObj)
+void createBoundaryObject(const String& geometryType, SharedPtr<SimulationObjects::BoundaryObject3D>& boundaryObj)
 {
-    geometryObj = createBoundaryObject3D(geometryType);
+    boundaryObj = createBoundaryObject3D(geometryType);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+SharedPtr<SimulationObjects::ParticleObject2D> createParticleObject2D(const String& geometryType);
+SharedPtr<SimulationObjects::ParticleObject3D> createParticleObject3D(const String& geometryType);
+
+void createParticleObject(const String& geometryType, SharedPtr<SimulationObjects::ParticleObject2D>& particleObj)
+{
+    particleObj = createParticleObject2D(geometryType);
+}
+
+void createParticleObject(const String& geometryType, SharedPtr<SimulationObjects::ParticleObject3D>& particleObj)
+{
+    particleObj = createParticleObject3D(geometryType);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+SharedPtr<SimulationObjects::ParticleEmitter2D> createParticleEmitter2D(const String& geometryType);
+SharedPtr<SimulationObjects::ParticleEmitter3D> createParticleEmitter3D(const String& geometryType);
+
+void createParticleEmitter(const String& geometryType, SharedPtr<SimulationObjects::ParticleEmitter2D>& particleEmitter)
+{
+    particleEmitter = createParticleEmitter2D(geometryType);
+}
+
+void createParticleEmitter(const String& geometryType, SharedPtr<SimulationObjects::ParticleEmitter3D>& particleEmitter)
+{
+    particleEmitter = createParticleEmitter3D(geometryType);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
