@@ -192,6 +192,9 @@
     <ClInclude Include="Banana\Array\Array.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Banana\Geometry\GeometryObjectFactory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Banana\Geometry\GeometryObject3D.cpp">
@@ -225,6 +228,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Banana\NeighborSearch\NeighborSearch.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Banana\Geometry\GeometryObjectFactory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

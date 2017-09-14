@@ -128,6 +128,7 @@
     <ClInclude Include="Banana\Array\SparseArray3.h" />
     <ClInclude Include="Banana\Geometry\GeometryObject2D.h" />
     <ClInclude Include="Banana\Geometry\GeometryObject3D.h" />
+    <ClInclude Include="Banana\Geometry\GeometryObjectFactory.h" />
     <ClInclude Include="Banana\Grid\Grid2D.h" />
     <ClInclude Include="Banana\Grid\Grid2DHashing.h" />
     <ClInclude Include="Banana\Grid\Grid3D.h" />
@@ -186,6 +187,7 @@
   <ItemGroup>
     <ClCompile Include="Banana\CompileMessage.cpp" />
     <ClCompile Include="Banana\Geometry\GeometryObject3D.cpp" />
+    <ClCompile Include="Banana\Geometry\GeometryObjectFactory.cpp" />
     <ClCompile Include="Banana\Geometry\KdTree.cpp" />
     <ClCompile Include="Banana\Grid\Grid2D.cpp" />
     <ClCompile Include="Banana\Grid\Grid2DHashing.cpp" />

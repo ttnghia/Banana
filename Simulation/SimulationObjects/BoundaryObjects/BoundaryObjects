@@ -18,4 +18,8 @@
 #pragma once
 
 #include <SimulationObjects/BoundaryObjects/BoxBoundary2D.h>
+#include <SimulationObjects/BoundaryObjects/SphereBoundary2D.h>
+
+
 #include <SimulationObjects/BoundaryObjects/BoxBoundary3D.h>
+#include <SimulationObjects/BoundaryObjects/SphereBoundary3D.h>

@@ -17,31 +17,35 @@
 
 #pragma once
 
-#include <SimulationObjects/BoundaryObjects/BoundaryObject.h>
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+#include <Banana/Geometry/GeometryObject2D.h>
+#include <Banana/Geometry/GeometryObject3D.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace SimulationObjects
+namespace GeometryObjectFactory
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class BoxBoundary2D : public BoundaryObject2D
-{
-public:
-    BoxBoundary2D() = default;
-    BoxBoundary2D(const Vec2r& bMin, const Vec2r& bMax) : m_BMin(bMin), m_BMax(bMax) { }
-
-    void         setBox(const Vec2r& bMin, const Vec2r& bMax);
-    virtual void generateBoundaryParticles(Real spacing, Int numBDLayers = 2, bool saveCache = false) override;
-    virtual bool constrainToBoundary(Vec2r& ppos, Vec2r& pvel) override;
-
-private:
-    Vec2r m_BMin, m_BMax;
-};
+SharedPtr<GeometryObject2D::GeometryObject> createGeometry2D(const String& geometryType);
+SharedPtr<GeometryObject3D::GeometryObject> createGeometry3D(const String& geometryType);
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-}   // end namespace SimulationObjects
+void createGeometry(const String& geometryType, SharedPtr<GeometryObject2D::GeometryObject>& geometryObj)
+{
+    geometryObj = createGeometry2D(geometryType);
+}
+
+void createGeometry(const String& geometryType, SharedPtr<GeometryObject3D::GeometryObject>& geometryObj)
+{
+    geometryObj = createGeometry3D(geometryType);
+}
+
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+}   // end namespace GeometryObjectFactory
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana

@@ -32,7 +32,6 @@ namespace Banana
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace GeometryObject2D
 {
-#define MAX_ABS_SIGNED_DISTANCE RealType(sqrt(8.0))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // GeometryObjects Interface
@@ -55,6 +54,7 @@ public:
         __BNN_UNUSED(rotate);
     }
 
+    static constexpr UInt objDimension() noexcept { return 2u; }
 protected:
     Vec2r m_AABBBoxMin = Vec2r(Huge);
     Vec2r m_AABBMax    = Vec2r(Tiny);
@@ -288,32 +288,6 @@ public:
 protected:
     Vec2r m_SphereCenter = Vec2r(0);
     Real  m_SphereRadius = 0;
-};
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class TriMeshObject : public GeometryObject
-{
-public:
-    virtual std::string name() override { return "TriangleMeshObject"; }
-    virtual Real        signedDistance(const Vec2r& ppos) override;
-
-    std::string& meshFile() { return m_TriMeshFile; }
-    Real&        step() { return m_Step; }
-    Real&        expanding() { return m_Expanding; }
-
-    void           makeSDF();
-    const Array3r& getSDF() const noexcept { return m_SDFData; }
-protected:
-
-
-    ////////////////////////////////////////////////////////////////////////////////
-    bool        m_bSDFReady = false;
-    std::string m_TriMeshFile;
-
-    Real    m_Step      = Real(1.0 / 256.0);
-    Real    m_Expanding = Real(0.1);
-    Grid3D  m_Grid3D;
-    Array3r m_SDFData;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

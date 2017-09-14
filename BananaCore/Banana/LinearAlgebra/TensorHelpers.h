@@ -69,18 +69,6 @@ inline void sumToDiag(MatrixType& mat, RealType c)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType, class VectorType>
-inline RealType product(const VectorType& vec)
-{
-    RealType prod = RealType(vec[0]);
-
-    for(int i = 1; i < vec.length(); ++i)
-        prod *= vec[i];
-
-    return prod;
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class VectorType, class MatrixType>
 inline void diagProduct(MatrixType& mat, const VectorType& vec)
 {

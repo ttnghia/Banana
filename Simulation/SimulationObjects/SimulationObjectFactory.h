@@ -17,31 +17,35 @@
 
 #pragma once
 
-#include <SimulationObjects/BoundaryObjects/BoundaryObject.h>
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
+#include <SimulationObjects/BoundaryObjects/BoundaryObjects>
+
+#include <cassert>
+#include <locale>
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace SimulationObjects
+namespace SimulationObjectFactory
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class BoxBoundary2D : public BoundaryObject2D
-{
-public:
-    BoxBoundary2D() = default;
-    BoxBoundary2D(const Vec2r& bMin, const Vec2r& bMax) : m_BMin(bMin), m_BMax(bMax) { }
-
-    void         setBox(const Vec2r& bMin, const Vec2r& bMax);
-    virtual void generateBoundaryParticles(Real spacing, Int numBDLayers = 2, bool saveCache = false) override;
-    virtual bool constrainToBoundary(Vec2r& ppos, Vec2r& pvel) override;
-
-private:
-    Vec2r m_BMin, m_BMax;
-};
+SharedPtr<SimulationObjects::BoundaryObject2D> createBoundaryObject2D(const String& geometryType);
+SharedPtr<SimulationObjects::BoundaryObject3D> createBoundaryObject3D(const String& geometryType);
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-}   // end namespace SimulationObjects
+void createGeometry(const String& geometryType, SharedPtr<SimulationObjects::BoundaryObject2D>& geometryObj)
+{
+    geometryObj = createBoundaryObject2D(geometryType);
+}
+
+void createGeometry(const String& geometryType, SharedPtr<SimulationObjects::BoundaryObject3D>& geometryObj)
+{
+    geometryObj = createBoundaryObject3D(geometryType);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+}   // end namespace SimulationObjectFactory
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana

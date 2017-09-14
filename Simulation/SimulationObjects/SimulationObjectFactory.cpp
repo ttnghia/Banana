@@ -17,54 +17,53 @@
 
 #pragma once
 
-#include <Banana/Utils/JSONHelpers.h>
-#include <ParticleSolvers/ParticleSolverData.h>
-#include <SimulationObjects/BoundaryObjects/BoundaryObjects>
-#include <SimulationObjects/ParticleObjects/ParticleObjects>
-#include <SimulationObjects/ParticleEmitters/ParticleEmitters>
+#include <Banana/Geometry/GeometryObjectFactory.h>
 #include <SimulationObjects/SimulationObjectFactory.h>
 
-#include <json.hpp>
-#include <fstream>
+#include <cassert>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace SceneLoader
+namespace SimulationObjectFactory
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-bool loadDataPath(const String& sceneFile, String& dataPath);
-void loadGlobalParams(const nlohmann::json& jParams, const UniquePtr<ParticleSolvers::GlobalParameters>& globalParams);
+SharedPtr<SimulationObjects::BoundaryObject2D> createBoundaryObject2D(const String& geometryType)
+{
+    // two special objects
+    if(geometryType == "Box" || geometryType == "box" || geometryType == "BOX")
+        return std::make_shared<SimulationObjects::BoxBoundary2D>();
+
+    if(geometryType == "Sphere" || geometryType == "sphere" || geometryType == "SPHERE")
+        return std::make_shared<SimulationObjects::SphereBoundary2D>();
+
+    // other generic objects
+    SharedPtr<SimulationObjects::BoundaryObject2D> bdObject = std::make_shared<SimulationObjects::BoundaryObject2D>();
+    GeometryObjectFactory::createGeometry(geometryType, bdObject->getGeometry());
+
+    return bdObject;
+}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class BoundaryObjType>
-void loadBoundaryObjects(const nlohmann::json& jParams, Vector<SharedPtr<BoundaryObjType> >& boundaryObjs);
+SharedPtr<SimulationObjects::BoundaryObject3D> createBoundaryObject3D(const String& geometryType)
+{
+    // two special objects
+    if(geometryType == "Box" || geometryType == "box" || geometryType == "BOX")
+        return std::make_shared<SimulationObjects::BoxBoundary3D>();
 
-template<class ParticleObjType>
-void loadParticleObjects(const nlohmann::json& jParams, Vector<SharedPtr<ParticleObjType> >& particleObjs);
+    if(geometryType == "Sphere" || geometryType == "sphere" || geometryType == "SPHERE")
+        return std::make_shared<SimulationObjects::SphereBoundary3D>();
 
-template<class ParticleEmitterType>
-void loadParticleEmitters(const nlohmann::json& jParams, Vector<SharedPtr<ParticleEmitterType> >& particleEmitters);
+    // other generic objects
+    SharedPtr<SimulationObjects::BoundaryObject3D> bdObject = std::make_shared<SimulationObjects::BoundaryObject3D>();
+    GeometryObjectFactory::createGeometry(geometryType, bdObject->getGeometry());
 
-template<class BoundaryObjType, class ParticleObjType, class ParticleEmitterType>
-void loadSceneObjects(const nlohmann::json&                    jParams,
-                      Vector<SharedPtr<BoundaryObjType> >&     boundaryObjs,
-                      Vector<SharedPtr<ParticleObjType> >&     particleObjs,
-                      Vector<SharedPtr<ParticleEmitterType> >& particleEmitters);
-
-//void loadObjects(const nlohmann::json&                                    jParams,
-//                 Vector<SharedPtr<SimulationObjects::BoundaryObject2D> >& boundaryObjs,
-//                 Vector<SharedPtr<SimulationObjects::ParticleObject2D> >  particleObjs);
-//void loadObjects(const nlohmann::json&                                    jParams,
-//                 Vector<SharedPtr<SimulationObjects::BoundaryObject3D> >& boundaryObjs,
-//                 Vector<SharedPtr<SimulationObjects::ParticleObject3D> >  particleObjs);
+    return bdObject;
+}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <ParticleSolvers/SceneLoader.Impl.hpp>
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-};  // end namespace SceneLoader
+}   // end namespace SimulationObjectFactory
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana

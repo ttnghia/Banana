@@ -50,7 +50,7 @@ public:
     Array(const Array<N, T>& other) : m_Size(other.m_Size), m_Data(other.m_Data) {}
 
     template<class IndexType>
-    Array(const VecX<N, IndexType>& size) : m_Size(size) { m_Data.resize(product(m_Size)); }
+    Array(const VecX<N, IndexType>& size) : m_Size(size) { m_Data.resize(glm::compMul(m_Size)); }
 
     ~Array(void) { m_Data.clear(); }
 
@@ -326,14 +326,14 @@ public:
     __BNN_FORCE_INLINE void assign(const VecX<N, IndexType>& size, const T& value)
     {
         m_Size = size;
-        m_Data.assign(product(m_Size), value);
+        m_Data.assign(glm::compMul(m_Size), value);
     }
 
     template<class IndexType>
     __BNN_FORCE_INLINE void assign(const VecX<N, IndexType>& size, const T* copydata)
     {
         m_Size = size;
-        m_Data.assign(product(m_Size), copydata);
+        m_Data.assign(glm::compMul(m_Size), copydata);
     }
 
     __BNN_FORCE_INLINE void assign(const T& value) { m_Data.assign(m_Data.size(), value); }
@@ -343,13 +343,13 @@ public:
     __BNN_FORCE_INLINE void swap(Array<N, T>& other) { std::swap(m_Size, other.m_Size); m_Data.swap(other.m_Data); }
 
     template<class IndexType>
-    __BNN_FORCE_INLINE void reserve(const VecX<N, IndexType>& size) { m_Data.reserve(product(size)); }
+    __BNN_FORCE_INLINE void reserve(const VecX<N, IndexType>& size) { m_Data.reserve(glm::compMul(size)); }
 
     template<class IndexType>
-    __BNN_FORCE_INLINE void resize(const VecX<N, IndexType>& newSize) { m_Size = newSize;  m_Data.resize(product(m_Size)); }
+    __BNN_FORCE_INLINE void resize(const VecX<N, IndexType>& newSize) { m_Size = newSize;  m_Data.resize(glm::compMul(m_Size)); }
 
     template<class IndexType>
-    __BNN_FORCE_INLINE void resize(const VecX<N, IndexType>& newSize, const T& value) { m_Size = newSize;  m_Data.resize(product(m_Size), value); }
+    __BNN_FORCE_INLINE void resize(const VecX<N, IndexType>& newSize, const T& value) { m_Size = newSize;  m_Data.resize(glm::compMul(m_Size), value); }
 
     ////////////////////////////////////////////////////////////////////////////////
     // Array2D =>
@@ -434,15 +434,6 @@ public:
 private:
     VecX<N, size_type> m_Size;
     Vector<T>          m_Data;
-
-    __BNN_FORCE_INLINE size_type product(const VecX<N, size_type>& vec)
-    {
-        size_type count = vec[0];
-        for(Int i = 1; i < N; ++i)
-            count *= vec[i];
-
-        return count;
-    }
 };  // end class Array
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

@@ -852,7 +852,7 @@ Mat2x2r MPM2DSolver::computeEnergyDerivative(UInt p)
 {
     //Adjust lame parameters to account for hardening
     Real harden = exp(m_SimParams->hardening * (Real(1.0) - glm::determinant(particleData().plasticDeformGrad[p])));
-    Real Je     = TensorHelpers::product<Real>(particleData().svd_e[p]);
+    Real Je     = glm::compMul(particleData().svd_e[p]);
 
     //This is the co-rotational term
     Mat2x2r temp = Real(2.0) * m_SimParams->mu *

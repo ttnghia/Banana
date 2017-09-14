@@ -20,48 +20,34 @@ void loadBoundaryObjects(const nlohmann::json& jParams, Vector<SharedPtr<Boundar
     for(auto& jBoundaryObj : jParams)
     {
         // read geometry type of the object
-        {
-            String geometryType = String("");
-            __BNN_ASSERT(JSONHelpers::readValue(jBoundaryObj["GeometryType"], geometryType));
-            __BNN_ASSERT(!geometryType.empty());
-        }
+        String geometryType = String("");
+        __BNN_ASSERT(JSONHelpers::readValue(jBoundaryObj["GeometryType"], geometryType));
+        __BNN_ASSERT(!geometryType.empty());
 
         // create the object
-        SharedPtr<BoundaryObjType> bdObject = nullptr;
-        {
-            if(geometryType == "Box" || geometryType == "box" || geometryType == "BOX")
-                bdObject = std::make_shared<BoxBoundary2D>();
-
-            if(bdObject == nullptr)
-                continue;
-            boundaryObjs.push_back(bdObject);
-        }
+        SharedPtr<BoundaryObjType> bdObject;
+        SimulationObjectFactory::createGeometry(geometryType, bdObject);
+        __BNN_ASSERT(bdObject->getGeometry() != nullptr);
+        boundaryObjs.push_back(bdObject);
 
         // read mesh/cache/dynamic
-        {
-            JSONHelpers::readValue(jBoundaryObj["MeshFile"], bdObject->meshFile());
-            JSONHelpers::readValue(jBoundaryObj["ParticleFile"], bdObject->particleFile());
-            JSONHelpers::readBool(jBoundaryObj["IsDynamic"], bdObject->isDynamic());
-        }
+        JSONHelpers::readValue(jBoundaryObj["MeshFile"], bdObject->meshFile());
+        JSONHelpers::readValue(jBoundaryObj["ParticleFile"], bdObject->particleFile());
+        JSONHelpers::readBool(jBoundaryObj["IsDynamic"], bdObject->isDynamic());
 
         // read object transformation
-        {
-            MatXxX<BoundaryObjType::objDimension() + 1, Real> transformation(1.0);
-            VecX<BoundaryObjType::objDimension(), Real>       translation;
-            VecX<BoundaryObjType::objDimension(), Real>       rotationAngles;
-            VecX<BoundaryObjType::objDimension(), Real>       scale;
+        VecX<BoundaryObjType::objDimension(), Real> translation;
+        VecX<BoundaryObjType::objDimension(), Real> rotationAngles;
+        VecX<BoundaryObjType::objDimension(), Real> scale;
 
-            if(JSONHelpers::readVector(jBoundaryObj["Translation"], translation))
-                transformation *= glm::translate(translation);
+        if(JSONHelpers::readVector(jBoundaryObj["Translation"], translation))
+            bdObject->getGeometry()->translate(translation);
 
-            if(JSONHelpers::readVector(jBoundaryObj["RotationAngles"], rotationAngles))
-                transformation *= glm::eulerAngleYXZ(rotationAngles.y, rotationAngles.x, rotationAngles.z);
+        if(JSONHelpers::readVector(jBoundaryObj["RotationAngles"], rotationAngles))
+            bdObject->getGeometry()->rotate(rotationAngles);
 
-            if(JSONHelpers::readVector(jBoundaryObj["Scale"], scale))
-                transformation *= glm::scale(scale);
-
-            bdObject->setTransformation(transformation);
-        }
+        if(JSONHelpers::readVector(jBoundaryObj["Scale"], scale))
+            bdObject->getGeometry()->scale(scale);
     }
 }
 
@@ -74,30 +60,6 @@ void loadParticleObjects(const nlohmann::json& jParams, Vector<SharedPtr<Particl
         String geometryType = String("");
         __BNN_ASSERT(JSONHelpers::readValue(jParticleObj["GeometryType"], geometryType));
         __BNN_ASSERT(!geometryType.empty());
-
-        SharedPtr<ParticleObjType> bdObject = ParticleObjType::create(geometryType);
-        boundaryObjs.push_back(bdObject);
-
-        const bool bMesh            = JSONHelpers::readValue(jParticleObj["MeshFile"], bdObject->meshFile());
-        const bool bCachedParticles = JSONHelpers::readValue(jParticleObj["ParticleFile"], bdObject->particleFile());
-
-        MatXxX<ParticleObjType::objDimension() + 1, Real> transformation(1.0);
-        VecX<ParticleObjType::objDimension(), Real>       translation;
-        VecX<ParticleObjType::objDimension(), Real>       rotationAngles;
-        VecX<ParticleObjType::objDimension(), Real>       scale;
-
-        if(JSONHelpers::readVector(jParticleObj["Translation"], translation))
-            transformation *= glm::translate(translation);
-
-        if(JSONHelpers::readVector(jParticleObj["RotationAngles"], rotationAngles))
-            transformation *= glm::eulerAngleYXZ(rotationAngles.y, rotationAngles.x, rotationAngles.z);
-
-        if(JSONHelpers::readVector(jParticleObj["Scale"], scale))
-            transformation *= glm::scale(scale);
-
-        bdObject->setTransformation(transformation);
-
-        JSONHelpers::readBool(jParticleObj["IsDynamic"], bdObject->isDynamic());
     }
 }
 

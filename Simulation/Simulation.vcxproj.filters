@@ -207,6 +207,15 @@
     <ClInclude Include="SimulationObjects\ParticleEmitters\ParticleEmitters">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="SimulationObjects\SimulationObjectFactory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SimulationObjects\BoundaryObjects\SphereBoundary2D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SimulationObjects\BoundaryObjects\SphereBoundary3D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ParticleSolvers\FLIP\FLIP2DSolver.cpp">
@@ -240,6 +249,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ParticleSolvers\SceneLoader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SimulationObjects\SimulationObjectFactory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

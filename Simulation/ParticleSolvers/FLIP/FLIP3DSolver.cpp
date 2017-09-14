@@ -59,8 +59,8 @@ void FLIP3DSolver::makeReady()
 
                                // todo: remove this
                                GeometryObject3D::BoxObject box;
-                               box.boxMin() = m_SimParams->movingBMin - Vec3r(0.001f);
-                               box.boxMax() = m_SimParams->movingBMax + Vec3r(0.001f);
+                               box.setBMin(m_SimParams->movingBMin - Vec3r(0.001f));
+                               box.setBMax(m_SimParams->movingBMax + Vec3r(0.001f));
                                ParallelFuncs::parallel_for<UInt>(0, m_Grid.getNumNodeX(),
                                                                  0, m_Grid.getNumNodeY(),
                                                                  0, m_Grid.getNumNodeZ(),

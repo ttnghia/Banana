@@ -155,6 +155,9 @@
     <ClInclude Include="ParticleSolvers\SPH\KernelFunctions.h" />
     <ClInclude Include="ParticleTools\ParticleHelpers.Impl.hpp" />
     <ClInclude Include="SimulationObjects\BoundaryObjects\BoundaryObject.h" />
+    <ClInclude Include="SimulationObjects\BoundaryObjects\SphereBoundary2D.h" />
+    <ClInclude Include="SimulationObjects\BoundaryObjects\SphereBoundary3D.h" />
+    <ClInclude Include="SimulationObjects\SimulationObjectFactory.h" />
     <ClInclude Include="SimulationObjects\BoundaryObjects\BoundaryObjects" />
     <ClInclude Include="SimulationObjects\BoundaryObjects\BoxBoundary2D.h" />
     <ClInclude Include="SimulationObjects\BoundaryObjects\BoxBoundary3D.h" />
@@ -191,6 +194,7 @@
     <ClCompile Include="SimulationObjects\BoundaryObjects\BoxBoundary2D.cpp" />
     <ClCompile Include="SimulationObjects\BoundaryObjects\BoxBoundary3D.cpp" />
     <ClCompile Include="SimulationObjects\ParticleObjects\ParticleObject.cpp" />
+    <ClCompile Include="SimulationObjects\SimulationObjectFactory.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

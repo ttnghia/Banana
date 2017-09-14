@@ -29,6 +29,7 @@ namespace SimulationObjects
 class BoxBoundary3D : public BoundaryObject3D
 {
 public:
+    BoxBoundary3D() {}
     BoxBoundary3D(const Vec3r& bMin, const Vec3r& bMax) : m_BMin(bMin), m_BMax(bMax) {}
 
     void         setBox(const Vec3r& bMin, const Vec3r& bMax);

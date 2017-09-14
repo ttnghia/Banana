@@ -20,6 +20,8 @@
 #include <Banana/Setup.h>
 #include <Banana/Array/Array.h>
 #include <Banana/Utils/MathHelpers.h>
+#include <Banana/Geometry/GeometryObject2D.h>
+#include <Banana/Geometry/GeometryObject3D.h>
 #include <ParticleSolvers/ParticleSolverData.h>
 
 #include <cassert>
@@ -45,9 +47,8 @@ public:
     ////////////////////////////////////////////////////////////////////////////////
     virtual void makeReady() {}
     virtual void advanceFrame() {}
-    virtual void generateBoundaryParticles(Real spacing, int numBDLayers = 2, bool saveCache = false) {}
-    virtual void generateSignedDistanceField(Real sdfCellSize = Real(1.0 / 256.0)) {}
-    virtual bool hasSDF() const noexcept { return false; }
+    virtual void generateBoundaryParticles(Real spacing, int numBDLayers = 2, bool saveCache = false) { __BNN_UNIMPLEMENTED_FUNC }
+    virtual void generateSignedDistanceField(Real sdfCellSize = Real(1.0 / 256.0)) { __BNN_UNIMPLEMENTED_FUNC }
 
 protected:
     Real m_Margin           = Real(0.0);
@@ -57,6 +58,7 @@ protected:
     String m_MeshFile     = String("");
 
     bool m_bDynamics = false;
+    bool m_bCacheSDF = false;
 };
 
 
@@ -70,21 +72,18 @@ public:
 
     UInt       getNumBDParticles() const noexcept { return static_cast<UInt>(m_BDParticles.size()); }
     Vec_Vec2r& getBDParticles() { return m_BDParticles; }
-    Array2r&   getSDF() { return m_SDF; }
 
-    const Mat3x3r& getTransformMatrix() const { return m_TransformMat; }
-    const Mat3x3r& getInvTransformation() const { return m_InvTransformMat; }
-    void           setTransformation(const Mat3x3r& transformMat) { m_TransformMat = transformMat; m_InvTransformMat = glm::inverse(m_TransformMat); }
+    SharedPtr<GeometryObject2D::GeometryObject>& getGeometry() { return m_GeometryObj; }
 
-    virtual bool constrainToBoundary(Vec2r& ppos, Vec2r& pvel) = 0;
-    virtual bool hasSDF() const noexcept override { return m_SDF.dataSize() > 0; }
+    virtual bool constrainToBoundary(Vec2r& ppos, Vec2r& pvel) /*= 0;*/ {}
+    virtual Real signedDistance(const Vec2r& ppos) /*= 0;*/ {}
+    virtual Real gradientSignedDistance(const Vec2r& ppos) /*= 0;*/ {}
 
 protected:
     Vec_Vec2r m_BDParticles;
     Array2r   m_SDF;
 
-    Mat3x3r m_TransformMat    = Mat3x3r(1.0);
-    Mat3x3r m_InvTransformMat = Mat3x3r(1.0);
+    SharedPtr<GeometryObject2D::GeometryObject> m_GeometryObj = nullptr;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -95,20 +94,18 @@ public:
 
     UInt       getNumBDParticles() const noexcept { return static_cast<UInt>(m_BDParticles.size()); }
     Vec_Vec3r& getBDParticles() { return m_BDParticles; }
-    Array3r&   getSDF() { return m_SDF; }
 
-    const Mat4x4r& getInvTransformation() const { return m_InvTransformMat; }
-    void           setTransformation(const Mat4x4r& transformMat) { m_TransformMat = transformMat; m_InvTransformMat = glm::inverse(m_TransformMat); }
+    SharedPtr<GeometryObject3D::GeometryObject>& getGeometry() { return m_GeometryObj; }
 
-    virtual bool constrainToBoundary(Vec3r& ppos, Vec3r& pvel) = 0;
-    virtual bool hasSDF() const noexcept override { return m_SDF.dataSize() > 0; }
+    virtual bool constrainToBoundary(Vec3r& ppos, Vec3r& pvel) /*= 0;*/ {}
+    virtual Real signedDistance(const Vec3r& ppos) /*= 0;*/ {}
+    virtual Real gradientSignedDistance(const Vec3r& ppos) /*= 0;*/ {}
 
 protected:
     Vec_Vec3r m_BDParticles;
     Array3r   m_SDF;
 
-    Mat4x4r m_TransformMat    = Mat4x4r(1.0);
-    Mat4x4r m_InvTransformMat = Mat4x4r(1.0);
+    SharedPtr<GeometryObject3D::GeometryObject> m_GeometryObj = nullptr;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

@@ -32,7 +32,6 @@ namespace Banana
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace GeometryObject3D
 {
-#define MAX_ABS_SIGNED_DISTANCE RealType(sqrt(8.0))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // GeometryObjects Interface
@@ -41,24 +40,47 @@ namespace GeometryObject3D
 class GeometryObject
 {
 public:
-    virtual std::string name()                            = 0;
-    virtual Real        signedDistance(const Vec3r& ppos) = 0;
+    virtual String name()                            = 0;
+    virtual Real   signedDistance(const Vec3r& ppos) = 0;
 
     bool         isInside(const Vec3r& ppos) { return signedDistance(ppos) < 0; }
+    bool         isInAABBBox(const Vec3r& ppos) { return signedDistance(ppos) < 0; }
     const Vec3r& aabbBoxMin() const noexcept { return m_AABBBoxMin; }
-    const Vec3r& aabbBoxMax() const noexcept { return m_AABBMax; }
+    const Vec3r& aabbBoxMax() const noexcept { return m_AABBBoxMax; }
     const Vec3r& objCenter() const noexcept { return m_ObjCenter; }
 
-    void transform(const Vec3r& translate, const Vec3r& rotate)
+    void translate(const Vec3r& translation) { m_Translation = translation; m_bTranslated = true; update(); }
+    void rotate(const Vec3r& angles) { m_Rotation = glm::eulerAngleYXZ(angles.y, angles.x, angles.z); m_bRotated = true; update(); }
+    void scale(const Vec3r& scaleVal) { m_Scale = scaleVal; m_bScaled = true; update(); }
+
+    static constexpr UInt objDimension() noexcept { return 3u; }
+protected:
+    virtual void update()
     {
-        __BNN_UNUSED(translate);
-        __BNN_UNUSED(rotate);
+        m_InvTranslation = -m_Translation;
+        m_InvRotation    = Mat3x3r(glm::inverse(m_Rotation));
+        m_InvScale       = Vec3r(1.0 / m_Scale[0], 1.0 / m_Scale[1], 1.0 / m_Scale[2]);
+
+        m_AABBBoxMin = m_Rotation * (m_AABBBoxMin * m_Scale) + m_Translation;
+        m_AABBBoxMax = m_Rotation * (m_AABBBoxMax * m_Scale) + m_Translation;
+        m_ObjCenter  = m_Rotation * (m_ObjCenter * m_Scale) + m_Translation;
     }
 
-protected:
-    Vec3r m_AABBBoxMin = Vec3r(Huge);
-    Vec3r m_AABBMax    = Vec3r(Tiny);
+    Vec3r m_AABBBoxMin = Vec3r(-1.0);
+    Vec3r m_AABBBoxMax = Vec3r(1.0);
     Vec3r m_ObjCenter  = Vec3r(0);
+
+    Vec3r   m_Translation = Vec3r(0);
+    Mat3x3r m_Rotation    = Mat3x3r(1.0);
+    Vec3r   m_Scale       = Vec3r(1.0);
+
+    Vec3r   m_InvTranslation = Vec3r(0);
+    Mat3x3r m_InvRotation    = Mat3x3r(1.0);
+    Vec3r   m_InvScale       = Vec3r(1.0);
+
+    bool m_bTranslated = false;
+    bool m_bRotated    = false;
+    bool m_bScaled     = false;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -69,33 +91,29 @@ protected:
 class BoxObject : public GeometryObject
 {
 public:
-    virtual std::string name() override { return "BoxObject"; };
-    virtual Real        signedDistance(const Vec3r& ppos) override
+    virtual String name() override { return "BoxObject"; };
+    virtual Real   signedDistance(const Vec3r& ppos) override
     {
-        if(ppos[0] > m_BoxMin[0] && ppos[0] < m_BoxMax[0] &&
-           ppos[1] > m_BoxMin[1] && ppos[1] < m_BoxMax[1] &&
-           ppos[2] > m_BoxMin[2] && ppos[2] < m_BoxMax[2])
+        if(ppos[0] > m_AABBBoxMin[0] && ppos[0] < m_AABBBoxMax[0] &&
+           ppos[1] > m_AABBBoxMin[1] && ppos[1] < m_AABBBoxMax[1] &&
+           ppos[2] > m_AABBBoxMin[2] && ppos[2] < m_AABBBoxMax[2])
         {
-            return -MathHelpers::min(ppos[0] - m_BoxMin[0], m_BoxMax[0] - ppos[0],
-                                     ppos[1] - m_BoxMin[1], m_BoxMax[1] - ppos[1],
-                                     ppos[2] - m_BoxMin[2], m_BoxMax[2] - ppos[2]);
+            return -MathHelpers::min(ppos[0] - m_AABBBoxMin[0], m_AABBBoxMax[0] - ppos[0],
+                                     ppos[1] - m_AABBBoxMin[1], m_AABBBoxMax[1] - ppos[1],
+                                     ppos[2] - m_AABBBoxMin[2], m_AABBBoxMax[2] - ppos[2]);
         }
         else
         {
-            Vec3r cp(MathHelpers::max(MathHelpers::min(ppos[0], m_BoxMax[0]), m_BoxMin[0]),
-                     MathHelpers::max(MathHelpers::min(ppos[1], m_BoxMax[1]), m_BoxMin[1]),
-                     MathHelpers::max(MathHelpers::min(ppos[2], m_BoxMax[2]), m_BoxMin[2]));
+            Vec3r cp(MathHelpers::max(MathHelpers::min(ppos[0], m_AABBBoxMax[0]), m_AABBBoxMin[0]),
+                     MathHelpers::max(MathHelpers::min(ppos[1], m_AABBBoxMax[1]), m_AABBBoxMin[1]),
+                     MathHelpers::max(MathHelpers::min(ppos[2], m_AABBBoxMax[2]), m_AABBBoxMin[2]));
 
             return glm::length(ppos - cp);
         }
     }
 
-    Vec3r& boxMin() { return m_BoxMin; }
-    Vec3r& boxMax() { return m_BoxMax; }
-
-protected:
-    Vec3r m_BoxMin = Vec3r(-0.5);
-    Vec3r m_BoxMax = Vec3r(0.5);
+    void setBMin(const Vec3r& boxMin) { m_AABBBoxMin = boxMin; }
+    void setBMax(const Vec3r& boxMax) { m_AABBBoxMax = boxMax; }
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -103,8 +121,8 @@ protected:
 class SphereObject : public GeometryObject
 {
 public:
-    virtual std::string name() override { return "SphereObject"; }
-    virtual Real        signedDistance(const Vec3r& ppos) override
+    virtual String name() override { return "SphereObject"; }
+    virtual Real   signedDistance(const Vec3r& ppos) override
     {
         return glm::length(ppos - m_SphereCenter) - m_SphereRadius;
     }
@@ -123,8 +141,8 @@ protected:
 class TorusObject : public GeometryObject
 {
 public:
-    virtual std::string name() override { return "TorusObject"; }
-    virtual Real        signedDistance(const Vec3r& ppos) override
+    virtual String name() override { return "TorusObject"; }
+    virtual Real   signedDistance(const Vec3r& ppos) override
     {
         Vec2<Real> t(0.6, 0.2);
 
@@ -201,8 +219,8 @@ public:
 class CylinderObject : public GeometryObject
 {
 public:
-    virtual std::string name() override { return "CylinderObject"; }
-    virtual Real        signedDistance(const Vec3r& ppos) override
+    virtual String name() override { return "CylinderObject"; }
+    virtual Real   signedDistance(const Vec3r& ppos) override
     {
         //Vec3<RealType> c(0.0, 0.0, 1.0); // ,base position, base radius
         //return glm::length(Vec2<RealType>(ppos[0], ppos[2]) - Vec2<RealType>(c[0], c[1])) - c[2];
@@ -224,8 +242,8 @@ protected:
 class ConeObject : public GeometryObject
 {
 public:
-    virtual std::string name() override { return "ConeObject"; }
-    virtual Real        signedDistance(const Vec3r& ppos) override
+    virtual String name() override { return "ConeObject"; }
+    virtual Real   signedDistance(const Vec3r& ppos) override
     {
         Vec2<Real> c = glm::normalize(Vec2<Real>(1, 1)); // normal to cone surface
         // c must be normalized
@@ -244,8 +262,8 @@ protected:
 class PlaneObject : public GeometryObject
 {
 public:
-    virtual std::string name() override { return "PlaneObject"; }
-    virtual Real        signedDistance(const Vec3r& ppos) override
+    virtual String name() override { return "PlaneObject"; }
+    virtual Real   signedDistance(const Vec3r& ppos) override
     {
         Vec3r n(1, 1, 1);
         Real  w = 0;
@@ -265,8 +283,8 @@ protected:
 class TriangularPrismObject : public GeometryObject
 {
 public:
-    virtual std::string name() override { return "TriangularPrismObject"; }
-    virtual Real        signedDistance(const Vec3r& ppos) override
+    virtual String name() override { return "TriangularPrismObject"; }
+    virtual Real   signedDistance(const Vec3r& ppos) override
     {
         Vec2<Real> h(1.0, 0.5); // h, w
         Vec3r      q(std::abs(ppos[0]), std::abs(ppos[1]), std::abs(ppos[2]));
@@ -287,8 +305,8 @@ protected:
 class HexagonalPrismObject : public GeometryObject
 {
 public:
-    virtual std::string name() override { return "HexagonalPrismObject"; }
-    virtual Real        signedDistance(const Vec3r& ppos) override
+    virtual String name() override { return "HexagonalPrismObject"; }
+    virtual Real   signedDistance(const Vec3r& ppos) override
     {
         Vec2<Real> h(1.0, 0.5); // h, w
         Vec3r      q(std::abs(ppos[0]), std::abs(ppos[1]), std::abs(ppos[2]));
@@ -309,8 +327,8 @@ protected:
 class CapsuleObject : public GeometryObject
 {
 public:
-    virtual std::string name() override { return "CapsuleObject"; }
-    virtual Real        signedDistance(const Vec3r& ppos) override
+    virtual String name() override { return "CapsuleObject"; }
+    virtual Real   signedDistance(const Vec3r& ppos) override
     {
         Vec3r a(0, 0, -0.7); // end point a
         Vec3r b(0, 0, 0.7);  // end point b
@@ -333,8 +351,8 @@ protected:
 class EllipsoidObject : public GeometryObject
 {
 public:
-    virtual std::string name() override { return "EllipsoidObject"; }
-    virtual Real        signedDistance(const Vec3r& ppos) override
+    virtual String name() override { return "EllipsoidObject"; }
+    virtual Real   signedDistance(const Vec3r& ppos) override
     {
         Vec3r r(0.7, 0.5, 0.2);
 
@@ -352,12 +370,12 @@ protected:
 class TriMeshObject : public GeometryObject
 {
 public:
-    virtual std::string name() override { return "TriMeshObject"; }
-    virtual Real        signedDistance(const Vec3r& ppos) override;
+    virtual String name() override { return "TriMeshObject"; }
+    virtual Real   signedDistance(const Vec3r& ppos) override;
 
-    std::string& meshFile() { return m_TriMeshFile; }
-    Real&        step() { return m_Step; }
-    Real&        expanding() { return m_Expanding; }
+    String& meshFile() { return m_TriMeshFile; }
+    Real&   step() { return m_Step; }
+    Real&   expanding() { return m_Expanding; }
 
     void           makeSDF();
     const Array3r& getSDF() const noexcept { return m_SDFData; }
@@ -365,8 +383,8 @@ protected:
 
 
     ////////////////////////////////////////////////////////////////////////////////
-    bool        m_bSDFReady = false;
-    std::string m_TriMeshFile;
+    bool   m_bSDFReady = false;
+    String m_TriMeshFile;
 
     Real    m_Step      = Real(1.0 / 256.0);
     Real    m_Expanding = Real(0.1);
@@ -402,8 +420,8 @@ public:
         CSGOperations                   op  = Overwrite;
     };
 
-    virtual std::string name() override { return "SphereObject"; }
-    virtual Real        signedDistance(const Vec3r& ppos_) override
+    virtual String name() override { return "SphereObject"; }
+    virtual Real   signedDistance(const Vec3r& ppos_) override
     {
         Vec3r ppos = domainDeform(ppos_);
 
