@@ -15,16 +15,8 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-#pragma once
+#include <ParticleSolvers/SceneLoader.h>
 
-#include <Banana/Utils/JSONHelpers.h>
-#include <ParticleSolvers/ParticleSolverData.h>
-#include <SimulationObjects/BoundaryObjects/BoundaryObjects>
-#include <SimulationObjects/ParticleObjects/ParticleObjects>
-#include <SimulationObjects/ParticleEmitters/ParticleEmitters>
-
-#include <json.hpp>
-#include <fstream>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -33,34 +25,37 @@ namespace Banana
 namespace SceneLoader
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-bool loadDataPath(const String& sceneFile, String& dataPath);
-void loadGlobalParams(const nlohmann::json& jParams, const UniquePtr<ParticleSolvers::GlobalParameters>& globalParams);
+bool loadDataPath(const String& sceneFile, String& dataPath)
+{
+    std::ifstream inputFile(sceneFile);
+    if(!inputFile.is_open())
+        return false;
+
+    nlohmann::json jParams = nlohmann::json::parse(inputFile);
+    if(jParams.find("GlobalParameters") == jParams.end())
+        return false;
+    else
+        return JSONHelpers::readValue(jParams, dataPath, "DataPath");
+}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class BoundaryObjType>
-void loadBoundaryObjects(const nlohmann::json& jParams, Vector<SharedPtr<BoundaryObjType> >& boundaryObjs);
+void loadGlobalParams(const nlohmann::json& jParams, const UniquePtr<ParticleSolvers::GlobalParameters>& globalParams)
+{
+    JSONHelpers::readValue(jParams, globalParams->frameDuration, "FrameDuration");
+    JSONHelpers::readValue(jParams, globalParams->finalFrame, "FinalFrame");
+    JSONHelpers::readValue(jParams, globalParams->nThreads, "NThreads");
 
-template<class ParticleObjType>
-void loadParticleObjects(const nlohmann::json& jParams, Vector<SharedPtr<ParticleObjType> >& particleObjs);
+    JSONHelpers::readBool(jParams, globalParams->bApplyGravity, "ApplyGravity");
+    JSONHelpers::readBool(jParams, globalParams->bEnableSortParticle, "EnableSortParticle");
+    JSONHelpers::readValue(jParams, globalParams->sortFrequency, "SortFrequency");
 
-template<class ParticleEmitterType>
-void loadParticleEmitters(const nlohmann::json& jParams, Vector<SharedPtr<ParticleEmitterType> >& particleEmitters);
-
-template<class BoundaryObjType, class ParticleObjType, class ParticleEmitterType>
-void loadSceneObjects(const nlohmann::json&                    jParams,
-                      Vector<SharedPtr<BoundaryObjType> >&     boundaryObjs,
-                      Vector<SharedPtr<ParticleObjType> >&     particleObjs,
-                      Vector<SharedPtr<ParticleEmitterType> >& particleEmitters);
-
-//void loadObjects(const nlohmann::json&                                    jParams,
-//                 Vector<SharedPtr<SimulationObjects::BoundaryObject2D> >& boundaryObjs,
-//                 Vector<SharedPtr<SimulationObjects::ParticleObject2D> >  particleObjs);
-//void loadObjects(const nlohmann::json&                                    jParams,
-//                 Vector<SharedPtr<SimulationObjects::BoundaryObject3D> >& boundaryObjs,
-//                 Vector<SharedPtr<SimulationObjects::ParticleObject3D> >  particleObjs);
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <ParticleSolvers/SceneLoader.Impl.hpp>
+    JSONHelpers::readBool(jParams, globalParams->bLoadMemoryState, "LoadMemoryState");
+    JSONHelpers::readBool(jParams, globalParams->bSaveParticleData, "SaveParticleData");
+    JSONHelpers::readBool(jParams, globalParams->bSaveMemoryState, "SaveMemoryState");
+    JSONHelpers::readBool(jParams, globalParams->bPrintLog2File, "PrintLogToFile");
+    JSONHelpers::readValue(jParams, globalParams->framePerState, "FramePerState");
+    JSONHelpers::readValue(jParams, globalParams->dataPath, "DataPath");
+}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 };  // end namespace SceneLoader

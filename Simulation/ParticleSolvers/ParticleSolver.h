@@ -58,10 +58,9 @@ public:
     const UniquePtr<GlobalParameters>& getGlobalParams() const noexcept { return m_GlobalParams; }
     const SharedPtr<Logger>&           getLogger() const noexcept { return m_Logger; }
 
-    static bool loadDataPath(const String& sceneFile, String& dataPath);
-    void        loadScene(const String& sceneFile);
-    void        setupLogger();
-    void        doSimulation();
+    void loadScene(const String& sceneFile);
+    void setupLogger();
+    void doSimulation();
 
     ////////////////////////////////////////////////////////////////////////////////
     virtual String getSolverName()      = 0;
@@ -73,8 +72,6 @@ public:
     virtual void sortParticles() = 0;
 
 protected:
-    void loadGlobalParams(const nlohmann::json& jParams);
-    void loadObjectParams(const nlohmann::json& jParams);
     void advanceScene() {}
 
     virtual void loadSimParams(const nlohmann::json& jParams) = 0;
@@ -98,9 +95,9 @@ protected:
 class ParticleSolver2D : public ParticleSolver
 {
 public:
-    virtual Vec_Vec2r& getParticlePositions()  = 0;
-    virtual Vec_Vec2r& getParticleVelocities() = 0;
-    constexpr UInt     solverDimension() const noexcept { return 2u; }
+    virtual Vec_Vec2r&    getParticlePositions()  = 0;
+    virtual Vec_Vec2r&    getParticleVelocities() = 0;
+    static constexpr UInt solverDimension() noexcept { return 2u; }
 
 protected:
     Vector<SharedPtr<SimulationObjects::BoundaryObject2D> > m_BoundaryObjects;
@@ -111,9 +108,9 @@ protected:
 class ParticleSolver3D : public ParticleSolver
 {
 public:
-    virtual Vec_Vec3r& getParticlePositions()  = 0;
-    virtual Vec_Vec3r& getParticleVelocities() = 0;
-    constexpr UInt     solverDimension() const noexcept { return 3u; }
+    virtual Vec_Vec3r&    getParticlePositions()  = 0;
+    virtual Vec_Vec3r&    getParticleVelocities() = 0;
+    static constexpr UInt solverDimension() noexcept { return 3u; }
 
 protected:
     Vector<SharedPtr<SimulationObjects::BoundaryObject3D> > m_BoundaryObjects;

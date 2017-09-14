@@ -187,6 +187,14 @@ void BoxBoundary3D::generateBoundaryParticles(Real spacing, Int numBDLayers /*= 
             }
         }
     }
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // save file
+    if(saveCache)
+    {
+        __BNN_ASSERT(!m_ParticleFile.empty());
+        ParticleHelpers::saveBinary(m_ParticleFile, m_BDParticles, spacing * Real(0.5));
+    }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

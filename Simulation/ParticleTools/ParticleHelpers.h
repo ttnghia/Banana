@@ -39,7 +39,7 @@ namespace ParticleHelpers
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // template functions are defined in a hpp file
 template<class VectorType> UInt loadBinary(const String& fileName, Vector<VectorType>& particles, Real& particleRadius);
-template<class VectorType> void saveBinary(const String& fileName, Vector<VectorType>& particles, Real& particleRadius);
+template<class VectorType> void saveBinary(const String& fileName, Vector<VectorType>& particles, Real particleRadius);
 template<class VectorType> bool isInside(const VectorType& ppos, const VectorType& bmin, const VectorType& bmax);
 template<class VectorType> void jitter(VectorType& ppos, Real maxJitter);
 template<class VectorType> void clamp(VectorType& ppos, const VectorType& bmin, const VectorType& bmax, Real margin = 0);
@@ -59,10 +59,10 @@ void relaxPosition(Vec_Vec3r& particles, RelaxationMethod method);
 void transform(Vec_Vec3r& particles, const Vec3r& translation, const Vec3r& rotation);
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-}   // end namespace ParticleHelpers
+#include <ParticleTools/ParticleHelpers.Impl.hpp>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <ParticleTools/ParticleHelpers.Impl.hpp>
+}   // end namespace ParticleHelpers
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana

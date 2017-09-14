@@ -16,6 +16,7 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 #include <ParticleSolvers/ParticleSolver.h>
+#include <ParticleSolvers/SceneLoader.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -101,7 +102,10 @@ void ParticleSolver::loadScene(const String& sceneFile)
     if(jParams.find("GlobalParameters") != jParams.end())
     {
         nlohmann::json jFrameParams = jParams["GlobalParameters"];
-        loadGlobalParams(jFrameParams);
+        SceneLoader::loadGlobalParams(jFrameParams, m_GlobalParams);
+        m_GlobalParams->printParams(m_Logger);
+        if(m_GlobalParams->bSaveParticleData || m_GlobalParams->bSaveMemoryState || m_GlobalParams->bPrintLog2File)
+            FileHelpers::createFolder(m_GlobalParams->dataPath);
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -118,126 +122,6 @@ void ParticleSolver::loadScene(const String& sceneFile)
         //nlohmann::json jObjectParams = jParams["ObjectParameters"];
         //loadObjectParams(jObjectParams);
     }
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-bool ParticleSolver::loadDataPath(const String& sceneFile, String& dataPath)
-{
-    std::ifstream inputFile(sceneFile);
-    if(!inputFile.is_open())
-    {
-        return false;
-    }
-
-    nlohmann::json jParams = nlohmann::json::parse(inputFile);
-    if(jParams.find("GlobalParameters") == jParams.end())
-        return false;
-    else
-        return JSONHelpers::readValue(jParams, dataPath, "DataPath");
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void ParticleSolver::loadGlobalParams(const nlohmann::json& jParams)
-{
-    JSONHelpers::readValue(jParams, m_GlobalParams->frameDuration, "FrameDuration");
-    JSONHelpers::readValue(jParams, m_GlobalParams->finalFrame,    "FinalFrame");
-    JSONHelpers::readValue(jParams, m_GlobalParams->nThreads,      "NThreads");
-
-    JSONHelpers::readBool(jParams, m_GlobalParams->bApplyGravity,       "ApplyGravity");
-    JSONHelpers::readBool(jParams, m_GlobalParams->bEnableSortParticle, "EnableSortParticle");
-    JSONHelpers::readValue(jParams, m_GlobalParams->sortFrequency, "SortFrequency");
-
-    JSONHelpers::readBool(jParams, m_GlobalParams->bLoadMemoryState,  "LoadMemoryState");
-    JSONHelpers::readBool(jParams, m_GlobalParams->bSaveParticleData, "SaveParticleData");
-    JSONHelpers::readBool(jParams, m_GlobalParams->bSaveMemoryState,  "SaveMemoryState");
-    JSONHelpers::readBool(jParams, m_GlobalParams->bPrintLog2File,    "PrintLogToFile");
-    JSONHelpers::readValue(jParams, m_GlobalParams->framePerState, "FramePerState");
-    JSONHelpers::readValue(jParams, m_GlobalParams->dataPath,      "DataPath");
-
-    ////////////////////////////////////////////////////////////////////////////////
-    m_GlobalParams->printParams(m_Logger);
-    if(m_GlobalParams->bSaveParticleData || m_GlobalParams->bSaveMemoryState || m_GlobalParams->bPrintLog2File)
-        FileHelpers::createFolder(m_GlobalParams->dataPath);
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void ParticleSolver::loadObjectParams(const nlohmann::json& jParams)
-{
-    (void)jParams;
-#if 0
-    ////////////////////////////////////////////////////////////////////////////////
-    // read boundary objects
-    if(jParams.find("Boundary") != jParams.end())
-    {
-        nlohmann::json jBoundaryObjects = j["RigidBoundary"];
-        for(auto& jBoundaryObj : jBoundaryObjects)
-        {
-            String     meshFile         = "";
-            String     particleFile     = "";
-            const bool bMesh            = JSONHelpers::readValue(jBoundaryObj["MeshFile"], meshFile);
-            const bool bCachedParticles = JSONHelpers::readValue(jBoundaryObj["ParticleFile"], particleFile);
-
-            if(bMesh || bCachedParticles)
-            {
-                std::shared_ptr<BoundaryObject<RealType> > bdObject = std::make_shared<BoundaryObject<RealType> >();
-                bdObject->meshFile  = meshFile;
-                bdObject->cacheFile = particleFile;
-
-                // translation
-                JSONHelpers::readVector(jBoundaryObj["Translation"], bdObject->translation);
-
-                // rotation axis
-                Vec3<RealType> axis(0);
-                RealType       angle = 0.0;
-                if(JSONHelpers::readVector(jBoundaryObj["RotationAxis"], axis) && JSONHelpers::readValue(jBoundaryObj["RotationAngle"], angle))
-                    bdObject->rotation = AngleAxisr(angle, axis);
-
-                // scale
-                JSONHelpers::readVector(jBoundaryObj["Scale"], bdObject->scale);
-                JSONHelpers::readBool(jBoundaryObj["IsDynamic"], bdObject->dynamic);
-//                JSONHelpers::readBool(boundaryModel["isWall"],    bdObject->isWall);
-
-                m_BoundaryObjects.push_back(bdObject);
-            }
-        }
-    }
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // read particle objects
-    if(jParams.find("ParticleObjects") != jParams.end())
-    {
-        nlohmann::json jParticleObjects = j["ParticleObjects"];
-        for(auto& jParticleObj : jParticleObjects)
-        {
-            String meshFile         = "";
-            String particleFile     = "";
-            bool   bMesh            = JSONHelpers::readValue(jParticleObj["MeshFile"], meshFile);
-            bool   bCachedParticles = JSONHelpers::readValue(jParticleObj["ParticleFile"], particleFile);
-
-            if(bMesh || bCachedParticles)
-            {
-                std::shared_ptr<ParticleObject<RealType> > pObject = std::make_shared<ParticleObject<RealType> >();
-                pObject->meshFile  = meshFile;
-                pObject->cacheFile = particleFile;
-
-                // translation
-                JSONHelpers::readVector(jParticleObj["Translation"], pObject->translation);
-
-                // rotation axis
-                Vec3<RealType> axis(0);
-                RealType       angle = 0.0;
-                if(JSONHelpers::readVector(jParticleObj["RotationAxis"], axis) && JSONHelpers::readValue(jParticleObj["RotationAngle"], angle))
-                    bdObject->rotation = AngleAxisr(angle, axis);
-
-                // scale
-                JSONHelpers::readVector(jParticleObj["Scale"], jParticleObj->scale);
-
-                m_ParticleObjects.push_back(pObject);
-            }
-        }
-    }
-#endif
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

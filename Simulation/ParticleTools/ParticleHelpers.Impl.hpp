@@ -16,7 +16,7 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class VectorType>
-UInt ParticleHelpers::loadBinary(const String& fileName, Vector<VectorType>& particles, Real& particleRadius)
+UInt loadBinary(const String& fileName, Vector<VectorType>& particles, Real& particleRadius)
 {
     DataBuffer buffer;
     __BNN_ASSERT_MSG(FileHelpers::readFile(buffer.buffer(), fileName), "Could not open file for reading.");
@@ -57,7 +57,7 @@ UInt ParticleHelpers::loadBinary(const String& fileName, Vector<VectorType>& par
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class VectorType>
-void ParticleHelpers::saveBinary(const String& fileName, Vector<VectorType>& particles, Real& particleRadius)
+void saveBinary(const String& fileName, Vector<VectorType>& particles, Real particleRadius)
 {
     static_assert(sizeof(Real) * 2 == sizeof(VectorType) || sizeof(Real) * 3 == sizeof(VectorType), "Inconsistent type of particle radius and vector data!");
 
@@ -70,7 +70,7 @@ void ParticleHelpers::saveBinary(const String& fileName, Vector<VectorType>& par
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class VectorType>
-bool Banana::ParticleHelpers::isInside(const VectorType& ppos, const VectorType& bmin, const VectorType& bmax)
+bool isInside(const VectorType& ppos, const VectorType& bmin, const VectorType& bmax)
 {
     for(int i = 0; i < ppos.length(); ++i)
     {
@@ -83,7 +83,7 @@ bool Banana::ParticleHelpers::isInside(const VectorType& ppos, const VectorType&
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class VectorType>
-void ParticleHelpers::jitter(VectorType& ppos, Real maxJitter)
+void jitter(VectorType& ppos, Real maxJitter)
 {
     VectorType pjitter;
     for(Int j = 0; j < pjitter.length(); ++j)
@@ -94,7 +94,7 @@ void ParticleHelpers::jitter(VectorType& ppos, Real maxJitter)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class VectorType>
-void ParticleHelpers::clamp(VectorType& ppos, const VectorType& bmin, const VectorType& bmax, Real margin /*= 0*/)
+void clamp(VectorType& ppos, const VectorType& bmin, const VectorType& bmax, Real margin /*= 0*/)
 {
     UInt dimension = sizeof(VectorType) / sizeof(Real);
     for(UInt i = 0; i < dimension; ++i)
@@ -109,7 +109,7 @@ void ParticleHelpers::clamp(VectorType& ppos, const VectorType& bmin, const Vect
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class VectorType>
-void Banana::ParticleHelpers::compress(const Vector<VectorType>& positions, VectorType& bmin, VectorType& bmax, Vec_UInt16& compressedData)
+void compress(const Vector<VectorType>& positions, VectorType& bmin, VectorType& bmax, Vec_UInt16& compressedData)
 {
     compressedData.resize(dimension * positions.size());
     ParallelSTL::min_max_vector<VectorType>(positions, bmin, bmax);
@@ -127,7 +127,7 @@ void Banana::ParticleHelpers::compress(const Vector<VectorType>& positions, Vect
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class VectorType>
-void Banana::ParticleHelpers::decompress(Vector<VectorType>& positions, const VectorType& bmin, const VectorType& bmax, const Vec_UInt16& compressedData)
+void decompress(Vector<VectorType>& positions, const VectorType& bmin, const VectorType& bmax, const Vec_UInt16& compressedData)
 {
     const VectorType diff      = bmax - bmin;
     const UInt       dimension = static_cast<UInt>(diff.length());
