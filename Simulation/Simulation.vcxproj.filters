@@ -216,6 +216,9 @@
     <ClInclude Include="SimulationObjects\BoundaryObjects\SphereBoundary3D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ParticleTools\PoissonDiskSampler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ParticleSolvers\FLIP\FLIP2DSolver.cpp">
@@ -252,6 +255,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="SimulationObjects\SimulationObjectFactory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleTools\PoissonDiskSampler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

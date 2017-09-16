@@ -36,6 +36,9 @@
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+namespace NeighborSearch
+{
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #define INITIAL_NUMBER_OF_NEIGHBORS 50
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -50,7 +53,7 @@ struct NeighborhoodSearchNotInitialized : public std::exception
  * radius r should be generated.
  */
 
-class NeighborSearch
+class NeighborSearch3D
 {
 public:
 
@@ -60,12 +63,12 @@ public:
      * @param r Search radius. If two points are closer to each other than a distance r they are considered neighbors.
      * @param erase_empty_cells If true. Empty cells in spatial hashing grid are erased if the points move.
      */
-    NeighborSearch(Real r, bool erase_empty_cells = false);
+    NeighborSearch3D(Real r, bool erase_empty_cells = false);
 
     /**
      * Destructor.
      */
-    virtual ~NeighborSearch() = default;
+    virtual ~NeighborSearch3D() = default;
 
     /**
      * Get method to access a point set.
@@ -238,6 +241,9 @@ private:
     bool m_erase_empty_cells;
     bool m_initialized;
 };
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+} // end namespace NeighborSearch
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana

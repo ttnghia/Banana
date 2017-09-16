@@ -28,9 +28,10 @@
 #include <Banana/ParallelHelpers/ParallelSTL.h>
 #include <Banana/ParallelHelpers/ParallelFuncs.h>
 #include <Banana/ParallelHelpers/ParallelBLAS.h>
-#include <Banana/NeighborSearch/NeighborSearch.h>
+#include <Banana/NeighborSearch/NeighborSearch3D.h>
 
 #include <ParticleSolvers/ParticleSolverData.h>
+#include <ParticleSolvers/SceneLoader.h>
 
 #include <SimulationObjects/BoundaryObjects/BoundaryObjects>
 #include <SimulationObjects/ParticleObjects/ParticleObjects>
@@ -73,17 +74,17 @@ public:
     virtual void sortParticles() = 0;
 
 protected:
-    virtual void advanceScene()                               = 0;
-    virtual void loadSimParams(const nlohmann::json& jParams) = 0;
-    virtual void setupDataIO()                                = 0;
-    virtual void loadMemoryState()                            = 0;
-    virtual void saveMemoryState()                            = 0;
-    virtual void saveParticleData()                           = 0;
+    virtual void advanceScene()                                       = 0;
+    virtual void loadSimParams(const nlohmann::json& jParams)         = 0;
+    virtual void loadSimulationObjects(const nlohmann::json& jParams) = 0;
+    virtual void setupDataIO()                                        = 0;
+    virtual void loadMemoryState()                                    = 0;
+    virtual void saveMemoryState()                                    = 0;
+    virtual void saveParticleData()                                   = 0;
 
 
     ////////////////////////////////////////////////////////////////////////////////
     UniquePtr<tbb::task_scheduler_init> m_ThreadInit = nullptr;
-    UniquePtr<NeighborSearch>           m_NSearch    = nullptr;
     SharedPtr<Logger>                   m_Logger     = nullptr;
 
     UniquePtr<GlobalParameters> m_GlobalParams = std::make_unique<GlobalParameters>();
@@ -100,6 +101,17 @@ public:
     static constexpr UInt solverDimension() noexcept { return 2u; }
 
 protected:
+    virtual void loadSimulationObjects(const nlohmann::json& jParams)
+    {
+        SceneLoader::loadSceneObjects(jParams, m_BoundaryObjects, m_ParticleObjects, m_ParticleEmitters);
+        //for(auto& obj : m_BoundaryObjects)
+        //    obj->makeReady();
+        //for(auto& obj : m_ParticleObjects)
+        //    obj->makeReady();
+        //for(auto& obj : m_ParticleEmitters)
+        //    obj->makeReady();
+    }
+
     virtual void advanceScene() override
     {
         for(auto& obj : m_BoundaryObjects)
@@ -122,6 +134,17 @@ public:
     static constexpr UInt solverDimension() noexcept { return 3u; }
 
 protected:
+    virtual void loadSimulationObjects(const nlohmann::json& jParams)
+    {
+        SceneLoader::loadSceneObjects(jParams, m_BoundaryObjects, m_ParticleObjects, m_ParticleEmitters);
+        //for(auto& obj : m_BoundaryObjects)
+        //    obj->makeReady();
+        //for(auto& obj : m_ParticleObjects)
+        //    obj->makeReady();
+        //for(auto& obj : m_ParticleEmitters)
+        //    obj->makeReady();
+    }
+
     virtual void advanceScene() override
     {
         for(auto& obj : m_BoundaryObjects)
@@ -130,6 +153,7 @@ protected:
             obj->advanceFrame();
     }
 
+    UniquePtr<NeighborSearch::NeighborSearch3D>              m_NSearch = nullptr;
     Vector<SharedPtr<SimulationObjects::BoundaryObject3D> >  m_BoundaryObjects;
     Vector<SharedPtr<SimulationObjects::ParticleObject3D> >  m_ParticleObjects;
     Vector<SharedPtr<SimulationObjects::ParticleEmitter3D> > m_ParticleEmitters;

@@ -177,9 +177,6 @@
     <ClInclude Include="Banana\NeighborSearch\PointSet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Banana\NeighborSearch\NeighborSearch.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Banana\NeighborSearch\_NeighborSearch.Test.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -193,6 +190,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Banana\Geometry\GeometryObjectFactory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Banana\NeighborSearch\NeighborSearch3D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -227,10 +227,10 @@
     <ClCompile Include="Banana\LinearAlgebra\LinearSolvers\PCGSolver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Banana\NeighborSearch\NeighborSearch.cpp">
+    <ClCompile Include="Banana\Geometry\GeometryObjectFactory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Banana\Geometry\GeometryObjectFactory.cpp">
+    <ClCompile Include="Banana\NeighborSearch\NeighborSearch3D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

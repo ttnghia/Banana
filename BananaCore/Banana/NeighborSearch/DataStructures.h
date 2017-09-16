@@ -24,6 +24,10 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
 {
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+namespace NeighborSearch
+{
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #define INITIAL_NUMBER_OF_INDICES 50
 #define SHIFT_POSITION            12345.6789
 
@@ -33,7 +37,7 @@ struct PointID
     UInt point_set_id;
     UInt point_id;
 
-    bool operator==(PointID const& other) const
+    bool operator ==(PointID const& other) const
     {
         return point_id == other.point_id && point_set_id == other.point_set_id;
     }
@@ -48,7 +52,7 @@ struct HashKey
         this->k[0] = i, this->k[1] = j, this->k[2] = k;
     }
 
-    HashKey& operator=(HashKey const& other)
+    HashKey& operator =(HashKey const& other)
     {
         k[0] = other.k[0];
         k[1] = other.k[1];
@@ -56,14 +60,14 @@ struct HashKey
         return *this;
     }
 
-    bool operator==(HashKey const& other) const
+    bool operator ==(HashKey const& other) const
     {
         return (k[0] == other.k[0] &&
                 k[1] == other.k[1] &&
                 k[2] == other.k[2]);
     }
 
-    bool operator!=(HashKey const& other) const
+    bool operator !=(HashKey const& other) const
     {
         return !(*this == other);
     }
@@ -110,7 +114,7 @@ struct HashEntry
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 struct SpatialHasher
 {
-    std::size_t operator()(HashKey const& k) const
+    std::size_t operator ()(HashKey const& k) const
     {
         return (73856093 * k.k[0] ^
                 19349663 * k.k[1] ^
@@ -126,12 +130,12 @@ private:
 
 public:
 
-    bool operator==(ActivationTable const& other) const
+    bool operator ==(ActivationTable const& other) const
     {
         return m_table == other.m_table;
     }
 
-    bool operator!=(ActivationTable const& other) const
+    bool operator !=(ActivationTable const& other) const
     {
         return !(m_table == other.m_table);
     }
@@ -204,6 +208,9 @@ public:
         return false;
     }
 };
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+}   // end namespace NeighborSearch
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana

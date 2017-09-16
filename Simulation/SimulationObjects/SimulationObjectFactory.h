@@ -35,12 +35,12 @@ namespace SimulationObjectFactory
 SharedPtr<SimulationObjects::BoundaryObject2D> createBoundaryObject2D(const String& geometryType);
 SharedPtr<SimulationObjects::BoundaryObject3D> createBoundaryObject3D(const String& geometryType);
 
-void createBoundaryObject(const String& geometryType, SharedPtr<SimulationObjects::BoundaryObject2D>& boundaryObj)
+__BNN_INLINE void createBoundaryObject(const String& geometryType, SharedPtr<SimulationObjects::BoundaryObject2D>& boundaryObj)
 {
     boundaryObj = createBoundaryObject2D(geometryType);
 }
 
-void createBoundaryObject(const String& geometryType, SharedPtr<SimulationObjects::BoundaryObject3D>& boundaryObj)
+__BNN_INLINE void createBoundaryObject(const String& geometryType, SharedPtr<SimulationObjects::BoundaryObject3D>& boundaryObj)
 {
     boundaryObj = createBoundaryObject3D(geometryType);
 }
@@ -49,12 +49,12 @@ void createBoundaryObject(const String& geometryType, SharedPtr<SimulationObject
 SharedPtr<SimulationObjects::ParticleObject2D> createParticleObject2D(const String& geometryType);
 SharedPtr<SimulationObjects::ParticleObject3D> createParticleObject3D(const String& geometryType);
 
-void createParticleObject(const String& geometryType, SharedPtr<SimulationObjects::ParticleObject2D>& particleObj)
+__BNN_INLINE void createParticleObject(const String& geometryType, SharedPtr<SimulationObjects::ParticleObject2D>& particleObj)
 {
     particleObj = createParticleObject2D(geometryType);
 }
 
-void createParticleObject(const String& geometryType, SharedPtr<SimulationObjects::ParticleObject3D>& particleObj)
+__BNN_INLINE void createParticleObject(const String& geometryType, SharedPtr<SimulationObjects::ParticleObject3D>& particleObj)
 {
     particleObj = createParticleObject3D(geometryType);
 }
@@ -63,12 +63,12 @@ void createParticleObject(const String& geometryType, SharedPtr<SimulationObject
 SharedPtr<SimulationObjects::ParticleEmitter2D> createParticleEmitter2D(const String& geometryType);
 SharedPtr<SimulationObjects::ParticleEmitter3D> createParticleEmitter3D(const String& geometryType);
 
-void createParticleEmitter(const String& geometryType, SharedPtr<SimulationObjects::ParticleEmitter2D>& particleEmitter)
+__BNN_INLINE void createParticleEmitter(const String& geometryType, SharedPtr<SimulationObjects::ParticleEmitter2D>& particleEmitter)
 {
     particleEmitter = createParticleEmitter2D(geometryType);
 }
 
-void createParticleEmitter(const String& geometryType, SharedPtr<SimulationObjects::ParticleEmitter3D>& particleEmitter)
+__BNN_INLINE void createParticleEmitter(const String& geometryType, SharedPtr<SimulationObjects::ParticleEmitter3D>& particleEmitter)
 {
     particleEmitter = createParticleEmitter3D(geometryType);
 }

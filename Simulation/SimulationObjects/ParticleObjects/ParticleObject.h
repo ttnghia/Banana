@@ -18,6 +18,8 @@
 #pragma once
 
 #include <Banana/Setup.h>
+#include <Banana/Geometry/GeometryObject2D.h>
+#include <Banana/Geometry/GeometryObject3D.h>
 #include <ParticleTools/ParticleHelpers.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -28,19 +30,36 @@ namespace SimulationObjects
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 class ParticleObject2D
-{};
+{
+public:
+    static constexpr UInt                        objDimension() noexcept { return 2u; }
+    SharedPtr<GeometryObject2D::GeometryObject>& getGeometry() { return m_GeometryObj; }
+
+    String& meshFile() { return m_MeshFile; }
+    String& particleFile() { return m_ParticleFile; }
+
+protected:
+    String m_MeshFile     = "";
+    String m_ParticleFile = "";
+
+    SharedPtr<GeometryObject2D::GeometryObject> m_GeometryObj = nullptr;
+};
 
 class ParticleObject3D
 {
 public:
+    static constexpr UInt objDimension() noexcept { return 3u; }
     ParticleObject3D() = default;
+    SharedPtr<GeometryObject3D::GeometryObject>& getGeometry() { return m_GeometryObj; }
+
+    SharedPtr<GeometryObject3D::GeometryObject> m_GeometryObj = nullptr;
 
     String& name() { return m_ObjName; }
     String& meshFile() { return m_MeshFile; }
-    String& particleCacheFile() { return m_CacheFile; }
-    Real&   particleRadius() { return m_ParticleRadius; }
-    Real&   samplingJitter() { return m_SamplingJitter; }
-    bool&   relaxPosition() { return m_bRelaxPosition; }
+    String& particleFile() { return m_ParticleFile; }
+    Real& particleRadius() { return m_ParticleRadius; }
+    Real& samplingJitter() { return m_SamplingJitter; }
+    bool& relaxPosition() { return m_bRelaxPosition; }
 
     ParticleHelpers::RelaxationMethod& relaxPositionMethod() { return m_RelaxMethod; }
 
@@ -48,6 +67,7 @@ public:
     Vec3r& rotation() { return m_Rotation; }
     Vec3r& scale() { return m_Scale; }
 
+protected:
     const Vec3r& aabbMin() const noexcept { return m_AABBMin; }
     const Vec3r& aabbMax() const noexcept { return m_AABBMax; }
     const Vec3r& objCenter() const noexcept { return m_ObjCenter; }
@@ -62,9 +82,9 @@ protected:
     void         computeAABB();
     virtual void generateParticles() = 0;
 
-    String m_ObjName   = "NoName";
-    String m_MeshFile  = "";
-    String m_CacheFile = "";
+    String m_ObjName      = "NoName";
+    String m_MeshFile     = "";
+    String m_ParticleFile = "";
 
     Vec3r m_Translation = Vec3r(0);
     Vec3r m_Rotation    = Vec3r(0);

@@ -50,7 +50,7 @@ void FLIP3DSolver::makeReady()
                                m_PCGSolver.setSolverParameters(m_SimParams->CGRelativeTolerance, m_SimParams->maxCGIteration);
                                m_PCGSolver.setPreconditioners(PCGSolver::MICCL0_SYMMETRIC);
 
-                               m_NSearch = std::make_unique<NeighborSearch>(m_SimParams->cellSize);
+                               m_NSearch = std::make_unique<NeighborSearch::NeighborSearch3D>(m_SimParams->cellSize);
                                m_NSearch->add_point_set(glm::value_ptr(particleData().positions.front()), getNumParticles(), true, true);
 
 

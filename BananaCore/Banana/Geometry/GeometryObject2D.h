@@ -40,25 +40,48 @@ namespace GeometryObject2D
 class GeometryObject
 {
 public:
-    virtual std::string name()                            = 0;
-    virtual Real        signedDistance(const Vec2r& ppos) = 0;
+    virtual String name()                            = 0;
+    virtual Real   signedDistance(const Vec2r& ppos) = 0;
 
     bool         isInside(const Vec2r& ppos) { return signedDistance(ppos) < 0; }
+    bool         isInAABBBox(const Vec2r& ppos) { return signedDistance(ppos) < 0; }
     const Vec2r& aabbBoxMin() const noexcept { return m_AABBBoxMin; }
-    const Vec2r& aabbBoxMax() const noexcept { return m_AABBMax; }
+    const Vec2r& aabbBoxMax() const noexcept { return m_AABBBoxMax; }
     const Vec2r& objCenter() const noexcept { return m_ObjCenter; }
 
-    void transform(const Vec2r& translate, const Vec2r& rotate)
-    {
-        __BNN_UNUSED(translate);
-        __BNN_UNUSED(rotate);
-    }
+    void translate(const Vec2r& translation) { m_Translation = translation; m_bTranslated = true; update(); }
+    void rotate(const Vec2r& angles) { m_Rotation = angles; m_bRotated = true; update(); }
+    void scale(const Vec2r& scaleVal) { m_Scale = scaleVal; m_bScaled = true; update(); }
 
     static constexpr UInt objDimension() noexcept { return 2u; }
 protected:
-    Vec2r m_AABBBoxMin = Vec2r(Huge);
-    Vec2r m_AABBMax    = Vec2r(Tiny);
+
+    virtual void update()
+    {
+        m_InvTranslation = -m_Translation;
+        m_InvRotation    = -m_Rotation;
+        m_InvScale       = Vec2r(1.0 / m_Scale[0], 1.0 / m_Scale[1]);
+
+        m_AABBBoxMin = m_Rotation * (m_AABBBoxMin * m_Scale) + m_Translation;
+        m_AABBBoxMax = m_Rotation * (m_AABBBoxMax * m_Scale) + m_Translation;
+        m_ObjCenter  = m_Rotation * (m_ObjCenter * m_Scale) + m_Translation;
+    }
+
+    Vec2r m_AABBBoxMin = Vec2r(-1.0);
+    Vec2r m_AABBBoxMax = Vec2r(1.0);
     Vec2r m_ObjCenter  = Vec2r(0);
+
+    Vec2r m_Translation = Vec2r(0);
+    Vec2r m_Rotation    = Vec2r(0.0);
+    Vec2r m_Scale       = Vec2r(1.0);
+
+    Vec2r m_InvTranslation = Vec2r(0);
+    Vec2r m_InvRotation    = Vec2r(0.0);
+    Vec2r m_InvScale       = Vec2r(1.0);
+
+    bool m_bTranslated = false;
+    bool m_bRotated    = false;
+    bool m_bScaled     = false;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -69,8 +92,8 @@ protected:
 class BoxObject : public GeometryObject
 {
 public:
-    virtual std::string name() override { return "BoxObject"; };
-    virtual Real        signedDistance(const Vec2r& ppos) override
+    virtual String name() override { return "BoxObject"; };
+    virtual Real   signedDistance(const Vec2r& ppos) override
     {
         if(ppos[0] > m_BoxMin[0] && ppos[0] < m_BoxMax[0] &&
            ppos[1] > m_BoxMin[1] && ppos[1] < m_BoxMax[1])
@@ -99,8 +122,8 @@ protected:
 class CircleObject : public GeometryObject
 {
 public:
-    virtual std::string name() override { return "CircleObject"; }
-    virtual Real        signedDistance(const Vec2r& ppos) override
+    virtual String name() override { return "CircleObject"; }
+    virtual Real   signedDistance(const Vec2r& ppos) override
     {
         return glm::length(ppos - m_SphereCenter) - m_SphereRadius;
     }
@@ -118,8 +141,8 @@ protected:
 class TorusObject : public GeometryObject
 {
 public:
-    virtual std::string name() override { return "TorusObject"; }
-    virtual Real        signedDistance(const Vec2r& ppos) override
+    virtual String name() override { return "TorusObject"; }
+    virtual Real   signedDistance(const Vec2r& ppos) override
     {
         Real innerVal = glm::length(ppos - m_SphereCenter) - m_InnerRadius;
         Real outerVal = glm::length(ppos - m_SphereCenter) - m_OuterRadius;
@@ -188,8 +211,8 @@ public:
 class TriangleObject : public GeometryObject
 {
 public:
-    virtual std::string name() override { return "TriangleObject"; }
-    virtual Real        signedDistance(const Vec2r& ppos) override
+    virtual String name() override { return "TriangleObject"; }
+    virtual Real   signedDistance(const Vec2r& ppos) override
     {
         __BNN_UNUSED(ppos);
 //        Real dx = 0;
@@ -207,8 +230,8 @@ protected:
 class PlaneObject : public GeometryObject
 {
 public:
-    virtual std::string name() override { return "PlaneObject"; }
-    virtual Real        signedDistance(const Vec2r& ppos) override
+    virtual String name() override { return "PlaneObject"; }
+    virtual Real   signedDistance(const Vec2r& ppos) override
     {
         return glm::dot(ppos, m_Normal) + m_Offset;
     }
@@ -225,8 +248,8 @@ protected:
 class HexagonObject : public GeometryObject
 {
 public:
-    virtual std::string name() override { return "HexagonObject"; }
-    virtual Real        signedDistance(const Vec2r& ppos) override
+    virtual String name() override { return "HexagonObject"; }
+    virtual Real   signedDistance(const Vec2r& ppos) override
     {
         Real dx = fabs(ppos[0] - m_SphereCenter[0]);
         Real dy = fabs(ppos[1] - m_SphereCenter[1]);
@@ -245,8 +268,8 @@ protected:
 class CapsuleObject : public GeometryObject
 {
 public:
-    virtual std::string name() override { return "SphereObject"; }
-    virtual Real        signedDistance(const Vec2r& ppos) override
+    virtual String name() override { return "SphereObject"; }
+    virtual Real   signedDistance(const Vec2r& ppos) override
     {
         __BNN_UNUSED(ppos);
         //Vec2r a(0, 0, -0.7); // end point a
@@ -272,8 +295,8 @@ protected:
 class EllipsoidObject : public GeometryObject
 {
 public:
-    virtual std::string name() override { return "SphereObject"; }
-    virtual Real        signedDistance(const Vec2r& ppos) override
+    virtual String name() override { return "SphereObject"; }
+    virtual Real   signedDistance(const Vec2r& ppos) override
     {
         __BNN_UNUSED(ppos);
         //Vec2r r(0.7, 0.5, 0.2);
@@ -318,8 +341,8 @@ public:
         CSGOperations                   op  = Overwrite;
     };
 
-    virtual std::string name() override { return "SphereObject"; }
-    virtual Real        signedDistance(const Vec2r& ppos_) override
+    virtual String name() override { return "SphereObject"; }
+    virtual Real   signedDistance(const Vec2r& ppos_) override
     {
         Vec2r ppos = domainDeform(ppos_);
 

@@ -15,14 +15,17 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-#include <Banana/NeighborSearch/NeighborSearch.h>
+#include <Banana/NeighborSearch/NeighborSearch3D.h>
 #include <Banana/ParallelHelpers/ParallelFuncs.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-NeighborSearch::NeighborSearch(Real r, bool erase_empty_cells) :
+namespace NeighborSearch
+{
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+NeighborSearch3D::NeighborSearch3D(Real r, bool erase_empty_cells) :
     m_r2(r * r), m_inv_cell_size(static_cast<Real>(1.0 / r)), m_erase_empty_cells(erase_empty_cells), m_initialized(false)
 {
     if(r <= 0.0)
@@ -34,7 +37,7 @@ NeighborSearch::NeighborSearch(Real r, bool erase_empty_cells) :
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Computes triple index to a world space position x.
-HashKey NeighborSearch::cell_index(const Real* x) const
+HashKey NeighborSearch3D::cell_index(const Real* x) const
 {
     HashKey ret;
     for(UInt i = 0; i < 3; ++i)
@@ -50,7 +53,7 @@ HashKey NeighborSearch::cell_index(const Real* x) const
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Determines Morten value according to z-curve.
-inline uint_fast64_t NeighborSearch::z_value(HashKey const& key)
+inline uint_fast64_t NeighborSearch3D::z_value(HashKey const& key)
 {
     return morton3D_64_encode(static_cast<uint_fast32_t>(static_cast<int64_t>(key.k[0]) - (std::numeric_limits<int>::lowest() + 1)),
                               static_cast<uint_fast32_t>(static_cast<int64_t>(key.k[1]) - (std::numeric_limits<int>::lowest() + 1)),
@@ -59,7 +62,7 @@ inline uint_fast64_t NeighborSearch::z_value(HashKey const& key)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Determines permutation table for point array.
-void NeighborSearch::z_sort()
+void NeighborSearch3D::z_sort()
 {
     for(PointSet& d : m_point_sets)
     {
@@ -78,7 +81,7 @@ void NeighborSearch::z_sort()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Build hash table and entry array from scratch.
-void NeighborSearch::init()
+void NeighborSearch3D::init()
 {
     m_entries.clear();
     m_map.clear();
@@ -125,7 +128,7 @@ void NeighborSearch::init()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void NeighborSearch::resize_point_set(UInt index, const Real* x, std::size_t size)
+void NeighborSearch3D::resize_point_set(UInt index, const Real* x, std::size_t size)
 {
     PointSet&   point_set = m_point_sets[index];
     std::size_t old_size  = point_set.n_points();
@@ -196,7 +199,7 @@ void NeighborSearch::resize_point_set(UInt index, const Real* x, std::size_t siz
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void NeighborSearch::update_activation_table()
+void NeighborSearch3D::update_activation_table()
 {
     if(m_activation_table != m_old_activation_table)
     {
@@ -215,7 +218,7 @@ void NeighborSearch::update_activation_table()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void NeighborSearch::find_neighbors(bool points_changed_)
+void NeighborSearch3D::find_neighbors(bool points_changed_)
 {
     if(points_changed_)
     {
@@ -226,7 +229,7 @@ void NeighborSearch::find_neighbors(bool points_changed_)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void NeighborSearch::update_point_sets()
+void NeighborSearch3D::update_point_sets()
 {
     if(!m_initialized)
     {
@@ -262,13 +265,13 @@ void NeighborSearch::update_point_sets()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void NeighborSearch::find_neighbors(UInt point_set_id, UInt point_index, Vec_VecUInt& neighbors)
+void NeighborSearch3D::find_neighbors(UInt point_set_id, UInt point_index, Vec_VecUInt& neighbors)
 {
     query(point_set_id, point_index, neighbors);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void NeighborSearch::erase_empty_entries(Vec_UInt const& to_delete)
+void NeighborSearch3D::erase_empty_entries(Vec_UInt const& to_delete)
 {
     if(to_delete.empty())
         return;
@@ -315,7 +318,7 @@ void NeighborSearch::erase_empty_entries(Vec_UInt const& to_delete)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void NeighborSearch::update_hash_table(Vec_UInt& to_delete)
+void NeighborSearch3D::update_hash_table(Vec_UInt& to_delete)
 {
     // Indicate points changing inheriting cell.
     for(UInt j = 0; j < m_point_sets.size(); ++j)
@@ -362,7 +365,7 @@ void NeighborSearch::update_hash_table(Vec_UInt& to_delete)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void NeighborSearch::query()
+void NeighborSearch3D::query()
 {
     for(UInt i = 0; i < m_point_sets.size(); i++)
     {
@@ -542,7 +545,7 @@ void NeighborSearch::query()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void NeighborSearch::query(UInt point_set_id, UInt point_index, Vec_VecUInt& neighbors)
+void NeighborSearch3D::query(UInt point_set_id, UInt point_index, Vec_VecUInt& neighbors)
 {
     neighbors.resize(m_point_sets.size());
     PointSet& d = m_point_sets[point_set_id];
@@ -636,6 +639,9 @@ void NeighborSearch::query(UInt point_set_id, UInt point_index, Vec_VecUInt& nei
         }
     }
 }
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+}   // end namespace NeighborSearch
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana

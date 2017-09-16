@@ -37,7 +37,7 @@ void WCSPHSolver::makeReady()
                                m_SpikyKernel.setRadius(m_SimParams->kernelRadius);
                                m_NearSpikyKernel.setRadius(Real(1.5) * m_SimParams->particleRadius);
 
-                               m_NSearch = std::make_unique<NeighborSearch>(m_SimParams->kernelRadius);
+                               m_NSearch = std::make_unique<NeighborSearch::NeighborSearch3D>(m_SimParams->kernelRadius);
                                m_NSearch->add_point_set(glm::value_ptr(m_SimData->positions.front()), m_SimData->getNumParticles(), true, true);
 
 
@@ -328,9 +328,10 @@ void WCSPHSolver::computeDensity()
 {
     assert(m_SimData->positions.size() == m_SimData->densities.size());
 
-    const Real      min_density   = m_SimParams->restDensity / m_SimParams->densityVariationRatio;
-    const Real      max_density   = m_SimParams->restDensity * m_SimParams->densityVariationRatio;
-    const PointSet& fluidPointSet = m_NSearch->point_set(0);
+    const Real min_density = m_SimParams->restDensity / m_SimParams->densityVariationRatio;
+    const Real max_density = m_SimParams->restDensity * m_SimParams->densityVariationRatio;
+
+    const NeighborSearch::PointSet& fluidPointSet = m_NSearch->point_set(0);
 
     ParallelFuncs::parallel_for<UInt>(0, m_SimData->getNumParticles(),
                                       [&](UInt p)
@@ -369,9 +370,10 @@ void WCSPHSolver::correctDensity()
 {
     assert(m_SimData->positions.size() == m_SimData->densities.size());
 
-    const Real      min_density   = m_SimParams->restDensity / m_SimParams->densityVariationRatio;
-    const Real      max_density   = m_SimParams->restDensity * m_SimParams->densityVariationRatio;
-    const PointSet& fluidPointSet = m_NSearch->point_set(0);
+    const Real min_density = m_SimParams->restDensity / m_SimParams->densityVariationRatio;
+    const Real max_density = m_SimParams->restDensity * m_SimParams->densityVariationRatio;
+
+    const NeighborSearch::PointSet& fluidPointSet = m_NSearch->point_set(0);
 
     ParallelFuncs::parallel_for<UInt>(0, m_SimData->getNumParticles(),
                                       [&](UInt p)
@@ -418,7 +420,7 @@ void WCSPHSolver::computePressureForces()
 {
     assert(m_SimData->positions.size() == m_SimData->pressureForces.size());
 
-    const PointSet& fluidPointSet = m_NSearch->point_set(0);
+    const NeighborSearch::PointSet& fluidPointSet = m_NSearch->point_set(0);
     ParallelFuncs::parallel_for<UInt>(0, m_SimData->getNumParticles(),
                                       [&](UInt p)
                                       {
@@ -488,7 +490,7 @@ void WCSPHSolver::computeViscosity()
 {
     assert(m_SimData->positions.size() == m_SimData->diffuseVelocity.size());
 
-    const PointSet& fluidPointSet = m_NSearch->point_set(0);
+    const NeighborSearch::PointSet& fluidPointSet = m_NSearch->point_set(0);
     ParallelFuncs::parallel_for<UInt>(0, m_SimData->getNumParticles(),
                                       [&](UInt p)
                                       {

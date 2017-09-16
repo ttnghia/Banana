@@ -30,7 +30,7 @@ namespace JSONHelpers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class T>
-inline bool readValue(const nlohmann::json& j, T& v, const std::string& valueName)
+inline bool readValue(const nlohmann::json& j, T& v, const String& valueName)
 {
     if(j.find(valueName) == j.end())
         return false;
@@ -44,7 +44,7 @@ inline bool readValue(const nlohmann::json& j, T& v, const std::string& valueNam
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-inline bool readBool(const nlohmann::json& j, bool& v, const std::string& valueName)
+inline bool readBool(const nlohmann::json& j, bool& v, const String& valueName)
 {
     if(j.find(valueName) == j.end())
         return false;
@@ -66,7 +66,7 @@ inline bool readBool(const nlohmann::json& j, bool& v, const std::string& valueN
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class T>
-inline bool readVector(const nlohmann::json& j, Vec2<T>& vec, const std::string& valueName)
+inline bool readVector(const nlohmann::json& j, Vec2<T>& vec, const String& valueName)
 {
     if(j.find(valueName) == j.end())
         return false;
@@ -87,7 +87,7 @@ inline bool readVector(const nlohmann::json& j, Vec2<T>& vec, const std::string&
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class T>
-inline bool readVector(const nlohmann::json& j, Vec3<T>& vec, const std::string& valueName)
+inline bool readVector(const nlohmann::json& j, Vec3<T>& vec, const String& valueName)
 {
     if(j.find(valueName) == j.end())
         return false;

@@ -154,6 +154,7 @@
     <ClInclude Include="ParticleTools\BlueNoiseRelaxation\SPHBasedRelaxation.Impl.hpp" />
     <ClInclude Include="ParticleSolvers\SPH\KernelFunctions.h" />
     <ClInclude Include="ParticleTools\ParticleHelpers.Impl.hpp" />
+    <ClInclude Include="ParticleTools\PoissonDiskSampler.h" />
     <ClInclude Include="SimulationObjects\BoundaryObjects\BoundaryObject.h" />
     <ClInclude Include="SimulationObjects\BoundaryObjects\SphereBoundary2D.h" />
     <ClInclude Include="SimulationObjects\BoundaryObjects\SphereBoundary3D.h" />
@@ -190,6 +191,7 @@
     <ClCompile Include="ParticleSolvers\ParticleSolver.cpp" />
     <ClCompile Include="ParticleSolvers\SPH\WCSPH\WCSPHSolver.cpp" />
     <ClCompile Include="ParticleTools\ParticleHelpers.cpp" />
+    <ClCompile Include="ParticleTools\PoissonDiskSampler.cpp" />
     <ClCompile Include="ParticleTools\_ParticleTools.Test.cpp" />
     <ClCompile Include="SimulationObjects\BoundaryObjects\BoxBoundary2D.cpp" />
     <ClCompile Include="SimulationObjects\BoundaryObjects\BoxBoundary3D.cpp" />

@@ -128,15 +128,15 @@ public:
 
     ////////////////////////////////////////////////////////////////////////////////
     // size access
-    __BNN_FORCE_INLINE bool                      empty() const { return m_Data.empty(); }
-    __BNN_FORCE_INLINE size_type                 capacity(void) const { return m_Data.capacity(); }
-    __BNN_FORCE_INLINE size_type                 dataSize(void) const { return m_Data.size(); }
-    __BNN_FORCE_INLINE const VecX<N, size_type>& size() const { return m_Size; }
+    __BNN_INLINE bool                      empty() const { return m_Data.empty(); }
+    __BNN_INLINE size_type                 capacity(void) const { return m_Data.capacity(); }
+    __BNN_INLINE size_type                 dataSize(void) const { return m_Data.size(); }
+    __BNN_INLINE const VecX<N, size_type>& size() const { return m_Size; }
 
     ////////////////////////////////////////////////////////////////////////////////
     // index processing
     template<class IndexType>
-    __BNN_FORCE_INLINE bool isValidIndex(const VecX<N, IndexType>& index) const
+    __BNN_INLINE bool isValidIndex(const VecX<N, IndexType>& index) const
     {
         for(Int i = 0; i < N; ++i)
         {
@@ -148,7 +148,7 @@ public:
     }
 
     template<class IndexType>
-    __BNN_FORCE_INLINE void checkIndex(const VecX<N, IndexType>& index) const
+    __BNN_INLINE void checkIndex(const VecX<N, IndexType>& index) const
     {
         bool bIndexValid = isValidIndex<IndexType>(index);
 
@@ -180,7 +180,7 @@ public:
     ////////////////////////////////////////////////////////////////////////////////
     // Array2D =>
     template<class IndexType>
-    __BNN_FORCE_INLINE bool isValidIndex(IndexType i, IndexType j) const
+    __BNN_INLINE bool isValidIndex(IndexType i, IndexType j) const
     {
         return (i >= 0 &&
                 j >= 0 &&
@@ -189,7 +189,7 @@ public:
     }
 
     template<class IndexType>
-    __BNN_FORCE_INLINE size_type getCellLinearizedIndex(IndexType i, IndexType j) const
+    __BNN_INLINE size_type getCellLinearizedIndex(IndexType i, IndexType j) const
     {
         static_assert(N == 2, "Array dimension != 2");
 #ifndef NDEBUG
@@ -199,35 +199,35 @@ public:
     }
 
     template<class IndexType>
-    __BNN_FORCE_INLINE size_type getCellLinearizedIndex(const Vec2<IndexType>& index) const
+    __BNN_INLINE size_type getCellLinearizedIndex(const Vec2<IndexType>& index) const
     {
         static_assert(N == 2, "Array dimension != 2");
         getCellLinearizedIndex<IndexType>(index[0], index[1]);
     }
 
     template<class IndexType>
-    __BNN_FORCE_INLINE const T& operator ()(IndexType i, IndexType j) const
+    __BNN_INLINE const T& operator ()(IndexType i, IndexType j) const
     {
         static_assert(N == 2, "Array dimension != 2");
         return m_Data[getCellLinearizedIndex<IndexType>(i, j)];
     }
 
     template<class IndexType>
-    __BNN_FORCE_INLINE T& operator ()(IndexType i, IndexType j)
+    __BNN_INLINE T& operator ()(IndexType i, IndexType j)
     {
         static_assert(N == 2, "Array dimension != 2");
         return m_Data[getCellLinearizedIndex<IndexType>(i, j)];
     }
 
     template<class IndexType>
-    __BNN_FORCE_INLINE const T& operator ()(const Vec2<IndexType>& index) const
+    __BNN_INLINE const T& operator ()(const Vec2<IndexType>& index) const
     {
         static_assert(N == 2, "Array dimension != 2");
         return m_Data[getCellLinearizedIndex<IndexType>(index[0], index[1])];
     }
 
     template<class IndexType>
-    __BNN_FORCE_INLINE T& operator ()(const Vec2<IndexType>& index)
+    __BNN_INLINE T& operator ()(const Vec2<IndexType>& index)
     {
         static_assert(N == 2, "Array dimension != 2");
         return m_Data[getCellLinearizedIndex<IndexType>(index[0], index[1])];
@@ -239,7 +239,7 @@ public:
     ////////////////////////////////////////////////////////////////////////////////
     // Array3D =>
     template<class IndexType>
-    __BNN_FORCE_INLINE bool isValidIndex(IndexType i, IndexType j, IndexType k) const
+    __BNN_INLINE bool isValidIndex(IndexType i, IndexType j, IndexType k) const
     {
         return (i >= 0 &&
                 j >= 0 &&
@@ -250,7 +250,7 @@ public:
     }
 
     template<class IndexType>
-    __BNN_FORCE_INLINE size_type getCellLinearizedIndex(IndexType i, IndexType j, IndexType k) const
+    __BNN_INLINE size_type getCellLinearizedIndex(IndexType i, IndexType j, IndexType k) const
     {
         static_assert(N == 3, "Array dimension != 3");
 #ifndef NDEBUG
@@ -260,35 +260,35 @@ public:
     }
 
     template<class IndexType>
-    __BNN_FORCE_INLINE size_type getCellLinearizedIndex(const Vec3<IndexType>& index) const
+    __BNN_INLINE size_type getCellLinearizedIndex(const Vec3<IndexType>& index) const
     {
         static_assert(N == 3, "Array dimension != 3");
         return getCellLinearizedIndex<IndexType>(index[0], index[1], index[2]);
     }
 
     template<class IndexType>
-    __BNN_FORCE_INLINE const T& operator ()(IndexType i, IndexType j, IndexType k) const
+    __BNN_INLINE const T& operator ()(IndexType i, IndexType j, IndexType k) const
     {
         static_assert(N == 3, "Array dimension != 3");
         return m_Data[getCellLinearizedIndex<IndexType>(i, j, k)];
     }
 
     template<class IndexType>
-    __BNN_FORCE_INLINE T& operator ()(IndexType i, IndexType j, IndexType k)
+    __BNN_INLINE T& operator ()(IndexType i, IndexType j, IndexType k)
     {
         static_assert(N == 3, "Array dimension != 3");
         return m_Data[getCellLinearizedIndex<IndexType>(i, j, k)];
     }
 
     template<class IndexType>
-    __BNN_FORCE_INLINE const T& operator ()(const Vec3<IndexType>& index) const
+    __BNN_INLINE const T& operator ()(const Vec3<IndexType>& index) const
     {
         static_assert(N == 3, "Array dimension != 3");
         return m_Data[getCellLinearizedIndex<IndexType>(index[0], index[1], index[2])];
     }
 
     template<class IndexType>
-    __BNN_FORCE_INLINE T& operator ()(const Vec3<IndexType>& index)
+    __BNN_INLINE T& operator ()(const Vec3<IndexType>& index)
     {
         static_assert(N == 3, "Array dimension != 3");
         return m_Data[getCellLinearizedIndex<IndexType>(index[0], index[1], index[2])];
@@ -299,90 +299,90 @@ public:
 
     ////////////////////////////////////////////////////////////////////////////////
     // iterators
-    __BNN_FORCE_INLINE Vector<T>&       data() { return m_Data; }
-    __BNN_FORCE_INLINE const Vector<T>& data() const { return m_Data; }
+    __BNN_INLINE Vector<T>&       data() { return m_Data; }
+    __BNN_INLINE const Vector<T>& data() const { return m_Data; }
 
-    __BNN_FORCE_INLINE const T& front(void) const { assert(m_Data.size() > 0); return m_Data.front(); }
-    __BNN_FORCE_INLINE T&       front(void) { assert(m_Data.size() > 0); return m_Data.front(); }
+    __BNN_INLINE const T& front(void) const { assert(m_Data.size() > 0); return m_Data.front(); }
+    __BNN_INLINE T&       front(void) { assert(m_Data.size() > 0); return m_Data.front(); }
 
-    __BNN_FORCE_INLINE const T& back(void) const { assert(m_Data.size() > 0); return m_Data.back(); }
-    __BNN_FORCE_INLINE T&       back(void) { assert(m_Data.size() > 0); return m_Data.back(); }
+    __BNN_INLINE const T& back(void) const { assert(m_Data.size() > 0); return m_Data.back(); }
+    __BNN_INLINE T&       back(void) { assert(m_Data.size() > 0); return m_Data.back(); }
 
-    __BNN_FORCE_INLINE iterator begin(void) { return m_Data.begin(); }
-    __BNN_FORCE_INLINE iterator end(void) { return m_Data.end(); }
+    __BNN_INLINE iterator begin(void) { return m_Data.begin(); }
+    __BNN_INLINE iterator end(void) { return m_Data.end(); }
 
-    __BNN_FORCE_INLINE const_iterator cbegin(void) const { return m_Data.cbegin(); }
-    __BNN_FORCE_INLINE const_iterator cend(void) const { return m_Data.cend(); }
+    __BNN_INLINE const_iterator cbegin(void) const { return m_Data.cbegin(); }
+    __BNN_INLINE const_iterator cend(void) const { return m_Data.cend(); }
 
-    __BNN_FORCE_INLINE reverse_iterator rbegin(void) { return reverse_iterator(end()); }
-    __BNN_FORCE_INLINE reverse_iterator rend(void) { return reverse_iterator(begin()); }
+    __BNN_INLINE reverse_iterator rbegin(void) { return reverse_iterator(end()); }
+    __BNN_INLINE reverse_iterator rend(void) { return reverse_iterator(begin()); }
 
-    __BNN_FORCE_INLINE const_reverse_iterator crbegin(void) const { return const_reverse_iterator(cend()); }
-    __BNN_FORCE_INLINE const_reverse_iterator crend(void) const { return const_reverse_iterator(cbegin()); }
+    __BNN_INLINE const_reverse_iterator crbegin(void) const { return const_reverse_iterator(cend()); }
+    __BNN_INLINE const_reverse_iterator crend(void) const { return const_reverse_iterator(cbegin()); }
 
     ////////////////////////////////////////////////////////////////////////////////
     // data manipulation
     template<class IndexType>
-    __BNN_FORCE_INLINE void assign(const VecX<N, IndexType>& size, const T& value)
+    __BNN_INLINE void assign(const VecX<N, IndexType>& size, const T& value)
     {
         m_Size = size;
         m_Data.assign(glm::compMul(m_Size), value);
     }
 
     template<class IndexType>
-    __BNN_FORCE_INLINE void assign(const VecX<N, IndexType>& size, const T* copydata)
+    __BNN_INLINE void assign(const VecX<N, IndexType>& size, const T* copydata)
     {
         m_Size = size;
         m_Data.assign(glm::compMul(m_Size), copydata);
     }
 
-    __BNN_FORCE_INLINE void assign(const T& value) { m_Data.assign(m_Data.size(), value); }
-    __BNN_FORCE_INLINE void copyDataFrom(const Array<N, T>& other) { __BNN_ASSERT(equalSize(other)); m_Data = other.m_Data; }
-    __BNN_FORCE_INLINE void setZero() { m_Data.assign(m_Data.size(), 0); }
-    __BNN_FORCE_INLINE void clear() { m_Data.resize(0); m_Size = VecX<N, size_type>(0); }
-    __BNN_FORCE_INLINE void swap(Array<N, T>& other) { std::swap(m_Size, other.m_Size); m_Data.swap(other.m_Data); }
+    __BNN_INLINE void assign(const T& value) { m_Data.assign(m_Data.size(), value); }
+    __BNN_INLINE void copyDataFrom(const Array<N, T>& other) { __BNN_ASSERT(equalSize(other)); m_Data = other.m_Data; }
+    __BNN_INLINE void setZero() { m_Data.assign(m_Data.size(), 0); }
+    __BNN_INLINE void clear() { m_Data.resize(0); m_Size = VecX<N, size_type>(0); }
+    __BNN_INLINE void swap(Array<N, T>& other) { std::swap(m_Size, other.m_Size); m_Data.swap(other.m_Data); }
 
     template<class IndexType>
-    __BNN_FORCE_INLINE void reserve(const VecX<N, IndexType>& size) { m_Data.reserve(glm::compMul(size)); }
+    __BNN_INLINE void reserve(const VecX<N, IndexType>& size) { m_Data.reserve(glm::compMul(size)); }
 
     template<class IndexType>
-    __BNN_FORCE_INLINE void resize(const VecX<N, IndexType>& newSize) { m_Size = newSize;  m_Data.resize(glm::compMul(m_Size)); }
+    __BNN_INLINE void resize(const VecX<N, IndexType>& newSize) { m_Size = newSize;  m_Data.resize(glm::compMul(m_Size)); }
 
     template<class IndexType>
-    __BNN_FORCE_INLINE void resize(const VecX<N, IndexType>& newSize, const T& value) { m_Size = newSize;  m_Data.resize(glm::compMul(m_Size), value); }
+    __BNN_INLINE void resize(const VecX<N, IndexType>& newSize, const T& value) { m_Size = newSize;  m_Data.resize(glm::compMul(m_Size), value); }
 
     ////////////////////////////////////////////////////////////////////////////////
     // Array2D =>
     template<class IndexType>
-    __BNN_FORCE_INLINE void assign(IndexType sizeX, IndexType sizeY, const T& value)
+    __BNN_INLINE void assign(IndexType sizeX, IndexType sizeY, const T& value)
     {
         static_assert(N == 2, "Array dimension != 2");
         assign(Vec2<IndexType>(sizeX, sizeY), value);
     }
 
     template<class IndexType>
-    __BNN_FORCE_INLINE void assign(IndexType sizeX, IndexType sizeY, const T* copydata)
+    __BNN_INLINE void assign(IndexType sizeX, IndexType sizeY, const T* copydata)
     {
         static_assert(N == 2, "Array dimension != 2");
         assign(Vec2<IndexType>(sizeX, sizeY), copydata);
     }
 
     template<class IndexType>
-    __BNN_FORCE_INLINE void reserve(IndexType sizeX, IndexType sizeY)
+    __BNN_INLINE void reserve(IndexType sizeX, IndexType sizeY)
     {
         static_assert(N == 2, "Array dimension != 2");
         m_Data.reserve(sizeX * sizeY);
     }
 
     template<class IndexType>
-    __BNN_FORCE_INLINE void resize(IndexType sizeX, IndexType sizeY)
+    __BNN_INLINE void resize(IndexType sizeX, IndexType sizeY)
     {
         static_assert(N == 2, "Array dimension != 2");
         resize(Vec2<IndexType>(sizeX, sizeY));
     }
 
     template<class IndexType>
-    __BNN_FORCE_INLINE void resize(IndexType sizeX, IndexType sizeY, const T& value)
+    __BNN_INLINE void resize(IndexType sizeX, IndexType sizeY, const T& value)
     {
         static_assert(N == 2, "Array dimension != 2");
         resize(Vec2<IndexType>(sizeX, sizeY), value);
@@ -394,35 +394,35 @@ public:
     ////////////////////////////////////////////////////////////////////////////////
     // Array3D =>
     template<class IndexType>
-    __BNN_FORCE_INLINE void assign(IndexType sizeX, IndexType sizeY, IndexType sizeZ, const T& value)
+    __BNN_INLINE void assign(IndexType sizeX, IndexType sizeY, IndexType sizeZ, const T& value)
     {
         static_assert(N == 3, "Array dimension != 3");
         assign(Vec3<IndexType>(sizeX, sizeY, sizeZ), value);
     }
 
     template<class IndexType>
-    __BNN_FORCE_INLINE void assign(IndexType sizeX, IndexType sizeY, IndexType sizeZ, const T* copydata)
+    __BNN_INLINE void assign(IndexType sizeX, IndexType sizeY, IndexType sizeZ, const T* copydata)
     {
         static_assert(N == 3, "Array dimension != 3");
         assign(Vec3<IndexType>(sizeX, sizeY, sizeZ), copydata);
     }
 
     template<class IndexType>
-    __BNN_FORCE_INLINE void reserve(IndexType sizeX, IndexType sizeY, IndexType sizeZ)
+    __BNN_INLINE void reserve(IndexType sizeX, IndexType sizeY, IndexType sizeZ)
     {
         static_assert(N == 3, "Array dimension != 3");
         m_Data.reserve(sizeX * sizeY * sizeZ);
     }
 
     template<class IndexType>
-    __BNN_FORCE_INLINE void resize(IndexType sizeX, IndexType sizeY, IndexType sizeZ)
+    __BNN_INLINE void resize(IndexType sizeX, IndexType sizeY, IndexType sizeZ)
     {
         static_assert(N == 3, "Array dimension != 3");
         resize(Vec3<IndexType>(sizeX, sizeY, sizeZ));
     }
 
     template<class IndexType>
-    __BNN_FORCE_INLINE void resize(IndexType sizeX, IndexType sizeY, IndexType sizeZ, const T& value)
+    __BNN_INLINE void resize(IndexType sizeX, IndexType sizeY, IndexType sizeZ, const T& value)
     {
         static_assert(N == 3, "Array dimension != 3");
         resize(Vec3<IndexType>(sizeX, sizeY, sizeZ), value);

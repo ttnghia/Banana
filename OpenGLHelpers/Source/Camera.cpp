@@ -253,7 +253,7 @@ void Camera::translate()
     m_Translation *= m_TranslationLag;
 
     Vec3f eyeDir = m_CameraFocus - m_CameraPosition;
-    float scale  = eyeDir.length() * 0.05f;
+    float scale  = eyeDir.length() * 0.02f;
 
     Vec3f u = m_CameraUpDirection;
     Vec3f v = glm::cross(eyeDir, u);

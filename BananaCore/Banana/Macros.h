@@ -66,6 +66,24 @@ inline void throwIfFailed(HRESULT hr)
 #   define __BNN_SPRINT sprintf
 #endif
 
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#ifdef __BANANA_WINDOWS__
+// Enable memory leak detection
+#  ifdef _DEBUG
+#    define _CRTDBG_MAP_ALLOC
+#    include <stdlib.h>
+#    include <crtdbg.h>
+#    define DEBUG_NEW           new(_NORMAL_BLOCK, __FILE__, __LINE__)
+#    define REPORT_MEMORY_LEAKS _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+#  else
+#    define REPORT_MEMORY_LEAKS
+#  endif
+#else
+#    define REPORT_MEMORY_LEAKS
+#endif
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #include <csignal>
 #define __BANANA_EARLY_TERMINATION \
     {                              \
@@ -90,9 +108,9 @@ inline void throwIfFailed(HRESULT hr)
 #define __BNN_TO_STRING(x) _STR(x)
 
 #ifdef __BANANA_WINDOWS__
-#define __BNN_FORCE_INLINE __forceinline
+#define __BNN_INLINE __forceinline
 #else
-#define __BNN_FORCE_INLINE __attribute__((always_inline))
+#define __BNN_INLINE __attribute__((always_inline))
 #endif
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

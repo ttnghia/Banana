@@ -26,7 +26,10 @@
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class NeighborSearch;
+namespace NeighborSearch
+{
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+class NeighborSearch3D;
 
 /**
  * @class PointSet.
@@ -47,7 +50,7 @@ public:
     /**
      * Assignment operator.
      */
-    PointSet& operator=(PointSet const& other)
+    PointSet& operator =(PointSet const& other)
     {
         m_x       = other.m_x;
         m_n       = other.m_n;
@@ -136,15 +139,15 @@ public:
     }
 
 private:
-    friend NeighborSearch;
+    friend NeighborSearch3D;
     PointSet(const Real* x, std::size_t n, bool dynamic)
         : m_x(x), m_n(n), m_dynamic(dynamic), m_neighbors(n)
         , m_keys(n,
-        {
-            std::numeric_limits<int>::lowest(),
-            std::numeric_limits<int>::lowest(),
-            std::numeric_limits<int>::lowest()
-        })
+            {
+                std::numeric_limits<int>::lowest(),
+                std::numeric_limits<int>::lowest(),
+                std::numeric_limits<int>::lowest()
+            })
     {
         m_old_keys = m_keys;
     }
@@ -154,15 +157,15 @@ private:
         m_x = x;
         m_n = n;
         m_keys.resize(n, {
-                std::numeric_limits<int>::lowest(),
-                std::numeric_limits<int>::lowest(),
-                std::numeric_limits<int>::lowest()
-            });
+                    std::numeric_limits<int>::lowest(),
+                    std::numeric_limits<int>::lowest(),
+                    std::numeric_limits<int>::lowest()
+                });
         m_old_keys.resize(n, {
-                std::numeric_limits<int>::lowest(),
-                std::numeric_limits<int>::lowest(),
-                std::numeric_limits<int>::lowest()
-            });
+                    std::numeric_limits<int>::lowest(),
+                    std::numeric_limits<int>::lowest(),
+                    std::numeric_limits<int>::lowest()
+                });
         m_neighbors.resize(n);
     }
 
@@ -180,6 +183,9 @@ private:
     Vector<Vector<Vec_UInt> >                  m_neighbors;
     Vector<Vector<ParallelObjects::SpinLock> > m_locks;
 };
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+}   // end namespace NeighborSearch
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana

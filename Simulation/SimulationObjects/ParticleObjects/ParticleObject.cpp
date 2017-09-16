@@ -26,10 +26,10 @@ namespace SimulationObjects
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void ParticleObject3D::makeObj()
 {
-    if(!m_CacheFile.empty() && FileHelpers::fileExisted(m_CacheFile))
+    if(!m_ParticleFile.empty() && FileHelpers::fileExisted(m_ParticleFile))
     {
         m_Particles.resize(0);
-        ParticleHelpers::loadBinary(m_CacheFile, m_Particles, m_ParticleRadius);
+        ParticleHelpers::loadBinary(m_ParticleFile, m_Particles, m_ParticleRadius);
     }
     else
     {
@@ -39,8 +39,8 @@ void ParticleObject3D::makeObj()
         if(m_bRelaxPosition)
             ParticleHelpers::relaxPosition(m_Particles, m_RelaxMethod);
 
-        if(!m_CacheFile.empty())
-            ParticleHelpers::saveBinary(m_CacheFile, m_Particles, m_ParticleRadius);
+        if(!m_ParticleFile.empty())
+            ParticleHelpers::saveBinary(m_ParticleFile, m_Particles, m_ParticleRadius);
     }
 
     computeAABB();

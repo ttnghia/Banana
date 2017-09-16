@@ -17,6 +17,8 @@
 
 #pragma once
 
+#include <Banana/Geometry/GeometryObject2D.h>
+#include <Banana/Geometry/GeometryObject3D.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -32,14 +34,35 @@ public:
     virtual ~ParticleEmitter();
 
     virtual void advanceFrame() {}
+    String&      meshFile() { return m_MeshFile; }
+    String&      particleFile() { return m_ParticleFile; }
+
+protected:
+    String m_MeshFile     = "";
+    String m_ParticleFile = "";
 };
 
 class ParticleEmitter2D : public ParticleEmitter
-{};
+{
+public:
+    static constexpr UInt                        objDimension() noexcept { return 2u; }
+    SharedPtr<GeometryObject2D::GeometryObject>& getGeometry() { return m_GeometryObj; }
+
+protected:
+
+    SharedPtr<GeometryObject2D::GeometryObject> m_GeometryObj = nullptr;
+};
 
 
 class ParticleEmitter3D : public ParticleEmitter
-{};
+{
+public:
+    static constexpr UInt                        objDimension() noexcept { return 3u; }
+    SharedPtr<GeometryObject3D::GeometryObject>& getGeometry() { return m_GeometryObj; }
+
+protected:
+    SharedPtr<GeometryObject3D::GeometryObject> m_GeometryObj = nullptr;
+};
 
 
 #if 0
