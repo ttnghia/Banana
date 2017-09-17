@@ -17,7 +17,6 @@
 
 #pragma once
 
-#include <Banana/Geometry/GeometryObjectFactory.h>
 #include <SimulationObjects/SimulationObjectFactory.h>
 
 #include <cassert>
@@ -43,10 +42,7 @@ SharedPtr<SimulationObjects::BoundaryObject2D> createBoundaryObject2D(const Stri
         return std::make_shared<SimulationObjects::SphereBoundary2D>();
 
     // other generic objects
-    SharedPtr<SimulationObjects::BoundaryObject2D> bdObject = std::make_shared<SimulationObjects::BoundaryObject2D>();
-    GeometryObjectFactory::createGeometry(geometryType, bdObject->getGeometry());
-
-    return bdObject;
+    return std::make_shared<SimulationObjects::BoundaryObject2D>(geometryType);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -60,10 +56,7 @@ SharedPtr<SimulationObjects::BoundaryObject3D> createBoundaryObject3D(const Stri
         return std::make_shared<SimulationObjects::SphereBoundary3D>();
 
     // other generic objects
-    SharedPtr<SimulationObjects::BoundaryObject3D> bdObject = std::make_shared<SimulationObjects::BoundaryObject3D>();
-    GeometryObjectFactory::createGeometry(geometryType, bdObject->getGeometry());
-
-    return bdObject;
+    return std::make_shared<SimulationObjects::BoundaryObject3D>(geometryType);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

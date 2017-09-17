@@ -21,7 +21,9 @@
 	"BoundaryObjects":
 	[
 		{
-			"GeometryType" : "Box"		
+			"GeometryType" : "Box",
+			"BoxMin" : [-1.0, -1.0, -1.0],
+			"BoxMax" : [1.0, 1.0, 1.0]
 		}
 	],
 	"ParticleObjects":

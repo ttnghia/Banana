@@ -179,6 +179,17 @@ public:
         return true;
     }
 
+    template<class IndexType>
+    bool equalSize(const VecX<N, IndexType>& otherSize) const
+    {
+        for(Int i = 0; i < N; ++i)
+        {
+            if(m_Size[i] != otherSize[i])
+                return false;
+        }
+        return true;
+    }
+
     ////////////////////////////////////////////////////////////////////////////////
     // Array2D =>
     template<class IndexType>
@@ -456,8 +467,8 @@ public:
             buffer.getData<UInt>(tmp, sizeof(UInt) * i);
             m_Size[i] = static_cast<size_type>(tmp);
         }
-        __BNN_ASSERT(buffer.buffer() == N * sizeof(UInt) + sizeof(T) * glm::compMul(m_Size));
-        buffer.getData<UInt>(m_Data, sizeof(UInt) * N, glm::compMul(m_Size));
+        __BNN_ASSERT(buffer.buffer().size() == N * sizeof(UInt) + sizeof(T) * glm::compMul(m_Size));
+        buffer.getData(m_Data, sizeof(UInt) * N, glm::compMul(m_Size));
         return true;
     }
 

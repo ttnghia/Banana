@@ -48,6 +48,8 @@ void loadBoundaryObjects(const nlohmann::json& jParams, Vector<SharedPtr<Boundar
 
         if(JSONHelpers::readVector(jObj, scale, "Scale"))
             obj->getGeometry()->scale(scale);
+
+        obj->parseParameters(jObj);
     }
 }
 

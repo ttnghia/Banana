@@ -30,8 +30,9 @@ namespace SimulationObjects
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void BoxBoundary2D::setBox(const Vec2r& bMin, const Vec2r& bMax)
 {
-    m_BMin = bMin;
-    m_BMax = bMax;
+    SharedPtr<GeometryObject2D::BoxObject> box = std::static_pointer_cast<GeometryObject2D::BoxObject>(m_GeometryObj);
+    __BNN_ASSERT(box != nullptr);
+    box->setBox(bMin, bMax);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -47,9 +48,9 @@ void BoxBoundary2D::generateBoundaryParticles(Real spacing, Int numBDLayers /*= 
     ////////////////////////////////////////////////////////////////////////////////
     // plane x < 0
     {
-        Vec2r minLX = m_BMin - Vec2r(spacing * Real(numBDLayers * Real(1.001)));
-        Vec2r maxLX = m_BMax + Vec2r(spacing * Real(numBDLayers * Real(1.001)));
-        maxLX[0] = m_BMin[0];
+        Vec2r minLX = boxMin() - Vec2r(spacing * Real(numBDLayers * Real(1.001)));
+        Vec2r maxLX = boxMax() + Vec2r(spacing * Real(numBDLayers * Real(1.001)));
+        maxLX[0] = boxMin()[0];
         Vec2i gridLX = NumberHelpers::createGrid<Int>(minLX, maxLX, spacing);
 
         for(Int x = 0; x < gridLX[0]; ++x)
@@ -66,9 +67,9 @@ void BoxBoundary2D::generateBoundaryParticles(Real spacing, Int numBDLayers /*= 
     ////////////////////////////////////////////////////////////////////////////////
     // plane x > 0
     {
-        Vec2r minUX = m_BMin - Vec2r(spacing * Real(numBDLayers * Real(1.001)));
-        Vec2r maxUX = m_BMax + Vec2r(spacing * Real(numBDLayers * Real(1.001)));
-        minUX[0] = m_BMax[0];
+        Vec2r minUX = boxMin() - Vec2r(spacing * Real(numBDLayers * Real(1.001)));
+        Vec2r maxUX = boxMax() + Vec2r(spacing * Real(numBDLayers * Real(1.001)));
+        minUX[0] = boxMax()[0];
         Vec2i gridUX = NumberHelpers::createGrid<Int>(minUX, maxUX, spacing);
 
         for(Int x = 0; x < gridUX[0]; ++x)
@@ -85,11 +86,11 @@ void BoxBoundary2D::generateBoundaryParticles(Real spacing, Int numBDLayers /*= 
     ////////////////////////////////////////////////////////////////////////////////
     // plane y < 0
     {
-        Vec2r minLY = m_BMin - Vec2r(spacing * Real(numBDLayers) * Real(1.001));
-        Vec2r maxLY = m_BMax + Vec2r(spacing * Real(numBDLayers) * Real(1.001));
-        minLY[0] = m_BMin[0];
-        maxLY[0] = m_BMax[0];
-        maxLY[1] = m_BMin[1];
+        Vec2r minLY = boxMin() - Vec2r(spacing * Real(numBDLayers) * Real(1.001));
+        Vec2r maxLY = boxMax() + Vec2r(spacing * Real(numBDLayers) * Real(1.001));
+        minLY[0] = boxMin()[0];
+        maxLY[0] = boxMax()[0];
+        maxLY[1] = boxMin()[1];
         Vec2i gridLY = NumberHelpers::createGrid<Int>(minLY, maxLY, spacing);
 
         for(Int x = 0; x < gridLY[0]; ++x)
@@ -106,11 +107,11 @@ void BoxBoundary2D::generateBoundaryParticles(Real spacing, Int numBDLayers /*= 
     ////////////////////////////////////////////////////////////////////////////////
     // plane y > 0
     {
-        Vec2r minUY = m_BMin - Vec2r(spacing * Real(numBDLayers) * Real(1.001));
-        Vec2r maxUY = m_BMax + Vec2r(spacing * Real(numBDLayers) * Real(1.001));
-        minUY[0] = m_BMin[0];
-        maxUY[0] = m_BMax[0];
-        minUY[1] = m_BMax[1];
+        Vec2r minUY = boxMin() - Vec2r(spacing * Real(numBDLayers) * Real(1.001));
+        Vec2r maxUY = boxMax() + Vec2r(spacing * Real(numBDLayers) * Real(1.001));
+        minUY[0] = boxMin()[0];
+        maxUY[0] = boxMax()[0];
+        minUY[1] = boxMax()[1];
         Vec2i gridUY = NumberHelpers::createGrid<Int>(minUY, maxUY, spacing);
 
         for(Int x = 0; x < gridUY[0]; ++x)
@@ -140,9 +141,9 @@ bool BoxBoundary2D::constrainToBoundary(Vec2r& pPos, Vec2r& pVel)
 
     for(Int l = 0; l < pPos.length(); ++l)
     {
-        if(pPos[l] < m_BMin[l] || pPos[l] > m_BMax[l])
+        if(pPos[l] < boxMin()[l] || pPos[l] > boxMax()[l])
         {
-            pPos[l]    = MathHelpers::min(MathHelpers::max(pPos[l], m_BMin[l]), m_BMax[l]);
+            pPos[l]    = MathHelpers::min(MathHelpers::max(pPos[l], boxMin()[l]), boxMax()[l]);
             pVel[l]   *= -m_RestitutionCoeff;
             velChanged = true;
         }

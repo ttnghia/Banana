@@ -53,8 +53,8 @@ void FLIP2DSolver::makeReady()
 
                                // todo: remove
                                GeometryObject2D::BoxObject box;
-                               box.boxMin() = m_SimParams->movingBMin + Vec2r(m_SimParams->cellSize);
-                               box.boxMax() = m_SimParams->movingBMax - Vec2r(m_SimParams->cellSize);
+                               box.setBMin(m_SimParams->movingBMin + Vec2r(m_SimParams->cellSize));
+                               box.setBMax(m_SimParams->movingBMax - Vec2r(m_SimParams->cellSize));
                                ParallelFuncs::parallel_for<UInt>(m_Grid.getNumNodes(),
                                                                  [&](UInt i, UInt j)
                                                                  {

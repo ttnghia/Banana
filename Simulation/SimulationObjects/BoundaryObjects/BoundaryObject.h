@@ -19,16 +19,19 @@
 
 #include <Banana/Setup.h>
 #include <Banana/Array/Array.h>
-#include <Banana/Data/DataIO.h>
-#include <Banana/Utils/MathHelpers.h>
+#include <Banana/Grid/Grid2D.h>
+#include <Banana/Grid/Grid3D.h>
 #include <Banana/Geometry/GeometryObject2D.h>
 #include <Banana/Geometry/GeometryObject3D.h>
 #include <Banana/Geometry/GeometryObjectFactory.h>
 #include <Banana/ParallelHelpers/ParallelFuncs.h>
 #include <ParticleSolvers/ParticleSolverData.h>
 
+#include <json.hpp>
+
 #include <cassert>
 #include <locale>
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
 {
@@ -51,6 +54,7 @@ public:
     ////////////////////////////////////////////////////////////////////////////////
     virtual void makeReady() {}
     virtual void advanceFrame() {}
+    virtual void parseParameters(const nlohmann::json& jParams) /*= 0;*/ {}
     virtual void generateBoundaryParticles(Real spacing, int numBDLayers = 2, bool saveCache = false) { __BNN_UNIMPLEMENTED_FUNC }
 
 protected:
@@ -61,8 +65,8 @@ protected:
     String m_ParticleFile = String("");
     String m_SDFFile      = String("");
 
-    bool m_bDynamics = false;
-    bool m_bCacheSDF = false;
+    bool m_bDynamics     = false;
+    bool m_bSDFGenerated = false;
 };
 
 
@@ -81,37 +85,17 @@ public:
     const Array2r& getSDF() { return m_SDF; }
     GeometryPtr&   getGeometry() { return m_GeometryObj; }
 
+    Real  signedDistance(const Vec2r& ppos, bool bUseCache = true);
+    Vec2r gradientSignedDistance(const Vec2r& ppos, Real dxyz = Real(1.0 / 512.0), bool bUseCache = true);
+    void  generateSignedDistanceField(const Vec2r& domainBMin, const Vec2r& domainBMax, Real sdfCellSize = Real(1.0 / 512.0), bool bUseFile = false);
+
     virtual bool constrainToBoundary(Vec2r& ppos, Vec2r& pvel) /*= 0;*/ { return true; }
-    virtual Real signedDistance(const Vec2r& ppos) /*= 0;*/ { return 0; }
-    virtual Real gradientSignedDistance(const Vec2r& ppos, Real dxyz = Real(1.0 / 256.0)) /*= 0;*/ { return 0; }
-
-    void generateSignedDistanceField(const Vec2r& domainBMin, const Vec2r& domainBMax, Real sdfCellSize = Real(1.0 / 512.0), bool bUseCache = false)
-    {
-        // load sdf from file
-        if(bUseCache && !m_SDFFile.empty() && FileHelpers::fileExisted(m_SDFFile))
-        {
-            m_SDF.loadFromFile(m_SDFFile);
-            return;
-        }
-
-        Vec2ui gridSize = NumberHelpers::createGrid<UInt>(domainBMin, domainBMax, sdfCellSize);
-        m_SDF.resize(gridSize);
-
-        ParallelFuncs::parallel_for<UInt>(gridSize,
-                                          [&](UInt i, UInt j)
-                                          {
-                                              m_SDF(i, j) = -signedDistance(domainBMin + Vec2r(i, j) * sdfCellSize);
-                                          });
-
-        // save cache sdf
-        if(bUseCache && !m_SDFFile.empty())
-            m_SDF.saveToFile(m_SDFFile);
-    }
 
 protected:
     GeometryPtr m_GeometryObj;
     Vec_Vec2r   m_BDParticles;
     Array2r     m_SDF;
+    Grid2D      m_Grid;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -129,37 +113,17 @@ public:
     const Array3r& getSDF() { return m_SDF; }
     GeometryPtr&   getGeometry() { return m_GeometryObj; }
 
+    Real  signedDistance(const Vec3r& ppos, bool bUseCache = true);
+    Vec3r gradientSignedDistance(const Vec3r& ppos, Real dxyz = Real(1.0 / 256.0), bool bUseCache = true);
+    void  generateSignedDistanceField(const Vec3r& domainBMin, const Vec3r& domainBMax, Real sdfCellSize = Real(1.0 / 512.0), bool bUseFile = false);
+
     virtual bool constrainToBoundary(Vec3r& ppos, Vec3r& pvel) /*= 0;*/ { return true; }
-    virtual Real signedDistance(const Vec3r& ppos) /*= 0;*/ { return 0; }
-    virtual Real gradientSignedDistance(const Vec3r& ppos, Real dxyz = Real(1.0 / 256.0)) /*= 0;*/ { return 0; }
-
-    void generateSignedDistanceField(const Vec3r& domainBMin, const Vec3r& domainBMax, Real sdfCellSize = Real(1.0 / 512.0), bool bUseCache = false)
-    {
-        // load sdf from file
-        if(bUseCache && !m_SDFFile.empty() && FileHelpers::fileExisted(m_SDFFile))
-        {
-            m_SDF.loadFromFile(m_SDFFile);
-            return;
-        }
-
-        Vec3ui gridSize = NumberHelpers::createGrid<UInt>(domainBMin, domainBMax, sdfCellSize);
-        m_SDF.resize(gridSize);
-
-        ParallelFuncs::parallel_for<UInt>(gridSize,
-                                          [&](UInt i, UInt j, UInt k)
-                                          {
-                                              m_SDF(i, j, k) = -signedDistance(domainBMin + Vec3r(i, j, k) * sdfCellSize);
-                                          });
-
-        // save cache sdf
-        if(bUseCache && !m_SDFFile.empty())
-            m_SDF.saveToFile(m_SDFFile);
-    }
 
 protected:
     GeometryPtr m_GeometryObj = nullptr;
     Vec_Vec3r   m_BDParticles;
     Array3r     m_SDF;
+    Grid3D      m_Grid;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

@@ -29,15 +29,12 @@ namespace SimulationObjects
 class SphereBoundary3D : public BoundaryObject3D
 {
 public:
-    SphereBoundary3D() {}
-    SphereBoundary3D(const Vec3r& bMin, const Vec3r& bMax) : m_BMin(bMin), m_BMax(bMax) {}
+    SphereBoundary3D() : BoundaryObject3D("Sphere") {}
 
-    void         setBox(const Vec3r& bMin, const Vec3r& bMax) {}
     virtual void generateBoundaryParticles(Real spacing, Int numBDLayers = 2, bool saveCache = false) override {}
     virtual bool constrainToBoundary(Vec3r& ppos, Vec3r& pvel) override { return true; }
 
 private:
-    Vec3r m_BMin, m_BMax;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

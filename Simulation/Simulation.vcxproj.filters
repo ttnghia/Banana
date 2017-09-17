@@ -260,5 +260,8 @@
     <ClCompile Include="ParticleTools\PoissonDiskSampler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="SimulationObjects\BoundaryObjects\BoundaryObject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

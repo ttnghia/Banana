@@ -29,15 +29,15 @@ namespace SimulationObjects
 class BoxBoundary2D : public BoundaryObject2D
 {
 public:
-    BoxBoundary2D() = default;
-    BoxBoundary2D(const Vec2r& bMin, const Vec2r& bMax) : m_BMin(bMin), m_BMax(bMax) { }
+    BoxBoundary2D() : BoundaryObject2D("Box") { }
+    BoxBoundary2D(const Vec2r& bMin, const Vec2r& bMax) : BoundaryObject2D("Box") { setBox(bMin, bMax); }
 
-    void         setBox(const Vec2r& bMin, const Vec2r& bMax);
     virtual void generateBoundaryParticles(Real spacing, Int numBDLayers = 2, bool saveCache = false) override;
     virtual bool constrainToBoundary(Vec2r& ppos, Vec2r& pvel) override;
 
-private:
-    Vec2r m_BMin, m_BMax;
+    void         setBox(const Vec2r& bMin, const Vec2r& bMax);
+    const Vec2r& boxMin() const noexcept { return m_GeometryObj->aabbBoxMin(); }
+    const Vec2r& boxMax() const noexcept { return m_GeometryObj->aabbBoxMax(); }
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

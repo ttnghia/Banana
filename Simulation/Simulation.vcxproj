@@ -193,6 +193,7 @@
     <ClCompile Include="ParticleTools\ParticleHelpers.cpp" />
     <ClCompile Include="ParticleTools\PoissonDiskSampler.cpp" />
     <ClCompile Include="ParticleTools\_ParticleTools.Test.cpp" />
+    <ClCompile Include="SimulationObjects\BoundaryObjects\BoundaryObject.cpp" />
     <ClCompile Include="SimulationObjects\BoundaryObjects\BoxBoundary2D.cpp" />
     <ClCompile Include="SimulationObjects\BoundaryObjects\BoxBoundary3D.cpp" />
     <ClCompile Include="SimulationObjects\ParticleObjects\ParticleObject.cpp" />

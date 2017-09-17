@@ -40,7 +40,7 @@ VecX<N, IndexType> createGrid(const VecX<N, RealType>& bmin, const VecX<N, RealT
     VecX<N, IndexType> result;
 
     for(Int i = 0; i < N; ++i)
-        result[i] = static_cast<IndexType>(round(fgrid[i]));
+        result[i] = static_cast<IndexType>(ceil(fgrid[i]));
 
     return result;
 }

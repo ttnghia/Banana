@@ -29,13 +29,14 @@ namespace SimulationObjects
 class BoxBoundary3D : public BoundaryObject3D
 {
 public:
-    BoxBoundary3D() { m_GeometryObj = std::make_shared<GeometryObject3D::BoxObject>(); }
-    BoxBoundary3D(const Vec3r& bMin, const Vec3r& bMax);
-    void setBox(const Vec3r& bMin, const Vec3r& bMax);
+    BoxBoundary3D() : BoundaryObject3D("Box") {}
+    BoxBoundary3D(const Vec3r& bMin, const Vec3r& bMax) : BoundaryObject3D("Box") { setBox(bMin, bMax); }
 
+    virtual void parseParameters(const nlohmann::json& jParams) override;
     virtual void generateBoundaryParticles(Real spacing, Int numBDLayers = 2, bool saveCache = false) override;
     virtual bool constrainToBoundary(Vec3r& ppos, Vec3r& pvel) override;
 
+    void         setBox(const Vec3r& bMin, const Vec3r& bMax);
     const Vec3r& boxMin() const noexcept { return m_GeometryObj->aabbBoxMin(); }
     const Vec3r& boxMax() const noexcept { return m_GeometryObj->aabbBoxMax(); }
 };

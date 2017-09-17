@@ -110,27 +110,24 @@ public:
     virtual String name() override { return "BoxObject"; };
     virtual Real   signedDistance(const Vec2r& ppos) override
     {
-        if(ppos[0] > m_BoxMin[0] && ppos[0] < m_BoxMax[0] &&
-           ppos[1] > m_BoxMin[1] && ppos[1] < m_BoxMax[1])
+        if(ppos[0] > m_AABBBoxMin[0] && ppos[0] < m_AABBBoxMax[0] &&
+           ppos[1] > m_AABBBoxMin[1] && ppos[1] < m_AABBBoxMax[1])
         {
-            return -MathHelpers::min(ppos[0] - m_BoxMin[0], m_BoxMax[0] - ppos[0],
-                                     ppos[1] - m_BoxMin[1], m_BoxMax[1] - ppos[1]);
+            return -MathHelpers::min(ppos[0] - m_AABBBoxMin[0], m_AABBBoxMax[0] - ppos[0],
+                                     ppos[1] - m_AABBBoxMin[1], m_AABBBoxMax[1] - ppos[1]);
         }
         else
         {
-            Vec2r cp(MathHelpers::max(MathHelpers::min(ppos[0], m_BoxMax[0]), m_BoxMin[0]),
-                     MathHelpers::max(MathHelpers::min(ppos[1], m_BoxMax[1]), m_BoxMin[1]));
+            Vec2r cp(MathHelpers::max(MathHelpers::min(ppos[0], m_AABBBoxMax[0]), m_AABBBoxMin[0]),
+                     MathHelpers::max(MathHelpers::min(ppos[1], m_AABBBoxMax[1]), m_AABBBoxMin[1]));
 
             return glm::length(ppos - cp);
         }
     }
 
-    Vec2r& boxMin() { return m_BoxMin; }
-    Vec2r& boxMax() { return m_BoxMax; }
-
-protected:
-    Vec2r m_BoxMin = Vec2r(-0.5);
-    Vec2r m_BoxMax = Vec2r(0.5);
+    void setBox(const Vec2r& boxMin, const Vec2r& boxMax) { m_AABBBoxMin = boxMin; m_AABBBoxMax = boxMax; }
+    void setBMin(const Vec2r& boxMin) { m_AABBBoxMin = boxMin; }
+    void setBMax(const Vec2r& boxMax) { m_AABBBoxMax = boxMax; }
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

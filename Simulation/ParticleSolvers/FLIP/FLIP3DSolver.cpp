@@ -55,26 +55,29 @@ void FLIP3DSolver::makeReady()
 
 
                                for(auto& obj : m_BoundaryObjects)
-                                   obj->generateSignedDistanceField();
-
+                               {
+                                   obj->generateSignedDistanceField(m_SimParams->domainBMin, m_SimParams->domainBMax, m_SimParams->cellSize);
+                               }
 
                                //// todo: remove this
+
                                //GeometryObject3D::BoxObject box;
                                //box.setBMin(m_SimParams->movingBMin - Vec3r(0.001f));
                                //box.setBMax(m_SimParams->movingBMax + Vec3r(0.001f));
-                               //ParallelFuncs::parallel_for<UInt>(0, m_Grid.getNumNodeX(),
-                               //                                  0, m_Grid.getNumNodeY(),
-                               //                                  0, m_Grid.getNumNodeZ(),
-                               //                                  [&](UInt i, UInt j, UInt k)
-                               //                                  {
-                               //                                      const Vec3r pPos = m_Grid.getWorldCoordinate(i, j, k);
-                               //                                      Real minSD = Huge;
 
-                               //                                      for(auto& obj : m_BoundaryObjects)
-                               //                                          minSD = MathHelpers::min(obj->getSDF);
+                               ParallelFuncs::parallel_for<UInt>(m_Grid.getNumNodes(),
+                                                                 [&](UInt i, UInt j, UInt k)
+                                                                 {
+                                                                     Real minSD = Huge;
+                                                                     for(auto& obj : m_BoundaryObjects)
+                                                                         minSD = MathHelpers::min(minSD, obj->getSDF()(i, j, k));
 
-                               //                                      gridData().boundarySDF(i, j, k) = MathHelpers::min(-box.signedDistance(pPos);
-                               //                                  });
+                                                                     gridData().boundarySDF(i, j, k) = minSD;
+
+                                                                     //const Vec3r gridPos = m_Grid.getWorldCoordinate(i, j, k);
+
+                                                                     //gridData().boundarySDF(i, j, k) = -box.signedDistance(gridPos);
+                                                                 });
                                m_Logger->printWarning("Computed boundary SDF");
                            });
 
