@@ -120,9 +120,9 @@ protected:
             obj->advanceFrame();
     }
 
-    Vector<SharedPtr<SimulationObjects::BoundaryObject2D> >  m_BoundaryObjects;
-    Vector<SharedPtr<SimulationObjects::ParticleObject2D> >  m_ParticleObjects;
-    Vector<SharedPtr<SimulationObjects::ParticleEmitter2D> > m_ParticleEmitters;
+    Vector<SharedPtr<SimulationObjects::BoundaryObject2D> >  m_BoundaryObjects;  // individual objects, as one can be dynamic while the other is not
+    Vector<SharedPtr<SimulationObjects::ParticleObject2D> >  m_ParticleObjects;  // individual objects, as they can have different properties
+    Vector<SharedPtr<SimulationObjects::ParticleEmitter2D> > m_ParticleEmitters; // individual objects, as they can have different behaviors
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -154,9 +154,9 @@ protected:
     }
 
     UniquePtr<NeighborSearch::NeighborSearch3D>              m_NSearch = nullptr;
-    Vector<SharedPtr<SimulationObjects::BoundaryObject3D> >  m_BoundaryObjects;
-    Vector<SharedPtr<SimulationObjects::ParticleObject3D> >  m_ParticleObjects;
-    Vector<SharedPtr<SimulationObjects::ParticleEmitter3D> > m_ParticleEmitters;
+    Vector<SharedPtr<SimulationObjects::BoundaryObject3D> >  m_BoundaryObjects;  // individual objects, as one can be dynamic while the other is not
+    Vector<SharedPtr<SimulationObjects::ParticleObject3D> >  m_ParticleObjects;  // individual objects, as they can have different properties
+    Vector<SharedPtr<SimulationObjects::ParticleEmitter3D> > m_ParticleEmitters; // individual objects, as they can have different behaviors
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
