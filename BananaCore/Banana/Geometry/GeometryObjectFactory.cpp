@@ -125,6 +125,38 @@ SharedPtr<GeometryObject3D::GeometryObject> createGeometry3D(const String& geome
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+SharedPtr<GeometryObject2D::GeometryObject> combineGeometryObjects2D(const Vector<SharedPtr<GeometryObject2D::GeometryObject> >& geometryObjs)
+{
+    if(geometryObjs.size() == 0)
+        return nullptr;
+    if(geometryObjs.size() == 1)
+        return geometryObjs.front();
+
+    SharedPtr<GeometryObject2D::CSGObject> csgObj = std::make_shared<GeometryObject2D::CSGObject>();
+
+    for(auto& obj : geometryObjs)
+        csgObj->addObject(obj);
+
+    return csgObj;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+SharedPtr<GeometryObject3D::GeometryObject> combineGeometryObjects3D(const Vector<SharedPtr<GeometryObject3D::GeometryObject> >& geometryObjs)
+{
+    if(geometryObjs.size() == 0)
+        return nullptr;
+    if(geometryObjs.size() == 1)
+        return geometryObjs.front();
+
+    SharedPtr<GeometryObject3D::CSGObject> csgObj = std::make_shared<GeometryObject3D::CSGObject>();
+
+    for(auto& obj : geometryObjs)
+        csgObj->addObject(obj);
+
+    return csgObj;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace GeometryObjectFactory
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

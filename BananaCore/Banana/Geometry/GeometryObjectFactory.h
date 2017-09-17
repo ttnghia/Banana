@@ -32,7 +32,6 @@ namespace GeometryObjectFactory
 SharedPtr<GeometryObject2D::GeometryObject> createGeometry2D(const String& geometryType);
 SharedPtr<GeometryObject3D::GeometryObject> createGeometry3D(const String& geometryType);
 
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 __BNN_INLINE void createGeometry(const String& geometryType, SharedPtr<GeometryObject2D::GeometryObject>& geometryObj)
 {
     geometryObj = createGeometry2D(geometryType);
@@ -41,6 +40,22 @@ __BNN_INLINE void createGeometry(const String& geometryType, SharedPtr<GeometryO
 __BNN_INLINE void createGeometry(const String& geometryType, SharedPtr<GeometryObject3D::GeometryObject>& geometryObj)
 {
     geometryObj = createGeometry3D(geometryType);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+SharedPtr<GeometryObject2D::GeometryObject> combineGeometryObjects2D(const Vector<SharedPtr<GeometryObject2D::GeometryObject> >& geometryObjs);
+SharedPtr<GeometryObject3D::GeometryObject> combineGeometryObjects3D(const Vector<SharedPtr<GeometryObject3D::GeometryObject> >& geometryObjs);
+
+__BNN_INLINE void combineGeometryObjects(const Vector<SharedPtr<GeometryObject2D::GeometryObject> >& geometryObjs,
+                                         SharedPtr<GeometryObject2D::GeometryObject>&                unifiedGeometry)
+{
+    unifiedGeometry = combineGeometryObjects2D(geometryObjs);
+}
+
+__BNN_INLINE void combineGeometryObjects(const Vector<SharedPtr<GeometryObject3D::GeometryObject> >& geometryObjs,
+                                         SharedPtr<GeometryObject3D::GeometryObject>&                unifiedGeometry)
+{
+    unifiedGeometry = combineGeometryObjects3D(geometryObjs);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

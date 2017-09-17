@@ -450,17 +450,15 @@ class CSGObject : public GeometryObject
 public:
     struct CSGData
     {
-        std::shared_ptr<GeometryObject> obj = nullptr;
-        CSGOperations                   op  = Overwrite;
+        SharedPtr<GeometryObject> obj = nullptr;
+        CSGOperations             op  = Union;
     };
 
-    virtual String name() override { return "SphereObject"; }
+    virtual String name() override { return "CSGObject"; }
     virtual Real   signedDistance(const Vec3r& ppos_) override
     {
         Vec3r ppos = domainDeform(ppos_);
-
-        ////////////////////////////////////////////////////////////////////////////////
-        Real sd = 0;
+        Real sd    = Huge;
 
         for(auto& csgObj : m_Objects)
         {
@@ -468,6 +466,7 @@ public:
             {
                 case Overwrite:
                     sd = csgObj.obj->signedDistance(ppos);
+                    break;
                 case Union:
                     sd = MathHelpers::min(sd, csgObj.obj->signedDistance(ppos));
                     break;
@@ -492,7 +491,7 @@ public:
     }
 
     void addObject(const CSGData& obj) { m_Objects.push_back(obj); }
-    void addObject(const std::shared_ptr<GeometryObject>& obj, CSGOperations op = Overwrite) { m_Objects.push_back({ obj, op }); }
+    void addObject(const SharedPtr<GeometryObject>& obj, CSGOperations op = Union) { m_Objects.push_back({ obj, op }); }
     void setDeformOp(DomainDeformation deformOp) { m_DeformOp = deformOp; }
 
 protected:
