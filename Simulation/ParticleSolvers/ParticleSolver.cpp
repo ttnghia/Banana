@@ -123,6 +123,38 @@ void ParticleSolver::loadScene(const String& sceneFile)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void ParticleSolver2D::generateBoundaries(const nlohmann::json& jParams)
+{
+    __BNN_ASSERT(jParams.find("BoundaryObjects") != jParams.end());
+    SceneLoader::loadBoundaryObjects(jParams["BoundaryObjects"], m_BoundaryObjects);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void ParticleSolver2D::generateParticles(const nlohmann::json& jParams)
+{
+    __BNN_ASSERT(jParams.find("ParticleObjects") != jParams.end());
+    SceneLoader::loadParticleObjects(jParams["ParticleObjects"], m_ParticleObjects);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void ParticleSolver2D::generateEmitters(const nlohmann::json& jParams)
+{
+    if((jParams.find("ParticleEmitters") != jParams.end()))
+        SceneLoader::loadParticleEmitters(jParams["ParticleEmitters"], m_ParticleEmitters);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void ParticleSolver2D::advanceScene()
+{
+    for(auto& obj : m_BoundaryObjects)
+        if(obj->isDynamic()) obj->advanceFrame();
+    for(auto& obj : m_ParticleObjects)
+        obj->advanceFrame();
+    for(auto& obj : m_ParticleEmitters)
+        obj->advanceFrame();
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void ParticleSolver3D::generateBoundaries(const nlohmann::json& jParams)
 {
     __BNN_ASSERT(jParams.find("BoundaryObjects") != jParams.end());
@@ -176,38 +208,6 @@ void ParticleSolver3D::generateEmitters(const nlohmann::json& jParams)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void ParticleSolver3D::advanceScene()
-{
-    for(auto& obj : m_BoundaryObjects)
-        if(obj->isDynamic()) obj->advanceFrame();
-    for(auto& obj : m_ParticleObjects)
-        obj->advanceFrame();
-    for(auto& obj : m_ParticleEmitters)
-        obj->advanceFrame();
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void ParticleSolver2D::generateBoundaries(const nlohmann::json& jParams)
-{
-    __BNN_ASSERT(jParams.find("BoundaryObjects") != jParams.end());
-    SceneLoader::loadBoundaryObjects(jParams["BoundaryObjects"], m_BoundaryObjects);
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void ParticleSolver2D::generateParticles(const nlohmann::json& jParams)
-{
-    __BNN_ASSERT(jParams.find("ParticleObjects") != jParams.end());
-    SceneLoader::loadParticleObjects(jParams["ParticleObjects"], m_ParticleObjects);
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void ParticleSolver2D::generateEmitters(const nlohmann::json& jParams)
-{
-    if((jParams.find("ParticleEmitters") != jParams.end()))
-        SceneLoader::loadParticleEmitters(jParams["ParticleEmitters"], m_ParticleEmitters);
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void ParticleSolver2D::advanceScene()
 {
     for(auto& obj : m_BoundaryObjects)
         if(obj->isDynamic()) obj->advanceFrame();

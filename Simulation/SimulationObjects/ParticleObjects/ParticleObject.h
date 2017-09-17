@@ -20,6 +20,7 @@
 #include <Banana/Setup.h>
 #include <Banana/Geometry/GeometryObject2D.h>
 #include <Banana/Geometry/GeometryObject3D.h>
+#include <Banana/Geometry/GeometryObjectFactory.h>
 #include <ParticleTools/ParticleHelpers.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -32,8 +33,13 @@ namespace SimulationObjects
 class ParticleObject2D
 {
 public:
-    static constexpr UInt                        objDimension() noexcept { return 2u; }
-    SharedPtr<GeometryObject2D::GeometryObject>& getGeometry() { return m_GeometryObj; }
+    using GeometryPtr = SharedPtr<GeometryObject2D::GeometryObject>;
+    static constexpr UInt objDimension() noexcept { return 2u; }
+
+    ParticleObject2D() = delete;
+    ParticleObject2D(const String& geometryType) : m_GeometryObj(GeometryObjectFactory::createGeometry2D(geometryType)) { __BNN_ASSERT(m_GeometryObj != nullptr); }
+
+    GeometryPtr& getGeometry() { return m_GeometryObj; }
 
     String& meshFile() { return m_MeshFile; }
     String& particleFile() { return m_ParticleFile; }
@@ -44,19 +50,23 @@ protected:
     String m_MeshFile     = "";
     String m_ParticleFile = "";
 
-    SharedPtr<GeometryObject2D::GeometryObject> m_GeometryObj = nullptr;
+    GeometryPtr m_GeometryObj = nullptr;
 };
 
 class ParticleObject3D
 {
 public:
+    using GeometryPtr = SharedPtr<GeometryObject3D::GeometryObject>;
     static constexpr UInt objDimension() noexcept { return 3u; }
-    ParticleObject3D() = default;
-    SharedPtr<GeometryObject3D::GeometryObject>& getGeometry() { return m_GeometryObj; }
+
+
+    ParticleObject3D() = delete;
+    ParticleObject3D(const String& geometryType) : m_GeometryObj(GeometryObjectFactory::createGeometry3D(geometryType)) { __BNN_ASSERT(m_GeometryObj != nullptr); }
+    GeometryPtr& getGeometry() { return m_GeometryObj; }
 
     virtual void advanceFrame() {}
 
-    SharedPtr<GeometryObject3D::GeometryObject> m_GeometryObj = nullptr;
+    GeometryPtr m_GeometryObj = nullptr;
 
     String& name() { return m_ObjName; }
     String& meshFile() { return m_MeshFile; }
