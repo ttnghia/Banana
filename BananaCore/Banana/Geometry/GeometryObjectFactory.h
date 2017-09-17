@@ -33,16 +33,15 @@ SharedPtr<GeometryObject2D::GeometryObject> createGeometry2D(const String& geome
 SharedPtr<GeometryObject3D::GeometryObject> createGeometry3D(const String& geometryType);
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void createGeometry(const String& geometryType, SharedPtr<GeometryObject2D::GeometryObject>& geometryObj)
+__BNN_INLINE void createGeometry(const String& geometryType, SharedPtr<GeometryObject2D::GeometryObject>& geometryObj)
 {
     geometryObj = createGeometry2D(geometryType);
 }
 
-void createGeometry(const String& geometryType, SharedPtr<GeometryObject3D::GeometryObject>& geometryObj)
+__BNN_INLINE void createGeometry(const String& geometryType, SharedPtr<GeometryObject3D::GeometryObject>& geometryObj)
 {
     geometryObj = createGeometry3D(geometryType);
 }
-
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace GeometryObjectFactory

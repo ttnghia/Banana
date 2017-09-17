@@ -94,9 +94,6 @@ void ParticleSolver::loadScene(const String& sceneFile)
     m_Logger->printLog("Load scene file: " + sceneFile);
     nlohmann::json jParams = nlohmann::json::parse(inputFile);
 
-    // Only object parameters are required. Global parameters and simulation parameters can be default
-    __BNN_ASSERT(jParams.find("ObjectParameters") != jParams.end());
-
     ////////////////////////////////////////////////////////////////////////////////
     // read frame parameters
     if(jParams.find("GlobalParameters") != jParams.end())
@@ -119,8 +116,7 @@ void ParticleSolver::loadScene(const String& sceneFile)
     ////////////////////////////////////////////////////////////////////////////////
     // read object parameters and generate scene
     {
-        nlohmann::json jObjectParams = jParams["ObjectParameters"];
-        loadSimulationObjects(jObjectParams);
+        loadSimulationObjects(jParams);
     }
 }
 

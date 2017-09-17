@@ -21,7 +21,7 @@ void loadBoundaryObjects(const nlohmann::json& jParams, Vector<SharedPtr<Boundar
     {
         // read geometry type of the object
         String geometryType = String("");
-        __BNN_ASSERT(JSONHelpers::readValue(jObj["GeometryType"], geometryType, "GeometryType"));
+        __BNN_ASSERT(JSONHelpers::readValue(jObj, geometryType, "GeometryType"));
         __BNN_ASSERT(!geometryType.empty());
 
         // create the object
@@ -31,22 +31,22 @@ void loadBoundaryObjects(const nlohmann::json& jParams, Vector<SharedPtr<Boundar
         boundaryObjs.push_back(obj);
 
         // read mesh/cache/dynamic
-        JSONHelpers::readValue(jObj["MeshFile"], obj->meshFile(), "MeshFile");
-        JSONHelpers::readValue(jObj["ParticleFile"], obj->particleFile(), "ParticleFile");
-        JSONHelpers::readBool(jObj["IsDynamic"], obj->isDynamic(), "IsDynamic");
+        JSONHelpers::readValue(jObj, obj->meshFile(), "MeshFile");
+        JSONHelpers::readValue(jObj, obj->particleFile(), "ParticleFile");
+        JSONHelpers::readBool(jObj, obj->isDynamic(), "IsDynamic");
 
         // read object transformation
         VecX<BoundaryObjType::objDimension(), Real> translation;
         VecX<BoundaryObjType::objDimension(), Real> rotationAngles;
         VecX<BoundaryObjType::objDimension(), Real> scale;
 
-        if(JSONHelpers::readVector(jObj["Translation"], translation, "Translation"))
+        if(JSONHelpers::readVector(jObj, translation, "Translation"))
             obj->getGeometry()->translate(translation);
 
-        if(JSONHelpers::readVector(jObj["RotationAngles"], rotationAngles, "RotationAngles"))
+        if(JSONHelpers::readVector(jObj, rotationAngles, "RotationAngles"))
             obj->getGeometry()->rotate(rotationAngles);
 
-        if(JSONHelpers::readVector(jObj["Scale"], scale, "Scale"))
+        if(JSONHelpers::readVector(jObj, scale, "Scale"))
             obj->getGeometry()->scale(scale);
     }
 }
@@ -59,7 +59,7 @@ void loadParticleObjects(const nlohmann::json& jParams, Vector<SharedPtr<Particl
     {
         // read geometry type of the object
         String geometryType = String("");
-        __BNN_ASSERT(JSONHelpers::readValue(jObj["GeometryType"], geometryType, "GeometryType"));
+        __BNN_ASSERT(JSONHelpers::readValue(jObj, geometryType, "GeometryType"));
         __BNN_ASSERT(!geometryType.empty());
 
         // create the object
@@ -69,21 +69,21 @@ void loadParticleObjects(const nlohmann::json& jParams, Vector<SharedPtr<Particl
         particleObjs.push_back(obj);
 
         // read mesh/cache/dynamic
-        JSONHelpers::readValue(jObj["MeshFile"], obj->meshFile(), "MeshFile");
-        JSONHelpers::readValue(jObj["ParticleFile"], obj->particleFile(), "ParticleFile");
+        JSONHelpers::readValue(jObj, obj->meshFile(), "MeshFile");
+        JSONHelpers::readValue(jObj, obj->particleFile(), "ParticleFile");
 
         // read object transformation
         VecX<ParticleObjType::objDimension(), Real> translation;
         VecX<ParticleObjType::objDimension(), Real> rotationAngles;
         VecX<ParticleObjType::objDimension(), Real> scale;
 
-        if(JSONHelpers::readVector(jObj["Translation"], translation, "Translation"))
+        if(JSONHelpers::readVector(jObj, translation, "Translation"))
             obj->getGeometry()->translate(translation);
 
-        if(JSONHelpers::readVector(jObj["RotationAngles"], rotationAngles, "RotationAngles"))
+        if(JSONHelpers::readVector(jObj, rotationAngles, "RotationAngles"))
             obj->getGeometry()->rotate(rotationAngles);
 
-        if(JSONHelpers::readVector(jObj["Scale"], scale, "Scale"))
+        if(JSONHelpers::readVector(jObj, scale, "Scale"))
             obj->getGeometry()->scale(scale);
     }
 }
@@ -96,7 +96,7 @@ void loadParticleEmitters(const nlohmann::json& jParams, Vector<SharedPtr<Partic
     {
         // read geometry type of the object
         String geometryType = String("");
-        __BNN_ASSERT(JSONHelpers::readValue(jObj["GeometryType"], geometryType, "GeometryType"));
+        __BNN_ASSERT(JSONHelpers::readValue(jObj, geometryType, "GeometryType"));
         __BNN_ASSERT(!geometryType.empty());
 
         // create the object
@@ -106,31 +106,31 @@ void loadParticleEmitters(const nlohmann::json& jParams, Vector<SharedPtr<Partic
         particleEmitters.push_back(obj);
 
         // read mesh/cache/dynamic
-        JSONHelpers::readValue(jObj["MeshFile"], obj->meshFile(), "MeshFile");
-        JSONHelpers::readValue(jObj["ParticleFile"], obj->particleFile(), "ParticleFile");
+        JSONHelpers::readValue(jObj, obj->meshFile(), "MeshFile");
+        JSONHelpers::readValue(jObj, obj->particleFile(), "ParticleFile");
 
         // read object transformation
         VecX<ParticleEmitterType::objDimension(), Real> translation;
         VecX<ParticleEmitterType::objDimension(), Real> rotationAngles;
         VecX<ParticleEmitterType::objDimension(), Real> scale;
 
-        if(JSONHelpers::readVector(jObj["Translation"], translation, "Translation"))
+        if(JSONHelpers::readVector(jObj, translation, "Translation"))
             obj->getGeometry()->translate(translation);
 
-        if(JSONHelpers::readVector(jObj["RotationAngles"], rotationAngles, "RotationAngles"))
+        if(JSONHelpers::readVector(jObj, rotationAngles, "RotationAngles"))
             obj->getGeometry()->rotate(rotationAngles);
 
-        if(JSONHelpers::readVector(jObj["Scale"], scale, "Scale"))
+        if(JSONHelpers::readVector(jObj, scale, "Scale"))
             obj->getGeometry()->scale(scale);
     }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class BoundaryObjType, class ParticleObjType, class ParticleEmitterType>
-void loadSceneObjects(const nlohmann::json&                    jParams,
-                      Vector<SharedPtr<BoundaryObjType> >&     boundaryObjs,
-                      Vector<SharedPtr<ParticleObjType> >&     particleObjs,
-                      Vector<SharedPtr<ParticleEmitterType> >& particleEmitters)
+void loadSimulationObjects(const nlohmann::json&                    jParams,
+                           Vector<SharedPtr<BoundaryObjType> >&     boundaryObjs,
+                           Vector<SharedPtr<ParticleObjType> >&     particleObjs,
+                           Vector<SharedPtr<ParticleEmitterType> >& particleEmitters)
 {
     __BNN_ASSERT(jParams.find("BoundaryObjects") != jParams.end());
     __BNN_ASSERT(jParams.find("ParticleObjects") != jParams.end());

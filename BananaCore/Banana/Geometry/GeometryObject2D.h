@@ -25,7 +25,6 @@
 #include <Banana/Array/ArrayHelpers.h>
 #include <Banana/Geometry/MeshLoader.h>
 
-
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
 {
@@ -42,6 +41,22 @@ class GeometryObject
 public:
     virtual String name()                            = 0;
     virtual Real   signedDistance(const Vec2r& ppos) = 0;
+
+    Vec2r gradientSignedDistance(const Vec2r& ppos, Real dxy = Real(1e-4))
+    {
+        Real v00 = signedDistance(Vec2r(ppos[0] - dxy, ppos[1] - dxy));
+        Real v01 = signedDistance(Vec2r(ppos[0] - dxy, ppos[1] + dxy));
+        Real v10 = signedDistance(Vec2r(ppos[0] + dxy, ppos[1] - dxy));
+        Real v11 = signedDistance(Vec2r(ppos[0] + dxy, ppos[1] + dxy));
+
+        Real ddy0 = v01 - v00;
+        Real ddy1 = v11 - v10;
+
+        Real ddx0 = v10 - v00;
+        Real ddx1 = v11 - v01;
+
+        return (Vec2r(ddx0, ddy0) + Vec2r(ddx1, ddy1)) * Real(0.5);
+    }
 
     bool         isInside(const Vec2r& ppos) { return signedDistance(ppos) < 0; }
     bool         isInAABBBox(const Vec2r& ppos) { return signedDistance(ppos) < 0; }

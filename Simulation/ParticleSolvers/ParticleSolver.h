@@ -103,7 +103,7 @@ public:
 protected:
     virtual void loadSimulationObjects(const nlohmann::json& jParams)
     {
-        SceneLoader::loadSceneObjects(jParams, m_BoundaryObjects, m_ParticleObjects, m_ParticleEmitters);
+        SceneLoader::loadSimulationObjects(jParams, m_BoundaryObjects, m_ParticleObjects, m_ParticleEmitters);
         //for(auto& obj : m_BoundaryObjects)
         //    obj->makeReady();
         //for(auto& obj : m_ParticleObjects)
@@ -136,7 +136,7 @@ public:
 protected:
     virtual void loadSimulationObjects(const nlohmann::json& jParams)
     {
-        SceneLoader::loadSceneObjects(jParams, m_BoundaryObjects, m_ParticleObjects, m_ParticleEmitters);
+        SceneLoader::loadSimulationObjects(jParams, m_BoundaryObjects, m_ParticleObjects, m_ParticleEmitters);
         //for(auto& obj : m_BoundaryObjects)
         //    obj->makeReady();
         //for(auto& obj : m_ParticleObjects)

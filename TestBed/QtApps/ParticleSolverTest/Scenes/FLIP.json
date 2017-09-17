@@ -17,5 +17,17 @@
 		"BoxMax" : [1, 1, 1],
 		"ParticleRadius" : 0.0075,
 		"ParticleFile" : "Data/pnt0000.dat"
+	},
+	"BoundaryObjects":
+	[
+		{
+			"GeometryType" : "Box"		
+		}
+	],
+	"ParticleObjects":
+	{
+	},
+	"ParticleEmitters":
+	{
 	}
 }

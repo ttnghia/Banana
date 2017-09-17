@@ -18,6 +18,8 @@
 #pragma once
 
 #include <Banana/Setup.h>
+#include <Banana/Data/DataIO.h>
+#include <Banana/Utils/FileHelpers.h>
 
 #include <algorithm>
 #include <cassert>
@@ -430,6 +432,34 @@ public:
 
     // => Array2D
     ////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // file IO
+    bool saveToFile(const String& fileName)
+    {
+        DataBuffer buffer;
+        for(Int i = 0; i < N; ++i)
+            buffer.append<UInt>(static_cast<UInt>(m_Size[i]));
+        buffer.append(m_Data, false);
+        return FileHelpers::writeFile(buffer.data(), buffer.size(), fileName);
+    }
+
+    bool loadFromFile(const String& fileName)
+    {
+        DataBuffer buffer;
+        if(!FileHelpers::readFile(buffer.buffer(), fileName))
+            return false;
+
+        UInt tmp;
+        for(Int i = 0; i < N; ++i)
+        {
+            buffer.getData<UInt>(tmp, sizeof(UInt) * i);
+            m_Size[i] = static_cast<size_type>(tmp);
+        }
+        __BNN_ASSERT(buffer.buffer() == N * sizeof(UInt) + sizeof(T) * glm::compMul(m_Size));
+        buffer.getData<UInt>(m_Data, sizeof(UInt) * N, glm::compMul(m_Size));
+        return true;
+    }
 
 private:
     VecX<N, size_type> m_Size;

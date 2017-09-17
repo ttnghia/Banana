@@ -25,7 +25,6 @@
 #include <Banana/Array/ArrayHelpers.h>
 #include <Banana/Geometry/MeshLoader.h>
 
-
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
 {
@@ -43,6 +42,40 @@ public:
     virtual String name()                            = 0;
     virtual Real   signedDistance(const Vec3r& ppos) = 0;
 
+    Vec3r gradientSignedDistance(const Vec3r& ppos, Real dxyz = Real(1e-4))
+    {
+        Real v000 = signedDistance(Vec3r(ppos[0] - dxyz, ppos[1] - dxyz, ppos[2] - dxyz));
+        Real v001 = signedDistance(Vec3r(ppos[0] - dxyz, ppos[1] - dxyz, ppos[2] + dxyz));
+        Real v010 = signedDistance(Vec3r(ppos[0] - dxyz, ppos[1] + dxyz, ppos[2] - dxyz));
+        Real v011 = signedDistance(Vec3r(ppos[0] - dxyz, ppos[1] + dxyz, ppos[2] + dxyz));
+
+        Real v100 = signedDistance(Vec3r(ppos[0] + dxyz, ppos[1] - dxyz, ppos[2] - dxyz));
+        Real v101 = signedDistance(Vec3r(ppos[0] + dxyz, ppos[1] - dxyz, ppos[2] + dxyz));
+        Real v110 = signedDistance(Vec3r(ppos[0] + dxyz, ppos[1] + dxyz, ppos[2] - dxyz));
+        Real v111 = signedDistance(Vec3r(ppos[0] + dxyz, ppos[1] + dxyz, ppos[2] + dxyz));
+
+        Real ddx00 = v100 - v000;
+        Real ddx10 = v110 - v010;
+        Real ddx01 = v101 - v001;
+        Real ddx11 = v111 - v011;
+
+        Real ddy00 = v010 - v000;
+        Real ddy10 = v110 - v100;
+        Real ddy01 = v011 - v001;
+        Real ddy11 = v111 - v101;
+
+        Real ddz00 = v001 - v000;
+        Real ddz10 = v101 - v100;
+        Real ddz01 = v011 - v010;
+        Real ddz11 = v111 - v110;
+
+        return (Vec3r(ddx00, ddy00, ddz00) +
+                Vec3r(ddx01, ddy01, ddz01) +
+                Vec3r(ddx10, ddy10, ddz10) +
+                Vec3r(ddx11, ddy11, ddz11))* Real(0.25);
+    }
+
+
     bool         isInside(const Vec3r& ppos) { return signedDistance(ppos) < 0; }
     bool         isInAABBBox(const Vec3r& ppos) { return signedDistance(ppos) < 0; }
     const Vec3r& aabbBoxMin() const noexcept { return m_AABBBoxMin; }
@@ -54,6 +87,7 @@ public:
     void scale(const Vec3r& scaleVal) { m_Scale = scaleVal; m_bScaled = true; update(); }
 
     static constexpr UInt objDimension() noexcept { return 3u; }
+
 protected:
     virtual void update()
     {
@@ -111,7 +145,7 @@ public:
             return glm::length(ppos - cp);
         }
     }
-
+    void setBox(const Vec3r& boxMin, const Vec3r& boxMax) { m_AABBBoxMin = boxMin; m_AABBBoxMax = boxMax; }
     void setBMin(const Vec3r& boxMin) { m_AABBBoxMin = boxMin; }
     void setBMax(const Vec3r& boxMax) { m_AABBBoxMax = boxMax; }
 };
@@ -371,7 +405,7 @@ class TriMeshObject : public GeometryObject
 {
 public:
     virtual String name() override { return "TriMeshObject"; }
-    virtual Real   signedDistance(const Vec3r& ppos) override;
+    virtual Real   signedDistance(const Vec3r& ppos) override { return 0; }
 
     String& meshFile() { return m_TriMeshFile; }
     Real&   step() { return m_Step; }

@@ -29,15 +29,15 @@ namespace SimulationObjects
 class BoxBoundary3D : public BoundaryObject3D
 {
 public:
-    BoxBoundary3D() {}
-    BoxBoundary3D(const Vec3r& bMin, const Vec3r& bMax) : m_BMin(bMin), m_BMax(bMax) {}
+    BoxBoundary3D() { m_GeometryObj = std::make_shared<GeometryObject3D::BoxObject>(); }
+    BoxBoundary3D(const Vec3r& bMin, const Vec3r& bMax);
+    void setBox(const Vec3r& bMin, const Vec3r& bMax);
 
-    void         setBox(const Vec3r& bMin, const Vec3r& bMax);
     virtual void generateBoundaryParticles(Real spacing, Int numBDLayers = 2, bool saveCache = false) override;
     virtual bool constrainToBoundary(Vec3r& ppos, Vec3r& pvel) override;
 
-private:
-    Vec3r m_BMin, m_BMax;
+    const Vec3r& boxMin() const noexcept { return m_GeometryObj->aabbBoxMin(); }
+    const Vec3r& boxMax() const noexcept { return m_GeometryObj->aabbBoxMax(); }
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

@@ -48,10 +48,10 @@ template<class ParticleEmitterType>
 void loadParticleEmitters(const nlohmann::json& jParams, Vector<SharedPtr<ParticleEmitterType> >& particleEmitters);
 
 template<class BoundaryObjType, class ParticleObjType, class ParticleEmitterType>
-void loadSceneObjects(const nlohmann::json&                    jParams,
-                      Vector<SharedPtr<BoundaryObjType> >&     boundaryObjs,
-                      Vector<SharedPtr<ParticleObjType> >&     particleObjs,
-                      Vector<SharedPtr<ParticleEmitterType> >& particleEmitters);
+void loadSimulationObjects(const nlohmann::json&                    jParams,
+                           Vector<SharedPtr<BoundaryObjType> >&     boundaryObjs,
+                           Vector<SharedPtr<ParticleObjType> >&     particleObjs,
+                           Vector<SharedPtr<ParticleEmitterType> >& particleEmitters);
 
 //void loadObjects(const nlohmann::json&                                    jParams,
 //                 Vector<SharedPtr<SimulationObjects::BoundaryObject2D> >& boundaryObjs,

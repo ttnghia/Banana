@@ -54,21 +54,27 @@ void FLIP3DSolver::makeReady()
                                m_NSearch->add_point_set(glm::value_ptr(particleData().positions.front()), getNumParticles(), true, true);
 
 
+                               for(auto& obj : m_BoundaryObjects)
+                                   obj->generateSignedDistanceField();
 
 
+                               //// todo: remove this
+                               //GeometryObject3D::BoxObject box;
+                               //box.setBMin(m_SimParams->movingBMin - Vec3r(0.001f));
+                               //box.setBMax(m_SimParams->movingBMax + Vec3r(0.001f));
+                               //ParallelFuncs::parallel_for<UInt>(0, m_Grid.getNumNodeX(),
+                               //                                  0, m_Grid.getNumNodeY(),
+                               //                                  0, m_Grid.getNumNodeZ(),
+                               //                                  [&](UInt i, UInt j, UInt k)
+                               //                                  {
+                               //                                      const Vec3r pPos = m_Grid.getWorldCoordinate(i, j, k);
+                               //                                      Real minSD = Huge;
 
-                               // todo: remove this
-                               GeometryObject3D::BoxObject box;
-                               box.setBMin(m_SimParams->movingBMin - Vec3r(0.001f));
-                               box.setBMax(m_SimParams->movingBMax + Vec3r(0.001f));
-                               ParallelFuncs::parallel_for<UInt>(0, m_Grid.getNumNodeX(),
-                                                                 0, m_Grid.getNumNodeY(),
-                                                                 0, m_Grid.getNumNodeZ(),
-                                                                 [&](UInt i, UInt j, UInt k)
-                                                                 {
-                                                                     const Vec3r pPos = m_Grid.getWorldCoordinate(i, j, k);
-                                                                     gridData().boundarySDF(i, j, k) = -box.signedDistance(pPos);
-                                                                 });
+                               //                                      for(auto& obj : m_BoundaryObjects)
+                               //                                          minSD = MathHelpers::min(obj->getSDF);
+
+                               //                                      gridData().boundarySDF(i, j, k) = MathHelpers::min(-box.signedDistance(pPos);
+                               //                                  });
                                m_Logger->printWarning("Computed boundary SDF");
                            });
 

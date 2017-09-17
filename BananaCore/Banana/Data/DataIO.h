@@ -47,11 +47,11 @@ public:
     }
 
     size_t size() const { return m_Buffer.size(); }
-    void resize(size_t bufferSize) { m_Buffer.resize(bufferSize); }
-    void reserve(size_t bufferSize) { m_Buffer.reserve(bufferSize); }
-    void clearBuffer() { m_Buffer.resize(0); }
+    void   resize(size_t bufferSize) { m_Buffer.resize(bufferSize); }
+    void   reserve(size_t bufferSize) { m_Buffer.reserve(bufferSize); }
+    void   clearBuffer() { m_Buffer.resize(0); }
 
-    const unsigned char* data() const { return m_Buffer.data(); }
+    const unsigned char*   data() const { return m_Buffer.data(); }
     Vector<unsigned char>& buffer() { return m_Buffer; }
 
     //////////////////////////////////////////////////////////////////////
@@ -325,7 +325,7 @@ public:
     size_t getData(T& value, size_t startOffset = 0)
     {
         size_t dataSize = (size_t)sizeof(T);
-        assert(startOffset + dataSize <= m_Buffer.size());
+        __BNN_ASSERT(startOffset + dataSize <= m_Buffer.size());
 
         memcpy(&value, &m_Buffer.data()[startOffset], dataSize);
 
@@ -342,7 +342,7 @@ public:
         if(numElements == 0)
         {
             segmentSize = (size_t)sizeof(UInt);
-            assert(segmentStart + segmentSize <= m_Buffer.size());
+            __BNN_ASSERT(segmentStart + segmentSize <= m_Buffer.size());
 
             memcpy(&numElements, &m_Buffer.data()[segmentStart], segmentSize);
             segmentStart += segmentSize;
@@ -351,7 +351,7 @@ public:
         vData.resize(numElements);
 
         segmentSize = (size_t)(sizeof(T) * numElements);
-        assert(segmentStart + segmentSize <= m_Buffer.size());
+        __BNN_ASSERT(segmentStart + segmentSize <= m_Buffer.size());
 
         memcpy(vData.data(), &m_Buffer.data()[segmentStart], segmentSize);
         segmentStart += segmentSize;
@@ -369,7 +369,7 @@ public:
         if(numElements == 0)
         {
             segmentSize = (size_t)sizeof(UInt);
-            assert(segmentStart + segmentSize <= m_Buffer.size());
+            __BNN_ASSERT(segmentStart + segmentSize <= m_Buffer.size());
 
             memcpy(&numElements, &m_Buffer.data()[segmentStart], segmentSize);
             segmentStart += segmentSize;
@@ -378,7 +378,7 @@ public:
         vData.resize(numElements);
 
         segmentSize = (size_t)(2 * sizeof(T) * numElements);
-        assert(segmentStart + segmentSize <= m_Buffer.size());
+        __BNN_ASSERT(segmentStart + segmentSize <= m_Buffer.size());
 
         T* buff_ptr = (T*)&m_Buffer.data()[segmentStart];
 
@@ -402,7 +402,7 @@ public:
         if(numElements == 0)
         {
             segmentSize = (size_t)sizeof(UInt);
-            assert(segmentStart + segmentSize <= m_Buffer.size());
+            __BNN_ASSERT(segmentStart + segmentSize <= m_Buffer.size());
 
             memcpy(&numElements, &m_Buffer.data()[segmentStart], segmentSize);
             segmentStart += segmentSize;
@@ -411,7 +411,7 @@ public:
         vData.resize(numElements);
 
         segmentSize = (size_t)(3 * sizeof(T) * numElements);
-        assert(segmentStart + segmentSize <= m_Buffer.size());
+        __BNN_ASSERT(segmentStart + segmentSize <= m_Buffer.size());
 
         T* buff_ptr = (T*)&m_Buffer.data()[segmentStart];
 
@@ -435,7 +435,7 @@ public:
         if(numElements == 0)
         {
             segmentSize = (size_t)sizeof(UInt);
-            assert(segmentStart + segmentSize <= m_Buffer.size());
+            __BNN_ASSERT(segmentStart + segmentSize <= m_Buffer.size());
 
             memcpy(&numElements, &m_Buffer.data()[segmentStart], segmentSize);
             segmentStart += segmentSize;
@@ -448,7 +448,7 @@ public:
 
         for(size_t i = 0; i < vData.size(); ++i)
         {
-            assert(segmentStart + segmentSize <= m_Buffer.size());
+            __BNN_ASSERT(segmentStart + segmentSize <= m_Buffer.size());
 
             memcpy((void*)(&value), &(m_Buffer.data()[segmentStart]), segmentSize);
             vData[i]      = static_cast<float>(value);
@@ -468,7 +468,7 @@ public:
         if(numElements == 0)
         {
             segmentSize = (size_t)sizeof(UInt);
-            assert(segmentStart + segmentSize <= m_Buffer.size());
+            __BNN_ASSERT(segmentStart + segmentSize <= m_Buffer.size());
 
             memcpy(&numElements, &m_Buffer.data()[segmentStart], segmentSize);
             segmentStart += segmentSize;
@@ -481,7 +481,7 @@ public:
 
         for(size_t i = 0; i < vData.size(); ++i)
         {
-            assert(segmentStart + segmentSize <= m_Buffer.size());
+            __BNN_ASSERT(segmentStart + segmentSize <= m_Buffer.size());
 
             memcpy((void*)values, &(m_Buffer.data()[segmentStart]), segmentSize);
             vData[i]      = Vec2<float>(static_cast<float>(values[0]), static_cast<float>(values[1]));
@@ -501,7 +501,7 @@ public:
         if(numElements == 0)
         {
             segmentSize = (size_t)sizeof(UInt);
-            assert(segmentStart + segmentSize <= m_Buffer.size());
+            __BNN_ASSERT(segmentStart + segmentSize <= m_Buffer.size());
 
             memcpy(&numElements, &m_Buffer.data()[segmentStart], segmentSize);
             segmentStart += segmentSize;
@@ -514,7 +514,7 @@ public:
 
         for(size_t i = 0; i < vData.size(); ++i)
         {
-            assert(segmentStart + segmentSize <= m_Buffer.size());
+            __BNN_ASSERT(segmentStart + segmentSize <= m_Buffer.size());
 
             memcpy((void*)values, &(m_Buffer.data()[segmentStart]), segmentSize);
             vData[i]      = Vec3<float>(static_cast<float>(values[0]), static_cast<float>(values[1]), static_cast<float>(values[2]));
@@ -534,7 +534,7 @@ public:
         if(numElements == 0)
         {
             segmentSize = (size_t)sizeof(UInt);
-            assert(segmentStart + segmentSize <= m_Buffer.size());
+            __BNN_ASSERT(segmentStart + segmentSize <= m_Buffer.size());
 
             memcpy(&numElements, &m_Buffer.data()[segmentStart], segmentSize);
             segmentStart += segmentSize;
@@ -547,7 +547,7 @@ public:
 
         for(size_t i = 0; i < vData.size(); ++i)
         {
-            assert(segmentStart + segmentSize <= m_Buffer.size());
+            __BNN_ASSERT(segmentStart + segmentSize <= m_Buffer.size());
 
             memcpy((void*)(&value), &(m_Buffer.data()[segmentStart]), segmentSize);
             vData[i]      = static_cast<double>(value);
@@ -567,7 +567,7 @@ public:
         if(numElements == 0)
         {
             segmentSize = (size_t)sizeof(UInt);
-            assert(segmentStart + segmentSize <= m_Buffer.size());
+            __BNN_ASSERT(segmentStart + segmentSize <= m_Buffer.size());
 
             memcpy(&numElements, &m_Buffer.data()[segmentStart], segmentSize);
             segmentStart += segmentSize;
@@ -580,7 +580,7 @@ public:
 
         for(size_t i = 0; i < vData.size(); ++i)
         {
-            assert(segmentStart + segmentSize <= m_Buffer.size());
+            __BNN_ASSERT(segmentStart + segmentSize <= m_Buffer.size());
 
             memcpy((void*)values, &(m_Buffer.data()[segmentStart]), segmentSize);
             vData[i]      = Vec2<double>(static_cast<double>(values[0]), static_cast<double>(values[1]));
@@ -600,7 +600,7 @@ public:
         if(numElements == 0)
         {
             segmentSize = (size_t)sizeof(UInt);
-            assert(segmentStart + segmentSize <= m_Buffer.size());
+            __BNN_ASSERT(segmentStart + segmentSize <= m_Buffer.size());
 
             memcpy(&numElements, &m_Buffer.data()[segmentStart], segmentSize);
             segmentStart += segmentSize;
@@ -613,7 +613,7 @@ public:
 
         for(size_t i = 0; i < vData.size(); ++i)
         {
-            assert(segmentStart + segmentSize <= m_Buffer.size());
+            __BNN_ASSERT(segmentStart + segmentSize <= m_Buffer.size());
 
             memcpy((void*)values, &(m_Buffer.data()[segmentStart]), segmentSize);
             vData[i]      = Vec3<double>(static_cast<double>(values[0]), static_cast<double>(values[1]), static_cast<double>(values[2]));
@@ -628,7 +628,7 @@ public:
     {
         size_t segmentStart = startOffset;
         size_t segmentSize  = (size_t)sizeof(UInt);
-        assert(segmentStart + segmentSize <= m_Buffer.size());
+        __BNN_ASSERT(segmentStart + segmentSize <= m_Buffer.size());
 
         UInt numElements;
         memcpy(&numElements, &m_Buffer.data()[segmentStart], segmentSize);
@@ -646,7 +646,7 @@ public:
 
     size_t getData(unsigned char* arrData, size_t dataSize, size_t startOffset = 0)
     {
-        assert(startOffset + dataSize <= m_Buffer.size());
+        __BNN_ASSERT(startOffset + dataSize <= m_Buffer.size());
         memcpy(arrData, &m_Buffer.data()[startOffset], dataSize);
 
         return dataSize;
@@ -811,7 +811,7 @@ public:
     }
 
     const DataBuffer& getBuffer() const { return m_DataBuffer; }
-    DataBuffer& getBuffer() { return m_DataBuffer; }
+    DataBuffer&       getBuffer() { return m_DataBuffer; }
 
     String& dataFolder() { return m_DataFolder; }
     String& dataSubFolder() { return m_DataSubFolder; }

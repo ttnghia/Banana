@@ -28,10 +28,20 @@ namespace Banana
 namespace SimulationObjects
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+BoxBoundary3D::BoxBoundary3D(const Vec3r& bMin, const Vec3r& bMax)
+{
+    m_GeometryObj = std::make_shared<GeometryObject3D::BoxObject>();
+    SharedPtr<GeometryObject3D::BoxObject> box = std::static_pointer_cast<GeometryObject3D::BoxObject>(m_GeometryObj);
+    __BNN_ASSERT(box != nullptr);
+    box->setBox(bMin, bMax);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void BoxBoundary3D::setBox(const Vec3r& bMin, const Vec3r& bMax)
 {
-    m_BMin = bMin;
-    m_BMax = bMax;
+    SharedPtr<GeometryObject3D::BoxObject> box = std::static_pointer_cast<GeometryObject3D::BoxObject>(m_GeometryObj);
+    __BNN_ASSERT(box != nullptr);
+    box->setBox(bMin, bMax);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -47,9 +57,9 @@ void BoxBoundary3D::generateBoundaryParticles(Real spacing, Int numBDLayers /*= 
     ////////////////////////////////////////////////////////////////////////////////
     // plane x < 0
     {
-        Vec3r minLX = m_BMin - Vec3r(spacing * Real(numBDLayers * Real(1.001)));
-        Vec3r maxLX = m_BMax + Vec3r(spacing * Real(numBDLayers * Real(1.001)));
-        maxLX[0] = m_BMin[0];
+        Vec3r minLX = boxMin() - Vec3r(spacing * Real(numBDLayers * Real(1.001)));
+        Vec3r maxLX = boxMax() + Vec3r(spacing * Real(numBDLayers * Real(1.001)));
+        maxLX[0] = boxMin()[0];
         Vec3i gridLX = NumberHelpers::createGrid<Int>(minLX, maxLX, spacing);
 
         for(Int x = 0; x < gridLX[0]; ++x)
@@ -69,9 +79,9 @@ void BoxBoundary3D::generateBoundaryParticles(Real spacing, Int numBDLayers /*= 
     ////////////////////////////////////////////////////////////////////////////////
     // plane x > 0
     {
-        Vec3r minUX = m_BMin - Vec3r(spacing * Real(numBDLayers * Real(1.001)));
-        Vec3r maxUX = m_BMax + Vec3r(spacing * Real(numBDLayers * Real(1.001)));
-        minUX[0] = m_BMax[0];
+        Vec3r minUX = boxMin() - Vec3r(spacing * Real(numBDLayers * Real(1.001)));
+        Vec3r maxUX = boxMax() + Vec3r(spacing * Real(numBDLayers * Real(1.001)));
+        minUX[0] = boxMax()[0];
         Vec3i gridUX = NumberHelpers::createGrid<Int>(minUX, maxUX, spacing);
 
         for(Int x = 0; x < gridUX[0]; ++x)
@@ -91,11 +101,11 @@ void BoxBoundary3D::generateBoundaryParticles(Real spacing, Int numBDLayers /*= 
     ////////////////////////////////////////////////////////////////////////////////
     // plane y < 0
     {
-        Vec3r minLY = m_BMin - Vec3r(spacing * Real(numBDLayers) * Real(1.001));
-        Vec3r maxLY = m_BMax + Vec3r(spacing * Real(numBDLayers) * Real(1.001));
-        minLY[0] = m_BMin[0];
-        maxLY[0] = m_BMax[0];
-        maxLY[1] = m_BMin[1];
+        Vec3r minLY = boxMin() - Vec3r(spacing * Real(numBDLayers) * Real(1.001));
+        Vec3r maxLY = boxMax() + Vec3r(spacing * Real(numBDLayers) * Real(1.001));
+        minLY[0] = boxMin()[0];
+        maxLY[0] = boxMax()[0];
+        maxLY[1] = boxMin()[1];
         Vec3i gridLY = NumberHelpers::createGrid<Int>(minLY, maxLY, spacing);
 
         for(Int x = 0; x < gridLY[0]; ++x)
@@ -115,11 +125,11 @@ void BoxBoundary3D::generateBoundaryParticles(Real spacing, Int numBDLayers /*= 
     ////////////////////////////////////////////////////////////////////////////////
     // plane y > 0
     {
-        Vec3r minUY = m_BMin - Vec3r(spacing * Real(numBDLayers) * Real(1.001));
-        Vec3r maxUY = m_BMax + Vec3r(spacing * Real(numBDLayers) * Real(1.001));
-        minUY[0] = m_BMin[0];
-        maxUY[0] = m_BMax[0];
-        minUY[1] = m_BMax[1];
+        Vec3r minUY = boxMin() - Vec3r(spacing * Real(numBDLayers) * Real(1.001));
+        Vec3r maxUY = boxMax() + Vec3r(spacing * Real(numBDLayers) * Real(1.001));
+        minUY[0] = boxMin()[0];
+        maxUY[0] = boxMax()[0];
+        minUY[1] = boxMax()[1];
         Vec3i gridUY = NumberHelpers::createGrid<Int>(minUY, maxUY, spacing);
 
         for(Int x = 0; x < gridUY[0]; ++x)
@@ -139,13 +149,13 @@ void BoxBoundary3D::generateBoundaryParticles(Real spacing, Int numBDLayers /*= 
     ////////////////////////////////////////////////////////////////////////////////
     // plane z < 0
     {
-        Vec3r minLZ = m_BMin - Vec3r(spacing * Real(numBDLayers) * Real(1.001));
-        Vec3r maxLZ = m_BMax + Vec3r(spacing * Real(numBDLayers) * Real(1.001));
-        minLZ[0] = m_BMin[0];
-        maxLZ[0] = m_BMax[0];
-        minLZ[1] = m_BMin[1];
-        maxLZ[1] = m_BMax[1];
-        maxLZ[2] = m_BMin[2];
+        Vec3r minLZ = boxMin() - Vec3r(spacing * Real(numBDLayers) * Real(1.001));
+        Vec3r maxLZ = boxMax() + Vec3r(spacing * Real(numBDLayers) * Real(1.001));
+        minLZ[0] = boxMin()[0];
+        maxLZ[0] = boxMax()[0];
+        minLZ[1] = boxMin()[1];
+        maxLZ[1] = boxMax()[1];
+        maxLZ[2] = boxMin()[2];
         Vec3i gridLZ = NumberHelpers::createGrid<Int>(minLZ, maxLZ, spacing);
 
         for(Int x = 0; x < gridLZ[0]; ++x)
@@ -165,13 +175,13 @@ void BoxBoundary3D::generateBoundaryParticles(Real spacing, Int numBDLayers /*= 
     ////////////////////////////////////////////////////////////////////////////////
     // plane z > 0
     {
-        Vec3r minUZ = m_BMin - Vec3r(spacing * Real(numBDLayers) * Real(1.001));
-        Vec3r maxUZ = m_BMax + Vec3r(spacing * Real(numBDLayers) * Real(1.001));
-        minUZ[0] = m_BMin[0];
-        maxUZ[0] = m_BMax[0];
-        minUZ[1] = m_BMin[1];
-        maxUZ[1] = m_BMax[1];
-        minUZ[2] = m_BMax[2];
+        Vec3r minUZ = boxMin() - Vec3r(spacing * Real(numBDLayers) * Real(1.001));
+        Vec3r maxUZ = boxMax() + Vec3r(spacing * Real(numBDLayers) * Real(1.001));
+        minUZ[0] = boxMin()[0];
+        maxUZ[0] = boxMax()[0];
+        minUZ[1] = boxMin()[1];
+        maxUZ[1] = boxMax()[1];
+        minUZ[2] = boxMax()[2];
         Vec3i gridUX = NumberHelpers::createGrid<Int>(minUZ, maxUZ, spacing);
 
         for(Int x = 0; x < gridUX[0]; ++x)
@@ -204,9 +214,9 @@ bool BoxBoundary3D::constrainToBoundary(Vec3r& pPos, Vec3r& pVel)
 
     for(Int l = 0; l < pPos.length(); ++l)
     {
-        if(pPos[l] < m_BMin[l] || pPos[l] > m_BMax[l])
+        if(pPos[l] < boxMin()[l] || pPos[l] > boxMax()[l])
         {
-            pPos[l]    = MathHelpers::min(MathHelpers::max(pPos[l], m_BMin[l]), m_BMax[l]);
+            pPos[l]    = MathHelpers::min(MathHelpers::max(pPos[l], boxMin()[l]), boxMax()[l]);
             pVel[l]   *= -m_RestitutionCoeff;
             velChanged = true;
         }
