@@ -26,7 +26,7 @@ namespace Banana
 namespace SimulationObjects
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void BoxBoundary3D::parseParameters(const nlohmann::json& jParams)
+void BoxBoundary3D::setParameters(const nlohmann::json& jParams)
 {
     __BNN_ASSERT(jParams.find("BoxMin") != jParams.end());
     __BNN_ASSERT(jParams.find("BoxMax") != jParams.end());

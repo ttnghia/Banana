@@ -47,12 +47,6 @@ void loadParticleObjects(const nlohmann::json& jParams, Vector<SharedPtr<Particl
 template<class ParticleEmitterType>
 void loadParticleEmitters(const nlohmann::json& jParams, Vector<SharedPtr<ParticleEmitterType> >& particleEmitters);
 
-template<class BoundaryObjType, class ParticleObjType, class ParticleEmitterType>
-void loadSimulationObjects(const nlohmann::json&                    jParams,
-                           Vector<SharedPtr<BoundaryObjType> >&     boundaryObjs,
-                           Vector<SharedPtr<ParticleObjType> >&     particleObjs,
-                           Vector<SharedPtr<ParticleEmitterType> >& particleEmitters);
-
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #include <ParticleSolvers/SceneLoader.Impl.hpp>
 

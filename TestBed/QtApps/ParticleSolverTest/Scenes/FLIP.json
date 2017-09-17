@@ -9,7 +9,7 @@
 	"SimulationParameters": 
 	{
 		"ApplyRepulsiveForce" : true,
-		"RepulsiveForceStiffness" : 1e-3,
+		"RepulsiveForceStiffness" : 1e-4,
 		"PIC_FLIP_Ratio" : 0.97,
 		"CGRelativeTolerance" : 1e-10,
 		"MaxCGIteration" : 10000,

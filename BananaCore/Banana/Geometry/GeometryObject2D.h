@@ -137,15 +137,22 @@ public:
     virtual String name() override { return "CircleObject"; }
     virtual Real   signedDistance(const Vec2r& ppos) override
     {
-        return glm::length(ppos - m_SphereCenter) - m_SphereRadius;
+        return glm::length(ppos - m_Center) - m_Radius;
     }
 
-    Vec2r& sphereCenter() { return m_SphereCenter; }
-    Real&  sphereRadius() { return m_SphereRadius; }
+    const Vec2r& center() const noexcept { return m_Center; }
+    Real         radius() const noexcept { return m_Radius; }
+
+    void setCircle(const Vec3r& center, Real radius)
+    {
+        m_Center     = center; m_Radius = radius;
+        m_AABBBoxMin = m_Center - Vec2r(m_Radius);
+        m_AABBBoxMax = m_Center + Vec2r(m_Radius);
+    }
 
 protected:
-    Vec2r m_SphereCenter = Vec2r(0, 0.5);
-    Real  m_SphereRadius = Real(0.5);
+    Vec2r m_Center = Vec2r(0);
+    Real  m_Radius = Real(1.0);
 };
 
 
@@ -389,11 +396,17 @@ public:
         return sd;
     }
 
-    void addObject(const CSGData& obj) { m_Objects.push_back(obj); }
-    void addObject(const SharedPtr<GeometryObject>& obj, CSGOperations op = Union) { m_Objects.push_back({ obj, op }); }
+    void addObject(const CSGData& obj) { m_Objects.push_back(obj); updateAABB(obj); }
+    void addObject(const SharedPtr<GeometryObject>& obj, CSGOperations op = Union) { addObject({ obj, op }); }
     void setDeformOp(DomainDeformation deformOp) { m_DeformOp = deformOp; }
 
 protected:
+    void updateAABB(const CSGData& obj)
+    {
+        m_AABBBoxMin = MathHelpers::min(m_AABBBoxMin, obj.obj->aabbBoxMin());
+        m_AABBBoxMax = MathHelpers::max(m_AABBBoxMax, obj.obj->aabbBoxMax());
+    }
+
     Vec2r domainDeform(const Vec2r& ppos)
     {
         switch(m_DeformOp)

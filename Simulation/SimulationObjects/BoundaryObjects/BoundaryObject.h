@@ -57,7 +57,7 @@ public:
     ////////////////////////////////////////////////////////////////////////////////
     virtual void makeReady() {}
     virtual void advanceFrame() {}
-    virtual void parseParameters(const nlohmann::json& jParams) /*= 0;*/ {}
+    virtual void setParameters(const nlohmann::json& jParams) /*= 0;*/ {}
     virtual void generateBoundaryParticles(Real spacing, int numBDLayers = 2, bool saveCache = false) { __BNN_UNIMPLEMENTED_FUNC }
 
 protected:

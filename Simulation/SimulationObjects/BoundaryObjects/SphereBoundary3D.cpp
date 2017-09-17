@@ -24,7 +24,7 @@ namespace Banana
 namespace SimulationObjects
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void SphereBoundary3D::parseParameters(const nlohmann::json& jParams)
+void SphereBoundary3D::setParameters(const nlohmann::json& jParams)
 {
     __BNN_ASSERT(jParams.find("Center") != jParams.end());
     __BNN_ASSERT(jParams.find("Radius") != jParams.end());

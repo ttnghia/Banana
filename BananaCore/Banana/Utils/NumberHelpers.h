@@ -189,16 +189,14 @@ inline String toString(const Mat3x3<RealType>& vec, int precision = 5)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class T, class S>
-inline Vec2<T> convert(const Vec2<S>& vec)
+template<class T, class S, int N>
+inline VecX<N, T> convert(const VecX<N, S>& vec)
 {
-    return Vec2<T>(static_cast<T>(vec[0]), static_cast<T>(vec[1]));
-}
+    VecX<N, T> result;
+    for(Int i = 0; i < N; ++i)
+        result[i] = static_cast<T>(vec[i]);
 
-template<class T, class S>
-inline Vec3<T> convert(const Vec3<S>& vec)
-{
-    return Vec3<T>(static_cast<T>(vec[0]), static_cast<T>(vec[1]), static_cast<T>(vec[2]));
+    return result;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

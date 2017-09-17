@@ -74,13 +74,15 @@ public:
     virtual void sortParticles() = 0;
 
 protected:
-    virtual void advanceScene()                                       = 0;
-    virtual void loadSimParams(const nlohmann::json& jParams)         = 0;
-    virtual void loadSimulationObjects(const nlohmann::json& jParams) = 0;
-    virtual void setupDataIO()                                        = 0;
-    virtual void loadMemoryState()                                    = 0;
-    virtual void saveMemoryState()                                    = 0;
-    virtual void saveParticleData()                                   = 0;
+    virtual void advanceScene()                                    = 0;
+    virtual void loadSimParams(const nlohmann::json& jParams)      = 0;
+    virtual void generateBoundaries(const nlohmann::json& jParams) = 0;
+    virtual void generateParticles(const nlohmann::json& jParams)  = 0;
+    virtual void generateEmitters(const nlohmann::json& jParams)   = 0;
+    virtual void setupDataIO()                                     = 0;
+    virtual void loadMemoryState()                                 = 0;
+    virtual void saveMemoryState()                                 = 0;
+    virtual void saveParticleData()                                = 0;
 
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -101,24 +103,10 @@ public:
     static constexpr UInt solverDimension() noexcept { return 2u; }
 
 protected:
-    virtual void loadSimulationObjects(const nlohmann::json& jParams)
-    {
-        SceneLoader::loadSimulationObjects(jParams, m_BoundaryObjects, m_ParticleObjects, m_ParticleEmitters);
-        //for(auto& obj : m_BoundaryObjects)
-        //    obj->makeReady();
-        //for(auto& obj : m_ParticleObjects)
-        //    obj->makeReady();
-        //for(auto& obj : m_ParticleEmitters)
-        //    obj->makeReady();
-    }
-
-    virtual void advanceScene() override
-    {
-        for(auto& obj : m_BoundaryObjects)
-            obj->advanceFrame();
-        for(auto& obj : m_ParticleEmitters)
-            obj->advanceFrame();
-    }
+    virtual void generateBoundaries(const nlohmann::json& jParams);
+    virtual void generateParticles(const nlohmann::json& jParams);
+    virtual void generateEmitters(const nlohmann::json& jParams);
+    virtual void advanceScene() override;
 
     Vector<SharedPtr<SimulationObjects::BoundaryObject2D> >  m_BoundaryObjects;  // individual objects, as one can be dynamic while the other is not
     Vector<SharedPtr<SimulationObjects::ParticleObject2D> >  m_ParticleObjects;  // individual objects, as they can have different properties
@@ -134,24 +122,10 @@ public:
     static constexpr UInt solverDimension() noexcept { return 3u; }
 
 protected:
-    virtual void loadSimulationObjects(const nlohmann::json& jParams)
-    {
-        SceneLoader::loadSimulationObjects(jParams, m_BoundaryObjects, m_ParticleObjects, m_ParticleEmitters);
-        //for(auto& obj : m_BoundaryObjects)
-        //    obj->makeReady();
-        //for(auto& obj : m_ParticleObjects)
-        //    obj->makeReady();
-        //for(auto& obj : m_ParticleEmitters)
-        //    obj->makeReady();
-    }
-
-    virtual void advanceScene() override
-    {
-        for(auto& obj : m_BoundaryObjects)
-            obj->advanceFrame();
-        for(auto& obj : m_ParticleEmitters)
-            obj->advanceFrame();
-    }
+    virtual void generateBoundaries(const nlohmann::json& jParams);
+    virtual void generateParticles(const nlohmann::json& jParams);
+    virtual void generateEmitters(const nlohmann::json& jParams);
+    virtual void advanceScene() override;
 
     UniquePtr<NeighborSearch::NeighborSearch3D>              m_NSearch = nullptr;
     Vector<SharedPtr<SimulationObjects::BoundaryObject3D> >  m_BoundaryObjects;  // individual objects, as one can be dynamic while the other is not

@@ -49,7 +49,7 @@ void loadBoundaryObjects(const nlohmann::json& jParams, Vector<SharedPtr<Boundar
         if(JSONHelpers::readVector(jObj, scale, "Scale"))
             obj->getGeometry()->scale(scale);
 
-        obj->parseParameters(jObj);
+        obj->setParameters(jObj);
     }
 }
 
@@ -125,21 +125,4 @@ void loadParticleEmitters(const nlohmann::json& jParams, Vector<SharedPtr<Partic
         if(JSONHelpers::readVector(jObj, scale, "Scale"))
             obj->getGeometry()->scale(scale);
     }
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class BoundaryObjType, class ParticleObjType, class ParticleEmitterType>
-void loadSimulationObjects(const nlohmann::json&                    jParams,
-                           Vector<SharedPtr<BoundaryObjType> >&     boundaryObjs,
-                           Vector<SharedPtr<ParticleObjType> >&     particleObjs,
-                           Vector<SharedPtr<ParticleEmitterType> >& particleEmitters)
-{
-    __BNN_ASSERT(jParams.find("BoundaryObjects") != jParams.end());
-    __BNN_ASSERT(jParams.find("ParticleObjects") != jParams.end());
-
-    loadBoundaryObjects(jParams["BoundaryObjects"], boundaryObjs);
-    loadParticleObjects(jParams["ParticleObjects"], particleObjs);
-
-    if((jParams.find("ParticleEmitters") != jParams.end()))
-        loadParticleEmitters(jParams["ParticleEmitters"], particleEmitters);
 }

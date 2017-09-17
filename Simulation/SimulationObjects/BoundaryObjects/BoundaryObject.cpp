@@ -107,7 +107,7 @@ Vec3r BoundaryObject3D::gradientSignedDistance(const Vec3r& ppos, Real dxyz, boo
 void BoundaryObject3D::generateSignedDistanceField(const Vec3r& domainBMin, const Vec3r& domainBMax, Real sdfCellSize /*= Real(1.0 / 512.0)*/, bool bUseFile /*= false*/)
 {
     m_Grid.setGrid(domainBMin, domainBMax, sdfCellSize);
-    printf("obj: %s\n", m_GeometryObj->name().c_str());
+
     ////////////////////////////////////////////////////////////////////////////////
     // load sdf from file
     if(bUseFile && !m_SDFFile.empty() && FileHelpers::fileExisted(m_SDFFile))

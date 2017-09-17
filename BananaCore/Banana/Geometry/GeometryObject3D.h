@@ -72,9 +72,8 @@ public:
         return (Vec3r(ddx00, ddy00, ddz00) +
                 Vec3r(ddx01, ddy01, ddz01) +
                 Vec3r(ddx10, ddy10, ddz10) +
-                Vec3r(ddx11, ddy11, ddz11))* Real(0.25);
+                Vec3r(ddx11, ddy11, ddz11)) * Real(0.25);
     }
-
 
     bool         isInside(const Vec3r& ppos) { return signedDistance(ppos) < 0; }
     bool         isInAABBBox(const Vec3r& ppos) { return signedDistance(ppos) < 0; }
@@ -146,7 +145,7 @@ public:
         }
     }
 
-    void setBox(const Vec3r& bMin, const Vec3r& bMax) { m_AABBBoxMin = bMin; m_AABBBoxMax = bMax; }
+    void         setBox(const Vec3r& bMin, const Vec3r& bMax) { m_AABBBoxMin = bMin; m_AABBBoxMax = bMax; }
     const Vec3r& boxMin() { return m_AABBBoxMin; }
     const Vec3r& boxMax() { return m_AABBBoxMax; }
 };
@@ -159,14 +158,18 @@ public:
     virtual String name() override { return "SphereObject"; }
     virtual Real   signedDistance(const Vec3r& ppos) override { return glm::length(ppos - m_Center) - m_Radius; }
 
-    void setSphere(const Vec3r& center, Real radius) { m_Center = center; m_Radius = radius; m_RadiusSqr = radius * radius; }
-    const Vec3r& center()const noexcept { return m_Center; }
-    Real  radius() const noexcept  { return m_Radius; }
+    const Vec3r& center() const noexcept { return m_Center; }
+    Real         radius() const noexcept  { return m_Radius; }
+    void         setSphere(const Vec3r& center, Real radius)
+    {
+        m_Center     = center; m_Radius = radius;
+        m_AABBBoxMin = m_Center - Vec3r(m_Radius);
+        m_AABBBoxMax = m_Center + Vec3r(m_Radius);
+    }
 
 protected:
     Vec3r m_Center = Vec3r(0);
     Real  m_Radius = Real(1.0);
-    Real  m_RadiusSqr = Real(1.0);
 };
 
 
@@ -458,7 +461,7 @@ public:
     virtual Real   signedDistance(const Vec3r& ppos_) override
     {
         Vec3r ppos = domainDeform(ppos_);
-        Real sd    = Huge;
+        Real  sd   = -Huge;
 
         for(auto& csgObj : m_Objects)
         {
@@ -490,11 +493,17 @@ public:
         return sd;
     }
 
-    void addObject(const CSGData& obj) { m_Objects.push_back(obj); }
-    void addObject(const SharedPtr<GeometryObject>& obj, CSGOperations op = Union) { m_Objects.push_back({ obj, op }); }
+    void addObject(const CSGData& obj) { m_Objects.push_back(obj); updateAABB(obj); }
+    void addObject(const SharedPtr<GeometryObject>& obj, CSGOperations op = Union) { addObject({ obj, op }); }
     void setDeformOp(DomainDeformation deformOp) { m_DeformOp = deformOp; }
 
 protected:
+    void updateAABB(const CSGData& obj)
+    {
+        m_AABBBoxMin = MathHelpers::min(m_AABBBoxMin, obj.obj->aabbBoxMin());
+        m_AABBBoxMax = MathHelpers::max(m_AABBBoxMax, obj.obj->aabbBoxMax());
+    }
+
     Vec3r domainDeform(const Vec3r& ppos)
     {
         switch(m_DeformOp)
