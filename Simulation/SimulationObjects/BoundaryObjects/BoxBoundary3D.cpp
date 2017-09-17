@@ -15,9 +15,6 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-#include <Banana/Utils/NumberHelpers.h>
-#include <Banana/Utils/JSONHelpers.h>
-#include <ParticleTools/ParticleHelpers.h>
 #include <SimulationObjects/BoundaryObjects/BoxBoundary3D.h>
 
 #include <random>
@@ -29,28 +26,21 @@ namespace Banana
 namespace SimulationObjects
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void BoxBoundary3D::setBox(const Vec3r& bMin, const Vec3r& bMax)
-{
-    SharedPtr<GeometryObject3D::BoxObject> box = std::static_pointer_cast<GeometryObject3D::BoxObject>(m_GeometryObj);
-    __BNN_ASSERT(box != nullptr);
-    box->setBox(bMin, bMax);
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void BoxBoundary3D::parseParameters(const nlohmann::json& jParams)
 {
     __BNN_ASSERT(jParams.find("BoxMin") != jParams.end());
     __BNN_ASSERT(jParams.find("BoxMax") != jParams.end());
 
     Vec3r bMin, bMax;
+    Real  offset = 1e-5;
     JSONHelpers::readVector(jParams, bMin, "BoxMin");
     JSONHelpers::readVector(jParams, bMax, "BoxMax");
-    bMin += Vec3r(1e-5);
-    bMax -= Vec3r(1e-5);
+    JSONHelpers::readValue(jParams, offset, "Offset");
 
-    SharedPtr<GeometryObject3D::BoxObject> box = std::static_pointer_cast<GeometryObject3D::BoxObject>(m_GeometryObj);
-    __BNN_ASSERT(box != nullptr);
-    box->setBox(bMin, bMax);
+    bMin += Vec3r(offset);
+    bMax -= Vec3r(offset);
+
+    setBox(bMin, bMax);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -232,6 +222,14 @@ bool BoxBoundary3D::constrainToBoundary(Vec3r& pPos, Vec3r& pVel)
     }
 
     return velChanged;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void BoxBoundary3D::setBox(const Vec3r& bMin, const Vec3r& bMax)
+{
+    SharedPtr<GeometryObject3D::BoxObject> box = std::static_pointer_cast<GeometryObject3D::BoxObject>(m_GeometryObj);
+    __BNN_ASSERT(box != nullptr);
+    box->setBox(bMin, bMax);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

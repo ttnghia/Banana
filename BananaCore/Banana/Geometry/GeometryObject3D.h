@@ -145,9 +145,10 @@ public:
             return glm::length(ppos - cp);
         }
     }
-    void setBox(const Vec3r& boxMin, const Vec3r& boxMax) { m_AABBBoxMin = boxMin; m_AABBBoxMax = boxMax; }
-    void setBMin(const Vec3r& boxMin) { m_AABBBoxMin = boxMin; }
-    void setBMax(const Vec3r& boxMax) { m_AABBBoxMax = boxMax; }
+
+    void setBox(const Vec3r& bMin, const Vec3r& bMax) { m_AABBBoxMin = bMin; m_AABBBoxMax = bMax; }
+    const Vec3r& boxMin() { return m_AABBBoxMin; }
+    const Vec3r& boxMax() { return m_AABBBoxMax; }
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -156,17 +157,16 @@ class SphereObject : public GeometryObject
 {
 public:
     virtual String name() override { return "SphereObject"; }
-    virtual Real   signedDistance(const Vec3r& ppos) override
-    {
-        return glm::length(ppos - m_SphereCenter) - m_SphereRadius;
-    }
+    virtual Real   signedDistance(const Vec3r& ppos) override { return glm::length(ppos - m_Center) - m_Radius; }
 
-    Vec3r& sphereCenter() { return m_SphereCenter; }
-    Real&  sphereRadius() { return m_SphereRadius; }
+    void setSphere(const Vec3r& center, Real radius) { m_Center = center; m_Radius = radius; m_RadiusSqr = radius * radius; }
+    const Vec3r& center()const noexcept { return m_Center; }
+    Real  radius() const noexcept  { return m_Radius; }
 
 protected:
-    Vec3r m_SphereCenter = Vec3r(0, 0.5, 0);
-    Real  m_SphereRadius = Real(0.5);
+    Vec3r m_Center = Vec3r(0);
+    Real  m_Radius = Real(1.0);
+    Real  m_RadiusSqr = Real(1.0);
 };
 
 

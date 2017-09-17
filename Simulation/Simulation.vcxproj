@@ -196,6 +196,7 @@
     <ClCompile Include="SimulationObjects\BoundaryObjects\BoundaryObject.cpp" />
     <ClCompile Include="SimulationObjects\BoundaryObjects\BoxBoundary2D.cpp" />
     <ClCompile Include="SimulationObjects\BoundaryObjects\BoxBoundary3D.cpp" />
+    <ClCompile Include="SimulationObjects\BoundaryObjects\SphereBoundary3D.cpp" />
     <ClCompile Include="SimulationObjects\ParticleObjects\ParticleObject.cpp" />
     <ClCompile Include="SimulationObjects\SimulationObjectFactory.cpp" />
   </ItemGroup>

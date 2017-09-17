@@ -24,7 +24,13 @@
 			"GeometryType" : "Box",
 			"BoxMin" : [-1.0, -1.0, -1.0],
 			"BoxMax" : [1.0, 1.0, 1.0]
+		},
+		{
+			"GeometryType" : "Sphere",
+			"Center" : [0.0, 1.0, 0.0],
+			"Radius" : 2.0
 		}
+	
 	],
 	"ParticleObjects":
 	{

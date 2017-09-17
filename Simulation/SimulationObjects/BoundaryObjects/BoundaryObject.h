@@ -21,11 +21,14 @@
 #include <Banana/Array/Array.h>
 #include <Banana/Grid/Grid2D.h>
 #include <Banana/Grid/Grid3D.h>
+#include <Banana/Utils/NumberHelpers.h>
+#include <Banana/Utils/JSONHelpers.h>
 #include <Banana/Geometry/GeometryObject2D.h>
 #include <Banana/Geometry/GeometryObject3D.h>
 #include <Banana/Geometry/GeometryObjectFactory.h>
 #include <Banana/ParallelHelpers/ParallelFuncs.h>
 #include <ParticleSolvers/ParticleSolverData.h>
+#include <ParticleTools/ParticleHelpers.h>
 
 #include <json.hpp>
 
