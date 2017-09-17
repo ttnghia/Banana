@@ -11,7 +11,7 @@
 		"ApplyRepulsiveForce" : true,
 		"RepulsiveForceStiffness" : 1e-4,
 		"PIC_FLIP_Ratio" : 0.97,
-		"CGRelativeTolerance" : 1e-10,
+		"CGRelativeTolerance" : 1e-5,
 		"MaxCGIteration" : 10000,
 		"BoxMin" : [-1, -1, -1],
 		"BoxMax" : [1, 1, 1],

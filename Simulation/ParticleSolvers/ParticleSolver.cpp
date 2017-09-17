@@ -147,7 +147,7 @@ void ParticleSolver3D::generateBoundaries(const nlohmann::json& jParams)
             SharedPtr<GeometryObject3D::CSGObject>         csgObj      = std::static_pointer_cast<GeometryObject3D::CSGObject>(csgBoundary->getGeometry());
             __BNN_ASSERT(csgObj != nullptr);
 
-            // The operation should be Union, but as boundary object has negative signed distance, Union changes to Intersection
+            // The boundary object has negative signed distance, so operation is Intersection
             for(auto& obj : staticBoundaries)
                 csgObj->addObject(obj->getGeometry(), GeometryObject3D::CSGOperations::Intersection);
 
@@ -179,6 +179,8 @@ void ParticleSolver3D::advanceScene()
 {
     for(auto& obj : m_BoundaryObjects)
         if(obj->isDynamic()) obj->advanceFrame();
+    for(auto& obj : m_ParticleObjects)
+        obj->advanceFrame();
     for(auto& obj : m_ParticleEmitters)
         obj->advanceFrame();
 }
@@ -209,6 +211,8 @@ void ParticleSolver2D::advanceScene()
 {
     for(auto& obj : m_BoundaryObjects)
         if(obj->isDynamic()) obj->advanceFrame();
+    for(auto& obj : m_ParticleObjects)
+        obj->advanceFrame();
     for(auto& obj : m_ParticleEmitters)
         obj->advanceFrame();
 }

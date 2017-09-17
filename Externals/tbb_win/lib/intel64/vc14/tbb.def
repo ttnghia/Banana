@@ -274,82 +274,6 @@ EXPORTS
 
 
 
-    
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -360,17 +284,25 @@ EXPORTS
 
     
 
-
-
-
-
-
-
-
-
-
-
-
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
 
 
@@ -446,6 +378,77 @@ EXPORTS
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
 
 
 
@@ -591,12 +594,6 @@ EXPORTS
 
 
 
-
-
-
-
-
-
     
 
 
@@ -738,12 +735,10 @@ EXPORTS
 
 
 
-
-
-
-
     
     
+
+
 
 
 
@@ -863,7 +858,7 @@ __TBB_machine_is_in_transaction
 ?internal_execute@task_arena_base@internal@interface7@tbb@@IEBAXAEAVdelegate_base@234@@Z
 ?internal_wait@task_arena_base@internal@interface7@tbb@@IEBAXXZ
 
-
+?isolate_within_arena@internal@interface7@tbb@@YAXAEAVdelegate_base@123@_J@Z
 
 
 

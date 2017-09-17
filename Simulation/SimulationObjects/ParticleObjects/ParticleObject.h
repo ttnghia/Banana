@@ -38,6 +38,8 @@ public:
     String& meshFile() { return m_MeshFile; }
     String& particleFile() { return m_ParticleFile; }
 
+    virtual void advanceFrame() {}
+
 protected:
     String m_MeshFile     = "";
     String m_ParticleFile = "";
@@ -52,14 +54,16 @@ public:
     ParticleObject3D() = default;
     SharedPtr<GeometryObject3D::GeometryObject>& getGeometry() { return m_GeometryObj; }
 
+    virtual void advanceFrame() {}
+
     SharedPtr<GeometryObject3D::GeometryObject> m_GeometryObj = nullptr;
 
     String& name() { return m_ObjName; }
     String& meshFile() { return m_MeshFile; }
     String& particleFile() { return m_ParticleFile; }
-    Real& particleRadius() { return m_ParticleRadius; }
-    Real& samplingJitter() { return m_SamplingJitter; }
-    bool& relaxPosition() { return m_bRelaxPosition; }
+    Real&   particleRadius() { return m_ParticleRadius; }
+    Real&   samplingJitter() { return m_SamplingJitter; }
+    bool&   relaxPosition() { return m_bRelaxPosition; }
 
     ParticleHelpers::RelaxationMethod& relaxPositionMethod() { return m_RelaxMethod; }
 

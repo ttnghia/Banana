@@ -748,7 +748,9 @@ private:
             typename successors_type::iterator i = this->my_successors.begin();
             while ( i != this->my_successors.end() ) {
                 task *new_task = (*i)->try_put_task(t);
-                last_task = combine_tasks(last_task, new_task);  // enqueue if necessary
+                // workaround for icc bug
+                graph& graph_ref = (*i)->graph_reference();
+                last_task = combine_tasks(graph_ref, last_task, new_task);  // enqueue if necessary
                 if(new_task) {
                     ++i;
                 }
@@ -823,6 +825,12 @@ private:
 
         task *execute() __TBB_override {
             return my_node->decrement_counter();
+        }
+
+    protected:
+
+        graph& graph_reference() __TBB_override {
+            return my_node->my_graph;
         }
 
     public:
