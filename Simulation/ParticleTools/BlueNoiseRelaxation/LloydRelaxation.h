@@ -20,7 +20,7 @@
 #include <Banana/Setup.h>
 #include <Banana/Utils/Logger.h>
 #include <Banana/Array/Array.h>
-#include <Banana/Grid/Grid3D.h>
+#include <Banana/Grid/Grid.h>
 #include <Banana/Utils/Timer.h>
 
 #include <tbb/tbb.h>
@@ -111,7 +111,7 @@ private:
     Real           m_ParticleRadius;
     Vec_UInt       m_ClosestCluster;
     Array3_VecUInt m_CellParticles;
-    Grid3D         m_Grid3D;
+    Grid3r         m_Grid3D;
 
     Logger m_Logger;
     Timer  m_Timer;

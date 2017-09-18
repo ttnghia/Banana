@@ -21,8 +21,7 @@
 #include <Banana/Geometry/GeometryObject2D.h>
 #include <Banana/Geometry/GeometryObject3D.h>
 #include <Banana/Geometry/GeometryObjectFactory.h>
-#include <Banana/Grid/Grid2D.h>
-#include <Banana/Grid/Grid3D.h>
+#include <Banana/Grid/Grid.h>
 #include <ParticleTools/ParticleHelpers.h>
 #include <ParticleTools/BlueNoiseRelaxation/LloydRelaxation.h>
 #include <ParticleTools/BlueNoiseRelaxation/SPHBasedRelaxation.h>

@@ -21,8 +21,8 @@
 #include <Banana/Utils/NumberHelpers.h>
 #include <Banana/Utils/MathHelpers.h>
 #include <Banana/ParallelHelpers/ParallelFuncs.h>
-#include <Banana/NeighborSearch/NeighborSearch.h>
-#include <Banana/Grid/Grid3DHashing.h>
+#include <Banana/NeighborSearch/NeighborSearch3D.h>
+#include <Banana/Grid/Grid.h>
 #include <catch.hpp>
 
 #include <iostream>
@@ -40,7 +40,7 @@ using namespace Banana;
 //#define TEST_GRID3D
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 Vector<Vec3r> positions;
-Grid3DHashing grid3D = Grid3DHashing(Vec3r(-2), Vec3r(2), Real(1.0 / 128.0));
+Grid<3, Real> grid3D = Grid<3, Real>(Vec3r(-2), Vec3r(2), Real(1.0 / 128.0));
 
 const size_t N               = 50;
 const size_t N_enright_steps = 50;
@@ -51,7 +51,7 @@ const Real radius   = Real(2.001) * (Real(2.0) * r_omega / static_cast<Real>(N -
 const Real radius2  = radius * radius;
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-Real compute_average_number_of_neighbors(NeighborSearch const& nsearch)
+Real compute_average_number_of_neighbors(NeighborSearch::NeighborSearch3D const& nsearch)
 {
     unsigned long res = 0;
     const auto&   d   = nsearch.point_set(0);
@@ -63,7 +63,7 @@ Real compute_average_number_of_neighbors(NeighborSearch const& nsearch)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-Real compute_average_distance(NeighborSearch const& nsearch)
+Real compute_average_distance(NeighborSearch::NeighborSearch3D const& nsearch)
 {
     unsigned long long res   = 0;
     auto const&        d     = nsearch.point_set(0);
@@ -111,10 +111,10 @@ Vector<Vector<UInt> > brute_force_search(size_t n_positions)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void compare_with_bruteforce_search(NeighborSearch const& nsearch)
+void compare_with_bruteforce_search(NeighborSearch::NeighborSearch3D const& nsearch)
 {
-    const PointSet& d0                    = nsearch.point_set(0);
-    auto            brute_force_neighbors = brute_force_search(d0.n_points());
+    const NeighborSearch::PointSet& d0                    = nsearch.point_set(0);
+    auto                            brute_force_neighbors = brute_force_search(d0.n_points());
 
     for(int i = 0; i < d0.n_points(); ++i)
     {
@@ -149,9 +149,9 @@ void compare_with_bruteforce_search(NeighborSearch const& nsearch)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void compare_with_grid_search(NeighborSearch const& nsearch, Vector<Vector<UInt> >& gridSearchResult)
+void compare_with_grid_search(NeighborSearch::NeighborSearch3D const& nsearch, Vector<Vector<UInt> >& gridSearchResult)
 {
-    const PointSet& d0 = nsearch.point_set(0);
+    const NeighborSearch::PointSet& d0 = nsearch.point_set(0);
 
     for(int i = 0; i < d0.n_points(); ++i)
     {
@@ -175,11 +175,11 @@ void compare_with_grid_search(NeighborSearch const& nsearch, Vector<Vector<UInt>
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void compare_single_query_with_bruteforce_search(NeighborSearch& nsearch)
+void compare_single_query_with_bruteforce_search(NeighborSearch::NeighborSearch3D& nsearch)
 {
-    Vector<Vector<UInt> > neighbors;
-    const PointSet&       d0                    = nsearch.point_set(0);
-    auto                  brute_force_neighbors = brute_force_search(d0.n_points());
+    Vector<Vector<UInt> >           neighbors;
+    const NeighborSearch::PointSet& d0                    = nsearch.point_set(0);
+    auto                            brute_force_neighbors = brute_force_search(d0.n_points());
 
     for(int i = 0; i < d0.n_points(); ++i)
     {
@@ -273,7 +273,7 @@ TEST_CASE("Test CompactNSearch", "[CompactNSearch]")
     }
     //std::random_shuffle(positions.begin(), positions.end());
 
-    NeighborSearch nsearch(radius, true);
+    NeighborSearch::NeighborSearch3D nsearch(radius, true);
     nsearch.add_point_set(glm::value_ptr(positions.front()), positions.size(), true, true);
     //nsearch.add_point_set(glm::value_ptr(positions.front()), positions.size(), true, true);
 

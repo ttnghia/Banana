@@ -17,7 +17,7 @@
 
 #pragma once
 
-#include <Banana/Grid/Grid2DHashing.h>
+#include <Banana/Grid/Grid.h>
 //#include <Banana/LinearAlgebra/LinearSolvers/PCGSolver.h>
 #include <ParticleSolvers/ParticleSolver.h>
 #include <ParticleSolvers/MPM/MPM2DData.h>
@@ -90,7 +90,7 @@ protected:
     std::shared_ptr<SimulationParameters_MPM2D> m_SimParams = std::make_shared<SimulationParameters_MPM2D>();
     std::unique_ptr<SimulationData_MPM2D>       m_SimData   = std::make_unique<SimulationData_MPM2D>();
 
-    Grid2DHashing m_Grid;
+    Grid2r m_Grid;
     //PCGSolver     m_PCGSolver;
 };
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

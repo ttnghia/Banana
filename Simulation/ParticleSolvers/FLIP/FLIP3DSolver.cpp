@@ -45,7 +45,7 @@ void FLIP3DSolver::makeReady()
                                }
 
                                m_Grid.setGrid(m_SimParams->domainBMin, m_SimParams->domainBMax, m_SimParams->cellSize);
-                               m_SimData->makeReady(m_Grid.getNumCellX(), m_Grid.getNumCellY(), m_Grid.getNumCellZ());
+                               m_SimData->makeReady(m_Grid.getNCells()[0], m_Grid.getNCells()[1], m_Grid.getNCells()[2]);
 
                                m_PCGSolver.setSolverParameters(m_SimParams->CGRelativeTolerance, m_SimParams->maxCGIteration);
                                m_PCGSolver.setPreconditioners(PCGSolver::MICCL0_SYMMETRIC);
@@ -65,7 +65,7 @@ void FLIP3DSolver::makeReady()
                                //box.setBMin(m_SimParams->movingBMin - Vec3r(0.001f));
                                //box.setBMax(m_SimParams->movingBMax + Vec3r(0.001f));
 
-                               ParallelFuncs::parallel_for<UInt>(m_Grid.getNumNodes(),
+                               ParallelFuncs::parallel_for<UInt>(m_Grid.getNNodes(),
                                                                  [&](UInt i, UInt j, UInt k)
                                                                  {
                                                                      Real minSD = Huge;
@@ -361,7 +361,7 @@ void FLIP3DSolver::moveParticles(Real timestep)
 //Compute finite-volume style face-weights for fluid from nodal signed distances
 void FLIP3DSolver::computeFluidWeights()
 {
-    ParallelFuncs::parallel_for<UInt>(m_Grid.getNumNodes(),
+    ParallelFuncs::parallel_for<UInt>(m_Grid.getNNodes(),
                                       [&](UInt i, UInt j, UInt k)
                                       {
                                           bool valid_index_u = gridData().u_weights.isValidIndex(i, j, k);
@@ -429,7 +429,7 @@ void FLIP3DSolver::velocityToGrid()
 {
     const Vec3r span = Vec3r(m_Grid.getCellSize() * static_cast<Real>(m_SimParams->kernelSpan));
 
-    ParallelFuncs::parallel_for<UInt>(m_Grid.getNumNodes(),
+    ParallelFuncs::parallel_for<UInt>(m_Grid.getNNodes(),
                                       [&](UInt i, UInt j, UInt k)
                                       {
                                           const Vec3r pu = Vec3r(i, j + 0.5, k + 0.5) * m_Grid.getCellSize() + m_Grid.getBMin();
@@ -548,14 +548,14 @@ void FLIP3DSolver::extrapolateVelocity(Array3r& grid, Array3r& temp_grid, Array3
     {
         bool stop = true;
         old_valid.copyDataFrom(valid);
-        ParallelFuncs::parallel_for<UInt>(1, m_Grid.getNumCellX() - 1,
-                                          1, m_Grid.getNumCellY() - 1,
-                                          1, m_Grid.getNumCellZ() - 1,
+        ParallelFuncs::parallel_for<UInt>(1, m_Grid.getNCells()[0] - 1,
+                                          1, m_Grid.getNCells()[1] - 1,
+                                          1, m_Grid.getNCells()[2] - 1,
                                           [&](UInt ii, UInt jj, UInt kk)
                                           {
-                                              UInt i = forward ? ii : m_Grid.getNumCellX() - ii - 1;
-                                              UInt j = forward ? jj : m_Grid.getNumCellX() - jj - 1;
-                                              UInt k = forward ? kk : m_Grid.getNumCellX() - kk - 1;
+                                              UInt i = forward ? ii : m_Grid.getNCells()[0] - ii - 1;
+                                              UInt j = forward ? jj : m_Grid.getNCells()[0] - jj - 1;
+                                              UInt k = forward ? kk : m_Grid.getNCells()[0] - kk - 1;
 
                                               if(old_valid(i, j, k))
                                                   return;
@@ -731,9 +731,9 @@ void FLIP3DSolver::computeFluidSDF()
                                           const Vec3i cellDown = Vec3i(MathHelpers::max(0, cellIdx[0] - 1),
                                                                        MathHelpers::max(0, cellIdx[1] - 1),
                                                                        MathHelpers::max(0, cellIdx[2] - 1));
-                                          const Vec3i cellUp = Vec3i(MathHelpers::min(cellIdx[0] + 1, static_cast<Int>(m_Grid.getNumCellX())),
-                                                                     MathHelpers::min(cellIdx[1] + 1, static_cast<Int>(m_Grid.getNumCellY())),
-                                                                     MathHelpers::min(cellIdx[2] + 1, static_cast<Int>(m_Grid.getNumCellZ())));
+                                          const Vec3i cellUp = Vec3i(MathHelpers::min(cellIdx[0] + 1, static_cast<Int>(m_Grid.getNCells()[0])),
+                                                                     MathHelpers::min(cellIdx[1] + 1, static_cast<Int>(m_Grid.getNCells()[1])),
+                                                                     MathHelpers::min(cellIdx[2] + 1, static_cast<Int>(m_Grid.getNCells()[2])));
 
                                           for(int k = cellDown[2]; k <= cellUp[2]; ++k)
                                           {
@@ -755,7 +755,7 @@ void FLIP3DSolver::computeFluidSDF()
 
     ////////////////////////////////////////////////////////////////////////////////
     //extend phi slightly into solids (this is a simple, naive approach, but works reasonably well)
-    ParallelFuncs::parallel_for<UInt>(m_Grid.getNumCells(),
+    ParallelFuncs::parallel_for<UInt>(m_Grid.getNCells(),
                                       [&](int i, int j, int k)
                                       {
                                           if(gridData().fluidSDF(i, j, k) < m_Grid.getHalfCellSize())
@@ -780,9 +780,9 @@ void FLIP3DSolver::computeMatrix(Real timestep)
 {
     m_SimData->matrix.clear();
 
-    ParallelFuncs::parallel_for<UInt>(1, m_Grid.getNumCellX() - 1,
-                                      1, m_Grid.getNumCellY() - 1,
-                                      1, m_Grid.getNumCellZ() - 1,
+    ParallelFuncs::parallel_for<UInt>(1, m_Grid.getNCells()[0] - 1,
+                                      1, m_Grid.getNCells()[1] - 1,
+                                      1, m_Grid.getNCells()[2] - 1,
                                       [&](UInt i, UInt j, UInt k)
                                       {
                                           const Real center_phi = gridData().fluidSDF(i, j, k);
@@ -834,7 +834,7 @@ void FLIP3DSolver::computeMatrix(Real timestep)
                                           if(top_phi < 0)
                                           {
                                               center_term += top_term;
-                                              m_SimData->matrix.addElement(cellIdx, cellIdx + m_Grid.getNumCellX(), -top_term);
+                                              m_SimData->matrix.addElement(cellIdx, cellIdx + m_Grid.getNCells()[0], -top_term);
                                           }
                                           else
                                           {
@@ -846,7 +846,7 @@ void FLIP3DSolver::computeMatrix(Real timestep)
                                           if(bottom_phi < 0)
                                           {
                                               center_term += bottom_term;
-                                              m_SimData->matrix.addElement(cellIdx, cellIdx - m_Grid.getNumCellX(), -bottom_term);
+                                              m_SimData->matrix.addElement(cellIdx, cellIdx - m_Grid.getNCells()[0], -bottom_term);
                                           }
                                           else
                                           {
@@ -858,7 +858,7 @@ void FLIP3DSolver::computeMatrix(Real timestep)
                                           if(far_phi < 0)
                                           {
                                               center_term += far_term;
-                                              m_SimData->matrix.addElement(cellIdx, cellIdx + m_Grid.getNumCellX() * m_Grid.getNumCellY(), -far_term);
+                                              m_SimData->matrix.addElement(cellIdx, cellIdx + m_Grid.getNCells()[0] * m_Grid.getNCells()[1], -far_term);
                                           }
                                           else
                                           {
@@ -870,7 +870,7 @@ void FLIP3DSolver::computeMatrix(Real timestep)
                                           if(near_phi < 0)
                                           {
                                               center_term += near_term;
-                                              m_SimData->matrix.addElement(cellIdx, cellIdx - m_Grid.getNumCellX() * m_Grid.getNumCellY(), -near_term);
+                                              m_SimData->matrix.addElement(cellIdx, cellIdx - m_Grid.getNCells()[0] * m_Grid.getNCells()[1], -near_term);
                                           }
                                           else
                                           {
@@ -888,9 +888,9 @@ void FLIP3DSolver::computeMatrix(Real timestep)
 void FLIP3DSolver::computeRhs()
 {
     m_SimData->rhs.assign(m_SimData->rhs.size(), 0);
-    ParallelFuncs::parallel_for<UInt>(1, m_Grid.getNumCellX() - 1,
-                                      1, m_Grid.getNumCellY() - 1,
-                                      1, m_Grid.getNumCellZ() - 1,
+    ParallelFuncs::parallel_for<UInt>(1, m_Grid.getNCells()[0] - 1,
+                                      1, m_Grid.getNCells()[1] - 1,
+                                      1, m_Grid.getNCells()[2] - 1,
                                       [&](UInt i, UInt j, UInt k)
                                       {
                                           if(gridData().fluidSDF(i, j, k) > 0)
@@ -932,7 +932,7 @@ void FLIP3DSolver::updateVelocity(Real timestep)
     gridData().v_valid.assign(0);
     gridData().w_valid.assign(0);
 
-    ParallelFuncs::parallel_for<UInt>(m_Grid.getNumCells(),
+    ParallelFuncs::parallel_for<UInt>(m_Grid.getNCells(),
                                       [&](UInt i, UInt j, UInt k)
                                       {
                                           const UInt idx = m_Grid.getCellLinearizedIndex(i, j, k);
@@ -942,24 +942,24 @@ void FLIP3DSolver::updateVelocity(Real timestep)
                                           const Real bottom_phi = j > 0 ? gridData().fluidSDF(i, j - 1, k) : 0;
                                           const Real near_phi = k > 0 ? gridData().fluidSDF(i, j, k - 1) : 0;
 
-                                          if(i > 0 && i < m_Grid.getNumCellX() - 1 && (center_phi < 0 || left_phi < 0) && gridData().u_weights(i, j, k) > 0)
+                                          if(i > 0 && i < m_Grid.getNCells()[0] - 1 && (center_phi < 0 || left_phi < 0) && gridData().u_weights(i, j, k) > 0)
                                           {
                                               Real theta = MathHelpers::max(Real(0.01), MathHelpers::fraction_inside(left_phi, center_phi));
                                               gridData().u(i, j, k) -= timestep * (m_SimData->pressure[idx] - m_SimData->pressure[idx - 1]) / theta;
                                               gridData().u_valid(i, j, k) = 1;
                                           }
 
-                                          if(j > 0 && j < m_Grid.getNumCellY() - 1 && (center_phi < 0 || bottom_phi < 0) && gridData().v_weights(i, j, k) > 0)
+                                          if(j > 0 && j < m_Grid.getNCells()[1] - 1 && (center_phi < 0 || bottom_phi < 0) && gridData().v_weights(i, j, k) > 0)
                                           {
                                               Real theta = MathHelpers::max(Real(0.01), MathHelpers::fraction_inside(bottom_phi, center_phi));
-                                              gridData().v(i, j, k) -= timestep * (m_SimData->pressure[idx] - m_SimData->pressure[idx - m_Grid.getNumCellX()]) / theta;
+                                              gridData().v(i, j, k) -= timestep * (m_SimData->pressure[idx] - m_SimData->pressure[idx - m_Grid.getNCells()[0]]) / theta;
                                               gridData().v_valid(i, j, k) = 1;
                                           }
 
-                                          if(k > 0 && k < m_Grid.getNumCellZ() - 1 && gridData().w_weights(i, j, k) > 0 && (center_phi < 0 || near_phi < 0))
+                                          if(k > 0 && k < m_Grid.getNCells()[2] - 1 && gridData().w_weights(i, j, k) > 0 && (center_phi < 0 || near_phi < 0))
                                           {
                                               Real theta = MathHelpers::max(Real(0.01), MathHelpers::fraction_inside(near_phi, center_phi));
-                                              gridData().w(i, j, k) -= timestep * (m_SimData->pressure[idx] - m_SimData->pressure[idx - m_Grid.getNumCellX() * m_Grid.getNumCellY()]) / theta;
+                                              gridData().w(i, j, k) -= timestep * (m_SimData->pressure[idx] - m_SimData->pressure[idx - m_Grid.getNCells()[0] * m_Grid.getNCells()[1]]) / theta;
                                               gridData().w_valid(i, j, k) = 1;
                                           }
                                       });

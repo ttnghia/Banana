@@ -20,7 +20,7 @@
 #include <Banana/LinearAlgebra/SVD.h>
 #include <Banana/Utils/MathHelpers.h>
 #include <Banana/Array/Array.h>
-#include <Banana/Grid/Grid3DHashing.h>
+#include <Banana/Grid/Grid.h>
 
 #include <tbb/tbb.h>
 
@@ -32,7 +32,7 @@ namespace Banana
 class AnisotropicKernelGenerator
 {
 public:
-    AnisotropicKernelGenerator(const Grid3DHashing& grid3D, const Vec_Vec3r& particles, Real kernelCellSpan) :
+    AnisotropicKernelGenerator(const Grid3r& grid3D, const Vec_Vec3r& particles, Real kernelCellSpan) :
         m_Grid3D(grid3D),
         m_Particles(particles),
         m_KernelCellSpan(kernelCellSpan * 2) {}
@@ -49,12 +49,12 @@ private:
     Real W(const Vec3r& xi, const Vec3r& xj);
 
     ////////////////////////////////////////////////////////////////////////////////
-    const Grid3DHashing& m_Grid3D;
-    const Vec_Vec3r&     m_Particles;
-    const Real           m_KernelCellSpan;
-    Real                 m_KernelRadius;
-    Real                 m_KernelRadiusSqr;
-    Real                 m_KernelRadiusInv;
+    const Grid3r&    m_Grid3D;
+    const Vec_Vec3r& m_Particles;
+    const Real       m_KernelCellSpan;
+    Real             m_KernelRadius;
+    Real             m_KernelRadiusSqr;
+    Real             m_KernelRadiusInv;
 
     Vec_Vec3r   m_KernelCenters;
     Vec_Mat3x3r m_KernelMatrices;

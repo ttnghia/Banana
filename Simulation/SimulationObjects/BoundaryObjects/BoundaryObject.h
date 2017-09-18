@@ -19,8 +19,7 @@
 
 #include <Banana/Setup.h>
 #include <Banana/Array/Array.h>
-#include <Banana/Grid/Grid2D.h>
-#include <Banana/Grid/Grid3D.h>
+#include <Banana/Grid/Grid.h>
 #include <Banana/Utils/NumberHelpers.h>
 #include <Banana/Utils/FileHelpers.h>
 #include <Banana/Utils/JSONHelpers.h>
@@ -104,7 +103,7 @@ protected:
     GeometryPtr m_GeometryObj;
     Vec_Vec2r   m_BDParticles;
     Array2r     m_SDF;
-    Grid2D      m_Grid;
+    Grid2r      m_Grid;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -132,7 +131,7 @@ protected:
     GeometryPtr m_GeometryObj = nullptr;
     Vec_Vec3r   m_BDParticles;
     Array3r     m_SDF;
-    Grid3D      m_Grid;
+    Grid3r      m_Grid;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

@@ -44,7 +44,7 @@ void FLIP2DSolver::makeReady()
                                }
 
                                m_Grid.setGrid(m_SimParams->movingBMin, m_SimParams->movingBMax, m_SimParams->cellSize);
-                               m_SimData->makeReady(m_Grid.getNumCellX(), m_Grid.getNumCellY());
+                               m_SimData->makeReady(m_Grid.getNCells()[0], m_Grid.getNCells()[1]);
 
                                m_PCGSolver.setSolverParameters(m_SimParams->CGRelativeTolerance, m_SimParams->maxCGIteration);
                                m_PCGSolver.setPreconditioners(PCGSolver::MICCL0_SYMMETRIC);
@@ -55,7 +55,7 @@ void FLIP2DSolver::makeReady()
                                GeometryObject2D::BoxObject box;
                                box.setBMin(m_SimParams->movingBMin + Vec2r(m_SimParams->cellSize));
                                box.setBMax(m_SimParams->movingBMax - Vec2r(m_SimParams->cellSize));
-                               ParallelFuncs::parallel_for<UInt>(m_Grid.getNumNodes(),
+                               ParallelFuncs::parallel_for<UInt>(m_Grid.getNNodes(),
                                                                  [&](UInt i, UInt j)
                                                                  {
                                                                      const Vec2r gridPos = m_Grid.getWorldCoordinate(i, j);
@@ -380,7 +380,7 @@ void FLIP2DSolver::correctPositions(Real timestep)
 //Compute finite-volume style face-weights for fluid from nodal signed distances
 void FLIP2DSolver::computeFluidWeights()
 {
-    ParallelFuncs::parallel_for<UInt>(m_Grid.getNumNodes(),
+    ParallelFuncs::parallel_for<UInt>(m_Grid.getNNodes(),
                                       [&](UInt i, UInt j)
                                       {
                                           bool valid_index_u = m_SimData->u_weights.isValidIndex(i, j);
@@ -407,7 +407,7 @@ void FLIP2DSolver::velocityToGrid()
 {
     const Vec2r span = Vec2r(m_Grid.getCellSize() * static_cast<Real>(m_SimParams->kernelSpan));
 
-    ParallelFuncs::parallel_for<UInt>(m_Grid.getNumNodes(),
+    ParallelFuncs::parallel_for<UInt>(m_Grid.getNNodes(),
                                       [&](UInt i, UInt j)
                                       {
                                           const Vec2r pu = Vec2r(i, j + 0.5) * m_Grid.getCellSize() + m_Grid.getBMin();
@@ -496,8 +496,8 @@ void FLIP2DSolver::extrapolateVelocity(Array2r& grid, Array2r& temp_grid, Array2
     {
         bool stop = true;
         old_valid.copyDataFrom(valid);
-        ParallelFuncs::parallel_for<UInt>(1, m_Grid.getNumCellX() - 1,
-                                          1, m_Grid.getNumCellY() - 1,
+        ParallelFuncs::parallel_for<UInt>(1, m_Grid.getNCells()[0] - 1,
+                                          1, m_Grid.getNCells()[1] - 1,
                                           [&](UInt i, UInt j)
                                           {
                                               if(old_valid(i, j))
@@ -632,8 +632,8 @@ void FLIP2DSolver::computeFluidSDF()
         const Vec2i cellId   = m_Grid.getCellIdx<int>(m_SimData->positions[p]);
         const Vec2i cellDown = Vec2i(MathHelpers::max(0, cellId[0] - 1),
                                      MathHelpers::max(0, cellId[1] - 1));
-        const Vec2i cellUp = Vec2i(MathHelpers::min(cellId[0] + 1, static_cast<Int>(m_Grid.getNumCellX()) - 1),
-                                   MathHelpers::min(cellId[1] + 1, static_cast<Int>(m_Grid.getNumCellY()) - 1));
+        const Vec2i cellUp = Vec2i(MathHelpers::min(cellId[0] + 1, static_cast<Int>(m_Grid.getNCells()[0]) - 1),
+                                   MathHelpers::min(cellId[1] + 1, static_cast<Int>(m_Grid.getNCells()[1]) - 1));
 
         ParallelFuncs::parallel_for<int>(cellDown[0], cellUp[0],
                                          cellDown[1], cellUp[1],
@@ -649,7 +649,7 @@ void FLIP2DSolver::computeFluidSDF()
 
     ////////////////////////////////////////////////////////////////////////////////
     //extend phi slightly into solids (this is a simple, naive approach, but works reasonably well)
-    ParallelFuncs::parallel_for<UInt>(m_Grid.getNumNodes(),
+    ParallelFuncs::parallel_for<UInt>(m_Grid.getNNodes(),
                                       [&](int i, int j)
                                       {
                                           if(m_SimData->fluidSDF(i, j) < m_Grid.getHalfCellSize())
@@ -671,9 +671,9 @@ void FLIP2DSolver::computeMatrix(Real timestep)
     m_SimData->matrix.clear();
 
     //Build the linear system for pressure
-    for(UInt j = 1; j < m_Grid.getNumCellY() - 1; ++j)
+    for(UInt j = 1; j < m_Grid.getNCells()[1] - 1; ++j)
     {
-        for(UInt i = 1; i < m_Grid.getNumCellX() - 1; ++i)
+        for(UInt i = 1; i < m_Grid.getNCells()[0] - 1; ++i)
         {
             const UInt cellIdx    = m_Grid.getCellLinearizedIndex(i, j);
             const Real center_phi = m_SimData->fluidSDF(i, j);
@@ -720,7 +720,7 @@ void FLIP2DSolver::computeMatrix(Real timestep)
                 if(top_phi < 0)
                 {
                     center_term += top_term;
-                    m_SimData->matrix.addElement(cellIdx, cellIdx + m_Grid.getNumCellX(), -top_term);
+                    m_SimData->matrix.addElement(cellIdx, cellIdx + m_Grid.getNCells()[0], -top_term);
                 }
                 else
                 {
@@ -732,7 +732,7 @@ void FLIP2DSolver::computeMatrix(Real timestep)
                 if(bottom_phi < 0)
                 {
                     center_term += bottom_term;
-                    m_SimData->matrix.addElement(cellIdx, cellIdx - m_Grid.getNumCellX(), -bottom_term);
+                    m_SimData->matrix.addElement(cellIdx, cellIdx - m_Grid.getNCells()[0], -bottom_term);
                 }
                 else
                 {
@@ -752,8 +752,8 @@ void FLIP2DSolver::computeMatrix(Real timestep)
 void FLIP2DSolver::computeRhs()
 {
     m_SimData->rhs.assign(m_SimData->rhs.size(), 0);
-    ParallelFuncs::parallel_for<UInt>(1, m_Grid.getNumCellX() - 1,
-                                      1, m_Grid.getNumCellY() - 1,
+    ParallelFuncs::parallel_for<UInt>(1, m_Grid.getNCells()[0] - 1,
+                                      1, m_Grid.getNCells()[1] - 1,
                                       [&](UInt i, UInt j)
                                       {
                                           const UInt idx = m_Grid.getCellLinearizedIndex(i, j);
@@ -790,7 +790,7 @@ void FLIP2DSolver::updateVelocity(Real timestep)
     m_SimData->u_valid.assign(0);
     m_SimData->v_valid.assign(0);
 
-    ParallelFuncs::parallel_for<UInt>(m_Grid.getNumNodes(),
+    ParallelFuncs::parallel_for<UInt>(m_Grid.getNNodes(),
                                       [&](UInt i, UInt j)
                                       {
                                           const UInt idx = m_Grid.getCellLinearizedIndex(i, j);
@@ -809,7 +809,7 @@ void FLIP2DSolver::updateVelocity(Real timestep)
                                           if(j > 0 && (center_phi < 0 || bottom_phi < 0) && m_SimData->v_weights(i, j) > 0)
                                           {
                                               Real theta = MathHelpers::min(Real(0.01), MathHelpers::fraction_inside(bottom_phi, center_phi));
-                                              m_SimData->v(i, j) -= timestep * (m_SimData->pressure[idx] - m_SimData->pressure[idx - m_Grid.getNumCellX()]) / theta;
+                                              m_SimData->v(i, j) -= timestep * (m_SimData->pressure[idx] - m_SimData->pressure[idx - m_Grid.getNCells()[0]]) / theta;
                                               m_SimData->v_valid(i, j) = 1;
                                           }
                                       });

@@ -18,8 +18,8 @@
 #pragma once
 
 #include <Banana/Array/ArrayHelpers.h>
+#include <Banana/Grid/Grid.h>
 #include <Banana/LinearAlgebra/LinearSolvers/PCGSolver.h>
-#include <Banana/Grid/Grid2DHashing.h>
 #include <ParticleSolvers/ParticleSolver.h>
 #include <ParticleSolvers/FLIP/FLIP2DData.h>
 
@@ -89,8 +89,8 @@ protected:
     std::function<Real(const Vec2r&, const Array2r&)> m_InterpolateValue = nullptr;
     std::function<Real(const Vec2r&)>                 m_WeightKernel     = nullptr;
 
-    Grid2DHashing m_Grid;
-    PCGSolver     m_PCGSolver;
+    Grid2r    m_Grid;
+    PCGSolver m_PCGSolver;
 };
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 };  // end namespace ParticleSolvers

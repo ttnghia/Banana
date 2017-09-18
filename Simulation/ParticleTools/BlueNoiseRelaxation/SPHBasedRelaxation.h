@@ -20,7 +20,7 @@
 #include <Banana/Setup.h>
 #include <Banana/Array/Array.h>
 #include <Banana/Utils/Logger.h>
-#include <Banana/Grid/Grid3D.h>
+#include <Banana/Grid/Grid.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana

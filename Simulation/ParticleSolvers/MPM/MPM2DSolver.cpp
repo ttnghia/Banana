@@ -37,7 +37,7 @@ void MPM2DSolver::makeReady()
                                m_SimParams->printParams(m_Logger);
 
                                m_Grid.setGrid(m_SimParams->domainBMin, m_SimParams->domainBMax, m_SimParams->cellSize);
-                               gridData().resize(m_Grid.getNumNodes());
+                               gridData().resize(m_Grid.getNNodes());
 
                                //m_PCGSolver.setSolverParameters(m_SimParams->CGRelativeTolerance, m_SimParams->maxCGIteration);
                                //m_PCGSolver.setPreconditioners(PCGSolver::MICCL0_SYMMETRIC);
@@ -703,7 +703,7 @@ void MPM2DSolver::constrainGridVelocity(Real timestep)
     Vec2r delta_scale = Vec2r(timestep);
     delta_scale /= m_SimParams->cellSize;
 
-    ParallelFuncs::parallel_for<UInt>(m_Grid.getNumNodes(),
+    ParallelFuncs::parallel_for<UInt>(m_Grid.getNNodes(),
                                       [&](UInt x, UInt y)
                                       {
                                           //Check to see if this node needs to be computed
@@ -717,7 +717,7 @@ void MPM2DSolver::constrainGridVelocity(Real timestep)
 
                                               for(UInt i = 0; i < solverDimension(); ++i)
                                               {
-                                                  if(new_pos[i] < Real(m_SimParams->kernelSpan) || new_pos[i] > Real(m_Grid.getNumNodes()[i] - m_SimParams->kernelSpan - 1))
+                                                  if(new_pos[i] < Real(m_SimParams->kernelSpan) || new_pos[i] > Real(m_Grid.getNNodes()[i] - m_SimParams->kernelSpan - 1))
                                                   {
                                                       velocity_new[i] = 0;
                                                       velocity_new[solverDimension() - i - 1] *= m_SimParams->boundaryRestitution;
@@ -744,7 +744,7 @@ void MPM2DSolver::constrainParticleVelocity(Real timestep)
                                           //Left border, right border
                                           for(UInt i = 0; i < solverDimension(); ++i)
                                           {
-                                              if(new_pos[i] < Real(m_SimParams->kernelSpan - 1) || new_pos[0] > Real(m_Grid.getNumNodes()[i] - m_SimParams->kernelSpan))
+                                              if(new_pos[i] < Real(m_SimParams->kernelSpan - 1) || new_pos[0] > Real(m_Grid.getNNodes()[i] - m_SimParams->kernelSpan))
                                               {
                                                   pVel[i] *= -m_SimParams->boundaryRestitution;
                                                   velChanged = true;

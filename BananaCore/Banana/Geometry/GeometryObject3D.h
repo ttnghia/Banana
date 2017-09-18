@@ -20,7 +20,7 @@
 #include <Banana/Setup.h>
 #include <Banana/Utils/MathHelpers.h>
 #include <Banana/Utils/NumberHelpers.h>
-#include <Banana/Grid/Grid3D.h>
+#include <Banana/Grid/Grid.h>
 #include <Banana/Array/Array.h>
 #include <Banana/Array/ArrayHelpers.h>
 #include <Banana/Geometry/MeshLoader.h>
@@ -425,7 +425,7 @@ protected:
 
     Real    m_Step      = Real(1.0 / 256.0);
     Real    m_Expanding = Real(0.1);
-    Grid3D  m_Grid3D;
+    Grid3r  m_Grid3D;
     Array3r m_SDFData;
 };
 

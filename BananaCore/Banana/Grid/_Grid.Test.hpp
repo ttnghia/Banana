@@ -17,22 +17,21 @@
 
 #pragma once
 
-#include <Banana/Grid/Grid3D.h>
-#include <Banana/Grid/Grid3DHashing.h>
+#include <Banana/Grid/Grid.h>
 
 #include <catch.hpp>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 TEST_CASE("Test Grid3D", "[Grid3D]")
 {
-    Banana::Grid3D grid1;
+    Banana::Grid<3, Real> grid1;
     (void)grid1;
 
     ////////////////////////////////////////////////////////////////////////////////
-    Banana::Grid3DHashing grid(Vec3r(0), Vec3r(1), 0.1f);
-    REQUIRE(grid.getNumCellX() == 10);
-    REQUIRE(grid.getNumCellY() == 10);
-    REQUIRE(grid.getNumCellZ() == 10);
+    Banana::Grid<3, Real> grid(Vec3r(0), Vec3r(1), 0.1f);
+    REQUIRE(grid.getNCells()[0] == 10);
+    REQUIRE(grid.getNCells()[1] == 10);
+    REQUIRE(grid.getNCells()[2] == 10);
 
     REQUIRE(grid.isValidCell(Vec3i(1, 2, 3)));
     REQUIRE(!grid.isValidCell(Vec3i(1, 2, -1)));

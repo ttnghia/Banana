@@ -60,15 +60,15 @@ void BoundaryObject2D::generateSignedDistanceField(const Vec2r& domainBMin, cons
     {
         if(m_SDF.loadFromFile(m_SDFFile))
         {
-            __BNN_ASSERT(m_SDF.equalSize(m_Grid.getNumNodes()));
+            __BNN_ASSERT(m_SDF.equalSize(m_Grid.getNNodes()));
             m_bSDFGenerated = true;
             return;
         }
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    m_SDF.resize(m_Grid.getNumNodes());
-    ParallelFuncs::parallel_for<UInt>(m_Grid.getNumNodes(),
+    m_SDF.resize(m_Grid.getNNodes());
+    ParallelFuncs::parallel_for<UInt>(m_Grid.getNNodes(),
                                       [&](UInt i, UInt j)
                                       {
                                           m_SDF(i, j) = signedDistance(m_Grid.getWorldCoordinate(i, j));
@@ -114,15 +114,15 @@ void BoundaryObject3D::generateSignedDistanceField(const Vec3r& domainBMin, cons
     {
         if(m_SDF.loadFromFile(m_SDFFile))
         {
-            __BNN_ASSERT(m_SDF.equalSize(m_Grid.getNumNodes()));
+            __BNN_ASSERT(m_SDF.equalSize(m_Grid.getNNodes()));
             m_bSDFGenerated = true;
             return;
         }
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    m_SDF.resize(m_Grid.getNumNodes());
-    ParallelFuncs::parallel_for<UInt>(m_Grid.getNumNodes(),
+    m_SDF.resize(m_Grid.getNNodes());
+    ParallelFuncs::parallel_for<UInt>(m_Grid.getNNodes(),
                                       [&](UInt i, UInt j, UInt k)
                                       {
                                           m_SDF(i, j, k) = signedDistance(m_Grid.getWorldCoordinate(i, j, k));
