@@ -26,16 +26,16 @@ namespace Banana
 namespace SimulationObjects
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void BoxBoundary3D::setParameters(const nlohmann::json& jParams)
+void BoxBoundary3D::parseParameters()
 {
-    __BNN_ASSERT(jParams.find("BoxMin") != jParams.end());
-    __BNN_ASSERT(jParams.find("BoxMax") != jParams.end());
+    __BNN_ASSERT(m_jParams.find("BoxMin") != m_jParams.end());
+    __BNN_ASSERT(m_jParams.find("BoxMax") != m_jParams.end());
 
     Vec3r bMin, bMax;
     Real  offset = 1e-5;
-    JSONHelpers::readVector(jParams, bMin, "BoxMin");
-    JSONHelpers::readVector(jParams, bMax, "BoxMax");
-    JSONHelpers::readValue(jParams, offset, "Offset");
+    JSONHelpers::readVector(m_jParams, bMin, "BoxMin");
+    JSONHelpers::readVector(m_jParams, bMax, "BoxMax");
+    JSONHelpers::readValue(m_jParams, offset, "Offset");
 
     bMin += Vec3r(offset);
     bMax -= Vec3r(offset);

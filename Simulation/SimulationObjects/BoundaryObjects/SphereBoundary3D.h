@@ -32,7 +32,7 @@ public:
     SphereBoundary3D() : BoundaryObject3D("Sphere") {}
     SphereBoundary3D(const Vec3r& center, Real radius) : BoundaryObject3D("Sphere") { setSphere(center, radius); }
 
-    virtual void setParameters(const nlohmann::json& jParams) override;
+    virtual void parseParameters() override;
     virtual void generateBoundaryParticles(Real spacing, Int numBDLayers = 2, bool saveCache = false) override;
     virtual bool constrainToBoundary(Vec3r& ppos, Vec3r& pvel) override;
 

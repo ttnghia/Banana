@@ -34,8 +34,8 @@
 #include <ParticleSolvers/SceneLoader.h>
 
 #include <SimulationObjects/BoundaryObjects/BoundaryObjects>
-#include <SimulationObjects/ParticleObjects/ParticleObjects>
-#include <SimulationObjects/ParticleEmitters/ParticleEmitters>
+#include <SimulationObjects/ParticleObject.h>
+#include <SimulationObjects/ParticleEmitter.h>
 
 #include <tbb/tbb.h>
 #include <json.hpp>
@@ -58,7 +58,7 @@ public:
     virtual ~ParticleSolver() { Logger::shutdown(); }
 
     const UniquePtr<GlobalParameters>& getGlobalParams() const noexcept { return m_GlobalParams; }
-    const SharedPtr<Logger>&           getLogger() const noexcept { return m_Logger; }
+    const SharedPtr<Logger>& getLogger() const noexcept { return m_Logger; }
 
     void loadScene(const String& sceneFile);
     void setupLogger();
@@ -98,8 +98,8 @@ protected:
 class ParticleSolver2D : public ParticleSolver
 {
 public:
-    virtual Vec_Vec2r&    getParticlePositions()  = 0;
-    virtual Vec_Vec2r&    getParticleVelocities() = 0;
+    virtual Vec_Vec2r& getParticlePositions()  = 0;
+    virtual Vec_Vec2r& getParticleVelocities() = 0;
     static constexpr UInt solverDimension() noexcept { return 2u; }
 
 protected:
@@ -117,8 +117,8 @@ protected:
 class ParticleSolver3D : public ParticleSolver
 {
 public:
-    virtual Vec_Vec3r&    getParticlePositions()  = 0;
-    virtual Vec_Vec3r&    getParticleVelocities() = 0;
+    virtual Vec_Vec3r& getParticlePositions()  = 0;
+    virtual Vec_Vec3r& getParticleVelocities() = 0;
     static constexpr UInt solverDimension() noexcept { return 3u; }
 
 protected:

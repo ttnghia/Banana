@@ -23,6 +23,8 @@
 #include <Banana/Geometry/GeometryObjectFactory.h>
 #include <ParticleTools/ParticleHelpers.h>
 
+#include <json.hpp>
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
 {
@@ -30,7 +32,39 @@ namespace Banana
 namespace SimulationObjects
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class ParticleObject2D
+class ParticleObject
+{
+public:
+    ParticleObject() = default;
+
+    String&  name() { return m_MeshFile; }
+    String&  meshFile() { return m_MeshFile; }
+    String&  particleFile() { return m_ParticleFile; }
+    JParams& parameters() { return m_jParams; }
+
+    ////////////////////////////////////////////////////////////////////////////////
+    template<class VectorType> void generateParticles(Vector<VectorType>& positions, Vector<VectorType>& velocities, Real particleRadius, bool bUseCache = true);
+
+    virtual void makeReady() {} // todo: need this?
+    virtual void advanceFrame() {}
+
+protected:
+    template<class VectorType> void generatePositions(Vector<VectorType>& positions, Real particleRadius);
+    template<class VectorType> void relaxPositions(Vector<VectorType>& positions, Real particleRadius);
+    template<class VectorType> void generateVelocities(Vector<VectorType>& positions, Vector<VectorType>& velocities);
+
+    String m_ObjName      = String("NoName");
+    String m_MeshFile     = String("");
+    String m_ParticleFile = String("");
+
+    bool m_bDynamics     = false;
+    bool m_bSDFGenerated = false;
+
+    JParams m_jParams;
+};
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+class ParticleObject2D : public ParticleObject
 {
 public:
     using GeometryPtr = SharedPtr<GeometryObject2D::GeometryObject>;
@@ -38,82 +72,29 @@ public:
 
     ParticleObject2D() = delete;
     ParticleObject2D(const String& geometryType) : m_GeometryObj(GeometryObjectFactory::createGeometry2D(geometryType)) { __BNN_ASSERT(m_GeometryObj != nullptr); }
-
     GeometryPtr& getGeometry() { return m_GeometryObj; }
 
-    String& meshFile() { return m_MeshFile; }
-    String& particleFile() { return m_ParticleFile; }
-
-    virtual void advanceFrame() {}
-
 protected:
-    String m_MeshFile     = "";
-    String m_ParticleFile = "";
-
     GeometryPtr m_GeometryObj = nullptr;
 };
 
-class ParticleObject3D
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+class ParticleObject3D : public ParticleObject
 {
 public:
     using GeometryPtr = SharedPtr<GeometryObject3D::GeometryObject>;
     static constexpr UInt objDimension() noexcept { return 3u; }
 
-
     ParticleObject3D() = delete;
     ParticleObject3D(const String& geometryType) : m_GeometryObj(GeometryObjectFactory::createGeometry3D(geometryType)) { __BNN_ASSERT(m_GeometryObj != nullptr); }
     GeometryPtr& getGeometry() { return m_GeometryObj; }
 
-    virtual void advanceFrame() {}
-
+protected:
     GeometryPtr m_GeometryObj = nullptr;
-
-    String& name() { return m_ObjName; }
-    String& meshFile() { return m_MeshFile; }
-    String& particleFile() { return m_ParticleFile; }
-    Real&   particleRadius() { return m_ParticleRadius; }
-    Real&   samplingJitter() { return m_SamplingJitter; }
-    bool&   relaxPosition() { return m_bRelaxPosition; }
-
-    ParticleHelpers::RelaxationMethod& relaxPositionMethod() { return m_RelaxMethod; }
-
-    Vec3r& translation() { return m_Translation; }
-    Vec3r& rotation() { return m_Rotation; }
-    Vec3r& scale() { return m_Scale; }
-
-protected:
-    const Vec3r& aabbMin() const noexcept { return m_AABBMin; }
-    const Vec3r& aabbMax() const noexcept { return m_AABBMax; }
-    const Vec3r& objCenter() const noexcept { return m_ObjCenter; }
-
-    void             transformParticles(const Vec3r& translation, const Vec3r& rotation) { ParticleHelpers::transform(m_Particles, translation, rotation); }
-    UInt             getNumParticles() const noexcept { return static_cast<UInt>(m_Particles.size()); }
-    const Vec_Vec3r& getParticles() const noexcept { return m_Particles; }
-
-    void makeObj();
-
-protected:
-    void         computeAABB();
-    virtual void generateParticles() = 0;
-
-    String m_ObjName      = "NoName";
-    String m_MeshFile     = "";
-    String m_ParticleFile = "";
-
-    Vec3r m_Translation = Vec3r(0);
-    Vec3r m_Rotation    = Vec3r(0);
-    Vec3r m_Scale       = Vec3r(1);
-
-    Vec3r m_AABBMin   = Vec3r(Huge);
-    Vec3r m_AABBMax   = Vec3r(Tiny);
-    Vec3r m_ObjCenter = Vec3r(0);
-
-    Vec_Vec3r                         m_Particles;
-    Real                              m_ParticleRadius = 0;
-    Real                              m_SamplingJitter = Real(0.1);
-    bool                              m_bRelaxPosition = false;
-    ParticleHelpers::RelaxationMethod m_RelaxMethod    = ParticleHelpers::RelaxationMethod::SPHBasedRelaxationMethod;
 };
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#include <SimulationObjects/ParticleObject.hpp>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace SimulationObjects

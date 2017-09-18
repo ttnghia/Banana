@@ -20,8 +20,8 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 #include <SimulationObjects/BoundaryObjects/BoundaryObjects>
-#include <SimulationObjects/ParticleObjects/ParticleObjects>
-#include <SimulationObjects/ParticleEmitters/ParticleEmitters>
+#include <SimulationObjects/ParticleObject.h>
+#include <SimulationObjects/ParticleEmitter.h>
 
 #include <cassert>
 #include <locale>

@@ -22,6 +22,7 @@
 #include <Banana/Grid/Grid2D.h>
 #include <Banana/Grid/Grid3D.h>
 #include <Banana/Utils/NumberHelpers.h>
+#include <Banana/Utils/FileHelpers.h>
 #include <Banana/Utils/JSONHelpers.h>
 #include <Banana/Geometry/GeometryObject2D.h>
 #include <Banana/Geometry/GeometryObject3D.h>
@@ -46,21 +47,25 @@ class BoundaryObject
 {
 public:
     BoundaryObject() = default;
-    Real& margin() { return m_Margin; }
-    Real& restitution() { return m_RestitutionCoeff; }
-    bool& isDynamic() { return m_bDynamics; }
 
+    String& name() { return m_MeshFile; }
     String& meshFile() { return m_MeshFile; }
     String& particleFile() { return m_ParticleFile; }
     String& SDFFile() { return m_SDFFile; }
 
+    Real& margin() { return m_Margin; }
+    Real& restitution() { return m_RestitutionCoeff; }
+    bool& isDynamic() { return m_bDynamics; }
+    void  setParameters(const nlohmann::json& jParams) { m_jParams = jParams; parseParameters(); }
+
     ////////////////////////////////////////////////////////////////////////////////
-    virtual void makeReady() {}
+    virtual void makeReady() {} // todo: need this?
     virtual void advanceFrame() {}
-    virtual void setParameters(const nlohmann::json& jParams) /*= 0;*/ {}
-    virtual void generateBoundaryParticles(Real spacing, int numBDLayers = 2, bool saveCache = false) { __BNN_UNIMPLEMENTED_FUNC }
+    virtual void generateBoundaryParticles(Real spacing, int numBDLayers = 2, bool useCache = true) { __BNN_UNIMPLEMENTED_FUNC }
 
 protected:
+    virtual void parseParameters() { }
+
     Real m_Margin           = Real(0.0);
     Real m_RestitutionCoeff = ParticleSolverConstants::DefaultBoundaryRestitution;
 
@@ -70,8 +75,9 @@ protected:
 
     bool m_bDynamics     = false;
     bool m_bSDFGenerated = false;
-};
 
+    JParams m_jParams;
+};
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 class BoundaryObject2D : public BoundaryObject
@@ -90,7 +96,7 @@ public:
 
     Real  signedDistance(const Vec2r& ppos, bool bUseCache = true);
     Vec2r gradientSignedDistance(const Vec2r& ppos, Real dxyz = Real(1.0 / 512.0), bool bUseCache = true);
-    void  generateSignedDistanceField(const Vec2r& domainBMin, const Vec2r& domainBMax, Real sdfCellSize = Real(1.0 / 512.0), bool bUseFile = false);
+    void  generateSignedDistanceField(const Vec2r& domainBMin, const Vec2r& domainBMax, Real sdfCellSize = Real(1.0 / 512.0), bool bUseCache = false);
 
     virtual bool constrainToBoundary(Vec2r& ppos, Vec2r& pvel) /*= 0;*/ { return true; }
 
@@ -118,7 +124,7 @@ public:
 
     Real  signedDistance(const Vec3r& ppos, bool bUseCache = true);
     Vec3r gradientSignedDistance(const Vec3r& ppos, Real dxyz = Real(1.0 / 256.0), bool bUseCache = true);
-    void  generateSignedDistanceField(const Vec3r& domainBMin, const Vec3r& domainBMax, Real sdfCellSize = Real(1.0 / 512.0), bool bUseFile = false);
+    void  generateSignedDistanceField(const Vec3r& domainBMin, const Vec3r& domainBMax, Real sdfCellSize = Real(1.0 / 512.0), bool bUseCache = false);
 
     virtual bool constrainToBoundary(Vec3r& ppos, Vec3r& pvel) /*= 0;*/ { return true; }
 

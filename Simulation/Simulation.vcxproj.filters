@@ -129,54 +129,6 @@
     <ClInclude Include="SimulationObjects\BoundaryObjects\BoundaryObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SimulationObjects\ParticleEmitters\BoxEmitter.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SimulationObjects\ParticleEmitters\CylinderEmitter.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SimulationObjects\ParticleEmitters\HollowSphereEmitter.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SimulationObjects\ParticleEmitters\MeshObjEmitter.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SimulationObjects\ParticleEmitters\ParticleEmitter.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SimulationObjects\ParticleEmitters\SphereEmitter.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SimulationObjects\ParticleEmitters\TorusEmitter.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SimulationObjects\ParticleObjects\BowlSampler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SimulationObjects\ParticleObjects\BoxObject.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SimulationObjects\ParticleObjects\CylinderSampler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SimulationObjects\ParticleObjects\HollowSphereSampler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SimulationObjects\ParticleObjects\MeshObjSampler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SimulationObjects\ParticleObjects\ParticleObject.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SimulationObjects\ParticleObjects\ParticleObjects">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SimulationObjects\ParticleObjects\SphereSampler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SimulationObjects\ParticleObjects\TorusSampler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ParticleSolvers\MPM\MPM3DSolver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -204,9 +156,6 @@
     <ClInclude Include="ParticleSolvers\SceneLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SimulationObjects\ParticleEmitters\ParticleEmitters">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="SimulationObjects\SimulationObjectFactory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -217,6 +166,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ParticleTools\PoissonDiskSampler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SimulationObjects\ParticleObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SimulationObjects\ParticleObject.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SimulationObjects\ParticleEmitter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -237,9 +195,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ParticleTools\ParticleHelpers.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SimulationObjects\ParticleObjects\ParticleObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ParticleSolvers\MPM\MPM2DSolver.cpp">
@@ -264,6 +219,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="SimulationObjects\BoundaryObjects\SphereBoundary3D.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SimulationObjects\ParticleObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

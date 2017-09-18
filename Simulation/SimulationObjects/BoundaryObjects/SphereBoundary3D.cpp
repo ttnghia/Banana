@@ -24,15 +24,15 @@ namespace Banana
 namespace SimulationObjects
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void SphereBoundary3D::setParameters(const nlohmann::json& jParams)
+void SphereBoundary3D::parseParameters()
 {
-    __BNN_ASSERT(jParams.find("Center") != jParams.end());
-    __BNN_ASSERT(jParams.find("Radius") != jParams.end());
+    __BNN_ASSERT(m_jParams.find("Center") != m_jParams.end());
+    __BNN_ASSERT(m_jParams.find("Radius") != m_jParams.end());
 
     Vec3r center;
     Real  radius;
-    JSONHelpers::readVector(jParams, center, "Center");
-    JSONHelpers::readValue(jParams, radius, "Radius");
+    JSONHelpers::readVector(m_jParams, center, "Center");
+    JSONHelpers::readValue(m_jParams, radius, "Radius");
 
     setSphere(center, radius);
 }

@@ -14,57 +14,47 @@
 //
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-
-#pragma once
-#include <ParticleTools/ParticleObjects/ParticleObjectInterface.h>
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace Banana
+template<class VectorType>
+void ParticleObject::generateParticles(Vector<VectorType>& positions, Vector<VectorType>& velocities, Real particleRadius, bool bUseCache /*= true*/)
 {
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-class BoxObject : public ParticleObject<Real>
-{
-public:
-    BoxObject()  = default;
-    ~BoxObject() = default;
-
-    Vec3r& boxMin() { return m_BoxMin; }
-    Vec3r& boxMax() { return m_BoxMax; }
-
-protected:
-    virtual void generateParticles();
-
-    Vec3r m_BoxMin = Vec3r(0);
-    Vec3r m_BoxMax = Vec3r(0);
-};
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-// Implementation
-template<class Real>
-void Banana::BoxObject<Real>::generateParticles()
-{
-    Real  spacing = 2.0 * m_ParticleRadius;
-    Vec3i grid    = ParticleHelpers::createGrid(m_BoxMin, m_BoxMax, spacing);
-    Vec3r minPos  = m_BoxMin + Vec3r(m_ParticleRadius);
-    srand(static_cast<unsigned int>(time(NULL)));
-
-    for(int x = 0; x < grid[0]; ++x)
+    if(bUseCache && !m_ParticleFile.empty() && FileHelpers::fileExisted(m_ParticleFile))
     {
-        for(int y = 0; y < grid[1]; ++y)
-        {
-            for(int z = 0; z < grid[2]; ++z)
-            {
-                Vec3r ppos = minPos + spacing * Vec3r(x, y, z);
-                ParticleHelpers::jitter(ppos, m_SamplingJitter * m_ParticleRadius);
-                ParticleHelpers::clamp(ppos, m_BoxMin, m_BoxMax, m_ParticleRadius);
+        positions.resize(0);
+        ParticleHelpers::loadBinaryAndDecompress(m_ParticleFile, positions, m_ParticleRadius);
+        generateVelocities();
 
-                m_Particles.push_back(ppos);
-            }
-        }
+        return;
     }
+
+    ////////////////////////////////////////////////////////////////////////////////
+    generatePositions(positions, particleRadius);
+    relaxPositions(positions, particleRadius);
+    generateVelocities(positions, velocities);
+    ////////////////////////////////////////////////////////////////////////////////
+
+    if(bUseCache && !m_ParticleFile.empty())
+        ParticleHelpers::compressAndSaveBinary(m_ParticleFile, positions, m_ParticleRadius);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-} // end namespace Banana
+template<class VectorType>
+void generatePositions(Vector<VectorType>& positions, Real particleRadius)
+{
+    //
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class VectorType>
+void relaxPositions(Vector<VectorType>& positions, Real particleRadius)
+{
+    //
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class VectorType>
+void generateVelocities(Vector<VectorType>& positions, Vector<VectorType>& velocities)
+{
+    VectorType initVelocity = VectorType(0);
+    JSONHelpers::readVector(m_jParams, initVelocity, "InitialVelocity");
+    velocities.resize(positions.size(), initVelocity);
+}

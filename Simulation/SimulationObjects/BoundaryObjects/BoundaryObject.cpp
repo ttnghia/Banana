@@ -50,13 +50,13 @@ Vec2r BoundaryObject2D::gradientSignedDistance(const Vec2r& ppos, Real dxyz, boo
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void BoundaryObject2D::generateSignedDistanceField(const Vec2r& domainBMin, const Vec2r& domainBMax, Real sdfCellSize /*= Real(1.0 / 512.0)*/, bool bUseFile /*= false*/)
+void BoundaryObject2D::generateSignedDistanceField(const Vec2r& domainBMin, const Vec2r& domainBMax, Real sdfCellSize /*= Real(1.0 / 512.0)*/, bool bUseCache /*= false*/)
 {
     m_Grid.setGrid(domainBMin, domainBMax, sdfCellSize);
 
     ////////////////////////////////////////////////////////////////////////////////
     // load sdf from file
-    if(bUseFile && !m_SDFFile.empty() && FileHelpers::fileExisted(m_SDFFile))
+    if(bUseCache && !m_SDFFile.empty() && FileHelpers::fileExisted(m_SDFFile))
     {
         if(m_SDF.loadFromFile(m_SDFFile))
         {
@@ -77,7 +77,7 @@ void BoundaryObject2D::generateSignedDistanceField(const Vec2r& domainBMin, cons
 
     ////////////////////////////////////////////////////////////////////////////////
     // save cache sdf
-    if(bUseFile && !m_SDFFile.empty())
+    if(bUseCache && !m_SDFFile.empty())
         m_SDF.saveToFile(m_SDFFile);
 }
 
@@ -104,13 +104,13 @@ Vec3r BoundaryObject3D::gradientSignedDistance(const Vec3r& ppos, Real dxyz, boo
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void BoundaryObject3D::generateSignedDistanceField(const Vec3r& domainBMin, const Vec3r& domainBMax, Real sdfCellSize /*= Real(1.0 / 512.0)*/, bool bUseFile /*= false*/)
+void BoundaryObject3D::generateSignedDistanceField(const Vec3r& domainBMin, const Vec3r& domainBMax, Real sdfCellSize /*= Real(1.0 / 512.0)*/, bool bUseCache /*= false*/)
 {
     m_Grid.setGrid(domainBMin, domainBMax, sdfCellSize);
 
     ////////////////////////////////////////////////////////////////////////////////
     // load sdf from file
-    if(bUseFile && !m_SDFFile.empty() && FileHelpers::fileExisted(m_SDFFile))
+    if(bUseCache && !m_SDFFile.empty() && FileHelpers::fileExisted(m_SDFFile))
     {
         if(m_SDF.loadFromFile(m_SDFFile))
         {
@@ -131,7 +131,7 @@ void BoundaryObject3D::generateSignedDistanceField(const Vec3r& domainBMin, cons
 
     ////////////////////////////////////////////////////////////////////////////////
     // save cache sdf
-    if(bUseFile && !m_SDFFile.empty())
+    if(bUseCache && !m_SDFFile.empty())
         m_SDF.saveToFile(m_SDFFile);
 }
 

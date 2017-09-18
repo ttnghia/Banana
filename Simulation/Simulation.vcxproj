@@ -89,6 +89,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_WINDOWS;UNICODE;WIN32;WIN64;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -158,29 +159,15 @@
     <ClInclude Include="SimulationObjects\BoundaryObjects\BoundaryObject.h" />
     <ClInclude Include="SimulationObjects\BoundaryObjects\SphereBoundary2D.h" />
     <ClInclude Include="SimulationObjects\BoundaryObjects\SphereBoundary3D.h" />
+    <ClInclude Include="SimulationObjects\ParticleObject.hpp" />
     <ClInclude Include="SimulationObjects\SimulationObjectFactory.h" />
     <ClInclude Include="SimulationObjects\BoundaryObjects\BoundaryObjects" />
     <ClInclude Include="SimulationObjects\BoundaryObjects\BoxBoundary2D.h" />
     <ClInclude Include="SimulationObjects\BoundaryObjects\BoxBoundary3D.h" />
-    <ClInclude Include="SimulationObjects\ParticleEmitters\BoxEmitter.h" />
-    <ClInclude Include="SimulationObjects\ParticleEmitters\CylinderEmitter.h" />
-    <ClInclude Include="SimulationObjects\ParticleEmitters\HollowSphereEmitter.h" />
     <ClInclude Include="ParticleTools\BlueNoiseRelaxation\LloydRelaxation.Impl.hpp" />
     <ClInclude Include="ParticleTools\ParticleHelpers.h" />
-    <ClInclude Include="SimulationObjects\ParticleEmitters\ParticleEmitters" />
-    <ClInclude Include="SimulationObjects\ParticleObjects\BowlSampler.h" />
-    <ClInclude Include="SimulationObjects\ParticleObjects\BoxObject.h" />
-    <ClInclude Include="SimulationObjects\ParticleObjects\CylinderSampler.h" />
-    <ClInclude Include="SimulationObjects\ParticleObjects\HollowSphereSampler.h" />
-    <ClInclude Include="SimulationObjects\ParticleObjects\MeshObjSampler.h" />
-    <ClInclude Include="SimulationObjects\ParticleObjects\ParticleObject.h" />
-    <ClInclude Include="SimulationObjects\ParticleObjects\ParticleObjects" />
-    <ClInclude Include="SimulationObjects\ParticleObjects\SphereSampler.h" />
-    <ClInclude Include="SimulationObjects\ParticleEmitters\MeshObjEmitter.h" />
-    <ClInclude Include="SimulationObjects\ParticleEmitters\ParticleEmitter.h" />
-    <ClInclude Include="SimulationObjects\ParticleEmitters\SphereEmitter.h" />
-    <ClInclude Include="SimulationObjects\ParticleEmitters\TorusEmitter.h" />
-    <ClInclude Include="SimulationObjects\ParticleObjects\TorusSampler.h" />
+    <ClInclude Include="SimulationObjects\ParticleObject.h" />
+    <ClInclude Include="SimulationObjects\ParticleEmitter.h" />
     <ClInclude Include="ParticleTools\BlueNoiseRelaxation\SPHBasedRelaxation.h" />
   </ItemGroup>
   <ItemGroup>
@@ -197,7 +184,7 @@
     <ClCompile Include="SimulationObjects\BoundaryObjects\BoxBoundary2D.cpp" />
     <ClCompile Include="SimulationObjects\BoundaryObjects\BoxBoundary3D.cpp" />
     <ClCompile Include="SimulationObjects\BoundaryObjects\SphereBoundary3D.cpp" />
-    <ClCompile Include="SimulationObjects\ParticleObjects\ParticleObject.cpp" />
+    <ClCompile Include="SimulationObjects\ParticleObject.cpp" />
     <ClCompile Include="SimulationObjects\SimulationObjectFactory.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

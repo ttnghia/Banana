@@ -19,6 +19,11 @@ QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
+include(../../../BananaCore/BananaCore.pri)
+include(../../../QtAppHelpers/QtAppHelpers.pri)
+include(../../../OpenGLHelpers/OpenGLHelpers.pri)
+include(../../../Simulation/Simulation.pri)
+
 TARGET = ParticleSolverTest
 TEMPLATE = app
 CONFIG += console
@@ -27,10 +32,6 @@ CONFIG += console
 
 INCLUDEPATH += $$PWD/Include
 
-include(../../../BananaCore/BananaCore.pri)
-include(../../../QtAppHelpers/QtAppHelpers.pri)
-include(../../../OpenGLHelpers/OpenGLHelpers.pri)
-include(../../../Simulation/Simulation.pri)
 
 HEADERS += \
     Include/MainWindow.h \
