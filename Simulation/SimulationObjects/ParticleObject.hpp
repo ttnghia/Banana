@@ -41,6 +41,7 @@ template<class VectorType>
 void generatePositions(Vector<VectorType>& positions, Real particleRadius)
 {
     // Firstly, generate a signed distance field
+    Grid<VectorType::length(), Real> grid;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

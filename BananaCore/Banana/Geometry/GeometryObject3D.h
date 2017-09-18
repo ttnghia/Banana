@@ -25,6 +25,7 @@
 #include <Banana/Array/ArrayHelpers.h>
 #include <Banana/Geometry/MeshLoader.h>
 
+#if 0
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
 {
@@ -39,51 +40,51 @@ namespace GeometryObject3D
 class GeometryObject
 {
 public:
-    virtual String name()                            = 0;
-    virtual Real   signedDistance(const Vec3r& ppos) = 0;
+    virtual String   name()                                        = 0;
+    virtual RealType signedDistance(const VecX<N, RealType>& ppos) = 0;
 
-    Vec3r gradientSignedDistance(const Vec3r& ppos, Real dxyz = Real(1e-4))
+    VecX<N, RealType> gradientSignedDistance(const VecX<N, RealType>& ppos, RealType dxyz = RealType(1e-4))
     {
-        Real v000 = signedDistance(Vec3r(ppos[0] - dxyz, ppos[1] - dxyz, ppos[2] - dxyz));
-        Real v001 = signedDistance(Vec3r(ppos[0] - dxyz, ppos[1] - dxyz, ppos[2] + dxyz));
-        Real v010 = signedDistance(Vec3r(ppos[0] - dxyz, ppos[1] + dxyz, ppos[2] - dxyz));
-        Real v011 = signedDistance(Vec3r(ppos[0] - dxyz, ppos[1] + dxyz, ppos[2] + dxyz));
+        RealType v000 = signedDistance(VecX<N, RealType>(ppos[0] - dxyz, ppos[1] - dxyz, ppos[2] - dxyz));
+        RealType v001 = signedDistance(VecX<N, RealType>(ppos[0] - dxyz, ppos[1] - dxyz, ppos[2] + dxyz));
+        RealType v010 = signedDistance(VecX<N, RealType>(ppos[0] - dxyz, ppos[1] + dxyz, ppos[2] - dxyz));
+        RealType v011 = signedDistance(VecX<N, RealType>(ppos[0] - dxyz, ppos[1] + dxyz, ppos[2] + dxyz));
 
-        Real v100 = signedDistance(Vec3r(ppos[0] + dxyz, ppos[1] - dxyz, ppos[2] - dxyz));
-        Real v101 = signedDistance(Vec3r(ppos[0] + dxyz, ppos[1] - dxyz, ppos[2] + dxyz));
-        Real v110 = signedDistance(Vec3r(ppos[0] + dxyz, ppos[1] + dxyz, ppos[2] - dxyz));
-        Real v111 = signedDistance(Vec3r(ppos[0] + dxyz, ppos[1] + dxyz, ppos[2] + dxyz));
+        RealType v100 = signedDistance(VecX<N, RealType>(ppos[0] + dxyz, ppos[1] - dxyz, ppos[2] - dxyz));
+        RealType v101 = signedDistance(VecX<N, RealType>(ppos[0] + dxyz, ppos[1] - dxyz, ppos[2] + dxyz));
+        RealType v110 = signedDistance(VecX<N, RealType>(ppos[0] + dxyz, ppos[1] + dxyz, ppos[2] - dxyz));
+        RealType v111 = signedDistance(VecX<N, RealType>(ppos[0] + dxyz, ppos[1] + dxyz, ppos[2] + dxyz));
 
-        Real ddx00 = v100 - v000;
-        Real ddx10 = v110 - v010;
-        Real ddx01 = v101 - v001;
-        Real ddx11 = v111 - v011;
+        RealType ddx00 = v100 - v000;
+        RealType ddx10 = v110 - v010;
+        RealType ddx01 = v101 - v001;
+        RealType ddx11 = v111 - v011;
 
-        Real ddy00 = v010 - v000;
-        Real ddy10 = v110 - v100;
-        Real ddy01 = v011 - v001;
-        Real ddy11 = v111 - v101;
+        RealType ddy00 = v010 - v000;
+        RealType ddy10 = v110 - v100;
+        RealType ddy01 = v011 - v001;
+        RealType ddy11 = v111 - v101;
 
-        Real ddz00 = v001 - v000;
-        Real ddz10 = v101 - v100;
-        Real ddz01 = v011 - v010;
-        Real ddz11 = v111 - v110;
+        RealType ddz00 = v001 - v000;
+        RealType ddz10 = v101 - v100;
+        RealType ddz01 = v011 - v010;
+        RealType ddz11 = v111 - v110;
 
-        return (Vec3r(ddx00, ddy00, ddz00) +
-                Vec3r(ddx01, ddy01, ddz01) +
-                Vec3r(ddx10, ddy10, ddz10) +
-                Vec3r(ddx11, ddy11, ddz11)) * Real(0.25);
+        return (VecX<N, RealType>(ddx00, ddy00, ddz00) +
+                VecX<N, RealType>(ddx01, ddy01, ddz01) +
+                VecX<N, RealType>(ddx10, ddy10, ddz10) +
+                VecX<N, RealType>(ddx11, ddy11, ddz11)) * RealType(0.25);
     }
 
-    bool         isInside(const Vec3r& ppos) { return signedDistance(ppos) < 0; }
-    bool         isInAABBBox(const Vec3r& ppos) { return signedDistance(ppos) < 0; }
-    const Vec3r& aabbBoxMin() const noexcept { return m_AABBBoxMin; }
-    const Vec3r& aabbBoxMax() const noexcept { return m_AABBBoxMax; }
-    const Vec3r& objCenter() const noexcept { return m_ObjCenter; }
+    bool                     isInside(const VecX<N, RealType>& ppos) { return signedDistance(ppos) < 0; }
+    bool                     isInAABBBox(const VecX<N, RealType>& ppos) { return signedDistance(ppos) < 0; }
+    const VecX<N, RealType>& aabbBoxMin() const noexcept { return m_AABBBoxMin; }
+    const VecX<N, RealType>& aabbBoxMax() const noexcept { return m_AABBBoxMax; }
+    const VecX<N, RealType>& objCenter() const noexcept { return m_ObjCenter; }
 
-    void translate(const Vec3r& translation) { m_Translation = translation; m_bTranslated = true; update(); }
-    void rotate(const Vec3r& angles) { m_Rotation = glm::eulerAngleYXZ(angles.y, angles.x, angles.z); m_bRotated = true; update(); }
-    void scale(const Vec3r& scaleVal) { m_Scale = scaleVal; m_bScaled = true; update(); }
+    void translate(const VecX<N, RealType>& translation) { m_Translation = translation; m_bTranslated = true; update(); }
+    void rotate(const VecX<N, RealType>& angles) { m_Rotation = glm::eulerAngleYXZ(angles.y, angles.x, angles.z); m_bRotated = true; update(); }
+    void scale(const VecX<N, RealType>& scaleVal) { m_Scale = scaleVal; m_bScaled = true; update(); }
 
     static constexpr UInt objDimension() noexcept { return 3u; }
 
@@ -92,24 +93,24 @@ protected:
     {
         m_InvTranslation = -m_Translation;
         m_InvRotation    = Mat3x3r(glm::inverse(m_Rotation));
-        m_InvScale       = Vec3r(1.0 / m_Scale[0], 1.0 / m_Scale[1], 1.0 / m_Scale[2]);
+        m_InvScale       = VecX<N, RealType>(1.0 / m_Scale[0], 1.0 / m_Scale[1], 1.0 / m_Scale[2]);
 
         m_AABBBoxMin = m_Rotation * (m_AABBBoxMin * m_Scale) + m_Translation;
         m_AABBBoxMax = m_Rotation * (m_AABBBoxMax * m_Scale) + m_Translation;
         m_ObjCenter  = m_Rotation * (m_ObjCenter * m_Scale) + m_Translation;
     }
 
-    Vec3r m_AABBBoxMin = Vec3r(-1.0);
-    Vec3r m_AABBBoxMax = Vec3r(1.0);
-    Vec3r m_ObjCenter  = Vec3r(0);
+    VecX<N, RealType> m_AABBBoxMin = VecX<N, RealType>(-1.0);
+    VecX<N, RealType> m_AABBBoxMax = VecX<N, RealType>(1.0);
+    VecX<N, RealType> m_ObjCenter  = VecX<N, RealType>(0);
 
-    Vec3r   m_Translation = Vec3r(0);
-    Mat3x3r m_Rotation    = Mat3x3r(1.0);
-    Vec3r   m_Scale       = Vec3r(1.0);
+    VecX<N, RealType> m_Translation = VecX<N, RealType>(0);
+    Mat3x3r           m_Rotation    = Mat3x3r(1.0);
+    VecX<N, RealType> m_Scale       = VecX<N, RealType>(1.0);
 
-    Vec3r   m_InvTranslation = Vec3r(0);
-    Mat3x3r m_InvRotation    = Mat3x3r(1.0);
-    Vec3r   m_InvScale       = Vec3r(1.0);
+    VecX<N, RealType> m_InvTranslation = VecX<N, RealType>(0);
+    Mat3x3r           m_InvRotation    = Mat3x3r(1.0);
+    VecX<N, RealType> m_InvScale       = VecX<N, RealType>(1.0);
 
     bool m_bTranslated = false;
     bool m_bRotated    = false;
@@ -124,8 +125,8 @@ protected:
 class BoxObject : public GeometryObject
 {
 public:
-    virtual String name() override { return "BoxObject"; };
-    virtual Real   signedDistance(const Vec3r& ppos) override
+    virtual String                name() override { return "BoxObject"; };
+    __BNN_INLINE virtual RealType signedDistance(const VecX<N, RealType>& ppos, bool bNegativeInside = true) override
     {
         if(ppos[0] > m_AABBBoxMin[0] && ppos[0] < m_AABBBoxMax[0] &&
            ppos[1] > m_AABBBoxMin[1] && ppos[1] < m_AABBBoxMax[1] &&
@@ -137,17 +138,17 @@ public:
         }
         else
         {
-            Vec3r cp(MathHelpers::max(MathHelpers::min(ppos[0], m_AABBBoxMax[0]), m_AABBBoxMin[0]),
-                     MathHelpers::max(MathHelpers::min(ppos[1], m_AABBBoxMax[1]), m_AABBBoxMin[1]),
-                     MathHelpers::max(MathHelpers::min(ppos[2], m_AABBBoxMax[2]), m_AABBBoxMin[2]));
+            VecX<N, RealType> cp(MathHelpers::max(MathHelpers::min(ppos[0], m_AABBBoxMax[0]), m_AABBBoxMin[0]),
+                                 MathHelpers::max(MathHelpers::min(ppos[1], m_AABBBoxMax[1]), m_AABBBoxMin[1]),
+                                 MathHelpers::max(MathHelpers::min(ppos[2], m_AABBBoxMax[2]), m_AABBBoxMin[2]));
 
             return glm::length(ppos - cp);
         }
     }
 
-    void         setBox(const Vec3r& bMin, const Vec3r& bMax) { m_AABBBoxMin = bMin; m_AABBBoxMax = bMax; }
-    const Vec3r& boxMin() { return m_AABBBoxMin; }
-    const Vec3r& boxMax() { return m_AABBBoxMax; }
+    void                     setBox(const VecX<N, RealType>& bMin, const VecX<N, RealType>& bMax) { m_AABBBoxMin = bMin; m_AABBBoxMax = bMax; }
+    const VecX<N, RealType>& boxMin() { return m_AABBBoxMin; }
+    const VecX<N, RealType>& boxMax() { return m_AABBBoxMax; }
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -155,21 +156,21 @@ public:
 class SphereObject : public GeometryObject
 {
 public:
-    virtual String name() override { return "SphereObject"; }
-    virtual Real   signedDistance(const Vec3r& ppos) override { return glm::length(ppos - m_Center) - m_Radius; }
+    virtual String                name() override { return "SphereObject"; }
+    __BNN_INLINE virtual RealType signedDistance(const VecX<N, RealType>& ppos, bool bNegativeInside = true) override { return glm::length(ppos - m_Center) - m_Radius; }
 
-    const Vec3r& center() const noexcept { return m_Center; }
-    Real         radius() const noexcept  { return m_Radius; }
-    void         setSphere(const Vec3r& center, Real radius)
+    const VecX<N, RealType>& center() const noexcept { return m_Center; }
+    RealType                 radius() const noexcept  { return m_Radius; }
+    void                     setSphere(const VecX<N, RealType>& center, RealType radius)
     {
         m_Center     = center; m_Radius = radius;
-        m_AABBBoxMin = m_Center - Vec3r(m_Radius);
-        m_AABBBoxMax = m_Center + Vec3r(m_Radius);
+        m_AABBBoxMin = m_Center - VecX<N, RealType>(m_Radius);
+        m_AABBBoxMax = m_Center + VecX<N, RealType>(m_Radius);
     }
 
 protected:
-    Vec3r m_Center = Vec3r(0);
-    Real  m_Radius = Real(1.0);
+    VecX<N, RealType> m_Center = VecX<N, RealType>(0);
+    RealType          m_Radius = RealType(1.0);
 };
 
 
@@ -178,21 +179,21 @@ protected:
 class TorusObject : public GeometryObject
 {
 public:
-    virtual String name() override { return "TorusObject"; }
-    virtual Real   signedDistance(const Vec3r& ppos) override
+    virtual String                name() override { return "TorusObject"; }
+    __BNN_INLINE virtual RealType signedDistance(const VecX<N, RealType>& ppos, bool bNegativeInside = true) override
     {
-        Vec2<Real> t(0.6, 0.2);
+        Vec2<RealType> t(0.6, 0.2);
 
-        Vec2<Real> q = Vec2<Real>(MathHelpers::norm2(ppos[0], ppos[2]) - t.x, ppos.y);
+        Vec2<RealType> q = Vec2<RealType>(MathHelpers::norm2(ppos[0], ppos[2]) - t.x, ppos.y);
         return glm::length(q) - t.y;
     }
 
-    Real& innerRadius() { return m_InnerRadius; }
-    Real& outerRadius() { return m_OuterRadius; }
+    RealType& innerRadius() { return m_InnerRadius; }
+    RealType& outerRadius() { return m_OuterRadius; }
 
 protected:
-    Real m_InnerRadius = 0;
-    Real m_OuterRadius = 0;
+    RealType m_InnerRadius = 0;
+    RealType m_OuterRadius = 0;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -200,11 +201,11 @@ protected:
 class Torus28Object : public TorusObject
 {
 public:
-    virtual Real signedDistance(const Vec3r& ppos) override
+    __BNN_INLINE virtual RealType signedDistance(const VecX<N, RealType>& ppos, bool bNegativeInside = true) override
     {
-        Vec2<Real> t(0.6, 0.2);
+        Vec2<RealType> t(0.6, 0.2);
 
-        Vec2<Real> q = Vec2<Real>(MathHelpers::norm2(ppos[0], ppos[2]) - t.x, ppos.y);
+        Vec2<RealType> q = Vec2<RealType>(MathHelpers::norm2(ppos[0], ppos[2]) - t.x, ppos.y);
         return MathHelpers::norm8(q[0], q[1]) - t.y;
     }
 };
@@ -214,11 +215,11 @@ public:
 class Torus2InfObject : public TorusObject
 {
 public:
-    virtual Real signedDistance(const Vec3r& ppos) override
+    __BNN_INLINE virtual RealType signedDistance(const VecX<N, RealType>& ppos, bool bNegativeInside = true) override
     {
-        Vec2<Real> t(0.6, 0.2);
+        Vec2<RealType> t(0.6, 0.2);
 
-        Vec2<Real> q = Vec2<Real>(MathHelpers::norm2(ppos[0], ppos[2]) - t.x, ppos.y);
+        Vec2<RealType> q = Vec2<RealType>(MathHelpers::norm2(ppos[0], ppos[2]) - t.x, ppos.y);
         return MathHelpers::max(std::abs(q[0]), std::abs(q[1])) - t.y;
     }
 };
@@ -228,11 +229,11 @@ public:
 class Torus88Object : public TorusObject
 {
 public:
-    virtual Real signedDistance(const Vec3r& ppos) override
+    __BNN_INLINE virtual RealType signedDistance(const VecX<N, RealType>& ppos, bool bNegativeInside = true) override
     {
-        Vec2<Real> t(0.6, 0.2);
+        Vec2<RealType> t(0.6, 0.2);
 
-        Vec2<Real> q = Vec2<Real>(MathHelpers::norm8(ppos[0], ppos[2]) - t.x, ppos.y);
+        Vec2<RealType> q = Vec2<RealType>(MathHelpers::norm8(ppos[0], ppos[2]) - t.x, ppos.y);
         return MathHelpers::norm8(q[0], q[1]) - t.y;
     }
 };
@@ -242,11 +243,11 @@ public:
 class TorusInfInfObject : public TorusObject
 {
 public:
-    virtual Real signedDistance(const Vec3r& ppos) override
+    __BNN_INLINE virtual RealType signedDistance(const VecX<N, RealType>& ppos, bool bNegativeInside = true) override
     {
-        Vec2<Real> t(0.6, 0.2);
+        Vec2<RealType> t(0.6, 0.2);
 
-        Vec2<Real> q = Vec2<Real>(MathHelpers::max(std::abs(ppos[0]), std::abs(ppos[2])) - t.x, ppos.y);
+        Vec2<RealType> q = Vec2<RealType>(MathHelpers::max(std::abs(ppos[0]), std::abs(ppos[2])) - t.x, ppos.y);
         return MathHelpers::max(std::abs(q[0]), std::abs(q[1])) - t.y;
     }
 };
@@ -256,22 +257,22 @@ public:
 class CylinderObject : public GeometryObject
 {
 public:
-    virtual String name() override { return "CylinderObject"; }
-    virtual Real   signedDistance(const Vec3r& ppos) override
+    virtual String                name() override { return "CylinderObject"; }
+    __BNN_INLINE virtual RealType signedDistance(const VecX<N, RealType>& ppos, bool bNegativeInside = true) override
     {
-        //Vec3<RealType> c(0.0, 0.0, 1.0); // ,base position, base radius
+        //VecX<N, RealType> c(0.0, 0.0, 1.0); // ,base position, base radius
         //return glm::length(Vec2<RealType>(ppos[0], ppos[2]) - Vec2<RealType>(c[0], c[1])) - c[2];
-        Vec2<Real> h(1.0, 0.8); // radius, expansion to y
-        Vec2<Real> d = Vec2<Real>(MathHelpers::norm2(ppos[0], ppos[2]), std::abs(ppos[1])) - h;
-        return MathHelpers::min(MathHelpers::max(d.x, d.y), Real(0.0)) + MathHelpers::norm2(MathHelpers::max(d[0], Real(0.0)), MathHelpers::max(d[1], Real(0.0)));
+        Vec2<RealType> h(1.0, 0.8); // radius, expansion to y
+        Vec2<RealType> d = Vec2<RealType>(MathHelpers::norm2(ppos[0], ppos[2]), std::abs(ppos[1])) - h;
+        return MathHelpers::min(MathHelpers::max(d.x, d.y), RealType(0.0)) + MathHelpers::norm2(MathHelpers::max(d[0], RealType(0.0)), MathHelpers::max(d[1], RealType(0.0)));
     }
 
-    Real& radius() { return m_Radius; }
-    Real& height() { return m_Height; }
+    RealType& radius() { return m_Radius; }
+    RealType& height() { return m_Height; }
 
 protected:
-    Real m_Radius = 0;
-    Real m_Height = 0;
+    RealType m_Radius = 0;
+    RealType m_Height = 0;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -279,19 +280,19 @@ protected:
 class ConeObject : public GeometryObject
 {
 public:
-    virtual String name() override { return "ConeObject"; }
-    virtual Real   signedDistance(const Vec3r& ppos) override
+    virtual String                name() override { return "ConeObject"; }
+    __BNN_INLINE virtual RealType signedDistance(const VecX<N, RealType>& ppos, bool bNegativeInside = true) override
     {
-        Vec2<Real> c = glm::normalize(Vec2<Real>(1, 1)); // normal to cone surface
+        Vec2<RealType> c = glm::normalize(Vec2<RealType>(1, 1)); // normal to cone surface
         // c must be normalized
-        Real q = MathHelpers::norm2(ppos[0], ppos[2]);
-        return MathHelpers::max(glm::dot(c, Vec2<Real>(q, ppos[1])), -ppos[1] - Real(1.0));
+        RealType q = MathHelpers::norm2(ppos[0], ppos[2]);
+        return MathHelpers::max(glm::dot(c, Vec2<RealType>(q, ppos[1])), -ppos[1] - RealType(1.0));
     }
 
-    Vec3r& surfaceNormal() { return m_Normal; }
+    VecX<N, RealType>& surfaceNormal() { return m_Normal; }
 
 protected:
-    Vec3r m_Normal = Vec3r(0);
+    VecX<N, RealType> m_Normal = VecX<N, RealType>(0);
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -299,42 +300,41 @@ protected:
 class PlaneObject : public GeometryObject
 {
 public:
-    virtual String name() override { return "PlaneObject"; }
-    virtual Real   signedDistance(const Vec3r& ppos) override
+    virtual String                name() override { return "PlaneObject"; }
+    __BNN_INLINE virtual RealType signedDistance(const VecX<N, RealType>& ppos, bool bNegativeInside = true) override
     {
-        Vec3r n(1, 1, 1);
-        Real  w = 0;
+        VecX<N, RealType> n(1, 1, 1);
+        RealType          w = 0;
         return glm::dot(ppos, n) + w;
     }
 
-    Vec3r& normal() { return m_Normal; }
-    Real&  offset() { return m_Offset; }
+    VecX<N, RealType>& normal() { return m_Normal; }
+    RealType&          offset() { return m_Offset; }
 
 protected:
-    Vec3r m_Normal = Vec3r(0);
-    Real  m_Offset = 0;
+    VecX<N, RealType> m_Normal = VecX<N, RealType>(0);
+    RealType          m_Offset = 0;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-
 class TriangularPrismObject : public GeometryObject
 {
 public:
-    virtual String name() override { return "TriangularPrismObject"; }
-    virtual Real   signedDistance(const Vec3r& ppos) override
+    virtual String                name() override { return "TriangularPrismObject"; }
+    __BNN_INLINE virtual RealType signedDistance(const VecX<N, RealType>& ppos, bool bNegativeInside = true) override
     {
-        Vec2<Real> h(1.0, 0.5); // h, w
-        Vec3r      q(std::abs(ppos[0]), std::abs(ppos[1]), std::abs(ppos[2]));
+        Vec2<RealType>    h(1.0, 0.5);  // h, w
+        VecX<N, RealType> q(std::abs(ppos[0]), std::abs(ppos[1]), std::abs(ppos[2]));
 
-        return MathHelpers::max(q[2] - h[1], MathHelpers::max(q[0] * Real(0.866025) + ppos[1] * Real(0.5), -ppos[1]) - h[0] * Real(0.5));
+        return MathHelpers::max(q[2] - h[1], MathHelpers::max(q[0] * RealType(0.866025) + ppos[1] * RealType(0.5), -ppos[1]) - h[0] * RealType(0.5));
     }
 
-    Real& width() { return m_Width; }
-    Real& height() { return m_Height; }
+    RealType& width() { return m_Width; }
+    RealType& height() { return m_Height; }
 
 protected:
-    Real m_Width  = 0;
-    Real m_Height = 0;
+    RealType m_Width  = 0;
+    RealType m_Height = 0;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -342,21 +342,21 @@ protected:
 class HexagonalPrismObject : public GeometryObject
 {
 public:
-    virtual String name() override { return "HexagonalPrismObject"; }
-    virtual Real   signedDistance(const Vec3r& ppos) override
+    virtual String                name() override { return "HexagonalPrismObject"; }
+    __BNN_INLINE virtual RealType signedDistance(const VecX<N, RealType>& ppos, bool bNegativeInside = true) override
     {
-        Vec2<Real> h(1.0, 0.5); // h, w
-        Vec3r      q(std::abs(ppos[0]), std::abs(ppos[1]), std::abs(ppos[2]));
+        Vec2<RealType>    h(1.0, 0.5);  // h, w
+        VecX<N, RealType> q(std::abs(ppos[0]), std::abs(ppos[1]), std::abs(ppos[2]));
         return MathHelpers::max(q[2] - h[1],
-                                MathHelpers::max(q[0] * Real(0.866025) + q[1] * Real(0.5), q[1]) - h[0]);
+                                MathHelpers::max(q[0] * RealType(0.866025) + q[1] * RealType(0.5), q[1]) - h[0]);
     }
 
-    Real& width() { return m_Width; }
-    Real& height() { return m_Height; }
+    RealType& width() { return m_Width; }
+    RealType& height() { return m_Height; }
 
 protected:
-    Real m_Width  = 0;
-    Real m_Height = 0;
+    RealType m_Width  = 0;
+    RealType m_Height = 0;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -364,23 +364,23 @@ protected:
 class CapsuleObject : public GeometryObject
 {
 public:
-    virtual String name() override { return "CapsuleObject"; }
-    virtual Real   signedDistance(const Vec3r& ppos) override
+    virtual String                name() override { return "CapsuleObject"; }
+    __BNN_INLINE virtual RealType signedDistance(const VecX<N, RealType>& ppos, bool bNegativeInside = true) override
     {
-        Vec3r a(0, 0, -0.7); // end point a
-        Vec3r b(0, 0, 0.7);  // end point b
-        Real  r = 0.3;
+        VecX<N, RealType> a(0, 0, -0.7); // end point a
+        VecX<N, RealType> b(0, 0, 0.7);  // end point b
+        RealType          r = 0.3;
 
-        Vec3r pa = ppos - a, ba = b - a;
+        VecX<N, RealType> pa = ppos - a, ba = b - a;
 
-        Real h = MathHelpers::clamp(glm::dot(pa, ba) / glm::dot(ba, ba), Real(0.0), Real(1.0));
+        RealType h = MathHelpers::clamp(glm::dot(pa, ba) / glm::dot(ba, ba), RealType(0.0), RealType(1.0));
         return glm::length(pa - ba * h) - r;
     }
 
-    Vec3r& vertex(int idx) { return m_Vertices[idx]; }
+    VecX<N, RealType>& vertex(int idx) { return m_Vertices[idx]; }
 
 protected:
-    Vec3r m_Vertices[2];
+    VecX<N, RealType> m_Vertices[2];
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -388,18 +388,18 @@ protected:
 class EllipsoidObject : public GeometryObject
 {
 public:
-    virtual String name() override { return "EllipsoidObject"; }
-    virtual Real   signedDistance(const Vec3r& ppos) override
+    virtual String                name() override { return "EllipsoidObject"; }
+    __BNN_INLINE virtual RealType signedDistance(const VecX<N, RealType>& ppos, bool bNegativeInside = true) override
     {
-        Vec3r r(0.7, 0.5, 0.2);
+        VecX<N, RealType> r(0.7, 0.5, 0.2);
 
-        return (MathHelpers::norm2(ppos[0] / r[0], ppos[1] / r[1], ppos[2] / r[2]) - Real(1.0)) * MathHelpers::min(MathHelpers::min(r.x, r.y), r.z);
+        return (MathHelpers::norm2(ppos[0] / r[0], ppos[1] / r[1], ppos[2] / r[2]) - RealType(1.0)) * MathHelpers::min(MathHelpers::min(r.x, r.y), r.z);
     }
 
-    Vec3r& radius() { return m_Radius; }
+    VecX<N, RealType>& radius() { return m_Radius; }
 
 protected:
-    Vec3r m_Radius = Vec3r(0);
+    VecX<N, RealType> m_Radius = VecX<N, RealType>(0);
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -407,12 +407,12 @@ protected:
 class TriMeshObject : public GeometryObject
 {
 public:
-    virtual String name() override { return "TriMeshObject"; }
-    virtual Real   signedDistance(const Vec3r& ppos) override { return 0; }
+    virtual String                name() override { return "TriMeshObject"; }
+    __BNN_INLINE virtual RealType signedDistance(const VecX<N, RealType>& ppos, bool bNegativeInside = true) override { return 0; }
 
-    String& meshFile() { return m_TriMeshFile; }
-    Real&   step() { return m_Step; }
-    Real&   expanding() { return m_Expanding; }
+    String&   meshFile() { return m_TriMeshFile; }
+    RealType& step() { return m_Step; }
+    RealType& expanding() { return m_Expanding; }
 
     void           makeSDF();
     const Array3r& getSDF() const noexcept { return m_SDFData; }
@@ -423,10 +423,10 @@ protected:
     bool   m_bSDFReady = false;
     String m_TriMeshFile;
 
-    Real    m_Step      = Real(1.0 / 256.0);
-    Real    m_Expanding = Real(0.1);
-    Grid3r  m_Grid3D;
-    Array3r m_SDFData;
+    RealType m_Step      = RealType(1.0 / 256.0);
+    RealType m_Expanding = RealType(0.1);
+    Grid3r   m_Grid3D;
+    Array3r  m_SDFData;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -457,11 +457,11 @@ public:
         CSGOperations             op  = Union;
     };
 
-    virtual String name() override { return "CSGObject"; }
-    virtual Real   signedDistance(const Vec3r& ppos_) override
+    virtual String   name() override { return "CSGObject"; }
+    virtual RealType signedDistance(const VecX<N, RealType>& ppos_) override
     {
-        Vec3r ppos = domainDeform(ppos_);
-        Real  sd   = -Huge;
+        VecX<N, RealType> ppos = domainDeform(ppos_);
+        RealType          sd   = -Huge;
 
         for(auto& csgObj : m_Objects)
         {
@@ -504,7 +504,7 @@ protected:
         m_AABBBoxMax = MathHelpers::max(m_AABBBoxMax, obj.obj->aabbBoxMax());
     }
 
-    Vec3r domainDeform(const Vec3r& ppos)
+    VecX<N, RealType> domainDeform(const VecX<N, RealType>& ppos)
     {
         switch(m_DeformOp)
         {
@@ -515,28 +515,28 @@ protected:
             case CheapBend:
                 return cheapBend(ppos);
             default:
-                return Vec3r(0);
+                return VecX<N, RealType>(0);
         }
     }
 
-    Vec3r twist(const Vec3r& ppos)
+    VecX<N, RealType> twist(const VecX<N, RealType>& ppos)
     {
-        Real         c = cos(Real(5.0) * ppos.z);
-        Real         s = sin(Real(5.0) * ppos.z);
-        Mat2x2<Real> m = Mat2x2<Real>(c, -s, s, c);
+        RealType         c = cos(RealType(5.0) * ppos.z);
+        RealType         s = sin(RealType(5.0) * ppos.z);
+        Mat2x2<RealType> m = Mat2x2<RealType>(c, -s, s, c);
         //Mat2x2<RealType> m = Mat2x2<RealType>(c, s, -s, c);
 
-        return Vec3r(m * Vec2<Real>(ppos[0], ppos[1]), ppos.z);
+        return VecX<N, RealType>(m * Vec2<RealType>(ppos[0], ppos[1]), ppos.z);
     }
 
-    Vec3r cheapBend(const Vec3r& ppos)
+    VecX<N, RealType> cheapBend(const VecX<N, RealType>& ppos)
     {
-        Real c = cos(Real(0.5) * ppos.y);
-        Real s = sin(Real(0.5) * ppos.y);
+        RealType c = cos(RealType(0.5) * ppos.y);
+        RealType s = sin(RealType(0.5) * ppos.y);
         //Mat2x2<RealType> m = Mat2x2<RealType>(c, -s, s, c);
-        Mat2x2<Real> m = Mat2x2<Real>(c, s, -s, c);
+        Mat2x2<RealType> m = Mat2x2<RealType>(c, s, -s, c);
 
-        return Vec3r(m * Vec2<Real>(ppos[0], ppos[1]), ppos.z);
+        return VecX<N, RealType>(m * Vec2<RealType>(ppos[0], ppos[1]), ppos.z);
     }
 
     Vector<CSGData>   m_Objects;
@@ -551,3 +551,5 @@ protected:
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana
+
+#endif

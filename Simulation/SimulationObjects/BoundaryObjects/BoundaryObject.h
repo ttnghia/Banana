@@ -23,8 +23,7 @@
 #include <Banana/Utils/NumberHelpers.h>
 #include <Banana/Utils/FileHelpers.h>
 #include <Banana/Utils/JSONHelpers.h>
-#include <Banana/Geometry/GeometryObject2D.h>
-#include <Banana/Geometry/GeometryObject3D.h>
+#include <Banana/Geometry/GeometryObject.h>
 #include <Banana/Geometry/GeometryObjectFactory.h>
 #include <Banana/ParallelHelpers/ParallelFuncs.h>
 #include <ParticleSolvers/ParticleSolverData.h>
@@ -82,11 +81,11 @@ protected:
 class BoundaryObject2D : public BoundaryObject
 {
 public:
-    using GeometryPtr = SharedPtr<GeometryObject2D::GeometryObject>;
+    using GeometryPtr = SharedPtr<GeometryObjects::GeometryObject<2, Real> >;
     static constexpr UInt objDimension() noexcept { return 2u; }
 
     BoundaryObject2D() = delete;
-    BoundaryObject2D(const String& geometryType) : m_GeometryObj(GeometryObjectFactory::createGeometry2D(geometryType)) { __BNN_ASSERT(m_GeometryObj != nullptr); }
+    BoundaryObject2D(const String& geometryType) : m_GeometryObj(GeometryObjectFactory::createGeometry<2, Real>(geometryType)) { __BNN_ASSERT(m_GeometryObj != nullptr); }
 
     UInt           getNumBDParticles() const noexcept { return static_cast<UInt>(m_BDParticles.size()); }
     Vec_Vec2r&     getBDParticles() { return m_BDParticles; }
@@ -110,11 +109,11 @@ protected:
 class BoundaryObject3D : public BoundaryObject
 {
 public:
-    using GeometryPtr = SharedPtr<GeometryObject3D::GeometryObject>;
+    using GeometryPtr = SharedPtr<GeometryObjects::GeometryObject<3, Real> >;
     static constexpr UInt objDimension() noexcept { return 3u; }
 
     BoundaryObject3D() = delete;
-    BoundaryObject3D(const String& geometryType) : m_GeometryObj(GeometryObjectFactory::createGeometry3D(geometryType)) { __BNN_ASSERT(m_GeometryObj != nullptr); }
+    BoundaryObject3D(const String& geometryType) : m_GeometryObj(GeometryObjectFactory::createGeometry<3, Real>(geometryType)) { __BNN_ASSERT(m_GeometryObj != nullptr); }
 
     UInt           getNumBDParticles() const noexcept { return static_cast<UInt>(m_BDParticles.size()); }
     Vec_Vec3r&     getBDParticles() { return m_BDParticles; }

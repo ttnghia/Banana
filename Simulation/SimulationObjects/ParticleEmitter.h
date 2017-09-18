@@ -17,8 +17,7 @@
 
 #pragma once
 
-#include <Banana/Geometry/GeometryObject2D.h>
-#include <Banana/Geometry/GeometryObject3D.h>
+#include <Banana/Geometry/GeometryObject.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -45,23 +44,23 @@ protected:
 class ParticleEmitter2D : public ParticleEmitter
 {
 public:
-    static constexpr UInt                        objDimension() noexcept { return 2u; }
-    SharedPtr<GeometryObject2D::GeometryObject>& getGeometry() { return m_GeometryObj; }
+    static constexpr UInt                                 objDimension() noexcept { return 2u; }
+    SharedPtr<GeometryObjects::GeometryObject<2, Real> >& getGeometry() { return m_GeometryObj; }
 
 protected:
 
-    SharedPtr<GeometryObject2D::GeometryObject> m_GeometryObj = nullptr;
+    SharedPtr<GeometryObjects::GeometryObject<2, Real> > m_GeometryObj = nullptr;
 };
 
 
 class ParticleEmitter3D : public ParticleEmitter
 {
 public:
-    static constexpr UInt                        objDimension() noexcept { return 3u; }
-    SharedPtr<GeometryObject3D::GeometryObject>& getGeometry() { return m_GeometryObj; }
+    static constexpr UInt                                 objDimension() noexcept { return 3u; }
+    SharedPtr<GeometryObjects::GeometryObject<3, Real> >& getGeometry() { return m_GeometryObj; }
 
 protected:
-    SharedPtr<GeometryObject3D::GeometryObject> m_GeometryObj = nullptr;
+    SharedPtr<GeometryObjects::GeometryObject<3, Real> > m_GeometryObj = nullptr;
 };
 
 

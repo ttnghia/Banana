@@ -175,13 +175,12 @@ void ParticleSolver3D::generateBoundaries(const nlohmann::json& jParams)
 
         if(staticBoundaries.size() > 1)
         {
-            SharedPtr<SimulationObjects::BoundaryObject3D> csgBoundary = std::make_shared<SimulationObjects::BoundaryObject3D>("CSGObject");
-            SharedPtr<GeometryObject3D::CSGObject>         csgObj      = std::static_pointer_cast<GeometryObject3D::CSGObject>(csgBoundary->getGeometry());
+            SharedPtr<SimulationObjects::BoundaryObject3D>  csgBoundary = std::make_shared<SimulationObjects::BoundaryObject3D>("CSGObject");
+            SharedPtr<GeometryObjects::CSGObject<3, Real> > csgObj      = std::static_pointer_cast<GeometryObjects::CSGObject<3, Real> >(csgBoundary->getGeometry());
             __BNN_ASSERT(csgObj != nullptr);
 
-            // The boundary object has negative signed distance, so operation is Intersection
             for(auto& obj : staticBoundaries)
-                csgObj->addObject(obj->getGeometry(), GeometryObject3D::CSGOperations::Intersection);
+                csgObj->addObject(obj->getGeometry(), GeometryObjects::CSGOperations::Union);
 
             m_BoundaryObjects.resize(0);
             m_BoundaryObjects.push_back(csgBoundary);

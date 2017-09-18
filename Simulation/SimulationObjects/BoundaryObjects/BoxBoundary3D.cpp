@@ -227,7 +227,7 @@ bool BoxBoundary3D::constrainToBoundary(Vec3r& pPos, Vec3r& pVel)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void BoxBoundary3D::setBox(const Vec3r& bMin, const Vec3r& bMax)
 {
-    SharedPtr<GeometryObject3D::BoxObject> box = std::static_pointer_cast<GeometryObject3D::BoxObject>(m_GeometryObj);
+    auto box = std::static_pointer_cast<GeometryObjects::BoxObject<3, Real> >(m_GeometryObj);
     __BNN_ASSERT(box != nullptr);
     box->setBox(bMin, bMax);
 }

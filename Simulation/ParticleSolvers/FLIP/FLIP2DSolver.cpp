@@ -52,7 +52,7 @@ void FLIP2DSolver::makeReady()
 
 
                                // todo: remove
-                               GeometryObject2D::BoxObject box;
+                               GeometryObjects::BoxObject<2, Real> box;
                                box.setBMin(m_SimParams->movingBMin + Vec2r(m_SimParams->cellSize));
                                box.setBMax(m_SimParams->movingBMax - Vec2r(m_SimParams->cellSize));
                                ParallelFuncs::parallel_for<UInt>(m_Grid.getNNodes(),
@@ -442,7 +442,7 @@ void FLIP2DSolver::velocityToGrid()
                                                       const Vec2r& ppos = m_SimData->positions[p];
                                                       const Vec2r& pvel = m_SimData->velocities[p];
 
-                                                      if(valid_index_u && ParticleHelpers::isInside(ppos, puMin, puMax))
+                                                      if(valid_index_u && NumberHelpers::isInside(ppos, puMin, puMax))
                                                       {
                                                           const Real weight = m_WeightKernel((ppos - pu) / m_Grid.getCellSize());
 
@@ -453,7 +453,7 @@ void FLIP2DSolver::velocityToGrid()
                                                           }
                                                       }
 
-                                                      if(valid_index_v && ParticleHelpers::isInside(ppos, pvMin, pvMax))
+                                                      if(valid_index_v && NumberHelpers::isInside(ppos, pvMin, pvMax))
                                                       {
                                                           const Real weight = m_WeightKernel((ppos - pv) / m_Grid.getCellSize());
 

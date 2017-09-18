@@ -189,6 +189,12 @@
     <ClInclude Include="Banana\Grid\_Grid.Test.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Banana\Geometry\GeometryObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Banana\Geometry\GeometryObject.Impl.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Banana\Geometry\GeometryObject3D.cpp">
@@ -207,9 +213,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Banana\LinearAlgebra\LinearSolvers\PCGSolver.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Banana\Geometry\GeometryObjectFactory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Banana\NeighborSearch\NeighborSearch3D.cpp">

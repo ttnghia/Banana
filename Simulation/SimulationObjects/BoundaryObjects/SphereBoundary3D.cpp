@@ -50,7 +50,7 @@ bool SphereBoundary3D::constrainToBoundary(Vec3r& ppos, Vec3r& pvel)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void SphereBoundary3D::setSphere(const Vec3r& center, Real radius)
 {
-    SharedPtr<GeometryObject3D::SphereObject> sphere = std::static_pointer_cast<GeometryObject3D::SphereObject>(m_GeometryObj);
+    auto sphere = std::static_pointer_cast<GeometryObjects::SphereObject<3, Real> >(m_GeometryObj);
     __BNN_ASSERT(sphere != nullptr);
     sphere->setSphere(center, radius);
 }
@@ -58,7 +58,7 @@ void SphereBoundary3D::setSphere(const Vec3r& center, Real radius)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 const Vec3r& SphereBoundary3D::center() const
 {
-    SharedPtr<GeometryObject3D::SphereObject> sphere = std::static_pointer_cast<GeometryObject3D::SphereObject>(m_GeometryObj);
+    auto sphere = std::static_pointer_cast<GeometryObjects::SphereObject<3, Real> >(m_GeometryObj);
     __BNN_ASSERT(sphere != nullptr);
     return sphere->center();
 }
@@ -66,7 +66,7 @@ const Vec3r& SphereBoundary3D::center() const
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 Real SphereBoundary3D::radius() const
 {
-    SharedPtr<GeometryObject3D::SphereObject> sphere = std::static_pointer_cast<GeometryObject3D::SphereObject>(m_GeometryObj);
+    auto sphere = std::static_pointer_cast<GeometryObjects::SphereObject<3, Real> >(m_GeometryObj);
     __BNN_ASSERT(sphere != nullptr);
     return sphere->radius();
 }

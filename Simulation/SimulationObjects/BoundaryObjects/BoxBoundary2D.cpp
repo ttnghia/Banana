@@ -30,7 +30,7 @@ namespace SimulationObjects
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void BoxBoundary2D::setBox(const Vec2r& bMin, const Vec2r& bMax)
 {
-    SharedPtr<GeometryObject2D::BoxObject> box = std::static_pointer_cast<GeometryObject2D::BoxObject>(m_GeometryObj);
+    auto box = std::static_pointer_cast<GeometryObjects::BoxObject<2, Real> >(m_GeometryObj);
     __BNN_ASSERT(box != nullptr);
     box->setBox(bMin, bMax);
 }

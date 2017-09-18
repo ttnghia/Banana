@@ -74,6 +74,7 @@ void FLIP3DSolver::makeReady()
 
                                                                      gridData().boundarySDF(i, j, k) = minSD;
 
+                                                                     //printf("%u, %u, %u, %f\n", i, j, k, minSD);
                                                                      //const Vec3r gridPos = m_Grid.getWorldCoordinate(i, j, k);
 
                                                                      //gridData().boundarySDF(i, j, k) = -box.signedDistance(gridPos);
@@ -472,7 +473,7 @@ void FLIP3DSolver::velocityToGrid()
                                                           const Vec3r& ppos = particleData().positions[p];
                                                           const Vec3r& pvel = particleData().velocities[p];
 
-                                                          if(valid_index_u && ParticleHelpers::isInside(ppos, puMin, puMax))
+                                                          if(valid_index_u && NumberHelpers::isInside(ppos, puMin, puMax))
                                                           {
                                                               const Real weight = m_WeightKernel((ppos - pu) / m_Grid.getCellSize());
 
@@ -483,7 +484,7 @@ void FLIP3DSolver::velocityToGrid()
                                                               }
                                                           }
 
-                                                          if(valid_index_v && ParticleHelpers::isInside(ppos, pvMin, pvMax))
+                                                          if(valid_index_v && NumberHelpers::isInside(ppos, pvMin, pvMax))
                                                           {
                                                               const Real weight = m_WeightKernel((ppos - pv) / m_Grid.getCellSize());
 
@@ -494,7 +495,7 @@ void FLIP3DSolver::velocityToGrid()
                                                               }
                                                           }
 
-                                                          if(valid_index_w && ParticleHelpers::isInside(ppos, pwMin, pwMax))
+                                                          if(valid_index_w && NumberHelpers::isInside(ppos, pwMin, pwMax))
                                                           {
                                                               const Real weight = m_WeightKernel((ppos - pw) / m_Grid.getCellSize());
 

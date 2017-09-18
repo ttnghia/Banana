@@ -37,7 +37,7 @@ Real BoundaryObject2D::signedDistance(const Vec2r& ppos, bool bUseCache /*= true
     if(bUseCache && m_bSDFGenerated)
         return ArrayHelpers::interpolateValueLinear(m_Grid.getGridCoordinate(ppos), m_SDF);
     else
-        return -m_GeometryObj->signedDistance(ppos);
+        return m_GeometryObj->signedDistance(ppos, false);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -91,7 +91,7 @@ Real BoundaryObject3D::signedDistance(const Vec3r& ppos, bool bUseCache /*= true
     if(bUseCache && m_bSDFGenerated)
         return ArrayHelpers::interpolateValueLinear(m_Grid.getGridCoordinate(ppos), m_SDF);
     else
-        return -m_GeometryObj->signedDistance(ppos);
+        return m_GeometryObj->signedDistance(ppos, false);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

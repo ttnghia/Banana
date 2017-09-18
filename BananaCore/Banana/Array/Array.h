@@ -470,7 +470,7 @@ public:
             m_Size[i] = static_cast<size_type>(tmp);
         }
         __BNN_ASSERT(buffer.buffer().size() == N * sizeof(UInt) + sizeof(T) * glm::compMul(m_Size));
-        buffer.getData(m_Data, sizeof(UInt) * N, glm::compMul(m_Size));
+        buffer.getData(m_Data, sizeof(UInt) * N, static_cast<UInt>(glm::compMul(m_Size)));
         return true;
     }
 

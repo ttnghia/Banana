@@ -18,8 +18,7 @@
 #pragma once
 
 #include <Banana/Setup.h>
-#include <Banana/Geometry/GeometryObject2D.h>
-#include <Banana/Geometry/GeometryObject3D.h>
+#include <Banana/Geometry/GeometryObject.h>
 #include <Banana/Geometry/GeometryObjectFactory.h>
 #include <Banana/Grid/Grid.h>
 #include <ParticleTools/ParticleHelpers.h>
@@ -70,11 +69,11 @@ protected:
 class ParticleObject2D : public ParticleObject
 {
 public:
-    using GeometryPtr = SharedPtr<GeometryObject2D::GeometryObject>;
+    using GeometryPtr = SharedPtr<GeometryObjects::GeometryObject<2, Real> >;
     static constexpr UInt objDimension() noexcept { return 2u; }
 
     ParticleObject2D() = delete;
-    ParticleObject2D(const String& geometryType) : m_GeometryObj(GeometryObjectFactory::createGeometry2D(geometryType)) { __BNN_ASSERT(m_GeometryObj != nullptr); }
+    ParticleObject2D(const String& geometryType) : m_GeometryObj(GeometryObjectFactory::createGeometry<2, Real>(geometryType)) { __BNN_ASSERT(m_GeometryObj != nullptr); }
     GeometryPtr& getGeometry() { return m_GeometryObj; }
 
 protected:
@@ -85,11 +84,11 @@ protected:
 class ParticleObject3D : public ParticleObject
 {
 public:
-    using GeometryPtr = SharedPtr<GeometryObject3D::GeometryObject>;
+    using GeometryPtr = SharedPtr<GeometryObjects::GeometryObject<3, Real> >;
     static constexpr UInt objDimension() noexcept { return 3u; }
 
     ParticleObject3D() = delete;
-    ParticleObject3D(const String& geometryType) : m_GeometryObj(GeometryObjectFactory::createGeometry3D(geometryType)) { __BNN_ASSERT(m_GeometryObj != nullptr); }
+    ParticleObject3D(const String& geometryType) : m_GeometryObj(GeometryObjectFactory::createGeometry<3, Real>(geometryType)) { __BNN_ASSERT(m_GeometryObj != nullptr); }
     GeometryPtr& getGeometry() { return m_GeometryObj; }
 
 protected:

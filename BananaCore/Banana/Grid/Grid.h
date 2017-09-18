@@ -29,22 +29,22 @@
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<Int N, class ScalarType>
+template<Int N, class RealType>
 class Grid
 {
 public:
     Grid() = default;
-    Grid(const VecX<N, ScalarType>& bMin, const VecX<N, ScalarType>& bMax, ScalarType cellSize) : m_BMin(bMin), m_BMax(bMax) { setCellSize(cellSize); }
+    Grid(const VecX<N, RealType>& bMin, const VecX<N, RealType>& bMax, RealType cellSize) : m_BMin(bMin), m_BMax(bMax) { setCellSize(cellSize); }
 
     ////////////////////////////////////////////////////////////////////////////////
     // Setters
-    __BNN_INLINE void         setGrid(const VecX<N, ScalarType>& bMin, const VecX<N, ScalarType>& bMax, ScalarType cellSize);
-    __BNN_INLINE virtual void setCellSize(ScalarType cellSize);
+    __BNN_INLINE void         setGrid(const VecX<N, RealType>& bMin, const VecX<N, RealType>& bMax, RealType cellSize);
+    __BNN_INLINE virtual void setCellSize(RealType cellSize);
 
     ////////////////////////////////////////////////////////////////////////////////
     // Getters
-    __BNN_INLINE const VecX<N, ScalarType>& getBMin() const noexcept { return m_BMin; }
-    __BNN_INLINE const VecX<N, ScalarType>& getBMax() const noexcept { return m_BMax; }
+    __BNN_INLINE const VecX<N, RealType>& getBMin() const noexcept { return m_BMin; }
+    __BNN_INLINE const VecX<N, RealType>& getBMax() const noexcept { return m_BMax; }
 
     __BNN_INLINE const VecX<N, UInt>& getNCells() const noexcept { return m_NCells; }
     __BNN_INLINE const VecX<N, UInt>& getNNodes() const noexcept { return m_NNodes; }
@@ -52,9 +52,9 @@ public:
     __BNN_INLINE UInt                 getNTotalNodes() const noexcept { return m_NTotalNodes; }
 
     ////////////////////////////////////////////////////////////////////////////////
-    __BNN_INLINE ScalarType getCellSize() const noexcept { return m_CellSize; }
-    __BNN_INLINE ScalarType getHalfCellSize() const noexcept { return m_HalfCellSize; }
-    __BNN_INLINE ScalarType getCellSizeSquared() const noexcept { return m_CellSizeSqr; }
+    __BNN_INLINE RealType getCellSize() const noexcept { return m_CellSize; }
+    __BNN_INLINE RealType getHalfCellSize() const noexcept { return m_HalfCellSize; }
+    __BNN_INLINE RealType getCellSizeSquared() const noexcept { return m_CellSizeSqr; }
 
     ////////////////////////////////////////////////////////////////////////////////
     // Grid 2D =>
@@ -164,7 +164,7 @@ public:
 
     ////////////////////////////////////////////////////////////////////////////////
     template<class IndexType>
-    __BNN_INLINE VecX<N, IndexType> getCellIdx(const VecX<N, ScalarType>& ppos) const noexcept
+    __BNN_INLINE VecX<N, IndexType> getCellIdx(const VecX<N, RealType>& ppos) const noexcept
     {
         VecX<N, IndexType> cellIdx;
         for(Int i = 0; i < N; ++i)
@@ -184,7 +184,7 @@ public:
     }
 
     template<class IndexType>
-    __BNN_INLINE VecX<N, IndexType> getValidCellIdx(const VecX<N, ScalarType>& ppos) const noexcept
+    __BNN_INLINE VecX<N, IndexType> getValidCellIdx(const VecX<N, RealType>& ppos) const noexcept
     {
         return getNearestValidCellIdx<IndexType>(getCellIdx<IndexType>(ppos));
     }
@@ -192,55 +192,55 @@ public:
     ////////////////////////////////////////////////////////////////////////////////
     // Particle processing
     template<class IndexType>
-    __BNN_INLINE VecX<N, ScalarType> getWorldCoordinate(const VecX<N, IndexType>& cellIdx) const
+    __BNN_INLINE VecX<N, RealType> getWorldCoordinate(const VecX<N, IndexType>& cellIdx) const
     {
-        return NumberHelpers::convert<ScalarType>(cellIdx) * m_CellSize + m_BMin;
+        return NumberHelpers::convert<RealType>(cellIdx) * m_CellSize + m_BMin;
     }
 
     template<class IndexType>
-    __BNN_INLINE Vec2<ScalarType> getWorldCoordinate(IndexType i, IndexType j) const
+    __BNN_INLINE Vec2<RealType> getWorldCoordinate(IndexType i, IndexType j) const
     {
         static_assert(N == 2, "Array dimension != 2");
-        return Vec2<ScalarType>(i, j) * m_CellSize + m_BMin;
+        return Vec2<RealType>(i, j) * m_CellSize + m_BMin;
     }
 
     template<class IndexType>
-    __BNN_INLINE Vec3<ScalarType> getWorldCoordinate(IndexType i, IndexType j, IndexType k) const
+    __BNN_INLINE Vec3<RealType> getWorldCoordinate(IndexType i, IndexType j, IndexType k) const
     {
         static_assert(N == 3, "Array dimension != 3");
-        return Vec3<ScalarType>(i, j, k) * m_CellSize + m_BMin;
+        return Vec3<RealType>(i, j, k) * m_CellSize + m_BMin;
     }
 
-    __BNN_INLINE VecX<N, ScalarType> getGridCoordinate(const VecX<N, ScalarType>& ppos) const { return (ppos - m_BMin) / m_CellSize; }
+    __BNN_INLINE VecX<N, RealType> getGridCoordinate(const VecX<N, RealType>& ppos) const { return (ppos - m_BMin) / m_CellSize; }
 
-    __BNN_INLINE bool isInsideGrid(const VecX<N, ScalarType>& ppos) const noexcept;
+    __BNN_INLINE bool isInsideGrid(const VecX<N, RealType>& ppos) const noexcept;
 
-    void constrainToGrid(Vector<VecX<N, ScalarType> >& positions);
-    void collectIndexToCells(const Vector<VecX<N, ScalarType> >& positions);
-    void collectIndexToCells(const Vector<VecX<N, ScalarType> >& positions, Vector<VecX<N, Int> >& particleCellIdx);
-    void collectIndexToCells(const Vector<VecX<N, ScalarType> >& positions, Vector<VecX<N, ScalarType> >& particleCellPos);
-    void getNeighborList(const Vector<VecX<N, ScalarType> >& positions, Vec_VecUInt& neighborList, Int cellSpan = 1);
-    void getNeighborList(const Vec2<ScalarType>& ppos, Vec_UInt& neighborList, Int cellSpan = 1);
-    void getNeighborList(const Vec3<ScalarType>& ppos, Vec_UInt& neighborList, Int cellSpan = 1);
-    void getNeighborList(const Vector<VecX<N, ScalarType> >& positions, Vec_VecUInt& neighborList, ScalarType d2, Int cellSpan = 1);
-    void getNeighborList(const Vec_Vec2<ScalarType>& positions, const Vec2<ScalarType>& ppos, Vec_UInt& neighborList, ScalarType d2, Int cellSpan = 1);
-    void getNeighborList(const Vec_Vec3<ScalarType>& positions, const Vec3<ScalarType>& ppos, Vec_UInt& neighborList, ScalarType d2, Int cellSpan = 1);
-    void sortData(Vector<VecX<N, ScalarType> >& data);
+    void constrainToGrid(Vector<VecX<N, RealType> >& positions);
+    void collectIndexToCells(const Vector<VecX<N, RealType> >& positions);
+    void collectIndexToCells(const Vector<VecX<N, RealType> >& positions, Vector<VecX<N, Int> >& particleCellIdx);
+    void collectIndexToCells(const Vector<VecX<N, RealType> >& positions, Vector<VecX<N, RealType> >& particleCellPos);
+    void getNeighborList(const Vector<VecX<N, RealType> >& positions, Vec_VecUInt& neighborList, Int cellSpan = 1);
+    void getNeighborList(const Vec2<RealType>& ppos, Vec_UInt& neighborList, Int cellSpan = 1);
+    void getNeighborList(const Vec3<RealType>& ppos, Vec_UInt& neighborList, Int cellSpan = 1);
+    void getNeighborList(const Vector<VecX<N, RealType> >& positions, Vec_VecUInt& neighborList, RealType d2, Int cellSpan = 1);
+    void getNeighborList(const Vec_Vec2<RealType>& positions, const Vec2<RealType>& ppos, Vec_UInt& neighborList, RealType d2, Int cellSpan = 1);
+    void getNeighborList(const Vec_Vec3<RealType>& positions, const Vec3<RealType>& ppos, Vec_UInt& neighborList, RealType d2, Int cellSpan = 1);
+    void sortData(Vector<VecX<N, RealType> >& data);
 
     const Vec_UInt& getParticleIdxSortedByCell();
 
     template<class IndexType>
     const Vec_UInt& getParticleIdxInCell(const VecX<N, IndexType>& cellIdx) const { return m_ParticleIdxInCell(cellIdx); }
 protected:
-    VecX<N, ScalarType> m_BMin         = VecX<N, ScalarType>(-1.0);
-    VecX<N, ScalarType> m_BMax         = VecX<N, ScalarType>(1.0);
-    VecX<N, UInt>       m_NCells       = VecX<N, UInt>(0);
-    VecX<N, UInt>       m_NNodes       = VecX<N, UInt>(0);
-    UInt                m_NTotalCells  = 1;
-    UInt                m_NTotalNodes  = 1;
-    ScalarType          m_CellSize     = ScalarType(1);
-    ScalarType          m_HalfCellSize = ScalarType(0.5);
-    ScalarType          m_CellSizeSqr  = ScalarType(1);
+    VecX<N, RealType> m_BMin         = VecX<N, RealType>(-1.0);
+    VecX<N, RealType> m_BMax         = VecX<N, RealType>(1.0);
+    VecX<N, UInt>     m_NCells       = VecX<N, UInt>(0);
+    VecX<N, UInt>     m_NNodes       = VecX<N, UInt>(0);
+    UInt              m_NTotalCells  = 1;
+    UInt              m_NTotalNodes  = 1;
+    RealType          m_CellSize     = RealType(1);
+    RealType          m_HalfCellSize = RealType(0.5);
+    RealType          m_CellSizeSqr  = RealType(1);
 
     Vec_UInt m_ParticleIdxSortedByCell;
     bool     m_bCellIdxNeedResize = false;  // to track and resize the m_CellParticleIdx array
