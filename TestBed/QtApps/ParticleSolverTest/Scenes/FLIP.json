@@ -14,7 +14,7 @@
 		"CGRelativeTolerance" : 1e-5,
 		"MaxCGIteration" : 10000,
 		"BoxMin" : [-1, -1, -1],
-		"BoxMax" : [1, 1, 1],
+		"BoxMax" : [1, 1.5, 1],
 		"ParticleRadius" : 0.0075,
 		"ParticleFile" : "Data/pnt0000.dat"
 	},
@@ -23,7 +23,7 @@
 		{
 			"GeometryType" : "Box",
 			"BoxMin" : [-1.0, -1.0, -1.0],
-			"BoxMax" : [1.0, 1.0, 1.0]
+			"BoxMax" : [1.0, 1.5, 1.0]
 		},
 		{
 			"GeometryType" : "Sphere",

@@ -319,11 +319,15 @@ void TriMeshObject<N, RealType >::makeSDF()
 template<Int N, class RealType>
 RealType CSGObject<N, RealType >::signedDistance(const VecX<N, RealType>& ppos_, bool bNegativeInside /*= true*/)
 {
-    VecX<N, RealType> ppos = domainDeform(ppos_);
-    RealType          sd   = RealType(0);
+    if(m_Objects.size() == 0)
+        return Huge;
 
-    for(auto& csgObj : m_Objects)
+    VecX<N, RealType> ppos = domainDeform(ppos_);
+    RealType          sd   = m_Objects[0].obj->signedDistance(ppos, bNegativeInside);
+
+    for(size_t i = 1; i < m_Objects.size(); ++i)
     {
+        auto& csgObj = m_Objects[i];
         switch(csgObj.op)
         {
             case Overwrite:
