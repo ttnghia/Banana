@@ -21,25 +21,6 @@
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void ParticleHelpers::relaxPosition(Vec_Vec3r& particles, RelaxationMethod method)
-{
-    if(method == LloydRelaxationMethod)
-    {
-        //x;
-        //LloydRelaxation lloyd(domainParams, particle_radius);
-        //lloyd.moving_percentage_threshold = samplingParams->movingPercentageThreshold;
-        //lloyd.overlap_ratio_threshold = samplingParams->overlapRatioThreshold;
-        //lloyd.remove_ratio_threshold = samplingParams->overlapRatioThreshold;
-
-        //lloyd.relax_particles(samples, particles, 10, 3000);
-    }
-    else
-    {
-        //x;
-    }
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void ParticleHelpers::transform(Vec_Vec3r& particles, const Vec3r& translation, const Vec3r& rotation)
 {
     Real azimuth = rotation[0];

@@ -47,7 +47,25 @@ void generatePositions(Vector<VectorType>& positions, Real particleRadius)
 template<class VectorType>
 void relaxPositions(Vector<VectorType>& positions, Real particleRadius)
 {
-    //
+    bool   bRelax      = false;
+    String relaxMethod = String("SPH");
+    JSONHelpers::readBool(m_jParams, bRelax, "RelaxPosition");
+    JSONHelpers::readValue(m_jParams, relaxMethod, "RelaxMethod");
+
+    if(bRelax)
+    {
+        if(relaxMethod == "SPH" || relaxMethod == "SPHBased")
+            LloydRelaxation::relaxParticles(positions, positions);
+        else
+        {
+            Vector<VectorType> denseSamples;
+            Real               denseSampleRatio = 0.1;
+            JSONHelpers::readValue(m_jParams, denseSampleRatio, "DenseSampleRatio");
+
+            generatePositions(denseSamples, particleRadius * denseSampleRatio);
+            LloydRelaxation::relaxParticles(denseSamples, positions);
+        }
+    }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

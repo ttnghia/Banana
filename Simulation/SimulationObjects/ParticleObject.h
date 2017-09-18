@@ -22,6 +22,8 @@
 #include <Banana/Geometry/GeometryObject3D.h>
 #include <Banana/Geometry/GeometryObjectFactory.h>
 #include <ParticleTools/ParticleHelpers.h>
+#include <ParticleTools/BlueNoiseRelaxation/LloydRelaxation.h>
+#include <ParticleTools/BlueNoiseRelaxation/SPHBasedRelaxation.h>
 
 #include <json.hpp>
 
