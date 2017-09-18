@@ -169,7 +169,7 @@ public:
         assert(bIndexValid);
     }
 
-    bool equalSize(const Array<N, T>& other) const
+    __BNN_INLINE bool equalSize(const Array<N, T>& other) const
     {
         for(Int i = 0; i < N; ++i)
         {
@@ -180,7 +180,7 @@ public:
     }
 
     template<class IndexType>
-    bool equalSize(const VecX<N, IndexType>& otherSize) const
+    __BNN_INLINE bool equalSize(const VecX<N, IndexType>& otherSize) const
     {
         for(Int i = 0; i < N; ++i)
         {
@@ -195,6 +195,7 @@ public:
     template<class IndexType>
     __BNN_INLINE bool isValidIndex(IndexType i, IndexType j) const
     {
+        static_assert(N == 2, "Array dimension != 2");
         return (i >= 0 &&
                 j >= 0 &&
                 static_cast<size_type>(i) < m_Size[0] &&
@@ -254,6 +255,7 @@ public:
     template<class IndexType>
     __BNN_INLINE bool isValidIndex(IndexType i, IndexType j, IndexType k) const
     {
+        static_assert(N == 3, "Array dimension != 3");
         return (i >= 0 &&
                 j >= 0 &&
                 k >= 0 &&

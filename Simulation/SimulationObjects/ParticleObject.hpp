@@ -40,7 +40,7 @@ void ParticleObject::generateParticles(Vector<VectorType>& positions, Vector<Vec
 template<class VectorType>
 void generatePositions(Vector<VectorType>& positions, Real particleRadius)
 {
-    //
+    // Firstly, generate a signed distance field
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -55,7 +55,7 @@ void relaxPositions(Vector<VectorType>& positions, Real particleRadius)
     if(bRelax)
     {
         if(relaxMethod == "SPH" || relaxMethod == "SPHBased")
-            LloydRelaxation::relaxParticles(positions, positions);
+            SPHBasedRelaxation::relaxPositions(positions, particleRadius);
         else
         {
             Vector<VectorType> denseSamples;
@@ -63,7 +63,7 @@ void relaxPositions(Vector<VectorType>& positions, Real particleRadius)
             JSONHelpers::readValue(m_jParams, denseSampleRatio, "DenseSampleRatio");
 
             generatePositions(denseSamples, particleRadius * denseSampleRatio);
-            LloydRelaxation::relaxParticles(denseSamples, positions);
+            LloydRelaxation::relaxPositions(denseSamples, positions);
         }
     }
 }

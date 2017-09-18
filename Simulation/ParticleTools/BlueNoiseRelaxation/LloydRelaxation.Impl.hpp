@@ -29,11 +29,11 @@ LloydRelaxation<Real>::LloydRelaxation(const Vec3<Real>& domainBMin, const Vec3<
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class Real>
-void LloydRelaxation<Real>::relaxParticles(std::vector<Vec3<Real> >& denseParticles,
-                                           std::vector<Vec3<Real> >& particles,
-                                           int                       minIterations /*= 10*/,
-                                           int                       maxIterations /*= 1000*/,
-                                           bool                      bUseCandidateCenters /*= false*/)
+void LloydRelaxation<Real >::relaxPositions(std::vector<Vec3<Real> >& denseParticles,
+                                            std::vector<Vec3<Real> >& particles,
+                                            int                       minIterations /*= 10*/,
+                                            int                       maxIterations /*= 1000*/,
+                                            bool                      bUseCandidateCenters /*= false*/)
 {
     __BNN_ASSERT(denseParticles.size() > 4 * particles.size());
     computeLloydClusters(denseParticles, particles, minIterations, maxIterations, bUseCandidateCenters);
@@ -41,12 +41,12 @@ void LloydRelaxation<Real>::relaxParticles(std::vector<Vec3<Real> >& densePartic
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class Real>
-void LloydRelaxation<Real>::relaxParticlesWeighted(const std::vector<Real>&  weights,
-                                                   std::vector<Vec3<Real> >& denseParticles,
-                                                   std::vector<Vec3<Real> >& particles,
-                                                   int                       minIterations /*= 10*/,
-                                                   int                       maxIterations /*= 1000*/,
-                                                   bool                      bUseCandidateCenters /*= false*/)
+void LloydRelaxation<Real >::relaxParticlesWeighted(const std::vector<Real>&  weights,
+                                                    std::vector<Vec3<Real> >& denseParticles,
+                                                    std::vector<Vec3<Real> >& particles,
+                                                    int                       minIterations /*= 10*/,
+                                                    int                       maxIterations /*= 1000*/,
+                                                    bool                      bUseCandidateCenters /*= false*/)
 {
     __BNN_ASSERT(denseParticles.size() > 4 * particles.size());
     computeWeightedLloydClusters(weights, denseParticles, particles, minIterations, maxIterations, bUseCandidateCenters);
@@ -54,21 +54,21 @@ void LloydRelaxation<Real>::relaxParticlesWeighted(const std::vector<Real>&  wei
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class Real>
-void LloydRelaxation<Real>::computeLloydClusters(std::vector<Vec3<Real> >& samples,
-                                                 std::vector<Vec3<Real> >& clusterCenters,
-                                                 int                       minIterations /*= 10*/,
-                                                 int                       maxIterations /*= 1000*/,
-                                                 bool                      bUseCandidateCenters /*= false*/)
+void LloydRelaxation<Real >::computeLloydClusters(std::vector<Vec3<Real> >& samples,
+                                                  std::vector<Vec3<Real> >& clusterCenters,
+                                                  int                       minIterations /*= 10*/,
+                                                  int                       maxIterations /*= 1000*/,
+                                                  bool                      bUseCandidateCenters /*= false*/)
 {
     Vec_VecUInt              samplesInCluster;
     std::vector<Vec3<Real> > clusterBackup;
     std::vector<Real>        movingDistance;
 
-    Real   totalTime           = 0;
+    Real totalTime           = 0;
     UInt numOverlapped       = 0;
-    bool   converged           = false;
-    Real   minClusterDistance  = std::numeric_limits<Real>::max();
-    Real   maxMovingPercentage = std::numeric_limits<Real>::max();
+    bool converged           = false;
+    Real minClusterDistance  = std::numeric_limits<Real>::max();
+    Real maxMovingPercentage = std::numeric_limits<Real>::max();
 
     ////////////////////////////////////////////////////////////////////////////////
 
@@ -187,12 +187,12 @@ void LloydRelaxation<Real>::computeLloydClusters(std::vector<Vec3<Real> >& sampl
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class Real>
-void LloydRelaxation<Real>::computeWeightedLloydClusters(const std::vector<Real>&  weights,
-                                                         std::vector<Vec3<Real> >& samples,
-                                                         std::vector<Vec3<Real> >& clusterCenters,
-                                                         int                       minIterations /*= 10*/,
-                                                         int                       maxIterations /*= 100*/,
-                                                         bool                      bUseCandidateCenters /*= false*/)
+void LloydRelaxation<Real >::computeWeightedLloydClusters(const std::vector<Real>&  weights,
+                                                          std::vector<Vec3<Real> >& samples,
+                                                          std::vector<Vec3<Real> >& clusterCenters,
+                                                          int                       minIterations /*= 10*/,
+                                                          int                       maxIterations /*= 100*/,
+                                                          bool                      bUseCandidateCenters /*= false*/)
 {
     __BNN_ASSERT(samples.size() == weights.size());
 
@@ -205,7 +205,7 @@ void LloydRelaxation<Real>::computeWeightedLloydClusters(const std::vector<Real>
     Real                     maxMovingPercentage = std::numeric_limits<Real>::max();
 
     UInt numOverlapped = 0;
-    Real   totalTime     = 0;
+    Real totalTime     = 0;
 
     bool converged = false;
 
@@ -307,7 +307,7 @@ void LloydRelaxation<Real>::computeWeightedLloydClusters(const std::vector<Real>
 ///	\c clusterCenter contains the centers of the cluster.
 ///	On return, \c samplesInCluster will contain for each cluster the indices of the samples in the cluster.
 template<class Real>
-void LloydRelaxation<Real>::collectSampleToCluster(const std::vector<Vec3<Real> >& clusterCenters, const std::vector<Vec3<Real> >& samples, Vec_VecUInt& samplesInCluster)
+void LloydRelaxation<Real >::collectSampleToCluster(const std::vector<Vec3<Real> >& clusterCenters, const std::vector<Vec3<Real> >& samples, Vec_VecUInt& samplesInCluster)
 {
     size_t numClusters = clusterCenters.size();
     size_t numSamples  = samples.size();
@@ -389,7 +389,7 @@ void LloydRelaxation<Real>::collectSampleToCluster(const std::vector<Vec3<Real> 
 // static functions
 
 template<class Real>
-size_t LloydRelaxation<Real>::computeMedian(const std::vector<Vec3<Real> >& samples, const Vec_UInt& subsetIndices)
+size_t LloydRelaxation<Real >::computeMedian(const std::vector<Vec3<Real> >& samples, const Vec_UInt& subsetIndices)
 {
     std::vector<Real> dist2(subsetIndices.size(), 0);
 
@@ -423,7 +423,7 @@ size_t LloydRelaxation<Real>::computeMedian(const std::vector<Vec3<Real> >& samp
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class Real>
-size_t LloydRelaxation<Real>::computeWeightedMedian(const std::vector<Vec3<Real> >& samples, const std::vector<Real>& weights, const Vec_UInt& subsetIndices)
+size_t LloydRelaxation<Real >::computeWeightedMedian(const std::vector<Vec3<Real> >& samples, const std::vector<Real>& weights, const Vec_UInt& subsetIndices)
 {
     __BNN_ASSERT(samples.size() == weights.size());
 
@@ -462,7 +462,7 @@ size_t LloydRelaxation<Real>::computeWeightedMedian(const std::vector<Vec3<Real>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class Real>
-void LloydRelaxation<Real>::computeMean(const std::vector<Vec3<Real> >& samples, const Vec_UInt& subsetIndices, Vec3<Real>& mean)
+void LloydRelaxation<Real >::computeMean(const std::vector<Vec3<Real> >& samples, const Vec_UInt& subsetIndices, Vec3<Real>& mean)
 {
     mean = Vec3<Real>(0);
 
@@ -476,7 +476,7 @@ void LloydRelaxation<Real>::computeMean(const std::vector<Vec3<Real> >& samples,
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class Real>
-void LloydRelaxation<Real>::computeWeightedMean(const std::vector<Vec3<Real> >& samples, const std::vector<Real>& weights, const Vec_UInt& subsetIndices, Vec3<Real>& mean)
+void LloydRelaxation<Real >::computeWeightedMean(const std::vector<Vec3<Real> >& samples, const std::vector<Real>& weights, const Vec_UInt& subsetIndices, Vec3<Real>& mean)
 {
     mean = Vec3<Real>(0);
     __BNN_ASSERT(samples.size() == weights.size());
@@ -498,7 +498,7 @@ void LloydRelaxation<Real>::computeWeightedMean(const std::vector<Vec3<Real> >& 
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class Real>
-Real LloydRelaxation<Real>::computeMinDistance(const std::vector<Vec3<Real> >& clusterCenters)
+Real LloydRelaxation<Real >::computeMinDistance(const std::vector<Vec3<Real> >& clusterCenters)
 {
     std::vector<Real> dist2(clusterCenters.size(), 0);
 
@@ -549,7 +549,7 @@ Real LloydRelaxation<Real>::computeMinDistance(const std::vector<Vec3<Real> >& c
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class Real>
-Real LloydRelaxation<Real>::computeMinDistance(const std::vector<Vec3<Real> >& clusterCenters, UInt& numOverlappedParticles)
+Real LloydRelaxation<Real >::computeMinDistance(const std::vector<Vec3<Real> >& clusterCenters, UInt& numOverlappedParticles)
 {
     std::vector<Real> dist2(clusterCenters.size(), 0);
 
@@ -608,7 +608,7 @@ Real LloydRelaxation<Real>::computeMinDistance(const std::vector<Vec3<Real> >& c
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class Real>
-UInt LloydRelaxation<Real>::removeOverlappedParticles(std::vector<Vec3<Real> >& clusterCenters)
+UInt LloydRelaxation<Real >::removeOverlappedParticles(std::vector<Vec3<Real> >& clusterCenters)
 {
     Vec_Char check_remove;
     check_remove.assign(clusterCenters.size(), 0);
@@ -679,7 +679,7 @@ UInt LloydRelaxation<Real>::removeOverlappedParticles(std::vector<Vec3<Real> >& 
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class Real>
-void LloydRelaxation<Real>::sortSamples(std::vector<Vec3<Real> >& samples, const Vec_VecUInt& samplesInCluster)
+void LloydRelaxation<Real >::sortSamples(std::vector<Vec3<Real> >& samples, const Vec_VecUInt& samplesInCluster)
 {
     static Timer m_Timer;
     size_t       numSamples = samples.size();
@@ -713,7 +713,7 @@ void LloydRelaxation<Real>::sortSamples(std::vector<Vec3<Real> >& samples, const
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class Real>
-void LloydRelaxation<Real>::collectClustersToCells(const std::vector<Vec3<Real> >& clusterCenters)
+void LloydRelaxation<Real >::collectClustersToCells(const std::vector<Vec3<Real> >& clusterCenters)
 {
     for(auto& cell : m_CellParticles)
         cell.resize(0);

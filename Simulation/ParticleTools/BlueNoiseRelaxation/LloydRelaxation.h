@@ -38,7 +38,7 @@ public:
     LloydRelaxation(const Vec3<Real>& domainBMin, const Vec3<Real>& domainBMax, Real particleRadius);
     ~LloydRelaxation() = default;
 
-    void relaxParticles(std::vector<Vec3<Real> >& denseParticles,
+    void relaxPositions(std::vector<Vec3<Real> >& denseParticles,
                         std::vector<Vec3<Real> >& particles,
                         int                       minIterations = 10,
                         int                       maxIterations = 1000,
