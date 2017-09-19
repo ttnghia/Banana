@@ -73,7 +73,7 @@ public:
     RealType          signedDistance(const VecX<N, RealType>& ppos, bool bUseCache = true);
     VecX<N, RealType> gradientSignedDistance(const VecX<N, RealType>& ppos, RealType dxyz = RealType(1.0 / 512.0), bool bUseCache = true);
     void              generateSDF(const VecX<N, RealType>& domainBMin, const VecX<N, RealType>& domainBMax, RealType sdfCellSize = RealType(1.0 / 512.0), bool bUseCache = false);
-    virtual bool      constrainToBoundary(VecX<N, RealType>& ppos, VecX<N, RealType>& pvel) /*= 0;*/ { return true; }
+    virtual bool      constrainToBoundary(VecX<N, RealType>& ppos, VecX<N, RealType>& pvel);
 
 protected:
     virtual void parseParameters() { __BNN_UNIMPLEMENTED_FUNC }

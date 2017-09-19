@@ -54,7 +54,10 @@ void FLIP3DSolver::makeReady()
                                m_NSearch->add_point_set(glm::value_ptr(particleData().positions.front()), getNumParticles(), true, true);
 
                                for(auto& obj : m_BoundaryObjects)
+                               {
+                                   obj->margin() = m_SimParams->particleRadius;
                                    obj->generateSDF(m_SimParams->domainBMin, m_SimParams->domainBMax, m_SimParams->cellSize);
+                               }
 
                                ParallelFuncs::parallel_for<UInt>(m_Grid.getNNodes(),
                                                                  [&](UInt i, UInt j, UInt k)
@@ -332,19 +335,25 @@ void FLIP3DSolver::moveParticles(Real timestep)
     ParallelFuncs::parallel_for<UInt>(0, getNumParticles(),
                                       [&](UInt p)
                                       {
-                                          Vec3r ppos = particleData().positions[p] + particleData().velocities[p] * timestep;
-                                          const Vec3r gridPos = m_Grid.getGridCoordinate(ppos);
-                                          const Real phiVal = ArrayHelpers::interpolateValueLinear(gridPos, gridData().boundarySDF) - m_SimParams->particleRadius;
+                                          Vec3r pvel = particleData().velocities[p];
+                                          Vec3r ppos = particleData().positions[p] + pvel * timestep;
+                                          /*const Vec3r gridPos = m_Grid.getGridCoordinate(ppos);
+                                             const Real phiVal = ArrayHelpers::interpolateValueLinear(gridPos, gridData().boundarySDF) - m_SimParams->particleRadius;
 
-                                          if(phiVal < 0)
-                                          {
+                                             if(phiVal < 0)
+                                             {
                                               Vec3r grad = ArrayHelpers::interpolateGradient(gridPos, gridData().boundarySDF);
                                               Real mag2Grad = glm::length2(grad);
 
                                               if(mag2Grad > Tiny)
                                                   ppos -= phiVal * grad / sqrt(mag2Grad);
-                                          }
+                                             }*/
+                                          bool velChanged = false;
+                                          for(auto& obj : m_BoundaryObjects)
+                                              if(obj->constrainToBoundary(ppos, pvel)) velChanged = true;
 
+                                          //if(velChanged)
+                                          //    particleData().velocities[p] = pvel;
                                           particleData().positions[p] = ppos;
                                       });
 }

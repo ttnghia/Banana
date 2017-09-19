@@ -62,6 +62,36 @@ void BoundaryObjectInterface<N, RealType >::generateSDF(const VecX<N, RealType>&
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType>
+bool BoundaryObjectInterface<N, RealType >::constrainToBoundary(VecX<N, RealType>& ppos, VecX<N, RealType>& pvel)
+{
+    __BNN_ASSERT(m_bSDFGenerated);
+    const VecX<N, RealType> gridPos = m_Grid.getGridCoordinate(ppos);
+    const RealType          phiVal  = ArrayHelpers::interpolateValueLinear(gridPos, m_SDF) - m_Margin;
+
+    if(phiVal < 0)
+    {
+        VecX<N, RealType> grad     = ArrayHelpers::interpolateGradient(gridPos, m_SDF);
+        RealType          mag2Grad = glm::length2(grad);
+
+        // todo: check
+        if(mag2Grad > Tiny)
+        {
+            grad /= sqrt(mag2Grad);
+            ppos -= phiVal * grad;
+            pvel  = -pvel;
+            //RealType magVel = glm::length(pvel);
+            //pvel = glm::normalize(pvel);
+
+            //pvel = glm::reflect(pvel, grad) * m_RestitutionCoeff * magVel;
+            return true;
+        }
+    }
+
+    return false;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
 void BoundaryObject<2, RealType >::computeSDF()
 {
