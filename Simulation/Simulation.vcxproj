@@ -156,12 +156,10 @@
     <ClInclude Include="ParticleSolvers\SPH\KernelFunctions.h" />
     <ClInclude Include="ParticleTools\ParticleHelpers.Impl.hpp" />
     <ClInclude Include="ParticleTools\PoissonDiskSampler.h" />
-    <ClInclude Include="SimulationObjects\BoundaryObjects\BoundaryObject.h" />
-    <ClInclude Include="SimulationObjects\BoundaryObjects\BoxBoundary.h" />
-    <ClInclude Include="SimulationObjects\BoundaryObjects\SphereBoundary.h" />
-    <ClInclude Include="SimulationObjects\ParticleObject.hpp" />
+    <ClInclude Include="SimulationObjects\BoundaryObject.h" />
+    <ClInclude Include="SimulationObjects\BoundaryObject.Impl.hpp" />
+    <ClInclude Include="SimulationObjects\ParticleObject.Impl.hpp" />
     <ClInclude Include="SimulationObjects\SimulationObjectFactory.h" />
-    <ClInclude Include="SimulationObjects\BoundaryObjects\BoundaryObjects" />
     <ClInclude Include="ParticleTools\BlueNoiseRelaxation\LloydRelaxation.Impl.hpp" />
     <ClInclude Include="ParticleTools\ParticleHelpers.h" />
     <ClInclude Include="SimulationObjects\ParticleObject.h" />

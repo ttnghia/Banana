@@ -33,7 +33,7 @@
 #include <ParticleSolvers/ParticleSolverData.h>
 #include <ParticleSolvers/SceneLoader.h>
 
-#include <SimulationObjects/BoundaryObjects/BoundaryObjects>
+#include <SimulationObjects/BoundaryObject.h>
 #include <SimulationObjects/ParticleObject.h>
 #include <SimulationObjects/ParticleEmitter.h>
 

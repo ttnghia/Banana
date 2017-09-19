@@ -38,10 +38,10 @@ template<Int N, class RealType>
 class ParticleObject
 {
 public:
-    using GeometryPtr = SharedPtr<GeometryObjects::GeometryObject<N, Real> >;
+    using GeometryPtr = SharedPtr<GeometryObjects::GeometryObject<N, RealType> >;
     static constexpr UInt objDimension() noexcept { return static_cast<UInt>(N); }
     ParticleObject() = delete;
-    ParticleObject(const String& geometryType) : m_GeometryObj(GeometryObjectFactory::createGeometry<N, Real>(geometryType)) { __BNN_ASSERT(m_GeometryObj != nullptr); }
+    ParticleObject(const String& geometryType) : m_GeometryObj(GeometryObjectFactory::createGeometry<N, RealType>(geometryType)) { __BNN_ASSERT(m_GeometryObj != nullptr); }
 
     String&      name() { return m_MeshFile; }
     String&      meshFile() { return m_MeshFile; }
@@ -50,66 +50,14 @@ public:
     GeometryPtr& getGeometry() { return m_GeometryObj; }
 
     ////////////////////////////////////////////////////////////////////////////////
-    void generateParticles(Vector<VecX<N, RealType> >& positions, Vector<VecX<N, RealType> >& velocities, Real particleRadius, bool bUseCache = true)
-    {
-        if(bUseCache && !m_ParticleFile.empty() && FileHelpers::fileExisted(m_ParticleFile))
-        {
-            positions.resize(0);
-            ParticleHelpers::loadBinaryAndDecompress(m_ParticleFile, positions, m_ParticleRadius);
-            generateVelocities();
-
-            return;
-        }
-
-        ////////////////////////////////////////////////////////////////////////////////
-        generatePositions(positions, particleRadius);
-        relaxPositions(positions, particleRadius);
-        generateVelocities(positions, velocities);
-        ////////////////////////////////////////////////////////////////////////////////
-
-        if(bUseCache && !m_ParticleFile.empty())
-            ParticleHelpers::compressAndSaveBinary(m_ParticleFile, positions, m_ParticleRadius);
-    }
-
-    virtual void makeReady() {} // todo: need this?
+    void         generateParticles(Vector<VecX<N, RealType> >& positions, Vector<VecX<N, RealType> >& velocities, RealType particleRadius, bool bUseCache = true);
+    virtual void makeReady() {}     // todo: need this?
     virtual void advanceFrame() {}
 
 protected:
-    void generatePositions(Vector<VecX<N, RealType> >& positions, Real particleRadius)
-    {
-        // Firstly, generate a signed distance field
-        Grid<VecX<N, RealType>::length(), Real> grid;
-    }
-
-    void relaxPositions(Vector<VecX<N, RealType> >& positions, Real particleRadius)
-    {
-        bool   bRelax      = false;
-        String relaxMethod = String("SPH");
-        JSONHelpers::readBool(m_jParams, bRelax, "RelaxPosition");
-        JSONHelpers::readValue(m_jParams, relaxMethod, "RelaxMethod");
-
-        if(bRelax)
-        {
-            //if(relaxMethod == "SPH" || relaxMethod == "SPHBased")
-            //    SPHBasedRelaxation::relaxPositions(positions, particleRadius);
-            //else
-            //{
-            //    Vector<VecX<N, RealType> > denseSamples;
-            //    Real                       denseSampleRatio = 0.1;
-            //    JSONHelpers::readValue(m_jParams, denseSampleRatio, "DenseSampleRatio");
-
-            //    generatePositions(denseSamples, particleRadius * denseSampleRatio);
-            //    LloydRelaxation::relaxPositions(denseSamples, positions);
-            //}
-        }
-    }
-
-    void generateVelocities(Vector<VecX<N, RealType> >& positions, Vector<VecX<N, RealType> >& velocities)
-    {
-        VecX<N, RealType> initVelocity = VecX<N, RealType>(0);
-        JSONHelpers::readVector(m_jParams, initVelocity, "InitialVelocity");
-        velocities.resize(positions.size(), initVelocity);
-    }
+    void generatePositions(Vector<VecX<N, RealType> >& positions, RealType particleRadius);
+    void relaxPositions(Vector<VecX<N, RealType> >& positions, RealType particleRadius);
+    void generateVelocities(Vector<VecX<N, RealType> >& positions, Vector<VecX<N, RealType> >& velocities);
 
     String m_ObjName      = String("NoName");
     String m_MeshFile     = String("");
@@ -121,6 +69,9 @@ protected:
     JParams     m_jParams;
     GeometryPtr m_GeometryObj = nullptr;
 };
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#include <SimulationObjects/ParticleObject.Impl.hpp>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace SimulationObjects

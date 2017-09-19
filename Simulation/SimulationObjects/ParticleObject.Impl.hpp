@@ -14,8 +14,8 @@
 //
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class VectorType>
-void ParticleObject::generateParticles(Vector<VectorType>& positions, Vector<VectorType>& velocities, Real particleRadius, bool bUseCache /*= true*/)
+template<Int N, class RealType>
+void ParticleObject<N, RealType >::generateParticles(Vector<VecX<N, RealType> >& positions, Vector<VecX<N, RealType> >& velocities, RealType particleRadius, bool bUseCache /*= true*/)
 {
     if(bUseCache && !m_ParticleFile.empty() && FileHelpers::fileExisted(m_ParticleFile))
     {
@@ -37,16 +37,16 @@ void ParticleObject::generateParticles(Vector<VectorType>& positions, Vector<Vec
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class VectorType>
-void generatePositions(Vector<VectorType>& positions, Real particleRadius)
+template<Int N, class RealType>
+void ParticleObject<N, RealType >::generatePositions(Vector<VecX<N, RealType> >& positions, RealType particleRadius)
 {
     // Firstly, generate a signed distance field
-    Grid<VectorType::length(), Real> grid;
+    Grid<VecX<N, RealType>::length(), RealType> grid;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class VectorType>
-void relaxPositions(Vector<VectorType>& positions, Real particleRadius)
+template<Int N, class RealType>
+void ParticleObject<N, RealType >::relaxPositions(Vector<VecX<N, RealType> >& positions, RealType particleRadius)
 {
     bool   bRelax      = false;
     String relaxMethod = String("SPH");
@@ -55,25 +55,27 @@ void relaxPositions(Vector<VectorType>& positions, Real particleRadius)
 
     if(bRelax)
     {
-        if(relaxMethod == "SPH" || relaxMethod == "SPHBased")
-            SPHBasedRelaxation::relaxPositions(positions, particleRadius);
-        else
-        {
-            Vector<VectorType> denseSamples;
-            Real               denseSampleRatio = 0.1;
-            JSONHelpers::readValue(m_jParams, denseSampleRatio, "DenseSampleRatio");
+        //if(relaxMethod == "SPH" || relaxMethod == "SPHBased")
+        //    SPHBasedRelaxation::relaxPositions(positions, particleRadius);
+        //else
+        //{
+        //    Vector<VecX<N, RealType> > denseSamples;
+        //    RealType                       denseSampleRatio = 0.1;
+        //    JSONHelpers::readValue(m_jParams, denseSampleRatio, "DenseSampleRatio");
 
-            generatePositions(denseSamples, particleRadius * denseSampleRatio);
-            LloydRelaxation::relaxPositions(denseSamples, positions);
-        }
+        //    generatePositions(denseSamples, particleRadius * denseSampleRatio);
+        //    LloydRelaxation::relaxPositions(denseSamples, positions);
+        //}
     }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class VectorType>
-void generateVelocities(Vector<VectorType>& positions, Vector<VectorType>& velocities)
+template<Int N, class RealType>
+void ParticleObject<N, RealType >::generateVelocities(Vector<VecX<N, RealType> >& positions, Vector<VecX<N, RealType> >& velocities)
 {
-    VectorType initVelocity = VectorType(0);
+    VecX<N, RealType> initVelocity = VecX<N, RealType>(0);
     JSONHelpers::readVector(m_jParams, initVelocity, "InitialVelocity");
     velocities.resize(positions.size(), initVelocity);
 }
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

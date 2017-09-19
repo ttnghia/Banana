@@ -19,7 +19,7 @@
 
 #include <Banana/Utils/JSONHelpers.h>
 #include <ParticleSolvers/ParticleSolverData.h>
-#include <SimulationObjects/BoundaryObjects/BoundaryObjects>
+#include <SimulationObjects/BoundaryObject.h>
 #include <SimulationObjects/ParticleObject.h>
 #include <SimulationObjects/ParticleEmitter.h>
 #include <SimulationObjects/SimulationObjectFactory.h>
