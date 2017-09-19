@@ -51,14 +51,18 @@ namespace Banana
 namespace ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType>
 class ParticleSolver
 {
 public:
+    static constexpr UInt solverDimension() noexcept { return static_cast<UInt>(N); }
     ParticleSolver() = default;
     virtual ~ParticleSolver() { Logger::shutdown(); }
 
-    const UniquePtr<GlobalParameters>& getGlobalParams() const noexcept { return m_GlobalParams; }
-    const SharedPtr<Logger>&           getLogger() const noexcept { return m_Logger; }
+    const UniquePtr<GlobalParameters>&  getGlobalParams() const noexcept { return m_GlobalParams; }
+    const SharedPtr<Logger>&            getLogger() const noexcept { return m_Logger; }
+    virtual Vector<VecX<N, RealType> >& getParticlePositions()  = 0;
+    virtual Vector<VecX<N, RealType> >& getParticleVelocities() = 0;
 
     void loadScene(const String& sceneFile);
     void setupLogger();
@@ -74,15 +78,16 @@ public:
     virtual void sortParticles() = 0;
 
 protected:
-    virtual void advanceScene()                                    = 0;
-    virtual void loadSimParams(const nlohmann::json& jParams)      = 0;
-    virtual void generateBoundaries(const nlohmann::json& jParams) = 0;
-    virtual void generateParticles(const nlohmann::json& jParams)  = 0;
-    virtual void generateEmitters(const nlohmann::json& jParams)   = 0;
-    virtual void setupDataIO()                                     = 0;
-    virtual void loadMemoryState()                                 = 0;
-    virtual void saveMemoryState()                                 = 0;
-    virtual void saveParticleData()                                = 0;
+    virtual void generateBoundaries(const nlohmann::json& jParams);
+    virtual void generateParticles(const nlohmann::json& jParams);
+    virtual void generateEmitters(const nlohmann::json& jParams);
+    virtual void advanceScene();
+
+    virtual void loadSimParams(const nlohmann::json& jParams) = 0;
+    virtual void setupDataIO()                                = 0;
+    virtual void loadMemoryState()                            = 0;
+    virtual void saveMemoryState()                            = 0;
+    virtual void saveParticleData()                           = 0;
 
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -92,46 +97,20 @@ protected:
     UniquePtr<GlobalParameters> m_GlobalParams = std::make_unique<GlobalParameters>();
     Vector<SharedPtr<DataIO> >  m_ParticleDataIO;
     Vector<SharedPtr<DataIO> >  m_MemoryStateIO;
-};
 
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class ParticleSolver2D : public ParticleSolver
-{
-public:
-    virtual Vec_Vec2r&    getParticlePositions()  = 0;
-    virtual Vec_Vec2r&    getParticleVelocities() = 0;
-    static constexpr UInt solverDimension() noexcept { return 2u; }
-
-protected:
-    virtual void generateBoundaries(const nlohmann::json& jParams);
-    virtual void generateParticles(const nlohmann::json& jParams);
-    virtual void generateEmitters(const nlohmann::json& jParams);
-    virtual void advanceScene() override;
-
-    Vector<SharedPtr<SimulationObjects::BoundaryObject<2, Real> > >  m_BoundaryObjects;  // individual objects, as one can be dynamic while the other is not
-    Vector<SharedPtr<SimulationObjects::ParticleObject<2, Real> > >  m_ParticleObjects;  // individual objects, as they can have different properties
-    Vector<SharedPtr<SimulationObjects::ParticleEmitter<2, Real> > > m_ParticleEmitters; // individual objects, as they can have different behaviors
-};
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class ParticleSolver3D : public ParticleSolver
-{
-public:
-    virtual Vec_Vec3r&    getParticlePositions()  = 0;
-    virtual Vec_Vec3r&    getParticleVelocities() = 0;
-    static constexpr UInt solverDimension() noexcept { return 3u; }
-
-protected:
-    virtual void generateBoundaries(const nlohmann::json& jParams);
-    virtual void generateParticles(const nlohmann::json& jParams);
-    virtual void generateEmitters(const nlohmann::json& jParams);
-    virtual void advanceScene() override;
-
+    // todo: add NSearch for 2D
     UniquePtr<NeighborSearch::NeighborSearch3D>                      m_NSearch = nullptr;
-    Vector<SharedPtr<SimulationObjects::BoundaryObject<3, Real> > >  m_BoundaryObjects;  // individual objects, as one can be dynamic while the other is not
-    Vector<SharedPtr<SimulationObjects::ParticleObject<3, Real> > >  m_ParticleObjects;  // individual objects, as they can have different properties
-    Vector<SharedPtr<SimulationObjects::ParticleEmitter<3, Real> > > m_ParticleEmitters; // individual objects, as they can have different behaviors
+    Vector<SharedPtr<SimulationObjects::BoundaryObject<N, Real> > >  m_BoundaryObjects;  // individual objects, as one can be dynamic while the other is not
+    Vector<SharedPtr<SimulationObjects::ParticleObject<N, Real> > >  m_ParticleObjects;  // individual objects, as they can have different properties
+    Vector<SharedPtr<SimulationObjects::ParticleEmitter<N, Real> > > m_ParticleEmitters; // individual objects, as they can have different behaviors
 };
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#include <ParticleSolvers/ParticleSolver.Impl.hpp>
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+using ParticleSolver2D = ParticleSolver<2, Real>;
+using ParticleSolver3D = ParticleSolver<3, Real>;
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 };  // end namespace ParticleSolvers

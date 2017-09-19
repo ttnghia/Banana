@@ -14,18 +14,50 @@
 //
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-
-#include <ParticleSolvers/ParticleSolver.h>
-#include <ParticleSolvers/SceneLoader.h>
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace Banana
+template<Int N, class RealType>
+void ParticleSolver<N, RealType >::loadScene(const String& sceneFile)
 {
+    std::ifstream inputFile(sceneFile);
+    if(!inputFile.is_open())
+    {
+        m_Logger->printError("Cannot open scene file: " + sceneFile);
+        return;
+    }
+
+    m_Logger->printLog("Load scene file: " + sceneFile);
+    nlohmann::json jParams = nlohmann::json::parse(inputFile);
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // read frame parameters
+    if(jParams.find("GlobalParameters") != jParams.end())
+    {
+        nlohmann::json jFrameParams = jParams["GlobalParameters"];
+        SceneLoader::loadGlobalParams(jFrameParams, m_GlobalParams);
+        m_GlobalParams->printParams(m_Logger);
+        if(m_GlobalParams->bSaveParticleData || m_GlobalParams->bSaveMemoryState || m_GlobalParams->bPrintLog2File)
+            FileHelpers::createFolder(m_GlobalParams->dataPath);
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // read simulation parameters
+    if(jParams.find("SimulationParameters") != jParams.end())
+    {
+        nlohmann::json jSimParams = jParams["SimulationParameters"];
+        loadSimParams(jSimParams); // do this by specific solver
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // read object parameters and generate scene
+    {
+        generateBoundaries(jParams);
+        generateParticles(jParams);
+        generateEmitters(jParams);
+    }
+}
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace ParticleSolvers
-{
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void ParticleSolver::setupLogger()
+template<Int N, class RealType>
+void ParticleSolver<N, RealType >::setupLogger()
 {
     m_Logger = Logger::create(getSolverName());
     m_Logger->printTextBox(getGreetingMessage());
@@ -35,7 +67,8 @@ void ParticleSolver::setupLogger()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void ParticleSolver::doSimulation()
+template<Int N, class RealType>
+void ParticleSolver<N, RealType >::doSimulation()
 {
     setupDataIO();
     if(m_GlobalParams->bLoadMemoryState)
@@ -82,89 +115,17 @@ void ParticleSolver::doSimulation()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void ParticleSolver::loadScene(const String& sceneFile)
-{
-    std::ifstream inputFile(sceneFile);
-    if(!inputFile.is_open())
-    {
-        m_Logger->printError("Cannot open scene file: " + sceneFile);
-        return;
-    }
-
-    m_Logger->printLog("Load scene file: " + sceneFile);
-    nlohmann::json jParams = nlohmann::json::parse(inputFile);
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // read frame parameters
-    if(jParams.find("GlobalParameters") != jParams.end())
-    {
-        nlohmann::json jFrameParams = jParams["GlobalParameters"];
-        SceneLoader::loadGlobalParams(jFrameParams, m_GlobalParams);
-        m_GlobalParams->printParams(m_Logger);
-        if(m_GlobalParams->bSaveParticleData || m_GlobalParams->bSaveMemoryState || m_GlobalParams->bPrintLog2File)
-            FileHelpers::createFolder(m_GlobalParams->dataPath);
-    }
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // read simulation parameters
-    if(jParams.find("SimulationParameters") != jParams.end())
-    {
-        nlohmann::json jSimParams = jParams["SimulationParameters"];
-        loadSimParams(jSimParams); // do this by specific solver
-    }
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // read object parameters and generate scene
-    {
-        generateBoundaries(jParams);
-        generateParticles(jParams);
-        generateEmitters(jParams);
-    }
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void ParticleSolver2D::generateBoundaries(const nlohmann::json& jParams)
+template<Int N, class RealType>
+void ParticleSolver<N, RealType >::generateBoundaries(const nlohmann::json& jParams)
 {
     __BNN_ASSERT(jParams.find("BoundaryObjects") != jParams.end());
-    SceneLoader::loadBoundaryObjects<2, Real>(jParams["BoundaryObjects"], m_BoundaryObjects);
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void ParticleSolver2D::generateParticles(const nlohmann::json& jParams)
-{
-    __BNN_ASSERT(jParams.find("ParticleObjects") != jParams.end());
-    SceneLoader::loadParticleObjects<2, Real>(jParams["ParticleObjects"], m_ParticleObjects);
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void ParticleSolver2D::generateEmitters(const nlohmann::json& jParams)
-{
-    if((jParams.find("ParticleEmitters") != jParams.end()))
-        SceneLoader::loadParticleEmitters<2, Real>(jParams["ParticleEmitters"], m_ParticleEmitters);
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void ParticleSolver2D::advanceScene()
-{
-    for(auto& obj : m_BoundaryObjects)
-        if(obj->isDynamic()) obj->advanceFrame();
-    for(auto& obj : m_ParticleObjects)
-        obj->advanceFrame();
-    for(auto& obj : m_ParticleEmitters)
-        obj->advanceFrame();
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void ParticleSolver3D::generateBoundaries(const nlohmann::json& jParams)
-{
-    __BNN_ASSERT(jParams.find("BoundaryObjects") != jParams.end());
-    SceneLoader::loadBoundaryObjects<3, Real>(jParams["BoundaryObjects"], m_BoundaryObjects);
+    SceneLoader::loadBoundaryObjects<N, RealType>(jParams["BoundaryObjects"], m_BoundaryObjects);
 
     ////////////////////////////////////////////////////////////////////////////////
     // combine static boundaries
     {
-        Vector<SharedPtr<SimulationObjects::BoundaryObject<3, Real> > > staticBoundaries;
-        Vector<SharedPtr<SimulationObjects::BoundaryObject<3, Real> > > dynamicBoundaries;
+        Vector<SharedPtr<SimulationObjects::BoundaryObject<N, RealType> > > staticBoundaries;
+        Vector<SharedPtr<SimulationObjects::BoundaryObject<N, RealType> > > dynamicBoundaries;
         for(auto& obj : m_BoundaryObjects)
         {
             if(obj->isDynamic())
@@ -175,8 +136,8 @@ void ParticleSolver3D::generateBoundaries(const nlohmann::json& jParams)
 
         if(staticBoundaries.size() > 1)
         {
-            SharedPtr<SimulationObjects::BoundaryObject<3, Real> > csgBoundary = std::make_shared<SimulationObjects::BoundaryObject<3, Real> >("CSGObject");
-            SharedPtr<GeometryObjects::CSGObject<3, Real> >        csgObj      = std::static_pointer_cast<GeometryObjects::CSGObject<3, Real> >(csgBoundary->getGeometry());
+            SharedPtr<SimulationObjects::BoundaryObject<N, RealType> > csgBoundary = std::make_shared<SimulationObjects::BoundaryObject<N, RealType> >("CSGObject");
+            SharedPtr<GeometryObjects::CSGObject<N, RealType> >        csgObj      = std::static_pointer_cast<GeometryObjects::CSGObject<N, RealType> >(csgBoundary->getGeometry());
             __BNN_ASSERT(csgObj != nullptr);
 
             for(auto& obj : staticBoundaries)
@@ -192,21 +153,24 @@ void ParticleSolver3D::generateBoundaries(const nlohmann::json& jParams)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void ParticleSolver3D::generateParticles(const nlohmann::json& jParams)
+template<Int N, class RealType>
+void ParticleSolver<N, RealType >::generateParticles(const nlohmann::json& jParams)
 {
     __BNN_ASSERT(jParams.find("ParticleObjects") != jParams.end());
-    SceneLoader::loadParticleObjects<3, Real>(jParams["ParticleObjects"], m_ParticleObjects);
+    SceneLoader::loadParticleObjects<N, RealType>(jParams["ParticleObjects"], m_ParticleObjects);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void ParticleSolver3D::generateEmitters(const nlohmann::json& jParams)
+template<Int N, class RealType>
+void ParticleSolver<N, RealType >::generateEmitters(const nlohmann::json& jParams)
 {
     if((jParams.find("ParticleEmitters") != jParams.end()))
-        SceneLoader::loadParticleEmitters<3, Real>(jParams["ParticleEmitters"], m_ParticleEmitters);
+        SceneLoader::loadParticleEmitters<N, RealType>(jParams["ParticleEmitters"], m_ParticleEmitters);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void ParticleSolver3D::advanceScene()
+template<Int N, class RealType>
+void ParticleSolver<N, RealType >::advanceScene()
 {
     for(auto& obj : m_BoundaryObjects)
         if(obj->isDynamic()) obj->advanceFrame();
@@ -215,9 +179,3 @@ void ParticleSolver3D::advanceScene()
     for(auto& obj : m_ParticleEmitters)
         obj->advanceFrame();
 }
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-};  // end namespace ParticleSolvers
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-} // end namespace Banana

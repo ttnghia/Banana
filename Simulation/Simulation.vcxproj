@@ -134,6 +134,7 @@
     <ClInclude Include="ParticleSolvers\MPM\MPMMaterial.Impl.hpp" />
     <ClInclude Include="ParticleSolvers\MPM\MPM3DSolver.h" />
     <ClInclude Include="ParticleSolvers\MPM\MPMSolver.Impl.hpp" />
+    <ClInclude Include="ParticleSolvers\ParticleSolver.Impl.hpp" />
     <ClInclude Include="ParticleSolvers\ShapeFunctions.h" />
     <ClInclude Include="ParticleSolvers\MPM\TimeIntegration.h" />
     <ClInclude Include="ParticleSolvers\ParticleSolverData.h" />
@@ -171,7 +172,6 @@
     <ClCompile Include="ParticleSolvers\FLIP\FLIP3DSolver.cpp" />
     <ClCompile Include="ParticleSolvers\MPM\MPM2DSolver.cpp" />
     <ClCompile Include="ParticleSolvers\SceneLoader.cpp" />
-    <ClCompile Include="ParticleSolvers\ParticleSolver.cpp" />
     <ClCompile Include="ParticleSolvers\SPH\WCSPH\WCSPHSolver.cpp" />
     <ClCompile Include="ParticleTools\ParticleHelpers.cpp" />
     <ClCompile Include="ParticleTools\PoissonDiskSampler.cpp" />

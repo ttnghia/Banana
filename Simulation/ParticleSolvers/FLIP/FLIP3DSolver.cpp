@@ -54,9 +54,7 @@ void FLIP3DSolver::makeReady()
                                m_NSearch->add_point_set(glm::value_ptr(particleData().positions.front()), getNumParticles(), true, true);
 
                                for(auto& obj : m_BoundaryObjects)
-                               {
                                    obj->generateSDF(m_SimParams->domainBMin, m_SimParams->domainBMax, m_SimParams->cellSize);
-                               }
 
                                ParallelFuncs::parallel_for<UInt>(m_Grid.getNNodes(),
                                                                  [&](UInt i, UInt j, UInt k)
