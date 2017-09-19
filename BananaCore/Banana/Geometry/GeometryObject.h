@@ -104,7 +104,7 @@ public:
 
     __BNN_INLINE const VecX<N, RealType>& center() const noexcept { return m_Center; }
     __BNN_INLINE RealType                 radius() const noexcept { return m_Radius; }
-    __BNN_INLINE void                     setSphere(const Vec3r& center, RealType radius);
+    __BNN_INLINE void                     setSphere(const VecX<N, RealType>& center, RealType radius);
 
 protected:
     VecX<N, RealType> m_Center = VecX<N, RealType>(0);

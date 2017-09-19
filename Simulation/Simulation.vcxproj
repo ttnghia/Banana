@@ -157,13 +157,11 @@
     <ClInclude Include="ParticleTools\ParticleHelpers.Impl.hpp" />
     <ClInclude Include="ParticleTools\PoissonDiskSampler.h" />
     <ClInclude Include="SimulationObjects\BoundaryObjects\BoundaryObject.h" />
-    <ClInclude Include="SimulationObjects\BoundaryObjects\SphereBoundary2D.h" />
-    <ClInclude Include="SimulationObjects\BoundaryObjects\SphereBoundary3D.h" />
+    <ClInclude Include="SimulationObjects\BoundaryObjects\BoxBoundary.h" />
+    <ClInclude Include="SimulationObjects\BoundaryObjects\SphereBoundary.h" />
     <ClInclude Include="SimulationObjects\ParticleObject.hpp" />
     <ClInclude Include="SimulationObjects\SimulationObjectFactory.h" />
     <ClInclude Include="SimulationObjects\BoundaryObjects\BoundaryObjects" />
-    <ClInclude Include="SimulationObjects\BoundaryObjects\BoxBoundary2D.h" />
-    <ClInclude Include="SimulationObjects\BoundaryObjects\BoxBoundary3D.h" />
     <ClInclude Include="ParticleTools\BlueNoiseRelaxation\LloydRelaxation.Impl.hpp" />
     <ClInclude Include="ParticleTools\ParticleHelpers.h" />
     <ClInclude Include="SimulationObjects\ParticleObject.h" />
@@ -180,12 +178,6 @@
     <ClCompile Include="ParticleTools\ParticleHelpers.cpp" />
     <ClCompile Include="ParticleTools\PoissonDiskSampler.cpp" />
     <ClCompile Include="ParticleTools\_ParticleTools.Test.cpp" />
-    <ClCompile Include="SimulationObjects\BoundaryObjects\BoundaryObject.cpp" />
-    <ClCompile Include="SimulationObjects\BoundaryObjects\BoxBoundary2D.cpp" />
-    <ClCompile Include="SimulationObjects\BoundaryObjects\BoxBoundary3D.cpp" />
-    <ClCompile Include="SimulationObjects\BoundaryObjects\SphereBoundary3D.cpp" />
-    <ClCompile Include="SimulationObjects\ParticleObject.cpp" />
-    <ClCompile Include="SimulationObjects\SimulationObjectFactory.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

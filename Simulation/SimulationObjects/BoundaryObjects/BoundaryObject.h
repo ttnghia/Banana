@@ -41,31 +41,92 @@ namespace Banana
 namespace SimulationObjects
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class BoundaryObject
+template<Int N, class RealType>
+class BoundaryObjectInterface
 {
 public:
-    BoundaryObject() = default;
+    using GeometryPtr = SharedPtr<GeometryObjects::GeometryObject<N, RealType> >;
+    static constexpr UInt objDimension() noexcept { return static_cast<UInt>(N); }
+    BoundaryObjectInterface() = delete;
+    BoundaryObjectInterface(const String& geometryType) : m_GeometryObj(GeometryObjectFactory::createGeometry<N, RealType>(geometryType)) { __BNN_ASSERT(m_GeometryObj != nullptr); }
 
     String& name() { return m_MeshFile; }
     String& meshFile() { return m_MeshFile; }
     String& particleFile() { return m_ParticleFile; }
     String& SDFFile() { return m_SDFFile; }
 
-    Real& margin() { return m_Margin; }
-    Real& restitution() { return m_RestitutionCoeff; }
-    bool& isDynamic() { return m_bDynamics; }
-    void  setParameters(const nlohmann::json& jParams) { m_jParams = jParams; parseParameters(); }
+    RealType& margin() { return m_Margin; }
+    RealType& restitution() { return m_RestitutionCoeff; }
+    bool&     isDynamic() { return m_bDynamics; }
+    void      setParameters(const nlohmann::json& jParams) { m_jParams = jParams; parseParameters(); }
+
+    UInt                        getNumBDParticles() const noexcept { return static_cast<UInt>(m_BDParticles.size()); }
+    Vector<VecX<N, RealType> >& getBDParticles() { return m_BDParticles; }
+    const Array<N, RealType>&   getSDF() { return m_SDF; }
+    GeometryPtr&                getGeometry() { return m_GeometryObj; }
 
     ////////////////////////////////////////////////////////////////////////////////
     virtual void makeReady() {} // todo: need this?
     virtual void advanceFrame() {}
-    virtual void generateBoundaryParticles(Real spacing, int numBDLayers = 2, bool useCache = true) { __BNN_UNIMPLEMENTED_FUNC }
+    virtual void generateBoundaryParticles(RealType spacing, int numBDLayers = 2, bool useCache = true) { __BNN_UNIMPLEMENTED_FUNC }
+
+
+    RealType signedDistance(const VecX<N, RealType>& ppos, bool bUseCache = true)
+    {
+        if(bUseCache && m_bSDFGenerated)
+            return ArrayHelpers::interpolateValueLinear(m_Grid.getGridCoordinate(ppos), m_SDF);
+        else
+            return m_GeometryObj->signedDistance(ppos, false);
+    }
+
+    VecX<N, RealType> gradientSignedDistance(const VecX<N, RealType>& ppos, RealType dxyz = RealType(1.0 / 512.0), bool bUseCache = true)
+    {
+        if(bUseCache && m_bSDFGenerated)
+            return ArrayHelpers::interpolateGradient(m_Grid.getGridCoordinate(ppos), m_SDF);
+        else
+            return m_GeometryObj->gradientSignedDistance(ppos);
+    }
+
+    void generateSDF(const VecX<N, RealType>& domainBMin, const VecX<N, RealType>& domainBMax, RealType sdfCellSize = RealType(1.0 / 512.0), bool bUseCache = false)
+    {
+        m_Grid.setGrid(domainBMin, domainBMax, sdfCellSize);
+
+        ////////////////////////////////////////////////////////////////////////////////
+        // load sdf from file
+        if(bUseCache && !m_SDFFile.empty() && FileHelpers::fileExisted(m_SDFFile))
+        {
+            if(m_SDF.loadFromFile(m_SDFFile))
+            {
+                __BNN_ASSERT(m_SDF.equalSize(m_Grid.getNNodes()));
+                m_bSDFGenerated = true;
+                return;
+            }
+        }
+
+        ////////////////////////////////////////////////////////////////////////////////
+        computeSDF();
+        m_bSDFGenerated = true;
+
+        ////////////////////////////////////////////////////////////////////////////////
+        // save cache sdf
+        if(bUseCache && !m_SDFFile.empty())
+            m_SDF.saveToFile(m_SDFFile);
+    }
+
+    virtual bool constrainToBoundary(VecX<N, RealType>& ppos, VecX<N, RealType>& pvel) /*= 0;*/ { return true; }
 
 protected:
-    virtual void parseParameters() { }
+    virtual void parseParameters() { __BNN_UNIMPLEMENTED_FUNC }
+    virtual void computeSDF() { __BNN_UNIMPLEMENTED_FUNC }
 
-    Real m_Margin           = Real(0.0);
-    Real m_RestitutionCoeff = ParticleSolverConstants::DefaultBoundaryRestitution;
+    RealType m_Margin           = RealType(0.0);
+    RealType m_RestitutionCoeff = ParticleSolverConstants::DefaultBoundaryRestitution;
+
+    JParams                    m_jParams;
+    GeometryPtr                m_GeometryObj;
+    Array<N, RealType>         m_SDF;
+    Grid<N, RealType>          m_Grid;
+    Vector<VecX<N, RealType> > m_BDParticles;
 
     String m_MeshFile     = String("");
     String m_ParticleFile = String("");
@@ -73,64 +134,47 @@ protected:
 
     bool m_bDynamics     = false;
     bool m_bSDFGenerated = false;
-
-    JParams m_jParams;
 };
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+`
+template<Int N, class RealType>
+class BoundaryObject : public BoundaryObjectInterface<N, RealType>
+{};
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class BoundaryObject2D : public BoundaryObject
+template<class RealType>
+class BoundaryObject<2, RealType> : public BoundaryObjectInterface<2, RealType>
 {
 public:
-    using GeometryPtr = SharedPtr<GeometryObjects::GeometryObject<2, Real> >;
-    static constexpr UInt objDimension() noexcept { return 2u; }
+    BoundaryObject(const String& geometryType) : BoundaryObjectInterface(geometryType) {}
 
-    BoundaryObject2D() = delete;
-    BoundaryObject2D(const String& geometryType) : m_GeometryObj(GeometryObjectFactory::createGeometry<2, Real>(geometryType)) { __BNN_ASSERT(m_GeometryObj != nullptr); }
-
-    UInt           getNumBDParticles() const noexcept { return static_cast<UInt>(m_BDParticles.size()); }
-    Vec_Vec2r&     getBDParticles() { return m_BDParticles; }
-    const Array2r& getSDF() { return m_SDF; }
-    GeometryPtr&   getGeometry() { return m_GeometryObj; }
-
-    Real  signedDistance(const Vec2r& ppos, bool bUseCache = true);
-    Vec2r gradientSignedDistance(const Vec2r& ppos, Real dxyz = Real(1.0 / 512.0), bool bUseCache = true);
-    void  generateSignedDistanceField(const Vec2r& domainBMin, const Vec2r& domainBMax, Real sdfCellSize = Real(1.0 / 512.0), bool bUseCache = false);
-
-    virtual bool constrainToBoundary(Vec2r& ppos, Vec2r& pvel) /*= 0;*/ { return true; }
-
-protected:
-    GeometryPtr m_GeometryObj;
-    Vec_Vec2r   m_BDParticles;
-    Array2r     m_SDF;
-    Grid2r      m_Grid;
+    void computeSDF()
+    {
+        m_SDF.resize(m_Grid.getNNodes());
+        ParallelFuncs::parallel_for<UInt>(m_Grid.getNNodes(),
+                                          [&](UInt i, UInt j)
+                                          {
+                                              m_SDF(i, j) = signedDistance(m_Grid.getWorldCoordinate(i, j));
+                                          });
+    }
 };
 
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class BoundaryObject3D : public BoundaryObject
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+`
+template<class RealType>
+class BoundaryObject<3, RealType> : public BoundaryObjectInterface<3, RealType>
 {
 public:
-    using GeometryPtr = SharedPtr<GeometryObjects::GeometryObject<3, Real> >;
-    static constexpr UInt objDimension() noexcept { return 3u; }
+    BoundaryObject(const String& geometryType) : BoundaryObjectInterface(geometryType) {}
 
-    BoundaryObject3D() = delete;
-    BoundaryObject3D(const String& geometryType) : m_GeometryObj(GeometryObjectFactory::createGeometry<3, Real>(geometryType)) { __BNN_ASSERT(m_GeometryObj != nullptr); }
-
-    UInt           getNumBDParticles() const noexcept { return static_cast<UInt>(m_BDParticles.size()); }
-    Vec_Vec3r&     getBDParticles() { return m_BDParticles; }
-    const Array3r& getSDF() { return m_SDF; }
-    GeometryPtr&   getGeometry() { return m_GeometryObj; }
-
-    Real  signedDistance(const Vec3r& ppos, bool bUseCache = true);
-    Vec3r gradientSignedDistance(const Vec3r& ppos, Real dxyz = Real(1.0 / 256.0), bool bUseCache = true);
-    void  generateSignedDistanceField(const Vec3r& domainBMin, const Vec3r& domainBMax, Real sdfCellSize = Real(1.0 / 512.0), bool bUseCache = false);
-
-    virtual bool constrainToBoundary(Vec3r& ppos, Vec3r& pvel) /*= 0;*/ { return true; }
-
-protected:
-    GeometryPtr m_GeometryObj = nullptr;
-    Vec_Vec3r   m_BDParticles;
-    Array3r     m_SDF;
-    Grid3r      m_Grid;
+    void computeSDF()
+    {
+        m_SDF.resize(m_Grid.getNNodes());
+        ParallelFuncs::parallel_for<UInt>(m_Grid.getNNodes(),
+                                          [&](UInt i, UInt j, UInt k)
+                                          {
+                                              m_SDF(i, j, k) = signedDistance(m_Grid.getWorldCoordinate(i, j, k));
+                                          });
+    }
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

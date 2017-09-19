@@ -122,7 +122,7 @@ RealType SphereObject<N, RealType >::signedDistance(const VecX<N, RealType>& ppo
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void SphereObject<N, RealType >::setSphere(const Vec3r& center, RealType radius)
+void SphereObject<N, RealType >::setSphere(const VecX<N, RealType>& center, RealType radius)
 {
     m_Center     = center; m_Radius = radius;
     m_AABBBoxMin = m_Center - VecX<N, RealType>(m_Radius);

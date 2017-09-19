@@ -34,26 +34,82 @@ namespace Banana
 namespace SimulationObjects
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType>
 class ParticleObject
 {
 public:
-    ParticleObject() = default;
+    using GeometryPtr = SharedPtr<GeometryObjects::GeometryObject<N, Real> >;
+    static constexpr UInt objDimension() noexcept { return static_cast<UInt>(N); }
+    ParticleObject() = delete;
+    ParticleObject(const String& geometryType) : m_GeometryObj(GeometryObjectFactory::createGeometry<N, Real>(geometryType)) { __BNN_ASSERT(m_GeometryObj != nullptr); }
 
-    String&  name() { return m_MeshFile; }
-    String&  meshFile() { return m_MeshFile; }
-    String&  particleFile() { return m_ParticleFile; }
-    JParams& parameters() { return m_jParams; }
+    String&      name() { return m_MeshFile; }
+    String&      meshFile() { return m_MeshFile; }
+    String&      particleFile() { return m_ParticleFile; }
+    JParams&     parameters() { return m_jParams; }
+    GeometryPtr& getGeometry() { return m_GeometryObj; }
 
     ////////////////////////////////////////////////////////////////////////////////
-    template<class VectorType> void generateParticles(Vector<VectorType>& positions, Vector<VectorType>& velocities, Real particleRadius, bool bUseCache = true);
+    void generateParticles(Vector<VecX<N, RealType> >& positions, Vector<VecX<N, RealType> >& velocities, Real particleRadius, bool bUseCache = true)
+    {
+        if(bUseCache && !m_ParticleFile.empty() && FileHelpers::fileExisted(m_ParticleFile))
+        {
+            positions.resize(0);
+            ParticleHelpers::loadBinaryAndDecompress(m_ParticleFile, positions, m_ParticleRadius);
+            generateVelocities();
+
+            return;
+        }
+
+        ////////////////////////////////////////////////////////////////////////////////
+        generatePositions(positions, particleRadius);
+        relaxPositions(positions, particleRadius);
+        generateVelocities(positions, velocities);
+        ////////////////////////////////////////////////////////////////////////////////
+
+        if(bUseCache && !m_ParticleFile.empty())
+            ParticleHelpers::compressAndSaveBinary(m_ParticleFile, positions, m_ParticleRadius);
+    }
 
     virtual void makeReady() {} // todo: need this?
     virtual void advanceFrame() {}
 
 protected:
-    template<class VectorType> void generatePositions(Vector<VectorType>& positions, Real particleRadius);
-    template<class VectorType> void relaxPositions(Vector<VectorType>& positions, Real particleRadius);
-    template<class VectorType> void generateVelocities(Vector<VectorType>& positions, Vector<VectorType>& velocities);
+    void generatePositions(Vector<VecX<N, RealType> >& positions, Real particleRadius)
+    {
+        // Firstly, generate a signed distance field
+        Grid<VecX<N, RealType>::length(), Real> grid;
+    }
+
+    void relaxPositions(Vector<VecX<N, RealType> >& positions, Real particleRadius)
+    {
+        bool   bRelax      = false;
+        String relaxMethod = String("SPH");
+        JSONHelpers::readBool(m_jParams, bRelax, "RelaxPosition");
+        JSONHelpers::readValue(m_jParams, relaxMethod, "RelaxMethod");
+
+        if(bRelax)
+        {
+            //if(relaxMethod == "SPH" || relaxMethod == "SPHBased")
+            //    SPHBasedRelaxation::relaxPositions(positions, particleRadius);
+            //else
+            //{
+            //    Vector<VecX<N, RealType> > denseSamples;
+            //    Real                       denseSampleRatio = 0.1;
+            //    JSONHelpers::readValue(m_jParams, denseSampleRatio, "DenseSampleRatio");
+
+            //    generatePositions(denseSamples, particleRadius * denseSampleRatio);
+            //    LloydRelaxation::relaxPositions(denseSamples, positions);
+            //}
+        }
+    }
+
+    void generateVelocities(Vector<VecX<N, RealType> >& positions, Vector<VecX<N, RealType> >& velocities)
+    {
+        VecX<N, RealType> initVelocity = VecX<N, RealType>(0);
+        JSONHelpers::readVector(m_jParams, initVelocity, "InitialVelocity");
+        velocities.resize(positions.size(), initVelocity);
+    }
 
     String m_ObjName      = String("NoName");
     String m_MeshFile     = String("");
@@ -62,41 +118,9 @@ protected:
     bool m_bDynamics     = false;
     bool m_bSDFGenerated = false;
 
-    JParams m_jParams;
-};
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class ParticleObject2D : public ParticleObject
-{
-public:
-    using GeometryPtr = SharedPtr<GeometryObjects::GeometryObject<2, Real> >;
-    static constexpr UInt objDimension() noexcept { return 2u; }
-
-    ParticleObject2D() = delete;
-    ParticleObject2D(const String& geometryType) : m_GeometryObj(GeometryObjectFactory::createGeometry<2, Real>(geometryType)) { __BNN_ASSERT(m_GeometryObj != nullptr); }
-    GeometryPtr& getGeometry() { return m_GeometryObj; }
-
-protected:
+    JParams     m_jParams;
     GeometryPtr m_GeometryObj = nullptr;
 };
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class ParticleObject3D : public ParticleObject
-{
-public:
-    using GeometryPtr = SharedPtr<GeometryObjects::GeometryObject<3, Real> >;
-    static constexpr UInt objDimension() noexcept { return 3u; }
-
-    ParticleObject3D() = delete;
-    ParticleObject3D(const String& geometryType) : m_GeometryObj(GeometryObjectFactory::createGeometry<3, Real>(geometryType)) { __BNN_ASSERT(m_GeometryObj != nullptr); }
-    GeometryPtr& getGeometry() { return m_GeometryObj; }
-
-protected:
-    GeometryPtr m_GeometryObj = nullptr;
-};
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <SimulationObjects/ParticleObject.hpp>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace SimulationObjects

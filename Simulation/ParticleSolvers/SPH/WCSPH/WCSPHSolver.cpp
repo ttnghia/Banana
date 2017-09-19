@@ -45,7 +45,7 @@ void WCSPHSolver::makeReady()
 
 
 
-                               m_BoundaryObjects.push_back(std::make_shared<SimulationObjects::BoxBoundary3D>(m_SimParams->boxMin, m_SimParams->boxMax));
+                               m_BoundaryObjects.push_back(std::make_shared<SimulationObjects::BoxBoundary<3, Real> >(m_SimParams->boxMin, m_SimParams->boxMax));
 
                                if(m_SimParams->bUseBoundaryParticles)
                                {

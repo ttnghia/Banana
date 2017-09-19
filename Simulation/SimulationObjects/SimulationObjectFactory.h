@@ -32,45 +32,34 @@ namespace Banana
 namespace SimulationObjectFactory
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-SharedPtr<SimulationObjects::BoundaryObject2D> createBoundaryObject2D(const String& geometryType);
-SharedPtr<SimulationObjects::BoundaryObject3D> createBoundaryObject3D(const String& geometryType);
-
-__BNN_INLINE void createBoundaryObject(const String& geometryType, SharedPtr<SimulationObjects::BoundaryObject2D>& boundaryObj)
+template<Int N, class RealType>
+SharedPtr<SimulationObjects::BoundaryObject<N, RealType> > createBoundaryObject(const String& geometryType)
 {
-    boundaryObj = createBoundaryObject2D(geometryType);
-}
+    // two special objects
+    if(geometryType == "Box" || geometryType == "box" || geometryType == "BOX")
+        return std::make_shared<SimulationObjects::BoxBoundary<N, RealType> >();
 
-__BNN_INLINE void createBoundaryObject(const String& geometryType, SharedPtr<SimulationObjects::BoundaryObject3D>& boundaryObj)
-{
-    boundaryObj = createBoundaryObject3D(geometryType);
-}
+    if(geometryType == "Sphere" || geometryType == "sphere" || geometryType == "SPHERE")
+        return std::make_shared<SimulationObjects::SphereBoundary<N, RealType> >();
 
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-SharedPtr<SimulationObjects::ParticleObject2D> createParticleObject2D(const String& geometryType);
-SharedPtr<SimulationObjects::ParticleObject3D> createParticleObject3D(const String& geometryType);
-
-__BNN_INLINE void createParticleObject(const String& geometryType, SharedPtr<SimulationObjects::ParticleObject2D>& particleObj)
-{
-    particleObj = createParticleObject2D(geometryType);
-}
-
-__BNN_INLINE void createParticleObject(const String& geometryType, SharedPtr<SimulationObjects::ParticleObject3D>& particleObj)
-{
-    particleObj = createParticleObject3D(geometryType);
+    // other generic objects
+    return std::make_shared<SimulationObjects::BoundaryObject<N, RealType> >(geometryType);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-SharedPtr<SimulationObjects::ParticleEmitter2D> createParticleEmitter2D(const String& geometryType);
-SharedPtr<SimulationObjects::ParticleEmitter3D> createParticleEmitter3D(const String& geometryType);
-
-__BNN_INLINE void createParticleEmitter(const String& geometryType, SharedPtr<SimulationObjects::ParticleEmitter2D>& particleEmitter)
+template<Int N, class RealType>
+SharedPtr<SimulationObjects::ParticleObject<N, RealType> > createParticleObject(const String& geometryType)
 {
-    particleEmitter = createParticleEmitter2D(geometryType);
+    // other generic objects
+    return std::make_shared<SimulationObjects::ParticleObject<N, RealType> >(geometryType);
 }
 
-__BNN_INLINE void createParticleEmitter(const String& geometryType, SharedPtr<SimulationObjects::ParticleEmitter3D>& particleEmitter)
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType>
+SharedPtr<SimulationObjects::ParticleEmitter<N, RealType> > createParticleEmitter(const String& geometryType)
 {
-    particleEmitter = createParticleEmitter3D(geometryType);
+    // other generic objects
+    return std::make_shared<SimulationObjects::ParticleEmitter<N, RealType> >(geometryType);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

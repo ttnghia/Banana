@@ -58,7 +58,7 @@ public:
     virtual ~ParticleSolver() { Logger::shutdown(); }
 
     const UniquePtr<GlobalParameters>& getGlobalParams() const noexcept { return m_GlobalParams; }
-    const SharedPtr<Logger>& getLogger() const noexcept { return m_Logger; }
+    const SharedPtr<Logger>&           getLogger() const noexcept { return m_Logger; }
 
     void loadScene(const String& sceneFile);
     void setupLogger();
@@ -98,8 +98,8 @@ protected:
 class ParticleSolver2D : public ParticleSolver
 {
 public:
-    virtual Vec_Vec2r& getParticlePositions()  = 0;
-    virtual Vec_Vec2r& getParticleVelocities() = 0;
+    virtual Vec_Vec2r&    getParticlePositions()  = 0;
+    virtual Vec_Vec2r&    getParticleVelocities() = 0;
     static constexpr UInt solverDimension() noexcept { return 2u; }
 
 protected:
@@ -108,17 +108,17 @@ protected:
     virtual void generateEmitters(const nlohmann::json& jParams);
     virtual void advanceScene() override;
 
-    Vector<SharedPtr<SimulationObjects::BoundaryObject2D> >  m_BoundaryObjects;  // individual objects, as one can be dynamic while the other is not
-    Vector<SharedPtr<SimulationObjects::ParticleObject2D> >  m_ParticleObjects;  // individual objects, as they can have different properties
-    Vector<SharedPtr<SimulationObjects::ParticleEmitter2D> > m_ParticleEmitters; // individual objects, as they can have different behaviors
+    Vector<SharedPtr<SimulationObjects::BoundaryObject<2, Real> > >  m_BoundaryObjects;  // individual objects, as one can be dynamic while the other is not
+    Vector<SharedPtr<SimulationObjects::ParticleObject<2, Real> > >  m_ParticleObjects;  // individual objects, as they can have different properties
+    Vector<SharedPtr<SimulationObjects::ParticleEmitter<2, Real> > > m_ParticleEmitters; // individual objects, as they can have different behaviors
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 class ParticleSolver3D : public ParticleSolver
 {
 public:
-    virtual Vec_Vec3r& getParticlePositions()  = 0;
-    virtual Vec_Vec3r& getParticleVelocities() = 0;
+    virtual Vec_Vec3r&    getParticlePositions()  = 0;
+    virtual Vec_Vec3r&    getParticleVelocities() = 0;
     static constexpr UInt solverDimension() noexcept { return 3u; }
 
 protected:
@@ -127,10 +127,10 @@ protected:
     virtual void generateEmitters(const nlohmann::json& jParams);
     virtual void advanceScene() override;
 
-    UniquePtr<NeighborSearch::NeighborSearch3D>              m_NSearch = nullptr;
-    Vector<SharedPtr<SimulationObjects::BoundaryObject3D> >  m_BoundaryObjects;  // individual objects, as one can be dynamic while the other is not
-    Vector<SharedPtr<SimulationObjects::ParticleObject3D> >  m_ParticleObjects;  // individual objects, as they can have different properties
-    Vector<SharedPtr<SimulationObjects::ParticleEmitter3D> > m_ParticleEmitters; // individual objects, as they can have different behaviors
+    UniquePtr<NeighborSearch::NeighborSearch3D>                      m_NSearch = nullptr;
+    Vector<SharedPtr<SimulationObjects::BoundaryObject<3, Real> > >  m_BoundaryObjects;  // individual objects, as one can be dynamic while the other is not
+    Vector<SharedPtr<SimulationObjects::ParticleObject<3, Real> > >  m_ParticleObjects;  // individual objects, as they can have different properties
+    Vector<SharedPtr<SimulationObjects::ParticleEmitter<3, Real> > > m_ParticleEmitters; // individual objects, as they can have different behaviors
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

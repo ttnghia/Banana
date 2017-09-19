@@ -14,8 +14,8 @@
 //
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class BoundaryObjType>
-void loadBoundaryObjects(const nlohmann::json& jParams, Vector<SharedPtr<BoundaryObjType> >& boundaryObjs)
+template<Int N, class RealType>
+void loadBoundaryObjects(const nlohmann::json& jParams, Vector<SharedPtr<SimulationObjects::BoundaryObject<N, RealType> > >& boundaryObjs)
 {
     for(auto& jObj : jParams)
     {
@@ -25,8 +25,7 @@ void loadBoundaryObjects(const nlohmann::json& jParams, Vector<SharedPtr<Boundar
         __BNN_ASSERT(!geometryType.empty());
 
         // create the object
-        SharedPtr<BoundaryObjType> obj;
-        SimulationObjectFactory::createBoundaryObject(geometryType, obj);
+        SharedPtr<SimulationObjects::BoundaryObject<N, RealType> > obj = SimulationObjectFactory::createBoundaryObject<N, RealType>(geometryType);
         __BNN_ASSERT(obj->getGeometry() != nullptr);
         boundaryObjs.push_back(obj);
 
@@ -36,9 +35,9 @@ void loadBoundaryObjects(const nlohmann::json& jParams, Vector<SharedPtr<Boundar
         JSONHelpers::readBool(jObj, obj->isDynamic(), "IsDynamic");
 
         // read object transformation
-        VecX<BoundaryObjType::objDimension(), Real> translation;
-        VecX<BoundaryObjType::objDimension(), Real> rotationAngles;
-        VecX<BoundaryObjType::objDimension(), Real> scale;
+        VecX<N, Real> translation;
+        VecX<N, Real> rotationAngles;
+        VecX<N, Real> scale;
 
         if(JSONHelpers::readVector(jObj, translation, "Translation"))
             obj->getGeometry()->translate(translation);
@@ -54,8 +53,8 @@ void loadBoundaryObjects(const nlohmann::json& jParams, Vector<SharedPtr<Boundar
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ParticleObjType>
-void loadParticleObjects(const nlohmann::json& jParams, Vector<SharedPtr<ParticleObjType> >& particleObjs)
+template<Int N, class RealType>
+void loadParticleObjects(const nlohmann::json& jParams, Vector<SharedPtr<SimulationObjects::ParticleObject<N, RealType> > >& particleObjs)
 {
     for(auto& jObj : jParams)
     {
@@ -65,8 +64,7 @@ void loadParticleObjects(const nlohmann::json& jParams, Vector<SharedPtr<Particl
         __BNN_ASSERT(!geometryType.empty());
 
         // create the object
-        SharedPtr<ParticleObjType> obj;
-        SimulationObjectFactory::createParticleObject(geometryType, obj);
+        SharedPtr<SimulationObjects::ParticleObject<N, RealType> > obj = SimulationObjectFactory::createParticleObject<N, RealType>(geometryType);
         __BNN_ASSERT(obj->getGeometry() != nullptr);
         particleObjs.push_back(obj);
 
@@ -75,9 +73,9 @@ void loadParticleObjects(const nlohmann::json& jParams, Vector<SharedPtr<Particl
         JSONHelpers::readValue(jObj, obj->particleFile(), "ParticleFile");
 
         // read object transformation
-        VecX<ParticleObjType::objDimension(), Real> translation;
-        VecX<ParticleObjType::objDimension(), Real> rotationAngles;
-        VecX<ParticleObjType::objDimension(), Real> scale;
+        VecX<N, Real> translation;
+        VecX<N, Real> rotationAngles;
+        VecX<N, Real> scale;
 
         if(JSONHelpers::readVector(jObj, translation, "Translation"))
             obj->getGeometry()->translate(translation);
@@ -91,8 +89,8 @@ void loadParticleObjects(const nlohmann::json& jParams, Vector<SharedPtr<Particl
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class ParticleEmitterType>
-void loadParticleEmitters(const nlohmann::json& jParams, Vector<SharedPtr<ParticleEmitterType> >& particleEmitters)
+template<Int N, class RealType>
+void loadParticleEmitters(const nlohmann::json& jParams, Vector<SharedPtr<SimulationObjects::ParticleEmitter<N, RealType> > >& particleEmitters)
 {
     for(auto& jObj : jParams)
     {
@@ -102,8 +100,7 @@ void loadParticleEmitters(const nlohmann::json& jParams, Vector<SharedPtr<Partic
         __BNN_ASSERT(!geometryType.empty());
 
         // create the object
-        SharedPtr<ParticleEmitterType> obj;
-        SimulationObjectFactory::createParticleEmitter(geometryType, obj);
+        SharedPtr<SimulationObjects::ParticleEmitter<N, RealType> > obj = SimulationObjectFactory::createParticleEmitter<N, RealType>(geometryType);
         __BNN_ASSERT(obj->getGeometry() != nullptr);
         particleEmitters.push_back(obj);
 
@@ -112,9 +109,9 @@ void loadParticleEmitters(const nlohmann::json& jParams, Vector<SharedPtr<Partic
         JSONHelpers::readValue(jObj, obj->particleFile(), "ParticleFile");
 
         // read object transformation
-        VecX<ParticleEmitterType::objDimension(), Real> translation;
-        VecX<ParticleEmitterType::objDimension(), Real> rotationAngles;
-        VecX<ParticleEmitterType::objDimension(), Real> scale;
+        VecX<N, Real> translation;
+        VecX<N, Real> rotationAngles;
+        VecX<N, Real> scale;
 
         if(JSONHelpers::readVector(jObj, translation, "Translation"))
             obj->getGeometry()->translate(translation);

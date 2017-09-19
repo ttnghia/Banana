@@ -38,14 +38,14 @@ bool loadDataPath(const String& sceneFile, String& dataPath);
 void loadGlobalParams(const nlohmann::json& jParams, const UniquePtr<ParticleSolvers::GlobalParameters>& globalParams);
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class BoundaryObjType>
-void loadBoundaryObjects(const nlohmann::json& jParams, Vector<SharedPtr<BoundaryObjType> >& boundaryObjs);
+template<Int N, class RealType>
+void loadBoundaryObjects(const nlohmann::json& jParams, Vector<SharedPtr<SimulationObjects::BoundaryObject<N, RealType> > >& boundaryObjs);
 
-template<class ParticleObjType>
-void loadParticleObjects(const nlohmann::json& jParams, Vector<SharedPtr<ParticleObjType> >& particleObjs);
+template<Int N, class RealType>
+void loadParticleObjects(const nlohmann::json& jParams, Vector<SharedPtr<SimulationObjects::ParticleObject<N, RealType> > >& particleObjs);
 
-template<class ParticleEmitterType>
-void loadParticleEmitters(const nlohmann::json& jParams, Vector<SharedPtr<ParticleEmitterType> >& particleEmitters);
+template<Int N, class RealType>
+void loadParticleEmitters(const nlohmann::json& jParams, Vector<SharedPtr<SimulationObjects::ParticleEmitter<N, RealType> > >& particleEmitters);
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #include <ParticleSolvers/SceneLoader.Impl.hpp>

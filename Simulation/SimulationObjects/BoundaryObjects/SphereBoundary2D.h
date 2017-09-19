@@ -26,10 +26,10 @@ namespace Banana
 namespace SimulationObjects
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class SphereBoundary2D : public BoundaryObject2D
+class SphereBoundary2D : public BoundaryObject<2, Real>
 {
 public:
-    SphereBoundary2D() : BoundaryObject2D("Sphere") {}
+    SphereBoundary2D() : BoundaryObject<2, Real>("Sphere") {}
 
     virtual void generateBoundaryParticles(Real spacing, Int numBDLayers = 2, bool saveCache = false) override {}
     virtual bool constrainToBoundary(Vec2r& ppos, Vec2r& pvel) override { return true; }

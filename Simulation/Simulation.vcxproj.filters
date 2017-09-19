@@ -144,12 +144,6 @@
     <ClInclude Include="ParticleSolvers\ShapeFunctions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SimulationObjects\BoundaryObjects\BoxBoundary2D.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SimulationObjects\BoundaryObjects\BoxBoundary3D.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="SimulationObjects\BoundaryObjects\BoundaryObjects">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -157,12 +151,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="SimulationObjects\SimulationObjectFactory.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SimulationObjects\BoundaryObjects\SphereBoundary2D.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SimulationObjects\BoundaryObjects\SphereBoundary3D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ParticleTools\PoissonDiskSampler.h">
@@ -175,6 +163,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="SimulationObjects\ParticleEmitter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SimulationObjects\BoundaryObjects\BoxBoundary.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SimulationObjects\BoundaryObjects\SphereBoundary.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -200,28 +194,10 @@
     <ClCompile Include="ParticleSolvers\MPM\MPM2DSolver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SimulationObjects\BoundaryObjects\BoxBoundary2D.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SimulationObjects\BoundaryObjects\BoxBoundary3D.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ParticleSolvers\SceneLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SimulationObjects\SimulationObjectFactory.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ParticleTools\PoissonDiskSampler.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SimulationObjects\BoundaryObjects\BoundaryObject.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SimulationObjects\BoundaryObjects\SphereBoundary3D.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SimulationObjects\ParticleObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -126,21 +126,21 @@ void ParticleSolver::loadScene(const String& sceneFile)
 void ParticleSolver2D::generateBoundaries(const nlohmann::json& jParams)
 {
     __BNN_ASSERT(jParams.find("BoundaryObjects") != jParams.end());
-    SceneLoader::loadBoundaryObjects(jParams["BoundaryObjects"], m_BoundaryObjects);
+    SceneLoader::loadBoundaryObjects<2, Real>(jParams["BoundaryObjects"], m_BoundaryObjects);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void ParticleSolver2D::generateParticles(const nlohmann::json& jParams)
 {
     __BNN_ASSERT(jParams.find("ParticleObjects") != jParams.end());
-    SceneLoader::loadParticleObjects(jParams["ParticleObjects"], m_ParticleObjects);
+    SceneLoader::loadParticleObjects<2, Real>(jParams["ParticleObjects"], m_ParticleObjects);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void ParticleSolver2D::generateEmitters(const nlohmann::json& jParams)
 {
     if((jParams.find("ParticleEmitters") != jParams.end()))
-        SceneLoader::loadParticleEmitters(jParams["ParticleEmitters"], m_ParticleEmitters);
+        SceneLoader::loadParticleEmitters<2, Real>(jParams["ParticleEmitters"], m_ParticleEmitters);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -158,13 +158,13 @@ void ParticleSolver2D::advanceScene()
 void ParticleSolver3D::generateBoundaries(const nlohmann::json& jParams)
 {
     __BNN_ASSERT(jParams.find("BoundaryObjects") != jParams.end());
-    SceneLoader::loadBoundaryObjects(jParams["BoundaryObjects"], m_BoundaryObjects);
+    SceneLoader::loadBoundaryObjects<3, Real>(jParams["BoundaryObjects"], m_BoundaryObjects);
 
     ////////////////////////////////////////////////////////////////////////////////
     // combine static boundaries
     {
-        Vector<SharedPtr<SimulationObjects::BoundaryObject3D> > staticBoundaries;
-        Vector<SharedPtr<SimulationObjects::BoundaryObject3D> > dynamicBoundaries;
+        Vector<SharedPtr<SimulationObjects::BoundaryObject<3, Real> > > staticBoundaries;
+        Vector<SharedPtr<SimulationObjects::BoundaryObject<3, Real> > > dynamicBoundaries;
         for(auto& obj : m_BoundaryObjects)
         {
             if(obj->isDynamic())
@@ -175,8 +175,8 @@ void ParticleSolver3D::generateBoundaries(const nlohmann::json& jParams)
 
         if(staticBoundaries.size() > 1)
         {
-            SharedPtr<SimulationObjects::BoundaryObject3D>  csgBoundary = std::make_shared<SimulationObjects::BoundaryObject3D>("CSGObject");
-            SharedPtr<GeometryObjects::CSGObject<3, Real> > csgObj      = std::static_pointer_cast<GeometryObjects::CSGObject<3, Real> >(csgBoundary->getGeometry());
+            SharedPtr<SimulationObjects::BoundaryObject<3, Real> > csgBoundary = std::make_shared<SimulationObjects::BoundaryObject<3, Real> >("CSGObject");
+            SharedPtr<GeometryObjects::CSGObject<3, Real> >        csgObj      = std::static_pointer_cast<GeometryObjects::CSGObject<3, Real> >(csgBoundary->getGeometry());
             __BNN_ASSERT(csgObj != nullptr);
 
             for(auto& obj : staticBoundaries)
@@ -195,14 +195,14 @@ void ParticleSolver3D::generateBoundaries(const nlohmann::json& jParams)
 void ParticleSolver3D::generateParticles(const nlohmann::json& jParams)
 {
     __BNN_ASSERT(jParams.find("ParticleObjects") != jParams.end());
-    SceneLoader::loadParticleObjects(jParams["ParticleObjects"], m_ParticleObjects);
+    SceneLoader::loadParticleObjects<3, Real>(jParams["ParticleObjects"], m_ParticleObjects);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void ParticleSolver3D::generateEmitters(const nlohmann::json& jParams)
 {
     if((jParams.find("ParticleEmitters") != jParams.end()))
-        SceneLoader::loadParticleEmitters(jParams["ParticleEmitters"], m_ParticleEmitters);
+        SceneLoader::loadParticleEmitters<3, Real>(jParams["ParticleEmitters"], m_ParticleEmitters);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

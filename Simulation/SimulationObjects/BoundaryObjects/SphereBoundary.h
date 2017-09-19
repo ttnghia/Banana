@@ -15,9 +15,9 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-#include <SimulationObjects/BoundaryObjects/BoxBoundary3D.h>
+#pragma once
 
-#include <random>
+#include <SimulationObjects/BoundaryObjects/BoundaryObject.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -26,50 +26,50 @@ namespace Banana
 namespace SimulationObjects
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void BoxBoundary3D::parseParameters()
+template<Int N, class RealType>
+class SphereBoundary : public BoundaryObject<N, RealType>
 {
-    __BNN_ASSERT(m_jParams.find("BoxMin") != m_jParams.end());
-    __BNN_ASSERT(m_jParams.find("BoxMax") != m_jParams.end());
+public:
+    SphereBoundary() : BoundaryObject<N, Real>("Sphere") {}
 
-    Vec3r bMin, bMax;
-    Real  offset = 1e-5;
-    JSONHelpers::readVector(m_jParams, bMin, "BoxMin");
-    JSONHelpers::readVector(m_jParams, bMax, "BoxMax");
-    JSONHelpers::readValue(m_jParams, offset, "Offset");
+    virtual void generateBoundaryParticles(Real spacing, Int numBDLayers = 2, bool saveCache = false) override {}
+    virtual bool constrainToBoundary(VecX<N, RealType>& ppos, VecX<N, RealType>& pvel) override { return true; }
 
-    bMin += Vec3r(offset);
-    bMax -= Vec3r(offset);
-
-    setBox(bMin, bMax);
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-bool BoxBoundary3D::constrainToBoundary(Vec3r& pPos, Vec3r& pVel)
-{
-    bool velChanged = false;
-
-    for(Int l = 0; l < pPos.length(); ++l)
+protected:
+    void parseParameters()
     {
-        if(pPos[l] < boxMin()[l] || pPos[l] > boxMax()[l])
-        {
-            pPos[l]    = MathHelpers::min(MathHelpers::max(pPos[l], boxMin()[l]), boxMax()[l]);
-            pVel[l]   *= -m_RestitutionCoeff;
-            velChanged = true;
-        }
+        __BNN_ASSERT(m_jParams.find("Center") != m_jParams.end());
+        __BNN_ASSERT(m_jParams.find("Radius") != m_jParams.end());
+
+        VecX<N, RealType> center;
+        Real              radius;
+        JSONHelpers::readVector(m_jParams, center, "Center");
+        JSONHelpers::readValue(m_jParams, radius, "Radius");
+
+        setSphere(center, radius);
     }
 
-    return velChanged;
-}
+    void setSphere(const VecX<N, RealType>& center, RealType radius)
+    {
+        auto sphere = std::static_pointer_cast<GeometryObjects::SphereObject<N, RealType> >(m_GeometryObj);
+        __BNN_ASSERT(sphere != nullptr);
+        sphere->setSphere(center, radius);
+    }
 
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void BoxBoundary3D::setBox(const Vec3r& bMin, const Vec3r& bMax)
-{
-    auto box = std::static_pointer_cast<GeometryObjects::BoxObject<3, Real> >(m_GeometryObj);
-    __BNN_ASSERT(box != nullptr);
-    box->setBox(bMin, bMax);
-}
+    const VecX<N, RealType>& center() const
+    {
+        auto sphere = std::static_pointer_cast<GeometryObjects::SphereObject<N, RealType> >(m_GeometryObj);
+        __BNN_ASSERT(sphere != nullptr);
+        return sphere->center();
+    }
+
+    Real radius() const
+    {
+        auto sphere = std::static_pointer_cast<GeometryObjects::SphereObject<3, Real> >(m_GeometryObj);
+        __BNN_ASSERT(sphere != nullptr);
+        return sphere->radius();
+    }
+};
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace SimulationObjects

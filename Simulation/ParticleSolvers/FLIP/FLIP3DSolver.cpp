@@ -53,17 +53,10 @@ void FLIP3DSolver::makeReady()
                                m_NSearch = std::make_unique<NeighborSearch::NeighborSearch3D>(m_SimParams->cellSize);
                                m_NSearch->add_point_set(glm::value_ptr(particleData().positions.front()), getNumParticles(), true, true);
 
-
                                for(auto& obj : m_BoundaryObjects)
                                {
-                                   obj->generateSignedDistanceField(m_SimParams->domainBMin, m_SimParams->domainBMax, m_SimParams->cellSize);
+                                   obj->generateSDF(m_SimParams->domainBMin, m_SimParams->domainBMax, m_SimParams->cellSize);
                                }
-
-                               //// todo: remove this
-
-                               //GeometryObject3D::BoxObject box;
-                               //box.setBMin(m_SimParams->movingBMin - Vec3r(0.001f));
-                               //box.setBMax(m_SimParams->movingBMax + Vec3r(0.001f));
 
                                ParallelFuncs::parallel_for<UInt>(m_Grid.getNNodes(),
                                                                  [&](UInt i, UInt j, UInt k)

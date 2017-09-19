@@ -26,43 +26,25 @@ namespace Banana
 namespace SimulationObjects
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType>
 class ParticleEmitter
 {
 public:
-    ParticleEmitter();
-    virtual ~ParticleEmitter();
+    using GeometryPtr = SharedPtr<GeometryObjects::GeometryObject<N, Real> >;
+    static constexpr UInt objDimension() noexcept { return static_cast<UInt>(N); }
+    ParticleEmitter() = delete;
+    ParticleEmitter(const String& geometryType) : m_GeometryObj(GeometryObjectFactory::createGeometry<N, Real>(geometryType)) { __BNN_ASSERT(m_GeometryObj != nullptr); }
 
     virtual void advanceFrame() {}
     String&      meshFile() { return m_MeshFile; }
     String&      particleFile() { return m_ParticleFile; }
+    GeometryPtr& getGeometry() { return m_GeometryObj; }
 
 protected:
-    String m_MeshFile     = "";
-    String m_ParticleFile = "";
+    String      m_MeshFile     = "";
+    String      m_ParticleFile = "";
+    GeometryPtr m_GeometryObj  = nullptr;
 };
-
-class ParticleEmitter2D : public ParticleEmitter
-{
-public:
-    static constexpr UInt                                 objDimension() noexcept { return 2u; }
-    SharedPtr<GeometryObjects::GeometryObject<2, Real> >& getGeometry() { return m_GeometryObj; }
-
-protected:
-
-    SharedPtr<GeometryObjects::GeometryObject<2, Real> > m_GeometryObj = nullptr;
-};
-
-
-class ParticleEmitter3D : public ParticleEmitter
-{
-public:
-    static constexpr UInt                                 objDimension() noexcept { return 3u; }
-    SharedPtr<GeometryObjects::GeometryObject<3, Real> >& getGeometry() { return m_GeometryObj; }
-
-protected:
-    SharedPtr<GeometryObjects::GeometryObject<3, Real> > m_GeometryObj = nullptr;
-};
-
 
 #if 0
 #include <tbb/tbb.h>
