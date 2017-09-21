@@ -20,6 +20,7 @@ INCLUDEPATH += $$PWD/../Externals/spdlog/include
 INCLUDEPATH += $$PWD/../Externals/json/src
 
 CONFIG += c++14
+CONFIG += force_debug_info
 
 static {
     CONFIG += static
@@ -30,15 +31,14 @@ static {
 }
 
 win32 {
-    #QMAKE_CXXFLAGS += /std:c++latest
     CONFIG(debug, debug|release) {
         message("Banana -- Debug")
-        QMAKE_CXXFLAGS += /DEBUG /Zi /D "_DEBUG" /wd"4305"
+        QMAKE_CXXFLAGS += /D "_DEBUG" /wd"4305"
         LIBS += $$PWD/../Build/Debug/BananaCore.lib
         PRE_TARGETDEPS += $$PWD/../Build/Debug/BananaCore.lib
     } else {
         message("Banana -- Release")
-        QMAKE_CXXFLAGS += /O2 /Ob2 /GL /Qpar /wd"4305"
+        QMAKE_CXXFLAGS += /Zo /Qpar /GL /W3 /Gy /Gm- /O2 /Ob2 /fp:precise /D "NDEBUG" /fp:except /Oi /EHsc /Ot /wd"4305"
         static {
             LIBS += $$PWD/../Build/ReleaseStaticBuild/BananaCore.lib
             PRE_TARGETDEPS += $$PWD/../Build/ReleaseStaticBuild/BananaCore.lib
