@@ -25,9 +25,9 @@ macx {
 }
 
 win32 {
-    CUDA_DIR = "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v8.0"
-    CUDA_SDK = "C:\ProgramData\NVIDIA Corporation\CUDA Samples\v8.0"
-    OPTIX_DIR = "C:\ProgramData\NVIDIA Corporation\OptiX SDK 4.1.0"
+    CUDA_DIR = "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.0"
+    CUDA_SDK = "D:\Programming\CudaSamples\v9.0"
+    OPTIX_DIR = "C:\ProgramData\NVIDIA Corporation\OptiX SDK 4.1.1"
 
     QMAKE_LIBDIR += $$CUDA_DIR\lib\x64
 #    QMAKE_LIBDIR += $$CUDA_SDK\common\lib\x64 # This is covered by Qt
@@ -36,7 +36,13 @@ win32 {
     CONFIG(debug, debug|release) {
         LIBS += $$PWD/../Build/DebugQt/RayTracing.lib
     }else {
-        LIBS += $$PWD/../Build/ReleaseQt/RayTracing.lib
+        static {
+            LIBS += $$PWD/../Build/ReleaseStaticBuild/RayTracing.lib
+            PRE_TARGETDEPS += $$PWD/../Build/ReleaseStaticBuild/RayTracing.lib
+        } else {
+            LIBS += $$PWD/../Build/ReleaseQt/RayTracing.lib
+            PRE_TARGETDEPS += $$PWD/../Build/ReleaseQt/RayTracing.lib
+        }
     }
 }
 

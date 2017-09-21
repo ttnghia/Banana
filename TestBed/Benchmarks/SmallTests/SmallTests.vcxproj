@@ -29,7 +29,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{4BE891A2-7D34-470B-B21A-83124C20C360}</ProjectGuid>
     <RootNamespace>SmallTests</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.14393.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -98,17 +98,17 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>$(SolutionDir)\BananaCore;$(SolutionDir)Externals\json\src;$(SolutionDir)Externals\catch\include;$(SolutionDir)Externals\tinyply\source;$(SolutionDir)Externals\tinyobjloader;$(SolutionDir)Externals\yocto-gl;$(SolutionDir)Externals\spdlog\include;$(SolutionDir)Externals\glm;$(ProjectDir)Include;$(SolutionDir)Externals\tbb_win\include;$(IncludePath)</IncludePath>
-    <IntDir>D:\Scratch\MSVC-Build\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
+    <IntDir>D:\Scratch\ProjectBuilds\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
     <OutDir>$(ProjectDir)$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">
     <IncludePath>$(SolutionDir)\BananaCore;$(SolutionDir)Externals\json\src;$(SolutionDir)Externals\catch\include;$(SolutionDir)Externals\tinyply\source;$(SolutionDir)Externals\tinyobjloader;$(SolutionDir)Externals\yocto-gl;$(SolutionDir)Externals\spdlog\include;$(SolutionDir)Externals\glm;$(ProjectDir)Include;$(SolutionDir)Externals\tbb_win\include;$(IncludePath)</IncludePath>
-    <IntDir>D:\Scratch\MSVC-Build\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
+    <IntDir>D:\Scratch\ProjectBuilds\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
     <OutDir>$(ProjectDir)$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>$(SolutionDir)\BananaCore;$(SolutionDir)Externals\json\src;$(SolutionDir)Externals\catch\include;$(SolutionDir)Externals\tinyply\source;$(SolutionDir)Externals\tinyobjloader;$(SolutionDir)Externals\yocto-gl;$(SolutionDir)Externals\spdlog\include;$(SolutionDir)Externals\glm;$(ProjectDir)Include;$(SolutionDir)Externals\tbb_win\include;$(IncludePath)</IncludePath>
-    <IntDir>D:\Scratch\MSVC-Build\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
+    <IntDir>D:\Scratch\ProjectBuilds\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
     <OutDir>$(ProjectDir)$(Configuration)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

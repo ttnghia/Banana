@@ -26,7 +26,7 @@
     <ProjectGuid>{EE17B865-E6AE-3FD8-81D1-A696DCB18EF5}</ProjectGuid>
     <RootNamespace>OpenGLHelpers</RootNamespace>
     <Keyword>Qt4VSv1.0</Keyword>
-    <WindowsTargetPlatformVersion>10.0.14393.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
@@ -94,9 +94,9 @@
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)Build\$(Configuration)\</OutDir>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">$(SolutionDir)Build\$(Configuration)\</OutDir>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='ReleaseQt|x64'">$(SolutionDir)Build\$(Configuration)\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">D:\Scratch\MSVC-Build\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">D:\Scratch\MSVC-Build\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='ReleaseQt|x64'">D:\Scratch\MSVC-Build\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">D:\Scratch\ProjectBuilds\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">D:\Scratch\ProjectBuilds\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='ReleaseQt|x64'">D:\Scratch\ProjectBuilds\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">OpenGLHelpers</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">OpenGLHelpers</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='ReleaseQt|x64'">OpenGLHelpers</TargetName>
@@ -105,31 +105,31 @@
     <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='ReleaseQt|x64'">true</IgnoreImportLibrary>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)Build\$(Configuration)\</OutDir>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='DebugQt|x64'">$(SolutionDir)Build\$(Configuration)\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">D:\Scratch\MSVC-Build\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='DebugQt|x64'">D:\Scratch\MSVC-Build\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">D:\Scratch\ProjectBuilds\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='DebugQt|x64'">D:\Scratch\ProjectBuilds\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">OpenGLHelpers</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='DebugQt|x64'">OpenGLHelpers</TargetName>
     <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</IgnoreImportLibrary>
     <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='DebugQt|x64'">true</IgnoreImportLibrary>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir)BananaCore;$(SolutionDir)QtAppHelpers\Include;$(SolutionDir)Externals\glm;$(SolutionDir)Externals\glew-2.0.0\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Externals\json\src;$(SolutionDir)BananaCore;$(SolutionDir)QtAppHelpers\Include;$(SolutionDir)Externals\glm;$(SolutionDir)Externals\glew-2.0.0\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugQt|x64'">
-    <IncludePath>$(QTDIR)\..\..\Examples\Qt-5.9.1\widgets\painting\shared;$(SolutionDir)BananaCore;$(SolutionDir)QtAppHelpers\Include;$(SolutionDir)Externals\glm;$(SolutionDir)Externals\glew-2.0.0\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Externals\json\src;$(QTDIR)\..\..\Examples\Qt-5.9.1\widgets\painting\shared;$(SolutionDir)BananaCore;$(SolutionDir)QtAppHelpers\Include;$(SolutionDir)Externals\glm;$(SolutionDir)Externals\glew-2.0.0\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)BananaCore;$(SolutionDir)QtAppHelpers\Include;$(SolutionDir)Externals\glm;$(SolutionDir)Externals\glew-2.0.0\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Externals\json\src;$(SolutionDir)BananaCore;$(SolutionDir)QtAppHelpers\Include;$(SolutionDir)Externals\glm;$(SolutionDir)Externals\glew-2.0.0\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">
-    <IncludePath>$(SolutionDir)BananaCore;$(SolutionDir)QtAppHelpers\Include;$(SolutionDir)Externals\glm;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Externals\json\src;$(SolutionDir)BananaCore;$(SolutionDir)QtAppHelpers\Include;$(SolutionDir)Externals\glm;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseQt|x64'">
-    <IncludePath>$(QTDIR)\..\..\Examples\Qt-5.9.1\widgets\painting\shared;$(SolutionDir)BananaCore;$(SolutionDir)QtAppHelpers\Include;$(SolutionDir)Externals\glm;$(SolutionDir)Externals\glew-2.0.0\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Externals\json\src;$(QTDIR)\..\..\Examples\Qt-5.9.1\widgets\painting\shared;$(SolutionDir)BananaCore;$(SolutionDir)QtAppHelpers\Include;$(SolutionDir)Externals\glm;$(SolutionDir)Externals\glew-2.0.0\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.;.\Include;$(QTDIR)\include;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtCore;$(QTDIR)\mkspecs\win32-msvc2015;D:\Scratch\MSVC-Build\Banana\OpenGLHelpers\$(ConfigurationName);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;.\Include;$(QTDIR)\include;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtCore;$(QTDIR)\mkspecs\win32-msvc2015;D:\Scratch\ProjectBuilds\Banana\OpenGLHelpers\$(ConfigurationName);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/std:c++latest -Zc:strictStrings -Zc:throwingNew /Qpar -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
       <BrowseInformation>false</BrowseInformation>
       <DebugInformationFormat>None</DebugInformationFormat>
@@ -166,7 +166,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.;.\Include;$(QTDIR_STATIC)\include;$(QTDIR_STATIC)\include\QtWidgets;$(QTDIR_STATIC)\include\QtGui;$(QTDIR_STATIC)\include\QtANGLE;$(QTDIR_STATIC)\include\QtCore;$(QTDIR_STATIC)\mkspecs\win32-msvc2015;D:\Scratch\MSVC-Build\Banana\OpenGLHelpers\$(ConfigurationName);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;.\Include;$(QTDIR_STATIC)\include;$(QTDIR_STATIC)\include\QtWidgets;$(QTDIR_STATIC)\include\QtGui;$(QTDIR_STATIC)\include\QtANGLE;$(QTDIR_STATIC)\include\QtCore;$(QTDIR_STATIC)\mkspecs\win32-msvc2015;D:\Scratch\ProjectBuilds\Banana\OpenGLHelpers\$(ConfigurationName);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/std:c++latest -Zc:strictStrings -Zc:throwingNew /Qpar -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
       <BrowseInformation>false</BrowseInformation>
       <DebugInformationFormat>None</DebugInformationFormat>
@@ -203,7 +203,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseQt|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.;.\Include;$(QTDIR)\include;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtCore;$(QTDIR)\mkspecs\win32-msvc2015;D:\Scratch\MSVC-Build\Banana\OpenGLHelpers\$(ConfigurationName);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;.\Include;$(QTDIR)\include;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtCore;$(QTDIR)\mkspecs\win32-msvc2015;D:\Scratch\ProjectBuilds\Banana\OpenGLHelpers\$(ConfigurationName);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/std:c++latest -Zc:strictStrings -Zc:throwingNew /Qpar -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
       <BrowseInformation>false</BrowseInformation>
       <DebugInformationFormat>None</DebugInformationFormat>
@@ -240,7 +240,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.\NCREMENTAL:NO;.;.\Include;$(QTDIR)\include;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtCore;$(QTDIR)\mkspecs\win32-msvc2015;D:\Scratch\MSVC-Build\Banana\OpenGLHelpers\$(ConfigurationName);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\NCREMENTAL:NO;.;.\Include;$(QTDIR)\include;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtCore;$(QTDIR)\mkspecs\win32-msvc2015;D:\Scratch\ProjectBuilds\Banana\OpenGLHelpers\$(ConfigurationName);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/std:c++latest -Zc:strictStrings -Zc:throwingNew -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
       <BrowseInformation>false</BrowseInformation>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -273,7 +273,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugQt|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>.\NCREMENTAL:NO;.;.\Include;$(QTDIR)\include;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtCore;$(QTDIR)\mkspecs\win32-msvc2015;D:\Scratch\MSVC-Build\Banana\OpenGLHelpers\$(ConfigurationName);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\NCREMENTAL:NO;.;.\Include;$(QTDIR)\include;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtCore;$(QTDIR)\mkspecs\win32-msvc2015;D:\Scratch\ProjectBuilds\Banana\OpenGLHelpers\$(ConfigurationName);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/std:c++latest -Zc:strictStrings -Zc:throwingNew -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
       <BrowseInformation>false</BrowseInformation>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -339,7 +339,7 @@
   <ImportGroup Label="ExtensionTargets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties MocDir="D:\Scratch\MSVC-Build\Banana\OpenGLHelpers\$(ConfigurationName)" UicDir=".\GeneratedFiles" RccDir=".\GeneratedFiles" Qt5Version_x0020_x64="$(DefaultQtVersion)" />
+      <UserProperties MocDir="D:\Scratch\ProjectBuilds\Banana\OpenGLHelpers\$(ConfigurationName)" UicDir=".\GeneratedFiles" RccDir=".\GeneratedFiles" Qt5Version_x0020_x64="$(DefaultQtVersion)" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>

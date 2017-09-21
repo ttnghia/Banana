@@ -35,7 +35,7 @@ namespace ParallelSTL
 // inf-norm (maximum absolute value)
 //
 template<class T>
-inline T maxAbs(const std::vector<T>& x)
+inline T maxAbs(const Vector<T>& x)
 {
     ParallelObjects::VectorMaxAbs<T> mabs(x);
     tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), mabs);
@@ -44,7 +44,7 @@ inline T maxAbs(const std::vector<T>& x)
 }
 
 template<class T, class VectorType>
-inline T maxVecAbs(const std::vector<VectorType>& x)
+inline T maxVecAbs(const Vector<VectorType>& x)
 {
     ParallelObjects::VectorMaxAbs<T, VectorType> mabs(x);
     tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), mabs);
@@ -55,7 +55,7 @@ inline T maxVecAbs(const std::vector<VectorType>& x)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // min/max element
 template<class T>
-inline T min(const std::vector<T>& x)
+inline T min(const Vector<T>& x)
 {
     ParallelObjects::VectorMinElement<T> vm(x);
     tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), vm);
@@ -64,7 +64,7 @@ inline T min(const std::vector<T>& x)
 }
 
 template<class T>
-inline T max(const std::vector<T>& x)
+inline T max(const Vector<T>& x)
 {
     ParallelObjects::VectorMaxElement<T> vm(x);
     tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), vm);
@@ -73,7 +73,7 @@ inline T max(const std::vector<T>& x)
 }
 
 template<class T, class VectorType>
-inline T maxNorm2(const std::vector<VectorType>& x)
+inline T maxNorm2(const Vector<VectorType>& x)
 {
     ParallelObjects::VectorMaxNorm2<T, VectorType> vm(x);
     tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), vm);
@@ -81,10 +81,10 @@ inline T maxNorm2(const std::vector<VectorType>& x)
     return vm.getResult();
 }
 
-template<class VectorType>
-inline void min_max_vector(const std::vector<VectorType>& x, VectorType& minElement, VectorType& maxElement)
+template<Int N, class RealType>
+inline void min_max_vector(const Vector<VecX<N, RealType>>& x, VecX<N, RealType>& minElement, VecX<N, RealType>& maxElement)
 {
-    ParallelObjects::VectorMinMaxVectorElements<VectorType> vmm(x);
+    ParallelObjects::VectorMinMaxVectorElements<N, RealType> vmm(x);
     tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), vmm);
 
     minElement = vmm.getMin();
@@ -92,7 +92,7 @@ inline void min_max_vector(const std::vector<VectorType>& x, VectorType& minElem
 }
 
 template<class T>
-inline void min_max(const std::vector<T>& x, T& minElement, T& maxElement)
+inline void min_max(const Vector<T>& x, T& minElement, T& maxElement)
 {
     ParallelObjects::VectorMinMaxElements<T> vmm(x);
     tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), vmm);
@@ -102,7 +102,7 @@ inline void min_max(const std::vector<T>& x, T& minElement, T& maxElement)
 }
 
 template<class T, class VectorType>
-inline void min_max_norm2(const std::vector<VectorType>& x, T& minNorm2, T& maxNorm2)
+inline void min_max_norm2(const Vector<VectorType>& x, T& minNorm2, T& maxNorm2)
 {
     ParallelObjects::VectorMinMaxNorm2<T, VectorType> vmm(x);
     tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), vmm);
@@ -113,7 +113,7 @@ inline void min_max_norm2(const std::vector<VectorType>& x, T& minNorm2, T& maxN
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class T>
-inline T sum(const std::vector<T>& x)
+inline T sum(const Vector<T>& x)
 {
     ParallelObjects::VectorSum<T> vSum(x);
     tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), vSum);
@@ -122,7 +122,7 @@ inline T sum(const std::vector<T>& x)
 }
 
 template<class T>
-inline T average(const std::vector<T>& x)
+inline T average(const Vector<T>& x)
 {
     return ParallelSTL::sum<T>(x) / static_cast<T>(x.size());
 }
@@ -130,13 +130,13 @@ inline T average(const std::vector<T>& x)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // sorting
 template<class T>
-inline void sort(std::vector<T>& v)
+inline void sort(Vector<T>& v)
 {
     tbb::parallel_sort(v);
 }
 
 template<class T>
-inline void sort_dsd(std::vector<T>& v)
+inline void sort_dsd(Vector<T>& v)
 {
     tbb::parallel_sort(std::begin(v), std::end(v), std::greater<T> ());
 }

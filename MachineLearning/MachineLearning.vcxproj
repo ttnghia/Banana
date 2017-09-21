@@ -17,7 +17,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{1FED3057-BCBE-40DC-AD67-BDF8121DCB33}</ProjectGuid>
     <RootNamespace>MachineLearning</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.14393.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
     <ProjectName>MachineLearning</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -58,17 +58,17 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)Build\$(Configuration)\</OutDir>
-    <IntDir>D:\Scratch\MSVC-Build\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
+    <IntDir>D:\Scratch\ProjectBuilds\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
     <IncludePath>$(SolutionDir)Externals\catch\include;$(SolutionDir)Externals\spdlog\include;$(SolutionDir)Externals\glm;$(ProjectDir)Include;$(SolutionDir)Externals\tbb_win\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)Build\$(Configuration)\</OutDir>
-    <IntDir>D:\Scratch\MSVC-Build\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
+    <IntDir>D:\Scratch\ProjectBuilds\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
     <IncludePath>$(SolutionDir)Externals\catch\include;$(SolutionDir)Externals\spdlog\include;$(SolutionDir)Externals\glm;$(ProjectDir)Include;$(SolutionDir)Externals\tbb_win\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">
     <OutDir>$(SolutionDir)Build\$(Configuration)\</OutDir>
-    <IntDir>D:\Scratch\MSVC-Build\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
+    <IntDir>D:\Scratch\ProjectBuilds\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
     <IncludePath>$(SolutionDir)Externals\catch\include;$(SolutionDir)Externals\spdlog\include;$(SolutionDir)Externals\glm;$(ProjectDir)Include;$(SolutionDir)Externals\tbb_win\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

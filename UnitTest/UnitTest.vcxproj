@@ -22,7 +22,7 @@
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{2E3CBD66-ECEE-42FC-B4D5-61AD7C4C0E51}</ProjectGuid>
     <RootNamespace>UnitTest</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.14393.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
@@ -63,19 +63,19 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>$(SolutionDir)Externals\json\src;$(SolutionDir)Externals\tinyply\source;$(SolutionDir)Externals\tinyobjloader;$(SolutionDir)Externals\tbb_win\include;$(SolutionDir)Externals\spdlog\include;$(SolutionDir)Externals\glm;$(SolutionDir)Externals\catch\include;$(SolutionDir)Simulation\Include;$(SolutionDir)MachineLearing\Include;$(SolutionDir)BananaCore;$(IncludePath)</IncludePath>
     <OutDir>$(ProjectDir)$(Configuration)\</OutDir>
-    <IntDir>D:\Scratch\MSVC-Build\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
+    <IntDir>D:\Scratch\ProjectBuilds\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
     <LibraryPath>$(SolutionDir)Externals\tbb_win\lib\intel64\vc14;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>$(SolutionDir)Externals\json\src;$(SolutionDir)Externals\tinyply\source;$(SolutionDir)Externals\tinyobjloader;$(SolutionDir)Externals\tbb_win\include;$(SolutionDir)Externals\spdlog\include;$(SolutionDir)Externals\glm;$(SolutionDir)Externals\catch\include;$(SolutionDir)Simulation\Include;$(SolutionDir)MachineLearing\Include;$(SolutionDir)BananaCore;$(IncludePath)</IncludePath>
     <OutDir>$(ProjectDir)$(Configuration)\</OutDir>
-    <IntDir>D:\Scratch\MSVC-Build\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
+    <IntDir>D:\Scratch\ProjectBuilds\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
     <LibraryPath>$(SolutionDir)Externals\tbb_win\lib\intel64\vc14;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">
     <IncludePath>$(SolutionDir)Externals\json\src;$(SolutionDir)Externals\tinyply\source;$(SolutionDir)Externals\tinyobjloader;$(SolutionDir)Externals\tbb_win\include;$(SolutionDir)Externals\spdlog\include;$(SolutionDir)Externals\glm;$(SolutionDir)Externals\catch\include;$(SolutionDir)Simulation\Include;$(SolutionDir)MachineLearing\Include;$(SolutionDir)BananaCore;$(IncludePath)</IncludePath>
     <OutDir>$(ProjectDir)$(Configuration)\</OutDir>
-    <IntDir>D:\Scratch\MSVC-Build\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
+    <IntDir>D:\Scratch\ProjectBuilds\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
     <LibraryPath>$(SolutionDir)Externals\tbb_win\lib\intel64\vc14;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

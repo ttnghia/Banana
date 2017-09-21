@@ -70,7 +70,7 @@ template<Int N, class RealType>
 void compress(const Vector<VecX<N, RealType> >& positions, VecX<N, RealType>& bMin, VecX<N, RealType>& bMax, Vec_UInt16& compressedData)
 {
     compressedData.resize(N * positions.size());
-    ParallelSTL::min_max_vector<VecX<N, RealType> >(positions, bMin, bMax);
+    ParallelSTL::min_max_vector<N, RealType>(positions, bMin, bMax);
     const VecX<N, RealType> diff = bMax - bMin;
 
     ParallelFuncs::parallel_for<size_t>(0, positions.size(),

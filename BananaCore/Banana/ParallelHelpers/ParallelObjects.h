@@ -303,45 +303,47 @@ private:
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class VectorType>
+template<Int N, class RealType>
 class VectorMinMaxVectorElements
 {
 public:
-    VectorMinMaxVectorElements(const Vector<VectorType>& vec) :
-        m_Vector(vec), m_ResultMin(VectorType(std::numeric_limits<::value_type>::max())), m_ResultMax(VectorType(std::numeric_limits<VectorType::value_type>::min())) {}
-    VectorMinMaxVectorElements(VectorMinMaxVectorElements<VectorType>& vmme, tbb::split) :
-        m_Vector(vmme.m_Vector), m_ResultMin(VectorType(std::numeric_limits<::value_type>::max())), m_ResultMax(VectorType(std::numeric_limits<::value_type>::min())) {}
+	VectorMinMaxVectorElements(const Vector<VecX<N, RealType> >& vec) :
+		m_Vector(vec), m_ResultMin(VecX<N, RealType>(std::numeric_limits<RealType>::max())), m_ResultMax(VecX<N, RealType>(std::numeric_limits<RealType>::min()))
+	{}
+	VectorMinMaxVectorElements(VectorMinMaxVectorElements<N, RealType>& vmme, tbb::split) :
+		m_Vector(vmme.m_Vector), m_ResultMin(VecX<N, RealType>(std::numeric_limits<RealType>::max())), m_ResultMax(VecX<N, RealType>(std::numeric_limits<RealType>::min()))
+	{}
 
-    void operator ()(const tbb::blocked_range<size_t>& r)
-    {
-        for(size_t i = r.begin(); i != r.end(); ++i)
-        {
-            const auto& vec = m_Vector[i];
-            for(int j = 0; j < vec.length(); ++j)
-            {
-                m_ResultMin[j] = (m_ResultMin[j] < vec[j]) ? m_ResultMin[j] : vec[j];
-                m_ResultMax[j] = (m_ResultMax[j] > vec[j]) ? m_ResultMax[j] : vec[j];
-            }
-        }
-    }
+	void operator ()(const tbb::blocked_range<size_t>& r)
+	{
+		for(size_t i = r.begin(); i != r.end(); ++i)
+		{
+			const auto& vec = m_Vector[i];
+			for(int j = 0; j < N; ++j)
+			{
+				m_ResultMin[j] = (m_ResultMin[j] < vec[j]) ? m_ResultMin[j] : vec[j];
+				m_ResultMax[j] = (m_ResultMax[j] > vec[j]) ? m_ResultMax[j] : vec[j];
+			}
+		}
+	}
 
-    void join(VectorMinMaxVectorElements<VectorType>& vmme)
-    {
-        for(int j = 0; j < m_ResultMin.length(); ++j)
-        {
-            m_ResultMin[j] = (m_ResultMin[j] < vmme.m_ResultMin[j]) ? m_ResultMin[j] : vmme.m_ResultMin[j];
-            m_ResultMax[j] = (m_ResultMax[j] > vmme.m_ResultMax[j]) ? m_ResultMax[j] : vmme.m_ResultMax[j];
-        }
-    }
+	void join(VectorMinMaxVectorElements<N, RealType>& vmme)
+	{
+		for(int j = 0; j < N; ++j)
+		{
+			m_ResultMin[j] = (m_ResultMin[j] < vmme.m_ResultMin[j]) ? m_ResultMin[j] : vmme.m_ResultMin[j];
+			m_ResultMax[j] = (m_ResultMax[j] > vmme.m_ResultMax[j]) ? m_ResultMax[j] : vmme.m_ResultMax[j];
+		}
+	}
 
-    const VectorType& getMin() const noexcept { return m_ResultMin; }
-    const VectorType& getMax() const noexcept { return m_ResultMax; }
+	const VecX<N, RealType>& getMin() const noexcept { return m_ResultMin; }
+	const VecX<N, RealType>& getMax() const noexcept { return m_ResultMax; }
 
 private:
-    VectorType m_ResultMin;
-    VectorType m_ResultMax;
+	VecX<N, RealType> m_ResultMin;
+	VecX<N, RealType> m_ResultMax;
 
-    const Vector<VectorType>& m_Vector;
+	const Vector<VecX<N, RealType>>& m_Vector;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

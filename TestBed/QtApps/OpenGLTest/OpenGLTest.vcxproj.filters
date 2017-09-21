@@ -62,25 +62,25 @@
     <ClCompile Include="C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared\hoverpoints.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\Scratch\MSVC-Build\Banana\TestBed\OpenGLTest\Debug\moc_hoverpoints.cpp">
+    <ClCompile Include="..\..\..\..\..\Scratch\ProjectBuilds\Banana\TestBed\OpenGLTest\Debug\moc_hoverpoints.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\Scratch\MSVC-Build\Banana\TestBed\OpenGLTest\Release\moc_hoverpoints.cpp">
+    <ClCompile Include="..\..\..\..\..\Scratch\ProjectBuilds\Banana\TestBed\OpenGLTest\Release\moc_hoverpoints.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\Scratch\MSVC-Build\Banana\TestBed\OpenGLTest\Debug\moc_arthurwidgets.cpp">
+    <ClCompile Include="..\..\..\..\..\Scratch\ProjectBuilds\Banana\TestBed\OpenGLTest\Debug\moc_arthurwidgets.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\Scratch\MSVC-Build\Banana\TestBed\OpenGLTest\Release\moc_arthurwidgets.cpp">
+    <ClCompile Include="..\..\..\..\..\Scratch\ProjectBuilds\Banana\TestBed\OpenGLTest\Release\moc_arthurwidgets.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\Scratch\MSVC-Build\Banana\TestBed\OpenGLTest\Debug\moc_MainWindow.cpp">
+    <ClCompile Include="..\..\..\..\..\Scratch\ProjectBuilds\Banana\TestBed\OpenGLTest\Debug\moc_MainWindow.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\Scratch\MSVC-Build\Banana\TestBed\OpenGLTest\Release\moc_MainWindow.cpp">
+    <ClCompile Include="..\..\..\..\..\Scratch\ProjectBuilds\Banana\TestBed\OpenGLTest\Release\moc_MainWindow.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\Scratch\MSVC-Build\Banana\TestBed\OpenGLTest\GeneratedFiles\qrc_shared.cpp">
+    <ClCompile Include="..\..\..\..\..\Scratch\ProjectBuilds\Banana\TestBed\OpenGLTest\GeneratedFiles\qrc_shared.cpp">
       <Filter>Generated Files</Filter>
     </ClCompile>
   </ItemGroup>
