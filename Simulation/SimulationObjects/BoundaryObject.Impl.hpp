@@ -463,7 +463,7 @@ const VecX<N, RealType>& SphereBoundary<N, RealType >::center() const
 template<Int N, class RealType>
 RealType SphereBoundary<N, RealType >::radius() const
 {
-    auto sphere = std::static_pointer_cast<GeometryObjects::SphereObject<3, RealType> >(m_GeometryObj);
+    auto sphere = std::static_pointer_cast<GeometryObjects::SphereObject<N, RealType> >(m_GeometryObj);
     __BNN_ASSERT(sphere != nullptr);
     return sphere->radius();
 }

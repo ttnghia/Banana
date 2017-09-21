@@ -21,6 +21,7 @@
 #include <Banana/Data/DataIO.h>
 #include <Banana/Utils/FileHelpers.h>
 #include <Banana/Utils/MathHelpers.h>
+#include <Banana/ParallelHelpers/ParallelSTL.h>
 #include <ParticleTools/BlueNoiseRelaxation/LloydRelaxation.h>
 #include <ParticleTools/BlueNoiseRelaxation/SPHBasedRelaxation.h>
 
@@ -38,12 +39,12 @@ namespace ParticleHelpers
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // template functions are defined in a hpp file
-template<Int N, class RealType> UInt loadBinary(const String& fileName, Vector<VecX<N, RealType> >& particles, Real& particleRadius);
-template<Int N, class RealType> void saveBinary(const String& fileName, Vector<VecX<N, RealType> >& particles, Real particleRadius);
+template<Int N, class RealType> UInt loadBinary(const String& fileName, Vector<VecX<N, RealType> >& particles, RealType particleRadius);
+template<Int N, class RealType> void saveBinary(const String& fileName, Vector<VecX<N, RealType> >& particles, RealType particleRadius);
 template<Int N, class RealType> void compress(const Vector<VecX<N, RealType> >& positions, VecX<N, RealType>& bMin, VecX<N, RealType>& bMax, Vec_UInt16& compressedData);
 template<Int N, class RealType> void decompress(Vector<VecX<N, RealType> >& positions, const VecX<N, RealType>& bMin, const VecX<N, RealType>& bMax, const Vec_UInt16& compressedData);
-template<Int N, class RealType> void compressAndSaveBinary(const String& fileName, const Vector<VecX<N, RealType> >& positions, Real particleRadius);
-template<Int N, class RealType> void loadBinaryAndDecompress(const String& fileName, Vector<VecX<N, RealType> >& positions, Real& particleRadius);
+template<Int N, class RealType> void compressAndSaveBinary(const String& fileName, const Vector<VecX<N, RealType> >& positions, RealType particleRadius);
+template<Int N, class RealType> UInt loadBinaryAndDecompress(const String& fileName, Vector<VecX<N, RealType> >& positions, RealType particleRadius);
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

@@ -38,7 +38,7 @@ class SpinLock
 public:
     SpinLock() = default;
     SpinLock(const SpinLock&) {}
-    SpinLock& operator=(const SpinLock&) { return *this; }
+    SpinLock& operator =(const SpinLock&) { return *this; }
 
     void lock()
     {
@@ -66,7 +66,7 @@ public:
     VectorDotProduct(const Vector<T>& vec1, const Vector<T>& vec2) : m_Vec1(vec1), m_Vec2(vec2), m_Result(0) {}
     VectorDotProduct(VectorDotProduct& vdp, tbb::split) : m_Vec1(vdp.m_Vec1), m_Vec2(vdp.m_Vec2), m_Result(0) {}
 
-    void operator()(const tbb::blocked_range<size_t>& r)
+    void operator ()(const tbb::blocked_range<size_t>& r)
     {
         for(size_t i = r.begin(); i != r.end(); ++i)
             m_Result += m_Vec1[i] * m_Vec2[i];
@@ -94,7 +94,7 @@ public:
     VectorDotProduct(const Vector<VectorType>& vec1, const Vector<VectorType>& vec2) : m_Vec1(vec1), m_Vec2(vec2), m_Result(0) {}
     VectorDotProduct(VectorDotProduct& vdp, tbb::split) : m_Vec1(vdp.m_Vec1), m_Vec2(vdp.m_Vec1), m_Result(0) {}
 
-    void operator()(const tbb::blocked_range<size_t>& r)
+    void operator ()(const tbb::blocked_range<size_t>& r)
     {
         for(size_t i = r.begin(); i != r.end(); ++i)
             m_Result += glm::dot(m_Vec1[i], m_Vec2[i]);
@@ -122,7 +122,7 @@ public:
     VectorMinElement(const Vector<T>& vec) : m_Vector(vec), m_Result(std::numeric_limits<T>::max()) {}
     VectorMinElement(VectorMinElement& vme, tbb::split) : m_Vector(vme.m_Vector), m_Result(std::numeric_limits<T>::max()) {}
 
-    void operator()(const tbb::blocked_range<size_t>& r)
+    void operator ()(const tbb::blocked_range<size_t>& r)
     {
         for(size_t i = r.begin(); i != r.end(); ++i)
         {
@@ -152,7 +152,7 @@ public:
     VectorMaxElement(VectorMaxElement& vme, tbb::split) : m_Vector(vme.m_Vector), m_Result(std::numeric_limits<T>::min()) {}
 
     // overload () so it does finding max
-    void operator()(const tbb::blocked_range<size_t>& r)
+    void operator ()(const tbb::blocked_range<size_t>& r)
     {
         for(size_t i = r.begin(); i != r.end(); ++i)
         {
@@ -184,7 +184,7 @@ public:
     VectorMaxAbs(const Vector<T>& vec) : m_Vector(vec), m_Result(0) {}
     VectorMaxAbs(VectorMaxAbs& vma, tbb::split) : m_Vector(vma.m_Vector), m_Result(0) {}
 
-    void operator()(const tbb::blocked_range<size_t>& r)
+    void operator ()(const tbb::blocked_range<size_t>& r)
     {
         for(size_t i = r.begin(); i != r.end(); ++i)
         {
@@ -214,7 +214,7 @@ public:
     VectorMaxAbs(const Vector<VectorType>& vec) : m_Vector(vec), m_Result(0) {}
     VectorMaxAbs(VectorMaxAbs& vma, tbb::split) : m_Vector(vma.m_Vector), m_Result(0) {}
 
-    void operator()(const tbb::blocked_range<size_t>& r)
+    void operator ()(const tbb::blocked_range<size_t>& r)
     {
         for(size_t i = r.begin(); i != r.end(); ++i)
         {
@@ -248,7 +248,7 @@ public:
     VectorMaxNorm2(const Vector<VectorType>& vec) : m_Vector(vec), m_ResultMax(std::numeric_limits<T>::min()) {}
     VectorMaxNorm2(VectorMaxNorm2& vmmn, tbb::split) : m_Vector(vmmn.m_Vector), m_ResultMax(std::numeric_limits<T>::min()) {}
 
-    void operator()(const tbb::blocked_range<size_t>& r)
+    void operator ()(const tbb::blocked_range<size_t>& r)
     {
         for(size_t i = r.begin(); i != r.end(); ++i)
         {
@@ -277,7 +277,7 @@ public:
     VectorMinMaxElements(const Vector<T>& vec) : m_Vector(vec), m_ResultMin(std::numeric_limits<T>::max()), m_ResultMax(std::numeric_limits<T>::min()) {}
     VectorMinMaxElements(VectorMinMaxElements<T>& vmme, tbb::split) : m_Vector(vmme.m_Vector), m_ResultMin(std::numeric_limits<T>::max()), m_ResultMax(std::numeric_limits<T>::min()) {}
 
-    void operator()(const tbb::blocked_range<size_t>& r)
+    void operator ()(const tbb::blocked_range<size_t>& r)
     {
         for(size_t i = r.begin(); i != r.end(); ++i)
         {
@@ -308,11 +308,11 @@ class VectorMinMaxVectorElements
 {
 public:
     VectorMinMaxVectorElements(const Vector<VectorType>& vec) :
-        m_Vector(vec), m_ResultMin(VectorType(std::numeric_limits<T>::max())), m_ResultMax(VectorType(std::numeric_limits<T>::min())) {}
+        m_Vector(vec), m_ResultMin(VectorType(std::numeric_limits<::value_type>::max())), m_ResultMax(VectorType(std::numeric_limits<VectorType::value_type>::min())) {}
     VectorMinMaxVectorElements(VectorMinMaxVectorElements<VectorType>& vmme, tbb::split) :
-        m_Vector(vmme.m_Vector), m_ResultMin(VectorType(std::numeric_limits<T>::max())), m_ResultMax(VectorType(std::numeric_limits<T>::min())) {}
+        m_Vector(vmme.m_Vector), m_ResultMin(VectorType(std::numeric_limits<::value_type>::max())), m_ResultMax(VectorType(std::numeric_limits<::value_type>::min())) {}
 
-    void operator()(const tbb::blocked_range<size_t>& r)
+    void operator ()(const tbb::blocked_range<size_t>& r)
     {
         for(size_t i = r.begin(); i != r.end(); ++i)
         {
@@ -352,7 +352,7 @@ public:
     VectorMinMaxNorm2(const Vector<VectorType>& vec) : m_Vector(vec), m_ResultMin(std::numeric_limits<T>::max()), m_ResultMax(std::numeric_limits<T>::min()) {}
     VectorMinMaxNorm2(VectorMinMaxNorm2& vmmn, tbb::split) : m_Vector(vmmn.m_Vector), m_ResultMin(std::numeric_limits<T>::max()), m_ResultMax(std::numeric_limits<T>::min()) {}
 
-    void operator()(const tbb::blocked_range<size_t>& r)
+    void operator ()(const tbb::blocked_range<size_t>& r)
     {
         for(size_t i = r.begin(); i != r.end(); ++i)
         {
@@ -386,7 +386,7 @@ public:
     VectorSum(const Vector<T>& vec) : m_Vector(vec), m_Result(0) {}
     VectorSum(VectorSum& vsum, tbb::split) : m_Vector(vsum.v), m_Result(0) {}
 
-    void operator()(const tbb::blocked_range<size_t>& r)
+    void operator ()(const tbb::blocked_range<size_t>& r)
     {
         for(size_t i = r.begin(); i != r.end(); ++i)
         {

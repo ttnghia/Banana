@@ -20,8 +20,8 @@ void ParticleObject<N, RealType >::generateParticles(Vector<VecX<N, RealType> >&
     if(bUseCache && !m_ParticleFile.empty() && FileHelpers::fileExisted(m_ParticleFile))
     {
         positions.resize(0);
-        ParticleHelpers::loadBinaryAndDecompress(m_ParticleFile, positions, m_ParticleRadius);
-        generateVelocities();
+        ParticleHelpers::loadBinaryAndDecompress(m_ParticleFile, positions, particleRadius);
+        generateVelocities(positions, velocities);
 
         return;
     }
@@ -33,7 +33,7 @@ void ParticleObject<N, RealType >::generateParticles(Vector<VecX<N, RealType> >&
     ////////////////////////////////////////////////////////////////////////////////
 
     if(bUseCache && !m_ParticleFile.empty())
-        ParticleHelpers::compressAndSaveBinary(m_ParticleFile, positions, m_ParticleRadius);
+        ParticleHelpers::compressAndSaveBinary(m_ParticleFile, positions, particleRadius);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

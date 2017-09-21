@@ -176,6 +176,7 @@
     <ClCompile Include="ParticleTools\ParticleHelpers.cpp" />
     <ClCompile Include="ParticleTools\PoissonDiskSampler.cpp" />
     <ClCompile Include="ParticleTools\_ParticleTools.Test.cpp" />
+    <ClCompile Include="SimulationObjects\SimulationObjects.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

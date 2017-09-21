@@ -15,7 +15,7 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-UInt loadBinary(const String& fileName, Vector<VecX<N, RealType> >& particles, Real& particleRadius)
+UInt loadBinary(const String& fileName, Vector<VecX<N, RealType> >& particles, RealType particleRadius)
 {
     DataBuffer buffer;
     __BNN_ASSERT_MSG(FileHelpers::readFile(buffer.buffer(), fileName), "Could not open file for reading.");
@@ -31,6 +31,7 @@ UInt loadBinary(const String& fileName, Vector<VecX<N, RealType> >& particles, R
 
     segmentSize = sizeof(float);
     memcpy(&fRadius, &buffer.data()[segmentStart], segmentSize);
+    __BNN_ASSERT_APPROX_NUMBERS(static_cast<float>(particleRadius), fRadius, MEpsilon);
     segmentStart += segmentSize;
 
     const float* particleData = reinterpret_cast<const float*>(&buffer.data()[segmentStart]);
@@ -46,7 +47,7 @@ UInt loadBinary(const String& fileName, Vector<VecX<N, RealType> >& particles, R
     {
         VecX<N, RealType> ppos;
         for(UInt j = 0; j < N; ++j)
-            ppos[j] = Real(particleData[i * N + j]);
+            ppos[j] = RealType(particleData[i * N + j]);
         particles.push_back(ppos);
     }
 
@@ -55,7 +56,7 @@ UInt loadBinary(const String& fileName, Vector<VecX<N, RealType> >& particles, R
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void saveBinary(const String& fileName, Vector<VecX<N, RealType> >& particles, Real particleRadius)
+void saveBinary(const String& fileName, Vector<VecX<N, RealType> >& particles, RealType particleRadius)
 {
     DataBuffer buffer;
     buffer.append(static_cast<UInt>(particles.size()));
@@ -102,7 +103,7 @@ void decompress(Vector<VecX<N, RealType> >& positions, const VecX<N, RealType>& 
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void compressAndSaveBinary(const String& fileName, const Vector<VecX<N, RealType> >& positions, Real particleRadius)
+void compressAndSaveBinary(const String& fileName, const Vector<VecX<N, RealType> >& positions, RealType particleRadius)
 {
     // compress
     Vec_UInt16        compressedData;
@@ -113,23 +114,23 @@ void compressAndSaveBinary(const String& fileName, const Vector<VecX<N, RealType
     // convert bmin and bmax to Vec3f
     for(Int i = 0; i < N; ++i)
     {
-        bMinf[i] = bMin[i];
-        bMaxf[i] = bMax[i];
+        bMinf[i] = static_cast<float>(bMin[i]);
+        bMaxf[i] = static_cast<float>(bMax[i]);
     }
 
     // save
     DataBuffer buffer;
-    buffer.append(static_cast<UInt>(particles.size()));
+    buffer.append(static_cast<UInt>(positions.size()));
     buffer.appendFloat(particleRadius);
-    buffer.append(glm::value_ptr(bMinf), sizeof(float) * N);
-    buffer.append(glm::value_ptr(bMaxf), sizeof(float) * N);
-    buffer.append(compressedData.data(), compressedData.data() * sizeof(UInt16));
+    buffer.append((const unsigned char*)glm::value_ptr(bMinf), sizeof(float) * N);
+    buffer.append((const unsigned char*)glm::value_ptr(bMaxf), sizeof(float) * N);
+    buffer.append((const unsigned char*)compressedData.data(), compressedData.size() * sizeof(UInt16));
     FileHelpers::writeBinaryFile(buffer.buffer(), fileName);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void loadBinaryAndDecompress(const String& fileName, Vector<VecX<N, RealType> >& positions, Real particleRadius)
+UInt loadBinaryAndDecompress(const String& fileName, Vector<VecX<N, RealType> >& positions, RealType particleRadius)
 {
     DataBuffer buffer;
     __BNN_ASSERT_MSG(FileHelpers::readFile(buffer.buffer(), fileName), "Could not open file for reading.");
@@ -147,6 +148,7 @@ void loadBinaryAndDecompress(const String& fileName, Vector<VecX<N, RealType> >&
 
     segmentSize = sizeof(float);
     memcpy(&fRadius, &buffer.data()[segmentStart], segmentSize);
+    __BNN_ASSERT_APPROX_NUMBERS(static_cast<float>(particleRadius), fRadius, MEpsilon);
     segmentStart += segmentSize;
 
     segmentSize = sizeof(float) * N;
@@ -163,8 +165,8 @@ void loadBinaryAndDecompress(const String& fileName, Vector<VecX<N, RealType> >&
     VecX<N, RealType> bMin, bMax;
     for(Int i = 0; i < N; ++i)
     {
-        bMin[i] = bMinf[i];
-        bMax[i] = bMaxf[i];
+        bMin[i] = static_cast<RealType>(bMinf[i]);
+        bMax[i] = static_cast<RealType>(bMaxf[i]);
     }
     decompress(positions, bMin, bMax, compressedData);
     return numParticles;
