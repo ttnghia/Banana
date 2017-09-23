@@ -97,17 +97,17 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)Externals\glm;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)\BananaCore\Include</IncludePath>
+    <IncludePath>$(SolutionDir)Externals\glm;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)\BananaCore</IncludePath>
     <IntDir>D:\Scratch\ProjectBuilds\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
     <OutDir>$(ProjectDir)$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">
-    <IncludePath>$(SolutionDir)Externals\glm;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)\BananaCore\Include</IncludePath>
+    <IncludePath>$(SolutionDir)Externals\glm;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)\BananaCore</IncludePath>
     <IntDir>D:\Scratch\ProjectBuilds\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
     <OutDir>$(ProjectDir)$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir)Externals\glm;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)\BananaCore\Include</IncludePath>
+    <IncludePath>$(SolutionDir)Externals\glm;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)\BananaCore</IncludePath>
     <IntDir>D:\Scratch\ProjectBuilds\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
     <OutDir>$(ProjectDir)$(Configuration)\</OutDir>
   </PropertyGroup>

@@ -84,7 +84,7 @@ protected:
 
     ////////////////////////////////////////////////////////////////////////////////
     SimulationData_FLIP3D::ParticleSimData& particleData() { return m_SimData->particleSimData; }
-    SimulationData_FLIP3D::GridSimData& gridData() { return m_SimData->gridSimData; }
+    SimulationData_FLIP3D::GridSimData&     gridData() { return m_SimData->gridSimData; }
 
     ////////////////////////////////////////////////////////////////////////////////
     std::shared_ptr<SimulationParameters_FLIP3D>      m_SimParams        = std::make_shared<SimulationParameters_FLIP3D>();

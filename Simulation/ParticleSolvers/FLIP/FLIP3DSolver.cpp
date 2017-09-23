@@ -224,7 +224,7 @@ void FLIP3DSolver::saveMemoryState()
     if(!m_GlobalParams->bSaveMemoryState)
         return;
 
-    static unsigned int frameCount = 0;
+    static UInt frameCount = 0;
     ++frameCount;
 
     if(frameCount < m_GlobalParams->framePerState)
@@ -401,25 +401,39 @@ void FLIP3DSolver::computeFluidWeights()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void FLIP3DSolver::addRepulsiveVelocity2Particles(Real timestep)
 {
-    m_Grid.getNeighborList(particleData().positions, particleData().neighborList, m_SimParams->nearKernelRadiusSqr);
+    //m_Grid.getNeighborList(particleData().positions, particleData().neighborList, m_SimParams->nearKernelRadiusSqr);
     ////////////////////////////////////////////////////////////////////////////////
 
     ParallelFuncs::parallel_for<UInt>(0, getNumParticles(),
                                       [&](UInt p)
                                       {
-                                          const Vec_UInt& neighbors = particleData().neighborList[p];
+                                          //const Vec_UInt& neighbors = particleData().neighborList[p];
                                           const Vec3r& ppos = particleData().positions[p];
+                                          const Vec3i pCellIdx = m_Grid.getCellIdx<Int>(ppos);
                                           Vec3r pvel(0);
 
-                                          for(UInt q : neighbors)
-                                          {
-                                              const Vec3r& qpos = particleData().positions[q];
-                                              const Vec3r xpq = ppos - qpos;
-                                              const Real d = glm::length(xpq);
+                                          for(Int k = -1; k <= 1; ++k)
+                                              for(Int j = -1; j <= 1; ++j)
+                                                  for(Int i = -1; i <= 1; ++i)
+                                                  {
+                                                      const Vec3i cellIdx = pCellIdx + Vec3i(i, j, k);
+                                                      if(!m_Grid.isValidCell(cellIdx))
+                                                          continue;
 
-                                              const Real x = Real(1.0) - d / m_SimParams->nearKernelRadius;
-                                              pvel += (x * x / d) * xpq;
-                                          }
+                                                      const Vec_UInt& neighbors = m_Grid.getParticleIdxInCell(cellIdx);
+                                                      for(UInt q : neighbors)
+                                                      //for(UInt q : m_Grid.getParticleIdxInCell(cellIdx))
+                                                      {
+                                                          const Vec3r& qpos = particleData().positions[q];
+                                                          const Vec3r xpq = ppos - qpos;
+                                                          const Real d = glm::length(xpq);
+                                                          if(d > m_SimParams->nearKernelRadius || d < Tiny)
+                                                              continue;
+
+                                                          const Real x = Real(1.0) - d / m_SimParams->nearKernelRadius;
+                                                          pvel += (x * x / d) * xpq;
+                                                      }
+                                                  }
 
                                           particleData().velocities[p] += m_SimParams->repulsiveForceStiffness * pvel;
                                       });
@@ -563,7 +577,7 @@ void FLIP3DSolver::extrapolateVelocity(Array3r& grid, Array3r& temp_grid, Array3
 
                                               ////////////////////////////////////////////////////////////////////////////////
                                               Real sum = Real(0);
-                                              unsigned int count = 0;
+                                              UInt count = 0;
 
                                               if(old_valid(i + 1, j, k))
                                               {
