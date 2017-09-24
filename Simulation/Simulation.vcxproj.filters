@@ -114,12 +114,6 @@
     <ClInclude Include="ParticleTools\BlueNoiseRelaxation\SPHBasedRelaxation.Impl.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ParticleTools\AnisotropicKernelGenerator.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ParticleTools\AnisotropicKernelGenerator.Impl.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ParticleTools\ParticleHelpers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -168,6 +162,12 @@
     <ClInclude Include="ParticleSolvers\ParticleSolver.Impl.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="SurfaceReconstruction\AniKernelGenerator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SurfaceReconstruction\AniKernelGenerator.Impl.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ParticleSolvers\FLIP\FLIP2DSolver.cpp">
@@ -195,6 +195,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="SimulationObjects\SimulationObjects.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SurfaceReconstruction\_SurfaceReconstruction.Test.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SurfaceReconstruction\AniKernelGenerator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

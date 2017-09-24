@@ -92,6 +92,7 @@ using PairReal = std::pair<double, double>;
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // generic types
 template<class Type> using Vector = std::vector<Type>;
+template<class Type> using Quat   = glm::tquat<Type>;
 template<class Type> using Vec2   = glm::vec<2, Type>;
 template<class Type> using Vec3   = glm::vec<3, Type>;
 template<class Type> using Vec4   = glm::vec<4, Type>;
@@ -118,6 +119,10 @@ template<class Type>
 using UniquePtr = std::unique_ptr<Type>;
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+using Quatf = Quat<float>;
+using Quatd = Quat<double>;
+using Quatr = Quat<Real>;
+
 using Vec2i = Vec2<Int>;
 using Vec3i = Vec3<Int>;
 using Vec4i = Vec4<Int>;

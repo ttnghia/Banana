@@ -161,8 +161,8 @@
     <ClInclude Include="ParticleSolvers\SPH\WCSPH\WCSPHData.h" />
     <ClInclude Include="ParticleSolvers\_ParticleSolvers.Test.hpp" />
     <ClInclude Include="ParticleSolvers\ParticleSolver.h" />
-    <ClInclude Include="ParticleTools\AnisotropicKernelGenerator.h" />
-    <ClInclude Include="ParticleTools\AnisotropicKernelGenerator.Impl.hpp" />
+    <ClInclude Include="SurfaceReconstruction\AniKernelGenerator.h" />
+    <ClInclude Include="SurfaceReconstruction\AniKernelGenerator.Impl.hpp" />
     <ClInclude Include="ParticleSolvers\FLIP\FLIP3DSolver.h" />
     <ClInclude Include="ParticleSolvers\SPH\PCISPH\PCISPHSolver.h" />
     <ClInclude Include="ParticleSolvers\SPH\PCISPH\PCISPHSolver.Impl.hpp" />
@@ -194,6 +194,8 @@
     <ClCompile Include="ParticleTools\PoissonDiskSampler.cpp" />
     <ClCompile Include="ParticleTools\_ParticleTools.Test.cpp" />
     <ClCompile Include="SimulationObjects\SimulationObjects.cpp" />
+    <ClCompile Include="SurfaceReconstruction\AniKernelGenerator.cpp" />
+    <ClCompile Include="SurfaceReconstruction\_SurfaceReconstruction.Test.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

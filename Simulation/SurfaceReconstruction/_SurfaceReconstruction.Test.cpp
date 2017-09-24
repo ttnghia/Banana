@@ -15,27 +15,10 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-#include <cstdio>
-#include <cstdlib>
-#include <exception>
-
-#include <Banana/Utils/CommandLineParser.h>
+#include <SurfaceReconstruction/AniKernelGenerator.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-
-int main(int argc, char** argv)
+namespace _ParticleSolvers_Test
 {
-    Banana::CommandLineParser cmdParser;
-    try
-    {
-        cmdParser.init(argc, argv);
-    }
-    catch(std::exception& e)
-    {
-        fprintf(stderr, "Error: %s\n", e.what());
-        return EXIT_FAILURE;
-    }
-
-    ////////////////////////////////////////////////////////////////////////////////
-    return EXIT_SUCCESS;
+//Banana::AnisotropicKernelGenerator generator;
 }

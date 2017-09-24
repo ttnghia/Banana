@@ -17,12 +17,8 @@
 
 #pragma once
 
-#include <Banana/LinearAlgebra/SVD.h>
+#include <Banana/NeighborSearch/NeighborSearch3D.h>
 #include <Banana/Utils/MathHelpers.h>
-#include <Banana/Array/Array.h>
-#include <Banana/Grid/Grid.h>
-
-#include <tbb/tbb.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -32,36 +28,41 @@ namespace Banana
 class AnisotropicKernelGenerator
 {
 public:
-    AnisotropicKernelGenerator(const Grid3r& grid3D, const Vec_Vec3r& particles, Real kernelCellSpan) :
-        m_Grid3D(grid3D),
-        m_Particles(particles),
-        m_KernelCellSpan(kernelCellSpan * 2) {}
+    AnisotropicKernelGenerator(UInt nParticles, Vec3r* particles, Real particleRadius, Real kernelRatio = Real(8.0)) :
+        m_NParticles(nParticles), m_Particles(particles)
+    {
+        m_KernelRadius    = kernelRatio * particleRadius;
+        m_KernelRadiusSqr = m_KernelRadius * m_KernelRadius;
+        m_KernelRadiusInv = 1.0 / m_KernelRadius;
 
-    void setParticleRadius(Real radius);
-    void generateAnisotropy();
+        m_NSearch = std::make_unique<NeighborSearch::NeighborSearch3D>(m_KernelRadius, true);
+        m_NSearch->add_point_set(glm::value_ptr(m_Particles[0]), m_NParticles, true, true);
+    }
 
-    const Vec_Vec3r&   getKernelCenters() const;
-    const Vec_Mat3x3r& getKernelMatrices() const;
+    void               generateAniKernels();
+    const Vec_Vec3r&   getKernelCenters() const { return m_KernelCenters; }
+    const Vec_Mat3x3r& getKernelMatrices() const { return m_KernelMatrices; }
 
 private:
-    Real W(Real d2);
-    Real W(const Vec3r& r);
-    Real W(const Vec3r& xi, const Vec3r& xj);
+    __BNN_INLINE Real W(Real d2) { return (d2 < m_KernelRadiusSqr) ? 1.0 - MathHelpers::cube(sqrt(d2) * m_KernelRadiusInv) : 0; }
+    __BNN_INLINE Real W(const Vec3r& r) { return W(glm::length2(r)); }
+    __BNN_INLINE Real W(const Vec3r& xi, const Vec3r& xj) { return W(glm::length2(xi - xj)); }
 
     ////////////////////////////////////////////////////////////////////////////////
-    const Grid3r&    m_Grid3D;
-    const Vec_Vec3r& m_Particles;
-    const Real       m_KernelCellSpan;
-    Real             m_KernelRadius;
-    Real             m_KernelRadiusSqr;
-    Real             m_KernelRadiusInv;
+    Real m_KernelRadius;
+    Real m_KernelRadiusSqr;
+    Real m_KernelRadiusInv;
+
+    UInt                                        m_NParticles = 0;
+    Vec3r*                                      m_Particles  = nullptr;
+    UniquePtr<NeighborSearch::NeighborSearch3D> m_NSearch    = nullptr;
 
     Vec_Vec3r   m_KernelCenters;
     Vec_Mat3x3r m_KernelMatrices;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//#include <ParticleTools/AnisotropicKernelGenerator.Impl.hpp>
+//#include <SurfaceReconstruction/AniKernelGenerator.Impl.hpp>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana

@@ -20,21 +20,21 @@
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class Real>
-const Vec_Vec3r& AnisotropicKernelGenerator<Real>::getKernelCenters() const
+const Vec_Vec3r& AnisotropicKernelGenerator<Real >::getKernelCenters() const
 {
     return m_KernelCenters;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class Real>
-const Vec_Mat3x3r& AnisotropicKernelGenerator<Real>::getKernelMatrices() const
+const Vec_Mat3x3r& AnisotropicKernelGenerator<Real >::getKernelMatrices() const
 {
     return m_KernelMatrices;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class Real>
-void AnisotropicKernelGenerator<Real>::setParticleRadius(Real radius)
+void AnisotropicKernelGenerator<Real >::setParticleRadius(Real radius)
 {
     m_KernelRadius    = 8 * radius;
     m_KernelRadiusSqr = m_KernelRadius * m_KernelRadius;
@@ -43,7 +43,7 @@ void AnisotropicKernelGenerator<Real>::setParticleRadius(Real radius)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class Real>
-void AnisotropicKernelGenerator<Real>::generateAnisotropy()
+void AnisotropicKernelGenerator<Real >::generateAniKernels()
 {
     ////////////////////////////////////////////////////////////////////////////////
     // allocate memory
@@ -165,21 +165,21 @@ void AnisotropicKernelGenerator<Real>::generateAnisotropy()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class Real>
-Real AnisotropicKernelGenerator<Real>::W(Real d2)
+Real AnisotropicKernelGenerator<Real >::W(Real d2)
 {
     return (d2 < m_KernelRadiusSqr) ? 1.0 - MathHelpers::cube(sqrt(d2) * m_KernelRadiusInv) : 0;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class Real>
-Real AnisotropicKernelGenerator<Real>::W(const Vec3r& r)
+Real AnisotropicKernelGenerator<Real >::W(const Vec3r& r)
 {
     return W(glm::length2(r));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class Real>
-Real AnisotropicKernelGenerator<Real>::W(const Vec3r& xi, const Vec3r& xj)
+Real AnisotropicKernelGenerator<Real >::W(const Vec3r& xi, const Vec3r& xj)
 {
     return W(glm::length2(xi - xj));
 }
