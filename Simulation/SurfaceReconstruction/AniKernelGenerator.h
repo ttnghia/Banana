@@ -33,7 +33,7 @@ public:
     {
         m_KernelRadius    = kernelRatio * particleRadius;
         m_KernelRadiusSqr = m_KernelRadius * m_KernelRadius;
-        m_KernelRadiusInv = 1.0 / m_KernelRadius;
+        m_KernelRadiusInv = Real(1.0) / m_KernelRadius;
 
         m_NSearch = std::make_unique<NeighborSearch::NeighborSearch3D>(m_KernelRadius, true);
         m_NSearch->add_point_set(glm::value_ptr(m_Particles[0]), m_NParticles, true, true);
@@ -44,7 +44,7 @@ public:
     const Vec_Mat3x3r& getKernelMatrices() const { return m_KernelMatrices; }
 
 private:
-    __BNN_INLINE Real W(Real d2) { return (d2 < m_KernelRadiusSqr) ? 1.0 - MathHelpers::cube(sqrt(d2) * m_KernelRadiusInv) : 0; }
+    __BNN_INLINE Real W(Real d2) { return (d2 < m_KernelRadiusSqr) ? Real(1.0) - MathHelpers::cube(sqrt(d2) * m_KernelRadiusInv) : Real(0); }
     __BNN_INLINE Real W(const Vec3r& r) { return W(glm::length2(r)); }
     __BNN_INLINE Real W(const Vec3r& xi, const Vec3r& xj) { return W(glm::length2(xi - xj)); }
 

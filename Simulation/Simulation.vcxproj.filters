@@ -165,9 +165,6 @@
     <ClInclude Include="SurfaceReconstruction\AniKernelGenerator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SurfaceReconstruction\AniKernelGenerator.Impl.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ParticleSolvers\FLIP\FLIP2DSolver.cpp">

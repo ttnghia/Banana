@@ -162,7 +162,6 @@
     <ClInclude Include="ParticleSolvers\_ParticleSolvers.Test.hpp" />
     <ClInclude Include="ParticleSolvers\ParticleSolver.h" />
     <ClInclude Include="SurfaceReconstruction\AniKernelGenerator.h" />
-    <ClInclude Include="SurfaceReconstruction\AniKernelGenerator.Impl.hpp" />
     <ClInclude Include="ParticleSolvers\FLIP\FLIP3DSolver.h" />
     <ClInclude Include="ParticleSolvers\SPH\PCISPH\PCISPHSolver.h" />
     <ClInclude Include="ParticleSolvers\SPH\PCISPH\PCISPHSolver.Impl.hpp" />
