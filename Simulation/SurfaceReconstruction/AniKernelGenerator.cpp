@@ -33,7 +33,7 @@ void AnisotropicKernelGenerator::generateAniKernels()
 
     ////////////////////////////////////////////////////////////////////////////////
     m_NSearch->find_neighbors();
-    const NeighborSearch::PointSet& d0 = m_NSearch->point_set(0);
+    const auto& d0 = m_NSearch->point_set(0);
 
     ParallelFuncs::parallel_for<UInt>(0, m_NParticles,
                                       [&](UInt p)
@@ -44,8 +44,7 @@ void AnisotropicKernelGenerator::generateAniKernels()
                                           Vec3r pposWM(0);
                                           Real sumW = 0;
 
-                                          for(UInt q : d0.neighbors(0, p))
-                                          {
+                                          for(UInt q : d0.neighbors(0, p)) {
                                               const Vec3r& qpos = m_Particles[q];
                                               const Vec3r xpq = qpos - ppos;
                                               const Real d2 = glm::length2(xpq);
@@ -62,8 +61,7 @@ void AnisotropicKernelGenerator::generateAniKernels()
                                           // compute covariance matrix and anisotropy matrix
                                           Mat3x3<Real> C(0);
                                           sumW = 0;
-                                          for(UInt q : d0.neighbors(0, p))
-                                          {
+                                          for(UInt q : d0.neighbors(0, p)) {
                                               const Vec3r& qpos = m_Particles[q];
                                               const Vec3r xpq = qpos - pposWM;
                                               const Real d2 = glm::length2(xpq);
@@ -86,15 +84,13 @@ void AnisotropicKernelGenerator::generateAniKernels()
 
                                           Vec3r sigmas = Vec3r(0.75);
 
-                                          if(d0.n_neighbors(0, p) > AniGen_NeighborCountThreshold)
-                                          {
+                                          if(d0.n_neighbors(0, p) > AniGen_NeighborCountThreshold) {
                                               sigmas = Vec3r(S[0][0], MathHelpers::max(S[1][1], S[0][0] / AniGen_Kr), MathHelpers::max(S[2][2], S[0][0] / AniGen_Kr));
                                               Real ks = std::cbrt(Real(1.0) / (sigmas[0] * sigmas[1] * sigmas[2]));   // scale so that det(covariance) == 1
                                               sigmas *= ks;
                                           }
 
-                                          for(UInt j = 0; j < 3; ++j)
-                                          {
+                                          for(UInt j = 0; j < 3; ++j) {
                                               U[j] = glm::normalize(U[j]);
                                           }
 

@@ -24,7 +24,6 @@
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-// TODO: replace grid3d by compact hashing
 class AnisotropicKernelGenerator
 {
 public:
@@ -40,8 +39,8 @@ public:
     }
 
     void               generateAniKernels();
-    const Vec_Vec3r&   getKernelCenters() const { return m_KernelCenters; }
-    const Vec_Mat3x3r& getKernelMatrices() const { return m_KernelMatrices; }
+    const Vec_Vec3r&   kernelCenters() const { return m_KernelCenters; }
+    const Vec_Mat3x3r& kernelMatrices() const { return m_KernelMatrices; }
 
 private:
     __BNN_INLINE Real W(Real d2) { return (d2 < m_KernelRadiusSqr) ? Real(1.0) - MathHelpers::cube(sqrt(d2) * m_KernelRadiusInv) : Real(0); }
@@ -60,9 +59,6 @@ private:
     Vec_Vec3r   m_KernelCenters;
     Vec_Mat3x3r m_KernelMatrices;
 };
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//#include <SurfaceReconstruction/AniKernelGenerator.Impl.hpp>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana

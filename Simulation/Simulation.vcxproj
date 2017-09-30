@@ -182,6 +182,7 @@
     <ClInclude Include="SimulationObjects\ParticleObject.h" />
     <ClInclude Include="SimulationObjects\ParticleEmitter.h" />
     <ClInclude Include="ParticleTools\BlueNoiseRelaxation\SPHBasedRelaxation.h" />
+    <ClInclude Include="SurfaceReconstruction\MarchingCube.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ParticleSolvers\FLIP\FLIP2DSolver.cpp" />
@@ -194,6 +195,7 @@
     <ClCompile Include="ParticleTools\_ParticleTools.Test.cpp" />
     <ClCompile Include="SimulationObjects\SimulationObjects.cpp" />
     <ClCompile Include="SurfaceReconstruction\AniKernelGenerator.cpp" />
+    <ClCompile Include="SurfaceReconstruction\MarchingCube.cpp" />
     <ClCompile Include="SurfaceReconstruction\_SurfaceReconstruction.Test.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
