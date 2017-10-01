@@ -170,7 +170,7 @@ inline String toString(const Mat2x2<RealType>& mat, int precision = 5)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-inline String toString(const Mat3x3<RealType>& vec, int precision = 5)
+inline String toString(const Mat3x3<RealType>& mat, int precision = 5)
 {
     std::stringstream ss;
     ss.str("");
@@ -203,8 +203,7 @@ inline VecX<N, T> convert(const VecX<N, S>& vec)
 template<Int N, class RealType>
 bool isInside(const VecX<N, RealType>& ppos, const VecX<N, RealType>& bMin, const VecX<N, RealType>& bMax)
 {
-    for(int i = 0; i < N; ++i)
-    {
+    for(int i = 0; i < N; ++i) {
         if(ppos[i] < bMin[i] || ppos[i] > bMax[i])
             return false;
     }

@@ -17,6 +17,7 @@
 
 #include <Banana/LinearAlgebra/ImplicitQRSVD.h>
 #include <Banana/LinearAlgebra/TensorHelpers.h>
+#include <Banana/Utils/NumberHelpers.h>
 
 #include <catch.hpp>
 #include <chrono>
@@ -503,7 +504,40 @@ void runBenchmark()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
 TEST_CASE("Test QRSVD", "[Test QRSVD]")
 {
     runBenchmark();
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+TEST_CASE("Test 1 matrix", "[Test 1 matrix]")
+{
+    Mat3x3f M(1, 2, 3,
+              2, 5, 6,
+              3, 6, 9);
+
+
+    Vec3f   S;
+    Mat3x3f U;
+    Mat3x3f V;
+    QRSVD::svd(M, U, S, V);
+
+    std::cout << "M: " << NumberHelpers::toString(M, 7) << std::endl << std::endl;
+
+    std::cout << "S: " << NumberHelpers::toString(S, 7) << std::endl << std::endl;
+    std::cout << "U: " << NumberHelpers::toString(U, 7) << std::endl << std::endl;
+    std::cout << "V: " << NumberHelpers::toString(V, 7) << std::endl << std::endl;
+
+
+    float error = maxAbs(U * Mat3x3f(S[0], 0,    0,
+                                     0,    S[1], 0,
+                                     0,    0,    S[2]) * glm::transpose(V) - M);
+    std::cout << "error 1: " << error << std::endl;
+
+
+    float error2 = maxAbs(glm::transpose(U) * Mat3x3f(S[0], 0,    0,
+                                                      0,    S[1], 0,
+                                                      0,    0,    S[2]) * V - M);
+    std::cout << "error 2: " << error2 << std::endl;
 }
