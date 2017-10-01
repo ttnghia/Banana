@@ -16,7 +16,7 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 #include <Banana/LinearAlgebra/ImplicitQRSVD.h>
-#include <Banana/LinearAlgebra/TensorHelpers.h>
+#include <Banana/LinearAlgebra/LinaHelpers.h>
 #include <Banana/Utils/NumberHelpers.h>
 
 #include <catch.hpp>
@@ -91,41 +91,6 @@ private:
 };
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class T>
-inline T maxAbs(const Mat3x3<T>& A)
-{
-    T mabs = 0;
-    for(Int i = 0; i < 3; ++i)
-        for(Int j = 0; j < 3; ++j)
-            mabs = MathHelpers::max(mabs, fabs(A[i][j]));
-
-    return mabs;
-}
-
-template<class T>
-inline T norm2(const Mat3x3<T>& m)
-{
-    T prod = T(0);
-
-    for(Int i = 0; i < 3; ++i) {
-        for(Int j = 0; j < 3; ++j) {
-            prod += m[i][j] * m[i][j];
-        }
-    }
-    return sqrt(prod);
-}
-
-template<class T, class S>
-inline void fill(Mat3x3<T>& A, S x)
-{
-    for(Int i = 0; i < 3; ++i) {
-        for(Int j = 0; j < 3; ++j) {
-            A[i][j] = T(x);
-        }
-    }
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class T>
 void testAccuracy(const Vector<Mat3x3<T> >& AA,
                   const Vector<Mat3x3<T> >& UU,
                   const Vector<Vec3<T> >&   SS,
@@ -139,21 +104,19 @@ void testAccuracy(const Vector<Mat3x3<T> >& AA,
         Mat3x3<T> U = UU[i];
         Mat3x3<T> V = VV[i];
         T         error;
-        error           = maxAbs(U * glm::transpose(U) - Mat3x3<T>(1.0));
-        max_UUt_error   = (error > max_UUt_error) ? error : max_UUt_error;
-        ave_UUt_error  += fabs(error);
-        error           = maxAbs(V * glm::transpose(V) - Mat3x3<T>(1.0));
-        max_VVt_error   = (error > max_VVt_error) ? error : max_VVt_error;
-        ave_VVt_error  += fabs(error);
-        error           = fabs(fabs(glm::determinant(U)) - (T)1);
-        max_detU_error  = (error > max_detU_error) ? error : max_detU_error;
-        ave_detU_error += fabs(error);
-        error           = fabs(fabs(glm::determinant(V)) - (T)1);
-        max_detV_error  = (error > max_detV_error) ? error : max_detV_error;
-        ave_detV_error += fabs(error);
-        error           = maxAbs(U * Mat3x3<T>(S[0], 0,    0,
-                                               0,    S[1], 0,
-                                               0,    0,    S[2]) * glm::transpose(V) - M);
+        error                     = LinaHelpers::maxAbs(U * glm::transpose(U) - Mat3x3<T>(1.0));
+        max_UUt_error             = (error > max_UUt_error) ? error : max_UUt_error;
+        ave_UUt_error            += fabs(error);
+        error                     = LinaHelpers::maxAbs(V * glm::transpose(V) - Mat3x3<T>(1.0));
+        max_VVt_error             = (error > max_VVt_error) ? error : max_VVt_error;
+        ave_VVt_error            += fabs(error);
+        error                     = fabs(fabs(glm::determinant(U)) - (T)1);
+        max_detU_error            = (error > max_detU_error) ? error : max_detU_error;
+        ave_detU_error           += fabs(error);
+        error                     = fabs(fabs(glm::determinant(V)) - (T)1);
+        max_detV_error            = (error > max_detV_error) ? error : max_detV_error;
+        ave_detV_error           += fabs(error);
+        error                     = LinaHelpers::maxAbs(U * LinaHelpers::diagMatrix(S) * glm::transpose(V) - M);
         max_reconstruction_error  = (error > max_reconstruction_error) ? error : max_reconstruction_error;
         ave_reconstruction_error += fabs(error);
     }
@@ -226,7 +189,7 @@ void addIntegerCases(Vector<Mat3x3<T> >& tests, const Int int_range)
     Int old_count = tests.size();
     std::cout << std::setprecision(10) << "Adding integer test cases with range " << -int_range << " to " << int_range << std::endl;
     Mat3x3<T> Z;
-    fill(Z, -int_range);
+    LinaHelpers::fill(Z, -int_range);
     Int i = 0;
     tests.push_back(Z);
     while(i < 9) {
@@ -270,7 +233,7 @@ void addPerturbationCases(Vector<Mat3x3<T> >& tests, const Int int_range, const 
     Int                old_count = tests.size();
     Vector<Mat3x3<T> > tests_tmp;
     Mat3x3<T>          Z;
-    fill(Z, -int_range);
+    LinaHelpers::fill(Z, -int_range);
     Int i = 0;
     tests_tmp.push_back(Z);
     while(i < 3) {
@@ -466,7 +429,7 @@ void runBenchmark()
                 addRandomCases(tests, (float)random_range, number_of_random_cases);
             if(normalize_matrix) {
                 for(size_t i = 0; i < tests.size(); i++) {
-                    float norm = norm2(tests[i]);
+                    float norm = LinaHelpers::norm2(tests[i]);
                     if(norm > (float)8 * std::numeric_limits<float>::epsilon()) {
                         tests[i] /= norm;
                     }
@@ -490,7 +453,7 @@ void runBenchmark()
                 addRandomCases(tests, (double)random_range, number_of_random_cases);
             if(normalize_matrix) {
                 for(size_t i = 0; i < tests.size(); i++) {
-                    float norm = norm2(tests[i]);
+                    float norm = LinaHelpers::norm2(tests[i]);
                     if(norm > (double)8 * std::numeric_limits<double>::epsilon()) {
                         tests[i] /= norm;
                     }
@@ -530,14 +493,10 @@ TEST_CASE("Test 1 matrix", "[Test 1 matrix]")
     std::cout << "V: " << NumberHelpers::toString(V, 7) << std::endl << std::endl;
 
 
-    float error = maxAbs(U * Mat3x3f(S[0], 0,    0,
-                                     0,    S[1], 0,
-                                     0,    0,    S[2]) * glm::transpose(V) - M);
+    float error = LinaHelpers::maxAbs(U * LinaHelpers::diagMatrix(S) * glm::transpose(V) - M);
     std::cout << "error 1: " << error << std::endl;
 
 
-    float error2 = maxAbs(glm::transpose(U) * Mat3x3f(S[0], 0,    0,
-                                                      0,    S[1], 0,
-                                                      0,    0,    S[2]) * V - M);
+    float error2 = LinaHelpers::maxAbs(glm::transpose(U) * LinaHelpers::diagMatrix(S) * V - M);
     std::cout << "error 2: " << error2 << std::endl;
 }

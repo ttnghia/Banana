@@ -24,83 +24,120 @@
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace TensorHelpers
+namespace LinaHelpers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType, class MatrixType>
-inline RealType maxAbs(const MatrixType& mat)
+template<Int N, class RealType>
+inline RealType maxAbs(const MatXxX<N, RealType>& mat)
 {
     RealType result = RealType(0);
 
-    for(int i = 0; i < mat.length(); ++i)
-    {
-        for(int j = 0; j < mat.length(); ++j)
-        {
+    for(Int i = 0; i < N; ++i) {
+        for(Int j = 0; j < N; ++j) {
             result = MathHelpers::max(result, fabs(mat[i][j]));
         }
     }
-
     return result;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType, class MatrixType>
-inline RealType trace(const MatrixType& mat)
+template<Int N, class RealType>
+inline RealType norm2(const MatXxX<N, RealType>& mat)
 {
     RealType prod = RealType(0);
-    for(int i = 0; i < mat.length(); ++i)
+
+    for(Int i = 0; i < N; ++i) {
+        for(Int j = 0; j < N; ++j) {
+            prod += mat[i][j] * mat[i][j];
+        }
+    }
+    return sqrt(prod);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class T, class S>
+inline void fill(MatXxX<N, T>& mat, S x)
+{
+    for(Int i = 0; i < N; ++i) {
+        for(Int j = 0; j < N; ++j) {
+            mat[i][j] = T(x);
+        }
+    }
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType>
+inline RealType trace(const MatXxX<N, RealType>& mat)
+{
+    RealType prod = RealType(0);
+    for(Int i = 0; i < N; ++i)
         prod += mat[i][i];
     return prod;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType, class MatrixType>
-inline MatrixType dev(const MatrixType& mat)
+template<Int N, class RealType>
+inline MatXxX<N, RealType> dev(const MatXxX<N, RealType>& mat)
 {
-    return mat - MatrixType(TensorHelpers::trace<RealType>(mat) / RealType(mat.length()));
+    return mat - MatXxX<N, RealType>(LinaHelpers::trace<RealType>(mat) / RealType(N));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType, class MatrixType>
-inline void sumToDiag(MatrixType& mat, RealType c)
+template<Int N, class RealType>
+inline void sumToDiag(MatXxX<N, RealType>& mat, RealType c)
 {
-    for(int i = 0; i < mat.length(); ++i)
+    for(Int i = 0; i < N; ++i)
         mat[i][i] += c;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class VectorType, class MatrixType>
-inline void diagProduct(MatrixType& mat, const VectorType& vec)
+template<Int N, class RealType>
+inline VecX<N, RealType> extractDiag(const MatXxX<N, RealType>& mat)
 {
-    for(int i = 0; i < vec.length(); ++i)
-    {
-        for(int j = 0; j < vec.length(); ++j)
+    VecX<N, RealType> diag;
+    for(Int i = 0; i < N; ++i)
+        diag[i] = mat[i][i];
+    return diag;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType>
+inline MatXxX<N, RealType> diagMatrix(const VecX<N, RealType>& diag)
+{
+    MatXxX<N, RealType> mat(0);
+    for(Int i = 0; i < N; ++i)
+        mat[i][i] = diag[i];
+    return mat;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType>
+inline void diagProduct(MatXxX<N, RealType>& mat, const VecX<N, RealType>& vec)
+{
+    for(Int i = 0; i < N; ++i) {
+        for(Int j = 0; j < N; ++j)
             mat[i][j] *= vec[i];
     }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //Matrix * Matrix^-1
-template<class VectorType, class MatrixType>
-inline void diagProductInv(MatrixType& mat, const VectorType& vec)
+template<Int N, class RealType>
+inline void diagProductInv(MatXxX<N, RealType>& mat, const VecX<N, RealType>& vec)
 {
-    for(int i = 0; i < vec.length(); ++i)
-    {
-        for(int j = 0; j < vec.length(); ++j)
+    for(Int i = 0; i < N; ++i) {
+        for(Int j = 0; j < N; ++j)
             mat[i][j] /= vec[i];
     }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType, class MatrixType>
-inline RealType frobeniusInnerProduct(const MatrixType& m1, const MatrixType& m2)
+template<Int N, class RealType>
+inline RealType frobeniusInnerProduct(const MatXxX<N, RealType>& m1, const MatXxX<N, RealType>& m2)
 {
     RealType prod = RealType(0);
-
-    for(int i = 0; i < m1.length(); ++i)
-    {
-        for(int j = 0; j < m1.length(); ++j)
-        {
+    for(Int i = 0; i < N; ++i) {
+        for(Int j = 0; j < N; ++j) {
             prod += m1[i][j] * m2[i][j];
         }
     }
@@ -108,27 +145,27 @@ inline RealType frobeniusInnerProduct(const MatrixType& m1, const MatrixType& m2
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class VectorType, class MatrixType>
-inline VectorType innerProduct(const VectorType& vec, const MatrixType& mat)
+template<Int N, class RealType>
+inline VecX<N, RealType> innerProduct(const VecX<N, RealType>& vec, const MatXxX<N, RealType>& mat)
 {
-    VectorType prod(0);
+    VecX<N, RealType> prod(0);
 
-    for(int i = 0; i < vec.length(); ++i)
-        for(int j = 0; j < vec.length(); ++j)
+    for(Int i = 0; i < N; ++i)
+        for(Int j = 0; j < N; ++j)
             prod[i] += vec[j] * mat[j][i];
 
     return prod;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class MatrixType>
-inline MatrixType innerProduct(const MatrixType& m1, const MatrixType& m2)
+template<Int N, class RealType>
+inline MatXxX<N, RealType> innerProduct(const MatXxX<N, RealType>& m1, const MatXxX<N, RealType>& m2)
 {
-    MatrixType prod(0);
+    MatXxX<N, RealType> prod(0);
 
-    for(int i = 0; i < vec.length(); ++i)
-        for(int j = 0; j < vec.length(); ++j)
-            for(int k = 0; k < vec.length(); ++k)
+    for(Int i = 0; i < N; ++i)
+        for(Int j = 0; j < N; ++j)
+            for(Int k = 0; k < N; ++k)
                 prod[i][j] += m1[i][k] * m2[k][j];
 
     return prod;
@@ -146,7 +183,7 @@ inline Mat2x2<RealType> cofactor(const Mat2x2<RealType>& mat)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // TODO: test value row-col major
 template<class RealType>
-inline RealType elementCofactor(const Mat3x3<RealType>& mat, int x, int y)
+inline RealType elementCofactor(const Mat3x3<RealType>& mat, Int x, Int y)
 {
     RealType         cofactor_v;
     RealType         minor;
@@ -159,8 +196,7 @@ inline RealType elementCofactor(const Mat3x3<RealType>& mat, int x, int y)
     minor           = glm::determinant(minor_mat);
 
     cofactor_v = ((x + y) & 1) ? -minor : minor;
-    if(y == 1)
-    {
+    if(y == 1) {
         cofactor_v = -cofactor_v;
     }
     return cofactor_v;
@@ -171,16 +207,15 @@ template<class RealType>
 inline Mat3x3<RealType> cofactor(const Mat3x3<RealType>& mat)
 {
     Mat2x2<RealType> result;
-
-    for(int i = 0; i < mat.length(); ++i)
-        for(int j = 0; j < mat.length(); ++j)
+    for(Int i = 0; i < N; ++i)
+        for(Int j = 0; j < N; ++j)
             result[i][j] = elementCofactor(mat, i, j);
     return result;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType, class MatrixType>
-inline RealType vonMisesPlaneStress(const MatrixType& mat)
+template<class RealType>
+inline RealType vonMisesPlaneStress(const Mat3x3<RealType>& mat)
 {
     const RealType vm = mat[0][0] * mat[0][0] + mat[1][1] * mat[1][1] + mat[2][2] * mat[2][2] -
                         mat[0][0] * mat[1][1] - mat[1][1] * mat[2][2] - mat[2][2] * mat[0][0] +
