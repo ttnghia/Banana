@@ -105,8 +105,8 @@ inline T norm2(const Mat3x3<T>& m)
 {
     T prod = T(0);
 
-    for(int i = 0; i < 3; ++i) {
-        for(int j = 0; j < 3; ++j) {
+    for(Int i = 0; i < 3; ++i) {
+        for(Int j = 0; j < 3; ++j) {
             prod += m[i][j] * m[i][j];
         }
     }
@@ -116,8 +116,8 @@ inline T norm2(const Mat3x3<T>& m)
 template<class T, class S>
 inline void fill(Mat3x3<T>& A, S x)
 {
-    for(int i = 0; i < 3; ++i) {
-        for(int j = 0; j < 3; ++j) {
+    for(Int i = 0; i < 3; ++i) {
+        for(Int j = 0; j < 3; ++j) {
             A[i][j] = T(x);
         }
     }
@@ -174,14 +174,14 @@ void testAccuracy(const Vector<Mat3x3<T> >& AA,
 }
 
 template<class T>
-void runImplicitQRSVD(const int repeat, const Vector<Mat3x3<T> >& tests, const bool accuracy_test)
+void runImplicitQRSVD(const Int repeat, const Vector<Mat3x3<T> >& tests, const bool accuracy_test)
 {
     Vector<Mat3x3<T> > UU, VV;
     Vector<Vec3<T> >   SS;
     Timer              timer;
     timer.start();
     double total_time = 0;
-    for(int test_iter = 0; test_iter < repeat; test_iter++) {
+    for(Int test_iter = 0; test_iter < repeat; test_iter++) {
         timer.click();
         for(size_t i = 0; i < tests.size(); i++) {
             Mat3x3<T> M = tests[i];
@@ -205,12 +205,12 @@ void runImplicitQRSVD(const int repeat, const Vector<Mat3x3<T> >& tests, const b
 }
 
 template<class T>
-void addRandomCases(Vector<Mat3x3<T> >& tests, const T random_range, const int N)
+void addRandomCases(Vector<Mat3x3<T> >& tests, const T random_range, const Int N)
 {
-    int old_count = tests.size();
+    Int old_count = tests.size();
     std::cout << std::setprecision(10) << "Adding random test cases with range " << -random_range << " to " << random_range << std::endl;
     RandomNumber<T> random_gen(123);
-    for(int t = 0; t < N; t++) {
+    for(Int t = 0; t < N; t++) {
         Mat3x3<T> Z;
         random_gen.fill(Z, -random_range, random_range);
         tests.push_back(Z);
@@ -220,9 +220,9 @@ void addRandomCases(Vector<Mat3x3<T> >& tests, const T random_range, const int N
 }
 
 template<class T>
-void addIntegerCases(Vector<Mat3x3<T> >& tests, const int int_range)
+void addIntegerCases(Vector<Mat3x3<T> >& tests, const Int int_range)
 {
-    int old_count = tests.size();
+    Int old_count = tests.size();
     std::cout << std::setprecision(10) << "Adding integer test cases with range " << -int_range << " to " << int_range << std::endl;
     Mat3x3<T> Z;
     fill(Z, -int_range);
@@ -244,9 +244,9 @@ void addIntegerCases(Vector<Mat3x3<T> >& tests, const int int_range)
 }
 
 template<class T>
-void addPerturbationFromIdentityCases(Vector<Mat3x3<T> >& tests, const int num_perturbations, const T perturb)
+void addPerturbationFromIdentityCases(Vector<Mat3x3<T> >& tests, const Int num_perturbations, const T perturb)
 {
-    int                old_count = tests.size();
+    Int                old_count = tests.size();
     Vector<Mat3x3<T> > tests_tmp;
     Mat3x3<T>          Z = Mat3x3<T>(1.0);
     tests_tmp.push_back(Z);
@@ -254,7 +254,7 @@ void addPerturbationFromIdentityCases(Vector<Mat3x3<T> >& tests, const int num_p
     RandomNumber<T> random_gen(123);
     size_t          special_cases = tests_tmp.size();
     for(size_t t = 0; t < special_cases; t++) {
-        for(int i = 0; i < num_perturbations; i++) {
+        for(Int i = 0; i < num_perturbations; i++) {
             random_gen.fill(Z, -perturb, perturb);
             tests.push_back(tests_tmp[t] + Z);
         }
@@ -264,9 +264,9 @@ void addPerturbationFromIdentityCases(Vector<Mat3x3<T> >& tests, const int num_p
 }
 
 template<class T>
-void addPerturbationCases(Vector<Mat3x3<T> >& tests, const int int_range, const int num_perturbations, const T perturb)
+void addPerturbationCases(Vector<Mat3x3<T> >& tests, const Int int_range, const Int num_perturbations, const T perturb)
 {
-    int                old_count = tests.size();
+    Int                old_count = tests.size();
     Vector<Mat3x3<T> > tests_tmp;
     Mat3x3<T>          Z;
     fill(Z, -int_range);
@@ -287,7 +287,7 @@ void addPerturbationCases(Vector<Mat3x3<T> >& tests, const int int_range, const 
     RandomNumber<T> random_gen(123);
     size_t          special_cases = tests_tmp.size();
     for(size_t t = 0; t < special_cases; t++) {
-        for(int i = 0; i < num_perturbations; i++) {
+        for(Int i = 0; i < num_perturbations; i++) {
             random_gen.fill(Z, -perturb, perturb);
             tests.push_back(tests_tmp[t] + Z);
         }
@@ -304,18 +304,18 @@ void runBenchmark()
     bool        test_double;
     bool        accuracy_test;
     bool        normalize_matrix;
-    int         number_of_repeated_experiments;
+    Int         number_of_repeated_experiments;
     bool        test_random;
-    int         random_range;
-    int         number_of_random_cases;
+    Int         random_range;
+    Int         number_of_random_cases;
     bool        test_integer;
-    int         integer_range;
+    Int         integer_range;
     bool        test_perturbation;
-    int         perturbation_count;
+    Int         perturbation_count;
     float       float_perturbation;
     double      double_perturbation;
     bool        test_perturbation_from_identity;
-    int         perturbation_from_identity_count;
+    Int         perturbation_from_identity_count;
     float       float_perturbation_identity;
     double      double_perturbation_identity;
     std::string title;
@@ -326,9 +326,9 @@ void runBenchmark()
     test_float       = true;
     test_double      = true;
     normalize_matrix = false;
-    int number_of_repeated_experiments_for_timing = 2;
+    Int number_of_repeated_experiments_for_timing = 2;
 
-    for(int test_number = 1; test_number <= 10; test_number++) {
+    for(Int test_number = 1; test_number <= 10; test_number++) {
         if(test_number == 1) {
             title                           = "random timing test";
             number_of_repeated_experiments  = number_of_repeated_experiments_for_timing;
