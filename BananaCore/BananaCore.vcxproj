@@ -147,7 +147,9 @@
     <ClInclude Include="Banana\Grid\Grid.Impl.hpp" />
     <ClInclude Include="Banana\Grid\GridHelpers.h" />
     <ClInclude Include="Banana\Grid\_Grid.Test.hpp" />
+    <ClInclude Include="Banana\LinearAlgebra\ImplicitQRSVD.h" />
     <ClInclude Include="Banana\LinearAlgebra\SVD.Impl.hpp" />
+    <ClInclude Include="Banana\LinearAlgebra\_SVD.Test.hpp" />
     <ClInclude Include="Banana\NeighborSearch\DataStructures.h" />
     <ClInclude Include="Banana\NeighborSearch\Morton\Morton.h" />
     <ClInclude Include="Banana\NeighborSearch\Morton\Morton2D.h" />

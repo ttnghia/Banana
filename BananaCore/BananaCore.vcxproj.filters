@@ -195,6 +195,12 @@
     <ClInclude Include="Banana\Geometry\GeometryObject.Impl.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Banana\LinearAlgebra\ImplicitQRSVD.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Banana\LinearAlgebra\_SVD.Test.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Banana\Geometry\GeometryObject3D.cpp">

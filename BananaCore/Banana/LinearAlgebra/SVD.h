@@ -21,6 +21,7 @@
 #include <cstdint>
 
 #include <Banana/Setup.h>
+#include <Banana/Utils/MathHelpers.h>
 
 #define _gamma  5.828427124  // FOUR_GAMMA_SQUARED = sqrt(8)+3;
 #define _cstar  0.923879532  // cos(pi/8)
@@ -40,50 +41,6 @@ namespace SVDDecomposition
    http://playstation2-linux.com/download/p2lsd/fastrsqrt.pdf
    http://www.beyond3d.com/content/articles/8/
  */
-
-template<class RealType>
-inline RealType rsqrt(RealType)
-{
-    fprintf(stderr, "Wrong call to unimplemented function.\n    Line: %d, file: %s\n", __LINE__, __FILE__);
-    fflush(stderr);
-    exit(-1);
-}
-
-/* This is rsqrt with an additional step of the Newton iteration, for
-   increased accuracy. The constant 0x5f37599e makes the relative error
-   range from 0 to -0.00000463.
-   You can't balance the error by adjusting the constant. */
-template<>
-inline float rsqrt<float>(float x)
-{
-    const float xhalf = 0.5f * x;
-    int32_t     i     = *(int32_t*)&x; // View x as an int.
-    i = 0x5f37599e - (i >> 1);         // Initial guess.
-    x = *(float*)&i;                   // View i as float.
-    x = x * (1.5f - xhalf * x * x);    // Newton step.
-    x = x * (1.5f - xhalf * x * x);    // Newton step again.
-    x = x * (1.5f - xhalf * x * x);    // Newton step again.
-    return x;
-}
-
-template<>
-inline double rsqrt<double>(double x)
-{
-    const double xhalf = 0.5 * x;
-    int64_t      i     = *(int64_t*)&x; // View x as an int.
-    i = 0x5fe6eb50c7b537a9 - (i >> 1);  // Initial guess.
-    x = *(double*)&i;                   // View i as float.
-    x = x * (1.5 - xhalf * x * x);      // Newton step.
-    x = x * (1.5 - xhalf * x * x);      // Newton step again.
-    x = x * (1.5 - xhalf * x * x);      // Newton step again.
-    return x;
-}
-
-template<class RealType>
-inline RealType accurateSqrt(RealType x)
-{
-    return x * rsqrt<RealType>(x);
-}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
@@ -180,7 +137,7 @@ inline void approximateGivensQuaternion(RealType a11, RealType a12, RealType a22
     // fast rsqrt function suffices
     // rsqrt2 (https://code.google.com/p/lppython/source/browse/algorithm/HDcode/newCode/rsqrt.c?r=26)
     // is even faster but results in too much error
-    RealType w = rsqrt<RealType>(ch * ch + sh * sh);
+    RealType w = MathHelpers::approx_rsqrt(ch * ch + sh * sh);
     ch = b ? w * ch : (RealType)_cstar;
     sh = b ? w * sh : (RealType)_sstar;
 }
@@ -268,8 +225,7 @@ inline void jacobiEigenanlysis( // symmetric matrix
     qV[1] = 0;
     qV[2] = 0; // follow same indexing convention as GLM
 
-    for(int i = 0; i < 4; i++)
-    {
+    for(int i = 0; i < 4; i++) {
         // we wish to eliminate the maximum off-diagonal element
         // on every iteration, but cycling over all 3 possible rotations
         // in fixed order (p,q) = (1,2) , (2,3), (1,3) still retains
@@ -325,13 +281,13 @@ void QRGivensQuaternion(RealType a1, RealType a2, RealType& ch, RealType& sh)
     // a1 = pivot point on diagonal
     // a2 = lower triangular entry we want to annihilate
     RealType epsilon = (RealType)EPSILON;
-    RealType rho     = accurateSqrt<RealType>(a1 * a1 + a2 * a2);
+    RealType rho     = MathHelpers::approx_sqrt(a1 * a1 + a2 * a2);
 
     sh = rho > epsilon ? a2 : 0;
     ch = fabs(a1) + fmax(rho, epsilon);
     bool b = a1 < 0;
     condSwap(b, sh, ch);
-    RealType w = rsqrt<RealType>(ch * ch + sh * sh);
+    RealType w = MathHelpers::approx_rsqrt(ch * ch + sh * sh);
     ch *= w;
     sh *= w;
 }

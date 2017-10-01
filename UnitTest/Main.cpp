@@ -24,6 +24,8 @@
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Simulation project
-#include <Banana/NeighborSearch/_NeighborSearch.Test.hpp>
-#include <Banana/Grid/_Grid.Test.hpp>
+//#include <Banana/NeighborSearch/_NeighborSearch.Test.hpp>
+//#include <Banana/Grid/_Grid.Test.hpp>
 //#include <ParticleSolvers/_ParticleSolvers.Test.hpp>
+
+#include <Banana/LinearAlgebra/_SVD.Test.hpp>
