@@ -791,7 +791,7 @@ public:
 
     void flushBufferAsync(int fileID)
     {
-        m_WriteFutureObj = std::async(std::launch::async, [&]()
+        m_WriteFutureObj = std::async(std::launch::async, [&, fileID]()
                                       {
                                           if(!m_bOutputFolderCreated)
                                           {

@@ -21,20 +21,12 @@
 
 #include <Banana/Utils/CommandLineParser.h>
 
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+using namespace Banana;
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 int main(int argc, char** argv)
 {
-    Banana::CommandLineParser cmdParser;
-    try
-    {
-        cmdParser.init(argc, argv);
-    }
-    catch(std::exception& e)
-    {
-        fprintf(stderr, "Error: %s\n", e.what());
-        return EXIT_FAILURE;
-    }
+    CommandLineParser paramParser(argc, argv);
 
     ////////////////////////////////////////////////////////////////////////////////
     return EXIT_SUCCESS;

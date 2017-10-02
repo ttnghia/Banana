@@ -143,7 +143,7 @@ void OpenGLWidgetTestRender::initTestRenderMesh(QString meshFile)
     assert(isValid());
 
     ////////////////////////////////////////////////////////////////////////////////
-    m_MeshLoader = std::make_unique<MeshLoader<float> >(meshFile.toStdString());
+    m_MeshLoader = std::make_unique<MeshLoader>(meshFile.toStdString());
     m_MeshObj    = std::make_shared<MeshObject>();
     m_MeshObj->setVertices(m_MeshLoader->getVertices());
     m_MeshObj->setVertexNormal(m_MeshLoader->getVertexNormal());
@@ -185,7 +185,7 @@ void OpenGLWidgetTestRender::initTestRenderMeshWithShadow(QString meshFile, QStr
     // light
     m_Lights = std::make_unique<PointLights>();
 
-#define NUM_LIGHTS 3
+#define NUM_LIGHTS 1
 
 #if NUM_LIGHTS == 1
     m_Lights->setNumLights(1);
@@ -228,9 +228,10 @@ void OpenGLWidgetTestRender::initTestRenderMeshWithShadow(QString meshFile, QStr
     m_PointLightRender = std::make_unique<PointLightRender>(m_Camera, m_Lights);
 
     ////////////////////////////////////////////////////////////////////////////////
-    m_MeshLoader = std::make_unique<MeshLoader<float> >(meshFile.toStdString());
+    m_MeshLoader = std::make_unique<MeshLoader>(meshFile.toStdString());
     m_MeshObj    = std::make_shared<MeshObject>();
-    m_MeshObj->setVertices(m_MeshLoader->getVertices());
+
+    m_MeshObj->setVertices(m_MeshLoader->getFaceVertices());
     m_MeshObj->setVertexNormal(m_MeshLoader->getVertexNormal());
 
 
@@ -254,8 +255,7 @@ void OpenGLWidgetTestRender::initTestRenderMeshWithShadow(QString meshFile, QStr
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLWidgetTestRender::initOpenGL()
 {
-    switch(m_TestCase)
-    {
+    switch(m_TestCase) {
         case TestCase::Triangle:
             initTestRenderTriangle();
             break;
@@ -280,7 +280,7 @@ void OpenGLWidgetTestRender::initOpenGL()
 #endif
         case TestCase::TriMeshShadow:
 #ifdef _WIN32
-            initTestRenderMeshWithShadow(QString("D:/GoogleDrive/DigitalAssets/Models/AirCraft/A-10_Thunderbolt_II/A-10_Thunderbolt_II.obj"),
+            initTestRenderMeshWithShadow(QString("D:/Scratch/SimData/DamBreak/Solid/frame.1.obj"),
                                          QString("D:/Programming/QtApps/FluidSimulationAndRendering/Textures/Floor/blue_marble.png"));
 #else
             initTestRenderMeshWithShadow(QString("/Volumes/Working/GoogleDrive/DigitalAssets/Models/AirCraft/A-10_Thunderbolt_II/A-10_Thunderbolt_II.obj"),
@@ -293,8 +293,7 @@ void OpenGLWidgetTestRender::initOpenGL()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLWidgetTestRender::renderOpenGL()
 {
-    switch(m_TestCase)
-    {
+    switch(m_TestCase) {
         case TestCase::Triangle:
             renderTriangle();
             break;
@@ -372,8 +371,7 @@ void OpenGLWidgetTestRender::renderMesh()
     static int                                 currentMaterialIndex = 0;
 
     ++count;
-    if(count > 300)
-    {
+    if(count > 300) {
         count = 0;
 
         m_Material->setMaterial(materials[currentMaterialIndex]);
@@ -396,8 +394,7 @@ void OpenGLWidgetTestRender::renderMeshWithShadow()
     static int                                 currentMaterialIndex = 0;
 
     ++count;
-    if(count > 300)
-    {
+    if(count > 300) {
         count = 0;
 
         m_Material->setMaterial(materials[currentMaterialIndex]);

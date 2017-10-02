@@ -14,21 +14,14 @@
 //
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-MeshLoader<Real>::MeshLoader() : m_isMeshReady(false)
-{
-    clearData();
-}
 
-template<class Real>
-MeshLoader<Real>::MeshLoader(const std::string& meshFile) : m_isMeshReady(false)
-{
-    loadMesh(meshFile);
-}
+#include <Banana/Geometry/MeshLoader.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-bool MeshLoader<Real>::loadMesh(const std::string& meshFile)
+namespace Banana
+{
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+bool MeshLoader::loadMesh(const String& meshFile)
 {
     checkFileType(meshFile);
 
@@ -40,8 +33,7 @@ bool MeshLoader<Real>::loadMesh(const std::string& meshFile)
     // => load mesh
     bool result = false;
 
-    switch(m_MeshFileType)
-    {
+    switch(m_MeshFileType) {
         case MeshFileType::OBJFile:
             result = loadObj(meshFile);
             break;
@@ -61,42 +53,36 @@ bool MeshLoader<Real>::loadMesh(const std::string& meshFile)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-Vec3r MeshLoader<Real>::getMeshCenter() const
+Vec3f MeshLoader::getMeshCenter() const
 {
-    return Real(0.5) * (m_AABBMin + m_AABBMax);
+    return float(0.5) * (m_AABBMin + m_AABBMax);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-Vec3r MeshLoader<Real>::getCameraPosition(Vec3r camDirection, Real fov /*= 45*/)
+Vec3f MeshLoader::getCameraPosition(Vec3f camDirection, float fov /*= 45*/)
 {
-    return camDirection * getCameraDistance(fov * Real(0.75)) + getMeshCenter();
+    return camDirection * getCameraDistance(fov * float(0.75)) + getMeshCenter();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-Real MeshLoader<Real>::getCameraDistance(Real fov)
+float MeshLoader::getCameraDistance(float fov)
 {
-    Real halfLength = (m_AABBMax.y - m_AABBMin.y) * Real(0.5);
+    float halfLength = (m_AABBMax.y - m_AABBMin.y) * float(0.5);
 
-    return (halfLength / std::tan(fov * Real(0.5 * M_PI / 180.0)));
+    return (halfLength / std::tan(fov * float(0.5 * M_PI / 180.0)));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-void MeshLoader<Real>::checkFileType(const std::string& meshFile)
+void MeshLoader::checkFileType(const String& meshFile)
 {
-    const std::string extension = meshFile.substr(meshFile.rfind('.') + 1);
+    const String extension = meshFile.substr(meshFile.rfind('.') + 1);
     m_MeshFileType = MeshFileType::UnsupportedFileType;
 
-    if(extension == "obj" || extension == "OBJ" || extension == "Obj")
-    {
+    if(extension == "obj" || extension == "OBJ" || extension == "Obj") {
         m_MeshFileType = MeshFileType::OBJFile;
     }
 
-    if(extension == "ply" || extension == "PLY" || extension == "Ply")
-    {
+    if(extension == "ply" || extension == "PLY" || extension == "Ply") {
         m_MeshFileType = MeshFileType::PLYFile;
     }
 
@@ -104,13 +90,12 @@ void MeshLoader<Real>::checkFileType(const std::string& meshFile)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-void MeshLoader<Real>::clearData()
+void MeshLoader::clearData()
 {
     m_NumTriangles = 0;
 
-    m_AABBMin = Vec3r(1e10, 1e10, 1e10);
-    m_AABBMax = Vec3r(-1e10, -1e10, -1e10);
+    m_AABBMin = Vec3f(1e10, 1e10, 1e10);
+    m_AABBMax = Vec3f(-1e10, -1e10, -1e10);
 
     m_Faces.resize(0);
     m_Vertices.resize(0);
@@ -125,8 +110,7 @@ void MeshLoader<Real>::clearData()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-bool MeshLoader<Real>::loadObj(const std::string& meshFile)
+bool MeshLoader::loadObj(const String& meshFile)
 {
     std::vector<tinyobj::shape_t>    obj_shapes;
     std::vector<tinyobj::material_t> obj_materials;
@@ -134,15 +118,13 @@ bool MeshLoader<Real>::loadObj(const std::string& meshFile)
 
 
     bool result = tinyobj::LoadObj(&attrib, &obj_shapes, &obj_materials, &m_LoadingErrorStr, meshFile.c_str(), NULL);
-    m_FaceVertices = attrib.vertices;
+    m_Vertices = attrib.vertices;
 
-    if(!m_LoadingErrorStr.empty())
-    {
+    if(!m_LoadingErrorStr.empty()) {
         std::cerr << "tinyobj: " << m_LoadingErrorStr << std::endl;
     }
 
-    if(!result)
-    {
+    if(!result) {
         std::cerr << "Failed to load " << meshFile << std::endl;
         return false;
     }
@@ -150,20 +132,17 @@ bool MeshLoader<Real>::loadObj(const std::string& meshFile)
 
     ////////////////////////////////////////////////////////////////////////////////
     // => convert data
-    for(size_t s = 0; s < obj_shapes.size(); s++)
-    {
-        for(size_t f = 0; f < obj_shapes[s].mesh.indices.size() / 3; ++f)
-        {
+    for(size_t s = 0; s < obj_shapes.size(); s++) {
+        for(size_t f = 0; f < obj_shapes[s].mesh.indices.size() / 3; ++f) {
             ++m_NumTriangles;
 
             tinyobj::index_t idx0 = obj_shapes[s].mesh.indices[3 * f + 0];
             tinyobj::index_t idx1 = obj_shapes[s].mesh.indices[3 * f + 1];
             tinyobj::index_t idx2 = obj_shapes[s].mesh.indices[3 * f + 2];
 
-            Real v[3][3];
+            Vec3f v[3];
 
-            for(int k = 0; k < 3; k++)
-            {
+            for(int k = 0; k < 3; k++) {
                 int f0 = idx0.vertex_index;
                 int f1 = idx1.vertex_index;
                 int f2 = idx2.vertex_index;
@@ -188,10 +167,9 @@ bool MeshLoader<Real>::loadObj(const std::string& meshFile)
                 m_AABBMax[k] = std::max(v[2][k], m_AABBMax[k]);
             }
 
-            Real n[3][3];
+            Vec3f n[3];
 
-            if(attrib.normals.size() > 0)
-            {
+            if(attrib.normals.size() > 0) {
                 int f0 = idx0.normal_index;
                 int f1 = idx1.normal_index;
                 int f2 = idx2.normal_index;
@@ -199,53 +177,45 @@ bool MeshLoader<Real>::loadObj(const std::string& meshFile)
                 assert(f1 >= 0);
                 assert(f2 >= 0);
 
-                for(int k = 0; k < 3; k++)
-                {
+                for(int k = 0; k < 3; k++) {
                     n[0][k] = attrib.normals[3 * f0 + k];
                     n[1][k] = attrib.normals[3 * f1 + k];
                     n[2][k] = attrib.normals[3 * f2 + k];
                 }
             }
-            else
-            {
+            else{
                 // compute geometric normal
-                computeVertexNormal(n[0], v[0], v[1], v[2]);
-                n[1][0] = n[0][0];
-                n[1][1] = n[0][1];
-                n[1][2] = n[0][2];
-                n[2][0] = n[0][0];
-                n[2][1] = n[0][1];
-                n[2][2] = n[0][2];
+                n[0] = computeVertexNormal(v[0], v[1], v[2]);
+                n[1] = n[0];
+                n[2] = n[0];
             }
 
-            for(int k = 0; k < 3; k++)
-            {
-                m_Vertices.push_back(v[k][0]);
-                m_Vertices.push_back(v[k][1]);
-                m_Vertices.push_back(v[k][2]);
+            for(int k = 0; k < 3; k++) {
+                m_FaceVertices.push_back(v[k][0]);
+                m_FaceVertices.push_back(v[k][1]);
+                m_FaceVertices.push_back(v[k][2]);
 
                 m_VertexNormals.push_back(n[k][0]);
                 m_VertexNormals.push_back(n[k][1]);
                 m_VertexNormals.push_back(n[k][2]);
 
                 // Use normal as color.
-                Real c[3] = { n[k][0], n[k][1], n[k][2] };
-                Real len2 = c[0] * c[0] + c[1] * c[1] + c[2] * c[2];
+                float c[3] = { n[k][0], n[k][1], n[k][2] };
+                float len2 = c[0] * c[0] + c[1] * c[1] + c[2] * c[2];
 
-                if(len2 > 0)
-                {
-                    Real len = Real(sqrt(len2));
+                if(len2 > 0) {
+                    float len = float(sqrt(len2));
 
                     c[0] /= len;
                     c[1] /= len;
                     c[2] /= len;
                 }
 
-                m_VertexColors.push_back(c[0] * Real(0.5) + Real(0.5));
-                m_VertexColors.push_back(c[1] * Real(0.5) + Real(0.5));
-                m_VertexColors.push_back(c[2] * Real(0.5) + Real(0.5));
+                m_VertexColors.push_back(c[0] * float(0.5) + float(0.5));
+                m_VertexColors.push_back(c[1] * float(0.5) + float(0.5));
+                m_VertexColors.push_back(c[2] * float(0.5) + float(0.5));
             }
-        } // end process current shape
+        }         // end process current shape
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -253,8 +223,7 @@ bool MeshLoader<Real>::loadObj(const std::string& meshFile)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-bool MeshLoader<Real>::loadPly(const std::string& meshFile)
+bool MeshLoader::loadPly(const String& meshFile)
 {
     // Tinyply can and will throw exceptions at you!
     try
@@ -269,10 +238,10 @@ bool MeshLoader<Real>::loadPly(const std::string& meshFile)
         // Define containers to hold the extracted data. The type must match
         // the property type given in the header. Tinyply will interally allocate the
         // the appropriate amount of memory.
-        std::vector<Real>    norms;
+        std::vector<float>   norms;
         std::vector<uint8_t> colors;
 
-        std::vector<Real> uvCoords;
+        std::vector<float> uvCoords;
         //        std::vector<uint8_t> faceColors;
 
         size_t vertexCount       = 0;
@@ -284,7 +253,7 @@ bool MeshLoader<Real>::loadPly(const std::string& meshFile)
         // The count returns the number of instances of the property group. The vectors
         // above will be resized into a multiple of the property group size as
         // they are "flattened"... i.e. verts = {x, y, z, x, y, z, ...}
-        vertexCount = file.request_properties_from_element("vertex", { "x", "y", "z" }, m_FaceVertices);
+        vertexCount = file.request_properties_from_element("vertex", { "x", "y", "z" }, m_Vertices);
         normalCount = file.request_properties_from_element("vertex", { "nx", "ny", "nz" }, norms);
         colorCount  = file.request_properties_from_element("vertex", { "red", "green", "blue", "alpha" }, colors);
 
@@ -304,21 +273,19 @@ bool MeshLoader<Real>::loadPly(const std::string& meshFile)
 
         ////////////////////////////////////////////////////////////////////////////////
         // => convert data
-        for(size_t f = 0; f < m_Faces.size() / 3; f++)
-        {
+        for(size_t f = 0; f < m_Faces.size() / 3; f++) {
             ++m_NumTriangles;
 
             uint32_t f0 = m_Faces[3 * f + 0];
             uint32_t f1 = m_Faces[3 * f + 1];
             uint32_t f2 = m_Faces[3 * f + 2];
 
-            Real v[3][3];
+            Vec3f v[3];
 
-            for(int k = 0; k < 3; k++)
-            {
-                v[0][k] = m_FaceVertices[3 * f0 + k];
-                v[1][k] = m_FaceVertices[3 * f1 + k];
-                v[2][k] = m_FaceVertices[3 * f2 + k];
+            for(int k = 0; k < 3; k++) {
+                v[0][k] = m_Vertices[3 * f0 + k];
+                v[1][k] = m_Vertices[3 * f1 + k];
+                v[2][k] = m_Vertices[3 * f2 + k];
 
                 m_AABBMin[k] = std::min(v[0][k], m_AABBMin[k]);
                 m_AABBMin[k] = std::min(v[1][k], m_AABBMin[k]);
@@ -329,57 +296,48 @@ bool MeshLoader<Real>::loadPly(const std::string& meshFile)
                 m_AABBMax[k] = std::max(v[2][k], m_AABBMax[k]);
             }
 
-            Real n[3][3];
+            Vec3f n[3];
 
-            if(norms.size() > 0)
-            {
-                for(int k = 0; k < 3; k++)
-                {
+            if(norms.size() > 0) {
+                for(int k = 0; k < 3; k++) {
                     n[0][k] = norms[3 * f0 + k];
                     n[1][k] = norms[3 * f1 + k];
                     n[2][k] = norms[3 * f2 + k];
                 }
             }
-            else
-            {
+            else{
                 // compute geometric normal
-                computeVertexNormal(n[0], v[0], v[1], v[2]);
-                n[1][0] = n[0][0];
-                n[1][1] = n[0][1];
-                n[1][2] = n[0][2];
-                n[2][0] = n[0][0];
-                n[2][1] = n[0][1];
-                n[2][2] = n[0][2];
+                n[0] = computeVertexNormal(v[0], v[1], v[2]);
+                n[1] = n[0];
+                n[2] = n[0];
             }
 
-            for(int k = 0; k < 3; k++)
-            {
-                m_Vertices.push_back(v[k][0]);
-                m_Vertices.push_back(v[k][1]);
-                m_Vertices.push_back(v[k][2]);
+            for(int k = 0; k < 3; k++) {
+                m_FaceVertices.push_back(v[k][0]);
+                m_FaceVertices.push_back(v[k][1]);
+                m_FaceVertices.push_back(v[k][2]);
 
                 m_VertexNormals.push_back(n[k][0]);
                 m_VertexNormals.push_back(n[k][1]);
                 m_VertexNormals.push_back(n[k][2]);
 
                 // Use normal as color.
-                Real c[3] = { n[k][0], n[k][1], n[k][2] };
-                Real len2 = c[0] * c[0] + c[1] * c[1] + c[2] * c[2];
+                float c[3] = { n[k][0], n[k][1], n[k][2] };
+                float len2 = c[0] * c[0] + c[1] * c[1] + c[2] * c[2];
 
-                if(len2 > 0)
-                {
-                    Real len = Real(sqrt(len2));
+                if(len2 > 0) {
+                    float len = float(sqrt(len2));
 
                     c[0] /= len;
                     c[1] /= len;
                     c[2] /= len;
                 }
 
-                m_VertexColors.push_back(c[0] * Real(0.5) + Real(0.5));
-                m_VertexColors.push_back(c[1] * Real(0.5) + Real(0.5));
-                m_VertexColors.push_back(c[2] * Real(0.5) + Real(0.5));
+                m_VertexColors.push_back(c[0] * float(0.5) + float(0.5));
+                m_VertexColors.push_back(c[1] * float(0.5) + float(0.5));
+                m_VertexColors.push_back(c[2] * float(0.5) + float(0.5));
             }
-        } // end process current shape
+        }         // end process current shape
     }
     catch(const std::exception& e)
     {
@@ -390,31 +348,4 @@ bool MeshLoader<Real>::loadPly(const std::string& meshFile)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-void MeshLoader<Real>::computeVertexNormal(Real N[3], Real v0[3], Real v1[3], Real v2[3])
-{
-    Real v10[3];
-    v10[0] = v1[0] - v0[0];
-    v10[1] = v1[1] - v0[1];
-    v10[2] = v1[2] - v0[2];
-
-    Real v20[3];
-    v20[0] = v2[0] - v0[0];
-    v20[1] = v2[1] - v0[1];
-    v20[2] = v2[2] - v0[2];
-
-    N[0] = v20[1] * v10[2] - v20[2] * v10[1];
-    N[1] = v20[2] * v10[0] - v20[0] * v10[2];
-    N[2] = v20[0] * v10[1] - v20[1] * v10[0];
-
-    Real len2 = N[0] * N[0] + N[1] * N[1] + N[2] * N[2];
-
-    if(len2 > 0)
-    {
-        Real len = Real(sqrt(len2));
-
-        N[0] /= len;
-        N[1] /= len;
-        N[2] /= len;
-    }
-}
+} // end namespace Banana

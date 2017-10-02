@@ -28,11 +28,15 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTest", "UnitTest\UnitTe
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Applications", "Applications", "{1664A1C9-87AF-480B-925D-62135C5AB31A}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AniKernelSurface", "Applications\AniKernelSurface\AniKernelSurface.vcxproj", "{D996D17B-FFF1-4046-AA0D-B5DDD53C4418}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Obj2BinaryFluid", "Applications\Consoles\Obj2BinaryFluid\Obj2BinaryFluid.vcxproj", "{D996D17B-FFF1-4046-AA0D-B5DDD53C4418}"
 	ProjectSection(ProjectDependencies) = postProject
 		{6278DD55-0398-42A5-A69F-FC9C3194F071} = {6278DD55-0398-42A5-A69F-FC9C3194F071}
 		{27A187C4-FB19-47E9-AFDF-E6E8CC5B7E18} = {27A187C4-FB19-47E9-AFDF-E6E8CC5B7E18}
 	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AniKernelSurface", "Applications\Consoles\AniKernelSurface\AniKernelSurface.vcxproj", "{5AA35FDA-7A71-4A8B-896D-5541F8380D61}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OpenGLTest", "Applications\QtApps\OpenGLTest\OpenGLTest.vcxproj", "{29506A87-5FF4-3BF0-9FBA-6C630184A9C0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -115,8 +119,28 @@ Global
 		{D996D17B-FFF1-4046-AA0D-B5DDD53C4418}.Release|x64.Build.0 = Release|x64
 		{D996D17B-FFF1-4046-AA0D-B5DDD53C4418}.ReleaseQt|x64.ActiveCfg = Release|x64
 		{D996D17B-FFF1-4046-AA0D-B5DDD53C4418}.ReleaseQt|x64.Build.0 = Release|x64
-		{D996D17B-FFF1-4046-AA0D-B5DDD53C4418}.ReleaseStaticBuild|x64.ActiveCfg = Release|x64
-		{D996D17B-FFF1-4046-AA0D-B5DDD53C4418}.ReleaseStaticBuild|x64.Build.0 = Release|x64
+		{D996D17B-FFF1-4046-AA0D-B5DDD53C4418}.ReleaseStaticBuild|x64.ActiveCfg = ReleaseStaticBuild|x64
+		{D996D17B-FFF1-4046-AA0D-B5DDD53C4418}.ReleaseStaticBuild|x64.Build.0 = ReleaseStaticBuild|x64
+		{5AA35FDA-7A71-4A8B-896D-5541F8380D61}.Debug|x64.ActiveCfg = Debug|x64
+		{5AA35FDA-7A71-4A8B-896D-5541F8380D61}.Debug|x64.Build.0 = Debug|x64
+		{5AA35FDA-7A71-4A8B-896D-5541F8380D61}.DebugQt|x64.ActiveCfg = Debug|x64
+		{5AA35FDA-7A71-4A8B-896D-5541F8380D61}.DebugQt|x64.Build.0 = Debug|x64
+		{5AA35FDA-7A71-4A8B-896D-5541F8380D61}.Release|x64.ActiveCfg = Release|x64
+		{5AA35FDA-7A71-4A8B-896D-5541F8380D61}.Release|x64.Build.0 = Release|x64
+		{5AA35FDA-7A71-4A8B-896D-5541F8380D61}.ReleaseQt|x64.ActiveCfg = ReleaseStaticBuild|x64
+		{5AA35FDA-7A71-4A8B-896D-5541F8380D61}.ReleaseQt|x64.Build.0 = ReleaseStaticBuild|x64
+		{5AA35FDA-7A71-4A8B-896D-5541F8380D61}.ReleaseStaticBuild|x64.ActiveCfg = ReleaseStaticBuild|x64
+		{5AA35FDA-7A71-4A8B-896D-5541F8380D61}.ReleaseStaticBuild|x64.Build.0 = ReleaseStaticBuild|x64
+		{29506A87-5FF4-3BF0-9FBA-6C630184A9C0}.Debug|x64.ActiveCfg = Debug|x64
+		{29506A87-5FF4-3BF0-9FBA-6C630184A9C0}.Debug|x64.Build.0 = Debug|x64
+		{29506A87-5FF4-3BF0-9FBA-6C630184A9C0}.DebugQt|x64.ActiveCfg = Debug|x64
+		{29506A87-5FF4-3BF0-9FBA-6C630184A9C0}.DebugQt|x64.Build.0 = Debug|x64
+		{29506A87-5FF4-3BF0-9FBA-6C630184A9C0}.Release|x64.ActiveCfg = Release|x64
+		{29506A87-5FF4-3BF0-9FBA-6C630184A9C0}.Release|x64.Build.0 = Release|x64
+		{29506A87-5FF4-3BF0-9FBA-6C630184A9C0}.ReleaseQt|x64.ActiveCfg = ReleaseQt|x64
+		{29506A87-5FF4-3BF0-9FBA-6C630184A9C0}.ReleaseQt|x64.Build.0 = ReleaseQt|x64
+		{29506A87-5FF4-3BF0-9FBA-6C630184A9C0}.ReleaseStaticBuild|x64.ActiveCfg = ReleaseStaticBuild|x64
+		{29506A87-5FF4-3BF0-9FBA-6C630184A9C0}.ReleaseStaticBuild|x64.Build.0 = ReleaseStaticBuild|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -130,6 +154,8 @@ Global
 		{1FED3057-BCBE-40DC-AD67-BDF8121DCB33} = {B6E7CB10-66E0-4A1E-8ECD-21288DA8A3B1}
 		{2E3CBD66-ECEE-42FC-B4D5-61AD7C4C0E51} = {B6E7CB10-66E0-4A1E-8ECD-21288DA8A3B1}
 		{D996D17B-FFF1-4046-AA0D-B5DDD53C4418} = {1664A1C9-87AF-480B-925D-62135C5AB31A}
+		{5AA35FDA-7A71-4A8B-896D-5541F8380D61} = {1664A1C9-87AF-480B-925D-62135C5AB31A}
+		{29506A87-5FF4-3BF0-9FBA-6C630184A9C0} = {1664A1C9-87AF-480B-925D-62135C5AB31A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {681C5D9B-4B1C-45DB-96F3-B3E73BD59190}

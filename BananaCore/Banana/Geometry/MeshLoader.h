@@ -29,37 +29,40 @@ namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // This class need to be a template, as it can be used in simulation(double) and rendering(float)
-template<class Real>
 class MeshLoader
 {
 public:
-    MeshLoader();
-    MeshLoader(const std::string& meshFile);
+    MeshLoader() : m_isMeshReady(false) { clearData(); }
+    MeshLoader(const String& meshFile) : m_isMeshReady(false) { loadMesh(meshFile); }
 
-    bool  loadMesh(const std::string& meshFile);
-    Vec3r getMeshCenter() const;
-    const Vec3r& getAABBMin() const { return m_AABBMin; }
-    const Vec3r& getAABBMax() const { return m_AABBMax; }
+    bool         loadMesh(const String& meshFile);
+    Vec3f        getMeshCenter() const;
+    const Vec3f& getAABBMin() const { return m_AABBMin; }
+    const Vec3f& getAABBMax() const { return m_AABBMax; }
 
-    Vec3r getCameraPosition(Vec3r camDirection, Real fov = 45);
-    Real  getCameraDistance(Real fov);
+    Vec3f getCameraPosition(Vec3f camDirection, float fov = 45);
+    float getCameraDistance(float fov);
 
-    const Vec_UInt& getFaces() const { assert(m_isMeshReady); return m_Faces; }
-    const Vec_Real& getVertexNormal() const { assert(m_isMeshReady); return m_VertexNormals; }
-    const Vec_Real& getVertexColor() const { assert(m_isMeshReady); return m_VertexColors; }
-    const Vec_Real& getVTexCoord2D() const { assert(m_isMeshReady); return m_VertexTexCoord2D; }
-    const Vec_Real& getVTexCoord3D() const { assert(m_isMeshReady); return m_VertexTexCoord3D; }
-    const Vec_Real& getVertices() const { assert(m_isMeshReady); return m_Vertices; }
-    const Vec_Real& getFaceVertices() const { assert(m_isMeshReady); return m_FaceVertices; }
+    const Vec_UInt&  getFaces() const { assert(m_isMeshReady); return m_Faces; }
+    const Vec_Float& getVertexNormal() const { assert(m_isMeshReady); return m_VertexNormals; }
+    const Vec_Float& getVertexColor() const { assert(m_isMeshReady); return m_VertexColors; }
+    const Vec_Float& getVTexCoord2D() const { assert(m_isMeshReady); return m_VertexTexCoord2D; }
+    const Vec_Float& getVTexCoord3D() const { assert(m_isMeshReady); return m_VertexTexCoord3D; }
+    const Vec_Float& getVertices() const { assert(m_isMeshReady); return m_Vertices; }
+    const Vec_Float& getFaceVertices() const { assert(m_isMeshReady); return m_FaceVertices; }
+
+    size_t getNVertices() const noexcept { assert(m_isMeshReady); return (m_Vertices.size() / 3); }
+    size_t getNFaceVertices() const noexcept { assert(m_isMeshReady); return (m_FaceVertices.size() / 3); }
+    size_t getNFaces() const noexcept { assert(m_isMeshReady); return m_Faces.size(); }
 
 private:
-    void checkFileType(const std::string& meshFile);
+    void checkFileType(const String& meshFile);
     void clearData();
 
-    bool loadObj(const std::string& meshFile);
-    bool loadPly(const std::string& meshFile);
+    bool loadObj(const String& meshFile);
+    bool loadPly(const String& meshFile);
 
-    void computeVertexNormal(Real N[3], Real v0[3], Real v1[3], Real v2[3]);
+    Vec3f computeVertexNormal(const Vec3f& v0, const Vec3f& v1, const Vec3f& v2) { return glm::cross(v1 - v0, v2 - v0); }
 
     ////////////////////////////////////////////////////////////////////////////////
     enum class MeshFileType
@@ -73,21 +76,18 @@ private:
     bool         m_isMeshReady;
 
     MeshFileType m_MeshFileType;
-    std::string  m_LoadingErrorStr;
+    String       m_LoadingErrorStr;
 
-    Vec_UInt m_Faces;
-    Vec_Real m_Vertices;
-    Vec_Real m_FaceVertices;
-    Vec_Real m_VertexNormals;
-    Vec_Real m_VertexColors;
-    Vec_Real m_VertexTexCoord2D;
-    Vec_Real m_VertexTexCoord3D;
-    Vec3r    m_AABBMin;
-    Vec3r    m_AABBMax;
+    Vec_UInt  m_Faces;
+    Vec_Float m_Vertices;
+    Vec_Float m_FaceVertices;
+    Vec_Float m_VertexNormals;
+    Vec_Float m_VertexColors;
+    Vec_Float m_VertexTexCoord2D;
+    Vec_Float m_VertexTexCoord3D;
+    Vec3f     m_AABBMin;
+    Vec3f     m_AABBMax;
 };
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <Banana/Geometry/MeshLoader.Impl.hpp>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana

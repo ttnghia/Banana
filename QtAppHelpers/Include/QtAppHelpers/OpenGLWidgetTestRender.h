@@ -78,7 +78,7 @@ private:
     std::unique_ptr<OpenGLBuffer>            m_UBufferModelMatrix;
     std::unique_ptr<OpenGLBuffer>            m_VertexBuffer;
     std::unique_ptr<OpenGLBuffer>            m_IndexBuffer;
-    std::unique_ptr<MeshLoader<float> >      m_MeshLoader;
+    std::unique_ptr<MeshLoader>              m_MeshLoader;
     std::unique_ptr<SkyBoxRender>            m_SkyBoxRender;
     std::unique_ptr<PlaneRender>             m_FloorRender;
     std::unique_ptr<PointLightRender>        m_PointLightRender;

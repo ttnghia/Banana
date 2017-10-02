@@ -2,7 +2,9 @@
 **/*.db
 **/*.opendb
 **/Debug/*
+**/DebugQt/*
 **/Release/*
+**/ReleaseQt/*
 **/ReleaseStaticBuild/*
 Build/**
 *.pro.user

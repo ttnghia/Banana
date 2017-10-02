@@ -43,8 +43,8 @@ void AnisotropicKernelGenerator::generateAniKernels()
                                           ////////////////////////////////////////////////////////////////////////////////
                                           // compute kernel center and weighted mean position
                                           const Vec3r& ppos = m_Particles[p];
-                                          Vec3r pposWM(0);
-                                          Real sumW = 0;
+                                          Vec3r pposWM = ppos;
+                                          Real sumW = Real(1.0);
 
                                           for(UInt q : d0.neighbors(0, p)) {
                                               const Vec3r& qpos = m_Particles[q];
@@ -55,14 +55,13 @@ void AnisotropicKernelGenerator::generateAniKernels()
                                               pposWM += wpq * qpos;
                                           }
 
-                                          __BNN_ASSERT(sumW > 0);
                                           pposWM /= sumW;
                                           m_KernelCenters[p] = Real(1.0 - AniGen_Lambda) * ppos + Real(AniGen_Lambda) * pposWM;
 
                                           ////////////////////////////////////////////////////////////////////////////////
                                           // compute covariance matrix and anisotropy matrix
                                           Mat3x3<Real> C(0);
-                                          sumW = 0;
+                                          sumW = Real(1.0);
                                           for(UInt q : d0.neighbors(0, p)) {
                                               const Vec3r& qpos = m_Particles[q];
                                               const Vec3r xpq = qpos - pposWM;
@@ -72,34 +71,44 @@ void AnisotropicKernelGenerator::generateAniKernels()
                                               C += wpq * glm::outerProduct(xpq, xpq);
                                           }
 
-                                          __BNN_ASSERT(sumW > 0);
                                           C /= sumW;   // => covariance matrix
 
                                           ////////////////////////////////////////////////////////////////////////////////
                                           // compute kernel matrix
-                                          Mat3x3r U, V;
-                                          Vec3r S;
 
-                                          //SVDDecomposition::svd(C[0][0], C[0][1], C[0][2], C[1][0], C[1][1], C[1][2], C[2][0], C[2][1], C[2][2],
-                                          //                      U[0][0], U[0][1], U[0][2], U[1][0], U[1][1], U[1][2], U[2][0], U[2][1], U[2][2],
-                                          //                      S[0][0], S[0][1], S[0][2], S[1][0], S[1][1], S[1][2], S[2][0], S[2][1], S[2][2],
-                                          //                      V[0][0], V[0][1], V[0][2], V[1][0], V[1][1], V[1][2], V[2][0], V[2][1], V[2][2]);
-                                          QRSVD::svd(C, U, S, V);
 
+#if 1
+                                          Mat3x3r U, S, V;
+
+                                          SVDDecomposition::svd(C[0][0], C[0][1], C[0][2], C[1][0], C[1][1], C[1][2], C[2][0], C[2][1], C[2][2],
+                                                                U[0][0], U[0][1], U[0][2], U[1][0], U[1][1], U[1][2], U[2][0], U[2][1], U[2][2],
+                                                                S[0][0], S[0][1], S[0][2], S[1][0], S[1][1], S[1][2], S[2][0], S[2][1], S[2][2],
+                                                                V[0][0], V[0][1], V[0][2], V[1][0], V[1][1], V[1][2], V[2][0], V[2][1], V[2][2]);
                                           Vec3r sigmas = Vec3r(0.75);
 
+                                          if(d0.n_neighbors(0, p) > AniGen_NeighborCountThreshold) {
+                                              sigmas = Vec3r(S[0][0], MathHelpers::max(S[1][1], S[0][0] / AniGen_Kr), MathHelpers::max(S[2][2], S[0][0] / AniGen_Kr));
+                                              Real ks = std::cbrt(Real(1.0) / (sigmas[0] * sigmas[1] * sigmas[2]));                                               // scale so that det(covariance) == 1
+                                              sigmas *= ks;
+                                          }
+
+                                          m_KernelMatrices[p] = glm::transpose(U) * LinaHelpers::diagMatrix(sigmas) * U;
+#else
+                                          Mat3x3r U, V;
+                                          Vec3r S;
+                                          QRSVD::svd(C, U, S, V);
                                           if(d0.n_neighbors(0, p) > AniGen_NeighborCountThreshold) {
                                               sigmas = Vec3r(S[0], MathHelpers::max(S[1], S[0] / AniGen_Kr), MathHelpers::max(S[2], S[0] / AniGen_Kr));
                                               Real ks = std::cbrt(Real(1.0) / (sigmas[0] * sigmas[1] * sigmas[2]));   // scale so that det(covariance) == 1
                                               sigmas *= ks;
                                           }
+                                          m_KernelMatrices[p] = U * LinaHelpers::diagMatrix(sigmas) * glm::transpose(V);
+#endif
+
 
                                           //for(UInt j = 0; j < 3; ++j) {
                                           //    U[j] = glm::normalize(U[j]);
                                           //}
-
-                                          //m_KernelMatrices[p] = glm::transpose(U) * LinaHelpers::diagMatrix(sigmas) * U;
-                                          m_KernelMatrices[p] = U * LinaHelpers::diagMatrix(sigmas) * glm::transpose(V);
                                       });
 }
 
