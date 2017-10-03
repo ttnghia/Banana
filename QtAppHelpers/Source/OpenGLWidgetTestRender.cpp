@@ -20,7 +20,7 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
 {
-#define TEST_CASE TestCase::TriMeshShadow
+#define TEST_CASE TestCase::TriMesh
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 OpenGLWidgetTestRender::OpenGLWidgetTestRender(QWidget* parent) : OpenGLWidget(parent), m_TestCase(TEST_CASE)
@@ -145,8 +145,8 @@ void OpenGLWidgetTestRender::initTestRenderMesh(QString meshFile)
     ////////////////////////////////////////////////////////////////////////////////
     m_MeshLoader = std::make_unique<MeshLoader>(meshFile.toStdString());
     m_MeshObj    = std::make_shared<MeshObject>();
-    m_MeshObj->setVertices(m_MeshLoader->getVertices());
-    m_MeshObj->setVertexNormal(m_MeshLoader->getVertexNormal());
+    m_MeshObj->setVertices(m_MeshLoader->getFaceVertices());
+    m_MeshObj->setVertexNormal(m_MeshLoader->getFaceVertexNormals());
 
     m_Lights = std::make_shared<PointLights>();
     m_Lights->setNumLights(2);
@@ -162,7 +162,7 @@ void OpenGLWidgetTestRender::initTestRenderMesh(QString meshFile)
 
     m_PointLightRender = std::make_unique<PointLightRender>(m_Camera, m_Lights);
     m_MeshRender       = std::make_unique<MeshRender>(m_MeshObj, m_Camera, m_Lights, m_Material, m_UBufferCamData);
-    m_MeshRender->transform(glm::vec3(0, 0, 0), glm::vec3(0.03));
+    m_MeshRender->transform(glm::vec3(0, 0, 0), glm::vec3(0.3));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -232,7 +232,7 @@ void OpenGLWidgetTestRender::initTestRenderMeshWithShadow(QString meshFile, QStr
     m_MeshObj    = std::make_shared<MeshObject>();
 
     m_MeshObj->setVertices(m_MeshLoader->getFaceVertices());
-    m_MeshObj->setVertexNormal(m_MeshLoader->getVertexNormal());
+    m_MeshObj->setVertexNormal(m_MeshLoader->getFaceVertexNormals());
 
 
     m_Material = std::make_shared<Material>();
@@ -274,14 +274,20 @@ void OpenGLWidgetTestRender::initOpenGL()
             break;
         case TestCase::TriMesh:
 #ifdef _WIN32
-            initTestRenderMesh(QString("D:/GoogleDrive/DigitalAssets/Models/AirCraft/A-10_Thunderbolt_II/A-10_Thunderbolt_II.obj"));
+            //initTestRenderMesh(QString("E:/GoogleDrive/DigitalAssets/Models/AirCraft/A-10_Thunderbolt_II/A-10_Thunderbolt_II.obj"));
+            //initTestRenderMesh(QString("E:/GoogleDrive/Classes/CS6620/prj8/teapot-low.obj"));
+            initTestRenderMesh(QString("D:/SimData/FluidRendering/DamBreak/Solid/frame.1.obj"));
 #else
             initTestRenderMesh(QString("/Volumes/Working/GoogleDrive/DigitalAssets/Models/AirCraft/A-10_Thunderbolt_II/A-10_Thunderbolt_II.obj"));
 #endif
+            break;
+
         case TestCase::TriMeshShadow:
 #ifdef _WIN32
-            initTestRenderMeshWithShadow(QString("D:/Scratch/SimData/DamBreak/Solid/frame.1.obj"),
-                                         QString("D:/Programming/QtApps/FluidSimulationAndRendering/Textures/Floor/blue_marble.png"));
+            //initTestRenderMeshWithShadow(QString("E:/GoogleDrive/DigitalAssets/Models/AirCraft/A-10_Thunderbolt_II/A-10_Thunderbolt_II.obj"),
+            //initTestRenderMeshWithShadow(QString("E:/GoogleDrive/Classes/CS6620/prj8/teapot.obj"),
+            initTestRenderMeshWithShadow(QString("D:/Programming/MerLit/bunny_watertight.obj"),
+                                         QString("D:/Programming/Banana/Applications/QtApps/OpenGLTest/blue_marble.png"));
 #else
             initTestRenderMeshWithShadow(QString("/Volumes/Working/GoogleDrive/DigitalAssets/Models/AirCraft/A-10_Thunderbolt_II/A-10_Thunderbolt_II.obj"),
                                          QString("/Volumes/Working/Programming/QtApps/FluidSimulationAndRendering/Textures/Floor/blue_marble.png"));
@@ -312,6 +318,8 @@ void OpenGLWidgetTestRender::renderOpenGL()
 
         case TestCase::TriMesh:
             renderMesh();
+            break;
+
         case TestCase::TriMeshShadow:
             renderMeshWithShadow();
             break;

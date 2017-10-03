@@ -23,6 +23,7 @@
 #include <Banana/LinearAlgebra/LinaHelpers.h>
 #include <Banana/ParallelHelpers/ParallelFuncs.h>
 #include <SurfaceReconstruction/AniKernelGenerator.h>
+#include <Banana/Utils/NumberHelpers.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -92,6 +93,7 @@ void AnisotropicKernelGenerator::generateAniKernels()
                                               sigmas *= ks;
                                           }
 
+                                          //printf("%f, %f, %f\n", sigmas.x, sigmas.y, sigmas.z);
                                           m_KernelMatrices[p] = glm::transpose(U) * LinaHelpers::diagMatrix(sigmas) * U;
 #else
                                           Mat3x3r U, V;

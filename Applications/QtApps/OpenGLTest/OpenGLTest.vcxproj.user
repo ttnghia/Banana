@@ -23,4 +23,10 @@
   <PropertyGroup>
     <ShowAllFiles>false</ShowAllFiles>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugQt|x64'">
+    <LocalDebuggerEnvironment>PATH=$(QTDIR)\bin%3b$(VCRedistPaths)%PATH%
+$(LocalDebuggerEnvironment)
+    </LocalDebuggerEnvironment>
+    <QTDIR>C:\Qt\Qt5.9.1\5.9.1\msvc2017_64</QTDIR>
+  </PropertyGroup>
 </Project>

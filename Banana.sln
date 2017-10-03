@@ -37,6 +37,10 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AniKernelSurface", "Applications\Consoles\AniKernelSurface\AniKernelSurface.vcxproj", "{5AA35FDA-7A71-4A8B-896D-5541F8380D61}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OpenGLTest", "Applications\QtApps\OpenGLTest\OpenGLTest.vcxproj", "{29506A87-5FF4-3BF0-9FBA-6C630184A9C0}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B6C7B2C3-8D99-32E8-B341-E6987697D653} = {B6C7B2C3-8D99-32E8-B341-E6987697D653}
+		{27A187C4-FB19-47E9-AFDF-E6E8CC5B7E18} = {27A187C4-FB19-47E9-AFDF-E6E8CC5B7E18}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -133,8 +137,8 @@ Global
 		{5AA35FDA-7A71-4A8B-896D-5541F8380D61}.ReleaseStaticBuild|x64.Build.0 = ReleaseStaticBuild|x64
 		{29506A87-5FF4-3BF0-9FBA-6C630184A9C0}.Debug|x64.ActiveCfg = Debug|x64
 		{29506A87-5FF4-3BF0-9FBA-6C630184A9C0}.Debug|x64.Build.0 = Debug|x64
-		{29506A87-5FF4-3BF0-9FBA-6C630184A9C0}.DebugQt|x64.ActiveCfg = Debug|x64
-		{29506A87-5FF4-3BF0-9FBA-6C630184A9C0}.DebugQt|x64.Build.0 = Debug|x64
+		{29506A87-5FF4-3BF0-9FBA-6C630184A9C0}.DebugQt|x64.ActiveCfg = Release|x64
+		{29506A87-5FF4-3BF0-9FBA-6C630184A9C0}.DebugQt|x64.Build.0 = Release|x64
 		{29506A87-5FF4-3BF0-9FBA-6C630184A9C0}.Release|x64.ActiveCfg = Release|x64
 		{29506A87-5FF4-3BF0-9FBA-6C630184A9C0}.Release|x64.Build.0 = Release|x64
 		{29506A87-5FF4-3BF0-9FBA-6C630184A9C0}.ReleaseQt|x64.ActiveCfg = ReleaseQt|x64

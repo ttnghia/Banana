@@ -143,6 +143,7 @@
     <ClInclude Include="Banana\Geometry\GeometryObject2D.h" />
     <ClInclude Include="Banana\Geometry\GeometryObject3D.h" />
     <ClInclude Include="Banana\Geometry\GeometryObjectFactory.h" />
+    <ClInclude Include="Banana\Geometry\OBJLoader.h" />
     <ClInclude Include="Banana\Grid\Grid.h" />
     <ClInclude Include="Banana\Grid\Grid.Impl.hpp" />
     <ClInclude Include="Banana\Grid\GridHelpers.h" />
@@ -202,6 +203,7 @@
     <ClCompile Include="Banana\Geometry\GeometryObject3D.cpp" />
     <ClCompile Include="Banana\Geometry\KdTree.cpp" />
     <ClCompile Include="Banana\Geometry\MeshLoader.cpp" />
+    <ClCompile Include="Banana\Geometry\OBJLoader.cpp" />
     <ClCompile Include="Banana\LinearAlgebra\LinearSolvers\PCGSolver.cpp" />
     <ClCompile Include="Banana\LinearAlgebra\SparseMatrix\SparseMatrix.cpp" />
     <ClCompile Include="Banana\NeighborSearch\NeighborSearch3D.cpp" />

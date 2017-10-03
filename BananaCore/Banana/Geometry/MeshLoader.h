@@ -43,17 +43,16 @@ public:
     Vec3f getCameraPosition(Vec3f camDirection, float fov = 45);
     float getCameraDistance(float fov);
 
-    const Vec_UInt&  getFaces() const { assert(m_isMeshReady); return m_Faces; }
-    const Vec_Float& getVertexNormal() const { assert(m_isMeshReady); return m_VertexNormals; }
-    const Vec_Float& getVertexColor() const { assert(m_isMeshReady); return m_VertexColors; }
-    const Vec_Float& getVTexCoord2D() const { assert(m_isMeshReady); return m_VertexTexCoord2D; }
-    const Vec_Float& getVTexCoord3D() const { assert(m_isMeshReady); return m_VertexTexCoord3D; }
     const Vec_Float& getVertices() const { assert(m_isMeshReady); return m_Vertices; }
+    const Vec_UInt&  getFaces() const { assert(m_isMeshReady); return m_Faces; }
     const Vec_Float& getFaceVertices() const { assert(m_isMeshReady); return m_FaceVertices; }
+    const Vec_Float& getFaceVertexNormals() const { assert(m_isMeshReady); return m_FaceVertexNormals; }
+    const Vec_Float& getFaceVertexColors() const { assert(m_isMeshReady); return m_FaceVertexColors; }
+    const Vec_Float& getFaceVTexCoord2D() const { assert(m_isMeshReady); return m_FaceVertexTexCoord2D; }
 
+    size_t getNFaces() const noexcept { assert(m_isMeshReady); return (m_Faces.size() / 3); }
     size_t getNVertices() const noexcept { assert(m_isMeshReady); return (m_Vertices.size() / 3); }
     size_t getNFaceVertices() const noexcept { assert(m_isMeshReady); return (m_FaceVertices.size() / 3); }
-    size_t getNFaces() const noexcept { assert(m_isMeshReady); return m_Faces.size(); }
 
 private:
     void checkFileType(const String& meshFile);
@@ -62,7 +61,7 @@ private:
     bool loadObj(const String& meshFile);
     bool loadPly(const String& meshFile);
 
-    Vec3f computeVertexNormal(const Vec3f& v0, const Vec3f& v1, const Vec3f& v2) { return glm::cross(v1 - v0, v2 - v0); }
+    void computeFaceVertexData();
 
     ////////////////////////////////////////////////////////////////////////////////
     enum class MeshFileType
@@ -78,15 +77,15 @@ private:
     MeshFileType m_MeshFileType;
     String       m_LoadingErrorStr;
 
+    Vec3f m_AABBMin;
+    Vec3f m_AABBMax;
+
     Vec_UInt  m_Faces;
     Vec_Float m_Vertices;
     Vec_Float m_FaceVertices;
-    Vec_Float m_VertexNormals;
-    Vec_Float m_VertexColors;
-    Vec_Float m_VertexTexCoord2D;
-    Vec_Float m_VertexTexCoord3D;
-    Vec3f     m_AABBMin;
-    Vec3f     m_AABBMax;
+    Vec_Float m_FaceVertexNormals;
+    Vec_Float m_FaceVertexColors;
+    Vec_Float m_FaceVertexTexCoord2D;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
