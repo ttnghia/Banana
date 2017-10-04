@@ -72,9 +72,6 @@
     <ClInclude Include="Banana\LinearAlgebra\_LinearAlgebra.Test.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Banana\LinearAlgebra\SVD.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Banana\ParallelHelpers\_ParallelHelpers.Test.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -160,9 +157,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Banana\NeighborSearch\_NeighborSearch.Test.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Banana\LinearAlgebra\SVD.Impl.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Banana\Array\Array.h">

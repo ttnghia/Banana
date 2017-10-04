@@ -27,8 +27,8 @@ namespace Banana
 class AnisotropicKernelGenerator
 {
 public:
-    AnisotropicKernelGenerator(UInt nParticles, Vec3r* particles, Real particleRadius, Real kernelRatio = Real(8.0)) :
-        m_NParticles(nParticles), m_Particles(particles)
+    AnisotropicKernelGenerator(UInt nParticles, Vec3r* particles, Real particleRadius, Real defaultSpraySize = Real(0.75), Real kernelRatio = Real(8.0)) :
+        m_NParticles(nParticles), m_Particles(particles), m_DefaultSpraySize(defaultSpraySize)
     {
         m_KernelRadius    = kernelRatio * particleRadius;
         m_KernelRadiusSqr = m_KernelRadius * m_KernelRadius;
@@ -51,6 +51,7 @@ private:
     Real m_KernelRadius;
     Real m_KernelRadiusSqr;
     Real m_KernelRadiusInv;
+    Real m_DefaultSpraySize;
 
     UInt                                        m_NParticles = 0;
     Vec3r*                                      m_Particles  = nullptr;

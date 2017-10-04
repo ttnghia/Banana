@@ -46,12 +46,12 @@ VecX<N, IndexType> createGrid(const VecX<N, RealType>& bmin, const VecX<N, RealT
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-inline RealType generateRandomInt(RealType start, RealType end)
+template<class IntType>
+inline IntType generateRandomInt(IntType start, IntType end)
 {
-    std::random_device                      rd;
-    std::mt19937                            gen(rd());
-    std::uniform_int_distribution<RealType> dis(start, end);
+    std::random_device                     rd;
+    std::mt19937                           gen(rd());
+    std::uniform_int_distribution<IntType> dis(start, end);
 
     return dis(gen);
 }
@@ -156,33 +156,44 @@ inline String toString(const Vec3<RealType>& vec, int precision = 5)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-inline String toString(const Mat2x2<RealType>& mat, int precision = 5)
+inline String toString(const Mat2x2<RealType>& mat, bool breakLine = false, int precision = 5)
 {
     std::stringstream ss;
     ss.str("");
 
     ss << String("[");
-    ss << formatWithCommas(mat[0][0], precision) << String(", ") << formatWithCommas(mat[0][1], precision) << String("; ");
-    ss << formatWithCommas(mat[1][0], precision) << String(", ") << formatWithCommas(mat[1][1], precision) << String("]");
+    ss << formatWithCommas(mat[0][0], precision) << String(", ") << formatWithCommas(mat[1][0], precision);
+    if(breakLine)
+        ss << String(",") << std::endl;
+    else
+        ss << String("; ");
+
+    ss << formatWithCommas(mat[0][1], precision) << String(", ") << formatWithCommas(mat[1][1], precision) << String("]");
 
     return ss.str();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-inline String toString(const Mat3x3<RealType>& mat, int precision = 5)
+inline String toString(const Mat3x3<RealType>& mat, bool breakLine = false, int precision = 5)
 {
     std::stringstream ss;
     ss.str("");
 
     ss << String("[");
-    ss << formatWithCommas(mat[0][0], precision) << String(", ") << formatWithCommas(mat[0][1], precision) << String(", ") << formatWithCommas(mat[0][2], precision);
-    ss << String("; ");
+    ss << formatWithCommas(mat[0][0], precision) << String(", ") << formatWithCommas(mat[1][0], precision) << String(", ") << formatWithCommas(mat[2][0], precision);
+    if(breakLine)
+        ss << String(",") << std::endl;
+    else
+        ss << String("; ");
 
-    ss << formatWithCommas(mat[1][0], precision) << String(", ") << formatWithCommas(mat[1][1], precision) << String(", ") << formatWithCommas(mat[1][2], precision);
-    ss << String("; ");
+    ss << formatWithCommas(mat[0][1], precision) << String(", ") << formatWithCommas(mat[1][1], precision) << String(", ") << formatWithCommas(mat[2][1], precision);
+    if(breakLine)
+        ss << String(",") << std::endl;
+    else
+        ss << String("; ");
 
-    ss << formatWithCommas(mat[2][0], precision) << String(", ") << formatWithCommas(mat[2][1], precision) << String(", ") << formatWithCommas(mat[2][2], precision);
+    ss << formatWithCommas(mat[0][2], precision) << String(", ") << formatWithCommas(mat[1][2], precision) << String(", ") << formatWithCommas(mat[2][2], precision);
     ss << String("]");
 
     return ss.str();

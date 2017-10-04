@@ -13,19 +13,19 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{824501A8-20D8-4ACD-AE31-4F81D1591C68}</ProjectGuid>
     <RootNamespace>VectorTypeBechmark</RootNamespace>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
@@ -42,18 +42,18 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir)Externals\progress-cpp;$(SolutionDir)Externals\eigen;$(SolutionDir)Externals\yocto-gl;$(SolutionDir)Externals\glm;$(SolutionDir)Externals\tbb_win\include;$(SolutionDir)Externals\catch\include;$(SolutionDir)BananaCore;$(SolutionDir)Externals\spdlog\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir);$(SolutionDir)Externals\progress-cpp;$(SolutionDir)Externals\eigen;$(SolutionDir)Externals\yocto-gl;$(SolutionDir)Externals\glm;$(SolutionDir)Externals\tbb_win\include;$(SolutionDir)Externals\catch\include;$(SolutionDir)BananaCore;$(SolutionDir)Externals\spdlog\include;$(IncludePath)</IncludePath>
     <OutDir>$(ProjectDir)$(Configuration)\</OutDir>
     <IntDir>D:\Scratch\ProjectBuilds\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
     <LibraryPath>$(SolutionDir)Externals\tbb_win\lib\intel64\vc14;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)Externals\progress-cpp;$(SolutionDir)Externals\eigen;$(SolutionDir)Externals\yocto-gl;$(SolutionDir)Externals\glm;$(SolutionDir)Externals\tbb_win\include;$(SolutionDir)Externals\catch\include;$(SolutionDir)BananaCore;$(SolutionDir)Externals\spdlog\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir);$(SolutionDir)Externals\progress-cpp;$(SolutionDir)Externals\eigen;$(SolutionDir)Externals\yocto-gl;$(SolutionDir)Externals\glm;$(SolutionDir)Externals\tbb_win\include;$(SolutionDir)Externals\catch\include;$(SolutionDir)BananaCore;$(SolutionDir)Externals\spdlog\include;$(IncludePath)</IncludePath>
     <OutDir>$(ProjectDir)$(Configuration)\</OutDir>
     <IntDir>D:\Scratch\ProjectBuilds\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
     <LibraryPath>$(SolutionDir)Externals\tbb_win\lib\intel64\vc14;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
-   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>

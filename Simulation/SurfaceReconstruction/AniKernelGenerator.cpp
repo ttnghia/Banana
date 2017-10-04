@@ -18,7 +18,6 @@
 #define AniGen_NeighborCountThreshold 25
 #define AniGen_Kr                     4
 
-#include <Banana/LinearAlgebra/SVD.h>
 #include <Banana/LinearAlgebra/ImplicitQRSVD.h>
 #include <Banana/LinearAlgebra/LinaHelpers.h>
 #include <Banana/ParallelHelpers/ParallelFuncs.h>
@@ -76,41 +75,17 @@ void AnisotropicKernelGenerator::generateAniKernels()
 
                                           ////////////////////////////////////////////////////////////////////////////////
                                           // compute kernel matrix
-
-
-#if 1
-                                          Mat3x3r U, S, V;
-
-                                          SVDDecomposition::svd(C[0][0], C[0][1], C[0][2], C[1][0], C[1][1], C[1][2], C[2][0], C[2][1], C[2][2],
-                                                                U[0][0], U[0][1], U[0][2], U[1][0], U[1][1], U[1][2], U[2][0], U[2][1], U[2][2],
-                                                                S[0][0], S[0][1], S[0][2], S[1][0], S[1][1], S[1][2], S[2][0], S[2][1], S[2][2],
-                                                                V[0][0], V[0][1], V[0][2], V[1][0], V[1][1], V[1][2], V[2][0], V[2][1], V[2][2]);
-                                          Vec3r sigmas = Vec3r(0.75);
-
-                                          if(d0.n_neighbors(0, p) > AniGen_NeighborCountThreshold) {
-                                              sigmas = Vec3r(S[0][0], MathHelpers::max(S[1][1], S[0][0] / AniGen_Kr), MathHelpers::max(S[2][2], S[0][0] / AniGen_Kr));
-                                              Real ks = std::cbrt(Real(1.0) / (sigmas[0] * sigmas[1] * sigmas[2]));                                               // scale so that det(covariance) == 1
-                                              sigmas *= ks;
-                                          }
-
-                                          //printf("%f, %f, %f\n", sigmas.x, sigmas.y, sigmas.z);
-                                          m_KernelMatrices[p] = glm::transpose(U) * LinaHelpers::diagMatrix(sigmas) * U;
-#else
-                                          Mat3x3r U, V;
                                           Vec3r S;
+                                          Mat3x3r U, V;
+                                          Vec3r sigmas = Vec3r(m_DefaultSpraySize);
                                           QRSVD::svd(C, U, S, V);
+
                                           if(d0.n_neighbors(0, p) > AniGen_NeighborCountThreshold) {
                                               sigmas = Vec3r(S[0], MathHelpers::max(S[1], S[0] / AniGen_Kr), MathHelpers::max(S[2], S[0] / AniGen_Kr));
                                               Real ks = std::cbrt(Real(1.0) / (sigmas[0] * sigmas[1] * sigmas[2]));   // scale so that det(covariance) == 1
                                               sigmas *= ks;
                                           }
                                           m_KernelMatrices[p] = U * LinaHelpers::diagMatrix(sigmas) * glm::transpose(V);
-#endif
-
-
-                                          //for(UInt j = 0; j < 3; ++j) {
-                                          //    U[j] = glm::normalize(U[j]);
-                                          //}
                                       });
 }
 

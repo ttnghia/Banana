@@ -20,6 +20,8 @@
 #include <Banana/Setup.h>
 #include <Banana/Utils/MathHelpers.h>
 
+#include <random>
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
 {
@@ -225,7 +227,46 @@ inline RealType vonMisesPlaneStress(const Mat3x3<RealType>& mat)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-}   // end namespace TensorHelpers
+template<Int N, class RealType>
+inline MatXxX<N, RealType> randMatrix(RealType minVal = RealType(0), RealType maxVal = RealType(1.0))
+{
+    std::random_device                       rd;
+    std::mt19937                             gen(rd());
+    std::uniform_real_distribution<RealType> dis(minVal, maxVal);
+
+
+    MatXxX<N, RealType> result;
+
+    for(Int i = 0; i < N; ++i)
+        for(Int j = 0; j < N; ++j)
+            result[i][j] = dis(gen);
+
+    return result;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class SizeType, class RealType>
+inline Vector<MatXxX<N, RealType> > randVecMatrices(SizeType size, RealType minVal = RealType(0), RealType maxVal = RealType(1.0))
+{
+    std::random_device                       rd;
+    std::mt19937                             gen(rd());
+    std::uniform_real_distribution<RealType> dis(minVal, maxVal);
+
+
+    Vector<MatXxX<N, RealType> > results;
+    results.resize(size);
+
+    for(SizeType idx = 0; idx < size; ++idx) {
+        for(Int i = 0; i < N; ++i)
+            for(Int j = 0; j < N; ++j)
+                results[idx][i][j] = dis(gen);
+    }
+
+    return results;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+}   // end namespace LinaHelpers
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana

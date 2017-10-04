@@ -97,8 +97,6 @@ public:
      */
     void computeUnconventional(const T a, const T b)
     {
-        using std::sqrt;
-
         T d = a * a + b * b;
         c = 0;
         s = 1;
@@ -119,8 +117,8 @@ public:
         MatrixType& A = const_cast<MatrixType&>(R);
         A             = MatrixType(1.0);
         A[rowi][rowi] = c;
-        A[rowk][rowi] = -s;
-        A[rowi][rowk] = s;
+        A[rowk][rowi] = s;
+        A[rowi][rowk] = -s;
         A[rowk][rowk] = c;
     }
 
@@ -135,10 +133,10 @@ public:
     void rowRotation(MatrixType& A) const
     {
         for(Int j = 0; j < A.length(); j++) {
-            T tau1 = A[rowi][j];
-            T tau2 = A[rowk][j];
-            A[rowi][j] = c * tau1 - s * tau2;
-            A[rowk][j] = s * tau1 + c * tau2;
+            T tau1 = A[j][rowi];
+            T tau2 = A[j][rowk];
+            A[j][rowi] = c * tau1 - s * tau2;
+            A[j][rowk] = s * tau1 + c * tau2;
         }
     }
 
@@ -153,10 +151,10 @@ public:
     void columnRotation(MatrixType& A) const
     {
         for(Int j = 0; j < A.length(); j++) {
-            T tau1 = A[j][rowi];
-            T tau2 = A[j][rowk];
-            A[j][rowi] = c * tau1 - s * tau2;
-            A[j][rowk] = s * tau1 + c * tau2;
+            T tau1 = A[rowi][j];
+            T tau2 = A[rowk][j];
+            A[rowi][j] = c * tau1 - s * tau2;
+            A[rowk][j] = s * tau1 + c * tau2;
         }
     }
 
@@ -182,6 +180,7 @@ public:
     }
 };
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 /**
         \brief zero chasing the 3X3 matrix to bidiagonal form
         original form of H:
@@ -202,7 +201,7 @@ void zeroChase(Mat3x3<T>& H, Mat3x3<T>& U, Mat3x3<T>& V)
             0 x x
             0 0 x
      */
-    GivensRotation<T> r1(H[0][0], H[1][0], 0, 1);
+    GivensRotation<T> r1(H[0][0], H[0][1], 0, 1);
     /**
             Reduce H to of form
             x x 0
@@ -212,10 +211,10 @@ void zeroChase(Mat3x3<T>& H, Mat3x3<T>& U, Mat3x3<T>& V)
             rows thus no need to divide by sqrt(a^2+b^2)
      */
     GivensRotation<T> r2(1, 2);
-    if(H[1][0] != 0)
-        r2.compute(H[0][0] * H[0][1] + H[1][0] * H[1][1], H[0][0] * H[0][2] + H[1][0] * H[1][2]);
+    if(H[0][1] != 0)
+        r2.compute(H[0][0] * H[1][0] + H[0][1] * H[1][1], H[0][0] * H[2][0] + H[0][1] * H[2][1]);
     else
-        r2.compute(H[0][1], H[0][2]);
+        r2.compute(H[1][0], H[2][0]);
 
     r1.rowRotation(H);
 
@@ -229,7 +228,7 @@ void zeroChase(Mat3x3<T>& H, Mat3x3<T>& U, Mat3x3<T>& V)
             0 x x
             0 0 x
      */
-    GivensRotation<T> r3(H[1][1], H[2][1], 1, 2);
+    GivensRotation<T> r3(H[1][1], H[1][2], 1, 2);
     r3.rowRotation(H);
 
     // Save this till end for better cache coherency
@@ -239,6 +238,7 @@ void zeroChase(Mat3x3<T>& H, Mat3x3<T>& U, Mat3x3<T>& V)
     r3.columnRotation(U);
 }
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 /**
          \brief make a 3X3 matrix to upper bidiagonal form
          original form of H:   x x x
@@ -262,7 +262,7 @@ void makeUpperBidiag(Mat3x3<T>& H, Mat3x3<T>& U, Mat3x3<T>& V)
                                               0 x x
      */
 
-    GivensRotation<T> r(H[1][0], H[2][0], 1, 2);
+    GivensRotation<T> r(H[0][1], H[0][2], 1, 2);
     r.rowRotation(H);
     // r.rowRotation(u_transpose);
     r.columnRotation(U);
@@ -270,6 +270,7 @@ void makeUpperBidiag(Mat3x3<T>& H, Mat3x3<T>& U, Mat3x3<T>& V)
     zeroChase(H, U, V);
 }
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 /**
          \brief make a 3X3 matrix to lambda shape
          original form of H:   x x x
@@ -293,7 +294,7 @@ void makeLambdaShape(Mat3x3<T>& H, Mat3x3<T>& U, Mat3x3<T>& V)
      *                    x x x
      */
 
-    GivensRotation<T> r1(H[0][1], H[0][2], 1, 2);
+    GivensRotation<T> r1(H[1][0], H[2][0], 1, 2);
     r1.columnRotation(H);
     r1.columnRotation(V);
 
@@ -304,7 +305,7 @@ void makeLambdaShape(Mat3x3<T>& H, Mat3x3<T>& U, Mat3x3<T>& V)
      *                    x x x
      */
 
-    r1.computeUnconventional(H[1][2], H(2, 2));
+    r1.computeUnconventional(H[2][1], H(2, 2));
     r1.rowRotation(H);
     r1.columnRotation(U);
 
@@ -315,7 +316,7 @@ void makeLambdaShape(Mat3x3<T>& H, Mat3x3<T>& U, Mat3x3<T>& V)
      *                    x 0 x
      */
 
-    GivensRotation<T> r2(H(2, 0), H[2][1], 0, 1);
+    GivensRotation<T> r2(H[0][2], H[1][2], 0, 1);
     r2.columnRotation(H);
     r2.columnRotation(V);
 
@@ -325,11 +326,12 @@ void makeLambdaShape(Mat3x3<T>& H, Mat3x3<T>& U, Mat3x3<T>& V)
      *                    x x 0
      *                    x 0 x
      */
-    r2.computeUnconventional(H[0][1], H[1][1]);
+    r2.computeUnconventional(H[1][0], H[1][1]);
     r2.rowRotation(H);
     r2.columnRotation(U);
 }
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 /**
    \brief 2x2 polar decomposition.
    \param[in] A matrix.
@@ -344,7 +346,7 @@ void makeLambdaShape(Mat3x3<T>& H, Mat3x3<T>& U, Mat3x3<T>& V)
 template<class T>
 void polar(const Mat2x2<T>& A, GivensRotation<T>& R, const Mat2x2<T>& S_Sym)
 {
-    Vec2<T> x(A[0][0] + A[1][1], A[1][0] - A[0][1]);
+    Vec2<T> x(A[0][0] + A[1][1], A[0][1] - A[1][0]);
     T       denominator = glm::length(x);
     R.c = (T)1;
     R.s = (T)0;
@@ -361,6 +363,7 @@ void polar(const Mat2x2<T>& A, GivensRotation<T>& R, const Mat2x2<T>& S_Sym)
     R.rowRotation(S);
 }
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 /**
    \brief 2x2 polar decomposition.
    \param[in] A matrix.
@@ -380,6 +383,7 @@ void polar(const Mat2x2<T>& A, const Mat2x2<T>& R, const Mat2x2<T>& S_Sym)
     r.fill(R);
 }
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 /**
    \brief 2x2 SVD (singular value decomposition) A=USV'
    \param[in] A Input matrix.
@@ -396,7 +400,7 @@ void svd(const Mat2x2<T>& A, GivensRotation<T>& U, const Vec2<T>& Sigma, GivensR
     polar(A, U, S_Sym);
     T cosine, sine;
     T x = S_Sym[0][0];
-    T y = S_Sym[0][1];
+    T y = S_Sym[1][0];
     T z = S_Sym[1][1];
     if(y == 0) {
         // S is already diagonal
@@ -446,6 +450,7 @@ void svd(const Mat2x2<T>& A, GivensRotation<T>& U, const Vec2<T>& Sigma, GivensR
     U *= V;
 }
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 /**
    \brief 2x2 SVD (singular value decomposition) A=USV'
    \param[in] A Input matrix.
@@ -464,6 +469,7 @@ void svd(const Mat2x2<T>& A, const Mat2x2<T>& U, const Vec2<T>& Sigma, const Mat
     gv.fill(V);
 }
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 /**
    \brief compute wilkinsonShift of the block
    a1     b1
@@ -483,6 +489,7 @@ T wilkinsonShift(const T a1, const T b1, const T a2)
     return mu;
 }
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 /**
    \brief Helper function of 3X3 SVD for processing 2X2 SVD
  */
@@ -498,18 +505,14 @@ void process(Mat3x3<T>& B, Mat3x3<T>& U, Vec3<T>& sigma, Mat3x3<T>& V)
     Vec2<T>   s;
     for(Int j = 0; j < 2; ++j) {
         s[j] = sigma[j + t];
-
-        for(Int i = 0; i < 2; ++i) {
+        for(Int i = 0; i < 2; ++i)
             A[i][j] = B[i + t][j + t];
-        }
     }
     svd(A, u, s, v);
     for(Int j = 0; j < 2; ++j) {
         sigma[j + t] = s[j];
-
-        for(Int i = 0; i < 2; ++i) {
+        for(Int i = 0; i < 2; ++i)
             B[i + t][j + t] = A[i][j];
-        }
     }
 
     u.rowi += t;
@@ -520,6 +523,7 @@ void process(Mat3x3<T>& B, Mat3x3<T>& U, Vec3<T>& sigma, Mat3x3<T>& V)
     v.columnRotation(V);
 }
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 /**
    \brief Helper function of 3X3 SVD for flipping signs due to flipping signs of sigma
  */
@@ -530,6 +534,7 @@ void flipSign(Int i, Mat3x3<T>& U, Vec3<T>& sigma)
     U[i]     = -U[i];
 }
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 /**
    \brief Helper function of 3X3 SVD for sorting singular values
  */
@@ -610,6 +615,7 @@ void sort1(Mat3x3<T>& U, Vec3<T>& sigma, Mat3x3<T>& V)
     }
 }
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 /**
    \brief 3X3 SVD (singular value decomposition) A=USV'
    \param[in] A Input matrix.
@@ -631,10 +637,10 @@ Int svd(const Mat3x3<T>& A, Mat3x3<T>& U, Vec3<T>& sigma, Mat3x3<T>& V, T tol = 
     GivensRotation<T> r(0, 1);
 
     T alpha_1 = B[0][0];
-    T beta_1  = B[0][1];
+    T beta_1  = B[1][0];
     T alpha_2 = B[1][1];
     T alpha_3 = B[2][2];
-    T beta_2  = B[1][2];
+    T beta_2  = B[2][1];
     T gamma_1 = alpha_1 * beta_1;
     T gamma_2 = alpha_2 * beta_2;
     tol *= MathHelpers::max(T(0.5) * sqrt(alpha_1 * alpha_1 + alpha_2 * alpha_2 + alpha_3 * alpha_3 + beta_1 * beta_1 + beta_2 * beta_2), T(1.0));
@@ -653,10 +659,10 @@ Int svd(const Mat3x3<T>& A, Mat3x3<T>& U, Vec3<T>& sigma, Mat3x3<T>& V, T tol = 
         zeroChase(B, U, V);
 
         alpha_1 = B[0][0];
-        beta_1  = B[0][1];
+        beta_1  = B[1][0];
         alpha_2 = B[1][1];
         alpha_3 = B[2][2];
-        beta_2  = B[1][2];
+        beta_2  = B[2][1];
         gamma_1 = alpha_1 * beta_1;
         gamma_2 = alpha_2 * beta_2;
         count++;
@@ -700,7 +706,7 @@ Int svd(const Mat3x3<T>& A, Mat3x3<T>& U, Vec3<T>& sigma, Mat3x3<T>& V, T tol = 
            0 0 x
          */
         GivensRotation<T> r1(1, 2);
-        r1.computeUnconventional(B[1][2], B[2][2]);
+        r1.computeUnconventional(B[2][1], B[2][2]);
         r1.rowRotation(B);
         r1.columnRotation(U);
 
@@ -721,7 +727,7 @@ Int svd(const Mat3x3<T>& A, Mat3x3<T>& U, Vec3<T>& sigma, Mat3x3<T>& V, T tol = 
            0 0 0
          */
         GivensRotation<T> r1(1, 2);
-        r1.compute(B[1][1], B[1][2]);
+        r1.compute(B[1][1], B[2][1]);
         r1.columnRotation(B);
         r1.columnRotation(V);
         /**
@@ -731,7 +737,7 @@ Int svd(const Mat3x3<T>& A, Mat3x3<T>& U, Vec3<T>& sigma, Mat3x3<T>& V, T tol = 
            0 0 0
          */
         GivensRotation<T> r2(0, 2);
-        r2.compute(B[0][0], B[0][2]);
+        r2.compute(B[0][0], B[2][0]);
         r2.columnRotation(B);
         r2.columnRotation(V);
 
@@ -752,7 +758,7 @@ Int svd(const Mat3x3<T>& A, Mat3x3<T>& U, Vec3<T>& sigma, Mat3x3<T>& V, T tol = 
            0 0 x
          */
         GivensRotation<T> r1(0, 1);
-        r1.computeUnconventional(B[0][1], B[1][1]);
+        r1.computeUnconventional(B[1][0], B[1][1]);
         r1.rowRotation(B);
         r1.columnRotation(U);
 
@@ -763,7 +769,7 @@ Int svd(const Mat3x3<T>& A, Mat3x3<T>& U, Vec3<T>& sigma, Mat3x3<T>& V, T tol = 
            0 + x
          */
         GivensRotation<T> r2(0, 2);
-        r2.computeUnconventional(B[0][2], B[2][2]);
+        r2.computeUnconventional(B[2][0], B[2][2]);
         r2.rowRotation(B);
         r2.columnRotation(U);
 
@@ -774,6 +780,7 @@ Int svd(const Mat3x3<T>& A, Mat3x3<T>& U, Vec3<T>& sigma, Mat3x3<T>& V, T tol = 
     return count;
 }
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 /**
            \brief 3X3 polar decomposition.
            \param[in] A matrix.

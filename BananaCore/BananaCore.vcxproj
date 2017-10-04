@@ -149,7 +149,6 @@
     <ClInclude Include="Banana\Grid\GridHelpers.h" />
     <ClInclude Include="Banana\Grid\_Grid.Test.hpp" />
     <ClInclude Include="Banana\LinearAlgebra\ImplicitQRSVD.h" />
-    <ClInclude Include="Banana\LinearAlgebra\SVD.Impl.hpp" />
     <ClInclude Include="Banana\LinearAlgebra\_SVD.Test.hpp" />
     <ClInclude Include="Banana\NeighborSearch\DataStructures.h" />
     <ClInclude Include="Banana\NeighborSearch\Morton\Morton.h" />
@@ -193,7 +192,6 @@
     <ClInclude Include="Banana\Data\ParameterManager.h" />
     <ClInclude Include="Banana\Data\ParticleSystemData.h" />
     <ClInclude Include="Banana\Utils\STLHelpers.h" />
-    <ClInclude Include="Banana\LinearAlgebra\SVD.h" />
     <ClInclude Include="Banana\LinearAlgebra\LinaHelpers.h" />
     <ClInclude Include="Banana\Utils\Timer.h" />
     <ClInclude Include="Banana\Setup.h" />

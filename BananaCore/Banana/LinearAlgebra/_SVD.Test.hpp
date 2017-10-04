@@ -18,6 +18,7 @@
 #include <Banana/LinearAlgebra/ImplicitQRSVD.h>
 #include <Banana/LinearAlgebra/LinaHelpers.h>
 #include <Banana/Utils/NumberHelpers.h>
+#include <Banana/Utils/Timer.h>
 
 #include <catch.hpp>
 #include <chrono>
@@ -25,70 +26,6 @@
 
 using namespace Banana;
 
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class T>
-class RandomNumber {
-public:
-    std::mt19937 generator;
-
-    RandomNumber(unsigned s = 123)
-        : generator(s)
-    {}
-
-    ~RandomNumber()
-    {}
-
-    /**
-       Random real number from an interval
-     */
-    T randReal(T a, T b)
-    {
-        std::uniform_real_distribution<T> distribution(a, b);
-        return distribution(generator);
-    }
-
-    /**
-       Fill with uniform random numbers
-     */
-    void fill(Mat3x3<T>& x, T a, T b)
-    {
-        for(Int i = 0; i < 3; ++i)
-            for(Int j = 0; j < 3; ++j)
-                x[i][j] = randReal(a, b);
-    }
-};
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class Timer {
-public:
-    Timer() {}
-
-    ~Timer() {}
-
-    /**
-       \brief Start timing
-     */
-    void start()
-    {
-        start_time = std::chrono::steady_clock::now();
-    }
-
-    /**
-       \return time elapsed since last click in seconds
-     */
-    double click()
-    {
-        to_time         = std::chrono::steady_clock::now();
-        elapsed_seconds = to_time - start_time;
-        start_time      = to_time;
-        return elapsed_seconds.count();
-    }
-
-private:
-    std::chrono::time_point<std::chrono::steady_clock> start_time;
-    std::chrono::time_point<std::chrono::steady_clock> to_time;
-    std::chrono::duration<double>                      elapsed_seconds;
-};
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class T>
 void testAccuracy(const Vector<Mat3x3<T> >& AA,
@@ -104,19 +41,29 @@ void testAccuracy(const Vector<Mat3x3<T> >& AA,
         Mat3x3<T> U = UU[i];
         Mat3x3<T> V = VV[i];
         T         error;
-        error                     = LinaHelpers::maxAbs(U * glm::transpose(U) - Mat3x3<T>(1.0));
-        max_UUt_error             = (error > max_UUt_error) ? error : max_UUt_error;
-        ave_UUt_error            += fabs(error);
-        error                     = LinaHelpers::maxAbs(V * glm::transpose(V) - Mat3x3<T>(1.0));
-        max_VVt_error             = (error > max_VVt_error) ? error : max_VVt_error;
-        ave_VVt_error            += fabs(error);
-        error                     = fabs(fabs(glm::determinant(U)) - (T)1);
-        max_detU_error            = (error > max_detU_error) ? error : max_detU_error;
-        ave_detU_error           += fabs(error);
-        error                     = fabs(fabs(glm::determinant(V)) - (T)1);
-        max_detV_error            = (error > max_detV_error) ? error : max_detV_error;
-        ave_detV_error           += fabs(error);
-        error                     = LinaHelpers::maxAbs(U * LinaHelpers::diagMatrix(S) * glm::transpose(V) - M);
+        error           = LinaHelpers::maxAbs(U * glm::transpose(U) - Mat3x3<T>(1.0));
+        max_UUt_error   = (error > max_UUt_error) ? error : max_UUt_error;
+        ave_UUt_error  += fabs(error);
+        error           = LinaHelpers::maxAbs(V * glm::transpose(V) - Mat3x3<T>(1.0));
+        max_VVt_error   = (error > max_VVt_error) ? error : max_VVt_error;
+        ave_VVt_error  += fabs(error);
+        error           = fabs(fabs(glm::determinant(U)) - (T)1);
+        max_detU_error  = (error > max_detU_error) ? error : max_detU_error;
+        ave_detU_error += fabs(error);
+        error           = fabs(fabs(glm::determinant(V)) - (T)1);
+        max_detV_error  = (error > max_detV_error) ? error : max_detV_error;
+        ave_detV_error += fabs(error);
+        error           = LinaHelpers::maxAbs(U * LinaHelpers::diagMatrix(S) * glm::transpose(V) - M);
+
+
+        if(error > T(1.0)) {
+            printf("err : m : %s, u = %s, S= %s, v = %s\n", NumberHelpers::toString(M).c_str(),
+                   NumberHelpers::toString(U).c_str(),
+                   NumberHelpers::toString(S).c_str(),
+                   NumberHelpers::toString(V).c_str());
+        }
+
+
         max_reconstruction_error  = (error > max_reconstruction_error) ? error : max_reconstruction_error;
         ave_reconstruction_error += fabs(error);
     }
@@ -143,10 +90,9 @@ void runImplicitQRSVD(const Int repeat, const Vector<Mat3x3<T> >& tests, const b
     Vector<Mat3x3<T> > UU, VV;
     Vector<Vec3<T> >   SS;
     Timer              timer;
-    timer.start();
-    double total_time = 0;
+    double             total_time = 0;
     for(Int test_iter = 0; test_iter < repeat; test_iter++) {
-        timer.click();
+        timer.tick();
         for(size_t i = 0; i < tests.size(); i++) {
             Mat3x3<T> M = tests[i];
             Vec3<T>   S;
@@ -159,7 +105,7 @@ void runImplicitQRSVD(const Int repeat, const Vector<Mat3x3<T> >& tests, const b
                 VV.push_back(V);
             }
         }
-        double this_time = timer.click();
+        double this_time = timer.tock();
         total_time += this_time;
         std::cout << std::setprecision(10) << "impQR time: " << this_time << std::endl;
     }
@@ -173,10 +119,9 @@ void addRandomCases(Vector<Mat3x3<T> >& tests, const T random_range, const Int N
 {
     Int old_count = tests.size();
     std::cout << std::setprecision(10) << "Adding random test cases with range " << -random_range << " to " << random_range << std::endl;
-    RandomNumber<T> random_gen(123);
     for(Int t = 0; t < N; t++) {
         Mat3x3<T> Z;
-        random_gen.fill(Z, -random_range, random_range);
+        Z = LinaHelpers::randMatrix<3>(-random_range, random_range);
         tests.push_back(Z);
     }
     std::cout << std::setprecision(10) << tests.size() - old_count << " cases added." << std::endl;
@@ -215,11 +160,10 @@ void addPerturbationFromIdentityCases(Vector<Mat3x3<T> >& tests, const Int num_p
     Mat3x3<T>          Z = Mat3x3<T>(1.0);
     tests_tmp.push_back(Z);
     std::cout << std::setprecision(10) << "Adding perturbed identity test cases with perturbation " << perturb << std::endl;
-    RandomNumber<T> random_gen(123);
-    size_t          special_cases = tests_tmp.size();
+    size_t special_cases = tests_tmp.size();
     for(size_t t = 0; t < special_cases; t++) {
         for(Int i = 0; i < num_perturbations; i++) {
-            random_gen.fill(Z, -perturb, perturb);
+            Z = LinaHelpers::randMatrix<3>(-perturb, perturb);
             tests.push_back(tests_tmp[t] + Z);
         }
     }
@@ -248,11 +192,10 @@ void addPerturbationCases(Vector<Mat3x3<T> >& tests, const Int int_range, const 
         }
     }
     std::cout << std::setprecision(10) << "Adding perturbed integer test cases with perturbation " << perturb << " and range " << -int_range << " to " << int_range << std::endl;
-    RandomNumber<T> random_gen(123);
-    size_t          special_cases = tests_tmp.size();
+    size_t special_cases = tests_tmp.size();
     for(size_t t = 0; t < special_cases; t++) {
         for(Int i = 0; i < num_perturbations; i++) {
-            random_gen.fill(Z, -perturb, perturb);
+            Z = LinaHelpers::randMatrix<3>(-perturb, perturb);
             tests.push_back(tests_tmp[t] + Z);
         }
     }
@@ -470,15 +413,16 @@ void runBenchmark()
 
 TEST_CASE("Test QRSVD", "[Test QRSVD]")
 {
-    runBenchmark();
+    //runBenchmark();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 TEST_CASE("Test 1 matrix", "[Test 1 matrix]")
 {
     Mat3x3f M(1, 2, 3,
-              2, 5, 6,
-              3, 6, 9);
+              4, 5, 6,
+              7, 8, 9);
+    M = glm::transpose(M);
 
 
     Vec3f   S;
@@ -486,17 +430,63 @@ TEST_CASE("Test 1 matrix", "[Test 1 matrix]")
     Mat3x3f V;
     QRSVD::svd(M, U, S, V);
 
-    std::cout << "M: " << NumberHelpers::toString(M, 7) << std::endl << std::endl;
+    std::cout << "M: " << NumberHelpers::toString(M, true) << std::endl << std::endl;
 
     std::cout << "S: " << NumberHelpers::toString(S, 7) << std::endl << std::endl;
-    std::cout << "U: " << NumberHelpers::toString(U, 7) << std::endl << std::endl;
-    std::cout << "V: " << NumberHelpers::toString(V, 7) << std::endl << std::endl;
+    std::cout << "U: " << NumberHelpers::toString(U, true, 7) << std::endl << std::endl;
+    std::cout << "V: " << NumberHelpers::toString(V, true, 7) << std::endl << std::endl;
+
+    std::cout << "Recon M1: " << NumberHelpers::toString(U * LinaHelpers::diagMatrix(S) * glm::transpose(V), true) << std::endl << std::endl;
 
 
     float error = LinaHelpers::maxAbs(U * LinaHelpers::diagMatrix(S) * glm::transpose(V) - M);
-    std::cout << "error 1: " << error << std::endl;
+    std::cout << "error: " << error << std::endl << std::endl;
+}
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#define NUM_TEST 1'000'000
+TEST_CASE("Test time", "[Test time]")
+{
+    Mat3x3f M;
 
-    float error2 = LinaHelpers::maxAbs(glm::transpose(U) * LinaHelpers::diagMatrix(S) * V - M);
-    std::cout << "error 2: " << error2 << std::endl;
+    Vec3f   Sv;
+    Mat3x3f U;
+    Mat3x3f V;
+
+    Timer  timer;
+    float  error     = 0;
+    double totalTime = 0;
+    for(int i = 0; i < NUM_TEST; ++i) {
+        M = LinaHelpers::randMatrix<3, float>();
+        timer.tick();
+        QRSVD::svd(M, U, Sv, V);
+        totalTime += timer.tock();
+        error     += LinaHelpers::maxAbs(U * LinaHelpers::diagMatrix(Sv) * glm::transpose(V) - M);
+    }
+
+    printf("New SVD: Time = %s, avg time = %s,    error = %s, avg error = %s\n", NumberHelpers::formatWithCommas(totalTime),
+           NumberHelpers::formatToScientific(totalTime / NUM_TEST),
+           NumberHelpers::formatToScientific(error),
+           NumberHelpers::formatToScientific(error / NUM_TEST));
+
+    ////////////////////////////////////////////////////////////////////////////////
+    //Mat3x3r S;
+    //totalTime = 0;
+    //error     = 0;
+    //for(int i = 0; i < NUM_TEST; ++i) {
+    //    M = LinaHelpers::randMatrix<3, float>();
+    //    timer.tick();
+
+    //    SVDDecomposition::svd(M[0][0], M[0][1], M[0][2], M[1][0], M[1][1], M[1][2], M[2][0], M[2][1], M[2][2],
+    //                          U[0][0], U[0][1], U[0][2], U[1][0], U[1][1], U[1][2], U[2][0], U[2][1], U[2][2],
+    //                          S[0][0], S[0][1], S[0][2], S[1][0], S[1][1], S[1][2], S[2][0], S[2][1], S[2][2],
+    //                          V[0][0], V[0][1], V[0][2], V[1][0], V[1][1], V[1][2], V[2][0], V[2][1], V[2][2]);
+    //    totalTime += timer.tock();
+    //    error     += LinaHelpers::maxAbs(glm::transpose(U) * LinaHelpers::diagMatrix(Sv) * V - M);
+    //}
+
+    //printf("Old SVD: Time = %s, avg time = %s,    error = %s, avg error = %s\n", NumberHelpers::formatWithCommas(totalTime),
+    //       NumberHelpers::formatToScientific(totalTime / NUM_TEST),
+    //       NumberHelpers::formatToScientific(error),
+    //       NumberHelpers::formatToScientific(error / NUM_TEST));
 }
