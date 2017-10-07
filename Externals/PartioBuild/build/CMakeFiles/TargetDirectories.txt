@@ -1,0 +1,5 @@
+D:/Programming/Banana/Externals/PartioBuild/build/CMakeFiles/INSTALL.dir
+D:/Programming/Banana/Externals/PartioBuild/build/CMakeFiles/ALL_BUILD.dir
+D:/Programming/Banana/Externals/PartioBuild/build/CMakeFiles/ZERO_CHECK.dir
+D:/Programming/Banana/Externals/PartioBuild/build/src/lib/CMakeFiles/partio.dir
+D:/Programming/Banana/Externals/PartioBuild/build/src/lib/CMakeFiles/INSTALL.dir
