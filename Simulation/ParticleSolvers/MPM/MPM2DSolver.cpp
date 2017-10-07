@@ -17,7 +17,7 @@
 
 #include <ParticleSolvers/MPM/MPM2DSolver.h>
 #include <Banana/Geometry/GeometryObject2D.h>
-#include <Banana/LinearAlgebra/SVD.h>
+#include <Banana/LinearAlgebra/ImplicitQRSVD.h>
 #include <Banana/ParallelHelpers/ParallelSTL.h>
 #include <Banana/LinearAlgebra/LinaHelpers.h>
 
@@ -768,14 +768,9 @@ void MPM2DSolver::applyPlasticity()
                                           //We compute the SVD decomposition
                                           //The singular values (basically a scale transform) tell us if
                                           //the particle has exceeded critical stretch/compression
-
-                                          // todo: improve SVD
                                           Mat2x2r svd_w, svd_v;
                                           Vec2r svd_e;
-                                          SVDDecomposition::svd(elasticDeformGrad, svd_w, svd_e, svd_v);
-                                          svd_w = glm::transpose(svd_w);
-                                          svd_v = glm::transpose(svd_v);
-                                          // <= improve
+                                          QRSVD::svd(elasticDeformGrad, svd_w, svd_e, svd_v);
 
                                           Mat2x2r svd_v_trans = glm::transpose(svd_v);
                                           //Clamp singular values to within elastic region

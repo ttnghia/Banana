@@ -168,6 +168,15 @@
     <ClInclude Include="SurfaceReconstruction\MarchingCube.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="SimulationObjects\ParticleDeleter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticleSolvers\ClothSolver\ClothSolverData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticleSolvers\ClothSolver\ClothSolver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ParticleSolvers\FLIP\FLIP2DSolver.cpp">
@@ -204,6 +213,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="SurfaceReconstruction\MarchingCube.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SimulationObjects\ParticleDeleter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleSolvers\ClothSolver\ClothSolver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

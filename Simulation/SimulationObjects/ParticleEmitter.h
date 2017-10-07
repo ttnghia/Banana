@@ -32,6 +32,7 @@ class ParticleEmitter
 public:
     using GeometryPtr = SharedPtr<GeometryObjects::GeometryObject<N, Real> >;
     static constexpr UInt objDimension() noexcept { return static_cast<UInt>(N); }
+
     ParticleEmitter() = delete;
     ParticleEmitter(const String& geometryType) : m_GeometryObj(GeometryObjectFactory::createGeometry<N, Real>(geometryType)) { __BNN_ASSERT(m_GeometryObj != nullptr); }
 

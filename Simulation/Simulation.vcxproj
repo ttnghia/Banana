@@ -133,6 +133,8 @@
     <None Include="Simulation.licenseheader" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ParticleSolvers\ClothSolver\ClothSolverData.h" />
+    <ClInclude Include="ParticleSolvers\ClothSolver\ClothSolver.h" />
     <ClInclude Include="ParticleSolvers\FLIP\FLIP2DData.h" />
     <ClInclude Include="ParticleSolvers\FLIP\FLIP2DSolver.h" />
     <ClInclude Include="ParticleSolvers\FLIP\FLIP3DData.h" />
@@ -161,6 +163,7 @@
     <ClInclude Include="ParticleSolvers\SPH\WCSPH\WCSPHData.h" />
     <ClInclude Include="ParticleSolvers\_ParticleSolvers.Test.hpp" />
     <ClInclude Include="ParticleSolvers\ParticleSolver.h" />
+    <ClInclude Include="SimulationObjects\ParticleDeleter.h" />
     <ClInclude Include="SurfaceReconstruction\AniKernelGenerator.h" />
     <ClInclude Include="ParticleSolvers\FLIP\FLIP3DSolver.h" />
     <ClInclude Include="ParticleSolvers\SPH\PCISPH\PCISPHSolver.h" />
@@ -185,6 +188,7 @@
     <ClInclude Include="SurfaceReconstruction\MarchingCube.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ParticleSolvers\ClothSolver\ClothSolver.cpp" />
     <ClCompile Include="ParticleSolvers\FLIP\FLIP2DSolver.cpp" />
     <ClCompile Include="ParticleSolvers\FLIP\FLIP3DSolver.cpp" />
     <ClCompile Include="ParticleSolvers\MPM\MPM2DSolver.cpp" />
@@ -193,6 +197,7 @@
     <ClCompile Include="ParticleTools\ParticleHelpers.cpp" />
     <ClCompile Include="ParticleTools\PoissonDiskSampler.cpp" />
     <ClCompile Include="ParticleTools\_ParticleTools.Test.cpp" />
+    <ClCompile Include="SimulationObjects\ParticleDeleter.cpp" />
     <ClCompile Include="SimulationObjects\SimulationObjects.cpp" />
     <ClCompile Include="SurfaceReconstruction\AniKernelGenerator.cpp" />
     <ClCompile Include="SurfaceReconstruction\MarchingCube.cpp" />

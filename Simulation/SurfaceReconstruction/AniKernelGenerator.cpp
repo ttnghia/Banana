@@ -59,9 +59,15 @@ void AnisotropicKernelGenerator::generateAniKernels()
                                           m_KernelCenters[p] = Real(1.0 - AniGen_Lambda) * ppos + Real(AniGen_Lambda) * pposWM;
 
                                           ////////////////////////////////////////////////////////////////////////////////
+                                          if(d0.n_neighbors(0, p) < AniGen_NeighborCountThreshold) {
+                                              m_KernelMatrices[p] = Mat3x3r(m_DefaultSpraySize);
+                                              return;
+                                          }
+
+                                          ////////////////////////////////////////////////////////////////////////////////
                                           // compute covariance matrix and anisotropy matrix
                                           Mat3x3<Real> C(0);
-                                          sumW = Real(1.0);
+                                          sumW = Real(0);
                                           for(UInt q : d0.neighbors(0, p)) {
                                               const Vec3r& qpos = m_Particles[q];
                                               const Vec3r xpq = qpos - pposWM;
@@ -77,14 +83,10 @@ void AnisotropicKernelGenerator::generateAniKernels()
                                           // compute kernel matrix
                                           Vec3r S;
                                           Mat3x3r U, V;
-                                          Vec3r sigmas = Vec3r(m_DefaultSpraySize);
                                           QRSVD::svd(C, U, S, V);
 
-                                          if(d0.n_neighbors(0, p) > AniGen_NeighborCountThreshold) {
-                                              sigmas = Vec3r(S[0], MathHelpers::max(S[1], S[0] / AniGen_Kr), MathHelpers::max(S[2], S[0] / AniGen_Kr));
-                                              Real ks = std::cbrt(Real(1.0) / (sigmas[0] * sigmas[1] * sigmas[2]));   // scale so that det(covariance) == 1
-                                              sigmas *= ks;
-                                          }
+                                          Vec3r sigmas = Vec3r(S[0], MathHelpers::max(S[1], S[0] / AniGen_Kr), MathHelpers::max(S[2], S[0] / AniGen_Kr));
+                                          sigmas *= std::cbrt(Real(1.0) / glm::compMul(sigmas));       // scale so that det(covariance) == 1
                                           m_KernelMatrices[p] = U * LinaHelpers::diagMatrix(sigmas) * glm::transpose(V);
                                       });
 }
