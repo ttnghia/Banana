@@ -34,3 +34,6 @@
 [submodule "Externals/json"]
 	path = Externals/json
 	url = https://github.com/nlohmann/json.git
+[submodule "Externals/benchmark"]
+	path = Externals/benchmark
+	url = https://github.com/google/benchmark.git

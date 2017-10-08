@@ -43,8 +43,7 @@ UInt loadBinary(const String& fileName, Vector<VecX<N, RealType> >& particles, R
     ////////////////////////////////////////////////////////////////////////////////
     particles.reserve(particles.size() + static_cast<size_t>(numParticles));
 
-    for(UInt i = 0; i < numParticles; ++i)
-    {
+    for(UInt i = 0; i < numParticles; ++i) {
         VecX<N, RealType> ppos;
         for(UInt j = 0; j < N; ++j)
             ppos[j] = RealType(particleData[i * N + j]);
@@ -112,8 +111,7 @@ void compressAndSaveBinary(const String& fileName, const Vector<VecX<N, RealType
 
     VecX<N, float> bMinf, bMaxf;
     // convert bmin and bmax to Vec3f
-    for(Int i = 0; i < N; ++i)
-    {
+    for(Int i = 0; i < N; ++i) {
         bMinf[i] = static_cast<float>(bMin[i]);
         bMaxf[i] = static_cast<float>(bMax[i]);
     }
@@ -130,7 +128,7 @@ void compressAndSaveBinary(const String& fileName, const Vector<VecX<N, RealType
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-UInt loadBinaryAndDecompress(const String& fileName, Vector<VecX<N, RealType> >& positions, RealType particleRadius)
+UInt loadBinaryAndDecompress(const String& fileName, Vector<VecX<N, RealType> >& positions, RealType& particleRadius)
 {
     DataBuffer buffer;
     __BNN_ASSERT_MSG(FileHelpers::readFile(buffer.buffer(), fileName), "Could not open file for reading.");
@@ -148,8 +146,9 @@ UInt loadBinaryAndDecompress(const String& fileName, Vector<VecX<N, RealType> >&
 
     segmentSize = sizeof(float);
     memcpy(&fRadius, &buffer.data()[segmentStart], segmentSize);
-    __BNN_ASSERT_APPROX_NUMBERS(static_cast<float>(particleRadius), fRadius, MEpsilon);
-    segmentStart += segmentSize;
+    //__BNN_ASSERT_APPROX_NUMBERS(static_cast<float>(particleRadius), fRadius, MEpsilon);
+    particleRadius = static_cast<RealType>(fRadius);
+    segmentStart  += segmentSize;
 
     segmentSize = sizeof(float) * N;
     memcpy(glm::value_ptr(bMinf), &buffer.data()[segmentStart], segmentSize);
@@ -163,8 +162,7 @@ UInt loadBinaryAndDecompress(const String& fileName, Vector<VecX<N, RealType> >&
     memcpy(compressedData.data(), &buffer.data()[segmentStart], segmentSize);
 
     VecX<N, RealType> bMin, bMax;
-    for(Int i = 0; i < N; ++i)
-    {
+    for(Int i = 0; i < N; ++i) {
         bMin[i] = static_cast<RealType>(bMinf[i]);
         bMax[i] = static_cast<RealType>(bMaxf[i]);
     }
