@@ -30,9 +30,9 @@ namespace Banana
 namespace ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-struct SimulationParameters_FLIP3D
+struct SimulationParameters_Cloth3D
 {
-    SimulationParameters_FLIP3D() { makeReady(); }
+    SimulationParameters_Cloth3D() { makeReady(); }
 
     ////////////////////////////////////////////////////////////////////////////////
     Real minTimestep         = Real(1.0e-6);
@@ -98,8 +98,7 @@ struct SimulationParameters_FLIP3D
 
         logger->printLogIndent("Boundary restitution: " + std::to_string(boundaryRestitution));
         logger->printLogIndent("Apply repulsive forces: " + (bApplyRepulsiveForces ? String("Yes") : String("No")));
-        if(bApplyRepulsiveForces)
-        {
+        if(bApplyRepulsiveForces) {
             logger->printLogIndent("Repulsive force stiffness: " + NumberHelpers::formatToScientific(repulsiveForceStiffness));
         }
 
@@ -113,7 +112,7 @@ struct SimulationParameters_FLIP3D
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-struct SimulationData_FLIP3D
+struct SimulationData_Cloth3D
 {
     struct ParticleSimData
     {

@@ -35,14 +35,12 @@ class FLIP2DSolver : public ParticleSolver2D
 public:
     FLIP2DSolver() { setupLogger(); }
 
-    std::shared_ptr<SimulationParameters_FLIP2D> getSolverParams() { return m_SimParams; }
+    SharedPtr<SimulationParameters_FLIP2D> getSolverParams() { return m_SimParams; }
 
     ////////////////////////////////////////////////////////////////////////////////
-    virtual String     getSolverName() override { return String("FLIP2DSolver"); }
-    virtual String     getGreetingMessage() override { return String("Fluid Simulation using FLIP-2D Solver"); }
-    virtual UInt       getNumParticles() override { return m_SimData->getNumParticles(); }
-    virtual Vec_Vec2r& getParticlePositions() override { return m_SimData->positions; }
-    virtual Vec_Vec2r& getParticleVelocities() override { return m_SimData->velocities; }
+    virtual String getSolverName() override { return String("FLIP2DSolver"); }
+    virtual String getGreetingMessage() override { return String("Fluid Simulation using FLIP-2D Solver"); }
+    virtual UInt   getNumParticles() override { return m_SimData->getNumParticles(); }
 
     virtual void makeReady() override;
     virtual void advanceFrame() override;
@@ -84,8 +82,8 @@ protected:
     Mat2x2r getAffineMatrix(const Vec2r& gridPos);
 
     ////////////////////////////////////////////////////////////////////////////////
-    std::unique_ptr<SimulationData_FLIP2D>            m_SimData          = std::make_unique<SimulationData_FLIP2D>();
-    std::shared_ptr<SimulationParameters_FLIP2D>      m_SimParams        = std::make_shared<SimulationParameters_FLIP2D>();
+    UniquePtr<SimulationData_FLIP2D>                  m_SimData          = std::make_unique<SimulationData_FLIP2D>();
+    SharedPtr<SimulationParameters_FLIP2D>            m_SimParams        = std::make_shared<SimulationParameters_FLIP2D>();
     std::function<Real(const Vec2r&, const Array2r&)> m_InterpolateValue = nullptr;
     std::function<Real(const Vec2r&)>                 m_WeightKernel     = nullptr;
 

@@ -72,6 +72,9 @@ public:
     void setData(const Vector<T>& vData, bool bWriteVectorSize = true) { clearBuffer(); append<T>(vData, bWriteVectorSize); }
 
     template<class T>
+    void setData(const Vector<Vector<T> >& vData, bool bWriteVectorSize = true) { clearBuffer(); append<T>(vData, bWriteVectorSize); }
+
+    template<class T>
     void setFloatArray(const Vector<T>& vData, bool bWriteVectorSize = true) { clearBuffer(); appendFloatArray<T>(vData, bWriteVectorSize); }
 
     template<class T>
@@ -103,8 +106,7 @@ public:
     void append(const Vector<T>& vData, bool bWriteVectorSize = true)
     {
         // any vector data begins with the number of vector elements
-        if(bWriteVectorSize)
-        {
+        if(bWriteVectorSize) {
             const UInt numElements = static_cast<UInt>(vData.size());
             append<UInt>(numElements);
         }
@@ -119,8 +121,7 @@ public:
     template<class T>
     void append(const Vec_Vec2<T>& vData, bool bWriteVectorSize = true)
     {
-        if(bWriteVectorSize)
-        {
+        if(bWriteVectorSize) {
             const UInt numElements = static_cast<UInt>(vData.size());
             append<UInt>(numElements);
         }
@@ -135,8 +136,7 @@ public:
     template<class T>
     void append(const Vec_Vec3<T>& vData, bool bWriteVectorSize = true)
     {
-        if(bWriteVectorSize)
-        {
+        if(bWriteVectorSize) {
             const UInt numElements = static_cast<UInt>(vData.size());
             append<UInt>(numElements);
         }
@@ -154,8 +154,7 @@ public:
         const UInt numElements = static_cast<UInt>(vData.size());
         append<UInt>(numElements);
 
-        for(size_t i = 0; i < vData.size(); ++i)
-        {
+        for(size_t i = 0; i < vData.size(); ++i) {
             const Vector<T>& vec = vData[i];
             append(vec);
         }
@@ -175,8 +174,7 @@ public:
     template<class T>
     void appendFloatArray(const Vector<T>& vData, bool bWriteVectorSize = true)
     {
-        if(bWriteVectorSize)
-        {
+        if(bWriteVectorSize) {
             const UInt numElements = static_cast<UInt>(vData.size());
             append<UInt>(numElements);
         }
@@ -187,8 +185,7 @@ public:
 
         float* buff_ptr = (float*)&(m_Buffer.data()[endOffset]);
 
-        for(size_t i = 0; i < vData.size(); ++i)
-        {
+        for(size_t i = 0; i < vData.size(); ++i) {
             buff_ptr[i] = static_cast<float>(vData[i]);
         }
     }
@@ -196,8 +193,7 @@ public:
     template<class T>
     void appendFloatArray(const Vec_Vec2<T>& vData, bool bWriteVectorSize = true)
     {
-        if(bWriteVectorSize)
-        {
+        if(bWriteVectorSize) {
             const UInt numElements = static_cast<UInt>(vData.size());
             append<UInt>(numElements);
         }
@@ -208,8 +204,7 @@ public:
 
         float* buff_ptr = (float*)&(m_Buffer.data()[endOffset]);
 
-        for(size_t i = 0; i < vData.size(); ++i)
-        {
+        for(size_t i = 0; i < vData.size(); ++i) {
             const Vec2<T>& vec = vData[i];
             buff_ptr[i * 2]     = static_cast<float>(vec[0]);
             buff_ptr[i * 2 + 1] = static_cast<float>(vec[1]);
@@ -219,8 +214,7 @@ public:
     template<class T>
     void appendFloatArray(const Vec_Vec3<T>& vData, bool bWriteVectorSize = true)
     {
-        if(bWriteVectorSize)
-        {
+        if(bWriteVectorSize) {
             const UInt numElements = static_cast<UInt>(vData.size());
             append<UInt>(numElements);
         }
@@ -231,8 +225,7 @@ public:
 
         float* buff_ptr = (float*)&(m_Buffer.data()[endOffset]);
 
-        for(size_t i = 0; i < vData.size(); ++i)
-        {
+        for(size_t i = 0; i < vData.size(); ++i) {
             const Vec3<T>& vec = vData[i];
             buff_ptr[i * 3]     = static_cast<float>(vec[0]);
             buff_ptr[i * 3 + 1] = static_cast<float>(vec[1]);
@@ -254,8 +247,7 @@ public:
     template<class T>
     void appendDoubleArray(const Vector<T>& vData, bool bWriteVectorSize = true)
     {
-        if(bWriteVectorSize)
-        {
+        if(bWriteVectorSize) {
             const UInt numElements = static_cast<UInt>(vData.size());
             append<UInt>(numElements);
         }
@@ -266,8 +258,7 @@ public:
 
         double* buff_ptr = (double*)&(m_Buffer.data()[endOffset]);
 
-        for(size_t i = 0; i < vData.size(); ++i)
-        {
+        for(size_t i = 0; i < vData.size(); ++i) {
             buff_ptr[i] = static_cast<double>(vData[i]);
         }
     }
@@ -275,8 +266,7 @@ public:
     template<class T>
     void appendDoubleArray(const Vec_Vec2<T>& vData, bool bWriteVectorSize = true)
     {
-        if(bWriteVectorSize)
-        {
+        if(bWriteVectorSize) {
             const UInt numElements = static_cast<UInt>(vData.size());
             append<UInt>(numElements);
         }
@@ -287,8 +277,7 @@ public:
 
         double* buff_ptr = (double*)&(m_Buffer.data()[endOffset]);
 
-        for(size_t i = 0; i < vData.size(); ++i)
-        {
+        for(size_t i = 0; i < vData.size(); ++i) {
             const Vec2<T>& vec = vData[i];
             buff_ptr[i * 2]     = static_cast<double>(vec[0]);
             buff_ptr[i * 2 + 1] = static_cast<double>(vec[1]);
@@ -298,8 +287,7 @@ public:
     template<class T>
     void appendDoubleArray(const Vec_Vec3<T>& vData, bool bWriteVectorSize = true)
     {
-        if(bWriteVectorSize)
-        {
+        if(bWriteVectorSize) {
             const UInt numElements = static_cast<UInt>(vData.size());
             append<UInt>(numElements);
         }
@@ -310,8 +298,7 @@ public:
 
         double* buff_ptr = (double*)&(m_Buffer.data()[endOffset]);
 
-        for(size_t i = 0; i < vData.size(); ++i)
-        {
+        for(size_t i = 0; i < vData.size(); ++i) {
             const Vec3<T>& vec = vData[i];
             buff_ptr[i * 3]     = static_cast<double>(vec[0]);
             buff_ptr[i * 3 + 1] = static_cast<double>(vec[1]);
@@ -339,8 +326,7 @@ public:
         size_t segmentSize  = 0;
         UInt   numElements  = vSize;
 
-        if(numElements == 0)
-        {
+        if(numElements == 0) {
             segmentSize = (size_t)sizeof(UInt);
             __BNN_ASSERT(segmentStart + segmentSize <= m_Buffer.size());
 
@@ -366,8 +352,7 @@ public:
         size_t segmentSize  = 0;
         UInt   numElements  = vSize;
 
-        if(numElements == 0)
-        {
+        if(numElements == 0) {
             segmentSize = (size_t)sizeof(UInt);
             __BNN_ASSERT(segmentStart + segmentSize <= m_Buffer.size());
 
@@ -382,8 +367,7 @@ public:
 
         T* buff_ptr = (T*)&m_Buffer.data()[segmentStart];
 
-        for(size_t i = 0; i < numElements; ++i)
-        {
+        for(size_t i = 0; i < numElements; ++i) {
             vData[i] = Vec2<T>(buff_ptr[i * 2], buff_ptr[i * 2 + 1]);
         }
 
@@ -399,8 +383,7 @@ public:
         size_t segmentSize  = 0;
         UInt   numElements  = vSize;
 
-        if(numElements == 0)
-        {
+        if(numElements == 0) {
             segmentSize = (size_t)sizeof(UInt);
             __BNN_ASSERT(segmentStart + segmentSize <= m_Buffer.size());
 
@@ -415,8 +398,7 @@ public:
 
         T* buff_ptr = (T*)&m_Buffer.data()[segmentStart];
 
-        for(size_t i = 0; i < numElements; ++i)
-        {
+        for(size_t i = 0; i < numElements; ++i) {
             vData[i] = Vec3<T>(buff_ptr[i * 3], buff_ptr[i * 3 + 1], buff_ptr[i * 3 + 2]);
         }
 
@@ -432,8 +414,7 @@ public:
         size_t segmentSize  = 0;
         UInt   numElements  = vSize;
 
-        if(numElements == 0)
-        {
+        if(numElements == 0) {
             segmentSize = (size_t)sizeof(UInt);
             __BNN_ASSERT(segmentStart + segmentSize <= m_Buffer.size());
 
@@ -446,8 +427,7 @@ public:
         T value;
         segmentSize = (size_t)(sizeof(T));
 
-        for(size_t i = 0; i < vData.size(); ++i)
-        {
+        for(size_t i = 0; i < vData.size(); ++i) {
             __BNN_ASSERT(segmentStart + segmentSize <= m_Buffer.size());
 
             memcpy((void*)(&value), &(m_Buffer.data()[segmentStart]), segmentSize);
@@ -465,8 +445,7 @@ public:
         size_t segmentSize  = 0;
         UInt   numElements  = vSize;
 
-        if(numElements == 0)
-        {
+        if(numElements == 0) {
             segmentSize = (size_t)sizeof(UInt);
             __BNN_ASSERT(segmentStart + segmentSize <= m_Buffer.size());
 
@@ -479,8 +458,7 @@ public:
         T values[2];
         segmentSize = (size_t)(2 * sizeof(T));
 
-        for(size_t i = 0; i < vData.size(); ++i)
-        {
+        for(size_t i = 0; i < vData.size(); ++i) {
             __BNN_ASSERT(segmentStart + segmentSize <= m_Buffer.size());
 
             memcpy((void*)values, &(m_Buffer.data()[segmentStart]), segmentSize);
@@ -498,8 +476,7 @@ public:
         size_t segmentSize  = 0;
         UInt   numElements  = vSize;
 
-        if(numElements == 0)
-        {
+        if(numElements == 0) {
             segmentSize = (size_t)sizeof(UInt);
             __BNN_ASSERT(segmentStart + segmentSize <= m_Buffer.size());
 
@@ -512,8 +489,7 @@ public:
         T values[3];
         segmentSize = (size_t)(3 * sizeof(T));
 
-        for(size_t i = 0; i < vData.size(); ++i)
-        {
+        for(size_t i = 0; i < vData.size(); ++i) {
             __BNN_ASSERT(segmentStart + segmentSize <= m_Buffer.size());
 
             memcpy((void*)values, &(m_Buffer.data()[segmentStart]), segmentSize);
@@ -531,8 +507,7 @@ public:
         size_t segmentSize  = 0;
         UInt   numElements  = vSize;
 
-        if(numElements == 0)
-        {
+        if(numElements == 0) {
             segmentSize = (size_t)sizeof(UInt);
             __BNN_ASSERT(segmentStart + segmentSize <= m_Buffer.size());
 
@@ -545,8 +520,7 @@ public:
         T value;
         segmentSize = (size_t)(sizeof(T));
 
-        for(size_t i = 0; i < vData.size(); ++i)
-        {
+        for(size_t i = 0; i < vData.size(); ++i) {
             __BNN_ASSERT(segmentStart + segmentSize <= m_Buffer.size());
 
             memcpy((void*)(&value), &(m_Buffer.data()[segmentStart]), segmentSize);
@@ -564,8 +538,7 @@ public:
         size_t segmentSize  = 0;
         UInt   numElements  = vSize;
 
-        if(numElements == 0)
-        {
+        if(numElements == 0) {
             segmentSize = (size_t)sizeof(UInt);
             __BNN_ASSERT(segmentStart + segmentSize <= m_Buffer.size());
 
@@ -578,8 +551,7 @@ public:
         T values[2];
         segmentSize = (size_t)(2 * sizeof(T));
 
-        for(size_t i = 0; i < vData.size(); ++i)
-        {
+        for(size_t i = 0; i < vData.size(); ++i) {
             __BNN_ASSERT(segmentStart + segmentSize <= m_Buffer.size());
 
             memcpy((void*)values, &(m_Buffer.data()[segmentStart]), segmentSize);
@@ -597,8 +569,7 @@ public:
         size_t segmentSize  = 0;
         UInt   numElements  = vSize;
 
-        if(numElements == 0)
-        {
+        if(numElements == 0) {
             segmentSize = (size_t)sizeof(UInt);
             __BNN_ASSERT(segmentStart + segmentSize <= m_Buffer.size());
 
@@ -611,8 +582,7 @@ public:
         T values[3];
         segmentSize = (size_t)(3 * sizeof(T));
 
-        for(size_t i = 0; i < vData.size(); ++i)
-        {
+        for(size_t i = 0; i < vData.size(); ++i) {
             __BNN_ASSERT(segmentStart + segmentSize <= m_Buffer.size());
 
             memcpy((void*)values, &(m_Buffer.data()[segmentStart]), segmentSize);
@@ -636,8 +606,7 @@ public:
 
         vData.resize(numElements);
 
-        for(UInt i = 0; i < numElements; ++i)
-        {
+        for(UInt i = 0; i < numElements; ++i) {
             segmentStart += getData(vData[i], segmentStart);
         }
 
@@ -714,8 +683,7 @@ public:
     {
         std::stringstream ss;
 
-        for(size_t i = 0; i < arrSize; ++i)
-        {
+        for(size_t i = 0; i < arrSize; ++i) {
             ss << std::hex << std::uppercase << std::setw(2) << static_cast<int>(arrBytes[i]);
         }
 
@@ -761,10 +729,8 @@ public:
     ////////////////////////////////////////////////////////////////////////////////
     int getLatestFileIndex(int maxIndex = 10000)
     {
-        for(int index = 0; index < maxIndex; ++index)
-        {
-            if(!existedFileIndex(index))
-            {
+        for(int index = 0; index < maxIndex; ++index) {
+            if(!existedFileIndex(index)) {
                 return index - 1;
             }
         }
@@ -781,8 +747,7 @@ public:
 
     void flushBuffer(int fileID)
     {
-        if(!m_bOutputFolderCreated)
-        {
+        if(!m_bOutputFolderCreated) {
             createOutputFolders();
         }
 
@@ -793,8 +758,7 @@ public:
     {
         m_WriteFutureObj = std::async(std::launch::async, [&, fileID]()
                                       {
-                                          if(!m_bOutputFolderCreated)
-                                          {
+                                          if(!m_bOutputFolderCreated) {
                                               createOutputFolders();
                                           }
 

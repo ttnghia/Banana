@@ -59,10 +59,8 @@ public:
     ParticleSolver() = default;
     virtual ~ParticleSolver() { Logger::shutdown(); }
 
-    const UniquePtr<GlobalParameters>&  getGlobalParams() const noexcept { return m_GlobalParams; }
-    const SharedPtr<Logger>&            getLogger() const noexcept { return m_Logger; }
-    virtual Vector<VecX<N, RealType> >& getParticlePositions()  = 0;
-    virtual Vector<VecX<N, RealType> >& getParticleVelocities() = 0;
+    const UniquePtr<GlobalParameters>& getGlobalParams() const noexcept { return m_GlobalParams; }
+    const SharedPtr<Logger>&           getLogger() const noexcept { return m_Logger; }
 
     void loadScene(const String& sceneFile);
     void setupLogger();
