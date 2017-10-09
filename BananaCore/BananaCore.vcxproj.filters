@@ -156,9 +156,6 @@
     <ClInclude Include="Banana\NeighborSearch\PointSet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Banana\NeighborSearch\_NeighborSearch.Test.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Banana\Array\Array.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -193,6 +190,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Banana\Geometry\OBJLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Banana\NeighborSearch\NeighborSearch3D.Test.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

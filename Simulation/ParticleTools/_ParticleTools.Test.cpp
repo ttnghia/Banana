@@ -49,3 +49,6 @@
 //Banana::SphereEmitter<float>              emitter5;
 //Banana::TorusEmitter<float>               emitter6;
 //}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#include <ParticleTools/ParticleSerialization.Test.hpp>

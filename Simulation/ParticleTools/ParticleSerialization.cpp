@@ -32,6 +32,8 @@ String ParticleSerialization::Attribute::typeName()
             return String("Real");
         case TypeCompressedReal:
             return String("CompressedReal");
+        case TypeVector:
+            return String("Vector");
         default:
             __BNN_DIE_UNKNOWN_ERROR
     }
@@ -40,81 +42,186 @@ String ParticleSerialization::Attribute::typeName()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 size_t ParticleSerialization::Attribute::typeSize()
 {
-    switch(size) {
-        case Size8:
-            return 8;
-        case Size16:
-            return 16;
-        case Size32:
-            return 32;
-        case Size64:
-            return 64;
-        default:
-            return 0;
-    }
+    return static_cast<size_t>(size);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void ParticleSerialization::clear()
 {
     for(auto& attr : m_FixedAttributes) {
-        attr.buffer.clearBuffer();
-        attr.bReady = false;
+        attr.second->buffer.clearBuffer();
+        attr.second->bReady = false;
     }
     for(auto& attr : m_ParticleAttributes) {
-        attr.buffer.clearBuffer();
-        attr.bReady = false;
+        attr.second->buffer.clearBuffer();
+        attr.second->bReady = false;
     }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void ParticleSerialization::flush(int fileID)
+void ParticleSerialization::flush(Int fileID)
 {
     waitForBuffers();
-    m_WriteFutureObj = std::async(std::launch::async, [&]()
+    m_WriteFutureObj = std::async(std::launch::async, [&, fileID]()
                                   {
+                                      m_DataIO.createOutputFolders();
                                       const String fileName = m_DataIO.getFilePath(fileID);
-                                      std::ofstream of(fileName, std::ios::binary | std::ios::out);
-                                      if(!of.is_open()) {
+                                      std::ofstream opf(fileName, std::ios::binary | std::ios::out);
+                                      if(!opf.is_open()) {
                                           if(m_Logger != nullptr)
-                                              m_Logger->printError("Cannot open file for writing!");
+                                              m_Logger->printError("Cannot write file: " + fileName);
                                           return;
                                       }
 
+                                      ////////////////////////////////////////////////////////////////////////////////
                                       if(m_Logger != nullptr)
                                           m_Logger->printLog("Saving particle file: " + fileName);
 
-                                      writeHeader(of);
+                                      writeHeader(opf);
                                       for(auto& attr : m_FixedAttributes) {
-                                          __BNN_ASSERT(attr.bReady);
-                                          of.write((char*)attr.buffer.data(), attr.buffer.size());
+                                          __BNN_ASSERT(attr.second->bReady);
+                                          opf.write((char*)attr.second->buffer.data(), attr.second->buffer.size());
                                       }
                                       for(auto& attr : m_ParticleAttributes) {
-                                          __BNN_ASSERT(attr.bReady);
-                                          of.write((char*)attr.buffer.data(), attr.buffer.size());
+                                          __BNN_ASSERT(attr.second->bReady);
+                                          opf.write((char*)attr.second->buffer.data(), attr.second->buffer.size());
                                       }
-                                      of.close();
+                                      opf.close();
                                   });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void ParticleSerialization::writeHeader(std::ofstream& of)
+void ParticleSerialization::writeHeader(std::ofstream& opf)
 {
     const std::locale& fixLoc = std::locale("C");
-    of.imbue(fixLoc);
+    opf.imbue(fixLoc);
 
-    of << "BananaParticleData\n";
-
-    of << "FixedAtributes: " << m_FixedAttributes.size() << "\n";
+    opf << "BananaParticleData\n";
     for(auto& attr : m_FixedAttributes)
-        of << "    " << attr.name << " " << attr.typeName() << " " << attr.typeSize() << " " << attr.count << "\n";
+        opf << "FixedAttribute " << attr.second->name << " " << attr.second->typeName() << " " << attr.second->typeSize() << " " << attr.second->count << " " << attr.second->buffer.size() << "\n";
 
-    of << "ParticleAttributes: " << m_ParticleAttributes.size() << "\n";
     for(auto& attr : m_ParticleAttributes)
-        of << "    " << attr.name << " " << attr.typeName() << " " << attr.typeSize() << " " << attr.count << "\n";
+        opf << "ParticleAttribute " << attr.second->name << " " << attr.second->typeName() << " " << attr.second->typeSize() << " " << attr.second->count << " " << attr.second->buffer.size() << "\n";
 
-    of << "NParticles: " << m_nParticles << "\n";
-    of << "EndHeader\n";
+    opf << "NParticles " << m_nParticles << "\n";
+    opf << "EndHeader.\n";
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+bool ParticleSerialization::read(Int fileID, const Vector<String>& readAttributes /*= {}*/)
+{
+    const String  fileName = m_DataIO.getFilePath(fileID);
+    std::ifstream ipf(fileName, std::ios::binary | std::ios::in);
+    if(!ipf.is_open()) {
+        if(m_Logger != nullptr)
+            m_Logger->printError("Cannot read file: " + fileName);
+        return false;
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////
+    if(readAttributes.size() > 0) {
+        // set all to false
+        for(auto& kv : m_bReadAttributeMap)
+            kv.second = false;
+
+        // only given attributes will be true
+        for(auto& attrName : readAttributes)
+            m_bReadAttributeMap[attrName] = true;
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////
+    if(!readHeader(ipf))
+        return false;
+
+    size_t cursor = ipf.tellg();
+    for(auto& attr : m_FixedAttributes) {
+        if(m_bReadAttributeMap[attr.second->name]) {
+            bool success = readAttribute(attr.second, ipf, cursor);
+            if(!success) return false;
+            cursor = ipf.tellg();
+        }
+        else
+            cursor += m_ReadAttributeDataSizeMap[attr.second->name];
+    }
+
+    for(auto& attr : m_ParticleAttributes) {
+        if(m_bReadAttributeMap[attr.second->name]) {
+            bool success = readAttribute(attr.second, ipf, cursor);
+            if(!success) return false;
+            cursor = ipf.tellg();
+        }
+        else{
+            cursor += m_ReadAttributeDataSizeMap[attr.second->name];
+        }
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////
+    ipf.close();
+    if(m_Logger != nullptr)
+        m_Logger->printLog("Read particle file: " + fileName);
+    return true;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+bool ParticleSerialization::readHeader(std::ifstream& ipf)
+{
+    std::string line;
+    bool        gotMagic = false;
+
+    auto getType = [&](const String& typeName) -> DataType
+                   {
+                       if(typeName == "Integer")
+                           return TypeInteger;
+                       if(typeName == "Real")
+                           return TypeReal;
+                       if(typeName == "CompressedReal")
+                           return TypeCompressedReal;
+                       if(typeName == "Vector")
+                           return TypeVector;
+                       return TypeInteger;
+                   };
+
+    while(std::getline(ipf, line)) {
+        std::istringstream ls(line);
+        std::string        token;
+        ls >> token;
+
+        if(token == "BananaParticleData")
+            gotMagic = true;
+        else if(token == "EndHeader.")
+            break;
+        else if(token == "NParticles")
+            ls >> m_nParticles;
+        else if(token == "FixedAttribute" || token == "ParticleAttribute") {
+            String attrName, typeName;
+            Int    typeSize, count;
+            size_t dataSize;
+            ls >> attrName >> typeName;
+            ls >> typeSize >> count;
+            ls >> dataSize;
+            m_ReadAttributeDataSizeMap[attrName] = dataSize;
+            m_bReadAttributeMap[attrName]        = true;
+
+            if(token == "FixedAttribute")
+                m_FixedAttributes[attrName] = std::make_shared<Attribute>(attrName, getType(typeName), static_cast<ElementSize>(typeSize), count);
+            else
+                m_ParticleAttributes[attrName] = std::make_shared<Attribute>(attrName, getType(typeName), static_cast<ElementSize>(typeSize), count);
+        }
+        else return false;
+    }
+
+    return gotMagic;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+bool ParticleSerialization::readAttribute(SharedPtr<Attribute>& attr, std::ifstream& ipf, size_t cursor)
+{
+    ipf.seekg(cursor);
+    size_t dataSize = m_ReadAttributeDataSizeMap[attr->name];
+    attr->buffer.resize(dataSize);
+    ipf.read((char*)attr->buffer.data(), dataSize);
+
+    return ipf.good();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
