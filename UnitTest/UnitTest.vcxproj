@@ -71,12 +71,14 @@
     <OutDir>$(ProjectDir)$(Configuration)\</OutDir>
     <IntDir>D:\Scratch\ProjectBuilds\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
     <LibraryPath>$(SolutionDir)Externals\tbb_win\lib\intel64\vc14;$(LibraryPath)</LibraryPath>
+    <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">
     <IncludePath>$(SolutionDir)Externals\json\src;$(SolutionDir)Externals\tinyply\source;$(SolutionDir)Externals\tinyobjloader;$(SolutionDir)Externals\tbb_win\include;$(SolutionDir)Externals\spdlog\include;$(SolutionDir)Externals\glm;$(SolutionDir)Externals\catch\include;$(SolutionDir)Simulation;$(SolutionDir)MachineLearing\Include;$(SolutionDir)BananaCore;$(IncludePath)</IncludePath>
     <OutDir>$(ProjectDir)$(Configuration)\</OutDir>
     <IntDir>D:\Scratch\ProjectBuilds\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
     <LibraryPath>$(SolutionDir)Externals\tbb_win\lib\intel64\vc14;$(LibraryPath)</LibraryPath>
+    <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -116,6 +118,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <SubSystem>Console</SubSystem>
       <AdditionalDependencies>$(SolutionDir)Build\Release\BananaCore.lib;$(SolutionDir)Build\Release\Simulation.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /r /y $(IntDir)$(TargetName).pdb $(OutDir)</Command>
@@ -143,6 +146,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <SubSystem>Console</SubSystem>
       <AdditionalDependencies>$(SolutionDir)Build\ReleaseStaticBuild\BananaCore.lib;$(SolutionDir)Build\ReleaseStaticBuild\OpenGLHelpers.lib;$(SolutionDir)Build\ReleaseStaticBuild\QtAppHelpers.lib;$(SolutionDir)Build\ReleaseStaticBuild\RayTracing.lib;$(SolutionDir)Build\ReleaseStaticBuild\Simulation.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /r /y $(IntDir)$(TargetName).pdb $(OutDir)</Command>
