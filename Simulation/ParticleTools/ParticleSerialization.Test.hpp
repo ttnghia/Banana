@@ -25,23 +25,30 @@
 
 using namespace Banana;
 
-#define NUM_TEST  10
-#define DATA_SIZE 1000
+#define NUM_TEST         10
+#define DATA_SIZE        1000
+#define ERROR_THRESTHOLD 1e-3
+#define FLOAT_TEST_RANGE 1.0
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void runTest(Int testID)
 {
     auto logger = Logger::create("Tester_" + std::to_string(testID));
+    logger->printTextBox("Test " + std::to_string(testID));
 
     ////////////////////////////////////////////////////////////////////////////////
     // create test data
     std::random_device                     rd;
     std::mt19937                           gen(rd());
-    std::uniform_real_distribution<float>  disf(0, 10.0f);
-    std::uniform_real_distribution<double> disd(0, 10.0);
+    std::uniform_real_distribution<float>  disf1(0, FLOAT_TEST_RANGE);
+    std::uniform_real_distribution<float>  disf2(100, 100 + FLOAT_TEST_RANGE);
+    std::uniform_real_distribution<float>  disf3(200, 200 + FLOAT_TEST_RANGE);
+    std::uniform_real_distribution<double> disd1(300, 300 + FLOAT_TEST_RANGE);
+    std::uniform_real_distribution<double> disd2(400, 400 + FLOAT_TEST_RANGE);
     std::uniform_int_distribution<UInt>    disi(0, 10000);
+    std::uniform_int_distribution<UInt>    disb(0, 10);
 
-    Real  dataFloat = disf(gen);
-    Vec3f dataVec3f(disf(gen), disf(gen), disf(gen));
+    Real  dataFloat = disf1(gen);
+    Vec3f dataVec3f(disf1(gen), disf1(gen), disf1(gen));
 
     Vec_Vec3f   dataVecVec3f1(DATA_SIZE);
     Vec_Vec3f   dataVecVec3f2(DATA_SIZE);
@@ -51,11 +58,11 @@ void runTest(Int testID)
     Vec_VecUInt dataVecVecUInt(DATA_SIZE);
 
     for(size_t i = 0; i < DATA_SIZE; ++i) {
-        dataVecVec3f1[i] = Vec3f(disf(gen));
-        dataVecVec3f2[i] = Vec3f(disf(gen));
-        dataVecVec3d1[i] = Vec3d(disd(gen));
-        dataVecVec3d2[i] = Vec3d(disd(gen));
-        dataVecFloat[i]  = disf(gen);
+        dataVecVec3f1[i] = Vec3f(disf1(gen));
+        dataVecVec3f2[i] = Vec3f(disf2(gen));
+        dataVecVec3d1[i] = Vec3d(disd1(gen));
+        dataVecVec3d2[i] = Vec3d(disd2(gen));
+        dataVecFloat[i]  = disf3(gen);
 
         dataVecVecUInt[i].reserve(DATA_SIZE);
         for(size_t j = 0; j < DATA_SIZE; ++j) {
@@ -63,31 +70,53 @@ void runTest(Int testID)
         }
     }
 
+    Vector<String> attrNames(8);
+    Vector<String> readAttrNames;
+    bool           bReadAll = (disb(gen) < 5);
+    logger->printWarning(String("ReadAll = ") + (bReadAll ? String("Yes") : String("No")));
+
+    bool bReadAttrs[8];
+    for(Int i = 0; i < 8; ++i) {
+        bReadAttrs[i] = true;
+        attrNames[i]  = String("Attribute_" + std::to_string(disi(gen)));
+    }
+
+    if(!bReadAll)
+        for(Int i = 0; i < 8; ++i) {
+            if(disb(gen) < 5) {
+                readAttrNames.push_back(attrNames[i]);
+                bReadAttrs[i] = true;
+            }
+            else{
+                bReadAttrs[i] = false;
+            }
+        }
+
 
     ////////////////////////////////////////////////////////////////////////////////
     // write
     ParticleSerialization particleWriter("./Scratch", "Frames", "frame", "TestData", logger);
-    particleWriter.addFixedAtribute("radius", ParticleSerialization::TypeReal, ParticleSerialization::Size32b);
-    particleWriter.addFixedAtribute("origin", ParticleSerialization::TypeReal, ParticleSerialization::Size32b, 3);
+    particleWriter.addFixedAtribute(attrNames[0], ParticleSerialization::TypeReal, ParticleSerialization::Size32b);
+    particleWriter.addFixedAtribute(attrNames[1], ParticleSerialization::TypeReal, ParticleSerialization::Size32b, 3);
 
-    particleWriter.addParticleAtribute("position", ParticleSerialization::TypeReal, ParticleSerialization::Size32b, 3);
-    particleWriter.addParticleAtribute("velocity", ParticleSerialization::TypeCompressedReal, ParticleSerialization::Size32b, 3);
-    particleWriter.addParticleAtribute("position_state", ParticleSerialization::TypeCompressedReal, ParticleSerialization::Size64b, 3);
-    particleWriter.addParticleAtribute("velocity_state", ParticleSerialization::TypeReal, ParticleSerialization::Size64b, 3);
-    particleWriter.addParticleAtribute("density", ParticleSerialization::TypeCompressedReal, ParticleSerialization::Size32b);
-    particleWriter.addParticleAtribute("connection", ParticleSerialization::TypeVector, ParticleSerialization::Size32b);
+    particleWriter.addParticleAtribute(attrNames[2], ParticleSerialization::TypeReal, ParticleSerialization::Size32b, 3);
+    particleWriter.addParticleAtribute(attrNames[3], ParticleSerialization::TypeCompressedReal, ParticleSerialization::Size32b, 3);
+    particleWriter.addParticleAtribute(attrNames[4], ParticleSerialization::TypeCompressedReal, ParticleSerialization::Size64b, 3);
+    particleWriter.addParticleAtribute(attrNames[5], ParticleSerialization::TypeReal, ParticleSerialization::Size64b, 3);
+    particleWriter.addParticleAtribute(attrNames[6], ParticleSerialization::TypeCompressedReal, ParticleSerialization::Size32b);
+    particleWriter.addParticleAtribute(attrNames[7], ParticleSerialization::TypeVector, ParticleSerialization::Size32b);
 
 
     particleWriter.setNParticles(DATA_SIZE);
-    particleWriter.setFixedAttribute("radius", dataFloat);
-    particleWriter.setFixedAttribute("origin", dataVec3f);
+    particleWriter.setFixedAttribute(attrNames[0], dataFloat);
+    particleWriter.setFixedAttribute(attrNames[1], dataVec3f);
 
-    particleWriter.setParticleAttribute("position", dataVecVec3f1);
-    particleWriter.setParticleAttribute("velocity", dataVecVec3f2);
-    particleWriter.setParticleAttribute("position_state", dataVecVec3d1);
-    particleWriter.setParticleAttribute("velocity_state", dataVecVec3d2);
-    particleWriter.setParticleAttribute("density", dataVecFloat);
-    particleWriter.setParticleAttribute("connection", dataVecVecUInt);
+    particleWriter.setParticleAttribute(attrNames[2], dataVecVec3f1);
+    particleWriter.setParticleAttribute(attrNames[3], dataVecVec3f2);
+    particleWriter.setParticleAttribute(attrNames[4], dataVecVec3d1);
+    particleWriter.setParticleAttribute(attrNames[5], dataVecVec3d2);
+    particleWriter.setParticleAttribute(attrNames[6], dataVecFloat);
+    particleWriter.setParticleAttribute(attrNames[7], dataVecVecUInt);
 
     particleWriter.flush(testID);
     particleWriter.waitForBuffers();
@@ -95,7 +124,7 @@ void runTest(Int testID)
     ////////////////////////////////////////////////////////////////////////////////
     // read
     ParticleSerialization particleReader("./Scratch", "Frames", "frame", "TestData", logger);
-    __BNN_ASSERT(particleReader.read(testID));
+    __BNN_ASSERT(bReadAll ? particleReader.read(testID) : particleReader.read(testID, readAttrNames));
     logger->printLog("Read NParticles: " + NumberHelpers::formatWithCommas(particleReader.getNParticles()));
 
     for(auto& kv : particleReader.getFixedAttributes())
@@ -116,64 +145,80 @@ void runTest(Int testID)
     double      errord;
     UInt        errorui;
 
-    {
-        __BNN_ASSERT(particleReader.getFixedAttribute("radius", readDataFloat));
-        logger->printLog("Read float, err = " + NumberHelpers::formatToScientific(fabs(readDataFloat - dataFloat)));
+    if(bReadAttrs[0]) {
+        REQUIRE(particleReader.getFixedAttribute(attrNames[0], readDataFloat));
+        errorf = fabs(readDataFloat - dataFloat);
+        logger->printLog("Read float, err = " + NumberHelpers::formatToScientific(errorf));
+        REQUIRE(errorf < Tiny);
     }
 
-    {
-        __BNN_ASSERT(particleReader.getFixedAttribute("origin", readDataVec3f));
-        logger->printLog("Read Vec3f, err = " + NumberHelpers::formatToScientific(glm::length(readDataVec3f - dataVec3f)));
+    if(bReadAttrs[1]) {
+        REQUIRE(particleReader.getFixedAttribute(attrNames[1], readDataVec3f));
+        errorf = glm::length(readDataVec3f - dataVec3f);
+        logger->printLog("Read Vec3f, err = " + NumberHelpers::formatToScientific(errorf));
+        REQUIRE(errorf < Tiny);
     }
 
-    {
-        __BNN_ASSERT(particleReader.getParticleAttribute("position", readDataVecVec3f1));
+    if(bReadAttrs[2]) {
+        REQUIRE(particleReader.getParticleAttribute(attrNames[2], readDataVecVec3f1));
         errorf = 0;
         for(size_t i = 0; i < DATA_SIZE; ++i)
             errorf = MathHelpers::max(errorf, glm::length(readDataVecVec3f1[i] - dataVecVec3f1[i]));
         logger->printLog("Read VecVec3f1 (uncompressed real), max err = " + NumberHelpers::formatToScientific(errorf));
+        REQUIRE(errorf < Tiny);
     }
 
-    {
-        __BNN_ASSERT(particleReader.getParticleAttribute("velocity", readDataVecVec3f2));
+    if(bReadAttrs[3]) {
+        REQUIRE(particleReader.getParticleAttribute(attrNames[3], readDataVecVec3f2));
         errorf = 0;
         for(size_t i = 0; i < DATA_SIZE; ++i)
             errorf = MathHelpers::max(errorf, glm::length(readDataVecVec3f2[i] - dataVecVec3f2[i]));
         logger->printLog("Read VecVec3f2 (compressed real), max err = " + NumberHelpers::formatToScientific(errorf));
+        REQUIRE(errorf < ERROR_THRESTHOLD);
     }
 
-    {
-        __BNN_ASSERT(particleReader.getParticleAttribute("position_state", readDataVecVec3d1));
+    if(bReadAttrs[4]) {
+        REQUIRE(particleReader.getParticleAttribute(attrNames[4], readDataVecVec3d1));
         errord = 0;
         for(size_t i = 0; i < DATA_SIZE; ++i)
             errord = MathHelpers::max(errord, glm::length(readDataVecVec3d1[i] - dataVecVec3d1[i]));
         logger->printLog("Read VecVec3d1 (compressed real), max err = " + NumberHelpers::formatToScientific(errord));
+        REQUIRE(errord < ERROR_THRESTHOLD);
     }
-    {
-        __BNN_ASSERT(particleReader.getParticleAttribute("velocity_state", readDataVecVec3d2));
+
+    if(bReadAttrs[5]) {
+        REQUIRE(particleReader.getParticleAttribute(attrNames[5], readDataVecVec3d2));
         errord = 0;
         for(size_t i = 0; i < DATA_SIZE; ++i)
             errord = MathHelpers::max(errord, glm::length(readDataVecVec3d2[i] - dataVecVec3d2[i]));
         logger->printLog("Read VecVec3d2 (uncompressed real), max err = " + NumberHelpers::formatToScientific(errord));
+        REQUIRE(errord < Tiny);
     }
 
-    {
-        __BNN_ASSERT(particleReader.getParticleAttribute("density", readDataVecFloat));
+    if(bReadAttrs[6]) {
+        REQUIRE(particleReader.getParticleAttribute(attrNames[6], readDataVecFloat));
         errorf = 0;
         for(size_t i = 0; i < DATA_SIZE; ++i)
             errorf = MathHelpers::max(errorf, glm::length(readDataVecFloat[i] - dataVecFloat[i]));
         logger->printLog("Read VecFloat (compressed real), max err = " + NumberHelpers::formatToScientific(errorf));
+        REQUIRE(errorf < ERROR_THRESTHOLD);
     }
-    {
-        __BNN_ASSERT(particleReader.getParticleAttribute("connection", readDataVecVecUInt));
+
+    if(bReadAttrs[7]) {
+        REQUIRE(particleReader.getParticleAttribute(attrNames[7], readDataVecVecUInt));
         errorui = 0;
         for(size_t i = 0; i < DATA_SIZE; ++i) {
-            __BNN_ASSERT(dataVecVecUInt[i].size() == readDataVecVecUInt[i].size());
+            REQUIRE(dataVecVecUInt[i].size() == readDataVecVecUInt[i].size());
             for(size_t j = 0; j < DATA_SIZE; ++j)
                 errorui = MathHelpers::max(errorui, dataVecVecUInt[i][j] - readDataVecVecUInt[i][j]);
         }
         logger->printLog("Read VecVecUInt, max err = " + NumberHelpers::formatToScientific(errorui));
+        REQUIRE(errorui == 0);
     }
+
+    logger->newLine();
+    logger->newLine();
+    logger->newLine();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
