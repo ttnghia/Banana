@@ -51,3 +51,6 @@ SOURCES += \
 
 RESOURCES += \
     Shader.qrc
+
+DISTFILES += \
+    Scenes/FLIP.json

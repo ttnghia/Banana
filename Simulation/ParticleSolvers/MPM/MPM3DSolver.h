@@ -38,11 +38,9 @@ public:
     std::shared_ptr<SimulationParameters_MPM3D> getSolverParams() { return m_SimParams; }
 
     ////////////////////////////////////////////////////////////////////////////////
-    virtual String     getSolverName() override { return String("MPM3DSolver"); }
-    virtual String     getGreetingMessage() override { return String("Simulation using MPM-3D Solver"); }
-    virtual UInt       getNumParticles() override { return static_cast<UInt>(particleData().positions.size()); }
-    virtual Vec_Vec3r& getParticlePositions() override { return particleData().positions; }
-    virtual Vec_Vec3r& getParticleVelocities() override { return particleData().velocities; }
+    virtual String getSolverName() override { return String("MPM3DSolver"); }
+    virtual String getGreetingMessage() override { return String("Simulation using MPM-3D Solver"); }
+    virtual UInt   getNumParticles() override { return static_cast<UInt>(particleData().positions.size()); }
 
     virtual void makeReady() override;
     virtual void advanceFrame() override;

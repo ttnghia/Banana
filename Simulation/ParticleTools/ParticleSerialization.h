@@ -78,8 +78,10 @@ public:
         ElementSize size;
         Int         count;
         bool        bReady;
+        bool        bOptional;
 
-        Attribute(const String& name_, DataType type_, ElementSize size_, Int count_) : name(name_), type(type_), size(size_), count(count_), bReady(false) {}
+        Attribute(const String& name_, DataType type_, ElementSize size_, Int count_ = 1, bool bOptional_ = false) :
+            name(name_), type(type_), size(size_), count(count_), bOptional(bOptional_), bReady(false) {}
         String typeName();
         size_t typeSize();
     };
@@ -93,6 +95,8 @@ public:
         m_DataIO(std::make_shared<DataIO>(dataRootFolder, dataFolder, fileName, String("bnn"), String("BananaParticleData"))), m_Logger(logger)
     {}
 
+    virtual ~ParticleSerialization() { waitForBuffers(); }
+
     void setDataPath(const String& dataRootFolder,
                      const String& dataFolder,
                      const String& fileName)
@@ -102,15 +106,15 @@ public:
 
     ////////////////////////////////////////////////////////////////////////////////
     // functions for writing data
-    void addFixedAtribute(const String& attrName, DataType type, ElementSize size, Int count = 1)
+    void addFixedAtribute(const String& attrName, DataType type, ElementSize size, Int count = 1, bool bOptional = false)
     {
         __BNN_ASSERT(type == TypeInt || type == TypeReal);
-        m_FixedAttributes[attrName] = std::make_shared<Attribute>(attrName, type, size, count);
+        m_FixedAttributes[attrName] = std::make_shared<Attribute>(attrName, type, size, count, bOptional);
     }
 
-    void addParticleAtribute(const String& attrName, DataType type, ElementSize size, Int count = 1)
+    void addParticleAtribute(const String& attrName, DataType type, ElementSize size, Int count = 1, bool bOptional = false)
     {
-        m_ParticleAttributes[attrName] = std::make_shared<Attribute>(attrName, type, size, count);
+        m_ParticleAttributes[attrName] = std::make_shared<Attribute>(attrName, type, size, count, bOptional);
     }
 
     void setNParticles(UInt nParticles) { m_nParticles = nParticles; }

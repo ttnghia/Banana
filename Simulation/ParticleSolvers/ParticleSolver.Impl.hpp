@@ -18,8 +18,7 @@ template<Int N, class RealType>
 void ParticleSolver<N, RealType >::loadScene(const String& sceneFile)
 {
     std::ifstream inputFile(sceneFile);
-    if(!inputFile.is_open())
-    {
+    if(!inputFile.is_open()) {
         m_Logger->printError("Cannot open scene file: " + sceneFile);
         return;
     }
@@ -29,8 +28,7 @@ void ParticleSolver<N, RealType >::loadScene(const String& sceneFile)
 
     ////////////////////////////////////////////////////////////////////////////////
     // read frame parameters
-    if(jParams.find("GlobalParameters") != jParams.end())
-    {
+    if(jParams.find("GlobalParameters") != jParams.end()) {
         nlohmann::json jFrameParams = jParams["GlobalParameters"];
         SceneLoader::loadGlobalParams(jFrameParams, m_GlobalParams);
         m_GlobalParams->printParams(m_Logger);
@@ -40,8 +38,7 @@ void ParticleSolver<N, RealType >::loadScene(const String& sceneFile)
 
     ////////////////////////////////////////////////////////////////////////////////
     // read simulation parameters
-    if(jParams.find("SimulationParameters") != jParams.end())
-    {
+    if(jParams.find("SimulationParameters") != jParams.end()) {
         nlohmann::json jSimParams = jParams["SimulationParameters"];
         loadSimParams(jSimParams); // do this by specific solver
     }
@@ -70,9 +67,6 @@ void ParticleSolver<N, RealType >::setupLogger()
 template<Int N, class RealType>
 void ParticleSolver<N, RealType >::doSimulation()
 {
-    setupDataIO();
-    if(m_GlobalParams->bLoadMemoryState)
-        loadMemoryState();
     makeReady();
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -81,8 +75,7 @@ void ParticleSolver<N, RealType >::doSimulation()
     m_Logger->printAligned("Start Simulation", '=');
     static Timer frameTimer;
 
-    for(auto frame = m_GlobalParams->startFrame; frame < m_GlobalParams->finalFrame; ++frame)
-    {
+    for(auto frame = m_GlobalParams->startFrame; frame < m_GlobalParams->finalFrame; ++frame) {
         m_Logger->newLine();
         m_Logger->printAligned("Frame " + NumberHelpers::formatWithCommas(frame), '=');
         m_Logger->newLine();
@@ -126,16 +119,14 @@ void ParticleSolver<N, RealType >::generateBoundaries(const nlohmann::json& jPar
     {
         Vector<SharedPtr<SimulationObjects::BoundaryObject<N, RealType> > > staticBoundaries;
         Vector<SharedPtr<SimulationObjects::BoundaryObject<N, RealType> > > dynamicBoundaries;
-        for(auto& obj : m_BoundaryObjects)
-        {
+        for(auto& obj : m_BoundaryObjects) {
             if(obj->isDynamic())
                 dynamicBoundaries.push_back(obj);
             else
                 staticBoundaries.push_back(obj);
         }
 
-        if(staticBoundaries.size() > 1)
-        {
+        if(staticBoundaries.size() > 1) {
             SharedPtr<SimulationObjects::BoundaryObject<N, RealType> > csgBoundary = std::make_shared<SimulationObjects::BoundaryObject<N, RealType> >("CSGObject");
             SharedPtr<GeometryObjects::CSGObject<N, RealType> >        csgObj      = std::static_pointer_cast<GeometryObjects::CSGObject<N, RealType> >(csgBoundary->getGeometry());
             __BNN_ASSERT(csgObj != nullptr);

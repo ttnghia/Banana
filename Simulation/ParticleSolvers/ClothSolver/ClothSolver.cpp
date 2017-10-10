@@ -220,6 +220,7 @@ void ClothSolver::saveMemoryState()
     // save state
     frameCount = 0;
     m_MemoryStateIO->clearData();
+    m_MemoryStateIO->setNParticles(getNumParticles());
     m_MemoryStateIO->setFixedAttribute("ParticleRadius", m_SimParams->particleRadius);
     m_MemoryStateIO->setParticleAttribute("StatePosition", particleData().positions);
     m_MemoryStateIO->setParticleAttribute("StateVelocity", particleData().velocities);
@@ -233,6 +234,7 @@ void ClothSolver::saveParticleData()
         return;
 
     m_ParticleIO->clearData();
+    m_ParticleIO->setNParticles(getNumParticles());
     m_ParticleIO->setFixedAttribute("ParticleRadius", m_SimParams->particleRadius);
     m_ParticleIO->setParticleAttribute("Position", particleData().positions);
     m_ParticleIO->setParticleAttribute("Velocity", particleData().velocities);

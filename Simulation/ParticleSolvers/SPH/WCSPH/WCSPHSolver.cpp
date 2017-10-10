@@ -232,6 +232,7 @@ void WCSPHSolver::saveMemoryState()
     // save state
     frameCount = 0;
     m_MemoryStateIO->clearData();
+    m_MemoryStateIO->setNParticles(getNumParticles());
     m_MemoryStateIO->setFixedAttribute("ParticleRadius", m_SimParams->particleRadius);
     m_MemoryStateIO->setParticleAttribute("StatePosition", m_SimData->positions);
     m_MemoryStateIO->setParticleAttribute("StateVelocity", m_SimData->velocities);
@@ -245,6 +246,7 @@ void WCSPHSolver::saveParticleData()
         return;
 
     m_ParticleIO->clearData();
+    m_ParticleIO->setNParticles(getNumParticles());
     m_ParticleIO->setFixedAttribute("ParticleRadius", m_SimParams->particleRadius);
     m_ParticleIO->setParticleAttribute("Position", m_SimData->positions);
     m_ParticleIO->setParticleAttribute("Velocity", m_SimData->velocities);

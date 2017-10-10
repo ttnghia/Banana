@@ -91,13 +91,17 @@ void ParticleSerialization::flush(const String& fileName)
                                           m_Logger->printLog("Saving particle file: " + fileName);
 
                                       writeHeader(opf);
-                                      for(auto& attr : m_FixedAttributes) {
-                                          __BNN_ASSERT(attr.second->bReady);
-                                          opf.write((char*)attr.second->buffer.data(), attr.second->buffer.size());
+                                      for(auto& kv : m_FixedAttributes) {
+                                          if(kv.second->bOptional && !kv.second->bReady)
+                                              continue;
+                                          __BNN_ASSERT(kv.second->bReady);
+                                          opf.write((char*)kv.second->buffer.data(), kv.second->buffer.size());
                                       }
-                                      for(auto& attr : m_ParticleAttributes) {
-                                          __BNN_ASSERT(attr.second->bReady);
-                                          opf.write((char*)attr.second->buffer.data(), attr.second->buffer.size());
+                                      for(auto& kv : m_ParticleAttributes) {
+                                          if(kv.second->bOptional && !kv.second->bReady)
+                                              continue;
+                                          __BNN_ASSERT(kv.second->bReady);
+                                          opf.write((char*)kv.second->buffer.data(), kv.second->buffer.size());
                                       }
                                       opf.close();
                                   });
@@ -110,11 +114,15 @@ void ParticleSerialization::writeHeader(std::ofstream& opf)
     opf.imbue(fixLoc);
 
     opf << "BananaParticleData\n";
-    for(auto& attr : m_FixedAttributes)
-        opf << "FixedAttribute " << attr.second->name << " " << attr.second->typeName() << " " << attr.second->typeSize() << " " << attr.second->count << " " << attr.second->buffer.size() << "\n";
+    for(auto& kv : m_FixedAttributes) {
+        if(kv.second->bReady)
+            opf << "FixedAttribute " << kv.second->name << " " << kv.second->typeName() << " " << kv.second->typeSize() << " " << kv.second->count << " " << kv.second->buffer.size() << "\n";
+    }
 
-    for(auto& attr : m_ParticleAttributes)
-        opf << "ParticleAttribute " << attr.second->name << " " << attr.second->typeName() << " " << attr.second->typeSize() << " " << attr.second->count << " " << attr.second->buffer.size() << "\n";
+    for(auto& kv : m_ParticleAttributes) {
+        if(kv.second->bReady)
+            opf << "ParticleAttribute " << kv.second->name << " " << kv.second->typeName() << " " << kv.second->typeSize() << " " << kv.second->count << " " << kv.second->buffer.size() << "\n";
+    }
 
     opf << "NParticles " << m_nParticles << "\n";
     opf << "EndHeader.\n";
@@ -154,24 +162,27 @@ bool ParticleSerialization::read(const String& fileName, const Vector<String>& r
         return false;
 
     size_t cursor = ipf.tellg();
-    for(auto& attr : m_FixedAttributes) {
-        if(m_bReadAttributeMap[attr.second->name]) {
-            bool success = readAttribute(attr.second, ipf, cursor);
+    for(auto& kv : m_FixedAttributes) {
+        if(m_bReadAttributeMap[kv.second->name]) {
+            bool success = readAttribute(kv.second, ipf, cursor);
             if(!success) return false;
             cursor = ipf.tellg();
         }
-        else
-            cursor += m_ReadAttributeDataSizeMap[attr.second->name];
+        else {
+            size_t attrDataSize = m_ReadAttributeDataSizeMap[kv.second->name];
+            cursor += attrDataSize;
+        }
     }
 
-    for(auto& attr : m_ParticleAttributes) {
-        if(m_bReadAttributeMap[attr.second->name]) {
-            bool success = readAttribute(attr.second, ipf, cursor);
+    for(auto& kv : m_ParticleAttributes) {
+        if(m_bReadAttributeMap[kv.second->name]) {
+            bool success = readAttribute(kv.second, ipf, cursor);
             if(!success) return false;
             cursor = ipf.tellg();
         }
         else{
-            cursor += m_ReadAttributeDataSizeMap[attr.second->name];
+            size_t attrDataSize = m_ReadAttributeDataSizeMap[kv.second->name];
+            cursor += attrDataSize;
         }
     }
 
