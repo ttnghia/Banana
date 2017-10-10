@@ -25,7 +25,7 @@
 
 using namespace Banana;
 
-#define NUM_TEST         10
+#define NUM_TEST         1000
 #define DATA_SIZE        1000
 #define ERROR_THRESTHOLD 1e-3
 #define FLOAT_TEST_RANGE 1.0
@@ -64,8 +64,8 @@ void runTest(Int testID)
         dataVecVec3d2[i] = Vec3d(disd2(gen));
         dataVecFloat[i]  = disf3(gen);
 
-        dataVecVecUInt[i].reserve(DATA_SIZE);
-        for(size_t j = 0; j < DATA_SIZE; ++j) {
+        dataVecVecUInt[i].reserve(1000);
+        for(size_t j = 0; j < 1000; ++j) {
             dataVecVecUInt[i].push_back(disi(gen));
         }
     }
@@ -78,7 +78,7 @@ void runTest(Int testID)
     bool bReadAttrs[8];
     for(Int i = 0; i < 8; ++i) {
         bReadAttrs[i] = true;
-        attrNames[i]  = String("Attribute_" + std::to_string(disi(gen)));
+        attrNames[i]  = String("Attribute_" + std::to_string(disi(gen)) + "_" + std::to_string(i));
     }
 
     if(!bReadAll)
@@ -104,7 +104,7 @@ void runTest(Int testID)
     particleWriter.addParticleAtribute(attrNames[4], ParticleSerialization::TypeCompressedReal, ParticleSerialization::Size64b, 3);
     particleWriter.addParticleAtribute(attrNames[5], ParticleSerialization::TypeReal, ParticleSerialization::Size64b, 3);
     particleWriter.addParticleAtribute(attrNames[6], ParticleSerialization::TypeCompressedReal, ParticleSerialization::Size32b);
-    particleWriter.addParticleAtribute(attrNames[7], ParticleSerialization::TypeVector, ParticleSerialization::Size32b);
+    particleWriter.addParticleAtribute(attrNames[7], ParticleSerialization::TypeVectorUInt, ParticleSerialization::Size32b);
 
 
     particleWriter.setNParticles(DATA_SIZE);
@@ -124,7 +124,10 @@ void runTest(Int testID)
     ////////////////////////////////////////////////////////////////////////////////
     // read
     ParticleSerialization particleReader("./Scratch", "Frames", "frame", "TestData", logger);
-    __BNN_ASSERT(bReadAll ? particleReader.read(testID) : particleReader.read(testID, readAttrNames));
+    bool                  bRead = false;
+    while(!bRead) {
+        bRead = (bReadAll ? particleReader.read(testID) : particleReader.read(testID, readAttrNames));
+    }
     logger->printLog("Read NParticles: " + NumberHelpers::formatWithCommas(particleReader.getNParticles()));
 
     for(auto& kv : particleReader.getFixedAttributes())
@@ -150,10 +153,20 @@ void runTest(Int testID)
         errorf = fabs(readDataFloat - dataFloat);
         logger->printLog("Read float, err = " + NumberHelpers::formatToScientific(errorf));
         REQUIRE(errorf < Tiny);
+
+        REQUIRE(particleReader.getFixedAttribute(attrNames[0], &readDataFloat));
+        errorf = fabs(readDataFloat - dataFloat);
+        logger->printLog("Read float using pointer, err = " + NumberHelpers::formatToScientific(errorf));
+        REQUIRE(errorf < Tiny);
     }
 
     if(bReadAttrs[1]) {
         REQUIRE(particleReader.getFixedAttribute(attrNames[1], readDataVec3f));
+        errorf = glm::length(readDataVec3f - dataVec3f);
+        logger->printLog("Read Vec3f, err = " + NumberHelpers::formatToScientific(errorf));
+        REQUIRE(errorf < Tiny);
+
+        REQUIRE(particleReader.getFixedAttribute(attrNames[1], (float*)glm::value_ptr(readDataVec3f)));
         errorf = glm::length(readDataVec3f - dataVec3f);
         logger->printLog("Read Vec3f, err = " + NumberHelpers::formatToScientific(errorf));
         REQUIRE(errorf < Tiny);
@@ -209,7 +222,7 @@ void runTest(Int testID)
         errorui = 0;
         for(size_t i = 0; i < DATA_SIZE; ++i) {
             REQUIRE(dataVecVecUInt[i].size() == readDataVecVecUInt[i].size());
-            for(size_t j = 0; j < DATA_SIZE; ++j)
+            for(size_t j = 0; j < 1000; ++j)
                 errorui = MathHelpers::max(errorui, dataVecVecUInt[i][j] - readDataVecVecUInt[i][j]);
         }
         logger->printLog("Read VecVecUInt, max err = " + NumberHelpers::formatToScientific(errorui));

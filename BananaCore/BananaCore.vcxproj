@@ -138,6 +138,7 @@
   <ItemGroup>
     <ClInclude Include="Banana\Array\Array.h" />
     <ClInclude Include="Banana\Array\SparseArray3.h" />
+    <ClInclude Include="Banana\Data\DataIO.Impl.hpp" />
     <ClInclude Include="Banana\Geometry\GeometryObject.h" />
     <ClInclude Include="Banana\Geometry\GeometryObject.Impl.hpp" />
     <ClInclude Include="Banana\Geometry\GeometryObject2D.h" />

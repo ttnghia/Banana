@@ -26,14 +26,20 @@ namespace Banana
 String ParticleSerialization::Attribute::typeName()
 {
     switch(type) {
-        case TypeInteger:
-            return String("Integer");
+        case TypeInt:
+            return String("Int");
+        case TypeUInt:
+            return String("UInt");
         case TypeReal:
             return String("Real");
         case TypeCompressedReal:
             return String("CompressedReal");
-        case TypeVector:
-            return String("Vector");
+        case TypeVectorInt:
+            return String("VectorInt");
+        case TypeVectorUInt:
+            return String("VectorUInt");
+        case TypeVectorFloat:
+            return String("VectorFloat");
         default:
             __BNN_DIE_UNKNOWN_ERROR
     }
@@ -61,11 +67,18 @@ void ParticleSerialization::clear()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void ParticleSerialization::flush(Int fileID)
 {
+    __BNN_ASSERT(m_DataIO != nullptr);
+    m_DataIO->createOutputFolders();
+    const String fileName = m_DataIO->getFilePath(fileID);
+    flush(fileName);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void ParticleSerialization::flush(const String& fileName)
+{
     waitForBuffers();
-    m_WriteFutureObj = std::async(std::launch::async, [&, fileID]()
+    m_WriteFutureObj = std::async(std::launch::async, [&, fileName]()
                                   {
-                                      m_DataIO.createOutputFolders();
-                                      const String fileName = m_DataIO.getFilePath(fileID);
                                       std::ofstream opf(fileName, std::ios::binary | std::ios::out);
                                       if(!opf.is_open()) {
                                           if(m_Logger != nullptr)
@@ -110,7 +123,14 @@ void ParticleSerialization::writeHeader(std::ofstream& opf)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 bool ParticleSerialization::read(Int fileID, const Vector<String>& readAttributes /*= {}*/)
 {
-    const String  fileName = m_DataIO.getFilePath(fileID);
+    __BNN_ASSERT(m_DataIO != nullptr);
+    const String fileName = m_DataIO->getFilePath(fileID);
+    return read(fileName, readAttributes);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+bool ParticleSerialization::read(const String& fileName, const Vector<String>& readAttributes /*= {}*/)
+{
     std::ifstream ipf(fileName, std::ios::binary | std::ios::in);
     if(!ipf.is_open()) {
         if(m_Logger != nullptr)
@@ -170,15 +190,21 @@ bool ParticleSerialization::readHeader(std::ifstream& ipf)
 
     auto getType = [&](const String& typeName) -> DataType
                    {
-                       if(typeName == "Integer")
-                           return TypeInteger;
+                       if(typeName == "Int")
+                           return TypeInt;
+                       if(typeName == "UInt")
+                           return TypeUInt;
                        if(typeName == "Real")
                            return TypeReal;
                        if(typeName == "CompressedReal")
                            return TypeCompressedReal;
-                       if(typeName == "Vector")
-                           return TypeVector;
-                       return TypeInteger;
+                       if(typeName == "VectorInt")
+                           return TypeVectorInt;
+                       if(typeName == "VectorUInt")
+                           return TypeVectorUInt;
+                       if(typeName == "VectorFloat")
+                           return TypeVectorFloat;
+                       return TypeInt;
                    };
 
     while(std::getline(ipf, line)) {

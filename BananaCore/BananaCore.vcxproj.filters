@@ -195,6 +195,9 @@
     <ClInclude Include="Banana\NeighborSearch\NeighborSearch3D.Test.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Banana\Data\DataIO.Impl.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Banana\Geometry\GeometryObject3D.cpp">

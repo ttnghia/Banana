@@ -53,18 +53,21 @@ class ParticleSerialization
 public:
     enum DataType
     {
-        TypeInteger,
+        TypeInt,
+        TypeUInt,
         TypeReal,
         TypeCompressedReal,
-        TypeVector
+        TypeVectorInt,
+        TypeVectorUInt,
+        TypeVectorFloat
     };
 
     enum ElementSize
     {
-        Size8b  = 1,
-        Size16b = 2,
-        Size32b = 4,
-        Size64b = 8
+        Size8b  = sizeof(char),
+        Size16b = sizeof(UInt16),
+        Size32b = sizeof(float),
+        Size64b = sizeof(double)
     };
 
     struct Attribute
@@ -82,18 +85,20 @@ public:
     };
 
 public:
+    ParticleSerialization() = default;
     ParticleSerialization(const String&     dataRootFolder,
                           const String&     dataFolder,
                           const String&     fileName,
                           const String&     dataName,
                           SharedPtr<Logger> logger = nullptr) :
-        m_DataIO(dataRootFolder, dataFolder, fileName, String("bnn"), dataName), m_Logger(logger)
+        m_DataIO(std::make_shared<DataIO>(dataRootFolder, dataFolder, fileName, String("bnn"), dataName)), m_Logger(logger)
     {}
 
     ////////////////////////////////////////////////////////////////////////////////
     // functions for writing data
     void addFixedAtribute(const String& attrName, DataType type, ElementSize size, Int count = 1)
     {
+        __BNN_ASSERT(type == TypeInt || type == TypeReal);
         m_FixedAttributes[attrName] = std::make_shared<Attribute>(attrName, type, size, count);
     }
 
@@ -105,6 +110,7 @@ public:
     void setNParticles(UInt nParticles) { m_nParticles = nParticles; }
 
     template<class T> void        setFixedAttribute(const String& attrName, T value);
+    template<class T> void        setFixedAttribute(const String& attrName, T* values);
     template<class T> void        setFixedAttribute(const String& attrName, const Vector<T>& values);
     template<Int N, class T> void setFixedAttribute(const String& attrName, const VecX<N, T>& value);
 
@@ -114,6 +120,7 @@ public:
 
     void clear();
     void flush(Int fileID);
+    void flush(const String& fileName);
     void waitForBuffers() { if(m_WriteFutureObj.valid()) m_WriteFutureObj.wait(); }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -122,12 +129,15 @@ public:
     const Map<String, SharedPtr<Attribute> >& getParticleAttributes() { return m_ParticleAttributes; }
 
     bool read(Int fileID, const Vector<String>& readAttributes = {});
+    bool read(const String& fileName, const Vector<String>& readAttributes = {});
     UInt getNParticles() const { return m_nParticles; }
 
     template<class T> bool        getFixedAttribute(const String& attrName, T& value);
+    template<class T> bool        getFixedAttribute(const String& attrName, T* value);
     template<class T> bool        getFixedAttribute(const String& attrName, Vector<T>& values);
     template<Int N, class T> bool getFixedAttribute(const String& attrName, VecX<N, T>& value);
 
+    template<class T> bool        getParticleAttribute(const String& attrName, T* values);
     template<class T> bool        getParticleAttribute(const String& attrName, Vector<T>& values);
     template<class T> bool        getParticleAttribute(const String& attrName, Vector<Vector<T> >& values);
     template<Int N, class T> bool getParticleAttribute(const String& attrName, Vector<VecX<N, T> >& values);
@@ -145,7 +155,7 @@ private:
     Map<String, bool>   m_bReadAttributeMap;
 
     SharedPtr<Logger> m_Logger;
-    DataIO            m_DataIO;
+    SharedPtr<DataIO> m_DataIO;
     std::future<void> m_WriteFutureObj;
 };
 
