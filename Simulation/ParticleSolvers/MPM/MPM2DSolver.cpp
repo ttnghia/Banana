@@ -175,11 +175,17 @@ void MPM2DSolver::loadSimParams(const nlohmann::json& jParams)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MPM2DSolver::setupDataIO()
 {
-    m_MemoryStateIO.push_back(std::make_unique<DataIO>(m_GlobalParams->dataPath, "MPMState", "state", "pos", "StatePosition"));
-    m_MemoryStateIO.push_back(std::make_unique<DataIO>(m_GlobalParams->dataPath, "MPMState", "state", "vel", "StateVelocity"));
+    m_ParticleIO = std::make_unique<ParticleSerialization>(m_GlobalParams->dataPath, "FLIPData", "frame", m_Logger);
+    m_ParticleIO->addFixedAtribute("ParticleRadius", ParticleSerialization::TypeReal, static_cast<ParticleSerialization::ElementSize>(sizeof(Real)), 1);
+    m_ParticleIO->addParticleAtribute("Position", ParticleSerialization::TypeCompressedReal, static_cast<ParticleSerialization::ElementSize>(sizeof(Real)), 2);
+    m_ParticleIO->addParticleAtribute("Velocity", ParticleSerialization::TypeCompressedReal, static_cast<ParticleSerialization::ElementSize>(sizeof(Real)), 2);
 
-    m_ParticleDataIO.push_back(std::make_unique<DataIO>(m_GlobalParams->dataPath, "MPMFrame", "frame", "pos", "FramePosition"));
-    m_ParticleDataIO.push_back(std::make_unique<DataIO>(m_GlobalParams->dataPath, "MPMFrame", "frame", "vel", "FrameVelocity"));
+    ////////////////////////////////////////////////////////////////////////////////
+
+    m_MemoryStateIO = std::make_unique<ParticleSerialization>(m_GlobalParams->dataPath, "FLIPState", "frame", m_Logger);
+    m_MemoryStateIO->addFixedAtribute("ParticleRadius", ParticleSerialization::TypeReal, static_cast<ParticleSerialization::ElementSize>(sizeof(Real)), 1);
+    m_MemoryStateIO->addParticleAtribute("StatePosition", ParticleSerialization::TypeReal, static_cast<ParticleSerialization::ElementSize>(sizeof(Real)), 2);
+    m_MemoryStateIO->addParticleAtribute("StateVelocity", ParticleSerialization::TypeReal, static_cast<ParticleSerialization::ElementSize>(sizeof(Real)), 2);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -189,33 +195,21 @@ void MPM2DSolver::loadMemoryState()
         return;
 
     ////////////////////////////////////////////////////////////////////////////////
-    Int latestStateIdx = -1;
-
-    for(auto& dataIO : m_MemoryStateIO)
-        latestStateIdx = MathHelpers::max(latestStateIdx, dataIO->getLatestFileIndex(m_GlobalParams->finalFrame));
-
+    int latestStateIdx = m_MemoryStateIO->getLatestFileIndex(m_GlobalParams->finalFrame);
     if(latestStateIdx < 0)
         return;
 
-    for(auto& dataIO : m_MemoryStateIO) {
-        dataIO->loadFileIndex(latestStateIdx);
-
-        if(dataIO->dataName() == "StatePosition") {
-            Real particleRadius;
-            dataIO->getBuffer().getData<Real>(particleRadius, sizeof(UInt));
-            __BNN_ASSERT_APPROX_NUMBERS(m_SimParams->particleRadius, particleRadius, MEpsilon);
-
-            UInt numParticles;
-            dataIO->getBuffer().getData<UInt>(numParticles, 0);
-            dataIO->getBuffer().getData<Real>(particleData().positions, sizeof(UInt) + sizeof(Real), numParticles);
-        }
-        else if(dataIO->dataName() == "StateVelocity") {
-            dataIO->getBuffer().getData<Real>(particleData().velocities);
-        }
-        else{
-            __BNN_DIE("Invalid particle data!");
-        }
+    if(!m_MemoryStateIO->read(latestStateIdx)) {
+        m_Logger->printError("Cannot read latest memory state file!");
+        return;
     }
+
+    Real particleRadius;
+    __BNN_ASSERT(m_MemoryStateIO->getFixedAttribute("ParticleRadius", particleRadius));
+    __BNN_ASSERT_APPROX_NUMBERS(m_SimParams->particleRadius, particleRadius, MEpsilon);
+
+    __BNN_ASSERT(m_MemoryStateIO->getParticleAttribute("StatePosition", particleData().positions));
+    __BNN_ASSERT(m_MemoryStateIO->getParticleAttribute("StateVelocity", particleData().velocities));
     assert(particleData().velocities.size() == particleData().positions.size());
 }
 
@@ -234,23 +228,11 @@ void MPM2DSolver::saveMemoryState()
     ////////////////////////////////////////////////////////////////////////////////
     // save state
     frameCount = 0;
-    for(auto& dataIO : m_MemoryStateIO) {
-        if(dataIO->dataName() == "StatePosition") {
-            dataIO->clearBuffer();
-            dataIO->getBuffer().append(static_cast<UInt>(getNumParticles()));
-            dataIO->getBuffer().append(m_SimParams->particleRadius);
-            dataIO->getBuffer().append(particleData().positions, false);
-            dataIO->flushBufferAsync(m_GlobalParams->finishedFrame);
-        }
-        else if(dataIO->dataName() == "StateVelocity") {
-            dataIO->clearBuffer();
-            dataIO->getBuffer().append(particleData().velocities);
-            dataIO->flushBufferAsync(m_GlobalParams->finishedFrame);
-        }
-        else{
-            __BNN_DIE("Invalid particle data!");
-        }
-    }
+    m_MemoryStateIO->clearData();
+    m_MemoryStateIO->setFixedAttribute("ParticleRadius", m_SimParams->particleRadius);
+    m_MemoryStateIO->setParticleAttribute("StatePosition", particleData().positions);
+    m_MemoryStateIO->setParticleAttribute("StateVelocity", particleData().velocities);
+    m_MemoryStateIO->flush(m_GlobalParams->finishedFrame);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -259,23 +241,11 @@ void MPM2DSolver::saveParticleData()
     if(!m_GlobalParams->bSaveParticleData)
         return;
 
-    for(auto& dataIO : m_ParticleDataIO) {
-        if(dataIO->dataName() == "FramePosition") {
-            dataIO->clearBuffer();
-            dataIO->getBuffer().append(static_cast<UInt>(getNumParticles()));
-            dataIO->getBuffer().appendFloat(m_SimParams->particleRadius);
-            dataIO->getBuffer().appendFloatArray(particleData().positions, false);
-            dataIO->flushBufferAsync(m_GlobalParams->finishedFrame);
-        }
-        else if(dataIO->dataName() == "FrameVelocity") {
-            dataIO->clearBuffer();
-            dataIO->getBuffer().appendFloatArray(particleData().velocities);
-            dataIO->flushBufferAsync(m_GlobalParams->finishedFrame);
-        }
-        else{
-            __BNN_DIE("Invalid particle data!");
-        }
-    }
+    m_ParticleIO->clearData();
+    m_ParticleIO->setFixedAttribute("ParticleRadius", m_SimParams->particleRadius);
+    m_ParticleIO->setParticleAttribute("Position", particleData().positions);
+    m_ParticleIO->setParticleAttribute("Velocity", particleData().velocities);
+    m_ParticleIO->flush(m_GlobalParams->finishedFrame);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

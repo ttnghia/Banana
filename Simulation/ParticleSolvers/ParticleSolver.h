@@ -23,12 +23,13 @@
 #include <Banana/Utils/MathHelpers.h>
 #include <Banana/Utils/Timer.h>
 #include <Banana/Utils/JSONHelpers.h>
-#include <Banana/Data/DataIO.h>
 #include <Banana/Data/DataPrinter.h>
 #include <Banana/ParallelHelpers/ParallelSTL.h>
 #include <Banana/ParallelHelpers/ParallelFuncs.h>
 #include <Banana/ParallelHelpers/ParallelBLAS.h>
 #include <Banana/NeighborSearch/NeighborSearch3D.h>
+
+#include <ParticleTools/ParticleSerialization.h>
 
 #include <ParticleSolvers/ParticleSolverData.h>
 #include <ParticleSolvers/SceneLoader.h>
@@ -92,9 +93,9 @@ protected:
     UniquePtr<tbb::task_scheduler_init> m_ThreadInit = nullptr;
     SharedPtr<Logger>                   m_Logger     = nullptr;
 
-    UniquePtr<GlobalParameters> m_GlobalParams = std::make_unique<GlobalParameters>();
-    Vector<SharedPtr<DataIO> >  m_ParticleDataIO;
-    Vector<SharedPtr<DataIO> >  m_MemoryStateIO;
+    UniquePtr<GlobalParameters>      m_GlobalParams = std::make_unique<GlobalParameters>();
+    UniquePtr<ParticleSerialization> m_ParticleIO;
+    UniquePtr<ParticleSerialization> m_MemoryStateIO;
 
     // todo: add NSearch for 2D
     UniquePtr<NeighborSearch::NeighborSearch3D>                      m_NSearch = nullptr;

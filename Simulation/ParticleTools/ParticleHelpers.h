@@ -39,27 +39,27 @@ namespace ParticleHelpers
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // template functions are defined in a hpp file
-template<Int N, class RealType> UInt loadBinary(const String& fileName, Vector<VecX<N, RealType> >& particles, RealType particleRadius);
-template<Int N, class RealType> void saveBinary(const String& fileName, Vector<VecX<N, RealType> >& particles, RealType particleRadius);
 
-template<Int N, class RealType> void compress(const Vector<VecX<N, RealType> >& positions, VecX<N, RealType>& bMin, VecX<N, RealType>& bMax, Vec_UInt16& compressedData);
+template<Int N, class RealType> void compress(const Vector<VecX<N, RealType> >& dvec, VecX<N, RealType>& dMin, VecX<N, RealType>& dMax, Vec_UInt16& compressedData);
 template<Int N, class RealType> void compress(const Vector<VecX<N, RealType> >& dvec, DataBuffer& buffer, bool bWriteVectorSize = true);
-template<class RealType> void        compress(const Vector<RealType>& dvec, RealType& dMin, RealType& dMax, Vec_UInt16& compressedData);
-template<class RealType> void        compress(const Vector<RealType>& dvec, DataBuffer& buffer, bool bWriteVectorSize = true);
-template<class RealType> void        compress(const Vector<Vector<RealType> >& dvec, RealType& dMin, RealType& dMax, Vec_VecUInt16& compressedData);
-template<class RealType> void        compress(const Vector<Vector<RealType> >& dvec, DataBuffer& buffer, bool bWriteVectorSize = true);
-template<Int N, class RealType> void compressAndSaveBinary(const String& fileName, const Vector<VecX<N, RealType> >& positions, RealType particleRadius);
-template<class RealType> void        compressAndSaveBinary(const String& fileName, const Vector<RealType>& dvec);
+template<Int N, class RealType> void compress(const Vector<MatXxX<N, RealType> >& dvec, RealType& dMin, RealType& dMax, Vec_UInt16& compressedData);
+template<Int N, class RealType> void compress(const Vector<MatXxX<N, RealType> >& dvec, DataBuffer& buffer, bool bWriteVectorSize = true);
 
-template<Int N, class RealType> void decompress(Vector<VecX<N, RealType> >& positions, const VecX<N, RealType>& bMin, const VecX<N, RealType>& bMax, const Vec_UInt16& compressedData);
+template<class RealType> void compress(const Vector<RealType>& dvec, RealType& dMin, RealType& dMax, Vec_UInt16& compressedData);
+template<class RealType> void compress(const Vector<RealType>& dvec, DataBuffer& buffer, bool bWriteVectorSize = true);
+template<class RealType> void compress(const Vector<Vector<RealType> >& dvec, Vector<RealType>& dMin, Vector<RealType>& dMax, Vec_VecUInt16& compressedData);
+template<class RealType> void compress(const Vector<Vector<RealType> >& dvec, DataBuffer& buffer, bool bWriteVectorSize = true);
+
+
+template<Int N, class RealType> void decompress(Vector<VecX<N, RealType> >& dvec, const VecX<N, RealType>& dMin, const VecX<N, RealType>& dMax, const Vec_UInt16& compressedData);
 template<Int N, class RealType> void decompress(Vector<VecX<N, RealType> >& dvec, const DataBuffer& buffer, UInt nParticles = 0);
-template<class RealType> void        decompress(Vector<RealType>& dvec, RealType dMin, RealType dMax, const Vec_UInt16& compressedData);
-template<class RealType> void        decompress(Vector<RealType>& dvec, const DataBuffer& buffer, UInt nParticles = 0);
-template<class RealType> void        decompress(Vector<Vector<RealType> >& dvec, RealType dMin, RealType dMax, const Vec_VecUInt16& compressedData);
-template<class RealType> void        decompress(Vector<Vector<RealType> >& dvec, const DataBuffer& buffer, UInt nParticles = 0);
-template<class RealType> UInt        loadBinaryAndDecompress(const String& fileName, Vector<RealType>& dvec);
-template<Int N, class RealType> UInt loadBinaryAndDecompress(const String& fileName, Vector<VecX<N, RealType> >& positions, RealType& particleRadius);
+template<Int N, class RealType> void decompress(Vector<MatXxX<N, RealType> >& dvec, RealType dMin, RealType dMax, const Vec_UInt16& compressedData);
+template<Int N, class RealType> void decompress(Vector<MatXxX<N, RealType> >& dvec, const DataBuffer& buffer, UInt nParticles = 0);
 
+template<class RealType> void decompress(Vector<RealType>& dvec, RealType dMin, RealType dMax, const Vec_UInt16& compressedData);
+template<class RealType> void decompress(Vector<RealType>& dvec, const DataBuffer& buffer, UInt nParticles = 0);
+template<class RealType> void decompress(Vector<Vector<RealType> >& dvec, const Vector<RealType> dMin, const Vector<RealType>& dMax, const Vec_VecUInt16& compressedData);
+template<class RealType> void decompress(Vector<Vector<RealType> >& dvec, const DataBuffer& buffer, UInt nParticles = 0);
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

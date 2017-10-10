@@ -17,10 +17,11 @@
 template<Int N, class RealType>
 void ParticleObject<N, RealType >::generateParticles(Vector<VecX<N, RealType> >& positions, Vector<VecX<N, RealType> >& velocities, RealType particleRadius, bool bUseCache /*= true*/)
 {
-    if(bUseCache && !m_ParticleFile.empty() && FileHelpers::fileExisted(m_ParticleFile))
-    {
+    if(bUseCache && !m_ParticleFile.empty() && FileHelpers::fileExisted(m_ParticleFile)) {
         positions.resize(0);
-        ParticleHelpers::loadBinaryAndDecompress(m_ParticleFile, positions, particleRadius);
+
+        // todo
+        //ParticleHelpers::loadBinaryAndDecompress(m_ParticleFile, positions, particleRadius);
         generateVelocities(positions, velocities);
 
         return;
@@ -32,8 +33,9 @@ void ParticleObject<N, RealType >::generateParticles(Vector<VecX<N, RealType> >&
     generateVelocities(positions, velocities);
     ////////////////////////////////////////////////////////////////////////////////
 
-    if(bUseCache && !m_ParticleFile.empty())
-        ParticleHelpers::compressAndSaveBinary(m_ParticleFile, positions, particleRadius);
+    // todo
+    //if(bUseCache && !m_ParticleFile.empty())
+    //    ParticleHelpers::compressAndSaveBinary(m_ParticleFile, positions, particleRadius);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -53,8 +55,7 @@ void ParticleObject<N, RealType >::relaxPositions(Vector<VecX<N, RealType> >& po
     JSONHelpers::readBool(m_jParams, bRelax, "RelaxPosition");
     JSONHelpers::readValue(m_jParams, relaxMethod, "RelaxMethod");
 
-    if(bRelax)
-    {
+    if(bRelax) {
         //if(relaxMethod == "SPH" || relaxMethod == "SPHBased")
         //    SPHBasedRelaxation::relaxPositions(positions, particleRadius);
         //else

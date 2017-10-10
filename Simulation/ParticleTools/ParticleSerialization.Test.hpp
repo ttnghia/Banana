@@ -95,7 +95,7 @@ void runTest(Int testID)
 
     ////////////////////////////////////////////////////////////////////////////////
     // write
-    ParticleSerialization particleWriter("./Scratch", "Frames", "frame", "TestData", logger);
+    ParticleSerialization particleWriter("./Scratch", "Frames", "frame", logger);
     particleWriter.addFixedAtribute(attrNames[0], ParticleSerialization::TypeReal, ParticleSerialization::Size32b);
     particleWriter.addFixedAtribute(attrNames[1], ParticleSerialization::TypeReal, ParticleSerialization::Size32b, 3);
 
@@ -123,7 +123,7 @@ void runTest(Int testID)
 
     ////////////////////////////////////////////////////////////////////////////////
     // read
-    ParticleSerialization particleReader("./Scratch", "Frames", "frame", "TestData", logger);
+    ParticleSerialization particleReader("./Scratch", "Frames", "frame", logger);
     bool                  bRead = false;
     while(!bRead) {
         bRead = (bReadAll ? particleReader.read(testID) : particleReader.read(testID, readAttrNames));

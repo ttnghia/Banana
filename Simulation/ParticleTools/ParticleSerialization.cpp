@@ -52,7 +52,7 @@ size_t ParticleSerialization::Attribute::typeSize()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void ParticleSerialization::clear()
+void ParticleSerialization::clearData()
 {
     for(auto& attr : m_FixedAttributes) {
         attr.second->buffer.clearBuffer();

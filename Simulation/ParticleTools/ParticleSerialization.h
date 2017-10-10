@@ -89,10 +89,16 @@ public:
     ParticleSerialization(const String&     dataRootFolder,
                           const String&     dataFolder,
                           const String&     fileName,
-                          const String&     dataName,
                           SharedPtr<Logger> logger = nullptr) :
-        m_DataIO(std::make_shared<DataIO>(dataRootFolder, dataFolder, fileName, String("bnn"), dataName)), m_Logger(logger)
+        m_DataIO(std::make_shared<DataIO>(dataRootFolder, dataFolder, fileName, String("bnn"), String("BananaParticleData"))), m_Logger(logger)
     {}
+
+    void setDataPath(const String& dataRootFolder,
+                     const String& dataFolder,
+                     const String& fileName)
+    {
+        m_DataIO = std::make_shared<DataIO>(dataRootFolder, dataFolder, fileName, String("bnn"), String("BananaParticleData"));
+    }
 
     ////////////////////////////////////////////////////////////////////////////////
     // functions for writing data
@@ -113,12 +119,14 @@ public:
     template<class T> void        setFixedAttribute(const String& attrName, T* values);
     template<class T> void        setFixedAttribute(const String& attrName, const Vector<T>& values);
     template<Int N, class T> void setFixedAttribute(const String& attrName, const VecX<N, T>& value);
+    template<Int N, class T> void setFixedAttribute(const String& attrName, const MatXxX<N, T>& value);
 
     template<class T> void        setParticleAttribute(const String& attrName, const Vector<T>& values);
     template<class T> void        setParticleAttribute(const String& attrName, const Vector<Vector<T> >& values);
     template<Int N, class T> void setParticleAttribute(const String& attrName, const Vector<VecX<N, T> >& values);
+    template<Int N, class T> void setParticleAttribute(const String& attrName, const Vector<MatXxX<N, T> >& values);
 
-    void clear();
+    void clearData();
     void flush(Int fileID);
     void flush(const String& fileName);
     void waitForBuffers() { if(m_WriteFutureObj.valid()) m_WriteFutureObj.wait(); }
@@ -128,6 +136,7 @@ public:
     const Map<String, SharedPtr<Attribute> >& getFixedAttributes() { return m_FixedAttributes; }
     const Map<String, SharedPtr<Attribute> >& getParticleAttributes() { return m_ParticleAttributes; }
 
+    Int  getLatestFileIndex(Int maxIndex) const { return m_DataIO->getLatestFileIndex(maxIndex); }
     bool read(Int fileID, const Vector<String>& readAttributes = {});
     bool read(const String& fileName, const Vector<String>& readAttributes = {});
     UInt getNParticles() const { return m_nParticles; }
@@ -136,11 +145,13 @@ public:
     template<class T> bool        getFixedAttribute(const String& attrName, T* value);
     template<class T> bool        getFixedAttribute(const String& attrName, Vector<T>& values);
     template<Int N, class T> bool getFixedAttribute(const String& attrName, VecX<N, T>& value);
+    template<Int N, class T> bool getFixedAttribute(const String& attrName, MatXxX<N, T>& value);
 
     template<class T> bool        getParticleAttribute(const String& attrName, T* values);
     template<class T> bool        getParticleAttribute(const String& attrName, Vector<T>& values);
     template<class T> bool        getParticleAttribute(const String& attrName, Vector<Vector<T> >& values);
     template<Int N, class T> bool getParticleAttribute(const String& attrName, Vector<VecX<N, T> >& values);
+    template<Int N, class T> bool getParticleAttribute(const String& attrName, Vector<MatXxX<N, T> >& values);
 
 private:
     void writeHeader(std::ofstream& opf);

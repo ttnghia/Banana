@@ -47,11 +47,9 @@ void WCSPHSolver::makeReady()
 
                                m_BoundaryObjects.push_back(std::make_shared<SimulationObjects::BoxBoundary<3, Real> >(m_SimParams->boxMin, m_SimParams->boxMax));
 
-                               if(m_SimParams->bUseBoundaryParticles)
-                               {
+                               if(m_SimParams->bUseBoundaryParticles) {
                                    __BNN_ASSERT(m_BoundaryObjects.size() != 0);
-                                   for(auto& bdObj : m_BoundaryObjects)
-                                   {
+                                   for(auto& bdObj : m_BoundaryObjects) {
                                        bdObj->generateBoundaryParticles(Real(1.7) * m_SimParams->particleRadius);
                                        m_Logger->printLog("Number of boundary particles: " + NumberHelpers::formatWithCommas(bdObj->getNumBDParticles()));
                                        m_NSearch->add_point_set(glm::value_ptr(bdObj->getBDParticles().front()), bdObj->getBDParticles().size(), false, true);
@@ -79,8 +77,7 @@ void WCSPHSolver::makeReady()
     m_Logger->printRunTime("Sort boundary particles: ",
                            [&]()
                            {
-                               for(UInt i = 0; i < static_cast<UInt>(m_BoundaryObjects.size()); ++i)
-                               {
+                               for(UInt i = 0; i < static_cast<UInt>(m_BoundaryObjects.size()); ++i) {
                                    auto& bdObj = m_BoundaryObjects[i];
                                    auto const& d = m_NSearch->point_set(i + 1);
                                    d.sort_field(&(bdObj->getBDParticles()[0]));
@@ -101,8 +98,7 @@ void WCSPHSolver::advanceFrame()
     int          substepCount = 0;
 
     ////////////////////////////////////////////////////////////////////////////////
-    while(frameTime < m_GlobalParams->frameDuration)
-    {
+    while(frameTime < m_GlobalParams->frameDuration) {
         m_Logger->printRunTime("Sub-step time: ", subStepTimer,
                                [&]()
                                {
@@ -180,11 +176,19 @@ void WCSPHSolver::loadSimParams(const nlohmann::json& jParams)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void WCSPHSolver::setupDataIO()
 {
-    m_MemoryStateIO.push_back(std::make_unique<DataIO>(m_GlobalParams->dataPath, "SPHState", "state", "pos", "StatePosition"));
-    m_MemoryStateIO.push_back(std::make_unique<DataIO>(m_GlobalParams->dataPath, "SPHState", "state", "vel", "StateVelocity"));
+    m_ParticleIO = std::make_unique<ParticleSerialization>(m_GlobalParams->dataPath, "FLIPData", "frame", m_Logger);
+    m_ParticleIO->addFixedAtribute("ParticleRadius", ParticleSerialization::TypeReal, static_cast<ParticleSerialization::ElementSize>(sizeof(Real)), 1);
+    m_ParticleIO->addParticleAtribute("Position", ParticleSerialization::TypeCompressedReal, static_cast<ParticleSerialization::ElementSize>(sizeof(Real)), 3);
+    m_ParticleIO->addParticleAtribute("Velocity", ParticleSerialization::TypeCompressedReal, static_cast<ParticleSerialization::ElementSize>(sizeof(Real)), 3);
+    m_ParticleIO->addParticleAtribute("Density", ParticleSerialization::TypeCompressedReal, static_cast<ParticleSerialization::ElementSize>(sizeof(Real)), 1);
+    m_ParticleIO->addParticleAtribute("AnisotropicKernel", ParticleSerialization::TypeCompressedReal, static_cast<ParticleSerialization::ElementSize>(sizeof(Real)), 9);
 
-    m_ParticleDataIO.push_back(std::make_unique<DataIO>(m_GlobalParams->dataPath, "SPHFrame", "frame", "pos", "FramePosition"));
-    m_ParticleDataIO.push_back(std::make_unique<DataIO>(m_GlobalParams->dataPath, "SPHFrame", "frame", "vel", "FrameVelocity"));
+    ////////////////////////////////////////////////////////////////////////////////
+
+    m_MemoryStateIO = std::make_unique<ParticleSerialization>(m_GlobalParams->dataPath, "FLIPState", "frame", m_Logger);
+    m_MemoryStateIO->addFixedAtribute("ParticleRadius", ParticleSerialization::TypeReal, static_cast<ParticleSerialization::ElementSize>(sizeof(Real)), 1);
+    m_MemoryStateIO->addParticleAtribute("StatePosition", ParticleSerialization::TypeReal, static_cast<ParticleSerialization::ElementSize>(sizeof(Real)), 3);
+    m_MemoryStateIO->addParticleAtribute("StateVelocity", ParticleSerialization::TypeReal, static_cast<ParticleSerialization::ElementSize>(sizeof(Real)), 3);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -194,38 +198,21 @@ void WCSPHSolver::loadMemoryState()
         return;
 
     ////////////////////////////////////////////////////////////////////////////////
-    int latestStateIdx = -1;
-
-    for(auto& dataIO : m_MemoryStateIO)
-        latestStateIdx = MathHelpers::max(latestStateIdx, dataIO->getLatestFileIndex(m_GlobalParams->finalFrame));
-
+    int latestStateIdx = m_MemoryStateIO->getLatestFileIndex(m_GlobalParams->finalFrame);
     if(latestStateIdx < 0)
         return;
 
-    for(auto& dataIO : m_MemoryStateIO)
-    {
-        dataIO->loadFileIndex(latestStateIdx);
-
-        if(dataIO->dataName() == "StatePosition")
-        {
-            Real particleRadius;
-            dataIO->getBuffer().getData(particleRadius, sizeof(UInt));
-            __BNN_ASSERT_APPROX_NUMBERS(m_SimParams->particleRadius, particleRadius, MEpsilon);
-
-            UInt numParticles;
-            dataIO->getBuffer().getData<UInt>(numParticles, 0);
-            dataIO->getBuffer().getData(m_SimData->positions, sizeof(UInt) + sizeof(Real), numParticles);
-        }
-        else if(dataIO->dataName() == "StateVelocity")
-        {
-            dataIO->getBuffer().getData(m_SimData->velocities);
-        }
-        else
-        {
-            __BNN_DIE("Invalid particle data!");
-        }
+    if(!m_MemoryStateIO->read(latestStateIdx)) {
+        m_Logger->printError("Cannot read latest memory state file!");
+        return;
     }
 
+    Real particleRadius;
+    __BNN_ASSERT(m_MemoryStateIO->getFixedAttribute("ParticleRadius", particleRadius));
+    __BNN_ASSERT_APPROX_NUMBERS(m_SimParams->particleRadius, particleRadius, MEpsilon);
+
+    __BNN_ASSERT(m_MemoryStateIO->getParticleAttribute("StatePosition", m_SimData->positions));
+    __BNN_ASSERT(m_MemoryStateIO->getParticleAttribute("StateVelocity", m_SimData->velocities));
     assert(m_SimData->velocities.size() == m_SimData->positions.size());
 }
 
@@ -235,7 +222,7 @@ void WCSPHSolver::saveMemoryState()
     if(!m_GlobalParams->bSaveMemoryState)
         return;
 
-    static unsigned int frameCount = 0;
+    static UInt frameCount = 0;
     ++frameCount;
 
     if(frameCount < m_GlobalParams->framePerState)
@@ -244,27 +231,11 @@ void WCSPHSolver::saveMemoryState()
     ////////////////////////////////////////////////////////////////////////////////
     // save state
     frameCount = 0;
-    for(auto& dataIO : m_MemoryStateIO)
-    {
-        if(dataIO->dataName() == "StatePosition")
-        {
-            dataIO->clearBuffer();
-            dataIO->getBuffer().append(static_cast<UInt>(m_SimData->getNumParticles()));
-            dataIO->getBuffer().append(m_SimParams->particleRadius);
-            dataIO->getBuffer().append(m_SimData->positions, false);
-            dataIO->flushBufferAsync(m_GlobalParams->finishedFrame);
-        }
-        else if(dataIO->dataName() == "StateVelocity")
-        {
-            dataIO->clearBuffer();
-            dataIO->getBuffer().append(m_SimData->velocities);
-            dataIO->flushBufferAsync(m_GlobalParams->finishedFrame);
-        }
-        else
-        {
-            __BNN_DIE("Invalid particle data!");
-        }
-    }
+    m_MemoryStateIO->clearData();
+    m_MemoryStateIO->setFixedAttribute("ParticleRadius", m_SimParams->particleRadius);
+    m_MemoryStateIO->setParticleAttribute("StatePosition", m_SimData->positions);
+    m_MemoryStateIO->setParticleAttribute("StateVelocity", m_SimData->velocities);
+    m_MemoryStateIO->flush(m_GlobalParams->finishedFrame);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -273,27 +244,14 @@ void WCSPHSolver::saveParticleData()
     if(!m_GlobalParams->bSaveParticleData)
         return;
 
-    for(auto& dataIO : m_ParticleDataIO)
-    {
-        if(dataIO->dataName() == "FramePosition")
-        {
-            dataIO->clearBuffer();
-            dataIO->getBuffer().append(static_cast<UInt>(m_SimData->getNumParticles()));
-            dataIO->getBuffer().appendFloat(m_SimParams->particleRadius);
-            dataIO->getBuffer().appendFloatArray(m_SimData->positions, false);
-            dataIO->flushBufferAsync(m_GlobalParams->finishedFrame);
-        }
-        else if(dataIO->dataName() == "FrameVelocity")
-        {
-            dataIO->clearBuffer();
-            dataIO->getBuffer().appendFloatArray(m_SimData->velocities);
-            dataIO->flushBufferAsync(m_GlobalParams->finishedFrame);
-        }
-        else
-        {
-            __BNN_DIE("Invalid particle data!");
-        }
-    }
+    m_ParticleIO->clearData();
+    m_ParticleIO->setFixedAttribute("ParticleRadius", m_SimParams->particleRadius);
+    m_ParticleIO->setParticleAttribute("Position", m_SimData->positions);
+    m_ParticleIO->setParticleAttribute("Velocity", m_SimData->velocities);
+
+    // generate ani kernels and/or density
+
+    m_ParticleIO->flush(m_GlobalParams->finishedFrame);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -340,8 +298,7 @@ void WCSPHSolver::computeDensity()
                                           Real pden = m_CubicKernel.W_zero();
 
                                           ////////////////////////////////////////////////////////////////////////////////
-                                          for(UInt q : fluidPointSet.neighbors(0, p))
-                                          {
+                                          for(UInt q : fluidPointSet.neighbors(0, p)) {
                                               const Vec3r& qpos = m_SimData->positions[q];
                                               const Vec3r r = qpos - pPos;
 
@@ -349,10 +306,8 @@ void WCSPHSolver::computeDensity()
                                           }
 
                                           ////////////////////////////////////////////////////////////////////////////////
-                                          if(m_SimParams->bUseBoundaryParticles)
-                                          {
-                                              for(UInt q : fluidPointSet.neighbors(1, p))
-                                              {
+                                          if(m_SimParams->bUseBoundaryParticles) {
+                                              for(UInt q : fluidPointSet.neighbors(1, p)) {
                                                   const Vec3r& qPos = m_BoundaryObjects[0]->getBDParticles()[q];
                                                   const Vec3r r = qPos - pPos;
 
@@ -385,8 +340,7 @@ void WCSPHSolver::correctDensity()
 
                                           ////////////////////////////////////////////////////////////////////////////////
                                           Real tmp = m_CubicKernel.W_zero() / pden;
-                                          for(UInt q : fluidPointSet.neighbors(0, p))
-                                          {
+                                          for(UInt q : fluidPointSet.neighbors(0, p)) {
                                               const Vec3r& qpos = m_SimData->positions[q];
                                               const Vec3r r = qpos - pPos;
                                               const Real qden = m_SimData->densities[q];
@@ -398,10 +352,8 @@ void WCSPHSolver::correctDensity()
                                           } // end loop over neighbor cells
 
                                           ////////////////////////////////////////////////////////////////////////////////
-                                          if(m_SimParams->bUseBoundaryParticles)
-                                          {
-                                              for(UInt q : fluidPointSet.neighbors(1, p))
-                                              {
+                                          if(m_SimParams->bUseBoundaryParticles) {
+                                              for(UInt q : fluidPointSet.neighbors(1, p)) {
                                                   const Vec3r& qpos = m_BoundaryObjects[0]->getBDParticles()[q];
                                                   const Vec3r r = qpos - pPos;
                                                   tmp += m_CubicKernel.W(r) / m_SimParams->restDensity;
@@ -428,8 +380,7 @@ void WCSPHSolver::computePressureForces()
 
                                           Vec3r pressureAccel(0, 0, 0);
 
-                                          if(pden < Tiny)
-                                          {
+                                          if(pden < Tiny) {
                                               m_SimData->pressureForces[p] = pressureAccel;
                                               return;
                                           }
@@ -440,13 +391,11 @@ void WCSPHSolver::computePressureForces()
                                           const Real ppressure = m_SimParams->bUseAttractivePressure ?
                                                                  MathHelpers::max(pdrho, pdrho * m_SimParams->attractivePressureRatio) : MathHelpers::max(pdrho, Real(0));
 
-                                          for(UInt q : fluidPointSet.neighbors(0, p))
-                                          {
+                                          for(UInt q : fluidPointSet.neighbors(0, p)) {
                                               const Vec3r& qpos = m_SimData->positions[q];
                                               const Real qden = m_SimData->densities[q];
 
-                                              if(qden < Tiny)
-                                              {
+                                              if(qden < Tiny) {
                                                   continue;
                                               }
 
@@ -462,10 +411,8 @@ void WCSPHSolver::computePressureForces()
 
                                           ////////////////////////////////////////////////////////////////////////////////
                                           // ==> correct density for the boundary particles
-                                          if(m_SimParams->bUseBoundaryParticles)
-                                          {
-                                              for(UInt q : fluidPointSet.neighbors(1, p))
-                                              {
+                                          if(m_SimParams->bUseBoundaryParticles) {
+                                              for(UInt q : fluidPointSet.neighbors(1, p)) {
                                                   const Vec3r& qpos = m_BoundaryObjects[0]->getBDParticles()[q];
                                                   const Vec3r r = qpos - pPos;
 
@@ -500,8 +447,7 @@ void WCSPHSolver::computeViscosity()
                                           Vec3r diffVelBoundary = Vec3r(0);
 
                                           ////////////////////////////////////////////////////////////////////////////////
-                                          for(UInt q : fluidPointSet.neighbors(0, p))
-                                          {
+                                          for(UInt q : fluidPointSet.neighbors(0, p)) {
                                               const Vec3r& qpos = m_SimData->positions[q];
                                               const Vec3r& qvel = m_SimData->velocities[q];
                                               const Real qden = m_SimData->densities[q];
@@ -513,10 +459,8 @@ void WCSPHSolver::computeViscosity()
                                           } // end loop over neighbor cells
 
                                           ////////////////////////////////////////////////////////////////////////////////
-                                          if(m_SimParams->bUseBoundaryParticles)
-                                          {
-                                              for(UInt q : fluidPointSet.neighbors(1, p))
-                                              {
+                                          if(m_SimParams->bUseBoundaryParticles) {
+                                              for(UInt q : fluidPointSet.neighbors(1, p)) {
                                                   const Vec3r& qpos = m_BoundaryObjects[0]->getBDParticles()[q];
                                                   const Vec3r r = qpos - pPos;
 
