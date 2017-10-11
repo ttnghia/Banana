@@ -21,6 +21,8 @@
 #include <Partio.h>
 #include <iostream>
 
+//#define DEBUG
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void convert2BNN(const char* inputFile, const char* outputFile)
 {
@@ -246,7 +248,7 @@ static void printUsage(const char* programName)
 {
     std::cerr << std::endl << "Usage: " << programName << " sourceFile dstFile" << std::endl;
     std::cerr << "The extension of the source/dest will be used to determine how the conversion is done." << std::endl;
-    std::cerr << "Supported extensions are .cps and .bgeo" << std::endl << std::endl;
+    std::cerr << "Supported extensions are .bnn and .geo" << std::endl << std::endl;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -257,7 +259,7 @@ int main(int argc, char* argv[])
         exit(EXIT_FAILURE);
     }
 
-    if(Banana::FileHelpers::getExtension(String(argv[1])) == String("bgeo"))
+    if(Banana::FileHelpers::getExtension(String(argv[1])) == String("geo"))
         convert2BNN(argv[1], argv[2]);
     else
         convert2Bgeo(argv[1], argv[2]);
