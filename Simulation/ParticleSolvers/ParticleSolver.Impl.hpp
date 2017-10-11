@@ -50,6 +50,13 @@ void ParticleSolver<N, RealType >::loadScene(const String& sceneFile)
         generateParticles(jParams);
         generateEmitters(jParams);
     }
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // create output folder, if necessary, and dump scene file
+    if(m_GlobalParams->bSaveParticleData || m_GlobalParams->bSaveMemoryState) {
+        FileHelpers::createFolder(m_GlobalParams->dataPath);
+        FileHelpers::copyFile(sceneFile, m_GlobalParams->dataPath + "/" + FileHelpers::getFileName(sceneFile));
+    }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -86,9 +93,9 @@ void ParticleSolver<N, RealType >::doSimulation()
         m_Logger->printRunTime(strMsg.c_str(), frameTimer,
                                [&]()
                                {
+                                   sortParticles();
                                    advanceScene();
                                    advanceFrame();
-                                   sortParticles();
                                });
 
         ////////////////////////////////////////////////////////////////////////////////

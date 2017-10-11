@@ -167,9 +167,53 @@ inline String getFullFilePath(const String& topFolder, const char* dataSubFolder
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-inline String getExtension(const String& filePath)
+inline String getFileExtension(const String& filePath)
 {
     return filePath.substr(filePath.find_last_of(".") + 1);
+}
+
+inline String getFileName(const String& filePath)
+{
+    String tmp = filePath;
+    std::replace(tmp.begin(), tmp.end(), '\\', '/' );
+    return tmp.substr(tmp.find_last_of("/") + 1);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+inline void copyFile(const char* srcFile, const char* dstFile)
+{
+    const int bufferSize = 2048;
+    char      buff[bufferSize];
+
+    FILE* src = nullptr;
+    FILE* dst = nullptr;
+#ifdef __BANANA_WINDOWS__
+    fopen_s(&src, srcFile, "r");
+    fopen_s(&dst, dstFile, "w");
+#else
+    src = fopen(srcName, "r");
+    dst = fopen(dstName, "w");
+#endif
+    if(src == nullptr || dst == nullptr)
+    {
+        if(src != nullptr) fclose(src);
+        if(dst != nullptr) fclose(dst);
+        return;
+    }
+
+    size_t size;
+    while((size = fread(buff, 1, bufferSize, src)) > 0)
+    {
+        fwrite(buff, 1, size, dst);
+    }
+
+    fclose(src);
+    fclose(dst);
+}
+
+inline void copyFile(const String& srcFile, const String& dstFile)
+{
+    copyFile(srcFile.c_str(), dstFile.c_str());
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -370,6 +414,7 @@ inline std::future<void> writeBinaryFileAsync(const std::vector<T>& dvec, const 
 {
     return writeBinaryFileAsync(dvec, fileName.c_str());
 }
+
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace FileHelpers

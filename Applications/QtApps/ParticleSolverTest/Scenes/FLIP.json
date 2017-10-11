@@ -5,7 +5,8 @@
                 "FinalFrame" : 100,
                 "EnableSortParticle" : true,
                 "SortFrequency" : 10,
-                "SaveParticleData" : true
+                "SaveParticleData" : true,
+                "DataPath" : "D:/SimData/FLIP"
         },
         "SimulationParameters":
         {
