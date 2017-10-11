@@ -141,10 +141,11 @@ public:
     const Map<String, SharedPtr<Attribute> >& getFixedAttributes() { return m_FixedAttributes; }
     const Map<String, SharedPtr<Attribute> >& getParticleAttributes() { return m_ParticleAttributes; }
 
-    Int  getLatestFileIndex(Int maxIndex) const { return m_DataIO->getLatestFileIndex(maxIndex); }
-    bool read(Int fileID, const Vector<String>& readAttributes = {});
-    bool read(const String& fileName, const Vector<String>& readAttributes = {});
-    UInt getNParticles() const { return m_nParticles; }
+    Int    getLatestFileIndex(Int maxIndex) const { return m_DataIO->getLatestFileIndex(maxIndex); }
+    bool   read(Int fileID, const Vector<String>& readAttributes = {});
+    bool   read(const String& fileName, const Vector<String>& readAttributes = {});
+    size_t getBytesRead() const { return m_ByteRead; }
+    UInt   getNParticles() const { return m_nParticles; }
 
     template<class T> bool        getFixedAttribute(const String& attrName, T& value);
     template<class T> bool        getFixedAttribute(const String& attrName, T* value);
@@ -169,6 +170,7 @@ private:
 
     Map<String, size_t> m_ReadAttributeDataSizeMap;
     Map<String, bool>   m_bReadAttributeMap;
+    size_t              m_ByteRead;
 
     SharedPtr<Logger> m_Logger;
     SharedPtr<DataIO> m_DataIO;

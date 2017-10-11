@@ -160,6 +160,7 @@ bool ParticleSerialization::read(const String& fileName, const Vector<String>& r
     }
 
     ////////////////////////////////////////////////////////////////////////////////
+    m_ByteRead = 0;
     if(!readHeader(ipf))
         return false;
 
@@ -251,6 +252,7 @@ bool ParticleSerialization::readHeader(std::ifstream& ipf)
         else return false;
     }
 
+    m_ByteRead = ipf.tellg();
     return gotMagic;
 }
 
@@ -261,6 +263,7 @@ bool ParticleSerialization::readAttribute(SharedPtr<Attribute>& attr, std::ifstr
     size_t dataSize = m_ReadAttributeDataSizeMap[attr->name];
     attr->buffer.resize(dataSize);
     ipf.read((char*)attr->buffer.data(), dataSize);
+    m_ByteRead += dataSize;
 
     return ipf.good();
 }
