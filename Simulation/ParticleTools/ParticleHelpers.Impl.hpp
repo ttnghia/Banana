@@ -228,7 +228,7 @@ void decompress(Vector<MatXxX<N, RealType> >& dvec, RealType dMin, RealType dMax
                                         [&](size_t i)
                                         {
                                             MatXxX<N, RealType> mat;
-                                            RealType* mdata = glm::value_ptr(mat);
+                                            const RealType* mdata = glm::value_ptr(mat);
 
                                             for(int j = 0; j < NN; ++j)
                                                 mdata[j] = static_cast<VecX<N, RealType>::value_type>(compressedData[i * NN + j]) * diff /
