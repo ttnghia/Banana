@@ -78,6 +78,10 @@ void ParticleSerialization::flush(Int fileID)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void ParticleSerialization::flush(const String& fileName)
 {
+    // make sure that the particle data has position attribute
+    __BNN_ASSERT(m_ParticleAttributes.find("position") != m_ParticleAttributes.end());
+
+    ////////////////////////////////////////////////////////////////////////////////
     waitForBuffers();
     m_WriteFutureObj = std::async(std::launch::async, [&, fileName]()
                                   {
@@ -160,6 +164,7 @@ bool ParticleSerialization::read(const String& fileName, const Vector<String>& r
     }
 
     ////////////////////////////////////////////////////////////////////////////////
+    m_BytesRead = 0;
     if(!readHeader(ipf))
         return false;
 
@@ -251,6 +256,7 @@ bool ParticleSerialization::readHeader(std::ifstream& ipf)
         else return false;
     }
 
+    m_BytesRead = ipf.tellg();
     return gotMagic;
 }
 
@@ -261,6 +267,7 @@ bool ParticleSerialization::readAttribute(SharedPtr<Attribute>& attr, std::ifstr
     size_t dataSize = m_ReadAttributeDataSizeMap[attr->name];
     attr->buffer.resize(dataSize);
     ipf.read((char*)attr->buffer.data(), dataSize);
+    m_BytesRead += dataSize;
 
     return ipf.good();
 }
