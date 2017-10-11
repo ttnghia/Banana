@@ -1,42 +1,47 @@
 {
-        "GlobalParameters":
+    "GlobalParameters":
+    {
+        "FrameDuration" : 0.03333333333,
+        "FinalFrame" : 100,
+        "EnableSortParticle" : true,
+        "SortFrequency" : 10,
+        "SaveParticleData" : true,
+        "DataPath" : "D:/SimData/FLIP"
+    },
+    "SimulationParameters":
+    {
+        "ApplyRepulsiveForce" : true,
+        "RepulsiveForceStiffness" : 1e-4,
+        "PIC_FLIP_Ratio" : 0.97,
+        "CGRelativeTolerance" : 1e-5,
+        "MaxCGIteration" : 10000,
+        "BoxMin" : [-1, -1, -1],
+        "BoxMax" : [1, 1.5, 1],
+        "ParticleRadius" : 0.0075
+    },
+    "BoundaryObjects":
+    [
         {
-                "FrameDuration" : 0.03333333333,
-                "FinalFrame" : 100,
-                "EnableSortParticle" : true,
-                "SortFrequency" : 10,
-                "SaveParticleData" : true,
-                "DataPath" : "D:/SimData/FLIP"
+            "GeometryType" : "Box",
+            "BoxMin" : [-1.0, -1.0, -1.0],
+            "BoxMax" : [1.0, 1.5, 1.0]
         },
-        "SimulationParameters":
         {
-                "ApplyRepulsiveForce" : true,
-                "RepulsiveForceStiffness" : 1e-4,
-                "PIC_FLIP_Ratio" : 0.97,
-                "CGRelativeTolerance" : 1e-5,
-                "MaxCGIteration" : 10000,
-                "BoxMin" : [-1, -1, -1],
-                "BoxMax" : [1, 1.5, 1],
-                "ParticleRadius" : 0.0075
-        },
-        "BoundaryObjects":
-        [
-                {
-                        "GeometryType" : "Box",
-                        "BoxMin" : [-1.0, -1.0, -1.0],
-                        "BoxMax" : [1.0, 1.5, 1.0]
-                },
-                {
-                        "GeometryType" : "Sphere",
-                        "Center" : [0.0, 1.0, 0.0],
-                        "Radius" : 2.0
-                }
-
-        ],
-        "ParticleObjects":
-        {
-        },
-        "ParticleEmitters":
-        {
+            "GeometryType" : "Sphere",
+            "Center" : [0.0, 1.0, 0.0],
+            "Radius" : 2.0
         }
+
+    ],
+    "ParticleObjects":
+    {
+    },
+    "ParticleEmitters":
+    {
+    },
+    "Visualization":
+    {
+        "Camera" : [1, 2, 3],
+        "Light" : [1, 2, 3]
+    }
 }

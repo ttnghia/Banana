@@ -56,6 +56,8 @@ size_t ParticleSerialization::Attribute::typeSize()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void ParticleSerialization::clearData()
 {
+    m_nParticles = 0;
+
     for(auto& attr : m_FixedAttributes) {
         attr.second->buffer.clearBuffer();
         attr.second->bReady = false;
@@ -78,6 +80,7 @@ void ParticleSerialization::flush(Int fileID)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void ParticleSerialization::flush(const String& fileName)
 {
+    __BNN_ASSERT(m_nParticles > 0);
     waitForBuffers();
     m_WriteFutureObj = std::async(std::launch::async, [&, fileName]()
                                   {
