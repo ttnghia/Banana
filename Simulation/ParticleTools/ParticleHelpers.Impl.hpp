@@ -17,7 +17,7 @@
 template<Int N, class RealType>
 void compress(const Vector<VecX<N, RealType> >& dvec, VecX<N, RealType>& dMin, VecX<N, RealType>& dMax, Vec_UInt16& compressedData)
 {
-    ParallelSTL::min_max_vector<N, RealType>(dvec, dMin, dMax);
+    ParallelSTL::min_max<N, RealType>(dvec, dMin, dMax);
     const VecX<N, RealType> diff = dMax - dMin;
 
     compressedData.resize(N * dvec.size());

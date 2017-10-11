@@ -68,7 +68,10 @@ public:
     ////////////////////////////////////////////////////////////////////////////////
     virtual void makeReady() {} // todo: need this?
     virtual void advanceFrame() {}
-    virtual void generateBoundaryParticles(RealType spacing, int numBDLayers = 2, bool useCache = true) { __BNN_UNIMPLEMENTED_FUNC }
+    virtual void generateBoundaryParticles(RealType spacing, int numBDLayers = 2, bool useCache = true)
+    {
+        __BNN_UNUSED(spacing); __BNN_UNUSED(numBDLayers); __BNN_UNUSED(useCache); __BNN_UNIMPLEMENTED_FUNC
+    }
 
     RealType          signedDistance(const VecX<N, RealType>& ppos, bool bUseCache = true);
     VecX<N, RealType> gradientSignedDistance(const VecX<N, RealType>& ppos, RealType dxyz = RealType(1.0 / 512.0), bool bUseCache = true);

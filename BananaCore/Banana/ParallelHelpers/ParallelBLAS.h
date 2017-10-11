@@ -22,6 +22,7 @@
 
 #include <tbb/tbb.h>
 #include <Banana/ParallelHelpers/ParallelObjects.h>
+#include <Banana/ParallelHelpers/ParallelFuncs.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -32,74 +33,51 @@ namespace ParallelBLAS
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // dot products
 //
-template<class Real>
-inline Real dotProductScalar(const std::vector<Real>& x, const std::vector<Real>& y)
+template<class RealType>
+inline RealType dotProduct(const Vector<RealType>& x, const Vector<RealType>& y)
 {
-    assert(x.size() == y.size());
+    __BNN_ASSERT(x.size() == y.size());
+    ParallelObjects::DotProduct<1, RealType> dpobj(x, y);
+    tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), dpobj);
 
-    ParallelObjects::VectorDotProduct<Real> vdp(x, y);
-    tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), vdp);
-
-    return vdp.getResult();
+    return dpobj.getResult();
 }
 
-template<class Real, class VectorType>
-inline Real dotProduct(const std::vector<VectorType>& x, const std::vector<VectorType>& y)
+template<Int N, class RealType>
+inline RealType dotProduct(const Vector<VecX<N, RealType> >& x, const Vector<VecX<N, RealType> >& y)
 {
-    assert(x.size() == y.size());
+    __BNN_ASSERT(x.size() == y.size());
+    ParallelObjects::DotProduct<N, RealType> dpobj(x, y);
+    tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), dpobj);
 
-    ParallelObjects::VectorDotProduct<Real, VectorType> vdp(x, y);
-    tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), vdp);
-
-    return vdp.getResult();
+    return dpobj.getResult();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // saxpy (y=alpha*x+y)
 //
-template<class Real, class VectorType>
-inline void addScaled(Real alpha, const std::vector<VectorType>& x, std::vector<VectorType>& y)
+template<class RealType, class VectorType>
+inline void addScaled(RealType alpha, const Vector<VectorType>& x, Vector<VectorType>& y)
 {
-    tbb::parallel_for(tbb::blocked_range<size_t>(0, x.size()),
-                      [&, alpha](tbb::blocked_range<size_t> r)
-                      {
-                          for(size_t i = r.begin(), iEnd = r.end(); i != iEnd; ++i)
-                          {
-                              y[i] += alpha * x[i];
-                          }
-                      }); // end parallel_for
+    ParallelFuncs::parallel_for<size_t>(0, x.size(), [&, alpha](size_t i) { y[i] += alpha * x[i]; });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // y=x+beta*y
 //
-template<class Real, class VectorType>
-inline void scaledAdd(Real beta, const std::vector<VectorType>& x, std::vector<VectorType>& y)
+template<class RealType, class VectorType>
+inline void scaledAdd(RealType beta, const Vector<VectorType>& x, Vector<VectorType>& y)
 {
-    tbb::parallel_for(tbb::blocked_range<size_t>(0, x.size()),
-                      [&, beta](tbb::blocked_range<size_t> r)
-                      {
-                          for(size_t i = r.begin(), iEnd = r.end(); i != iEnd; ++i)
-                          {
-                              y[i] = beta * y[i] + x[i];
-                          }
-                      }); // end parallel_for
+    ParallelFuncs::parallel_for<size_t>(0, x.size(), [&, beta](size_t i) { y[i] = beta * y[i] + x[i]; });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // x *= alpha
 //
-template<class Real, class VectorType>
-inline void scale(Real alpha, const std::vector<VectorType>& x)
+template<class RealType, class VectorType>
+inline void scale(RealType alpha, const Vector<VectorType>& x)
 {
-    tbb::parallel_for(tbb::blocked_range<size_t>(0, x.size()),
-                      [&, alpha](tbb::blocked_range<size_t> r)
-                      {
-                          for(size_t i = r.begin(), iEnd = r.end(); i != iEnd; ++i)
-                          {
-                              x[i] *= alpha;
-                          }
-                      }); // end parallel_for
+    ParallelFuncs::parallel_for<size_t>(0, x.size(), [&, alpha](size_t i) { x[i] *= alpha; });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

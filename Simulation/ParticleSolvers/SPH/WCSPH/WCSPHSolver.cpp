@@ -259,7 +259,7 @@ void WCSPHSolver::saveParticleData()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 Real WCSPHSolver::computeCFLTimestep()
 {
-    Real maxVel = sqrt(ParallelSTL::maxNorm2<Real>(m_SimData->velocities));
+    Real maxVel = sqrt(ParallelSTL::maxNorm2<3, Real>(m_SimData->velocities));
     Real CFLTimeStep = maxVel > Real(Tiny) ? m_SimParams->CFLFactor* Real(0.4) * (Real(2.0) * m_SimParams->particleRadius / maxVel) : Real(1e10);
 
     CFLTimeStep = MathHelpers::max(CFLTimeStep, m_SimParams->minTimestep);
