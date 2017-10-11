@@ -28,11 +28,21 @@ void convert2BNN(const char* inputFile, const char* outputFile)
     // read bgeo
     Partio::ParticlesData* partioData = Partio::read(inputFile);
     __BNN_ASSERT_MSG(partioData, "Could not open file for reading.");
+    const int nParticles = partioData->numParticles();
+
+#if defined(_DEBUG) || defined(DEBUG)
+    printf("Num. read particles: %s\n", Banana::NumberHelpers::formatWithCommas(nParticles).c_str());
+#endif
 
     Banana::ParticleSerialization particleWriter;
+    particleWriter.setNParticles(nParticles);
+
     for(int i = 0, iend = partioData->numFixedAttributes(); i < iend; ++i) {
         Partio::FixedAttribute fattr;
         partioData->fixedAttributeInfo(i, fattr);
+#if defined(_DEBUG) || defined(DEBUG)
+        printf("Read fixed attr: %s, count = %d\n", fattr.name.c_str(), fattr.count);
+#endif
 
         if(fattr.type == Partio::INT) {
             particleWriter.addFixedAtribute(fattr.name, Banana::ParticleSerialization::TypeInt, Banana::ParticleSerialization::Size32b, fattr.count);
@@ -46,10 +56,12 @@ void convert2BNN(const char* inputFile, const char* outputFile)
         }
     }
 
-    const int nParticles = partioData->numParticles();
     for(int i = 0, iend = partioData->numAttributes(); i < iend; ++i) {
         Partio::ParticleAttribute pattr;
         partioData->attributeInfo(i, pattr);
+#if defined(_DEBUG) || defined(DEBUG)
+        printf("Read particle attr: %s, count = %d\n", pattr.name.c_str(), pattr.count);
+#endif
 
         if(pattr.type == Partio::INT) {
             particleWriter.addParticleAtribute(pattr.name, Banana::ParticleSerialization::TypeInt, Banana::ParticleSerialization::Size32b, pattr.count);
@@ -62,7 +74,7 @@ void convert2BNN(const char* inputFile, const char* outputFile)
             }
             particleWriter.setParticleAttribute(pattr.name, idata);
         }
-        else if(pattr.type == Partio::FLOAT) {
+        else if(pattr.type == Partio::FLOAT || pattr.type == Partio::VECTOR) {
             particleWriter.addParticleAtribute(pattr.name, Banana::ParticleSerialization::TypeCompressedReal, Banana::ParticleSerialization::Size32b, pattr.count);
             if(pattr.count == 1) {
                 Vector<float> fdata(nParticles);
@@ -113,6 +125,9 @@ void convert2Bgeo(const char* inputFile, const char* outputFile)
     partioData->addParticles(static_cast<Int>(particleReader.getNParticles()));
 
     for(auto& kv : particleReader.getFixedAttributes()) {
+#if defined(_DEBUG) || defined(DEBUG)
+        printf("Read fixed attr: %s, count = %d\n", kv.first.c_str(), kv.second->count);
+#endif
         Partio::FixedAttribute fattr;
         switch(kv.second->type) {
             case Banana::ParticleSerialization::TypeInt:
@@ -157,6 +172,9 @@ void convert2Bgeo(const char* inputFile, const char* outputFile)
     }
 
     for(auto& kv : particleReader.getParticleAttributes()) {
+#if defined(_DEBUG) || defined(DEBUG)
+        printf("Read particle attr: %s, count = %d\n", kv.first.c_str(), kv.second->count);
+#endif
         Partio::ParticleAttribute pattr;
         switch(kv.second->type) {
             case Banana::ParticleSerialization::TypeInt:
@@ -184,6 +202,7 @@ void convert2Bgeo(const char* inputFile, const char* outputFile)
             break;
 
             case Banana::ParticleSerialization::TypeReal:
+            case Banana::ParticleSerialization::TypeCompressedReal:
             {
                 pattr = partioData->addAttribute(kv.first.c_str(), Partio::FLOAT, kv.second->count);
                 if(sizeof(kv.second->typeSize() == sizeof(float))) {
@@ -209,6 +228,9 @@ void convert2Bgeo(const char* inputFile, const char* outputFile)
 
             // Omit type vector
             default:
+#if defined(_DEBUG) || defined(DEBUG)
+                printf("....omit this attribute...\n");
+#endif
                 ;
         }
     }

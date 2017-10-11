@@ -59,7 +59,8 @@ public:
         TypeCompressedReal,
         TypeVectorInt,
         TypeVectorUInt,
-        TypeVectorFloat
+        TypeVectorReal,
+        TypeVectorCompressedReal
     };
 
     enum ElementSize

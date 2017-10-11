@@ -90,7 +90,7 @@ void ParticleSerialization::setParticleAttribute(const String& attrName, const V
 {
     __BNN_ASSERT(m_ParticleAttributes.find(attrName) != m_ParticleAttributes.end() && values.size() == static_cast<size_t>(m_nParticles));
     auto& attr = m_ParticleAttributes[attrName];
-    __BNN_ASSERT(attr->type == TypeVectorInt || attr->type == TypeVectorUInt || attr->type == TypeVectorFloat);
+    __BNN_ASSERT(attr->type == TypeVectorInt || attr->type == TypeVectorUInt || attr->type == TypeVectorReal);
 
     __BNN_ASSERT(sizeof(T) == attr->typeSize());
     attr->buffer.setData(values, false);

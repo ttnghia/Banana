@@ -27,19 +27,21 @@ String ParticleSerialization::Attribute::typeName()
 {
     switch(type) {
         case TypeInt:
-            return String("Int");
+            return String("int");
         case TypeUInt:
-            return String("UInt");
+            return String("uint");
         case TypeReal:
-            return String("Real");
+            return String("real");
         case TypeCompressedReal:
-            return String("CompressedReal");
+            return String("compressed_real");
         case TypeVectorInt:
-            return String("VectorInt");
+            return String("vector_int");
         case TypeVectorUInt:
-            return String("VectorUInt");
-        case TypeVectorFloat:
-            return String("VectorFloat");
+            return String("vector_uint");
+        case TypeVectorReal:
+            return String("vector_real");
+        case TypeVectorCompressedReal:
+            return String("vector_compressed_real");
         default:
             __BNN_DIE_UNKNOWN_ERROR
     }
@@ -201,20 +203,22 @@ bool ParticleSerialization::readHeader(std::ifstream& ipf)
 
     auto getType = [&](const String& typeName) -> DataType
                    {
-                       if(typeName == "Int")
+                       if(typeName == "int")
                            return TypeInt;
-                       if(typeName == "UInt")
+                       if(typeName == "uint")
                            return TypeUInt;
-                       if(typeName == "Real")
+                       if(typeName == "real")
                            return TypeReal;
-                       if(typeName == "CompressedReal")
+                       if(typeName == "compressed_real")
                            return TypeCompressedReal;
-                       if(typeName == "VectorInt")
+                       if(typeName == "vector_int")
                            return TypeVectorInt;
-                       if(typeName == "VectorUInt")
+                       if(typeName == "vector_uint")
                            return TypeVectorUInt;
-                       if(typeName == "VectorFloat")
-                           return TypeVectorFloat;
+                       if(typeName == "vector_real")
+                           return TypeVectorReal;
+                       if(typeName == "vector_compressed_real")
+                           return TypeVectorCompressedReal;
                        return TypeInt;
                    };
 

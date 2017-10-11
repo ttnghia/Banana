@@ -167,16 +167,16 @@ void ClothSolver::loadSimParams(const nlohmann::json& jParams)
 void ClothSolver::setupDataIO()
 {
     m_ParticleIO = std::make_unique<ParticleSerialization>(m_GlobalParams->dataPath, "FLIPData", "frame", m_Logger);
-    m_ParticleIO->addFixedAtribute("ParticleRadius", ParticleSerialization::TypeReal, static_cast<ParticleSerialization::ElementSize>(sizeof(Real)), 1);
-    m_ParticleIO->addParticleAtribute("Position", ParticleSerialization::TypeCompressedReal, static_cast<ParticleSerialization::ElementSize>(sizeof(Real)), 3);
-    m_ParticleIO->addParticleAtribute("Velocity", ParticleSerialization::TypeCompressedReal, static_cast<ParticleSerialization::ElementSize>(sizeof(Real)), 3);
+    m_ParticleIO->addFixedAtribute("particle_radius", ParticleSerialization::TypeReal, static_cast<ParticleSerialization::ElementSize>(sizeof(Real)), 1);
+    m_ParticleIO->addParticleAtribute("position", ParticleSerialization::TypeCompressedReal, static_cast<ParticleSerialization::ElementSize>(sizeof(Real)), 3);
+    m_ParticleIO->addParticleAtribute("velocity", ParticleSerialization::TypeCompressedReal, static_cast<ParticleSerialization::ElementSize>(sizeof(Real)), 3);
 
     ////////////////////////////////////////////////////////////////////////////////
 
     m_MemoryStateIO = std::make_unique<ParticleSerialization>(m_GlobalParams->dataPath, "FLIPState", "frame", m_Logger);
-    m_MemoryStateIO->addFixedAtribute("ParticleRadius", ParticleSerialization::TypeReal, static_cast<ParticleSerialization::ElementSize>(sizeof(Real)), 1);
-    m_MemoryStateIO->addParticleAtribute("StatePosition", ParticleSerialization::TypeReal, static_cast<ParticleSerialization::ElementSize>(sizeof(Real)), 3);
-    m_MemoryStateIO->addParticleAtribute("StateVelocity", ParticleSerialization::TypeReal, static_cast<ParticleSerialization::ElementSize>(sizeof(Real)), 3);
+    m_MemoryStateIO->addFixedAtribute("particle_radius", ParticleSerialization::TypeReal, static_cast<ParticleSerialization::ElementSize>(sizeof(Real)), 1);
+    m_MemoryStateIO->addParticleAtribute("position", ParticleSerialization::TypeReal, static_cast<ParticleSerialization::ElementSize>(sizeof(Real)), 3);
+    m_MemoryStateIO->addParticleAtribute("velocity", ParticleSerialization::TypeReal, static_cast<ParticleSerialization::ElementSize>(sizeof(Real)), 3);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -196,11 +196,11 @@ void ClothSolver::loadMemoryState()
     }
 
     Real particleRadius;
-    __BNN_ASSERT(m_MemoryStateIO->getFixedAttribute("ParticleRadius", particleRadius));
+    __BNN_ASSERT(m_MemoryStateIO->getFixedAttribute("particle_radius", particleRadius));
     __BNN_ASSERT_APPROX_NUMBERS(m_SimParams->particleRadius, particleRadius, MEpsilon);
 
-    __BNN_ASSERT(m_MemoryStateIO->getParticleAttribute("StatePosition", particleData().positions));
-    __BNN_ASSERT(m_MemoryStateIO->getParticleAttribute("StateVelocity", particleData().velocities));
+    __BNN_ASSERT(m_MemoryStateIO->getParticleAttribute("position", particleData().positions));
+    __BNN_ASSERT(m_MemoryStateIO->getParticleAttribute("velocity", particleData().velocities));
     assert(particleData().velocities.size() == particleData().positions.size());
 }
 
@@ -221,9 +221,9 @@ void ClothSolver::saveMemoryState()
     frameCount = 0;
     m_MemoryStateIO->clearData();
     m_MemoryStateIO->setNParticles(getNumParticles());
-    m_MemoryStateIO->setFixedAttribute("ParticleRadius", m_SimParams->particleRadius);
-    m_MemoryStateIO->setParticleAttribute("StatePosition", particleData().positions);
-    m_MemoryStateIO->setParticleAttribute("StateVelocity", particleData().velocities);
+    m_MemoryStateIO->setFixedAttribute("particle_radius", m_SimParams->particleRadius);
+    m_MemoryStateIO->setParticleAttribute("position", particleData().positions);
+    m_MemoryStateIO->setParticleAttribute("velocity", particleData().velocities);
     m_MemoryStateIO->flush(m_GlobalParams->finishedFrame);
 }
 
@@ -235,9 +235,9 @@ void ClothSolver::saveParticleData()
 
     m_ParticleIO->clearData();
     m_ParticleIO->setNParticles(getNumParticles());
-    m_ParticleIO->setFixedAttribute("ParticleRadius", m_SimParams->particleRadius);
-    m_ParticleIO->setParticleAttribute("Position", particleData().positions);
-    m_ParticleIO->setParticleAttribute("Velocity", particleData().velocities);
+    m_ParticleIO->setFixedAttribute("particle_radius", m_SimParams->particleRadius);
+    m_ParticleIO->setParticleAttribute("position", particleData().positions);
+    m_ParticleIO->setParticleAttribute("velocity", particleData().velocities);
 
     // generate ani kernels
 
