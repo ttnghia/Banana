@@ -109,7 +109,7 @@ struct SimulationData_WCSPH
     Vec_Vec3r diffuseVelocity;
 
     ////////////////////////////////////////////////////////////////////////////////
-    UInt getNumParticles() { return static_cast<UInt>(positions.size()); }
+    UInt getNParticles() { return static_cast<UInt>(positions.size()); }
 
     void makeReady()
     {

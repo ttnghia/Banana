@@ -39,7 +39,6 @@ public:
     ////////////////////////////////////////////////////////////////////////////////
     virtual String getSolverName() override { return String("ClothSolver"); }
     virtual String getGreetingMessage() override { return String("Cloth Simulation using Mass-Spring System"); }
-    virtual UInt   getNumParticles() override { return static_cast<UInt>(particleData().positions.size()); }
 
     virtual void makeReady() override;
     virtual void advanceFrame() override;

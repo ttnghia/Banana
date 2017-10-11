@@ -207,7 +207,7 @@ void FLIP2DSolver::saveMemoryState()
     // save state
     frameCount = 0;
     m_MemoryStateIO->clearData();
-    m_MemoryStateIO->setNParticles(getNumParticles());
+    m_MemoryStateIO->setNParticles(m_SimData->getNParticles());
     m_MemoryStateIO->setFixedAttribute("particle_radius", m_SimParams->particleRadius);
     //m_MemoryStateIO->setParticleAttribute("position", particleData().positions);
     //m_MemoryStateIO->setParticleAttribute("velocity", particleData().velocities);
@@ -221,7 +221,7 @@ void FLIP2DSolver::saveParticleData()
         return;
 
     m_ParticleIO->clearData();
-    m_ParticleIO->setNParticles(getNumParticles());
+    m_ParticleIO->setNParticles(m_SimData->getNParticles());
     m_ParticleIO->setFixedAttribute("particle_radius", m_SimParams->particleRadius);
     //m_ParticleIO->setParticleAttribute("position", particleData().positions);
     //m_ParticleIO->setParticleAttribute("velocity", particleData().velocities);
@@ -263,7 +263,7 @@ void FLIP2DSolver::advanceVelocity(Real timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void FLIP2DSolver::moveParticles(Real timestep)
 {
-    ParallelFuncs::parallel_for<UInt>(0, m_SimData->getNumParticles(),
+    ParallelFuncs::parallel_for<UInt>(0, m_SimData->getNParticles(),
                                       [&](UInt p)
                                       {
                                           Vec2r ppos = m_SimData->positions[p] + m_SimData->velocities[p] * timestep;
@@ -290,7 +290,7 @@ void FLIP2DSolver::correctPositions(Real timestep)
 
     // todo: check if this is needed, as this could be done before
     m_Grid.getNeighborList(m_SimData->positions, m_SimData->neighborList, m_SimParams->kernelSpan);
-    ParallelFuncs::parallel_for<UInt>(0, m_SimData->getNumParticles(),
+    ParallelFuncs::parallel_for<UInt>(0, m_SimData->getNParticles(),
                                       [&](UInt p)
                                       {
                                           const Vec2r& ppos = m_SimData->positions[p];
@@ -560,7 +560,7 @@ void FLIP2DSolver::computeFluidSDF()
     m_SimData->fluidSDF.assign(m_SimParams->sdfRadius);
 
     // cannot run in parallel
-    for(UInt p = 0; p < m_SimData->getNumParticles(); ++p) {
+    for(UInt p = 0; p < m_SimData->getNParticles(); ++p) {
         const Vec2i cellId   = m_Grid.getCellIdx<int>(m_SimData->positions[p]);
         const Vec2i cellDown = Vec2i(MathHelpers::max(0, cellId[0] - 1),
                                      MathHelpers::max(0, cellId[1] - 1));
@@ -754,7 +754,7 @@ void FLIP2DSolver::computeChangesGridVelocity()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void FLIP2DSolver::velocityToParticles()
 {
-    ParallelFuncs::parallel_for<UInt>(0, m_SimData->getNumParticles(),
+    ParallelFuncs::parallel_for<UInt>(0, m_SimData->getNParticles(),
                                       [&](UInt p)
                                       {
                                           const Vec2r& ppos = m_SimData->positions[p];

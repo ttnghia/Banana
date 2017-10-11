@@ -146,6 +146,8 @@ struct SimulationData_Cloth3D
     Vec_Real     pressure;
 
     ////////////////////////////////////////////////////////////////////////////////
+    UInt getNParticles() { return static_cast<UInt>(particleSimData.positions.size()); }
+
     void reserve(UInt numParticles)
     {
         particleSimData.positions.reserve(numParticles);

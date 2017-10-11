@@ -159,14 +159,14 @@ struct SimulationData_MPM2D
 
             particleGridPos.push_back(Vec2r(0));
 
-            for(int i = 0; i < 16; ++i)
-            {
+            for(int i = 0; i < 16; ++i) {
                 weightGradients.push_back(Vec2r(0));
                 weights.push_back(Real(0));
             }
         }
 
         ////////////////////////////////////////////////////////////////////////////////
+
         void reserve(UInt numParticles)
         {
             positions.reserve(numParticles);
@@ -192,6 +192,7 @@ struct SimulationData_MPM2D
         }
     } particleSimData;
 
+    UInt getNParticles() { return static_cast<UInt>(particleSimData.positions.size()); }
 
     ////////////////////////////////////////////////////////////////////////////////
     struct GridSimData

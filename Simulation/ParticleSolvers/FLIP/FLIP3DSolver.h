@@ -35,7 +35,7 @@ public:
     FLIP3DSolver() { setupLogger(); }
 
     SharedPtr<SimulationParameters_FLIP3D> getSolverParams() { return m_SimParams; }
-    virtual UInt                           getNumParticles() override { return static_cast<UInt>(particleData().positions.size()); }
+    //virtual UInt                           getNParticles() override { return static_cast<UInt>(particleData().positions.size()); }
 
     ////////////////////////////////////////////////////////////////////////////////
     virtual String getSolverName() override { return String("FLIP3DSolver"); }

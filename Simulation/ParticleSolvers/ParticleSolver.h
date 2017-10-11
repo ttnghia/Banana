@@ -70,7 +70,7 @@ public:
     ////////////////////////////////////////////////////////////////////////////////
     virtual String getSolverName()      = 0;
     virtual String getGreetingMessage() = 0;
-    virtual UInt   getNumParticles()    = 0;
+    //virtual UInt   getNParticles()    = 0;
 
     virtual void makeReady()     = 0;
     virtual void advanceFrame()  = 0;

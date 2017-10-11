@@ -88,8 +88,7 @@ struct SimulationParameters_FLIP2D
         logger->printLogIndent("Kernel radius: " + std::to_string(cellSize));
         logger->printLogIndent("Boundary restitution: " + std::to_string(boundaryRestitution));
         logger->printLogIndent("Apply repulsive forces: " + (bApplyRepulsiveForces ? std::string("Yes") : std::string("No")));
-        if(bApplyRepulsiveForces)
-        {
+        if(bApplyRepulsiveForces) {
             logger->printLogIndent("Repulsive force stiffness: " + NumberHelpers::formatToScientific(repulsiveForceStiffness));
         }
 
@@ -127,7 +126,7 @@ struct SimulationData_FLIP2D
     Vec_Real     pressure;
 
     ////////////////////////////////////////////////////////////////////////////////
-    UInt getNumParticles() { return static_cast<UInt>(positions.size()); }
+    UInt getNParticles() { return static_cast<UInt>(positions.size()); }
 
     void reserve(UInt numParticles)
     {

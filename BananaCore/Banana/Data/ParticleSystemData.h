@@ -52,8 +52,7 @@ public:
     ////////////////////////////////////////////////////////////////////////////////
     void clearData()
     {
-        for(auto it = m_ArrayData.cbegin(), itEnd = m_ArrayData.cend(); it != itEnd; ++it)
-        {
+        for(auto it = m_ArrayData.cbegin(), itEnd = m_ArrayData.cend(); it != itEnd; ++it) {
             it->second->clear();
         }
 
@@ -67,13 +66,11 @@ public:
     void resize(unsigned int numParticles)
     {
         m_NumParticles = numParticles;
-        if(m_MaxNumParticles < numParticles)
-        {
+        if(m_MaxNumParticles < numParticles) {
             m_MaxNumParticles = numParticles;
         }
 
-        for(auto it = m_ArrayData.cbegin(), itEnd = m_ArrayData.cend(); it != itEnd; ++it)
-        {
+        for(auto it = m_ArrayData.cbegin(), itEnd = m_ArrayData.cend(); it != itEnd; ++it) {
             const std::string& arrName   = it->first;
             size_t             arraySize = m_NumParticles * m_ArrayElementSize[arrName];
             it->second->resize(arraySize);
@@ -85,8 +82,7 @@ public:
     {
         m_MaxNumParticles = maxNumParticles;
 
-        for(auto it = m_ArrayData.cbegin(), itEnd = m_ArrayData.cend(); it != itEnd; ++it)
-        {
+        for(auto it = m_ArrayData.cbegin(), itEnd = m_ArrayData.cend(); it != itEnd; ++it) {
             const std::string& arrName   = it->first;
             size_t             arraySize = m_MaxNumParticles * m_ArrayElementSize[arrName];
             it->second->reserve(arraySize);
@@ -96,8 +92,7 @@ public:
     ////////////////////////////////////////////////////////////////////////////////
     void allocate(unsigned int numAllocation)
     {
-        for(auto it = m_ArrayData.cbegin(), itEnd = m_ArrayData.cend(); it != itEnd; ++it)
-        {
+        for(auto it = m_ArrayData.cbegin(), itEnd = m_ArrayData.cend(); it != itEnd; ++it) {
             const std::string& arrName   = it->first;
             size_t             arraySize = numAllocation * m_ArrayElementSize[arrName];
             it->second->resize(arraySize);
@@ -122,25 +117,21 @@ public:
         size_t arraySize    = m_NumParticles * sizeof(Real) * N;
         size_t maxArraySize = m_MaxNumParticles * sizeof(Real) * N;
 
-        if(!hasArray(arrName))
-        {
+        if(!hasArray(arrName)) {
             m_ArrayElementSize[arrName] = sizeof(Real) * N;
             m_ArrayData[arrName]        = new std::vector<unsigned char>;
             m_ArrayData[arrName]->reserve(maxArraySize);
             m_ArrayData[arrName]->resize(arraySize);
         }
-        else
-        {
+        else{
             m_ArrayData[arrName]->reserve(maxArraySize);
             m_ArrayData[arrName]->resize(arraySize);
         }
 
-        if(bInit)
-        {
+        if(bInit) {
             Real* dataPtr = reinterpret_cast<Real*>(getArray(arrName)->data());
 
-            for(unsigned int i = 0, iEnd = m_MaxNumParticles * N; i < iEnd; ++i)
-            {
+            for(unsigned int i = 0, iEnd = m_MaxNumParticles * N; i < iEnd; ++i) {
                 dataPtr[i] = initVal;
             }
         }
@@ -161,12 +152,10 @@ public:
         m_ArrayData[arrName]->reserve(maxArraySize);
         m_ArrayData[arrName]->resize(arraySize);
 
-        if(iniZero)
-        {
+        if(iniZero) {
             Real* dataPtr = reinterpret_cast<Real*>(getArray(arrName)->data());
 
-            for(unsigned int i = 0, iEnd = m_MaxNumParticles * N; i < iEnd; ++i)
-            {
+            for(unsigned int i = 0, iEnd = m_MaxNumParticles * N; i < iEnd; ++i) {
                 dataPtr[i] = Real(0);
             }
         }
@@ -199,7 +188,7 @@ public:
     }
 
     //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-    unsigned int getNumParticles() const
+    unsigned int getNParticles() const
     {
         return m_NumParticles;
     }
@@ -244,8 +233,7 @@ public:
         addArray<Real, N>(dataName);
         Real* dataPtr = reinterpret_cast<Real*>(getArray(dataName)->data());
 
-        for(unsigned int i = 0, iEnd = m_NumParticles * N; i < iEnd; ++i)
-        {
+        for(unsigned int i = 0, iEnd = m_NumParticles * N; i < iEnd; ++i) {
             dataPtr[i] = dis(gen);
         }
     }
@@ -263,8 +251,7 @@ public:
         addArray<Real, N>(dataName);
         Real* dataPtr = reinterpret_cast<Real*>(getArray(dataName)->data());
 
-        for(unsigned int i = 0, iEnd = m_NumParticles * N; i < iEnd; ++i)
-        {
+        for(unsigned int i = 0, iEnd = m_NumParticles * N; i < iEnd; ++i) {
             dataPtr[i] = dis(gen);
         }
     }
@@ -279,8 +266,7 @@ public:
         Real* dataPtr     = reinterpret_cast<Real*>(getArray(dataName)->data());
         Real  segmentSize = static_cast<Real>(m_NumParticles) / static_cast<Real>(rangeVals.size() - 1);
 
-        for(unsigned int i = 0; i < m_NumParticles; ++i)
-        {
+        for(unsigned int i = 0; i < m_NumParticles; ++i) {
             size_t segment = static_cast<size_t>(floor(static_cast<float>(i)) / segmentSize);
             assert(segment < rangeVals.size() - 1);
 
@@ -288,8 +274,7 @@ public:
             S    startVal = rangeVals[segment];
             S    endVal   = rangeVals[segment + 1];
 
-            for(int j = 0; j < N; ++j)
-            {
+            for(int j = 0; j < N; ++j) {
                 dataPtr[N * i + j] = MathHelpers::lerp(startVal[j], endVal[j], t);
             }
         }

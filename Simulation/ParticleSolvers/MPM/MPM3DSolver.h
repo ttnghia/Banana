@@ -40,7 +40,6 @@ public:
     ////////////////////////////////////////////////////////////////////////////////
     virtual String getSolverName() override { return String("MPM3DSolver"); }
     virtual String getGreetingMessage() override { return String("Simulation using MPM-3D Solver"); }
-    virtual UInt   getNumParticles() override { return static_cast<UInt>(particleData().positions.size()); }
 
     virtual void makeReady() override;
     virtual void advanceFrame() override;

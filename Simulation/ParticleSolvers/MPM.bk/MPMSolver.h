@@ -40,7 +40,7 @@ public:
     virtual void saveMemoryState() override;
 
     virtual std::string getSolverName() override { return std::string("MPMSolver"); }
-    virtual UInt        getNumParticles() override { return static_cast<UInt>(m_SimData->positions.size()); }
+    virtual UInt        getNParticles() override { return static_cast<UInt>(m_SimData->positions.size()); }
     virtual Vec_Vec3r& getPositions() override { return m_SimData->positions; }
     virtual Vec_Vec3r& getVelocity() override { return m_SimData->velocity; }
 

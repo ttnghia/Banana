@@ -43,7 +43,7 @@ void MPM2DSolver::makeReady()
                                //m_PCGSolver.setPreconditioners(PCGSolver::MICCL0_SYMMETRIC);
 
                                //m_NSearch = std::make_unique<NeighborSearch>(m_SimParams->cellSize);
-                               //m_NSearch->add_point_set(glm::value_ptr(particleData().positions.front()), getNumParticles(), true, true);
+                               //m_NSearch->add_point_set(glm::value_ptr(particleData().positions.front()), m_SimData->getNParticles(), true, true);
 
 
                                //We need to estimate particle volumes before we start
@@ -229,7 +229,7 @@ void MPM2DSolver::saveMemoryState()
     // save state
     frameCount = 0;
     m_MemoryStateIO->clearData();
-    m_MemoryStateIO->setNParticles(getNumParticles());
+    m_MemoryStateIO->setNParticles(m_SimData->getNParticles());
     m_MemoryStateIO->setFixedAttribute("particle_radius", m_SimParams->particleRadius);
     m_MemoryStateIO->setParticleAttribute("position", particleData().positions);
     m_MemoryStateIO->setParticleAttribute("velocity", particleData().velocities);
@@ -243,7 +243,7 @@ void MPM2DSolver::saveParticleData()
         return;
 
     m_ParticleIO->clearData();
-    m_ParticleIO->setNParticles(getNumParticles());
+    m_ParticleIO->setNParticles(m_SimData->getNParticles());
     m_ParticleIO->setFixedAttribute("particle_radius", m_SimParams->particleRadius);
     m_ParticleIO->setParticleAttribute("position", particleData().positions);
     m_ParticleIO->setParticleAttribute("velocity", particleData().velocities);
@@ -295,7 +295,7 @@ void MPM2DSolver::updateParticles(Real timestep)
 // todo: consider each node, and accumulate particle data, rather than  consider each particles
 void MPM2DSolver::massToGrid()
 {
-    ParallelFuncs::parallel_for<UInt>(0, getNumParticles(),
+    ParallelFuncs::parallel_for<UInt>(0, m_SimData->getNParticles(),
                                       [&](UInt p)
                                       {
                                           Real ox = particleData().particleGridPos[p][0];
@@ -341,7 +341,7 @@ void MPM2DSolver::massToGrid()
 void MPM2DSolver::velocityToGrid(Real timestep)
 {
     //We interpolate velocity after mass, to conserve momentum
-    ParallelFuncs::parallel_for<UInt>(0, getNumParticles(),
+    ParallelFuncs::parallel_for<UInt>(0, m_SimData->getNParticles(),
                                       [&](UInt p)
                                       {
                                           Int ox = static_cast<Int>(particleData().particleGridPos[p][0]);
@@ -378,7 +378,7 @@ void MPM2DSolver::velocityToGrid(Real timestep)
 void MPM2DSolver::calculateParticleVolumes()
 {
     //Estimate each particles volume (for force calculations)
-    ParallelFuncs::parallel_for<UInt>(0, getNumParticles(),
+    ParallelFuncs::parallel_for<UInt>(0, m_SimData->getNParticles(),
                                       [&](UInt p)
                                       {
                                           Int ox = static_cast<Int>(particleData().particleGridPos[p][0]);
@@ -410,7 +410,7 @@ void MPM2DSolver::explicitVelocities(Real timestep)
 {
     //First, compute the forces
     //We store force in velocity_new, since we're not using that variable at the moment
-    ParallelFuncs::parallel_for<UInt>(0, getNumParticles(),
+    ParallelFuncs::parallel_for<UInt>(0, m_SimData->getNParticles(),
                                       [&](UInt p)
                                       {
                                           //Solve for grid internal forces
@@ -555,7 +555,7 @@ void MPM2DSolver::implicitVelocities(Real timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MPM2DSolver::recomputeImplicitForces(Real timestep)
 {
-    ParallelFuncs::parallel_for<UInt>(0, getNumParticles(),
+    ParallelFuncs::parallel_for<UInt>(0, m_SimData->getNParticles(),
                                       [&](UInt p)
                                       {
                                           Int ox = static_cast<Int>(particleData().particleGridPos[p][0]);
@@ -592,7 +592,7 @@ void MPM2DSolver::recomputeImplicitForces(Real timestep)
 //Map grid velocities back to particles
 void MPM2DSolver::velocityToParticles(Real timestep)
 {
-    ParallelFuncs::parallel_for<UInt>(0, getNumParticles(),
+    ParallelFuncs::parallel_for<UInt>(0, m_SimData->getNParticles(),
                                       [&](UInt p)
                                       {
                                           //We calculate PIC and FLIP velocities separately
@@ -668,7 +668,7 @@ void MPM2DSolver::constrainGridVelocity(Real timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MPM2DSolver::constrainParticleVelocity(Real timestep)
 {
-    ParallelFuncs::parallel_for<UInt>(0, getNumParticles(),
+    ParallelFuncs::parallel_for<UInt>(0, m_SimData->getNParticles(),
                                       [&](UInt p)
                                       {
                                           bool velChanged = false;
@@ -692,7 +692,7 @@ void MPM2DSolver::constrainParticleVelocity(Real timestep)
 
 void MPM2DSolver::updateParticlePositions(Real timestep)
 {
-    ParallelFuncs::parallel_for<UInt>(0, getNumParticles(),
+    ParallelFuncs::parallel_for<UInt>(0, m_SimData->getNParticles(),
                                       [&](UInt p)
                                       {
                                           Vec2r ppos = particleData().positions[p] + particleData().velocities[p] * timestep;
@@ -715,7 +715,7 @@ void MPM2DSolver::updateParticlePositions(Real timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MPM2DSolver::updateGradients(Real timestep)
 {
-    ParallelFuncs::parallel_for<UInt>(0, getNumParticles(),
+    ParallelFuncs::parallel_for<UInt>(0, m_SimData->getNParticles(),
                                       [&](UInt p)
                                       {
                                           Mat2x2r velGrad = particleData().velocityGradients[p];
@@ -730,7 +730,7 @@ void MPM2DSolver::updateGradients(Real timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MPM2DSolver::applyPlasticity()
 {
-    ParallelFuncs::parallel_for<UInt>(0, getNumParticles(),
+    ParallelFuncs::parallel_for<UInt>(0, m_SimData->getNParticles(),
                                       [&](UInt p)
                                       {
                                           Mat2x2r elasticDeformGrad = particleData().elasticDeformGrad[p];

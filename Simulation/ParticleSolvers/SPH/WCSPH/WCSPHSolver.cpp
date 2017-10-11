@@ -38,7 +38,7 @@ void WCSPHSolver::makeReady()
                                m_NearSpikyKernel.setRadius(Real(1.5) * m_SimParams->particleRadius);
 
                                m_NSearch = std::make_unique<NeighborSearch::NeighborSearch3D>(m_SimParams->kernelRadius);
-                               m_NSearch->add_point_set(glm::value_ptr(m_SimData->positions.front()), m_SimData->getNumParticles(), true, true);
+                               m_NSearch->add_point_set(glm::value_ptr(m_SimData->positions.front()), m_SimData->getNParticles(), true, true);
 
 
 
@@ -232,7 +232,7 @@ void WCSPHSolver::saveMemoryState()
     // save state
     frameCount = 0;
     m_MemoryStateIO->clearData();
-    m_MemoryStateIO->setNParticles(getNumParticles());
+    m_MemoryStateIO->setNParticles(m_SimData->getNParticles());
     m_MemoryStateIO->setFixedAttribute("ParticleRadius", m_SimParams->particleRadius);
     m_MemoryStateIO->setParticleAttribute("StatePosition", m_SimData->positions);
     m_MemoryStateIO->setParticleAttribute("StateVelocity", m_SimData->velocities);
@@ -246,7 +246,7 @@ void WCSPHSolver::saveParticleData()
         return;
 
     m_ParticleIO->clearData();
-    m_ParticleIO->setNParticles(getNumParticles());
+    m_ParticleIO->setNParticles(m_SimData->getNParticles());
     m_ParticleIO->setFixedAttribute("ParticleRadius", m_SimParams->particleRadius);
     m_ParticleIO->setParticleAttribute("Position", m_SimData->positions);
     m_ParticleIO->setParticleAttribute("Velocity", m_SimData->velocities);
@@ -293,7 +293,7 @@ void WCSPHSolver::computeDensity()
 
     const NeighborSearch::PointSet& fluidPointSet = m_NSearch->point_set(0);
 
-    ParallelFuncs::parallel_for<UInt>(0, m_SimData->getNumParticles(),
+    ParallelFuncs::parallel_for<UInt>(0, m_SimData->getNParticles(),
                                       [&](UInt p)
                                       {
                                           const Vec3r& pPos = m_SimData->positions[p];
@@ -332,7 +332,7 @@ void WCSPHSolver::correctDensity()
 
     const NeighborSearch::PointSet& fluidPointSet = m_NSearch->point_set(0);
 
-    ParallelFuncs::parallel_for<UInt>(0, m_SimData->getNumParticles(),
+    ParallelFuncs::parallel_for<UInt>(0, m_SimData->getNParticles(),
                                       [&](UInt p)
                                       {
                                           const Vec3r& pPos = m_SimData->positions[p];
@@ -375,7 +375,7 @@ void WCSPHSolver::computePressureForces()
     assert(m_SimData->positions.size() == m_SimData->pressureForces.size());
 
     const NeighborSearch::PointSet& fluidPointSet = m_NSearch->point_set(0);
-    ParallelFuncs::parallel_for<UInt>(0, m_SimData->getNumParticles(),
+    ParallelFuncs::parallel_for<UInt>(0, m_SimData->getNParticles(),
                                       [&](UInt p)
                                       {
                                           const Real pden = m_SimData->densities[p];
@@ -440,7 +440,7 @@ void WCSPHSolver::computeViscosity()
     assert(m_SimData->positions.size() == m_SimData->diffuseVelocity.size());
 
     const NeighborSearch::PointSet& fluidPointSet = m_NSearch->point_set(0);
-    ParallelFuncs::parallel_for<UInt>(0, m_SimData->getNumParticles(),
+    ParallelFuncs::parallel_for<UInt>(0, m_SimData->getNParticles(),
                                       [&](UInt p)
                                       {
                                           const Vec3r& pPos = m_SimData->positions[p];

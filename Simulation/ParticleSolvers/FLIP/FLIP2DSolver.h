@@ -40,7 +40,7 @@ public:
     ////////////////////////////////////////////////////////////////////////////////
     virtual String getSolverName() override { return String("FLIP2DSolver"); }
     virtual String getGreetingMessage() override { return String("Fluid Simulation using FLIP-2D Solver"); }
-    virtual UInt   getNumParticles() override { return m_SimData->getNumParticles(); }
+    //virtual UInt   getNParticles() override { return m_SimData->getNParticles(); }
 
     virtual void makeReady() override;
     virtual void advanceFrame() override;

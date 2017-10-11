@@ -49,7 +49,7 @@ void ClothSolver::makeReady()
                                m_PCGSolver.setPreconditioners(PCGSolver::MICCL0_SYMMETRIC);
 
                                m_NSearch = std::make_unique<NeighborSearch::NeighborSearch3D>(m_SimParams->cellSize);
-                               m_NSearch->add_point_set(glm::value_ptr(particleData().positions.front()), getNumParticles(), true, true);
+                               m_NSearch->add_point_set(glm::value_ptr(particleData().positions.front()), m_SimData->getNParticles(), true, true);
 
                                for(auto& obj : m_BoundaryObjects) {
                                    obj->margin() = m_SimParams->particleRadius;
@@ -220,7 +220,7 @@ void ClothSolver::saveMemoryState()
     // save state
     frameCount = 0;
     m_MemoryStateIO->clearData();
-    m_MemoryStateIO->setNParticles(getNumParticles());
+    m_MemoryStateIO->setNParticles(m_SimData->getNParticles());
     m_MemoryStateIO->setFixedAttribute("particle_radius", m_SimParams->particleRadius);
     m_MemoryStateIO->setParticleAttribute("position", particleData().positions);
     m_MemoryStateIO->setParticleAttribute("velocity", particleData().velocities);
@@ -234,7 +234,7 @@ void ClothSolver::saveParticleData()
         return;
 
     m_ParticleIO->clearData();
-    m_ParticleIO->setNParticles(getNumParticles());
+    m_ParticleIO->setNParticles(m_SimData->getNParticles());
     m_ParticleIO->setFixedAttribute("particle_radius", m_SimParams->particleRadius);
     m_ParticleIO->setParticleAttribute("position", particleData().positions);
     m_ParticleIO->setParticleAttribute("velocity", particleData().velocities);
@@ -289,7 +289,7 @@ void ClothSolver::advanceVelocity(Real timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void ClothSolver::moveParticles(Real timestep)
 {
-    ParallelFuncs::parallel_for<UInt>(0, getNumParticles(),
+    ParallelFuncs::parallel_for<UInt>(0, m_SimData->getNParticles(),
                                       [&](UInt p)
                                       {
                                           Vec3r pvel = particleData().velocities[p];
@@ -358,7 +358,7 @@ void ClothSolver::addRepulsiveVelocity2Particles(Real timestep)
     //m_Grid.getNeighborList(particleData().positions, particleData().neighborList, m_SimParams->nearKernelRadiusSqr);
     ////////////////////////////////////////////////////////////////////////////////
 
-    ParallelFuncs::parallel_for<UInt>(0, getNumParticles(),
+    ParallelFuncs::parallel_for<UInt>(0, m_SimData->getNParticles(),
                                       [&](UInt p)
                                       {
                                           //const Vec_UInt& neighbors = particleData().neighborList[p];
@@ -666,7 +666,7 @@ void ClothSolver::computeFluidSDF()
 {
     gridData().fluidSDF.assign(m_Grid.getCellSize() * Real(3.0));
 
-    ParallelFuncs::parallel_for<UInt>(0, getNumParticles(),
+    ParallelFuncs::parallel_for<UInt>(0, m_SimData->getNParticles(),
                                       [&](UInt p)
                                       {
                                           const Vec3r ppos = particleData().positions[p];
@@ -917,7 +917,7 @@ void ClothSolver::computeChangesGridVelocity()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void ClothSolver::velocityToParticles()
 {
-    ParallelFuncs::parallel_for<UInt>(0, getNumParticles(),
+    ParallelFuncs::parallel_for<UInt>(0, m_SimData->getNParticles(),
                                       [&](UInt p)
                                       {
                                           const Vec3r& ppos = particleData().positions[p];

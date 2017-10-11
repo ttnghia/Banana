@@ -98,8 +98,7 @@ struct SimulationParameters_FLIP3D
 
         logger->printLogIndent("Boundary restitution: " + std::to_string(boundaryRestitution));
         logger->printLogIndent("Apply repulsive forces: " + (bApplyRepulsiveForces ? String("Yes") : String("No")));
-        if(bApplyRepulsiveForces)
-        {
+        if(bApplyRepulsiveForces) {
             logger->printLogIndent("Repulsive force stiffness: " + NumberHelpers::formatToScientific(repulsiveForceStiffness));
         }
 
@@ -147,6 +146,8 @@ struct SimulationData_FLIP3D
     Vec_Real     pressure;
 
     ////////////////////////////////////////////////////////////////////////////////
+    UInt getNParticles() { return static_cast<UInt>(particleSimData.positions.size()); }
+
     void reserve(UInt numParticles)
     {
         particleSimData.positions.reserve(numParticles);
