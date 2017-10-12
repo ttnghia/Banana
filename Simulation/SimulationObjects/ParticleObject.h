@@ -18,7 +18,7 @@
 #pragma once
 
 #include <Banana/Setup.h>
-#include <Banana/Geometry/GeometryObject.h>
+#include <Banana/Geometry/GeometryObjects.h>
 #include <Banana/Geometry/GeometryObjectFactory.h>
 #include <Banana/Grid/Grid.h>
 #include <ParticleTools/ParticleHelpers.h>

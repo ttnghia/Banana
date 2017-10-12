@@ -17,8 +17,7 @@
 template<Int N, class RealType>
 void loadBoundaryObjects(const nlohmann::json& jParams, Vector<SharedPtr<SimulationObjects::BoundaryObject<N, RealType> > >& boundaryObjs)
 {
-    for(auto& jObj : jParams)
-    {
+    for(auto& jObj : jParams) {
         // read geometry type of the object
         String geometryType = String("");
         __BNN_ASSERT(JSONHelpers::readValue(jObj, geometryType, "GeometryType"));
@@ -36,17 +35,21 @@ void loadBoundaryObjects(const nlohmann::json& jParams, Vector<SharedPtr<Simulat
 
         // read object transformation
         VecX<N, Real> translation;
-        VecX<N, Real> rotationAngles;
-        VecX<N, Real> scale;
+        VecX<N, Real> rotationAxis;
+        Real          rotationAngle;
+        Real          scale;
 
-        if(JSONHelpers::readVector(jObj, translation, "Translation"))
+        if(JSONHelpers::readVector(jObj, translation, "Translation")) {
             obj->getGeometry()->translate(translation);
+        }
 
-        if(JSONHelpers::readVector(jObj, rotationAngles, "RotationAngles"))
-            obj->getGeometry()->rotate(rotationAngles);
+        if(JSONHelpers::readVector(jObj, rotationAxis, "RotationAxis") && JSONHelpers::readValue(jObj, rotationAngle, "RotationAngle")) {
+            obj->getGeometry()->rotate(rotationAxis, rotationAngle);
+        }
 
-        if(JSONHelpers::readVector(jObj, scale, "Scale"))
-            obj->getGeometry()->scale(scale);
+        if(JSONHelpers::readValue(jObj, scale, "Scale")) {
+            obj->getGeometry()->uniformScale(scale);
+        }
 
         obj->setParameters(jObj);
     }
@@ -56,8 +59,7 @@ void loadBoundaryObjects(const nlohmann::json& jParams, Vector<SharedPtr<Simulat
 template<Int N, class RealType>
 void loadParticleObjects(const nlohmann::json& jParams, Vector<SharedPtr<SimulationObjects::ParticleObject<N, RealType> > >& particleObjs)
 {
-    for(auto& jObj : jParams)
-    {
+    for(auto& jObj : jParams) {
         // read geometry type of the object
         String geometryType = String("");
         __BNN_ASSERT(JSONHelpers::readValue(jObj, geometryType, "GeometryType"));
@@ -74,17 +76,21 @@ void loadParticleObjects(const nlohmann::json& jParams, Vector<SharedPtr<Simulat
 
         // read object transformation
         VecX<N, Real> translation;
-        VecX<N, Real> rotationAngles;
-        VecX<N, Real> scale;
+        VecX<N, Real> rotationAxis;
+        Real          rotationAngle;
+        Real          scale;
 
-        if(JSONHelpers::readVector(jObj, translation, "Translation"))
+        if(JSONHelpers::readVector(jObj, translation, "Translation")) {
             obj->getGeometry()->translate(translation);
+        }
 
-        if(JSONHelpers::readVector(jObj, rotationAngles, "RotationAngles"))
-            obj->getGeometry()->rotate(rotationAngles);
+        if(JSONHelpers::readVector(jObj, rotationAxis, "RotationAxis") && JSONHelpers::readValue(jObj, rotationAngle, "RotationAngle")) {
+            obj->getGeometry()->rotate(rotationAxis, rotationAngle);
+        }
 
-        if(JSONHelpers::readVector(jObj, scale, "Scale"))
-            obj->getGeometry()->scale(scale);
+        if(JSONHelpers::readValue(jObj, scale, "Scale")) {
+            obj->getGeometry()->uniformScale(scale);
+        }
     }
 }
 
@@ -92,8 +98,7 @@ void loadParticleObjects(const nlohmann::json& jParams, Vector<SharedPtr<Simulat
 template<Int N, class RealType>
 void loadParticleEmitters(const nlohmann::json& jParams, Vector<SharedPtr<SimulationObjects::ParticleEmitter<N, RealType> > >& particleEmitters)
 {
-    for(auto& jObj : jParams)
-    {
+    for(auto& jObj : jParams) {
         // read geometry type of the object
         String geometryType = String("");
         __BNN_ASSERT(JSONHelpers::readValue(jObj, geometryType, "GeometryType"));
@@ -110,16 +115,20 @@ void loadParticleEmitters(const nlohmann::json& jParams, Vector<SharedPtr<Simula
 
         // read object transformation
         VecX<N, Real> translation;
-        VecX<N, Real> rotationAngles;
-        VecX<N, Real> scale;
+        VecX<N, Real> rotationAxis;
+        Real          rotationAngle;
+        Real          scale;
 
-        if(JSONHelpers::readVector(jObj, translation, "Translation"))
+        if(JSONHelpers::readVector(jObj, translation, "Translation")) {
             obj->getGeometry()->translate(translation);
+        }
 
-        if(JSONHelpers::readVector(jObj, rotationAngles, "RotationAngles"))
-            obj->getGeometry()->rotate(rotationAngles);
+        if(JSONHelpers::readVector(jObj, rotationAxis, "RotationAxis") && JSONHelpers::readValue(jObj, rotationAngle, "RotationAngle")) {
+            obj->getGeometry()->rotate(rotationAxis, rotationAngle);
+        }
 
-        if(JSONHelpers::readVector(jObj, scale, "Scale"))
-            obj->getGeometry()->scale(scale);
+        if(JSONHelpers::readValue(jObj, scale, "Scale")) {
+            obj->getGeometry()->uniformScale(scale);
+        }
     }
 }

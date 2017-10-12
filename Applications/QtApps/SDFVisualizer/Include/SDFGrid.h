@@ -49,10 +49,10 @@ signals:
 private:
     void generateParticles();
 
-    SDFObjectTypes                                           m_SDFObjectType = Box;
-    int                                                      m_Resolution    = 32;
-    std::shared_ptr<ParticleSystemData>                      m_ParticleData;
-    std::shared_ptr<GeometryObjects::GeometryObject<float> > m_SDFObject;
-    std::future<void>                                        m_SDFGenerationFutureObj;
-    Timer                                                    m_Timer;
+    SDFObjectTypes                                              m_SDFObjectType = Box;
+    int                                                         m_Resolution    = 32;
+    std::shared_ptr<ParticleSystemData>                         m_ParticleData;
+    std::shared_ptr<GeometryObjects::GeometryObject<3, float> > m_SDFObject;
+    std::future<void>                                           m_SDFGenerationFutureObj;
+    Timer                                                       m_Timer;
 };

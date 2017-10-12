@@ -17,20 +17,22 @@
 template<Int N, class RealType>
 RealType BoundaryObjectInterface<N, RealType >::signedDistance(const VecX<N, RealType>& ppos, bool bUseCache)
 {
-    if(bUseCache && m_bSDFGenerated)
+    if(bUseCache && m_bSDFGenerated) {
         return ArrayHelpers::interpolateValueLinear(m_Grid.getGridCoordinate(ppos), m_SDF);
-    else
+    } else {
         return m_GeometryObj->signedDistance(ppos, false);
+    }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
 VecX<N, RealType> BoundaryObjectInterface<N, RealType >::gradientSignedDistance(const VecX<N, RealType>& ppos, RealType dxyz, bool bUseCache)
 {
-    if(bUseCache && m_bSDFGenerated)
+    if(bUseCache && m_bSDFGenerated) {
         return ArrayHelpers::interpolateGradient(m_Grid.getGridCoordinate(ppos), m_SDF);
-    else
+    } else {
         return m_GeometryObj->gradientSignedDistance(ppos);
+    }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -55,8 +57,9 @@ void BoundaryObjectInterface<N, RealType >::generateSDF(const VecX<N, RealType>&
 
     ////////////////////////////////////////////////////////////////////////////////
     // save cache sdf
-    if(bUseCache && !m_SDFFile.empty())
+    if(bUseCache && !m_SDFFile.empty()) {
         m_SDF.saveToFile(m_SDFFile);
+    }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -129,13 +132,13 @@ bool BoxBoundaryInterface<N, RealType >::constrainToBoundary(VecX<N, RealType>& 
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<Int N, class RealType>
-void BoxBoundaryInterface<N, RealType >::setBox(const VecX<N, RealType>& bMin, const VecX<N, RealType>& bMax)
-{
-    auto box = std::static_pointer_cast<GeometryObjects::BoxObject<N, RealType> >(m_GeometryObj);
-    __BNN_ASSERT(box != nullptr);
-    box->setBox(bMin, bMax);
-}
+//template<Int N, class RealType>
+//void BoxBoundaryInterface<N, RealType >::setBox(const VecX<N, RealType>& bMin, const VecX<N, RealType>& bMax)
+//{
+//    auto box = std::static_pointer_cast<GeometryObjects::BoxObject<N, RealType> >(m_GeometryObj);
+//    __BNN_ASSERT(box != nullptr);
+//    box->setBox(bMin, bMax);
+//}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
@@ -153,7 +156,7 @@ void BoxBoundaryInterface<N, RealType >::parseParameters()
     bMin += VecX<N, RealType>(offset);
     bMax -= VecX<N, RealType>(offset);
 
-    setBox(bMin, bMax);
+    //setBox(bMin, bMax);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -404,32 +407,33 @@ void SphereBoundary<N, RealType >::parseParameters()
     JSONHelpers::readVector(m_jParams, center, "Center");
     JSONHelpers::readValue(m_jParams, radius, "Radius");
 
-    setSphere(center, radius);
+    //setSphere(center, radius);
 }
 
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<Int N, class RealType>
-void SphereBoundary<N, RealType >::setSphere(const VecX<N, RealType>& center, RealType radius)
-{
-    auto sphere = std::static_pointer_cast<GeometryObjects::SphereObject<N, RealType> >(m_GeometryObj);
-    __BNN_ASSERT(sphere != nullptr);
-    sphere->setSphere(center, radius);
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<Int N, class RealType>
-const VecX<N, RealType>& SphereBoundary<N, RealType >::center() const
-{
-    auto sphere = std::static_pointer_cast<GeometryObjects::SphereObject<N, RealType> >(m_GeometryObj);
-    __BNN_ASSERT(sphere != nullptr);
-    return sphere->center();
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<Int N, class RealType>
-RealType SphereBoundary<N, RealType >::radius() const
-{
-    auto sphere = std::static_pointer_cast<GeometryObjects::SphereObject<N, RealType> >(m_GeometryObj);
-    __BNN_ASSERT(sphere != nullptr);
-    return sphere->radius();
-}
+//
+////-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//template<Int N, class RealType>
+//void SphereBoundary<N, RealType >::setSphere(const VecX<N, RealType>& center, RealType radius)
+//{
+//    auto sphere = std::static_pointer_cast<GeometryObjects::SphereObject<N, RealType> >(m_GeometryObj);
+//    __BNN_ASSERT(sphere != nullptr);
+//    //sphere->setSphere(center, radius);
+//}
+//
+////-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//template<Int N, class RealType>
+//const VecX<N, RealType>& SphereBoundary<N, RealType >::center() const
+//{
+//    auto sphere = std::static_pointer_cast<GeometryObjects::SphereObject<N, RealType> >(m_GeometryObj);
+//    __BNN_ASSERT(sphere != nullptr);
+//    return sphere->center();
+//}
+//
+////-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//template<Int N, class RealType>
+//RealType SphereBoundary<N, RealType >::radius() const
+//{
+//    auto sphere = std::static_pointer_cast<GeometryObjects::SphereObject<N, RealType> >(m_GeometryObj);
+//    __BNN_ASSERT(sphere != nullptr);
+//    return sphere->radius();
+//}

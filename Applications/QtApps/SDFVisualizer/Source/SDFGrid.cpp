@@ -36,123 +36,121 @@ void SDFGrid::generateParticles()
 {
     m_Timer.tick();
 
-    switch(m_SDFObjectType)
-    {
+    switch(m_SDFObjectType) {
         case Box:
-            m_SDFObject = std::make_shared<GeometryObjects::BoxObject<float> >();
+            m_SDFObject = std::make_shared<GeometryObjects::BoxObject<3, float> >();
             break;
         case Sphere:
-            m_SDFObject = std::make_shared<GeometryObjects::SphereObject<float> >();
+            m_SDFObject = std::make_shared<GeometryObjects::SphereObject<3, float> >();
             break;
         case Torus:
-            m_SDFObject = std::make_shared<GeometryObjects::TorusObject<float> >();
+            m_SDFObject = std::make_shared<GeometryObjects::TorusObject<3, float> >();
             break;
         case Torus28:
-            m_SDFObject = std::make_shared<GeometryObjects::Torus28Object<float> >();
+            m_SDFObject = std::make_shared<GeometryObjects::Torus28Object<3, float> >();
             break;
         case Torus2Inf:
-            m_SDFObject = std::make_shared<GeometryObjects::Torus2InfObject<float> >();
+            m_SDFObject = std::make_shared<GeometryObjects::Torus2InfObject<3, float> >();
             break;
         case Torus88:
-            m_SDFObject = std::make_shared<GeometryObjects::Torus88Object<float> >();
+            m_SDFObject = std::make_shared<GeometryObjects::Torus88Object<3, float> >();
             break;
         case TorusInfInf:
-            m_SDFObject = std::make_shared<GeometryObjects::TorusInfInfObject<float> >();
+            m_SDFObject = std::make_shared<GeometryObjects::TorusInfInfObject<3, float> >();
             break;
         case Cylinder:
-            m_SDFObject = std::make_shared<GeometryObjects::CylinderObject<float> >();
+            m_SDFObject = std::make_shared<GeometryObjects::CylinderObject<3, float> >();
             break;
         case Cone:
-            m_SDFObject = std::make_shared<GeometryObjects::ConeObject<float> >();
+            m_SDFObject = std::make_shared<GeometryObjects::ConeObject<3, float> >();
             break;
         case Plane:
-            m_SDFObject = std::make_shared<GeometryObjects::PlaneObject<float> >();
+            m_SDFObject = std::make_shared<GeometryObjects::PlaneObject<3, float> >();
             break;
         case TriangularPrism:
-            m_SDFObject = std::make_shared<GeometryObjects::TriangularPrismObject<float> >();
+            m_SDFObject = std::make_shared<GeometryObjects::TriangularPrismObject<3, float> >();
             break;
         case HexagonalPrism:
-            m_SDFObject = std::make_shared<GeometryObjects::HexagonalPrismObject<float> >();
+            m_SDFObject = std::make_shared<GeometryObjects::HexagonalPrismObject<3, float> >();
             break;
         case Capsule:
-            m_SDFObject = std::make_shared<GeometryObjects::CapsuleObject<float> >();
+            m_SDFObject = std::make_shared<GeometryObjects::CapsuleObject<3, float> >();
             break;
         case Ellipsoid:
-            m_SDFObject = std::make_shared<GeometryObjects::EllipsoidObject<float> >();
+            m_SDFObject = std::make_shared<GeometryObjects::EllipsoidObject<3, float> >();
             break;
         case BoxSphereUnion:
         {
-            m_SDFObject = std::make_shared<GeometryObjects::CSGObject<float> >();
-            std::shared_ptr<GeometryObjects::CSGObject<float> > csgObj = std::dynamic_pointer_cast<GeometryObjects::CSGObject<float> >(m_SDFObject);
-            csgObj->addObject(std::make_shared<GeometryObjects::BoxObject<float> >());
-            csgObj->addObject(std::make_shared<GeometryObjects::SphereObject<float> >(), GeometryObjects::CSGOperations::Union);
+            m_SDFObject = std::make_shared<GeometryObjects::CSGObject<3, float> >();
+            std::shared_ptr<GeometryObjects::CSGObject<3, float> > csgObj = std::dynamic_pointer_cast<GeometryObjects::CSGObject<3, float> >(m_SDFObject);
+            csgObj->addObject(std::make_shared<GeometryObjects::BoxObject<3, float> >());
+            csgObj->addObject(std::make_shared<GeometryObjects::SphereObject<3, float> >(), GeometryObjects::CSGOperations::Union);
             break;
         }
         case BoxSubtractSphere:
         {
-            m_SDFObject = std::make_shared<GeometryObjects::CSGObject<float> >();
-            std::shared_ptr<GeometryObjects::CSGObject<float> > csgObj = std::dynamic_pointer_cast<GeometryObjects::CSGObject<float> >(m_SDFObject);
-            csgObj->addObject(std::make_shared<GeometryObjects::BoxObject<float> >());
-            csgObj->addObject(std::make_shared<GeometryObjects::SphereObject<float> >(), GeometryObjects::CSGOperations::Subtraction);
+            m_SDFObject = std::make_shared<GeometryObjects::CSGObject<3, float> >();
+            std::shared_ptr<GeometryObjects::CSGObject<3, float> > csgObj = std::dynamic_pointer_cast<GeometryObjects::CSGObject<3, float> >(m_SDFObject);
+            csgObj->addObject(std::make_shared<GeometryObjects::BoxObject<3, float> >());
+            csgObj->addObject(std::make_shared<GeometryObjects::SphereObject<3, float> >(), GeometryObjects::CSGOperations::Subtraction);
             break;
         }
         case BoxSphereIntersection:
         {
-            m_SDFObject = std::make_shared<GeometryObjects::CSGObject<float> >();
-            std::shared_ptr<GeometryObjects::CSGObject<float> > csgObj = std::dynamic_pointer_cast<GeometryObjects::CSGObject<float> >(m_SDFObject);
-            csgObj->addObject(std::make_shared<GeometryObjects::BoxObject<float> >());
-            csgObj->addObject(std::make_shared<GeometryObjects::SphereObject<float> >(), GeometryObjects::CSGOperations::Intersection);
+            m_SDFObject = std::make_shared<GeometryObjects::CSGObject<3, float> >();
+            std::shared_ptr<GeometryObjects::CSGObject<3, float> > csgObj = std::dynamic_pointer_cast<GeometryObjects::CSGObject<3, float> >(m_SDFObject);
+            csgObj->addObject(std::make_shared<GeometryObjects::BoxObject<3, float> >());
+            csgObj->addObject(std::make_shared<GeometryObjects::SphereObject<3, float> >(), GeometryObjects::CSGOperations::Intersection);
             break;
         }
         case BoxSphereBlendExp:
         {
-            m_SDFObject = std::make_shared<GeometryObjects::CSGObject<float> >();
-            std::shared_ptr<GeometryObjects::CSGObject<float> > csgObj = std::dynamic_pointer_cast<GeometryObjects::CSGObject<float> >(m_SDFObject);
-            csgObj->addObject(std::make_shared<GeometryObjects::BoxObject<float> >());
-            csgObj->addObject(std::make_shared<GeometryObjects::SphereObject<float> >(), GeometryObjects::CSGOperations::BlendExp);
+            m_SDFObject = std::make_shared<GeometryObjects::CSGObject<3, float> >();
+            std::shared_ptr<GeometryObjects::CSGObject<3, float> > csgObj = std::dynamic_pointer_cast<GeometryObjects::CSGObject<3, float> >(m_SDFObject);
+            csgObj->addObject(std::make_shared<GeometryObjects::BoxObject<3, float> >());
+            csgObj->addObject(std::make_shared<GeometryObjects::SphereObject<3, float> >(), GeometryObjects::CSGOperations::BlendExp);
             break;
         }
         case BoxSphereBlendPoly:
         {
-            m_SDFObject = std::make_shared<GeometryObjects::CSGObject<float> >();
-            std::shared_ptr<GeometryObjects::CSGObject<float> > csgObj = std::dynamic_pointer_cast<GeometryObjects::CSGObject<float> >(m_SDFObject);
-            csgObj->addObject(std::make_shared<GeometryObjects::BoxObject<float> >());
-            csgObj->addObject(std::make_shared<GeometryObjects::SphereObject<float> >(), GeometryObjects::CSGOperations::BlendPoly);
+            m_SDFObject = std::make_shared<GeometryObjects::CSGObject<3, float> >();
+            std::shared_ptr<GeometryObjects::CSGObject<3, float> > csgObj = std::dynamic_pointer_cast<GeometryObjects::CSGObject<3, float> >(m_SDFObject);
+            csgObj->addObject(std::make_shared<GeometryObjects::BoxObject<3, float> >());
+            csgObj->addObject(std::make_shared<GeometryObjects::SphereObject<3, float> >(), GeometryObjects::CSGOperations::BlendPoly);
             break;
         }
         case TorusTwist:
         {
-            m_SDFObject = std::make_shared<GeometryObjects::CSGObject<float> >();
-            std::shared_ptr<GeometryObjects::CSGObject<float> > csgObj = std::dynamic_pointer_cast<GeometryObjects::CSGObject<float> >(m_SDFObject);
-            csgObj->addObject(std::make_shared<GeometryObjects::TorusObject<float> >());
+            m_SDFObject = std::make_shared<GeometryObjects::CSGObject<3, float> >();
+            std::shared_ptr<GeometryObjects::CSGObject<3, float> > csgObj = std::dynamic_pointer_cast<GeometryObjects::CSGObject<3, float> >(m_SDFObject);
+            csgObj->addObject(std::make_shared<GeometryObjects::TorusObject<3, float> >());
             csgObj->setDeformOp(GeometryObjects::DomainDeformation::Twist);
             break;
         }
         case BoxBend:
         {
-            m_SDFObject = std::make_shared<GeometryObjects::CSGObject<float> >();
-            std::shared_ptr<GeometryObjects::CSGObject<float> > csgObj = std::dynamic_pointer_cast<GeometryObjects::CSGObject<float> >(m_SDFObject);
-            csgObj->addObject(std::make_shared<GeometryObjects::BoxObject<float> >());
+            m_SDFObject = std::make_shared<GeometryObjects::CSGObject<3, float> >();
+            std::shared_ptr<GeometryObjects::CSGObject<3, float> > csgObj = std::dynamic_pointer_cast<GeometryObjects::CSGObject<3, float> >(m_SDFObject);
+            csgObj->addObject(std::make_shared<GeometryObjects::BoxObject<3, float> >());
             csgObj->setDeformOp(GeometryObjects::DomainDeformation::CheapBend);
             break;
         }
         case TriMeshObj:
         {
-            m_SDFObject = std::make_shared<GeometryObjects::TriMeshObject<float> >();
-            std::shared_ptr<GeometryObjects::TriMeshObject<float> > meshObj = std::dynamic_pointer_cast<GeometryObjects::TriMeshObject<float> >(m_SDFObject);
+            m_SDFObject = std::make_shared<GeometryObjects::TriMeshObject<3, float> >();
+            std::shared_ptr<GeometryObjects::TriMeshObject<3, float> > meshObj = std::dynamic_pointer_cast<GeometryObjects::TriMeshObject<3, float> >(m_SDFObject);
 //            meshObj->meshFile() = "D:/Programming/Banana/Assets/PLY/bunny.ply";
-            meshObj->meshFile() = "D:/Programming/Noodle/Data/Mesh/Bunny.obj";
-//            meshObj->meshFile() = "D:/Programming/Banana/Assets/PLY/icosahedron_ascii.ply";
-            meshObj->step() = float(1.0 / 128.0);
+//            meshObj->meshFile() = "D:/Programming/Noodle/Data/Mesh/Bunny.obj";
+            meshObj->setMeshFile("D:/Programming/Banana/Assets/PLY/icosahedron_ascii.ply");
+            meshObj->setStep(1.0f / 128.0f);
             meshObj->makeSDF();
             break;
         }
     }
 
-    std::shared_ptr<GeometryObjects::TriMeshObject<float> > meshObj = std::dynamic_pointer_cast<GeometryObjects::TriMeshObject<float> >(m_SDFObject);
+    std::shared_ptr<GeometryObjects::TriMeshObject<3, float> > meshObj = std::dynamic_pointer_cast<GeometryObjects::TriMeshObject<3, float> >(m_SDFObject);
 
-    if(meshObj != nullptr)
-    {
+    if(meshObj != nullptr) {
         auto sdf = meshObj->getSDF();
 //        for(float x : sdf.vec_data())
 //            qDebug() << x;
@@ -186,27 +184,21 @@ void SDFGrid::generateParticles()
     float             maxPositiveDistance    = 0;
     float             maxAbsNegativeDistance = 0;
 
-    for(int i = 0; i < m_Resolution; ++i)
-    {
-        for(int j = 0; j < m_Resolution; ++j)
-        {
-            for(int k = 0; k < m_Resolution; ++k)
-            {
+    for(int i = 0; i < m_Resolution; ++i) {
+        for(int j = 0; j < m_Resolution; ++j) {
+            for(int k = 0; k < m_Resolution; ++k) {
                 Vec3<float> ppos = corner + 2.0f * Vec3<float>(static_cast<float>(i) / static_cast<float>(m_Resolution),
                                                                static_cast<float>(j) / static_cast<float>(m_Resolution),
                                                                static_cast<float>(k) / static_cast<float>(m_Resolution));
 
                 float distance = m_SDFObject->signedDistance(ppos);
-                if(distance < 0)
-                {
+                if(distance < 0) {
                     ++numNegative;
                     negativeParticles.push_back(ppos);
 
                     negativeColorScale.push_back(distance);
                     maxAbsNegativeDistance = (maxAbsNegativeDistance < abs(distance)) ? abs(distance) : maxAbsNegativeDistance;
-                }
-                else
-                {
+                } else {
                     ++numPositive;
                     positiveParticles.push_back(ppos);
 

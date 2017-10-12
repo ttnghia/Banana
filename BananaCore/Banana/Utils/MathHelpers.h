@@ -204,6 +204,18 @@ inline T norm8(T x1, T x2, T x3)
     return std::pow(pow8(x1) + pow8(x2) + pow8(x3), T(1.0 / 8.0));
 }
 
+template<class T>
+inline T norm_inf(T x1, T x2)
+{
+    return max(std::abs(x1), std::abs(x2));
+}
+
+template<class T>
+inline T norm_inf(T x1, T x2, T x3)
+{
+    return max(std::abs(x1), std::abs(x2), std::abs(x3));
+}
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class T>
 inline T min(T a1, T a2)
@@ -265,8 +277,9 @@ template<Int N, class T>
 VecX<N, T> min(const VecX<N, T>& a, const VecX<N, T>& b)
 {
     VecX<N, T> result;
-    for(Int i = 0; i < N; ++i)
+    for(Int i = 0; i < N; ++i) {
         result[i] = min(a[i], b[i]);
+    }
     return result;
 }
 
@@ -305,8 +318,9 @@ template<Int N, class T>
 VecX<N, T> max(const VecX<N, T>& a, const VecX<N, T>& b)
 {
     VecX<N, T> result;
-    for(Int i = 0; i < N; ++i)
+    for(Int i = 0; i < N; ++i) {
         result[i] = max(a[i], b[i]);
+    }
     return result;
 }
 
@@ -317,8 +331,7 @@ inline void minmax(T a1, T a2, T& amin, T& amax)
     if(a1 < a2) {
         amin = a1;
         amax = a2;
-    }
-    else{
+    } else {
         amin = a2;
         amax = a1;
     }
@@ -358,8 +371,7 @@ inline void update_minmax(T a1, T& amin, T& amax)
 {
     if(a1 < amin) {
         amin = a1;
-    }
-    else if(a1 > amax) {
+    } else if(a1 > amax) {
         amax = a1;
     }
 }
@@ -376,30 +388,26 @@ inline void sort(T& a, T& b, T& c)
                 temp = c;
                 c    = b;
                 b    = temp;
-            }       // else: a<b<c
-        }
-        else{  // c<a<b
+            }    // else: a<b<c
+        } else { // c<a<b
             temp = c;
             c    = b;
             b    = a;
             a    = temp;
         }
-    }
-    else{
+    } else {
         if(b < c) {
             if(a < c) { //b<a<c
                 temp = b;
                 b    = a;
                 a    = temp;
-            }
-            else{       // b<c<a
+            } else {    // b<c<a
                 temp = b;
                 b    = c;
                 c    = a;
                 a    = temp;
             }
-        }
-        else{       // c<b<a
+        } else {    // c<b<a
             temp = c;
             c    = a;
             a    = temp;
@@ -413,11 +421,9 @@ inline T clamp(T a, T lower, T upper)
 {
     if(a < lower) {
         return lower;
-    }
-    else if(a > upper) {
+    } else if(a > upper) {
         return upper;
-    }
-    else{
+    } else {
         return a;
     }
 }
@@ -427,11 +433,9 @@ inline T clamp01(T a)
 {
     if(a < T(0)) {
         return T(0);
-    }
-    else if(a > T(1.0)) {
+    } else if(a > T(1.0)) {
         return T(1.0);
-    }
-    else{
+    } else {
         return a;
     }
 }
@@ -441,11 +445,9 @@ inline T clamp(T a, S lower, S upper)
 {
     if(a < T(lower)) {
         return T(lower);
-    }
-    else if(a > T(upper)) {
+    } else if(a > T(upper)) {
         return T(upper);
-    }
-    else{
+    } else {
         return a;
     }
 }
@@ -456,8 +458,7 @@ inline T smooth_step(T r)
 {
     if(r < 0) {
         return 0;
-    }
-    else if(r > T(1.0)) {
+    } else if(r > T(1.0)) {
         return T(1.0);
     }
 
@@ -484,8 +485,7 @@ inline int lround(T x)
 {
     if(x > 0) {
         return (x - floor(x) < T(0.5)) ? (int)floor(x) : (int)ceil(x);
-    }
-    else{
+    } else {
         return (x - floor(x) <= T(0.5)) ? (int)floor(x) : (int)ceil(x);
     }
 }
@@ -609,12 +609,10 @@ inline void get_barycentric(T x, int& i, T& f, int i_low, int i_high)
     if(i < i_low) {
         i = i_low;
         f = 0;
-    }
-    else if(i > i_high - 2) {
+    } else if(i > i_high - 2) {
         i = i_high - 2;
         f = 1;
-    }
-    else{
+    } else {
         f = (T)(x - s);
     }
 }
@@ -628,12 +626,10 @@ inline void get_bary_below(T x, int& i, T& f, int i_low, int i_high)
     if(i < i_low) {
         i = i_low;
         f = 0;
-    }
-    else if(i > i_high - 2) {
+    } else if(i > i_high - 2) {
         i = i_high - 2;
         f = T(1.0);
-    }
-    else{
+    } else {
         f = T(x - T(0.5) - s);
     }
 }
@@ -736,10 +732,11 @@ T smooth_kernel(T r2, T h)
 template<class T>
 T poly6_kernel(T r2, T h)
 {
-    if(r2 <= h * h)
+    if(r2 <= h * h) {
         return T(4.0 / (M_PI * pow(h, 8.0))) * pow(h * h - r2, T(3.0));
-    else
+    } else {
         return 0;
+    }
 }
 
 template<class T>
@@ -798,11 +795,13 @@ inline T cubic_bspline(T f)
     T x2 = x * x;
     T x3 = x2 * x;
 
-    if(x >= T(2.0))
+    if(x >= T(2.0)) {
         return T(0);
+    }
 
-    if(x >= T(1.0))
+    if(x >= T(1.0)) {
         return -x3 / T(6.0) + x2 - T(2.0) * x + T(4.0 / 3.0);
+    }
 
     // else, x < 1.0
     return T(0.5) * x3 - x2 + T(2.0 / 3.0);
@@ -825,11 +824,13 @@ inline T cubic_bspline_grad(T x)
 {
     T abs_x = x > 0 ? x : -x;
 
-    if(abs_x >= T(2.0))
+    if(abs_x >= T(2.0)) {
         return T(0);
+    }
 
-    if(abs_x >= T(1.0))
+    if(abs_x >= T(1.0)) {
         return -x * abs_x / T(2.0) + T(2.0) * x - T(2.0) * x / abs_x;
+    }
 
     // else, x < 1.0
     return T(1.5) * x * abs_x - T(2.0) * x;
@@ -878,8 +879,7 @@ T fraction_inside(T phi_bl, T phi_br, T phi_tl, T phi_tr)
 
     if(inside_count == 4) {
         return T(1.0);
-    }
-    else if(inside_count == 3) {
+    } else if(inside_count == 3) {
         //rotate until the positive value is in the first position
         while(list[0] < 0) {
             MathHelpers::cycle_array(list, 4);
@@ -889,8 +889,7 @@ T fraction_inside(T phi_bl, T phi_br, T phi_tl, T phi_tr)
         T side0 = T(1.0) - fraction_inside(list[0], list[3]);
         T side1 = T(1.0) - fraction_inside(list[0], list[1]);
         return T(1.0) - T(0.5) * side0 * side1;
-    }
-    else if(inside_count == 2) {
+    } else if(inside_count == 2) {
         //rotate until a negative value is in the first position, and the next negative is in either slot 1 or 2.
         while(list[0] >= 0 || !(list[1] < 0 || list[2] < 0)) {
             MathHelpers::cycle_array(list, 4);
@@ -900,8 +899,7 @@ T fraction_inside(T phi_bl, T phi_br, T phi_tl, T phi_tr)
             T side_left  = fraction_inside(list[0], list[3]);
             T side_right = fraction_inside(list[1], list[2]);
             return T(0.5) * (side_left + side_right);
-        }
-        else{       //matching signs are diagonally opposite
+        } else {    //matching signs are diagonally opposite
             //determine the centre point's sign to disambiguate this case
             T middle_point = T(0.25) * (list[0] + list[1] + list[2] + list[3]);
 
@@ -920,8 +918,7 @@ T fraction_inside(T phi_bl, T phi_br, T phi_tl, T phi_tr)
                 area += T(0.5) * side0 * side2;
 
                 return T(1.0) - area;
-            }
-            else{
+            } else {
                 T area = T(0);
 
                 //first triangle (bottom left)
@@ -936,8 +933,7 @@ T fraction_inside(T phi_bl, T phi_br, T phi_tl, T phi_tr)
                 return area;
             }
         }
-    }
-    else if(inside_count == 1) {
+    } else if(inside_count == 1) {
         //rotate until the negative value is in the first position
         while(list[0] >= 0) {
             MathHelpers::cycle_array(list, 4);
@@ -947,8 +943,7 @@ T fraction_inside(T phi_bl, T phi_br, T phi_tl, T phi_tr)
         T side0 = fraction_inside(list[0], list[3]);
         T side1 = fraction_inside(list[0], list[1]);
         return T(0.5) * side0 * side1;
-    }
-    else{
+    } else {
         return T(0);
     }
 }

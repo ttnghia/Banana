@@ -23,7 +23,7 @@
 #include <Banana/Utils/NumberHelpers.h>
 #include <Banana/Utils/FileHelpers.h>
 #include <Banana/Utils/JSONHelpers.h>
-#include <Banana/Geometry/GeometryObject.h>
+#include <Banana/Geometry/GeometryObjects.h>
 #include <Banana/Geometry/GeometryObjectFactory.h>
 #include <Banana/ParallelHelpers/ParallelFuncs.h>
 #include <ParticleSolvers/ParticleSolverData.h>
@@ -136,13 +136,25 @@ class BoxBoundaryInterface : public BoundaryObject<N, RealType>
 {
 public:
     BoxBoundaryInterface() : BoundaryObject<N, RealType>("Box") {}
-    BoxBoundaryInterface(const VecX<N, RealType>& bMin, const VecX<N, RealType>& bMax) : BoundaryObject<N, RealType>("Box") { setBox(bMin, bMax); }
+    //BoxBoundaryInterface(const VecX<N, RealType>& bMin, const VecX<N, RealType>& bMax) : BoundaryObject<N, RealType>("Box") { setBox(bMin, bMax); }
 
     virtual bool constrainToBoundary(VecX<N, RealType>& ppos, VecX<N, RealType>& pvel) override;
 
-    void                     setBox(const VecX<N, RealType>& bMin, const VecX<N, RealType>& bMax);
-    const VecX<N, RealType>& boxMin() const noexcept { return m_GeometryObj->aabbBoxMin(); }
-    const VecX<N, RealType>& boxMax() const noexcept { return m_GeometryObj->aabbBoxMax(); }
+    /*void                     setBox(const VecX<N, RealType>& bMin, const VecX<N, RealType>& bMax);
+     */
+    const VecX<N, RealType>& boxMin() const noexcept
+    {
+        auto box = std::static_pointer_cast<GeometryObjects::BoxObject<N, RealType> >(m_GeometryObj);
+        __BNN_ASSERT(box != nullptr);
+        return box->boxMin();
+    }
+
+    const VecX<N, RealType>& boxMax() const noexcept
+    {
+        auto box = std::static_pointer_cast<GeometryObjects::BoxObject<N, RealType> >(m_GeometryObj);
+        __BNN_ASSERT(box != nullptr);
+        return box->boxMax();
+    }
 
 protected:
     void parseParameters();
@@ -158,7 +170,7 @@ class BoxBoundary<2, RealType> : public BoxBoundaryInterface<2, RealType>
 {
 public:
     BoxBoundary() {}
-    BoxBoundary(const Vec2<RealType>& bMin, const Vec2<RealType>& bMax) : BoxBoundaryInterface<2, RealType>(bMin, bMax) {}
+    //BoxBoundary(const Vec2<RealType>& bMin, const Vec2<RealType>& bMax) : BoxBoundaryInterface<2, RealType>(bMin, bMax) {}
     void generateBoundaryParticles(RealType spacing, Int numBDLayers /*= 2*/, bool saveCache /*= false*/);
 };
 
@@ -168,7 +180,7 @@ class BoxBoundary<3, RealType> : public BoxBoundaryInterface<3, RealType>
 {
 public:
     BoxBoundary() {}
-    BoxBoundary(const Vec3<RealType>& bMin, const Vec3<RealType>& bMax) : BoxBoundaryInterface<3, RealType>(bMin, bMax) {}
+    //BoxBoundary(const Vec3<RealType>& bMin, const Vec3<RealType>& bMax) : BoxBoundaryInterface<3, RealType>(bMin, bMax) {}
     void generateBoundaryParticles(RealType spacing, Int numBDLayers /*= 2*/, bool saveCache /*= false*/);
 };
 
@@ -186,9 +198,9 @@ public:
     virtual void generateBoundaryParticles(RealType spacing, Int numBDLayers = 2, bool saveCache = false) override {}
     virtual bool constrainToBoundary(VecX<N, RealType>& ppos, VecX<N, RealType>& pvel) override { return true; }
 
-    void                     setSphere(const VecX<N, RealType>& center, RealType radius);
-    const VecX<N, RealType>& center() const;
-    RealType                 radius() const;
+    //void                     setSphere(const VecX<N, RealType>& center, RealType radius);
+    //const VecX<N, RealType>& center() const;
+    //RealType                 radius() const;
 
 protected:
     void parseParameters();
