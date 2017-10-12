@@ -217,7 +217,7 @@ void RenderWidget::updateParticleData()
     ////////////////////////////////////////////////////////////////////////////////
     doneCurrent();
     m_RDataParticle.pointRadius  = m_ParticleData->getParticleRadius<GLfloat>();
-    m_RDataParticle.numParticles = m_ParticleData->getNumParticles();
+    m_RDataParticle.numParticles = m_ParticleData->getNParticles();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

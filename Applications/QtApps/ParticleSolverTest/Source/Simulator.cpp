@@ -37,8 +37,9 @@ void Simulator::startSimulation()
 {
     m_bStop = false;
 
-    if(m_SimulationFutureObj.valid())
+    if(m_SimulationFutureObj.valid()) {
         m_SimulationFutureObj.wait();
+    }
 
     m_SimulationFutureObj = std::async(std::launch::async, [&] { doSimulation(); });
 }
@@ -57,8 +58,7 @@ void Simulator::doSimulation()
 #if 0
     ////////////////////////////////////////////////////////////////////////////////
     static bool ready = false;
-    if(!ready)
-    {
+    if(!ready) {
         m_ParticleSolver->makeReady();
         ready = true;
     }
@@ -67,8 +67,7 @@ void Simulator::doSimulation()
     static tbb::task_scheduler_init threadInit(1);
     (void)threadInit;
 
-    for(unsigned int frame = 1; frame <= m_ParticleSolver->getGlobalParams()->finalFrame; ++frame)
-    {
+    for(unsigned int frame = 1; frame <= m_ParticleSolver->getGlobalParams()->finalFrame; ++frame) {
         m_ParticleSolver->advanceFrame();
         m_ParticleSolver->sortParticles();
         float sysTime = m_ParticleSolver->getGlobalParams()->frameDuration * static_cast<float>(frame);
@@ -77,29 +76,28 @@ void Simulator::doSimulation()
         emit particleChanged();
         emit frameFinished();
 
-        if(m_bStop)
+        if(m_bStop) {
             break;
+        }
     }
 
-    if(!m_bStop)
-    {
+    if(!m_bStop) {
         m_bStop = true;
         emit simulationFinished();
     }
 #else
-    for(UInt frame = 1; frame <= m_ParticleSolver->getGlobalParams()->finalFrame; ++frame)
-    {
+    for(UInt frame = 1; frame <= m_ParticleSolver->getGlobalParams()->finalFrame; ++frame) {
         m_ParticleSolver->doSimulationFrame(frame);
 
         emit systemTimeChanged(m_ParticleSolver->getGlobalParams()->evolvedTime());
         emit particleChanged();
         emit frameFinished();
 
-        if(m_bExportImg)
-        {
+        if(m_bExportImg) {
             m_bWaitForSavingImg = true;
-            while(m_bWaitForSavingImg)
+            while(m_bWaitForSavingImg) {
                 ;
+            }
         }
     }
 
@@ -128,8 +126,9 @@ void Simulator::changeScene(const QString& scene)
     emit systemTimeChanged(0);
 
     // wait until the simulation stop before modifying the scene
-    if(m_SimulationFutureObj.valid())
+    if(m_SimulationFutureObj.valid()) {
         m_SimulationFutureObj.wait();
+    }
 
     ////////////////////////////////////////////////////////////////////////////////
     QString sceneFile = QDir::currentPath() + "/Scenes/" + scene;
@@ -147,15 +146,13 @@ void Simulator::changeScene(const QString& scene)
     Vec3<int>   grid    = Vec3<int>(1) * static_cast<int>(2.0f * radius / spacing);
 
     particles.resize(0);
-    for(int i = 0; i < grid[0]; ++i)
-    {
-        for(int j = 0; j < grid[1]; ++j)
-        {
-            for(int k = 0; k < grid[2]; ++k)
-            {
+    for(int i = 0; i < grid[0]; ++i) {
+        for(int j = 0; j < grid[1]; ++j) {
+            for(int k = 0; k < grid[2]; ++k) {
                 Vec3<float> ppos = bMin + spacing * Vec3<float>(i, j, k);
-                if(glm::length(ppos - center) > radius)
+                if(glm::length(ppos - center) > radius) {
                     continue;
+                }
                 NumberHelpers::jitter(ppos, 1.0 * spacing);
                 particles.push_back(ppos);
             }
@@ -165,13 +162,13 @@ void Simulator::changeScene(const QString& scene)
 
     m_ParticleSolver->makeReady();
 
-    m_ParticleData->setNumParticles(m_ParticleSolver->getNumParticles());
+    m_ParticleData->setNumParticles(m_ParticleSolver->getNParticles());
     m_ParticleData->setUInt("ColorRandomReady", 0);
     m_ParticleData->setUInt("ColorRampReady",   0);
     m_ParticleData->setParticleRadius(m_ParticleSolver->getSolverParams()->particleRadius);
 
     emit particleChanged();
-    emit numParticleChanged(m_ParticleSolver->getNumParticles());
+    emit numParticleChanged(m_ParticleSolver->getNParticles());
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

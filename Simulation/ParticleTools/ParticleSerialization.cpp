@@ -86,25 +86,29 @@ void ParticleSerialization::flush(const String& fileName)
                                   {
                                       std::ofstream opf(fileName, std::ios::binary | std::ios::out);
                                       if(!opf.is_open()) {
-                                          if(m_Logger != nullptr)
+                                          if(m_Logger != nullptr) {
                                               m_Logger->printError("Cannot write file: " + fileName);
+                                          }
                                           return;
                                       }
 
                                       ////////////////////////////////////////////////////////////////////////////////
-                                      if(m_Logger != nullptr)
+                                      if(m_Logger != nullptr) {
                                           m_Logger->printLog("Saving particle file: " + fileName);
+                                      }
 
                                       writeHeader(opf);
                                       for(auto& kv : m_FixedAttributes) {
-                                          if(kv.second->bOptional && !kv.second->bReady)
+                                          if(kv.second->bOptional && !kv.second->bReady) {
                                               continue;
+                                          }
                                           __BNN_ASSERT(kv.second->bReady);
                                           opf.write((char*)kv.second->buffer.data(), kv.second->buffer.size());
                                       }
                                       for(auto& kv : m_ParticleAttributes) {
-                                          if(kv.second->bOptional && !kv.second->bReady)
+                                          if(kv.second->bOptional && !kv.second->bReady) {
                                               continue;
+                                          }
                                           __BNN_ASSERT(kv.second->bReady);
                                           opf.write((char*)kv.second->buffer.data(), kv.second->buffer.size());
                                       }
@@ -120,13 +124,15 @@ void ParticleSerialization::writeHeader(std::ofstream& opf)
 
     opf << "BananaParticleData\n";
     for(auto& kv : m_FixedAttributes) {
-        if(kv.second->bReady)
+        if(kv.second->bReady) {
             opf << "FixedAttribute " << kv.second->name << " " << kv.second->typeName() << " " << kv.second->typeSize() << " " << kv.second->count << " " << kv.second->buffer.size() << "\n";
+        }
     }
 
     for(auto& kv : m_ParticleAttributes) {
-        if(kv.second->bReady)
+        if(kv.second->bReady) {
             opf << "ParticleAttribute " << kv.second->name << " " << kv.second->typeName() << " " << kv.second->typeSize() << " " << kv.second->count << " " << kv.second->buffer.size() << "\n";
+        }
     }
 
     opf << "NParticles " << m_nParticles << "\n";
@@ -146,35 +152,38 @@ bool ParticleSerialization::read(const String& fileName, const Vector<String>& r
 {
     std::ifstream ipf(fileName, std::ios::binary | std::ios::in);
     if(!ipf.is_open()) {
-        if(m_Logger != nullptr)
+        if(m_Logger != nullptr) {
             m_Logger->printError("Cannot read file: " + fileName);
+        }
         return false;
     }
 
     ////////////////////////////////////////////////////////////////////////////////
     if(readAttributes.size() > 0) {
         // set all to false
-        for(auto& kv : m_bReadAttributeMap)
+        for(auto& kv : m_bReadAttributeMap) {
             kv.second = false;
+        }
 
         // only given attributes will be true
-        for(auto& attrName : readAttributes)
+        for(auto& attrName : readAttributes) {
             m_bReadAttributeMap[attrName] = true;
+        }
     }
 
     ////////////////////////////////////////////////////////////////////////////////
     m_ByteRead = 0;
-    if(!readHeader(ipf))
+    if(!readHeader(ipf)) {
         return false;
+    }
 
     size_t cursor = ipf.tellg();
     for(auto& kv : m_FixedAttributes) {
         if(m_bReadAttributeMap[kv.second->name]) {
             bool success = readAttribute(kv.second, ipf, cursor);
-            if(!success) return false;
+            if(!success) { return false; }
             cursor = ipf.tellg();
-        }
-        else {
+        } else {
             size_t attrDataSize = m_ReadAttributeDataSizeMap[kv.second->name];
             cursor += attrDataSize;
         }
@@ -183,10 +192,9 @@ bool ParticleSerialization::read(const String& fileName, const Vector<String>& r
     for(auto& kv : m_ParticleAttributes) {
         if(m_bReadAttributeMap[kv.second->name]) {
             bool success = readAttribute(kv.second, ipf, cursor);
-            if(!success) return false;
+            if(!success) { return false; }
             cursor = ipf.tellg();
-        }
-        else{
+        } else {
             size_t attrDataSize = m_ReadAttributeDataSizeMap[kv.second->name];
             cursor += attrDataSize;
         }
@@ -194,8 +202,9 @@ bool ParticleSerialization::read(const String& fileName, const Vector<String>& r
 
     ////////////////////////////////////////////////////////////////////////////////
     ipf.close();
-    if(m_Logger != nullptr)
+    if(m_Logger != nullptr) {
         m_Logger->printLog("Read particle file: " + fileName);
+    }
     return true;
 }
 
@@ -207,22 +216,30 @@ bool ParticleSerialization::readHeader(std::ifstream& ipf)
 
     auto getType = [&](const String& typeName) -> DataType
                    {
-                       if(typeName == "int")
+                       if(typeName == "int") {
                            return TypeInt;
-                       if(typeName == "uint")
+                       }
+                       if(typeName == "uint") {
                            return TypeUInt;
-                       if(typeName == "real")
+                       }
+                       if(typeName == "real") {
                            return TypeReal;
-                       if(typeName == "compressed_real")
+                       }
+                       if(typeName == "compressed_real") {
                            return TypeCompressedReal;
-                       if(typeName == "vector_int")
+                       }
+                       if(typeName == "vector_int") {
                            return TypeVectorInt;
-                       if(typeName == "vector_uint")
+                       }
+                       if(typeName == "vector_uint") {
                            return TypeVectorUInt;
-                       if(typeName == "vector_real")
+                       }
+                       if(typeName == "vector_real") {
                            return TypeVectorReal;
-                       if(typeName == "vector_compressed_real")
+                       }
+                       if(typeName == "vector_compressed_real") {
                            return TypeVectorCompressedReal;
+                       }
                        return TypeInt;
                    };
 
@@ -231,13 +248,13 @@ bool ParticleSerialization::readHeader(std::ifstream& ipf)
         std::string        token;
         ls >> token;
 
-        if(token == "BananaParticleData")
+        if(token == "BananaParticleData") {
             gotMagic = true;
-        else if(token == "EndHeader.")
+        } else if(token == "EndHeader.") {
             break;
-        else if(token == "NParticles")
+        } else if(token == "NParticles") {
             ls >> m_nParticles;
-        else if(token == "FixedAttribute" || token == "ParticleAttribute") {
+        } else if(token == "FixedAttribute" || token == "ParticleAttribute") {
             String attrName, typeName;
             Int    typeSize, count;
             size_t dataSize;
@@ -247,12 +264,12 @@ bool ParticleSerialization::readHeader(std::ifstream& ipf)
             m_ReadAttributeDataSizeMap[attrName] = dataSize;
             m_bReadAttributeMap[attrName]        = true;
 
-            if(token == "FixedAttribute")
+            if(token == "FixedAttribute") {
                 m_FixedAttributes[attrName] = std::make_shared<Attribute>(attrName, getType(typeName), static_cast<ElementSize>(typeSize), count);
-            else
+            } else {
                 m_ParticleAttributes[attrName] = std::make_shared<Attribute>(attrName, getType(typeName), static_cast<ElementSize>(typeSize), count);
-        }
-        else return false;
+            }
+        } else { return false; }
     }
 
     m_ByteRead = ipf.tellg();

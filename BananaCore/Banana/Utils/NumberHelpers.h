@@ -39,8 +39,9 @@ VecX<N, IndexType> createGrid(const VecX<N, RealType>& bmin, const VecX<N, RealT
     VecX<N, RealType>  fgrid = (bmax - bmin) / spacing;
     VecX<N, IndexType> result;
 
-    for(Int i = 0; i < N; ++i)
+    for(Int i = 0; i < N; ++i) {
         result[i] = static_cast<IndexType>(ceil(fgrid[i]));
+    }
 
     return result;
 }
@@ -117,6 +118,25 @@ inline String formatToScientific(const Vec3<RealType>& vec, int precision = 5)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+inline String byteToHex(const char* arrBytes, size_t arrSize, Int width /*= 2*/)
+{
+    if(width < 2) { width = 2; }
+    std::stringstream ss;
+
+    for(size_t i = 0; i < arrSize; ++i) {
+        ss << std::hex << std::uppercase << std::setw(width) << static_cast<Int>(arrBytes[i]);
+    }
+
+    return ss.str();
+}
+
+template<class T>
+inline String byteToHex(const Vector<T>& vecBytes, Int width /*= 2*/)
+{
+    return byteToHex((const char*)vecBytes.data(), vecBytes.size() * sizeof(T));
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<typename RealType>
 String toString(const RealType value, const int precision = 5)
 {
@@ -163,10 +183,11 @@ inline String toString(const Mat2x2<RealType>& mat, bool breakLine = false, int 
 
     ss << String("[");
     ss << formatWithCommas(mat[0][0], precision) << String(", ") << formatWithCommas(mat[1][0], precision);
-    if(breakLine)
+    if(breakLine) {
         ss << String(",") << std::endl;
-    else
+    } else {
         ss << String("; ");
+    }
 
     ss << formatWithCommas(mat[0][1], precision) << String(", ") << formatWithCommas(mat[1][1], precision) << String("]");
 
@@ -182,16 +203,18 @@ inline String toString(const Mat3x3<RealType>& mat, bool breakLine = false, int 
 
     ss << String("[");
     ss << formatWithCommas(mat[0][0], precision) << String(", ") << formatWithCommas(mat[1][0], precision) << String(", ") << formatWithCommas(mat[2][0], precision);
-    if(breakLine)
+    if(breakLine) {
         ss << String(",") << std::endl;
-    else
+    } else {
         ss << String("; ");
+    }
 
     ss << formatWithCommas(mat[0][1], precision) << String(", ") << formatWithCommas(mat[1][1], precision) << String(", ") << formatWithCommas(mat[2][1], precision);
-    if(breakLine)
+    if(breakLine) {
         ss << String(",") << std::endl;
-    else
+    } else {
         ss << String("; ");
+    }
 
     ss << formatWithCommas(mat[0][2], precision) << String(", ") << formatWithCommas(mat[1][2], precision) << String(", ") << formatWithCommas(mat[2][2], precision);
     ss << String("]");
@@ -204,8 +227,9 @@ template<class T, class S, int N>
 inline VecX<N, T> convert(const VecX<N, S>& vec)
 {
     VecX<N, T> result;
-    for(Int i = 0; i < N; ++i)
+    for(Int i = 0; i < N; ++i) {
         result[i] = static_cast<T>(vec[i]);
+    }
 
     return result;
 }
@@ -215,8 +239,9 @@ template<Int N, class RealType>
 bool isInside(const VecX<N, RealType>& ppos, const VecX<N, RealType>& bMin, const VecX<N, RealType>& bMax)
 {
     for(int i = 0; i < N; ++i) {
-        if(ppos[i] < bMin[i] || ppos[i] > bMax[i])
+        if(ppos[i] < bMin[i] || ppos[i] > bMax[i]) {
             return false;
+        }
     }
 
     return true;
@@ -226,16 +251,18 @@ bool isInside(const VecX<N, RealType>& ppos, const VecX<N, RealType>& bMin, cons
 template<Int N, class RealType1, class RealType2>
 void jitter(VecX<N, RealType1>& ppos, RealType2 maxJitter)
 {
-    for(Int j = 0; j < N; ++j)
+    for(Int j = 0; j < N; ++j) {
         ppos += MathHelpers::frand11<RealType1>() * static_cast<RealType1>(maxJitter);
+    }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
 void clamp(VecX<N, RealType>& ppos, const VecX<N, RealType>& bMin, const VecX<N, RealType>& bMax, Real margin /*= 0*/)
 {
-    for(UInt i = 0; i < N; ++i)
+    for(UInt i = 0; i < N; ++i) {
         ppos[i] = MathHelpers::clamp(ppos[i], bMin[i] + margin, bMax[i] - margin);
+    }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

@@ -41,7 +41,7 @@ void ParticleSerialization::setFixedAttribute(const String& attrName, T* values)
 {
     __BNN_ASSERT(m_FixedAttributes.find(attrName) != m_FixedAttributes.end());
     auto& attr = m_FixedAttributes[attrName];
-    attr->buffer.setData((const unsigned char*)values, attr->count * attr->typeSize());
+    attr->buffer.setData((const void*)values, attr->count * attr->typeSize());
     attr->bReady = true;
 }
 
@@ -52,7 +52,7 @@ void ParticleSerialization::setFixedAttribute(const String& attrName, const VecX
     __BNN_ASSERT(m_FixedAttributes.find(attrName) != m_FixedAttributes.end());
     auto& attr = m_FixedAttributes[attrName];
     __BNN_ASSERT(N == attr->count && sizeof(T) == attr->typeSize());
-    attr->buffer.setData((const unsigned char*)glm::value_ptr(value), sizeof(T) * N);
+    attr->buffer.setData((const void*)glm::value_ptr(value), sizeof(T) * N);
     attr->bReady = true;
 }
 
@@ -63,7 +63,7 @@ void ParticleSerialization::setFixedAttribute(const String& attrName, const MatX
     __BNN_ASSERT(m_FixedAttributes.find(attrName) != m_FixedAttributes.end());
     auto& attr = m_FixedAttributes[attrName];
     __BNN_ASSERT(N * N == attr->count && sizeof(T) == attr->typeSize());
-    attr->buffer.setData((const unsigned char*)glm::value_ptr(value), sizeof(T) * N * N);
+    attr->buffer.setData((const void*)glm::value_ptr(value), sizeof(T) * N * N);
     attr->bReady = true;
 }
 
@@ -77,8 +77,7 @@ void ParticleSerialization::setParticleAttribute(const String& attrName, const V
     if(attr->type != TypeCompressedReal) {
         __BNN_ASSERT(sizeof(T) == attr->typeSize());
         attr->buffer.setData(values, false);
-    }
-    else{
+    } else {
         ParticleHelpers::compress(values, attr->buffer, false);
     }
     attr->bReady = true;
@@ -107,8 +106,7 @@ void ParticleSerialization::setParticleAttribute(const String& attrName, const V
     if(attr->type != TypeCompressedReal) {
         __BNN_ASSERT(sizeof(T) == attr->typeSize());
         attr->buffer.setData(values, false);
-    }
-    else{
+    } else {
         ParticleHelpers::compress(values, attr->buffer, false);
     }
     attr->bReady = true;
@@ -123,9 +121,8 @@ void ParticleSerialization::setParticleAttribute(const String& attrName, const V
     __BNN_ASSERT(N * N == attr->count);
     if(attr->type != TypeCompressedReal) {
         __BNN_ASSERT(sizeof(T) == attr->typeSize());
-        attr->buffer.setData((const unsigned char*)values.data(), values.size() * sizeof(T) * N * N);
-    }
-    else{
+        attr->buffer.setData((const void*)values.data(), values.size() * sizeof(T) * N * N);
+    } else {
         ParticleHelpers::compress(values, attr->buffer, false);
     }
     attr->bReady = true;
@@ -135,8 +132,9 @@ void ParticleSerialization::setParticleAttribute(const String& attrName, const V
 template<class T>
 bool ParticleSerialization::getFixedAttribute(const String& attrName, T& value)
 {
-    if(m_FixedAttributes.find(attrName) == m_FixedAttributes.end())
+    if(m_FixedAttributes.find(attrName) == m_FixedAttributes.end()) {
         return false;
+    }
     auto& attr = m_FixedAttributes[attrName];
     __BNN_ASSERT(sizeof(T) == attr->typeSize());
     attr->buffer.getData(value);
@@ -147,10 +145,11 @@ bool ParticleSerialization::getFixedAttribute(const String& attrName, T& value)
 template<class T>
 bool ParticleSerialization::getFixedAttribute(const String& attrName, T* values)
 {
-    if(m_FixedAttributes.find(attrName) == m_FixedAttributes.end())
+    if(m_FixedAttributes.find(attrName) == m_FixedAttributes.end()) {
         return false;
+    }
     auto& attr = m_FixedAttributes[attrName];
-    attr->buffer.getData((unsigned char*)values, attr->count * attr->typeSize());
+    attr->buffer.getData((void*)values, attr->count * attr->typeSize());
     return true;
 }
 
@@ -158,8 +157,9 @@ bool ParticleSerialization::getFixedAttribute(const String& attrName, T* values)
 template<class T>
 bool ParticleSerialization::getFixedAttribute(const String& attrName, Vector<T>& values)
 {
-    if(m_FixedAttributes.find(attrName) == m_FixedAttributes.end())
+    if(m_FixedAttributes.find(attrName) == m_FixedAttributes.end()) {
         return false;
+    }
     auto& attr = m_FixedAttributes[attrName];
     __BNN_ASSERT(sizeof(T) == attr->typeSize());
     values.resize(attr->count);
@@ -171,11 +171,12 @@ bool ParticleSerialization::getFixedAttribute(const String& attrName, Vector<T>&
 template<Int N, class T>
 bool ParticleSerialization::getFixedAttribute(const String& attrName, VecX<N, T>& value)
 {
-    if(m_FixedAttributes.find(attrName) == m_FixedAttributes.end())
+    if(m_FixedAttributes.find(attrName) == m_FixedAttributes.end()) {
         return false;
+    }
     auto& attr = m_FixedAttributes[attrName];
     __BNN_ASSERT(N == attr->count && sizeof(T) == attr->typeSize());
-    attr->buffer.getData((unsigned char*)glm::value_ptr(value), sizeof(T) * N);
+    attr->buffer.getData((void*)glm::value_ptr(value), sizeof(T) * N);
     return true;
 }
 
@@ -183,11 +184,12 @@ bool ParticleSerialization::getFixedAttribute(const String& attrName, VecX<N, T>
 template<Int N, class T>
 bool ParticleSerialization::getFixedAttribute(const String& attrName, MatXxX<N, T>& value)
 {
-    if(m_FixedAttributes.find(attrName) == m_FixedAttributes.end())
+    if(m_FixedAttributes.find(attrName) == m_FixedAttributes.end()) {
         return false;
+    }
     auto& attr = m_FixedAttributes[attrName];
     __BNN_ASSERT(N * N == attr->count && sizeof(T) == attr->typeSize());
-    attr->buffer.getData((unsigned char*)glm::value_ptr(value), sizeof(T) * N * N);
+    attr->buffer.getData((void*)glm::value_ptr(value), sizeof(T) * N * N);
     return true;
 }
 
@@ -195,27 +197,25 @@ bool ParticleSerialization::getFixedAttribute(const String& attrName, MatXxX<N, 
 template<class T>
 bool ParticleSerialization::getParticleAttribute(const String& attrName, T* values)
 {
-    if(m_ParticleAttributes.find(attrName) == m_ParticleAttributes.end())
+    if(m_ParticleAttributes.find(attrName) == m_ParticleAttributes.end()) {
         return false;
+    }
     auto& attr = m_ParticleAttributes[attrName];
 
     if(attr->type != TypeCompressedReal) {
-        attr->buffer.getData((unsigned char*)values, m_nParticles * attr->typeSize() * attr->count);
-    }
-    else{
+        attr->buffer.getData((void*)values, m_nParticles * attr->typeSize() * attr->count);
+    } else {
         __BNN_ASSERT(sizeof(T) == attr->typeSize());
         if(attr->count == 1) {
             Vector<T> tmp;
             ParticleHelpers::decompress(tmp, attr->buffer, m_nParticles);
             memcpy(values, tmp.data(), attr->typeSize() * tmp.size());
-        }
-        else{
+        } else {
             if(attr->count == 1) {
                 Vector<Vec2<T> > tmp;
                 ParticleHelpers::decompress(tmp, attr->buffer, m_nParticles);
                 memcpy(values, tmp.data(), attr->typeSize() * tmp.size());
-            }
-            else{
+            } else {
                 Vector<Vec3<T> > tmp;
                 ParticleHelpers::decompress(tmp, attr->buffer, m_nParticles);
                 memcpy(values, tmp.data(), m_nParticles * attr->typeSize() * attr->count);
@@ -229,16 +229,16 @@ bool ParticleSerialization::getParticleAttribute(const String& attrName, T* valu
 template<class T>
 bool ParticleSerialization::getParticleAttribute(const String& attrName, Vector<T>& values)
 {
-    if(m_ParticleAttributes.find(attrName) == m_ParticleAttributes.end())
+    if(m_ParticleAttributes.find(attrName) == m_ParticleAttributes.end()) {
         return false;
+    }
     auto& attr = m_ParticleAttributes[attrName];
     __BNN_ASSERT(sizeof(T) == attr->typeSize());
 
     values.resize(m_nParticles);
     if(attr->type != TypeCompressedReal) {
         attr->buffer.getData(values, 0, m_nParticles);
-    }
-    else{
+    } else {
         ParticleHelpers::decompress(values, attr->buffer, m_nParticles);
     }
     return true;
@@ -248,16 +248,16 @@ bool ParticleSerialization::getParticleAttribute(const String& attrName, Vector<
 template<class T>
 bool ParticleSerialization::getParticleAttribute(const String& attrName, Vector<Vector<T> >& values)
 {
-    if(m_ParticleAttributes.find(attrName) == m_ParticleAttributes.end())
+    if(m_ParticleAttributes.find(attrName) == m_ParticleAttributes.end()) {
         return false;
+    }
     auto& attr = m_ParticleAttributes[attrName];
     __BNN_ASSERT(sizeof(T) == attr->typeSize());
 
     values.resize(m_nParticles);
     if(attr->type != TypeCompressedReal) {
         attr->buffer.getData(values, 0, m_nParticles);
-    }
-    else{
+    } else {
         ParticleHelpers::decompress(values, attr->buffer, m_nParticles);
     }
     return true;
@@ -267,16 +267,16 @@ bool ParticleSerialization::getParticleAttribute(const String& attrName, Vector<
 template<Int N, class T>
 bool ParticleSerialization::getParticleAttribute(const String& attrName, Vector<VecX<N, T> >& values)
 {
-    if(m_ParticleAttributes.find(attrName) == m_ParticleAttributes.end())
+    if(m_ParticleAttributes.find(attrName) == m_ParticleAttributes.end()) {
         return false;
+    }
     auto& attr = m_ParticleAttributes[attrName];
     __BNN_ASSERT(N == attr->count && sizeof(T) == attr->typeSize());
 
     values.resize(m_nParticles);
     if(attr->type != TypeCompressedReal) {
         attr->buffer.getData(values, 0, m_nParticles);
-    }
-    else{
+    } else {
         ParticleHelpers::decompress(values, attr->buffer, m_nParticles);
     }
 
@@ -287,16 +287,16 @@ bool ParticleSerialization::getParticleAttribute(const String& attrName, Vector<
 template<Int N, class T>
 bool ParticleSerialization::getParticleAttribute(const String& attrName, Vector<MatXxX<N, T> >& values)
 {
-    if(m_ParticleAttributes.find(attrName) == m_ParticleAttributes.end())
+    if(m_ParticleAttributes.find(attrName) == m_ParticleAttributes.end()) {
         return false;
+    }
     auto& attr = m_ParticleAttributes[attrName];
     __BNN_ASSERT(N * N == attr->count && sizeof(T) == attr->typeSize());
 
     values.resize(m_nParticles);
     if(attr->type != TypeCompressedReal) {
-        attr->buffer.getData((unsigned char*)values.data(), m_nParticles * sizeof(T) * N * N);
-    }
-    else{
+        attr->buffer.getData((void*)values.data(), m_nParticles * sizeof(T) * N * N);
+    } else {
         ParticleHelpers::decompress(values, attr->buffer, m_nParticles);
     }
 

@@ -28,6 +28,6 @@ public:
     void doSimulationFrame(UInt frame);
     void endSimulation();
 
-    Vec_Vec3f&   getParticlePositions() { return particleData().positions; }
-    virtual UInt getNumParticles()  override { return static_cast<UInt>(particleData().positions.size()); }
+    Vec_Vec3f& getParticlePositions() { return particleData().positions; }
+    UInt       getNParticles() { return static_cast<UInt>(particleData().positions.size()); }
 };

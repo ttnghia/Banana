@@ -61,6 +61,7 @@ using Int32 = int32_t;
 using Int64 = int64_t;
 
 ////////////////////////////////////////////////////////////////////////////////
+using UChar  = unsigned char;
 using UInt8  = uint8_t;
 using UInt16 = uint16_t;
 using UInt   = uint32_t;

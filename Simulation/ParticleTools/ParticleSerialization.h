@@ -134,7 +134,7 @@ public:
     void clearData();
     void flush(Int fileID);
     void flush(const String& fileName);
-    void waitForBuffers() { if(m_WriteFutureObj.valid()) m_WriteFutureObj.wait(); }
+    void waitForBuffers() { if(m_WriteFutureObj.valid()) { m_WriteFutureObj.wait(); } }
 
     ////////////////////////////////////////////////////////////////////////////////
     // functions for reading data
