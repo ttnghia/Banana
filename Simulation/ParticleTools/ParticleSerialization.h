@@ -129,6 +129,7 @@ public:
         m_ParticleAttributes[attrName] = std::make_shared<Attribute>(attrName, type, size, count);
     }
 
+    ////////////////////////////////////////////////////////////////////////////////
     void setNParticles(UInt nParticles) { m_nParticles = nParticles; }
 
     template<class T> void        setFixedAttribute(const String& attrName, T value);

@@ -181,24 +181,24 @@ void WCSPHSolver::loadSimParams(const nlohmann::json& jParams)
 void WCSPHSolver::setupDataIO()
 {
     m_ParticleIO = std::make_unique<ParticleSerialization>(m_GlobalParams->dataPath, "SPHData", "frame", m_Logger);
-    m_ParticleIO->addFixedAtribute("particle_radius", ParticleSerialization::TypeReal, static_cast<ParticleSerialization::ElementSize>(sizeof(Real)), 1);
-    m_ParticleIO->addParticleAtribute("position", ParticleSerialization::TypeCompressedReal, static_cast<ParticleSerialization::ElementSize>(sizeof(Real)), 3);
+    m_ParticleIO->addFixedAtribute<float>("particle_radius", ParticleSerialization::TypeReal, 1);
+    m_ParticleIO->addParticleAtribute<float>("position", ParticleSerialization::TypeCompressedReal, 3);
     if(m_GlobalParams->isSavingData("anisotropic_kernel")) {
-        m_ParticleIO->addParticleAtribute("anisotropic_kernel", ParticleSerialization::TypeCompressedReal, static_cast<ParticleSerialization::ElementSize>(sizeof(Real)), 9);
+        m_ParticleIO->addParticleAtribute<float>("anisotropic_kernel", ParticleSerialization::TypeCompressedReal, 9);
     }
     if(m_GlobalParams->isSavingData("velocity")) {
-        m_ParticleIO->addParticleAtribute("velocity", ParticleSerialization::TypeCompressedReal, static_cast<ParticleSerialization::ElementSize>(sizeof(Real)), 3);
+        m_ParticleIO->addParticleAtribute<float>("velocity", ParticleSerialization::TypeCompressedReal, 3);
     }
     if(m_GlobalParams->isSavingData("density")) {
-        m_ParticleIO->addParticleAtribute("density", ParticleSerialization::TypeCompressedReal, static_cast<ParticleSerialization::ElementSize>(sizeof(Real)), 1);
+        m_ParticleIO->addParticleAtribute<float>("density", ParticleSerialization::TypeCompressedReal, 1);
     }
 
     ////////////////////////////////////////////////////////////////////////////////
 
     m_MemoryStateIO = std::make_unique<ParticleSerialization>(m_GlobalParams->dataPath, "SPHState", "frame", m_Logger);
-    m_MemoryStateIO->addFixedAtribute("particle_radius", ParticleSerialization::TypeReal, static_cast<ParticleSerialization::ElementSize>(sizeof(Real)), 1);
-    m_MemoryStateIO->addParticleAtribute("position", ParticleSerialization::TypeReal, static_cast<ParticleSerialization::ElementSize>(sizeof(Real)), 3);
-    m_MemoryStateIO->addParticleAtribute("velocity", ParticleSerialization::TypeReal, static_cast<ParticleSerialization::ElementSize>(sizeof(Real)), 3);
+    m_MemoryStateIO->addFixedAtribute<Real>("particle_radius", ParticleSerialization::TypeReal, 1);
+    m_MemoryStateIO->addParticleAtribute<Real>("position", ParticleSerialization::TypeReal, 3);
+    m_MemoryStateIO->addParticleAtribute<Real>("velocity", ParticleSerialization::TypeReal, 3);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -262,7 +262,7 @@ void WCSPHSolver::saveParticleData()
 
     m_ParticleIO->clearData();
     m_ParticleIO->setNParticles(m_SimData->getNParticles());
-    m_ParticleIO->setFixedAttribute("particle_radius", m_SimParams->particleRadius);
+    m_ParticleIO->setFixedAttribute("particle_radius", static_cast<float>(m_SimParams->particleRadius));
     if(m_GlobalParams->isSavingData("anisotropic_kernel")) {
         AnisotropicKernelGenerator aniKernelGenerator(m_SimData->getNParticles(), m_SimData->positions.data(), m_SimParams->particleRadius);
         aniKernelGenerator.generateAniKernels();
