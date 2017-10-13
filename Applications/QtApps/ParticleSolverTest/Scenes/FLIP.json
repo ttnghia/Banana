@@ -6,7 +6,8 @@
         "EnableSortParticle" : true,
         "SortFrequency" : 10,
         "SaveParticleData" : true,
-        "DataPath" : "D:/SimData/FLIP"
+        "DataPath" : "D:/SimData/FLIP",
+        "OptionalSavingData" : [ "anisotropic_kernel" ]
     },
     "SimulationParameters":
     {

@@ -79,10 +79,9 @@ public:
         ElementSize size;
         Int         count;
         bool        bReady;
-        bool        bOptional;
 
-        Attribute(const String& name_, DataType type_, ElementSize size_, Int count_ = 1, bool bOptional_ = false) :
-            name(name_), type(type_), size(size_), count(count_), bOptional(bOptional_), bReady(false) {}
+        Attribute(const String& name_, DataType type_, ElementSize size_, Int count_ = 1) :
+            name(name_), type(type_), size(size_), count(count_), bReady(false) {}
         String typeName();
         size_t typeSize();
     };
@@ -107,15 +106,15 @@ public:
 
     ////////////////////////////////////////////////////////////////////////////////
     // functions for writing data
-    void addFixedAtribute(const String& attrName, DataType type, ElementSize size, Int count = 1, bool bOptional = false)
+    void addFixedAtribute(const String& attrName, DataType type, ElementSize size, Int count = 1)
     {
         __BNN_ASSERT(type == TypeInt || type == TypeReal);
-        m_FixedAttributes[attrName] = std::make_shared<Attribute>(attrName, type, size, count, bOptional);
+        m_FixedAttributes[attrName] = std::make_shared<Attribute>(attrName, type, size, count);
     }
 
-    void addParticleAtribute(const String& attrName, DataType type, ElementSize size, Int count = 1, bool bOptional = false)
+    void addParticleAtribute(const String& attrName, DataType type, ElementSize size, Int count = 1)
     {
-        m_ParticleAttributes[attrName] = std::make_shared<Attribute>(attrName, type, size, count, bOptional);
+        m_ParticleAttributes[attrName] = std::make_shared<Attribute>(attrName, type, size, count);
     }
 
     void setNParticles(UInt nParticles) { m_nParticles = nParticles; }
@@ -160,6 +159,7 @@ public:
     template<Int N, class T> bool getParticleAttribute(const String& attrName, Vector<MatXxX<N, T> >& values);
 
 private:
+    void buildAttrNameList();
     void writeHeader(std::ofstream& opf);
     bool readHeader(std::ifstream& ipf);
     bool readAttribute(SharedPtr<Attribute>& attr, std::ifstream& ipf, size_t cursor);
@@ -167,6 +167,7 @@ private:
     UInt                               m_nParticles;
     Map<String, SharedPtr<Attribute> > m_FixedAttributes;
     Map<String, SharedPtr<Attribute> > m_ParticleAttributes;
+    String                             m_AttributeNameList;
 
     Map<String, size_t> m_ReadAttributeDataSizeMap;
     Map<String, bool>   m_bReadAttributeMap;

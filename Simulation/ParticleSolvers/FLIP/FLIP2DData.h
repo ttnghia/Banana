@@ -19,7 +19,6 @@
 
 #include <Banana/Setup.h>
 #include <Banana/Array/Array.h>
-#include <Banana/Geometry/GeometryObject2D.h>
 #include <Banana/LinearAlgebra/SparseMatrix/SparseMatrix.h>
 #include <ParticleSolvers/ParticleSolverData.h>
 

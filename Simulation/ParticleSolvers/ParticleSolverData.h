@@ -67,11 +67,12 @@ struct GlobalParameters
     Real evolvedTime() const { return frameDuration * static_cast<Real>(finishedFrame); }
 
     ////////////////////////////////////////////////////////////////////////////////
-    bool   bLoadMemoryState  = true;
-    bool   bSaveParticleData = false;
-    bool   bSaveMemoryState  = false;
-    UInt   framePerState     = 1;
-    String dataPath          = String("./SimData");
+    bool       bLoadMemoryState  = true;
+    bool       bSaveParticleData = false;
+    bool       bSaveMemoryState  = false;
+    UInt       framePerState     = 1;
+    String     dataPath          = String("./SimData");
+    Vec_String optionalSavingData;
 
     bool bApplyGravity       = true;
     bool bEnableSortParticle = false;
@@ -92,11 +93,15 @@ struct GlobalParameters
         logger->printLogIndent("Final frame: " + std::to_string(finalFrame));
         logger->printLogIndent("Apply gravity: " + (bApplyGravity ? String("Yes") : String("No")));
         logger->printLogIndent("Sort particles during simulation: " + (bEnableSortParticle ? String("Yes") : String("No")));
-        if(bEnableSortParticle)
-        {
+        if(bEnableSortParticle) {
             logger->printLogIndent("Sort frequency: " + std::to_string(sortFrequency));
         }
         logger->newLine();
+    }
+
+    bool isSavingData(const String& dataName)
+    {
+        return (std::find(optionalSavingData.begin(), optionalSavingData.end(), dataName) != optionalSavingData.end());
     }
 };
 

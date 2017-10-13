@@ -28,14 +28,16 @@ namespace SceneLoader
 bool loadDataPath(const String& sceneFile, String& dataPath)
 {
     std::ifstream inputFile(sceneFile);
-    if(!inputFile.is_open())
+    if(!inputFile.is_open()) {
         return false;
+    }
 
     nlohmann::json jParams = nlohmann::json::parse(inputFile);
-    if(jParams.find("GlobalParameters") == jParams.end())
+    if(jParams.find("GlobalParameters") == jParams.end()) {
         return false;
-    else
+    } else {
         return JSONHelpers::readValue(jParams, dataPath, "DataPath");
+    }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -55,6 +57,7 @@ void loadGlobalParams(const nlohmann::json& jParams, const UniquePtr<ParticleSol
     JSONHelpers::readBool(jParams, globalParams->bPrintLog2File, "PrintLogToFile");
     JSONHelpers::readValue(jParams, globalParams->framePerState, "FramePerState");
     JSONHelpers::readValue(jParams, globalParams->dataPath, "DataPath");
+    JSONHelpers::readVector(jParams, globalParams->optionalSavingData, "OptionalSavingData");
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

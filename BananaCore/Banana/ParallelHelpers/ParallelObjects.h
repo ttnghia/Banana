@@ -305,6 +305,39 @@ private:
 };
 
 ////////////////////////////////////////////////////////////////////////////////
+// N = 0 : plain C array
+template<class RealType>
+class MinMaxElements<0, RealType>
+{
+public:
+    MinMaxElements(const RealType* vec) : m_Vector(vec) {}
+    MinMaxElements(MinMaxElements<0, RealType>& pobj, tbb::split) : m_Vector(pobj.m_Vector) {}
+
+    void operator ()(const tbb::blocked_range<size_t>& r)
+    {
+        for(size_t i = r.begin(); i != r.end(); ++i) {
+            m_ResultMin = m_ResultMin < m_Vector[i] ? m_ResultMin : m_Vector[i];
+            m_ResultMax = m_ResultMax > m_Vector[i] ? m_ResultMax : m_Vector[i];
+        }
+    }
+
+    void join(MinMaxElements<0, RealType>& pobj)
+    {
+        m_ResultMin = m_ResultMin < pobj.m_ResultMin ? m_ResultMin : pobj.m_ResultMin;
+        m_ResultMax = m_ResultMax > pobj.m_ResultMax ? m_ResultMax : pobj.m_ResultMax;
+    }
+
+    RealType getMin() const noexcept { return m_ResultMin; }
+    RealType getMax() const noexcept { return m_ResultMax; }
+
+private:
+    RealType m_ResultMin = std::numeric_limits<RealType>::max();
+    RealType m_ResultMax = -std::numeric_limits<RealType>::max();
+
+    const RealType* m_Vector;
+};
+
+////////////////////////////////////////////////////////////////////////////////
 template<class RealType>
 class MinMaxElements<1, RealType>
 {

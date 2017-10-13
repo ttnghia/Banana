@@ -114,6 +114,17 @@ inline void min_max(const Vector<VecX<N, T> >& x, VecX<N, T>& minElement, VecX<N
 }
 
 template<Int N, class T>
+inline void min_max(const Vector<MatXxX<N, T> >& x, T& minElement, T& maxElement)
+{
+    ParallelObjects::MinMaxElements<0, T> pobj(reinterpret_cast<const T*>(x.data()));
+    tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size() * static_cast<size_t>(N * N)), pobj);
+
+    minElement = pobj.getMin();
+    maxElement = pobj.getMax();
+}
+
+
+template<Int N, class T>
 inline void min_max_norm2(const Vector<VecX<N, T> >& x, T& minVal, T& maxVal)
 {
     ParallelObjects::MinMaxNorm2<N, T> pobj(x);

@@ -161,7 +161,7 @@ void FLIP2DSolver::setupDataIO()
     ////////////////////////////////////////////////////////////////////////////////
 
     m_MemoryStateIO = std::make_unique<ParticleSerialization>(m_GlobalParams->dataPath, "FLIPState", "frame", m_Logger);
-    m_MemoryStateIO->addFixedAtribute("ParticleRadius", ParticleSerialization::TypeReal, static_cast<ParticleSerialization::ElementSize>(sizeof(Real)), 1);
+    m_MemoryStateIO->addFixedAtribute("particle_radius", ParticleSerialization::TypeReal, static_cast<ParticleSerialization::ElementSize>(sizeof(Real)), 1);
     m_MemoryStateIO->addParticleAtribute("position", ParticleSerialization::TypeReal, static_cast<ParticleSerialization::ElementSize>(sizeof(Real)), 2);
     m_MemoryStateIO->addParticleAtribute("velocity", ParticleSerialization::TypeReal, static_cast<ParticleSerialization::ElementSize>(sizeof(Real)), 2);
 }

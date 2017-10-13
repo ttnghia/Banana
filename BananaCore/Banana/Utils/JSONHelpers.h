@@ -65,8 +65,8 @@ inline bool readBool(const nlohmann::json& j, bool& v, const String& valueName)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class T>
-inline bool readVector(const nlohmann::json& j, Vec2<T>& vec, const String& valueName)
+template<Int N, class T>
+inline bool readVector(const nlohmann::json& j, VecX<N, T>& vec, const String& valueName)
 {
     if(j.find(valueName) == j.end())
         return false;
@@ -76,10 +76,10 @@ inline bool readVector(const nlohmann::json& j, Vec2<T>& vec, const String& valu
     if(jval.is_null())
         return false;
 
-    std::vector<T> values = jval.get<std::vector<T> >();
-    __BNN_ASSERT(values.size() == 2);
+    Vector<T> values = jval.get<Vector<T> >();
+    __BNN_ASSERT(values.size() == N);
 
-    for(unsigned int i = 0; i < values.size(); i++)
+    for(Int i = 0; i < N; ++i)
         vec[i] = values[i];
 
     return true;
@@ -87,7 +87,7 @@ inline bool readVector(const nlohmann::json& j, Vec2<T>& vec, const String& valu
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class T>
-inline bool readVector(const nlohmann::json& j, Vec3<T>& vec, const String& valueName)
+inline bool readVector(const nlohmann::json& j, Vector<T>& vec, const String& valueName)
 {
     if(j.find(valueName) == j.end())
         return false;
@@ -96,12 +96,7 @@ inline bool readVector(const nlohmann::json& j, Vec3<T>& vec, const String& valu
     if(jval.is_null())
         return false;
 
-    std::vector<T> values = jval.get<std::vector<T> >();
-    __BNN_ASSERT(values.size() == 3);
-
-    for(int i = 0; i < 3; i++)
-        vec[i] = values[i];
-
+    vec = jval.get<Vector<T> >();
     return true;
 }
 

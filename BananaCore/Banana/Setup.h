@@ -20,6 +20,7 @@
 #include <limits>
 #include <vector>
 #include <map>
+#include <set>
 #include <cstdint>
 #include <string>
 #include <memory>
@@ -95,6 +96,7 @@ using PairReal = std::pair<double, double>;
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // generic types
 template<class Type> using Vector = std::vector<Type>;
+template<class Type> using Set    = std::set<Type>;
 template<class Type> using Quat   = glm::tquat<Type>;
 template<class Type> using Vec2   = glm::vec<2, Type>;
 template<class Type> using Vec3   = glm::vec<3, Type>;
@@ -118,11 +120,8 @@ template<class Type> using Vec_Mat4x4 = Vector<Mat4x4<Type> >;
 template<class T, class S>
 using Map = std::map<T, S>;
 
-template<class Type>
-using SharedPtr = std::shared_ptr<Type>;
-
-template<class Type>
-using UniquePtr = std::unique_ptr<Type>;
+template<class Type> using SharedPtr = std::shared_ptr<Type>;
+template<class Type> using UniquePtr = std::unique_ptr<Type>;
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 using Quatf = Quat<float>;
@@ -179,6 +178,7 @@ using Vec_UChar  = Vector<unsigned char>;
 using Vec_Float  = Vector<float>;
 using Vec_Double = Vector<double>;
 using Vec_Real   = Vector<Real>;
+using Vec_String = Vector<String>;
 
 using Vec_Vec2i = Vector<Vec2i>;
 using Vec_Vec3i = Vector<Vec3i>;

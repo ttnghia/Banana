@@ -80,7 +80,15 @@ void ParticleSerialization::flush(Int fileID)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void ParticleSerialization::flush(const String& fileName)
 {
-    __BNN_ASSERT(m_nParticles > 0);
+    __BNN_ASSERT(m_nParticles > 0 && m_FixedAttributes.size() > 0 && m_ParticleAttributes.size() > 0);
+    if(m_Logger != nullptr) {
+        buildAttrNameList();
+        String str = String("Saving particle file: "); str += fileName;
+        m_Logger->printLog(str);
+        str = String("File data: "); str += m_AttributeNameList;
+        m_Logger->printLog(str);
+    }
+
     waitForBuffers();
     m_WriteFutureObj = std::async(std::launch::async, [&, fileName]()
                                   {
@@ -93,27 +101,36 @@ void ParticleSerialization::flush(const String& fileName)
                                       }
 
                                       ////////////////////////////////////////////////////////////////////////////////
-                                      if(m_Logger != nullptr) {
-                                          m_Logger->printLog("Saving particle file: " + fileName);
-                                      }
-
                                       writeHeader(opf);
                                       for(auto& kv : m_FixedAttributes) {
-                                          if(kv.second->bOptional && !kv.second->bReady) {
-                                              continue;
-                                          }
                                           __BNN_ASSERT(kv.second->bReady);
                                           opf.write((char*)kv.second->buffer.data(), kv.second->buffer.size());
                                       }
                                       for(auto& kv : m_ParticleAttributes) {
-                                          if(kv.second->bOptional && !kv.second->bReady) {
-                                              continue;
-                                          }
                                           __BNN_ASSERT(kv.second->bReady);
                                           opf.write((char*)kv.second->buffer.data(), kv.second->buffer.size());
                                       }
                                       opf.close();
                                   });
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void ParticleSerialization::buildAttrNameList()
+{
+    if(m_AttributeNameList.empty()) {
+        for(auto& kv : m_FixedAttributes) {
+            __BNN_ASSERT(kv.second->bReady);
+            m_AttributeNameList += kv.first;
+            m_AttributeNameList += String(", ");
+        }
+        for(auto& kv : m_ParticleAttributes) {
+            __BNN_ASSERT(kv.second->bReady);
+            m_AttributeNameList += kv.first;
+            m_AttributeNameList += String(", ");
+        }
+
+        m_AttributeNameList.erase(m_AttributeNameList.find_last_of(","), m_AttributeNameList.size());
+    }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
