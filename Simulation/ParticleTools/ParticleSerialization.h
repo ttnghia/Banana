@@ -106,6 +106,18 @@ public:
 
     ////////////////////////////////////////////////////////////////////////////////
     // functions for writing data
+    template<class T>
+    void addFixedAtribute(const String& attrName, DataType type, Int count = 1)
+    {
+        addFixedAtribute(attrName, type, static_cast<ParticleSerialization::ElementSize>(sizeof(T)), count);
+    }
+
+    template<class T>
+    void addParticleAtribute(const String& attrName, DataType type, Int count = 1)
+    {
+        addParticleAtribute(attrName, type, static_cast<ParticleSerialization::ElementSize>(sizeof(T)), count);
+    }
+
     void addFixedAtribute(const String& attrName, DataType type, ElementSize size, Int count = 1)
     {
         __BNN_ASSERT(type == TypeInt || type == TypeReal);
@@ -176,6 +188,10 @@ private:
     SharedPtr<Logger> m_Logger;
     SharedPtr<DataIO> m_DataIO;
     std::future<void> m_WriteFutureObj;
+
+public:
+    template<Int N, class T> static void saveParticle(const String& fileName, const Vector<VecX<N, T> >& positions, T particleRadius, bool bCompress = true);
+    template<Int N, class T> static bool loadParticle(const String& fileName, Vector<VecX<N, T> >& positions, T particleRadius);
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

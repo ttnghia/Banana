@@ -33,7 +33,7 @@ namespace Banana
 namespace NumberHelpers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class IndexType, int N, class RealType>
+template<class IndexType, Int N, class RealType>
 VecX<N, IndexType> createGrid(const VecX<N, RealType>& bmin, const VecX<N, RealType>& bmax, RealType spacing)
 {
     VecX<N, RealType>  fgrid = (bmax - bmin) / spacing;
@@ -69,7 +69,7 @@ inline RealType generateRandomReal(RealType start, RealType end)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-String formatWithCommas(RealType value, int precision = 2)
+String formatWithCommas(RealType value, Int precision = 2)
 {
     struct Numpunct : public std::numpunct<char>
     {
@@ -94,7 +94,7 @@ protected:
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-String formatToScientific(RealType value, int precision = 5)
+String formatToScientific(RealType value, Int precision = 5)
 {
     std::stringstream ss;
     ss.str("");
@@ -104,7 +104,7 @@ String formatToScientific(RealType value, int precision = 5)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-inline String formatToScientific(const Vec3<RealType>& vec, int precision = 5)
+inline String formatToScientific(const Vec3<RealType>& vec, Int precision = 5)
 {
     std::stringstream ss;
     ss.str("");
@@ -138,7 +138,7 @@ inline String byteToHex(const Vector<T>& vecBytes, Int width /*= 2*/)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<typename RealType>
-String toString(const RealType value, const int precision = 5)
+String toString(const RealType value, const Int precision = 5)
 {
     std::ostringstream ss;
     ss << std::setprecision(precision) << value;
@@ -146,84 +146,59 @@ String toString(const RealType value, const int precision = 5)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-inline String toString(const Vec2<RealType>& vec, int precision = 5)
+template<Int N, class RealType>
+inline String toString(const VecX<N, RealType>& vec, Int precision = 5)
 {
     std::stringstream ss;
     ss.str("");
 
     ss << String("[");
-    ss << formatWithCommas(vec[0], precision) << String(", ");
-    ss << formatWithCommas(vec[1], precision) << String("]");
+
+    for(Int i = 0; i < N - 1; ++i) {
+        ss << formatWithCommas(vec[i], precision) << String(", ");
+    }
+    ss << formatWithCommas(vec[N - 1], precision) << String("]");
 
     return ss.str();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-inline String toString(const Vec3<RealType>& vec, int precision = 5)
+template<Int N, class RealType>
+inline String toString(const MatXxX<N, RealType>& mat, bool breakLine = false, Int precision = 5)
 {
     std::stringstream ss;
     ss.str("");
 
     ss << String("[");
-    ss << formatWithCommas(vec[0], precision) << String(", ");
-    ss << formatWithCommas(vec[1], precision) << String(", ");
-    ss << formatWithCommas(vec[2], precision) << String("]");
 
-    return ss.str();
-}
+    // N-1 line
+    for(Int i = 0; i < N - 1; ++i) {
+        for(Int j = 0; j < N - 1; ++j) {
+            ss << formatWithCommas(mat[j][i], precision) << String(", ");
+        }
+        ss << formatWithCommas(mat[N - 1][i], precision);
 
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-inline String toString(const Mat2x2<RealType>& mat, bool breakLine = false, int precision = 5)
-{
-    std::stringstream ss;
-    ss.str("");
-
-    ss << String("[");
-    ss << formatWithCommas(mat[0][0], precision) << String(", ") << formatWithCommas(mat[1][0], precision);
-    if(breakLine) {
-        ss << String(",") << std::endl;
-    } else {
-        ss << String("; ");
+        if(breakLine) {
+            ss << String(",") << std::endl;
+        } else {
+            ss << String("; ");
+        }
     }
 
-    ss << formatWithCommas(mat[0][1], precision) << String(", ") << formatWithCommas(mat[1][1], precision) << String("]");
-
-    return ss.str();
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-inline String toString(const Mat3x3<RealType>& mat, bool breakLine = false, int precision = 5)
-{
-    std::stringstream ss;
-    ss.str("");
-
-    ss << String("[");
-    ss << formatWithCommas(mat[0][0], precision) << String(", ") << formatWithCommas(mat[1][0], precision) << String(", ") << formatWithCommas(mat[2][0], precision);
-    if(breakLine) {
-        ss << String(",") << std::endl;
-    } else {
-        ss << String("; ");
+    // last line
+    {
+        for(Int j = 0; j < N - 1; ++j) {
+            ss << formatWithCommas(mat[j][N - 1], precision) << String(", ");
+        }
+        ss << formatWithCommas(mat[N - 1][N - 1], precision);
     }
-
-    ss << formatWithCommas(mat[0][1], precision) << String(", ") << formatWithCommas(mat[1][1], precision) << String(", ") << formatWithCommas(mat[2][1], precision);
-    if(breakLine) {
-        ss << String(",") << std::endl;
-    } else {
-        ss << String("; ");
-    }
-
-    ss << formatWithCommas(mat[0][2], precision) << String(", ") << formatWithCommas(mat[1][2], precision) << String(", ") << formatWithCommas(mat[2][2], precision);
     ss << String("]");
 
     return ss.str();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class T, class S, int N>
+template<class T, class S, Int N>
 inline VecX<N, T> convert(const VecX<N, S>& vec)
 {
     VecX<N, T> result;
@@ -238,7 +213,7 @@ inline VecX<N, T> convert(const VecX<N, S>& vec)
 template<Int N, class RealType>
 bool isInside(const VecX<N, RealType>& ppos, const VecX<N, RealType>& bMin, const VecX<N, RealType>& bMax)
 {
-    for(int i = 0; i < N; ++i) {
+    for(Int i = 0; i < N; ++i) {
         if(ppos[i] < bMin[i] || ppos[i] > bMax[i]) {
             return false;
         }

@@ -61,8 +61,9 @@ public:
     Array<N, T>& operator =(const Array<N, T>& other)
     {
         // check for self-assignment
-        if(&other == this)
+        if(&other == this) {
             return *this;
+        }
 
         m_Size = other.m_Size;
         m_Data = other.m_Data;
@@ -140,10 +141,10 @@ public:
     template<class IndexType>
     __BNN_INLINE bool isValidIndex(const VecX<N, IndexType>& index) const
     {
-        for(Int i = 0; i < N; ++i)
-        {
-            if(index[i] < 0 || index[i] >= m_Size[i])
+        for(Int i = 0; i < N; ++i) {
+            if(index[i] < 0 || index[i] >= m_Size[i]) {
                 return false;
+            }
         }
 
         return true;
@@ -154,13 +155,13 @@ public:
     {
         bool bIndexValid = isValidIndex<IndexType>(index);
 
-        if(!bIndexValid)
-        {
+        if(!bIndexValid) {
             std::stringstream ss;
             ss << "Invalid Array index: ";
 
-            for(Int i = 0; i < N - 1; ++i)
+            for(Int i = 0; i < N - 1; ++i) {
                 ss << index[i] << "/" << m_Size[i] << ", ";
+            }
             ss << index[N - 1] << "/" << m_Size[N - 1];
 
             printf("%s\n", ss.str().c_str());
@@ -171,10 +172,10 @@ public:
 
     __BNN_INLINE bool equalSize(const Array<N, T>& other) const
     {
-        for(Int i = 0; i < N; ++i)
-        {
-            if(m_Size[i] != other.m_Size[i])
+        for(Int i = 0; i < N; ++i) {
+            if(m_Size[i] != other.m_Size[i]) {
                 return false;
+            }
         }
         return true;
     }
@@ -182,10 +183,10 @@ public:
     template<class IndexType>
     __BNN_INLINE bool equalSize(const VecX<N, IndexType>& otherSize) const
     {
-        for(Int i = 0; i < N; ++i)
-        {
-            if(m_Size[i] != otherSize[i])
+        for(Int i = 0; i < N; ++i) {
+            if(m_Size[i] != otherSize[i]) {
                 return false;
+            }
         }
         return true;
     }
@@ -451,8 +452,9 @@ public:
     bool saveToFile(const String& fileName)
     {
         DataBuffer buffer;
-        for(Int i = 0; i < N; ++i)
+        for(Int i = 0; i < N; ++i) {
             buffer.append<UInt>(static_cast<UInt>(m_Size[i]));
+        }
         buffer.append(m_Data, false);
         return FileHelpers::writeFile(buffer.data(), buffer.size(), fileName);
     }
@@ -460,12 +462,12 @@ public:
     bool loadFromFile(const String& fileName)
     {
         DataBuffer buffer;
-        if(!FileHelpers::readFile(buffer.buffer(), fileName))
+        if(!FileHelpers::readFile(buffer.buffer(), fileName)) {
             return false;
+        }
 
-        UInt tmp;
-        for(Int i = 0; i < N; ++i)
-        {
+        for(Int i = 0; i < N; ++i) {
+            UInt tmp;
             buffer.getData<UInt>(tmp, sizeof(UInt) * i);
             m_Size[i] = static_cast<size_type>(tmp);
         }

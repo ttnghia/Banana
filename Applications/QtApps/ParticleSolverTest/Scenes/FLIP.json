@@ -23,14 +23,12 @@
     "BoundaryObjects":
     [
         {
-            "GeometryType" : "Box",
-            "BoxMin" : [-1.0, -1.0, -1.0],
-            "BoxMax" : [1.0, 1.5, 1.0]
+            "GeometryType" : "Box"
         },
         {
             "GeometryType" : "Sphere",
-            "Center" : [0.0, 1.0, 0.0],
-            "Radius" : 2.0
+            "Translation" : [0.0, 1.0, 0.0],
+            "Scale" : 2.0
         }
 
     ],

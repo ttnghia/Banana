@@ -15,6 +15,22 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
+void BoundaryObjectInterface<N, RealType >::initBoundaryParticles(RealType particleRadius, Int numBDLayers /*= 2*/, bool bUseCache /*= true*/)
+{
+    if(bUseCache && !m_ParticleFile.empty() && FileHelpers::fileExisted(m_ParticleFile)) {
+        ParticleSerialization::loadParticle(m_ParticleFile, m_BDParticles, particleRadius);
+        return;
+    }
+
+    generateBoundaryParticles(particleRadius, numBDLayers);
+
+    if(bUseCache && !m_ParticleFile.empty()) {
+        ParticleSerialization::saveParticle(m_ParticleFile, m_BDParticles, particleRadius);
+    }
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType>
 RealType BoundaryObjectInterface<N, RealType >::signedDistance(const VecX<N, RealType>& ppos, bool bUseCache)
 {
     if(bUseCache && m_bSDFGenerated) {
@@ -26,12 +42,12 @@ RealType BoundaryObjectInterface<N, RealType >::signedDistance(const VecX<N, Rea
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-VecX<N, RealType> BoundaryObjectInterface<N, RealType >::gradientSignedDistance(const VecX<N, RealType>& ppos, RealType dxyz, bool bUseCache)
+VecX<N, RealType> BoundaryObjectInterface<N, RealType >::gradSignedDistance(const VecX<N, RealType>& ppos, RealType dxyz, bool bUseCache)
 {
     if(bUseCache && m_bSDFGenerated) {
         return ArrayHelpers::interpolateGradient(m_Grid.getGridCoordinate(ppos), m_SDF);
     } else {
-        return m_GeometryObj->gradientSignedDistance(ppos);
+        return m_GeometryObj->gradSignedDistance(ppos);
     }
 }
 
@@ -63,26 +79,27 @@ void BoundaryObjectInterface<N, RealType >::generateSDF(const VecX<N, RealType>&
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+// This is slip boundary: particle penetrates, then slips along surface until the end of the time step
 template<Int N, class RealType>
-bool BoundaryObjectInterface<N, RealType >::constrainToBoundary(VecX<N, RealType>& ppos, VecX<N, RealType>& pvel)
+bool BoundaryObjectInterface<N, RealType >::constrainToBoundary(VecX<N, RealType>& ppos, VecX<N, RealType>& pvel, bool bReflect /*= true*/)
 {
-    __BNN_ASSERT(m_bSDFGenerated);
-    const VecX<N, RealType> gridPos = m_Grid.getGridCoordinate(ppos);
-    const RealType          phiVal  = ArrayHelpers::interpolateValueLinear(gridPos, m_SDF) - m_Margin;
-
+    const RealType phiVal = signedDistance(ppos) - m_Margin;
     if(phiVal < 0) {
-        VecX<N, RealType> grad     = ArrayHelpers::interpolateGradient(gridPos, m_SDF);
+        VecX<N, RealType> grad     = gradSignedDistance(ppos);
         RealType          mag2Grad = glm::length2(grad);
 
         // todo: check
         if(mag2Grad > Tiny) {
             grad /= sqrt(mag2Grad);
             ppos -= phiVal * grad;
-            pvel  = -pvel;
-            //RealType magVel = glm::length(pvel);
-            //pvel = glm::normalize(pvel);
 
-            //pvel = glm::reflect(pvel, grad) * m_RestitutionCoeff * magVel;
+            if(bReflect) {
+                RealType magVel = glm::length(pvel);
+                if(magVel > Tiny) {
+                    pvel /= magVel;
+                    pvel  = glm::reflect(pvel, grad) * m_RestitutionCoeff * magVel;
+                }
+            }
             return true;
         }
     }
@@ -116,15 +133,17 @@ void BoundaryObject<3, RealType >::computeSDF()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-bool BoxBoundaryInterface<N, RealType >::constrainToBoundary(VecX<N, RealType>& ppos, VecX<N, RealType>& pvel)
+bool BoxBoundaryInterface<N, RealType >::constrainToBoundary(VecX<N, RealType>& ppos, VecX<N, RealType>& pvel, bool bReflect /*= true*/)
 {
     bool velChanged = false;
 
-    for(Int l = 0; l < ppos.length(); ++l) {
+    for(Int l = 0; l < N; ++l) {
         if(ppos[l] < boxMin()[l] || ppos[l] > boxMax()[l]) {
-            ppos[l]    = MathHelpers::min(MathHelpers::max(ppos[l], boxMin()[l]), boxMax()[l]);
-            pvel[l]   *= -m_RestitutionCoeff;
-            velChanged = true;
+            ppos[l] = MathHelpers::min(MathHelpers::max(ppos[l], boxMin()[l]), boxMax()[l]);
+            if(bReflect) {
+                pvel[l]   *= -m_RestitutionCoeff;
+                velChanged = true;
+            }
         }
     }
 
@@ -132,37 +151,10 @@ bool BoxBoundaryInterface<N, RealType >::constrainToBoundary(VecX<N, RealType>& 
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//template<Int N, class RealType>
-//void BoxBoundaryInterface<N, RealType >::setBox(const VecX<N, RealType>& bMin, const VecX<N, RealType>& bMax)
-//{
-//    auto box = std::static_pointer_cast<GeometryObjects::BoxObject<N, RealType> >(m_GeometryObj);
-//    __BNN_ASSERT(box != nullptr);
-//    box->setBox(bMin, bMax);
-//}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<Int N, class RealType>
-void BoxBoundaryInterface<N, RealType >::parseParameters()
-{
-    __BNN_ASSERT(m_jParams.find("BoxMin") != m_jParams.end());
-    __BNN_ASSERT(m_jParams.find("BoxMax") != m_jParams.end());
-
-    VecX<N, RealType> bMin, bMax;
-    RealType          offset = RealType(1e-5);
-    JSONHelpers::readVector(m_jParams, bMin, "BoxMin");
-    JSONHelpers::readVector(m_jParams, bMax, "BoxMax");
-    JSONHelpers::readValue(m_jParams, offset, "Offset");
-
-    bMin += VecX<N, RealType>(offset);
-    bMax -= VecX<N, RealType>(offset);
-
-    //setBox(bMin, bMax);
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-void BoxBoundary<2, RealType >::generateBoundaryParticles(RealType spacing, Int numBDLayers, bool saveCache)
+void BoxBoundary<2, RealType >::generateBoundaryParticles(RealType particleRadius, Int numBDLayers)
 {
+    RealType spacing = RealType(2.0) * particleRadius;
     m_BDParticles.resize(0);
     std::random_device rd;
     std::mt19937       gen(rd());
@@ -241,19 +233,13 @@ void BoxBoundary<2, RealType >::generateBoundaryParticles(RealType spacing, Int 
             }
         }
     }
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // save file
-    if(saveCache) {
-        __BNN_ASSERT(!m_ParticleFile.empty());
-        //ParticleHelpers::saveBinary(m_ParticleFile, m_BDParticles, spacing * RealType(0.5));
-    }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-void BoxBoundary<3, RealType >::generateBoundaryParticles(RealType spacing, Int numBDLayers, bool saveCache)
+void BoxBoundary<3, RealType >::generateBoundaryParticles(RealType particleRadius, Int numBDLayers)
 {
+    RealType spacing = RealType(2.0) * particleRadius;
     m_BDParticles.resize(0);
     std::random_device rd;
     std::mt19937       gen(rd());
@@ -386,54 +372,4 @@ void BoxBoundary<3, RealType >::generateBoundaryParticles(RealType spacing, Int 
             }
         }
     }
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // save file
-    if(saveCache) {
-        __BNN_ASSERT(!m_ParticleFile.empty());
-        //ParticleHelpers::saveBinary(m_ParticleFile, m_BDParticles, spacing * RealType(0.5));
-    }
 }
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<Int N, class RealType>
-void SphereBoundary<N, RealType >::parseParameters()
-{
-    __BNN_ASSERT(m_jParams.find("Center") != m_jParams.end());
-    __BNN_ASSERT(m_jParams.find("Radius") != m_jParams.end());
-
-    VecX<N, RealType> center;
-    RealType          radius;
-    JSONHelpers::readVector(m_jParams, center, "Center");
-    JSONHelpers::readValue(m_jParams, radius, "Radius");
-
-    //setSphere(center, radius);
-}
-
-//
-////-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//template<Int N, class RealType>
-//void SphereBoundary<N, RealType >::setSphere(const VecX<N, RealType>& center, RealType radius)
-//{
-//    auto sphere = std::static_pointer_cast<GeometryObjects::SphereObject<N, RealType> >(m_GeometryObj);
-//    __BNN_ASSERT(sphere != nullptr);
-//    //sphere->setSphere(center, radius);
-//}
-//
-////-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//template<Int N, class RealType>
-//const VecX<N, RealType>& SphereBoundary<N, RealType >::center() const
-//{
-//    auto sphere = std::static_pointer_cast<GeometryObjects::SphereObject<N, RealType> >(m_GeometryObj);
-//    __BNN_ASSERT(sphere != nullptr);
-//    return sphere->center();
-//}
-//
-////-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//template<Int N, class RealType>
-//RealType SphereBoundary<N, RealType >::radius() const
-//{
-//    auto sphere = std::static_pointer_cast<GeometryObjects::SphereObject<N, RealType> >(m_GeometryObj);
-//    __BNN_ASSERT(sphere != nullptr);
-//    return sphere->radius();
-//}

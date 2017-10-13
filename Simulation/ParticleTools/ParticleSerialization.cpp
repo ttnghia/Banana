@@ -73,8 +73,7 @@ void ParticleSerialization::flush(Int fileID)
 {
     __BNN_ASSERT(m_DataIO != nullptr);
     m_DataIO->createOutputFolders();
-    const String fileName = m_DataIO->getFilePath(fileID);
-    flush(fileName);
+    flush(m_DataIO->getFilePath(fileID));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

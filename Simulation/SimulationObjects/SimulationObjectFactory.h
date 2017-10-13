@@ -36,11 +36,9 @@ template<Int N, class RealType>
 SharedPtr<SimulationObjects::BoundaryObject<N, RealType> > createBoundaryObject(const String& geometryType)
 {
     // two special objects
-    if(geometryType == "Box" || geometryType == "box" || geometryType == "BOX")
+    if(geometryType == "Box" || geometryType == "box" || geometryType == "BOX") {
         return std::make_shared<SimulationObjects::BoxBoundary<N, RealType> >();
-
-    if(geometryType == "Sphere" || geometryType == "sphere" || geometryType == "SPHERE")
-        return std::make_shared<SimulationObjects::SphereBoundary<N, RealType> >();
+    }
 
     // other generic objects
     return std::make_shared<SimulationObjects::BoundaryObject<N, RealType> >(geometryType);

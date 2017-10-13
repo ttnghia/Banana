@@ -36,9 +36,6 @@ template class BoundaryObject<3, Real>;
 template class BoxBoundary<2, Real>;
 template class BoxBoundary<3, Real>;
 
-template class SphereBoundary<2, Real>;
-template class SphereBoundary<3, Real>;
-
 template class ParticleObject<2, Real>;
 template class ParticleObject<3, Real>;
 

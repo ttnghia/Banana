@@ -28,6 +28,7 @@
 #include <glm/gtx/euler_angles.hpp>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+// utility to hack glm error
 namespace glm
 {
 template<class T>
@@ -66,10 +67,14 @@ public:
     Vec3<RealType> gradSignedDistance(const Vec3<RealType>& ppos, RealType dxyz = RealType(1e-4));
     bool           isInside(const VecX<N, RealType>& ppos) { return signedDistance(ppos) < 0; }
 
-    void translate(const VecX<N, RealType>& translation) { m_Translation = translation; m_bTransformed = true; updateTransformation(); }
-    void rotate(const VecX<N, RealType>& axis, RealType angle) { m_Rotation = VecX<N + 1, RealType>(axis, angle); m_bTransformed = true; updateTransformation(); }
-    void uniformScale(const RealType& scaleVal) { m_Scale = scaleVal; m_InvScale = RealType(1.0 / scaleVal); m_bTransformed = true; updateTransformation(); }
+    void setTranslation(const VecX<N, RealType>& translation) { m_Translation = translation; m_bTransformed = true; updateTransformation(); }
+    void setRotation(const VecX<N, RealType>& axis, RealType angle) { m_Rotation = VecX<N + 1, RealType>(axis, angle); m_bTransformed = true; updateTransformation(); }
+    void setUniformScale(const RealType scaleVal) { m_Scale = scaleVal; m_InvScale = RealType(1.0 / scaleVal); m_bTransformed = true; updateTransformation(); }
     void resetTransformation() { m_bTransformed = false; }
+
+    VecX<N, RealType>&     getTranslation() const noexcept { return m_Translation; }
+    VecX<N + 1, RealType>& getRotation() const noexcept { return m_Rotation; }
+    RealType               getUniformScale() const noexcept { return m_Scale; }
 
     VecX<N, RealType> transform(const VecX<N, RealType>& ppos) const;
     VecX<N, RealType> invTransform(const VecX<N, RealType>& ppos) const;
@@ -81,7 +86,7 @@ protected:
     ////////////////////////////////////////////////////////////////////////////////
     bool                  m_bTransformed = false;
     VecX<N, RealType>     m_Translation  = VecX<N, RealType>(0);
-    VecX<N + 1, RealType> m_Rotation     = VecX<N + 1, RealType>(0);
+    VecX<N + 1, RealType> m_Rotation     = VecX<N + 1, RealType>(VecX<N, RealType>(1), 0);
     RealType              m_Scale        = RealType(1.0);
     RealType              m_InvScale     = RealType(1.0);
 
@@ -115,9 +120,6 @@ class SphereObject : public GeometryObject<N, RealType>
 public:
     virtual String   name() override { if(N == 2) { return String("CircleObject"); } else { return "SphereObject"; } }
     virtual RealType signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside = true) override;
-
-protected:
-    const RealType m_Radius = RealType(1.0);
 };
 
 

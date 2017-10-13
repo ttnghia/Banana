@@ -40,18 +40,16 @@ void loadBoundaryObjects(const nlohmann::json& jParams, Vector<SharedPtr<Simulat
         Real          scale;
 
         if(JSONHelpers::readVector(jObj, translation, "Translation")) {
-            obj->getGeometry()->translate(translation);
+            obj->getGeometry()->setTranslation(translation);
         }
 
         if(JSONHelpers::readVector(jObj, rotationAxis, "RotationAxis") && JSONHelpers::readValue(jObj, rotationAngle, "RotationAngle")) {
-            obj->getGeometry()->rotate(rotationAxis, rotationAngle);
+            obj->getGeometry()->setRotation(rotationAxis, rotationAngle);
         }
 
         if(JSONHelpers::readValue(jObj, scale, "Scale")) {
-            obj->getGeometry()->uniformScale(scale);
+            obj->getGeometry()->setUniformScale(scale);
         }
-
-        obj->setParameters(jObj);
     }
 }
 
@@ -81,15 +79,15 @@ void loadParticleObjects(const nlohmann::json& jParams, Vector<SharedPtr<Simulat
         Real          scale;
 
         if(JSONHelpers::readVector(jObj, translation, "Translation")) {
-            obj->getGeometry()->translate(translation);
+            obj->getGeometry()->setTranslation(translation);
         }
 
         if(JSONHelpers::readVector(jObj, rotationAxis, "RotationAxis") && JSONHelpers::readValue(jObj, rotationAngle, "RotationAngle")) {
-            obj->getGeometry()->rotate(rotationAxis, rotationAngle);
+            obj->getGeometry()->setRotation(rotationAxis, rotationAngle);
         }
 
         if(JSONHelpers::readValue(jObj, scale, "Scale")) {
-            obj->getGeometry()->uniformScale(scale);
+            obj->getGeometry()->setUniformScale(scale);
         }
     }
 }
@@ -120,15 +118,15 @@ void loadParticleEmitters(const nlohmann::json& jParams, Vector<SharedPtr<Simula
         Real          scale;
 
         if(JSONHelpers::readVector(jObj, translation, "Translation")) {
-            obj->getGeometry()->translate(translation);
+            obj->getGeometry()->setTranslation(translation);
         }
 
         if(JSONHelpers::readVector(jObj, rotationAxis, "RotationAxis") && JSONHelpers::readValue(jObj, rotationAngle, "RotationAngle")) {
-            obj->getGeometry()->rotate(rotationAxis, rotationAngle);
+            obj->getGeometry()->setRotation(rotationAxis, rotationAngle);
         }
 
         if(JSONHelpers::readValue(jObj, scale, "Scale")) {
-            obj->getGeometry()->uniformScale(scale);
+            obj->getGeometry()->setUniformScale(scale);
         }
     }
 }

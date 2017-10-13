@@ -147,7 +147,7 @@ template<Int N, class RealType>
 RealType SphereObject<N, RealType >::signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside /*= true*/)
 {
     auto     ppos = invTransform(ppos0);
-    RealType d    = m_InvScale * (glm::length(ppos) - m_Radius);
+    RealType d    = m_InvScale * (glm::length(ppos) - RealType(1.0));
     return bNegativeInside ? d : -d;
 }
 

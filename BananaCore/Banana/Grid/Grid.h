@@ -69,7 +69,7 @@ public:
     __BNN_INLINE IndexType getNodeLinearizedIndex(IndexType i, IndexType j) const
     {
         static_assert(N == 2, "Array dimension != 2");
-        return j * static_cast<IndexType>(getNumNodeX()) + i;
+        return j * static_cast<IndexType>(getNNodes()[0]()) + i;
     }
 
     template<class IndexType>
@@ -167,8 +167,9 @@ public:
     __BNN_INLINE VecX<N, IndexType> getCellIdx(const VecX<N, RealType>& ppos) const noexcept
     {
         VecX<N, IndexType> cellIdx;
-        for(Int i = 0; i < N; ++i)
+        for(Int i = 0; i < N; ++i) {
             cellIdx[i] = static_cast<IndexType>((ppos[i] - m_BMin[i]) / m_CellSize);
+        }
         return cellIdx;
     }
 
@@ -177,8 +178,9 @@ public:
     {
         VecX<N, IndexType> validCellIdx;
 
-        for(Int i = 0; i < N; ++i)
+        for(Int i = 0; i < N; ++i) {
             validCellIdx[i] = MathHelpers::clamp<IndexType>(cellIdx[i], 0, static_cast<IndexType>(m_NCells[i]) - 1);
+        }
 
         return validCellIdx;
     }

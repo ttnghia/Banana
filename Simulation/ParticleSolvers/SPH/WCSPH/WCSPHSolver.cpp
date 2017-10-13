@@ -53,7 +53,7 @@ void WCSPHSolver::makeReady()
                                if(m_SimParams->bUseBoundaryParticles) {
                                    __BNN_ASSERT(m_BoundaryObjects.size() != 0);
                                    for(auto& bdObj : m_BoundaryObjects) {
-                                       bdObj->generateBoundaryParticles(Real(1.7) * m_SimParams->particleRadius);
+                                       bdObj->initBoundaryParticles(Real(0.85) * m_SimParams->particleRadius);
                                        m_Logger->printLog("Number of boundary particles: " + NumberHelpers::formatWithCommas(bdObj->getNumBDParticles()));
                                        m_NSearch->add_point_set(glm::value_ptr(bdObj->getBDParticles().front()), bdObj->getBDParticles().size(), false, true);
                                        //m_SimData->positions.insert(m_SimData->positions.begin(), bdObj->getBDParticles().begin(), bdObj->getBDParticles().end());
