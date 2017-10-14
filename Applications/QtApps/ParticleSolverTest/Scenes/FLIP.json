@@ -11,22 +11,23 @@
     },
     "SimulationParameters":
     {
+        "SimulationDomainBox" :
+        {
+            "Translation" : [0, 0.25, 0],
+            "SizeScale" : [ 1, 1.25, 1]
+        },
         "ApplyRepulsiveForce" : true,
         "RepulsiveForceStiffness" : 1e-4,
         "PIC_FLIP_Ratio" : 0.97,
         "CGRelativeTolerance" : 1e-5,
         "MaxCGIteration" : 10000,
-        "BoxMin" : [-1, -1, -1],
-        "BoxMax" : [1, 1.5, 1],
         "ParticleRadius" : 0.0075
     },
-    "BoundaryObjects":
+    "AdditionalBoundaryObjects":
     [
         {
-            "GeometryType" : "Box"
-        },
-        {
             "GeometryType" : "Sphere",
+            "CSGOperator" : "Intersection",
             "Translation" : [0.0, 1.0, 0.0],
             "Scale" : 2.0
         }
@@ -38,9 +39,14 @@
     "ParticleEmitters":
     {
     },
-    "Visualization":
+    "VisualizationParameters":
     {
-        "Camera" : [1, 2, 3],
-        "Light" : [1, 2, 3]
+        "CameraPosition" : [0, 0.7, 3.2],
+        "CameraFocus" : [0, 0.2, 0],
+        "Light" :
+        {
+            "Position" : [-10, 10, 0],
+            "Color" : [1, 1, 1]
+        }
     }
 }

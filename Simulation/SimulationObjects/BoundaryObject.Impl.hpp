@@ -81,7 +81,7 @@ void BoundaryObjectInterface<N, RealType >::generateSDF(const VecX<N, RealType>&
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // This is slip boundary: particle penetrates, then slips along surface until the end of the time step
 template<Int N, class RealType>
-bool BoundaryObjectInterface<N, RealType >::constrainToBoundary(VecX<N, RealType>& ppos, VecX<N, RealType>& pvel, bool bReflect /*= true*/)
+bool BoundaryObjectInterface<N, RealType >::constrainToBoundary(VecX<N, RealType>& ppos, VecX<N, RealType>& pvel, bool bReflect /*= false*/)
 {
     const RealType phiVal = signedDistance(ppos) - m_Margin;
     if(phiVal < 0) {
@@ -98,9 +98,9 @@ bool BoundaryObjectInterface<N, RealType >::constrainToBoundary(VecX<N, RealType
                 if(magVel > Tiny) {
                     pvel /= magVel;
                     pvel  = glm::reflect(pvel, grad) * m_RestitutionCoeff * magVel;
+                    return true;
                 }
             }
-            return true;
         }
     }
 
@@ -133,7 +133,7 @@ void BoundaryObject<3, RealType >::computeSDF()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-bool BoxBoundaryInterface<N, RealType >::constrainToBoundary(VecX<N, RealType>& ppos, VecX<N, RealType>& pvel, bool bReflect /*= true*/)
+bool BoxBoundaryInterface<N, RealType >::constrainToBoundary(VecX<N, RealType>& ppos, VecX<N, RealType>& pvel, bool bReflect /*= false*/)
 {
     bool velChanged = false;
 

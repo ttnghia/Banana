@@ -117,7 +117,7 @@ VecX<N, RealType> GeometryObject<N, RealType >::invTransform(const VecX<N, RealT
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-RealType BoxObject<N, RealType >::signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside /*= true*/)
+RealType BoxObject<N, RealType >::signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside /*= true*/) const
 {
     auto     ppos = invTransform(ppos0);
     RealType mind = Huge;
@@ -142,9 +142,19 @@ RealType BoxObject<N, RealType >::signedDistance(const VecX<N, RealType>& ppos0,
     return mind * m_InvScale;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+template<Int N, class RealType>
+void BoxObject<N, RealType >::setSizeScale(const VecX<N, RealType>& sizeScale)
+{
+    for(Int i = 0; i < N; ++i) {
+        m_BoxMin[i] *= sizeScale[i];
+        m_BoxMax[i] *= sizeScale[i];
+    }
+}
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-RealType SphereObject<N, RealType >::signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside /*= true*/)
+RealType SphereObject<N, RealType >::signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside /*= true*/) const
 {
     auto     ppos = invTransform(ppos0);
     RealType d    = m_InvScale * (glm::length(ppos) - RealType(1.0));
@@ -153,7 +163,7 @@ RealType SphereObject<N, RealType >::signedDistance(const VecX<N, RealType>& ppo
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-RealType TorusObject<2, RealType >::signedDistance(const Vec2<RealType>& ppos0, bool bNegativeInside /*= true*/)
+RealType TorusObject<2, RealType >::signedDistance(const Vec2<RealType>& ppos0, bool bNegativeInside /*= true*/) const
 {
     auto     ppos = invTransform(ppos0);
     RealType d    = m_InvScale * (std::abs(MathHelpers::norm2(ppos[0], ppos[1]) - m_OuterRadius) - m_InnerRadius);
@@ -162,7 +172,7 @@ RealType TorusObject<2, RealType >::signedDistance(const Vec2<RealType>& ppos0, 
 
 ////////////////////////////////////////////////////////////////////////////////
 template<class RealType>
-RealType TorusObject<3, RealType >::signedDistance(const Vec3<RealType>& ppos0, bool bNegativeInside /*= true*/)
+RealType TorusObject<3, RealType >::signedDistance(const Vec3<RealType>& ppos0, bool bNegativeInside /*= true*/) const
 {
     auto           ppos = invTransform(ppos0);
     Vec2<RealType> q    = Vec2<RealType>(MathHelpers::norm2(ppos[0], ppos[2]) - m_OuterRadius, ppos[1]);
@@ -172,7 +182,7 @@ RealType TorusObject<3, RealType >::signedDistance(const Vec3<RealType>& ppos0, 
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-RealType Torus28Object<N, RealType >::signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside /*= true*/)
+RealType Torus28Object<N, RealType >::signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside /*= true*/) const
 {
     __BNN_ASSERT_MSG(N == 3, "Object dimension != 3");
     auto           ppos = invTransform(ppos0);
@@ -183,7 +193,7 @@ RealType Torus28Object<N, RealType >::signedDistance(const VecX<N, RealType>& pp
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-RealType Torus2InfObject<N, RealType >::signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside /*= true*/)
+RealType Torus2InfObject<N, RealType >::signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside /*= true*/) const
 {
     __BNN_ASSERT_MSG(N == 3, "Object dimension != 3");
     auto           ppos = invTransform(ppos0);
@@ -194,7 +204,7 @@ RealType Torus2InfObject<N, RealType >::signedDistance(const VecX<N, RealType>& 
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-RealType Torus88Object<2, RealType >::signedDistance(const Vec2<RealType>& ppos0, bool bNegativeInside /*= true*/)
+RealType Torus88Object<2, RealType >::signedDistance(const Vec2<RealType>& ppos0, bool bNegativeInside /*= true*/) const
 {
     auto     ppos = invTransform(ppos0);
     RealType d    = m_InvScale * (std::abs(MathHelpers::norm8(ppos[0], ppos[1]) - m_OuterRadius) - m_InnerRadius);
@@ -203,7 +213,7 @@ RealType Torus88Object<2, RealType >::signedDistance(const Vec2<RealType>& ppos0
 
 ////////////////////////////////////////////////////////////////////////////////
 template<class RealType>
-RealType Torus88Object<3, RealType >::signedDistance(const Vec3<RealType>& ppos0, bool bNegativeInside /*= true*/)
+RealType Torus88Object<3, RealType >::signedDistance(const Vec3<RealType>& ppos0, bool bNegativeInside /*= true*/) const
 {
     auto           ppos = invTransform(ppos0);
     Vec2<RealType> q    = Vec2<RealType>(MathHelpers::norm8(ppos[0], ppos[2]) - m_OuterRadius, ppos[1]);
@@ -213,7 +223,7 @@ RealType Torus88Object<3, RealType >::signedDistance(const Vec3<RealType>& ppos0
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-RealType TorusInfInfObject<2, RealType >::signedDistance(const Vec2<RealType>& ppos0, bool bNegativeInside /*= true*/)
+RealType TorusInfInfObject<2, RealType >::signedDistance(const Vec2<RealType>& ppos0, bool bNegativeInside /*= true*/) const
 {
     auto     ppos = invTransform(ppos0);
     RealType d    = m_InvScale * (std::abs(MathHelpers::norm_inf(ppos[0], ppos[1]) - m_OuterRadius) - m_InnerRadius);
@@ -222,7 +232,7 @@ RealType TorusInfInfObject<2, RealType >::signedDistance(const Vec2<RealType>& p
 
 ////////////////////////////////////////////////////////////////////////////////
 template<class RealType>
-RealType TorusInfInfObject<3, RealType >::signedDistance(const Vec3<RealType>& ppos0, bool bNegativeInside /*= true*/)
+RealType TorusInfInfObject<3, RealType >::signedDistance(const Vec3<RealType>& ppos0, bool bNegativeInside /*= true*/) const
 {
     auto           ppos = invTransform(ppos0);
     Vec2<RealType> q    = Vec2<RealType>(MathHelpers::norm_inf(ppos[0], ppos[2]) - m_OuterRadius, ppos[1]);
@@ -232,7 +242,7 @@ RealType TorusInfInfObject<3, RealType >::signedDistance(const Vec3<RealType>& p
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-RealType CylinderObject<N, RealType >::signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside /*= true*/)
+RealType CylinderObject<N, RealType >::signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside /*= true*/) const
 {
     __BNN_ASSERT_MSG(N == 3, "Object dimension != 3");
     auto     ppos = invTransform(ppos0);
@@ -242,7 +252,7 @@ RealType CylinderObject<N, RealType >::signedDistance(const VecX<N, RealType>& p
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-RealType ConeObject<N, RealType >::signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside /*= true*/)
+RealType ConeObject<N, RealType >::signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside /*= true*/) const
 {
     __BNN_ASSERT_MSG(N == 3, "Object dimension != 3");
     auto     ppos  = invTransform(ppos0);
@@ -254,7 +264,7 @@ RealType ConeObject<N, RealType >::signedDistance(const VecX<N, RealType>& ppos0
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-RealType PlaneObject<N, RealType >::signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside /*= true*/)
+RealType PlaneObject<N, RealType >::signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside /*= true*/) const
 {
     auto ppos = invTransform(ppos0);
     return glm::dot(ppos, m_Normal) - m_Offset;
@@ -262,7 +272,7 @@ RealType PlaneObject<N, RealType >::signedDistance(const VecX<N, RealType>& ppos
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-RealType TriangleObject<N, RealType >::signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside /*= true*/)
+RealType TriangleObject<N, RealType >::signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside /*= true*/) const
 {
     __BNN_ASSERT_MSG(N == 2, "Object dimension != 2");
     __BNN_UNIMPLEMENTED_FUNC;
@@ -271,7 +281,7 @@ RealType TriangleObject<N, RealType >::signedDistance(const VecX<N, RealType>& p
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-RealType HexagonObject<N, RealType >::signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside /*= true*/)
+RealType HexagonObject<N, RealType >::signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside /*= true*/) const
 {
     __BNN_ASSERT_MSG(N == 2, "Object dimension != 2");
     auto     ppos = invTransform(ppos0);
@@ -283,7 +293,7 @@ RealType HexagonObject<N, RealType >::signedDistance(const VecX<N, RealType>& pp
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-RealType TriangularPrismObject<N, RealType >::signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside /*= true*/)
+RealType TriangularPrismObject<N, RealType >::signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside /*= true*/) const
 {
     __BNN_ASSERT_MSG(N == 3, "Object dimension != 3");
     auto              ppos = invTransform(ppos0);
@@ -298,7 +308,7 @@ RealType TriangularPrismObject<N, RealType >::signedDistance(const VecX<N, RealT
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-RealType HexagonalPrismObject<N, RealType >::signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside /*= true*/)
+RealType HexagonalPrismObject<N, RealType >::signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside /*= true*/) const
 {
     __BNN_ASSERT_MSG(N == 3, "Object dimension != 3");
     auto              ppos = invTransform(ppos0);
@@ -313,7 +323,7 @@ RealType HexagonalPrismObject<N, RealType >::signedDistance(const VecX<N, RealTy
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-RealType CapsuleObject<N, RealType >::signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside /*= true*/)
+RealType CapsuleObject<N, RealType >::signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside /*= true*/) const
 {
     __BNN_ASSERT_MSG(N == 3, "Object dimension != 3");
     VecX<N, RealType> a(0); // end point a
@@ -332,7 +342,7 @@ RealType CapsuleObject<N, RealType >::signedDistance(const VecX<N, RealType>& pp
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-RealType EllipsoidObject<N, RealType >::signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside /*= true*/)
+RealType EllipsoidObject<N, RealType >::signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside /*= true*/) const
 {
     auto ppos = invTransform(ppos0);
     for(Int i = 0; i < N; ++i) {
@@ -652,11 +662,11 @@ void cycle_array(RealType* arr, Int size)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-RealType TriMeshObject<3, RealType >::signedDistance(const Vec3<RealType>& ppos0, bool bNegativeInside /*= true*/)
+RealType TriMeshObject<3, RealType >::signedDistance(const Vec3<RealType>& ppos0, bool bNegativeInside /*= true*/) const
 {
-    if(!m_bSDFReady) {
+    /*if(!m_bSDFReady) {
         makeSDF();
-    }
+       }*/
 
     auto ppos    = invTransform(ppos0);
     auto cellIdx = m_Grid3D.getCellIdx<UInt>(ppos);
@@ -718,7 +728,7 @@ void TriMeshObject<3, RealType >::makeSDF()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-RealType CSGObject<N, RealType >::signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside /*= true*/)
+RealType CSGObject<N, RealType >::signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside /*= true*/) const
 {
     if(m_Objects.size() == 0) {
         return Huge;
@@ -758,7 +768,7 @@ RealType CSGObject<N, RealType >::signedDistance(const VecX<N, RealType>& ppos0,
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-VecX<N, RealType> CSGObject<N, RealType >::domainDeform(const VecX<N, RealType>& ppos)
+VecX<N, RealType> CSGObject<N, RealType >::domainDeform(const VecX<N, RealType>& ppos) const
 {
     switch(m_DeformOp) {
         case None:
@@ -774,7 +784,7 @@ VecX<N, RealType> CSGObject<N, RealType >::domainDeform(const VecX<N, RealType>&
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-VecX<N, RealType> CSGObject<N, RealType >::twist(const VecX<N, RealType>& ppos)
+VecX<N, RealType> CSGObject<N, RealType >::twist(const VecX<N, RealType>& ppos) const
 {
     __BNN_UNUSED(ppos);
     //RealType         c = cos(RealType(5.0) * ppos.z);
@@ -788,7 +798,7 @@ VecX<N, RealType> CSGObject<N, RealType >::twist(const VecX<N, RealType>& ppos)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-VecX<N, RealType> CSGObject<N, RealType >::cheapBend(const VecX<N, RealType>& ppos)
+VecX<N, RealType> CSGObject<N, RealType >::cheapBend(const VecX<N, RealType>& ppos) const
 {
     RealType c = cos(RealType(0.5) * ppos.y);
     RealType s = sin(RealType(0.5) * ppos.y);

@@ -78,7 +78,7 @@ public:
     RealType          signedDistance(const VecX<N, RealType>& ppos, bool bUseCache = true);
     VecX<N, RealType> gradSignedDistance(const VecX<N, RealType>& ppos, RealType dxyz = RealType(1.0 / 512.0), bool bUseCache = true);
     void              generateSDF(const VecX<N, RealType>& domainBMin, const VecX<N, RealType>& domainBMax, RealType sdfCellSize = RealType(1.0 / 512.0), bool bUseCache = false);
-    virtual bool      constrainToBoundary(VecX<N, RealType>& ppos, VecX<N, RealType>& pvel, bool bReflect = true);
+    virtual bool      constrainToBoundary(VecX<N, RealType>& ppos, VecX<N, RealType>& pvel, bool bReflect = false);
 
 protected:
     virtual void computeSDF() { __BNN_UNIMPLEMENTED_FUNC }
@@ -144,9 +144,10 @@ public:
         __BNN_ASSERT(m_Box != nullptr);
     }
 
-    virtual bool             constrainToBoundary(VecX<N, RealType>& ppos, VecX<N, RealType>& pvel, bool bReflect = true) override;
+    virtual bool             constrainToBoundary(VecX<N, RealType>& ppos, VecX<N, RealType>& pvel, bool bReflect = false) override;
     const VecX<N, RealType>& boxMin() const noexcept { return m_Box->boxMin(); }
     const VecX<N, RealType>& boxMax() const noexcept { return m_Box->boxMax(); }
+    void                     setSizeScale(const VecX<N, RealType>& sizeScale) { m_Box->setSizeScale(sizeScale); }
 
 protected:
     BoxPtr m_Box;

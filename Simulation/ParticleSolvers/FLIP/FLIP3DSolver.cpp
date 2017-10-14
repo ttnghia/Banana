@@ -147,8 +147,11 @@ void FLIP3DSolver::sortParticles()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void FLIP3DSolver::loadSimParams(const nlohmann::json& jParams)
 {
-    JSONHelpers::readVector(jParams, m_SimParams->movingBMin, "BoxMin");
-    JSONHelpers::readVector(jParams, m_SimParams->movingBMax, "BoxMax");
+    __BNN_ASSERT(m_BoundaryObjects.size() > 0);
+    SharedPtr<GeometryObjects::BoxObject<3, Real> > box = static_pointer_cast<GeometryObjects::BoxObject<3, Real> >(m_BoundaryObjects[0]->getGeometry());
+    __BNN_ASSERT(box != nullptr);
+    m_SimParams->movingBMin = box->boxMin();
+    m_SimParams->movingBMax = box->boxMax();
 
 
     JSONHelpers::readValue(jParams, m_SimParams->particleRadius,      "ParticleRadius");
@@ -320,23 +323,28 @@ void FLIP3DSolver::moveParticles(Real timestep)
                                       {
                                           Vec3r pvel = particleData().velocities[p];
                                           Vec3r ppos = particleData().positions[p] + pvel * timestep;
-                                          /*const Vec3r gridPos = m_Grid.getGridCoordinate(ppos);
-                                             const Real phiVal = ArrayHelpers::interpolateValueLinear(gridPos, gridData().boundarySDF) - m_SimParams->particleRadius;
+#if 0
+                                          const Vec3r gridPos = m_Grid.getGridCoordinate(ppos);
+                                          const Real phiVal   = ArrayHelpers::interpolateValueLinear(gridPos, gridData().boundarySDF) - m_SimParams->particleRadius;
 
-                                             if(phiVal < 0)
-                                             {
-                                              Vec3r grad = ArrayHelpers::interpolateGradient(gridPos, gridData().boundarySDF);
+                                          if(phiVal < 0) {
+                                              Vec3r grad    = ArrayHelpers::interpolateGradient(gridPos, gridData().boundarySDF);
                                               Real mag2Grad = glm::length2(grad);
 
-                                              if(mag2Grad > Tiny)
+                                              if(mag2Grad > Tiny) {
                                                   ppos -= phiVal * grad / sqrt(mag2Grad);
-                                             }*/
+                                              }
+                                          }
+#else
                                           bool velChanged = false;
                                           for(auto& obj : m_BoundaryObjects) {
-                                              if(obj->constrainToBoundary(ppos, pvel)) { velChanged = true; } }
+                                              if(obj->constrainToBoundary(ppos, pvel)) { velChanged = true; }
+                                          }
 
-                                          //if(velChanged)
-                                          //    particleData().velocities[p] = pvel;
+                                          if(velChanged) {
+                                              particleData().velocities[p] = pvel;
+                                          }
+#endif
                                           particleData().positions[p] = ppos;
                                       });
 }

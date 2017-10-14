@@ -32,14 +32,47 @@ void ParticleSolver<N, RealType >::loadScene(const String& sceneFile)
         nlohmann::json jFrameParams = jParams["GlobalParameters"];
         SceneLoader::loadGlobalParams(jFrameParams, m_GlobalParams);
         m_GlobalParams->printParams(m_Logger);
-        if(m_GlobalParams->bSaveParticleData || m_GlobalParams->bSaveMemoryState || m_GlobalParams->bPrintLog2File)
+        if(m_GlobalParams->bSaveParticleData || m_GlobalParams->bSaveMemoryState || m_GlobalParams->bPrintLog2File) {
             FileHelpers::createFolder(m_GlobalParams->dataPath);
+        }
     }
 
     ////////////////////////////////////////////////////////////////////////////////
     // read simulation parameters
     if(jParams.find("SimulationParameters") != jParams.end()) {
         nlohmann::json jSimParams = jParams["SimulationParameters"];
+
+        // load simulation domain box from sim param and set it as the first boundary object
+        {
+            __BNN_ASSERT(jSimParams.find("SimulationDomainBox") != jSimParams.end());
+            nlohmann::json jBoxParams = jSimParams["SimulationDomainBox"];
+
+            SharedPtr<SimulationObjects::BoundaryObject<N, RealType> > obj = SimulationObjectFactory::createBoundaryObject<N, RealType>("Box");
+            __BNN_ASSERT(obj->getGeometry() != nullptr);
+            m_BoundaryObjects.push_back(obj);
+
+            // domain box cannot be dynamic
+            JSONHelpers::readValue(jBoxParams, obj->meshFile(), "MeshFile");
+            JSONHelpers::readValue(jBoxParams, obj->particleFile(), "ParticleFile");
+
+            // domain box can only has translation, scale and size scale
+            VecX<N, Real>     translation;
+            Real              scale;
+            VecX<N, RealType> sizeScale;
+
+            if(JSONHelpers::readVector(jBoxParams, translation, "Translation")) {
+                obj->getGeometry()->setTranslation(translation);
+            }
+            if(JSONHelpers::readValue(jBoxParams, scale, "Scale")) {
+                obj->getGeometry()->setUniformScale(scale);
+            }
+
+            if(JSONHelpers::readVector(jBoxParams, sizeScale, "SizeScale")) {
+                SharedPtr<GeometryObjects::BoxObject<N, RealType> > box = static_pointer_cast<GeometryObjects::BoxObject<N, RealType> >(obj->getGeometry());
+                __BNN_ASSERT(box != nullptr);
+                box->setSizeScale(sizeScale);
+            }
+        }
         loadSimParams(jSimParams); // do this by specific solver
     }
 
@@ -118,8 +151,8 @@ void ParticleSolver<N, RealType >::doSimulation()
 template<Int N, class RealType>
 void ParticleSolver<N, RealType >::generateBoundaries(const nlohmann::json& jParams)
 {
-    __BNN_ASSERT(jParams.find("BoundaryObjects") != jParams.end());
-    SceneLoader::loadBoundaryObjects<N, RealType>(jParams["BoundaryObjects"], m_BoundaryObjects);
+    __BNN_ASSERT(jParams.find("AdditionalBoundaryObjects") != jParams.end());
+    SceneLoader::loadBoundaryObjects<N, RealType>(jParams["AdditionalBoundaryObjects"], m_BoundaryObjects);
 
     ////////////////////////////////////////////////////////////////////////////////
     // combine static boundaries
@@ -127,10 +160,11 @@ void ParticleSolver<N, RealType >::generateBoundaries(const nlohmann::json& jPar
         Vector<SharedPtr<SimulationObjects::BoundaryObject<N, RealType> > > staticBoundaries;
         Vector<SharedPtr<SimulationObjects::BoundaryObject<N, RealType> > > dynamicBoundaries;
         for(auto& obj : m_BoundaryObjects) {
-            if(obj->isDynamic())
+            if(obj->isDynamic()) {
                 dynamicBoundaries.push_back(obj);
-            else
+            } else {
                 staticBoundaries.push_back(obj);
+            }
         }
 
         if(staticBoundaries.size() > 1) {
@@ -138,14 +172,16 @@ void ParticleSolver<N, RealType >::generateBoundaries(const nlohmann::json& jPar
             SharedPtr<GeometryObjects::CSGObject<N, RealType> >        csgObj      = std::static_pointer_cast<GeometryObjects::CSGObject<N, RealType> >(csgBoundary->getGeometry());
             __BNN_ASSERT(csgObj != nullptr);
 
-            for(auto& obj : staticBoundaries)
+            for(auto& obj : staticBoundaries) {
                 csgObj->addObject(obj->getGeometry(), GeometryObjects::CSGOperations::Union);
+            }
 
             m_BoundaryObjects.resize(0);
             m_BoundaryObjects.push_back(csgBoundary);
 
-            for(auto& obj : dynamicBoundaries)
+            for(auto& obj : dynamicBoundaries) {
                 m_BoundaryObjects.push_back(obj);
+            }
         }
     }
 }
@@ -162,18 +198,21 @@ void ParticleSolver<N, RealType >::generateParticles(const nlohmann::json& jPara
 template<Int N, class RealType>
 void ParticleSolver<N, RealType >::generateEmitters(const nlohmann::json& jParams)
 {
-    if((jParams.find("ParticleEmitters") != jParams.end()))
+    if((jParams.find("ParticleEmitters") != jParams.end())) {
         SceneLoader::loadParticleEmitters<N, RealType>(jParams["ParticleEmitters"], m_ParticleEmitters);
+    }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
 void ParticleSolver<N, RealType >::advanceScene()
 {
-    for(auto& obj : m_BoundaryObjects)
-        if(obj->isDynamic()) obj->advanceFrame();
-    for(auto& obj : m_ParticleObjects)
+    for(auto& obj : m_BoundaryObjects) {
+        if(obj->isDynamic()) { obj->advanceFrame(); } }
+    for(auto& obj : m_ParticleObjects) {
         obj->advanceFrame();
-    for(auto& obj : m_ParticleEmitters)
+    }
+    for(auto& obj : m_ParticleEmitters) {
         obj->advanceFrame();
+    }
 }
