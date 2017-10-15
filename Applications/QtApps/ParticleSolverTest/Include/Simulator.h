@@ -18,20 +18,12 @@
 #pragma once
 
 #include <Banana/Setup.h>
-#include <ParticleSolvers/SPH/WCSPH/WCSPHSolver.h>
-#include <ParticleSolvers/FLIP/FLIP3DSolver.h>
-#include <ParticleSolvers/FLIP/FLIP2DSolver.h>
 
 #include <QObject>
 #include <QStringList>
 
 #include "Common.h"
-#include "FLIP3DSolverQt.h"
-
-//#define PARTICLE_SOLVER WCSPHSolver
-//#define PARTICLE_SOLVER FLIP3DSolver
-#define PARTICLE_SOLVER FLIP3DSolverQt
-//#define PARTICLE_SOLVER FLIP2DSolver
+#include "ParticleSolverQt.h"
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 class Simulator : public QObject
@@ -40,7 +32,7 @@ class Simulator : public QObject
 
 public:
     Simulator();
-    ~Simulator() { Logger::shutdown(); }
+    virtual ~Simulator() { Logger::shutdown(); }
     void setParticleSystemData(const std::shared_ptr<ParticleSystemData>& particleData) { m_ParticleData = particleData; }
 
     bool isRunning() { return !m_bStop; }
@@ -48,7 +40,8 @@ public:
     void reset();
     void startSimulation();
     void resume();
-    const std::unique_ptr<PARTICLE_SOLVER>& getSolver() const { return m_ParticleSolver; }
+
+    const std::unique_ptr<ParticleSolverQt>& getSolver() const { return m_ParticleSolver; }
 
 public slots:
     void doSimulation();
@@ -65,7 +58,7 @@ signals:
 
 protected:
     std::shared_ptr<ParticleSystemData> m_ParticleData = nullptr;
-    std::unique_ptr<PARTICLE_SOLVER>    m_ParticleSolver;
+    std::unique_ptr<ParticleSolverQt>   m_ParticleSolver;
 
     std::future<void> m_SimulationFutureObj;
     QString           m_Scene;

@@ -39,7 +39,7 @@ HEADERS += \
     Include/Simulator.h \
     Include/RenderWidget.h \
     Include/Controller.h \
-    Include/FLIP3DSolverQt.h
+    Include/ParticleSolverQt.h
 
 SOURCES += \
     Source/Main.cpp \
@@ -47,7 +47,7 @@ SOURCES += \
     Source/Simulator.cpp \
     Source/RenderWidget.cpp \
     Source/Controller.cpp \
-    Source/FLIP3DSolverQt.cpp
+    Source/ParticleSolverQt.cpp
 
 RESOURCES += \
     Shader.qrc

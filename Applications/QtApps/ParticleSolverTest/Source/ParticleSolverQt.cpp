@@ -17,10 +17,10 @@
 
 #pragma once
 
-#include "FLIP3DSolverQt.h"
+#include "ParticleSolverQt.h"
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FLIP3DSolverQt::doSimulationFrame(UInt frame)
+void ParticleSolverQt::doSimulationFrame(UInt frame)
 {
     m_Logger->newLine();
     m_Logger->printAligned("Frame " + NumberHelpers::formatWithCommas(frame), '=');
@@ -44,7 +44,7 @@ void FLIP3DSolverQt::doSimulationFrame(UInt frame)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FLIP3DSolverQt::endSimulation()
+void ParticleSolverQt::endSimulation()
 {
     m_Logger->newLine();
     m_Logger->printAligned("Simulation finished", '+');

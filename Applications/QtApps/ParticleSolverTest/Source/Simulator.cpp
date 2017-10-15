@@ -26,7 +26,7 @@ Simulator::Simulator()
 {
     Logger::enableLog2File(true);
     Logger::initialize();
-    m_ParticleSolver = std::make_unique<PARTICLE_SOLVER>();
+    m_ParticleSolver = std::make_unique<ParticleSolverQt>();
 
     // todo: remove
     Logger::enableLog2File(true);

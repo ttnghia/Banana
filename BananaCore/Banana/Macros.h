@@ -48,8 +48,7 @@
 
 inline void throwIfFailed(HRESULT hr)
 {
-    if(FAILED(hr))
-    {
+    if(FAILED(hr)) {
         throw std::exception(std::to_string(hr).c_str());
     }
 }
@@ -117,10 +116,10 @@ inline void throwIfFailed(HRESULT hr)
 #define __BNN_COMPILER_MESSAGE(msg) \
     __pragma(message("+++>" msg))
 
-#define __BNN_TODO_MSG \
+#define __BNN_TODO \
     __pragma(message("+++>TODO: => " __FILE__ "(" __BNN_TO_STRING(__LINE__) ") "))
 
-#define __BNN_TODO(msg) \
+#define __BNN_TODO_MSG(msg) \
     __pragma(message("+++>TODO: " msg " => " __FILE__ "(" __BNN_TO_STRING(__LINE__) ") "))
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

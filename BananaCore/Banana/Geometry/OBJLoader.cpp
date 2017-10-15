@@ -64,13 +64,8 @@ void OBJLoader::computeNormals(bool clockwise)
 
     for(int i = 0; i < numFaces; ++i) {
         // face normal (not normalized)
-#ifdef __Using_Eigen_Lib__
-        Vec3f N = (vertices[faces[i].vertices[1]] - vertices[faces[i].vertices[0]]).cross(
-            vertices[faces[i].vertices[2]] - vertices[faces[i].vertices[0]]);
-#else
         Vec3f N = glm::cross(vertices[faces[i].vertices[1]] - vertices[faces[i].vertices[0]],
                              vertices[faces[i].vertices[2]] - vertices[faces[i].vertices[0]]);
-#endif
 
         if(clockwise) {
             N = -N;
@@ -83,11 +78,7 @@ void OBJLoader::computeNormals(bool clockwise)
     }
 
     for(int i = 0; i < numVertexNormals; ++i) {
-#ifdef __Using_Eigen_Lib__
-        vertexNormals[i].normalize();
-#else
         vertexNormals[i] = glm::normalize(vertexNormals[i]);
-#endif
     }
 }
 
@@ -137,8 +128,7 @@ bool OBJLoader::loadFromFileObj(const char* filename)
                 for(int i = 2; i < rb - 1; ++i) {
                     if(buffer[i] == ' ' || buffer[i] == '\t') {
                         inspace = true;
-                    }
-                    else if(inspace) {
+                    } else if(inspace) {
                         nFaceVerts++;
                         inspace = false;
                     }
@@ -202,8 +192,7 @@ bool OBJLoader::loadFromFileObj(const char* filename)
                 for(int i = 2; i < rb - 1; ++i) {
                     if(buffer[i] == ' ' || buffer[i] == '\t') {
                         inspace = true;
-                    }
-                    else{
+                    } else {
                         if(inspace) {
                             inspace = false;
                             type    = 0;
@@ -212,17 +201,14 @@ bool OBJLoader::loadFromFileObj(const char* filename)
                             switch(facevert) {
                                 case -1:
                                     // initialize face
-                                    faces[readFaces].vertices[0]                                                                           = faces[readFaces].vertices[1] = faces[readFaces].vertices[2]
-                                                                                                                                           = 0;
+                                    faces[readFaces].vertices[0] = faces[readFaces].vertices[1] = faces[readFaces].vertices[2] = 0;
 
                                     if(faceTextures) {
-                                        faceTextures[readFaces].vertices[0]                                                                                     = faceTextures[readFaces].vertices[1] =
-                                                                                                                            faceTextures[readFaces].vertices[2] = 0;
+                                        faceTextures[readFaces].vertices[0] = faceTextures[readFaces].vertices[1] = faceTextures[readFaces].vertices[2] = 0;
                                     }
 
                                     if(faceNormals) {
-                                        faceNormals[readFaces].vertices[0]                                                                                   = faceNormals[readFaces].vertices[1] =
-                                                                                                                          faceNormals[readFaces].vertices[2] = 0;
+                                        faceNormals[readFaces].vertices[0] = faceNormals[readFaces].vertices[1] = faceNormals[readFaces].vertices[2] = 0;
                                     }
 
                                 case 0:
