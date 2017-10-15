@@ -83,10 +83,10 @@ protected:
     virtual void advanceScene();
 
     virtual void loadSimParams(const nlohmann::json& jParams) = 0;
-    virtual void setupDataIO()                                = 0;
-    virtual void loadMemoryState()                            = 0;
-    virtual void saveMemoryState()                            = 0;
-    virtual void saveParticleData()                           = 0;
+    virtual void setupDataIO()      = 0;
+    virtual void loadMemoryState()  = 0;
+    virtual void saveMemoryState()  = 0;
+    virtual void saveParticleData() = 0;
 
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -112,7 +112,7 @@ using ParticleSolver2D = ParticleSolver<2, Real>;
 using ParticleSolver3D = ParticleSolver<3, Real>;
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-};  // end namespace ParticleSolvers
+}   // end namespace ParticleSolvers
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana

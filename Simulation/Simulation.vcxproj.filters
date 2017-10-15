@@ -209,9 +209,6 @@
     <ClCompile Include="ParticleSolvers\SceneLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ParticleTools\PoissonDiskSampler.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="SimulationObjects\SimulationObjects.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

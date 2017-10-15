@@ -58,4 +58,4 @@ template<class Real>
 void Banana::MPMSolver<Real >::saveMemoryState()
 {}
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-};  // end namespace ParticleSolvers
+}  // end namespace ParticleSolvers

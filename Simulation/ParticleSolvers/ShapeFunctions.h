@@ -29,8 +29,8 @@ namespace ParticleSolvers
 template<class RealType>
 struct ShapeFunction
 {
-    virtual Int      cellSpan()       = 0;
-    virtual RealType w(RealType x)    = 0;
+    virtual Int      cellSpan() = 0;
+    virtual RealType w(RealType x) = 0;
     virtual RealType grad(RealType x) = 0;
 
     virtual RealType w(Vec2<RealType> x) { return (w(x[0]) * w(x[1])); }
@@ -70,11 +70,13 @@ struct CubicBSplineShapeFunction : public ShapeFunction<RealType>
         RealType x2 = x * x;
         RealType x3 = x2 * x;
 
-        if(x1 >= RealType(2.0))
+        if(x1 >= RealType(2.0)) {
             return RealType(0);
+        }
 
-        if(x1 >= RealType(1.0))
+        if(x1 >= RealType(1.0)) {
             return -x3 / RealType(6.0) + x2 - RealType(2.0) * x1 + RealType(4.0 / 3.0);
+        }
 
         // else, x1 < 1.0
         return RealType(0.5) * x3 - x2 + RealType(2.0 / 3.0);
@@ -84,11 +86,13 @@ struct CubicBSplineShapeFunction : public ShapeFunction<RealType>
     {
         RealType abs_x = x > 0 ? x : -x;
 
-        if(abs_x >= RealType(2.0))
+        if(abs_x >= RealType(2.0)) {
             return RealType(0);
+        }
 
-        if(abs_x >= RealType(1.0))
+        if(abs_x >= RealType(1.0)) {
             return -x * abs_x / RealType(2.0) + RealType(2.0) * x - RealType(2.0) * x / abs_x;
+        }
 
         // else, x < 1.0
         return RealType(1.5) * x * abs_x - RealType(2.0) * x;
@@ -96,7 +100,7 @@ struct CubicBSplineShapeFunction : public ShapeFunction<RealType>
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-};  // end namespace ParticleSolvers
+}   // end namespace ParticleSolvers
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana

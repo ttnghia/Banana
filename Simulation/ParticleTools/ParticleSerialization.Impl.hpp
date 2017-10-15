@@ -334,4 +334,6 @@ bool Banana::ParticleSerialization::loadParticle(const String& fileName, Vector<
     __BNN_ASSERT(particleReader.getFixedAttribute("particle_radius", tmpRadius));
     __BNN_ASSERT_APPROX_NUMBERS(tmpRadius, particleRadius, MEpsilon);
     __BNN_ASSERT(particleReader.getParticleAttribute("position", positions));
+
+    return true;
 }

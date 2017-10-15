@@ -57,16 +57,12 @@ public:
     {
         Real       res = 0;
         const Real q   = r / m_radius;
-        if(q <= Real(1.0))
-        {
-            if(q <= Real(0.5))
-            {
+        if(q <= Real(1.0)) {
+            if(q <= Real(0.5)) {
                 const Real q2 = q * q;
                 const Real q3 = q2 * q;
                 res = m_k * (Real(6.0) * q3 - Real(6.0) * q2 + Real(1.0));
-            }
-            else
-            {
+            } else {
                 res = m_k * (Real(2.0) * pow(Real(1.0) - q, 3));
             }
         }
@@ -83,15 +79,11 @@ public:
         Vec3r      res = Vec3r(0);
         const Real rl  = glm::length(r);
         const Real q   = rl / m_radius;
-        if(q <= Real(1.0) && rl > Real(1.0e-6))
-        {
+        if(q <= Real(1.0) && rl > Real(1.0e-6)) {
             const Vec3r gradq = r * (Real(1.0) / (rl * m_radius));
-            if(q <= Real(0.5))
-            {
+            if(q <= Real(0.5)) {
                 res = m_l * q * (Real(3.0) * q - Real(2.0)) * gradq;
-            }
-            else
-            {
+            } else {
                 const Real factor = Real(1.0) - q;
                 res = m_l * (-factor * factor) * gradq;
             }
@@ -142,8 +134,7 @@ public:
         Real       res     = 0;
         const Real r2      = r * r;
         const Real radius2 = m_radius * m_radius;
-        if(r2 <= radius2)
-        {
+        if(r2 <= radius2) {
             res = pow(radius2 - r2, 3) * m_k;
         }
         return res;
@@ -154,8 +145,7 @@ public:
         Real       res     = 0;
         const Real r2      = glm::length2(r);
         const Real radius2 = m_radius * m_radius;
-        if(r2 <= radius2)
-        {
+        if(r2 <= radius2) {
             res = pow(radius2 - r2, 3) * m_k;
         }
         return res;
@@ -170,8 +160,7 @@ public:
         Vec3r      res     = Vec3r(0);
         const Real r2      = glm::length2(r);
         const Real radius2 = m_radius * m_radius;
-        if(r2 <= radius2)
-        {
+        if(r2 <= radius2) {
             Real tmp = radius2 - r2;
             res = m_l * tmp * tmp * r;
         }
@@ -188,8 +177,7 @@ public:
         Real       res     = 0;
         const Real r2      = glm::length2(r);
         const Real radius2 = m_radius * m_radius;
-        if(r2 <= radius2)
-        {
+        if(r2 <= radius2) {
             Real tmp  = radius2 - r2;
             Real tmp2 = Real(3.0) * radius2 - Real(7.0) * r2;
             res = m_m * tmp * tmp2;
@@ -238,8 +226,7 @@ public:
         Real       res     = 0;
         const Real r2      = r * r;
         const Real radius2 = m_radius * m_radius;
-        if(r2 <= radius2)
-        {
+        if(r2 <= radius2) {
             const Real hr3 = pow(m_radius - sqrt(r2), 3);
             res = m_k * hr3;
         }
@@ -251,8 +238,7 @@ public:
         Real       res     = 0;
         const Real r2      = glm::length2(r);
         const Real radius2 = m_radius * m_radius;
-        if(r2 <= radius2)
-        {
+        if(r2 <= radius2) {
             const Real hr3 = pow(m_radius - sqrt(r2), 3);
             res = m_k * hr3;
         }
@@ -267,8 +253,7 @@ public:
         Vec3r      res     = Vec3r(0);
         const Real r2      = glm::length2(r);
         const Real radius2 = m_radius * m_radius;
-        if(r2 <= radius2)
-        {
+        if(r2 <= radius2) {
             const Real r_l = sqrt(r2);
             const Real hr  = m_radius - r_l;
             const Real hr2 = hr * hr;
@@ -318,14 +303,14 @@ public:
         Real       res     = 0;
         const Real r2      = r * r;
         const Real radius2 = m_radius * m_radius;
-        if(r2 <= radius2)
-        {
+        if(r2 <= radius2) {
             const Real r1 = sqrt(r2);
             const Real r3 = r2 * r1;
-            if(r1 > Real(0.5) * m_radius)
+            if(r1 > Real(0.5) * m_radius) {
                 res = m_k * pow(m_radius - r1, 3) * r3;
-            else
+            } else {
                 res = m_k * Real(2.0) * pow(m_radius - r1, 3) * r3 - m_c;
+            }
         }
         return res;
     }
@@ -335,14 +320,14 @@ public:
         Real       res     = 0;
         const Real r2      = glm::length2(r);
         const Real radius2 = m_radius * m_radius;
-        if(r2 <= radius2)
-        {
+        if(r2 <= radius2) {
             const Real r1 = sqrt(r2);
             const Real r3 = r2 * r1;
-            if(r1 > Real(0.5) * m_radius)
+            if(r1 > Real(0.5) * m_radius) {
                 res = m_k * pow(m_radius - r1, 3) * r3;
-            else
+            } else {
                 res = m_k * Real(2.0) * pow(m_radius - r1, 3) * r3 - m_c;
+            }
         }
         return res;
     }
@@ -383,11 +368,11 @@ public:
         Real       res     = 0;
         const Real r2      = r * r;
         const Real radius2 = m_radius * m_radius;
-        if(r2 <= radius2)
-        {
+        if(r2 <= radius2) {
             const Real r = sqrt(r2);
-            if(r > Real(0.5) * m_radius)
+            if(r > Real(0.5) * m_radius) {
                 res = m_k * pow(Real(-4.0) * r2 / m_radius + Real(6.0) * r - Real(2.0) * m_radius, Real(0.25));
+            }
         }
         return res;
     }
@@ -397,11 +382,11 @@ public:
         Real       res     = 0;
         const Real r2      = glm::length2(r);
         const Real radius2 = m_radius * m_radius;
-        if(r2 <= radius2)
-        {
+        if(r2 <= radius2) {
             const Real r = sqrt(r2);
-            if(r > Real(0.5) * m_radius)
+            if(r > Real(0.5) * m_radius) {
                 res = m_k * pow(Real(-4.0) * r2 / m_radius + Real(6.0) * r - Real(2.0) * m_radius, Real(0.25));
+            }
         }
         return res;
     }
@@ -438,14 +423,14 @@ public:
         kernel.setRadius(val);
         const Real stepSize = m_radius / (Real)resolution;
         m_invStepSize = Real(1.0) / stepSize;
-        for(unsigned int i = 0; i < resolution; i++)
-        {
+        for(unsigned int i = 0; i < resolution; i++) {
             const Real posX = stepSize * (Real)i;               // Store kernel values in the middle of an interval
             m_W[i] = kernel.W(posX);
-            if(posX > Real(1.0e-6))
+            if(posX > Real(1.0e-6)) {
                 m_gradW[i] = kernel.gradW(Vec3r(posX, 0, 0))[0] / posX;
-            else
+            } else {
                 m_gradW[i] = 0;
+            }
         }
         m_gradW[resolution] = 0;
         m_W_zero            = W(0);
@@ -456,8 +441,7 @@ public:
     {
         Real       res = 0;
         const Real r2  = glm::length2(r);
-        if(r2 <= m_radius2)
-        {
+        if(r2 <= m_radius2) {
             const Real         r   = sqrt(r2);
             const unsigned int pos = std::min<unsigned int>((unsigned int)(r * m_invStepSize), resolution);
             res = m_W[pos];
@@ -468,8 +452,7 @@ public:
     Real W(const Real r)
     {
         Real res = 0;
-        if(r <= m_radius)
-        {
+        if(r <= m_radius) {
             const unsigned int pos = std::min<unsigned int>((unsigned int)(r * m_invStepSize), resolution);
             res = m_W[pos];
         }
@@ -480,8 +463,7 @@ public:
     {
         Vec3r      res = Vec3r(0);
         const Real r2  = glm::length2(r);
-        if(r2 <= m_radius2)
-        {
+        if(r2 <= m_radius2) {
             const Real         rl  = sqrt(r2);
             const unsigned int pos = std::min<unsigned int>((unsigned int)(rl * m_invStepSize), resolution);
             res = m_gradW[pos] * r;
@@ -497,6 +479,6 @@ public:
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-};  // end namespace ParticleSolvers
+} // end namespace ParticleSolvers
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana

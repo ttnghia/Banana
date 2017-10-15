@@ -25,18 +25,15 @@ namespace ParticleSolvers
 template<class Real>
 void NeoHookean<Real >::revert()
 {
-    for(int i = 0; i < Npart(); ++i)
-    {
+    for(int i = 0; i < Npart(); ++i) {
         defGrad[i] = defGrad0[i];
     }
 
-    for(int i = 0; i < Npart(); ++i)
-    {
+    for(int i = 0; i < Npart(); ++i) {
         stress[i] = stress0[i];
     }
 
-    for(int i = 0; i < Npart(); ++i)
-    {
+    for(int i = 0; i < Npart(); ++i) {
         volume[i] = volume0[i];
     }
 }
@@ -50,18 +47,15 @@ void NeoHookean<Real >::save()
     stress0.resize(Npart());
     volume0.resize(Npart());
 
-    for(int i = 0; i < Npart(); ++i)
-    {
+    for(int i = 0; i < Npart(); ++i) {
         defGrad0[i] = defGrad[i];
     }
 
-    for(int i = 0; i < Npart(); ++i)
-    {
+    for(int i = 0; i < Npart(); ++i) {
         stress0[i] = stress[i];
     }
 
-    for(int i = 0; i < Npart(); ++i)
-    {
+    for(int i = 0; i < Npart(); ++i) {
         volume0[i] = volume[i];
     }
 }
@@ -70,8 +64,7 @@ void NeoHookean<Real >::save()
 template<class Real>
 void NeoHookean<Real >::update(Real delt)
 {
-    for(int i = 0; i < Npart(); ++i)
-    {
+    for(int i = 0; i < Npart(); ++i) {
         defGrad[i] += inner(velGrad[i], (defGrad[i])) * delt;
         const Real J = defGrad[i].determinant();
         volume[i] += velGrad[i].trace() * volume[i] * delt;
@@ -84,18 +77,15 @@ void NeoHookean<Real >::update(Real delt)
 template<class Real>
 void UpdatedElastic<Real >::revert()
 {
-    for(int i = 0; i < Npart(); ++i)
-    {
+    for(int i = 0; i < Npart(); ++i) {
         defGrad[i] = defGrad0[i];
     }
 
-    for(int i = 0; i < Npart(); ++i)
-    {
+    for(int i = 0; i < Npart(); ++i) {
         stress[i] = stress0[i];
     }
 
-    for(int i = 0; i < Npart(); ++i)
-    {
+    for(int i = 0; i < Npart(); ++i) {
         volume[i] = volume0[i];
     }
 }
@@ -109,18 +99,15 @@ void UpdatedElastic<Real >::save()
     stress0.resize(Npart());
     volume0.resize(Npart());
 
-    for(int i = 0; i < Npart(); ++i)
-    {
+    for(int i = 0; i < Npart(); ++i) {
         defGrad0[i] = defGrad[i];
     }
 
-    for(int i = 0; i < Npart(); ++i)
-    {
+    for(int i = 0; i < Npart(); ++i) {
         stress0[i] = stress[i];
     }
 
-    for(int i = 0; i < Npart(); ++i)
-    {
+    for(int i = 0; i < Npart(); ++i) {
         volume0[i] = volume[i];
     }
 }
@@ -129,8 +116,7 @@ void UpdatedElastic<Real >::save()
 template<class Real>
 void UpdatedElastic<Real >::update(Real delt)
 {
-    for(int i = 0; i < Npart(); ++i)
-    {
+    for(int i = 0; i < Npart(); ++i) {
         defGrad[i] += inner(velGrad[i], defGrad[i]) * delt; // Nanson works for all
         const Mat3x3<Real> strainInc(.5 * (velGrad[i] + velGrad[i].transpose()) * delt);
         //defGrad[i]+=strainInc; // Nanson works with shear problem, but not with fixed-fixed beam
@@ -145,23 +131,19 @@ void UpdatedElastic<Real >::update(Real delt)
 template<class Real>
 void J2plasticLinearIsoKin<Real >::revert()
 {
-    for(int i = 0; i < Npart(); ++i)
-    {
+    for(int i = 0; i < Npart(); ++i) {
         defGrad[i] = defGrad0[i];
     }
 
-    for(int i = 0; i < Npart(); ++i)
-    {
+    for(int i = 0; i < Npart(); ++i) {
         stress[i] = stress0[i];
     }
 
-    for(int i = 0; i < Npart(); ++i)
-    {
+    for(int i = 0; i < Npart(); ++i) {
         volume[i] = volume0[i];
     }
 
-    for(int i = 0; i < Npart(); ++i)
-    {
+    for(int i = 0; i < Npart(); ++i) {
         pnt[i] = pnt0[i];
     }
 }
@@ -176,23 +158,19 @@ void J2plasticLinearIsoKin<Real >::save()
     volume0.resize(Npart());
     pnt0.resize(Npart());
 
-    for(int i = 0; i < Npart(); ++i)
-    {
+    for(int i = 0; i < Npart(); ++i) {
         defGrad0[i] = defGrad[i];
     }
 
-    for(int i = 0; i < Npart(); ++i)
-    {
+    for(int i = 0; i < Npart(); ++i) {
         stress0[i] = stress[i];
     }
 
-    for(int i = 0; i < Npart(); ++i)
-    {
+    for(int i = 0; i < Npart(); ++i) {
         volume0[i] = volume[i];
     }
 
-    for(int i = 0; i < Npart(); ++i)
-    {
+    for(int i = 0; i < Npart(); ++i) {
         pnt0[i] = pnt[i];
     }
 }
@@ -201,8 +179,7 @@ void J2plasticLinearIsoKin<Real >::save()
 template<class Real>
 void J2plasticLinearIsoKin<Real >::update(Real delt)
 {
-    for(int i = 0; i < Npart(); ++i)
-    {
+    for(int i = 0; i < Npart(); ++i) {
         defGrad[i] += inner(velGrad[i], defGrad[i]) * delt;
         point&             pt = pnt[i];
         const Mat3x3<Real> strainInc(.5 * (velGrad[i] + velGrad[i].transpose()) * delt);
@@ -215,12 +192,9 @@ void J2plasticLinearIsoKin<Real >::update(Real delt)
         const Real         hardLaw     = yieldStress + isoHardMod * pt.internalAlpha;
         const Real         ffYieldCond = trialStress.norm() - sqrtTwoThirds * hardLaw;
 
-        if(ffYieldCond <= 0.)
-        {
+        if(ffYieldCond <= 0.) {
             stress[i] += 2. * shearModG * devStrainInc + dilStressInc;
-        }
-        else
-        {
+        } else {
             const Mat3x3<Real> unitStress(trialStress / trialStress.norm());
             const Real         gammaInc = ffYieldCond / (2. * (shearModG + oneThird *
                                                                (isoHardMod + kinHardMod)));
@@ -234,4 +208,4 @@ void J2plasticLinearIsoKin<Real >::update(Real delt)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-};  // end namespace ParticleSolvers
+}  // end namespace ParticleSolvers

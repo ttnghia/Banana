@@ -17,19 +17,9 @@
 
 #pragma once
 
-
-#include <sstream>
-#include <algorithm>
-#include <tbb/tbb.h>
-
-
-#include <Noodle/Core/Global/Constants.h>
-#include <Noodle/Core/Global/Setup.h>
-#include <Noodle/Core/Monitor/Monitor.h>
-#include <Noodle/Core/Solvers/ParticleSolver.h>
-#include <Noodle/Core/LinearAlgebra/LinearSolvers/BlockPCGSolver.h>
-#include <Noodle/Core/LinearAlgebra/SparseMatrix/BlockSparseMatrix.h>
-
+#include <Banana/NeighborSearch/NeighborSearch3D.h>
+#include <ParticleSolvers/ParticleSolver.h>
+#include <ParticleSolvers/Peridynamics/PeridynamicsData.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -38,29 +28,32 @@ namespace Banana
 namespace ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class PeridynamicsSolver : public ParticleSolver
+class PeridynamicsSolver : public ParticleSolver3D
 {
 public:
-    PeridynamicsSolver(ParameterManager* params_, PeridynamicsParameters* PDParams_) :
-        ParticleSolver(params_, dynamic_cast<ParticleParameters*>(PDParams_)),
-        horizon(PDParams_->horizon),
-        damping_constant(PDParams_->damping_constant),
-        spring_constant(PDParams_->spring_constant),
-        integration_scheme(PDParams_->integration_scheme),
-        connected_component_analysis(PDParams_->connected_component_analysis)
-    {
-        monitor.set_event_source(MonitorSource::PeridynamicsSolver);
-        setup_data_io();
-        print_data_files();
-    }
+    PeridynamicsSolver() { setupLogger(); }
+    SharedPtr<SimulationParameters_Peridynamics3D> getSolverParams() { return m_SimParams; }
 
-    // virtual funcs
-    virtual void make_ready() override;
+    ////////////////////////////////////////////////////////////////////////////////
+    virtual String getSolverName() override { return String("Peridynamics3DSolver"); }
+    virtual String getGreetingMessage() override { return String("Solid Simulation using Peridynamics-3D Solver"); }
 
-    virtual void advance_velocity(Real timestep) override
-    {
-        advance_velocity(timestep, nullptr);
-    }
+    virtual void makeReady() override;
+    virtual void advanceFrame() override;
+    virtual void sortParticles() override;
+
+protected:
+    virtual void loadSimParams(const nlohmann::json& jParams) override;
+    virtual void setupDataIO() override;
+    virtual void loadMemoryState() override;
+    virtual void saveMemoryState() override;
+    virtual void saveParticleData() override;
+
+
+
+
+
+
 
     virtual void advance_velocity(Real timestep, const MergingSplittingData* merlit_data) override;
     virtual void predict_velocity_explicit(Real timestep) override;
@@ -127,18 +120,15 @@ protected:
     const Real              spring_constant;
     const bool              connected_component_analysis;
 
-    //Solver data
-    BlockPCGSolver<Mat3x3, Vec3, Real> cgSolver;
-    BlockSparseMatrix<Mat3x3>          matrix;
-    std::vector<Vec3>                  rhs;
-    std::vector<Vec3>                  solution;
+    SharedPtr<SimulationParameters_Peridynamics3D> m_SimParams = std::make_shared<SimulationParameters_Peridynamics3D>();
+    UniquePtr<SimulationData_Peridynamics3D>       m_SimData   = std::make_unique<SimulationData_Peridynamics3D>();
+
+    NeighborSearch::NeighborSearch3D     m_NSearch;
+    BlockPCGSolver<Mat3x3r, Vec3r, Real> m_CGSolver;
 };
 
-
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <ParticleSolvers/Peridynamics/PeridynamicsSolver.Impl.hpp>
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-};  // end namespace ParticleSolvers
+}   // end namespace ParticleSolvers
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana

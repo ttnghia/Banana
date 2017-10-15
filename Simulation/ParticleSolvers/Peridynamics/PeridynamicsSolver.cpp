@@ -15,9 +15,16 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
+#include <ParticleSolvers/Peridynamics/PeridynamicsSolver.h>
+#include <Banana/ParallelHelpers/ParallelFuncs.h>
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+namespace Banana
+{
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace ParticleSolvers
 {
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PeridynamicsSolver::make_ready()
 {
     Timer timer;
@@ -25,35 +32,30 @@ void PeridynamicsSolver::make_ready()
 
     ////////////////////////////////////////////////////////////////////////////////
 
-    if(particles_t0.size() < particles.size())
-    {
+    if(particles_t0.size() < particles.size()) {
         size_t old_size = particles_t0.size();
         particles_t0.resize(particles.size());
         std::copy(particles.begin() + old_size, particles.end(), particles_t0.begin() + old_size);
     }
 
-    if(bond_list_t0.size() < bond_list.size())
-    {
+    if(bond_list_t0.size() < bond_list.size()) {
         size_t old_size = bond_list_t0.size();
         bond_list_t0.resize(bond_list.size());
 
-        for(size_t i = old_size; i < bond_list.size(); ++i)
-        {
+        for(size_t i = old_size; i < bond_list.size(); ++i) {
             bond_list_t0[i].resize(bond_list[i].size());
             std::copy(bond_list[i].begin(), bond_list[i].end(), bond_list_t0[i].begin());
         }
     }
 
-    if(stretch_limit_t0.size() < stretch_limit.size())
-    {
+    if(stretch_limit_t0.size() < stretch_limit.size()) {
         size_t old_size = stretch_limit_t0.size();
         stretch_limit_t0.resize(stretch_limit.size());
         std::copy(stretch_limit.begin() + old_size, stretch_limit.end(),
                   stretch_limit_t0.begin() + old_size);
     }
 
-    if(particleParams->predict_velocity_for_collision)
-    {
+    if(particleParams->predict_velocity_for_collision) {
         predicted_velocity.resize(particles.size());
     }
 
@@ -64,8 +66,7 @@ void PeridynamicsSolver::make_ready()
     rhs.resize(particleParams->num_active_particles);
     solution.resize(particleParams->num_active_particles);
 
-    if(merlit_tool != nullptr)
-    {
+    if(merlit_tool != nullptr) {
         merlit_tool->indexer->update_solver_particles();
         merlit_tool->indexer->backup_particle_mass();
     }
@@ -75,8 +76,7 @@ void PeridynamicsSolver::make_ready()
     monitor.print_log("Allocate solver memory: " + timer.get_run_time());
 
     ////////////////////////////////////////////////////////////////////////////////
-    if(bond_d0.size() < bond_list.size())
-    {
+    if(bond_d0.size() < bond_list.size()) {
         timer.tick();
         size_t old_size = bond_d0.size();
         bond_d0.resize(bond_list.size());
@@ -93,8 +93,7 @@ void PeridynamicsSolver::make_ready()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PeridynamicsSolver::advance_velocity(Real timestep, const MergingSplittingData* merlit_data)
 {
-    if(particleParams->num_active_particles <= 0)
-    {
+    if(particleParams->num_active_particles <= 0) {
         return;
     }
 
@@ -104,24 +103,21 @@ void PeridynamicsSolver::advance_velocity(Real timestep, const MergingSplittingD
 
     ////////////////////////////////////////////////////////////////////////////////
 
-    if(has_gravity)
-    {
+    if(has_gravity) {
         timer.tick();
         add_gravity(timestep);
         timer.tock();
         monitor.print_log("Add grativy: " + timer.get_run_time());
     }
 
-    if(!re_integration)
-    {
+    if(!re_integration) {
         remove_broken_bonds();
     }
 
     clear_broken_bond_list();
 
     ////////////////////////////////////////////////////////////////////////////////
-    switch(integration_scheme)
-    {
+    switch(integration_scheme) {
         case IntegrationScheme::ImplicitEuler:
             monitor.print_log("Start Implicit Euler velocity integration:");
             break;
@@ -140,8 +136,7 @@ void PeridynamicsSolver::advance_velocity(Real timestep, const MergingSplittingD
 
     static Vec_Vec3 velocity_old;
 
-    if(integration_scheme == IntegrationScheme::ImplicitNewmarkBeta)
-    {
+    if(integration_scheme == IntegrationScheme::ImplicitNewmarkBeta) {
         velocity_old.resize(particleParams->num_active_particles);
 
         std::copy(velocity.begin(), velocity.begin() + particleParams->num_active_particles, velocity_old.begin());
@@ -158,10 +153,11 @@ void PeridynamicsSolver::advance_velocity(Real timestep, const MergingSplittingD
 
     ////////////////////////////////////////////////////////////////////////////////
     timer.tick();
-    if(re_integration)
+    if(re_integration) {
         cgSolver.setZeroInitial(false);
-    else
+    } else {
         cgSolver.setZeroInitial(true);
+    }
     solve_system();
     integration_time += timer.tock();
 
@@ -169,12 +165,10 @@ void PeridynamicsSolver::advance_velocity(Real timestep, const MergingSplittingD
     timer.tick();
     update_velocity();
 
-    if(integration_scheme == IntegrationScheme::ImplicitNewmarkBeta)
-    {
+    if(integration_scheme == IntegrationScheme::ImplicitNewmarkBeta) {
         tbb::parallel_for(tbb::blocked_range<UInt>(0, particleParams->num_active_particles), [&](tbb::blocked_range<UInt> r)
                           {
-                              for(UInt p = r.begin(); p != r.end(); ++p)
-                              {
+                              for(UInt p = r.begin(); p != r.end(); ++p) {
                                   velocity[p] = (velocity[p] + velocity_old[p]) * (Real)0.5;
                               }
                           }); // end parallel_for
@@ -214,16 +208,14 @@ void PeridynamicsSolver::predict_velocity_explicit(Real timestep)
     timer.tick();
     tbb::parallel_for(tbb::blocked_range<UInt>(0, particleParams->num_active_particles), [&](tbb::blocked_range<UInt> r)
                       {
-                          for(UInt p = r.begin(); p != r.end(); ++p)
-                          {
+                          for(UInt p = r.begin(); p != r.end(); ++p) {
                               predicted_velocity[p] = velocity[p] + particle_forces[p] / particle_mass[p] * beta;
                           }
                       }); // end parallel_for
 
     static bool filled = false;
 
-    if(!filled)
-    {
+    if(!filled) {
         std::fill(predicted_velocity.begin() + particleParams->num_active_particles, predicted_velocity.end(), Vec3(0));
         filled = true;
     }
@@ -255,8 +247,7 @@ void PeridynamicsSolver::predict_velocity_implicit(Real timestep)
 
     tbb::parallel_for(tbb::blocked_range<UInt>(0, particleParams->num_active_particles), [&](tbb::blocked_range<UInt> r)
                       {
-                          for(UInt p = r.begin(); p != r.end(); ++p)
-                          {
+                          for(UInt p = r.begin(); p != r.end(); ++p) {
                               Vec3 tmp = (integration_scheme == IntegrationScheme::ImplicitNewmarkBeta) ? (solution[p] * (Real)0.5) : solution[p];
                               predicted_velocity[p] = velocity[p] + tmp;
                           }
@@ -270,8 +261,7 @@ void PeridynamicsSolver::predict_velocity_implicit(Real timestep)
 
     static bool filled = false;
 
-    if(!filled)
-    {
+    if(!filled) {
         std::fill(predicted_velocity.begin() + particleParams->num_active_particles, predicted_velocity.end(), Vec3(0.0));
         filled = true;
     }
@@ -292,8 +282,7 @@ void PeridynamicsSolver::pos_process_per_step(Real timestep)
     re_integration = check_potential_collision();
     timer.tock();
 
-    if(re_integration)
-    {
+    if(re_integration) {
         monitor.print_log("Potential collision confirmed. Go back and re-integrate. Check time: " + timer.get_run_time());
 
         monitor.print_log("Restore particle position and velocity");
@@ -308,8 +297,7 @@ void PeridynamicsSolver::pos_process_per_frame(int frame)
     ParticleSolver::pos_process_per_frame(frame);
 
     ////////////////////////////////////////////////////////////////////////////////
-    if(connected_component_analysis)
-    {
+    if(connected_component_analysis) {
         find_connected_components();
     }
 }
@@ -331,17 +319,14 @@ void PeridynamicsSolver::move_particles(Real timestep)
                                                particleParams->num_active_particles),
                       [&, timestep](tbb::blocked_range<UInt> r)
                       {
-                          for(UInt p = r.begin(); p != r.end(); ++p)
-                          {
+                          for(UInt p = r.begin(); p != r.end(); ++p) {
                               const Vec3& pvel = velocity[p];
 
-                              if(!(isnan(pvel[0]) || isnan(pvel[1]) || isnan(pvel[2])))
-                              {
+                              if(!(isnan(pvel[0]) || isnan(pvel[1]) || isnan(pvel[2]))) {
                                   const bool p_merged = (merlit_tool != nullptr) ?
                                                         merlit_tool->merge_data->merged[p] > 0 : false;
 
-                                  if(!p_merged)
-                                  {
+                                  if(!p_merged) {
                                       const Vec3& ppos = particles[p];
                                       Vec3 new_vel;
                                       Vec3 new_pos;
@@ -352,18 +337,15 @@ void PeridynamicsSolver::move_particles(Real timestep)
                                                           std::min(upper_bound[1], std::max(new_pos[1], lower_bound[1])),
                                                           std::min(upper_bound[2], std::max(new_pos[2], lower_bound[2])));
 
-                                      if(velocity_changed)
-                                      {
+                                      if(velocity_changed) {
                                           velocity[p] = new_vel;
                                       }
                                   } // not merge
-                                  else
-                                  {
+                                  else {
                                       // move merged particle by the root of mlist, not by itself
                                       const Vec_UInt& mlist = merlit_tool->merge_data->merge_list[p];
 
-                                      if(mlist.size() == 0)
-                                      {
+                                      if(mlist.size() == 0) {
                                           continue;
                                       }
 
@@ -373,16 +355,14 @@ void PeridynamicsSolver::move_particles(Real timestep)
                                       Vec_Vec3 new_pos;
                                       old_pos.resize(mlist.size());
 
-                                      for(size_t i = 0; i < mlist.size(); ++i)
-                                      {
+                                      for(size_t i = 0; i < mlist.size(); ++i) {
                                           const UInt q = mlist[i];
                                           old_pos[i] = particles[q];
                                       }
 
                                       bool velocity_changed = ParticleUtils::move_group_particles_constrained(old_pos, new_pos, pvel, new_vel, lower_bound, upper_bound, timestep, reflect_boundary);
 
-                                      for(size_t i = 0; i < mlist.size(); ++i)
-                                      {
+                                      for(size_t i = 0; i < mlist.size(); ++i) {
                                           const UInt q = mlist[i];
                                           //                        particles[q] = new_pos[i];
                                           particles[q] = Vec3(std::min(upper_bound[0], std::max(new_pos[i][0], lower_bound[0])),
@@ -390,14 +370,12 @@ void PeridynamicsSolver::move_particles(Real timestep)
                                                               std::min(upper_bound[2], std::max(new_pos[i][2], lower_bound[2])));
                                       }
 
-                                      if(velocity_changed)
-                                      {
+                                      if(velocity_changed) {
                                           velocity[p] = new_vel;
                                       }
                                   } // end if merged
                               }     // end velocity all finite
-                              else
-                              {
+                              else {
                                   monitor.print_warning("Velocity has nan values");
                               }
                           }
@@ -428,14 +406,12 @@ bool PeridynamicsSolver::are_colliding(UInt p, UInt q)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PeridynamicsSolver::save_frame(int frame)
 {
-    for(auto item : dataIOs)
-    {
+    for(auto item : dataIOs) {
         DataFile data_file = item.first;
         DataIO*  dataIO    = dynamic_cast<DataIO*>(item.second);
         __NOODLE_ASSERT(dataIO != nullptr);
 
-        switch(data_file)
-        {
+        switch(data_file) {
             case DataFile::FramePosition:
             {
                 dataIO->reset_buffer();
@@ -484,21 +460,19 @@ void PeridynamicsSolver::save_frame(int frame)
 
             default:
                 ; // nothing
-        } // end switch
+        }         // end switch
     }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PeridynamicsSolver::save_state(int frame)
 {
-    for(auto item : dataIOs)
-    {
+    for(auto item : dataIOs) {
         DataFile data_file = item.first;
         DataIO*  dataIO    = dynamic_cast<DataIO*>(item.second);
         __NOODLE_ASSERT(dataIO != nullptr);
 
-        switch(data_file)
-        {
+        switch(data_file) {
             case DataFile::StatePosition:
             {
                 dataIO->reset_buffer();
@@ -536,8 +510,7 @@ void PeridynamicsSolver::save_state(int frame)
 
             case DataFile::FrameParticleConnectionList:
             {
-                if(frame == 0)
-                {
+                if(frame == 0) {
                     dataIO->reset_buffer();
                     dataIO->getBuffer().push_back(bond_list);
                     dataIO->flush_buffer_async(frame);
@@ -549,7 +522,7 @@ void PeridynamicsSolver::save_state(int frame)
 
             default:
                 ; // nothing
-        } // end switch
+        }         // end switch
     }
 }
 
@@ -566,8 +539,7 @@ int PeridynamicsSolver::load_latest_state()
     ////////////////////////////////////////////////////////////////////////////////
     int latest_frame = get_latest_state_index();
 
-    if(latest_frame < 0)
-    {
+    if(latest_frame < 0) {
         return latest_frame;
     }
 
@@ -644,38 +616,31 @@ int PeridynamicsSolver::get_latest_state_index()
     int latest_frame = dataIOs[DataFile::StatePosition]->find_latest_file_index(
         params->sim_params()->final_frame);
 
-    if(latest_frame < 0)
-    {
+    if(latest_frame < 0) {
         return -1;
     }
 
-    if(!FileHelpers::file_existed(dataIOs[DataFile::StateVelocity]->get_file_name(latest_frame)))
-    {
+    if(!FileHelpers::file_existed(dataIOs[DataFile::StateVelocity]->get_file_name(latest_frame))) {
         return -1;
     }
 
-    if(!FileHelpers::file_existed(dataIOs[DataFile::StateMass]->get_file_name(latest_frame)))
-    {
+    if(!FileHelpers::file_existed(dataIOs[DataFile::StateMass]->get_file_name(latest_frame))) {
         return -1;
     }
 
-    if(!FileHelpers::file_existed(dataIOs[DataFile::StateStretchThreshold]->get_file_name(latest_frame)))
-    {
+    if(!FileHelpers::file_existed(dataIOs[DataFile::StateStretchThreshold]->get_file_name(latest_frame))) {
         return -1;
     }
 
-    if(!FileHelpers::file_existed(dataIOs[DataFile::FrameParticleMarker]->get_file_name(latest_frame)))
-    {
+    if(!FileHelpers::file_existed(dataIOs[DataFile::FrameParticleMarker]->get_file_name(latest_frame))) {
         return -1;
     }
 
-    if(!FileHelpers::file_existed(dataIOs[DataFile::FrameParticleConnectionList]->get_file_name(0)))
-    {
+    if(!FileHelpers::file_existed(dataIOs[DataFile::FrameParticleConnectionList]->get_file_name(0))) {
         return -1;
     }
 
-    if(!FileHelpers::file_existed(dataIOs[DataFile::FrameParticleConnectionList]->get_file_name(latest_frame)))
-    {
+    if(!FileHelpers::file_existed(dataIOs[DataFile::FrameParticleConnectionList]->get_file_name(latest_frame))) {
         return -1;
     }
 
@@ -705,13 +670,11 @@ void PeridynamicsSolver::setup_data_io()
     dataIOs[DataFile::FrameParticleConnectionList] = new DataIO(params->dataIO_params()->data_path, "PDFrame", "frame", "bond");
 
 
-    if(StdUtils::vector_has_item(particleParams->optional_output, DataFile::FrameVelocity))
-    {
+    if(StdUtils::vector_has_item(particleParams->optional_output, DataFile::FrameVelocity)) {
         dataIOs[DataFile::FrameVelocity] = new DataIO(params->dataIO_params()->data_path, "PDFrame", "frame", "vel");
     }
 
-    if(StdUtils::vector_has_item(particleParams->optional_output, DataFile::FrameRemaingConnectionRatio))
-    {
+    if(StdUtils::vector_has_item(particleParams->optional_output, DataFile::FrameRemaingConnectionRatio)) {
         dataIOs[DataFile::FrameRemaingConnectionRatio] = new DataIO(params->dataIO_params()->data_path, "PDFrame", "frame", "brt");
     }
 }
@@ -737,41 +700,31 @@ void PeridynamicsSolver::build_linear_system(Real dt, const MergingSplittingData
                                                particleParams->num_active_particles),
                       [&](tbb::blocked_range<UInt> r)
                       {
-                          for(UInt p = r.begin(); p != r.end(); ++p)
-                          {
-                              if(!is_active(p))
-                              {
+                          for(UInt p = r.begin(); p != r.end(); ++p) {
+                              if(!is_active(p)) {
                                   continue;
                               }
 
                               Mat3x3 sumLHS = Mat3x3(0.0);
-                              Vec3 sumRHS = Vec3(0.0);
-                              Vec3 pforce = Vec3(0.0);
+                              Vec3 sumRHS   = Vec3(0.0);
+                              Vec3 pforce   = Vec3(0.0);
 
-                              if(merlit_data == nullptr)
-                              {
+                              if(merlit_data == nullptr) {
                                   compute_particle_forces(sumLHS, sumRHS, pforce, nullptr, p, false, dt);
-                              }
-                              else
-                              {
+                              } else {
                                   const bool merged = merlit_data->merged[p] > 0;
 
-                                  if(!merged)
-                                  {
+                                  if(!merged) {
                                       compute_particle_forces(sumLHS, sumRHS, pforce, merlit_data, p, false, dt);
-                                  }
-                                  else
-                                  {
-                                      if(merlit_data->merge_list[p].size() == 0)
-                                      {
+                                  } else {
+                                      if(merlit_data->merge_list[p].size() == 0) {
                                           continue;
                                       }
 
                                       __NOODLE_ASSERT(merlit_data->merge_list[p].size() > 1);
 
                                       // process the merge list, including the root and the leaf
-                                      for(UInt q : merlit_data->merge_list[p])
-                                      {
+                                      for(UInt q : merlit_data->merge_list[p]) {
                                           __NOODLE_ASSERT(merlit_data->merged[q] > 0);
                                           compute_particle_forces(sumLHS, sumRHS, pforce, merlit_data, q, true, dt);
                                       }
@@ -786,8 +739,8 @@ void PeridynamicsSolver::build_linear_system(Real dt, const MergingSplittingData
                               rhs[p] = sumRHS * rhs_coeff + pforce * dt;
                           }
                       }); // end parallel_for
-    //    matrix.print_debug();
-    //matrix.check_symmetry();
+//    matrix.print_debug();
+//matrix.check_symmetry();
 
 
 //    exit(0);
@@ -818,8 +771,7 @@ void PeridynamicsSolver::compute_particle_forces(Mat3x3& sumLHS, Vec3& sumRHS, V
     Real smin = 0.0;
     Real ss0;
 
-    for(UInt bondIndex = 0; bondIndex < pbonds.size(); ++bondIndex)
-    {
+    for(UInt bondIndex = 0; bondIndex < pbonds.size(); ++bondIndex) {
         const UInt q = pbonds[bondIndex];
         __NOODLE_ASSERT(q != p);
 
@@ -827,37 +779,32 @@ void PeridynamicsSolver::compute_particle_forces(Mat3x3& sumLHS, Vec3& sumRHS, V
         const UInt q_merged_to = q_merged ? merlit_data->merge_to[q] : q;
 
         // do not accumulate force between two merged particles
-        if(q_merged && (p == q_merged_to || q == p_merged_to))
-        {
+        if(q_merged && (p == q_merged_to || q == p_merged_to)) {
             continue;
         }
 
         Vec3 eij = particles[q] - ppos;
         Real dij = glm::length(eij);
 
-        if(dij > SMALL_NUMBER)
-        {
+        if(dij > SMALL_NUMBER) {
             eij /= dij;
         }
 
         Real d0     = pd0[bondIndex];
         Real drdivd = dij / d0 - 1.0;
 
-        if(is_active(p) && is_active(q) && drdivd > std::max(bthreshold, stretch_limit[q]))
-        {
+        if(is_active(p) && is_active(q) && drdivd > std::max(bthreshold, stretch_limit[q])) {
             broken_bonds[p].push_back(bondIndex);
-            continue; // continue to the next loop without change the walker
+            continue;             // continue to the next loop without change the walker
         }
 
         Real vscale = 1.0;
 
-        if(d0 > (horizon - particle_radius))
-        {
+        if(d0 > (horizon - particle_radius)) {
             vscale = 0.5 + (horizon - d0) / 2.0 / particle_radius;
         }
 
-        if(drdivd < smin)
-        {
+        if(drdivd < smin) {
             smin = drdivd;
         }
 
@@ -881,8 +828,7 @@ void PeridynamicsSolver::compute_particle_forces(Mat3x3& sumLHS, Vec3& sumRHS, V
         fDx    += fDv;
         sumLHS -= fDx;
 
-        if(is_active(p_merged_to) && is_active(q_merged_to))
-        {
+        if(is_active(p_merged_to) && is_active(q_merged_to)) {
             matrix.add_to_element(p_merged_to, q_merged_to, fDx);
         }
     }
@@ -901,56 +847,50 @@ void PeridynamicsSolver::compute_explicit_forces(const MergingSplittingData*)
     tbb::parallel_for(tbb::blocked_range<UInt>(0, particleParams->num_active_particles),
                       [&](tbb::blocked_range<UInt> r)
                       {
-                          for(UInt p = r.begin(); p != r.end(); ++p)
-                          {
-                              if(!is_active(p))
-                              {
+                          for(UInt p = r.begin(); p != r.end(); ++p) {
+                              if(!is_active(p)) {
                                   continue;
                               }
 
                               Vec3 spring_force(0, 0, 0);
                               Vec3 damping_force(0, 0, 0);
 
-                              const Vec3& ppos = particles[p];
-                              const Vec3& pvel = velocity[p];
+                              const Vec3& ppos      = particles[p];
+                              const Vec3& pvel      = velocity[p];
                               const Real bthreshold = stretch_limit[p];
 
                               const Vec_UInt& pbonds = bond_list[p];
-                              const Vec_Real& pd0 = bond_d0[p];
+                              const Vec_Real& pd0    = bond_d0[p];
                               __NOODLE_ASSERT(pbonds.size() == pd0.size());
 
-                              for(UInt bondIndex = 0; bondIndex < pbonds.size(); ++bondIndex)
-                              {
+                              for(UInt bondIndex = 0; bondIndex < pbonds.size(); ++bondIndex) {
                                   const UInt q = pbonds[bondIndex];
                                   __NOODLE_ASSERT(q != p);
 
                                   Vec3 eij = particles[q] - ppos;
                                   Real dij = glm::length(eij);
 
-                                  if(dij > SMALL_NUMBER)
-                                  {
+                                  if(dij > SMALL_NUMBER) {
                                       eij /= dij;
                                   }
 
-                                  Real d0 = pd0[bondIndex];
+                                  Real d0     = pd0[bondIndex];
                                   Real drdivd = dij / d0 - 1.0;
 
-                                  if(is_active(p) && is_active(q) && drdivd > std::max(bthreshold, stretch_limit[q]))
-                                  {
-                                      continue; // continue to the next loop without change the walker
+                                  if(is_active(p) && is_active(q) && drdivd > std::max(bthreshold, stretch_limit[q])) {
+                                      continue;   // continue to the next loop without change the walker
                                   }
 
                                   Real vscale = 1.0;
 
-                                  if(d0 > (horizon - particle_radius))
-                                  {
+                                  if(d0 > (horizon - particle_radius)) {
                                       vscale = 0.5 + (horizon - d0) / 2.0 / particle_radius;
                                   }
 
                                   spring_force += (drdivd * vscale) * eij;
 
 
-                                  const Vec3 qvel = velocity[q];
+                                  const Vec3 qvel   = velocity[q];
                                   const Vec3 relVel = qvel - pvel;
 
                                   damping_force += glm::dot(eij, relVel) * eij;
@@ -1000,8 +940,7 @@ void PeridynamicsSolver::update_velocity()
     tbb::parallel_for(tbb::blocked_range<UInt>(0, particleParams->num_active_particles),
                       [&](tbb::blocked_range<UInt> r)
                       {
-                          for(UInt p = r.begin(); p != r.end(); ++p)
-                          {
+                          for(UInt p = r.begin(); p != r.end(); ++p) {
                               velocity[p] += solution[p];
                           }
                       }); // end parallel_for
@@ -1018,8 +957,7 @@ void PeridynamicsSolver::clear_broken_bond_list()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 bool PeridynamicsSolver::remove_broken_bonds()
 {
-    if(broken_bonds.size() == 0)
-    {
+    if(broken_bonds.size() == 0) {
         return false;
     }
 
@@ -1028,39 +966,31 @@ bool PeridynamicsSolver::remove_broken_bonds()
     volatile bool hasBrokenBond = false;
 
     ////////////////////////////////////////////////////////////////////////////////
-    for(UInt p = 0; p < broken_bonds.size(); ++p)
-    {
-        if(broken_bonds[p].size() > 0)
-        {
-            for(auto it = broken_bonds[p].rbegin(); it != broken_bonds[p].rend(); ++it)
-            {
+    for(UInt p = 0; p < broken_bonds.size(); ++p) {
+        if(broken_bonds[p].size() > 0) {
+            for(auto it = broken_bonds[p].rbegin(); it != broken_bonds[p].rend(); ++it) {
                 hasBrokenBond = true;
                 const UInt bondIndex = (UInt)(*it);
 
                 tbb::parallel_invoke(
                     [&, bondIndex]
-                    {
-                        bond_list[p].erase(bond_list[p].begin() + bondIndex);
-                    },
+                        {
+                            bond_list[p].erase(bond_list[p].begin() + bondIndex);
+                        },
                     [&, bondIndex]
-                    {
-                        bond_d0[p].erase(bond_d0[p].begin() + bondIndex);
-                    });
+                        {
+                            bond_d0[p].erase(bond_d0[p].begin() + bondIndex);
+                        });
             }
         }
     }
 
     // if there is only 1/2 bonds remain, then just delete it
-    for(UInt p = 0; p < (UInt)bond_list.size(); ++p)
-    {
-        if(bond_list[p].size() <= 2)
-        {
-            for(UInt q : bond_list[p])
-            {
-                for(int i = (int)bond_list[q].size() - 1; i >= 0; --i)
-                {
-                    if(bond_list[q][i] == p)
-                    {
+    for(UInt p = 0; p < (UInt)bond_list.size(); ++p) {
+        if(bond_list[p].size() <= 2) {
+            for(UInt q : bond_list[p]) {
+                for(int i = (int)bond_list[q].size() - 1; i >= 0; --i) {
+                    if(bond_list[q][i] == p) {
                         bond_list[q].erase(bond_list[q].begin() + i);
                         bond_d0[q].erase(bond_d0[q].begin() + i);
                         break;
@@ -1075,8 +1005,7 @@ bool PeridynamicsSolver::remove_broken_bonds()
 
     timer.tock();
 
-    if(hasBrokenBond)
-    {
+    if(hasBrokenBond) {
         monitor.print_log("Remove broken bonds: " + timer.get_run_time());
     }
 
@@ -1088,8 +1017,7 @@ void PeridynamicsSolver::compute_remaining_bond_ratio()
 {
     remaining_bond_ratio.resize(particles.size());
 
-    for(size_t p = 0; p < remaining_bond_ratio.size(); ++p)
-    {
+    for(size_t p = 0; p < remaining_bond_ratio.size(); ++p) {
         remaining_bond_ratio[p] = (Real)bond_list[p].size() / (Real)bond_list_t0[p].size();
     }
 }
@@ -1112,35 +1040,27 @@ void PeridynamicsSolver::find_connected_components()
     bool new_label = false;
     bool labeled;
 
-    while(num_processed_particles < particles.size())
-    {
+    while(num_processed_particles < particles.size()) {
         labeled = false;
 
-        for(UInt p = 0; p < particles.size(); ++p)
-        {
-            // find any particle that has not been label
-            // and that particle has a labeled neighbor
-            if(particle_marker[p] >= 0)
-            {
+        for(UInt p = 0; p < particles.size(); ++p) {
+// find any particle that has not been label
+// and that particle has a labeled neighbor
+            if(particle_marker[p] >= 0) {
                 continue;
             }
 
-            if(new_label)
-            {
+            if(new_label) {
                 num_processed_particles += spawn_component(p, 0, current_component_id);
 
                 labeled   = true;
                 new_label = false;
-            }
-            else
-            {
+            } else {
                 // find the component index from neighbor
                 Int8 neighbor_component_id = -1;
 
-                for(UInt q : bond_list[p])
-                {
-                    if(particle_marker[q] >= 0)
-                    {
+                for(UInt q : bond_list[p]) {
+                    if(particle_marker[q] >= 0) {
                         neighbor_component_id = particle_marker[q];
                         break;
                     }
@@ -1148,8 +1068,7 @@ void PeridynamicsSolver::find_connected_components()
 
                 // has a labeled neighbor?
                 // get component id from neighbor
-                if(neighbor_component_id >= 0)
-                {
+                if(neighbor_component_id >= 0) {
                     num_processed_particles += spawn_component(p, 0, neighbor_component_id);
                     labeled                  = true;
                 }
@@ -1159,8 +1078,7 @@ void PeridynamicsSolver::find_connected_components()
         // not any particle has been labeled in the last loop
         // while num_process still < num particles
         // that means, there is more component
-        if(!labeled)
-        {
+        if(!labeled) {
             ++current_component_id;
             ++total_component;
 
@@ -1185,12 +1103,9 @@ UInt PeridynamicsSolver::spawn_component(UInt p, int depth, Int8 component)
     UInt num_processed_particles = 1;
 
     // max depth = 1000 to avoid stack overflow due to many time recursively call this func
-    if(depth < 1000)
-    {
-        for(UInt q : bond_list[p])
-        {
-            if(particle_marker[q] >= 0)
-            {
+    if(depth < 1000) {
+        for(UInt q : bond_list[p]) {
+            if(particle_marker[q] >= 0) {
                 continue;
             }
 
@@ -1202,4 +1117,7 @@ UInt PeridynamicsSolver::spawn_component(UInt p, int depth, Int8 component)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-};  // end namespace ParticleSolvers
+}   // end namespace ParticleSolvers
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+} // end namespace Banana

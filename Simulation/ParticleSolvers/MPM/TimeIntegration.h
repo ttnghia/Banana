@@ -33,13 +33,11 @@ public:
         const Real CFL  = comLineArg("CFL", .5);
         Real       minh = pch.dx;
 
-        if(pch.dy < minh)
-        {
+        if(pch.dy < minh) {
             minh = pch.dy;
         }
 
-        if(pch.dz < minh)
-        {
+        if(pch.dz < minh) {
             minh = pch.dz;
         }
 
@@ -59,12 +57,9 @@ public:
         const Real allowedRoundoff = nominalStep * machEps * Real(pch.incCount);
         const Real timeRemaining   = pch.finalTime - pch.elapsedTime;
 
-        if(timeRemaining < nominalStep + allowedRoundoff)
-        {
+        if(timeRemaining < nominalStep + allowedRoundoff) {
             return timeRemaining;
-        }
-        else
-        {
+        } else {
             return nominalStep;
         }
     }
@@ -133,27 +128,23 @@ void momentum::advance(const Real& dt)
 {
     integrate(pch, pch.massP, pch.massN);
 
-    for(int i = 0; i < Nnode(); ++i)
-    {
+    for(int i = 0; i < Nnode(); ++i) {
         pch.massN[i] += tiny;
     }
 
-    for(int i = 0; i < Npart(); ++i)
-    {
+    for(int i = 0; i < Npart(); ++i) {
         pch.momP[i] = pch.velP[i] * pch.massP[i];
     }
 
     integrate(pch, pch.momP, pch.momN);
 
-    for(int i = 0; i < Nnode(); ++i)
-    {
+    for(int i = 0; i < Nnode(); ++i) {
         pch.velN[i] = pch.momN[i] / pch.massN[i];
     }
 
     pch.gridVelocityBC(pch.velN);
 
-    for(int i = 0; i < Nnode(); ++i)
-    {
+    for(int i = 0; i < Nnode(); ++i) {
         pch.velIncN[i] = (-pch.velN[i]);
     }
 
@@ -161,48 +152,41 @@ void momentum::advance(const Real& dt)
     //integrate (pch,pch.setFextP,pch.intFextN);
     divergence(pch, pch.fintN);
 
-    for(int i = 0; i < Nnode(); ++i)
-    {
+    for(int i = 0; i < Nnode(); ++i) {
         pch.velN[i] += (pch.gravityN[i] + pch.fintN[i] / pch.massN[i]) * .5 * (prevStep + dt);
     }
 
     pch.gridVelocityBC(pch.velN);
     interpolate(pch, pch.posIncP, pch.velN);
 
-    for(int i = 0; i < Npart(); ++i)
-    {
+    for(int i = 0; i < Npart(); ++i) {
         pch.curPosP[i] += pch.posIncP[i] * dt;
     }
 
-    for(int i = 0; i < Nnode(); ++i)
-    {
+    for(int i = 0; i < Nnode(); ++i) {
         pch.velIncN[i] += pch.velN[i];
     }
 
     interpolate(pch, pch.velIncP, pch.velIncN);
 
-    for(int i = 0; i < Npart(); ++i)
-    {
+    for(int i = 0; i < Npart(); ++i) {
         pch.velP[i] += pch.velIncP[i];
     }
 
-    for(int i = 0; i < Npart(); ++i)
-    {
+    for(int i = 0; i < Npart(); ++i) {
         pch.momP[i] = pch.velP[i] * pch.massP[i];
     }
 
     integrate(pch, pch.momP, pch.momN);
 
-    for(int i = 0; i < Nnode(); ++i)
-    {
+    for(int i = 0; i < Nnode(); ++i) {
         pch.velN[i] = pch.momN[i] / pch.massN[i];
     }
 
     pch.gridVelocityBC(pch.velN);
     gradient(pch, pch.velGradP, pch.velN);
 
-    for(int i = 0; i < Npart(); ++i)
-    {
+    for(int i = 0; i < Npart(); ++i) {
         pch.halfLenP[i] += pch.velGradP[i].diagonal().cwiseProduct(pch.halfLenP[i]) * dt;
     }
 
@@ -212,44 +196,38 @@ void momentum::advance(const Real& dt)
 
 void cenDif::advance(const Real& dt)
 {
-    for(int i = 0; i < Npart(); ++i)
-    {
+    for(int i = 0; i < Npart(); ++i) {
         pch.momP[i] = pch.velP[i] * pch.massP[i];
     }
 
     integrate(pch, pch.massP, pch.massN);
 
-    for(int i = 0; i < Nnode(); ++i)
-    {
+    for(int i = 0; i < Nnode(); ++i) {
         pch.massN[i] += tiny;
     }
 
     integrate(pch, pch.momP, pch.momN);
 
-    for(int i = 0; i < Nnode(); ++i)
-    {
+    for(int i = 0; i < Nnode(); ++i) {
         pch.velN[i] = pch.momN[i] / pch.massN[i];
     }
 
     pch.gridVelocityBC(pch.velN);
 
-    for(int i = 0; i < Nnode(); ++i)
-    {
+    for(int i = 0; i < Nnode(); ++i) {
         pch.velIncN[i] = (-pch.velN[i]);
     }
 
     pch.makeExternalForces(dt);
     divergence(pch, pch.fintN);
 
-    for(int i = 0; i < Nnode(); ++i)
-    {
+    for(int i = 0; i < Nnode(); ++i) {
         pch.velN[i] += (pch.gravityN[i] + pch.fintN[i] / pch.massN[i]) * .5 * (prevStep + dt);
     }
 
     pch.gridVelocityBC(pch.velN);
 
-    for(int i = 0; i < Nnode(); ++i)
-    {
+    for(int i = 0; i < Nnode(); ++i) {
         pch.velIncN[i] += pch.velN[i];
     }
 
@@ -257,18 +235,15 @@ void cenDif::advance(const Real& dt)
     interpolate(pch, pch.posIncP, pch.velN);
     gradient(pch, pch.velGradP, pch.velN);
 
-    for(int i = 0; i < Npart(); ++i)
-    {
+    for(int i = 0; i < Npart(); ++i) {
         pch.velP[i] += pch.velIncP[i];
     }
 
-    for(int i = 0; i < Npart(); ++i)
-    {
+    for(int i = 0; i < Npart(); ++i) {
         pch.curPosP[i] += pch.posIncP[i] * dt;
     }
 
-    for(int i = 0; i < Npart(); ++i)
-    {
+    for(int i = 0; i < Npart(); ++i) {
         pch.halfLenP[i] += pch.velGradP[i].diagonal().cwiseProduct(pch.halfLenP[i]) * dt;
     }
 
@@ -278,47 +253,37 @@ void cenDif::advance(const Real& dt)
 
 void makeTimeInt(timeIntPtr& ti, patch& pch, constitutiveSC* cst, string s)
 {
-    if(cst == NULL)
-    {
+    if(cst == NULL) {
         throw earlyExit("constitutiveSC pointer cst must be set in makePatch");
-    }
-    else
-    {
+    } else {
         cst->update(0.);
     }
 
-    if(s == "momentum")
-    {
+    if(s == "momentum") {
         ti = new momentum(pch, *cst);
     }
 
-    if(s == "CD")
-    {
+    if(s == "CD") {
         ti = new cenDif(pch, *cst);
     }
 
-    if(s == "quasi")
-    {
+    if(s == "quasi") {
         ti = new quasiGM(pch, *cst);
     }
 
-    if(s == "quasiCG")
-    {
+    if(s == "quasiCG") {
         ti = new quasiCG(pch, *cst);
     }
 
-    if(s == "dynGM")
-    {
+    if(s == "dynGM") {
         ti = new dynGM(pch, *cst);
     }
 
-    if(s == "NewtCG")
-    {
+    if(s == "NewtCG") {
         ti = new dynCG(pch, *cst);
     }
 
-    if(ti == NULL)
-    {
+    if(ti == NULL) {
         throw earlyExit("makeTimeInt: no time integrator assigned");
     }
 }
@@ -345,23 +310,21 @@ public:
         cst.update(delt);
         divergence(pch, pch.fintN);
 
-        for(int i = 0; i < Nnode(); ++i)
-        {
+        for(int i = 0; i < Nnode(); ++i) {
             res[i] = vStart[i] + delt * (pch.gravityN[i] + pch.fintN[i] / pch.massN[i]);
         }
 
         pch.gridVelocityBC(res);
 
-        for(int i = 0; i < Nnode(); ++i)
-        {
+        for(int i = 0; i < Nnode(); ++i) {
             res[i] -= v[i];
         }
 
-        if(sym)
-            for(int i = 0; i < Nnode(); ++i)
-            {
+        if(sym) {
+            for(int i = 0; i < Nnode(); ++i) {
                 res[i] *= pch.massN[i];
             }
+        }
 
         ++countRes;
     }
@@ -388,15 +351,13 @@ public:
         cst.update(delt);
         divergence(pch, pch.fintN);
 
-        for(int i = 0; i < Nnode(); ++i)
-        {
+        for(int i = 0; i < Nnode(); ++i) {
             Z[i] = vStart[i] + delt * (pch.gravityN[i] + pch.fintN[i] / pch.massN[i]);
         }
 
         pch.gridVelocityBC(Z);
 
-        for(int i = 0; i < Nnode(); ++i)
-        {
+        for(int i = 0; i < Nnode(); ++i) {
             Z[i] = -Z[i] * pch.massN[i];
         }
 
@@ -428,27 +389,23 @@ public:
         const Real maxTol = 1e100;
         const Real minTol = 1e0;
 
-        if(scale2 > maxTol)
-        {
+        if(scale2 > maxTol) {
             scale2 = maxTol;
         }
 
-        if(scale2 < minTol)
-        {
+        if(scale2 < minTol) {
             scale2 = minTol;
         }
 
         const Real fd = sqrt(machEps * scale2);
 
-        for(int i = 0; i < Nnode(); ++i)
-        {
+        for(int i = 0; i < Nnode(); ++i) {
             vPert[i] = velN[i] + fd * s[i];
         }
 
         eqT::makeRes(vPert, Zpert, delt);
 
-        for(int i = 0; i < Nnode(); ++i)
-        {
+        for(int i = 0; i < Nnode(); ++i) {
             DZ[i] = (Zpert[i] - Zcurr[i]) / fd;
         }
     }
@@ -472,8 +429,7 @@ class ConjGrad : public sysT
 public:
     int solve(const Real& rhoNewton, const Real& delt)
     {
-        for(int i = 0; i < Nnode(); ++i)
-        {
+        for(int i = 0; i < Nnode(); ++i) {
             res[i] = -Zcurr[i];
         }
 
@@ -483,10 +439,8 @@ public:
         Real lastGoodRes = 0.;
         minRatio = huge;
 
-        for(Kiter = 0; true; ++Kiter)
-        {
-            if(Kiter % 1000 == 0)
-            {
+        for(Kiter = 0; true; ++Kiter) {
+            if(Kiter % 1000 == 0) {
                 report.progress("current Kiter", Kiter);
                 report.writeProgress();
             }
@@ -495,13 +449,11 @@ public:
             const Real dotpq = dot(P, Q);
             const Real alpha = rhoNew2 / dotpq;
 
-            for(int i = 0; i < Nnode(); ++i)
-            {
+            for(int i = 0; i < Nnode(); ++i) {
                 vInc[i] += alpha * P[i];
             }
 
-            for(int i = 0; i < Nnode(); ++i)
-            {
+            for(int i = 0; i < Nnode(); ++i) {
                 res[i] -= alpha * Q[i];
             }
 
@@ -509,33 +461,25 @@ public:
             rhoNew2 = dot(res, res);
             const Real ratio = sqrt(rhoNew2) / rhoNewton;
 
-            if(ratio < minRatio)
-            {
+            if(ratio < minRatio) {
                 minRatio = ratio;
             }
 
-            if(ratio > slack * minRatio)
-            {
+            if(ratio > slack * minRatio) {
                 report.progress("Conjugate Gradient diverged", ++CGdivergeCount);
                 break;
             }
 
-            if(ratio < ratioGMRES)
-            {
+            if(ratio < ratioGMRES) {
                 break;    // achieved the goal
             }
 
-            if(Kiter > 0)
-            {
-                if(rhoNew2 < lastGoodRes)
-                {
+            if(Kiter > 0) {
+                if(rhoNew2 < lastGoodRes) {
                     lastGoodIdx = Kiter;
                     lastGoodRes = rhoNew2;
-                }
-                else
-                {
-                    if(Kiter - lastGoodIdx > iterLim)
-                    {
+                } else {
+                    if(Kiter - lastGoodIdx > iterLim) {
                         break;    // had iterLim chances, not making progress
                     }
                 }
@@ -543,8 +487,7 @@ public:
 
             const Real beta = rhoNew2 / rhoOld2;
 
-            for(int i = 0; i < Nnode(); ++i)
-            {
+            for(int i = 0; i < Nnode(); ++i) {
                 P[i] = res[i] + beta * P[i];
             }
 
@@ -600,13 +543,11 @@ public:
         Real rhoCurr = rhoNewton;
         Real rhoPrev = huge;
 
-        for(int i = 0; i < Nnode(); ++i)
-        {
+        for(int i = 0; i < Nnode(); ++i) {
             qRes[0][i] = -Zcurr[i] / rhoCurr;
         }
 
-        for(unsigned i = 0; i < Hess.size(); ++i)
-        {
+        for(unsigned i = 0; i < Hess.size(); ++i) {
             Hess[i].assign(Hess[i].size(), 0.);
         }
 
@@ -614,10 +555,8 @@ public:
         gNorm[0] = rhoCurr;
         int Kiter = -1;
 
-        while(Kiter < int(Nstor) - 1)
-        {
-            if(Kiter % 100 == 0)
-            {
+        while(Kiter < int(Nstor) - 1) {
+            if(Kiter % 100 == 0) {
                 report.progress("current Kiter", Kiter);
                 report.writeProgress();
             }
@@ -625,12 +564,10 @@ public:
             ++Kiter;
             sysT::makeDiff(qRes[Kiter], qRes[Kiter + 1], delt);
 
-            for(int j = 0; j <= Kiter; ++j)
-            {
+            for(int j = 0; j <= Kiter; ++j) {
                 Hess[j][Kiter] = dot(qRes[Kiter + 1], qRes[j]);
 
-                for(int i = 0; i < Nnode(); ++i)
-                {
+                for(int i = 0; i < Nnode(); ++i) {
                     qRes[Kiter + 1][i] -= Hess[j][Kiter] * qRes[j][i];
                 }
 
@@ -639,13 +576,11 @@ public:
 
             Hess[Kiter + 1][Kiter] = sqrt(dot(qRes[Kiter + 1], qRes[Kiter + 1]));
 
-            for(int i = 0; i < Nnode(); ++i)
-            {
+            for(int i = 0; i < Nnode(); ++i) {
                 qRes[Kiter + 1][i] /= Hess[Kiter + 1][Kiter];
             }
 
-            for(int i = 0; i < Kiter; ++i)
-            {
+            for(int i = 0; i < Kiter; ++i) {
                 multGivens(i, Hess[i][Kiter], Hess[i + 1][Kiter]);
             }
 
@@ -661,15 +596,12 @@ public:
             rhoPrev = rhoCurr;
             rhoCurr = abs(gNorm[Kiter + 1]);
 
-            if(rhoCurr < rhoNewton * ratioGMRES)
-            {
+            if(rhoCurr < rhoNewton * ratioGMRES) {
                 break;    // achieved the goal
             }
 
-            if(Kiter > 0 && rhoCurr > rhoPrev)     // GMRES bottomed out - we need to make a choice
-            {
-                if(rhoCurr > rhoNewton)
-                {
+            if(Kiter > 0 && rhoCurr > rhoPrev) {   // GMRES bottomed out - we need to make a choice
+                if(rhoCurr > rhoNewton) {
                     cerr << "!! Discarding GMRES result; vInc=0" << endl;
                     return -1;                       // discard entire GMRES result - vInc=0
                 }
@@ -682,22 +614,18 @@ public:
         ++histogram[Kiter];
         yMin[Kiter] = gNorm[Kiter] / Hess[Kiter][Kiter];
 
-        for(int i = Kiter - 1; i > -1; --i)
-        {
+        for(int i = Kiter - 1; i > -1; --i) {
             yMin[i] = gNorm[i];
 
-            for(int j = i + 1; j <= Kiter; ++j)
-            {
+            for(int j = i + 1; j <= Kiter; ++j) {
                 yMin[i] -= Hess[i][j] * yMin[j];
             }
 
             yMin[i] /= Hess[i][i];
         }
 
-        for(int i = 0; i < Nnode(); ++i)
-        {
-            for(int j = 0; j <= Kiter; ++j)
-            {
+        for(int i = 0; i < Nnode(); ++i) {
+            for(int j = 0; j <= Kiter; ++j) {
                 vInc[i] += qRes[j][i] * yMin[j];
             }
         }
@@ -725,8 +653,7 @@ public:
         Hess.resize(Nstor + 1, vector<Real>(Nstor));
         histogram.resize(Nstor);
 
-        for(unsigned i = 0; i < histogram.size(); ++i)
-        {
+        for(unsigned i = 0; i < histogram.size(); ++i) {
             histogram[i] = 0;
         }
 
@@ -737,10 +664,8 @@ public:
     {
         cerr << "Histogram of required GMRES iterations per call" << endl;
 
-        for(unsigned i = 0; i < histogram.size(); ++i)
-        {
-            if(histogram[i] > 0)
-            {
+        for(unsigned i = 0; i < histogram.size(); ++i) {
+            if(histogram[i] > 0) {
                 cerr << "  iters " << setw(5) << i + 1 << "  times reached " << histogram[i] << endl;
             }
         }
@@ -772,31 +697,25 @@ public:
     {
         Real loadResPrev = huge;
 
-        for(unsigned Nload = 0; Nload < maxLoadIter; ++Nload)
-        {
+        for(unsigned Nload = 0; Nload < maxLoadIter; ++Nload) {
             cst.revert();
             pch.makeExternalForces(delt);
             solverT::makeRes(velN, Zcurr, delt);
             Real rhoCurr = sqrt(dot(Zcurr, Zcurr));
             Real rhoPrev = huge;
 
-            if(Nload == 0)
-            {
+            if(Nload == 0) {
                 rhoStart = rhoCurr;
                 report.progress("rhoStart", rhoStart);
-            }
-            else
-            {
+            } else {
                 cerr << Nload << " load res: abs / rel " << rhoCurr / rhoStart << " / " << rhoCurr /
                     loadResPrev << endl;
 
-                if(rhoCurr < rhoStart * ratioNewton)
-                {
+                if(rhoCurr < rhoStart * ratioNewton) {
                     break;
                 }
 
-                if(rhoCurr / loadResPrev > 1.)
-                {
+                if(rhoCurr / loadResPrev > 1.) {
                     throw earlyExit("nonlinear load convergence failed");
                 }
 
@@ -807,23 +726,19 @@ public:
             unsigned Nnewton = 0;
             loadResPrev = rhoCurr;
 
-            while(rhoCurr > ignoreResidualBelow && rhoCurr >= rhoStart * ratioNewton)
-            {
+            while(rhoCurr > ignoreResidualBelow && rhoCurr >= rhoStart * ratioNewton) {
                 ++Nnewton;
                 report.progress("Newton step", Nnewton);
 
-                for(int i = 0; i < Nnode(); ++i)
-                {
+                for(int i = 0; i < Nnode(); ++i) {
                     vInc[i] = Vector3(0, 0, 0);
                 }
 
                 const int Kiter = solverT::solve(rhoCurr, delt);
                 report.progress("ending Kiter", Kiter);
 
-                for(int ArmijoCount = 0; ArmijoCount < 8; ++ArmijoCount)
-                {
-                    for(int i = 0; i < Nnode(); ++i)
-                    {
+                for(int ArmijoCount = 0; ArmijoCount < 8; ++ArmijoCount) {
+                    for(int i = 0; i < Nnode(); ++i) {
                         vTry[i] = velN[i] + vInc[i] / pow(2, ArmijoCount);
                     }
 
@@ -835,20 +750,17 @@ public:
                     report.progress("rhoCurr/rhoPrev",  rhoCurr / rhoPrev);
                     report.writeProgress();
 
-                    if(rhoCurr < rhoStart * ratioNewton)
-                    {
+                    if(rhoCurr < rhoStart * ratioNewton) {
                         velN = vTry;    // achieved the goal - go to next time step
                         break;
                     }
 
-                    if(rhoCurr < rhoPrev)
-                    {
+                    if(rhoCurr < rhoPrev) {
                         velN = vTry;    // made progress - try another Newton
                         break;
                     }
 
-                    if(Nnewton > 1 && ArmijoCount >= 7)                // Armijo failed - discard result
-                    {
+                    if(Nnewton > 1 && ArmijoCount >= 7) {              // Armijo failed - discard result
                         report.progress("(Armijo) residual not satisfied", rhoCurr / rhoStart);
                         return;
                     }
@@ -856,8 +768,7 @@ public:
                     report.progress("Invoking Armijo rhoCurr/rhoStart", rhoCurr / rhoStart);
                 }
 
-                if(Nnewton >= NewtLim)
-                {
+                if(Nnewton >= NewtLim) {
                     report.progress("(Newton) residual not satisfied", rhoCurr / rhoStart);
                     return;
                 }
@@ -913,22 +824,21 @@ public:
         integrate(pch, pch.massP, pch.massN);
         Real maxMass = 0.;
 
-        for(int i = 0; i < Nnode(); ++i)
-            if(pch.massN[i] > maxMass)
-            {
+        for(int i = 0; i < Nnode(); ++i) {
+            if(pch.massN[i] > maxMass) {
                 maxMass = pch.massN[i];
             }
+        }
 
         const Real minMass = machEps * maxMass;
 
-        for(int i = 0; i < Nnode(); ++i)
-            if(pch.massN[i] < minMass)
-            {
+        for(int i = 0; i < Nnode(); ++i) {
+            if(pch.massN[i] < minMass) {
                 pch.massN[i] = minMass;
             }
+        }
 
-        for(int i = 0; i < Nnode(); ++i)
-        {
+        for(int i = 0; i < Nnode(); ++i) {
             pch.velN[i] = Vector3(0, 0, 0);
         }
 
@@ -937,8 +847,7 @@ public:
         cst.save();
         NewtT::solve(pch.velN, theta * dt);
 
-        if(pch.incCount == 0)
-        {
+        if(pch.incCount == 0) {
             startRes = NewtT::startRes();
         }
 
@@ -946,13 +855,11 @@ public:
         interpolate(pch, pch.posIncP, pch.velN);
         gradient(pch, pch.velGradP, pch.velN);
 
-        for(int i = 0; i < Npart(); ++i)
-        {
+        for(int i = 0; i < Npart(); ++i) {
             pch.curPosP[i] += pch.posIncP[i] * dt;
         }
 
-        for(int i = 0; i < Npart(); ++i)
-        {
+        for(int i = 0; i < Npart(); ++i) {
             pch.halfLenP[i] += pch.velGradP[i].diagonal().cwiseProduct(pch.halfLenP[i]) * dt;
         }
 
@@ -982,29 +889,27 @@ public:
         integrate(pch, pch.massP, pch.massN);
         Real maxMass = 0.;
 
-        for(int i = 0; i < Nnode(); ++i)
-            if(pch.massN[i] > maxMass)
-            {
+        for(int i = 0; i < Nnode(); ++i) {
+            if(pch.massN[i] > maxMass) {
                 maxMass = pch.massN[i];
             }
+        }
 
         const Real minMass = machEps * maxMass;
 
-        for(int i = 0; i < Nnode(); ++i)
-            if(pch.massN[i] < minMass)
-            {
+        for(int i = 0; i < Nnode(); ++i) {
+            if(pch.massN[i] < minMass) {
                 pch.massN[i] = minMass;
             }
+        }
 
-        for(int i = 0; i < Npart(); ++i)
-        {
+        for(int i = 0; i < Npart(); ++i) {
             pch.momP[i] = pch.velP[i] * pch.massP[i];
         }
 
         integrate(pch, pch.momP, pch.momN);
 
-        for(int i = 0; i < Nnode(); ++i)
-        {
+        for(int i = 0; i < Nnode(); ++i) {
             pch.velN[i] = pch.momN[i] / pch.massN[i];
         }
 
@@ -1014,28 +919,24 @@ public:
         NewtT::solve(pch.velN, theta * dt);
         cst.revert();
 
-        for(int i = 0; i < Nnode(); ++i)
-        {
+        for(int i = 0; i < Nnode(); ++i) {
             pch.velIncN[i] = (pch.velN[i] - vStart[i]) / theta;
         }
 
         interpolate(pch, pch.velIncP, pch.velIncN);
 
-        for(int i = 0; i < Npart(); ++i)
-        {
+        for(int i = 0; i < Npart(); ++i) {
             pch.velP[i] += pch.velIncP[i];
         }
 
         interpolate(pch, pch.posIncP, pch.velN);
         gradient(pch, pch.velGradP, pch.velN);
 
-        for(int i = 0; i < Npart(); ++i)
-        {
+        for(int i = 0; i < Npart(); ++i) {
             pch.curPosP[i] += pch.posIncP[i] * dt;
         }
 
-        for(int i = 0; i < Npart(); ++i)
-        {
+        for(int i = 0; i < Npart(); ++i) {
             pch.halfLenP[i] += pch.velGradP[i].diagonal().cwiseProduct(pch.halfLenP[i]) * dt;
         }
 
@@ -1050,4 +951,4 @@ typedef ImplicitDynamic<NewtonKrylov<ConjGrad<NewtonSystem<DynamicSystem<true> >
 #endif
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-};  // end namespace ParticleSolvers
+}  // end namespace ParticleSolvers

@@ -144,10 +144,10 @@ public:
         __BNN_ASSERT(m_Box != nullptr);
     }
 
-    virtual bool             constrainToBoundary(VecX<N, RealType>& ppos, VecX<N, RealType>& pvel, bool bReflect = false) override;
-    const VecX<N, RealType>& boxMin() const noexcept { return m_Box->boxMin(); }
-    const VecX<N, RealType>& boxMax() const noexcept { return m_Box->boxMax(); }
-    void                     setSizeScale(const VecX<N, RealType>& sizeScale) { m_Box->setSizeScale(sizeScale); }
+    virtual bool      constrainToBoundary(VecX<N, RealType>& ppos, VecX<N, RealType>& pvel, bool bReflect = false) override;
+    VecX<N, RealType> boxMin() const noexcept { return m_Box->boxMin(); }
+    VecX<N, RealType> boxMax() const noexcept { return m_Box->boxMax(); }
+    void              setSizeScale(const VecX<N, RealType>& sizeScale) { m_Box->setSizeScale(sizeScale); }
 
 protected:
     BoxPtr m_Box;

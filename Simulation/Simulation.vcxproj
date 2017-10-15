@@ -199,7 +199,6 @@
     <ClCompile Include="ParticleSolvers\SPH\WCSPH\WCSPHSolver.cpp" />
     <ClCompile Include="ParticleTools\ParticleHelpers.cpp" />
     <ClCompile Include="ParticleTools\ParticleSerialization.cpp" />
-    <ClCompile Include="ParticleTools\PoissonDiskSampler.cpp" />
     <ClCompile Include="ParticleTools\_ParticleTools.Test.cpp" />
     <ClCompile Include="SimulationObjects\ParticleDeleter.cpp" />
     <ClCompile Include="SimulationObjects\SimulationObjects.cpp" />
