@@ -17,7 +17,6 @@
 
 #pragma once
 
-#include <Banana/Grid/Grid3DHashing.h>
 #include <Banana/LinearAlgebra/LinearSolvers/PCGSolver.h>
 #include <ParticleSolvers/ParticleSolver.h>
 #include <ParticleSolvers/MPM/MPM3DData.h>

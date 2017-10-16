@@ -23,6 +23,7 @@
 
 #include <Banana/Setup.h>
 #include <Banana/Utils/STLHelpers.h>
+#include <Banana/ParallelHelpers/ParallelFuncs.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -31,7 +32,7 @@ namespace Banana
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Dynamic compressed sparse row matrix
 //
-template<class MatrixType>
+template<Int N, class RealType>
 class BlockSparseMatrix
 {
 private:
@@ -41,63 +42,44 @@ private:
     Vec_VecUInt m_ColIndex;
 
     // values corresponding to indices
-    Vec_Vec<MatrixType> m_ColValue;
+    Vec_VecMatXxX<N, RealType> m_ColValue;
 
 public:
     explicit BlockSparseMatrix(UInt size = 0) : m_Size(size), m_ColIndex(size), m_ColValue(size) {}
 
-    UInt size() const noexcept;
+    UInt size() const noexcept { return m_Size; }
     void resize(UInt newSize);
     void clear(void);
 
-    Vec_UInt&       getIndices(UInt row);
-    Vec_Real&       getValues(UInt row);
-    const Vec_UInt& getIndices(UInt row) const;
-    const Vec_Real& getValues(UInt row) const;
+    Vec_UInt&                      getIndices(UInt row) { assert(row < m_Size); return m_ColIndex[row]; }
+    const Vec_UInt&                getIndices(UInt row) const { assert(row < m_Size); return m_ColIndex[row]; }
+    Vec_MatXxX<N, RealType>&       getValues(UInt row) { assert(row < m_Size); return m_ColValue[row]; }
+    const Vec_MatXxX<N, RealType>& getValues(UInt row) const { assert(row < m_Size); return m_ColValue[row]; }
 
-    const MatrixType& operator ()(UInt i, UInt j) const;
+    const MatXxX<N, RealType>& operator ()(UInt i, UInt j) const;
 
-    void setElement(UInt i, UInt j, const MatrixType& newValue);
-    void addElement(UInt i, UInt j, const MatrixType& incrementValue);
+    void setElement(UInt i, UInt j, const MatXxX<N, RealType>& newValue);
+    void addElement(UInt i, UInt j, const MatXxX<N, RealType>& incrementValue);
     void eraseElement(UInt i, UInt j);
-
 
     void printDebug() const noexcept;
     void checkSymmetry() const noexcept;
 
     void writeMatlabFile(const char* fileName, int showPercentage = -1) const;
-    void writeBinaryFile(const char* fileName, int showPercentage = -1) const;
-    bool loadFromBinaryFile(const char* fileName, int showPercentage = -1);
-
-    ////////////////////////////////////////////////////////////////////////////////
-    template<class VectorType>
-    static void multiply(const BlockSparseMatrix<MatrixType>& matrix, const Vector<VectorType>& x, Vector<VectorType>& result);
-
-    template<class VectorType, class Real>
-    static void multiply_scaled(const BlockSparseMatrix<MatrixType>& matrix, const Vector<VectorType>& x, const Real alpha, Vector<VectorType>& result);
-
-    template<class VectorType, class Real>
-    static void add_multiply_scaled(const BlockSparseMatrix<MatrixType>& matrix, const Vector<VectorType>& x, const Real alpha, Vector<VectorType>& result);
-
-    template<class VectorType>
-    static void multiply_and_subtract(const BlockSparseMatrix<MatrixType>& matrix, const Vector<VectorType>& x, Vector<VectorType>& result);
-
-    template<class Real>
-    static void add_scaled(const BlockSparseMatrix<MatrixType>& A, const BlockSparseMatrix<MatrixType>& B, const Real alpha, BlockSparseMatrix<MatrixType>& matrix);
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Fixed version of SparseMatrix. This can be significantly faster for matrix-vector
 // multiplies due to better data locality.
-template<class MatrixType>
+template<Int N, class RealType>
 class FixedBlockSparseMatrix
 {
 private:
     UInt m_Size;
 
     // nonzero values row by row
-    Vector<MatrixType> m_ColValue;
+    Vec_MatXxX<N, RealType> m_ColValue;
 
     // corresponding column indices
     Vec_UInt m_ColIndex;
@@ -108,24 +90,20 @@ private:
 public:
     explicit FixedBlockSparseMatrix(UInt size = 0) : m_Size(size), m_ColValue(0), m_ColIndex(0), m_RowStart(size + 1) {}
 
-    UInt size() const noexcept;
-    void resize(UInt newSize);
-    void clear(void);
-    void constructFromSparseMatrix(const BlockSparseMatrix<MatrixType>& fixedMatrix);
+    UInt size() const noexcept { return m_Size; }
+    void resize(UInt newSize) { m_Size = newSize; m_RowStart.resize(m_Size + 1); }
+    void clear(void) { m_ColValue.resize(0); m_ColIndex.resize(0); m_RowStart.resize(0); }
+    void constructFromSparseMatrix(const BlockSparseMatrix<N, RealType>& fixedMatrix);
 
-    Vec_UInt&       getIndices(UInt row);
-    Vec_UInt&       getRowStarts(UInt row);
-    Vec_Real&       getValues(UInt row);
-    const Vec_UInt& getIndices(UInt row) const;
-    const Vec_UInt& getRowStarts(UInt row) const;
-    const Vec_Real& getValues(UInt row) const;
+    Vec_UInt&       getIndices(UInt row) { assert(row < m_Size); return m_ColIndex[row]; }
+    const Vec_UInt& getIndices(UInt row) const { assert(row < m_Size); return m_ColIndex[row]; }
+    Vec_UInt&       getRowStarts(UInt row) { assert(row < m_Size); return m_RowStart[row]; }
+    const Vec_UInt& getRowStarts(UInt row) const { assert(row < m_Size); return m_RowStart[row]; }
+    Vec_Real&       getValues(UInt row) { assert(row < m_Size); return m_ColValue[row]; }
+    const Vec_Real& getValues(UInt row) const { assert(row < m_Size); return m_ColValue[row]; }
 
     ////////////////////////////////////////////////////////////////////////////////
-    template<class VectorType>
-    static void multiply(const FixedBlockSparseMatrix<MatrixType>& matrix, const Vector<VectorType>& x, Vector<VectorType>& result);
-
-    template<class VectorType>
-    static void multiply_and_subtract(const FixedBlockSparseMatrix<MatrixType>& matrix, const Vector<VectorType>& x, Vector<VectorType>& result);
+    static void multiply(const FixedBlockSparseMatrix<N, RealType>& matrix, const Vector<VecX<N, RealType> >& x, Vector<VecX<N, RealType> >& result);
 };
 
 

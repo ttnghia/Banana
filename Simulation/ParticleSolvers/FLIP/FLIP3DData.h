@@ -117,10 +117,9 @@ struct SimulationData_FLIP3D
 {
     struct ParticleSimData
     {
-        Vec_Vec3r   positions;
-        Vec_Vec3r   positions_tmp;
-        Vec_Vec3r   velocities;
-        Vec_VecUInt neighborList;
+        Vec_Vec3r positions;
+        Vec_Vec3r positions_tmp;
+        Vec_Vec3r velocities;
     } particleSimData;
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -153,14 +152,12 @@ struct SimulationData_FLIP3D
     {
         particleSimData.positions.reserve(numParticles);
         particleSimData.velocities.reserve(numParticles);
-        particleSimData.neighborList.reserve(numParticles);
     }
 
     void makeReady(UInt ni, UInt nj, UInt nk)
     {
         particleSimData.positions_tmp.resize(particleSimData.positions.size());
         particleSimData.velocities.resize(particleSimData.positions.size(), Vec3r(0));
-        particleSimData.neighborList.resize(particleSimData.positions.size());
 
         gridSimData.u.resize(ni + 1, nj, nk, 0);
         gridSimData.u_old.resize(ni + 1, nj, nk, 0);

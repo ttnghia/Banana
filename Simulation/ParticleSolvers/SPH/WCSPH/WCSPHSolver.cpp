@@ -250,7 +250,7 @@ void WCSPHSolver::saveMemoryState()
     m_MemoryStateIO->setFixedAttribute("particle_radius", m_SimParams->particleRadius);
     m_MemoryStateIO->setParticleAttribute("position", m_SimData->positions);
     m_MemoryStateIO->setParticleAttribute("velocity", m_SimData->velocities);
-    m_MemoryStateIO->flush(m_GlobalParams->finishedFrame);
+    m_MemoryStateIO->flushAsync(m_GlobalParams->finishedFrame);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -280,7 +280,7 @@ void WCSPHSolver::saveParticleData()
         m_ParticleIO->setParticleAttribute("density", m_SimData->densities);
     }
 
-    m_ParticleIO->flush(m_GlobalParams->finishedFrame);
+    m_ParticleIO->flushAsync(m_GlobalParams->finishedFrame);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

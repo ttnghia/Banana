@@ -53,10 +53,12 @@ class ParticleSerialization
 public:
     enum DataType
     {
+        TypeChar,
         TypeInt,
         TypeUInt,
         TypeReal,
         TypeCompressedReal,
+        TypeVectorChar,
         TypeVectorInt,
         TypeVectorUInt,
         TypeVectorReal,
@@ -144,8 +146,8 @@ public:
     template<Int N, class T> void setParticleAttribute(const String& attrName, const Vector<MatXxX<N, T> >& values);
 
     void clearData();
-    void flush(Int fileID);
-    void flush(const String& fileName);
+    void flushAsync(Int fileID);
+    void flushAsync(const String& fileName);
     void waitForBuffers() { if(m_WriteFutureObj.valid()) { m_WriteFutureObj.wait(); } }
 
     ////////////////////////////////////////////////////////////////////////////////

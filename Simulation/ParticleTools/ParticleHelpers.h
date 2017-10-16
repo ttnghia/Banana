@@ -61,13 +61,18 @@ template<class RealType> void decompress(Vector<RealType>& dvec, const DataBuffe
 template<class RealType> void decompress(Vector<Vector<RealType> >& dvec, const Vector<RealType> dMin, const Vector<RealType>& dMax, const Vec_VecUInt16& compressedData);
 template<class RealType> void decompress(Vector<Vector<RealType> >& dvec, const DataBuffer& buffer, UInt nParticles = 0);
 
+template<Int N, class RealType>
+void springForceDx(const VecX<N, RealType>& eij, RealType dij, RealType d0, RealType Kspring, RealType Kdamping, MatXxX<N, RealType>& springDx, MatXxX<N, RealType>& dampingDx);
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // non-template functions must be defined in separate .cpp file
 void transform(Vec_Vec3r& particles, const Vec3r& translation, const Vec3r& rotation);
+void connectedComponentAnalysis(const Vec_VecUInt& connectionList, Vec_Int8& componentIdx, UInt& nComponents);
+UInt spawnComponent(UInt p, Int depth, UInt8 currentIdx, const Vec_VecUInt& connectionList, Vec_Int8& componentIdx);
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #include <ParticleTools/ParticleHelpers.Impl.hpp>
+
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace ParticleHelpers

@@ -20,141 +20,91 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Dynamic compressed sparse row matrix.
 //
-template<class MatrixType>
-unsigned int BlockSparseMatrix<MatrixType>::size() const noexcept
-{
-    return m_Size;
-}
-
-template<class MatrixType>
-void BlockSparseMatrix<MatrixType>::resize(UInt newSize)
+template<Int N, class RealType>
+void BlockSparseMatrix<N, RealType >::resize(UInt newSize)
 {
     m_Size = newSize;
     m_ColIndex.resize(m_Size);
     m_ColValue.resize(m_Size);
 }
 
-template<class MatrixType>
-void BlockSparseMatrix<MatrixType>::clear(void)
+template<Int N, class RealType>
+void BlockSparseMatrix<N, RealType >::clear(void)
 {
-    for(UInt i = 0; i < m_Size; ++i)
-    {
+    for(UInt i = 0; i < m_Size; ++i) {
         m_ColIndex[i].resize(0);
         m_ColValue[i].resize(0);
     }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class MatrixType>
-Vec_UInt& BlockSparseMatrix<MatrixType>::getIndices(UInt row)
-{
-    assert(row < m_Size);
-    return m_ColIndex[row];
-}
-
-template<class MatrixType>
-const Vec_UInt& BlockSparseMatrix<MatrixType>::getIndices(UInt row) const
-{
-    assert(row < m_Size);
-    return m_ColIndex[row];
-}
-
-template<class MatrixType>
-Vec_Real& BlockSparseMatrix<MatrixType>::getValues(UInt row)
-{
-    assert(row < m_Size);
-    return m_ColValue[row];
-}
-
-template<class MatrixType>
-const Vec_Real& BlockSparseMatrix<MatrixType>::getValues(UInt row) const
-{
-    assert(row < m_Size);
-    return m_ColValue[row];
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class MatrixType>
-const MatrixType& BlockSparseMatrix<MatrixType>::operator()(UInt i, UInt j) const
+template<Int N, class RealType>
+const MatXxX<N, RealType>& BlockSparseMatrix<N, RealType>::operator ()(UInt i, UInt j) const
 {
     UInt k = 0;
-
-    if(STLHelpers::Sorted::contain(m_ColIndex[i], j, k))
-    {
+    if(STLHelpers::Sorted::contain(m_ColIndex[i], j, k)) {
         return m_ColValue[i][k];
-    }
-    else
-    {
-        return MatrixType::Zero();
+    } else {
+        return MatXxX<N, RealType>(0);
     }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class MatrixType>
-void BlockSparseMatrix<MatrixType>::setElement(UInt i, UInt j, const MatrixType& newValue)
+template<Int N, class RealType>
+void BlockSparseMatrix<N, RealType >::setElement(UInt i, UInt j, const MatXxX<N, RealType>& newValue)
 {
     assert(i < m_Size && j < m_Size);
 
     UInt k = 0;
 
-    if(STLHelpers::Sorted::contain(m_ColIndex[i], j, k))
-    {
+    if(STLHelpers::Sorted::contain(m_ColIndex[i], j, k)) {
         m_ColValue[i][k] = newValue;
-    }
-    else
-    {
+    } else {
         STLHelpers::Sorted::insertPairSorted(m_ColIndex[i], j, m_ColValue[i], newValue);
     }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class MatrixType>
-void BlockSparseMatrix<MatrixType>::addElement(UInt i, UInt j, const MatrixType& incrementValue)
+template<Int N, class RealType>
+void BlockSparseMatrix<N, RealType >::addElement(UInt i, UInt j, const MatXxX<N, RealType>& incrementValue)
 {
     assert(i < m_Size && j < m_Size);
 
     UInt k = 0;
 
-    if(STLHelpers::Sorted::contain(m_ColIndex[i], j, k))
-    {
+    if(STLHelpers::Sorted::contain(m_ColIndex[i], j, k)) {
         m_ColValue[i][k] += incrementValue;
-    }
-    else
-    {
-        STLHelpers::insertPairSorted(m_ColIndex[i], j, m_ColValue[i], incrementValue);
+    } else {
+        STLHelpers::Sorted::insertPairSorted(m_ColIndex[i], j, m_ColValue[i], incrementValue);
     }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class MatrixType>
-void BlockSparseMatrix<MatrixType>::eraseElement(UInt i, UInt j)
+template<Int N, class RealType>
+void BlockSparseMatrix<N, RealType >::eraseElement(UInt i, UInt j)
 {
     assert(i < m_Size && j < m_Size);
 
     UInt k = 0;
 
-    if(STLHelpers::Sorted::contain(m_ColIndex[i], j, k))
-    {
+    if(STLHelpers::Sorted::contain(m_ColIndex[i], j, k)) {
         m_ColIndex[i].erase(m_ColIndex[i].begin() + k);
         m_ColValue[i].erase(m_ColValue[i].begin() + k);
     }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class MatrixType>
-void BlockSparseMatrix<MatrixType>::printDebug() const noexcept
+template<Int N, class RealType>
+void BlockSparseMatrix<N, RealType >::printDebug() const noexcept
 {
-    for(UInt i = 0; i < m_Size; ++i)
-    {
-        if(m_ColIndex[i].size() == 0)
-        {
+    for(UInt i = 0; i < m_Size; ++i) {
+        if(m_ColIndex[i].size() == 0) {
             continue;
         }
 
         std::cout << "Line " << i << ": " << std::endl;
 
-        for(UInt j = 0; j < m_ColIndex[i].size(); ++j)
-        {
+        for(UInt j = 0; j < m_ColIndex[i].size(); ++j) {
             std::cout << m_ColIndex[i][j] << "(" << glm::to_string(m_ColValue[i][j]) << "), " << std::endl;
         }
 
@@ -165,42 +115,35 @@ void BlockSparseMatrix<MatrixType>::printDebug() const noexcept
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class MatrixType>
-void BlockSparseMatrix<MatrixType>::checkSymmetry() const noexcept
+template<Int N, class RealType>
+void BlockSparseMatrix<N, RealType >::checkSymmetry() const noexcept
 {
     volatile bool check = true;
     std::cout << "============================== Checking Matrix Symmetry... ==============================" << std::endl;
     std::cout << "Matrix size: " << m_Size << std::endl;
 
-    tbb::parallel_for(tbb::blocked_range<UInt>(0, m_Size), [&](tbb::blocked_range<UInt> r)
-                      {
-                          for(UInt i = r.begin(), iEnd = r.end(); i != iEnd; ++i)
-                          {
-                              for(UInt j = i + 1; j < m_Size; ++j)
-                              {
-                                  if(STLHelpers::Sorted::contain(m_ColIndex[i], j))
-                                  {
-                                      auto err = glm::length2((*this)(i, j) - (*this)(j, i));
+    ParallelFuncs::parallel_for(ParallelFuncs::blocked_range<UInt>(0, m_Size), [&](ParallelFuncs::blocked_range<UInt> r)
+                                {
+                                    for(UInt i = r.begin(), iEnd = r.end(); i != iEnd; ++i) {
+                                        for(UInt j = i + 1; j < m_Size; ++j) {
+                                            if(STLHelpers::Sorted::contain(m_ColIndex[i], j)) {
+                                                auto err = glm::length2((*this)(i, j) - (*this)(j, i));
 
-                                      if(err > 1e-5)
-                                      {
-                                          check = false;
-                                          std::cout << "Invalid matrix element at index " << i << ", " << j
-                                                    << ", err = " << err << ": "
-                                                    << "matrix(" << i << ", " << j << ") = " << glm::to_string((*this)(i, j)) << " != "
-                                                    << "matrix(" << j << ", " << i << ") = " << glm::to_string((*this)(j, i)) << std::endl;
-                                      }
-                                  }
-                              }
-                          }
-                      });
+                                                if(err > 1e-5) {
+                                                    check = false;
+                                                    std::cout << "Invalid matrix element at index " << i << ", " << j
+                                                              << ", err = " << err << ": "
+                                                              << "matrix(" << i << ", " << j << ") = " << glm::to_string((*this)(i, j)) << " != "
+                                                              << "matrix(" << j << ", " << i << ") = " << glm::to_string((*this)(j, i)) << std::endl;
+                                                }
+                                            }
+                                        }
+                                    }
+                                });
 
-    if(check)
-    {
+    if(check) {
         std::cout << "All matrix elements are valid!" << std::endl;
-    }
-    else
-    {
+    } else {
         std::cout << "There are some invalid matrix elements!" << std::endl;
     }
 
@@ -208,12 +151,11 @@ void BlockSparseMatrix<MatrixType>::checkSymmetry() const noexcept
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class MatrixType>
-void BlockSparseMatrix<MatrixType>::writeMatlabFile(const char* fileName, int showPercentage /*= -1*/) const
+template<Int N, class RealType>
+void BlockSparseMatrix<N, RealType >::writeMatlabFile(const char* fileName, int showPercentage /*= -1*/) const
 {
     std::ofstream file(fileName, std::ios::out);
-    if(!file.is_open())
-    {
+    if(!file.is_open()) {
         printf("Could not open file %s for writing.\n", fileName);
         return;
     }
@@ -222,16 +164,12 @@ void BlockSparseMatrix<MatrixType>::writeMatlabFile(const char* fileName, int sh
     UInt numProcessed = 0;
     UInt numElements  = 0;
 
-    if(showPercentage > 0)
-    {
-        for(UInt i = 0; i < m_Size; ++i)
-        {
-            for(UInt j = 0, jEnd = static_cast<UInt>(m_ColIndex[i].size()); j < jEnd; ++j)
-            {
+    if(showPercentage > 0) {
+        for(UInt i = 0; i < m_Size; ++i) {
+            for(UInt j = 0, jEnd = static_cast<UInt>(m_ColIndex[i].size()); j < jEnd; ++j) {
                 UInt colIndex = m_ColIndex[i][j];
 
-                if(colIndex < i)
-                {
+                if(colIndex < i) {
                     continue;
                 }
 
@@ -241,439 +179,65 @@ void BlockSparseMatrix<MatrixType>::writeMatlabFile(const char* fileName, int sh
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    for(UInt i = 0; i < m_Size; ++i)
-    {
-        for(UInt j = 0, jEnd = static_cast<UInt>(m_ColIndex[i].size()); j < jEnd; ++j)
-        {
+    for(UInt i = 0; i < m_Size; ++i) {
+        for(UInt j = 0, jEnd = static_cast<UInt>(m_ColIndex[i].size()); j < jEnd; ++j) {
             auto matElement = m_ColValue[i][j];
 
-            for(int l1 = 1; l1 <= 3; ++l1)
-            {
-                for(int l2 = 1; l2 <= 3; ++l2)
-                {
+            for(int l1 = 1; l1 <= 3; ++l1) {
+                for(int l2 = 1; l2 <= 3; ++l2) {
                     file << 3 * i + l1 << "    " << 3 * m_ColIndex[i][j] + l2 << "    " << matElement(i, j) << std::endl;
                 }
             }
 
             ++numProcessed;
-            if((showPercentage > 0) && (numProcessed % (showPercentage * onePercent) == 0))
-            {
+            if((showPercentage > 0) && (numProcessed % (showPercentage * onePercent) == 0)) {
                 printf("%u/%u...\n", numProcessed, numElements);
             }
         }
     }
     file.close();
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class MatrixType>
-void BlockSparseMatrix<MatrixType>::writeBinaryFile(const char* fileName, int showPercentage /*= -1*/) const
-{
-    std::ofstream file(fileName, std::ios::binary | std::ios::out);
-    if(!file.is_open())
-    {
-        printf("Could not open file %s for writing.\n", fileName);
-        return;
-    }
-
-
-    UInt numElements = 0;
-
-    for(UInt i = 0; i < m_Size; ++i)
-    {
-        for(UInt j = 0, jEnd = static_cast<UInt>(m_ColIndex[i].size()); j < jEnd; ++j)
-        {
-            UInt colIndex = m_ColIndex[i][j];
-
-            if(colIndex < i)
-            {
-                continue;
-            }
-
-            ++numElements;
-        }
-    }
-
-
-    UInt   onePercent   = static_cast<UInt>(numElements / 100.0);
-    UInt   numProcessed = 0;
-    Vec_Real data(9 * numElements);
-    Vec_UInt rowIndex(numElements);
-    Vec_UInt colIndex(numElements);
-
-    for(UInt i = 0; i < m_Size; ++i)
-    {
-        for(UInt j = 0, jEnd = static_cast<UInt>(m_ColIndex[i].size()); j < jEnd; ++j)
-        {
-            UInt colIndex = m_ColIndex[i][j];
-
-            if(colIndex < i)
-            {
-                continue;
-            }
-
-            const auto* tmp_ptr = glm::value_ptr(m_ColValue[i][j]);
-            for(int k = 0; k < 9; ++k)
-                data[9 * numProcessed + k] = static_cast<double>(tmp_ptr[k]);
-
-            rowIndex[numProcessed] = i;
-            colIndex[numProcessed] = colIndex;
-
-            ++numProcessed;
-
-            if((showPercentage > 0) && (numProcessed % (showPercentage * onePercent) == 0))
-            {
-                printf("%u/%u...\n", numProcessed, numElements);
-            }
-        }
-    }
-
-    file.write(&m_Size,         sizeof(UInt));
-    file.write(&numElements,    sizeof(UInt));
-    file.write(rowIndex.data(), numElements * sizeof(UInt));
-    file.write(colIndex.data(), numElements * sizeof(UInt));
-    file.write(data.data(),     9 * numElements * sizeof(double));
-
-    file.close();
-    printf("File written, num. elements: %u, filename: %s\n", numElements, fileName);
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class MatrixType>
-bool BlockSparseMatrix<MatrixType>::loadFromBinaryFile(const char* fileName, int showPercentage /*= -1*/)
-{
-    std::ifstream file(fileName, std::ios::binary | std::ios::ate);
-
-    if(!file.is_open())
-    {
-        printf("Cannot open file for reading!\n");
-        return false;
-    }
-
-    UInt       fileSize = (UInt)file.tellg();
-    Vector<char> buffer(fileSize);
-
-    file.seekg(0, std::ios::beg);
-    file.read(buffer.data(), fileSize);
-    file.close();
-
-
-    ////////////////////////////////////////////////////////////////////////////////
-    UInt newSize     = 0;
-    UInt numElements = 0;
-
-    memcpy(&newSize,     buffer.data(),                  sizeof(UInt));
-    memcpy(&numElements, &buffer.data()[sizeof(UInt)], sizeof(UInt));
-    UInt* row_ptr    = reinterpret_cast<UInt*>(&buffer.data()[sizeof(UInt) * 2]);
-    UInt* column_ptr = reinterpret_cast<UInt*>(&buffer.data()[(numElements + 2) * sizeof(UInt)]);
-    double* data_ptr   = reinterpret_cast<double*>(&buffer.data()[(numElements * 2 + 2) * sizeof(UInt)]);
-
-    resize(newSize);
-    UInt onePercent   = static_cast<UInt>(numElements / 100.0);
-    UInt numProcessed = 0;
-
-    for(UInt k = 0; k < numElements; ++k)
-    {
-        MatrixType tmp;
-
-        auto* data = glm::value_ptr(tmp);
-
-        for(int l = 0; l < 9; ++l)
-        {
-            data[l] = data_ptr[9 * numProcessed + l];
-        }
-
-        setElement(row_ptr[numProcessed],    column_ptr[numProcessed], tmp);
-        setElement(column_ptr[numProcessed], row_ptr[numProcessed],    tmp);
-
-        ++numProcessed;
-
-        if((showPercentage > 0) && (numProcessed % (showPercentage * onePercentage) == 0))
-        {
-            printf("%u/%u...\n", numProcessed, numElements);
-        }
-    }
-
-    printf("File read, num. elements: %u, filename: %s\n", numElements, fileName);
-    return true;
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-// perform result=matrix*x
-template<class MatrixType>
-template<class VectorType>
-void BlockSparseMatrix<MatrixType>::multiply(const BlockSparseMatrix<MatrixType>& matrix, const Vector<VectorType>& x, Vector<VectorType>& result)
-{
-    assert(matrix.size() == static_cast<UInt>(x.size()));
-    result.resize(matrix.size());
-
-    static tbb::affinity_partitioner ap;
-    tbb::parallel_for(tbb::blocked_range<UInt>(0, matrix.size()), [&](tbb::blocked_range<UInt> r)
-                      {
-                          for(UInt i = r.begin(), iEnd = r.end(); i != iEnd; ++i)
-                          {
-                              VectorType tmpResult = VectorType::Zero();
-
-                              for(UInt j = 0, jEnd = static_cast<UInt>(matrix.m_ColIndex[i].size()); j < jEnd; ++j)
-                              {
-                                  tmpResult += matrix.m_ColValue[i][j] * x[matrix.m_ColIndex[i][j]];
-                              }
-
-                              result[i] = tmpResult;
-                          }
-                      }, ap); // end parallel_for
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-// perform result=alpha*matrix*x
-template<class MatrixType>
-template<class VectorType, class Real>
-void BlockSparseMatrix<MatrixType>::multiply_scaled(const BlockSparseMatrix<MatrixType>& matrix, const Vector<VectorType>& x, const Real alpha, Vector<VectorType>& result)
-{
-    assert(matrix.size() == static_cast<UInt>(x.size()));
-    result.resize(matrix.size());
-
-    static tbb::affinity_partitioner ap;
-    tbb::parallel_for(tbb::blocked_range<UInt>(0, matrix.size()), [&](tbb::blocked_range<UInt> r)
-                      {
-                          for(UInt i = r.begin(), iEnd = r.end(); i != iEnd; ++i)
-                          {
-                              VectorType tmpResult = VectorType::Zero();
-
-                              for(UInt j = 0, jEnd = static_cast<UInt>(matrix.m_ColIndex[i].size()); j < jEnd; ++j)
-                              {
-                                  tmpResult += matrix.m_ColValue[i][j] * x[matrix.m_ColIndex[i][j]] * alpha;
-                              }
-
-                              result[i] = tmpResult;
-                          }
-                      }, ap); // end parallel_for
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-// perform result+=alpha*matrix*x
-template<class MatrixType>
-template<class VectorType, class Real>
-void BlockSparseMatrix<MatrixType>::add_multiply_scaled(const BlockSparseMatrix<MatrixType>& matrix, const Vector<VectorType>& x, const Real alpha, Vector<VectorType>& result)
-{
-    assert(matrix.size() == static_cast<UInt>(x.size()));
-    result.resize(matrix.size());
-
-    static tbb::affinity_partitioner ap;
-    tbb::parallel_for(tbb::blocked_range<UInt>(0, matrix.size()), [&](tbb::blocked_range<UInt> r)
-                      {
-                          for(UInt i = r.begin(), iEnd = r.end(); i != iEnd; ++i)
-                          {
-                              VectorType tmpResult = VectorType::Zero();
-
-                              for(UInt j = 0, jEnd = static_cast<UInt>(matrix.m_ColIndex[i].size()); j < jEnd; ++j)
-                                  Z
-                                  {
-                                      tmpResult += matrix.m_ColValue[i][j] * x[matrix.m_ColIndex[i][j]] * alpha;
-                                  }
-
-                                  result[i] += tmpResult;
-                          }
-                      }, ap); // end parallel_for
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-// perform result=result-matrix*x
-template<class MatrixType>
-template<class VectorType>
-void BlockSparseMatrix<MatrixType>::multiply_and_subtract(const BlockSparseMatrix<MatrixType>& matrix, const Vector<VectorType>& x, Vector<VectorType>& result)
-{
-    assert(matrix.size() == static_cast<UInt>(x.size()));
-    result.resize(matrix.size());
-
-    static tbb::affinity_partitioner ap;
-    tbb::parallel_for(tbb::blocked_range<UInt>(0, matrix.size()), [&](tbb::blocked_range<UInt> r)
-                      {
-                          for(UInt i = r.begin(), iEnd = r.end(); i != iEnd; ++i)
-                          {
-                              VectorType tmpResult = result[i];
-
-                              for(UInt j = 0, jEnd = static_cast<UInt>(matrix.m_ColIndex[i].size()); j < jEnd; ++j)
-                              {
-                                  tmpResult -= matrix.m_ColValue[i][j] * x[matrix.m_ColIndex[i][j]];
-                              }
-
-                              result[i] = tmpResult;
-                          }
-                      }, ap); // end parallel_for
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-// perform mat = A + alpha*B
-template<class MatrixType>
-template<class Real>
-void BlockSparseMatrix<MatrixType>::add_scaled(const BlockSparseMatrix<MatrixType>& A, const BlockSparseMatrix<MatrixType>& B, const Real alpha, BlockSparseMatrix<MatrixType>& matrix)
-{
-    assert(A.size() == B.size());
-    assert(A.size() == matrix.size());
-
-    static tbb::affinity_partitioner ap;
-    tbb::parallel_for(tbb::blocked_range<UInt>(0, A.size()), [&](tbb::blocked_range<UInt> r)
-                      {
-                          for(UInt i = r.begin(), iEnd = r.end(); i != iEnd; ++i)
-                          {
-                              assert(A.m_ColIndex[i].size() == B.m_ColIndex[i].size());
-
-                              for(UInt j = 0, jEnd = A.m_ColIndex[i].size(); j < jEnd; ++j)
-                              {
-                                  matrix.setElement(i, A.m_ColIndex[i][j], A.m_ColValue[i][j] + B.m_ColValue[i][j] * alpha);
-                              }
-                          }
-                      }, ap); // end parallel_for
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Fixed version of SparseMatrix
 //
-template<class MatrixType>
-unsigned int FixedBlockSparseMatrix<MatrixType>::size() const noexcept
-{
-    return m_Size;
-}
-
-template<class MatrixType>
-void FixedBlockSparseMatrix<MatrixType>::resize(UInt newSize)
-{
-    m_Size = newSize;
-    m_RowStart.resize(m_Size + 1);
-}
-
-template<class MatrixType>
-void FixedBlockSparseMatrix<MatrixType>::clear(void)
-{
-    m_ColValue.resize(0);
-    m_ColIndex.resize(0);
-    m_RowStart.resize(0);
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class MatrixType>
-void FixedBlockSparseMatrix<MatrixType>::constructFromSparseMatrix(const BlockSparseMatrix<MatrixType>& matrix)
+template<Int N, class RealType>
+void FixedBlockSparseMatrix<N, RealType >::constructFromSparseMatrix(const BlockSparseMatrix<N, RealType>& matrix)
 {
     resize(matrix.size());
-    m_RowStart[0] = 0;
 
-    for(UInt i = 0; i < m_Size; ++i)
-    {
+    m_RowStart[0] = 0;
+    for(UInt i = 0; i < m_Size; ++i) {
         m_RowStart[i + 1] = m_RowStart[i] + static_cast<UInt>(matrix.getIndices(i).size());
     }
 
     m_ColValue.resize(m_RowStart[m_Size]);
     m_ColIndex.resize(m_RowStart[m_Size]);
 
-    static tbb::affinity_partitioner ap;
-    tbb::parallel_for(tbb::blocked_range<UInt>(0, matrix.size()), [&](tbb::blocked_range<UInt> r)
-                      {
-                          for(UInt i = r.begin(), iEnd = r.end(); i != iEnd; ++i)
-                          {
-                              memcpy(&m_ColIndex[m_RowStart[i]], matrix.getIndices(i).data(), matrix.getIndices(i).size() * sizeof(UInt));
-                          }
-
-                          for(UInt i = r.begin(), iEnd = r.end(); i != iEnd; ++i)
-                          {
-                              memcpy(&m_ColValue[m_RowStart[i]], matrix.getValues(i).data(), matrix.getValues(i).size() * sizeof(MatrixType));
-                          }
-                      }, ap); // end parallel_for
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class Real>
-Vec_UInt& FixedBlockSparseMatrix<Real>::getIndices(UInt row)
-{
-    assert(row < m_Size);
-    return m_ColIndex[row];
-}
-
-template<class Real>
-const Vec_UInt& FixedBlockSparseMatrix<Real>::getIndices(UInt row) const
-{
-    assert(row < m_Size);
-    return m_ColIndex[row];
-}
-
-template<class Real>
-Vec_UInt& FixedBlockSparseMatrix<Real>::getRowStarts(UInt row)
-{
-    assert(row < m_Size);
-    return m_RowStart[row];
-}
-
-template<class Real>
-const Vec_UInt& FixedBlockSparseMatrix<Real>::getRowStarts(UInt row) const
-{
-    assert(row < m_Size);
-    return m_RowStart[row];
-}
-
-template<class Real>
-Vec_Real& FixedBlockSparseMatrix<Real>::getValues(UInt row)
-{
-    assert(row < m_Size);
-    return m_ColValue[row];
-}
-
-template<class Real>
-const Vec_Real& FixedBlockSparseMatrix<Real>::getValues(UInt row) const
-{
-    assert(row < m_Size);
-    return m_ColValue[row];
+    ParallelFuncs::parallel_for(matrix.size(),
+                                [&](size_t i)
+                                {
+                                    memcpy(&m_ColIndex[m_RowStart[i]], matrix.getIndices(i).data(), matrix.getIndices(i).size() * sizeof(UInt));
+                                    memcpy(&m_ColValue[m_RowStart[i]], matrix.getValues(i).data(), matrix.getValues(i).size() * sizeof(MatXxX<N, RealType> ));
+                                });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // perform result=matrix*x
-template<class MatrixType>
-template<class VectorType>
-void FixedBlockSparseMatrix<MatrixType>::multiply(const FixedBlockSparseMatrix<MatrixType>& matrix, const Vector<VectorType>& x, Vector<VectorType>& result)
+template<Int N, class RealType>
+void FixedBlockSparseMatrix<N, RealType >::multiply(const FixedBlockSparseMatrix<N, RealType>& matrix, const Vector<VecX<N, RealType> >& x, Vector<VecX<N, RealType> >& result)
 {
     assert(matrix.size() == static_cast<UInt>(x.size()));
     result.resize(matrix.size());
 
-    static tbb::affinity_partitioner ap;
-    tbb::parallel_for(tbb::blocked_range<UInt>(0, matrix.size()), [&](tbb::blocked_range<UInt>& r)
-                      {
-                          for(UInt i = r.begin(), iEnd = r.end(); i != iEnd; ++i)
-                          {
-                              VectorType tmpResult = VectorType(0);
-
-                              for(UInt j = matrix.m_RowStart[i], jEnd = matrix.m_RowStart[i + 1]; j < jEnd; ++j)
-                              {
-                                  tmpResult += matrix.m_ColValue[j] * x[matrix.m_ColIndex[j]];
-                              }
-
-                              result[i] = tmpResult;
-                          }
-                      }, ap); // end parallel_for
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-// perform result=result-matrix*x
-template<class MatrixType>
-template<class VectorType>
-void FixedBlockSparseMatrix<MatrixType>::multiply_and_subtract(const FixedBlockSparseMatrix<MatrixType>& matrix, const Vector<VectorType>& x, Vector<VectorType>& result)
-{
-    assert(matrix.size() == static_cast<UInt>(x.size()));
-    result.resize(matrix.size());
-
-
-    static tbb::affinity_partitioner ap;
-    tbb::parallel_for(tbb::blocked_range<UInt>(0, matrix.size()), [&](tbb::blocked_range<UInt> r)
-                      {
-                          for(UInt i = r.begin(), iEnd = r.end(); i != iEnd; ++i)
-                          {
-                              VectorType tmpResult = result[i];
-
-                              for(UInt j = matrix.m_RowStart[i], jEnd = matrix.m_RowStart[i + 1]; j < jEnd; ++j)
-                              {
-                                  tmpResult -= matrix.m_ColValue[j] * x[matrix.m_ColIndex[j]];
-                              }
-
-                              result[i] = tmpResult;
-                          }
-                      }, ap); // end parallel_for
+    ParallelFuncs::parallel_for(matrix.size(),
+                                [&](size_t i)
+                                {
+                                    VecX<N, RealType> tmpResult(0);
+                                    for(UInt j = matrix.m_RowStart[i], jEnd = matrix.m_RowStart[i + 1]; j < jEnd; ++j) {
+                                        tmpResult += matrix.m_ColValue[j] * x[matrix.m_ColIndex[j]];
+                                    }
+                                    result[i] = tmpResult;
+                                });
 }

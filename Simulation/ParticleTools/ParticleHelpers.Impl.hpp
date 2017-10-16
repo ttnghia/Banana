@@ -25,8 +25,9 @@ void compress(const Vector<VecX<N, RealType> >& dvec, VecX<N, RealType>& dMin, V
                                         [&](size_t i)
                                         {
                                             const auto& vec = dvec[i];
-                                            for(int j = 0; j < N; ++j)
+                                            for(int j = 0; j < N; ++j) {
                                                 compressedData[i * N + j] = static_cast<UInt16>(std::numeric_limits<UInt16>::max() * ((vec[j] - dMin[j]) / diff[j]));
+                                            }
                                         });
 }
 
@@ -45,7 +46,7 @@ void compress(const Vector<VecX<N, RealType> >& dvec, DataBuffer& buffer, bool b
         dMaxf[i] = static_cast<float>(dMax[i]);
     }
     buffer.clearBuffer();
-    if(bWriteVectorSize) buffer.append(static_cast<UInt>(dvec.size()));
+    if(bWriteVectorSize) { buffer.append(static_cast<UInt>(dvec.size())); }
     buffer.append((const unsigned char*)glm::value_ptr(dMinf), sizeof(float) * N);
     buffer.append((const unsigned char*)glm::value_ptr(dMaxf), sizeof(float) * N);
     buffer.append((const unsigned char*)compressedData.data(), compressedData.size() * sizeof(UInt16));
@@ -64,9 +65,10 @@ void compress(const Vector<MatXxX<N, RealType> >& dvec, RealType& dMin, RealType
                                         [&](size_t i)
                                         {
                                             MatXxX<N, RealType> mat = dvec[i];
-                                            const RealType* mdata = glm::value_ptr(mat);
-                                            for(int j = 0; j < NN; ++j)
+                                            const RealType* mdata   = glm::value_ptr(mat);
+                                            for(int j = 0; j < NN; ++j) {
                                                 compressedData[i * NN + j] = static_cast<UInt16>(std::numeric_limits<UInt16>::max() * ((mdata[j] - dMin) / diff));
+                                            }
                                         });
 }
 
@@ -81,7 +83,7 @@ void compress(const Vector<MatXxX<N, RealType> >& dvec, DataBuffer& buffer, bool
     float dMinf = static_cast<float>(dMin);
     float dMaxf = static_cast<float>(dMax);
     buffer.clearBuffer();
-    if(bWriteVectorSize) buffer.append(static_cast<UInt>(dvec.size()));
+    if(bWriteVectorSize) { buffer.append(static_cast<UInt>(dvec.size())); }
     buffer.append(&dMinf, sizeof(float));
     buffer.append(&dMaxf, sizeof(float));
     buffer.append((const unsigned char*)compressedData.data(), compressedData.size() * sizeof(UInt16));
@@ -114,7 +116,7 @@ void compress(const Vector<RealType>& dvec, DataBuffer& buffer, bool bWriteVecto
     float dMinf = static_cast<float>(dMin);
     float dMaxf = static_cast<float>(dMax);
     buffer.clearBuffer();
-    if(bWriteVectorSize) buffer.append(static_cast<UInt>(dvec.size()));
+    if(bWriteVectorSize) { buffer.append(static_cast<UInt>(dvec.size())); }
     buffer.append((const unsigned char*)&dMinf, sizeof(float));
     buffer.append((const unsigned char*)&dMaxf, sizeof(float));
     buffer.append((const unsigned char*)compressedData.data(), compressedData.size() * sizeof(UInt16));
@@ -151,7 +153,7 @@ void compress(const Vector<Vector<RealType> >& dvec, DataBuffer& buffer, bool bW
     }
 
     buffer.clearBuffer();
-    if(bWriteVectorSize) buffer.append(static_cast<UInt>(dvec.size()));
+    if(bWriteVectorSize) { buffer.append(static_cast<UInt>(dvec.size())); }
     for(size_t i = 0; i < dvec.size(); ++i) {
         buffer.append(static_cast<UInt>(compressedData[i].size()));
         buffer.append((const unsigned char*)&dMinf[i], sizeof(float));
@@ -174,9 +176,10 @@ void decompress(Vector<VecX<N, RealType> >& dvec, const VecX<N, RealType>& dMin,
                                         [&](size_t i)
                                         {
                                             VecX<N, RealType> vec;
-                                            for(int j = 0; j < N; ++j)
+                                            for(int j = 0; j < N; ++j) {
                                                 vec[j] = static_cast<VecX<N, RealType>::value_type>(compressedData[i * N + j]) * diff[j] /
                                                          static_cast<VecX<N, RealType>::value_type>(std::numeric_limits<UInt16>::max()) + dMin[j];
+                                            }
                                             dvec[i] = vec;
                                         });
 }
@@ -230,9 +233,10 @@ void decompress(Vector<MatXxX<N, RealType> >& dvec, RealType dMin, RealType dMax
                                             MatXxX<N, RealType> mat;
                                             RealType* mdata = glm::value_ptr(mat);
 
-                                            for(int j = 0; j < NN; ++j)
+                                            for(int j = 0; j < NN; ++j) {
                                                 mdata[j] = static_cast<VecX<N, RealType>::value_type>(compressedData[i * NN + j]) * diff /
                                                            static_cast<VecX<N, RealType>::value_type>(std::numeric_limits<UInt16>::max()) + dMin;
+                                            }
                                             dvec[i] = mat;
                                         });
 }
@@ -362,4 +366,14 @@ void decompress(Vector<Vector<RealType> >& dvec, const DataBuffer& buffer, UInt 
     for(UInt i = 0; i < nParticles; ++i) {
         decompress(dvec[i], static_cast<RealType>(dMinf[i]), static_cast<RealType>(dMaxf[i]), compressedData[i]);
     }
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType>
+void springForceDx(const VecX<N, RealType>& eij, RealType dij, RealType d0, RealType Kspring, RealType Kdamping, MatXxX<N, RealType>& springDx, MatXxX<N, RealType>& dampingDx)
+{
+    const MatXxX<N, RealType> xijxijT = glm::outerProduct(eij, eij);
+    dampingDx = xijxijT * (-Kdamping);
+    springDx  = MatXxX<N, RealType>(1.0) * (dij / d0 - RealType(1.0)) + xijxijT;
+    springDx *= (-Kspring / dij);
 }

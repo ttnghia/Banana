@@ -51,13 +51,13 @@ struct PairHash
 namespace Sorted
 {
 template<class T>
-inline bool contain(const std::vector<T>& vec, T item)
+inline bool contain(const Vector<T>& vec, T item)
 {
     return std::binary_search(vec.begin(), vec.end(), item);
 }
 
 template<class T, class IndexType>
-inline bool contain(const std::vector<T>& vec, T item, IndexType& itemIndex)
+inline bool contain(const Vector<T>& vec, T item, IndexType& itemIndex)
 {
     auto it = std::lower_bound(vec.begin(), vec.end(), item);
     itemIndex = static_cast<IndexType>(std::distance(vec.begin(), it));
@@ -67,20 +67,20 @@ inline bool contain(const std::vector<T>& vec, T item, IndexType& itemIndex)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<typename T>
-inline void insertSorted(std::vector<T>& vec, const T& item, typename std::vector<T>::iterator& it)
+inline void insertSorted(Vector<T>& vec, const T& item, typename Vector<T>::iterator& it)
 {
     it = vec.insert(std::upper_bound(vec.begin(), vec.end(), item), item);
 }
 
 template<typename T>
-inline auto insertSorted(std::vector<T>& vec, const T& item)
+inline auto insertSorted(Vector<T>& vec, const T& item)
 {
     auto it = vec.insert(std::upper_bound(vec.begin(), vec.end(), item), item);
     return std::distance(vec.begin(), it);
 }
 
 template<typename T1, typename T2>
-inline void insertPairSorted(std::vector<T1>& vec1, const T1& item1, std::vector<T2>& vec2, const T2& item2)
+inline void insertPairSorted(Vector<T1>& vec1, const T1& item1, Vector<T2>& vec2, const T2& item2)
 {
     auto k = STLHelpers::Sorted::insertSorted(vec1, item1);
     vec2.insert(vec2.begin() + k, item2);
@@ -88,12 +88,11 @@ inline void insertPairSorted(std::vector<T1>& vec1, const T1& item1, std::vector
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<typename T>
-inline bool eraseIfExist(std::vector<T>& vec, const T& item)
+inline bool eraseIfExist(Vector<T>& vec, const T& item)
 {
     auto it = std::lower_bound(vec.begin(), vec.end(), item);
 
-    if(it != vec.end() && item == *it)     // has item
-    {
+    if(it != vec.end() && item == *it) {   // has item
         vec.erase(it);
         return true;
     }
@@ -102,13 +101,12 @@ inline bool eraseIfExist(std::vector<T>& vec, const T& item)
 }
 
 template<typename T>
-inline bool eraseIfExist(std::vector<T>& vec, const T& item, size_t& itemIndex)
+inline bool eraseIfExist(Vector<T>& vec, const T& item, size_t& itemIndex)
 {
     auto it = std::lower_bound(vec.begin(), vec.end(), item);
     itemIndex = static_cast<size_t>(std::distance(vec.begin(), it));
 
-    if(it != vec.end() && item == *it)     // has item
-    {
+    if(it != vec.end() && item == *it) {   // has item
         vec.erase(it);
         return true;
     }
@@ -117,12 +115,11 @@ inline bool eraseIfExist(std::vector<T>& vec, const T& item, size_t& itemIndex)
 }
 
 template<class T>
-inline bool eraseUnorderedIfExist(std::vector<T>& vec, const T& item)
+inline bool eraseUnorderedIfExist(Vector<T>& vec, const T& item)
 {
     size_t k = 0;
 
-    if(STLHelpers::Sorted::contain(vec, item, k))
-    {
+    if(STLHelpers::Sorted::contain(vec, item, k)) {
         STLHelpers::eraseUnordered(vec, k);
         return true;
     }
@@ -132,12 +129,11 @@ inline bool eraseUnorderedIfExist(std::vector<T>& vec, const T& item)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class T>
-inline bool replaceOnce(std::vector<T>& vec, const T& oldElement, const T& newElement)
+inline bool replaceOnce(Vector<T>& vec, const T& oldElement, const T& newElement)
 {
     size_t k = 0;
 
-    if(STLHelpers::Sorted::contain(vec, oldElement, k))
-    {
+    if(STLHelpers::Sorted::contain(vec, oldElement, k)) {
         vec[k] = newElement;
         return true;
     }
@@ -149,15 +145,13 @@ inline bool replaceOnce(std::vector<T>& vec, const T& oldElement, const T& newEl
 }       // end namespace Sorted
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class T>
-T maxAbs(const std::vector<T>& vec)
+T maxAbs(const Vector<T>& vec)
 {
     T maxVal = 0;
 
-    for(T x : vec)
-    {
+    for(T x : vec) {
         const T tmp = std::fabs(x);
-        if(tmp > maxVal)
-        {
+        if(tmp > maxVal) {
             maxVal = tmp;
         }
     }
@@ -174,12 +168,10 @@ inline bool hasKey(const MapType& map, KeyType key)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class T>
-inline bool contain(const std::vector<T>& vec, T item)
+inline bool contain(const Vector<T>& vec, T item)
 {
-    for(T x : vec)
-    {
-        if(x == item)
-        {
+    for(T x : vec) {
+        if(x == item) {
             return true;
         }
     }
@@ -187,12 +179,10 @@ inline bool contain(const std::vector<T>& vec, T item)
 }
 
 template<class T>
-inline bool contain(const std::vector<T>& vec, T item, size_t& itemIndex)
+inline bool contain(const Vector<T>& vec, T item, size_t& itemIndex)
 {
-    for(size_t i = 0; i < vec.size(); ++i)
-    {
-        if(vec[i] == item)
-        {
+    for(size_t i = 0; i < vec.size(); ++i) {
+        if(vec[i] == item) {
             itemIndex = i;
             return true;
         }
@@ -204,12 +194,10 @@ inline bool contain(const std::vector<T>& vec, T item, size_t& itemIndex)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<typename T>
-inline bool eraseIfExist(std::vector<T>& vec, const T& item)
+inline bool eraseIfExist(Vector<T>& vec, const T& item)
 {
-    for(auto it = vec.begin(); it != vec.end(); ++it)
-    {
-        if(*it == item) // has item
-        {
+    for(auto it = vec.begin(); it != vec.end(); ++it) {
+        if(*it == item) { // has item
             vec.erase(it);
             return true;
         }
@@ -219,12 +207,10 @@ inline bool eraseIfExist(std::vector<T>& vec, const T& item)
 }
 
 template<typename T>
-inline bool eraseIfExist(std::vector<T>& vec, const T& item, size_t& itemIndex)
+inline bool eraseIfExist(Vector<T>& vec, const T& item, size_t& itemIndex)
 {
-    for(auto it = vec.begin(); it != vec.end(); ++it)
-    {
-        if(*it == item) // has item
-        {
+    for(auto it = vec.begin(); it != vec.end(); ++it) {
+        if(*it == item) { // has item
             itemIndex = static_cast<size_t>(std::distance(vec.begin(), it));
             vec.erase(it);
             return true;
@@ -236,19 +222,18 @@ inline bool eraseIfExist(std::vector<T>& vec, const T& item, size_t& itemIndex)
 }
 
 template<class T>
-inline void eraseUnordered(std::vector<T>& vec, size_t index)
+inline void eraseUnordered(Vector<T>& vec, size_t index)
 {
     vec[index] = vec.back();
     vec.pop_back();
 }
 
 template<class T>
-inline bool eraseUnorderedIfExist(std::vector<T>& vec, const T& item)
+inline bool eraseUnorderedIfExist(Vector<T>& vec, const T& item)
 {
     size_t k = 0;
 
-    if(STLHelpers::contain(vec, item, k))
-    {
+    if(STLHelpers::contain(vec, item, k)) {
         STLHelpers::eraseUnordered(vec, k);
         return true;
     }
@@ -258,12 +243,11 @@ inline bool eraseUnorderedIfExist(std::vector<T>& vec, const T& item)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class T>
-inline bool replaceOnce(std::vector<T>& vec, const T& oldElement, const T& newElement)
+inline bool replaceOnce(Vector<T>& vec, const T& oldElement, const T& newElement)
 {
     size_t k = 0;
 
-    if(STLHelpers::contain(vec, oldElement, k))
-    {
+    if(STLHelpers::contain(vec, oldElement, k)) {
         vec[k] = newElement;
         return true;
     }
@@ -272,15 +256,13 @@ inline bool replaceOnce(std::vector<T>& vec, const T& oldElement, const T& newEl
 }
 
 template<class T>
-inline size_t replaceAll(std::vector<T>& vec, const T& oldElement, const T& newElement)
+inline size_t replaceAll(Vector<T>& vec, const T& oldElement, const T& newElement)
 {
     size_t k           = 0;
     size_t numReplaced = 0;
 
-    for(size_t i = 0; i < vec.size(); ++i)
-    {
-        if(vec[i] == oldElement)
-        {
+    for(size_t i = 0; i < vec.size(); ++i) {
+        if(vec[i] == oldElement) {
             vec[i] = newElement;
             ++numReplaced;
         }
@@ -291,21 +273,19 @@ inline size_t replaceAll(std::vector<T>& vec, const T& oldElement, const T& newE
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class T>
-void writeMatlab(std::ostream& output, const std::vector<T>& vec, const char* variableName, bool bColumnVector = true, int precision = 18)
+void writeMatlab(std::ostream& output, const Vector<T>& vec, const char* variableName, bool bColumnVector = true, int precision = 18)
 {
     std::streamsize oldPrecision = output.precision();
     output.precision(precision);
 
     output << variableName << "=[";
-    for(T item: vec)
-    {
+    for(T item: vec) {
         output << item << " ";
     }
 
     output << "]";
 
-    if(bColumnVector)
-    {
+    if(bColumnVector) {
         output << "'";
     }
 

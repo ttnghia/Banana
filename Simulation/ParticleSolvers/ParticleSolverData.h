@@ -48,6 +48,7 @@ static const Real DefaultCGRelativeTolerance = Real(1e-15);
 
 static const Real Default_PIC_FLIP_Ratio = Real(0.97);
 enum class InterpolationKernels { Linear, CubicBSpline, GIMP, Swirly };
+enum class IntegrationScheme { ExplicitVerlet, ExplicitEuler, ImplicitEuler, NewmarkBeta };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace ParticleSolverConstants

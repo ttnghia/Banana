@@ -69,15 +69,15 @@ void ParticleSerialization::clearData()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void ParticleSerialization::flush(Int fileID)
+void ParticleSerialization::flushAsync(Int fileID)
 {
     __BNN_ASSERT(m_DataIO != nullptr);
     m_DataIO->createOutputFolders();
-    flush(m_DataIO->getFilePath(fileID));
+    flushAsync(m_DataIO->getFilePath(fileID));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void ParticleSerialization::flush(const String& fileName)
+void ParticleSerialization::flushAsync(const String& fileName)
 {
     __BNN_ASSERT(m_nParticles > 0 && m_FixedAttributes.size() > 0 && m_ParticleAttributes.size() > 0);
     if(m_Logger != nullptr) {

@@ -14,111 +14,73 @@
 //
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class MatrixType, class VectorType, class Real>
-void BlockPCGSolver<MatrixType, VectorType, Real>::setSolverParameters(Real toleranceFactor, UInt maxIterations)
-{
-    m_ToleranceFactor = fmax(toleranceFactor, 1e-30);
-    m_MaxIterations   = maxIterations;
-}
-
-template<class MatrixType, class VectorType, class Real>
-void BlockPCGSolver<MatrixType, VectorType, Real>::setZeroInitial(bool bZeroInitial)
-{
-    m_bZeroInitial = bZeroInitial;
-}
-
-template<class MatrixType, class VectorType, class Real>
-void BlockPCGSolver<MatrixType, VectorType, Real>::enableZeroInitial()
-{
-    m_bZeroInitial = true;
-}
-
-template<class MatrixType, class VectorType, class Real>
-void BlockPCGSolver<MatrixType, VectorType, Real>::disableZeroInitial()
-{
-    m_bZeroInitial = false;
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class MatrixType, class VectorType, class Real>
-bool BlockPCGSolver<MatrixType, VectorType, Real>::solve(const BlockSparseMatrix<MatrixType>& matrix, const std::vector<VectorType>& rhs, std::vector<VectorType>& result)
+template<Int N, class RealType>
+bool BlockPCGSolver<N, RealType >::solve(const BlockSparseMatrix<N, RealType>& matrix, const Vec_VecX<N, RealType>& rhs, Vec_VecX<N, RealType>& result)
 {
     const UInt n = matrix.size();
-
-    if(z.size() != n)
-    {
+    if(z.size() != n) {
         s.resize(n);
         z.resize(n);
         r.resize(n);
     }
 
-// zero out the result
-    if(m_bZeroInitial)
-    {
-        for(auto vec& : result)
-        {
-            vec = VectorType(0);
+    if(m_bZeroInitial) {
+        for(size_t i = 0; i < result.size(); ++i) {
+            result[i] = VecX<N, RealType>(0);
         }
     }
 
     m_FixedSparseMatrix.constructFromSparseMatrix(matrix);
     r = rhs;
 
-    m_OutResidual = ParallelBLAS::maxAbs<Real, VectorType>(r);
+    m_OutResidual = ParallelSTL::maxAbs<N, RealType>(r);
 
-    if(m_OutResidual < 1e-20)
-    {
+    if(m_OutResidual < m_ToleranceFactor) {
         m_OutIterations = 0;
         return true;
     }
 
-    Real tol = m_ToleranceFactor * m_OutResidual;
-    Real rho = ParallelBLAS::dotProduct<Real, VectorType>(r, r);
+    RealType tol = m_ToleranceFactor * m_OutResidual;
+    RealType rho = ParallelBLAS::dotProduct<N, RealType>(r, r);
 
-    if(fabs(rho) < 1e-20 || isnan(rho))
-    {
+    if(fabs(rho) < 1e-20 || isnan(rho)) {
         m_OutIterations = 0;
         return true;
     }
 
     z = r;
 
-    for(UInt iteration = 0; iteration < m_MaxIterations; ++iteration)
-    {
-        multiply<MatrixType, VectorType>(m_FixedSparseMatrix, z, s);
-        Real tmp = ParallelBLAS::dotProduct<Real, VectorType>(s, z);
+    for(UInt iteration = 0; iteration < m_MaxIterations; ++iteration) {
+        FixedBlockSparseMatrix<N, RealType>::multiply(m_FixedSparseMatrix, z, s);
+        RealType tmp = ParallelBLAS::dotProduct<N, RealType>(s, z);
 
-        if(fabs(tmp) < 1e-20 || isnan(tmp))
-        {
+        if(fabs(tmp) < 1e-20 || isnan(tmp)) {
             m_OutIterations = iteration;
             return true;
         }
 
-        Real alpha = rho / tmp;
+        RealType alpha = rho / tmp;
 
         tbb::parallel_invoke(
             [&]
         {
-            ParallelBLAS::addScaled<Real, VectorType>(alpha, z, result);
+            ParallelBLAS::addScaled(alpha, z, result);
         },
             [&]
         {
-            ParallelBLAS::addScaled<Real, VectorType>(-alpha, s, r);
+            ParallelBLAS::addScaled(-alpha, s, r);
         });
 
-        m_OutResidual = ParallelBLAS::maxAbs<Real, VectorType>(r);
+        m_OutResidual = ParallelSTL::maxAbs<N, RealType>(r);
 
-        if(m_OutResidual < tol)
-        {
+        if(m_OutResidual < tol) {
             m_OutIterations = iteration + 1;
             return true;
         }
 
-        Real rho_new = ParallelBLAS::dotProduct<Real, VectorType>(r, r);
-        Real beta    = rho_new / rho;
-        ParallelBLAS::scaledAdd<Real, VectorType>(beta, r, z);
+        RealType rho_new = ParallelBLAS::dotProduct<N, RealType>(r, r);
+        RealType beta    = rho_new / rho;
+        ParallelBLAS::scaledAdd(beta, r, z);
         rho = rho_new;
     }
 
@@ -127,84 +89,77 @@ bool BlockPCGSolver<MatrixType, VectorType, Real>::solve(const BlockSparseMatrix
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class MatrixType, class VectorType, class Real>
-bool BlockPCGSolver<MatrixType, VectorType, Real>::solve_precond(const BlockSparseMatrix<MatrixType>& matrix, const std::vector<VectorType>& rhs, std::vector<VectorType>& result)
+template<Int N, class RealType>
+bool BlockPCGSolver<N, RealType >::solve_precond(const BlockSparseMatrix<N, RealType>& matrix, const Vec_VecX<N, RealType>& rhs, Vec_VecX<N, RealType>& result)
 {
     UInt n = matrix.size();
 
-    if(z.size() != n)
-    {
+    if(z.size() != n) {
         s.resize(n);
         z.resize(n);
         r.resize(n);
     }
 
-// zero out the result
-    if(m_bZeroInitial)
-    {
-        for(size_t i = 0; i < result.size(); ++i)
-        {
-            result[i] = VectorType(0);
+    // zero out the result
+    if(m_bZeroInitial) {
+        for(size_t i = 0; i < result.size(); ++i) {
+            result[i] = VecX<N, RealType>(0);
         }
     }
 
     m_FixedSparseMatrix.constructFromSparseMatrix(matrix);
     r = rhs;
 
-    multiply(m_FixedSparseMatrix, result, s);
-    ParallelBLAS::addScaled<Real, VectorType>(-1.0, s, r);
+    FixedBlockSparseMatrix<3, RealType>::multiply(m_FixedSparseMatrix, result, s);
+    ParallelBLAS::addScaled(RealType(-1.0), s, r);
 
-    m_OutResidual = ParallelBLAS::maxAbs<Real, VectorType>(r);
+    m_OutResidual = ParallelSTL::maxAbs<N, RealType>(r);
 
-    if(fabs(m_OutResidual) < 1e-20)
-    {
+    if(m_OutResidual < m_ToleranceFactor) {
         m_OutIterations = 0;
         return true;
     }
 
-    Real tol = m_ToleranceFactor * m_OutResidual;
+    RealType tol = m_ToleranceFactor * m_OutResidual;
 
     formPreconditioner(matrix);
     applyPreconditioner(r, z);
 
-    Real rho = ParallelBLAS::dotProduct<Real, VectorType>(z, r);
+    RealType rho = ParallelBLAS::dotProduct<N, RealType>(z, r);
 
-    if(fabs(rho) < 1e-20 || isnan(rho))
-    {
+    if(fabs(rho) < 1e-20 || isnan(rho)) {
         m_OutIterations = 0;
         return true;
     }
 
     s = z;
 
-    for(UInt iteration = 0; iteration < m_MaxIterations; ++iteration)
-    {
-        multiply(m_FixedSparseMatrix, s, z);
-        Real alpha = rho / ParallelBLAS::dotProduct<Real, VectorType>(s, z);
+    for(UInt iteration = 0; iteration < m_MaxIterations; ++iteration) {
+        FixedBlockSparseMatrix<N, RealType>::multiply(m_FixedSparseMatrix, s, z);
+        RealType alpha = rho / ParallelBLAS::dotProduct<N, RealType>(s, z);
         tbb::parallel_invoke(
             [&]
         {
-            ParallelBLAS::addScaled<Real, VectorType>(alpha, s, result);
+            ParallelBLAS::addScaled(alpha, s, result);
         },
             [&]
         {
-            ParallelBLAS::addScaled<Real, VectorType>(-alpha, z, r);
+            ParallelBLAS::addScaled(-alpha, z, r);
         });
 
-        m_OutResidual = ParallelBLAS::maxAbs<Real, VectorType>(r);
+        m_OutResidual = ParallelSTL::maxAbs<N, RealType>(r);
 
-        if(m_OutResidual < tol)
-        {
+        if(m_OutResidual < tol) {
             m_OutIterations = iteration + 1;
             return true;
         }
 
         applyPreconditioner(r, z);
 
-        Real rho_new = ParallelBLAS::dotProduct<Real, VectorType>(z, r);
-        Real beta    = rho_new / rho;
-        ParallelBLAS::addScaled<Real, VectorType>(beta, s, z);
-        s.swap(z);     // s=beta*s+z
+        RealType rho_new = ParallelBLAS::dotProduct<N, RealType>(z, r);
+        RealType beta    = rho_new / rho;
+        ParallelBLAS::addScaled(beta, s, z);
+        s.swap(z);             // s=beta*s+z
         rho = rho_new;
     }
 
@@ -213,33 +168,22 @@ bool BlockPCGSolver<MatrixType, VectorType, Real>::solve_precond(const BlockSpar
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class MatrixType, class VectorType, class Real>
-void BlockPCGSolver<MatrixType, VectorType, Real>::formPreconditioner(const BlockSparseMatrix<MatrixType>& matrix)
+template<Int N, class RealType>
+void BlockPCGSolver<N, RealType >::formPreconditioner(const BlockSparseMatrix<N, RealType>& matrix)
 {
     m_JacobiPreconditioner.resize(matrix.size());
-
-    static tbb::affinity_partitioner ap;
-    tbb::parallel_for(tbb::blocked_range<UInt>(0, matrix.size()), [&](tbb::blocked_range<UInt> r)
-                      {
-                          for(size_t i = r.begin(), iEnd = r.end(); i != iEnd; ++i)
-                          {
-                              auto& v = matrix.getIndices(i);
-                              auto it = std::lower_bound(v.begin(), v.end(), i);
-                              m_JacobiPreconditioner[i] = (it != v.end()) ? glm::inverse(matrix.getValues(i)[std::distance(v.begin(), it)]) : MatrixType(0);
-                          }
-                      }, ap); // end parallel_for
+    ParallelFuncs::parallel_for(matrix.size(),
+                                [&](UInt i)
+                                {
+                                    auto& v = matrix.getIndices(i);
+                                    auto it = std::lower_bound(v.begin(), v.end(), i);
+                                    m_JacobiPreconditioner[i] = (it != v.end()) ? glm::inverse(matrix.getValues(i)[std::distance(v.begin(), it)]) : MatXxX<N, RealType>(0);
+                                });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class MatrixType, class VectorType, class Real>
-void BlockPCGSolver<MatrixType, VectorType, Real>::applyPreconditioner(const std::vector<VectorType>& x, std::vector<VectorType>& result)
+template<Int N, class RealType>
+void BlockPCGSolver<N, RealType >::applyPreconditioner(const Vec_VecX<N, RealType>& x, Vec_VecX<N, RealType>& result)
 {
-    static tbb::affinity_partitioner ap;
-    tbb::parallel_for(tbb::blocked_range<size_t>(0, x.size()), [&](tbb::blocked_range<UInt> r)
-                      {
-                          for(size_t i = r.begin(), iEnd = r.end(); i != iEnd; ++i)
-                          {
-                              result[i] = m_JacobiPreconditioner[i] * x[i];
-                          }
-                      }, ap); // end parallel_for
+    ParallelFuncs::parallel_for(x.size(), [&](size_t i) { result[i] = m_JacobiPreconditioner[i] * x[i]; });
 }

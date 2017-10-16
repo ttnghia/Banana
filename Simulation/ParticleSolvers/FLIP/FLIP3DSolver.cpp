@@ -42,13 +42,9 @@ void FLIP3DSolver::makeReady()
                                }
 
                                m_Grid.setGrid(m_SimParams->domainBMin, m_SimParams->domainBMax, m_SimParams->cellSize);
-                               m_SimData->makeReady(m_Grid.getNCells()[0], m_Grid.getNCells()[1], m_Grid.getNCells()[2]);
 
                                m_PCGSolver.setSolverParameters(m_SimParams->CGRelativeTolerance, m_SimParams->maxCGIteration);
                                m_PCGSolver.setPreconditioners(PCGSolver::MICCL0_SYMMETRIC);
-
-                               m_NSearch = std::make_unique<NeighborSearch::NeighborSearch3D>(m_SimParams->cellSize);
-                               m_NSearch->add_point_set(glm::value_ptr(particleData().positions.front()), m_SimData->getNParticles(), true, true);
 
                                for(auto& obj : m_BoundaryObjects) {
                                    obj->margin() = m_SimParams->particleRadius;
@@ -77,6 +73,11 @@ void FLIP3DSolver::makeReady()
                                if(m_GlobalParams->bLoadMemoryState) {
                                    loadMemoryState();
                                }
+                               m_SimData->makeReady(m_Grid.getNCells()[0], m_Grid.getNCells()[1], m_Grid.getNCells()[2]);
+
+                               m_NSearch = std::make_unique<NeighborSearch::NeighborSearch3D>(m_SimParams->cellSize);
+                               m_NSearch->add_point_set(glm::value_ptr(particleData().positions.front()), m_SimData->getNParticles(), true, true);
+
                                sortParticles();
                            });
 
@@ -244,7 +245,7 @@ void FLIP3DSolver::saveMemoryState()
     m_MemoryStateIO->setFixedAttribute("particle_radius", m_SimParams->particleRadius);
     m_MemoryStateIO->setParticleAttribute("position", particleData().positions);
     m_MemoryStateIO->setParticleAttribute("velocity", particleData().velocities);
-    m_MemoryStateIO->flush(m_GlobalParams->finishedFrame);
+    m_MemoryStateIO->flushAsync(m_GlobalParams->finishedFrame);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -270,7 +271,7 @@ void FLIP3DSolver::saveParticleData()
     if(m_GlobalParams->isSavingData("velocity")) {
         m_ParticleIO->setParticleAttribute("velocity", particleData().velocities);
     }
-    m_ParticleIO->flush(m_GlobalParams->finishedFrame);
+    m_ParticleIO->flushAsync(m_GlobalParams->finishedFrame);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -279,7 +280,6 @@ Real FLIP3DSolver::computeCFLTimestep()
     Real maxVel = MathHelpers::max(ParallelSTL::maxAbs(gridData().u.data()),
                                    ParallelSTL::maxAbs(gridData().v.data()),
                                    ParallelSTL::maxAbs(gridData().w.data()));
-
     return maxVel > Tiny ? (m_Grid.getCellSize() / maxVel * m_SimParams->CFLFactor) : m_SimParams->maxTimestep;
 }
 

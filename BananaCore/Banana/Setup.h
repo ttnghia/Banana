@@ -108,6 +108,12 @@ template<class Type> using Mat4x4 = glm::mat<4, 4, Type>;
 template<int N, class Type> using VecX   = glm::vec<N, Type>;
 template<int N, class Type> using MatXxX = glm::mat<N, N, Type>;
 
+template<int N, class Type> using Vec_VecX   = Vector<VecX<N, Type> >;
+template<int N, class Type> using Vec_MatXxX = Vector<MatXxX<N, Type> >;
+
+template<int N, class Type> using Vec_VecVecX   = Vector<Vector<VecX<N, Type> > >;
+template<int N, class Type> using Vec_VecMatXxX = Vector<Vector<MatXxX<N, Type> > >;
+
 ////////////////////////////////////////////////////////////////////////////////
 template<class Type> using Vec_Vec    = Vector<Vector<Type> >;
 template<class Type> using Vec_Vec2   = Vector<Vec2<Type> >;

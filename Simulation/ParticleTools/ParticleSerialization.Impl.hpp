@@ -318,7 +318,7 @@ void Banana::ParticleSerialization::saveParticle(const String& fileName, const V
     particleWriter.setNParticles(static_cast<UInt>(positions.size()));
     particleWriter.setFixedAttribute("particle_radius", particleRadius);
     particleWriter.setParticleAttribute("position", positions);
-    particleWriter.flush(fileName);
+    particleWriter.flushAsync(fileName);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

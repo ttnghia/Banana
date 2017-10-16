@@ -229,7 +229,7 @@ void ClothSolver::saveMemoryState()
     m_MemoryStateIO->setFixedAttribute("particle_radius", m_SimParams->particleRadius);
     m_MemoryStateIO->setParticleAttribute("position", particleData().positions);
     m_MemoryStateIO->setParticleAttribute("velocity", particleData().velocities);
-    m_MemoryStateIO->flush(m_GlobalParams->finishedFrame);
+    m_MemoryStateIO->flushAsync(m_GlobalParams->finishedFrame);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -244,7 +244,7 @@ void ClothSolver::saveParticleData()
     m_ParticleIO->setFixedAttribute("particle_radius", static_cast<float>(m_SimParams->particleRadius));
     m_ParticleIO->setParticleAttribute("position", particleData().positions);
     m_ParticleIO->setParticleAttribute("velocity", particleData().velocities);
-    m_ParticleIO->flush(m_GlobalParams->finishedFrame);
+    m_ParticleIO->flushAsync(m_GlobalParams->finishedFrame);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

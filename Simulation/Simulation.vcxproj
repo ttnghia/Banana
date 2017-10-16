@@ -172,7 +172,6 @@
     <ClInclude Include="ParticleSolvers\SPH\PCISPH\PCISPHSolver.h" />
     <ClInclude Include="ParticleSolvers\SPH\PCISPH\PCISPHSolver.Impl.hpp" />
     <ClInclude Include="ParticleSolvers\Peridynamics\PeridynamicsSolver.h" />
-    <ClInclude Include="ParticleSolvers\Peridynamics\PeridynamicsSolver.Impl.hpp" />
     <ClInclude Include="ParticleSolvers\SPH\WCSPH\WCSPHSolver.h" />
     <ClInclude Include="ParticleTools\BlueNoiseRelaxation\LloydRelaxation.h" />
     <ClInclude Include="ParticleTools\BlueNoiseRelaxation\SPHBasedRelaxation.Impl.hpp" />
@@ -195,6 +194,7 @@
     <ClCompile Include="ParticleSolvers\FLIP\FLIP2DSolver.cpp" />
     <ClCompile Include="ParticleSolvers\FLIP\FLIP3DSolver.cpp" />
     <ClCompile Include="ParticleSolvers\MPM\MPM2DSolver.cpp" />
+    <ClCompile Include="ParticleSolvers\Peridynamics\PeridynamicsSolver.cpp" />
     <ClCompile Include="ParticleSolvers\SceneLoader.cpp" />
     <ClCompile Include="ParticleSolvers\SPH\WCSPH\WCSPHSolver.cpp" />
     <ClCompile Include="ParticleTools\ParticleHelpers.cpp" />

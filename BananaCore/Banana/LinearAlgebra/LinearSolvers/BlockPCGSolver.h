@@ -24,41 +24,41 @@
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class MatrixType, class VectorType, class Real>
+template<Int N, class RealType>
 class BlockPCGSolver
 {
 public:
     BlockPCGSolver() = default;
 
-    Real tolerance() const noexcept { return m_OutResidual; }
-    UInt iterations() const noexcept { return m_OutIterations; }
+    RealType residual() const noexcept { return m_OutResidual; }
+    UInt     iterations() const noexcept { return m_OutIterations; }
 
     ////////////////////////////////////////////////////////////////////////////////
-    void setSolverParameters(Real toleranceFactor, UInt maxIterations);
-    void setZeroInitial(bool bZeroInitial);
-    void enableZeroInitial();
-    void disableZeroInitial();
+    void setSolverParameters(RealType toleranceFactor, UInt maxIterations) { m_ToleranceFactor = toleranceFactor; m_MaxIterations = maxIterations; }
+    void setZeroInitial(bool bZeroInitial) { m_bZeroInitial = bZeroInitial; }
+    void enableZeroInitial() { m_bZeroInitial = true; }
+    void disableZeroInitial() { m_bZeroInitial = false; }
 
-    bool solve(const BlockSparseMatrix<MatrixType>& matrix, const std::vector<VectorType>& rhs, std::vector<VectorType>& result);
-    bool solve_precond(const BlockSparseMatrix<MatrixType>& matrix, const std::vector<VectorType>& rhs, std::vector<VectorType>& result);
+    bool solve(const BlockSparseMatrix<N, RealType>& matrix, const Vec_VecX<N, RealType>& rhs, Vec_VecX<N, RealType>& result);
+    bool solve_precond(const BlockSparseMatrix<N, RealType>& matrix, const Vec_VecX<N, RealType>& rhs, Vec_VecX<N, RealType>& result);
 
 private:
-    void formPreconditioner(const BlockSparseMatrix<MatrixType>& matrix);
-    void applyPreconditioner(const std::vector<VectorType>& x, std::vector<VectorType>& result);
+    void formPreconditioner(const BlockSparseMatrix<N, RealType>& matrix);
+    void applyPreconditioner(const Vec_VecX<N, RealType>& x, Vec_VecX<N, RealType>& result);
 
-    std::vector<VectorType>            z, s, r;
-    std::vector<MatrixType>            m_JacobiPreconditioner;
-    FixedBlockSparseMatrix<MatrixType> m_FixedSparseMatrix;
+    ////////////////////////////////////////////////////////////////////////////////
+    Vec_VecX<N, RealType>               z, s, r;
+    Vector<MatXxX<N, RealType> >        m_JacobiPreconditioner;
+    FixedBlockSparseMatrix<N, RealType> m_FixedSparseMatrix;
 
-    // parameters
-    Real m_ToleranceFactor = 1e-20;
-    UInt m_MaxIterations   = 10000;
-    bool m_bZeroInitial    = true;
+    RealType m_ToleranceFactor = RealType(1e-20);
+    UInt     m_MaxIterations   = 10000u;
+    bool     m_bZeroInitial    = true;
 
     ////////////////////////////////////////////////////////////////////////////////
     // output
-    Real m_OutResidual   = 0;
-    Real m_OutIterations = 0;
+    RealType m_OutResidual   = 0;
+    RealType m_OutIterations = 0;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
