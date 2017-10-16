@@ -45,9 +45,9 @@ public:
 protected:
     virtual void loadSimParams(const nlohmann::json& jParams) override;
     virtual void setupDataIO() override;
-    virtual void loadMemoryState() override;
+    virtual bool loadMemoryState() override;
     virtual void saveMemoryState() override;
-    virtual void saveParticleData() override;
+    virtual void saveFrameData() override;
 
 protected:
     Real computeCFLTimestep();

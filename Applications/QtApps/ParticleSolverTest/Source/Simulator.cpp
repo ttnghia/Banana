@@ -135,9 +135,6 @@ void Simulator::changeScene(const QString& scene)
     m_ParticleSolver->loadScene(sceneFile.toStdString());
 
 
-    emit boxChanged(m_ParticleSolver->getSolverParams()->movingBMin, m_ParticleSolver->getSolverParams()->movingBMax);
-
-
     auto&       particles = m_ParticleSolver->getParticlePositions();
     Vec3<float> center(0.0f, -0.25f, 0.0f);
     float       radius  = 0.5f;

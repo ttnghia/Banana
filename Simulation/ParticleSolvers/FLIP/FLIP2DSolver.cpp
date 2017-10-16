@@ -109,7 +109,7 @@ void FLIP2DSolver::advanceFrame()
 
     ////////////////////////////////////////////////////////////////////////////////
     ++m_GlobalParams->finishedFrame;
-    saveParticleData();
+    saveFrameData();
     saveMemoryState();
 }
 
@@ -167,21 +167,21 @@ void FLIP2DSolver::setupDataIO()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FLIP2DSolver::loadMemoryState()
+bool FLIP2DSolver::loadMemoryState()
 {
     if(!m_GlobalParams->bLoadMemoryState) {
-        return;
+        return false;
     }
 
     ////////////////////////////////////////////////////////////////////////////////
     int latestStateIdx = m_MemoryStateIO->getLatestFileIndex(m_GlobalParams->finalFrame);
     if(latestStateIdx < 0) {
-        return;
+        return false;
     }
 
     if(!m_MemoryStateIO->read(latestStateIdx)) {
         m_Logger->printError("Cannot read latest memory state file!");
-        return;
+        return false;
     }
 
     Real particleRadius;
@@ -191,6 +191,7 @@ void FLIP2DSolver::loadMemoryState()
     //__BNN_ASSERT(m_MemoryStateIO->getParticleAttribute("position", particleData().positions));
     //__BNN_ASSERT(m_MemoryStateIO->getParticleAttribute("velocity", particleData().velocities));
     //assert(particleData().velocities.size() == particleData().positions.size());
+    return true;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -219,9 +220,9 @@ void FLIP2DSolver::saveMemoryState()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FLIP2DSolver::saveParticleData()
+void FLIP2DSolver::saveFrameData()
 {
-    if(!m_GlobalParams->bSaveParticleData) {
+    if(!m_GlobalParams->bSaveFrameData) {
         return;
     }
 

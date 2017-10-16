@@ -52,7 +52,7 @@ void loadGlobalParams(const nlohmann::json& jParams, const UniquePtr<ParticleSol
     JSONHelpers::readValue(jParams, globalParams->sortFrequency, "SortFrequency");
 
     JSONHelpers::readBool(jParams, globalParams->bLoadMemoryState, "LoadMemoryState");
-    JSONHelpers::readBool(jParams, globalParams->bSaveParticleData, "SaveParticleData");
+    JSONHelpers::readBool(jParams, globalParams->bSaveFrameData, "SaveFrameData");
     JSONHelpers::readBool(jParams, globalParams->bSaveMemoryState, "SaveMemoryState");
     JSONHelpers::readBool(jParams, globalParams->bPrintLog2File, "PrintLogToFile");
     JSONHelpers::readValue(jParams, globalParams->framePerState, "FramePerState");

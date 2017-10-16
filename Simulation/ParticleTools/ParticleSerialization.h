@@ -122,7 +122,7 @@ public:
 
     void addFixedAtribute(const String& attrName, DataType type, ElementSize size, Int count = 1)
     {
-        __BNN_ASSERT(type == TypeInt || type == TypeReal);
+        __BNN_ASSERT(type == TypeChar || type == TypeInt || type == TypeUInt || type == TypeReal);
         m_FixedAttributes[attrName] = std::make_shared<Attribute>(attrName, type, size, count);
     }
 

@@ -36,7 +36,7 @@ public:
     ////////////////////////////////////////////////////////////////////////////////
     virtual void makeReady() override;
     virtual void advanceFrame() override;
-    virtual void saveParticleData() override;
+    virtual void saveFrameData() override;
     virtual void saveMemoryState() override;
 
     virtual std::string getSolverName() override { return std::string("MPMSolver"); }

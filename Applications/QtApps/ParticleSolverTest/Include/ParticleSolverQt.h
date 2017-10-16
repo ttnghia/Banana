@@ -20,8 +20,8 @@
 #include "Common.h"
 
 #include <ParticleSolvers/SPH/WCSPH/WCSPHSolver.h>
-#include <ParticleSolvers/FLIP/FLIP2DSolver.h>
 #include <ParticleSolvers/FLIP/FLIP3DSolver.h>
+#include <ParticleSolvers/MPM/MPM2DSolver.h>
 #include <ParticleSolvers/Peridynamics/PeridynamicsSolver.h>
 
 //#define PARTICLE_SOLVER WCSPHSolver
@@ -35,6 +35,11 @@ public:
     void doSimulationFrame(UInt frame);
     void endSimulation();
 
+#if 1
     Vec_Vec3f& getParticlePositions() { return particleData().positions; }
     UInt       getNParticles() { return static_cast<UInt>(particleData().positions.size()); }
+#else
+    Vec_Vec3f& getParticlePositions() { return m_SimData->positions; }
+    UInt       getNParticles() { return m_SimData->getNParticles(); }
+#endif
 };

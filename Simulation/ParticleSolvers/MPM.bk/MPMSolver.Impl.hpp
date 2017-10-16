@@ -16,18 +16,17 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 template<class Real>
-void Banana::MPMSolver<Real>::makeReady()
+void Banana::MPMSolver<Real >::makeReady()
 {}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 template<class Real>
-void Banana::MPMSolver<Real>::gather_mass(struct mesh** cell_point, int dest_x, int dest_y, int src_x, int src_y, int node_id, struct material** point)
+void Banana::MPMSolver<Real >::gather_mass(struct mesh** cell_point, int dest_x, int dest_y, int src_x, int src_y, int node_id, struct material** point)
 {
     int k;
     int i, j;
-    for(k = 0; k < cell_point[src_x][src_y].num_points; k++) //Iterate through all the points in a cell
-    {
+    for(k = 0; k < cell_point[src_x][src_y].num_points; k++) { //Iterate through all the points in a cell
         i                                     = cell_point[src_x][src_y].points_list[k].x;
         j                                     = cell_point[src_x][src_y].points_list[k].y;
         cell_point[dest_x][dest_y].node_mass += (point[i][j].basis_fn[node_id] * point[i][j].mass);
@@ -35,12 +34,11 @@ void Banana::MPMSolver<Real>::gather_mass(struct mesh** cell_point, int dest_x, 
 }
 
 template<class Real>
-void Banana::MPMSolver<Real>::calculate_velocity(struct mesh** cell_point, int dest_x, int dest_y, int src_x, int src_y, int node_id, struct material** point)
+void Banana::MPMSolver<Real >::calculate_velocity(struct mesh** cell_point, int dest_x, int dest_y, int src_x, int src_y, int node_id, struct material** point)
 {
     int k;
     int i, j;
-    for(k = 0; k < cell_point[src_x][src_y].num_points; k++) //Iterate through all the points in a cell
-    {
+    for(k = 0; k < cell_point[src_x][src_y].num_points; k++) { //Iterate through all the points in a cell
         i                               = cell_point[src_x][src_y].points_list[k].x;
         j                               = cell_point[src_x][src_y].points_list[k].y;
         cell_point[dest_x][dest_y].v_x += (point[i][j].basis_fn[node_id] * point[i][j].mass * point[i][j].vx);
@@ -49,7 +47,7 @@ void Banana::MPMSolver<Real>::calculate_velocity(struct mesh** cell_point, int d
 }
 
 template<class Real>
-void Banana::MPMSolver<Real>::calculate_grad_velocity(struct material** point, int i, int j, struct mesh** cell_point)
+void Banana::MPMSolver<Real >::calculate_grad_velocity(struct material** point, int i, int j, struct mesh** cell_point)
 {
     int x_cell, y_cell;
     x_cell = point[i][j].cell_i;
@@ -78,7 +76,7 @@ void Banana::MPMSolver<Real>::calculate_grad_velocity(struct material** point, i
 }
 
 template<class Real>
-void Banana::MPMSolver<Real>::deformation_gradient(struct material** point, int i, int j)
+void Banana::MPMSolver<Real >::deformation_gradient(struct material** point, int i, int j)
 {
     int    k, l;
     double temp[2][2];
@@ -93,17 +91,15 @@ void Banana::MPMSolver<Real>::deformation_gradient(struct material** point, int 
     temp[0][1] = (point[i][j].change_Fp[0][1] * point[i][j].Fp[0][0]) + (point[i][j].change_Fp[1][1] * point[i][j].Fp[0][1]);
     temp[1][1] = (point[i][j].change_Fp[0][1] * point[i][j].Fp[1][0]) + (point[i][j].change_Fp[1][1] * point[i][j].Fp[1][1]);
 
-    for(k = 0; k < 2; k++)
-    {
-        for(l = 0; l < 2; l++)
-        {
+    for(k = 0; k < 2; k++) {
+        for(l = 0; l < 2; l++) {
             point[i][j].Fp[k][l] = temp[k][l];
         }
     }
 }
 
 template<class Real>
-void Banana::MPMSolver<Real>::stress(struct material** point, int i, int j)
+void Banana::MPMSolver<Real >::stress(struct material** point, int i, int j)
 {
     point[i][j].stress[0][0] = point[i][j].E * (point[i][j].Fp[0][0] - 1.0);
     point[i][j].stress[0][1] = point[i][j].E * (point[i][j].Fp[0][1] - 0.0);
@@ -112,12 +108,11 @@ void Banana::MPMSolver<Real>::stress(struct material** point, int i, int j)
 }
 
 template<class Real>
-void Banana::MPMSolver<Real>::int_ext_force(struct mesh** cell_point, int dest_x, int dest_y, int src_x, int src_y, int node_id, struct material** point)
+void Banana::MPMSolver<Real >::int_ext_force(struct mesh** cell_point, int dest_x, int dest_y, int src_x, int src_y, int node_id, struct material** point)
 {
     int k;
     int i, j;
-    for(k = 0; k < cell_point[src_x][src_y].num_points; k++)
-    {
+    for(k = 0; k < cell_point[src_x][src_y].num_points; k++) {
         i = cell_point[src_x][src_y].points_list[k].x;
         j = cell_point[src_x][src_y].points_list[k].y;
 
@@ -130,7 +125,7 @@ void Banana::MPMSolver<Real>::int_ext_force(struct mesh** cell_point, int dest_x
 }
 
 template<class Real>
-void Banana::MPMSolver<Real>::update_node_acceleration_velocity(struct mesh** cell_point, int i, int j)
+void Banana::MPMSolver<Real >::update_node_acceleration_velocity(struct mesh** cell_point, int i, int j)
 {
     double temp;
     cell_point[i][j].a_x = (cell_point[i][j].f_int_x + cell_point[i][j].f_ext_x) / cell_point[i][j].node_mass;
@@ -141,7 +136,7 @@ void Banana::MPMSolver<Real>::update_node_acceleration_velocity(struct mesh** ce
 }
 
 template<class Real>
-void Banana::MPMSolver<Real>::update_particle_velocity_position(struct material** point, int i, int j, struct mesh** cell_point)
+void Banana::MPMSolver<Real >::update_particle_velocity_position(struct material** point, int i, int j, struct mesh** cell_point)
 {
     int x_cell, y_cell;
 
@@ -172,19 +167,17 @@ void Banana::MPMSolver<Real>::update_particle_velocity_position(struct material*
 }
 
 template<class Real>
-void Banana::MPMSolver<Real>::advanceFrame()
+void Banana::MPMSolver<Real >::advanceFrame()
 {
     //Dynamically allocate memory for material
     point = (struct material**)malloc(sizeof(material*) * body_size_x);
-    for(i = 0; i < body_size_x; i++)
-    {
+    for(i = 0; i < body_size_x; i++) {
         point[i] = (struct material*)malloc(sizeof(material) * body_size_y);
     }
 
     //Dynamically allocate memory for mesh
     cell_point = (struct mesh**)malloc(sizeof(mesh*) * mesh_size);
-    for(i = 0; i < mesh_size; i++)
-    {
+    for(i = 0; i < mesh_size; i++) {
         cell_point[i] = (struct mesh*)malloc(sizeof(mesh) * mesh_size);
     }
 
@@ -192,20 +185,16 @@ void Banana::MPMSolver<Real>::advanceFrame()
     h_2 = h * h;
 
     /* Initialize the mesh */
-    for(i = 0; i < mesh_size; i++)
-    {
-        for(j = 0; j < mesh_size; j++)
-        {
+    for(i = 0; i < mesh_size; i++) {
+        for(j = 0; j < mesh_size; j++) {
             cell_point[i][j].x = i * h;
             cell_point[i][j].y = j * h;
         }
     }
 
     /* Initialize the body */
-    for(i = 0; i < body_size_x; i++)
-    {
-        for(j = 0; j < body_size_y; j++)
-        {
+    for(i = 0; i < body_size_x; i++) {
+        for(j = 0; j < body_size_y; j++) {
             point[i][j].x            = h + (i * b);
             point[i][j].y            = h + (j * b);
             point[i][j].vx           = 0.0;
@@ -227,13 +216,10 @@ void Banana::MPMSolver<Real>::advanceFrame()
 
 
     /* This is where the loop starts  */
-    for(time_step = 0.0; time_step < 0.01; time_step += del_time)
-    {
+    for(time_step = 0.0; time_step < 0.01; time_step += del_time) {
         /*Initializations for each iteration*/
-        for(i = 0; i < mesh_size; i++)
-        {
-            for(j = 0; j < mesh_size; j++)
-            {
+        for(i = 0; i < mesh_size; i++) {
+            for(j = 0; j < mesh_size; j++) {
                 cell_point[i][j].num_points = 0;
                 cell_point[i][j].node_mass  = 0.0;
                 cell_point[i][j].f_int_x    = 0.0;
@@ -247,15 +233,12 @@ void Banana::MPMSolver<Real>::advanceFrame()
 
 
         /* Mapping of points to the grid cells */
-        for(i = 0; i < body_size_x; i++)
-        {
-            for(j = 0; j < body_size_y; j++)
-            {
+        for(i = 0; i < body_size_x; i++) {
+            for(j = 0; j < body_size_y; j++) {
                 x_cell = point[i][j].x / h;
                 y_cell = point[i][j].y / h;
 
-                if(x_cell >= mesh_size - 1 || x_cell < 0 || y_cell < 0 || y_cell >= mesh_size - 1)
-                {
+                if(x_cell >= mesh_size - 1 || x_cell < 0 || y_cell < 0 || y_cell >= mesh_size - 1) {
                     printf("The Iterations stopped at iteration: %d for particle: %d %d\n", counter,       i, j);
                     printf("The position : %lf %lf\n",                                      point[i][j].x, point[i][j].y);
                     exit(1);
@@ -272,8 +255,7 @@ void Banana::MPMSolver<Real>::advanceFrame()
                 point[i][j].cell_j = y_cell;
 
                 //Setting all the basis function values to zero
-                for(k = 0; k < 4; k++)
-                {
+                for(k = 0; k < 4; k++) {
                     point[i][j].basis_fn[k] = 0.0;
                 }
 
@@ -287,16 +269,11 @@ void Banana::MPMSolver<Real>::advanceFrame()
 
 
         //Calculate the basis function for each Grid cell
-        for(i = 0; i < mesh_size; i++)
-        {
-            for(j = 0; j < mesh_size; j++)
-            {
-                if(cell_point[i][j].num_points > 0)
-                {
-                    for(k = 0; k < 4; k++)
-                    {
-                        switch(k)
-                        {
+        for(i = 0; i < mesh_size; i++) {
+            for(j = 0; j < mesh_size; j++) {
+                if(cell_point[i][j].num_points > 0) {
+                    for(k = 0; k < 4; k++) {
+                        switch(k) {
                             case 0:
 
                                 a_0 = 1.0 + ((cell_point[i][j].y * cell_point[i][j].x) + (h * cell_point[i][j].x) + (h * cell_point[i][j].y)) / h_2;
@@ -306,8 +283,7 @@ void Banana::MPMSolver<Real>::advanceFrame()
 
 
                                 //Now go through all the particles in the cell and update the basis_fn[0] of all the particles
-                                for(l = 0; l < cell_point[i][j].num_points; l++)
-                                {
+                                for(l = 0; l < cell_point[i][j].num_points; l++) {
                                     particle_obj.x = cell_point[i][j].points_list[l].x;
                                     particle_obj.y = cell_point[i][j].points_list[l].y;
 
@@ -333,8 +309,7 @@ void Banana::MPMSolver<Real>::advanceFrame()
 
 
                                 //Now go through all the particles in the cell and update the basis_fn[1] of all the particles
-                                for(l = 0; l < cell_point[i][j].num_points; l++)
-                                {
+                                for(l = 0; l < cell_point[i][j].num_points; l++) {
                                     particle_obj.x = cell_point[i][j].points_list[l].x;
                                     particle_obj.y = cell_point[i][j].points_list[l].y;
 
@@ -360,8 +335,7 @@ void Banana::MPMSolver<Real>::advanceFrame()
 
 
                                 //Now go through all the particles in the cell and update the basis_fn[2] of all the particles
-                                for(l = 0; l < cell_point[i][j].num_points; l++)
-                                {
+                                for(l = 0; l < cell_point[i][j].num_points; l++) {
                                     particle_obj.x = cell_point[i][j].points_list[l].x;
                                     particle_obj.y = cell_point[i][j].points_list[l].y;
 
@@ -387,8 +361,7 @@ void Banana::MPMSolver<Real>::advanceFrame()
                                 a_3 = -(1.0 / h_2);
 
                                 //Now go through all the particles in the cell and update the basis_fn[3] of all the particles
-                                for(l = 0; l < cell_point[i][j].num_points; l++)
-                                {
+                                for(l = 0; l < cell_point[i][j].num_points; l++) {
                                     particle_obj.x = cell_point[i][j].points_list[l].x;
                                     particle_obj.y = cell_point[i][j].points_list[l].y;
 
@@ -424,26 +397,20 @@ void Banana::MPMSolver<Real>::advanceFrame()
         //1. Nodes at the bottom row
 
         j = 0;
-        for(i = 0; i < mesh_size; i++)
-        {
-            if(i == 0) //First node of First row
-            {
+        for(i = 0; i < mesh_size; i++) {
+            if(i == 0) { //First node of First row
                 gather_mass(cell_point, i, j, i, j, 0, point);
 
                 calculate_velocity(cell_point, i, j, i, j, 0, point);
                 cell_point[i][j].v_x = cell_point[i][j].v_x / cell_point[i][j].node_mass;
                 cell_point[i][j].v_y = cell_point[i][j].v_y / cell_point[i][j].node_mass;
-            }
-            else if(i == mesh_size - 1) //Last node of First row
-            {
+            } else if(i == mesh_size - 1) { //Last node of First row
                 gather_mass(cell_point, i, j, i - 1, j, 1, point);
 
                 calculate_velocity(cell_point, i, j, i - 1, j, 1, point);
                 cell_point[i][j].v_x = cell_point[i][j].v_x / cell_point[i][j].node_mass;
                 cell_point[i][j].v_y = cell_point[i][j].v_y / cell_point[i][j].node_mass;
-            }
-            else //Other nodes in first row
-            {
+            } else { //Other nodes in first row
                 gather_mass(cell_point, i, j, i,     j, 0, point);
                 gather_mass(cell_point, i, j, i - 1, j, 1, point);
 
@@ -456,10 +423,8 @@ void Banana::MPMSolver<Real>::advanceFrame()
 
         // 2. Nodes at the top row
         j = mesh_size - 1;
-        for(i = 0; i < mesh_size; i++)
-        {
-            if(i == 0) //First node of top row
-            {
+        for(i = 0; i < mesh_size; i++) {
+            if(i == 0) { //First node of top row
                 gather_mass(cell_point, i, j, i, j - 1, 3, point);
 
 
@@ -467,19 +432,14 @@ void Banana::MPMSolver<Real>::advanceFrame()
 
                 cell_point[i][j].v_x = cell_point[i][j].v_x / cell_point[i][j].node_mass;
                 cell_point[i][j].v_y = cell_point[i][j].v_y / cell_point[i][j].node_mass;
-            }
-
-            else if(i == mesh_size - 1)  //Last node of top row
-            {
+            } else if(i == mesh_size - 1) { //Last node of top row
                 gather_mass(cell_point, i, j, i - 1, j - 1, 2, point);
 
                 calculate_velocity(cell_point, i, j, i - 1, j - 1, 2, point);
 
                 cell_point[i][j].v_x = cell_point[i][j].v_x / cell_point[i][j].node_mass;
                 cell_point[i][j].v_y = cell_point[i][j].v_y / cell_point[i][j].node_mass;
-            }
-            else //Other nodes in top row
-            {
+            } else { //Other nodes in top row
                 gather_mass(cell_point, i, j, i,     j - 1, 3, point);
                 gather_mass(cell_point, i, j, i - 1, j - 1, 2, point);
 
@@ -493,8 +453,7 @@ void Banana::MPMSolver<Real>::advanceFrame()
 
         //3. Nodes at the left boundary
         i = 0;
-        for(j = 1; j < mesh_size - 1; j++)
-        {
+        for(j = 1; j < mesh_size - 1; j++) {
             gather_mass(cell_point, i, j, i, j,     0, point);
             gather_mass(cell_point, i, j, i, j - 1, 3, point);
 
@@ -508,8 +467,7 @@ void Banana::MPMSolver<Real>::advanceFrame()
 
         //4. Nodes at the right boundary
         i = mesh_size - 1;
-        for(j = 1; j < mesh_size - 1; j++)
-        {
+        for(j = 1; j < mesh_size - 1; j++) {
             gather_mass(cell_point, i, j, i - 1, j,     1, point);
             gather_mass(cell_point, i, j, i - 1, j - 1, 2, point);
 
@@ -522,10 +480,8 @@ void Banana::MPMSolver<Real>::advanceFrame()
 
 
         //5. Rest of the inner nodes
-        for(i = 1; i < mesh_size - 1; i++)
-        {
-            for(j = 1; j < mesh_size - 1; j++)
-            {
+        for(i = 1; i < mesh_size - 1; i++) {
+            for(j = 1; j < mesh_size - 1; j++) {
                 gather_mass(cell_point, i, j, i,     j,     0, point);
                 gather_mass(cell_point, i, j, i - 1, j,     1, point);
                 gather_mass(cell_point, i, j, i - 1, j - 1, 2, point);
@@ -543,10 +499,8 @@ void Banana::MPMSolver<Real>::advanceFrame()
 
 
         /* Calculate the velocity gradient , deformation gradiant and stress at particle positions */
-        for(i = 0; i < body_size_x; i++)
-        {
-            for(j = 0; j < body_size_y; j++)
-            {
+        for(i = 0; i < body_size_x; i++) {
+            for(j = 0; j < body_size_y; j++) {
                 //Calculate the velocity gradient
                 calculate_grad_velocity(point, i, j, cell_point);
 
@@ -572,24 +526,18 @@ void Banana::MPMSolver<Real>::advanceFrame()
 
         //1. Nodes at the bottom row
         j = 0;
-        for(i = 0; i < mesh_size; i++)
-        {
-            if(i == 0) //First node of First row
-            {
+        for(i = 0; i < mesh_size; i++) {
+            if(i == 0) { //First node of First row
                 int_ext_force(cell_point, i, j, i, j, 0, point);
 
                 cell_point[i][j].f_int_x = (-1) * cell_point[i][j].f_int_x;
                 cell_point[i][j].f_int_y = (-1) * cell_point[i][j].f_int_y;
-            }
-            else if(i == mesh_size - 1) //Last node of First row
-            {
+            } else if(i == mesh_size - 1) { //Last node of First row
                 int_ext_force(cell_point, i, j, i - 1, j, 1, point);
 
                 cell_point[i][j].f_int_x = (-1) * cell_point[i][j].f_int_x;
                 cell_point[i][j].f_int_y = (-1) * cell_point[i][j].f_int_y;
-            }
-            else //Other nodes in first row
-            {
+            } else { //Other nodes in first row
                 int_ext_force(cell_point, i, j, i,     j, 0, point);
                 int_ext_force(cell_point, i, j, i - 1, j, 1, point);
 
@@ -600,26 +548,20 @@ void Banana::MPMSolver<Real>::advanceFrame()
 
         // 2. Nodes at the top row
         j = mesh_size - 1;
-        for(i = 0; i < mesh_size; i++)
-        {
-            if(i == 0) //First node of top row
-            {
+        for(i = 0; i < mesh_size; i++) {
+            if(i == 0) { //First node of top row
                 int_ext_force(cell_point, i, j, i, j - 1, 3, point);
 
 
                 cell_point[i][j].f_int_x = (-1) * cell_point[i][j].f_int_x;
                 cell_point[i][j].f_int_y = (-1) * cell_point[i][j].f_int_y;
-            }
-            else if(i == mesh_size - 1) //Last node of top row
-            {
+            } else if(i == mesh_size - 1) { //Last node of top row
                 int_ext_force(cell_point, i, j, i - 1, j - 1, 2, point);
 
 
                 cell_point[i][j].f_int_x = (-1) * cell_point[i][j].f_int_x;
                 cell_point[i][j].f_int_y = (-1) * cell_point[i][j].f_int_y;
-            }
-            else //Other nodes in top row
-            {
+            } else { //Other nodes in top row
                 int_ext_force(cell_point, i, j, i,     j - 1, 3, point);
                 int_ext_force(cell_point, i, j, i - 1, j - 1, 2, point);
 
@@ -630,8 +572,7 @@ void Banana::MPMSolver<Real>::advanceFrame()
 
         //3. Nodes at the left boundary
         i = 0;
-        for(j = 1; j < mesh_size - 1; j++)
-        {
+        for(j = 1; j < mesh_size - 1; j++) {
             int_ext_force(cell_point, i, j, i, j,     0, point);
             int_ext_force(cell_point, i, j, i, j - 1, 3, point);
 
@@ -642,8 +583,7 @@ void Banana::MPMSolver<Real>::advanceFrame()
 
         //4. Nodes at the right boundary
         i = mesh_size - 1;
-        for(j = 1; j < mesh_size - 1; j++)
-        {
+        for(j = 1; j < mesh_size - 1; j++) {
             int_ext_force(cell_point, i, j, i - 1, j,     1, point);
             int_ext_force(cell_point, i, j, i - 1, j - 1, 2, point);
 
@@ -653,10 +593,8 @@ void Banana::MPMSolver<Real>::advanceFrame()
 
 
         //5. Rest of the inner nodes
-        for(i = 1; i < mesh_size - 1; i++)
-        {
-            for(j = 1; j < mesh_size - 1; j++)
-            {
+        for(i = 1; i < mesh_size - 1; i++) {
+            for(j = 1; j < mesh_size - 1; j++) {
                 int_ext_force(cell_point, i, j, i,     j,     0, point);
                 int_ext_force(cell_point, i, j, i - 1, j,     1, point);
                 int_ext_force(cell_point, i, j, i - 1, j - 1, 2, point);
@@ -670,10 +608,8 @@ void Banana::MPMSolver<Real>::advanceFrame()
 
 
         //Calculate acceleration
-        for(i = 0; i < mesh_size; i++)
-        {
-            for(j = 0; j < mesh_size; j++)
-            {
+        for(i = 0; i < mesh_size; i++) {
+            for(j = 0; j < mesh_size; j++) {
                 update_node_acceleration_velocity(cell_point, i, j);
             }
         }
@@ -681,10 +617,8 @@ void Banana::MPMSolver<Real>::advanceFrame()
 
 
         //Update the velocity and position of the particle
-        for(i = 1; i < body_size_x - 1; i++)
-        {
-            for(j = 1; j < body_size_y - 1; j++)
-            {
+        for(i = 1; i < body_size_x - 1; i++) {
+            for(j = 1; j < body_size_y - 1; j++) {
                 update_particle_velocity_position(point, i, j, cell_point);
             }
         }
@@ -714,13 +648,10 @@ void Banana::MPMSolver<Real>::advanceFrame()
 
 
          **********************************/
-        if(counter == 1 || counter % 10000 == 0)
-        {
+        if(counter == 1 || counter % 10000 == 0) {
             printf("\n");
-            for(i = 0; i < mesh_size; i++)
-            {
-                for(j = 0; j < mesh_size; j++)
-                {
+            for(i = 0; i < mesh_size; i++) {
+                for(j = 0; j < mesh_size; j++) {
                     printf("%2d ", cell_point[i][j].num_points);
                 }
                 printf("\n");
@@ -736,24 +667,22 @@ void Banana::MPMSolver<Real>::advanceFrame()
 
 
     //Free the memory for the material
-    for(i = 0; i < body_size_y; i++)
-    {
+    for(i = 0; i < body_size_y; i++) {
         free(point[i]);
     }
     free(point);
 
     //Free the memory for the mesh
-    for(i = 0; i < mesh_size; i++)
-    {
+    for(i = 0; i < mesh_size; i++) {
         free(cell_point[i]);
     }
     free(cell_point);
 }
 
 template<class Real>
-void Banana::MPMSolver<Real>::saveParticleData()
+void Banana::MPMSolver<Real >::saveFrameData()
 {}
 
 template<class Real>
-void Banana::MPMSolver<Real>::saveMemoryState()
+void Banana::MPMSolver<Real >::saveMemoryState()
 {}

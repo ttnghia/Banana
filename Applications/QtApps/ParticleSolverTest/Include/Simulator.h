@@ -54,7 +54,6 @@ signals:
     void numParticleChanged(unsigned int numParticles);
     void particleChanged();
     void frameFinished();
-    void boxChanged(const glm::vec3& boxMin, const glm::vec3& boxMax);
 
 protected:
     std::shared_ptr<ParticleSystemData> m_ParticleData = nullptr;

@@ -46,6 +46,19 @@ void FLIP3DSolver::makeReady()
                                m_PCGSolver.setSolverParameters(m_SimParams->CGRelativeTolerance, m_SimParams->maxCGIteration);
                                m_PCGSolver.setPreconditioners(PCGSolver<Real>::MICCL0_SYMMETRIC);
 
+                               ////////////////////////////////////////////////////////////////////////////////
+                               setupDataIO();
+                               m_SimData->makeReady(m_Grid.getNCells()[0], m_Grid.getNCells()[1], m_Grid.getNCells()[2]);
+                               if(!loadMemoryState()) {
+                                   sortParticles();
+                               }
+
+
+                               m_NSearch = std::make_unique<NeighborSearch::NeighborSearch3D>(m_SimParams->cellSize);
+                               m_NSearch->add_point_set(glm::value_ptr(particleData().positions.front()), m_SimData->getNParticles(), true, true);
+
+
+                               ////////////////////////////////////////////////////////////////////////////////
                                for(auto& obj : m_BoundaryObjects) {
                                    obj->margin() = m_SimParams->particleRadius;
                                    obj->generateSDF(m_SimParams->domainBMin, m_SimParams->domainBMax, m_SimParams->cellSize);
@@ -67,18 +80,6 @@ void FLIP3DSolver::makeReady()
                                                                      //gridData().boundarySDF(i, j, k) = -box.signedDistance(gridPos);
                                                                  });
                                m_Logger->printWarning("Computed boundary SDF");
-
-                               ////////////////////////////////////////////////////////////////////////////////
-                               setupDataIO();
-                               if(m_GlobalParams->bLoadMemoryState) {
-                                   loadMemoryState();
-                               }
-                               m_SimData->makeReady(m_Grid.getNCells()[0], m_Grid.getNCells()[1], m_Grid.getNCells()[2]);
-
-                               m_NSearch = std::make_unique<NeighborSearch::NeighborSearch3D>(m_SimParams->cellSize);
-                               m_NSearch->add_point_set(glm::value_ptr(particleData().positions.front()), m_SimData->getNParticles(), true, true);
-
-                               sortParticles();
                            });
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -120,7 +121,7 @@ void FLIP3DSolver::advanceFrame()
 
     ////////////////////////////////////////////////////////////////////////////////
     ++m_GlobalParams->finishedFrame;
-    saveParticleData();
+    saveFrameData();
     saveMemoryState();
 }
 
@@ -197,21 +198,21 @@ void FLIP3DSolver::setupDataIO()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FLIP3DSolver::loadMemoryState()
+bool FLIP3DSolver::loadMemoryState()
 {
     if(!m_GlobalParams->bLoadMemoryState) {
-        return;
+        return false;
     }
 
     ////////////////////////////////////////////////////////////////////////////////
     int latestStateIdx = m_MemoryStateIO->getLatestFileIndex(m_GlobalParams->finalFrame);
     if(latestStateIdx < 0) {
-        return;
+        return false;
     }
 
     if(!m_MemoryStateIO->read(latestStateIdx)) {
         m_Logger->printError("Cannot read latest memory state file!");
-        return;
+        return false;
     }
 
     Real particleRadius;
@@ -221,6 +222,8 @@ void FLIP3DSolver::loadMemoryState()
     __BNN_ASSERT(m_MemoryStateIO->getParticleAttribute("position", particleData().positions));
     __BNN_ASSERT(m_MemoryStateIO->getParticleAttribute("velocity", particleData().velocities));
     assert(particleData().velocities.size() == particleData().positions.size());
+
+    return true;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -249,9 +252,9 @@ void FLIP3DSolver::saveMemoryState()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FLIP3DSolver::saveParticleData()
+void FLIP3DSolver::saveFrameData()
 {
-    if(!m_GlobalParams->bSaveParticleData) {
+    if(!m_GlobalParams->bSaveFrameData) {
         return;
     }
 

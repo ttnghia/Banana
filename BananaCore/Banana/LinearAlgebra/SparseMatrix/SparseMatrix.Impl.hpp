@@ -41,7 +41,7 @@ template<class RealType>
 template<class IndexType>
 RealType SparseMatrix<RealType>::operator ()(IndexType i, IndexType j) const
 {
-    assert(static_cast<UInt>(i) < m_Size && static_cast<UInt>(j) < m_Size);
+    assert(static_cast<UInt>(i) < nRows && static_cast<UInt>(j) < nRows);
 
     UInt k = 0;
     if(STLHelpers::Sorted::contain(colIndex[i], static_cast<UInt>(j), k)) {
@@ -56,7 +56,7 @@ template<class RealType>
 template<class IndexType>
 void SparseMatrix<RealType >::setElement(IndexType i, IndexType j, RealType newValue)
 {
-    assert(static_cast<UInt>(i) < m_Size && static_cast<UInt>(j) < m_Size);
+    assert(static_cast<UInt>(i) < nRows && static_cast<UInt>(j) < nRows);
 
     UInt k = 0;
     if(STLHelpers::Sorted::contain(colIndex[i], static_cast<UInt>(j), k)) {
@@ -71,7 +71,7 @@ template<class RealType>
 template<class IndexType>
 void SparseMatrix<RealType >::addElement(IndexType i, IndexType j, RealType incrementValue)
 {
-    assert(static_cast<UInt>(i) < m_Size && static_cast<UInt>(j) < m_Size);
+    assert(static_cast<UInt>(i) < nRows && static_cast<UInt>(j) < nRows);
 
     UInt k = 0;
     if(STLHelpers::Sorted::contain(colIndex[i], static_cast<UInt>(j), k)) {
@@ -86,7 +86,7 @@ template<class RealType>
 template<class IndexType>
 void SparseMatrix<RealType >::eraseElement(IndexType i, IndexType j)
 {
-    assert(static_cast<UInt>(i) < m_Size && static_cast<UInt>(j) < m_Size);
+    assert(static_cast<UInt>(i) < nRows && static_cast<UInt>(j) < nRows);
 
     UInt k = 0;
     if(STLHelpers::Sorted::contain(colIndex[i], static_cast<UInt>(j), k)) {

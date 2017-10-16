@@ -46,15 +46,13 @@ void PeridynamicsSolver::makeReady()
 
                                ////////////////////////////////////////////////////////////////////////////////
                                setupDataIO();
-                               if(m_GlobalParams->bLoadMemoryState) {
-                                   loadMemoryState();
-                               } else {
+                               m_SimData->makeReady();
+                               if(!loadMemoryState()) {
                                    m_NSearch->z_sort();
                                    const auto& d = m_NSearch->point_set(0);
                                    d.sort_field(&m_SimData->positions[0]);
                                    d.sort_field(&m_SimData->velocities[0]);
                                }
-                               m_SimData->makeReady();
                            });
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -95,7 +93,7 @@ void PeridynamicsSolver::advanceFrame()
 
     ////////////////////////////////////////////////////////////////////////////////
     ++m_GlobalParams->finishedFrame;
-    saveParticleData();
+    saveFrameData();
     saveMemoryState();
 }
 
@@ -120,7 +118,7 @@ void PeridynamicsSolver::loadSimParams(const nlohmann::json& jParams)
 void PeridynamicsSolver::setupDataIO()
 {
     m_ParticleIO = std::make_unique<ParticleSerialization>(m_GlobalParams->dataPath, "PDData", "frame", m_Logger);
-    m_ParticleIO->addFixedAtribute<float>("m_SimParams->particleRadius", ParticleSerialization::TypeReal, 1);
+    m_ParticleIO->addFixedAtribute<float>("particle_radius", ParticleSerialization::TypeReal, 1);
     m_ParticleIO->addFixedAtribute<UInt>("num_active_particles", ParticleSerialization::TypeUInt, 1);
     m_ParticleIO->addParticleAtribute<float>("position", ParticleSerialization::TypeCompressedReal, 3);
     if(m_GlobalParams->isSavingData("velocity")) {
@@ -140,7 +138,7 @@ void PeridynamicsSolver::setupDataIO()
     ////////////////////////////////////////////////////////////////////////////////
 
     m_MemoryStateIO = std::make_unique<ParticleSerialization>(m_GlobalParams->dataPath, "PDState", "frame", m_Logger);
-    m_MemoryStateIO->addFixedAtribute<Real>("m_SimParams->particleRadius", ParticleSerialization::TypeReal, 1);
+    m_MemoryStateIO->addFixedAtribute<Real>("particle_radius", ParticleSerialization::TypeReal, 1);
     m_MemoryStateIO->addFixedAtribute<UInt>("num_active_particles", ParticleSerialization::TypeUInt, 1);
     m_MemoryStateIO->addParticleAtribute<Real>("position", ParticleSerialization::TypeReal, 3);
     m_MemoryStateIO->addParticleAtribute<Real>("velocity", ParticleSerialization::TypeReal, 3);
@@ -150,25 +148,25 @@ void PeridynamicsSolver::setupDataIO()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void PeridynamicsSolver::loadMemoryState()
+bool PeridynamicsSolver::loadMemoryState()
 {
     if(!m_GlobalParams->bLoadMemoryState) {
-        return;
+        return false;
     }
 
     ////////////////////////////////////////////////////////////////////////////////
     int latestStateIdx = m_MemoryStateIO->getLatestFileIndex(m_GlobalParams->finalFrame);
     if(latestStateIdx < 0) {
-        return;
+        return false;
     }
 
     if(!m_MemoryStateIO->read(latestStateIdx)) {
         m_Logger->printError("Cannot read latest memory state file!");
-        return;
+        return false;
     }
 
     Real particleRadius;
-    __BNN_ASSERT(m_MemoryStateIO->getFixedAttribute("m_SimParams->particleRadius", particleRadius));
+    __BNN_ASSERT(m_MemoryStateIO->getFixedAttribute("particle_radius", particleRadius));
     __BNN_ASSERT_APPROX_NUMBERS(m_SimParams->particleRadius, particleRadius, MEpsilon);
 
     __BNN_ASSERT(m_MemoryStateIO->getFixedAttribute("num_active_particles", m_SimData->nActives));
@@ -178,6 +176,8 @@ void PeridynamicsSolver::loadMemoryState()
     __BNN_ASSERT(m_MemoryStateIO->getParticleAttribute("stretch_threshold", m_SimData->stretchThreshold));
     __BNN_ASSERT(m_MemoryStateIO->getParticleAttribute("m_SimData->bondList", m_SimData->bondList));
     assert(m_SimData->velocities.size() == m_SimData->positions.size() && m_SimData->bondList.size() == m_SimData->positions.size());
+
+    return true;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -199,7 +199,7 @@ void PeridynamicsSolver::saveMemoryState()
     frameCount = 0;
     m_MemoryStateIO->clearData();
     m_MemoryStateIO->setNParticles(m_SimData->getNParticles());
-    m_MemoryStateIO->setFixedAttribute("m_SimParams->particleRadius", m_SimParams->particleRadius);
+    m_MemoryStateIO->setFixedAttribute("particle_radius", m_SimParams->particleRadius);
     m_MemoryStateIO->setFixedAttribute("num_active_particles", m_SimData->nActives);
     m_MemoryStateIO->setParticleAttribute("position", m_SimData->positions);
     m_MemoryStateIO->setParticleAttribute("velocity", m_SimData->velocities);
@@ -210,16 +210,16 @@ void PeridynamicsSolver::saveMemoryState()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void PeridynamicsSolver::saveParticleData()
+void PeridynamicsSolver::saveFrameData()
 {
-    if(!m_GlobalParams->bSaveParticleData) {
+    if(!m_GlobalParams->bSaveFrameData) {
         return;
     }
 
 
     m_ParticleIO->clearData();
     m_ParticleIO->setNParticles(m_SimData->getNParticles());
-    m_ParticleIO->setFixedAttribute("m_SimParams->particleRadius", m_SimParams->particleRadius);
+    m_ParticleIO->setFixedAttribute("particle_radius", m_SimParams->particleRadius);
     m_ParticleIO->setFixedAttribute("num_active_particles", m_SimData->nActives);
     m_ParticleIO->setParticleAttribute("position", m_SimData->positions);
 
@@ -326,7 +326,7 @@ void PeridynamicsSolver::moveParticles(Real timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PeridynamicsSolver::buildLinearSystem(Real timestep)
 {
-    const Real rhs_coeff = (m_SimParams->integrationScheme == ParticleSolverConstants::IntegrationScheme::NewmarkBeta) ? 2.0 : 1.0;
+    const Real rhs_coeff = (m_SimParams->integrationScheme == ParticleSolverConstants::IntegrationScheme::NewmarkBeta) ? Real(2.0) : Real(1.0);
     m_SimData->matrix.clear();
     m_SimData->rhs.assign(m_SimData->rhs.size(), Vec3r(0));
 
@@ -459,7 +459,7 @@ void PeridynamicsSolver::computeExplicitForces()
                                         }
 
                                         Real d0     = pd0[bondIndex];
-                                        Real drdivd = dij / d0 - 1.0;
+                                        Real drdivd = dij / d0 - Real(1.0);
 
                                         if(m_SimData->isActive(p) && m_SimData->isActive(q) && drdivd > std::max(bthreshold, m_SimData->stretchThreshold[q])) {
                                             continue; // continue to the next loop without change the walker
@@ -468,7 +468,7 @@ void PeridynamicsSolver::computeExplicitForces()
                                         Real vscale(1.0);
 
                                         if(d0 > (m_SimParams->horizon - m_SimParams->particleRadius)) {
-                                            vscale = Real(0.5) + (m_SimParams->horizon - d0) / 2.0 / m_SimParams->particleRadius;
+                                            vscale = Real(0.5) + (m_SimParams->horizon - d0) / Real(2.0) / m_SimParams->particleRadius;
                                         }
 
                                         springForce += (drdivd * vscale) * eij;

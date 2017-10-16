@@ -68,11 +68,11 @@ struct GlobalParameters
     Real evolvedTime() const { return frameDuration * static_cast<Real>(finishedFrame); }
 
     ////////////////////////////////////////////////////////////////////////////////
-    bool       bLoadMemoryState  = true;
-    bool       bSaveParticleData = false;
-    bool       bSaveMemoryState  = false;
-    UInt       framePerState     = 1;
-    String     dataPath          = String("./SimData");
+    bool       bLoadMemoryState = true;
+    bool       bSaveFrameData   = false;
+    bool       bSaveMemoryState = false;
+    UInt       framePerState    = 1;
+    String     dataPath         = String("./SimData");
     Vec_String optionalSavingData;
 
     bool bApplyGravity       = true;

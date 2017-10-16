@@ -125,7 +125,7 @@ void WCSPHSolver::advanceFrame()
 
     ////////////////////////////////////////////////////////////////////////////////
     ++m_GlobalParams->finishedFrame;
-    saveParticleData();
+    saveFrameData();
     saveMemoryState();
 }
 
@@ -202,21 +202,21 @@ void WCSPHSolver::setupDataIO()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void WCSPHSolver::loadMemoryState()
+bool WCSPHSolver::loadMemoryState()
 {
     if(!m_GlobalParams->bLoadMemoryState) {
-        return;
+        return false;
     }
 
     ////////////////////////////////////////////////////////////////////////////////
     int latestStateIdx = m_MemoryStateIO->getLatestFileIndex(m_GlobalParams->finalFrame);
     if(latestStateIdx < 0) {
-        return;
+        return false;
     }
 
     if(!m_MemoryStateIO->read(latestStateIdx)) {
         m_Logger->printError("Cannot read latest memory state file!");
-        return;
+        return false;
     }
 
     Real particleRadius;
@@ -226,6 +226,8 @@ void WCSPHSolver::loadMemoryState()
     __BNN_ASSERT(m_MemoryStateIO->getParticleAttribute("position", m_SimData->positions));
     __BNN_ASSERT(m_MemoryStateIO->getParticleAttribute("velocity", m_SimData->velocities));
     assert(m_SimData->velocities.size() == m_SimData->positions.size());
+
+    return true;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -254,9 +256,9 @@ void WCSPHSolver::saveMemoryState()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void WCSPHSolver::saveParticleData()
+void WCSPHSolver::saveFrameData()
 {
-    if(!m_GlobalParams->bSaveParticleData) {
+    if(!m_GlobalParams->bSaveFrameData) {
         return;
     }
 

@@ -18,7 +18,6 @@
 #pragma once
 
 #include <Banana/Grid/Grid.h>
-//#include <Banana/LinearAlgebra/LinearSolvers/PCGSolver.h>
 #include <ParticleSolvers/ParticleSolver.h>
 #include <ParticleSolvers/MPM/MPM2DData.h>
 
@@ -47,9 +46,9 @@ public:
 protected:
     virtual void loadSimParams(const nlohmann::json& jParams) override;
     virtual void setupDataIO() override;
-    virtual void loadMemoryState() override;
+    virtual bool loadMemoryState() override;
     virtual void saveMemoryState() override;
-    virtual void saveParticleData() override;
+    virtual void saveFrameData() override;
 
     Real computeCFLTimestep();
     void advanceVelocity(Real timestep);
@@ -88,7 +87,6 @@ protected:
     UniquePtr<SimulationData_MPM2D>       m_SimData   = std::make_unique<SimulationData_MPM2D>();
 
     Grid2r m_Grid;
-    //PCGSolver     m_PCGSolver;
 };
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace ParticleSolvers

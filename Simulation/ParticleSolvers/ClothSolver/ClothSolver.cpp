@@ -112,7 +112,7 @@ void ClothSolver::advanceFrame()
 
     ////////////////////////////////////////////////////////////////////////////////
     ++m_GlobalParams->finishedFrame;
-    saveParticleData();
+    saveFrameData();
     saveMemoryState();
 }
 
@@ -181,21 +181,21 @@ void ClothSolver::setupDataIO()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void ClothSolver::loadMemoryState()
+bool ClothSolver::loadMemoryState()
 {
     if(!m_GlobalParams->bLoadMemoryState) {
-        return;
+        return false;
     }
 
     ////////////////////////////////////////////////////////////////////////////////
     int latestStateIdx = m_MemoryStateIO->getLatestFileIndex(m_GlobalParams->finalFrame);
     if(latestStateIdx < 0) {
-        return;
+        return false;
     }
 
     if(!m_MemoryStateIO->read(latestStateIdx)) {
         m_Logger->printError("Cannot read latest memory state file!");
-        return;
+        return false;
     }
 
     Real particleRadius;
@@ -205,6 +205,8 @@ void ClothSolver::loadMemoryState()
     __BNN_ASSERT(m_MemoryStateIO->getParticleAttribute("position", particleData().positions));
     __BNN_ASSERT(m_MemoryStateIO->getParticleAttribute("velocity", particleData().velocities));
     assert(particleData().velocities.size() == particleData().positions.size());
+
+    return true;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -233,9 +235,9 @@ void ClothSolver::saveMemoryState()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void ClothSolver::saveParticleData()
+void ClothSolver::saveFrameData()
 {
-    if(!m_GlobalParams->bSaveParticleData) {
+    if(!m_GlobalParams->bSaveFrameData) {
         return;
     }
 

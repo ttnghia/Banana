@@ -5,7 +5,7 @@
         "FinalFrame" : 100,
         "EnableSortParticle" : true,
         "SortFrequency" : 10,
-        "SaveParticleData" : true,
+        "SaveFrameData" : true,
         "DataPath" : "D:/SimData/FLIP",
         "OptionalSavingData" : [ "anisotropic_kernel" ]
     },

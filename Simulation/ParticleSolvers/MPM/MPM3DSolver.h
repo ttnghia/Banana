@@ -17,7 +17,7 @@
 
 #pragma once
 
-#include <Banana/LinearAlgebra/LinearSolvers/PCGSolver.h>
+#include <Banana/Grid/Grid.h>
 #include <ParticleSolvers/ParticleSolver.h>
 #include <ParticleSolvers/MPM/MPM3DData.h>
 
@@ -31,10 +31,9 @@ namespace ParticleSolvers
 class MPM3DSolver : public ParticleSolver3D
 {
 public:
-    MPM3DSolver()  = default;
-    ~MPM3DSolver() = default;
+    MPM3DSolver() { setupLogger(); }
 
-    std::shared_ptr<SimulationParameters_MPM3D> getSolverParams() { return m_SimParams; }
+    SharedPtr<SimulationParameters_MPM3D> getSolverParams() { return m_SimParams; }
 
     ////////////////////////////////////////////////////////////////////////////////
     virtual String getSolverName() override { return String("MPM3DSolver"); }
@@ -47,36 +46,47 @@ public:
 protected:
     virtual void loadSimParams(const nlohmann::json& jParams) override;
     virtual void setupDataIO() override;
-    virtual void loadMemoryState() override;
+    virtual bool loadMemoryState() override;
     virtual void saveMemoryState() override;
-    virtual void saveParticleData() override;
+    virtual void saveFrameData() override;
 
     Real computeCFLTimestep();
-    void advanceVelocityExplicit(Real timestep);
-    void advanceVelocityImplicit(Real timestep);
-    void computeImplicitForces(Real timestep);
-    void initializeGridMass();
-    void velocityToGrid();
-    void computeParticleVolumes();
-    void addGravity(Real timestep);
-    void constrainGridVelocity();
-    void velocityToParticles();
+    void advanceVelocity(Real timestep);
+    void updateParticles(Real timestep);
 
-    void moveParticles(Real timeStep);
-    void updateGradient();
+    ////////////////////////////////////////////////////////////////////////////////
+    // grid processing
+    void massToGrid();
+    void velocityToGrid(Real timestep);
+    void constrainGridVelocity(Real timestep);
+
+    //Compute grid velocities
+    void explicitVelocities(Real timestep);
+    void implicitVelocities(Real timestep);
+    void recomputeImplicitForces(Real timestep);
+
+    //Map grid velocities back to particles
+    void velocityToParticles(Real timestep);
+    void constrainParticleVelocity(Real timestep);
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // particle processing
+    void calculateParticleVolumes();
+    void updateParticlePositions(Real timestep);
+    void updateGradients(Real timestep);
     void applyPlasticity();
-    void updateEnergyDerivative();
-    void computeDeltaForce();         //Computes stress force delta, for implicit velocity update
+
+    Mat3x3r computeEnergyDerivative(UInt p);
+    Vec3r   computeDeltaForce(UInt p, const Vec3r& u, const Vec3r& weight_grad, Real timestep);      //Computes stress force delta, for implicit velocity update
 
     ////////////////////////////////////////////////////////////////////////////////
     SimulationData_MPM3D::ParticleSimData& particleData() { return m_SimData->particleSimData; }
     SimulationData_MPM3D::GridSimData&     gridData() { return m_SimData->gridSimData; }
 
-    std::shared_ptr<SimulationParameters_MPM3D> m_SimParams = std::make_shared<SimulationParameters_MPM3D>();
-    std::unique_ptr<SimulationData_MPM3D>       m_SimData   = std::make_unique<SimulationData_MPM3D>();
+    SharedPtr<SimulationParameters_MPM3D> m_SimParams = std::make_shared<SimulationParameters_MPM3D>();
+    UniquePtr<SimulationData_MPM3D>       m_SimData   = std::make_unique<SimulationData_MPM3D>();
 
-    Grid3DHashing m_Grid;
-    PCGSolver     m_PCGSolver;
+    Grid3r m_Grid;
 };
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace ParticleSolvers

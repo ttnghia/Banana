@@ -32,7 +32,7 @@ void ParticleSolver<N, RealType >::loadScene(const String& sceneFile)
         nlohmann::json jFrameParams = jParams["GlobalParameters"];
         SceneLoader::loadGlobalParams(jFrameParams, m_GlobalParams);
         m_GlobalParams->printParams(m_Logger);
-        if(m_GlobalParams->bSaveParticleData || m_GlobalParams->bSaveMemoryState || m_GlobalParams->bPrintLog2File) {
+        if(m_GlobalParams->bSaveFrameData || m_GlobalParams->bSaveMemoryState || m_GlobalParams->bPrintLog2File) {
             FileHelpers::createFolder(m_GlobalParams->dataPath);
         }
     }
@@ -86,7 +86,7 @@ void ParticleSolver<N, RealType >::loadScene(const String& sceneFile)
 
     ////////////////////////////////////////////////////////////////////////////////
     // create output folder, if necessary, and dump scene file
-    if(m_GlobalParams->bSaveParticleData || m_GlobalParams->bSaveMemoryState) {
+    if(m_GlobalParams->bSaveFrameData || m_GlobalParams->bSaveMemoryState) {
         FileHelpers::createFolder(m_GlobalParams->dataPath);
         FileHelpers::copyFile(sceneFile, m_GlobalParams->dataPath + "/" + FileHelpers::getFileName(sceneFile));
     }

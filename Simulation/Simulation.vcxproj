@@ -194,6 +194,7 @@
     <ClCompile Include="ParticleSolvers\FLIP\FLIP2DSolver.cpp" />
     <ClCompile Include="ParticleSolvers\FLIP\FLIP3DSolver.cpp" />
     <ClCompile Include="ParticleSolvers\MPM\MPM2DSolver.cpp" />
+    <ClCompile Include="ParticleSolvers\MPM\MPM3DSolver.cpp" />
     <ClCompile Include="ParticleSolvers\Peridynamics\PeridynamicsSolver.cpp" />
     <ClCompile Include="ParticleSolvers\SceneLoader.cpp" />
     <ClCompile Include="ParticleSolvers\SPH\WCSPH\WCSPHSolver.cpp" />

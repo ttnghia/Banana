@@ -17,7 +17,7 @@
 
 #pragma once
 #include <Banana/Setup.h>
-#include <Banana/Array/Array3.h>
+#include <Banana/Array/Array.h>
 #include <ParticleSolvers/ParticleSolverData.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -32,12 +32,14 @@ struct SimulationParameters_MPM3D
     SimulationParameters_MPM3D() { makeReady(); }
 
     ////////////////////////////////////////////////////////////////////////////////
-    Real defaultTimestep     = Real(1.0e-4);
-    Real maxTimestep         = Real(5.0e-4);
     Real CFLFactor           = Real(0.04);
-    Real PIC_FLIP_ratio      = Real(0.97);
-    Real boundaryRestitution = Real(DEFAULT_BOUNDARY_RESTITUTION);
-    Real particleRadius      = Real(1.0 / 32.0 / 4.0);
+    Real PIC_FLIP_ratio      = ParticleSolverConstants::Default_PIC_FLIP_Ratio;
+    Real minTimestep         = ParticleSolverConstants::DefaultMinTimestep;
+    Real maxTimestep         = ParticleSolverConstants::DefaultMaxTimestep;
+    Real boundaryRestitution = ParticleSolverConstants::DefaultBoundaryRestitution;
+
+    Real CGRelativeTolerance = ParticleSolverConstants::DefaultCGRelativeTolerance;
+    UInt maxCGIteration      = ParticleSolverConstants::DefaultMaxCGIteration;
 
     Real thresholdCompression = Real(1.0 - 1.9e-2); //Fracture threshold for compression (1-2.5e-2)
     Real thresholdStretching  = Real(1.0 + 7.5e-3); //Fracture threshold for stretching (1+7.5e-3)
@@ -46,32 +48,37 @@ struct SimulationParameters_MPM3D
     Real YoungsModulus        = Real(1.5e5);        //Young's modulus (springiness) (1.4e5)
     Real PoissonsRatio        = Real(0.2);          //Poisson's ratio (transverse/axial strain ratio) (.2)
     Real implicitRatio        = Real(0);            //Percentage that should be implicit vs explicit for velocity update
-    Real CGRelativeTolerance  = Real(1e-15);
-    UInt maxCGIteration       = 10000;
 
-    //Nodes: use (y*size[0] + x) to index, where zero is the bottom-left corner (e.g. like a cartesian grid)
-    Real cellVolume;
-    UInt nodes_length;
+    Real maxImplicitError = Real(1e4);              //Maximum allowed error for conjugate residual
+    Real minImplicitError = Real(1e-4);             //Minimum allowed error for conjugate residual
 
-    Vec3r movingBMin = Vec3r(-1.0);
-    Vec3r movingBMax = Vec3r(1.0);
+    ParticleSolverConstants::InterpolationKernels kernel     = ParticleSolverConstants::InterpolationKernels::CubicBSpline;
+    Int                                           kernelSpan = 2;
+
+    Real  cellSize                    = ParticleSolverConstants::DefaultCellSize;
+    Real  ratioCellSizeParticleRadius = Real(2.0);
+    Vec3r domainBMin                  = Vec3r(0.0);
+    Vec3r domainBMax                  = Vec3r(1.0);
 
     // the following need to be computed
-    Real       lambda, mu;                          //Lame parameters (_s denotes starting configuration)
-    Vec3r      domainBMin;
-    Vec3r      domainBMax;
-    int        kernelSpan;
-    P2GKernels p2gKernel;
-    Real       cellSize;
+    Real particleRadius;
+    Real particleMass;
+
+    Real  cellArea;
+    Vec3r movingBMin;
+    Vec3r movingBMax;
+
+    Real lambda, mu;     //Lame parameters (_s denotes starting configuration)
 
     ////////////////////////////////////////////////////////////////////////////////
     void makeReady()
     {
-        cellSize   = particleRadius * Real(4.0);
-        cellVolume = MathHelpers::cube(cellSize);
-        //kernelSpan = (kernelFunc == P2GKernels::Linear || kernelFunc == P2GKernels::SwirlyLinear) ? 1 : 2;
-        domainBMin = movingBMin;
-        domainBMax = movingBMax;
+        particleRadius = cellSize / ratioCellSizeParticleRadius;
+        particleMass   = particleRadius * particleRadius * materialDensity;
+
+        cellArea   = cellSize * cellSize;
+        movingBMin = domainBMin + Vec3r(cellSize * ParticleSolverConstants::DefaultExpandCells);
+        movingBMax = domainBMax - Vec3r(cellSize * ParticleSolverConstants::DefaultExpandCells);
 
         lambda = YoungsModulus * PoissonsRatio / ((Real(1.0) + PoissonsRatio) * (Real(1.0) - Real(2.0) * PoissonsRatio)),
         mu     = YoungsModulus / (Real(2.0) + Real(2.0) * PoissonsRatio);
@@ -81,19 +88,23 @@ struct SimulationParameters_MPM3D
     void printParams(const std::shared_ptr<Logger>& logger)
     {
         logger->printLog("MPM-3D simulation parameters:");
-        logger->printLogIndent("Default timestep: " + NumberHelpers::formatToScientific(defaultTimestep));
+        logger->printLogIndent("Maximum timestep: " + NumberHelpers::formatToScientific(maxTimestep));
         logger->printLogIndent("CFL factor: " + std::to_string(CFLFactor));
         logger->printLogIndent("PIC/FLIP ratio: " + std::to_string(PIC_FLIP_ratio));
 
-        logger->printLogIndent("Moving BMin: " + NumberHelpers::toString(movingBMin));
-        logger->printLogIndent("Moving BMax: " + NumberHelpers::toString(movingBMax));
+        logger->printLogIndent("Domain box: " + NumberHelpers::toString(domainBMin) + String(" -> ") + NumberHelpers::toString(domainBMax));
+        logger->printLogIndent("Moving box: " + NumberHelpers::toString(movingBMin) + String(" -> ") + NumberHelpers::toString(movingBMax));
         logger->printLogIndent("Cell size: " + std::to_string(cellSize));
-        logger->printLogIndent("Grid resolution: " + NumberHelpers::toString(Vec3ui(static_cast<UInt>(ceil((domainBMax[0] - domainBMin[0]) / cellSize)),
-                                                                                    static_cast<UInt>(ceil((domainBMax[1] - domainBMin[1]) / cellSize)),
-                                                                                    static_cast<UInt>(ceil((domainBMax[2] - domainBMin[2]) / cellSize)))));
-        logger->printLogIndent("Moving grid resolution: " + NumberHelpers::toString(Vec3ui(static_cast<UInt>(ceil((movingBMax[0] - movingBMin[0]) / cellSize)),
-                                                                                           static_cast<UInt>(ceil((movingBMax[1] - movingBMin[1]) / cellSize)),
-                                                                                           static_cast<UInt>(ceil((movingBMax[2] - movingBMin[2]) / cellSize)))));
+        Vec3ui numDomainCells(static_cast<UInt>(ceil((domainBMax[0] - domainBMin[0]) / cellSize)),
+                              static_cast<UInt>(ceil((domainBMax[1] - domainBMin[1]) / cellSize)),
+                              static_cast<UInt>(ceil((domainBMax[2] - domainBMin[2]) / cellSize)));
+        Vec3ui numMovingCells(static_cast<UInt>(ceil((movingBMax[0] - movingBMin[0]) / cellSize)),
+                              static_cast<UInt>(ceil((movingBMax[1] - movingBMin[1]) / cellSize)),
+                              static_cast<UInt>(ceil((movingBMax[2] - movingBMin[2]) / cellSize)));
+        logger->printLogIndent("Number of cells: " + std::to_string(numDomainCells[0] * numDomainCells[1]));
+        logger->printLogIndent("Number of nodes: " + std::to_string((numDomainCells[0] + 1u) * (numDomainCells[1] + 1u)));
+        logger->printLogIndent("Grid resolution: " + NumberHelpers::toString(numDomainCells));
+        logger->printLogIndent("Moving grid resolution: " + NumberHelpers::toString(numMovingCells));
 
         logger->printLogIndent("Boundary restitution: " + std::to_string(boundaryRestitution));
         logger->printLogIndent("ConjugateGradient solver tolerance: " + NumberHelpers::formatToScientific(CGRelativeTolerance));
@@ -109,85 +120,137 @@ struct SimulationData_MPM3D
 {
     struct ParticleSimData
     {
-        Vec_Vec3r   positions;
-        Vec_Vec3r   positions_tmp;
-        Vec_Vec3r   velocities;
-        Vec_VecUInt neighborList;
-
-        Vec_Real    particleVolumes, particleMasses, particleDensities;
+        Vec_Vec3r   positions, velocities;
+        Vec_Real    volumes, densities;
         Vec_Mat3x3r velocityGradients;
-        Vec_Mat3x3r energyDerivatives;
 
-        Vec_Mat3x3r deformGradElastics, deformGradPlastics; //Deformation gradient (elastic and plastic parts)
+        //Deformation gradient (elastic and plastic parts)
+        Vec_Mat3x3r elasticDeformGrad, plasticDeformGrad;
 
-        Vec_Mat3x3r svd_w, svd_v;                           //Cached SVD's for elastic deformation gradient
+        //Cached SVD's for elastic deformation gradient
+        Vec_Mat3x3r svd_w, svd_v;
         Vec_Vec3r   svd_e;
 
-        Vec_Mat3x3r polar_r, polar_s; //Cached polar decomposition
+        //Cached polar decomposition
+        Vec_Mat3x3r polar_r, polar_s;
 
-        Vec_Vec3i particleCellIdx;    //Grid interpolation weights
+        //Grid interpolation weights
+        Vec_Vec3r particleGridPos;
+        Vec_Vec3r weightGradients;                 // * 16
+        Vec_Real  weights;                         // * 16
+
+        void addParticle(const Vec3r& pos, const Vec3r& vel = Vec3r(0))
+        {
+            positions.push_back(pos);
+            velocities.push_back(vel);
+            volumes.push_back(0);
+            densities.push_back(0);
+            velocityGradients.push_back(Mat3x3r(1.0));
+
+            elasticDeformGrad.push_back(Mat3x3r(1.0));
+            plasticDeformGrad.push_back(Mat3x3r(1.0));
+            svd_w.push_back(Mat3x3r(1.0));
+            svd_e.push_back(Vec3r(1.0));
+            svd_v.push_back(Mat3x3r(1.0));
+            polar_r.push_back(Mat3x3r(1.0));
+            polar_s.push_back(Mat3x3r(1.0));
+
+            particleGridPos.push_back(Vec3r(0));
+
+            for(int i = 0; i < 64; ++i) {
+                weightGradients.push_back(Vec3r(0));
+                weights.push_back(Real(0));
+            }
+        }
+
+        ////////////////////////////////////////////////////////////////////////////////
+
+        void reserve(UInt numParticles)
+        {
+            positions.reserve(numParticles);
+            velocities.reserve(numParticles);
+            volumes.reserve(numParticles);
+            densities.reserve(numParticles);
+            velocityGradients.reserve(numParticles);
+
+            elasticDeformGrad.reserve(numParticles);
+            plasticDeformGrad.reserve(numParticles);
+
+            svd_w.reserve(numParticles);
+            svd_e.reserve(numParticles);
+            svd_v.reserve(numParticles);
+
+            polar_r.reserve(numParticles);
+            polar_s.reserve(numParticles);
+
+            particleGridPos.reserve(numParticles);
+
+            weightGradients.reserve(numParticles * 64);
+            weights.reserve(numParticles * 64);
+        }
     } particleSimData;
 
-
-    struct GridSimData
-    {
-        Array3r       gridMass;
-        Array3c       active;
-        Array3<Vec3r> velocities, velocitiesNew;
-        Array3r       weights;
-        Array3<Vec3r> weightGrads;
-
-        //All the following variables are used by the implicit linear solver
-        Array3c       imp_active; //are we still solving for vf
-        Array3<Vec3r> force,
-                      err,        //error of estimate
-                      r,          //residual of estimate
-                      p,          //residual gradient? squared residual?
-                      Ep, Er;     //yeah, I really don't know how this works...
-        Array3r rEr;              //r.dot(Er)
-    } gridSimData;
-
-
-    ////////////////////////////////////////////////////////////////////////////////
     UInt getNParticles() { return static_cast<UInt>(particleSimData.positions.size()); }
 
-    void reserve(UInt numParticles)
+    ////////////////////////////////////////////////////////////////////////////////
+    struct GridSimData
     {
-        particleSimData.positions.reserve(numParticles);
-        particleSimData.velocities.reserve(numParticles);
+        Array3r         mass;
+        Array3c         active;
+        Array<3, Vec3r> velocity, velocity_new;
 
-        particleSimData.particleVolumes.reserve(numParticles);
-        particleSimData.particleMasses.reserve(numParticles);
-        particleSimData.particleDensities.reserve(numParticles);
-        particleSimData.velocityGradients.reserve(numParticles);
+        // variable for implicit velocity solving
+        Array3c         imp_active;
+        Array<3, Vec3r> force,
+                        err,          //error of estimate
+                        r,            //residual of estimate
+                        p,            //residual gradient? squared residual?
+                        Ep, Er;       //yeah, I really don't know how this works...
+        Array3r rDotEr;               //r.dot(Er)
 
-        particleSimData.deformGradElastics.reserve(numParticles);
-        particleSimData.deformGradPlastics.reserve(numParticles);
+        Array3SpinLock nodeLocks;
+        Array3r        boundarySDF;
 
-        particleSimData.svd_w.reserve(numParticles);
-        particleSimData.svd_v.reserve(numParticles);
-        particleSimData.svd_e.reserve(numParticles);
+        ////////////////////////////////////////////////////////////////////////////////
+        void resize(Vec3ui gridSize)
+        {
+            mass.resize(gridSize);
+            active.resize(gridSize);
+            velocity.resize(gridSize);
+            velocity_new.resize(gridSize);
+            imp_active.resize(gridSize);
+            force.resize(gridSize);
+            err.resize(gridSize);
+            r.resize(gridSize);
+            p.resize(gridSize);
+            Ep.resize(gridSize);
+            Er.resize(gridSize);
+            rDotEr.resize(gridSize);
 
-        particleSimData.polar_r.reserve(numParticles);
-        particleSimData.polar_s.reserve(numParticles);
-        particleSimData.particleCellIdx.reserve(numParticles);
-    }
+            boundarySDF.resize(gridSize);
+            nodeLocks.resize(gridSize);
+        }
 
-    void makeReady(UInt ni, UInt nj, UInt nk)
-    {
-        //To start out with, we assume the deformation gradient is zero
-        //Or in other words, all particle velocities are the same
-        //def_elastic.loadIdentity();
-        //def_plastic.loadIdentity();
-        //svd_e.setData(1, 1);
-        //svd_w.loadIdentity();
-        //svd_v.loadIdentity();
-        //polar_r.loadIdentity();
-        //polar_s.loadIdentity();
-    }
+        ////////////////////////////////////////////////////////////////////////////////
+        void resetGrid()
+        {
+            mass.assign(Real(0));
+            active.assign(char(0));
+            imp_active.assign(char(0));
+            velocity.assign(Vec3r(0));
+            velocity_new.assign(Vec3r(0));
+            force.assign(Vec3r(0));
+            err.assign(Vec3r(0));
+            r.assign(Vec3r(0));
+            p.assign(Vec3r(0));
+            Ep.assign(Vec3r(0));
+            Er.assign(Vec3r(0));
+            rDotEr.assign(Real(0));
+        }
+    } gridSimData;
 };
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-}   // end namespace ParticleSolvers
+};      // end namespace ParticleSolvers
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana

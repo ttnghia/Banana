@@ -51,7 +51,7 @@ void Banana::MPMSolver<Real >::advanceFrame()
 }
 
 template<class Real>
-void Banana::MPMSolver<Real >::saveParticleData()
+void Banana::MPMSolver<Real >::saveFrameData()
 {}
 
 template<class Real>
