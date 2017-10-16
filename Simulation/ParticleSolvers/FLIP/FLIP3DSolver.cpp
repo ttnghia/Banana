@@ -44,7 +44,7 @@ void FLIP3DSolver::makeReady()
                                m_Grid.setGrid(m_SimParams->domainBMin, m_SimParams->domainBMax, m_SimParams->cellSize);
 
                                m_PCGSolver.setSolverParameters(m_SimParams->CGRelativeTolerance, m_SimParams->maxCGIteration);
-                               m_PCGSolver.setPreconditioners(PCGSolver::MICCL0_SYMMETRIC);
+                               m_PCGSolver.setPreconditioners(PCGSolver<Real>::MICCL0_SYMMETRIC);
 
                                for(auto& obj : m_BoundaryObjects) {
                                    obj->margin() = m_SimParams->particleRadius;

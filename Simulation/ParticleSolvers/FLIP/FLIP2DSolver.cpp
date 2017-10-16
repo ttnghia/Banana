@@ -44,7 +44,7 @@ void FLIP2DSolver::makeReady()
                                m_SimData->makeReady(m_Grid.getNCells()[0], m_Grid.getNCells()[1]);
 
                                m_PCGSolver.setSolverParameters(m_SimParams->CGRelativeTolerance, m_SimParams->maxCGIteration);
-                               m_PCGSolver.setPreconditioners(PCGSolver::MICCL0_SYMMETRIC);
+                               m_PCGSolver.setPreconditioners(PCGSolver<Real>::MICCL0_SYMMETRIC);
 
 
 

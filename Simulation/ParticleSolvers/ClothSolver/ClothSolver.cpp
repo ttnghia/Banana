@@ -44,7 +44,7 @@ void ClothSolver::makeReady()
                                m_SimData->makeReady(m_Grid.getNCells()[0], m_Grid.getNCells()[1], m_Grid.getNCells()[2]);
 
                                m_PCGSolver.setSolverParameters(m_SimParams->CGRelativeTolerance, m_SimParams->maxCGIteration);
-                               m_PCGSolver.setPreconditioners(PCGSolver::MICCL0_SYMMETRIC);
+                               m_PCGSolver.setPreconditioners(PCGSolver<Real>::MICCL0_SYMMETRIC);
 
                                m_NSearch = std::make_unique<NeighborSearch::NeighborSearch3D>(m_SimParams->cellSize);
                                m_NSearch->add_point_set(glm::value_ptr(particleData().positions.front()), m_SimData->getNParticles(), true, true);

@@ -148,6 +148,8 @@
     <ClInclude Include="Banana\Grid\GridHelpers.h" />
     <ClInclude Include="Banana\Grid\_Grid.Test.hpp" />
     <ClInclude Include="Banana\LinearAlgebra\ImplicitQRSVD.h" />
+    <ClInclude Include="Banana\LinearAlgebra\LinearSolvers\PCGSolver.Impl.hpp" />
+    <ClInclude Include="Banana\LinearAlgebra\SparseMatrix\SparseMatrix.Impl.hpp" />
     <ClInclude Include="Banana\LinearAlgebra\_SVD.Test.hpp" />
     <ClInclude Include="Banana\NeighborSearch\DataStructures.h" />
     <ClInclude Include="Banana\NeighborSearch\Morton\Morton.h" />
@@ -201,8 +203,8 @@
     <ClCompile Include="Banana\Geometry\KdTree.cpp" />
     <ClCompile Include="Banana\Geometry\MeshLoader.cpp" />
     <ClCompile Include="Banana\Geometry\OBJLoader.cpp" />
-    <ClCompile Include="Banana\LinearAlgebra\LinearSolvers\PCGSolver.cpp" />
-    <ClCompile Include="Banana\LinearAlgebra\SparseMatrix\SparseMatrix.cpp" />
+    <ClCompile Include="Banana\LinearAlgebra\LinearSolvers\_PCGSolver.cpp" />
+    <ClCompile Include="Banana\LinearAlgebra\SparseMatrix\_SparseMatrix.cpp" />
     <ClCompile Include="Banana\NeighborSearch\NeighborSearch3D.cpp" />
     <ClCompile Include="Banana\Utils\Logger.cpp" />
   </ItemGroup>

@@ -120,9 +120,9 @@ struct SimulationData_FLIP2D
     Array2r fluidSDF;
     Array2r boundarySDF;
 
-    SparseMatrix matrix;
-    Vec_Real     rhs;
-    Vec_Real     pressure;
+    SparseMatrix<Real> matrix;
+    Vec_Real           rhs;
+    Vec_Real           pressure;
 
     ////////////////////////////////////////////////////////////////////////////////
     UInt getNParticles() { return static_cast<UInt>(positions.size()); }

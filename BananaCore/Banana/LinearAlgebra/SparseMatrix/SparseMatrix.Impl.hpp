@@ -15,113 +15,99 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-#include <Banana/LinearAlgebra/SparseMatrix/SparseMatrix.h>
-#include <Banana/Utils/FileHelpers.h>
-#include <Banana/Utils/NumberHelpers.h>
-#include <Banana/Utils/STLHelpers.h>
-#include <Banana/ParallelHelpers/ParallelFuncs.h>
-
-#include <iostream>
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace Banana
-{
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Dynamic compressed sparse row matrix.
 //
-void SparseMatrix::resize(UInt newSize)
+template<class RealType>
+void SparseMatrix<RealType >::resize(UInt newSize)
 {
     nRows = newSize;
     colIndex.resize(nRows);
     colValue.resize(nRows);
 }
 
-void SparseMatrix::clear(void)
+template<class RealType>
+void SparseMatrix<RealType >::clear(void)
 {
-    for(UInt i = 0; i < nRows; ++i)
-    {
+    for(UInt i = 0; i < nRows; ++i) {
         colIndex[i].resize(0);
         colValue[i].resize(0);
     }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-Real SparseMatrix::operator()(UInt i, UInt j) const
+template<class RealType>
+template<class IndexType>
+RealType SparseMatrix<RealType>::operator ()(IndexType i, IndexType j) const
 {
-    UInt k = 0;
+    assert(static_cast<UInt>(i) < m_Size && static_cast<UInt>(j) < m_Size);
 
-    if(STLHelpers::Sorted::contain(colIndex[i], j, k))
-    {
+    UInt k = 0;
+    if(STLHelpers::Sorted::contain(colIndex[i], static_cast<UInt>(j), k)) {
         return colValue[i][k];
-    }
-    else
-    {
+    } else {
         return 0;
     }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void SparseMatrix::setElement(UInt i, UInt j, Real newValue)
+template<class RealType>
+template<class IndexType>
+void SparseMatrix<RealType >::setElement(IndexType i, IndexType j, RealType newValue)
 {
-    assert(i < nRows && j < nRows);
+    assert(static_cast<UInt>(i) < m_Size && static_cast<UInt>(j) < m_Size);
 
     UInt k = 0;
-
-    if(STLHelpers::Sorted::contain(colIndex[i], j, k))
-    {
+    if(STLHelpers::Sorted::contain(colIndex[i], static_cast<UInt>(j), k)) {
         colValue[i][k] = newValue;
-    }
-    else
-    {
-        STLHelpers::Sorted::insertPairSorted(colIndex[i], j, colValue[i], newValue);
+    } else {
+        STLHelpers::Sorted::insertPairSorted(colIndex[i], static_cast<UInt>(j), colValue[i], newValue);
     }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void SparseMatrix::addElement(UInt i, UInt j, Real incrementValue)
+template<class RealType>
+template<class IndexType>
+void SparseMatrix<RealType >::addElement(IndexType i, IndexType j, RealType incrementValue)
 {
-    assert(i < nRows && j < nRows);
+    assert(static_cast<UInt>(i) < m_Size && static_cast<UInt>(j) < m_Size);
 
     UInt k = 0;
-
-    if(STLHelpers::Sorted::contain(colIndex[i], j, k))
-    {
+    if(STLHelpers::Sorted::contain(colIndex[i], static_cast<UInt>(j), k)) {
         colValue[i][k] += incrementValue;
-    }
-    else
-    {
-        STLHelpers::Sorted::insertPairSorted(colIndex[i], j, colValue[i], incrementValue);
+    } else {
+        STLHelpers::Sorted::insertPairSorted(colIndex[i], static_cast<UInt>(j), colValue[i], incrementValue);
     }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void SparseMatrix::eraseElement(UInt i, UInt j)
+template<class RealType>
+template<class IndexType>
+void SparseMatrix<RealType >::eraseElement(IndexType i, IndexType j)
 {
-    assert(i < nRows && j < nRows);
+    assert(static_cast<UInt>(i) < m_Size && static_cast<UInt>(j) < m_Size);
 
     UInt k = 0;
-
-    if(STLHelpers::Sorted::contain(colIndex[i], j, k))
-    {
+    if(STLHelpers::Sorted::contain(colIndex[i], static_cast<UInt>(j), k)) {
         colIndex[i].erase(colIndex[i].begin() + k);
         colValue[i].erase(colValue[i].begin() + k);
     }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void SparseMatrix::printDebug(UInt maxRows /*= 0*/) const noexcept
+template<class RealType>
+void SparseMatrix<RealType >::printDebug(UInt maxRows /*= 0*/) const noexcept
 {
-    if(maxRows == 0) maxRows = nRows;
-    for(UInt i = 0; i < maxRows; ++i)
-    {
-        if(colIndex[i].size() == 0)
+    if(maxRows == 0) { maxRows = nRows; }
+    for(UInt i = 0; i < maxRows; ++i) {
+        if(colIndex[i].size() == 0) {
             continue;
+        }
 
         std::cout << "Line " << i << ": ";
 
-        for(UInt j = 0; j < colIndex[i].size(); ++j)
-        {
+        for(UInt j = 0; j < colIndex[i].size(); ++j) {
             std::cout << colIndex[i][j] << "(" << NumberHelpers::formatToScientific(colValue[i][j]) << "), ";
         }
 
@@ -132,7 +118,8 @@ void SparseMatrix::printDebug(UInt maxRows /*= 0*/) const noexcept
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void SparseMatrix::checkSymmetry() const noexcept
+template<class RealType>
+void SparseMatrix<RealType >::checkSymmetry() const noexcept
 {
     volatile bool check = true;
     std::cout << "============================== Checking Matrix Symmetry... ==============================" << std::endl;
@@ -141,14 +128,11 @@ void SparseMatrix::checkSymmetry() const noexcept
     ParallelFuncs::parallel_for<UInt>(0, nRows,
                                       [&](UInt i)
                                       {
-                                          for(UInt j = i + 1; j < nRows; ++j)
-                                          {
-                                              if(STLHelpers::Sorted::contain(colIndex[i], j))
-                                              {
+                                          for(UInt j = i + 1; j < nRows; ++j) {
+                                              if(STLHelpers::Sorted::contain(colIndex[i], j)) {
                                                   auto err = std::abs((*this)(i, j) - (*this)(j, i));
 
-                                                  if(err > 1e-8)
-                                                  {
+                                                  if(err > 1e-8) {
                                                       check = false;
                                                       std::cout << "Invalid matrix element at index " << i << ", " << j
                                                                 << ", err = " << err << ": "
@@ -159,12 +143,9 @@ void SparseMatrix::checkSymmetry() const noexcept
                                           }
                                       });
 
-    if(check)
-    {
+    if(check) {
         std::cout << "All matrix elements are valid!" << std::endl;
-    }
-    else
-    {
+    } else {
         std::cout << "There are some invalid matrix elements!" << std::endl;
     }
 
@@ -172,16 +153,15 @@ void SparseMatrix::checkSymmetry() const noexcept
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void SparseMatrix::printTextFile(const char* fileName)
+template<class RealType>
+void SparseMatrix<RealType >::printTextFile(const char* fileName)
 {
     Vector<String> matContent;
 
-    for(UInt i = 0; i < nRows; ++i)
-    {
-        if(colIndex[i].size() == 0) continue;
+    for(UInt i = 0; i < nRows; ++i) {
+        if(colIndex[i].size() == 0) { continue; }
 
-        for(size_t j = 0; j < colIndex[i].size(); ++j)
-        {
+        for(size_t j = 0; j < colIndex[i].size(); ++j) {
             String str = std::to_string(i + 1);
             str += "    ";
             str += std::to_string(colIndex[i][j] + 1);
@@ -196,65 +176,55 @@ void SparseMatrix::printTextFile(const char* fileName)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // perform result=matrix*x
-void SparseMatrix::multiply(const SparseMatrix& matrix, const Vec_Real& x, Vec_Real& result)
-{
-    assert(matrix.nRows == static_cast<UInt>(x.size()));
-    result.resize(matrix.nRows);
-
-    ParallelFuncs::parallel_for<UInt>(0, matrix.nRows,
-                                      [&](UInt i)
-                                      {
-                                          Real tmpResult = 0;
-                                          for(UInt j = 0, jEnd = static_cast<UInt>(matrix.colIndex[i].size()); j < jEnd; ++j)
-                                              tmpResult += matrix.colValue[i][j] * x[matrix.colIndex[i][j]];
-
-                                          result[i] = tmpResult;
-                                      });
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-// perform result=result-matrix*x
-void SparseMatrix::multiply_and_subtract(const SparseMatrix& matrix, const Vec_Real& x, Vec_Real& result)
-{
-    assert(matrix.nRows == static_cast<UInt>(x.size()));
-    result.resize(matrix.nRows);
-
-    ParallelFuncs::parallel_for<UInt>(0, matrix.nRows,
-                                      [&](UInt i)
-                                      {
-                                          Real tmpResult = result[i];
-                                          for(UInt j = 0, jEnd = static_cast<UInt>(matrix.colIndex[i].size()); j < jEnd; ++j)
-                                              tmpResult -= matrix.colValue[i][j] * x[matrix.colIndex[i][j]];
-
-                                          result[i] = tmpResult;
-                                      });
-}
+//template<class RealType>
+//void SparseMatrix<RealType >::multiply(const SparseMatrix<RealType>& matrix, const Vector<RealType>& x, Vector<RealType>& result)
+//{
+//    assert(matrix.nRows == static_cast<UInt>(x.size()));
+//    result.resize(matrix.nRows);
+//
+//    ParallelFuncs::parallel_for<UInt>(0, matrix.nRows,
+//                                      [&](UInt i)
+//                                      {
+//                                          RealType tmpResult = 0;
+//                                          for(UInt j = 0, jEnd = static_cast<UInt>(matrix.colIndex[i].size()); j < jEnd; ++j) {
+//                                              tmpResult += matrix.colValue[i][j] * x[matrix.colIndex[i][j]];
+//                                          }
+//
+//                                          result[i] = tmpResult;
+//                                      });
+//}
+//
+////-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//// perform result=result-matrix*x
+//template<class RealType>
+//void SparseMatrix<RealType >::multiply_and_subtract(const SparseMatrix<RealType>& matrix, const Vector<RealType>& x, Vector<RealType>& result)
+//{
+//    assert(matrix.nRows == static_cast<UInt>(x.size()));
+//    result.resize(matrix.nRows);
+//
+//    ParallelFuncs::parallel_for<UInt>(0, matrix.nRows,
+//                                      [&](UInt i)
+//                                      {
+//                                          RealType tmpResult = result[i];
+//                                          for(UInt j = 0, jEnd = static_cast<UInt>(matrix.colIndex[i].size()); j < jEnd; ++j) {
+//                                              tmpResult -= matrix.colValue[i][j] * x[matrix.colIndex[i][j]];
+//                                          }
+//
+//                                          result[i] = tmpResult;
+//                                      });
+//}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Fixed version of SparseMatrix
 //
-void FixedSparseMatrix::resize(UInt newSize)
-{
-    nRows = newSize;
-    rowStart.resize(nRows + 1);
-}
-
-void FixedSparseMatrix::clear(void)
-{
-    colValue.resize(0);
-    colIndex.resize(0);
-    rowStart.resize(0);
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FixedSparseMatrix::constructFromSparseMatrix(const SparseMatrix& matrix)
+template<class RealType>
+void FixedSparseMatrix<RealType >::constructFromSparseMatrix(const SparseMatrix<RealType>& matrix)
 {
     resize(matrix.nRows);
     rowStart[0] = 0;
 
-    for(UInt i = 0; i < nRows; ++i)
-    {
+    for(UInt i = 0; i < nRows; ++i) {
         rowStart[i + 1] = rowStart[i] + static_cast<UInt>(matrix.colIndex[i].size());
     }
 
@@ -267,23 +237,25 @@ void FixedSparseMatrix::constructFromSparseMatrix(const SparseMatrix& matrix)
                                       [&](UInt i)
                                       {
                                           memcpy(&colIndex[rowStart[i]], matrix.colIndex[i].data(), matrix.colIndex[i].size() * sizeof(UInt));
-                                          memcpy(&colValue[rowStart[i]], matrix.colValue[i].data(), matrix.colValue[i].size() * sizeof(Real));
+                                          memcpy(&colValue[rowStart[i]], matrix.colValue[i].data(), matrix.colValue[i].size() * sizeof(RealType));
                                       }); // end parallel_for
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // perform result=matrix*x
-void FixedSparseMatrix::multiply(const FixedSparseMatrix& matrix, const Vec_Real& x, Vec_Real& result)
+template<class RealType>
+void FixedSparseMatrix<RealType >::multiply(const FixedSparseMatrix<RealType>& matrix, const Vector<RealType>& x, Vector<RealType>& result)
 {
     assert(matrix.nRows == static_cast<UInt>(x.size()));
     result.resize(matrix.nRows);
 
-    ParallelFuncs::parallel_for<UInt>(0, matrix.nRows,
+    ParallelFuncs::parallel_for<UInt>(matrix.nRows,
                                       [&](UInt i)
                                       {
-                                          Real tmpResult = 0;
-                                          for(UInt j = matrix.rowStart[i], jEnd = matrix.rowStart[i + 1]; j < jEnd; ++j)
+                                          RealType tmpResult = 0;
+                                          for(UInt j = matrix.rowStart[i], jEnd = matrix.rowStart[i + 1]; j < jEnd; ++j) {
                                               tmpResult += matrix.colValue[j] * x[matrix.colIndex[j]];
+                                          }
 
                                           result[i] = tmpResult;
                                       });
@@ -291,21 +263,20 @@ void FixedSparseMatrix::multiply(const FixedSparseMatrix& matrix, const Vec_Real
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // perform result=result-matrix*x
-void FixedSparseMatrix::multiply_and_subtract(const FixedSparseMatrix& matrix, const Vec_Real& x, Vec_Real& result)
-{
-    assert(matrix.nRows == static_cast<UInt>(x.size()));
-    result.resize(matrix.nRows);
-
-    ParallelFuncs::parallel_for<UInt>(0, matrix.nRows,
-                                      [&](UInt i)
-                                      {
-                                          Real tmpResult = result[i];
-                                          for(UInt j = matrix.rowStart[i], jEnd = matrix.rowStart[i + 1]; j < jEnd; ++j)
-                                              tmpResult -= matrix.colValue[j] * x[matrix.colIndex[j]];
-
-                                          result[i] = tmpResult;
-                                      });
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-} // end namespa
+//template<class RealType>
+//void FixedSparseMatrix<RealType>::multiply_and_subtract(const FixedSparseMatrix<RealType>& matrix, const Vector<RealType>& x, Vector<RealType>& result)
+//{
+//    assert(matrix.nRows == static_cast<UInt>(x.size()));
+//    result.resize(matrix.nRows);
+//
+//    ParallelFuncs::parallel_for<UInt>(0, matrix.nRows,
+//                                      [&](UInt i)
+//                                      {
+//                                          RealType tmpResult = result[i];
+//                                          for(UInt j = matrix.rowStart[i], jEnd = matrix.rowStart[i + 1]; j < jEnd; ++j) {
+//                                              tmpResult -= matrix.colValue[j] * x[matrix.colIndex[j]];
+//                                          }
+//
+//                                          result[i] = tmpResult;
+//                                      });
+//}

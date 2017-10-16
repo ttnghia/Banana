@@ -18,6 +18,7 @@
 #pragma once
 
 #include <Banana/Setup.h>
+#include <Banana/Utils/STLHelpers.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -26,6 +27,7 @@ namespace Banana
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Dynamic compressed sparse row matrix
 //
+template<class RealType>
 struct SparseMatrix
 {
 public:
@@ -35,38 +37,39 @@ public:
     Vec_VecUInt colIndex;
 
     // values corresponding to indices
-    Vec_VecReal colValue;
+    Vec_Vec<RealType> colValue;
 
     explicit SparseMatrix(UInt size = 0) : nRows(size), colIndex(size), colValue(size) {}
 
     void resize(UInt newSize);
     void clear(void);
 
-    Real operator ()(UInt i, UInt j) const;
+    template<class IndexType> RealType operator ()(IndexType i, IndexType j) const;
 
-    void setElement(UInt i, UInt j, Real newValue);
-    void addElement(UInt i, UInt j, Real incrementValue);
-    void eraseElement(UInt i, UInt j);
+    template<class IndexType> void setElement(IndexType i, IndexType j, RealType newValue);
+    template<class IndexType> void addElement(IndexType i, IndexType j, RealType incrementValue);
+    template<class IndexType> void eraseElement(IndexType i, IndexType j);
 
     void printDebug(UInt maxRows = 0) const noexcept;
     void checkSymmetry() const noexcept;
     void printTextFile(const char* fileName);
 
     ////////////////////////////////////////////////////////////////////////////////
-    static void multiply(const SparseMatrix& matrix, const Vec_Real& x, Vec_Real& result);
-    static void multiply_and_subtract(const SparseMatrix& matrix, const Vec_Real& x, Vec_Real& result);
+    /*static void multiply(const SparseMatrix<RealType>& matrix, const Vector<RealType>& x, Vector<RealType>& result);
+       static void multiply_and_subtract(const SparseMatrix<RealType>& matrix, const Vector<RealType>& x, Vector<RealType>& result);*/
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Fixed version of SparseMatrix. This can be significantly faster for matrix-vector
 // multiplies due to better data locality.
+template<class RealType>
 struct FixedSparseMatrix
 {
     UInt nRows;
 
     // nonzero values row by row
-    Vec_Real colValue;
+    Vector<RealType> colValue;
 
     // corresponding column indices
     Vec_UInt colIndex;
@@ -76,14 +79,17 @@ struct FixedSparseMatrix
 
     explicit FixedSparseMatrix(UInt size = 0) : nRows(size), colValue(0), colIndex(0), rowStart(size + 1) {}
 
-    void resize(UInt newSize);
-    void clear(void);
-    void constructFromSparseMatrix(const SparseMatrix& fixedMatrix);
+    void resize(UInt newSize) { nRows = newSize; rowStart.resize(nRows + 1); }
+    void clear(void) { colValue.resize(0); colIndex.resize(0); rowStart.resize(0); }
+    void constructFromSparseMatrix(const SparseMatrix<RealType>& fixedMatrix);
 
     ////////////////////////////////////////////////////////////////////////////////
-    static void multiply(const FixedSparseMatrix& matrix, const Vec_Real& x, Vec_Real& result);
-    static void multiply_and_subtract(const FixedSparseMatrix& matrix, const Vec_Real& x, Vec_Real& result);
+    static void multiply(const FixedSparseMatrix<RealType>& matrix, const Vector<RealType>& x, Vector<RealType>& result);
+    //static void multiply_and_subtract(const FixedSparseMatrix<RealType>& matrix, const Vector<RealType>& x, Vector<RealType>& result);
 };
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#include <Banana/LinearAlgebra/SparseMatrix/SparseMatrix.Impl.hpp>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana

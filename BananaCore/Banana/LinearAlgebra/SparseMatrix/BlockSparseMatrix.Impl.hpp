@@ -39,10 +39,13 @@ void BlockSparseMatrix<N, RealType >::clear(void)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-const MatXxX<N, RealType>& BlockSparseMatrix<N, RealType>::operator ()(UInt i, UInt j) const
+template<class IndexType>
+const MatXxX<N, RealType>& BlockSparseMatrix<N, RealType>::operator ()(IndexType i, IndexType j) const
 {
+    assert(static_cast<UInt>(i) < m_Size && static_cast<UInt>(j) < m_Size);
+
     UInt k = 0;
-    if(STLHelpers::Sorted::contain(m_ColIndex[i], j, k)) {
+    if(STLHelpers::Sorted::contain(m_ColIndex[i], static_cast<UInt>(j), k)) {
         return m_ColValue[i][k];
     } else {
         return MatXxX<N, RealType>(0);
@@ -51,43 +54,43 @@ const MatXxX<N, RealType>& BlockSparseMatrix<N, RealType>::operator ()(UInt i, U
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void BlockSparseMatrix<N, RealType >::setElement(UInt i, UInt j, const MatXxX<N, RealType>& newValue)
+template<class IndexType>
+void BlockSparseMatrix<N, RealType >::setElement(IndexType i, IndexType j, const MatXxX<N, RealType>& newValue)
 {
-    assert(i < m_Size && j < m_Size);
+    assert(static_cast<UInt>(i) < m_Size && static_cast<UInt>(j) < m_Size);
 
     UInt k = 0;
-
-    if(STLHelpers::Sorted::contain(m_ColIndex[i], j, k)) {
+    if(STLHelpers::Sorted::contain(m_ColIndex[i], static_cast<UInt>(j), k)) {
         m_ColValue[i][k] = newValue;
     } else {
-        STLHelpers::Sorted::insertPairSorted(m_ColIndex[i], j, m_ColValue[i], newValue);
+        STLHelpers::Sorted::insertPairSorted(m_ColIndex[i], static_cast<UInt>(j), m_ColValue[i], newValue);
     }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void BlockSparseMatrix<N, RealType >::addElement(UInt i, UInt j, const MatXxX<N, RealType>& incrementValue)
+template<class IndexType>
+void BlockSparseMatrix<N, RealType >::addElement(IndexType i, IndexType j, const MatXxX<N, RealType>& incrementValue)
 {
-    assert(i < m_Size && j < m_Size);
+    assert(static_cast<UInt>(i) < m_Size && static_cast<UInt>(j) < m_Size);
 
     UInt k = 0;
-
-    if(STLHelpers::Sorted::contain(m_ColIndex[i], j, k)) {
+    if(STLHelpers::Sorted::contain(m_ColIndex[i], static_cast<UInt>(j), k)) {
         m_ColValue[i][k] += incrementValue;
     } else {
-        STLHelpers::Sorted::insertPairSorted(m_ColIndex[i], j, m_ColValue[i], incrementValue);
+        STLHelpers::Sorted::insertPairSorted(m_ColIndex[i], static_cast<UInt>(j), m_ColValue[i], incrementValue);
     }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void BlockSparseMatrix<N, RealType >::eraseElement(UInt i, UInt j)
+template<class IndexType>
+void BlockSparseMatrix<N, RealType >::eraseElement(IndexType i, IndexType j)
 {
-    assert(i < m_Size && j < m_Size);
+    assert(static_cast<UInt>(i) < m_Size && static_cast<UInt>(j) < m_Size);
 
     UInt k = 0;
-
-    if(STLHelpers::Sorted::contain(m_ColIndex[i], j, k)) {
+    if(STLHelpers::Sorted::contain(m_ColIndex[i], static_cast<UInt>(j), k)) {
         m_ColIndex[i].erase(m_ColIndex[i].begin() + k);
         m_ColValue[i].erase(m_ColValue[i].begin() + k);
     }
@@ -216,7 +219,7 @@ void FixedBlockSparseMatrix<N, RealType >::constructFromSparseMatrix(const Block
     m_ColIndex.resize(m_RowStart[m_Size]);
 
     ParallelFuncs::parallel_for(matrix.size(),
-                                [&](size_t i)
+                                [&](UInt i)
                                 {
                                     memcpy(&m_ColIndex[m_RowStart[i]], matrix.getIndices(i).data(), matrix.getIndices(i).size() * sizeof(UInt));
                                     memcpy(&m_ColValue[m_RowStart[i]], matrix.getValues(i).data(), matrix.getValues(i).size() * sizeof(MatXxX<N, RealType> ));
@@ -232,7 +235,7 @@ void FixedBlockSparseMatrix<N, RealType >::multiply(const FixedBlockSparseMatrix
     result.resize(matrix.size());
 
     ParallelFuncs::parallel_for(matrix.size(),
-                                [&](size_t i)
+                                [&](UInt i)
                                 {
                                     VecX<N, RealType> tmpResult(0);
                                     for(UInt j = matrix.m_RowStart[i], jEnd = matrix.m_RowStart[i + 1]; j < jEnd; ++j) {

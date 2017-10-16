@@ -43,7 +43,7 @@ bool BlockPCGSolver<N, RealType >::solve(const BlockSparseMatrix<N, RealType>& m
     RealType tol = m_ToleranceFactor * m_OutResidual;
     RealType rho = ParallelBLAS::dotProduct<N, RealType>(r, r);
 
-    if(fabs(rho) < 1e-20 || isnan(rho)) {
+    if(fabs(rho) < m_ToleranceFactor || isnan(rho)) {
         m_OutIterations = 0;
         return true;
     }
@@ -54,7 +54,7 @@ bool BlockPCGSolver<N, RealType >::solve(const BlockSparseMatrix<N, RealType>& m
         FixedBlockSparseMatrix<N, RealType>::multiply(m_FixedSparseMatrix, z, s);
         RealType tmp = ParallelBLAS::dotProduct<N, RealType>(s, z);
 
-        if(fabs(tmp) < 1e-20 || isnan(tmp)) {
+        if(fabs(tmp) < m_ToleranceFactor || isnan(tmp)) {
             m_OutIterations = iteration;
             return true;
         }
@@ -127,7 +127,7 @@ bool BlockPCGSolver<N, RealType >::solve_precond(const BlockSparseMatrix<N, Real
 
     RealType rho = ParallelBLAS::dotProduct<N, RealType>(z, r);
 
-    if(fabs(rho) < 1e-20 || isnan(rho)) {
+    if(fabs(rho) < m_ToleranceFactor || isnan(rho)) {
         m_OutIterations = 0;
         return true;
     }

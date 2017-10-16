@@ -141,9 +141,9 @@ struct SimulationData_FLIP3D
     } gridSimData;
 
     ////////////////////////////////////////////////////////////////////////////////
-    SparseMatrix matrix;
-    Vec_Real     rhs;
-    Vec_Real     pressure;
+    SparseMatrix<Real> matrix;
+    Vec_Real           rhs;
+    Vec_Real           pressure;
 
     ////////////////////////////////////////////////////////////////////////////////
     UInt getNParticles() { return static_cast<UInt>(particleSimData.positions.size()); }

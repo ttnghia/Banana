@@ -51,16 +51,16 @@ public:
     void resize(UInt newSize);
     void clear(void);
 
-    Vec_UInt&                      getIndices(UInt row) { assert(row < m_Size); return m_ColIndex[row]; }
-    const Vec_UInt&                getIndices(UInt row) const { assert(row < m_Size); return m_ColIndex[row]; }
-    Vec_MatXxX<N, RealType>&       getValues(UInt row) { assert(row < m_Size); return m_ColValue[row]; }
-    const Vec_MatXxX<N, RealType>& getValues(UInt row) const { assert(row < m_Size); return m_ColValue[row]; }
+    template<class IndexType> Vec_UInt&                      getIndices(IndexType row) { assert(static_cast<UInt>(row) < m_Size); return m_ColIndex[row]; }
+    template<class IndexType> const Vec_UInt&                getIndices(IndexType row) const { assert(static_cast<UInt>(row) < m_Size); return m_ColIndex[row]; }
+    template<class IndexType> Vec_MatXxX<N, RealType>&       getValues(IndexType row) { assert(static_cast<UInt>(row) < m_Size); return m_ColValue[row]; }
+    template<class IndexType> const Vec_MatXxX<N, RealType>& getValues(IndexType row) const { assert(static_cast<UInt>(row) < m_Size); return m_ColValue[row]; }
 
-    const MatXxX<N, RealType>& operator ()(UInt i, UInt j) const;
+    template<class IndexType> const MatXxX<N, RealType>& operator ()(IndexType i, IndexType j) const;
 
-    void setElement(UInt i, UInt j, const MatXxX<N, RealType>& newValue);
-    void addElement(UInt i, UInt j, const MatXxX<N, RealType>& incrementValue);
-    void eraseElement(UInt i, UInt j);
+    template<class IndexType> void setElement(IndexType i, IndexType j, const MatXxX<N, RealType>& newValue);
+    template<class IndexType> void addElement(IndexType i, IndexType j, const MatXxX<N, RealType>& incrementValue);
+    template<class IndexType> void eraseElement(IndexType i, IndexType j);
 
     void printDebug() const noexcept;
     void checkSymmetry() const noexcept;
@@ -95,12 +95,12 @@ public:
     void clear(void) { m_ColValue.resize(0); m_ColIndex.resize(0); m_RowStart.resize(0); }
     void constructFromSparseMatrix(const BlockSparseMatrix<N, RealType>& fixedMatrix);
 
-    Vec_UInt&       getIndices(UInt row) { assert(row < m_Size); return m_ColIndex[row]; }
-    const Vec_UInt& getIndices(UInt row) const { assert(row < m_Size); return m_ColIndex[row]; }
-    Vec_UInt&       getRowStarts(UInt row) { assert(row < m_Size); return m_RowStart[row]; }
-    const Vec_UInt& getRowStarts(UInt row) const { assert(row < m_Size); return m_RowStart[row]; }
-    Vec_Real&       getValues(UInt row) { assert(row < m_Size); return m_ColValue[row]; }
-    const Vec_Real& getValues(UInt row) const { assert(row < m_Size); return m_ColValue[row]; }
+    template<class IndexType> Vec_UInt&       getIndices(IndexType row) { assert(static_cast<UInt>(row) < m_Size); return m_ColIndex[row]; }
+    template<class IndexType> const Vec_UInt& getIndices(IndexType row) const { assert(static_cast<UInt>(row) < m_Size); return m_ColIndex[row]; }
+    template<class IndexType> Vec_UInt&       getRowStarts(IndexType row) { assert(static_cast<UInt>(row) < m_Size); return m_RowStart[row]; }
+    template<class IndexType> const Vec_UInt& getRowStarts(IndexType row) const { assert(static_cast<UInt>(row) < m_Size); return m_RowStart[row]; }
+    template<class IndexType> Vec_Real&       getValues(IndexType row) { assert(static_cast<UInt>(row) < m_Size); return m_ColValue[row]; }
+    template<class IndexType> const Vec_Real& getValues(IndexType row) const { assert(static_cast<UInt>(row) < m_Size); return m_ColValue[row]; }
 
     ////////////////////////////////////////////////////////////////////////////////
     static void multiply(const FixedBlockSparseMatrix<N, RealType>& matrix, const Vector<VecX<N, RealType> >& x, Vector<VecX<N, RealType> >& result);

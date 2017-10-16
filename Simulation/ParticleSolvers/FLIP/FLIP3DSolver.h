@@ -89,8 +89,8 @@ protected:
     std::function<Real(const Vec3r&, const Array3r&)> m_InterpolateValue = nullptr;
     std::function<Real(const Vec3r&)>                 m_WeightKernel     = nullptr;
 
-    Grid3r    m_Grid;
-    PCGSolver m_PCGSolver;
+    Grid3r          m_Grid;
+    PCGSolver<Real> m_PCGSolver;
 };
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace ParticleSolvers
