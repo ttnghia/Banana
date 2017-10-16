@@ -20,8 +20,7 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 #include <SimulationObjects/BoundaryObject.h>
-#include <SimulationObjects/ParticleObject.h>
-#include <SimulationObjects/ParticleEmitter.h>
+#include <SimulationObjects/ParticleGenerator.h>
 
 #include <cassert>
 #include <locale>
@@ -46,18 +45,10 @@ SharedPtr<SimulationObjects::BoundaryObject<N, RealType> > createBoundaryObject(
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-SharedPtr<SimulationObjects::ParticleObject<N, RealType> > createParticleObject(const String& geometryType)
+SharedPtr<SimulationObjects::ParticleGenerator<N, RealType> > createParticleGenerator(const String& geometryType)
 {
     // other generic objects
-    return std::make_shared<SimulationObjects::ParticleObject<N, RealType> >(geometryType);
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<Int N, class RealType>
-SharedPtr<SimulationObjects::ParticleEmitter<N, RealType> > createParticleEmitter(const String& geometryType)
-{
-    // other generic objects
-    return std::make_shared<SimulationObjects::ParticleEmitter<N, RealType> >(geometryType);
+    return std::make_shared<SimulationObjects::ParticleGenerator<N, RealType> >(geometryType);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

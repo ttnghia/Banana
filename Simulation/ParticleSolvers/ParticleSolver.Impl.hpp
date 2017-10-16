@@ -191,16 +191,7 @@ template<Int N, class RealType>
 void ParticleSolver<N, RealType >::generateParticles(const nlohmann::json& jParams)
 {
     __BNN_ASSERT(jParams.find("ParticleObjects") != jParams.end());
-    SceneLoader::loadParticleObjects<N, RealType>(jParams["ParticleObjects"], m_ParticleObjects);
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<Int N, class RealType>
-void ParticleSolver<N, RealType >::generateEmitters(const nlohmann::json& jParams)
-{
-    if((jParams.find("ParticleEmitters") != jParams.end())) {
-        SceneLoader::loadParticleEmitters<N, RealType>(jParams["ParticleEmitters"], m_ParticleEmitters);
-    }
+    SceneLoader::loadParticleGenerators<N, RealType>(jParams["ParticleObjects"], m_ParticleGenerators);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -209,10 +200,7 @@ void ParticleSolver<N, RealType >::advanceScene()
 {
     for(auto& obj : m_BoundaryObjects) {
         if(obj->isDynamic()) { obj->advanceFrame(); } }
-    for(auto& obj : m_ParticleObjects) {
-        obj->advanceFrame();
-    }
-    for(auto& obj : m_ParticleEmitters) {
+    for(auto& obj : m_ParticleGenerators) {
         obj->advanceFrame();
     }
 }

@@ -166,8 +166,9 @@
     <ClInclude Include="ParticleTools\ParticleSerialization.h" />
     <ClInclude Include="ParticleTools\ParticleSerialization.Impl.hpp" />
     <ClInclude Include="ParticleTools\ParticleSerialization.Test.hpp" />
-    <ClInclude Include="SimulationObjects\ParticleDeleter.h" />
-    <ClInclude Include="SimulationObjects\ParticleEmitter.Impl.hpp" />
+    <ClInclude Include="SimulationObjects\ParticleRemover.h" />
+    <ClInclude Include="SimulationObjects\ParticleGenerator.Impl.hpp" />
+    <ClInclude Include="SimulationObjects\ParticleRemover.Impl.hpp" />
     <ClInclude Include="SurfaceReconstruction\AniKernelGenerator.h" />
     <ClInclude Include="ParticleSolvers\FLIP\FLIP3DSolver.h" />
     <ClInclude Include="ParticleSolvers\SPH\PCISPH\PCISPHSolver.h" />
@@ -181,12 +182,10 @@
     <ClInclude Include="ParticleTools\PoissonDiskSampler.h" />
     <ClInclude Include="SimulationObjects\BoundaryObject.h" />
     <ClInclude Include="SimulationObjects\BoundaryObject.Impl.hpp" />
-    <ClInclude Include="SimulationObjects\ParticleObject.Impl.hpp" />
     <ClInclude Include="SimulationObjects\SimulationObjectFactory.h" />
     <ClInclude Include="ParticleTools\BlueNoiseRelaxation\LloydRelaxation.Impl.hpp" />
     <ClInclude Include="ParticleTools\ParticleHelpers.h" />
-    <ClInclude Include="SimulationObjects\ParticleObject.h" />
-    <ClInclude Include="SimulationObjects\ParticleEmitter.h" />
+    <ClInclude Include="SimulationObjects\ParticleGenerator.h" />
     <ClInclude Include="ParticleTools\BlueNoiseRelaxation\SPHBasedRelaxation.h" />
     <ClInclude Include="SurfaceReconstruction\MarchingCube.h" />
   </ItemGroup>
@@ -202,7 +201,6 @@
     <ClCompile Include="ParticleTools\ParticleHelpers.cpp" />
     <ClCompile Include="ParticleTools\ParticleSerialization.cpp" />
     <ClCompile Include="ParticleTools\_ParticleTools.Test.cpp" />
-    <ClCompile Include="SimulationObjects\ParticleDeleter.cpp" />
     <ClCompile Include="SimulationObjects\SimulationObjects.cpp" />
     <ClCompile Include="SurfaceReconstruction\AniKernelGenerator.cpp" />
     <ClCompile Include="SurfaceReconstruction\MarchingCube.cpp" />

@@ -35,8 +35,7 @@
 #include <ParticleSolvers/SceneLoader.h>
 
 #include <SimulationObjects/BoundaryObject.h>
-#include <SimulationObjects/ParticleObject.h>
-#include <SimulationObjects/ParticleEmitter.h>
+#include <SimulationObjects/ParticleGenerator.h>
 
 #include <tbb/tbb.h>
 #include <json.hpp>
@@ -79,7 +78,6 @@ public:
 protected:
     virtual void generateBoundaries(const nlohmann::json& jParams);
     virtual void generateParticles(const nlohmann::json& jParams);
-    virtual void generateEmitters(const nlohmann::json& jParams);
     virtual void advanceScene();
 
     virtual void loadSimParams(const nlohmann::json& jParams) = 0;
@@ -98,10 +96,9 @@ protected:
     UniquePtr<ParticleSerialization> m_MemoryStateIO;
 
     // todo: add NSearch for 2D
-    UniquePtr<NeighborSearch::NeighborSearch3D>                      m_NSearch = nullptr;
-    Vector<SharedPtr<SimulationObjects::BoundaryObject<N, Real> > >  m_BoundaryObjects;  // individual objects, as one can be dynamic while the other is not
-    Vector<SharedPtr<SimulationObjects::ParticleObject<N, Real> > >  m_ParticleObjects;  // individual objects, as they can have different properties
-    Vector<SharedPtr<SimulationObjects::ParticleEmitter<N, Real> > > m_ParticleEmitters; // individual objects, as they can have different behaviors
+    UniquePtr<NeighborSearch::NeighborSearch3D>                        m_NSearch = nullptr;
+    Vector<SharedPtr<SimulationObjects::BoundaryObject<N, Real> > >    m_BoundaryObjects;    // individual objects, as one can be dynamic while the other is not
+    Vector<SharedPtr<SimulationObjects::ParticleGenerator<N, Real> > > m_ParticleGenerators; // individual objects, as they can have different behaviors
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

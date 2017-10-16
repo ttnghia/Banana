@@ -36,16 +36,22 @@ public:
     ParticleDeleter() = delete;
     ParticleDeleter(const String& geometryType) : m_GeometryObj(GeometryObjectFactory::createGeometry<N, Real>(geometryType)) { __BNN_ASSERT(m_GeometryObj != nullptr); }
 
+    ////////////////////////////////////////////////////////////////////////////////
     virtual void advanceFrame() {}
+
     String&      meshFile() { return m_MeshFile; }
     String&      particleFile() { return m_ParticleFile; }
     GeometryPtr& getGeometry() { return m_GeometryObj; }
 
 protected:
-    String      m_MeshFile     = "";
-    String      m_ParticleFile = "";
+    String      m_ObjName      = String("NoName");
+    String      m_MeshFile     = String("");
+    String      m_ParticleFile = String("");
     GeometryPtr m_GeometryObj  = nullptr;
 };
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#include <SimulationObjects/ParticleRemover.Impl.hpp>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace SimulationObjects

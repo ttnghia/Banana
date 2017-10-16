@@ -15,8 +15,7 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #include <SimulationObjects/BoundaryObject.h>
-#include <SimulationObjects/ParticleObject.h>
-#include <SimulationObjects/ParticleEmitter.h>
+#include <SimulationObjects/ParticleGenerator.h>
 
 #include <json.hpp>
 
@@ -36,11 +35,8 @@ template class BoundaryObject<3, Real>;
 template class BoxBoundary<2, Real>;
 template class BoxBoundary<3, Real>;
 
-template class ParticleObject<2, Real>;
-template class ParticleObject<3, Real>;
-
-template class ParticleEmitter<2, Real>;
-template class ParticleEmitter<3, Real>;
+template class ParticleGenerator<2, Real>;
+template class ParticleGenerator<3, Real>;
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace SimulationObjects

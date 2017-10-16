@@ -55,7 +55,7 @@ void loadBoundaryObjects(const nlohmann::json& jParams, Vector<SharedPtr<Simulat
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void loadParticleObjects(const nlohmann::json& jParams, Vector<SharedPtr<SimulationObjects::ParticleObject<N, RealType> > >& particleObjs)
+void loadParticleGenerators(const nlohmann::json& jParams, Vector<SharedPtr<SimulationObjects::ParticleGenerator<N, RealType> > >& particleGenerators)
 {
     for(auto& jObj : jParams) {
         // read geometry type of the object
@@ -64,48 +64,9 @@ void loadParticleObjects(const nlohmann::json& jParams, Vector<SharedPtr<Simulat
         __BNN_ASSERT(!geometryType.empty());
 
         // create the object
-        SharedPtr<SimulationObjects::ParticleObject<N, RealType> > obj = SimulationObjectFactory::createParticleObject<N, RealType>(geometryType);
+        SharedPtr<SimulationObjects::ParticleGenerator<N, RealType> > obj = SimulationObjectFactory::createParticleGenerator<N, RealType>(geometryType);
         __BNN_ASSERT(obj->getGeometry() != nullptr);
-        particleObjs.push_back(obj);
-
-        // read mesh/cache/dynamic
-        JSONHelpers::readValue(jObj, obj->meshFile(), "MeshFile");
-        JSONHelpers::readValue(jObj, obj->particleFile(), "ParticleFile");
-
-        // read object transformation
-        VecX<N, Real> translation;
-        VecX<N, Real> rotationAxis;
-        Real          rotationAngle;
-        Real          scale;
-
-        if(JSONHelpers::readVector(jObj, translation, "Translation")) {
-            obj->getGeometry()->setTranslation(translation);
-        }
-
-        if(JSONHelpers::readVector(jObj, rotationAxis, "RotationAxis") && JSONHelpers::readValue(jObj, rotationAngle, "RotationAngle")) {
-            obj->getGeometry()->setRotation(rotationAxis, rotationAngle);
-        }
-
-        if(JSONHelpers::readValue(jObj, scale, "Scale")) {
-            obj->getGeometry()->setUniformScale(scale);
-        }
-    }
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<Int N, class RealType>
-void loadParticleEmitters(const nlohmann::json& jParams, Vector<SharedPtr<SimulationObjects::ParticleEmitter<N, RealType> > >& particleEmitters)
-{
-    for(auto& jObj : jParams) {
-        // read geometry type of the object
-        String geometryType = String("");
-        __BNN_ASSERT(JSONHelpers::readValue(jObj, geometryType, "GeometryType"));
-        __BNN_ASSERT(!geometryType.empty());
-
-        // create the object
-        SharedPtr<SimulationObjects::ParticleEmitter<N, RealType> > obj = SimulationObjectFactory::createParticleEmitter<N, RealType>(geometryType);
-        __BNN_ASSERT(obj->getGeometry() != nullptr);
-        particleEmitters.push_back(obj);
+        particleGenerators.push_back(obj);
 
         // read mesh/cache/dynamic
         JSONHelpers::readValue(jObj, obj->meshFile(), "MeshFile");
