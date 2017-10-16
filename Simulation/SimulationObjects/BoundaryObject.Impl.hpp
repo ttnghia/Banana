@@ -47,7 +47,7 @@ VecX<N, RealType> BoundaryObjectInterface<N, RealType >::gradSignedDistance(cons
     if(bUseCache && m_bSDFGenerated) {
         return ArrayHelpers::interpolateGradient(m_Grid.getGridCoordinate(ppos), m_SDF);
     } else {
-        return m_GeometryObj->gradSignedDistance(ppos);
+        return m_GeometryObj->gradSignedDistance(ppos, dxyz);
     }
 }
 

@@ -341,7 +341,12 @@ class TriMeshObject<2, RealType> : public GeometryObject<2, RealType>
 {
 public:
     virtual String   name() override { return "TriMeshObject"; }
-    virtual RealType signedDistance(const Vec2<RealType>& ppos0, bool bNegativeInside = true) const override { return 0; }
+    virtual RealType signedDistance(const Vec2<RealType>& ppos0, bool bNegativeInside = true) const override
+    {
+        __BNN_UNUSED(ppos0);
+        __BNN_UNUSED(bNegativeInside);
+        return 0;
+    }
 
     void setMeshFile(const String&) {}
     void setStep(RealType) {}

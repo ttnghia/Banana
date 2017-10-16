@@ -65,11 +65,6 @@ public:
     const Array<N, RealType>&   getSDF() { return m_SDF; }
     GeometryPtr&                getGeometry() { return m_GeometryObj; }
 
-    void translate(const VecX<N, RealType>& translation) { m_GeometryObj->translate(translation); }
-    void rotate(const VecX<N, RealType>& axis, RealType angle) { m_GeometryObj->rotate(axis, angle); }
-    void uniformScale(const RealType scaleVal) { m_GeometryObj->uniformScale(scaleVal); }
-    void resetTransformation() { m_GeometryObj->resetTransformation(); }
-
     ////////////////////////////////////////////////////////////////////////////////
     virtual void makeReady() {} // todo: need this?
     virtual void advanceFrame() {}
@@ -82,12 +77,11 @@ public:
 
 protected:
     virtual void computeSDF() { __BNN_UNIMPLEMENTED_FUNC }
-    virtual void generateBoundaryParticles(RealType particleRadius, Int numBDLayers) { __BNN_UNIMPLEMENTED_FUNC }
+    virtual void generateBoundaryParticles(RealType particleRadius, Int numBDLayers) { __BNN_UNUSED(particleRadius); __BNN_UNUSED(numBDLayers); __BNN_UNIMPLEMENTED_FUNC }
 
     RealType m_Margin           = RealType(0.0);
     RealType m_RestitutionCoeff = ParticleSolverConstants::DefaultBoundaryRestitution;
 
-    JParams                    m_jParams;
     GeometryPtr                m_GeometryObj;
     Array<N, RealType>         m_SDF;
     Grid<N, RealType>          m_Grid;

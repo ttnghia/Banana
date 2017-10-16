@@ -221,11 +221,5 @@
     <ClCompile Include="Banana\Data\DataIO.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Banana\LinearAlgebra\SparseMatrix\_SparseMatrix.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Banana\LinearAlgebra\LinearSolvers\_PCGSolver.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
 </Project>

@@ -32,12 +32,14 @@ namespace JSONHelpers
 template<class T>
 inline bool readValue(const nlohmann::json& j, T& v, const String& valueName)
 {
-    if(j.find(valueName) == j.end())
+    if(j.find(valueName) == j.end()) {
         return false;
+    }
     const nlohmann::json jval = j[valueName];
 
-    if(jval.is_null())
+    if(jval.is_null()) {
         return false;
+    }
 
     v = jval.get<T>();
     return true;
@@ -46,20 +48,21 @@ inline bool readValue(const nlohmann::json& j, T& v, const String& valueName)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 inline bool readBool(const nlohmann::json& j, bool& v, const String& valueName)
 {
-    if(j.find(valueName) == j.end())
+    if(j.find(valueName) == j.end()) {
         return false;
+    }
     const nlohmann::json jval = j[valueName];
 
-    if(jval.is_null())
+    if(jval.is_null()) {
         return false;
+    }
 
-    if(jval.is_number_integer())
-    {
+    if(jval.is_number_integer()) {
         int val = jval.get<int>();
         v = (val != 0);
-    }
-    else
+    } else {
         v = jval.get<bool>();
+    }
 
     return true;
 }
@@ -68,19 +71,21 @@ inline bool readBool(const nlohmann::json& j, bool& v, const String& valueName)
 template<Int N, class T>
 inline bool readVector(const nlohmann::json& j, VecX<N, T>& vec, const String& valueName)
 {
-    if(j.find(valueName) == j.end())
+    if(j.find(valueName) == j.end()) {
         return false;
+    }
     const nlohmann::json jval = j[valueName];
 
-    unsigned int index = 0;
-    if(jval.is_null())
+    if(jval.is_null()) {
         return false;
+    }
 
     Vector<T> values = jval.get<Vector<T> >();
     __BNN_ASSERT(values.size() == N);
 
-    for(Int i = 0; i < N; ++i)
+    for(Int i = 0; i < N; ++i) {
         vec[i] = values[i];
+    }
 
     return true;
 }
@@ -89,12 +94,14 @@ inline bool readVector(const nlohmann::json& j, VecX<N, T>& vec, const String& v
 template<class T>
 inline bool readVector(const nlohmann::json& j, Vector<T>& vec, const String& valueName)
 {
-    if(j.find(valueName) == j.end())
+    if(j.find(valueName) == j.end()) {
         return false;
+    }
     const nlohmann::json jval = j[valueName];
 
-    if(jval.is_null())
+    if(jval.is_null()) {
         return false;
+    }
 
     vec = jval.get<Vector<T> >();
     return true;

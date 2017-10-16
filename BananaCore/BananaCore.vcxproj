@@ -203,8 +203,6 @@
     <ClCompile Include="Banana\Geometry\KdTree.cpp" />
     <ClCompile Include="Banana\Geometry\MeshLoader.cpp" />
     <ClCompile Include="Banana\Geometry\OBJLoader.cpp" />
-    <ClCompile Include="Banana\LinearAlgebra\LinearSolvers\_PCGSolver.cpp" />
-    <ClCompile Include="Banana\LinearAlgebra\SparseMatrix\_SparseMatrix.cpp" />
     <ClCompile Include="Banana\NeighborSearch\NeighborSearch3D.cpp" />
     <ClCompile Include="Banana\Utils\Logger.cpp" />
   </ItemGroup>

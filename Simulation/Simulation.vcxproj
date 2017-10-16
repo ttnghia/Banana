@@ -167,6 +167,7 @@
     <ClInclude Include="ParticleTools\ParticleSerialization.Impl.hpp" />
     <ClInclude Include="ParticleTools\ParticleSerialization.Test.hpp" />
     <ClInclude Include="SimulationObjects\ParticleDeleter.h" />
+    <ClInclude Include="SimulationObjects\ParticleEmitter.Impl.hpp" />
     <ClInclude Include="SurfaceReconstruction\AniKernelGenerator.h" />
     <ClInclude Include="ParticleSolvers\FLIP\FLIP3DSolver.h" />
     <ClInclude Include="ParticleSolvers\SPH\PCISPH\PCISPHSolver.h" />

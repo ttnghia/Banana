@@ -266,8 +266,9 @@ RealType ConeObject<N, RealType >::signedDistance(const VecX<N, RealType>& ppos0
 template<Int N, class RealType>
 RealType PlaneObject<N, RealType >::signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside /*= true*/) const
 {
-    auto ppos = invTransform(ppos0);
-    return glm::dot(ppos, m_Normal) - m_Offset;
+    auto     ppos = invTransform(ppos0);
+    RealType d    = glm::dot(ppos, m_Normal) - m_Offset;
+    return bNegativeInside ? d : -d;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -275,6 +276,8 @@ template<Int N, class RealType>
 RealType TriangleObject<N, RealType >::signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside /*= true*/) const
 {
     __BNN_ASSERT_MSG(N == 2, "Object dimension != 2");
+    __BNN_UNUSED(ppos0);
+    __BNN_UNUSED(bNegativeInside);
     __BNN_UNIMPLEMENTED_FUNC;
     return 0;
 }
