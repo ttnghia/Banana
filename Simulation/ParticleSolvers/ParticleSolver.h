@@ -97,7 +97,7 @@ protected:
 
     // todo: add NSearch for 2D
     UniquePtr<NeighborSearch::NeighborSearch3D>                        m_NSearch = nullptr;
-    Vector<SharedPtr<SimulationObjects::BoundaryObject<N, Real> > >    m_BoundaryObjects;    // individual objects, as one can be dynamic while the other is not
+    Vector<SharedPtr<SimulationObjects::BoundaryObject<N, Real> > >    m_BoundaryObjects;    // individual objects, as one can be dynamic while the others are not
     Vector<SharedPtr<SimulationObjects::ParticleGenerator<N, Real> > > m_ParticleGenerators; // individual objects, as they can have different behaviors
 };
 

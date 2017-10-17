@@ -15,28 +15,47 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void ParticleGenerator<N, RealType >::setEmitterParams(const VecX<N, RealType>& v0, UInt maxNParticles /*= std::numeric_limits<UInt>::max()*/,
-                                                       UInt maxFrame /*= std::numeric_limits<UInt>::max()*/, RealType minDistance /*= 2.0*/,
-                                                       bool bFullShapeObj /*= false*/)
+void ParticleGenerator<N, RealType >::setGeneratorParams(const VecX<N, RealType>& v0, RealType particleRadius, RealType minDistance,
+                                                         UInt maxNParticles /*= std::numeric_limits<UInt>::max()*/,
+                                                         UInt maxFrame /*= 0*/, bool bUseCache /*= true*/, bool bFullShapeObj /*= false*/)
 {
-    m_v0            = v0;
-    m_MaxNParticles = maxNParticles;
-    m_MaxFrame      = maxFrame;
-    m_MinDistance   = minDistance;
-    m_bFullShapeObj = bFullShapeObj;
-    m_bParamsReady  = true;
+    m_v0             = v0;
+    m_ParticleRadius = particleRadius;
+    m_MinDistance    = minDistance;
+    m_MaxNParticles  = maxNParticles;
+    m_MaxFrame       = maxFrame;
+    m_bUseCache      = bUseCache;
+    m_bFullShapeObj  = bFullShapeObj;
+    m_bParamsReady   = true;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-UInt ParticleGenerator<N, RealType > ::emitParticles(Vec_VecX<N, RealType>& positions, Vec_VecX<N, RealType>& velocities)
+UInt ParticleGenerator<N, RealType > ::generateParticles(Vec_VecX<N, RealType>& positions, Vec_VecX<N, RealType>& velocities, UInt currentFrame)
 {
-    if(bEmissionFinished()) {
+    if(bGenerationFinished(currentFrame)) {
         return 0;
     }
-    __BNN_ASSERT(m_bEmitterReady);
+    //__BNN_ASSERT(m_bEmitterReady);
+
+    if(m_bUseCache && !m_ParticleFile.empty() && FileHelpers::fileExisted(m_ParticleFile)) {
+        // todo
+        __BNN_TODO;
+        //ParticleHelpers::loadBinaryAndDecompress(m_ParticleFile, positions, particleRadius);
+        generateVelocities(positions, velocities);
+
+        return 0;
+    }
+
+
     collectNeighborParticles();
     return m_bFullShapeObj ? addFullShapeParticles(positions, velocities) : addParticles(positions, velocities);
+
+    ////////////////////////////////////////////////////////////////////////////////
+    __BNN_TODO;
+    //generatePositions(positions, particleRadius);
+    //relaxPositions(positions, particleRadius);
+    //generateVelocities(positions, velocities);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -68,30 +87,6 @@ UInt ParticleGenerator<N, RealType > ::addParticles(Vec_VecX<N, RealType>& posit
 {
     __BNN_TODO
     return 0;
-}
-
-template<Int N, class RealType>
-void ParticleGenerator<N, RealType >::generateParticles(Vector<VecX<N, RealType> >& positions, Vector<VecX<N, RealType> >& velocities, RealType particleRadius, bool bUseCache /*= true*/)
-{
-    if(bUseCache && !m_ParticleFile.empty() && FileHelpers::fileExisted(m_ParticleFile)) {
-        positions.resize(0);
-
-        // todo
-        //ParticleHelpers::loadBinaryAndDecompress(m_ParticleFile, positions, particleRadius);
-        generateVelocities(positions, velocities);
-
-        return;
-    }
-
-    ////////////////////////////////////////////////////////////////////////////////
-    generatePositions(positions, particleRadius);
-    relaxPositions(positions, particleRadius);
-    generateVelocities(positions, velocities);
-    ////////////////////////////////////////////////////////////////////////////////
-
-    // todo
-    //if(bUseCache && !m_ParticleFile.empty())
-    //    ParticleHelpers::compressAndSaveBinary(m_ParticleFile, positions, particleRadius);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

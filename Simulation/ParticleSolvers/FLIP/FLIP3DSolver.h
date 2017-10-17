@@ -17,12 +17,22 @@
 
 #pragma once
 
-#include <Banana/Grid/Grid.h>
-#include <Banana/LinearAlgebra/LinearSolvers/PCGSolver.h>
-#include <ParticleSolvers/ParticleSolver.h>
-#include <ParticleSolvers/FLIP/FLIP3DData.h>
+//#include <Banana/Grid/Grid.h>
+//#include <Banana/LinearAlgebra/LinearSolvers/PCGSolver.h>
+//#include <ParticleSolvers/FLIP/FLIP3DData.h>
+//#include <ParticleSolvers/ParticleSolver.h>
 
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+// forward declaration
+namespace Banana {}
+namespace Banana::ParticleSolvers {}
+
+struct Banana::ParticleSolvers::SimulationParameters_FLIP3D;
+struct Banana::ParticleSolvers::SimulationData_FLIP3D;
+template<class RealType> class Banana::PCGSolver;
+
+#if 0
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
 {
@@ -89,9 +99,11 @@ protected:
     std::function<Real(const Vec3r&, const Array3r&)> m_InterpolateValue = nullptr;
     std::function<Real(const Vec3r&)>                 m_WeightKernel     = nullptr;
 
-    Grid3r          m_Grid;
-    PCGSolver<Real> m_PCGSolver;
+    Grid3r                      m_Grid;
+    UniquePtr<PCGSolver<Real> > m_PCGSolver = nullptr;
 };
+
+#endif
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace ParticleSolvers
 

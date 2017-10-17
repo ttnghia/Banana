@@ -35,7 +35,8 @@ public:
     static constexpr UInt objDimension() noexcept { return static_cast<UInt>(N); }
 
     ParticleGenerator() = delete;
-    ParticleGenerator(const String& geometryType) : m_GeometryObj(GeometryObjectFactory::createGeometry<N, RealType>(geometryType)) { __BNN_ASSERT(m_GeometryObj != nullptr); }
+    ParticleGenerator(const String& geometryType) : m_GeometryObj(GeometryObjectFactory::createGeometry<N, RealType>(geometryType))
+    { __BNN_ASSERT(m_GeometryObj != nullptr); }
 
     String&      name() { return m_MeshFile; }
     String&      meshFile() { return m_MeshFile; }
@@ -44,11 +45,10 @@ public:
     bool&        isDynamic() { return m_bDynamics; }
     GeometryPtr& getGeometry() { return m_GeometryObj; }
 
-    void generateParticles(Vector<VecX<N, RealType> >& positions, Vector<VecX<N, RealType> >& velocities, RealType particleRadius, bool bUseCache = true);
-    void setEmitterParams(const VecX<N, RealType>& v0, UInt maxNParticles = std::numeric_limits<UInt>::max(), UInt maxFrame = std::numeric_limits<UInt>::max(),
-                          RealType minDistance = 2.0, bool bFullShapeObj = false);
-    UInt emitParticles(Vec_VecX<N, RealType>& positions, Vec_VecX<N, RealType>& velocities);
-    bool bEmissionFinished() { return m_CurrentFrame >= m_MaxFrame && m_NEmittedParticles >= m_MaxNParticles; }
+    UInt generateParticles(Vec_VecX<N, RealType>& positions, Vec_VecX<N, RealType>& velocities, UInt currentFrame);
+    void setGeneratorParams(const VecX<N, RealType>& v0, RealType particleRadius, RealType minDistance, UInt maxNParticles = std::numeric_limits<UInt>::max(),
+                            UInt maxFrame = 0, bool bUseCache = true, bool bFullShapeObj = false);
+    bool bGenerationFinished(UInt currentFrame) { return currentFrame >= m_MaxFrame && m_NEmittedParticles >= m_MaxNParticles; }
 
     virtual void makeReady() {};
     virtual void advanceFrame() {}
@@ -58,21 +58,20 @@ protected:
     void relaxPositions(Vector<VecX<N, RealType> >& positions, RealType particleRadius);
     void generateVelocities(Vector<VecX<N, RealType> >& positions, Vector<VecX<N, RealType> >& velocities);
 
-    void computeSDF() { __BNN_UNIMPLEMENTED_FUNC }
     UInt addFullShapeParticles(Vec_VecX<N, RealType>& positions, Vec_VecX<N, RealType>& velocities);
     UInt addParticles(Vec_VecX<N, RealType>& positions, Vec_VecX<N, RealType>& velocities);
     void collectNeighborParticles() {}
 
     ////////////////////////////////////////////////////////////////////////////////
-    GeometryPtr m_GeometryObj;
+    GeometryPtr m_GeometryObj = nullptr;
 
     Vec_VecX<N, RealType> m_EmittingParticles;
-    VecX<N, RealType>     m_v0            = VecX<N, RealType>(0);
-    UInt                  m_MaxFrame      = std::numeric_limits<UInt>::max();
-    UInt                  m_MaxNParticles = std::numeric_limits<UInt>::max();
-    RealType              m_MinDistance   = RealType(0);
+    VecX<N, RealType>     m_v0             = VecX<N, RealType>(0);
+    UInt                  m_MaxFrame       = std::numeric_limits<UInt>::max();
+    UInt                  m_MaxNParticles  = std::numeric_limits<UInt>::max();
+    RealType              m_MinDistance    = RealType(0);
+    RealType              m_ParticleRadius = RealType(0);
 
-    UInt              m_CurrentFrame;
     UInt              m_NEmittedParticles;
     VecX<N, RealType> m_BMin = VecX<N, RealType>(-1.0);
     VecX<N, RealType> m_BMax = VecX<N, RealType>(1.0);
@@ -86,9 +85,9 @@ protected:
 
     bool m_bDynamics     = false;
     bool m_bSDFGenerated = false;
+    bool m_bUseCache     = false;
     bool m_bFullShapeObj = false;
     bool m_bParamsReady  = false;
-    bool m_bEmitterReady = false;
 
     ////////////////////////////////////////////////////////////////////////////////
 };

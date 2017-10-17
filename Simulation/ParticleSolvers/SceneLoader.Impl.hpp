@@ -25,7 +25,6 @@ void loadBoundaryObjects(const nlohmann::json& jParams, Vector<SharedPtr<Simulat
 
         // create the object
         SharedPtr<SimulationObjects::BoundaryObject<N, RealType> > obj = SimulationObjectFactory::createBoundaryObject<N, RealType>(geometryType);
-        __BNN_ASSERT(obj->getGeometry() != nullptr);
         boundaryObjs.push_back(obj);
 
         // read mesh/cache/dynamic
@@ -65,7 +64,6 @@ void loadParticleGenerators(const nlohmann::json& jParams, Vector<SharedPtr<Simu
 
         // create the object
         SharedPtr<SimulationObjects::ParticleGenerator<N, RealType> > obj = SimulationObjectFactory::createParticleGenerator<N, RealType>(geometryType);
-        __BNN_ASSERT(obj->getGeometry() != nullptr);
         particleGenerators.push_back(obj);
 
         // read mesh/cache/dynamic

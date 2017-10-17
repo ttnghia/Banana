@@ -17,11 +17,16 @@
 
 #pragma once
 
-#include <Banana/Array/ArrayHelpers.h>
-#include <Banana/Grid/Grid.h>
-#include <Banana/LinearAlgebra/LinearSolvers/PCGSolver.h>
 #include <ParticleSolvers/ParticleSolver.h>
-#include <ParticleSolvers/FLIP/FLIP2DData.h>
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+// forward declaration
+namespace Banana {}
+namespace Banana::ParticleSolvers {}
+
+struct Banana::ParticleSolvers::SimulationParameters_FLIP2D;
+struct Banana::ParticleSolvers::SimulationData_FLIP2D;
+template<class RealType> class Banana::PCGSolver;
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -87,8 +92,8 @@ protected:
     std::function<Real(const Vec2r&, const Array2r&)> m_InterpolateValue = nullptr;
     std::function<Real(const Vec2r&)>                 m_WeightKernel     = nullptr;
 
-    Grid2r          m_Grid;
-    PCGSolver<Real> m_PCGSolver;
+    Grid2r                      m_Grid;
+    UniquePtr<PCGSolver<Real> > m_PCGSolver = nullptr;
 };
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace ParticleSolvers

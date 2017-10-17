@@ -120,8 +120,8 @@ void ParticleSolver<N, RealType >::doSimulation()
         m_Logger->newLine();
 
         ////////////////////////////////////////////////////////////////////////////////
-        static String strMsg = String("Frame finished. Frame duration: ") + NumberHelpers::formatToScientific(m_GlobalParams->frameDuration) +
-                               String("(s) (~") + std::to_string(static_cast<int>(round(Real(1.0) / m_GlobalParams->frameDuration))) + String(" fps). Run time: ");
+        static const String strMsg = String("Frame finished. Frame duration: ") + NumberHelpers::formatToScientific(m_GlobalParams->frameDuration) +
+                                     String("(s) (~") + std::to_string(static_cast<int>(round(Real(1.0) / m_GlobalParams->frameDuration))) + String(" fps). Run time: ");
         m_Logger->printRunTime(strMsg.c_str(), frameTimer,
                                [&]()
                                {
@@ -189,8 +189,8 @@ void ParticleSolver<N, RealType >::generateBoundaries(const nlohmann::json& jPar
 template<Int N, class RealType>
 void ParticleSolver<N, RealType >::generateParticles(const nlohmann::json& jParams)
 {
-    __BNN_ASSERT(jParams.find("ParticleObjects") != jParams.end());
-    SceneLoader::loadParticleGenerators<N, RealType>(jParams["ParticleObjects"], m_ParticleGenerators);
+    __BNN_ASSERT(jParams.find("ParticleGenerators") != jParams.end());
+    SceneLoader::loadParticleGenerators<N, RealType>(jParams["ParticleGenerators"], m_ParticleGenerators);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

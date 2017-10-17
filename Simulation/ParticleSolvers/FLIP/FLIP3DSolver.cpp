@@ -15,8 +15,11 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
+#include <Banana/Grid/Grid.h>
 #include <Banana/Array/ArrayHelpers.h>
+#include <Banana/LinearAlgebra/LinearSolvers/PCGSolver.h>
 #include <ParticleSolvers/FLIP/FLIP3DSolver.h>
+#include <ParticleSolvers/FLIP/FLIP3DData.h>
 #include <SurfaceReconstruction/AniKernelGenerator.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -43,8 +46,9 @@ void FLIP3DSolver::makeReady()
 
                                m_Grid.setGrid(m_SimParams->domainBMin, m_SimParams->domainBMax, m_SimParams->cellSize);
 
-                               m_PCGSolver.setSolverParameters(m_SimParams->CGRelativeTolerance, m_SimParams->maxCGIteration);
-                               m_PCGSolver.setPreconditioners(PCGSolver<Real>::MICCL0_SYMMETRIC);
+                               m_PCGSolver = std::make_unique<PCGSolver<Real> >();
+                               m_PCGSolver->setSolverParameters(m_SimParams->CGRelativeTolerance, m_SimParams->maxCGIteration);
+                               m_PCGSolver->setPreconditioners(PCGSolver<Real>::MICCL0_SYMMETRIC);
 
                                m_NSearch = std::make_unique<NeighborSearch::NeighborSearch3D>(m_SimParams->cellSize);
                                m_NSearch->add_point_set(glm::value_ptr(particleData().positions.front()), m_SimData->getNParticles(), true, true);
@@ -885,9 +889,9 @@ void FLIP3DSolver::computeRhs()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void FLIP3DSolver::solveSystem()
 {
-    bool success = m_PCGSolver.solve_precond(m_SimData->matrix, m_SimData->rhs, m_SimData->pressure);
-    m_Logger->printLog("Conjugate Gradient iterations: " + NumberHelpers::formatWithCommas(m_PCGSolver.iterations()) +
-                       ". Final residual: " + NumberHelpers::formatToScientific(m_PCGSolver.residual()));
+    bool success = m_PCGSolver->solve_precond(m_SimData->matrix, m_SimData->rhs, m_SimData->pressure);
+    m_Logger->printLog("Conjugate Gradient iterations: " + NumberHelpers::formatWithCommas(m_PCGSolver->iterations()) +
+                       ". Final residual: " + NumberHelpers::formatToScientific(m_PCGSolver->residual()));
     if(!success) {
         m_Logger->printWarning("Pressure projection failed to solved!");
         exit(EXIT_FAILURE);

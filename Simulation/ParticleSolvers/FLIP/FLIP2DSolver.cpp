@@ -15,6 +15,10 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
+#include <Banana/Grid/Grid.h>
+#include <Banana/Array/ArrayHelpers.h>
+#include <Banana/LinearAlgebra/LinearSolvers/PCGSolver.h>
+#include <ParticleSolvers/FLIP/FLIP2DData.h>
 #include <ParticleSolvers/FLIP/FLIP2DSolver.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -43,8 +47,9 @@ void FLIP2DSolver::makeReady()
                                m_Grid.setGrid(m_SimParams->movingBMin, m_SimParams->movingBMax, m_SimParams->cellSize);
                                m_SimData->makeReady(m_Grid.getNCells()[0], m_Grid.getNCells()[1]);
 
-                               m_PCGSolver.setSolverParameters(m_SimParams->CGRelativeTolerance, m_SimParams->maxCGIteration);
-                               m_PCGSolver.setPreconditioners(PCGSolver<Real>::MICCL0_SYMMETRIC);
+                               m_PCGSolver = std::make_unique<PCGSolver<Real> >();
+                               m_PCGSolver->setSolverParameters(m_SimParams->CGRelativeTolerance, m_SimParams->maxCGIteration);
+                               m_PCGSolver->setPreconditioners(PCGSolver<Real>::MICCL0_SYMMETRIC);
 
 
 
@@ -707,9 +712,9 @@ void FLIP2DSolver::computeRhs()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void FLIP2DSolver::solveSystem()
 {
-    bool success = m_PCGSolver.solve_precond(m_SimData->matrix, m_SimData->rhs, m_SimData->pressure);
-    m_Logger->printLog("Conjugate Gradient iterations: " + NumberHelpers::formatWithCommas(m_PCGSolver.iterations()) +
-                       ". Final residual: " + NumberHelpers::formatToScientific(m_PCGSolver.residual()));
+    bool success = m_PCGSolver->solve_precond(m_SimData->matrix, m_SimData->rhs, m_SimData->pressure);
+    m_Logger->printLog("Conjugate Gradient iterations: " + NumberHelpers::formatWithCommas(m_PCGSolver->iterations()) +
+                       ". Final residual: " + NumberHelpers::formatToScientific(m_PCGSolver->residual()));
     if(!success) {
         m_Logger->printWarning("Pressure projection failed to solved!********************************************************************************");
     }

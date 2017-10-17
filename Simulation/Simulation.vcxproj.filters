@@ -36,9 +36,6 @@
     <ClInclude Include="ParticleSolvers\MPM\MPMMaterial.Impl.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ParticleSolvers\MPM\MPMSolver.Impl.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ParticleSolvers\MPM\TimeIntegration.h">
       <Filter>Header Files</Filter>
     </ClInclude>
