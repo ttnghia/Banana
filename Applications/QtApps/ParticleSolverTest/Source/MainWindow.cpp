@@ -194,6 +194,18 @@ void MainWindow::connectWidgets()
     ////////////////////////////////////////////////////////////////////////////////
     // simulation
     connect(m_Controller->m_cbSimulationScene, &QComboBox::currentTextChanged, [&](const QString& scene) { m_Simulator->changeScene(scene); });
+    connect(m_Simulator.get(),                 &Simulator::domainChanged,      [&](const Vec3f& boxMin, const Vec3f& boxMax)
+            {
+                m_RenderWidget->setBox(boxMin, boxMax);
+                Vec3r camPos((boxMin.x + boxMax.x) * 0.5f,
+                             (boxMin.y + boxMax.y) * 0.5f + (boxMax.y - boxMin.y) * 0.3,
+                             (boxMin.z + boxMax.z) * 0.5f + (boxMax.z - boxMin.z) * 1.5);
+
+                Vec3r camFocus((boxMin.x + boxMax.x) * 0.5f,
+                               (boxMin.y + boxMax.y) * 0.5f - (boxMax.y - boxMin.y) * 0.1,
+                               (boxMin.z + boxMax.z) * 0.5f);
+                m_RenderWidget->setCamera(camPos, camFocus);
+            });
     connect(m_Controller->m_chkEnableOutput, &QCheckBox::clicked, [&](bool checked)
             {
                 m_bExportImg = checked;

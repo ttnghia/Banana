@@ -15,7 +15,7 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-#include <ParticleSolvers/MPM/MPM3DSolver.h>
+#include <ParticleSolvers/MPM/Snow3DSolver.h>
 #include <Banana/LinearAlgebra/ImplicitQRSVD.h>
 #include <Banana/ParallelHelpers/ParallelSTL.h>
 #include <Banana/LinearAlgebra/LinaHelpers.h>
@@ -27,7 +27,7 @@ namespace Banana
 namespace ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MPM3DSolver::makeReady()
+void Snow3DSolver::makeReady()
 {
     m_Logger->printRunTime("Allocate solver memory: ",
                            [&]()
@@ -51,7 +51,7 @@ void MPM3DSolver::makeReady()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MPM3DSolver::advanceFrame()
+void Snow3DSolver::advanceFrame()
 {
     static Timer subStepTimer;
     static Timer funcTimer;
@@ -91,11 +91,11 @@ void MPM3DSolver::advanceFrame()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MPM3DSolver::sortParticles()
+void Snow3DSolver::sortParticles()
 {}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MPM3DSolver::loadSimParams(const nlohmann::json& jParams)
+void Snow3DSolver::loadSimParams(const nlohmann::json& jParams)
 {
     JSONHelpers::readVector(jParams, m_SimParams->movingBMin, "BoxMin");
     JSONHelpers::readVector(jParams, m_SimParams->movingBMax, "BoxMax");
@@ -130,7 +130,7 @@ void MPM3DSolver::loadSimParams(const nlohmann::json& jParams)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MPM3DSolver::setupDataIO()
+void Snow3DSolver::setupDataIO()
 {
     m_ParticleIO = std::make_unique<ParticleSerialization>(m_GlobalParams->dataPath, "MPMData", "frame", m_Logger);
     m_ParticleIO->addFixedAtribute<float>("particle_radius", ParticleSerialization::TypeReal, 1);
@@ -146,7 +146,7 @@ void MPM3DSolver::setupDataIO()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-bool MPM3DSolver::loadMemoryState()
+bool Snow3DSolver::loadMemoryState()
 {
     if(!m_GlobalParams->bLoadMemoryState) {
         return false;
@@ -175,7 +175,7 @@ bool MPM3DSolver::loadMemoryState()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MPM3DSolver::saveMemoryState()
+void Snow3DSolver::saveMemoryState()
 {
     if(!m_GlobalParams->bSaveMemoryState) {
         return;
@@ -200,7 +200,7 @@ void MPM3DSolver::saveMemoryState()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MPM3DSolver::saveFrameData()
+void Snow3DSolver::saveFrameData()
 {
     if(!m_GlobalParams->bSaveFrameData) {
         return;
@@ -215,7 +215,7 @@ void MPM3DSolver::saveFrameData()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-Real MPM3DSolver::computeCFLTimestep()
+Real Snow3DSolver::computeCFLTimestep()
 {
     Real maxVel      = sqrt(ParallelSTL::maxNorm2<3, Real>(particleData().velocities));
     Real CFLTimeStep = maxVel > Real(Tiny) ? m_SimParams->CFLFactor * m_SimParams->cellSize / sqrt(maxVel) : Huge;
@@ -223,7 +223,7 @@ Real MPM3DSolver::computeCFLTimestep()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MPM3DSolver::advanceVelocity(Real timestep)
+void Snow3DSolver::advanceVelocity(Real timestep)
 {
     static Timer funcTimer;
 
@@ -245,7 +245,7 @@ void MPM3DSolver::advanceVelocity(Real timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MPM3DSolver::updateParticles(Real timestep)
+void Snow3DSolver::updateParticles(Real timestep)
 {
     static Timer funcTimer;
 
@@ -257,7 +257,7 @@ void MPM3DSolver::updateParticles(Real timestep)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // todo: consider each node, and accumulate particle data, rather than  consider each particles
-void MPM3DSolver::massToGrid()
+void Snow3DSolver::massToGrid()
 {
     ParallelFuncs::parallel_for<UInt>(m_SimData->getNParticles(),
                                       [&](UInt p)
@@ -308,7 +308,7 @@ void MPM3DSolver::massToGrid()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MPM3DSolver::velocityToGrid(Real timestep)
+void Snow3DSolver::velocityToGrid(Real timestep)
 {
     //We interpolate velocity after mass, to conserve momentum
     ParallelFuncs::parallel_for(m_SimData->getNParticles(),
@@ -350,7 +350,7 @@ void MPM3DSolver::velocityToGrid(Real timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //Maps volume from the grid to particles
 //This should only be called once, at the beginning of the simulation
-void MPM3DSolver::calculateParticleVolumes()
+void Snow3DSolver::calculateParticleVolumes()
 {
     //Estimate each particles volume (for force calculations)
     ParallelFuncs::parallel_for(m_SimData->getNParticles(),
@@ -386,7 +386,7 @@ void MPM3DSolver::calculateParticleVolumes()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //Calculate next timestep velocities for use in implicit integration
-void MPM3DSolver::explicitVelocities(Real timestep)
+void Snow3DSolver::explicitVelocities(Real timestep)
 {
     //First, compute the forces
     //We store force in velocity_new, since we're not using that variable at the moment
@@ -431,7 +431,7 @@ void MPM3DSolver::explicitVelocities(Real timestep)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //Solve linear system for implicit velocities
-void MPM3DSolver::implicitVelocities(Real timestep)
+void Snow3DSolver::implicitVelocities(Real timestep)
 {
     //With an explicit solution, we compute vf = vi + (f[n]/m)*dt
     //But for implicit, we use the force at the next timestep, f[n+1]
@@ -540,7 +540,7 @@ void MPM3DSolver::implicitVelocities(Real timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MPM3DSolver::recomputeImplicitForces(Real timestep)
+void Snow3DSolver::recomputeImplicitForces(Real timestep)
 {
     ParallelFuncs::parallel_for(m_SimData->getNParticles(),
                                 [&](UInt p)
@@ -580,7 +580,7 @@ void MPM3DSolver::recomputeImplicitForces(Real timestep)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //Map grid velocities back to particles
-void MPM3DSolver::velocityToParticles(Real timestep)
+void Snow3DSolver::velocityToParticles(Real timestep)
 {
     ParallelFuncs::parallel_for(m_SimData->getNParticles(),
                                 [&](UInt p)
@@ -629,7 +629,7 @@ void MPM3DSolver::velocityToParticles(Real timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MPM3DSolver::constrainGridVelocity(Real timestep)
+void Snow3DSolver::constrainGridVelocity(Real timestep)
 {
     Vec3r delta_scale = Vec3r(timestep);
     delta_scale /= m_SimParams->cellSize;
@@ -658,7 +658,7 @@ void MPM3DSolver::constrainGridVelocity(Real timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MPM3DSolver::constrainParticleVelocity(Real timestep)
+void Snow3DSolver::constrainParticleVelocity(Real timestep)
 {
     ParallelFuncs::parallel_for(m_SimData->getNParticles(),
                                 [&](UInt p)
@@ -683,7 +683,7 @@ void MPM3DSolver::constrainParticleVelocity(Real timestep)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-void MPM3DSolver::updateParticlePositions(Real timestep)
+void Snow3DSolver::updateParticlePositions(Real timestep)
 {
     ParallelFuncs::parallel_for(m_SimData->getNParticles(),
                                 [&](UInt p)
@@ -706,7 +706,7 @@ void MPM3DSolver::updateParticlePositions(Real timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MPM3DSolver::updateGradients(Real timestep)
+void Snow3DSolver::updateGradients(Real timestep)
 {
     ParallelFuncs::parallel_for(m_SimData->getNParticles(),
                                 [&](UInt p)
@@ -721,7 +721,7 @@ void MPM3DSolver::updateGradients(Real timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MPM3DSolver::applyPlasticity()
+void Snow3DSolver::applyPlasticity()
 {
     ParallelFuncs::parallel_for(m_SimData->getNParticles(),
                                 [&](UInt p)
@@ -769,7 +769,7 @@ void MPM3DSolver::applyPlasticity()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-Mat3x3r MPM3DSolver::computeEnergyDerivative(UInt p)
+Mat3x3r Snow3DSolver::computeEnergyDerivative(UInt p)
 {
     //Adjust lame parameters to account for hardening
     Real harden = exp(m_SimParams->hardening * (Real(1.0) - glm::determinant(particleData().plasticDeformGrad[p])));
@@ -786,7 +786,7 @@ Mat3x3r MPM3DSolver::computeEnergyDerivative(UInt p)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-Vec3r MPM3DSolver::computeDeltaForce(UInt p, const Vec3r& u, const Vec3r& weight_grad, Real timestep)
+Vec3r Snow3DSolver::computeDeltaForce(UInt p, const Vec3r& u, const Vec3r& weight_grad, Real timestep)
 {
 #if 0
     //For detailed explanation, check out the implicit math pdf for details

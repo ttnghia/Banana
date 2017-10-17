@@ -49,6 +49,7 @@ public slots:
     void enableExportImg(bool bEnable);
 
 signals:
+    void domainChanged(const Vec3f& boxMin, const Vec3f& boxMax);
     void simulationFinished();
     void systemTimeChanged(float time);
     void numParticleChanged(unsigned int numParticles);

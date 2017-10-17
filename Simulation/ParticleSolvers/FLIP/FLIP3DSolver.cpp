@@ -46,6 +46,9 @@ void FLIP3DSolver::makeReady()
                                m_PCGSolver.setSolverParameters(m_SimParams->CGRelativeTolerance, m_SimParams->maxCGIteration);
                                m_PCGSolver.setPreconditioners(PCGSolver<Real>::MICCL0_SYMMETRIC);
 
+                               m_NSearch = std::make_unique<NeighborSearch::NeighborSearch3D>(m_SimParams->cellSize);
+                               m_NSearch->add_point_set(glm::value_ptr(particleData().positions.front()), m_SimData->getNParticles(), true, true);
+
                                ////////////////////////////////////////////////////////////////////////////////
                                setupDataIO();
                                m_SimData->makeReady(m_Grid.getNCells()[0], m_Grid.getNCells()[1], m_Grid.getNCells()[2]);
@@ -53,32 +56,27 @@ void FLIP3DSolver::makeReady()
                                    sortParticles();
                                }
 
-
-                               m_NSearch = std::make_unique<NeighborSearch::NeighborSearch3D>(m_SimParams->cellSize);
-                               m_NSearch->add_point_set(glm::value_ptr(particleData().positions.front()), m_SimData->getNParticles(), true, true);
-
-
                                ////////////////////////////////////////////////////////////////////////////////
                                for(auto& obj : m_BoundaryObjects) {
                                    obj->margin() = m_SimParams->particleRadius;
                                    obj->generateSDF(m_SimParams->domainBMin, m_SimParams->domainBMax, m_SimParams->cellSize);
                                }
 
-                               ParallelFuncs::parallel_for<UInt>(m_Grid.getNNodes(),
-                                                                 [&](UInt i, UInt j, UInt k)
-                                                                 {
-                                                                     Real minSD = Huge;
-                                                                     for(auto& obj : m_BoundaryObjects) {
-                                                                         minSD = MathHelpers::min(minSD, obj->getSDF()(i, j, k));
-                                                                     }
+                               ParallelFuncs::parallel_for(m_Grid.getNNodes(),
+                                                           [&](UInt i, UInt j, UInt k)
+                                                           {
+                                                               Real minSD = Huge;
+                                                               for(auto& obj : m_BoundaryObjects) {
+                                                                   minSD = MathHelpers::min(minSD, obj->getSDF()(i, j, k));
+                                                               }
 
-                                                                     gridData().boundarySDF(i, j, k) = minSD;
+                                                               gridData().boundarySDF(i, j, k) = minSD;
 
-                                                                     //printf("%u, %u, %u, %f\n", i, j, k, minSD);
-                                                                     //const Vec3r gridPos = m_Grid.getWorldCoordinate(i, j, k);
+                                                               //printf("%u, %u, %u, %f\n", i, j, k, minSD);
+                                                               //const Vec3r gridPos = m_Grid.getWorldCoordinate(i, j, k);
 
-                                                                     //gridData().boundarySDF(i, j, k) = -box.signedDistance(gridPos);
-                                                                 });
+                                                               //gridData().boundarySDF(i, j, k) = -box.signedDistance(gridPos);
+                                                           });
                                m_Logger->printWarning("Computed boundary SDF");
                            });
 
@@ -321,72 +319,72 @@ void FLIP3DSolver::advanceVelocity(Real timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void FLIP3DSolver::moveParticles(Real timestep)
 {
-    ParallelFuncs::parallel_for<UInt>(0, m_SimData->getNParticles(),
-                                      [&](UInt p)
-                                      {
-                                          Vec3r pvel = particleData().velocities[p];
-                                          Vec3r ppos = particleData().positions[p] + pvel * timestep;
+    ParallelFuncs::parallel_for(m_SimData->getNParticles(),
+                                [&](UInt p)
+                                {
+                                    Vec3r pvel = particleData().velocities[p];
+                                    Vec3r ppos = particleData().positions[p] + pvel * timestep;
 #if 0
-                                          const Vec3r gridPos = m_Grid.getGridCoordinate(ppos);
-                                          const Real phiVal   = ArrayHelpers::interpolateValueLinear(gridPos, gridData().boundarySDF) - m_SimParams->particleRadius;
+                                    const Vec3r gridPos = m_Grid.getGridCoordinate(ppos);
+                                    const Real phiVal   = ArrayHelpers::interpolateValueLinear(gridPos, gridData().boundarySDF) - m_SimParams->particleRadius;
 
-                                          if(phiVal < 0) {
-                                              Vec3r grad    = ArrayHelpers::interpolateGradient(gridPos, gridData().boundarySDF);
-                                              Real mag2Grad = glm::length2(grad);
+                                    if(phiVal < 0) {
+                                        Vec3r grad    = ArrayHelpers::interpolateGradient(gridPos, gridData().boundarySDF);
+                                        Real mag2Grad = glm::length2(grad);
 
-                                              if(mag2Grad > Tiny) {
-                                                  ppos -= phiVal * grad / sqrt(mag2Grad);
-                                              }
-                                          }
+                                        if(mag2Grad > Tiny) {
+                                            ppos -= phiVal * grad / sqrt(mag2Grad);
+                                        }
+                                    }
 #else
-                                          bool velChanged = false;
-                                          for(auto& obj : m_BoundaryObjects) {
-                                              if(obj->constrainToBoundary(ppos, pvel)) { velChanged = true; }
-                                          }
+                                    bool velChanged = false;
+                                    for(auto& obj : m_BoundaryObjects) {
+                                        if(obj->constrainToBoundary(ppos, pvel)) { velChanged = true; }
+                                    }
 
-                                          if(velChanged) {
-                                              particleData().velocities[p] = pvel;
-                                          }
+                                    if(velChanged) {
+                                        particleData().velocities[p] = pvel;
+                                    }
 #endif
-                                          particleData().positions[p] = ppos;
-                                      });
+                                    particleData().positions[p] = ppos;
+                                });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //Compute finite-volume style face-weights for fluid from nodal signed distances
 void FLIP3DSolver::computeFluidWeights()
 {
-    ParallelFuncs::parallel_for<UInt>(m_Grid.getNNodes(),
-                                      [&](UInt i, UInt j, UInt k)
-                                      {
-                                          bool valid_index_u = gridData().u_weights.isValidIndex(i, j, k);
-                                          bool valid_index_v = gridData().v_weights.isValidIndex(i, j, k);
-                                          bool valid_index_w = gridData().w_weights.isValidIndex(i, j, k);
+    ParallelFuncs::parallel_for(m_Grid.getNNodes(),
+                                [&](UInt i, UInt j, UInt k)
+                                {
+                                    bool valid_index_u = gridData().u_weights.isValidIndex(i, j, k);
+                                    bool valid_index_v = gridData().v_weights.isValidIndex(i, j, k);
+                                    bool valid_index_w = gridData().w_weights.isValidIndex(i, j, k);
 
-                                          if(valid_index_u) {
-                                              const Real tmp = Real(1.0) - MathHelpers::fraction_inside(gridData().boundarySDF(i, j,     k),
-                                                                                                        gridData().boundarySDF(i, j + 1, k),
-                                                                                                        gridData().boundarySDF(i, j,     k + 1),
-                                                                                                        gridData().boundarySDF(i, j + 1, k + 1));
-                                              gridData().u_weights(i, j, k) = MathHelpers::clamp01(tmp);
-                                          }
+                                    if(valid_index_u) {
+                                        const Real tmp = Real(1.0) - MathHelpers::fraction_inside(gridData().boundarySDF(i, j,     k),
+                                                                                                  gridData().boundarySDF(i, j + 1, k),
+                                                                                                  gridData().boundarySDF(i, j,     k + 1),
+                                                                                                  gridData().boundarySDF(i, j + 1, k + 1));
+                                        gridData().u_weights(i, j, k) = MathHelpers::clamp01(tmp);
+                                    }
 
-                                          if(valid_index_v) {
-                                              const Real tmp = Real(1.0) - MathHelpers::fraction_inside(gridData().boundarySDF(i,     j, k),
-                                                                                                        gridData().boundarySDF(i,     j, k + 1),
-                                                                                                        gridData().boundarySDF(i + 1, j, k),
-                                                                                                        gridData().boundarySDF(i + 1, j, k + 1));
-                                              gridData().v_weights(i, j, k) = MathHelpers::clamp01(tmp);
-                                          }
+                                    if(valid_index_v) {
+                                        const Real tmp = Real(1.0) - MathHelpers::fraction_inside(gridData().boundarySDF(i,     j, k),
+                                                                                                  gridData().boundarySDF(i,     j, k + 1),
+                                                                                                  gridData().boundarySDF(i + 1, j, k),
+                                                                                                  gridData().boundarySDF(i + 1, j, k + 1));
+                                        gridData().v_weights(i, j, k) = MathHelpers::clamp01(tmp);
+                                    }
 
-                                          if(valid_index_w) {
-                                              const Real tmp = Real(1.0) - MathHelpers::fraction_inside(gridData().boundarySDF(i,     j,     k),
-                                                                                                        gridData().boundarySDF(i,     j + 1, k),
-                                                                                                        gridData().boundarySDF(i + 1, j,     k),
-                                                                                                        gridData().boundarySDF(i + 1, j + 1, k));
-                                              gridData().w_weights(i, j, k) = MathHelpers::clamp01(tmp);
-                                          }
-                                      });
+                                    if(valid_index_w) {
+                                        const Real tmp = Real(1.0) - MathHelpers::fraction_inside(gridData().boundarySDF(i,     j,     k),
+                                                                                                  gridData().boundarySDF(i,     j + 1, k),
+                                                                                                  gridData().boundarySDF(i + 1, j,     k),
+                                                                                                  gridData().boundarySDF(i + 1, j + 1, k));
+                                        gridData().w_weights(i, j, k) = MathHelpers::clamp01(tmp);
+                                    }
+                                });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -395,41 +393,41 @@ void FLIP3DSolver::addRepulsiveVelocity2Particles(Real timestep)
     //m_Grid.getNeighborList(particleData().positions, particleData().neighborList, m_SimParams->nearKernelRadiusSqr);
     ////////////////////////////////////////////////////////////////////////////////
 
-    ParallelFuncs::parallel_for<UInt>(0, m_SimData->getNParticles(),
-                                      [&](UInt p)
-                                      {
-                                          //const Vec_UInt& neighbors = particleData().neighborList[p];
-                                          const Vec3r& ppos    = particleData().positions[p];
-                                          const Vec3i pCellIdx = m_Grid.getCellIdx<Int>(ppos);
-                                          Vec3r pvel(0);
+    ParallelFuncs::parallel_for(m_SimData->getNParticles(),
+                                [&](UInt p)
+                                {
+                                    //const Vec_UInt& neighbors = particleData().neighborList[p];
+                                    const Vec3r& ppos    = particleData().positions[p];
+                                    const Vec3i pCellIdx = m_Grid.getCellIdx<Int>(ppos);
+                                    Vec3r pvel(0);
 
-                                          for(Int k = -1; k <= 1; ++k) {
-                                              for(Int j = -1; j <= 1; ++j) {
-                                                  for(Int i = -1; i <= 1; ++i) {
-                                                      const Vec3i cellIdx = pCellIdx + Vec3i(i, j, k);
-                                                      if(!m_Grid.isValidCell(cellIdx)) {
-                                                          continue;
-                                                      }
+                                    for(Int k = -1; k <= 1; ++k) {
+                                        for(Int j = -1; j <= 1; ++j) {
+                                            for(Int i = -1; i <= 1; ++i) {
+                                                const Vec3i cellIdx = pCellIdx + Vec3i(i, j, k);
+                                                if(!m_Grid.isValidCell(cellIdx)) {
+                                                    continue;
+                                                }
 
-                                                      const Vec_UInt& neighbors = m_Grid.getParticleIdxInCell(cellIdx);
-                                                      for(UInt q : neighbors) {
-                                                          //for(UInt q : m_Grid.getParticleIdxInCell(cellIdx))
-                                                          const Vec3r& qpos = particleData().positions[q];
-                                                          const Vec3r xpq   = ppos - qpos;
-                                                          const Real d      = glm::length(xpq);
-                                                          if(d > m_SimParams->nearKernelRadius || d < Tiny) {
-                                                              continue;
-                                                          }
+                                                const Vec_UInt& neighbors = m_Grid.getParticleIdxInCell(cellIdx);
+                                                for(UInt q : neighbors) {
+                                                    //for(UInt q : m_Grid.getParticleIdxInCell(cellIdx))
+                                                    const Vec3r& qpos = particleData().positions[q];
+                                                    const Vec3r xpq   = ppos - qpos;
+                                                    const Real d      = glm::length(xpq);
+                                                    if(d > m_SimParams->nearKernelRadius || d < Tiny) {
+                                                        continue;
+                                                    }
 
-                                                          const Real x = Real(1.0) - d / m_SimParams->nearKernelRadius;
-                                                          pvel += (x * x / d) * xpq;
-                                                      }
-                                                  }
-                                              }
-                                          }
+                                                    const Real x = Real(1.0) - d / m_SimParams->nearKernelRadius;
+                                                    pvel += (x * x / d) * xpq;
+                                                }
+                                            }
+                                        }
+                                    }
 
-                                          particleData().velocities[p] += m_SimParams->repulsiveForceStiffness * pvel;
-                                      });
+                                    particleData().velocities[p] += m_SimParams->repulsiveForceStiffness * pvel;
+                                });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -437,92 +435,92 @@ void FLIP3DSolver::velocityToGrid()
 {
     const Vec3r span = Vec3r(m_Grid.getCellSize() * static_cast<Real>(m_SimParams->kernelSpan));
 
-    ParallelFuncs::parallel_for<UInt>(m_Grid.getNNodes(),
-                                      [&](UInt i, UInt j, UInt k)
-                                      {
-                                          const Vec3r pu = Vec3r(i, j + 0.5, k + 0.5) * m_Grid.getCellSize() + m_Grid.getBMin();
-                                          const Vec3r pv = Vec3r(i + 0.5, j, k + 0.5) * m_Grid.getCellSize() + m_Grid.getBMin();
-                                          const Vec3r pw = Vec3r(i + 0.5, j + 0.5, k) * m_Grid.getCellSize() + m_Grid.getBMin();
+    ParallelFuncs::parallel_for(m_Grid.getNNodes(),
+                                [&](UInt i, UInt j, UInt k)
+                                {
+                                    const Vec3r pu = Vec3r(i, j + 0.5, k + 0.5) * m_Grid.getCellSize() + m_Grid.getBMin();
+                                    const Vec3r pv = Vec3r(i + 0.5, j, k + 0.5) * m_Grid.getCellSize() + m_Grid.getBMin();
+                                    const Vec3r pw = Vec3r(i + 0.5, j + 0.5, k) * m_Grid.getCellSize() + m_Grid.getBMin();
 
-                                          const Vec3r puMin = pu - span;
-                                          const Vec3r pvMin = pv - span;
-                                          const Vec3r pwMin = pw - span;
+                                    const Vec3r puMin = pu - span;
+                                    const Vec3r pvMin = pv - span;
+                                    const Vec3r pwMin = pw - span;
 
-                                          const Vec3r puMax = pu + span;
-                                          const Vec3r pvMax = pv + span;
-                                          const Vec3r pwMax = pw + span;
+                                    const Vec3r puMax = pu + span;
+                                    const Vec3r pvMax = pv + span;
+                                    const Vec3r pwMax = pw + span;
 
-                                          Real sum_weight_u = Real(0);
-                                          Real sum_weight_v = Real(0);
-                                          Real sum_weight_w = Real(0);
+                                    Real sum_weight_u = Real(0);
+                                    Real sum_weight_v = Real(0);
+                                    Real sum_weight_w = Real(0);
 
-                                          Real sum_u = Real(0);
-                                          Real sum_v = Real(0);
-                                          Real sum_w = Real(0);
+                                    Real sum_u = Real(0);
+                                    Real sum_v = Real(0);
+                                    Real sum_w = Real(0);
 
-                                          bool valid_index_u = gridData().u.isValidIndex(i, j, k);
-                                          bool valid_index_v = gridData().v.isValidIndex(i, j, k);
-                                          bool valid_index_w = gridData().w.isValidIndex(i, j, k);
+                                    bool valid_index_u = gridData().u.isValidIndex(i, j, k);
+                                    bool valid_index_v = gridData().v.isValidIndex(i, j, k);
+                                    bool valid_index_w = gridData().w.isValidIndex(i, j, k);
 
-                                          // loop over neighbor cells (kernelSpan^3 cells)
-                                          for(Int lk = -m_SimParams->kernelSpan; lk <= m_SimParams->kernelSpan; ++lk) {
-                                              for(Int lj = -m_SimParams->kernelSpan; lj <= m_SimParams->kernelSpan; ++lj) {
-                                                  for(Int li = -m_SimParams->kernelSpan; li <= m_SimParams->kernelSpan; ++li) {
-                                                      const Vec3i cellIdx = Vec3i(static_cast<Int>(i), static_cast<Int>(j), static_cast<Int>(k)) + Vec3i(li, lj, lk);
-                                                      if(!m_Grid.isValidCell(cellIdx)) {
-                                                          continue;
-                                                      }
+                                    // loop over neighbor cells (kernelSpan^3 cells)
+                                    for(Int lk = -m_SimParams->kernelSpan; lk <= m_SimParams->kernelSpan; ++lk) {
+                                        for(Int lj = -m_SimParams->kernelSpan; lj <= m_SimParams->kernelSpan; ++lj) {
+                                            for(Int li = -m_SimParams->kernelSpan; li <= m_SimParams->kernelSpan; ++li) {
+                                                const Vec3i cellIdx = Vec3i(static_cast<Int>(i), static_cast<Int>(j), static_cast<Int>(k)) + Vec3i(li, lj, lk);
+                                                if(!m_Grid.isValidCell(cellIdx)) {
+                                                    continue;
+                                                }
 
-                                                      for(const UInt p : m_Grid.getParticleIdxInCell(cellIdx)) {
-                                                          const Vec3r& ppos = particleData().positions[p];
-                                                          const Vec3r& pvel = particleData().velocities[p];
+                                                for(const UInt p : m_Grid.getParticleIdxInCell(cellIdx)) {
+                                                    const Vec3r& ppos = particleData().positions[p];
+                                                    const Vec3r& pvel = particleData().velocities[p];
 
-                                                          if(valid_index_u && NumberHelpers::isInside(ppos, puMin, puMax)) {
-                                                              const Real weight = m_WeightKernel((ppos - pu) / m_Grid.getCellSize());
+                                                    if(valid_index_u && NumberHelpers::isInside(ppos, puMin, puMax)) {
+                                                        const Real weight = m_WeightKernel((ppos - pu) / m_Grid.getCellSize());
 
-                                                              if(weight > Tiny) {
-                                                                  sum_u        += weight * pvel[0];
-                                                                  sum_weight_u += weight;
-                                                              }
-                                                          }
+                                                        if(weight > Tiny) {
+                                                            sum_u        += weight * pvel[0];
+                                                            sum_weight_u += weight;
+                                                        }
+                                                    }
 
-                                                          if(valid_index_v && NumberHelpers::isInside(ppos, pvMin, pvMax)) {
-                                                              const Real weight = m_WeightKernel((ppos - pv) / m_Grid.getCellSize());
+                                                    if(valid_index_v && NumberHelpers::isInside(ppos, pvMin, pvMax)) {
+                                                        const Real weight = m_WeightKernel((ppos - pv) / m_Grid.getCellSize());
 
-                                                              if(weight > Tiny) {
-                                                                  sum_v        += weight * pvel[1];
-                                                                  sum_weight_v += weight;
-                                                              }
-                                                          }
+                                                        if(weight > Tiny) {
+                                                            sum_v        += weight * pvel[1];
+                                                            sum_weight_v += weight;
+                                                        }
+                                                    }
 
-                                                          if(valid_index_w && NumberHelpers::isInside(ppos, pwMin, pwMax)) {
-                                                              const Real weight = m_WeightKernel((ppos - pw) / m_Grid.getCellSize());
+                                                    if(valid_index_w && NumberHelpers::isInside(ppos, pwMin, pwMax)) {
+                                                        const Real weight = m_WeightKernel((ppos - pw) / m_Grid.getCellSize());
 
-                                                              if(weight > Tiny) {
-                                                                  sum_w        += weight * pvel[2];
-                                                                  sum_weight_w += weight;
-                                                              }
-                                                          }
-                                                      }
-                                                  }
-                                              }
-                                          } // end loop over neighbor cells
+                                                        if(weight > Tiny) {
+                                                            sum_w        += weight * pvel[2];
+                                                            sum_weight_w += weight;
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }       // end loop over neighbor cells
 
-                                          if(valid_index_u) {
-                                              gridData().u(i, j, k)       = (sum_weight_u > Tiny) ? sum_u / sum_weight_u : Real(0);
-                                              gridData().u_valid(i, j, k) = (sum_weight_u > Tiny) ? 1 : 0;
-                                          }
+                                    if(valid_index_u) {
+                                        gridData().u(i, j, k)       = (sum_weight_u > Tiny) ? sum_u / sum_weight_u : Real(0);
+                                        gridData().u_valid(i, j, k) = (sum_weight_u > Tiny) ? 1 : 0;
+                                    }
 
-                                          if(valid_index_v) {
-                                              gridData().v(i, j, k)       = (sum_weight_v > Tiny) ? sum_v / sum_weight_v : Real(0);
-                                              gridData().v_valid(i, j, k) = (sum_weight_v > Tiny) ? 1 : 0;
-                                          }
+                                    if(valid_index_v) {
+                                        gridData().v(i, j, k)       = (sum_weight_v > Tiny) ? sum_v / sum_weight_v : Real(0);
+                                        gridData().v_valid(i, j, k) = (sum_weight_v > Tiny) ? 1 : 0;
+                                    }
 
-                                          if(valid_index_w) {
-                                              gridData().w(i, j, k)       = (sum_weight_w > Tiny) ? sum_w / sum_weight_w : Real(0);
-                                              gridData().w_valid(i, j, k) = (sum_weight_w > Tiny) ? 1 : 0;
-                                          }
-                                      });
+                                    if(valid_index_w) {
+                                        gridData().w(i, j, k)       = (sum_weight_w > Tiny) ? sum_w / sum_weight_w : Real(0);
+                                        gridData().w_valid(i, j, k) = (sum_weight_w > Tiny) ? 1 : 0;
+                                    }
+                                });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -622,59 +620,59 @@ void FLIP3DSolver::constrainGridVelocity()
     gridData().w_temp.copyDataFrom(gridData().w);
 
     ////////////////////////////////////////////////////////////////////////////////
-    ParallelFuncs::parallel_for<size_t>(gridData().u.size(),
-                                        [&](size_t i, size_t j, size_t k)
-                                        {
-                                            if(gridData().u_weights(i, j, k) < Tiny) {
-                                                const Vec3r gridPos = Vec3r(i, j + 0.5, k + 0.5);
-                                                Vec3r vel           = getVelocityFromGrid(gridPos);
-                                                Vec3r normal        = ArrayHelpers::interpolateGradient(gridPos, gridData().boundarySDF);
-                                                Real mag2Normal     = glm::length2(normal);
-                                                if(mag2Normal > Tiny) {
-                                                    normal /= sqrt(mag2Normal);
-                                                }
+    ParallelFuncs::parallel_for(gridData().u.size(),
+                                [&](size_t i, size_t j, size_t k)
+                                {
+                                    if(gridData().u_weights(i, j, k) < Tiny) {
+                                        const Vec3r gridPos = Vec3r(i, j + 0.5, k + 0.5);
+                                        Vec3r vel           = getVelocityFromGrid(gridPos);
+                                        Vec3r normal        = ArrayHelpers::interpolateGradient(gridPos, gridData().boundarySDF);
+                                        Real mag2Normal     = glm::length2(normal);
+                                        if(mag2Normal > Tiny) {
+                                            normal /= sqrt(mag2Normal);
+                                        }
 
-                                                Real perp_component = glm::dot(vel, normal);
-                                                vel                       -= perp_component * normal;
-                                                gridData().u_temp(i, j, k) = vel[0];
-                                            }
-                                        });
+                                        Real perp_component = glm::dot(vel, normal);
+                                        vel                       -= perp_component * normal;
+                                        gridData().u_temp(i, j, k) = vel[0];
+                                    }
+                                });
 
-    ParallelFuncs::parallel_for<size_t>(gridData().v.size(),
-                                        [&](size_t i, size_t j, size_t k)
-                                        {
-                                            if(gridData().v_weights(i, j, k) < Tiny) {
-                                                const Vec3r gridPos = Vec3r(i + 0.5, j, k + 0.5);
-                                                Vec3r vel           = getVelocityFromGrid(gridPos);
-                                                Vec3r normal        = ArrayHelpers::interpolateGradient(gridPos, gridData().boundarySDF);
-                                                Real mag2Normal     = glm::length2(normal);
-                                                if(mag2Normal > Tiny) {
-                                                    normal /= sqrt(mag2Normal);
-                                                }
+    ParallelFuncs::parallel_for(gridData().v.size(),
+                                [&](size_t i, size_t j, size_t k)
+                                {
+                                    if(gridData().v_weights(i, j, k) < Tiny) {
+                                        const Vec3r gridPos = Vec3r(i + 0.5, j, k + 0.5);
+                                        Vec3r vel           = getVelocityFromGrid(gridPos);
+                                        Vec3r normal        = ArrayHelpers::interpolateGradient(gridPos, gridData().boundarySDF);
+                                        Real mag2Normal     = glm::length2(normal);
+                                        if(mag2Normal > Tiny) {
+                                            normal /= sqrt(mag2Normal);
+                                        }
 
-                                                Real perp_component = glm::dot(vel, normal);
-                                                vel                       -= perp_component * normal;
-                                                gridData().v_temp(i, j, k) = vel[1];
-                                            }
-                                        });
+                                        Real perp_component = glm::dot(vel, normal);
+                                        vel                       -= perp_component * normal;
+                                        gridData().v_temp(i, j, k) = vel[1];
+                                    }
+                                });
 
-    ParallelFuncs::parallel_for<size_t>(gridData().w.size(),
-                                        [&](size_t i, size_t j, size_t k)
-                                        {
-                                            if(gridData().w_weights(i, j, k) < Tiny) {
-                                                const Vec3r gridPos = Vec3r(i + 0.5, j + 0.5, k);
-                                                Vec3r vel           = getVelocityFromGrid(gridPos);
-                                                Vec3r normal        = ArrayHelpers::interpolateGradient(gridPos, gridData().boundarySDF);
-                                                Real mag2Normal     = glm::length2(normal);
-                                                if(mag2Normal > Tiny) {
-                                                    normal /= sqrt(mag2Normal);
-                                                }
+    ParallelFuncs::parallel_for(gridData().w.size(),
+                                [&](size_t i, size_t j, size_t k)
+                                {
+                                    if(gridData().w_weights(i, j, k) < Tiny) {
+                                        const Vec3r gridPos = Vec3r(i + 0.5, j + 0.5, k);
+                                        Vec3r vel           = getVelocityFromGrid(gridPos);
+                                        Vec3r normal        = ArrayHelpers::interpolateGradient(gridPos, gridData().boundarySDF);
+                                        Real mag2Normal     = glm::length2(normal);
+                                        if(mag2Normal > Tiny) {
+                                            normal /= sqrt(mag2Normal);
+                                        }
 
-                                                Real perp_component = glm::dot(vel, normal);
-                                                vel                       -= perp_component * normal;
-                                                gridData().w_temp(i, j, k) = vel[2];
-                                            }
-                                        });
+                                        Real perp_component = glm::dot(vel, normal);
+                                        vel                       -= perp_component * normal;
+                                        gridData().w_temp(i, j, k) = vel[2];
+                                    }
+                                });
 
     ////////////////////////////////////////////////////////////////////////////////
     gridData().u.copyDataFrom(gridData().u_temp);
@@ -685,11 +683,11 @@ void FLIP3DSolver::constrainGridVelocity()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void FLIP3DSolver::addGravity(Real timestep)
 {
-    ParallelFuncs::parallel_for<size_t>(gridData().v.size(),
-                                        [&](size_t i, size_t j, size_t k)
-                                        {
-                                            gridData().v(i, j, k) -= Real(9.81) * timestep;
-                                        });
+    ParallelFuncs::parallel_for(gridData().v.size(),
+                                [&](size_t i, size_t j, size_t k)
+                                {
+                                    gridData().v(i, j, k) -= Real(9.81) * timestep;
+                                });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -713,54 +711,54 @@ void FLIP3DSolver::computeFluidSDF()
 {
     gridData().fluidSDF.assign(m_Grid.getCellSize() * Real(3.0));
 
-    ParallelFuncs::parallel_for<UInt>(0, m_SimData->getNParticles(),
-                                      [&](UInt p)
-                                      {
-                                          const Vec3r ppos     = particleData().positions[p];
-                                          const Vec3i cellIdx  = m_Grid.getCellIdx<int>(ppos);
-                                          const Vec3i cellDown = Vec3i(MathHelpers::max(0, cellIdx[0] - 1),
-                                                                       MathHelpers::max(0, cellIdx[1] - 1),
-                                                                       MathHelpers::max(0, cellIdx[2] - 1));
-                                          const Vec3i cellUp = Vec3i(MathHelpers::min(cellIdx[0] + 1, static_cast<Int>(m_Grid.getNCells()[0])),
-                                                                     MathHelpers::min(cellIdx[1] + 1, static_cast<Int>(m_Grid.getNCells()[1])),
-                                                                     MathHelpers::min(cellIdx[2] + 1, static_cast<Int>(m_Grid.getNCells()[2])));
+    ParallelFuncs::parallel_for(m_SimData->getNParticles(),
+                                [&](UInt p)
+                                {
+                                    const Vec3r ppos     = particleData().positions[p];
+                                    const Vec3i cellIdx  = m_Grid.getCellIdx<int>(ppos);
+                                    const Vec3i cellDown = Vec3i(MathHelpers::max(0, cellIdx[0] - 1),
+                                                                 MathHelpers::max(0, cellIdx[1] - 1),
+                                                                 MathHelpers::max(0, cellIdx[2] - 1));
+                                    const Vec3i cellUp = Vec3i(MathHelpers::min(cellIdx[0] + 1, static_cast<Int>(m_Grid.getNCells()[0])),
+                                                               MathHelpers::min(cellIdx[1] + 1, static_cast<Int>(m_Grid.getNCells()[1])),
+                                                               MathHelpers::min(cellIdx[2] + 1, static_cast<Int>(m_Grid.getNCells()[2])));
 
-                                          for(int k = cellDown[2]; k <= cellUp[2]; ++k) {
-                                              for(int j = cellDown[1]; j <= cellUp[1]; ++j) {
-                                                  for(int i = cellDown[0]; i <= cellUp[0]; ++i) {
-                                                      const Vec3r sample = Vec3r(i + 0.5, j + 0.5, k + 0.5) * m_Grid.getCellSize() + m_Grid.getBMin();
-                                                      const Real phiVal  = glm::length(sample - ppos) - m_SimParams->sdfRadius;
+                                    for(int k = cellDown[2]; k <= cellUp[2]; ++k) {
+                                        for(int j = cellDown[1]; j <= cellUp[1]; ++j) {
+                                            for(int i = cellDown[0]; i <= cellUp[0]; ++i) {
+                                                const Vec3r sample = Vec3r(i + 0.5, j + 0.5, k + 0.5) * m_Grid.getCellSize() + m_Grid.getBMin();
+                                                const Real phiVal  = glm::length(sample - ppos) - m_SimParams->sdfRadius;
 
-                                                      gridData().fluidSDFLock(i, j, k).lock();
-                                                      if(phiVal < gridData().fluidSDF(i, j, k)) {
-                                                          gridData().fluidSDF(i, j, k) = phiVal;
-                                                      }
-                                                      gridData().fluidSDFLock(i, j, k).unlock();
-                                                  }
-                                              }
-                                          }
-                                      });
+                                                gridData().fluidSDFLock(i, j, k).lock();
+                                                if(phiVal < gridData().fluidSDF(i, j, k)) {
+                                                    gridData().fluidSDF(i, j, k) = phiVal;
+                                                }
+                                                gridData().fluidSDFLock(i, j, k).unlock();
+                                            }
+                                        }
+                                    }
+                                });
 
     ////////////////////////////////////////////////////////////////////////////////
     //extend phi slightly into solids (this is a simple, naive approach, but works reasonably well)
-    ParallelFuncs::parallel_for<UInt>(m_Grid.getNCells(),
-                                      [&](int i, int j, int k)
-                                      {
-                                          if(gridData().fluidSDF(i, j, k) < m_Grid.getHalfCellSize()) {
-                                              const Real phiValSolid = Real(0.125) * (gridData().boundarySDF(i,     j,     k) +
-                                                                                      gridData().boundarySDF(i + 1, j,     k) +
-                                                                                      gridData().boundarySDF(i,     j + 1, k) +
-                                                                                      gridData().boundarySDF(i + 1, j + 1, k) +
-                                                                                      gridData().boundarySDF(i,     j,     k + 1) +
-                                                                                      gridData().boundarySDF(i + 1, j,     k + 1) +
-                                                                                      gridData().boundarySDF(i,     j + 1, k + 1) +
-                                                                                      gridData().boundarySDF(i + 1, j + 1, k + 1));
+    ParallelFuncs::parallel_for(m_Grid.getNCells(),
+                                [&](int i, int j, int k)
+                                {
+                                    if(gridData().fluidSDF(i, j, k) < m_Grid.getHalfCellSize()) {
+                                        const Real phiValSolid = Real(0.125) * (gridData().boundarySDF(i,     j,     k) +
+                                                                                gridData().boundarySDF(i + 1, j,     k) +
+                                                                                gridData().boundarySDF(i,     j + 1, k) +
+                                                                                gridData().boundarySDF(i + 1, j + 1, k) +
+                                                                                gridData().boundarySDF(i,     j,     k + 1) +
+                                                                                gridData().boundarySDF(i + 1, j,     k + 1) +
+                                                                                gridData().boundarySDF(i,     j + 1, k + 1) +
+                                                                                gridData().boundarySDF(i + 1, j + 1, k + 1));
 
-                                              if(phiValSolid < 0) {
-                                                  gridData().fluidSDF(i, j, k) = -m_Grid.getHalfCellSize();
-                                              }
-                                          }
-                                      });
+                                        if(phiValSolid < 0) {
+                                            gridData().fluidSDF(i, j, k) = -m_Grid.getHalfCellSize();
+                                        }
+                                    }
+                                });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -903,34 +901,34 @@ void FLIP3DSolver::updateVelocity(Real timestep)
     gridData().v_valid.assign(0);
     gridData().w_valid.assign(0);
 
-    ParallelFuncs::parallel_for<UInt>(m_Grid.getNCells(),
-                                      [&](UInt i, UInt j, UInt k)
-                                      {
-                                          const UInt idx = m_Grid.getCellLinearizedIndex(i, j, k);
+    ParallelFuncs::parallel_for(m_Grid.getNCells(),
+                                [&](UInt i, UInt j, UInt k)
+                                {
+                                    const UInt idx = m_Grid.getCellLinearizedIndex(i, j, k);
 
-                                          const Real center_phi = gridData().fluidSDF(i, j, k);
-                                          const Real left_phi   = i > 0 ? gridData().fluidSDF(i - 1, j, k) : 0;
-                                          const Real bottom_phi = j > 0 ? gridData().fluidSDF(i, j - 1, k) : 0;
-                                          const Real near_phi   = k > 0 ? gridData().fluidSDF(i, j, k - 1) : 0;
+                                    const Real center_phi = gridData().fluidSDF(i, j, k);
+                                    const Real left_phi   = i > 0 ? gridData().fluidSDF(i - 1, j, k) : 0;
+                                    const Real bottom_phi = j > 0 ? gridData().fluidSDF(i, j - 1, k) : 0;
+                                    const Real near_phi   = k > 0 ? gridData().fluidSDF(i, j, k - 1) : 0;
 
-                                          if(i > 0 && i < m_Grid.getNCells()[0] - 1 && (center_phi < 0 || left_phi < 0) && gridData().u_weights(i, j, k) > 0) {
-                                              Real theta = MathHelpers::max(Real(0.01), MathHelpers::fraction_inside(left_phi, center_phi));
-                                              gridData().u(i, j, k)      -= timestep * (m_SimData->pressure[idx] - m_SimData->pressure[idx - 1]) / theta;
-                                              gridData().u_valid(i, j, k) = 1;
-                                          }
+                                    if(i > 0 && i < m_Grid.getNCells()[0] - 1 && (center_phi < 0 || left_phi < 0) && gridData().u_weights(i, j, k) > 0) {
+                                        Real theta = MathHelpers::max(Real(0.01), MathHelpers::fraction_inside(left_phi, center_phi));
+                                        gridData().u(i, j, k)      -= timestep * (m_SimData->pressure[idx] - m_SimData->pressure[idx - 1]) / theta;
+                                        gridData().u_valid(i, j, k) = 1;
+                                    }
 
-                                          if(j > 0 && j < m_Grid.getNCells()[1] - 1 && (center_phi < 0 || bottom_phi < 0) && gridData().v_weights(i, j, k) > 0) {
-                                              Real theta = MathHelpers::max(Real(0.01), MathHelpers::fraction_inside(bottom_phi, center_phi));
-                                              gridData().v(i, j, k)      -= timestep * (m_SimData->pressure[idx] - m_SimData->pressure[idx - m_Grid.getNCells()[0]]) / theta;
-                                              gridData().v_valid(i, j, k) = 1;
-                                          }
+                                    if(j > 0 && j < m_Grid.getNCells()[1] - 1 && (center_phi < 0 || bottom_phi < 0) && gridData().v_weights(i, j, k) > 0) {
+                                        Real theta = MathHelpers::max(Real(0.01), MathHelpers::fraction_inside(bottom_phi, center_phi));
+                                        gridData().v(i, j, k)      -= timestep * (m_SimData->pressure[idx] - m_SimData->pressure[idx - m_Grid.getNCells()[0]]) / theta;
+                                        gridData().v_valid(i, j, k) = 1;
+                                    }
 
-                                          if(k > 0 && k < m_Grid.getNCells()[2] - 1 && gridData().w_weights(i, j, k) > 0 && (center_phi < 0 || near_phi < 0)) {
-                                              Real theta = MathHelpers::max(Real(0.01), MathHelpers::fraction_inside(near_phi, center_phi));
-                                              gridData().w(i, j, k)      -= timestep * (m_SimData->pressure[idx] - m_SimData->pressure[idx - m_Grid.getNCells()[0] * m_Grid.getNCells()[1]]) / theta;
-                                              gridData().w_valid(i, j, k) = 1;
-                                          }
-                                      });
+                                    if(k > 0 && k < m_Grid.getNCells()[2] - 1 && gridData().w_weights(i, j, k) > 0 && (center_phi < 0 || near_phi < 0)) {
+                                        Real theta = MathHelpers::max(Real(0.01), MathHelpers::fraction_inside(near_phi, center_phi));
+                                        gridData().w(i, j, k)      -= timestep * (m_SimData->pressure[idx] - m_SimData->pressure[idx - m_Grid.getNCells()[0] * m_Grid.getNCells()[1]]) / theta;
+                                        gridData().w_valid(i, j, k) = 1;
+                                    }
+                                });
 
     for(size_t i = 0; i < gridData().u_valid.dataSize(); ++i) {
         if(gridData().u_valid.data()[i] == 0) {
@@ -954,29 +952,29 @@ void FLIP3DSolver::updateVelocity(Real timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void FLIP3DSolver::computeChangesGridVelocity()
 {
-    ParallelFuncs::parallel_for<size_t>(0, gridData().u.dataSize(),
-                                        [&](size_t i) { gridData().du.data()[i] = gridData().u.data()[i] - gridData().u_old.data()[i]; });
-    ParallelFuncs::parallel_for<size_t>(0, gridData().v.dataSize(),
-                                        [&](size_t i) { gridData().dv.data()[i] = gridData().v.data()[i] - gridData().v_old.data()[i]; });
-    ParallelFuncs::parallel_for<size_t>(0, gridData().w.dataSize(),
-                                        [&](size_t i) { gridData().dw.data()[i] = gridData().w.data()[i] - gridData().w_old.data()[i]; });
+    ParallelFuncs::parallel_for(gridData().u.dataSize(),
+                                [&](size_t i) { gridData().du.data()[i] = gridData().u.data()[i] - gridData().u_old.data()[i]; });
+    ParallelFuncs::parallel_for(gridData().v.dataSize(),
+                                [&](size_t i) { gridData().dv.data()[i] = gridData().v.data()[i] - gridData().v_old.data()[i]; });
+    ParallelFuncs::parallel_for(gridData().w.dataSize(),
+                                [&](size_t i) { gridData().dw.data()[i] = gridData().w.data()[i] - gridData().w_old.data()[i]; });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void FLIP3DSolver::velocityToParticles()
 {
-    ParallelFuncs::parallel_for<UInt>(0, m_SimData->getNParticles(),
-                                      [&](UInt p)
-                                      {
-                                          const Vec3r& ppos = particleData().positions[p];
-                                          const Vec3r& pvel = particleData().velocities[p];
+    ParallelFuncs::parallel_for(m_SimData->getNParticles(),
+                                [&](UInt p)
+                                {
+                                    const Vec3r& ppos = particleData().positions[p];
+                                    const Vec3r& pvel = particleData().velocities[p];
 
-                                          const Vec3r gridPos = m_Grid.getGridCoordinate(ppos);
-                                          const Vec3r oldVel  = getVelocityFromGrid(gridPos);
-                                          const Vec3r dVel    = getVelocityChangesFromGrid(gridPos);
+                                    const Vec3r gridPos = m_Grid.getGridCoordinate(ppos);
+                                    const Vec3r oldVel  = getVelocityFromGrid(gridPos);
+                                    const Vec3r dVel    = getVelocityChangesFromGrid(gridPos);
 
-                                          particleData().velocities[p] = MathHelpers::lerp(oldVel, pvel + dVel, m_SimParams->PIC_FLIP_ratio);
-                                      });
+                                    particleData().velocities[p] = MathHelpers::lerp(oldVel, pvel + dVel, m_SimParams->PIC_FLIP_ratio);
+                                });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

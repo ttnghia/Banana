@@ -109,7 +109,7 @@ void convert2BNN(const char* inputFile, const char* outputFile)
     ////////////////////////////////////////////////////////////////////////////////
     // write Banana compressed data
     partioData->release();
-    particleWriter.flush(outputFile);
+    particleWriter.flushAsync(outputFile);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -259,7 +259,7 @@ int main(int argc, char* argv[])
         exit(EXIT_FAILURE);
     }
 
-    if(Banana::FileHelpers::getExtension(String(argv[1])) == String("geo"))
+    if(Banana::FileHelpers::getFileExtension(String(argv[1])) == String("geo"))
         convert2BNN(argv[1], argv[2]);
     else
         convert2Bgeo(argv[1], argv[2]);

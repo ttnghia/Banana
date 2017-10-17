@@ -15,7 +15,7 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-#include <ParticleSolvers/MPM/MPM2DSolver.h>
+#include <ParticleSolvers/MPM/Snow2DSolver.h>
 #include <Banana/LinearAlgebra/ImplicitQRSVD.h>
 #include <Banana/ParallelHelpers/ParallelSTL.h>
 #include <Banana/LinearAlgebra/LinaHelpers.h>
@@ -27,7 +27,7 @@ namespace Banana
 namespace ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MPM2DSolver::makeReady()
+void Snow2DSolver::makeReady()
 {
     m_Logger->printRunTime("Allocate solver memory: ",
                            [&]()
@@ -51,7 +51,7 @@ void MPM2DSolver::makeReady()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MPM2DSolver::advanceFrame()
+void Snow2DSolver::advanceFrame()
 {
     static Timer subStepTimer;
     static Timer funcTimer;
@@ -91,11 +91,11 @@ void MPM2DSolver::advanceFrame()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MPM2DSolver::sortParticles()
+void Snow2DSolver::sortParticles()
 {}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MPM2DSolver::loadSimParams(const nlohmann::json& jParams)
+void Snow2DSolver::loadSimParams(const nlohmann::json& jParams)
 {
     JSONHelpers::readVector(jParams, m_SimParams->movingBMin, "BoxMin");
     JSONHelpers::readVector(jParams, m_SimParams->movingBMax, "BoxMax");
@@ -130,7 +130,7 @@ void MPM2DSolver::loadSimParams(const nlohmann::json& jParams)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MPM2DSolver::setupDataIO()
+void Snow2DSolver::setupDataIO()
 {
     m_ParticleIO = std::make_unique<ParticleSerialization>(m_GlobalParams->dataPath, "MPMData", "frame", m_Logger);
     m_ParticleIO->addFixedAtribute<float>("particle_radius", ParticleSerialization::TypeReal, 1);
@@ -146,7 +146,7 @@ void MPM2DSolver::setupDataIO()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-bool MPM2DSolver::loadMemoryState()
+bool Snow2DSolver::loadMemoryState()
 {
     if(!m_GlobalParams->bLoadMemoryState) {
         return false;
@@ -175,7 +175,7 @@ bool MPM2DSolver::loadMemoryState()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MPM2DSolver::saveMemoryState()
+void Snow2DSolver::saveMemoryState()
 {
     if(!m_GlobalParams->bSaveMemoryState) {
         return;
@@ -200,7 +200,7 @@ void MPM2DSolver::saveMemoryState()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MPM2DSolver::saveFrameData()
+void Snow2DSolver::saveFrameData()
 {
     if(!m_GlobalParams->bSaveFrameData) {
         return;
@@ -215,7 +215,7 @@ void MPM2DSolver::saveFrameData()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-Real MPM2DSolver::computeCFLTimestep()
+Real Snow2DSolver::computeCFLTimestep()
 {
     Real maxVel      = sqrt(ParallelSTL::maxNorm2<2, Real>(particleData().velocities));
     Real CFLTimeStep = maxVel > Real(Tiny) ? m_SimParams->CFLFactor * m_SimParams->cellSize / sqrt(maxVel) : Huge;
@@ -223,7 +223,7 @@ Real MPM2DSolver::computeCFLTimestep()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MPM2DSolver::advanceVelocity(Real timestep)
+void Snow2DSolver::advanceVelocity(Real timestep)
 {
     static Timer funcTimer;
 
@@ -245,7 +245,7 @@ void MPM2DSolver::advanceVelocity(Real timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MPM2DSolver::updateParticles(Real timestep)
+void Snow2DSolver::updateParticles(Real timestep)
 {
     static Timer funcTimer;
 
@@ -257,7 +257,7 @@ void MPM2DSolver::updateParticles(Real timestep)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // todo: consider each node, and accumulate particle data, rather than  consider each particles
-void MPM2DSolver::massToGrid()
+void Snow2DSolver::massToGrid()
 {
     ParallelFuncs::parallel_for(m_SimData->getNParticles(),
                                 [&](UInt p)
@@ -302,7 +302,7 @@ void MPM2DSolver::massToGrid()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MPM2DSolver::velocityToGrid(Real timestep)
+void Snow2DSolver::velocityToGrid(Real timestep)
 {
     //We interpolate velocity after mass, to conserve momentum
     ParallelFuncs::parallel_for(m_SimData->getNParticles(),
@@ -341,7 +341,7 @@ void MPM2DSolver::velocityToGrid(Real timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //Maps volume from the grid to particles
 //This should only be called once, at the beginning of the simulation
-void MPM2DSolver::calculateParticleVolumes()
+void Snow2DSolver::calculateParticleVolumes()
 {
     //Estimate each particles volume (for force calculations)
     ParallelFuncs::parallel_for(m_SimData->getNParticles(),
@@ -374,7 +374,7 @@ void MPM2DSolver::calculateParticleVolumes()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //Calculate next timestep velocities for use in implicit integration
-void MPM2DSolver::explicitVelocities(Real timestep)
+void Snow2DSolver::explicitVelocities(Real timestep)
 {
     //First, compute the forces
     //We store force in velocity_new, since we're not using that variable at the moment
@@ -416,7 +416,7 @@ void MPM2DSolver::explicitVelocities(Real timestep)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //Solve linear system for implicit velocities
-void MPM2DSolver::implicitVelocities(Real timestep)
+void Snow2DSolver::implicitVelocities(Real timestep)
 {
     //With an explicit solution, we compute vf = vi + (f[n]/m)*dt
     //But for implicit, we use the force at the next timestep, f[n+1]
@@ -525,7 +525,7 @@ void MPM2DSolver::implicitVelocities(Real timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MPM2DSolver::recomputeImplicitForces(Real timestep)
+void Snow2DSolver::recomputeImplicitForces(Real timestep)
 {
     ParallelFuncs::parallel_for(m_SimData->getNParticles(),
                                 [&](UInt p)
@@ -564,7 +564,7 @@ void MPM2DSolver::recomputeImplicitForces(Real timestep)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //Map grid velocities back to particles
-void MPM2DSolver::velocityToParticles(Real timestep)
+void Snow2DSolver::velocityToParticles(Real timestep)
 {
     ParallelFuncs::parallel_for(m_SimData->getNParticles(),
                                 [&](UInt p)
@@ -610,7 +610,7 @@ void MPM2DSolver::velocityToParticles(Real timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MPM2DSolver::constrainGridVelocity(Real timestep)
+void Snow2DSolver::constrainGridVelocity(Real timestep)
 {
     Vec2r delta_scale = Vec2r(timestep);
     delta_scale /= m_SimParams->cellSize;
@@ -642,7 +642,7 @@ void MPM2DSolver::constrainGridVelocity(Real timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MPM2DSolver::constrainParticleVelocity(Real timestep)
+void Snow2DSolver::constrainParticleVelocity(Real timestep)
 {
     ParallelFuncs::parallel_for(m_SimData->getNParticles(),
                                 [&](UInt p)
@@ -667,7 +667,7 @@ void MPM2DSolver::constrainParticleVelocity(Real timestep)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-void MPM2DSolver::updateParticlePositions(Real timestep)
+void Snow2DSolver::updateParticlePositions(Real timestep)
 {
     ParallelFuncs::parallel_for(m_SimData->getNParticles(),
                                 [&](UInt p)
@@ -690,7 +690,7 @@ void MPM2DSolver::updateParticlePositions(Real timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MPM2DSolver::updateGradients(Real timestep)
+void Snow2DSolver::updateGradients(Real timestep)
 {
     ParallelFuncs::parallel_for(m_SimData->getNParticles(),
                                 [&](UInt p)
@@ -705,7 +705,7 @@ void MPM2DSolver::updateGradients(Real timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MPM2DSolver::applyPlasticity()
+void Snow2DSolver::applyPlasticity()
 {
     ParallelFuncs::parallel_for(m_SimData->getNParticles(),
                                 [&](UInt p)
@@ -753,7 +753,7 @@ void MPM2DSolver::applyPlasticity()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-Mat2x2r MPM2DSolver::computeEnergyDerivative(UInt p)
+Mat2x2r Snow2DSolver::computeEnergyDerivative(UInt p)
 {
     //Adjust lame parameters to account for hardening
     Real harden = exp(m_SimParams->hardening * (Real(1.0) - glm::determinant(particleData().plasticDeformGrad[p])));
@@ -770,7 +770,7 @@ Mat2x2r MPM2DSolver::computeEnergyDerivative(UInt p)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-Vec2r MPM2DSolver::computeDeltaForce(UInt p, const Vec2r& u, const Vec2r& weight_grad, Real timestep)
+Vec2r Snow2DSolver::computeDeltaForce(UInt p, const Vec2r& u, const Vec2r& weight_grad, Real timestep)
 {
     //For detailed explanation, check out the implicit math pdf for details
     //Before we do the force calculation, we need deltaF, deltaR, and delta(JF^-T)

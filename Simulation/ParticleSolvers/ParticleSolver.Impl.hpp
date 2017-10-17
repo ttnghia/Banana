@@ -81,7 +81,6 @@ void ParticleSolver<N, RealType >::loadScene(const String& sceneFile)
     {
         generateBoundaries(jParams);
         generateParticles(jParams);
-        generateEmitters(jParams);
     }
 
     ////////////////////////////////////////////////////////////////////////////////

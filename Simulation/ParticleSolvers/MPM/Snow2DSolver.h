@@ -19,7 +19,7 @@
 
 #include <Banana/Grid/Grid.h>
 #include <ParticleSolvers/ParticleSolver.h>
-#include <ParticleSolvers/MPM/MPM3DData.h>
+#include <ParticleSolvers/MPM/Snow2DData.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -28,16 +28,16 @@ namespace Banana
 namespace ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class MPM3DSolver : public ParticleSolver3D
+class Snow2DSolver : public ParticleSolver2D
 {
 public:
-    MPM3DSolver() { setupLogger(); }
+    Snow2DSolver() { setupLogger(); }
 
-    SharedPtr<SimulationParameters_MPM3D> getSolverParams() { return m_SimParams; }
+    SharedPtr<SimulationParameters_Snow2D> getSolverParams() { return m_SimParams; }
 
     ////////////////////////////////////////////////////////////////////////////////
-    virtual String getSolverName() override { return String("MPM3DSolver"); }
-    virtual String getGreetingMessage() override { return String("Simulation using MPM-3D Solver"); }
+    virtual String getSolverName() override { return String("MPM2DSolver"); }
+    virtual String getGreetingMessage() override { return String("Simulation using MPM-2D Solver"); }
 
     virtual void makeReady() override;
     virtual void advanceFrame() override;
@@ -76,17 +76,17 @@ protected:
     void updateGradients(Real timestep);
     void applyPlasticity();
 
-    Mat3x3r computeEnergyDerivative(UInt p);
-    Vec3r   computeDeltaForce(UInt p, const Vec3r& u, const Vec3r& weight_grad, Real timestep);      //Computes stress force delta, for implicit velocity update
+    Mat2x2r computeEnergyDerivative(UInt p);
+    Vec2r   computeDeltaForce(UInt p, const Vec2r& u, const Vec2r& weight_grad, Real timestep);  //Computes stress force delta, for implicit velocity update
 
     ////////////////////////////////////////////////////////////////////////////////
-    SimulationData_MPM3D::ParticleSimData& particleData() { return m_SimData->particleSimData; }
-    SimulationData_MPM3D::GridSimData&     gridData() { return m_SimData->gridSimData; }
+    SimulationData_Snow2D::ParticleSimData& particleData() { return m_SimData->particleSimData; }
+    SimulationData_Snow2D::GridSimData&     gridData() { return m_SimData->gridSimData; }
 
-    SharedPtr<SimulationParameters_MPM3D> m_SimParams = std::make_shared<SimulationParameters_MPM3D>();
-    UniquePtr<SimulationData_MPM3D>       m_SimData   = std::make_unique<SimulationData_MPM3D>();
+    SharedPtr<SimulationParameters_Snow2D> m_SimParams = std::make_shared<SimulationParameters_Snow2D>();
+    UniquePtr<SimulationData_Snow2D>       m_SimData   = std::make_unique<SimulationData_Snow2D>();
 
-    Grid3r m_Grid;
+    Grid2r m_Grid;
 };
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace ParticleSolvers

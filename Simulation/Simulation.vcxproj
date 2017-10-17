@@ -146,12 +146,12 @@
     <ClInclude Include="ParticleSolvers\MPM.bk\ShapeFunctions.h" />
     <ClInclude Include="ParticleSolvers\MPM.bk\ShapeFunctions.Impl.hpp" />
     <ClInclude Include="ParticleSolvers\MPM.bk\TimeIntegration.h" />
-    <ClInclude Include="ParticleSolvers\MPM\MPM2DData.h" />
-    <ClInclude Include="ParticleSolvers\MPM\MPM2DSolver.h" />
-    <ClInclude Include="ParticleSolvers\MPM\MPM3DData.h" />
+    <ClInclude Include="ParticleSolvers\MPM\Snow2DData.h" />
+    <ClInclude Include="ParticleSolvers\MPM\Snow2DSolver.h" />
+    <ClInclude Include="ParticleSolvers\MPM\Snow3DData.h" />
     <ClInclude Include="ParticleSolvers\MPM\MPMMaterial.h" />
     <ClInclude Include="ParticleSolvers\MPM\MPMMaterial.Impl.hpp" />
-    <ClInclude Include="ParticleSolvers\MPM\MPM3DSolver.h" />
+    <ClInclude Include="ParticleSolvers\MPM\Snow3DSolver.h" />
     <ClInclude Include="ParticleSolvers\MPM\MPMSolver.Impl.hpp" />
     <ClInclude Include="ParticleSolvers\ParticleSolver.Impl.hpp" />
     <ClInclude Include="ParticleSolvers\ShapeFunctions.h" />
@@ -193,8 +193,8 @@
     <ClCompile Include="ParticleSolvers\ClothSolver\ClothSolver.cpp" />
     <ClCompile Include="ParticleSolvers\FLIP\FLIP2DSolver.cpp" />
     <ClCompile Include="ParticleSolvers\FLIP\FLIP3DSolver.cpp" />
-    <ClCompile Include="ParticleSolvers\MPM\MPM2DSolver.cpp" />
-    <ClCompile Include="ParticleSolvers\MPM\MPM3DSolver.cpp" />
+    <ClCompile Include="ParticleSolvers\MPM\Snow2DSolver.cpp" />
+    <ClCompile Include="ParticleSolvers\MPM\Snow3DSolver.cpp" />
     <ClCompile Include="ParticleSolvers\Peridynamics\PeridynamicsSolver.cpp" />
     <ClCompile Include="ParticleSolvers\SceneLoader.cpp" />
     <ClCompile Include="ParticleSolvers\SPH\WCSPH\WCSPHSolver.cpp" />

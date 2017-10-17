@@ -25,8 +25,8 @@
 #include <ParticleSolvers/Peridynamics/PeridynamicsSolver.h>
 
 //#define PARTICLE_SOLVER WCSPHSolver
-//#define PARTICLE_SOLVER FLIP3DSolver
-#define PARTICLE_SOLVER PeridynamicsSolver
+#define PARTICLE_SOLVER FLIP3DSolver
+//#define PARTICLE_SOLVER PeridynamicsSolver
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 class ParticleSolverQt : public PARTICLE_SOLVER
