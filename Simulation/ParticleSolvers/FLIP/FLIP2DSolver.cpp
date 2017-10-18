@@ -28,54 +28,54 @@ namespace ParticleSolvers
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void FLIP2DSolver::makeReady()
 {
-    m_Logger->printRunTime("Allocate solver memory: ",
-                           [&]()
-                           {
-                               solverParams().makeReady();
-                               solverParams().printParams(m_Logger);
+    logger().printRunTime("Allocate solver memory: ",
+                          [&]()
+                          {
+                              solverParams().makeReady();
+                              solverParams().printParams(m_Logger);
 
-                               if(solverParams().p2gKernel == ParticleSolverConstants::InterpolationKernels::Linear) {
-                                   m_InterpolateValue = static_cast<Real (*)(const Vec2r&, const Array2r&)>(&ArrayHelpers::interpolateValueLinear);
-                                   m_WeightKernel     = [](const Vec2r& dxdy) { return MathHelpers::bilinear_kernel(dxdy[0], dxdy[1]); };
-                               } else {
-                                   m_InterpolateValue = static_cast<Real (*)(const Vec2r&, const Array2r&)>(&ArrayHelpers::interpolateValueCubicBSpline);
-                                   m_WeightKernel     = [](const Vec2r& dxdy) { return MathHelpers::cubic_bspline_2d(dxdy[0], dxdy[1]); };
-                               }
+                              if(solverParams().p2gKernel == ParticleSolverConstants::InterpolationKernels::Linear) {
+                                  m_InterpolateValue = static_cast<Real (*)(const Vec2r&, const Array2r&)>(&ArrayHelpers::interpolateValueLinear);
+                                  m_WeightKernel     = [](const Vec2r& dxdy) { return MathHelpers::bilinear_kernel(dxdy[0], dxdy[1]); };
+                              } else {
+                                  m_InterpolateValue = static_cast<Real (*)(const Vec2r&, const Array2r&)>(&ArrayHelpers::interpolateValueCubicBSpline);
+                                  m_WeightKernel     = [](const Vec2r& dxdy) { return MathHelpers::cubic_bspline_2d(dxdy[0], dxdy[1]); };
+                              }
 
-                               m_Grid.setGrid(solverParams().movingBMin, solverParams().movingBMax, solverParams().cellSize);
-                               solverData().makeReady(m_Grid.getNCells()[0], m_Grid.getNCells()[1]);
+                              m_Grid.setGrid(solverParams().movingBMin, solverParams().movingBMax, solverParams().cellSize);
+                              solverData().makeReady(m_Grid.getNCells()[0], m_Grid.getNCells()[1]);
 
-                               m_PCGSolver = std::make_unique<PCGSolver<Real> >();
-                               m_PCGSolver->setSolverParameters(solverParams().CGRelativeTolerance, solverParams().maxCGIteration);
-                               m_PCGSolver->setPreconditioners(PCGSolver<Real>::MICCL0_SYMMETRIC);
+                              m_PCGSolver = std::make_unique<PCGSolver<Real> >();
+                              m_PCGSolver->setSolverParameters(solverParams().CGRelativeTolerance, solverParams().maxCGIteration);
+                              m_PCGSolver->setPreconditioners(PCGSolver<Real>::MICCL0_SYMMETRIC);
 
 
 
-                               // todo: remove
-                               GeometryObjects::BoxObject<2, Real> box;
-                               //box.setBMin(solverParams().movingBMin + Vec2r(solverParams().cellSize));
-                               //box.setBMax(solverParams().movingBMax - Vec2r(solverParams().cellSize));
-                               ParallelFuncs::parallel_for<UInt>(m_Grid.getNNodes(),
-                                                                 [&](UInt i, UInt j)
-                                                                 {
-                                                                     const Vec2r gridPos = m_Grid.getWorldCoordinate(i, j);
-                                                                     solverData().boundarySDF(i, j) = -box.signedDistance(gridPos);
-                                                                 });
-                               m_Logger->printWarning("Computed boundary SDF");
-                           });
-
-////////////////////////////////////////////////////////////////////////////////
-    m_Logger->printRunTime("Sort particle positions and velocities: ",
-                           [&]()
-                           {
-                               m_Grid.collectIndexToCells(solverData().positions);
-                               m_Grid.sortData(solverData().positions);
-                               m_Grid.sortData(solverData().velocities);
-                           });
+                              // todo: remove
+                              GeometryObjects::BoxObject<2, Real> box;
+                              //box.setBMin(solverParams().movingBMin + Vec2r(solverParams().cellSize));
+                              //box.setBMax(solverParams().movingBMax - Vec2r(solverParams().cellSize));
+                              ParallelFuncs::parallel_for<UInt>(m_Grid.getNNodes(),
+                                                                [&](UInt i, UInt j)
+                                                                {
+                                                                    const Vec2r gridPos = m_Grid.getWorldCoordinate(i, j);
+                                                                    solverData().boundarySDF(i, j) = -box.signedDistance(gridPos);
+                                                                });
+                              logger().printWarning("Computed boundary SDF");
+                          });
 
 ////////////////////////////////////////////////////////////////////////////////
-    m_Logger->printLog("Solver ready!");
-    m_Logger->newLine();
+    logger().printRunTime("Sort particle positions and velocities: ",
+                          [&]()
+                          {
+                              m_Grid.collectIndexToCells(solverData().positions);
+                              m_Grid.sortData(solverData().positions);
+                              m_Grid.sortData(solverData().velocities);
+                          });
+
+////////////////////////////////////////////////////////////////////////////////
+    logger().printLog("Solver ready!");
+    logger().newLine();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -88,26 +88,26 @@ void FLIP2DSolver::advanceFrame()
 
     ////////////////////////////////////////////////////////////////////////////////
     while(frameTime < m_GlobalParams.frameDuration) {
-        m_Logger->printRunTime("Sub-step time: ", subStepTimer,
-                               [&]()
-                               {
-                                   Real remainingTime = m_GlobalParams.frameDuration - frameTime;
-                                   Real substep       = MathHelpers::min(computeCFLTimestep(), remainingTime);
-                                   ////////////////////////////////////////////////////////////////////////////////
-                                   m_Logger->printRunTime("Find neighbors: ",               funcTimer, [&]() { m_Grid.collectIndexToCells(solverData().positions); });
-                                   m_Logger->printRunTime("====> Advance velocity total: ", funcTimer, [&]() { advanceVelocity(substep); });
-                                   m_Logger->printRunTime("Move particles: ",               funcTimer, [&]() { moveParticles(substep); });
-                                   m_Logger->printRunTime("Correct particle positions: ",   funcTimer, [&]() { correctPositions(substep); });
-                                   ////////////////////////////////////////////////////////////////////////////////
-                                   frameTime += substep;
-                                   ++substepCount;
-                                   m_Logger->printLog("Finished step " + NumberHelpers::formatWithCommas(substepCount) + " of size " + NumberHelpers::formatToScientific<Real>(substep) +
-                                                      "(" + NumberHelpers::formatWithCommas(substep / m_GlobalParams.frameDuration * 100) + "% of the frame, to " +
-                                                      NumberHelpers::formatWithCommas(100 * (frameTime) / m_GlobalParams.frameDuration) + "% of the frame).");
-                               });
+        logger().printRunTime("Sub-step time: ", subStepTimer,
+                              [&]()
+                              {
+                                  Real remainingTime = m_GlobalParams.frameDuration - frameTime;
+                                  Real substep       = MathHelpers::min(computeCFLTimestep(), remainingTime);
+                                  ////////////////////////////////////////////////////////////////////////////////
+                                  logger().printRunTime("Find neighbors: ",               funcTimer, [&]() { m_Grid.collectIndexToCells(solverData().positions); });
+                                  logger().printRunTime("====> Advance velocity total: ", funcTimer, [&]() { advanceVelocity(substep); });
+                                  logger().printRunTime("Move particles: ",               funcTimer, [&]() { moveParticles(substep); });
+                                  logger().printRunTime("Correct particle positions: ",   funcTimer, [&]() { correctPositions(substep); });
+                                  ////////////////////////////////////////////////////////////////////////////////
+                                  frameTime += substep;
+                                  ++substepCount;
+                                  logger().printLog("Finished step " + NumberHelpers::formatWithCommas(substepCount) + " of size " + NumberHelpers::formatToScientific<Real>(substep) +
+                                                    "(" + NumberHelpers::formatWithCommas(substep / m_GlobalParams.frameDuration * 100) + "% of the frame, to " +
+                                                    NumberHelpers::formatWithCommas(100 * (frameTime) / m_GlobalParams.frameDuration) + "% of the frame).");
+                              });
 
 ////////////////////////////////////////////////////////////////////////////////
-        m_Logger->newLine();
+        logger().newLine();
     }       // end while
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -129,14 +129,14 @@ void FLIP2DSolver::sortParticles()
     ////////////////////////////////////////////////////////////////////////////////
     frameCount = 0;
     static Timer timer;
-    m_Logger->printRunTime("Sort data by particle position: ", timer,
-                           [&]()
-                           {
-                               m_Grid.collectIndexToCells(solverData().positions);
-                               m_Grid.sortData(solverData().positions);
-                               m_Grid.sortData(solverData().velocities);
-                           });
-    m_Logger->newLine();
+    logger().printRunTime("Sort data by particle position: ", timer,
+                          [&]()
+                          {
+                              m_Grid.collectIndexToCells(solverData().positions);
+                              m_Grid.sortData(solverData().positions);
+                              m_Grid.sortData(solverData().velocities);
+                          });
+    logger().newLine();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -183,7 +183,7 @@ bool FLIP2DSolver::loadMemoryState()
     }
 
     if(!m_MemoryStateIO->read(latestStateIdx)) {
-        m_Logger->printError("Cannot read latest memory state file!");
+        logger().printError("Cannot read latest memory state file!");
         return false;
     }
 
@@ -254,19 +254,19 @@ void FLIP2DSolver::advanceVelocity(Real timestep)
     ////////////////////////////////////////////////////////////////////////////////
     static bool weight_computed = false;
     if(!weight_computed) {
-        m_Logger->printRunTime("Compute cell weights: ", funcTimer, [&]() { computeFluidWeights(); });
+        logger().printRunTime("Compute cell weights: ", funcTimer, [&]() { computeFluidWeights(); });
         weight_computed = true;
     }
 
 
-    m_Logger->printRunTime("Interpolate velocity from particles to grid: ", funcTimer, [&]() { velocityToGrid(); });
-    m_Logger->printRunTime("Backup grid velocities: ",                      funcTimer, [&]() { solverData().backupGridVelocity(); });
-    m_Logger->printRunTime("Add gravity: ",                                 funcTimer, [&]() { addGravity(timestep); });
-    m_Logger->printRunTime("====> Pressure projection: ",                   funcTimer, [&]() { pressureProjection(timestep); });
-    m_Logger->printRunTime("Extrapolate grid velocity: : ",                 funcTimer, [&]() { extrapolateVelocity(); });
-    m_Logger->printRunTime("Constrain grid velocity: ",                     funcTimer, [&]() { constrainVelocity(); });
-    m_Logger->printRunTime("Compute changes of grid velocity: ",            funcTimer, [&]() { computeChangesGridVelocity(); });
-    m_Logger->printRunTime("Interpolate velocity from grid to particles: ", funcTimer, [&]() { velocityToParticles(); });
+    logger().printRunTime("Interpolate velocity from particles to grid: ", funcTimer, [&]() { velocityToGrid(); });
+    logger().printRunTime("Backup grid velocities: ",                      funcTimer, [&]() { solverData().backupGridVelocity(); });
+    logger().printRunTime("Add gravity: ",                                 funcTimer, [&]() { addGravity(timestep); });
+    logger().printRunTime("====> Pressure projection: ",                   funcTimer, [&]() { pressureProjection(timestep); });
+    logger().printRunTime("Extrapolate grid velocity: : ",                 funcTimer, [&]() { extrapolateVelocity(); });
+    logger().printRunTime("Constrain grid velocity: ",                     funcTimer, [&]() { constrainVelocity(); });
+    logger().printRunTime("Compute changes of grid velocity: ",            funcTimer, [&]() { computeChangesGridVelocity(); });
+    logger().printRunTime("Interpolate velocity from grid to particles: ", funcTimer, [&]() { velocityToParticles(); });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -563,11 +563,11 @@ void FLIP2DSolver::pressureProjection(Real timestep)
     static Timer funcTimer;
 
     ////////////////////////////////////////////////////////////////////////////////
-    m_Logger->printRunTime("Compute liquid SDF: ",      funcTimer, [&]() { computeFluidSDF(); });
-    m_Logger->printRunTime("Compute pressure matrix: ", funcTimer, [&]() { computeMatrix(timestep); });
-    m_Logger->printRunTime("Compute RHS: ",             funcTimer, [&]() { computeRhs(); });
-    m_Logger->printRunTime("Solve linear system: ",     funcTimer, [&]() { solveSystem(); });
-    m_Logger->printRunTime("Update grid velocity: ",    funcTimer, [&]() { updateVelocity(timestep); });
+    logger().printRunTime("Compute liquid SDF: ",      funcTimer, [&]() { computeFluidSDF(); });
+    logger().printRunTime("Compute pressure matrix: ", funcTimer, [&]() { computeMatrix(timestep); });
+    logger().printRunTime("Compute RHS: ",             funcTimer, [&]() { computeRhs(); });
+    logger().printRunTime("Solve linear system: ",     funcTimer, [&]() { solveSystem(); });
+    logger().printRunTime("Update grid velocity: ",    funcTimer, [&]() { updateVelocity(timestep); });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -711,10 +711,10 @@ void FLIP2DSolver::computeRhs()
 void FLIP2DSolver::solveSystem()
 {
     bool success = m_PCGSolver->solve_precond(solverData().matrix, solverData().rhs, solverData().pressure);
-    m_Logger->printLog("Conjugate Gradient iterations: " + NumberHelpers::formatWithCommas(m_PCGSolver->iterations()) +
-                       ". Final residual: " + NumberHelpers::formatToScientific(m_PCGSolver->residual()));
+    logger().printLog("Conjugate Gradient iterations: " + NumberHelpers::formatWithCommas(m_PCGSolver->iterations()) +
+                      ". Final residual: " + NumberHelpers::formatToScientific(m_PCGSolver->residual()));
     if(!success) {
-        m_Logger->printWarning("Pressure projection failed to solved!********************************************************************************");
+        logger().printWarning("Pressure projection failed to solved!********************************************************************************");
     }
 }
 

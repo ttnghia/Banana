@@ -28,36 +28,36 @@ namespace ParticleSolvers
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PeridynamicsSolver::makeReady()
 {
-    m_Logger->printRunTime("Allocate solver memory: ",
-                           [&]()
-                           {
-                               solverParams().makeReady();
-                               solverParams().printParams(m_Logger);
+    logger().printRunTime("Allocate solver memory: ",
+                          [&]()
+                          {
+                              solverParams().makeReady();
+                              solverParams().printParams(m_Logger);
 
-                               m_CGSolver.setSolverParameters(solverParams().CGRelativeTolerance, solverParams().maxCGIteration);
+                              m_CGSolver.setSolverParameters(solverParams().CGRelativeTolerance, solverParams().maxCGIteration);
 
-                               m_NSearch = std::make_unique<NeighborSearch::NeighborSearch3D>(solverParams().horizon);
-                               m_NSearch->add_point_set(glm::value_ptr(m_SimData->positions.front()), m_SimData->getNParticles(), true, true);
+                              m_NSearch = std::make_unique<NeighborSearch::NeighborSearch3D>(solverParams().horizon);
+                              m_NSearch->add_point_set(glm::value_ptr(m_SimData->positions.front()), m_SimData->getNParticles(), true, true);
 
-                               for(auto& obj : m_BoundaryObjects) {
-                                   obj->margin() = solverParams().particleRadius;
-                                   obj->generateSDF(solverParams().domainBMin, solverParams().domainBMax, solverParams().cellSize);
-                               }
+                              for(auto& obj : m_BoundaryObjects) {
+                                  obj->margin() = solverParams().particleRadius;
+                                  obj->generateSDF(solverParams().domainBMin, solverParams().domainBMax, solverParams().cellSize);
+                              }
 
-                               ////////////////////////////////////////////////////////////////////////////////
-                               setupDataIO();
-                               m_SimData->makeReady();
-                               if(!loadMemoryState()) {
-                                   m_NSearch->z_sort();
-                                   const auto& d = m_NSearch->point_set(0);
-                                   d.sort_field(&m_SimData->positions[0]);
-                                   d.sort_field(&m_SimData->velocities[0]);
-                               }
-                           });
+                              ////////////////////////////////////////////////////////////////////////////////
+                              setupDataIO();
+                              m_SimData->makeReady();
+                              if(!loadMemoryState()) {
+                                  m_NSearch->z_sort();
+                                  const auto& d = m_NSearch->point_set(0);
+                                  d.sort_field(&m_SimData->positions[0]);
+                                  d.sort_field(&m_SimData->velocities[0]);
+                              }
+                          });
 
 ////////////////////////////////////////////////////////////////////////////////
-    m_Logger->printLog("Solver ready!");
-    m_Logger->newLine();
+    logger().printLog("Solver ready!");
+    logger().newLine();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -70,25 +70,25 @@ void PeridynamicsSolver::advanceFrame()
 
     ////////////////////////////////////////////////////////////////////////////////
     while(frameTime < m_GlobalParams.frameDuration) {
-        m_Logger->printRunTime("Sub-step time: ", subStepTimer,
-                               [&]()
-                               {
-                                   Real remainingTime = m_GlobalParams.frameDuration - frameTime;
-                                   Real substep       = MathHelpers::min(computeCFLTimestep(), remainingTime);
-                                   ////////////////////////////////////////////////////////////////////////////////
-                                   m_Logger->printRunTime("====> Advance velocity total: ", funcTimer, [&]() { advanceVelocity(substep); });
-                                   m_Logger->printRunTime("Move m_SimData->positions: ", funcTimer, [&]() { moveParticles(substep); });
-                                   //m_Logger->printRunTime("Correct particle positions: ",   funcTimer, [&]() { correctPositions(substep); });
-                                   ////////////////////////////////////////////////////////////////////////////////
-                                   frameTime += substep;
-                                   ++substepCount;
-                                   m_Logger->printLog("Finished step " + NumberHelpers::formatWithCommas(substepCount) + " of size " + NumberHelpers::formatToScientific<Real>(substep) +
-                                                      "(" + NumberHelpers::formatWithCommas(substep / m_GlobalParams.frameDuration * 100) + "% of the frame, to " +
-                                                      NumberHelpers::formatWithCommas(100 * (frameTime) / m_GlobalParams.frameDuration) + "% of the frame).");
-                               });
+        logger().printRunTime("Sub-step time: ", subStepTimer,
+                              [&]()
+                              {
+                                  Real remainingTime = m_GlobalParams.frameDuration - frameTime;
+                                  Real substep       = MathHelpers::min(computeCFLTimestep(), remainingTime);
+                                  ////////////////////////////////////////////////////////////////////////////////
+                                  logger().printRunTime("====> Advance velocity total: ", funcTimer, [&]() { advanceVelocity(substep); });
+                                  logger().printRunTime("Move m_SimData->positions: ", funcTimer, [&]() { moveParticles(substep); });
+                                  //logger().printRunTime("Correct particle positions: ",   funcTimer, [&]() { correctPositions(substep); });
+                                  ////////////////////////////////////////////////////////////////////////////////
+                                  frameTime += substep;
+                                  ++substepCount;
+                                  logger().printLog("Finished step " + NumberHelpers::formatWithCommas(substepCount) + " of size " + NumberHelpers::formatToScientific<Real>(substep) +
+                                                    "(" + NumberHelpers::formatWithCommas(substep / m_GlobalParams.frameDuration * 100) + "% of the frame, to " +
+                                                    NumberHelpers::formatWithCommas(100 * (frameTime) / m_GlobalParams.frameDuration) + "% of the frame).");
+                              });
 
 ////////////////////////////////////////////////////////////////////////////////
-        m_Logger->newLine();
+        logger().newLine();
     }           // end while
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -161,7 +161,7 @@ bool PeridynamicsSolver::loadMemoryState()
     }
 
     if(!m_MemoryStateIO->read(latestStateIdx)) {
-        m_Logger->printError("Cannot read latest memory state file!");
+        logger().printError("Cannot read latest memory state file!");
         return false;
     }
 
@@ -259,11 +259,11 @@ void PeridynamicsSolver::advanceVelocity(Real timestep)
 {
     static Timer funcTimer;
     if(solverParams().integrationScheme == ParticleSolverConstants::IntegrationScheme::ExplicitEuler) {
-        m_Logger->printRunTime("===> ExplicitEuler integration: ", funcTimer, [&]() { integrateExplicitEuler(timestep); });
+        logger().printRunTime("===> ExplicitEuler integration: ", funcTimer, [&]() { integrateExplicitEuler(timestep); });
     } else if(solverParams().integrationScheme == ParticleSolverConstants::IntegrationScheme::ImplicitEuler) {
-        m_Logger->printRunTime("===> ImplicitEuler integration: ", funcTimer, [&]() { integrateImplicitEuler(timestep); });
+        logger().printRunTime("===> ImplicitEuler integration: ", funcTimer, [&]() { integrateImplicitEuler(timestep); });
     } else {
-        m_Logger->printRunTime("===> Newmark-beta integration: ", funcTimer, [&]() { integrateImplicitNewmarkBeta(timestep); });
+        logger().printRunTime("===> Newmark-beta integration: ", funcTimer, [&]() { integrateImplicitNewmarkBeta(timestep); });
     }
 }
 
@@ -271,17 +271,17 @@ void PeridynamicsSolver::advanceVelocity(Real timestep)
 void PeridynamicsSolver::integrateExplicitEuler(Real timestep)
 {
     static Timer funcTimer;
-    m_Logger->printRunTime("Compute explicit force: ", funcTimer, [&]() { computeExplicitForces(); });
-    m_Logger->printRunTime("Update velocity: ", funcTimer, [&]() { updateVelocity(timestep); });
+    logger().printRunTime("Compute explicit force: ", funcTimer, [&]() { computeExplicitForces(); });
+    logger().printRunTime("Update velocity: ", funcTimer, [&]() { updateVelocity(timestep); });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PeridynamicsSolver::integrateImplicitEuler(Real timestep)
 {
     static Timer funcTimer;
-    m_Logger->printRunTime("Build linear system: ", funcTimer, [&]() { buildLinearSystem(timestep); });
-    m_Logger->printRunTime("Solve system: ", funcTimer, [&]() { solveLinearSystem(); });
-    m_Logger->printRunTime("Update velocity: ", funcTimer, [&]() { updateVelocity(timestep); });
+    logger().printRunTime("Build linear system: ", funcTimer, [&]() { buildLinearSystem(timestep); });
+    logger().printRunTime("Solve system: ", funcTimer, [&]() { solveLinearSystem(); });
+    logger().printRunTime("Update velocity: ", funcTimer, [&]() { updateVelocity(timestep); });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -291,9 +291,9 @@ void PeridynamicsSolver::integrateImplicitNewmarkBeta(Real timestep)
     static Vec_Vec3r velocity_old;
     velocity_old = m_SimData->velocities;
 
-    m_Logger->printRunTime("Build linear system: ", funcTimer, [&]() { buildLinearSystem(timestep); });
-    m_Logger->printRunTime("Solve system: ", funcTimer, [&]() { solveLinearSystem(); });
-    m_Logger->printRunTime("Update velocity: ", funcTimer, [&]() { updateVelocity(timestep); });
+    logger().printRunTime("Build linear system: ", funcTimer, [&]() { buildLinearSystem(timestep); });
+    logger().printRunTime("Solve system: ", funcTimer, [&]() { solveLinearSystem(); });
+    logger().printRunTime("Update velocity: ", funcTimer, [&]() { updateVelocity(timestep); });
 
     ParallelFuncs::parallel_for(m_SimData->nActives,
                                 [&](UInt p)
@@ -494,10 +494,10 @@ void PeridynamicsSolver::solveLinearSystem()
     }
 
     bool success = m_CGSolver.solve(m_SimData->matrix, m_SimData->rhs, m_SimData->solution);
-    m_Logger->printLog("Conjugate Gradient iterations: " + NumberHelpers::formatWithCommas(m_CGSolver.iterations()) +
-                       ". Final residual: " + NumberHelpers::formatToScientific(m_CGSolver.residual()));
+    logger().printLog("Conjugate Gradient iterations: " + NumberHelpers::formatWithCommas(m_CGSolver.iterations()) +
+                      ". Final residual: " + NumberHelpers::formatToScientific(m_CGSolver.residual()));
     if(!success) {
-        m_Logger->printWarning("Pressure projection failed to solved!");
+        logger().printWarning("Pressure projection failed to solved!");
         exit(EXIT_FAILURE);
     }
 }

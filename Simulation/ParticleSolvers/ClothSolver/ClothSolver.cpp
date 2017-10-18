@@ -27,55 +27,55 @@ namespace ParticleSolvers
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void ClothSolver::makeReady()
 {
-    m_Logger->printRunTime("Allocate solver memory: ",
-                           [&]()
-                           {
-                               solverParams().makeReady();
-                               solverParams().printParams(m_Logger);
-                               if(solverParams().p2gKernel == ParticleSolverConstants::InterpolationKernels::Linear) {
-                                   m_InterpolateValue = static_cast<Real (*)(const Vec3r&, const Array3r&)>(&ArrayHelpers::interpolateValueLinear);
-                                   m_WeightKernel     = [](const Vec3r& dxdydz) { return MathHelpers::tril_kernel(dxdydz[0], dxdydz[1], dxdydz[2]); };
-                               } else {
-                                   m_InterpolateValue = static_cast<Real (*)(const Vec3r&, const Array3r&)>(&ArrayHelpers::interpolateValueCubicBSpline);
-                                   m_WeightKernel     = [](const Vec3r& dxdydz) { return MathHelpers::cubic_bspline_3d(dxdydz[0], dxdydz[1], dxdydz[2]); };
-                               }
+    logger().printRunTime("Allocate solver memory: ",
+                          [&]()
+                          {
+                              solverParams().makeReady();
+                              solverParams().printParams(m_Logger);
+                              if(solverParams().p2gKernel == ParticleSolverConstants::InterpolationKernels::Linear) {
+                                  m_InterpolateValue = static_cast<Real (*)(const Vec3r&, const Array3r&)>(&ArrayHelpers::interpolateValueLinear);
+                                  m_WeightKernel     = [](const Vec3r& dxdydz) { return MathHelpers::tril_kernel(dxdydz[0], dxdydz[1], dxdydz[2]); };
+                              } else {
+                                  m_InterpolateValue = static_cast<Real (*)(const Vec3r&, const Array3r&)>(&ArrayHelpers::interpolateValueCubicBSpline);
+                                  m_WeightKernel     = [](const Vec3r& dxdydz) { return MathHelpers::cubic_bspline_3d(dxdydz[0], dxdydz[1], dxdydz[2]); };
+                              }
 
-                               m_Grid.setGrid(solverParams().domainBMin, solverParams().domainBMax, solverParams().cellSize);
-                               solverData().makeReady(m_Grid.getNCells()[0], m_Grid.getNCells()[1], m_Grid.getNCells()[2]);
+                              m_Grid.setGrid(solverParams().domainBMin, solverParams().domainBMax, solverParams().cellSize);
+                              solverData().makeReady(m_Grid.getNCells()[0], m_Grid.getNCells()[1], m_Grid.getNCells()[2]);
 
-                               m_PCGSolver.setSolverParameters(solverParams().CGRelativeTolerance, solverParams().maxCGIteration);
-                               m_PCGSolver.setPreconditioners(PCGSolver<Real>::MICCL0_SYMMETRIC);
+                              m_PCGSolver.setSolverParameters(solverParams().CGRelativeTolerance, solverParams().maxCGIteration);
+                              m_PCGSolver.setPreconditioners(PCGSolver<Real>::MICCL0_SYMMETRIC);
 
-                               m_NSearch = std::make_unique<NeighborSearch::NeighborSearch3D>(solverParams().cellSize);
-                               m_NSearch->add_point_set(glm::value_ptr(particleData().positions.front()), solverData().getNParticles(), true, true);
+                              m_NSearch = std::make_unique<NeighborSearch::NeighborSearch3D>(solverParams().cellSize);
+                              m_NSearch->add_point_set(glm::value_ptr(particleData().positions.front()), solverData().getNParticles(), true, true);
 
-                               for(auto& obj : m_BoundaryObjects) {
-                                   obj->margin() = solverParams().particleRadius;
-                                   obj->generateSDF(solverParams().domainBMin, solverParams().domainBMax, solverParams().cellSize);
-                               }
+                              for(auto& obj : m_BoundaryObjects) {
+                                  obj->margin() = solverParams().particleRadius;
+                                  obj->generateSDF(solverParams().domainBMin, solverParams().domainBMax, solverParams().cellSize);
+                              }
 
-                               ParallelFuncs::parallel_for<UInt>(m_Grid.getNNodes(),
-                                                                 [&](UInt i, UInt j, UInt k)
-                                                                 {
-                                                                     Real minSD = Huge;
-                                                                     for(auto& obj : m_BoundaryObjects) {
-                                                                         minSD = MathHelpers::min(minSD, obj->getSDF()(i, j, k));
-                                                                     }
+                              ParallelFuncs::parallel_for<UInt>(m_Grid.getNNodes(),
+                                                                [&](UInt i, UInt j, UInt k)
+                                                                {
+                                                                    Real minSD = Huge;
+                                                                    for(auto& obj : m_BoundaryObjects) {
+                                                                        minSD = MathHelpers::min(minSD, obj->getSDF()(i, j, k));
+                                                                    }
 
-                                                                     gridData().boundarySDF(i, j, k) = minSD;
+                                                                    gridData().boundarySDF(i, j, k) = minSD;
 
-                                                                     //printf("%u, %u, %u, %f\n", i, j, k, minSD);
-                                                                     //const Vec3r gridPos = m_Grid.getWorldCoordinate(i, j, k);
+                                                                    //printf("%u, %u, %u, %f\n", i, j, k, minSD);
+                                                                    //const Vec3r gridPos = m_Grid.getWorldCoordinate(i, j, k);
 
-                                                                     //gridData().boundarySDF(i, j, k) = -box.signedDistance(gridPos);
-                                                                 });
-                               m_Logger->printWarning("Computed boundary SDF");
-                           });
+                                                                    //gridData().boundarySDF(i, j, k) = -box.signedDistance(gridPos);
+                                                                });
+                              logger().printWarning("Computed boundary SDF");
+                          });
 
     ////////////////////////////////////////////////////////////////////////////////
     sortParticles();
-    m_Logger->printLog("Solver ready!");
-    m_Logger->newLine();
+    logger().printLog("Solver ready!");
+    logger().newLine();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -88,26 +88,26 @@ void ClothSolver::advanceFrame()
 
     ////////////////////////////////////////////////////////////////////////////////
     while(frameTime < m_GlobalParams.frameDuration) {
-        m_Logger->printRunTime("Sub-step time: ", subStepTimer,
-                               [&]()
-                               {
-                                   Real remainingTime = m_GlobalParams.frameDuration - frameTime;
-                                   Real substep       = MathHelpers::min(computeCFLTimestep(), remainingTime);
-                                   ////////////////////////////////////////////////////////////////////////////////
-                                   m_Logger->printRunTime("Find neighbors: ",               funcTimer, [&]() { m_Grid.collectIndexToCells(particleData().positions); });
-                                   m_Logger->printRunTime("====> Advance velocity total: ", funcTimer, [&]() { advanceVelocity(substep); });
-                                   m_Logger->printRunTime("Move particles: ",               funcTimer, [&]() { moveParticles(substep); });
-                                   //m_Logger->printRunTime("Correct particle positions: ",   funcTimer, [&]() { correctPositions(substep); });
-                                   ////////////////////////////////////////////////////////////////////////////////
-                                   frameTime += substep;
-                                   ++substepCount;
-                                   m_Logger->printLog("Finished step " + NumberHelpers::formatWithCommas(substepCount) + " of size " + NumberHelpers::formatToScientific<Real>(substep) +
-                                                      "(" + NumberHelpers::formatWithCommas(substep / m_GlobalParams.frameDuration * 100) + "% of the frame, to " +
-                                                      NumberHelpers::formatWithCommas(100 * (frameTime) / m_GlobalParams.frameDuration) + "% of the frame).");
-                               });
+        logger().printRunTime("Sub-step time: ", subStepTimer,
+                              [&]()
+                              {
+                                  Real remainingTime = m_GlobalParams.frameDuration - frameTime;
+                                  Real substep       = MathHelpers::min(computeCFLTimestep(), remainingTime);
+                                  ////////////////////////////////////////////////////////////////////////////////
+                                  logger().printRunTime("Find neighbors: ",               funcTimer, [&]() { m_Grid.collectIndexToCells(particleData().positions); });
+                                  logger().printRunTime("====> Advance velocity total: ", funcTimer, [&]() { advanceVelocity(substep); });
+                                  logger().printRunTime("Move particles: ",               funcTimer, [&]() { moveParticles(substep); });
+                                  //logger().printRunTime("Correct particle positions: ",   funcTimer, [&]() { correctPositions(substep); });
+                                  ////////////////////////////////////////////////////////////////////////////////
+                                  frameTime += substep;
+                                  ++substepCount;
+                                  logger().printLog("Finished step " + NumberHelpers::formatWithCommas(substepCount) + " of size " + NumberHelpers::formatToScientific<Real>(substep) +
+                                                    "(" + NumberHelpers::formatWithCommas(substep / m_GlobalParams.frameDuration * 100) + "% of the frame, to " +
+                                                    NumberHelpers::formatWithCommas(100 * (frameTime) / m_GlobalParams.frameDuration) + "% of the frame).");
+                              });
 
         ////////////////////////////////////////////////////////////////////////////////
-        m_Logger->newLine();
+        logger().newLine();
     }       // end while
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -126,15 +126,15 @@ void ClothSolver::sortParticles()
 
     ////////////////////////////////////////////////////////////////////////////////
     static Timer timer;
-    m_Logger->printRunTime("Sort data by particle position: ", timer,
-                           [&]()
-                           {
-                               m_NSearch->z_sort();
-                               const auto& d = m_NSearch->point_set(0);
-                               d.sort_field(&particleData().positions[0]);
-                               d.sort_field(&particleData().velocities[0]);
-                           });
-    m_Logger->newLine();
+    logger().printRunTime("Sort data by particle position: ", timer,
+                          [&]()
+                          {
+                              m_NSearch->z_sort();
+                              const auto& d = m_NSearch->point_set(0);
+                              d.sort_field(&particleData().positions[0]);
+                              d.sort_field(&particleData().velocities[0]);
+                          });
+    logger().newLine();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -194,7 +194,7 @@ bool ClothSolver::loadMemoryState()
     }
 
     if(!m_MemoryStateIO->read(latestStateIdx)) {
-        m_Logger->printError("Cannot read latest memory state file!");
+        logger().printError("Cannot read latest memory state file!");
         return false;
     }
 
@@ -269,26 +269,26 @@ void ClothSolver::advanceVelocity(Real timestep)
     ////////////////////////////////////////////////////////////////////////////////
     static bool weight_computed = false;
     if(!weight_computed) {
-        m_Logger->printRunTime("Compute cell weights: ", funcTimer, [&]() { computeFluidWeights(); });
+        logger().printRunTime("Compute cell weights: ", funcTimer, [&]() { computeFluidWeights(); });
         weight_computed = true;
     }
 
     if(solverParams().bApplyRepulsiveForces) {
-        m_Logger->printRunTime("Add repulsive force to particle: ", funcTimer, [&]() { addRepulsiveVelocity2Particles(timestep); });
+        logger().printRunTime("Add repulsive force to particle: ", funcTimer, [&]() { addRepulsiveVelocity2Particles(timestep); });
     }
 
-    m_Logger->printRunTime("Interpolate velocity from particles to grid: ", funcTimer, [&]() { velocityToGrid(); });
+    logger().printRunTime("Interpolate velocity from particles to grid: ", funcTimer, [&]() { velocityToGrid(); });
 
 
-    m_Logger->printRunTime("Extrapolate grid velocity: : ",                 funcTimer, [&]() { extrapolateVelocity(); });
-    m_Logger->printRunTime("Constrain grid velocity: ",                     funcTimer, [&]() { constrainGridVelocity(); });
-    m_Logger->printRunTime("Backup grid velocities: ",                      funcTimer, [&]() { solverData().backupGridVelocity(); });
-    m_Logger->printRunTime("Add gravity: ",                                 funcTimer, [&]() { addGravity(timestep); });
-    m_Logger->printRunTime("====> Pressure projection total: ",             funcTimer, [&]() { pressureProjection(timestep); });
-    m_Logger->printRunTime("Extrapolate grid velocity: : ",                 funcTimer, [&]() { extrapolateVelocity(); });
-    m_Logger->printRunTime("Constrain grid velocity: ",                     funcTimer, [&]() { constrainGridVelocity(); });
-    m_Logger->printRunTime("Compute changes of grid velocity: ",            funcTimer, [&]() { computeChangesGridVelocity(); });
-    m_Logger->printRunTime("Interpolate velocity from grid to particles: ", funcTimer, [&]() { velocityToParticles(); });
+    logger().printRunTime("Extrapolate grid velocity: : ",                 funcTimer, [&]() { extrapolateVelocity(); });
+    logger().printRunTime("Constrain grid velocity: ",                     funcTimer, [&]() { constrainGridVelocity(); });
+    logger().printRunTime("Backup grid velocities: ",                      funcTimer, [&]() { solverData().backupGridVelocity(); });
+    logger().printRunTime("Add gravity: ",                                 funcTimer, [&]() { addGravity(timestep); });
+    logger().printRunTime("====> Pressure projection total: ",             funcTimer, [&]() { pressureProjection(timestep); });
+    logger().printRunTime("Extrapolate grid velocity: : ",                 funcTimer, [&]() { extrapolateVelocity(); });
+    logger().printRunTime("Constrain grid velocity: ",                     funcTimer, [&]() { constrainGridVelocity(); });
+    logger().printRunTime("Compute changes of grid velocity: ",            funcTimer, [&]() { computeChangesGridVelocity(); });
+    logger().printRunTime("Interpolate velocity from grid to particles: ", funcTimer, [&]() { velocityToParticles(); });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -669,11 +669,11 @@ void ClothSolver::pressureProjection(Real timestep)
     static Timer funcTimer;
 
     ////////////////////////////////////////////////////////////////////////////////
-    m_Logger->printRunTime("Compute liquid SDF: ",      funcTimer, [&]() { computeFluidSDF(); });
-    m_Logger->printRunTime("Compute pressure matrix: ", funcTimer, [&]() { computeMatrix(timestep); });
-    m_Logger->printRunTime("Compute RHS: ",             funcTimer, [&]() { computeRhs(); });
-    m_Logger->printRunTime("Solve linear system: ",     funcTimer, [&]() { solveSystem(); });
-    m_Logger->printRunTime("Update grid velocity: ",    funcTimer, [&]() { updateVelocity(timestep); });
+    logger().printRunTime("Compute liquid SDF: ",      funcTimer, [&]() { computeFluidSDF(); });
+    logger().printRunTime("Compute pressure matrix: ", funcTimer, [&]() { computeMatrix(timestep); });
+    logger().printRunTime("Compute RHS: ",             funcTimer, [&]() { computeRhs(); });
+    logger().printRunTime("Solve linear system: ",     funcTimer, [&]() { solveSystem(); });
+    logger().printRunTime("Update grid velocity: ",    funcTimer, [&]() { updateVelocity(timestep); });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -856,10 +856,10 @@ void ClothSolver::computeRhs()
 void ClothSolver::solveSystem()
 {
     bool success = m_PCGSolver.solve_precond(solverData().matrix, solverData().rhs, solverData().pressure);
-    m_Logger->printLog("Conjugate Gradient iterations: " + NumberHelpers::formatWithCommas(m_PCGSolver.iterations()) +
-                       ". Final residual: " + NumberHelpers::formatToScientific(m_PCGSolver.residual()));
+    logger().printLog("Conjugate Gradient iterations: " + NumberHelpers::formatWithCommas(m_PCGSolver.iterations()) +
+                      ". Final residual: " + NumberHelpers::formatToScientific(m_PCGSolver.residual()));
     if(!success) {
-        m_Logger->printWarning("Pressure projection failed to solved!");
+        logger().printWarning("Pressure projection failed to solved!");
         exit(EXIT_FAILURE);
     }
 }

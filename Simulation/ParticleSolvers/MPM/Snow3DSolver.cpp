@@ -29,25 +29,25 @@ namespace ParticleSolvers
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Snow3DSolver::makeReady()
 {
-    m_Logger->printRunTime("Allocate solver memory: ",
-                           [&]()
-                           {
-                               solverParams().makeReady();
-                               solverParams().printParams(m_Logger);
+    logger().printRunTime("Allocate solver memory: ",
+                          [&]()
+                          {
+                              solverParams().makeReady();
+                              solverParams().printParams(m_Logger);
 
-                               m_Grid.setGrid(solverParams().domainBMin, solverParams().domainBMax, solverParams().cellSize);
-                               gridData().resize(m_Grid.getNNodes());
+                              m_Grid.setGrid(solverParams().domainBMin, solverParams().domainBMax, solverParams().cellSize);
+                              gridData().resize(m_Grid.getNNodes());
 
-                               //We need to estimate particle volumes before we start
-                               m_Grid.collectIndexToCells(particleData().positions, particleData().particleGridPos);
-                               massToGrid();
-                               calculateParticleVolumes();
-                           });
+                              //We need to estimate particle volumes before we start
+                              m_Grid.collectIndexToCells(particleData().positions, particleData().particleGridPos);
+                              massToGrid();
+                              calculateParticleVolumes();
+                          });
 
     ////////////////////////////////////////////////////////////////////////////////
     sortParticles();
-    m_Logger->printLog("Solver ready!");
-    m_Logger->newLine();
+    logger().printLog("Solver ready!");
+    logger().newLine();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -60,28 +60,28 @@ void Snow3DSolver::advanceFrame()
 
     ////////////////////////////////////////////////////////////////////////////////
     while(frameTime < m_GlobalParams.frameDuration) {
-        m_Logger->printRunTime("Sub-step time: ", subStepTimer,
-                               [&]()
-                               {
-                                   Real remainingTime = m_GlobalParams.frameDuration - frameTime;
-                                   Real substep       = MathHelpers::min(computeCFLTimestep(), remainingTime);
-                                   ////////////////////////////////////////////////////////////////////////////////
-                                   m_Logger->printRunTime("Find neighbors: ", funcTimer,
-                                                          [&]() { m_Grid.collectIndexToCells(particleData().positions, particleData().particleGridPos); });
-                                   m_Logger->printRunTime("====> Advance velocity total: ", funcTimer, [&]() { advanceVelocity(substep); });
-                                   m_Logger->printRunTime("====> Update particles total: ", funcTimer, [&]() { updateParticles(substep); });
-                                   //m_Logger->printRunTime("Correct particle positions: ",   funcTimer, [&]() { correctPositions(substep); });
-                                   ////////////////////////////////////////////////////////////////////////////////
+        logger().printRunTime("Sub-step time: ", subStepTimer,
+                              [&]()
+                              {
+                                  Real remainingTime = m_GlobalParams.frameDuration - frameTime;
+                                  Real substep       = MathHelpers::min(computeCFLTimestep(), remainingTime);
+                                  ////////////////////////////////////////////////////////////////////////////////
+                                  logger().printRunTime("Find neighbors: ", funcTimer,
+                                                        [&]() { m_Grid.collectIndexToCells(particleData().positions, particleData().particleGridPos); });
+                                  logger().printRunTime("====> Advance velocity total: ", funcTimer, [&]() { advanceVelocity(substep); });
+                                  logger().printRunTime("====> Update particles total: ", funcTimer, [&]() { updateParticles(substep); });
+                                  //logger().printRunTime("Correct particle positions: ",   funcTimer, [&]() { correctPositions(substep); });
+                                  ////////////////////////////////////////////////////////////////////////////////
 
-                                   frameTime += substep;
-                                   ++substepCount;
-                                   m_Logger->printLog("Finished step " + NumberHelpers::formatWithCommas(substepCount) + " of size " + NumberHelpers::formatToScientific<Real>(substep) +
-                                                      "(" + NumberHelpers::formatWithCommas(substep / m_GlobalParams.frameDuration * 100) + "% of the frame, to " +
-                                                      NumberHelpers::formatWithCommas(100 * (frameTime) / m_GlobalParams.frameDuration) + "% of the frame).");
-                               });
+                                  frameTime += substep;
+                                  ++substepCount;
+                                  logger().printLog("Finished step " + NumberHelpers::formatWithCommas(substepCount) + " of size " + NumberHelpers::formatToScientific<Real>(substep) +
+                                                    "(" + NumberHelpers::formatWithCommas(substep / m_GlobalParams.frameDuration * 100) + "% of the frame, to " +
+                                                    NumberHelpers::formatWithCommas(100 * (frameTime) / m_GlobalParams.frameDuration) + "% of the frame).");
+                              });
 
 ////////////////////////////////////////////////////////////////////////////////
-        m_Logger->newLine();
+        logger().newLine();
     }           // end while
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -159,7 +159,7 @@ bool Snow3DSolver::loadMemoryState()
     }
 
     if(!m_MemoryStateIO->read(latestStateIdx)) {
-        m_Logger->printError("Cannot read latest memory state file!");
+        logger().printError("Cannot read latest memory state file!");
         return false;
     }
 
@@ -228,20 +228,20 @@ void Snow3DSolver::advanceVelocity(Real timestep)
     static Timer funcTimer;
 
     ////////////////////////////////////////////////////////////////////////////////
-    m_Logger->printRunTime("Reset grid data: ", funcTimer, [&]() { gridData().resetGrid(); });
-    m_Logger->printRunTime("Compute mass for grid nodes: ", funcTimer, [&]() { massToGrid(); });
-    m_Logger->printRunTime("Interpolate velocity from particles to grid: ", funcTimer, [&]() { velocityToGrid(timestep); });
-    m_Logger->printRunTime("Constrain grid velocity: ", funcTimer, [&]() { constrainGridVelocity(timestep); });
+    logger().printRunTime("Reset grid data: ", funcTimer, [&]() { gridData().resetGrid(); });
+    logger().printRunTime("Compute mass for grid nodes: ", funcTimer, [&]() { massToGrid(); });
+    logger().printRunTime("Interpolate velocity from particles to grid: ", funcTimer, [&]() { velocityToGrid(timestep); });
+    logger().printRunTime("Constrain grid velocity: ", funcTimer, [&]() { constrainGridVelocity(timestep); });
 
-    m_Logger->printRunTime("Velocity explicit integration: ", funcTimer, [&]() { explicitVelocities(timestep); });
-    m_Logger->printRunTime("Constrain grid velocity: ", funcTimer, [&]() { constrainGridVelocity(timestep); });
+    logger().printRunTime("Velocity explicit integration: ", funcTimer, [&]() { explicitVelocities(timestep); });
+    logger().printRunTime("Constrain grid velocity: ", funcTimer, [&]() { constrainGridVelocity(timestep); });
 
     if(solverParams().implicitRatio > Tiny) {
-        m_Logger->printRunTime("Velocity implicit integration: ", funcTimer, [&]() { implicitVelocities(timestep); });
+        logger().printRunTime("Velocity implicit integration: ", funcTimer, [&]() { implicitVelocities(timestep); });
     }
 
-    m_Logger->printRunTime("Interpolate velocity from grid to particles: ", funcTimer, [&]() { velocityToParticles(timestep); });
-    m_Logger->printRunTime("Constrain particle velocity: ", funcTimer, [&]() { constrainParticleVelocity(timestep); });
+    logger().printRunTime("Interpolate velocity from grid to particles: ", funcTimer, [&]() { velocityToParticles(timestep); });
+    logger().printRunTime("Constrain particle velocity: ", funcTimer, [&]() { constrainParticleVelocity(timestep); });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -250,9 +250,9 @@ void Snow3DSolver::updateParticles(Real timestep)
     static Timer funcTimer;
 
     ////////////////////////////////////////////////////////////////////////////////
-    m_Logger->printRunTime("Move particles: ", funcTimer, [&]() { updateParticlePositions(timestep); });
-    m_Logger->printRunTime("Update particle gradients: ", funcTimer, [&]() { updateGradients(timestep); });
-    m_Logger->printRunTime("Apply Plasticity: ", funcTimer, [&]() { applyPlasticity(); });
+    logger().printRunTime("Move particles: ", funcTimer, [&]() { updateParticlePositions(timestep); });
+    logger().printRunTime("Update particle gradients: ", funcTimer, [&]() { updateGradients(timestep); });
+    logger().printRunTime("Apply Plasticity: ", funcTimer, [&]() { applyPlasticity(); });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

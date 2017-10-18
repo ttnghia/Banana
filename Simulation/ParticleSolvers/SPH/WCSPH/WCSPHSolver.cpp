@@ -27,69 +27,69 @@ namespace ParticleSolvers
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void WCSPHSolver::makeReady()
 {
-    m_Logger->printRunTime("Allocate solver memory: ",
-                           [&]()
-                           {
-                               solverParams().makeReady();
-                               solverParams().printParams(m_Logger);
-                               solverData().makeReady();
+    logger().printRunTime("Allocate solver memory: ",
+                          [&]()
+                          {
+                              solverParams().makeReady();
+                              solverParams().printParams(m_Logger);
+                              solverData().makeReady();
 
-                               m_CubicKernel.setRadius(solverParams().kernelRadius);
-                               m_SpikyKernel.setRadius(solverParams().kernelRadius);
-                               m_NearSpikyKernel.setRadius(Real(1.5) * solverParams().particleRadius);
+                              m_CubicKernel.setRadius(solverParams().kernelRadius);
+                              m_SpikyKernel.setRadius(solverParams().kernelRadius);
+                              m_NearSpikyKernel.setRadius(Real(1.5) * solverParams().particleRadius);
 
-                               m_NSearch = std::make_unique<NeighborSearch::NeighborSearch3D>(solverParams().kernelRadius);
-                               m_NSearch->add_point_set(glm::value_ptr(solverData().positions.front()), solverData().getNParticles(), true, true);
-
-
+                              m_NSearch = std::make_unique<NeighborSearch::NeighborSearch3D>(solverParams().kernelRadius);
+                              m_NSearch->add_point_set(glm::value_ptr(solverData().positions.front()), solverData().getNParticles(), true, true);
 
 
 
 
 
-                               // todo: fix this
-                               //m_BoundaryObjects.push_back(std::make_shared<SimulationObjects::BoxBoundary<3, Real> >(solverParams().boxMin, solverParams().boxMax));
 
-                               if(solverParams().bUseBoundaryParticles) {
-                                   __BNN_ASSERT(m_BoundaryObjects.size() != 0);
-                                   for(auto& bdObj : m_BoundaryObjects) {
-                                       bdObj->initBoundaryParticles(Real(0.85) * solverParams().particleRadius);
-                                       m_Logger->printLog("Number of boundary particles: " + NumberHelpers::formatWithCommas(bdObj->getNumBDParticles()));
-                                       m_NSearch->add_point_set(glm::value_ptr(bdObj->getBDParticles().front()), bdObj->getBDParticles().size(), false, true);
-                                       //solverData().positions.insert(solverData().positions.begin(), bdObj->getBDParticles().begin(), bdObj->getBDParticles().end());
-                                   }
-                               }
-                           });
+
+                              // todo: fix this
+                              //m_BoundaryObjects.push_back(std::make_shared<SimulationObjects::BoxBoundary<3, Real> >(solverParams().boxMin, solverParams().boxMax));
+
+                              if(solverParams().bUseBoundaryParticles) {
+                                  __BNN_ASSERT(m_BoundaryObjects.size() != 0);
+                                  for(auto& bdObj : m_BoundaryObjects) {
+                                      bdObj->initBoundaryParticles(Real(0.85) * solverParams().particleRadius);
+                                      logger().printLog("Number of boundary particles: " + NumberHelpers::formatWithCommas(bdObj->getNumBDParticles()));
+                                      m_NSearch->add_point_set(glm::value_ptr(bdObj->getBDParticles().front()), bdObj->getBDParticles().size(), false, true);
+                                      //solverData().positions.insert(solverData().positions.begin(), bdObj->getBDParticles().begin(), bdObj->getBDParticles().end());
+                                  }
+                              }
+                          });
 
 ////////////////////////////////////////////////////////////////////////////////
 // sort the particles
-    m_Logger->printRunTime("Compute Z-sort rule: ", [&]() { m_NSearch->z_sort(); });
+    logger().printRunTime("Compute Z-sort rule: ", [&]() { m_NSearch->z_sort(); });
 
     ////////////////////////////////////////////////////////////////////////////////
     // sort the fluid particles
-    m_Logger->printRunTime("Sort particle positions and velocities: ",
-                           [&]()
-                           {
-                               auto const& d = m_NSearch->point_set(0);
-                               d.sort_field(&solverData().positions[0]);
-                               d.sort_field(&solverData().velocities[0]);
-                           });
+    logger().printRunTime("Sort particle positions and velocities: ",
+                          [&]()
+                          {
+                              auto const& d = m_NSearch->point_set(0);
+                              d.sort_field(&solverData().positions[0]);
+                              d.sort_field(&solverData().velocities[0]);
+                          });
 
 ////////////////////////////////////////////////////////////////////////////////
 // sort boundary particles
-    m_Logger->printRunTime("Sort boundary particles: ",
-                           [&]()
-                           {
-                               for(UInt i = 0; i < static_cast<UInt>(m_BoundaryObjects.size()); ++i) {
-                                   auto& bdObj   = m_BoundaryObjects[i];
-                                   auto const& d = m_NSearch->point_set(i + 1);
-                                   d.sort_field(&(bdObj->getBDParticles()[0]));
-                               }
-                           });
+    logger().printRunTime("Sort boundary particles: ",
+                          [&]()
+                          {
+                              for(UInt i = 0; i < static_cast<UInt>(m_BoundaryObjects.size()); ++i) {
+                                  auto& bdObj   = m_BoundaryObjects[i];
+                                  auto const& d = m_NSearch->point_set(i + 1);
+                                  d.sort_field(&(bdObj->getBDParticles()[0]));
+                              }
+                          });
 
 ////////////////////////////////////////////////////////////////////////////////
-    m_Logger->printLog("Solver ready!");
-    m_Logger->newLine();
+    logger().printLog("Solver ready!");
+    logger().newLine();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -102,25 +102,25 @@ void WCSPHSolver::advanceFrame()
 
     ////////////////////////////////////////////////////////////////////////////////
     while(frameTime < m_GlobalParams.frameDuration) {
-        m_Logger->printRunTime("Sub-step time: ", subStepTimer,
-                               [&]()
-                               {
-                                   Real remainingTime = m_GlobalParams.frameDuration - frameTime;
-                                   Real substep       = MathHelpers::min(computeCFLTimestep(), remainingTime);
-                                   ////////////////////////////////////////////////////////////////////////////////
-                                   m_Logger->printRunTime("Find neighbors: ",               funcTimer, [&]() { m_NSearch->find_neighbors(); });
-                                   m_Logger->printRunTime("====> Advance velocity total: ", funcTimer, [&]() { advanceVelocity(substep); });
-                                   m_Logger->printRunTime("Move particles: ",               funcTimer, [&]() { moveParticles(substep); });
-                                   ////////////////////////////////////////////////////////////////////////////////
-                                   frameTime += substep;
-                                   ++substepCount;
-                                   m_Logger->printLog("Finished step " + NumberHelpers::formatWithCommas(substepCount) + " of size " + NumberHelpers::formatToScientific(substep) +
-                                                      "(" + NumberHelpers::formatWithCommas(substep / m_GlobalParams.frameDuration * 100) + "% of the frame, to " +
-                                                      NumberHelpers::formatWithCommas(100 * (frameTime) / m_GlobalParams.frameDuration) + "% of the frame).");
-                               });
+        logger().printRunTime("Sub-step time: ", subStepTimer,
+                              [&]()
+                              {
+                                  Real remainingTime = m_GlobalParams.frameDuration - frameTime;
+                                  Real substep       = MathHelpers::min(computeCFLTimestep(), remainingTime);
+                                  ////////////////////////////////////////////////////////////////////////////////
+                                  logger().printRunTime("Find neighbors: ",               funcTimer, [&]() { m_NSearch->find_neighbors(); });
+                                  logger().printRunTime("====> Advance velocity total: ", funcTimer, [&]() { advanceVelocity(substep); });
+                                  logger().printRunTime("Move particles: ",               funcTimer, [&]() { moveParticles(substep); });
+                                  ////////////////////////////////////////////////////////////////////////////////
+                                  frameTime += substep;
+                                  ++substepCount;
+                                  logger().printLog("Finished step " + NumberHelpers::formatWithCommas(substepCount) + " of size " + NumberHelpers::formatToScientific(substep) +
+                                                    "(" + NumberHelpers::formatWithCommas(substep / m_GlobalParams.frameDuration * 100) + "% of the frame, to " +
+                                                    NumberHelpers::formatWithCommas(100 * (frameTime) / m_GlobalParams.frameDuration) + "% of the frame).");
+                              });
 
 ////////////////////////////////////////////////////////////////////////////////
-        m_Logger->newLine();
+        logger().newLine();
     }       // end while
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -144,15 +144,15 @@ void WCSPHSolver::sortParticles()
     ////////////////////////////////////////////////////////////////////////////////
     frameCount = 0;
     static Timer timer;
-    m_Logger->printRunTime("Compute Z-sort rule: ",             timer, [&]() { m_NSearch->z_sort(); });
-    m_Logger->printRunTime("Sort data by particle positions: ", timer,
-                           [&]()
-                           {
-                               auto const& d = m_NSearch->point_set(0);
-                               d.sort_field(&solverData().positions[0]);
-                               d.sort_field(&solverData().velocities[0]);
-                           });
-    m_Logger->newLine();
+    logger().printRunTime("Compute Z-sort rule: ",             timer, [&]() { m_NSearch->z_sort(); });
+    logger().printRunTime("Sort data by particle positions: ", timer,
+                          [&]()
+                          {
+                              auto const& d = m_NSearch->point_set(0);
+                              d.sort_field(&solverData().positions[0]);
+                              d.sort_field(&solverData().velocities[0]);
+                          });
+    logger().newLine();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -215,7 +215,7 @@ bool WCSPHSolver::loadMemoryState()
     }
 
     if(!m_MemoryStateIO->read(latestStateIdx)) {
-        m_Logger->printError("Cannot read latest memory state file!");
+        logger().printError("Cannot read latest memory state file!");
         return false;
     }
 
@@ -303,14 +303,14 @@ void WCSPHSolver::advanceVelocity(Real timeStep)
     static Timer funcTimer;
 
     ////////////////////////////////////////////////////////////////////////////////
-    m_Logger->printRunTime("Compute density: ", funcTimer, [&]() { computeDensity(); });
+    logger().printRunTime("Compute density: ", funcTimer, [&]() { computeDensity(); });
     if(solverParams().bCorrectDensity) {
-        m_Logger->printRunTime("Correct density: ", funcTimer, [&]() { correctDensity(); });
+        logger().printRunTime("Correct density: ", funcTimer, [&]() { correctDensity(); });
     }
-    m_Logger->printRunTime("Compute pressure forces: ",        funcTimer, [&]() { computePressureForces(); });
-    m_Logger->printRunTime("Compute surface tension forces: ", funcTimer, [&]() { computeSurfaceTensionForces(); });
-    m_Logger->printRunTime("Update velocity: ",                funcTimer, [&]() { updateVelocity(timeStep); });
-    m_Logger->printRunTime("Compute viscosity: ",              funcTimer, [&]() { computeViscosity(); });
+    logger().printRunTime("Compute pressure forces: ",        funcTimer, [&]() { computePressureForces(); });
+    logger().printRunTime("Compute surface tension forces: ", funcTimer, [&]() { computeSurfaceTensionForces(); });
+    logger().printRunTime("Update velocity: ",                funcTimer, [&]() { updateVelocity(timeStep); });
+    logger().printRunTime("Compute viscosity: ",              funcTimer, [&]() { computeViscosity(); });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
