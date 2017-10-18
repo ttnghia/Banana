@@ -32,8 +32,6 @@ class Snow2DSolver : public ParticleSolver2D
 {
 public:
     Snow2DSolver() { setupLogger(); }
-    auto&       solverParams() { return m_SimParams; }
-    const auto& solverParams() const { return m_SimParams; }
 
     ////////////////////////////////////////////////////////////////////////////////
     virtual String getSolverName() override { return String("MPM2DSolver"); }
@@ -42,6 +40,12 @@ public:
     virtual void makeReady() override;
     virtual void advanceFrame() override;
     virtual void sortParticles() override;
+
+    ////////////////////////////////////////////////////////////////////////////////
+    auto&       solverParams() { return m_SimParams; }
+    const auto& solverParams() const { return m_SimParams; }
+    auto&       solverData() { return m_SimData; }
+    const auto& solverData() const { return m_SimData; }
 
 protected:
     virtual void loadSimParams(const nlohmann::json& jParams) override;
@@ -80,11 +84,13 @@ protected:
     Vec2r   computeDeltaForce(UInt p, const Vec2r& u, const Vec2r& weight_grad, Real timestep);  //Computes stress force delta, for implicit velocity update
 
     ////////////////////////////////////////////////////////////////////////////////
-    SimulationData_Snow2D::ParticleSimData& particleData() { return m_SimData->particleSimData; }
-    SimulationData_Snow2D::GridSimData&     gridData() { return m_SimData->gridSimData; }
+    auto&       particleData() { return solverData().particleSimData; }
+    const auto& particleData() const { return solverData().particleSimData; }
+    auto&       gridData() { return solverData().gridSimData; }
+    const auto& gridData() const { return solverData().gridSimData; }
 
-    SimulationParameters_Snow2D      m_SimParams;
-    UniquePtr<SimulationData_Snow2D> m_SimData = std::make_unique<SimulationData_Snow2D>();
+    SimulationParameters_Snow2D m_SimParams;
+    SimulationData_Snow2D       m_SimData;
 
     Grid2r m_Grid;
 };

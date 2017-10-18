@@ -34,9 +34,6 @@ class ClothSolver : public ParticleSolver3D
 public:
     ClothSolver() { setupLogger(); }
 
-    auto&       solverParams() { return m_SimParams; }
-    const auto& solverParams() const { return m_SimParams; }
-
     ////////////////////////////////////////////////////////////////////////////////
     virtual String getSolverName() override { return String("ClothSolver"); }
     virtual String getGreetingMessage() override { return String("Cloth Simulation using Mass-Spring System"); }
@@ -44,6 +41,12 @@ public:
     virtual void makeReady() override;
     virtual void advanceFrame() override;
     virtual void sortParticles() override;
+
+    ////////////////////////////////////////////////////////////////////////////////
+    auto&       solverParams() { return m_SimParams; }
+    const auto& solverParams() const { return m_SimParams; }
+    auto&       solverData() { return m_SimData; }
+    const auto& solverData() const { return m_SimData; }
 
 protected:
     virtual void loadSimParams(const nlohmann::json& jParams) override;
@@ -81,12 +84,14 @@ protected:
     Vec3r getVelocityChangesFromGrid(const Vec3r& ppos);
 
     ////////////////////////////////////////////////////////////////////////////////
-    SimulationData_Cloth3D::ParticleSimData& particleData() { return m_SimData->particleSimData; }
-    SimulationData_Cloth3D::GridSimData&     gridData() { return m_SimData->gridSimData; }
+    auto&       particleData() { return solverData().particleSimData; }
+    const auto& particleData() const { return solverData().particleSimData; }
+    auto&       gridData() { return solverData().gridSimData; }
+    const auto& gridData() const { return solverData().gridSimData; }
 
     ////////////////////////////////////////////////////////////////////////////////
     SimulationParameters_Cloth3D                      m_SimParams;
-    UniquePtr<SimulationData_Cloth3D>                 m_SimData          = std::make_unique<SimulationData_Cloth3D>();
+    SimulationData_Cloth3D                            m_SimData;
     std::function<Real(const Vec3r&, const Array3r&)> m_InterpolateValue = nullptr;
     std::function<Real(const Vec3r&)>                 m_WeightKernel     = nullptr;
 

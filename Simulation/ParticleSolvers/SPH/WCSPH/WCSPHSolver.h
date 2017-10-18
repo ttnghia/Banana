@@ -32,8 +32,6 @@ class WCSPHSolver : public ParticleSolver3D
 {
 public:
     WCSPHSolver() { setupLogger(); }
-    auto&       solverParams() { return m_SimParams; }
-    const auto& solverParams() const { return m_SimParams; }
 
     ////////////////////////////////////////////////////////////////////////////////
     virtual String getSolverName() override { return String("WCSPHSolver"); }
@@ -42,6 +40,12 @@ public:
     virtual void makeReady() override;
     virtual void advanceFrame() override;
     virtual void sortParticles() override;
+
+    ////////////////////////////////////////////////////////////////////////////////
+    auto&       solverParams() { return m_SimParams; }
+    const auto& solverParams() const { return m_SimParams; }
+    auto&       solverData() { return m_SimData; }
+    const auto& solverData() const { return m_SimData; }
 protected:
     virtual void loadSimParams(const nlohmann::json& jParams) override;
     virtual void setupDataIO() override;
@@ -60,8 +64,8 @@ protected:
     void moveParticles(Real timeStep);
 
     ////////////////////////////////////////////////////////////////////////////////
-    SimulationParameters_WCSPH      m_SimParams;
-    UniquePtr<SimulationData_WCSPH> m_SimData = std::make_unique<SimulationData_WCSPH>();
+    SimulationParameters_WCSPH m_SimParams;
+    SimulationData_WCSPH       m_SimData;
 
     PrecomputedKernel<CubicKernel, 10000> m_CubicKernel;
     PrecomputedKernel<SpikyKernel, 10000> m_SpikyKernel;

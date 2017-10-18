@@ -33,8 +33,6 @@ class FLIP3DSolver : public ParticleSolver3D
 {
 public:
     FLIP3DSolver() { setupLogger(); }
-    auto&       solverParams() { return m_SimParams; }
-    const auto& solverParams() const { return m_SimParams; }
 
     ////////////////////////////////////////////////////////////////////////////////
     virtual String getSolverName() override { return String("FLIP3DSolver"); }
@@ -43,6 +41,12 @@ public:
     virtual void makeReady() override;
     virtual void advanceFrame() override;
     virtual void sortParticles() override;
+
+    ////////////////////////////////////////////////////////////////////////////////
+    auto&       solverParams() { return m_SimParams; }
+    const auto& solverParams() const { return m_SimParams; }
+    auto&       solverData() { return m_SimData; }
+    const auto& solverData() const { return m_SimData; }
 
 protected:
     virtual void loadSimParams(const nlohmann::json& jParams) override;
@@ -80,12 +84,14 @@ protected:
     Vec3r getVelocityChangesFromGrid(const Vec3r& ppos);
 
     ////////////////////////////////////////////////////////////////////////////////
-    SimulationData_FLIP3D::ParticleSimData& particleData() { return m_SimData->particleSimData; }
-    SimulationData_FLIP3D::GridSimData&     gridData() { return m_SimData->gridSimData; }
+    auto&       particleData() { return solverData().particleSimData; }
+    const auto& particleData() const { return solverData().particleSimData; }
+    auto&       gridData() { return solverData().gridSimData; }
+    const auto& gridData() const { return solverData().gridSimData; }
 
     ////////////////////////////////////////////////////////////////////////////////
     SimulationParameters_FLIP3D                       m_SimParams;
-    UniquePtr<SimulationData_FLIP3D>                  m_SimData          = std::make_unique<SimulationData_FLIP3D>();
+    SimulationData_FLIP3D                             m_SimData;
     std::function<Real(const Vec3r&, const Array3r&)> m_InterpolateValue = nullptr;
     std::function<Real(const Vec3r&)>                 m_WeightKernel     = nullptr;
 

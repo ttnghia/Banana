@@ -43,7 +43,7 @@ void FLIP2DSolver::makeReady()
                                }
 
                                m_Grid.setGrid(solverParams().movingBMin, solverParams().movingBMax, solverParams().cellSize);
-                               m_SimData->makeReady(m_Grid.getNCells()[0], m_Grid.getNCells()[1]);
+                               solverData().makeReady(m_Grid.getNCells()[0], m_Grid.getNCells()[1]);
 
                                m_PCGSolver = std::make_unique<PCGSolver<Real> >();
                                m_PCGSolver->setSolverParameters(solverParams().CGRelativeTolerance, solverParams().maxCGIteration);
@@ -59,7 +59,7 @@ void FLIP2DSolver::makeReady()
                                                                  [&](UInt i, UInt j)
                                                                  {
                                                                      const Vec2r gridPos = m_Grid.getWorldCoordinate(i, j);
-                                                                     m_SimData->boundarySDF(i, j) = -box.signedDistance(gridPos);
+                                                                     solverData().boundarySDF(i, j) = -box.signedDistance(gridPos);
                                                                  });
                                m_Logger->printWarning("Computed boundary SDF");
                            });
@@ -68,9 +68,9 @@ void FLIP2DSolver::makeReady()
     m_Logger->printRunTime("Sort particle positions and velocities: ",
                            [&]()
                            {
-                               m_Grid.collectIndexToCells(m_SimData->positions);
-                               m_Grid.sortData(m_SimData->positions);
-                               m_Grid.sortData(m_SimData->velocities);
+                               m_Grid.collectIndexToCells(solverData().positions);
+                               m_Grid.sortData(solverData().positions);
+                               m_Grid.sortData(solverData().velocities);
                            });
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -94,7 +94,7 @@ void FLIP2DSolver::advanceFrame()
                                    Real remainingTime = m_GlobalParams.frameDuration - frameTime;
                                    Real substep       = MathHelpers::min(computeCFLTimestep(), remainingTime);
                                    ////////////////////////////////////////////////////////////////////////////////
-                                   m_Logger->printRunTime("Find neighbors: ",               funcTimer, [&]() { m_Grid.collectIndexToCells(m_SimData->positions); });
+                                   m_Logger->printRunTime("Find neighbors: ",               funcTimer, [&]() { m_Grid.collectIndexToCells(solverData().positions); });
                                    m_Logger->printRunTime("====> Advance velocity total: ", funcTimer, [&]() { advanceVelocity(substep); });
                                    m_Logger->printRunTime("Move particles: ",               funcTimer, [&]() { moveParticles(substep); });
                                    m_Logger->printRunTime("Correct particle positions: ",   funcTimer, [&]() { correctPositions(substep); });
@@ -132,9 +132,9 @@ void FLIP2DSolver::sortParticles()
     m_Logger->printRunTime("Sort data by particle position: ", timer,
                            [&]()
                            {
-                               m_Grid.collectIndexToCells(m_SimData->positions);
-                               m_Grid.sortData(m_SimData->positions);
-                               m_Grid.sortData(m_SimData->velocities);
+                               m_Grid.collectIndexToCells(solverData().positions);
+                               m_Grid.sortData(solverData().positions);
+                               m_Grid.sortData(solverData().velocities);
                            });
     m_Logger->newLine();
 }
@@ -215,7 +215,7 @@ void FLIP2DSolver::saveMemoryState()
     // save state
     frameCount = 0;
     m_MemoryStateIO->clearData();
-    m_MemoryStateIO->setNParticles(m_SimData->getNParticles());
+    m_MemoryStateIO->setNParticles(solverData().getNParticles());
     m_MemoryStateIO->setFixedAttribute("particle_radius", solverParams().particleRadius);
     //m_MemoryStateIO->setParticleAttribute("position", particleData().positions);
     //m_MemoryStateIO->setParticleAttribute("velocity", particleData().velocities);
@@ -230,7 +230,7 @@ void FLIP2DSolver::saveFrameData()
     }
 
     m_ParticleIO->clearData();
-    m_ParticleIO->setNParticles(m_SimData->getNParticles());
+    m_ParticleIO->setNParticles(solverData().getNParticles());
     m_ParticleIO->setFixedAttribute("particle_radius", static_cast<float>(solverParams().particleRadius));
     //m_ParticleIO->setParticleAttribute("position", particleData().positions);
     //m_ParticleIO->setParticleAttribute("velocity", particleData().velocities);
@@ -240,8 +240,8 @@ void FLIP2DSolver::saveFrameData()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 Real FLIP2DSolver::computeCFLTimestep()
 {
-    Real maxVel = MathHelpers::max(ParallelSTL::maxAbs(m_SimData->u.data()),
-                                   ParallelSTL::maxAbs(m_SimData->v.data()));
+    Real maxVel = MathHelpers::max(ParallelSTL::maxAbs(solverData().u.data()),
+                                   ParallelSTL::maxAbs(solverData().v.data()));
 
     return maxVel > Tiny ? (m_Grid.getCellSize() / maxVel * solverParams().CFLFactor) : solverParams().maxTimestep;
 }
@@ -260,7 +260,7 @@ void FLIP2DSolver::advanceVelocity(Real timestep)
 
 
     m_Logger->printRunTime("Interpolate velocity from particles to grid: ", funcTimer, [&]() { velocityToGrid(); });
-    m_Logger->printRunTime("Backup grid velocities: ",                      funcTimer, [&]() { m_SimData->backupGridVelocity(); });
+    m_Logger->printRunTime("Backup grid velocities: ",                      funcTimer, [&]() { solverData().backupGridVelocity(); });
     m_Logger->printRunTime("Add gravity: ",                                 funcTimer, [&]() { addGravity(timestep); });
     m_Logger->printRunTime("====> Pressure projection: ",                   funcTimer, [&]() { pressureProjection(timestep); });
     m_Logger->printRunTime("Extrapolate grid velocity: : ",                 funcTimer, [&]() { extrapolateVelocity(); });
@@ -272,15 +272,15 @@ void FLIP2DSolver::advanceVelocity(Real timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void FLIP2DSolver::moveParticles(Real timestep)
 {
-    ParallelFuncs::parallel_for<UInt>(0, m_SimData->getNParticles(),
+    ParallelFuncs::parallel_for<UInt>(0, solverData().getNParticles(),
                                       [&](UInt p)
                                       {
-                                          Vec2r ppos          = m_SimData->positions[p] + m_SimData->velocities[p] * timestep;
+                                          Vec2r ppos          = solverData().positions[p] + solverData().velocities[p] * timestep;
                                           const Vec2r gridPos = m_Grid.getGridCoordinate(ppos);
-                                          const Real phiVal   = ArrayHelpers::interpolateValueLinear(gridPos, m_SimData->boundarySDF);
+                                          const Real phiVal   = ArrayHelpers::interpolateValueLinear(gridPos, solverData().boundarySDF);
 
                                           if(phiVal < 0) {
-                                              Vec2r grad    = ArrayHelpers::interpolateGradient(gridPos, m_SimData->boundarySDF);
+                                              Vec2r grad    = ArrayHelpers::interpolateGradient(gridPos, solverData().boundarySDF);
                                               Real mag2Grad = glm::length2(grad);
 
                                               if(mag2Grad > Tiny) {
@@ -288,7 +288,7 @@ void FLIP2DSolver::moveParticles(Real timestep)
                                               }
                                           }
 
-                                          m_SimData->positions[p] = ppos;
+                                          solverData().positions[p] = ppos;
                                       });
 }
 
@@ -299,16 +299,16 @@ void FLIP2DSolver::correctPositions(Real timestep)
     const Real threshold = Real(0.01) * radius;
 
     // todo: check if this is needed, as this could be done before
-    m_Grid.getNeighborList(m_SimData->positions, m_SimData->neighborList, solverParams().kernelSpan);
-    ParallelFuncs::parallel_for<UInt>(0, m_SimData->getNParticles(),
+    m_Grid.getNeighborList(solverData().positions, solverData().neighborList, solverParams().kernelSpan);
+    ParallelFuncs::parallel_for<UInt>(0, solverData().getNParticles(),
                                       [&](UInt p)
                                       {
-                                          const Vec2r& ppos         = m_SimData->positions[p];
-                                          const Vec_UInt& neighbors = m_SimData->neighborList[p];
+                                          const Vec2r& ppos         = solverData().positions[p];
+                                          const Vec_UInt& neighbors = solverData().neighborList[p];
                                           Vec2r spring(0);
 
                                           for(UInt q : neighbors) {
-                                              const Vec2r& qpos = m_SimData->positions[q];
+                                              const Vec2r& qpos = solverData().positions[q];
                                               Real dist         = glm::length(ppos - qpos);
                                               Real w            = Real(50.0) * MathHelpers::smooth_kernel(dist * dist, radius);
 
@@ -324,10 +324,10 @@ void FLIP2DSolver::correctPositions(Real timestep)
 
                                           // todo: this should be done by boundary object
                                           const Vec2r gridPos = m_Grid.getGridCoordinate(newPos);
-                                          const Real phiVal   = ArrayHelpers::interpolateValueLinear(gridPos, m_SimData->boundarySDF);
+                                          const Real phiVal   = ArrayHelpers::interpolateValueLinear(gridPos, solverData().boundarySDF);
 
                                           if(phiVal < 0) {
-                                              Vec2r grad    = ArrayHelpers::interpolateGradient(gridPos, m_SimData->boundarySDF);
+                                              Vec2r grad    = ArrayHelpers::interpolateGradient(gridPos, solverData().boundarySDF);
                                               Real mag2Grad = glm::length2(grad);
 
                                               if(mag2Grad > Tiny) {
@@ -335,10 +335,10 @@ void FLIP2DSolver::correctPositions(Real timestep)
                                               }
                                           }
 
-                                          m_SimData->positions_tmp[p] = newPos;
+                                          solverData().positions_tmp[p] = newPos;
                                       });
 
-    m_SimData->positions = m_SimData->positions_tmp;
+    solverData().positions = solverData().positions_tmp;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -348,19 +348,19 @@ void FLIP2DSolver::computeFluidWeights()
     ParallelFuncs::parallel_for<UInt>(m_Grid.getNNodes(),
                                       [&](UInt i, UInt j)
                                       {
-                                          bool valid_index_u = m_SimData->u_weights.isValidIndex(i, j);
-                                          bool valid_index_v = m_SimData->v_weights.isValidIndex(i, j);
+                                          bool valid_index_u = solverData().u_weights.isValidIndex(i, j);
+                                          bool valid_index_v = solverData().v_weights.isValidIndex(i, j);
 
                                           if(valid_index_u) {
-                                              const Real tmp = Real(1.0) - MathHelpers::fraction_inside(m_SimData->boundarySDF(i, j),
-                                                                                                        m_SimData->boundarySDF(i, j + 1));
-                                              m_SimData->u_weights(i, j) = MathHelpers::clamp(tmp, Real(0), Real(1.0));
+                                              const Real tmp = Real(1.0) - MathHelpers::fraction_inside(solverData().boundarySDF(i, j),
+                                                                                                        solverData().boundarySDF(i, j + 1));
+                                              solverData().u_weights(i, j) = MathHelpers::clamp(tmp, Real(0), Real(1.0));
                                           }
 
                                           if(valid_index_v) {
-                                              const Real tmp = Real(1.0) - MathHelpers::fraction_inside(m_SimData->boundarySDF(i, j),
-                                                                                                        m_SimData->boundarySDF(i, j + 1));
-                                              m_SimData->v_weights(i, j) = MathHelpers::clamp(tmp, Real(0), Real(1.0));
+                                              const Real tmp = Real(1.0) - MathHelpers::fraction_inside(solverData().boundarySDF(i, j),
+                                                                                                        solverData().boundarySDF(i, j + 1));
+                                              solverData().v_weights(i, j) = MathHelpers::clamp(tmp, Real(0), Real(1.0));
                                           }
                                       });
 }
@@ -388,8 +388,8 @@ void FLIP2DSolver::velocityToGrid()
                                           Real sum_u = Real(0);
                                           Real sum_v = Real(0);
 
-                                          bool valid_index_u = m_SimData->u.isValidIndex(i, j);
-                                          bool valid_index_v = m_SimData->v.isValidIndex(i, j);
+                                          bool valid_index_u = solverData().u.isValidIndex(i, j);
+                                          bool valid_index_v = solverData().v.isValidIndex(i, j);
 
                                           // loop over neighbor cells (kernelSpan^3 cells)
                                           for(Int lj = -solverParams().kernelSpan; lj <= solverParams().kernelSpan; ++lj) {
@@ -400,8 +400,8 @@ void FLIP2DSolver::velocityToGrid()
                                                   }
 
                                                   for(const UInt p : m_Grid.getParticleIdxInCell(cellId)) {
-                                                      const Vec2r& ppos = m_SimData->positions[p];
-                                                      const Vec2r& pvel = m_SimData->velocities[p];
+                                                      const Vec2r& ppos = solverData().positions[p];
+                                                      const Vec2r& pvel = solverData().velocities[p];
 
                                                       if(valid_index_u && NumberHelpers::isInside(ppos, puMin, puMax)) {
                                                           const Real weight = m_WeightKernel((ppos - pu) / m_Grid.getCellSize());
@@ -425,13 +425,13 @@ void FLIP2DSolver::velocityToGrid()
                                           } // end loop over neighbor cells
 
                                           if(valid_index_u) {
-                                              m_SimData->u(i, j)       = (sum_weight_u > Tiny) ? sum_u / sum_weight_u : Real(0);
-                                              m_SimData->u_valid(i, j) = (sum_weight_u > Tiny) ? 1 : 0;
+                                              solverData().u(i, j)       = (sum_weight_u > Tiny) ? sum_u / sum_weight_u : Real(0);
+                                              solverData().u_valid(i, j) = (sum_weight_u > Tiny) ? 1 : 0;
                                           }
 
                                           if(valid_index_v) {
-                                              m_SimData->v(i, j)       = (sum_weight_v > Tiny) ? sum_v / sum_weight_v : Real(0);
-                                              m_SimData->v_valid(i, j) = (sum_weight_v > Tiny) ? 1 : 0;
+                                              solverData().v(i, j)       = (sum_weight_v > Tiny) ? sum_v / sum_weight_v : Real(0);
+                                              solverData().v_valid(i, j) = (sum_weight_v > Tiny) ? 1 : 0;
                                           }
                                       });
 }
@@ -439,8 +439,8 @@ void FLIP2DSolver::velocityToGrid()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void FLIP2DSolver::extrapolateVelocity()
 {
-    extrapolateVelocity(m_SimData->u, m_SimData->u_temp, m_SimData->u_valid, m_SimData->u_valid_old);
-    extrapolateVelocity(m_SimData->v, m_SimData->v_temp, m_SimData->v_valid, m_SimData->v_valid_old);
+    extrapolateVelocity(solverData().u, solverData().u_temp, solverData().u_valid, solverData().u_valid_old);
+    extrapolateVelocity(solverData().v, solverData().v_temp, solverData().v_valid, solverData().v_valid_old);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -502,58 +502,58 @@ void FLIP2DSolver::extrapolateVelocity(Array2r& grid, Array2r& temp_grid, Array2
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void FLIP2DSolver::constrainVelocity()
 {
-    m_SimData->u_temp.copyDataFrom(m_SimData->u);
-    m_SimData->v_temp.copyDataFrom(m_SimData->v);
+    solverData().u_temp.copyDataFrom(solverData().u);
+    solverData().v_temp.copyDataFrom(solverData().v);
 
     ////////////////////////////////////////////////////////////////////////////////
-    ParallelFuncs::parallel_for<size_t>(m_SimData->u.size(),
+    ParallelFuncs::parallel_for<size_t>(solverData().u.size(),
                                         [&](size_t i, size_t j)
                                         {
-                                            if(m_SimData->u_weights(i, j) < Tiny) {
+                                            if(solverData().u_weights(i, j) < Tiny) {
                                                 const Vec2r gridPos = Vec2r(i, j + 0.5);
                                                 Vec2r vel           = getVelocityFromGrid(gridPos);
-                                                Vec2r normal        = ArrayHelpers::interpolateGradient(gridPos, m_SimData->boundarySDF);
+                                                Vec2r normal        = ArrayHelpers::interpolateGradient(gridPos, solverData().boundarySDF);
                                                 Real mag2Normal     = glm::length2(normal);
                                                 if(mag2Normal > Tiny) {
                                                     normal /= sqrt(mag2Normal);
                                                 }
 
                                                 Real perp_component = glm::dot(vel, normal);
-                                                vel                    -= perp_component * normal;
-                                                m_SimData->u_temp(i, j) = vel[0];
+                                                vel                      -= perp_component * normal;
+                                                solverData().u_temp(i, j) = vel[0];
                                             }
                                         });
 
-    ParallelFuncs::parallel_for<size_t>(m_SimData->v.size(),
+    ParallelFuncs::parallel_for<size_t>(solverData().v.size(),
                                         [&](size_t i, size_t j)
                                         {
-                                            if(m_SimData->v_weights(i, j) < Tiny) {
+                                            if(solverData().v_weights(i, j) < Tiny) {
                                                 const Vec2r gridPos = Vec2r(i + 0.5, j);
                                                 Vec2r vel           = getVelocityFromGrid(gridPos);
-                                                Vec2r normal        = ArrayHelpers::interpolateGradient(gridPos, m_SimData->boundarySDF);
+                                                Vec2r normal        = ArrayHelpers::interpolateGradient(gridPos, solverData().boundarySDF);
                                                 Real mag2Normal     = glm::length2(normal);
                                                 if(mag2Normal > Tiny) {
                                                     normal /= sqrt(mag2Normal);
                                                 }
 
                                                 Real perp_component = glm::dot(vel, normal);
-                                                vel                    -= perp_component * normal;
-                                                m_SimData->v_temp(i, j) = vel[1];
+                                                vel                      -= perp_component * normal;
+                                                solverData().v_temp(i, j) = vel[1];
                                             }
                                         });
 
 ////////////////////////////////////////////////////////////////////////////////
-    m_SimData->u.copyDataFrom(m_SimData->u_temp);
-    m_SimData->v.copyDataFrom(m_SimData->v_temp);
+    solverData().u.copyDataFrom(solverData().u_temp);
+    solverData().v.copyDataFrom(solverData().v_temp);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void FLIP2DSolver::addGravity(Real timestep)
 {
-    ParallelFuncs::parallel_for<size_t>(m_SimData->v.size(),
+    ParallelFuncs::parallel_for<size_t>(solverData().v.size(),
                                         [&](size_t i, size_t j)
                                         {
-                                            m_SimData->v(i, j) -= Real(9.8) * timestep;
+                                            solverData().v(i, j) -= Real(9.8) * timestep;
                                         });
 }
 
@@ -573,11 +573,11 @@ void FLIP2DSolver::pressureProjection(Real timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void FLIP2DSolver::computeFluidSDF()
 {
-    m_SimData->fluidSDF.assign(solverParams().sdfRadius);
+    solverData().fluidSDF.assign(solverParams().sdfRadius);
 
     // cannot run in parallel
-    for(UInt p = 0; p < m_SimData->getNParticles(); ++p) {
-        const Vec2i cellId   = m_Grid.getCellIdx<int>(m_SimData->positions[p]);
+    for(UInt p = 0; p < solverData().getNParticles(); ++p) {
+        const Vec2i cellId   = m_Grid.getCellIdx<int>(solverData().positions[p]);
         const Vec2i cellDown = Vec2i(MathHelpers::max(0, cellId[0] - 1),
                                      MathHelpers::max(0, cellId[1] - 1));
         const Vec2i cellUp = Vec2i(MathHelpers::min(cellId[0] + 1, static_cast<Int>(m_Grid.getNCells()[0]) - 1),
@@ -588,10 +588,10 @@ void FLIP2DSolver::computeFluidSDF()
                                          [&](int i, int j)
                                          {
                                              const Vec2r sample = Vec2r(i + 0.5, j + 0.5) * m_Grid.getCellSize() + m_Grid.getBMin();
-                                             const Real phiVal  = glm::length(sample - m_SimData->positions[p]) - solverParams().sdfRadius;
+                                             const Real phiVal  = glm::length(sample - solverData().positions[p]) - solverParams().sdfRadius;
 
-                                             if(phiVal < m_SimData->fluidSDF(i, j)) {
-                                                 m_SimData->fluidSDF(i, j) = phiVal;
+                                             if(phiVal < solverData().fluidSDF(i, j)) {
+                                                 solverData().fluidSDF(i, j) = phiVal;
                                              }
                                          });
     }
@@ -601,14 +601,14 @@ void FLIP2DSolver::computeFluidSDF()
     ParallelFuncs::parallel_for<UInt>(m_Grid.getNNodes(),
                                       [&](int i, int j)
                                       {
-                                          if(m_SimData->fluidSDF(i, j) < m_Grid.getHalfCellSize()) {
-                                              const Real phiValSolid = Real(0.25) * (m_SimData->boundarySDF(i, j) +
-                                                                                     m_SimData->boundarySDF(i + 1, j) +
-                                                                                     m_SimData->boundarySDF(i, j + 1) +
-                                                                                     m_SimData->boundarySDF(i + 1, j + 1));
+                                          if(solverData().fluidSDF(i, j) < m_Grid.getHalfCellSize()) {
+                                              const Real phiValSolid = Real(0.25) * (solverData().boundarySDF(i, j) +
+                                                                                     solverData().boundarySDF(i + 1, j) +
+                                                                                     solverData().boundarySDF(i, j + 1) +
+                                                                                     solverData().boundarySDF(i + 1, j + 1));
 
                                               if(phiValSolid < 0) {
-                                                  m_SimData->fluidSDF(i, j) = -m_Grid.getHalfCellSize();
+                                                  solverData().fluidSDF(i, j) = -m_Grid.getHalfCellSize();
                                               }
                                           }
                                       });
@@ -617,31 +617,31 @@ void FLIP2DSolver::computeFluidSDF()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void FLIP2DSolver::computeMatrix(Real timestep)
 {
-    m_SimData->matrix.clear();
+    solverData().matrix.clear();
 
     //Build the linear system for pressure
     for(UInt j = 1; j < m_Grid.getNCells()[1] - 1; ++j) {
         for(UInt i = 1; i < m_Grid.getNCells()[0] - 1; ++i) {
             const UInt cellIdx    = m_Grid.getCellLinearizedIndex(i, j);
-            const Real center_phi = m_SimData->fluidSDF(i, j);
+            const Real center_phi = solverData().fluidSDF(i, j);
 
             if(center_phi < 0) {
-                const Real right_phi  = m_SimData->fluidSDF(i + 1, j);
-                const Real left_phi   = m_SimData->fluidSDF(i - 1, j);
-                const Real top_phi    = m_SimData->fluidSDF(i, j + 1);
-                const Real bottom_phi = m_SimData->fluidSDF(i, j - 1);
+                const Real right_phi  = solverData().fluidSDF(i + 1, j);
+                const Real left_phi   = solverData().fluidSDF(i - 1, j);
+                const Real top_phi    = solverData().fluidSDF(i, j + 1);
+                const Real bottom_phi = solverData().fluidSDF(i, j - 1);
 
-                const Real right_term  = m_SimData->u_weights(i + 1, j) * timestep;
-                const Real left_term   = m_SimData->u_weights(i, j) * timestep;
-                const Real top_term    = m_SimData->v_weights(i, j + 1) * timestep;
-                const Real bottom_term = m_SimData->v_weights(i, j) * timestep;
+                const Real right_term  = solverData().u_weights(i + 1, j) * timestep;
+                const Real left_term   = solverData().u_weights(i, j) * timestep;
+                const Real top_term    = solverData().v_weights(i, j + 1) * timestep;
+                const Real bottom_term = solverData().v_weights(i, j) * timestep;
 
                 Real center_term = 0;
 
                 // right neighbor
                 if(right_phi < 0) {
                     center_term += right_term;
-                    m_SimData->matrix.addElement(cellIdx, cellIdx + 1, -right_term);
+                    solverData().matrix.addElement(cellIdx, cellIdx + 1, -right_term);
                 } else {
                     Real theta = MathHelpers::min(Real(0.01), MathHelpers::fraction_inside(center_phi, right_phi));
                     center_term += right_term / theta;
@@ -650,7 +650,7 @@ void FLIP2DSolver::computeMatrix(Real timestep)
                 //left neighbor
                 if(left_phi < 0) {
                     center_term += left_term;
-                    m_SimData->matrix.addElement(cellIdx, cellIdx - 1, -left_term);
+                    solverData().matrix.addElement(cellIdx, cellIdx - 1, -left_term);
                 } else {
                     Real theta = MathHelpers::min(Real(0.01), MathHelpers::fraction_inside(center_phi, left_phi));
                     center_term += left_term / theta;
@@ -659,7 +659,7 @@ void FLIP2DSolver::computeMatrix(Real timestep)
                 //top neighbor
                 if(top_phi < 0) {
                     center_term += top_term;
-                    m_SimData->matrix.addElement(cellIdx, cellIdx + m_Grid.getNCells()[0], -top_term);
+                    solverData().matrix.addElement(cellIdx, cellIdx + m_Grid.getNCells()[0], -top_term);
                 } else {
                     Real theta = MathHelpers::min(Real(0.01), MathHelpers::fraction_inside(center_phi, top_phi));
                     center_term += top_term / theta;
@@ -668,7 +668,7 @@ void FLIP2DSolver::computeMatrix(Real timestep)
                 //bottom neighbor
                 if(bottom_phi < 0) {
                     center_term += bottom_term;
-                    m_SimData->matrix.addElement(cellIdx, cellIdx - m_Grid.getNCells()[0], -bottom_term);
+                    solverData().matrix.addElement(cellIdx, cellIdx - m_Grid.getNCells()[0], -bottom_term);
                 } else {
                     Real theta = MathHelpers::min(Real(0.01), MathHelpers::fraction_inside(center_phi, bottom_phi));
                     center_term += bottom_term / theta;
@@ -676,7 +676,7 @@ void FLIP2DSolver::computeMatrix(Real timestep)
 
                 ////////////////////////////////////////////////////////////////////////////////
                 // center
-                m_SimData->matrix.addElement(cellIdx, cellIdx, center_term);
+                solverData().matrix.addElement(cellIdx, cellIdx, center_term);
             }       // end if(centre_phi < 0)
         }
     }
@@ -685,24 +685,24 @@ void FLIP2DSolver::computeMatrix(Real timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void FLIP2DSolver::computeRhs()
 {
-    m_SimData->rhs.assign(m_SimData->rhs.size(), 0);
+    solverData().rhs.assign(solverData().rhs.size(), 0);
     ParallelFuncs::parallel_for<UInt>(1, m_Grid.getNCells()[0] - 1,
                                       1, m_Grid.getNCells()[1] - 1,
                                       [&](UInt i, UInt j)
                                       {
                                           const UInt idx        = m_Grid.getCellLinearizedIndex(i, j);
-                                          const Real center_phi = m_SimData->fluidSDF(i, j);
+                                          const Real center_phi = solverData().fluidSDF(i, j);
 
                                           if(center_phi < 0) {
                                               Real tmp = Real(0);
 
-                                              tmp -= m_SimData->u_weights(i + 1, j) * m_SimData->u(i + 1, j);
-                                              tmp += m_SimData->u_weights(i, j) * m_SimData->u(i, j);
+                                              tmp -= solverData().u_weights(i + 1, j) * solverData().u(i + 1, j);
+                                              tmp += solverData().u_weights(i, j) * solverData().u(i, j);
 
-                                              tmp -= m_SimData->v_weights(i, j + 1) * m_SimData->v(i, j + 1);
-                                              tmp += m_SimData->v_weights(i, j) * m_SimData->v(i, j);
+                                              tmp -= solverData().v_weights(i, j + 1) * solverData().v(i, j + 1);
+                                              tmp += solverData().v_weights(i, j) * solverData().v(i, j);
 
-                                              m_SimData->rhs[idx] = tmp;
+                                              solverData().rhs[idx] = tmp;
                                           } // end if(centre_phi < 0)
                                       });
 }
@@ -710,7 +710,7 @@ void FLIP2DSolver::computeRhs()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void FLIP2DSolver::solveSystem()
 {
-    bool success = m_PCGSolver->solve_precond(m_SimData->matrix, m_SimData->rhs, m_SimData->pressure);
+    bool success = m_PCGSolver->solve_precond(solverData().matrix, solverData().rhs, solverData().pressure);
     m_Logger->printLog("Conjugate Gradient iterations: " + NumberHelpers::formatWithCommas(m_PCGSolver->iterations()) +
                        ". Final residual: " + NumberHelpers::formatToScientific(m_PCGSolver->residual()));
     if(!success) {
@@ -721,40 +721,40 @@ void FLIP2DSolver::solveSystem()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void FLIP2DSolver::updateVelocity(Real timestep)
 {
-    m_SimData->u_valid.assign(0);
-    m_SimData->v_valid.assign(0);
+    solverData().u_valid.assign(0);
+    solverData().v_valid.assign(0);
 
     ParallelFuncs::parallel_for<UInt>(m_Grid.getNNodes(),
                                       [&](UInt i, UInt j)
                                       {
                                           const UInt idx = m_Grid.getCellLinearizedIndex(i, j);
 
-                                          const Real center_phi = m_SimData->fluidSDF(i, j);
-                                          const Real left_phi   = i > 0 ? m_SimData->fluidSDF(i - 1, j) : 0;
-                                          const Real bottom_phi = j > 0 ? m_SimData->fluidSDF(i, j - 1) : 0;
+                                          const Real center_phi = solverData().fluidSDF(i, j);
+                                          const Real left_phi   = i > 0 ? solverData().fluidSDF(i - 1, j) : 0;
+                                          const Real bottom_phi = j > 0 ? solverData().fluidSDF(i, j - 1) : 0;
 
-                                          if(i > 0 && (center_phi < 0 || left_phi < 0) && m_SimData->u_weights(i, j) > 0) {
+                                          if(i > 0 && (center_phi < 0 || left_phi < 0) && solverData().u_weights(i, j) > 0) {
                                               Real theta = MathHelpers::min(Real(0.01), MathHelpers::fraction_inside(left_phi, center_phi));
-                                              m_SimData->u(i, j)      -= timestep * (m_SimData->pressure[idx] - m_SimData->pressure[idx - 1]) / theta;
-                                              m_SimData->u_valid(i, j) = 1;
+                                              solverData().u(i, j)      -= timestep * (solverData().pressure[idx] - solverData().pressure[idx - 1]) / theta;
+                                              solverData().u_valid(i, j) = 1;
                                           }
 
-                                          if(j > 0 && (center_phi < 0 || bottom_phi < 0) && m_SimData->v_weights(i, j) > 0) {
+                                          if(j > 0 && (center_phi < 0 || bottom_phi < 0) && solverData().v_weights(i, j) > 0) {
                                               Real theta = MathHelpers::min(Real(0.01), MathHelpers::fraction_inside(bottom_phi, center_phi));
-                                              m_SimData->v(i, j)      -= timestep * (m_SimData->pressure[idx] - m_SimData->pressure[idx - m_Grid.getNCells()[0]]) / theta;
-                                              m_SimData->v_valid(i, j) = 1;
+                                              solverData().v(i, j)      -= timestep * (solverData().pressure[idx] - solverData().pressure[idx - m_Grid.getNCells()[0]]) / theta;
+                                              solverData().v_valid(i, j) = 1;
                                           }
                                       });
 
-    for(size_t i = 0; i < m_SimData->u_valid.dataSize(); ++i) {
-        if(m_SimData->u_valid.data()[i] == 0) {
-            m_SimData->u.data()[i] = 0;
+    for(size_t i = 0; i < solverData().u_valid.dataSize(); ++i) {
+        if(solverData().u_valid.data()[i] == 0) {
+            solverData().u.data()[i] = 0;
         }
     }
 
-    for(size_t i = 0; i < m_SimData->v_valid.dataSize(); ++i) {
-        if(m_SimData->v_valid.data()[i] == 0) {
-            m_SimData->v.data()[i] = 0;
+    for(size_t i = 0; i < solverData().v_valid.dataSize(); ++i) {
+        if(solverData().v_valid.data()[i] == 0) {
+            solverData().v.data()[i] = 0;
         }
     }
 }
@@ -762,27 +762,27 @@ void FLIP2DSolver::updateVelocity(Real timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void FLIP2DSolver::computeChangesGridVelocity()
 {
-    ParallelFuncs::parallel_for<size_t>(0, m_SimData->u.dataSize(),
-                                        [&](size_t i) { m_SimData->du.data()[i] = m_SimData->u.data()[i] - m_SimData->u_old.data()[i]; });
-    ParallelFuncs::parallel_for<size_t>(0, m_SimData->v.dataSize(),
-                                        [&](size_t i) { m_SimData->dv.data()[i] = m_SimData->v.data()[i] - m_SimData->v_old.data()[i]; });
+    ParallelFuncs::parallel_for<size_t>(0, solverData().u.dataSize(),
+                                        [&](size_t i) { solverData().du.data()[i] = solverData().u.data()[i] - solverData().u_old.data()[i]; });
+    ParallelFuncs::parallel_for<size_t>(0, solverData().v.dataSize(),
+                                        [&](size_t i) { solverData().dv.data()[i] = solverData().v.data()[i] - solverData().v_old.data()[i]; });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void FLIP2DSolver::velocityToParticles()
 {
-    ParallelFuncs::parallel_for<UInt>(0, m_SimData->getNParticles(),
+    ParallelFuncs::parallel_for<UInt>(0, solverData().getNParticles(),
                                       [&](UInt p)
                                       {
-                                          const Vec2r& ppos = m_SimData->positions[p];
-                                          const Vec2r& pvel = m_SimData->velocities[p];
+                                          const Vec2r& ppos = solverData().positions[p];
+                                          const Vec2r& pvel = solverData().velocities[p];
 
                                           const Vec2r gridPos = m_Grid.getGridCoordinate(ppos);
                                           const Vec2r oldVel  = getVelocityFromGrid(gridPos);
                                           const Vec2r dVel    = getVelocityChangesFromGrid(gridPos);
 
-                                          m_SimData->velocities[p] = MathHelpers::lerp(oldVel, pvel + dVel, solverParams().PIC_FLIP_ratio);
-                                          //m_SimData->affineMatrix[p] = MathHelpers::lerp(getAffineMatrix(gridPos), pvel + dVel, solverParams().PIC_FLIP_ratio);
+                                          solverData().velocities[p] = MathHelpers::lerp(oldVel, pvel + dVel, solverParams().PIC_FLIP_ratio);
+                                          //solverData().affineMatrix[p] = MathHelpers::lerp(getAffineMatrix(gridPos), pvel + dVel, solverParams().PIC_FLIP_ratio);
                                       });
 }
 
@@ -790,8 +790,8 @@ void FLIP2DSolver::velocityToParticles()
 //Interpolate velocity from the MAC grid.
 Vec2r FLIP2DSolver::getVelocityFromGrid(const Vec2r& gridPos)
 {
-    Real vu = m_InterpolateValue(gridPos - Vec2r(0, 0.5), m_SimData->u);
-    Real vv = m_InterpolateValue(gridPos - Vec2r(0.5, 0), m_SimData->v);
+    Real vu = m_InterpolateValue(gridPos - Vec2r(0, 0.5), solverData().u);
+    Real vv = m_InterpolateValue(gridPos - Vec2r(0.5, 0), solverData().v);
 
     return Vec2r(vu, vv);
 }
@@ -799,8 +799,8 @@ Vec2r FLIP2DSolver::getVelocityFromGrid(const Vec2r& gridPos)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 Vec2r FLIP2DSolver::getVelocityChangesFromGrid(const Vec2r& gridPos)
 {
-    Real changed_vu = m_InterpolateValue(gridPos - Vec2r(0, 0.5), m_SimData->du);
-    Real changed_vv = m_InterpolateValue(gridPos - Vec2r(0.5, 0), m_SimData->dv);
+    Real changed_vu = m_InterpolateValue(gridPos - Vec2r(0, 0.5), solverData().du);
+    Real changed_vv = m_InterpolateValue(gridPos - Vec2r(0.5, 0), solverData().dv);
 
     return Vec2r(changed_vu, changed_vv);
 }
@@ -808,8 +808,8 @@ Vec2r FLIP2DSolver::getVelocityChangesFromGrid(const Vec2r& gridPos)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 Mat2x2r FLIP2DSolver::getAffineMatrix(const Vec2r& gridPos)
 {
-    //Real vu = m_InterpolateValue(gridPos - Vec<Real>(0, 0.5), m_SimData->u);
-    //Real vv = m_InterpolateValue(gridPos - Vec<Real>(0.5, 0), m_SimData->v);
+    //Real vu = m_InterpolateValue(gridPos - Vec<Real>(0, 0.5), solverData().u);
+    //Real vv = m_InterpolateValue(gridPos - Vec<Real>(0.5, 0), solverData().v);
 
     Mat2x2r C(0);
     //C[0] = ArrayHelpers::interpolateValueAffine(p0, vu) / m_Grid.getCellSize();

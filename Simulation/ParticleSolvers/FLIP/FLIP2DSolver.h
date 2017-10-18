@@ -34,17 +34,19 @@ class FLIP2DSolver : public ParticleSolver2D
 public:
     FLIP2DSolver() { setupLogger(); }
 
-    auto&       solverParams() { return m_SimParams; }
-    const auto& solverParams() const { return m_SimParams; }
-
     ////////////////////////////////////////////////////////////////////////////////
     virtual String getSolverName() override { return String("FLIP2DSolver"); }
     virtual String getGreetingMessage() override { return String("Fluid Simulation using FLIP-2D Solver"); }
-    //virtual UInt   getNParticles() override { return m_SimData->getNParticles(); }
 
     virtual void makeReady() override;
     virtual void advanceFrame() override;
     virtual void sortParticles() override;
+
+    ////////////////////////////////////////////////////////////////////////////////
+    auto&       solverParams() { return m_SimParams; }
+    const auto& solverParams() const { return m_SimParams; }
+    auto&       solverData() { return m_SimData; }
+    const auto& solverData() const { return m_SimData; }
 
 protected:
     virtual void loadSimParams(const nlohmann::json& jParams) override;
@@ -83,7 +85,7 @@ protected:
 
     ////////////////////////////////////////////////////////////////////////////////
     SimulationParameters_FLIP2D                       m_SimParams;
-    SharedPtr<SimulationData_FLIP2D>                  m_SimData          = std::make_shared<SimulationData_FLIP2D>();
+    SimulationData_FLIP2D                             m_SimData;
     std::function<Real(const Vec2r&, const Array2r&)> m_InterpolateValue = nullptr;
     std::function<Real(const Vec2r&)>                 m_WeightKernel     = nullptr;
 

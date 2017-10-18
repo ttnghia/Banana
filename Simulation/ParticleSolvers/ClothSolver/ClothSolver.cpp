@@ -41,13 +41,13 @@ void ClothSolver::makeReady()
                                }
 
                                m_Grid.setGrid(solverParams().domainBMin, solverParams().domainBMax, solverParams().cellSize);
-                               m_SimData->makeReady(m_Grid.getNCells()[0], m_Grid.getNCells()[1], m_Grid.getNCells()[2]);
+                               solverData().makeReady(m_Grid.getNCells()[0], m_Grid.getNCells()[1], m_Grid.getNCells()[2]);
 
                                m_PCGSolver.setSolverParameters(solverParams().CGRelativeTolerance, solverParams().maxCGIteration);
                                m_PCGSolver.setPreconditioners(PCGSolver<Real>::MICCL0_SYMMETRIC);
 
                                m_NSearch = std::make_unique<NeighborSearch::NeighborSearch3D>(solverParams().cellSize);
-                               m_NSearch->add_point_set(glm::value_ptr(particleData().positions.front()), m_SimData->getNParticles(), true, true);
+                               m_NSearch->add_point_set(glm::value_ptr(particleData().positions.front()), solverData().getNParticles(), true, true);
 
                                for(auto& obj : m_BoundaryObjects) {
                                    obj->margin() = solverParams().particleRadius;
@@ -227,7 +227,7 @@ void ClothSolver::saveMemoryState()
     // save state
     frameCount = 0;
     m_MemoryStateIO->clearData();
-    m_MemoryStateIO->setNParticles(m_SimData->getNParticles());
+    m_MemoryStateIO->setNParticles(solverData().getNParticles());
     m_MemoryStateIO->setFixedAttribute("particle_radius", solverParams().particleRadius);
     m_MemoryStateIO->setParticleAttribute("position", particleData().positions);
     m_MemoryStateIO->setParticleAttribute("velocity", particleData().velocities);
@@ -242,7 +242,7 @@ void ClothSolver::saveFrameData()
     }
 
     m_ParticleIO->clearData();
-    m_ParticleIO->setNParticles(m_SimData->getNParticles());
+    m_ParticleIO->setNParticles(solverData().getNParticles());
     m_ParticleIO->setFixedAttribute("particle_radius", static_cast<float>(solverParams().particleRadius));
     m_ParticleIO->setParticleAttribute("position", particleData().positions);
     m_ParticleIO->setParticleAttribute("velocity", particleData().velocities);
@@ -282,7 +282,7 @@ void ClothSolver::advanceVelocity(Real timestep)
 
     m_Logger->printRunTime("Extrapolate grid velocity: : ",                 funcTimer, [&]() { extrapolateVelocity(); });
     m_Logger->printRunTime("Constrain grid velocity: ",                     funcTimer, [&]() { constrainGridVelocity(); });
-    m_Logger->printRunTime("Backup grid velocities: ",                      funcTimer, [&]() { m_SimData->backupGridVelocity(); });
+    m_Logger->printRunTime("Backup grid velocities: ",                      funcTimer, [&]() { solverData().backupGridVelocity(); });
     m_Logger->printRunTime("Add gravity: ",                                 funcTimer, [&]() { addGravity(timestep); });
     m_Logger->printRunTime("====> Pressure projection total: ",             funcTimer, [&]() { pressureProjection(timestep); });
     m_Logger->printRunTime("Extrapolate grid velocity: : ",                 funcTimer, [&]() { extrapolateVelocity(); });
@@ -294,7 +294,7 @@ void ClothSolver::advanceVelocity(Real timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void ClothSolver::moveParticles(Real timestep)
 {
-    ParallelFuncs::parallel_for<UInt>(0, m_SimData->getNParticles(),
+    ParallelFuncs::parallel_for<UInt>(0, solverData().getNParticles(),
                                       [&](UInt p)
                                       {
                                           Vec3r pvel = particleData().velocities[p];
@@ -363,7 +363,7 @@ void ClothSolver::addRepulsiveVelocity2Particles(Real timestep)
     //m_Grid.getNeighborList(particleData().positions, particleData().neighborList, solverParams().nearKernelRadiusSqr);
     ////////////////////////////////////////////////////////////////////////////////
 
-    ParallelFuncs::parallel_for<UInt>(0, m_SimData->getNParticles(),
+    ParallelFuncs::parallel_for<UInt>(0, solverData().getNParticles(),
                                       [&](UInt p)
                                       {
                                           //const Vec_UInt& neighbors = particleData().neighborList[p];
@@ -681,7 +681,7 @@ void ClothSolver::computeFluidSDF()
 {
     gridData().fluidSDF.assign(m_Grid.getCellSize() * Real(3.0));
 
-    ParallelFuncs::parallel_for<UInt>(0, m_SimData->getNParticles(),
+    ParallelFuncs::parallel_for<UInt>(0, solverData().getNParticles(),
                                       [&](UInt p)
                                       {
                                           const Vec3r ppos     = particleData().positions[p];
@@ -734,7 +734,7 @@ void ClothSolver::computeFluidSDF()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void ClothSolver::computeMatrix(Real timestep)
 {
-    m_SimData->matrix.clear();
+    solverData().matrix.clear();
 
     ParallelFuncs::parallel_for<UInt>(1, m_Grid.getNCells()[0] - 1,
                                       1, m_Grid.getNCells()[1] - 1,
@@ -766,7 +766,7 @@ void ClothSolver::computeMatrix(Real timestep)
                                           // right neighbor
                                           if(right_phi < 0) {
                                               center_term += right_term;
-                                              m_SimData->matrix.addElement(cellIdx, cellIdx + 1, -right_term);
+                                              solverData().matrix.addElement(cellIdx, cellIdx + 1, -right_term);
                                           } else {
                                               Real theta = MathHelpers::max(Real(0.01), MathHelpers::fraction_inside(center_phi, right_phi));
                                               center_term += right_term / theta;
@@ -775,7 +775,7 @@ void ClothSolver::computeMatrix(Real timestep)
                                           //left neighbor
                                           if(left_phi < 0) {
                                               center_term += left_term;
-                                              m_SimData->matrix.addElement(cellIdx, cellIdx - 1, -left_term);
+                                              solverData().matrix.addElement(cellIdx, cellIdx - 1, -left_term);
                                           } else {
                                               Real theta = MathHelpers::max(Real(0.01), MathHelpers::fraction_inside(center_phi, left_phi));
                                               center_term += left_term / theta;
@@ -784,7 +784,7 @@ void ClothSolver::computeMatrix(Real timestep)
                                           //top neighbor
                                           if(top_phi < 0) {
                                               center_term += top_term;
-                                              m_SimData->matrix.addElement(cellIdx, cellIdx + m_Grid.getNCells()[0], -top_term);
+                                              solverData().matrix.addElement(cellIdx, cellIdx + m_Grid.getNCells()[0], -top_term);
                                           } else {
                                               Real theta = MathHelpers::max(Real(0.01), MathHelpers::fraction_inside(center_phi, top_phi));
                                               center_term += top_term / theta;
@@ -793,7 +793,7 @@ void ClothSolver::computeMatrix(Real timestep)
                                           //bottom neighbor
                                           if(bottom_phi < 0) {
                                               center_term += bottom_term;
-                                              m_SimData->matrix.addElement(cellIdx, cellIdx - m_Grid.getNCells()[0], -bottom_term);
+                                              solverData().matrix.addElement(cellIdx, cellIdx - m_Grid.getNCells()[0], -bottom_term);
                                           } else {
                                               Real theta = MathHelpers::max(Real(0.01), MathHelpers::fraction_inside(center_phi, bottom_phi));
                                               center_term += bottom_term / theta;
@@ -802,7 +802,7 @@ void ClothSolver::computeMatrix(Real timestep)
                                           //far neighbor
                                           if(far_phi < 0) {
                                               center_term += far_term;
-                                              m_SimData->matrix.addElement(cellIdx, cellIdx + m_Grid.getNCells()[0] * m_Grid.getNCells()[1], -far_term);
+                                              solverData().matrix.addElement(cellIdx, cellIdx + m_Grid.getNCells()[0] * m_Grid.getNCells()[1], -far_term);
                                           } else {
                                               Real theta = MathHelpers::max(Real(0.01), MathHelpers::fraction_inside(center_phi, far_phi));
                                               center_term += far_term / theta;
@@ -811,7 +811,7 @@ void ClothSolver::computeMatrix(Real timestep)
                                           //near neighbor
                                           if(near_phi < 0) {
                                               center_term += near_term;
-                                              m_SimData->matrix.addElement(cellIdx, cellIdx - m_Grid.getNCells()[0] * m_Grid.getNCells()[1], -near_term);
+                                              solverData().matrix.addElement(cellIdx, cellIdx - m_Grid.getNCells()[0] * m_Grid.getNCells()[1], -near_term);
                                           } else {
                                               Real theta = MathHelpers::max(Real(0.01), MathHelpers::fraction_inside(center_phi, near_phi));
                                               center_term += near_term / theta;
@@ -819,14 +819,14 @@ void ClothSolver::computeMatrix(Real timestep)
 
                                           ////////////////////////////////////////////////////////////////////////////////
                                           // center
-                                          m_SimData->matrix.addElement(cellIdx, cellIdx, center_term);
+                                          solverData().matrix.addElement(cellIdx, cellIdx, center_term);
                                       });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void ClothSolver::computeRhs()
 {
-    m_SimData->rhs.assign(m_SimData->rhs.size(), 0);
+    solverData().rhs.assign(solverData().rhs.size(), 0);
     ParallelFuncs::parallel_for<UInt>(1, m_Grid.getNCells()[0] - 1,
                                       1, m_Grid.getNCells()[1] - 1,
                                       1, m_Grid.getNCells()[2] - 1,
@@ -848,14 +848,14 @@ void ClothSolver::computeRhs()
                                           tmp += gridData().w_weights(i, j, k) * gridData().w(i, j, k);
 
                                           const UInt idx = m_Grid.getCellLinearizedIndex(i, j, k);
-                                          m_SimData->rhs[idx] = tmp;
+                                          solverData().rhs[idx] = tmp;
                                       });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void ClothSolver::solveSystem()
 {
-    bool success = m_PCGSolver.solve_precond(m_SimData->matrix, m_SimData->rhs, m_SimData->pressure);
+    bool success = m_PCGSolver.solve_precond(solverData().matrix, solverData().rhs, solverData().pressure);
     m_Logger->printLog("Conjugate Gradient iterations: " + NumberHelpers::formatWithCommas(m_PCGSolver.iterations()) +
                        ". Final residual: " + NumberHelpers::formatToScientific(m_PCGSolver.residual()));
     if(!success) {
@@ -883,19 +883,19 @@ void ClothSolver::updateVelocity(Real timestep)
 
                                           if(i > 0 && i < m_Grid.getNCells()[0] - 1 && (center_phi < 0 || left_phi < 0) && gridData().u_weights(i, j, k) > 0) {
                                               Real theta = MathHelpers::max(Real(0.01), MathHelpers::fraction_inside(left_phi, center_phi));
-                                              gridData().u(i, j, k)      -= timestep * (m_SimData->pressure[idx] - m_SimData->pressure[idx - 1]) / theta;
+                                              gridData().u(i, j, k)      -= timestep * (solverData().pressure[idx] - solverData().pressure[idx - 1]) / theta;
                                               gridData().u_valid(i, j, k) = 1;
                                           }
 
                                           if(j > 0 && j < m_Grid.getNCells()[1] - 1 && (center_phi < 0 || bottom_phi < 0) && gridData().v_weights(i, j, k) > 0) {
                                               Real theta = MathHelpers::max(Real(0.01), MathHelpers::fraction_inside(bottom_phi, center_phi));
-                                              gridData().v(i, j, k)      -= timestep * (m_SimData->pressure[idx] - m_SimData->pressure[idx - m_Grid.getNCells()[0]]) / theta;
+                                              gridData().v(i, j, k)      -= timestep * (solverData().pressure[idx] - solverData().pressure[idx - m_Grid.getNCells()[0]]) / theta;
                                               gridData().v_valid(i, j, k) = 1;
                                           }
 
                                           if(k > 0 && k < m_Grid.getNCells()[2] - 1 && gridData().w_weights(i, j, k) > 0 && (center_phi < 0 || near_phi < 0)) {
                                               Real theta = MathHelpers::max(Real(0.01), MathHelpers::fraction_inside(near_phi, center_phi));
-                                              gridData().w(i, j, k)      -= timestep * (m_SimData->pressure[idx] - m_SimData->pressure[idx - m_Grid.getNCells()[0] * m_Grid.getNCells()[1]]) / theta;
+                                              gridData().w(i, j, k)      -= timestep * (solverData().pressure[idx] - solverData().pressure[idx - m_Grid.getNCells()[0] * m_Grid.getNCells()[1]]) / theta;
                                               gridData().w_valid(i, j, k) = 1;
                                           }
                                       });
@@ -933,7 +933,7 @@ void ClothSolver::computeChangesGridVelocity()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void ClothSolver::velocityToParticles()
 {
-    ParallelFuncs::parallel_for<UInt>(0, m_SimData->getNParticles(),
+    ParallelFuncs::parallel_for<UInt>(0, solverData().getNParticles(),
                                       [&](UInt p)
                                       {
                                           const Vec3r& ppos = particleData().positions[p];
