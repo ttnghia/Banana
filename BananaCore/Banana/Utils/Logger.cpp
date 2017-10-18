@@ -23,25 +23,24 @@
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-Logger::LogLevel Logger::s_LogLevel       = LogLevel::NormalLevel;
-bool             Logger::s_bPrint2Console = true;
-bool             Logger::s_bWriteLog2File = false;
-bool             Logger::s_bInitialized   = false;
-bool             Logger::s_bShutdown      = false;
+bool Logger::s_bPrint2Console = true;
+bool Logger::s_bWriteLog2File = false;
+bool Logger::s_bInitialized   = false;
+bool Logger::s_bShutdown      = false;
 
-std::string                           Logger::s_DataPath    = std::string(".");
-std::string                           Logger::s_TimeLogFile = std::string("time.txt");
-std::chrono::system_clock::time_point Logger::s_StartupTime;
-std::chrono::system_clock::time_point Logger::s_ShutdownTime;
+String                    Logger::s_DataPath    = String(".");
+String                    Logger::s_TimeLogFile = String("time.txt");
+Logger::Clock::time_point Logger::s_StartupTime;
+Logger::Clock::time_point Logger::s_ShutdownTime;
 
-std::shared_ptr<spdlog::sinks::stdout_sink_mt>      Logger::s_ConsoleSink    = spdlog::sinks::stdout_sink_mt::instance();
-std::shared_ptr<spdlog::sinks::simple_file_sink_mt> Logger::s_LogFileSink    = nullptr;
-std::shared_ptr<Logger>                             Logger::s_MainFuncLogger = nullptr;
+#ifdef __BANANA_WINDOWS__
+SharedPtr<spdlog::sinks::wincolor_stdout_sink_mt> Logger::s_ConsoleSink = std::make_shared<spdlog::sinks::wincolor_stdout_sink_mt>();
+#else
+SharedPtr<spdlog::sinks::ansicolor_stdout_sink_mt> Logger::s_ConsoleSink = std::make_shared<spdlog::sinks::ansicolor_stdout_sink_mt>();
+#endif
+SharedPtr<spdlog::sinks::simple_file_sink_mt> Logger::s_LogFileSink = nullptr;
+SharedPtr<Logger>                             Logger::s_MainLogger  = nullptr;
 
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-// instance functions
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Logger::printSeparator()
 {
@@ -49,29 +48,29 @@ void Logger::printSeparator()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Logger::printAligned(const std::string& s, char padding, const std::string& wrapper, unsigned int maxSize /*= 100*/)
+void Logger::printAligned(const String& s, char padding, const String& wrapper, UInt maxSize /*= 100*/)
 {
-    size_t            length = s.length();
-    const std::string str    = length == 0 ? s : std::string(" " + s + " ");
+    size_t       length = s.length();
+    const String str    = length == 0 ? s : String(" " + s + " ");
     length = str.length();
 
     size_t paddingSize = ((size_t)maxSize - length - 2 * wrapper.length()) / 2;
     size_t finalLength = wrapper.length() * 2 + length + paddingSize * 2;
 
-    std::string finalStr;
+    String finalStr;
     finalStr.reserve(finalLength + 1);
 
     finalStr.append(wrapper);
-    finalStr.append(std::string(paddingSize, padding));
+    finalStr.append(String(paddingSize, padding));
     finalStr.append(str);
-    finalStr.append((finalLength == static_cast<size_t>(maxSize)) ? std::string(paddingSize, padding) : std::string(paddingSize + 1, padding));
+    finalStr.append((finalLength == static_cast<size_t>(maxSize)) ? String(paddingSize, padding) : String(paddingSize + 1, padding));
     finalStr.append(wrapper);
 
     printLog(finalStr);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Logger::printTextBox(const std::string& s)
+void Logger::printTextBox(const String& s)
 {
     printSeparator();
     printAligned("", ' ');
@@ -81,97 +80,70 @@ void Logger::printTextBox(const std::string& s)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Logger::printWarning(const std::string& s, unsigned int maxSize)
+void Logger::printWarning(const String& s, UInt maxSize)
 {
-    std::string str = "Warning: ";
-    str += s;
-    str += " ";
+    String str = s;
+    str += String(" ");
 
     size_t paddingSize = (static_cast<size_t>(maxSize) - str.length());
-    str += std::string(paddingSize, '*');
-    printLog(str);
+    str += String(paddingSize, '*');
+    printLog(str, spdlog::level::warn);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Logger::printError(const std::string& s, unsigned int maxSize)
+void Logger::printError(const String& s, UInt maxSize)
 {
-    std::string str = "Error: ";
-    str += s;
-    str += " ";
+    String str = s;
+    str += String(" ");
 
     size_t paddingSize = (static_cast<size_t>(maxSize) - str.length());
-    str += std::string(paddingSize, '*');
-    printLog(str);
+    str += String(paddingSize, '*');
+    printLog(str, spdlog::level::err);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Logger::printLog(const std::string& s)
+void Logger::printLog(const String& s)
 {
-    if(s_bPrint2Console)
+    if(s_bPrint2Console) {
         m_ConsoleLogger->info(s);
+    }
 
-    if(s_bWriteLog2File)
+    if(s_bWriteLog2File) {
         m_FileLogger->info(s);
+    }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Logger::printLogIndent(const std::string& s, unsigned int indentLevel /*= 1*/)
+void Logger::printLog(const String& s, spdlog::level::level_enum level)
 {
-    std::string str;
+    if(s_bPrint2Console) {
+        m_ConsoleLogger->log(level, s);
+    }
+
+    if(s_bWriteLog2File) {
+        m_FileLogger->log(level, s);
+    }
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void Logger::printLogIndent(const String& s, UInt indentLevel /*= 1*/)
+{
+    String str;
     str.reserve(256);
-    str.append(std::string(INDENT_SIZE * indentLevel, ' '));
+    str.append(String(INDENT_SIZE * indentLevel, ' '));
     str.append(s);
 
     printLog(str);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Logger::printDebug(const std::string& s)
-{
-    if(s_LogLevel == LogLevel::DebugLevel)
-    {
-        if(s_bPrint2Console)
-        {
-            m_ConsoleLogger->debug(s);
-        }
-
-        if(s_bWriteLog2File)
-        {
-            m_FileLogger->debug(s);
-        }
-    }
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Logger::printDebugIndent(const std::string& s, unsigned int indentLevel /*= 1*/)
-{
-    if(s_LogLevel == LogLevel::DebugLevel)
-    {
-        std::string str;
-        str.reserve(256);
-        str.append(std::string(INDENT_SIZE * indentLevel, ' '));
-        str.append(s);
-
-        if(s_bPrint2Console)
-        {
-            m_ConsoleLogger->debug(str);
-        }
-
-        if(s_bWriteLog2File)
-        {
-            m_FileLogger->debug(str);
-        }
-    }
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Logger::printMemoryUsage()
 {
-    std::string str;
+    String str;
     str.reserve(256);
-    str += std::string("Memory usage: ");
+    str += String("Memory usage: ");
     str += NumberHelpers::formatWithCommas(static_cast<double>(getCurrentRSS()) / 1048576.0);
-    str += std::string(" MB(s). Peak: ");
+    str += String(" MB(s). Peak: ");
     str += NumberHelpers::formatWithCommas(static_cast<double>(getPeakRSS()) / 1048576.0) + " MB(s).";
 
     printLog(str);
@@ -182,29 +154,28 @@ void Logger::printMemoryUsage()
 // static functions
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Logger::initialize(const std::string& dataPath)
+void Logger::initialize(const String& dataPath, bool bPrint2Console /*= true*/, bool s_bWriteLog2File /*= false*/)
 {
     Logger::setDataPath(dataPath);
-    Logger::initialize();
+    Logger::initialize(bPrint2Console, s_bWriteLog2File);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Logger::initialize()
+void Logger::initialize(bool bPrint2Console /*= true*/, bool s_bWriteLog2File /*= false*/)
 {
-    s_StartupTime = std::chrono::system_clock::now();
+    s_bPrint2Console = bPrint2Console;
+    s_bWriteLog2File = s_bWriteLog2File;
+    s_StartupTime    = Clock::now();
 
-    if(s_bWriteLog2File)
-    {
-        FileHelpers::createFolder(std::string(s_DataPath + "/Log"));
-        unsigned int i = 1;
-        std::string  file;
+    if(s_bWriteLog2File) {
+        FileHelpers::createFolder(String(s_DataPath + "/Log"));
+        UInt   i = 1;
+        String file;
 
-        do
-        {
+        do {
             file = s_DataPath + "/Log/log_" + std::to_string(i) + ".txt";
 
-            if(!FileHelpers::fileExisted(file))
-            {
+            if(!FileHelpers::fileExisted(file)) {
                 s_LogFileSink = std::make_shared<spdlog::sinks::simple_file_sink_mt>(file);
                 s_TimeLogFile = s_DataPath + "/Log/time_" + std::to_string(i) + ".txt";
                 break;
@@ -216,7 +187,7 @@ void Logger::initialize()
         } while(true);
 
         ////////////////////////////////////////////////////////////////////////////////
-        time_t currentTime = std::chrono::system_clock::to_time_t(s_StartupTime - std::chrono::hours(24));
+        time_t currentTime = Clock::to_time_t(s_StartupTime - std::chrono::hours(24));
 
 #ifdef __BANANA_WINDOWS__
         struct tm ltime;
@@ -240,24 +211,25 @@ void Logger::initialize()
     signal(SIGTERM, Logger::signalHandler);
 
     ////////////////////////////////////////////////////////////////////////////////
-    s_bInitialized   = true;
-    s_MainFuncLogger = Logger::create("Main");
+    s_bInitialized = true;
+    s_MainLogger   = Logger::create("Main");
+    setLoglevel(spdlog::level::trace);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Logger::shutdown()
 {
-    if(s_bShutdown)
+    if(s_bShutdown) {
         return;
+    }
     s_bShutdown = true;
 
     ////////////////////////////////////////////////////////////////////////////////
-    s_ShutdownTime = std::chrono::system_clock::now();
-    std::string totalRunTime = getTotalRunTime();
+    s_ShutdownTime = Clock::now();
+    String totalRunTime = getTotalRunTime();
 
-    if(s_bWriteLog2File)
-    {
-        time_t currentTime = std::chrono::system_clock::to_time_t(s_ShutdownTime - std::chrono::hours(24));;
+    if(s_bWriteLog2File) {
+        time_t currentTime = Clock::to_time_t(s_ShutdownTime - std::chrono::hours(24));;
 #ifdef __BANANA_WINDOWS__
         struct tm ltime;
         localtime_s(&ltime, &currentTime);
@@ -274,36 +246,36 @@ void Logger::shutdown()
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    s_MainFuncLogger->printMemoryUsage();
-    s_MainFuncLogger->printLog(totalRunTime);
-    s_MainFuncLogger->printSeparator();
-    s_MainFuncLogger->newLine();
+    s_MainLogger->printMemoryUsage();
+    s_MainLogger->printLog(totalRunTime);
+    s_MainLogger->printSeparator();
+    s_MainLogger->newLine();
     spdlog::drop_all();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<typename Rep, typename Period>
-void getDuration(std::chrono::duration<Rep, Period> t, unsigned int& n_days, unsigned int& n_hours, unsigned int& n_mins, unsigned int& n_secs)
+void getDuration(std::chrono::duration<Rep, Period> t, UInt& n_days, UInt& n_hours, UInt& n_mins, UInt& n_secs)
 {
     assert(0 <= t.count());
 
     // approximate because a day doesn't have a fixed length
-    typedef std::chrono::duration<int, std::ratio<60* 60* 24> > days_t;
+    typedef std::chrono::duration<int, std::ratio<60 * 60 * 24> > days_t;
 
     auto days  = std::chrono::duration_cast<days_t>(t);
     auto hours = std::chrono::duration_cast<std::chrono::hours>(t - days);
     auto mins  = std::chrono::duration_cast<std::chrono::minutes>(t - days - hours);
     auto secs  = std::chrono::duration_cast<std::chrono::seconds>(t - days - hours - mins);
 
-    n_days  = static_cast<unsigned int>(days.count());
-    n_hours = static_cast<unsigned int>(hours.count());
-    n_mins  = static_cast<unsigned int>(mins.count());
-    n_secs  = static_cast<unsigned int>(secs.count());
+    n_days  = static_cast<UInt>(days.count());
+    n_hours = static_cast<UInt>(hours.count());
+    n_mins  = static_cast<UInt>(mins.count());
+    n_secs  = static_cast<UInt>(secs.count());
 }
 
-std::string Logger::getTotalRunTime()
+String Logger::getTotalRunTime()
 {
-    unsigned int days, hours, mins, secs;
+    UInt days, hours, mins, secs;
     getDuration(s_ShutdownTime - s_StartupTime, days, hours, mins, secs);
 
     std::stringstream strBuilder;
@@ -320,32 +292,31 @@ std::string Logger::getTotalRunTime()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Logger::signalHandler(int signum)
 {
-    s_MainFuncLogger->newLine();
+    s_MainLogger->newLine();
 
-    switch(signum)
-    {
+    switch(signum) {
         case SIGFPE:
-            s_MainFuncLogger->printWarning("Signal Floating-Point Exception");
+            s_MainLogger->printWarning("Signal Floating-Point Exception");
             break;
 
         case SIGINT:
-            s_MainFuncLogger->printWarning("Signal Interrupt(User pressed Ctrl+C)");
+            s_MainLogger->printWarning("Signal Interrupt(User pressed Ctrl+C)");
             break;
 
         case SIGSEGV:
-            s_MainFuncLogger->printWarning("Signal Segmentation Violation");
+            s_MainLogger->printWarning("Signal Segmentation Violation");
             break;
 
         case SIGTERM:
-            s_MainFuncLogger->printWarning("Signal Terminate");
+            s_MainLogger->printWarning("Signal Terminate");
             break;
 
         default:
-            s_MainFuncLogger->printWarning("Unknown signal caught: " + std::to_string(signum));
+            s_MainLogger->printWarning("Unknown signal caught: " + std::to_string(signum));
     }
 
-    s_MainFuncLogger->newLine();
-    s_MainFuncLogger->printLog("Cleanup and exit program..........");
+    s_MainLogger->newLine();
+    s_MainLogger->printLog("Cleanup and exit program..........");
     shutdown();
 
     // Raise sig abort, which is not handled by this function

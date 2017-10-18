@@ -31,7 +31,7 @@ namespace ParticleSolvers
 class Snow2DSolver : public ParticleSolver2D
 {
 public:
-    Snow2DSolver() { setupLogger(); }
+    Snow2DSolver() = default;
 
     ////////////////////////////////////////////////////////////////////////////////
     virtual String getSolverName() override { return String("MPM2DSolver"); }

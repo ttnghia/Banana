@@ -32,7 +32,7 @@ namespace ParticleSolvers
 class FLIP2DSolver : public ParticleSolver2D
 {
 public:
-    FLIP2DSolver() { setupLogger(); }
+    FLIP2DSolver() = default;
 
     ////////////////////////////////////////////////////////////////////////////////
     virtual String getSolverName() override { return String("FLIP2DSolver"); }

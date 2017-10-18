@@ -51,10 +51,11 @@ public:
         return m_ElapsedTime;
     }
 
-    std::string getRunTime()
+    String getRunTime()
     {
-        if(m_TimerTicked)
+        if(m_TimerTicked) {
             tock();
+        }
 
         m_StrBuilder.str("");
         m_StrBuilder << NumberHelpers::formatWithCommas(m_ElapsedTime);
@@ -63,10 +64,11 @@ public:
         return m_StrBuilder.str();
     }
 
-    std::string getRunTime(const char* caption)
+    String getRunTime(const char* caption)
     {
-        if(m_TimerTicked)
+        if(m_TimerTicked) {
             tock();
+        }
 
         m_StrBuilder.str("");
         m_StrBuilder << caption;
@@ -77,7 +79,7 @@ public:
     }
 
     template<class Function>
-    static std::string getRunTime(const char* caption, const Function& function)
+    static String getRunTime(const char* caption, const Function& function)
     {
         Timer timer;
 

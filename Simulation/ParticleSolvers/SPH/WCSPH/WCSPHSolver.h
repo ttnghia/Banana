@@ -31,7 +31,7 @@ namespace ParticleSolvers
 class WCSPHSolver : public ParticleSolver3D
 {
 public:
-    WCSPHSolver() { setupLogger(); }
+    WCSPHSolver() = default;
 
     ////////////////////////////////////////////////////////////////////////////////
     virtual String getSolverName() override { return String("WCSPHSolver"); }

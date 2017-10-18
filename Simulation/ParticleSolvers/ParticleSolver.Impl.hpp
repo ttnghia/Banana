@@ -19,23 +19,29 @@ void ParticleSolver<N, RealType >::loadScene(const String& sceneFile)
 {
     std::ifstream inputFile(sceneFile);
     if(!inputFile.is_open()) {
-        m_Logger->printError("Cannot open scene file: " + sceneFile);
+        Logger::mainLogger().printLog("Cannot open scene file: " + sceneFile);
         return;
     }
 
-    m_Logger->printLog("Load scene file: " + sceneFile);
     nlohmann::json jParams = nlohmann::json::parse(inputFile);
 
     ////////////////////////////////////////////////////////////////////////////////
     // read frame parameters
     if(jParams.find("GlobalParameters") != jParams.end()) {
         nlohmann::json jFrameParams = jParams["GlobalParameters"];
-        SceneLoader::loadGlobalParams(jFrameParams, m_GlobalParams);
-        m_GlobalParams.printParams(m_Logger);
-        if(m_GlobalParams.bSaveFrameData || m_GlobalParams.bSaveMemoryState || m_GlobalParams.bPrintLog2File) {
-            FileHelpers::createFolder(m_GlobalParams.dataPath);
+        SceneLoader::loadGlobalParams(jFrameParams, globalParams());
+        if(globalParams().bSaveFrameData || globalParams().bSaveMemoryState || globalParams().bPrintLog2File) {
+            FileHelpers::createFolder(globalParams().dataPath);
+            FileHelpers::copyFile(sceneFile, globalParams().dataPath + "/" + FileHelpers::getFileName(sceneFile));
         }
     }
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // setup logger following global parameters
+    Logger::initialize(globalParams().dataPath, globalParams().bPrintLog2Console, globalParams().bPrintLog2File);
+    setupLogger();
+    logger().printLog("Loaded scene file: " + sceneFile);
+    globalParams().printParams(logger());
 
     ////////////////////////////////////////////////////////////////////////////////
     // read simulation parameters
@@ -82,13 +88,6 @@ void ParticleSolver<N, RealType >::loadScene(const String& sceneFile)
         generateBoundaries(jParams);
         generateParticles(jParams);
     }
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // create output folder, if necessary, and dump scene file
-    if(m_GlobalParams.bSaveFrameData || m_GlobalParams.bSaveMemoryState) {
-        FileHelpers::createFolder(m_GlobalParams.dataPath);
-        FileHelpers::copyFile(sceneFile, m_GlobalParams.dataPath + "/" + FileHelpers::getFileName(sceneFile));
-    }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -96,10 +95,7 @@ template<Int N, class RealType>
 void ParticleSolver<N, RealType >::setupLogger()
 {
     m_Logger = Logger::create(getSolverName());
-    m_Logger->printTextBox(getGreetingMessage());
-
-    Logger::enableLog2Console(m_GlobalParams.bPrintLog2Console);
-    Logger::enableLog2File(m_GlobalParams.bPrintLog2File);
+    logger().printTextBox(getGreetingMessage());
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -110,40 +106,40 @@ void ParticleSolver<N, RealType >::doSimulation()
 
     ////////////////////////////////////////////////////////////////////////////////
     m_ThreadInit.reset();
-    m_ThreadInit = std::make_unique<tbb::task_scheduler_init>(m_GlobalParams.nThreads == 0 ? tbb::task_scheduler_init::automatic : m_GlobalParams.nThreads);
-    m_Logger->printAligned("Start Simulation", '=');
+    m_ThreadInit = std::make_unique<tbb::task_scheduler_init>(globalParams().nThreads == 0 ? tbb::task_scheduler_init::automatic : globalParams().nThreads);
+    logger().printAligned("Start Simulation", '=');
     static Timer frameTimer;
 
-    for(auto frame = m_GlobalParams.startFrame; frame < m_GlobalParams.finalFrame; ++frame) {
-        m_Logger->newLine();
-        m_Logger->printAligned("Frame " + NumberHelpers::formatWithCommas(frame), '=');
-        m_Logger->newLine();
+    for(auto frame = globalParams().startFrame; frame < globalParams().finalFrame; ++frame) {
+        logger().newLine();
+        logger().printAligned("Frame " + NumberHelpers::formatWithCommas(frame), '=');
+        logger().newLine();
 
         ////////////////////////////////////////////////////////////////////////////////
-        static const String strMsg = String("Frame finished. Frame duration: ") + NumberHelpers::formatToScientific(m_GlobalParams.frameDuration) +
-                                     String("(s) (~") + std::to_string(static_cast<int>(round(Real(1.0) / m_GlobalParams.frameDuration))) + String(" fps). Run time: ");
-        m_Logger->printRunTime(strMsg.c_str(), frameTimer,
-                               [&]()
-                               {
-                                   sortParticles();
-                                   advanceScene();
-                                   advanceFrame();
-                               });
+        static const String strMsg = String("Frame finished. Frame duration: ") + NumberHelpers::formatToScientific(globalParams().frameDuration) +
+                                     String("(s) (~") + std::to_string(static_cast<int>(round(Real(1.0) / globalParams().frameDuration))) + String(" fps). Run time: ");
+        logger().printRunTime(strMsg.c_str(), frameTimer,
+                              [&]()
+                              {
+                                  sortParticles();
+                                  advanceScene();
+                                  advanceFrame();
+                              });
 
         ////////////////////////////////////////////////////////////////////////////////
-        m_Logger->printMemoryUsage();
-        m_Logger->newLine();
+        logger().printMemoryUsage();
+        logger().newLine();
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    m_Logger->newLine();
-    m_Logger->printAligned("Simulation finished", '+');
-    m_Logger->printLog("Total frames: " + NumberHelpers::formatWithCommas(m_GlobalParams.finalFrame - m_GlobalParams.startFrame + 1));
-    m_Logger->printLog("Data path: " + m_GlobalParams.dataPath);
-    m_Logger->newLine();
+    logger().newLine();
+    logger().printAligned("Simulation finished", '+');
+    logger().printLog("Total frames: " + NumberHelpers::formatWithCommas(globalParams().finalFrame - globalParams().startFrame + 1));
+    logger().printLog("Data path: " + globalParams().dataPath);
+    logger().newLine();
 
 
-    //m_Logger->printLog("Data: \n" + FileHelpers::getFolderSize(m_GlobalParams.dataPath, 1));
+    //logger().printLog("Data: \n" + FileHelpers::getFolderSize(globalParams().dataPath, 1));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

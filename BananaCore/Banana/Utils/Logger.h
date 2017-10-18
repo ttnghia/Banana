@@ -17,18 +17,18 @@
 
 #pragma once
 
+#include <Banana/Setup.h>
+#include <Banana/System/MemoryUsage.h>
+#include <Banana/Utils/Timer.h>
+
+#include <spdlog/spdlog.h>
+
 #include <chrono>
 #include <map>
 #include <string>
 #include <iostream>
 #include <memory>
 #include <csignal>
-
-#include <spdlog/spdlog.h>
-
-#include <Banana/System/MemoryUsage.h>
-#include <Banana/Utils/Timer.h>
-#include <Banana/Setup.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -42,34 +42,27 @@ namespace Banana
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 class Logger
 {
+    using Clock = std::chrono::system_clock;
 public:
-    enum LogLevel
-    {
-        NormalLevel = 0,
-        DebugLevel,
-    };
-
-    Logger(const std::string& instanceName)
+    Logger(const String& instanceName)
     {
         __BNN_ASSERT(s_bInitialized);
         m_ConsoleLogger = std::make_shared<spdlog::logger>(instanceName, s_ConsoleSink);
 
-        if(s_LogFileSink != nullptr)
+        if(s_LogFileSink != nullptr) {
             m_FileLogger = std::make_shared<spdlog::async_logger>(instanceName, s_LogFileSink, 1024);
+        }
     }
 
-    static std::shared_ptr<Logger> create(const std::string& instanceName)
-    {
-        return std::make_shared<Logger>(instanceName);
-    }
+    static auto create(const String& instanceName) { return std::make_shared<Logger>(instanceName); }
 
     ////////////////////////////////////////////////////////////////////////////////
     void newLine() { printLog(""); }
     void printSeparator();
-    void printAligned(const std::string& s, char padding = PADDING, const std::string& wrapper = WRAPPER, unsigned int maxSize = 100);
-    void printTextBox(const std::string& s);
-    void printWarning(const std::string& s, unsigned int maxSize = 100);
-    void printError(const std::string& s, unsigned int maxSize = 100);
+    void printAligned(const String& s, char padding = PADDING, const String& wrapper = WRAPPER, UInt maxSize = 100);
+    void printTextBox(const String& s);
+    void printWarning(const String& s, UInt maxSize = 100);
+    void printError(const String& s, UInt maxSize = 100);
 
     ////////////////////////////////////////////////////////////////////////////////
     template<class Function>
@@ -86,49 +79,46 @@ public:
     void printRunTimeIndent(const char* caption, Timer& timer) { printLogIndent(timer.getRunTime(caption)); }
 
     ////////////////////////////////////////////////////////////////////////////////
-    void printLog(const std::string& s);
-    void printLogIndent(const std::string& s, unsigned int indentLevel = 1);
-
-    void printDebug(const std::string& s);
-    void printDebugIndent(const std::string& s, unsigned int indentLevel = 1);
+    void printLog(const String& s);
+    void printLog(const String& s, spdlog::level::level_enum level);
+    void printLogIndent(const String& s, UInt indentLevel = 1);
 
     void printMemoryUsage();
 
     ////////////////////////////////////////////////////////////////////////////////
-    static void initialize();
-    static void initialize(const std::string& dataPath);
-    static void shutdown();
-    static void setLoglevel(LogLevel logLevel) { s_LogLevel = logLevel; }
-
-    static void setDataPath(const std::string& dataPath) { s_DataPath = dataPath; }
-    static void enableLog2Console(bool bEnable = true) { s_bPrint2Console = bEnable; }
-    static void enableLog2File(bool bEnable = true) { s_bWriteLog2File = bEnable; }
-
-    static std::string getTotalRunTime();
-
+    static void  initialize(bool bPrint2Console = true, bool s_bWriteLog2File = false);
+    static void  initialize(const String& dataPath, bool bPrint2Console = true, bool s_bWriteLog2File = false);
+    static void  shutdown();
+    static void  setLoglevel(spdlog::level::level_enum level) { spdlog::set_level(level); }
+    static void  setDataPath(const String& dataPath) { s_DataPath = dataPath; }
+    static auto& mainLogger() noexcept { assert(s_MainLogger != nullptr); return *s_MainLogger; }
 private:
-    static void signalHandler(int signum);
+    static String getTotalRunTime();
+    static void   signalHandler(int signum);
 
     ////////////////////////////////////////////////////////////////////////////////
-    static LogLevel s_LogLevel;
-    static bool     s_bPrint2Console;
-    static bool     s_bWriteLog2File;
-    static bool     s_bInitialized;
-    static bool     s_bShutdown;
+    static bool s_bPrint2Console;
+    static bool s_bWriteLog2File;
+    static bool s_bInitialized;
+    static bool s_bShutdown;
 
-    static std::string                           s_DataPath;
-    static std::string                           s_TimeLogFile;
-    static std::chrono::system_clock::time_point s_StartupTime;
-    static std::chrono::system_clock::time_point s_ShutdownTime;
+    static String            s_DataPath;
+    static String            s_TimeLogFile;
+    static Clock::time_point s_StartupTime;
+    static Clock::time_point s_ShutdownTime;
 
-    static std::shared_ptr<spdlog::sinks::stdout_sink_mt>      s_ConsoleSink;
-    static std::shared_ptr<spdlog::sinks::simple_file_sink_mt> s_LogFileSink;
+#ifdef __BANANA_WINDOWS__
+    static SharedPtr<spdlog::sinks::wincolor_stdout_sink_mt> s_ConsoleSink;
+#else
+    static SharedPtr<spdlog::sinks::ansicolor_stdout_sink_mt> s_ConsoleSink;
+#endif
 
-    static std::shared_ptr<Logger> s_MainFuncLogger;
+    static SharedPtr<spdlog::sinks::simple_file_sink_mt> s_LogFileSink;
+    static SharedPtr<Logger>                             s_MainLogger;
 
     ////////////////////////////////////////////////////////////////////////////////
-    std::shared_ptr<spdlog::logger>       m_ConsoleLogger = nullptr;
-    std::shared_ptr<spdlog::async_logger> m_FileLogger    = nullptr;
+    SharedPtr<spdlog::logger>       m_ConsoleLogger = nullptr;
+    SharedPtr<spdlog::async_logger> m_FileLogger    = nullptr;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

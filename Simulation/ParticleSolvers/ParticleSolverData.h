@@ -84,20 +84,20 @@ struct GlobalParameters
     bool bPrintLog2File    = false;
 
     ////////////////////////////////////////////////////////////////////////////////
-    void printParams(const std::shared_ptr<Logger>& logger)
+    void printParams(Logger& logger)
     {
-        logger->printLog("Global parameters:");
-        logger->printLogIndent("Number of working threads: " + (nThreads > 0 ? std::to_string(nThreads) : String("Automatic")));
-        logger->printLogIndent("Data path: " + dataPath);
-        logger->printLogIndent("Frame duration: " + NumberHelpers::formatToScientific(frameDuration) +
-                               " (~" + std::to_string(static_cast<int>(round(Real(1.0) / frameDuration))) + " fps)");
-        logger->printLogIndent("Final frame: " + std::to_string(finalFrame));
-        logger->printLogIndent("Apply gravity: " + (bApplyGravity ? String("Yes") : String("No")));
-        logger->printLogIndent("Sort particles during simulation: " + (bEnableSortParticle ? String("Yes") : String("No")));
+        logger.printLog("Global parameters:");
+        logger.printLogIndent("Number of working threads: " + (nThreads > 0 ? std::to_string(nThreads) : String("Automatic")));
+        logger.printLogIndent("Data path: " + dataPath);
+        logger.printLogIndent("Frame duration: " + NumberHelpers::formatToScientific(frameDuration) +
+                              " (~" + std::to_string(static_cast<int>(round(Real(1.0) / frameDuration))) + " fps)");
+        logger.printLogIndent("Final frame: " + std::to_string(finalFrame));
+        logger.printLogIndent("Apply gravity: " + (bApplyGravity ? String("Yes") : String("No")));
+        logger.printLogIndent("Sort particles during simulation: " + (bEnableSortParticle ? String("Yes") : String("No")));
         if(bEnableSortParticle) {
-            logger->printLogIndent("Sort frequency: " + std::to_string(sortFrequency));
+            logger.printLogIndent("Sort frequency: " + std::to_string(sortFrequency));
         }
-        logger->newLine();
+        logger.newLine();
     }
 
     bool isSavingData(const String& dataName)

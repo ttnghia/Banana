@@ -52,11 +52,9 @@ class ParticleSolver
 {
 public:
     static constexpr UInt solverDimension() noexcept { return static_cast<UInt>(N); }
-    ParticleSolver() = default;
-    virtual ~ParticleSolver() { Logger::shutdown(); }
 
-    const auto& getGlobalParams() const noexcept { return m_GlobalParams; }
-    const auto& getLogger() const noexcept { return m_Logger; }
+    ParticleSolver() { Logger::initialize(); }
+    virtual ~ParticleSolver() { Logger::shutdown(); }
 
     void loadScene(const String& sceneFile);
     void setupLogger();
@@ -69,6 +67,12 @@ public:
     virtual void makeReady()     = 0;
     virtual void advanceFrame()  = 0;
     virtual void sortParticles() = 0;
+
+    ////////////////////////////////////////////////////////////////////////////////
+    auto&       globalParams() noexcept { return m_GlobalParams; }
+    const auto& globalParams() const noexcept { return m_GlobalParams; }
+    auto&       logger() noexcept { assert(m_Logger != nullptr); return *m_Logger; }
+    const auto& logger() const noexcept { assert(m_Logger != nullptr); return *m_Logger; }
 
 protected:
     virtual void generateBoundaries(const nlohmann::json& jParams);

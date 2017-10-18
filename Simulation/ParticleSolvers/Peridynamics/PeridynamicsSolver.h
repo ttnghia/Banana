@@ -31,7 +31,7 @@ namespace ParticleSolvers
 class PeridynamicsSolver : public ParticleSolver3D
 {
 public:
-    PeridynamicsSolver() { setupLogger(); }
+    PeridynamicsSolver() = default;
     auto&       solverParams() { return m_SimParams; }
     const auto& solverParams() const { return m_SimParams; }
 

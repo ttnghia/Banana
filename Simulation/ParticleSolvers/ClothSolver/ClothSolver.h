@@ -32,7 +32,7 @@ namespace ParticleSolvers
 class ClothSolver : public ParticleSolver3D
 {
 public:
-    ClothSolver() { setupLogger(); }
+    ClothSolver() = default;
 
     ////////////////////////////////////////////////////////////////////////////////
     virtual String getSolverName() override { return String("ClothSolver"); }

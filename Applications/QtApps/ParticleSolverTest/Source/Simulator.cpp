@@ -24,12 +24,7 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 Simulator::Simulator()
 {
-    Logger::enableLog2File(true);
-    Logger::initialize();
     m_ParticleSolver = std::make_unique<ParticleSolverQt>();
-
-    // todo: remove
-    Logger::enableLog2File(true);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -67,10 +62,10 @@ void Simulator::doSimulation()
     static tbb::task_scheduler_init threadInit(1);
     (void)threadInit;
 
-    for(unsigned int frame = 1; frame <= m_ParticleSolver->getGlobalParams()->finalFrame; ++frame) {
+    for(unsigned int frame = 1; frame <= m_ParticleSolver->globalParams()->finalFrame; ++frame) {
         m_ParticleSolver->advanceFrame();
         m_ParticleSolver->sortParticles();
-        float sysTime = m_ParticleSolver->getGlobalParams()->frameDuration * static_cast<float>(frame);
+        float sysTime = m_ParticleSolver->globalParams()->frameDuration * static_cast<float>(frame);
 
         emit systemTimeChanged(sysTime);
         emit particleChanged();
@@ -86,10 +81,10 @@ void Simulator::doSimulation()
         emit simulationFinished();
     }
 #else
-    for(UInt frame = 1; frame <= m_ParticleSolver->getGlobalParams().finalFrame; ++frame) {
+    for(UInt frame = 1; frame <= m_ParticleSolver->globalParams().finalFrame; ++frame) {
         m_ParticleSolver->doSimulationFrame(frame);
 
-        emit systemTimeChanged(m_ParticleSolver->getGlobalParams().evolvedTime());
+        emit systemTimeChanged(m_ParticleSolver->globalParams().evolvedTime());
         emit particleChanged();
         emit frameFinished();
 
