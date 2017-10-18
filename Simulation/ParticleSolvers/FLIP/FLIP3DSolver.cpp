@@ -34,9 +34,9 @@ void FLIP3DSolver::makeReady()
     m_Logger->printRunTime("Allocate solver memory: ",
                            [&]()
                            {
-                               m_SimParams->makeReady();
-                               m_SimParams->printParams(m_Logger);
-                               if(m_SimParams->p2gKernel == ParticleSolverConstants::InterpolationKernels::Linear) {
+                               solverParams().makeReady();
+                               solverParams().printParams(m_Logger);
+                               if(solverParams().p2gKernel == ParticleSolverConstants::InterpolationKernels::Linear) {
                                    m_InterpolateValue = static_cast<Real (*)(const Vec3r&, const Array3r&)>(&ArrayHelpers::interpolateValueLinear);
                                    m_WeightKernel     = [](const Vec3r& dxdydz) { return MathHelpers::tril_kernel(dxdydz[0], dxdydz[1], dxdydz[2]); };
                                } else {
@@ -44,13 +44,13 @@ void FLIP3DSolver::makeReady()
                                    m_WeightKernel     = [](const Vec3r& dxdydz) { return MathHelpers::cubic_bspline_3d(dxdydz[0], dxdydz[1], dxdydz[2]); };
                                }
 
-                               m_Grid.setGrid(m_SimParams->domainBMin, m_SimParams->domainBMax, m_SimParams->cellSize);
+                               m_Grid.setGrid(solverParams().domainBMin, solverParams().domainBMax, solverParams().cellSize);
 
                                m_PCGSolver = std::make_unique<PCGSolver<Real> >();
-                               m_PCGSolver->setSolverParameters(m_SimParams->CGRelativeTolerance, m_SimParams->maxCGIteration);
+                               m_PCGSolver->setSolverParameters(solverParams().CGRelativeTolerance, solverParams().maxCGIteration);
                                m_PCGSolver->setPreconditioners(PCGSolver<Real>::MICCL0_SYMMETRIC);
 
-                               m_NSearch = std::make_unique<NeighborSearch::NeighborSearch3D>(m_SimParams->cellSize);
+                               m_NSearch = std::make_unique<NeighborSearch::NeighborSearch3D>(solverParams().cellSize);
                                m_NSearch->add_point_set(glm::value_ptr(particleData().positions.front()), m_SimData->getNParticles(), true, true);
 
                                ////////////////////////////////////////////////////////////////////////////////
@@ -62,8 +62,8 @@ void FLIP3DSolver::makeReady()
 
                                ////////////////////////////////////////////////////////////////////////////////
                                for(auto& obj : m_BoundaryObjects) {
-                                   obj->margin() = m_SimParams->particleRadius;
-                                   obj->generateSDF(m_SimParams->domainBMin, m_SimParams->domainBMax, m_SimParams->cellSize);
+                                   obj->margin() = solverParams().particleRadius;
+                                   obj->generateSDF(solverParams().domainBMin, solverParams().domainBMax, solverParams().cellSize);
                                }
 
                                ParallelFuncs::parallel_for(m_Grid.getNNodes(),
@@ -98,11 +98,11 @@ void FLIP3DSolver::advanceFrame()
     int          substepCount = 0;
 
     ////////////////////////////////////////////////////////////////////////////////
-    while(frameTime < m_GlobalParams->frameDuration) {
+    while(frameTime < m_GlobalParams.frameDuration) {
         m_Logger->printRunTime("Sub-step time: ", subStepTimer,
                                [&]()
                                {
-                                   Real remainingTime = m_GlobalParams->frameDuration - frameTime;
+                                   Real remainingTime = m_GlobalParams.frameDuration - frameTime;
                                    Real substep       = MathHelpers::min(computeCFLTimestep(), remainingTime);
                                    ////////////////////////////////////////////////////////////////////////////////
                                    m_Logger->printRunTime("Find neighbors: ",               funcTimer, [&]() { m_Grid.collectIndexToCells(particleData().positions); });
@@ -113,8 +113,8 @@ void FLIP3DSolver::advanceFrame()
                                    frameTime += substep;
                                    ++substepCount;
                                    m_Logger->printLog("Finished step " + NumberHelpers::formatWithCommas(substepCount) + " of size " + NumberHelpers::formatToScientific<Real>(substep) +
-                                                      "(" + NumberHelpers::formatWithCommas(substep / m_GlobalParams->frameDuration * 100) + "% of the frame, to " +
-                                                      NumberHelpers::formatWithCommas(100 * (frameTime) / m_GlobalParams->frameDuration) + "% of the frame).");
+                                                      "(" + NumberHelpers::formatWithCommas(substep / m_GlobalParams.frameDuration * 100) + "% of the frame, to " +
+                                                      NumberHelpers::formatWithCommas(100 * (frameTime) / m_GlobalParams.frameDuration) + "% of the frame).");
                                });
 
         ////////////////////////////////////////////////////////////////////////////////
@@ -122,7 +122,7 @@ void FLIP3DSolver::advanceFrame()
     }       // end while
 
     ////////////////////////////////////////////////////////////////////////////////
-    ++m_GlobalParams->finishedFrame;
+    ++m_GlobalParams.finishedFrame;
     saveFrameData();
     saveMemoryState();
 }
@@ -131,7 +131,7 @@ void FLIP3DSolver::advanceFrame()
 void FLIP3DSolver::sortParticles()
 {
     assert(m_NSearch != nullptr);
-    if(m_GlobalParams->finishedFrame % m_GlobalParams->sortFrequency != 0) {
+    if(m_GlobalParams.finishedFrame % m_GlobalParams.sortFrequency != 0) {
         return;
     }
 
@@ -154,46 +154,46 @@ void FLIP3DSolver::loadSimParams(const nlohmann::json& jParams)
     __BNN_ASSERT(m_BoundaryObjects.size() > 0);
     SharedPtr<GeometryObjects::BoxObject<3, Real> > box = static_pointer_cast<GeometryObjects::BoxObject<3, Real> >(m_BoundaryObjects[0]->getGeometry());
     __BNN_ASSERT(box != nullptr);
-    m_SimParams->movingBMin = box->boxMin();
-    m_SimParams->movingBMax = box->boxMax();
+    solverParams().movingBMin = box->boxMin();
+    solverParams().movingBMax = box->boxMax();
 
 
-    JSONHelpers::readValue(jParams, m_SimParams->particleRadius,      "ParticleRadius");
-    JSONHelpers::readValue(jParams, m_SimParams->PIC_FLIP_ratio,      "PIC_FLIP_Ratio");
+    JSONHelpers::readValue(jParams, solverParams().particleRadius,      "ParticleRadius");
+    JSONHelpers::readValue(jParams, solverParams().PIC_FLIP_ratio,      "PIC_FLIP_Ratio");
 
-    JSONHelpers::readValue(jParams, m_SimParams->boundaryRestitution, "BoundaryRestitution");
-    JSONHelpers::readValue(jParams, m_SimParams->CGRelativeTolerance, "CGRelativeTolerance");
-    JSONHelpers::readValue(jParams, m_SimParams->maxCGIteration,      "MaxCGIteration");
+    JSONHelpers::readValue(jParams, solverParams().boundaryRestitution, "BoundaryRestitution");
+    JSONHelpers::readValue(jParams, solverParams().CGRelativeTolerance, "CGRelativeTolerance");
+    JSONHelpers::readValue(jParams, solverParams().maxCGIteration,      "MaxCGIteration");
 
-    JSONHelpers::readBool(jParams, m_SimParams->bApplyRepulsiveForces, "ApplyRepulsiveForces");
-    JSONHelpers::readBool(jParams, m_SimParams->bApplyRepulsiveForces, "ApplyRepulsiveForce");
-    JSONHelpers::readValue(jParams, m_SimParams->repulsiveForceStiffness, "RepulsiveForceStiffness");
+    JSONHelpers::readBool(jParams, solverParams().bApplyRepulsiveForces, "ApplyRepulsiveForces");
+    JSONHelpers::readBool(jParams, solverParams().bApplyRepulsiveForces, "ApplyRepulsiveForce");
+    JSONHelpers::readValue(jParams, solverParams().repulsiveForceStiffness, "RepulsiveForceStiffness");
 
     String tmp = "LinearKernel";
     JSONHelpers::readValue(jParams, tmp,                                  "KernelFunction");
     if(tmp == "LinearKernel" || tmp == "Linear") {
-        m_SimParams->p2gKernel = ParticleSolverConstants::InterpolationKernels::Linear;
+        solverParams().p2gKernel = ParticleSolverConstants::InterpolationKernels::Linear;
     } else {
-        m_SimParams->p2gKernel = ParticleSolverConstants::InterpolationKernels::CubicBSpline;
+        solverParams().p2gKernel = ParticleSolverConstants::InterpolationKernels::CubicBSpline;
     }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void FLIP3DSolver::setupDataIO()
 {
-    m_ParticleIO = std::make_unique<ParticleSerialization>(m_GlobalParams->dataPath, "FLIPData", "frame", m_Logger);
+    m_ParticleIO = std::make_unique<ParticleSerialization>(m_GlobalParams.dataPath, "FLIPData", "frame", m_Logger);
     m_ParticleIO->addFixedAtribute<float>("particle_radius", ParticleSerialization::TypeReal, 1);
     m_ParticleIO->addParticleAtribute<float>("position", ParticleSerialization::TypeCompressedReal, 3);
-    if(m_GlobalParams->isSavingData("anisotropic_kernel")) {
+    if(m_GlobalParams.isSavingData("anisotropic_kernel")) {
         m_ParticleIO->addParticleAtribute<float>("anisotropic_kernel", ParticleSerialization::TypeCompressedReal, 9);
     }
-    if(m_GlobalParams->isSavingData("velocity")) {
+    if(m_GlobalParams.isSavingData("velocity")) {
         m_ParticleIO->addParticleAtribute<float>("velocity", ParticleSerialization::TypeCompressedReal, 3);
     }
 
     ////////////////////////////////////////////////////////////////////////////////
 
-    m_MemoryStateIO = std::make_unique<ParticleSerialization>(m_GlobalParams->dataPath, "FLIPState", "frame", m_Logger);
+    m_MemoryStateIO = std::make_unique<ParticleSerialization>(m_GlobalParams.dataPath, "FLIPState", "frame", m_Logger);
     m_MemoryStateIO->addFixedAtribute<Real>("particle_radius", ParticleSerialization::TypeReal, 1);
     m_MemoryStateIO->addParticleAtribute<Real>("position", ParticleSerialization::TypeReal, 3);
     m_MemoryStateIO->addParticleAtribute<Real>("velocity", ParticleSerialization::TypeReal, 3);
@@ -202,12 +202,12 @@ void FLIP3DSolver::setupDataIO()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 bool FLIP3DSolver::loadMemoryState()
 {
-    if(!m_GlobalParams->bLoadMemoryState) {
+    if(!m_GlobalParams.bLoadMemoryState) {
         return false;
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    int latestStateIdx = m_MemoryStateIO->getLatestFileIndex(m_GlobalParams->finalFrame);
+    int latestStateIdx = m_MemoryStateIO->getLatestFileIndex(m_GlobalParams.finalFrame);
     if(latestStateIdx < 0) {
         return false;
     }
@@ -219,7 +219,7 @@ bool FLIP3DSolver::loadMemoryState()
 
     Real particleRadius;
     __BNN_ASSERT(m_MemoryStateIO->getFixedAttribute("particle_radius", particleRadius));
-    __BNN_ASSERT_APPROX_NUMBERS(m_SimParams->particleRadius, particleRadius, MEpsilon);
+    __BNN_ASSERT_APPROX_NUMBERS(solverParams().particleRadius, particleRadius, MEpsilon);
 
     __BNN_ASSERT(m_MemoryStateIO->getParticleAttribute("position", particleData().positions));
     __BNN_ASSERT(m_MemoryStateIO->getParticleAttribute("velocity", particleData().velocities));
@@ -231,14 +231,14 @@ bool FLIP3DSolver::loadMemoryState()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void FLIP3DSolver::saveMemoryState()
 {
-    if(!m_GlobalParams->bSaveMemoryState) {
+    if(!m_GlobalParams.bSaveMemoryState) {
         return;
     }
 
     static UInt frameCount = 0;
     ++frameCount;
 
-    if(frameCount < m_GlobalParams->framePerState) {
+    if(frameCount < m_GlobalParams.framePerState) {
         return;
     }
 
@@ -247,25 +247,25 @@ void FLIP3DSolver::saveMemoryState()
     frameCount = 0;
     m_MemoryStateIO->clearData();
     m_MemoryStateIO->setNParticles(m_SimData->getNParticles());
-    m_MemoryStateIO->setFixedAttribute("particle_radius", m_SimParams->particleRadius);
+    m_MemoryStateIO->setFixedAttribute("particle_radius", solverParams().particleRadius);
     m_MemoryStateIO->setParticleAttribute("position", particleData().positions);
     m_MemoryStateIO->setParticleAttribute("velocity", particleData().velocities);
-    m_MemoryStateIO->flushAsync(m_GlobalParams->finishedFrame);
+    m_MemoryStateIO->flushAsync(m_GlobalParams.finishedFrame);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void FLIP3DSolver::saveFrameData()
 {
-    if(!m_GlobalParams->bSaveFrameData) {
+    if(!m_GlobalParams.bSaveFrameData) {
         return;
     }
 
 
     m_ParticleIO->clearData();
     m_ParticleIO->setNParticles(m_SimData->getNParticles());
-    m_ParticleIO->setFixedAttribute("particle_radius", m_SimParams->particleRadius);
-    if(m_GlobalParams->isSavingData("anisotropic_kernel")) {
-        AnisotropicKernelGenerator aniKernelGenerator(m_SimData->getNParticles(), particleData().positions.data(), m_SimParams->particleRadius);
+    m_ParticleIO->setFixedAttribute("particle_radius", solverParams().particleRadius);
+    if(m_GlobalParams.isSavingData("anisotropic_kernel")) {
+        AnisotropicKernelGenerator aniKernelGenerator(m_SimData->getNParticles(), particleData().positions.data(), solverParams().particleRadius);
         aniKernelGenerator.generateAniKernels();
         m_ParticleIO->setParticleAttribute("position", aniKernelGenerator.kernelCenters());
         m_ParticleIO->setParticleAttribute("anisotropic_kernel", aniKernelGenerator.kernelMatrices());
@@ -273,10 +273,10 @@ void FLIP3DSolver::saveFrameData()
         m_ParticleIO->setParticleAttribute("position", particleData().positions);
     }
 
-    if(m_GlobalParams->isSavingData("velocity")) {
+    if(m_GlobalParams.isSavingData("velocity")) {
         m_ParticleIO->setParticleAttribute("velocity", particleData().velocities);
     }
-    m_ParticleIO->flushAsync(m_GlobalParams->finishedFrame);
+    m_ParticleIO->flushAsync(m_GlobalParams.finishedFrame);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -285,7 +285,7 @@ Real FLIP3DSolver::computeCFLTimestep()
     Real maxVel = MathHelpers::max(ParallelSTL::maxAbs(gridData().u.data()),
                                    ParallelSTL::maxAbs(gridData().v.data()),
                                    ParallelSTL::maxAbs(gridData().w.data()));
-    return maxVel > Tiny ? (m_Grid.getCellSize() / maxVel * m_SimParams->CFLFactor) : m_SimParams->maxTimestep;
+    return maxVel > Tiny ? (m_Grid.getCellSize() / maxVel * solverParams().CFLFactor) : solverParams().maxTimestep;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -302,7 +302,7 @@ void FLIP3DSolver::advanceVelocity(Real timestep)
         weight_computed = true;
     }
 
-    if(m_SimParams->bApplyRepulsiveForces) {
+    if(solverParams().bApplyRepulsiveForces) {
         m_Logger->printRunTime("Add repulsive force to particle: ", funcTimer, [&]() { addRepulsiveVelocity2Particles(timestep); });
     }
 
@@ -330,7 +330,7 @@ void FLIP3DSolver::moveParticles(Real timestep)
                                     Vec3r ppos = particleData().positions[p] + pvel * timestep;
 #if 0
                                     const Vec3r gridPos = m_Grid.getGridCoordinate(ppos);
-                                    const Real phiVal   = ArrayHelpers::interpolateValueLinear(gridPos, gridData().boundarySDF) - m_SimParams->particleRadius;
+                                    const Real phiVal   = ArrayHelpers::interpolateValueLinear(gridPos, gridData().boundarySDF) - solverParams().particleRadius;
 
                                     if(phiVal < 0) {
                                         Vec3r grad    = ArrayHelpers::interpolateGradient(gridPos, gridData().boundarySDF);
@@ -394,7 +394,7 @@ void FLIP3DSolver::computeFluidWeights()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void FLIP3DSolver::addRepulsiveVelocity2Particles(Real timestep)
 {
-    //m_Grid.getNeighborList(particleData().positions, particleData().neighborList, m_SimParams->nearKernelRadiusSqr);
+    //m_Grid.getNeighborList(particleData().positions, particleData().neighborList, solverParams().nearKernelRadiusSqr);
     ////////////////////////////////////////////////////////////////////////////////
 
     ParallelFuncs::parallel_for(m_SimData->getNParticles(),
@@ -419,25 +419,25 @@ void FLIP3DSolver::addRepulsiveVelocity2Particles(Real timestep)
                                                     const Vec3r& qpos = particleData().positions[q];
                                                     const Vec3r xpq   = ppos - qpos;
                                                     const Real d      = glm::length(xpq);
-                                                    if(d > m_SimParams->nearKernelRadius || d < Tiny) {
+                                                    if(d > solverParams().nearKernelRadius || d < Tiny) {
                                                         continue;
                                                     }
 
-                                                    const Real x = Real(1.0) - d / m_SimParams->nearKernelRadius;
+                                                    const Real x = Real(1.0) - d / solverParams().nearKernelRadius;
                                                     pvel += (x * x / d) * xpq;
                                                 }
                                             }
                                         }
                                     }
 
-                                    particleData().velocities[p] += m_SimParams->repulsiveForceStiffness * pvel;
+                                    particleData().velocities[p] += solverParams().repulsiveForceStiffness * pvel;
                                 });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void FLIP3DSolver::velocityToGrid()
 {
-    const Vec3r span = Vec3r(m_Grid.getCellSize() * static_cast<Real>(m_SimParams->kernelSpan));
+    const Vec3r span = Vec3r(m_Grid.getCellSize() * static_cast<Real>(solverParams().kernelSpan));
 
     ParallelFuncs::parallel_for(m_Grid.getNNodes(),
                                 [&](UInt i, UInt j, UInt k)
@@ -467,9 +467,9 @@ void FLIP3DSolver::velocityToGrid()
                                     bool valid_index_w = gridData().w.isValidIndex(i, j, k);
 
                                     // loop over neighbor cells (kernelSpan^3 cells)
-                                    for(Int lk = -m_SimParams->kernelSpan; lk <= m_SimParams->kernelSpan; ++lk) {
-                                        for(Int lj = -m_SimParams->kernelSpan; lj <= m_SimParams->kernelSpan; ++lj) {
-                                            for(Int li = -m_SimParams->kernelSpan; li <= m_SimParams->kernelSpan; ++li) {
+                                    for(Int lk = -solverParams().kernelSpan; lk <= solverParams().kernelSpan; ++lk) {
+                                        for(Int lj = -solverParams().kernelSpan; lj <= solverParams().kernelSpan; ++lj) {
+                                            for(Int li = -solverParams().kernelSpan; li <= solverParams().kernelSpan; ++li) {
                                                 const Vec3i cellIdx = Vec3i(static_cast<Int>(i), static_cast<Int>(j), static_cast<Int>(k)) + Vec3i(li, lj, lk);
                                                 if(!m_Grid.isValidCell(cellIdx)) {
                                                     continue;
@@ -542,7 +542,7 @@ void FLIP3DSolver::extrapolateVelocity(Array3r& grid, Array3r& temp_grid, Array3
     temp_grid.copyDataFrom(grid);
     bool forward = true;
 
-    for(Int layers = 0; layers < m_SimParams->kernelSpan; ++layers) {
+    for(Int layers = 0; layers < solverParams().kernelSpan; ++layers) {
         bool stop = true;
         old_valid.copyDataFrom(valid);
         ParallelFuncs::parallel_for<UInt>(1, m_Grid.getNCells()[0] - 1,
@@ -731,7 +731,7 @@ void FLIP3DSolver::computeFluidSDF()
                                         for(int j = cellDown[1]; j <= cellUp[1]; ++j) {
                                             for(int i = cellDown[0]; i <= cellUp[0]; ++i) {
                                                 const Vec3r sample = Vec3r(i + 0.5, j + 0.5, k + 0.5) * m_Grid.getCellSize() + m_Grid.getBMin();
-                                                const Real phiVal  = glm::length(sample - ppos) - m_SimParams->sdfRadius;
+                                                const Real phiVal  = glm::length(sample - ppos) - solverParams().sdfRadius;
 
                                                 gridData().fluidSDFLock(i, j, k).lock();
                                                 if(phiVal < gridData().fluidSDF(i, j, k)) {
@@ -977,7 +977,7 @@ void FLIP3DSolver::velocityToParticles()
                                     const Vec3r oldVel  = getVelocityFromGrid(gridPos);
                                     const Vec3r dVel    = getVelocityChangesFromGrid(gridPos);
 
-                                    particleData().velocities[p] = MathHelpers::lerp(oldVel, pvel + dVel, m_SimParams->PIC_FLIP_ratio);
+                                    particleData().velocities[p] = MathHelpers::lerp(oldVel, pvel + dVel, solverParams().PIC_FLIP_ratio);
                                 });
 }
 

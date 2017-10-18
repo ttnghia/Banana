@@ -34,7 +34,8 @@ class FLIP2DSolver : public ParticleSolver2D
 public:
     FLIP2DSolver() { setupLogger(); }
 
-    SharedPtr<SimulationParameters_FLIP2D> getSolverParams() { return m_SimParams; }
+    auto&       solverParams() { return m_SimParams; }
+    const auto& solverParams() const { return m_SimParams; }
 
     ////////////////////////////////////////////////////////////////////////////////
     virtual String getSolverName() override { return String("FLIP2DSolver"); }
@@ -81,8 +82,8 @@ protected:
     Mat2x2r getAffineMatrix(const Vec2r& gridPos);
 
     ////////////////////////////////////////////////////////////////////////////////
-    UniquePtr<SimulationData_FLIP2D>                  m_SimData          = std::make_unique<SimulationData_FLIP2D>();
-    SharedPtr<SimulationParameters_FLIP2D>            m_SimParams        = std::make_shared<SimulationParameters_FLIP2D>();
+    SimulationParameters_FLIP2D                       m_SimParams;
+    SharedPtr<SimulationData_FLIP2D>                  m_SimData          = std::make_shared<SimulationData_FLIP2D>();
     std::function<Real(const Vec2r&, const Array2r&)> m_InterpolateValue = nullptr;
     std::function<Real(const Vec2r&)>                 m_WeightKernel     = nullptr;
 

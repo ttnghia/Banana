@@ -32,8 +32,8 @@ class Snow2DSolver : public ParticleSolver2D
 {
 public:
     Snow2DSolver() { setupLogger(); }
-
-    SharedPtr<SimulationParameters_Snow2D> getSolverParams() { return m_SimParams; }
+    auto&       solverParams() { return m_SimParams; }
+    const auto& solverParams() const { return m_SimParams; }
 
     ////////////////////////////////////////////////////////////////////////////////
     virtual String getSolverName() override { return String("MPM2DSolver"); }
@@ -83,8 +83,8 @@ protected:
     SimulationData_Snow2D::ParticleSimData& particleData() { return m_SimData->particleSimData; }
     SimulationData_Snow2D::GridSimData&     gridData() { return m_SimData->gridSimData; }
 
-    SharedPtr<SimulationParameters_Snow2D> m_SimParams = std::make_shared<SimulationParameters_Snow2D>();
-    UniquePtr<SimulationData_Snow2D>       m_SimData   = std::make_unique<SimulationData_Snow2D>();
+    SimulationParameters_Snow2D      m_SimParams;
+    UniquePtr<SimulationData_Snow2D> m_SimData = std::make_unique<SimulationData_Snow2D>();
 
     Grid2r m_Grid;
 };

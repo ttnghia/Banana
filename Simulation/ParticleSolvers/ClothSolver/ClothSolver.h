@@ -34,7 +34,8 @@ class ClothSolver : public ParticleSolver3D
 public:
     ClothSolver() { setupLogger(); }
 
-    SharedPtr<SimulationParameters_Cloth3D> getSolverParams() { return m_SimParams; }
+    auto&       solverParams() { return m_SimParams; }
+    const auto& solverParams() const { return m_SimParams; }
 
     ////////////////////////////////////////////////////////////////////////////////
     virtual String getSolverName() override { return String("ClothSolver"); }
@@ -84,7 +85,7 @@ protected:
     SimulationData_Cloth3D::GridSimData&     gridData() { return m_SimData->gridSimData; }
 
     ////////////////////////////////////////////////////////////////////////////////
-    SharedPtr<SimulationParameters_Cloth3D>           m_SimParams        = std::make_shared<SimulationParameters_Cloth3D>();
+    SimulationParameters_Cloth3D                      m_SimParams;
     UniquePtr<SimulationData_Cloth3D>                 m_SimData          = std::make_unique<SimulationData_Cloth3D>();
     std::function<Real(const Vec3r&, const Array3r&)> m_InterpolateValue = nullptr;
     std::function<Real(const Vec3r&)>                 m_WeightKernel     = nullptr;

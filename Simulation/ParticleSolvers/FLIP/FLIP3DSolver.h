@@ -33,7 +33,8 @@ class FLIP3DSolver : public ParticleSolver3D
 {
 public:
     FLIP3DSolver() { setupLogger(); }
-    SharedPtr<SimulationParameters_FLIP3D> getSolverParams() { return m_SimParams; }
+    auto&       solverParams() { return m_SimParams; }
+    const auto& solverParams() const { return m_SimParams; }
 
     ////////////////////////////////////////////////////////////////////////////////
     virtual String getSolverName() override { return String("FLIP3DSolver"); }
@@ -83,7 +84,7 @@ protected:
     SimulationData_FLIP3D::GridSimData&     gridData() { return m_SimData->gridSimData; }
 
     ////////////////////////////////////////////////////////////////////////////////
-    SharedPtr<SimulationParameters_FLIP3D>            m_SimParams        = std::make_shared<SimulationParameters_FLIP3D>();
+    SimulationParameters_FLIP3D                       m_SimParams;
     UniquePtr<SimulationData_FLIP3D>                  m_SimData          = std::make_unique<SimulationData_FLIP3D>();
     std::function<Real(const Vec3r&, const Array3r&)> m_InterpolateValue = nullptr;
     std::function<Real(const Vec3r&)>                 m_WeightKernel     = nullptr;

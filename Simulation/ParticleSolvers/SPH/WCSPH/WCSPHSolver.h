@@ -32,7 +32,8 @@ class WCSPHSolver : public ParticleSolver3D
 {
 public:
     WCSPHSolver() { setupLogger(); }
-    SharedPtr<SimulationParameters_WCSPH> getSolverParams() { return m_SimParams; }
+    auto&       solverParams() { return m_SimParams; }
+    const auto& solverParams() const { return m_SimParams; }
 
     ////////////////////////////////////////////////////////////////////////////////
     virtual String getSolverName() override { return String("WCSPHSolver"); }
@@ -59,8 +60,8 @@ protected:
     void moveParticles(Real timeStep);
 
     ////////////////////////////////////////////////////////////////////////////////
-    SharedPtr<SimulationParameters_WCSPH> m_SimParams = std::make_shared<SimulationParameters_WCSPH>();
-    UniquePtr<SimulationData_WCSPH>       m_SimData   = std::make_unique<SimulationData_WCSPH>();
+    SimulationParameters_WCSPH      m_SimParams;
+    UniquePtr<SimulationData_WCSPH> m_SimData = std::make_unique<SimulationData_WCSPH>();
 
     PrecomputedKernel<CubicKernel, 10000> m_CubicKernel;
     PrecomputedKernel<SpikyKernel, 10000> m_SpikyKernel;

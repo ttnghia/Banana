@@ -41,23 +41,23 @@ bool loadDataPath(const String& sceneFile, String& dataPath)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void loadGlobalParams(const nlohmann::json& jParams, const UniquePtr<ParticleSolvers::GlobalParameters>& globalParams)
+void loadGlobalParams(const nlohmann::json& jParams, ParticleSolvers::GlobalParameters& globalParams)
 {
-    JSONHelpers::readValue(jParams, globalParams->frameDuration, "FrameDuration");
-    JSONHelpers::readValue(jParams, globalParams->finalFrame, "FinalFrame");
-    JSONHelpers::readValue(jParams, globalParams->nThreads, "NThreads");
+    JSONHelpers::readValue(jParams, globalParams.frameDuration, "FrameDuration");
+    JSONHelpers::readValue(jParams, globalParams.finalFrame, "FinalFrame");
+    JSONHelpers::readValue(jParams, globalParams.nThreads, "NThreads");
 
-    JSONHelpers::readBool(jParams, globalParams->bApplyGravity, "ApplyGravity");
-    JSONHelpers::readBool(jParams, globalParams->bEnableSortParticle, "EnableSortParticle");
-    JSONHelpers::readValue(jParams, globalParams->sortFrequency, "SortFrequency");
+    JSONHelpers::readBool(jParams, globalParams.bApplyGravity, "ApplyGravity");
+    JSONHelpers::readBool(jParams, globalParams.bEnableSortParticle, "EnableSortParticle");
+    JSONHelpers::readValue(jParams, globalParams.sortFrequency, "SortFrequency");
 
-    JSONHelpers::readBool(jParams, globalParams->bLoadMemoryState, "LoadMemoryState");
-    JSONHelpers::readBool(jParams, globalParams->bSaveFrameData, "SaveFrameData");
-    JSONHelpers::readBool(jParams, globalParams->bSaveMemoryState, "SaveMemoryState");
-    JSONHelpers::readBool(jParams, globalParams->bPrintLog2File, "PrintLogToFile");
-    JSONHelpers::readValue(jParams, globalParams->framePerState, "FramePerState");
-    JSONHelpers::readValue(jParams, globalParams->dataPath, "DataPath");
-    JSONHelpers::readVector(jParams, globalParams->optionalSavingData, "OptionalSavingData");
+    JSONHelpers::readBool(jParams, globalParams.bLoadMemoryState, "LoadMemoryState");
+    JSONHelpers::readBool(jParams, globalParams.bSaveFrameData, "SaveFrameData");
+    JSONHelpers::readBool(jParams, globalParams.bSaveMemoryState, "SaveMemoryState");
+    JSONHelpers::readBool(jParams, globalParams.bPrintLog2File, "PrintLogToFile");
+    JSONHelpers::readValue(jParams, globalParams.framePerState, "FramePerState");
+    JSONHelpers::readValue(jParams, globalParams.dataPath, "DataPath");
+    JSONHelpers::readVector(jParams, globalParams.optionalSavingData, "OptionalSavingData");
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

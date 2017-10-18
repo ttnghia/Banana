@@ -370,10 +370,10 @@ void decompress(Vector<Vector<RealType> >& dvec, const DataBuffer& buffer, UInt 
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void springForceDx(const VecX<N, RealType>& eij, RealType dij, RealType d0, RealType Kspring, RealType Kdamping, MatXxX<N, RealType>& springDx, MatXxX<N, RealType>& dampingDx)
+void springForceDx(const VecX<N, RealType>& eij, RealType dij, RealType d0, RealType KSpring, RealType KDamping, MatXxX<N, RealType>& springDx, MatXxX<N, RealType>& dampingDx)
 {
     const MatXxX<N, RealType> xijxijT = glm::outerProduct(eij, eij);
-    dampingDx = xijxijT * (-Kdamping);
+    dampingDx = xijxijT * (-KDamping);
     springDx  = MatXxX<N, RealType>(1.0) * (dij / d0 - RealType(1.0)) + xijxijT;
-    springDx *= (-Kspring / dij);
+    springDx *= (-KSpring / dij);
 }

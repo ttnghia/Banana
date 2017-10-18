@@ -34,7 +34,7 @@ namespace SceneLoader
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 bool loadDataPath(const String& sceneFile, String& dataPath);
-void loadGlobalParams(const nlohmann::json& jParams, const UniquePtr<ParticleSolvers::GlobalParameters>& globalParams);
+void loadGlobalParams(const nlohmann::json& jParams, ParticleSolvers::GlobalParameters& globalParams);
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>

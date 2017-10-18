@@ -315,7 +315,7 @@ void Banana::ParticleSerialization::saveParticle(const String& fileName, const V
     } else {
         particleWriter.addParticleAtribute<Real>("position", ParticleSerialization::TypeReal, 3);
     }
-    particleWriter.setNParticles(static_cast<UInt>(positions.size()));
+    particleWriter.setNParticles(positions.size());
     particleWriter.setFixedAttribute("particle_radius", particleRadius);
     particleWriter.setParticleAttribute("position", positions);
     particleWriter.flushAsync(fileName);

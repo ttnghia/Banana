@@ -32,8 +32,8 @@ class Snow3DSolver : public ParticleSolver3D
 {
 public:
     Snow3DSolver() { setupLogger(); }
-
-    SharedPtr<SimulationParameters_Snow3D> getSolverParams() { return m_SimParams; }
+    auto&       solverParams() { return m_SimParams; }
+    const auto& solverParams() const { return m_SimParams; }
 
     ////////////////////////////////////////////////////////////////////////////////
     virtual String getSolverName() override { return String("MPM3DSolver"); }
@@ -83,8 +83,8 @@ protected:
     SimulationData_Snow3D::ParticleSimData& particleData() { return m_SimData->particleSimData; }
     SimulationData_Snow3D::GridSimData&     gridData() { return m_SimData->gridSimData; }
 
-    SharedPtr<SimulationParameters_Snow3D> m_SimParams = std::make_shared<SimulationParameters_Snow3D>();
-    UniquePtr<SimulationData_Snow3D>       m_SimData   = std::make_unique<SimulationData_Snow3D>();
+    SimulationParameters_Snow3D      m_SimParams;
+    UniquePtr<SimulationData_Snow3D> m_SimData = std::make_unique<SimulationData_Snow3D>();
 
     Grid3r m_Grid;
 };

@@ -132,7 +132,7 @@ public:
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    void setNParticles(UInt nParticles) { m_nParticles = nParticles; }
+    template<class IndexType> void setNParticles(IndexType nParticles) { m_nParticles = static_cast<UInt>(nParticles); }
 
     template<class T> void        setFixedAttribute(const String& attrName, T value);
     template<class T> void        setFixedAttribute(const String& attrName, T* values);

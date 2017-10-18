@@ -86,10 +86,10 @@ void Simulator::doSimulation()
         emit simulationFinished();
     }
 #else
-    for(UInt frame = 1; frame <= m_ParticleSolver->getGlobalParams()->finalFrame; ++frame) {
+    for(UInt frame = 1; frame <= m_ParticleSolver->getGlobalParams().finalFrame; ++frame) {
         m_ParticleSolver->doSimulationFrame(frame);
 
-        emit systemTimeChanged(m_ParticleSolver->getGlobalParams()->evolvedTime());
+        emit systemTimeChanged(m_ParticleSolver->getGlobalParams().evolvedTime());
         emit particleChanged();
         emit frameFinished();
 
@@ -133,13 +133,13 @@ void Simulator::changeScene(const QString& scene)
     ////////////////////////////////////////////////////////////////////////////////
     QString sceneFile = QDir::currentPath() + "/Scenes/" + scene;
     m_ParticleSolver->loadScene(sceneFile.toStdString());
-    emit domainChanged(m_ParticleSolver->getSolverParams()->movingBMin, m_ParticleSolver->getSolverParams()->movingBMax);
+    emit domainChanged(m_ParticleSolver->solverParams().movingBMin, m_ParticleSolver->solverParams().movingBMax);
 
     auto&       particles = m_ParticleSolver->getParticlePositions();
     Vec3<float> center(0.0f, -0.25f, 0.0f);
     float       radius  = 0.5f;
-    Vec3<float> bMin    = center - Vec3<float>(radius - m_ParticleSolver->getSolverParams()->particleRadius);
-    float       spacing = 2.0f * m_ParticleSolver->getSolverParams()->particleRadius;
+    Vec3<float> bMin    = center - Vec3<float>(radius - m_ParticleSolver->solverParams().particleRadius);
+    float       spacing = 2.0f * m_ParticleSolver->solverParams().particleRadius;
     Vec3<int>   grid    = Vec3<int>(1) * static_cast<int>(2.0f * radius / spacing);
 
     particles.resize(0);
@@ -162,7 +162,7 @@ void Simulator::changeScene(const QString& scene)
     m_ParticleData->setNumParticles(m_ParticleSolver->getNParticles());
     m_ParticleData->setUInt("ColorRandomReady", 0);
     m_ParticleData->setUInt("ColorRampReady",   0);
-    m_ParticleData->setParticleRadius(m_ParticleSolver->getSolverParams()->particleRadius);
+    m_ParticleData->setParticleRadius(m_ParticleSolver->solverParams().particleRadius);
 
     emit particleChanged();
     emit numParticleChanged(m_ParticleSolver->getNParticles());

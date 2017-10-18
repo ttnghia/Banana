@@ -24,15 +24,11 @@
 #include <Banana/Utils/Timer.h>
 #include <Banana/Utils/JSONHelpers.h>
 #include <Banana/Data/DataPrinter.h>
-#include <Banana/ParallelHelpers/ParallelSTL.h>
-#include <Banana/ParallelHelpers/ParallelFuncs.h>
-#include <Banana/ParallelHelpers/ParallelBLAS.h>
 #include <Banana/NeighborSearch/NeighborSearch3D.h>
 
-#include <ParticleTools/ParticleSerialization.h>
-
-#include <ParticleSolvers/ParticleSolverData.h>
 #include <ParticleSolvers/SceneLoader.h>
+#include <ParticleTools/ParticleSerialization.h>
+#include <ParticleSolvers/ParticleSolverData.h>
 
 #include <SimulationObjects/BoundaryObject.h>
 #include <SimulationObjects/ParticleGenerator.h>
@@ -59,8 +55,8 @@ public:
     ParticleSolver() = default;
     virtual ~ParticleSolver() { Logger::shutdown(); }
 
-    const UniquePtr<GlobalParameters>& getGlobalParams() const noexcept { return m_GlobalParams; }
-    const SharedPtr<Logger>&           getLogger() const noexcept { return m_Logger; }
+    const auto& getGlobalParams() const noexcept { return m_GlobalParams; }
+    const auto& getLogger() const noexcept { return m_Logger; }
 
     void loadScene(const String& sceneFile);
     void setupLogger();
@@ -69,7 +65,6 @@ public:
     ////////////////////////////////////////////////////////////////////////////////
     virtual String getSolverName()      = 0;
     virtual String getGreetingMessage() = 0;
-    //virtual UInt   getNParticles()    = 0;
 
     virtual void makeReady()     = 0;
     virtual void advanceFrame()  = 0;
@@ -86,12 +81,12 @@ protected:
     virtual void saveMemoryState() = 0;
     virtual void saveFrameData()   = 0;
 
-
     ////////////////////////////////////////////////////////////////////////////////
+    GlobalParameters m_GlobalParams;
+
     UniquePtr<tbb::task_scheduler_init> m_ThreadInit = nullptr;
     SharedPtr<Logger>                   m_Logger     = nullptr;
 
-    UniquePtr<GlobalParameters>      m_GlobalParams = std::make_unique<GlobalParameters>();
     UniquePtr<ParticleSerialization> m_ParticleIO;
     UniquePtr<ParticleSerialization> m_MemoryStateIO;
 

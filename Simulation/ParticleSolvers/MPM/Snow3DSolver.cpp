@@ -32,10 +32,10 @@ void Snow3DSolver::makeReady()
     m_Logger->printRunTime("Allocate solver memory: ",
                            [&]()
                            {
-                               m_SimParams->makeReady();
-                               m_SimParams->printParams(m_Logger);
+                               solverParams().makeReady();
+                               solverParams().printParams(m_Logger);
 
-                               m_Grid.setGrid(m_SimParams->domainBMin, m_SimParams->domainBMax, m_SimParams->cellSize);
+                               m_Grid.setGrid(solverParams().domainBMin, solverParams().domainBMax, solverParams().cellSize);
                                gridData().resize(m_Grid.getNNodes());
 
                                //We need to estimate particle volumes before we start
@@ -59,11 +59,11 @@ void Snow3DSolver::advanceFrame()
     UInt         substepCount = 0;
 
     ////////////////////////////////////////////////////////////////////////////////
-    while(frameTime < m_GlobalParams->frameDuration) {
+    while(frameTime < m_GlobalParams.frameDuration) {
         m_Logger->printRunTime("Sub-step time: ", subStepTimer,
                                [&]()
                                {
-                                   Real remainingTime = m_GlobalParams->frameDuration - frameTime;
+                                   Real remainingTime = m_GlobalParams.frameDuration - frameTime;
                                    Real substep       = MathHelpers::min(computeCFLTimestep(), remainingTime);
                                    ////////////////////////////////////////////////////////////////////////////////
                                    m_Logger->printRunTime("Find neighbors: ", funcTimer,
@@ -76,8 +76,8 @@ void Snow3DSolver::advanceFrame()
                                    frameTime += substep;
                                    ++substepCount;
                                    m_Logger->printLog("Finished step " + NumberHelpers::formatWithCommas(substepCount) + " of size " + NumberHelpers::formatToScientific<Real>(substep) +
-                                                      "(" + NumberHelpers::formatWithCommas(substep / m_GlobalParams->frameDuration * 100) + "% of the frame, to " +
-                                                      NumberHelpers::formatWithCommas(100 * (frameTime) / m_GlobalParams->frameDuration) + "% of the frame).");
+                                                      "(" + NumberHelpers::formatWithCommas(substep / m_GlobalParams.frameDuration * 100) + "% of the frame, to " +
+                                                      NumberHelpers::formatWithCommas(100 * (frameTime) / m_GlobalParams.frameDuration) + "% of the frame).");
                                });
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -85,7 +85,7 @@ void Snow3DSolver::advanceFrame()
     }           // end while
 
     ////////////////////////////////////////////////////////////////////////////////
-    ++m_GlobalParams->finishedFrame;
+    ++m_GlobalParams.finishedFrame;
     saveFrameData();
     saveMemoryState();
 }
@@ -97,49 +97,49 @@ void Snow3DSolver::sortParticles()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Snow3DSolver::loadSimParams(const nlohmann::json& jParams)
 {
-    JSONHelpers::readVector(jParams, m_SimParams->movingBMin, "BoxMin");
-    JSONHelpers::readVector(jParams, m_SimParams->movingBMax, "BoxMax");
+    JSONHelpers::readVector(jParams, solverParams().movingBMin, "BoxMin");
+    JSONHelpers::readVector(jParams, solverParams().movingBMax, "BoxMax");
 
-    JSONHelpers::readValue(jParams, m_SimParams->minTimestep, "MinTimestep");
-    JSONHelpers::readValue(jParams, m_SimParams->maxTimestep, "MaxTimestep");
-    JSONHelpers::readValue(jParams, m_SimParams->CFLFactor, "CFLFactor");
+    JSONHelpers::readValue(jParams, solverParams().minTimestep, "MinTimestep");
+    JSONHelpers::readValue(jParams, solverParams().maxTimestep, "MaxTimestep");
+    JSONHelpers::readValue(jParams, solverParams().CFLFactor, "CFLFactor");
 
-    JSONHelpers::readValue(jParams, m_SimParams->PIC_FLIP_ratio, "PIC_FLIP_Ratio");
-    JSONHelpers::readValue(jParams, m_SimParams->particleRadius, "ParticleRadius");
+    JSONHelpers::readValue(jParams, solverParams().PIC_FLIP_ratio, "PIC_FLIP_Ratio");
+    JSONHelpers::readValue(jParams, solverParams().particleRadius, "ParticleRadius");
 
 
-    JSONHelpers::readValue(jParams, m_SimParams->boundaryRestitution, "BoundaryRestitution");
-    JSONHelpers::readValue(jParams, m_SimParams->CGRelativeTolerance, "CGRelativeTolerance");
-    JSONHelpers::readValue(jParams, m_SimParams->maxCGIteration, "MaxCGIteration");
+    JSONHelpers::readValue(jParams, solverParams().boundaryRestitution, "BoundaryRestitution");
+    JSONHelpers::readValue(jParams, solverParams().CGRelativeTolerance, "CGRelativeTolerance");
+    JSONHelpers::readValue(jParams, solverParams().maxCGIteration, "MaxCGIteration");
 
-    JSONHelpers::readValue(jParams, m_SimParams->thresholdCompression, "ThresholdCompression");
-    JSONHelpers::readValue(jParams, m_SimParams->thresholdStretching, "ThresholdStretching");
-    JSONHelpers::readValue(jParams, m_SimParams->hardening, "Hardening");
-    JSONHelpers::readValue(jParams, m_SimParams->materialDensity, "MaterialDensity");
-    JSONHelpers::readValue(jParams, m_SimParams->YoungsModulus, "YoungsModulus");
-    JSONHelpers::readValue(jParams, m_SimParams->PoissonsRatio, "PoissonsRatio");
+    JSONHelpers::readValue(jParams, solverParams().thresholdCompression, "ThresholdCompression");
+    JSONHelpers::readValue(jParams, solverParams().thresholdStretching, "ThresholdStretching");
+    JSONHelpers::readValue(jParams, solverParams().hardening, "Hardening");
+    JSONHelpers::readValue(jParams, solverParams().materialDensity, "MaterialDensity");
+    JSONHelpers::readValue(jParams, solverParams().YoungsModulus, "YoungsModulus");
+    JSONHelpers::readValue(jParams, solverParams().PoissonsRatio, "PoissonsRatio");
 
-    JSONHelpers::readValue(jParams, m_SimParams->implicitRatio, "ImplicitRatio");
+    JSONHelpers::readValue(jParams, solverParams().implicitRatio, "ImplicitRatio");
 
     //String tmp = "LinearKernel";
     //JSONHelpers::readValue(jParams, tmp, "KernelFunction");
     //if(tmp == "LinearKernel" || tmp == "Linear")
-    //    m_SimParams->kernelFunc = P2GKernels::Linear;
+    //    solverParams().kernelFunc = P2GKernels::Linear;
     //else
-    //    m_SimParams->kernelFunc = P2GKernels::CubicBSpline;
+    //    solverParams().kernelFunc = P2GKernels::CubicBSpline;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Snow3DSolver::setupDataIO()
 {
-    m_ParticleIO = std::make_unique<ParticleSerialization>(m_GlobalParams->dataPath, "MPMData", "frame", m_Logger);
+    m_ParticleIO = std::make_unique<ParticleSerialization>(m_GlobalParams.dataPath, "MPMData", "frame", m_Logger);
     m_ParticleIO->addFixedAtribute<float>("particle_radius", ParticleSerialization::TypeReal, 1);
     m_ParticleIO->addParticleAtribute<float>("position", ParticleSerialization::TypeCompressedReal, 3);
     m_ParticleIO->addParticleAtribute<float>("velocity", ParticleSerialization::TypeCompressedReal, 3);
 
     ////////////////////////////////////////////////////////////////////////////////
 
-    m_MemoryStateIO = std::make_unique<ParticleSerialization>(m_GlobalParams->dataPath, "MPMState", "frame", m_Logger);
+    m_MemoryStateIO = std::make_unique<ParticleSerialization>(m_GlobalParams.dataPath, "MPMState", "frame", m_Logger);
     m_MemoryStateIO->addFixedAtribute<Real>("particle_radius", ParticleSerialization::TypeReal, 1);
     m_MemoryStateIO->addParticleAtribute<Real>("position", ParticleSerialization::TypeReal, 3);
     m_MemoryStateIO->addParticleAtribute<Real>("velocity", ParticleSerialization::TypeReal, 3);
@@ -148,12 +148,12 @@ void Snow3DSolver::setupDataIO()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 bool Snow3DSolver::loadMemoryState()
 {
-    if(!m_GlobalParams->bLoadMemoryState) {
+    if(!m_GlobalParams.bLoadMemoryState) {
         return false;
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    int latestStateIdx = m_MemoryStateIO->getLatestFileIndex(m_GlobalParams->finalFrame);
+    int latestStateIdx = m_MemoryStateIO->getLatestFileIndex(m_GlobalParams.finalFrame);
     if(latestStateIdx < 0) {
         return false;
     }
@@ -165,7 +165,7 @@ bool Snow3DSolver::loadMemoryState()
 
     Real particleRadius;
     __BNN_ASSERT(m_MemoryStateIO->getFixedAttribute("particle_radius", particleRadius));
-    __BNN_ASSERT_APPROX_NUMBERS(m_SimParams->particleRadius, particleRadius, MEpsilon);
+    __BNN_ASSERT_APPROX_NUMBERS(solverParams().particleRadius, particleRadius, MEpsilon);
 
     __BNN_ASSERT(m_MemoryStateIO->getParticleAttribute("position", particleData().positions));
     __BNN_ASSERT(m_MemoryStateIO->getParticleAttribute("velocity", particleData().velocities));
@@ -177,14 +177,14 @@ bool Snow3DSolver::loadMemoryState()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Snow3DSolver::saveMemoryState()
 {
-    if(!m_GlobalParams->bSaveMemoryState) {
+    if(!m_GlobalParams.bSaveMemoryState) {
         return;
     }
 
     static UInt frameCount = 0;
     ++frameCount;
 
-    if(frameCount < m_GlobalParams->framePerState) {
+    if(frameCount < m_GlobalParams.framePerState) {
         return;
     }
 
@@ -193,33 +193,33 @@ void Snow3DSolver::saveMemoryState()
     frameCount = 0;
     m_MemoryStateIO->clearData();
     m_MemoryStateIO->setNParticles(m_SimData->getNParticles());
-    m_MemoryStateIO->setFixedAttribute("particle_radius", m_SimParams->particleRadius);
+    m_MemoryStateIO->setFixedAttribute("particle_radius", solverParams().particleRadius);
     m_MemoryStateIO->setParticleAttribute("position", particleData().positions);
     m_MemoryStateIO->setParticleAttribute("velocity", particleData().velocities);
-    m_MemoryStateIO->flushAsync(m_GlobalParams->finishedFrame);
+    m_MemoryStateIO->flushAsync(m_GlobalParams.finishedFrame);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Snow3DSolver::saveFrameData()
 {
-    if(!m_GlobalParams->bSaveFrameData) {
+    if(!m_GlobalParams.bSaveFrameData) {
         return;
     }
 
     m_ParticleIO->clearData();
     m_ParticleIO->setNParticles(m_SimData->getNParticles());
-    m_ParticleIO->setFixedAttribute("particle_radius", static_cast<float>(m_SimParams->particleRadius));
+    m_ParticleIO->setFixedAttribute("particle_radius", static_cast<float>(solverParams().particleRadius));
     m_ParticleIO->setParticleAttribute("position", particleData().positions);
     m_ParticleIO->setParticleAttribute("velocity", particleData().velocities);
-    m_ParticleIO->flushAsync(m_GlobalParams->finishedFrame);
+    m_ParticleIO->flushAsync(m_GlobalParams.finishedFrame);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 Real Snow3DSolver::computeCFLTimestep()
 {
     Real maxVel      = sqrt(ParallelSTL::maxNorm2<3, Real>(particleData().velocities));
-    Real CFLTimeStep = maxVel > Real(Tiny) ? m_SimParams->CFLFactor * m_SimParams->cellSize / sqrt(maxVel) : Huge;
-    return MathHelpers::min(MathHelpers::max(CFLTimeStep, m_SimParams->minTimestep), m_SimParams->maxTimestep);
+    Real CFLTimeStep = maxVel > Real(Tiny) ? solverParams().CFLFactor * solverParams().cellSize / sqrt(maxVel) : Huge;
+    return MathHelpers::min(MathHelpers::max(CFLTimeStep, solverParams().minTimestep), solverParams().maxTimestep);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -236,7 +236,7 @@ void Snow3DSolver::advanceVelocity(Real timestep)
     m_Logger->printRunTime("Velocity explicit integration: ", funcTimer, [&]() { explicitVelocities(timestep); });
     m_Logger->printRunTime("Constrain grid velocity: ", funcTimer, [&]() { constrainGridVelocity(timestep); });
 
-    if(m_SimParams->implicitRatio > Tiny) {
+    if(solverParams().implicitRatio > Tiny) {
         m_Logger->printRunTime("Velocity implicit integration: ", funcTimer, [&]() { implicitVelocities(timestep); });
     }
 
@@ -295,11 +295,11 @@ void Snow3DSolver::massToGrid()
                                                       particleData().weights[p * 64 + idx] = weight;
 
                                                       //Weight gradient is a vector of partial derivatives
-                                                      particleData().weightGradients[p * 64 + idx] = Vec3r(dx * wy * wz, dy * wx * wz, dz * wx * wy) / m_SimParams->cellSize;
+                                                      particleData().weightGradients[p * 64 + idx] = Vec3r(dx * wy * wz, dy * wx * wz, dz * wx * wy) / solverParams().cellSize;
 
                                                       //Interpolate mass
                                                       gridData().nodeLocks(x, y, z).lock();
-                                                      gridData().mass(x, y, z) += weight * m_SimParams->particleMass;
+                                                      gridData().mass(x, y, z) += weight * solverParams().particleMass;
                                                       gridData().nodeLocks(x, y, z).unlock();
                                                   }
                                               }
@@ -329,7 +329,7 @@ void Snow3DSolver::velocityToGrid(Real timestep)
                                                 if(w > Tiny) {
                                                     gridData().nodeLocks(x, y, z).lock();
                                                     //We could also do a separate loop to divide by nodes[n].mass only once
-                                                    gridData().velocity(x, y, z) += particleData().velocities[p] * w * m_SimParams->particleMass;
+                                                    gridData().velocity(x, y, z) += particleData().velocities[p] * w * solverParams().particleMass;
                                                     gridData().active(x, y, z)    = 1;
                                                     gridData().nodeLocks(x, y, z).unlock();
                                                 }
@@ -377,10 +377,10 @@ void Snow3DSolver::calculateParticleVolumes()
                                         }
                                     }
 
-                                    pdensity                   /= m_SimParams->cellArea;
+                                    pdensity                   /= solverParams().cellArea;
                                     particleData().densities[p] = pdensity;
                                     //Volume for each particle can be found from density
-                                    particleData().volumes[p] = m_SimParams->particleMass / pdensity;
+                                    particleData().volumes[p] = solverParams().particleMass / pdensity;
                                 });
 }
 
@@ -486,7 +486,7 @@ void Snow3DSolver::implicitVelocities(Real timestep)
                                 });
 
 //LINEAR SOLVE
-    for(UInt i = 0; i < m_SimParams->maxCGIteration; i++) {
+    for(UInt i = 0; i < solverParams().maxCGIteration; i++) {
         bool done = true;
 
         ParallelFuncs::parallel_for(gridData().imp_active.dataSize(),
@@ -501,7 +501,7 @@ void Snow3DSolver::implicitVelocities(Real timestep)
                                             gridData().err.data()[i] = alpha * gridData().p.data()[i];
                                             //If the error is small enough, we're done
                                             Real err = glm::length(gridData().err.data()[i]);
-                                            if(err < m_SimParams->maxImplicitError || err > m_SimParams->minImplicitError || isnan(err)) {
+                                            if(err < solverParams().maxImplicitError || err > solverParams().minImplicitError || isnan(err)) {
                                                 gridData().imp_active.data()[i] = 0;;
                                                 return;
                                             } else {
@@ -573,7 +573,7 @@ void Snow3DSolver::recomputeImplicitForces(Real timestep)
                                 {
                                     if(gridData().imp_active.data()[i]) {
                                         gridData().Er.data()[i] = gridData().r.data()[i] -
-                                                                  gridData().force.data()[i] / gridData().mass.data()[i] * m_SimParams->implicitRatio * timestep;
+                                                                  gridData().force.data()[i] / gridData().mass.data()[i] * solverParams().implicitRatio * timestep;
                                     }
                                 });
 }
@@ -622,9 +622,9 @@ void Snow3DSolver::velocityToParticles(Real timestep)
                                         }
                                     }
                                     //Final velocity is a linear combination of PIC and FLIP components
-                                    particleData().velocities[p] = MathHelpers::lerp(pic, flip, m_SimParams->PIC_FLIP_ratio);
+                                    particleData().velocities[p] = MathHelpers::lerp(pic, flip, solverParams().PIC_FLIP_ratio);
                                     //VISUALIZATION: Update density
-                                    particleData().densities[p] = pdensity / m_SimParams->cellArea;
+                                    particleData().densities[p] = pdensity / solverParams().cellArea;
                                 });
 }
 
@@ -632,7 +632,7 @@ void Snow3DSolver::velocityToParticles(Real timestep)
 void Snow3DSolver::constrainGridVelocity(Real timestep)
 {
     Vec3r delta_scale = Vec3r(timestep);
-    delta_scale /= m_SimParams->cellSize;
+    delta_scale /= solverParams().cellSize;
 
     ParallelFuncs::parallel_for<UInt>(m_Grid.getNNodes(),
                                       [&](UInt x, UInt y, UInt z)
@@ -643,9 +643,9 @@ void Snow3DSolver::constrainGridVelocity(Real timestep)
                                               Vec3r new_pos      = gridData().velocity_new(x, y, z) * delta_scale + Vec3r(x, y, z);
 
                                               for(UInt i = 0; i < solverDimension(); ++i) {
-                                                  if(new_pos[i] < Real(m_SimParams->kernelSpan) || new_pos[i] > Real(m_Grid.getNNodes()[i] - m_SimParams->kernelSpan - 1)) {
+                                                  if(new_pos[i] < Real(solverParams().kernelSpan) || new_pos[i] > Real(m_Grid.getNNodes()[i] - solverParams().kernelSpan - 1)) {
                                                       velocity_new[i]                          = 0;
-                                                      velocity_new[solverDimension() - i - 1] *= m_SimParams->boundaryRestitution;
+                                                      velocity_new[solverDimension() - i - 1] *= solverParams().boundaryRestitution;
                                                       velChanged                               = true;
                                                   }
                                               }
@@ -665,12 +665,12 @@ void Snow3DSolver::constrainParticleVelocity(Real timestep)
                                 {
                                     bool velChanged = false;
                                     Vec3r pVel      = particleData().velocities[p];
-                                    Vec3r new_pos   = particleData().particleGridPos[p] + pVel * timestep / m_SimParams->cellSize;
+                                    Vec3r new_pos   = particleData().particleGridPos[p] + pVel * timestep / solverParams().cellSize;
 
                                     //Left border, right border
                                     for(UInt i = 0; i < solverDimension(); ++i) {
-                                        if(new_pos[i] < Real(m_SimParams->kernelSpan - 1) || new_pos[0] > Real(m_Grid.getNNodes()[i] - m_SimParams->kernelSpan)) {
-                                            pVel[i]   *= -m_SimParams->boundaryRestitution;
+                                        if(new_pos[i] < Real(solverParams().kernelSpan - 1) || new_pos[0] > Real(m_Grid.getNNodes()[i] - solverParams().kernelSpan)) {
+                                            pVel[i]   *= -solverParams().boundaryRestitution;
                                             velChanged = true;
                                         }
                                     }
@@ -690,7 +690,7 @@ void Snow3DSolver::updateParticlePositions(Real timestep)
                                 {
                                     Vec3r ppos = particleData().positions[p] + particleData().velocities[p] * timestep;
                                     //const Vec3r gridPos = particleData().particleGridPos[p];
-                                    //const Real phiVal = ArrayHelpers::interpolateValueLinear(gridPos, gridData().boundarySDF) - m_SimParams->particleRadius;
+                                    //const Real phiVal = ArrayHelpers::interpolateValueLinear(gridPos, gridData().boundarySDF) - solverParams().particleRadius;
 
                                     //if(phiVal < 0)
                                     //{
@@ -740,7 +740,7 @@ void Snow3DSolver::applyPlasticity()
                                     Mat3x3r svd_v_trans = glm::transpose(svd_v);
                                     //Clamp singular values to within elastic region
                                     for(UInt j = 0; j < solverDimension(); ++j) {
-                                        svd_e[j] = MathHelpers::clamp(svd_e[j], m_SimParams->thresholdCompression, m_SimParams->thresholdStretching);
+                                        svd_e[j] = MathHelpers::clamp(svd_e[j], solverParams().thresholdCompression, solverParams().thresholdStretching);
                                     }
 
                                     //Compute polar decomposition, from clamped SVD
@@ -772,15 +772,15 @@ void Snow3DSolver::applyPlasticity()
 Mat3x3r Snow3DSolver::computeEnergyDerivative(UInt p)
 {
     //Adjust lame parameters to account for hardening
-    Real harden = exp(m_SimParams->hardening * (Real(1.0) - glm::determinant(particleData().plasticDeformGrad[p])));
+    Real harden = exp(solverParams().hardening * (Real(1.0) - glm::determinant(particleData().plasticDeformGrad[p])));
     Real Je     = glm::compMul(particleData().svd_e[p]);
 
     //This is the co-rotational term
-    Mat3x3r temp = Real(3.0) * m_SimParams->mu *
+    Mat3x3r temp = Real(3.0) * solverParams().mu *
                    (particleData().elasticDeformGrad[p] - particleData().svd_w[p] * glm::transpose(particleData().svd_v[p])) *
                    glm::transpose(particleData().elasticDeformGrad[p]);
 //Add in the primary contour term
-    LinaHelpers::sumToDiag(temp, m_SimParams->lambda * Je * (Je - Real(1.0)));
+    LinaHelpers::sumToDiag(temp, solverParams().lambda * Je * (Je - Real(1.0)));
     //Add hardening and volume
     return particleData().volumes[p] * harden * temp;
 }
@@ -840,13 +840,13 @@ Vec3r Snow3DSolver::computeDeltaForce(UInt p, const Vec3r& u, const Vec3r& weigh
     //Calculate "A" as given by the paper
     //Co-rotational term
     Mat3x3r Ap = del_elastic - del_rotate;
-    Ap *= Real(3.0) * m_SimParams->mu;
+    Ap *= Real(3.0) * solverParams().mu;
 
     //Primary contour term
     del_cofactor *= (glm::determinant(elasticDeformGrad) - Real(1.0));
     cofactor     *= LinaHelpers::frobeniusInnerProduct(cofactor, del_elastic);
     cofactor     += del_cofactor;
-    cofactor     *= m_SimParams->lambda;
+    cofactor     *= solverParams().lambda;
     Ap           += cofactor;
 
     //Put it all together

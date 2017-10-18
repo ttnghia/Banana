@@ -18,6 +18,7 @@
 #pragma once
 
 #include <Banana/LinearAlgebra/SparseMatrix/SparseMatrix.h>
+#include <Banana/ParallelHelpers/ParallelBLAS.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana

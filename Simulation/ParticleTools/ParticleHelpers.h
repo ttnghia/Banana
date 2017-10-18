@@ -62,7 +62,7 @@ template<class RealType> void decompress(Vector<Vector<RealType> >& dvec, const 
 template<class RealType> void decompress(Vector<Vector<RealType> >& dvec, const DataBuffer& buffer, UInt nParticles = 0);
 
 template<Int N, class RealType>
-void springForceDx(const VecX<N, RealType>& eij, RealType dij, RealType d0, RealType Kspring, RealType Kdamping, MatXxX<N, RealType>& springDx, MatXxX<N, RealType>& dampingDx);
+void springForceDx(const VecX<N, RealType>& eij, RealType dij, RealType d0, RealType KSpring, RealType KDamping, MatXxX<N, RealType>& springDx, MatXxX<N, RealType>& dampingDx);
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // non-template functions must be defined in separate .cpp file

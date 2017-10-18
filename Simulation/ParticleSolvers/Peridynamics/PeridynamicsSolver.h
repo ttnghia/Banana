@@ -32,7 +32,8 @@ class PeridynamicsSolver : public ParticleSolver3D
 {
 public:
     PeridynamicsSolver() { setupLogger(); }
-    SharedPtr<SimulationParameters_Peridynamics3D> getSolverParams() { return m_SimParams; }
+    auto&       solverParams() { return m_SimParams; }
+    const auto& solverParams() const { return m_SimParams; }
 
     ////////////////////////////////////////////////////////////////////////////////
     virtual String getSolverName() override { return String("Peridynamics3DSolver"); }
@@ -68,8 +69,8 @@ protected:
 
 
     ////////////////////////////////////////////////////////////////////////////////
-    SharedPtr<SimulationParameters_Peridynamics3D> m_SimParams = std::make_shared<SimulationParameters_Peridynamics3D>();
-    UniquePtr<SimulationData_Peridynamics3D>       m_SimData   = std::make_unique<SimulationData_Peridynamics3D>();
+    SimulationParameters_Peridynamics3D      m_SimParams;
+    UniquePtr<SimulationData_Peridynamics3D> m_SimData = std::make_unique<SimulationData_Peridynamics3D>();
 
     UniquePtr<NeighborSearch::NeighborSearch3D> m_NSearch = nullptr;
     BlockPCGSolver<3, Real>                     m_CGSolver;

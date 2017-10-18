@@ -27,8 +27,8 @@ void ParticleSolverQt::doSimulationFrame(UInt frame)
     m_Logger->newLine();
 
     ////////////////////////////////////////////////////////////////////////////////
-    static String strMsg = String("Frame finished. Frame duration: ") + NumberHelpers::formatToScientific(m_GlobalParams->frameDuration) +
-                           String("(s) (~") + std::to_string(static_cast<int>(round(Real(1.0) / m_GlobalParams->frameDuration))) + String(" fps). Run time: ");
+    static String strMsg = String("Frame finished. Frame duration: ") + NumberHelpers::formatToScientific(m_GlobalParams.frameDuration) +
+                           String("(s) (~") + std::to_string(static_cast<int>(round(Real(1.0) / m_GlobalParams.frameDuration))) + String(" fps). Run time: ");
     static Timer frameTimer;
     m_Logger->printRunTime(strMsg.c_str(), frameTimer,
                            [&]()
@@ -48,8 +48,8 @@ void ParticleSolverQt::endSimulation()
 {
     m_Logger->newLine();
     m_Logger->printAligned("Simulation finished", '+');
-    m_Logger->printLog("Total frames: " + NumberHelpers::formatWithCommas(m_GlobalParams->finalFrame - m_GlobalParams->startFrame + 1));
-    m_Logger->printLog("Data path: " + m_GlobalParams->dataPath);
+    m_Logger->printLog("Total frames: " + NumberHelpers::formatWithCommas(m_GlobalParams.finalFrame - m_GlobalParams.startFrame + 1));
+    m_Logger->printLog("Data path: " + m_GlobalParams.dataPath);
     m_Logger->newLine();
     Logger::shutdown();
 }
