@@ -33,10 +33,7 @@
         }
 
     ],
-    "ParticleObjects":
-    {
-    },
-    "ParticleEmitters":
+    "ParticleGenerators":
     {
     },
     "VisualizationParameters":

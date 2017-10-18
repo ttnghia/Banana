@@ -17,16 +17,10 @@
 
 #pragma once
 
+#include <Banana/Grid/Grid.h>
+#include <Banana/LinearAlgebra/LinearSolvers/PCGSolver.h>
 #include <ParticleSolvers/ParticleSolver.h>
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-// forward declaration
-namespace Banana {}
-namespace Banana::ParticleSolvers {}
-
-struct Banana::ParticleSolvers::SimulationParameters_FLIP2D;
-struct Banana::ParticleSolvers::SimulationData_FLIP2D;
-template<class RealType> class Banana::PCGSolver;
+#include <ParticleSolvers/FLIP/FLIP2DData.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana

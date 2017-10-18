@@ -21,7 +21,6 @@
 
 #include <ParticleSolvers/SPH/WCSPH/WCSPHSolver.h>
 #include <ParticleSolvers/FLIP/FLIP3DSolver.h>
-#include <ParticleSolvers/MPM/MPM2DSolver.h>
 #include <ParticleSolvers/Peridynamics/PeridynamicsSolver.h>
 
 //#define PARTICLE_SOLVER WCSPHSolver
