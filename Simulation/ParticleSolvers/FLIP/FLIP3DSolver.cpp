@@ -179,7 +179,7 @@ void FLIP3DSolver::generateParticles(const nlohmann::json& jParams)
     m_NSearch = std::make_unique<NeighborSearch::NeighborSearch3D>(solverParams().cellSize);
     if(!loadMemoryState()) {
         for(auto& generator : m_ParticleGenerators) {
-            generator->setGeneratorParams(solverParams().v0, solverParams().particleRadius);
+            generator->makeReady(solverParams().particleRadius);
             UInt nGen = generator->generateParticles(particleData().positions, particleData().velocities);
             logger().printLog(String("Generated ") + NumberHelpers::formatWithCommas(nGen) + String(" particles by ") + generator->name());
         }

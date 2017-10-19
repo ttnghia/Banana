@@ -34,7 +34,7 @@ namespace NumberHelpers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class IndexType, Int N, class RealType>
-VecX<N, IndexType> createGrid(const VecX<N, RealType>& bmin, const VecX<N, RealType>& bmax, RealType spacing)
+inline VecX<N, IndexType> createGrid(const VecX<N, RealType>& bmin, const VecX<N, RealType>& bmax, RealType spacing)
 {
     VecX<N, RealType>  fgrid = (bmax - bmin) / spacing;
     VecX<N, IndexType> result;
@@ -44,6 +44,35 @@ VecX<N, IndexType> createGrid(const VecX<N, RealType>& bmin, const VecX<N, RealT
     }
 
     return result;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class IndexType, class Function>
+inline void scan(Int dim, VecX<N, IndexType> idx, const VecX<N, IndexType>& minIdx, const VecX<N, IndexType>& maxIdx, const Function& f)
+{
+    if(dim == N - 1) {
+        for(IndexType i = minIdx[dim]; i < maxIdx[dim]; ++i) {
+            idx[dim] = i;
+            f(idx);
+        }
+    } else {
+        for(IndexType i = minIdx[dim]; i < maxIdx[dim]; ++i) {
+            idx[dim] = i;
+            scan(dim + 1, idx, minIdx, maxIdx, f);
+        }
+    }
+}
+
+template<Int N, class IndexType, class Function>
+inline void scan(Int dim, const VecX<N, IndexType>& minIdx, const VecX<N, IndexType>& maxIdx, const Function& f)
+{
+    scan(dim, VecX<N, IndexType>(0), minIdx, maxIdx, f);
+}
+
+template<Int N, class IndexType, class Function>
+inline void scan(Int dim, const VecX<N, IndexType>& maxIdx, const Function& f)
+{
+    scan(dim, VecX<N, IndexType>(0), VecX<N, IndexType>(0), maxIdx, f);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

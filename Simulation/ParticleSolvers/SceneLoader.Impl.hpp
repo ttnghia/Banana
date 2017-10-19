@@ -69,6 +69,16 @@ void loadParticleGenerators(const nlohmann::json& jParams, Vector<SharedPtr<Simu
         // read mesh/cache/dynamic
         JSONHelpers::readValue(jObj, obj->meshFile(), "MeshFile");
         JSONHelpers::readValue(jObj, obj->particleFile(), "ParticleFile");
+        JSONHelpers::readBool(jObj, obj->useCache(), "UseCache");
+        JSONHelpers::readBool(jObj, obj->isDynamic(), "IsDynamic");
+
+        JSONHelpers::readVector(jObj, obj->v0(), "InitialVelocity");
+        JSONHelpers::readValue(jObj, obj->minDistanceRatio(), "MinParticleDistanceRatio");
+        JSONHelpers::readValue(jObj, obj->jitter(), "JitterRatio");
+        JSONHelpers::readValue(jObj, obj->maxFrame(), "MaxFrame");
+        JSONHelpers::readValue(jObj, obj->maxNParticles(), "MaxNParticles");
+        JSONHelpers::readValue(jObj, obj->maxSamplingIters(), "MaxSamplingIters");
+        JSONHelpers::readBool(jObj, obj->fullShapeObj(), "FullShapeObj");
 
         // read object transformation
         VecX<N, Real> translation;

@@ -190,10 +190,12 @@ struct SimulationData_Snow3D
             weights.reserve(numParticles * 64);
         }
 
+        UInt getNParticles() { return static_cast<UInt>(positions.size()); }
+
+
         void makeReady() {}
     } particleSimData;
 
-    UInt getNParticles() { return static_cast<UInt>(particleSimData.positions.size()); }
 
     ////////////////////////////////////////////////////////////////////////////////
     struct GridSimData

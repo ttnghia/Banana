@@ -122,7 +122,7 @@ void PeridynamicsSolver::generateParticles(const nlohmann::json& jParams)
 
     if(!loadMemoryState()) {
         for(auto& generator : m_ParticleGenerators) {
-            generator->setGeneratorParams(solverParams().v0, solverParams().particleRadius);
+            generator->makeReady(solverParams().particleRadius);
             generator->generateParticles(solverData().positions, solverData().velocities);
         }
         sortParticles();
