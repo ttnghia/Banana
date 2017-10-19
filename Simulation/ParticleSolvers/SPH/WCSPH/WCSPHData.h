@@ -43,6 +43,7 @@ struct SimulationParameters_WCSPH
 
     Vec3r boxMin = Vec3r(-1.0);
     Vec3r boxMax = Vec3r(1.0);
+    Vec3r v0     = Vec3r(0);
 
     Real pressureStiffness  = Real(DEFAULT_PRESSURE_STIFFNESS);
     Real nearForceStiffness = Real(DEFAULT_NEAR_FORCE_STIFFNESS);

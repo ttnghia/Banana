@@ -51,6 +51,7 @@ struct SimulationParameters_Peridynamics3D
     Real KSpring;
     Real KDamping;
 
+    Vec3r v0 = Vec3r(0);
     Vec3r domainBMin;
     Vec3r domainBMax;
     Real  cellSize;

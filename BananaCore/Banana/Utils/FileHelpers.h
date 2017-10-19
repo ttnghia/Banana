@@ -97,7 +97,7 @@ inline size_t getFileSize(const String& fileName)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-inline Vec_String getFolderSize(const char* folderName, int level = 0)
+inline Vec_String getFolderSizeInfo(const char* folderName, int level = 0)
 {
 #ifdef __BANANA_WINDOWS__
     __BNN_UNUSED(level);
@@ -154,9 +154,9 @@ inline Vec_String getFolderSize(const char* folderName, int level = 0)
 #endif
 }
 
-inline Vec_String getFolderSize(const String& folderName, int level = 0)
+inline Vec_String getFolderSizeInfo(const String& folderName, int level = 0)
 {
-    return getFolderSize(folderName.c_str(), level);
+    return getFolderSizeInfo(folderName.c_str(), level);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

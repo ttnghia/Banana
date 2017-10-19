@@ -47,6 +47,10 @@ void ParticleSolver<N, RealType >::loadScene(const String& sceneFile)
     }
 
     ////////////////////////////////////////////////////////////////////////////////
+    // setup data io after having global params ready
+    setupDataIO();
+
+    ////////////////////////////////////////////////////////////////////////////////
     // read simulation parameters
     __BNN_ASSERT(jParams.find("SimulationParameters") != jParams.end());
     {
@@ -139,7 +143,7 @@ void ParticleSolver<N, RealType >::doSimulation()
     logger().printAligned("Simulation finished", '+');
     logger().printLog("Total frames: " + NumberHelpers::formatWithCommas(globalParams().finalFrame - globalParams().startFrame + 1));
     logger().printLog("Data path: " + globalParams().dataPath);
-    auto strs = FileHelpers::getFolderSize(globalParams().dataPath, 1);
+    auto strs = FileHelpers::getFolderSizeInfo(globalParams().dataPath, 1);
     for(auto& str: strs) {
         logger().printLog(str);
     }

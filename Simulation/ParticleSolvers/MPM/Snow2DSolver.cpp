@@ -131,6 +131,33 @@ void Snow2DSolver::loadSimParams(const nlohmann::json& jParams)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void Snow2DSolver::generateParticles(const nlohmann::json& jParams)
+{
+    ParticleSolver2D::generateParticles(jParams);
+
+    if(!loadMemoryState()) {
+        for(auto& generator : m_ParticleGenerators) {
+            generator->setGeneratorParams(solverParams().v0, solverParams().particleRadius);
+            generator->generateParticles(particleData().positions, particleData().velocities);
+        }
+        sortParticles();
+    }
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void Snow2DSolver::advanceScene()
+{
+    ParticleSolver2D::advanceScene();
+
+    for(auto& generator : m_ParticleGenerators) {
+        if(!generator->generationFinished(globalParams().finishedFrame)) {
+            generator->generateParticles(particleData().positions, particleData().velocities);
+            particleData().makeReady();
+        }
+    }
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Snow2DSolver::setupDataIO()
 {
     m_ParticleIO = std::make_unique<ParticleSerialization>(m_GlobalParams.dataPath, "MPMData", "frame", m_Logger);

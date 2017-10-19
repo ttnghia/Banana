@@ -75,11 +75,11 @@ public:
     const auto& logger() const noexcept { assert(m_Logger != nullptr); return *m_Logger; }
 
 protected:
+    virtual void loadSimParams(const nlohmann::json& jParams) = 0;
     virtual void generateBoundaries(const nlohmann::json& jParams);
     virtual void generateParticles(const nlohmann::json& jParams);
     virtual void advanceScene();
 
-    virtual void loadSimParams(const nlohmann::json& jParams) = 0;
     virtual void setupDataIO()     = 0;
     virtual bool loadMemoryState() = 0;
     virtual void saveMemoryState() = 0;

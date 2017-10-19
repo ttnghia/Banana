@@ -2,9 +2,9 @@
     "GlobalParameters":
     {
         "FrameDuration" : 0.03333333333,
-        "FinalFrame" : 0,
+        "FinalFrame" : 100,
         "EnableSortParticle" : true,
-        "SortFrequency" : 10,
+        "SortFrequency" : 100,
         "SaveFrameData" : true,
         "DataPath" : "D:/SimData/FLIP",
         "OptionalSavingDataXXX" : [ "anisotropic_kernel" ]
@@ -34,8 +34,13 @@
 
     ],
     "ParticleGenerators":
-    {
-    },
+    [
+        {
+            "GeometryType" : "Sphere",
+            "Translation" : [0.0, -0.25, 0.0],
+            "Scale" : 0.5
+        }
+    ],
     "VisualizationParameters":
     {
         "CameraPosition" : [0, 0.7, 3.2],

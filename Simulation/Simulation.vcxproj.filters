@@ -212,9 +212,6 @@
     <ClCompile Include="SurfaceReconstruction\MarchingCube.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ParticleSolvers\ClothSolver\ClothSolver.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ParticleTools\ParticleSerialization.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

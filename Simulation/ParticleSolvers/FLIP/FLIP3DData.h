@@ -52,6 +52,7 @@ struct SimulationParameters_FLIP3D
     bool bApplyRepulsiveForces   = false;
     Real repulsiveForceStiffness = Real(1e-3);
 
+    Vec3r v0         = Vec3r(1, 0, 0);
     Vec3r movingBMin = Vec3r(-1.0);
     Vec3r movingBMax = Vec3r(1.0);
 
@@ -120,6 +121,14 @@ struct SimulationData_FLIP3D
         Vec_Vec3r positions;
         Vec_Vec3r positions_tmp;
         Vec_Vec3r velocities;
+
+        void makeReady()
+        {
+            positions_tmp.resize(positions.size());
+            velocities.resize(positions.size(), Vec3r(0));
+        }
+
+        UInt getNParticles() { return static_cast<UInt>(positions.size()); }
     } particleSimData;
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -138,6 +147,37 @@ struct SimulationData_FLIP3D
         Array3SpinLock fluidSDFLock;
         Array3r        fluidSDF;
         Array3r        boundarySDF;
+
+        void makeReady(UInt ni, UInt nj, UInt nk)
+        {
+            u.resize(ni + 1, nj, nk, 0);
+            u_old.resize(ni + 1, nj, nk, 0);
+            du.resize(ni + 1, nj, nk, 0);
+            u_temp.resize(ni + 1, nj, nk, 0);
+            u_weights.resize(ni + 1, nj, nk, 0);
+            u_valid.resize(ni + 1, nj, nk, 0);
+            u_valid_old.resize(ni + 1, nj, nk, 0);
+
+            v.resize(ni, nj + 1, nk, 0);
+            v_old.resize(ni, nj + 1, nk, 0);
+            dv.resize(ni, nj + 1, nk, 0);
+            v_temp.resize(ni, nj + 1, nk, 0);
+            v_weights.resize(ni, nj + 1, nk, 0);
+            v_valid.resize(ni, nj + 1, nk, 0);
+            v_valid_old.resize(ni, nj + 1, nk, 0);
+
+            w.resize(ni, nj, nk + 1, 0);
+            w_old.resize(ni, nj, nk + 1, 0);
+            dw.resize(ni, nj, nk + 1, 0);
+            w_temp.resize(ni, nj, nk + 1, 0);
+            w_weights.resize(ni, nj, nk + 1, 0);
+            w_valid.resize(ni, nj, nk + 1, 0);
+            w_valid_old.resize(ni, nj, nk + 1, 0);
+
+            fluidSDFLock.resize(ni, nj, nk);
+            fluidSDF.resize(ni, nj, nk, 0);
+            boundarySDF.resize(ni + 1, nj + 1, nk + 1, 0);
+        }
     } gridSimData;
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -146,7 +186,6 @@ struct SimulationData_FLIP3D
     Vec_Real           pressure;
 
     ////////////////////////////////////////////////////////////////////////////////
-    UInt getNParticles() { return static_cast<UInt>(particleSimData.positions.size()); }
 
     void reserve(UInt numParticles)
     {
@@ -156,36 +195,8 @@ struct SimulationData_FLIP3D
 
     void makeReady(UInt ni, UInt nj, UInt nk)
     {
-        particleSimData.positions_tmp.resize(particleSimData.positions.size());
-        particleSimData.velocities.resize(particleSimData.positions.size(), Vec3r(0));
-
-        gridSimData.u.resize(ni + 1, nj, nk, 0);
-        gridSimData.u_old.resize(ni + 1, nj, nk, 0);
-        gridSimData.du.resize(ni + 1, nj, nk, 0);
-        gridSimData.u_temp.resize(ni + 1, nj, nk, 0);
-        gridSimData.u_weights.resize(ni + 1, nj, nk, 0);
-        gridSimData.u_valid.resize(ni + 1, nj, nk, 0);
-        gridSimData.u_valid_old.resize(ni + 1, nj, nk, 0);
-
-        gridSimData.v.resize(ni, nj + 1, nk, 0);
-        gridSimData.v_old.resize(ni, nj + 1, nk, 0);
-        gridSimData.dv.resize(ni, nj + 1, nk, 0);
-        gridSimData.v_temp.resize(ni, nj + 1, nk, 0);
-        gridSimData.v_weights.resize(ni, nj + 1, nk, 0);
-        gridSimData.v_valid.resize(ni, nj + 1, nk, 0);
-        gridSimData.v_valid_old.resize(ni, nj + 1, nk, 0);
-
-        gridSimData.w.resize(ni, nj, nk + 1, 0);
-        gridSimData.w_old.resize(ni, nj, nk + 1, 0);
-        gridSimData.dw.resize(ni, nj, nk + 1, 0);
-        gridSimData.w_temp.resize(ni, nj, nk + 1, 0);
-        gridSimData.w_weights.resize(ni, nj, nk + 1, 0);
-        gridSimData.w_valid.resize(ni, nj, nk + 1, 0);
-        gridSimData.w_valid_old.resize(ni, nj, nk + 1, 0);
-
-        gridSimData.fluidSDFLock.resize(ni, nj, nk);
-        gridSimData.fluidSDF.resize(ni, nj, nk, 0);
-        gridSimData.boundarySDF.resize(ni + 1, nj + 1, nk + 1, 0);
+        particleSimData.makeReady();
+        gridSimData.makeReady(ni, nj, nk);
 
         matrix.resize(ni * nj * nk);
         rhs.resize(ni * nj * nk);

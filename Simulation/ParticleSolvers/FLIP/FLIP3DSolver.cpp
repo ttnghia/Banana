@@ -34,8 +34,6 @@ void FLIP3DSolver::makeReady()
     logger().printRunTime("Allocate solver memory: ",
                           [&]()
                           {
-                              solverParams().makeReady();
-                              solverParams().printParams(m_Logger);
                               if(solverParams().p2gKernel == ParticleSolverConstants::InterpolationKernels::Linear) {
                                   m_InterpolateValue = static_cast<Real (*)(const Vec3r&, const Array3r&)>(&ArrayHelpers::interpolateValueLinear);
                                   m_WeightKernel     = [](const Vec3r& dxdydz) { return MathHelpers::tril_kernel(dxdydz[0], dxdydz[1], dxdydz[2]); };
@@ -45,20 +43,11 @@ void FLIP3DSolver::makeReady()
                               }
 
                               m_Grid.setGrid(solverParams().domainBMin, solverParams().domainBMax, solverParams().cellSize);
+                              solverData().makeReady(m_Grid.getNCells()[0], m_Grid.getNCells()[1], m_Grid.getNCells()[2]);
 
                               m_PCGSolver = std::make_unique<PCGSolver<Real> >();
                               m_PCGSolver->setSolverParameters(solverParams().CGRelativeTolerance, solverParams().maxCGIteration);
                               m_PCGSolver->setPreconditioners(PCGSolver<Real>::MICCL0_SYMMETRIC);
-
-                              m_NSearch = std::make_unique<NeighborSearch::NeighborSearch3D>(solverParams().cellSize);
-                              m_NSearch->add_point_set(glm::value_ptr(particleData().positions.front()), solverData().getNParticles(), true, true);
-
-                              ////////////////////////////////////////////////////////////////////////////////
-                              setupDataIO();
-                              solverData().makeReady(m_Grid.getNCells()[0], m_Grid.getNCells()[1], m_Grid.getNCells()[2]);
-                              if(!loadMemoryState()) {
-                                  sortParticles();
-                              }
 
                               ////////////////////////////////////////////////////////////////////////////////
                               for(auto& obj : m_BoundaryObjects) {
@@ -177,6 +166,41 @@ void FLIP3DSolver::loadSimParams(const nlohmann::json& jParams)
     } else {
         solverParams().p2gKernel = ParticleSolverConstants::InterpolationKernels::CubicBSpline;
     }
+
+    solverParams().makeReady();
+    solverParams().printParams(m_Logger);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void FLIP3DSolver::generateParticles(const nlohmann::json& jParams)
+{
+    ParticleSolver3D::generateParticles(jParams);
+
+    m_NSearch = std::make_unique<NeighborSearch::NeighborSearch3D>(solverParams().cellSize);
+    if(!loadMemoryState()) {
+        for(auto& generator : m_ParticleGenerators) {
+            generator->setGeneratorParams(solverParams().v0, solverParams().particleRadius);
+            UInt nGen = generator->generateParticles(particleData().positions, particleData().velocities);
+            logger().printLog(String("Generated ") + NumberHelpers::formatWithCommas(nGen) + String(" particles by ") + generator->name());
+        }
+        m_NSearch->add_point_set(glm::value_ptr(particleData().positions.front()), particleData().getNParticles(), true, true);
+        sortParticles();
+    } else {
+        m_NSearch->add_point_set(glm::value_ptr(particleData().positions.front()), particleData().getNParticles(), true, true);
+    }
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void FLIP3DSolver::advanceScene()
+{
+    ParticleSolver3D::advanceScene();
+
+    for(auto& generator : m_ParticleGenerators) {
+        if(!generator->generationFinished(globalParams().finishedFrame)) {
+            generator->generateParticles(particleData().positions, particleData().velocities);
+            particleData().makeReady();
+        }
+    }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -247,7 +271,7 @@ void FLIP3DSolver::saveMemoryState()
     // save state
     frameCount = 0;
     m_MemoryStateIO->clearData();
-    m_MemoryStateIO->setNParticles(solverData().getNParticles());
+    m_MemoryStateIO->setNParticles(particleData().getNParticles());
     m_MemoryStateIO->setFixedAttribute("particle_radius", solverParams().particleRadius);
     m_MemoryStateIO->setParticleAttribute("position", particleData().positions);
     m_MemoryStateIO->setParticleAttribute("velocity", particleData().velocities);
@@ -263,10 +287,10 @@ void FLIP3DSolver::saveFrameData()
 
 
     m_ParticleIO->clearData();
-    m_ParticleIO->setNParticles(solverData().getNParticles());
+    m_ParticleIO->setNParticles(particleData().getNParticles());
     m_ParticleIO->setFixedAttribute("particle_radius", solverParams().particleRadius);
     if(m_GlobalParams.isSavingData("anisotropic_kernel")) {
-        AnisotropicKernelGenerator aniKernelGenerator(solverData().getNParticles(), particleData().positions.data(), solverParams().particleRadius);
+        AnisotropicKernelGenerator aniKernelGenerator(particleData().getNParticles(), particleData().positions.data(), solverParams().particleRadius);
         aniKernelGenerator.generateAniKernels();
         m_ParticleIO->setParticleAttribute("position", aniKernelGenerator.kernelCenters());
         m_ParticleIO->setParticleAttribute("anisotropic_kernel", aniKernelGenerator.kernelMatrices());
@@ -324,7 +348,7 @@ void FLIP3DSolver::advanceVelocity(Real timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void FLIP3DSolver::moveParticles(Real timestep)
 {
-    ParallelFuncs::parallel_for(solverData().getNParticles(),
+    ParallelFuncs::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
                                 {
                                     Vec3r pvel = particleData().velocities[p];
@@ -398,7 +422,7 @@ void FLIP3DSolver::addRepulsiveVelocity2Particles(Real timestep)
     //m_Grid.getNeighborList(particleData().positions, particleData().neighborList, solverParams().nearKernelRadiusSqr);
     ////////////////////////////////////////////////////////////////////////////////
 
-    ParallelFuncs::parallel_for(solverData().getNParticles(),
+    ParallelFuncs::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
                                 {
                                     //const Vec_UInt& neighbors = particleData().neighborList[p];
@@ -716,7 +740,7 @@ void FLIP3DSolver::computeFluidSDF()
 {
     gridData().fluidSDF.assign(m_Grid.getCellSize() * Real(3.0));
 
-    ParallelFuncs::parallel_for(solverData().getNParticles(),
+    ParallelFuncs::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
                                 {
                                     const Vec3r ppos     = particleData().positions[p];
@@ -968,7 +992,7 @@ void FLIP3DSolver::computeChangesGridVelocity()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void FLIP3DSolver::velocityToParticles()
 {
-    ParallelFuncs::parallel_for(solverData().getNParticles(),
+    ParallelFuncs::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
                                 {
                                     const Vec3r& ppos = particleData().positions[p];

@@ -59,6 +59,7 @@ struct SimulationParameters_Snow3D
     Real  ratioCellSizeParticleRadius = Real(2.0);
     Vec3r domainBMin                  = Vec3r(0.0);
     Vec3r domainBMax                  = Vec3r(1.0);
+    Vec3r v0                          = Vec3r(0, 0, 1.0);
 
     // the following need to be computed
     Real particleRadius;
@@ -188,6 +189,8 @@ struct SimulationData_Snow3D
             weightGradients.reserve(numParticles * 64);
             weights.reserve(numParticles * 64);
         }
+
+        void makeReady() {}
     } particleSimData;
 
     UInt getNParticles() { return static_cast<UInt>(particleSimData.positions.size()); }
@@ -248,6 +251,8 @@ struct SimulationData_Snow3D
             rDotEr.assign(Real(0));
         }
     } gridSimData;
+
+    void makeReady() {}
 };
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 };      // end namespace ParticleSolvers

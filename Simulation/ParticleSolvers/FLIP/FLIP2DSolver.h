@@ -50,6 +50,8 @@ public:
 
 protected:
     virtual void loadSimParams(const nlohmann::json& jParams) override;
+    virtual void generateParticles(const nlohmann::json& jParams) override;
+    virtual void advanceScene() override;
     virtual void setupDataIO() override;
     virtual bool loadMemoryState() override;
     virtual void saveMemoryState()  override;
@@ -82,6 +84,12 @@ protected:
     Vec2r   getVelocityFromGrid(const Vec2r& gridPos);
     Vec2r   getVelocityChangesFromGrid(const Vec2r& gridPos);
     Mat2x2r getAffineMatrix(const Vec2r& gridPos);
+
+    ////////////////////////////////////////////////////////////////////////////////
+    auto&       particleData() { return solverData().particleSimData; }
+    const auto& particleData() const { return solverData().particleSimData; }
+    auto&       gridData() { return solverData().gridSimData; }
+    const auto& gridData() const { return solverData().gridSimData; }
 
     ////////////////////////////////////////////////////////////////////////////////
     SimulationParameters_FLIP2D                       m_SimParams;

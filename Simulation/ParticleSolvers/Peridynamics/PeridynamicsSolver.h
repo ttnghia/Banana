@@ -32,8 +32,6 @@ class PeridynamicsSolver : public ParticleSolver3D
 {
 public:
     PeridynamicsSolver() = default;
-    auto&       solverParams() { return m_SimParams; }
-    const auto& solverParams() const { return m_SimParams; }
 
     ////////////////////////////////////////////////////////////////////////////////
     virtual String getSolverName() override { return String("Peridynamics3DSolver"); }
@@ -43,8 +41,16 @@ public:
     virtual void advanceFrame() override;
     virtual void sortParticles() override {}
 
+    ////////////////////////////////////////////////////////////////////////////////
+    auto&       solverParams() { return m_SimParams; }
+    const auto& solverParams() const { return m_SimParams; }
+    auto&       solverData() { return m_SimData; }
+    const auto& solverData() const { return m_SimData; }
+
 protected:
     virtual void loadSimParams(const nlohmann::json& jParams) override;
+    virtual void generateParticles(const nlohmann::json& jParams) override;
+    virtual void advanceScene() override;
     virtual void setupDataIO() override;
     virtual bool loadMemoryState() override;
     virtual void saveMemoryState() override;
@@ -69,8 +75,8 @@ protected:
 
 
     ////////////////////////////////////////////////////////////////////////////////
-    SimulationParameters_Peridynamics3D      m_SimParams;
-    UniquePtr<SimulationData_Peridynamics3D> m_SimData = std::make_unique<SimulationData_Peridynamics3D>();
+    SimulationParameters_Peridynamics3D m_SimParams;
+    SimulationData_Peridynamics3D       m_SimData;
 
     UniquePtr<NeighborSearch::NeighborSearch3D> m_NSearch = nullptr;
     BlockPCGSolver<3, Real>                     m_CGSolver;

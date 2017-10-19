@@ -189,7 +189,6 @@
     <ClInclude Include="SurfaceReconstruction\MarchingCube.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ParticleSolvers\ClothSolver\ClothSolver.cpp" />
     <ClCompile Include="ParticleSolvers\FLIP\FLIP2DSolver.cpp" />
     <ClCompile Include="ParticleSolvers\FLIP\FLIP3DSolver.cpp" />
     <ClCompile Include="ParticleSolvers\MPM\Snow2DSolver.cpp" />

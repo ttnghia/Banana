@@ -15,9 +15,9 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void ParticleGenerator<N, RealType >::setGeneratorParams(const VecX<N, RealType>& v0, RealType particleRadius, RealType minDistance,
-                                                         UInt maxNParticles /*= std::numeric_limits<UInt>::max()*/,
-                                                         UInt maxFrame /*= 0*/, bool bUseCache /*= true*/, bool bFullShapeObj /*= false*/)
+void ParticleGenerator<N, RealType >::setGeneratorParams(const VecX<N, RealType>& v0, RealType particleRadius, RealType minDistance /*= RealType(0)*/,
+                                                         UInt maxFrame /*= 0*/, UInt maxNParticles /*= std::numeric_limits<UInt>::max()*/,
+                                                         bool bUseCache /*= true*/, bool bFullShapeObj /*= false*/)
 {
     m_v0             = v0;
     m_ParticleRadius = particleRadius;
@@ -31,12 +31,9 @@ void ParticleGenerator<N, RealType >::setGeneratorParams(const VecX<N, RealType>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-UInt ParticleGenerator<N, RealType > ::generateParticles(Vec_VecX<N, RealType>& positions, Vec_VecX<N, RealType>& velocities, UInt currentFrame)
+UInt ParticleGenerator<N, RealType > ::generateParticles(Vec_VecX<N, RealType>& positions, Vec_VecX<N, RealType>& velocities)
 {
-    if(bGenerationFinished(currentFrame)) {
-        return 0;
-    }
-    //__BNN_ASSERT(m_bEmitterReady);
+    __BNN_ASSERT(m_bParamsReady);
 
     if(m_bUseCache && !m_ParticleFile.empty() && FileHelpers::fileExisted(m_ParticleFile)) {
         // todo
@@ -49,7 +46,9 @@ UInt ParticleGenerator<N, RealType > ::generateParticles(Vec_VecX<N, RealType>& 
 
 
     collectNeighborParticles();
-    return m_bFullShapeObj ? addFullShapeParticles(positions, velocities) : addParticles(positions, velocities);
+    auto nEmitted = m_bFullShapeObj ? addFullShapeParticles(positions, velocities) : addParticles(positions, velocities);
+    m_NEmittedParticles += nEmitted;
+    return nEmitted;
 
     ////////////////////////////////////////////////////////////////////////////////
     __BNN_TODO;
@@ -85,8 +84,27 @@ UInt ParticleGenerator<N, RealType > ::addFullShapeParticles(Vec_VecX<N, RealTyp
 template<Int N, class RealType>
 UInt ParticleGenerator<N, RealType > ::addParticles(Vec_VecX<N, RealType>& positions, Vec_VecX<N, RealType>& velocities)
 {
-    __BNN_TODO
-    return 0;
+    Vec3<float> center(0.0f, -0.25f, 0.0f);
+    float       radius  = 0.5f;
+    Vec3<float> bMin    = center - Vec3<float>(radius - m_ParticleRadius);
+    float       spacing = 2.0f * m_ParticleRadius;
+    Vec3<int>   grid    = Vec3<int>(1) * static_cast<int>(2.0f * radius / spacing);
+
+    for(int i = 0; i < grid[0]; ++i) {
+        for(int j = 0; j < grid[1]; ++j) {
+            for(int k = 0; k < grid[2]; ++k) {
+                Vec3<float> ppos = bMin + spacing * Vec3<float>(i, j, k);
+                if(glm::length(ppos - center) > radius) {
+                    continue;
+                }
+                NumberHelpers::jitter(ppos, 1.0 * spacing);
+                positions.push_back(ppos);
+            }
+        }
+    }
+
+    velocities.assign(positions.size(), m_v0);
+    return positions.size();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

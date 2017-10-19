@@ -130,6 +130,7 @@ void Simulator::changeScene(const QString& scene)
     m_ParticleSolver->loadScene(sceneFile.toStdString());
     emit domainChanged(m_ParticleSolver->solverParams().movingBMin, m_ParticleSolver->solverParams().movingBMax);
 
+#if 0
     auto&       particles = m_ParticleSolver->getParticlePositions();
     Vec3<float> center(0.0f, -0.25f, 0.0f);
     float       radius  = 0.5f;
@@ -150,7 +151,7 @@ void Simulator::changeScene(const QString& scene)
             }
         }
     }
-
+#endif
 
     m_ParticleSolver->makeReady();
 

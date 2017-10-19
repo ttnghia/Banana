@@ -49,6 +49,7 @@ struct SimulationParameters_FLIP2D
     bool bApplyRepulsiveForces   = false;
     Real repulsiveForceStiffness = Real(1e-3);
 
+    Vec2r v0         = Vec2r(0, 1.0);
     Vec2r movingBMin = Vec2r(-1.0);
     Vec2r movingBMax = Vec2r(1.0);
 
@@ -101,76 +102,92 @@ struct SimulationParameters_FLIP2D
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 struct SimulationData_FLIP2D
 {
-    Vec_Vec2r   positions;
-    Vec_Vec2r   positions_tmp;
-    Vec_Vec2r   velocities;
-    Vec_VecUInt neighborList;
-    Vec_Mat2x2r affineMatrix;
+    struct ParticleSimData
+    {
+        Vec_Vec2r   positions;
+        Vec_Vec2r   positions_tmp;
+        Vec_Vec2r   velocities;
+        Vec_VecUInt neighborList;
+        Vec_Mat2x2r affineMatrix;
+
+        UInt getNParticles() { return static_cast<UInt>(positions.size()); }
+
+        void makeReady()
+        {
+            positions_tmp.resize(positions.size());
+            velocities.resize(positions.size(), Vec2r(0));
+
+            neighborList.resize(positions.size());
+            affineMatrix.resize(positions.size());
+        }
+    } particleSimData;
 
     // grid velocity
-    Array2r u, v;
-    Array2r du, dv;
-    Array2r u_temp, v_temp;
-    Array2r u_old, v_old;
-    Array2r u_weights, v_weights;
-    Array2c u_valid, v_valid;
-    Array2c u_valid_old, v_valid_old;
+    struct GridSimData
+    {
+        Array2r u, v;
+        Array2r du, dv;
+        Array2r u_temp, v_temp;
+        Array2r u_old, v_old;
+        Array2r u_weights, v_weights;
+        Array2c u_valid, v_valid;
+        Array2c u_valid_old, v_valid_old;
 
 
-    Array2r fluidSDF;
-    Array2r boundarySDF;
+        Array2r fluidSDF;
+        Array2r boundarySDF;
+
+        void makeReady(UInt ni, UInt nj)
+        {
+            u.resize(ni + 1, nj);
+            du.resize(ni + 1, nj);
+            u_old.resize(ni + 1, nj);
+            u_temp.resize(ni + 1, nj);
+            u_weights.resize(ni + 1, nj);
+            u_valid.resize(ni + 1, nj);
+            u_valid_old.resize(ni + 1, nj);
+
+            v.resize(ni, nj + 1);
+            dv.resize(ni, nj + 1);
+            v_old.resize(ni, nj + 1);
+            v_temp.resize(ni, nj + 1);
+            v_weights.resize(ni, nj + 1);
+            v_valid.resize(ni, nj + 1);
+            v_valid_old.resize(ni, nj + 1);
+
+            fluidSDF.resize(ni, nj, 0);
+            boundarySDF.resize(ni + 1, nj + 1, 0);
+        }
+
+        void backupGridVelocity()
+        {
+            v_old.copyDataFrom(v);
+            u_old.copyDataFrom(u);
+        }
+    } gridSimData;
 
     SparseMatrix<Real> matrix;
     Vec_Real           rhs;
     Vec_Real           pressure;
 
     ////////////////////////////////////////////////////////////////////////////////
-    UInt getNParticles() { return static_cast<UInt>(positions.size()); }
 
     void reserve(UInt numParticles)
     {
-        positions.reserve(numParticles);
-        velocities.reserve(numParticles);
-        neighborList.reserve(numParticles);
-        affineMatrix.reserve(numParticles);
+        //positions.reserve(numParticles);
+        //velocities.reserve(numParticles);
+        //neighborList.reserve(numParticles);
+        //affineMatrix.reserve(numParticles);
     }
 
     void makeReady(UInt ni, UInt nj)
     {
-        // particle data
-        positions_tmp.resize(positions.size());
-        velocities.resize(positions.size(), Vec3<Real>(0));
-        neighborList.resize(positions.size());
-        affineMatrix.resize(positions.size());
-
-        u.resize(ni + 1, nj);
-        du.resize(ni + 1, nj);
-        u_old.resize(ni + 1, nj);
-        u_temp.resize(ni + 1, nj);
-        u_weights.resize(ni + 1, nj);
-        u_valid.resize(ni + 1, nj);
-        u_valid_old.resize(ni + 1, nj);
-
-        v.resize(ni, nj + 1);
-        dv.resize(ni, nj + 1);
-        v_old.resize(ni, nj + 1);
-        v_temp.resize(ni, nj + 1);
-        v_weights.resize(ni, nj + 1);
-        v_valid.resize(ni, nj + 1);
-        v_valid_old.resize(ni, nj + 1);
-
-        fluidSDF.resize(ni, nj, 0);
-        boundarySDF.resize(ni + 1, nj + 1, 0);
+        particleSimData.makeReady();
+        gridSimData.makeReady(ni, nj);
 
         matrix.resize(ni * nj);
         rhs.resize(ni * nj);
         pressure.resize(ni * nj);
-    }
-
-    void backupGridVelocity()
-    {
-        v_old.copyDataFrom(v);
-        u_old.copyDataFrom(u);
     }
 };
 

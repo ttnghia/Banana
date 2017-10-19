@@ -38,17 +38,18 @@ public:
     ParticleGenerator(const String& geometryType) : m_GeometryObj(GeometryObjectFactory::createGeometry<N, RealType>(geometryType))
     { __BNN_ASSERT(m_GeometryObj != nullptr); }
 
-    String&      name() { return m_MeshFile; }
-    String&      meshFile() { return m_MeshFile; }
-    String&      particleFile() { return m_ParticleFile; }
-    String&      SDFFile() { return m_SDFFile; }
-    bool&        isDynamic() { return m_bDynamics; }
-    GeometryPtr& getGeometry() { return m_GeometryObj; }
+    auto  name() { return m_GeometryObj->name(); }
+    auto& meshFile() { return m_MeshFile; }
+    auto& particleFile() { return m_ParticleFile; }
+    auto& SDFFile() { return m_SDFFile; }
+    auto& getGeometry() { return m_GeometryObj; }
+    auto& isDynamic() { return m_bDynamics; }
 
-    UInt generateParticles(Vec_VecX<N, RealType>& positions, Vec_VecX<N, RealType>& velocities, UInt currentFrame);
-    void setGeneratorParams(const VecX<N, RealType>& v0, RealType particleRadius, RealType minDistance, UInt maxNParticles = std::numeric_limits<UInt>::max(),
-                            UInt maxFrame = 0, bool bUseCache = true, bool bFullShapeObj = false);
-    bool bGenerationFinished(UInt currentFrame) { return currentFrame >= m_MaxFrame && m_NEmittedParticles >= m_MaxNParticles; }
+    void setGeneratorParams(const VecX<N, RealType>& v0, RealType particleRadius, RealType minDistance = RealType(0),
+                            UInt maxFrame = 0, UInt maxNParticles = std::numeric_limits<UInt>::max(),
+                            bool bUseCache = true, bool bFullShapeObj = false);
+    UInt generateParticles(Vec_VecX<N, RealType>& positions, Vec_VecX<N, RealType>& velocities);
+    bool generationFinished(UInt currentFrame) { return currentFrame >= m_MaxFrame || m_NEmittedParticles >= m_MaxNParticles; }
 
     virtual void makeReady() {};
     virtual void advanceFrame() {}
@@ -67,14 +68,14 @@ protected:
 
     Vec_VecX<N, RealType> m_EmittingParticles;
     VecX<N, RealType>     m_v0             = VecX<N, RealType>(0);
-    UInt                  m_MaxFrame       = std::numeric_limits<UInt>::max();
+    UInt                  m_MaxFrame       = 0;
     UInt                  m_MaxNParticles  = std::numeric_limits<UInt>::max();
     RealType              m_MinDistance    = RealType(0);
     RealType              m_ParticleRadius = RealType(0);
 
-    UInt              m_NEmittedParticles;
-    VecX<N, RealType> m_BMin = VecX<N, RealType>(-1.0);
-    VecX<N, RealType> m_BMax = VecX<N, RealType>(1.0);
+    UInt              m_NEmittedParticles = 0;
+    VecX<N, RealType> m_BMin              = VecX<N, RealType>(-1.0);
+    VecX<N, RealType> m_BMax              = VecX<N, RealType>(1.0);
 
     Array<N, Vec_UInt>                  m_ParticleIdxInCell;
     Array<N, ParallelObjects::SpinLock> m_Lock;
