@@ -58,7 +58,7 @@ public:
     bool generationFinished(UInt currentFrame) { return currentFrame >= m_MaxFrame || m_NGeneratedParticles >= m_MaxNParticles; }
 
     virtual void makeReady(RealType particleRadius);
-    virtual void advanceFrame() {}
+    virtual void advanceScene(UInt frame, RealType fraction = RealType(0)) { m_GeometryObj->updateTransformation(frame, fraction); }
 
 protected:
     void relaxPositions(Vector<VecX<N, RealType> >& positions, RealType particleRadius);

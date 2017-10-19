@@ -76,16 +76,57 @@ Vec3<RealType> GeometryObject<N, RealType >::gradSignedDistance(const Vec3<RealT
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType>
+void Banana::GeometryObjects::GeometryObject<N, RealType >::setTranslation(const VecX<N, RealType>& translation)
+{
+    m_Animation.keyFrames()[0].translation = translation;
+    updateTransformation();
+    m_bTransformed = true;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType>
+void Banana::GeometryObjects::GeometryObject<N, RealType >::setRotation(const VecX<N, RealType>& axis, RealType angle)
+{
+    m_Animation.keyFrames()[0].rotation = VecX<N + 1, RealType>(axis, angle);;
+    updateTransformation();
+    m_bTransformed = true;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType>
+void Banana::GeometryObjects::GeometryObject<N, RealType >::setUniformScale(const RealType scaleVal)
+{
+    m_Animation.keyFrames()[0].uniformScale = scaleVal;
+    updateTransformation();
+    m_bTransformed = true;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType>
+void Banana::GeometryObjects::GeometryObject<N, RealType >::resetTransformation()
+{
+    m_bTransformed            = false;
+    m_TransformationMatrix    = MatXxX<N + 1, RealType>(1.0);
+    m_InvTransformationMatrix = MatXxX<N + 1, RealType>(1.0);
+    m_UniformScale            = RealType(1.0);
+    m_InvScale                = RealType(1.0);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 template<Int N, class RealType>
-void GeometryObject<N, RealType >::updateTransformation()
+void GeometryObject<N, RealType >::updateTransformation(UInt frame /*= 0*/, RealType fraction /*= RealType(0)*/)
 {
-    MatXxX<N + 1, RealType> translationMatrix = glm::translate(MatXxX<N + 1, RealType>(1.0), m_Translation);
-    MatXxX<N + 1, RealType> rotationMatrix    = glm::rotate(MatXxX<N + 1, RealType>(1.0), m_Rotation[N], VecX<N, RealType>(m_Rotation));
-    MatXxX<N + 1, RealType> scaleMatrix       = glm::scale(MatXxX<N + 1, RealType>(1.0), VecX<N, RealType>(m_Scale));
+    if(frame > 0 && m_Animation.nKeyFrames() == 1) {
+        return;
+    }
 
-    m_TransformationMatrix    = translationMatrix * rotationMatrix * scaleMatrix;
+    ////////////////////////////////////////////////////////////////////////////////
+    m_TransformationMatrix    = m_Animation.getTransformation(frame, fraction);
     m_InvTransformationMatrix = glm::inverse(m_TransformationMatrix);
+    m_UniformScale            = m_Animation.getUniformScale(frame, fraction);
+    m_InvScale                = m_Animation.getInvScale(frame, fraction);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

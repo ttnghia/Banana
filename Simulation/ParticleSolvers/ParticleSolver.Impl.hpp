@@ -129,7 +129,6 @@ void ParticleSolver<N, RealType >::doSimulation()
                               [&]()
                               {
                                   sortParticles();
-                                  advanceScene();
                                   advanceFrame();
                               });
 
@@ -199,11 +198,11 @@ void ParticleSolver<N, RealType >::generateParticles(const nlohmann::json& jPara
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void ParticleSolver<N, RealType >::advanceScene()
+void ParticleSolver<N, RealType >::advanceScene(UInt frame, RealType fraction /*= RealType(0)*/)
 {
     for(auto& obj : m_BoundaryObjects) {
-        if(obj->isDynamic()) { obj->advanceFrame(); } }
+        if(obj->isDynamic()) { obj->advanceScene(frame, fraction); } }
     for(auto& obj : m_ParticleGenerators) {
-        obj->advanceFrame();
+        obj->advanceScene(frame, fraction);
     }
 }

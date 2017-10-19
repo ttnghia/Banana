@@ -67,7 +67,7 @@ public:
 
     ////////////////////////////////////////////////////////////////////////////////
     virtual void makeReady() {} // todo: need this?
-    virtual void advanceFrame() {}
+    virtual void advanceScene(UInt frame, RealType fraction = RealType(0)) { m_GeometryObj->updateTransformation(frame, fraction); }
     virtual void initBoundaryParticles(RealType particleRadius, Int numBDLayers = 2, bool useCache = true);
 
     RealType          signedDistance(const VecX<N, RealType>& ppos, bool bUseCache = true);

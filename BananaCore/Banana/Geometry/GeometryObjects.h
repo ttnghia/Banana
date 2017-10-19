@@ -18,6 +18,7 @@
 #pragma once
 
 #include <Banana/Setup.h>
+#include <Banana/Animation/Animation.h>
 #include <Banana/Utils/MathHelpers.h>
 #include <Banana/Utils/NumberHelpers.h>
 #include <Banana/Grid/Grid.h>
@@ -67,34 +68,29 @@ public:
     Vec3<RealType> gradSignedDistance(const Vec3<RealType>& ppos, RealType dxyz = RealType(1e-4));
     bool           isInside(const VecX<N, RealType>& ppos) { return signedDistance(ppos) < 0; }
 
-    void setTranslation(const VecX<N, RealType>& translation) { m_Translation = translation; m_bTransformed = true; updateTransformation(); }
-    void setRotation(const VecX<N, RealType>& axis, RealType angle) { m_Rotation = VecX<N + 1, RealType>(axis, angle); m_bTransformed = true; updateTransformation(); }
-    void setUniformScale(const RealType scaleVal) { m_Scale = scaleVal; m_InvScale = RealType(1.0 / scaleVal); m_bTransformed = true; updateTransformation(); }
-    void resetTransformation() { m_bTransformed = false; }
+    void setTranslation(const VecX<N, RealType>& translation);
+    void setRotation(const VecX<N, RealType>& axis, RealType angle);
+    void setUniformScale(const RealType scaleVal);
+    void resetTransformation();
 
-    auto& getTranslation() const noexcept { return m_Translation; }
-    auto& getRotation() const noexcept { return m_Rotation; }
-    auto  getUniformScale() const noexcept { return m_Scale; }
-
-    auto getAABBMin() const { return transform(VecX<N, RealType>(0)) - VecX<N, RealType>(m_Scale) * sqrt(glm::compAdd(VecX<N, RealType>(1.0))); }
-    auto getAABBMax() const { return transform(VecX<N, RealType>(0)) + VecX<N, RealType>(m_Scale) * sqrt(glm::compAdd(VecX<N, RealType>(1.0))); }
+    auto getAABBMin() const { return transform(VecX<N, RealType>(0)) - VecX<N, RealType>(m_UniformScale) * sqrt(glm::compAdd(VecX<N, RealType>(1.0))); }
+    auto getAABBMax() const { return transform(VecX<N, RealType>(0)) + VecX<N, RealType>(m_UniformScale) * sqrt(glm::compAdd(VecX<N, RealType>(1.0))); }
 
     VecX<N, RealType> transform(const VecX<N, RealType>& ppos) const;
     VecX<N, RealType> invTransform(const VecX<N, RealType>& ppos) const;
 
+    virtual void updateTransformation(UInt frame = 0, RealType fraction = RealType(0));
 protected:
-    virtual void updateTransformation();
 
 
     ////////////////////////////////////////////////////////////////////////////////
-    bool                  m_bTransformed = false;
-    VecX<N, RealType>     m_Translation  = VecX<N, RealType>(0);
-    VecX<N + 1, RealType> m_Rotation     = VecX<N + 1, RealType>(VecX<N, RealType>(1), 0);
-    RealType              m_Scale        = RealType(1.0);
-    RealType              m_InvScale     = RealType(1.0);
+    bool     m_bTransformed = false;
+    RealType m_UniformScale = RealType(1.0);
+    RealType m_InvScale     = RealType(1.0);
 
     MatXxX<N + 1, RealType> m_TransformationMatrix    = MatXxX<N + 1, RealType>(1.0);
     MatXxX<N + 1, RealType> m_InvTransformationMatrix = MatXxX<N + 1, RealType>(1.0);
+    Animation<N, RealType>  m_Animation;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

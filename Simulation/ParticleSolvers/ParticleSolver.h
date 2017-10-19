@@ -78,7 +78,7 @@ protected:
     virtual void loadSimParams(const nlohmann::json& jParams) = 0;
     virtual void generateBoundaries(const nlohmann::json& jParams);
     virtual void generateParticles(const nlohmann::json& jParams);
-    virtual void advanceScene();
+    virtual void advanceScene(UInt frame, RealType fraction = RealType(0));
 
     virtual void setupDataIO()     = 0;
     virtual bool loadMemoryState() = 0;

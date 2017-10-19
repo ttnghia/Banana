@@ -103,6 +103,7 @@ void FLIP2DSolver::advanceFrame()
                                   logger().printLog("Finished step " + NumberHelpers::formatWithCommas(substepCount) + " of size " + NumberHelpers::formatToScientific<Real>(substep) +
                                                     "(" + NumberHelpers::formatWithCommas(substep / m_GlobalParams.frameDuration * 100) + "% of the frame, to " +
                                                     NumberHelpers::formatWithCommas(100 * (frameTime) / m_GlobalParams.frameDuration) + "% of the frame).");
+                                  logger().printRunTime("Advance scene: ", funcTimer, [&]() { advanceScene(globalParams().finishedFrame, frameTime / globalParams().frameDuration); });
                               });
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -167,9 +168,9 @@ void FLIP2DSolver::generateParticles(const nlohmann::json& jParams)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FLIP2DSolver::advanceScene()
+void FLIP2DSolver::advanceScene(UInt frame, Real fraction /*= Real(0)*/)
 {
-    ParticleSolver2D::advanceScene();
+    ParticleSolver2D::advanceScene(frame, fraction);
 
     for(auto& generator : m_ParticleGenerators) {
         if(!generator->generationFinished(globalParams().finishedFrame)) {

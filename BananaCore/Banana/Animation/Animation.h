@@ -16,3 +16,169 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 #pragma once
+
+#include <Banana/Setup.h>
+#include <Banana/Animation/CubicSpline.h>
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+namespace Banana
+{
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType>
+struct KeyFrame
+{
+    KeyFrame() {}
+    KeyFrame(UInt frame_, const VecX<N, RealType>& translation_) { frame = frame_; translation = translation_; }
+    KeyFrame(UInt frame_, const VecX<N + 1, RealType>& rotation_) { frame = frame_; rotation = rotation_; }
+    KeyFrame(UInt frame_, RealType scale_) { frame = frame_; uniformScale = scale_; invScale = RealType(1.0) / scale_; }
+    KeyFrame(UInt frame_, const VecX<N, RealType>& translation_, const VecX<N + 1, RealType>& rotation_, RealType scale_)
+    {
+        frame        = frame_;
+        translation  = translation_;
+        rotation     = rotation_;
+        uniformScale = scale_;
+        invScale     = RealType(1.0) / scale_;
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////
+    UInt                  frame        = 0;
+    VecX<N, RealType>     translation  = VecX<N, RealType>(0);
+    VecX<N + 1, RealType> rotation     = VecX<N + 1, RealType>(VecX<N, RealType>(1), 0);
+    RealType              uniformScale = RealType(1.0);
+    RealType              invScale     = RealType(1.0);
+};
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType>
+class Animation
+{
+public:
+    Animation() { m_KeyFrames.emplace_back(KeyFrame<N, RealType>()); }
+
+    void addKeyFrame(const KeyFrame<N, RealType>& keyFrame) { m_KeyFrames.push_back(keyFrame); }
+    void addKeyFrame(UInt frame, const VecX<N, RealType>& translation) { m_KeyFrames.emplace_back(KeyFrame<N, RealType>(frame, translation)); }
+    void addKeyFrame(UInt frame, const VecX<N + 1, RealType>& rotation) { m_KeyFrames.emplace_back(KeyFrame<N, RealType>(frame, rotation)); }
+    void addKeyFrame(UInt frame, RealType scale) { m_KeyFrames.emplace_back(KeyFrame(frame, scale)); }
+    void addKeyFrame(UInt frame, const VecX<N, RealType>& translation, const VecX<N + 1, RealType>& rotation, RealType scale)
+    {
+        m_KeyFrames.emplace_back(KeyFrame<N, RealType>(frame, translation, rotation, scale));
+    }
+
+    UInt  nKeyFrames() const { return static_cast<UInt>(m_KeyFrames.size()); }
+    auto& keyFrames() { return m_KeyFrames; }
+    auto& periodic() { return m_bPeriodic; }
+
+    void makeReady()
+    {
+        size_t nKeyFrames = m_KeyFrames.size();
+
+        Vector<RealType> frames;
+        Vector<RealType> translations[N];
+        Vector<RealType> rotations[N + 1];
+        Vector<RealType> scales;
+
+        for(Int i = 0; i < N; ++i) {
+            translations[i].reserve(nKeyFrames);
+            rotations[i].reserve(nKeyFrames);
+        }
+        rotations[N].reserve(nKeyFrames);
+        scales.reserve(nKeyFrames);
+        frames.reserve(nKeyFrames);
+
+        ////////////////////////////////////////////////////////////////////////////////
+        for(const auto& keyFrame : m_KeyFrames) {
+            m_MaxFrame = (m_MaxFrame < keyFrame.frame) ? keyFrame.frame : m_MaxFrame;
+
+            for(Int i = 0; i < N; ++i) {
+                translations[i].push_back(keyFrame.translation[i]);
+                rotations[i].push_back(keyFrame.rotation[i]);
+            }
+            rotations[N].push_back(keyFrame.rotation[N]);
+            scales.push_back(keyFrame.uniformScale);
+            frames.push_back(static_cast<RealType>(keyFrame.frame));
+        }
+
+
+        for(Int i = 0; i < N; ++i) {
+            m_TranslationSpline[i].setPoints(frames, translations[i]);
+            m_RotationSpline[i].setPoints(frames, rotations[i]);
+        }
+        m_RotationSpline[N].setPoints(frames, rotations[N]);
+        m_ScaleSpline.setPoints(frames, scales[i]);
+
+        ////////////////////////////////////////////////////////////////////////////////
+        m_bReady = true;
+    }
+
+    MatXxX<N + 1, RealType> getTransformation(UInt frame, RealType fraction = RealType(0))
+    {
+        if(m_KeyFrames.size() == 1) {
+            MatXxX<N + 1, RealType> translationMatrix = glm::translate(MatXxX<N + 1, RealType>(1.0), m_KeyFrames[0].translation);
+            MatXxX<N + 1, RealType> rotationMatrix    = glm::rotate(MatXxX<N + 1, RealType>(1.0), m_KeyFrames[0].rotation[N], VecX<N, RealType>(m_KeyFrames[0].rotation));
+            MatXxX<N + 1, RealType> scaleMatrix       = glm::scale(MatXxX<N + 1, RealType>(1.0), VecX<N, RealType>(m_KeyFrames[0].uniformScale));
+
+            return (translationMatrix * rotationMatrix * scaleMatrix);
+        }
+
+        ////////////////////////////////////////////////////////////////////////////////
+        __BNN_ASSERT(m_bReady)
+        VecX<N, RealType> translation;
+        VecX<N + 1, RealType> rotation;
+        RealType              scale;
+
+        if(m_bPeriodic && frame > m_MaxFrame) {
+            frame = frame % m_MaxFrame;
+        }
+        RealType x = static_cast<RealType>(frame) + fraction;
+
+        for(Int i = 0; i < N; ++i) {
+            translation[i] = m_TranslationSpline[i](x);
+            rotation[i]    = m_RotationSpline[i](x);
+        }
+        rotation[N] = m_RotationSpline[N](x);
+        scale       = m_ScaleSpline(x);
+
+        MatXxX<N + 1, RealType> translationMatrix = glm::translate(MatXxX<N + 1, RealType>(1.0), translation);
+        MatXxX<N + 1, RealType> rotationMatrix    = glm::rotate(MatXxX<N + 1, RealType>(1.0), rotation[N], VecX<N, RealType>(rotation));
+        MatXxX<N + 1, RealType> scaleMatrix       = glm::scale(MatXxX<N + 1, RealType>(1.0), VecX<N, RealType>(scale));
+
+        return (translationMatrix * rotationMatrix * scaleMatrix);
+    }
+
+    MatXxX<N + 1, RealType> getInvTransformation(UInt frame, RealType fraction = RealType(0))
+    {
+        __BNN_ASSERT(m_bReady);
+        return glm::inverse(getTransformation(frame, fraction));
+    }
+
+    RealType getUniformScale(UInt frame, RealType fraction = RealType(0))
+    {
+        if(m_KeyFrames.size() == 1) {
+            return m_KeyFrames[0].uniformScale;
+        }
+
+        if(m_bPeriodic && frame > m_MaxFrame) {
+            frame = frame % m_MaxFrame;
+        }
+        RealType x = static_cast<RealType>(frame) + fraction;
+        return m_ScaleSpline(x);
+    }
+
+    RealType getInvScale(UInt frame, RealType fraction = RealType(0))
+    {
+        return RealType(1.0) / getUniformScale(frame, fraction);
+    }
+
+private:
+    Vector<KeyFrame<N, RealType> > m_KeyFrames;
+    CubicSpline<RealType>          m_TranslationSpline[N];
+    CubicSpline<RealType>          m_RotationSpline[N + 1];
+    CubicSpline<RealType>          m_ScaleSpline;
+
+    UInt m_MaxFrame  = 0;
+    bool m_bReady    = false;
+    bool m_bPeriodic = false;
+};
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+} // end namespace Banana

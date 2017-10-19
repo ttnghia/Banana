@@ -88,11 +88,11 @@ void FLIP3DSolver::advanceFrame()
     int          substepCount = 0;
 
     ////////////////////////////////////////////////////////////////////////////////
-    while(frameTime < m_GlobalParams.frameDuration) {
+    while(frameTime < globalParams().frameDuration) {
         logger().printRunTime("Sub-step time: ", subStepTimer,
                               [&]()
                               {
-                                  Real remainingTime = m_GlobalParams.frameDuration - frameTime;
+                                  Real remainingTime = globalParams().frameDuration - frameTime;
                                   Real substep       = MathHelpers::min(computeCFLTimestep(), remainingTime);
                                   ////////////////////////////////////////////////////////////////////////////////
                                   logger().printRunTime("Find neighbors: ",               funcTimer, [&]() { m_Grid.collectIndexToCells(particleData().positions); });
@@ -103,8 +103,10 @@ void FLIP3DSolver::advanceFrame()
                                   frameTime += substep;
                                   ++substepCount;
                                   logger().printLog("Finished step " + NumberHelpers::formatWithCommas(substepCount) + " of size " + NumberHelpers::formatToScientific<Real>(substep) +
-                                                    "(" + NumberHelpers::formatWithCommas(substep / m_GlobalParams.frameDuration * 100) + "% of the frame, to " +
-                                                    NumberHelpers::formatWithCommas(100 * (frameTime) / m_GlobalParams.frameDuration) + "% of the frame).");
+                                                    "(" + NumberHelpers::formatWithCommas(substep / globalParams().frameDuration * 100) + "% of the frame, to " +
+                                                    NumberHelpers::formatWithCommas(100 * (frameTime) / globalParams().frameDuration) + "% of the frame).");
+
+                                  logger().printRunTime("Advance scene: ", funcTimer, [&]() { advanceScene(globalParams().finishedFrame, frameTime / globalParams().frameDuration); });
                               });
 
         ////////////////////////////////////////////////////////////////////////////////
@@ -112,7 +114,7 @@ void FLIP3DSolver::advanceFrame()
     }       // end while
 
     ////////////////////////////////////////////////////////////////////////////////
-    ++m_GlobalParams.finishedFrame;
+    ++globalParams().finishedFrame;
     saveFrameData();
     saveMemoryState();
 }
@@ -121,7 +123,7 @@ void FLIP3DSolver::advanceFrame()
 void FLIP3DSolver::sortParticles()
 {
     assert(m_NSearch != nullptr);
-    if(m_GlobalParams.finishedFrame % m_GlobalParams.sortFrequency != 0) {
+    if(globalParams().finishedFrame % globalParams().sortFrequency != 0) {
         return;
     }
 
@@ -191,9 +193,9 @@ void FLIP3DSolver::generateParticles(const nlohmann::json& jParams)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FLIP3DSolver::advanceScene()
+void FLIP3DSolver::advanceScene(UInt frame, Real fraction /*= Real(0)*/)
 {
-    ParticleSolver3D::advanceScene();
+    ParticleSolver3D::advanceScene(frame, fraction);
 
     for(auto& generator : m_ParticleGenerators) {
         if(!generator->generationFinished(globalParams().finishedFrame)) {
@@ -206,19 +208,19 @@ void FLIP3DSolver::advanceScene()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void FLIP3DSolver::setupDataIO()
 {
-    m_ParticleIO = std::make_unique<ParticleSerialization>(m_GlobalParams.dataPath, "FLIPData", "frame", m_Logger);
+    m_ParticleIO = std::make_unique<ParticleSerialization>(globalParams().dataPath, "FLIPData", "frame", m_Logger);
     m_ParticleIO->addFixedAtribute<float>("particle_radius", ParticleSerialization::TypeReal, 1);
     m_ParticleIO->addParticleAtribute<float>("position", ParticleSerialization::TypeCompressedReal, 3);
-    if(m_GlobalParams.isSavingData("anisotropic_kernel")) {
+    if(globalParams().isSavingData("anisotropic_kernel")) {
         m_ParticleIO->addParticleAtribute<float>("anisotropic_kernel", ParticleSerialization::TypeCompressedReal, 9);
     }
-    if(m_GlobalParams.isSavingData("velocity")) {
+    if(globalParams().isSavingData("velocity")) {
         m_ParticleIO->addParticleAtribute<float>("velocity", ParticleSerialization::TypeCompressedReal, 3);
     }
 
     ////////////////////////////////////////////////////////////////////////////////
 
-    m_MemoryStateIO = std::make_unique<ParticleSerialization>(m_GlobalParams.dataPath, "FLIPState", "frame", m_Logger);
+    m_MemoryStateIO = std::make_unique<ParticleSerialization>(globalParams().dataPath, "FLIPState", "frame", m_Logger);
     m_MemoryStateIO->addFixedAtribute<Real>("particle_radius", ParticleSerialization::TypeReal, 1);
     m_MemoryStateIO->addParticleAtribute<Real>("position", ParticleSerialization::TypeReal, 3);
     m_MemoryStateIO->addParticleAtribute<Real>("velocity", ParticleSerialization::TypeReal, 3);
@@ -227,12 +229,12 @@ void FLIP3DSolver::setupDataIO()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 bool FLIP3DSolver::loadMemoryState()
 {
-    if(!m_GlobalParams.bLoadMemoryState) {
+    if(!globalParams().bLoadMemoryState) {
         return false;
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    int latestStateIdx = m_MemoryStateIO->getLatestFileIndex(m_GlobalParams.finalFrame);
+    int latestStateIdx = m_MemoryStateIO->getLatestFileIndex(globalParams().finalFrame);
     if(latestStateIdx < 0) {
         return false;
     }
@@ -256,14 +258,14 @@ bool FLIP3DSolver::loadMemoryState()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void FLIP3DSolver::saveMemoryState()
 {
-    if(!m_GlobalParams.bSaveMemoryState) {
+    if(!globalParams().bSaveMemoryState) {
         return;
     }
 
     static UInt frameCount = 0;
     ++frameCount;
 
-    if(frameCount < m_GlobalParams.framePerState) {
+    if(frameCount < globalParams().framePerState) {
         return;
     }
 
@@ -275,13 +277,13 @@ void FLIP3DSolver::saveMemoryState()
     m_MemoryStateIO->setFixedAttribute("particle_radius", solverParams().particleRadius);
     m_MemoryStateIO->setParticleAttribute("position", particleData().positions);
     m_MemoryStateIO->setParticleAttribute("velocity", particleData().velocities);
-    m_MemoryStateIO->flushAsync(m_GlobalParams.finishedFrame);
+    m_MemoryStateIO->flushAsync(globalParams().finishedFrame);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void FLIP3DSolver::saveFrameData()
 {
-    if(!m_GlobalParams.bSaveFrameData) {
+    if(!globalParams().bSaveFrameData) {
         return;
     }
 
@@ -289,7 +291,7 @@ void FLIP3DSolver::saveFrameData()
     m_ParticleIO->clearData();
     m_ParticleIO->setNParticles(particleData().getNParticles());
     m_ParticleIO->setFixedAttribute("particle_radius", solverParams().particleRadius);
-    if(m_GlobalParams.isSavingData("anisotropic_kernel")) {
+    if(globalParams().isSavingData("anisotropic_kernel")) {
         AnisotropicKernelGenerator aniKernelGenerator(particleData().getNParticles(), particleData().positions.data(), solverParams().particleRadius);
         aniKernelGenerator.generateAniKernels();
         m_ParticleIO->setParticleAttribute("position", aniKernelGenerator.kernelCenters());
@@ -298,10 +300,10 @@ void FLIP3DSolver::saveFrameData()
         m_ParticleIO->setParticleAttribute("position", particleData().positions);
     }
 
-    if(m_GlobalParams.isSavingData("velocity")) {
+    if(globalParams().isSavingData("velocity")) {
         m_ParticleIO->setParticleAttribute("velocity", particleData().velocities);
     }
-    m_ParticleIO->flushAsync(m_GlobalParams.finishedFrame);
+    m_ParticleIO->flushAsync(globalParams().finishedFrame);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

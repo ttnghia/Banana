@@ -79,6 +79,7 @@ void Snow3DSolver::advanceFrame()
                                   logger().printLog("Finished step " + NumberHelpers::formatWithCommas(substepCount) + " of size " + NumberHelpers::formatToScientific<Real>(substep) +
                                                     "(" + NumberHelpers::formatWithCommas(substep / m_GlobalParams.frameDuration * 100) + "% of the frame, to " +
                                                     NumberHelpers::formatWithCommas(100 * (frameTime) / m_GlobalParams.frameDuration) + "% of the frame).");
+                                  logger().printRunTime("Advance scene: ", funcTimer, [&]() { advanceScene(globalParams().finishedFrame, frameTime / globalParams().frameDuration); });
                               });
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -150,9 +151,9 @@ void Snow3DSolver::generateParticles(const nlohmann::json& jParams)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Snow3DSolver::advanceScene()
+void Snow3DSolver::advanceScene(UInt frame, Real fraction /*= Real(0)*/)
 {
-    ParticleSolver3D::advanceScene();
+    ParticleSolver3D::advanceScene(frame, fraction);
 
     for(auto& generator : m_ParticleGenerators) {
         if(!generator->generationFinished(globalParams().finishedFrame)) {
