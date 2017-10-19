@@ -52,7 +52,6 @@ struct SimulationParameters_FLIP3D
     bool bApplyRepulsiveForces   = false;
     Real repulsiveForceStiffness = Real(1e-3);
 
-    Vec3r v0         = Vec3r(1, 0, 0);
     Vec3r movingBMin = Vec3r(-1.0);
     Vec3r movingBMax = Vec3r(1.0);
 

@@ -49,7 +49,6 @@ struct SimulationParameters_FLIP2D
     bool bApplyRepulsiveForces   = false;
     Real repulsiveForceStiffness = Real(1e-3);
 
-    Vec2r v0         = Vec2r(0, 1.0);
     Vec2r movingBMin = Vec2r(-1.0);
     Vec2r movingBMax = Vec2r(1.0);
 

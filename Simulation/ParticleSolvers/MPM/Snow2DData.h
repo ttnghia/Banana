@@ -59,7 +59,6 @@ struct SimulationParameters_Snow2D
     Real  ratioCellSizeParticleRadius = Real(2.0);
     Vec2r domainBMin                  = Vec2r(0.0);
     Vec2r domainBMax                  = Vec2r(1.0);
-    Vec2r v0                          = Vec2r(0, 1.0);
 
     // the following need to be computed
     Real particleRadius;

@@ -136,6 +136,9 @@
     <None Include="BananaCore.licenseheader" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Banana\Animation\Animation.h" />
+    <ClInclude Include="Banana\Animation\CubicSpline.h" />
+    <ClInclude Include="Banana\Animation\CubicSpline.Impl.hpp" />
     <ClInclude Include="Banana\Array\Array.h" />
     <ClInclude Include="Banana\Array\SparseArray3.h" />
     <ClInclude Include="Banana\Data\DataIO.Impl.hpp" />

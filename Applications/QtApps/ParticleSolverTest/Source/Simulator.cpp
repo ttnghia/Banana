@@ -18,7 +18,6 @@
 #include "Simulator.h"
 
 #include <ParticleTools/ParticleHelpers.h>
-
 #include <QDebug>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -152,6 +151,9 @@ void Simulator::changeScene(const QString& scene)
         }
     }
 #endif
+
+
+
 
     m_ParticleSolver->makeReady();
 
