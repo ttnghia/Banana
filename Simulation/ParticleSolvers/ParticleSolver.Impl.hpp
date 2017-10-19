@@ -26,8 +26,9 @@ void ParticleSolver<N, RealType >::loadScene(const String& sceneFile)
     nlohmann::json jParams = nlohmann::json::parse(inputFile);
 
     ////////////////////////////////////////////////////////////////////////////////
-    // read frame parameters
-    if(jParams.find("GlobalParameters") != jParams.end()) {
+    // read global parameters
+    __BNN_ASSERT(jParams.find("GlobalParameters") != jParams.end());
+    {
         nlohmann::json jFrameParams = jParams["GlobalParameters"];
         SceneLoader::loadGlobalParams(jFrameParams, globalParams());
         if(globalParams().bSaveFrameData || globalParams().bSaveMemoryState || globalParams().bPrintLog2File) {
@@ -38,23 +39,25 @@ void ParticleSolver<N, RealType >::loadScene(const String& sceneFile)
 
     ////////////////////////////////////////////////////////////////////////////////
     // setup logger following global parameters
-    Logger::initialize(globalParams().dataPath, globalParams().bPrintLog2Console, globalParams().bPrintLog2File);
-    setupLogger();
-    logger().printLog("Loaded scene file: " + sceneFile);
-    globalParams().printParams(logger());
+    {
+        Logger::initialize(globalParams().dataPath, globalParams().bPrintLog2Console, globalParams().bPrintLog2File);
+        setupLogger();
+        logger().printLog("Loaded scene file: " + sceneFile);
+        globalParams().printParams(logger());
+    }
 
     ////////////////////////////////////////////////////////////////////////////////
     // read simulation parameters
-    if(jParams.find("SimulationParameters") != jParams.end()) {
+    __BNN_ASSERT(jParams.find("SimulationParameters") != jParams.end());
+    {
         nlohmann::json jSimParams = jParams["SimulationParameters"];
 
         // load simulation domain box from sim param and set it as the first boundary object
+        if(jSimParams.find("SimulationDomainBox") != jSimParams.end()) {; }
         {
-            __BNN_ASSERT(jSimParams.find("SimulationDomainBox") != jSimParams.end());
             nlohmann::json jBoxParams = jSimParams["SimulationDomainBox"];
 
             SharedPtr<SimulationObjects::BoundaryObject<N, RealType> > obj = SimulationObjectFactory::createBoundaryObject<N, RealType>("Box");
-            __BNN_ASSERT(obj->getGeometry() != nullptr);
             m_BoundaryObjects.push_back(obj);
 
             // domain box cannot be dynamic
@@ -79,7 +82,7 @@ void ParticleSolver<N, RealType >::loadScene(const String& sceneFile)
                 box->setSizeScale(sizeScale);
             }
         }
-        loadSimParams(jSimParams); // do this by specific solver
+        loadSimParams(jSimParams); // do this by derived solver
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -136,10 +139,11 @@ void ParticleSolver<N, RealType >::doSimulation()
     logger().printAligned("Simulation finished", '+');
     logger().printLog("Total frames: " + NumberHelpers::formatWithCommas(globalParams().finalFrame - globalParams().startFrame + 1));
     logger().printLog("Data path: " + globalParams().dataPath);
+    auto strs = FileHelpers::getFolderSize(globalParams().dataPath, 1);
+    for(auto& str: strs) {
+        logger().printLog(str);
+    }
     logger().newLine();
-
-
-    //logger().printLog("Data: \n" + FileHelpers::getFolderSize(globalParams().dataPath, 1));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

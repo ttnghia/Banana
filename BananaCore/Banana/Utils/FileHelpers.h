@@ -66,8 +66,7 @@ inline bool fileExisted(const char* fileName)
     if(file != nullptr) {
         fclose(file);
         return true;
-    }
-    else{
+    } else {
         return false;
     }
 }
@@ -98,32 +97,50 @@ inline size_t getFileSize(const String& fileName)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-inline String getFolderSize(const char* folderName, int level = 0)
+inline Vec_String getFolderSize(const char* folderName, int level = 0)
 {
 #ifdef __BANANA_WINDOWS__
-    (void)folderName;
-    (void)level;
-    __BNN_UNIMPLEMENTED_FUNC
+    __BNN_UNUSED(level);
+    namespace fs = std::experimental::filesystem;
+    size_t     totalSize = 0;
+    Vec_String strs;
+    strs.emplace_back(String("Data size: "));
+
+    for(auto& p : fs::directory_iterator(folderName)) {
+        if(fs::is_directory(p)) {
+            size_t folderSize = 0;
+            for(auto& f : fs::directory_iterator(p)) {
+                if(fs::is_regular_file(f)) {
+                    folderSize += fs::file_size(f);
+                }
+            }
+            totalSize += folderSize;
+            strs.emplace_back(String("....") + fs::path(p).filename().string() + String(": ") + std::to_string(folderSize / 1048576) + String(" (MB) - ") +
+                              std::to_string(std::distance(fs::directory_iterator(p), fs::directory_iterator{})) + String(" files"));
+        }
+    }
+
+    strs[0] += std::to_string(totalSize / 1048576) + String(" (MB)");
+
+    return strs;
 #else
     const int maxBuffer = 256;
-    char buffer[maxBuffer];
-    char command[maxBuffer];
+    char      buffer[maxBuffer];
+    char      command[maxBuffer];
 
     if(level == 0) {
         __BNN_SPRINT(command, "du -h -d0 %s | cut -f1", folderName);
-    }
-    else{
+    } else {
         __BNN_SPRINT(command, "du -h -d%d %s", level, folderName);
     }
 
     FILE* stream = popen(command, "r");
 
-    String output;
+    String output("Data: \n");
 
     if(!stream) {
-        output = "Error";
-    }
-    else{
+        output = String("Error");
+    } else {
         while(!feof(stream)) {
             if(fgets(buffer, maxBuffer, stream) != nullptr) {
                 output.append(buffer);
@@ -137,7 +154,7 @@ inline String getFolderSize(const char* folderName, int level = 0)
 #endif
 }
 
-inline String getFolderSize(const String& folderName, int level = 0)
+inline Vec_String getFolderSize(const String& folderName, int level = 0)
 {
     return getFolderSize(folderName.c_str(), level);
 }
@@ -195,8 +212,8 @@ inline void copyFile(const char* srcFile, const char* dstFile)
     dst = fopen(dstName, "w");
 #endif
     if(src == nullptr || dst == nullptr) {
-        if(src != nullptr) fclose(src);
-        if(dst != nullptr) fclose(dst);
+        if(src != nullptr) { fclose(src); }
+        if(dst != nullptr) { fclose(dst); }
         return;
     }
 
@@ -218,8 +235,9 @@ inline void copyFile(const String& srcFile, const String& dstFile)
 inline bool writeFile(const String& str, const char* fileName)
 {
     std::ofstream file(fileName, std::ios::out);
-    if(!file.is_open())
+    if(!file.is_open()) {
         return false;
+    }
 
     file << str;
     file.close();
@@ -235,11 +253,13 @@ inline bool writeFile(const String& str, const String& fileName)
 inline bool writeFile(const Vector<String>& vecStr, const char* fileName)
 {
     std::ofstream file(fileName, std::ios::out);
-    if(!file.is_open())
+    if(!file.is_open()) {
         return false;
+    }
 
-    for(auto& str : vecStr)
+    for(auto& str : vecStr) {
         file << str << std::endl;
+    }
 
     file.close();
     return true;
@@ -254,8 +274,9 @@ inline bool writeFile(const Vector<String>& vecStr, const String& fileName)
 inline bool writeFile(const void* dataBuffer, size_t dataSize, const char* fileName)
 {
     std::ofstream file(fileName, std::ios::binary | std::ios::out);
-    if(!file.is_open())
+    if(!file.is_open()) {
         return false;
+    }
 
     file.write((char*)dataBuffer, dataSize);
     file.close();
@@ -291,8 +312,9 @@ inline std::future<void> writeFileAsync(const void* dataBuffer, size_t dataSize,
 inline bool appendToFile(const String& str, const char* fileName)
 {
     std::ofstream file(fileName, std::ios::out | std::ofstream::app);
-    if(!file.is_open())
+    if(!file.is_open()) {
         return false;
+    }
 
     file << str;
     file.close();
@@ -308,11 +330,13 @@ inline bool appendToFile(const String& str, const String& fileName)
 inline bool appendToFile(const Vector<String>& vecStr, const char* fileName)
 {
     std::ofstream file(fileName, std::ios::out | std::ofstream::app);
-    if(!file.is_open())
+    if(!file.is_open()) {
         return false;
+    }
 
-    for(auto& str : vecStr)
+    for(auto& str : vecStr) {
         file << str << std::endl;
+    }
     file.close();
     return true;
 }
@@ -326,12 +350,14 @@ inline bool appendToFile(const Vector<String>& vecStr, const String& fileName)
 inline bool readFile(unsigned char*& dataBuffer, size_t bufferSize, const char* fileName)
 {
     std::ifstream file(fileName, std::ios::binary | std::ios::ate);
-    if(!file.is_open())
+    if(!file.is_open()) {
         return false;
+    }
 
     size_t fileSize = (size_t)file.tellg();
-    if(bufferSize < fileSize)
+    if(bufferSize < fileSize) {
         dataBuffer = reinterpret_cast<unsigned char*>(realloc(dataBuffer, fileSize));
+    }
 
     file.seekg(0, std::ios::beg);
     file.read((char*)dataBuffer, fileSize);
@@ -348,8 +374,9 @@ inline bool readFile(unsigned char*& dataBuffer, size_t bufferSize, const String
 inline bool readFile(Vector<unsigned char>& dataBuffer, const char* fileName)
 {
     std::ifstream file(fileName, std::ios::binary | std::ios::ate);
-    if(!file.is_open())
+    if(!file.is_open()) {
         return false;
+    }
 
     size_t fileSize = (size_t)file.tellg();
     dataBuffer.resize(fileSize);
@@ -369,14 +396,16 @@ inline bool readFile(Vector<unsigned char>& dataBuffer, const String& fileName)
 inline bool readFile(Vector<String>& vecStr, const char* fileName)
 {
     std::ifstream file(fileName, std::ios::in);
-    if(!file.is_open())
+    if(!file.is_open()) {
         return false;
+    }
 
     vecStr.resize(0);
     String line;
 
-    while(std::getline(file, line))
+    while(std::getline(file, line)) {
         vecStr.push_back(line);
+    }
 
     file.close();
     return true;

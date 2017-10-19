@@ -76,6 +76,7 @@ void ClothSolver::makeReady()
     sortParticles();
     logger().printLog("Solver ready!");
     logger().newLine();
+    saveFrameData();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

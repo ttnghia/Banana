@@ -2,12 +2,12 @@
     "GlobalParameters":
     {
         "FrameDuration" : 0.03333333333,
-        "FinalFrame" : 100,
+        "FinalFrame" : 0,
         "EnableSortParticle" : true,
         "SortFrequency" : 10,
         "SaveFrameData" : true,
         "DataPath" : "D:/SimData/FLIP",
-        "OptionalSavingData" : [ "anisotropic_kernel" ]
+        "OptionalSavingDataXXX" : [ "anisotropic_kernel" ]
     },
     "SimulationParameters":
     {

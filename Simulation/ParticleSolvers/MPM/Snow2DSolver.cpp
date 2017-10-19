@@ -48,6 +48,7 @@ void Snow2DSolver::makeReady()
     sortParticles();
     logger().printLog("Solver ready!");
     logger().newLine();
+    saveFrameData();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

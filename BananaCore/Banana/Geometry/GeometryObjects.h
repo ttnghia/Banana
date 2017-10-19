@@ -72,9 +72,12 @@ public:
     void setUniformScale(const RealType scaleVal) { m_Scale = scaleVal; m_InvScale = RealType(1.0 / scaleVal); m_bTransformed = true; updateTransformation(); }
     void resetTransformation() { m_bTransformed = false; }
 
-    VecX<N, RealType>&     getTranslation() const noexcept { return m_Translation; }
-    VecX<N + 1, RealType>& getRotation() const noexcept { return m_Rotation; }
-    RealType               getUniformScale() const noexcept { return m_Scale; }
+    auto& getTranslation() const noexcept { return m_Translation; }
+    auto& getRotation() const noexcept { return m_Rotation; }
+    auto  getUniformScale() const noexcept { return m_Scale; }
+
+    auto getAABBMin() const { return transform(VecX<N, RealType>(0)) - VecX<N, RealType>(m_Scale) * sqrt(glm::compAdd(VecX<N, RealType>(1.0))); }
+    auto getAABBMax() const { return transform(VecX<N, RealType>(0)) + VecX<N, RealType>(m_Scale) * sqrt(glm::compAdd(VecX<N, RealType>(1.0))); }
 
     VecX<N, RealType> transform(const VecX<N, RealType>& ppos) const;
     VecX<N, RealType> invTransform(const VecX<N, RealType>& ppos) const;
@@ -106,8 +109,8 @@ public:
     virtual String   name() override { return String("BoxObject"); }
     virtual RealType signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside = true) const override;
 
-    VecX<N, RealType> boxMin() const { return transform(m_BoxMin); }
-    VecX<N, RealType> boxMax() const { return transform(m_BoxMax); }
+    auto boxMin() const { return transform(m_BoxMin); }
+    auto boxMax() const { return transform(m_BoxMax); }
 
     void setSizeScale(const VecX<N, RealType>& sizeScale);
 protected:
