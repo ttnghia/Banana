@@ -91,8 +91,8 @@ void BandMatrix<RealType >::lu_decompose()
     for(Int i = 0; i < dim(); ++i) {
         assert(this->operator()(i, i) != RealType(0));
         saved_diag(i) = RealType(1.0) / this->operator()(i, i);
-        j_min         = fmax(0, i - nLower());
-        j_max         = fmin(dim() - 1, i + nUpper());
+        j_min         = MathHelpers::max(0, i - nLower());
+        j_max         = MathHelpers::min(dim() - 1, i + nUpper());
         for(Int j = j_min; j <= j_max; j++) {
             this->operator()(i, j) *= saved_diag(i);
         }
@@ -101,12 +101,12 @@ void BandMatrix<RealType >::lu_decompose()
 
     // Gauss LR-Decomposition
     for(Int k = 0; k < dim(); k++) {
-        i_max = fmin(dim() - 1, k + nLower());          // nLower not a mistake!
+        i_max = MathHelpers::min(dim() - 1, k + nLower());          // nLower not a mistake!
         for(Int i = k + 1; i <= i_max; ++i) {
             assert(this->operator()(k, k) != RealType(0));
             x                      = -this->operator()(i, k) / this->operator()(k, k);
             this->operator()(i, k) = -x;                                     // assembly part of L
-            j_max                  = fmin(dim() - 1, k + nUpper());
+            j_max                  = MathHelpers::min(dim() - 1, k + nUpper());
             for(Int j = k + 1; j <= j_max; j++) {
 // assembly part of R
                 this->operator()(i, j) = this->operator()(i, j) + x * this->operator()(k, j);
@@ -126,7 +126,7 @@ Vector<RealType> BandMatrix<RealType >::l_solve(const Vector<RealType>& b) const
     RealType         sum;
     for(Int i = 0; i < dim(); ++i) {
         sum     = 0;
-        j_start = fmax(0, i - nLower());
+        j_start = MathHelpers::max(0, i - nLower());
         for(Int j = j_start; j < i; j++) {
             sum += this->operator()(i, j) * x[j];
         }
@@ -146,7 +146,7 @@ Vector<RealType> BandMatrix<RealType >::r_solve(const Vector<RealType>& b) const
     RealType         sum;
     for(Int i = dim() - 1; i >= 0; i--) {
         sum    = 0;
-        j_stop = fmin(dim() - 1, i + nUpper());
+        j_stop = MathHelpers::min(dim() - 1, i + nUpper());
         for(Int j = i + 1; j <= j_stop; j++) {
             sum += this->operator()(i, j) * x[j];
         }
@@ -282,7 +282,7 @@ RealType CubicSpline<RealType>::operator ()(RealType x) const
     // find the closest poInt m_X[idx] < x, idx=0 even if x<m_X[0]
     Vector<RealType>::const_iterator it;
     it = std::lower_bound(m_X.begin(), m_X.end(), x);
-    Int idx = fmax(Int(it - m_X.begin()) - 1, 0);
+    Int idx = MathHelpers::max(Int(it - m_X.begin()) - 1, 0);
 
     RealType h = x - m_X[idx];
     RealType Interpol;
@@ -309,7 +309,7 @@ RealType CubicSpline<RealType >::deriv(Int order, RealType x) const
     // find the closest poInt m_X[idx] < x, idx=0 even if x<m_X[0]
     Vector<RealType>::const_iterator it;
     it = std::lower_bound(m_X.begin(), m_X.end(), x);
-    Int idx = fmax(Int(it - m_X.begin()) - 1, 0);
+    Int idx = MathHelpers::max(Int(it - m_X.begin()) - 1, 0);
 
     RealType h = x - m_X[idx];
     RealType Interpol;

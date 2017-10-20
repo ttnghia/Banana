@@ -18,6 +18,7 @@
 #pragma once
 
 #include <Banana/Setup.h>
+#include <Banana/Utils/MathHelpers.h>
 
 #include <cstdio>
 #include <cassert>

@@ -107,10 +107,10 @@ template<Int N, class RealType>
 void Banana::GeometryObjects::GeometryObject<N, RealType >::resetTransformation()
 {
     m_bTransformed            = false;
-    m_TransformationMatrix    = MatXxX<N + 1, RealType>(1.0);
-    m_InvTransformationMatrix = MatXxX<N + 1, RealType>(1.0);
     m_UniformScale            = RealType(1.0);
     m_InvScale                = RealType(1.0);
+    m_TransformationMatrix    = MatXxX<N + 1, RealType>(1.0);
+    m_InvTransformationMatrix = MatXxX<N + 1, RealType>(1.0);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
