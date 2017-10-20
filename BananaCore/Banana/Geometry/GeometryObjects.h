@@ -69,12 +69,13 @@ public:
     bool           isInside(const VecX<N, RealType>& ppos) { return signedDistance(ppos) < 0; }
 
     void setTranslation(const VecX<N, RealType>& translation);
-    void setRotation(const VecX<N, RealType>& axis, RealType angle);
+    void setRotation(const VecX<N + 1, RealType>& rotation);
     void setUniformScale(const RealType scaleVal);
     void resetTransformation();
 
-    auto getAABBMin() const { return transform(VecX<N, RealType>(0)) - VecX<N, RealType>(m_UniformScale) * sqrt(glm::compAdd(VecX<N, RealType>(1.0))); }
-    auto getAABBMax() const { return transform(VecX<N, RealType>(0)) + VecX<N, RealType>(m_UniformScale) * sqrt(glm::compAdd(VecX<N, RealType>(1.0))); }
+    auto  getAABBMin() const { return transform(VecX<N, RealType>(0)) - VecX<N, RealType>(m_UniformScale) * sqrt(glm::compAdd(VecX<N, RealType>(1.0))); }
+    auto  getAABBMax() const { return transform(VecX<N, RealType>(0)) + VecX<N, RealType>(m_UniformScale) * sqrt(glm::compAdd(VecX<N, RealType>(1.0))); }
+    auto& getAnimation() { return m_Animation; }
 
     VecX<N, RealType> transform(const VecX<N, RealType>& ppos) const;
     VecX<N, RealType> invTransform(const VecX<N, RealType>& ppos) const;
@@ -109,7 +110,7 @@ public:
     const auto& boxMax() const { return transform(m_BoxMax); }
 
     void  setOriginalBox(const VecX<N, RealType>& bMin, const VecX<N, RealType>& bMax);
-    void  setKeyFrame(UInt frame, const VecX<N, RealType>& bMin, const VecX<N, RealType>& bMax);
+    void  addKeyFrame(UInt frame, const VecX<N, RealType>& bMin, const VecX<N, RealType>& bMax);
     auto& periodic() { return m_bPeriodic; }
 
     void         makeReadyAnimation();
@@ -123,6 +124,7 @@ protected:
     // animation data
     struct BoxKeyFrame
     {
+        BoxKeyFrame() = default;
         BoxKeyFrame(UInt frame_, const VecX<N, RealType>& bMin_, const VecX<N, RealType>& bMax_) { frame = frame_; bMin = bMin_; bMax = bMax_; }
         UInt              frame = 0;
         VecX<N, RealType> bMin  = VecX<N, RealType>(-1.0);

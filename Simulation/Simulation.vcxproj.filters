@@ -191,9 +191,6 @@
     <ClCompile Include="ParticleTools\ParticleHelpers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SimulationObjects\SimulationObjects.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="SurfaceReconstruction\_SurfaceReconstruction.Test.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

@@ -201,9 +201,6 @@
     <ClInclude Include="Banana\Animation\Animation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Banana\Animation\CubicSpline.Impl.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Banana\Data\DataBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>

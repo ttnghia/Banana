@@ -27,7 +27,7 @@ namespace Banana
 template<Int N, class RealType>
 struct KeyFrame
 {
-    KeyFrame() {}
+    KeyFrame() = default;
     KeyFrame(UInt frame_, const VecX<N, RealType>& translation_) { frame = frame_; translation = translation_; }
     KeyFrame(UInt frame_, const VecX<N + 1, RealType>& rotation_) { frame = frame_; rotation = rotation_; }
     KeyFrame(UInt frame_, RealType scale_) { frame = frame_; uniformScale = scale_; invScale = RealType(1.0) / scale_; }

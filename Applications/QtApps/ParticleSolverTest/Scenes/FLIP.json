@@ -13,8 +13,8 @@
     {
         "SimulationDomainBox" :
         {
-            "Translation" : [0, 0.25, 0],
-            "SizeScale" : [ 1, 1.25, 1]
+            "BoxMin" : [-1, -1, -1],
+            "BoxMax" : [ 1, 1.5, 1]
         },
         "ApplyRepulsiveForce" : true,
         "RepulsiveForceStiffness" : 1e-4,
@@ -29,7 +29,18 @@
             "GeometryType" : "Sphere",
             "CSGOperator" : "Intersection",
             "Translation" : [0.0, 1.0, 0.0],
-            "Scale" : 2.0
+            "Scale" : 2.0,
+            "Animation" :
+            [
+                {
+                    "Frame" : 150,
+                    "Translation" : [0, 1.5, 0]
+                },
+                {
+                    "Frame" : 300,
+                    "Translation" : [0, 1.0, 0]
+                }
+            ]
         }
 
     ],

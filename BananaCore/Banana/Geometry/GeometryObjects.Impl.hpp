@@ -86,9 +86,9 @@ void Banana::GeometryObjects::GeometryObject<N, RealType >::setTranslation(const
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void Banana::GeometryObjects::GeometryObject<N, RealType >::setRotation(const VecX<N, RealType>& axis, RealType angle)
+void Banana::GeometryObjects::GeometryObject<N, RealType >::setRotation(const VecX<N + 1, RealType>& rotation)
 {
-    m_Animation.keyFrames()[0].rotation = VecX<N + 1, RealType>(axis, angle);;
+    m_Animation.keyFrames()[0].rotation = rotation;
     updateTransformation();
     m_bTransformed = true;
 }
@@ -193,10 +193,10 @@ void Banana::GeometryObjects::BoxObject<N, RealType >::setOriginalBox(const VecX
 
 ////////////////////////////////////////////////////////////////////////////////
 template<Int N, class RealType>
-void Banana::GeometryObjects::BoxObject<N, RealType >::setKeyFrame(UInt frame, const VecX<N, RealType>& bMin, const VecX<N, RealType>& bMax)
+void Banana::GeometryObjects::BoxObject<N, RealType >::addKeyFrame(UInt frame, const VecX<N, RealType>& bMin, const VecX<N, RealType>& bMax)
 {
     if(m_KeyFrames.size() == 0) {
-        m_KeyFrames.emplace_back(KeyFrame(0, m_BoxMin, m_BoxMax));
+        m_KeyFrames.emplace_back(BoxKeyFrame(0, m_BoxMin, m_BoxMax));
     }
     m_KeyFrames.emplace_back(BoxKeyFrame(frame, bMin, bMax));
 }

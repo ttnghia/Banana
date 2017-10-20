@@ -196,7 +196,6 @@
     <ClCompile Include="ParticleTools\ParticleHelpers.cpp" />
     <ClCompile Include="ParticleTools\ParticleSerialization.cpp" />
     <ClCompile Include="ParticleTools\_ParticleTools.Test.cpp" />
-    <ClCompile Include="SimulationObjects\SimulationObjects.cpp" />
     <ClCompile Include="SurfaceReconstruction\AniKernelGenerator.cpp" />
     <ClCompile Include="SurfaceReconstruction\MarchingCube.cpp" />
     <ClCompile Include="SurfaceReconstruction\_SurfaceReconstruction.Test.cpp" />

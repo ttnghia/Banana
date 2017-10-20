@@ -156,8 +156,7 @@ void ParticleSolver<N, RealType >::loadScene(const String& sceneFile)
         nlohmann::json jSimParams = jParams["SimulationParameters"];
 
         // load simulation domain box from sim param and set it as the first boundary object
-        if(jSimParams.find("SimulationDomainBox") != jSimParams.end()) {; }
-        {
+        if(jSimParams.find("SimulationDomainBox") != jSimParams.end()) {
             nlohmann::json jBoxParams = jSimParams["SimulationDomainBox"];
 
             auto obj = std::make_shared<SimulationObjects::BoxBoundary<N, RealType> >();

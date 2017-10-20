@@ -98,22 +98,54 @@ void loadSimulationObject(const nlohmann::json& jParams, const SharedPtr<Simulat
     JSONHelpers::readBool(jParams, obj->isDynamic(), "IsDynamic");
     JSONHelpers::readBool(jParams, obj->fullShapeObj(), "FullShapeObj");
 
-    // read object transformation
-    VecX<N, Real> translation;
-    VecX<N, Real> rotationAxis;
-    Real          rotationAngle;
-    Real          scale;
+    VecX<N, Real>     translation;
+    VecX<N + 1, Real> rotation;
+    Real              scale;
 
     if(JSONHelpers::readVector(jParams, translation, "Translation")) {
         obj->getGeometry()->setTranslation(translation);
     }
 
-    if(JSONHelpers::readVector(jParams, rotationAxis, "RotationAxis") && JSONHelpers::readValue(jParams, rotationAngle, "RotationAngle")) {
-        obj->getGeometry()->setRotation(rotationAxis, rotationAngle);
+    if(JSONHelpers::readVector(jParams, rotation, "Rotation")) {
+        obj->getGeometry()->setRotation(rotation);
     }
 
     if(JSONHelpers::readValue(jParams, scale, "Scale")) {
         obj->getGeometry()->setUniformScale(scale);
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // animation data
+    if(jParams.find("Animation") != jParams.end()) {
+        for(auto& jKeyFrame : jParams["Animation"]) {
+            KeyFrame<N, RealType> keyFrame;
+            __BNN_ASSERT(JSONHelpers::readValue(jKeyFrame, keyFrame.frame, "Frame"));
+            JSONHelpers::readVector(jKeyFrame, keyFrame.translation, "Translation");
+            JSONHelpers::readVector(jKeyFrame, keyFrame.rotation, "Rotation");
+            JSONHelpers::readValue(jKeyFrame, keyFrame.uniformScale, "Scale");
+
+            obj->getGeometry()->getAnimation().addKeyFrame(keyFrame);
+        }
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // specialized for box object
+    auto box = dynamic_pointer_cast<GeometryObjects::BoxObject<N, RealType> >(obj->getGeometry());
+    if(box != nullptr) {
+        VecX<N, Real> bMin, bMax;
+        if(JSONHelpers::readVector(jParams, bMin, "BoxMin") && JSONHelpers::readVector(jParams, bMax, "BoxMax")) {
+            box->setOriginalBox(bMin, bMax);
+        }
+
+        if(jParams.find("Animation") != jParams.end()) {
+            for(auto& jKeyFrame : jParams["Animation"]) {
+                UInt frame;
+                __BNN_ASSERT(JSONHelpers::readValue(jKeyFrame, frame, "Frame"));
+                if(JSONHelpers::readVector(jKeyFrame, bMin, "BoxMin") && JSONHelpers::readVector(jKeyFrame, bMax, "BoxMax")) {
+                    box->addKeyFrame(frame, bMin, bMax);
+                }
+            }
+        }
     }
 }
 
@@ -122,12 +154,10 @@ template<Int N, class RealType>
 void loadBoundaryObjects(const nlohmann::json& jParams, Vector<SharedPtr<BoundaryObject<N, RealType> > >& boundaryObjs)
 {
     for(auto& jObj : jParams) {
-// read geometry type of the object
-        String geometryType = String("");
+        String geometryType;
         __BNN_ASSERT(JSONHelpers::readValue(jObj, geometryType, "GeometryType"));
         __BNN_ASSERT(!geometryType.empty());
 
-        // create the object
         SharedPtr<BoundaryObject<N, RealType> > obj = nullptr;
         if(geometryType == "Box" || geometryType == "box" || geometryType == "BOX") {
             obj = std::make_shared<BoxBoundary<N, RealType> >();
@@ -144,8 +174,7 @@ template<Int N, class RealType>
 void loadParticleGenerators(const nlohmann::json& jParams, Vector<SharedPtr<ParticleGenerator<N, RealType> > >& particleGenerators)
 {
     for(auto& jObj : jParams) {
-// read geometry type of the object
-        String geometryType = String("");
+        String geometryType;
         __BNN_ASSERT(JSONHelpers::readValue(jObj, geometryType, "GeometryType"));
         __BNN_ASSERT(!geometryType.empty());
 
@@ -168,11 +197,10 @@ template<Int N, class RealType>
 void loadParticleRemovers(const nlohmann::json& jParams, Vector<SharedPtr<ParticleRemover<N, RealType> > >& particleRemovers)
 {
     for(auto& jObj : jParams) {
-        String geometryType = String("");
+        String geometryType;
         __BNN_ASSERT(JSONHelpers::readValue(jObj, geometryType, "GeometryType"));
         __BNN_ASSERT(!geometryType.empty());
 
-        // create the object
         auto obj = std::make_shared<ParticleRemover<N, RealType> >(geometryType);
         particleRemovers.push_back(obj);
         loadSimulationObject(jObj, static_pointer_cast<SimulationObject<N, RealType> >(obj));
