@@ -37,6 +37,8 @@ using namespace SimulationObjects;
 bool loadDataPath(const String& sceneFile, String& dataPath);
 void loadGlobalParams(const nlohmann::json& jParams, ParticleSolvers::GlobalParameters& globalParams);
 
+
+template<Int N, class RealType> void loadSimulationObject(const nlohmann::json& jParams, const SharedPtr<SimulationObject<N, RealType> >& obj);
 template<Int N, class RealType> void loadBoundaryObjects(const nlohmann::json& jParams, Vector<SharedPtr<BoundaryObject<N, RealType> > >& boundaryObjs);
 template<Int N, class RealType> void loadParticleGenerators(const nlohmann::json& jParams, Vector<SharedPtr<ParticleGenerator<N, RealType> > >& particleGenerators);
 template<Int N, class RealType> void loadParticleRemovers(const nlohmann::json& jParams, Vector<SharedPtr<ParticleRemover<N, RealType> > >& particleRemovers);
@@ -83,6 +85,39 @@ inline void loadGlobalParams(const nlohmann::json& jParams, ParticleSolvers::Glo
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+template<Int N, class RealType>
+void loadSimulationObject(const nlohmann::json& jParams, const SharedPtr<SimulationObject<N, RealType> >& obj)
+{
+    __BNN_ASSERT(obj != nullptr);
+
+    JSONHelpers::readValue(jParams, obj->meshFile(), "MeshFile");
+    JSONHelpers::readValue(jParams, obj->particleFile(), "ParticleFile");
+    JSONHelpers::readValue(jParams, obj->SDFFile(), "SDFFile");
+    JSONHelpers::readBool(jParams, obj->useCache(), "UseCache");
+    JSONHelpers::readBool(jParams, obj->isDynamic(), "IsDynamic");
+    JSONHelpers::readBool(jParams, obj->fullShapeObj(), "FullShapeObj");
+
+    // read object transformation
+    VecX<N, Real> translation;
+    VecX<N, Real> rotationAxis;
+    Real          rotationAngle;
+    Real          scale;
+
+    if(JSONHelpers::readVector(jParams, translation, "Translation")) {
+        obj->getGeometry()->setTranslation(translation);
+    }
+
+    if(JSONHelpers::readVector(jParams, rotationAxis, "RotationAxis") && JSONHelpers::readValue(jParams, rotationAngle, "RotationAngle")) {
+        obj->getGeometry()->setRotation(rotationAxis, rotationAngle);
+    }
+
+    if(JSONHelpers::readValue(jParams, scale, "Scale")) {
+        obj->getGeometry()->setUniformScale(scale);
+    }
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
 void loadBoundaryObjects(const nlohmann::json& jParams, Vector<SharedPtr<BoundaryObject<N, RealType> > >& boundaryObjs)
 {
@@ -100,31 +135,7 @@ void loadBoundaryObjects(const nlohmann::json& jParams, Vector<SharedPtr<Boundar
             obj = std::make_shared<BoundaryObject<N, RealType> >(geometryType);
         }
         boundaryObjs.push_back(obj);
-
-        // read mesh/cache/dynamic
-        JSONHelpers::readValue(jObj, obj->meshFile(), "MeshFile");
-        JSONHelpers::readValue(jObj, obj->particleFile(), "ParticleFile");
-        JSONHelpers::readValue(jObj, obj->SDFFile(), "SDFFile");
-        JSONHelpers::readBool(jObj, obj->useCache(), "UseCache");
-        JSONHelpers::readBool(jObj, obj->isDynamic(), "IsDynamic");
-
-        // read object transformation
-        VecX<N, Real> translation;
-        VecX<N, Real> rotationAxis;
-        Real          rotationAngle;
-        Real          scale;
-
-        if(JSONHelpers::readVector(jObj, translation, "Translation")) {
-            obj->getGeometry()->setTranslation(translation);
-        }
-
-        if(JSONHelpers::readVector(jObj, rotationAxis, "RotationAxis") && JSONHelpers::readValue(jObj, rotationAngle, "RotationAngle")) {
-            obj->getGeometry()->setRotation(rotationAxis, rotationAngle);
-        }
-
-        if(JSONHelpers::readValue(jObj, scale, "Scale")) {
-            obj->getGeometry()->setUniformScale(scale);
-        }
+        loadSimulationObject(jObj, static_pointer_cast<SimulationObject<N, RealType> >(obj));
     }
 }
 
@@ -140,13 +151,7 @@ void loadParticleGenerators(const nlohmann::json& jParams, Vector<SharedPtr<Part
 
         auto obj = std::make_shared<ParticleGenerator<N, RealType> >(geometryType);
         particleGenerators.push_back(obj);
-
-        // read mesh/cache/dynamic
-        JSONHelpers::readValue(jObj, obj->meshFile(), "MeshFile");
-        JSONHelpers::readValue(jObj, obj->particleFile(), "ParticleFile");
-        JSONHelpers::readValue(jObj, obj->SDFFile(), "SDFFile");
-        JSONHelpers::readBool(jObj, obj->useCache(), "UseCache");
-        JSONHelpers::readBool(jObj, obj->isDynamic(), "IsDynamic");
+        loadSimulationObject(jObj, static_pointer_cast<SimulationObject<N, RealType> >(obj));
 
         JSONHelpers::readVector(jObj, obj->v0(), "InitialVelocity");
         JSONHelpers::readValue(jObj, obj->minDistanceRatio(), "MinParticleDistanceRatio");
@@ -155,25 +160,6 @@ void loadParticleGenerators(const nlohmann::json& jParams, Vector<SharedPtr<Part
         JSONHelpers::readValue(jObj, obj->maxFrame(), "MaxFrame");
         JSONHelpers::readValue(jObj, obj->maxNParticles(), "MaxNParticles");
         JSONHelpers::readValue(jObj, obj->maxSamplingIters(), "MaxSamplingIters");
-        JSONHelpers::readBool(jObj, obj->fullShapeObj(), "FullShapeObj");
-
-        // read object transformation
-        VecX<N, Real> translation;
-        VecX<N, Real> rotationAxis;
-        Real          rotationAngle;
-        Real          scale;
-
-        if(JSONHelpers::readVector(jObj, translation, "Translation")) {
-            obj->getGeometry()->setTranslation(translation);
-        }
-
-        if(JSONHelpers::readVector(jObj, rotationAxis, "RotationAxis") && JSONHelpers::readValue(jObj, rotationAngle, "RotationAngle")) {
-            obj->getGeometry()->setRotation(rotationAxis, rotationAngle);
-        }
-
-        if(JSONHelpers::readValue(jObj, scale, "Scale")) {
-            obj->getGeometry()->setUniformScale(scale);
-        }
     }
 }
 
@@ -189,35 +175,10 @@ void loadParticleRemovers(const nlohmann::json& jParams, Vector<SharedPtr<Partic
         // create the object
         auto obj = std::make_shared<ParticleRemover<N, RealType> >(geometryType);
         particleRemovers.push_back(obj);
-
-        // read mesh/cache/dynamic
-        JSONHelpers::readValue(jObj, obj->meshFile(), "MeshFile");
-        JSONHelpers::readValue(jObj, obj->particleFile(), "ParticleFile");
-        JSONHelpers::readValue(jObj, obj->SDFFile(), "SDFFile");
-        JSONHelpers::readBool(jObj, obj->useCache(), "UseCache");
-        JSONHelpers::readBool(jObj, obj->isDynamic(), "IsDynamic");
+        loadSimulationObject(jObj, static_pointer_cast<SimulationObject<N, RealType> >(obj));
 
         JSONHelpers::readValue(jObj, obj->startFrame(), "StartFrame");
         JSONHelpers::readValue(jObj, obj->maxFrame(), "MaxFrame");
-        JSONHelpers::readBool(jObj, obj->fullShapeObj(), "FullShapeObj");
-
-        // read object transformation
-        VecX<N, Real> translation;
-        VecX<N, Real> rotationAxis;
-        Real          rotationAngle;
-        Real          scale;
-
-        if(JSONHelpers::readVector(jObj, translation, "Translation")) {
-            obj->getGeometry()->setTranslation(translation);
-        }
-
-        if(JSONHelpers::readVector(jObj, rotationAxis, "RotationAxis") && JSONHelpers::readValue(jObj, rotationAngle, "RotationAngle")) {
-            obj->getGeometry()->setRotation(rotationAxis, rotationAngle);
-        }
-
-        if(JSONHelpers::readValue(jObj, scale, "Scale")) {
-            obj->getGeometry()->setUniformScale(scale);
-        }
     }
 }
 

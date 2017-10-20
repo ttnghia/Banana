@@ -171,6 +171,9 @@
     <ClInclude Include="ParticleSolvers\MPM\Snow3DSolver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="SimulationObjects\SimulationObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ParticleSolvers\FLIP\FLIP2DSolver.cpp">

@@ -166,6 +166,7 @@
     <ClInclude Include="SimulationObjects\ParticleRemover.h" />
     <ClInclude Include="SimulationObjects\ParticleGenerator.Impl.hpp" />
     <ClInclude Include="SimulationObjects\ParticleRemover.Impl.hpp" />
+    <ClInclude Include="SimulationObjects\SimulationObject.h" />
     <ClInclude Include="SurfaceReconstruction\AniKernelGenerator.h" />
     <ClInclude Include="ParticleSolvers\FLIP\FLIP3DSolver.h" />
     <ClInclude Include="ParticleSolvers\SPH\PCISPH\PCISPHSolver.h" />

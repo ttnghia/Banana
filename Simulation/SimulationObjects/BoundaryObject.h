@@ -28,8 +28,7 @@
 #include <ParticleSolvers/ParticleSolverData.h>
 #include <ParticleTools/ParticleHelpers.h>
 #include <ParticleTools/ParticleSerialization.h>
-
-#include <json.hpp>
+#include <SimulationObjects/SimulationObject.h>
 
 #include <cassert>
 #include <locale>
@@ -42,33 +41,19 @@ namespace SimulationObjects
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-class BoundaryObjectInterface
+class BoundaryObjectInterface : public SimulationObject<N, RealType>
 {
 public:
-    using GeometryPtr = SharedPtr<GeometryObjects::GeometryObject<N, RealType> >;
-    static constexpr UInt objDimension() noexcept { return static_cast<UInt>(N); }
-
     BoundaryObjectInterface() = delete;
-    BoundaryObjectInterface(const String& geometryType) : m_GeometryObj(GeometryObjectFactory::createGeometry<N, RealType>(geometryType)) { __BNN_ASSERT(m_GeometryObj != nullptr); }
-
-    auto& name() { return m_MeshFile; }
-    auto& meshFile() { return m_MeshFile; }
-    auto& particleFile() { return m_ParticleFile; }
-    auto& SDFFile() { return m_SDFFile; }
-    auto& useCache() { return m_bUseCache; }
+    BoundaryObjectInterface(const String& geometryType) : SimulationObject<N, RealType>(geometryType) {}
 
     auto& margin() { return m_Margin; }
     auto& restitution() { return m_RestitutionCoeff; }
     auto& isDynamic() { return m_bDynamics; }
 
-    auto        getNumBDParticles() const noexcept { return static_cast<UInt>(m_BDParticles.size()); }
-    auto&       getGeometry() { return m_GeometryObj; }
-    auto&       getBDParticles() { return m_BDParticles; }
-    const auto& getSDF() { return m_SDF; }
+    auto  getNumBDParticles() const noexcept { return static_cast<UInt>(m_BDParticles.size()); }
+    auto& getBDParticles() { return m_BDParticles; }
 
-    ////////////////////////////////////////////////////////////////////////////////
-    virtual void makeReady() {} // todo: need this?
-    virtual void advanceScene(UInt frame, RealType fraction = RealType(0)) { m_GeometryObj->updateTransformation(frame, fraction); }
     virtual void initBoundaryParticles(RealType particleRadius, Int numBDLayers = 2, bool useCache = true);
 
     RealType          signedDistance(const VecX<N, RealType>& ppos, bool bUseCache = true);
@@ -77,24 +62,13 @@ public:
     virtual bool      constrainToBoundary(VecX<N, RealType>& ppos, VecX<N, RealType>& pvel, bool bReflect = false);
 
 protected:
-    virtual void computeSDF() { __BNN_UNIMPLEMENTED_FUNC }
     virtual void generateBoundaryParticles(RealType particleRadius, Int numBDLayers) { __BNN_UNUSED(particleRadius); __BNN_UNUSED(numBDLayers); __BNN_UNIMPLEMENTED_FUNC }
 
     RealType m_Margin           = RealType(0.0);
     RealType m_RestitutionCoeff = ParticleSolverConstants::DefaultBoundaryRestitution;
 
-    GeometryPtr                m_GeometryObj;
-    Array<N, RealType>         m_SDF;
     Grid<N, RealType>          m_Grid;
     Vector<VecX<N, RealType> > m_BDParticles;
-
-    String m_MeshFile     = String("");
-    String m_ParticleFile = String("");
-    String m_SDFFile      = String("");
-
-    bool m_bDynamics     = false;
-    bool m_bSDFGenerated = false;
-    bool m_bUseCache     = false;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+`

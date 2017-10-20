@@ -141,7 +141,7 @@
     <ClInclude Include="Banana\Animation\CubicSpline.Impl.hpp" />
     <ClInclude Include="Banana\Array\Array.h" />
     <ClInclude Include="Banana\Array\SparseArray3.h" />
-    <ClInclude Include="Banana\Data\DataIO.Impl.hpp" />
+    <ClInclude Include="Banana\Data\DataBuffer.h" />
     <ClInclude Include="Banana\Geometry\GeometryObjects.h" />
     <ClInclude Include="Banana\Geometry\GeometryObjects.Impl.hpp" />
     <ClInclude Include="Banana\Geometry\GeometryObjectFactory.h" />
@@ -202,7 +202,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Banana\CompileMessage.cpp" />
-    <ClCompile Include="Banana\Data\DataIO.cpp" />
     <ClCompile Include="Banana\Geometry\KdTree.cpp" />
     <ClCompile Include="Banana\Geometry\MeshLoader.cpp" />
     <ClCompile Include="Banana\NeighborSearch\NeighborSearch3D.cpp" />

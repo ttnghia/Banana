@@ -18,6 +18,7 @@
 #pragma once
 
 #include <Banana/Setup.h>
+#include <Banana/Data/DataBuffer.h>
 #include <Banana/Utils/FileHelpers.h>
 
 #include <string>
@@ -32,63 +33,6 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
 {
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-// DataBuffer class
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class DataBuffer
-{
-public:
-    DataBuffer(size_t bufferSize = 0) { if(bufferSize > 0) { reserve(bufferSize); } }
-
-    size_t size() const { return m_Buffer.size(); }
-    void   resize(size_t bufferSize) { m_Buffer.resize(bufferSize); }
-    void   reserve(size_t bufferSize) { m_Buffer.reserve(bufferSize); }
-    void   clearBuffer() { m_Buffer.resize(0); }
-
-    unsigned char*       data(size_t offset = 0) { return &m_Buffer.data()[offset]; }
-    const unsigned char* data(size_t offset = 0) const { return &m_Buffer.data()[offset]; }
-
-    Vector<UChar>&       buffer() { return m_Buffer; }
-    const Vector<UChar>& buffer() const { return m_Buffer; }
-
-    //////////////////////////////////////////////////////////////////////
-    // set data (= clear + append)
-    void setData(const DataBuffer& dataBuffer) { clearBuffer(); append(dataBuffer); }
-    void setData(const void* dataPtr, size_t dataSize) { clearBuffer(); append(dataPtr, dataSize); }
-
-    template<class T> void setData(T data) { clearBuffer(); append<T>(data); }
-    template<class T> void setData(const Vector<T>& dvec, bool bWriteVectorSize = true) { clearBuffer(); append<T>(dvec, bWriteVectorSize); }
-    template<class T> void setData(const Vector<Vector<T> >& dvec, bool bWriteVectorSize = true) { clearBuffer(); append<T>(dvec, bWriteVectorSize); }
-
-    //////////////////////////////////////////////////////////////////////
-    // append data
-    void append(const DataBuffer& dataBuffer) { append((const void*)dataBuffer.data(), dataBuffer.size()); }
-    void append(const void* dataPtr, size_t dataSize);
-
-    template<class T> void        append(T value) { append((const void*)&value, sizeof(T)); }
-    template<class T> void        append(const Vector<T>& dvec, bool bWriteVectorSize = true);
-    template<class T> void        append(const Vector<Vector<T> >& dvec, bool bWriteVectorSize = true);
-    template<Int N, class T> void append(const Vector<VecX<N, T> >& dvec, bool bWriteVectorSize = true);
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // get data
-    size_t getData(void* dataPtr, size_t dataSize, size_t startOffset = 0);
-
-    template<class T> size_t        getData(T& value, size_t startOffset = 0) { return getData((void*)&value, sizeof(T), startOffset); }
-    template<class T> size_t        getData(Vector<T>& dvec, size_t startOffset = 0, UInt vSize = 0);
-    template<class T> size_t        getData(Vector<Vector<T> >& dvec, size_t startOffset = 0, UInt vSize = 0);
-    template<Int N, class T> size_t getData(Vector<VecX<N, T> >& dvec, size_t startOffset = 0, UInt vSize = 0);
-
-private:
-    Vector<UChar> m_Buffer;
-};
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-// DataIO class
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 class DataIO
 {
@@ -134,10 +78,58 @@ private:
     DataBuffer        m_DataBuffer;
     std::future<void> m_WriteFutureObj;
 };
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+// Implementation
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+inline Int DataIO::getLatestFileIndex(Int maxIndex)
+{
+    for(Int index = 0; index < maxIndex; ++index) {
+        if(!existedFileIndex(index)) {
+            return index - 1;
+        }
+    }
+
+    return -1;
+}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <Banana/Data/DataIO.Impl.hpp>
+inline void DataIO::flushBuffer(Int fileID)
+{
+    createOutputFolders();
+    FileHelpers::writeFile(m_DataBuffer.data(), m_DataBuffer.size(), getFilePath(fileID));
+}
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+inline void DataIO::flushBufferAsync(Int fileID)
+{
+    m_WriteFutureObj = std::async(std::launch::async, [&, fileID]()
+                                  {
+                                      createOutputFolders();
+                                      FileHelpers::writeFile(m_DataBuffer.data(), m_DataBuffer.size(), getFilePath(fileID));
+                                  });
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+inline String DataIO::getFilePath(Int fileID)
+{
+    char filePath[1024];
+    __BNN_SPRINT(filePath, "%s/%s/%s.%04d.%s", m_DataFolder.c_str(), m_DataSubFolder.c_str(), m_FileName.c_str(), fileID, m_FileExtension.c_str());
+    return String(filePath);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+inline void DataIO::createOutputFolders()
+{
+    if(m_bOutputFolderCreated) {
+        return;
+    }
+    char outputFolder[512];
+    __BNN_SPRINT(outputFolder, "%s/%s", m_DataFolder.c_str(), m_DataSubFolder.c_str());
+    FileHelpers::createFolder(outputFolder);
+    m_bOutputFolderCreated = true;
+}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana

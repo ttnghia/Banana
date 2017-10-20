@@ -17,9 +17,8 @@
 
 #pragma once
 
-#include <Banana/Geometry/GeometryObjects.h>
-#include <Banana/ParallelHelpers/ParallelFuncs.h>
-#include <SimulationObjects/SimulationObject.h>
+#include <Banana/Setup.h>
+#include <Banana/Array/Array.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -29,36 +28,47 @@ namespace SimulationObjects
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-class ParticleRemover : public SimulationObject<N, RealType>
+class SimulationObject
 {
 public:
-    ParticleRemover() = delete;
-    ParticleRemover(const String& geometryType) : SimulationObject<N, RealType>(geometryType) {}
+    using GeometryPtr = SharedPtr<GeometryObjects::GeometryObject<N, RealType> >;
+    static constexpr UInt objDimension() noexcept { return static_cast<UInt>(N); }
+
+    SimulationObject() = delete;
+    SimulationObject(const String& geometryType) : m_GeometryObj(GeometryObjectFactory::createGeometry<N, RealType>(geometryType)) { __BNN_ASSERT(m_GeometryObj != nullptr); }
+
+    auto& name() { return m_MeshFile; }
+    auto& meshFile() { return m_MeshFile; }
+    auto& particleFile() { return m_ParticleFile; }
+    auto& SDFFile() { return m_SDFFile; }
+    auto& useCache() { return m_bUseCache; }
+    auto& isDynamic() { return m_bDynamics; }
+    auto& fullShapeObj() { return m_bFullShapeObj; }
+
+    auto&       getGeometry() { return m_GeometryObj; }
+    const auto& getSDF() { return m_SDF; }
 
     ////////////////////////////////////////////////////////////////////////////////
-    auto& startFrame() { return m_StartFrame; }
-    auto& maxFrame() { return m_MaxFrame; }
-
-    void removeParticles(Vec_Int8& removeMarker, const Vec_VecX<N, RealType>& positions);
-    bool removingFinished(UInt currentFrame) { return currentFrame < m_StartFrame || currentFrame >= m_MaxFrame; }
+    virtual void makeReady() {}     // todo: need this?
+    virtual void advanceScene(UInt frame, RealType fraction = RealType(0)) { m_GeometryObj->updateTransformation(frame, fraction); }
 
 protected:
-    UInt m_StartFrame = 0u;
-    UInt m_MaxFrame   = 0u;
+    virtual void computeSDF() { __BNN_UNIMPLEMENTED_FUNC }
+
+    GeometryPtr        m_GeometryObj;
+    Array<N, RealType> m_SDF;
+
+    String m_MeshFile      = String("");
+    String m_ParticleFile  = String("");
+    String m_SDFFile       = String("");
+    bool   m_bDynamics     = false;
+    bool   m_bUseCache     = false;
+    bool   m_bFullShapeObj = false;
+
+    ////////////////////////////////////////////////////////////////////////////////
+    bool m_bSDFGenerated = false;
+    bool m_bObjReady     = false;
 };
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<Int N, class RealType>
-void Banana::SimulationObjects::ParticleRemover<N, RealType >::removeParticles(Vec_Int8& removeMarker, const Vec_VecX<N, RealType>& positions)
-{
-    __BNN_ASSERT(m_bObjReady);
-
-    ParallelFuncs::parallel_for(removeMarker.size(),
-                                [&](size_t p)
-                                {
-                                    removeMarker[p] = (m_GeometryObj->signedDistance(p) < 0) ? Int8(1) : Int8(0);
-                                });
-}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace SimulationObjects
