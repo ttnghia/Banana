@@ -185,11 +185,80 @@ RealType BoxObject<N, RealType >::signedDistance(const VecX<N, RealType>& ppos0,
 
 ////////////////////////////////////////////////////////////////////////////////
 template<Int N, class RealType>
-void BoxObject<N, RealType >::setSizeScale(const VecX<N, RealType>& sizeScale)
+void Banana::GeometryObjects::BoxObject<N, RealType >::setOriginalBox(const VecX<N, RealType>& bMin, const VecX<N, RealType>& bMax)
 {
+    m_BoxMin = bMin;
+    m_BoxMax = bMax;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+template<Int N, class RealType>
+void Banana::GeometryObjects::BoxObject<N, RealType >::setKeyFrame(UInt frame, const VecX<N, RealType>& bMin, const VecX<N, RealType>& bMax)
+{
+    if(m_KeyFrames.size() == 0) {
+        m_KeyFrames.emplace_back(KeyFrame(0, m_BoxMin, m_BoxMax));
+    }
+    m_KeyFrames.emplace_back(BoxKeyFrame(frame, bMin, bMax));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+template<Int N, class RealType>
+void Banana::GeometryObjects::BoxObject<N, RealType >::makeReadyAnimation()
+{
+    size_t nKeyFrames = m_KeyFrames.size();
+    if(nKeyFrames <= 1) {
+        return;
+    }
+
+    Vector<RealType> frames;
+    Vector<RealType> bMins[N];
+    Vector<RealType> bMaxs[N];
+
     for(Int i = 0; i < N; ++i) {
-        m_BoxMin[i] *= sizeScale[i];
-        m_BoxMax[i] *= sizeScale[i];
+        bMins[i].reserve(nKeyFrames);
+        bMaxs[i].reserve(nKeyFrames);
+    }
+    frames.reserve(nKeyFrames);
+
+    ////////////////////////////////////////////////////////////////////////////////
+    for(const auto& keyFrame : m_KeyFrames) {
+        m_MaxFrame = (m_MaxFrame < keyFrame.frame) ? keyFrame.frame : m_MaxFrame;
+
+        for(Int i = 0; i < N; ++i) {
+            bMins[i].push_back(keyFrame.bMin[i]);
+            bMaxs[i].push_back(keyFrame.bMax[i]);
+        }
+        frames.push_back(static_cast<RealType>(keyFrame.frame));
+    }
+
+
+    for(Int i = 0; i < N; ++i) {
+        m_BoxMinSpline[i].setPoints(frames, bMins[i]);
+        m_BoxMaxSpline[i].setPoints(frames, bMaxs[i]);
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////
+    m_bAnimationReady = true;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+template<Int N, class RealType>
+void Banana::GeometryObjects::BoxObject<N, RealType >::updateTransformation(UInt frame /*= 0*/, RealType fraction /*= RealType(0)*/)
+{
+    GeometryObject<N, RealType>::updateTransformation(frame, fraction);
+
+    if(!m_bAnimationReady) {
+        return;
+    }
+
+    if(m_bPeriodic && frame > m_MaxFrame) {
+        frame = frame % m_MaxFrame;
+    }
+    RealType x = static_cast<RealType>(frame) + fraction;
+
+    for(Int i = 0; i < N; ++i) {
+        m_BoxMin[i] = m_BoxMinSpline[i](x);
+        m_BoxMax[i] = m_BoxMaxSpline[i](x);
     }
 }
 
@@ -551,12 +620,12 @@ inline float point_triangle_distance(const Vec3f& x0, const Vec3f& x1, const Vec
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-inline void check_neighbour(const Vector<Vec3ui>& tri,
-                            const Vec_Vec3f& x,
-                            Array<3, RealType>& phi, Array3ui& closest_tri,
-                            const Vec3f& gx,
-                            Int i0, Int j0, Int k0,
-                            Int i1, Int j1, Int k1)
+void check_neighbour(const Vector<Vec3ui>& tri,
+                     const Vec_Vec3f& x,
+                     Array<3, RealType>& phi, Array3ui& closest_tri,
+                     const Vec3f& gx,
+                     Int i0, Int j0, Int k0,
+                     Int i1, Int j1, Int k1)
 {
     if(closest_tri(i1, j1, k1) != 0xffffffff) {
         UInt p = tri[closest_tri(i1, j1, k1)][0];

@@ -71,7 +71,8 @@ void ParticleSolver<N, RealType >::loadScene(const String& sceneFile)
             // domain box can only has translation, scale and size scale
             VecX<N, Real>     translation;
             Real              scale;
-            VecX<N, RealType> sizeScale;
+            VecX<N, RealType> boxMin;
+            VecX<N, RealType> boxMax;
 
             if(JSONHelpers::readVector(jBoxParams, translation, "Translation")) {
                 obj->getGeometry()->setTranslation(translation);
@@ -80,10 +81,10 @@ void ParticleSolver<N, RealType >::loadScene(const String& sceneFile)
                 obj->getGeometry()->setUniformScale(scale);
             }
 
-            if(JSONHelpers::readVector(jBoxParams, sizeScale, "SizeScale")) {
+            if(JSONHelpers::readVector(jBoxParams, boxMin, "BoxMin") && JSONHelpers::readVector(jBoxParams, boxMax, "BoxMax")) {
                 SharedPtr<GeometryObjects::BoxObject<N, RealType> > box = static_pointer_cast<GeometryObjects::BoxObject<N, RealType> >(obj->getGeometry());
                 __BNN_ASSERT(box != nullptr);
-                box->setSizeScale(sizeScale);
+                box->setOriginalBox(boxMin, boxMax);
             }
         }
         loadSimParams(jSimParams); // do this by derived solver
