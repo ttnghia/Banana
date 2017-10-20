@@ -51,19 +51,20 @@ public:
     BoundaryObjectInterface() = delete;
     BoundaryObjectInterface(const String& geometryType) : m_GeometryObj(GeometryObjectFactory::createGeometry<N, RealType>(geometryType)) { __BNN_ASSERT(m_GeometryObj != nullptr); }
 
-    String& name() { return m_MeshFile; }
-    String& meshFile() { return m_MeshFile; }
-    String& particleFile() { return m_ParticleFile; }
-    String& SDFFile() { return m_SDFFile; }
+    auto& name() { return m_MeshFile; }
+    auto& meshFile() { return m_MeshFile; }
+    auto& particleFile() { return m_ParticleFile; }
+    auto& SDFFile() { return m_SDFFile; }
+    auto& useCache() { return m_bUseCache; }
 
-    RealType& margin() { return m_Margin; }
-    RealType& restitution() { return m_RestitutionCoeff; }
-    bool&     isDynamic() { return m_bDynamics; }
+    auto& margin() { return m_Margin; }
+    auto& restitution() { return m_RestitutionCoeff; }
+    auto& isDynamic() { return m_bDynamics; }
 
-    UInt                        getNumBDParticles() const noexcept { return static_cast<UInt>(m_BDParticles.size()); }
-    Vector<VecX<N, RealType> >& getBDParticles() { return m_BDParticles; }
-    const Array<N, RealType>&   getSDF() { return m_SDF; }
-    GeometryPtr&                getGeometry() { return m_GeometryObj; }
+    auto        getNumBDParticles() const noexcept { return static_cast<UInt>(m_BDParticles.size()); }
+    auto&       getGeometry() { return m_GeometryObj; }
+    auto&       getBDParticles() { return m_BDParticles; }
+    const auto& getSDF() { return m_SDF; }
 
     ////////////////////////////////////////////////////////////////////////////////
     virtual void makeReady() {} // todo: need this?
@@ -93,6 +94,7 @@ protected:
 
     bool m_bDynamics     = false;
     bool m_bSDFGenerated = false;
+    bool m_bUseCache     = false;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+`

@@ -152,13 +152,11 @@
     <ClInclude Include="ParticleSolvers\MPM\MPMMaterial.h" />
     <ClInclude Include="ParticleSolvers\MPM\MPMMaterial.Impl.hpp" />
     <ClInclude Include="ParticleSolvers\MPM\Snow3DSolver.h" />
-    <ClInclude Include="ParticleSolvers\ParticleSolver.Impl.hpp" />
     <ClInclude Include="ParticleSolvers\ShapeFunctions.h" />
     <ClInclude Include="ParticleSolvers\MPM\TimeIntegration.h" />
     <ClInclude Include="ParticleSolvers\ParticleSolverData.h" />
     <ClInclude Include="ParticleSolvers\Peridynamics\PeridynamicsData.h" />
     <ClInclude Include="ParticleSolvers\SceneLoader.h" />
-    <ClInclude Include="ParticleSolvers\SceneLoader.Impl.hpp" />
     <ClInclude Include="ParticleSolvers\SPH\WCSPH\WCSPHData.h" />
     <ClInclude Include="ParticleSolvers\_ParticleSolvers.Test.hpp" />
     <ClInclude Include="ParticleSolvers\ParticleSolver.h" />
@@ -181,7 +179,6 @@
     <ClInclude Include="ParticleTools\PoissonDiskSampler.h" />
     <ClInclude Include="SimulationObjects\BoundaryObject.h" />
     <ClInclude Include="SimulationObjects\BoundaryObject.Impl.hpp" />
-    <ClInclude Include="SimulationObjects\SimulationObjectFactory.h" />
     <ClInclude Include="ParticleTools\BlueNoiseRelaxation\LloydRelaxation.Impl.hpp" />
     <ClInclude Include="ParticleTools\ParticleHelpers.h" />
     <ClInclude Include="SimulationObjects\ParticleGenerator.h" />
@@ -194,7 +191,6 @@
     <ClCompile Include="ParticleSolvers\MPM\Snow2DSolver.cpp" />
     <ClCompile Include="ParticleSolvers\MPM\Snow3DSolver.cpp" />
     <ClCompile Include="ParticleSolvers\Peridynamics\PeridynamicsSolver.cpp" />
-    <ClCompile Include="ParticleSolvers\SceneLoader.cpp" />
     <ClCompile Include="ParticleSolvers\SPH\WCSPH\WCSPHSolver.cpp" />
     <ClCompile Include="ParticleTools\ParticleHelpers.cpp" />
     <ClCompile Include="ParticleTools\ParticleSerialization.cpp" />

@@ -76,7 +76,7 @@ struct SimulationParameters_FLIP2D
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    void printParams(const std::shared_ptr<Logger>& logger)
+    void printParams(const SharedPtr<Logger>& logger)
     {
         logger->printLog("FLIP-2D simulation parameters:");
         logger->printLogIndent("Max timestep: " + NumberHelpers::formatToScientific(maxTimestep));

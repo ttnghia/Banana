@@ -48,6 +48,7 @@ public:
     auto& v0() { return m_v0; }
     auto& minDistanceRatio() { return m_MinDistanceRatio; }
     auto& jitter() { return m_Jitter; }
+    auto& startFrame() { return m_StartFrame; }
     auto& maxFrame() { return m_MaxFrame; }
     auto& maxNParticles() { return m_MaxNParticles; }
     auto& maxSamplingIters() { return m_MaxIters; }
@@ -55,7 +56,7 @@ public:
     auto& fullShapeObj() { return m_bFullShapeObj; }
 
     UInt generateParticles(Vec_VecX<N, RealType>& positions, Vec_VecX<N, RealType>& velocities);
-    bool generationFinished(UInt currentFrame) { return currentFrame >= m_MaxFrame || m_NGeneratedParticles >= m_MaxNParticles; }
+    bool generationFinished(UInt currentFrame) { return currentFrame < m_StartFrame || currentFrame >= m_MaxFrame || m_NGeneratedParticles >= m_MaxNParticles; }
 
     virtual void makeReady(RealType particleRadius);
     virtual void advanceScene(UInt frame, RealType fraction = RealType(0)) { m_GeometryObj->updateTransformation(frame, fraction); }
@@ -72,6 +73,7 @@ protected:
 
     Vec_VecX<N, RealType> m_ObjParticles;
     VecX<N, RealType>     m_v0               = VecX<N, RealType>(0);
+    UInt                  m_StartFrame       = 0u;
     UInt                  m_MaxFrame         = 0u;
     UInt                  m_MaxNParticles    = std::numeric_limits<UInt>::max();
     UInt                  m_MaxIters         = 10u;
