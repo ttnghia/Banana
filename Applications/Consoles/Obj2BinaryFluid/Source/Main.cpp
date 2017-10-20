@@ -54,8 +54,8 @@ void convertFluid()
     Int          startFrame  = 1;
     Int          endFrame    = 10000;
 
-    if(!paramParser.getString("dataPath", dataPath)) printUsageAndExit();
-    if(!paramParser.getReal("particleRadius", particleRadius)) printUsageAndExit();
+    if(!paramParser.getString("dataPath", dataPath)) { printUsageAndExit(); }
+    if(!paramParser.getReal("particleRadius", particleRadius)) { printUsageAndExit(); }
 
     paramParser.getInt("startFrame", startFrame);
     paramParser.getInt("endFrame", endFrame);
@@ -72,8 +72,12 @@ void convertFluid()
         char inFile[512];
         __BNN_SPRINT(inFile, "%s/Fluid/frame.%d.obj", dataPath.c_str(), frame);
 
-        if(!FileHelpers::fileExisted(inFile))
-            break;
+        if(!FileHelpers::fileExisted(inFile)) {
+            __BNN_SPRINT(inFile, "%s/Fluid/frame.%d.ply", dataPath.c_str(), frame);
+            if(!FileHelpers::fileExisted(inFile)) {
+                break;
+            }
+        }
 
         loader.loadMesh(inFile);
 
@@ -112,7 +116,7 @@ void convertMesh()
     Int          startFrame = 1;
     Int          endFrame   = 10000;
 
-    if(!paramParser.getString("dataPath", dataPath)) printUsageAndExit();
+    if(!paramParser.getString("dataPath", dataPath)) { printUsageAndExit(); }
 
     paramParser.getInt("nMeshes", nMeshes);
     paramParser.getInt("startFrame", startFrame);
@@ -121,10 +125,11 @@ void convertMesh()
     ////////////////////////////////////////////////////////////////////////////////
     UniquePtr<DataIO> outputPos = std::make_unique<DataIO>(dataPath, dataFolder, "frame", "pos", "FramePosition");
 
-#if 0
+#if 1
     Vector<UniquePtr<MeshLoader> > loader;
-    for(Int i = 0; i < nMeshes; ++i)
+    for(Int i = 0; i < nMeshes; ++i) {
         loader.emplace_back(std::make_unique<MeshLoader>());
+    }
 
     UInt32 numConverted = 0;
     for(Int frame = startFrame; frame <= endFrame; ++frame) {
@@ -138,8 +143,11 @@ void convertMesh()
             //__BNN_SPRINT(inFile, "%s/Solid/frame.%d.obj", dataPath.c_str(), frame);
 
             if(!FileHelpers::fileExisted(inFile)) {
-                bFrameSuccess = false;
-                break;
+                __BNN_SPRINT(inFile, "%s/Solid/mesh%d.%d.ply", dataPath.c_str(), meshIdx + 1, frame);
+                if(!FileHelpers::fileExisted(inFile)) {
+                    bFrameSuccess = false;
+                    break;
+                }
             }
 
             loader[meshIdx]->loadMesh(inFile);
@@ -148,8 +156,9 @@ void convertMesh()
             outputPos->getBuffer().append((const unsigned char*)loader[meshIdx]->getFaceVertexNormals().data(), loader[meshIdx]->getNFaceVertices() * sizeof(Vec3f));
         }
 
-        if(!bFrameSuccess)
+        if(!bFrameSuccess) {
             break;
+        }
 
 
         outputPos->flushBufferAsync(frame);
@@ -160,8 +169,9 @@ void convertMesh()
     }
 #else
     Vector<UniquePtr<OBJLoader> > loader;
-    for(Int i = 0; i < nMeshes; ++i)
+    for(Int i = 0; i < nMeshes; ++i) {
         loader.emplace_back(std::make_unique<OBJLoader>());
+    }
 
     UInt32    numConverted = 0;
     Vec_Vec3f vertices;
@@ -174,8 +184,8 @@ void convertMesh()
 
         for(Int meshIdx = 0; meshIdx < nMeshes; ++meshIdx) {
             char inFile[512];
-            __BNN_SPRINT(inFile, "%s/Solid/mesh%d.%d.obj", dataPath.c_str(), meshIdx + 1, frame);
-            //__BNN_SPRINT(inFile, "%s/Solid/frame.%d.obj", dataPath.c_str(), frame);
+            //__BNN_SPRINT(inFile, "%s/Solid/mesh%d.%d.obj", dataPath.c_str(), meshIdx + 1, frame);
+            __BNN_SPRINT(inFile, "%s/Solid/frame.%d.obj", dataPath.c_str(), frame);
 
             if(!FileHelpers::fileExisted(inFile)) {
                 bFrameSuccess = false;
@@ -203,8 +213,7 @@ void convertMesh()
                         normals.push_back(n);
                     }
                 }
-            }
-            else{
+            } else {
                 vertices.reserve(loader[meshIdx]->getNumVertices());
 
                 for(int i = 0; i < loader[meshIdx]->getNumVertices(); ++i) {
@@ -218,8 +227,9 @@ void convertMesh()
             outputPos->getBuffer().append((const unsigned char*)normals.data(), normals.size() * 3 * sizeof(float));
         }
 
-        if(!bFrameSuccess)
+        if(!bFrameSuccess) {
             break;
+        }
 
 
         outputPos->flushBufferAsync(frame);
@@ -240,8 +250,6 @@ int main(int argc, char** argv)
     ////////////////////////////////////////////////////////////////////////////////
     // firstly, parse parameters
     Logger::initialize();
-    Logger::enableLog2Console(true);
-    Logger::enableLog2File(false);
     logger = Logger::create("Converter");
     String bConvertFluid("");
     String bConvertMesh("");
@@ -250,14 +258,17 @@ int main(int argc, char** argv)
     paramParser.getString("convertFluid", bConvertFluid);
     paramParser.getString("convertMesh",  bConvertMesh);
 
-    if(bConvertFluid.empty() && bConvertMesh.empty())
+    if(bConvertFluid.empty() && bConvertMesh.empty()) {
         printUsageAndExit();
+    }
 
-    if(bConvertFluid == "true")
+    if(bConvertFluid == "true") {
         convertFluid();
+    }
 
-    if(bConvertMesh == "true")
+    if(bConvertMesh == "true") {
         convertMesh();
+    }
 
     ////////////////////////////////////////////////////////////////////////////////
     return EXIT_SUCCESS;

@@ -102,6 +102,7 @@ void MeshLoader::clearData()
     m_Faces.resize(0);
 
     m_Vertices.resize(0);
+    m_Normals.resize(0);
     m_FaceVertices.resize(0);
     m_FaceVertexNormals.resize(0);
     m_FaceVertexColors.resize(0);
@@ -120,8 +121,10 @@ bool MeshLoader::loadObj(const String& meshFile)
     tinyobj::attrib_t                attrib;
 
 
-    bool result = tinyobj::LoadObj(&attrib, &obj_shapes, &obj_materials, &m_LoadingErrorStr, meshFile.c_str(), NULL);
-    m_Vertices = attrib.vertices;
+    bool result = tinyobj::LoadObj(&attrib, &obj_shapes, &obj_materials, &m_LoadingErrorStr, meshFile.c_str(), NULL, true);
+    m_Vertices   = attrib.vertices;
+    m_Normals    = attrib.normals;
+    m_TexCoord2D = attrib.texcoords;
 
     if(!m_LoadingErrorStr.empty()) {
         std::cerr << "tinyobj: " << m_LoadingErrorStr << std::endl;
@@ -242,15 +245,9 @@ bool MeshLoader::loadPly(const String& meshFile)
         // Define containers to hold the extracted data. The type must match
         // the property type given in the header. Tinyply will interally allocate the
         // the appropriate amount of memory.
-        std::vector<float>   norms;
-        std::vector<uint8_t> colors;
-
-        std::vector<float> uvCoords;
-        //        std::vector<uint8_t> faceColors;
 
         size_t vertexCount       = 0;
         size_t normalCount       = 0;
-        size_t colorCount        = 0;
         size_t faceCount         = 0;
         size_t faceTexcoordCount = 0;
 
@@ -258,8 +255,7 @@ bool MeshLoader::loadPly(const String& meshFile)
         // above will be resized into a multiple of the property group size as
         // they are "flattened"... i.e. verts = {x, y, z, x, y, z, ...}
         vertexCount = file.request_properties_from_element("vertex", { "x", "y", "z" }, m_Vertices);
-        normalCount = file.request_properties_from_element("vertex", { "nx", "ny", "nz" }, norms);
-        colorCount  = file.request_properties_from_element("vertex", { "red", "green", "blue", "alpha" }, colors);
+        normalCount = file.request_properties_from_element("vertex", { "nx", "ny", "nz" }, m_Normals);
 
         //printf("vertexCount: %lu\n", vertexCount);
 
@@ -268,8 +264,7 @@ bool MeshLoader::loadPly(const String& meshFile)
         // defers allocation of memory until the first instance of the property has been found
         // as implemented in file.read(ss)
         faceCount         = file.request_properties_from_element("face", { "vertex_indices" }, m_Faces, 3);
-        faceTexcoordCount = file.request_properties_from_element("face", { "texcoord" }, uvCoords, 6);
-        //        faceColorCount = file.request_properties_from_element("face", {"red", "green", "blue", "alpha"}, faceColors);
+        faceTexcoordCount = file.request_properties_from_element("face", { "texcoord" }, m_TexCoord2D, 6);
 
         // Now populate the vectors...
         file.read(ss);
@@ -304,12 +299,12 @@ bool MeshLoader::loadPly(const String& meshFile)
                 m_FaceVertices.push_back(v[k][2]);
             }
 
-            if(norms.size() > 0) {
+            if(m_Normals.size() > 0) {
                 Vec_Vec3f n(3, Vec3f(0));
                 for(int k = 0; k < 3; ++k) {
-                    n[0][k] = norms[3 * v0 + k];
-                    n[1][k] = norms[3 * v1 + k];
-                    n[2][k] = norms[3 * v2 + k];
+                    n[0][k] = m_Normals[3 * v0 + k];
+                    n[1][k] = m_Normals[3 * v1 + k];
+                    n[2][k] = m_Normals[3 * v2 + k];
                 }
 
                 for(int k = 0; k < 3; ++k) {
@@ -319,12 +314,12 @@ bool MeshLoader::loadPly(const String& meshFile)
                 }
             }
 
-            if(uvCoords.size() > 0) {
+            if(m_TexCoord2D.size() > 0) {
                 Vec_Vec2f tex(3, Vec2f(0));
                 for(int k = 0; k < 2; ++k) {
-                    tex[0][k] = uvCoords[2 * v0 + k];
-                    tex[1][k] = uvCoords[2 * v1 + k];
-                    tex[2][k] = uvCoords[2 * v1 + k];
+                    tex[0][k] = m_TexCoord2D[2 * v0 + k];
+                    tex[1][k] = m_TexCoord2D[2 * v1 + k];
+                    tex[2][k] = m_TexCoord2D[2 * v1 + k];
                 }
 
                 for(int k = 0; k < 3; ++k) {
@@ -347,9 +342,12 @@ void MeshLoader::computeFaceVertexData()
 {
     if(m_FaceVertexNormals.size() != m_FaceVertices.size()) {
         m_FaceVertexNormals.assign(m_FaceVertices.size(), 0);
+        m_FaceVertexColors.assign(m_FaceVertices.size(), 0);
+        m_Normals.assign(m_Vertices.size(), 0);
 
         for(size_t f = 0, f_end = getNFaces(); f < f_end; ++f) {
-            UInt v0 = m_Faces[3 * f + 0];
+            // Get index of vertices for the current face
+            UInt v0 = m_Faces[3 * f];
             UInt v1 = m_Faces[3 * f + 1];
             UInt v2 = m_Faces[3 * f + 2];
 
@@ -363,22 +361,29 @@ void MeshLoader::computeFaceVertexData()
             Vec3f faceNormal = glm::normalize(glm::cross(v[1] - v[0], v[2] - v[0]));
 
             for(Int k = 0; k < 3; ++k) {
-                m_FaceVertexNormals[v0 * 3 + k] += faceNormal[k];
-                m_FaceVertexNormals[v1 * 3 + k] += faceNormal[k];
-                m_FaceVertexNormals[v2 * 3 + k] += faceNormal[k];
+                m_Normals[v0 * 3 + k] += faceNormal[k];
+                m_Normals[v1 * 3 + k] += faceNormal[k];
+                m_Normals[v2 * 3 + k] += faceNormal[k];
             }
         }
 
-        for(size_t i = 0, i_end = getNFaceVertices(); i < i_end; ++i) {
-            Vec3f vNormal;
+        for(size_t f = 0, f_end = getNFaces(); f < f_end; ++f) {
+            UInt v0 = m_Faces[3 * f];
+            UInt v1 = m_Faces[3 * f + 1];
+            UInt v2 = m_Faces[3 * f + 2];
+
+            Vec_Vec3f fNormals(3, Vec3f(0));
             for(Int k = 0; k < 3; ++k) {
-                vNormal[k] = m_FaceVertexNormals[3 * i + k];
+                fNormals[0][k] = m_Normals[3 * v0 + k];
+                fNormals[1][k] = m_Normals[3 * v1 + k];
+                fNormals[2][k] = m_Normals[3 * v2 + k];
             }
 
-            vNormal = glm::normalize(vNormal);
             for(Int k = 0; k < 3; ++k) {
-                m_FaceVertexNormals[3 * i + k] = vNormal[k];
-                m_FaceVertexColors.push_back(vNormal[k]); // Use normal as color.
+                for(Int l = 0; l < 3; ++l) {
+                    m_FaceVertexNormals[9 * f + 3 * k + l] = fNormals[k][l];
+                    m_FaceVertexColors[9 * f + 3 * k + l]  = fNormals[k][l];
+                }
             }
         }
     }

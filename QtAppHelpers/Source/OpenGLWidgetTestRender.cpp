@@ -20,7 +20,7 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
 {
-#define TEST_CASE TestCase::TriMesh
+#define TEST_CASE TestCase::TriMeshShadow
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 OpenGLWidgetTestRender::OpenGLWidgetTestRender(QWidget* parent) : OpenGLWidget(parent), m_TestCase(TEST_CASE)
@@ -189,7 +189,7 @@ void OpenGLWidgetTestRender::initTestRenderMeshWithShadow(QString meshFile, QStr
 
 #if NUM_LIGHTS == 1
     m_Lights->setNumLights(1);
-    m_Lights->setLightPosition(glm::vec4(0, 3, 3, 1.0), 0);
+    m_Lights->setLightPosition(glm::vec4(0, 10, 3, 1.0), 0);
     m_Lights->setLightDiffuse(glm::vec4(1.0), 0);
 #endif
 #if NUM_LIGHTS == 2
@@ -275,8 +275,7 @@ void OpenGLWidgetTestRender::initOpenGL()
         case TestCase::TriMesh:
 #ifdef _WIN32
             //initTestRenderMesh(QString("E:/GoogleDrive/DigitalAssets/Models/AirCraft/A-10_Thunderbolt_II/A-10_Thunderbolt_II.obj"));
-            //initTestRenderMesh(QString("E:/GoogleDrive/Classes/CS6620/prj8/teapot-low.obj"));
-            initTestRenderMesh(QString("D:/SimData/FluidRendering/DamBreak/Solid/frame.1.obj"));
+            initTestRenderMesh(QString("E:/GoogleDrive/Classes/CS6620/prj8/teapot-low.obj"));
 #else
             initTestRenderMesh(QString("/Volumes/Working/GoogleDrive/DigitalAssets/Models/AirCraft/A-10_Thunderbolt_II/A-10_Thunderbolt_II.obj"));
 #endif

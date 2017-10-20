@@ -35,20 +35,22 @@ public:
     MeshLoader() : m_isMeshReady(false) { clearData(); }
     MeshLoader(const String& meshFile) : m_isMeshReady(false) { loadMesh(meshFile); }
 
-    bool         loadMesh(const String& meshFile);
-    Vec3f        getMeshCenter() const;
-    const Vec3f& getAABBMin() const { return m_AABBMin; }
-    const Vec3f& getAABBMax() const { return m_AABBMax; }
+    bool        loadMesh(const String& meshFile);
+    Vec3f       getMeshCenter() const;
+    const auto& getAABBMin() const { return m_AABBMin; }
+    const auto& getAABBMax() const { return m_AABBMax; }
 
     Vec3f getCameraPosition(Vec3f camDirection, float fov = 45);
     float getCameraDistance(float fov);
 
-    const Vec_Float& getVertices() const { assert(m_isMeshReady); return m_Vertices; }
-    const Vec_UInt&  getFaces() const { assert(m_isMeshReady); return m_Faces; }
-    const Vec_Float& getFaceVertices() const { assert(m_isMeshReady); return m_FaceVertices; }
-    const Vec_Float& getFaceVertexNormals() const { assert(m_isMeshReady); return m_FaceVertexNormals; }
-    const Vec_Float& getFaceVertexColors() const { assert(m_isMeshReady); return m_FaceVertexColors; }
-    const Vec_Float& getFaceVTexCoord2D() const { assert(m_isMeshReady); return m_FaceVertexTexCoord2D; }
+    const auto& getVertices() const { assert(m_isMeshReady); return m_Vertices; }
+    const auto& getNormals() const { assert(m_isMeshReady); return m_Normals; }
+    const auto& getTexCoord2D() const { assert(m_isMeshReady); return m_TexCoord2D; }
+    const auto& getFaces() const { assert(m_isMeshReady); return m_Faces; }
+    const auto& getFaceVertices() const { assert(m_isMeshReady); return m_FaceVertices; }
+    const auto& getFaceVertexNormals() const { assert(m_isMeshReady); return m_FaceVertexNormals; }
+    const auto& getFaceVertexColors() const { assert(m_isMeshReady); return m_FaceVertexColors; }
+    const auto& getFaceVTexCoord2D() const { assert(m_isMeshReady); return m_FaceVertexTexCoord2D; }
 
     size_t getNFaces() const noexcept { assert(m_isMeshReady); return (m_Faces.size() / 3); }
     size_t getNVertices() const noexcept { assert(m_isMeshReady); return (m_Vertices.size() / 3); }
@@ -82,6 +84,8 @@ private:
 
     Vec_UInt  m_Faces;
     Vec_Float m_Vertices;
+    Vec_Float m_Normals;
+    Vec_Float m_TexCoord2D;
     Vec_Float m_FaceVertices;
     Vec_Float m_FaceVertexNormals;
     Vec_Float m_FaceVertexColors;
