@@ -38,8 +38,12 @@ void SDFGrid::generateParticles()
 
     switch(m_SDFObjectType) {
         case Box:
+        {
             m_SDFObject = std::make_shared<GeometryObjects::BoxObject<3, float> >();
+            auto box = std::dynamic_pointer_cast<GeometryObjects::BoxObject<3, float> >(m_SDFObject);
+            box->setOriginalBox(Vec3f(-0.5, -0.3, -0.5), Vec3f(0.5, 0.3, 0.5));
             break;
+        }
         case Sphere:
             m_SDFObject = std::make_shared<GeometryObjects::SphereObject<3, float> >();
             break;
@@ -149,13 +153,6 @@ void SDFGrid::generateParticles()
     }
 
     std::shared_ptr<GeometryObjects::TriMeshObject<3, float> > meshObj = std::dynamic_pointer_cast<GeometryObjects::TriMeshObject<3, float> >(m_SDFObject);
-
-    if(meshObj != nullptr) {
-        auto sdf = meshObj->getSDF();
-//        for(float x : sdf.vec_data())
-//            qDebug() << x;
-    }
-
     Q_ASSERT(m_ParticleData != nullptr);
 
     const float        step           = 2.0f / float(m_Resolution);

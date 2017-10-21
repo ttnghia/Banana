@@ -29,11 +29,11 @@ include(../../../QtAppHelpers/QtAppHelpers.pri)
 include(../../../OpenGLHelpers/OpenGLHelpers.pri)
 
 HEADERS += \
-    Include/MainWindow.h \
-    Include/Common.h \
-    Include/RenderWidget.h \
-    Include/Controller.h \
-    Include/SDFGrid.h
+    Source/MainWindow.h \
+    Source/Common.h \
+    Source/RenderWidget.h \
+    Source/Controller.h \
+    Source/SDFGrid.h
 
 SOURCES += \
     Source/Main.cpp \
