@@ -196,7 +196,7 @@ public:
 
     MatXxX<N + 1, RealType> getTransformation(UInt frame, RealType fraction = RealType(0))
     {
-        if(m_KeyFrames.size() == 1) {
+        if(m_KeyFrames.size() == 1 || (m_bPeriodic && frame < m_StartFrame)) {
             MatXxX<N + 1, RealType> translationMatrix = glm::translate(MatXxX<N + 1, RealType>(1.0), m_KeyFrames[0].translation);
             MatXxX<N + 1, RealType> rotationMatrix    = glm::rotate(MatXxX<N + 1, RealType>(1.0), glm::radians(m_KeyFrames[0].rotation[N]), VecX<N, RealType>(m_KeyFrames[0].rotation));
             MatXxX<N + 1, RealType> scaleMatrix       = glm::scale(MatXxX<N + 1, RealType>(1.0), VecX<N, RealType>(m_KeyFrames[0].uniformScale));
@@ -211,7 +211,7 @@ public:
         RealType              scale;
 
         if(m_bPeriodic && frame > m_MaxFrame) {
-            frame = frame % m_MaxFrame;
+            frame = ((frame - m_StartFrame) % (m_MaxFrame - m_StartFrame)) + m_StartFrame;
         }
         RealType x = static_cast<RealType>(frame) + fraction;
 

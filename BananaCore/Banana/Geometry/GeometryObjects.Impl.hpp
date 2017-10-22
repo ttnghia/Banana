@@ -243,8 +243,12 @@ void Banana::GeometryObjects::BoxObject<N, RealType >::updateTransformation(UInt
         return;
     }
 
-    if(m_bPeriodic && frame > m_MaxFrame) {
-        frame = ((frame - m_StartFrame) % (m_MaxFrame - m_StartFrame)) + m_StartFrame;
+    if(m_bPeriodic) {
+        if(frame < m_StartFrame) {
+            return;
+        } else {
+            frame = ((frame - m_StartFrame) % (m_MaxFrame - m_StartFrame)) + m_StartFrame;
+        }
     }
     RealType x = static_cast<RealType>(frame) + fraction;
 
