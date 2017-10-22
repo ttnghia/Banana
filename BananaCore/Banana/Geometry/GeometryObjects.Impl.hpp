@@ -777,27 +777,24 @@ void cycle_array(RealType* arr, Int size)
 template<class RealType>
 RealType TriMeshObject<3, RealType >::signedDistance(const Vec3<RealType>& ppos0, bool bNegativeInside /*= true*/) const
 {
-    /*if(!m_bSDFReady) {
-        makeSDF();
-       }*/
+    __BNN_ASSERT(m_bSDFGenerated);
 
     auto ppos    = invTransform(ppos0);
-    auto cellIdx = m_Grid3D.getCellIdx<UInt>(ppos);
-    return ArrayHelpers::interpolateValueLinear((ppos - m_Grid3D.getBMin()) / m_Step, m_SDFData);
+    auto gridPos = m_Grid3D.getGridCoordinate(ppos);
+    return ArrayHelpers::interpolateValueLinear(gridPos, m_SDFData);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-void TriMeshObject<3, RealType >::makeSDF()
+void TriMeshObject<3, RealType >::computeSDF()
 {
     ////////////////////////////////////////////////////////////////////////////////
     // Load mesh
     MeshLoader meshLoader;
     __BNN_ASSERT(meshLoader.loadMesh(m_TriMeshFile));
 
-    Vec3f bbmin = meshLoader.getAABBMin();
-    Vec3f bbmax = meshLoader.getAABBMax();
-
+    Vec3f bbmin   = meshLoader.getAABBMin();
+    Vec3f bbmax   = meshLoader.getAABBMax();
     Vec3f diff    = bbmax - bbmin;
     float maxSize = fmaxf(fmaxf(fabs(diff[0]), fabs(diff[1])), fabs(diff[2]));
     float scale   = float(1.0) / maxSize;
@@ -818,10 +815,10 @@ void TriMeshObject<3, RealType >::makeSDF()
     bbmin -= meshCenter;
     bbmax -= meshCenter;
 
-    Vec_Vec3f      vertexList(meshLoader.getFaceVertices().size() / 3);
-    Vector<Vec3ui> faceList(meshLoader.getFaces().size() / 3);
+    Vec_Vec3f      vertexList(meshLoader.getNVertices());
+    Vector<Vec3ui> faceList(meshLoader.getNFaces());
 
-    std::memcpy(vertexList.data(), meshLoader.getFaceVertices().data(), meshLoader.getFaceVertices().size() * sizeof(Real));
+    std::memcpy(vertexList.data(), meshLoader.getVertices().data(), meshLoader.getVertices().size() * sizeof(Real));
     std::memcpy(faceList.data(), meshLoader.getFaces().data(), meshLoader.getFaces().size() * sizeof(UInt));
 
     for(auto& vertex : vertexList) {
@@ -836,7 +833,7 @@ void TriMeshObject<3, RealType >::makeSDF()
     ////////////////////////////////////////////////////////////////////////////////
     // Compute SDF data
     computeSDFMesh(faceList, vertexList, bbmin, m_Step, m_Grid3D.getNCells()[0], m_Grid3D.getNCells()[1], m_Grid3D.getNCells()[2], m_SDFData);
-    m_bSDFReady = true;
+    m_bSDFGenerated = true;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

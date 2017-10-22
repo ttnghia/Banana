@@ -35,12 +35,10 @@ class Controller : public QWidget
     Q_OBJECT
     friend class MainWindow;
 public:
-    explicit Controller(QWidget* parent) : QWidget(parent)
-    {
-        setupGUI();
-    }
+    explicit Controller(QWidget* parent) : QWidget(parent) { setupGUI(); }
 
-//    void disableParameters(bool disable);
+signals:
+    void transformationChanged(const Vec3f& translation, const Vec4f& rotation, float uniformScale);
 
 public slots:
     void loadTextures();
@@ -52,6 +50,7 @@ private:
     void setupGridResolutionControllers(QBoxLayout* ctrLayout);
     void setupParticleSizeControllers(QBoxLayout* ctrLayout);
     void setupParticleDisplayControllers(QBoxLayout* ctrLayout);
+    void setupObjectTransformationControllers(QBoxLayout* ctrLayout);
     void setupSDFObjectControllers(QBoxLayout* ctrLayout);
     void setupButtons(QBoxLayout* ctrLayout);
 
@@ -64,6 +63,15 @@ private:
     QSlider*          m_slPositiveParticleSize;
     QCheckBox*        m_chkHideNegativeParticles;
     QCheckBox*        m_chkHidePositiveParticles;
+    QLineEdit*        m_txtTranslationX;
+    QLineEdit*        m_txtTranslationY;
+    QLineEdit*        m_txtTranslationZ;
+    QLineEdit*        m_txtRotationAxisX;
+    QLineEdit*        m_txtRotationAxisY;
+    QLineEdit*        m_txtRotationAxisZ;
+    QLineEdit*        m_txtRotationAngle;
+    QLineEdit*        m_txtUniformScale;
+    QPushButton*      m_btnApplyTransform;
     EnhancedComboBox* m_cbSDFObject;
 
     QPushButton* m_btnEditClipPlane;

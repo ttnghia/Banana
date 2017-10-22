@@ -31,7 +31,7 @@ MainWindow::MainWindow(QWidget* parent) : OpenGLMainWindow(parent)
     setWindowTitle("Signed Distance Field Visualizer");
     setFocusPolicy(Qt::StrongFocus);
     showFPS(false);
-    showCameraPosition(false);
+//    showCameraPosition(false);
 
     ////////////////////////////////////////////////////////////////////////////////
     m_SDFGrid = std::make_unique<SDFGrid>(m_RenderWidget->getParticleDataObj());
@@ -44,8 +44,7 @@ void MainWindow::showEvent(QShowEvent* ev)
     QMainWindow::showEvent(ev);
 
     static bool showed = false;
-    if(!showed)
-    {
+    if(!showed) {
         showed = true;
         updateStatusMemoryUsage();
     }
@@ -54,8 +53,7 @@ void MainWindow::showEvent(QShowEvent* ev)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MainWindow::instantiateOpenGLWidget()
 {
-    if(m_GLWidget != nullptr)
-    {
+    if(m_GLWidget != nullptr) {
         delete m_GLWidget;
     }
 
@@ -66,8 +64,7 @@ void MainWindow::instantiateOpenGLWidget()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 bool MainWindow::processKeyPressEvent(QKeyEvent* event)
 {
-    switch(event->key())
-    {
+    switch(event->key()) {
         case Qt::Key_X:
             m_Controller->m_btnEnableClipPlane->click();
             return true;
@@ -136,7 +133,7 @@ void MainWindow::setupStatusBar()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MainWindow::connectWidgets()
 {
-    connect(m_ClipPlaneEditor.get(),                     SIGNAL(clipPlaneChanged(glm::vec4)),             m_RenderWidget, SLOT(setClipPlane(glm::vec4)));
+    connect(m_ClipPlaneEditor.get(),                     &ClipPlaneEditor::clipPlaneChanged,   m_RenderWidget, &RenderWidget::setClipPlane);
     connect(m_Controller->m_btnEditClipPlane,            &QPushButton::clicked,                           [&] { m_ClipPlaneEditor->show(); });
     connect(m_Controller->m_btnEnableClipPlane,          &QPushButton::clicked,                           m_RenderWidget, &RenderWidget::enableClipPlane);
     connect(m_SDFGrid.get(),                             &SDFGrid::generationTimeChanged,                 this,           &MainWindow::updateStatusSDFGenerationTime);
@@ -176,6 +173,7 @@ void MainWindow::connectWidgets()
 
     connect(m_Controller->m_chkHideNegativeParticles, &QCheckBox::clicked, m_RenderWidget, &RenderWidget::hideNegativeParticles);
     connect(m_Controller->m_chkHidePositiveParticles, &QCheckBox::clicked, m_RenderWidget, &RenderWidget::hidePositiveParticles);
+    connect(m_Controller, &Controller::transformationChanged, m_SDFGrid.get(), &SDFGrid::setTransformation);
 
     m_BusyBar->setBusy(true);
     m_SDFGrid->setSDFObjectType(static_cast<SDFObjectTypes>(0));

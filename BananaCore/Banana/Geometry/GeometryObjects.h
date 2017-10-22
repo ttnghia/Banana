@@ -28,19 +28,7 @@
 
 #include <glm/gtx/euler_angles.hpp>
 
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-// utility to hack glm error
-namespace glm
-{
-template<class T>
-inline Mat3x3<T> rotate(Mat3x3<T> const& m,
-                        T                angle,
-                        Vec2<T> const&   axis)
-{
-    __BNN_UNUSED(axis);
-    return glm::rotate(m, angle);
-}
-}
+#include <Banana/Geometry/OBJLoader.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -364,21 +352,16 @@ template<class RealType>
 class TriMeshObject<2, RealType> : public GeometryObject<2, RealType>
 {
 public:
-    virtual String   name() override { return String("TriMeshObject"); }
-    virtual RealType signedDistance(const Vec2<RealType>& ppos0, bool bNegativeInside = true) const override
-    {
-        __BNN_UNUSED(ppos0);
-        __BNN_UNUSED(bNegativeInside);
-        return 0;
-    }
+    virtual String   name() override { return String("TriMeshObject-Unimplemented"); }
+    virtual RealType signedDistance(const Vec2<RealType>&, bool bNegativeInside = true) const override { __BNN_UNUSED(bNegativeInside); return RealType(0); }
 
-    void setMeshFile(const String&) {}
-    void setStep(RealType) {}
+    auto& meshFile() { return m_TriMeshFile; }
+    auto& sdfStep() { return m_Step; }
 
-    void                      makeSDF() {}
-    const Array<2, RealType>& getSDF() const noexcept { return m_SDFData; }
+    void makeSDF() {}
 protected:
-    Array<2, RealType> m_SDFData;
+    String   m_TriMeshFile = String("");
+    RealType m_Step        = RealType(1.0 / 256.0);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -389,16 +372,14 @@ public:
     virtual String   name() override { return String("TriMeshObject"); }
     virtual RealType signedDistance(const Vec3<RealType>& ppos0, bool bNegativeInside = true) const override;
 
-    void setMeshFile(const String& meshFile) { m_TriMeshFile = meshFile; }
-    void setStep(RealType step) { m_Step = step; }
-
-    void                      makeSDF();
-    const Array<3, RealType>& getSDF() const noexcept { return m_SDFData; }
+    auto& meshFile() { return m_TriMeshFile; }
+    auto& sdfStep() { return m_Step; }
+    void  computeSDF();
 
 protected:
 
-    bool   m_bSDFReady   = false;
-    String m_TriMeshFile = String("");
+    bool   m_bSDFGenerated = false;
+    String m_TriMeshFile   = String("");
 
     RealType           m_Step      = RealType(1.0 / 256.0);
     RealType           m_Expanding = RealType(0.1);

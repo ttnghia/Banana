@@ -16,6 +16,7 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 #include <Banana/Geometry/MeshLoader.h>
+#include <Banana/Utils/MathHelpers.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -164,13 +165,13 @@ bool MeshLoader::loadObj(const String& meshFile)
                 v[1][k] = m_Vertices[3 * v1 + k];
                 v[2][k] = m_Vertices[3 * v2 + k];
 
-                m_AABBMin[k] = std::min(v[0][k], m_AABBMin[k]);
-                m_AABBMin[k] = std::min(v[1][k], m_AABBMin[k]);
-                m_AABBMin[k] = std::min(v[2][k], m_AABBMin[k]);
+                m_AABBMin[k] = MathHelpers::min(v[0][k], m_AABBMin[k]);
+                m_AABBMin[k] = MathHelpers::min(v[1][k], m_AABBMin[k]);
+                m_AABBMin[k] = MathHelpers::min(v[2][k], m_AABBMin[k]);
 
-                m_AABBMax[k] = std::max(v[0][k], m_AABBMax[k]);
-                m_AABBMax[k] = std::max(v[1][k], m_AABBMax[k]);
-                m_AABBMax[k] = std::max(v[2][k], m_AABBMax[k]);
+                m_AABBMax[k] = MathHelpers::max(v[0][k], m_AABBMax[k]);
+                m_AABBMax[k] = MathHelpers::max(v[1][k], m_AABBMax[k]);
+                m_AABBMax[k] = MathHelpers::max(v[2][k], m_AABBMax[k]);
             }
 
             for(int k = 0; k < 3; ++k) {
@@ -284,13 +285,13 @@ bool MeshLoader::loadPly(const String& meshFile)
                 v[1][k] = m_Vertices[3 * v1 + k];
                 v[2][k] = m_Vertices[3 * v2 + k];
 
-                m_AABBMin[k] = std::min(v[0][k], m_AABBMin[k]);
-                m_AABBMin[k] = std::min(v[1][k], m_AABBMin[k]);
-                m_AABBMin[k] = std::min(v[2][k], m_AABBMin[k]);
+                m_AABBMin[k] = MathHelpers::min(v[0][k], m_AABBMin[k]);
+                m_AABBMin[k] = MathHelpers::min(v[1][k], m_AABBMin[k]);
+                m_AABBMin[k] = MathHelpers::min(v[2][k], m_AABBMin[k]);
 
-                m_AABBMax[k] = std::max(v[0][k], m_AABBMax[k]);
-                m_AABBMax[k] = std::max(v[1][k], m_AABBMax[k]);
-                m_AABBMax[k] = std::max(v[2][k], m_AABBMax[k]);
+                m_AABBMax[k] = MathHelpers::max(v[0][k], m_AABBMax[k]);
+                m_AABBMax[k] = MathHelpers::max(v[1][k], m_AABBMax[k]);
+                m_AABBMax[k] = MathHelpers::max(v[2][k], m_AABBMax[k]);
             }
 
             for(int k = 0; k < 3; ++k) {

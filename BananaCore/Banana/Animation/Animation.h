@@ -21,6 +21,17 @@
 #include <Banana/Animation/CubicSpline.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+// utility to hack glm error
+namespace glm
+{
+template<class T>
+inline Mat3x3<T> rotate(Mat3x3<T> const& m, T angle, Vec2<T> const&)
+{
+    return glm::rotate(m, angle);
+}
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -114,7 +125,7 @@ public:
     {
         if(m_KeyFrames.size() == 1) {
             MatXxX<N + 1, RealType> translationMatrix = glm::translate(MatXxX<N + 1, RealType>(1.0), m_KeyFrames[0].translation);
-            MatXxX<N + 1, RealType> rotationMatrix    = glm::rotate(MatXxX<N + 1, RealType>(1.0), m_KeyFrames[0].rotation[N], VecX<N, RealType>(m_KeyFrames[0].rotation));
+            MatXxX<N + 1, RealType> rotationMatrix    = glm::rotate(MatXxX<N + 1, RealType>(1.0), glm::radians(m_KeyFrames[0].rotation[N]), VecX<N, RealType>(m_KeyFrames[0].rotation));
             MatXxX<N + 1, RealType> scaleMatrix       = glm::scale(MatXxX<N + 1, RealType>(1.0), VecX<N, RealType>(m_KeyFrames[0].uniformScale));
 
             return (translationMatrix * rotationMatrix * scaleMatrix);

@@ -29,6 +29,7 @@ void Controller::setupGUI()
     setupGridResolutionControllers(controlLayout);
     setupParticleSizeControllers(controlLayout);
     setupParticleDisplayControllers(controlLayout);
+    setupObjectTransformationControllers(controlLayout);
     setupSDFObjectControllers(controlLayout);
     controlLayout->addStretch(1);
     setupButtons(controlLayout);
@@ -161,6 +162,91 @@ void Controller::setupParticleDisplayControllers(QBoxLayout* ctrLayout)
     grParticleDisplay->setTitle("Display");
     grParticleDisplay->setLayout(layoutParticleDisplay);
     ctrLayout->addWidget(grParticleDisplay);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void Controller::setupObjectTransformationControllers(QBoxLayout* ctrLayout)
+{
+    m_txtTranslationX = new QLineEdit;
+    m_txtTranslationY = new QLineEdit;
+    m_txtTranslationZ = new QLineEdit;
+
+    m_txtRotationAxisX = new QLineEdit;
+    m_txtRotationAxisY = new QLineEdit;
+    m_txtRotationAxisZ = new QLineEdit;
+    m_txtRotationAngle = new QLineEdit;
+
+    m_txtUniformScale = new QLineEdit;
+
+    m_txtTranslationX->setText("0");
+    m_txtTranslationY->setText("0");
+    m_txtTranslationZ->setText("0");
+    m_txtRotationAxisX->setText("1");
+    m_txtRotationAxisY->setText("1");
+    m_txtRotationAxisZ->setText("1");
+    m_txtRotationAngle->setText("0");
+
+    m_txtUniformScale->setText("1");
+
+    ////////////////////////////////////////////////////////////////////////////////
+    QHBoxLayout* loTranslation = new QHBoxLayout;
+    loTranslation->addWidget(m_txtTranslationX);
+    loTranslation->addWidget(m_txtTranslationY);
+    loTranslation->addWidget(m_txtTranslationZ);
+    QGroupBox* grTranslation = new QGroupBox;
+    grTranslation->setTitle("Translation");
+    grTranslation->setLayout(loTranslation);
+
+    QGridLayout* loRotation = new QGridLayout;
+    loRotation->addWidget(new QLabel("Axis: "), 0, 0, 1, 1);
+    loRotation->addWidget(m_txtRotationAxisX, 0, 1, 1, 1);
+    loRotation->addWidget(m_txtRotationAxisY, 0, 2, 1, 1);
+    loRotation->addWidget(m_txtRotationAxisZ, 0, 3,  1, 1);
+    loRotation->addWidget(new QLabel("Angle: "), 1, 0, 1, 1);
+    loRotation->addWidget(m_txtRotationAngle, 1, 1,  1, 1);
+    QGroupBox* grRotation = new QGroupBox;
+    grRotation->setTitle("Rotation");
+    grRotation->setLayout(loRotation);
+
+    QHBoxLayout* loScale = new QHBoxLayout;
+    loScale->addWidget(m_txtUniformScale);
+    QGroupBox* grScale = new QGroupBox;
+    grScale->setTitle("Uniform Scale");
+    grScale->setLayout(loScale);
+
+    ////////////////////////////////////////////////////////////////////////////////
+    m_btnApplyTransform = new QPushButton("Apply");
+    QHBoxLayout* loApplyButton = new QHBoxLayout;
+    loApplyButton->addStretch(1);
+    loApplyButton->addWidget(m_btnApplyTransform, 2);
+    loApplyButton->addStretch(1);
+
+    connect(m_btnApplyTransform, &QPushButton::clicked, this,
+            [&]()
+            {
+                Vec3f translation = Vec3f(m_txtTranslationX->text().toFloat(),
+                                          m_txtTranslationY->text().toFloat(),
+                                          m_txtTranslationZ->text().toFloat());
+                Vec4f rotation = Vec4f(m_txtRotationAxisX->text().toFloat(),
+                                       m_txtRotationAxisY->text().toFloat(),
+                                       m_txtRotationAxisZ->text().toFloat(),
+                                       m_txtRotationAngle->text().toFloat());
+                float scale = m_txtUniformScale->text().toFloat();
+
+                emit transformationChanged(translation, rotation, scale);
+            });
+
+    ////////////////////////////////////////////////////////////////////////////////
+    QVBoxLayout* loTransformation = new QVBoxLayout;
+    loTransformation->addWidget(grTranslation);
+    loTransformation->addWidget(grRotation);
+    loTransformation->addWidget(grScale);
+    loTransformation->addLayout(loApplyButton);
+    QGroupBox* grTransformation = new QGroupBox;
+    grTransformation->setTitle("Transformation");
+    grTransformation->setLayout(loTransformation);
+
+    ctrLayout->addWidget(grTransformation);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

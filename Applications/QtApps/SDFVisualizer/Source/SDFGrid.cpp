@@ -32,6 +32,16 @@ void SDFGrid::setResolution(int resolution)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void SDFGrid::setTransformation(const Vec3f& translation, const Vec4f& rotation, float uniformScale)
+{
+    m_Translation  = translation;
+    m_Rotation     = rotation;
+    m_UniformScale = uniformScale;
+
+    m_SDFGenerationFutureObj = std::async(std::launch::async, [&] { generateParticles(); });
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void SDFGrid::generateParticles()
 {
     m_Timer.tick();
@@ -144,13 +154,22 @@ void SDFGrid::generateParticles()
             m_SDFObject = std::make_shared<GeometryObjects::TriMeshObject<3, float> >();
             std::shared_ptr<GeometryObjects::TriMeshObject<3, float> > meshObj = std::dynamic_pointer_cast<GeometryObjects::TriMeshObject<3, float> >(m_SDFObject);
 //            meshObj->meshFile() = "D:/Programming/Banana/Assets/PLY/bunny.ply";
-//            meshObj->meshFile() = "D:/Programming/Noodle/Data/Mesh/Bunny.obj";
-            meshObj->setMeshFile("D:/Programming/Banana/Assets/PLY/icosahedron_ascii.ply");
-            meshObj->setStep(1.0f / 128.0f);
-            meshObj->makeSDF();
+            meshObj->meshFile() = "D:/Programming/Banana/Assets/OBJ/bunny.obj";
+//            meshObj->setMeshFile("D:/Programming/Banana/Assets/PLY/icosahedron_ascii.ply");
+            meshObj->sdfStep() = 1.0f / 128.0f;
+            meshObj->computeSDF();
+
             break;
         }
     }
+
+
+    m_SDFObject->setTranslation(m_Translation);
+//    m_SDFObject->setRotation(m_Rotation);
+
+    auto r = MathHelpers::EulerToAxisAngle(Vec3f(m_Rotation), false);
+    m_SDFObject->setRotation(r);
+    m_SDFObject->setUniformScale(m_UniformScale);
 
     std::shared_ptr<GeometryObjects::TriMeshObject<3, float> > meshObj = std::dynamic_pointer_cast<GeometryObjects::TriMeshObject<3, float> >(m_SDFObject);
     Q_ASSERT(m_ParticleData != nullptr);

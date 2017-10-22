@@ -18,6 +18,7 @@
 #pragma once
 
 #include <Banana/Utils/JSONHelpers.h>
+#include <Banana/Utils/MathHelpers.h>
 #include <ParticleSolvers/ParticleSolverData.h>
 #include <SimulationObjects/BoundaryObject.h>
 #include <SimulationObjects/ParticleGenerator.h>
@@ -99,15 +100,20 @@ void loadSimulationObject(const nlohmann::json& jParams, const SharedPtr<Simulat
     JSONHelpers::readBool(jParams, obj->fullShapeObj(), "FullShapeObj");
 
     VecX<N, Real>     translation;
-    VecX<N + 1, Real> rotation;
+    VecX<N, Real>     rotationEulerAngles;
+    VecX<N + 1, Real> rotationAxisAngle;
     Real              scale;
 
     if(JSONHelpers::readVector(jParams, translation, "Translation")) {
         obj->getGeometry()->setTranslation(translation);
     }
 
-    if(JSONHelpers::readVector(jParams, rotation, "Rotation")) {
-        obj->getGeometry()->setRotation(rotation);
+    if(JSONHelpers::readVector(jParams, rotationEulerAngles, "RotationEulerAngles") || JSONHelpers::readVector(jParams, rotationEulerAngles, "RotationEulerAngle")) {
+        obj->getGeometry()->setRotation(MathHelpers::EulerToAxisAngle(rotationEulerAngles, false));
+    }
+
+    if(JSONHelpers::readVector(jParams, rotationAxisAngle, "RotationAxisAngle")) {
+        obj->getGeometry()->setRotation(rotationAxisAngle);
     }
 
     if(JSONHelpers::readValue(jParams, scale, "Scale")) {
@@ -183,7 +189,7 @@ void loadParticleGenerators(const nlohmann::json& jParams, Vector<SharedPtr<Part
         loadSimulationObject(jObj, static_pointer_cast<SimulationObject<N, RealType> >(obj));
 
         JSONHelpers::readVector(jObj, obj->v0(), "InitialVelocity");
-        JSONHelpers::readValue(jObj, obj->minDistanceRatio(), "MinParticleDistanceRatio");
+        JSONHelpers::readValue(jObj, obj->minDistanceRatio(), "MinParticleDi stanceRatio");
         JSONHelpers::readValue(jObj, obj->jitter(), "JitterRatio");
         JSONHelpers::readValue(jObj, obj->startFrame(), "StartFrame");
         JSONHelpers::readValue(jObj, obj->maxFrame(), "MaxFrame");
