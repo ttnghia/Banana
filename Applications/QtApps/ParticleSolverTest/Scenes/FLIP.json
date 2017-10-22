@@ -31,16 +31,22 @@
             "Translation" : [0.0, 1.0, 0.0],
             "Scale" : 2.0,
             "Animation" :
-            [
-                {
-                    "Frame" : 150,
-                    "Translation" : [0, 1.5, 0]
-                },
-                {
-                    "Frame" : 300,
-                    "Translation" : [0, 1.0, 0]
-                }
-            ]
+            {
+                "CubicInterpolationTranslation" : true,
+                "CubicInterpolationRotation" : true,
+                "CubicInterpolationScale" : true,
+                "KeyFrames":
+                [
+                    {
+                        "Frame" : 150,
+                        "Translation" : [0, 1.5, 0]
+                    },
+                    {
+                        "Frame" : 300,
+                        "Translation" : [0, 1.0, 0]
+                    }
+                ]
+            }
         }
 
     ],

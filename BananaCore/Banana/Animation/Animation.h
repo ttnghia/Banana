@@ -66,20 +66,58 @@ class Animation
 public:
     Animation() { m_KeyFrames.emplace_back(KeyFrame<N, RealType>()); }
 
-    void addKeyFrame(const KeyFrame<N, RealType>& keyFrame) { m_KeyFrames.push_back(keyFrame); }
-    void addKeyFrame(UInt frame, const VecX<N, RealType>& translation) { m_KeyFrames.emplace_back(KeyFrame<N, RealType>(frame, translation)); }
-    void addKeyFrame(UInt frame, const VecX<N + 1, RealType>& rotation) { m_KeyFrames.emplace_back(KeyFrame<N, RealType>(frame, rotation)); }
-    void addKeyFrame(UInt frame, RealType scale) { m_KeyFrames.emplace_back(KeyFrame(frame, scale)); }
+    void addKeyFrame(const KeyFrame<N, RealType>& keyFrame)
+    {
+        if(keyFrame.frame == 0) {
+            m_KeyFrames[0] = keyFrame;
+        } else {
+            m_KeyFrames.push_back(keyFrame);
+        }
+    }
+
+    void addKeyFrame(UInt frame, const VecX<N, RealType>& translation)
+    {
+        if(frame == 0) {
+            m_KeyFrames[0].translation = translation;
+        } else {
+            m_KeyFrames.emplace_back(KeyFrame<N, RealType>(frame, translation));
+        }
+    }
+
+    void addKeyFrame(UInt frame, const VecX<N + 1, RealType>& rotation)
+    {
+        if(frame == 0) {
+            m_KeyFrames[0].rotation = rotation;
+        } else {
+            m_KeyFrames.emplace_back(KeyFrame<N, RealType>(frame, rotation));
+        }
+    }
+
+    void addKeyFrame(UInt frame, RealType scale)
+    {
+        if(frame == 0) {
+            m_KeyFrames[0].uniformScale = scale;
+        } else {
+            m_KeyFrames.emplace_back(KeyFrame<N, RealType>(frame, scale));
+        }
+    }
+
     void addKeyFrame(UInt frame, const VecX<N, RealType>& translation, const VecX<N + 1, RealType>& rotation, RealType scale)
     {
-        m_KeyFrames.emplace_back(KeyFrame<N, RealType>(frame, translation, rotation, scale));
+        if(frame == 0) {
+            m_KeyFrames[0].translation  = translation;
+            m_KeyFrames[0].rotation     = rotation;
+            m_KeyFrames[0].uniformScale = scale;
+        } else {
+            m_KeyFrames.emplace_back(KeyFrame<N, RealType>(frame, translation, rotation, scale));
+        }
     }
 
     UInt  nKeyFrames() const { return static_cast<UInt>(m_KeyFrames.size()); }
     auto& keyFrames() { return m_KeyFrames; }
     auto& periodic() { return m_bPeriodic; }
 
-    void makeReady()
+    void makeReady(bool bCubicIntTranslation = true, bool bCubicIntRotation = true, bool bCubicIntScale = true)
     {
         size_t nKeyFrames = m_KeyFrames.size();
 
@@ -111,14 +149,46 @@ public:
 
 
         for(Int i = 0; i < N; ++i) {
-            m_TranslationSpline[i].setPoints(frames, translations[i]);
-            m_RotationSpline[i].setPoints(frames, rotations[i]);
+            m_TranslationSpline[i].setBoundary(CubicSpline<RealType>::BDType::FirstOrder, 0, CubicSpline<RealType>::BDType::FirstOrder, 0);
+            m_TranslationSpline[i].setPoints(frames, translations[i], bCubicIntTranslation);
+
+            m_RotationSpline[i].setBoundary(CubicSpline<RealType>::BDType::FirstOrder, 0, CubicSpline<RealType>::BDType::FirstOrder, 0);
+            m_RotationSpline[i].setPoints(frames, rotations[i], bCubicIntRotation);
         }
-        m_RotationSpline[N].setPoints(frames, rotations[N]);
-        m_ScaleSpline.setPoints(frames, scales[i]);
+        m_RotationSpline[N].setBoundary(CubicSpline<RealType>::BDType::FirstOrder, 0, CubicSpline<RealType>::BDType::FirstOrder, 0);
+        m_RotationSpline[N].setPoints(frames, rotations[N], bCubicIntRotation);
+        m_ScaleSpline.setBoundary(CubicSpline<RealType>::BDType::FirstOrder, 0, CubicSpline<RealType>::BDType::FirstOrder, 0);
+        m_ScaleSpline.setPoints(frames, scales, bCubicIntScale);
 
         ////////////////////////////////////////////////////////////////////////////////
         m_bReady = true;
+    }
+
+    void getTransformation(VecX<N, RealType>& translation, VecX<N + 1, RealType>& rotation, RealType& scale, UInt frame, RealType fraction = RealType(0))
+    {
+        if(m_KeyFrames.size() == 1) {
+            translation = m_KeyFrames[0].translation;
+            rotation    = m_KeyFrames[0].rotation;
+            scale       = m_KeyFrames[0].uniformScale;
+
+            return;
+        }
+
+        ////////////////////////////////////////////////////////////////////////////////
+        __BNN_ASSERT(m_bReady)
+
+
+        if(m_bPeriodic && frame > m_MaxFrame) {
+            frame = frame % m_MaxFrame;
+        }
+        RealType x = static_cast<RealType>(frame) + fraction;
+
+        for(Int i = 0; i < N; ++i) {
+            translation[i] = m_TranslationSpline[i](x);
+            rotation[i]    = m_RotationSpline[i](x);
+        }
+        rotation[N] = m_RotationSpline[N](x);
+        scale       = m_ScaleSpline(x);
     }
 
     MatXxX<N + 1, RealType> getTransformation(UInt frame, RealType fraction = RealType(0))

@@ -74,9 +74,9 @@ public:
     RealType          deriv(Int order, RealType x) const;
 
 private:
-    Vector<RealType> m_X, m_Y;           // x,y coordinates of poInts
-    Vector<RealType> m_a, m_b, m_c;      // CubicSpline coefficients
-    RealType         m_b0, m_c0;         // for left extrapolation
+    Vector<RealType> m_X, m_Y;               // x,y coordinates of poInts
+    Vector<RealType> m_a, m_b, m_c;          // CubicSpline coefficients
+    RealType         m_b0, m_c0;             // for left extrapolation
     // f(x) = a*(x-x_i)^3 + b*(x-x_i)^2 + c*(x-x_i) + y_i
 
     BDType   m_Left                 = BDType::SecondOrder;
@@ -266,7 +266,7 @@ void CubicSpline<RealType >::setPoints(const Vector<RealType>& X, const Vector<R
     assert(X.size() > 2);
     m_X = X;
     m_Y = Y;
-    Int n = X.size();
+    Int n = Int(X.size());
     // TODO: maybe sort x and y, rather than returning an error
     for(Int i = 0; i < n - 1; ++i) {
         assert(m_X[i] < m_X[i + 1]);

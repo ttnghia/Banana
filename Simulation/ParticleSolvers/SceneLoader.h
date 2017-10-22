@@ -123,7 +123,17 @@ void loadSimulationObject(const nlohmann::json& jParams, const SharedPtr<Simulat
     ////////////////////////////////////////////////////////////////////////////////
     // animation data
     if(jParams.find("Animation") != jParams.end()) {
-        for(auto& jKeyFrame : jParams["Animation"]) {
+        auto jAnimation                     = jParams["Animation"];
+        bool bCubicInterpolationTranslation = true;
+        bool bCubicInterpolationRotation    = true;
+        bool bCubicInterpolationScale       = true;
+
+        JSONHelpers::readBool(jAnimation, bCubicInterpolationTranslation, "CubicInterpolationTranslation");
+        JSONHelpers::readBool(jAnimation, bCubicInterpolationRotation, "CubicInterpolationRotation");
+        JSONHelpers::readBool(jAnimation, bCubicInterpolationScale, "CubicInterpolationScale");
+
+        __BNN_ASSERT(jAnimation.find("KeyFrames") != jAnimation.end());
+        for(auto& jKeyFrame : jAnimation["KeyFrames"]) {
             KeyFrame<N, RealType> keyFrame;
             __BNN_ASSERT(JSONHelpers::readValue(jKeyFrame, keyFrame.frame, "Frame"));
             JSONHelpers::readVector(jKeyFrame, keyFrame.translation, "Translation");
@@ -132,6 +142,8 @@ void loadSimulationObject(const nlohmann::json& jParams, const SharedPtr<Simulat
 
             obj->getGeometry()->getAnimation().addKeyFrame(keyFrame);
         }
+
+        obj->getGeometry()->getAnimation().makeReady(bCubicInterpolationTranslation, bCubicInterpolationRotation, bCubicInterpolationScale);
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -144,13 +156,17 @@ void loadSimulationObject(const nlohmann::json& jParams, const SharedPtr<Simulat
         }
 
         if(jParams.find("Animation") != jParams.end()) {
-            for(auto& jKeyFrame : jParams["Animation"]) {
+            auto jAnimation = jParams["Animation"];
+            __BNN_ASSERT(jAnimation.find("KeyFrames") != jAnimation.end());
+            for(auto& jKeyFrame : jAnimation["KeyFrames"]) {
                 UInt frame;
                 __BNN_ASSERT(JSONHelpers::readValue(jKeyFrame, frame, "Frame"));
                 if(JSONHelpers::readVector(jKeyFrame, bMin, "BoxMin") && JSONHelpers::readVector(jKeyFrame, bMax, "BoxMax")) {
                     box->addKeyFrame(frame, bMin, bMax);
                 }
             }
+
+            box->makeReadyAnimation();
         }
     }
 }

@@ -137,6 +137,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Banana\Animation\Animation.h" />
+    <ClInclude Include="Banana\Animation\Animation.Test.hpp" />
     <ClInclude Include="Banana\Animation\CubicSpline.h" />
     <ClInclude Include="Banana\Array\Array.h" />
     <ClInclude Include="Banana\Array\SparseArray3.h" />
@@ -152,7 +153,7 @@
     <ClInclude Include="Banana\LinearAlgebra\ImplicitQRSVD.h" />
     <ClInclude Include="Banana\LinearAlgebra\LinearSolvers\PCGSolver.Impl.hpp" />
     <ClInclude Include="Banana\LinearAlgebra\SparseMatrix\SparseMatrix.Impl.hpp" />
-    <ClInclude Include="Banana\LinearAlgebra\_SVD.Test.hpp" />
+    <ClInclude Include="Banana\LinearAlgebra\ImplicitQRSVD.Test.hpp" />
     <ClInclude Include="Banana\NeighborSearch\DataStructures.h" />
     <ClInclude Include="Banana\NeighborSearch\Morton\Morton.h" />
     <ClInclude Include="Banana\NeighborSearch\Morton\Morton2D.h" />
