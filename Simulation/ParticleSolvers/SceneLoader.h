@@ -26,6 +26,7 @@
 
 #include <json.hpp>
 #include <fstream>
+#include <unordered_set>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -92,6 +93,12 @@ void loadSimulationObject(const nlohmann::json& jParams, const SharedPtr<Simulat
 {
     __BNN_ASSERT(obj != nullptr);
 
+    static std::unordered_set<String> objNames;
+    __BNN_ASSERT(JSONHelpers::readValue(jParams, obj->nameID(), "UniqueName"));
+    __BNN_ASSERT(objNames.find(obj->nameID()) == objNames.end());
+    objNames.insert(obj->nameID());
+
+    ////////////////////////////////////////////////////////////////////////////////
     JSONHelpers::readValue(jParams, obj->meshFile(), "MeshFile");
     JSONHelpers::readValue(jParams, obj->particleFile(), "ParticleFile");
     JSONHelpers::readValue(jParams, obj->SDFFile(), "SDFFile");
@@ -123,15 +130,22 @@ void loadSimulationObject(const nlohmann::json& jParams, const SharedPtr<Simulat
     ////////////////////////////////////////////////////////////////////////////////
     // animation data
     if(jParams.find("Animation") != jParams.end()) {
-        auto jAnimation                     = jParams["Animation"];
+        auto jAnimation = jParams["Animation"];
+        auto aniObj     = obj->getGeometry()->getAnimation();
+
         bool bCubicInterpolationTranslation = true;
         bool bCubicInterpolationRotation    = true;
         bool bCubicInterpolationScale       = true;
+        bool bPeriodic                      = false;
+        UInt startFrame                     = 0;
 
         JSONHelpers::readBool(jAnimation, bCubicInterpolationTranslation, "CubicInterpolationTranslation");
         JSONHelpers::readBool(jAnimation, bCubicInterpolationRotation, "CubicInterpolationRotation");
         JSONHelpers::readBool(jAnimation, bCubicInterpolationScale, "CubicInterpolationScale");
-
+        if(JSONHelpers::readBool(jAnimation, bPeriodic, "Periodic")) {
+            JSONHelpers::readValue(jAnimation, startFrame, "StartFrame");
+            aniObj.setPeriodic(bPeriodic, startFrame);
+        }
         __BNN_ASSERT(jAnimation.find("KeyFrames") != jAnimation.end());
         for(auto& jKeyFrame : jAnimation["KeyFrames"]) {
             KeyFrame<N, RealType> keyFrame;
@@ -140,10 +154,10 @@ void loadSimulationObject(const nlohmann::json& jParams, const SharedPtr<Simulat
             JSONHelpers::readVector(jKeyFrame, keyFrame.rotation, "Rotation");
             JSONHelpers::readValue(jKeyFrame, keyFrame.uniformScale, "Scale");
 
-            obj->getGeometry()->getAnimation().addKeyFrame(keyFrame);
+            aniObj.addKeyFrame(keyFrame);
         }
 
-        obj->getGeometry()->getAnimation().makeReady(bCubicInterpolationTranslation, bCubicInterpolationRotation, bCubicInterpolationScale);
+        aniObj.makeReady(bCubicInterpolationTranslation, bCubicInterpolationRotation, bCubicInterpolationScale);
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -157,6 +171,14 @@ void loadSimulationObject(const nlohmann::json& jParams, const SharedPtr<Simulat
 
         if(jParams.find("Animation") != jParams.end()) {
             auto jAnimation = jParams["Animation"];
+            bool bPeriodic  = false;
+            UInt startFrame = 0;
+
+            if(JSONHelpers::readBool(jAnimation, bPeriodic, "Periodic")) {
+                JSONHelpers::readValue(jAnimation, startFrame, "StartFrame");
+                box->setPeriodic(bPeriodic, startFrame);
+            }
+
             __BNN_ASSERT(jAnimation.find("KeyFrames") != jAnimation.end());
             for(auto& jKeyFrame : jAnimation["KeyFrames"]) {
                 UInt frame;

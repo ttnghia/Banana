@@ -183,7 +183,7 @@ void FLIP3DSolver::generateParticles(const nlohmann::json& jParams)
         for(auto& generator : m_ParticleGenerators) {
             generator->makeReady(solverParams().particleRadius);
             UInt nGen = generator->generateParticles(particleData().positions, particleData().velocities);
-            logger().printLog(String("Generated ") + NumberHelpers::formatWithCommas(nGen) + String(" particles by ") + generator->name());
+            logger().printLog(String("Generated ") + NumberHelpers::formatWithCommas(nGen) + String(" particles by ") + generator->nameID());
         }
         m_NSearch->add_point_set(glm::value_ptr(particleData().positions.front()), particleData().getNParticles(), true, true);
         sortParticles();
@@ -208,18 +208,17 @@ void FLIP3DSolver::advanceScene(UInt frame, Real fraction /*= Real(0)*/)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void FLIP3DSolver::setupDataIO()
 {
-    m_ParticleIO = std::make_unique<ParticleSerialization>(globalParams().dataPath, "FLIPData", "frame", m_Logger);
-    m_ParticleIO->addFixedAtribute<float>("particle_radius", ParticleSerialization::TypeReal, 1);
-    m_ParticleIO->addParticleAtribute<float>("position", ParticleSerialization::TypeCompressedReal, 3);
+    m_ParticleDataIO = std::make_unique<ParticleSerialization>(globalParams().dataPath, "FLIPData", "frame", m_Logger);
+    m_ParticleDataIO->addFixedAtribute<float>("particle_radius", ParticleSerialization::TypeReal, 1);
+    m_ParticleDataIO->addParticleAtribute<float>("position", ParticleSerialization::TypeCompressedReal, 3);
     if(globalParams().isSavingData("anisotropic_kernel")) {
-        m_ParticleIO->addParticleAtribute<float>("anisotropic_kernel", ParticleSerialization::TypeCompressedReal, 9);
+        m_ParticleDataIO->addParticleAtribute<float>("anisotropic_kernel", ParticleSerialization::TypeCompressedReal, 9);
     }
     if(globalParams().isSavingData("velocity")) {
-        m_ParticleIO->addParticleAtribute<float>("velocity", ParticleSerialization::TypeCompressedReal, 3);
+        m_ParticleDataIO->addParticleAtribute<float>("velocity", ParticleSerialization::TypeCompressedReal, 3);
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-
     m_MemoryStateIO = std::make_unique<ParticleSerialization>(globalParams().dataPath, "FLIPState", "frame", m_Logger);
     m_MemoryStateIO->addFixedAtribute<Real>("particle_radius", ParticleSerialization::TypeReal, 1);
     m_MemoryStateIO->addParticleAtribute<Real>("position", ParticleSerialization::TypeReal, 3);
@@ -288,22 +287,22 @@ void FLIP3DSolver::saveFrameData()
     }
 
 
-    m_ParticleIO->clearData();
-    m_ParticleIO->setNParticles(particleData().getNParticles());
-    m_ParticleIO->setFixedAttribute("particle_radius", solverParams().particleRadius);
+    m_ParticleDataIO->clearData();
+    m_ParticleDataIO->setNParticles(particleData().getNParticles());
+    m_ParticleDataIO->setFixedAttribute("particle_radius", solverParams().particleRadius);
     if(globalParams().isSavingData("anisotropic_kernel")) {
         AnisotropicKernelGenerator aniKernelGenerator(particleData().getNParticles(), particleData().positions.data(), solverParams().particleRadius);
         aniKernelGenerator.generateAniKernels();
-        m_ParticleIO->setParticleAttribute("position", aniKernelGenerator.kernelCenters());
-        m_ParticleIO->setParticleAttribute("anisotropic_kernel", aniKernelGenerator.kernelMatrices());
+        m_ParticleDataIO->setParticleAttribute("position", aniKernelGenerator.kernelCenters());
+        m_ParticleDataIO->setParticleAttribute("anisotropic_kernel", aniKernelGenerator.kernelMatrices());
     } else {
-        m_ParticleIO->setParticleAttribute("position", particleData().positions);
+        m_ParticleDataIO->setParticleAttribute("position", particleData().positions);
     }
 
     if(globalParams().isSavingData("velocity")) {
-        m_ParticleIO->setParticleAttribute("velocity", particleData().velocities);
+        m_ParticleDataIO->setParticleAttribute("velocity", particleData().velocities);
     }
-    m_ParticleIO->flushAsync(globalParams().finishedFrame);
+    m_ParticleDataIO->flushAsync(globalParams().finishedFrame);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

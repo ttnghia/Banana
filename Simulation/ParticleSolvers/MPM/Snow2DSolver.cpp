@@ -161,10 +161,10 @@ void Snow2DSolver::advanceScene(UInt frame, Real fraction /*= Real(0)*/)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Snow2DSolver::setupDataIO()
 {
-    m_ParticleIO = std::make_unique<ParticleSerialization>(m_GlobalParams.dataPath, "MPMData", "frame", m_Logger);
-    m_ParticleIO->addFixedAtribute<float>("particle_radius", ParticleSerialization::TypeReal, 1);
-    m_ParticleIO->addParticleAtribute<float>("position", ParticleSerialization::TypeCompressedReal, 2);
-    m_ParticleIO->addParticleAtribute<float>("velocity", ParticleSerialization::TypeCompressedReal, 2);
+    m_ParticleDataIO = std::make_unique<ParticleSerialization>(m_GlobalParams.dataPath, "MPMData", "frame", m_Logger);
+    m_ParticleDataIO->addFixedAtribute<float>("particle_radius", ParticleSerialization::TypeReal, 1);
+    m_ParticleDataIO->addParticleAtribute<float>("position", ParticleSerialization::TypeCompressedReal, 2);
+    m_ParticleDataIO->addParticleAtribute<float>("velocity", ParticleSerialization::TypeCompressedReal, 2);
 
     ////////////////////////////////////////////////////////////////////////////////
 
@@ -235,12 +235,12 @@ void Snow2DSolver::saveFrameData()
         return;
     }
 
-    m_ParticleIO->clearData();
-    m_ParticleIO->setNParticles(solverData().getNParticles());
-    m_ParticleIO->setFixedAttribute("particle_radius", static_cast<float>(solverParams().particleRadius));
-    m_ParticleIO->setParticleAttribute("position", particleData().positions);
-    m_ParticleIO->setParticleAttribute("velocity", particleData().velocities);
-    m_ParticleIO->flushAsync(m_GlobalParams.finishedFrame);
+    m_ParticleDataIO->clearData();
+    m_ParticleDataIO->setNParticles(solverData().getNParticles());
+    m_ParticleDataIO->setFixedAttribute("particle_radius", static_cast<float>(solverParams().particleRadius));
+    m_ParticleDataIO->setParticleAttribute("position", particleData().positions);
+    m_ParticleDataIO->setParticleAttribute("velocity", particleData().velocities);
+    m_ParticleDataIO->flushAsync(m_GlobalParams.finishedFrame);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

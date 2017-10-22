@@ -77,7 +77,7 @@ inline void scan(Int dim, const VecX<N, IndexType>& maxIdx, const Function& f)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class IntType>
-inline IntType generateRandomInt(IntType start, IntType end)
+inline IntType generateRandomInt(IntType start = 0, IntType end = std::numeric_limits<IntType>::max())
 {
     std::random_device                     rd;
     std::mt19937                           gen(rd());
@@ -87,7 +87,7 @@ inline IntType generateRandomInt(IntType start, IntType end)
 }
 
 template<class RealType>
-inline RealType generateRandomReal(RealType start, RealType end)
+inline RealType generateRandomReal(RealType start = RealType(0), RealType end = std::numeric_limits<RealType>::max())
 {
     std::random_device                       rd;
     std::mt19937                             gen(rd());

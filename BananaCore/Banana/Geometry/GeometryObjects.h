@@ -94,12 +94,15 @@ public:
     virtual String   name() override { return String("BoxObject"); }
     virtual RealType signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside = true) const override;
 
-    const auto& boxMin() const { return transform(m_BoxMin); }
-    const auto& boxMax() const { return transform(m_BoxMax); }
+    auto boxMin() const { return transform(m_BoxMin); }
+    auto boxMax() const { return transform(m_BoxMax); }
 
-    void  setOriginalBox(const VecX<N, RealType>& bMin, const VecX<N, RealType>& bMax);
-    void  addKeyFrame(UInt frame, const VecX<N, RealType>& bMin, const VecX<N, RealType>& bMax);
-    auto& periodic() { return m_bPeriodic; }
+    void        setOriginalBox(const VecX<N, RealType>& bMin, const VecX<N, RealType>& bMax) { m_BoxMin = bMin; m_BoxMax = bMax; }
+    const auto& originalBoxMin() const { return m_BoxMin; }
+    const auto& originalBoxMax() const { return m_BoxMax; }
+
+    void addKeyFrame(UInt frame, const VecX<N, RealType>& bMin, const VecX<N, RealType>& bMax);
+    void setPeriodic(bool bPeriodic, UInt startFrame = 0) { m_bPeriodic = bPeriodic; m_StartFrame = startFrame; }
 
     void         makeReadyAnimation();
     virtual void updateTransformation(UInt frame = 0, RealType fraction = RealType(0)) override;
@@ -122,6 +125,7 @@ protected:
     Vector<BoxKeyFrame>   m_KeyFrames;
     CubicSpline<RealType> m_BoxMinSpline[N];
     CubicSpline<RealType> m_BoxMaxSpline[N];
+    UInt                  m_StartFrame      = 0;
     UInt                  m_MaxFrame        = 0;
     bool                  m_bPeriodic       = false;
     bool                  m_bAnimationReady = false;

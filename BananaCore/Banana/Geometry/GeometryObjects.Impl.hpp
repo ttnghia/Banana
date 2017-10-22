@@ -185,14 +185,6 @@ RealType BoxObject<N, RealType >::signedDistance(const VecX<N, RealType>& ppos0,
 
 ////////////////////////////////////////////////////////////////////////////////
 template<Int N, class RealType>
-void Banana::GeometryObjects::BoxObject<N, RealType >::setOriginalBox(const VecX<N, RealType>& bMin, const VecX<N, RealType>& bMax)
-{
-    m_BoxMin = bMin;
-    m_BoxMax = bMax;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-template<Int N, class RealType>
 void Banana::GeometryObjects::BoxObject<N, RealType >::addKeyFrame(UInt frame, const VecX<N, RealType>& bMin, const VecX<N, RealType>& bMax)
 {
     if(m_KeyFrames.size() == 0) {
@@ -252,7 +244,7 @@ void Banana::GeometryObjects::BoxObject<N, RealType >::updateTransformation(UInt
     }
 
     if(m_bPeriodic && frame > m_MaxFrame) {
-        frame = frame % m_MaxFrame;
+        frame = ((frame - m_StartFrame) % (m_MaxFrame - m_StartFrame)) + m_StartFrame;
     }
     RealType x = static_cast<RealType>(frame) + fraction;
 
@@ -779,9 +771,10 @@ RealType TriMeshObject<3, RealType >::signedDistance(const Vec3<RealType>& ppos0
 {
     __BNN_ASSERT(m_bSDFGenerated);
 
-    auto ppos    = invTransform(ppos0);
-    auto gridPos = m_Grid3D.getGridCoordinate(ppos);
-    return ArrayHelpers::interpolateValueLinear(gridPos, m_SDFData);
+    auto     ppos    = invTransform(ppos0);
+    auto     gridPos = m_Grid3D.getGridCoordinate(ppos);
+    RealType d       = m_InvScale * ArrayHelpers::interpolateValueLinear(gridPos, m_SDFData);
+    return bNegativeInside ? d : -d;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

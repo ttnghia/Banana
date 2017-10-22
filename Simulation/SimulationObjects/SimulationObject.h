@@ -37,7 +37,7 @@ public:
     SimulationObject() = delete;
     SimulationObject(const String& geometryType) : m_GeometryObj(GeometryObjectFactory::createGeometry<N, RealType>(geometryType)) { __BNN_ASSERT(m_GeometryObj != nullptr); }
 
-    auto& name() { return m_MeshFile; }
+    auto& nameID() { return m_NameID; }
     auto& meshFile() { return m_MeshFile; }
     auto& particleFile() { return m_ParticleFile; }
     auto& SDFFile() { return m_SDFFile; }
@@ -58,6 +58,7 @@ protected:
     GeometryPtr        m_GeometryObj;
     Array<N, RealType> m_SDF;
 
+    String m_NameID        = String(String("Object_") + std::to_string(NumberHelpers::generateRandomInt<Int>()));
     String m_MeshFile      = String("");
     String m_ParticleFile  = String("");
     String m_SDFFile       = String("");

@@ -182,17 +182,17 @@ void WCSPHSolver::loadSimParams(const nlohmann::json& jParams)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void WCSPHSolver::setupDataIO()
 {
-    m_ParticleIO = std::make_unique<ParticleSerialization>(m_GlobalParams.dataPath, "SPHData", "frame", m_Logger);
-    m_ParticleIO->addFixedAtribute<float>("particle_radius", ParticleSerialization::TypeReal, 1);
-    m_ParticleIO->addParticleAtribute<float>("position", ParticleSerialization::TypeCompressedReal, 3);
+    m_ParticleDataIO = std::make_unique<ParticleSerialization>(m_GlobalParams.dataPath, "SPHData", "frame", m_Logger);
+    m_ParticleDataIO->addFixedAtribute<float>("particle_radius", ParticleSerialization::TypeReal, 1);
+    m_ParticleDataIO->addParticleAtribute<float>("position", ParticleSerialization::TypeCompressedReal, 3);
     if(m_GlobalParams.isSavingData("anisotropic_kernel")) {
-        m_ParticleIO->addParticleAtribute<float>("anisotropic_kernel", ParticleSerialization::TypeCompressedReal, 9);
+        m_ParticleDataIO->addParticleAtribute<float>("anisotropic_kernel", ParticleSerialization::TypeCompressedReal, 9);
     }
     if(m_GlobalParams.isSavingData("velocity")) {
-        m_ParticleIO->addParticleAtribute<float>("velocity", ParticleSerialization::TypeCompressedReal, 3);
+        m_ParticleDataIO->addParticleAtribute<float>("velocity", ParticleSerialization::TypeCompressedReal, 3);
     }
     if(m_GlobalParams.isSavingData("density")) {
-        m_ParticleIO->addParticleAtribute<float>("density", ParticleSerialization::TypeCompressedReal, 1);
+        m_ParticleDataIO->addParticleAtribute<float>("density", ParticleSerialization::TypeCompressedReal, 1);
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -264,27 +264,27 @@ void WCSPHSolver::saveFrameData()
         return;
     }
 
-    m_ParticleIO->clearData();
-    m_ParticleIO->setNParticles(solverData().getNParticles());
-    m_ParticleIO->setFixedAttribute("particle_radius", static_cast<float>(solverParams().particleRadius));
+    m_ParticleDataIO->clearData();
+    m_ParticleDataIO->setNParticles(solverData().getNParticles());
+    m_ParticleDataIO->setFixedAttribute("particle_radius", static_cast<float>(solverParams().particleRadius));
     if(m_GlobalParams.isSavingData("anisotropic_kernel")) {
         AnisotropicKernelGenerator aniKernelGenerator(solverData().getNParticles(), solverData().positions.data(), solverParams().particleRadius);
         aniKernelGenerator.generateAniKernels();
-        m_ParticleIO->setParticleAttribute("position", aniKernelGenerator.kernelCenters());
-        m_ParticleIO->setParticleAttribute("anisotropic_kernel", aniKernelGenerator.kernelMatrices());
+        m_ParticleDataIO->setParticleAttribute("position", aniKernelGenerator.kernelCenters());
+        m_ParticleDataIO->setParticleAttribute("anisotropic_kernel", aniKernelGenerator.kernelMatrices());
     } else {
-        m_ParticleIO->setParticleAttribute("position", solverData().positions);
+        m_ParticleDataIO->setParticleAttribute("position", solverData().positions);
     }
 
     if(m_GlobalParams.isSavingData("velocity")) {
-        m_ParticleIO->setParticleAttribute("velocity", solverData().velocities);
+        m_ParticleDataIO->setParticleAttribute("velocity", solverData().velocities);
     }
 
     if(m_GlobalParams.isSavingData("density")) {
-        m_ParticleIO->setParticleAttribute("density", solverData().densities);
+        m_ParticleDataIO->setParticleAttribute("density", solverData().densities);
     }
 
-    m_ParticleIO->flushAsync(m_GlobalParams.finishedFrame);
+    m_ParticleDataIO->flushAsync(m_GlobalParams.finishedFrame);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

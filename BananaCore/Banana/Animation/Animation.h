@@ -115,7 +115,7 @@ public:
 
     UInt  nKeyFrames() const { return static_cast<UInt>(m_KeyFrames.size()); }
     auto& keyFrames() { return m_KeyFrames; }
-    auto& periodic() { return m_bPeriodic; }
+    void  setPeriodic(bool bPeriodic, UInt startFrame = 0) { m_bPeriodic = bPeriodic; m_StartFrame = startFrame; }
 
     void makeReady(bool bCubicIntTranslation = true, bool bCubicIntRotation = true, bool bCubicIntScale = true)
     {
@@ -136,6 +136,9 @@ public:
 
         ////////////////////////////////////////////////////////////////////////////////
         for(const auto& keyFrame : m_KeyFrames) {
+            if(m_bPeriodic && keyFrame.frame < m_StartFrame) {
+                continue;
+            }
             m_MaxFrame = (m_MaxFrame < keyFrame.frame) ? keyFrame.frame : m_MaxFrame;
 
             for(Int i = 0; i < N; ++i) {
@@ -166,7 +169,7 @@ public:
 
     void getTransformation(VecX<N, RealType>& translation, VecX<N + 1, RealType>& rotation, RealType& scale, UInt frame, RealType fraction = RealType(0))
     {
-        if(m_KeyFrames.size() == 1) {
+        if(m_KeyFrames.size() == 1 || (m_bPeriodic && frame < m_StartFrame)) {
             translation = m_KeyFrames[0].translation;
             rotation    = m_KeyFrames[0].rotation;
             scale       = m_KeyFrames[0].uniformScale;
@@ -179,7 +182,7 @@ public:
 
 
         if(m_bPeriodic && frame > m_MaxFrame) {
-            frame = frame % m_MaxFrame;
+            frame = ((frame - m_StartFrame) % (m_MaxFrame - m_StartFrame)) + m_StartFrame;
         }
         RealType x = static_cast<RealType>(frame) + fraction;
 
@@ -256,9 +259,10 @@ private:
     CubicSpline<RealType>          m_RotationSpline[N + 1];
     CubicSpline<RealType>          m_ScaleSpline;
 
-    UInt m_MaxFrame  = 0;
-    bool m_bReady    = false;
-    bool m_bPeriodic = false;
+    UInt m_StartFrame = 0;
+    UInt m_MaxFrame   = 0;
+    bool m_bReady     = false;
+    bool m_bPeriodic  = false;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

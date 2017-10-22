@@ -93,14 +93,16 @@ protected:
     UniquePtr<tbb::task_scheduler_init> m_ThreadInit = nullptr;
     SharedPtr<Logger>                   m_Logger     = nullptr;
 
-    UniquePtr<ParticleSerialization> m_ParticleIO;
-    UniquePtr<ParticleSerialization> m_MemoryStateIO;
+    UniquePtr<ParticleSerialization> m_ParticleDataIO = nullptr;
+    UniquePtr<ParticleSerialization> m_BoundaryDataIO = nullptr;
+    UniquePtr<ParticleSerialization> m_MemoryStateIO  = nullptr;
 
     // todo: add NSearch for 2D
     UniquePtr<NeighborSearch::NeighborSearch3D>                        m_NSearch = nullptr;
     Vector<SharedPtr<SimulationObjects::BoundaryObject<N, Real> > >    m_BoundaryObjects;    // individual objects, as one can be dynamic while the others are not
     Vector<SharedPtr<SimulationObjects::ParticleGenerator<N, Real> > > m_ParticleGenerators; // individual objects, as they can have different behaviors
     Vector<SharedPtr<SimulationObjects::ParticleRemover<N, Real> > >   m_ParticleRemovers;   // individual objects, as they can have different behaviors
+    Vector<SharedPtr<SimulationObjects::SimulationObject<N, Real> > >  m_DynamicObjects;     // store all dynamic objects
 };
 
 
@@ -145,9 +147,6 @@ void ParticleSolver<N, RealType >::loadScene(const String& sceneFile)
         globalParams().printParams(logger());
     }
 
-    ////////////////////////////////////////////////////////////////////////////////
-    // setup data io after having global params ready
-    setupDataIO();
 
     ////////////////////////////////////////////////////////////////////////////////
     // read simulation parameters
@@ -189,11 +188,55 @@ void ParticleSolver<N, RealType >::loadScene(const String& sceneFile)
     }
 
     ////////////////////////////////////////////////////////////////////////////////
+    // Setup data io after having global params and boundary objects ready
+    setupDataIO();
+
+
+    ////////////////////////////////////////////////////////////////////////////////
     // read object parameters and generate scene
     {
         generateBoundaries(jParams);
         generateParticles(jParams);
         generateRemovers(jParams);
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////
+    for(const auto& obj : m_BoundaryObjects) {
+        if(obj->isDynamic()) {
+            auto simObj = dynamic_pointer_cast<SimulationObjects::SimulationObject<N, RealType> >(obj);
+            m_DynamicObjects.push_back(simObj);
+        }
+    }
+    for(const auto& obj : m_ParticleGenerators) {
+        if(obj->isDynamic()) {
+            auto simObj = dynamic_pointer_cast<SimulationObjects::SimulationObject<N, RealType> >(obj);
+            m_DynamicObjects.push_back(simObj);
+        }
+    }
+    for(const auto& obj : m_ParticleRemovers) {
+        if(obj->isDynamic()) {
+            auto simObj = dynamic_pointer_cast<SimulationObjects::SimulationObject<N, RealType> >(obj);
+            m_DynamicObjects.push_back(simObj);
+        }
+    }
+
+    if(m_DynamicObjects.size() > 0) {
+        m_BoundaryDataIO = std::make_unique<ParticleSerialization>(globalParams().dataPath, "BoundaryData", "frame", m_Logger);
+        for(const auto& obj : m_DynamicObjects) {
+            m_BoundaryDataIO->addFixedAtribute<float>(obj->nameID() + String("_translation"), ParticleSerialization::TypeReal, 3);
+            m_BoundaryDataIO->addFixedAtribute<float>(obj->nameID() + String("_rotation"), ParticleSerialization::TypeReal, 4);
+            m_BoundaryDataIO->addFixedAtribute<float>(obj->nameID() + String("_uniform_scale"), ParticleSerialization::TypeReal, 1);
+
+
+            ////////////////////////////////////////////////////////////////////////////////
+            // specialized for box object
+            auto box = dynamic_pointer_cast<GeometryObjects::BoxObject<N, RealType> >(obj->getGeometry());
+            if(box != nullptr) {
+                m_BoundaryDataIO->addFixedAtribute<float>(obj->nameID() + String("_box_min"), ParticleSerialization::TypeReal, 3);
+                m_BoundaryDataIO->addFixedAtribute<float>(obj->nameID() + String("_box_max"), ParticleSerialization::TypeReal, 3);
+            }
+        }
     }
 }
 
