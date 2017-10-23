@@ -49,8 +49,8 @@ struct SimulationParameters_FLIP3D
 
     ParticleSolverConstants::InterpolationKernels p2gKernel = ParticleSolverConstants::InterpolationKernels::Linear;
 
-    bool bApplyRepulsiveForces   = false;
-    Real repulsiveForceStiffness = Real(1e-3);
+    bool bCorrectPosition        = false;
+    Real repulsiveForceStiffness = Real(10.0);
 
     Vec3r movingBMin = Vec3r(-1.0);
     Vec3r movingBMax = Vec3r(1.0);
@@ -60,16 +60,12 @@ struct SimulationParameters_FLIP3D
     Vec3r domainBMax;
     int   kernelSpan;
     Real  cellSize;
-    Real  nearKernelRadius;
-    Real  nearKernelRadiusSqr;
     Real  sdfRadius;
 
     ////////////////////////////////////////////////////////////////////////////////
     void makeReady()
     {
-        cellSize            = particleRadius * Real(4.0);
-        nearKernelRadius    = particleRadius * Real(2.5);
-        nearKernelRadiusSqr = nearKernelRadius * nearKernelRadius;
+        cellSize = particleRadius * Real(4.0);
 
         sdfRadius  = cellSize * Real(1.01 * sqrt(3.0) / 2.0);
         kernelSpan = (p2gKernel == ParticleSolverConstants::InterpolationKernels::Linear || p2gKernel == ParticleSolverConstants::InterpolationKernels::Swirly) ? 1 : 2;
@@ -87,8 +83,8 @@ struct SimulationParameters_FLIP3D
         logger->printLogIndent("PIC/FLIP ratio: " + std::to_string(PIC_FLIP_ratio));
 
         logger->printLogIndent("Kernel function: " + (p2gKernel == ParticleSolverConstants::InterpolationKernels::Linear ? String("Linear") : String("Cubic BSpline")));
-        logger->printLogIndent("Moving BMin: " + NumberHelpers::toString(movingBMin));
-        logger->printLogIndent("Moving BMax: " + NumberHelpers::toString(movingBMax));
+        logger->printLogIndent("Domain box: " + NumberHelpers::toString(domainBMin) + " -> " + NumberHelpers::toString(domainBMax));
+        logger->printLogIndent("Moving box: " + NumberHelpers::toString(movingBMin) + " -> " + NumberHelpers::toString(movingBMax));
         logger->printLogIndent("Cell size: " + std::to_string(cellSize));
         logger->printLogIndent("Grid resolution: " + NumberHelpers::toString(Vec3ui(static_cast<UInt>(ceil((domainBMax[0] - domainBMin[0]) / cellSize)),
                                                                                     static_cast<UInt>(ceil((domainBMax[1] - domainBMin[1]) / cellSize)),
@@ -98,8 +94,8 @@ struct SimulationParameters_FLIP3D
                                                                                            static_cast<UInt>(ceil((movingBMax[2] - movingBMin[2]) / cellSize)))));
 
         logger->printLogIndent("Boundary restitution: " + std::to_string(boundaryRestitution));
-        logger->printLogIndent("Apply repulsive forces: " + (bApplyRepulsiveForces ? String("Yes") : String("No")));
-        if(bApplyRepulsiveForces) {
+        logger->printLogIndent("Correct particle position: " + (bCorrectPosition ? String("Yes") : String("No")));
+        if(bCorrectPosition) {
             logger->printLogIndent("Repulsive force stiffness: " + NumberHelpers::formatToScientific(repulsiveForceStiffness));
         }
 

@@ -63,7 +63,6 @@ protected:
     void correctPositions(Real timestep);
 
     void computeFluidWeights();
-    void addRepulsiveVelocity2Particles(Real timestep);
     void velocityToGrid();
     void extrapolateVelocity();
     void extrapolateVelocity(Array3r& grid, Array3r& temp_grid, Array3c& valid, Array3c& old_valid);

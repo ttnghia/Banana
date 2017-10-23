@@ -59,7 +59,7 @@ public:
     RealType          signedDistance(const VecX<N, RealType>& ppos, bool bUseCache = true);
     VecX<N, RealType> gradSignedDistance(const VecX<N, RealType>& ppos, RealType dxyz = RealType(1.0 / 512.0), bool bUseCache = true);
     void              generateSDF(const VecX<N, RealType>& domainBMin, const VecX<N, RealType>& domainBMax, RealType sdfCellSize = RealType(1.0 / 512.0), bool bUseCache = false);
-    virtual void      constrainToBoundary(const VecX<N, RealType>& ppos0, VecX<N, RealType>& ppos, const VecX<N, RealType>& pvel, RealType timestep);
+    void              constrainToBoundary(VecX<N, RealType>& ppos);
 
 protected:
     virtual void generateBoundaryParticles(RealType particleRadius, Int numBDLayers) { __BNN_UNUSED(particleRadius); __BNN_UNUSED(numBDLayers); __BNN_UNIMPLEMENTED_FUNC }

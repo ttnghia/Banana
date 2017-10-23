@@ -532,11 +532,11 @@ void WCSPHSolver::moveParticles(Real timestep)
     ParallelFuncs::parallel_for<size_t>(0, solverData().positions.size(),
                                         [&](size_t p)
                                         {
-                                            auto pvel  = solverData().velocities[p];
                                             auto ppos0 = solverData().positions[p];
+                                            auto pvel  = solverData().velocities[p];
                                             auto ppos  = ppos0 + pvel * timestep;
                                             for(auto& obj : m_BoundaryObjects) {
-                                                obj->constrainToBoundary(ppos0, ppos, pvel, timestep);
+                                                obj->constrainToBoundary(ppos);
                                             }
                                             solverData().positions[p] = ppos;
                                         }); // end parallel_for

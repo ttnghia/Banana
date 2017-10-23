@@ -14,16 +14,16 @@
         "SimulationDomainBox" :
         {
             "BoxMin" : [-1, -1, -1],
-            "BoxMax" : [ 1, 1.5, 1]
+            "BoxMax" : [ 1, 1, 1]
         },
-        "ApplyRepulsiveForce" : false,
-        "RepulsiveForceStiffness" : 1e-4,
+        "CorrectPosition" : true,
+        "RepulsiveForceStiffness" : 10,
         "PIC_FLIP_Ratio" : 0.97,
         "CGRelativeTolerance" : 1e-15,
         "MaxCGIteration" : 10000,
-        "ParticleRadius" : 0.0075
+        "ParticleRadius" : 0.01
     },
-    "AdditionalBoundaryObjects":
+    "AdditionalBoundaryObjectsXXX":
     [
         {
             "GeometryType" : "Sphere",
@@ -56,8 +56,8 @@
         {
             "GeometryType" : "Sphere",
             "UniqueName" : "SphereParticleGenerator",
-            "Translation" : [0.0, -0.25, 0.0],
-            "Scale" : 0.5
+            "Translation" : [0.0, 0.0, 0.0],
+            "Scale" : 0.75
         }
     ],
     "VisualizationParameters":

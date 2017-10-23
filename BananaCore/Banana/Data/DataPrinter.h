@@ -39,8 +39,7 @@ void print(const Vector<T>& array, const String& arrayName, size_t maxPrint = 0,
     Logger logger("DataPrinter");
     logger.printAligned(arrayName);
 
-    for(size_t p = 0; p < numPrint; ++p)
-    {
+    for(size_t p = 0; p < numPrint; ++p) {
         logger.printAligned(NumberHelpers::formatWithCommas(p, precision) + ": " + NumberHelpers::toString(array[p]));
     }
 
@@ -55,8 +54,7 @@ void printToFile(const String& fileName, const Vector<T>& array, const String& a
     Vector<String> fileContent;
     fileContent.push_back(arrayName);
 
-    for(size_t p = 0; p < numPrint; ++p)
-    {
+    for(size_t p = 0; p < numPrint; ++p) {
         fileContent(NumberHelpers::formatWithCommas(p, precision) + ": " + NumberHelpers::toString(array[p]));
     }
 
@@ -71,14 +69,15 @@ void printToFile(const String& fileName, const Vector<Vector<T> >& array, const 
     Vector<String> fileContent;
     fileContent.push_back(arrayName);
 
-    for(size_t p = 0; p < numPrint; ++p)
-    {
-        if(array[p].size() == 0)
+    for(size_t p = 0; p < numPrint; ++p) {
+        if(array[p].size() == 0) {
             continue;
+        }
         fileContent.push_back("================================================================================");
         fileContent.push_back("Element " + std::to_string(p) + ":");
-        for(size_t i = 0; i < array[p].size(); ++i)
+        for(size_t i = 0; i < array[p].size(); ++i) {
             fileContent.push_back(NumberHelpers::formatWithCommas(p, precision) + ": " + NumberHelpers::toString(array[p][i]));
+        }
     }
 
     FileHelpers::writeFile(fileContent, fileName);
@@ -88,26 +87,24 @@ void printToFile(const String& fileName, const Vector<Vector<T> >& array, const 
 template<class T>
 void print(const Array<2, T>& array, const String& arrayName, size_t maxPrint_d0 = 0, size_t maxPrint_d1 = 0, int precision = 5)
 {
-    size_t numPrint_d0 = maxPrint_d0 > 0 ? maxPrint_d0 : array.sizeX();
-    size_t numPrint_d1 = maxPrint_d1 > 0 ? maxPrint_d0 : array.sizeY();
+    size_t numPrint_d0 = maxPrint_d0 > 0 ? maxPrint_d0 : array.size()[0];
+    size_t numPrint_d1 = maxPrint_d1 > 0 ? maxPrint_d1 : array.size()[1];
 
     Logger logger("DataPrinter");
     logger.printAligned(arrayName);
 
     std::stringstream ss;
 
-    for(size_t i = 0; i < numPrint_d0 - 1; ++i)
-    {
+    for(size_t i = 0; i < numPrint_d0; ++i) {
         logger.printAligned(NumberHelpers::formatWithCommas(i) + ": ");
 
         ss.str("");
 
-        for(size_t j = 0; j < numPrint_d1; ++j)
-        {
+        for(size_t j = 0; j < numPrint_d1 - 1; ++j) {
             ss << NumberHelpers::formatWithCommas(array(i, j), precision) << ", ";
         }
 
-        ss << NumberHelpers::formatWithCommas(array(numPrint_d0 - 1, j), precision);
+        ss << NumberHelpers::formatWithCommas(array(numPrint_d1 - 1, j), precision);
 
         logger.printLog(ss.str());
     }
@@ -118,26 +115,24 @@ void print(const Array<2, T>& array, const String& arrayName, size_t maxPrint_d0
 template<class T>
 void printToFile(const String& fileName, const Array<2, T>& array, const String& arrayName, size_t maxPrint_d0 = 0, size_t maxPrint_d1 = 0, int precision = 5)
 {
-    size_t numPrint_d0 = maxPrint_d0 > 0 ? maxPrint_d0 : array.sizeX();
-    size_t numPrint_d1 = maxPrint_d1 > 0 ? maxPrint_d0 : array.sizeY();
+    size_t numPrint_d0 = maxPrint_d0 > 0 ? maxPrint_d0 : array.size()[0];
+    size_t numPrint_d1 = maxPrint_d1 > 0 ? maxPrint_d1 : array.size()[1];
 
     Vector<String> fileContent;
     fileContent.push_back(arrayName);
 
     std::stringstream ss;
 
-    for(size_t i = 0; i < numPrint_d0 - 1; ++i)
-    {
+    for(size_t i = 0; i < numPrint_d0; ++i) {
         logger.printAligned(NumberHelpers::formatWithCommas(i) + ": ");
 
         ss.str("");
 
-        for(size_t j = 0; j < numPrint_d1; ++j)
-        {
+        for(size_t j = 0; j < numPrint_d1 - 1; ++j) {
             ss << NumberHelpers::formatWithCommas(array(i, j), precision) << ", ";
         }
 
-        ss << NumberHelpers::formatWithCommas(array(numPrint_d0 - 1, j), precision);
+        ss << NumberHelpers::formatWithCommas(array(numPrint_d1 - 1, j), precision);
 
         fileContent.push_back(ss.str());
     }
@@ -150,25 +145,22 @@ template<class T>
 void print(const Array<3, T>& array, const String& arrayName,
            size_t maxPrint_d0 = 0, size_t maxPrint_d1 = 0, size_t maxPrint_d2 = 0, int precision = 5)
 {
-    size_t numPrint_d0 = maxPrint_d0 > 0 ? maxPrint_d0 : array.sizeX();
-    size_t numPrint_d1 = maxPrint_d1 > 0 ? maxPrint_d0 : array.sizeY();
-    size_t numPrint_d2 = maxPrint_d2 > 0 ? maxPrint_d0 : array.sizeZ();
+    size_t numPrint_d0 = maxPrint_d0 > 0 ? maxPrint_d0 : array.size()[0];
+    size_t numPrint_d1 = maxPrint_d1 > 0 ? maxPrint_d1 : array.size()[1];
+    size_t numPrint_d2 = maxPrint_d2 > 0 ? maxPrint_d2 : array.size()[2];
 
     Logger logger("DataPrinter");
     logger.printAligned(arrayName);
 
     std::stringstream ss;
 
-    for(size_t i = 0; i < numPrint_d0 - 1; ++i)
-    {
+    for(size_t i = 0; i < numPrint_d0; ++i) {
         logger.printAligned(NumberHelpers::formatWithCommas(i) + ": ");
 
-        for(size_t j = 0; j < numPrint_d1; ++j)
-        {
+        for(size_t j = 0; j < numPrint_d1; ++j) {
             ss.str("");
 
-            for(size_t k = 0; k < numPrint_d2; ++k)
-            {
+            for(size_t k = 0; k < numPrint_d2 - 1; ++k) {
                 ss << NumberHelpers::formatWithCommas(array(i, j, k), precision) << ", ";
             }
 
@@ -187,25 +179,22 @@ template<class T>
 void printToFile(const String& fileName, const Array<3, T>& array, const String& arrayName,
                  size_t maxPrint_d0 = 0, size_t maxPrint_d1 = 0, size_t maxPrint_d2 = 0, int precision = 5)
 {
-    size_t numPrint_d0 = maxPrint_d0 > 0 ? maxPrint_d0 : array.sizeX();
-    size_t numPrint_d1 = maxPrint_d1 > 0 ? maxPrint_d0 : array.sizeY();
-    size_t numPrint_d2 = maxPrint_d2 > 0 ? maxPrint_d0 : array.sizeZ();
+    size_t numPrint_d0 = maxPrint_d0 > 0 ? maxPrint_d0 : array.size()[0];
+    size_t numPrint_d1 = maxPrint_d1 > 0 ? maxPrint_d1 : array.size()[1];
+    size_t numPrint_d2 = maxPrint_d2 > 0 ? maxPrint_d2 : array.size()[2];
 
     Vector<String> fileContent;
     fileContent.push_back(arrayName);
 
     std::stringstream ss;
 
-    for(size_t i = 0; i < numPrint_d0; ++i)
-    {
+    for(size_t i = 0; i < numPrint_d0; ++i) {
         fileContent.push_back("Line: " + NumberHelpers::formatWithCommas(i) + ": ");
 
-        for(size_t j = 0; j < numPrint_d1; ++j)
-        {
+        for(size_t j = 0; j < numPrint_d1; ++j) {
             ss.str("");
 
-            for(size_t k = 0; k < numPrint_d2 - 1; ++k)
-            {
+            for(size_t k = 0; k < numPrint_d2 - 1; ++k) {
                 ss << NumberHelpers::formatWithCommas(array(i, j, k), precision) << ", ";
             }
 
@@ -224,22 +213,21 @@ void printToFile(const String& fileName, const Array<3, T>& array, const String&
 template<class T>
 void print(const Array<2, Vector<T> >& array, const String& arrayName, size_t maxPrint_d0 = 0, size_t maxPrint_d1 = 0, int precision = 5)
 {
-    size_t numPrint_d0 = maxPrint_d0 > 0 ? maxPrint_d0 : array.sizeX();
-    size_t numPrint_d1 = maxPrint_d1 > 0 ? maxPrint_d0 : array.sizeY();
+    size_t numPrint_d0 = maxPrint_d0 > 0 ? maxPrint_d0 : array.size()[0];
+    size_t numPrint_d1 = maxPrint_d1 > 0 ? maxPrint_d1 : array.size()[1];
 
     Logger logger("DataPrinter");
     logger.printAligned(arrayName);
 
     std::stringstream ss;
 
-    for(size_t i = 0; i < numPrint_d0; ++i)
-    {
-        for(size_t j = 0; j < numPrint_d1; ++j)
-        {
+    for(size_t i = 0; i < numPrint_d0; ++i) {
+        for(size_t j = 0; j < numPrint_d1; ++j) {
             const Vector<T>& cell = array(i, j);
 
-            if(cell.size() == 0)
+            if(cell.size() == 0) {
                 continue;
+            }
 
             ss.str("");
             ss << "(";
@@ -247,8 +235,7 @@ void print(const Array<2, Vector<T> >& array, const String& arrayName, size_t ma
             ss << NumberHelpers::formatWithCommas(j) << "), size = ";
             ss << NumberHelpers::formatWithCommas(cell.size()) << ", data = ";
 
-            for(size_t p = 0; p < cell.size() - 1; ++p)
-            {
+            for(size_t p = 0; p < cell.size() - 1; ++p) {
                 ss << NumberHelpers::formatWithCommas(cell[p]) << ", ";
             }
 
@@ -266,22 +253,21 @@ void print(const Array<2, Vector<T> >& array, const String& arrayName, size_t ma
 template<class T>
 void printToFile(const String& fileName, const Array<2, Vector<T> >& array, const String& arrayName, size_t maxPrint_d0 = 0, size_t maxPrint_d1 = 0, int precision = 5)
 {
-    size_t numPrint_d0 = maxPrint_d0 > 0 ? maxPrint_d0 : array.sizeX();
-    size_t numPrint_d1 = maxPrint_d1 > 0 ? maxPrint_d0 : array.sizeY();
+    size_t numPrint_d0 = maxPrint_d0 > 0 ? maxPrint_d0 : array.size()[0];
+    size_t numPrint_d1 = maxPrint_d1 > 0 ? maxPrint_d0 : array.size()[1];
 
     Vector<String> fileContent;
     fileContent.push_back(arrayName);
 
     std::stringstream ss;
 
-    for(size_t i = 0; i < numPrint_d0; ++i)
-    {
-        for(size_t j = 0; j < numPrint_d1; ++j)
-        {
+    for(size_t i = 0; i < numPrint_d0; ++i) {
+        for(size_t j = 0; j < numPrint_d1; ++j) {
             const Vector<T>& cell = array(i, j);
 
-            if(cell.size() == 0)
+            if(cell.size() == 0) {
                 continue;
+            }
 
             ss.str("");
             ss << "(";
@@ -289,8 +275,7 @@ void printToFile(const String& fileName, const Array<2, Vector<T> >& array, cons
             ss << NumberHelpers::formatWithCommas(j) << "), size = ";
             ss << NumberHelpers::formatWithCommas(cell.size()) << ", data = ";
 
-            for(size_t p = 0; p < cell.size() - 1; ++p)
-            {
+            for(size_t p = 0; p < cell.size() - 1; ++p) {
                 ss << NumberHelpers::formatWithCommas(cell[p]) << ", ";
             }
 
@@ -310,8 +295,8 @@ void print(const Array<3, Vector<T> >& array, const String& arrayName,
            size_t maxPrint_d0 = 0, size_t maxPrint_d1 = 0, size_t maxPrint_d2 = 0,
            int precision = 5)
 {
-    size_t numPrint_d0 = maxPrint_d0 > 0 ? maxPrint_d0 : array.sizeX();
-    size_t numPrint_d1 = maxPrint_d1 > 0 ? maxPrint_d0 : array.sizeY();
+    size_t numPrint_d0 = maxPrint_d0 > 0 ? maxPrint_d0 : array.size()[0];
+    size_t numPrint_d1 = maxPrint_d1 > 0 ? maxPrint_d0 : array.size()[1];
     size_t numPrint_d2 = maxPrint_d2 > 0 ? maxPrint_d0 : array.sizeZ();
 
     Logger logger("DataPrinter");
@@ -319,16 +304,14 @@ void print(const Array<3, Vector<T> >& array, const String& arrayName,
 
     std::stringstream ss;
 
-    for(size_t i = 0; i < numPrint_d0; ++i)
-    {
-        for(size_t j = 0; j < numPrint_d1; ++j)
-        {
-            for(size_t k = 0; k < numPrint_d2; ++k)
-            {
+    for(size_t i = 0; i < numPrint_d0; ++i) {
+        for(size_t j = 0; j < numPrint_d1; ++j) {
+            for(size_t k = 0; k < numPrint_d2; ++k) {
                 const Vector<T>& cell = array(i, j, k);
 
-                if(cell.size() == 0)
+                if(cell.size() == 0) {
                     continue;
+                }
 
                 ss.str("");
                 ss << "(";
@@ -337,8 +320,7 @@ void print(const Array<3, Vector<T> >& array, const String& arrayName,
                 ss << NumberHelpers::formatWithCommas(k) << "), size = ";
                 ss << NumberHelpers::formatWithCommas(cell.size()) << ", data = ";
 
-                for(size_t p = 0; p < cell.size() - 1; ++p)
-                {
+                for(size_t p = 0; p < cell.size() - 1; ++p) {
                     ss << NumberHelpers::formatWithCommas(cell[p]) << ", ";
                 }
 
@@ -358,8 +340,8 @@ void printToFile(const String& fileName, const Array<3, Vector<T> >& array, cons
                  size_t maxPrint_d0 = 0, size_t maxPrint_d1 = 0, size_t maxPrint_d2 = 0,
                  int precision = 5)
 {
-    size_t numPrint_d0 = maxPrint_d0 > 0 ? maxPrint_d0 : array.sizeX();
-    size_t numPrint_d1 = maxPrint_d1 > 0 ? maxPrint_d0 : array.sizeY();
+    size_t numPrint_d0 = maxPrint_d0 > 0 ? maxPrint_d0 : array.size()[0];
+    size_t numPrint_d1 = maxPrint_d1 > 0 ? maxPrint_d0 : array.size()[1];
     size_t numPrint_d2 = maxPrint_d2 > 0 ? maxPrint_d0 : array.sizeZ();
 
     Vector<String> fileContent;
@@ -367,16 +349,14 @@ void printToFile(const String& fileName, const Array<3, Vector<T> >& array, cons
 
     std::stringstream ss;
 
-    for(size_t i = 0; i < numPrint_d0; ++i)
-    {
-        for(size_t j = 0; j < numPrint_d1; ++j)
-        {
-            for(size_t k = 0; k < numPrint_d2; ++k)
-            {
+    for(size_t i = 0; i < numPrint_d0; ++i) {
+        for(size_t j = 0; j < numPrint_d1; ++j) {
+            for(size_t k = 0; k < numPrint_d2; ++k) {
                 const Vector<T>& cell = array(i, j, k);
 
-                if(cell.size() == 0)
+                if(cell.size() == 0) {
                     continue;
+                }
 
                 ss.str("");
                 ss << "(";
@@ -385,8 +365,7 @@ void printToFile(const String& fileName, const Array<3, Vector<T> >& array, cons
                 ss << NumberHelpers::formatWithCommas(k) << "), size = ";
                 ss << NumberHelpers::formatWithCommas(cell.size()) << ", data = ";
 
-                for(size_t p = 0; p < cell.size() - 1; ++p)
-                {
+                for(size_t p = 0; p < cell.size() - 1; ++p) {
                     ss << NumberHelpers::formatWithCommas(cell[p]) << ", ";
                 }
 

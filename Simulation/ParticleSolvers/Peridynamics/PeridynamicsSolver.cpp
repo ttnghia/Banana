@@ -337,11 +337,11 @@ void PeridynamicsSolver::moveParticles(Real timestep)
     ParallelFuncs::parallel_for<UInt>(0, solverData().nActives,
                                       [&](UInt p)
                                       {
-                                          auto pvel  = solverData().velocities[p];
                                           auto ppos0 = solverData().positions[p];
+                                          auto pvel  = solverData().velocities[p];
                                           auto ppos  = ppos0 + pvel * timestep;
                                           for(auto& obj : m_BoundaryObjects) {
-                                              obj->constrainToBoundary(ppos0, ppos, pvel, timestep);
+                                              obj->constrainToBoundary(ppos);
                                           }
                                           solverData().positions[p] = ppos;
                                       });

@@ -80,21 +80,17 @@ void BoundaryObjectInterface<N, RealType >::generateSDF(const VecX<N, RealType>&
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void BoundaryObjectInterface<N, RealType >::constrainToBoundary(const VecX<N, RealType>& ppos0, VecX<N, RealType>& ppos, const VecX<N, RealType>& pvel, RealType timestep)
+void BoundaryObjectInterface<N, RealType >::constrainToBoundary(VecX<N, RealType>& ppos)
 {
     const RealType phiVal = signedDistance(ppos) - m_Margin;
     if(phiVal < 0) {
-        const RealType phiVal0 = signedDistance(ppos0) - m_Margin;
+        VecX<N, RealType> grad     = gradSignedDistance(ppos);
+        RealType          mag2Grad = glm::length2(grad);
 
-        //VecX<N, RealType> grad     = gradSignedDistance(ppos);
-        //RealType          mag2Grad = glm::length2(grad);
-
-        //if(mag2Grad > Tiny) {
-        //    grad /= sqrt(mag2Grad);
-        //    ppos -= phiVal * grad;
-        //}
-
-        ppos = ppos0 + pvel * timestep * (RealType(1.0) - MathHelpers::fraction_inside(phiVal, phiVal0));
+        if(mag2Grad > Tiny) {
+            grad /= sqrt(mag2Grad);
+            ppos -= phiVal * grad;
+        }
     }
 }
 

@@ -57,16 +57,12 @@ struct SimulationParameters_FLIP2D
     Vec2r domainBMax;
     int   kernelSpan;
     Real  cellSize;
-    Real  nearKernelRadius;
-    Real  nearKernelRadiusSqr;
     Real  sdfRadius;
 
     ////////////////////////////////////////////////////////////////////////////////
     void makeReady()
     {
-        cellSize            = particleRadius * Real(4.0);
-        nearKernelRadius    = particleRadius * Real(2.5);
-        nearKernelRadiusSqr = nearKernelRadius * nearKernelRadius;
+        cellSize = particleRadius * Real(4.0);
 
         sdfRadius  = cellSize * Real(1.01 * sqrt(2.0) / 2.0);
         kernelSpan = (p2gKernel == ParticleSolverConstants::InterpolationKernels::Linear || p2gKernel == ParticleSolverConstants::InterpolationKernels::Swirly) ? 1 : 2;

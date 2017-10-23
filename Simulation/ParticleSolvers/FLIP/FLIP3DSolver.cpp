@@ -63,9 +63,11 @@ void FLIP3DSolver::makeReady()
                                                                   minSD = MathHelpers::min(minSD, obj->getSDF()(i, j, k));
                                                               }
 
-                                                              gridData().boundarySDF(i, j, k) = minSD;
+                                                              ////////////////////////////////////////////////////////////////////////////////
+                                                              // Need to shift the boundary SDF by a small number
+                                                              gridData().boundarySDF(i, j, k) = minSD + MEpsilon;
 
-                                                              //printf("%u, %u, %u, %f\n", i, j, k, minSD);
+
                                                               //const Vec3r gridPos = m_Grid.getWorldCoordinate(i, j, k);
 
                                                               //gridData().boundarySDF(i, j, k) = -box.signedDistance(gridPos);
@@ -98,8 +100,9 @@ void FLIP3DSolver::advanceFrame()
                                   logger().printRunTime("Find neighbors: ",               funcTimer, [&]() { m_Grid.collectIndexToCells(particleData().positions); });
                                   logger().printRunTime("====> Advance velocity total: ", funcTimer, [&]() { advanceVelocity(substep); });
                                   logger().printRunTime("Move particles: ",               funcTimer, [&]() { moveParticles(substep); });
-                                  logger().printRunTime("Correct particle positions: ",               funcTimer, [&]() { correctPositions(substep); });
-                                  //logger().printRunTime("Correct particle positions: ",   funcTimer, [&]() { correctPositions(substep); });
+                                  if(solverParams().bCorrectPosition) {
+                                      logger().printRunTime("Correct particle positions: ",               funcTimer, [&]() { correctPositions(substep); });
+                                  }
                                   ////////////////////////////////////////////////////////////////////////////////
                                   frameTime += substep;
                                   ++substepCount;
@@ -112,7 +115,7 @@ void FLIP3DSolver::advanceFrame()
 
         ////////////////////////////////////////////////////////////////////////////////
         logger().newLine();
-    }       // end while
+    }
 
     ////////////////////////////////////////////////////////////////////////////////
     ++globalParams().finishedFrame;
@@ -158,8 +161,7 @@ void FLIP3DSolver::loadSimParams(const nlohmann::json& jParams)
     JSONHelpers::readValue(jParams, solverParams().CGRelativeTolerance, "CGRelativeTolerance");
     JSONHelpers::readValue(jParams, solverParams().maxCGIteration,      "MaxCGIteration");
 
-    JSONHelpers::readBool(jParams, solverParams().bApplyRepulsiveForces, "ApplyRepulsiveForces");
-    JSONHelpers::readBool(jParams, solverParams().bApplyRepulsiveForces, "ApplyRepulsiveForce");
+    JSONHelpers::readBool(jParams, solverParams().bCorrectPosition, "CorrectPosition");
     JSONHelpers::readValue(jParams, solverParams().repulsiveForceStiffness, "RepulsiveForceStiffness");
 
     String tmp = "LinearKernel";
@@ -329,13 +331,8 @@ void FLIP3DSolver::advanceVelocity(Real timestep)
         weight_computed = true;
     }
 
-    if(solverParams().bApplyRepulsiveForces) {
-        logger().printRunTime("Add repulsive force to particle: ", funcTimer, [&]() { addRepulsiveVelocity2Particles(timestep); });
-    }
 
     logger().printRunTime("Interpolate velocity from particles to grid: ", funcTimer, [&]() { velocityToGrid(); });
-
-
     logger().printRunTime("Extrapolate grid velocity: : ",                 funcTimer, [&]() { extrapolateVelocity(); });
     logger().printRunTime("Constrain grid velocity: ",                     funcTimer, [&]() { constrainGridVelocity(); });
     logger().printRunTime("Backup grid velocities: ",                      funcTimer, [&]() { solverData().backupGridVelocity(); });
@@ -353,12 +350,13 @@ void FLIP3DSolver::moveParticles(Real timestep)
     ParallelFuncs::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
                                 {
-                                    auto pvel  = particleData().velocities[p];
                                     auto ppos0 = particleData().positions[p];
+                                    auto pvel  = particleData().velocities[p];
                                     auto ppos  = ppos0 + pvel * timestep;
                                     for(auto& obj : m_BoundaryObjects) {
-                                        obj->constrainToBoundary(ppos0, ppos, pvel, timestep);
+                                        obj->constrainToBoundary(ppos);
                                     }
+
                                     particleData().positions[p] = ppos;
                                 });
 }
@@ -366,18 +364,15 @@ void FLIP3DSolver::moveParticles(Real timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void FLIP3DSolver::correctPositions(Real timestep)
 {
-    const Real radius = m_Grid.getCellSize() / Real(sqrt(solverDimension()));
-    //const Real radius     = Real(2.0) * m_SimParams.particleRadius;
-    const Real threshold  = Real(0.01) * radius;
+    const Real radius     = m_Grid.getCellSize() / Real(sqrt(solverDimension()));
+    const Real threshold  = Real(0.05) * radius;
     const Real threshold2 = threshold * threshold;
 
-    // todo: check if this is needed, as this could be done before
     ParallelFuncs::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
                                 {
                                     const auto& ppos     = particleData().positions[p];
                                     const Vec3i pCellIdx = m_Grid.getCellIdx<Int>(ppos);
-
                                     Vec3r spring(0);
 
                                     for(Int k = -1; k <= 1; ++k) {
@@ -390,36 +385,30 @@ void FLIP3DSolver::correctPositions(Real timestep)
 
                                                 const Vec_UInt& neighbors = m_Grid.getParticleIdxInCell(cellIdx);
                                                 for(UInt q : neighbors) {
+                                                    if(q == p) {
+                                                        continue;
+                                                    }
                                                     const Vec3r& qpos = particleData().positions[q];
                                                     const Vec3r xpq   = ppos - qpos;
                                                     const Real d2     = glm::length2(xpq);
-                                                    Real w            = Real(50.0) * MathHelpers::smooth_kernel(d2, radius);
+                                                    Real w            = MathHelpers::smooth_kernel(d2, radius);
 
                                                     if(d2 > threshold2) {
-                                                        spring += w * (ppos - qpos) / sqrt(d2) * radius;
+                                                        spring += w * xpq / sqrt(d2) * radius * solverParams().repulsiveForceStiffness;
                                                     } else {
-                                                        spring += threshold / timestep * Vec3r(Real((rand() & 0xFF) / 255.0),
-                                                                                               Real((rand() & 0xFF) / 255.0),
-                                                                                               Real((rand() & 0xFF) / 255.0));
+                                                        spring += threshold / timestep * Vec3r(MathHelpers::frand11<Real>(),
+                                                                                               MathHelpers::frand11<Real>(),
+                                                                                               MathHelpers::frand11<Real>());
                                                     }
                                                 }
                                             }
                                         }
                                     }
 
-                                    auto newPos         = ppos + spring * timestep;
-                                    const Vec3r gridPos = m_Grid.getGridCoordinate(newPos);
-                                    const Real phiVal   = ArrayHelpers::interpolateValueLinear(gridPos, gridData().boundarySDF);
-
-                                    if(phiVal < 0) {
-                                        Vec3r grad    = ArrayHelpers::interpolateGradient(gridPos, gridData().boundarySDF);
-                                        Real mag2Grad = glm::length2(grad);
-
-                                        if(mag2Grad > Tiny) {
-                                            newPos -= phiVal * grad / sqrt(mag2Grad);
-                                        }
+                                    auto newPos = ppos + spring * timestep;
+                                    for(auto& obj : m_BoundaryObjects) {
+                                        obj->constrainToBoundary(newPos);
                                     }
-
                                     particleData().positions_tmp[p] = newPos;
                                 });
 
@@ -460,49 +449,6 @@ void FLIP3DSolver::computeFluidWeights()
                                                                                                   gridData().boundarySDF(i + 1, j + 1, k));
                                         gridData().w_weights(i, j, k) = MathHelpers::clamp01(tmp);
                                     }
-                                });
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FLIP3DSolver::addRepulsiveVelocity2Particles(Real timestep)
-{
-    //m_Grid.getNeighborList(particleData().positions, particleData().neighborList, solverParams().nearKernelRadiusSqr);
-    ////////////////////////////////////////////////////////////////////////////////
-
-    ParallelFuncs::parallel_for(particleData().getNParticles(),
-                                [&](UInt p)
-                                {
-                                    //const Vec_UInt& neighbors = particleData().neighborList[p];
-                                    const Vec3r& ppos    = particleData().positions[p];
-                                    const Vec3i pCellIdx = m_Grid.getCellIdx<Int>(ppos);
-                                    Vec3r pvel(0);
-
-                                    for(Int k = -1; k <= 1; ++k) {
-                                        for(Int j = -1; j <= 1; ++j) {
-                                            for(Int i = -1; i <= 1; ++i) {
-                                                const Vec3i cellIdx = pCellIdx + Vec3i(i, j, k);
-                                                if(!m_Grid.isValidCell(cellIdx)) {
-                                                    continue;
-                                                }
-
-                                                const Vec_UInt& neighbors = m_Grid.getParticleIdxInCell(cellIdx);
-                                                for(UInt q : neighbors) {
-                                                    //for(UInt q : m_Grid.getParticleIdxInCell(cellIdx))
-                                                    const Vec3r& qpos = particleData().positions[q];
-                                                    const Vec3r xpq   = ppos - qpos;
-                                                    const Real d      = glm::length(xpq);
-                                                    if(d > solverParams().nearKernelRadius || d < Tiny) {
-                                                        continue;
-                                                    }
-
-                                                    const Real x = Real(1.0) - d / solverParams().nearKernelRadius;
-                                                    pvel += (x * x / d) * xpq;
-                                                }
-                                            }
-                                        }
-                                    }
-
-                                    particleData().velocities[p] += solverParams().repulsiveForceStiffness * pvel;
                                 });
 }
 
@@ -835,6 +781,8 @@ void FLIP3DSolver::computeFluidSDF()
                                         }
                                     }
                                 });
+
+    //DataPrinter::print(gridData().fluidSDF, "fluidSDF");
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -927,6 +875,8 @@ void FLIP3DSolver::computeMatrix(Real timestep)
                                           // center
                                           solverData().matrix.addElement(cellIdx, cellIdx, center_term);
                                       });
+
+    //solverData().matrix.printDebug();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -955,6 +905,7 @@ void FLIP3DSolver::computeRhs()
 
                                           const UInt idx = m_Grid.getCellLinearizedIndex(i, j, k);
                                           solverData().rhs[idx] = tmp;
+                                          //printf("%u, %u, %u, %f\n", i, j, k, tmp);
                                       });
 }
 
@@ -968,6 +919,8 @@ void FLIP3DSolver::solveSystem()
         logger().printWarning("Pressure projection failed to solved!");
         exit(EXIT_FAILURE);
     }
+
+    //DataPrinter::print(solverData().pressure, "Pressure");
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -1023,6 +976,11 @@ void FLIP3DSolver::updateVelocity(Real timestep)
             gridData().w.data()[i] = 0;
         }
     }
+
+
+    /*DataPrinter::print(gridData().u, "u");
+       DataPrinter::print(gridData().w, "v");
+       DataPrinter::print(gridData().w, "w");*/
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
