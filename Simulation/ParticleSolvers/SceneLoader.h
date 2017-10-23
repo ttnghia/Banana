@@ -191,6 +191,15 @@ void loadSimulationObject(const nlohmann::json& jParams, const SharedPtr<Simulat
             box->makeReadyAnimation();
         }
     }
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // specialized for trimesh object
+    auto meshObj = dynamic_pointer_cast<GeometryObjects::TriMeshObject<N, RealType> >(obj->getGeometry());
+    if(meshObj != nullptr) {
+        __BNN_ASSERT(JSONHelpers::readValue(jParams, meshObj->meshFile(), "MeshFile"));
+        JSONHelpers::readValue(jParams, meshObj->sdfStep(), "SDFStep");
+        meshObj->computeSDF();
+    }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

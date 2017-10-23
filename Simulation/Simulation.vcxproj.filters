@@ -153,9 +153,6 @@
     <ClInclude Include="SimulationObjects\ParticleGenerator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SimulationObjects\ParticleGenerator.Impl.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ParticleSolvers\MPM\Snow2DData.h">
       <Filter>Header Files</Filter>
     </ClInclude>

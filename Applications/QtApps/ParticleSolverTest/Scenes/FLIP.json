@@ -26,6 +26,14 @@
     "AdditionalBoundaryObjects":
     [
         {
+            "GeometryType" : "TriMesh",
+            "UniqueName" : "TriMeshBoundary",
+            "CSGOperator" : "Union",
+            "Translation" : [0.0, 0.0, 0.0],
+            "Scale" : 0.5,
+            "MeshFile" : "D:/Programming/Banana/Assets/OBJ/bunny.obj"
+        },
+        {
             "GeometryType" : "Sphere",
             "UniqueName" : "SphereBoundary",
             "CSGOperator" : "Intersection",

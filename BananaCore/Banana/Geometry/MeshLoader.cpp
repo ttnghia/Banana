@@ -47,18 +47,12 @@ bool MeshLoader::loadMesh(const String& meshFile)
             __BNN_DENIED_SWITCH_DEFAULT_VALUE;
     }
 
+    m_isMeshReady = result;
     computeFaceVertexData();
 
     ////////////////////////////////////////////////////////////////////////////////
-    m_isMeshReady = result;
 
     return result;
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-Vec3f MeshLoader::getMeshCenter() const
-{
-    return float(0.5) * (m_AABBMin + m_AABBMax);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -213,9 +207,9 @@ bool MeshLoader::loadObj(const String& meshFile)
                 assert(t2 >= 0);
 
                 for(int k = 0; k < 2; ++k) {
-                    tex[0][k] = attrib.normals[2 * t0 + k];
-                    tex[1][k] = attrib.normals[2 * t1 + k];
-                    tex[2][k] = attrib.normals[2 * t1 + k];
+                    tex[0][k] = attrib.texcoords[2 * t0 + k];
+                    tex[1][k] = attrib.texcoords[2 * t1 + k];
+                    tex[2][k] = attrib.texcoords[2 * t1 + k];
                 }
 
                 for(int k = 0; k < 3; ++k) {

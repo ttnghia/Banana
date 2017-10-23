@@ -164,7 +164,6 @@
     <ClInclude Include="ParticleTools\ParticleSerialization.Impl.hpp" />
     <ClInclude Include="ParticleTools\ParticleSerialization.Test.hpp" />
     <ClInclude Include="SimulationObjects\ParticleRemover.h" />
-    <ClInclude Include="SimulationObjects\ParticleGenerator.Impl.hpp" />
     <ClInclude Include="SimulationObjects\ParticleRemover.Impl.hpp" />
     <ClInclude Include="SimulationObjects\SimulationObject.h" />
     <ClInclude Include="SurfaceReconstruction\AniKernelGenerator.h" />

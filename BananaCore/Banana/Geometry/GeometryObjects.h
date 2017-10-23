@@ -361,8 +361,8 @@ public:
 
     auto& meshFile() { return m_TriMeshFile; }
     auto& sdfStep() { return m_Step; }
+    void  computeSDF() {}
 
-    void makeSDF() {}
 protected:
     String   m_TriMeshFile = String("");
     RealType m_Step        = RealType(1.0 / 256.0);

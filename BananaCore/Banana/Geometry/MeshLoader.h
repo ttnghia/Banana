@@ -36,9 +36,9 @@ public:
     MeshLoader(const String& meshFile) : m_isMeshReady(false) { loadMesh(meshFile); }
 
     bool        loadMesh(const String& meshFile);
-    Vec3f       getMeshCenter() const;
-    const auto& getAABBMin() const { return m_AABBMin; }
-    const auto& getAABBMax() const { return m_AABBMax; }
+    Vec3f       getMeshCenter() const { assert(m_isMeshReady); return float(0.5) * (m_AABBMin + m_AABBMax); }
+    const auto& getAABBMin() const { assert(m_isMeshReady); return m_AABBMin; }
+    const auto& getAABBMax() const { assert(m_isMeshReady); return m_AABBMax; }
 
     Vec3f getCameraPosition(Vec3f camDirection, float fov = 45);
     float getCameraDistance(float fov);
