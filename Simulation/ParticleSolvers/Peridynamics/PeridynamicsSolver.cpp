@@ -136,8 +136,8 @@ void PeridynamicsSolver::advanceScene(UInt frame, Real fraction /*= Real(0)*/)
     ParticleSolver3D::advanceScene(frame, fraction);
 
     for(auto& generator : m_ParticleGenerators) {
-        if(!generator->generationFinished(globalParams().finishedFrame)) {
-            generator->generateParticles(solverData().positions, solverData().velocities);
+        if(!generator->isActive(frame)) {
+            generator->generateParticles(solverData().positions, solverData().velocities, frame);
             solverData().makeReady();
         }
     }

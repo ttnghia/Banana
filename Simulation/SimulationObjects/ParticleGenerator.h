@@ -21,6 +21,8 @@
 #include <Banana/NeighborSearch/NeighborSearch3D.h>
 #include <SimulationObjects/SimulationObject.h>
 
+#include <unordered_set>
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
 {
@@ -33,7 +35,7 @@ class ParticleGenerator : public SimulationObject<N, RealType>
 {
 public:
     ParticleGenerator() = delete;
-    ParticleGenerator(const String& geometryType) : SimulationObject<N, RealType>(geometryType) {}
+    ParticleGenerator(const String& geometryType) : SimulationObject<N, RealType>(geometryType) { }
 
     auto& v0() { return m_v0; }
     auto& minDistanceRatio() { return m_MinDistanceRatio; }
@@ -42,9 +44,16 @@ public:
     auto& maxFrame() { return m_MaxFrame; }
     auto& maxNParticles() { return m_MaxNParticles; }
     auto& maxSamplingIters() { return m_MaxIters; }
+    auto& activeFrames() { return m_ActiveFrames; }
 
-    UInt generateParticles(Vec_VecX<N, RealType>& positions, Vec_VecX<N, RealType>& velocities);
-    bool generationFinished(UInt currentFrame) { return currentFrame < m_StartFrame || currentFrame >= m_MaxFrame || m_NGeneratedParticles >= m_MaxNParticles; }
+    UInt generateParticles(Vec_VecX<N, RealType>& positions, Vec_VecX<N, RealType>& velocities, UInt frame = 0);
+    bool isActive(UInt currentFrame)
+    {
+        if(m_ActiveFrames.size() > 0 && m_ActiveFrames.find(currentFrame) == m_ActiveFrames.end()) {
+            return false;
+        }
+        return currentFrame >= m_StartFrame && currentFrame <= m_MaxFrame && m_NGeneratedParticles < m_MaxNParticles;
+    }
 
     virtual void makeReady(RealType particleRadius);
 
@@ -53,19 +62,20 @@ protected:
 
     UInt addFullShapeParticles(Vec_VecX<N, RealType>& positions, Vec_VecX<N, RealType>& velocities);
     UInt addParticles(Vec_VecX<N, RealType>& positions, Vec_VecX<N, RealType>& velocities);
-    void collectNeighborParticles(Vec_VecX<N, RealType>& positions) {}
+    void collectNeighborParticles(Vec_VecX<N, RealType>& positions);
 
     ////////////////////////////////////////////////////////////////////////////////
-    Vec_VecX<N, RealType> m_ObjParticles;
-    VecX<N, RealType>     m_v0               = VecX<N, RealType>(0);
-    UInt                  m_StartFrame       = 0u;
-    UInt                  m_MaxFrame         = 0u;
-    UInt                  m_MaxNParticles    = std::numeric_limits<UInt>::max();
-    UInt                  m_MaxIters         = 10u;
-    RealType              m_MinDistanceRatio = RealType(2.0);
-    RealType              m_MinDistanceSqr   = std::numeric_limits<RealType>::max();
-    RealType              m_Jitter           = RealType(0);
-    RealType              m_ParticleRadius   = RealType(0);
+    Vec_VecX<N, RealType>    m_ObjParticles;
+    VecX<N, RealType>        m_v0               = VecX<N, RealType>(0);
+    UInt                     m_StartFrame       = 0u;
+    UInt                     m_MaxFrame         = 0u;
+    UInt                     m_MaxNParticles    = std::numeric_limits<UInt>::max();
+    UInt                     m_MaxIters         = 10u;
+    RealType                 m_MinDistanceRatio = RealType(2.0);
+    RealType                 m_MinDistanceSqr   = RealType(0);
+    RealType                 m_Jitter           = RealType(0);
+    RealType                 m_ParticleRadius   = RealType(0);
+    std::unordered_set<UInt> m_ActiveFrames;
 
     UInt m_NGeneratedParticles = 0;
 

@@ -227,11 +227,12 @@ void loadParticleGenerators(const nlohmann::json& jParams, Vector<SharedPtr<Part
         loadSimulationObject(jObj, static_pointer_cast<SimulationObject<N, RealType> >(obj));
 
         JSONHelpers::readVector(jObj, obj->v0(), "InitialVelocity");
-        JSONHelpers::readValue(jObj, obj->minDistanceRatio(), "MinParticleDi stanceRatio");
+        JSONHelpers::readValue(jObj, obj->minDistanceRatio(), "MinParticleDistanceRatio");
         JSONHelpers::readValue(jObj, obj->jitter(), "JitterRatio");
         JSONHelpers::readValue(jObj, obj->startFrame(), "StartFrame");
         JSONHelpers::readValue(jObj, obj->maxFrame(), "MaxFrame");
         JSONHelpers::readValue(jObj, obj->maxNParticles(), "MaxNParticles");
+        JSONHelpers::readValue(jObj, obj->activeFrames(), "ActiveFrames");
         JSONHelpers::readValue(jObj, obj->maxSamplingIters(), "MaxSamplingIters");
     }
 }

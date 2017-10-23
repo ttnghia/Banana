@@ -21,7 +21,7 @@ void Banana::SimulationObjects::ParticleGenerator<N, RealType >::makeReady(RealT
         return;
     }
     m_ParticleRadius = particleRadius;
-    m_MinDistanceSqr = m_MinDistanceRatio * particleRadius;
+    m_MinDistanceSqr = m_MinDistanceRatio * particleRadius * particleRadius;
     m_Jitter        *= particleRadius;
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -37,10 +37,11 @@ void Banana::SimulationObjects::ParticleGenerator<N, RealType >::makeReady(RealT
     auto     boxMin  = m_GeometryObj->getAABBMin();
     auto     boxMax  = m_GeometryObj->getAABBMax();
     auto     pGrid   = NumberHelpers::createGrid<UInt>(boxMin, boxMax, spacing);
-    m_Grid.setGrid(boxMin, boxMax, spacing);
+    m_Grid.setGrid(boxMin, boxMax, RealType(4.0) * m_ParticleRadius);
     m_ParticleIdxInCell.resize(m_Grid.getNCells());
+    m_Lock.resize(m_Grid.getNCells());
 
-    NumberHelpers::scan(0, pGrid,
+    NumberHelpers::scan(pGrid,
                         [&](const auto& idx)
                         {
                             VecX<N, RealType> ppos = boxMin + NumberHelpers::convert<RealType>(idx) * spacing;
@@ -49,6 +50,7 @@ void Banana::SimulationObjects::ParticleGenerator<N, RealType >::makeReady(RealT
                             }
                         });
 
+    __BNN_ASSERT(m_ObjParticles.size() > 0)
 
     ////////////////////////////////////////////////////////////////////////////////
     __BNN_TODO;
@@ -67,9 +69,12 @@ void Banana::SimulationObjects::ParticleGenerator<N, RealType >::makeReady(RealT
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-UInt ParticleGenerator<N, RealType > ::generateParticles(Vec_VecX<N, RealType>& positions, Vec_VecX<N, RealType>& velocities)
+UInt ParticleGenerator<N, RealType > ::generateParticles(Vec_VecX<N, RealType>& positions, Vec_VecX<N, RealType>& velocities, UInt frame)
 {
     __BNN_ASSERT(m_bObjReady);
+    if(!isActive(frame)) {
+        return 0u;
+    }
 
     collectNeighborParticles(positions);
     auto nGen = m_bFullShapeObj ? addFullShapeParticles(positions, velocities) : addParticles(positions, velocities);
@@ -81,22 +86,22 @@ UInt ParticleGenerator<N, RealType > ::generateParticles(Vec_VecX<N, RealType>& 
 template<Int N, class RealType>
 UInt ParticleGenerator<N, RealType > ::addFullShapeParticles(Vec_VecX<N, RealType>& positions, Vec_VecX<N, RealType>& velocities)
 {
-    volatile bool bEmptyRegion = true;
+    bool bEmptyRegion = true;
     if(positions.size() > 0) {
         ParallelFuncs::parallel_for(m_ObjParticles.size(),
-                                    [&](size_t i)
+                                    [&](size_t p)
                                     {
-                                        const auto& ppos = m_ObjParticles[i];
-                                        NumberHelpers::scan(0, VecX<N, Int>(-1), VecX<N, Int>(2),
-                                                            [&](const VecX<N, Int>& idx)
+                                        const auto& ppos    = m_ObjParticles[p];
+                                        const auto pCellIdx = m_Grid.getCellIdx<Int>(ppos);
+                                        NumberHelpers::scan(VecX<N, Int>(-1), VecX<N, Int>(2),
+                                                            [&](const auto& idx)
                                                             {
-                                                                auto cellIdx = idx + m_Grid.getCellIdx<Int>(ppos);
-                                                                if(!m_Grid.isValidCell(cellIdx)) {
-                                                                    return;
-                                                                }
-                                                                for(auto q : m_ParticleIdxInCell(cellIdx)) {
-                                                                    if(glm::length2(ppos - positions[q]) < m_MinDistanceSqr) {
-                                                                        bEmptyRegion = false;
+                                                                auto cellIdx = idx + pCellIdx;
+                                                                if(m_Grid.isValidCell(cellIdx)) {
+                                                                    for(auto q : m_ParticleIdxInCell(cellIdx)) {
+                                                                        if(glm::length2(ppos - positions[q]) < m_MinDistanceSqr) {
+                                                                            bEmptyRegion = false;
+                                                                        }
                                                                     }
                                                                 }
                                                             });
@@ -120,37 +125,42 @@ UInt ParticleGenerator<N, RealType > ::addParticles(Vec_VecX<N, RealType>& posit
 {
     positions.reserve(positions.size() + m_ObjParticles.size());
     velocities.reserve(velocities.size() + m_ObjParticles.size());
-    UInt nGenerated = 0;
+    UInt                      nGenerated = 0;
+    ParallelObjects::SpinLock lock;
 
     if(positions.size() > 0) {
-        for(const auto& ppos0 : m_ObjParticles) {
-            for(UInt i = 0; i < m_MaxIters; ++i) {
-                bool bValid = true;
-
-                VecX<N, RealType> ppos = ppos0;
-                NumberHelpers::jitter(ppos, m_Jitter);
-
-                NumberHelpers::scan(0, VecX<N, Int>(-1), VecX<N, Int>(2),
-                                    [&](const VecX<N, Int>& idx)
+        ParallelFuncs::parallel_for(m_ObjParticles.size(),
+                                    [&](size_t p)
                                     {
-                                        auto cellIdx = idx + m_Grid.getCellIdx<Int>(ppos);
-                                        if(!m_Grid.isValidCell(cellIdx)) {
-                                            return;
-                                        }
-                                        for(auto q : m_ParticleIdxInCell(cellIdx)) {
-                                            if(glm::length2(ppos - positions[q]) < m_MinDistanceSqr) {
-                                                bValid = false;
+                                        const auto& ppos0 = m_ObjParticles[p];
+                                        for(UInt i = 0; i < m_MaxIters; ++i) {
+                                            bool bValid            = true;
+                                            VecX<N, RealType> ppos = ppos0;
+                                            NumberHelpers::jitter(ppos, m_Jitter);
+                                            const auto pCellIdx = m_Grid.getCellIdx<Int>(ppos);
+
+                                            NumberHelpers::scan(VecX<N, Int>(-1), VecX<N, Int>(2),
+                                                                [&](const auto& idx)
+                                                                {
+                                                                    auto cellIdx = idx + pCellIdx;
+                                                                    if(m_Grid.isValidCell(cellIdx)) {
+                                                                        for(auto q : m_ParticleIdxInCell(cellIdx)) {
+                                                                            if(glm::length2(ppos - positions[q]) < m_MinDistanceSqr) {
+                                                                                bValid = false;
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                });
+
+                                            if(bValid) {
+                                                lock.lock();
+                                                positions.push_back(ppos);
+                                                ++nGenerated;
+                                                lock.unlock();
+                                                break;
                                             }
                                         }
                                     });
-
-                if(bValid) {
-                    positions.push_back(ppos);
-                    ++nGenerated;
-                    break;
-                }
-            }
-        }
     } else {
         for(const auto& ppos0 : m_ObjParticles) {
             VecX<N, RealType> ppos = ppos0;
@@ -189,4 +199,24 @@ void ParticleGenerator<N, RealType >::relaxPositions(Vector<VecX<N, RealType> >&
 //    LloydRelaxation::relaxPositions(denseSamples, positions);
 //}
     }
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType>
+void Banana::SimulationObjects::ParticleGenerator<N, RealType >::collectNeighborParticles(Vec_VecX<N, RealType>& positions)
+{
+    for(auto& cell : m_ParticleIdxInCell.data()) {
+        cell.resize(0);
+    }
+
+    ParallelFuncs::parallel_for(static_cast<UInt>(positions.size()),
+                                [&](UInt p)
+                                {
+                                    auto cellIdx = m_Grid.getCellIdx<Int>(positions[p]);
+                                    if(m_Grid.isValidCell(cellIdx)) {
+                                        m_Lock(cellIdx).lock();
+                                        m_ParticleIdxInCell(cellIdx).push_back(p);
+                                        m_Lock(cellIdx).unlock();
+                                    }
+                                });
 }

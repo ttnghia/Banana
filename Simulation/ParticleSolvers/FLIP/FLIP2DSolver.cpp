@@ -173,8 +173,8 @@ void FLIP2DSolver::advanceScene(UInt frame, Real fraction /*= Real(0)*/)
     ParticleSolver2D::advanceScene(frame, fraction);
 
     for(auto& generator : m_ParticleGenerators) {
-        if(!generator->generationFinished(globalParams().finishedFrame)) {
-            generator->generateParticles(particleData().positions, particleData().velocities);
+        if(!generator->isActive(frame)) {
+            generator->generateParticles(particleData().positions, particleData().velocities, frame);
             particleData().makeReady();
         }
     }
