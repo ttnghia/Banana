@@ -60,6 +60,7 @@ protected:
     Real computeCFLTimestep();
     void advanceVelocity(Real timestep);
     void moveParticles(Real timeStep);
+    void correctPositions(Real timestep);
 
     void computeFluidWeights();
     void addRepulsiveVelocity2Particles(Real timestep);

@@ -179,7 +179,7 @@ void ParticleSolver<N, RealType >::loadScene(const String& sceneFile)
             }
 
             if(JSONHelpers::readVector(jBoxParams, boxMin, "BoxMin") && JSONHelpers::readVector(jBoxParams, boxMax, "BoxMax")) {
-                SharedPtr<GeometryObjects::BoxObject<N, RealType> > box = static_pointer_cast<GeometryObjects::BoxObject<N, RealType> >(obj->getGeometry());
+                SharedPtr<GeometryObjects::BoxObject<N, RealType> > box = dynamic_pointer_cast<GeometryObjects::BoxObject<N, RealType> >(obj->getGeometry());
                 __BNN_ASSERT(box != nullptr);
                 box->setOriginalBox(boxMin, boxMax);
             }
@@ -204,20 +204,17 @@ void ParticleSolver<N, RealType >::loadScene(const String& sceneFile)
     ////////////////////////////////////////////////////////////////////////////////
     for(const auto& obj : m_BoundaryObjects) {
         if(obj->isDynamic()) {
-            auto simObj = dynamic_pointer_cast<SimulationObjects::SimulationObject<N, RealType> >(obj);
-            m_DynamicObjects.push_back(simObj);
+            m_DynamicObjects.push_back(obj);
         }
     }
     for(const auto& obj : m_ParticleGenerators) {
         if(obj->isDynamic()) {
-            auto simObj = dynamic_pointer_cast<SimulationObjects::SimulationObject<N, RealType> >(obj);
-            m_DynamicObjects.push_back(simObj);
+            m_DynamicObjects.push_back(obj);
         }
     }
     for(const auto& obj : m_ParticleRemovers) {
         if(obj->isDynamic()) {
-            auto simObj = dynamic_pointer_cast<SimulationObjects::SimulationObject<N, RealType> >(obj);
-            m_DynamicObjects.push_back(simObj);
+            m_DynamicObjects.push_back(obj);
         }
     }
 
@@ -296,7 +293,9 @@ void ParticleSolver<N, RealType >::doSimulation()
 template<Int N, class RealType>
 void ParticleSolver<N, RealType >::generateBoundaries(const nlohmann::json& jParams)
 {
-    __BNN_ASSERT(jParams.find("AdditionalBoundaryObjects") != jParams.end());
+    if(jParams.find("AdditionalBoundaryObjects") == jParams.end()) {
+        return;
+    }
     SceneLoader::loadBoundaryObjects<N, RealType>(jParams["AdditionalBoundaryObjects"], m_BoundaryObjects);
 
     ////////////////////////////////////////////////////////////////////////////////

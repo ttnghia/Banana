@@ -79,32 +79,23 @@ void BoundaryObjectInterface<N, RealType >::generateSDF(const VecX<N, RealType>&
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-// This is slip boundary: particle penetrates, then slips along surface until the end of the time step
 template<Int N, class RealType>
-bool BoundaryObjectInterface<N, RealType >::constrainToBoundary(VecX<N, RealType>& ppos, VecX<N, RealType>& pvel, bool bReflect /*= false*/)
+void BoundaryObjectInterface<N, RealType >::constrainToBoundary(const VecX<N, RealType>& ppos0, VecX<N, RealType>& ppos, const VecX<N, RealType>& pvel, RealType timestep)
 {
     const RealType phiVal = signedDistance(ppos) - m_Margin;
     if(phiVal < 0) {
-        VecX<N, RealType> grad     = gradSignedDistance(ppos);
-        RealType          mag2Grad = glm::length2(grad);
+        const RealType phiVal0 = signedDistance(ppos0) - m_Margin;
 
-        // todo: check
-        if(mag2Grad > Tiny) {
-            grad /= sqrt(mag2Grad);
-            ppos -= phiVal * grad;
+        //VecX<N, RealType> grad     = gradSignedDistance(ppos);
+        //RealType          mag2Grad = glm::length2(grad);
 
-            if(bReflect) {
-                RealType magVel = glm::length(pvel);
-                if(magVel > Tiny) {
-                    pvel /= magVel;
-                    pvel  = glm::reflect(pvel, grad) * m_RestitutionCoeff * magVel;
-                    return true;
-                }
-            }
-        }
+        //if(mag2Grad > Tiny) {
+        //    grad /= sqrt(mag2Grad);
+        //    ppos -= phiVal * grad;
+        //}
+
+        ppos = ppos0 + pvel * timestep * (RealType(1.0) - MathHelpers::fraction_inside(phiVal, phiVal0));
     }
-
-    return false;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -129,25 +120,6 @@ void BoundaryObject<3, RealType >::computeSDF()
                                       {
                                           m_SDF(i, j, k) = signedDistance(m_Grid.getWorldCoordinate(i, j, k));
                                       });
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<Int N, class RealType>
-bool BoxBoundaryInterface<N, RealType >::constrainToBoundary(VecX<N, RealType>& ppos, VecX<N, RealType>& pvel, bool bReflect /*= false*/)
-{
-    bool velChanged = false;
-
-    for(Int l = 0; l < N; ++l) {
-        if(ppos[l] < boxMin()[l] || ppos[l] > boxMax()[l]) {
-            ppos[l] = MathHelpers::min(MathHelpers::max(ppos[l], boxMin()[l]), boxMax()[l]);
-            if(bReflect) {
-                pvel[l]   *= -m_RestitutionCoeff;
-                velChanged = true;
-            }
-        }
-    }
-
-    return velChanged;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

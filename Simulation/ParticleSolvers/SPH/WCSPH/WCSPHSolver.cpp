@@ -300,7 +300,7 @@ Real WCSPHSolver::computeCFLTimestep()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void WCSPHSolver::advanceVelocity(Real timeStep)
+void WCSPHSolver::advanceVelocity(Real timestep)
 {
     static Timer funcTimer;
 
@@ -311,7 +311,7 @@ void WCSPHSolver::advanceVelocity(Real timeStep)
     }
     logger().printRunTime("Compute pressure forces: ",        funcTimer, [&]() { computePressureForces(); });
     logger().printRunTime("Compute surface tension forces: ", funcTimer, [&]() { computeSurfaceTensionForces(); });
-    logger().printRunTime("Update velocity: ",                funcTimer, [&]() { updateVelocity(timeStep); });
+    logger().printRunTime("Update velocity: ",                funcTimer, [&]() { updateVelocity(timestep); });
     logger().printRunTime("Compute viscosity: ",              funcTimer, [&]() { computeViscosity(); });
 }
 
@@ -515,30 +515,30 @@ void WCSPHSolver::computeViscosity()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void WCSPHSolver::updateVelocity(Real timeStep)
+void WCSPHSolver::updateVelocity(Real timestep)
 {
     const static Vec3r gravity = m_GlobalParams.bApplyGravity ? Vec3r(0, -9.8, 0) : Vec3r(0);
     ParallelFuncs::parallel_for<size_t>(0, solverData().velocities.size(),
                                         [&](size_t p)
                                         {
-                                            //solverData().velocities[p] += (gravity + solverData().pressureForces[p] + solverData().surfaceTensionForces[p]) * timeStep;
-                                            solverData().velocities[p] += (gravity + solverData().pressureForces[p]) * timeStep;
+                                            //solverData().velocities[p] += (gravity + solverData().pressureForces[p] + solverData().surfaceTensionForces[p]) * timestep;
+                                            solverData().velocities[p] += (gravity + solverData().pressureForces[p]) * timestep;
                                         });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void WCSPHSolver::moveParticles(Real timeStep)
+void WCSPHSolver::moveParticles(Real timestep)
 {
     ParallelFuncs::parallel_for<size_t>(0, solverData().positions.size(),
                                         [&](size_t p)
                                         {
-                                            Vec3r pVel = solverData().velocities[p];
-                                            Vec3r pPos = solverData().positions[p] + pVel * timeStep;
-
-                                            if(m_BoundaryObjects[0]->constrainToBoundary(pPos, pVel)) {
-                                                solverData().velocities[p] = pVel;
+                                            auto pvel  = solverData().velocities[p];
+                                            auto ppos0 = solverData().positions[p];
+                                            auto ppos  = ppos0 + pvel * timestep;
+                                            for(auto& obj : m_BoundaryObjects) {
+                                                obj->constrainToBoundary(ppos0, ppos, pvel, timestep);
                                             }
-                                            solverData().positions[p] = pPos;
+                                            solverData().positions[p] = ppos;
                                         }); // end parallel_for
 }
 

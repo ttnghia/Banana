@@ -54,14 +54,14 @@ protected:
     virtual void saveFrameData() override;
 
     Real computeCFLTimestep();
-    void advanceVelocity(Real timeStep);
+    void advanceVelocity(Real timestep);
     void computeDensity();
     void correctDensity();
     void computePressureForces();
     void computeSurfaceTensionForces();
     void computeViscosity();
-    void updateVelocity(Real timeStep);
-    void moveParticles(Real timeStep);
+    void updateVelocity(Real timestep);
+    void moveParticles(Real timestep);
 
     ////////////////////////////////////////////////////////////////////////////////
     SimulationParameters_WCSPH m_SimParams;

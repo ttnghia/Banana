@@ -2,9 +2,9 @@
     "GlobalParameters":
     {
         "FrameDuration" : 0.03333333333,
-        "FinalFrame" : 100,
+        "FinalFrame" : 1000,
         "EnableSortParticle" : true,
-        "SortFrequency" : 100,
+        "SortFrequency" : 10,
         "SaveFrameData" : true,
         "DataPath" : "D:/SimData/FLIP",
         "OptionalSavingDataXXX" : [ "anisotropic_kernel" ]
@@ -16,7 +16,7 @@
             "BoxMin" : [-1, -1, -1],
             "BoxMax" : [ 1, 1.5, 1]
         },
-        "ApplyRepulsiveForce" : true,
+        "ApplyRepulsiveForce" : false,
         "RepulsiveForceStiffness" : 1e-4,
         "PIC_FLIP_Ratio" : 0.97,
         "CGRelativeTolerance" : 1e-15,

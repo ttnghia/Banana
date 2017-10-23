@@ -98,6 +98,7 @@ void FLIP3DSolver::advanceFrame()
                                   logger().printRunTime("Find neighbors: ",               funcTimer, [&]() { m_Grid.collectIndexToCells(particleData().positions); });
                                   logger().printRunTime("====> Advance velocity total: ", funcTimer, [&]() { advanceVelocity(substep); });
                                   logger().printRunTime("Move particles: ",               funcTimer, [&]() { moveParticles(substep); });
+                                  logger().printRunTime("Correct particle positions: ",               funcTimer, [&]() { correctPositions(substep); });
                                   //logger().printRunTime("Correct particle positions: ",   funcTimer, [&]() { correctPositions(substep); });
                                   ////////////////////////////////////////////////////////////////////////////////
                                   frameTime += substep;
@@ -352,32 +353,77 @@ void FLIP3DSolver::moveParticles(Real timestep)
     ParallelFuncs::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
                                 {
-                                    Vec3r pvel = particleData().velocities[p];
-                                    Vec3r ppos = particleData().positions[p] + pvel * timestep;
-#if 0
-                                    const Vec3r gridPos = m_Grid.getGridCoordinate(ppos);
-                                    const Real phiVal   = ArrayHelpers::interpolateValueLinear(gridPos, gridData().boundarySDF) - solverParams().particleRadius;
+                                    auto pvel  = particleData().velocities[p];
+                                    auto ppos0 = particleData().positions[p];
+                                    auto ppos  = ppos0 + pvel * timestep;
+                                    for(auto& obj : m_BoundaryObjects) {
+                                        obj->constrainToBoundary(ppos0, ppos, pvel, timestep);
+                                    }
+                                    particleData().positions[p] = ppos;
+                                });
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void FLIP3DSolver::correctPositions(Real timestep)
+{
+    const Real radius = m_Grid.getCellSize() / Real(sqrt(solverDimension()));
+    //const Real radius     = Real(2.0) * m_SimParams.particleRadius;
+    const Real threshold  = Real(0.01) * radius;
+    const Real threshold2 = threshold * threshold;
+
+    // todo: check if this is needed, as this could be done before
+    ParallelFuncs::parallel_for(particleData().getNParticles(),
+                                [&](UInt p)
+                                {
+                                    const auto& ppos     = particleData().positions[p];
+                                    const Vec3i pCellIdx = m_Grid.getCellIdx<Int>(ppos);
+
+                                    Vec3r spring(0);
+
+                                    for(Int k = -1; k <= 1; ++k) {
+                                        for(Int j = -1; j <= 1; ++j) {
+                                            for(Int i = -1; i <= 1; ++i) {
+                                                const Vec3i cellIdx = pCellIdx + Vec3i(i, j, k);
+                                                if(!m_Grid.isValidCell(cellIdx)) {
+                                                    continue;
+                                                }
+
+                                                const Vec_UInt& neighbors = m_Grid.getParticleIdxInCell(cellIdx);
+                                                for(UInt q : neighbors) {
+                                                    const Vec3r& qpos = particleData().positions[q];
+                                                    const Vec3r xpq   = ppos - qpos;
+                                                    const Real d2     = glm::length2(xpq);
+                                                    Real w            = Real(50.0) * MathHelpers::smooth_kernel(d2, radius);
+
+                                                    if(d2 > threshold2) {
+                                                        spring += w * (ppos - qpos) / sqrt(d2) * radius;
+                                                    } else {
+                                                        spring += threshold / timestep * Vec3r(Real((rand() & 0xFF) / 255.0),
+                                                                                               Real((rand() & 0xFF) / 255.0),
+                                                                                               Real((rand() & 0xFF) / 255.0));
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    auto newPos         = ppos + spring * timestep;
+                                    const Vec3r gridPos = m_Grid.getGridCoordinate(newPos);
+                                    const Real phiVal   = ArrayHelpers::interpolateValueLinear(gridPos, gridData().boundarySDF);
 
                                     if(phiVal < 0) {
                                         Vec3r grad    = ArrayHelpers::interpolateGradient(gridPos, gridData().boundarySDF);
                                         Real mag2Grad = glm::length2(grad);
 
                                         if(mag2Grad > Tiny) {
-                                            ppos -= phiVal * grad / sqrt(mag2Grad);
+                                            newPos -= phiVal * grad / sqrt(mag2Grad);
                                         }
                                     }
-#else
-                                    bool velChanged = false;
-                                    for(auto& obj : m_BoundaryObjects) {
-                                        if(obj->constrainToBoundary(ppos, pvel)) { velChanged = true; }
-                                    }
 
-                                    if(velChanged) {
-                                        particleData().velocities[p] = pvel;
-                                    }
-#endif
-                                    particleData().positions[p] = ppos;
+                                    particleData().positions_tmp[p] = newPos;
                                 });
+
+    particleData().positions = particleData().positions_tmp;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
