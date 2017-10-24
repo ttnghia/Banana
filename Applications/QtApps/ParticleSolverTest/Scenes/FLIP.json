@@ -7,7 +7,8 @@
         "SortFrequency" : 10,
         "SaveFrameData" : true,
         "DataPath" : "D:/SimData/FLIP",
-        "OptionalSavingDataXXX" : [ "anisotropic_kernel" ]
+        "OptionalSavingDataXXX" : [ "anisotropic_kernel" ],
+        "LogLevel" : "Debug"
     },
     "SimulationParameters":
     {
@@ -17,55 +18,47 @@
             "BoxMax" : [ 1, 1.5, 1]
         },
         "CorrectPosition" : true,
-        "RepulsiveForceStiffness" : 10,
+        "RepulsiveForceStiffness" : 100,
         "PIC_FLIP_Ratio" : 0.97,
         "CGRelativeTolerance" : 1e-15,
         "MaxCGIteration" : 10000,
-        "ParticleRadius" : 0.01
+        "ParticleRadius" : 0.0075
     },
     "AdditionalBoundaryObjects":
     [
+    {
+        "GeometryType" : "TriMesh",
+        "UniqueName" : "TriMeshBoundary",
+        "CSGOperator" : "Union",
+        "Translation" : [0.0, 0.0, 0.0],
+        "Scale" : 2.0,
+        "MeshFile" : "D:/Programming/Banana/Assets/OBJ/bunny.obj",
+        "Animation" :
         {
-            "GeometryType" : "TriMesh",
-            "UniqueName" : "TriMeshBoundary",
-            "CSGOperator" : "Union",
-            "Translation" : [0.0, 0.0, 0.0],
-            "Scale" : 0.5,
-            "MeshFile" : "D:/Programming/Banana/Assets/OBJ/bunny.obj"
-        },
-        {
-            "GeometryType" : "Sphere",
-            "UniqueName" : "SphereBoundary",
-            "CSGOperator" : "Intersection",
-            "Translation" : [0.0, 1.0, 0.0],
-            "Scale" : 2.0,
-            "Animation" :
-            {
-                "CubicInterpolationTranslation" : true,
-                "CubicInterpolationRotation" : true,
-                "CubicInterpolationScale" : true,
-                "KeyFrames":
-                [
-                    {
-                        "Frame" : 150,
-                        "Translation" : [0, 1.5, 0]
-                    },
-                    {
-                        "Frame" : 300,
-                        "Translation" : [0, 1.0, 0]
-                    }
-                ]
-            }
+            "CubicInterpolationTranslation" : true,
+            "CubicInterpolationRotation" : true,
+            "CubicInterpolationScale" : true,
+            "KeyFrames":
+            [
+                {
+                    "Frame" : 150,
+                    "RotationEulerAngles" : [-90, 90, 0]
+                },
+                {
+                    "Frame" : 300,
+                    "RotationEulerAngles" : [0, 0, 0]
+                }
+            ]
         }
-
+    }
     ],
     "ParticleGenerators":
     [
         {
             "GeometryType" : "Sphere",
             "UniqueName" : "SphereParticleGenerator",
-            "Translation" : [0.0, 0.0, 0.0],
-            "Scale" : 0.75
+            "Translation" : [0.0, 0.0, -0.2],
+            "Scale" : 0.3
         }
     ],
     "VisualizationParameters":

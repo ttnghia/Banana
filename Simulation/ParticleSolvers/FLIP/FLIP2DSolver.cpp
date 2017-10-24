@@ -256,6 +256,7 @@ void FLIP2DSolver::saveFrameData()
         return;
     }
 
+    ParticleSolver2D::saveFrameData();
     m_ParticleDataIO->clearData();
     m_ParticleDataIO->setNParticles(particleData().getNParticles());
     m_ParticleDataIO->setFixedAttribute("particle_radius", static_cast<float>(solverParams().particleRadius));

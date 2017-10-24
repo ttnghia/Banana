@@ -83,6 +83,14 @@ inline void loadGlobalParams(const nlohmann::json& jParams, ParticleSolvers::Glo
     JSONHelpers::readValue(jParams, globalParams.framePerState, "FramePerState");
     JSONHelpers::readValue(jParams, globalParams.dataPath, "DataPath");
     JSONHelpers::readVector(jParams, globalParams.optionalSavingData, "OptionalSavingData");
+
+    String logLevel = String("Trace");
+    JSONHelpers::readValue(jParams, logLevel, "LogLevel");
+    if(logLevel == "Debug") {
+        globalParams.logLevel = spdlog::level::debug;
+    } else {
+        globalParams.logLevel = spdlog::level::trace;
+    }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -103,7 +111,6 @@ void loadSimulationObject(const nlohmann::json& jParams, const SharedPtr<Simulat
     JSONHelpers::readValue(jParams, obj->particleFile(), "ParticleFile");
     JSONHelpers::readValue(jParams, obj->SDFFile(), "SDFFile");
     JSONHelpers::readBool(jParams, obj->useCache(), "UseCache");
-    JSONHelpers::readBool(jParams, obj->isDynamic(), "IsDynamic");
     JSONHelpers::readBool(jParams, obj->fullShapeObj(), "FullShapeObj");
 
     VecX<N, Real>     translation;
@@ -117,9 +124,7 @@ void loadSimulationObject(const nlohmann::json& jParams, const SharedPtr<Simulat
 
     if(JSONHelpers::readVector(jParams, rotationEulerAngles, "RotationEulerAngles") || JSONHelpers::readVector(jParams, rotationEulerAngles, "RotationEulerAngle")) {
         obj->getGeometry()->setRotation(MathHelpers::EulerToAxisAngle(rotationEulerAngles, false));
-    }
-
-    if(JSONHelpers::readVector(jParams, rotationAxisAngle, "RotationAxisAngle")) {
+    } else if(JSONHelpers::readVector(jParams, rotationAxisAngle, "RotationAxisAngle")) {
         obj->getGeometry()->setRotation(rotationAxisAngle);
     }
 
@@ -130,6 +135,7 @@ void loadSimulationObject(const nlohmann::json& jParams, const SharedPtr<Simulat
     ////////////////////////////////////////////////////////////////////////////////
     // animation data
     if(jParams.find("Animation") != jParams.end()) {
+        obj->isDynamic() = true;
         auto jAnimation = jParams["Animation"];
         auto aniObj     = obj->getGeometry()->getAnimation();
 
@@ -151,7 +157,14 @@ void loadSimulationObject(const nlohmann::json& jParams, const SharedPtr<Simulat
             KeyFrame<N, RealType> keyFrame;
             __BNN_ASSERT(JSONHelpers::readValue(jKeyFrame, keyFrame.frame, "Frame"));
             JSONHelpers::readVector(jKeyFrame, keyFrame.translation, "Translation");
-            JSONHelpers::readVector(jKeyFrame, keyFrame.rotation, "Rotation");
+
+            VecX<N, Real> rotationEulerAngles;
+            if(JSONHelpers::readVector(jKeyFrame, rotationEulerAngles, "RotationEulerAngles") || JSONHelpers::readVector(jKeyFrame, rotationEulerAngles, "RotationEulerAngle")) {
+                keyFrame.rotation = MathHelpers::EulerToAxisAngle(rotationEulerAngles, false);
+            } else {
+                JSONHelpers::readVector(jKeyFrame, keyFrame.rotation, "RotationAxisAngle");
+            }
+
             JSONHelpers::readValue(jKeyFrame, keyFrame.uniformScale, "Scale");
 
             aniObj.addKeyFrame(keyFrame);
@@ -200,6 +213,8 @@ void loadSimulationObject(const nlohmann::json& jParams, const SharedPtr<Simulat
         JSONHelpers::readValue(jParams, meshObj->sdfStep(), "SDFStep");
         meshObj->computeSDF();
     }
+
+    ////////////////////////////////////////////////////////////////////////////////
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

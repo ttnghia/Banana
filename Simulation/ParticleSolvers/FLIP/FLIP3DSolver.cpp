@@ -72,7 +72,7 @@ void FLIP3DSolver::makeReady()
 
                                                               //gridData().boundarySDF(i, j, k) = -box.signedDistance(gridPos);
                                                           });
-                              logger().printWarning("Computed boundary SDF");
+                              logger().printLog("Computed boundary SDF", spdlog::level::debug);
                           });
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -200,11 +200,38 @@ void FLIP3DSolver::advanceScene(UInt frame, Real fraction /*= Real(0)*/)
 {
     ParticleSolver3D::advanceScene(frame, fraction);
 
+    UInt nNewParticles = 0;
     for(auto& generator : m_ParticleGenerators) {
         if(!generator->isActive(frame)) {
-            generator->generateParticles(particleData().positions, particleData().velocities, frame);
-            particleData().makeReady();
+            nNewParticles += generator->generateParticles(particleData().positions, particleData().velocities, frame);
         }
+    }
+    if(nNewParticles > 0) {
+        logger().printLog(String("Generated new particles: ") + NumberHelpers::formatWithCommas(nNewParticles), spdlog::level::debug);
+        particleData().makeReady();
+    }
+
+    bool bSDFRegenerated = false;
+    for(auto& bdObj : m_BoundaryObjects) {
+        if(!bdObj->isDynamic()) {
+            bdObj->generateSDF(solverParams().domainBMin, solverParams().domainBMax, solverParams().cellSize);
+            logger().printLog(String("Re-computed SDF for dynamic boundary object: ") + bdObj->nameID(), spdlog::level::debug);
+            bSDFRegenerated = true;
+        }
+    }
+
+    if(bSDFRegenerated) {
+        ParallelFuncs::parallel_for(m_Grid.getNNodes(),
+                                    [&](UInt i, UInt j, UInt k)
+                                    {
+                                        Real minSD = Huge;
+                                        for(auto& obj : m_BoundaryObjects) {
+                                            minSD = MathHelpers::min(minSD, obj->getSDF()(i, j, k));
+                                        }
+
+                                        gridData().boundarySDF(i, j, k) = minSD + MEpsilon;
+                                    });
+        logger().printLog(String("Re-computed SDF boundary for entire scene."), spdlog::level::debug);
     }
 }
 
@@ -254,6 +281,7 @@ bool FLIP3DSolver::loadMemoryState()
     __BNN_ASSERT(m_MemoryStateIO->getParticleAttribute("velocity", particleData().velocities));
     assert(particleData().velocities.size() == particleData().positions.size());
 
+    logger().printLog(String("Loaded memory state from frameIdx = ") + std::to_string(latestStateIdx));
     return true;
 }
 
@@ -289,7 +317,7 @@ void FLIP3DSolver::saveFrameData()
         return;
     }
 
-
+    ParticleSolver3D::saveFrameData();
     m_ParticleDataIO->clearData();
     m_ParticleDataIO->setNParticles(particleData().getNParticles());
     m_ParticleDataIO->setFixedAttribute("particle_radius", solverParams().particleRadius);

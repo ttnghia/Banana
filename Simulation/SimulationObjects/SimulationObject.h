@@ -42,8 +42,8 @@ public:
     auto& particleFile() { return m_ParticleFile; }
     auto& SDFFile() { return m_SDFFile; }
     auto& useCache() { return m_bUseCache; }
-    auto& isDynamic() { return m_bDynamics; }
     auto& fullShapeObj() { return m_bFullShapeObj; }
+    auto& isDynamic() { return m_bDynamics; }
 
     auto&       getGeometry() { return m_GeometryObj; }
     const auto& getSDF() { return m_SDF; }

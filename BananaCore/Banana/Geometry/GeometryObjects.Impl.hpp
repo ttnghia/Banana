@@ -463,110 +463,6 @@ RealType EllipsoidObject<N, RealType >::signedDistance(const VecX<N, RealType>& 
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-// sign distance field for triangle mesh
-template<class RealType>
-void computeSDFMesh(const Vector<Vec3ui>& faces, const Vec_Vec3f& vertices, const Vec3f& origin, RealType cellSize,
-                    UInt ni, UInt nj, UInt nk, Array<3, RealType>& SDF, Int exactBand = 1)
-{
-    __BNN_ASSERT(ni > 0 && nj > 0 && nk > 0);
-
-    SDF.resize(ni, nj, nk);
-    SDF.assign(RealType(ni + nj + nk) * cellSize);           // upper bound on distance
-    Array3ui closest_tri(ni, nj, nk, 0xffffffff);
-
-    // intersection_count(i,j,k) is # of tri intersections in (i-1,i]x{j}x{k}
-    // we begin by initializing distances near the mesh, and figuring out intersection counts
-    Array3ui intersectionCount(ni, nj, nk, 0u);
-
-    for(UInt face = 0, faceEnd = static_cast<UInt>(faces.size()); face < faceEnd; ++face) {
-        UInt p = faces[face][0];
-        UInt q = faces[face][1];
-        UInt r = faces[face][2];
-
-        // coordinates in grid to high precision
-        Vec3f fp = (vertices[p] - origin) / cellSize;
-        Vec3f fq = (vertices[q] - origin) / cellSize;
-        Vec3f fr = (vertices[r] - origin) / cellSize;
-
-        // do distances nearby
-        Int i0 = MathHelpers::clamp(static_cast<Int>(MathHelpers::min(fp[0], fq[0], fr[0])) - exactBand, 0, static_cast<Int>(ni - 1));
-        Int i1 = MathHelpers::clamp(static_cast<Int>(MathHelpers::max(fp[0], fq[0], fr[0])) + exactBand + 1, 0, static_cast<Int>(ni - 1));
-        Int j0 = MathHelpers::clamp(static_cast<Int>(MathHelpers::min(fp[1], fq[1], fr[1])) - exactBand, 0, static_cast<Int>(nj - 1));
-        Int j1 = MathHelpers::clamp(static_cast<Int>(MathHelpers::max(fp[1], fq[1], fr[1])) + exactBand + 1, 0, static_cast<Int>(nj - 1));
-        Int k0 = MathHelpers::clamp(static_cast<Int>(MathHelpers::min(fp[2], fq[2], fr[2])) - exactBand, 0, static_cast<Int>(nk - 1));
-        Int k1 = MathHelpers::clamp(static_cast<Int>(MathHelpers::max(fp[2], fq[2], fr[2])) + exactBand + 1, 0, static_cast<Int>(nk - 1));
-
-        ParallelFuncs::parallel_for<Int>(i0, i1 + 1, j0, j1 + 1, k0, k1 + 1,
-                                         [&](Int i, Int j, Int k)
-                                         {
-                                             Vec3f gx   = Vec3f(i, j, k) * cellSize + origin;
-                                             RealType d = point_triangle_distance(gx, vertices[p], vertices[q], vertices[r]);
-
-                                             if(d < SDF(i, j, k)) {
-                                                 SDF(i, j, k)         = d;
-                                                 closest_tri(i, j, k) = face;
-                                             }
-                                         });
-
-        // and do intersection counts
-        j0 = MathHelpers::clamp(static_cast<Int>(std::ceil(MathHelpers::min(fp[1], fq[1], fr[1]))) - 10, 0, static_cast<Int>(nj - 1));
-        j1 = MathHelpers::clamp(static_cast<Int>(std::floor(MathHelpers::max(fp[1], fq[1], fr[1]))) + 10, 0, static_cast<Int>(nj - 1));
-        k0 = MathHelpers::clamp(static_cast<Int>(std::ceil(MathHelpers::min(fp[2], fq[2], fr[2]))) - 10, 0, static_cast<Int>(nk - 1));
-        k1 = MathHelpers::clamp(static_cast<Int>(std::floor(MathHelpers::max(fp[2], fq[2], fr[2]))) + 10, 0, static_cast<Int>(nk - 1));
-
-        for(Int k = k0; k <= k1; ++k) {
-            for(Int j = j0; j <= j1; ++j) {
-                float a, b, c;
-
-                if(point_in_triangle_2d(static_cast<RealType>(j), static_cast<RealType>(k), fp[1], fp[2], fq[1], fq[2], fr[1], fr[2], a, b, c)) {
-                    // intersection i coordinate
-                    RealType fi = a * fp[0] + b * fq[0] + c * fr[0];
-
-                    // intersection is in (i_interval-1,i_interval]
-                    Int i_interval = MathHelpers::max(static_cast<Int>(std::ceil(fi)), 0);
-
-                    // we enlarge the first interval to include everything to the -x direction
-                    // we ignore intersections that are beyond the +x side of the grid
-                    if(i_interval < static_cast<Int>(ni)) {
-                        ++intersectionCount(i_interval, j, k);
-                    }
-                }
-            }
-        }
-    }     // end loop face
-
-
-    // and now we fill in the rest of the distances with fast sweeping
-    for(UInt pass = 0; pass < 2; ++pass) {
-        sweep(faces, vertices, SDF, closest_tri, origin, cellSize, +1, +1, +1);
-        sweep(faces, vertices, SDF, closest_tri, origin, cellSize, -1, -1, -1);
-        sweep(faces, vertices, SDF, closest_tri, origin, cellSize, +1, +1, -1);
-        sweep(faces, vertices, SDF, closest_tri, origin, cellSize, -1, -1, +1);
-        sweep(faces, vertices, SDF, closest_tri, origin, cellSize, +1, -1, +1);
-        sweep(faces, vertices, SDF, closest_tri, origin, cellSize, -1, +1, -1);
-        sweep(faces, vertices, SDF, closest_tri, origin, cellSize, +1, -1, -1);
-        sweep(faces, vertices, SDF, closest_tri, origin, cellSize, -1, +1, +1);
-    }
-
-    // then figure out signs (inside/outside) from intersection counts
-    ParallelFuncs::parallel_for<UInt>(0, nk,
-                                      [&](UInt k)
-                                      {
-                                          for(UInt j = 0; j < nj; ++j) {
-                                              UInt total_count = 0;
-
-                                              for(UInt i = 0; i < ni; ++i) {
-                                                  total_count += intersectionCount(i, j, k);
-
-                                                  if(total_count & 1) {             // if parity of intersections so far is odd,
-                                                      SDF(i, j, k) = -SDF(i, j, k); // we are inside the mesh
-                                                  }
-                                              }
-                                          }
-                                      });
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // find distance x0 is from segment x1-x2
 inline float point_segment_distance(const Vec3f& x0, const Vec3f& x1, const Vec3f& x2)
 {
@@ -757,16 +653,107 @@ inline bool point_in_triangle_2d(float x0, float y0,
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+// sign distance field for triangle mesh
 template<class RealType>
-void cycle_array(RealType* arr, Int size)
+void computeSDFMesh(const Vector<Vec3ui>& faces, const Vec_Vec3f& vertices, const Vec3f& origin, RealType cellSize,
+                    UInt ni, UInt nj, UInt nk, Array<3, RealType>& SDF, Int exactBand = 1)
 {
-    RealType t = arr[0];
+    __BNN_ASSERT(ni > 0 && nj > 0 && nk > 0);
 
-    for(Int i = 0; i < size - 1; ++i) {
-        arr[i] = arr[i + 1];
+    SDF.resize(ni, nj, nk);
+    SDF.assign(RealType(ni + nj + nk) * cellSize);               // upper bound on distance
+    Array3ui closest_tri(ni, nj, nk, 0xffffffff);
+
+    // intersection_count(i,j,k) is # of tri intersections in (i-1,i]x{j}x{k}
+    // we begin by initializing distances near the mesh, and figuring out intersection counts
+    Array3ui intersectionCount(ni, nj, nk, 0u);
+
+    for(UInt face = 0, faceEnd = static_cast<UInt>(faces.size()); face < faceEnd; ++face) {
+        UInt p = faces[face][0];
+        UInt q = faces[face][1];
+        UInt r = faces[face][2];
+
+        // coordinates in grid to high precision
+        Vec3f fp = (vertices[p] - origin) / cellSize;
+        Vec3f fq = (vertices[q] - origin) / cellSize;
+        Vec3f fr = (vertices[r] - origin) / cellSize;
+
+        // do distances nearby
+        Int i0 = MathHelpers::clamp(static_cast<Int>(MathHelpers::min(fp[0], fq[0], fr[0])) - exactBand, 0, static_cast<Int>(ni - 1));
+        Int i1 = MathHelpers::clamp(static_cast<Int>(MathHelpers::max(fp[0], fq[0], fr[0])) + exactBand + 1, 0, static_cast<Int>(ni - 1));
+        Int j0 = MathHelpers::clamp(static_cast<Int>(MathHelpers::min(fp[1], fq[1], fr[1])) - exactBand, 0, static_cast<Int>(nj - 1));
+        Int j1 = MathHelpers::clamp(static_cast<Int>(MathHelpers::max(fp[1], fq[1], fr[1])) + exactBand + 1, 0, static_cast<Int>(nj - 1));
+        Int k0 = MathHelpers::clamp(static_cast<Int>(MathHelpers::min(fp[2], fq[2], fr[2])) - exactBand, 0, static_cast<Int>(nk - 1));
+        Int k1 = MathHelpers::clamp(static_cast<Int>(MathHelpers::max(fp[2], fq[2], fr[2])) + exactBand + 1, 0, static_cast<Int>(nk - 1));
+
+        ParallelFuncs::parallel_for<Int>(i0, i1 + 1, j0, j1 + 1, k0, k1 + 1,
+                                         [&](Int i, Int j, Int k)
+                                         {
+                                             Vec3f gx   = Vec3f(i, j, k) * cellSize + origin;
+                                             RealType d = point_triangle_distance(gx, vertices[p], vertices[q], vertices[r]);
+
+                                             if(d < SDF(i, j, k)) {
+                                                 SDF(i, j, k)         = d;
+                                                 closest_tri(i, j, k) = face;
+                                             }
+                                         });
+
+// and do intersection counts
+        j0 = MathHelpers::clamp(static_cast<Int>(std::ceil(MathHelpers::min(fp[1], fq[1], fr[1]))) - 10, 0, static_cast<Int>(nj - 1));
+        j1 = MathHelpers::clamp(static_cast<Int>(std::floor(MathHelpers::max(fp[1], fq[1], fr[1]))) + 10, 0, static_cast<Int>(nj - 1));
+        k0 = MathHelpers::clamp(static_cast<Int>(std::ceil(MathHelpers::min(fp[2], fq[2], fr[2]))) - 10, 0, static_cast<Int>(nk - 1));
+        k1 = MathHelpers::clamp(static_cast<Int>(std::floor(MathHelpers::max(fp[2], fq[2], fr[2]))) + 10, 0, static_cast<Int>(nk - 1));
+
+        for(Int k = k0; k <= k1; ++k) {
+            for(Int j = j0; j <= j1; ++j) {
+                float a, b, c;
+
+                if(point_in_triangle_2d(static_cast<RealType>(j), static_cast<RealType>(k), fp[1], fp[2], fq[1], fq[2], fr[1], fr[2], a, b, c)) {
+// intersection i coordinate
+                    RealType fi = a * fp[0] + b * fq[0] + c * fr[0];
+
+                    // intersection is in (i_interval-1,i_interval]
+                    Int i_interval = MathHelpers::max(static_cast<Int>(std::ceil(fi)), 0);
+
+                    // we enlarge the first interval to include everything to the -x direction
+                    // we ignore intersections that are beyond the +x side of the grid
+                    if(i_interval < static_cast<Int>(ni)) {
+                        ++intersectionCount(i_interval, j, k);
+                    }
+                }
+            }
+        }
+    }         // end loop face
+
+
+    // and now we fill in the rest of the distances with fast sweeping
+    for(UInt pass = 0; pass < 2; ++pass) {
+        sweep(faces, vertices, SDF, closest_tri, origin, cellSize, +1, +1, +1);
+        sweep(faces, vertices, SDF, closest_tri, origin, cellSize, -1, -1, -1);
+        sweep(faces, vertices, SDF, closest_tri, origin, cellSize, +1, +1, -1);
+        sweep(faces, vertices, SDF, closest_tri, origin, cellSize, -1, -1, +1);
+        sweep(faces, vertices, SDF, closest_tri, origin, cellSize, +1, -1, +1);
+        sweep(faces, vertices, SDF, closest_tri, origin, cellSize, -1, +1, -1);
+        sweep(faces, vertices, SDF, closest_tri, origin, cellSize, +1, -1, -1);
+        sweep(faces, vertices, SDF, closest_tri, origin, cellSize, -1, +1, +1);
     }
 
-    arr[size - 1] = t;
+    // then figure out signs (inside/outside) from intersection counts
+    ParallelFuncs::parallel_for<UInt>(0, nk,
+                                      [&](UInt k)
+                                      {
+                                          for(UInt j = 0; j < nj; ++j) {
+                                              UInt total_count = 0;
+
+                                              for(UInt i = 0; i < ni; ++i) {
+                                                  total_count += intersectionCount(i, j, k);
+
+                                                  if(total_count & 1) { // if parity of intersections so far is odd,
+                                                      SDF(i, j, k) = -SDF(i, j, k); // we are inside the mesh
+                                                  }
+                                              }
+                                          }
+                                      });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -805,8 +792,10 @@ void TriMeshObject<3, RealType >::computeSDF()
     auto  cmin       = bbmin - meshCenter;
     auto  cmax       = bbmax - meshCenter;
 
-    bbmin = meshCenter + glm::normalize(cmin) * glm::length(cmin) * Real(1.0 + m_Expanding);
-    bbmax = meshCenter + glm::normalize(cmax) * glm::length(cmax) * Real(1.0 + m_Expanding);
+    //bbmin = meshCenter + glm::normalize(cmin) * glm::length(cmin);
+    //bbmax = meshCenter + glm::normalize(cmax) * glm::length(cmax);
+    bbmin = meshCenter + glm::normalize(cmin) * glm::length(cmin) * Real(1.1);
+    bbmax = meshCenter + glm::normalize(cmax) * glm::length(cmax) * Real(1.1);
 
     // to move the mesh center to origin
     bbmin -= meshCenter;

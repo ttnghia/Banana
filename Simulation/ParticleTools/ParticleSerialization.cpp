@@ -79,7 +79,7 @@ void ParticleSerialization::flushAsync(Int fileID)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void ParticleSerialization::flushAsync(const String& fileName)
 {
-    __BNN_ASSERT(m_nParticles > 0 && m_FixedAttributes.size() > 0 && m_ParticleAttributes.size() > 0);
+    __BNN_ASSERT(m_nParticles > 0 && m_FixedAttributes.size() > 0);
     if(m_Logger != nullptr) {
         buildAttrNameList();
         String str = String("Saving particle file: "); str += fileName;

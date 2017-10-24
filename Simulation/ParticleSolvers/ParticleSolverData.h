@@ -80,8 +80,9 @@ struct GlobalParameters
     UInt sortFrequency       = 10;
 
     ////////////////////////////////////////////////////////////////////////////////
-    bool bPrintLog2Console = true;
-    bool bPrintLog2File    = false;
+    spdlog::level::level_enum logLevel          = spdlog::level::trace;
+    bool                      bPrintLog2Console = true;
+    bool                      bPrintLog2File    = false;
 
     ////////////////////////////////////////////////////////////////////////////////
     void printParams(Logger& logger)

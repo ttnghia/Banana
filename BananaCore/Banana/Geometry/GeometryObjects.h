@@ -64,6 +64,7 @@ public:
     auto  getAABBMin() const { return transform(VecX<N, RealType>(0)) - VecX<N, RealType>(m_UniformScale) * sqrt(glm::compAdd(VecX<N, RealType>(1.0))); }
     auto  getAABBMax() const { return transform(VecX<N, RealType>(0)) + VecX<N, RealType>(m_UniformScale) * sqrt(glm::compAdd(VecX<N, RealType>(1.0))); }
     auto& getAnimation() { return m_Animation; }
+    const auto& getTransformationMatrix() const { return m_TransformationMatrix; }
 
     VecX<N, RealType> transform(const VecX<N, RealType>& ppos) const;
     VecX<N, RealType> invTransform(const VecX<N, RealType>& ppos) const;
@@ -385,8 +386,7 @@ protected:
     bool   m_bSDFGenerated = false;
     String m_TriMeshFile   = String("");
 
-    RealType           m_Step      = RealType(1.0 / 256.0);
-    RealType           m_Expanding = RealType(0.1);
+    RealType           m_Step = RealType(1.0 / 256.0);
     Array<3, RealType> m_SDFData;
     Grid<3, RealType>  m_Grid3D;
 };

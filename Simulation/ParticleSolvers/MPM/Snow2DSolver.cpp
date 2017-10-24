@@ -235,6 +235,7 @@ void Snow2DSolver::saveFrameData()
         return;
     }
 
+    ParticleSolver2D::saveFrameData();
     m_ParticleDataIO->clearData();
     m_ParticleDataIO->setNParticles(solverData().getNParticles());
     m_ParticleDataIO->setFixedAttribute("particle_radius", static_cast<float>(solverParams().particleRadius));

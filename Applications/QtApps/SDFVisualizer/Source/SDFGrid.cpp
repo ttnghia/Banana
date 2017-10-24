@@ -225,16 +225,16 @@ void SDFGrid::generateParticles()
         }
     }
 
-    ParallelFuncs::parallel_for<size_t>(0, negativeColorScale.size(),
-                                        [&](size_t i)
-                                        {
-                                            negativeColorScale[i] = 1.0f - sqrt(-negativeColorScale[i] / maxAbsNegativeDistance);
-                                        });
-    ParallelFuncs::parallel_for<size_t>(0, positiveColorScale.size(),
-                                        [&](size_t i)
-                                        {
-                                            positiveColorScale[i] = 1.0f - sqrt(positiveColorScale[i] / maxPositiveDistance);
-                                        });
+    ParallelFuncs::parallel_for(negativeColorScale.size(),
+                                [&](size_t i)
+                                {
+                                    negativeColorScale[i] = 1.0f - sqrt(-negativeColorScale[i] / maxAbsNegativeDistance);
+                                });
+    ParallelFuncs::parallel_for(positiveColorScale.size(),
+                                [&](size_t i)
+                                {
+                                    positiveColorScale[i] = 1.0f - sqrt(positiveColorScale[i] / maxPositiveDistance);
+                                });
 
     std::memcpy(dataPtr,                                      negativeParticles.data(),  numNegative * sizeof(float) * 3);
     std::memcpy(&dataPtr[numNegative * sizeof(float) * 3],    positiveParticles.data(),  numPositive * sizeof(float) * 3);

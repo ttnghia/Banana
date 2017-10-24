@@ -57,6 +57,8 @@ public:
     static auto create(const String& instanceName) { return std::make_shared<Logger>(instanceName); }
 
     ////////////////////////////////////////////////////////////////////////////////
+    void  setLoglevel(spdlog::level::level_enum level) { m_ConsoleLogger->set_level(level); if(m_FileLogger != nullptr) { m_FileLogger->set_level(level); } }
+
     void newLine() { printLog(""); }
     void printSeparator();
     void printAligned(const String& s, char padding = PADDING, const String& wrapper = WRAPPER, UInt maxSize = 100);
@@ -89,7 +91,6 @@ public:
     static void  initialize(bool bPrint2Console = true, bool s_bWriteLog2File = false);
     static void  initialize(const String& dataPath, bool bPrint2Console = true, bool s_bWriteLog2File = false);
     static void  shutdown();
-    static void  setLoglevel(spdlog::level::level_enum level) { spdlog::set_level(level); }
     static void  setDataPath(const String& dataPath) { s_DataPath = dataPath; }
     static auto& mainLogger() noexcept { assert(s_MainLogger != nullptr); return *s_MainLogger; }
 private:

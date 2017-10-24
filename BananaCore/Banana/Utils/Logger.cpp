@@ -213,7 +213,6 @@ void Logger::initialize(bool bPrint2Console /*= true*/, bool s_bWriteLog2File /*
     ////////////////////////////////////////////////////////////////////////////////
     s_bInitialized = true;
     s_MainLogger   = Logger::create("Main");
-    setLoglevel(spdlog::level::trace);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

@@ -85,7 +85,7 @@ protected:
     virtual void setupDataIO()     = 0;
     virtual bool loadMemoryState() = 0;
     virtual void saveMemoryState() = 0;
-    virtual void saveFrameData()   = 0;
+    virtual void saveFrameData();
 
     ////////////////////////////////////////////////////////////////////////////////
     GlobalParameters m_GlobalParams;
@@ -93,9 +93,9 @@ protected:
     UniquePtr<tbb::task_scheduler_init> m_ThreadInit = nullptr;
     SharedPtr<Logger>                   m_Logger     = nullptr;
 
-    UniquePtr<ParticleSerialization> m_ParticleDataIO = nullptr;
-    UniquePtr<ParticleSerialization> m_BoundaryDataIO = nullptr;
-    UniquePtr<ParticleSerialization> m_MemoryStateIO  = nullptr;
+    UniquePtr<ParticleSerialization> m_ParticleDataIO      = nullptr;
+    UniquePtr<ParticleSerialization> m_DynamicObjectDataIO = nullptr;
+    UniquePtr<ParticleSerialization> m_MemoryStateIO       = nullptr;
 
     // todo: add NSearch for 2D
     UniquePtr<NeighborSearch::NeighborSearch3D>                        m_NSearch = nullptr;
@@ -104,7 +104,6 @@ protected:
     Vector<SharedPtr<SimulationObjects::ParticleRemover<N, Real> > >   m_ParticleRemovers;   // individual objects, as they can have different behaviors
     Vector<SharedPtr<SimulationObjects::SimulationObject<N, Real> > >  m_DynamicObjects;     // store all dynamic objects
 };
-
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 using ParticleSolver2D = ParticleSolver<2, Real>;
@@ -219,19 +218,17 @@ void ParticleSolver<N, RealType >::loadScene(const String& sceneFile)
     }
 
     if(m_DynamicObjects.size() > 0) {
-        m_BoundaryDataIO = std::make_unique<ParticleSerialization>(globalParams().dataPath, "BoundaryData", "frame", m_Logger);
+        m_DynamicObjectDataIO = std::make_unique<ParticleSerialization>(globalParams().dataPath, "BoundaryData", "frame", m_Logger);
         for(const auto& obj : m_DynamicObjects) {
-            m_BoundaryDataIO->addFixedAtribute<float>(obj->nameID() + String("_translation"), ParticleSerialization::TypeReal, 3);
-            m_BoundaryDataIO->addFixedAtribute<float>(obj->nameID() + String("_rotation"), ParticleSerialization::TypeReal, 4);
-            m_BoundaryDataIO->addFixedAtribute<float>(obj->nameID() + String("_uniform_scale"), ParticleSerialization::TypeReal, 1);
+            m_DynamicObjectDataIO->addFixedAtribute<float>(obj->nameID() + String("_transformation"), ParticleSerialization::TypeReal, (N + 1) * (N + 1));
 
 
             ////////////////////////////////////////////////////////////////////////////////
             // specialized for box object
             auto box = dynamic_pointer_cast<GeometryObjects::BoxObject<N, RealType> >(obj->getGeometry());
             if(box != nullptr) {
-                m_BoundaryDataIO->addFixedAtribute<float>(obj->nameID() + String("_box_min"), ParticleSerialization::TypeReal, 3);
-                m_BoundaryDataIO->addFixedAtribute<float>(obj->nameID() + String("_box_max"), ParticleSerialization::TypeReal, 3);
+                m_DynamicObjectDataIO->addFixedAtribute<float>(obj->nameID() + String("_box_min"), ParticleSerialization::TypeReal, 3);
+                m_DynamicObjectDataIO->addFixedAtribute<float>(obj->nameID() + String("_box_max"), ParticleSerialization::TypeReal, 3);
             }
         }
     }
@@ -242,6 +239,7 @@ template<Int N, class RealType>
 void ParticleSolver<N, RealType >::setupLogger()
 {
     m_Logger = Logger::create(getSolverName());
+    m_Logger->setLoglevel(globalParams().logLevel);
     logger().printTextBox(getGreetingMessage());
 }
 
@@ -352,11 +350,24 @@ void ParticleSolver<N, RealType >::generateRemovers(const nlohmann::json& jParam
 template<Int N, class RealType>
 void ParticleSolver<N, RealType >::advanceScene(UInt frame, RealType fraction /*= RealType(0)*/)
 {
-    for(auto& obj : m_BoundaryObjects) {
-        if(obj->isDynamic()) { obj->advanceScene(frame, fraction); }
+    if(m_DynamicObjects.size() > 0) {
+        for(auto& obj : m_DynamicObjects) {
+            obj->advanceScene(frame, fraction);
+        }
     }
-    for(auto& obj : m_ParticleGenerators) {
-        obj->advanceScene(frame, fraction);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType>
+void Banana::ParticleSolvers::ParticleSolver<N, RealType >::saveFrameData()
+{
+    if(m_DynamicObjects.size() > 0) {
+        m_DynamicObjectDataIO->clearData();
+        m_DynamicObjectDataIO->setNParticles(1);
+        for(auto& obj : m_DynamicObjects) {
+            m_DynamicObjectDataIO->setFixedAttribute(obj->nameID() + String("_transformation"), glm::value_ptr(obj->getGeometry()->getTransformationMatrix()));
+        }
+        m_DynamicObjectDataIO->flushAsync(globalParams().finishedFrame);
     }
 }
 

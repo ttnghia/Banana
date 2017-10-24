@@ -245,7 +245,7 @@ void PeridynamicsSolver::saveFrameData()
         return;
     }
 
-
+    ParticleSolver3D::saveFrameData();
     m_ParticleDataIO->clearData();
     m_ParticleDataIO->setNParticles(solverData().getNParticles());
     m_ParticleDataIO->setFixedAttribute("particle_radius", solverParams().particleRadius);
