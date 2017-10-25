@@ -28,7 +28,7 @@
     <ProjectGuid>{D996D17B-FFF1-4046-AA0D-B5DDD53C4418}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>Obj2BinaryFluid</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">

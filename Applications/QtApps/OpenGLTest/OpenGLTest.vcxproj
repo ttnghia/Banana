@@ -17,7 +17,7 @@
       <Configuration>Debug</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
-	<ProjectConfiguration Include="DebugQt|x64">
+    <ProjectConfiguration Include="DebugQt|x64">
       <Configuration>DebugQt</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
@@ -26,7 +26,7 @@
     <ProjectGuid>{29506A87-5FF4-3BF0-9FBA-6C630184A9C0}</ProjectGuid>
     <RootNamespace>OpenGLTest</RootNamespace>
     <Keyword>Qt4VSv1.0</Keyword>
-    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
     <ProjectName>OpenGLTest</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -61,7 +61,7 @@
     <ConfigurationType>Application</ConfigurationType>
     <PrimaryOutput>OpenGLTest</PrimaryOutput>
   </PropertyGroup>
-    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugQt|x64'" Label="Configuration">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugQt|x64'" Label="Configuration">
     <PlatformToolSet>v141</PlatformToolSet>
     <ATLMinimizesCRunTimeLibraryUsage>false</ATLMinimizesCRunTimeLibraryUsage>
     <CharacterSet>NotSet</CharacterSet>
@@ -82,7 +82,7 @@
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" />
   </ImportGroup>
-    <ImportGroup Condition="'$(Configuration)|$(Platform)'=='DebugQt|x64'" Label="PropertySheets">
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='DebugQt|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
@@ -106,7 +106,7 @@
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">D:\Scratch\ProjectBuilds\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">OpenGLTest</TargetName>
     <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</IgnoreImportLibrary>
-	<OutDir Condition="'$(Configuration)|$(Platform)'=='DebugQt|x64'">$(ProjectDir)$(Configuration)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='DebugQt|x64'">$(ProjectDir)$(Configuration)\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='DebugQt|x64'">D:\Scratch\ProjectBuilds\$(SolutionName)\$(ProjectName)\$(Configuration)\</IntDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='DebugQt|x64'">OpenGLTest</TargetName>
     <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='DebugQt|x64'">true</IgnoreImportLibrary>
@@ -114,7 +114,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>$(SolutionDir)Externals\json\src;$(SolutionDir)BananaCore;$(SolutionDir)Externals\tinyply\source;$(SolutionDir)Externals\tinyobjloader;$(IncludePath)</IncludePath>
   </PropertyGroup>
-    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugQt|x64'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugQt|x64'">
     <IncludePath>$(SolutionDir)Externals\json\src;$(SolutionDir)BananaCore;$(SolutionDir)Externals\tinyply\source;$(SolutionDir)Externals\tinyobjloader;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -327,7 +327,7 @@
       <PreprocessorDefinitions>EBUG;;EBUG;_WINDOWS;UNICODE;WIN32;WIN64;QT_OPENGL_SUPPORT;QT_OPENGL_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_CORE_LIB;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
-    <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugQt|x64'">
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='DebugQt|x64'">
     <ClCompile>
       <AdditionalIncludeDirectories>.;.\..\..\..\BananaCore\Include;C:\Qt\Qt5.9.1\Examples\Qt-5.9.1\widgets\painting\shared;.\..\..\..\QtAppHelpers\Include;.\..\..\..\Externals\glm;.\..\..\..\Externals\AntTweakBar\include;.\..\..\..\OpenGLHelpers\Include;.\..\..\..\Externals\glew-2.0.0\include;$(QTDIR)\include;$(QTDIR)\include\QtOpenGL;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtANGLE;$(QTDIR)\include\QtCore;.\debug;$(QTDIR)\mkspecs\win32-msvc2015;D:\Scratch\ProjectBuilds\Banana\TestBed\OpenGLTest\$(ConfigurationName);D:\Scratch\ProjectBuilds\Banana\TestBed\OpenGLTest\GeneratedFiles;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/std:c++latest -Zc:strictStrings -Zc:throwingNew -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>

@@ -22,7 +22,7 @@
     <ProjectGuid>{871C45B3-7369-4D14-8D86-C114901C3E1E}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>BNNBgeoConverter</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
