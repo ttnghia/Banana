@@ -109,24 +109,24 @@ public:
     ////////////////////////////////////////////////////////////////////////////////
     // functions for writing data
     template<class T>
-    void addFixedAtribute(const String& attrName, DataType type, Int count = 1)
+    void addFixedAttribute(const String& attrName, DataType type, Int count = 1)
     {
-        addFixedAtribute(attrName, type, static_cast<ParticleSerialization::ElementSize>(sizeof(T)), count);
+        addFixedAttribute(attrName, type, static_cast<ParticleSerialization::ElementSize>(sizeof(T)), count);
     }
 
     template<class T>
-    void addParticleAtribute(const String& attrName, DataType type, Int count = 1)
+    void addParticleAttribute(const String& attrName, DataType type, Int count = 1)
     {
-        addParticleAtribute(attrName, type, static_cast<ParticleSerialization::ElementSize>(sizeof(T)), count);
+        addParticleAttribute(attrName, type, static_cast<ParticleSerialization::ElementSize>(sizeof(T)), count);
     }
 
-    void addFixedAtribute(const String& attrName, DataType type, ElementSize size, Int count = 1)
+    void addFixedAttribute(const String& attrName, DataType type, ElementSize size, Int count = 1)
     {
         __BNN_ASSERT(type == TypeChar || type == TypeInt || type == TypeUInt || type == TypeReal);
         m_FixedAttributes[attrName] = std::make_shared<Attribute>(attrName, type, size, count);
     }
 
-    void addParticleAtribute(const String& attrName, DataType type, ElementSize size, Int count = 1)
+    void addParticleAttribute(const String& attrName, DataType type, ElementSize size, Int count = 1)
     {
         m_ParticleAttributes[attrName] = std::make_shared<Attribute>(attrName, type, size, count);
     }

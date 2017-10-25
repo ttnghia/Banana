@@ -950,22 +950,22 @@ T fraction_inside(T phi_bl, T phi_br, T phi_tl, T phi_tr)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-Vec3<RealType> EulerToAxisAngle(Vec2<RealType> EulerAngles, bool bRadians = true)
+Vec3<RealType> EulerToAxisAngle(Vec2<RealType> EulerAngles, bool bRadiansIn = true, bool bRadiansOut = true)
 {
     __BNN_UNUSED(EulerAngles);
-    __BNN_UNUSED(bRadians);
+    __BNN_UNUSED(bRadiansIn);
     // This function is a fake function for 2D rotation, so the result is not correct
     return Vec3<RealType>(Vec2<RealType>(1), 0);
 }
 
 template<class RealType>
-Vec4<RealType> EulerToAxisAngle(Vec3<RealType> EulerAngles, bool bRadians = true)
+Vec4<RealType> EulerToAxisAngle(Vec3<RealType> EulerAngles, bool bRadiansIn = true, bool bRadiansOut = true)
 {
     if(glm::length2(EulerAngles) < Tiny) {
         return Vec4<RealType>(Vec3<RealType>(1.0), 0);
     }
 
-    if(!bRadians) {
+    if(!bRadiansIn) {
         EulerAngles.x = glm::radians(EulerAngles.x);
         EulerAngles.y = glm::radians(EulerAngles.y);
         EulerAngles.z = glm::radians(EulerAngles.z);
@@ -985,7 +985,7 @@ Vec4<RealType> EulerToAxisAngle(Vec3<RealType> EulerAngles, bool bRadians = true
     RealType y     = s1 * c2 * c3 + c1 * s2 * s3;
     RealType z     = c1 * s2 * c3 - s1 * c2 * s3;
     RealType angle = RealType(2.0) * acos(w);
-    if(!bRadians) {
+    if(!bRadiansIn && !bRadiansOut) {
         angle = glm::degrees(angle);
     }
 

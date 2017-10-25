@@ -154,6 +154,7 @@ void FLIP3DSolver::loadSimParams(const nlohmann::json& jParams)
     solverParams().movingBMax = box->boxMax();
 
 
+    JSONHelpers::readValue(jParams, solverParams().CFLFactor,      "CFLFactor");
     JSONHelpers::readValue(jParams, solverParams().particleRadius,      "ParticleRadius");
     JSONHelpers::readValue(jParams, solverParams().PIC_FLIP_ratio,      "PIC_FLIP_Ratio");
 
@@ -184,7 +185,7 @@ void FLIP3DSolver::generateParticles(const nlohmann::json& jParams)
     m_NSearch = std::make_unique<NeighborSearch::NeighborSearch3D>(solverParams().cellSize);
     if(!loadMemoryState()) {
         for(auto& generator : m_ParticleGenerators) {
-            generator->makeReady(solverParams().particleRadius);
+            generator->makeReady(m_BoundaryObjects, solverParams().particleRadius);
             UInt nGen = generator->generateParticles(particleData().positions, particleData().velocities);
             logger().printLog(String("Generated ") + NumberHelpers::formatWithCommas(nGen) + String(" particles by ") + generator->nameID());
         }
@@ -213,7 +214,7 @@ void FLIP3DSolver::advanceScene(UInt frame, Real fraction /*= Real(0)*/)
 
     bool bSDFRegenerated = false;
     for(auto& bdObj : m_BoundaryObjects) {
-        if(!bdObj->isDynamic()) {
+        if(bdObj->isDynamic()) {
             bdObj->generateSDF(solverParams().domainBMin, solverParams().domainBMax, solverParams().cellSize);
             logger().printLog(String("Re-computed SDF for dynamic boundary object: ") + bdObj->nameID(), spdlog::level::debug);
             bSDFRegenerated = true;
@@ -228,7 +229,6 @@ void FLIP3DSolver::advanceScene(UInt frame, Real fraction /*= Real(0)*/)
                                         for(auto& obj : m_BoundaryObjects) {
                                             minSD = MathHelpers::min(minSD, obj->getSDF()(i, j, k));
                                         }
-
                                         gridData().boundarySDF(i, j, k) = minSD + MEpsilon;
                                     });
         logger().printLog(String("Re-computed SDF boundary for entire scene."), spdlog::level::debug);
@@ -239,20 +239,20 @@ void FLIP3DSolver::advanceScene(UInt frame, Real fraction /*= Real(0)*/)
 void FLIP3DSolver::setupDataIO()
 {
     m_ParticleDataIO = std::make_unique<ParticleSerialization>(globalParams().dataPath, "FLIPData", "frame", m_Logger);
-    m_ParticleDataIO->addFixedAtribute<float>("particle_radius", ParticleSerialization::TypeReal, 1);
-    m_ParticleDataIO->addParticleAtribute<float>("position", ParticleSerialization::TypeCompressedReal, 3);
+    m_ParticleDataIO->addFixedAttribute<float>("particle_radius", ParticleSerialization::TypeReal, 1);
+    m_ParticleDataIO->addParticleAttribute<float>("position", ParticleSerialization::TypeCompressedReal, 3);
     if(globalParams().isSavingData("anisotropic_kernel")) {
-        m_ParticleDataIO->addParticleAtribute<float>("anisotropic_kernel", ParticleSerialization::TypeCompressedReal, 9);
+        m_ParticleDataIO->addParticleAttribute<float>("anisotropic_kernel", ParticleSerialization::TypeCompressedReal, 9);
     }
     if(globalParams().isSavingData("velocity")) {
-        m_ParticleDataIO->addParticleAtribute<float>("velocity", ParticleSerialization::TypeCompressedReal, 3);
+        m_ParticleDataIO->addParticleAttribute<float>("velocity", ParticleSerialization::TypeCompressedReal, 3);
     }
 
     ////////////////////////////////////////////////////////////////////////////////
     m_MemoryStateIO = std::make_unique<ParticleSerialization>(globalParams().dataPath, "FLIPState", "frame", m_Logger);
-    m_MemoryStateIO->addFixedAtribute<Real>("particle_radius", ParticleSerialization::TypeReal, 1);
-    m_MemoryStateIO->addParticleAtribute<Real>("position", ParticleSerialization::TypeReal, 3);
-    m_MemoryStateIO->addParticleAtribute<Real>("velocity", ParticleSerialization::TypeReal, 3);
+    m_MemoryStateIO->addFixedAttribute<Real>("particle_radius", ParticleSerialization::TypeReal, 1);
+    m_MemoryStateIO->addParticleAttribute<Real>("position", ParticleSerialization::TypeReal, 3);
+    m_MemoryStateIO->addParticleAttribute<Real>("velocity", ParticleSerialization::TypeReal, 3);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -356,7 +356,7 @@ void FLIP3DSolver::advanceVelocity(Real timestep)
     static bool weight_computed = false;
     if(!weight_computed) {
         logger().printRunTime("Compute cell weights: ", funcTimer, [&]() { computeFluidWeights(); });
-        weight_computed = true;
+        //weight_computed = true;
     }
 
 

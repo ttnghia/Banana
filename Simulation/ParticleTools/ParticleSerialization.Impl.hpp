@@ -309,11 +309,11 @@ template<Int N, class T>
 void Banana::ParticleSerialization::saveParticle(const String& fileName, const Vector<VecX<N, T> >& positions, T particleRadius, bool bCompress /*= true*/)
 {
     ParticleSerialization particleWriter;
-    particleWriter.addFixedAtribute<Real>("particle_radius", ParticleSerialization::TypeReal, 1);
+    particleWriter.addFixedAttribute<Real>("particle_radius", ParticleSerialization::TypeReal, 1);
     if(bCompress) {
-        particleWriter.addParticleAtribute<Real>("position", ParticleSerialization::TypeCompressedReal, 3);
+        particleWriter.addParticleAttribute<Real>("position", ParticleSerialization::TypeCompressedReal, 3);
     } else {
-        particleWriter.addParticleAtribute<Real>("position", ParticleSerialization::TypeReal, 3);
+        particleWriter.addParticleAttribute<Real>("position", ParticleSerialization::TypeReal, 3);
     }
     particleWriter.setNParticles(positions.size());
     particleWriter.setFixedAttribute("particle_radius", particleRadius);

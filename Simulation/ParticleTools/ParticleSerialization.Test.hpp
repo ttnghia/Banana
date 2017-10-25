@@ -96,15 +96,15 @@ void runTest(Int testID)
     ////////////////////////////////////////////////////////////////////////////////
     // write
     ParticleSerialization particleWriter("./Scratch", "Frames", "frame", logger);
-    particleWriter.addFixedAtribute(attrNames[0], ParticleSerialization::TypeReal, ParticleSerialization::Size32b);
-    particleWriter.addFixedAtribute(attrNames[1], ParticleSerialization::TypeReal, ParticleSerialization::Size32b, 3);
+    particleWriter.addFixedAttribute(attrNames[0], ParticleSerialization::TypeReal, ParticleSerialization::Size32b);
+    particleWriter.addFixedAttribute(attrNames[1], ParticleSerialization::TypeReal, ParticleSerialization::Size32b, 3);
 
-    particleWriter.addParticleAtribute(attrNames[2], ParticleSerialization::TypeReal, ParticleSerialization::Size32b, 3);
-    particleWriter.addParticleAtribute(attrNames[3], ParticleSerialization::TypeCompressedReal, ParticleSerialization::Size32b, 3);
-    particleWriter.addParticleAtribute(attrNames[4], ParticleSerialization::TypeCompressedReal, ParticleSerialization::Size64b, 3);
-    particleWriter.addParticleAtribute(attrNames[5], ParticleSerialization::TypeReal, ParticleSerialization::Size64b, 3);
-    particleWriter.addParticleAtribute(attrNames[6], ParticleSerialization::TypeCompressedReal, ParticleSerialization::Size32b);
-    particleWriter.addParticleAtribute(attrNames[7], ParticleSerialization::TypeVectorUInt, ParticleSerialization::Size32b);
+    particleWriter.addParticleAttribute(attrNames[2], ParticleSerialization::TypeReal, ParticleSerialization::Size32b, 3);
+    particleWriter.addParticleAttribute(attrNames[3], ParticleSerialization::TypeCompressedReal, ParticleSerialization::Size32b, 3);
+    particleWriter.addParticleAttribute(attrNames[4], ParticleSerialization::TypeCompressedReal, ParticleSerialization::Size64b, 3);
+    particleWriter.addParticleAttribute(attrNames[5], ParticleSerialization::TypeReal, ParticleSerialization::Size64b, 3);
+    particleWriter.addParticleAttribute(attrNames[6], ParticleSerialization::TypeCompressedReal, ParticleSerialization::Size32b);
+    particleWriter.addParticleAttribute(attrNames[7], ParticleSerialization::TypeVectorUInt, ParticleSerialization::Size32b);
 
 
     particleWriter.setNParticles(DATA_SIZE);

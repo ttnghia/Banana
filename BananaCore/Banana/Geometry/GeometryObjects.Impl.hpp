@@ -81,7 +81,6 @@ void Banana::GeometryObjects::GeometryObject<N, RealType >::setTranslation(const
 {
     m_Animation.keyFrames()[0].translation = translation;
     updateTransformation();
-    m_bTransformed = true;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -90,7 +89,6 @@ void Banana::GeometryObjects::GeometryObject<N, RealType >::setRotation(const Ve
 {
     m_Animation.keyFrames()[0].rotation = rotation;
     updateTransformation();
-    m_bTransformed = true;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -99,7 +97,6 @@ void Banana::GeometryObjects::GeometryObject<N, RealType >::setUniformScale(cons
 {
     m_Animation.keyFrames()[0].uniformScale = scaleVal;
     updateTransformation();
-    m_bTransformed = true;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -127,6 +124,7 @@ void GeometryObject<N, RealType >::updateTransformation(UInt frame /*= 0*/, Real
     m_InvTransformationMatrix = glm::inverse(m_TransformationMatrix);
     m_UniformScale            = m_Animation.getUniformScale(frame, fraction);
     m_InvScale                = m_Animation.getInvScale(frame, fraction);
+    m_bTransformed            = true;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -748,7 +746,7 @@ void computeSDFMesh(const Vector<Vec3ui>& faces, const Vec_Vec3f& vertices, cons
                                               for(UInt i = 0; i < ni; ++i) {
                                                   total_count += intersectionCount(i, j, k);
 
-                                                  if(total_count & 1) { // if parity of intersections so far is odd,
+                                                  if(total_count & 1) {             // if parity of intersections so far is odd,
                                                       SDF(i, j, k) = -SDF(i, j, k); // we are inside the mesh
                                                   }
                                               }

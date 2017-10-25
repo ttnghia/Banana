@@ -31,7 +31,7 @@ void BoundaryObjectInterface<N, RealType >::initBoundaryParticles(RealType parti
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-RealType BoundaryObjectInterface<N, RealType >::signedDistance(const VecX<N, RealType>& ppos, bool bUseCache)
+RealType BoundaryObjectInterface<N, RealType >::signedDistance(const VecX<N, RealType>& ppos, bool bUseCache /*= true*/)
 {
     if(bUseCache && m_bSDFGenerated) {
         return ArrayHelpers::interpolateValueLinear(m_Grid.getGridCoordinate(ppos), m_SDF);
@@ -42,7 +42,7 @@ RealType BoundaryObjectInterface<N, RealType >::signedDistance(const VecX<N, Rea
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-VecX<N, RealType> BoundaryObjectInterface<N, RealType >::gradSignedDistance(const VecX<N, RealType>& ppos, RealType dxyz, bool bUseCache)
+VecX<N, RealType> BoundaryObjectInterface<N, RealType >::gradSignedDistance(const VecX<N, RealType>& ppos, RealType dxyz, bool bUseCache /*= true*/)
 {
     if(bUseCache && m_bSDFGenerated) {
         return ArrayHelpers::interpolateGradient(m_Grid.getGridCoordinate(ppos), m_SDF);
@@ -53,7 +53,7 @@ VecX<N, RealType> BoundaryObjectInterface<N, RealType >::gradSignedDistance(cons
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void BoundaryObjectInterface<N, RealType >::generateSDF(const VecX<N, RealType>& domainBMin, const VecX<N, RealType>& domainBMax, RealType sdfCellSize, bool bUseCache)
+void BoundaryObjectInterface<N, RealType >::generateSDF(const VecX<N, RealType>& domainBMin, const VecX<N, RealType>& domainBMax, RealType sdfCellSize, bool bUseCache /*= true*/)
 {
     m_Grid.setGrid(domainBMin, domainBMax, sdfCellSize);
 
@@ -102,7 +102,7 @@ void BoundaryObject<2, RealType >::computeSDF()
     ParallelFuncs::parallel_for<UInt>(m_Grid.getNNodes(),
                                       [&](UInt i, UInt j)
                                       {
-                                          m_SDF(i, j) = signedDistance(m_Grid.getWorldCoordinate(i, j));
+                                          m_SDF(i, j) = signedDistance(m_Grid.getWorldCoordinate(i, j), false);
                                       });
 }
 
@@ -114,7 +114,7 @@ void BoundaryObject<3, RealType >::computeSDF()
     ParallelFuncs::parallel_for<UInt>(m_Grid.getNNodes(),
                                       [&](UInt i, UInt j, UInt k)
                                       {
-                                          m_SDF(i, j, k) = signedDistance(m_Grid.getWorldCoordinate(i, j, k));
+                                          m_SDF(i, j, k) = signedDistance(m_Grid.getWorldCoordinate(i, j, k), false);
                                       });
 }
 

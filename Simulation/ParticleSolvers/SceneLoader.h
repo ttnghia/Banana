@@ -125,7 +125,7 @@ void loadSimulationObject(const nlohmann::json& jParams, const SharedPtr<Simulat
     if(JSONHelpers::readVector(jParams, rotationEulerAngles, "RotationEulerAngles") || JSONHelpers::readVector(jParams, rotationEulerAngles, "RotationEulerAngle")) {
         obj->getGeometry()->setRotation(MathHelpers::EulerToAxisAngle(rotationEulerAngles, false));
     } else if(JSONHelpers::readVector(jParams, rotationAxisAngle, "RotationAxisAngle")) {
-        obj->getGeometry()->setRotation(rotationAxisAngle);
+        obj->getGeometry()->setRotation(glm::radians(rotationAxisAngle));
     }
 
     if(JSONHelpers::readValue(jParams, scale, "Scale")) {
@@ -136,8 +136,8 @@ void loadSimulationObject(const nlohmann::json& jParams, const SharedPtr<Simulat
     // animation data
     if(jParams.find("Animation") != jParams.end()) {
         obj->isDynamic() = true;
-        auto jAnimation = jParams["Animation"];
-        auto aniObj     = obj->getGeometry()->getAnimation();
+        auto  jAnimation = jParams["Animation"];
+        auto& aniObj     = obj->getGeometry()->getAnimation();
 
         bool bCubicInterpolationTranslation = true;
         bool bCubicInterpolationRotation    = true;
@@ -160,13 +160,13 @@ void loadSimulationObject(const nlohmann::json& jParams, const SharedPtr<Simulat
 
             VecX<N, Real> rotationEulerAngles;
             if(JSONHelpers::readVector(jKeyFrame, rotationEulerAngles, "RotationEulerAngles") || JSONHelpers::readVector(jKeyFrame, rotationEulerAngles, "RotationEulerAngle")) {
-                keyFrame.rotation = MathHelpers::EulerToAxisAngle(rotationEulerAngles, false);
+                keyFrame.rotation = MathHelpers::EulerToAxisAngle(rotationEulerAngles, false, true);
             } else {
                 JSONHelpers::readVector(jKeyFrame, keyFrame.rotation, "RotationAxisAngle");
+                keyFrame.rotation = glm::radians(keyFrame.rotation);
             }
 
             JSONHelpers::readValue(jKeyFrame, keyFrame.uniformScale, "Scale");
-
             aniObj.addKeyFrame(keyFrame);
         }
 

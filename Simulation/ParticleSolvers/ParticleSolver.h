@@ -220,15 +220,15 @@ void ParticleSolver<N, RealType >::loadScene(const String& sceneFile)
     if(m_DynamicObjects.size() > 0) {
         m_DynamicObjectDataIO = std::make_unique<ParticleSerialization>(globalParams().dataPath, "BoundaryData", "frame", m_Logger);
         for(const auto& obj : m_DynamicObjects) {
-            m_DynamicObjectDataIO->addFixedAtribute<float>(obj->nameID() + String("_transformation"), ParticleSerialization::TypeReal, (N + 1) * (N + 1));
+            m_DynamicObjectDataIO->addFixedAttribute<float>(obj->nameID() + String("_transformation"), ParticleSerialization::TypeReal, (N + 1) * (N + 1));
 
 
             ////////////////////////////////////////////////////////////////////////////////
             // specialized for box object
             auto box = dynamic_pointer_cast<GeometryObjects::BoxObject<N, RealType> >(obj->getGeometry());
             if(box != nullptr) {
-                m_DynamicObjectDataIO->addFixedAtribute<float>(obj->nameID() + String("_box_min"), ParticleSerialization::TypeReal, 3);
-                m_DynamicObjectDataIO->addFixedAtribute<float>(obj->nameID() + String("_box_max"), ParticleSerialization::TypeReal, 3);
+                m_DynamicObjectDataIO->addFixedAttribute<float>(obj->nameID() + String("_box_min"), ParticleSerialization::TypeReal, 3);
+                m_DynamicObjectDataIO->addFixedAttribute<float>(obj->nameID() + String("_box_max"), ParticleSerialization::TypeReal, 3);
             }
         }
     }
@@ -366,6 +366,14 @@ void Banana::ParticleSolvers::ParticleSolver<N, RealType >::saveFrameData()
         m_DynamicObjectDataIO->setNParticles(1);
         for(auto& obj : m_DynamicObjects) {
             m_DynamicObjectDataIO->setFixedAttribute(obj->nameID() + String("_transformation"), glm::value_ptr(obj->getGeometry()->getTransformationMatrix()));
+
+            ////////////////////////////////////////////////////////////////////////////////
+            // specialized for box object
+            auto box = dynamic_pointer_cast<GeometryObjects::BoxObject<N, RealType> >(obj->getGeometry());
+            if(box != nullptr) {
+                m_DynamicObjectDataIO->setFixedAttribute(obj->nameID() + String("_box_min"), box->originalBoxMin());
+                m_DynamicObjectDataIO->setFixedAttribute(obj->nameID() + String("_box_max"), box->originalBoxMax());
+            }
         }
         m_DynamicObjectDataIO->flushAsync(globalParams().finishedFrame);
     }

@@ -55,7 +55,8 @@ public:
         return currentFrame >= m_StartFrame && currentFrame <= m_MaxFrame && m_NGeneratedParticles < m_MaxNParticles;
     }
 
-    virtual void makeReady(RealType particleRadius);
+    virtual void makeReady(const Vector<SharedPtr<SimulationObjects::BoundaryObject<N, Real> > >& boundaryObjects,
+                           RealType particleRadius);
 
 protected:
     void relaxPositions(Vector<VecX<N, RealType> >& positions, RealType particleRadius);
@@ -90,7 +91,8 @@ protected:
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void Banana::SimulationObjects::ParticleGenerator<N, RealType >::makeReady(RealType particleRadius)
+void Banana::SimulationObjects::ParticleGenerator<N, RealType >::makeReady(const Vector<SharedPtr<SimulationObjects::BoundaryObject<N, Real> > >& boundaryObjects,
+                                                                           RealType particleRadius)
 {
     if(m_bObjReady) {
         return;
@@ -120,6 +122,12 @@ void Banana::SimulationObjects::ParticleGenerator<N, RealType >::makeReady(RealT
                         [&](const auto& idx)
                         {
                             VecX<N, RealType> ppos = boxMin + NumberHelpers::convert<RealType>(idx) * spacing;
+                            for(auto& bdObj : boundaryObjects) {
+                                if(bdObj->signedDistance(ppos) < 0) {
+                                    return;
+                                }
+                            }
+
                             if(m_GeometryObj->signedDistance(ppos) < 0) {
                                 m_ObjParticles.push_back(ppos);
                             }

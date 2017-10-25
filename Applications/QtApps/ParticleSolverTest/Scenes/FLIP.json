@@ -14,51 +14,55 @@
     {
         "SimulationDomainBox" :
         {
-            "BoxMin" : [-1, -1, -1],
-            "BoxMax" : [ 1, 1.5, 1]
+            "BoxMin" : [-1.5, -1.5, -1.5],
+            "BoxMax" : [ 1.5, 1.5, 1.5]
         },
         "CorrectPosition" : true,
         "RepulsiveForceStiffness" : 100,
         "PIC_FLIP_Ratio" : 0.97,
         "CGRelativeTolerance" : 1e-15,
         "MaxCGIteration" : 10000,
-        "ParticleRadius" : 0.0075
+        "ParticleRadius" : 0.0075,
+        "CFLFactor" : 0.5
     },
     "AdditionalBoundaryObjects":
     [
-    {
-        "GeometryType" : "TriMesh",
-        "UniqueName" : "TriMeshBoundary",
-        "CSGOperator" : "Union",
-        "Translation" : [0.0, 0.0, 0.0],
-        "Scale" : 2.0,
-        "MeshFile" : "D:/Programming/Banana/Assets/OBJ/bunny.obj",
-        "Animation" :
         {
-            "CubicInterpolationTranslation" : true,
-            "CubicInterpolationRotation" : true,
-            "CubicInterpolationScale" : true,
-            "KeyFrames":
-            [
-                {
-                    "Frame" : 150,
-                    "RotationEulerAngles" : [-90, 90, 0]
-                },
-                {
-                    "Frame" : 300,
-                    "RotationEulerAngles" : [0, 0, 0]
-                }
-            ]
+            "GeometryType" : "Box",
+            "UniqueName" : "BoxBoundary",
+            "CSGOperator" : "Intersection",
+            "BoxMin" : [-1, -0.5, -1],
+            "BoxMax" : [ 1, 0.5, 1],
+            "Animation" :
+            {
+                "Periodic" : true,
+                "StartFrame" : 50,
+                "CubicInterpolationRotation" : false,
+                "KeyFrames" :
+                [
+                    {
+                        "Frame" : 50,
+                        "RotationAxisAngle" : [1, 0, 0, 0]
+                    },
+                    {
+                        "Frame" : 150,
+                        "RotationAxisAngle" : [1, 0, 0, 180]
+                    },
+                    {
+                        "Frame" : 250,
+                        "RotationAxisAngle" : [1, 0, 0, 360]
+                    }
+                ]
+            }
         }
-    }
     ],
     "ParticleGenerators":
     [
         {
             "GeometryType" : "Sphere",
             "UniqueName" : "SphereParticleGenerator",
-            "Translation" : [0.0, 0.0, -0.2],
-            "Scale" : 0.3
+            "Translation" : [0.0, 0.0, 0.0],
+            "Scale" : 0.75
         }
     ],
     "VisualizationParameters":
