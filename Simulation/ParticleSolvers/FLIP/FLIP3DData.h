@@ -40,7 +40,7 @@ struct SimulationParameters_FLIP3D
 
     ////////////////////////////////////////////////////////////////////////////////
     Real minTimestep         = Real(1.0e-6);
-    Real maxTimestep         = Real(5.0e-4);
+    Real maxTimestep         = Real(1.0e-2);
     Real CFLFactor           = Real(1.0);
     Real PIC_FLIP_ratio      = Real(0.97);
     Real boundaryRestitution = Real(ParticleSolverConstants::DefaultBoundaryRestitution);
