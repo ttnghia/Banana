@@ -241,6 +241,21 @@ inline bool eraseUnorderedIfExist(Vector<T>& vec, const T& item)
     return false;
 }
 
+template<class T, class S>
+inline size_t eraseByMarker(Vector<T>& vec, const Vector<S>& marker)
+{
+    assert(marker.size() == vec.size());
+    size_t last = 0;
+    size_t i    = 0;
+    for(; i < vec.size(); ++i, ++last) {
+        while(marker[i] == S(1)) { ++i; }
+        if(i >= vec.size()) { break; }
+        vec[last] = vec[i];
+    }
+    vec.resize(last);
+    return marker.size() - last;
+}
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class T>
 inline bool replaceOnce(Vector<T>& vec, const T& oldElement, const T& newElement)

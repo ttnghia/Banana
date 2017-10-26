@@ -29,7 +29,7 @@ namespace Banana
 namespace ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-struct SimulationParameters_FLIP2D
+struct SimulationParameters_FLIP2D : public SimulationParameters
 {
     SimulationParameters_FLIP2D() { makeReady(); }
 
@@ -60,7 +60,7 @@ struct SimulationParameters_FLIP2D
     Real  sdfRadius;
 
     ////////////////////////////////////////////////////////////////////////////////
-    void makeReady()
+    virtual void makeReady() override
     {
         cellSize = particleRadius * Real(4.0);
 
@@ -72,7 +72,7 @@ struct SimulationParameters_FLIP2D
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    void printParams(const SharedPtr<Logger>& logger)
+    virtual void printParams(const SharedPtr<Logger>& logger) override
     {
         logger->printLog("FLIP-2D simulation parameters:");
         logger->printLogIndent("Max timestep: " + NumberHelpers::formatToScientific(maxTimestep));
@@ -97,28 +97,54 @@ struct SimulationParameters_FLIP2D
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 struct SimulationData_FLIP2D
 {
-    struct ParticleSimData
+    struct ParticleSimData : public ParticleData<2, Real>
     {
         Vec_Vec2r   positions;
-        Vec_Vec2r   positions_tmp;
         Vec_Vec2r   velocities;
-        Vec_VecUInt neighborList;
         Vec_Mat2x2r affineMatrix;
+        Vec_VecUInt neighborList;
 
-        UInt getNParticles() { return static_cast<UInt>(positions.size()); }
+        Vec_Vec2r positions_tmp;
 
-        void makeReady()
+        virtual UInt getNParticles() override { return static_cast<UInt>(positions.size()); }
+
+        virtual void reserve(UInt nParticles)
         {
-            positions_tmp.resize(positions.size());
-            velocities.resize(positions.size(), Vec2r(0));
+            positions.reserve(nParticles);
+            velocities.reserve(nParticles);
+            affineMatrix.reserve(nParticles);
+            neighborList.reserve(nParticles);
 
+            positions_tmp.reserve(nParticles);
+        }
+
+        virtual void addParticles(const Vec_Vec2r& newPositions, const Vec_Vec2r& newVelocities)
+        {
+            __BNN_ASSERT(newPositions.size() == newVelocities.size());
+            positions.insert(positions.end(), newPositions.begin(), newPositions.end());
+            velocities.insert(velocities.end(), newVelocities.begin(), newVelocities.end());
+            affineMatrix.resize(positions.size(), Mat2x2r(1.0));
             neighborList.resize(positions.size());
-            affineMatrix.resize(positions.size());
+            positions_tmp.resize(positions.size());
+        }
+
+        virtual void removeParticles(const Vec_Int8& removeMarker)
+        {
+            if(!STLHelpers::contain(removeMarker, Int8(1))) {
+                return;
+            }
+
+            STLHelpers::eraseByMarker(positions,    removeMarker);
+            STLHelpers::eraseByMarker(velocities,   removeMarker);
+            STLHelpers::eraseByMarker(affineMatrix, removeMarker); // need to erase, or just resize?
+            ////////////////////////////////////////////////////////////////////////////////
+            neighborList.resize(positions.size());
+            positions_tmp.resize(positions.size());
         }
     } particleSimData;
 
     // grid velocity
-    struct GridSimData
+    struct GridSimData : public GridData<2, Real>
     {
         Array2r u, v;
         Array2r du, dv;
@@ -132,26 +158,26 @@ struct SimulationData_FLIP2D
         Array2r fluidSDF;
         Array2r boundarySDF;
 
-        void makeReady(UInt ni, UInt nj)
+        virtual void resize(const Vec2<UInt>& gridSize)
         {
-            u.resize(ni + 1, nj);
-            du.resize(ni + 1, nj);
-            u_old.resize(ni + 1, nj);
-            u_temp.resize(ni + 1, nj);
-            u_weights.resize(ni + 1, nj);
-            u_valid.resize(ni + 1, nj);
-            u_valid_old.resize(ni + 1, nj);
+            u.resize(gridSize.x + 1, gridSize.y);
+            du.resize(gridSize.x + 1, gridSize.y);
+            u_old.resize(gridSize.x + 1, gridSize.y);
+            u_temp.resize(gridSize.x + 1, gridSize.y);
+            u_weights.resize(gridSize.x + 1, gridSize.y);
+            u_valid.resize(gridSize.x + 1, gridSize.y);
+            u_valid_old.resize(gridSize.x + 1, gridSize.y);
 
-            v.resize(ni, nj + 1);
-            dv.resize(ni, nj + 1);
-            v_old.resize(ni, nj + 1);
-            v_temp.resize(ni, nj + 1);
-            v_weights.resize(ni, nj + 1);
-            v_valid.resize(ni, nj + 1);
-            v_valid_old.resize(ni, nj + 1);
+            v.resize(gridSize.x, gridSize.y + 1);
+            dv.resize(gridSize.x, gridSize.y + 1);
+            v_old.resize(gridSize.x, gridSize.y + 1);
+            v_temp.resize(gridSize.x, gridSize.y + 1);
+            v_weights.resize(gridSize.x, gridSize.y + 1);
+            v_valid.resize(gridSize.x, gridSize.y + 1);
+            v_valid_old.resize(gridSize.x, gridSize.y + 1);
 
-            fluidSDF.resize(ni, nj, 0);
-            boundarySDF.resize(ni + 1, nj + 1, 0);
+            fluidSDF.resize(gridSize.x, gridSize.y, 0);
+            boundarySDF.resize(gridSize.x + 1, gridSize.y + 1, 0);
         }
 
         void backupGridVelocity()
@@ -166,23 +192,14 @@ struct SimulationData_FLIP2D
     Vec_Real           pressure;
 
     ////////////////////////////////////////////////////////////////////////////////
-
-    void reserve(UInt numParticles)
-    {
-        //positions.reserve(numParticles);
-        //velocities.reserve(numParticles);
-        //neighborList.reserve(numParticles);
-        //affineMatrix.reserve(numParticles);
-    }
-
-    void makeReady(UInt ni, UInt nj)
+    void makeReady(const Vec2<UInt>& gridSize)
     {
         particleSimData.makeReady();
-        gridSimData.makeReady(ni, nj);
+        gridSimData.resize(gridSize);
 
-        matrix.resize(ni * nj);
-        rhs.resize(ni * nj);
-        pressure.resize(ni * nj);
+        matrix.resize(gridSize.x * gridSize.y);
+        rhs.resize(gridSize.x * gridSize.y);
+        pressure.resize(gridSize.x * gridSize.y);
     }
 };
 

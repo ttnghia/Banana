@@ -42,7 +42,7 @@ void FLIP2DSolver::makeReady()
                               }
 
                               m_Grid.setGrid(solverParams().movingBMin, solverParams().movingBMax, solverParams().cellSize);
-                              solverData().makeReady(m_Grid.getNCells()[0], m_Grid.getNCells()[1]);
+                              solverData().makeReady(m_Grid.getNCells());
 
                               m_PCGSolver = std::make_unique<PCGSolver<Real> >();
                               m_PCGSolver->setSolverParameters(solverParams().CGRelativeTolerance, solverParams().maxCGIteration);
@@ -159,9 +159,17 @@ void FLIP2DSolver::generateParticles(const nlohmann::json& jParams)
     ParticleSolver2D::generateParticles(jParams);
 
     if(!loadMemoryState()) {
+        Vec_Vec2r tmpPositions;
+        Vec_Vec2r tmpVelocities;
         for(auto& generator : m_ParticleGenerators) {
             generator->makeReady(m_BoundaryObjects, solverParams().particleRadius);
-            generator->generateParticles(particleData().positions, particleData().velocities);
+            ////////////////////////////////////////////////////////////////////////////////
+            tmpPositions.resize(0);
+            tmpVelocities.resize(0);
+            UInt nGen = generator->generateParticles(particleData().positions, tmpPositions, tmpVelocities);
+            particleData().addParticles(tmpPositions, tmpVelocities);
+            ////////////////////////////////////////////////////////////////////////////////
+            logger().printLog(String("Generated ") + NumberHelpers::formatWithCommas(nGen) + String(" particles by ") + generator->nameID());
         }
         sortParticles();
     }
@@ -170,14 +178,45 @@ void FLIP2DSolver::generateParticles(const nlohmann::json& jParams)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 bool FLIP2DSolver::advanceScene(UInt frame, Real fraction /*= Real(0)*/)
 {
-    ParticleSolver2D::advanceScene(frame, fraction);
+    bool bSceneChanged = ParticleSolver2D::advanceScene(frame, fraction);
 
+    ////////////////////////////////////////////////////////////////////////////////
+    static Vec_Vec2r tmpPositions;
+    static Vec_Vec2r tmpVelocities;
+    UInt             nNewParticles = 0;
     for(auto& generator : m_ParticleGenerators) {
         if(!generator->isActive(frame)) {
-            generator->generateParticles(particleData().positions, particleData().velocities, frame);
-            particleData().makeReady();
+            tmpPositions.resize(0);
+            tmpVelocities.resize(0);
+            UInt nGen = generator->generateParticles(particleData().positions, tmpPositions, tmpVelocities, frame);
+            particleData().addParticles(tmpPositions, tmpVelocities);
+            ////////////////////////////////////////////////////////////////////////////////
+            logger().printLog(String("Generated ") + NumberHelpers::formatWithCommas(nGen) + String(" new particles by ") + generator->nameID());
+            nNewParticles += nGen;
         }
     }
+
+    if(!bSceneChanged) {
+        return false;
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////
+    bool bSDFRegenerated = false;
+    for(auto& bdObj : m_BoundaryObjects) {
+        if(bdObj->isDynamic()) {
+            bdObj->generateSDF(solverParams().domainBMin, solverParams().domainBMax, solverParams().cellSize);
+            logger().printLog(String("Re-computed SDF for dynamic boundary object: ") + bdObj->nameID(), spdlog::level::debug);
+            bSDFRegenerated = true;
+        }
+    }
+
+    __BNN_TODO
+    //if(bSDFRegenerated) {
+    //logger().printRunTime("Re-computed SDF boundary for entire scene: ", [&]() { gridData().computeBoundarySDF(m_BoundaryObjects); });
+    //}
+
+    ////////////////////////////////////////////////////////////////////////////////
+    return true;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -382,13 +421,13 @@ void FLIP2DSolver::computeFluidWeights()
                                           if(valid_index_u) {
                                               const Real tmp = Real(1.0) - MathHelpers::fraction_inside(gridData().boundarySDF(i, j),
                                                                                                         gridData().boundarySDF(i, j + 1));
-                                              gridData().u_weights(i, j) = MathHelpers::clamp(tmp, Real(0), Real(1.0));
+                                                                                                        gridData().u_weights(i, j) = MathHelpers::clamp(tmp, Real(0), Real(1.0));
                                           }
 
                                           if(valid_index_v) {
                                               const Real tmp = Real(1.0) - MathHelpers::fraction_inside(gridData().boundarySDF(i, j),
                                                                                                         gridData().boundarySDF(i, j + 1));
-                                              gridData().v_weights(i, j) = MathHelpers::clamp(tmp, Real(0), Real(1.0));
+                                                                                                        gridData().v_weights(i, j) = MathHelpers::clamp(tmp, Real(0), Real(1.0));
                                           }
                                       });
 }

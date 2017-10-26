@@ -42,7 +42,7 @@ void FLIP3DSolver::makeReady()
                               }
 
                               m_Grid.setGrid(solverParams().domainBMin, solverParams().domainBMax, solverParams().cellSize);
-                              solverData().makeReady(m_Grid.getNCells()[0], m_Grid.getNCells()[1], m_Grid.getNCells()[2]);
+                              solverData().makeReady(m_Grid.getNCells());
 
                               m_PCGSolver = std::make_unique<PCGSolver<Real> >();
                               m_PCGSolver->setSolverParameters(solverParams().CGRelativeTolerance, solverParams().maxCGIteration);
@@ -127,13 +127,16 @@ void FLIP3DSolver::sortParticles()
 void FLIP3DSolver::loadSimParams(const nlohmann::json& jParams)
 {
     __BNN_ASSERT(m_BoundaryObjects.size() > 0);
-    SharedPtr<GeometryObjects::BoxObject<3, Real> > box = static_pointer_cast<GeometryObjects::BoxObject<3, Real> >(m_BoundaryObjects[0]->getGeometry());
+    SharedPtr<GeometryObjects::BoxObject<3, Real> > box = dynamic_pointer_cast<GeometryObjects::BoxObject<3, Real> >(m_BoundaryObjects[0]->getGeometry());
     __BNN_ASSERT(box != nullptr);
     solverParams().movingBMin = box->boxMin();
     solverParams().movingBMax = box->boxMax();
 
 
+    JSONHelpers::readValue(jParams, solverParams().minTimestep,         "MinTimestep");
+    JSONHelpers::readValue(jParams, solverParams().maxTimestep,         "MaxTimestep");
     JSONHelpers::readValue(jParams, solverParams().CFLFactor,           "CFLFactor");
+
     JSONHelpers::readValue(jParams, solverParams().particleRadius,      "ParticleRadius");
     JSONHelpers::readValue(jParams, solverParams().PIC_FLIP_ratio,      "PIC_FLIP_Ratio");
 
@@ -163,9 +166,16 @@ void FLIP3DSolver::generateParticles(const nlohmann::json& jParams)
     ParticleSolver3D::generateParticles(jParams);
     m_NSearch = std::make_unique<NeighborSearch::NeighborSearch3D>(solverParams().cellSize);
     if(!loadMemoryState()) {
+        Vec_Vec3r tmpPositions;
+        Vec_Vec3r tmpVelocities;
         for(auto& generator : m_ParticleGenerators) {
             generator->makeReady(m_BoundaryObjects, solverParams().particleRadius);
-            UInt nGen = generator->generateParticles(particleData().positions, particleData().velocities);
+            ////////////////////////////////////////////////////////////////////////////////
+            tmpPositions.resize(0);
+            tmpVelocities.resize(0);
+            UInt nGen = generator->generateParticles(particleData().positions, tmpPositions, tmpVelocities);
+            particleData().addParticles(tmpPositions, tmpVelocities);
+            ////////////////////////////////////////////////////////////////////////////////
             logger().printLog(String("Generated ") + NumberHelpers::formatWithCommas(nGen) + String(" particles by ") + generator->nameID());
         }
         m_NSearch->add_point_set(glm::value_ptr(particleData().positions.front()), particleData().getNParticles(), true, true);
@@ -181,18 +191,19 @@ bool FLIP3DSolver::advanceScene(UInt frame, Real fraction /*= Real(0)*/)
     bool bSceneChanged = ParticleSolver3D::advanceScene(frame, fraction);
 
     ////////////////////////////////////////////////////////////////////////////////
-    UInt nNewParticles = 0;
+    static Vec_Vec3r tmpPositions;
+    static Vec_Vec3r tmpVelocities;
+    UInt             nNewParticles = 0;
     for(auto& generator : m_ParticleGenerators) {
         if(!generator->isActive(frame)) {
-            UInt nGen = generator->generateParticles(particleData().positions, particleData().velocities, frame);
+            tmpPositions.resize(0);
+            tmpVelocities.resize(0);
+            UInt nGen = generator->generateParticles(particleData().positions, tmpPositions, tmpVelocities, frame);
+            particleData().addParticles(tmpPositions, tmpVelocities);
+            ////////////////////////////////////////////////////////////////////////////////
             logger().printLog(String("Generated ") + NumberHelpers::formatWithCommas(nGen) + String(" new particles by ") + generator->nameID());
             nNewParticles += nGen;
         }
-    }
-
-    if(nNewParticles > 0) {
-        __BNN_TODO_MSG("Instead of make ready, just call addParticles")
-        particleData().makeReady();
     }
 
     if(!bSceneChanged) {
@@ -337,7 +348,7 @@ void FLIP3DSolver::advanceVelocity(Real timestep)
     logger().printRunTime("Interpolate velocity from particles to grid: ", funcTimer, [&]() { velocityToGrid(); });
     logger().printRunTime("Extrapolate grid velocity: : ",                 funcTimer, [&]() { extrapolateVelocity(); });
     logger().printRunTime("Constrain grid velocity: ",                     funcTimer, [&]() { constrainGridVelocity(); });
-    logger().printRunTime("Backup grid velocities: ",                      funcTimer, [&]() { solverData().backupGridVelocity(); });
+    logger().printRunTime("Backup grid velocities: ",                      funcTimer, [&]() { gridData().backupGridVelocity(); });
     logger().printRunTime("Add gravity: ",                                 funcTimer, [&]() { addGravity(timestep); });
     logger().printRunTime("====> Pressure projection total: ",             funcTimer, [&]() { pressureProjection(timestep); });
     logger().printRunTime("Extrapolate grid velocity: : ",                 funcTimer, [&]() { extrapolateVelocity(); });

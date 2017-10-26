@@ -21,6 +21,7 @@
 
 #include <QObject>
 #include <QStringList>
+#include <future>
 
 #include "Common.h"
 #include "ParticleSolverQt.h"
@@ -31,17 +32,15 @@ class Simulator : public QObject
     Q_OBJECT
 
 public:
-    Simulator();
-    virtual ~Simulator() { Logger::shutdown(); }
+    Simulator() { m_ParticleSolver = std::make_unique<ParticleSolverQt>(); }
     void setParticleSystemData(const std::shared_ptr<ParticleSystemData>& particleData) { m_ParticleData = particleData; }
-
     bool isRunning() { return !m_bStop; }
     void stop();
     void reset();
     void startSimulation();
     void resume();
 
-    const std::unique_ptr<ParticleSolverQt>& getSolver() const { return m_ParticleSolver; }
+    const auto& getSolver() const { return m_ParticleSolver; }
 
 public slots:
     void doSimulation();
@@ -52,17 +51,17 @@ signals:
     void domainChanged(const Vec3f& boxMin, const Vec3f& boxMax);
     void simulationFinished();
     void systemTimeChanged(float time);
-    void numParticleChanged(unsigned int numParticles);
+    void numParticleChanged(UInt numParticles);
     void particleChanged();
     void frameFinished();
 
 protected:
-    std::shared_ptr<ParticleSystemData> m_ParticleData = nullptr;
-    std::unique_ptr<ParticleSolverQt>   m_ParticleSolver;
+    std::shared_ptr<ParticleSystemData> m_ParticleData   = nullptr;
+    std::unique_ptr<ParticleSolverQt>   m_ParticleSolver = nullptr;
+    std::future<void>                   m_SimulationFutureObj;
 
-    std::future<void> m_SimulationFutureObj;
-    QString           m_Scene;
-    volatile bool     m_bStop             = true;
-    volatile bool     m_bWaitForSavingImg = false;
-    volatile bool     m_bExportImg        = false;
+    QString       m_Scene;
+    volatile bool m_bStop             = true;
+    volatile bool m_bWaitForSavingImg = false;
+    volatile bool m_bExportImg        = false;
 };

@@ -59,7 +59,14 @@ public:
 
     UInt generateBoundaryParticles(Vec_VecX<N, RealType>& PDPositions, RealType particleRadius, Int numBDLayers = 2, bool useCache = true);
 protected:
-    virtual void generateBoundaryParticles_Impl(Vec_VecX<N, RealType>& PDPositions, RealType particleRadius, Int numBDLayers) { __BNN_TODO }
+    virtual void generateBoundaryParticles_Impl(Vec_VecX<N, RealType>& PDPositions, RealType particleRadius, Int numBDLayers)
+    {
+        __BNN_UNUSED(PDPositions);
+        __BNN_UNUSED(particleRadius);
+        __BNN_UNUSED(numBDLayers);
+        __BNN_TODO
+    }
+
     virtual void generateSDF_Impl() = 0;
 
     RealType m_Margin           = RealType(0.0);

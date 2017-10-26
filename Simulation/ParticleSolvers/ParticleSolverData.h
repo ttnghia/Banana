@@ -20,8 +20,11 @@
 #include <Banana/Setup.h>
 #include <Banana/Utils/MathHelpers.h>
 #include <Banana/Utils/NumberHelpers.h>
+#include <Banana/Utils/STLHelpers.h>
 #include <Banana/Utils/Logger.h>
+
 #include <string>
+#include <numeric>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -118,10 +121,11 @@ struct SimulationParameters
 template<Int N, class RealType>
 struct ParticleData
 {
-    virtual void reserve(UInt nParticles) {}
-    virtual void addParticles(const Vec_VecX<N, RealType>& positions, const Vec_VecX<N, RealType>& velocities) = 0;
+    virtual UInt getNParticles() = 0;
+    virtual void reserve(UInt nParticles) = 0;
+    virtual void addParticles(const Vec_VecX<N, RealType>& newPositions, const Vec_VecX<N, RealType>& newVelocities) = 0;
     virtual void removeParticles(const Vec_Int8& removeMarker) = 0;
-    virtual void makeReady() = 0;
+    virtual void makeReady() {}
 };
 
 
@@ -130,7 +134,7 @@ template<Int N, class RealType>
 struct GridData
 {
     virtual void resize(const VecX<N, UInt>& gridSize) = 0;
-    virtual void makeReady() = 0;
+    virtual void makeReady() {}
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

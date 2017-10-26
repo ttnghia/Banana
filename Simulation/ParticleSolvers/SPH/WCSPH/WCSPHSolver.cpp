@@ -131,9 +131,16 @@ void WCSPHSolver::generateParticles(const nlohmann::json& jParams)
     ParticleSolver3D::generateParticles(jParams);
     m_NSearch = std::make_unique<NeighborSearch::NeighborSearch3D>(solverParams().kernelRadius);
     if(!loadMemoryState()) {
+        Vec_Vec3r tmpPositions;
+        Vec_Vec3r tmpVelocities;
         for(auto& generator : m_ParticleGenerators) {
             generator->makeReady(m_BoundaryObjects, solverParams().particleRadius);
-            UInt nGen = generator->generateParticles(solverData().positions, solverData().velocities);
+            ////////////////////////////////////////////////////////////////////////////////
+            tmpPositions.resize(0);
+            tmpVelocities.resize(0);
+            UInt nGen = generator->generateParticles(solverData().positions, tmpPositions, tmpVelocities);
+            solverData().addParticles(tmpPositions, tmpVelocities);
+            ////////////////////////////////////////////////////////////////////////////////
             logger().printLog(String("Generated ") + NumberHelpers::formatWithCommas(nGen) + String(" particles by ") + generator->nameID());
         }
         m_NSearch->add_point_set(glm::value_ptr(solverData().positions.front()), solverData().getNParticles(), true, true);
@@ -167,13 +174,43 @@ void WCSPHSolver::generateParticles(const nlohmann::json& jParams)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 bool WCSPHSolver::advanceScene(UInt frame, Real fraction /*= Real(0)*/)
 {
-    ParticleSolver3D::advanceScene(frame, fraction);
+    bool bSceneChanged = ParticleSolver3D::advanceScene(frame, fraction);
+
+    ////////////////////////////////////////////////////////////////////////////////
+    static Vec_Vec3r tmpPositions;
+    static Vec_Vec3r tmpVelocities;
+    UInt             nNewParticles = 0;
     for(auto& generator : m_ParticleGenerators) {
         if(!generator->isActive(frame)) {
-            UInt nGen = generator->generateParticles(solverData().positions, solverData().velocities, frame);
+            tmpPositions.resize(0);
+            tmpVelocities.resize(0);
+            UInt nGen = generator->generateParticles(solverData().positions, tmpPositions, tmpVelocities, frame);
+            solverData().addParticles(tmpPositions, tmpVelocities);
+            ////////////////////////////////////////////////////////////////////////////////
             logger().printLog(String("Generated ") + NumberHelpers::formatWithCommas(nGen) + String(" new particles by ") + generator->nameID());
+            nNewParticles += nGen;
         }
     }
+
+    if(!bSceneChanged) {
+        return false;
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////
+    //bool bSDFRegenerated = false;
+    //for(auto& bdObj : m_BoundaryObjects) {
+    //    if(bdObj->isDynamic()) {
+    //        bdObj->generateSDF(solverParams().domainBMin, solverParams().domainBMax, solverParams().cellSize);
+    //        logger().printLog(String("Re-computed SDF for dynamic boundary object: ") + bdObj->nameID(), spdlog::level::debug);
+    //        bSDFRegenerated = true;
+    //    }
+    //}
+
+    //if(bSDFRegenerated) {
+    //    logger().printRunTime("Re-computed SDF boundary for entire scene: ", [&]() { gridData().computeBoundarySDF(m_BoundaryObjects); });
+    //}
+
+    ////////////////////////////////////////////////////////////////////////////////
     return true;
 }
 

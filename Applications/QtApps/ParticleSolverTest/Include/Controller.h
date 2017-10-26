@@ -35,12 +35,7 @@ class Controller : public QWidget
     Q_OBJECT
     friend class MainWindow;
 public:
-    explicit Controller(QWidget* parent) : QWidget(parent)
-    {
-        setupGUI();
-    }
-
-//    void disableParameters(bool disable);
+    explicit Controller(QWidget* parent) : QWidget(parent) { setupGUI(); }
 
 public slots:
     void loadTextures();
@@ -52,20 +47,21 @@ private:
     void setupColorControllers(QBoxLayout* ctrLayout);
 
     ////////////////////////////////////////////////////////////////////////////////
-    QComboBox*     m_cbSimulationScene;
-    QSignalMapper* m_smParticleColorMode;
-
     EnhancedComboBox* m_cbSkyTexture;
     EnhancedComboBox* m_cbFloorTexture;
     EnhancedSlider*   m_sldFloorSize;
     EnhancedSlider*   m_sldFloorExposure;
     MaterialSelector* m_msParticleMaterial;
 
+    QSignalMapper* m_smParticleColorMode;
+    QComboBox*     m_cbSimulationScene;
+
     QCheckBox*        m_chkEnableOutput;
     BrowsePathWidget* m_OutputPath;
-    QPushButton*      m_btnStartStopSimulation;
-    QPushButton*      m_btnEditClipPlane;
-    QPushButton*      m_btnEnableClipPlane;
+
+    QPushButton* m_btnStartStopSimulation;
+    QPushButton* m_btnEditClipPlane;
+    QPushButton* m_btnEnableClipPlane;
 
     PointLightEditor* m_LightEditor;
 };

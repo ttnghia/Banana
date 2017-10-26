@@ -25,7 +25,7 @@
 #include <functional>
 #include <vector>
 
-//#define __Banana_No_Parallel
+#define __Banana_No_Parallel
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
 {
@@ -37,8 +37,7 @@ template<class IndexType, class Function>
 inline void parallel_for(IndexType beginIdx, IndexType endIdx, const Function& function)
 {
 #if defined(__Banana_No_Parallel) || defined(__Banana_Disable_Parallel) || defined(__BNN_NO_PARALLEL) || defined(__BNN_DISABLE_PARALLEL)
-    for(IndexType i = beginIdx; i < endIdx; ++i)
-    {
+    for(IndexType i = beginIdx; i < endIdx; ++i) {
         function(i);
     }
 #else

@@ -27,7 +27,7 @@ namespace Banana
 namespace ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-struct SimulationParameters_Snow2D
+struct SimulationParameters_Snow2D : public SimulationParameters
 {
     SimulationParameters_Snow2D() { makeReady(); }
 
@@ -57,35 +57,35 @@ struct SimulationParameters_Snow2D
 
     Real  cellSize                    = ParticleSolverConstants::DefaultCellSize;
     Real  ratioCellSizeParticleRadius = Real(2.0);
-    Vec2r domainBMin                  = Vec2r(0.0);
-    Vec2r domainBMax                  = Vec2r(1.0);
+    Vec2r movingBMin                  = Vec2r(-1.0);
+    Vec2r movingBMax                  = Vec2r(1.0);
 
     // the following need to be computed
-    Real particleRadius;
-    Real particleMass;
+    Real  particleRadius;
+    Real  particleMass;
+    Vec2r domainBMin;
+    Vec2r domainBMax;
 
-    Real  cellArea;
-    Vec2r movingBMin;
-    Vec2r movingBMax;
+    Real cellArea;
 
     Real lambda, mu; //Lame parameters (_s denotes starting configuration)
 
     ////////////////////////////////////////////////////////////////////////////////
-    void makeReady()
+    virtual void makeReady() override
     {
         particleRadius = cellSize / ratioCellSizeParticleRadius;
         particleMass   = particleRadius * particleRadius * materialDensity;
 
         cellArea   = cellSize * cellSize;
-        movingBMin = domainBMin + Vec2r(cellSize * ParticleSolverConstants::DefaultExpandCells);
-        movingBMax = domainBMax - Vec2r(cellSize * ParticleSolverConstants::DefaultExpandCells);
+        domainBMin = movingBMin - Vec2r(cellSize * ParticleSolverConstants::DefaultExpandCells);
+        domainBMax = movingBMax + Vec2r(cellSize * ParticleSolverConstants::DefaultExpandCells);
 
         lambda = YoungsModulus * PoissonsRatio / ((Real(1.0) + PoissonsRatio) * (Real(1.0) - Real(2.0) * PoissonsRatio)),
         mu     = YoungsModulus / (Real(2.0) + Real(2.0) * PoissonsRatio);
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    void printParams(const std::shared_ptr<Logger>& logger)
+    virtual void printParams(const SharedPtr<Logger>& logger) override
     {
         logger->printLog("MPM-3D simulation parameters:");
         logger->printLogIndent("Maximum timestep: " + NumberHelpers::formatToScientific(maxTimestep));
@@ -116,7 +116,7 @@ struct SimulationParameters_Snow2D
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 struct SimulationData_Snow2D
 {
-    struct ParticleSimData
+    struct ParticleSimData : public ParticleData<2, Real>
     {
         //    Vec_Vec2r   positions_tmp;
         //    Vec_VecUInt neighborList;
@@ -141,63 +141,94 @@ struct SimulationData_Snow2D
         Vec_Vec2r weightGradients;         // * 16
         Vec_Real  weights;                 // * 16
 
-        void addParticle(const Vec2r& pos, const Vec2r& vel = Vec2r(0))
+        ////////////////////////////////////////////////////////////////////////////////
+        virtual UInt getNParticles() override { return static_cast<UInt>(positions.size()); }
+
+        virtual void reserve(UInt nParticles)
         {
-            positions.push_back(pos);
-            velocities.push_back(vel);
-            volumes.push_back(0);
-            densities.push_back(0);
-            velocityGradients.push_back(Mat2x2r(1.0));
+            positions.reserve(nParticles);
+            velocities.reserve(nParticles);
+            volumes.reserve(nParticles);
+            densities.reserve(nParticles);
+            velocityGradients.reserve(nParticles);
 
-            elasticDeformGrad.push_back(Mat2x2r(1.0));
-            plasticDeformGrad.push_back(Mat2x2r(1.0));
-            svd_w.push_back(Mat2x2r(1.0));
-            svd_e.push_back(Vec2r(1.0));
-            svd_v.push_back(Mat2x2r(1.0));
-            polar_r.push_back(Mat2x2r(1.0));
-            polar_s.push_back(Mat2x2r(1.0));
+            elasticDeformGrad.reserve(nParticles);
+            plasticDeformGrad.reserve(nParticles);
 
-            particleGridPos.push_back(Vec2r(0));
+            svd_w.reserve(nParticles);
+            svd_e.reserve(nParticles);
+            svd_v.reserve(nParticles);
 
-            for(int i = 0; i < 16; ++i) {
-                weightGradients.push_back(Vec2r(0));
-                weights.push_back(Real(0));
+            polar_r.reserve(nParticles);
+            polar_s.reserve(nParticles);
+
+            particleGridPos.reserve(nParticles);
+
+            weightGradients.reserve(nParticles * 16);
+            weights.reserve(nParticles * 16);
+        }
+
+        virtual void addParticles(const Vec_Vec2r& newPositions, const Vec_Vec2r& newVelocities)
+        {
+            __BNN_ASSERT(newPositions.size() == newVelocities.size());
+            reserve(static_cast<UInt>(newPositions.size()));
+
+            for(size_t p = 0; p < newPositions.size(); ++p) {
+                positions.push_back(newPositions[p]);
+                velocities.push_back(newVelocities[p]);
+                volumes.push_back(0);
+                densities.push_back(0);
+                velocityGradients.push_back(Mat2x2r(1.0));
+
+                elasticDeformGrad.push_back(Mat2x2r(1.0));
+                plasticDeformGrad.push_back(Mat2x2r(1.0));
+                svd_w.push_back(Mat2x2r(1.0));
+                svd_e.push_back(Vec2r(1.0));
+                svd_v.push_back(Mat2x2r(1.0));
+                polar_r.push_back(Mat2x2r(1.0));
+                polar_s.push_back(Mat2x2r(1.0));
+
+                particleGridPos.push_back(Vec2r(0));
+
+                for(int i = 0; i < 16; ++i) {
+                    weightGradients.push_back(Vec2r(0));
+                    weights.push_back(Real(0));
+                }
             }
         }
 
-        ////////////////////////////////////////////////////////////////////////////////
-
-        void reserve(UInt numParticles)
+        virtual void removeParticles(const Vec_Int8& removeMarker)
         {
-            positions.reserve(numParticles);
-            velocities.reserve(numParticles);
-            volumes.reserve(numParticles);
-            densities.reserve(numParticles);
-            velocityGradients.reserve(numParticles);
+            if(!STLHelpers::contain(removeMarker, Int8(1))) {
+                return;
+            }
 
-            elasticDeformGrad.reserve(numParticles);
-            plasticDeformGrad.reserve(numParticles);
+            STLHelpers::eraseByMarker(positions,         removeMarker);
+            STLHelpers::eraseByMarker(velocities,        removeMarker);
+            STLHelpers::eraseByMarker(volumes,           removeMarker);   // need to erase, or just resize?
+            STLHelpers::eraseByMarker(densities,         removeMarker);   // need to erase, or just resize?
+            STLHelpers::eraseByMarker(velocityGradients, removeMarker);   // need to erase, or just resize?
+            ////////////////////////////////////////////////////////////////////////////////
+            elasticDeformGrad.resize(positions.size());
+            plasticDeformGrad.resize(positions.size());
 
-            svd_w.reserve(numParticles);
-            svd_e.reserve(numParticles);
-            svd_v.reserve(numParticles);
+            svd_w.resize(positions.size());
+            svd_e.resize(positions.size());
+            svd_v.resize(positions.size());
 
-            polar_r.reserve(numParticles);
-            polar_s.reserve(numParticles);
+            polar_r.resize(positions.size());
+            polar_s.resize(positions.size());
 
-            particleGridPos.reserve(numParticles);
+            particleGridPos.resize(positions.size());
 
-            weightGradients.reserve(numParticles * 16);
-            weights.reserve(numParticles * 16);
+            weightGradients.resize(positions.size());
+            weights.resize(positions.size());
         }
-
-        void makeReady() {}
     } particleSimData;
 
-    UInt getNParticles() { return static_cast<UInt>(particleSimData.positions.size()); }
 
     ////////////////////////////////////////////////////////////////////////////////
-    struct GridSimData
+    struct GridSimData : public GridData<2, Real>
     {
         Array2r         mass;
         Array2c         active;
@@ -216,7 +247,7 @@ struct SimulationData_Snow2D
         Array2r        boundarySDF;
 
         ////////////////////////////////////////////////////////////////////////////////
-        void resize(Vec2ui gridSize)
+        virtual void resize(const Vec2<UInt>& gridSize)
         {
             mass.resize(gridSize);
             active.resize(gridSize);
@@ -252,8 +283,6 @@ struct SimulationData_Snow2D
             rDotEr.assign(Real(0));
         }
     } gridSimData;
-
-    void makeReady() {}
 };
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 };      // end namespace ParticleSolvers

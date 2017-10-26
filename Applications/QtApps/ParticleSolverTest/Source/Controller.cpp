@@ -57,7 +57,6 @@ void Controller::loadTextures()
     m_cbSkyTexture->getComboBox()->clear();
     m_cbSkyTexture->getComboBox()->addItem("None");
     m_cbSkyTexture->getComboBox()->addItems(getTextureFolders("Sky"));
-
     m_cbSkyTexture->getComboBox()->setCurrentIndex(currentSkyTexID > 0 ? currentSkyTexID : 0);
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -66,7 +65,6 @@ void Controller::loadTextures()
     m_cbFloorTexture->getComboBox()->clear();
     m_cbFloorTexture->getComboBox()->addItem("None");
     m_cbFloorTexture->getComboBox()->addItems(getTextureFiles("Floor"));
-
     m_cbFloorTexture->getComboBox()->setCurrentIndex(currentFloorTexID > 0 ? currentFloorTexID : 0);
 }
 
@@ -74,7 +72,6 @@ void Controller::loadTextures()
 void Controller::setupSimulationControllers(QVBoxLayout* ctrLayout)
 {
     m_cbSimulationScene = new QComboBox;
-//    m_cbSimulationScene->addItem("None");
     m_cbSimulationScene->addItems(getSceneFiles());
 
     ////////////////////////////////////////////////////////////////////////////////

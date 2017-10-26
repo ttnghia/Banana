@@ -109,11 +109,11 @@ void PeridynamicsSolver::loadSimParams(const nlohmann::json& jParams)
     solverParams().domainBMax = box->boxMax();
 
 
-    JSONHelpers::readValue(jParams, solverParams().particleRadius, "ParticleRadius");
+    JSONHelpers::readValue(jParams, solverParams().particleRadius,      "ParticleRadius");
 
     JSONHelpers::readValue(jParams, solverParams().boundaryRestitution, "BoundaryRestitution");
     JSONHelpers::readValue(jParams, solverParams().CGRelativeTolerance, "CGRelativeTolerance");
-    JSONHelpers::readValue(jParams, solverParams().maxCGIteration, "MaxCGIteration");
+    JSONHelpers::readValue(jParams, solverParams().maxCGIteration,      "MaxCGIteration");
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -122,9 +122,17 @@ void PeridynamicsSolver::generateParticles(const nlohmann::json& jParams)
     ParticleSolver3D::generateParticles(jParams);
 
     if(!loadMemoryState()) {
+        Vec_Vec3r tmpPositions;
+        Vec_Vec3r tmpVelocities;
         for(auto& generator : m_ParticleGenerators) {
             generator->makeReady(m_BoundaryObjects, solverParams().particleRadius);
-            generator->generateParticles(solverData().positions, solverData().velocities);
+            ////////////////////////////////////////////////////////////////////////////////
+            tmpPositions.resize(0);
+            tmpVelocities.resize(0);
+            UInt nGen = generator->generateParticles(solverData().positions, tmpPositions, tmpVelocities);
+            solverData().addParticles(tmpPositions, tmpVelocities);
+            ////////////////////////////////////////////////////////////////////////////////
+            logger().printLog(String("Generated ") + NumberHelpers::formatWithCommas(nGen) + String(" particles by ") + generator->nameID());
         }
         sortParticles();
     }
@@ -133,22 +141,53 @@ void PeridynamicsSolver::generateParticles(const nlohmann::json& jParams)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 bool PeridynamicsSolver::advanceScene(UInt frame, Real fraction /*= Real(0)*/)
 {
-    ParticleSolver3D::advanceScene(frame, fraction);
+    bool bSceneChanged = ParticleSolver3D::advanceScene(frame, fraction);
 
+    ////////////////////////////////////////////////////////////////////////////////
+    static Vec_Vec3r tmpPositions;
+    static Vec_Vec3r tmpVelocities;
+    UInt             nNewParticles = 0;
     for(auto& generator : m_ParticleGenerators) {
         if(!generator->isActive(frame)) {
-            generator->generateParticles(solverData().positions, solverData().velocities, frame);
-            solverData().makeReady();
+            tmpPositions.resize(0);
+            tmpVelocities.resize(0);
+            UInt nGen = generator->generateParticles(solverData().positions, tmpPositions, tmpVelocities, frame);
+            solverData().addParticles(tmpPositions, tmpVelocities);
+            ////////////////////////////////////////////////////////////////////////////////
+            logger().printLog(String("Generated ") + NumberHelpers::formatWithCommas(nGen) + String(" new particles by ") + generator->nameID());
+            nNewParticles += nGen;
         }
     }
+
+    if(!bSceneChanged) {
+        return false;
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////
+    bool bSDFRegenerated = false;
+    for(auto& bdObj : m_BoundaryObjects) {
+        if(bdObj->isDynamic()) {
+            bdObj->generateSDF(solverParams().domainBMin, solverParams().domainBMax, solverParams().cellSize);
+            logger().printLog(String("Re-computed SDF for dynamic boundary object: ") + bdObj->nameID(), spdlog::level::debug);
+            bSDFRegenerated = true;
+        }
+    }
+
+    __BNN_TODO
+    //if(bSDFRegenerated) {
+    //logger().printRunTime("Re-computed SDF boundary for entire scene: ", [&]() { gridData().computeBoundarySDF(m_BoundaryObjects); });
+    //}
+
+    ////////////////////////////////////////////////////////////////////////////////
+    return true;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PeridynamicsSolver::setupDataIO()
 {
     m_ParticleDataIO = std::make_unique<ParticleSerialization>(m_GlobalParams.dataPath, "PDData", "frame", m_Logger);
-    m_ParticleDataIO->addFixedAttribute<float>("particle_radius", ParticleSerialization::TypeReal, 1);
-    m_ParticleDataIO->addFixedAttribute<UInt>("num_active_particles", ParticleSerialization::TypeUInt, 1);
+    m_ParticleDataIO->addFixedAttribute<float>("particle_radius",      ParticleSerialization::TypeReal, 1);
+    m_ParticleDataIO->addFixedAttribute<UInt>( "num_active_particles", ParticleSerialization::TypeUInt, 1);
     m_ParticleDataIO->addParticleAttribute<float>("position", ParticleSerialization::TypeCompressedReal, 3);
     if(m_GlobalParams.isSavingData("velocity")) {
         m_ParticleDataIO->addParticleAttribute<float>("velocity", ParticleSerialization::TypeCompressedReal, 3);
@@ -167,12 +206,12 @@ void PeridynamicsSolver::setupDataIO()
     ////////////////////////////////////////////////////////////////////////////////
 
     m_MemoryStateIO = std::make_unique<ParticleSerialization>(m_GlobalParams.dataPath, "PDState", "frame", m_Logger);
-    m_MemoryStateIO->addFixedAttribute<Real>("particle_radius", ParticleSerialization::TypeReal, 1);
+    m_MemoryStateIO->addFixedAttribute<Real>("particle_radius",      ParticleSerialization::TypeReal, 1);
     m_MemoryStateIO->addFixedAttribute<UInt>("num_active_particles", ParticleSerialization::TypeUInt, 1);
-    m_MemoryStateIO->addParticleAttribute<Real>("position", ParticleSerialization::TypeReal, 3);
-    m_MemoryStateIO->addParticleAttribute<Real>("velocity", ParticleSerialization::TypeReal, 3);
-    m_MemoryStateIO->addParticleAttribute<Real>("particle_mass", ParticleSerialization::TypeReal, 1);
-    m_MemoryStateIO->addParticleAttribute<Real>("stretch_threshold", ParticleSerialization::TypeReal, 1);
+    m_MemoryStateIO->addParticleAttribute<Real>("position",              ParticleSerialization::TypeReal,       3);
+    m_MemoryStateIO->addParticleAttribute<Real>("velocity",              ParticleSerialization::TypeReal,       3);
+    m_MemoryStateIO->addParticleAttribute<Real>("particle_mass",         ParticleSerialization::TypeReal,       1);
+    m_MemoryStateIO->addParticleAttribute<Real>("stretch_threshold",     ParticleSerialization::TypeReal,       1);
     m_MemoryStateIO->addParticleAttribute<Real>("solverData().bondList", ParticleSerialization::TypeVectorUInt, 1);
 }
 
@@ -228,12 +267,12 @@ void PeridynamicsSolver::saveMemoryState()
     frameCount = 0;
     m_MemoryStateIO->clearData();
     m_MemoryStateIO->setNParticles(solverData().getNParticles());
-    m_MemoryStateIO->setFixedAttribute("particle_radius", solverParams().particleRadius);
+    m_MemoryStateIO->setFixedAttribute("particle_radius",      solverParams().particleRadius);
     m_MemoryStateIO->setFixedAttribute("num_active_particles", solverData().nActives);
-    m_MemoryStateIO->setParticleAttribute("position", solverData().positions);
-    m_MemoryStateIO->setParticleAttribute("velocity", solverData().velocities);
-    m_MemoryStateIO->setParticleAttribute("particle_mass", solverData().particleMass);
-    m_MemoryStateIO->setParticleAttribute("stretch_threshold", solverData().stretchThreshold);
+    m_MemoryStateIO->setParticleAttribute("position",              solverData().positions);
+    m_MemoryStateIO->setParticleAttribute("velocity",              solverData().velocities);
+    m_MemoryStateIO->setParticleAttribute("particle_mass",         solverData().particleMass);
+    m_MemoryStateIO->setParticleAttribute("stretch_threshold",     solverData().stretchThreshold);
     m_MemoryStateIO->setParticleAttribute("solverData().bondList", solverData().bondList);
     m_MemoryStateIO->flushAsync(m_GlobalParams.finishedFrame);
 }
@@ -248,7 +287,7 @@ void PeridynamicsSolver::saveFrameData()
     ParticleSolver3D::saveFrameData();
     m_ParticleDataIO->clearData();
     m_ParticleDataIO->setNParticles(solverData().getNParticles());
-    m_ParticleDataIO->setFixedAttribute("particle_radius", solverParams().particleRadius);
+    m_ParticleDataIO->setFixedAttribute("particle_radius",      solverParams().particleRadius);
     m_ParticleDataIO->setFixedAttribute("num_active_particles", solverData().nActives);
     m_ParticleDataIO->setParticleAttribute("position", solverData().positions);
 

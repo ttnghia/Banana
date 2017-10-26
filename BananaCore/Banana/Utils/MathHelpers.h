@@ -954,6 +954,7 @@ Vec3<RealType> EulerToAxisAngle(Vec2<RealType> EulerAngles, bool bRadiansIn = tr
 {
     __BNN_UNUSED(EulerAngles);
     __BNN_UNUSED(bRadiansIn);
+    __BNN_UNUSED(bRadiansOut);
     // This function is a fake function for 2D rotation, so the result is not correct
     return Vec3<RealType>(Vec2<RealType>(1), 0);
 }

@@ -99,36 +99,32 @@ void Snow2DSolver::sortParticles()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Snow2DSolver::loadSimParams(const nlohmann::json& jParams)
 {
-    JSONHelpers::readVector(jParams, solverParams().movingBMin, "BoxMin");
-    JSONHelpers::readVector(jParams, solverParams().movingBMax, "BoxMax");
+    __BNN_ASSERT(m_BoundaryObjects.size() > 0);
+    SharedPtr<GeometryObjects::BoxObject<2, Real> > box = dynamic_pointer_cast<GeometryObjects::BoxObject<2, Real> >(m_BoundaryObjects[0]->getGeometry());
+    __BNN_ASSERT(box != nullptr);
+    solverParams().movingBMin = box->boxMin();
+    solverParams().movingBMax = box->boxMax();
 
-    JSONHelpers::readValue(jParams, solverParams().minTimestep, "MinTimestep");
-    JSONHelpers::readValue(jParams, solverParams().maxTimestep, "MaxTimestep");
-    JSONHelpers::readValue(jParams, solverParams().CFLFactor, "CFLFactor");
+    JSONHelpers::readValue(jParams, solverParams().minTimestep,          "MinTimestep");
+    JSONHelpers::readValue(jParams, solverParams().maxTimestep,          "MaxTimestep");
+    JSONHelpers::readValue(jParams, solverParams().CFLFactor,            "CFLFactor");
 
-    JSONHelpers::readValue(jParams, solverParams().PIC_FLIP_ratio, "PIC_FLIP_Ratio");
-    JSONHelpers::readValue(jParams, solverParams().particleRadius, "ParticleRadius");
+    JSONHelpers::readValue(jParams, solverParams().PIC_FLIP_ratio,       "PIC_FLIP_Ratio");
+    JSONHelpers::readValue(jParams, solverParams().particleRadius,       "ParticleRadius");
 
 
-    JSONHelpers::readValue(jParams, solverParams().boundaryRestitution, "BoundaryRestitution");
-    JSONHelpers::readValue(jParams, solverParams().CGRelativeTolerance, "CGRelativeTolerance");
-    JSONHelpers::readValue(jParams, solverParams().maxCGIteration, "MaxCGIteration");
+    JSONHelpers::readValue(jParams, solverParams().boundaryRestitution,  "BoundaryRestitution");
+    JSONHelpers::readValue(jParams, solverParams().CGRelativeTolerance,  "CGRelativeTolerance");
+    JSONHelpers::readValue(jParams, solverParams().maxCGIteration,       "MaxCGIteration");
 
     JSONHelpers::readValue(jParams, solverParams().thresholdCompression, "ThresholdCompression");
-    JSONHelpers::readValue(jParams, solverParams().thresholdStretching, "ThresholdStretching");
-    JSONHelpers::readValue(jParams, solverParams().hardening, "Hardening");
-    JSONHelpers::readValue(jParams, solverParams().materialDensity, "MaterialDensity");
-    JSONHelpers::readValue(jParams, solverParams().YoungsModulus, "YoungsModulus");
-    JSONHelpers::readValue(jParams, solverParams().PoissonsRatio, "PoissonsRatio");
+    JSONHelpers::readValue(jParams, solverParams().thresholdStretching,  "ThresholdStretching");
+    JSONHelpers::readValue(jParams, solverParams().hardening,            "Hardening");
+    JSONHelpers::readValue(jParams, solverParams().materialDensity,      "MaterialDensity");
+    JSONHelpers::readValue(jParams, solverParams().YoungsModulus,        "YoungsModulus");
+    JSONHelpers::readValue(jParams, solverParams().PoissonsRatio,        "PoissonsRatio");
 
-    JSONHelpers::readValue(jParams, solverParams().implicitRatio, "ImplicitRatio");
-
-    //String tmp = "LinearKernel";
-    //JSONHelpers::readValue(jParams, tmp, "KernelFunction");
-    //if(tmp == "LinearKernel" || tmp == "Linear")
-    //    solverParams().kernelFunc = P2GKernels::Linear;
-    //else
-    //    solverParams().kernelFunc = P2GKernels::CubicBSpline;
+    JSONHelpers::readValue(jParams, solverParams().implicitRatio,        "ImplicitRatio");
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -137,9 +133,17 @@ void Snow2DSolver::generateParticles(const nlohmann::json& jParams)
     ParticleSolver2D::generateParticles(jParams);
 
     if(!loadMemoryState()) {
+        Vec_Vec2r tmpPositions;
+        Vec_Vec2r tmpVelocities;
         for(auto& generator : m_ParticleGenerators) {
             generator->makeReady(m_BoundaryObjects, solverParams().particleRadius);
-            generator->generateParticles(particleData().positions, particleData().velocities);
+            ////////////////////////////////////////////////////////////////////////////////
+            tmpPositions.resize(0);
+            tmpVelocities.resize(0);
+            UInt nGen = generator->generateParticles(particleData().positions, tmpPositions, tmpVelocities);
+            particleData().addParticles(tmpPositions, tmpVelocities);
+            ////////////////////////////////////////////////////////////////////////////////
+            logger().printLog(String("Generated ") + NumberHelpers::formatWithCommas(nGen) + String(" particles by ") + generator->nameID());
         }
         sortParticles();
     }
@@ -148,14 +152,45 @@ void Snow2DSolver::generateParticles(const nlohmann::json& jParams)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 bool Snow2DSolver::advanceScene(UInt frame, Real fraction /*= Real(0)*/)
 {
-    ParticleSolver2D::advanceScene(frame, fraction);
+    bool bSceneChanged = ParticleSolver2D::advanceScene(frame, fraction);
 
+    ////////////////////////////////////////////////////////////////////////////////
+    static Vec_Vec2r tmpPositions;
+    static Vec_Vec2r tmpVelocities;
+    UInt             nNewParticles = 0;
     for(auto& generator : m_ParticleGenerators) {
         if(!generator->isActive(frame)) {
-            generator->generateParticles(particleData().positions, particleData().velocities, frame);
-            particleData().makeReady();
+            tmpPositions.resize(0);
+            tmpVelocities.resize(0);
+            UInt nGen = generator->generateParticles(particleData().positions, tmpPositions, tmpVelocities, frame);
+            particleData().addParticles(tmpPositions, tmpVelocities);
+            ////////////////////////////////////////////////////////////////////////////////
+            logger().printLog(String("Generated ") + NumberHelpers::formatWithCommas(nGen) + String(" new particles by ") + generator->nameID());
+            nNewParticles += nGen;
         }
     }
+
+    if(!bSceneChanged) {
+        return false;
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////
+    bool bSDFRegenerated = false;
+    for(auto& bdObj : m_BoundaryObjects) {
+        if(bdObj->isDynamic()) {
+            bdObj->generateSDF(solverParams().domainBMin, solverParams().domainBMax, solverParams().cellSize);
+            logger().printLog(String("Re-computed SDF for dynamic boundary object: ") + bdObj->nameID(), spdlog::level::debug);
+            bSDFRegenerated = true;
+        }
+    }
+
+    __BNN_TODO
+    //if(bSDFRegenerated) {
+    //logger().printRunTime("Re-computed SDF boundary for entire scene: ", [&]() { gridData().computeBoundarySDF(m_BoundaryObjects); });
+    //}
+
+    ////////////////////////////////////////////////////////////////////////////////
+    return true;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -221,7 +256,7 @@ void Snow2DSolver::saveMemoryState()
     // save state
     frameCount = 0;
     m_MemoryStateIO->clearData();
-    m_MemoryStateIO->setNParticles(solverData().getNParticles());
+    m_MemoryStateIO->setNParticles(particleData().getNParticles());
     m_MemoryStateIO->setFixedAttribute("particle_radius", solverParams().particleRadius);
     m_MemoryStateIO->setParticleAttribute("position", particleData().positions);
     m_MemoryStateIO->setParticleAttribute("velocity", particleData().velocities);
@@ -237,7 +272,7 @@ void Snow2DSolver::saveFrameData()
 
     ParticleSolver2D::saveFrameData();
     m_ParticleDataIO->clearData();
-    m_ParticleDataIO->setNParticles(solverData().getNParticles());
+    m_ParticleDataIO->setNParticles(particleData().getNParticles());
     m_ParticleDataIO->setFixedAttribute("particle_radius", static_cast<float>(solverParams().particleRadius));
     m_ParticleDataIO->setParticleAttribute("position", particleData().positions);
     m_ParticleDataIO->setParticleAttribute("velocity", particleData().velocities);
@@ -289,7 +324,7 @@ void Snow2DSolver::updateParticles(Real timestep)
 // todo: consider each node, and accumulate particle data, rather than  consider each particles
 void Snow2DSolver::massToGrid()
 {
-    ParallelFuncs::parallel_for(solverData().getNParticles(),
+    ParallelFuncs::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
                                 {
                                     Real ox = particleData().particleGridPos[p][0];
@@ -335,7 +370,7 @@ void Snow2DSolver::massToGrid()
 void Snow2DSolver::velocityToGrid(Real timestep)
 {
     //We interpolate velocity after mass, to conserve momentum
-    ParallelFuncs::parallel_for(solverData().getNParticles(),
+    ParallelFuncs::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
                                 {
                                     Int ox = static_cast<Int>(particleData().particleGridPos[p][0]);
@@ -374,7 +409,7 @@ void Snow2DSolver::velocityToGrid(Real timestep)
 void Snow2DSolver::calculateParticleVolumes()
 {
     //Estimate each particles volume (for force calculations)
-    ParallelFuncs::parallel_for(solverData().getNParticles(),
+    ParallelFuncs::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
                                 {
                                     Int ox = static_cast<Int>(particleData().particleGridPos[p][0]);
@@ -408,7 +443,7 @@ void Snow2DSolver::explicitVelocities(Real timestep)
 {
     //First, compute the forces
     //We store force in velocity_new, since we're not using that variable at the moment
-    ParallelFuncs::parallel_for(solverData().getNParticles(),
+    ParallelFuncs::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
                                 {
                                     //Solve for grid internal forces
@@ -557,7 +592,7 @@ void Snow2DSolver::implicitVelocities(Real timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Snow2DSolver::recomputeImplicitForces(Real timestep)
 {
-    ParallelFuncs::parallel_for(solverData().getNParticles(),
+    ParallelFuncs::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
                                 {
                                     Int ox = static_cast<Int>(particleData().particleGridPos[p][0]);
@@ -586,7 +621,7 @@ void Snow2DSolver::recomputeImplicitForces(Real timestep)
                                 [&](size_t i)
                                 {
                                     if(gridData().imp_active.data()[i]) {
-                                        gridData().Er.data()[i] = gridData().r.data()[i] -
+                                                                  gridData().Er.data()[i] = gridData().r.data()[i] -
                                                                   gridData().force.data()[i] / gridData().mass.data()[i] * solverParams().implicitRatio * timestep;
                                     }
                                 });
@@ -596,7 +631,7 @@ void Snow2DSolver::recomputeImplicitForces(Real timestep)
 //Map grid velocities back to particles
 void Snow2DSolver::velocityToParticles(Real timestep)
 {
-    ParallelFuncs::parallel_for(solverData().getNParticles(),
+    ParallelFuncs::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
                                 {
                                     //We calculate PIC and FLIP velocities separately
@@ -674,7 +709,7 @@ void Snow2DSolver::constrainGridVelocity(Real timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Snow2DSolver::constrainParticleVelocity(Real timestep)
 {
-    ParallelFuncs::parallel_for(solverData().getNParticles(),
+    ParallelFuncs::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
                                 {
                                     bool velChanged = false;
@@ -699,7 +734,7 @@ void Snow2DSolver::constrainParticleVelocity(Real timestep)
 
 void Snow2DSolver::updateParticlePositions(Real timestep)
 {
-    ParallelFuncs::parallel_for(solverData().getNParticles(),
+    ParallelFuncs::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
                                 {
                                     Vec2r ppos = particleData().positions[p] + particleData().velocities[p] * timestep;
@@ -722,7 +757,7 @@ void Snow2DSolver::updateParticlePositions(Real timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Snow2DSolver::updateGradients(Real timestep)
 {
-    ParallelFuncs::parallel_for(solverData().getNParticles(),
+    ParallelFuncs::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
                                 {
                                     Mat2x2r velGrad = particleData().velocityGradients[p];
@@ -737,7 +772,7 @@ void Snow2DSolver::updateGradients(Real timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Snow2DSolver::applyPlasticity()
 {
-    ParallelFuncs::parallel_for(solverData().getNParticles(),
+    ParallelFuncs::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
                                 {
                                     Mat2x2r elasticDeformGrad = particleData().elasticDeformGrad[p];

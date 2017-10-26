@@ -99,36 +99,32 @@ void Snow3DSolver::sortParticles()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Snow3DSolver::loadSimParams(const nlohmann::json& jParams)
 {
-    JSONHelpers::readVector(jParams, solverParams().movingBMin, "BoxMin");
-    JSONHelpers::readVector(jParams, solverParams().movingBMax, "BoxMax");
+    __BNN_ASSERT(m_BoundaryObjects.size() > 0);
+    SharedPtr<GeometryObjects::BoxObject<3, Real> > box = dynamic_pointer_cast<GeometryObjects::BoxObject<3, Real> >(m_BoundaryObjects[0]->getGeometry());
+    __BNN_ASSERT(box != nullptr);
+    solverParams().movingBMin = box->boxMin();
+    solverParams().movingBMax = box->boxMax();
 
-    JSONHelpers::readValue(jParams, solverParams().minTimestep, "MinTimestep");
-    JSONHelpers::readValue(jParams, solverParams().maxTimestep, "MaxTimestep");
-    JSONHelpers::readValue(jParams, solverParams().CFLFactor, "CFLFactor");
+    JSONHelpers::readValue(jParams, solverParams().minTimestep,          "MinTimestep");
+    JSONHelpers::readValue(jParams, solverParams().maxTimestep,          "MaxTimestep");
+    JSONHelpers::readValue(jParams, solverParams().CFLFactor,            "CFLFactor");
 
-    JSONHelpers::readValue(jParams, solverParams().PIC_FLIP_ratio, "PIC_FLIP_Ratio");
-    JSONHelpers::readValue(jParams, solverParams().particleRadius, "ParticleRadius");
+    JSONHelpers::readValue(jParams, solverParams().PIC_FLIP_ratio,       "PIC_FLIP_Ratio");
+    JSONHelpers::readValue(jParams, solverParams().particleRadius,       "ParticleRadius");
 
 
-    JSONHelpers::readValue(jParams, solverParams().boundaryRestitution, "BoundaryRestitution");
-    JSONHelpers::readValue(jParams, solverParams().CGRelativeTolerance, "CGRelativeTolerance");
-    JSONHelpers::readValue(jParams, solverParams().maxCGIteration, "MaxCGIteration");
+    JSONHelpers::readValue(jParams, solverParams().boundaryRestitution,  "BoundaryRestitution");
+    JSONHelpers::readValue(jParams, solverParams().CGRelativeTolerance,  "CGRelativeTolerance");
+    JSONHelpers::readValue(jParams, solverParams().maxCGIteration,       "MaxCGIteration");
 
     JSONHelpers::readValue(jParams, solverParams().thresholdCompression, "ThresholdCompression");
-    JSONHelpers::readValue(jParams, solverParams().thresholdStretching, "ThresholdStretching");
-    JSONHelpers::readValue(jParams, solverParams().hardening, "Hardening");
-    JSONHelpers::readValue(jParams, solverParams().materialDensity, "MaterialDensity");
-    JSONHelpers::readValue(jParams, solverParams().YoungsModulus, "YoungsModulus");
-    JSONHelpers::readValue(jParams, solverParams().PoissonsRatio, "PoissonsRatio");
+    JSONHelpers::readValue(jParams, solverParams().thresholdStretching,  "ThresholdStretching");
+    JSONHelpers::readValue(jParams, solverParams().hardening,            "Hardening");
+    JSONHelpers::readValue(jParams, solverParams().materialDensity,      "MaterialDensity");
+    JSONHelpers::readValue(jParams, solverParams().YoungsModulus,        "YoungsModulus");
+    JSONHelpers::readValue(jParams, solverParams().PoissonsRatio,        "PoissonsRatio");
 
-    JSONHelpers::readValue(jParams, solverParams().implicitRatio, "ImplicitRatio");
-
-    //String tmp = "LinearKernel";
-    //JSONHelpers::readValue(jParams, tmp, "KernelFunction");
-    //if(tmp == "LinearKernel" || tmp == "Linear")
-    //    solverParams().kernelFunc = P2GKernels::Linear;
-    //else
-    //    solverParams().kernelFunc = P2GKernels::CubicBSpline;
+    JSONHelpers::readValue(jParams, solverParams().implicitRatio,        "ImplicitRatio");
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -138,9 +134,16 @@ void Snow3DSolver::generateParticles(const nlohmann::json& jParams)
 
     m_NSearch = std::make_unique<NeighborSearch::NeighborSearch3D>(solverParams().cellSize);
     if(!loadMemoryState()) {
+        Vec_Vec3r tmpPositions;
+        Vec_Vec3r tmpVelocities;
         for(auto& generator : m_ParticleGenerators) {
             generator->makeReady(m_BoundaryObjects, solverParams().particleRadius);
-            UInt nGen = generator->generateParticles(particleData().positions, particleData().velocities);
+            ////////////////////////////////////////////////////////////////////////////////
+            tmpPositions.resize(0);
+            tmpVelocities.resize(0);
+            UInt nGen = generator->generateParticles(particleData().positions, tmpPositions, tmpVelocities);
+            particleData().addParticles(tmpPositions, tmpVelocities);
+            ////////////////////////////////////////////////////////////////////////////////
             logger().printLog(String("Generated ") + NumberHelpers::formatWithCommas(nGen) + String(" particles by ") + generator->nameID());
         }
         m_NSearch->add_point_set(glm::value_ptr(particleData().positions.front()), particleData().getNParticles(), true, true);
@@ -153,14 +156,45 @@ void Snow3DSolver::generateParticles(const nlohmann::json& jParams)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 bool Snow3DSolver::advanceScene(UInt frame, Real fraction /*= Real(0)*/)
 {
-    ParticleSolver3D::advanceScene(frame, fraction);
+    bool bSceneChanged = ParticleSolver3D::advanceScene(frame, fraction);
 
+    ////////////////////////////////////////////////////////////////////////////////
+    static Vec_Vec3r tmpPositions;
+    static Vec_Vec3r tmpVelocities;
+    UInt             nNewParticles = 0;
     for(auto& generator : m_ParticleGenerators) {
         if(!generator->isActive(frame)) {
-            generator->generateParticles(particleData().positions, particleData().velocities, frame);
-            particleData().makeReady();
+            tmpPositions.resize(0);
+            tmpVelocities.resize(0);
+            UInt nGen = generator->generateParticles(particleData().positions, tmpPositions, tmpVelocities, frame);
+            particleData().addParticles(tmpPositions, tmpVelocities);
+            ////////////////////////////////////////////////////////////////////////////////
+            logger().printLog(String("Generated ") + NumberHelpers::formatWithCommas(nGen) + String(" new particles by ") + generator->nameID());
+            nNewParticles += nGen;
         }
     }
+
+    if(!bSceneChanged) {
+        return false;
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////
+    bool bSDFRegenerated = false;
+    for(auto& bdObj : m_BoundaryObjects) {
+        if(bdObj->isDynamic()) {
+            bdObj->generateSDF(solverParams().domainBMin, solverParams().domainBMax, solverParams().cellSize);
+            logger().printLog(String("Re-computed SDF for dynamic boundary object: ") + bdObj->nameID(), spdlog::level::debug);
+            bSDFRegenerated = true;
+        }
+    }
+
+    __BNN_TODO
+    //if(bSDFRegenerated) {
+    //logger().printRunTime("Re-computed SDF boundary for entire scene: ", [&]() { gridData().computeBoundarySDF(m_BoundaryObjects); });
+    //}
+
+    ////////////////////////////////////////////////////////////////////////////////
+    return true;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -607,7 +641,7 @@ void Snow3DSolver::recomputeImplicitForces(Real timestep)
                                 [&](size_t i)
                                 {
                                     if(gridData().imp_active.data()[i]) {
-                                        gridData().Er.data()[i] = gridData().r.data()[i] -
+                                                                  gridData().Er.data()[i] = gridData().r.data()[i] -
                                                                   gridData().force.data()[i] / gridData().mass.data()[i] * solverParams().implicitRatio * timestep;
                                     }
                                 });

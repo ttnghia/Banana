@@ -30,7 +30,7 @@ namespace Banana
 namespace ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-struct SimulationParameters_Peridynamics3D
+struct SimulationParameters_Peridynamics3D : public SimulationParameters
 {
     SimulationParameters_Peridynamics3D() { makeReady(); }
 
@@ -57,14 +57,14 @@ struct SimulationParameters_Peridynamics3D
     Real  horizon;
 
     ////////////////////////////////////////////////////////////////////////////////
-    void makeReady()
+    virtual void makeReady() override
     {
         cellSize = particleRadius * Real(4.0);
         horizon  = particleRadius * Real(6.0);
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    void printParams(const std::shared_ptr<Logger>& logger)
+    virtual void printParams(const SharedPtr<Logger>& logger) override
     {
         logger->printLog("Peridynamics-3D simulation parameters:");
         logger->printLogIndent("Max timestep: " + NumberHelpers::formatToScientific(maxTimestep));
@@ -83,7 +83,7 @@ struct SimulationParameters_Peridynamics3D
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-struct SimulationData_Peridynamics3D
+struct SimulationData_Peridynamics3D : public ParticleData<3, Real>
 {
     __BNN_TODO_MSG("Change active particle computation")
     UInt nActives;
@@ -113,13 +113,30 @@ struct SimulationData_Peridynamics3D
     Vec_Vec3r                  solution;
 
     ////////////////////////////////////////////////////////////////////////////////
-    UInt getNParticles() { return static_cast<UInt>(positions.size()); }
+    virtual UInt getNParticles() override { return static_cast<UInt>(positions.size()); }
 
-    void reserve(UInt numParticles)
+    virtual void reserve(UInt nParticles)
     {
-        positions.reserve(numParticles);
-        velocities.reserve(numParticles);
-        bondList.reserve(numParticles);
+        positions.reserve(nParticles);
+        velocities.reserve(nParticles);
+        bondList.reserve(nParticles);
+    }
+
+    virtual void addParticles(const Vec_Vec3r& newPositions, const Vec_Vec3r& newVelocities)
+    {
+        __BNN_ASSERT(newPositions.size() == newVelocities.size());
+        positions.insert(positions.end(), newPositions.begin(), newPositions.end());
+        velocities.insert(velocities.end(), newVelocities.begin(), newVelocities.end());
+    }
+
+    virtual void removeParticles(const Vec_Int8& removeMarker)
+    {
+        if(!STLHelpers::contain(removeMarker, Int8(1))) {
+            return;
+        }
+
+        STLHelpers::eraseByMarker(positions,  removeMarker);
+        STLHelpers::eraseByMarker(velocities, removeMarker);
     }
 
     void makeReady()

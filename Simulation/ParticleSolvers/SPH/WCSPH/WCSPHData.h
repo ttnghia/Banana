@@ -31,7 +31,7 @@ namespace ParticleSolvers
 #define DEFAULT_VISCOSITY          0.05
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-struct SimulationParameters_WCSPH
+struct SimulationParameters_WCSPH : public SimulationParameters
 {
     SimulationParameters_WCSPH() { makeReady(); }
 
@@ -66,7 +66,7 @@ struct SimulationParameters_WCSPH
     Real restDensitySqr;
 
     ////////////////////////////////////////////////////////////////////////////////
-    void makeReady()
+    virtual void makeReady() override
     {
         kernelRadius    = particleRadius * Real(4.0);
         kernelRadiusSqr = kernelRadius * kernelRadius;
@@ -78,7 +78,7 @@ struct SimulationParameters_WCSPH
         densityMax = restDensity * densityVariationRatio;
     }
 
-    void printParams(const SharedPtr<Logger>& logger)
+    virtual void printParams(const SharedPtr<Logger>& logger) override
     {
         logger->printLog("SPH simulation parameters:");
         logger->printLogIndent("Max timestep: " + NumberHelpers::formatToScientific(maxTimestep));
@@ -102,7 +102,7 @@ struct SimulationParameters_WCSPH
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-struct SimulationData_WCSPH
+struct SimulationData_WCSPH : public ParticleData<3, Real>
 {
     Vec_Vec3r positions;
     Vec_Vec3r positions_tmp;
@@ -116,16 +116,49 @@ struct SimulationData_WCSPH
     Vec_Vec3r BDParticles;
 
     ////////////////////////////////////////////////////////////////////////////////
-    UInt getNParticles() { return static_cast<UInt>(positions.size()); }
+    virtual UInt getNParticles() override { return static_cast<UInt>(positions.size()); }
 
-    void makeReady()
+    virtual void reserve(UInt nParticles)
     {
-        velocities.resize(positions.size(), Vec3r(0));
+        positions.reserve(nParticles);
+        velocities.reserve(nParticles);
+        velocities.reserve(nParticles);
+        densities.reserve(nParticles);
+        pressureForces.reserve(nParticles);
+        surfaceTensionForces.reserve(nParticles);
+        diffuseVelocity.reserve(nParticles);
+
+        positions_tmp.reserve(nParticles);
+        densities_tmp.reserve(nParticles);
+    }
+
+    virtual void addParticles(const Vec_Vec3r& newPositions, const Vec_Vec3r& newVelocities)
+    {
+        __BNN_ASSERT(newPositions.size() == newVelocities.size());
+        positions.insert(positions.end(), newPositions.begin(), newPositions.end());
+        velocities.insert(velocities.end(), newVelocities.begin(), newVelocities.end());
+
         densities.resize(positions.size(), 0);
         densities_tmp.resize(positions.size(), 0);
         pressureForces.resize(positions.size(), Vec3r(0));
         surfaceTensionForces.resize(positions.size(), Vec3r(0));
         diffuseVelocity.resize(positions.size(), Vec3r(0));
+    }
+
+    virtual void removeParticles(const Vec_Int8& removeMarker)
+    {
+        if(!STLHelpers::contain(removeMarker, Int8(1))) {
+            return;
+        }
+
+        STLHelpers::eraseByMarker(positions,  removeMarker);
+        STLHelpers::eraseByMarker(velocities, removeMarker);
+        ////////////////////////////////////////////////////////////////////////////////
+        densities.resize(positions.size());
+        densities_tmp.resize(positions.size());
+        pressureForces.resize(positions.size());
+        surfaceTensionForces.resize(positions.size());
+        diffuseVelocity.resize(positions.size());
     }
 };
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
