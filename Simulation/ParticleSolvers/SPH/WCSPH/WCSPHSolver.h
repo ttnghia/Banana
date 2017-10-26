@@ -46,8 +46,11 @@ public:
     const auto& solverParams() const { return m_SimParams; }
     auto&       solverData() { return m_SimData; }
     const auto& solverData() const { return m_SimData; }
+
 protected:
     virtual void loadSimParams(const nlohmann::json& jParams) override;
+    virtual void generateParticles(const nlohmann::json& jParams) override;
+    virtual bool advanceScene(UInt frame, Real fraction = Real(0)) override;
     virtual void setupDataIO() override;
     virtual bool loadMemoryState() override;
     virtual void saveMemoryState() override;
@@ -55,13 +58,16 @@ protected:
 
     Real computeCFLTimestep();
     void advanceVelocity(Real timestep);
+    void moveParticles(Real timestep);
+    void correctPositions(Real timestep);
+
+    ////////////////////////////////////////////////////////////////////////////////
     void computeDensity();
     void correctDensity();
     void computePressureForces();
     void computeSurfaceTensionForces();
     void computeViscosity();
     void updateVelocity(Real timestep);
-    void moveParticles(Real timestep);
 
     ////////////////////////////////////////////////////////////////////////////////
     SimulationParameters_WCSPH m_SimParams;
@@ -69,7 +75,7 @@ protected:
 
     PrecomputedKernel<CubicKernel, 10000> m_CubicKernel;
     PrecomputedKernel<SpikyKernel, 10000> m_SpikyKernel;
-    PrecomputedKernel<SpikyKernel, 10000> m_NearSpikyKernel;
+    //PrecomputedKernel<SpikyKernel, 10000> m_NearSpikyKernel;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

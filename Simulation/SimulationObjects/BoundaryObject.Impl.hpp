@@ -15,18 +15,21 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void BoundaryObjectInterface<N, RealType >::initBoundaryParticles(RealType particleRadius, Int numBDLayers /*= 2*/, bool bUseCache /*= true*/)
+UInt BoundaryObjectInterface<N, RealType >::generateBoundaryParticles(Vec_VecX<N, RealType>& PDPositions,
+                                                                      RealType particleRadius, Int numBDLayers /*= 2*/, bool bUseCache /*= true*/)
 {
+    Vec_VecX<N, RealType> tmpPositions;
     if(bUseCache && !m_ParticleFile.empty() && FileHelpers::fileExisted(m_ParticleFile)) {
-        ParticleSerialization::loadParticle(m_ParticleFile, m_BDParticles, particleRadius);
-        return;
+        ParticleSerialization::loadParticle(m_ParticleFile, tmpPositions, particleRadius);
+    } else {
+        generateBoundaryParticles_Impl(tmpPositions, particleRadius, numBDLayers);
+        if(bUseCache && !m_ParticleFile.empty()) {
+            ParticleSerialization::saveParticle(m_ParticleFile, tmpPositions, particleRadius);
+        }
     }
 
-    generateBoundaryParticles(particleRadius, numBDLayers);
-
-    if(bUseCache && !m_ParticleFile.empty()) {
-        ParticleSerialization::saveParticle(m_ParticleFile, m_BDParticles, particleRadius);
-    }
+    PDPositions.insert(PDPositions.end(), tmpPositions.begin(), tmpPositions.end());
+    return static_cast<UInt>(tmpPositions.size());
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -68,7 +71,7 @@ void BoundaryObjectInterface<N, RealType >::generateSDF(const VecX<N, RealType>&
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    computeSDF();
+    generateSDF_Impl();
     m_bSDFGenerated = true;
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -96,7 +99,7 @@ void BoundaryObjectInterface<N, RealType >::constrainToBoundary(VecX<N, RealType
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-void BoundaryObject<2, RealType >::computeSDF()
+void BoundaryObject<2, RealType >::generateSDF_Impl()
 {
     m_SDF.resize(m_Grid.getNNodes());
     ParallelFuncs::parallel_for<UInt>(m_Grid.getNNodes(),
@@ -108,7 +111,7 @@ void BoundaryObject<2, RealType >::computeSDF()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-void BoundaryObject<3, RealType >::computeSDF()
+void BoundaryObject<3, RealType >::generateSDF_Impl()
 {
     m_SDF.resize(m_Grid.getNNodes());
     ParallelFuncs::parallel_for<UInt>(m_Grid.getNNodes(),
@@ -120,13 +123,13 @@ void BoundaryObject<3, RealType >::computeSDF()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-void BoxBoundary<2, RealType >::generateBoundaryParticles(RealType particleRadius, Int numBDLayers)
+void BoxBoundary<2, RealType >::generateBoundaryParticles_Impl(Vec_Vec2<RealType>& PDPositions, RealType particleRadius, Int numBDLayers /*= 2*/)
 {
     RealType spacing = RealType(2.0) * particleRadius;
-    m_BDParticles.resize(0);
-    std::random_device rd;
-    std::mt19937       gen(rd());
+    PDPositions.resize(0);
 
+    std::random_device                 rd;
+    std::mt19937                       gen(rd());
     std::normal_distribution<RealType> disSmall(0, RealType(0.02) * spacing);
     std::normal_distribution<RealType> disLarge(0, RealType(0.1) * spacing);
 
@@ -142,7 +145,7 @@ void BoxBoundary<2, RealType >::generateBoundaryParticles(RealType particleRadiu
             for(Int y = 0; y < gridLX[1]; ++y) {
                 const Vec2r gridPos = minLX + Vec2r(x + 0.5, y + 0.5) * spacing;
                 Vec2r       ppos    = gridPos + Vec2r(disSmall(gen), disLarge(gen));
-                m_BDParticles.push_back(ppos);
+                PDPositions.push_back(ppos);
             }
         }
     }
@@ -159,7 +162,7 @@ void BoxBoundary<2, RealType >::generateBoundaryParticles(RealType particleRadiu
             for(Int y = 0; y < gridUX[1]; ++y) {
                 const Vec2r gridPos = minUX + Vec2r(x + 0.5, y + 0.5) * spacing;
                 Vec2r       ppos    = gridPos + Vec2r(disSmall(gen), disLarge(gen));
-                m_BDParticles.push_back(ppos);
+                PDPositions.push_back(ppos);
             }
         }
     }
@@ -178,7 +181,7 @@ void BoxBoundary<2, RealType >::generateBoundaryParticles(RealType particleRadiu
             for(Int y = 0; y < gridLY[1]; ++y) {
                 const Vec2r gridPos = minLY + Vec2r(x + 0.5, y + 0.5) * spacing;
                 Vec2r       ppos    = gridPos + Vec2r(disLarge(gen), disSmall(gen));
-                m_BDParticles.push_back(ppos);
+                PDPositions.push_back(ppos);
             }
         }
     }
@@ -197,7 +200,7 @@ void BoxBoundary<2, RealType >::generateBoundaryParticles(RealType particleRadiu
             for(Int y = 0; y < gridUY[1]; ++y) {
                 const Vec2r gridPos = minUY + Vec2r(x + 0.5, y + 0.5) * spacing;
                 Vec2r       ppos    = gridPos + Vec2r(disLarge(gen), disSmall(gen));
-                m_BDParticles.push_back(ppos);
+                PDPositions.push_back(ppos);
             }
         }
     }
@@ -205,10 +208,10 @@ void BoxBoundary<2, RealType >::generateBoundaryParticles(RealType particleRadiu
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-void BoxBoundary<3, RealType >::generateBoundaryParticles(RealType particleRadius, Int numBDLayers)
+void BoxBoundary<3, RealType >::generateBoundaryParticles_Impl(Vec_Vec3<RealType>& PDPositions, RealType particleRadius, Int numBDLayers /*= 2*/)
 {
     RealType spacing = RealType(2.0) * particleRadius;
-    m_BDParticles.resize(0);
+    PDPositions.resize(0);
     std::random_device rd;
     std::mt19937       gen(rd());
 
@@ -228,7 +231,7 @@ void BoxBoundary<3, RealType >::generateBoundaryParticles(RealType particleRadiu
                 for(Int z = 0; z < gridLX[2]; ++z) {
                     const Vec3r gridPos = minLX + Vec3r(x + 0.5, y + 0.5, z + 0.5) * spacing;
                     Vec3r       ppos    = gridPos + Vec3r(disSmall(gen), disLarge(gen), disLarge(gen));
-                    m_BDParticles.push_back(ppos);
+                    PDPositions.push_back(ppos);
                 }
             }
         }
@@ -247,7 +250,7 @@ void BoxBoundary<3, RealType >::generateBoundaryParticles(RealType particleRadiu
                 for(Int z = 0; z < gridUX[2]; ++z) {
                     const Vec3r gridPos = minUX + Vec3r(x + 0.5, y + 0.5, z + 0.5) * spacing;
                     Vec3r       ppos    = gridPos + Vec3r(disSmall(gen), disLarge(gen), disLarge(gen));
-                    m_BDParticles.push_back(ppos);
+                    PDPositions.push_back(ppos);
                 }
             }
         }
@@ -268,7 +271,7 @@ void BoxBoundary<3, RealType >::generateBoundaryParticles(RealType particleRadiu
                 for(Int z = 0; z < gridLY[2]; ++z) {
                     const Vec3r gridPos = minLY + Vec3r(x + 0.5, y + 0.5, z + 0.5) * spacing;
                     Vec3r       ppos    = gridPos + Vec3r(disLarge(gen), disSmall(gen), disLarge(gen));
-                    m_BDParticles.push_back(ppos);
+                    PDPositions.push_back(ppos);
                 }
             }
         }
@@ -289,7 +292,7 @@ void BoxBoundary<3, RealType >::generateBoundaryParticles(RealType particleRadiu
                 for(Int z = 0; z < gridUY[2]; ++z) {
                     const Vec3r gridPos = minUY + Vec3r(x + 0.5, y + 0.5, z + 0.5) * spacing;
                     Vec3r       ppos    = gridPos + Vec3r(disLarge(gen), disSmall(gen), disLarge(gen));
-                    m_BDParticles.push_back(ppos);
+                    PDPositions.push_back(ppos);
                 }
             }
         }
@@ -312,7 +315,7 @@ void BoxBoundary<3, RealType >::generateBoundaryParticles(RealType particleRadiu
                 for(Int z = 0; z < gridLZ[2]; ++z) {
                     const Vec3r gridPos = minLZ + Vec3r(x + 0.5, y + 0.5, z + 0.5) * spacing;
                     Vec3r       ppos    = gridPos + Vec3r(disLarge(gen), disLarge(gen), disSmall(gen));
-                    m_BDParticles.push_back(ppos);
+                    PDPositions.push_back(ppos);
                 }
             }
         }
@@ -335,7 +338,7 @@ void BoxBoundary<3, RealType >::generateBoundaryParticles(RealType particleRadiu
                 for(Int z = 0; z < gridUX[2]; ++z) {
                     const Vec3r gridPos = minUZ + Vec3r(x + 0.5, y + 0.5, z + 0.5) * spacing;
                     Vec3r       ppos    = gridPos + Vec3r(disLarge(gen), disLarge(gen), disSmall(gen));
-                    m_BDParticles.push_back(ppos);
+                    PDPositions.push_back(ppos);
                 }
             }
         }

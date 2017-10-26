@@ -19,7 +19,6 @@
 #include <Banana/Array/ArrayHelpers.h>
 #include <Banana/LinearAlgebra/LinearSolvers/PCGSolver.h>
 #include <ParticleSolvers/FLIP/FLIP3DSolver.h>
-#include <ParticleSolvers/FLIP/FLIP3DData.h>
 #include <SurfaceReconstruction/AniKernelGenerator.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -92,11 +91,8 @@ void FLIP3DSolver::advanceFrame()
                                   logger().printLog("Finished step " + NumberHelpers::formatWithCommas(substepCount) + " of size " + NumberHelpers::formatToScientific<Real>(substep) +
                                                     "(" + NumberHelpers::formatWithCommas(substep / globalParams().frameDuration * 100) + "% of the frame, to " +
                                                     NumberHelpers::formatWithCommas(100 * (frameTime) / globalParams().frameDuration) + "% of the frame).");
-
                                   logger().printRunTime("====> Advance scene: ", funcTimer, [&]() { advanceScene(globalParams().finishedFrame, frameTime / globalParams().frameDuration); });
                               });
-
-        ////////////////////////////////////////////////////////////////////////////////
         logger().newLine();
     }
 
@@ -137,7 +133,7 @@ void FLIP3DSolver::loadSimParams(const nlohmann::json& jParams)
     solverParams().movingBMax = box->boxMax();
 
 
-    JSONHelpers::readValue(jParams, solverParams().CFLFactor,      "CFLFactor");
+    JSONHelpers::readValue(jParams, solverParams().CFLFactor,           "CFLFactor");
     JSONHelpers::readValue(jParams, solverParams().particleRadius,      "ParticleRadius");
     JSONHelpers::readValue(jParams, solverParams().PIC_FLIP_ratio,      "PIC_FLIP_Ratio");
 
@@ -149,13 +145,14 @@ void FLIP3DSolver::loadSimParams(const nlohmann::json& jParams)
     JSONHelpers::readValue(jParams, solverParams().repulsiveForceStiffness, "RepulsiveForceStiffness");
 
     String tmp = "LinearKernel";
-    JSONHelpers::readValue(jParams, tmp,                                  "KernelFunction");
+    JSONHelpers::readValue(jParams, tmp,                                    "KernelFunction");
     if(tmp == "LinearKernel" || tmp == "Linear") {
         solverParams().p2gKernel = ParticleSolverConstants::InterpolationKernels::Linear;
     } else {
         solverParams().p2gKernel = ParticleSolverConstants::InterpolationKernels::CubicBSpline;
     }
 
+    ////////////////////////////////////////////////////////////////////////////////
     solverParams().makeReady();
     solverParams().printParams(m_Logger);
 }
@@ -164,7 +161,6 @@ void FLIP3DSolver::loadSimParams(const nlohmann::json& jParams)
 void FLIP3DSolver::generateParticles(const nlohmann::json& jParams)
 {
     ParticleSolver3D::generateParticles(jParams);
-
     m_NSearch = std::make_unique<NeighborSearch::NeighborSearch3D>(solverParams().cellSize);
     if(!loadMemoryState()) {
         for(auto& generator : m_ParticleGenerators) {
@@ -182,21 +178,28 @@ void FLIP3DSolver::generateParticles(const nlohmann::json& jParams)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 bool FLIP3DSolver::advanceScene(UInt frame, Real fraction /*= Real(0)*/)
 {
-    if(!ParticleSolver3D::advanceScene(frame, fraction)) {
-        return false;
-    }
+    bool bSceneChanged = ParticleSolver3D::advanceScene(frame, fraction);
 
+    ////////////////////////////////////////////////////////////////////////////////
     UInt nNewParticles = 0;
     for(auto& generator : m_ParticleGenerators) {
         if(!generator->isActive(frame)) {
-            nNewParticles += generator->generateParticles(particleData().positions, particleData().velocities, frame);
+            UInt nGen = generator->generateParticles(particleData().positions, particleData().velocities, frame);
+            logger().printLog(String("Generated ") + NumberHelpers::formatWithCommas(nGen) + String(" new particles by ") + generator->nameID());
+            nNewParticles += nGen;
         }
     }
+
     if(nNewParticles > 0) {
-        logger().printLog(String("Generated new particles: ") + NumberHelpers::formatWithCommas(nNewParticles), spdlog::level::debug);
+        __BNN_TODO_MSG("Instead of make ready, just call addParticles")
         particleData().makeReady();
     }
 
+    if(!bSceneChanged) {
+        return false;
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////
     bool bSDFRegenerated = false;
     for(auto& bdObj : m_BoundaryObjects) {
         if(bdObj->isDynamic()) {
@@ -299,11 +302,11 @@ void FLIP3DSolver::saveFrameData()
     ParticleSolver3D::saveFrameData();
     m_ParticleDataIO->clearData();
     m_ParticleDataIO->setNParticles(particleData().getNParticles());
-    m_ParticleDataIO->setFixedAttribute("particle_radius", solverParams().particleRadius);
+    m_ParticleDataIO->setFixedAttribute("particle_radius", static_cast<float>(solverParams().particleRadius));
     if(globalParams().isSavingData("anisotropic_kernel")) {
         AnisotropicKernelGenerator aniKernelGenerator(particleData().getNParticles(), particleData().positions.data(), solverParams().particleRadius);
         aniKernelGenerator.generateAniKernels();
-        m_ParticleDataIO->setParticleAttribute("position", aniKernelGenerator.kernelCenters());
+        m_ParticleDataIO->setParticleAttribute("position",           aniKernelGenerator.kernelCenters());
         m_ParticleDataIO->setParticleAttribute("anisotropic_kernel", aniKernelGenerator.kernelMatrices());
     } else {
         m_ParticleDataIO->setParticleAttribute("position", particleData().positions);
@@ -321,16 +324,14 @@ Real FLIP3DSolver::computeCFLTimestep()
     Real maxVel = MathHelpers::max(ParallelSTL::maxAbs(gridData().u.data()),
                                    ParallelSTL::maxAbs(gridData().v.data()),
                                    ParallelSTL::maxAbs(gridData().w.data()));
-    return maxVel > Tiny ? (m_Grid.getCellSize() / maxVel * solverParams().CFLFactor) : solverParams().maxTimestep;
+    Real CFLTimeStep = maxVel > Tiny ? (m_Grid.getCellSize() / maxVel * solverParams().CFLFactor) : Huge;
+    return MathHelpers::clamp(CFLTimeStep, solverParams().minTimestep, solverParams().maxTimestep);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void FLIP3DSolver::advanceVelocity(Real timestep)
 {
     static Timer funcTimer;
-    static int   frame = 0;
-    frame++;
-
     ////////////////////////////////////////////////////////////////////////////////
     logger().printRunTime("Compute cell weights: ",                        funcTimer, [&]() { computeFluidWeights(); });
     logger().printRunTime("Interpolate velocity from particles to grid: ", funcTimer, [&]() { velocityToGrid(); });
@@ -365,9 +366,9 @@ void FLIP3DSolver::moveParticles(Real timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void FLIP3DSolver::correctPositions(Real timestep)
 {
-    const Real radius     = m_Grid.getCellSize() / Real(sqrt(solverDimension()));
-    const Real threshold  = Real(0.05) * radius;
-    const Real threshold2 = threshold * threshold;
+    static const Real radius     = m_Grid.getCellSize() / Real(sqrt(solverDimension()));
+    const Real        threshold  = Real(0.05) * radius;
+    const Real        threshold2 = threshold * threshold;
 
     ParallelFuncs::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
@@ -389,10 +390,10 @@ void FLIP3DSolver::correctPositions(Real timestep)
                                                     if(q == p) {
                                                         continue;
                                                     }
-                                                    const Vec3r& qpos = particleData().positions[q];
-                                                    const Vec3r xpq   = ppos - qpos;
-                                                    const Real d2     = glm::length2(xpq);
-                                                    Real w            = MathHelpers::smooth_kernel(d2, radius);
+                                                    const auto& qpos = particleData().positions[q];
+                                                    const auto xpq   = ppos - qpos;
+                                                    const auto d2    = glm::length2(xpq);
+                                                    const auto w     = MathHelpers::smooth_kernel(d2, radius);
 
                                                     if(d2 > threshold2) {
                                                         spring += w * xpq / sqrt(d2) * radius * solverParams().repulsiveForceStiffness;
@@ -432,7 +433,7 @@ void FLIP3DSolver::computeFluidWeights()
                                                                                                   gridData().boundarySDF(i, j + 1, k),
                                                                                                   gridData().boundarySDF(i, j,     k + 1),
                                                                                                   gridData().boundarySDF(i, j + 1, k + 1));
-                                        gridData().u_weights(i, j, k) = MathHelpers::clamp01(tmp);
+                                                                                                  gridData().u_weights(i, j, k) = MathHelpers::clamp01(tmp);
                                     }
 
                                     if(valid_index_v) {
@@ -440,7 +441,7 @@ void FLIP3DSolver::computeFluidWeights()
                                                                                                   gridData().boundarySDF(i,     j, k + 1),
                                                                                                   gridData().boundarySDF(i + 1, j, k),
                                                                                                   gridData().boundarySDF(i + 1, j, k + 1));
-                                        gridData().v_weights(i, j, k) = MathHelpers::clamp01(tmp);
+                                                                                                  gridData().v_weights(i, j, k) = MathHelpers::clamp01(tmp);
                                     }
 
                                     if(valid_index_w) {
@@ -448,7 +449,7 @@ void FLIP3DSolver::computeFluidWeights()
                                                                                                   gridData().boundarySDF(i,     j + 1, k),
                                                                                                   gridData().boundarySDF(i + 1, j,     k),
                                                                                                   gridData().boundarySDF(i + 1, j + 1, k));
-                                        gridData().w_weights(i, j, k) = MathHelpers::clamp01(tmp);
+                                                                                                  gridData().w_weights(i, j, k) = MathHelpers::clamp01(tmp);
                                     }
                                 });
 }

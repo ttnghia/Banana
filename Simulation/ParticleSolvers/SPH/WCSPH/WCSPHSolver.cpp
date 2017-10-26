@@ -30,64 +30,13 @@ void WCSPHSolver::makeReady()
     logger().printRunTime("Allocate solver memory: ",
                           [&]()
                           {
-                              solverParams().makeReady();
-                              solverParams().printParams(m_Logger);
                               solverData().makeReady();
-
                               m_CubicKernel.setRadius(solverParams().kernelRadius);
                               m_SpikyKernel.setRadius(solverParams().kernelRadius);
-                              m_NearSpikyKernel.setRadius(Real(1.5) * solverParams().particleRadius);
-
-                              m_NSearch = std::make_unique<NeighborSearch::NeighborSearch3D>(solverParams().kernelRadius);
-                              m_NSearch->add_point_set(glm::value_ptr(solverData().positions.front()), solverData().getNParticles(), true, true);
-
-
-
-
-
-
-
-                              // todo: fix this
-                              //m_BoundaryObjects.push_back(std::make_shared<SimulationObjects::BoxBoundary<3, Real> >(solverParams().boxMin, solverParams().boxMax));
-
-                              if(solverParams().bUseBoundaryParticles) {
-                                  __BNN_ASSERT(m_BoundaryObjects.size() != 0);
-                                  for(auto& bdObj : m_BoundaryObjects) {
-                                      bdObj->initBoundaryParticles(Real(0.85) * solverParams().particleRadius);
-                                      logger().printLog("Number of boundary particles: " + NumberHelpers::formatWithCommas(bdObj->getNumBDParticles()));
-                                      m_NSearch->add_point_set(glm::value_ptr(bdObj->getBDParticles().front()), bdObj->getBDParticles().size(), false, true);
-                                      //solverData().positions.insert(solverData().positions.begin(), bdObj->getBDParticles().begin(), bdObj->getBDParticles().end());
-                                  }
-                              }
+                              //m_NearSpikyKernel.setRadius(Real(1.5) * solverParams().particleRadius);
                           });
-
-////////////////////////////////////////////////////////////////////////////////
-// sort the particles
-    logger().printRunTime("Compute Z-sort rule: ", [&]() { m_NSearch->z_sort(); });
 
     ////////////////////////////////////////////////////////////////////////////////
-    // sort the fluid particles
-    logger().printRunTime("Sort particle positions and velocities: ",
-                          [&]()
-                          {
-                              auto const& d = m_NSearch->point_set(0);
-                              d.sort_field(&solverData().positions[0]);
-                              d.sort_field(&solverData().velocities[0]);
-                          });
-
-////////////////////////////////////////////////////////////////////////////////
-// sort boundary particles
-    logger().printRunTime("Sort boundary particles: ",
-                          [&]()
-                          {
-                              for(UInt i = 0; i < static_cast<UInt>(m_BoundaryObjects.size()); ++i) {
-                                  auto& bdObj   = m_BoundaryObjects[i];
-                                  auto const& d = m_NSearch->point_set(i + 1);
-                                  d.sort_field(&(bdObj->getBDParticles()[0]));
-                              }
-                          });
-
-////////////////////////////////////////////////////////////////////////////////
     logger().printLog("Solver ready!");
     logger().newLine();
     saveFrameData();
@@ -102,31 +51,33 @@ void WCSPHSolver::advanceFrame()
     int          substepCount = 0;
 
     ////////////////////////////////////////////////////////////////////////////////
-    while(frameTime < m_GlobalParams.frameDuration) {
+    while(frameTime < globalParams().frameDuration) {
         logger().printRunTime("Sub-step time: ", subStepTimer,
                               [&]()
                               {
-                                  Real remainingTime = m_GlobalParams.frameDuration - frameTime;
+                                  Real remainingTime = globalParams().frameDuration - frameTime;
                                   Real substep       = MathHelpers::min(computeCFLTimestep(), remainingTime);
                                   ////////////////////////////////////////////////////////////////////////////////
                                   logger().printRunTime("Find neighbors: ",               funcTimer, [&]() { m_NSearch->find_neighbors(); });
                                   logger().printRunTime("====> Advance velocity total: ", funcTimer, [&]() { advanceVelocity(substep); });
                                   logger().printRunTime("Move particles: ",               funcTimer, [&]() { moveParticles(substep); });
+                                  if(solverParams().bCorrectPosition) {
+                                      logger().printRunTime("Correct particle positions: ", funcTimer, [&]() { correctPositions(substep); });
+                                  }
                                   ////////////////////////////////////////////////////////////////////////////////
                                   frameTime += substep;
                                   ++substepCount;
                                   logger().printLog("Finished step " + NumberHelpers::formatWithCommas(substepCount) + " of size " + NumberHelpers::formatToScientific(substep) +
-                                                    "(" + NumberHelpers::formatWithCommas(substep / m_GlobalParams.frameDuration * 100) + "% of the frame, to " +
-                                                    NumberHelpers::formatWithCommas(100 * (frameTime) / m_GlobalParams.frameDuration) + "% of the frame).");
-                                  logger().printRunTime("Advance scene: ", funcTimer, [&]() { advanceScene(globalParams().finishedFrame, frameTime / globalParams().frameDuration); });
+                                                    "(" + NumberHelpers::formatWithCommas(substep / globalParams().frameDuration * 100) + "% of the frame, to " +
+                                                    NumberHelpers::formatWithCommas(100 * (frameTime) / globalParams().frameDuration) + "% of the frame).");
+                                  logger().printRunTime("====> Advance scene: ", funcTimer, [&]() { advanceScene(globalParams().finishedFrame, frameTime / globalParams().frameDuration); });
                               });
 
-////////////////////////////////////////////////////////////////////////////////
         logger().newLine();
-    }       // end while
+    }
 
     ////////////////////////////////////////////////////////////////////////////////
-    ++m_GlobalParams.finishedFrame;
+    ++globalParams().finishedFrame;
     saveFrameData();
     saveMemoryState();
 }
@@ -135,21 +86,16 @@ void WCSPHSolver::advanceFrame()
 void WCSPHSolver::sortParticles()
 {
     assert(m_NSearch != nullptr);
-
-    static UInt frameCount = 0;
-    ++frameCount;
-
-    if(frameCount < m_GlobalParams.sortFrequency) {
+    if(globalParams().finishedFrame % globalParams().sortFrequency != 0) {
         return;
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    frameCount = 0;
     static Timer timer;
-    logger().printRunTime("Compute Z-sort rule: ",             timer, [&]() { m_NSearch->z_sort(); });
     logger().printRunTime("Sort data by particle positions: ", timer,
                           [&]()
                           {
+                              m_NSearch->z_sort();
                               auto const& d = m_NSearch->point_set(0);
                               d.sort_field(&solverData().positions[0]);
                               d.sort_field(&solverData().velocities[0]);
@@ -160,16 +106,12 @@ void WCSPHSolver::sortParticles()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void WCSPHSolver::loadSimParams(const nlohmann::json& jParams)
 {
-    JSONHelpers::readValue(jParams, solverParams().particleRadius, "ParticleRadius");
-
-    JSONHelpers::readVector(jParams, solverParams().boxMin, "BoxMin");
-    JSONHelpers::readVector(jParams, solverParams().boxMax, "BoxMax");
-
-    JSONHelpers::readValue(jParams, solverParams().pressureStiffness,  "PressureStiffness");
-    JSONHelpers::readValue(jParams, solverParams().nearForceStiffness, "NearForceStiffness");
-    JSONHelpers::readValue(jParams, solverParams().viscosityFluid,     "ViscosityFluid");
-    JSONHelpers::readValue(jParams, solverParams().viscosityBoundary,  "ViscosityBoundary");
-    JSONHelpers::readValue(jParams, solverParams().kernelRadius,       "KernelRadius");
+    JSONHelpers::readValue(jParams, solverParams().particleRadius,    "ParticleRadius");
+    JSONHelpers::readValue(jParams, solverParams().pressureStiffness, "PressureStiffness");
+    //JSONHelpers::readValue(jParams, solverParams().nearForceStiffness, "NearForceStiffness");
+    JSONHelpers::readValue(jParams, solverParams().viscosityFluid,    "ViscosityFluid");
+    JSONHelpers::readValue(jParams, solverParams().viscosityBoundary, "ViscosityBoundary");
+    JSONHelpers::readValue(jParams, solverParams().kernelRadius,      "KernelRadius");
 
     JSONHelpers::readBool(jParams, solverParams().bCorrectDensity,        "CorrectDensity");
     JSONHelpers::readBool(jParams, solverParams().bUseBoundaryParticles,  "UseBoundaryParticles");
@@ -177,27 +119,83 @@ void WCSPHSolver::loadSimParams(const nlohmann::json& jParams)
 
     JSONHelpers::readValue(jParams, solverParams().boundaryRestitution,     "BoundaryRestitution");
     JSONHelpers::readValue(jParams, solverParams().attractivePressureRatio, "AttractivePressureRatio");
+
+    ////////////////////////////////////////////////////////////////////////////////
+    solverParams().makeReady();
+    solverParams().printParams(m_Logger);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void WCSPHSolver::generateParticles(const nlohmann::json& jParams)
+{
+    ParticleSolver3D::generateParticles(jParams);
+    m_NSearch = std::make_unique<NeighborSearch::NeighborSearch3D>(solverParams().kernelRadius);
+    if(!loadMemoryState()) {
+        for(auto& generator : m_ParticleGenerators) {
+            generator->makeReady(m_BoundaryObjects, solverParams().particleRadius);
+            UInt nGen = generator->generateParticles(solverData().positions, solverData().velocities);
+            logger().printLog(String("Generated ") + NumberHelpers::formatWithCommas(nGen) + String(" particles by ") + generator->nameID());
+        }
+        m_NSearch->add_point_set(glm::value_ptr(solverData().positions.front()), solverData().getNParticles(), true, true);
+        sortParticles();
+    } else {
+        m_NSearch->add_point_set(glm::value_ptr(solverData().positions.front()), solverData().getNParticles(), true, true);
+    }
+
+    if(solverParams().bUseBoundaryParticles) {
+        __BNN_ASSERT(m_BoundaryObjects.size() != 0);
+        for(auto& bdObj : m_BoundaryObjects) {
+            __BNN_TODO_MSG("Unify boundary particles into solver data")
+            UInt nGen = bdObj->generateBoundaryParticles(solverData().BDParticles, Real(0.85) * solverParams().particleRadius);
+            logger().printLog(String("Generated ") + NumberHelpers::formatWithCommas(nGen) + String(" boundary particles by ") + bdObj->nameID());
+        }
+
+        m_NSearch->add_point_set(glm::value_ptr(solverData().BDParticles.front()), solverData().BDParticles.size(), false, true);
+        logger().printRunTime("Sort boundary particles: ",
+                              [&]()
+                              {
+                                  m_NSearch->z_sort();
+                                  for(UInt i = 0; i < static_cast<UInt>(m_BoundaryObjects.size()); ++i) {
+                                      auto& bdObj   = m_BoundaryObjects[i];
+                                      auto const& d = m_NSearch->point_set(i + 1);
+                                      d.sort_field(&(solverData().BDParticles[0]));
+                                  }
+                              });
+    }
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+bool WCSPHSolver::advanceScene(UInt frame, Real fraction /*= Real(0)*/)
+{
+    ParticleSolver3D::advanceScene(frame, fraction);
+    for(auto& generator : m_ParticleGenerators) {
+        if(!generator->isActive(frame)) {
+            UInt nGen = generator->generateParticles(solverData().positions, solverData().velocities, frame);
+            logger().printLog(String("Generated ") + NumberHelpers::formatWithCommas(nGen) + String(" new particles by ") + generator->nameID());
+        }
+    }
+    return true;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void WCSPHSolver::setupDataIO()
 {
-    m_ParticleDataIO = std::make_unique<ParticleSerialization>(m_GlobalParams.dataPath, "SPHData", "frame", m_Logger);
+    m_ParticleDataIO = std::make_unique<ParticleSerialization>(globalParams().dataPath, "SPHData", "frame", m_Logger);
     m_ParticleDataIO->addFixedAttribute<float>("particle_radius", ParticleSerialization::TypeReal, 1);
     m_ParticleDataIO->addParticleAttribute<float>("position", ParticleSerialization::TypeCompressedReal, 3);
-    if(m_GlobalParams.isSavingData("anisotropic_kernel")) {
+    if(globalParams().isSavingData("anisotropic_kernel")) {
         m_ParticleDataIO->addParticleAttribute<float>("anisotropic_kernel", ParticleSerialization::TypeCompressedReal, 9);
     }
-    if(m_GlobalParams.isSavingData("velocity")) {
+    if(globalParams().isSavingData("velocity")) {
         m_ParticleDataIO->addParticleAttribute<float>("velocity", ParticleSerialization::TypeCompressedReal, 3);
     }
-    if(m_GlobalParams.isSavingData("density")) {
+    if(globalParams().isSavingData("density")) {
         m_ParticleDataIO->addParticleAttribute<float>("density", ParticleSerialization::TypeCompressedReal, 1);
     }
 
     ////////////////////////////////////////////////////////////////////////////////
 
-    m_MemoryStateIO = std::make_unique<ParticleSerialization>(m_GlobalParams.dataPath, "SPHState", "frame", m_Logger);
+    m_MemoryStateIO = std::make_unique<ParticleSerialization>(globalParams().dataPath, "SPHState", "frame", m_Logger);
     m_MemoryStateIO->addFixedAttribute<Real>("particle_radius", ParticleSerialization::TypeReal, 1);
     m_MemoryStateIO->addParticleAttribute<Real>("position", ParticleSerialization::TypeReal, 3);
     m_MemoryStateIO->addParticleAttribute<Real>("velocity", ParticleSerialization::TypeReal, 3);
@@ -206,12 +204,12 @@ void WCSPHSolver::setupDataIO()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 bool WCSPHSolver::loadMemoryState()
 {
-    if(!m_GlobalParams.bLoadMemoryState) {
+    if(!globalParams().bLoadMemoryState) {
         return false;
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    int latestStateIdx = m_MemoryStateIO->getLatestFileIndex(m_GlobalParams.finalFrame);
+    int latestStateIdx = m_MemoryStateIO->getLatestFileIndex(globalParams().finalFrame);
     if(latestStateIdx < 0) {
         return false;
     }
@@ -227,22 +225,23 @@ bool WCSPHSolver::loadMemoryState()
 
     __BNN_ASSERT(m_MemoryStateIO->getParticleAttribute("position", solverData().positions));
     __BNN_ASSERT(m_MemoryStateIO->getParticleAttribute("velocity", solverData().velocities));
-    assert(solverData().velocities.size() == solverData().positions.size());
+    assert(solverData().velocities.size() == solverData().getNParticles());
 
+    logger().printLog(String("Loaded memory state from frameIdx = ") + std::to_string(latestStateIdx));
     return true;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void WCSPHSolver::saveMemoryState()
 {
-    if(!m_GlobalParams.bSaveMemoryState) {
+    if(!globalParams().bSaveMemoryState) {
         return;
     }
 
     static UInt frameCount = 0;
     ++frameCount;
 
-    if(frameCount < m_GlobalParams.framePerState) {
+    if(frameCount < globalParams().framePerState) {
         return;
     }
 
@@ -254,13 +253,13 @@ void WCSPHSolver::saveMemoryState()
     m_MemoryStateIO->setFixedAttribute("particle_radius", solverParams().particleRadius);
     m_MemoryStateIO->setParticleAttribute("position", solverData().positions);
     m_MemoryStateIO->setParticleAttribute("velocity", solverData().velocities);
-    m_MemoryStateIO->flushAsync(m_GlobalParams.finishedFrame);
+    m_MemoryStateIO->flushAsync(globalParams().finishedFrame);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void WCSPHSolver::saveFrameData()
 {
-    if(!m_GlobalParams.bSaveFrameData) {
+    if(!globalParams().bSaveFrameData) {
         return;
     }
 
@@ -268,43 +267,38 @@ void WCSPHSolver::saveFrameData()
     m_ParticleDataIO->clearData();
     m_ParticleDataIO->setNParticles(solverData().getNParticles());
     m_ParticleDataIO->setFixedAttribute("particle_radius", static_cast<float>(solverParams().particleRadius));
-    if(m_GlobalParams.isSavingData("anisotropic_kernel")) {
+    if(globalParams().isSavingData("anisotropic_kernel")) {
         AnisotropicKernelGenerator aniKernelGenerator(solverData().getNParticles(), solverData().positions.data(), solverParams().particleRadius);
         aniKernelGenerator.generateAniKernels();
-        m_ParticleDataIO->setParticleAttribute("position", aniKernelGenerator.kernelCenters());
+        m_ParticleDataIO->setParticleAttribute("position",           aniKernelGenerator.kernelCenters());
         m_ParticleDataIO->setParticleAttribute("anisotropic_kernel", aniKernelGenerator.kernelMatrices());
     } else {
         m_ParticleDataIO->setParticleAttribute("position", solverData().positions);
     }
 
-    if(m_GlobalParams.isSavingData("velocity")) {
+    if(globalParams().isSavingData("velocity")) {
         m_ParticleDataIO->setParticleAttribute("velocity", solverData().velocities);
     }
 
-    if(m_GlobalParams.isSavingData("density")) {
+    if(globalParams().isSavingData("density")) {
         m_ParticleDataIO->setParticleAttribute("density", solverData().densities);
     }
 
-    m_ParticleDataIO->flushAsync(m_GlobalParams.finishedFrame);
+    m_ParticleDataIO->flushAsync(globalParams().finishedFrame);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 Real WCSPHSolver::computeCFLTimestep()
 {
     Real maxVel      = sqrt(ParallelSTL::maxNorm2<3, Real>(solverData().velocities));
-    Real CFLTimeStep = maxVel > Real(Tiny) ? solverParams().CFLFactor * Real(0.4) * (Real(2.0) * solverParams().particleRadius / maxVel) : Real(1e10);
-
-    CFLTimeStep = MathHelpers::max(CFLTimeStep, solverParams().minTimestep);
-    CFLTimeStep = MathHelpers::min(CFLTimeStep, solverParams().maxTimestep);
-
-    return CFLTimeStep;
+    Real CFLTimeStep = maxVel > Real(Tiny) ? solverParams().CFLFactor * Real(0.4) * (Real(2.0) * solverParams().particleRadius / maxVel) : Huge;
+    return MathHelpers::clamp(CFLTimeStep, solverParams().minTimestep, solverParams().maxTimestep);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void WCSPHSolver::advanceVelocity(Real timestep)
 {
     static Timer funcTimer;
-
     ////////////////////////////////////////////////////////////////////////////////
     logger().printRunTime("Compute density: ", funcTimer, [&]() { computeDensity(); });
     if(solverParams().bCorrectDensity) {
@@ -317,230 +311,250 @@ void WCSPHSolver::advanceVelocity(Real timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void WCSPHSolver::computeDensity()
+void WCSPHSolver::moveParticles(Real timestep)
 {
-    assert(solverData().positions.size() == solverData().densities.size());
+    ParallelFuncs::parallel_for(solverData().getNParticles(),
+                                [&](UInt p)
+                                {
+                                    auto ppos0 = solverData().positions[p];
+                                    auto pvel  = solverData().velocities[p];
+                                    auto ppos  = ppos0 + pvel * timestep;
+                                    for(auto& obj : m_BoundaryObjects) {
+                                        obj->constrainToBoundary(ppos);
+                                    }
+                                    solverData().positions[p] = ppos;
+                                });
+}
 
-    const Real min_density = solverParams().restDensity / solverParams().densityVariationRatio;
-    const Real max_density = solverParams().restDensity * solverParams().densityVariationRatio;
-
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void WCSPHSolver::correctPositions(Real timestep)
+{
+    static const Real               radius        = Real(4.0) * solverParams().particleRadius / Real(sqrt(solverDimension()));
+    const Real                      threshold     = Real(0.05) * radius;
+    const Real                      threshold2    = threshold * threshold;
     const NeighborSearch::PointSet& fluidPointSet = m_NSearch->point_set(0);
 
-    ParallelFuncs::parallel_for<UInt>(0, solverData().getNParticles(),
-                                      [&](UInt p)
-                                      {
-                                          const Vec3r& pPos = solverData().positions[p];
-                                          Real pden         = m_CubicKernel.W_zero();
+    ParallelFuncs::parallel_for(solverData().getNParticles(),
+                                [&](UInt p)
+                                {
+                                    const auto& ppos = solverData().positions[p];
+                                    Vec3r spring(0);
 
-                                          ////////////////////////////////////////////////////////////////////////////////
-                                          for(UInt q : fluidPointSet.neighbors(0, p)) {
-                                              const Vec3r& qpos = solverData().positions[q];
-                                              const Vec3r r     = qpos - pPos;
+                                    for(UInt q : fluidPointSet.neighbors(0, p)) {
+                                        const auto& qpos = solverData().positions[q];
+                                        const auto xpq   = qpos - ppos;
+                                        const auto d2    = glm::length2(xpq);
+                                        const auto w     = MathHelpers::smooth_kernel(d2, radius);
 
-                                              pden += m_CubicKernel.W(r);
-                                          }
+                                        if(d2 > threshold2) {
+                                            spring += w * xpq / sqrt(d2) * radius * solverParams().repulsiveForceStiffness;
+                                        } else {
+                                            spring += threshold / timestep * Vec3r(MathHelpers::frand11<Real>(),
+                                                                                   MathHelpers::frand11<Real>(),
+                                                                                   MathHelpers::frand11<Real>());
+                                        }
+                                    }
 
-                                          ////////////////////////////////////////////////////////////////////////////////
-                                          if(solverParams().bUseBoundaryParticles) {
-                                              for(UInt q : fluidPointSet.neighbors(1, p)) {
-                                                  const Vec3r& qPos = m_BoundaryObjects[0]->getBDParticles()[q];
-                                                  const Vec3r r     = qPos - pPos;
+                                    auto newPos = ppos + spring * timestep;
+                                    for(auto& obj : m_BoundaryObjects) {
+                                        obj->constrainToBoundary(newPos);
+                                    }
+                                    solverData().positions_tmp[p] = newPos;
+                                });
 
-                                                  pden += m_CubicKernel.W(r);
-                                              }
-                                          }
+    solverData().positions = solverData().positions_tmp;
+}
 
-                                          ////////////////////////////////////////////////////////////////////////////////
-                                          solverData().densities[p] = pden < 1.0 ? 0 : fmin(MathHelpers::max(pden * solverParams().particleMass, min_density), max_density);
-                                      }); // end parallel_for
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void WCSPHSolver::computeDensity()
+{
+    const NeighborSearch::PointSet& fluidPointSet = m_NSearch->point_set(0);
+    ParallelFuncs::parallel_for(solverData().getNParticles(),
+                                [&](UInt p)
+                                {
+                                    const auto& ppos = solverData().positions[p];
+                                    auto pden        = m_CubicKernel.W_zero();
+
+                                    ////////////////////////////////////////////////////////////////////////////////
+                                    for(UInt q : fluidPointSet.neighbors(0, p)) {
+                                        const auto& qpos = solverData().positions[q];
+                                        const auto r     = qpos - ppos;
+                                        pden += m_CubicKernel.W(r);
+                                    }
+
+                                    ////////////////////////////////////////////////////////////////////////////////
+                                    if(solverParams().bUseBoundaryParticles) {
+                                        for(UInt q : fluidPointSet.neighbors(1, p)) {
+                                            const auto& qpos = solverData().BDParticles[q];
+                                            const auto r     = qpos - ppos;
+                                            pden += m_CubicKernel.W(r);
+                                        }
+                                    }
+
+                                    ////////////////////////////////////////////////////////////////////////////////
+                                    solverData().densities[p] = (pden < Tiny) ?
+                                                                Real(0) : MathHelpers::clamp(pden * solverParams().particleMass, solverParams().densityMin, solverParams().densityMax);
+                                });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void WCSPHSolver::correctDensity()
 {
-    assert(solverData().positions.size() == solverData().densities.size());
-
-    const Real min_density = solverParams().restDensity / solverParams().densityVariationRatio;
-    const Real max_density = solverParams().restDensity * solverParams().densityVariationRatio;
-
     const NeighborSearch::PointSet& fluidPointSet = m_NSearch->point_set(0);
+    ParallelFuncs::parallel_for(solverData().getNParticles(),
+                                [&](UInt p)
+                                {
+                                    const auto& ppos = solverData().positions[p];
+                                    auto pden        = solverData().densities[p];
+                                    if(pden < Tiny) {
+                                        return;
+                                    }
 
-    ParallelFuncs::parallel_for<UInt>(0, solverData().getNParticles(),
-                                      [&](UInt p)
-                                      {
-                                          const Vec3r& pPos = solverData().positions[p];
-                                          Real pden         = solverData().densities[p];
-                                          if(pden < Tiny) {
-                                              return;
-                                          }
+                                    ////////////////////////////////////////////////////////////////////////////////
+                                    Real tmp = m_CubicKernel.W_zero() / pden;
+                                    for(UInt q : fluidPointSet.neighbors(0, p)) {
+                                        const auto& qpos = solverData().positions[q];
+                                        const auto qden  = solverData().densities[q];
 
-                                          ////////////////////////////////////////////////////////////////////////////////
-                                          Real tmp = m_CubicKernel.W_zero() / pden;
-                                          for(UInt q : fluidPointSet.neighbors(0, p)) {
-                                              const Vec3r& qpos = solverData().positions[q];
-                                              const Vec3r r     = qpos - pPos;
-                                              const Real qden   = solverData().densities[q];
+                                        if(qden < Tiny) {
+                                            continue;
+                                        }
 
-                                              if(qden < Tiny) {
-                                                  continue;
-                                              }
+                                        const auto r = qpos - ppos;
+                                        tmp += m_CubicKernel.W(r) / qden;
+                                    }
 
-                                              tmp += m_CubicKernel.W(r) / qden;
-                                          } // end loop over neighbor cells
+                                    ////////////////////////////////////////////////////////////////////////////////
+                                    if(solverParams().bUseBoundaryParticles) {
+                                        for(UInt q : fluidPointSet.neighbors(1, p)) {
+                                            const auto& qpos = solverData().BDParticles[q];
+                                            const auto r     = qpos - ppos;
+                                            tmp += m_CubicKernel.W(r) / solverParams().restDensity;
+                                        }
+                                    }
 
-                                          ////////////////////////////////////////////////////////////////////////////////
-                                          if(solverParams().bUseBoundaryParticles) {
-                                              for(UInt q : fluidPointSet.neighbors(1, p)) {
-                                                  const Vec3r& qpos = m_BoundaryObjects[0]->getBDParticles()[q];
-                                                  const Vec3r r     = qpos - pPos;
-                                                  tmp += m_CubicKernel.W(r) / solverParams().restDensity;
-                                              }
-                                          }
+                                    ////////////////////////////////////////////////////////////////////////////////
+                                    solverData().densities_tmp[p] = (tmp < Tiny) ? Real(0) :
+                                                                    MathHelpers::clamp(pden / tmp * solverParams().particleMass, solverParams().densityMin, solverParams().densityMax);
+                                });       // end parallel_for
 
-                                          ////////////////////////////////////////////////////////////////////////////////
-                                          solverData().densities_tmp[p] = tmp > Tiny ? pden / fmin(tmp * solverParams().particleMass, max_density) : 0;
-                                      }); // end parallel_for
-
-    std::copy(solverData().densities_tmp.begin(), solverData().densities_tmp.end(), solverData().densities.begin());
+    solverData().densities = solverData().densities_tmp;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void WCSPHSolver::computePressureForces()
 {
-    assert(solverData().positions.size() == solverData().pressureForces.size());
-
     const NeighborSearch::PointSet& fluidPointSet = m_NSearch->point_set(0);
-    ParallelFuncs::parallel_for<UInt>(0, solverData().getNParticles(),
-                                      [&](UInt p)
-                                      {
-                                          const Real pden = solverData().densities[p];
+    ParallelFuncs::parallel_for(solverData().getNParticles(),
+                                [&](UInt p)
+                                {
+                                    Vec3r pressureAccel(0);
+                                    const auto pden = solverData().densities[p];
+                                    if(pden < Tiny) {
+                                        solverData().pressureForces[p] = pressureAccel;
+                                        return;
+                                    }
 
-                                          Vec3r pressureAccel(0, 0, 0);
+                                    ////////////////////////////////////////////////////////////////////////////////
+                                    const auto& ppos     = solverData().positions[p];
+                                    const auto pdrho     = MathHelpers::pow7(pden / solverParams().restDensity) - Real(1.0);
+                                    const auto ppressure = solverParams().bUseAttractivePressure ?
+                                                           MathHelpers::max(pdrho, pdrho * solverParams().attractivePressureRatio) : MathHelpers::max(pdrho, Real(0));
 
-                                          if(pden < Tiny) {
-                                              solverData().pressureForces[p] = pressureAccel;
-                                              return;
-                                          }
+                                    for(UInt q : fluidPointSet.neighbors(0, p)) {
+                                        const auto& qpos = solverData().positions[q];
+                                        const auto qden  = solverData().densities[q];
+                                        if(qden < Tiny) {
+                                            continue;
+                                        }
 
-                                          ////////////////////////////////////////////////////////////////////////////////
-                                          const Vec3r& pPos    = solverData().positions[p];
-                                          const Real pdrho     = MathHelpers::pow7(pden / solverParams().restDensity) - Real(1.0);
-                                          const Real ppressure = solverParams().bUseAttractivePressure ?
-                                                                 MathHelpers::max(pdrho, pdrho * solverParams().attractivePressureRatio) : MathHelpers::max(pdrho, Real(0));
+                                        const auto qdrho     = MathHelpers::pow7(qden / solverParams().restDensity) - Real(1.0);
+                                        const auto qpressure = solverParams().bUseAttractivePressure ?
+                                                               MathHelpers::max(qdrho, qdrho * solverParams().attractivePressureRatio) : MathHelpers::max(qdrho, Real(0));
 
-                                          for(UInt q : fluidPointSet.neighbors(0, p)) {
-                                              const Vec3r& qpos = solverData().positions[q];
-                                              const Real qden   = solverData().densities[q];
-
-                                              if(qden < Tiny) {
-                                                  continue;
-                                              }
-
-                                              const Real qdrho     = MathHelpers::pow7(qden / solverParams().restDensity) - Real(1.0);
-                                              const Real qpressure = solverParams().bUseAttractivePressure ?
-                                                                     MathHelpers::max(qdrho, qdrho * solverParams().attractivePressureRatio) : MathHelpers::max(qdrho, Real(0));
-
-                                              const Vec3r r        = qpos - pPos;
-                                              const Vec3r pressure = (ppressure / (pden * pden) + qpressure / (qden * qden)) * m_SpikyKernel.gradW(r);
-                                              pressureAccel += pressure;
-                                          } // end loop over neighbor cells
+                                        const auto r        = qpos - ppos;
+                                        const auto pressure = (ppressure / (pden * pden) + qpressure / (qden * qden)) * m_SpikyKernel.gradW(r);
+                                        pressureAccel += pressure;
+                                    }
 
 
-                                          ////////////////////////////////////////////////////////////////////////////////
-                                          // ==> correct density for the boundary particles
-                                          if(solverParams().bUseBoundaryParticles) {
-                                              for(UInt q : fluidPointSet.neighbors(1, p)) {
-                                                  const Vec3r& qpos = m_BoundaryObjects[0]->getBDParticles()[q];
-                                                  const Vec3r r     = qpos - pPos;
+                                    ////////////////////////////////////////////////////////////////////////////////
+                                    // ==> correct density for the boundary particles
+                                    if(solverParams().bUseBoundaryParticles) {
+                                        for(UInt q : fluidPointSet.neighbors(1, p)) {
+                                            const auto& qpos    = solverData().BDParticles[q];
+                                            const auto r        = qpos - ppos;
+                                            const auto pressure = (ppressure / (pden * pden)) * m_SpikyKernel.gradW(r);
+                                            pressureAccel += pressure;
+                                        }
+                                    }
 
-                                                  const Vec3r pressure = (ppressure / (pden * pden)) * m_SpikyKernel.gradW(r);
-                                                  pressureAccel += pressure;
-                                              }
-                                          }
-
-                                          ////////////////////////////////////////////////////////////////////////////////
-                                          solverData().pressureForces[p] = pressureAccel * solverParams().particleMass * solverParams().pressureStiffness;
-                                      }); // end parallel_for
+                                    ////////////////////////////////////////////////////////////////////////////////
+                                    solverData().pressureForces[p] = pressureAccel * solverParams().particleMass * solverParams().pressureStiffness;
+                                });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void WCSPHSolver::computeSurfaceTensionForces()
 {
-    assert(solverData().positions.size() == solverData().surfaceTensionForces.size());
+    assert(solverData().getNParticles() == solverData().surfaceTensionForces.size());
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void WCSPHSolver::computeViscosity()
 {
-    assert(solverData().positions.size() == solverData().diffuseVelocity.size());
+    assert(solverData().getNParticles() == solverData().diffuseVelocity.size());
 
     const NeighborSearch::PointSet& fluidPointSet = m_NSearch->point_set(0);
-    ParallelFuncs::parallel_for<UInt>(0, solverData().getNParticles(),
-                                      [&](UInt p)
-                                      {
-                                          const Vec3r& pPos     = solverData().positions[p];
-                                          const Vec3r& pvel     = solverData().velocities[p];
-                                          Vec3r diffVelFluid    = Vec3r(0);
-                                          Vec3r diffVelBoundary = Vec3r(0);
+    ParallelFuncs::parallel_for(solverData().getNParticles(),
+                                [&](UInt p)
+                                {
+                                    const auto& ppos      = solverData().positions[p];
+                                    const auto& pvel      = solverData().velocities[p];
+                                    Vec3r diffVelFluid    = Vec3r(0);
+                                    Vec3r diffVelBoundary = Vec3r(0);
 
-                                          ////////////////////////////////////////////////////////////////////////////////
-                                          for(UInt q : fluidPointSet.neighbors(0, p)) {
-                                              const Vec3r& qpos = solverData().positions[q];
-                                              const Vec3r& qvel = solverData().velocities[q];
-                                              const Real qden   = solverData().densities[q];
-                                              if(qden < Tiny) {
-                                                  continue;
-                                              }
+                                    ////////////////////////////////////////////////////////////////////////////////
+                                    for(UInt q : fluidPointSet.neighbors(0, p)) {
+                                        const auto& qpos = solverData().positions[q];
+                                        const auto& qvel = solverData().velocities[q];
+                                        const auto qden  = solverData().densities[q];
+                                        if(qden < Tiny) {
+                                            continue;
+                                        }
 
-                                              const Vec3r r = qpos - pPos;
-                                              diffVelFluid += (Real(1.0) / qden) * m_CubicKernel.W(r) * (qvel - pvel);
-                                          } // end loop over neighbor cells
+                                        const auto r = qpos - ppos;
+                                        diffVelFluid += (Real(1.0) / qden) * m_CubicKernel.W(r) * (qvel - pvel);
+                                    }       // end loop over neighbor cells
 
-                                          ////////////////////////////////////////////////////////////////////////////////
-                                          if(solverParams().bUseBoundaryParticles) {
-                                              for(UInt q : fluidPointSet.neighbors(1, p)) {
-                                                  const Vec3r& qpos = m_BoundaryObjects[0]->getBDParticles()[q];
-                                                  const Vec3r r     = qpos - pPos;
+                                    ////////////////////////////////////////////////////////////////////////////////
+                                    if(solverParams().bUseBoundaryParticles) {
+                                        for(UInt q : fluidPointSet.neighbors(1, p)) {
+                                            const auto& qpos = solverData().BDParticles[q];
+                                            const auto r     = qpos - ppos;
+                                            diffVelBoundary -= (Real(1.0) / solverParams().restDensity) * m_CubicKernel.W(r) * pvel;
+                                        }
+                                    }
 
-                                                  diffVelBoundary -= (Real(1.0) / solverParams().restDensity) * m_CubicKernel.W(r) * pvel;
-                                              }
-                                          }
-
-                                          ////////////////////////////////////////////////////////////////////////////////
-                                          solverData().diffuseVelocity[p] = (diffVelFluid * solverParams().viscosityFluid +
-                                                                             diffVelBoundary * solverParams().viscosityBoundary) * solverParams().particleMass;
-                                      }); // end parallel_for
+                                    ////////////////////////////////////////////////////////////////////////////////
+                                    solverData().diffuseVelocity[p] = (diffVelFluid * solverParams().viscosityFluid +
+                                                                       diffVelBoundary * solverParams().viscosityBoundary) * solverParams().particleMass;
+                                });
 
 
-    ParallelFuncs::parallel_for<size_t>(0, solverData().velocities.size(), [&](size_t p) { solverData().velocities[p] += solverData().diffuseVelocity[p]; });
+    ParallelFuncs::parallel_for(solverData().velocities.size(), [&](size_t p) { solverData().velocities[p] += solverData().diffuseVelocity[p]; });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void WCSPHSolver::updateVelocity(Real timestep)
 {
-    const static Vec3r gravity = m_GlobalParams.bApplyGravity ? Vec3r(0, -9.8, 0) : Vec3r(0);
-    ParallelFuncs::parallel_for<size_t>(0, solverData().velocities.size(),
-                                        [&](size_t p)
-                                        {
-                                            //solverData().velocities[p] += (gravity + solverData().pressureForces[p] + solverData().surfaceTensionForces[p]) * timestep;
-                                            solverData().velocities[p] += (gravity + solverData().pressureForces[p]) * timestep;
-                                        });
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void WCSPHSolver::moveParticles(Real timestep)
-{
-    ParallelFuncs::parallel_for<size_t>(0, solverData().positions.size(),
-                                        [&](size_t p)
-                                        {
-                                            auto ppos0 = solverData().positions[p];
-                                            auto pvel  = solverData().velocities[p];
-                                            auto ppos  = ppos0 + pvel * timestep;
-                                            for(auto& obj : m_BoundaryObjects) {
-                                                obj->constrainToBoundary(ppos);
-                                            }
-                                            solverData().positions[p] = ppos;
-                                        }); // end parallel_for
+    const static Vec3r gravity = globalParams().bApplyGravity ? Vec3r(0, -9.8, 0) : Vec3r(0);
+    ParallelFuncs::parallel_for(solverData().velocities.size(),
+                                [&](size_t p)
+                                {
+                                    //solverData().velocities[p] += (gravity + solverData().pressureForces[p] + solverData().surfaceTensionForces[p]) * timestep;
+                                    solverData().velocities[p] += (gravity + solverData().pressureForces[p]) * timestep;
+                                });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

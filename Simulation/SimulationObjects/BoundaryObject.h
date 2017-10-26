@@ -51,24 +51,21 @@ public:
     auto& restitution() { return m_RestitutionCoeff; }
     auto& isDynamic() { return m_bDynamics; }
 
-    auto  getNumBDParticles() const noexcept { return static_cast<UInt>(m_BDParticles.size()); }
-    auto& getBDParticles() { return m_BDParticles; }
-
-    virtual void initBoundaryParticles(RealType particleRadius, Int numBDLayers = 2, bool useCache = true);
 
     RealType          signedDistance(const VecX<N, RealType>& ppos, bool bUseCache = true);
     VecX<N, RealType> gradSignedDistance(const VecX<N, RealType>& ppos, RealType dxyz = RealType(1.0 / 512.0), bool bUseCache = true);
     void              generateSDF(const VecX<N, RealType>& domainBMin, const VecX<N, RealType>& domainBMax, RealType sdfCellSize = RealType(1.0 / 512.0), bool bUseCache = false);
     void              constrainToBoundary(VecX<N, RealType>& ppos);
 
+    UInt generateBoundaryParticles(Vec_VecX<N, RealType>& PDPositions, RealType particleRadius, Int numBDLayers = 2, bool useCache = true);
 protected:
-    virtual void generateBoundaryParticles(RealType particleRadius, Int numBDLayers) { __BNN_UNUSED(particleRadius); __BNN_UNUSED(numBDLayers); __BNN_UNIMPLEMENTED_FUNC }
+    virtual void generateBoundaryParticles_Impl(Vec_VecX<N, RealType>& PDPositions, RealType particleRadius, Int numBDLayers) { __BNN_TODO }
+    virtual void generateSDF_Impl() = 0;
 
     RealType m_Margin           = RealType(0.0);
     RealType m_RestitutionCoeff = ParticleSolverConstants::DefaultBoundaryRestitution;
 
-    Grid<N, RealType>          m_Grid;
-    Vector<VecX<N, RealType> > m_BDParticles;
+    Grid<N, RealType> m_Grid;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+`
@@ -86,7 +83,7 @@ class BoundaryObject<2, RealType> : public BoundaryObjectInterface<2, RealType>
 {
 public:
     BoundaryObject(const String& geometryType) : BoundaryObjectInterface(geometryType) {}
-    void computeSDF();
+    void generateSDF_Impl();
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+`
@@ -95,7 +92,7 @@ class BoundaryObject<3, RealType> : public BoundaryObjectInterface<3, RealType>
 {
 public:
     BoundaryObject(const String& geometryType) : BoundaryObjectInterface(geometryType) {}
-    void computeSDF();
+    void generateSDF_Impl();
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+`
@@ -110,7 +107,7 @@ class BoxBoundaryInterface : public BoundaryObject<N, RealType>
 public:
     BoxBoundaryInterface() : BoundaryObject<N, RealType>("Box")
     {
-        m_Box = std::static_pointer_cast<GeometryObjects::BoxObject<N, RealType> >(m_GeometryObj);
+        m_Box = std::dynamic_pointer_cast<GeometryObjects::BoxObject<N, RealType> >(m_GeometryObj);
         __BNN_ASSERT(m_Box != nullptr);
     }
 
@@ -131,7 +128,7 @@ template<class RealType>
 class BoxBoundary<2, RealType> : public BoxBoundaryInterface<2, RealType>
 {
 public:
-    virtual void generateBoundaryParticles(RealType spacing, Int numBDLayers) override;
+    virtual void generateBoundaryParticles_Impl(Vec_Vec2<RealType>& PDPositions, RealType particleRadius, Int numBDLayers = 2) override;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -139,7 +136,7 @@ template<class RealType>
 class BoxBoundary<3, RealType> : public BoxBoundaryInterface<3, RealType>
 {
 public:
-    virtual void generateBoundaryParticles(RealType spacing, Int numBDLayers) override;
+    virtual void generateBoundaryParticles_Impl(Vec_Vec3<RealType>& PDPositions, RealType particleRadius, Int numBDLayers = 2) override;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

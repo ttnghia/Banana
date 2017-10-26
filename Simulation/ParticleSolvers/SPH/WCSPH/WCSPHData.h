@@ -27,9 +27,8 @@ namespace Banana
 namespace ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#define DEFAULT_PRESSURE_STIFFNESS   50000.0
-#define DEFAULT_NEAR_FORCE_STIFFNESS 50000.0
-#define DEFAULT_VISCOSITY            0.05
+#define DEFAULT_PRESSURE_STIFFNESS 50000.0
+#define DEFAULT_VISCOSITY          0.05
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 struct SimulationParameters_WCSPH
@@ -41,49 +40,50 @@ struct SimulationParameters_WCSPH
     Real maxTimestep = Real(5.0e-4);
     Real CFLFactor   = Real(0.5);
 
-    Vec3r boxMin = Vec3r(-1.0);
-    Vec3r boxMax = Vec3r(1.0);
-
-    Real pressureStiffness  = Real(DEFAULT_PRESSURE_STIFFNESS);
-    Real nearForceStiffness = Real(DEFAULT_NEAR_FORCE_STIFFNESS);
-    Real viscosityFluid     = Real(DEFAULT_VISCOSITY);
-    Real viscosityBoundary  = Real(DEFAULT_VISCOSITY * 0.001);
-    Real particleRadius     = Real(2.0 / 32.0 / 4.0);
+    Real pressureStiffness = Real(DEFAULT_PRESSURE_STIFFNESS);
+    Real viscosityFluid    = Real(DEFAULT_VISCOSITY);
+    Real viscosityBoundary = Real(DEFAULT_VISCOSITY * 0.001);
+    Real particleRadius    = Real(2.0 / 32.0 / 4.0);
 
     Real boundaryRestitution     = Real(ParticleSolverConstants::DefaultBoundaryRestitution);
     Real attractivePressureRatio = Real(0.1);
     Real restDensity             = Real(1000.0);
     Real densityVariationRatio   = Real(10.0);
 
+    bool bCorrectPosition        = false;
+    Real repulsiveForceStiffness = Real(10.0);
+
     bool bCorrectDensity        = false;
     bool bUseBoundaryParticles  = false;
     bool bUseAttractivePressure = false;
 
     // the following need to be computed
+    Real densityMin;
+    Real densityMax;
     Real kernelRadius;
     Real particleMass;
     Real kernelRadiusSqr;
-    Real nearKernelRadius;
     Real restDensitySqr;
 
     ////////////////////////////////////////////////////////////////////////////////
     void makeReady()
     {
-        kernelRadius     = particleRadius * Real(4.0);
-        kernelRadiusSqr  = kernelRadius * kernelRadius;
-        nearKernelRadius = particleRadius * Real(2.5);
+        kernelRadius    = particleRadius * Real(4.0);
+        kernelRadiusSqr = kernelRadius * kernelRadius;
 
         particleMass   = MathHelpers::cube(Real(2.0) * particleRadius) * restDensity * Real(0.9);
         restDensitySqr = restDensity * restDensity;
+
+        densityMin = restDensity / densityVariationRatio;
+        densityMax = restDensity * densityVariationRatio;
     }
 
-    void printParams(const std::shared_ptr<Logger>& logger)
+    void printParams(const SharedPtr<Logger>& logger)
     {
         logger->printLog("SPH simulation parameters:");
         logger->printLogIndent("Max timestep: " + NumberHelpers::formatToScientific(maxTimestep));
         logger->printLogIndent("CFL factor: " + std::to_string(CFLFactor));
         logger->printLogIndent("Pressure stiffness: " + NumberHelpers::formatWithCommas(pressureStiffness));
-        logger->printLogIndent("Near force stiffness: " + NumberHelpers::formatWithCommas(nearForceStiffness));
         logger->printLogIndent("Viscosity fluid-fluid: " + std::to_string(viscosityFluid));
         logger->printLogIndent("Viscosity fluid-boundary: " + std::to_string(viscosityBoundary));
         logger->printLogIndent("Kernel radius: " + std::to_string(kernelRadius));
@@ -93,6 +93,10 @@ struct SimulationParameters_WCSPH
 
         logger->printLogIndent("Correct density: " + (bCorrectDensity ? std::string("Yes") : std::string("No")));
         logger->printLogIndent("Generate boundary particles: " + (bUseBoundaryParticles ? std::string("Yes") : std::string("No")));
+        logger->printLogIndent("Correct particle position: " + (bCorrectPosition ? String("Yes") : String("No")));
+        if(bCorrectPosition) {
+            logger->printLogIndent("Repulsive force stiffness: " + NumberHelpers::formatToScientific(repulsiveForceStiffness));
+        }
         logger->newLine();
     }
 };
@@ -101,12 +105,15 @@ struct SimulationParameters_WCSPH
 struct SimulationData_WCSPH
 {
     Vec_Vec3r positions;
+    Vec_Vec3r positions_tmp;
     Vec_Vec3r velocities;
     Vec_Real  densities;
     Vec_Real  densities_tmp;
     Vec_Vec3r pressureForces;
     Vec_Vec3r surfaceTensionForces;
     Vec_Vec3r diffuseVelocity;
+
+    Vec_Vec3r BDParticles;
 
     ////////////////////////////////////////////////////////////////////////////////
     UInt getNParticles() { return static_cast<UInt>(positions.size()); }
