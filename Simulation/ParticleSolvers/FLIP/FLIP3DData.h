@@ -21,8 +21,11 @@
 #include <Banana/Array/Array.h>
 #include <Banana/NeighborSearch/NeighborSearch3D.h>
 #include <Banana/ParallelHelpers/ParallelObjects.h>
+#include <Banana/ParallelHelpers/ParallelFuncs.h>
 #include <Banana/LinearAlgebra/SparseMatrix/SparseMatrix.h>
+#include <Banana/Utils/MathHelpers.h>
 #include <ParticleSolvers/ParticleSolverData.h>
+#include <SimulationObjects/BoundaryObject.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -75,7 +78,7 @@ struct SimulationParameters_FLIP3D
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    void printParams(const std::shared_ptr<Logger>& logger)
+    void printParams(const SharedPtr<Logger>& logger)
     {
         logger->printLog("FLIP-3D simulation parameters:");
         logger->printLogIndent("Max timestep: " + NumberHelpers::formatToScientific(maxTimestep));
@@ -172,6 +175,21 @@ struct SimulationData_FLIP3D
             fluidSDFLock.resize(ni, nj, nk);
             fluidSDF.resize(ni, nj, nk, 0);
             boundarySDF.resize(ni + 1, nj + 1, nk + 1, 0);
+        }
+
+        ////////////////////////////////////////////////////////////////////////////////
+        void computeBoundarySDF(const Vector<SharedPtr<SimulationObjects::BoundaryObject<3, Real> > >& boundaryObjs)
+        {
+            ParallelFuncs::parallel_for(boundarySDF.size(),
+                                        [&](size_t i, size_t j, size_t k)
+                                        {
+                                            Real minSD = Huge;
+                                            for(auto& obj :boundaryObjs) {
+                                                minSD = MathHelpers::min(minSD, obj->getSDF()(i, j, k));
+                                            }
+
+                                            boundarySDF(i, j, k) = minSD + MEpsilon;
+                                        });
         }
     } gridSimData;
 

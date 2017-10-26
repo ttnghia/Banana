@@ -50,7 +50,7 @@ public:
 
     ////////////////////////////////////////////////////////////////////////////////
     virtual void makeReady() {}     // todo: need this?
-    virtual void advanceScene(UInt frame, RealType fraction = RealType(0)) { m_GeometryObj->updateTransformation(frame, fraction); }
+    virtual bool advanceScene(UInt frame, RealType fraction = RealType(0)) { return m_GeometryObj->updateTransformation(frame, fraction); }
 
 protected:
     virtual void computeSDF() { __BNN_UNIMPLEMENTED_FUNC }

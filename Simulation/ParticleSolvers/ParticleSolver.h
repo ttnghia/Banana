@@ -80,7 +80,7 @@ protected:
     virtual void generateBoundaries(const nlohmann::json& jParams);
     virtual void generateParticles(const nlohmann::json& jParams);
     virtual void generateRemovers(const nlohmann::json& jParams);
-    virtual void advanceScene(UInt frame, RealType fraction = RealType(0));
+    virtual bool advanceScene(UInt frame, RealType fraction = RealType(0));
 
     virtual void setupDataIO()     = 0;
     virtual bool loadMemoryState() = 0;
@@ -348,13 +348,16 @@ void ParticleSolver<N, RealType >::generateRemovers(const nlohmann::json& jParam
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void ParticleSolver<N, RealType >::advanceScene(UInt frame, RealType fraction /*= RealType(0)*/)
+bool ParticleSolver<N, RealType >::advanceScene(UInt frame, RealType fraction /*= RealType(0)*/)
 {
+    bool bSceneChanged = false;
     if(m_DynamicObjects.size() > 0) {
         for(auto& obj : m_DynamicObjects) {
-            obj->advanceScene(frame, fraction);
+            bSceneChanged |= obj->advanceScene(frame, fraction);
         }
     }
+
+    return bSceneChanged;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

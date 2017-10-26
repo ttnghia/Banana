@@ -151,7 +151,7 @@ void Snow3DSolver::generateParticles(const nlohmann::json& jParams)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Snow3DSolver::advanceScene(UInt frame, Real fraction /*= Real(0)*/)
+bool Snow3DSolver::advanceScene(UInt frame, Real fraction /*= Real(0)*/)
 {
     ParticleSolver3D::advanceScene(frame, fraction);
 

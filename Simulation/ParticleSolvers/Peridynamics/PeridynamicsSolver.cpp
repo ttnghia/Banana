@@ -131,7 +131,7 @@ void PeridynamicsSolver::generateParticles(const nlohmann::json& jParams)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void PeridynamicsSolver::advanceScene(UInt frame, Real fraction /*= Real(0)*/)
+bool PeridynamicsSolver::advanceScene(UInt frame, Real fraction /*= Real(0)*/)
 {
     ParticleSolver3D::advanceScene(frame, fraction);
 

@@ -113,10 +113,10 @@ void Banana::GeometryObjects::GeometryObject<N, RealType >::resetTransformation(
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 template<Int N, class RealType>
-void GeometryObject<N, RealType >::updateTransformation(UInt frame /*= 0*/, RealType fraction /*= RealType(0)*/)
+bool GeometryObject<N, RealType >::updateTransformation(UInt frame /*= 0*/, RealType fraction /*= RealType(0)*/)
 {
     if(frame > 0 && m_Animation.nKeyFrames() == 1) {
-        return;
+        return false;
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -125,6 +125,7 @@ void GeometryObject<N, RealType >::updateTransformation(UInt frame /*= 0*/, Real
     m_UniformScale            = m_Animation.getUniformScale(frame, fraction);
     m_InvScale                = m_Animation.getInvScale(frame, fraction);
     m_bTransformed            = true;
+    return true;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -233,17 +234,17 @@ void Banana::GeometryObjects::BoxObject<N, RealType >::makeReadyAnimation()
 
 ////////////////////////////////////////////////////////////////////////////////
 template<Int N, class RealType>
-void Banana::GeometryObjects::BoxObject<N, RealType >::updateTransformation(UInt frame /*= 0*/, RealType fraction /*= RealType(0)*/)
+bool Banana::GeometryObjects::BoxObject<N, RealType >::updateTransformation(UInt frame /*= 0*/, RealType fraction /*= RealType(0)*/)
 {
     GeometryObject<N, RealType>::updateTransformation(frame, fraction);
 
     if(!m_bAnimationReady) {
-        return;
+        return false;
     }
 
     if(m_bPeriodic) {
         if(frame < m_StartFrame) {
-            return;
+            return false;
         } else {
             frame = ((frame - m_StartFrame) % (m_MaxFrame - m_StartFrame)) + m_StartFrame;
         }
@@ -254,6 +255,8 @@ void Banana::GeometryObjects::BoxObject<N, RealType >::updateTransformation(UInt
         m_BoxMin[i] = m_BoxMinSpline[i](x);
         m_BoxMax[i] = m_BoxMaxSpline[i](x);
     }
+
+    return true;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

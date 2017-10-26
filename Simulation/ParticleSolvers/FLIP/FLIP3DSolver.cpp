@@ -55,24 +55,7 @@ void FLIP3DSolver::makeReady()
                                   obj->generateSDF(solverParams().domainBMin, solverParams().domainBMax, solverParams().cellSize);
                               }
 
-                              ParallelFuncs::parallel_for(m_Grid.getNNodes(),
-                                                          [&](UInt i, UInt j, UInt k)
-                                                          {
-                                                              Real minSD = Huge;
-                                                              for(auto& obj : m_BoundaryObjects) {
-                                                                  minSD = MathHelpers::min(minSD, obj->getSDF()(i, j, k));
-                                                              }
-
-                                                              ////////////////////////////////////////////////////////////////////////////////
-                                                              // Need to shift the boundary SDF by a small number
-                                                              gridData().boundarySDF(i, j, k) = minSD + MEpsilon;
-
-
-                                                              //const Vec3r gridPos = m_Grid.getWorldCoordinate(i, j, k);
-
-                                                              //gridData().boundarySDF(i, j, k) = -box.signedDistance(gridPos);
-                                                          });
-                              logger().printLog("Computed boundary SDF", spdlog::level::debug);
+                              gridData().computeBoundarySDF(m_BoundaryObjects);
                           });
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -110,7 +93,7 @@ void FLIP3DSolver::advanceFrame()
                                                     "(" + NumberHelpers::formatWithCommas(substep / globalParams().frameDuration * 100) + "% of the frame, to " +
                                                     NumberHelpers::formatWithCommas(100 * (frameTime) / globalParams().frameDuration) + "% of the frame).");
 
-                                  logger().printRunTime("Advance scene: ", funcTimer, [&]() { advanceScene(globalParams().finishedFrame, frameTime / globalParams().frameDuration); });
+                                  logger().printRunTime("====> Advance scene: ", funcTimer, [&]() { advanceScene(globalParams().finishedFrame, frameTime / globalParams().frameDuration); });
                               });
 
         ////////////////////////////////////////////////////////////////////////////////
@@ -197,9 +180,11 @@ void FLIP3DSolver::generateParticles(const nlohmann::json& jParams)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FLIP3DSolver::advanceScene(UInt frame, Real fraction /*= Real(0)*/)
+bool FLIP3DSolver::advanceScene(UInt frame, Real fraction /*= Real(0)*/)
 {
-    ParticleSolver3D::advanceScene(frame, fraction);
+    if(!ParticleSolver3D::advanceScene(frame, fraction)) {
+        return false;
+    }
 
     UInt nNewParticles = 0;
     for(auto& generator : m_ParticleGenerators) {
@@ -222,17 +207,11 @@ void FLIP3DSolver::advanceScene(UInt frame, Real fraction /*= Real(0)*/)
     }
 
     if(bSDFRegenerated) {
-        ParallelFuncs::parallel_for(m_Grid.getNNodes(),
-                                    [&](UInt i, UInt j, UInt k)
-                                    {
-                                        Real minSD = Huge;
-                                        for(auto& obj : m_BoundaryObjects) {
-                                            minSD = MathHelpers::min(minSD, obj->getSDF()(i, j, k));
-                                        }
-                                        gridData().boundarySDF(i, j, k) = minSD + MEpsilon;
-                                    });
-        logger().printLog(String("Re-computed SDF boundary for entire scene."), spdlog::level::debug);
+        logger().printRunTime("Re-computed SDF boundary for entire scene: ", [&]() { gridData().computeBoundarySDF(m_BoundaryObjects); });
     }
+
+    ////////////////////////////////////////////////////////////////////////////////
+    return true;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -353,13 +332,7 @@ void FLIP3DSolver::advanceVelocity(Real timestep)
     frame++;
 
     ////////////////////////////////////////////////////////////////////////////////
-    static bool weight_computed = false;
-    if(!weight_computed) {
-        logger().printRunTime("Compute cell weights: ", funcTimer, [&]() { computeFluidWeights(); });
-        //weight_computed = true;
-    }
-
-
+    logger().printRunTime("Compute cell weights: ",                        funcTimer, [&]() { computeFluidWeights(); });
     logger().printRunTime("Interpolate velocity from particles to grid: ", funcTimer, [&]() { velocityToGrid(); });
     logger().printRunTime("Extrapolate grid velocity: : ",                 funcTimer, [&]() { extrapolateVelocity(); });
     logger().printRunTime("Constrain grid velocity: ",                     funcTimer, [&]() { constrainGridVelocity(); });

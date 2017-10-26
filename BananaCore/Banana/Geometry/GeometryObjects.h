@@ -61,15 +61,15 @@ public:
     void setUniformScale(const RealType scaleVal);
     void resetTransformation();
 
-    auto  getAABBMin() const { return transform(VecX<N, RealType>(0)) - VecX<N, RealType>(m_UniformScale) * sqrt(glm::compAdd(VecX<N, RealType>(1.0))); }
-    auto  getAABBMax() const { return transform(VecX<N, RealType>(0)) + VecX<N, RealType>(m_UniformScale) * sqrt(glm::compAdd(VecX<N, RealType>(1.0))); }
-    auto& getAnimation() { return m_Animation; }
+    auto        getAABBMin() const { return transform(VecX<N, RealType>(0)) - VecX<N, RealType>(m_UniformScale) * sqrt(glm::compAdd(VecX<N, RealType>(1.0))); }
+    auto        getAABBMax() const { return transform(VecX<N, RealType>(0)) + VecX<N, RealType>(m_UniformScale) * sqrt(glm::compAdd(VecX<N, RealType>(1.0))); }
+    auto&       getAnimation() { return m_Animation; }
     const auto& getTransformationMatrix() const { return m_TransformationMatrix; }
 
     VecX<N, RealType> transform(const VecX<N, RealType>& ppos) const;
     VecX<N, RealType> invTransform(const VecX<N, RealType>& ppos) const;
 
-    virtual void updateTransformation(UInt frame = 0, RealType fraction = RealType(0));
+    virtual bool updateTransformation(UInt frame = 0, RealType fraction = RealType(0));
 protected:
 
 
@@ -106,7 +106,7 @@ public:
     void setPeriodic(bool bPeriodic, UInt startFrame = 0) { m_bPeriodic = bPeriodic; m_StartFrame = startFrame; }
 
     void         makeReadyAnimation();
-    virtual void updateTransformation(UInt frame = 0, RealType fraction = RealType(0)) override;
+    virtual bool updateTransformation(UInt frame = 0, RealType fraction = RealType(0)) override;
 
 protected:
     VecX<N, RealType> m_BoxMin = VecX<N, RealType>(-1.0);

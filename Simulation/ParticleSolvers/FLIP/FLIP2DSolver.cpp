@@ -168,7 +168,7 @@ void FLIP2DSolver::generateParticles(const nlohmann::json& jParams)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FLIP2DSolver::advanceScene(UInt frame, Real fraction /*= Real(0)*/)
+bool FLIP2DSolver::advanceScene(UInt frame, Real fraction /*= Real(0)*/)
 {
     ParticleSolver2D::advanceScene(frame, fraction);
 
