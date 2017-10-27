@@ -24,7 +24,7 @@ include(../../../QtAppHelpers/QtAppHelpers.pri)
 include(../../../OpenGLHelpers/OpenGLHelpers.pri)
 include(../../../Simulation/Simulation.pri)
 
-TARGET = ParticleSolverTest
+TARGET = FluidSimulation
 TEMPLATE = app
 CONFIG += console
 
@@ -53,4 +53,5 @@ RESOURCES += \
     Shader.qrc
 
 DISTFILES += \
-    Scenes/FLIP.json
+    Scenes/FLIP_BallDrop.json \
+    Scenes/FLIP_RotationalBoxBoundary.json

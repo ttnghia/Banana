@@ -1,0 +1,57 @@
+{
+    "GlobalParameters":
+    {
+        "FrameDuration" : 0.03333333333,
+        "FinalFrame" : 1000,
+        "EnableSortParticle" : true,
+        "SortFrequency" : 10,
+        "SaveFrameData" : false,
+        "DataPath" : "D:/SimData/FLIP",
+        "OptionalSavingDataXXX" : [ "anisotropic_kernel" ],
+        "LogLevel" : "Debug"
+    },
+    "SimulationParameters":
+    {
+        "SimulationDomainBox" :
+        {
+            "BoxMin" : [-1.0, -1.0, -1.0],
+            "BoxMax" : [ 1.0, 1.0, 1.0]
+        },
+        "CorrectPosition" : false,
+        "RepulsiveForceStiffness" : 100,
+        "PIC_FLIP_Ratio" : 0.97,
+        "CGRelativeTolerance" : 1e-15,
+        "MaxCGIteration" : 10000,
+        "ParticleRadius" : 0.015625,
+        "CFLFactor" : 1.0
+    },
+    "AdditionalBoundaryObjects":
+    [
+        {
+            "GeometryType" : "Sphere",
+            "UniqueName" : "SphereBoundary",
+            "CSGOperator" : "Intersection",
+            "Translation" : [0.0, 1.0, 0.0],
+            "Scale" : 2
+        }
+    ],
+    "ParticleGenerators":
+    [
+        {
+            "GeometryType" : "Sphere",
+            "UniqueName" : "SphereParticleGenerator",
+            "Translation" : [0.0, 0.0, 0.0],
+            "Scale" : 0.5
+        }
+    ],
+    "VisualizationParameters":
+    {
+        "CameraPosition" : [0, 0.7, 3.2],
+        "CameraFocus" : [0, 0.2, 0],
+        "Light" :
+        {
+            "Position" : [-10, 10, 0],
+            "Color" : [1, 1, 1]
+        }
+    }
+}
