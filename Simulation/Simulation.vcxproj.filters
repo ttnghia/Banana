@@ -18,18 +18,6 @@
     <None Include="Simulation.licenseheader" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ParticleSolvers\FLIP\FLIP2DData.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ParticleSolvers\FLIP\FLIP2DSolver.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ParticleSolvers\FLIP\FLIP3DData.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ParticleSolvers\FLIP\FLIP3DSolver.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ParticleSolvers\MPM\MPMMaterial.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -171,14 +159,44 @@
     <ClInclude Include="ParticleSolvers\MPM\ShapeFunctions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ParticleSolvers\PICFluid\APIC2D_Data.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticleSolvers\PICFluid\APIC2D_Solver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticleSolvers\PICFluid\APIC3D_Data.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticleSolvers\PICFluid\APIC3D_Solver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticleSolvers\PICFluid\FLIP2D_Data.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticleSolvers\PICFluid\FLIP3D_Data.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticleSolvers\PICFluid\FLIP3D_Solver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticleSolvers\PICFluid\PIC3D_Data.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticleSolvers\PICFluid\PIC3D_Solver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticleSolvers\PICFluid\FLIP2D_Solver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticleSolvers\PICFluid\PIC2D_Data.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticleSolvers\PICFluid\PIC2D_Solver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ParticleSolvers\FLIP\FLIP2DSolver.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ParticleSolvers\FLIP\FLIP3DSolver.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ParticleSolvers\SPH\WCSPH\WCSPHSolver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -207,6 +225,24 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ParticleSolvers\MPM\Snow3DSolver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleSolvers\PICFluid\APIC2D_Solver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleSolvers\PICFluid\APIC3D_Solver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleSolvers\PICFluid\FLIP2D_Solver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleSolvers\PICFluid\FLIP3D_Solver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleSolvers\PICFluid\PIC3D_Solver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleSolvers\PICFluid\PIC2D_Solver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -29,9 +29,9 @@ namespace Banana
 namespace ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-struct SimulationParameters_FLIP2D : public SimulationParameters
+struct PIC2D_Parameters : public SimulationParameters
 {
-    SimulationParameters_FLIP2D() { makeReady(); }
+    PIC2D_Parameters() { makeReady(); }
 
     ////////////////////////////////////////////////////////////////////////////////
     Real                                          minTimestep         = Real(1.0e-6);
@@ -95,7 +95,7 @@ struct SimulationParameters_FLIP2D : public SimulationParameters
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-struct SimulationData_FLIP2D
+struct PIC2D_Data
 {
     struct ParticleSimData : public ParticleData<2, Real>
     {

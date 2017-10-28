@@ -18,7 +18,7 @@
 #include <Banana/Grid/Grid.h>
 #include <Banana/Array/ArrayHelpers.h>
 #include <Banana/LinearAlgebra/LinearSolvers/PCGSolver.h>
-#include <ParticleSolvers/FLIP/FLIP3DSolver.h>
+#include <ParticleSolvers/PICFluid/FLIP3D_Solver.h>
 #include <SurfaceReconstruction/AniKernelGenerator.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -28,7 +28,7 @@ namespace Banana
 namespace ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FLIP3DSolver::makeReady()
+void FLIP3D_Solver::makeReady()
 {
     logger().printRunTime("Allocate solver memory: ",
                           [&]()
@@ -64,12 +64,12 @@ void FLIP3DSolver::makeReady()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FLIP3DSolver::advanceFrame()
+void FLIP3D_Solver::advanceFrame()
 {
     static Timer subStepTimer;
     static Timer funcTimer;
     Real         frameTime    = 0;
-    int          substepCount = 0;
+    Int          substepCount = 0;
 
     ////////////////////////////////////////////////////////////////////////////////
     while(frameTime < globalParams().frameDuration) {
@@ -103,7 +103,7 @@ void FLIP3DSolver::advanceFrame()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FLIP3DSolver::sortParticles()
+void FLIP3D_Solver::sortParticles()
 {
     assert(m_NSearch != nullptr);
     if(globalParams().finishedFrame % globalParams().sortFrequency != 0) {
@@ -124,7 +124,7 @@ void FLIP3DSolver::sortParticles()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FLIP3DSolver::loadSimParams(const nlohmann::json& jParams)
+void FLIP3D_Solver::loadSimParams(const nlohmann::json& jParams)
 {
     __BNN_ASSERT(m_BoundaryObjects.size() > 0);
     SharedPtr<GeometryObjects::BoxObject<3, Real> > box = dynamic_pointer_cast<GeometryObjects::BoxObject<3, Real> >(m_BoundaryObjects[0]->getGeometry());
@@ -161,7 +161,7 @@ void FLIP3DSolver::loadSimParams(const nlohmann::json& jParams)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FLIP3DSolver::generateParticles(const nlohmann::json& jParams)
+void FLIP3D_Solver::generateParticles(const nlohmann::json& jParams)
 {
     ParticleSolver3D::generateParticles(jParams);
     m_NSearch = std::make_unique<NeighborSearch::NeighborSearch3D>(solverParams().cellSize);
@@ -186,7 +186,7 @@ void FLIP3DSolver::generateParticles(const nlohmann::json& jParams)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-bool FLIP3DSolver::advanceScene(UInt frame, Real fraction /*= Real(0)*/)
+bool FLIP3D_Solver::advanceScene(UInt frame, Real fraction /*= Real(0)*/)
 {
     bool bSceneChanged = ParticleSolver3D::advanceScene(frame, fraction);
 
@@ -229,7 +229,7 @@ bool FLIP3DSolver::advanceScene(UInt frame, Real fraction /*= Real(0)*/)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FLIP3DSolver::setupDataIO()
+void FLIP3D_Solver::setupDataIO()
 {
     m_ParticleDataIO = std::make_unique<ParticleSerialization>(globalParams().dataPath, "FLIPData", "frame", m_Logger);
     m_ParticleDataIO->addFixedAttribute<float>("particle_radius", ParticleSerialization::TypeReal, 1);
@@ -249,14 +249,14 @@ void FLIP3DSolver::setupDataIO()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-bool FLIP3DSolver::loadMemoryState()
+bool FLIP3D_Solver::loadMemoryState()
 {
     if(!globalParams().bLoadMemoryState) {
         return false;
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    int latestStateIdx = m_MemoryStateIO->getLatestFileIndex(globalParams().finalFrame);
+    Int latestStateIdx = m_MemoryStateIO->getLatestFileIndex(globalParams().finalFrame);
     if(latestStateIdx < 0) {
         return false;
     }
@@ -279,7 +279,7 @@ bool FLIP3DSolver::loadMemoryState()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FLIP3DSolver::saveMemoryState()
+void FLIP3D_Solver::saveMemoryState()
 {
     if(!globalParams().bSaveMemoryState) {
         return;
@@ -304,7 +304,7 @@ void FLIP3DSolver::saveMemoryState()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FLIP3DSolver::saveFrameData()
+void FLIP3D_Solver::saveFrameData()
 {
     if(!globalParams().bSaveFrameData) {
         return;
@@ -330,7 +330,7 @@ void FLIP3DSolver::saveFrameData()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-Real FLIP3DSolver::computeCFLTimestep()
+Real FLIP3D_Solver::computeCFLTimestep()
 {
     Real maxVel = MathHelpers::max(ParallelSTL::maxAbs(gridData().u.data()),
                                    ParallelSTL::maxAbs(gridData().v.data()),
@@ -340,7 +340,7 @@ Real FLIP3DSolver::computeCFLTimestep()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FLIP3DSolver::advanceVelocity(Real timestep)
+void FLIP3D_Solver::advanceVelocity(Real timestep)
 {
     static Timer funcTimer;
     ////////////////////////////////////////////////////////////////////////////////
@@ -358,8 +358,9 @@ void FLIP3DSolver::advanceVelocity(Real timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FLIP3DSolver::moveParticles(Real timestep)
+void FLIP3D_Solver::moveParticles(Real timestep)
 {
+#if 0
     ParallelFuncs::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
                                 {
@@ -372,14 +373,38 @@ void FLIP3DSolver::moveParticles(Real timestep)
 
                                     particleData().positions[p] = ppos;
                                 });
+#else
+    const Real substep = timestep * Real(0.2);
+    for(Int i = 0; i < 5; ++i) {
+        ParallelFuncs::parallel_for(particleData().getNParticles(),
+                                    [&](UInt p)
+                                    {
+                                        auto ppos0    = particleData().positions[p];
+                                        Vec3r gridPos = m_Grid.getGridCoordinate(ppos0);
+                                        Vec3r pvel    = getVelocityFromGrid(gridPos);
+                                        gridPos = m_Grid.getGridCoordinate(ppos0 + Real(0.5) * substep * pvel);
+                                        pvel    = pvel = getVelocityFromGrid(gridPos);
+
+                                        particleData().positions[p] = ppos0 + pvel * substep;
+                                    });
+    }
+
+    ParallelFuncs::parallel_for(particleData().getNParticles(),
+                                [&](UInt p)
+                                {
+                                    for(auto& obj : m_BoundaryObjects) {
+                                        obj->constrainToBoundary(particleData().positions[p]);
+                                    }
+                                });
+#endif
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FLIP3DSolver::correctPositions(Real timestep)
+void FLIP3D_Solver::correctPositions(Real timestep)
 {
-    static const Real radius     = m_Grid.getCellSize() / Real(sqrt(solverDimension()));
-    const Real        threshold  = Real(0.05) * radius;
-    const Real        threshold2 = threshold * threshold;
+    const auto radius     = Real(2.0) * solverParams().particleRadius;// / Real(sqrt(solverDimension()));
+    const auto threshold  = Real(0.05) * radius;
+    const auto threshold2 = threshold * threshold;
 
     ParallelFuncs::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
@@ -407,7 +432,7 @@ void FLIP3DSolver::correctPositions(Real timestep)
                                                     const auto w     = MathHelpers::smooth_kernel(d2, radius);
 
                                                     if(d2 > threshold2) {
-                                                        spring += w * xpq / sqrt(d2) * radius * solverParams().repulsiveForceStiffness;
+                                                        spring += w * xpq / sqrt(d2);
                                                     } else {
                                                         spring += threshold / timestep * Vec3r(MathHelpers::frand11<Real>(),
                                                                                                MathHelpers::frand11<Real>(),
@@ -418,7 +443,7 @@ void FLIP3DSolver::correctPositions(Real timestep)
                                         }
                                     }
 
-                                    auto newPos = ppos + spring * timestep;
+                                    auto newPos = ppos + spring * radius * solverParams().repulsiveForceStiffness * timestep;
                                     for(auto& obj : m_BoundaryObjects) {
                                         obj->constrainToBoundary(newPos);
                                     }
@@ -429,8 +454,7 @@ void FLIP3DSolver::correctPositions(Real timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//Compute finite-volume style face-weights for fluid from nodal signed distances
-void FLIP3DSolver::computeFluidWeights()
+void FLIP3D_Solver::computeFluidWeights()
 {
     ParallelFuncs::parallel_for(m_Grid.getNNodes(),
                                 [&](UInt i, UInt j, UInt k)
@@ -466,7 +490,7 @@ void FLIP3DSolver::computeFluidWeights()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FLIP3DSolver::velocityToGrid()
+void FLIP3D_Solver::velocityToGrid()
 {
     const Vec3r span = Vec3r(m_Grid.getCellSize() * static_cast<Real>(solverParams().kernelSpan));
 
@@ -559,7 +583,7 @@ void FLIP3DSolver::velocityToGrid()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FLIP3DSolver::extrapolateVelocity()
+void FLIP3D_Solver::extrapolateVelocity()
 {
     extrapolateVelocity(gridData().u, gridData().u_temp, gridData().u_valid, gridData().u_valid_old);
     extrapolateVelocity(gridData().v, gridData().v_temp, gridData().v_valid, gridData().v_valid_old);
@@ -568,7 +592,7 @@ void FLIP3DSolver::extrapolateVelocity()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //Apply several iterations of a very simple propagation of valid velocity data in all directions
-void FLIP3DSolver::extrapolateVelocity(Array3r& grid, Array3r& temp_grid, Array3c& valid, Array3c& old_valid)
+void FLIP3D_Solver::extrapolateVelocity(Array3r& grid, Array3r& temp_grid, Array3c& valid, Array3c& old_valid)
 {
     temp_grid.copyDataFrom(grid);
     bool forward = true;
@@ -645,7 +669,7 @@ void FLIP3DSolver::extrapolateVelocity(Array3r& grid, Array3r& temp_grid, Array3
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //For extrapolated points, replace the normal component
 //of velocity with the object velocity (in this case zero).
-void FLIP3DSolver::constrainGridVelocity()
+void FLIP3D_Solver::constrainGridVelocity()
 {
     //(At lower grid resolutions, the normal estimate from the signed
     //distance function can be poor, so it doesn't work quite as well.
@@ -716,7 +740,7 @@ void FLIP3DSolver::constrainGridVelocity()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FLIP3DSolver::addGravity(Real timestep)
+void FLIP3D_Solver::addGravity(Real timestep)
 {
     ParallelFuncs::parallel_for(gridData().v.size(),
                                 [&](size_t i, size_t j, size_t k)
@@ -729,7 +753,7 @@ void FLIP3DSolver::addGravity(Real timestep)
 // Pressure projection only produces valid velocities in faces with non-zero associated face area.
 // Because the advection step may interpolate from these invalid faces, we must later extrapolate velocities from the fluid domain into these invalid faces.
 
-void FLIP3DSolver::pressureProjection(Real timestep)
+void FLIP3D_Solver::pressureProjection(Real timestep)
 {
     static Timer funcTimer;
 
@@ -742,7 +766,7 @@ void FLIP3DSolver::pressureProjection(Real timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FLIP3DSolver::computeFluidSDF()
+void FLIP3D_Solver::computeFluidSDF()
 {
     gridData().fluidSDF.assign(m_Grid.getCellSize() * Real(3.0));
 
@@ -750,7 +774,7 @@ void FLIP3DSolver::computeFluidSDF()
                                 [&](UInt p)
                                 {
                                     const Vec3r ppos     = particleData().positions[p];
-                                    const Vec3i cellIdx  = m_Grid.getCellIdx<int>(ppos);
+                                    const Vec3i cellIdx  = m_Grid.getCellIdx<Int>(ppos);
                                     const Vec3i cellDown = Vec3i(MathHelpers::max(0, cellIdx[0] - 1),
                                                                  MathHelpers::max(0, cellIdx[1] - 1),
                                                                  MathHelpers::max(0, cellIdx[2] - 1));
@@ -758,9 +782,9 @@ void FLIP3DSolver::computeFluidSDF()
                                                                MathHelpers::min(cellIdx[1] + 1, static_cast<Int>(m_Grid.getNCells()[1])),
                                                                MathHelpers::min(cellIdx[2] + 1, static_cast<Int>(m_Grid.getNCells()[2])));
 
-                                    for(int k = cellDown[2]; k <= cellUp[2]; ++k) {
-                                        for(int j = cellDown[1]; j <= cellUp[1]; ++j) {
-                                            for(int i = cellDown[0]; i <= cellUp[0]; ++i) {
+                                    for(Int k = cellDown[2]; k <= cellUp[2]; ++k) {
+                                        for(Int j = cellDown[1]; j <= cellUp[1]; ++j) {
+                                            for(Int i = cellDown[0]; i <= cellUp[0]; ++i) {
                                                 const Vec3r sample = Vec3r(i + 0.5, j + 0.5, k + 0.5) * m_Grid.getCellSize() + m_Grid.getBMin();
                                                 const Real phiVal  = glm::length(sample - ppos) - solverParams().sdfRadius;
 
@@ -777,7 +801,7 @@ void FLIP3DSolver::computeFluidSDF()
     ////////////////////////////////////////////////////////////////////////////////
     //extend phi slightly into solids (this is a simple, naive approach, but works reasonably well)
     ParallelFuncs::parallel_for(m_Grid.getNCells(),
-                                [&](int i, int j, int k)
+                                [&](Int i, Int j, Int k)
                                 {
                                     if(gridData().fluidSDF(i, j, k) < m_Grid.getHalfCellSize()) {
                                         const Real phiValSolid = Real(0.125) * (gridData().boundarySDF(i,     j,     k) +
@@ -799,7 +823,7 @@ void FLIP3DSolver::computeFluidSDF()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FLIP3DSolver::computeMatrix(Real timestep)
+void FLIP3D_Solver::computeMatrix(Real timestep)
 {
     solverData().matrix.clear();
 
@@ -893,7 +917,7 @@ void FLIP3DSolver::computeMatrix(Real timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FLIP3DSolver::computeRhs()
+void FLIP3D_Solver::computeRhs()
 {
     solverData().rhs.assign(solverData().rhs.size(), 0);
     ParallelFuncs::parallel_for<UInt>(1, m_Grid.getNCells()[0] - 1,
@@ -923,13 +947,13 @@ void FLIP3DSolver::computeRhs()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FLIP3DSolver::solveSystem()
+void FLIP3D_Solver::solveSystem()
 {
     bool success = m_PCGSolver->solve_precond(solverData().matrix, solverData().rhs, solverData().pressure);
     logger().printLog("Conjugate Gradient iterations: " + NumberHelpers::formatWithCommas(m_PCGSolver->iterations()) +
                       ". Final residual: " + NumberHelpers::formatToScientific(m_PCGSolver->residual()));
     if(!success) {
-        logger().printWarning("Pressure projection failed to solved!");
+        logger().printError("Pressure projection failed to solved!");
         exit(EXIT_FAILURE);
     }
 
@@ -937,7 +961,7 @@ void FLIP3DSolver::solveSystem()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FLIP3DSolver::updateVelocity(Real timestep)
+void FLIP3D_Solver::updateVelocity(Real timestep)
 {
     gridData().u_valid.assign(0);
     gridData().v_valid.assign(0);
@@ -997,7 +1021,7 @@ void FLIP3DSolver::updateVelocity(Real timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FLIP3DSolver::computeChangesGridVelocity()
+void FLIP3D_Solver::computeChangesGridVelocity()
 {
     ParallelFuncs::parallel_for(gridData().u.dataSize(),
                                 [&](size_t i) { gridData().du.data()[i] = gridData().u.data()[i] - gridData().u_old.data()[i]; });
@@ -1008,7 +1032,7 @@ void FLIP3DSolver::computeChangesGridVelocity()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FLIP3DSolver::velocityToParticles()
+void FLIP3D_Solver::velocityToParticles()
 {
     ParallelFuncs::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
@@ -1026,7 +1050,7 @@ void FLIP3DSolver::velocityToParticles()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //Interpolate velocity from the MAC grid.
-Vec3r FLIP3DSolver::getVelocityFromGrid(const Vec3r& gridPos)
+Vec3r FLIP3D_Solver::getVelocityFromGrid(const Vec3r& gridPos)
 {
     Real vu = m_InterpolateValue(gridPos - Vec3r(0, 0.5, 0.5), gridData().u);
     Real vv = m_InterpolateValue(gridPos - Vec3r(0.5, 0, 0.5), gridData().v);
@@ -1036,7 +1060,7 @@ Vec3r FLIP3DSolver::getVelocityFromGrid(const Vec3r& gridPos)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-Vec3r FLIP3DSolver::getVelocityChangesFromGrid(const Vec3r& gridPos)
+Vec3r FLIP3D_Solver::getVelocityChangesFromGrid(const Vec3r& gridPos)
 {
     Real changed_vu = m_InterpolateValue(gridPos - Vec3r(0, 0.5, 0.5), gridData().du);
     Real changed_vv = m_InterpolateValue(gridPos - Vec3r(0.5, 0, 0.5), gridData().dv);

@@ -15,9 +15,8 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-
 #include <Banana/Array/ArrayHelpers.h>
-#include <ParticleSolvers/FLIP/FLIP2DSolver.h>
+#include <ParticleSolvers/PICFluid/PIC2D_Solver.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -26,7 +25,7 @@ namespace Banana
 namespace ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FLIP2DSolver::makeReady()
+void PIC2D_Solver::makeReady()
 {
     logger().printRunTime("Allocate solver memory: ",
                           [&]()
@@ -78,7 +77,7 @@ void FLIP2DSolver::makeReady()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FLIP2DSolver::advanceFrame()
+void PIC2D_Solver::advanceFrame()
 {
     static Timer subStepTimer;
     static Timer funcTimer;
@@ -117,7 +116,7 @@ void FLIP2DSolver::advanceFrame()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FLIP2DSolver::sortParticles()
+void PIC2D_Solver::sortParticles()
 {
     static UInt frameCount = 0;
     ++frameCount;
@@ -140,7 +139,7 @@ void FLIP2DSolver::sortParticles()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FLIP2DSolver::loadSimParams(const nlohmann::json& jParams)
+void PIC2D_Solver::loadSimParams(const nlohmann::json& jParams)
 {
     JSONHelpers::readVector(jParams, solverParams().movingBMin, "BoxMin");
     JSONHelpers::readVector(jParams, solverParams().movingBMax, "BoxMax");
@@ -154,7 +153,7 @@ void FLIP2DSolver::loadSimParams(const nlohmann::json& jParams)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FLIP2DSolver::generateParticles(const nlohmann::json& jParams)
+void PIC2D_Solver::generateParticles(const nlohmann::json& jParams)
 {
     ParticleSolver2D::generateParticles(jParams);
 
@@ -176,7 +175,7 @@ void FLIP2DSolver::generateParticles(const nlohmann::json& jParams)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-bool FLIP2DSolver::advanceScene(UInt frame, Real fraction /*= Real(0)*/)
+bool PIC2D_Solver::advanceScene(UInt frame, Real fraction /*= Real(0)*/)
 {
     bool bSceneChanged = ParticleSolver2D::advanceScene(frame, fraction);
 
@@ -220,7 +219,7 @@ bool FLIP2DSolver::advanceScene(UInt frame, Real fraction /*= Real(0)*/)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FLIP2DSolver::setupDataIO()
+void PIC2D_Solver::setupDataIO()
 {
     m_ParticleDataIO = std::make_unique<ParticleSerialization>(m_GlobalParams.dataPath, "FLIPData", "frame", m_Logger);
     m_ParticleDataIO->addFixedAttribute<float>("particle_radius", ParticleSerialization::TypeReal, 1);
@@ -236,7 +235,7 @@ void FLIP2DSolver::setupDataIO()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-bool FLIP2DSolver::loadMemoryState()
+bool PIC2D_Solver::loadMemoryState()
 {
     if(!m_GlobalParams.bLoadMemoryState) {
         return false;
@@ -264,7 +263,7 @@ bool FLIP2DSolver::loadMemoryState()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FLIP2DSolver::saveMemoryState()
+void PIC2D_Solver::saveMemoryState()
 {
     if(!m_GlobalParams.bSaveMemoryState) {
         return;
@@ -289,7 +288,7 @@ void FLIP2DSolver::saveMemoryState()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FLIP2DSolver::saveFrameData()
+void PIC2D_Solver::saveFrameData()
 {
     if(!m_GlobalParams.bSaveFrameData) {
         return;
@@ -305,7 +304,7 @@ void FLIP2DSolver::saveFrameData()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-Real FLIP2DSolver::computeCFLTimestep()
+Real PIC2D_Solver::computeCFLTimestep()
 {
     Real maxVel = MathHelpers::max(ParallelSTL::maxAbs(gridData().u.data()),
                                    ParallelSTL::maxAbs(gridData().v.data()));
@@ -314,7 +313,7 @@ Real FLIP2DSolver::computeCFLTimestep()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FLIP2DSolver::advanceVelocity(Real timestep)
+void PIC2D_Solver::advanceVelocity(Real timestep)
 {
     static Timer funcTimer;
 
@@ -337,7 +336,7 @@ void FLIP2DSolver::advanceVelocity(Real timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FLIP2DSolver::moveParticles(Real timestep)
+void PIC2D_Solver::moveParticles(Real timestep)
 {
     ParallelFuncs::parallel_for<UInt>(0, particleData().getNParticles(),
                                       [&](UInt p)
@@ -360,7 +359,7 @@ void FLIP2DSolver::moveParticles(Real timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FLIP2DSolver::correctPositions(Real timestep)
+void PIC2D_Solver::correctPositions(Real timestep)
 {
     const Real radius    = m_Grid.getCellSize() / Real(sqrt(2.0));
     const Real threshold = Real(0.01) * radius;
@@ -410,7 +409,7 @@ void FLIP2DSolver::correctPositions(Real timestep)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //Compute finite-volume style face-weights for fluid from nodal signed distances
-void FLIP2DSolver::computeFluidWeights()
+void PIC2D_Solver::computeFluidWeights()
 {
     ParallelFuncs::parallel_for<UInt>(m_Grid.getNNodes(),
                                       [&](UInt i, UInt j)
@@ -433,7 +432,7 @@ void FLIP2DSolver::computeFluidWeights()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FLIP2DSolver::velocityToGrid()
+void PIC2D_Solver::velocityToGrid()
 {
     const Vec2r span = Vec2r(m_Grid.getCellSize() * static_cast<Real>(solverParams().kernelSpan));
 
@@ -504,14 +503,14 @@ void FLIP2DSolver::velocityToGrid()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FLIP2DSolver::extrapolateVelocity()
+void PIC2D_Solver::extrapolateVelocity()
 {
     extrapolateVelocity(gridData().u, gridData().u_temp, gridData().u_valid, gridData().u_valid_old);
     extrapolateVelocity(gridData().v, gridData().v_temp, gridData().v_valid, gridData().v_valid_old);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FLIP2DSolver::extrapolateVelocity(Array2r& grid, Array2r& temp_grid, Array2c& valid, Array2c& old_valid)
+void PIC2D_Solver::extrapolateVelocity(Array2r& grid, Array2r& temp_grid, Array2c& valid, Array2c& old_valid)
 {
     temp_grid.copyDataFrom(grid);
     for(Int layers = 0; layers < 10; ++layers) {
@@ -567,7 +566,7 @@ void FLIP2DSolver::extrapolateVelocity(Array2r& grid, Array2r& temp_grid, Array2
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FLIP2DSolver::constrainVelocity()
+void PIC2D_Solver::constrainVelocity()
 {
     gridData().u_temp.copyDataFrom(gridData().u);
     gridData().v_temp.copyDataFrom(gridData().v);
@@ -615,7 +614,7 @@ void FLIP2DSolver::constrainVelocity()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FLIP2DSolver::addGravity(Real timestep)
+void PIC2D_Solver::addGravity(Real timestep)
 {
     ParallelFuncs::parallel_for<size_t>(gridData().v.size(),
                                         [&](size_t i, size_t j)
@@ -625,7 +624,7 @@ void FLIP2DSolver::addGravity(Real timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FLIP2DSolver::pressureProjection(Real timestep)
+void PIC2D_Solver::pressureProjection(Real timestep)
 {
     static Timer funcTimer;
 
@@ -638,7 +637,7 @@ void FLIP2DSolver::pressureProjection(Real timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FLIP2DSolver::computeFluidSDF()
+void PIC2D_Solver::computeFluidSDF()
 {
     gridData().fluidSDF.assign(solverParams().sdfRadius);
 
@@ -682,7 +681,7 @@ void FLIP2DSolver::computeFluidSDF()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FLIP2DSolver::computeMatrix(Real timestep)
+void PIC2D_Solver::computeMatrix(Real timestep)
 {
     solverData().matrix.clear();
 
@@ -750,7 +749,7 @@ void FLIP2DSolver::computeMatrix(Real timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FLIP2DSolver::computeRhs()
+void PIC2D_Solver::computeRhs()
 {
     solverData().rhs.assign(solverData().rhs.size(), 0);
     ParallelFuncs::parallel_for<UInt>(1, m_Grid.getNCells()[0] - 1,
@@ -775,7 +774,7 @@ void FLIP2DSolver::computeRhs()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FLIP2DSolver::solveSystem()
+void PIC2D_Solver::solveSystem()
 {
     bool success = m_PCGSolver->solve_precond(solverData().matrix, solverData().rhs, solverData().pressure);
     logger().printLog("Conjugate Gradient iterations: " + NumberHelpers::formatWithCommas(m_PCGSolver->iterations()) +
@@ -786,7 +785,7 @@ void FLIP2DSolver::solveSystem()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FLIP2DSolver::updateVelocity(Real timestep)
+void PIC2D_Solver::updateVelocity(Real timestep)
 {
     gridData().u_valid.assign(0);
     gridData().v_valid.assign(0);
@@ -827,7 +826,7 @@ void FLIP2DSolver::updateVelocity(Real timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FLIP2DSolver::computeChangesGridVelocity()
+void PIC2D_Solver::computeChangesGridVelocity()
 {
     ParallelFuncs::parallel_for<size_t>(0, gridData().u.dataSize(),
                                         [&](size_t i) { gridData().du.data()[i] = gridData().u.data()[i] - gridData().u_old.data()[i]; });
@@ -836,7 +835,7 @@ void FLIP2DSolver::computeChangesGridVelocity()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FLIP2DSolver::velocityToParticles()
+void PIC2D_Solver::velocityToParticles()
 {
     ParallelFuncs::parallel_for<UInt>(0, particleData().getNParticles(),
                                       [&](UInt p)
@@ -855,7 +854,7 @@ void FLIP2DSolver::velocityToParticles()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //Interpolate velocity from the MAC grid.
-Vec2r FLIP2DSolver::getVelocityFromGrid(const Vec2r& gridPos)
+Vec2r PIC2D_Solver::getVelocityFromGrid(const Vec2r& gridPos)
 {
     Real vu = m_InterpolateValue(gridPos - Vec2r(0, 0.5), gridData().u);
     Real vv = m_InterpolateValue(gridPos - Vec2r(0.5, 0), gridData().v);
@@ -864,7 +863,7 @@ Vec2r FLIP2DSolver::getVelocityFromGrid(const Vec2r& gridPos)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-Vec2r FLIP2DSolver::getVelocityChangesFromGrid(const Vec2r& gridPos)
+Vec2r PIC2D_Solver::getVelocityChangesFromGrid(const Vec2r& gridPos)
 {
     Real changed_vu = m_InterpolateValue(gridPos - Vec2r(0, 0.5), gridData().du);
     Real changed_vv = m_InterpolateValue(gridPos - Vec2r(0.5, 0), gridData().dv);
@@ -873,7 +872,7 @@ Vec2r FLIP2DSolver::getVelocityChangesFromGrid(const Vec2r& gridPos)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-Mat2x2r FLIP2DSolver::getAffineMatrix(const Vec2r& gridPos)
+Mat2x2r PIC2D_Solver::getAffineMatrix(const Vec2r& gridPos)
 {
     //Real vu = m_InterpolateValue(gridPos - Vec<Real>(0, 0.5), gridData().u);
     //Real vv = m_InterpolateValue(gridPos - Vec<Real>(0.5, 0), gridData().v);

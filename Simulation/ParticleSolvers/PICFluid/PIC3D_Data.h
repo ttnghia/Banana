@@ -34,9 +34,9 @@ namespace Banana
 namespace ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-struct SimulationParameters_FLIP3D : public SimulationParameters
+struct PIC3D_Parameters : public SimulationParameters
 {
-    SimulationParameters_FLIP3D() { makeReady(); }
+    PIC3D_Parameters() { makeReady(); }
 
     ////////////////////////////////////////////////////////////////////////////////
     Real minTimestep         = Real(1.0e-6);
@@ -61,7 +61,7 @@ struct SimulationParameters_FLIP3D : public SimulationParameters
     // the following need to be computed
     Vec3r domainBMin;
     Vec3r domainBMax;
-    int   kernelSpan;
+    Int   kernelSpan;
     Real  cellSize;
     Real  sdfRadius;
 
@@ -112,7 +112,7 @@ struct SimulationParameters_FLIP3D : public SimulationParameters
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-struct SimulationData_FLIP3D
+struct PIC3D_Data
 {
     struct ParticleSimData : public ParticleData<3, Real>
     {

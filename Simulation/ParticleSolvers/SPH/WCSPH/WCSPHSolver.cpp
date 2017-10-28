@@ -366,10 +366,10 @@ void WCSPHSolver::moveParticles(Real timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void WCSPHSolver::correctPositions(Real timestep)
 {
-    static const Real               radius        = Real(4.0) * solverParams().particleRadius / Real(sqrt(solverDimension()));
-    const Real                      threshold     = Real(0.05) * radius;
-    const Real                      threshold2    = threshold * threshold;
-    const NeighborSearch::PointSet& fluidPointSet = m_NSearch->point_set(0);
+    const auto  radius        = Real(2.0) * solverParams().particleRadius / Real(sqrt(solverDimension()));
+    const auto  threshold     = Real(0.05) * radius;
+    const auto  threshold2    = threshold * threshold;
+    const auto& fluidPointSet = m_NSearch->point_set(0);
 
     ParallelFuncs::parallel_for(solverData().getNParticles(),
                                 [&](UInt p)

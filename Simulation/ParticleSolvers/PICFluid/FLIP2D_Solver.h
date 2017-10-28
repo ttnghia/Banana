@@ -19,8 +19,8 @@
 
 #include <Banana/Grid/Grid.h>
 #include <Banana/LinearAlgebra/LinearSolvers/PCGSolver.h>
-#include <ParticleSolvers/FLIP/FLIP3DData.h>
 #include <ParticleSolvers/ParticleSolver.h>
+#include <ParticleSolvers/PICFluid/FLIP2D_Data.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -29,14 +29,14 @@ namespace Banana
 namespace ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class FLIP3DSolver : public ParticleSolver3D
+class FLIP2D_Solver : public ParticleSolver2D
 {
 public:
-    FLIP3DSolver() = default;
+    FLIP2D_Solver() = default;
 
     ////////////////////////////////////////////////////////////////////////////////
-    virtual String getSolverName() override { return String("FLIP3DSolver"); }
-    virtual String getGreetingMessage() override { return String("Fluid Simulation using FLIP-3D Solver"); }
+    virtual String getSolverName() override { return String("FLIP2D_Solver"); }
+    virtual String getGreetingMessage() override { return String("Fluid Simulation using FLIP-2D Solver"); }
 
     virtual void makeReady() override;
     virtual void advanceFrame() override;
@@ -54,7 +54,7 @@ protected:
     virtual bool advanceScene(UInt frame, Real fraction = Real(0)) override;
     virtual void setupDataIO() override;
     virtual bool loadMemoryState() override;
-    virtual void saveMemoryState() override;
+    virtual void saveMemoryState()  override;
     virtual void saveFrameData() override;
 
     Real computeCFLTimestep();
@@ -65,8 +65,8 @@ protected:
     void computeFluidWeights();
     void velocityToGrid();
     void extrapolateVelocity();
-    void extrapolateVelocity(Array3r& grid, Array3r& temp_grid, Array3c& valid, Array3c& old_valid);
-    void constrainGridVelocity();
+    void extrapolateVelocity(Array2r& grid, Array2r& temp_grid, Array2c& valid, Array2c& old_valid);
+    void constrainVelocity();
     void addGravity(Real timestep);
     void pressureProjection(Real timestep);
     ////////////////////////////////////////////////////////////////////////////////
@@ -79,11 +79,11 @@ protected:
     ////////////////////////////////////////////////////////////////////////////////
     void computeChangesGridVelocity();
     void velocityToParticles();
-
     ////////////////////////////////////////////////////////////////////////////////
     // helper functions
-    Vec3r getVelocityFromGrid(const Vec3r& ppos);
-    Vec3r getVelocityChangesFromGrid(const Vec3r& ppos);
+    Vec2r   getVelocityFromGrid(const Vec2r& gridPos);
+    Vec2r   getVelocityChangesFromGrid(const Vec2r& gridPos);
+    Mat2x2r getAffineMatrix(const Vec2r& gridPos);
 
     ////////////////////////////////////////////////////////////////////////////////
     auto&       particleData() { return solverData().particleSimData; }
@@ -92,15 +92,14 @@ protected:
     const auto& gridData() const { return solverData().gridSimData; }
 
     ////////////////////////////////////////////////////////////////////////////////
-    SimulationParameters_FLIP3D                       m_SimParams;
-    SimulationData_FLIP3D                             m_SimData;
-    std::function<Real(const Vec3r&, const Array3r&)> m_InterpolateValue = nullptr;
-    std::function<Real(const Vec3r&)>                 m_WeightKernel     = nullptr;
+    FLIP2D_Parameters                                 m_SimParams;
+    FLIP2D_Data                                       m_SimData;
+    std::function<Real(const Vec2r&, const Array2r&)> m_InterpolateValue = nullptr;
+    std::function<Real(const Vec2r&)>                 m_WeightKernel     = nullptr;
 
-    Grid3r                      m_Grid;
+    Grid2r                      m_Grid;
     UniquePtr<PCGSolver<Real> > m_PCGSolver = nullptr;
 };
-
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace ParticleSolvers
 
