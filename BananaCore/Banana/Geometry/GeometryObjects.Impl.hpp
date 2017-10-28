@@ -578,12 +578,12 @@ void sweep(const Vector<Vec3ui>& tri,
             for(Int i = i0; i != i1; i += di) {
                 Vec3f gx = Vec3f(i, j, k) * dx + origin;
 
-                check_neighbour(tri, x, phi, closest_tri, gx, i, j, k, i - di, j, k);
-                check_neighbour(tri, x, phi, closest_tri, gx, i, j, k, i, j - dj, k);
+                check_neighbour(tri, x, phi, closest_tri, gx, i, j, k, i - di, j,      k);
+                check_neighbour(tri, x, phi, closest_tri, gx, i, j, k, i,      j - dj, k);
                 check_neighbour(tri, x, phi, closest_tri, gx, i, j, k, i - di, j - dj, k);
-                check_neighbour(tri, x, phi, closest_tri, gx, i, j, k, i, j, k - dk);
-                check_neighbour(tri, x, phi, closest_tri, gx, i, j, k, i - di, j, k - dk);
-                check_neighbour(tri, x, phi, closest_tri, gx, i, j, k, i, j - dj, k - dk);
+                check_neighbour(tri, x, phi, closest_tri, gx, i, j, k, i,      j,      k - dk);
+                check_neighbour(tri, x, phi, closest_tri, gx, i, j, k, i - di, j,      k - dk);
+                check_neighbour(tri, x, phi, closest_tri, gx, i, j, k, i,      j - dj, k - dk);
                 check_neighbour(tri, x, phi, closest_tri, gx, i, j, k, i - di, j - dj, k - dk);
             }
         }
@@ -806,7 +806,7 @@ void TriMeshObject<3, RealType >::computeSDF()
     Vector<Vec3ui> faceList(meshLoader.getNFaces());
 
     std::memcpy(vertexList.data(), meshLoader.getVertices().data(), meshLoader.getVertices().size() * sizeof(Real));
-    std::memcpy(faceList.data(), meshLoader.getFaces().data(), meshLoader.getFaces().size() * sizeof(UInt));
+    std::memcpy(faceList.data(),   meshLoader.getFaces().data(),    meshLoader.getFaces().size() * sizeof(UInt));
 
     for(auto& vertex : vertexList) {
         vertex *= scale;

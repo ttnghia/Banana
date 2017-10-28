@@ -92,14 +92,11 @@ inline Real interpolateValueCubicBSpline(const Vec2r& point, const Array2r& grid
     Real sumW   = 0;
     Real sumVal = 0;
 
-    for(int lj = -1; lj <= 2; ++lj)
-    {
-        for(int li = -1; li <= 2; ++li)
-        {
+    for(int lj = -1; lj <= 2; ++lj) {
+        for(int li = -1; li <= 2; ++li) {
             const Vec2i ind = Vec2i(i + li, j + lj);
 
-            if(grid.isValidIndex(ind))
-            {
+            if(grid.isValidIndex(ind)) {
                 const Real weight = MathHelpers::cubic_bspline_2d(fi - (Real)li, fj - (Real)lj);
                 sumW   += weight;
                 sumVal += weight * grid(ind);
@@ -107,10 +104,11 @@ inline Real interpolateValueCubicBSpline(const Vec2r& point, const Array2r& grid
         }
     }
 
-    if(sumW > Real(1e-30))
+    if(sumW > Real(1e-30)) {
         return sumVal / sumW;
-    else
+    } else {
         return Real(0);
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -126,16 +124,12 @@ inline Real interpolateValueCubicBSpline(const Vec3r& point, const Array3r& grid
     Real sumW   = 0;
     Real sumVal = 0;
 
-    for(int lk = -1; lk <= 2; ++lk)
-    {
-        for(int lj = -1; lj <= 2; ++lj)
-        {
-            for(int li = -1; li <= 2; ++li)
-            {
+    for(int lk = -1; lk <= 2; ++lk) {
+        for(int lj = -1; lj <= 2; ++lj) {
+            for(int li = -1; li <= 2; ++li) {
                 const Vec3i ind = Vec3i(i + li, j + lj, k + lk);
 
-                if(grid.isValidIndex(ind))
-                {
+                if(grid.isValidIndex(ind)) {
                     const Real weight = MathHelpers::cubic_bspline_3d(fi - (Real)li, fj - (Real)lj, fk - (Real)lk);
                     sumW   += weight;
                     sumVal += weight * grid(ind);
@@ -144,12 +138,9 @@ inline Real interpolateValueCubicBSpline(const Vec3r& point, const Array3r& grid
         }
     }
 
-    if(sumW > 0)
-    {
+    if(sumW > 0) {
         return sumVal / sumW;
-    }
-    else
-    {
+    } else {
         return Real(0);
     }
 }
@@ -296,10 +287,8 @@ inline void write_matlab_array(std::ostream& output, Array2r& a, const char* var
 {
     output << variable_name << "=[";
 
-    for(int j = 0; j < a.size()[1]; ++j)
-    {
-        for(int i = 0; i < a.size()[0]; ++i)
-        {
+    for(int j = 0; j < a.size()[1]; ++j) {
+        for(int i = 0; i < a.size()[0]; ++i) {
             output << a(i, j) << " ";
         }
 
@@ -308,8 +297,7 @@ inline void write_matlab_array(std::ostream& output, Array2r& a, const char* var
 
     output << "]";
 
-    if(transpose)
-    {
+    if(transpose) {
         output << "'";
     }
 
