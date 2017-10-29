@@ -57,9 +57,10 @@ public:
     static auto create(const String& instanceName) { return std::make_shared<Logger>(instanceName); }
 
     ////////////////////////////////////////////////////////////////////////////////
-    void  setLoglevel(spdlog::level::level_enum level) { m_ConsoleLogger->set_level(level); if(m_FileLogger != nullptr) { m_FileLogger->set_level(level); } }
+    void setLoglevel(spdlog::level::level_enum level) { m_ConsoleLogger->set_level(level); if(m_FileLogger != nullptr) { m_FileLogger->set_level(level); } }
 
     void newLine() { printLog(""); }
+    void newLineIf(bool bCondition) { if(bCondition) { printLog(""); } }
     void printSeparator();
     void printAligned(const String& s, char padding = PADDING, const String& wrapper = WRAPPER, UInt maxSize = 100);
     void printTextBox(const String& s);
@@ -83,7 +84,11 @@ public:
     ////////////////////////////////////////////////////////////////////////////////
     void printLog(const String& s);
     void printLog(const String& s, spdlog::level::level_enum level);
-    void printLogIndent(const String& s, UInt indentLevel = 1);
+    void printLogIndent(const String& s, UInt indentLevel = 1, char trailing = ' ');
+
+    void printLogIf(bool bCondition, const String& s) { if(bCondition) { printLog(s); } }
+    void printLogIf(bool bCondition, const String& s, spdlog::level::level_enum level) { if(bCondition) { printLog(s, level); } }
+    void printLogIndentIf(bool bCondition, const String& s, UInt indentLevel = 1, char trailing = ' ') { if(bCondition) { printLogIndent(s, indentLevel, trailing); } }
 
     void printMemoryUsage();
 

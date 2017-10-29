@@ -36,7 +36,7 @@ public:
 
     ////////////////////////////////////////////////////////////////////////////////
     virtual String getSolverName() override { return String("PIC2D_Solver"); }
-    virtual String getGreetingMessage() override { return String("Fluid Simulation using FLIP-2D Solver"); }
+    virtual String getGreetingMessage() override { return String("Fluid Simulation using PIC-2D Solver"); }
 
     virtual void makeReady() override;
     virtual void advanceFrame() override;
@@ -91,14 +91,9 @@ protected:
     auto&       gridData() { return solverData().gridSimData; }
     const auto& gridData() const { return solverData().gridSimData; }
 
-    ////////////////////////////////////////////////////////////////////////////////
-    PIC2D_Parameters                                 m_SimParams;
-    PIC2D_Data                                       m_SimData;
-    std::function<Real(const Vec2r&, const Array2r&)> m_InterpolateValue = nullptr;
-    std::function<Real(const Vec2r&)>                 m_WeightKernel     = nullptr;
-
-    Grid2r                      m_Grid;
-    UniquePtr<PCGSolver<Real> > m_PCGSolver = nullptr;
+private:
+    PIC2D_Parameters m_SimParams;
+    PIC2D_Data       m_SimData;
 };
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace ParticleSolvers

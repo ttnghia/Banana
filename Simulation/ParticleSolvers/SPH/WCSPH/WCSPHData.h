@@ -45,7 +45,7 @@ struct SimulationParameters_WCSPH : public SimulationParameters
     Real viscosityBoundary = Real(DEFAULT_VISCOSITY * 0.001);
     Real particleRadius    = Real(2.0 / 32.0 / 4.0);
 
-    Real boundaryRestitution     = Real(ParticleSolverConstants::DefaultBoundaryRestitution);
+    Real boundaryRestitution     = Real(SolverDefaultParameters::BoundaryRestitution);
     Real attractivePressureRatio = Real(0.1);
     Real restDensity             = Real(1000.0);
     Real densityVariationRatio   = Real(10.0);

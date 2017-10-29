@@ -493,7 +493,7 @@ void Snow3DSolver::explicitVelocities(Real timestep)
                                 {
                                     if(gridData().active.data()[i]) {
                                         gridData().velocity_new.data()[i] = gridData().velocity.data()[i] +
-                                                                            timestep * (ParticleSolverConstants::DefaultGravity3D - gridData().velocity_new.data()[i] / gridData().mass.data()[i]);
+                                                                            timestep * (SolverDefaultParameters::Gravity3D - gridData().velocity_new.data()[i] / gridData().mass.data()[i]);
                                     }
                                 });
 }

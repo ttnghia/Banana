@@ -33,13 +33,13 @@ struct SimulationParameters_Snow2D : public SimulationParameters
 
     ////////////////////////////////////////////////////////////////////////////////
     Real CFLFactor           = Real(0.04);
-    Real PIC_FLIP_ratio      = ParticleSolverConstants::Default_PIC_FLIP_Ratio;
-    Real minTimestep         = ParticleSolverConstants::DefaultMinTimestep;
-    Real maxTimestep         = ParticleSolverConstants::DefaultMaxTimestep;
-    Real boundaryRestitution = ParticleSolverConstants::DefaultBoundaryRestitution;
+    Real PIC_FLIP_ratio      = SolverDefaultParameters::PIC_FLIP_Ratio;
+    Real minTimestep         = SolverDefaultParameters::MinTimestep;
+    Real maxTimestep         = SolverDefaultParameters::MaxTimestep;
+    Real boundaryRestitution = SolverDefaultParameters::BoundaryRestitution;
 
-    Real CGRelativeTolerance = ParticleSolverConstants::DefaultCGRelativeTolerance;
-    UInt maxCGIteration      = ParticleSolverConstants::DefaultMaxCGIteration;
+    Real CGRelativeTolerance = SolverDefaultParameters::CGRelativeTolerance;
+    UInt maxCGIteration      = SolverDefaultParameters::CGMaxIteration;
 
     Real thresholdCompression = Real(1.0 - 1.9e-2);  //Fracture threshold for compression (1-2.5e-2)
     Real thresholdStretching  = Real(1.0 + 7.5e-3);  //Fracture threshold for stretching (1+7.5e-3)
@@ -52,10 +52,10 @@ struct SimulationParameters_Snow2D : public SimulationParameters
     Real maxImplicitError = Real(1e4);               //Maximum allowed error for conjugate residual
     Real minImplicitError = Real(1e-4);              //Minimum allowed error for conjugate residual
 
-    ParticleSolverConstants::InterpolationKernels kernel     = ParticleSolverConstants::InterpolationKernels::CubicBSpline;
+    SolverDefaultParameters::InterpolationKernels kernel     = SolverDefaultParameters::InterpolationKernels::CubicBSpline;
     Int                                           kernelSpan = 2;
 
-    Real  cellSize                    = ParticleSolverConstants::DefaultCellSize;
+    Real  cellSize                    = SolverDefaultParameters::CellSize;
     Real  ratioCellSizeParticleRadius = Real(2.0);
     Vec2r movingBMin                  = Vec2r(-1.0);
     Vec2r movingBMax                  = Vec2r(1.0);
@@ -77,8 +77,8 @@ struct SimulationParameters_Snow2D : public SimulationParameters
         particleMass   = particleRadius * particleRadius * materialDensity;
 
         cellArea   = cellSize * cellSize;
-        domainBMin = movingBMin - Vec2r(cellSize * ParticleSolverConstants::DefaultExpandCells);
-        domainBMax = movingBMax + Vec2r(cellSize * ParticleSolverConstants::DefaultExpandCells);
+        domainBMin = movingBMin - Vec2r(cellSize * SolverDefaultParameters::NExpandCells);
+        domainBMax = movingBMax + Vec2r(cellSize * SolverDefaultParameters::NExpandCells);
 
         lambda = YoungsModulus * PoissonsRatio / ((Real(1.0) + PoissonsRatio) * (Real(1.0) - Real(2.0) * PoissonsRatio)),
         mu     = YoungsModulus / (Real(2.0) + Real(2.0) * PoissonsRatio);

@@ -126,11 +126,11 @@ void Logger::printLog(const String& s, spdlog::level::level_enum level)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Logger::printLogIndent(const String& s, UInt indentLevel /*= 1*/)
+void Logger::printLogIndent(const String& s, UInt indentLevel /*= 1*/, char trailing /*= ' '*/)
 {
     String str;
     str.reserve(256);
-    str.append(String(INDENT_SIZE * indentLevel, ' '));
+    str.append(String(INDENT_SIZE * indentLevel, trailing));
     str.append(s);
 
     printLog(str);

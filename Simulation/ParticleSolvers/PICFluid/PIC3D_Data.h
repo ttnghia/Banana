@@ -43,14 +43,12 @@ struct PIC3D_Parameters : public SimulationParameters
     Real maxTimestep         = Real(1.0e-2);
     Real CFLFactor           = Real(1.0);
     Real PIC_FLIP_ratio      = Real(0.97);
-    Real boundaryRestitution = Real(ParticleSolverConstants::DefaultBoundaryRestitution);
+    Real boundaryRestitution = Real(SolverDefaultParameters::BoundaryRestitution);
     Real gravity             = Real(9.81);
     Real particleRadius      = Real(2.0 / 64.0 / 4.0);
     UInt expandCells         = 2;
     Real CGRelativeTolerance = Real(1e-15);
     UInt maxCGIteration      = 10000;
-
-    ParticleSolverConstants::InterpolationKernels p2gKernel = ParticleSolverConstants::InterpolationKernels::Linear;
 
     bool bCorrectPosition        = false;
     Real repulsiveForceStiffness = Real(10.0);
@@ -71,7 +69,7 @@ struct PIC3D_Parameters : public SimulationParameters
         cellSize = particleRadius * Real(4.0);
 
         sdfRadius  = cellSize * Real(1.01 * sqrt(3.0) / 2.0);
-        kernelSpan = (p2gKernel == ParticleSolverConstants::InterpolationKernels::Linear || p2gKernel == ParticleSolverConstants::InterpolationKernels::Swirly) ? 1 : 2;
+        kernelSpan = (p2gKernel == SolverDefaultParameters::InterpolationKernels::Linear || p2gKernel == SolverDefaultParameters::InterpolationKernels::Swirly) ? 1 : 2;
 
         domainBMin = movingBMin - Vec3r(cellSize * expandCells);
         domainBMax = movingBMax + Vec3r(cellSize * expandCells);
@@ -85,9 +83,8 @@ struct PIC3D_Parameters : public SimulationParameters
         logger->printLogIndent("CFL factor: " + std::to_string(CFLFactor));
         logger->printLogIndent("PIC/FLIP ratio: " + std::to_string(PIC_FLIP_ratio));
 
-        logger->printLogIndent("Kernel function: " + (p2gKernel == ParticleSolverConstants::InterpolationKernels::Linear ? String("Linear") : String("Cubic BSpline")));
-        logger->printLogIndent("Domain box: " + NumberHelpers::toString(domainBMin) + " -> " + NumberHelpers::toString(domainBMax));
         logger->printLogIndent("Moving box: " + NumberHelpers::toString(movingBMin) + " -> " + NumberHelpers::toString(movingBMax));
+        logger->printLogIndent("Domain box: " + NumberHelpers::toString(domainBMin) + " -> " + NumberHelpers::toString(domainBMax));
         logger->printLogIndent("Cell size: " + std::to_string(cellSize));
         logger->printLogIndent("Grid resolution: " + NumberHelpers::toString(Vec3ui(static_cast<UInt>(ceil((domainBMax[0] - domainBMin[0]) / cellSize)),
                                                                                     static_cast<UInt>(ceil((domainBMax[1] - domainBMin[1]) / cellSize)),
@@ -98,9 +95,7 @@ struct PIC3D_Parameters : public SimulationParameters
 
         logger->printLogIndent("Boundary restitution: " + std::to_string(boundaryRestitution));
         logger->printLogIndent("Correct particle position: " + (bCorrectPosition ? String("Yes") : String("No")));
-        if(bCorrectPosition) {
-            logger->printLogIndent("Repulsive force stiffness: " + NumberHelpers::formatToScientific(repulsiveForceStiffness));
-        }
+        logger->printLogIndentIf(bCorrectPosition, "Repulsive force stiffness: " + NumberHelpers::formatToScientific(repulsiveForceStiffness));
 
 
         logger->printLogIndent("ConjugateGradient solver tolerance: " + NumberHelpers::formatToScientific(CGRelativeTolerance));

@@ -33,7 +33,7 @@ void FLIP3D_Solver::makeReady()
     logger().printRunTime("Allocate solver memory: ",
                           [&]()
                           {
-                              if(solverParams().p2gKernel == ParticleSolverConstants::InterpolationKernels::Linear) {
+                              if(solverParams().p2gKernel == SolverDefaultParameters::InterpolationKernels::Linear) {
                                   m_InterpolateValue = static_cast<Real (*)(const Vec3r&, const Array3r&)>(&ArrayHelpers::interpolateValueLinear);
                                   m_WeightKernel     = [](const Vec3r& dxdydz) { return MathHelpers::tril_kernel(dxdydz[0], dxdydz[1], dxdydz[2]); };
                               } else {
@@ -150,9 +150,9 @@ void FLIP3D_Solver::loadSimParams(const nlohmann::json& jParams)
     String tmp = "LinearKernel";
     JSONHelpers::readValue(jParams, tmp,                                    "KernelFunction");
     if(tmp == "LinearKernel" || tmp == "Linear") {
-        solverParams().p2gKernel = ParticleSolverConstants::InterpolationKernels::Linear;
+        solverParams().p2gKernel = SolverDefaultParameters::InterpolationKernels::Linear;
     } else {
-        solverParams().p2gKernel = ParticleSolverConstants::InterpolationKernels::CubicBSpline;
+        solverParams().p2gKernel = SolverDefaultParameters::InterpolationKernels::CubicBSpline;
     }
 
     ////////////////////////////////////////////////////////////////////////////////

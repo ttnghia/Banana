@@ -326,9 +326,9 @@ Real PeridynamicsSolver::computeCFLTimestep()
 void PeridynamicsSolver::advanceVelocity(Real timestep)
 {
     static Timer funcTimer;
-    if(solverParams().integrationScheme == ParticleSolverConstants::IntegrationScheme::ExplicitEuler) {
+    if(solverParams().integrationScheme == SolverDefaultParameters::IntegrationScheme::ExplicitEuler) {
         logger().printRunTime("===> ExplicitEuler integration: ", funcTimer, [&]() { integrateExplicitEuler(timestep); });
-    } else if(solverParams().integrationScheme == ParticleSolverConstants::IntegrationScheme::ImplicitEuler) {
+    } else if(solverParams().integrationScheme == SolverDefaultParameters::IntegrationScheme::ImplicitEuler) {
         logger().printRunTime("===> ImplicitEuler integration: ", funcTimer, [&]() { integrateImplicitEuler(timestep); });
     } else {
         logger().printRunTime("===> Newmark-beta integration: ", funcTimer, [&]() { integrateImplicitNewmarkBeta(timestep); });
@@ -389,7 +389,7 @@ void PeridynamicsSolver::moveParticles(Real timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PeridynamicsSolver::buildLinearSystem(Real timestep)
 {
-    const Real rhs_coeff = (solverParams().integrationScheme == ParticleSolverConstants::IntegrationScheme::NewmarkBeta) ? Real(2.0) : Real(1.0);
+    const Real rhs_coeff = (solverParams().integrationScheme == SolverDefaultParameters::IntegrationScheme::NewmarkBeta) ? Real(2.0) : Real(1.0);
     solverData().matrix.clear();
     solverData().rhs.assign(solverData().rhs.size(), Vec3r(0));
 
@@ -420,8 +420,8 @@ void PeridynamicsSolver::buildLinearSystem(Real timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PeridynamicsSolver::computeImplicitForce(UInt p, Vec3r& pforce, Mat3x3r& sumLHS, Vec3r& sumRHS, Real timestep)
 {
-    const Real fdx_coeff = (solverParams().integrationScheme == ParticleSolverConstants::IntegrationScheme::NewmarkBeta) ? MathHelpers::sqr(timestep) / Real(4.0) : MathHelpers::sqr(timestep);
-    const Real fdv_coeff = (solverParams().integrationScheme == ParticleSolverConstants::IntegrationScheme::NewmarkBeta) ? timestep* Real(0.5) : timestep;
+    const Real fdx_coeff = (solverParams().integrationScheme == SolverDefaultParameters::IntegrationScheme::NewmarkBeta) ? MathHelpers::sqr(timestep) / Real(4.0) : MathHelpers::sqr(timestep);
+    const Real fdv_coeff = (solverParams().integrationScheme == SolverDefaultParameters::IntegrationScheme::NewmarkBeta) ? timestep* Real(0.5) : timestep;
 
     const Vec3r& ppos = solverData().positions[p];
     const Vec3r& pvel = solverData().velocities[p];

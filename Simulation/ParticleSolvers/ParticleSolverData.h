@@ -30,28 +30,33 @@
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace ParticleSolverConstants
+namespace SolverDefaultParameters
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-static const UInt DefaultFrameRate   = 30u;
-static const Real DefaultMinTimestep = Real(1.0e-6);
-static const Real DefaultMaxTimestep = Real(1.0e-3);
+static const UInt FrameRate   = 30u;
+static const Real MinTimestep = Real(1.0e-6);
+static const Real MaxTimestep = Real(1.0e-3);
 
-static const UInt DefaultExpandCells                 = 2u;
-static const Real DefaultRatioCellSizeParticleRadius = Real(4.0);
-static const Real DefaultCellSize                    = Real(1.0 / 64.0);
+static const UInt NExpandCells                    = 2u;
+static const Real RatioCellSizeOverParticleRadius = Real(4.0);
+static const Real CellSize                        = Real(1.0 / 64.0);
+static const Real ParticleRadius                  = Real(2.0 / 64.0 / 4.0);
 
-static const Real DefaultBoundaryRestitution = Real(0.9);
+static const Real BoundaryRestitution = Real(0.9);
 
-static const Vec2r DefaultGravity2D = Vec2r(0, -9.81);
-static const Vec3r DefaultGravity3D = Vec3r(0, -9.81, 0);
+static const Vec2r SimulationDomainBMin2D = Vec2r(-1.0);
+static const Vec2r SimulationDomainBMax2D = Vec2r(1.0);
+static const Vec3r SimulationDomainBMin3D = Vec3r(-1.0);
+static const Vec3r SimulationDomainBMax3D = Vec3r(1.0);
 
-static const UInt DefaultMaxCGIteration      = 10'000u;
-static const Real DefaultCGRelativeTolerance = Real(1e-15);
+static const Vec2r Gravity2D = Vec2r(0, -9.81);
+static const Vec3r Gravity3D = Vec3r(0, -9.81, 0);
 
-static const Real Default_PIC_FLIP_Ratio = Real(0.97);
-enum class InterpolationKernels { Linear, CubicBSpline, GIMP, Swirly };
-enum class IntegrationScheme { ExplicitVerlet, ExplicitEuler, ImplicitEuler, NewmarkBeta };
+static const UInt CGMaxIteration      = 10'000u;
+static const Real CGRelativeTolerance = Real(1e-15);
+
+static const Real PIC_FLIP_Ratio = Real(0.97);
+enum IntegrationScheme { ExplicitVerlet, ExplicitEuler, ImplicitEuler, NewmarkBeta };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace ParticleSolverConstants
@@ -62,7 +67,7 @@ namespace ParticleSolvers
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 struct GlobalParameters
 {
-    Real frameDuration = Real(1.0 / ParticleSolverConstants::DefaultFrameRate);
+    Real frameDuration = Real(1.0 / SolverDefaultParameters::FrameRate);
 
     UInt nThreads      = 0;
     UInt startFrame    = 1;
@@ -114,7 +119,7 @@ struct GlobalParameters
 struct SimulationParameters
 {
     virtual void makeReady() = 0;
-    virtual void printParams(const SharedPtr<Logger>& logger) = 0;
+    virtual void printParams(const SharedPtr<Logger>& logger, bool bNewLine = true) = 0;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

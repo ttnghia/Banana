@@ -39,14 +39,14 @@ struct SimulationParameters_Cloth3D
     Real maxTimestep         = Real(5.0e-4);
     Real CFLFactor           = Real(1.0);
     Real PIC_FLIP_ratio      = Real(0.97);
-    Real boundaryRestitution = Real(ParticleSolverConstants::DefaultBoundaryRestitution);
+    Real boundaryRestitution = Real(SolverDefaultParameters::BoundaryRestitution);
     Real gravity             = Real(9.81);
     Real particleRadius      = Real(2.0 / 64.0 / 4.0);
     UInt expandCells         = 2;
     Real CGRelativeTolerance = Real(1e-15);
     UInt maxCGIteration      = 10000;
 
-    ParticleSolverConstants::InterpolationKernels p2gKernel = ParticleSolverConstants::InterpolationKernels::Linear;
+    SolverDefaultParameters::InterpolationKernels p2gKernel = SolverDefaultParameters::InterpolationKernels::Linear;
 
     bool bApplyRepulsiveForces   = false;
     Real repulsiveForceStiffness = Real(1e-3);
@@ -71,7 +71,7 @@ struct SimulationParameters_Cloth3D
         nearKernelRadiusSqr = nearKernelRadius * nearKernelRadius;
 
         sdfRadius  = cellSize * Real(1.01 * sqrt(3.0) / 2.0);
-        kernelSpan = (p2gKernel == ParticleSolverConstants::InterpolationKernels::Linear || p2gKernel == ParticleSolverConstants::InterpolationKernels::Swirly) ? 1 : 2;
+        kernelSpan = (p2gKernel == SolverDefaultParameters::InterpolationKernels::Linear || p2gKernel == SolverDefaultParameters::InterpolationKernels::Swirly) ? 1 : 2;
 
         domainBMin = movingBMin - Vec3r(cellSize * expandCells);
         domainBMax = movingBMax + Vec3r(cellSize * expandCells);
@@ -85,7 +85,7 @@ struct SimulationParameters_Cloth3D
         logger->printLogIndent("CFL factor: " + std::to_string(CFLFactor));
         logger->printLogIndent("PIC/FLIP ratio: " + std::to_string(PIC_FLIP_ratio));
 
-        logger->printLogIndent("Kernel function: " + (p2gKernel == ParticleSolverConstants::InterpolationKernels::Linear ? String("Linear") : String("Cubic BSpline")));
+        logger->printLogIndent("Kernel function: " + (p2gKernel == SolverDefaultParameters::InterpolationKernels::Linear ? String("Linear") : String("Cubic BSpline")));
         logger->printLogIndent("Moving BMin: " + NumberHelpers::toString(movingBMin));
         logger->printLogIndent("Moving BMax: " + NumberHelpers::toString(movingBMax));
         logger->printLogIndent("Cell size: " + std::to_string(cellSize));

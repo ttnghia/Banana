@@ -33,7 +33,7 @@ void APIC2D_Solver::makeReady()
                           {
                               solverParams().makeReady();
                               solverParams().printParams(m_Logger);
-                              if(solverParams().p2gKernel == ParticleSolverConstants::InterpolationKernels::Linear) {
+                              if(solverParams().p2gKernel == SolverDefaultParameters::InterpolationKernels::Linear) {
                                   m_InterpolateValue = static_cast<Real (*)(const Vec2r&, const Array2r&)>(&ArrayHelpers::interpolateValueLinear);
                                   m_WeightKernel     = [](const Vec2r& dxdy) { return MathHelpers::bilinear_kernel(dxdy[0], dxdy[1]); };
                               } else {

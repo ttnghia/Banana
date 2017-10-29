@@ -70,7 +70,7 @@ protected:
     virtual void generateSDF_Impl() = 0;
 
     RealType m_Margin           = RealType(0.0);
-    RealType m_RestitutionCoeff = ParticleSolverConstants::DefaultBoundaryRestitution;
+    RealType m_RestitutionCoeff = SolverDefaultParameters::BoundaryRestitution;
 
     Grid<N, RealType> m_Grid;
 };

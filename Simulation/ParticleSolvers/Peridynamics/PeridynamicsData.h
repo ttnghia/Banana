@@ -38,13 +38,13 @@ struct SimulationParameters_Peridynamics3D : public SimulationParameters
     Real  minTimestep         = Real(1.0e-6);
     Real  maxTimestep         = Real(1.0e-3);
     Real  CFLFactor           = Real(2.0);
-    Real  boundaryRestitution = ParticleSolverConstants::DefaultBoundaryRestitution;
+    Real  boundaryRestitution = SolverDefaultParameters::BoundaryRestitution;
     Real  particleRadius      = Real(2.0 / 64.0 / 4.0);
     Real  CGRelativeTolerance = Real(1e-15);
     UInt  maxCGIteration      = 10000;
-    Vec3r gravity             = ParticleSolverConstants::DefaultGravity3D;
+    Vec3r gravity             = SolverDefaultParameters::Gravity3D;
 
-    ParticleSolverConstants::IntegrationScheme integrationScheme       = ParticleSolverConstants::IntegrationScheme::NewmarkBeta;
+    SolverDefaultParameters::IntegrationScheme integrationScheme       = SolverDefaultParameters::IntegrationScheme::NewmarkBeta;
     Real                                       repulsiveForceStiffness = Real(1e-3);
 
     bool zeroInitialCGSolution = true;
