@@ -38,13 +38,19 @@ public:
 
     ////////////////////////////////////////////////////////////////////////////////
     virtual String getSolverName() override { return String("APIC3D_Solver"); }
-    virtual String getGreetingMessage() override { return String("Fluid Simulation using FLIP-3D Solver"); }
+    virtual String getGreetingMessage() override { return String("Fluid Simulation using APIC-3D Solver"); }
 
     auto&       apicData() { return m_apicData; }
     const auto& apicData() const { return m_apicData; }
 
 protected:
-    void    advanceVelocity(Real timestep) {}
+    virtual void generateParticles(const nlohmann::json& jParams) override;
+    virtual bool advanceScene(UInt frame, Real fraction = Real(0)) override;
+    virtual void advanceVelocity(Real timestep) override;
+    virtual void mapParticle2Grid() override;
+    virtual void mapGrid2Particles() override;
+
+    ////////////////////////////////////////////////////////////////////////////////
     Mat3x3r getAffineMatrix(const Vec3r& gridPos);
 
     ////////////////////////////////////////////////////////////////////////////////

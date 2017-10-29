@@ -172,8 +172,7 @@ inline Vec2r interpolateGradient(const Vec2r& point, const Array2r& grid)
                  MathHelpers::lerp(ddy0, ddy1, fx));
 }
 
-template<class Real>
-inline Real interpolateValueGradient(Vec2r& gradient, const Vec2r& point, const Array2r& grid)
+inline Real interpolateValueAndGradient(Vec2r& gradient, const Vec2r& point, const Array2r& grid)
 {
     int  i, j;
     Real fx, fy;
@@ -191,11 +190,30 @@ inline Real interpolateValueGradient(Vec2r& gradient, const Vec2r& point, const 
     Real ddx0 = (v10 - v00);
     Real ddx1 = (v11 - v01);
 
-    gradient[0] = lerp(ddx0, ddx1, fy);
-    gradient[1] = lerp(ddy0, ddy1, fx);
+    gradient[0] = MathHelpers::lerp(ddx0, ddx1, fy);
+    gradient[1] = MathHelpers::lerp(ddy0, ddy1, fx);
 
     //may as well return value too
     return MathHelpers::bilerp(v00, v10, v01, v11, fx, fy);
+}
+
+inline Vec2r interpolateGradientValue(const Vec2r& point, const Array2r& grid, Real cellSize)
+{
+    int  i, j;
+    Real fx, fy;
+    MathHelpers::get_barycentric(point[0], i, fx, 0, (int)grid.size()[0]);
+    MathHelpers::get_barycentric(point[1], j, fy, 0, (int)grid.size()[1]);
+
+    Real v00 = grid(i, j);
+    Real v01 = grid(i, j + 1);
+    Real v10 = grid(i + 1, j);
+    Real v11 = grid(i + 1, j + 1);
+
+    Vec2r grad = v00 * Vec2r(fy - Real(1.0), fx - Real(1.0)) +
+                 v10 * Vec2r(Real(1.0) - fy, -fx) +
+                 v01 * Vec2r(-fy,            Real(1.0) - fx) +
+                 v11 * Vec2r(fy,             fx);
+    return grad / cellSize;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -238,7 +256,7 @@ inline Vec3r interpolateGradient(const Vec3r& point, const Array3r& grid)
     return Vec3r(dv_dx, dv_dy, dv_dz);
 }
 
-inline Real interpolateValueGradient(Vec3r& gradient, const Vec3r& point, const Array3r& grid)
+inline Real interpolateValueAndGradient(Vec3r& gradient, const Vec3r& point, const Array3r& grid)
 {
     int  i, j, k;
     Real fx, fy, fz;
@@ -284,6 +302,37 @@ inline Real interpolateValueGradient(Vec3r& gradient, const Vec3r& point, const 
                                 v001, v101,
                                 v011, v111,
                                 fx, fy, fz);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+inline Vec3r interpolateGradientValue(const Vec3r& point, const Array3r& grid, Real cellSize)
+{
+    int  i, j, k;
+    Real fx, fy, fz;
+
+    MathHelpers::get_barycentric(point[0], i, fx, 0, (int)grid.size()[0]);
+    MathHelpers::get_barycentric(point[1], j, fy, 0, (int)grid.size()[1]);
+    MathHelpers::get_barycentric(point[2], k, fz, 0, (int)grid.size()[2]);
+
+    Real v000 = grid(i, j, k);
+    Real v001 = grid(i, j, k + 1);
+    Real v010 = grid(i, j + 1, k);
+    Real v011 = grid(i, j + 1, k + 1);
+    Real v100 = grid(i + 1, j, k);
+    Real v101 = grid(i + 1, j, k + 1);
+    Real v110 = grid(i + 1, j + 1, k);
+    Real v111 = grid(i + 1, j + 1, k + 1);
+
+    Vec3r grad = v000 * Vec3r(-(Real(1.0) - fy) * (Real(1.0) - fz), -(Real(1.0) - fx) * (Real(1.0) - fz), -(Real(1.0) - fx) * (Real(1.0) - fy)) +
+                 v001 * Vec3r(-(Real(1.0) - fy) * fz, -(Real(1.0) - fx) * fz, (Real(1.0) - fx) * (Real(1.0) - fy)) +
+                 v010 * Vec3r(-fy * (Real(1.0) - fz), (Real(1.0) - fx) * (Real(1.0) - fz), -(Real(1.0) - fx) * fy) +
+                 v011 * Vec3r(-fy * fz, (Real(1.0) - fx) * fz, (Real(1.0) - fx) * fy) +
+                 v100 * Vec3r((Real(1.0) - fy) * (Real(1.0) - fz), -fx * (Real(1.0) - fz), -fx * (Real(1.0) - fy)) +
+                 v101 * Vec3r((Real(1.0) - fy) * fz, -fx * fz, fx * (Real(1.0) - fy)) +
+                 v110 * Vec3r(fy * (Real(1.0) - fz), fx * (Real(1.0) - fz), -fx * fy) +
+                 v111 * Vec3r(fy * fz, fx * fz, fx * fy);
+    return grad / cellSize;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

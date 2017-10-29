@@ -50,11 +50,11 @@ public:
 protected:
     virtual void loadSimParams(const nlohmann::json& jParams) override;
     virtual void advanceVelocity(Real timestep) override;
+    virtual void mapGrid2Particles() override;
 
     ////////////////////////////////////////////////////////////////////////////////
     // helper functions
     void  computeChangesGridVelocity();
-    void  velocityToParticles();
     Vec3r getVelocityChangesFromGrid(const Vec3r& ppos);
 
     ////////////////////////////////////////////////////////////////////////////////

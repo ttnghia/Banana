@@ -331,7 +331,7 @@ void PIC3D_Solver::advanceVelocity(Real timestep)
     static Timer funcTimer;
     ////////////////////////////////////////////////////////////////////////////////
     logger().printRunTime("Compute cell weights: ",                        funcTimer, [&]() { computeFluidWeights(); });
-    logger().printRunTime("Interpolate velocity from particles to grid: ", funcTimer, [&]() { velocityToGrid(); });
+    logger().printRunTime("Interpolate velocity from particles to grid: ", funcTimer, [&]() { mapParticle2Grid(); });
     logger().printRunTime("Extrapolate grid velocity: : ",                 funcTimer, [&]() { extrapolateVelocity(); });
     logger().printRunTime("Constrain grid velocity: ",                     funcTimer, [&]() { constrainGridVelocity(); });
     //logger().printRunTime("Backup grid velocities: ",                      funcTimer, [&]() { gridData().backupGridVelocity(); });
@@ -476,7 +476,7 @@ void PIC3D_Solver::computeFluidWeights()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void PIC3D_Solver::velocityToGrid()
+void PIC3D_Solver::mapParticle2Grid()
 {
     const Vec3r span = Vec3r(picData().grid.getCellSize() * static_cast<Real>(1));
 
