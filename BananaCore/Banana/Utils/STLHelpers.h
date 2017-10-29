@@ -246,13 +246,13 @@ inline bool eraseUnorderedIfExist(Vector<T>& vec, const T& item)
 }
 
 template<class T, class S>
-inline size_t eraseByMarker(Vector<T>& vec, const Vector<S>& marker)
+inline size_t eraseByMarker(Vector<T>& vec, const Vector<S>& marker, S eraseValue = S(1))
 {
     assert(marker.size() == vec.size());
     size_t last = 0;
     size_t i    = 0;
     for(; i < vec.size(); ++i, ++last) {
-        while(marker[i] == S(1)) { ++i; }
+        while(marker[i] == eraseValue) { ++i; }
         if(i >= vec.size()) { break; }
         vec[last] = vec[i];
     }
