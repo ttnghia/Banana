@@ -58,9 +58,9 @@ protected:
     virtual bool loadMemoryState() override;
     virtual void saveMemoryState() override;
     virtual void saveFrameData() override;
+    virtual void advanceVelocity(Real timestep);
 
     Real computeCFLTimestep();
-    void advanceVelocity(Real timestep);
     void moveParticles(Real timeStep);
     void correctPositions(Real timestep);
 
@@ -79,13 +79,11 @@ protected:
     void solveSystem();
     void updateVelocity(Real timestep);
     ////////////////////////////////////////////////////////////////////////////////
-    void computeChangesGridVelocity();
-    void velocityToParticles();
+    //void velocityToParticles();
 
     ////////////////////////////////////////////////////////////////////////////////
     // helper functions
     Vec3r getVelocityFromGrid(const Vec3r& ppos);
-    Vec3r getVelocityChangesFromGrid(const Vec3r& ppos);
 
     ////////////////////////////////////////////////////////////////////////////////
     auto&       particleData() { return picData().particleSimData; }

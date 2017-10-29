@@ -35,7 +35,6 @@ void PIC3D_Solver::makeReady()
     logger().printRunTime("Allocate solver memory: ",
                           [&]()
                           {
-                              picParams().printParams(m_Logger);
                               picData().makeReady(picParams());
 
                               ////////////////////////////////////////////////////////////////////////////////
@@ -66,8 +65,14 @@ void PIC3D_Solver::advanceFrame()
         logger().printRunTime("Sub-step time: ", subStepTimer,
                               [&]()
                               {
+                                  Real substep       = computeCFLTimestep();
                                   Real remainingTime = globalParams().frameDuration - frameTime;
-                                  Real substep       = MathHelpers::min(computeCFLTimestep(), remainingTime);
+                                  if(frameTime + substep >= globalParams().frameDuration) {
+                                      substep = remainingTime;
+                                  } else if(frameTime + Real(1.5) * substep >= globalParams().frameDuration) {
+                                      substep = remainingTime * Real(0.5);
+                                  }
+
                                   ////////////////////////////////////////////////////////////////////////////////
                                   logger().printRunTime("Find neighbors: ",               funcTimer, [&]() { picData().grid.collectIndexToCells(particleData().positions); });
                                   logger().printRunTime("====> Advance velocity total: ", funcTimer, [&]() { advanceVelocity(substep); });
@@ -329,13 +334,13 @@ void PIC3D_Solver::advanceVelocity(Real timestep)
     logger().printRunTime("Interpolate velocity from particles to grid: ", funcTimer, [&]() { velocityToGrid(); });
     logger().printRunTime("Extrapolate grid velocity: : ",                 funcTimer, [&]() { extrapolateVelocity(); });
     logger().printRunTime("Constrain grid velocity: ",                     funcTimer, [&]() { constrainGridVelocity(); });
-    logger().printRunTime("Backup grid velocities: ",                      funcTimer, [&]() { gridData().backupGridVelocity(); });
+    //logger().printRunTime("Backup grid velocities: ",                      funcTimer, [&]() { gridData().backupGridVelocity(); });
     logger().printRunTime("Add gravity: ",                                 funcTimer, [&]() { addGravity(timestep); });
     logger().printRunTime("====> Pressure projection total: ",             funcTimer, [&]() { pressureProjection(timestep); });
     logger().printRunTime("Extrapolate grid velocity: : ",                 funcTimer, [&]() { extrapolateVelocity(); });
     logger().printRunTime("Constrain grid velocity: ",                     funcTimer, [&]() { constrainGridVelocity(); });
-    logger().printRunTime("Compute changes of grid velocity: ",            funcTimer, [&]() { computeChangesGridVelocity(); });
-    logger().printRunTime("Interpolate velocity from grid to particles: ", funcTimer, [&]() { velocityToParticles(); });
+    //logger().printRunTime("Compute changes of grid velocity: ",            funcTimer, [&]() { computeChangesGridVelocity(); });
+    //logger().printRunTime("Interpolate velocity from grid to particles: ", funcTimer, [&]() { velocityToParticles(); });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -1004,32 +1009,21 @@ void PIC3D_Solver::updateVelocity(Real timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void PIC3D_Solver::computeChangesGridVelocity()
-{
-    ParallelFuncs::parallel_for(gridData().u.dataSize(),
-                                [&](size_t i) { gridData().du.data()[i] = gridData().u.data()[i] - gridData().u_old.data()[i]; });
-    ParallelFuncs::parallel_for(gridData().v.dataSize(),
-                                [&](size_t i) { gridData().dv.data()[i] = gridData().v.data()[i] - gridData().v_old.data()[i]; });
-    ParallelFuncs::parallel_for(gridData().w.dataSize(),
-                                [&](size_t i) { gridData().dw.data()[i] = gridData().w.data()[i] - gridData().w_old.data()[i]; });
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void PIC3D_Solver::velocityToParticles()
-{
-    ParallelFuncs::parallel_for(particleData().getNParticles(),
-                                [&](UInt p)
-                                {
-                                    const Vec3r& ppos = particleData().positions[p];
-                                    const Vec3r& pvel = particleData().velocities[p];
-
-                                    const Vec3r gridPos = picData().grid.getGridCoordinate(ppos);
-                                    const Vec3r oldVel  = getVelocityFromGrid(gridPos);
-                                    const Vec3r dVel    = getVelocityChangesFromGrid(gridPos);
-
-                                    //particleData().velocities[p] = MathHelpers::lerp(oldVel, pvel + dVel, picParams().PIC_FLIP_ratio);
-                                });
-}
+//void PIC3D_Solver::velocityToParticles()
+//{
+//    ParallelFuncs::parallel_for(particleData().getNParticles(),
+//                                [&](UInt p)
+//                                {
+//                                    const Vec3r& ppos = particleData().positions[p];
+//                                    const Vec3r& pvel = particleData().velocities[p];
+//
+//                                    const Vec3r gridPos = picData().grid.getGridCoordinate(ppos);
+//                                    const Vec3r oldVel  = getVelocityFromGrid(gridPos);
+//                                    //const Vec3r dVel    = getVelocityChangesFromGrid(gridPos);
+//
+//                                    //particleData().velocities[p] = MathHelpers::lerp(oldVel, pvel + dVel, picParams().PIC_FLIP_ratio);
+//                                });
+//}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //Interpolate velocity from the MAC grid.
@@ -1040,16 +1034,6 @@ Vec3r PIC3D_Solver::getVelocityFromGrid(const Vec3r& gridPos)
     Real vw = ArrayHelpers::interpolateValueLinear(gridPos - Vec3r(0.5, 0.5, 0), gridData().w);
 
     return Vec3r(vu, vv, vw);
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-Vec3r PIC3D_Solver::getVelocityChangesFromGrid(const Vec3r& gridPos)
-{
-    Real changed_vu = ArrayHelpers::interpolateValueLinear(gridPos - Vec3r(0, 0.5, 0.5), gridData().du);
-    Real changed_vv = ArrayHelpers::interpolateValueLinear(gridPos - Vec3r(0.5, 0, 0.5), gridData().dv);
-    Real changed_vw = ArrayHelpers::interpolateValueLinear(gridPos - Vec3r(0.5, 0.5, 0), gridData().dw);
-
-    return Vec3r(changed_vu, changed_vv, changed_vw);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

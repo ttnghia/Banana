@@ -5,7 +5,7 @@
         "FinalFrame" : 1000,
         "EnableSortParticle" : true,
         "SortFrequency" : 10,
-        "SaveFrameData" : true,
+        "SaveFrameData" : false,
         "DataPath" : "D:/SimData/FLIP0",
         "OptionalSavingDataXXX" : [ "anisotropic_kernel" ],
         "LogLevel" : "Debug"
@@ -18,12 +18,12 @@
             "BoxMax" : [ 1.0, 1.0, 1.0]
         },
         "CorrectPosition" : true,
-        "RepulsiveForceStiffness" : 100,
+        "RepulsiveForceStiffness" : 50,
         "PIC_FLIP_Ratio" : 0.0,
         "CGRelativeTolerance" : 1e-15,
         "MaxCGIteration" : 10000,
         "ParticleRadius" : 0.015625,
-        "CFLFactor" : 1.0
+        "CFLFactor" : 0.5
     },
     "AdditionalBoundaryObjects":
     [

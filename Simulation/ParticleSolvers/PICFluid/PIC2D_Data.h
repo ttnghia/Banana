@@ -93,22 +93,22 @@ struct PIC2D_Parameters : public SimulationParameters
 
     virtual void printParams(const SharedPtr<Logger>& logger) override
     {
-        logger->printLog("Simulation parameters:");
+        logger->printLog(String("PIC-2D parameters:"));
 
         ////////////////////////////////////////////////////////////////////////////////
         // simulation size
-        logger->printLogIndent("Particle radius: " + std::to_string(particleRadius));
-        logger->printLogIndent("Ratio grid size/particle radius: " + std::to_string(ratioCellSizePRadius));
-        logger->printLogIndent("Expand cells for each dimension: " + std::to_string(expandCells));
-        logger->printLogIndent("Cell size: " + std::to_string(cellSize));
-        logger->printLogIndent("SDF radius: " + std::to_string(sdfRadius));
-        logger->printLogIndent("Domain box: " + NumberHelpers::toString(domainBMin) + " -> " + NumberHelpers::toString(domainBMax));
-        logger->printLogIndent("Grid resolution: " +
+        logger->printLogIndent(String("Particle radius: ") + std::to_string(particleRadius));
+        logger->printLogIndent(String("Ratio grid size/particle radius: ") + std::to_string(ratioCellSizePRadius));
+        logger->printLogIndent(String("Expand cells for each dimension: ") + std::to_string(expandCells));
+        logger->printLogIndent(String("Cell size: ") + std::to_string(cellSize));
+        logger->printLogIndent(String("SDF radius: ") + std::to_string(sdfRadius));
+        logger->printLogIndent(String("Domain box: ") + NumberHelpers::toString(domainBMin) + " -> " + NumberHelpers::toString(domainBMax));
+        logger->printLogIndent(String("Grid resolution: ") +
                                NumberHelpers::toString(Vec2ui(static_cast<UInt>(ceil((domainBMax[0] - domainBMin[0]) / cellSize)),
                                                               static_cast<UInt>(ceil((domainBMax[1] - domainBMin[1]) / cellSize)))),
                                2);
-        logger->printLogIndent("Moving box: " + NumberHelpers::toString(movingBMin) + " -> " + NumberHelpers::toString(movingBMax));
-        logger->printLogIndent("Moving grid resolution: " +
+        logger->printLogIndent(String("Moving box: ") + NumberHelpers::toString(movingBMin) + " -> " + NumberHelpers::toString(movingBMax));
+        logger->printLogIndent(String("Moving grid resolution: ") +
                                NumberHelpers::toString(Vec2ui(static_cast<UInt>(ceil((movingBMax[0] - movingBMin[0]) / cellSize)),
                                                               static_cast<UInt>(ceil((movingBMax[1] - movingBMin[1]) / cellSize)))),
                                2);
@@ -116,27 +116,26 @@ struct PIC2D_Parameters : public SimulationParameters
 
         ////////////////////////////////////////////////////////////////////////////////
         // time step size
-        logger->printLogIndent("Min timestep: " + NumberHelpers::formatToScientific(minTimestep));
-        logger->printLogIndent("Max timestep: " + NumberHelpers::formatToScientific(maxTimestep));
-        logger->printLogIndent("CFL factor: " + std::to_string(CFLFactor));
+        logger->printLogIndent(String("Min timestep: ") + NumberHelpers::formatToScientific(minTimestep));
+        logger->printLogIndent(String("Max timestep: ") + NumberHelpers::formatToScientific(maxTimestep));
+        logger->printLogIndent(String("CFL factor: ") + std::to_string(CFLFactor));
         ////////////////////////////////////////////////////////////////////////////////
 
         ////////////////////////////////////////////////////////////////////////////////
         // CG parameters
-        logger->printLogIndent("ConjugateGradient solver tolerance: " + NumberHelpers::formatToScientific(CGRelativeTolerance));
-        logger->printLogIndent("Max CG iterations: " + NumberHelpers::formatToScientific(maxCGIteration));
+        logger->printLogIndent(String("ConjugateGradient solver tolerance: ") + NumberHelpers::formatToScientific(CGRelativeTolerance));
+        logger->printLogIndent(String("Max CG iterations: ") + NumberHelpers::formatToScientific(maxCGIteration));
         ////////////////////////////////////////////////////////////////////////////////
 
         ////////////////////////////////////////////////////////////////////////////////
         // position correction
-        logger->printLogIndent("Correct particle position: " + (bCorrectPosition ? String("Yes") : String("No")));
-        logger->printLogIndentIf(bCorrectPosition, "Repulsive force stiffness: " + NumberHelpers::formatToScientific(repulsiveForceStiffness));
+        logger->printLogIndent(String("Correct particle position: ") + (bCorrectPosition ? String("Yes") : String("No")));
+        logger->printLogIndentIf(bCorrectPosition, String("Repulsive force stiffness: ") + NumberHelpers::formatToScientific(repulsiveForceStiffness));
         ////////////////////////////////////////////////////////////////////////////////
 
         ////////////////////////////////////////////////////////////////////////////////
         // boundary condition
-        logger->printLogIndent("Boundary restitution: " + std::to_string(boundaryRestitution));
-        ////////////////////////////////////////////////////////////////////////////////
+        logger->printLogIndent(String("Boundary restitution: ") + std::to_string(boundaryRestitution));
 
         logger->newLine();
     }

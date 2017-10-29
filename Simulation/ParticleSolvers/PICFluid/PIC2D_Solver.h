@@ -58,9 +58,9 @@ protected:
     virtual bool loadMemoryState() override;
     virtual void saveMemoryState()  override;
     virtual void saveFrameData() override;
+    virtual void advanceVelocity(Real timestep);
 
     Real computeCFLTimestep();
-    void advanceVelocity(Real timestep);
     void moveParticles(Real timeStep);
     void correctPositions(Real timestep);
 

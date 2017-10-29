@@ -43,8 +43,8 @@ struct FLIP2D_Parameters : public SimulationParameters
     {
         ////////////////////////////////////////////////////////////////////////////////
         // FLIP only parameter
-        logger->printLog("FLIP-2D parameters:");
-        logger->printLogIndent("PIC/FLIP ratio: " + std::to_string(PIC_FLIP_ratio));
+        logger->printLog(String("FLIP-2D parameters:"));
+        logger->printLogIndent(String("PIC/FLIP ratio: ") + std::to_string(PIC_FLIP_ratio));
         ////////////////////////////////////////////////////////////////////////////////
 
         logger->newLine();

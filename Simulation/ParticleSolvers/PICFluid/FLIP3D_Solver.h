@@ -41,19 +41,20 @@ public:
     virtual String getGreetingMessage() override { return String("Fluid Simulation using FLIP-3D Solver"); }
 
     ////////////////////////////////////////////////////////////////////////////////
-    auto&       flipParams() { return m_flipParams; }
-    const auto& flipParams() const { return m_flipParams; }
-    auto&       flipData() { return m_flipData; }
-    const auto& flipData() const { return m_flipData; }
+    virtual void makeReady() override;
+    auto&        flipParams() { return m_flipParams; }
+    const auto&  flipParams() const { return m_flipParams; }
+    auto&        flipData() { return m_flipData; }
+    const auto&  flipData() const { return m_flipData; }
 
 protected:
     virtual void loadSimParams(const nlohmann::json& jParams) override;
-    void         advanceVelocity(Real timestep);
-    void         computeChangesGridVelocity();
-    void         velocityToParticles();
+    virtual void advanceVelocity(Real timestep) override;
 
     ////////////////////////////////////////////////////////////////////////////////
     // helper functions
+    void  computeChangesGridVelocity();
+    void  velocityToParticles();
     Vec3r getVelocityChangesFromGrid(const Vec3r& ppos);
 
     ////////////////////////////////////////////////////////////////////////////////

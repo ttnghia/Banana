@@ -94,23 +94,23 @@ struct PIC3D_Parameters : public SimulationParameters
 
     virtual void printParams(const SharedPtr<Logger>& logger) override
     {
-        logger->printLog("Simulation parameters:");
+        logger->printLog(String("PIC-3D parameters:"));
 
         ////////////////////////////////////////////////////////////////////////////////
         // simulation size
-        logger->printLogIndent("Particle radius: " + std::to_string(particleRadius));
-        logger->printLogIndent("Ratio grid size/particle radius: " + std::to_string(ratioCellSizePRadius));
-        logger->printLogIndent("Expand cells for each dimension: " + std::to_string(expandCells));
-        logger->printLogIndent("Cell size: " + std::to_string(cellSize));
-        logger->printLogIndent("SDF radius: " + std::to_string(sdfRadius));
-        logger->printLogIndent("Domain box: " + NumberHelpers::toString(domainBMin) + " -> " + NumberHelpers::toString(domainBMax));
-        logger->printLogIndent("Grid resolution: " +
+        logger->printLogIndent(String("Particle radius: ") + std::to_string(particleRadius));
+        logger->printLogIndent(String("Ratio grid size/particle radius: ") + std::to_string(ratioCellSizePRadius));
+        logger->printLogIndent(String("Expand cells for each dimension: ") + std::to_string(expandCells));
+        logger->printLogIndent(String("Cell size: ") + std::to_string(cellSize));
+        logger->printLogIndent(String("SDF radius: ") + std::to_string(sdfRadius));
+        logger->printLogIndent(String("Domain box: ") + NumberHelpers::toString(domainBMin) + " -> " + NumberHelpers::toString(domainBMax));
+        logger->printLogIndent(String("Grid resolution: ") +
                                NumberHelpers::toString(Vec3ui(static_cast<UInt>(ceil((domainBMax[0] - domainBMin[0]) / cellSize)),
                                                               static_cast<UInt>(ceil((domainBMax[1] - domainBMin[1]) / cellSize)),
                                                               static_cast<UInt>(ceil((domainBMax[2] - domainBMin[2]) / cellSize)))),
                                2);
-        logger->printLogIndent("Moving box: " + NumberHelpers::toString(movingBMin) + " -> " + NumberHelpers::toString(movingBMax));
-        logger->printLogIndent("Moving grid resolution: " +
+        logger->printLogIndent(String("Moving box: ") + NumberHelpers::toString(movingBMin) + " -> " + NumberHelpers::toString(movingBMax));
+        logger->printLogIndent(String("Moving grid resolution: ") +
                                NumberHelpers::toString(Vec3ui(static_cast<UInt>(ceil((movingBMax[0] - movingBMin[0]) / cellSize)),
                                                               static_cast<UInt>(ceil((movingBMax[1] - movingBMin[1]) / cellSize)),
                                                               static_cast<UInt>(ceil((movingBMax[2] - movingBMin[2]) / cellSize)))),
@@ -119,26 +119,26 @@ struct PIC3D_Parameters : public SimulationParameters
 
         ////////////////////////////////////////////////////////////////////////////////
         // time step size
-        logger->printLogIndent("Min timestep: " + NumberHelpers::formatToScientific(minTimestep));
-        logger->printLogIndent("Max timestep: " + NumberHelpers::formatToScientific(maxTimestep));
-        logger->printLogIndent("CFL factor: " + std::to_string(CFLFactor));
+        logger->printLogIndent(String("Min timestep: ") + NumberHelpers::formatToScientific(minTimestep));
+        logger->printLogIndent(String("Max timestep: ") + NumberHelpers::formatToScientific(maxTimestep));
+        logger->printLogIndent(String("CFL factor: ") + std::to_string(CFLFactor));
         ////////////////////////////////////////////////////////////////////////////////
 
         ////////////////////////////////////////////////////////////////////////////////
         // CG parameters
-        logger->printLogIndent("ConjugateGradient solver tolerance: " + NumberHelpers::formatToScientific(CGRelativeTolerance));
-        logger->printLogIndent("Max CG iterations: " + NumberHelpers::formatToScientific(maxCGIteration));
+        logger->printLogIndent(String("ConjugateGradient solver tolerance: ") + NumberHelpers::formatToScientific(CGRelativeTolerance));
+        logger->printLogIndent(String("Max CG iterations: ") + NumberHelpers::formatToScientific(maxCGIteration));
         ////////////////////////////////////////////////////////////////////////////////
 
         ////////////////////////////////////////////////////////////////////////////////
         // position correction
-        logger->printLogIndent("Correct particle position: " + (bCorrectPosition ? String("Yes") : String("No")));
-        logger->printLogIndentIf(bCorrectPosition, "Repulsive force stiffness: " + NumberHelpers::formatToScientific(repulsiveForceStiffness));
+        logger->printLogIndent(String("Correct particle position: ") + (bCorrectPosition ? String("Yes") : String("No")));
+        logger->printLogIndentIf(bCorrectPosition, String("Repulsive force stiffness: ") + NumberHelpers::formatToScientific(repulsiveForceStiffness));
         ////////////////////////////////////////////////////////////////////////////////
 
         ////////////////////////////////////////////////////////////////////////////////
         // boundary condition
-        logger->printLogIndent("Boundary restitution: " + std::to_string(boundaryRestitution));
+        logger->printLogIndent(String("Boundary restitution: ") + std::to_string(boundaryRestitution));
         ////////////////////////////////////////////////////////////////////////////////
 
         logger->newLine();
@@ -200,8 +200,6 @@ struct PIC3D_Data
         ////////////////////////////////////////////////////////////////////////////////
         // main variables
         Array3r u, v, w;
-        Array3r du, dv, dw;
-        Array3r u_old, v_old, w_old;
         Array3r u_weights, v_weights, w_weights; // mark the domain area that can be occupied by fluid
         Array3c u_valid, v_valid, w_valid;       // mark the current faces that are influenced by particles during velocity mapping
 
@@ -219,24 +217,18 @@ struct PIC3D_Data
         virtual void resize(const Vec3<UInt>& gridSize)
         {
             u.resize(gridSize.x + 1, gridSize.y, gridSize.z, 0);
-            u_old.resize(gridSize.x + 1, gridSize.y, gridSize.z, 0);
-            du.resize(gridSize.x + 1, gridSize.y, gridSize.z, 0);
             u_weights.resize(gridSize.x + 1, gridSize.y, gridSize.z, 0);
             u_valid.resize(gridSize.x + 1, gridSize.y, gridSize.z, 0);
             tmp_u.resize(gridSize.x + 1, gridSize.y, gridSize.z, 0);
             tmp_u_valid.resize(gridSize.x + 1, gridSize.y, gridSize.z, 0);
 
             v.resize(gridSize.x, gridSize.y + 1, gridSize.z, 0);
-            v_old.resize(gridSize.x, gridSize.y + 1, gridSize.z, 0);
-            dv.resize(gridSize.x, gridSize.y + 1, gridSize.z, 0);
             v_weights.resize(gridSize.x, gridSize.y + 1, gridSize.z, 0);
             v_valid.resize(gridSize.x, gridSize.y + 1, gridSize.z, 0);
             tmp_v.resize(gridSize.x, gridSize.y + 1, gridSize.z, 0);
             tmp_v_valid.resize(gridSize.x, gridSize.y + 1, gridSize.z, 0);
 
             w.resize(gridSize.x, gridSize.y, gridSize.z + 1, 0);
-            w_old.resize(gridSize.x, gridSize.y, gridSize.z + 1, 0);
-            dw.resize(gridSize.x, gridSize.y, gridSize.z + 1, 0);
             w_weights.resize(gridSize.x, gridSize.y, gridSize.z + 1, 0);
             w_valid.resize(gridSize.x, gridSize.y, gridSize.z + 1, 0);
             tmp_w.resize(gridSize.x, gridSize.y, gridSize.z + 1, 0);
@@ -245,13 +237,6 @@ struct PIC3D_Data
             fluidSDFLock.resize(gridSize.x, gridSize.y, gridSize.z);
             fluidSDF.resize(gridSize.x, gridSize.y, gridSize.z, 0);
             boundarySDF.resize(gridSize.x + 1, gridSize.y + 1, gridSize.z + 1, 0);
-        }
-
-        void backupGridVelocity()
-        {
-            u_old.copyDataFrom(u);
-            v_old.copyDataFrom(v);
-            w_old.copyDataFrom(w);
         }
 
         void computeBoundarySDF(const Vector<SharedPtr<SimulationObjects::BoundaryObject<3, Real> > >& boundaryObjs)
