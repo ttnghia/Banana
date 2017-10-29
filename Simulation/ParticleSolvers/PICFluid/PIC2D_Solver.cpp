@@ -304,14 +304,12 @@ void PIC2D_Solver::advanceVelocity(Real timestep)
     }
 
 
-    logger().printRunTime("Interpolate velocity from particles to grid: ", funcTimer, [&]() { velocityToGrid(); });
-    logger().printRunTime("Backup grid velocities: ",                      funcTimer, [&]() { gridData().backupGridVelocity(); });
+    logger().printRunTime("Interpolate velocity from particles to grid: ", funcTimer, [&]() { mapParticle2Grid(); });
     logger().printRunTime("Add gravity: ",                                 funcTimer, [&]() { addGravity(timestep); });
     logger().printRunTime("====> Pressure projection: ",                   funcTimer, [&]() { pressureProjection(timestep); });
     logger().printRunTime("Extrapolate grid velocity: : ",                 funcTimer, [&]() { extrapolateVelocity(); });
-    logger().printRunTime("Constrain grid velocity: ",                     funcTimer, [&]() { constrainVelocity(); });
-    logger().printRunTime("Compute changes of grid velocity: ",            funcTimer, [&]() { computeChangesGridVelocity(); });
-    logger().printRunTime("Interpolate velocity from grid to particles: ", funcTimer, [&]() { velocityToParticles(); });
+    logger().printRunTime("Constrain grid velocity: ",                     funcTimer, [&]() { constrainGridVelocity(); });
+    logger().printRunTime("Interpolate velocity from grid to particles: ", funcTimer, [&]() { mapGrid2Particles(); });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -411,9 +409,9 @@ void PIC2D_Solver::computeFluidWeights()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void PIC2D_Solver::velocityToGrid()
+void PIC2D_Solver::mapParticle2Grid()
 {
-    const Vec2r span = Vec2r(picData().grid.getCellSize() * static_cast<Real>(1));
+    const Vec2r span = Vec2r(picData().grid.getCellSize());
 
     ParallelFuncs::parallel_for<UInt>(picData().grid.getNNodes(),
                                       [&](UInt i, UInt j)
@@ -546,7 +544,7 @@ void PIC2D_Solver::extrapolateVelocity(Array2r& grid, Array2r& temp_grid, Array2
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void PIC2D_Solver::constrainVelocity()
+void PIC2D_Solver::constrainGridVelocity()
 {
     gridData().tmp_u.copyDataFrom(gridData().u);
     gridData().tmp_v.copyDataFrom(gridData().v);
@@ -815,7 +813,7 @@ void PIC2D_Solver::computeChangesGridVelocity()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void PIC2D_Solver::velocityToParticles()
+void PIC2D_Solver::mapGrid2Particles()
 {
     ParallelFuncs::parallel_for<UInt>(0, particleData().getNParticles(),
                                       [&](UInt p)

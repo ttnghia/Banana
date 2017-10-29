@@ -57,6 +57,8 @@ void APIC3D_Solver::advanceVelocity(Real timestep)
     ////////////////////////////////////////////////////////////////////////////////
     logger().printRunTime("Compute cell weights: ", funcTimer, [&]() { computeFluidWeights(); });
     logger().printRunTime("Interpolate velocity from particles to grid: ", funcTimer, [&]() { mapParticle2Grid(); });
+    logger().printRunTime("Extrapolate grid velocity: : ", funcTimer, [&]() { extrapolateVelocity(); });
+    logger().printRunTime("Constrain grid velocity: ", funcTimer, [&]() { constrainGridVelocity(); });
     logger().printRunTime("Add gravity: ", funcTimer, [&]() { addGravity(timestep); });
     logger().printRunTime("====> Pressure projection total: ", funcTimer, [&]() { pressureProjection(timestep); });
     logger().printRunTime("Extrapolate grid velocity: : ", funcTimer, [&]() { extrapolateVelocity(); });

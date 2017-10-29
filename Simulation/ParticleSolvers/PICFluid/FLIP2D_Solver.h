@@ -51,7 +51,7 @@ protected:
     virtual void advanceVelocity(Real timestep) override;
     ////////////////////////////////////////////////////////////////////////////////
     void computeChangesGridVelocity();
-    void velocityToParticles();
+    void mapGrid2Particles();
     ////////////////////////////////////////////////////////////////////////////////
     // helper functions
     Vec2r getVelocityChangesFromGrid(const Vec2r& gridPos);

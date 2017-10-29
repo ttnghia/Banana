@@ -50,14 +50,14 @@ void FLIP2D_Solver::advanceVelocity(Real timestep)
     }
 
 
-    logger().printRunTime("Interpolate velocity from particles to grid: ", funcTimer, [&]() { velocityToGrid(); });
+    logger().printRunTime("Interpolate velocity from particles to grid: ", funcTimer, [&]() { mapParticle2Grid(); });
     logger().printRunTime("Backup grid velocities: ",                      funcTimer, [&]() { gridData().backupGridVelocity(); });
     logger().printRunTime("Add gravity: ",                                 funcTimer, [&]() { addGravity(timestep); });
     logger().printRunTime("====> Pressure projection: ",                   funcTimer, [&]() { pressureProjection(timestep); });
     logger().printRunTime("Extrapolate grid velocity: : ",                 funcTimer, [&]() { extrapolateVelocity(); });
-    logger().printRunTime("Constrain grid velocity: ",                     funcTimer, [&]() { constrainVelocity(); });
+    logger().printRunTime("Constrain grid velocity: ",                     funcTimer, [&]() { constrainGridVelocity(); });
     logger().printRunTime("Compute changes of grid velocity: ",            funcTimer, [&]() { computeChangesGridVelocity(); });
-    logger().printRunTime("Interpolate velocity from grid to particles: ", funcTimer, [&]() { velocityToParticles(); });
+    logger().printRunTime("Interpolate velocity from grid to particles: ", funcTimer, [&]() { mapGrid2Particles(); });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -70,7 +70,7 @@ void FLIP2D_Solver::computeChangesGridVelocity()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FLIP2D_Solver::velocityToParticles()
+void FLIP2D_Solver::mapGrid2Particles()
 {
     ParallelFuncs::parallel_for<UInt>(0, particleData().getNParticles(),
                                       [&](UInt p)

@@ -59,16 +59,17 @@ protected:
     virtual void saveMemoryState()  override;
     virtual void saveFrameData() override;
     virtual void advanceVelocity(Real timestep);
+    virtual void mapParticle2Grid();
+    virtual void mapGrid2Particles();
 
     Real computeCFLTimestep();
     void moveParticles(Real timeStep);
     void correctPositions(Real timestep);
 
     void computeFluidWeights();
-    void velocityToGrid();
     void extrapolateVelocity();
     void extrapolateVelocity(Array2r& grid, Array2r& temp_grid, Array2c& valid, Array2c& old_valid);
-    void constrainVelocity();
+    void constrainGridVelocity();
     void addGravity(Real timestep);
     void pressureProjection(Real timestep);
     ////////////////////////////////////////////////////////////////////////////////
@@ -80,7 +81,6 @@ protected:
     void updateVelocity(Real timestep);
     ////////////////////////////////////////////////////////////////////////////////
     void computeChangesGridVelocity();
-    void velocityToParticles();
     ////////////////////////////////////////////////////////////////////////////////
     // helper functions
     Vec2r getVelocityFromGrid(const Vec2r& gridPos);

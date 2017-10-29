@@ -478,7 +478,7 @@ void PIC3D_Solver::computeFluidWeights()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PIC3D_Solver::mapParticle2Grid()
 {
-    const Vec3r span = Vec3r(picData().grid.getCellSize() * static_cast<Real>(1));
+    const Vec3r span = Vec3r(picData().grid.getCellSize());
 
     ParallelFuncs::parallel_for(picData().grid.getNNodes(),
                                 [&](UInt i, UInt j, UInt k)

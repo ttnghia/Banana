@@ -40,12 +40,16 @@ public:
     virtual String getSolverName() override { return String("APIC2D_Solver"); }
     virtual String getGreetingMessage() override { return String("Fluid Simulation using FLIP-2D Solver"); }
 
-    ////////////////////////////////////////////////////////////////////////////////
     auto&       apicData() { return m_apicData; }
     const auto& apicData() const { return m_apicData; }
 
 protected:
-    void    advanceVelocity(Real timestep) {}
+    virtual void generateParticles(const nlohmann::json& jParams) override;
+    virtual bool advanceScene(UInt frame, Real fraction = Real(0)) override;
+    virtual void advanceVelocity(Real timestep) override;
+    virtual void mapParticle2Grid() override;
+    virtual void mapGrid2Particles() override;
+
     Mat2x2r getAffineMatrix(const Vec2r& gridPos);
     ////////////////////////////////////////////////////////////////////////////////
     APIC2D_Data m_apicData;
