@@ -1,18 +1,21 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//
-//  Copyright (c) 2017 by
-//       __      _     _         _____
-//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _
-//   /  \/ / _` | '_ \| |/ _` |   / /\/ '__| | | |/ _ \| '_ \ / _` |
-//  / /\  / (_| | | | | | (_| |  / /  | |  | |_| | (_) | | | | (_| |
-//  \_\ \/ \__, |_| |_|_|\__,_|  \/   |_|   \__,_|\___/|_| |_|\__, |
-//         |___/                                              |___/
-//
-//  <nghiatruong.vn@gmail.com>
-//  All rights reserved.
-//
+//                                .--,       .--,
+//                               ( (  \.---./  ) )
+//                                '.__/o   o\__.'
+//                                   {=  ^  =}
+//                                    >  -  <
+//     ___________________________.""`-------`"".____________________________
+//    /                                                                      \
+//    \    This file is part of Banana - a graphics programming framework    /
+//    /                    Created: 2017 by Nghia Truong                     \
+//    \                      <nghiatruong.vn@gmail.com>                      /
+//    /                      https://ttnghia.github.io                       \
+//    \                        All rights reserved.                          /
+//    /                                                                      \
+//    \______________________________________________________________________/
+//                                  ___)( )(___
+//                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
@@ -56,8 +59,7 @@ void Lights::bindUniformBuffer()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 GLuint Lights::getBufferBindingPoint()
 {
-    if(!m_UniformBuffer.isCreated())
-    {
+    if(!m_UniformBuffer.isCreated()) {
         createUniformBuffer();
     }
 
@@ -92,8 +94,7 @@ void Lights::bindUniformBufferLightMatrix()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 GLuint Lights::getBufferLightMatrixBindingPoint()
 {
-    if(!m_UniformBufferLightMatrix.isCreated())
-    {
+    if(!m_UniformBufferLightMatrix.isCreated()) {
         createUniformBuffer();
     }
 
@@ -216,8 +217,9 @@ void DirectionalLights::uploadLightSpecular(int lightID /*= -1*/)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void DirectionalLights::uploadDataToGPU()
 {
-    if(!m_UniformBuffer.isCreated())
+    if(!m_UniformBuffer.isCreated()) {
         createUniformBuffer();
+    }
 
     m_UniformBuffer.uploadData(m_Lights,           0,                  getLightDataSize());
     m_UniformBuffer.uploadData(&m_NumActiveLights, getLightDataSize(), sizeof(GLint));
@@ -228,8 +230,7 @@ void DirectionalLights::uploadDataToGPU()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void DirectionalLights::updateLightMatrixBuffer()
 {
-    for(int i = 0; i < m_NumActiveLights; ++i)
-    {
+    for(int i = 0; i < m_NumActiveLights; ++i) {
         glm::mat4 lightView       = glm::lookAt(m_SceneCenter - glm::make_vec3(m_Lights[i].direction), m_SceneCenter, glm::vec3(0.0f, -0.91f, 0.01f));
         glm::mat4 lightProjection = glm::ortho(m_ShadowMinX, m_ShadowMaxX, m_ShadowMinY, m_ShadowMaxY, m_ShadowMinZ, m_ShadowMaxZ);
 
@@ -360,8 +361,9 @@ void PointLights::uploadLightSpecular(int lightID /*= -1*/)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PointLights::uploadDataToGPU()
 {
-    if(!m_UniformBuffer.isCreated())
+    if(!m_UniformBuffer.isCreated()) {
         createUniformBuffer();
+    }
 
     m_UniformBuffer.uploadData(m_Lights,           0,                  getLightDataSize());
     m_UniformBuffer.uploadData(&m_NumActiveLights, getLightDataSize(), sizeof(GLint));
@@ -372,8 +374,7 @@ void PointLights::uploadDataToGPU()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PointLights::updateLightMatrixBuffer()
 {
-    for(int i = 0; i < m_NumActiveLights; ++i)
-    {
+    for(int i = 0; i < m_NumActiveLights; ++i) {
         glm::mat4 lightView       = glm::lookAt(glm::make_vec3(m_Lights[i].position), m_SceneCenter, glm::vec3(0.0f, -0.91f, 0.01f));
         glm::mat4 lightProjection = glm::perspective(glm::radians(m_ShadowFOV), m_ShadowAspect, m_ShadowNearZ, m_ShadowFarZ);
 
@@ -553,8 +554,9 @@ void SpotLights::uploadLightSpecular(int lightID /*= 0*/)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void SpotLights::uploadDataToGPU()
 {
-    if(!m_UniformBuffer.isCreated())
+    if(!m_UniformBuffer.isCreated()) {
         createUniformBuffer();
+    }
 
     m_UniformBuffer.uploadData(m_Lights,           0,                  getLightDataSize());
     m_UniformBuffer.uploadData(&m_NumActiveLights, getLightDataSize(), sizeof(GLint));
@@ -565,8 +567,7 @@ void SpotLights::uploadDataToGPU()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void SpotLights::updateLightMatrixBuffer()
 {
-    for(int i = 0; i < m_NumActiveLights; ++i)
-    {
+    for(int i = 0; i < m_NumActiveLights; ++i) {
         glm::mat4 lightView       = glm::lookAt(glm::make_vec3(m_Lights[i].position), m_SceneCenter, glm::vec3(0.0f, -0.91f, 0.01f));
         glm::mat4 lightProjection = glm::perspective(glm::radians(m_ShadowFOV), m_ShadowAspect, m_ShadowNearZ, m_ShadowFarZ);
 

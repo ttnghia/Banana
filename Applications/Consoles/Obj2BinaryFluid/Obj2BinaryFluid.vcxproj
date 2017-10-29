@@ -23,6 +23,9 @@
     <ClInclude Include="..\..\..\Externals\tinyobjloader\tiny_obj_loader.h" />
     <ClInclude Include="..\..\..\Externals\tinyply\source\tinyply.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Obj2BinaryFluid.licenseheader" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{D996D17B-FFF1-4046-AA0D-B5DDD53C4418}</ProjectGuid>

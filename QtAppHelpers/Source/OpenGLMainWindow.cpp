@@ -1,17 +1,21 @@
 ﻿//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//
-//  Copyright (c) 2017 by
-//       __      _     _         _____
-//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _
-//   /  \/ / _` | '_ \| |/ _` |   / /\/ '__| | | |/ _ \| '_ \ / _` |
-//  / /\  / (_| | | | | | (_| |  / /  | |  | |_| | (_) | | | | (_| |
-//  \_\ \/ \__, |_| |_|_|\__,_|  \/   |_|   \__,_|\___/|_| |_|\__, |
-//         |___/                                              |___/
-//
-//  <nghiatruong.vn@gmail.com>
-//  All rights reserved.
-//
+//                                .--,       .--,
+//                               ( (  \.---./  ) )
+//                                '.__/o   o\__.'
+//                                   {=  ^  =}
+//                                    >  -  <
+//     ___________________________.""`-------`"".____________________________
+//    /                                                                      \
+//    \    This file is part of Banana - a graphics programming framework    /
+//    /                    Created: 2017 by Nghia Truong                     \
+//    \                      <nghiatruong.vn@gmail.com>                      /
+//    /                      https://ttnghia.github.io                       \
+//    \                        All rights reserved.                          /
+//    /                                                                      \
+//    \______________________________________________________________________/
+//                                  ___)( )(___
+//                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
@@ -36,12 +40,10 @@ OpenGLMainWindow::OpenGLMainWindow(QWidget* parent, bool bShowFPS /*= true*/, bo
     statusBar()->setMinimumHeight(30);
     //statusBar()->setSizeGripEnabled(false);
 
-    if(!bShowFPS)
-    {
+    if(!bShowFPS) {
         m_lblStatusFPS->hide();
     }
-    if(!bShowCamPosition)
-    {
+    if(!bShowCamPosition) {
         m_lblStatusCamPosition->hide();
     }
 
@@ -59,14 +61,12 @@ OpenGLMainWindow::~OpenGLMainWindow()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 bool OpenGLMainWindow::eventFilter(QObject*, QEvent* ev)
 {
-    if(ev->type() == QEvent::KeyPress)
-    {
+    if(ev->type() == QEvent::KeyPress) {
         QKeyEvent* keyEvent = static_cast<QKeyEvent*>(ev);
         return processKeyPressEvent(keyEvent);
     }
 
-    if(ev->type() == QEvent::KeyRelease)
-    {
+    if(ev->type() == QEvent::KeyRelease) {
         QKeyEvent* keyEvent = static_cast<QKeyEvent*>(ev);
 
         return processKeyReleaseEvent(keyEvent);
@@ -78,8 +78,7 @@ bool OpenGLMainWindow::eventFilter(QObject*, QEvent* ev)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 bool OpenGLMainWindow::processKeyPressEvent(QKeyEvent* ev)
 {
-    switch(ev->key())
-    {
+    switch(ev->key()) {
         case Qt::Key_Escape:
             close();
             __BANANA_EARLY_TERMINATION
@@ -93,12 +92,9 @@ bool OpenGLMainWindow::processKeyPressEvent(QKeyEvent* ev)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLMainWindow::showFPS(bool bShowFPS)
 {
-    if(bShowFPS)
-    {
+    if(bShowFPS) {
         m_lblStatusFPS->show();
-    }
-    else
-    {
+    } else {
         m_lblStatusFPS->hide();
     }
 }
@@ -106,10 +102,11 @@ void OpenGLMainWindow::showFPS(bool bShowFPS)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLMainWindow::showCameraPosition(bool bShowCamPosition)
 {
-    if(bShowCamPosition)
+    if(bShowCamPosition) {
         m_lblStatusCamPosition->show();
-    else
+    } else {
         m_lblStatusCamPosition->hide();
+    }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -124,8 +121,7 @@ void OpenGLMainWindow::setArthurStyle()
     {
         QString className = QString(w->metaObject()->className());
 
-        if((className == "QScrollBar") || (className == "QComboBox") || (className == "QCheckBox"))
-        {
+        if((className == "QScrollBar") || (className == "QComboBox") || (className == "QCheckBox")) {
             continue;
         }
 
@@ -148,8 +144,7 @@ void OpenGLMainWindow::updateStatusCameraPosition(const glm::vec3& camPosition)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLMainWindow::setupOpenglWidget(OpenGLWidget* glWidget)
 {
-    if(m_GLWidget != nullptr)
-    {
+    if(m_GLWidget != nullptr) {
         delete m_GLWidget;
     }
 

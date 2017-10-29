@@ -1,17 +1,21 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//
-//  Copyright (c) 2017 by
-//       __      _     _         _____
-//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _
-//   /  \/ / _` | '_ \| |/ _` |   / /\/ '__| | | |/ _ \| '_ \ / _` |
-//  / /\  / (_| | | | | | (_| |  / /  | |  | |_| | (_) | | | | (_| |
-//  \_\ \/ \__, |_| |_|_|\__,_|  \/   |_|   \__,_|\___/|_| |_|\__, |
-//         |___/                                              |___/
-//
-//  <nghiatruong.vn@gmail.com>
-//  All rights reserved.
-//
+//                                .--,       .--,
+//                               ( (  \.---./  ) )
+//                                '.__/o   o\__.'
+//                                   {=  ^  =}
+//                                    >  -  <
+//     ___________________________.""`-------`"".____________________________
+//    /                                                                      \
+//    \    This file is part of Banana - a graphics programming framework    /
+//    /                    Created: 2017 by Nghia Truong                     \
+//    \                      <nghiatruong.vn@gmail.com>                      /
+//    /                      https://ttnghia.github.io                       \
+//    \                        All rights reserved.                          /
+//    /                                                                      \
+//    \______________________________________________________________________/
+//                                  ___)( )(___
+//                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
@@ -72,8 +76,9 @@ template<Int N, class RealType>
 inline RealType trace(const MatXxX<N, RealType>& mat)
 {
     RealType prod = RealType(0);
-    for(Int i = 0; i < N; ++i)
+    for(Int i = 0; i < N; ++i) {
         prod += mat[i][i];
+    }
     return prod;
 }
 
@@ -88,8 +93,9 @@ inline MatXxX<N, RealType> dev(const MatXxX<N, RealType>& mat)
 template<Int N, class RealType>
 inline void sumToDiag(MatXxX<N, RealType>& mat, RealType c)
 {
-    for(Int i = 0; i < N; ++i)
+    for(Int i = 0; i < N; ++i) {
         mat[i][i] += c;
+    }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -97,8 +103,9 @@ template<Int N, class RealType>
 inline VecX<N, RealType> extractDiag(const MatXxX<N, RealType>& mat)
 {
     VecX<N, RealType> diag;
-    for(Int i = 0; i < N; ++i)
+    for(Int i = 0; i < N; ++i) {
         diag[i] = mat[i][i];
+    }
     return diag;
 }
 
@@ -107,8 +114,9 @@ template<Int N, class RealType>
 inline MatXxX<N, RealType> diagMatrix(const VecX<N, RealType>& diag)
 {
     MatXxX<N, RealType> mat(0);
-    for(Int i = 0; i < N; ++i)
+    for(Int i = 0; i < N; ++i) {
         mat[i][i] = diag[i];
+    }
     return mat;
 }
 
@@ -117,8 +125,9 @@ template<Int N, class RealType>
 inline void diagProduct(MatXxX<N, RealType>& mat, const VecX<N, RealType>& vec)
 {
     for(Int i = 0; i < N; ++i) {
-        for(Int j = 0; j < N; ++j)
+        for(Int j = 0; j < N; ++j) {
             mat[i][j] *= vec[i];
+        }
     }
 }
 
@@ -128,8 +137,9 @@ template<Int N, class RealType>
 inline void diagProductInv(MatXxX<N, RealType>& mat, const VecX<N, RealType>& vec)
 {
     for(Int i = 0; i < N; ++i) {
-        for(Int j = 0; j < N; ++j)
+        for(Int j = 0; j < N; ++j) {
             mat[i][j] /= vec[i];
+        }
     }
 }
 
@@ -152,9 +162,11 @@ inline VecX<N, RealType> innerProduct(const VecX<N, RealType>& vec, const MatXxX
 {
     VecX<N, RealType> prod(0);
 
-    for(Int i = 0; i < N; ++i)
-        for(Int j = 0; j < N; ++j)
+    for(Int i = 0; i < N; ++i) {
+        for(Int j = 0; j < N; ++j) {
             prod[i] += vec[j] * mat[j][i];
+        }
+    }
 
     return prod;
 }
@@ -165,10 +177,13 @@ inline MatXxX<N, RealType> innerProduct(const MatXxX<N, RealType>& m1, const Mat
 {
     MatXxX<N, RealType> prod(0);
 
-    for(Int i = 0; i < N; ++i)
-        for(Int j = 0; j < N; ++j)
-            for(Int k = 0; k < N; ++k)
+    for(Int i = 0; i < N; ++i) {
+        for(Int j = 0; j < N; ++j) {
+            for(Int k = 0; k < N; ++k) {
                 prod[i][j] += m1[i][k] * m2[k][j];
+            }
+        }
+    }
 
     return prod;
 }
@@ -209,9 +224,11 @@ template<class RealType>
 inline Mat3x3<RealType> cofactor(const Mat3x3<RealType>& mat)
 {
     Mat2x2<RealType> result;
-    for(Int i = 0; i < N; ++i)
-        for(Int j = 0; j < N; ++j)
+    for(Int i = 0; i < N; ++i) {
+        for(Int j = 0; j < N; ++j) {
             result[i][j] = elementCofactor(mat, i, j);
+        }
+    }
     return result;
 }
 
@@ -237,9 +254,11 @@ inline MatXxX<N, RealType> randMatrix(RealType minVal = RealType(0), RealType ma
 
     MatXxX<N, RealType> result;
 
-    for(Int i = 0; i < N; ++i)
-        for(Int j = 0; j < N; ++j)
+    for(Int i = 0; i < N; ++i) {
+        for(Int j = 0; j < N; ++j) {
             result[i][j] = dis(gen);
+        }
+    }
 
     return result;
 }
@@ -257,9 +276,11 @@ inline Vector<MatXxX<N, RealType> > randVecMatrices(SizeType size, RealType minV
     results.resize(size);
 
     for(SizeType idx = 0; idx < size; ++idx) {
-        for(Int i = 0; i < N; ++i)
-            for(Int j = 0; j < N; ++j)
+        for(Int i = 0; i < N; ++i) {
+            for(Int j = 0; j < N; ++j) {
                 results[idx][i][j] = dis(gen);
+            }
+        }
     }
 
     return results;

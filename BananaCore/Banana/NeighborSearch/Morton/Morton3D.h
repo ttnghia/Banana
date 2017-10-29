@@ -1,17 +1,21 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//
-//  Copyright (c) 2017 by
-//       __      _     _         _____
-//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _
-//   /  \/ / _` | '_ \| |/ _` |   / /\/ '__| | | |/ _ \| '_ \ / _` |
-//  / /\  / (_| | | | | | (_| |  / /  | |  | |_| | (_) | | | | (_| |
-//  \_\ \/ \__, |_| |_|_|\__,_|  \/   |_|   \__,_|\___/|_| |_|\__, |
-//         |___/                                              |___/
-//
-//  <nghiatruong.vn@gmail.com>
-//  All rights reserved.
-//
+//                                .--,       .--,
+//                               ( (  \.---./  ) )
+//                                '.__/o   o\__.'
+//                                   {=  ^  =}
+//                                    >  -  <
+//     ___________________________.""`-------`"".____________________________
+//    /                                                                      \
+//    \    This file is part of Banana - a graphics programming framework    /
+//    /                    Created: 2017 by Nghia Truong                     \
+//    \                      <nghiatruong.vn@gmail.com>                      /
+//    /                      https://ttnghia.github.io                       \
+//    \                        All rights reserved.                          /
+//    /                                                                      \
+//    \______________________________________________________________________/
+//                                  ___)( )(___
+//                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
@@ -51,8 +55,7 @@ inline morton m3D_e_sLUT(const coord x, const coord y, const coord z)
 {
     morton              answer       = 0;
     const static morton EIGHTBITMASK = 0x000000FF;
-    for(unsigned int i = sizeof(coord); i > 0; --i)
-    {
+    for(unsigned int i = sizeof(coord); i > 0; --i) {
         unsigned int shift = (i - 1) * 8;
         answer =
             answer << 24 |
@@ -69,8 +72,7 @@ inline morton m3D_e_LUT(const coord x, const coord y, const coord z)
 {
     morton              answer       = 0;
     const static morton EIGHTBITMASK = 0x000000FF;
-    for(unsigned int i = sizeof(coord); i > 0; --i)
-    {
+    for(unsigned int i = sizeof(coord); i > 0; --i) {
         unsigned int shift = (i - 1) * 8;
         answer =
             answer << 24 |
@@ -88,9 +90,8 @@ inline morton compute3D_ET_LUT_encode(const coord c, const coord* LUT)
     const static morton EIGHTBITMASK = 0x000000FF;
     unsigned long       maxbit       = 0;
     morton              answer       = 0;
-    if(findFirstSetBit<coord>(c, &maxbit) == 0){ return 0; }
-    for(int i = ceil((maxbit + 1) / 8.0f); i >= 0; --i)
-    {
+    if(findFirstSetBit<coord>(c, &maxbit) == 0) { return 0; }
+    for(int i = ceil((maxbit + 1) / 8.0f); i >= 0; --i) {
         unsigned int shift = i * 8;
         answer = answer << 24 | (LUT[(c >> shift) & EIGHTBITMASK]);
     }
@@ -150,8 +151,7 @@ inline morton m3D_e_for(const coord x, const coord y, const coord z)
 {
     morton       answer    = 0;
     unsigned int checkbits = static_cast<unsigned int>(floor((sizeof(morton) * 8.0f / 3.0f)));
-    for(unsigned int i = 0; i < checkbits; ++i)
-    {
+    for(unsigned int i = 0; i < checkbits; ++i) {
         morton       mshifted = static_cast<morton>(1) << i; // Here we need to cast 0x1 to 64bits, otherwise there is a bug when morton code is larger than 32 bits
         unsigned int shift    = 2 * i;                       // because you have to shift back i and forth 3*i
         answer |= ((x & mshifted) << shift)
@@ -173,8 +173,7 @@ inline morton m3D_e_for_ET(const coord x, const coord y, const coord z)
     findFirstSetBit<morton>(y, &y_max);
     findFirstSetBit<morton>(z, &z_max);
     checkbits = min((unsigned long)checkbits, max(z_max, max(x_max, y_max)) + (unsigned long)1);
-    for(unsigned int i = 0; i < checkbits; ++i)
-    {
+    for(unsigned int i = 0; i < checkbits; ++i) {
         morton       m_shifted = static_cast<morton>(1) << i;   // Here we need to cast 0x1 to 64bits, otherwise there is a bug when morton code is larger than 32 bits
         unsigned int shift     = 2 * i;
         answer |= ((x & m_shifted) << shift)
@@ -192,8 +191,7 @@ inline coord morton3D_DecodeCoord_LUT256(const morton m, const uint_fast8_t* LUT
     morton       a           = 0;
     morton       NINEBITMASK = 0x000001ff;
     unsigned int loops       = (sizeof(morton) <= 4) ? 4 : 7; // ceil for 32bit, floor for 64bit
-    for(unsigned int i = 0; i < loops; ++i)
-    {
+    for(unsigned int i = 0; i < loops; ++i) {
         a |= (LUT[(m >> ((i * 9) + startshift)) & NINEBITMASK] << (3 * i));
     }
     return static_cast<coord>(a);
@@ -224,11 +222,10 @@ inline void m3D_d_sLUT_ET(const morton m, coord& x, coord& y, coord& z)
     x = 0; y = 0; z = 0;
     morton        NINEBITMASK       = 0x000001ff;
     unsigned long firstbit_location = 0;
-    if(!findFirstSetBit<morton>(m, &firstbit_location)){ return; }
+    if(!findFirstSetBit<morton>(m, &firstbit_location)) { return; }
     unsigned int i         = 0;
     unsigned int shiftback = 0;
-    while(firstbit_location >= i)
-    {
+    while(firstbit_location >= i) {
         morton m_shifted = (m >> i) & NINEBITMASK;
         x         |= Morton3D_decode_x_512[m_shifted] << shiftback;
         y         |= Morton3D_decode_y_512[m_shifted] << shiftback;
@@ -246,11 +243,10 @@ inline void m3D_d_LUT_ET(const morton m, coord& x, coord& y, coord& z)
     x = 0; y = 0; z = 0;
     morton        NINEBITMASK       = 0x000001ff;
     unsigned long firstbit_location = 0;
-    if(!findFirstSetBit<uint_fast64_t>(m, &firstbit_location)){ return; }
+    if(!findFirstSetBit<uint_fast64_t>(m, &firstbit_location)) { return; }
     unsigned int i         = 0;
     unsigned int shiftback = 0;
-    while(i <= firstbit_location)
-    {
+    while(i <= firstbit_location) {
         x          = x | Morton3D_decode_x_512[(m >> i) & NINEBITMASK] << shiftback;
         y          = y | Morton3D_decode_x_512[(m >> (i + 1)) & NINEBITMASK] << shiftback;
         z          = z | Morton3D_decode_x_512[(m >> (i + 2)) & NINEBITMASK] << shiftback;
@@ -289,8 +285,7 @@ inline void m3D_d_for(const morton m, coord& x, coord& y, coord& z)
 {
     x = 0; y = 0; z = 0;
     unsigned int checkbits = static_cast<unsigned int>(floor((sizeof(morton) * 8.0f / 3.0f)));
-    for(unsigned int i = 0; i <= checkbits; ++i)
-    {
+    for(unsigned int i = 0; i <= checkbits; ++i) {
         morton       selector       = 1;
         unsigned int shift_selector = 3 * i;
         unsigned int shiftback      = 2 * i;
@@ -307,10 +302,9 @@ inline void m3D_d_for_ET(const morton m, coord& x, coord& y, coord& z)
     x = 0; y = 0; z = 0;
     float         defaultbits       = floor((sizeof(morton) * 8.0f / 3.0f));
     unsigned long firstbit_location = 0;
-    if(!findFirstSetBit<morton>(m, &firstbit_location)) return;
+    if(!findFirstSetBit<morton>(m, &firstbit_location)) { return; }
     unsigned int checkbits = static_cast<unsigned int>(min(defaultbits, firstbit_location / 3.0f));
-    for(unsigned int i = 0; i <= checkbits; ++i)
-    {
+    for(unsigned int i = 0; i <= checkbits; ++i) {
         morton       selector       = 1;
         unsigned int shift_selector = 3 * i;
         unsigned int shiftback      = 2 * i;

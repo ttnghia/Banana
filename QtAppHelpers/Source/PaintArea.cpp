@@ -1,17 +1,21 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//
-//  Copyright (c) 2017 by
-//       __      _     _         _____
-//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _
-//   /  \/ / _` | '_ \| |/ _` |   / /\/ '__| | | |/ _ \| '_ \ / _` |
-//  / /\  / (_| | | | | | (_| |  / /  | |  | |_| | (_) | | | | (_| |
-//  \_\ \/ \__, |_| |_|_|\__,_|  \/   |_|   \__,_|\___/|_| |_|\__, |
-//         |___/                                              |___/
-//
-//  <nghiatruong.vn@gmail.com>
-//  All rights reserved.
-//
+//                                .--,       .--,
+//                               ( (  \.---./  ) )
+//                                '.__/o   o\__.'
+//                                   {=  ^  =}
+//                                    >  -  <
+//     ___________________________.""`-------`"".____________________________
+//    /                                                                      \
+//    \    This file is part of Banana - a graphics programming framework    /
+//    /                    Created: 2017 by Nghia Truong                     \
+//    \                      <nghiatruong.vn@gmail.com>                      /
+//    /                      https://ttnghia.github.io                       \
+//    \                        All rights reserved.                          /
+//    /                                                                      \
+//    \______________________________________________________________________/
+//                                  ___)( )(___
+//                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
@@ -53,8 +57,9 @@ void PaintArea::clear()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PaintArea::resize(int width, int height)
 {
-    if(width == 0 || height == 0)
+    if(width == 0 || height == 0) {
         return;
+    }
 
     m_Image = m_Image.scaled(width, height, Qt::IgnoreAspectRatio);
     update();
@@ -64,8 +69,9 @@ void PaintArea::resize(int width, int height)
 bool PaintArea::openImage(const QString& fileName)
 {
     QImage image;
-    if(!image.load(fileName))
+    if(!image.load(fileName)) {
         return false;
+    }
 
     setImage(image);
     return true;
@@ -125,13 +131,11 @@ void PaintArea::paintEvent(QPaintEvent* /* event */)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PaintArea::mousePressEvent(QMouseEvent* event)
 {
-    if(event->button() & Qt::LeftButton)
-    {
+    if(event->button() & Qt::LeftButton) {
         QPainter painter(&m_Image);
         setupPainter(painter);
 
-        if(!m_PendingPath.isEmpty())
-        {
+        if(!m_PendingPath.isEmpty()) {
             const QRectF    boundingRect = m_PendingPath.boundingRect();
             QLinearGradient gradient(boundingRect.topRight(), boundingRect.bottomLeft());
             gradient.setColorAt(0.0, QColor(m_BrushColor.red(), m_BrushColor.green(), m_BrushColor.blue(), 63));
@@ -145,9 +149,7 @@ void PaintArea::mousePressEvent(QMouseEvent* event)
             unsetCursor();
 #endif
             update();
-        }
-        else
-        {
+        } else {
             const QRect rect = mousePress(m_BrushStyle, painter, event->pos());
             update(rect);
 
@@ -161,8 +163,7 @@ void PaintArea::mousePressEvent(QMouseEvent* event)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PaintArea::mouseMoveEvent(QMouseEvent* event)
 {
-    if((event->buttons() & Qt::LeftButton) && m_LastMousePos != QPoint(-1, -1))
-    {
+    if((event->buttons() & Qt::LeftButton) && m_LastMousePos != QPoint(-1, -1)) {
         QPainter painter(&m_Image);
         setupPainter(painter);
         const QRect rect = mouseMove(m_BrushStyle, painter, m_LastMousePos, event->pos());
@@ -174,8 +175,7 @@ void PaintArea::mouseMoveEvent(QMouseEvent* event)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PaintArea::mouseReleaseEvent(QMouseEvent* event)
 {
-    if(event->button() == Qt::LeftButton && m_LastMousePos != QPoint(-1, -1))
-    {
+    if(event->button() == Qt::LeftButton && m_LastMousePos != QPoint(-1, -1)) {
         QPainter painter(&m_Image);
         setupPainter(painter);
         QRect rect = mouseRelease(m_BrushStyle, painter, event->pos());
@@ -215,19 +215,15 @@ QRect PaintArea::mouseMove(PaintArea::BrushStyle brush, QPainter& painter, const
     QColor color        = painter.pen().color();
     int    thickness    = painter.pen().width();
 
-    if(brush == PaintArea::BrushStyle::PencilBrush)
-    {
+    if(brush == PaintArea::BrushStyle::PencilBrush) {
         painter.drawLine(oldPos, newPos);
-    }
-    else if(brush == PaintArea::BrushStyle::AirBrush)
-    {
+    } else if(brush == PaintArea::BrushStyle::AirBrush) {
         int numSteps = 2 + (newPos - oldPos).manhattanLength() / 2;
 
         painter.setBrush(QBrush(color, Qt::Dense6Pattern));
         painter.setPen(Qt::NoPen);
 
-        for(int i = 0; i < numSteps; ++i)
-        {
+        for(int i = 0; i < numSteps; ++i) {
             int x = oldPos.x() + i * (newPos.x() - oldPos.x()) / (numSteps - 1);
             int y = oldPos.y() + i * (newPos.y() - oldPos.y()) / (numSteps - 1);
 
@@ -270,22 +266,22 @@ void PaintAreaController::connectPaintArea()
     connect(m_sldBrushSize->getSlider(), &QSlider::valueChanged,        m_PaintArea, &PaintArea::setBrushSize);
     connect(m_rdPencilBrush,             &QRadioButton::toggled,        m_PaintArea, [&](bool checked)
             {
-                if(checked)
+                if(checked) {
                     m_PaintArea->setBrushStyle(PaintArea::BrushStyle::PencilBrush);
+                }
             });
     connect(m_rdAirBrush, &QRadioButton::toggled, m_PaintArea, [&](bool checked)
             {
-                if(checked)
+                if(checked) {
                     m_PaintArea->setBrushStyle(PaintArea::BrushStyle::AirBrush);
+                }
             });
     connect(m_btnClearImg, &QPushButton::clicked, m_PaintArea, &PaintArea::clear);
     connect(m_btnOpenImg,  &QPushButton::clicked, [&]
         {
             const QString fileName = QFileDialog::getOpenFileName(this, QString("Open File"), QDir::homePath());
-            if(!fileName.isEmpty())
-            {
-                if(!m_PaintArea->openImage(fileName))
-                {
+            if(!fileName.isEmpty()) {
+                if(!m_PaintArea->openImage(fileName)) {
                     QMessageBox::information(this, QString("PaintArea"), QString("Cannot load image %1.").arg(fileName));
                     return;
                 }
@@ -298,12 +294,9 @@ void PaintAreaController::connectPaintArea()
             const QString initialPath = QDir::homePath() + "/untitled.png";
 
             const QString fileName = QFileDialog::getSaveFileName(this, QString("Save As"), initialPath);
-            if(fileName.isEmpty())
-            {
+            if(fileName.isEmpty()) {
                 return false;
-            }
-            else
-            {
+            } else {
                 return m_PaintArea->saveImage(fileName, "png");
             }
         });

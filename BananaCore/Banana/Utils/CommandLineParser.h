@@ -1,17 +1,21 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//
-//  Copyright (c) 2017 by
-//       __      _     _         _____
-//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _
-//   /  \/ / _` | '_ \| |/ _` |   / /\/ '__| | | |/ _ \| '_ \ / _` |
-//  / /\  / (_| | | | | | (_| |  / /  | |  | |_| | (_) | | | | (_| |
-//  \_\ \/ \__, |_| |_|_|\__,_|  \/   |_|   \__,_|\___/|_| |_|\__, |
-//         |___/                                              |___/
-//
-//  <nghiatruong.vn@gmail.com>
-//  All rights reserved.
-//
+//                                .--,       .--,
+//                               ( (  \.---./  ) )
+//                                '.__/o   o\__.'
+//                                   {=  ^  =}
+//                                    >  -  <
+//     ___________________________.""`-------`"".____________________________
+//    /                                                                      \
+//    \    This file is part of Banana - a graphics programming framework    /
+//    /                    Created: 2017 by Nghia Truong                     \
+//    \                      <nghiatruong.vn@gmail.com>                      /
+//    /                      https://ttnghia.github.io                       \
+//    \                        All rights reserved.                          /
+//    /                                                                      \
+//    \______________________________________________________________________/
+//                                  ___)( )(___
+//                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
@@ -47,10 +51,11 @@ public:
             const String tag(argstr.substr(0, argstr.find('=')));
             const String val(argstr.substr(tag.size() + 1));
 
-            if(find(tag) == end())
+            if(find(tag) == end()) {
                 insert(std::make_pair(tag, val));
-            else
+            } else {
                 (*this)[tag] = val;
+            }
         }
     }
 
@@ -60,8 +65,9 @@ public:
     {
         auto it = find(tag);
 
-        if(it == end())
+        if(it == end()) {
             return false;
+        }
 
         value = it->second;
         return true;
@@ -71,8 +77,9 @@ public:
     {
         auto it = find(tag);
 
-        if(it == end())
+        if(it == end()) {
             return false;
+        }
 
         value = static_cast<Int>(atoi(it->second.c_str()));
         return true;
@@ -83,8 +90,9 @@ public:
     {
         auto it = find(tag);
 
-        if(it == end())
+        if(it == end()) {
             return false;
+        }
 
         value = static_cast<RealType>(atof(it->second.c_str()));
         return true;
@@ -95,15 +103,17 @@ public:
     {
         auto it = find(tag);
 
-        if(it == end())
+        if(it == end()) {
             return false;
+        }
 
         const String& valStr   = it->second;
         size_t        commaPos = 0;
         for(Int i = 0; i < N - 1; ++i) {
             size_t nextCommaPos = valStr.find(',', commaPos);
-            if(nextCommaPos == String::npos)
+            if(nextCommaPos == String::npos) {
                 return false;
+            }
 
             vec[i]   = static_cast<RealType>(atof(valStr.substr(commaPos, nextCommaPos - commaPos).c_str()));
             commaPos = nextCommaPos + 1;

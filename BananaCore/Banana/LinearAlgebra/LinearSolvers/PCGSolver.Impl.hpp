@@ -1,19 +1,24 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//
-//  Copyright (c) 2017 by
-//       __      _     _         _____
-//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _
-//   /  \/ / _` | '_ \| |/ _` |   / /\/ '__| | | |/ _ \| '_ \ / _` |
-//  / /\  / (_| | | | | | (_| |  / /  | |  | |_| | (_) | | | | (_| |
-//  \_\ \/ \__, |_| |_|_|\__,_|  \/   |_|   \__,_|\___/|_| |_|\__, |
-//         |___/                                              |___/
-//
-//  <nghiatruong.vn@gmail.com>
-//  All rights reserved.
-//
+//                                .--,       .--,
+//                               ( (  \.---./  ) )
+//                                '.__/o   o\__.'
+//                                   {=  ^  =}
+//                                    >  -  <
+//     ___________________________.""`-------`"".____________________________
+//    /                                                                      \
+//    \    This file is part of Banana - a graphics programming framework    /
+//    /                    Created: 2017 by Nghia Truong                     \
+//    \                      <nghiatruong.vn@gmail.com>                      /
+//    /                      https://ttnghia.github.io                       \
+//    \                        All rights reserved.                          /
+//    /                                                                      \
+//    \______________________________________________________________________/
+//                                  ___)( )(___
+//                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
 template<class RealType>
 void SparseColumnLowerFactor<RealType >::clear(void)
 {
@@ -97,7 +102,7 @@ bool PCGSolver<RealType >::solve(const SparseMatrix<RealType>& matrix, const Vec
             return true;
         }
         RealType alpha = rho / tmp;
-        ParallelBLAS::addScaled<RealType>(alpha, z, result);
+        ParallelBLAS::addScaled<RealType>(alpha,  z, result);
         ParallelBLAS::addScaled<RealType>(-alpha, s, r);
 
         m_OutResidual = ParallelSTL::maxAbs<RealType>(r);
@@ -151,7 +156,7 @@ bool PCGSolver<RealType >::solve_precond(const SparseMatrix<RealType>& matrix, c
     for(UInt iteration = 0; iteration < m_MaxIterations; ++iteration) {
         FixedSparseMatrix<RealType>::multiply(m_FixedSparseMatrix, s, z);
         RealType alpha = rho / ParallelBLAS::dotProduct<RealType>(s, z);
-        ParallelBLAS::addScaled<RealType>(alpha, s, result);
+        ParallelBLAS::addScaled<RealType>(alpha,  s, result);
         ParallelBLAS::addScaled<RealType>(-alpha, z, r);
 
         m_OutResidual = ParallelSTL::maxAbs<RealType>(r);
@@ -327,7 +332,7 @@ void PCGSolver<RealType >::formPreconditioner_MICC0L0(const SparseMatrix<RealTyp
             UInt b = 0;
 
             while(a < m_ICCPrecond.colStart[k + 1] && m_ICCPrecond.colIndex[a] < j) {
-// look for m_ICCPrecond.rowindex[a] in matrix.index[j] starting at b
+                // look for m_ICCPrecond.rowindex[a] in matrix.index[j] starting at b
                 while(b < matrix.colIndex[j].size()) {
                     if(matrix.colIndex[j][b] < m_ICCPrecond.colIndex[a]) {
                         ++b;

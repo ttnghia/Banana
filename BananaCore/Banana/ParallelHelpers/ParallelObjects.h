@@ -1,17 +1,21 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//
-//  Copyright (c) 2017 by
-//       __      _     _         _____
-//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _
-//   /  \/ / _` | '_ \| |/ _` |   / /\/ '__| | | |/ _ \| '_ \ / _` |
-//  / /\  / (_| | | | | | (_| |  / /  | |  | |_| | (_) | | | | (_| |
-//  \_\ \/ \__, |_| |_|_|\__,_|  \/   |_|   \__,_|\___/|_| |_|\__, |
-//         |___/                                              |___/
-//
-//  <nghiatruong.vn@gmail.com>
-//  All rights reserved.
-//
+//                                .--,       .--,
+//                               ( (  \.---./  ) )
+//                                '.__/o   o\__.'
+//                                   {=  ^  =}
+//                                    >  -  <
+//     ___________________________.""`-------`"".____________________________
+//    /                                                                      \
+//    \    This file is part of Banana - a graphics programming framework    /
+//    /                    Created: 2017 by Nghia Truong                     \
+//    \                      <nghiatruong.vn@gmail.com>                      /
+//    /                      https://ttnghia.github.io                       \
+//    \                        All rights reserved.                          /
+//    /                                                                      \
+//    \______________________________________________________________________/
+//                                  ___)( )(___
+//                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
@@ -42,8 +46,9 @@ public:
 
     void lock()
     {
-        while(m_Lock.test_and_set(std::memory_order_acquire))
+        while(m_Lock.test_and_set(std::memory_order_acquire)) {
             ;
+        }
     }
 
     void unlock()
@@ -65,8 +70,9 @@ public:
 
     void operator ()(const tbb::blocked_range<size_t>& r)
     {
-        for(size_t i = r.begin(); i != r.end(); ++i)
+        for(size_t i = r.begin(); i != r.end(); ++i) {
             m_Result += glm::dot(m_Vec1[i], m_Vec2[i]);
+        }
     }
 
     void     join(DotProduct<N, RealType>& pobj) { m_Result += pobj.m_Result; }
@@ -88,8 +94,9 @@ public:
 
     void operator ()(const tbb::blocked_range<size_t>& r)
     {
-        for(size_t i = r.begin(); i != r.end(); ++i)
+        for(size_t i = r.begin(); i != r.end(); ++i) {
             m_Result += m_Vec1[i] * m_Vec2[i];
+        }
     }
 
     void     join(DotProduct<1, RealType>& pobj) { m_Result += pobj.m_Result; }
@@ -414,8 +421,9 @@ public:
 
     void operator ()(const tbb::blocked_range<size_t>& r)
     {
-        for(size_t i = r.begin(); i != r.end(); ++i)
+        for(size_t i = r.begin(); i != r.end(); ++i) {
             m_Result += m_Vector[i];
+        }
     }
 
     void join(VectorSum<T>& pobj) { m_Result += pobj.m_Result; }

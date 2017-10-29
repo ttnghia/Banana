@@ -1,17 +1,21 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//
-//  Copyright (c) 2017 by
-//       __      _     _         _____
-//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _
-//   /  \/ / _` | '_ \| |/ _` |   / /\/ '__| | | |/ _ \| '_ \ / _` |
-//  / /\  / (_| | | | | | (_| |  / /  | |  | |_| | (_) | | | | (_| |
-//  \_\ \/ \__, |_| |_|_|\__,_|  \/   |_|   \__,_|\___/|_| |_|\__, |
-//         |___/                                              |___/
-//
-//  <nghiatruong.vn@gmail.com>
-//  All rights reserved.
-//
+//                                .--,       .--,
+//                               ( (  \.---./  ) )
+//                                '.__/o   o\__.'
+//                                   {=  ^  =}
+//                                    >  -  <
+//     ___________________________.""`-------`"".____________________________
+//    /                                                                      \
+//    \    This file is part of Banana - a graphics programming framework    /
+//    /                    Created: 2017 by Nghia Truong                     \
+//    \                      <nghiatruong.vn@gmail.com>                      /
+//    /                      https://ttnghia.github.io                       \
+//    \                        All rights reserved.                          /
+//    /                                                                      \
+//    \______________________________________________________________________/
+//                                  ___)( )(___
+//                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
@@ -52,8 +56,7 @@ void SkyBoxRender::loadTextures(QString textureTopFolder)
 
     std::vector<std::future<void> > futureObjs;
 
-    for(int i = 0; i < allTexFolders.count(); ++i)
-    {
+    for(int i = 0; i < allTexFolders.count(); ++i) {
         QString texFolderPath = textureTopFolder + "/" + allTexFolders[i];
         futureObjs.emplace_back(std::async(std::launch::async,
                                            [&, texFolderPath, i]()
@@ -61,14 +64,12 @@ void SkyBoxRender::loadTextures(QString textureTopFolder)
                                                ////////////////////////////////////////////////////////////////////////////////
                                                // find the extension of texture imageg
                                                QString posXFilePath = texFolderPath + "/posx.jpg";
-                                               QString ext = "jpg";
+                                               QString ext          = "jpg";
 
-                                               if(!QFile::exists(posXFilePath))
-                                               {
-                                                   ext = "png";
+                                               if(!QFile::exists(posXFilePath)) {
+                                                   ext          = "png";
                                                    posXFilePath = texFolderPath + "/posx.png";
-                                                   if(!QFile::exists(posXFilePath))
-                                                   {
+                                                   if(!QFile::exists(posXFilePath)) {
                                                        return; // only support .png and .jpg
                                                    }
                                                }
@@ -76,18 +77,15 @@ void SkyBoxRender::loadTextures(QString textureTopFolder)
                                                ////////////////////////////////////////////////////////////////////////////////
                                                // check if all 6 faces exist
                                                bool check = true;
-                                               for(GLuint j = 0; j < 6; ++j)
-                                               {
+                                               for(GLuint j = 0; j < 6; ++j) {
                                                    QString texFilePath = texFolderPath + texFaces[j] + ext;
-                                                   if(!QFile::exists(texFilePath))
-                                                   {
+                                                   if(!QFile::exists(texFilePath)) {
                                                        check = false;
                                                        break;
                                                    }
                                                }
 
-                                               if(!check)
-                                               {
+                                               if(!check) {
                                                    return;
                                                }
 
@@ -95,28 +93,26 @@ void SkyBoxRender::loadTextures(QString textureTopFolder)
                                                // load the textures
                                                loadSuccess[i] = 1;
 
-                                               for(GLuint j = 0; j < 6; ++j)
-                                               {
+                                               for(GLuint j = 0; j < 6; ++j) {
                                                    QString texFilePath = texFolderPath + texFaces[j] + ext;
                                                    textureImages[i * 6 + j] = QImage(texFilePath).convertToFormat(QImage::Format_RGBA8888);
                                                }
                                            }));
     }
 
-    for(std::future<void>& f : futureObjs)
-    {
-        if(f.valid())
+    for(std::future<void>& f : futureObjs) {
+        if(f.valid()) {
             f.wait();
+        }
     }
 
-    for(int i = 0; i < allTexFolders.count(); ++i)
-    {
-        if(loadSuccess[i] == 0)
+    for(int i = 0; i < allTexFolders.count(); ++i) {
+        if(loadSuccess[i] == 0) {
             continue;
+        }
 
         std::shared_ptr<OpenGLTexture> skyboxTex = std::make_shared<OpenGLTexture>(GL_TEXTURE_CUBE_MAP);
-        for(GLuint j = 0; j < 6; ++j)
-        {
+        for(GLuint j = 0; j < 6; ++j) {
             const QImage& texImg = textureImages[i * 6 + j];
             skyboxTex->uploadData(GL_TEXTURE_CUBE_MAP_POSITIVE_X + j, GL_RGBA, texImg.width(), texImg.height(), GL_RGBA, GL_UNSIGNED_BYTE, texImg.constBits());
         }
@@ -125,6 +121,7 @@ void SkyBoxRender::loadTextures(QString textureTopFolder)
         addTexture(skyboxTex);
     }
 }
+
 #endif
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -148,8 +145,9 @@ void SkyBoxRender::addTexture(const std::shared_ptr<OpenGLTexture>& texture)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void SkyBoxRender::setRenderTextureIndex(int texIndex)
 {
-    if(texIndex < 0)
+    if(texIndex < 0) {
         return;
+    }
 
     assert(static_cast<size_t>(texIndex) < m_Textures.size());
 
@@ -180,8 +178,7 @@ size_t SkyBoxRender::getNumTextures()
 void SkyBoxRender::render()
 {
     assert(m_Camera != nullptr && m_UBufferCamData != nullptr);
-    if(m_CurrentTexture == nullptr)
-    {
+    if(m_CurrentTexture == nullptr) {
         return;
     }
 
@@ -241,8 +238,7 @@ void SkyBoxRender::initRenderData()
     Mat4x4f modelMatrix = glm::scale(Mat4x4f(1.0f), Vec3f(500.0f));
     m_UBufferModelMatrix->uploadData(glm::value_ptr(modelMatrix), 0, sizeof(Mat4x4f));
 
-    if(m_UBufferCamData == nullptr)
-    {
+    if(m_UBufferCamData == nullptr) {
         m_UBufferCamData = std::make_shared<OpenGLBuffer> ();
         m_UBufferCamData->createBuffer(GL_UNIFORM_BUFFER, 5 * sizeof(Mat4x4f) + sizeof(Vec4f), nullptr, GL_DYNAMIC_DRAW);
     }
@@ -351,8 +347,7 @@ void PointLightRender::initRenderData()
 
     ////////////////////////////////////////////////////////////////////////////////
     // uniform buffer
-    if(m_UBufferCamData == nullptr)
-    {
+    if(m_UBufferCamData == nullptr) {
         m_UBufferCamData = std::make_shared<OpenGLBuffer> ();
         m_UBufferCamData->createBuffer(GL_UNIFORM_BUFFER, 5 * sizeof(Mat4x4f) + sizeof(Vec4f), nullptr, GL_DYNAMIC_DRAW);
     }
@@ -393,8 +388,7 @@ void WireFrameBoxRender::render()
     m_UBufferModelMatrix->bindBufferBase();
     m_Shader->bindUniformBlock(m_UBModelMatrix, m_UBufferModelMatrix->getBindingPoint());
 
-    if(m_SelfUpdateCamera)
-    {
+    if(m_SelfUpdateCamera) {
         m_Camera->updateCameraMatrices();
         m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getViewMatrix()),       0,                   sizeof(Mat4x4f));
         m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getProjectionMatrix()), sizeof(Mat4x4f),     sizeof(Mat4x4f));
@@ -435,8 +429,7 @@ void WireFrameBoxRender::initRenderData()
 
     ////////////////////////////////////////////////////////////////////////////////
     // uniform buffer
-    if(m_UBufferCamData == nullptr)
-    {
+    if(m_UBufferCamData == nullptr) {
         m_UBufferCamData = std::make_shared<OpenGLBuffer> ();
         m_UBufferCamData->createBuffer(GL_UNIFORM_BUFFER, 5 * sizeof(Mat4x4f) + sizeof(Vec4f), nullptr, GL_DYNAMIC_DRAW);
     }
@@ -461,8 +454,7 @@ void OffScreenRender::resize(int width, int height)
     glCall(glBindRenderbuffer(GL_RENDERBUFFER, 0));
 
     // color attachment
-    for(int i = 0; i < m_NumColorBuffers; ++i)
-    {
+    for(int i = 0; i < m_NumColorBuffers; ++i) {
         assert(m_ColorBuffers[i] != nullptr);
         m_ColorBuffers[i]->uploadData(GL_TEXTURE_2D, m_FormatColorBuff, m_BufferWidth, m_BufferHeight, GL_RED, GL_UNSIGNED_BYTE, nullptr);
     }
@@ -484,25 +476,17 @@ void OffScreenRender::endRender(GLuint defaultFBO /*= 0*/)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OffScreenRender::setNumColorBuffers(int numColorBuffers)
 {
-    if(m_NumColorBuffers == numColorBuffers)
-    {
+    if(m_NumColorBuffers == numColorBuffers) {
         return;
-    }
-    else
-    {
+    } else {
         glCall(glBindFramebuffer(GL_FRAMEBUFFER, m_FrameBufferID));
 
-        if(m_NumColorBuffers > numColorBuffers)
-        {
-            for(int i = numColorBuffers; i < m_NumColorBuffers; ++i)
-            {
+        if(m_NumColorBuffers > numColorBuffers) {
+            for(int i = numColorBuffers; i < m_NumColorBuffers; ++i) {
                 glCall(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, 0, 0));
             }
-        }
-        else // m_NumColorBuffers < numColorBuffers
-        {
-            for(int i = static_cast<int>(m_ColorBuffers.size()); i < numColorBuffers; ++i)
-            {
+        } else { // m_NumColorBuffers < numColorBuffers
+            for(int i = static_cast<int>(m_ColorBuffers.size()); i < numColorBuffers; ++i) {
                 std::shared_ptr<OpenGLTexture> tex = std::make_shared<OpenGLTexture>(GL_TEXTURE_2D);
                 tex->setTextureParameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
                 tex->setTextureParameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -511,19 +495,18 @@ void OffScreenRender::setNumColorBuffers(int numColorBuffers)
                 m_ColorBuffers.push_back(std::move(tex));
             }
 
-            for(int i = m_NumColorBuffers; i < numColorBuffers; ++i)
+            for(int i = m_NumColorBuffers; i < numColorBuffers; ++i) {
                 glCall(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, m_ColorBuffers[i]->getTextureID(), 0));
+            }
         }
 
-        if(numColorBuffers == 0)
-        {
+        if(numColorBuffers == 0) {
             glCall(glDrawBuffer(GL_NONE));
             glCall(glReadBuffer(GL_NONE));
         }
 
         // check error
-        if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-        {
+        if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
 #ifdef __Banana_Qt__
             __BNN_DIE(QString("OffScreenRender: FrameBuffer is incomplete!"));
 #else
@@ -540,8 +523,7 @@ void OffScreenRender::setNumColorBuffers(int numColorBuffers)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OffScreenRender::setColorBufferParameter(GLenum paramName, GLenum paramValue)
 {
-    for(std::shared_ptr<OpenGLTexture>& tex : m_ColorBuffers)
-    {
+    for(std::shared_ptr<OpenGLTexture>& tex : m_ColorBuffers) {
         tex->setTextureParameter(paramName, paramValue);
     }
 }
@@ -561,8 +543,7 @@ void OffScreenRender::swapColorBuffer(std::shared_ptr<OpenGLTexture>& colorBuffe
     glCall(glBindFramebuffer(GL_FRAMEBUFFER, m_FrameBufferID));
     glCall(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + bufferID, GL_TEXTURE_2D, m_ColorBuffers[bufferID]->getTextureID(), 0));
     // check error
-    if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-    {
+    if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
 #ifdef __Banana_Qt__
         __BNN_DIE(QString("OffScreenRender: FrameBuffer is incomplete!"));
 #else
@@ -594,8 +575,7 @@ void OffScreenRender::initRenderData()
     glCall(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_RenderBufferID));
 
     // color attachment
-    for(int i = 0; i < m_NumColorBuffers; ++i)
-    {
+    for(int i = 0; i < m_NumColorBuffers; ++i) {
         std::shared_ptr<OpenGLTexture> tex = std::make_shared<OpenGLTexture>(GL_TEXTURE_2D);
         tex->setTextureParameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         tex->setTextureParameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -605,15 +585,13 @@ void OffScreenRender::initRenderData()
         m_ColorBuffers.push_back(std::move(tex));
     }
 
-    if(m_NumColorBuffers == 0)
-    {
+    if(m_NumColorBuffers == 0) {
         glCall(glDrawBuffer(GL_NONE));
         glCall(glReadBuffer(GL_NONE));
     }
 
     // check error
-    if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-    {
+    if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
 #ifdef __Banana_Qt__
         __BNN_DIE(QString("OffScreenRender: FrameBuffer is incomplete!"));
 #else
@@ -657,8 +635,7 @@ void DepthBufferRender::setNumColorBuffers(int numColorBuffers)
 
     GLfloat borderColor[] = { m_ClearLinearDepthValue, m_ClearLinearDepthValue, m_ClearLinearDepthValue, 1.0 };
 
-    for(int i = 0; i < m_NumColorBuffers; ++i)
-    {
+    for(int i = 0; i < m_NumColorBuffers; ++i) {
         m_ColorBuffers[i]->bind();
         glCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER));
         glCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER));
@@ -693,8 +670,7 @@ void DepthBufferRender::initRenderData()
 
     GLfloat borderColor[] = { m_ClearLinearDepthValue, m_ClearLinearDepthValue, m_ClearLinearDepthValue, 1.0 };
 
-    for(int i = 0; i < m_NumColorBuffers; ++i)
-    {
+    for(int i = 0; i < m_NumColorBuffers; ++i) {
         m_ColorBuffers[i]->bind();
         glCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER));
         glCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER));
@@ -794,6 +770,7 @@ void MeshRender::loadTextures(QString textureFolder)
 {
     OpenGLTexture::loadTextures(m_Textures, textureFolder);
 }
+
 #endif
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -824,8 +801,7 @@ size_t MeshRender::getNumTextures()
 void MeshRender::clearTextures(bool insertNullTex /*= true*/)
 {
     m_Textures.resize(0);
-    if(insertNullTex)
-    {
+    if(insertNullTex) {
         m_Textures.push_back(nullptr);
     }
 
@@ -844,8 +820,9 @@ void MeshRender::addTexture(const std::shared_ptr<OpenGLTexture>& texture, GLenu
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MeshRender::setRenderTextureIndex(int texIndex)
 {
-    if(texIndex < 0)
+    if(texIndex < 0) {
         return;
+    }
 
     assert(static_cast<size_t>(texIndex) < m_Textures.size());
     m_CurrentTexture = m_Textures[texIndex];
@@ -872,11 +849,11 @@ void MeshRender::transform(const Vec3f& translation, const Vec3f& scale)
 void MeshRender::render()
 {
     assert(m_MeshObj != nullptr && m_Camera != nullptr && m_UBufferCamData != nullptr);
-    if(m_MeshObj->isEmpty())
+    if(m_MeshObj->isEmpty()) {
         return;
+    }
 
-    if(m_SelfUpdateCamera)
-    {
+    if(m_SelfUpdateCamera) {
         m_Camera->updateCameraMatrices();
         m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getViewMatrix()),       0,                   sizeof(Mat4x4f));
         m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getProjectionMatrix()), sizeof(Mat4x4f),     sizeof(Mat4x4f));
@@ -884,14 +861,11 @@ void MeshRender::render()
     }
 
     m_Shader->bind();
-    if(m_CurrentTexture != nullptr)
-    {
+    if(m_CurrentTexture != nullptr) {
         m_CurrentTexture->bind();
         m_Shader->setUniformValue(m_UHasTexture, 1);
         m_Shader->setUniformValue(m_UTexSampler, 0);
-    }
-    else
-    {
+    } else {
         m_Shader->setUniformValue(m_UHasTexture, 0);
     }
 
@@ -909,20 +883,16 @@ void MeshRender::render()
 
     m_Shader->setUniformValue(m_UExposure, m_Exposure);
 
-    if(m_ExternalShadowMaps.size() != 0)
-    {
+    if(m_ExternalShadowMaps.size() != 0) {
         m_Lights->bindUniformBufferLightMatrix();
         m_Shader->bindUniformBlock(m_UBLightMatrices, m_Lights->getBufferLightMatrixBindingPoint());
         m_Shader->setUniformValue(m_UHasShadow, 1);
 
-        for(int i = 0; i < static_cast<int>(m_ExternalShadowMaps.size()); ++i)
-        {
+        for(int i = 0; i < static_cast<int>(m_ExternalShadowMaps.size()); ++i) {
             m_Shader->setUniformValue(m_UShadowMap[i], i + 1);
             m_ExternalShadowMaps[i]->bind(i + 1);
         }
-    }
-    else
-    {
+    } else {
         m_Shader->setUniformValue(m_UHasShadow, 0);
     }
 
@@ -930,14 +900,13 @@ void MeshRender::render()
     m_MeshObj->draw();
     glCall(glBindVertexArray(0));
 
-    if(m_CurrentTexture != nullptr)
-    {
+    if(m_CurrentTexture != nullptr) {
         m_CurrentTexture->release();
     }
-    if(m_ExternalShadowMaps.size() != 0)
-    {
-        for(int i = 0; i < static_cast<int>(m_ExternalShadowMaps.size()); ++i)
+    if(m_ExternalShadowMaps.size() != 0) {
+        for(int i = 0; i < static_cast<int>(m_ExternalShadowMaps.size()); ++i) {
             m_ExternalShadowMaps[i]->release();
+        }
     }
     m_Shader->release();
 }
@@ -950,13 +919,13 @@ void MeshRender::renderToLightDepthBuffer(int scrWidth, int scrHeight, GLuint de
     assert(m_Lights != nullptr && m_Lights->getNumLights() > 0);
     assert(m_LightDepthBufferRenders.size() != 0);
 
-    if(m_MeshObj->isEmpty())
+    if(m_MeshObj->isEmpty()) {
         return;
+    }
 
     ////////////////////////////////////////////////////////////////////////////////
     // update the depth render objs in case the number of lights has changed
-    for(int i = static_cast<int>(m_LightDepthBufferRenders.size()); i < m_Lights->getNumLights(); ++i)
-    {
+    for(int i = static_cast<int>(m_LightDepthBufferRenders.size()); i < m_Lights->getNumLights(); ++i) {
         m_LightDepthBufferRenders.push_back(std::make_unique<DepthBufferRender>(m_ShadowBufferWidth, m_ShadowBufferHeight));
     }
 
@@ -967,8 +936,7 @@ void MeshRender::renderToLightDepthBuffer(int scrWidth, int scrHeight, GLuint de
     m_Lights->bindUniformBufferLightMatrix();
     m_LightDepthShader->bindUniformBlock(m_LDSUBLightMatrices, m_Lights->getBufferLightMatrixBindingPoint());
 
-    for(int i = 0; i < m_Lights->getNumLights(); ++i)
-    {
+    for(int i = 0; i < m_Lights->getNumLights(); ++i) {
         m_LightDepthShader->setUniformValue(m_LDSULightID, i);
         m_LightDepthBufferRenders[i]->beginRender();
 
@@ -988,8 +956,9 @@ void MeshRender::renderToCameraDepthBuffer(int scrWidth, int scrHeight, GLuint d
 {
     assert(m_DepthBufferInitialized);
     assert(m_MeshObj != nullptr && m_Camera != nullptr && m_UBufferCamData != nullptr);
-    if(m_MeshObj->isEmpty())
+    if(m_MeshObj->isEmpty()) {
         return;
+    }
 
     m_CameraDepthShader->bind();
     m_UBufferModelMatrix->bindBufferBase();
@@ -1010,13 +979,13 @@ void MeshRender::renderToCameraDepthBuffer(int scrWidth, int scrHeight, GLuint d
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MeshRender::initDepthBufferData(const Vec3f& defaultClearColor)
 {
-    if(m_MeshObj->isEmpty())
+    if(m_MeshObj->isEmpty()) {
         return;
+    }
 
     ////////////////////////////////////////////////////////////////////////////////
     // light depth buffer
-    for(int i = 0; i < m_Lights->getNumLights(); ++i)
-    {
+    for(int i = 0; i < m_Lights->getNumLights(); ++i) {
         m_LightDepthBufferRenders.push_back(std::make_unique<DepthBufferRender>(m_ShadowBufferWidth, m_ShadowBufferHeight));
         m_LightDepthBufferRenders[i]->setDefaultClearColor(defaultClearColor);
         m_LightDepthBufferRenders[i]->setClearDepthValue(-1000000.0);
@@ -1033,14 +1002,12 @@ void MeshRender::initDepthBufferData(const Vec3f& defaultClearColor)
     m_MeshObj->getVertexBuffer()->bind();
     glCall(glEnableVertexAttribArray(m_LDSAtrVPosition));
     glCall(glVertexAttribPointer(m_LDSAtrVPosition, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0));
-    if(m_MeshObj->hasIndexBuffer())
-    {
+    if(m_MeshObj->hasIndexBuffer()) {
         m_MeshObj->getIndexBuffer()->bind();
     }
     glCall(glBindVertexArray(0));
     m_MeshObj->getVertexBuffer()->release();
-    if(m_MeshObj->hasIndexBuffer())
-    {
+    if(m_MeshObj->hasIndexBuffer()) {
         m_MeshObj->getIndexBuffer()->release();
     }
 
@@ -1058,14 +1025,12 @@ void MeshRender::initDepthBufferData(const Vec3f& defaultClearColor)
     m_MeshObj->getVertexBuffer()->bind();
     glCall(glEnableVertexAttribArray(m_CDSAtrVPosition));
     glCall(glVertexAttribPointer(m_CDSAtrVPosition, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0));
-    if(m_MeshObj->hasIndexBuffer())
-    {
+    if(m_MeshObj->hasIndexBuffer()) {
         m_MeshObj->getIndexBuffer()->bind();
     }
     glCall(glBindVertexArray(0));
     m_MeshObj->getVertexBuffer()->release();
-    if(m_MeshObj->hasIndexBuffer())
-    {
+    if(m_MeshObj->hasIndexBuffer()) {
         m_MeshObj->getIndexBuffer()->release();
     }
 
@@ -1079,8 +1044,7 @@ void MeshRender::resizeShadowMap(int width, int height)
     m_ShadowBufferWidth  = width;
     m_ShadowBufferHeight = height;
 
-    for(int i = 0; i < m_Lights->getNumLights(); ++i)
-    {
+    for(int i = 0; i < m_Lights->getNumLights(); ++i) {
         m_LightDepthBufferRenders[i]->resize(width, height);
     }
 
@@ -1096,22 +1060,21 @@ void MeshRender::setExposure(float exposure)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MeshRender::setupVAO()
 {
-    if(m_MeshObj->isEmpty())
+    if(m_MeshObj->isEmpty()) {
         return;
+    }
 
     glCall(glBindVertexArray(m_VAO));
     m_MeshObj->getVertexBuffer()->bind();
     glCall(glEnableVertexAttribArray(m_AtrVPosition));
     glCall(glVertexAttribPointer(m_AtrVPosition, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0));
 
-    if(m_MeshObj->hasVertexNormal())
-    {
+    if(m_MeshObj->hasVertexNormal()) {
         m_MeshObj->getNormalBuffer()->bind();
         glCall(glEnableVertexAttribArray(m_AtrVNormal));
         glCall(glVertexAttribPointer(m_AtrVNormal, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0));
     }
-    if(m_MeshObj->hasVertexTexCoord())
-    {
+    if(m_MeshObj->hasVertexTexCoord()) {
         m_MeshObj->getTexCoordBuffer()->bind();
         glCall(glEnableVertexAttribArray(m_AtrVTexCoord));
         glCall(glVertexAttribPointer(m_AtrVTexCoord, 2, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0));
@@ -1123,8 +1086,7 @@ void MeshRender::setupVAO()
     //    glCall(glVertexAttribPointer(m_AtrVTexCoord, 2, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0));
     //}
 
-    if(m_MeshObj->hasIndexBuffer())
-    {
+    if(m_MeshObj->hasIndexBuffer()) {
         m_MeshObj->getIndexBuffer()->bind();
     }
     glCall(glBindVertexArray(0));
@@ -1140,8 +1102,9 @@ std::shared_ptr<OpenGLTexture>& MeshRender::getLightShadowMap(int lightID /*= 0*
 std::vector<std::shared_ptr<OpenGLTexture> > MeshRender::getAllLightShadowMaps()
 {
     std::vector<std::shared_ptr<OpenGLTexture> > depthBuffers;
-    for(int i = 0; i < static_cast<int>(m_LightDepthBufferRenders.size()); ++i)
+    for(int i = 0; i < static_cast<int>(m_LightDepthBufferRenders.size()); ++i) {
         depthBuffers.push_back(m_LightDepthBufferRenders[i]->getDepthBuffer());
+    }
 
     return depthBuffers;
 }
@@ -1166,8 +1129,7 @@ void MeshRender::initRenderData()
     m_UHasTexture = m_Shader->getUniformLocation("u_HasTexture");
     m_UHasShadow  = m_Shader->getUniformLocation("u_HasShadow");
     m_UTexSampler = m_Shader->getUniformLocation("u_TexSampler");
-    for(int i = 0; i < MAX_NUM_LIGHTS; ++i)
-    {
+    for(int i = 0; i < MAX_NUM_LIGHTS; ++i) {
         char buff[128];
         sprintf(buff, "u_ShadowMap[%d]", i);
         m_UShadowMap[i] = m_Shader->getUniformLocation(buff);
@@ -1187,8 +1149,7 @@ void MeshRender::initRenderData()
 
     ////////////////////////////////////////////////////////////////////////////////
     // uniform buffer
-    if(m_UBufferCamData == nullptr)
-    {
+    if(m_UBufferCamData == nullptr) {
         m_UBufferCamData = std::make_shared<OpenGLBuffer> ();
         m_UBufferCamData->createBuffer(GL_UNIFORM_BUFFER, 5 * sizeof(Mat4x4f) + sizeof(Vec4f), nullptr, GL_DYNAMIC_DRAW);
     }
@@ -1199,8 +1160,7 @@ void MeshRender::initRenderData()
 
     ////////////////////////////////////////////////////////////////////////////////
     // material
-    if(m_Material == nullptr)
-    {
+    if(m_Material == nullptr) {
         m_Material = std::make_shared<Material> ();
         /*m_Material->setAmbientColor(Vec4f(1.0));
            m_Material->setDiffuseColor(Vec4f(1.0, 1.0, 0.0, 1.0));
@@ -1238,8 +1198,9 @@ void PlaneRender::scaleTexCoord(int scaleX, int scaleY)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PlaneRender::render()
 {
-    if(m_CurrentTexture != nullptr || (m_CurrentTexture == nullptr && m_AllowedNonTexRender))
+    if(m_CurrentTexture != nullptr || (m_CurrentTexture == nullptr && m_AllowedNonTexRender)) {
         MeshRender::render();
+    }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

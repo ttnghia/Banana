@@ -1,17 +1,21 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//
-//  Copyright (c) 2017 by
-//       __      _     _         _____
-//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _
-//   /  \/ / _` | '_ \| |/ _` |   / /\/ '__| | | |/ _ \| '_ \ / _` |
-//  / /\  / (_| | | | | | (_| |  / /  | |  | |_| | (_) | | | | (_| |
-//  \_\ \/ \__, |_| |_|_|\__,_|  \/   |_|   \__,_|\___/|_| |_|\__, |
-//         |___/                                              |___/
-//
-//  <nghiatruong.vn@gmail.com>
-//  All rights reserved.
-//
+//                                .--,       .--,
+//                               ( (  \.---./  ) )
+//                                '.__/o   o\__.'
+//                                   {=  ^  =}
+//                                    >  -  <
+//     ___________________________.""`-------`"".____________________________
+//    /                                                                      \
+//    \    This file is part of Banana - a graphics programming framework    /
+//    /                    Created: 2017 by Nghia Truong                     \
+//    \                      <nghiatruong.vn@gmail.com>                      /
+//    /                      https://ttnghia.github.io                       \
+//    \                        All rights reserved.                          /
+//    /                                                                      \
+//    \______________________________________________________________________/
+//                                  ___)( )(___
+//                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
@@ -68,8 +72,7 @@ void Camera::setDefaultCamera(const Vec3f& defaultPosition, const Vec3f& default
     m_DefaultCameraFocus    = defaultCameraFocus;
     m_DefaultUpDirection    = defaultUpDirection;
 
-    if(m_bDebug)
-    {
+    if(m_bDebug) {
         printf("CameraDebug::SetDefaultCamera, CameraPosition = [%f, %f, %f], CameraFocus = [%f, %f, %f]\n",
                m_DefaultCameraPosition[0], m_DefaultCameraPosition[1], m_DefaultCameraPosition[2],
                m_DefaultCameraFocus[0], m_DefaultCameraFocus[1], m_DefaultCameraFocus[2]);
@@ -109,12 +112,13 @@ void Camera::resizeWindow(int width, int height)
     m_WindowHeight = height;
 
     ////////////////////////////////////////////////////////////////////////////////
-    if(m_Projection == PerspectiveProjection)
+    if(m_Projection == PerspectiveProjection) {
         m_ProjectionMatrix = glm::perspective(m_Frustum.m_Fov, static_cast<float>(width) / static_cast<float>(height), m_Frustum.m_Near, m_Frustum.m_Far);
-    else
+    } else {
         m_ProjectionMatrix = glm::ortho(m_OrthoBMin[0], m_OrthoBMax[0],
                                         m_OrthoBMin[1], m_OrthoBMax[1],
                                         m_OrthoBMin[2], m_OrthoBMax[2]); // left, right, bot, top, near, far
+    }
     m_InverseProjectionMatrix = glm::inverse(m_ProjectionMatrix);
     m_ViewProjectionMatrix    = m_ProjectionMatrix * m_ViewMatrix;
     setDirty(true);
@@ -123,8 +127,7 @@ void Camera::resizeWindow(int width, int height)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Camera::updateCameraMatrices()
 {
-    if(m_bReseted)
-    {
+    if(m_bReseted) {
         m_bReseted = false;
         setDirty(true);
         return;
@@ -132,31 +135,26 @@ void Camera::updateCameraMatrices()
 
     setDirty(false);
 
-    if(glm::dot(m_Translation, m_Translation) > 1e-4)
-    {
+    if(glm::dot(m_Translation, m_Translation) > 1e-4) {
         translate();
         setDirty(true);
     }
 
-    if(glm::dot(m_Rotation, m_Rotation) > 1e-4)
-    {
+    if(glm::dot(m_Rotation, m_Rotation) > 1e-4) {
         rotate();
         setDirty(true);
     }
 
-    if(fabsf(m_Zooming) > 1e-4)
-    {
+    if(fabsf(m_Zooming) > 1e-4) {
         zoom();
         setDirty(true);
     }
 
-    if(m_bDirty)
-    {
+    if(m_bDirty) {
         m_ViewMatrix           = glm::lookAt(m_CameraPosition, m_CameraFocus, m_CameraUpDirection);
         m_ViewProjectionMatrix = m_ProjectionMatrix * m_ViewMatrix;
 
-        if(m_bDebug)
-        {
+        if(m_bDebug) {
             printf("CameraDebug::UpdateViewMatrix CameraPosition = [%f, %f, %f], CameraFocus = [%f, %f, %f]\n",
                    m_CameraPosition[0], m_CameraPosition[1], m_CameraPosition[2],
                    m_CameraFocus[0], m_CameraFocus[1], m_CameraFocus[2]);
@@ -355,8 +353,7 @@ void Camera::zoom()
 
     len *= static_cast<float>(1.0 + m_Zooming);
 
-    if(len < 0.1f)
-    {
+    if(len < 0.1f) {
         len = 0.1f;
     }
 

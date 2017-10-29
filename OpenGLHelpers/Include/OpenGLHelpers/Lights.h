@@ -1,17 +1,21 @@
 ﻿//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//
-//  Copyright (c) 2017 by
-//       __      _     _         _____
-//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _
-//   /  \/ / _` | '_ \| |/ _` |   / /\/ '__| | | |/ _ \| '_ \ / _` |
-//  / /\  / (_| | | | | | (_| |  / /  | |  | |_| | (_) | | | | (_| |
-//  \_\ \/ \__, |_| |_|_|\__,_|  \/   |_|   \__,_|\___/|_| |_|\__, |
-//         |___/                                              |___/
-//
-//  <nghiatruong.vn@gmail.com>
-//  All rights reserved.
-//
+//                                .--,       .--,
+//                               ( (  \.---./  ) )
+//                                '.__/o   o\__.'
+//                                   {=  ^  =}
+//                                    >  -  <
+//     ___________________________.""`-------`"".____________________________
+//    /                                                                      \
+//    \    This file is part of Banana - a graphics programming framework    /
+//    /                    Created: 2017 by Nghia Truong                     \
+//    \                      <nghiatruong.vn@gmail.com>                      /
+//    /                      https://ttnghia.github.io                       \
+//    \                        All rights reserved.                          /
+//    /                                                                      \
+//    \______________________________________________________________________/
+//                                  ___)( )(___
+//                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
@@ -44,16 +48,16 @@ public:
     int  getNumLights() const;
     void createUniformBuffer();
 
-    virtual void setLightAmbient(const glm::vec4& ambient, int lightID = 0)   = 0;
-    virtual void setLightDiffuse(const glm::vec4& diffuse, int lightID = 0)   = 0;
+    virtual void setLightAmbient(const glm::vec4& ambient, int lightID = 0) = 0;
+    virtual void setLightDiffuse(const glm::vec4& diffuse, int lightID = 0) = 0;
     virtual void setLightSpecular(const glm::vec4& specular, int lightID = 0) = 0;
 
-    virtual glm::vec4 getLightAmbient(int lightID = 0) const  = 0;
-    virtual glm::vec4 getLightDiffuse(int lightID = 0) const  = 0;
+    virtual glm::vec4 getLightAmbient(int lightID  = 0) const = 0;
+    virtual glm::vec4 getLightDiffuse(int lightID  = 0) const = 0;
     virtual glm::vec4 getLightSpecular(int lightID = 0) const = 0;
 
-    virtual void uploadLightAmbient(int lightID = 0)  = 0;
-    virtual void uploadLightDiffuse(int lightID = 0)  = 0;
+    virtual void uploadLightAmbient(int lightID  = 0) = 0;
+    virtual void uploadLightDiffuse(int lightID  = 0) = 0;
     virtual void uploadLightSpecular(int lightID = 0) = 0;
 
     void   bindUniformBuffer();
@@ -122,26 +126,30 @@ public:
 
         void setAmbient(const glm::vec4& ambient_)
         {
-            for(int i = 0; i < 4; ++i)
+            for(int i = 0; i < 4; ++i) {
                 ambient[i] = ambient_[i];
+            }
         }
 
         void setDiffuse(const glm::vec4& diffuse_)
         {
-            for(int i = 0; i < 4; ++i)
+            for(int i = 0; i < 4; ++i) {
                 diffuse[i] = diffuse_[i];
+            }
         }
 
         void setSpecular(const glm::vec4& specular_)
         {
-            for(int i = 0; i < 4; ++i)
+            for(int i = 0; i < 4; ++i) {
                 specular[i] = specular_[i];
+            }
         }
 
         void setDirection(const glm::vec4& direction_)
         {
-            for(int i = 0; i < 4; ++i)
+            for(int i = 0; i < 4; ++i) {
                 direction[i] = direction_[i];
+            }
         }
 
         GLfloat ambient[4];
@@ -154,22 +162,22 @@ public:
     DirectionalLightData getLight(int lightID = 0) const;
 
     void      setLightDirection(const glm::vec4& direction, int lightID = 0);
-    glm::vec4 getLightDirection(int lightID = 0) const;
+    glm::vec4 getLightDirection(int lightID    = 0) const;
     void      uploadLightDirection(int lightID = 0);
 
     virtual void setLightAmbient(const glm::vec4& ambient, int lightID = 0) override;
     virtual void setLightDiffuse(const glm::vec4& diffuse, int lightID = 0) override;
     virtual void setLightSpecular(const glm::vec4& specular, int lightID = 0) override;
 
-    virtual glm::vec4 getLightAmbient(int lightID = 0) const override;
-    virtual glm::vec4 getLightDiffuse(int lightID = 0) const override;
+    virtual glm::vec4 getLightAmbient(int lightID  = 0) const override;
+    virtual glm::vec4 getLightDiffuse(int lightID  = 0) const override;
     virtual glm::vec4 getLightSpecular(int lightID = 0) const override;
 
-    virtual void uploadLightAmbient(int lightID = 0) override;
-    virtual void uploadLightDiffuse(int lightID = 0) override;
+    virtual void uploadLightAmbient(int lightID  = 0) override;
+    virtual void uploadLightDiffuse(int lightID  = 0) override;
     virtual void uploadLightSpecular(int lightID = 0) override;
 
-    virtual void uploadDataToGPU() override;
+    virtual void   uploadDataToGPU() override;
     virtual size_t getLightSize() const override
     {
         return 4 * sizeof(glm::vec4);
@@ -208,26 +216,30 @@ public:
 
         void setAmbient(const glm::vec4& ambient_)
         {
-            for(int i = 0; i < 4; ++i)
+            for(int i = 0; i < 4; ++i) {
                 ambient[i] = ambient_[i];
+            }
         }
 
         void setDiffuse(const glm::vec4& diffuse_)
         {
-            for(int i = 0; i < 4; ++i)
+            for(int i = 0; i < 4; ++i) {
                 diffuse[i] = diffuse_[i];
+            }
         }
 
         void setSpecular(const glm::vec4& specular_)
         {
-            for(int i = 0; i < 4; ++i)
+            for(int i = 0; i < 4; ++i) {
                 specular[i] = specular_[i];
+            }
         }
 
         void setPosition(const glm::vec4& position_)
         {
-            for(int i = 0; i < 4; ++i)
+            for(int i = 0; i < 4; ++i) {
                 position[i] = position_[i];
+            }
         }
 
         GLfloat ambient[4];
@@ -240,22 +252,22 @@ public:
     PointLightData getLight(int lightID) const;
 
     void      setLightPosition(const glm::vec4& direction, int lightID = 0);
-    glm::vec4 getLightPosition(int lightID = 0) const;
+    glm::vec4 getLightPosition(int lightID    = 0) const;
     void      uploadLightPosition(int lightID = 0);
 
     virtual void setLightAmbient(const glm::vec4& ambient, int lightID = 0) override;
     virtual void setLightDiffuse(const glm::vec4& diffuse, int lightID = 0) override;
     virtual void setLightSpecular(const glm::vec4& specular, int lightID = 0) override;
 
-    virtual glm::vec4 getLightAmbient(int lightID = 0) const override;
-    virtual glm::vec4 getLightDiffuse(int lightID = 0) const override;
+    virtual glm::vec4 getLightAmbient(int lightID  = 0) const override;
+    virtual glm::vec4 getLightDiffuse(int lightID  = 0) const override;
     virtual glm::vec4 getLightSpecular(int lightID = 0) const override;
 
-    virtual void uploadLightAmbient(int lightID = 0) override;
-    virtual void uploadLightDiffuse(int lightID = 0) override;
+    virtual void uploadLightAmbient(int lightID  = 0) override;
+    virtual void uploadLightDiffuse(int lightID  = 0) override;
     virtual void uploadLightSpecular(int lightID = 0) override;
 
-    virtual void uploadDataToGPU() override;
+    virtual void   uploadDataToGPU() override;
     virtual size_t getLightSize() const override
     {
         return 4 * sizeof(glm::vec4);
@@ -295,32 +307,37 @@ public:
 
         void setAmbient(const glm::vec4& ambient_)
         {
-            for(int i = 0; i < 4; ++i)
+            for(int i = 0; i < 4; ++i) {
                 ambient[i] = ambient_[i];
+            }
         }
 
         void setDiffuse(const glm::vec4& diffuse_)
         {
-            for(int i = 0; i < 4; ++i)
+            for(int i = 0; i < 4; ++i) {
                 diffuse[i] = diffuse_[i];
+            }
         }
 
         void setSpecular(const glm::vec4& specular_)
         {
-            for(int i = 0; i < 4; ++i)
+            for(int i = 0; i < 4; ++i) {
                 specular[i] = specular_[i];
+            }
         }
 
         void setPosition(const glm::vec4& position_)
         {
-            for(int i = 0; i < 4; ++i)
+            for(int i = 0; i < 4; ++i) {
                 position[i] = position_[i];
+            }
         }
 
         void setDirection(const glm::vec4& direction_)
         {
-            for(int i = 0; i < 4; ++i)
+            for(int i = 0; i < 4; ++i) {
                 direction[i] = direction_[i];
+            }
         }
 
         GLfloat ambient[4];
@@ -338,27 +355,27 @@ public:
     void      setLightDirection(const glm::vec4& direction, int lightID = 0);
     void      setLightPosition(const glm::vec4& position, int lightID = 0);
     void      setLightCuffOffAngles(float innerAngle, float outerAngle, int lightID = 0);
-    glm::vec4 getLightPosition(int lightID = 0) const;
-    glm::vec4 getLightDirection(int lightID = 0) const;
-    float     getInnerCutOffAngle(int lightID = 0) const;
-    float     getOuterCutOffAngle(int lightID = 0) const;
-    void      uploadLightPosition(int lightID = 0);
-    void      uploadLightDirection(int lightID = 0);
+    glm::vec4 getLightPosition(int lightID        = 0) const;
+    glm::vec4 getLightDirection(int lightID       = 0) const;
+    float     getInnerCutOffAngle(int lightID     = 0) const;
+    float     getOuterCutOffAngle(int lightID     = 0) const;
+    void      uploadLightPosition(int lightID     = 0);
+    void      uploadLightDirection(int lightID    = 0);
     void      uploadLightCutOffAngles(int lightID = 0);
 
     virtual void setLightAmbient(const glm::vec4& ambient, int lightID = 0) override;
     virtual void setLightDiffuse(const glm::vec4& diffuse, int lightID = 0) override;
     virtual void setLightSpecular(const glm::vec4& specular, int lightID = 0) override;
 
-    virtual glm::vec4 getLightAmbient(int lightID = 0) const override;
-    virtual glm::vec4 getLightDiffuse(int lightID = 0) const override;
+    virtual glm::vec4 getLightAmbient(int lightID  = 0) const override;
+    virtual glm::vec4 getLightDiffuse(int lightID  = 0) const override;
     virtual glm::vec4 getLightSpecular(int lightID = 0) const override;
 
-    virtual void uploadLightAmbient(int lightID = 0) override;
-    virtual void uploadLightDiffuse(int lightID = 0) override;
+    virtual void uploadLightAmbient(int lightID  = 0) override;
+    virtual void uploadLightDiffuse(int lightID  = 0) override;
     virtual void uploadLightSpecular(int lightID = 0) override;
 
-    virtual void uploadDataToGPU() override;
+    virtual void   uploadDataToGPU() override;
     virtual size_t getLightSize() const override
     {
         return 5 * sizeof(glm::vec4) + 2 * sizeof(GLfloat);

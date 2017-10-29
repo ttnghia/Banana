@@ -1,17 +1,21 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//
-//  Copyright (c) 2017 by
-//       __      _     _         _____
-//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _
-//   /  \/ / _` | '_ \| |/ _` |   / /\/ '__| | | |/ _ \| '_ \ / _` |
-//  / /\  / (_| | | | | | (_| |  / /  | |  | |_| | (_) | | | | (_| |
-//  \_\ \/ \__, |_| |_|_|\__,_|  \/   |_|   \__,_|\___/|_| |_|\__, |
-//         |___/                                              |___/
-//
-//  <nghiatruong.vn@gmail.com>
-//  All rights reserved.
-//
+//                                .--,       .--,
+//                               ( (  \.---./  ) )
+//                                '.__/o   o\__.'
+//                                   {=  ^  =}
+//                                    >  -  <
+//     ___________________________.""`-------`"".____________________________
+//    /                                                                      \
+//    \    This file is part of Banana - a graphics programming framework    /
+//    /                    Created: 2017 by Nghia Truong                     \
+//    \                      <nghiatruong.vn@gmail.com>                      /
+//    /                      https://ttnghia.github.io                       \
+//    \                        All rights reserved.                          /
+//    /                                                                      \
+//    \______________________________________________________________________/
+//                                  ___)( )(___
+//                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
@@ -275,17 +279,17 @@ void ParticleGenerator<N, RealType >::relaxPositions(Vector<VecX<N, RealType> >&
     //JSONHelpers::readValue(m_jParams, relaxMethod, "RelaxMethod");
 
     if(bRelax) {
-//if(relaxMethod == "SPH" || relaxMethod == "SPHBased")
-//    SPHBasedRelaxation::relaxPositions(positions, particleRadius);
-//else
-//{
-//    Vector<VecX<N, RealType> > denseSamples;
-//    RealType                       denseSampleRatio = 0.1;
-//    JSONHelpers::readValue(m_jParams, denseSampleRatio, "DenseSampleRatio");
+        //if(relaxMethod == "SPH" || relaxMethod == "SPHBased")
+        //    SPHBasedRelaxation::relaxPositions(positions, particleRadius);
+        //else
+        //{
+        //    Vector<VecX<N, RealType> > denseSamples;
+        //    RealType                       denseSampleRatio = 0.1;
+        //    JSONHelpers::readValue(m_jParams, denseSampleRatio, "DenseSampleRatio");
 
-//    generatePositions(denseSamples, particleRadius * denseSampleRatio);
-//    LloydRelaxation::relaxPositions(denseSamples, positions);
-//}
+        //    generatePositions(denseSamples, particleRadius * denseSampleRatio);
+        //    LloydRelaxation::relaxPositions(denseSamples, positions);
+        //}
     }
 }
 

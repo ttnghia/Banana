@@ -1,17 +1,21 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//
-//  Copyright (c) 2017 by
-//       __      _     _         _____
-//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _
-//   /  \/ / _` | '_ \| |/ _` |   / /\/ '__| | | |/ _ \| '_ \ / _` |
-//  / /\  / (_| | | | | | (_| |  / /  | |  | |_| | (_) | | | | (_| |
-//  \_\ \/ \__, |_| |_|_|\__,_|  \/   |_|   \__,_|\___/|_| |_|\__, |
-//         |___/                                              |___/
-//
-//  <nghiatruong.vn@gmail.com>
-//  All rights reserved.
-//
+//                                .--,       .--,
+//                               ( (  \.---./  ) )
+//                                '.__/o   o\__.'
+//                                   {=  ^  =}
+//                                    >  -  <
+//     ___________________________.""`-------`"".____________________________
+//    /                                                                      \
+//    \    This file is part of Banana - a graphics programming framework    /
+//    /                    Created: 2017 by Nghia Truong                     \
+//    \                      <nghiatruong.vn@gmail.com>                      /
+//    /                      https://ttnghia.github.io                       \
+//    \                        All rights reserved.                          /
+//    /                                                                      \
+//    \______________________________________________________________________/
+//                                  ___)( )(___
+//                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
@@ -56,8 +60,9 @@ Real compute_average_number_of_neighbors(NeighborSearch::NeighborSearch3D const&
     unsigned long res = 0;
     const auto&   d   = nsearch.point_set(0);
 
-    for(int i = 0; i < d.n_points(); ++i)
+    for(int i = 0; i < d.n_points(); ++i) {
         res += static_cast<unsigned long>(d.n_neighbors(0, i));
+    }
 
     return static_cast<Real>(res) / static_cast<Real>(d.n_points());
 }
@@ -69,12 +74,10 @@ Real compute_average_distance(NeighborSearch::NeighborSearch3D const& nsearch)
     auto const&        d     = nsearch.point_set(0);
     unsigned long long count = 0;
 
-    for(int i = 0; i < d.n_points(); ++i)
-    {
+    for(int i = 0; i < d.n_points(); ++i) {
         size_t nn = d.n_neighbors(0, i);
 
-        for(int j = 0; j < nn; ++j)
-        {
+        for(int j = 0; j < nn; ++j) {
             UInt k = d.neighbor(0, i, j);
             res += std::abs(i - static_cast<int>(k));
             count++;
@@ -92,18 +95,19 @@ Vector<Vector<UInt> > brute_force_search(size_t n_positions)
                                         [&](size_t i)
                                         {
                                             Vector<UInt>& neighbors = brute_force_neighbors[i];
-                                            Vec3r const& xa = positions[i];
+                                            Vec3r const& xa         = positions[i];
 
-                                            for(int j = 0; j < n_positions; ++j)
-                                            {
-                                                if(i == size_t(j))
+                                            for(int j = 0; j < n_positions; ++j) {
+                                                if(i == size_t(j)) {
                                                     continue;
+                                                }
 
                                                 Vec3r const& xb = positions[j];
 
                                                 Real l2 = glm::length2(xa - xb);
-                                                if(l2 < radius * radius)
+                                                if(l2 < radius * radius) {
                                                     neighbors.push_back(j);
+                                                }
                                             }
                                         });
 
@@ -116,30 +120,28 @@ void compare_with_bruteforce_search(NeighborSearch::NeighborSearch3D const& nsea
     const NeighborSearch::PointSet& d0                    = nsearch.point_set(0);
     auto                            brute_force_neighbors = brute_force_search(d0.n_points());
 
-    for(int i = 0; i < d0.n_points(); ++i)
-    {
+    for(int i = 0; i < d0.n_points(); ++i) {
         auto const& bfn = brute_force_neighbors[i];
 
-        if(bfn.size() != d0.n_neighbors(0, i))
-        {
+        if(bfn.size() != d0.n_neighbors(0, i)) {
             std::cerr << "*************************************ERROR: Not the same number of neighbors: " << bfn.size() << " != " << d0.n_neighbors(0, i) << std::endl;
 
             int diff = 0;
-            for(auto x : d0.neighbors(0, i))
+            for(auto x : d0.neighbors(0, i)) {
                 diff = diff ^ int(x);
+            }
 
-            for(auto x : bfn)
+            for(auto x : bfn) {
                 diff = diff ^ int(x);
+            }
 
             std::cerr << "Difference: " << diff << ", r2 = " << glm::length2(positions[i] - positions[diff]) / radius2
                       << ", r = " << glm::length(positions[i] - positions[diff]) / radius;
             std::cerr << std::endl << std::endl;
         }
 
-        for(int j = 0; j < d0.n_neighbors(0, i); ++j)
-        {
-            if(std::find(bfn.begin(), bfn.end(), d0.neighbor(0, i, j)) == bfn.end())
-            {
+        for(int j = 0; j < d0.n_neighbors(0, i); ++j) {
+            if(std::find(bfn.begin(), bfn.end(), d0.neighbor(0, i, j)) == bfn.end()) {
                 std::cerr << "ERROR: Neighbor not found in brute force list." << std::endl;
             }
         }
@@ -153,19 +155,15 @@ void compare_with_grid_search(NeighborSearch::NeighborSearch3D const& nsearch, V
 {
     const NeighborSearch::PointSet& d0 = nsearch.point_set(0);
 
-    for(int i = 0; i < d0.n_points(); ++i)
-    {
+    for(int i = 0; i < d0.n_points(); ++i) {
         auto const& bfn = gridSearchResult[i];
 
-        if(bfn.size() != d0.n_neighbors(0, i))
-        {
+        if(bfn.size() != d0.n_neighbors(0, i)) {
             std::cerr << "ERROR: Not the same number of neighbors." << std::endl;
         }
 
-        for(int j = 0; j < d0.n_neighbors(0, i); ++j)
-        {
-            if(std::find(bfn.begin(), bfn.end(), d0.neighbor(0, i, j)) == bfn.end())
-            {
+        for(int j = 0; j < d0.n_neighbors(0, i); ++j) {
+            if(std::find(bfn.begin(), bfn.end(), d0.neighbor(0, i, j)) == bfn.end()) {
                 std::cerr << "ERROR: Neighbor not found in grid search list." << std::endl;
             }
         }
@@ -181,20 +179,16 @@ void compare_single_query_with_bruteforce_search(NeighborSearch::NeighborSearch3
     const NeighborSearch::PointSet& d0                    = nsearch.point_set(0);
     auto                            brute_force_neighbors = brute_force_search(d0.n_points());
 
-    for(int i = 0; i < d0.n_points(); ++i)
-    {
+    for(int i = 0; i < d0.n_points(); ++i) {
         const auto& bfn = brute_force_neighbors[i];
         neighbors.clear();
         nsearch.find_neighbors(0, i, neighbors);
 
-        if(bfn.size() != neighbors[0].size())
-        {
+        if(bfn.size() != neighbors[0].size()) {
             std::cerr << "ERROR: Not the same number of neighbors." << std::endl;
         }
-        for(int j = 0; j < neighbors.size(); ++j)
-        {
-            if(std::find(bfn.begin(), bfn.end(), neighbors[0][j]) == bfn.end())
-            {
+        for(int j = 0; j < neighbors.size(); ++j) {
+            if(std::find(bfn.begin(), bfn.end(), neighbors[0][j]) == bfn.end()) {
                 std::cerr << "ERROR: Neighbor not found in brute force list." << std::endl;
             }
         }
@@ -229,7 +223,7 @@ void advect()
     ParallelFuncs::parallel_for<size_t>(0, positions.size(), [&](size_t i)
                                         {
                                             Vec3r& x = positions[i];
-                                            Vec3r v = enright_velocity_field(x);
+                                            Vec3r v  = enright_velocity_field(x);
                                             x[0] += timestep * v[0];
                                             x[1] += timestep * v[1];
                                             x[2] += timestep * v[1];
@@ -243,30 +237,28 @@ TEST_CASE("Test CompactNSearch", "[CompactNSearch]")
     Real max_x = std::numeric_limits<Real>::min();
     positions.reserve(N * N * N);
 
-    for(UInt i = 0; i < N; ++i)
-    {
-        for(UInt j = 0; j < N; ++j)
-        {
-            for(UInt k = 0; k < N; ++k)
-            {
+    for(UInt i = 0; i < N; ++i) {
+        for(UInt j = 0; j < N; ++j) {
+            for(UInt k = 0; k < N; ++k) {
                 Vec3r x = Vec3r(r_omega * (2.0 * (static_cast<Real>(i) + MathHelpers::frand11<float>()) / static_cast<Real>(N - 1) - 1.0),
                                 r_omega * (2.0 * (static_cast<Real>(j) + MathHelpers::frand11<float>()) / static_cast<Real>(N - 1) - 1.0),
                                 r_omega * (2.0 * (static_cast<Real>(k) + MathHelpers::frand11<float>()) / static_cast<Real>(N - 1) - 1.0));
 
                 Real l2 = x[0] * x[0] + x[1] * x[1] + x[2] * x[2];
 
-                if(l2 < r_omega2)
-                {
+                if(l2 < r_omega2) {
                     x[0] += Real(0.35);
                     x[1] += Real(0.35);
                     x[2] += Real(0.35);
                     positions.push_back(x);
 
-                    if(min_x > x[0])
+                    if(min_x > x[0]) {
                         min_x = x[0];
+                    }
 
-                    if(max_x < x[0])
+                    if(max_x < x[0]) {
                         max_x = x[0];
+                    }
                 }
             }
         }
@@ -305,8 +297,7 @@ TEST_CASE("Test CompactNSearch", "[CompactNSearch]")
         std::cout << "z_sort took " << NumberHelpers::formatWithCommas(runTime) << "ms" << std::endl << std::endl;
     }
 
-    for(auto i = 0u; i < nsearch.n_point_sets(); ++i)
-    {
+    for(auto i = 0u; i < nsearch.n_point_sets(); ++i) {
         auto const& d = nsearch.point_set(i);
         d.sort_field(positions.data());
     }
@@ -346,18 +337,18 @@ TEST_CASE("Test CompactNSearch", "[CompactNSearch]")
     std::cout << "Average index distance after z-sort    = " << NumberHelpers::formatWithCommas(compute_average_distance(nsearch)) << std::endl;
 
     std::cout << "Moving points:" << std::endl;
-    for(int i = 0; i < N_enright_steps; ++i)
-    {
+    for(int i = 0; i < N_enright_steps; ++i) {
         std::cout << std::endl << "Enright step " << i << ". ";
         advect();
 
         {
-            for(auto& ppos : positions)
-            {
-                if(min_x > ppos[0])
+            for(auto& ppos : positions) {
+                if(min_x > ppos[0]) {
                     min_x = ppos[0];
-                if(max_x < ppos[0])
+                }
+                if(max_x < ppos[0]) {
                     max_x = ppos[0];
+                }
             }
             std::cout << "Min x = " << min_x << ", Max x = " << max_x << std::endl;
         }
@@ -386,8 +377,7 @@ TEST_CASE("Test CompactNSearch", "[CompactNSearch]")
 #endif
 
         nsearch.z_sort();
-        for(auto i = 0u; i < nsearch.n_point_sets(); ++i)
-        {
+        for(auto i = 0u; i < nsearch.n_point_sets(); ++i) {
             auto const& d  = nsearch.point_set(i);
             auto        t0 = Clock::now();
             d.sort_field(positions.data());

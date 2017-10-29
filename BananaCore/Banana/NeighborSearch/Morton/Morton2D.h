@@ -1,17 +1,21 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//
-//  Copyright (c) 2017 by
-//       __      _     _         _____
-//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _
-//   /  \/ / _` | '_ \| |/ _` |   / /\/ '__| | | |/ _ \| '_ \ / _` |
-//  / /\  / (_| | | | | | (_| |  / /  | |  | |_| | (_) | | | | (_| |
-//  \_\ \/ \__, |_| |_|_|\__,_|  \/   |_|   \__,_|\___/|_| |_|\__, |
-//         |___/                                              |___/
-//
-//  <nghiatruong.vn@gmail.com>
-//  All rights reserved.
-//
+//                                .--,       .--,
+//                               ( (  \.---./  ) )
+//                                '.__/o   o\__.'
+//                                   {=  ^  =}
+//                                    >  -  <
+//     ___________________________.""`-------`"".____________________________
+//    /                                                                      \
+//    \    This file is part of Banana - a graphics programming framework    /
+//    /                    Created: 2017 by Nghia Truong                     \
+//    \                      <nghiatruong.vn@gmail.com>                      /
+//    /                      https://ttnghia.github.io                       \
+//    \                        All rights reserved.                          /
+//    /                                                                      \
+//    \______________________________________________________________________/
+//                                  ___)( )(___
+//                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
@@ -50,8 +54,7 @@ inline morton m2D_e_sLUT(const coord x, const coord y)
 {
     morton              answer       = 0;
     const static morton EIGHTBITMASK = 0x000000FF;
-    for(unsigned int i = sizeof(coord); i > 0; --i)
-    {
+    for(unsigned int i = sizeof(coord); i > 0; --i) {
         unsigned int shift = (i - 1) * 8;
         answer =
             answer << 16 |
@@ -67,8 +70,7 @@ inline morton m2D_e_LUT(const coord x, const coord y)
 {
     morton              answer       = 0;
     const static morton EIGHTBITMASK = 0x000000FF;
-    for(unsigned int i = sizeof(coord); i > 0; --i)
-    {
+    for(unsigned int i = sizeof(coord); i > 0; --i) {
         unsigned int shift = (i - 1) * 8;
         answer =
             answer << 16 |
@@ -85,10 +87,9 @@ inline morton compute2D_ET_LUT_encode(const coord c, const coord* LUT)
     const static morton EIGHTBITMASK = 0x000000FF;
     unsigned long       maxbit       = 0;
     morton              answer       = 0;
-    if(findFirstSetBit<coord>(c, &maxbit) == 0){ return 0; }
+    if(findFirstSetBit<coord>(c, &maxbit) == 0) { return 0; }
     unsigned int i = 0;
-    while(maxbit >= i)
-    {
+    while(maxbit >= i) {
         answer |= (LUT[(c >> i) & EIGHTBITMASK]) << i * 2;
         i      += 8;
     }
@@ -121,7 +122,7 @@ inline morton morton2D_SplitBy2Bits(const coord a)
 {
     const morton* masks = (sizeof(morton) <= 4) ? reinterpret_cast<const morton*>(magicbit2D_masks32) : reinterpret_cast<const morton*>(magicbit2D_masks64);
     morton        x     = a;
-    if(sizeof(morton) > 4){ x = (x | x << 32) & masks[0]; }
+    if(sizeof(morton) > 4) { x = (x | x << 32) & masks[0]; }
     x = (x | x << 16) & masks[1];
     x = (x | x << 8) & masks[2];
     x = (x | x << 4) & masks[3];
@@ -143,8 +144,7 @@ inline morton m2D_e_for(const coord x, const coord y)
 {
     morton       answer    = 0;
     unsigned int checkbits = floor(sizeof(morton) * 4.0f);
-    for(unsigned int i = 0; i <= checkbits; ++i)
-    {
+    for(unsigned int i = 0; i <= checkbits; ++i) {
         morton       mshifted = static_cast<morton>(0x1) << i;   // Here we need to cast 0x1 to 64bits, otherwise there is a bug when morton code is larger than 32 bits
         unsigned int shift    = 2 * i;
         answer |=
@@ -164,8 +164,7 @@ inline morton m2D_e_for_ET(const coord x, const coord y)
     findFirstSetBit<morton>(x, &x_max);
     findFirstSetBit<morton>(y, &y_max);
     checkbits = min(static_cast<unsigned long>(checkbits), max(x_max, y_max) + 1ul);
-    for(unsigned int i = 0; i <= checkbits; ++i)
-    {
+    for(unsigned int i = 0; i <= checkbits; ++i) {
         morton       m_shifted = static_cast<morton>(0x1) << i;   // Here we need to cast 0x1 to 64bits, otherwise there is a bug when morton code is larger than 32 bits
         unsigned int shift     = 2 * i;
         answer |= ((x & m_shifted) << shift)
@@ -181,8 +180,7 @@ inline coord morton2D_DecodeCoord_LUT256(const morton m, const uint_fast8_t* LUT
     morton       a            = 0;
     morton       EIGHTBITMASK = 0x000000ff;
     unsigned int loops        = sizeof(morton);
-    for(unsigned int i = 0; i < loops; ++i)
-    {
+    for(unsigned int i = 0; i < loops; ++i) {
         a |= (LUT[(m >> ((i * 8) + startshift)) & EIGHTBITMASK] << (4 * i));
     }
     return static_cast<coord>(a);
@@ -211,11 +209,10 @@ inline void m2D_d_sLUT_ET(const morton m, coord& x, coord& y)
     x = 0; y = 0;
     morton        EIGHTBITMASK      = 0x000000ff;
     unsigned long firstbit_location = 0;
-    if(!findFirstSetBit<morton>(m, &firstbit_location)){ return; }
+    if(!findFirstSetBit<morton>(m, &firstbit_location)) { return; }
     unsigned int i         = 0;
     unsigned int shiftback = 0;
-    while(firstbit_location >= i)
-    {
+    while(firstbit_location >= i) {
         morton m_shifted = (m >> i) & EIGHTBITMASK;
         x         |= Morton2D_decode_x_256[m_shifted] << shiftback;
         y         |= Morton2D_decode_y_256[m_shifted] << shiftback;
@@ -231,11 +228,10 @@ inline void m2D_d_LUT_ET(const morton m, coord& x, coord& y)
     x = 0; y = 0;
     morton        EIGHTBITMASK      = 0x000000ff;
     unsigned long firstbit_location = 0;
-    if(!findFirstSetBit<morton>(m, &firstbit_location)){ return; }
+    if(!findFirstSetBit<morton>(m, &firstbit_location)) { return; }
     unsigned int i         = 0;
     unsigned int shiftback = 0;
-    while(firstbit_location >= i)
-    {
+    while(firstbit_location >= i) {
         morton m_shifted = (m >> i) & EIGHTBITMASK;
         x         |= Morton2D_decode_x_256[(m >> i) & EIGHTBITMASK] << shiftback;
         y         |= Morton2D_decode_x_256[(m >> (i + 1)) & EIGHTBITMASK] << shiftback;
@@ -253,7 +249,7 @@ static inline coord morton2D_GetSecondBits(const morton m)
     x = (x ^ (x >> 2)) & masks[3];
     x = (x ^ (x >> 4)) & masks[2];
     x = (x ^ (x >> 8)) & masks[1];
-    if(sizeof(morton) > 4) x = (x ^ (x >> 16)) & masks[0];
+    if(sizeof(morton) > 4) { x = (x ^ (x >> 16)) & masks[0]; }
     return static_cast<coord>(x);
 }
 
@@ -272,8 +268,7 @@ inline void m2D_d_for(const morton m, coord& x, coord& y)
 {
     x = 0; y = 0;
     unsigned int checkbits = sizeof(morton) * 4;
-    for(unsigned int i = 0; i <= checkbits; ++i)
-    {
+    for(unsigned int i = 0; i <= checkbits; ++i) {
         morton       selector       = 1;
         unsigned int shift_selector = 2 * i;
         x |= (m & (selector << shift_selector)) >> i;
@@ -288,10 +283,9 @@ inline void m2D_d_for_ET(const morton m, coord& x, coord& y)
     x = 0; y = 0;
     float         defaultbits       = sizeof(morton) * 4;
     unsigned long firstbit_location = 0;
-    if(!findFirstSetBit<morton>(m, &firstbit_location)) return;
+    if(!findFirstSetBit<morton>(m, &firstbit_location)) { return; }
     unsigned int checkbits = static_cast<unsigned int>(min(defaultbits, firstbit_location / 2.0f));
-    for(unsigned int i = 0; i <= checkbits; ++i)
-    {
+    for(unsigned int i = 0; i <= checkbits; ++i) {
         morton       selector       = 1;
         unsigned int shift_selector = 2 * i;
         x |= (m & (selector << shift_selector)) >> i;

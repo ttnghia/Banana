@@ -1,17 +1,21 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//
-//  Copyright (c) 2017 by
-//       __      _     _         _____
-//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _
-//   /  \/ / _` | '_ \| |/ _` |   / /\/ '__| | | |/ _ \| '_ \ / _` |
-//  / /\  / (_| | | | | | (_| |  / /  | |  | |_| | (_) | | | | (_| |
-//  \_\ \/ \__, |_| |_|_|\__,_|  \/   |_|   \__,_|\___/|_| |_|\__, |
-//         |___/                                              |___/
-//
-//  <nghiatruong.vn@gmail.com>
-//  All rights reserved.
-//
+//                                .--,       .--,
+//                               ( (  \.---./  ) )
+//                                '.__/o   o\__.'
+//                                   {=  ^  =}
+//                                    >  -  <
+//     ___________________________.""`-------`"".____________________________
+//    /                                                                      \
+//    \    This file is part of Banana - a graphics programming framework    /
+//    /                    Created: 2017 by Nghia Truong                     \
+//    \                      <nghiatruong.vn@gmail.com>                      /
+//    /                      https://ttnghia.github.io                       \
+//    \                        All rights reserved.                          /
+//    /                                                                      \
+//    \______________________________________________________________________/
+//                                  ___)( )(___
+//                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
@@ -110,8 +114,9 @@ void runImplicitQRSVD(const Int repeat, const Vector<Mat3x3<T> >& tests, const b
         std::cout << std::setprecision(10) << "impQR time: " << this_time << std::endl;
     }
     std::cout << std::setprecision(10) << "impQR Average time: " << total_time / (double)(repeat) << std::endl;
-    if(accuracy_test)
+    if(accuracy_test) {
         testAccuracy(tests, UU, SS, VV);
+    }
 }
 
 template<class T>
@@ -142,8 +147,7 @@ void addIntegerCases(Vector<Mat3x3<T> >& tests, const Int int_range)
             (glm::value_ptr(Z))[i]++;
             tests.push_back(Z);
             i = 0;
-        }
-        else {
+        } else {
             (glm::value_ptr(Z))[i] = -int_range;
             i++;
         }
@@ -185,8 +189,7 @@ void addPerturbationCases(Vector<Mat3x3<T> >& tests, const Int int_range, const 
             (glm::value_ptr(Z))[i]++;
             tests_tmp.push_back(Z);
             i = 0;
-        }
-        else {
+        } else {
             (glm::value_ptr(Z))[i] = -int_range;
             i++;
         }
@@ -362,14 +365,18 @@ void runBenchmark()
         std::cout << std::setprecision(10) << "\n--- float test ---\n" << std::endl;
         if(test_float) {
             Vector<Mat3x3f> tests;
-            if(test_integer)
+            if(test_integer) {
                 addIntegerCases(tests, integer_range);
-            if(test_perturbation)
+            }
+            if(test_perturbation) {
                 addPerturbationCases(tests, integer_range, perturbation_count, float_perturbation);
-            if(test_perturbation_from_identity)
+            }
+            if(test_perturbation_from_identity) {
                 addPerturbationFromIdentityCases(tests, perturbation_from_identity_count, float_perturbation_identity);
-            if(test_random)
+            }
+            if(test_random) {
                 addRandomCases(tests, (float)random_range, number_of_random_cases);
+            }
             if(normalize_matrix) {
                 for(size_t i = 0; i < tests.size(); i++) {
                     float norm = LinaHelpers::norm2(tests[i]);
@@ -379,21 +386,26 @@ void runBenchmark()
                 }
             }
             std::cout << std::setprecision(10) << "\n-----------" << std::endl;
-            if(run_qr)
+            if(run_qr) {
                 runImplicitQRSVD(number_of_repeated_experiments, tests, accuracy_test);
+            }
         }
 
         std::cout << std::setprecision(10) << "\n--- double test ---\n" << std::endl;
         if(test_double) {
             Vector<Mat3x3d> tests;
-            if(test_integer)
+            if(test_integer) {
                 addIntegerCases(tests, integer_range);
-            if(test_perturbation)
+            }
+            if(test_perturbation) {
                 addPerturbationCases(tests, integer_range, perturbation_count, double_perturbation);
-            if(test_perturbation_from_identity)
+            }
+            if(test_perturbation_from_identity) {
                 addPerturbationFromIdentityCases(tests, perturbation_from_identity_count, double_perturbation_identity);
-            if(test_random)
+            }
+            if(test_random) {
                 addRandomCases(tests, (double)random_range, number_of_random_cases);
+            }
             if(normalize_matrix) {
                 for(size_t i = 0; i < tests.size(); i++) {
                     float norm = LinaHelpers::norm2(tests[i]);
@@ -403,8 +415,9 @@ void runBenchmark()
                 }
             }
             std::cout << std::setprecision(10) << "\n-----------" << std::endl;
-            if(run_qr)
+            if(run_qr) {
                 runImplicitQRSVD(number_of_repeated_experiments, tests, accuracy_test);
+            }
         }
     }
 }

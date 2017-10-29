@@ -1,17 +1,21 @@
 ﻿//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//
-//  Copyright (c) 2017 by
-//       __      _     _         _____
-//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _
-//   /  \/ / _` | '_ \| |/ _` |   / /\/ '__| | | |/ _ \| '_ \ / _` |
-//  / /\  / (_| | | | | | (_| |  / /  | |  | |_| | (_) | | | | (_| |
-//  \_\ \/ \__, |_| |_|_|\__,_|  \/   |_|   \__,_|\___/|_| |_|\__, |
-//         |___/                                              |___/
-//
-//  <nghiatruong.vn@gmail.com>
-//  All rights reserved.
-//
+//                                .--,       .--,
+//                               ( (  \.---./  ) )
+//                                '.__/o   o\__.'
+//                                   {=  ^  =}
+//                                    >  -  <
+//     ___________________________.""`-------`"".____________________________
+//    /                                                                      \
+//    \    This file is part of Banana - a graphics programming framework    /
+//    /                    Created: 2017 by Nghia Truong                     \
+//    \                      <nghiatruong.vn@gmail.com>                      /
+//    /                      https://ttnghia.github.io                       \
+//    \                        All rights reserved.                          /
+//    /                                                                      \
+//    \______________________________________________________________________/
+//                                  ___)( )(___
+//                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
@@ -44,10 +48,8 @@ void MeshObject::transformObject(GLfloat scaleX, GLfloat scaleY, GLfloat scaleZ,
 
     ////////////////////////////////////////////////////////////////////////////////
     // rescale
-    if(m_isDataReady)
-    {
-        for(size_t i = 0; i < m_NumVertices; ++i)
-        {
+    if(m_isDataReady) {
+        for(size_t i = 0; i < m_NumVertices; ++i) {
             m_Vertices[i * 3]     = m_Vertices[i * 3] * m_ScaleX + m_TranslateX;
             m_Vertices[i * 3 + 1] = m_Vertices[i * 3 + 1] * m_ScaleX + m_TranslateY;
             m_Vertices[i * 3 + 2] = m_Vertices[i * 3 + 2] * m_ScaleX + m_TranslateZ;
@@ -62,10 +64,8 @@ void MeshObject::setVertices(const std::vector<GLfloat>& vertices)
     m_Vertices.resize(vertices.size());
     std::copy(vertices.begin(), vertices.end(), m_Vertices.begin());
 
-    if(!m_isNoTransformation)
-    {
-        for(size_t i = 0; i < m_NumVertices; ++i)
-        {
+    if(!m_isNoTransformation) {
+        for(size_t i = 0; i < m_NumVertices; ++i) {
             m_Vertices[i * 3]     = m_Vertices[i * 3] * m_ScaleX + m_TranslateX;
             m_Vertices[i * 3 + 1] = m_Vertices[i * 3 + 1] * m_ScaleX + m_TranslateY;
             m_Vertices[i * 3 + 2] = m_Vertices[i * 3 + 2] * m_ScaleX + m_TranslateZ;
@@ -82,10 +82,8 @@ void MeshObject::setVertices(void* vertexData, size_t dataSize)
     m_Vertices.resize(m_NumVertices * 3);
     memcpy(m_Vertices.data(), vertexData, dataSize);
 
-    if(!m_isNoTransformation)
-    {
-        for(size_t i = 0; i < m_NumVertices; ++i)
-        {
+    if(!m_isNoTransformation) {
+        for(size_t i = 0; i < m_NumVertices; ++i) {
             m_Vertices[i * 3]     = m_Vertices[i * 3] * m_ScaleX + m_TranslateX;
             m_Vertices[i * 3 + 1] = m_Vertices[i * 3 + 1] * m_ScaleX + m_TranslateY;
             m_Vertices[i * 3 + 2] = m_Vertices[i * 3 + 2] * m_ScaleX + m_TranslateZ;
@@ -118,11 +116,13 @@ void MeshObject::setVertexNormal(void* normalData, size_t dataSize)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MeshObject::inverseVertexNormal()
 {
-    if(!m_hasVertexNormal)
+    if(!m_hasVertexNormal) {
         return;
+    }
 
-    for(size_t i = 0; i < m_VertexNormals.size(); ++i)
+    for(size_t i = 0; i < m_VertexNormals.size(); ++i) {
         m_VertexNormals[i] *= -1.0;
+    }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -155,11 +155,11 @@ void MeshObject::setVertexTexCoord(void* texData, size_t dataSize)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MeshObject::scaleVertexTexCoord(GLfloat scaleX, GLfloat scaleY)
 {
-    if(!m_hasVertexTexCoord)
+    if(!m_hasVertexTexCoord) {
         return;
+    }
 
-    for(size_t i = 0; i < m_NumVertices; ++i)
-    {
+    for(size_t i = 0; i < m_NumVertices; ++i) {
         m_VertexTexCoords[i * 2]     *= scaleX;
         m_VertexTexCoords[i * 2 + 1] *= scaleY;
     }
@@ -195,14 +195,16 @@ void MeshObject::setVertexColor(void* colorData, size_t dataSize)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MeshObject::generateRandomVertexColor()
 {
-    if(!m_isDataReady)
+    if(!m_isDataReady) {
         return;
+    }
 
     m_hasVertexColor = true;
     m_VertexColors.resize(m_Vertices.size());
 
-    for(size_t i = 0; i < m_VertexColors.size(); ++i)
+    for(size_t i = 0; i < m_VertexColors.size(); ++i) {
         m_VertexColors[i] = (GLfloat)rand() / (GLfloat)RAND_MAX;
+    }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -245,38 +247,29 @@ void MeshObject::setCullFaceMode(GLenum cullFaceMode)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MeshObject::draw()
 {
-    if(!m_isDataReady)
+    if(!m_isDataReady) {
         return;
+    }
 
-    if(!m_isGLDataReady)
-    {
+    if(!m_isGLDataReady) {
         createBuffers();
         uploadDataToGPU();
     }
 
-    if(m_CullFaceMode == GL_NONE)
-    {
+    if(m_CullFaceMode == GL_NONE) {
         glCall(glDisable(GL_CULL_FACE));
-    }
-    else
-    {
+    } else {
         glCall(glEnable(GL_CULL_FACE));
         glCall(glCullFace(m_CullFaceMode));
     }
 
-    if(m_hasIndexBuffer)
-    {
-        if(m_isMeshVeryLarge)
-        {
+    if(m_hasIndexBuffer) {
+        if(m_isMeshVeryLarge) {
             glCall(glDrawElements(m_DataTopology, static_cast<GLsizei>(m_IndexListLong.size()), GL_UNSIGNED_INT, 0));
-        }
-        else
-        {
+        } else {
             glCall(glDrawElements(m_DataTopology, static_cast<GLsizei>(m_IndexList.size()), GL_UNSIGNED_SHORT, 0));
         }
-    }
-    else
-    {
+    } else {
         glCall(glDrawArrays(m_DataTopology, 0, static_cast<GLsizei>(m_NumVertices)));
     }
 }
@@ -284,13 +277,11 @@ void MeshObject::draw()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MeshObject::uploadDataToGPU()
 {
-    if(!m_isDataReady)
-    {
+    if(!m_isDataReady) {
         return;
     }
 
-    if(!m_isBufferCreated)
-    {
+    if(!m_isBufferCreated) {
         createBuffers();
     }
 
@@ -298,30 +289,26 @@ void MeshObject::uploadDataToGPU()
     size_t dataSize = sizeof(GLfloat) * m_Vertices.size();
     m_VertexBuffer->uploadDataAsync((GLvoid*)m_Vertices.data(), 0, dataSize);
 
-    if(m_hasVertexNormal)
-    {
+    if(m_hasVertexNormal) {
         assert(m_VertexNormals.size() == m_NumVertices * 3);
         dataSize = sizeof(GLfloat) * m_VertexNormals.size();
         m_NormalBuffer->uploadDataAsync((GLvoid*)m_VertexNormals.data(), 0, dataSize);
     }
 
-    if(m_hasVertexTexCoord)
-    {
+    if(m_hasVertexTexCoord) {
         assert(m_VertexTexCoords.size() == m_NumVertices * 2);
         dataSize = sizeof(GLfloat) * m_VertexTexCoords.size();
         m_TexCoordBuffer->uploadDataAsync((GLvoid*)m_VertexTexCoords.data(), 0, dataSize);
     }
 
-    if(m_hasVertexColor)
-    {
+    if(m_hasVertexColor) {
         assert(m_VertexColors.size() == m_NumVertices * 3);
         dataSize = sizeof(GLfloat) * m_VertexColors.size();
         m_VertexColorBuffer->uploadDataAsync((GLvoid*)m_VertexColors.data(), 0, dataSize);
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    if(m_hasIndexBuffer)
-    {
+    if(m_hasIndexBuffer) {
         assert(m_IndexBuffer != nullptr);
 
         dataSize = m_isMeshVeryLarge ? sizeof(GLuint) * m_IndexListLong.size() :
@@ -450,38 +437,35 @@ bool MeshObject::hasIndexBuffer() const
 void MeshObject::createBuffers()
 {
     // create vertex array buffer
-    if(!m_isDataReady)
+    if(!m_isDataReady) {
         return;
+    }
 
     size_t vBufferSize = sizeof(GLfloat) * m_Vertices.size();
     m_VertexBuffer = std::make_shared<OpenGLBuffer>();
     m_VertexBuffer->createBuffer(GL_ARRAY_BUFFER, vBufferSize);
 
 
-    if(m_hasVertexNormal)
-    {
+    if(m_hasVertexNormal) {
         vBufferSize    = sizeof(GLfloat) * m_VertexNormals.size();
         m_NormalBuffer = std::make_shared<OpenGLBuffer>();
         m_NormalBuffer->createBuffer(GL_ARRAY_BUFFER, vBufferSize);
     }
 
-    if(m_hasVertexTexCoord)
-    {
+    if(m_hasVertexTexCoord) {
         vBufferSize      = sizeof(GLfloat) * m_VertexTexCoords.size();
         m_TexCoordBuffer = std::make_shared<OpenGLBuffer>();
         m_TexCoordBuffer->createBuffer(GL_ARRAY_BUFFER, vBufferSize);
     }
 
-    if(m_hasVertexColor)
-    {
+    if(m_hasVertexColor) {
         vBufferSize         = sizeof(GLfloat) * m_VertexColors.size();
         m_VertexColorBuffer = std::make_shared<OpenGLBuffer>();
         m_VertexColorBuffer->createBuffer(GL_ARRAY_BUFFER, vBufferSize);
     }
 
     // create element array buffer
-    if(m_hasIndexBuffer)
-    {
+    if(m_hasIndexBuffer) {
         size_t iBufferSize = m_isMeshVeryLarge ? sizeof(GLuint) * m_IndexListLong.size() :
                              sizeof(GLushort) * m_IndexList.size();
 

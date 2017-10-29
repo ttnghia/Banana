@@ -1,17 +1,21 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//
-//  Copyright (c) 2017 by
-//       __      _     _         _____
-//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _
-//   /  \/ / _` | '_ \| |/ _` |   / /\/ '__| | | |/ _ \| '_ \ / _` |
-//  / /\  / (_| | | | | | (_| |  / /  | |  | |_| | (_) | | | | (_| |
-//  \_\ \/ \__, |_| |_|_|\__,_|  \/   |_|   \__,_|\___/|_| |_|\__, |
-//         |___/                                              |___/
-//
-//  <nghiatruong.vn@gmail.com>
-//  All rights reserved.
-//
+//                                .--,       .--,
+//                               ( (  \.---./  ) )
+//                                '.__/o   o\__.'
+//                                   {=  ^  =}
+//                                    >  -  <
+//     ___________________________.""`-------`"".____________________________
+//    /                                                                      \
+//    \    This file is part of Banana - a graphics programming framework    /
+//    /                    Created: 2017 by Nghia Truong                     \
+//    \                      <nghiatruong.vn@gmail.com>                      /
+//    /                      https://ttnghia.github.io                       \
+//    \                        All rights reserved.                          /
+//    /                                                                      \
+//    \______________________________________________________________________/
+//                                  ___)( )(___
+//                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
@@ -70,8 +74,7 @@ void OpenGLWidget::setDefaultSize(QSize size)
 void OpenGLWidget::setClearColor(const Vec3f& color)
 {
     m_ClearColor = color;
-    if(isValid())
-    {
+    if(isValid()) {
         makeCurrent();
         resetClearColor();
         doneCurrent();
@@ -87,8 +90,9 @@ void OpenGLWidget::setViewFrustum(float fov, float nearZ, float farZ)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 bool OpenGLWidget::exportScreenToImage(int frame)
 {
-    if(m_CapturePath.isEmpty())
+    if(m_CapturePath.isEmpty()) {
         return false;
+    }
 
     makeCurrent();
     glCall(glReadPixels(0, 0, width(), height(), GL_RGB, GL_UNSIGNED_BYTE, m_CaptureImage->bits()));
@@ -121,22 +125,16 @@ QSize OpenGLWidget::minimumSizeHint() const
 void OpenGLWidget::mousePressEvent(QMouseEvent* ev)
 {
 #ifdef __BNN_USE_ANT_TWEAK_BAR
-    if(TwMousePressQt(this, ev))
-    {
+    if(TwMousePressQt(this, ev)) {
         return;
     }
 #endif
 
-    if(ev->button() == Qt::LeftButton)
-    {
+    if(ev->button() == Qt::LeftButton) {
         m_MouseButtonPressed = MouseButton::LeftButton;
-    }
-    else if(ev->button() == Qt::RightButton)
-    {
+    } else if(ev->button() == Qt::RightButton) {
         m_MouseButtonPressed = MouseButton::RightButton;
-    }
-    else
-    {
+    } else {
         m_MouseButtonPressed = MouseButton::NoButton;
     }
 
@@ -147,8 +145,7 @@ void OpenGLWidget::mousePressEvent(QMouseEvent* ev)
 void OpenGLWidget::mouseReleaseEvent(QMouseEvent* event)
 {
 #ifdef __BNN_USE_ANT_TWEAK_BAR
-    if(TwMouseReleaseQt(this, event))
-    {
+    if(TwMouseReleaseQt(this, event)) {
         return;
     }
 #else
@@ -162,24 +159,17 @@ void OpenGLWidget::mouseReleaseEvent(QMouseEvent* event)
 void OpenGLWidget::mouseMoveEvent(QMouseEvent* ev)
 {
 #ifdef __BNN_USE_ANT_TWEAK_BAR
-    if(TwMouseMotionQt(this, ev))
-    {
+    if(TwMouseMotionQt(this, ev)) {
         return;
     }
 #endif
 
-    if(m_MouseButtonPressed == MouseButton::LeftButton)
-    {
+    if(m_MouseButtonPressed == MouseButton::LeftButton) {
         m_Camera->rotate_by_mouse(ev->x(), ev->y());
-    }
-    else if(m_MouseButtonPressed == MouseButton::RightButton)
-    {
-        if(m_SpecialKeyPressed == SpecialKey::NoKey)
-        {
+    } else if(m_MouseButtonPressed == MouseButton::RightButton) {
+        if(m_SpecialKeyPressed == SpecialKey::NoKey) {
             m_Camera->translate_by_mouse(ev->x(), ev->y());
-        }
-        else
-        {
+        } else {
             m_Camera->zoom_by_mouse(ev->x(), ev->y());
         }
     }
@@ -188,8 +178,7 @@ void OpenGLWidget::mouseMoveEvent(QMouseEvent* ev)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLWidget::wheelEvent(QWheelEvent* ev)
 {
-    if(ev->angleDelta().isNull())
-    {
+    if(ev->angleDelta().isNull()) {
         return;
     }
 
@@ -208,14 +197,12 @@ void OpenGLWidget::showEvent(QShowEvent*)
 void OpenGLWidget::keyPressEvent(QKeyEvent* ev)
 {
 #ifdef __BNN_USE_ANT_TWEAK_BAR
-    if(TwKeyPressQt(ev))
-    {
+    if(TwKeyPressQt(ev)) {
         return;
     }
 #endif
 
-    switch(ev->key())
-    {
+    switch(ev->key()) {
         case Qt::Key_Shift:
             m_SpecialKeyPressed = SpecialKey::ShiftKey;
             break;
@@ -257,8 +244,7 @@ void OpenGLWidget::keyPressEvent(QKeyEvent* ev)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLWidget::keyReleaseEvent(QKeyEvent*)
 {
-    if(m_SpecialKeyPressed != SpecialKey::NoKey)
-    {
+    if(m_SpecialKeyPressed != SpecialKey::NoKey) {
         m_SpecialKeyPressed = SpecialKey::NoKey;
     }
 }
@@ -333,8 +319,7 @@ void OpenGLWidget::paintGL()
 void OpenGLWidget::uploadCameraData()
 {
     m_Camera->updateCameraMatrices();
-    if(m_Camera->isCameraChanged())
-    {
+    if(m_Camera->isCameraChanged()) {
         m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getViewMatrix()),              0,                     sizeof(glm::mat4));
         m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getProjectionMatrix()),        sizeof(glm::mat4),     sizeof(glm::mat4));
         m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getInverseViewMatrix()),       2 * sizeof(glm::mat4), sizeof(glm::mat4));
@@ -355,13 +340,13 @@ void OpenGLWidget::resetClearColor()
 void OpenGLWidget::checkGLErrors()
 {
     GLenum glStatus = glGetError();
-    if(glStatus == GL_NO_ERROR)
+    if(glStatus == GL_NO_ERROR) {
         return;
+    }
 
     QString glErrStr = "OpenGL error: ";
 
-    switch(glStatus)
-    {
+    switch(glStatus) {
         case GL_INVALID_ENUM:
             glErrStr += "Invalid enum.";
             break;
@@ -403,8 +388,7 @@ void OpenGLWidget::checkGLVersion()
     int major = verStr.left(verStr.indexOf(".")).toInt();
     int minor = verStr.mid(verStr.indexOf(".") + 1, 1).toInt();
 
-    if(!(major >= 4 && minor >= 1))
-    {
+    if(!(major >= 4 && minor >= 1)) {
         QMessageBox msgBox(QMessageBox::Critical, "Error",
                            QString("Your OpenGL version is %1.%2 (Required: OpenGL >= 4.1).")
                                .arg(major).arg(minor));
@@ -421,10 +405,8 @@ void OpenGLWidget::checkGLExtensions(QVector<QString> extensions)
 
     bool check = true;
 
-    for(QString ext : extensions)
-    {
-        if(!extStr.contains(ext))
-        {
+    for(QString ext : extensions) {
+        if(!extStr.contains(ext)) {
             QMessageBox msgBox(QMessageBox::Critical, "Error",
                                QString("Extension %1 is not supported.")
                                    .arg(ext));
@@ -433,8 +415,7 @@ void OpenGLWidget::checkGLExtensions(QVector<QString> extensions)
         }
     }
 
-    if(!check)
-    {
+    if(!check) {
         exit(EXIT_FAILURE);
     }
 }

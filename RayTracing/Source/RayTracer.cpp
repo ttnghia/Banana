@@ -1,17 +1,21 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//
-//  Copyright (c) 2017 by
-//       __      _     _         _____
-//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _
-//   /  \/ / _` | '_ \| |/ _` |   / /\/ '__| | | |/ _ \| '_ \ / _` |
-//  / /\  / (_| | | | | | (_| |  / /  | |  | |_| | (_) | | | | (_| |
-//  \_\ \/ \__, |_| |_|_|\__,_|  \/   |_|   \__,_|\___/|_| |_|\__, |
-//         |___/                                              |___/
-//
-//  <nghiatruong.vn@gmail.com>
-//  All rights reserved.
-//
+//                                .--,       .--,
+//                               ( (  \.---./  ) )
+//                                '.__/o   o\__.'
+//                                   {=  ^  =}
+//                                    >  -  <
+//     ___________________________.""`-------`"".____________________________
+//    /                                                                      \
+//    \    This file is part of Banana - a graphics programming framework    /
+//    /                    Created: 2017 by Nghia Truong                     \
+//    \                      <nghiatruong.vn@gmail.com>                      /
+//    /                      https://ttnghia.github.io                       \
+//    \                        All rights reserved.                          /
+//    /                                                                      \
+//    \______________________________________________________________________/
+//                                  ___)( )(___
+//                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
@@ -62,8 +66,7 @@ void RayTracer::resizeViewport(int width, int height)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void RayTracer::destroyOptiXContext()
 {
-    if(m_OptiXContext)
-    {
+    if(m_OptiXContext) {
         m_OptiXContext->destroy();
         m_OptiXContext = 0;
     }
@@ -88,8 +91,7 @@ void RayTracer::getOutputAsTexture(const std::shared_ptr<OpenGLTexture>& texture
     const unsigned int pboId = getOutputBufferOID();
     assert(pboId != 0);
 
-    if(!texture->isCreated())
-    {
+    if(!texture->isCreated()) {
         texture->createTexture(GL_TEXTURE_2D);
         texture->setSimplestTexture();
     }
@@ -99,25 +101,17 @@ void RayTracer::getOutputAsTexture(const std::shared_ptr<OpenGLTexture>& texture
     glCall(glBindBuffer(GL_PIXEL_UNPACK_BUFFER, pboId));
 
     RTsize elmtSize = m_OutBuffer->getElementSize();
-    if(elmtSize % 8 == 0)
-    {
+    if(elmtSize % 8 == 0) {
         glCall(glPixelStorei(GL_UNPACK_ALIGNMENT, 8));
-    }
-    else if(elmtSize % 4 == 0)
-    {
+    } else if(elmtSize % 4 == 0) {
         glCall(glPixelStorei(GL_UNPACK_ALIGNMENT, 4));
-    }
-    else if(elmtSize % 2 == 0)
-    {
+    } else if(elmtSize % 2 == 0) {
         glCall(glPixelStorei(GL_UNPACK_ALIGNMENT, 2));
-    }
-    else
-    {
+    } else {
         glCall(glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
     }
 
-    switch(m_OutBuffer->getFormat())
-    {
+    switch(m_OutBuffer->getFormat()) {
         case RT_FORMAT_UNSIGNED_BYTE4:
             glCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, m_Width, m_Height, 0, GL_BGRA, GL_UNSIGNED_BYTE, 0));
             break;
@@ -151,16 +145,13 @@ void RayTracer::getOutputAsByteArray(unsigned char* data)
     GLvoid* imageData;
     RT_CHECK_ERROR(rtBufferMap(m_OutBuffer->get(), &imageData));
 
-    switch(m_OutBuffer->getFormat())
-    {
+    switch(m_OutBuffer->getFormat()) {
         case RT_FORMAT_UNSIGNED_BYTE4:
             // Data is BGRA and upside down, so we need to swizzle to RGB
-            for(int j = m_Height - 1; j >= 0; --j)
-            {
+            for(int j = m_Height - 1; j >= 0; --j) {
                 unsigned char* dst = &data[0] + (3 * m_Width * (m_Height - 1 - j));
                 unsigned char* src = ((unsigned char*)imageData) + (4 * m_Width * j);
-                for(int i = 0; i < m_Width; i++)
-                {
+                for(int i = 0; i < m_Width; i++) {
                     *dst++ = *(src + 2);
                     *dst++ = *(src + 1);
                     *dst++ = *(src + 0);
@@ -171,12 +162,10 @@ void RayTracer::getOutputAsByteArray(unsigned char* data)
 
         case RT_FORMAT_FLOAT:
             // This buffer is upside down
-            for(int j = m_Height - 1; j >= 0; --j)
-            {
+            for(int j = m_Height - 1; j >= 0; --j) {
                 unsigned char* dst = &data[0] + m_Width * (m_Height - 1 - j);
                 float*         src = ((float*)imageData) + (3 * m_Width * j);
-                for(int i = 0; i < m_Width; i++)
-                {
+                for(int i = 0; i < m_Width; i++) {
                     int          P          = static_cast<int>((*src++) * 255.0f);
                     unsigned int clampedVal = P < 0 ? 0 : P > 0xff ? 0xff : P;
 
@@ -190,14 +179,11 @@ void RayTracer::getOutputAsByteArray(unsigned char* data)
 
         case RT_FORMAT_FLOAT3:
             // This buffer is upside down
-            for(int j = m_Height - 1; j >= 0; --j)
-            {
+            for(int j = m_Height - 1; j >= 0; --j) {
                 unsigned char* dst = &data[0] + (3 * m_Width * (m_Height - 1 - j));
                 float*         src = ((float*)imageData) + (3 * m_Width * j);
-                for(int i = 0; i < m_Width; i++)
-                {
-                    for(int elem = 0; elem < 3; ++elem)
-                    {
+                for(int i = 0; i < m_Width; i++) {
+                    for(int elem = 0; elem < 3; ++elem) {
                         int          P          = static_cast<int>((*src++) * 255.0f);
                         unsigned int clampedVal = P < 0 ? 0 : P > 0xff ? 0xff : P;
                         *dst++ = static_cast<unsigned char>(clampedVal);
@@ -208,14 +194,11 @@ void RayTracer::getOutputAsByteArray(unsigned char* data)
 
         case RT_FORMAT_FLOAT4:
             // This buffer is upside down
-            for(int j = m_Height - 1; j >= 0; --j)
-            {
+            for(int j = m_Height - 1; j >= 0; --j) {
                 unsigned char* dst = &data[0] + (3 * m_Width * (m_Height - 1 - j));
                 float*         src = ((float*)imageData) + (4 * m_Width * j);
-                for(int i = 0; i < m_Width; i++)
-                {
-                    for(int elem = 0; elem < 3; ++elem)
-                    {
+                for(int i = 0; i < m_Width; i++) {
+                    for(int elem = 0; elem < 3; ++elem) {
                         int          P          = static_cast<int>((*src++) * 255.0f);
                         unsigned int clampedVal = P < 0 ? 0 : P > 0xff ? 0xff : P;
                         *dst++ = static_cast<unsigned char>(clampedVal);
@@ -244,8 +227,9 @@ void RayTracer::validateContext()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 bool RayTracer::updateCamera()
 {
-    if(!m_Camera->isCameraChanged())
+    if(!m_Camera->isCameraChanged()) {
         return false;
+    }
 
     static optix::float3 eye;
     static optix::float3 u;
@@ -264,11 +248,11 @@ bool RayTracer::updateCamera()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 optix::TextureSampler RayTracer::createTexSampler(const std::string& texFile, bool bUseCache /*= true*/)
 {
-    if(bUseCache)
-    {
+    if(bUseCache) {
         optix::TextureSampler sampler = m_TexSamplers[texFile];
-        if(sampler != 0)
+        if(sampler != 0) {
             return sampler;
+        }
     }
 
     optix::TextureSampler sampler = m_OptiXContext->createTextureSampler();
@@ -299,8 +283,9 @@ optix::TextureSampler RayTracer::getDummyTexSampler(const glm::vec3& defaultColo
 {
     static optix::TextureSampler sampler = m_OptiXContext->createTextureSampler();
     static bool                  created = false;
-    if(created)
+    if(created) {
         return sampler;
+    }
 
     ////////////////////////////////////////////////////////////////////////////////
     sampler->setWrapMode(0, RT_WRAP_REPEAT);
@@ -334,8 +319,7 @@ void RayTracer::resizeBuffer(optix::Buffer buffer, int width, int height)
     buffer->setSize(width, height);
 
     GLuint pboId = buffer->getGLBOId();
-    if(pboId)
-    {
+    if(pboId) {
         buffer->unregisterGLBuffer();
         glBindBuffer(GL_PIXEL_UNPACK_BUFFER, pboId);
         glBufferData(GL_PIXEL_UNPACK_BUFFER, buffer->getElementSize() * width * height, 0, GL_STREAM_DRAW);

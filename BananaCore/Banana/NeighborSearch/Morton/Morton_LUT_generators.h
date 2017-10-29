@@ -1,17 +1,21 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//
-//  Copyright (c) 2017 by
-//       __      _     _         _____
-//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _
-//   /  \/ / _` | '_ \| |/ _` |   / /\/ '__| | | |/ _ \| '_ \ / _` |
-//  / /\  / (_| | | | | | (_| |  / /  | |  | |_| | (_) | | | | (_| |
-//  \_\ \/ \__, |_| |_|_|\__,_|  \/   |_|   \__,_|\___/|_| |_|\__, |
-//         |___/                                              |___/
-//
-//  <nghiatruong.vn@gmail.com>
-//  All rights reserved.
-//
+//                                .--,       .--,
+//                               ( (  \.---./  ) )
+//                                '.__/o   o\__.'
+//                                   {=  ^  =}
+//                                    >  -  <
+//     ___________________________.""`-------`"".____________________________
+//    /                                                                      \
+//    \    This file is part of Banana - a graphics programming framework    /
+//    /                    Created: 2017 by Nghia Truong                     \
+//    \                      <nghiatruong.vn@gmail.com>                      /
+//    /                      https://ttnghia.github.io                       \
+//    \                        All rights reserved.                          /
+//    /                                                                      \
+//    \______________________________________________________________________/
+//                                  ___)( )(___
+//                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
@@ -24,9 +28,8 @@
 template<typename element>
 void printTable(const element* table, size_t howmany, unsigned int splitat)
 {
-    for(size_t i = 0; i < howmany; i++)
-    {
-        if(i % splitat == 0){ cout << endl; }
+    for(size_t i = 0; i < howmany; i++) {
+        if(i % splitat == 0) { cout << endl; }
         printf("%u ,", static_cast<unsigned int>(table[i]));
     }
     cout << endl;
@@ -38,14 +41,12 @@ void generate2D_EncodeLUT(size_t how_many_bits, uint_fast16_t*& x_table, uint_fa
     x_table = (uint_fast16_t*)malloc(total * sizeof(uint_fast16_t));
     y_table = (uint_fast16_t*)malloc(total * sizeof(uint_fast16_t));
 
-    for(uint_fast32_t i = 0; i < total; i++)
-    {
+    for(uint_fast32_t i = 0; i < total; i++) {
         x_table[i] = (uint_fast16_t)m2D_e_magicbits<uint_fast32_t, uint_fast16_t>(i, 0);
         y_table[i] = (uint_fast16_t)m2D_e_magicbits<uint_fast32_t, uint_fast16_t>(0, i);
     }
 
-    if(print_tables)
-    {
+    if(print_tables) {
         cout << "X Table " << endl;
         printTable<uint_fast32_t>(x_table, total, 8);
         cout << "Y Table " << endl;
@@ -60,13 +61,11 @@ void generate2D_DecodeLUT(size_t how_many_bits, uint_fast8_t*& x_table, uint_fas
     y_table = (uint_fast8_t*)malloc(total * sizeof(uint_fast8_t));
 
     //generate tables
-    for(size_t i = 0; i < total; i++)
-    {
+    for(size_t i = 0; i < total; i++) {
         m2D_d_for(i, x_table[i], y_table[i]);
     }
 
-    if(print_tables)
-    {
+    if(print_tables) {
         cout << "X Table " << endl;
         printTable<uint_fast8_t>(x_table, total, 16);
         cout << "Y Table " << endl;
@@ -82,15 +81,13 @@ void generate3D_EncodeLUT(size_t how_many_bits, uint_fast32_t*& x_table, uint_fa
     y_table = (uint_fast32_t*)malloc(total * sizeof(uint_fast32_t));
     z_table = (uint_fast32_t*)malloc(total * sizeof(uint_fast32_t));
 
-    for(uint_fast32_t i = 0; i < total; i++)
-    {
+    for(uint_fast32_t i = 0; i < total; i++) {
         x_table[i] = (uint_fast32_t)m3D_e_magicbits<uint_fast32_t, uint_fast16_t>(i, 0, 0);
         y_table[i] = (uint_fast32_t)m3D_e_magicbits<uint_fast32_t, uint_fast16_t>(0, i, 0);
         z_table[i] = (uint_fast32_t)m3D_e_magicbits<uint_fast32_t, uint_fast16_t>(0, 0, i);
     }
 
-    if(print_tables)
-    {
+    if(print_tables) {
         cout << "X Table " << endl;
         printTable<uint_fast32_t>(x_table, total, 8);
         cout << "Y Table " << endl;
@@ -110,15 +107,13 @@ void generate3D_DecodeLUT(size_t how_many_bits, uint_fast8_t*& x_table, uint_fas
     z_table = (uint_fast8_t*)malloc(total * sizeof(uint_fast8_t));
 
     //generate tables
-    for(size_t i = 0; i < total; i++)
-    {
+    for(size_t i = 0; i < total; i++) {
         x_table[i] = morton3D_GetThirdBits<uint_fast64_t, uint_fast32_t>(i);
         y_table[i] = morton3D_GetThirdBits<uint_fast64_t, uint_fast32_t>(i >> 1);
         z_table[i] = morton3D_GetThirdBits<uint_fast64_t, uint_fast32_t>(i >> 2);
     }
 
-    if(print_tables)
-    {
+    if(print_tables) {
         cout << "X Table " << endl;
         printTable<uint_fast8_t>(x_table, total, 16);
         cout << "Y Table " << endl;

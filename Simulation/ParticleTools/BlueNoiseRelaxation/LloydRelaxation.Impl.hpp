@@ -1,19 +1,24 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//
-//  Copyright (c) 2017 by
-//       __      _     _         _____
-//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _
-//   /  \/ / _` | '_ \| |/ _` |   / /\/ '__| | | |/ _ \| '_ \ / _` |
-//  / /\  / (_| | | | | | (_| |  / /  | |  | |_| | (_) | | | | (_| |
-//  \_\ \/ \__, |_| |_|_|\__,_|  \/   |_|   \__,_|\___/|_| |_|\__, |
-//         |___/                                              |___/
-//
-//  <nghiatruong.vn@gmail.com>
-//  All rights reserved.
-//
+//                                .--,       .--,
+//                               ( (  \.---./  ) )
+//                                '.__/o   o\__.'
+//                                   {=  ^  =}
+//                                    >  -  <
+//     ___________________________.""`-------`"".____________________________
+//    /                                                                      \
+//    \    This file is part of Banana - a graphics programming framework    /
+//    /                    Created: 2017 by Nghia Truong                     \
+//    \                      <nghiatruong.vn@gmail.com>                      /
+//    /                      https://ttnghia.github.io                       \
+//    \                        All rights reserved.                          /
+//    /                                                                      \
+//    \______________________________________________________________________/
+//                                  ___)( )(___
+//                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
 template<class Real>
 LloydRelaxation<Real>::LloydRelaxation(const Vec3<Real>& domainBMin, const Vec3<Real>& domainBMax, Real particleRadius) :
     m_DomainBMin(m_DomainBMin), m_DomainBMax(m_DomainBMax), m_ParticleRadius(particleRadius),
@@ -75,8 +80,7 @@ void LloydRelaxation<Real >::computeLloydClusters(std::vector<Vec3<Real> >& samp
     clusterBackup.resize(clusterCenters.size());
     movingDistance.resize(clusterCenters.size());
 
-    for(int iter = 0; iter < maxIterations; ++iter)
-    {
+    for(int iter = 0; iter < maxIterations; ++iter) {
         m_Logger.printLog("Relaxation iteration: " + std::to_string(iter));
         size_t numClusters = clusterCenters.size();
 
@@ -93,19 +97,15 @@ void LloydRelaxation<Real >::computeLloydClusters(std::vector<Vec3<Real> >& samp
         tbb::parallel_for(tbb::blocked_range<size_t>(0, numClusters),
                           [&](tbb::blocked_range<size_t> r)
                           {
-                              for(size_t clusterIdx = r.begin(); clusterIdx != r.end(); ++clusterIdx)
-                              {
+                              for(size_t clusterIdx = r.begin(); clusterIdx != r.end(); ++clusterIdx) {
                                   __BNN_ASSERT(samplesInCluster[clusterIdx].size() > 0);
 
                                   Vec3<Real>& center = clusterCenters[clusterIdx];
 
-                                  if(bUseCandidateCenters)
-                                  {
+                                  if(bUseCandidateCenters) {
                                       size_t medianIdx = computeMedian(samples, samplesInCluster[clusterIdx]);
                                       center = samples[samplesInCluster[clusterIdx][medianIdx]];
-                                  }
-                                  else
-                                  {
+                                  } else {
                                       computeMean(samples, samplesInCluster[clusterIdx], center);
                                   }
 
@@ -123,8 +123,7 @@ void LloydRelaxation<Real >::computeLloydClusters(std::vector<Vec3<Real> >& samp
         m_Logger.printLog("Max moving distance in this iteration: " + NumberHelpers::formatWithCommas(maxMovingPercentage) + "% of particle radius");
 
         ////////////////////////////////////////////////////////////////////////////////
-        if((iter % m_NumCheckIterations) == 0)
-        {
+        if((iter % m_NumCheckIterations) == 0) {
             minClusterDistance = computeMinDistance(clusterCenters, numOverlapped);
             m_Logger.newLine();
             m_Logger.printLog("Min distance: " + NumberHelpers::formatToScientific(minClusterDistance) +
@@ -133,8 +132,7 @@ void LloydRelaxation<Real >::computeLloydClusters(std::vector<Vec3<Real> >& samp
             m_Logger.newLine();
         }
 
-        if((iter + 1) % 10 == 0 && maxMovingPercentage > 10)
-        {
+        if((iter + 1) % 10 == 0 && maxMovingPercentage > 10) {
             sortSamples(samples, samplesInCluster);
         }
 
@@ -142,22 +140,18 @@ void LloydRelaxation<Real >::computeLloydClusters(std::vector<Vec3<Real> >& samp
         m_Logger.printMemoryUsage();
         m_Logger.newLine();
 
-        if(iter > minIterations && maxMovingPercentage < m_MovingThreshold)
-        {
-            if(numOverlapped == 0)
-            {
+        if(iter > minIterations && maxMovingPercentage < m_MovingThreshold) {
+            if(numOverlapped == 0) {
                 converged = true;
                 break;
             }
 
-            if(numOverlapped > 0)
-            {
+            if(numOverlapped > 0) {
                 UInt numRemoved = removeOverlappedParticles(clusterCenters);
                 m_Logger.printLog("Removed particles: " + NumberHelpers::formatWithCommas(numRemoved) + " =======================================");
                 m_Logger.newLine();
 
-                if(numRemoved == 0)
-                {
+                if(numRemoved == 0) {
                     // if cannot remove any particles, exit...
                     break;
                 }
@@ -172,12 +166,9 @@ void LloydRelaxation<Real >::computeLloydClusters(std::vector<Vec3<Real> >& samp
     m_Logger.printLog("Max moving distance in last iteration: " + NumberHelpers::formatWithCommas(maxMovingPercentage) + "% of particle radius");
     m_Logger.printLog("Number of overlapped particles: " + NumberHelpers::formatWithCommas(numOverlapped));
 
-    if(converged)
-    {
+    if(converged) {
         m_Logger.printLog("Relaxation converged.");
-    }
-    else
-    {
+    } else {
         m_Logger.printLog("Relaxation did NOT converge.");
     }
 
@@ -213,8 +204,7 @@ void LloydRelaxation<Real >::computeWeightedLloydClusters(const std::vector<Real
     clusterBackup.resize(clusterCenters.size());
     movingDistance.resize(clusterCenters.size());
 
-    for(int iter = 0; iter < maxIterations; ++iter)
-    {
+    for(int iter = 0; iter < maxIterations; ++iter) {
         m_Logger.printLog("Relaxation iteration: " + std::to_string(iter));
 
         m_Timer.tick();
@@ -230,18 +220,14 @@ void LloydRelaxation<Real >::computeWeightedLloydClusters(const std::vector<Real
         tbb::parallel_for(tbb::blocked_range<size_t>(0, numClusters),
                           [&](tbb::blocked_range<size_t> r)
                           {
-                              for(size_t clusterIdx = r.begin(); clusterIdx != r.end(); ++clusterIdx)
-                              {
+                              for(size_t clusterIdx = r.begin(); clusterIdx != r.end(); ++clusterIdx) {
                                   __BNN_ASSERT(samplesInCluster[clusterIdx].size() > 0);
                                   Vec3<Real>& center = clusterCenters[clusterIdx];
 
-                                  if(bUseCandidateCenters)
-                                  {
+                                  if(bUseCandidateCenters) {
                                       int medianIdx = computeWeightedMedian(samples, weights, samplesInCluster[clusterIdx]);
                                       center = samples[samplesInCluster[clusterIdx][medianIdx]];
-                                  }
-                                  else
-                                  {
+                                  } else {
                                       computeWeightedMean(samples, weights, samplesInCluster[clusterIdx], center);
                                   }
 
@@ -257,8 +243,7 @@ void LloydRelaxation<Real >::computeWeightedLloydClusters(const std::vector<Real
         maxMovingPercentage = sqrt(md2.result) / m_ParticleRadius * 100.0;
         m_Logger.printLog("Max moving distance in this iteration: " + NumberHelpers::formatWithCommas(maxMovingPercentage) + "% of particle radius");
 
-        if(iter % m_NumCheckIterations == 0)
-        {
+        if(iter % m_NumCheckIterations == 0) {
             minClusterDistance = computeMinDistance(clusterCenters, numOverlapped);
             m_Logger.newLine();
             m_Logger.printLog("Min distance: " + NumberHelpers::formatToScientific(minClusterDistance) +
@@ -267,8 +252,7 @@ void LloydRelaxation<Real >::computeWeightedLloydClusters(const std::vector<Real
             m_Logger.newLine();
         }
 
-        if((iter + 1) % 10 == 0 && maxMovingPercentage > 10)
-        {
+        if((iter + 1) % 10 == 0 && maxMovingPercentage > 10) {
             sortSamples(samples, samplesInCluster);
         }
 
@@ -276,8 +260,7 @@ void LloydRelaxation<Real >::computeWeightedLloydClusters(const std::vector<Real
         m_Logger.printMemoryUsage();
         m_Logger.newLine();
 
-        if(maxMovingPercentage < m_MovingThreshold && iter > minIterations)
-        {
+        if(maxMovingPercentage < m_MovingThreshold && iter > minIterations) {
             converged = true;
             break;
         }
@@ -289,12 +272,9 @@ void LloydRelaxation<Real >::computeWeightedLloydClusters(const std::vector<Real
     m_Logger.printLog("Max moving distance in last iteration: " + NumberHelpers::formatWithCommas(maxMovingPercentage) + "% of particle radius");
     m_Logger.printLog("Number of overlapped particles: " + NumberHelpers::formatWithCommas(numOverlapped));
 
-    if(converged)
-    {
+    if(converged) {
         m_Logger.printLog("Relaxation converged.");
-    }
-    else
-    {
+    } else {
         m_Logger.printLog("Relaxation did NOT converge.");
     }
 
@@ -321,8 +301,9 @@ void LloydRelaxation<Real >::collectSampleToCluster(const std::vector<Vec3<Real>
     m_ClosestCluster.resize(numSamples);
     samplesInCluster.resize(numClusters);
 
-    for(auto& vec : samplesInCluster)
+    for(auto& vec : samplesInCluster) {
         vec.resize(0);
+    }
 
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -330,34 +311,28 @@ void LloydRelaxation<Real >::collectSampleToCluster(const std::vector<Vec3<Real>
     tbb::parallel_for(tbb::blocked_range<size_t>(0, numSamples),
                       [&](tbb::blocked_range<size_t> r)
                       {
-                          for(size_t sampleIdx = r.begin(); sampleIdx != r.end(); ++sampleIdx)
-                          {
+                          for(size_t sampleIdx = r.begin(); sampleIdx != r.end(); ++sampleIdx) {
                               const Vec3<Real>& sp = samples[sampleIdx];
-                              const Vec3i cellIdx = m_Grid3D.getCellIdx(sp);
+                              const Vec3i cellIdx  = m_Grid3D.getCellIdx(sp);
 
-                              bool bHasNeighbor = false;
+                              bool bHasNeighbor      = false;
                               UInt closestClusterIdx = 0;
-                              Real closestClusterD2 = std::numeric_limits<Real>::max();
+                              Real closestClusterD2  = std::numeric_limits<Real>::max();
 
 
-                              for(Int lk : { -1, 0, 1 })
-                              {
-                                  for(Int lj : { -1, 0, 1 })
-                                  {
-                                      for(Int li : { -1, 0, 1 })
-                                      {
+                              for(Int lk : { -1, 0, 1 }) {
+                                  for(Int lj : { -1, 0, 1 }) {
+                                      for(Int li : { -1, 0, 1 }) {
                                           const Vec3i cellId = cellIdx + Vec3i(li, lj, lk);
-                                          if(!m_Grid3D.isValidCell(cellId)) continue;
+                                          if(!m_Grid3D.isValidCell(cellId)) { continue; }
 
-                                          for(const UInt clusterIdx : m_CellParticles(cellId))
-                                          {
+                                          for(const UInt clusterIdx : m_CellParticles(cellId)) {
                                               const Vec3<Real>& cp = clusterCenters[clusterIdx];
-                                              const Real d2 = glm::length2(sp - cp);
+                                              const Real d2        = glm::length2(sp - cp);
 
-                                              if(d2 < closestClusterD2)
-                                              {
-                                                  bHasNeighbor = true;
-                                                  closestClusterD2 = d2;
+                                              if(d2 < closestClusterD2) {
+                                                  bHasNeighbor      = true;
+                                                  closestClusterD2  = d2;
                                                   closestClusterIdx = clusterIdx;
                                               }
                                           }
@@ -375,8 +350,7 @@ void LloydRelaxation<Real >::collectSampleToCluster(const std::vector<Vec3<Real>
     ////////////////////////////////////////////////////////////////////////////////
     m_Timer.tick();
 
-    for(size_t sample_id = 0; sample_id < numSamples; ++sample_id)
-    {
+    for(size_t sample_id = 0; sample_id < numSamples; ++sample_id) {
         samplesInCluster[m_ClosestCluster[sample_id]].push_back(sample_id);
     }
 
@@ -393,12 +367,10 @@ size_t LloydRelaxation<Real >::computeMedian(const std::vector<Vec3<Real> >& sam
 {
     std::vector<Real> dist2(subsetIndices.size(), 0);
 
-    for(size_t i = 0; i < subsetIndices.size(); ++i)
-    {
+    for(size_t i = 0; i < subsetIndices.size(); ++i) {
         const Vec3<Real>& si = samples[subsetIndices[i]];
 
-        for(size_t j = 0; j < i; ++j)
-        {
+        for(size_t j = 0; j < i; ++j) {
             const Vec3<Real>& sj = samples[subsetIndices[j]];
             const Real        d2 = glm::length2(si - sj);
             dist2[i] += d2;
@@ -409,10 +381,8 @@ size_t LloydRelaxation<Real >::computeMedian(const std::vector<Vec3<Real> >& sam
     Real   distMin = dist2[0];
     size_t idxMin  = 0;
 
-    for(size_t i = 1; i < dist2.size(); ++i)
-    {
-        if(dist2[i] < distMin)
-        {
+    for(size_t i = 1; i < dist2.size(); ++i) {
+        if(dist2[i] < distMin) {
             distMin = dist2[i];
             idxMin  = i;
         }
@@ -429,13 +399,11 @@ size_t LloydRelaxation<Real >::computeWeightedMedian(const std::vector<Vec3<Real
 
     std::vector<Real> dist2(subsetIndices.size(), 0);
 
-    for(size_t i = 0; i < subsetIndices.size(); ++i)
-    {
+    for(size_t i = 0; i < subsetIndices.size(); ++i) {
         const Vec3<Real>& si = samples[subsetIndices[i]];
         const Real        wi = weights[subsetIndices[i]];
 
-        for(size_t j = 0; j < i; ++j)
-        {
+        for(size_t j = 0; j < i; ++j) {
             const Vec3<Real>& sj = samples[subsetIndices[j]];
             const Real        wj = weights[subsetIndices[j]];
             Real              d2 = glm::length2(si - sj);
@@ -448,10 +416,8 @@ size_t LloydRelaxation<Real >::computeWeightedMedian(const std::vector<Vec3<Real
     Real   distMin = dist2[0];
     size_t idxMin  = 0;
 
-    for(size_t i = 1; i < dist2.size(); ++i)
-    {
-        if(dist2[i] < distMin)
-        {
+    for(size_t i = 1; i < dist2.size(); ++i) {
+        if(dist2[i] < distMin) {
             distMin = dist2[i];
             idxMin  = i;
         }
@@ -466,8 +432,7 @@ void LloydRelaxation<Real >::computeMean(const std::vector<Vec3<Real> >& samples
 {
     mean = Vec3<Real>(0);
 
-    for(auto index : subsetIndices)
-    {
+    for(auto index : subsetIndices) {
         mean += samples[index];
     }
 
@@ -483,8 +448,7 @@ void LloydRelaxation<Real >::computeWeightedMean(const std::vector<Vec3<Real> >&
 
     Real sumW = 0;
 
-    for(auto index : subsetIndices)
-    {
+    for(auto index : subsetIndices) {
         const Vec3<Real>& sp = samples[index];
         const Real        w  = weights[index];
         mean += sp * w;
@@ -505,31 +469,25 @@ Real LloydRelaxation<Real >::computeMinDistance(const std::vector<Vec3<Real> >& 
     tbb::parallel_for(tbb::blocked_range<size_t>(0, clusterCenters.size()),
                       [&](tbb::blocked_range<size_t> r)
                       {
-                          for(size_t p = r.begin(); p != r.end(); ++p)
-                          {
+                          for(size_t p = r.begin(); p != r.end(); ++p) {
                               const Vec3<Real>& ppos = clusterCenters[p];
-                              const Vec3i& pcellId = m_Grid3D.getCellIdx(ppos);
-                              Real min_d2 = std::numeric_limits<Real>::max();
+                              const Vec3i& pcellId   = m_Grid3D.getCellIdx(ppos);
+                              Real min_d2            = std::numeric_limits<Real>::max();
 
-                              for(Int lk = -1; lk <= 1; ++lk)
-                              {
-                                  for(Int lj = -1; lj <= 1; ++lj)
-                                  {
-                                      for(Int li = -1; li <= 1; ++li)
-                                      {
+                              for(Int lk = -1; lk <= 1; ++lk) {
+                                  for(Int lj = -1; lj <= 1; ++lj) {
+                                      for(Int li = -1; li <= 1; ++li) {
                                           const Vec3i cellId = pcellId + Vec3i(li, lj, lk);
 
-                                          if(!m_Grid3D.isValidCell(cellId)) continue;
+                                          if(!m_Grid3D.isValidCell(cellId)) { continue; }
 
-                                          for(auto clusterIdx : m_CellParticles(cellId))
-                                          {
-                                              if(p == clusterIdx) continue;
+                                          for(auto clusterIdx : m_CellParticles(cellId)) {
+                                              if(p == clusterIdx) { continue; }
 
                                               const auto& qpos = clusterCenters[clusterIdx];
-                                              const Real d2 = glm::length2(ppos - qpos);
+                                              const Real d2    = glm::length2(ppos - qpos);
 
-                                              if(d2 < min_d2)
-                                              {
+                                              if(d2 < min_d2) {
                                                   min_d2 = d2;
                                               }
                                           }
@@ -556,30 +514,25 @@ Real LloydRelaxation<Real >::computeMinDistance(const std::vector<Vec3<Real> >& 
     tbb::parallel_for(tbb::blocked_range<size_t>(0, clusterCenters.size()),
                       [&](tbb::blocked_range<size_t> r)
                       {
-                          for(size_t p = r.begin(); p != r.end(); ++p)
-                          {
+                          for(size_t p = r.begin(); p != r.end(); ++p) {
                               const Vec3<Real>& ppos = clusterCenters[p];
-                              const Vec3i& pcellId = m_Grid3D.getCellIdx(ppos);
-                              Real min_d2 = std::numeric_limits<Real>::max();
+                              const Vec3i& pcellId   = m_Grid3D.getCellIdx(ppos);
+                              Real min_d2            = std::numeric_limits<Real>::max();
 
-                              for(Int lk = -1; lk <= 1; ++lk)
-                              {
-                                  for(Int lj = -1; lj <= 1; ++lj)
-                                  {
-                                      for(Int li = -1; li <= 1; ++li)
-                                      {
+                              for(Int lk = -1; lk <= 1; ++lk) {
+                                  for(Int lj = -1; lj <= 1; ++lj) {
+                                      for(Int li = -1; li <= 1; ++li) {
                                           const Vec3i cellId = pcellId + Vec3i(li, lj, lk);
 
-                                          if(!m_Grid3D.isValidCell(cellId)) continue;
+                                          if(!m_Grid3D.isValidCell(cellId)) { continue; }
 
-                                          for(const UInt clusterIdx : m_CellParticles(cellId))
-                                          {
-                                              if(p == clusterIdx) continue;
+                                          for(const UInt clusterIdx : m_CellParticles(cellId)) {
+                                              if(p == clusterIdx) { continue; }
 
                                               const Vec3<Real>& qpos = clusterCenters[clusterIdx];
-                                              const Real d2 = glm::length2(ppos - qpos);
+                                              const Real d2          = glm::length2(ppos - qpos);
 
-                                              if(d2 < min_d2) min_d2 = d2;
+                                              if(d2 < min_d2) { min_d2 = d2; }
                                           }
                                       }
                                   }     // end loop over neighbor cells
@@ -592,10 +545,8 @@ Real LloydRelaxation<Real >::computeMinDistance(const std::vector<Vec3<Real> >& 
     numOverlappedParticles = 0;
     const Real threshold = MathHelpers::sqr(m_OverlapThreshold * m_ParticleRadius);
 
-    for(size_t p = 0; p < dist2.size(); ++p)
-    {
-        if(dist2[p] < threshold)
-        {
+    for(size_t p = 0; p < dist2.size(); ++p) {
+        if(dist2[p] < threshold) {
             ++numOverlappedParticles;
         }
     }
@@ -617,37 +568,29 @@ UInt LloydRelaxation<Real >::removeOverlappedParticles(std::vector<Vec3<Real> >&
     tbb::parallel_for(tbb::blocked_range<size_t>(0, clusterCenters.size()),
                       [&](tbb::blocked_range<size_t> r)
                       {
-                          for(size_t p = r.begin(); p != r.end(); ++p)
-                          {
+                          for(size_t p = r.begin(); p != r.end(); ++p) {
                               const Vec3<Real>& ppos = clusterCenters[p];
-                              const Vec3i& pcellId = m_Grid3D.getCellIdx(ppos);
-                              Real min_d2 = std::numeric_limits<Real>::max();
+                              const Vec3i& pcellId   = m_Grid3D.getCellIdx(ppos);
+                              Real min_d2            = std::numeric_limits<Real>::max();
 
-                              for(Int lk = -1; lk <= 1; ++lk)
-                              {
-                                  for(Int lj = -1; lj <= 1; ++lj)
-                                  {
-                                      for(Int li = -1; li <= 1; ++li)
-                                      {
+                              for(Int lk = -1; lk <= 1; ++lk) {
+                                  for(Int lj = -1; lj <= 1; ++lj) {
+                                      for(Int li = -1; li <= 1; ++li) {
                                           const Vec3i cellId = pcellId + Vec3i(li, lj, lk);
 
-                                          if(!m_Grid3D.isValidCell(cellId))
-                                          {
+                                          if(!m_Grid3D.isValidCell(cellId)) {
                                               continue;
                                           }
 
-                                          for(const UInt q : m_CellParticles(cellId))
-                                          {
-                                              if(p <= q)
-                                              {
+                                          for(const UInt q : m_CellParticles(cellId)) {
+                                              if(p <= q) {
                                                   continue;
                                               }
 
                                               const Vec3<Real>& qpos = clusterCenters[q];
-                                              const Real d2 = glm::length2(ppos - qpos);
+                                              const Real d2          = glm::length2(ppos - qpos);
 
-                                              if(d2 < min_d2)
-                                              {
+                                              if(d2 < min_d2) {
                                                   min_d2 = d2;
                                               }
                                           }
@@ -656,8 +599,7 @@ UInt LloydRelaxation<Real >::removeOverlappedParticles(std::vector<Vec3<Real> >&
                               }     // end loop over neighbor cells
 
 
-                              if(min_d2 < threshold)
-                              {
+                              if(min_d2 < threshold) {
                                   check_remove[p] = 1;
                               }
                           }
@@ -665,10 +607,8 @@ UInt LloydRelaxation<Real >::removeOverlappedParticles(std::vector<Vec3<Real> >&
 
     UInt num_removed = 0;
 
-    for(size_t i = check_remove.size(); i-- > 0; )
-    {
-        if(check_remove[i] > 0)
-        {
+    for(size_t i = check_remove.size(); i-- > 0;) {
+        if(check_remove[i] > 0) {
             ++num_removed;
             clusterCenters.erase(clusterCenters.begin() + i);
         }
@@ -691,12 +631,10 @@ void LloydRelaxation<Real >::sortSamples(std::vector<Vec3<Real> >& samples, cons
 
     size_t index = 0;
 
-    for(size_t i = 0; i < samplesInCluster.size(); ++i)
-    {
+    for(size_t i = 0; i < samplesInCluster.size(); ++i) {
         size_t cluster_samples = samplesInCluster[i].size();
 
-        for(size_t j = 0; j < cluster_samples; ++j)
-        {
+        for(size_t j = 0; j < cluster_samples; ++j) {
             tmp_samples[index] = samples[samplesInCluster[i][j]];
             ++index;
         }
@@ -715,12 +653,12 @@ void LloydRelaxation<Real >::sortSamples(std::vector<Vec3<Real> >& samples, cons
 template<class Real>
 void LloydRelaxation<Real >::collectClustersToCells(const std::vector<Vec3<Real> >& clusterCenters)
 {
-    for(auto& cell : m_CellParticles)
+    for(auto& cell : m_CellParticles) {
         cell.resize(0);
+    }
 
     // cannot run in parallel....
-    for(const auto& pos : clusterCenters)
-    {
+    for(const auto& pos : clusterCenters) {
         const Vec3i& cellId = m_Grid3D.getCellIdx(pos);
 
         m_CellParticles(cellId).push_back(p);

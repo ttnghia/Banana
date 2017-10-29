@@ -1,17 +1,21 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//
-//  Copyright (c) 2017 by
-//       __      _     _         _____
-//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _
-//   /  \/ / _` | '_ \| |/ _` |   / /\/ '__| | | |/ _ \| '_ \ / _` |
-//  / /\  / (_| | | | | | (_| |  / /  | |  | |_| | (_) | | | | (_| |
-//  \_\ \/ \__, |_| |_|_|\__,_|  \/   |_|   \__,_|\___/|_| |_|\__, |
-//         |___/                                              |___/
-//
-//  <nghiatruong.vn@gmail.com>
-//  All rights reserved.
-//
+//                                .--,       .--,
+//                               ( (  \.---./  ) )
+//                                '.__/o   o\__.'
+//                                   {=  ^  =}
+//                                    >  -  <
+//     ___________________________.""`-------`"".____________________________
+//    /                                                                      \
+//    \    This file is part of Banana - a graphics programming framework    /
+//    /                    Created: 2017 by Nghia Truong                     \
+//    \                      <nghiatruong.vn@gmail.com>                      /
+//    /                      https://ttnghia.github.io                       \
+//    \                        All rights reserved.                          /
+//    /                                                                      \
+//    \______________________________________________________________________/
+//                                  ___)( )(___
+//                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
@@ -73,8 +77,7 @@ void OpenGLTexture::OpenGLTexture::setAnisotropicFilter(bool enable)
     bind();
 
     GLfloat fLargest = 1.0;
-    if(enable)
-    {
+    if(enable) {
         glCall(glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &fLargest));
     }
 
@@ -111,8 +114,7 @@ void OpenGLTexture::setBestParametersWithMipMap()
     glCall(glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &fLargest));
     glCall(glTexParameterf(m_TexureTarget, GL_TEXTURE_MAX_ANISOTROPY_EXT, fLargest));
 
-    if(m_TexureTarget == GL_TEXTURE_CUBE_MAP)
-    {
+    if(m_TexureTarget == GL_TEXTURE_CUBE_MAP) {
         glCall(glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS));
     }
 
@@ -137,8 +139,7 @@ void OpenGLTexture::setBestParametersNoMipMap()
     glCall(glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &fLargest));
     glCall(glTexParameterf(m_TexureTarget, GL_TEXTURE_MAX_ANISOTROPY_EXT, fLargest));
 
-    if(m_TexureTarget == GL_TEXTURE_CUBE_MAP)
-    {
+    if(m_TexureTarget == GL_TEXTURE_CUBE_MAP) {
         glCall(glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS));
     }
 
@@ -187,8 +188,7 @@ void OpenGLTexture::loadTextures(std::vector<std::shared_ptr<OpenGLTexture> >& t
 {
     // clear current textures
     textures.resize(0);
-    if(insertNullTex)
-    {
+    if(insertNullTex) {
         textures.push_back(nullptr);
     }
 
@@ -202,8 +202,7 @@ void OpenGLTexture::loadTextures(std::vector<std::shared_ptr<OpenGLTexture> >& t
 
     std::vector<std::future<void> > futureObjs;
 
-    for(int i = 0; i < allTexFiles.count(); ++i)
-    {
+    for(int i = 0; i < allTexFiles.count(); ++i) {
         QString texFilePath = textureFolder + "/" + allTexFiles[i];
         futureObjs.emplace_back(std::async(std::launch::async, [&, texFilePath, i]()
                                            {
@@ -211,23 +210,19 @@ void OpenGLTexture::loadTextures(std::vector<std::shared_ptr<OpenGLTexture> >& t
                                            }));
     }
 
-    for(std::future<void>& f : futureObjs)
-    {
-        if(f.valid())
+    for(std::future<void>& f : futureObjs) {
+        if(f.valid()) {
             f.wait();
+        }
     }
 
-    for(const QImage& texImg : textureImages)
-    {
+    for(const QImage& texImg : textureImages) {
         std::shared_ptr<OpenGLTexture> tex = std::make_shared<OpenGLTexture>(GL_TEXTURE_2D);
         tex->uploadData(GL_TEXTURE_2D, GL_RGBA, texImg.width(), texImg.height(), GL_RGBA, GL_UNSIGNED_BYTE, texImg.constBits());
 
-        if(bGenMipMap)
-        {
+        if(bGenMipMap) {
             tex->setBestParametersWithMipMap();
-        }
-        else
-        {
+        } else {
             tex->setBestParametersNoMipMap();
         }
         textures.push_back(tex);
@@ -251,6 +246,7 @@ QStringList OpenGLTexture::getTextureFiles(QString texType, QString texRootFolde
 
     return dataDir.entryList();
 }
+
 #endif
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

@@ -1,17 +1,21 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//
-//  Copyright (c) 2017 by
-//       __      _     _         _____
-//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _
-//   /  \/ / _` | '_ \| |/ _` |   / /\/ '__| | | |/ _ \| '_ \ / _` |
-//  / /\  / (_| | | | | | (_| |  / /  | |  | |_| | (_) | | | | (_| |
-//  \_\ \/ \__, |_| |_|_|\__,_|  \/   |_|   \__,_|\___/|_| |_|\__, |
-//         |___/                                              |___/
-//
-//  <nghiatruong.vn@gmail.com>
-//  All rights reserved.
-//
+//                                .--,       .--,
+//                               ( (  \.---./  ) )
+//                                '.__/o   o\__.'
+//                                   {=  ^  =}
+//                                    >  -  <
+//     ___________________________.""`-------`"".____________________________
+//    /                                                                      \
+//    \    This file is part of Banana - a graphics programming framework    /
+//    /                    Created: 2017 by Nghia Truong                     \
+//    \                      <nghiatruong.vn@gmail.com>                      /
+//    /                      https://ttnghia.github.io                       \
+//    \                        All rights reserved.                          /
+//    /                                                                      \
+//    \______________________________________________________________________/
+//                                  ___)( )(___
+//                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
@@ -46,10 +50,8 @@ public:
         GLfloat texStepY = 2.0f / static_cast<GLfloat>(scaleTexY);
         m_NumVertices = 0;
 
-        for(int i = 0; i <= sizeX; ++i)
-        {
-            for(int j = 0; j <= sizeY; ++j)
-            {
+        for(int i = 0; i <= sizeX; ++i) {
+            for(int j = 0; j <= sizeY; ++j) {
                 vertex[0] = -1.0f + static_cast<GLfloat>(i) * stepX;
                 vertex[2] = -1.0f + static_cast<GLfloat>(j) * stepY;
 
@@ -71,10 +73,8 @@ public:
         GLuint indexSize = sizeX * sizeY * 6;
         m_IndexList.reserve(indexSize);
 
-        for(int j = 0; j < sizeY; ++j)
-        {
-            for(int i = 0; i < sizeX; ++i)
-            {
+        for(int j = 0; j < sizeY; ++j) {
+            for(int i = 0; i < sizeX; ++i) {
                 m_IndexList.push_back(i * (sizeY + 1) + j);
                 m_IndexList.push_back((i + 1) * (sizeY + 1) + j);
                 m_IndexList.push_back(i * (sizeY + 1) + (j + 1));
@@ -102,10 +102,8 @@ public:
         GLfloat texStepX = 2.0f / static_cast<GLfloat>(m_SizeX) * static_cast<GLfloat>(scaleTexX);
         GLfloat texStepY = 2.0f / static_cast<GLfloat>(m_SizeX) * static_cast<GLfloat>(scaleTexY);
 
-        for(int i = 0; i <= m_SizeX; ++i)
-        {
-            for(int j = 0; j <= m_SizeX; ++j)
-            {
+        for(int i = 0; i <= m_SizeX; ++i) {
+            for(int j = 0; j <= m_SizeX; ++j) {
                 m_VertexTexCoords.push_back(static_cast<GLfloat>(i) * texStepX);
                 m_VertexTexCoords.push_back(static_cast<GLfloat>(j) * texStepY);
             }

@@ -1,17 +1,21 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//
-//  Copyright (c) 2017 by
-//       __      _     _         _____
-//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _
-//   /  \/ / _` | '_ \| |/ _` |   / /\/ '__| | | |/ _ \| '_ \ / _` |
-//  / /\  / (_| | | | | | (_| |  / /  | |  | |_| | (_) | | | | (_| |
-//  \_\ \/ \__, |_| |_|_|\__,_|  \/   |_|   \__,_|\___/|_| |_|\__, |
-//         |___/                                              |___/
-//
-//  <nghiatruong.vn@gmail.com>
-//  All rights reserved.
-//
+//                                .--,       .--,
+//                               ( (  \.---./  ) )
+//                                '.__/o   o\__.'
+//                                   {=  ^  =}
+//                                    >  -  <
+//     ___________________________.""`-------`"".____________________________
+//    /                                                                      \
+//    \    This file is part of Banana - a graphics programming framework    /
+//    /                    Created: 2017 by Nghia Truong                     \
+//    \                      <nghiatruong.vn@gmail.com>                      /
+//    /                      https://ttnghia.github.io                       \
+//    \                        All rights reserved.                          /
+//    /                                                                      \
+//    \______________________________________________________________________/
+//                                  ___)( )(___
+//                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
@@ -42,16 +46,14 @@ void DataList::loadListFromFile(const QString& listFile)
 {
     m_ListFile = listFile;
     QFile textFile(listFile);
-    if(!textFile.open(QIODevice::ReadOnly | QIODevice::Text))
-    {
+    if(!textFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
         QMessageBox::warning(this, "Error", "Cannot open file '" + listFile + "' for reading.");
         return;
     }
 
     clear();
     QTextStream in(&textFile);
-    while(!in.atEnd())
-    {
+    while(!in.atEnd()) {
         addItem(in.readLine());
     }
 
@@ -70,12 +72,9 @@ void DataList::addItem(QString dataStr)
 {
     m_DataList.push_back(dataStr);
 
-    if(m_bAddOrderText)
-    {
+    if(m_bAddOrderText) {
         m_ListWidget->addItem(QString("%1%2     %3").arg(m_ListWidget->count()).arg(m_IndexSeparator).arg(dataStr));
-    }
-    else
-    {
+    } else {
         m_ListWidget->addItem(dataStr);
     }
 }
@@ -93,8 +92,9 @@ void DataList::clear()
     m_DataList.clear();
     m_ListWidget->clear();
 
-    if(m_bAddEmptyItem)
+    if(m_bAddEmptyItem) {
         m_ListWidget->addItem("Nothing");
+    }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -112,12 +112,10 @@ QSize DataList::sizeHint() const
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 bool DataList::eventFilter(QObject* obj, QEvent* e)
 {
-    if(obj == m_ListWidget && e->type() == QEvent::KeyPress)
-    {
+    if(obj == m_ListWidget && e->type() == QEvent::KeyPress) {
         QKeyEvent* key = static_cast<QKeyEvent*>(e);
 
-        switch(key->key())
-        {
+        switch(key->key()) {
             case Qt::Key_0:
             case Qt::Key_1:
             case Qt::Key_2:
@@ -135,9 +133,7 @@ bool DataList::eventFilter(QObject* obj, QEvent* e)
         }   // end switch
 
         return true;
-    }
-    else
-    {
+    } else {
         return false;
     }
 }
@@ -147,8 +143,9 @@ void DataList::setupGUI()
 {
     m_ListWidget = new QListWidget;
 
-    if(m_bAddEmptyItem)
+    if(m_bAddEmptyItem) {
         m_ListWidget->addItem("Nothing");
+    }
 
     m_ListWidget->installEventFilter(this);
 
@@ -175,11 +172,11 @@ void DataList::setupGUI()
 
     connect(m_ListWidget, &QListWidget::currentRowChanged, [&](int currentRow)
             {
-                if(currentRow < 0)
+                if(currentRow < 0) {
                     return;
+                }
 
-                if(!m_bAddEmptyItem || (m_bAddEmptyItem && currentRow != 0))
-                {
+                if(!m_bAddEmptyItem || (m_bAddEmptyItem && currentRow != 0)) {
                     emit currentRowChanged(currentRow);
                     emit currentTextChanged(m_DataList[m_bAddEmptyItem ? currentRow - 1 : currentRow]);
                 }

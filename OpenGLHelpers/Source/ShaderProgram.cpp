@@ -1,17 +1,21 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//
-//  Copyright (c) 2017 by
-//       __      _     _         _____
-//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _
-//   /  \/ / _` | '_ \| |/ _` |   / /\/ '__| | | |/ _ \| '_ \ / _` |
-//  / /\  / (_| | | | | | (_| |  / /  | |  | |_| | (_) | | | | (_| |
-//  \_\ \/ \__, |_| |_|_|\__,_|  \/   |_|   \__,_|\___/|_| |_|\__, |
-//         |___/                                              |___/
-//
-//  <nghiatruong.vn@gmail.com>
-//  All rights reserved.
-//
+//                                .--,       .--,
+//                               ( (  \.---./  ) )
+//                                '.__/o   o\__.'
+//                                   {=  ^  =}
+//                                    >  -  <
+//     ___________________________.""`-------`"".____________________________
+//    /                                                                      \
+//    \    This file is part of Banana - a graphics programming framework    /
+//    /                    Created: 2017 by Nghia Truong                     \
+//    \                      <nghiatruong.vn@gmail.com>                      /
+//    /                      https://ttnghia.github.io                       \
+//    \                        All rights reserved.                          /
+//    /                                                                      \
+//    \______________________________________________________________________/
+//                                  ___)( )(___
+//                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
@@ -76,18 +80,15 @@ bool ShaderProgram::link()
 {
     GLuint newProgramID = glCall(glCreateProgram());
 
-    for(GLuint shader : m_ShaderIDs)
-    {
+    for(GLuint shader : m_ShaderIDs) {
         glCall(glAttachShader(newProgramID, shader));
     }
 
     glCall(glLinkProgram(newProgramID));
 
     bool linkSuccess = glCall(checkLinkError(newProgramID));
-    if(linkSuccess)
-    {
-        if(m_isProgramLinked)
-        {
+    if(linkSuccess) {
+        if(m_isProgramLinked) {
             glCall(glDeleteProgram(m_ProgramID));
         }
 
@@ -95,8 +96,7 @@ bool ShaderProgram::link()
         m_isProgramLinked = true;
     }
 
-    for(GLuint shader : m_ShaderIDs)
-    {
+    for(GLuint shader : m_ShaderIDs) {
         glCall(glDeleteShader(shader));
     }
 
@@ -108,15 +108,13 @@ bool ShaderProgram::link()
 bool ShaderProgram::reloadShaders()
 {
     bool result = true;
-    for(auto it = m_ShaderSourceFiles.begin(); it != m_ShaderSourceFiles.end(); ++it)
-    {
+    for(auto it = m_ShaderSourceFiles.begin(); it != m_ShaderSourceFiles.end(); ++it) {
         std::string shaderSouce;
         loadFile(shaderSouce, it->second.c_str());
         result = result && addShader(it->first, shaderSouce.c_str());
     }
 
-    for(auto it = m_ShaderSourceCodes.begin(); it != m_ShaderSourceCodes.end(); ++it)
-    {
+    for(auto it = m_ShaderSourceCodes.begin(); it != m_ShaderSourceCodes.end(); ++it) {
         result = result && addShader(it->first, it->second.c_str());
     }
 
@@ -136,8 +134,7 @@ GLuint ShaderProgram::getAtributeLocation(const char* atributeName,
 {
     GLint location = glCall(glGetAttribLocation(m_ProgramID, atributeName));
 
-    if(location < 0 && dieOnError)
-    {
+    if(location < 0 && dieOnError) {
 #ifdef __Banana_Qt__
         __BNN_DIE(QString("%1: Attribute %2 not found!").arg(QString::fromStdString(m_ProgramName)).arg(atributeName));
 #else
@@ -154,8 +151,7 @@ GLuint ShaderProgram::getUniformLocation(const char* uniformName,
 {
     GLint location = glCall(glGetUniformLocation(m_ProgramID, uniformName));
 
-    if(location < 0 && dieOnError)
-    {
+    if(location < 0 && dieOnError) {
 #ifdef __Banana_Qt__
         __BNN_DIE(QString("%1: Uniform location %2 not found!").arg(QString::fromStdString(m_ProgramName)).arg(QString(uniformName)));
 #else
@@ -171,8 +167,7 @@ GLuint ShaderProgram::getUniformBlockIndex(const char* uniformBlockName, bool di
 {
     GLuint location = glCall(glGetUniformBlockIndex(m_ProgramID, uniformBlockName));
 
-    if(location == GL_INVALID_INDEX && dieOnError)
-    {
+    if(location == GL_INVALID_INDEX && dieOnError) {
 #ifdef __Banana_Qt__
         __BNN_DIE(QString("%1: Uniform block index %2 not found!").arg(QString::fromStdString(m_ProgramName)).arg(QString(uniformBlockName)));
 #else
@@ -248,8 +243,7 @@ bool ShaderProgram::addShader(GLenum shaderType, const GLchar* shaderSource)
     glCall(glCompileShader(shader));
 
     // => add shader into list
-    if(checkCompileError(shader, shaderType))
-    {
+    if(checkCompileError(shader, shaderType)) {
         m_ShaderIDs.push_back(shader);
         return true;
     }
@@ -265,26 +259,18 @@ bool ShaderProgram::checkCompileError(GLuint shader, GLenum shaderType)
 
     glCall(glGetShaderiv(shader, GL_COMPILE_STATUS, &success));
 
-    if(!success)
-    {
+    if(!success) {
         glCall(glGetShaderInfoLog(shader, 1024, NULL, infoLog));
 
         std::string shaderName = "Unknown";
 
-        if(shaderType == GL_VERTEX_SHADER)
-        {
+        if(shaderType == GL_VERTEX_SHADER) {
             shaderName = "VertexShader";
-        }
-        else if(shaderType == GL_GEOMETRY_SHADER)
-        {
+        } else if(shaderType == GL_GEOMETRY_SHADER) {
             shaderName = "GeometryShader";
-        }
-        else if(shaderType == GL_FRAGMENT_SHADER)
-        {
+        } else if(shaderType == GL_FRAGMENT_SHADER) {
             shaderName = "FragmentShader";
-        }
-        else
-        {
+        } else {
             shaderName = "InvalidShader";
         }
 
@@ -305,8 +291,7 @@ bool ShaderProgram::checkLinkError(GLuint program)
     GLchar infoLog[1024];
     glCall(glGetProgramiv(program, GL_LINK_STATUS, &success));
 
-    if(!success)
-    {
+    if(!success) {
         glCall(glGetProgramInfoLog(program, 1024, NULL, infoLog));
 #ifdef __Banana_Qt__
         __BNN_DIE(QString("%1: Program failed to link!\n  => : ").arg(QString::fromStdString(m_ProgramName)) + QString(infoLog));
@@ -322,8 +307,7 @@ bool ShaderProgram::checkLinkError(GLuint program)
 void ShaderProgram::loadFile(std::string& fileContent, const char* fileName)
 {
     std::ifstream file(fileName);
-    if(!file.is_open())
-    {
+    if(!file.is_open()) {
 #ifdef __Banana_Qt__
         __BNN_DIE(QString("%1: Cannot open file %2 for reading!").arg(QString::fromStdString(m_ProgramName)).arg(QString(fileName)));
 #else

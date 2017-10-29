@@ -1,17 +1,21 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//
-//  Copyright (c) 2017 by
-//       __      _     _         _____
-//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _
-//   /  \/ / _` | '_ \| |/ _` |   / /\/ '__| | | |/ _ \| '_ \ / _` |
-//  / /\  / (_| | | | | | (_| |  / /  | |  | |_| | (_) | | | | (_| |
-//  \_\ \/ \__, |_| |_|_|\__,_|  \/   |_|   \__,_|\___/|_| |_|\__, |
-//         |___/                                              |___/
-//
-//  <nghiatruong.vn@gmail.com>
-//  All rights reserved.
-//
+//                                .--,       .--,
+//                               ( (  \.---./  ) )
+//                                '.__/o   o\__.'
+//                                   {=  ^  =}
+//                                    >  -  <
+//     ___________________________.""`-------`"".____________________________
+//    /                                                                      \
+//    \    This file is part of Banana - a graphics programming framework    /
+//    /                    Created: 2017 by Nghia Truong                     \
+//    \                      <nghiatruong.vn@gmail.com>                      /
+//    /                      https://ttnghia.github.io                       \
+//    \                        All rights reserved.                          /
+//    /                                                                      \
+//    \______________________________________________________________________/
+//                                  ___)( )(___
+//                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
@@ -69,19 +73,19 @@ inline bool loadDataPath(const String& sceneFile, String& dataPath)
 inline void loadGlobalParams(const nlohmann::json& jParams, ParticleSolvers::GlobalParameters& globalParams)
 {
     JSONHelpers::readValue(jParams, globalParams.frameDuration, "FrameDuration");
-    JSONHelpers::readValue(jParams, globalParams.finalFrame, "FinalFrame");
-    JSONHelpers::readValue(jParams, globalParams.nThreads, "NThreads");
+    JSONHelpers::readValue(jParams, globalParams.finalFrame,    "FinalFrame");
+    JSONHelpers::readValue(jParams, globalParams.nThreads,      "NThreads");
 
-    JSONHelpers::readBool(jParams, globalParams.bApplyGravity, "ApplyGravity");
+    JSONHelpers::readBool(jParams, globalParams.bApplyGravity,       "ApplyGravity");
     JSONHelpers::readBool(jParams, globalParams.bEnableSortParticle, "EnableSortParticle");
     JSONHelpers::readValue(jParams, globalParams.sortFrequency, "SortFrequency");
 
     JSONHelpers::readBool(jParams, globalParams.bLoadMemoryState, "LoadMemoryState");
-    JSONHelpers::readBool(jParams, globalParams.bSaveFrameData, "SaveFrameData");
+    JSONHelpers::readBool(jParams, globalParams.bSaveFrameData,   "SaveFrameData");
     JSONHelpers::readBool(jParams, globalParams.bSaveMemoryState, "SaveMemoryState");
-    JSONHelpers::readBool(jParams, globalParams.bPrintLog2File, "PrintLogToFile");
+    JSONHelpers::readBool(jParams, globalParams.bPrintLog2File,   "PrintLogToFile");
     JSONHelpers::readValue(jParams, globalParams.framePerState, "FramePerState");
-    JSONHelpers::readValue(jParams, globalParams.dataPath, "DataPath");
+    JSONHelpers::readValue(jParams, globalParams.dataPath,      "DataPath");
     JSONHelpers::readVector(jParams, globalParams.optionalSavingData, "OptionalSavingData");
 
     String logLevel = String("Trace");
@@ -107,10 +111,10 @@ void loadSimulationObject(const nlohmann::json& jParams, const SharedPtr<Simulat
     objNames.insert(obj->nameID());
 
     ////////////////////////////////////////////////////////////////////////////////
-    JSONHelpers::readValue(jParams, obj->meshFile(), "MeshFile");
+    JSONHelpers::readValue(jParams, obj->meshFile(),     "MeshFile");
     JSONHelpers::readValue(jParams, obj->particleFile(), "ParticleFile");
-    JSONHelpers::readValue(jParams, obj->SDFFile(), "SDFFile");
-    JSONHelpers::readBool(jParams, obj->useCache(), "UseCache");
+    JSONHelpers::readValue(jParams, obj->SDFFile(),      "SDFFile");
+    JSONHelpers::readBool(jParams, obj->useCache(),     "UseCache");
     JSONHelpers::readBool(jParams, obj->fullShapeObj(), "FullShapeObj");
 
     VecX<N, Real>     translation;
@@ -146,8 +150,8 @@ void loadSimulationObject(const nlohmann::json& jParams, const SharedPtr<Simulat
         UInt startFrame                     = 0;
 
         JSONHelpers::readBool(jAnimation, bCubicInterpolationTranslation, "CubicInterpolationTranslation");
-        JSONHelpers::readBool(jAnimation, bCubicInterpolationRotation, "CubicInterpolationRotation");
-        JSONHelpers::readBool(jAnimation, bCubicInterpolationScale, "CubicInterpolationScale");
+        JSONHelpers::readBool(jAnimation, bCubicInterpolationRotation,    "CubicInterpolationRotation");
+        JSONHelpers::readBool(jAnimation, bCubicInterpolationScale,       "CubicInterpolationScale");
         if(JSONHelpers::readBool(jAnimation, bPeriodic, "Periodic")) {
             JSONHelpers::readValue(jAnimation, startFrame, "StartFrame");
             aniObj.setPeriodic(bPeriodic, startFrame);
@@ -252,11 +256,11 @@ void loadParticleGenerators(const nlohmann::json& jParams, Vector<SharedPtr<Part
 
         JSONHelpers::readVector(jObj, obj->v0(), "InitialVelocity");
         JSONHelpers::readValue(jObj, obj->minDistanceRatio(), "MinParticleDistanceRatio");
-        JSONHelpers::readValue(jObj, obj->jitter(), "JitterRatio");
-        JSONHelpers::readValue(jObj, obj->startFrame(), "StartFrame");
-        JSONHelpers::readValue(jObj, obj->maxFrame(), "MaxFrame");
-        JSONHelpers::readValue(jObj, obj->maxNParticles(), "MaxNParticles");
-        JSONHelpers::readValue(jObj, obj->activeFrames(), "ActiveFrames");
+        JSONHelpers::readValue(jObj, obj->jitter(),           "JitterRatio");
+        JSONHelpers::readValue(jObj, obj->startFrame(),       "StartFrame");
+        JSONHelpers::readValue(jObj, obj->maxFrame(),         "MaxFrame");
+        JSONHelpers::readValue(jObj, obj->maxNParticles(),    "MaxNParticles");
+        JSONHelpers::readValue(jObj, obj->activeFrames(),     "ActiveFrames");
         JSONHelpers::readValue(jObj, obj->maxSamplingIters(), "MaxSamplingIters");
     }
 }
@@ -275,7 +279,7 @@ void loadParticleRemovers(const nlohmann::json& jParams, Vector<SharedPtr<Partic
         loadSimulationObject(jObj, static_pointer_cast<SimulationObject<N, RealType> >(obj));
 
         JSONHelpers::readValue(jObj, obj->startFrame(), "StartFrame");
-        JSONHelpers::readValue(jObj, obj->maxFrame(), "MaxFrame");
+        JSONHelpers::readValue(jObj, obj->maxFrame(),   "MaxFrame");
     }
 }
 

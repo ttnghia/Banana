@@ -1,17 +1,21 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//
-//  Copyright (c) 2017 by
-//       __      _     _         _____
-//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _
-//   /  \/ / _` | '_ \| |/ _` |   / /\/ '__| | | |/ _ \| '_ \ / _` |
-//  / /\  / (_| | | | | | (_| |  / /  | |  | |_| | (_) | | | | (_| |
-//  \_\ \/ \__, |_| |_|_|\__,_|  \/   |_|   \__,_|\___/|_| |_|\__, |
-//         |___/                                              |___/
-//
-//  <nghiatruong.vn@gmail.com>
-//  All rights reserved.
-//
+//                                .--,       .--,
+//                               ( (  \.---./  ) )
+//                                '.__/o   o\__.'
+//                                   {=  ^  =}
+//                                    >  -  <
+//     ___________________________.""`-------`"".____________________________
+//    /                                                                      \
+//    \    This file is part of Banana - a graphics programming framework    /
+//    /                    Created: 2017 by Nghia Truong                     \
+//    \                      <nghiatruong.vn@gmail.com>                      /
+//    /                      https://ttnghia.github.io                       \
+//    \                        All rights reserved.                          /
+//    /                                                                      \
+//    \______________________________________________________________________/
+//                                  ___)( )(___
+//                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
@@ -144,13 +148,10 @@ public:
     int getInt(const KeyType& key)
     {
         assert(hasVariantParam(key) || hasStringParam(key));
-        if(hasVariantParam(key))
-        {
+        if(hasVariantParam(key)) {
             assert(m_VariantData[key].typeId == TYPE_INT);
             return m_VariantData[key].data.data_int;
-        }
-        else
-        {
+        } else {
             return stoi(m_StringData[key]);
         }
     }
@@ -158,13 +159,10 @@ public:
     unsigned int getUInt(const KeyType& key)
     {
         assert(hasVariantParam(key) || hasStringParam(key));
-        if(hasVariantParam(key))
-        {
+        if(hasVariantParam(key)) {
             assert(m_VariantData[key].typeId == TYPE_UNSIGNED_INT);
             return m_VariantData[key].data.data_uint;
-        }
-        else
-        {
+        } else {
             return static_cast<unsigned int> stoi(m_StringData[key]);
         }
     }
@@ -173,13 +171,10 @@ public:
     Real getReal(const KeyType& key)
     {
         assert(hasVariantParam(key) || hasStringParam(key));
-        if(hasVariantParam(key))
-        {
+        if(hasVariantParam(key)) {
             assert(m_VariantData[key].typeId == TYPE_REAL);
             return static_cast<Real>(m_VariantData[key].data.data_real);
-        }
-        else
-        {
+        } else {
             return static_cast<Real>(stod(m_StringData[key]));
         }
     }

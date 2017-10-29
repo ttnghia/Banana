@@ -1,17 +1,21 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//
-//  Copyright (c) 2017 by
-//       __      _     _         _____
-//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _
-//   /  \/ / _` | '_ \| |/ _` |   / /\/ '__| | | |/ _ \| '_ \ / _` |
-//  / /\  / (_| | | | | | (_| |  / /  | |  | |_| | (_) | | | | (_| |
-//  \_\ \/ \__, |_| |_|_|\__,_|  \/   |_|   \__,_|\___/|_| |_|\__, |
-//         |___/                                              |___/
-//
-//  <nghiatruong.vn@gmail.com>
-//  All rights reserved.
-//
+//                                .--,       .--,
+//                               ( (  \.---./  ) )
+//                                '.__/o   o\__.'
+//                                   {=  ^  =}
+//                                    >  -  <
+//     ___________________________.""`-------`"".____________________________
+//    /                                                                      \
+//    \    This file is part of Banana - a graphics programming framework    /
+//    /                    Created: 2017 by Nghia Truong                     \
+//    \                      <nghiatruong.vn@gmail.com>                      /
+//    /                      https://ttnghia.github.io                       \
+//    \                        All rights reserved.                          /
+//    /                                                                      \
+//    \______________________________________________________________________/
+//                                  ___)( )(___
+//                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
@@ -28,8 +32,7 @@ PointLightEditor::PointLightEditor(std::shared_ptr<PointLights> lights /*= nullp
     QGridLayout* lightLayouts[MAX_POINT_LIGHT];
 
 
-    for(int i = 0; i < MAX_POINT_LIGHT; ++i)
-    {
+    for(int i = 0; i < MAX_POINT_LIGHT; ++i) {
         lightLayouts[i] = new QGridLayout;
         m_CheckBoxes[i] = new QCheckBox(QString("Enable Light %1").arg(i));
         m_CheckBoxes[i]->setEnabled((i == 1));
@@ -41,8 +44,7 @@ PointLightEditor::PointLightEditor(std::shared_ptr<PointLights> lights /*= nullp
         lightLayouts[i]->addWidget(new QLabel("Specular: "), 3, 0, 1, 2);
         lightLayouts[i]->addWidget(new QLabel("Position: "), 4, 0, 1, 2);
 
-        for(int j = 0; j < 3; ++j)
-        {
+        for(int j = 0; j < 3; ++j) {
             m_LightAmbients[i][j]  = new QLineEdit;
             m_LightDiffuses[i][j]  = new QLineEdit;
             m_LightSpeculars[i][j] = new QLineEdit;
@@ -100,13 +102,11 @@ void PointLightEditor::setLights(std::shared_ptr<PointLights> lights)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PointLightEditor::connectComponents()
 {
-    for(int i = 0; i < MAX_POINT_LIGHT; ++i)
-    {
+    for(int i = 0; i < MAX_POINT_LIGHT; ++i) {
         connect(m_CheckBoxes[i], &QCheckBox::toggled, this,
                 [&, i](bool checked)
                 {
-                    for(int j = 0; j < 3; ++j)
-                    {
+                    for(int j = 0; j < 3; ++j) {
                         m_LightAmbients[i][j]->setEnabled(checked);
                         m_LightDiffuses[i][j]->setEnabled(checked);
                         m_LightSpeculars[i][j]->setEnabled(checked);
@@ -125,8 +125,7 @@ void PointLightEditor::connectComponents()
                     m_LightAmbients[i][2]->setText(QString("%1").arg(b, 8, 'g', 6));
                 });
 
-        for(int j = 0; j < 3; ++j)
-        {
+        for(int j = 0; j < 3; ++j) {
             connect(m_LightAmbients[i][j], &QLineEdit::textChanged, this,
                     [&, i]()
                     {
@@ -146,8 +145,7 @@ void PointLightEditor::connectComponents()
                     m_LightDiffuses[i][2]->setText(QString("%1").arg(b, 8, 'g', 6));
                 });
 
-        for(int j = 0; j < 3; ++j)
-        {
+        for(int j = 0; j < 3; ++j) {
             connect(m_LightDiffuses[i][j], &QLineEdit::textChanged, this,
                     [&, i]()
                     {
@@ -166,8 +164,7 @@ void PointLightEditor::connectComponents()
                     m_LightSpeculars[i][2]->setText(QString("%1").arg(b, 8, 'g', 6));
                 });
 
-        for(int j = 0; j < 3; ++j)
-        {
+        for(int j = 0; j < 3; ++j) {
             connect(m_LightSpeculars[i][j], &QLineEdit::textChanged, this,
                     [&, i]()
                     {
@@ -179,14 +176,12 @@ void PointLightEditor::connectComponents()
 
         ////////////////////////////////////////////////////////////////////////////////
         // only allow light i+1, i+2, .... to be enabled when light i was enabled
-        if(i < MAX_POINT_LIGHT - 1)
-        {
+        if(i < MAX_POINT_LIGHT - 1) {
             connect(m_CheckBoxes[i], &QCheckBox::toggled, this,
                     [&, i](bool checked)
                     {
                         m_CheckBoxes[i + 1]->setEnabled(checked);
-                        if(!checked)
-                        {
+                        if(!checked) {
                             m_CheckBoxes[i + 1]->setChecked(false);
                         }
                     });
@@ -202,24 +197,20 @@ void PointLightEditor::applyLights()
     ////////////////////////////////////////////////////////////////////////////////
     // update the number of active lights
     int numPointLights = MAX_POINT_LIGHT;
-    for(int i = 1; i < MAX_POINT_LIGHT; ++i)
-    {
-        if(!m_CheckBoxes[i]->isChecked())
-        {
+    for(int i = 1; i < MAX_POINT_LIGHT; ++i) {
+        if(!m_CheckBoxes[i]->isChecked()) {
             numPointLights = i;
             break;
         }
     }
 
-    if(m_Lights->getNumLights() != numPointLights)
-    {
+    if(m_Lights->getNumLights() != numPointLights) {
         m_Lights->setNumLights(numPointLights);
     }
 
     ////////////////////////////////////////////////////////////////////////////////
     // update light data
-    for(int i = 0; i < numPointLights; ++i)
-    {
+    for(int i = 0; i < numPointLights; ++i) {
         PointLights::PointLightData light;
 
         light.setAmbient(glm::vec4(m_LightAmbients[i][0]->text().toFloat(),
@@ -250,11 +241,11 @@ void PointLightEditor::applyLights()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PointLightEditor::lightToGUI()
 {
-    if(m_Lights == nullptr)
+    if(m_Lights == nullptr) {
         return;
+    }
 
-    for(int i = 0; i < m_Lights->getNumLights(); ++i)
-    {
+    for(int i = 0; i < m_Lights->getNumLights(); ++i) {
         m_CheckBoxes[i]->setChecked(true);
 
         glm::vec4 ambient  = m_Lights->getLightAmbient(i);
@@ -262,8 +253,7 @@ void PointLightEditor::lightToGUI()
         glm::vec4 specular = m_Lights->getLightSpecular(i);
         glm::vec4 position = m_Lights->getLightPosition(i);
 
-        for(int j = 0; j < 3; ++j)
-        {
+        for(int j = 0; j < 3; ++j) {
             m_LightAmbients[i][j]->setText(QString("%1").arg(ambient[j], 8, 'g', 6));
             m_LightDiffuses[i][j]->setText(QString("%1").arg(diffuse[j], 8, 'g', 6));
             m_LightSpeculars[i][j]->setText(QString("%1").arg(specular[j], 8, 'g', 6));

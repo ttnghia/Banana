@@ -1,17 +1,21 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//
-//  Copyright (c) 2017 by
-//       __      _     _         _____
-//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _
-//   /  \/ / _` | '_ \| |/ _` |   / /\/ '__| | | |/ _ \| '_ \ / _` |
-//  / /\  / (_| | | | | | (_| |  / /  | |  | |_| | (_) | | | | (_| |
-//  \_\ \/ \__, |_| |_|_|\__,_|  \/   |_|   \__,_|\___/|_| |_|\__, |
-//         |___/                                              |___/
-//
-//  <nghiatruong.vn@gmail.com>
-//  All rights reserved.
-//
+//                                .--,       .--,
+//                               ( (  \.---./  ) )
+//                                '.__/o   o\__.'
+//                                   {=  ^  =}
+//                                    >  -  <
+//     ___________________________.""`-------`"".____________________________
+//    /                                                                      \
+//    \    This file is part of Banana - a graphics programming framework    /
+//    /                    Created: 2017 by Nghia Truong                     \
+//    \                      <nghiatruong.vn@gmail.com>                      /
+//    /                      https://ttnghia.github.io                       \
+//    \                        All rights reserved.                          /
+//    /                                                                      \
+//    \______________________________________________________________________/
+//                                  ___)( )(___
+//                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
@@ -55,36 +59,36 @@ public:
 
     ////////////////////////////////////////////////////////////////////////////////
     template<class IndexType>
-    const T& operator()(IndexType i, IndexType j, IndexType k) const
+    const T& operator ()(IndexType i, IndexType j, IndexType k) const
     {
         return m_Data[makeKey<IndexType>(i, j, k)];
     }
 
     template<class IndexType>
-    T& operator()(IndexType i, IndexType j, IndexType k)
+    T& operator ()(IndexType i, IndexType j, IndexType k)
     {
         return m_Data[makeKey<IndexType>(i, j, k)];
     }
 
     template<class IndexType>
-    const T& operator()(const glm::tvec3<IndexType>& index) const
+    const T& operator ()(const glm::tvec3<IndexType>& index) const
     {
         return m_Data[makeKey<IndexType>(index[0], index[1], index[2])];
     }
 
     template<class IndexType>
-    T& operator()(const glm::tvec3<IndexType>& index)
+    T& operator ()(const glm::tvec3<IndexType>& index)
     {
         return m_Data[makeKey<IndexType>(index[0], index[1], index[2])];
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    bool operator==(const SparseArray3<T>& other) const
+    bool operator ==(const SparseArray3<T>& other) const
     {
         return m_Data == other.m_Data;
     }
 
-    bool operator!=(const SparseArray3<T>& other) const
+    bool operator !=(const SparseArray3<T>& other) const
     {
         return m_Data != other.m_Data;
     }

@@ -1,17 +1,21 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//
-//  Copyright (c) 2017 by
-//       __      _     _         _____
-//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _
-//   /  \/ / _` | '_ \| |/ _` |   / /\/ '__| | | |/ _ \| '_ \ / _` |
-//  / /\  / (_| | | | | | (_| |  / /  | |  | |_| | (_) | | | | (_| |
-//  \_\ \/ \__, |_| |_|_|\__,_|  \/   |_|   \__,_|\___/|_| |_|\__, |
-//         |___/                                              |___/
-//
-//  <nghiatruong.vn@gmail.com>
-//  All rights reserved.
-//
+//                                .--,       .--,
+//                               ( (  \.---./  ) )
+//                                '.__/o   o\__.'
+//                                   {=  ^  =}
+//                                    >  -  <
+//     ___________________________.""`-------`"".____________________________
+//    /                                                                      \
+//    \    This file is part of Banana - a graphics programming framework    /
+//    /                    Created: 2017 by Nghia Truong                     \
+//    \                      <nghiatruong.vn@gmail.com>                      /
+//    /                      https://ttnghia.github.io                       \
+//    \                        All rights reserved.                          /
+//    /                                                                      \
+//    \______________________________________________________________________/
+//                                  ___)( )(___
+//                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
@@ -22,30 +26,30 @@
 #include <QPainter>
 //#include <vcg/space/point2.h>
 
-template < class ValueType>
-inline ValueType QTLogicalToDevice(QWidget *qw, const ValueType &value)
+template<class ValueType>
+inline ValueType QTLogicalToDevice(QWidget* qw, const ValueType& value)
 {
 #if QT_VERSION >= 0x050000
-    return value*qw->devicePixelRatio();
+    return value * qw->devicePixelRatio();
 #else
     Q_UNUSED(qw);
     return value;
 #endif
 }
 
-template < class ValueType>
-inline ValueType QTLogicalToDevice(QPainter *qp, const ValueType &value)
+template<class ValueType>
+inline ValueType QTLogicalToDevice(QPainter* qp, const ValueType& value)
 {
 #if QT_VERSION >= 0x050000
-    return value*qp->device()->devicePixelRatio();
+    return value * qp->device()->devicePixelRatio();
 #else
     Q_UNUSED(qp);
     return value;
 #endif
 }
 
-template < class ValueType>
-inline ValueType QTDeviceToLogical(QWidget *qw, const ValueType &value)
+template<class ValueType>
+inline ValueType QTDeviceToLogical(QWidget* qw, const ValueType& value)
 {
 #if QT_VERSION >= 0x050000
     return value / qw->devicePixelRatio();
@@ -55,8 +59,8 @@ inline ValueType QTDeviceToLogical(QWidget *qw, const ValueType &value)
 #endif
 }
 
-template < class ValueType>
-inline ValueType QTDeviceToLogical(QPainter *qp, const ValueType &value)
+template<class ValueType>
+inline ValueType QTDeviceToLogical(QPainter* qp, const ValueType& value)
 {
 #if QT_VERSION >= 0x050000
     return value / qp->device()->devicePixelRatio();
@@ -72,11 +76,12 @@ inline ValueType QTDeviceToLogical(QPainter *qp, const ValueType &value)
 //}
 
 
-inline int QTDeviceHeight(QWidget *qw)
+inline int QTDeviceHeight(QWidget* qw)
 {
     return QTLogicalToDevice(qw, qw->height());
 }
-inline int QTDeviceWidth(QWidget *qw)
+
+inline int QTDeviceWidth(QWidget* qw)
 {
     return QTLogicalToDevice(qw, qw->width());
 }

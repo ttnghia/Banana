@@ -1,19 +1,24 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//
-//  Copyright (c) 2017 by
-//       __      _     _         _____
-//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _
-//   /  \/ / _` | '_ \| |/ _` |   / /\/ '__| | | |/ _ \| '_ \ / _` |
-//  / /\  / (_| | | | | | (_| |  / /  | |  | |_| | (_) | | | | (_| |
-//  \_\ \/ \__, |_| |_|_|\__,_|  \/   |_|   \__,_|\___/|_| |_|\__, |
-//         |___/                                              |___/
-//
-//  <nghiatruong.vn@gmail.com>
-//  All rights reserved.
-//
+//                                .--,       .--,
+//                               ( (  \.---./  ) )
+//                                '.__/o   o\__.'
+//                                   {=  ^  =}
+//                                    >  -  <
+//     ___________________________.""`-------`"".____________________________
+//    /                                                                      \
+//    \    This file is part of Banana - a graphics programming framework    /
+//    /                    Created: 2017 by Nghia Truong                     \
+//    \                      <nghiatruong.vn@gmail.com>                      /
+//    /                      https://ttnghia.github.io                       \
+//    \                        All rights reserved.                          /
+//    /                                                                      \
+//    \______________________________________________________________________/
+//                                  ___)( )(___
+//                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
 #define AniGen_Lambda                 0.5
 #define AniGen_NeighborCountThreshold 25
 #define AniGen_Kr                     4
@@ -43,19 +48,19 @@ void AnisotropicKernelGenerator::generateAniKernels()
                                           ////////////////////////////////////////////////////////////////////////////////
                                           // compute kernel center and weighted mean position
                                           const Vec3r& ppos = m_Particles[p];
-                                          Vec3r pposWM = ppos;
-                                          Real sumW = Real(1.0);
+                                          Vec3r pposWM      = ppos;
+                                          Real sumW         = Real(1.0);
 
                                           for(UInt q : d0.neighbors(0, p)) {
                                               const Vec3r& qpos = m_Particles[q];
-                                              const Vec3r xpq = qpos - ppos;
-                                              const Real d2 = glm::length2(xpq);
-                                              const Real wpq = W(d2);
-                                              sumW += wpq;
+                                              const Vec3r xpq   = qpos - ppos;
+                                              const Real d2     = glm::length2(xpq);
+                                              const Real wpq    = W(d2);
+                                              sumW   += wpq;
                                               pposWM += wpq * qpos;
                                           }
 
-                                          pposWM /= sumW;
+                                          pposWM            /= sumW;
                                           m_KernelCenters[p] = Real(1.0 - AniGen_Lambda) * ppos + Real(AniGen_Lambda) * pposWM;
 
                                           ////////////////////////////////////////////////////////////////////////////////
@@ -70,11 +75,11 @@ void AnisotropicKernelGenerator::generateAniKernels()
                                           sumW = Real(0);
                                           for(UInt q : d0.neighbors(0, p)) {
                                               const Vec3r& qpos = m_Particles[q];
-                                              const Vec3r xpq = qpos - pposWM;
-                                              const Real d2 = glm::length2(xpq);
-                                              const Real wpq = W(d2);
+                                              const Vec3r xpq   = qpos - pposWM;
+                                              const Real d2     = glm::length2(xpq);
+                                              const Real wpq    = W(d2);
                                               sumW += wpq;
-                                              C += wpq * glm::outerProduct(xpq, xpq);
+                                              C    += wpq * glm::outerProduct(xpq, xpq);
                                           }
 
                                           C /= sumW;   // => covariance matrix
@@ -86,7 +91,7 @@ void AnisotropicKernelGenerator::generateAniKernels()
                                           QRSVD::svd(C, U, S, V);
 
                                           Vec3r sigmas = Vec3r(S[0], MathHelpers::max(S[1], S[0] / AniGen_Kr), MathHelpers::max(S[2], S[0] / AniGen_Kr));
-                                          sigmas *= std::cbrt(Real(1.0) / glm::compMul(sigmas));       // scale so that det(covariance) == 1
+                                          sigmas             *= std::cbrt(Real(1.0) / glm::compMul(sigmas)); // scale so that det(covariance) == 1
                                           m_KernelMatrices[p] = U * LinaHelpers::diagMatrix(sigmas) * glm::transpose(V);
                                       });
 }

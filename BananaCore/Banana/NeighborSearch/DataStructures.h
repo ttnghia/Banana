@@ -1,17 +1,21 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//
-//  Copyright (c) 2017 by
-//       __      _     _         _____
-//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _
-//   /  \/ / _` | '_ \| |/ _` |   / /\/ '__| | | |/ _ \| '_ \ / _` |
-//  / /\  / (_| | | | | | (_| |  / /  | |  | |_| | (_) | | | | (_| |
-//  \_\ \/ \__, |_| |_|_|\__,_|  \/   |_|   \__,_|\___/|_| |_|\__, |
-//         |___/                                              |___/
-//
-//  <nghiatruong.vn@gmail.com>
-//  All rights reserved.
-//
+//                                .--,       .--,
+//                               ( (  \.---./  ) )
+//                                '.__/o   o\__.'
+//                                   {=  ^  =}
+//                                    >  -  <
+//     ___________________________.""`-------`"".____________________________
+//    /                                                                      \
+//    \    This file is part of Banana - a graphics programming framework    /
+//    /                    Created: 2017 by Nghia Truong                     \
+//    \                      <nghiatruong.vn@gmail.com>                      /
+//    /                      https://ttnghia.github.io                       \
+//    \                        All rights reserved.                          /
+//    /                                                                      \
+//    \______________________________________________________________________/
+//                                  ___)( )(___
+//                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
@@ -97,8 +101,9 @@ struct HashEntry
     void erase(PointID const& id)
     {
         auto it = std::find(indices.begin(), indices.end(), id);
-        if(it != indices.end())
+        if(it != indices.end()) {
             indices.erase(it);
+        }
     }
 
     UInt n_indices() const
@@ -147,8 +152,7 @@ public:
     {
         // add column to each row
         auto size = m_table.size();
-        for(auto i = 0u; i < size; i++)
-        {
+        for(auto i = 0u; i < size; i++) {
             m_table[i].resize(size + 1);
             m_table[i][size] = static_cast<unsigned char>(find_neighbors);
         }
@@ -156,8 +160,9 @@ public:
         // add new row
         m_table.resize(size + 1);
         m_table[size].resize(size + 1);
-        for(auto i = 0u; i < size + 1; i++)
+        for(auto i = 0u; i < size + 1; i++) {
             m_table[size][i] = static_cast<unsigned char>(search_neighbors);
+        }
     }
 
     /** Activate/Deactivate that neighbors in point set index2 are found when searching for neighbors of point set index1.
@@ -173,8 +178,7 @@ public:
     void set_active(UInt index, bool search_neighbors = true, bool find_neighbors = true)
     {
         auto size = m_table.size();
-        for(auto i = 0u; i < size; i++)
-        {
+        for(auto i = 0u; i < size; i++) {
             m_table[i][index] = static_cast<unsigned char>(find_neighbors);
             m_table[index][i] = static_cast<unsigned char>(search_neighbors);
         }
@@ -186,9 +190,11 @@ public:
     void set_active(bool active)
     {
         auto size = m_table.size();
-        for(auto i = 0u; i < size; i++)
-            for(auto j = 0u; j < size; j++)
+        for(auto i = 0u; i < size; i++) {
+            for(auto j = 0u; j < size; j++) {
                 m_table[i][j] = static_cast<unsigned char>(active);
+            }
+        }
     }
 
     bool is_active(UInt index1, UInt index2) const
@@ -198,10 +204,8 @@ public:
 
     bool is_searching_neighbors(UInt const index) const
     {
-        for(auto i = 0u; i < m_table[index].size(); i++)
-        {
-            if(m_table[index][i])
-            {
+        for(auto i = 0u; i < m_table[index].size(); i++) {
+            if(m_table[index][i]) {
                 return true;
             }
         }

@@ -1,17 +1,21 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//
-//  Copyright (c) 2017 by
-//       __      _     _         _____
-//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _
-//   /  \/ / _` | '_ \| |/ _` |   / /\/ '__| | | |/ _ \| '_ \ / _` |
-//  / /\  / (_| | | | | | (_| |  / /  | |  | |_| | (_) | | | | (_| |
-//  \_\ \/ \__, |_| |_|_|\__,_|  \/   |_|   \__,_|\___/|_| |_|\__, |
-//         |___/                                              |___/
-//
-//  <nghiatruong.vn@gmail.com>
-//  All rights reserved.
-//
+//                                .--,       .--,
+//                               ( (  \.---./  ) )
+//                                '.__/o   o\__.'
+//                                   {=  ^  =}
+//                                    >  -  <
+//     ___________________________.""`-------`"".____________________________
+//    /                                                                      \
+//    \    This file is part of Banana - a graphics programming framework    /
+//    /                    Created: 2017 by Nghia Truong                     \
+//    \                      <nghiatruong.vn@gmail.com>                      /
+//    /                      https://ttnghia.github.io                       \
+//    \                        All rights reserved.                          /
+//    /                                                                      \
+//    \______________________________________________________________________/
+//                                  ___)( )(___
+//                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
@@ -185,7 +189,7 @@ void BandMatrix<RealType >::lu_decompose()
             this->operator()(i, k) = -x;                                                 // assembly part of L
             j_max                  = MathHelpers::min(dim() - 1, k + nUpper());
             for(Int j = k + 1; j <= j_max; j++) {
-// assembly part of R
+                // assembly part of R
                 this->operator()(i, j) = this->operator()(i, j) + x * this->operator()(k, j);
             }
         }
@@ -273,8 +277,8 @@ void CubicSpline<RealType >::setPoints(const Vector<RealType>& X, const Vector<R
     }
 
     if(bCubicSpline == true) { // cubic CubicSpline Interpolation
-// setting up the matrix and right hand side of the equation system
-// for the parameters b[]
+        // setting up the matrix and right hand side of the equation system
+        // for the parameters b[]
         BandMatrix<RealType> A(n, 1, 1);
         Vector<RealType>     rhs(n);
         for(Int i = 1; i < n - 1; ++i) {
@@ -285,13 +289,13 @@ void CubicSpline<RealType >::setPoints(const Vector<RealType>& X, const Vector<R
         }
         // boundary conditions
         if(m_Left == CubicSpline<RealType>::BDType::SecondOrder) {
-// 2*b[0] = f''
+            // 2*b[0] = f''
             A(0, 0) = RealType(2.0);
             A(0, 1) = RealType(0);
             rhs[0]  = m_LeftValue;
         } else if(m_Left == CubicSpline<RealType>::BDType::FirstOrder) {
-// c[0] = f', needs to be re-expressed in terms of b:
-// (2b[0]+b[1])(x[1]-x[0]) = 3 ((y[1]-y[0])/(x[1]-x[0]) - f')
+            // c[0] = f', needs to be re-expressed in terms of b:
+            // (2b[0]+b[1])(x[1]-x[0]) = 3 ((y[1]-y[0])/(x[1]-x[0]) - f')
             A(0, 0) = RealType(2.0) * (X[1] - X[0]);
             A(0, 1) = RealType(1.0) * (X[1] - X[0]);
             rhs[0]  = RealType(3.0) * ((Y[1] - Y[0]) / (X[1] - X[0]) - m_LeftValue);
@@ -299,14 +303,14 @@ void CubicSpline<RealType >::setPoints(const Vector<RealType>& X, const Vector<R
             assert(false);
         }
         if(m_Right == CubicSpline<RealType>::BDType::SecondOrder) {
-// 2*b[n-1] = f''
+            // 2*b[n-1] = f''
             A(n - 1, n - 1) = RealType(2.0);
             A(n - 1, n - 2) = RealType(0);
             rhs[n - 1]      = m_RightValue;
         } else if(m_Right == CubicSpline<RealType>::BDType::FirstOrder) {
-// c[n-1] = f', needs to be re-expressed in terms of b:
-// (b[n-2]+2b[n-1])(x[n-1]-x[n-2])
-// = 3 (f' - (y[n-1]-y[n-2])/(x[n-1]-x[n-2]))
+            // c[n-1] = f', needs to be re-expressed in terms of b:
+            // (b[n-2]+2b[n-1])(x[n-1]-x[n-2])
+            // = 3 (f' - (y[n-1]-y[n-2])/(x[n-1]-x[n-2]))
             A(n - 1, n - 1) = RealType(2.0) * (X[n - 1] - X[n - 2]);
             A(n - 1, n - 2) = RealType(1.0) * (X[n - 1] - X[n - 2]);
             rhs[n - 1]      = RealType(3.0) * (m_RightValue - (Y[n - 1] - Y[n - 2]) / (X[n - 1] - X[n - 2]));
@@ -364,10 +368,10 @@ RealType CubicSpline<RealType>::operator ()(RealType x) const
     RealType h = x - m_X[idx];
     RealType Interpol;
     if(x < m_X[0]) {
-// extrapolation to the left
+        // extrapolation to the left
         Interpol = (m_b0 * h + m_c0) * h + m_Y[0];
     } else if(x > m_X[n - 1]) {
-// extrapolation to the right
+        // extrapolation to the right
         Interpol = (m_b[n - 1] * h + m_c[n - 1]) * h + m_Y[n - 1];
     } else {
         // Interpolation
@@ -391,7 +395,7 @@ RealType CubicSpline<RealType >::deriv(Int order, RealType x) const
     RealType h = x - m_X[idx];
     RealType Interpol;
     if(x < m_X[0]) {
-// extrapolation to the left
+        // extrapolation to the left
         switch(order) {
             case 1:
                 Interpol = RealType(2.0) * m_b0 * h + m_c0;
@@ -404,7 +408,7 @@ RealType CubicSpline<RealType >::deriv(Int order, RealType x) const
                 break;
         }
     } else if(x > m_X[n - 1]) {
-// extrapolation to the right
+        // extrapolation to the right
         switch(order) {
             case 1:
                 Interpol = RealType(2.0) * m_b[n - 1] * h + m_c[n - 1];

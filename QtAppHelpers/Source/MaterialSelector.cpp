@@ -1,17 +1,21 @@
 ﻿//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//
-//  Copyright (c) 2017 by
-//       __      _     _         _____
-//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _
-//   /  \/ / _` | '_ \| |/ _` |   / /\/ '__| | | |/ _ \| '_ \ / _` |
-//  / /\  / (_| | | | | | (_| |  / /  | |  | |_| | (_) | | | | (_| |
-//  \_\ \/ \__, |_| |_|_|\__,_|  \/   |_|   \__,_|\___/|_| |_|\__, |
-//         |___/                                              |___/
-//
-//  <nghiatruong.vn@gmail.com>
-//  All rights reserved.
-//
+//                                .--,       .--,
+//                               ( (  \.---./  ) )
+//                                '.__/o   o\__.'
+//                                   {=  ^  =}
+//                                    >  -  <
+//     ___________________________.""`-------`"".____________________________
+//    /                                                                      \
+//    \    This file is part of Banana - a graphics programming framework    /
+//    /                    Created: 2017 by Nghia Truong                     \
+//    \                      <nghiatruong.vn@gmail.com>                      /
+//    /                      https://ttnghia.github.io                       \
+//    \                        All rights reserved.                          /
+//    /                                                                      \
+//    \______________________________________________________________________/
+//                                  ___)( )(___
+//                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
@@ -41,16 +45,12 @@ MaterialSelector::MaterialSelector(const Material::MaterialData& material /*= Ma
                 QColor color(floatToQColor(material.diffuse));
                 m_ComboBox->setItemData(m_ComboBox->count() - 1, color, Qt::DecorationRole);
 
-                if(m_ComboBox->currentIndex() != m_ComboBox->count() - 1)
-                {
+                if(m_ComboBox->currentIndex() != m_ComboBox->count() - 1) {
                     m_ComboBox->setCurrentIndex(m_ComboBox->count() - 1);
-                }
-                else
-                {
+                } else {
                     emit materialChanged(material);
 
-                    if(m_bDebug)
-                    {
+                    if(m_bDebug) {
                         qDebug() << QString("Debug::MaterialChanged: Ambient = [%1, %2, %3], Diffuse = [%4, %5, %6], Specular = [%7, %8, %9]")
                             .arg(material.ambient[0]).arg(material.ambient[1]).arg(material.ambient[2])
                             .arg(material.diffuse[0]).arg(material.diffuse[1]).arg(material.diffuse[2])
@@ -66,8 +66,7 @@ MaterialSelector::MaterialSelector(const Material::MaterialData& material /*= Ma
     ////////////////////////////////////////////////////////////////////////////////
     m_Materials = Material::getBuildInMaterials();
 
-    for(const Material::MaterialData& material : m_Materials)
-    {
+    for(const Material::MaterialData& material : m_Materials) {
         m_ComboBox->addItem(QString::fromStdString(material.name));
         QColor color(floatToQColor(material.diffuse));
         m_ComboBox->setItemData(m_ComboBox->count() - 1, color, Qt::DecorationRole);
@@ -87,8 +86,7 @@ MaterialSelector::MaterialSelector(const Material::MaterialData& material /*= Ma
     m_MaterialColorPicker->setMaterial(m_CustomMaterial);
     m_MaterialColorPicker->setWidgetColor(m_Materials[m_ComboBox->currentIndex()]);
 
-    if(defaultCustomMaterial)
-    {
+    if(defaultCustomMaterial) {
         setMaterial(m_ComboBox->count() - 1);
         m_ComboBox->setCurrentIndex(m_ComboBox->count() - 1);
     }
@@ -116,8 +114,7 @@ QLayout* MaterialSelector::getLayout() const
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 QGroupBox* MaterialSelector::getGroupBox(QString title)
 {
-    if(m_GroupBox == nullptr)
-    {
+    if(m_GroupBox == nullptr) {
         m_GroupBox = new QGroupBox(title);
         m_GroupBox->setLayout(m_Layout);
     }
@@ -145,8 +142,7 @@ void MaterialSelector::setMaterial(int materialID)
 
     emit materialChanged(m_CurrentMaterial);
 
-    if(m_bDebug)
-    {
+    if(m_bDebug) {
         qDebug() << QString("Debug::MaterialChanged: Ambient = [%1, %2, %3], Diffuse = [%4, %5, %6], Specular = [%7, %8, %9]")
             .arg(m_CurrentMaterial.ambient[0]).arg(m_CurrentMaterial.ambient[1]).arg(m_CurrentMaterial.ambient[2])
             .arg(m_CurrentMaterial.diffuse[0]).arg(m_CurrentMaterial.diffuse[1]).arg(m_CurrentMaterial.diffuse[2])
@@ -159,10 +155,8 @@ void MaterialSelector::setMaterial(const Material::MaterialData& material)
 {
     size_t mIndex = m_Materials.size();
 
-    for(size_t i = 0; i < m_Materials.size(); ++i)
-    {
-        if(material.name == m_Materials[i].name)
-        {
+    for(size_t i = 0; i < m_Materials.size(); ++i) {
+        if(material.name == m_Materials[i].name) {
             mIndex = i;
             break;
         }
@@ -178,8 +172,7 @@ void MaterialSelector::setCustomMaterial(const Material::MaterialData& material)
     m_CustomMaterial = material;
     m_MaterialColorPicker->setMaterial(material);
 
-    if(m_ComboBox->currentIndex() == m_ComboBox->count() - 1)
-    {
+    if(m_ComboBox->currentIndex() == m_ComboBox->count() - 1) {
         m_MaterialColorPicker->setWidgetColor(m_CurrentMaterial);
     }
 

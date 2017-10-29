@@ -1,17 +1,21 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//
-//  Copyright (c) 2017 by
-//       __      _     _         _____
-//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _
-//   /  \/ / _` | '_ \| |/ _` |   / /\/ '__| | | |/ _ \| '_ \ / _` |
-//  / /\  / (_| | | | | | (_| |  / /  | |  | |_| | (_) | | | | (_| |
-//  \_\ \/ \__, |_| |_|_|\__,_|  \/   |_|   \__,_|\___/|_| |_|\__, |
-//         |___/                                              |___/
-//
-//  <nghiatruong.vn@gmail.com>
-//  All rights reserved.
-//
+//                                .--,       .--,
+//                               ( (  \.---./  ) )
+//                                '.__/o   o\__.'
+//                                   {=  ^  =}
+//                                    >  -  <
+//     ___________________________.""`-------`"".____________________________
+//    /                                                                      \
+//    \    This file is part of Banana - a graphics programming framework    /
+//    /                    Created: 2017 by Nghia Truong                     \
+//    \                      <nghiatruong.vn@gmail.com>                      /
+//    /                      https://ttnghia.github.io                       \
+//    \                        All rights reserved.                          /
+//    /                                                                      \
+//    \______________________________________________________________________/
+//                                  ___)( )(___
+//                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
@@ -82,7 +86,7 @@ void Snow3DSolver::advanceFrame()
                                   logger().printRunTime("Advance scene: ", funcTimer, [&]() { advanceScene(globalParams().finishedFrame, frameTime / globalParams().frameDuration); });
                               });
 
-////////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////////
         logger().newLine();
     }           // end while
 
@@ -487,7 +491,7 @@ void Snow3DSolver::explicitVelocities(Real timestep)
                                     }
                                 });
 
-//Now we have all grid forces, compute velocities (euler integration)
+    //Now we have all grid forces, compute velocities (euler integration)
     ParallelFuncs::parallel_for(gridData().active.dataSize(),
                                 [&](size_t i)
                                 {
@@ -519,15 +523,15 @@ void Snow3DSolver::implicitVelocities(Real timestep)
                                 {
                                     gridData().imp_active.data()[i] = gridData().active.data()[i];
                                     if(gridData().imp_active.data()[i]) {
-//recomputeImplicitForces will compute Er, given r
-//Initially, we want vf - E*vf; so we'll temporarily set r to vf
+                                        //recomputeImplicitForces will compute Er, given r
+                                        //Initially, we want vf - E*vf; so we'll temporarily set r to vf
                                         gridData().r.data()[i] = gridData().velocity_new.data()[i];
                                         //Also set the error to 1
                                         gridData().err.data()[i] = Vec3r(1.0);
                                     }
                                 });
 
-//As said before, we need to compute vf-E*vf as our initial "r" residual
+    //As said before, we need to compute vf-E*vf as our initial "r" residual
     recomputeImplicitForces(timestep);
 
     ParallelFuncs::parallel_for(gridData().imp_active.dataSize(),
@@ -542,7 +546,7 @@ void Snow3DSolver::implicitVelocities(Real timestep)
                                     }
                                 });
 
-//Since we updated r, we need to recompute Er
+    //Since we updated r, we need to recompute Er
     recomputeImplicitForces(timestep);
 
     //Ep starts out the same as Er
@@ -554,7 +558,7 @@ void Snow3DSolver::implicitVelocities(Real timestep)
                                     }
                                 });
 
-//LINEAR SOLVE
+    //LINEAR SOLVE
     for(UInt i = 0; i < solverParams().maxCGIteration; i++) {
         bool done = true;
 
@@ -563,8 +567,8 @@ void Snow3DSolver::implicitVelocities(Real timestep)
                                     {
                                         //Only perform calculations on nodes that haven't been solved yet
                                         if(gridData().imp_active.data()[i]) {
-//Alright, so we'll handle each node's solve separately
-//First thing to do is update our vf guess
+                                            //Alright, so we'll handle each node's solve separately
+                                            //First thing to do is update our vf guess
                                             Real div   = glm::dot(gridData().Ep.data()[i], gridData().Ep.data()[i]);
                                             Real alpha = gridData().rDotEr.data()[i] / div;
                                             gridData().err.data()[i] = alpha * gridData().p.data()[i];
@@ -582,7 +586,7 @@ void Snow3DSolver::implicitVelocities(Real timestep)
                                             gridData().r.data()[i]            -= alpha * gridData().Ep.data()[i];
                                         }
                                     });
-//If all the velocities converged, we're done
+        //If all the velocities converged, we're done
         if(done) {
             break;
         }
@@ -635,8 +639,8 @@ void Snow3DSolver::recomputeImplicitForces(Real timestep)
                                     }
                                 });
 
-//We have delta force for each node; to get Er, we use the following formula:
-//	r - IMPLICIT_RATIO*TIMESTEP*delta_force/mass
+    //We have delta force for each node; to get Er, we use the following formula:
+    //	r - IMPLICIT_RATIO*TIMESTEP*delta_force/mass
     ParallelFuncs::parallel_for(gridData().imp_active.dataSize(),
                                 [&](size_t i)
                                 {
@@ -848,7 +852,7 @@ Mat3x3r Snow3DSolver::computeEnergyDerivative(UInt p)
     Mat3x3r temp = Real(3.0) * solverParams().mu *
                    (particleData().elasticDeformGrad[p] - particleData().svd_w[p] * glm::transpose(particleData().svd_v[p])) *
                    glm::transpose(particleData().elasticDeformGrad[p]);
-//Add in the primary contour term
+    //Add in the primary contour term
     LinaHelpers::sumToDiag(temp, solverParams().lambda * Je * (Je - Real(1.0)));
     //Add hardening and volume
     return particleData().volumes[p] * harden * temp;
@@ -880,12 +884,12 @@ Vec3r Snow3DSolver::computeDeltaForce(UInt p, const Vec3r& u, const Vec3r& weigh
 
     Real y = (polar_r[0][0] * del_elastic[1][0] + polar_r[1][0] * del_elastic[1][1]) -
              (polar_r[0][1] * del_elastic[0][0] + polar_r[1][1] * del_elastic[0][1]);
-//Next we need to compute MS + SM, where S is the hermitian matrix (symmetric for real
-//valued matrices) of the polar decomposition and M is (R^T*dR); This is equal
-//to the matrix we just found (R^T*dF ...), so we set them equal to eachother
-//Since everything is so symmetric, we get a nice system of linear equations
-//once we multiply everything out. (see pdf for details)
-//In the case of 2D, we only need to solve for one variable (three for 3D)
+    //Next we need to compute MS + SM, where S is the hermitian matrix (symmetric for real
+    //valued matrices) of the polar decomposition and M is (R^T*dR); This is equal
+    //to the matrix we just found (R^T*dF ...), so we set them equal to eachother
+    //Since everything is so symmetric, we get a nice system of linear equations
+    //once we multiply everything out. (see pdf for details)
+    //In the case of 2D, we only need to solve for one variable (three for 3D)
     Real x = y / (polar_s[0][0] + polar_s[1][1]);
     //Final computation is deltaR = R*(R^T*dR)
     Mat3x3r del_rotate = x * Mat3x3r(-polar_r[1][0], polar_r[0][0],

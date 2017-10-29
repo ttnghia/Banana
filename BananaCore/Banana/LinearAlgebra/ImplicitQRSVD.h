@@ -1,28 +1,21 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//
-//  Copyright (c) 2017 by
-//       __      _     _         _____
-//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _
-//   /  \/ / _` | '_ \| |/ _` |   / /\/ '__| | | |/ _ \| '_ \ / _` |
-//  / /\  / (_| | | | | | (_| |  / /  | |  | |_| | (_) | | | | (_| |
-//  \_\ \/ \__, |_| |_|_|\__,_|  \/   |_|   \__,_|\___/|_| |_|\__, |
-//         |___/                                              |___/
-//
-//  <nghiatruong.vn@gmail.com>
-//  All rights reserved.
-//
-//  This code is adapted from the implementation of "Implicit-shifted Symmetric QR Singular Value Decomposition"
-//  Original link: http://www.math.ucla.edu/~fuchuyuan/svd/svd.html
-//
-//  Polar decomposition: polar(A, R, S);
-//    R will be the closest rotation to A
-//    S will be symmetric
-//
-//  SVD decomposition: svd(A, U, S, V);
-//    A = U S V'
-//    U and V will be rotations
-//    S will be singular values sorted by decreasing magnitude. Only the last one may be negative.
+//                                .--,       .--,
+//                               ( (  \.---./  ) )
+//                                '.__/o   o\__.'
+//                                   {=  ^  =}
+//                                    >  -  <
+//     ___________________________.""`-------`"".____________________________
+//    /                                                                      \
+//    \    This file is part of Banana - a graphics programming framework    /
+//    /                    Created: 2017 by Nghia Truong                     \
+//    \                      <nghiatruong.vn@gmail.com>                      /
+//    /                      https://ttnghia.github.io                       \
+//    \                        All rights reserved.                          /
+//    /                                                                      \
+//    \______________________________________________________________________/
+//                                  ___)( )(___
+//                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
@@ -211,10 +204,11 @@ void zeroChase(Mat3x3<T>& H, Mat3x3<T>& U, Mat3x3<T>& V)
             rows thus no need to divide by sqrt(a^2+b^2)
      */
     GivensRotation<T> r2(1, 2);
-    if(H[0][1] != 0)
+    if(H[0][1] != 0) {
         r2.compute(H[0][0] * H[1][0] + H[0][1] * H[1][1], H[0][0] * H[2][0] + H[0][1] * H[2][1]);
-    else
+    } else {
         r2.compute(H[1][0], H[2][0]);
+    }
 
     r1.rowRotation(H);
 
@@ -408,8 +402,7 @@ void svd(const Mat2x2<T>& A, GivensRotation<T>& U, const Vec2<T>& Sigma, GivensR
         sine     = T(0);
         sigma[0] = x;
         sigma[1] = z;
-    }
-    else {
+    } else {
         T tau = T(0.5) * (x - z);
         T w   = sqrt(tau * tau + y * y);
         // w > y > 0
@@ -417,8 +410,7 @@ void svd(const Mat2x2<T>& A, GivensRotation<T>& U, const Vec2<T>& Sigma, GivensR
         if(tau > 0) {
             // tau + w > w > y > 0 ==> division is safe
             t = y / (tau + w);
-        }
-        else {
+        } else {
             // tau - w < -w < -y < 0 ==> division is safe
             t = y / (tau - w);
         }
@@ -442,8 +434,7 @@ void svd(const Mat2x2<T>& A, GivensRotation<T>& U, const Vec2<T>& Sigma, GivensR
         std::swap(sigma[0], sigma[1]);
         V.c = -sine;
         V.s = cosine;
-    }
-    else {
+    } else {
         V.c = cosine;
         V.s = sine;
     }
@@ -505,14 +496,16 @@ void process(Mat3x3<T>& B, Mat3x3<T>& U, Vec3<T>& sigma, Mat3x3<T>& V)
     Vec2<T>   s;
     for(Int j = 0; j < 2; ++j) {
         s[j] = sigma[j + t];
-        for(Int i = 0; i < 2; ++i)
+        for(Int i = 0; i < 2; ++i) {
             A[i][j] = B[i + t][j + t];
+        }
     }
     svd(A, u, s, v);
     for(Int j = 0; j < 2; ++j) {
         sigma[j + t] = s[j];
-        for(Int i = 0; i < 2; ++i)
+        for(Int i = 0; i < 2; ++i) {
             B[i + t][j + t] = A[i][j];
+        }
     }
 
     u.rowi += t;
@@ -558,16 +551,15 @@ void sort0(Mat3x3<T>& U, Vec3<T>& sigma, Mat3x3<T>& V)
 
     //swap sigma[1] and sigma[2] for both cases
     std::swap(sigma[1], sigma[2]);
-    std::swap(U[1], U[2]);
-    std::swap(V[1], V[2]);
+    std::swap(U[1],     U[2]);
+    std::swap(V[1],     V[2]);
 
     // Case: |sigma[2]| >= sigma[0] > |simga[1]|
     if(sigma[1] > sigma[0]) {
         std::swap(sigma[0], sigma[1]);
-        std::swap(U[0], U[1]);
-        std::swap(V[0], V[1]);
+        std::swap(U[0],     U[1]);
+        std::swap(V[0],     V[1]);
     }
-
     // Case: sigma[0] >= |sigma[2]| > |simga[1]|
     else {
         U[2] = -U[2];
@@ -592,16 +584,15 @@ void sort1(Mat3x3<T>& U, Vec3<T>& sigma, Mat3x3<T>& V)
 
     //swap sigma[0] and sigma[1] for both cases
     std::swap(sigma[0], sigma[1]);
-    std::swap(U[0], U[1]);
-    std::swap(V[0], V[1]);
+    std::swap(U[0],     U[1]);
+    std::swap(V[0],     V[1]);
 
     // Case: sigma[1] > |sigma[2]| >= |sigma[0]|
     if(fabs(sigma[1]) < fabs(sigma[2])) {
         std::swap(sigma[1], sigma[2]);
-        std::swap(U[1], U[2]);
-        std::swap(V[1], V[2]);
+        std::swap(U[1],     U[2]);
+        std::swap(V[1],     V[2]);
     }
-
     // Case: sigma[1] >= |sigma[0]| > |sigma[2]|
     else {
         U[1] = -U[1];

@@ -1,17 +1,21 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//
-//  Copyright (c) 2017 by
-//       __      _     _         _____
-//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _
-//   /  \/ / _` | '_ \| |/ _` |   / /\/ '__| | | |/ _ \| '_ \ / _` |
-//  / /\  / (_| | | | | | (_| |  / /  | |  | |_| | (_) | | | | (_| |
-//  \_\ \/ \__, |_| |_|_|\__,_|  \/   |_|   \__,_|\___/|_| |_|\__, |
-//         |___/                                              |___/
-//
-//  <nghiatruong.vn@gmail.com>
-//  All rights reserved.
-//
+//                                .--,       .--,
+//                               ( (  \.---./  ) )
+//                                '.__/o   o\__.'
+//                                   {=  ^  =}
+//                                    >  -  <
+//     ___________________________.""`-------`"".____________________________
+//    /                                                                      \
+//    \    This file is part of Banana - a graphics programming framework    /
+//    /                    Created: 2017 by Nghia Truong                     \
+//    \                      <nghiatruong.vn@gmail.com>                      /
+//    /                      https://ttnghia.github.io                       \
+//    \                        All rights reserved.                          /
+//    /                                                                      \
+//    \______________________________________________________________________/
+//                                  ___)( )(___
+//                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
@@ -36,12 +40,12 @@ struct MPMMaterial
         isoHardMod(d),
         kinHardMod(e)
     {
-        if(density < Real(0.0)) throw std::exception("invalid density");
-        if(Y < Real(0.0)) throw std::exception("invalid Young's modulus");
-        if(P > Real(0.5) - std::numeric_limits<Real>::epsilon() || P < Real(0.0)) throw std::exception("invalid Poisson's ratio");
-        if(yieldStress < Real(0.0)) throw std::exception("invalid yield stress - no plasticity found in plastic model");
-        if(isoHardMod < Real(0.0)) throw std::exception("invalid isotropic hardening modulus");
-        if(kinHardMod < Real(0.0)) throw std::exception("invalid kinematic hardening modulus");
+        if(density < Real(0.0)) { throw std::exception("invalid density"); }
+        if(Y < Real(0.0)) { throw std::exception("invalid Young's modulus"); }
+        if(P > Real(0.5) - std::numeric_limits<Real>::epsilon() || P < Real(0.0)) { throw std::exception("invalid Poisson's ratio"); }
+        if(yieldStress < Real(0.0)) { throw std::exception("invalid yield stress - no plasticity found in plastic model"); }
+        if(isoHardMod < Real(0.0)) { throw std::exception("invalid isotropic hardening modulus"); }
+        if(kinHardMod < Real(0.0)) { throw std::exception("invalid kinematic hardening modulus"); }
     }
 };
 
@@ -83,7 +87,7 @@ struct NeoHookean : public ConstitutiveModel<Real>
         volume(vl),
         stress(st)
     {
-        if(Npart() < 1) throw std::exception("NeoHookean: no particles to initialize!");
+        if(Npart() < 1) { throw std::exception("NeoHookean: no particles to initialize!"); }
     }
 
     Real waveSpeed() const { return sqrt((lam + 3. * mu) / Dens); }
@@ -156,8 +160,7 @@ struct J2plasticLinearIsoKin : public ConstitutiveModel<Real>
         volume(vl),
         stress(st)
     {
-        for(int i = 0; i < pnt.size(); ++i)
-        {
+        for(int i = 0; i < pnt.size(); ++i) {
             pnt[i].strain.fill(0);
             pnt[i].plasticStrain.fill(0);
             pnt[i].backStress.fill(0);

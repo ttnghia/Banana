@@ -1,17 +1,21 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//
-//  Copyright (c) 2017 by
-//       __      _     _         _____
-//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _
-//   /  \/ / _` | '_ \| |/ _` |   / /\/ '__| | | |/ _ \| '_ \ / _` |
-//  / /\  / (_| | | | | | (_| |  / /  | |  | |_| | (_) | | | | (_| |
-//  \_\ \/ \__, |_| |_|_|\__,_|  \/   |_|   \__,_|\___/|_| |_|\__, |
-//         |___/                                              |___/
-//
-//  <nghiatruong.vn@gmail.com>
-//  All rights reserved.
-//
+//                                .--,       .--,
+//                               ( (  \.---./  ) )
+//                                '.__/o   o\__.'
+//                                   {=  ^  =}
+//                                    >  -  <
+//     ___________________________.""`-------`"".____________________________
+//    /                                                                      \
+//    \    This file is part of Banana - a graphics programming framework    /
+//    /                    Created: 2017 by Nghia Truong                     \
+//    \                      <nghiatruong.vn@gmail.com>                      /
+//    /                      https://ttnghia.github.io                       \
+//    \                        All rights reserved.                          /
+//    /                                                                      \
+//    \______________________________________________________________________/
+//                                  ___)( )(___
+//                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
@@ -81,12 +85,10 @@ public:
         void* trace[MAX_DEPTH];
         int   stack_depth = backtrace(trace, MAX_DEPTH);
 
-        for(int i = num_discard + 1; i < stack_depth; i++)
-        {
+        for(int i = num_discard + 1; i < stack_depth; i++) {
             Dl_info dlinfo;
 
-            if(!dladdr(trace[i], &dlinfo))
-            {
+            if(!dladdr(trace[i], &dlinfo)) {
                 break;
             }
 
@@ -96,16 +98,14 @@ public:
             int   status;
             char* demangled = abi::__cxa_demangle(symname, NULL, 0, &status);
 
-            if(status == 0 && demangled)
-            {
+            if(status == 0 && demangled) {
                 symname = demangled;
             }
 
             //printf("entry: %s, %s\n", dlinfo.dli_fname, symname);
 
             // store entry to stack
-            if(dlinfo.dli_fname && symname)
-            {
+            if(dlinfo.dli_fname && symname) {
                 Entry e;
 
                 std::string str(dlinfo.dli_fname);
@@ -115,14 +115,11 @@ public:
                 e.line     = 0; // unsupported
                 e.function = symname;
                 stack.push_back(e);
-            }
-            else
-            {
+            } else {
                 break;  // skip last entries below main
             }
 
-            if(demangled)
-            {
+            if(demangled) {
                 free(demangled);
             }
         }
@@ -139,8 +136,7 @@ public:
     {
         std::ostringstream os;
 
-        for(size_t i = 0; i < stack.size(); i++)
-        {
+        for(size_t i = 0; i < stack.size(); i++) {
             os << stack[i].to_string(i) << std::endl;
         }
 

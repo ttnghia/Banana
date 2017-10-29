@@ -1,17 +1,21 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//
-//  Copyright (c) 2017 by
-//       __      _     _         _____
-//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _
-//   /  \/ / _` | '_ \| |/ _` |   / /\/ '__| | | |/ _ \| '_ \ / _` |
-//  / /\  / (_| | | | | | (_| |  / /  | |  | |_| | (_) | | | | (_| |
-//  \_\ \/ \__, |_| |_|_|\__,_|  \/   |_|   \__,_|\___/|_| |_|\__, |
-//         |___/                                              |___/
-//
-//  <nghiatruong.vn@gmail.com>
-//  All rights reserved.
-//
+//                                .--,       .--,
+//                               ( (  \.---./  ) )
+//                                '.__/o   o\__.'
+//                                   {=  ^  =}
+//                                    >  -  <
+//     ___________________________.""`-------`"".____________________________
+//    /                                                                      \
+//    \    This file is part of Banana - a graphics programming framework    /
+//    /                    Created: 2017 by Nghia Truong                     \
+//    \                      <nghiatruong.vn@gmail.com>                      /
+//    /                      https://ttnghia.github.io                       \
+//    \                        All rights reserved.                          /
+//    /                                                                      \
+//    \______________________________________________________________________/
+//                                  ___)( )(___
+//                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
@@ -40,23 +44,20 @@ void PCISPHSolver::advanceVelocity(Real timestep)
 {
     __NOODLE_ASSERT(m_bSolverInitalized);
 
-    if(m_ParticleParams->numParticleActive == 0)
-    {
+    if(m_ParticleParams->numParticleActive == 0) {
         return;
     }
 
     static Timer timer;
 
-    if(bHasGravity)
-    {
+    if(bHasGravity) {
         timer.tick();
         addGravity(timestep);
         timer.tock();
         m_Monitor.printLog(timer.getRunTime("Add grativy: "));
     }
 
-    if(bHasRepulsiveVelocity)
-    {
+    if(bHasRepulsiveVelocity) {
         timer.tick();
         computeRepulsiveVelocity(timestep);
         timer.tock();
@@ -77,8 +78,7 @@ void PCISPHSolver::advanceVelocity(Real timestep)
     int  iteration       = 0;
     //bool find_neightbor = false;
 
-    while(((max_density_err > eta) || (iteration < 3)) && (iteration < max_pcisph_iterations))
-    {
+    while(((max_density_err > eta) || (iteration < 3)) && (iteration < max_pcisph_iterations)) {
         //max_density_err = 0;
         //find_neightbor = false;
 
@@ -110,18 +110,16 @@ void PCISPHSolver::advanceVelocity(Real timestep)
         m_Monitor.printLogIndent(timer.getRunTime("Compute pressure forces: "));
 
         ////////////////////////////////////////////////////////////////////////////////
-        if(max_density_err < SMALL_NUMBER)
+        if(max_density_err < SMALL_NUMBER) {
             break;
+        }
 
         ++iteration;
     }
 
-    if(max_density_err > eta)
-    {
+    if(max_density_err > eta) {
         m_Monitor.printLog("Warning: error density condition does not meet............................................");
-    }
-    else
-    {
+    } else {
         m_Monitor.printLog("PCISPH converged after " + std::to_string(iteration) + " iterations");
     }
 
@@ -155,8 +153,7 @@ void PCISPHSolver::compute_beta_delta(Real timestep)
     static bool precomputed = false;
     static Real beta        = 1.0;
 
-    if(!precomputed)
-    {
+    if(!precomputed) {
         std::random_device                   rd;
         std::mt19937                         gen(rd());
         std::uniform_real_distribution<Real> dis(0.1 * m_ParticleRadius, 0.3 * m_ParticleRadius);
@@ -166,12 +163,9 @@ void PCISPHSolver::compute_beta_delta(Real timestep)
         Real       sumGradW2     = 0.0;
         Vec3       sumGradW      = Vec3(0, 0, 0);
 
-        for(int i = -num_particles; i <= num_particles; ++i)
-        {
-            for(int j = -num_particles; j <= num_particles; ++j)
-            {
-                for(int k = -num_particles; k <= num_particles; ++k)
-                {
+        for(int i = -num_particles; i <= num_particles; ++i) {
+            for(int j = -num_particles; j <= num_particles; ++j) {
+                for(int k = -num_particles; k <= num_particles; ++k) {
                     const Vec3 r  = Vec3(i, j, k) * particle_size + Vec3(dis(gen), dis(gen), dis(gen));
                     const Vec3 dw = m_SpikyKernel.gradW(r);
                     sumGradW  += dw;
@@ -197,8 +191,7 @@ void PCISPHSolver::predict_velocity_position(Real timestep)
     // => predict velocity
     tbb::parallel_for(tbb::blocked_range<size_t>(0, velocity.size()), [&, timestep](tbb::blocked_range<size_t> r)
                       {
-                          for(size_t p = r.begin(); p != r.end(); ++p)
-                          {
+                          for(size_t p = r.begin(); p != r.end(); ++p) {
                               predictedVelocity[p] = velocity[p] + m_PressureAcceleration[p] * timestep;
                           }
                       }); // end parallel_for
@@ -223,34 +216,27 @@ void PCISPHSolver::update_density_pressure()
 
     tbb::parallel_for(tbb::blocked_range<size_t>(0, pressure.size()), [&](tbb::blocked_range<size_t> r)
                       {
-                          for(size_t p = r.begin(); p != r.end(); ++p)
-                          {
+                          for(size_t p = r.begin(); p != r.end(); ++p) {
                               const Vec3& ppos_predicted = predicted_position[p];
-                              const Vec3i& pcellId = m_Params->domainParams()->getCellIndex(ppos_predicted);
-                              Real pden_predicted = m_CubicKernel.W_zero();
+                              const Vec3i& pcellId       = m_Params->domainParams()->getCellIndex(ppos_predicted);
+                              Real pden_predicted        = m_CubicKernel.W_zero();
 
-                              for(int lk = -m_KernelCellSpan; lk <= m_KernelCellSpan; ++lk)
-                              {
-                                  for(int lj = -m_KernelCellSpan; lj <= m_KernelCellSpan; ++lj)
-                                  {
-                                      for(int li = -m_KernelCellSpan; li <= m_KernelCellSpan; ++li)
-                                      {
+                              for(int lk = -m_KernelCellSpan; lk <= m_KernelCellSpan; ++lk) {
+                                  for(int lj = -m_KernelCellSpan; lj <= m_KernelCellSpan; ++lj) {
+                                      for(int li = -m_KernelCellSpan; li <= m_KernelCellSpan; ++li) {
                                           const Vec3i cellId = pcellId + Vec3i(li, lj, lk);
 
-                                          if(!m_Params->domainParams()->isValidCell(cellId))
-                                          {
+                                          if(!m_Params->domainParams()->isValidCell(cellId)) {
                                               continue;
                                           }
 
-                                          for(UInt q : cellParticles(cellId))
-                                          {
-                                              if((UInt)p == q)
-                                              {
+                                          for(UInt q : cellParticles(cellId)) {
+                                              if((UInt)p == q) {
                                                   continue;
                                               }
 
                                               const Vec3& qpos_predicted = predicted_position[q];
-                                              const Vec3 r = qpos_predicted - ppos_predicted;
+                                              const Vec3 r               = qpos_predicted - ppos_predicted;
                                               pden_predicted += m_CubicKernel.W(r);
                                           }
                                       }
@@ -259,19 +245,16 @@ void PCISPHSolver::update_density_pressure()
 
                               ////////////////////////////////////////////////////////////////////////////////
                               // ==> correct density for the boundary particles
-                              if(m_bUseBoundaryParticle)
-                              {
+                              if(m_bUseBoundaryParticle) {
                                   // => lx/ux
-                                  if(ppos_predicted[0] < valid_lx || ppos_predicted[0] > valid_ux)
-                                  {
+                                  if(ppos_predicted[0] < valid_lx || ppos_predicted[0] > valid_ux) {
                                       const Vec3 ppos_scaled = ppos_predicted - m_CellSize * Vec3(0,
                                                                                                   floor(ppos_predicted[1] / m_CellSize),
                                                                                                   floor(ppos_predicted[2] / m_CellSize));
 
                                       const Vec_Vec3& bparticles = (ppos_predicted[0] < valid_lx) ? boundary_particles_lx : boundary_particles_ux;
 
-                                      for(const Vec3& qpos : bparticles)
-                                      {
+                                      for(const Vec3& qpos : bparticles) {
                                           const Vec3 r = qpos - ppos_scaled;
                                           pden_predicted += m_CubicKernel.W(r);
                                       }
@@ -279,16 +262,14 @@ void PCISPHSolver::update_density_pressure()
 
 
                                   // => ly/uy
-                                  if(ppos_predicted[1] < valid_ly || ppos_predicted[1] > valid_uy)
-                                  {
+                                  if(ppos_predicted[1] < valid_ly || ppos_predicted[1] > valid_uy) {
                                       const Vec3 ppos_scaled = ppos_predicted - m_CellSize * Vec3(floor(ppos_predicted[0] / m_CellSize),
                                                                                                   0,
                                                                                                   floor(ppos_predicted[2] / m_CellSize));
 
                                       const Vec_Vec3& bparticles = (ppos_predicted[1] < valid_ly) ? boundary_particles_ly : boundary_particles_uy;
 
-                                      for(const Vec3& qpos : bparticles)
-                                      {
+                                      for(const Vec3& qpos : bparticles) {
                                           const Vec3 r = qpos - ppos_scaled;
                                           pden_predicted += m_CubicKernel.W(r);
                                       }
@@ -296,8 +277,7 @@ void PCISPHSolver::update_density_pressure()
 
 
                                   // => lz/uz
-                                  if(ppos_predicted[2] < valid_lz || ppos_predicted[2] > valid_uz)
-                                  {
+                                  if(ppos_predicted[2] < valid_lz || ppos_predicted[2] > valid_uz) {
                                       const Vec3 ppos_scaled = ppos_predicted - m_CellSize * Vec3(floor(ppos_predicted[0] / m_CellSize),
                                                                                                   floor(ppos_predicted[1] / m_CellSize),
                                                                                                   0);
@@ -305,8 +285,7 @@ void PCISPHSolver::update_density_pressure()
 
                                       const Vec_Vec3& bparticles = (ppos_predicted[2] < valid_lz) ? boundary_particles_lz : boundary_particles_uz;
 
-                                      for(const Vec3& qpos : bparticles)
-                                      {
+                                      for(const Vec3& qpos : bparticles) {
                                           const Vec3 r = qpos - ppos_scaled;
                                           pden_predicted += m_CubicKernel.W(r);
                                       }
@@ -321,13 +300,14 @@ void PCISPHSolver::update_density_pressure()
                               // calculate density error
                               Real pden_error = pden_predicted - m_RestDensity;
 
-                              if(m_bAttractivePressure && pden_error < 0)
+                              if(m_bAttractivePressure && pden_error < 0) {
                                   pden_error *= (-m_AttractiveRepulsivePressureRatio);
-                              else
+                              } else {
                                   pden_error = fmax(pden_error, 0);
+                              }
 
                               density_error[p] = pden_error;
-                              pressure[p] += pden_error * delta;
+                              pressure[p]     += pden_error * delta;
                           }
                       }); // end parallel_for
 }
@@ -345,33 +325,26 @@ void PCISPHSolver::computePressureAcceleration()
 
     tbb::parallel_for(tbb::blocked_range<size_t>(0, positions.size()), [&](tbb::blocked_range<size_t> r)
                       {
-                          for(size_t p = r.begin(); p != r.end(); ++p)
-                          {
+                          for(size_t p = r.begin(); p != r.end(); ++p) {
                               Vec3 pressure_accel(0, 0, 0);
                               Vec3 repulsive_accel(0, 0, 0);
 
                               const Real ppressure = pressure[p];
-                              const Vec3& ppos = positions[p];
+                              const Vec3& ppos     = positions[p];
                               //const Real pden = predicted_density[p];
                               const Vec3i pcellId = m_Params->domainParams()->getCellIndex(ppos);
 
-                              for(int lk = -m_KernelCellSpan; lk <= m_KernelCellSpan; ++lk)
-                              {
-                                  for(int lj = -m_KernelCellSpan; lj <= m_KernelCellSpan; ++lj)
-                                  {
-                                      for(int li = -m_KernelCellSpan; li <= m_KernelCellSpan; ++li)
-                                      {
+                              for(int lk = -m_KernelCellSpan; lk <= m_KernelCellSpan; ++lk) {
+                                  for(int lj = -m_KernelCellSpan; lj <= m_KernelCellSpan; ++lj) {
+                                      for(int li = -m_KernelCellSpan; li <= m_KernelCellSpan; ++li) {
                                           const Vec3i cellId = pcellId + Vec3i(li, lj, lk);
 
-                                          if(!m_Params->domainParams()->isValidCell(cellId))
-                                          {
+                                          if(!m_Params->domainParams()->isValidCell(cellId)) {
                                               continue;
                                           }
 
-                                          for(UInt q : cellParticles(cellId))
-                                          {
-                                              if((UInt)p == q)
-                                              {
+                                          for(UInt q : cellParticles(cellId)) {
+                                              if((UInt)p == q) {
                                                   continue;
                                               }
 
@@ -379,14 +352,13 @@ void PCISPHSolver::computePressureAcceleration()
                                               //const Real qden = predicted_density[q];
                                               const Vec3 r = qpos - ppos;
 
-                                              if(glm::length2(r) > m_KernelRadiusSqr)
-                                              {
+                                              if(glm::length2(r) > m_KernelRadiusSqr) {
                                                   continue;
                                               }
 
                                               // pressure force
                                               const Real qpressure = pressure[q];
-                                              pressure_accel += (ppressure / m_RestDensitySqr + qpressure / m_RestDensitySqr) * m_SpikyKernel.gradW(r);
+                                              pressure_accel  += (ppressure / m_RestDensitySqr + qpressure / m_RestDensitySqr) * m_SpikyKernel.gradW(r);
                                               repulsive_accel += m_NearSpikyKernel.gradW(r);
                                               //pressure_accel += (ppressure / MathUtils::sqr(fmax(pden, rest_density)) + qpressure / MathUtils::sqr(fmax(qden, rest_density))) * m_SpikyKernel.gradW(r);;
                                           }
@@ -396,19 +368,16 @@ void PCISPHSolver::computePressureAcceleration()
 
                               ////////////////////////////////////////////////////////////////////////////////
                               // ==> correct pressure force for the boundary particles
-                              if(m_bUseBoundaryParticle)
-                              {
+                              if(m_bUseBoundaryParticle) {
                                   // => lx/ux
-                                  if(ppos[0] < valid_lx || ppos[0] > valid_ux)
-                                  {
+                                  if(ppos[0] < valid_lx || ppos[0] > valid_ux) {
                                       const Vec3 ppos_scaled = ppos - m_CellSize * Vec3(0,
                                                                                         floor(ppos[1] / m_CellSize),
                                                                                         floor(ppos[2] / m_CellSize));
 
                                       const Vec_Vec3& bparticles = (ppos[0] < valid_lx) ? boundary_particles_lx : boundary_particles_ux;
 
-                                      for(const Vec3& qpos : bparticles)
-                                      {
+                                      for(const Vec3& qpos : bparticles) {
                                           const Vec3 r = qpos - ppos_scaled;
                                           pressure_accel += (ppressure / m_RestDensitySqr) * m_SpikyKernel.gradW(r);
                                           //pressure_accel += (ppressure / fmax(pden, rest_density)) * m_SpikyKernel.gradW(r);
@@ -417,16 +386,14 @@ void PCISPHSolver::computePressureAcceleration()
 
 
                                   // => ly/uy
-                                  if(ppos[1] < valid_ly || ppos[1] > valid_uy)
-                                  {
+                                  if(ppos[1] < valid_ly || ppos[1] > valid_uy) {
                                       const Vec3 ppos_scaled = ppos - m_CellSize * Vec3(floor(ppos[0] / m_CellSize),
                                                                                         0,
                                                                                         floor(ppos[2] / m_CellSize));
 
                                       const Vec_Vec3& bparticles = (ppos[1] < valid_ly) ? boundary_particles_ly : boundary_particles_uy;
 
-                                      for(const Vec3& qpos : bparticles)
-                                      {
+                                      for(const Vec3& qpos : bparticles) {
                                           const Vec3 r = qpos - ppos_scaled;
                                           //pressure_accel += (ppressure / fmax(pden, rest_density)) * m_SpikyKernel.gradW(r);
                                           pressure_accel += (ppressure / m_RestDensitySqr) * m_SpikyKernel.gradW(r);
@@ -435,8 +402,7 @@ void PCISPHSolver::computePressureAcceleration()
 
 
                                   // => lz/uz
-                                  if(ppos[2] < valid_lz || ppos[2] > valid_uz)
-                                  {
+                                  if(ppos[2] < valid_lz || ppos[2] > valid_uz) {
                                       const Vec3 ppos_scaled = ppos - m_CellSize * Vec3(floor(ppos[0] / m_CellSize),
                                                                                         floor(ppos[1] / m_CellSize),
                                                                                         0);
@@ -444,8 +410,7 @@ void PCISPHSolver::computePressureAcceleration()
 
                                       const Vec_Vec3& bparticles = (ppos[2] < valid_lz) ? boundary_particles_lz : boundary_particles_uz;
 
-                                      for(const Vec3& qpos : bparticles)
-                                      {
+                                      for(const Vec3& qpos : bparticles) {
                                           const Vec3 r = qpos - ppos_scaled;
                                           //pressure_accel += (ppressure / fmax(pden, rest_density)) * m_SpikyKernel.gradW(r);
                                           pressure_accel += (ppressure / m_RestDensitySqr) * m_SpikyKernel.gradW(r);
@@ -478,37 +443,30 @@ void PCISPHSolver::computeViscosity()
 
     tbb::parallel_for(tbb::blocked_range<size_t>(0, positions.size()), [&](tbb::blocked_range<size_t> r)
                       {
-                          for(size_t p = r.begin(); p != r.end(); ++p)
-                          {
-                              const Vec3& ppos = positions[p];
-                              const Vec3& pvel = velocity[p];
+                          for(size_t p = r.begin(); p != r.end(); ++p) {
+                              const Vec3& ppos    = positions[p];
+                              const Vec3& pvel    = velocity[p];
                               const Vec3i pcellId = m_Params->domainParams()->getCellIndex(ppos);
 
                               Vec3 diffuse_vel = Vec3(0);
 
-                              for(int lk = -m_KernelCellSpan; lk <= m_KernelCellSpan; ++lk)
-                              {
-                                  for(int lj = -m_KernelCellSpan; lj <= m_KernelCellSpan; ++lj)
-                                  {
-                                      for(int li = -m_KernelCellSpan; li <= m_KernelCellSpan; ++li)
-                                      {
+                              for(int lk = -m_KernelCellSpan; lk <= m_KernelCellSpan; ++lk) {
+                                  for(int lj = -m_KernelCellSpan; lj <= m_KernelCellSpan; ++lj) {
+                                      for(int li = -m_KernelCellSpan; li <= m_KernelCellSpan; ++li) {
                                           const Vec3i cellId = pcellId + Vec3i(li, lj, lk);
 
-                                          if(!m_Params->domainParams()->isValidCell(cellId))
-                                          {
+                                          if(!m_Params->domainParams()->isValidCell(cellId)) {
                                               continue;
                                           }
 
-                                          for(UInt q : cellParticles(cellId))
-                                          {
-                                              if((UInt)p == q)
-                                              {
+                                          for(UInt q : cellParticles(cellId)) {
+                                              if((UInt)p == q) {
                                                   continue;
                                               }
 
                                               const Vec3& qpos = positions[q];
                                               const Vec3& qvel = velocity[q];
-                                              const Vec3 r = qpos - ppos;
+                                              const Vec3 r     = qpos - ppos;
 
                                               diffuse_vel += (qvel - pvel) * m_CubicKernel.W(r);
                                           }
@@ -523,8 +481,7 @@ void PCISPHSolver::computeViscosity()
 
     tbb::parallel_for(tbb::blocked_range<size_t>(0, velocity.size()), [&](tbb::blocked_range<size_t> r)
                       {
-                          for(size_t p = r.begin(); p != r.end(); ++p)
-                          {
+                          for(size_t p = r.begin(); p != r.end(); ++p) {
                               velocity[p] += m_ViscosityConstant * diffused_velocity[p];
 
                               //if(particles[p][1] < 2 * particle_radius)

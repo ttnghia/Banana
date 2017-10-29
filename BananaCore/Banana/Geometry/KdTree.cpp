@@ -1,30 +1,32 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//
-//  Copyright (c) 2017 by
-//       __      _     _         _____
-//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _
-//   /  \/ / _` | '_ \| |/ _` |   / /\/ '__| | | |/ _ \| '_ \ / _` |
-//  / /\  / (_| | | | | | (_| |  / /  | |  | |_| | (_) | | | | (_| |
-//  \_\ \/ \__, |_| |_|_|\__,_|  \/   |_|   \__,_|\___/|_| |_|\__, |
-//         |___/                                              |___/
-//
-//  <nghiatruong.vn@gmail.com>
-//  All rights reserved.
-//
+//                                .--,       .--,
+//                               ( (  \.---./  ) )
+//                                '.__/o   o\__.'
+//                                   {=  ^  =}
+//                                    >  -  <
+//     ___________________________.""`-------`"".____________________________
+//    /                                                                      \
+//    \    This file is part of Banana - a graphics programming framework    /
+//    /                    Created: 2017 by Nghia Truong                     \
+//    \                      <nghiatruong.vn@gmail.com>                      /
+//    /                      https://ttnghia.github.io                       \
+//    \                        All rights reserved.                          /
+//    /                                                                      \
+//    \______________________________________________________________________/
+//                                  ___)( )(___
+//                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 #if 0
 void KdTree::buildTree(const std::shared_ptr<KDNode>& treeNode)
 {
-    if(treeNode->isLeaf)
-    {
+    if(treeNode->isLeaf) {
         UInt nodeCount = treeNode->count;
 
         // this is the only way out
-        if(nodeCount <= m_MaxItermsPerNode)
-        {
+        if(nodeCount <= m_MaxItermsPerNode) {
             return;
         }
 
@@ -33,14 +35,12 @@ void KdTree::buildTree(const std::shared_ptr<KDNode>& treeNode)
         UInt longestAxis = 0;
         Real maxLength   = -1e20;
 
-        for(UInt j = 0; j < 3; ++j)
-        {
+        for(UInt j = 0; j < 3; ++j) {
             upCorner[j] = treeNode->boxMax[j];
             dnCorner[j] = treeNode->boxMin[j];
 
             Real length = upCorner[j] - dnCorner[j];
-            if(length > maxLength)
-            {
+            if(length > maxLength) {
                 longestAxis = j;
                 maxLength   = length;
             }
@@ -67,28 +67,24 @@ void KdTree::buildTree(const std::shared_ptr<KDNode>& treeNode)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void KdTree::printTree(const std::shared_ptr<KDNode>& treeNode)
 {
-    if(treeNode->isLeaf && treeNode->count >= 1)
-    {
+    if(treeNode->isLeaf && treeNode->count >= 1) {
         auto boxMin = treeNode->boxMin;
         auto boxMax = treeNode->boxMax;
 
         printf("Found leaf node with count = %u, bMin=[%f,%f,%f], bMax=[%f,%f,%f]\n     ", treeNode->count, boxMin[0], boxMin[1], boxMin[2], boxMax[0], boxMax[1], boxMax[2]);
 
-        for(UInt i = 0; i < treeNode->count; ++i)
-        {
+        for(UInt i = 0; i < treeNode->count; ++i) {
             auto p = treeNode->points[i].position;
 
             if(p[0] < boxMin[0] || p[1] < boxMin[1] || p[2] < boxMin[2] ||
-               p[0] > boxMax[0] || p[1] > boxMax[1] || p[2] > boxMax[2])
-            {
+               p[0] > boxMax[0] || p[1] > boxMax[1] || p[2] > boxMax[2]) {
                 printf("Invalid element : index = %u, position = [%f,%f,%f], bMin= [%f,%f,%f], bMax = [%f,%f,%f]\n",
                        treeNode->points[i].index, p[0], p[1], p[2], boxMin[0], boxMin[1], boxMin[2], boxMax[0], boxMax[1], boxMax[2]);
             }
         }
 
 
-        for(UInt i = 0; i < treeNode->count - 1; ++i)
-        {
+        for(UInt i = 0; i < treeNode->count - 1; ++i) {
             printf("%u, ", treeNode->points[i].index);
         }
 
@@ -96,9 +92,7 @@ void KdTree::printTree(const std::shared_ptr<KDNode>& treeNode)
 
 
         printf("\n\n\n");
-    }
-    else
-    {
+    } else {
         printf("Interior node; split value %f on axis %u\n", treeNode->split, treeNode->axis);
 
         printTree(treeNode->leftNode);
@@ -117,26 +111,20 @@ void KdTree::getNeighborList(const Point& target, const std::shared_ptr<KDNode>&
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void KdTree::findNeighbors(const Point& target, const std::shared_ptr<KDNode>& treeNode, Real radius, Vec_UInt& result)
 {
-    if(fmax(SignDistanceField::distanceToBox(target.position, treeNode->boxMin, treeNode->boxMax), 0) > radius)
-    {
+    if(fmax(SignDistanceField::distanceToBox(target.position, treeNode->boxMin, treeNode->boxMax), 0) > radius) {
         return;
     }
 
-    if(treeNode->isLeaf)
-    {
+    if(treeNode->isLeaf) {
         Real r2 = radius * radius;
 
-        for(UInt i = 0; i < treeNode->count; ++i)
-        {
+        for(UInt i = 0; i < treeNode->count; ++i) {
             if((target.index != treeNode->points[i].index) &&
-               (glm::length2(target.position - treeNode->points[i].position) < r2))
-            {
+               (glm::length2(target.position - treeNode->points[i].position) < r2)) {
                 result.push_back(treeNode->points[i].index);
             }
         }
-    }
-    else
-    {
+    } else {
         findNeighbors(target, treeNode->leftNode,  radius, result);
         findNeighbors(target, treeNode->rightNode, radius, result);
     }

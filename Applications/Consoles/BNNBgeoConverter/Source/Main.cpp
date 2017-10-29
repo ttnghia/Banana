@@ -1,17 +1,21 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//
-//  Copyright (c) 2017 by
-//       __      _     _         _____
-//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _
-//   /  \/ / _` | '_ \| |/ _` |   / /\/ '__| | | |/ _ \| '_ \ / _` |
-//  / /\  / (_| | | | | | (_| |  / /  | |  | |_| | (_) | | | | (_| |
-//  \_\ \/ \__, |_| |_|_|\__,_|  \/   |_|   \__,_|\___/|_| |_|\__, |
-//         |___/                                              |___/
-//
-//  <nghiatruong.vn@gmail.com>
-//  All rights reserved.
-//
+//                                .--,       .--,
+//                               ( (  \.---./  ) )
+//                                '.__/o   o\__.'
+//                                   {=  ^  =}
+//                                    >  -  <
+//     ___________________________.""`-------`"".____________________________
+//    /                                                                      \
+//    \    This file is part of Banana - a graphics programming framework    /
+//    /                    Created: 2017 by Nghia Truong                     \
+//    \                      <nghiatruong.vn@gmail.com>                      /
+//    /                      https://ttnghia.github.io                       \
+//    \                        All rights reserved.                          /
+//    /                                                                      \
+//    \______________________________________________________________________/
+//                                  ___)( )(___
+//                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
@@ -50,8 +54,7 @@ void convert2BNN(const char* inputFile, const char* outputFile)
             particleWriter.addFixedAtribute(fattr.name, Banana::ParticleSerialization::TypeInt, Banana::ParticleSerialization::Size32b, fattr.count);
             const int* idata = partioData->fixedData<int>(fattr);
             particleWriter.setFixedAttribute(fattr.name, idata);
-        }
-        else if(fattr.type == Partio::FLOAT) {
+        } else if(fattr.type == Partio::FLOAT) {
             particleWriter.addFixedAtribute(fattr.name, Banana::ParticleSerialization::TypeReal, Banana::ParticleSerialization::Size32b, fattr.count);
             const float* fdata = partioData->fixedData<float>(fattr);
             particleWriter.setFixedAttribute(fattr.name, fdata);
@@ -75,8 +78,7 @@ void convert2BNN(const char* inputFile, const char* outputFile)
                 memcpy(&idata.data()[pattr.count * j], src, elementSize);
             }
             particleWriter.setParticleAttribute(pattr.name, idata);
-        }
-        else if(pattr.type == Partio::FLOAT || pattr.type == Partio::VECTOR) {
+        } else if(pattr.type == Partio::FLOAT || pattr.type == Partio::VECTOR) {
             particleWriter.addParticleAtribute(pattr.name, Banana::ParticleSerialization::TypeCompressedReal, Banana::ParticleSerialization::Size32b, pattr.count);
             if(pattr.count == 1) {
                 Vector<float> fdata(nParticles);
@@ -85,16 +87,14 @@ void convert2BNN(const char* inputFile, const char* outputFile)
                     fdata[j] = src[0];
                 }
                 particleWriter.setParticleAttribute(pattr.name, fdata);
-            }
-            else if(pattr.count == 2) {
+            } else if(pattr.count == 2) {
                 Vector<Vec2f> fdata(nParticles);
                 for(int j = 0; j < nParticles; ++j) {
                     const float* src = partioData->data<float>(pattr, j);
                     fdata[j] = Vec2f(src[0], src[1]);
                 }
                 particleWriter.setParticleAttribute(pattr.name, fdata);
-            }
-            else if(pattr.count == 3) {
+            } else if(pattr.count == 3) {
                 Vector<Vec3f> fdata(nParticles);
                 for(int j = 0; j < nParticles; ++j) {
                     const float* src = partioData->data<float>(pattr, j);
@@ -118,8 +118,9 @@ void convert2Bgeo(const char* inputFile, const char* outputFile)
     ////////////////////////////////////////////////////////////////////////////////
     // read Banana compressed data
     Banana::ParticleSerialization particleReader;
-    if(!particleReader.read(inputFile))
+    if(!particleReader.read(inputFile)) {
         return;
+    }
 #if defined(_DEBUG) || defined(DEBUG)
     printf("Num. read particles: %s\n", Banana::NumberHelpers::formatWithCommas(particleReader.getNParticles()).c_str());
 #endif
@@ -147,8 +148,9 @@ void convert2Bgeo(const char* inputFile, const char* outputFile)
                 particleReader.getFixedAttribute(kv.first, uidata);
 
                 int* idata = partioData->fixedDataWrite<int>(fattr);
-                for(Int i = 0; i < kv.second->count; ++i)
+                for(Int i = 0; i < kv.second->count; ++i) {
                     idata[i] = static_cast<int>(uidata[i]);
+                }
             }
             break;
 
@@ -158,12 +160,12 @@ void convert2Bgeo(const char* inputFile, const char* outputFile)
                 float* fdata = partioData->fixedDataWrite<float>(fattr);
                 if(sizeof(kv.second->typeSize() == sizeof(float))) {
                     particleReader.getFixedAttribute(kv.first, fdata);
-                }
-                else{
+                } else {
                     double* ddata = new double[kv.second->count];
                     particleReader.getFixedAttribute(kv.first, ddata);
-                    for(Int i = 0; i < kv.second->count; ++i)
+                    for(Int i = 0; i < kv.second->count; ++i) {
                         fdata[i] = static_cast<float>(ddata[i]);
+                    }
                 }
             }
             break;
@@ -212,17 +214,18 @@ void convert2Bgeo(const char* inputFile, const char* outputFile)
                     particleReader.getParticleAttribute(kv.first, fdata.data());
                     for(UInt i = 0; i < particleReader.getNParticles(); ++i) {
                         float* pdata = partioData->dataWrite<float>(pattr, i);
-                        for(Int j = 0; j < kv.second->count; ++j)
+                        for(Int j = 0; j < kv.second->count; ++j) {
                             pdata[j] = fdata[i * kv.second->count + j];
+                        }
                     }
-                }
-                else{
+                } else {
                     Vec_Double ddata(particleReader.getNParticles() * kv.second->count);
                     particleReader.getParticleAttribute(kv.first, ddata.data());
                     for(UInt i = 0; i < particleReader.getNParticles(); ++i) {
                         float* pdata = partioData->dataWrite<float>(pattr, i);
-                        for(Int j = 0; j < kv.second->count; ++j)
+                        for(Int j = 0; j < kv.second->count; ++j) {
                             pdata[j] = static_cast<float>(ddata[i * kv.second->count + j]);
+                        }
                     }
                 }
             }
@@ -259,10 +262,11 @@ int main(int argc, char* argv[])
         exit(EXIT_FAILURE);
     }
 
-    if(Banana::FileHelpers::getFileExtension(String(argv[1])) == String("geo"))
+    if(Banana::FileHelpers::getFileExtension(String(argv[1])) == String("geo")) {
         convert2BNN(argv[1], argv[2]);
-    else
+    } else {
         convert2Bgeo(argv[1], argv[2]);
+    }
 
     return EXIT_SUCCESS;
 }

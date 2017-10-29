@@ -1,19 +1,24 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//
-//  Copyright (c) 2017 by
-//       __      _     _         _____
-//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _
-//   /  \/ / _` | '_ \| |/ _` |   / /\/ '__| | | |/ _ \| '_ \ / _` |
-//  / /\  / (_| | | | | | (_| |  / /  | |  | |_| | (_) | | | | (_| |
-//  \_\ \/ \__, |_| |_|_|\__,_|  \/   |_|   \__,_|\___/|_| |_|\__, |
-//         |___/                                              |___/
-//
-//  <nghiatruong.vn@gmail.com>
-//  All rights reserved.
-//
+//                                .--,       .--,
+//                               ( (  \.---./  ) )
+//                                '.__/o   o\__.'
+//                                   {=  ^  =}
+//                                    >  -  <
+//     ___________________________.""`-------`"".____________________________
+//    /                                                                      \
+//    \    This file is part of Banana - a graphics programming framework    /
+//    /                    Created: 2017 by Nghia Truong                     \
+//    \                      <nghiatruong.vn@gmail.com>                      /
+//    /                      https://ttnghia.github.io                       \
+//    \                        All rights reserved.                          /
+//    /                                                                      \
+//    \______________________________________________________________________/
+//                                  ___)( )(___
+//                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
 template<class VectorType, class Real>
 SPHRelaxation<VectorType, Real>::SPHRelaxation(std::vector<VectorType>& particles_, Real particle_radius_, Array3_RealType& sdf_grid_, Real sdf_cell_size_, const std::shared_ptr<DomainParameters>& domainParams_) :
     particles(particles_),
@@ -43,7 +48,7 @@ SPHRelaxation<VectorType, Real>::SPHRelaxation(std::vector<VectorType>& particle
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class VectorType, class Real>
-void SPHRelaxation<VectorType, Real>::iterate(int iters)
+void SPHRelaxation<VectorType, Real >::iterate(int iters)
 {
     Timer timer;
     Real  sph_time          = 0;
@@ -56,8 +61,7 @@ void SPHRelaxation<VectorType, Real>::iterate(int iters)
     m_Monitor.printLog("Start position relaxation using SPH-based Bluse Noise Sampling");
     int iter;
 
-    for(iter = 1; iter <= iters; ++iter)
-    {
+    for(iter = 1; iter <= iters; ++iter) {
         timer.tick();
 
         Real dt = cfl(2.0);
@@ -74,8 +78,7 @@ void SPHRelaxation<VectorType, Real>::iterate(int iters)
 
         sph_time += timer.tock();
 
-        if(iter % 10 == 0)
-        {
+        if(iter % 10 == 0) {
             m_Monitor.printLog("Iterations: " + NumberHelpers::formatWithCommas(iter) + ". Time: " + NumberHelpers::formatWithCommas(sph_time));
         }
     }
@@ -85,8 +88,7 @@ void SPHRelaxation<VectorType, Real>::iterate(int iters)
     iter = 0;
     bool stop = false;
 
-    do
-    {
+    do {
         ++iter;
         timer.tick();
         resolve_overlapping();
@@ -95,15 +97,13 @@ void SPHRelaxation<VectorType, Real>::iterate(int iters)
 
         Real min_dist = findMinDistance();
 
-        if(iter % 10 == 0)
-        {
+        if(iter % 10 == 0) {
             m_Monitor.printLog("Iterations: " + NumberHelpers::formatWithCommas(iter) +
                                ". min_distance/pradius: " + NumberHelpers::formatWithCommas(min_dist / particle_radius) +
                                ". Time: " + NumberHelpers::formatWithCommas(colresolving_time));
         }
 
-        if(min_dist > 1.999 * particle_radius)
-        {
+        if(min_dist > 1.999 * particle_radius) {
             m_Monitor.printLog("Resolved particle overlapped");
 
             stop = true;
@@ -121,7 +121,7 @@ void SPHRelaxation<VectorType, Real>::iterate(int iters)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class VectorType, class Real>
-void SPHRelaxation<VectorType, Real>::compute_kernel_parameters()
+void SPHRelaxation<VectorType, Real >::compute_kernel_parameters()
 {
     kernel_radius_sqr              = kernel_radius * kernel_radius;
     kernel_coeff_density           = 315.0 / (64.0 * M_PI * POW9(kernel_radius));
@@ -137,14 +137,13 @@ void SPHRelaxation<VectorType, Real>::compute_kernel_parameters()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class VectorType, class Real>
-Real SPHRelaxation<VectorType, Real>::cfl(Real scale)
+Real SPHRelaxation<VectorType, Real >::cfl(Real scale)
 {
     // firstly, calculate the velocity magnitude
     tbb::parallel_for(tbb::blocked_range<size_t>(0, velocity_magnitude.size()),
                       [&](tbb::blocked_range<size_t> r)
                       {
-                          for(size_t p = r.begin(); p != r.end(); ++p)
-                          {
+                          for(size_t p = r.begin(); p != r.end(); ++p) {
                               velocity_magnitude[p] = glm::length2(velocity[p]);
                           }
                       }); // end parallel_for
@@ -159,16 +158,14 @@ Real SPHRelaxation<VectorType, Real>::cfl(Real scale)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class VectorType, class Real>
-void SPHRelaxation<VectorType, Real>::collect_particles()
+void SPHRelaxation<VectorType, Real >::collect_particles()
 {
-    for(size_t i = 0; i < cellParticles.size(); ++i)
-    {
+    for(size_t i = 0; i < cellParticles.size(); ++i) {
         cellParticles.m_Data[i].clear();
     }
 
     // cannot run in parallel....
-    for(size_t p = 0; p < particles.size(); ++p)
-    {
+    for(size_t p = 0; p < particles.size(); ++p) {
         VectorType pos = particles[p] - m_DomainParams->domainBMin;
 
         int i = (int)floor(pos[0] / cell_size);
@@ -181,41 +178,34 @@ void SPHRelaxation<VectorType, Real>::collect_particles()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class VectorType, class Real>
-void SPHRelaxation<VectorType, Real>::compute_density()
+void SPHRelaxation<VectorType, Real >::compute_density()
 {
     tbb::parallel_for(tbb::blocked_range<size_t>(0, particles.size()),
                       [&](tbb::blocked_range<size_t> r)
                       {
-                          for(size_t p = r.begin(); p != r.end(); ++p)
-                          {
-                              VectorType& ppos = particles[p];
-                              Real pden = 0;
+                          for(size_t p = r.begin(); p != r.end(); ++p) {
+                              VectorType& ppos   = particles[p];
+                              Real pden          = 0;
                               VectorTypei cellId = m_DomainParams->getCellIndex(ppos);
 
-                              for(int lk = -1; lk <= 1; ++lk)
-                              {
-                                  for(int lj = -1; lj <= 1; ++lj)
-                                  {
-                                      for(int li = -1; li <= 1; ++li)
-                                      {
+                              for(int lk = -1; lk <= 1; ++lk) {
+                                  for(int lj = -1; lj <= 1; ++lj) {
+                                      for(int li = -1; li <= 1; ++li) {
                                           const VectorTypei ind(cellId[0] + li, cellId[1] + lj, cellId[2] + lk);
 
-                                          if(!m_DomainParams->isValidCell(ind))
-                                          {
+                                          if(!m_DomainParams->isValidCell(ind)) {
                                               continue;
                                           }
 
                                           const Vec_UInt& cell = cellParticles(ind);
 
-                                          for(UInt q : cell)
-                                          {
-                                              if(q == p)
-                                              {
+                                          for(UInt q : cell) {
+                                              if(q == p) {
                                                   continue;
                                               }
 
                                               VectorType& qpos = particles[q];
-                                              VectorType r = qpos - ppos;
+                                              VectorType r     = qpos - ppos;
                                               pden += particle_mass * kernel_density(r);
                                           }
                                       }
@@ -229,54 +219,46 @@ void SPHRelaxation<VectorType, Real>::compute_density()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class VectorType, class Real>
-void SPHRelaxation<VectorType, Real>::compute_forces()
+void SPHRelaxation<VectorType, Real >::compute_forces()
 {
     tbb::parallel_for(tbb::blocked_range<size_t>(0, particles.size()),
                       [&](tbb::blocked_range<size_t> r)
                       {
-                          for(size_t p = r.begin(); p != r.end(); ++p)
-                          {
+                          for(size_t p = r.begin(); p != r.end(); ++p) {
                               VectorType& ppos = particles[p];
                               VectorType& pvel = velocity[p];
-                              Real pden = density[p];
+                              Real pden        = density[p];
                               VectorType pforce(0, 0, 0);
                               VectorTypei cellId = m_DomainParams->getCellIndex(ppos);
 
-                              for(int lk = -1; lk <= 1; ++lk)
-                              {
-                                  for(int lj = -1; lj <= 1; ++lj)
-                                  {
-                                      for(int li = -1; li <= 1; ++li)
-                                      {
+                              for(int lk = -1; lk <= 1; ++lk) {
+                                  for(int lj = -1; lj <= 1; ++lj) {
+                                      for(int li = -1; li <= 1; ++li) {
                                           const VectorTypei ind(cellId[0] + li, cellId[1] + lj, cellId[2] + lk);
 
-                                          if(!m_DomainParams->isValidCell(ind))
-                                          {
+                                          if(!m_DomainParams->isValidCell(ind)) {
                                               continue;
                                           }
 
                                           const Vec_UInt& cell = cellParticles(ind);
 
-                                          for(UInt q : cell)
-                                          {
-                                              if(q == p)
-                                              {
+                                          for(UInt q : cell) {
+                                              if(q == p) {
                                                   continue;
                                               }
 
                                               VectorType& qpos = particles[q];
-                                              if(glm::length2(qpos - ppos) > MathHelpers::sqr(kernel_radius))
-                                              {
+                                              if(glm::length2(qpos - ppos) > MathHelpers::sqr(kernel_radius)) {
                                                   continue;
                                               }
 
                                               VectorType& qvel = velocity[q];
-                                              Real qden = density[q];
-                                              VectorType r = qpos - ppos;
+                                              Real qden        = density[q];
+                                              VectorType r     = qpos - ppos;
 
                                               // pressure force
-                                              Real pp = STIFFNESS_PRESSURE * fmax(pden - rest_density, 0);
-                                              Real pq = STIFFNESS_PRESSURE * fmax(qden - rest_density, 0);
+                                              Real pp             = STIFFNESS_PRESSURE * fmax(pden - rest_density, 0);
+                                              Real pq             = STIFFNESS_PRESSURE * fmax(qden - rest_density, 0);
                                               VectorType pressure = (Real)(particle_mass * (pp + pq)
                                                                            / 2.0 / qden) * gradient_pressure_kernel(r);
 
@@ -307,14 +289,13 @@ void SPHRelaxation<VectorType, Real>::compute_forces()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class VectorType, class Real>
-void SPHRelaxation<VectorType, Real>::update_velocity(Real dt)
+void SPHRelaxation<VectorType, Real >::update_velocity(Real dt)
 {
     tbb::parallel_for(tbb::blocked_range<size_t>(0, velocity.size()),
                       [&, dt](tbb::blocked_range<size_t> r)
                       {
-                          for(size_t p = r.begin(); p != r.end(); ++p)
-                          {
-                              Real pden = density[p];
+                          for(size_t p = r.begin(); p != r.end(); ++p) {
+                              Real pden      = density[p];
                               VectorType acc = pden > 0 ? force[p] / density[p] : VectorType(0, 0, 0);
                               velocity[p] += acc * dt;
                           }
@@ -323,13 +304,12 @@ void SPHRelaxation<VectorType, Real>::update_velocity(Real dt)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class VectorType, class Real>
-void SPHRelaxation<VectorType, Real>::update_position(Real dt)
+void SPHRelaxation<VectorType, Real >::update_position(Real dt)
 {
     tbb::parallel_for(tbb::blocked_range<size_t>(0, particles.size()),
                       [&, dt](tbb::blocked_range<size_t> r)
                       {
-                          for(size_t p = r.begin(); p != r.end(); ++p)
-                          {
+                          for(size_t p = r.begin(); p != r.end(); ++p) {
                               particles[p] += dt * velocity[p];
                           }
                       }); // end parallel_for
@@ -337,23 +317,20 @@ void SPHRelaxation<VectorType, Real>::update_position(Real dt)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class VectorType, class Real>
-void SPHRelaxation<VectorType, Real>::constrain_boundary()
+void SPHRelaxation<VectorType, Real >::constrain_boundary()
 {
     tbb::parallel_for(tbb::blocked_range<size_t>(0, particles.size()),
                       [&](tbb::blocked_range<size_t> r)
                       {
-                          for(size_t p = r.begin(); p != r.end(); ++p)
-                          {
+                          for(size_t p = r.begin(); p != r.end(); ++p) {
                               VectorType ppos = particles[p];
 
                               Real phi_val = interpolate_value_linear((ppos - m_DomainParams->domainBMin) / m_SDFCellSize, m_SDFGrid);
 
-                              if(phi_val > 0)
-                              {
+                              if(phi_val > 0) {
                                   VectorType grad;
                                   interpolate_gradient(grad, (ppos - m_DomainParams->domainBMin) / m_SDFCellSize, m_SDFGrid);
-                                  if(glm::length2(grad) > 0)
-                                  {
+                                  if(glm::length2(grad) > 0) {
                                       grad = glm::normalize(grad);
                                   }
 
@@ -367,7 +344,7 @@ void SPHRelaxation<VectorType, Real>::constrain_boundary()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class VectorType, class Real>
-void SPHRelaxation<VectorType, Real>::update_rest_density()
+void SPHRelaxation<VectorType, Real >::update_rest_density()
 {
     ParallelObjects::VectorMaxElement<Real> m(density);
 
@@ -378,45 +355,37 @@ void SPHRelaxation<VectorType, Real>::update_rest_density()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class VectorType, class Real>
-void SPHRelaxation<VectorType, Real>::findParticleMinDistance()
+void SPHRelaxation<VectorType, Real >::findParticleMinDistance()
 {
     tbb::parallel_for(tbb::blocked_range<size_t>(0, particles.size()),
                       [&](tbb::blocked_range<size_t> r)
                       {
-                          for(size_t p = r.begin(); p != r.end(); ++p)
-                          {
-                              VectorType& ppos = particles[p];
-                              Real min_d = BIG_NUMBER;
+                          for(size_t p = r.begin(); p != r.end(); ++p) {
+                              VectorType& ppos   = particles[p];
+                              Real min_d         = BIG_NUMBER;
                               VectorTypei cellId = m_DomainParams->getCellIndex(ppos);
 
-                              for(int lk = -1; lk <= 1; ++lk)
-                              {
-                                  for(int lj = -1; lj <= 1; ++lj)
-                                  {
-                                      for(int li = -1; li <= 1; ++li)
-                                      {
+                              for(int lk = -1; lk <= 1; ++lk) {
+                                  for(int lj = -1; lj <= 1; ++lj) {
+                                      for(int li = -1; li <= 1; ++li) {
                                           const VectorTypei ind(cellId[0] + li, cellId[1] + lj, cellId[2] + lk);
 
-                                          if(!m_DomainParams->isValidCell(ind))
-                                          {
+                                          if(!m_DomainParams->isValidCell(ind)) {
                                               continue;
                                           }
 
                                           const Vec_UInt& cell = cellParticles(ind);
 
-                                          for(UInt q : cell)
-                                          {
-                                              if(q == p)
-                                              {
+                                          for(UInt q : cell) {
+                                              if(q == p) {
                                                   continue;
                                               }
 
                                               VectorType& qpos = particles[q];
-                                              VectorType r = qpos - ppos;
-                                              Real mag2_r = glm::length2(r);
+                                              VectorType r     = qpos - ppos;
+                                              Real mag2_r      = glm::length2(r);
 
-                                              if(min_d > mag2_r)
-                                              {
+                                              if(min_d > mag2_r) {
                                                   min_d = mag2_r;
                                               }
                                           }
@@ -431,7 +400,7 @@ void SPHRelaxation<VectorType, Real>::findParticleMinDistance()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class VectorType, class Real>
-Real SPHRelaxation<VectorType, Real>::findMinDistance()
+Real SPHRelaxation<VectorType, Real >::findMinDistance()
 {
     findParticleMinDistance();
     ParallelObjects::VectorMinElement<Real> vme(min_distance);
@@ -442,47 +411,39 @@ Real SPHRelaxation<VectorType, Real>::findMinDistance()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class VectorType, class Real>
-void SPHRelaxation<VectorType, Real>::resolve_overlapping()
+void SPHRelaxation<VectorType, Real >::resolve_overlapping()
 {
     const Real min_d2 = MathHelpers::sqr(particle_radius);
 
     tbb::parallel_for(tbb::blocked_range<size_t>(0, particles.size()),
                       [&](tbb::blocked_range<size_t> r)
                       {
-                          for(size_t p = r.begin(); p != r.end(); ++p)
-                          {
-                              VectorType& ppos = particles[p];
-                              VectorType shift = VectorType(0, 0, 0);
+                          for(size_t p = r.begin(); p != r.end(); ++p) {
+                              VectorType& ppos   = particles[p];
+                              VectorType shift   = VectorType(0, 0, 0);
                               VectorTypei cellId = m_DomainParams->getCellIndex(ppos);
 
-                              for(int lk = -1; lk <= 1; ++lk)
-                              {
-                                  for(int lj = -1; lj <= 1; ++lj)
-                                  {
-                                      for(int li = -1; li <= 1; ++li)
-                                      {
+                              for(int lk = -1; lk <= 1; ++lk) {
+                                  for(int lj = -1; lj <= 1; ++lj) {
+                                      for(int li = -1; li <= 1; ++li) {
                                           const VectorTypei ind(cellId[0] + li, cellId[1] + lj, cellId[2] + lk);
 
-                                          if(!m_DomainParams->isValidCell(ind))
-                                          {
+                                          if(!m_DomainParams->isValidCell(ind)) {
                                               continue;
                                           }
 
                                           const Vec_UInt& cell = cellParticles(ind);
 
-                                          for(UInt q : cell)
-                                          {
-                                              if(q == p)
-                                              {
+                                          for(UInt q : cell) {
+                                              if(q == p) {
                                                   continue;
                                               }
 
                                               VectorType& qpos = particles[q];
-                                              VectorType r = qpos - ppos;
-                                              Real mag2_r = glm::length2(r);
+                                              VectorType r     = qpos - ppos;
+                                              Real mag2_r      = glm::length2(r);
 
-                                              if(mag2_r > min_d2)
-                                              {
+                                              if(mag2_r > min_d2) {
                                                   continue;
                                               }
 
@@ -499,7 +460,7 @@ void SPHRelaxation<VectorType, Real>::resolve_overlapping()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class VectorType, class Real>
-Real SPHRelaxation<VectorType, Real>::kernel_density(const VectorType& r)
+Real SPHRelaxation<VectorType, Real >::kernel_density(const VectorType& r)
 {
 #ifdef __Using_Eigen_Lib__
     Real mag2_r = r.squaredNorm();
@@ -507,19 +468,16 @@ Real SPHRelaxation<VectorType, Real>::kernel_density(const VectorType& r)
     Real mag2_r = glm::length2(r);
 #endif
 
-    if(mag2_r < SMALL_NUMBER || mag2_r > kernel_radius_sqr)
-    {
+    if(mag2_r < SMALL_NUMBER || mag2_r > kernel_radius_sqr) {
         return 0;
-    }
-    else
-    {
+    } else {
         return kernel_coeff_density * CUBE(kernel_radius_sqr - mag2_r);
     }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class VectorType, class Real>
-VectorType SPHRelaxation<VectorType, Real>::gradient_kernel(const VectorType& r)
+VectorType SPHRelaxation<VectorType, Real >::gradient_kernel(const VectorType& r)
 {
 #ifdef __Using_Eigen_Lib__
     Real mag2_r = r.squaredNorm();
@@ -527,12 +485,9 @@ VectorType SPHRelaxation<VectorType, Real>::gradient_kernel(const VectorType& r)
     Real mag2_r = glm::length2(r);
 #endif
 
-    if(mag2_r < SMALL_NUMBER || mag2_r > kernel_radius_sqr)
-    {
+    if(mag2_r < SMALL_NUMBER || mag2_r > kernel_radius_sqr) {
         return VectorType(0, 0, 0);
-    }
-    else
-    {
+    } else {
 #ifdef __Using_Eigen_Lib__
         return kernel_coeff_gradient * MathUtils::sqr(kernel_radius_sqr - mag2_r) *
                r.normalized();
@@ -545,7 +500,7 @@ VectorType SPHRelaxation<VectorType, Real>::gradient_kernel(const VectorType& r)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class VectorType, class Real>
-Real SPHRelaxation<VectorType, Real>::laplacian_kernel(const VectorType& r)
+Real SPHRelaxation<VectorType, Real >::laplacian_kernel(const VectorType& r)
 {
 #ifdef __Using_Eigen_Lib__
     Real mag2_r = r.squaredNorm();
@@ -553,12 +508,9 @@ Real SPHRelaxation<VectorType, Real>::laplacian_kernel(const VectorType& r)
     Real mag2_r = glm::length2(r);
 #endif
 
-    if(mag2_r < SMALL_NUMBER || mag2_r > kernel_radius_sqr)
-    {
+    if(mag2_r < SMALL_NUMBER || mag2_r > kernel_radius_sqr) {
         return 0;
-    }
-    else
-    {
+    } else {
         return kernel_coeff_laplace * (kernel_radius_sqr - mag2_r) * (7.0 * mag2_r - 3.0 *
                                                                       kernel_radius_sqr);
     }
@@ -566,7 +518,7 @@ Real SPHRelaxation<VectorType, Real>::laplacian_kernel(const VectorType& r)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class VectorType, class Real>
-VectorType SPHRelaxation<VectorType, Real>::gradient_pressure_kernel(const VectorType& r)
+VectorType SPHRelaxation<VectorType, Real >::gradient_pressure_kernel(const VectorType& r)
 {
 #ifdef __Using_Eigen_Lib__
     Real mag_r = r.norm();
@@ -574,12 +526,9 @@ VectorType SPHRelaxation<VectorType, Real>::gradient_pressure_kernel(const Vecto
     Real mag_r = glm::length(r);
 #endif
 
-    if(mag_r < SMALL_NUMBER || mag_r > kernel_radius)
-    {
+    if(mag_r < SMALL_NUMBER || mag_r > kernel_radius) {
         return VectorType(0, 0, 0);
-    }
-    else
-    {
+    } else {
 #ifdef __Using_Eigen_Lib__
         return kernel_coeff_gradient_pressure * MathUtils::sqr(kernel_radius - mag_r) *
                r.normalized();
@@ -592,7 +541,7 @@ VectorType SPHRelaxation<VectorType, Real>::gradient_pressure_kernel(const Vecto
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class VectorType, class Real>
-Real SPHRelaxation<VectorType, Real>::laplacian_viscosity_kernel(const VectorType& r)
+Real SPHRelaxation<VectorType, Real >::laplacian_viscosity_kernel(const VectorType& r)
 {
 #ifdef __Using_Eigen_Lib__
     Real mag_r = r.norm();
@@ -600,36 +549,27 @@ Real SPHRelaxation<VectorType, Real>::laplacian_viscosity_kernel(const VectorTyp
     Real mag_r = glm::length(r);
 #endif
 
-    if(mag_r < SMALL_NUMBER || mag_r > kernel_radius)
-    {
+    if(mag_r < SMALL_NUMBER || mag_r > kernel_radius) {
         return 0;
-    }
-    else
-    {
+    } else {
         return kernel_coeff_laplace_viscous * (kernel_radius - mag_r);
     }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class VectorType, class Real>
-VectorType SPHRelaxation<VectorType, Real>::kernel_coherence(const VectorType& r)
+VectorType SPHRelaxation<VectorType, Real >::kernel_coherence(const VectorType& r)
 {
     Real mag_r = glm::length(r);
 
-    if(mag_r < SMALL_NUMBER || mag_r > kernel_radius)
-    {
+    if(mag_r < SMALL_NUMBER || mag_r > kernel_radius) {
         return VectorType(0, 0, 0);
-    }
-    else
-    {
+    } else {
         VectorType result = (Real)kernel_coeff_coherence * glm::normalize(r);
 
-        if(mag_r < kernel_radius * 0.5)
-        {
+        if(mag_r < kernel_radius * 0.5) {
             return result * (Real)(2.0 * CUBE(kernel_radius - mag_r) * CUBE(mag_r) - kernel_coeff_h6over64);
-        }
-        else
-        {
+        } else {
             return result * (Real)(CUBE(kernel_radius - mag_r) * CUBE(mag_r));
         }
     }
@@ -637,16 +577,13 @@ VectorType SPHRelaxation<VectorType, Real>::kernel_coherence(const VectorType& r
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class VectorType, class Real>
-VectorType SPHRelaxation<VectorType, Real>::kernel_near(const VectorType& r)
+VectorType SPHRelaxation<VectorType, Real >::kernel_near(const VectorType& r)
 {
     Real mag_r = glm::length(r);
 
-    if(mag_r > kernel_near_radius)
-    {
+    if(mag_r > kernel_near_radius) {
         return VectorType(0, 0, 0);
-    }
-    else
-    {
+    } else {
         return (Real)(kernel_coeff_near * MathHelpers::sqr(1.0 - mag_r / kernel_near_radius)) * glm::normalize(r);
     }
 }
