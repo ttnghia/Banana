@@ -88,13 +88,13 @@ void Simulator::changeScene(const QString& scene)
     ////////////////////////////////////////////////////////////////////////////////
     QString sceneFile = QDir::currentPath() + "/Scenes/" + scene;
     m_ParticleSolver->loadScene(sceneFile.toStdString());
-    emit domainChanged(m_ParticleSolver->solverParams().movingBMin, m_ParticleSolver->solverParams().movingBMax);
+    emit domainChanged(m_ParticleSolver->picParams().movingBMin, m_ParticleSolver->picParams().movingBMax);
 
     m_ParticleSolver->makeReady();
     m_ParticleData->setNumParticles(m_ParticleSolver->getNParticles());
     m_ParticleData->setUInt("ColorRandomReady", 0);
     m_ParticleData->setUInt("ColorRampReady",   0);
-    m_ParticleData->setParticleRadius(m_ParticleSolver->solverParams().particleRadius);
+    m_ParticleData->setParticleRadius(m_ParticleSolver->picParams().particleRadius);
 
     emit particleChanged();
     emit numParticleChanged(m_ParticleSolver->getNParticles());

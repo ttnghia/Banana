@@ -39,7 +39,7 @@ namespace SolverDefaultParameters
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 static const UInt FrameRate   = 30u;
 static const Real MinTimestep = Real(1.0e-6);
-static const Real MaxTimestep = Real(1.0e-3);
+static const Real MaxTimestep = Real(1.0e-2);
 
 static const UInt NExpandCells                    = 2u;
 static const Real RatioCellSizeOverParticleRadius = Real(4.0);
@@ -122,8 +122,8 @@ struct GlobalParameters
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 struct SimulationParameters
 {
-    virtual void makeReady() = 0;
-    virtual void printParams(const SharedPtr<Logger>& logger, bool bNewLine = true) = 0;
+    virtual void printParams(const SharedPtr<Logger>& logger) = 0;
+    virtual void makeReady() {}
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -133,7 +133,7 @@ struct ParticleData
     virtual UInt getNParticles() = 0;
     virtual void reserve(UInt nParticles) = 0;
     virtual void addParticles(const Vec_VecX<N, RealType>& newPositions, const Vec_VecX<N, RealType>& newVelocities) = 0;
-    virtual void removeParticles(const Vec_Int8& removeMarker) = 0;
+    virtual void removeParticles(Vec_Int8& removeMarker) = 0;
     virtual void makeReady() {}
 };
 

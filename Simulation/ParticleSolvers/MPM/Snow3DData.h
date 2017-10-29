@@ -56,8 +56,7 @@ struct SimulationParameters_Snow3D : public SimulationParameters
     Real maxImplicitError = Real(1e4);              //Maximum allowed error for conjugate residual
     Real minImplicitError = Real(1e-4);             //Minimum allowed error for conjugate residual
 
-    SolverDefaultParameters::InterpolationKernels kernel     = SolverDefaultParameters::InterpolationKernels::CubicBSpline;
-    Int                                           kernelSpan = 2;
+    Int kernelSpan = 2;
 
     Real  cellSize                    = SolverDefaultParameters::CellSize;
     Real  ratioCellSizeParticleRadius = Real(2.0);
@@ -198,7 +197,7 @@ struct SimulationData_Snow3D
             }
         }
 
-        virtual void removeParticles(const Vec_Int8& removeMarker)
+        virtual void removeParticles(Vec_Int8& removeMarker)
         {
             if(!STLHelpers::contain(removeMarker, Int8(1))) {
                 return;
@@ -224,6 +223,10 @@ struct SimulationData_Snow3D
 
             weightGradients.resize(positions.size());
             weights.resize(positions.size());
+
+            ////////////////////////////////////////////////////////////////////////////////
+            // resize removeMarker eventually
+            removeMarker.resize(positions.size());
         }
     } particleSimData;
 

@@ -21,10 +21,8 @@
 
 #pragma once
 
-#include <Banana/Grid/Grid.h>
-#include <Banana/LinearAlgebra/LinearSolvers/PCGSolver.h>
-#include <ParticleSolvers/PICFluid/PIC3D_Data.h>
 #include <ParticleSolvers/ParticleSolver.h>
+#include <ParticleSolvers/PICFluid/PIC3D_Data.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -47,10 +45,10 @@ public:
     virtual void sortParticles() override;
 
     ////////////////////////////////////////////////////////////////////////////////
-    auto&       solverParams() { return m_SimParams; }
-    const auto& solverParams() const { return m_SimParams; }
-    auto&       solverData() { return m_SimData; }
-    const auto& solverData() const { return m_SimData; }
+    auto&       picParams() { return m_picParams; }
+    const auto& picParams() const { return m_picParams; }
+    auto&       picData() { return m_picData; }
+    const auto& picData() const { return m_picData; }
 
 protected:
     virtual void loadSimParams(const nlohmann::json& jParams) override;
@@ -90,19 +88,14 @@ protected:
     Vec3r getVelocityChangesFromGrid(const Vec3r& ppos);
 
     ////////////////////////////////////////////////////////////////////////////////
-    auto&       particleData() { return solverData().particleSimData; }
-    const auto& particleData() const { return solverData().particleSimData; }
-    auto&       gridData() { return solverData().gridSimData; }
-    const auto& gridData() const { return solverData().gridSimData; }
+    auto&       particleData() { return picData().particleSimData; }
+    const auto& particleData() const { return picData().particleSimData; }
+    auto&       gridData() { return picData().gridSimData; }
+    const auto& gridData() const { return picData().gridSimData; }
 
     ////////////////////////////////////////////////////////////////////////////////
-    PIC3D_Parameters                                  m_SimParams;
-    PIC3D_Data                                        m_SimData;
-    std::function<Real(const Vec3r&, const Array3r&)> m_InterpolateValue = nullptr;
-    std::function<Real(const Vec3r&)>                 m_WeightKernel     = nullptr;
-
-    Grid3r                      m_Grid;
-    UniquePtr<PCGSolver<Real> > m_PCGSolver = nullptr;
+    PIC3D_Parameters m_picParams;
+    PIC3D_Data       m_picData;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

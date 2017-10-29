@@ -133,7 +133,7 @@ struct SimulationData_Peridynamics3D : public ParticleData<3, Real>
         velocities.insert(velocities.end(), newVelocities.begin(), newVelocities.end());
     }
 
-    virtual void removeParticles(const Vec_Int8& removeMarker)
+    virtual void removeParticles(Vec_Int8& removeMarker)
     {
         if(!STLHelpers::contain(removeMarker, Int8(1))) {
             return;
@@ -141,6 +141,12 @@ struct SimulationData_Peridynamics3D : public ParticleData<3, Real>
 
         STLHelpers::eraseByMarker(positions,  removeMarker);
         STLHelpers::eraseByMarker(velocities, removeMarker);
+
+        __BNN_TODO
+
+        ////////////////////////////////////////////////////////////////////////////////
+        // resize removeMarker eventually
+        removeMarker.resize(positions.size());
     }
 
     void makeReady()

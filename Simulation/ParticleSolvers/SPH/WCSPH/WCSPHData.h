@@ -149,7 +149,7 @@ struct SimulationData_WCSPH : public ParticleData<3, Real>
         diffuseVelocity.resize(positions.size(), Vec3r(0));
     }
 
-    virtual void removeParticles(const Vec_Int8& removeMarker)
+    virtual void removeParticles(Vec_Int8& removeMarker)
     {
         if(!STLHelpers::contain(removeMarker, Int8(1))) {
             return;
@@ -163,6 +163,10 @@ struct SimulationData_WCSPH : public ParticleData<3, Real>
         pressureForces.resize(positions.size());
         surfaceTensionForces.resize(positions.size());
         diffuseVelocity.resize(positions.size());
+
+        ////////////////////////////////////////////////////////////////////////////////
+        // resize removeMarker eventually
+        removeMarker.resize(positions.size());
     }
 };
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

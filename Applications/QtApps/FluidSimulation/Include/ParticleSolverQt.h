@@ -20,11 +20,11 @@
 #include "Common.h"
 
 #include <ParticleSolvers/SPH/WCSPH/WCSPHSolver.h>
-#include <ParticleSolvers/FLIP/FLIP3DSolver.h>
+#include <ParticleSolvers/PICFluid/FLIP3D_Solver.h>
 #include <ParticleSolvers/Peridynamics/PeridynamicsSolver.h>
 
 //#define PARTICLE_SOLVER WCSPHSolver
-#define PARTICLE_SOLVER FLIP3DSolver
+#define PARTICLE_SOLVER FLIP3D_Solver
 //#define PARTICLE_SOLVER PeridynamicsSolver
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

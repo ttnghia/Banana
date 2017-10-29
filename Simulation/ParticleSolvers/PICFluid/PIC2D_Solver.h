@@ -21,8 +21,6 @@
 
 #pragma once
 
-#include <Banana/Grid/Grid.h>
-#include <Banana/LinearAlgebra/LinearSolvers/PCGSolver.h>
 #include <ParticleSolvers/ParticleSolver.h>
 #include <ParticleSolvers/PICFluid/PIC2D_Data.h>
 
@@ -47,10 +45,10 @@ public:
     virtual void sortParticles() override;
 
     ////////////////////////////////////////////////////////////////////////////////
-    auto&       solverParams() { return m_SimParams; }
-    const auto& solverParams() const { return m_SimParams; }
-    auto&       solverData() { return m_SimData; }
-    const auto& solverData() const { return m_SimData; }
+    auto&       picParams() { return m_picParams; }
+    const auto& picParams() const { return m_picParams; }
+    auto&       picData() { return m_picData; }
+    const auto& picData() const { return m_picData; }
 
 protected:
     virtual void loadSimParams(const nlohmann::json& jParams) override;
@@ -85,19 +83,18 @@ protected:
     void velocityToParticles();
     ////////////////////////////////////////////////////////////////////////////////
     // helper functions
-    Vec2r   getVelocityFromGrid(const Vec2r& gridPos);
-    Vec2r   getVelocityChangesFromGrid(const Vec2r& gridPos);
-    Mat2x2r getAffineMatrix(const Vec2r& gridPos);
+    Vec2r getVelocityFromGrid(const Vec2r& gridPos);
+    Vec2r getVelocityChangesFromGrid(const Vec2r& gridPos);
 
     ////////////////////////////////////////////////////////////////////////////////
-    auto&       particleData() { return solverData().particleSimData; }
-    const auto& particleData() const { return solverData().particleSimData; }
-    auto&       gridData() { return solverData().gridSimData; }
-    const auto& gridData() const { return solverData().gridSimData; }
+    auto&       particleData() { return picData().particleSimData; }
+    const auto& particleData() const { return picData().particleSimData; }
+    auto&       gridData() { return picData().gridSimData; }
+    const auto& gridData() const { return picData().gridSimData; }
 
-private:
-    PIC2D_Parameters m_SimParams;
-    PIC2D_Data       m_SimData;
+    ////////////////////////////////////////////////////////////////////////////////
+    PIC2D_Parameters m_picParams;
+    PIC2D_Data       m_picData;
 };
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace ParticleSolvers
