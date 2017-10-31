@@ -24,22 +24,22 @@ include(../../../QtAppHelpers/QtAppHelpers.pri)
 include(../../../OpenGLHelpers/OpenGLHelpers.pri)
 include(../../../Simulation/Simulation.pri)
 
-TARGET = FluidSimulation
+TARGET = ParticleSimulation
 TEMPLATE = app
 CONFIG += console
 
-#CONFIG+= static
+#CONFIG += static
 
 INCLUDEPATH += $$PWD/Include
 
 
 HEADERS += \
-    Include/MainWindow.h \
-    Include/Common.h \
-    Include/Simulator.h \
-    Include/RenderWidget.h \
-    Include/Controller.h \
-    Include/ParticleSolverQt.h
+    Source/MainWindow.h \
+    Source/Common.h \
+    Source/Simulator.h \
+    Source/RenderWidget.h \
+    Source/Controller.h \
+    Source/ParticleSolverQt.h
 
 SOURCES += \
     Source/Main.cpp \
