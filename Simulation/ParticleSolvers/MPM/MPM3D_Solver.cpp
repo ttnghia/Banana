@@ -71,7 +71,7 @@ void MPM3D_Solver::advanceFrame()
                                   logger().printRunTime("Find neighbors: ", funcTimer,
                                                         [&]() { m_Grid.collectIndexToCells(particleData().positions, particleData().particleGridPos); });
                                   logger().printRunTime("====> Advance velocity total: ", funcTimer, [&]() { advanceVelocity(substep); });
-                                  logger().printRunTime("====> Update particles total: ", funcTimer, [&]() { moveParticles(substep); });
+                                  logger().printRunTime("Move particles: ", funcTimer, [&]() { moveParticles(substep); });
                                   ////////////////////////////////////////////////////////////////////////////////
 
                                   frameTime += substep;
@@ -105,26 +105,23 @@ void MPM3D_Solver::loadSimParams(const nlohmann::json& jParams)
     solverParams().movingBMin = box->boxMin();
     solverParams().movingBMax = box->boxMax();
 
-    JSONHelpers::readValue(jParams, solverParams().minTimestep,          "MinTimestep");
-    JSONHelpers::readValue(jParams, solverParams().maxTimestep,          "MaxTimestep");
-    JSONHelpers::readValue(jParams, solverParams().CFLFactor,            "CFLFactor");
+    JSONHelpers::readValue(jParams, solverParams().minTimestep,         "MinTimestep");
+    JSONHelpers::readValue(jParams, solverParams().maxTimestep,         "MaxTimestep");
+    JSONHelpers::readValue(jParams, solverParams().CFLFactor,           "CFLFactor");
+    JSONHelpers::readValue(jParams, solverParams().particleRadius,      "ParticleRadius");
+    JSONHelpers::readValue(jParams, solverParams().boundaryRestitution, "BoundaryRestitution");
+    JSONHelpers::readValue(jParams, solverParams().CGRelativeTolerance, "CGRelativeTolerance");
+    JSONHelpers::readValue(jParams, solverParams().maxCGIteration,      "MaxCGIteration");
 
-    JSONHelpers::readValue(jParams, solverParams().PIC_FLIP_ratio,       "PIC_FLIP_Ratio");
-    JSONHelpers::readValue(jParams, solverParams().particleRadius,       "ParticleRadius");
+    JSONHelpers::readBool(jParams, solverParams().bCorrectPosition, "CorrectPosition");
+    JSONHelpers::readValue(jParams, solverParams().repulsiveForceStiffness, "RepulsiveForceStiffness");
 
+    JSONHelpers::readValue(jParams, solverParams().PIC_FLIP_ratio,          "PIC_FLIP_Ratio");
+    JSONHelpers::readValue(jParams, solverParams().materialDensity,         "MaterialDensity");
+    JSONHelpers::readValue(jParams, solverParams().YoungsModulus,           "YoungsModulus");
+    JSONHelpers::readValue(jParams, solverParams().PoissonsRatio,           "PoissonsRatio");
 
-    JSONHelpers::readValue(jParams, solverParams().boundaryRestitution,  "BoundaryRestitution");
-    JSONHelpers::readValue(jParams, solverParams().CGRelativeTolerance,  "CGRelativeTolerance");
-    JSONHelpers::readValue(jParams, solverParams().maxCGIteration,       "MaxCGIteration");
-
-    JSONHelpers::readValue(jParams, solverParams().thresholdCompression, "ThresholdCompression");
-    JSONHelpers::readValue(jParams, solverParams().thresholdStretching,  "ThresholdStretching");
-    JSONHelpers::readValue(jParams, solverParams().hardening,            "Hardening");
-    JSONHelpers::readValue(jParams, solverParams().materialDensity,      "MaterialDensity");
-    JSONHelpers::readValue(jParams, solverParams().YoungsModulus,        "YoungsModulus");
-    JSONHelpers::readValue(jParams, solverParams().PoissonsRatio,        "PoissonsRatio");
-
-    JSONHelpers::readValue(jParams, solverParams().implicitRatio,        "ImplicitRatio");
+    JSONHelpers::readValue(jParams, solverParams().implicitRatio,           "ImplicitRatio");
 
     ////////////////////////////////////////////////////////////////////////////////
     solverParams().makeReady();
@@ -311,7 +308,7 @@ void MPM3D_Solver::advanceVelocity(Real timestep)
     logger().printRunTime("Constrain grid velocity: ", funcTimer, [&]() { constrainGridVelocity(timestep); });
 
     logger().printRunTime("Interpolate velocity from grid to particles: ", funcTimer, [&]() { velocityToParticles(timestep); });
-    logger().printRunTime("Constrain particle velocity: ", funcTimer, [&]() { constrainParticleVelocity(timestep); });
+    //logger().printRunTime("Constrain particle velocity: ", funcTimer, [&]() { constrainParticleVelocity(timestep); });
     logger().printRunTime("Update particle gradients: ", funcTimer, [&]() { updateParticleDeformGradients(timestep); });
 }
 
@@ -322,6 +319,14 @@ void MPM3D_Solver::moveParticles(Real timestep)
                                 [&](UInt p)
                                 {
                                     Vec3r ppos = particleData().positions[p] + particleData().velocities[p] * timestep;
+                                    for(auto& obj : m_BoundaryObjects) {
+                                        obj->constrainToBoundary(ppos);
+                                    }
+
+
+                                    __BNN_TODO
+                                    ppos.y = MathHelpers::clamp(ppos.y, solverParams().movingBMin.y, ppos.y);
+
                                     particleData().positions[p] = ppos;
                                 });
 }
@@ -443,7 +448,7 @@ void MPM3D_Solver::initParticleVolumes()
                                         }
                                     }
 
-                                    pdensity                   /= solverParams().cellArea;
+                                    pdensity                   /= solverParams().cellVolume;
                                     particleData().densities[p] = pdensity;
                                     //Volume for each particle can be found from density
                                     particleData().volumes[p] = solverParams().particleMass / pdensity;
@@ -529,8 +534,8 @@ void MPM3D_Solver::velocityToParticles(Real timestep)
                                     //We calculate PIC and FLIP velocities separately
                                     Vec3r pic(0), flip = particleData().velocities[p];
                                     //Also keep track of velocity gradient
-                                    Mat3x3r& grad = particleData().velocityGrad[p];
-                                    grad = Mat3x3r(0.0);
+                                    Mat3x3r& velGrad = particleData().velocityGrad[p];
+                                    velGrad = Mat3x3r(0.0);
 
                                     //VISUALIZATION PURPOSES ONLY:
                                     //Recompute density
@@ -546,7 +551,7 @@ void MPM3D_Solver::velocityToParticles(Real timestep)
                                                     continue;
                                                 }
 
-                                                Real w = particleData().weights[p * 16 + idx];
+                                                Real w = particleData().weights[p * 64 + idx];
                                                 if(w > Tiny) {
                                                     const Vec3r& velocity_new = gridData().velocity_new(x, y, z);
                                                     //Particle in cell
@@ -554,7 +559,7 @@ void MPM3D_Solver::velocityToParticles(Real timestep)
                                                     //Fluid implicit particle
                                                     flip += (velocity_new - gridData().velocity(x, y, z)) * w;
                                                     //Velocity gradient
-                                                    grad += glm::outerProduct(velocity_new, particleData().weightGradients[p * 64 + idx]);
+                                                    velGrad += glm::outerProduct(velocity_new, particleData().weightGradients[p * 64 + idx]);
 
                                                     //VISUALIZATION ONLY: Update density
                                                     pdensity += w * gridData().mass(x, y, z);
@@ -565,13 +570,14 @@ void MPM3D_Solver::velocityToParticles(Real timestep)
                                     //Final velocity is a linear combination of PIC and FLIP components
                                     particleData().velocities[p] = MathHelpers::lerp(pic, flip, solverParams().PIC_FLIP_ratio);
                                     //VISUALIZATION: Update density
-                                    particleData().densities[p] = pdensity / solverParams().cellArea;
+                                    particleData().densities[p] = pdensity / solverParams().cellVolume;
                                 });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MPM3D_Solver::constrainGridVelocity(Real timestep)
 {
+#if 0
     Vec3r delta_scale = Vec3r(timestep);
     delta_scale /= solverParams().cellSize;
 
@@ -584,7 +590,7 @@ void MPM3D_Solver::constrainGridVelocity(Real timestep)
                                               Vec3r new_pos      = gridData().velocity_new(x, y, z) * delta_scale + Vec3r(x, y, z);
 
                                               for(UInt i = 0; i < solverDimension(); ++i) {
-                                                  if(new_pos[i] < Real(solverParams().kernelSpan) || new_pos[i] > Real(m_Grid.getNNodes()[i] - solverParams().kernelSpan - 1)) {
+                                                  if(new_pos[i] < Real(2) || new_pos[i] > Real(m_Grid.getNNodes()[i] - 2 - 1)) {
                                                       velocity_new[i]                          = 0;
                                                       velocity_new[solverDimension() - i - 1] *= solverParams().boundaryRestitution;
                                                       velChanged                               = true;
@@ -596,6 +602,15 @@ void MPM3D_Solver::constrainGridVelocity(Real timestep)
                                               }
                                           }
                                       });
+#else
+    ParallelFuncs::parallel_for<UInt>(m_Grid.getNNodes(),
+                                      [&](UInt i, UInt j, UInt k)
+                                      {
+                                          if(i <= 2 || j <= 2 || k <= 2) {
+                                              gridData().velocity_new(i, j, k) = Vec3r(0);
+                                          }
+                                      });
+#endif
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -610,7 +625,7 @@ void MPM3D_Solver::constrainParticleVelocity(Real timestep)
 
                                     //Left border, right border
                                     for(UInt i = 0; i < solverDimension(); ++i) {
-                                        if(new_pos[i] < Real(solverParams().kernelSpan - 1) || new_pos[0] > Real(m_Grid.getNNodes()[i] - solverParams().kernelSpan)) {
+                                        if(new_pos[i] < Real(2 - 1) || new_pos[0] > Real(m_Grid.getNNodes()[i] - 2)) {
                                             pVel[i]   *= -solverParams().boundaryRestitution;
                                             velChanged = true;
                                         }
@@ -632,8 +647,8 @@ void MPM3D_Solver::updateParticleDeformGradients(Real timestep)
                                     velGrad *= timestep;
                                     LinaHelpers::sumToDiag(velGrad, Real(1.0));
 
-                                    particleData().velocityGrad[p]      = velGrad;
-                                    particleData().elasticDeformGrad[p] = velGrad * particleData().elasticDeformGrad[p];
+                                    //particleData().velocityGrad[p]      = velGrad;
+                                    particleData().deformGrad[p] = velGrad * particleData().deformGrad[p];
                                 });
 }
 

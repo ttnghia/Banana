@@ -5,7 +5,7 @@
         "FinalFrame" : 1000,
         "EnableSortParticle" : true,
         "SortFrequency" : 10,
-        "SaveFrameData" : true,
+        "SaveFrameData" : false,
         "DataPath" : "D:/SimData/APIC",
         "OptionalSavingDataXXX" : [ "anisotropic_kernel" ],
         "LogLevel" : "Debug"

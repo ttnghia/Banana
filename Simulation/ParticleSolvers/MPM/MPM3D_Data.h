@@ -35,53 +35,66 @@ struct MPM3D_Parameters : public SimulationParameters
 {
     MPM3D_Parameters() { makeReady(); }
 
+
     ////////////////////////////////////////////////////////////////////////////////
-    Real CFLFactor           = Real(0.04);
-    Real PIC_FLIP_ratio      = SolverDefaultParameters::PIC_FLIP_Ratio;
-    Real minTimestep         = SolverDefaultParameters::MinTimestep;
-    Real maxTimestep         = SolverDefaultParameters::MaxTimestep;
-    Real boundaryRestitution = SolverDefaultParameters::BoundaryRestitution;
-
-    Real CGRelativeTolerance = SolverDefaultParameters::CGRelativeTolerance;
-    UInt maxCGIteration      = SolverDefaultParameters::CGMaxIteration;
-
-    Real thresholdCompression = Real(1.0 - 1.9e-2); //Fracture threshold for compression (1-2.5e-2)
-    Real thresholdStretching  = Real(1.0 + 7.5e-3); //Fracture threshold for stretching (1+7.5e-3)
-    Real hardening            = Real(5.0);          //How much plastic deformation strengthens material (10)
-    Real materialDensity      = Real(100.0);        //Density of snow in kg/m^2 (400 for 3d)
-    Real YoungsModulus        = Real(1.5e5);        //Young's modulus (springiness) (1.4e5)
-    Real PoissonsRatio        = Real(0.2);          //Poisson's ratio (transverse/axial strain ratio) (.2)
-    Real implicitRatio        = Real(0);            //Percentage that should be implicit vs explicit for velocity update
-
-    Real maxImplicitError = Real(1e4);              //Maximum allowed error for conjugate residual
-    Real minImplicitError = Real(1e-4);             //Minimum allowed error for conjugate residual
-
-    Int kernelSpan = 2;
-
-    Real  cellSize                    = SolverDefaultParameters::CellSize;
-    Real  ratioCellSizeParticleRadius = Real(2.0);
-    Vec3r domainBMin                  = Vec3r(0.0);
-    Vec3r domainBMax                  = Vec3r(1.0);
-
-    // the following need to be computed
-    Real particleRadius;
-    Real particleMass;
-
-    Real  cellArea;
+    // simulation size
+    Real  particleRadius       = SolverDefaultParameters::ParticleRadius;
+    Real  ratioCellSizePRadius = SolverDefaultParameters::RatioCellSizeOverParticleRadius;
+    UInt  expandCells          = SolverDefaultParameters::NExpandCells;
+    Vec3r domainBMin           = SolverDefaultParameters::SimulationDomainBMin3D;
+    Vec3r domainBMax           = SolverDefaultParameters::SimulationDomainBMax3D;
     Vec3r movingBMin;
     Vec3r movingBMax;
+    Real  cellSize;
+    Real  cellVolume;
+    ////////////////////////////////////////////////////////////////////////////////
 
-    Real lambda, mu;     //Lame parameters (_s denotes starting configuration)
+    ////////////////////////////////////////////////////////////////////////////////
+    // time step size
+    Real minTimestep = SolverDefaultParameters::MinTimestep;
+    Real maxTimestep = SolverDefaultParameters::MaxTimestep;
+    Real CFLFactor   = Real(0.04);
+    ////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // CG solver
+    Real CGRelativeTolerance = SolverDefaultParameters::CGRelativeTolerance;
+    UInt maxCGIteration      = SolverDefaultParameters::CGMaxIteration;
+    ////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // position-correction
+    bool bCorrectPosition        = true;
+    Real repulsiveForceStiffness = Real(50);
+    ////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // boundary condition
+    Real boundaryRestitution = SolverDefaultParameters::BoundaryRestitution;
+    ////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // MPM parameters
+    Real PIC_FLIP_ratio  = SolverDefaultParameters::PIC_FLIP_Ratio;
+    Real materialDensity = Real(100.0);
+    Real YoungsModulus   = Real(1.5e3);
+    Real PoissonsRatio   = Real(0.2);
+    Real implicitRatio   = Real(0);
+    Real particleMass;
+    Real mu     = Real(10.0);         //Lame parameters
+    Real lambda = Real(10.0);
 
     ////////////////////////////////////////////////////////////////////////////////
     virtual void makeReady() override
     {
-        cellSize     = particleRadius * ratioCellSizeParticleRadius;
-        particleMass = particleRadius * particleRadius * materialDensity;
+        cellSize     = particleRadius * ratioCellSizePRadius;
+        particleMass = MathHelpers::cube(Real(2.0) * particleRadius) * materialDensity;
 
-        cellArea   = cellSize * cellSize;
-        domainBMin = movingBMin - Vec3r(cellSize * SolverDefaultParameters::NExpandCells);
-        domainBMax = movingBMax + Vec3r(cellSize * SolverDefaultParameters::NExpandCells);
+        cellVolume  = MathHelpers::cube(cellSize);
+        movingBMin  = domainBMin;
+        movingBMax  = domainBMax;
+        domainBMin -= Vec3r(cellSize * expandCells);
+        domainBMax += Vec3r(cellSize * expandCells);
 
         lambda = YoungsModulus * PoissonsRatio / ((Real(1.0) + PoissonsRatio) * (Real(1.0) - Real(2.0) * PoissonsRatio)),
         mu     = YoungsModulus / (Real(2.0) + Real(2.0) * PoissonsRatio);
@@ -90,30 +103,56 @@ struct MPM3D_Parameters : public SimulationParameters
     ////////////////////////////////////////////////////////////////////////////////
     virtual void printParams(const SharedPtr<Logger>& logger) override
     {
-        logger->printLog("MPM-3D simulation parameters:");
-        logger->printLogIndent("Maximum timestep: " + NumberHelpers::formatToScientific(maxTimestep));
-        logger->printLogIndent("CFL factor: " + std::to_string(CFLFactor));
-        logger->printLogIndent("PIC/FLIP ratio: " + std::to_string(PIC_FLIP_ratio));
+        logger->printLog(String("MPM-3D parameters:"));
 
-        logger->printLogIndent("Domain box: " + NumberHelpers::toString(domainBMin) + String(" -> ") + NumberHelpers::toString(domainBMax));
-        logger->printLogIndent("Moving box: " + NumberHelpers::toString(movingBMin) + String(" -> ") + NumberHelpers::toString(movingBMax));
-        logger->printLogIndent("Cell size: " + std::to_string(cellSize));
-        Vec3ui numDomainCells(static_cast<UInt>(ceil((domainBMax[0] - domainBMin[0]) / cellSize)),
-                              static_cast<UInt>(ceil((domainBMax[1] - domainBMin[1]) / cellSize)),
-                              static_cast<UInt>(ceil((domainBMax[2] - domainBMin[2]) / cellSize)));
-        Vec3ui numMovingCells(static_cast<UInt>(ceil((movingBMax[0] - movingBMin[0]) / cellSize)),
-                              static_cast<UInt>(ceil((movingBMax[1] - movingBMin[1]) / cellSize)),
-                              static_cast<UInt>(ceil((movingBMax[2] - movingBMin[2]) / cellSize)));
-        logger->printLogIndent("Number of cells: " + std::to_string(numDomainCells[0] * numDomainCells[1]));
-        logger->printLogIndent("Number of nodes: " + std::to_string((numDomainCells[0] + 1u) * (numDomainCells[1] + 1u)));
-        logger->printLogIndent("Grid resolution: " + NumberHelpers::toString(numDomainCells));
-        logger->printLogIndent("Moving grid resolution: " + NumberHelpers::toString(numMovingCells));
+        ////////////////////////////////////////////////////////////////////////////////
+        // simulation size
+        logger->printLogIndent(String("Particle radius: ") + std::to_string(particleRadius));
+        logger->printLogIndent(String("Ratio grid size/particle radius: ") + std::to_string(ratioCellSizePRadius));
+        logger->printLogIndent(String("Expand cells for each dimension: ") + std::to_string(expandCells));
+        logger->printLogIndent(String("Cell size: ") + std::to_string(cellSize));
+        logger->printLogIndent(String("Cell volume: ") + std::to_string(cellVolume));
+        logger->printLogIndent(String("Domain box: ") + NumberHelpers::toString(domainBMin) + " -> " + NumberHelpers::toString(domainBMax));
+        logger->printLogIndent(String("Grid resolution: ") + NumberHelpers::toString(NumberHelpers::createGrid<UInt>(domainBMin, domainBMax, cellSize)),        2);
+        logger->printLogIndent(String("Moving box: ") + NumberHelpers::toString(movingBMin) + " -> " + NumberHelpers::toString(movingBMax));
+        logger->printLogIndent(String("Moving grid resolution: ") + NumberHelpers::toString(NumberHelpers::createGrid<UInt>(movingBMin, movingBMax, cellSize)), 2);
+        ////////////////////////////////////////////////////////////////////////////////
 
-        logger->printLogIndent("Boundary restitution: " + std::to_string(boundaryRestitution));
-        logger->printLogIndent("ConjugateGradient solver tolerance: " + NumberHelpers::formatToScientific(CGRelativeTolerance));
-        logger->printLogIndent("Max CG iterations: " + NumberHelpers::formatToScientific(maxCGIteration));
+        ////////////////////////////////////////////////////////////////////////////////
+        // time step size
+        logger->printLogIndent(String("Min timestep: ") + NumberHelpers::formatToScientific(minTimestep));
+        logger->printLogIndent(String("Max timestep: ") + NumberHelpers::formatToScientific(maxTimestep));
+        logger->printLogIndent(String("CFL factor: ") + std::to_string(CFLFactor));
+        ////////////////////////////////////////////////////////////////////////////////
 
-        logger->printLogIndent("Particle radius: " + std::to_string(particleRadius));
+        ////////////////////////////////////////////////////////////////////////////////
+        // CG parameters
+        logger->printLogIndent(String("ConjugateGradient solver tolerance: ") + NumberHelpers::formatToScientific(CGRelativeTolerance));
+        logger->printLogIndent(String("Max CG iterations: ") + NumberHelpers::formatToScientific(maxCGIteration));
+        ////////////////////////////////////////////////////////////////////////////////
+
+        ////////////////////////////////////////////////////////////////////////////////
+        // position correction
+        logger->printLogIndent(String("Correct particle position: ") + (bCorrectPosition ? String("Yes") : String("No")));
+        logger->printLogIndentIf(bCorrectPosition, String("Repulsive force stiffness: ") + NumberHelpers::formatToScientific(repulsiveForceStiffness));
+        ////////////////////////////////////////////////////////////////////////////////
+
+        ////////////////////////////////////////////////////////////////////////////////
+        // boundary condition
+        logger->printLogIndent(String("Boundary restitution: ") + std::to_string(boundaryRestitution));
+        ////////////////////////////////////////////////////////////////////////////////
+
+        ////////////////////////////////////////////////////////////////////////////////
+        // MPM parameters
+        logger->printLogIndent(String("PIC/FLIP ratio: ") + std::to_string(PIC_FLIP_ratio));
+        logger->printLogIndent(String("Material density: ") + std::to_string(materialDensity));
+        logger->printLogIndent(String("Youngs modulus: ") + std::to_string(YoungsModulus));
+        logger->printLogIndent(String("Poissons ratio: ") + std::to_string(PoissonsRatio));
+        logger->printLogIndent(String("Implicit ratio: ") + std::to_string(implicitRatio));
+        logger->printLogIndent(String("Particle mass: ") + std::to_string(particleMass));
+        logger->printLogIndent(String("mu/lambda: ") + std::to_string(mu) + String("/") + std::to_string(lambda));
+        ////////////////////////////////////////////////////////////////////////////////
+
         logger->newLine();
     }
 };

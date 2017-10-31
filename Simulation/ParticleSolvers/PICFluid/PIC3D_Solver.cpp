@@ -131,9 +131,7 @@ void PIC3D_Solver::loadSimParams(const nlohmann::json& jParams)
     JSONHelpers::readValue(jParams, picParams().minTimestep,         "MinTimestep");
     JSONHelpers::readValue(jParams, picParams().maxTimestep,         "MaxTimestep");
     JSONHelpers::readValue(jParams, picParams().CFLFactor,           "CFLFactor");
-
     JSONHelpers::readValue(jParams, picParams().particleRadius,      "ParticleRadius");
-
     JSONHelpers::readValue(jParams, picParams().boundaryRestitution, "BoundaryRestitution");
     JSONHelpers::readValue(jParams, picParams().CGRelativeTolerance, "CGRelativeTolerance");
     JSONHelpers::readValue(jParams, picParams().maxCGIteration,      "MaxCGIteration");

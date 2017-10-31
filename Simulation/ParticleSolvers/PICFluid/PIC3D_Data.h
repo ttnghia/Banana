@@ -104,17 +104,9 @@ struct PIC3D_Parameters : public SimulationParameters
         logger->printLogIndent(String("Cell size: ") + std::to_string(cellSize));
         logger->printLogIndent(String("SDF radius: ") + std::to_string(sdfRadius));
         logger->printLogIndent(String("Domain box: ") + NumberHelpers::toString(domainBMin) + " -> " + NumberHelpers::toString(domainBMax));
-        logger->printLogIndent(String("Grid resolution: ") +
-                               NumberHelpers::toString(Vec3ui(static_cast<UInt>(ceil((domainBMax[0] - domainBMin[0]) / cellSize)),
-                                                              static_cast<UInt>(ceil((domainBMax[1] - domainBMin[1]) / cellSize)),
-                                                              static_cast<UInt>(ceil((domainBMax[2] - domainBMin[2]) / cellSize)))),
-                               2);
+        logger->printLogIndent(String("Grid resolution: ") + NumberHelpers::toString(NumberHelpers::createGrid<UInt>(domainBMin, domainBMax, cellSize)),        2);
         logger->printLogIndent(String("Moving box: ") + NumberHelpers::toString(movingBMin) + " -> " + NumberHelpers::toString(movingBMax));
-        logger->printLogIndent(String("Moving grid resolution: ") +
-                               NumberHelpers::toString(Vec3ui(static_cast<UInt>(ceil((movingBMax[0] - movingBMin[0]) / cellSize)),
-                                                              static_cast<UInt>(ceil((movingBMax[1] - movingBMin[1]) / cellSize)),
-                                                              static_cast<UInt>(ceil((movingBMax[2] - movingBMin[2]) / cellSize)))),
-                               2);
+        logger->printLogIndent(String("Moving grid resolution: ") + NumberHelpers::toString(NumberHelpers::createGrid<UInt>(movingBMin, movingBMax, cellSize)), 2);
         ////////////////////////////////////////////////////////////////////////////////
 
         ////////////////////////////////////////////////////////////////////////////////
