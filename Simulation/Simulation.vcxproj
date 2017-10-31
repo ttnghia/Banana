@@ -133,8 +133,14 @@
     <None Include="Simulation.licenseheader" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Optimization\LBFGSSolver.h" />
+    <ClInclude Include="Optimization\MoreThuente.h" />
+    <ClInclude Include="Optimization\Optimization.h" />
+    <ClInclude Include="Optimization\Problem.h" />
     <ClInclude Include="ParticleSolvers\ClothSolver\ClothSolverData.h" />
     <ClInclude Include="ParticleSolvers\ClothSolver\ClothSolver.h" />
+    <ClInclude Include="ParticleSolvers\MPM\MPM3D_Data.h" />
+    <ClInclude Include="ParticleSolvers\MPM\MPM3D_Solver.h" />
     <ClInclude Include="ParticleSolvers\PICFluid\APIC2D_Data.h" />
     <ClInclude Include="ParticleSolvers\PICFluid\APIC2D_Solver.h" />
     <ClInclude Include="ParticleSolvers\PICFluid\APIC3D_Data.h" />
@@ -194,6 +200,7 @@
     <ClInclude Include="SurfaceReconstruction\MarchingCube.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ParticleSolvers\MPM\MPM3D_Solver.cpp" />
     <ClCompile Include="ParticleSolvers\PICFluid\APIC2D_Solver.cpp" />
     <ClCompile Include="ParticleSolvers\PICFluid\APIC3D_Solver.cpp" />
     <ClCompile Include="ParticleSolvers\MPM\Snow2DSolver.cpp" />

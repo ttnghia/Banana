@@ -88,10 +88,10 @@ protected:
     Vec3r getVelocityFromGrid(const Vec3r& ppos);
 
     ////////////////////////////////////////////////////////////////////////////////
-    auto&       particleData() { return picData().particleSimData; }
-    const auto& particleData() const { return picData().particleSimData; }
-    auto&       gridData() { return picData().gridSimData; }
-    const auto& gridData() const { return picData().gridSimData; }
+    auto&       particleData() { return picData().particleData; }
+    const auto& particleData() const { return picData().particleData; }
+    auto&       gridData() { return picData().gridData; }
+    const auto& gridData() const { return picData().gridData; }
 
     ////////////////////////////////////////////////////////////////////////////////
     PIC3D_Parameters m_picParams;

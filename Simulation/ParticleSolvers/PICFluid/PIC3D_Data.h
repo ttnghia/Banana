@@ -148,7 +148,7 @@ struct PIC3D_Parameters : public SimulationParameters
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 struct PIC3D_Data
 {
-    struct ParticleSimData : public ParticleData<3, Real>
+    struct ParticleData : public ParticleSimulationData<3, Real>
     {
         ////////////////////////////////////////////////////////////////////////////////
         // main variables
@@ -192,10 +192,10 @@ struct PIC3D_Data
             // resize marker array at last
             removeMarker.resize(positions.size());
         }
-    } particleSimData;
+    } particleData;
 
     ////////////////////////////////////////////////////////////////////////////////
-    struct GridSimData : public GridData<3, Real>
+    struct GridData : public GridSimulationData<3, Real>
     {
         ////////////////////////////////////////////////////////////////////////////////
         // main variables
@@ -252,7 +252,7 @@ struct PIC3D_Data
                                             boundarySDF(i, j, k) = minSD + MEpsilon;
                                         });
         }
-    } gridSimData;
+    } gridData;
 
     ////////////////////////////////////////////////////////////////////////////////
     Grid3r             grid;
@@ -265,7 +265,7 @@ struct PIC3D_Data
     void makeReady(const PIC3D_Parameters& picParams)
     {
         grid.setGrid(picParams.domainBMin, picParams.domainBMax, picParams.cellSize);
-        gridSimData.resize(grid.getNCells());
+        gridData.resize(grid.getNCells());
         matrix.resize(grid.getNCells().x * grid.getNCells().y * grid.getNCells().z);
         rhs.resize(grid.getNCells().x * grid.getNCells().y * grid.getNCells().z);
         pressure.resize(grid.getNCells().x * grid.getNCells().y * grid.getNCells().z);

@@ -128,7 +128,7 @@ struct SimulationParameters
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-struct ParticleData
+struct ParticleSimulationData
 {
     virtual UInt getNParticles() = 0;
     virtual void reserve(UInt nParticles) = 0;
@@ -140,7 +140,7 @@ struct ParticleData
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-struct GridData
+struct GridSimulationData
 {
     virtual void resize(const VecX<N, UInt>& gridSize) = 0;
     virtual void makeReady() {}

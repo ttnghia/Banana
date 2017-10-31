@@ -339,7 +339,7 @@ void Snow2DSolver::massToGrid()
                                     for(Int idx = 0, y = Int(oy) - 1, y_end = y + 3; y <= y_end; ++y) {
                                         //Y-dimension interpolation
                                         Real y_pos = oy - y,
-                                        wy         = MathHelpers::cubic_bspline(y_pos),
+                                        wy         = MathHelpers::cubic_bspline_kernel(y_pos),
                                         dy         = MathHelpers::cubic_bspline_grad(y_pos);
 
                                         for(Int x = Int(ox) - 1, x_end = x + 3; x <= x_end; ++x, ++idx) {
@@ -349,7 +349,7 @@ void Snow2DSolver::massToGrid()
 
                                             //X-dimension interpolation
                                             Real x_pos = ox - x,
-                                            wx         = MathHelpers::cubic_bspline(x_pos),
+                                            wx         = MathHelpers::cubic_bspline_kernel(x_pos),
                                             dx         = MathHelpers::cubic_bspline_grad(x_pos);
 
                                             //Final weight is dyadic product of weights in each dimension

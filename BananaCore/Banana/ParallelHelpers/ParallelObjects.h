@@ -66,7 +66,7 @@ class DotProduct
 {
 public:
     DotProduct(const Vector<VecX<N, RealType> >& vec1, const Vector<VecX<N, RealType> >& vec2) : m_Vec1(vec1), m_Vec2(vec2) {}
-    DotProduct(DotProduct<N, RealType>& pobj, tbb::split) : m_Vec1(pobj.m_Vec1), m_Vec2(pobj.m_Vec1) {}
+    DotProduct(DotProduct<N, RealType>& pObj, tbb::split) : m_Vec1(pObj.m_Vec1), m_Vec2(pObj.m_Vec1) {}
 
     void operator ()(const tbb::blocked_range<size_t>& r)
     {
@@ -75,7 +75,7 @@ public:
         }
     }
 
-    void     join(DotProduct<N, RealType>& pobj) { m_Result += pobj.m_Result; }
+    void     join(DotProduct<N, RealType>& pObj) { m_Result += pObj.m_Result; }
     RealType getResult() const noexcept { return m_Result; }
 
 private:
@@ -90,7 +90,7 @@ class DotProduct<1, RealType>
 {
 public:
     DotProduct(const Vector<RealType>& vec1, const Vector<RealType>& vec2) : m_Vec1(vec1), m_Vec2(vec2) {}
-    DotProduct(DotProduct<1, RealType>& pobj, tbb::split) : m_Vec1(pobj.m_Vec1), m_Vec2(pobj.m_Vec2) {}
+    DotProduct(DotProduct<1, RealType>& pObj, tbb::split) : m_Vec1(pObj.m_Vec1), m_Vec2(pObj.m_Vec2) {}
 
     void operator ()(const tbb::blocked_range<size_t>& r)
     {
@@ -99,7 +99,7 @@ public:
         }
     }
 
-    void     join(DotProduct<1, RealType>& pobj) { m_Result += pobj.m_Result; }
+    void     join(DotProduct<1, RealType>& pObj) { m_Result += pObj.m_Result; }
     RealType getResult() const noexcept { return m_Result; }
 
 private:
@@ -114,7 +114,7 @@ class MinElement
 {
 public:
     MinElement(const Vector<VecX<N, RealType> >& vec) : m_Vector(vec) {}
-    MinElement(MinElement<N, RealType>& pobj, tbb::split) : m_Vector(pobj.m_Vector) {}
+    MinElement(MinElement<N, RealType>& pObj, tbb::split) : m_Vector(pObj.m_Vector) {}
 
     void operator ()(const tbb::blocked_range<size_t>& r)
     {
@@ -124,7 +124,7 @@ public:
         }
     }
 
-    void     join(MinElement<N, RealType>& pobj) { m_Result = m_Result < pobj.m_Result ? m_Result : pobj.m_Result; }
+    void     join(MinElement<N, RealType>& pObj) { m_Result = m_Result < pObj.m_Result ? m_Result : pObj.m_Result; }
     RealType getResult() const noexcept { return m_Result; }
 
 private:
@@ -138,7 +138,7 @@ class MinElement<1, RealType>
 {
 public:
     MinElement(const Vector<RealType>& vec) : m_Vector(vec) {}
-    MinElement(MinElement<1, RealType>& pobj, tbb::split) : m_Vector(pobj.m_Vector) {}
+    MinElement(MinElement<1, RealType>& pObj, tbb::split) : m_Vector(pObj.m_Vector) {}
 
     void operator ()(const tbb::blocked_range<size_t>& r)
     {
@@ -147,7 +147,7 @@ public:
         }
     }
 
-    void     join(MinElement<1, RealType>& pobj) { m_Result = m_Result < pobj.m_Result ? m_Result : pobj.m_Result; }
+    void     join(MinElement<1, RealType>& pObj) { m_Result = m_Result < pObj.m_Result ? m_Result : pObj.m_Result; }
     RealType getResult() const noexcept { return m_Result; }
 
 private:
@@ -161,7 +161,7 @@ class MaxElement
 {
 public:
     MaxElement(const Vector<VecX<N, RealType> >& vec) : m_Vector(vec) {}
-    MaxElement(MaxElement<N, RealType>& pobj, tbb::split) : m_Vector(pobj.m_Vector) {}
+    MaxElement(MaxElement<N, RealType>& pObj, tbb::split) : m_Vector(pObj.m_Vector) {}
 
     void operator ()(const tbb::blocked_range<size_t>& r)
     {
@@ -171,7 +171,7 @@ public:
         }
     }
 
-    void     join(MaxElement<N, RealType>& pobj) { m_Result = m_Result > pobj.m_Result ? m_Result : pobj.m_Result; }
+    void     join(MaxElement<N, RealType>& pObj) { m_Result = m_Result > pObj.m_Result ? m_Result : pObj.m_Result; }
     RealType getResult() const noexcept { return m_Result; }
 
 private:
@@ -185,7 +185,7 @@ class MaxElement<1, RealType>
 {
 public:
     MaxElement(const Vector<RealType>& vec) : m_Vector(vec) {}
-    MaxElement(MaxElement<1, RealType>& pobj, tbb::split) : m_Vector(pobj.m_Vector) {}
+    MaxElement(MaxElement<1, RealType>& pObj, tbb::split) : m_Vector(pObj.m_Vector) {}
 
     void operator ()(const tbb::blocked_range<size_t>& r)
     {
@@ -194,7 +194,7 @@ public:
         }
     }
 
-    void     join(MaxElement<1, RealType>& pobj) { m_Result = m_Result > pobj.m_Result ? m_Result : pobj.m_Result; }
+    void     join(MaxElement<1, RealType>& pObj) { m_Result = m_Result > pObj.m_Result ? m_Result : pObj.m_Result; }
     RealType getResult() const noexcept { return m_Result; }
 
 private:
@@ -208,7 +208,7 @@ class MaxAbs
 {
 public:
     MaxAbs(const Vector<VecX<N, RealType> >& vec) : m_Vector(vec) {}
-    MaxAbs(MaxAbs<N, RealType>& pobj, tbb::split) : m_Vector(pobj.m_Vector) {}
+    MaxAbs(MaxAbs<N, RealType>& pObj, tbb::split) : m_Vector(pObj.m_Vector) {}
 
     void operator ()(const tbb::blocked_range<size_t>& r)
     {
@@ -232,7 +232,7 @@ class MaxAbs<1, RealType>
 {
 public:
     MaxAbs(const Vector<RealType>& vec) : m_Vector(vec) {}
-    MaxAbs(MaxAbs<1, RealType>& pobj, tbb::split) : m_Vector(pobj.m_Vector) {}
+    MaxAbs(MaxAbs<1, RealType>& pObj, tbb::split) : m_Vector(pObj.m_Vector) {}
 
     void operator ()(const tbb::blocked_range<size_t>& r)
     {
@@ -257,7 +257,7 @@ class MaxNorm2
 {
 public:
     MaxNorm2(const Vector<VecX<N, RealType> >& vec) : m_Vector(vec) {}
-    MaxNorm2(MaxNorm2<N, RealType>& pobj, tbb::split) : m_Vector(pobj.m_Vector) {}
+    MaxNorm2(MaxNorm2<N, RealType>& pObj, tbb::split) : m_Vector(pObj.m_Vector) {}
 
     void operator ()(const tbb::blocked_range<size_t>& r)
     {
@@ -267,7 +267,7 @@ public:
         }
     }
 
-    void     join(MaxNorm2<N, RealType>& pobj) { m_Result = m_Result > pobj.m_Result ? m_Result : pobj.m_Result; }
+    void     join(MaxNorm2<N, RealType>& pObj) { m_Result = m_Result > pObj.m_Result ? m_Result : pObj.m_Result; }
     RealType getResult() const noexcept { return sqrt(m_Result); }
 
 private:
@@ -281,7 +281,7 @@ class MinMaxElements
 {
 public:
     MinMaxElements(const Vector<VecX<N, RealType> >& vec) : m_Vector(vec) {}
-    MinMaxElements(MinMaxElements<N, RealType>& pobj, tbb::split) : m_Vector(pobj.m_Vector) {}
+    MinMaxElements(MinMaxElements<N, RealType>& pObj, tbb::split) : m_Vector(pObj.m_Vector) {}
 
     void operator ()(const tbb::blocked_range<size_t>& r)
     {
@@ -294,11 +294,11 @@ public:
         }
     }
 
-    void join(MinMaxElements<N, RealType>& pobj)
+    void join(MinMaxElements<N, RealType>& pObj)
     {
         for(int j = 0; j < N; ++j) {
-            m_ResultMin[j] = (m_ResultMin[j] < pobj.m_ResultMin[j]) ? m_ResultMin[j] : pobj.m_ResultMin[j];
-            m_ResultMax[j] = (m_ResultMax[j] > pobj.m_ResultMax[j]) ? m_ResultMax[j] : pobj.m_ResultMax[j];
+            m_ResultMin[j] = (m_ResultMin[j] < pObj.m_ResultMin[j]) ? m_ResultMin[j] : pObj.m_ResultMin[j];
+            m_ResultMax[j] = (m_ResultMax[j] > pObj.m_ResultMax[j]) ? m_ResultMax[j] : pObj.m_ResultMax[j];
         }
     }
 
@@ -318,7 +318,7 @@ class MinMaxElements<0, RealType>
 {
 public:
     MinMaxElements(const RealType* vec) : m_Vector(vec) {}
-    MinMaxElements(MinMaxElements<0, RealType>& pobj, tbb::split) : m_Vector(pobj.m_Vector) {}
+    MinMaxElements(MinMaxElements<0, RealType>& pObj, tbb::split) : m_Vector(pObj.m_Vector) {}
 
     void operator ()(const tbb::blocked_range<size_t>& r)
     {
@@ -328,10 +328,10 @@ public:
         }
     }
 
-    void join(MinMaxElements<0, RealType>& pobj)
+    void join(MinMaxElements<0, RealType>& pObj)
     {
-        m_ResultMin = m_ResultMin < pobj.m_ResultMin ? m_ResultMin : pobj.m_ResultMin;
-        m_ResultMax = m_ResultMax > pobj.m_ResultMax ? m_ResultMax : pobj.m_ResultMax;
+        m_ResultMin = m_ResultMin < pObj.m_ResultMin ? m_ResultMin : pObj.m_ResultMin;
+        m_ResultMax = m_ResultMax > pObj.m_ResultMax ? m_ResultMax : pObj.m_ResultMax;
     }
 
     RealType getMin() const noexcept { return m_ResultMin; }
@@ -350,7 +350,7 @@ class MinMaxElements<1, RealType>
 {
 public:
     MinMaxElements(const Vector<RealType>& vec) : m_Vector(vec) {}
-    MinMaxElements(MinMaxElements<1, RealType>& pobj, tbb::split) : m_Vector(pobj.m_Vector) {}
+    MinMaxElements(MinMaxElements<1, RealType>& pObj, tbb::split) : m_Vector(pObj.m_Vector) {}
 
     void operator ()(const tbb::blocked_range<size_t>& r)
     {
@@ -360,10 +360,10 @@ public:
         }
     }
 
-    void join(MinMaxElements<1, RealType>& pobj)
+    void join(MinMaxElements<1, RealType>& pObj)
     {
-        m_ResultMin = m_ResultMin < pobj.m_ResultMin ? m_ResultMin : pobj.m_ResultMin;
-        m_ResultMax = m_ResultMax > pobj.m_ResultMax ? m_ResultMax : pobj.m_ResultMax;
+        m_ResultMin = m_ResultMin < pObj.m_ResultMin ? m_ResultMin : pObj.m_ResultMin;
+        m_ResultMax = m_ResultMax > pObj.m_ResultMax ? m_ResultMax : pObj.m_ResultMax;
     }
 
     RealType getMin() const noexcept { return m_ResultMin; }
@@ -384,7 +384,7 @@ class MinMaxNorm2
 {
 public:
     MinMaxNorm2(const Vector<VecX<N, RealType> >& vec) : m_Vector(vec) {}
-    MinMaxNorm2(MinMaxNorm2<N, RealType>& pobj, tbb::split) : m_Vector(pobj.m_Vector) {}
+    MinMaxNorm2(MinMaxNorm2<N, RealType>& pObj, tbb::split) : m_Vector(pObj.m_Vector) {}
 
     void operator ()(const tbb::blocked_range<size_t>& r)
     {
@@ -395,10 +395,10 @@ public:
         }
     }
 
-    void join(MinMaxNorm2<N, RealType>& pobj)
+    void join(MinMaxNorm2<N, RealType>& pObj)
     {
-        m_ResultMin = m_ResultMin < pobj.m_ResultMin ? m_ResultMin : pobj.m_ResultMin;
-        m_ResultMax = m_ResultMax > pobj.m_ResultMax ? m_ResultMax : pobj.m_ResultMax;
+        m_ResultMin = m_ResultMin < pObj.m_ResultMin ? m_ResultMin : pObj.m_ResultMin;
+        m_ResultMax = m_ResultMax > pObj.m_ResultMax ? m_ResultMax : pObj.m_ResultMax;
     }
 
     RealType getMin() const noexcept { return sqrt(m_ResultMin); }
@@ -412,12 +412,12 @@ private:
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class T>
+template<Int N, class T>
 class VectorSum
 {
 public:
-    VectorSum(const Vector<T>& vec) : m_Vector(vec) {}
-    VectorSum(VectorSum<T>& pobj, tbb::split) : m_Vector(pobj.m_Vector) {}
+    VectorSum(const Vector<VecX<N, T> >& vec) : m_Vector(vec) {}
+    VectorSum(VectorSum<N, T>& pObj, tbb::split) : m_Vector(pObj.m_Vector) {}
 
     void operator ()(const tbb::blocked_range<size_t>& r)
     {
@@ -426,8 +426,74 @@ public:
         }
     }
 
-    void join(VectorSum<T>& pobj) { m_Result += pobj.m_Result; }
-    T    getSum() const noexcept { return m_Result; }
+    void              join(VectorSum<N, T>& pObj) { m_Result += pObj.m_Result; }
+    const VecX<N, T>& getResult() const noexcept { return m_Result; }
+private:
+    VecX<N, T>                 m_Result = VecX<N, T>(0);
+    const Vector<VecX<N, T> >& m_Vector;
+};
+
+template<class T>
+class VectorSum<1, T>
+{
+public:
+    VectorSum(const Vector<T>& vec) : m_Vector(vec) {}
+    VectorSum(VectorSum<1, T>& pObj, tbb::split) : m_Vector(pObj.m_Vector) {}
+
+    void operator ()(const tbb::blocked_range<size_t>& r)
+    {
+        for(size_t i = r.begin(); i != r.end(); ++i) {
+            m_Result += m_Vector[i];
+        }
+    }
+
+    void join(VectorSum<1, T>& pObj) { m_Result += pObj.m_Result; }
+    T    getResult() const noexcept { return m_Result; }
+
+private:
+    T                m_Result = T(0);
+    const Vector<T>& m_Vector;
+};
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class T>
+class VectorSumSqr
+{
+public:
+    VectorSumSqr(const Vector<VecX<N, T> >& vec) : m_Vector(vec) {}
+    VectorSumSqr(VectorSumSqr<N, T>& pObj, tbb::split) : m_Vector(pObj.m_Vector) {}
+
+    void operator ()(const tbb::blocked_range<size_t>& r)
+    {
+        for(size_t i = r.begin(); i != r.end(); ++i) {
+            m_Result += glm::length2(m_Vector[i]);
+        }
+    }
+
+    void join(VectorSumSqr<N, T>& pObj) { m_Result += pObj.m_Result; }
+    T    getResult() const noexcept { return m_Result; }
+private:
+    T                          m_Result = T(0);
+    const Vector<VecX<N, T> >& m_Vector;
+};
+
+template<class T>
+class VectorSumSqr<1, T>
+{
+public:
+    VectorSumSqr(const Vector<T>& vec) : m_Vector(vec) {}
+    VectorSumSqr(VectorSumSqr<1, T>& pObj, tbb::split) : m_Vector(pObj.m_Vector) {}
+
+    void operator ()(const tbb::blocked_range<size_t>& r)
+    {
+        for(size_t i = r.begin(); i != r.end(); ++i) {
+            m_Result += m_Vector[i] * m_Vector[i];
+        }
+    }
+
+    void join(VectorSumSqr<1, T>& pObj) { m_Result += pObj.m_Result; }
+    T    getResult() const noexcept { return m_Result; }
+
 private:
     T                m_Result = T(0);
     const Vector<T>& m_Vector;

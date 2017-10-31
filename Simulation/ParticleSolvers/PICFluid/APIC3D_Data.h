@@ -30,25 +30,25 @@ namespace Banana
 namespace ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-struct APIC3D_Data : public ParticleData<3, Real>
+struct APIC3D_Data : public ParticleSimulationData<3, Real>
 {
     ////////////////////////////////////////////////////////////////////////////////
     // variable for apic only
-    Vec_Mat3x3r affineMatrix;
+    Vec_Mat3x3r C; // affine matrix
     ////////////////////////////////////////////////////////////////////////////////
 
-    virtual UInt getNParticles() override { return static_cast<UInt>(affineMatrix.size()); }
+    virtual UInt getNParticles() override { return static_cast<UInt>(C.size()); }
 
     virtual void reserve(UInt nParticles)
     {
-        affineMatrix.reserve(nParticles);
+        C.reserve(nParticles);
     }
 
     virtual void addParticles(const Vec_Vec3r& newPositions, const Vec_Vec3r& newVelocities)
     {
         __BNN_ASSERT(newPositions.size() == newVelocities.size());
         __BNN_UNUSED(newVelocities);
-        affineMatrix.resize(newPositions.size(), Mat3x3r(1.0));
+        C.resize(newPositions.size(), Mat3x3r(1.0));
     }
 
     virtual void removeParticles(Vec_Int8& removeMarker)
@@ -58,7 +58,7 @@ struct APIC3D_Data : public ParticleData<3, Real>
         }
 
         __BNN_TODO
-        STLHelpers::eraseByMarker(affineMatrix, removeMarker);                 // need to erase, or just resize?
+        STLHelpers::eraseByMarker(C, removeMarker);                 // need to erase, or just resize?
     }
 };
 

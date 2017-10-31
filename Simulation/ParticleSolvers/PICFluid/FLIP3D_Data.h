@@ -52,7 +52,7 @@ struct FLIP3D_Parameters : public SimulationParameters
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-struct FLIP3D_Data : public GridData<3, Real>
+struct FLIP3D_Data : public GridSimulationData<3, Real>
 {
     Array3r du, dv, dw;
     Array3r u_old, v_old, w_old;
@@ -71,9 +71,9 @@ struct FLIP3D_Data : public GridData<3, Real>
 
     void backupGridVelocity(const PIC3D_Data& picData)
     {
-        u_old.copyDataFrom(picData.gridSimData.u);
-        v_old.copyDataFrom(picData.gridSimData.v);
-        w_old.copyDataFrom(picData.gridSimData.w);
+        u_old.copyDataFrom(picData.gridData.u);
+        v_old.copyDataFrom(picData.gridData.v);
+        w_old.copyDataFrom(picData.gridData.w);
     }
 };
 

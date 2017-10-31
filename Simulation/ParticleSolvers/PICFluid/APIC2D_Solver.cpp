@@ -33,7 +33,7 @@ void APIC2D_Solver::generateParticles(const nlohmann::json& jParams)
 {
     PIC2D_Solver::generateParticles(jParams);
     if(particleData().getNParticles() != apicData().getNParticles()) {
-        apicData().affineMatrix.resize(particleData().getNParticles(), Mat2x2r(0));
+        apicData().C.resize(particleData().getNParticles(), Mat2x2r(0));
     }
 }
 
@@ -42,7 +42,7 @@ bool APIC2D_Solver::advanceScene(UInt frame, Real fraction)
 {
     bool bSceneChanged = PIC2D_Solver::advanceScene(frame, fraction);
     if(particleData().getNParticles() != apicData().getNParticles()) {
-        apicData().affineMatrix.resize(particleData().getNParticles());
+        apicData().C.resize(particleData().getNParticles());
     }
     return bSceneChanged;
 }
@@ -102,7 +102,7 @@ void APIC2D_Solver::mapParticle2Grid()
                                                     const Real weight   = MathHelpers::bilinear_kernel(gridPos.x, gridPos.y);
 
                                                     if(weight > Tiny) {
-                                                        sum_u        += weight * (pvel[0] + glm::dot(apicData().affineMatrix[p][0], pu - ppos));
+                                                        sum_u        += weight * (pvel[0] + glm::dot(apicData().C[p][0], pu - ppos));
                                                         sum_weight_u += weight;
                                                     }
                                                 }
@@ -112,7 +112,7 @@ void APIC2D_Solver::mapParticle2Grid()
                                                     const Real weight   = MathHelpers::bilinear_kernel(gridPos.x, gridPos.y);
 
                                                     if(weight > Tiny) {
-                                                        sum_v        += weight * (pvel[1] + glm::dot(apicData().affineMatrix[p][1], pv - ppos));
+                                                        sum_v        += weight * (pvel[1] + glm::dot(apicData().C[p][1], pv - ppos));
                                                         sum_weight_v += weight;
                                                     }
                                                 }
@@ -142,7 +142,7 @@ void APIC2D_Solver::mapGrid2Particles()
                                     const auto gridPos = picData().grid.getGridCoordinate(ppos);
 
                                     particleData().velocities[p] = getVelocityFromGrid(gridPos);
-                                    apicData().affineMatrix[p]   = getAffineMatrix(gridPos);
+                                    apicData().C[p]              = getAffineMatrix(gridPos);
                                 });
 }
 

@@ -118,16 +118,16 @@ struct SimulationParameters_Cloth3D
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 struct SimulationData_Cloth3D
 {
-    struct ParticleSimData
+    struct ParticleData
     {
         Vec_Vec3r   positions;
         Vec_Vec3r   positions_tmp;
         Vec_Vec3r   velocities;
         Vec_VecUInt neighborList;
-    } particleSimData;
+    } particleData;
 
     ////////////////////////////////////////////////////////////////////////////////
-    struct GridSimData
+    struct GridData
     {
         Array3r u, v, w;
         Array3r du, dv, dw;
@@ -142,7 +142,7 @@ struct SimulationData_Cloth3D
         Array3SpinLock fluidSDFLock;
         Array3r        fluidSDF;
         Array3r        boundarySDF;
-    } gridSimData;
+    } gridData;
 
     ////////////////////////////////////////////////////////////////////////////////
     SparseMatrix<Real> matrix;
@@ -150,48 +150,48 @@ struct SimulationData_Cloth3D
     Vec_Real           pressure;
 
     ////////////////////////////////////////////////////////////////////////////////
-    UInt getNParticles() { return static_cast<UInt>(particleSimData.positions.size()); }
+    UInt getNParticles() { return static_cast<UInt>(particleData.positions.size()); }
 
     void reserve(UInt numParticles)
     {
-        particleSimData.positions.reserve(numParticles);
-        particleSimData.velocities.reserve(numParticles);
-        particleSimData.neighborList.reserve(numParticles);
+        particleData.positions.reserve(numParticles);
+        particleData.velocities.reserve(numParticles);
+        particleData.neighborList.reserve(numParticles);
     }
 
     void makeReady(UInt ni, UInt nj, UInt nk)
     {
-        particleSimData.positions_tmp.resize(particleSimData.positions.size());
-        particleSimData.velocities.resize(particleSimData.positions.size(), Vec3r(0));
-        particleSimData.neighborList.resize(particleSimData.positions.size());
+        particleData.positions_tmp.resize(particleData.positions.size());
+        particleData.velocities.resize(particleData.positions.size(), Vec3r(0));
+        particleData.neighborList.resize(particleData.positions.size());
 
-        gridSimData.u.resize(ni + 1, nj, nk, 0);
-        gridSimData.u_old.resize(ni + 1, nj, nk, 0);
-        gridSimData.du.resize(ni + 1, nj, nk, 0);
-        gridSimData.u_temp.resize(ni + 1, nj, nk, 0);
-        gridSimData.u_weights.resize(ni + 1, nj, nk, 0);
-        gridSimData.u_valid.resize(ni + 1, nj, nk, 0);
-        gridSimData.u_valid_old.resize(ni + 1, nj, nk, 0);
+        gridData.u.resize(ni + 1, nj, nk, 0);
+        gridData.u_old.resize(ni + 1, nj, nk, 0);
+        gridData.du.resize(ni + 1, nj, nk, 0);
+        gridData.u_temp.resize(ni + 1, nj, nk, 0);
+        gridData.u_weights.resize(ni + 1, nj, nk, 0);
+        gridData.u_valid.resize(ni + 1, nj, nk, 0);
+        gridData.u_valid_old.resize(ni + 1, nj, nk, 0);
 
-        gridSimData.v.resize(ni, nj + 1, nk, 0);
-        gridSimData.v_old.resize(ni, nj + 1, nk, 0);
-        gridSimData.dv.resize(ni, nj + 1, nk, 0);
-        gridSimData.v_temp.resize(ni, nj + 1, nk, 0);
-        gridSimData.v_weights.resize(ni, nj + 1, nk, 0);
-        gridSimData.v_valid.resize(ni, nj + 1, nk, 0);
-        gridSimData.v_valid_old.resize(ni, nj + 1, nk, 0);
+        gridData.v.resize(ni, nj + 1, nk, 0);
+        gridData.v_old.resize(ni, nj + 1, nk, 0);
+        gridData.dv.resize(ni, nj + 1, nk, 0);
+        gridData.v_temp.resize(ni, nj + 1, nk, 0);
+        gridData.v_weights.resize(ni, nj + 1, nk, 0);
+        gridData.v_valid.resize(ni, nj + 1, nk, 0);
+        gridData.v_valid_old.resize(ni, nj + 1, nk, 0);
 
-        gridSimData.w.resize(ni, nj, nk + 1, 0);
-        gridSimData.w_old.resize(ni, nj, nk + 1, 0);
-        gridSimData.dw.resize(ni, nj, nk + 1, 0);
-        gridSimData.w_temp.resize(ni, nj, nk + 1, 0);
-        gridSimData.w_weights.resize(ni, nj, nk + 1, 0);
-        gridSimData.w_valid.resize(ni, nj, nk + 1, 0);
-        gridSimData.w_valid_old.resize(ni, nj, nk + 1, 0);
+        gridData.w.resize(ni, nj, nk + 1, 0);
+        gridData.w_old.resize(ni, nj, nk + 1, 0);
+        gridData.dw.resize(ni, nj, nk + 1, 0);
+        gridData.w_temp.resize(ni, nj, nk + 1, 0);
+        gridData.w_weights.resize(ni, nj, nk + 1, 0);
+        gridData.w_valid.resize(ni, nj, nk + 1, 0);
+        gridData.w_valid_old.resize(ni, nj, nk + 1, 0);
 
-        gridSimData.fluidSDFLock.resize(ni, nj, nk);
-        gridSimData.fluidSDF.resize(ni, nj, nk, 0);
-        gridSimData.boundarySDF.resize(ni + 1, nj + 1, nk + 1, 0);
+        gridData.fluidSDFLock.resize(ni, nj, nk);
+        gridData.fluidSDF.resize(ni, nj, nk, 0);
+        gridData.boundarySDF.resize(ni + 1, nj + 1, nk + 1, 0);
 
         matrix.resize(ni * nj * nk);
         rhs.resize(ni * nj * nk);
@@ -200,9 +200,9 @@ struct SimulationData_Cloth3D
 
     void backupGridVelocity()
     {
-        gridSimData.u_old.copyDataFrom(gridSimData.u);
-        gridSimData.v_old.copyDataFrom(gridSimData.v);
-        gridSimData.w_old.copyDataFrom(gridSimData.w);
+        gridData.u_old.copyDataFrom(gridData.u);
+        gridData.v_old.copyDataFrom(gridData.v);
+        gridData.w_old.copyDataFrom(gridData.w);
     }
 };
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

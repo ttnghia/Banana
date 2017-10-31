@@ -23,7 +23,7 @@
 
 #include <Banana/Grid/Grid.h>
 #include <ParticleSolvers/ParticleSolver.h>
-#include <ParticleSolvers/MPM/Snow2DData.h>
+#include <ParticleSolvers/MPM/MPM3D_Data.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -32,14 +32,14 @@ namespace Banana
 namespace ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class Snow2DSolver : public ParticleSolver2D
+class MPM3D_Solver : public ParticleSolver3D
 {
 public:
-    Snow2DSolver() = default;
+    MPM3D_Solver() = default;
 
     ////////////////////////////////////////////////////////////////////////////////
-    virtual String getSolverName() override { return String("MPM2DSolver"); }
-    virtual String getGreetingMessage() override { return String("Simulation using MPM-2D Solver"); }
+    virtual String getSolverName() override { return String("MPM3DSolver"); }
+    virtual String getGreetingMessage() override { return String("Simulation using MPM-3D Solver"); }
 
     virtual void makeReady() override;
     virtual void advanceFrame() override;
@@ -62,18 +62,17 @@ protected:
 
     Real computeCFLTimestep();
     void advanceVelocity(Real timestep);
-    void updateParticles(Real timestep);
+    void moveParticles(Real timestep);
 
     ////////////////////////////////////////////////////////////////////////////////
     // grid processing
     void massToGrid();
-    void velocityToGrid(Real timestep);
+    void mapParticle2Grid(Real timestep);
     void constrainGridVelocity(Real timestep);
 
     //Compute grid velocities
     void explicitVelocities(Real timestep);
     void implicitVelocities(Real timestep);
-    void recomputeImplicitForces(Real timestep);
 
     //Map grid velocities back to particles
     void velocityToParticles(Real timestep);
@@ -81,13 +80,11 @@ protected:
 
     ////////////////////////////////////////////////////////////////////////////////
     // particle processing
-    void calculateParticleVolumes();
-    void updateParticlePositions(Real timestep);
-    void updateGradients(Real timestep);
-    void applyPlasticity();
+    void initParticleVolumes();
+    void updateParticleDeformGradients(Real timestep);
 
-    Mat2x2r computeEnergyDerivative(UInt p);
-    Vec2r   computeDeltaForce(UInt p, const Vec2r& u, const Vec2r& weight_grad, Real timestep);  //Computes stress force delta, for implicit velocity update
+    void computePiolaStress();
+    void computePiolaStressAndEnergyDensity();
 
     ////////////////////////////////////////////////////////////////////////////////
     auto&       particleData() { return solverData().particleData; }
@@ -95,10 +92,10 @@ protected:
     auto&       gridData() { return solverData().gridData; }
     const auto& gridData() const { return solverData().gridData; }
 
-    SimulationParameters_Snow2D m_SimParams;
-    SimulationData_Snow2D       m_SimData;
+    MPM3D_Parameters m_SimParams;
+    MPM3D_Data       m_SimData;
 
-    Grid2r m_Grid;
+    Grid3r m_Grid;
 };
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace ParticleSolvers

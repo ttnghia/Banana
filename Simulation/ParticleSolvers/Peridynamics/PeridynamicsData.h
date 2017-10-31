@@ -87,7 +87,7 @@ struct SimulationParameters_Peridynamics3D : public SimulationParameters
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-struct SimulationData_Peridynamics3D : public ParticleData<3, Real>
+struct SimulationData_Peridynamics3D : public ParticleSimulationData<3, Real>
 {
     __BNN_TODO_MSG("Change active particle computation")
     UInt nActives;

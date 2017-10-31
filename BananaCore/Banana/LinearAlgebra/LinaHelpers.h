@@ -23,6 +23,8 @@
 
 #include <Banana/Setup.h>
 #include <Banana/Utils/MathHelpers.h>
+#include <Banana/Utils/NumberHelpers.h>
+#include <Banana/LinearAlgebra/ImplicitQRSVD.h>
 
 #include <random>
 
@@ -32,6 +34,33 @@ namespace Banana
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace LinaHelpers
 {
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType>
+inline bool hasValidElements(const VecX<N, RealType>& vec)
+{
+    for(Int i = 0; i < N; ++i) {
+        if(!NumberHelpers::isValidNumber(vec[i])) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+template<Int N, class RealType>
+inline bool hasValidElements(const MatXxX<N, RealType>& mat)
+{
+    for(Int i = 0; i < N; ++i) {
+        for(Int j = 0; j < N; ++j) {
+            if(!NumberHelpers::isValidNumber(mat[i][j])) {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
 inline RealType maxAbs(const MatXxX<N, RealType>& mat)
@@ -285,6 +314,27 @@ inline Vector<MatXxX<N, RealType> > randVecMatrices(SizeType size, RealType minV
 
     return results;
 }
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType>
+inline void orientedSVD(const MatXxX<N, RealType>& M, MatXxX<N, RealType>& U, VecX<N, RealType>& S, MatXxX<N, RealType>& Vt)
+{
+    QRSVD::svd(M, U, S, Vt);
+    Vt = glm::transpose(Vt);
+
+    MatXxX<N, RealType> J = MatXxX<N, RealType>(1.0);
+    J[N - 1][N - 1] = RealType(-1.0);
+
+    // Check for inversion
+    if(glm::determinant(U) < RealType(0)) {
+        U         = U * J;
+        S[N - 1] *= RealType(-1.0);
+    }
+    if(glm::determinant(Vt) < RealType(0)) {
+        Vt        = J * Vt;
+        S[N - 1] *= RealType(-1.0);
+    }
+}       // end oriented svd
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace LinaHelpers

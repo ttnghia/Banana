@@ -90,10 +90,10 @@ protected:
     Vec3r   computeDeltaForce(UInt p, const Vec3r& u, const Vec3r& weight_grad, Real timestep);      //Computes stress force delta, for implicit velocity update
 
     ////////////////////////////////////////////////////////////////////////////////
-    auto&       particleData() { return solverData().particleSimData; }
-    const auto& particleData() const { return solverData().particleSimData; }
-    auto&       gridData() { return solverData().gridSimData; }
-    const auto& gridData() const { return solverData().gridSimData; }
+    auto&       particleData() { return solverData().particleData; }
+    const auto& particleData() const { return solverData().particleData; }
+    auto&       gridData() { return solverData().gridData; }
+    const auto& gridData() const { return solverData().gridData; }
 
     SimulationParameters_Snow3D m_SimParams;
     SimulationData_Snow3D       m_SimData;

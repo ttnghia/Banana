@@ -21,9 +21,6 @@
     <ClInclude Include="Banana\Array\ArrayHelpers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Banana\Array\SparseArray3.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Banana\Data\DataIO.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -205,6 +202,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Banana\Animation\CubicSpline.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Banana\Array\SparseArray3.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -22,11 +22,15 @@
 #pragma once
 
 #include <Banana/Setup.h>
+#include <Banana/Data/DataIO.h>
+#include <Banana/Utils/FileHelpers.h>
 
 #include <algorithm>
 #include <cassert>
 #include <unordered_map>
 #include <istream>
+#include <sstream>
+#include <cstdlib>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -41,8 +45,7 @@ private:
     template<class IndexType>
     Key makeKey(IndexType i, IndexType j, IndexType k)
     {
-        return std::pair(static_cast<UInt>(i),
-                         std::pair(static_cast<UInt>(j), static_cast<UInt>(k)));
+        return std::pair(static_cast<UInt>(i), std::pair(static_cast<UInt>(j), static_cast<UInt>(k)));
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -71,15 +74,27 @@ public:
     }
 
     template<class IndexType>
-    const T& operator ()(const glm::tvec3<IndexType>& index) const
+    const T& operator ()(const Vec3<IndexType>& index) const
     {
         return m_Data[makeKey<IndexType>(index[0], index[1], index[2])];
     }
 
     template<class IndexType>
-    T& operator ()(const glm::tvec3<IndexType>& index)
+    T& operator ()(const Vec3<IndexType>& index)
     {
         return m_Data[makeKey<IndexType>(index[0], index[1], index[2])];
+    }
+
+    template<class IndexType>
+    bool hasKey(IndexType i, IndexType j, IndexType k) const
+    {
+        return (m_Data.find(makeKey<IndexType>(i, j, k)) != m_Data.end());
+    }
+
+    template<class IndexType>
+    bool hasKey(const Vec3<IndexType>& index) const
+    {
+        return (m_Data.find(makeKey<IndexType>(index[0], index[1], index[2])) != m_Data.end());
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -95,7 +110,7 @@ public:
 
     bool equalSize(const SparseArray3<T>& other) const
     {
-        return m_SizeX == other.m_SizeX && m_SizeY == other.m_SizeY && m_SizeZ == other.m_SizeZ;
+        return size() == other.size();
     }
 
     const_iterator cbegin(void) const
@@ -113,9 +128,9 @@ public:
         return m_Data.capacity();
     }
 
-    void clear(void)
+    void clear()
     {
-        m_Data.clear();
+        m_Data.resize(0);
     }
 
     bool empty(void) const
@@ -133,12 +148,12 @@ public:
         return m_Data.end();
     }
 
-    std::unordered_map<Key, T>& map_data()
+    std::unordered_map<Key, T>& data()
     {
         return m_Data;
     }
 
-    const std::unordered_map<Key, T>& map_data() const
+    const std::unordered_map<Key, T>& data() const
     {
         return m_Data;
     }

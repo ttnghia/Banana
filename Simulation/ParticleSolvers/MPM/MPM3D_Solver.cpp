@@ -19,7 +19,7 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-#include <ParticleSolvers/MPM/Snow3DSolver.h>
+#include <ParticleSolvers/MPM/MPM3D_Solver.h>
 #include <Banana/LinearAlgebra/ImplicitQRSVD.h>
 #include <Banana/ParallelHelpers/ParallelSTL.h>
 #include <Banana/LinearAlgebra/LinaHelpers.h>
@@ -31,21 +31,18 @@ namespace Banana
 namespace ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Snow3DSolver::makeReady()
+void MPM3D_Solver::makeReady()
 {
     logger().printRunTime("Allocate solver memory: ",
                           [&]()
                           {
-                              solverParams().makeReady();
-                              solverParams().printParams(m_Logger);
-
                               m_Grid.setGrid(solverParams().domainBMin, solverParams().domainBMax, solverParams().cellSize);
                               gridData().resize(m_Grid.getNNodes());
 
                               //We need to estimate particle volumes before we start
                               m_Grid.collectIndexToCells(particleData().positions, particleData().particleGridPos);
                               massToGrid();
-                              calculateParticleVolumes();
+                              initParticleVolumes();
                           });
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -56,7 +53,7 @@ void Snow3DSolver::makeReady()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Snow3DSolver::advanceFrame()
+void MPM3D_Solver::advanceFrame()
 {
     static Timer subStepTimer;
     static Timer funcTimer;
@@ -74,8 +71,7 @@ void Snow3DSolver::advanceFrame()
                                   logger().printRunTime("Find neighbors: ", funcTimer,
                                                         [&]() { m_Grid.collectIndexToCells(particleData().positions, particleData().particleGridPos); });
                                   logger().printRunTime("====> Advance velocity total: ", funcTimer, [&]() { advanceVelocity(substep); });
-                                  logger().printRunTime("====> Update particles total: ", funcTimer, [&]() { updateParticles(substep); });
-                                  //logger().printRunTime("Correct particle positions: ",   funcTimer, [&]() { correctPositions(substep); });
+                                  logger().printRunTime("====> Update particles total: ", funcTimer, [&]() { moveParticles(substep); });
                                   ////////////////////////////////////////////////////////////////////////////////
 
                                   frameTime += substep;
@@ -88,7 +84,7 @@ void Snow3DSolver::advanceFrame()
 
         ////////////////////////////////////////////////////////////////////////////////
         logger().newLine();
-    }           // end while
+    }
 
     ////////////////////////////////////////////////////////////////////////////////
     ++m_GlobalParams.finishedFrame;
@@ -97,11 +93,11 @@ void Snow3DSolver::advanceFrame()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Snow3DSolver::sortParticles()
+void MPM3D_Solver::sortParticles()
 {}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Snow3DSolver::loadSimParams(const nlohmann::json& jParams)
+void MPM3D_Solver::loadSimParams(const nlohmann::json& jParams)
 {
     __BNN_ASSERT(m_BoundaryObjects.size() > 0);
     SharedPtr<GeometryObjects::BoxObject<3, Real> > box = dynamic_pointer_cast<GeometryObjects::BoxObject<3, Real> >(m_BoundaryObjects[0]->getGeometry());
@@ -129,10 +125,14 @@ void Snow3DSolver::loadSimParams(const nlohmann::json& jParams)
     JSONHelpers::readValue(jParams, solverParams().PoissonsRatio,        "PoissonsRatio");
 
     JSONHelpers::readValue(jParams, solverParams().implicitRatio,        "ImplicitRatio");
+
+    ////////////////////////////////////////////////////////////////////////////////
+    solverParams().makeReady();
+    solverParams().printParams(m_Logger);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Snow3DSolver::generateParticles(const nlohmann::json& jParams)
+void MPM3D_Solver::generateParticles(const nlohmann::json& jParams)
 {
     ParticleSolver3D::generateParticles(jParams);
 
@@ -158,7 +158,7 @@ void Snow3DSolver::generateParticles(const nlohmann::json& jParams)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-bool Snow3DSolver::advanceScene(UInt frame, Real fraction /*= Real(0)*/)
+bool MPM3D_Solver::advanceScene(UInt frame, Real fraction /*= Real(0)*/)
 {
     bool bSceneChanged = ParticleSolver3D::advanceScene(frame, fraction);
 
@@ -202,7 +202,7 @@ bool Snow3DSolver::advanceScene(UInt frame, Real fraction /*= Real(0)*/)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Snow3DSolver::setupDataIO()
+void MPM3D_Solver::setupDataIO()
 {
     m_ParticleDataIO = std::make_unique<ParticleSerialization>(m_GlobalParams.dataPath, "MPMData", "frame", m_Logger);
     m_ParticleDataIO->addFixedAttribute<float>("particle_radius", ParticleSerialization::TypeReal, 1);
@@ -218,7 +218,7 @@ void Snow3DSolver::setupDataIO()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-bool Snow3DSolver::loadMemoryState()
+bool MPM3D_Solver::loadMemoryState()
 {
     if(!m_GlobalParams.bLoadMemoryState) {
         return false;
@@ -247,7 +247,7 @@ bool Snow3DSolver::loadMemoryState()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Snow3DSolver::saveMemoryState()
+void MPM3D_Solver::saveMemoryState()
 {
     if(!m_GlobalParams.bSaveMemoryState) {
         return;
@@ -272,7 +272,7 @@ void Snow3DSolver::saveMemoryState()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Snow3DSolver::saveFrameData()
+void MPM3D_Solver::saveFrameData()
 {
     if(!m_GlobalParams.bSaveFrameData) {
         return;
@@ -288,7 +288,7 @@ void Snow3DSolver::saveFrameData()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-Real Snow3DSolver::computeCFLTimestep()
+Real MPM3D_Solver::computeCFLTimestep()
 {
     Real maxVel      = sqrt(ParallelSTL::maxNorm2<3, Real>(particleData().velocities));
     Real CFLTimeStep = maxVel > Real(Tiny) ? solverParams().CFLFactor * solverParams().cellSize / sqrt(maxVel) : Huge;
@@ -296,41 +296,39 @@ Real Snow3DSolver::computeCFLTimestep()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Snow3DSolver::advanceVelocity(Real timestep)
+void MPM3D_Solver::advanceVelocity(Real timestep)
 {
     static Timer funcTimer;
 
     ////////////////////////////////////////////////////////////////////////////////
     logger().printRunTime("Reset grid data: ", funcTimer, [&]() { gridData().resetGrid(); });
     logger().printRunTime("Compute mass for grid nodes: ", funcTimer, [&]() { massToGrid(); });
-    logger().printRunTime("Interpolate velocity from particles to grid: ", funcTimer, [&]() { velocityToGrid(timestep); });
-    logger().printRunTime("Constrain grid velocity: ", funcTimer, [&]() { constrainGridVelocity(timestep); });
-
+    logger().printRunTime("Interpolate velocity from particles to grid: ", funcTimer, [&]() { mapParticle2Grid(timestep); });
     logger().printRunTime("Velocity explicit integration: ", funcTimer, [&]() { explicitVelocities(timestep); });
-    logger().printRunTime("Constrain grid velocity: ", funcTimer, [&]() { constrainGridVelocity(timestep); });
-
     if(solverParams().implicitRatio > Tiny) {
         logger().printRunTime("Velocity implicit integration: ", funcTimer, [&]() { implicitVelocities(timestep); });
     }
+    logger().printRunTime("Constrain grid velocity: ", funcTimer, [&]() { constrainGridVelocity(timestep); });
 
     logger().printRunTime("Interpolate velocity from grid to particles: ", funcTimer, [&]() { velocityToParticles(timestep); });
     logger().printRunTime("Constrain particle velocity: ", funcTimer, [&]() { constrainParticleVelocity(timestep); });
+    logger().printRunTime("Update particle gradients: ", funcTimer, [&]() { updateParticleDeformGradients(timestep); });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Snow3DSolver::updateParticles(Real timestep)
+void MPM3D_Solver::moveParticles(Real timestep)
 {
-    static Timer funcTimer;
-
-    ////////////////////////////////////////////////////////////////////////////////
-    logger().printRunTime("Move particles: ", funcTimer, [&]() { updateParticlePositions(timestep); });
-    logger().printRunTime("Update particle gradients: ", funcTimer, [&]() { updateGradients(timestep); });
-    logger().printRunTime("Apply Plasticity: ", funcTimer, [&]() { applyPlasticity(); });
+    ParallelFuncs::parallel_for(particleData().getNParticles(),
+                                [&](UInt p)
+                                {
+                                    Vec3r ppos = particleData().positions[p] + particleData().velocities[p] * timestep;
+                                    particleData().positions[p] = ppos;
+                                });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // todo: consider each node, and accumulate particle data, rather than  consider each particles
-void Snow3DSolver::massToGrid()
+void MPM3D_Solver::massToGrid()
 {
     ParallelFuncs::parallel_for<UInt>(particleData().getNParticles(),
                                       [&](UInt p)
@@ -339,16 +337,12 @@ void Snow3DSolver::massToGrid()
                                           Real oy = particleData().particleGridPos[p][1];
                                           Real oz = particleData().particleGridPos[p][2];
 
-                                          //Shape function gives a blending radius of two;
-                                          //so we do computations within a 2x2 square for each particle
                                           for(Int idx = 0, z = Int(oz) - 1, z_end = z + 3; z <= z_end; ++z) {
-                                              //Z-dimension interpolation
                                               Real z_pos = oz - z,
                                               wz         = MathHelpers::cubic_bspline_kernel(z_pos),
                                               dz         = MathHelpers::cubic_bspline_grad(z_pos);
 
                                               for(Int y = Int(oy) - 1, y_end = y + 3; y <= y_end; ++y) {
-                                                  //Y-dimension interpolation
                                                   Real y_pos = oy - y,
                                                   wy         = MathHelpers::cubic_bspline_kernel(y_pos),
                                                   dy         = MathHelpers::cubic_bspline_grad(y_pos);
@@ -358,7 +352,6 @@ void Snow3DSolver::massToGrid()
                                                           continue;
                                                       }
 
-                                                      //X-dimension interpolation
                                                       Real x_pos = ox - x,
                                                       wx         = MathHelpers::cubic_bspline_kernel(x_pos),
                                                       dx         = MathHelpers::cubic_bspline_grad(x_pos);
@@ -381,7 +374,7 @@ void Snow3DSolver::massToGrid()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Snow3DSolver::velocityToGrid(Real timestep)
+void MPM3D_Solver::mapParticle2Grid(Real timestep)
 {
     //We interpolate velocity after mass, to conserve momentum
     ParallelFuncs::parallel_for(particleData().getNParticles(),
@@ -423,7 +416,7 @@ void Snow3DSolver::velocityToGrid(Real timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //Maps volume from the grid to particles
 //This should only be called once, at the beginning of the simulation
-void Snow3DSolver::calculateParticleVolumes()
+void MPM3D_Solver::initParticleVolumes()
 {
     //Estimate each particles volume (for force calculations)
     ParallelFuncs::parallel_for(particleData().getNParticles(),
@@ -459,18 +452,37 @@ void Snow3DSolver::calculateParticleVolumes()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //Calculate next timestep velocities for use in implicit integration
-void Snow3DSolver::explicitVelocities(Real timestep)
+void MPM3D_Solver::explicitVelocities(Real timestep)
 {
-    //First, compute the forces
-    //We store force in velocity_new, since we're not using that variable at the moment
     ParallelFuncs::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
                                 {
-                                    //Solve for grid internal forces
-                                    Mat3x3r energy = computeEnergyDerivative(p);
-                                    Int ox         = static_cast<Int>(particleData().particleGridPos[p][0]);
-                                    Int oy         = static_cast<Int>(particleData().particleGridPos[p][1]);
-                                    Int oz         = static_cast<Int>(particleData().particleGridPos[p][2]);
+                                    Mat3x3r U, Vt, Ftemp;
+                                    Vec3r S;
+                                    LinaHelpers::orientedSVD(particleData().deformGrad[p], U, S, Vt);
+                                    if(S[2] < 0) {
+                                        S[2] *= Real(-1.0);
+                                    }
+                                    Ftemp = U * LinaHelpers::diagMatrix(S) * Vt;
+
+                                    // Compute Piola stress tensor:
+                                    Real J = glm::determinant(Ftemp);
+                                    __BNN_ASSERT(J > 0.0);
+                                    assert(NumberHelpers::isValidNumber(J));
+                                    Mat3x3r Fit = glm::transpose(glm::inverse(Ftemp)); // F^(-T)
+                                    Mat3x3r P   = solverParams().mu * (Ftemp - Fit) + solverParams().lambda * (log(J) * Fit);
+                                    assert(LinaHelpers::hasValidElements(P));
+
+
+
+                                    __BNN_TODO_MSG("Need to store piola and cauchy stress?");
+                                    particleData().PiolaStress[p]  = P;
+                                    particleData().CauchyStress[p] = particleData().volumes[p] * P * glm::transpose(particleData().deformGrad[p]);
+
+                                    Mat3x3r f = particleData().CauchyStress[p];
+                                    Int ox    = static_cast<Int>(particleData().particleGridPos[p][0]);
+                                    Int oy    = static_cast<Int>(particleData().particleGridPos[p][1]);
+                                    Int oz    = static_cast<Int>(particleData().particleGridPos[p][2]);
 
                                     for(Int idx = 0, z = oz - 1, z_end = z + 3; z <= z_end; z++) {
                                         for(Int y = oy - 1, y_end = y + 3; y <= y_end; y++) {
@@ -483,7 +495,7 @@ void Snow3DSolver::explicitVelocities(Real timestep)
                                                 if(w > Tiny) {
                                                     //Weight the force onto nodes
                                                     gridData().nodeLocks(x, y, z).lock();
-                                                    gridData().velocity_new(x, y, z) += energy * particleData().weightGradients[p * 64 + idx];
+                                                    gridData().velocity_new(x, y, z) += f * particleData().weightGradients[p * 64 + idx];
                                                     gridData().nodeLocks(x, y, z).unlock();
                                                 }
                                             }
@@ -504,156 +516,12 @@ void Snow3DSolver::explicitVelocities(Real timestep)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //Solve linear system for implicit velocities
-void Snow3DSolver::implicitVelocities(Real timestep)
-{
-    //With an explicit solution, we compute vf = vi + (f[n]/m)*dt
-    //But for implicit, we use the force at the next timestep, f[n+1]
-    //Stomakhin interpolates between the two, using IMPLICIT_RATIO
-    //If we call v* the explicit vf, we can do some algebra and get
-    //	v* = vf - IMPLICIT_RATION*dt*(df/m)
-    //The problem is, df (change in force from n to n+1) depends on vf,
-    //so we can't just compute it directly; instead, we use an iterative
-    //method (conjugate residuals) to find what vf should be. We make an
-    //initial guess of what vf should be (setting it to v*) and then
-    //iteratively refine our guess until the error is small enough.
-
-    //INITIALIZE LINEAR SOLVE
-    ParallelFuncs::parallel_for(gridData().imp_active.dataSize(),
-                                [&](size_t i)
-                                {
-                                    gridData().imp_active.data()[i] = gridData().active.data()[i];
-                                    if(gridData().imp_active.data()[i]) {
-                                        //recomputeImplicitForces will compute Er, given r
-                                        //Initially, we want vf - E*vf; so we'll temporarily set r to vf
-                                        gridData().r.data()[i] = gridData().velocity_new.data()[i];
-                                        //Also set the error to 1
-                                        gridData().err.data()[i] = Vec3r(1.0);
-                                    }
-                                });
-
-    //As said before, we need to compute vf-E*vf as our initial "r" residual
-    recomputeImplicitForces(timestep);
-
-    ParallelFuncs::parallel_for(gridData().imp_active.dataSize(),
-                                [&](size_t i)
-                                {
-                                    if(gridData().imp_active.data()[i]) {
-                                        gridData().r.data()[i] = gridData().velocity_new.data()[i] - gridData().Er.data()[i];
-                                        //p starts out equal to residual
-                                        gridData().p.data()[i] = gridData().r.data()[i];
-                                        //cache r.dot(Er)
-                                        gridData().rDotEr.data()[i] = glm::dot(gridData().r.data()[i], gridData().Er.data()[i]);
-                                    }
-                                });
-
-    //Since we updated r, we need to recompute Er
-    recomputeImplicitForces(timestep);
-
-    //Ep starts out the same as Er
-    ParallelFuncs::parallel_for(gridData().imp_active.dataSize(),
-                                [&](size_t i)
-                                {
-                                    if(gridData().imp_active.data()[i]) {
-                                        gridData().Ep.data()[i] = gridData().Er.data()[i];
-                                    }
-                                });
-
-    //LINEAR SOLVE
-    for(UInt i = 0; i < solverParams().maxCGIteration; i++) {
-        bool done = true;
-
-        ParallelFuncs::parallel_for(gridData().imp_active.dataSize(),
-                                    [&](size_t i)
-                                    {
-                                        //Only perform calculations on nodes that haven't been solved yet
-                                        if(gridData().imp_active.data()[i]) {
-                                            //Alright, so we'll handle each node's solve separately
-                                            //First thing to do is update our vf guess
-                                            Real div   = glm::dot(gridData().Ep.data()[i], gridData().Ep.data()[i]);
-                                            Real alpha = gridData().rDotEr.data()[i] / div;
-                                            gridData().err.data()[i] = alpha * gridData().p.data()[i];
-                                            //If the error is small enough, we're done
-                                            Real err = glm::length(gridData().err.data()[i]);
-                                            if(err < solverParams().maxImplicitError || err > solverParams().minImplicitError || isnan(err)) {
-                                                gridData().imp_active.data()[i] = 0;;
-                                                return;
-                                            } else {
-                                                done = false;
-                                            }
-
-                                            //Update vf and residual
-                                            gridData().velocity_new.data()[i] += gridData().err.data()[i];
-                                            gridData().r.data()[i]            -= alpha * gridData().Ep.data()[i];
-                                        }
-                                    });
-        //If all the velocities converged, we're done
-        if(done) {
-            break;
-        }
-        //Otherwise we recompute Er, so we can compute our next guess
-        recomputeImplicitForces(timestep);
-
-        //Calculate the gradient for our next guess
-        ParallelFuncs::parallel_for(gridData().imp_active.dataSize(),
-                                    [&](size_t i)
-                                    {
-                                        if(gridData().imp_active.data()[i]) {
-                                            Real temp = glm::dot(gridData().r.data()[i], gridData().Er.data()[i]);
-                                            Real beta = temp / gridData().rDotEr.data()[i];
-                                            gridData().rDotEr.data()[i] = temp;
-                                            //Update p
-                                            gridData().p.data()[i] *= beta;
-                                            gridData().p.data()[i] += gridData().r.data()[i];
-                                            //Update Ep
-                                            gridData().Ep.data()[i] *= beta;
-                                            gridData().Ep.data()[i] += gridData().Er.data()[i];
-                                        }
-                                    });
-    }
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Snow3DSolver::recomputeImplicitForces(Real timestep)
-{
-    ParallelFuncs::parallel_for(particleData().getNParticles(),
-                                [&](UInt p)
-                                {
-                                    Int ox = static_cast<Int>(particleData().particleGridPos[p][0]);
-                                    Int oy = static_cast<Int>(particleData().particleGridPos[p][1]);
-                                    Int oz = static_cast<Int>(particleData().particleGridPos[p][2]);
-
-                                    for(Int idx = 0, z = oz - 1, z_end = z + 3; z <= z_end; z++) {
-                                        for(Int y = oy - 1, y_end = y + 3; y <= y_end; y++) {
-                                            for(Int x = ox - 1, x_end = x + 3; x <= x_end; x++, idx++) {
-                                                if(!m_Grid.isValidNode(x, y, z)) {
-                                                    continue;
-                                                }
-
-                                                gridData().nodeLocks(x, y, z).lock();
-                                                if(gridData().imp_active(x, y, z)) {
-                                                    gridData().force(x, y, z) += computeDeltaForce(p, gridData().r(x, y, z), particleData().weightGradients[p * 64 + idx], timestep);
-                                                }
-                                                gridData().nodeLocks(x, y, z).unlock();
-                                            }
-                                        }
-                                    }
-                                });
-
-    //We have delta force for each node; to get Er, we use the following formula:
-    //	r - IMPLICIT_RATIO*TIMESTEP*delta_force/mass
-    ParallelFuncs::parallel_for(gridData().imp_active.dataSize(),
-                                [&](size_t i)
-                                {
-                                    if(gridData().imp_active.data()[i]) {
-                                                                  gridData().Er.data()[i] = gridData().r.data()[i] -
-                                                                  gridData().force.data()[i] / gridData().mass.data()[i] * solverParams().implicitRatio * timestep;
-                                    }
-                                });
-}
+void MPM3D_Solver::implicitVelocities(Real timestep)
+{}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //Map grid velocities back to particles
-void Snow3DSolver::velocityToParticles(Real timestep)
+void MPM3D_Solver::velocityToParticles(Real timestep)
 {
     ParallelFuncs::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
@@ -661,7 +529,7 @@ void Snow3DSolver::velocityToParticles(Real timestep)
                                     //We calculate PIC and FLIP velocities separately
                                     Vec3r pic(0), flip = particleData().velocities[p];
                                     //Also keep track of velocity gradient
-                                    Mat3x3r& grad = particleData().velocityGradients[p];
+                                    Mat3x3r& grad = particleData().velocityGrad[p];
                                     grad = Mat3x3r(0.0);
 
                                     //VISUALIZATION PURPOSES ONLY:
@@ -702,7 +570,7 @@ void Snow3DSolver::velocityToParticles(Real timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Snow3DSolver::constrainGridVelocity(Real timestep)
+void MPM3D_Solver::constrainGridVelocity(Real timestep)
 {
     Vec3r delta_scale = Vec3r(timestep);
     delta_scale /= solverParams().cellSize;
@@ -731,7 +599,7 @@ void Snow3DSolver::constrainGridVelocity(Real timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Snow3DSolver::constrainParticleVelocity(Real timestep)
+void MPM3D_Solver::constrainParticleVelocity(Real timestep)
 {
     ParallelFuncs::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
@@ -755,178 +623,80 @@ void Snow3DSolver::constrainParticleVelocity(Real timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-
-void Snow3DSolver::updateParticlePositions(Real timestep)
+void MPM3D_Solver::updateParticleDeformGradients(Real timestep)
 {
     ParallelFuncs::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
                                 {
-                                    Vec3r ppos = particleData().positions[p] + particleData().velocities[p] * timestep;
-                                    //const Vec3r gridPos = particleData().particleGridPos[p];
-                                    //const Real phiVal = ArrayHelpers::interpolateValueLinear(gridPos, gridData().boundarySDF) - solverParams().particleRadius;
-
-                                    //if(phiVal < 0)
-                                    //{
-                                    //    Vec3r grad = ArrayHelpers::interpolateGradient(gridPos, gridData().boundarySDF);
-                                    //    Real mag2Grad = glm::length2(grad);
-
-                                    //    if(mag2Grad > Tiny)
-                                    //        ppos -= phiVal * grad / sqrt(mag2Grad);
-                                    //}
-
-                                    particleData().positions[p] = ppos;
-                                });
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Snow3DSolver::updateGradients(Real timestep)
-{
-    ParallelFuncs::parallel_for(particleData().getNParticles(),
-                                [&](UInt p)
-                                {
-                                    Mat3x3r velGrad = particleData().velocityGradients[p];
+                                    Mat3x3r velGrad = particleData().velocityGrad[p];
                                     velGrad *= timestep;
                                     LinaHelpers::sumToDiag(velGrad, Real(1.0));
 
-                                    particleData().velocityGradients[p] = velGrad;
+                                    particleData().velocityGrad[p]      = velGrad;
                                     particleData().elasticDeformGrad[p] = velGrad * particleData().elasticDeformGrad[p];
                                 });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Snow3DSolver::applyPlasticity()
+void MPM3D_Solver::computePiolaStress()
 {
     ParallelFuncs::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
                                 {
-                                    Mat3x3r elasticDeformGrad = particleData().elasticDeformGrad[p];
-                                    Mat3x3r plasticDeformGrad = particleData().plasticDeformGrad[p];
-                                    Mat3x3r f_all             = elasticDeformGrad * plasticDeformGrad;
-
-                                    //We compute the SVD decomposition
-                                    //The singular values (basically a scale transform) tell us if
-                                    //the particle has exceeded critical stretch/compression
-                                    Mat3x3r svd_w, svd_v;
-                                    Vec3r svd_e;
-                                    QRSVD::svd(elasticDeformGrad, svd_w, svd_e, svd_v);
-
-                                    Mat3x3r svd_v_trans = glm::transpose(svd_v);
-                                    //Clamp singular values to within elastic region
-                                    for(UInt j = 0; j < solverDimension(); ++j) {
-                                        svd_e[j] = MathHelpers::clamp(svd_e[j], solverParams().thresholdCompression, solverParams().thresholdStretching);
+                                    Mat3x3r U, Vt, Ftemp;
+                                    Vec3r S;
+                                    LinaHelpers::orientedSVD(particleData().deformGrad[p], U, S, Vt);
+                                    if(S[2] < 0) {
+                                        S[2] *= Real(-1.0);
                                     }
+                                    Ftemp = U * LinaHelpers::diagMatrix(S) * Vt;
 
-                                    //Compute polar decomposition, from clamped SVD
-                                    Mat3x3r polar_r = svd_w * svd_v_trans;
-                                    Mat3x3r polar_s = svd_v;
-                                    LinaHelpers::diagProduct(polar_s, svd_e);
-                                    polar_s = polar_s * svd_v_trans;
-
-                                    //Recompute elastic and plastic gradient
-                                    //We're basically just putting the SVD back together again
-                                    Mat3x3r v_cpy(svd_v), w_cpy(svd_w);
-                                    LinaHelpers::diagProductInv(v_cpy, svd_e);
-                                    LinaHelpers::diagProduct(w_cpy, svd_e);
-                                    plasticDeformGrad = v_cpy * glm::transpose(svd_w) * f_all;
-                                    elasticDeformGrad = w_cpy * glm::transpose(svd_v);
-
-                                    ////////////////////////////////////////////////////////////////////////////////
-                                    particleData().svd_w[p]             = svd_w;
-                                    particleData().svd_e[p]             = svd_e;
-                                    particleData().svd_v[p]             = svd_v;
-                                    particleData().polar_r[p]           = polar_r;
-                                    particleData().polar_s[p]           = polar_s;
-                                    particleData().plasticDeformGrad[p] = plasticDeformGrad;
-                                    particleData().elasticDeformGrad[p] = elasticDeformGrad;
+                                    // Compute Piola stress tensor:
+                                    Real J = glm::determinant(Ftemp);
+                                    __BNN_ASSERT(J > 0.0);
+                                    assert(NumberHelpers::isValidNumber(J));
+                                    Mat3x3r Fit = glm::transpose(glm::inverse(Ftemp)); // F^(-T)
+                                    Mat3x3r P   = solverParams().mu * (Ftemp - Fit) + solverParams().lambda * (log(J) * Fit);
+                                    assert(LinaHelpers::hasValidElements(P));
+                                    particleData().PiolaStress[p] = P;
                                 });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-Mat3x3r Snow3DSolver::computeEnergyDerivative(UInt p)
+void MPM3D_Solver::computePiolaStressAndEnergyDensity()
 {
-    //Adjust lame parameters to account for hardening
-    Real harden = exp(solverParams().hardening * (Real(1.0) - glm::determinant(particleData().plasticDeformGrad[p])));
-    Real Je     = glm::compMul(particleData().svd_e[p]);
+    ParallelFuncs::parallel_for(particleData().getNParticles(),
+                                [&](UInt p)
+                                {
+                                    Mat3x3r U, Vt, Ftemp;
+                                    Vec3r S;
+                                    LinaHelpers::orientedSVD(particleData().deformGrad[p], U, S, Vt);
+                                    if(S[2] < 0) {
+                                        S[2] *= Real(-1.0);
+                                    }
+                                    Ftemp = U * LinaHelpers::diagMatrix(S) * Vt;
 
-    //This is the co-rotational term
-    Mat3x3r temp = Real(3.0) * solverParams().mu *
-                   (particleData().elasticDeformGrad[p] - particleData().svd_w[p] * glm::transpose(particleData().svd_v[p])) *
-                   glm::transpose(particleData().elasticDeformGrad[p]);
-    //Add in the primary contour term
-    LinaHelpers::sumToDiag(temp, solverParams().lambda * Je * (Je - Real(1.0)));
-    //Add hardening and volume
-    return particleData().volumes[p] * harden * temp;
-}
+                                    ////////////////////////////////////////////////////////////////////////////////
+                                    // Compute Piola stress tensor:
+                                    Real J = glm::determinant(Ftemp);
+                                    __BNN_ASSERT(J > 0);
+                                    assert(NumberHelpers::isValidNumber(J));
+                                    Real logJ   = log(J);
+                                    Mat3x3r Fit = glm::transpose(glm::inverse(Ftemp)); // F^(-T)
+                                    Mat3x3r P   = solverParams().mu * (Ftemp - Fit) + solverParams().lambda * (logJ * Fit);
+                                    assert(LinaHelpers::hasValidElements(P));
+                                    particleData().PiolaStress[p] = P;
 
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-Vec3r Snow3DSolver::computeDeltaForce(UInt p, const Vec3r& u, const Vec3r& weight_grad, Real timestep)
-{
-#if 0
-    //For detailed explanation, check out the implicit math pdf for details
-    //Before we do the force calculation, we need deltaF, deltaR, and delta(JF^-T)
-
-    //Finds delta(Fe), where Fe is the elastic deformation gradient
-    //Probably can optimize this expression with parentheses...
-    const Mat3x3r elasticDeformGrad = particleData().elasticDeformGrad[p];
-    Mat3x3r       del_elastic       = glm::outerProduct(u, weight_grad) * elasticDeformGrad * timestep;
-
-    //Check to make sure we should do these calculations?
-    if(LinaHelpers::maxAbs(del_elastic) < Tiny) {
-        return Vec3r(0);
-    }
-
-    const Mat3x3r polar_r = particleData().polar_r[p];
-    const Mat3x3r polar_s = particleData().polar_s[p];
-
-    //Compute R^T*dF - dF^TR
-    //It is skew symmetric, so we only need to compute one value (three for 3D)
-    //Real y = glm::transpose(polar_r) * del_elastic - glm::transpose(del_elastic)*polar_r;
-
-    Real y = (polar_r[0][0] * del_elastic[1][0] + polar_r[1][0] * del_elastic[1][1]) -
-             (polar_r[0][1] * del_elastic[0][0] + polar_r[1][1] * del_elastic[0][1]);
-    //Next we need to compute MS + SM, where S is the hermitian matrix (symmetric for real
-    //valued matrices) of the polar decomposition and M is (R^T*dR); This is equal
-    //to the matrix we just found (R^T*dF ...), so we set them equal to eachother
-    //Since everything is so symmetric, we get a nice system of linear equations
-    //once we multiply everything out. (see pdf for details)
-    //In the case of 2D, we only need to solve for one variable (three for 3D)
-    Real x = y / (polar_s[0][0] + polar_s[1][1]);
-    //Final computation is deltaR = R*(R^T*dR)
-    Mat3x3r del_rotate = x * Mat3x3r(-polar_r[1][0], polar_r[0][0],
-                                     -polar_r[1][1], polar_r[0][1]);
-
-    //We need the cofactor matrix of F, JF^-T
-    Mat3x3r cofactor = LinaHelpers::cofactor(elasticDeformGrad);
-
-    //The last matrix we need is delta(JF^-T)
-    //Instead of doing the complicated matrix derivative described in the paper
-    //we can just take the derivative of each individual entry in JF^-T; JF^-T is
-    //the cofactor matrix of F, so we'll just hardcode the whole thing
-    //For example, entry [0][0] for a 3x3 matrix is
-    //	cofactor = e*i - f*h
-    //	derivative = (e*Di + De*i) - (f*Dh + Df*h)
-    //	where the derivatives (capital D) come from our precomputed delta(F)
-    //In the case of 2D, this turns out to be just the cofactor of delta(F)
-    //For 3D, it will not be so simple
-    Mat3x3r del_cofactor = LinaHelpers::cofactor(del_elastic);
-
-    //Calculate "A" as given by the paper
-    //Co-rotational term
-    Mat3x3r Ap = del_elastic - del_rotate;
-    Ap *= Real(3.0) * solverParams().mu;
-
-    //Primary contour term
-    del_cofactor *= (glm::determinant(elasticDeformGrad) - Real(1.0));
-    cofactor     *= LinaHelpers::frobeniusInnerProduct(cofactor, del_elastic);
-    cofactor     += del_cofactor;
-    cofactor     *= solverParams().lambda;
-    Ap           += cofactor;
-
-    //Put it all together
-    //Parentheses are important; M*M*V is slower than M*(M*V)
-    return particleData().volumes[p] * (Ap * (glm::transpose(elasticDeformGrad) * weight_grad));
-#endif
-    return Vec3r(0);
+                                    ////////////////////////////////////////////////////////////////////////////////
+                                    // compute energy density function
+                                    Real t1 = Real(0.5) * solverParams().mu * (LinaHelpers::trace(glm::transpose(Ftemp) * Ftemp) - Real(3.0));
+                                    Real t2 = -solverParams().mu * logJ;
+                                    Real t3 = Real(0.5) * solverParams().lambda * (logJ * logJ);
+                                    assert(NumberHelpers::isValidNumber(t1));
+                                    assert(NumberHelpers::isValidNumber(t2));
+                                    assert(NumberHelpers::isValidNumber(t3));
+                                    particleData().energyDensity[p] = t1 + t2 + t3;
+                                });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

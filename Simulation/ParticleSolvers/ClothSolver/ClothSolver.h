@@ -88,10 +88,10 @@ protected:
     Vec3r getVelocityChangesFromGrid(const Vec3r& ppos);
 
     ////////////////////////////////////////////////////////////////////////////////
-    auto&       particleData() { return solverData().particleSimData; }
-    const auto& particleData() const { return solverData().particleSimData; }
-    auto&       gridData() { return solverData().gridSimData; }
-    const auto& gridData() const { return solverData().gridSimData; }
+    auto&       particleData() { return solverData().particleData; }
+    const auto& particleData() const { return solverData().particleData; }
+    auto&       gridData() { return solverData().gridData; }
+    const auto& gridData() const { return solverData().gridData; }
 
     ////////////////////////////////////////////////////////////////////////////////
     SimulationParameters_Cloth3D                      m_SimParams;

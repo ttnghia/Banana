@@ -87,10 +87,10 @@ protected:
     Vec2r getVelocityChangesFromGrid(const Vec2r& gridPos);
 
     ////////////////////////////////////////////////////////////////////////////////
-    auto&       particleData() { return picData().particleSimData; }
-    const auto& particleData() const { return picData().particleSimData; }
-    auto&       gridData() { return picData().gridSimData; }
-    const auto& gridData() const { return picData().gridSimData; }
+    auto&       particleData() { return picData().particleData; }
+    const auto& particleData() const { return picData().particleData; }
+    auto&       gridData() { return picData().gridData; }
+    const auto& gridData() const { return picData().gridData; }
 
     ////////////////////////////////////////////////////////////////////////////////
     PIC2D_Parameters m_picParams;

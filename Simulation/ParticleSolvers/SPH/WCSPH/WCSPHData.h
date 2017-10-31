@@ -106,7 +106,7 @@ struct SimulationParameters_WCSPH : public SimulationParameters
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-struct SimulationData_WCSPH : public ParticleData<3, Real>
+struct SimulationData_WCSPH : public ParticleSimulationData<3, Real>
 {
     Vec_Vec3r positions;
     Vec_Vec3r positions_tmp;

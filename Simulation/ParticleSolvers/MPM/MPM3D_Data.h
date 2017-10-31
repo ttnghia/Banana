@@ -31,9 +31,9 @@ namespace Banana
 namespace ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-struct SimulationParameters_Snow3D : public SimulationParameters
+struct MPM3D_Parameters : public SimulationParameters
 {
-    SimulationParameters_Snow3D() { makeReady(); }
+    MPM3D_Parameters() { makeReady(); }
 
     ////////////////////////////////////////////////////////////////////////////////
     Real CFLFactor           = Real(0.04);
@@ -76,12 +76,12 @@ struct SimulationParameters_Snow3D : public SimulationParameters
     ////////////////////////////////////////////////////////////////////////////////
     virtual void makeReady() override
     {
-        particleRadius = cellSize / ratioCellSizeParticleRadius;
-        particleMass   = particleRadius * particleRadius * materialDensity;
+        cellSize     = particleRadius * ratioCellSizeParticleRadius;
+        particleMass = particleRadius * particleRadius * materialDensity;
 
         cellArea   = cellSize * cellSize;
-        movingBMin = domainBMin + Vec3r(cellSize * SolverDefaultParameters::NExpandCells);
-        movingBMax = domainBMax - Vec3r(cellSize * SolverDefaultParameters::NExpandCells);
+        domainBMin = movingBMin - Vec3r(cellSize * SolverDefaultParameters::NExpandCells);
+        domainBMax = movingBMax + Vec3r(cellSize * SolverDefaultParameters::NExpandCells);
 
         lambda = YoungsModulus * PoissonsRatio / ((Real(1.0) + PoissonsRatio) * (Real(1.0) - Real(2.0) * PoissonsRatio)),
         mu     = YoungsModulus / (Real(2.0) + Real(2.0) * PoissonsRatio);
@@ -119,16 +119,18 @@ struct SimulationParameters_Snow3D : public SimulationParameters
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-struct SimulationData_Snow3D
+struct MPM3D_Data
 {
     struct ParticleData : public ParticleSimulationData<3, Real>
     {
         Vec_Vec3r   positions, velocities;
         Vec_Real    volumes, densities;
-        Vec_Mat3x3r velocityGradients;
+        Vec_Mat3x3r velocityGrad;
 
         //Deformation gradient (elastic and plastic parts)
-        Vec_Mat3x3r elasticDeformGrad, plasticDeformGrad;
+        Vec_Mat3x3r deformGrad, elasticDeformGrad, plasticDeformGrad;
+        Vec_Mat3x3r PiolaStress, CauchyStress;
+        Vec_Real    energyDensity;
 
         //Cached SVD's for elastic deformation gradient
         Vec_Mat3x3r svd_w, svd_v;
@@ -150,10 +152,14 @@ struct SimulationData_Snow3D
             velocities.reserve(nParticles);
             volumes.reserve(nParticles);
             densities.reserve(nParticles);
-            velocityGradients.reserve(nParticles);
+            velocityGrad.reserve(nParticles);
 
             elasticDeformGrad.reserve(nParticles);
             plasticDeformGrad.reserve(nParticles);
+            deformGrad.reserve(nParticles);
+
+            PiolaStress.reserve(nParticles);
+            CauchyStress.reserve(nParticles);
 
             svd_w.reserve(nParticles);
             svd_e.reserve(nParticles);
@@ -178,10 +184,15 @@ struct SimulationData_Snow3D
                 velocities.push_back(newVelocities[p]);
                 volumes.push_back(0);
                 densities.push_back(0);
-                velocityGradients.push_back(Mat3x3r(1.0));
+                velocityGrad.push_back(Mat3x3r(1.0));
 
                 elasticDeformGrad.push_back(Mat3x3r(1.0));
                 plasticDeformGrad.push_back(Mat3x3r(1.0));
+                deformGrad.push_back(Mat3x3r(1.0));
+
+                PiolaStress.push_back(Mat3x3r(1.0));
+                CauchyStress.push_back(Mat3x3r(1.0));
+
                 svd_w.push_back(Mat3x3r(1.0));
                 svd_e.push_back(Vec3r(1.0));
                 svd_v.push_back(Mat3x3r(1.0));
@@ -203,14 +214,18 @@ struct SimulationData_Snow3D
                 return;
             }
 
-            STLHelpers::eraseByMarker(positions,         removeMarker);
-            STLHelpers::eraseByMarker(velocities,        removeMarker);
-            STLHelpers::eraseByMarker(volumes,           removeMarker);             // need to erase, or just resize?
-            STLHelpers::eraseByMarker(densities,         removeMarker);             // need to erase, or just resize?
-            STLHelpers::eraseByMarker(velocityGradients, removeMarker);             // need to erase, or just resize?
+            STLHelpers::eraseByMarker(positions,    removeMarker);
+            STLHelpers::eraseByMarker(velocities,   removeMarker);
+            STLHelpers::eraseByMarker(volumes,      removeMarker);             // need to erase, or just resize?
+            STLHelpers::eraseByMarker(densities,    removeMarker);             // need to erase, or just resize?
+            STLHelpers::eraseByMarker(velocityGrad, removeMarker);             // need to erase, or just resize?
             ////////////////////////////////////////////////////////////////////////////////
             elasticDeformGrad.resize(positions.size());
             plasticDeformGrad.resize(positions.size());
+            deformGrad.resize(positions.size());
+
+            PiolaStress.resize(positions.size());
+            CauchyStress.resize(positions.size());
 
             svd_w.resize(positions.size());
             svd_e.resize(positions.size());

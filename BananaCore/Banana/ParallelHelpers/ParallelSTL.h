@@ -40,110 +40,118 @@ namespace ParallelSTL
 template<class T>
 inline T min(const Vector<T>& x)
 {
-    ParallelObjects::MinElement<1, T> pobj(x);
-    tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), pobj);
-    return pobj.getResult();
+    ParallelObjects::MinElement<1, T> pObj(x);
+    tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), pObj);
+    return pObj.getResult();
 }
 
 template<Int N, class T>
 inline T min(const Vector<VecX<N, T> >& x)
 {
-    ParallelObjects::MinElement<N, T> pobj(x);
-    tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), pobj);
-    return pobj.getResult();
+    ParallelObjects::MinElement<N, T> pObj(x);
+    tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), pObj);
+    return pObj.getResult();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class T>
 inline T max(const Vector<T>& x)
 {
-    ParallelObjects::MaxElement<1, T> pobj(x);
-    tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), pobj);
-    return pobj.getResult();
+    ParallelObjects::MaxElement<1, T> pObj(x);
+    tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), pObj);
+    return pObj.getResult();
 }
 
 template<Int N, class T>
 inline T max(const Vector<VecX<N, T> >& x)
 {
-    ParallelObjects::MaxElement<N, T> pobj(x);
-    tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), pobj);
-    return pobj.getResult();
+    ParallelObjects::MaxElement<N, T> pObj(x);
+    tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), pObj);
+    return pObj.getResult();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class T>
 inline T maxAbs(const Vector<T>& x)
 {
-    ParallelObjects::MaxAbs<1, T> pobj(x);
-    tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), pobj);
-    return pobj.getResult();
+    ParallelObjects::MaxAbs<1, T> pObj(x);
+    tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), pObj);
+    return pObj.getResult();
 }
 
 template<Int N, class T>
 inline T maxAbs(const Vector<VecX<N, T> >& x)
 {
-    ParallelObjects::MaxAbs<N, T> pobj(x);
-    tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), pobj);
-    return pobj.getResult();
+    ParallelObjects::MaxAbs<N, T> pObj(x);
+    tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), pObj);
+    return pObj.getResult();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class T>
 inline T maxNorm2(const Vector<VecX<N, T> >& x)
 {
-    ParallelObjects::MaxNorm2<N, T> pobj(x);
-    tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), pobj);
-    return pobj.getResult();
+    ParallelObjects::MaxNorm2<N, T> pObj(x);
+    tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), pObj);
+    return pObj.getResult();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class T>
 inline void min_max(const Vector<T>& x, T& minElement, T& maxElement)
 {
-    ParallelObjects::MinMaxElements<1, T> pobj(x);
-    tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), pobj);
+    ParallelObjects::MinMaxElements<1, T> pObj(x);
+    tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), pObj);
 
-    minElement = pobj.getMin();
-    maxElement = pobj.getMax();
+    minElement = pObj.getMin();
+    maxElement = pObj.getMax();
 }
 
 template<Int N, class T>
 inline void min_max(const Vector<VecX<N, T> >& x, VecX<N, T>& minElement, VecX<N, T>& maxElement)
 {
-    ParallelObjects::MinMaxElements<N, T> pobj(x);
-    tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), pobj);
+    ParallelObjects::MinMaxElements<N, T> pObj(x);
+    tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), pObj);
 
-    minElement = pobj.getMin();
-    maxElement = pobj.getMax();
+    minElement = pObj.getMin();
+    maxElement = pObj.getMax();
 }
 
 template<Int N, class T>
 inline void min_max(const Vector<MatXxX<N, T> >& x, T& minElement, T& maxElement)
 {
-    ParallelObjects::MinMaxElements<0, T> pobj(reinterpret_cast<const T*>(x.data()));
-    tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size() * static_cast<size_t>(N * N)), pobj);
+    ParallelObjects::MinMaxElements<0, T> pObj(reinterpret_cast<const T*>(x.data()));
+    tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size() * static_cast<size_t>(N * N)), pObj);
 
-    minElement = pobj.getMin();
-    maxElement = pobj.getMax();
+    minElement = pObj.getMin();
+    maxElement = pObj.getMax();
 }
 
 template<Int N, class T>
 inline void min_max_norm2(const Vector<VecX<N, T> >& x, T& minVal, T& maxVal)
 {
-    ParallelObjects::MinMaxNorm2<N, T> pobj(x);
-    tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), pobj);
+    ParallelObjects::MinMaxNorm2<N, T> pObj(x);
+    tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), pObj);
 
-    minVal = pobj.getMin();
-    maxVal = pobj.getMax();
+    minVal = pObj.getMin();
+    maxVal = pObj.getMax();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class T>
 inline T sum(const Vector<T>& x)
 {
-    ParallelObjects::VectorSum<T> pobj(x);
-    tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), pobj);
-    return pobj.getSum();
+    ParallelObjects::VectorSum<T> pObj(x);
+    tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), pObj);
+    return pObj.getResult();
+}
+
+template<class T>
+inline T sum_sqr(const Vector<T>& x)
+{
+    ParallelObjects::VectorSumSqr<T> pObj(x);
+    tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), pObj);
+    return pObj.getResult();
 }
 
 template<class T>

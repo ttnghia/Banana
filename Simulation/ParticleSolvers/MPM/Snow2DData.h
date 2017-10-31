@@ -119,7 +119,7 @@ struct SimulationParameters_Snow2D : public SimulationParameters
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 struct SimulationData_Snow2D
 {
-    struct ParticleSimData : public ParticleData<2, Real>
+    struct ParticleData : public ParticleSimulationData<2, Real>
     {
         //    Vec_Vec2r   positions_tmp;
         //    Vec_VecUInt neighborList;
@@ -231,11 +231,11 @@ struct SimulationData_Snow2D
             // resize removeMarker eventually
             removeMarker.resize(positions.size());
         }
-    } particleSimData;
+    } particleData;
 
 
     ////////////////////////////////////////////////////////////////////////////////
-    struct GridSimData : public GridData<2, Real>
+    struct GridData : public GridSimulationData<2, Real>
     {
         Array2r         mass;
         Array2c         active;
@@ -289,7 +289,7 @@ struct SimulationData_Snow2D
             Er.assign(Vec2r(0));
             rDotEr.assign(Real(0));
         }
-    } gridSimData;
+    } gridData;
 };
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 };      // end namespace ParticleSolvers

@@ -52,7 +52,7 @@ struct FLIP2D_Parameters : public SimulationParameters
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-struct FLIP2D_Data : public GridData<2, Real>
+struct FLIP2D_Data : public GridSimulationData<2, Real>
 {
     Array2r du, dv;
     Array2r u_old, v_old;
@@ -68,8 +68,8 @@ struct FLIP2D_Data : public GridData<2, Real>
 
     void backupGridVelocity(const PIC2D_Data& picData)
     {
-        u_old.copyDataFrom(picData.gridSimData.u);
-        v_old.copyDataFrom(picData.gridSimData.v);
+        u_old.copyDataFrom(picData.gridData.u);
+        v_old.copyDataFrom(picData.gridData.v);
     }
 };
 
