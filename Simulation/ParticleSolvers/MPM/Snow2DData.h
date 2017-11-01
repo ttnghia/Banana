@@ -125,7 +125,6 @@ struct SimulationData_Snow2D
         //    Vec_VecUInt neighborList;
 
         //    Vec_Mat2x2r energyDerivatives;
-        Vec_Vec2r   positions, velocities;
         Vec_Real    volumes, densities;
         Vec_Mat2x2r velocityGradients;
 

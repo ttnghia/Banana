@@ -92,9 +92,7 @@ struct SimulationData_Peridynamics3D : public ParticleSimulationData<3, Real>
     __BNN_TODO_MSG("Change active particle computation")
     UInt nActives;
 
-    Vec_Vec3r   positions;
     Vec_Vec3r   positions_tmp;
-    Vec_Vec3r   velocities;
     Vec_VecUInt bondList;
 
     Vec_Real stretchThreshold;

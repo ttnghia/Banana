@@ -169,7 +169,7 @@ bool MPM3D_Solver::advanceScene(UInt frame, Real fraction /*= Real(0)*/)
     static Vec_Vec3r tmpVelocities;
     UInt             nNewParticles = 0;
     for(auto& generator : m_ParticleGenerators) {
-        if(!generator->isActive(frame)) {
+        if(generator->isActive(frame)) {
             tmpPositions.resize(0);
             tmpVelocities.resize(0);
             UInt nGen = generator->generateParticles(particleData().positions, tmpPositions, tmpVelocities, frame);

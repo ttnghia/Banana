@@ -162,7 +162,6 @@ struct MPM2D_Data
 {
     struct ParticleData : public ParticleSimulationData<2, Real>
     {
-        Vec_Vec2r   positions, velocities;
         Vec_Real    volumes, densities;
         Vec_Mat2x2r velocityGrad;
 
@@ -184,7 +183,6 @@ struct MPM2D_Data
         Vec_Real  weights;         // * 16
 
         Vec_Mat2x2r B, D;          // affine matrix and auxiliary
-        Vec_Int8    removeMarker;
 
         virtual UInt getNParticles() override { return static_cast<UInt>(positions.size()); }
 

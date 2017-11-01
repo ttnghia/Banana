@@ -59,8 +59,13 @@ void WCSPHSolver::advanceFrame()
         logger().printRunTime("Sub-step time: ", subStepTimer,
                               [&]()
                               {
+                                  Real substep       = computeCFLTimestep();
                                   Real remainingTime = globalParams().frameDuration - frameTime;
-                                  Real substep       = MathHelpers::min(computeCFLTimestep(), remainingTime);
+                                  if(frameTime + substep >= globalParams().frameDuration) {
+                                      substep = remainingTime;
+                                  } else if(frameTime + Real(1.5) * substep >= globalParams().frameDuration) {
+                                      substep = remainingTime * Real(0.5);
+                                  }
                                   ////////////////////////////////////////////////////////////////////////////////
                                   logger().printRunTime("Find neighbors: ",               funcTimer, [&]() { m_NSearch->find_neighbors(); });
                                   logger().printRunTime("====> Advance velocity total: ", funcTimer, [&]() { advanceVelocity(substep); });
@@ -185,13 +190,13 @@ bool WCSPHSolver::advanceScene(UInt frame, Real fraction /*= Real(0)*/)
     static Vec_Vec3r tmpVelocities;
     UInt             nNewParticles = 0;
     for(auto& generator : m_ParticleGenerators) {
-        if(!generator->isActive(frame)) {
+        if(generator->isActive(frame)) {
             tmpPositions.resize(0);
             tmpVelocities.resize(0);
             UInt nGen = generator->generateParticles(solverData().positions, tmpPositions, tmpVelocities, frame);
             solverData().addParticles(tmpPositions, tmpVelocities);
             ////////////////////////////////////////////////////////////////////////////////
-            logger().printLog(String("Generated ") + NumberHelpers::formatWithCommas(nGen) + String(" new particles by ") + generator->nameID());
+            logger().printLogIf(nGen > 0, String("Generated ") + NumberHelpers::formatWithCommas(nGen) + String(" new particles by ") + generator->nameID());
             nNewParticles += nGen;
         }
     }

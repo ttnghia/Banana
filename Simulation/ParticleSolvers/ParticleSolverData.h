@@ -135,6 +135,12 @@ struct ParticleSimulationData
     virtual void addParticles(const Vec_VecX<N, RealType>& newPositions, const Vec_VecX<N, RealType>& newVelocities) = 0;
     virtual void removeParticles(Vec_Int8& removeMarker) = 0;
     virtual void makeReady() {}
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // main variables
+    Vector<VecX<N, RealType> > positions, velocities;
+    Vec_Int8                   removeMarker;
+    ////////////////////////////////////////////////////////////////////////////////
 };
 
 

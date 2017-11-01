@@ -168,13 +168,13 @@ bool PIC2D_Solver::advanceScene(UInt frame, Real fraction /*= Real(0)*/)
     static Vec_Vec2r tmpVelocities;
     UInt             nNewParticles = 0;
     for(auto& generator : m_ParticleGenerators) {
-        if(!generator->isActive(frame)) {
+        if(generator->isActive(frame)) {
             tmpPositions.resize(0);
             tmpVelocities.resize(0);
             UInt nGen = generator->generateParticles(particleData().positions, tmpPositions, tmpVelocities, frame);
             particleData().addParticles(tmpPositions, tmpVelocities);
             ////////////////////////////////////////////////////////////////////////////////
-            logger().printLog(String("Generated ") + NumberHelpers::formatWithCommas(nGen) + String(" new particles by ") + generator->nameID());
+            logger().printLogIf(nGen > 0, String("Generated ") + NumberHelpers::formatWithCommas(nGen) + String(" new particles by ") + generator->nameID());
             nNewParticles += nGen;
         }
     }

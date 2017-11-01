@@ -162,7 +162,6 @@ struct MPM3D_Data
 {
     struct ParticleData : public ParticleSimulationData<3, Real>
     {
-        Vec_Vec3r   positions, velocities;
         Vec_Real    volumes, densities;
         Vec_Mat3x3r velocityGrad;
 
