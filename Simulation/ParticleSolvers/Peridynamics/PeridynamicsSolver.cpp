@@ -78,8 +78,13 @@ void PeridynamicsSolver::advanceFrame()
         logger().printRunTime("Sub-step time: ", subStepTimer,
                               [&]()
                               {
-                                  Real remainingTime = m_GlobalParams.frameDuration - frameTime;
-                                  Real substep       = MathHelpers::min(computeCFLTimestep(), remainingTime);
+                                  Real substep       = computeCFLTimestep();
+                                  Real remainingTime = globalParams().frameDuration - frameTime;
+                                  if(frameTime + substep >= globalParams().frameDuration) {
+                                      substep = remainingTime;
+                                  } else if(frameTime + Real(1.5) * substep >= globalParams().frameDuration) {
+                                      substep = remainingTime * Real(0.5);
+                                  }
                                   ////////////////////////////////////////////////////////////////////////////////
                                   logger().printRunTime("====> Advance velocity total: ", funcTimer, [&]() { advanceVelocity(substep); });
                                   logger().printRunTime("Move solverData().positions: ", funcTimer, [&]() { moveParticles(substep); });

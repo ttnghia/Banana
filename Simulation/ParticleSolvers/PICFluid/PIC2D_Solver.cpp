@@ -65,8 +65,13 @@ void PIC2D_Solver::advanceFrame()
         logger().printRunTime("Sub-step time: ", subStepTimer,
                               [&]()
                               {
-                                  Real remainingTime = m_GlobalParams.frameDuration - frameTime;
-                                  Real substep       = MathHelpers::min(computeCFLTimestep(), remainingTime);
+                                  Real substep       = computeCFLTimestep();
+                                  Real remainingTime = globalParams().frameDuration - frameTime;
+                                  if(frameTime + substep >= globalParams().frameDuration) {
+                                      substep = remainingTime;
+                                  } else if(frameTime + Real(1.5) * substep >= globalParams().frameDuration) {
+                                      substep = remainingTime * Real(0.5);
+                                  }
                                   ////////////////////////////////////////////////////////////////////////////////
                                   logger().printRunTime("Find neighbors: ",               funcTimer, [&]() { picData().grid.collectIndexToCells(particleData().positions); });
                                   logger().printRunTime("====> Advance velocity total: ", funcTimer, [&]() { advanceVelocity(substep); });

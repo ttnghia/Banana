@@ -217,8 +217,6 @@ void loadSimulationObject(const nlohmann::json& jParams, const SharedPtr<Simulat
         JSONHelpers::readValue(jParams, meshObj->sdfStep(), "SDFStep");
         meshObj->computeSDF();
     }
-
-    ////////////////////////////////////////////////////////////////////////////////
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

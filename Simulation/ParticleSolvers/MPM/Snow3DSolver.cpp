@@ -68,8 +68,13 @@ void Snow3DSolver::advanceFrame()
         logger().printRunTime("Sub-step time: ", subStepTimer,
                               [&]()
                               {
-                                  Real remainingTime = m_GlobalParams.frameDuration - frameTime;
-                                  Real substep       = MathHelpers::min(computeCFLTimestep(), remainingTime);
+                                  Real substep       = computeCFLTimestep();
+                                  Real remainingTime = globalParams().frameDuration - frameTime;
+                                  if(frameTime + substep >= globalParams().frameDuration) {
+                                      substep = remainingTime;
+                                  } else if(frameTime + Real(1.5) * substep >= globalParams().frameDuration) {
+                                      substep = remainingTime * Real(0.5);
+                                  }
                                   ////////////////////////////////////////////////////////////////////////////////
                                   logger().printRunTime("Find neighbors: ", funcTimer,
                                                         [&]() { m_Grid.collectIndexToCells(particleData().positions, particleData().particleGridPos); });

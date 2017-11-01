@@ -231,8 +231,8 @@ void ParticleSolver<N, RealType >::loadScene(const String& sceneFile)
             // specialized for box object
             auto box = dynamic_pointer_cast<GeometryObjects::BoxObject<N, RealType> >(obj->getGeometry());
             if(box != nullptr) {
-                m_DynamicObjectDataIO->addFixedAttribute<float>(obj->nameID() + String("_box_min"), ParticleSerialization::TypeReal, 3);
-                m_DynamicObjectDataIO->addFixedAttribute<float>(obj->nameID() + String("_box_max"), ParticleSerialization::TypeReal, 3);
+                m_DynamicObjectDataIO->addFixedAttribute<float>(obj->nameID() + String("_box_min"), ParticleSerialization::TypeReal, N);
+                m_DynamicObjectDataIO->addFixedAttribute<float>(obj->nameID() + String("_box_max"), ParticleSerialization::TypeReal, N);
             }
         }
     }

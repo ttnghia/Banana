@@ -180,8 +180,11 @@ struct MPM3D_Data
 
         //Grid interpolation weights
         Vec_Vec3r particleGridPos;
-        Vec_Vec3r weightGradients;                 // * 16
-        Vec_Real  weights;                         // * 16
+        Vec_Vec3r weightGradients;         // * 64
+        Vec_Real  weights;                 // * 64
+
+        Vec_Mat3x3r B, D;                  // affine matrix and auxiliary
+        Vec_Int8    removeMarker;
 
         virtual UInt getNParticles() override { return static_cast<UInt>(positions.size()); }
 
@@ -211,6 +214,11 @@ struct MPM3D_Data
 
             weightGradients.reserve(nParticles * 64);
             weights.reserve(nParticles * 64);
+
+            B.reserve(nParticles);
+            D.reserve(nParticles);
+
+            removeMarker.reserve(nParticles);
         }
 
         virtual void addParticles(const Vec_Vec3r& newPositions, const Vec_Vec3r& newVelocities)
@@ -244,6 +252,10 @@ struct MPM3D_Data
                     weightGradients.push_back(Vec3r(0));
                     weights.push_back(Real(0));
                 }
+
+                B.push_back(Mat2x2r(0));
+                D.push_back(Mat2x2r(0));
+                removeMarker.push_back(Int8(0));
             }
         }
 
@@ -255,9 +267,11 @@ struct MPM3D_Data
 
             STLHelpers::eraseByMarker(positions,    removeMarker);
             STLHelpers::eraseByMarker(velocities,   removeMarker);
-            STLHelpers::eraseByMarker(volumes,      removeMarker);             // need to erase, or just resize?
-            STLHelpers::eraseByMarker(densities,    removeMarker);             // need to erase, or just resize?
-            STLHelpers::eraseByMarker(velocityGrad, removeMarker);             // need to erase, or just resize?
+            STLHelpers::eraseByMarker(volumes,      removeMarker);  // need to erase, or just resize?
+            STLHelpers::eraseByMarker(densities,    removeMarker);  // need to erase, or just resize?
+            STLHelpers::eraseByMarker(velocityGrad, removeMarker);  // need to erase, or just resize?
+            STLHelpers::eraseByMarker(B,            removeMarker);  // need to erase, or just resize?
+            STLHelpers::eraseByMarker(D,            removeMarker);  // need to erase, or just resize?
             ////////////////////////////////////////////////////////////////////////////////
             elasticDeformGrad.resize(positions.size());
             plasticDeformGrad.resize(positions.size());

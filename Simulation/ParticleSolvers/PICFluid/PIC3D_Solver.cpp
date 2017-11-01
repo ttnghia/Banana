@@ -72,7 +72,6 @@ void PIC3D_Solver::advanceFrame()
                                   } else if(frameTime + Real(1.5) * substep >= globalParams().frameDuration) {
                                       substep = remainingTime * Real(0.5);
                                   }
-
                                   ////////////////////////////////////////////////////////////////////////////////
                                   logger().printRunTime("Find neighbors: ",               funcTimer, [&]() { picData().grid.collectIndexToCells(particleData().positions); });
                                   logger().printRunTime("====> Advance velocity total: ", funcTimer, [&]() { advanceVelocity(substep); });
