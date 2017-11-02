@@ -252,10 +252,10 @@ public:
         return m_ScaleSpline(x);
     }
 
-    RealType getInvScale(UInt frame, RealType fraction = RealType(0))
-    {
-        return RealType(1.0) / getUniformScale(frame, fraction);
-    }
+    //RealType getInvScale(UInt frame, RealType fraction = RealType(0))
+    //{
+    //    return RealType(1.0) / getUniformScale(frame, fraction);
+    //}
 
 private:
     Vector<KeyFrame<N, RealType> > m_KeyFrames;

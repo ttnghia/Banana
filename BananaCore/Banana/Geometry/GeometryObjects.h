@@ -80,7 +80,7 @@ protected:
     ////////////////////////////////////////////////////////////////////////////////
     bool     m_bTransformed = false;
     RealType m_UniformScale = RealType(1.0);
-    RealType m_InvScale     = RealType(1.0);
+    //RealType m_InvScale     = RealType(1.0);
 
     MatXxX<N + 1, RealType> m_TransformationMatrix    = MatXxX<N + 1, RealType>(1.0);
     MatXxX<N + 1, RealType> m_InvTransformationMatrix = MatXxX<N + 1, RealType>(1.0);
