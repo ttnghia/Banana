@@ -17,12 +17,12 @@
             "BoxMin" : [-1.0, -1.0, -1.0],
             "BoxMax" : [ 1.0, 1.0, 1.0]
         },
-        "CorrectPosition" : true,
+        "CorrectPosition" : false,
         "RepulsiveForceStiffness" : 100,
         "PIC_FLIP_Ratio" : 0.97,
         "CGRelativeTolerance" : 1e-15,
         "MaxCGIteration" : 10000,
-        "ParticleRadius" : 0.05,
+        "ParticleRadius" : 0.02,
         "CFLFactor" : 0.5
     },
     "AdditionalBoundaryObjects":

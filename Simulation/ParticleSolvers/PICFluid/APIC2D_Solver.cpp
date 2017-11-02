@@ -52,7 +52,7 @@ void APIC2D_Solver::advanceVelocity(Real timestep)
 {
     static Timer funcTimer;
     ////////////////////////////////////////////////////////////////////////////////
-    logger().printRunTime("Interpolate velocity from particles to grid: ", funcTimer, [&]() { mapParticle2Grid(); });
+    logger().printRunTime("Interpolate velocity from particles to grid: ", funcTimer, [&]() { mapParticles2Grid(); });
     logger().printRunTime("Add gravity: ", funcTimer, [&]() { addGravity(timestep); });
     logger().printRunTime("====> Pressure projection: ", funcTimer, [&]() { pressureProjection(timestep); });
     logger().printRunTime("Extrapolate grid velocity: : ", funcTimer, [&]() { extrapolateVelocity(); });
@@ -61,7 +61,7 @@ void APIC2D_Solver::advanceVelocity(Real timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void APIC2D_Solver::mapParticle2Grid()
+void APIC2D_Solver::mapParticles2Grid()
 {
     const Vec2r span = Vec2r(solverData().grid.getCellSize());
 

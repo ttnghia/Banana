@@ -327,59 +327,29 @@ void PIC3D_Solver::advanceVelocity(Real timestep)
 {
     static Timer funcTimer;
     ////////////////////////////////////////////////////////////////////////////////
-    logger().printRunTime("Compute cell weights: ",                        funcTimer, [&]() { computeFluidWeights(); });
-    logger().printRunTime("Interpolate velocity from particles to grid: ", funcTimer, [&]() { mapParticle2Grid(); });
-    logger().printRunTime("Extrapolate grid velocity: : ",                 funcTimer, [&]() { extrapolateVelocity(); });
-    logger().printRunTime("Constrain grid velocity: ",                     funcTimer, [&]() { constrainGridVelocity(); });
-    //logger().printRunTime("Backup grid velocities: ",                      funcTimer, [&]() { gridData().backupGridVelocity(); });
+    logger().printRunTime("Advect grid velocity: ",                        funcTimer, [&]() { advectGridVelocity(timestep); });
     logger().printRunTime("Add gravity: ",                                 funcTimer, [&]() { addGravity(timestep); });
     logger().printRunTime("====> Pressure projection total: ",             funcTimer, [&]() { pressureProjection(timestep); });
     logger().printRunTime("Extrapolate grid velocity: : ",                 funcTimer, [&]() { extrapolateVelocity(); });
     logger().printRunTime("Constrain grid velocity: ",                     funcTimer, [&]() { constrainGridVelocity(); });
-    //logger().printRunTime("Compute changes of grid velocity: ",            funcTimer, [&]() { computeChangesGridVelocity(); });
-    //logger().printRunTime("Interpolate velocity from grid to particles: ", funcTimer, [&]() { velocityToParticles(); });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PIC3D_Solver::moveParticles(Real timestep)
 {
-#if 0
-    ParallelFuncs::parallel_for(particleData().getNParticles(),
-                                [&](UInt p)
-                                {
-                                    auto ppos0 = particleData().positions[p];
-                                    auto pvel  = particleData().velocities[p];
-                                    auto ppos  = ppos0 + pvel * timestep;
-                                    for(auto& obj : m_BoundaryObjects) {
-                                        obj->constrainToBoundary(ppos);
-                                    }
-
-                                    particleData().positions[p] = ppos;
-                                });
-#else
     const Real substep = timestep * Real(0.2);
     for(Int i = 0; i < 5; ++i) {
         ParallelFuncs::parallel_for(particleData().getNParticles(),
                                     [&](UInt p)
                                     {
-                                        auto ppos0    = particleData().positions[p];
-                                        Vec3r gridPos = solverData().grid.getGridCoordinate(ppos0);
-                                        Vec3r pvel    = getVelocityFromGrid(gridPos);
-                                        gridPos = solverData().grid.getGridCoordinate(ppos0 + Real(0.5) * substep * pvel);
-                                        pvel    = pvel = getVelocityFromGrid(gridPos);
+                                        auto ppos = trace_rk2(particleData().positions[p], substep);
+                                        for(auto& obj : m_BoundaryObjects) {
+                                            obj->constrainToBoundary(ppos);
+                                        }
 
-                                        particleData().positions[p] = ppos0 + pvel * substep;
+                                        particleData().positions[p] = ppos;
                                     });
     }
-
-    ParallelFuncs::parallel_for(particleData().getNParticles(),
-                                [&](UInt p)
-                                {
-                                    for(auto& obj : m_BoundaryObjects) {
-                                        obj->constrainToBoundary(particleData().positions[p]);
-                                    }
-                                });
-#endif
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -437,6 +407,49 @@ void PIC3D_Solver::correctPositions(Real timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void PIC3D_Solver::advectGridVelocity(Real timestep)
+{
+    gridData().tmp_u.assign(0);
+    gridData().tmp_v.assign(0);
+    gridData().tmp_w.assign(0);
+
+    ParallelFuncs::parallel_for(solverData().grid.getNNodes(),
+                                [&](UInt i, UInt j, UInt k)
+                                {
+                                    Vec3r gu = Vec3r(i, j + 0.5, k + 0.5);
+                                    Vec3r gv = Vec3r(i + 0.5, j, k + 0.5);
+                                    Vec3r gw = Vec3r(i + 0.5, j + 0.5, k);
+                                    Vec3r pu = gu * solverData().grid.getCellSize() + solverData().grid.getBMin();
+                                    Vec3r pv = gv * solverData().grid.getCellSize() + solverData().grid.getBMin();
+                                    Vec3r pw = gw * solverData().grid.getCellSize() + solverData().grid.getBMin();
+
+                                    bool valid_index_u = gridData().u.isValidIndex(i, j, k);
+                                    bool valid_index_v = gridData().v.isValidIndex(i, j, k);
+                                    bool valid_index_w = gridData().w.isValidIndex(i, j, k);
+
+                                    if(valid_index_u) {
+                                        pu                        = trace_rk2(pu, -timestep);
+                                        gridData().tmp_u(i, j, k) = getVelocityFromGrid(gu)[0];
+                                    }
+
+                                    if(valid_index_v) {
+                                        pv                        = trace_rk2(pu, -timestep);
+                                        gridData().tmp_v(i, j, k) = getVelocityFromGrid(gv)[1];
+                                    }
+
+                                    if(valid_index_w) {
+                                        pw                        = trace_rk2(pw, -timestep);
+                                        gridData().tmp_w(i, j, k) = getVelocityFromGrid(gw)[2];
+                                    }
+                                });
+
+    ////////////////////////////////////////////////////////////////////////////////
+    gridData().u.copyDataFrom(gridData().tmp_u);
+    gridData().v.copyDataFrom(gridData().tmp_v);
+    gridData().w.copyDataFrom(gridData().tmp_w);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PIC3D_Solver::computeFluidWeights()
 {
     ParallelFuncs::parallel_for(solverData().grid.getNNodes(),
@@ -469,101 +482,6 @@ void PIC3D_Solver::computeFluidWeights()
                                                                                                   gridData().boundarySDF(i + 1, j,     k),
                                                                                                   gridData().boundarySDF(i + 1, j + 1, k));
                                                                                                   gridData().w_weights(i, j, k) = MathHelpers::clamp01(tmp);
-                                    }
-                                });
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void PIC3D_Solver::mapParticle2Grid()
-{
-    const Vec3r span = Vec3r(solverData().grid.getCellSize());
-
-    ParallelFuncs::parallel_for(solverData().grid.getNNodes(),
-                                [&](UInt i, UInt j, UInt k)
-                                {
-                                    const Vec3r pu = Vec3r(i, j + 0.5, k + 0.5) * solverData().grid.getCellSize() + solverData().grid.getBMin();
-                                    const Vec3r pv = Vec3r(i + 0.5, j, k + 0.5) * solverData().grid.getCellSize() + solverData().grid.getBMin();
-                                    const Vec3r pw = Vec3r(i + 0.5, j + 0.5, k) * solverData().grid.getCellSize() + solverData().grid.getBMin();
-
-                                    const Vec3r puMin = pu - span;
-                                    const Vec3r pvMin = pv - span;
-                                    const Vec3r pwMin = pw - span;
-
-                                    const Vec3r puMax = pu + span;
-                                    const Vec3r pvMax = pv + span;
-                                    const Vec3r pwMax = pw + span;
-
-                                    Real sum_weight_u = Real(0);
-                                    Real sum_weight_v = Real(0);
-                                    Real sum_weight_w = Real(0);
-
-                                    Real sum_u = Real(0);
-                                    Real sum_v = Real(0);
-                                    Real sum_w = Real(0);
-
-                                    bool valid_index_u = gridData().u.isValidIndex(i, j, k);
-                                    bool valid_index_v = gridData().v.isValidIndex(i, j, k);
-                                    bool valid_index_w = gridData().w.isValidIndex(i, j, k);
-
-                                    for(Int lk = -1; lk <= 1; ++lk) {
-                                        for(Int lj = -1; lj <= 1; ++lj) {
-                                            for(Int li = -1; li <= 1; ++li) {
-                                                const Vec3i cellIdx = Vec3i(static_cast<Int>(i), static_cast<Int>(j), static_cast<Int>(k)) + Vec3i(li, lj, lk);
-                                                if(!solverData().grid.isValidCell(cellIdx)) {
-                                                    continue;
-                                                }
-
-                                                for(const UInt p : solverData().grid.getParticleIdxInCell(cellIdx)) {
-                                                    const Vec3r& ppos = particleData().positions[p];
-                                                    const Vec3r& pvel = particleData().velocities[p];
-
-                                                    if(valid_index_u && NumberHelpers::isInside(ppos, puMin, puMax)) {
-                                                        const Vec3r gridPos = (ppos - pu) / solverData().grid.getCellSize();
-                                                        const Real weight   = MathHelpers::tril_kernel(gridPos.x, gridPos.y, gridPos.z);
-
-                                                        if(weight > Tiny) {
-                                                            sum_u        += weight * pvel[0];
-                                                            sum_weight_u += weight;
-                                                        }
-                                                    }
-
-                                                    if(valid_index_v && NumberHelpers::isInside(ppos, pvMin, pvMax)) {
-                                                        const Vec3r gridPos = (ppos - pv) / solverData().grid.getCellSize();
-                                                        const Real weight   = MathHelpers::tril_kernel(gridPos.x, gridPos.y, gridPos.z);
-
-                                                        if(weight > Tiny) {
-                                                            sum_v        += weight * pvel[1];
-                                                            sum_weight_v += weight;
-                                                        }
-                                                    }
-
-                                                    if(valid_index_w && NumberHelpers::isInside(ppos, pwMin, pwMax)) {
-                                                        const Vec3r gridPos = (ppos - pw) / solverData().grid.getCellSize();
-                                                        const Real weight   = MathHelpers::tril_kernel(gridPos.x, gridPos.y, gridPos.z);
-
-                                                        if(weight > Tiny) {
-                                                            sum_w        += weight * pvel[2];
-                                                            sum_weight_w += weight;
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }       // end loop over neighbor cells
-
-                                    if(valid_index_u) {
-                                        gridData().u(i, j, k)       = (sum_weight_u > Tiny) ? sum_u / sum_weight_u : Real(0);
-                                        gridData().u_valid(i, j, k) = (sum_weight_u > Tiny) ? 1 : 0;
-                                    }
-
-                                    if(valid_index_v) {
-                                        gridData().v(i, j, k)       = (sum_weight_v > Tiny) ? sum_v / sum_weight_v : Real(0);
-                                        gridData().v_valid(i, j, k) = (sum_weight_v > Tiny) ? 1 : 0;
-                                    }
-
-                                    if(valid_index_w) {
-                                        gridData().w(i, j, k)       = (sum_weight_w > Tiny) ? sum_w / sum_weight_w : Real(0);
-                                        gridData().w_valid(i, j, k) = (sum_weight_w > Tiny) ? 1 : 0;
                                     }
                                 });
 }
@@ -744,6 +662,7 @@ void PIC3D_Solver::pressureProjection(Real timestep)
     static Timer funcTimer;
 
     ////////////////////////////////////////////////////////////////////////////////
+    logger().printRunTime("Compute cell weights: ",    funcTimer, [&]() { computeFluidWeights(); });
     logger().printRunTime("Compute liquid SDF: ",      funcTimer, [&]() { computeFluidSDF(); });
     logger().printRunTime("Compute pressure matrix: ", funcTimer, [&]() { computeMatrix(timestep); });
     logger().printRunTime("Compute RHS: ",             funcTimer, [&]() { computeRhs(); });
@@ -1007,23 +926,6 @@ void PIC3D_Solver::updateVelocity(Real timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//void PIC3D_Solver::velocityToParticles()
-//{
-//    ParallelFuncs::parallel_for(particleData().getNParticles(),
-//                                [&](UInt p)
-//                                {
-//                                    const Vec3r& ppos = particleData().positions[p];
-//                                    const Vec3r& pvel = particleData().velocities[p];
-//
-//                                    const Vec3r gridPos = picData().grid.getGridCoordinate(ppos);
-//                                    const Vec3r oldVel  = getVelocityFromGrid(gridPos);
-//                                    //const Vec3r dVel    = getVelocityChangesFromGrid(gridPos);
-//
-//                                    //particleData().velocities[p] = MathHelpers::lerp(oldVel, pvel + dVel, picParams().PIC_FLIP_ratio);
-//                                });
-//}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //Interpolate velocity from the MAC grid.
 Vec3r PIC3D_Solver::getVelocityFromGrid(const Vec3r& gridPos)
 {
@@ -1032,6 +934,19 @@ Vec3r PIC3D_Solver::getVelocityFromGrid(const Vec3r& gridPos)
     Real vw = ArrayHelpers::interpolateValueLinear(gridPos - Vec3r(0.5, 0.5, 0), gridData().w);
 
     return Vec3r(vu, vv, vw);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+Vec3r PIC3D_Solver::trace_rk2(const Vec3r& ppos, Real timestep)
+{
+    Vec3r input   = ppos;
+    Vec3r gridPos = solverData().grid.getGridCoordinate(ppos);
+    Vec3r pvel    = getVelocityFromGrid(gridPos);
+    gridPos = solverData().grid.getGridCoordinate(input + Real(0.5) * timestep * pvel);
+    pvel    = getVelocityFromGrid(gridPos);
+    input  += timestep * pvel;
+
+    return input;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

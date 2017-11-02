@@ -47,8 +47,8 @@ protected:
     virtual void generateParticles(const nlohmann::json& jParams) override;
     virtual bool advanceScene(UInt frame, Real fraction = Real(0)) override;
     virtual void advanceVelocity(Real timestep) override;
-    virtual void mapParticle2Grid() override;
-    virtual void mapGrid2Particles() override;
+    void         mapParticle2Grid();
+    void         mapGrid2Particles();
 
     ////////////////////////////////////////////////////////////////////////////////
     Mat3x3r getAffineMatrix(const Vec3r& gridPos);

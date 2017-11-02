@@ -59,8 +59,6 @@ protected:
     virtual void saveMemoryState()  override;
     virtual void saveFrameData() override;
     virtual void advanceVelocity(Real timestep);
-    virtual void mapParticle2Grid();
-    virtual void mapGrid2Particles();
 
     Real computeCFLTimestep();
     void moveParticles(Real timeStep);

@@ -38,7 +38,7 @@ public:
 
     ////////////////////////////////////////////////////////////////////////////////
     virtual String getSolverName() override { return String("PIC3D_Solver"); }
-    virtual String getGreetingMessage() override { return String("Fluid Simulation using FLIP-3D Solver"); }
+    virtual String getGreetingMessage() override { return String("Fluid Simulation using PIC-3D Solver"); }
 
     virtual void makeReady() override;
     virtual void advanceFrame() override;
@@ -59,14 +59,12 @@ protected:
     virtual void saveMemoryState() override;
     virtual void saveFrameData() override;
     virtual void advanceVelocity(Real timestep);
-    virtual void mapParticle2Grid();
-    virtual void mapGrid2Particles() {}
-
 
     Real computeCFLTimestep();
     void moveParticles(Real timeStep);
     void correctPositions(Real timestep);
 
+    void advectGridVelocity(Real timestep);
     void computeFluidWeights();
     void extrapolateVelocity();
     void extrapolateVelocity(Array3r& grid, Array3r& temp_grid, Array3c& valid, Array3c& old_valid);
@@ -86,7 +84,7 @@ protected:
     ////////////////////////////////////////////////////////////////////////////////
     // helper functions
     Vec3r getVelocityFromGrid(const Vec3r& ppos);
-
+    Vec3r trace_rk2(const Vec3r& ppos, Real timestep);
     ////////////////////////////////////////////////////////////////////////////////
     auto&       particleData() { return solverData().particleData; }
     const auto& particleData() const { return solverData().particleData; }
