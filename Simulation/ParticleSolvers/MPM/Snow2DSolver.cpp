@@ -198,6 +198,7 @@ bool Snow2DSolver::advanceScene(UInt frame, Real fraction /*= Real(0)*/)
     //logger().printRunTime("Re-computed SDF boundary for entire scene: ", [&]() { gridData().computeBoundarySDF(m_BoundaryObjects); });
     //}
 
+
     ////////////////////////////////////////////////////////////////////////////////
     return true;
 }

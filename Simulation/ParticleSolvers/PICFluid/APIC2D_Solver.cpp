@@ -63,13 +63,13 @@ void APIC2D_Solver::advanceVelocity(Real timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void APIC2D_Solver::mapParticle2Grid()
 {
-    const Vec2r span = Vec2r(picData().grid.getCellSize());
+    const Vec2r span = Vec2r(solverData().grid.getCellSize());
 
-    ParallelFuncs::parallel_for(picData().grid.getNNodes(),
+    ParallelFuncs::parallel_for(solverData().grid.getNNodes(),
                                 [&](UInt i, UInt j)
                                 {
-                                    const Vec2r pu = Vec2r(i, j + 0.5) * picData().grid.getCellSize() + picData().grid.getBMin();
-                                    const Vec2r pv = Vec2r(i + 0.5, j) * picData().grid.getCellSize() + picData().grid.getBMin();
+                                    const Vec2r pu = Vec2r(i, j + 0.5) * solverData().grid.getCellSize() + solverData().grid.getBMin();
+                                    const Vec2r pv = Vec2r(i + 0.5, j) * solverData().grid.getCellSize() + solverData().grid.getBMin();
 
                                     const Vec2r puMin = pu - span;
                                     const Vec2r pvMin = pv - span;
@@ -89,16 +89,16 @@ void APIC2D_Solver::mapParticle2Grid()
                                     for(Int lj = -1; lj <= 1; ++lj) {
                                         for(Int li = -1; li <= 1; ++li) {
                                             const Vec2i cellIdx = Vec2i(static_cast<Int>(i), static_cast<Int>(j)) + Vec2i(li, lj);
-                                            if(!picData().grid.isValidCell(cellIdx)) {
+                                            if(!solverData().grid.isValidCell(cellIdx)) {
                                                 continue;
                                             }
 
-                                            for(const UInt p : picData().grid.getParticleIdxInCell(cellIdx)) {
+                                            for(const UInt p : solverData().grid.getParticleIdxInCell(cellIdx)) {
                                                 const Vec2r& ppos = particleData().positions[p];
                                                 const Vec2r& pvel = particleData().velocities[p];
 
                                                 if(valid_index_u && NumberHelpers::isInside(ppos, puMin, puMax)) {
-                                                    const Vec2r gridPos = (ppos - pu) / picData().grid.getCellSize();
+                                                    const Vec2r gridPos = (ppos - pu) / solverData().grid.getCellSize();
                                                     const Real weight   = MathHelpers::bilinear_kernel(gridPos.x, gridPos.y);
 
                                                     if(weight > Tiny) {
@@ -108,7 +108,7 @@ void APIC2D_Solver::mapParticle2Grid()
                                                 }
 
                                                 if(valid_index_v && NumberHelpers::isInside(ppos, pvMin, pvMax)) {
-                                                    const Vec2r gridPos = (ppos - pv) / picData().grid.getCellSize();
+                                                    const Vec2r gridPos = (ppos - pv) / solverData().grid.getCellSize();
                                                     const Real weight   = MathHelpers::bilinear_kernel(gridPos.x, gridPos.y);
 
                                                     if(weight > Tiny) {
@@ -139,7 +139,7 @@ void APIC2D_Solver::mapGrid2Particles()
                                 [&](UInt p)
                                 {
                                     const auto& ppos   = particleData().positions[p];
-                                    const auto gridPos = picData().grid.getGridCoordinate(ppos);
+                                    const auto gridPos = solverData().grid.getGridCoordinate(ppos);
 
                                     particleData().velocities[p] = getVelocityFromGrid(gridPos);
                                     apicData().C[p]              = getAffineMatrix(gridPos);
@@ -150,8 +150,8 @@ void APIC2D_Solver::mapGrid2Particles()
 Mat2x2r APIC2D_Solver::getAffineMatrix(const Vec2r& gridPos)
 {
     Mat2x2r C;
-    C[0] = ArrayHelpers::interpolateGradientValue(gridPos - Vec2r(0, 0.5), gridData().u, picData().grid.getCellSize());
-    C[1] = ArrayHelpers::interpolateGradientValue(gridPos - Vec2r(0.5, 0), gridData().v, picData().grid.getCellSize());
+    C[0] = ArrayHelpers::interpolateGradientValue(gridPos - Vec2r(0, 0.5), gridData().u, solverData().grid.getCellSize());
+    C[1] = ArrayHelpers::interpolateGradientValue(gridPos - Vec2r(0.5, 0), gridData().v, solverData().grid.getCellSize());
 
     return C;
 }

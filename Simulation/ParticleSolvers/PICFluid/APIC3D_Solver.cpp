@@ -69,14 +69,14 @@ void APIC3D_Solver::advanceVelocity(Real timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void APIC3D_Solver::mapParticle2Grid()
 {
-    const Vec3r span = Vec3r(picData().grid.getCellSize() * static_cast<Real>(1));
+    const Vec3r span = Vec3r(solverData().grid.getCellSize() * static_cast<Real>(1));
 
-    ParallelFuncs::parallel_for(picData().grid.getNNodes(),
+    ParallelFuncs::parallel_for(solverData().grid.getNNodes(),
                                 [&](UInt i, UInt j, UInt k)
                                 {
-                                    const Vec3r pu = Vec3r(i, j + 0.5, k + 0.5) * picData().grid.getCellSize() + picData().grid.getBMin();
-                                    const Vec3r pv = Vec3r(i + 0.5, j, k + 0.5) * picData().grid.getCellSize() + picData().grid.getBMin();
-                                    const Vec3r pw = Vec3r(i + 0.5, j + 0.5, k) * picData().grid.getCellSize() + picData().grid.getBMin();
+                                    const Vec3r pu = Vec3r(i, j + 0.5, k + 0.5) * solverData().grid.getCellSize() + solverData().grid.getBMin();
+                                    const Vec3r pv = Vec3r(i + 0.5, j, k + 0.5) * solverData().grid.getCellSize() + solverData().grid.getBMin();
+                                    const Vec3r pw = Vec3r(i + 0.5, j + 0.5, k) * solverData().grid.getCellSize() + solverData().grid.getBMin();
 
                                     const Vec3r puMin = pu - span;
                                     const Vec3r pvMin = pv - span;
@@ -102,16 +102,16 @@ void APIC3D_Solver::mapParticle2Grid()
                                         for(Int lj = -1; lj <= 1; ++lj) {
                                             for(Int li = -1; li <= 1; ++li) {
                                                 const Vec3i cellIdx = Vec3i(static_cast<Int>(i), static_cast<Int>(j), static_cast<Int>(k)) + Vec3i(li, lj, lk);
-                                                if(!picData().grid.isValidCell(cellIdx)) {
+                                                if(!solverData().grid.isValidCell(cellIdx)) {
                                                     continue;
                                                 }
 
-                                                for(const UInt p : picData().grid.getParticleIdxInCell(cellIdx)) {
+                                                for(const UInt p : solverData().grid.getParticleIdxInCell(cellIdx)) {
                                                     const Vec3r& ppos = particleData().positions[p];
                                                     const Vec3r& pvel = particleData().velocities[p];
 
                                                     if(valid_index_u && NumberHelpers::isInside(ppos, puMin, puMax)) {
-                                                        const Vec3r gridPos = (ppos - pu) / picData().grid.getCellSize();
+                                                        const Vec3r gridPos = (ppos - pu) / solverData().grid.getCellSize();
                                                         const Real weight   = MathHelpers::tril_kernel(gridPos.x, gridPos.y, gridPos.z);
 
                                                         if(weight > Tiny) {
@@ -121,7 +121,7 @@ void APIC3D_Solver::mapParticle2Grid()
                                                     }
 
                                                     if(valid_index_v && NumberHelpers::isInside(ppos, pvMin, pvMax)) {
-                                                        const Vec3r gridPos = (ppos - pv) / picData().grid.getCellSize();
+                                                        const Vec3r gridPos = (ppos - pv) / solverData().grid.getCellSize();
                                                         const Real weight   = MathHelpers::tril_kernel(gridPos.x, gridPos.y, gridPos.z);
 
                                                         if(weight > Tiny) {
@@ -131,7 +131,7 @@ void APIC3D_Solver::mapParticle2Grid()
                                                     }
 
                                                     if(valid_index_w && NumberHelpers::isInside(ppos, pwMin, pwMax)) {
-                                                        const Vec3r gridPos = (ppos - pw) / picData().grid.getCellSize();
+                                                        const Vec3r gridPos = (ppos - pw) / solverData().grid.getCellSize();
                                                         const Real weight   = MathHelpers::tril_kernel(gridPos.x, gridPos.y, gridPos.z);
 
                                                         if(weight > Tiny) {
@@ -168,7 +168,7 @@ void APIC3D_Solver::mapGrid2Particles()
                                 [&](UInt p)
                                 {
                                     const auto& ppos   = particleData().positions[p];
-                                    const auto gridPos = picData().grid.getGridCoordinate(ppos);
+                                    const auto gridPos = solverData().grid.getGridCoordinate(ppos);
 
                                     particleData().velocities[p] = getVelocityFromGrid(gridPos);
                                     apicData().C[p]              = getAffineMatrix(gridPos);
@@ -179,9 +179,9 @@ void APIC3D_Solver::mapGrid2Particles()
 Mat3x3r APIC3D_Solver::getAffineMatrix(const Vec3r& gridPos)
 {
     Mat3x3r C;
-    C[0] = ArrayHelpers::interpolateGradientValue(gridPos - Vec3r(0, 0.5, 0.5), gridData().u, picData().grid.getCellSize());
-    C[1] = ArrayHelpers::interpolateGradientValue(gridPos - Vec3r(0.5, 0, 0.5), gridData().v, picData().grid.getCellSize());
-    C[2] = ArrayHelpers::interpolateGradientValue(gridPos - Vec3r(0.5, 0.5, 0), gridData().w, picData().grid.getCellSize());
+    C[0] = ArrayHelpers::interpolateGradientValue(gridPos - Vec3r(0, 0.5, 0.5), gridData().u, solverData().grid.getCellSize());
+    C[1] = ArrayHelpers::interpolateGradientValue(gridPos - Vec3r(0.5, 0, 0.5), gridData().v, solverData().grid.getCellSize());
+    C[2] = ArrayHelpers::interpolateGradientValue(gridPos - Vec3r(0.5, 0.5, 0), gridData().w, solverData().grid.getCellSize());
 
     return C;
 }

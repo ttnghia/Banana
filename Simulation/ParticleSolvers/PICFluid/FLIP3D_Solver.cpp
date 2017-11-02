@@ -35,7 +35,7 @@ namespace ParticleSolvers
 void FLIP3D_Solver::makeReady()
 {
     PIC3D_Solver::makeReady();
-    flipData().resize(picData().grid.getNCells());
+    flipData().resize(solverData().grid.getNCells());
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -56,7 +56,7 @@ void FLIP3D_Solver::advanceVelocity(Real timestep)
     logger().printRunTime("Interpolate velocity from particles to grid: ", funcTimer, [&]() { mapParticle2Grid(); });
     logger().printRunTime("Extrapolate grid velocity: : ",                 funcTimer, [&]() { extrapolateVelocity(); });
     logger().printRunTime("Constrain grid velocity: ",                     funcTimer, [&]() { constrainGridVelocity(); });
-    logger().printRunTime("Backup grid velocities: ",                      funcTimer, [&]() { flipData().backupGridVelocity(picData()); });
+    logger().printRunTime("Backup grid velocities: ",                      funcTimer, [&]() { flipData().backupGridVelocity(solverData()); });
     logger().printRunTime("Add gravity: ",                                 funcTimer, [&]() { addGravity(timestep); });
     logger().printRunTime("====> Pressure projection total: ",             funcTimer, [&]() { pressureProjection(timestep); });
     logger().printRunTime("Extrapolate grid velocity: : ",                 funcTimer, [&]() { extrapolateVelocity(); });
@@ -85,7 +85,7 @@ void FLIP3D_Solver::mapGrid2Particles()
                                     const Vec3r& ppos = particleData().positions[p];
                                     const Vec3r& pvel = particleData().velocities[p];
 
-                                    const Vec3r gridPos = picData().grid.getGridCoordinate(ppos);
+                                    const Vec3r gridPos = solverData().grid.getGridCoordinate(ppos);
                                     const Vec3r oldVel  = getVelocityFromGrid(gridPos);
                                     const Vec3r dVel    = getVelocityChangesFromGrid(gridPos);
 

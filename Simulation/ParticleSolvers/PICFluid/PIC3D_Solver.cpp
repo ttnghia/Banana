@@ -35,12 +35,12 @@ void PIC3D_Solver::makeReady()
     logger().printRunTime("Allocate solver memory: ",
                           [&]()
                           {
-                              picData().makeReady(picParams());
+                              solverData().makeReady(solverParams());
 
                               ////////////////////////////////////////////////////////////////////////////////
                               for(auto& obj : m_BoundaryObjects) {
-                                  obj->margin() = picParams().particleRadius;
-                                  obj->generateSDF(picParams().domainBMin, picParams().domainBMax, picParams().cellSize);
+                                  obj->margin() = solverParams().particleRadius;
+                                  obj->generateSDF(solverParams().domainBMin, solverParams().domainBMax, solverParams().cellSize);
                               }
 
                               gridData().computeBoundarySDF(m_BoundaryObjects);
@@ -73,10 +73,10 @@ void PIC3D_Solver::advanceFrame()
                                       substep = remainingTime * Real(0.5);
                                   }
                                   ////////////////////////////////////////////////////////////////////////////////
-                                  logger().printRunTime("Find neighbors: ",               funcTimer, [&]() { picData().grid.collectIndexToCells(particleData().positions); });
+                                  logger().printRunTime("Find neighbors: ",               funcTimer, [&]() { solverData().grid.collectIndexToCells(particleData().positions); });
                                   logger().printRunTime("====> Advance velocity total: ", funcTimer, [&]() { advanceVelocity(substep); });
                                   logger().printRunTime("Move particles: ",               funcTimer, [&]() { moveParticles(substep); });
-                                  if(picParams().bCorrectPosition) {
+                                  if(solverParams().bCorrectPosition) {
                                       logger().printRunTime("Correct particle positions: ",               funcTimer, [&]() { correctPositions(substep); });
                                   }
                                   ////////////////////////////////////////////////////////////////////////////////
@@ -123,36 +123,36 @@ void PIC3D_Solver::loadSimParams(const nlohmann::json& jParams)
     __BNN_ASSERT(m_BoundaryObjects.size() > 0);
     SharedPtr<GeometryObjects::BoxObject<3, Real> > box = dynamic_pointer_cast<GeometryObjects::BoxObject<3, Real> >(m_BoundaryObjects[0]->getGeometry());
     __BNN_ASSERT(box != nullptr);
-    picParams().movingBMin = box->boxMin();
-    picParams().movingBMax = box->boxMax();
+    solverParams().movingBMin = box->boxMin();
+    solverParams().movingBMax = box->boxMax();
 
 
-    JSONHelpers::readValue(jParams, picParams().minTimestep,         "MinTimestep");
-    JSONHelpers::readValue(jParams, picParams().maxTimestep,         "MaxTimestep");
-    JSONHelpers::readValue(jParams, picParams().CFLFactor,           "CFLFactor");
-    JSONHelpers::readValue(jParams, picParams().particleRadius,      "ParticleRadius");
-    JSONHelpers::readValue(jParams, picParams().boundaryRestitution, "BoundaryRestitution");
-    JSONHelpers::readValue(jParams, picParams().CGRelativeTolerance, "CGRelativeTolerance");
-    JSONHelpers::readValue(jParams, picParams().maxCGIteration,      "MaxCGIteration");
+    JSONHelpers::readValue(jParams, solverParams().minTimestep,         "MinTimestep");
+    JSONHelpers::readValue(jParams, solverParams().maxTimestep,         "MaxTimestep");
+    JSONHelpers::readValue(jParams, solverParams().CFLFactor,           "CFLFactor");
+    JSONHelpers::readValue(jParams, solverParams().particleRadius,      "ParticleRadius");
+    JSONHelpers::readValue(jParams, solverParams().boundaryRestitution, "BoundaryRestitution");
+    JSONHelpers::readValue(jParams, solverParams().CGRelativeTolerance, "CGRelativeTolerance");
+    JSONHelpers::readValue(jParams, solverParams().maxCGIteration,      "MaxCGIteration");
 
-    JSONHelpers::readBool(jParams, picParams().bCorrectPosition, "CorrectPosition");
-    JSONHelpers::readValue(jParams, picParams().repulsiveForceStiffness, "RepulsiveForceStiffness");
+    JSONHelpers::readBool(jParams, solverParams().bCorrectPosition, "CorrectPosition");
+    JSONHelpers::readValue(jParams, solverParams().repulsiveForceStiffness, "RepulsiveForceStiffness");
 
     ////////////////////////////////////////////////////////////////////////////////
-    picParams().makeReady();
-    picParams().printParams(m_Logger);
+    solverParams().makeReady();
+    solverParams().printParams(m_Logger);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PIC3D_Solver::generateParticles(const nlohmann::json& jParams)
 {
     ParticleSolver3D::generateParticles(jParams);
-    m_NSearch = std::make_unique<NeighborSearch::NeighborSearch3D>(picParams().cellSize);
+    m_NSearch = std::make_unique<NeighborSearch::NeighborSearch3D>(solverParams().cellSize);
     if(!loadMemoryState()) {
         Vec_Vec3r tmpPositions;
         Vec_Vec3r tmpVelocities;
         for(auto& generator : m_ParticleGenerators) {
-            generator->makeReady(m_BoundaryObjects, picParams().particleRadius);
+            generator->makeReady(m_BoundaryObjects, solverParams().particleRadius);
             ////////////////////////////////////////////////////////////////////////////////
             tmpPositions.resize(0);
             tmpVelocities.resize(0);
@@ -197,7 +197,7 @@ bool PIC3D_Solver::advanceScene(UInt frame, Real fraction /*= Real(0)*/)
     bool bSDFRegenerated = false;
     for(auto& bdObj : m_BoundaryObjects) {
         if(bdObj->isDynamic()) {
-            bdObj->generateSDF(picParams().domainBMin, picParams().domainBMax, picParams().cellSize);
+            bdObj->generateSDF(solverParams().domainBMin, solverParams().domainBMax, solverParams().cellSize);
             logger().printLog(String("Re-computed SDF for dynamic boundary object: ") + bdObj->nameID(), spdlog::level::debug);
             bSDFRegenerated = true;
         }
@@ -251,7 +251,7 @@ bool PIC3D_Solver::loadMemoryState()
 
     Real particleRadius;
     __BNN_ASSERT(m_MemoryStateIO->getFixedAttribute("particle_radius", particleRadius));
-    __BNN_ASSERT_APPROX_NUMBERS(picParams().particleRadius, particleRadius, MEpsilon);
+    __BNN_ASSERT_APPROX_NUMBERS(solverParams().particleRadius, particleRadius, MEpsilon);
 
     __BNN_ASSERT(m_MemoryStateIO->getParticleAttribute("position", particleData().positions));
     __BNN_ASSERT(m_MemoryStateIO->getParticleAttribute("velocity", particleData().velocities));
@@ -280,7 +280,7 @@ void PIC3D_Solver::saveMemoryState()
     frameCount = 0;
     m_MemoryStateIO->clearData();
     m_MemoryStateIO->setNParticles(particleData().getNParticles());
-    m_MemoryStateIO->setFixedAttribute("particle_radius", picParams().particleRadius);
+    m_MemoryStateIO->setFixedAttribute("particle_radius", solverParams().particleRadius);
     m_MemoryStateIO->setParticleAttribute("position", particleData().positions);
     m_MemoryStateIO->setParticleAttribute("velocity", particleData().velocities);
     m_MemoryStateIO->flushAsync(globalParams().finishedFrame);
@@ -296,9 +296,9 @@ void PIC3D_Solver::saveFrameData()
     ParticleSolver3D::saveFrameData();
     m_ParticleDataIO->clearData();
     m_ParticleDataIO->setNParticles(particleData().getNParticles());
-    m_ParticleDataIO->setFixedAttribute("particle_radius", static_cast<float>(picParams().particleRadius));
+    m_ParticleDataIO->setFixedAttribute("particle_radius", static_cast<float>(solverParams().particleRadius));
     if(globalParams().isSavingData("anisotropic_kernel")) {
-        AnisotropicKernelGenerator aniKernelGenerator(particleData().getNParticles(), particleData().positions.data(), picParams().particleRadius);
+        AnisotropicKernelGenerator aniKernelGenerator(particleData().getNParticles(), particleData().positions.data(), solverParams().particleRadius);
         aniKernelGenerator.generateAniKernels();
         m_ParticleDataIO->setParticleAttribute("position",           aniKernelGenerator.kernelCenters());
         m_ParticleDataIO->setParticleAttribute("anisotropic_kernel", aniKernelGenerator.kernelMatrices());
@@ -318,8 +318,8 @@ Real PIC3D_Solver::computeCFLTimestep()
     Real maxVel = MathHelpers::max(ParallelSTL::maxAbs(gridData().u.data()),
                                    ParallelSTL::maxAbs(gridData().v.data()),
                                    ParallelSTL::maxAbs(gridData().w.data()));
-    Real CFLTimeStep = maxVel > Tiny ? (picData().grid.getCellSize() / maxVel * picParams().CFLFactor) : Huge;
-    return MathHelpers::clamp(CFLTimeStep, picParams().minTimestep, picParams().maxTimestep);
+    Real CFLTimeStep = maxVel > Tiny ? (solverData().grid.getCellSize() / maxVel * solverParams().CFLFactor) : Huge;
+    return MathHelpers::clamp(CFLTimeStep, solverParams().minTimestep, solverParams().maxTimestep);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -363,9 +363,9 @@ void PIC3D_Solver::moveParticles(Real timestep)
                                     [&](UInt p)
                                     {
                                         auto ppos0    = particleData().positions[p];
-                                        Vec3r gridPos = picData().grid.getGridCoordinate(ppos0);
+                                        Vec3r gridPos = solverData().grid.getGridCoordinate(ppos0);
                                         Vec3r pvel    = getVelocityFromGrid(gridPos);
-                                        gridPos = picData().grid.getGridCoordinate(ppos0 + Real(0.5) * substep * pvel);
+                                        gridPos = solverData().grid.getGridCoordinate(ppos0 + Real(0.5) * substep * pvel);
                                         pvel    = pvel = getVelocityFromGrid(gridPos);
 
                                         particleData().positions[p] = ppos0 + pvel * substep;
@@ -385,7 +385,7 @@ void PIC3D_Solver::moveParticles(Real timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PIC3D_Solver::correctPositions(Real timestep)
 {
-    const auto radius     = Real(2.0) * picParams().particleRadius;// / Real(sqrt(solverDimension()));
+    const auto radius     = Real(2.0) * solverParams().particleRadius;// / Real(sqrt(solverDimension()));
     const auto threshold  = Real(0.05) * radius;
     const auto threshold2 = threshold * threshold;
 
@@ -393,18 +393,18 @@ void PIC3D_Solver::correctPositions(Real timestep)
                                 [&](UInt p)
                                 {
                                     const auto& ppos     = particleData().positions[p];
-                                    const Vec3i pCellIdx = picData().grid.getCellIdx<Int>(ppos);
+                                    const Vec3i pCellIdx = solverData().grid.getCellIdx<Int>(ppos);
                                     Vec3r spring(0);
 
                                     for(Int k = -1; k <= 1; ++k) {
                                         for(Int j = -1; j <= 1; ++j) {
                                             for(Int i = -1; i <= 1; ++i) {
                                                 const Vec3i cellIdx = pCellIdx + Vec3i(i, j, k);
-                                                if(!picData().grid.isValidCell(cellIdx)) {
+                                                if(!solverData().grid.isValidCell(cellIdx)) {
                                                     continue;
                                                 }
 
-                                                const Vec_UInt& neighbors = picData().grid.getParticleIdxInCell(cellIdx);
+                                                const Vec_UInt& neighbors = solverData().grid.getParticleIdxInCell(cellIdx);
                                                 for(UInt q : neighbors) {
                                                     if(q == p) {
                                                         continue;
@@ -426,7 +426,7 @@ void PIC3D_Solver::correctPositions(Real timestep)
                                         }
                                     }
 
-                                    auto newPos = ppos + spring * radius * picParams().repulsiveForceStiffness * timestep;
+                                    auto newPos = ppos + spring * radius * solverParams().repulsiveForceStiffness * timestep;
                                     for(auto& obj : m_BoundaryObjects) {
                                         obj->constrainToBoundary(newPos);
                                     }
@@ -439,7 +439,7 @@ void PIC3D_Solver::correctPositions(Real timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PIC3D_Solver::computeFluidWeights()
 {
-    ParallelFuncs::parallel_for(picData().grid.getNNodes(),
+    ParallelFuncs::parallel_for(solverData().grid.getNNodes(),
                                 [&](UInt i, UInt j, UInt k)
                                 {
                                     bool valid_index_u = gridData().u_weights.isValidIndex(i, j, k);
@@ -451,6 +451,7 @@ void PIC3D_Solver::computeFluidWeights()
                                                                                                   gridData().boundarySDF(i, j + 1, k),
                                                                                                   gridData().boundarySDF(i, j,     k + 1),
                                                                                                   gridData().boundarySDF(i, j + 1, k + 1));
+
                                                                                                   gridData().u_weights(i, j, k) = MathHelpers::clamp01(tmp);
                                     }
 
@@ -475,14 +476,14 @@ void PIC3D_Solver::computeFluidWeights()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PIC3D_Solver::mapParticle2Grid()
 {
-    const Vec3r span = Vec3r(picData().grid.getCellSize());
+    const Vec3r span = Vec3r(solverData().grid.getCellSize());
 
-    ParallelFuncs::parallel_for(picData().grid.getNNodes(),
+    ParallelFuncs::parallel_for(solverData().grid.getNNodes(),
                                 [&](UInt i, UInt j, UInt k)
                                 {
-                                    const Vec3r pu = Vec3r(i, j + 0.5, k + 0.5) * picData().grid.getCellSize() + picData().grid.getBMin();
-                                    const Vec3r pv = Vec3r(i + 0.5, j, k + 0.5) * picData().grid.getCellSize() + picData().grid.getBMin();
-                                    const Vec3r pw = Vec3r(i + 0.5, j + 0.5, k) * picData().grid.getCellSize() + picData().grid.getBMin();
+                                    const Vec3r pu = Vec3r(i, j + 0.5, k + 0.5) * solverData().grid.getCellSize() + solverData().grid.getBMin();
+                                    const Vec3r pv = Vec3r(i + 0.5, j, k + 0.5) * solverData().grid.getCellSize() + solverData().grid.getBMin();
+                                    const Vec3r pw = Vec3r(i + 0.5, j + 0.5, k) * solverData().grid.getCellSize() + solverData().grid.getBMin();
 
                                     const Vec3r puMin = pu - span;
                                     const Vec3r pvMin = pv - span;
@@ -508,16 +509,16 @@ void PIC3D_Solver::mapParticle2Grid()
                                         for(Int lj = -1; lj <= 1; ++lj) {
                                             for(Int li = -1; li <= 1; ++li) {
                                                 const Vec3i cellIdx = Vec3i(static_cast<Int>(i), static_cast<Int>(j), static_cast<Int>(k)) + Vec3i(li, lj, lk);
-                                                if(!picData().grid.isValidCell(cellIdx)) {
+                                                if(!solverData().grid.isValidCell(cellIdx)) {
                                                     continue;
                                                 }
 
-                                                for(const UInt p : picData().grid.getParticleIdxInCell(cellIdx)) {
+                                                for(const UInt p : solverData().grid.getParticleIdxInCell(cellIdx)) {
                                                     const Vec3r& ppos = particleData().positions[p];
                                                     const Vec3r& pvel = particleData().velocities[p];
 
                                                     if(valid_index_u && NumberHelpers::isInside(ppos, puMin, puMax)) {
-                                                        const Vec3r gridPos = (ppos - pu) / picData().grid.getCellSize();
+                                                        const Vec3r gridPos = (ppos - pu) / solverData().grid.getCellSize();
                                                         const Real weight   = MathHelpers::tril_kernel(gridPos.x, gridPos.y, gridPos.z);
 
                                                         if(weight > Tiny) {
@@ -527,7 +528,7 @@ void PIC3D_Solver::mapParticle2Grid()
                                                     }
 
                                                     if(valid_index_v && NumberHelpers::isInside(ppos, pvMin, pvMax)) {
-                                                        const Vec3r gridPos = (ppos - pv) / picData().grid.getCellSize();
+                                                        const Vec3r gridPos = (ppos - pv) / solverData().grid.getCellSize();
                                                         const Real weight   = MathHelpers::tril_kernel(gridPos.x, gridPos.y, gridPos.z);
 
                                                         if(weight > Tiny) {
@@ -537,7 +538,7 @@ void PIC3D_Solver::mapParticle2Grid()
                                                     }
 
                                                     if(valid_index_w && NumberHelpers::isInside(ppos, pwMin, pwMax)) {
-                                                        const Vec3r gridPos = (ppos - pw) / picData().grid.getCellSize();
+                                                        const Vec3r gridPos = (ppos - pw) / solverData().grid.getCellSize();
                                                         const Real weight   = MathHelpers::tril_kernel(gridPos.x, gridPos.y, gridPos.z);
 
                                                         if(weight > Tiny) {
@@ -585,14 +586,14 @@ void PIC3D_Solver::extrapolateVelocity(Array3r& grid, Array3r& temp_grid, Array3
     for(Int layers = 0; layers < 1; ++layers) {
         bool stop = true;
         old_valid.copyDataFrom(valid);
-        ParallelFuncs::parallel_for<UInt>(1, picData().grid.getNCells()[0] - 1,
-                                          1, picData().grid.getNCells()[1] - 1,
-                                          1, picData().grid.getNCells()[2] - 1,
+        ParallelFuncs::parallel_for<UInt>(1, solverData().grid.getNCells()[0] - 1,
+                                          1, solverData().grid.getNCells()[1] - 1,
+                                          1, solverData().grid.getNCells()[2] - 1,
                                           [&](UInt ii, UInt jj, UInt kk)
                                           {
-                                              UInt i = forward ? ii : picData().grid.getNCells()[0] - ii - 1;
-                                              UInt j = forward ? jj : picData().grid.getNCells()[0] - jj - 1;
-                                              UInt k = forward ? kk : picData().grid.getNCells()[0] - kk - 1;
+                                              UInt i = forward ? ii : solverData().grid.getNCells()[0] - ii - 1;
+                                              UInt j = forward ? jj : solverData().grid.getNCells()[0] - jj - 1;
+                                              UInt k = forward ? kk : solverData().grid.getNCells()[0] - kk - 1;
 
                                               if(old_valid(i, j, k)) {
                                                   return;
@@ -753,25 +754,25 @@ void PIC3D_Solver::pressureProjection(Real timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PIC3D_Solver::computeFluidSDF()
 {
-    gridData().fluidSDF.assign(picData().grid.getCellSize() * Real(3.0));
+    gridData().fluidSDF.assign(solverData().grid.getCellSize() * Real(3.0));
 
     ParallelFuncs::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
                                 {
                                     const Vec3r ppos     = particleData().positions[p];
-                                    const Vec3i cellIdx  = picData().grid.getCellIdx<Int>(ppos);
+                                    const Vec3i cellIdx  = solverData().grid.getCellIdx<Int>(ppos);
                                     const Vec3i cellDown = Vec3i(MathHelpers::max(0, cellIdx[0] - 1),
                                                                  MathHelpers::max(0, cellIdx[1] - 1),
                                                                  MathHelpers::max(0, cellIdx[2] - 1));
-                                    const Vec3i cellUp = Vec3i(MathHelpers::min(cellIdx[0] + 1, static_cast<Int>(picData().grid.getNCells()[0])),
-                                                               MathHelpers::min(cellIdx[1] + 1, static_cast<Int>(picData().grid.getNCells()[1])),
-                                                               MathHelpers::min(cellIdx[2] + 1, static_cast<Int>(picData().grid.getNCells()[2])));
+                                    const Vec3i cellUp = Vec3i(MathHelpers::min(cellIdx[0] + 1, static_cast<Int>(solverData().grid.getNCells()[0])),
+                                                               MathHelpers::min(cellIdx[1] + 1, static_cast<Int>(solverData().grid.getNCells()[1])),
+                                                               MathHelpers::min(cellIdx[2] + 1, static_cast<Int>(solverData().grid.getNCells()[2])));
 
                                     for(Int k = cellDown[2]; k <= cellUp[2]; ++k) {
                                         for(Int j = cellDown[1]; j <= cellUp[1]; ++j) {
                                             for(Int i = cellDown[0]; i <= cellUp[0]; ++i) {
-                                                const Vec3r sample = Vec3r(i + 0.5, j + 0.5, k + 0.5) * picData().grid.getCellSize() + picData().grid.getBMin();
-                                                const Real phiVal  = glm::length(sample - ppos) - picParams().sdfRadius;
+                                                const Vec3r sample = Vec3r(i + 0.5, j + 0.5, k + 0.5) * solverData().grid.getCellSize() + solverData().grid.getBMin();
+                                                const Real phiVal  = glm::length(sample - ppos) - solverParams().sdfRadius;
 
                                                 gridData().fluidSDFLock(i, j, k).lock();
                                                 if(phiVal < gridData().fluidSDF(i, j, k)) {
@@ -785,10 +786,10 @@ void PIC3D_Solver::computeFluidSDF()
 
     ////////////////////////////////////////////////////////////////////////////////
     //extend phi slightly into solids (this is a simple, naive approach, but works reasonably well)
-    ParallelFuncs::parallel_for(picData().grid.getNCells(),
+    ParallelFuncs::parallel_for(solverData().grid.getNCells(),
                                 [&](Int i, Int j, Int k)
                                 {
-                                    if(gridData().fluidSDF(i, j, k) < picData().grid.getHalfCellSize()) {
+                                    if(gridData().fluidSDF(i, j, k) < solverData().grid.getHalfCellSize()) {
                                         const Real phiValSolid = Real(0.125) * (gridData().boundarySDF(i,     j,     k) +
                                                                                 gridData().boundarySDF(i + 1, j,     k) +
                                                                                 gridData().boundarySDF(i,     j + 1, k) +
@@ -799,7 +800,7 @@ void PIC3D_Solver::computeFluidSDF()
                                                                                 gridData().boundarySDF(i + 1, j + 1, k + 1));
 
                                         if(phiValSolid < 0) {
-                                            gridData().fluidSDF(i, j, k) = -picData().grid.getHalfCellSize();
+                                            gridData().fluidSDF(i, j, k) = -solverData().grid.getHalfCellSize();
                                         }
                                     }
                                 });
@@ -810,11 +811,11 @@ void PIC3D_Solver::computeFluidSDF()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PIC3D_Solver::computeMatrix(Real timestep)
 {
-    picData().matrix.clear();
+    solverData().matrix.clear();
 
-    ParallelFuncs::parallel_for<UInt>(1, picData().grid.getNCells()[0] - 1,
-                                      1, picData().grid.getNCells()[1] - 1,
-                                      1, picData().grid.getNCells()[2] - 1,
+    ParallelFuncs::parallel_for<UInt>(1, solverData().grid.getNCells()[0] - 1,
+                                      1, solverData().grid.getNCells()[1] - 1,
+                                      1, solverData().grid.getNCells()[2] - 1,
                                       [&](UInt i, UInt j, UInt k)
                                       {
                                           const Real center_phi = gridData().fluidSDF(i, j, k);
@@ -836,13 +837,13 @@ void PIC3D_Solver::computeMatrix(Real timestep)
                                           const Real far_term    = gridData().w_weights(i, j, k + 1) * timestep;
                                           const Real near_term   = gridData().w_weights(i, j, k) * timestep;
 
-                                          const UInt cellIdx = picData().grid.getCellLinearizedIndex(i, j, k);
+                                          const UInt cellIdx = solverData().grid.getCellLinearizedIndex(i, j, k);
                                           Real center_term   = 0;
 
                                           // right neighbor
                                           if(right_phi < 0) {
                                               center_term += right_term;
-                                              picData().matrix.addElement(cellIdx, cellIdx + 1, -right_term);
+                                              solverData().matrix.addElement(cellIdx, cellIdx + 1, -right_term);
                                           } else {
                                               Real theta = MathHelpers::max(Real(0.01), MathHelpers::fraction_inside(center_phi, right_phi));
                                               center_term += right_term / theta;
@@ -851,7 +852,7 @@ void PIC3D_Solver::computeMatrix(Real timestep)
                                           //left neighbor
                                           if(left_phi < 0) {
                                               center_term += left_term;
-                                              picData().matrix.addElement(cellIdx, cellIdx - 1, -left_term);
+                                              solverData().matrix.addElement(cellIdx, cellIdx - 1, -left_term);
                                           } else {
                                               Real theta = MathHelpers::max(Real(0.01), MathHelpers::fraction_inside(center_phi, left_phi));
                                               center_term += left_term / theta;
@@ -860,7 +861,7 @@ void PIC3D_Solver::computeMatrix(Real timestep)
                                           //top neighbor
                                           if(top_phi < 0) {
                                               center_term += top_term;
-                                              picData().matrix.addElement(cellIdx, cellIdx + picData().grid.getNCells()[0], -top_term);
+                                              solverData().matrix.addElement(cellIdx, cellIdx + solverData().grid.getNCells()[0], -top_term);
                                           } else {
                                               Real theta = MathHelpers::max(Real(0.01), MathHelpers::fraction_inside(center_phi, top_phi));
                                               center_term += top_term / theta;
@@ -869,7 +870,7 @@ void PIC3D_Solver::computeMatrix(Real timestep)
                                           //bottom neighbor
                                           if(bottom_phi < 0) {
                                               center_term += bottom_term;
-                                              picData().matrix.addElement(cellIdx, cellIdx - picData().grid.getNCells()[0], -bottom_term);
+                                              solverData().matrix.addElement(cellIdx, cellIdx - solverData().grid.getNCells()[0], -bottom_term);
                                           } else {
                                               Real theta = MathHelpers::max(Real(0.01), MathHelpers::fraction_inside(center_phi, bottom_phi));
                                               center_term += bottom_term / theta;
@@ -878,7 +879,7 @@ void PIC3D_Solver::computeMatrix(Real timestep)
                                           //far neighbor
                                           if(far_phi < 0) {
                                               center_term += far_term;
-                                              picData().matrix.addElement(cellIdx, cellIdx + picData().grid.getNCells()[0] * picData().grid.getNCells()[1], -far_term);
+                                              solverData().matrix.addElement(cellIdx, cellIdx + solverData().grid.getNCells()[0] * solverData().grid.getNCells()[1], -far_term);
                                           } else {
                                               Real theta = MathHelpers::max(Real(0.01), MathHelpers::fraction_inside(center_phi, far_phi));
                                               center_term += far_term / theta;
@@ -887,7 +888,7 @@ void PIC3D_Solver::computeMatrix(Real timestep)
                                           //near neighbor
                                           if(near_phi < 0) {
                                               center_term += near_term;
-                                              picData().matrix.addElement(cellIdx, cellIdx - picData().grid.getNCells()[0] * picData().grid.getNCells()[1], -near_term);
+                                              solverData().matrix.addElement(cellIdx, cellIdx - solverData().grid.getNCells()[0] * solverData().grid.getNCells()[1], -near_term);
                                           } else {
                                               Real theta = MathHelpers::max(Real(0.01), MathHelpers::fraction_inside(center_phi, near_phi));
                                               center_term += near_term / theta;
@@ -895,7 +896,7 @@ void PIC3D_Solver::computeMatrix(Real timestep)
 
                                           ////////////////////////////////////////////////////////////////////////////////
                                           // center
-                                          picData().matrix.addElement(cellIdx, cellIdx, center_term);
+                                          solverData().matrix.addElement(cellIdx, cellIdx, center_term);
                                       });
 
     //solverData().matrix.printDebug();
@@ -904,10 +905,10 @@ void PIC3D_Solver::computeMatrix(Real timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PIC3D_Solver::computeRhs()
 {
-    picData().rhs.assign(picData().rhs.size(), 0);
-    ParallelFuncs::parallel_for<UInt>(1, picData().grid.getNCells()[0] - 1,
-                                      1, picData().grid.getNCells()[1] - 1,
-                                      1, picData().grid.getNCells()[2] - 1,
+    solverData().rhs.assign(solverData().rhs.size(), 0);
+    ParallelFuncs::parallel_for<UInt>(1, solverData().grid.getNCells()[0] - 1,
+                                      1, solverData().grid.getNCells()[1] - 1,
+                                      1, solverData().grid.getNCells()[2] - 1,
                                       [&](UInt i, UInt j, UInt k)
                                       {
                                           if(gridData().fluidSDF(i, j, k) > 0) {
@@ -925,8 +926,8 @@ void PIC3D_Solver::computeRhs()
                                           tmp -= gridData().w_weights(i, j, k + 1) * gridData().w(i, j, k + 1);
                                           tmp += gridData().w_weights(i, j, k) * gridData().w(i, j, k);
 
-                                          const UInt idx = picData().grid.getCellLinearizedIndex(i, j, k);
-                                          picData().rhs[idx] = tmp;
+                                          const UInt idx = solverData().grid.getCellLinearizedIndex(i, j, k);
+                                          solverData().rhs[idx] = tmp;
                                           //printf("%u, %u, %u, %f\n", i, j, k, tmp);
                                       });
 }
@@ -934,9 +935,9 @@ void PIC3D_Solver::computeRhs()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PIC3D_Solver::solveSystem()
 {
-    bool success = picData().pcgSolver.solve_precond(picData().matrix, picData().rhs, picData().pressure);
-    logger().printLog("Conjugate Gradient iterations: " + NumberHelpers::formatWithCommas(picData().pcgSolver.iterations()) +
-                      ". Final residual: " + NumberHelpers::formatToScientific(picData().pcgSolver.residual()));
+    bool success = solverData().pcgSolver.solve_precond(solverData().matrix, solverData().rhs, solverData().pressure);
+    logger().printLog("Conjugate Gradient iterations: " + NumberHelpers::formatWithCommas(solverData().pcgSolver.iterations()) +
+                      ". Final residual: " + NumberHelpers::formatToScientific(solverData().pcgSolver.residual()));
     if(!success) {
         logger().printError("Pressure projection failed to solved!");
         exit(EXIT_FAILURE);
@@ -952,31 +953,31 @@ void PIC3D_Solver::updateVelocity(Real timestep)
     gridData().v_valid.assign(0);
     gridData().w_valid.assign(0);
 
-    ParallelFuncs::parallel_for(picData().grid.getNCells(),
+    ParallelFuncs::parallel_for(solverData().grid.getNCells(),
                                 [&](UInt i, UInt j, UInt k)
                                 {
-                                    const UInt idx = picData().grid.getCellLinearizedIndex(i, j, k);
+                                    const UInt idx = solverData().grid.getCellLinearizedIndex(i, j, k);
 
                                     const Real center_phi = gridData().fluidSDF(i, j, k);
                                     const Real left_phi   = i > 0 ? gridData().fluidSDF(i - 1, j, k) : 0;
                                     const Real bottom_phi = j > 0 ? gridData().fluidSDF(i, j - 1, k) : 0;
                                     const Real near_phi   = k > 0 ? gridData().fluidSDF(i, j, k - 1) : 0;
 
-                                    if(i > 0 && i < picData().grid.getNCells()[0] - 1 && (center_phi < 0 || left_phi < 0) && gridData().u_weights(i, j, k) > 0) {
+                                    if(i > 0 && i < solverData().grid.getNCells()[0] - 1 && (center_phi < 0 || left_phi < 0) && gridData().u_weights(i, j, k) > 0) {
                                         Real theta = MathHelpers::max(Real(0.01), MathHelpers::fraction_inside(left_phi, center_phi));
-                                        gridData().u(i, j, k)      -= timestep * (picData().pressure[idx] - picData().pressure[idx - 1]) / theta;
+                                        gridData().u(i, j, k)      -= timestep * (solverData().pressure[idx] - solverData().pressure[idx - 1]) / theta;
                                         gridData().u_valid(i, j, k) = 1;
                                     }
 
-                                    if(j > 0 && j < picData().grid.getNCells()[1] - 1 && (center_phi < 0 || bottom_phi < 0) && gridData().v_weights(i, j, k) > 0) {
+                                    if(j > 0 && j < solverData().grid.getNCells()[1] - 1 && (center_phi < 0 || bottom_phi < 0) && gridData().v_weights(i, j, k) > 0) {
                                         Real theta = MathHelpers::max(Real(0.01), MathHelpers::fraction_inside(bottom_phi, center_phi));
-                                        gridData().v(i, j, k)      -= timestep * (picData().pressure[idx] - picData().pressure[idx - picData().grid.getNCells()[0]]) / theta;
+                                        gridData().v(i, j, k)      -= timestep * (solverData().pressure[idx] - solverData().pressure[idx - solverData().grid.getNCells()[0]]) / theta;
                                         gridData().v_valid(i, j, k) = 1;
                                     }
 
-                                    if(k > 0 && k < picData().grid.getNCells()[2] - 1 && gridData().w_weights(i, j, k) > 0 && (center_phi < 0 || near_phi < 0)) {
+                                    if(k > 0 && k < solverData().grid.getNCells()[2] - 1 && gridData().w_weights(i, j, k) > 0 && (center_phi < 0 || near_phi < 0)) {
                                         Real theta = MathHelpers::max(Real(0.01), MathHelpers::fraction_inside(near_phi, center_phi));
-                                        gridData().w(i, j, k)      -= timestep * (picData().pressure[idx] - picData().pressure[idx - picData().grid.getNCells()[0] * picData().grid.getNCells()[1]]) / theta;
+                                        gridData().w(i, j, k)      -= timestep * (solverData().pressure[idx] - solverData().pressure[idx - solverData().grid.getNCells()[0] * solverData().grid.getNCells()[1]]) / theta;
                                         gridData().w_valid(i, j, k) = 1;
                                     }
                                 });

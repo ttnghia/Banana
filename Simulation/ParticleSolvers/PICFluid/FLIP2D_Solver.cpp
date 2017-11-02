@@ -78,7 +78,7 @@ void FLIP2D_Solver::mapGrid2Particles()
                                           const Vec2r& ppos = particleData().positions[p];
                                           const Vec2r& pvel = particleData().velocities[p];
 
-                                          const Vec2r gridPos = picData().grid.getGridCoordinate(ppos);
+                                          const Vec2r gridPos = solverData().grid.getGridCoordinate(ppos);
                                           const Vec2r oldVel  = getVelocityFromGrid(gridPos);
                                           const Vec2r dVel    = getVelocityChangesFromGrid(gridPos);
 

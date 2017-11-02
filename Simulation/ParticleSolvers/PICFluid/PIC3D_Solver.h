@@ -45,10 +45,10 @@ public:
     virtual void sortParticles() override;
 
     ////////////////////////////////////////////////////////////////////////////////
-    auto&       picParams() { return m_picParams; }
-    const auto& picParams() const { return m_picParams; }
-    auto&       picData() { return m_picData; }
-    const auto& picData() const { return m_picData; }
+    auto&       solverParams() { return m_picParams; }
+    const auto& solverParams() const { return m_picParams; }
+    auto&       solverData() { return m_picData; }
+    const auto& solverData() const { return m_picData; }
 
 protected:
     virtual void loadSimParams(const nlohmann::json& jParams) override;
@@ -88,10 +88,10 @@ protected:
     Vec3r getVelocityFromGrid(const Vec3r& ppos);
 
     ////////////////////////////////////////////////////////////////////////////////
-    auto&       particleData() { return picData().particleData; }
-    const auto& particleData() const { return picData().particleData; }
-    auto&       gridData() { return picData().gridData; }
-    const auto& gridData() const { return picData().gridData; }
+    auto&       particleData() { return solverData().particleData; }
+    const auto& particleData() const { return solverData().particleData; }
+    auto&       gridData() { return solverData().gridData; }
+    const auto& gridData() const { return solverData().gridData; }
 
     ////////////////////////////////////////////////////////////////////////////////
     PIC3D_Parameters m_picParams;
