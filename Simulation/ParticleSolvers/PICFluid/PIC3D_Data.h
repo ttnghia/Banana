@@ -34,6 +34,11 @@
 #include <ParticleSolvers/ParticleSolverData.h>
 #include <SimulationObjects/BoundaryObject.h>
 
+#include "tmp/blas_wrapper.h"
+#include "tmp/sparse_matrix.h"
+#include "tmp/pcg_solver.h"
+
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
 {
@@ -84,12 +89,14 @@ struct PIC3D_Parameters : public SimulationParameters
 
     virtual void makeReady() override
     {
-        cellSize    = particleRadius * ratioCellSizePRadius;
-        sdfRadius   = cellSize * Real(1.01 * sqrt(2.0) / 2.0);
-        movingBMin  = domainBMin;
-        movingBMax  = domainBMax;
-        domainBMin -= Vec3r(cellSize * expandCells);
-        domainBMax += Vec3r(cellSize * expandCells);
+        cellSize       = particleRadius * ratioCellSizePRadius;
+        cellSize       = 1.0f / 30.0f;
+        particleRadius = cellSize * Real(0.5);
+        sdfRadius      = cellSize * Real(1.01 * sqrt(3.0) / 2.0);
+        movingBMin     = domainBMin;
+        movingBMax     = domainBMax;
+        //domainBMin -= Vec3r(cellSize * expandCells);
+        //domainBMax += Vec3r(cellSize * expandCells);
     }
 
     virtual void printParams(const SharedPtr<Logger>& logger) override
@@ -225,27 +232,47 @@ struct PIC3D_Data
             boundarySDF.resize(gridSize.x + 1, gridSize.y + 1, gridSize.z + 1, 0);
         }
 
+        float sphere_phi(const Vec3f& position, const Vec3f& centre, float radius)
+        {
+            return (glm::length(position - centre) - radius);
+        }
+
+        float solid_phi(const Vec3f& position)
+        {
+            return sphere_phi(position, Vec3f(0.5f, 0.5f, 0.5f), 0.35f);
+        }
+
         void computeBoundarySDF(const Vector<SharedPtr<SimulationObjects::BoundaryObject<3, Real> > >& boundaryObjs)
         {
             ParallelFuncs::parallel_for(boundarySDF.size(),
                                         [&](size_t i, size_t j, size_t k)
                                         {
-                                            Real minSD = Huge;
-                                            for(auto& obj :boundaryObjs) {
-                                                minSD = MathHelpers::min(minSD, obj->getSDF()(i, j, k));
-                                            }
+                                            //Real minSD = Huge;
+                                            //for(auto& obj :boundaryObjs) {
+                                            //    minSD = MathHelpers::min(minSD, obj->getSDF()(i, j, k));
+                                            //}
+                                            //boundarySDF(i, j, k) = minSD +MEpsilon;
 
-                                            boundarySDF(i, j, k) = minSD + MEpsilon;
+                                            Vec3f pos = Vec3f(i, j, k) * (1.0f / 30.0f);
+                                            boundarySDF(i, j, k) = -solid_phi(pos);
                                         });
         }
     } gridData;
 
     ////////////////////////////////////////////////////////////////////////////////
-    Grid3r             grid;
-    PCGSolver<Real>    pcgSolver;
-    SparseMatrix<Real> matrix;
-    Vec_Real           rhs;
-    Vec_Real           pressure;
+    Grid3r               grid;
+    PCGSolver<double>    pcgSolver;
+    SparseMatrix<double> matrix;
+    //Vec_Real             rhs;
+    //Vec_Real             pressure;
+    Vec_Double rhs;
+    Vec_Double pressure;
+
+
+
+
+    Test::PCGSolver<double>    solverOld;
+    Test::SparseMatrix<double> matrixOld;
 
     ////////////////////////////////////////////////////////////////////////////////
     void makeReady(const PIC3D_Parameters& picParams)
@@ -257,7 +284,14 @@ struct PIC3D_Data
         pressure.resize(grid.getNCells().x * grid.getNCells().y * grid.getNCells().z);
 
         pcgSolver.setSolverParameters(picParams.CGRelativeTolerance, picParams.maxCGIteration);
-        pcgSolver.setPreconditioners(PCGSolver<Real>::MICCL0_SYMMETRIC);
+        pcgSolver.setPreconditioners(PCGSolver<double>::MICCL0_SYMMETRIC);
+
+
+
+
+
+        matrixOld.resize(grid.getNCells().x * grid.getNCells().y * grid.getNCells().z);
+        solverOld.set_solver_parameters(1e-18, 1000);
     }
 };
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

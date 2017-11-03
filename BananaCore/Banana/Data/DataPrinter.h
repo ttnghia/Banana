@@ -59,7 +59,7 @@ void printToFile(const String& fileName, const Vector<T>& array, const String& a
     fileContent.push_back(arrayName);
 
     for(size_t p = 0; p < numPrint; ++p) {
-        fileContent(NumberHelpers::formatWithCommas(p, precision) + ": " + NumberHelpers::toString(array[p]));
+        fileContent.push_back(NumberHelpers::formatWithCommas(p, precision) + ": " + NumberHelpers::toString(array[p]));
     }
 
     FileHelpers::writeFile(fileContent, fileName);
