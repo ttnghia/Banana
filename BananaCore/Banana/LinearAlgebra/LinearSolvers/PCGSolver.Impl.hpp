@@ -155,7 +155,13 @@ bool PCGSolver<RealType >::solve_precond(const SparseMatrix<RealType>& matrix, c
     s = z;
     for(UInt iteration = 0; iteration < m_MaxIterations; ++iteration) {
         FixedSparseMatrix<RealType>::multiply(m_FixedSparseMatrix, s, z);
-        RealType alpha = rho / ParallelBLAS::dotProduct<RealType>(s, z);
+        RealType tmp = ParallelBLAS::dotProduct<RealType>(s, z);
+        if(tmp < std::numeric_limits<RealType>::min())
+        {
+            m_OutIterations = iteration + 1;
+            return true;
+        }
+        RealType alpha = rho / tmp;
         ParallelBLAS::addScaled<RealType>(alpha,  s, result);
         ParallelBLAS::addScaled<RealType>(-alpha, z, r);
 
