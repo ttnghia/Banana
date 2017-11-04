@@ -87,6 +87,7 @@ protected:
     __BNN_INLINE Real  getVelocityFromGridW(const Vec3r& ppos);
     __BNN_INLINE Vec3r getVelocityFromGrid(const Vec3r& ppos);
     __BNN_INLINE Vec3r trace_rk2(const Vec3r& ppos, Real timestep);
+    __BNN_INLINE Vec3r trace_rk2_grid(const Vec3r& gridPos, Real timestep);
 
     ////////////////////////////////////////////////////////////////////////////////
     auto&       particleData() { return solverData().particleData; }

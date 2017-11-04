@@ -423,24 +423,18 @@ void PIC3D_Solver::advectGridVelocity(Real timestep)
                                     bool valid_index_w = gridData().w.isValidIndex(i, j, k);
 
                                     if(valid_index_u) {
-                                        Vec3r pu = solverData().grid.getWorldCoordinate(Vec3r(i, j + 0.5, k + 0.5));
-                                        pu = trace_rk2(pu, -timestep);
-
-                                        gridData().tmp_u(i, j, k) = getVelocityFromGridU(solverData().grid.getGridCoordinate(pu));
+                                        auto gu = trace_rk2_grid(Vec3r(i, j + 0.5, k + 0.5), -timestep);
+                                        gridData().tmp_u(i, j, k) = getVelocityFromGridU(gu);
                                     }
 
                                     if(valid_index_v) {
-                                        Vec3r pv = solverData().grid.getWorldCoordinate(Vec3r(i + 0.5, j, k + 0.5));
-                                        pv = trace_rk2(pv, -timestep);
-
-                                        gridData().tmp_v(i, j, k) = getVelocityFromGridV(solverData().grid.getGridCoordinate(pv));
+                                        auto gv = trace_rk2_grid(Vec3r(i + 0.5, j, k + 0.5), -timestep);
+                                        gridData().tmp_v(i, j, k) = getVelocityFromGridV(gv);
                                     }
 
                                     if(valid_index_w) {
-                                        Vec3r pw = solverData().grid.getWorldCoordinate(Vec3r(i + 0.5, j + 0.5, k));
-                                        pw = trace_rk2(pw, -timestep);
-
-                                        gridData().tmp_w(i, j, k) = getVelocityFromGridW(solverData().grid.getGridCoordinate(pw));
+                                        auto gw = trace_rk2_grid(Vec3r(i + 0.5, j + 0.5, k), -timestep);
+                                        gridData().tmp_w(i, j, k) = getVelocityFromGridW(gw);
                                     }
                                 });
 
@@ -899,6 +893,20 @@ __BNN_INLINE Vec3r PIC3D_Solver::trace_rk2(const Vec3r& ppos, Real timestep)
     gridPos = solverData().grid.getGridCoordinate(input + Real(0.5) * timestep * pvel);
     pvel    = getVelocityFromGrid(gridPos);
     input  += timestep * pvel;
+
+    return input;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+__BNN_INLINE Vec3r PIC3D_Solver::trace_rk2_grid(const Vec3r& gridPos, Real timestep)
+{
+    Vec3r input = gridPos;
+
+    // grid velocity = world velocity / cell_size
+    Vec3r gvel       = getVelocityFromGrid(gridPos) * solverData().grid.getInvCellSize();
+    auto  newGridPos = input + Real(0.5) * timestep * gvel;
+    gvel   = getVelocityFromGrid(newGridPos) * solverData().grid.getInvCellSize();
+    input += timestep * gvel;
 
     return input;
 }

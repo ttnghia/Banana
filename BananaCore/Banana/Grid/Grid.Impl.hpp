@@ -33,6 +33,7 @@ void Grid<N, RealType >::setCellSize(RealType cellSize)
 {
     assert(cellSize > 0);
     m_CellSize     = cellSize;
+    m_InvCellSize  = RealType(1.0) / m_CellSize;
     m_HalfCellSize = RealType(0.5) * m_CellSize;
     m_CellSizeSqr  = m_CellSize * m_CellSize;
     m_NTotalCells  = 1;

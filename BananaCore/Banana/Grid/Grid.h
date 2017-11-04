@@ -57,6 +57,7 @@ public:
 
     ////////////////////////////////////////////////////////////////////////////////
     __BNN_INLINE RealType getCellSize() const noexcept { return m_CellSize; }
+    __BNN_INLINE RealType getInvCellSize() const noexcept { return m_InvCellSize; }
     __BNN_INLINE RealType getHalfCellSize() const noexcept { return m_HalfCellSize; }
     __BNN_INLINE RealType getCellSizeSquared() const noexcept { return m_CellSizeSqr; }
 
@@ -245,6 +246,7 @@ protected:
     UInt              m_NTotalCells  = 1;
     UInt              m_NTotalNodes  = 1;
     RealType          m_CellSize     = RealType(1);
+    RealType          m_InvCellSize  = RealType(1);
     RealType          m_HalfCellSize = RealType(0.5);
     RealType          m_CellSizeSqr  = RealType(1);
 
