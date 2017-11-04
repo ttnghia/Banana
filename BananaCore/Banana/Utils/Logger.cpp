@@ -158,17 +158,17 @@ void Logger::printMemoryUsage()
 // static functions
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Logger::initialize(const String& dataPath, bool bPrint2Console /*= true*/, bool s_bWriteLog2File /*= false*/)
+void Logger::initialize(const String& dataPath, bool bPrint2Console /*= true*/, bool bWriteLog2File /*= false*/)
 {
     Logger::setDataPath(dataPath);
-    Logger::initialize(bPrint2Console, s_bWriteLog2File);
+    Logger::initialize(bPrint2Console, bWriteLog2File);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Logger::initialize(bool bPrint2Console /*= true*/, bool s_bWriteLog2File /*= false*/)
+void Logger::initialize(bool bPrint2Console /*= true*/, bool bWriteLog2File /*= false*/)
 {
     s_bPrint2Console = bPrint2Console;
-    s_bWriteLog2File = s_bWriteLog2File;
+    s_bWriteLog2File = bWriteLog2File;
     s_StartupTime    = Clock::now();
 
     if(s_bWriteLog2File) {
@@ -202,7 +202,7 @@ void Logger::initialize(bool bPrint2Console /*= true*/, bool s_bWriteLog2File /*
 
         std::stringstream strBuilder;
         strBuilder.str("");
-        strBuilder << "Log created at: " << ltime.tm_mon << "/" << ltime.tm_mday;
+        strBuilder << "Logger initialized at: " << ltime.tm_mon << "/" << ltime.tm_mday;
         strBuilder << "/" << (ltime.tm_year + 1900) << ", " << ltime.tm_hour << ":" << ltime.tm_min << ":" << ltime.tm_sec << std::endl;
 
         FileHelpers::writeFile(strBuilder.str(), s_TimeLogFile);
@@ -241,7 +241,7 @@ void Logger::shutdown()
 #endif
         std::stringstream strBuilder;
         strBuilder.str("");
-        strBuilder << "Log finished at: " << ltime.tm_mon << "/" << ltime.tm_mday;
+        strBuilder << "Logger shut down at: " << ltime.tm_mon << "/" << ltime.tm_mday;
         strBuilder << "/" << (ltime.tm_year + 1900) << ", " << ltime.tm_hour << ":" << ltime.tm_min << ":" << ltime.tm_sec << std::endl;
         strBuilder << totalRunTime;
 

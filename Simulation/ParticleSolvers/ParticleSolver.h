@@ -58,7 +58,7 @@ class ParticleSolver
 public:
     static constexpr UInt solverDimension() noexcept { return static_cast<UInt>(N); }
 
-    ParticleSolver() { Logger::initialize(); }
+    ParticleSolver() = default;
     virtual ~ParticleSolver() { Logger::shutdown(); }
 
     void loadScene(const String& sceneFile);

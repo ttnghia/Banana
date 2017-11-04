@@ -97,8 +97,8 @@ public:
     void printMemoryUsage();
 
     ////////////////////////////////////////////////////////////////////////////////
-    static void  initialize(bool bPrint2Console = true, bool s_bWriteLog2File = false);
-    static void  initialize(const String& dataPath, bool bPrint2Console = true, bool s_bWriteLog2File = false);
+    static void  initialize(bool bPrint2Console = true, bool bWriteLog2File = false);
+    static void  initialize(const String& dataPath, bool bPrint2Console = true, bool bWriteLog2File = false);
     static void  shutdown();
     static void  setDataPath(const String& dataPath) { s_DataPath = dataPath; }
     static auto& mainLogger() noexcept { assert(s_MainLogger != nullptr); return *s_MainLogger; }
