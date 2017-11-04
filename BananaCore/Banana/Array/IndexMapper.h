@@ -40,24 +40,28 @@ public:
     void      clear() { m_idx_1DToXD.clear(); m_idx_XDTo1D.clear(); m_Size = 0; }
 
     ////////////////////////////////////////////////////////////////////////////////
-    template<class IntType> void      addKey(const Vec2<IntType>& key) { addKey(key[0], key[1]); }
-    template<class IntType> void      addKey(const Vec3<IntType>& key) { addKey(key[0], key[1], key[2]); }
-    template<class IntType> IndexType get1DIdx(const Vec2<IntType>& key) { return get1DIdx(key[0], key[1]); }
-    template<class IntType> IndexType get1DIdx(const Vec3<IntType>& key) { return get1DIdx(key[0], key[1], key[2]); }
+    void                         addUniqueKey(const VecX<N, IndexType>& key);
+    template<class IntType> void addUniqueKey(IntType i, IntType j) { addUniqueKey(makeKey(i, j)); }
+    template<class IntType> void addUniqueKey(IntType i, IntType j, IntType k) { addUniqueKey(makeKey(i, j, k)); }
 
-    template<class IntType> void               addKey(IntType i, IntType j);
-    template<class IntType> void               addKey(IntType i, IntType j, IntType k);
-    template<class IntType> IndexType          get1DIdx(IntType i, IntType j) const;
-    template<class IntType> IndexType          get1DIdx(IntType i, IntType j, IntType k) const;
+    bool                         addKeyIfNotExist(const VecX<N, IndexType>& key);
+    template<class IntType> bool addKeyIfNotExist(IntType i, IntType j) { return addKeyIfNotExist(makeKey(i, j)); }
+    template<class IntType> bool addKeyIfNotExist(IntType i, IntType j, IntType k) { return addKeyIfNotExist(makeKey(i, j, k)); }
+
+    template<class IntType> IndexType          get1DIdx(IntType i, IntType j) const { return get1DIdx(makeKey(i, j)); }
+    template<class IntType> IndexType          get1DIdx(IntType i, IntType j, IntType k) const { return get1DIdx(makeKey(i, j, k)); }
     template<class IntType> VecX<N, IndexType> getXDIdx(IntType idx) const;
 
 private:
-    template<class IntType> VecX<N, IndexType> makeKey(IntType i, IntType j);
-    template<class IntType> VecX<N, IndexType> makeKey(IntType i, IntType j, IntType k);
+    template<class IntType> VecX<N, IndexType> makeKey(IntType i, IntType j) const;
+    template<class IntType> VecX<N, IndexType> makeKey(IntType i, IntType j, IntType k) const;
+
+
+    IndexType get1DIdx(const VecX<N, IndexType>& key) const;
 
     ////////////////////////////////////////////////////////////////////////////////
     std::unordered_map<VecX<N, IndexType>, IndexType, STLHelpers::VecHash<N, IndexType> > m_idx_XDTo1D;
-    std::unordered_map<IndexType, VecX<N, IndexType>, STLHelpers::VecHash<N, IndexType> > m_idx_1DToXD;
+    std::unordered_map<IndexType, VecX<N, IndexType> >                                    m_idx_1DToXD;
     IndexType                                                                             m_Size = 0;
 };
 
@@ -66,47 +70,10 @@ private:
 // Implementation
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class IntType>
 template<Int N, class IndexType>
-void IndexMapper<N, IndexType >::addKey(IntType i, IntType j)
+IndexType IndexMapper<N, IndexType >::get1DIdx(const VecX<N, IndexType>& key) const
 {
-    static_assert(N == 2);
-    auto = makeKey(i, j);
 #ifdef __BANANA_DEBUG__
-    __BNN_ASSERT(m_idx_XDTo1D.find(key) == m_idx_XDTo1D.end());
-#endif
-
-    m_idx_XDTo1D[key]    = m_Size;
-    m_idx_1DToXD[m_Size] = key;
-    ////////////////////////////////////////////////////////////////////////////////
-    ++m_Size;
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class IntType>
-template<Int N, class IndexType>
-void IndexMapper<N, IndexType >::addKey(IntType i, IntType j, IntType k)
-{
-    static_assert(N == 3);
-    auto key = makeKey(i, j, k);
-#ifdef __BANANA_DEBUG__
-    __BNN_ASSERT(m_idx_XDTo1D.find(key) == m_idx_XDTo1D.end());
-#endif
-
-    m_idx_XDTo1D[key]    = m_Size;
-    m_idx_1DToXD[m_Size] = key;
-    ////////////////////////////////////////////////////////////////////////////////
-    ++m_Size;
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class IntType>
-template<Int N, class IndexType>
-IndexType IndexMapper<N, IndexType >::get1DIdx(IntType i, IntType j) const
-{
-    static_assert(N == 2);
-    auto key = makeKey(i, j);
- #ifdef __BANANA_DEBUG__
     __BNN_ASSERT(m_idx_XDTo1D.find(key) != m_idx_XDTo1D.end());
 #endif
 
@@ -114,22 +81,8 @@ IndexType IndexMapper<N, IndexType >::get1DIdx(IntType i, IntType j) const
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class IntType>
 template<Int N, class IndexType>
-IndexType IndexMapper<N, IndexType >::get1DIdx(IntType i, IntType j, IntType k) const
-{
-    static_assert(N == 3);
-    auto key = makeKey(i, j, k);
- #ifdef __BANANA_DEBUG__
-    __BNN_ASSERT(m_idx_XDTo1D.find(key) != m_idx_XDTo1D.end());
-#endif
-
-    return m_idx_XDTo1D[key];
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class IntType>
-template<Int N, class IndexType>
 VecX<N, IndexType> IndexMapper<N, IndexType >::getXDIdx(IntType idx) const
 {
 #ifdef __BANANA_DEBUG__
@@ -140,21 +93,47 @@ VecX<N, IndexType> IndexMapper<N, IndexType >::getXDIdx(IntType idx) const
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class IntType>
 template<Int N, class IndexType>
-VecX<N, IndexType> IndexMapper<N, IndexType >::makeKey(IntType i, IntType j)
+template<class IntType>
+VecX<N, IndexType> IndexMapper<N, IndexType >::makeKey(IntType i, IntType j) const
 {
     static_assert(N == 2);
     return VecX<N, IndexType>(static_cast<IndexType>(i), static_cast<IndexType>(j));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class IntType>
 template<Int N, class IndexType>
-VecX<N, IndexType> IndexMapper<N, IndexType >::makeKey(IntType i, IntType j, IntType k)
+template<class IntType>
+VecX<N, IndexType> IndexMapper<N, IndexType >::makeKey(IntType i, IntType j, IntType k) const
 {
     static_assert(N == 3);
     return VecX<N, IndexType>(static_cast<IndexType>(i), static_cast<IndexType>(j), static_cast<IndexType>(k));
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class IndexType>
+void IndexMapper<N, IndexType >::addUniqueKey(const VecX<N, IndexType>& key)
+{
+#ifdef __BANANA_DEBUG__
+    __BNN_ASSERT(m_idx_XDTo1D.find(key) == m_idx_XDTo1D.end());
+#endif
+
+    m_idx_XDTo1D[key]    = m_Size;
+    m_idx_1DToXD[m_Size] = key;
+    ++m_Size;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class IndexType>
+bool IndexMapper<N, IndexType >::addKeyIfNotExist(const VecX<N, IndexType>& key)
+{
+    if(m_idx_XDTo1D.find(key) == m_idx_XDTo1D.end()) {
+        m_idx_XDTo1D[key]    = m_Size;
+        m_idx_1DToXD[m_Size] = key;
+        ++m_Size;
+        return true;
+    }
+    return false;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
