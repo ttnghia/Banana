@@ -23,7 +23,6 @@
 
 #include <Banana/Setup.h>
 #include <Banana/Array/Array.h>
-#include <Banana/Array/IndexMapper.h>
 #include <Banana/Grid/Grid.h>
 #include <Banana/NeighborSearch/NeighborSearch3D.h>
 #include <Banana/ParallelHelpers/ParallelObjects.h>
@@ -197,6 +196,8 @@ struct PIC3D_Data
         Array3c u_valid, v_valid, w_valid;                   // mark the current faces that are influenced by particles during velocity mapping
         Array3c u_extrapolate, v_extrapolate, w_extrapolate; // mark the current faces that are influenced by particles during velocity mapping
 
+        Array3ui activeCellIdx;
+
         Array3SpinLock fluidSDFLock;
         Array3r        fluidSDF;
         Array3r        boundarySDF;
@@ -208,32 +209,33 @@ struct PIC3D_Data
         Array3c tmp_u_valid, tmp_v_valid, tmp_w_valid;
         ////////////////////////////////////////////////////////////////////////////////
 
-        virtual void resize(const Vec3<UInt>& gridSize)
+        virtual void resize(const Vec3<UInt>& nCells)
         {
-            u.resize(gridSize.x + 1, gridSize.y, gridSize.z, 0);
-            u_weights.resize(gridSize.x + 1, gridSize.y, gridSize.z, 0);
-            u_valid.resize(gridSize.x + 1, gridSize.y, gridSize.z, 0);
-            u_extrapolate.resize(gridSize.x + 1, gridSize.y, gridSize.z, 0);
-            tmp_u.resize(gridSize.x + 1, gridSize.y, gridSize.z, 0);
-            tmp_u_valid.resize(gridSize.x + 1, gridSize.y, gridSize.z, 0);
+            u.resize(nCells.x + 1, nCells.y, nCells.z, 0);
+            u_weights.resize(nCells.x + 1, nCells.y, nCells.z, 0);
+            u_valid.resize(nCells.x + 1, nCells.y, nCells.z, 0);
+            u_extrapolate.resize(nCells.x + 1, nCells.y, nCells.z, 0);
+            tmp_u.resize(nCells.x + 1, nCells.y, nCells.z, 0);
+            tmp_u_valid.resize(nCells.x + 1, nCells.y, nCells.z, 0);
 
-            v.resize(gridSize.x, gridSize.y + 1, gridSize.z, 0);
-            v_weights.resize(gridSize.x, gridSize.y + 1, gridSize.z, 0);
-            v_valid.resize(gridSize.x, gridSize.y + 1, gridSize.z, 0);
-            v_extrapolate.resize(gridSize.x, gridSize.y + 1, gridSize.z, 0);
-            tmp_v.resize(gridSize.x, gridSize.y + 1, gridSize.z, 0);
-            tmp_v_valid.resize(gridSize.x, gridSize.y + 1, gridSize.z, 0);
+            v.resize(nCells.x, nCells.y + 1, nCells.z, 0);
+            v_weights.resize(nCells.x, nCells.y + 1, nCells.z, 0);
+            v_valid.resize(nCells.x, nCells.y + 1, nCells.z, 0);
+            v_extrapolate.resize(nCells.x, nCells.y + 1, nCells.z, 0);
+            tmp_v.resize(nCells.x, nCells.y + 1, nCells.z, 0);
+            tmp_v_valid.resize(nCells.x, nCells.y + 1, nCells.z, 0);
 
-            w.resize(gridSize.x, gridSize.y, gridSize.z + 1, 0);
-            w_weights.resize(gridSize.x, gridSize.y, gridSize.z + 1, 0);
-            w_valid.resize(gridSize.x, gridSize.y, gridSize.z + 1, 0);
-            w_extrapolate.resize(gridSize.x, gridSize.y, gridSize.z + 1, 0);
-            tmp_w.resize(gridSize.x, gridSize.y, gridSize.z + 1, 0);
-            tmp_w_valid.resize(gridSize.x, gridSize.y, gridSize.z + 1, 0);
+            w.resize(nCells.x, nCells.y, nCells.z + 1, 0);
+            w_weights.resize(nCells.x, nCells.y, nCells.z + 1, 0);
+            w_valid.resize(nCells.x, nCells.y, nCells.z + 1, 0);
+            w_extrapolate.resize(nCells.x, nCells.y, nCells.z + 1, 0);
+            tmp_w.resize(nCells.x, nCells.y, nCells.z + 1, 0);
+            tmp_w_valid.resize(nCells.x, nCells.y, nCells.z + 1, 0);
 
-            fluidSDFLock.resize(gridSize.x, gridSize.y, gridSize.z);
-            fluidSDF.resize(gridSize.x, gridSize.y, gridSize.z, 0);
-            boundarySDF.resize(gridSize.x + 1, gridSize.y + 1, gridSize.z + 1, 0);
+            activeCellIdx.resize(nCells.x, nCells.y, nCells.z, 0);
+            fluidSDFLock.resize(nCells.x, nCells.y, nCells.z);
+            fluidSDF.resize(nCells.x, nCells.y, nCells.z, 0);
+            boundarySDF.resize(nCells.x + 1, nCells.y + 1, nCells.z + 1, 0);
         }
 
         float sphere_phi(const Vec3f& position, const Vec3f& centre, float radius)
@@ -264,12 +266,11 @@ struct PIC3D_Data
 
     ////////////////////////////////////////////////////////////////////////////////
 
-    Grid3r               grid;
-    PCGSolver<Real>      pcgSolver;
-    IndexMapper<3, UInt> indexMapper;
-    SparseMatrix<Real>   matrix;
-    Vec_Real             rhs;
-    Vec_Real             pressure;
+    Grid3r             grid;
+    PCGSolver<Real>    pcgSolver;
+    SparseMatrix<Real> matrix;
+    Vec_Real           rhs;
+    Vec_Real           pressure;
 
     ////////////////////////////////////////////////////////////////////////////////
     void makeReady(const PIC3D_Parameters& picParams)

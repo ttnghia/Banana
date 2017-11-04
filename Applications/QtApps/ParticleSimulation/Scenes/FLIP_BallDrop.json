@@ -2,11 +2,11 @@
     "GlobalParameters":
     {
         "FrameDuration" : 0.03333333333,
-        "FinalFrame" : 1000,
+        "FinalFrame" : 20,
         "EnableSortParticle" : true,
         "SortFrequency" : 10,
-        "SaveFrameData" : false,
-        "DataPath" : "D:/SimData/APIC",
+        "SaveFrameData" : true,
+        "DataPath" : "D:/SimData/PIC_Optimized",
         "OptionalSavingDataXXX" : [ "anisotropic_kernel" ],
         "LogLevel" : "Debug"
     },
@@ -14,16 +14,16 @@
     {
         "SimulationDomainBox" :
         {
-            "BoxMin" : [-1.0, -1.0, -1.0],
-            "BoxMax" : [ 1.0, 1.0, 1.0]
+            "BoxMin" : [-1, -1, -1],
+            "BoxMax" : [ 1.0, 1.5, 1.0]
         },
         "CorrectPosition" : false,
-        "RepulsiveForceStiffness" : 100,
+        "RepulsiveForceStiffness" : 10,
         "PIC_FLIP_Ratio" : 0.97,
-        "CGRelativeTolerance" : 1e-15,
-        "MaxCGIteration" : 10000,
-        "ParticleRadius" : 0.02,
-        "CFLFactor" : 0.5
+        "CGRelativeTolerance" : 1e-18,
+        "MaxCGIteration" : 1000,
+        "CellSize" : 0.02,
+        "CFLFactor" : 1
     },
     "AdditionalBoundaryObjects":
     [
@@ -31,8 +31,8 @@
             "GeometryType" : "Sphere",
             "UniqueName" : "SphereBoundary",
             "CSGOperator" : "Intersection",
-            "Translation" : [0.0, 1.0, 0.0],
-            "Scale" : 2
+            "Translation" : [0, 0, 0],
+            "Scale" : 1
         }
     ],
     "ParticleGenerators":
@@ -40,7 +40,7 @@
         {
             "GeometryType" : "Sphere",
             "UniqueName" : "SphereParticleGenerator",
-            "Translation" : [0.0, 0.0, 0.0],
+            "Translation" : [0, 0.0, 0],
             "Scale" : 0.5
         }
     ],
