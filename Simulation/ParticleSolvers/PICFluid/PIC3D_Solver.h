@@ -74,8 +74,7 @@ protected:
     ////////////////////////////////////////////////////////////////////////////////
     // pressure projection functions =>
     void computeFluidSDF();
-    void computeMatrix(Real timestep);
-    void computeRhs();
+    void computeSystem(Real timestep);
     void solveSystem();
     void updateVelocity(Real timestep);
     ////////////////////////////////////////////////////////////////////////////////
@@ -83,8 +82,12 @@ protected:
 
     ////////////////////////////////////////////////////////////////////////////////
     // helper functions
-    Vec3r getVelocityFromGrid(const Vec3r& ppos);
-    Vec3r trace_rk2(const Vec3r& ppos, Real timestep);
+    __BNN_INLINE Real  getVelocityFromGridU(const Vec3r& ppos);
+    __BNN_INLINE Real  getVelocityFromGridV(const Vec3r& ppos);
+    __BNN_INLINE Real  getVelocityFromGridW(const Vec3r& ppos);
+    __BNN_INLINE Vec3r getVelocityFromGrid(const Vec3r& ppos);
+    __BNN_INLINE Vec3r trace_rk2(const Vec3r& ppos, Real timestep);
+
     ////////////////////////////////////////////////////////////////////////////////
     auto&       particleData() { return solverData().particleData; }
     const auto& particleData() const { return solverData().particleData; }

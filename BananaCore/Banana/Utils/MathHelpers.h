@@ -456,6 +456,19 @@ inline T clamp(T a, S lower, S upper)
     }
 }
 
+template<Int N, class T>
+inline VecX<N, T> clamp(const VecX<N, T>& x, const VecX<N, T>& a, const VecX<N, T>& b)
+{
+    VecX<N, T> result;
+    for(Int i = 0; i < N; ++i) {
+        result[i] = clamp(x[i], a[i], b[i]);
+    }
+
+    return result;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
 // only makes sense with T=float or double
 template<class T>
 inline T smooth_step(T r)
