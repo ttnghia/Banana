@@ -742,6 +742,137 @@ void PIC3D_Solver::computeFluidSDF()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PIC3D_Solver::computeSystem(Real timestep)
 {
+    ////////////////////////////////////////////////////////////////////////////////
+    // make the index list of active cell
+    solverData().indexMapper.clear();
+    //for(UInt k = 0; k < solverData().grid.getNCells()[2]; ++k) {
+    //    for(UInt j = 0; j < solverData().grid.getNCells()[1]; ++j) {
+    //        for(UInt i = 0; i < solverData().grid.getNCells()[0]; ++i) {
+    //            if(gridData().fluidSDF(i, j, k) < 0) {
+    //                solverData().indexMapper.addUniqueKey(i, j, k);
+    //            }
+    //        }
+    //    }
+    //}
+
+    NumberHelpers::scan(solverData().grid.getNCells(),
+                        [&](const auto& idx)
+                        {
+                            if(gridData().fluidSDF(idx) < 0) {
+                                solverData().indexMapper.addUniqueKey(idx);
+                            }
+                        });
+
+
+
+
+    ////////////////////////////////////////////////////////////////////////////////
+#if 1
+    solverData().matrix.clear();
+    solverData().matrix.resize(solverData().indexMapper.size());
+    solverData().rhs.resize(solverData().indexMapper.size(), 0);
+    solverData().pressure.resize(solverData().indexMapper.size(), 0);
+
+    ParallelFuncs::parallel_for<UInt>(1, solverData().grid.getNCells()[0] - 1,
+                                      1, solverData().grid.getNCells()[1] - 1,
+                                      1, solverData().grid.getNCells()[2] - 1,
+                                      [&](UInt i, UInt j, UInt k)
+                                      {
+                                          const auto center_phi = gridData().fluidSDF(i, j, k);
+                                          if(center_phi > 0) {
+                                              return;
+                                          }
+
+                                          const auto right_phi  = gridData().fluidSDF(i + 1, j, k);
+                                          const auto left_phi   = gridData().fluidSDF(i - 1, j, k);
+                                          const auto top_phi    = gridData().fluidSDF(i, j + 1, k);
+                                          const auto bottom_phi = gridData().fluidSDF(i, j - 1, k);
+                                          const auto far_phi    = gridData().fluidSDF(i, j, k + 1);
+                                          const auto near_phi   = gridData().fluidSDF(i, j, k - 1);
+
+                                          Real rhs              = Real(0);
+                                          const auto right_term = gridData().u_weights(i + 1, j, k) * timestep;
+                                          rhs -= gridData().u_weights(i + 1, j, k) * gridData().u(i + 1, j, k);
+
+                                          const auto left_term = gridData().u_weights(i, j, k) * timestep;
+                                          rhs += gridData().u_weights(i, j, k) * gridData().u(i, j, k);
+
+                                          const auto top_term = gridData().v_weights(i, j + 1, k) * timestep;
+                                          rhs -= gridData().v_weights(i, j + 1, k) * gridData().v(i, j + 1, k);
+
+                                          const auto bottom_term = gridData().v_weights(i, j, k) * timestep;
+                                          rhs += gridData().v_weights(i, j, k) * gridData().v(i, j, k);
+
+                                          const auto far_term = gridData().w_weights(i, j, k + 1) * timestep;
+                                          rhs -= gridData().w_weights(i, j, k + 1) * gridData().w(i, j, k + 1);
+
+                                          const auto near_term = gridData().w_weights(i, j, k) * timestep;
+                                          rhs += gridData().w_weights(i, j, k) * gridData().w(i, j, k);
+
+                                          const auto cellIdx = solverData().indexMapper.get1DIdx(i, j, k);
+                                          solverData().rhs[cellIdx] = rhs;
+
+                                          Real center_term = Real(0);
+
+                                          // right neighbor
+                                          if(right_phi < 0) {
+                                              center_term += right_term;
+                                              solverData().matrix.addElement(cellIdx, solverData().indexMapper.get1DIdx(i + 1, j, k), -right_term);
+                                          } else {
+                                              auto theta = MathHelpers::max(Real(0.01), MathHelpers::fraction_inside(center_phi, right_phi));
+                                              center_term += right_term / theta;
+                                          }
+
+                                          //left neighbor
+                                          if(left_phi < 0) {
+                                              center_term += left_term;
+                                              solverData().matrix.addElement(cellIdx, solverData().indexMapper.get1DIdx(i - 1, j, k), -left_term);
+                                          } else {
+                                              auto theta = MathHelpers::max(Real(0.01), MathHelpers::fraction_inside(center_phi, left_phi));
+                                              center_term += left_term / theta;
+                                          }
+
+                                          //top neighbor
+                                          if(top_phi < 0) {
+                                              center_term += top_term;
+                                              solverData().matrix.addElement(cellIdx, solverData().indexMapper.get1DIdx(i, j + 1, k), -top_term);
+                                          } else {
+                                              auto theta = MathHelpers::max(Real(0.01), MathHelpers::fraction_inside(center_phi, top_phi));
+                                              center_term += top_term / theta;
+                                          }
+
+                                          //bottom neighbor
+                                          if(bottom_phi < 0) {
+                                              center_term += bottom_term;
+                                              solverData().matrix.addElement(cellIdx, solverData().indexMapper.get1DIdx(i, j - 1, k), -bottom_term);
+                                          } else {
+                                              auto theta = MathHelpers::max(Real(0.01), MathHelpers::fraction_inside(center_phi, bottom_phi));
+                                              center_term += bottom_term / theta;
+                                          }
+
+                                          //far neighbor
+                                          if(far_phi < 0) {
+                                              center_term += far_term;
+                                              solverData().matrix.addElement(cellIdx, solverData().indexMapper.get1DIdx(i, j, k + 1), -far_term);
+                                          } else {
+                                              auto theta = MathHelpers::max(Real(0.01), MathHelpers::fraction_inside(center_phi, far_phi));
+                                              center_term += far_term / theta;
+                                          }
+
+                                          //near neighbor
+                                          if(near_phi < 0) {
+                                              center_term += near_term;
+                                              solverData().matrix.addElement(cellIdx, solverData().indexMapper.get1DIdx(i, j, k - 1), -near_term);
+                                          } else {
+                                              auto theta = MathHelpers::max(Real(0.01), MathHelpers::fraction_inside(center_phi, near_phi));
+                                              center_term += near_term / theta;
+                                          }
+
+                                          ////////////////////////////////////////////////////////////////////////////////
+                                          // center
+                                          solverData().matrix.addElement(cellIdx, cellIdx, center_term);
+                                      });
+#else
     solverData().matrix.clear();
     solverData().rhs.assign(solverData().rhs.size(), 0);
 
@@ -844,6 +975,7 @@ void PIC3D_Solver::computeSystem(Real timestep)
                                           // center
                                           solverData().matrix.addElement(cellIdx, cellIdx, center_term);
                                       });
+#endif
 
     //solverData().matrix.printDebug();
 }
@@ -867,6 +999,7 @@ void PIC3D_Solver::updateVelocity(Real timestep)
     gridData().v_valid.assign(0);
     gridData().w_valid.assign(0);
 
+#if 0
     ParallelFuncs::parallel_for(solverData().grid.getNCells(),
                                 [&](UInt i, UInt j, UInt k)
                                 {
@@ -895,6 +1028,39 @@ void PIC3D_Solver::updateVelocity(Real timestep)
                                         gridData().w_valid(i, j, k) = 1;
                                     }
                                 });
+#else
+    ParallelFuncs::parallel_for(solverData().grid.getNCells(),
+                                [&](UInt i, UInt j, UInt k)
+                                {
+                                    const auto phi_center = gridData().fluidSDF(i, j, k);
+                                    const auto phi_left   = i > 0 ? gridData().fluidSDF(i - 1, j, k) : 0;
+                                    const auto phi_bottom = j > 0 ? gridData().fluidSDF(i, j - 1, k) : 0;
+                                    const auto phi_near   = k > 0 ? gridData().fluidSDF(i, j, k - 1) : 0;
+
+                                    const auto pr_center = phi_center < 0 ? solverData().pressure[solverData().indexMapper.get1DIdx(i, j, k)] : 0;
+                                    const auto pr_left   = phi_left < 0 ? solverData().pressure[solverData().indexMapper.get1DIdx(i - 1, j, k)] : 0;
+                                    const auto pr_bottom = phi_bottom < 0 ? solverData().pressure[solverData().indexMapper.get1DIdx(i, j - 1, k)] : 0;
+                                    const auto pr_near   = phi_near < 0 ? solverData().pressure[solverData().indexMapper.get1DIdx(i, j, k - 1)] : 0;
+
+                                    if(i > 0 && i < solverData().grid.getNCells()[0] - 1 && (phi_center < 0 || phi_left < 0) && gridData().u_weights(i, j, k) > 0) {
+                                        const auto theta = MathHelpers::max(Real(0.01), MathHelpers::fraction_inside(phi_left, phi_center));
+                                        gridData().u(i, j, k)      -= timestep * (pr_center - pr_left) / theta;
+                                        gridData().u_valid(i, j, k) = 1;
+                                    }
+
+                                    if(j > 0 && j < solverData().grid.getNCells()[1] - 1 && (phi_center < 0 || phi_bottom < 0) && gridData().v_weights(i, j, k) > 0) {
+                                        const auto theta = MathHelpers::max(Real(0.01), MathHelpers::fraction_inside(phi_bottom, phi_center));
+                                        gridData().v(i, j, k)      -= timestep * (pr_center - pr_bottom) / theta;
+                                        gridData().v_valid(i, j, k) = 1;
+                                    }
+
+                                    if(k > 0 && k < solverData().grid.getNCells()[2] - 1 && gridData().w_weights(i, j, k) > 0 && (phi_center < 0 || phi_near < 0)) {
+                                        const auto theta = MathHelpers::max(Real(0.01), MathHelpers::fraction_inside(phi_near, phi_center));
+                                        gridData().w(i, j, k)      -= timestep * (pr_center - pr_near) / theta;
+                                        gridData().w_valid(i, j, k) = 1;
+                                    }
+                                });
+#endif
 
     for(size_t i = 0; i < gridData().u_valid.dataSize(); ++i) {
         if(gridData().u_valid.data()[i] == 0) {
