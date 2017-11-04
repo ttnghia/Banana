@@ -42,7 +42,7 @@ static const Real MinTimestep = Real(1.0e-6);
 static const Real MaxTimestep = Real(1.0e-2);
 
 static const UInt NExpandCells                    = 2u;
-static const Real RatioCellSizeOverParticleRadius = Real(4.0);
+static const Real RatioCellSizeOverParticleRadius = Real(2.0);
 static const Real CellSize                        = Real(1.0 / 64.0);
 static const Real ParticleRadius                  = Real(2.0 / 64.0 / 4.0);
 

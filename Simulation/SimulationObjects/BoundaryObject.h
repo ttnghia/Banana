@@ -51,7 +51,6 @@ public:
     BoundaryObjectInterface() = delete;
     BoundaryObjectInterface(const String& geometryType) : SimulationObject<N, RealType>(geometryType) {}
 
-    auto& margin() { return m_Margin; }
     auto& restitution() { return m_RestitutionCoeff; }
     auto& isDynamic() { return m_bDynamics; }
 
@@ -73,7 +72,6 @@ protected:
 
     virtual void generateSDF_Impl() = 0;
 
-    RealType m_Margin           = RealType(0.0);
     RealType m_RestitutionCoeff = SolverDefaultParameters::BoundaryRestitution;
 
     Grid<N, RealType> m_Grid;

@@ -34,11 +34,6 @@
 #include <ParticleSolvers/ParticleSolverData.h>
 #include <SimulationObjects/BoundaryObject.h>
 
-#include "tmp/blas_wrapper.h"
-#include "tmp/sparse_matrix.h"
-#include "tmp/pcg_solver.h"
-
-
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
 {
@@ -52,14 +47,14 @@ struct PIC3D_Parameters : public SimulationParameters
 
     ////////////////////////////////////////////////////////////////////////////////
     // simulation size
-    Real  particleRadius       = SolverDefaultParameters::ParticleRadius;
+    Real  cellSize             = SolverDefaultParameters::CellSize;
     Real  ratioCellSizePRadius = SolverDefaultParameters::RatioCellSizeOverParticleRadius;
-    UInt  expandCells          = SolverDefaultParameters::NExpandCells;
+    UInt  nExpandCells         = SolverDefaultParameters::NExpandCells;
     Vec3r domainBMin           = SolverDefaultParameters::SimulationDomainBMin3D;
     Vec3r domainBMax           = SolverDefaultParameters::SimulationDomainBMax3D;
     Vec3r movingBMin;
     Vec3r movingBMax;
-    Real  cellSize;
+    Real  particleRadius;
     Real  sdfRadius;
     ////////////////////////////////////////////////////////////////////////////////
 
@@ -89,14 +84,18 @@ struct PIC3D_Parameters : public SimulationParameters
 
     virtual void makeReady() override
     {
-        cellSize       = particleRadius * ratioCellSizePRadius;
-        cellSize       = 1.0f / 30.0f;
-        particleRadius = cellSize * Real(0.5);
-        sdfRadius      = cellSize * Real(1.01 * sqrt(3.0) / 2.0);
-        movingBMin     = domainBMin;
-        movingBMax     = domainBMax;
-        //domainBMin -= Vec3r(cellSize * expandCells);
-        //domainBMax += Vec3r(cellSize * expandCells);
+        particleRadius = cellSize / ratioCellSizePRadius;
+
+        // this radius is used for computing fluid signed distance field
+        sdfRadius = cellSize * Real(1.01 * sqrt(3.0) / 2.0);
+
+        // expand domain simulation by nExpandCells for each dimension
+        // this is necessary if the boundary is a box which coincides with the simulation domain
+        // movingBMin/BMax are used in printParams function only
+        movingBMin  = domainBMin;
+        movingBMax  = domainBMax;
+        domainBMin -= Vec3r(cellSize * nExpandCells);
+        domainBMax += Vec3r(cellSize * nExpandCells);
     }
 
     virtual void printParams(const SharedPtr<Logger>& logger) override
@@ -107,7 +106,7 @@ struct PIC3D_Parameters : public SimulationParameters
         // simulation size
         logger->printLogIndent(String("Particle radius: ") + std::to_string(particleRadius));
         logger->printLogIndent(String("Ratio grid size/particle radius: ") + std::to_string(ratioCellSizePRadius));
-        logger->printLogIndent(String("Expand cells for each dimension: ") + std::to_string(expandCells));
+        logger->printLogIndent(String("Expand cells for each dimension: ") + std::to_string(nExpandCells));
         logger->printLogIndent(String("Cell size: ") + std::to_string(cellSize));
         logger->printLogIndent(String("SDF radius: ") + std::to_string(sdfRadius));
         logger->printLogIndent(String("Domain box: ") + NumberHelpers::toString(domainBMin) + " -> " + NumberHelpers::toString(domainBMax));
@@ -247,32 +246,24 @@ struct PIC3D_Data
             ParallelFuncs::parallel_for(boundarySDF.size(),
                                         [&](size_t i, size_t j, size_t k)
                                         {
-                                            //Real minSD = Huge;
-                                            //for(auto& obj :boundaryObjs) {
-                                            //    minSD = MathHelpers::min(minSD, obj->getSDF()(i, j, k));
-                                            //}
-                                            //boundarySDF(i, j, k) = minSD +MEpsilon;
+                                            Real minSD = Huge;
+                                            for(auto& obj :boundaryObjs) {
+                                                minSD = MathHelpers::min(minSD, obj->getSDF()(i, j, k));
+                                            }
 
-                                            Vec3f pos = Vec3f(i, j, k) * (1.0f / 30.0f);
-                                            boundarySDF(i, j, k) = -solid_phi(pos);
+                                            __BNN_TODO_MSG("should we use MEp?")
+                                            boundarySDF(i, j, k) = minSD /*+ MEpsilon*/;
                                         });
         }
     } gridData;
 
     ////////////////////////////////////////////////////////////////////////////////
-    Grid3r               grid;
-    PCGSolver<double>    pcgSolver;
-    SparseMatrix<double> matrix;
-    //Vec_Real             rhs;
-    //Vec_Real             pressure;
-    Vec_Double rhs;
-    Vec_Double pressure;
 
-
-
-
-    Test::PCGSolver<double>    solverOld;
-    Test::SparseMatrix<double> matrixOld;
+    Grid3r             grid;
+    PCGSolver<Real>    pcgSolver;
+    SparseMatrix<Real> matrix;
+    Vec_Real           rhs;
+    Vec_Real           pressure;
 
     ////////////////////////////////////////////////////////////////////////////////
     void makeReady(const PIC3D_Parameters& picParams)
@@ -284,14 +275,7 @@ struct PIC3D_Data
         pressure.resize(grid.getNCells().x * grid.getNCells().y * grid.getNCells().z);
 
         pcgSolver.setSolverParameters(picParams.CGRelativeTolerance, picParams.maxCGIteration);
-        pcgSolver.setPreconditioners(PCGSolver<double>::MICCL0_SYMMETRIC);
-
-
-
-
-
-        matrixOld.resize(grid.getNCells().x * grid.getNCells().y * grid.getNCells().z);
-        solverOld.set_solver_parameters(1e-18, 1000);
+        pcgSolver.setPreconditioners(PCGSolver<Real>::MICCL0_SYMMETRIC);
     }
 };
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

@@ -90,10 +90,10 @@ void BoundaryObjectInterface<N, RealType >::generateSDF(const VecX<N, RealType>&
 template<Int N, class RealType>
 void BoundaryObjectInterface<N, RealType >::constrainToBoundary(VecX<N, RealType>& ppos)
 {
-    const RealType phiVal = signedDistance(ppos) - m_Margin;
+    const auto phiVal = signedDistance(ppos);
     if(phiVal < 0) {
-        VecX<N, RealType> grad     = gradSignedDistance(ppos);
-        RealType          mag2Grad = glm::length2(grad);
+        auto grad     = gradSignedDistance(ppos);
+        auto mag2Grad = glm::length2(grad);
 
         if(mag2Grad > Tiny) {
             grad /= sqrt(mag2Grad);

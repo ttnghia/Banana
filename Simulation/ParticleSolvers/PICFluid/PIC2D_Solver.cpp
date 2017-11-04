@@ -39,7 +39,6 @@ void PIC2D_Solver::makeReady()
 
                               ////////////////////////////////////////////////////////////////////////////////
                               for(auto& obj : m_BoundaryObjects) {
-                                  obj->margin() = solverParams().particleRadius;
                                   obj->generateSDF(solverParams().domainBMin, solverParams().domainBMax, solverParams().cellSize);
                               }
 

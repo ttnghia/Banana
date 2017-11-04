@@ -44,7 +44,6 @@ void PeridynamicsSolver::makeReady()
                               m_NSearch->add_point_set(glm::value_ptr(solverData().positions.front()), solverData().getNParticles(), true, true);
 
                               for(auto& obj : m_BoundaryObjects) {
-                                  obj->margin() = solverParams().particleRadius;
                                   obj->generateSDF(solverParams().domainBMin, solverParams().domainBMax, solverParams().cellSize);
                               }
 
