@@ -67,7 +67,7 @@ protected:
     void advectGridVelocity(Real timestep);
     void computeFluidWeights();
     void extrapolateVelocity();
-    void extrapolateVelocity(Array3r& grid, Array3r& temp_grid, Array3c& valid, Array3c& old_valid);
+    void extrapolateVelocity(Array3r& grid, Array3r& temp_grid, Array3c& valid, Array3c& old_valid, Array3c& extrapolate);
     void constrainGridVelocity();
     void addGravity(Real timestep);
     void pressureProjection(Real timestep);

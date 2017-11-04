@@ -192,8 +192,9 @@ struct PIC3D_Data
         ////////////////////////////////////////////////////////////////////////////////
         // main variables
         Array3r u, v, w;
-        Array3r u_weights, v_weights, w_weights; // mark the domain area that can be occupied by fluid
-        Array3c u_valid, v_valid, w_valid;       // mark the current faces that are influenced by particles during velocity mapping
+        Array3r u_weights, v_weights, w_weights;             // mark the domain area that can be occupied by fluid
+        Array3c u_valid, v_valid, w_valid;                   // mark the current faces that are influenced by particles during velocity mapping
+        Array3c u_extrapolate, v_extrapolate, w_extrapolate; // mark the current faces that are influenced by particles during velocity mapping
 
         Array3SpinLock fluidSDFLock;
         Array3r        fluidSDF;
@@ -211,18 +212,21 @@ struct PIC3D_Data
             u.resize(gridSize.x + 1, gridSize.y, gridSize.z, 0);
             u_weights.resize(gridSize.x + 1, gridSize.y, gridSize.z, 0);
             u_valid.resize(gridSize.x + 1, gridSize.y, gridSize.z, 0);
+            u_extrapolate.resize(gridSize.x + 1, gridSize.y, gridSize.z, 0);
             tmp_u.resize(gridSize.x + 1, gridSize.y, gridSize.z, 0);
             tmp_u_valid.resize(gridSize.x + 1, gridSize.y, gridSize.z, 0);
 
             v.resize(gridSize.x, gridSize.y + 1, gridSize.z, 0);
             v_weights.resize(gridSize.x, gridSize.y + 1, gridSize.z, 0);
             v_valid.resize(gridSize.x, gridSize.y + 1, gridSize.z, 0);
+            v_extrapolate.resize(gridSize.x, gridSize.y + 1, gridSize.z, 0);
             tmp_v.resize(gridSize.x, gridSize.y + 1, gridSize.z, 0);
             tmp_v_valid.resize(gridSize.x, gridSize.y + 1, gridSize.z, 0);
 
             w.resize(gridSize.x, gridSize.y, gridSize.z + 1, 0);
             w_weights.resize(gridSize.x, gridSize.y, gridSize.z + 1, 0);
             w_valid.resize(gridSize.x, gridSize.y, gridSize.z + 1, 0);
+            w_extrapolate.resize(gridSize.x, gridSize.y, gridSize.z + 1, 0);
             tmp_w.resize(gridSize.x, gridSize.y, gridSize.z + 1, 0);
             tmp_w_valid.resize(gridSize.x, gridSize.y, gridSize.z + 1, 0);
 

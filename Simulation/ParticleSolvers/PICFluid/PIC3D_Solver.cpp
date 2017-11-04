@@ -415,27 +415,27 @@ void PIC3D_Solver::advectGridVelocity(Real timestep)
     gridData().tmp_v.assign(0);
     gridData().tmp_w.assign(0);
 
-    ParallelFuncs::parallel_for(solverData().grid.getNNodes(),
-                                [&](UInt i, UInt j, UInt k)
+    ParallelFuncs::parallel_for(gridData().u.size(),
+                                [&](size_t i, size_t j, size_t k)
                                 {
-                                    bool valid_index_u = gridData().u.isValidIndex(i, j, k);
-                                    bool valid_index_v = gridData().v.isValidIndex(i, j, k);
-                                    bool valid_index_w = gridData().w.isValidIndex(i, j, k);
+                                    auto gu = trace_rk2_grid(Vec3r(i, j + 0.5, k + 0.5), -timestep);
+                                    gridData().tmp_u(i, j, k) = getVelocityFromGridU(gu);
+                                });
 
-                                    if(valid_index_u) {
-                                        auto gu = trace_rk2_grid(Vec3r(i, j + 0.5, k + 0.5), -timestep);
-                                        gridData().tmp_u(i, j, k) = getVelocityFromGridU(gu);
-                                    }
 
-                                    if(valid_index_v) {
-                                        auto gv = trace_rk2_grid(Vec3r(i + 0.5, j, k + 0.5), -timestep);
-                                        gridData().tmp_v(i, j, k) = getVelocityFromGridV(gv);
-                                    }
+    ParallelFuncs::parallel_for(gridData().v.size(),
+                                [&](size_t i, size_t j, size_t k)
+                                {
+                                    auto gv = trace_rk2_grid(Vec3r(i + 0.5, j, k + 0.5), -timestep);
+                                    gridData().tmp_v(i, j, k) = getVelocityFromGridV(gv);
+                                });
 
-                                    if(valid_index_w) {
-                                        auto gw = trace_rk2_grid(Vec3r(i + 0.5, j + 0.5, k), -timestep);
-                                        gridData().tmp_w(i, j, k) = getVelocityFromGridW(gw);
-                                    }
+
+    ParallelFuncs::parallel_for(gridData().w.size(),
+                                [&](size_t i, size_t j, size_t k)
+                                {
+                                    auto gw = trace_rk2_grid(Vec3r(i + 0.5, j + 0.5, k), -timestep);
+                                    gridData().tmp_w(i, j, k) = getVelocityFromGridW(gw);
                                 });
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -484,16 +484,18 @@ void PIC3D_Solver::computeFluidWeights()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PIC3D_Solver::extrapolateVelocity()
 {
-    extrapolateVelocity(gridData().u, gridData().tmp_u, gridData().u_valid, gridData().tmp_u_valid);
-    extrapolateVelocity(gridData().v, gridData().tmp_v, gridData().v_valid, gridData().tmp_v_valid);
-    extrapolateVelocity(gridData().w, gridData().tmp_w, gridData().w_valid, gridData().tmp_w_valid);
+    extrapolateVelocity(gridData().u, gridData().tmp_u, gridData().u_valid, gridData().tmp_u_valid, gridData().u_extrapolate);
+    extrapolateVelocity(gridData().v, gridData().tmp_v, gridData().v_valid, gridData().tmp_v_valid, gridData().v_extrapolate);
+    extrapolateVelocity(gridData().w, gridData().tmp_w, gridData().w_valid, gridData().tmp_w_valid, gridData().w_extrapolate);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void PIC3D_Solver::extrapolateVelocity(Array3r& grid, Array3r& temp_grid, Array3c& valid, Array3c& old_valid)
+void PIC3D_Solver::extrapolateVelocity(Array3r& grid, Array3r& temp_grid, Array3c& valid, Array3c& old_valid, Array3c& extrapolate)
 {
+    extrapolate.assign(0);
+
     temp_grid.copyDataFrom(grid);
-    for(Int layers = 0; layers < 10; ++layers) {
+    for(Int layers = 0; layers < 4; ++layers) {
         old_valid.copyDataFrom(valid);
         ParallelFuncs::parallel_for<size_t>(1, grid.size()[0] - 1,
                                             1, grid.size()[1] - 1,
@@ -540,8 +542,9 @@ void PIC3D_Solver::extrapolateVelocity(Array3r& grid, Array3r& temp_grid, Array3
 
                                                 ////////////////////////////////////////////////////////////////////////////////
                                                 if(count > 0) {
-                                                    temp_grid(i, j, k) = sum / static_cast<Real>(count);
-                                                    valid(i, j, k)     = 1;
+                                                    temp_grid(i, j, k)   = sum / static_cast<Real>(count);
+                                                    valid(i, j, k)       = 1;
+                                                    extrapolate(i, j, k) = 1;
                                                 }
                                             });
         ////////////////////////////////////////////////////////////////////////////////
@@ -556,6 +559,9 @@ void PIC3D_Solver::constrainGridVelocity()
     gridData().tmp_v.copyDataFrom(gridData().v);
     gridData().tmp_w.copyDataFrom(gridData().w);
 
+
+    // leave this because it is suspicious to work
+#if 0
     ParallelFuncs::parallel_for(gridData().u.size(),
                                 [&](size_t i, size_t j, size_t k)
                                 {
@@ -603,6 +609,55 @@ void PIC3D_Solver::constrainGridVelocity()
                                         gridData().tmp_w(i, j, k) = vel[2];
                                     }
                                 });
+#else
+    ParallelFuncs::parallel_for(gridData().u.size(),
+                                [&](size_t i, size_t j, size_t k)
+                                {
+                                    if(gridData().u_extrapolate(i, j, k) == 1 && gridData().u_weights(i, j, k) == 0) {
+                                        const auto gridPos = Vec3r(i, j + 0.5, k + 0.5);
+                                        auto vel           = getVelocityFromGrid(gridPos);
+                                        auto normal        = ArrayHelpers::interpolateGradient(gridPos, gridData().boundarySDF);
+                                        auto mag2Normal    = glm::length2(normal);
+                                        if(mag2Normal > Tiny) {
+                                            normal /= sqrt(mag2Normal);
+                                        }
+                                        vel                      -= glm::dot(vel, normal) * normal;
+                                        gridData().tmp_u(i, j, k) = vel[0];
+                                    }
+                                });
+
+    ParallelFuncs::parallel_for(gridData().v.size(),
+                                [&](size_t i, size_t j, size_t k)
+                                {
+                                    if(gridData().v_extrapolate(i, j, k) == 1 && gridData().v_weights(i, j, k) == 0) {
+                                        const auto gridPos = Vec3r(i + 0.5, j, k + 0.5);
+                                        auto vel           = getVelocityFromGrid(gridPos);
+                                        auto normal        = ArrayHelpers::interpolateGradient(gridPos, gridData().boundarySDF);
+                                        auto mag2Normal    = glm::length2(normal);
+                                        if(mag2Normal > Tiny) {
+                                            normal /= sqrt(mag2Normal);
+                                        }
+                                        vel                      -= glm::dot(vel, normal) * normal;
+                                        gridData().tmp_v(i, j, k) = vel[1];
+                                    }
+                                });
+
+    ParallelFuncs::parallel_for(gridData().w.size(),
+                                [&](size_t i, size_t j, size_t k)
+                                {
+                                    if(gridData().w_extrapolate(i, j, k) == 1 && gridData().w_weights(i, j, k) == 0) {
+                                        const auto gridPos = Vec3r(i + 0.5, j + 0.5, k);
+                                        auto vel           = getVelocityFromGrid(gridPos);
+                                        auto normal        = ArrayHelpers::interpolateGradient(gridPos, gridData().boundarySDF);
+                                        auto mag2Normal    = glm::length2(normal);
+                                        if(mag2Normal > Tiny) {
+                                            normal /= sqrt(mag2Normal);
+                                        }
+                                        vel                      -= glm::dot(vel, normal) * normal;
+                                        gridData().tmp_w(i, j, k) = vel[2];
+                                    }
+                                });
+#endif
 
     ////////////////////////////////////////////////////////////////////////////////
     gridData().u.copyDataFrom(gridData().tmp_u);
