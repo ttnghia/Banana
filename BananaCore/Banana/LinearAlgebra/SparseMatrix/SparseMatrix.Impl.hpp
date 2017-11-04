@@ -179,46 +179,6 @@ void SparseMatrix<RealType >::printTextFile(const char* fileName)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-// perform result=matrix*x
-//template<class RealType>
-//void SparseMatrix<RealType >::multiply(const SparseMatrix<RealType>& matrix, const Vector<RealType>& x, Vector<RealType>& result)
-//{
-//    assert(matrix.nRows == static_cast<UInt>(x.size()));
-//    result.resize(matrix.nRows);
-//
-//    ParallelFuncs::parallel_for<UInt>(0, matrix.nRows,
-//                                      [&](UInt i)
-//                                      {
-//                                          RealType tmpResult = 0;
-//                                          for(UInt j = 0, jEnd = static_cast<UInt>(matrix.colIndex[i].size()); j < jEnd; ++j) {
-//                                              tmpResult += matrix.colValue[i][j] * x[matrix.colIndex[i][j]];
-//                                          }
-//
-//                                          result[i] = tmpResult;
-//                                      });
-//}
-//
-////-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//// perform result=result-matrix*x
-//template<class RealType>
-//void SparseMatrix<RealType >::multiply_and_subtract(const SparseMatrix<RealType>& matrix, const Vector<RealType>& x, Vector<RealType>& result)
-//{
-//    assert(matrix.nRows == static_cast<UInt>(x.size()));
-//    result.resize(matrix.nRows);
-//
-//    ParallelFuncs::parallel_for<UInt>(0, matrix.nRows,
-//                                      [&](UInt i)
-//                                      {
-//                                          RealType tmpResult = result[i];
-//                                          for(UInt j = 0, jEnd = static_cast<UInt>(matrix.colIndex[i].size()); j < jEnd; ++j) {
-//                                              tmpResult -= matrix.colValue[i][j] * x[matrix.colIndex[i][j]];
-//                                          }
-//
-//                                          result[i] = tmpResult;
-//                                      });
-//}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Fixed version of SparseMatrix
 //
@@ -264,23 +224,3 @@ void FixedSparseMatrix<RealType >::multiply(const FixedSparseMatrix<RealType>& m
                                           result[i] = tmpResult;
                                       });
 }
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-// perform result=result-matrix*x
-//template<class RealType>
-//void FixedSparseMatrix<RealType>::multiply_and_subtract(const FixedSparseMatrix<RealType>& matrix, const Vector<RealType>& x, Vector<RealType>& result)
-//{
-//    assert(matrix.nRows == static_cast<UInt>(x.size()));
-//    result.resize(matrix.nRows);
-//
-//    ParallelFuncs::parallel_for<UInt>(0, matrix.nRows,
-//                                      [&](UInt i)
-//                                      {
-//                                          RealType tmpResult = result[i];
-//                                          for(UInt j = matrix.rowStart[i], jEnd = matrix.rowStart[i + 1]; j < jEnd; ++j) {
-//                                              tmpResult -= matrix.colValue[j] * x[matrix.colIndex[j]];
-//                                          }
-//
-//                                          result[i] = tmpResult;
-//                                      });
-//}
