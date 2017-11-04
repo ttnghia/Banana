@@ -37,7 +37,7 @@ class IndexMapper
 public:
     IndexMapper() = default;
     IndexType size() const { return m_Size; }
-    void      clear() { m_idx_1DToXD.clear(); m_idx_XDTo1D.clear(); m_Size = 0; }
+    void      clear() { m_idx_XDTo1D.clear(); m_Size = 0; }
 
     ////////////////////////////////////////////////////////////////////////////////
     void                         addUniqueKey(const VecX<N, IndexType>& key);
@@ -48,20 +48,16 @@ public:
     template<class IntType> bool addKeyIfNotExist(IntType i, IntType j) { return addKeyIfNotExist(makeKey(i, j)); }
     template<class IntType> bool addKeyIfNotExist(IntType i, IntType j, IntType k) { return addKeyIfNotExist(makeKey(i, j, k)); }
 
+    IndexType                                  get1DIdx(const VecX<N, IndexType>& key);
     template<class IntType> IndexType          get1DIdx(IntType i, IntType j) { return get1DIdx(makeKey(i, j)); }
     template<class IntType> IndexType          get1DIdx(IntType i, IntType j, IntType k) { return get1DIdx(makeKey(i, j, k)); }
-    template<class IntType> VecX<N, IndexType> getXDIdx(IntType idx);
 
 private:
     template<class IntType> VecX<N, IndexType> makeKey(IntType i, IntType j) const;
     template<class IntType> VecX<N, IndexType> makeKey(IntType i, IntType j, IntType k) const;
 
-
-    IndexType get1DIdx(const VecX<N, IndexType>& key);
-
     ////////////////////////////////////////////////////////////////////////////////
     std::unordered_map<VecX<N, IndexType>, IndexType, STLHelpers::VecHash<N, IndexType> > m_idx_XDTo1D;
-    std::unordered_map<IndexType, VecX<N, IndexType> >                                    m_idx_1DToXD;
     IndexType                                                                             m_Size = 0;
 };
 
@@ -78,18 +74,6 @@ IndexType IndexMapper<N, IndexType >::get1DIdx(const VecX<N, IndexType>& key)
 #endif
 
     return m_idx_XDTo1D[key];
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<Int N, class IndexType>
-template<class IntType>
-VecX<N, IndexType> IndexMapper<N, IndexType >::getXDIdx(IntType idx)
-{
-#ifdef __BANANA_DEBUG__
-    __BNN_ASSERT(m_idx_1DToXD.find(idx) != m_idx_1DToXD.end());
-#endif
-
-    return m_idx_1DToXD[static_cast<IndexType>(idx)];
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -119,7 +103,6 @@ void IndexMapper<N, IndexType >::addUniqueKey(const VecX<N, IndexType>& key)
 #endif
 
     m_idx_XDTo1D[key]    = m_Size;
-    m_idx_1DToXD[m_Size] = key;
     ++m_Size;
 }
 
@@ -129,7 +112,6 @@ bool IndexMapper<N, IndexType >::addKeyIfNotExist(const VecX<N, IndexType>& key)
 {
     if(m_idx_XDTo1D.find(key) == m_idx_XDTo1D.end()) {
         m_idx_XDTo1D[key]    = m_Size;
-        m_idx_1DToXD[m_Size] = key;
         ++m_Size;
         return true;
     }
