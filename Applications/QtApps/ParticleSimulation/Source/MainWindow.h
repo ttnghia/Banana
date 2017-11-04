@@ -20,6 +20,7 @@
 #include "RenderWidget.h"
 #include "Controller.h"
 #include "Simulator.h"
+#include "Common.h"
 
 #include <QtAppHelpers/OpenGLMainWindow.h>
 #include <QtAppHelpers/BrowsePathWidget.h>
@@ -47,8 +48,8 @@ protected:
     void updateStatusMemoryUsage();
 
 public slots:
-    void updateStatusNumParticles(unsigned int numParticles);
-    void updateStatusSimulationTime(float time);
+    void updateStatusNumParticles(UInt numParticles);
+    void updateStatusSimulationTime(float time, unsigned int frame);
     void finishFrame();
     void finishSimulation();
 

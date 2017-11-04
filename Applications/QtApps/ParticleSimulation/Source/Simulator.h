@@ -50,7 +50,7 @@ public slots:
 signals:
     void domainChanged(const Vec3f& boxMin, const Vec3f& boxMax);
     void simulationFinished();
-    void systemTimeChanged(float time);
+    void systemTimeChanged(float time, unsigned int frame);
     void numParticleChanged(UInt numParticles);
     void particleChanged();
     void frameFinished();

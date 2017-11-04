@@ -46,7 +46,7 @@ void Simulator::doSimulation()
     for(UInt frame = 1; frame <= m_ParticleSolver->globalParams().finalFrame; ++frame) {
         m_ParticleSolver->doSimulationFrame(frame);
 
-        emit systemTimeChanged(m_ParticleSolver->globalParams().evolvedTime());
+        emit systemTimeChanged(m_ParticleSolver->globalParams().evolvedTime(), frame);
         emit particleChanged();
         emit frameFinished();
 
@@ -78,7 +78,7 @@ void Simulator::reset()
 void Simulator::changeScene(const QString& scene)
 {
     m_Scene = scene;
-    emit systemTimeChanged(0);
+    emit systemTimeChanged(0, 0);
 
     // wait until the simulation stop before modifying the scene
     if(m_SimulationFutureObj.valid()) {

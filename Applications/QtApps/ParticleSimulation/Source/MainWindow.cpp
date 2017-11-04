@@ -48,7 +48,7 @@ void MainWindow::showEvent(QShowEvent* ev)
 
         Q_ASSERT(m_Simulator != nullptr);
         updateStatusMemoryUsage();
-        updateStatusSimulationTime(0);
+        updateStatusSimulationTime(0, 0);
         m_Simulator->changeScene(m_Controller->m_cbSimulationScene->currentText());
     }
 }
@@ -100,9 +100,12 @@ void MainWindow::updateStatusNumParticles(unsigned int numParticles)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MainWindow::updateStatusSimulationTime(float time)
+void MainWindow::updateStatusSimulationTime(float time, unsigned int frame)
 {
-    m_lblStatusSimTime->setText(QString("System time: %1 (s)").arg(QString::fromStdString(NumberHelpers::formatWithCommas(time, 5))));
+    m_lblStatusSimTime->setText(QString("System time: %1 (s) | Frames: %2")
+                                    .arg(QString::fromStdString(NumberHelpers::formatWithCommas(time, 5)))
+                                    .arg(QString::fromStdString(NumberHelpers::formatWithCommas(frame)))
+                                );
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
