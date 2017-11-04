@@ -23,6 +23,7 @@
 
 #include <Banana/Setup.h>
 #include <Banana/Array/Array.h>
+#include <Banana/Array/IndexMapper.h>
 #include <Banana/Grid/Grid.h>
 #include <Banana/NeighborSearch/NeighborSearch3D.h>
 #include <Banana/ParallelHelpers/ParallelObjects.h>
@@ -263,11 +264,12 @@ struct PIC3D_Data
 
     ////////////////////////////////////////////////////////////////////////////////
 
-    Grid3r             grid;
-    PCGSolver<Real>    pcgSolver;
-    SparseMatrix<Real> matrix;
-    Vec_Real           rhs;
-    Vec_Real           pressure;
+    Grid3r               grid;
+    PCGSolver<Real>      pcgSolver;
+    IndexMapper<3, UInt> indexMapper;
+    SparseMatrix<Real>   matrix;
+    Vec_Real             rhs;
+    Vec_Real             pressure;
 
     ////////////////////////////////////////////////////////////////////////////////
     void makeReady(const PIC3D_Parameters& picParams)

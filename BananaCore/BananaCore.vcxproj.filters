@@ -207,6 +207,9 @@
     <ClInclude Include="Banana\Array\SparseArray3.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Banana\Array\IndexMapper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Banana\Geometry\KdTree.cpp">
