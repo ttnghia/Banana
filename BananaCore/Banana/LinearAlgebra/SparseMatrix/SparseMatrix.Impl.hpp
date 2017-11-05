@@ -24,6 +24,13 @@
 // Dynamic compressed sparse row matrix.
 //
 template<class RealType>
+void SparseMatrix<RealType >::reserve(UInt size)
+{
+    colIndex.reserve(size);
+    colValue.reserve(size);
+}
+
+template<class RealType>
 void SparseMatrix<RealType >::resize(UInt newSize)
 {
     nRows = newSize;

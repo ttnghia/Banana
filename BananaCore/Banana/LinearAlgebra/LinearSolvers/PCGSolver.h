@@ -44,6 +44,7 @@ struct SparseColumnLowerFactor
     explicit SparseColumnLowerFactor(UInt size = 0) : nRows(size), invDiag(size), colStart(size + 1), aDiag(size) {}
 
     void clear(void);
+    void reserve(UInt size);
     void resize(UInt newSize);
 };
 
@@ -60,6 +61,7 @@ public:
     };
 
     PCGSolver() = default;
+    void     reserve(UInt size);
     RealType residual() const noexcept { return m_OutResidual; }
     UInt     iterations() const noexcept { return m_OutIterations; }
 

@@ -32,6 +32,14 @@ void SparseColumnLowerFactor<RealType >::clear(void)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
+void SparseColumnLowerFactor<RealType >::reserve(UInt size)
+{
+    invDiag.reserve(size);
+    aDiag.reserve(size);
+    colStart.reserve(size + 1);
+}
+
+template<class RealType>
 void SparseColumnLowerFactor<RealType >::resize(UInt newSize)
 {
     nRows = newSize;
@@ -55,6 +63,17 @@ void PCGSolver<RealType >::setSolverParameters(RealType tolerancem_ICCPrecond, i
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<class RealType>
+void PCGSolver<RealType >::reserve(UInt size)
+{
+    s.reserve(size);
+    z.reserve(size);
+    r.reserve(size);
+
+    m_FixedSparseMatrix.reserve(size);
+    m_ICCPrecond.reserve(size);
+}
+
 template<class RealType>
 void PCGSolver<RealType >::resize(UInt size)
 {
@@ -156,8 +175,7 @@ bool PCGSolver<RealType >::solve_precond(const SparseMatrix<RealType>& matrix, c
     for(UInt iteration = 0; iteration < m_MaxIterations; ++iteration) {
         FixedSparseMatrix<RealType>::multiply(m_FixedSparseMatrix, s, z);
         RealType tmp = ParallelBLAS::dotProduct<RealType>(s, z);
-        if(tmp < std::numeric_limits<RealType>::min())
-        {
+        if(tmp < std::numeric_limits<RealType>::min()) {
             m_OutIterations = iteration + 1;
             return true;
         }

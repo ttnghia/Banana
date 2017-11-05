@@ -172,6 +172,7 @@ struct PIC3D_Data
 
         virtual void removeParticles(Vec_Int8& removeMarker) override
         {
+            __BNN_ASSERT(removeMarker.size() == positions.size());
             if(!STLHelpers::contain(removeMarker, Int8(1))) {
                 return;
             }
@@ -192,11 +193,11 @@ struct PIC3D_Data
         ////////////////////////////////////////////////////////////////////////////////
         // main variables
         Array3r u, v, w;
-        Array3r u_weights, v_weights, w_weights;             // mark the domain area that can be occupied by fluid
-        Array3c u_valid, v_valid, w_valid;                   // mark the current faces that are influenced by particles during velocity mapping
-        Array3c u_extrapolate, v_extrapolate, w_extrapolate; // mark the current faces that are influenced by particles during velocity mapping
+        Array3r u_weights, v_weights, w_weights;             // mark the percentage domain area that can be occupied by fluid
+        Array3c u_valid, v_valid, w_valid;                   // mark the current faces that are influenced by particles during velocity projection
+        Array3c u_extrapolate, v_extrapolate, w_extrapolate; // mark the current faces that are influenced by particles during velocity extrapolation
 
-        Array3ui activeCellIdx;
+        Array3ui activeCellIdx;                              // store linearized indices of cells that contribute to pressure projection
 
         Array3SpinLock fluidSDFLock;
         Array3r        fluidSDF;
@@ -238,16 +239,6 @@ struct PIC3D_Data
             boundarySDF.resize(nCells.x + 1, nCells.y + 1, nCells.z + 1, 0);
         }
 
-        float sphere_phi(const Vec3f& position, const Vec3f& centre, float radius)
-        {
-            return (glm::length(position - centre) - radius);
-        }
-
-        float solid_phi(const Vec3f& position)
-        {
-            return sphere_phi(position, Vec3f(0.5f, 0.5f, 0.5f), 0.35f);
-        }
-
         void computeBoundarySDF(const Vector<SharedPtr<SimulationObjects::BoundaryObject<3, Real> > >& boundaryObjs)
         {
             ParallelFuncs::parallel_for(boundarySDF.size(),
@@ -273,15 +264,16 @@ struct PIC3D_Data
     Vec_Real           pressure;
 
     ////////////////////////////////////////////////////////////////////////////////
-    void makeReady(const PIC3D_Parameters& picParams)
+    void makeReady(const PIC3D_Parameters& params)
     {
-        grid.setGrid(picParams.domainBMin, picParams.domainBMax, picParams.cellSize);
+        grid.setGrid(params.domainBMin, params.domainBMax, params.cellSize);
         gridData.resize(grid.getNCells());
-        matrix.resize(grid.getNCells().x * grid.getNCells().y * grid.getNCells().z);
-        rhs.resize(grid.getNCells().x * grid.getNCells().y * grid.getNCells().z);
-        pressure.resize(grid.getNCells().x * grid.getNCells().y * grid.getNCells().z);
+        matrix.reserve(grid.getNTotalCells());
+        rhs.reserve(grid.getNTotalCells());
+        pressure.reserve(grid.getNTotalCells());
 
-        pcgSolver.setSolverParameters(picParams.CGRelativeTolerance, picParams.maxCGIteration);
+        pcgSolver.reserve(grid.getNTotalCells());
+        pcgSolver.setSolverParameters(params.CGRelativeTolerance, params.maxCGIteration);
         pcgSolver.setPreconditioners(PCGSolver<Real>::MICCL0_SYMMETRIC);
     }
 };

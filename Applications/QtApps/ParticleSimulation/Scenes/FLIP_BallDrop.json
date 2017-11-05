@@ -2,7 +2,7 @@
     "GlobalParameters":
     {
         "FrameDuration" : 0.03333333333,
-        "FinalFrame" : 200,
+        "FinalFrame" : 20,
         "EnableSortParticle" : true,
         "SortFrequency" : 10,
         "SaveFrameData" : true,
@@ -19,7 +19,7 @@
             "BoxMax" : [ 1.0, 1.5, 1.0]
         },
         "CorrectPosition" : false,
-        "RepulsiveForceStiffness" : 10,
+        "RepulsiveForceStiffness" : 50,
         "PIC_FLIP_Ratio" : 0.97,
         "CGRelativeTolerance" : 1e-18,
         "MaxCGIteration" : 1000,

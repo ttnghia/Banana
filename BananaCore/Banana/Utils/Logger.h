@@ -72,27 +72,53 @@ public:
     void printError(const String& s, UInt maxSize = 100);
 
     ////////////////////////////////////////////////////////////////////////////////
-    template<class Function>
-    void printRunTime(const char* caption, const Function& function) { printLog(Timer::getRunTime<Function>(caption, function)); }
-    template<class Function>
-    void printRunTimeIndent(const char* caption, const Function& function) { printLogIndent(Timer::getRunTime<Function>(caption, function)); }
+    template<class Function> void printRunTime(const char* caption, const Function& function)
+    {
+        printLog(Timer::getRunTime<Function>(caption, function));
+    }
 
-    template<class Function>
-    void printRunTime(const char* caption, Timer& timer, const Function& function) { timer.tick(); function(); timer.tock(); printLog(timer.getRunTime(caption)); }
-    template<class Function>
-    void printRunTimeIndent(const char* caption, Timer& timer, const Function& function) { timer.tick(); function(); timer.tock(); printLogIndent(timer.getRunTime(caption)); }
+    template<class Function> void printRunTimeIndent(const char* caption, const Function& function, UInt indentLevel = 1, char trailing = ' ')
+    {
+        printLogIndent(Timer::getRunTime<Function>(caption, function), indentLevel, trailing);
+    }
+
+    template<class Function> void printRunTime(const char* caption, Timer& timer, const Function& function)
+    {
+        timer.tick(); function(); timer.tock(); printLog(timer.getRunTime(caption));
+    }
+
+    template<class Function> void printRunTimeIndent(const char* caption, Timer& timer, const Function& function, UInt indentLevel = 1, char trailing = ' ')
+    {
+        timer.tick(); function(); timer.tock(); printLogIndent(timer.getRunTime(caption), indentLevel, trailing);
+    }
+
+    template<class Function> void printRunTimeIf(const char* caption, Timer& timer, const Function& function)
+    {
+        timer.tick();
+        bool result = function();
+        timer.tock();
+        printLogIf(result, timer.getRunTime(caption));
+    }
+
+    template<class Function> void printRunTimeIndentIf(const char* caption, Timer& timer, const Function& function, UInt indentLevel = 1, char trailing = ' ')
+    {
+        timer.tick();
+        bool result = function();
+        timer.tock();
+        printLogIndentIf(result, timer.getRunTime(caption), indentLevel, trailing);
+    }
 
     void printRunTime(const char* caption, Timer& timer) { printLog(timer.getRunTime(caption)); }
-    void printRunTimeIndent(const char* caption, Timer& timer) { printLogIndent(timer.getRunTime(caption)); }
+    void printRunTimeIndent(const char* caption, Timer& timer, UInt indentLevel = 1, char trailing = ' ') { printLogIndent(timer.getRunTime(caption), indentLevel, trailing); }
 
     ////////////////////////////////////////////////////////////////////////////////
     void printLog(const String& s);
     void printLog(const String& s, spdlog::level::level_enum level);
     void printLogIndent(const String& s, UInt indentLevel = 1, char trailing = ' ');
 
-    void printLogIf(bool bCondition, const String& s) { if(bCondition) { printLog(s); } }
-    void printLogIf(bool bCondition, const String& s, spdlog::level::level_enum level) { if(bCondition) { printLog(s, level); } }
-    void printLogIndentIf(bool bCondition, const String& s, UInt indentLevel = 1, char trailing = ' ') { if(bCondition) { printLogIndent(s, indentLevel, trailing); } }
+    void printLogIf(bool bCondition, const String& s);
+    void printLogIf(bool bCondition, const String& s, spdlog::level::level_enum level);
+    void printLogIndentIf(bool bCondition, const String& s, UInt indentLevel = 1, char trailing = ' ');
 
     void printMemoryUsage();
 

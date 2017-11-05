@@ -45,6 +45,7 @@ public:
 
     explicit SparseMatrix(UInt size = 0) : nRows(size), colIndex(size), colValue(size) {}
 
+    void reserve(UInt size);
     void resize(UInt newSize);
     void clear(void);
 
@@ -83,6 +84,7 @@ struct FixedSparseMatrix
 
     explicit FixedSparseMatrix(UInt size = 0) : nRows(size), colValue(0), colIndex(0), rowStart(size + 1) {}
 
+    void reserve(UInt size) { rowStart.reserve(size + 1); }
     void resize(UInt newSize) { nRows = newSize; rowStart.resize(nRows + 1); }
     void clear(void) { colValue.resize(0); colIndex.resize(0); rowStart.resize(0); }
     void constructFromSparseMatrix(const SparseMatrix<RealType>& fixedMatrix);

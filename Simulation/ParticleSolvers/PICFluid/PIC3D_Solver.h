@@ -45,10 +45,10 @@ public:
     virtual void sortParticles() override;
 
     ////////////////////////////////////////////////////////////////////////////////
-    auto&       solverParams() { return m_picParams; }
-    const auto& solverParams() const { return m_picParams; }
-    auto&       solverData() { return m_picData; }
-    const auto& solverData() const { return m_picData; }
+    auto&       solverParams() { return m_SolverParams; }
+    const auto& solverParams() const { return m_SolverParams; }
+    auto&       solverData() { return m_SolverData; }
+    const auto& solverData() const { return m_SolverData; }
 
 protected:
     virtual void loadSimParams(const nlohmann::json& jParams) override;
@@ -62,26 +62,21 @@ protected:
 
     Real computeCFLTimestep();
     void moveParticles(Real timeStep);
-    void correctPositions(Real timestep);
-
+    bool correctParticlePositions(Real timestep);
     void advectGridVelocity(Real timestep);
-    void computeFluidWeights();
-    void extrapolateVelocity();
-    void extrapolateVelocity(Array3r& grid, Array3r& temp_grid, Array3c& valid, Array3c& old_valid, Array3c& extrapolate);
-    void constrainGridVelocity();
     void addGravity(Real timestep);
     void pressureProjection(Real timestep);
-    ////////////////////////////////////////////////////////////////////////////////
-    // pressure projection functions =>
+    void computeFluidWeights();
     void computeFluidSDF();
     void computeSystem(Real timestep);
     void solveSystem();
     void updateVelocity(Real timestep);
-    ////////////////////////////////////////////////////////////////////////////////
-    //void velocityToParticles();
+    void extrapolateVelocity();
+    void extrapolateVelocity(Array3r& grid, Array3r& temp_grid, Array3c& valid, Array3c& old_valid, Array3c& extrapolate);
+    void constrainGridVelocity();
 
     ////////////////////////////////////////////////////////////////////////////////
-    // helper functions
+    // small helper functions
     __BNN_INLINE Real  getVelocityFromGridU(const Vec3r& ppos);
     __BNN_INLINE Real  getVelocityFromGridV(const Vec3r& ppos);
     __BNN_INLINE Real  getVelocityFromGridW(const Vec3r& ppos);
@@ -96,8 +91,8 @@ protected:
     const auto& gridData() const { return solverData().gridData; }
 
     ////////////////////////////////////////////////////////////////////////////////
-    PIC3D_Parameters m_picParams;
-    PIC3D_Data       m_picData;
+    PIC3D_Parameters m_SolverParams;
+    PIC3D_Data       m_SolverData;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
