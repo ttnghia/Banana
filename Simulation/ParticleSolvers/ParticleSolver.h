@@ -283,7 +283,7 @@ void ParticleSolver<N, RealType >::doSimulation()
     ////////////////////////////////////////////////////////////////////////////////
     logger().newLine();
     logger().printAligned(String("Simulation finished"), '+');
-    logger().printLog(String("Total frames: ") + NumberHelpers::formatWithCommas(globalParams().finalFrame - startFrame + 1));
+    logger().printLog(String("Total frames: ") + NumberHelpers::formatWithCommas(globalParams().finishedFrame - startFrame + 1));
     logger().printLog(String("Data path: ") + globalParams().dataPath);
     auto strs = FileHelpers::getFolderSizeInfo(globalParams().dataPath, 1);
     for(auto& str : strs) {

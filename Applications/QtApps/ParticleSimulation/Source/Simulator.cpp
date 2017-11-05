@@ -58,6 +58,11 @@ void Simulator::doSimulation()
                 ;
             }
         }
+
+        if(m_bStop) {
+            m_ParticleSolver->globalParams().startFrame = frame + 1;
+            break;
+        }
     }
 
     m_ParticleSolver->endSimulation();
@@ -87,22 +92,22 @@ void Simulator::changeScene(const QString& scene)
         m_SimulationFutureObj.wait();
     }
 
+    m_ParticleSolver.reset();
+    m_ParticleSolver = std::make_unique<ParticleSolverQt>();
+
     ////////////////////////////////////////////////////////////////////////////////
     QString sceneFile = QDir::currentPath() + "/Scenes/" + scene;
     m_ParticleSolver->loadScene(sceneFile.toStdString());
 
     emit systemTimeChanged(m_ParticleSolver->globalParams().evolvedTime(), m_ParticleSolver->globalParams().finishedFrame);
-//    emit domainChanged(m_ParticleSolver->picParams().movingBMin, m_ParticleSolver->picParams().movingBMax);
     emit domainChanged(m_ParticleSolver->solverParams().movingBMin, m_ParticleSolver->solverParams().movingBMax);
 
     m_ParticleSolver->makeReady();
     m_ParticleData->setNumParticles(m_ParticleSolver->getNParticles());
     m_ParticleData->setUInt("ColorRandomReady", 0);
     m_ParticleData->setUInt("ColorRampReady",   0);
-//    m_ParticleData->setParticleRadius(m_ParticleSolver->picParams().particleRadius);
     m_ParticleData->setParticleRadius(m_ParticleSolver->solverParams().particleRadius);
 
-    emit particleChanged();
     emit numParticleChanged(m_ParticleSolver->getNParticles());
 }
 

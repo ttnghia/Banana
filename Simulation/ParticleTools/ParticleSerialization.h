@@ -160,6 +160,7 @@ public:
     const Map<String, SharedPtr<Attribute> >& getParticleAttributes() { return m_ParticleAttributes; }
 
     Int    getLatestFileIndex(Int maxIndex) const { return m_DataIO->getLatestFileIndex(maxIndex); }
+    String getFilePath(Int fileID) { return m_DataIO->getFilePath(fileID); }
     bool   read(Int fileID, const Vector<String>& readAttributes = {});
     bool   read(const String& fileName, const Vector<String>& readAttributes = {});
     size_t getBytesRead() const { return m_ByteRead; }

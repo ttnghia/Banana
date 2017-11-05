@@ -61,7 +61,7 @@ void PIC3D_Solver::advanceFrame()
         logger().printRunTime("Sub-step time: ", subStepTimer,
                               [&]()
                               {
-                                  auto substep       = computeCFLTimestep();
+                                  auto substep       = timestepCFL();
                                   auto remainingTime = globalParams().frameDuration - frameTime;
                                   if(frameTime + substep >= globalParams().frameDuration) {
                                       substep = remainingTime;
@@ -248,7 +248,9 @@ bool PIC3D_Solver::loadMemoryState()
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    Int latestStateIdx = m_MemoryStateIO->getLatestFileIndex(globalParams().finalFrame);
+    Int startFrame     = static_cast<Int>(globalParams().startFrame - 1);
+    Int latestStateIdx = (startFrame > 1 && FileHelpers::fileExisted(m_MemoryStateIO->getFilePath(startFrame))) ?
+                         startFrame : m_MemoryStateIO->getLatestFileIndex(globalParams().finalFrame);
     if(latestStateIdx < 0) {
         return false;
     }
@@ -331,7 +333,7 @@ void PIC3D_Solver::saveFrameData()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-Real PIC3D_Solver::computeCFLTimestep()
+Real PIC3D_Solver::timestepCFL()
 {
     Real maxVel = MathHelpers::max(ParallelSTL::maxAbs(gridData().u.data()),
                                    ParallelSTL::maxAbs(gridData().v.data()),

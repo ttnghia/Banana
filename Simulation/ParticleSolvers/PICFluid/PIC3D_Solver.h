@@ -60,7 +60,7 @@ protected:
     virtual void saveFrameData() override;
     virtual void advanceVelocity(Real timestep);
 
-    Real computeCFLTimestep();
+    Real timestepCFL();
     void moveParticles(Real timeStep);
     bool correctParticlePositions(Real timestep);
     void advectGridVelocity(Real timestep);

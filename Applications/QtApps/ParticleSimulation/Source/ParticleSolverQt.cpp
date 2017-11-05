@@ -47,7 +47,7 @@ void ParticleSolverQt::endSimulation()
 {
     logger().newLine();
     logger().printAligned("Simulation finished", '+');
-    logger().printLog("Total frames: " + NumberHelpers::formatWithCommas(m_GlobalParams.finalFrame - m_GlobalParams.startFrame + 1));
+    logger().printLog("Total frames: " + NumberHelpers::formatWithCommas(m_GlobalParams.finishedFrame - m_GlobalParams.startFrame + 1));
     logger().printLog("Data path: " + m_GlobalParams.dataPath);
     auto strs = FileHelpers::getFolderSizeInfo(globalParams().dataPath, 1);
     for(auto& str: strs) {

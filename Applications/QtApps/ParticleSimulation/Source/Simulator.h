@@ -32,7 +32,7 @@ class Simulator : public QObject
     Q_OBJECT
 
 public:
-    Simulator() { m_ParticleSolver = std::make_unique<ParticleSolverQt>(); }
+    Simulator() = default;
     void setParticleSystemData(const std::shared_ptr<ParticleSystemData>& particleData) { m_ParticleData = particleData; }
     bool isRunning() { return !m_bStop; }
     void stop();

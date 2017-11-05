@@ -40,7 +40,7 @@ public:
     void endSimulation();
 
 #if 1
-    Vec_Vec3f& getParticlePositions() { return particleData().positions; }
+    Vec_Vec3f* getParticlePositions() { return &particleData().positions; }
     UInt       getNParticles() { return static_cast<UInt>(particleData().positions.size()); }
 #else
     Vec_Vec3f& getParticlePositions() { return m_SimData->positions; }

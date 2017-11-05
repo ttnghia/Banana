@@ -19,33 +19,13 @@
 #include <tbb/tbb.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-RenderWidget::RenderWidget(const Vec_Vec3<float>& particlePosition, QWidget* parent) : m_ParticlePositions(particlePosition), OpenGLWidget(parent)
+RenderWidget::RenderWidget(QWidget* parent) : OpenGLWidget(parent)
 {
     m_DefaultSize = QSize(1200, 1000);
     setCamera(DEFAULT_CAMERA_POSITION, DEFAULT_CAMERA_FOCUS);
 
     initParticleDataObj();
     initCaptureDir();
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-const std::shared_ptr<ParticleSystemData>& RenderWidget::getParticleDataObj() const
-{
-    return m_ParticleData;
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void RenderWidget::setCamera(const glm::vec3& cameraPosition, const glm::vec3& cameraFocus)
-{
-    m_Camera->setDefaultCamera(cameraPosition, cameraFocus, glm::vec3(0, 1, 0));
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void RenderWidget::setBox(const glm::vec3& boxMin, const glm::vec3& boxMax)
-{
-    makeCurrent();
-    m_WireFrameBoxRender->setBox(boxMin, boxMax);
-    doneCurrent();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -57,7 +37,7 @@ void RenderWidget::initOpenGL()
     initRDataBox();
     initRDataParticle();
 
-    updateParticleData();
+//    updateParticleData();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -204,11 +184,12 @@ void RenderWidget::setParticleColorMode(int colorMode)
 void RenderWidget::updateParticleData()
 {
     Q_ASSERT(m_RDataParticle.initialized);
+    Q_ASSERT(m_ParticlePositions != nullptr);
     makeCurrent();
 
     ////////////////////////////////////////////////////////////////////////////////
     // position buffer
-    m_RDataParticle.buffPosition->uploadDataAsync(m_ParticlePositions.data(), 0, m_ParticlePositions.size() * 3 * sizeof(float));
+    m_RDataParticle.buffPosition->uploadDataAsync(m_ParticlePositions->data(), 0, m_ParticlePositions->size() * 3 * sizeof(float));
 
     ////////////////////////////////////////////////////////////////////////////////
     // also upload the particle color data
@@ -216,8 +197,8 @@ void RenderWidget::updateParticleData()
 
     ////////////////////////////////////////////////////////////////////////////////
     doneCurrent();
-    m_RDataParticle.pointRadius  = m_ParticleData->getParticleRadius<GLfloat>();
-    m_RDataParticle.numParticles = m_ParticleData->getNParticles();
+    m_RDataParticle.pointRadius = m_ParticleData->getParticleRadius<GLfloat>();
+    m_RDataParticle.nParticles  = m_ParticleData->getNParticles();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -270,16 +251,12 @@ void RenderWidget::initFluidVAOs()
     m_RDataParticle.buffPosition->bind();
     glCall(glVertexAttribPointer(m_RDataParticle.v_Position, 3, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<GLvoid*>(0)));
 
-    if(m_RDataParticle.pColorMode != ParticleColorMode::Uniform)
-    {
+    if(m_RDataParticle.pColorMode != ParticleColorMode::Uniform) {
         glCall(glEnableVertexAttribArray(m_RDataParticle.v_Color));
 
-        if(m_RDataParticle.pColorMode == ParticleColorMode::Random)
-        {
+        if(m_RDataParticle.pColorMode == ParticleColorMode::Random) {
             m_RDataParticle.buffColorRandom->bind();
-        }
-        else if(m_RDataParticle.pColorMode == ParticleColorMode::Ramp)
-        {
+        } else if(m_RDataParticle.pColorMode == ParticleColorMode::Ramp) {
             m_RDataParticle.buffColorRamp->bind();
         }
 
@@ -292,19 +269,14 @@ void RenderWidget::initFluidVAOs()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void RenderWidget::uploadParticleColorData()
 {
-    if(m_RDataParticle.pColorMode == static_cast<int>(ParticleColorMode::Random))
-    {
-        if(m_ParticleData->getUInt("ColorRandomReady") == 0)
-        {
+    if(m_RDataParticle.pColorMode == static_cast<int>(ParticleColorMode::Random)) {
+        if(m_ParticleData->getUInt("ColorRandomReady") == 0) {
             m_ParticleData->generateRandomRealData<GLfloat, 3>("ColorRandom", 0, 1);
             m_RDataParticle.buffColorRandom->uploadDataAsync(m_ParticleData->getArray("ColorRandom")->data(), 0, m_ParticleData->getArray("ColorRandom")->size());
             m_ParticleData->setUInt("ColorRandomReady", 1);
         }
-    }
-    else if(m_RDataParticle.pColorMode == static_cast<int>(ParticleColorMode::Ramp))
-    {
-        if(m_ParticleData->getUInt("ColorRampReady") == 0)
-        {
+    } else if(m_RDataParticle.pColorMode == static_cast<int>(ParticleColorMode::Ramp)) {
+        if(m_ParticleData->getUInt("ColorRampReady") == 0) {
             m_ParticleData->generateRampData<GLfloat, glm::vec3, 3>("ColorRamp", PARTICLE_COLOR_RAMP);
             m_RDataParticle.buffColorRamp->uploadDataAsync(m_ParticleData->getArray("ColorRamp")->data(), 0, m_ParticleData->getArray("ColorRamp")->size());
             m_ParticleData->setUInt("ColorRampReady", 1);
@@ -335,7 +307,7 @@ void RenderWidget::renderParticles()
 
     glCall(glBindVertexArray(m_RDataParticle.VAO));
     glCall(glEnable(GL_VERTEX_PROGRAM_POINT_SIZE));
-    glCall(glDrawArrays(GL_POINTS, 0, m_RDataParticle.numParticles));
+    glCall(glDrawArrays(GL_POINTS, 0, m_RDataParticle.nParticles));
     glCall(glBindVertexArray(0));
     m_RDataParticle.shader->release();
 }
@@ -358,12 +330,9 @@ void RenderWidget::initParticleDataObj()
     int           p          = 0;
     const GLfloat randomness = 0.5;
 
-    for(int i = 0; i < sizeXYZ; ++i)
-    {
-        for(int j = 0; j < sizeXYZ; ++j)
-        {
-            for(int k = 0; k < sizeXYZ; ++k)
-            {
+    for(int i = 0; i < sizeXYZ; ++i) {
+        for(int j = 0; j < sizeXYZ; ++j) {
+            for(int k = 0; k < sizeXYZ; ++k) {
                 dataPtr[p++] = -1.0 + static_cast<GLfloat>(i) * step + ((float)rand() / RAND_MAX * 2 - 1) * m_ParticleData->getParticleRadius<float>() * randomness;
                 dataPtr[p++] = 0.0 + static_cast<GLfloat>(j) * step + ((float)rand() / RAND_MAX * 2 - 1) * m_ParticleData->getParticleRadius<float>() * randomness;
                 dataPtr[p++] = -1.0 + static_cast<GLfloat>(k) * step + ((float)rand() / RAND_MAX * 2 - 1) * m_ParticleData->getParticleRadius<float>() * randomness;
@@ -384,8 +353,9 @@ void RenderWidget::initCaptureDir()
     QString capturePath = QDir::currentPath() + QString("/Capture/");
     setCapturePath(capturePath);
 
-    if(!QDir(capturePath).exists())
+    if(!QDir(capturePath).exists()) {
         QDir().mkdir(capturePath);
+    }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -412,19 +382,15 @@ void RenderWidget::reloadTextures()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void RenderWidget::enableClipPlane(bool bEnable /*= true*/)
 {
-    if(!isValid())
-    {
+    if(!isValid()) {
         return;
     }
 
     makeCurrent();
 
-    if(bEnable)
-    {
+    if(bEnable) {
         glCall(glEnable(GL_CLIP_PLANE0));
-    }
-    else
-    {
+    } else {
         glCall(glDisable(GL_CLIP_PLANE0));
     }
 

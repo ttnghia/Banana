@@ -49,7 +49,7 @@ void MainWindow::showEvent(QShowEvent* ev)
         Q_ASSERT(m_Simulator != nullptr);
         updateStatusMemoryUsage();
         updateStatusSimulationTime(0, 0);
-        m_Simulator->changeScene(m_Controller->m_cbSimulationScene->currentText());
+        changeScene(m_Controller->m_cbSimulationScene->currentText());
     }
 }
 
@@ -61,7 +61,7 @@ void MainWindow::instantiateOpenGLWidget()
     }
 
     m_Simulator    = std::make_unique<Simulator>();
-    m_RenderWidget = new RenderWidget(m_Simulator->getSolver()->getParticlePositions(), this);
+    m_RenderWidget = new RenderWidget(this);
     m_Simulator->setParticleSystemData(m_RenderWidget->getParticleDataObj());
     setupOpenglWidget(m_RenderWidget);
 }
@@ -106,6 +106,14 @@ void MainWindow::updateStatusSimulationTime(float time, unsigned int frame)
                                     .arg(QString::fromStdString(NumberHelpers::formatWithCommas(time, 5)))
                                     .arg(QString::fromStdString(NumberHelpers::formatWithCommas(frame)))
                                 );
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void MainWindow::changeScene(const QString& sceneFile)
+{
+    m_Simulator->changeScene(sceneFile);
+    m_RenderWidget->setParticlePositions(m_Simulator->getSolver()->getParticlePositions());
+    m_RenderWidget->updateParticleData();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -196,7 +204,7 @@ void MainWindow::connectWidgets()
 
     ////////////////////////////////////////////////////////////////////////////////
     // simulation
-    connect(m_Controller->m_cbSimulationScene, &QComboBox::currentTextChanged, [&](const QString& scene) { m_Simulator->changeScene(scene); });
+    connect(m_Controller->m_cbSimulationScene, &QComboBox::currentTextChanged, this, &MainWindow::changeScene);
     connect(m_Simulator.get(),                 &Simulator::domainChanged,      [&](const Vec3f& boxMin, const Vec3f& boxMax)
             {
                 m_RenderWidget->setBox(boxMin, boxMax);

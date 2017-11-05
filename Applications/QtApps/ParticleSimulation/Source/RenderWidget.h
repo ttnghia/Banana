@@ -42,12 +42,12 @@ class RenderWidget : public OpenGLWidget
     Q_OBJECT
 
 public:
-    RenderWidget(const Vec_Vec3<float>& particlePosition, QWidget* parent = 0);
+    RenderWidget(QWidget* parent = 0);
+    void setParticlePositions(Vec_Vec3<float>* positions) { m_ParticlePositions = positions; }
+    void setCamera(const glm::vec3& cameraPosition, const glm::vec3& cameraFocus) { m_Camera->setDefaultCamera(cameraPosition, cameraFocus, glm::vec3(0, 1, 0)); }
+    void setBox(const glm::vec3& boxMin, const glm::vec3& boxMax) { makeCurrent(); m_WireFrameBoxRender->setBox(boxMin, boxMax); doneCurrent(); }
 
-    void setCamera(const glm::vec3& cameraPosition, const glm::vec3& cameraFocus);
-    void setBox(const glm::vec3& boxMin, const glm::vec3& boxMax);
-
-    const std::shared_ptr<ParticleSystemData>& getParticleDataObj() const;
+    const std::shared_ptr<ParticleSystemData>& getParticleDataObj() const { return m_ParticleData; }
 
 protected:
     virtual void initOpenGL();
@@ -111,7 +111,7 @@ private:
         GLuint u_HasVColor;
         GLuint u_ClipPlane;
 
-        GLuint  numParticles;
+        GLuint  nParticles = 0;
         GLfloat pointRadius;
         GLfloat pointScale;
 
@@ -121,8 +121,8 @@ private:
         bool  initialized = false;
     } m_RDataParticle;
 
-    std::shared_ptr<ParticleSystemData> m_ParticleData = std::make_shared<ParticleSystemData>();
-    const Vec_Vec3<float>&              m_ParticlePositions;
+    std::shared_ptr<ParticleSystemData> m_ParticleData      = std::make_shared<ParticleSystemData>();
+    Vec_Vec3<float>*                    m_ParticlePositions = nullptr;
 
     void initRDataParticle();
     void initFluidVAOs();

@@ -104,6 +104,7 @@ struct GlobalParameters
         logger.printLogIndent("Data path: " + dataPath);
         logger.printLogIndent("Frame duration: " + NumberHelpers::formatToScientific(frameDuration) +
                               " (~" + std::to_string(static_cast<int>(round(Real(1.0) / frameDuration))) + " fps)");
+        logger.printLogIndent("Start frame: " + std::to_string(startFrame));
         logger.printLogIndent("Final frame: " + std::to_string(finalFrame));
         logger.printLogIndent("Apply gravity: " + (bApplyGravity ? String("Yes") : String("No")));
         logger.printLogIndent("Sort particles during simulation: " + (bEnableSortParticle ? String("Yes") : String("No")));

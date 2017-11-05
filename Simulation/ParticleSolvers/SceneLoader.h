@@ -73,6 +73,7 @@ inline bool loadDataPath(const String& sceneFile, String& dataPath)
 inline void loadGlobalParams(const nlohmann::json& jParams, ParticleSolvers::GlobalParameters& globalParams)
 {
     JSONHelpers::readValue(jParams, globalParams.frameDuration, "FrameDuration");
+    JSONHelpers::readValue(jParams, globalParams.startFrame,    "StartFrame");
     JSONHelpers::readValue(jParams, globalParams.finalFrame,    "FinalFrame");
     JSONHelpers::readValue(jParams, globalParams.nThreads,      "NThreads");
 
@@ -104,11 +105,7 @@ template<Int N, class RealType>
 void loadSimulationObject(const nlohmann::json& jParams, const SharedPtr<SimulationObject<N, RealType> >& obj)
 {
     __BNN_ASSERT(obj != nullptr);
-
-    static std::unordered_set<String> objNames;
     __BNN_ASSERT(JSONHelpers::readValue(jParams, obj->nameID(), "UniqueName"));
-    __BNN_ASSERT(objNames.find(obj->nameID()) == objNames.end());
-    objNames.insert(obj->nameID());
 
     ////////////////////////////////////////////////////////////////////////////////
     JSONHelpers::readValue(jParams, obj->meshFile(),     "MeshFile");

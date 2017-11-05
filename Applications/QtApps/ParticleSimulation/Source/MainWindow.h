@@ -50,6 +50,7 @@ protected:
 public slots:
     void updateStatusNumParticles(UInt numParticles);
     void updateStatusSimulationTime(float time, unsigned int frame);
+    void changeScene(const QString& sceneFile);
     void finishFrame();
     void finishSimulation();
 
