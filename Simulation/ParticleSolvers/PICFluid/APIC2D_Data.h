@@ -64,9 +64,7 @@ struct APIC2D_Data : public ParticleSimulationData<2, Real>
         STLHelpers::eraseByMarker(C, removeMarker);                 // need to erase, or just resize?
 
         ////////////////////////////////////////////////////////////////////////////////
-        auto nRemoved = removeMarker.size() - positions.size();
-        removeMarker.resize(positions.size());
-        return static_cast<UInt>(nRemoved);
+        return static_cast<UInt>(removeMarker.size() - positions.size());
     }
 };
 

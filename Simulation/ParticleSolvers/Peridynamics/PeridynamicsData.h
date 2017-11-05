@@ -143,8 +143,7 @@ struct SimulationData_Peridynamics3D : public ParticleSimulationData<3, Real>
         __BNN_TODO
 
         ////////////////////////////////////////////////////////////////////////////////
-        // resize removeMarker eventually
-        removeMarker.resize(positions.size());
+        return static_cast<UInt>(removeMarker.size() - positions.size());
     }
 
     void makeReady()

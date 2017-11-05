@@ -174,7 +174,6 @@ struct ParticleSimulationData
     virtual void reserve(UInt nParticles) = 0;
     virtual void addParticles(const Vec_VecX<N, RealType>& newPositions, const Vec_VecX<N, RealType>& newVelocities) = 0;
     virtual UInt removeParticles(Vec_Int8& removeMarker) = 0;
-    virtual void makeReady() {}
 
     ////////////////////////////////////////////////////////////////////////////////
     // main variables

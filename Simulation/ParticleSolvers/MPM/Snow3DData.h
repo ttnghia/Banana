@@ -225,9 +225,7 @@ struct SimulationData_Snow3D
 
             ////////////////////////////////////////////////////////////////////////////////
             // resize removeMarker eventually
-            auto nRemoved = removeMarker.size() - positions.size();
-            removeMarker.resize(positions.size());
-            return static_cast<UInt>(nRemoved);
+            return static_cast<UInt>(removeMarker.size() - positions.size());
         }
     } particleData;
 

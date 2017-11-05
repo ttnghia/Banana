@@ -34,7 +34,6 @@ void WCSPHSolver::makeReady()
     logger().printRunTime("Allocate solver memory: ",
                           [&]()
                           {
-                              solverData().makeReady();
                               m_CubicKernel.setRadius(solverParams().kernelRadius);
                               m_SpikyKernel.setRadius(solverParams().kernelRadius);
                               //m_NearSpikyKernel.setRadius(Real(1.5) * solverParams().particleRadius);

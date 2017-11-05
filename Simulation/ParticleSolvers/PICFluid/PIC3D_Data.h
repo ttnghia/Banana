@@ -174,10 +174,7 @@ struct PIC3D_Data
             STLHelpers::eraseByMarker(velocities, removeMarker);
 
             ////////////////////////////////////////////////////////////////////////////////
-            // resize marker array at last
-            auto nRemoved = removeMarker.size() - positions.size();
-            removeMarker.resize(positions.size());
-            return static_cast<UInt>(nRemoved);
+            return static_cast<UInt>(removeMarker.size() - positions.size());
         }
     } particleData;
 

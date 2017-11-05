@@ -202,9 +202,9 @@
     <ClInclude Include="SurfaceReconstruction\MarchingCube.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ParticleSolvers\PICFluid\APIC3D_Solver.cpp" />
     <ClCompile Include="ParticleSolvers\PICFluid\FLIP3D_Solver.cpp" />
     <ClCompile Include="ParticleSolvers\PICFluid\PIC3D_Solver.cpp" />
-    <ClCompile Include="ParticleSolvers\SPH\WCSPH\WCSPHSolver.cpp" />
     <ClCompile Include="ParticleTools\ParticleHelpers.cpp" />
     <ClCompile Include="ParticleTools\ParticleSerialization.cpp" />
     <ClCompile Include="ParticleTools\_ParticleTools.Test.cpp" />

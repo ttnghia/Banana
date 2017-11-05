@@ -408,11 +408,13 @@ bool PIC3D_Solver::correctParticlePositions(Real timestep)
     if(!solverParams().bCorrectPosition) {
         return false;
     }
-
     const auto radius     = Real(2.0) * solverParams().particleRadius;
     const auto threshold  = Real(0.01) * radius;
     const auto threshold2 = threshold * threshold;
+    const auto substep    = timestep * Real(0.2);
+    const auto K_Spring   = radius * substep * solverParams().repulsiveForceStiffness;
 
+    particleData().tmp_positions.resize(particleData().positions.size());
     ParallelFuncs::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
                                 {
@@ -449,10 +451,14 @@ bool PIC3D_Solver::correctParticlePositions(Real timestep)
                                         }
                                     }
 
-                                    auto newPos = ppos + spring * radius * timestep * solverParams().repulsiveForceStiffness;
-                                    for(auto& obj : m_BoundaryObjects) {
-                                        obj->constrainToBoundary(newPos);
+                                    auto newPos = ppos;
+                                    for(Int i = 0; i < 5; ++i) {
+                                        newPos += spring * K_Spring;
+                                        for(auto& obj : m_BoundaryObjects) {
+                                            obj->constrainToBoundary(newPos);
+                                        }
                                     }
+
                                     particleData().tmp_positions[p] = newPos;
                                 });
 

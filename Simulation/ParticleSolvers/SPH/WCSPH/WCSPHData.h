@@ -165,10 +165,7 @@ struct SimulationData_WCSPH : public ParticleSimulationData<3, Real>
         diffuseVelocity.resize(positions.size());
 
         ////////////////////////////////////////////////////////////////////////////////
-        // resize removeMarker eventually
-        auto nRemoved = removeMarker.size() - positions.size();
-        removeMarker.resize(positions.size());
-        return static_cast<UInt>(nRemoved);
+        return static_cast<UInt>(removeMarker.size() - positions.size());
     }
 };
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

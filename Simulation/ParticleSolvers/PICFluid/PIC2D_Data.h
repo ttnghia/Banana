@@ -173,10 +173,7 @@ struct PIC2D_Data
             tmp_positions.resize(positions.size());
 
             ////////////////////////////////////////////////////////////////////////////////
-            // resize marker array at last
-            auto nRemoved = removeMarker.size() - positions.size();
-            removeMarker.resize(positions.size());
-            return static_cast<UInt>(nRemoved);
+            return static_cast<UInt>(removeMarker.size() - positions.size());
         }
     } particleData;
 

@@ -26,10 +26,10 @@
 #include <ParticleSolvers/Peridynamics/PeridynamicsSolver.h>
 
 //#define PARTICLE_SOLVER WCSPHSolver
-#define PARTICLE_SOLVER FLIP3D_Solver
+//#define PARTICLE_SOLVER FLIP3D_Solver
 //#define PARTICLE_SOLVER PIC3D_Solver
 //#define PARTICLE_SOLVER MPM3D_Solver
-//#define PARTICLE_SOLVER APIC3D_Solver
+#define PARTICLE_SOLVER APIC3D_Solver
 //#define PARTICLE_SOLVER PeridynamicsSolver
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

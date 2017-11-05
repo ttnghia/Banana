@@ -41,10 +41,10 @@ public:
     virtual String getGreetingMessage() override { return String("Fluid Simulation using FLIP-3D Solver"); }
 
     ////////////////////////////////////////////////////////////////////////////////
-    auto&       flipParams() { return m_flipParams; }
-    const auto& flipParams() const { return m_flipParams; }
-    auto&       flipData() { return m_flipData; }
-    const auto& flipData() const { return m_flipData; }
+    auto&       flipParams() { return m_FLIPParams; }
+    const auto& flipParams() const { return m_FLIPParams; }
+    auto&       flipData() { return m_FLIPData; }
+    const auto& flipData() const { return m_FLIPData; }
 
 protected:
     virtual void loadSimParams(const nlohmann::json& jParams) override;
@@ -60,8 +60,8 @@ protected:
     __BNN_INLINE Vec3r getVelocityChangesFromGrid(const Vec3r& ppos);
 
     ////////////////////////////////////////////////////////////////////////////////
-    FLIP3D_Parameters m_flipParams;
-    FLIP3D_Data       m_flipData;
+    FLIP3D_Parameters m_FLIPParams;
+    FLIP3D_Data       m_FLIPData;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

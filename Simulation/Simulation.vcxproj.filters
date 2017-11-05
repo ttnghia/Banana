@@ -221,9 +221,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ParticleSolvers\SPH\WCSPH\WCSPHSolver.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ParticleTools\_ParticleTools.Test.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -246,6 +243,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ParticleSolvers\PICFluid\PIC3D_Solver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleSolvers\PICFluid\APIC3D_Solver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
