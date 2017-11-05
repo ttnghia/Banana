@@ -84,11 +84,13 @@ struct GlobalParameters
 
     ////////////////////////////////////////////////////////////////////////////////
     // data IO parameters
-    String     dataPath         = String("./SimData");
-    bool       bLoadMemoryState = true;
-    bool       bSaveFrameData   = false;
-    bool       bSaveMemoryState = false;
-    UInt       framePerState    = 1;
+    String     dataPath              = String("./SimData");
+    String     memoryStateDataFolder = String("MemoryState");
+    String     frameDataFolder       = String("FrameData");
+    bool       bLoadMemoryState      = true;
+    bool       bSaveMemoryState      = false;
+    bool       bSaveFrameData        = false;
+    UInt       framePerState         = 1;
     Vec_String optionalSavingData;
     ////////////////////////////////////////////////////////////////////////////////
 
@@ -121,7 +123,9 @@ struct GlobalParameters
 
         ////////////////////////////////////////////////////////////////////////////////
         // data IO parameters
-        logger.printLogIndent(String("Data path: ") + dataPath);
+        logger.printLogIndentIf(bSaveMemoryState || bSaveFrameData || bPrintLog2File, ("Data path: ") + dataPath);
+        logger.printLogIndentIf(bSaveMemoryState,                                     ("Memory state data folder: ") + memoryStateDataFolder, 2);
+        logger.printLogIndentIf(bSaveFrameData,                                       ("Frame data folder: ") + frameDataFolder,              2);
         logger.printLogIndent(String("Load saved memory state: ") + (bLoadMemoryState ? String("Yes") : String("No")));
         logger.printLogIndent(String("Save memory state: ") + (bSaveMemoryState ? String("Yes") : String("No")));
         logger.printLogIndentIf(bSaveMemoryState, String("Frames/state: ") + std::to_string(framePerState), 2);

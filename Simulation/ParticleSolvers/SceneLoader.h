@@ -72,23 +72,29 @@ inline bool loadDataPath(const String& sceneFile, String& dataPath)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 inline void loadGlobalParams(const nlohmann::json& jParams, ParticleSolvers::GlobalParameters& globalParams)
 {
+    JSONHelpers::readValue(jParams, globalParams.nThreads, "NThreads");
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // frame and time parameters
     JSONHelpers::readValue(jParams, globalParams.frameDuration, "FrameDuration");
     JSONHelpers::readValue(jParams, globalParams.startFrame,    "StartFrame");
     JSONHelpers::readValue(jParams, globalParams.finalFrame,    "FinalFrame");
-    JSONHelpers::readValue(jParams, globalParams.nThreads,      "NThreads");
+    ////////////////////////////////////////////////////////////////////////////////
 
-    JSONHelpers::readBool(jParams, globalParams.bApplyGravity,       "ApplyGravity");
-    JSONHelpers::readBool(jParams, globalParams.bEnableSortParticle, "EnableSortParticle");
-    JSONHelpers::readValue(jParams, globalParams.sortFrequency, "SortFrequency");
-
+    ////////////////////////////////////////////////////////////////////////////////
+    // data IO parameters
+    JSONHelpers::readValue(jParams, globalParams.dataPath,              "DataPath");
+    JSONHelpers::readValue(jParams, globalParams.memoryStateDataFolder, "MemoryStateDataFolder");
+    JSONHelpers::readValue(jParams, globalParams.frameDataFolder,       "FrameDataFolder");
     JSONHelpers::readBool(jParams, globalParams.bLoadMemoryState, "LoadMemoryState");
-    JSONHelpers::readBool(jParams, globalParams.bSaveFrameData,   "SaveFrameData");
     JSONHelpers::readBool(jParams, globalParams.bSaveMemoryState, "SaveMemoryState");
-    JSONHelpers::readBool(jParams, globalParams.bPrintLog2File,   "PrintLogToFile");
+    JSONHelpers::readBool(jParams, globalParams.bSaveFrameData,   "SaveFrameData");
     JSONHelpers::readValue(jParams, globalParams.framePerState, "FramePerState");
-    JSONHelpers::readValue(jParams, globalParams.dataPath,      "DataPath");
     JSONHelpers::readVector(jParams, globalParams.optionalSavingData, "OptionalSavingData");
+    ////////////////////////////////////////////////////////////////////////////////
 
+    ////////////////////////////////////////////////////////////////////////////////
+    // logging parameters
     String logLevel = String("Trace");
     JSONHelpers::readValue(jParams, logLevel, "LogLevel");
     if(logLevel == "Debug") {
@@ -96,6 +102,15 @@ inline void loadGlobalParams(const nlohmann::json& jParams, ParticleSolvers::Glo
     } else {
         globalParams.logLevel = spdlog::level::trace;
     }
+    JSONHelpers::readBool(jParams, globalParams.bPrintLog2File, "PrintLogToFile");
+    ////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // misc parameters
+    JSONHelpers::readBool(jParams, globalParams.bApplyGravity,       "ApplyGravity");
+    JSONHelpers::readBool(jParams, globalParams.bEnableSortParticle, "EnableSortParticle");
+    JSONHelpers::readValue(jParams, globalParams.sortFrequency, "SortFrequency");
+    ////////////////////////////////////////////////////////////////////////////////
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

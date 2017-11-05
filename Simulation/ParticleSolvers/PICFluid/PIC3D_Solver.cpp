@@ -245,7 +245,7 @@ bool PIC3D_Solver::advanceScene(UInt frame, Real fraction /*= Real(0)*/)
 // This function must be called after the gridData() has been resized
 void PIC3D_Solver::setupDataIO()
 {
-    m_ParticleDataIO = std::make_unique<ParticleSerialization>(globalParams().dataPath, "PICData", "frame", m_Logger);
+    m_ParticleDataIO = std::make_unique<ParticleSerialization>(globalParams().dataPath, globalParams().frameDataFolder, "frame", m_Logger);
     m_ParticleDataIO->addFixedAttribute<float>("particle_radius", ParticleSerialization::TypeReal, 1);
     m_ParticleDataIO->addParticleAttribute<float>("position", ParticleSerialization::TypeCompressedReal, 3);
     if(globalParams().isSavingData("anisotropic_kernel")) {
@@ -256,7 +256,7 @@ void PIC3D_Solver::setupDataIO()
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    m_MemoryStateIO = std::make_unique<ParticleSerialization>(globalParams().dataPath, "PICState", "frame", m_Logger);
+    m_MemoryStateIO = std::make_unique<ParticleSerialization>(globalParams().dataPath, globalParams().memoryStateDataFolder, "frame", m_Logger);
     m_MemoryStateIO->addFixedAttribute<Real>("grid_resolution", ParticleSerialization::TypeUInt, 3);
     m_MemoryStateIO->addFixedAttribute<Real>("grid_u",          ParticleSerialization::TypeReal, static_cast<UInt>(gridData().u.dataSize()));
     m_MemoryStateIO->addFixedAttribute<Real>("grid_v",          ParticleSerialization::TypeReal, static_cast<UInt>(gridData().v.dataSize()));
