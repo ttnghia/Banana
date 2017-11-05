@@ -155,11 +155,6 @@ void PIC3D_Solver::loadSimParams(const nlohmann::json& jParams)
 
     solverParams().makeReady();
     solverParams().printParams(m_Logger);
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // allocate memory after having parameters
-    logger().printRunTime("Allocate memory for common solver data: ", [&]() { solverData().makeReady(solverParams()); });
-    logger().newLine();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -239,6 +234,12 @@ bool PIC3D_Solver::advanceScene(UInt frame, Real fraction /*= Real(0)*/)
 
     ////////////////////////////////////////////////////////////////////////////////
     return true;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void PIC3D_Solver::allocateSolverMemory()
+{
+    solverData().makeReady(solverParams());
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

@@ -86,9 +86,10 @@ protected:
     virtual void generateRemovers(const nlohmann::json& jParams);
     virtual bool advanceScene(UInt frame, RealType fraction = RealType(0));
 
-    virtual void setupDataIO()     = 0;
-    virtual bool loadMemoryState() = 0;
-    virtual void saveMemoryState() = 0;
+    virtual void allocateSolverMemory() = 0;
+    virtual void setupDataIO()          = 0;
+    virtual bool loadMemoryState()      = 0;
+    virtual void saveMemoryState()      = 0;
     virtual void saveFrameData();
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -187,11 +188,13 @@ void ParticleSolver<N, RealType >::loadScene(const String& sceneFile)
                 box->setOriginalBox(boxMin, boxMax);
             }
         }
-        loadSimParams(jSimParams);         // do this by derived solver
+        loadSimParams(jSimParams); // do this by derived solver
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    // Setup data io after having global params and boundary objects ready
+    // Setup solver memory, data io after having global params and boundary objects ready
+    logger().printRunTime("Allocate solver memory: ", [&]() { allocateSolverMemory(); });          // do this by derived solver, after having parameters
+    logger().newLine();
     setupDataIO();
 
 

@@ -55,14 +55,14 @@ protected:
     virtual void loadSimParams(const nlohmann::json& jParams) override;
     virtual void generateParticles(const nlohmann::json& jParams) override;
     virtual bool advanceScene(UInt frame, Real fraction = Real(0)) override;
+    virtual void allocateSolverMemory() override {}
     virtual void setupDataIO() override;
     virtual bool loadMemoryState() override;
     virtual void saveMemoryState() override;
     virtual void saveFrameData() override;
-
-    Real computeCFLTimestep();
-    void advanceVelocity(Real timestep);
-    void moveParticles(Real timestep);
+    Real         computeCFLTimestep();
+    void         advanceVelocity(Real timestep);
+    void         moveParticles(Real timestep);
 
     ////////////////////////////////////////////////////////////////////////////////
     // grid processing

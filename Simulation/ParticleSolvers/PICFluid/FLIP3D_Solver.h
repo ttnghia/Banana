@@ -48,6 +48,7 @@ public:
 
 protected:
     virtual void loadSimParams(const nlohmann::json& jParams) override;
+    virtual void allocateSolverMemory() override;
     virtual void advanceVelocity(Real timestep) override;
 
     void mapParticles2Grid();

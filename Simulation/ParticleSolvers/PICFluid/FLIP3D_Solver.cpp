@@ -42,11 +42,13 @@ void FLIP3D_Solver::loadSimParams(const nlohmann::json& jParams)
     ////////////////////////////////////////////////////////////////////////////////
 
     flipParams().printParams(m_Logger);
+}
 
-    ////////////////////////////////////////////////////////////////////////////////
-    // allocate memory after having parameters
-    logger().printRunTime("Allocate memory for FLIP data: ", [&]() { flipData().resize(grid().getNCells()); });
-    logger().newLine();
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void FLIP3D_Solver::allocateSolverMemory()
+{
+    PIC3D_Solver::allocateSolverMemory();
+    flipData().resize(grid().getNCells());
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
