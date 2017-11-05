@@ -33,8 +33,8 @@ void ParticleSolverQt::doSimulationFrame(UInt frame)
     logger().printRunTime(strMsg.c_str(), frameTimer,
                           [&]()
                           {
-                              advanceFrame();
                               sortParticles();
+                              advanceFrame();
                           });
 
     ////////////////////////////////////////////////////////////////////////////////

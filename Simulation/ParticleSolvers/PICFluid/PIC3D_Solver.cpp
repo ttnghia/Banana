@@ -94,7 +94,7 @@ void PIC3D_Solver::advanceFrame()
 void PIC3D_Solver::sortParticles()
 {
     assert(m_NSearch != nullptr);
-    if((globalParams().finishedFrame > 0 && !globalParams().bEnableSortParticle) || (globalParams().finishedFrame % globalParams().sortFrequency != 0)) {
+    if(!globalParams().bEnableSortParticle || (globalParams().finishedFrame > 0 && (globalParams().finishedFrame + 1) % globalParams().sortFrequency != 0)) {
         return;
     }
     ////////////////////////////////////////////////////////////////////////////////
@@ -107,7 +107,6 @@ void PIC3D_Solver::sortParticles()
                               d.sort_field(&particleData().positions[0]);
                               d.sort_field(&particleData().velocities[0]);
                           });
-    logger().newLine();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -164,7 +163,6 @@ void PIC3D_Solver::generateParticles(const nlohmann::json& jParams)
             logger().printLog(String("Generated ") + NumberHelpers::formatWithCommas(nGen) + String(" particles by ") + generator->nameID());
         }
         m_NSearch->add_point_set(glm::value_ptr(particleData().positions.front()), particleData().getNParticles(), true, true);
-        sortParticles();
 
         ////////////////////////////////////////////////////////////////////////////////
         // only save frame0 data if particles are generated, not loaded from disk

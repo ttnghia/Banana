@@ -259,10 +259,10 @@ void ParticleSolver<N, RealType >::doSimulation()
     logger().printAligned("Start Simulation", '=');
     static Timer frameTimer;
 
-    auto frame = (globalParams().startFrame <= 1) ? globalParams().finishedFrame + 1 : MathHelpers::min(globalParams().startFrame, globalParams().finishedFrame + 1);
-    for(; frame <= globalParams().finalFrame; ++frame) {
+    auto startFrame = (globalParams().startFrame <= 1) ? globalParams().finishedFrame + 1 : MathHelpers::min(globalParams().startFrame, globalParams().finishedFrame + 1);
+    for(auto frame = startFrame; frame <= globalParams().finalFrame; ++frame) {
         logger().newLine();
-        logger().printAligned("Frame " + NumberHelpers::formatWithCommas(frame), '=');
+        logger().printAligned(String("Frame ") + NumberHelpers::formatWithCommas(frame), '=');
         logger().newLine();
 
         ////////////////////////////////////////////////////////////////////////////////
@@ -282,9 +282,9 @@ void ParticleSolver<N, RealType >::doSimulation()
 
     ////////////////////////////////////////////////////////////////////////////////
     logger().newLine();
-    logger().printAligned("Simulation finished", '+');
-    logger().printLog("Total frames: " + NumberHelpers::formatWithCommas(globalParams().finalFrame - globalParams().startFrame + 1));
-    logger().printLog("Data path: " + globalParams().dataPath);
+    logger().printAligned(String("Simulation finished"), '+');
+    logger().printLog(String("Total frames: ") + NumberHelpers::formatWithCommas(globalParams().finalFrame - startFrame + 1));
+    logger().printLog(String("Data path: ") + globalParams().dataPath);
     auto strs = FileHelpers::getFolderSizeInfo(globalParams().dataPath, 1);
     for(auto& str : strs) {
         logger().printLog(str);

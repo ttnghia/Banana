@@ -90,7 +90,7 @@ void ParticleSerialization::flushAsync(const String& fileName)
         str += String(" ("); str += NumberHelpers::formatWithCommas(static_cast<double>(computeBufferSize()) / 1048576.0); str += String(" MBs)");
         m_Logger->printLog(str);
         str = String("File data: "); str += m_AttributeNameList;
-        m_Logger->printLog(str);
+        m_Logger->printLogIndent(str);
     }
 
     waitForBuffers();
