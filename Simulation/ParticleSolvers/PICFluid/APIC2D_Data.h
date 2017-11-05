@@ -54,14 +54,19 @@ struct APIC2D_Data : public ParticleSimulationData<2, Real>
         C.resize(newPositions.size(), Mat2x2r(1.0));
     }
 
-    virtual void removeParticles(Vec_Int8& removeMarker)
+    virtual UInt removeParticles(Vec_Int8& removeMarker)
     {
         if(!STLHelpers::contain(removeMarker, Int8(1))) {
-            return;
+            return 0u;
         }
 
         __BNN_TODO
         STLHelpers::eraseByMarker(C, removeMarker);                 // need to erase, or just resize?
+
+        ////////////////////////////////////////////////////////////////////////////////
+        auto nRemoved = removeMarker.size() - positions.size();
+        removeMarker.resize(positions.size());
+        return static_cast<UInt>(nRemoved);
     }
 };
 

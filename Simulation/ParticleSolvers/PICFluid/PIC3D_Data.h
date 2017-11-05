@@ -148,18 +148,12 @@ struct PIC3D_Data
 {
     struct ParticleData : public ParticleSimulationData<3, Real>
     {
-        ////////////////////////////////////////////////////////////////////////////////
-        // variables for storing temporary data
-        Vec_Vec3r tmp_positions;
-        ////////////////////////////////////////////////////////////////////////////////
-
         virtual UInt getNParticles() override { return static_cast<UInt>(positions.size()); }
 
         virtual void reserve(UInt nParticles) override
         {
             positions.reserve(nParticles);
             velocities.reserve(nParticles);
-            tmp_positions.reserve(nParticles);
         }
 
         virtual void addParticles(const Vec_Vec3r& newPositions, const Vec_Vec3r& newVelocities) override
@@ -167,23 +161,23 @@ struct PIC3D_Data
             __BNN_ASSERT(newPositions.size() == newVelocities.size());
             positions.insert(positions.end(), newPositions.begin(), newPositions.end());
             velocities.insert(velocities.end(), newVelocities.begin(), newVelocities.end());
-            tmp_positions.resize(positions.size());
         }
 
-        virtual void removeParticles(Vec_Int8& removeMarker) override
+        virtual UInt removeParticles(Vec_Int8& removeMarker) override
         {
             __BNN_ASSERT(removeMarker.size() == positions.size());
             if(!STLHelpers::contain(removeMarker, Int8(1))) {
-                return;
+                return 0u;
             }
 
             STLHelpers::eraseByMarker(positions,  removeMarker);
             STLHelpers::eraseByMarker(velocities, removeMarker);
-            tmp_positions.resize(positions.size());
 
             ////////////////////////////////////////////////////////////////////////////////
             // resize marker array at last
+            auto nRemoved = removeMarker.size() - positions.size();
             removeMarker.resize(positions.size());
+            return static_cast<UInt>(nRemoved);
         }
     } particleData;
 

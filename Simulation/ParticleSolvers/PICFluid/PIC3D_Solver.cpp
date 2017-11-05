@@ -150,22 +150,20 @@ void PIC3D_Solver::generateParticles(const nlohmann::json& jParams)
     ParticleSolver3D::generateParticles(jParams);
     m_NSearch = std::make_unique<NeighborSearch::NeighborSearch3D>(solverParams().cellSize);
     if(!loadMemoryState()) {
-        Vec_Vec3r tmpPositions;
-        Vec_Vec3r tmpVelocities;
         for(auto& generator : m_ParticleGenerators) {
             generator->makeReady(m_BoundaryObjects, solverParams().particleRadius);
             ////////////////////////////////////////////////////////////////////////////////
-            tmpPositions.resize(0);
-            tmpVelocities.resize(0);
-            UInt nGen = generator->generateParticles(particleData().positions, tmpPositions, tmpVelocities);
-            particleData().addParticles(tmpPositions, tmpVelocities);
+            particleData().tmp_positions.resize(0);
+            particleData().tmp_velocities.resize(0);
+            UInt nGen = generator->generateParticles(particleData().positions, particleData().tmp_positions, particleData().tmp_velocities);
+            particleData().addParticles(particleData().tmp_positions, particleData().tmp_velocities);
             ////////////////////////////////////////////////////////////////////////////////
             logger().printLog(String("Generated ") + NumberHelpers::formatWithCommas(nGen) + String(" particles by ") + generator->nameID());
         }
         m_NSearch->add_point_set(glm::value_ptr(particleData().positions.front()), particleData().getNParticles(), true, true);
 
         ////////////////////////////////////////////////////////////////////////////////
-        // only save frame0 data if particles are generated, not loaded from disk
+        // only save frame0 data if particles are just generated (not loaded from disk)
         saveFrameData();
         logger().newLine();
     } else {
@@ -179,21 +177,26 @@ bool PIC3D_Solver::advanceScene(UInt frame, Real fraction /*= Real(0)*/)
     bool bSceneChanged = ParticleSolver3D::advanceScene(frame, fraction);
 
     ////////////////////////////////////////////////////////////////////////////////
-    static Vec_Vec3r tmpPositions;
-    static Vec_Vec3r tmpVelocities;
-    UInt             nNewParticles = 0;
     for(auto& generator : m_ParticleGenerators) {
         if(generator->isActive(frame)) {
-            tmpPositions.resize(0);
-            tmpVelocities.resize(0);
-            UInt nGen = generator->generateParticles(particleData().positions, tmpPositions, tmpVelocities, frame);
-            particleData().addParticles(tmpPositions, tmpVelocities);
+            particleData().tmp_positions.resize(0);
+            particleData().tmp_velocities.resize(0);
+            UInt nGen = generator->generateParticles(particleData().positions, particleData().tmp_positions, particleData().tmp_velocities, frame);
+            particleData().addParticles(particleData().tmp_positions, particleData().tmp_velocities);
             ////////////////////////////////////////////////////////////////////////////////
-            logger().printLogIf(nGen > 0, String("Generated ") + NumberHelpers::formatWithCommas(nGen) + String(" new particles by ") + generator->nameID());
-            nNewParticles += nGen;
+            logger().printLogIndentIf(nGen > 0, String("Generated ") + NumberHelpers::formatWithCommas(nGen) + String(" new particles by ") + generator->nameID());
         }
     }
 
+    for(auto& remover : m_ParticleRemovers) {
+        if(remover->isActive(frame)) {
+            remover->findRemovingCandidate(particleData().removeMarker, particleData().positions);
+            UInt nRemoved = particleData().removeParticles(particleData().removeMarker);
+            logger().printLogIndentIf(nRemoved > 0, String("Removed ") + NumberHelpers::formatWithCommas(nRemoved) + String(" particles by ") + remover->nameID());
+        }
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////
     if(!bSceneChanged) {
         return false;
     }

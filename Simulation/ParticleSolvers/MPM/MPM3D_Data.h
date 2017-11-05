@@ -258,10 +258,10 @@ struct MPM3D_Data
             }
         }
 
-        virtual void removeParticles(Vec_Int8& removeMarker)
+        virtual UInt removeParticles(Vec_Int8& removeMarker)
         {
             if(!STLHelpers::contain(removeMarker, Int8(1))) {
-                return;
+                return 0u;
             }
 
             STLHelpers::eraseByMarker(positions,    removeMarker);
@@ -293,7 +293,9 @@ struct MPM3D_Data
 
             ////////////////////////////////////////////////////////////////////////////////
             // resize removeMarker eventually
+            auto nRemoved = removeMarker.size() - positions.size();
             removeMarker.resize(positions.size());
+            return static_cast<UInt>(nRemoved);
         }
     } particleData;
 

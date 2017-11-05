@@ -162,10 +162,10 @@ struct PIC2D_Data
             tmp_positions.resize(positions.size());
         }
 
-        virtual void removeParticles(Vec_Int8& removeMarker) override
+        virtual UInt removeParticles(Vec_Int8& removeMarker) override
         {
             if(!STLHelpers::contain(removeMarker, Int8(1))) {
-                return;
+                return 0u;
             }
 
             STLHelpers::eraseByMarker(positions,  removeMarker);
@@ -174,7 +174,9 @@ struct PIC2D_Data
 
             ////////////////////////////////////////////////////////////////////////////////
             // resize marker array at last
+            auto nRemoved = removeMarker.size() - positions.size();
             removeMarker.resize(positions.size());
+            return static_cast<UInt>(nRemoved);
         }
     } particleData;
 
