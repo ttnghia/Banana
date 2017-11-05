@@ -61,18 +61,7 @@ inline void createFolder(const String& folderName)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 inline bool fileExisted(const char* fileName)
 {
-    FILE* file = nullptr;
-#ifdef __BANANA_WINDOWS__
-    fopen_s(&file, fileName, "r");
-#else
-    file = fopen(fileName, "r");
-#endif
-    if(file != nullptr) {
-        fclose(file);
-        return true;
-    } else {
-        return false;
-    }
+    return std::experimental::filesystem::exists(fileName);
 }
 
 inline bool fileExisted(const String& fileName)

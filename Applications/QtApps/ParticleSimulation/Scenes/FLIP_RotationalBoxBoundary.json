@@ -22,7 +22,7 @@
         "PIC_FLIP_Ratio" : 0.97,
         "CGRelativeTolerance" : 1e-15,
         "MaxCGIteration" : 10000,
-        "ParticleRadius" : 0.0075,
+        "CellSize" : 0.02,
         "CFLFactor" : 0.5
     },
     "AdditionalBoundaryObjects":

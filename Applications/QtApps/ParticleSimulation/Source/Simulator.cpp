@@ -89,6 +89,7 @@ void Simulator::changeScene(const QString& scene)
 
     // wait until the simulation stop before modifying the scene
     if(m_SimulationFutureObj.valid()) {
+        m_bStop = true;
         m_SimulationFutureObj.wait();
     }
 
