@@ -109,7 +109,7 @@ void Snow3DSolver::sortParticles()
 void Snow3DSolver::loadSimParams(const nlohmann::json& jParams)
 {
     __BNN_ASSERT(m_BoundaryObjects.size() > 0);
-    SharedPtr<GeometryObjects::BoxObject<3, Real> > box = dynamic_pointer_cast<GeometryObjects::BoxObject<3, Real> >(m_BoundaryObjects[0]->getGeometry());
+    SharedPtr<GeometryObjects::BoxObject<3, Real> > box = dynamic_pointer_cast<GeometryObjects::BoxObject<3, Real> >(m_BoundaryObjects[0]->geometry());
     __BNN_ASSERT(box != nullptr);
     solverParams().movingBMin = box->boxMin();
     solverParams().movingBMax = box->boxMax();
@@ -146,7 +146,7 @@ void Snow3DSolver::generateParticles(const nlohmann::json& jParams)
         Vec_Vec3r tmpPositions;
         Vec_Vec3r tmpVelocities;
         for(auto& generator : m_ParticleGenerators) {
-            generator->makeReady(m_BoundaryObjects, solverParams().particleRadius);
+            generator->buildObject(m_BoundaryObjects, solverParams().particleRadius);
             ////////////////////////////////////////////////////////////////////////////////
             tmpPositions.resize(0);
             tmpVelocities.resize(0);

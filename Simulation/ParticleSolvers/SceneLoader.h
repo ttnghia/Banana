@@ -110,7 +110,6 @@ void loadSimulationObject(const nlohmann::json& jParams, const SharedPtr<Simulat
     ////////////////////////////////////////////////////////////////////////////////
     JSONHelpers::readValue(jParams, obj->meshFile(),     "MeshFile");
     JSONHelpers::readValue(jParams, obj->particleFile(), "ParticleFile");
-    JSONHelpers::readValue(jParams, obj->SDFFile(),      "SDFFile");
     JSONHelpers::readBool(jParams, obj->useCache(),     "UseCache");
     JSONHelpers::readBool(jParams, obj->fullShapeObj(), "FullShapeObj");
 
@@ -120,17 +119,17 @@ void loadSimulationObject(const nlohmann::json& jParams, const SharedPtr<Simulat
     Real              scale;
 
     if(JSONHelpers::readVector(jParams, translation, "Translation")) {
-        obj->getGeometry()->setTranslation(translation);
+        obj->geometry()->setTranslation(translation);
     }
 
     if(JSONHelpers::readVector(jParams, rotationEulerAngles, "RotationEulerAngles") || JSONHelpers::readVector(jParams, rotationEulerAngles, "RotationEulerAngle")) {
-        obj->getGeometry()->setRotation(MathHelpers::EulerToAxisAngle(rotationEulerAngles, false));
+        obj->geometry()->setRotation(MathHelpers::EulerToAxisAngle(rotationEulerAngles, false));
     } else if(JSONHelpers::readVector(jParams, rotationAxisAngle, "RotationAxisAngle")) {
-        obj->getGeometry()->setRotation(glm::radians(rotationAxisAngle));
+        obj->geometry()->setRotation(glm::radians(rotationAxisAngle));
     }
 
     if(JSONHelpers::readValue(jParams, scale, "Scale")) {
-        obj->getGeometry()->setUniformScale(scale);
+        obj->geometry()->setUniformScale(scale);
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -138,7 +137,7 @@ void loadSimulationObject(const nlohmann::json& jParams, const SharedPtr<Simulat
     if(jParams.find("Animation") != jParams.end()) {
         obj->isDynamic() = true;
         auto  jAnimation = jParams["Animation"];
-        auto& aniObj     = obj->getGeometry()->getAnimation();
+        auto& aniObj     = obj->geometry()->getAnimation();
 
         bool bCubicInterpolationTranslation = true;
         bool bCubicInterpolationRotation    = true;
@@ -176,7 +175,7 @@ void loadSimulationObject(const nlohmann::json& jParams, const SharedPtr<Simulat
 
     ////////////////////////////////////////////////////////////////////////////////
     // specialized for box object
-    auto box = dynamic_pointer_cast<GeometryObjects::BoxObject<N, RealType> >(obj->getGeometry());
+    auto box = dynamic_pointer_cast<GeometryObjects::BoxObject<N, RealType> >(obj->geometry());
     if(box != nullptr) {
         VecX<N, Real> bMin, bMax;
         if(JSONHelpers::readVector(jParams, bMin, "BoxMin") && JSONHelpers::readVector(jParams, bMax, "BoxMax")) {
@@ -208,7 +207,7 @@ void loadSimulationObject(const nlohmann::json& jParams, const SharedPtr<Simulat
 
     ////////////////////////////////////////////////////////////////////////////////
     // specialized for trimesh object
-    auto meshObj = dynamic_pointer_cast<GeometryObjects::TriMeshObject<N, RealType> >(obj->getGeometry());
+    auto meshObj = dynamic_pointer_cast<GeometryObjects::TriMeshObject<N, RealType> >(obj->geometry());
     if(meshObj != nullptr) {
         __BNN_ASSERT(JSONHelpers::readValue(jParams, meshObj->meshFile(), "MeshFile"));
         JSONHelpers::readValue(jParams, meshObj->sdfStep(), "SDFStep");

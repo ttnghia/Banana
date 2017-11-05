@@ -112,7 +112,7 @@ void PIC3D_Solver::sortParticles()
 void PIC3D_Solver::loadSimParams(const nlohmann::json& jParams)
 {
     __BNN_ASSERT(m_BoundaryObjects.size() > 0);
-    SharedPtr<GeometryObjects::BoxObject<3, Real> > box = dynamic_pointer_cast<GeometryObjects::BoxObject<3, Real> >(m_BoundaryObjects[0]->getGeometry());
+    SharedPtr<GeometryObjects::BoxObject<3, Real> > box = dynamic_pointer_cast<GeometryObjects::BoxObject<3, Real> >(m_BoundaryObjects[0]->geometry());
     __BNN_ASSERT(box != nullptr);
     solverParams().domainBMin = box->boxMin();
     solverParams().domainBMax = box->boxMax();
@@ -168,7 +168,7 @@ void PIC3D_Solver::generateParticles(const nlohmann::json& jParams)
     m_NSearch = std::make_unique<NeighborSearch::NeighborSearch3D>(solverParams().cellSize);
     if(!loadMemoryState()) {
         for(auto& generator : m_ParticleGenerators) {
-            generator->makeReady(m_BoundaryObjects, solverParams().particleRadius);
+            generator->buildObject(m_BoundaryObjects, solverParams().particleRadius);
             ////////////////////////////////////////////////////////////////////////////////
             particleData().tmp_positions.resize(0);
             particleData().tmp_velocities.resize(0);

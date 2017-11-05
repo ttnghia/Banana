@@ -139,7 +139,7 @@ void PIC2D_Solver::generateParticles(const nlohmann::json& jParams)
         Vec_Vec2r tmpPositions;
         Vec_Vec2r tmpVelocities;
         for(auto& generator : m_ParticleGenerators) {
-            generator->makeReady(m_BoundaryObjects, solverParams().particleRadius);
+            generator->buildObject(m_BoundaryObjects, solverParams().particleRadius);
             ////////////////////////////////////////////////////////////////////////////////
             tmpPositions.resize(0);
             tmpVelocities.resize(0);

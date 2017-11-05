@@ -175,14 +175,14 @@ void ParticleSolver<N, RealType >::loadScene(const String& sceneFile)
             VecX<N, RealType> boxMax;
 
             if(JSONHelpers::readVector(jBoxParams, translation, "Translation")) {
-                obj->getGeometry()->setTranslation(translation);
+                obj->geometry()->setTranslation(translation);
             }
             if(JSONHelpers::readValue(jBoxParams, scale, "Scale")) {
-                obj->getGeometry()->setUniformScale(scale);
+                obj->geometry()->setUniformScale(scale);
             }
 
             if(JSONHelpers::readVector(jBoxParams, boxMin, "BoxMin") && JSONHelpers::readVector(jBoxParams, boxMax, "BoxMax")) {
-                SharedPtr<GeometryObjects::BoxObject<N, RealType> > box = dynamic_pointer_cast<GeometryObjects::BoxObject<N, RealType> >(obj->getGeometry());
+                SharedPtr<GeometryObjects::BoxObject<N, RealType> > box = dynamic_pointer_cast<GeometryObjects::BoxObject<N, RealType> >(obj->geometry());
                 __BNN_ASSERT(box != nullptr);
                 box->setOriginalBox(boxMin, boxMax);
             }
@@ -229,7 +229,7 @@ void ParticleSolver<N, RealType >::loadScene(const String& sceneFile)
 
             ////////////////////////////////////////////////////////////////////////////////
             // specialized for box object
-            auto box = dynamic_pointer_cast<GeometryObjects::BoxObject<N, RealType> >(obj->getGeometry());
+            auto box = dynamic_pointer_cast<GeometryObjects::BoxObject<N, RealType> >(obj->geometry());
             if(box != nullptr) {
                 m_DynamicObjectDataIO->addFixedAttribute<float>(obj->nameID() + String("_box_min"), ParticleSerialization::TypeReal, N);
                 m_DynamicObjectDataIO->addFixedAttribute<float>(obj->nameID() + String("_box_max"), ParticleSerialization::TypeReal, N);
@@ -316,11 +316,11 @@ void ParticleSolver<N, RealType >::generateBoundaries(const nlohmann::json& jPar
 
         if(staticBoundaries.size() > 1) {
             SharedPtr<SimulationObjects::BoundaryObject<N, RealType> > csgBoundary = std::make_shared<SimulationObjects::BoundaryObject<N, RealType> >("CSGObject");
-            SharedPtr<GeometryObjects::CSGObject<N, RealType> >        csgObj      = std::static_pointer_cast<GeometryObjects::CSGObject<N, RealType> >(csgBoundary->getGeometry());
+            SharedPtr<GeometryObjects::CSGObject<N, RealType> >        csgObj      = std::static_pointer_cast<GeometryObjects::CSGObject<N, RealType> >(csgBoundary->geometry());
             __BNN_ASSERT(csgObj != nullptr);
 
             for(auto& obj : staticBoundaries) {
-                csgObj->addObject(obj->getGeometry(), GeometryObjects::CSGOperations::Union);
+                csgObj->addObject(obj->geometry(), GeometryObjects::CSGOperations::Union);
             }
 
             m_BoundaryObjects.resize(0);
@@ -374,11 +374,11 @@ void Banana::ParticleSolvers::ParticleSolver<N, RealType >::saveFrameData()
         m_DynamicObjectDataIO->clearData();
         m_DynamicObjectDataIO->setNParticles(1);
         for(auto& obj : m_DynamicObjects) {
-            m_DynamicObjectDataIO->setFixedAttribute(obj->nameID() + String("_transformation"), glm::value_ptr(obj->getGeometry()->getTransformationMatrix()));
+            m_DynamicObjectDataIO->setFixedAttribute(obj->nameID() + String("_transformation"), glm::value_ptr(obj->geometry()->getTransformationMatrix()));
 
             ////////////////////////////////////////////////////////////////////////////////
             // specialized for box object
-            auto box = dynamic_pointer_cast<GeometryObjects::BoxObject<N, RealType> >(obj->getGeometry());
+            auto box = dynamic_pointer_cast<GeometryObjects::BoxObject<N, RealType> >(obj->geometry());
             if(box != nullptr) {
                 m_DynamicObjectDataIO->setFixedAttribute(obj->nameID() + String("_box_min"), box->originalBoxMin());
                 m_DynamicObjectDataIO->setFixedAttribute(obj->nameID() + String("_box_max"), box->originalBoxMax());

@@ -45,62 +45,26 @@ namespace SimulationObjects
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-class BoundaryObjectInterface : public SimulationObject<N, RealType>
+class BoundaryObject : public SimulationObject<N, RealType>
 {
 public:
-    BoundaryObjectInterface() = delete;
-    BoundaryObjectInterface(const String& geometryType) : SimulationObject<N, RealType>(geometryType) {}
-
+    BoundaryObject() = delete;
+    BoundaryObject(const String& geometryType) : SimulationObject<N, RealType>(geometryType) {}
+    ////////////////////////////////////////////////////////////////////////////////
     auto& restitution() { return m_RestitutionCoeff; }
     auto& isDynamic() { return m_bDynamics; }
-
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     virtual RealType          signedDistance(const VecX<N, RealType>& ppos) const override { return m_GeometryObj->signedDistance(ppos, false); }
     virtual VecX<N, RealType> gradSignedDistance(const VecX<N, RealType>& ppos, RealType dxyz = RealType(1e-4)) const override { return m_GeometryObj->gradSignedDistance(ppos, false, dxyz); }
     virtual bool              isInside(const VecX<N, RealType>& ppos) const override { return m_GeometryObj->isInside(ppos, false); }
-
+    ////////////////////////////////////////////////////////////////////////////////
     void constrainToBoundary(VecX<N, RealType>& ppos);
     UInt generateBoundaryParticles(Vec_VecX<N, RealType>& PDPositions, RealType particleRadius, Int numBDLayers = 2, bool useCache = true);
+
 protected:
-    virtual void generateBoundaryParticles_Impl(Vec_VecX<N, RealType>& PDPositions, RealType particleRadius, Int numBDLayers)
-    {
-        __BNN_UNUSED(PDPositions);
-        __BNN_UNUSED(particleRadius);
-        __BNN_UNUSED(numBDLayers);
-        __BNN_TODO
-    }
-
-    virtual void generateSDF_Impl() = 0;
-
+    virtual void generateBoundaryParticles_Impl(Vec_VecX<N, RealType>&, RealType, Int) {}
+    ////////////////////////////////////////////////////////////////////////////////
     RealType m_RestitutionCoeff = SolverDefaultParameters::BoundaryRestitution;
-
-    Grid<N, RealType> m_Grid;
-};
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+`
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+`
-// Specialization for 2D and 3D objects
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+`
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+`
-template<Int N, class RealType>
-class BoundaryObject : public BoundaryObjectInterface<N, RealType>
-{};
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-class BoundaryObject<2, RealType> : public BoundaryObjectInterface<2, RealType>
-{
-public:
-    BoundaryObject(const String& geometryType) : BoundaryObjectInterface(geometryType) {}
-    void generateSDF_Impl();
-};
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+`
-template<class RealType>
-class BoundaryObject<3, RealType> : public BoundaryObjectInterface<3, RealType>
-{
-public:
-    BoundaryObject(const String& geometryType) : BoundaryObjectInterface(geometryType) {}
-    void generateSDF_Impl();
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+`

@@ -39,7 +39,7 @@ namespace SolverDefaultParameters
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 static const UInt FrameRate   = 30u;
 static const Real MinTimestep = Real(1.0e-6);
-static const Real MaxTimestep = Real(1.0e-2);
+static const Real MaxTimestep = Real(1.0 / 30.0);
 
 static const UInt NExpandCells                    = 2u;
 static const Real RatioCellSizeOverParticleRadius = Real(2.0);
@@ -71,46 +71,81 @@ namespace ParticleSolvers
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 struct GlobalParameters
 {
-    Real frameDuration = Real(1.0 / SolverDefaultParameters::FrameRate);
+    UInt nThreads = 0;
 
-    UInt nThreads      = 0;
+    ////////////////////////////////////////////////////////////////////////////////
+    // frame and time parameters
+    Real frameDuration = Real(1.0 / SolverDefaultParameters::FrameRate);
     UInt startFrame    = 1;
     UInt finalFrame    = 1;
     UInt finishedFrame = 0;
     Real evolvedTime() const { return frameDuration * static_cast<Real>(finishedFrame); }
+    ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
+    // data IO parameters
+    String     dataPath         = String("./SimData");
     bool       bLoadMemoryState = true;
     bool       bSaveFrameData   = false;
     bool       bSaveMemoryState = false;
     UInt       framePerState    = 1;
-    String     dataPath         = String("./SimData");
     Vec_String optionalSavingData;
-
-    bool bApplyGravity       = true;
-    bool bEnableSortParticle = false;
-    UInt sortFrequency       = 10;
+    ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
+    // logging parameters
     spdlog::level::level_enum logLevel          = spdlog::level::trace;
     bool                      bPrintLog2Console = true;
     bool                      bPrintLog2File    = false;
+    ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
+    // misc parameters
+    bool bApplyGravity       = true;
+    bool bEnableSortParticle = false;
+    UInt sortFrequency       = 10;
+    ////////////////////////////////////////////////////////////////////////////////
+
     void printParams(Logger& logger)
     {
-        logger.printLog("Global parameters:");
-        logger.printLogIndent("Number of working threads: " + (nThreads > 0 ? std::to_string(nThreads) : String("Automatic")));
-        logger.printLogIndent("Data path: " + dataPath);
-        logger.printLogIndent("Frame duration: " + NumberHelpers::formatToScientific(frameDuration) +
-                              " (~" + std::to_string(static_cast<int>(round(Real(1.0) / frameDuration))) + " fps)");
-        logger.printLogIndent("Start frame: " + std::to_string(startFrame));
-        logger.printLogIndent("Final frame: " + std::to_string(finalFrame));
-        logger.printLogIndent("Apply gravity: " + (bApplyGravity ? String("Yes") : String("No")));
-        logger.printLogIndent("Sort particles during simulation: " + (bEnableSortParticle ? String("Yes") : String("No")));
-        if(bEnableSortParticle) {
-            logger.printLogIndent("Sort frequency: " + std::to_string(sortFrequency));
+        logger.printLog(String("Global parameters:"));
+        logger.printLogIndent(String("Number of working threads: ") + (nThreads > 0 ? std::to_string(nThreads) : String("Automatic")));
+
+        ////////////////////////////////////////////////////////////////////////////////
+        // frame and time parameters
+        logger.printLogIndent(String("Frame duration: ") + NumberHelpers::formatToScientific(frameDuration) +
+                              String(" (~") + std::to_string(static_cast<int>(round(Real(1.0) / frameDuration))) + String(" fps)"));
+        logger.printLogIndent(String("Start frame: ") + std::to_string(startFrame));
+        logger.printLogIndent(String("Final frame: ") + std::to_string(finalFrame));
+        ////////////////////////////////////////////////////////////////////////////////
+
+        ////////////////////////////////////////////////////////////////////////////////
+        // data IO parameters
+        logger.printLogIndent(String("Data path: ") + dataPath);
+        logger.printLogIndent(String("Load saved memory state: ") + (bLoadMemoryState ? String("Yes") : String("No")));
+        logger.printLogIndent(String("Save memory state: ") + (bSaveMemoryState ? String("Yes") : String("No")));
+        logger.printLogIndentIf(bSaveMemoryState, String("Frames/state: ") + std::to_string(framePerState), 2);
+        logger.printLogIndent(String("Save simulation data each frame: ") + (bSaveFrameData ? String("Yes") : String("No")));
+        if(bSaveFrameData && optionalSavingData.size() > 0) {
+            String str; for(const auto& s : optionalSavingData) {
+                str += s; str += String(", ");
+            }
+            str.erase(str.find_last_of(","), str.size()); // remove last ',' character
+            logger.printLogIndent(String("Optional saving data: ") + str, 2);
         }
+        ////////////////////////////////////////////////////////////////////////////////
+
+        ////////////////////////////////////////////////////////////////////////////////
+        // logging parameters
+        logger.printLogIndent(String("Log to file: ") + (bPrintLog2File ? String("Yes") : String("No")));
+        ////////////////////////////////////////////////////////////////////////////////
+
+        ////////////////////////////////////////////////////////////////////////////////
+        // misc parameters
+        logger.printLogIndent(String("Apply gravity: ") + (bApplyGravity ? String("Yes") : String("No")));
+        logger.printLogIndent(String("Sort particles during simulation: ") + (bEnableSortParticle ? String("Yes") : String("No")));
+        logger.printLogIndentIf(bEnableSortParticle, String("Sort frequency: ") + std::to_string(sortFrequency), 2);
+        ////////////////////////////////////////////////////////////////////////////////
         logger.newLine();
     }
 

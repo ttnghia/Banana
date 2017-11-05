@@ -105,14 +105,14 @@ struct PIC3D_Parameters : public SimulationParameters
         ////////////////////////////////////////////////////////////////////////////////
         // simulation size
         logger->printLogIndent(String("Particle radius: ") + std::to_string(particleRadius));
+        logger->printLogIndent(String("Fluid SDF radius: ") + std::to_string(sdfRadius));
         logger->printLogIndent(String("Ratio grid size/particle radius: ") + std::to_string(ratioCellSizePRadius));
         logger->printLogIndent(String("Expand cells for each dimension: ") + std::to_string(nExpandCells));
         logger->printLogIndent(String("Cell size: ") + std::to_string(cellSize));
-        logger->printLogIndent(String("SDF radius: ") + std::to_string(sdfRadius));
-        logger->printLogIndent(String("Domain box: ") + NumberHelpers::toString(domainBMin) + " -> " + NumberHelpers::toString(domainBMax));
-        logger->printLogIndent(String("Grid resolution: ") + NumberHelpers::toString(NumberHelpers::createGrid<UInt>(domainBMin, domainBMax, cellSize)),        2);
-        logger->printLogIndent(String("Moving box: ") + NumberHelpers::toString(movingBMin) + " -> " + NumberHelpers::toString(movingBMax));
-        logger->printLogIndent(String("Moving grid resolution: ") + NumberHelpers::toString(NumberHelpers::createGrid<UInt>(movingBMin, movingBMax, cellSize)), 2);
+        logger->printLogIndent(String("Domain box: ") + NumberHelpers::toString(domainBMin) + " -> " + NumberHelpers::toString(domainBMax) +
+                               String(" | Resolution: ") + NumberHelpers::toString(NumberHelpers::createGrid<UInt>(domainBMin, domainBMax, cellSize)));
+        logger->printLogIndent(String("Moving box: ") + NumberHelpers::toString(movingBMin) + " -> " + NumberHelpers::toString(movingBMax) +
+                               String(" | Resolution: ") + NumberHelpers::toString(NumberHelpers::createGrid<UInt>(movingBMin, movingBMax, cellSize)));
         ////////////////////////////////////////////////////////////////////////////////
 
         ////////////////////////////////////////////////////////////////////////////////

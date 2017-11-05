@@ -233,16 +233,7 @@ struct PIC2D_Data
 
         void computeBoundarySDF(const Vector<SharedPtr<SimulationObjects::BoundaryObject<2, Real> > >& boundaryObjs)
         {
-            ParallelFuncs::parallel_for(boundarySDF.size(),
-                                        [&](size_t i, size_t j)
-                                        {
-                                            Real minSD = Huge;
-                                            for(auto& obj : boundaryObjs) {
-                                                minSD = MathHelpers::min(minSD, obj->getSDF()(i, j));
-                                            }
-
-                                            boundarySDF(i, j) = minSD + MEpsilon;
-                                        });
+            __BNN_TODO
         }
     } gridData;
 

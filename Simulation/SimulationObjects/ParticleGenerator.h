@@ -40,7 +40,7 @@ class ParticleGenerator : public SimulationObject<N, RealType>
 public:
     ParticleGenerator() = delete;
     ParticleGenerator(const String& geometryType) : SimulationObject<N, RealType>(geometryType) { }
-
+    ////////////////////////////////////////////////////////////////////////////////
     auto& v0() { return m_v0; }
     auto& minDistanceRatio() { return m_MinDistanceRatio; }
     auto& jitter() { return m_Jitter; }
@@ -49,25 +49,16 @@ public:
     auto& maxNParticles() { return m_MaxNParticles; }
     auto& maxSamplingIters() { return m_MaxIters; }
     auto& activeFrames() { return m_ActiveFrames; }
-
+    ////////////////////////////////////////////////////////////////////////////////
+    bool isActive(UInt currentFrame);
+    void buildObject(const Vector<SharedPtr<BoundaryObject<N, Real> > >& boundaryObjects, RealType particleRadius);
     UInt generateParticles(const Vec_VecX<N, RealType>& currentPositions, Vec_VecX<N, RealType>& newPositions, Vec_VecX<N, RealType>& newVelocities, UInt frame = 0);
-    bool isActive(UInt currentFrame)
-    {
-        if(m_ActiveFrames.size() > 0 && m_ActiveFrames.find(currentFrame) == m_ActiveFrames.end()) {
-            return false;
-        }
-        return currentFrame >= m_StartFrame && currentFrame <= m_MaxFrame && m_NGeneratedParticles < m_MaxNParticles;
-    }
-
-    virtual void makeReady(const Vector<SharedPtr<SimulationObjects::BoundaryObject<N, Real> > >& boundaryObjects, RealType particleRadius);
 
 protected:
     void relaxPositions(Vector<VecX<N, RealType> >& positions, RealType particleRadius);
-
     UInt addFullShapeParticles(const Vec_VecX<N, RealType>& currentPositions, Vec_VecX<N, RealType>& newPositions, Vec_VecX<N, RealType>& newVelocities);
     UInt addParticles(const Vec_VecX<N, RealType>& currentPositions, Vec_VecX<N, RealType>& newPositions, Vec_VecX<N, RealType>& newVelocities);
     void collectNeighborParticles(const Vec_VecX<N, RealType>& positions);
-
     ////////////////////////////////////////////////////////////////////////////////
     Vec_VecX<N, RealType>    m_ObjParticles;
     VecX<N, RealType>        m_v0               = VecX<N, RealType>(0);
@@ -94,8 +85,21 @@ protected:
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void Banana::SimulationObjects::ParticleGenerator<N, RealType >::makeReady(const Vector<SharedPtr<SimulationObjects::BoundaryObject<N, Real> > >& boundaryObjects,
-                                                                           RealType particleRadius)
+bool ParticleGenerator<N, RealType >::isActive(UInt currentFrame)
+{
+    if(m_ActiveFrames.size() > 0 &&
+       m_ActiveFrames.find(currentFrame) == m_ActiveFrames.end()) {
+        return false;
+    } else {
+        return (currentFrame >= m_StartFrame &&
+                currentFrame <= m_MaxFrame &&
+                m_NGeneratedParticles < m_MaxNParticles);
+    }
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType>
+void ParticleGenerator<N, RealType >::buildObject(const Vector<SharedPtr<BoundaryObject<N, Real> > >& boundaryObjects, RealType particleRadius)
 {
     if(m_bObjReady) {
         return;
@@ -294,7 +298,7 @@ void ParticleGenerator<N, RealType >::relaxPositions(Vector<VecX<N, RealType> >&
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void Banana::SimulationObjects::ParticleGenerator<N, RealType >::collectNeighborParticles(const Vec_VecX<N, RealType>& positions)
+void ParticleGenerator<N, RealType >::collectNeighborParticles(const Vec_VecX<N, RealType>& positions)
 {
     for(auto& cell : m_ParticleIdxInCell.data()) {
         cell.resize(0);

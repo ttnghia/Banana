@@ -146,8 +146,8 @@ void ParticleSerialization::buildAttrNameList()
             m_AttributeNameList += kv.first;
             m_AttributeNameList += String(", ");
         }
-
-        m_AttributeNameList.erase(m_AttributeNameList.find_last_of(","), m_AttributeNameList.size());
+        ////////////////////////////////////////////////////////////////////////////////
+        m_AttributeNameList.erase(m_AttributeNameList.find_last_of(","), m_AttributeNameList.size()); // remove last ',' character
     }
 }
 
