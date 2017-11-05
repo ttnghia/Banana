@@ -3,7 +3,7 @@
     {
         "FrameDuration" : 0.03333333333,
         "StartFrame" : 1,
-        "FinalFrame" : 50,
+        "FinalFrame" : 20,
         "EnableSortParticle" : true,
         "SortFrequency" : 10,
         "SaveFrameData" : true,

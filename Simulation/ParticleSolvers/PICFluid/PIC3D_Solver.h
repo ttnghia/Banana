@@ -40,6 +40,7 @@ public:
     virtual String getSolverName() override { return String("PIC3D_Solver"); }
     virtual String getGreetingMessage() override { return String("Fluid Simulation using PIC-3D Solver"); }
 
+    ////////////////////////////////////////////////////////////////////////////////
     virtual void makeReady() override;
     virtual void advanceFrame() override;
     virtual void sortParticles() override;
@@ -92,6 +93,7 @@ protected:
     const auto& gridData() const { return solverData().gridData; }
     auto&       grid() { return solverData().grid; }
     const auto& grid() const { return solverData().grid; }
+
     ////////////////////////////////////////////////////////////////////////////////
     PIC3D_Parameters m_SolverParams;
     PIC3D_Data       m_SolverData;

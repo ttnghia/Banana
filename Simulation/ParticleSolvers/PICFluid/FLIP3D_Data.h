@@ -46,7 +46,6 @@ struct FLIP3D_Parameters : public SimulationParameters
         logger->printLog(String("FLIP-3D parameters:"));
         logger->printLogIndent(String("PIC/FLIP ratio: ") + std::to_string(PIC_FLIP_ratio));
         ////////////////////////////////////////////////////////////////////////////////
-
         logger->newLine();
     }
 };
@@ -57,16 +56,16 @@ struct FLIP3D_Data : public GridSimulationData<3, Real>
     Array3r du, dv, dw;
     Array3r u_old, v_old, w_old;
 
-    virtual void resize(const Vec3<UInt>& gridSize)
+    virtual void resize(const Vec3<UInt>& nCells)
     {
-        du.resize(gridSize.x + 1, gridSize.y, gridSize.z, 0);
-        u_old.resize(gridSize.x + 1, gridSize.y, gridSize.z, 0);
+        du.resize(nCells.x + 1, nCells.y, nCells.z, 0);
+        u_old.resize(nCells.x + 1, nCells.y, nCells.z, 0);
 
-        dv.resize(gridSize.x, gridSize.y + 1, gridSize.z, 0);
-        v_old.resize(gridSize.x, gridSize.y + 1, gridSize.z, 0);
+        dv.resize(nCells.x, nCells.y + 1, nCells.z, 0);
+        v_old.resize(nCells.x, nCells.y + 1, nCells.z, 0);
 
-        dw.resize(gridSize.x, gridSize.y, gridSize.z + 1, 0);
-        w_old.resize(gridSize.x, gridSize.y, gridSize.z + 1, 0);
+        dw.resize(nCells.x, nCells.y, nCells.z + 1, 0);
+        w_old.resize(nCells.x, nCells.y, nCells.z + 1, 0);
     }
 
     void backupGridVelocity(const PIC3D_Data& picData)

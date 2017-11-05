@@ -158,7 +158,8 @@ void PIC3D_Solver::loadSimParams(const nlohmann::json& jParams)
 
     ////////////////////////////////////////////////////////////////////////////////
     // allocate memory after having parameters
-    logger().printRunTime("Allocate grid memory: ", [&]() { solverData().makeReady(solverParams()); });
+    logger().printRunTime("Allocate memory for common solver data: ", [&]() { solverData().makeReady(solverParams()); });
+    logger().newLine();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -426,8 +427,7 @@ bool PIC3D_Solver::correctParticlePositions(Real timestep)
                                                     continue;
                                                 }
 
-                                                const auto& neighbors = grid().getParticleIdxInCell(cellIdx);
-                                                for(UInt q : neighbors) {
+                                                for(const auto q : grid().getParticleIdxInCell(cellIdx)) {
                                                     if(q == p) {
                                                         continue;
                                                     }

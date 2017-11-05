@@ -21,8 +21,8 @@
 
 #pragma once
 
-#include <ParticleSolvers/PICFluid/FLIP3D_Data.h>
 #include <ParticleSolvers/PICFluid/PIC3D_Solver.h>
+#include <ParticleSolvers/PICFluid/FLIP3D_Data.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -41,22 +41,22 @@ public:
     virtual String getGreetingMessage() override { return String("Fluid Simulation using FLIP-3D Solver"); }
 
     ////////////////////////////////////////////////////////////////////////////////
-    virtual void makeReady() override;
-    auto&        flipParams() { return m_flipParams; }
-    const auto&  flipParams() const { return m_flipParams; }
-    auto&        flipData() { return m_flipData; }
-    const auto&  flipData() const { return m_flipData; }
+    auto&       flipParams() { return m_flipParams; }
+    const auto& flipParams() const { return m_flipParams; }
+    auto&       flipData() { return m_flipData; }
+    const auto& flipData() const { return m_flipData; }
 
 protected:
     virtual void loadSimParams(const nlohmann::json& jParams) override;
-    void         advanceVelocity(Real timestep);
-    void         mapParticles2Grid();
-    void         mapGrid2Particles();
+    virtual void advanceVelocity(Real timestep) override;
+
+    void mapParticles2Grid();
+    void mapGrid2Particles();
 
     ////////////////////////////////////////////////////////////////////////////////
-    // helper functions
-    void  computeChangesGridVelocity();
-    Vec3r getVelocityChangesFromGrid(const Vec3r& ppos);
+    // small helper functions
+    __BNN_INLINE void  computeChangesGridVelocity();
+    __BNN_INLINE Vec3r getVelocityChangesFromGrid(const Vec3r& ppos);
 
     ////////////////////////////////////////////////////////////////////////////////
     FLIP3D_Parameters m_flipParams;

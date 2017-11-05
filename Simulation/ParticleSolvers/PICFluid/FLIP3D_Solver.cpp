@@ -32,19 +32,21 @@ namespace Banana
 namespace ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FLIP3D_Solver::makeReady()
-{
-    PIC3D_Solver::makeReady();
-    flipData().resize(solverData().grid.getNCells());
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void FLIP3D_Solver::loadSimParams(const nlohmann::json& jParams)
 {
     PIC3D_Solver::loadSimParams(jParams);
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // FLIP parameter
     JSONHelpers::readValue(jParams, flipParams().PIC_FLIP_ratio, "PIC_FLIP_Ratio");
     ////////////////////////////////////////////////////////////////////////////////
+
     flipParams().printParams(m_Logger);
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // allocate memory after having parameters
+    logger().printRunTime("Allocate memory for FLIP data: ", [&]() { flipData().resize(grid().getNCells()); });
+    logger().newLine();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -52,37 +54,36 @@ void FLIP3D_Solver::advanceVelocity(Real timestep)
 {
     static Timer funcTimer;
     ////////////////////////////////////////////////////////////////////////////////
-    logger().printRunTime("Interpolate velocity from particles to grid: ", funcTimer, [&]() { mapParticles2Grid(); });
-    logger().printRunTime("Extrapolate grid velocity: : ",                 funcTimer, [&]() { extrapolateVelocity(); });
-    logger().printRunTime("Constrain grid velocity: ",                     funcTimer, [&]() { constrainGridVelocity(); });
-    logger().printRunTime("Backup grid velocities: ",                      funcTimer, [&]() { flipData().backupGridVelocity(solverData()); });
-    logger().printRunTime("Add gravity: ",                                 funcTimer, [&]() { addGravity(timestep); });
-    logger().printRunTime("====> Pressure projection total: ",             funcTimer, [&]() { pressureProjection(timestep); });
-    logger().printRunTime("Extrapolate grid velocity: : ",                 funcTimer, [&]() { extrapolateVelocity(); });
-    logger().printRunTime("Constrain grid velocity: ",                     funcTimer, [&]() { constrainGridVelocity(); });
-    logger().printRunTime("Compute changes of grid velocity: ",            funcTimer, [&]() { computeChangesGridVelocity(); });
-    logger().printRunTime("Interpolate velocity from grid to particles: ", funcTimer, [&]() { mapGrid2Particles(); });
+    logger().printRunTime("{   Map particles to grid: ",         funcTimer, [&]() { mapParticles2Grid(); });
+    logger().printRunTimeIndent("Extrapolate grid velocity: : ", funcTimer, [&]() { extrapolateVelocity(); });
+    logger().printRunTimeIndent("Constrain grid velocity: ",     funcTimer, [&]() { constrainGridVelocity(); });
+    logger().printRunTimeIndent("Backup grid: ",                 funcTimer, [&]() { flipData().backupGridVelocity(solverData()); });
+    logger().printRunTimeIndentIf("Add gravity: ",               funcTimer, [&]() { return addGravity(timestep); });
+    logger().printRunTimeIndent("}=> Pressure projection: ",     funcTimer, [&]() { pressureProjection(timestep); });
+    logger().printRunTimeIndent("Extrapolate grid velocity: : ", funcTimer, [&]() { extrapolateVelocity(); });
+    logger().printRunTimeIndent("Constrain grid velocity: ",     funcTimer, [&]() { constrainGridVelocity(); });
+    logger().printRunTimeIndent("Compute grid changes: ",        funcTimer, [&]() { computeChangesGridVelocity(); });
+    logger().printRunTimeIndent("Map grid to particles: ",       funcTimer, [&]() { mapGrid2Particles(); });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void FLIP3D_Solver::mapParticles2Grid()
 {
-    const Vec3r span = Vec3r(solverData().grid.getCellSize());
-
-    ParallelFuncs::parallel_for(solverData().grid.getNNodes(),
+    const Vec3r span = Vec3r(grid().getCellSize());
+    ParallelFuncs::parallel_for(grid().getNNodes(),
                                 [&](UInt i, UInt j, UInt k)
                                 {
-                                    const Vec3r pu = Vec3r(i, j + 0.5, k + 0.5) * solverData().grid.getCellSize() + solverData().grid.getBMin();
-                                    const Vec3r pv = Vec3r(i + 0.5, j, k + 0.5) * solverData().grid.getCellSize() + solverData().grid.getBMin();
-                                    const Vec3r pw = Vec3r(i + 0.5, j + 0.5, k) * solverData().grid.getCellSize() + solverData().grid.getBMin();
+                                    const auto pu = grid().getWorldCoordinate(Vec3r(i, j + 0.5, k + 0.5));
+                                    const auto pv = grid().getWorldCoordinate(Vec3r(i + 0.5, j, k + 0.5));
+                                    const auto pw = grid().getWorldCoordinate(Vec3r(i + 0.5, j + 0.5, k));
 
-                                    const Vec3r puMin = pu - span;
-                                    const Vec3r pvMin = pv - span;
-                                    const Vec3r pwMin = pw - span;
+                                    const auto puMin = pu - span;
+                                    const auto pvMin = pv - span;
+                                    const auto pwMin = pw - span;
 
-                                    const Vec3r puMax = pu + span;
-                                    const Vec3r pvMax = pv + span;
-                                    const Vec3r pwMax = pw + span;
+                                    const auto puMax = pu + span;
+                                    const auto pvMax = pv + span;
+                                    const auto pwMax = pw + span;
 
                                     Real sum_weight_u = Real(0);
                                     Real sum_weight_v = Real(0);
@@ -99,18 +100,18 @@ void FLIP3D_Solver::mapParticles2Grid()
                                     for(Int lk = -1; lk <= 1; ++lk) {
                                         for(Int lj = -1; lj <= 1; ++lj) {
                                             for(Int li = -1; li <= 1; ++li) {
-                                                const Vec3i cellIdx = Vec3i(static_cast<Int>(i), static_cast<Int>(j), static_cast<Int>(k)) + Vec3i(li, lj, lk);
-                                                if(!solverData().grid.isValidCell(cellIdx)) {
+                                                const auto cellIdx = Vec3i(i, j, k) + Vec3i(li, lj, lk);
+                                                if(!grid().isValidCell(cellIdx)) {
                                                     continue;
                                                 }
 
-                                                for(const UInt p : solverData().grid.getParticleIdxInCell(cellIdx)) {
-                                                    const Vec3r& ppos = particleData().positions[p];
-                                                    const Vec3r& pvel = particleData().velocities[p];
+                                                for(const auto p : grid().getParticleIdxInCell(cellIdx)) {
+                                                    const auto& ppos = particleData().positions[p];
+                                                    const auto& pvel = particleData().velocities[p];
 
                                                     if(valid_index_u && NumberHelpers::isInside(ppos, puMin, puMax)) {
-                                                        const Vec3r gridPos = (ppos - pu) / solverData().grid.getCellSize();
-                                                        const Real weight   = MathHelpers::tril_kernel(gridPos.x, gridPos.y, gridPos.z);
+                                                        const auto gridPos = (ppos - pu) / grid().getCellSize();
+                                                        const auto weight  = MathHelpers::tril_kernel(gridPos.x, gridPos.y, gridPos.z);
 
                                                         if(weight > Tiny) {
                                                             sum_u        += weight * pvel[0];
@@ -119,8 +120,8 @@ void FLIP3D_Solver::mapParticles2Grid()
                                                     }
 
                                                     if(valid_index_v && NumberHelpers::isInside(ppos, pvMin, pvMax)) {
-                                                        const Vec3r gridPos = (ppos - pv) / solverData().grid.getCellSize();
-                                                        const Real weight   = MathHelpers::tril_kernel(gridPos.x, gridPos.y, gridPos.z);
+                                                        const auto gridPos = (ppos - pv) / grid().getCellSize();
+                                                        const auto weight  = MathHelpers::tril_kernel(gridPos.x, gridPos.y, gridPos.z);
 
                                                         if(weight > Tiny) {
                                                             sum_v        += weight * pvel[1];
@@ -129,8 +130,8 @@ void FLIP3D_Solver::mapParticles2Grid()
                                                     }
 
                                                     if(valid_index_w && NumberHelpers::isInside(ppos, pwMin, pwMax)) {
-                                                        const Vec3r gridPos = (ppos - pw) / solverData().grid.getCellSize();
-                                                        const Real weight   = MathHelpers::tril_kernel(gridPos.x, gridPos.y, gridPos.z);
+                                                        const auto gridPos = (ppos - pw) / grid().getCellSize();
+                                                        const auto weight  = MathHelpers::tril_kernel(gridPos.x, gridPos.y, gridPos.z);
 
                                                         if(weight > Tiny) {
                                                             sum_w        += weight * pvel[2];
@@ -160,7 +161,24 @@ void FLIP3D_Solver::mapParticles2Grid()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FLIP3D_Solver::computeChangesGridVelocity()
+void FLIP3D_Solver::mapGrid2Particles()
+{
+    ParallelFuncs::parallel_for(particleData().getNParticles(),
+                                [&](UInt p)
+                                {
+                                    const auto& ppos = particleData().positions[p];
+                                    const auto& pvel = particleData().velocities[p];
+
+                                    const auto gridPos  = grid().getGridCoordinate(ppos);
+                                    const auto gridVel  = getVelocityFromGrid(gridPos);
+                                    const auto dGridVel = getVelocityChangesFromGrid(gridPos);
+
+                                    particleData().velocities[p] = MathHelpers::lerp(gridVel, pvel + dGridVel, flipParams().PIC_FLIP_ratio);
+                                });
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+__BNN_INLINE void FLIP3D_Solver::computeChangesGridVelocity()
 {
     ParallelFuncs::parallel_for(gridData().u.dataSize(),
                                 [&](size_t i) { flipData().du.data()[i] = gridData().u.data()[i] - flipData().u_old.data()[i]; });
@@ -171,24 +189,7 @@ void FLIP3D_Solver::computeChangesGridVelocity()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FLIP3D_Solver::mapGrid2Particles()
-{
-    ParallelFuncs::parallel_for(particleData().getNParticles(),
-                                [&](UInt p)
-                                {
-                                    const Vec3r& ppos = particleData().positions[p];
-                                    const Vec3r& pvel = particleData().velocities[p];
-
-                                    const Vec3r gridPos = solverData().grid.getGridCoordinate(ppos);
-                                    const Vec3r oldVel  = getVelocityFromGrid(gridPos);
-                                    const Vec3r dVel    = getVelocityChangesFromGrid(gridPos);
-
-                                    particleData().velocities[p] = MathHelpers::lerp(oldVel, pvel + dVel, flipParams().PIC_FLIP_ratio);
-                                });
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-Vec3r FLIP3D_Solver::getVelocityChangesFromGrid(const Vec3r& gridPos)
+__BNN_INLINE Vec3r FLIP3D_Solver::getVelocityChangesFromGrid(const Vec3r& gridPos)
 {
     Real changed_vu = ArrayHelpers::interpolateValueLinear(gridPos - Vec3r(0, 0.5, 0.5), flipData().du);
     Real changed_vv = ArrayHelpers::interpolateValueLinear(gridPos - Vec3r(0.5, 0, 0.5), flipData().dv);
