@@ -69,93 +69,88 @@ void FLIP3D_Solver::advanceVelocity(Real timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void FLIP3D_Solver::mapParticles2Grid()
 {
-    const Vec3r span = Vec3r(grid().getCellSize());
-    ParallelFuncs::parallel_for(grid().getNNodes(),
-                                [&](UInt i, UInt j, UInt k)
+    gridData().u.assign(0);
+    gridData().v.assign(0);
+    gridData().w.assign(0);
+
+    gridData().u_valid.assign(0);
+    gridData().v_valid.assign(0);
+    gridData().w_valid.assign(0);
+
+    gridData().tmp_u.assign(0);
+    gridData().tmp_v.assign(0);
+    gridData().tmp_w.assign(0);
+
+    ParallelFuncs::parallel_for(particleData().getNParticles(),
+                                [&](UInt p)
                                 {
-                                    const auto pu = grid().getWorldCoordinate(Vec3r(i, j + 0.5, k + 0.5));
-                                    const auto pv = grid().getWorldCoordinate(Vec3r(i + 0.5, j, k + 0.5));
-                                    const auto pw = grid().getWorldCoordinate(Vec3r(i + 0.5, j + 0.5, k));
-
-                                    const auto puMin = pu - span;
-                                    const auto pvMin = pv - span;
-                                    const auto pwMin = pw - span;
-
-                                    const auto puMax = pu + span;
-                                    const auto pvMax = pv + span;
-                                    const auto pwMax = pw + span;
-
-                                    Real sum_weight_u = Real(0);
-                                    Real sum_weight_v = Real(0);
-                                    Real sum_weight_w = Real(0);
-
-                                    Real sum_u = Real(0);
-                                    Real sum_v = Real(0);
-                                    Real sum_w = Real(0);
-
-                                    bool valid_index_u = gridData().u.isValidIndex(i, j, k);
-                                    bool valid_index_v = gridData().v.isValidIndex(i, j, k);
-                                    bool valid_index_w = gridData().w.isValidIndex(i, j, k);
+                                    const auto& ppos    = particleData().positions[p];
+                                    const auto& pvel    = particleData().velocities[p];
+                                    const auto gridPos  = grid().getGridCoordinate(ppos);
+                                    const auto pCellIdx = grid().getCellIdx<Int>(ppos);
 
                                     for(Int lk = -1; lk <= 1; ++lk) {
                                         for(Int lj = -1; lj <= 1; ++lj) {
                                             for(Int li = -1; li <= 1; ++li) {
-                                                const auto cellIdx = Vec3i(i, j, k) + Vec3i(li, lj, lk);
+                                                const auto cellIdx = pCellIdx + Vec3i(li, lj, lk);
                                                 if(!grid().isValidCell(cellIdx)) {
                                                     continue;
                                                 }
 
-                                                for(const auto p : grid().getParticleIdxInCell(cellIdx)) {
-                                                    const auto& ppos = particleData().positions[p];
-                                                    const auto& pvel = particleData().velocities[p];
-
-                                                    if(valid_index_u && NumberHelpers::isInside(ppos, puMin, puMax)) {
-                                                        const auto gridPos = (ppos - pu) / grid().getCellSize();
-                                                        const auto weight  = MathHelpers::tril_kernel(gridPos.x, gridPos.y, gridPos.z);
-
-                                                        if(weight > Tiny) {
-                                                            sum_u        += weight * pvel[0];
-                                                            sum_weight_u += weight;
-                                                        }
-                                                    }
-
-                                                    if(valid_index_v && NumberHelpers::isInside(ppos, pvMin, pvMax)) {
-                                                        const auto gridPos = (ppos - pv) / grid().getCellSize();
-                                                        const auto weight  = MathHelpers::tril_kernel(gridPos.x, gridPos.y, gridPos.z);
-
-                                                        if(weight > Tiny) {
-                                                            sum_v        += weight * pvel[1];
-                                                            sum_weight_v += weight;
-                                                        }
-                                                    }
-
-                                                    if(valid_index_w && NumberHelpers::isInside(ppos, pwMin, pwMax)) {
-                                                        const auto gridPos = (ppos - pw) / grid().getCellSize();
-                                                        const auto weight  = MathHelpers::tril_kernel(gridPos.x, gridPos.y, gridPos.z);
-
-                                                        if(weight > Tiny) {
-                                                            sum_w        += weight * pvel[2];
-                                                            sum_weight_w += weight;
-                                                        }
-                                                    }
+                                                if(li >= 0) {
+                                                    const auto pu       = grid().getWorldCoordinate(Vec3r(cellIdx[0], cellIdx[1] + 0.5, cellIdx[2] + 0.5));
+                                                    const auto du       = (ppos - pu) / grid().getCellSize();
+                                                    const auto weight_u = MathHelpers::tril_kernel(du[0], du[1], du[2]);
+                                                    flipData().uLock(cellIdx).lock();
+                                                    gridData().u(cellIdx)     += weight_u * pvel[0];
+                                                    gridData().tmp_u(cellIdx) += weight_u;
+                                                    flipData().uLock(cellIdx).unlock();
+                                                }
+                                                if(lj >= 0) {
+                                                    const auto pv       = grid().getWorldCoordinate(Vec3r(cellIdx[0] + 0.5, cellIdx[1], cellIdx[2] + 0.5));
+                                                    const auto dv       = (ppos - pv) / grid().getCellSize();
+                                                    const auto weight_v = MathHelpers::tril_kernel(dv[0], dv[1], dv[2]);
+                                                    flipData().vLock(cellIdx).lock();
+                                                    gridData().v(cellIdx)     += weight_v * pvel[1];
+                                                    gridData().tmp_v(cellIdx) += weight_v;
+                                                    flipData().vLock(cellIdx).unlock();
+                                                }
+                                                if(lk >= 0) {
+                                                    const auto pw       = grid().getWorldCoordinate(Vec3r(cellIdx[0] + 0.5, cellIdx[1] + 0.5, cellIdx[2]));
+                                                    const auto dw       = (ppos - pw) / grid().getCellSize();
+                                                    const auto weight_w = MathHelpers::tril_kernel(dw[0], dw[1], dw[2]);
+                                                    flipData().wLock(cellIdx).lock();
+                                                    gridData().w(cellIdx)     += weight_w * pvel[2];
+                                                    gridData().tmp_w(cellIdx) += weight_w;
+                                                    flipData().wLock(cellIdx).unlock();
                                                 }
                                             }
                                         }
-                                    } // end loop over neighbor cells
-
-                                    if(valid_index_u) {
-                                        gridData().u(i, j, k)       = (sum_weight_u > Tiny) ? sum_u / sum_weight_u : Real(0);
-                                        gridData().u_valid(i, j, k) = (sum_weight_u > Tiny) ? 1 : 0;
                                     }
+                                });
 
-                                    if(valid_index_v) {
-                                        gridData().v(i, j, k)       = (sum_weight_v > Tiny) ? sum_v / sum_weight_v : Real(0);
-                                        gridData().v_valid(i, j, k) = (sum_weight_v > Tiny) ? 1 : 0;
+    ParallelFuncs::parallel_for(gridData().u.dataSize(),
+                                [&](size_t i)
+                                {
+                                    if(gridData().tmp_u.data()[i] > Tiny) {
+                                        gridData().u.data()[i]      /= gridData().tmp_u.data()[i];
+                                        gridData().u_valid.data()[i] = 1;
                                     }
-
-                                    if(valid_index_w) {
-                                        gridData().w(i, j, k)       = (sum_weight_w > Tiny) ? sum_w / sum_weight_w : Real(0);
-                                        gridData().w_valid(i, j, k) = (sum_weight_w > Tiny) ? 1 : 0;
+                                });
+    ParallelFuncs::parallel_for(gridData().v.dataSize(),
+                                [&](size_t i)
+                                {
+                                    if(gridData().tmp_v.data()[i] > Tiny) {
+                                        gridData().v.data()[i]      /= gridData().tmp_v.data()[i];
+                                        gridData().v_valid.data()[i] = 1;
+                                    }
+                                });
+    ParallelFuncs::parallel_for(gridData().w.dataSize(),
+                                [&](size_t i)
+                                {
+                                    if(gridData().tmp_w.data()[i] > Tiny) {
+                                        gridData().w.data()[i]      /= gridData().tmp_w.data()[i];
+                                        gridData().w_valid.data()[i] = 1;
                                     }
                                 });
 }
