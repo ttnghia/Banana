@@ -19,11 +19,7 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-#include <Banana/Grid/Grid.h>
-#include <Banana/Array/ArrayHelpers.h>
-#include <Banana/LinearAlgebra/LinearSolvers/PCGSolver.h>
 #include <ParticleSolvers/PICFluid/FLIP3D_Solver.h>
-#include <SurfaceReconstruction/AniKernelGenerator.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -82,7 +78,7 @@ void FLIP3D_Solver::mapParticles2Grid()
     gridData().tmp_u.assign(0);
     gridData().tmp_v.assign(0);
     gridData().tmp_w.assign(0);
-
+    ////////////////////////////////////////////////////////////////////////////////
     ParallelFuncs::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
                                 {
@@ -130,7 +126,7 @@ void FLIP3D_Solver::mapParticles2Grid()
                                         }
                                     }
                                 });
-
+    ////////////////////////////////////////////////////////////////////////////////
     ParallelFuncs::parallel_for(gridData().u.dataSize(),
                                 [&](size_t i)
                                 {
@@ -177,12 +173,9 @@ void FLIP3D_Solver::mapGrid2Particles()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 __BNN_INLINE void FLIP3D_Solver::computeChangesGridVelocity()
 {
-    ParallelFuncs::parallel_for(gridData().u.dataSize(),
-                                [&](size_t i) { flipData().du.data()[i] = gridData().u.data()[i] - flipData().u_old.data()[i]; });
-    ParallelFuncs::parallel_for(gridData().v.dataSize(),
-                                [&](size_t i) { flipData().dv.data()[i] = gridData().v.data()[i] - flipData().v_old.data()[i]; });
-    ParallelFuncs::parallel_for(gridData().w.dataSize(),
-                                [&](size_t i) { flipData().dw.data()[i] = gridData().w.data()[i] - flipData().w_old.data()[i]; });
+    ParallelFuncs::parallel_for(gridData().u.dataSize(), [&](size_t i) { flipData().du.data()[i] = gridData().u.data()[i] - flipData().u_old.data()[i]; });
+    ParallelFuncs::parallel_for(gridData().v.dataSize(), [&](size_t i) { flipData().dv.data()[i] = gridData().v.data()[i] - flipData().v_old.data()[i]; });
+    ParallelFuncs::parallel_for(gridData().w.dataSize(), [&](size_t i) { flipData().dw.data()[i] = gridData().w.data()[i] - flipData().w_old.data()[i]; });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
