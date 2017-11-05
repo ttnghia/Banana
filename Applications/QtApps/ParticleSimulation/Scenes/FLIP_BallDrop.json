@@ -6,6 +6,7 @@
         "EnableSortParticle" : true,
         "SortFrequency" : 10,
         "SaveFrameData" : true,
+        "SaveMemoryState" : true,
         "DataPath" : "D:/SimData/PIC_Optimized",
         "OptionalSavingDataXXX" : [ "anisotropic_kernel" ],
         "LogLevel" : "Debug",

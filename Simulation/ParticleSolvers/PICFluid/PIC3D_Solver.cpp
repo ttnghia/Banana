@@ -46,7 +46,6 @@ void PIC3D_Solver::makeReady()
     logger().printMemoryUsage();
     logger().printLog("Solver ready!");
     logger().newLine();
-    saveFrameData();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -163,6 +162,10 @@ void PIC3D_Solver::generateParticles(const nlohmann::json& jParams)
         }
         m_NSearch->add_point_set(glm::value_ptr(particleData().positions.front()), particleData().getNParticles(), true, true);
         sortParticles();
+
+        ////////////////////////////////////////////////////////////////////////////////
+        // only save frame0 data if particles are generated, not loaded from disk
+        saveFrameData();
     } else {
         m_NSearch->add_point_set(glm::value_ptr(particleData().positions.front()), particleData().getNParticles(), true, true);
     }
@@ -240,7 +243,7 @@ bool PIC3D_Solver::loadMemoryState()
 
     ////////////////////////////////////////////////////////////////////////////////
     Int latestStateIdx = m_MemoryStateIO->getLatestFileIndex(globalParams().finalFrame);
-    if(latestStateIdx < 0) {
+    if(latestStateIdx <= 0) {
         return false;
     }
 
@@ -258,26 +261,19 @@ bool PIC3D_Solver::loadMemoryState()
     assert(particleData().velocities.size() == particleData().positions.size());
 
     logger().printLog(String("Loaded memory state from frameIdx = ") + std::to_string(latestStateIdx));
+    globalParams().finishedFrame = latestStateIdx;
     return true;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PIC3D_Solver::saveMemoryState()
 {
-    if(!globalParams().bSaveMemoryState) {
-        return;
-    }
-
-    static UInt frameCount = 0;
-    ++frameCount;
-
-    if(frameCount < globalParams().framePerState) {
+    if(!globalParams().bSaveMemoryState || (globalParams().finishedFrame % globalParams().framePerState != 0)) {
         return;
     }
 
     ////////////////////////////////////////////////////////////////////////////////
     // save state
-    frameCount = 0;
     m_MemoryStateIO->clearData();
     m_MemoryStateIO->setNParticles(particleData().getNParticles());
     m_MemoryStateIO->setFixedAttribute("particle_radius", solverParams().particleRadius);

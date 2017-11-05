@@ -43,7 +43,8 @@ void Simulator::resume()
 void Simulator::doSimulation()
 {
     __BNN_ASSERT(m_ParticleData != nullptr);
-    for(UInt frame = 1; frame <= m_ParticleSolver->globalParams().finalFrame; ++frame) {
+    auto frame = MathHelpers::max(m_ParticleSolver->globalParams().startFrame, m_ParticleSolver->globalParams().finishedFrame + 1);
+    for(; frame <= m_ParticleSolver->globalParams().finalFrame; ++frame) {
         m_ParticleSolver->doSimulationFrame(frame);
 
         emit systemTimeChanged(m_ParticleSolver->globalParams().evolvedTime(), frame);
