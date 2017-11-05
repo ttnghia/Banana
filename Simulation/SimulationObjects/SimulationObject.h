@@ -53,6 +53,11 @@ public:
     const auto& getSDF() { return m_SDF; }
 
     ////////////////////////////////////////////////////////////////////////////////
+    virtual RealType          signedDistance(const VecX<N, RealType>& ppos) const { return m_GeometryObj->signedDistance(ppos, true); }
+    virtual VecX<N, RealType> gradSignedDistance(const VecX<N, RealType>& ppos, RealType dxyz = RealType(1e-4)) const { return m_GeometryObj->gradSignedDistance(ppos, true, dxyz); }
+    virtual bool              isInside(const VecX<N, RealType>& ppos) const { return m_GeometryObj->isInside(ppos, true); }
+
+    ////////////////////////////////////////////////////////////////////////////////
     virtual void makeReady() {}     // todo: need this?
     virtual bool advanceScene(UInt frame, RealType fraction = RealType(0)) { return m_GeometryObj->updateTransformation(frame, fraction); }
 

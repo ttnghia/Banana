@@ -232,21 +232,6 @@ struct PIC3D_Data
             fluidSDF.resize(nCells.x, nCells.y, nCells.z, 0);
             boundarySDF.resize(nCells.x + 1, nCells.y + 1, nCells.z + 1, 0);
         }
-
-        void computeBoundarySDF(const Vector<SharedPtr<SimulationObjects::BoundaryObject<3, Real> > >& boundaryObjs)
-        {
-            ParallelFuncs::parallel_for(boundarySDF.size(),
-                                        [&](size_t i, size_t j, size_t k)
-                                        {
-                                            Real minSD = Huge;
-                                            for(auto& obj :boundaryObjs) {
-                                                minSD = MathHelpers::min(minSD, obj->getSDF()(i, j, k));
-                                            }
-
-                                            __BNN_TODO_MSG("should we use MEp?")
-                                            boundarySDF(i, j, k) = minSD /*+ MEpsilon*/;
-                                        });
-        }
     } gridData;
 
     ////////////////////////////////////////////////////////////////////////////////

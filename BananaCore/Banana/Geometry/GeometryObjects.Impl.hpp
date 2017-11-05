@@ -25,14 +25,14 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-Vec2<RealType> GeometryObject<N, RealType >::gradSignedDistance(const Vec2<RealType>& ppos, RealType dxy /*= RealType(1e-4)*/)
+Vec2<RealType> GeometryObject<N, RealType >::gradSignedDistance(const Vec2<RealType>& ppos, bool bNegativeInside /*= true*/, RealType dxy /*= RealType(1e-4)*/) const
 {
     __BNN_ASSERT_MSG(N == 2, "Array dimension != 2");
 
-    RealType v00 = signedDistance(Vec2r(ppos[0] - dxy, ppos[1] - dxy));
-    RealType v01 = signedDistance(Vec2r(ppos[0] - dxy, ppos[1] + dxy));
-    RealType v10 = signedDistance(Vec2r(ppos[0] + dxy, ppos[1] - dxy));
-    RealType v11 = signedDistance(Vec2r(ppos[0] + dxy, ppos[1] + dxy));
+    RealType v00 = signedDistance(Vec2r(ppos[0] - dxy, ppos[1] - dxy), bNegativeInside);
+    RealType v01 = signedDistance(Vec2r(ppos[0] - dxy, ppos[1] + dxy), bNegativeInside);
+    RealType v10 = signedDistance(Vec2r(ppos[0] + dxy, ppos[1] - dxy), bNegativeInside);
+    RealType v11 = signedDistance(Vec2r(ppos[0] + dxy, ppos[1] + dxy), bNegativeInside);
 
     RealType ddy0 = v01 - v00;
     RealType ddy1 = v11 - v10;
@@ -45,19 +45,19 @@ Vec2<RealType> GeometryObject<N, RealType >::gradSignedDistance(const Vec2<RealT
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-Vec3<RealType> GeometryObject<N, RealType >::gradSignedDistance(const Vec3<RealType>& ppos, RealType dxyz /*= RealType(1e-4)*/)
+Vec3<RealType> GeometryObject<N, RealType >::gradSignedDistance(const Vec3<RealType>& ppos, bool bNegativeInside /*= true*/, RealType dxyz /*= RealType(1e-4)*/) const
 {
     __BNN_ASSERT_MSG(N == 3, "Array dimension != 3");
 
-    RealType v000 = signedDistance(Vec3r(ppos[0] - dxyz, ppos[1] - dxyz, ppos[2] - dxyz));
-    RealType v001 = signedDistance(Vec3r(ppos[0] - dxyz, ppos[1] - dxyz, ppos[2] + dxyz));
-    RealType v010 = signedDistance(Vec3r(ppos[0] - dxyz, ppos[1] + dxyz, ppos[2] - dxyz));
-    RealType v011 = signedDistance(Vec3r(ppos[0] - dxyz, ppos[1] + dxyz, ppos[2] + dxyz));
+    RealType v000 = signedDistance(Vec3r(ppos[0] - dxyz, ppos[1] - dxyz, ppos[2] - dxyz), bNegativeInside);
+    RealType v001 = signedDistance(Vec3r(ppos[0] - dxyz, ppos[1] - dxyz, ppos[2] + dxyz), bNegativeInside);
+    RealType v010 = signedDistance(Vec3r(ppos[0] - dxyz, ppos[1] + dxyz, ppos[2] - dxyz), bNegativeInside);
+    RealType v011 = signedDistance(Vec3r(ppos[0] - dxyz, ppos[1] + dxyz, ppos[2] + dxyz), bNegativeInside);
 
-    RealType v100 = signedDistance(Vec3r(ppos[0] + dxyz, ppos[1] - dxyz, ppos[2] - dxyz));
-    RealType v101 = signedDistance(Vec3r(ppos[0] + dxyz, ppos[1] - dxyz, ppos[2] + dxyz));
-    RealType v110 = signedDistance(Vec3r(ppos[0] + dxyz, ppos[1] + dxyz, ppos[2] - dxyz));
-    RealType v111 = signedDistance(Vec3r(ppos[0] + dxyz, ppos[1] + dxyz, ppos[2] + dxyz));
+    RealType v100 = signedDistance(Vec3r(ppos[0] + dxyz, ppos[1] - dxyz, ppos[2] - dxyz), bNegativeInside);
+    RealType v101 = signedDistance(Vec3r(ppos[0] + dxyz, ppos[1] - dxyz, ppos[2] + dxyz), bNegativeInside);
+    RealType v110 = signedDistance(Vec3r(ppos[0] + dxyz, ppos[1] + dxyz, ppos[2] - dxyz), bNegativeInside);
+    RealType v111 = signedDistance(Vec3r(ppos[0] + dxyz, ppos[1] + dxyz, ppos[2] + dxyz), bNegativeInside);
 
     RealType ddx00 = v100 - v000;
     RealType ddx10 = v110 - v010;

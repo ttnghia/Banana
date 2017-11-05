@@ -56,9 +56,9 @@ public:
     virtual String   name() = 0;
     virtual RealType signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside = true) const = 0;
 
-    Vec2<RealType> gradSignedDistance(const Vec2<RealType>& ppos, RealType dxy = RealType(1e-4));
-    Vec3<RealType> gradSignedDistance(const Vec3<RealType>& ppos, RealType dxyz = RealType(1e-4));
-    bool           isInside(const VecX<N, RealType>& ppos) { return signedDistance(ppos) < 0; }
+    Vec2<RealType> gradSignedDistance(const Vec2<RealType>& ppos, bool bNegativeInside = true, RealType dxy = RealType(1e-4)) const;
+    Vec3<RealType> gradSignedDistance(const Vec3<RealType>& ppos, bool bNegativeInside = true, RealType dxyz = RealType(1e-4)) const;
+    bool           isInside(const VecX<N, RealType>& ppos, bool bNegativeInside = true) const { return signedDistance(ppos, bNegativeInside) < 0; }
 
     void setTranslation(const VecX<N, RealType>& translation);
     void setRotation(const VecX<N + 1, RealType>& rotation);

@@ -38,53 +38,53 @@ UInt BoundaryObjectInterface<N, RealType >::generateBoundaryParticles(Vec_VecX<N
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<Int N, class RealType>
-RealType BoundaryObjectInterface<N, RealType >::signedDistance(const VecX<N, RealType>& ppos, bool bUseCache /*= true*/)
-{
-    if(bUseCache && m_bSDFGenerated) {
-        return ArrayHelpers::interpolateValueLinear(m_Grid.getGridCoordinate(ppos), m_SDF);
-    } else {
-        return m_GeometryObj->signedDistance(ppos, false);
-    }
-}
+//template<Int N, class RealType>
+//RealType BoundaryObjectInterface<N, RealType >::signedDistance(const VecX<N, RealType>& ppos, bool bUseCache /*= true*/)
+//{
+//    if(bUseCache && m_bSDFGenerated) {
+//        return ArrayHelpers::interpolateValueLinear(m_Grid.getGridCoordinate(ppos), m_SDF);
+//    } else {
+//        return m_GeometryObj->signedDistance(ppos, false);
+//    }
+//}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<Int N, class RealType>
-VecX<N, RealType> BoundaryObjectInterface<N, RealType >::gradSignedDistance(const VecX<N, RealType>& ppos, RealType dxyz, bool bUseCache /*= true*/)
-{
-    if(bUseCache && m_bSDFGenerated) {
-        return ArrayHelpers::interpolateGradient(m_Grid.getGridCoordinate(ppos), m_SDF);
-    } else {
-        return m_GeometryObj->gradSignedDistance(ppos, dxyz);
-    }
-}
+//template<Int N, class RealType>
+//VecX<N, RealType> BoundaryObjectInterface<N, RealType >::gradSignedDistance(const VecX<N, RealType>& ppos, RealType dxyz, bool bUseCache /*= true*/)
+//{
+//    if(bUseCache && m_bSDFGenerated) {
+//        return ArrayHelpers::interpolateGradient(m_Grid.getGridCoordinate(ppos), m_SDF);
+//    } else {
+//        return m_GeometryObj->gradSignedDistance(ppos, dxyz);
+//    }
+//}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<Int N, class RealType>
-void BoundaryObjectInterface<N, RealType >::generateSDF(const VecX<N, RealType>& domainBMin, const VecX<N, RealType>& domainBMax, RealType sdfCellSize, bool bUseCache /*= true*/)
-{
-    m_Grid.setGrid(domainBMin, domainBMax, sdfCellSize);
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // load sdf from file
-    if(bUseCache && !m_SDFFile.empty() && FileHelpers::fileExisted(m_SDFFile)) {
-        if(m_SDF.loadFromFile(m_SDFFile)) {
-            __BNN_ASSERT(m_SDF.equalSize(m_Grid.getNNodes()));
-            m_bSDFGenerated = true;
-            return;
-        }
-    }
-
-    ////////////////////////////////////////////////////////////////////////////////
-    generateSDF_Impl();
-    m_bSDFGenerated = true;
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // save cache sdf
-    if(bUseCache && !m_SDFFile.empty()) {
-        m_SDF.saveToFile(m_SDFFile);
-    }
-}
+//template<Int N, class RealType>
+//void BoundaryObjectInterface<N, RealType >::generateSDF(const VecX<N, RealType>& domainBMin, const VecX<N, RealType>& domainBMax, RealType sdfCellSize, bool bUseCache /*= true*/)
+//{
+//    m_Grid.setGrid(domainBMin, domainBMax, sdfCellSize);
+//
+//    ////////////////////////////////////////////////////////////////////////////////
+//    // load sdf from file
+//    if(bUseCache && !m_SDFFile.empty() && FileHelpers::fileExisted(m_SDFFile)) {
+//        if(m_SDF.loadFromFile(m_SDFFile)) {
+//            __BNN_ASSERT(m_SDF.equalSize(m_Grid.getNNodes()));
+//            m_bSDFGenerated = true;
+//            return;
+//        }
+//    }
+//
+//    ////////////////////////////////////////////////////////////////////////////////
+//    generateSDF_Impl();
+//    m_bSDFGenerated = true;
+//
+//    ////////////////////////////////////////////////////////////////////////////////
+//    // save cache sdf
+//    if(bUseCache && !m_SDFFile.empty()) {
+//        m_SDF.saveToFile(m_SDFFile);
+//    }
+//}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
@@ -110,7 +110,7 @@ void BoundaryObject<2, RealType >::generateSDF_Impl()
     ParallelFuncs::parallel_for<UInt>(m_Grid.getNNodes(),
                                       [&](UInt i, UInt j)
                                       {
-                                          m_SDF(i, j) = signedDistance(m_Grid.getWorldCoordinate(i, j), false);
+                                          m_SDF(i, j) = m_GeometryObj->signedDistance(m_Grid.getWorldCoordinate(i, j), false);
                                       });
 }
 
@@ -122,7 +122,7 @@ void BoundaryObject<3, RealType >::generateSDF_Impl()
     ParallelFuncs::parallel_for<UInt>(m_Grid.getNNodes(),
                                       [&](UInt i, UInt j, UInt k)
                                       {
-                                          m_SDF(i, j, k) = signedDistance(m_Grid.getWorldCoordinate(i, j, k), false);
+                                          m_SDF(i, j, k) = m_GeometryObj->signedDistance(m_Grid.getWorldCoordinate(i, j, k), false);
                                       });
 }
 

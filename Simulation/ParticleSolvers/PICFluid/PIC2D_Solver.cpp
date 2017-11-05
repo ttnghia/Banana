@@ -36,12 +36,7 @@ void PIC2D_Solver::makeReady()
                           {
                               solverParams().printParams(m_Logger);
                               solverData().makeReady(solverParams());
-
                               ////////////////////////////////////////////////////////////////////////////////
-                              for(auto& obj : m_BoundaryObjects) {
-                                  obj->generateSDF(solverParams().domainBMin, solverParams().domainBMax, solverParams().cellSize);
-                              }
-
                               gridData().computeBoundarySDF(m_BoundaryObjects);
                           });
 
@@ -184,13 +179,7 @@ bool PIC2D_Solver::advanceScene(UInt frame, Real fraction /*= Real(0)*/)
 
     ////////////////////////////////////////////////////////////////////////////////
     bool bSDFRegenerated = false;
-    for(auto& bdObj : m_BoundaryObjects) {
-        if(bdObj->isDynamic()) {
-            bdObj->generateSDF(solverParams().domainBMin, solverParams().domainBMax, solverParams().cellSize);
-            logger().printLog(String("Re-computed SDF for dynamic boundary object: ") + bdObj->nameID(), spdlog::level::debug);
-            bSDFRegenerated = true;
-        }
-    }
+
 
     __BNN_TODO
     //if(bSDFRegenerated) {

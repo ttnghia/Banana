@@ -366,6 +366,7 @@ bool ParticleSolver<N, RealType >::advanceScene(UInt frame, RealType fraction /*
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+// Save the frame data for dynamic objects
 template<Int N, class RealType>
 void Banana::ParticleSolvers::ParticleSolver<N, RealType >::saveFrameData()
 {

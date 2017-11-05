@@ -2,12 +2,12 @@
     "GlobalParameters":
     {
         "FrameDuration" : 0.03333333333,
-        "StartFrame" : 21,
+        "StartFrame" : 1,
         "FinalFrame" : 50,
         "EnableSortParticle" : true,
         "SortFrequency" : 10,
         "SaveFrameData" : true,
-        "SaveMemoryState" : true,
+        "SaveMemoryState" : false,
         "FramePerState" : 10,
         "DataPath" : "D:/SimData/PIC_Optimized",
         "OptionalSavingDataXXX" : [ "anisotropic_kernel" ],

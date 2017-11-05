@@ -64,13 +64,13 @@ protected:
     void moveParticles(Real timeStep);
     bool correctParticlePositions(Real timestep);
     void advectGridVelocity(Real timestep);
-    void addGravity(Real timestep);
+    bool addGravity(Real timestep);
     void pressureProjection(Real timestep);
     void computeFluidWeights();
     void computeFluidSDF();
     void computeSystem(Real timestep);
     void solveSystem();
-    void updateVelocity(Real timestep);
+    void updateProjectedVelocity(Real timestep);
     void extrapolateVelocity();
     void extrapolateVelocity(Array3r& grid, Array3r& temp_grid, Array3c& valid, Array3c& old_valid, Array3c& extrapolate);
     void constrainGridVelocity();
@@ -83,13 +83,15 @@ protected:
     __BNN_INLINE Vec3r getVelocityFromGrid(const Vec3r& ppos);
     __BNN_INLINE Vec3r trace_rk2(const Vec3r& ppos, Real timestep);
     __BNN_INLINE Vec3r trace_rk2_grid(const Vec3r& gridPos, Real timestep);
+    __BNN_INLINE void  computeBoundarySDF();
 
     ////////////////////////////////////////////////////////////////////////////////
     auto&       particleData() { return solverData().particleData; }
     const auto& particleData() const { return solverData().particleData; }
     auto&       gridData() { return solverData().gridData; }
     const auto& gridData() const { return solverData().gridData; }
-
+    auto&       grid() { return solverData().grid; }
+    const auto& grid() const { return solverData().grid; }
     ////////////////////////////////////////////////////////////////////////////////
     PIC3D_Parameters m_SolverParams;
     PIC3D_Data       m_SolverData;

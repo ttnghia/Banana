@@ -54,12 +54,11 @@ public:
     auto& restitution() { return m_RestitutionCoeff; }
     auto& isDynamic() { return m_bDynamics; }
 
+    virtual RealType          signedDistance(const VecX<N, RealType>& ppos) const override { return m_GeometryObj->signedDistance(ppos, false); }
+    virtual VecX<N, RealType> gradSignedDistance(const VecX<N, RealType>& ppos, RealType dxyz = RealType(1e-4)) const override { return m_GeometryObj->gradSignedDistance(ppos, false, dxyz); }
+    virtual bool              isInside(const VecX<N, RealType>& ppos) const override { return m_GeometryObj->isInside(ppos, false); }
 
-    RealType          signedDistance(const VecX<N, RealType>& ppos, bool bUseCache = true);
-    VecX<N, RealType> gradSignedDistance(const VecX<N, RealType>& ppos, RealType dxyz = RealType(1.0 / 512.0), bool bUseCache = true);
-    void              generateSDF(const VecX<N, RealType>& domainBMin, const VecX<N, RealType>& domainBMax, RealType sdfCellSize = RealType(1.0 / 512.0), bool bUseCache = false);
-    void              constrainToBoundary(VecX<N, RealType>& ppos);
-
+    void constrainToBoundary(VecX<N, RealType>& ppos);
     UInt generateBoundaryParticles(Vec_VecX<N, RealType>& PDPositions, RealType particleRadius, Int numBDLayers = 2, bool useCache = true);
 protected:
     virtual void generateBoundaryParticles_Impl(Vec_VecX<N, RealType>& PDPositions, RealType particleRadius, Int numBDLayers)

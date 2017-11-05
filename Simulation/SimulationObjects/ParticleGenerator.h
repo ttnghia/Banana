@@ -59,8 +59,7 @@ public:
         return currentFrame >= m_StartFrame && currentFrame <= m_MaxFrame && m_NGeneratedParticles < m_MaxNParticles;
     }
 
-    virtual void makeReady(const Vector<SharedPtr<SimulationObjects::BoundaryObject<N, Real> > >& boundaryObjects,
-                           RealType particleRadius);
+    virtual void makeReady(const Vector<SharedPtr<SimulationObjects::BoundaryObject<N, Real> > >& boundaryObjects, RealType particleRadius);
 
 protected:
     void relaxPositions(Vector<VecX<N, RealType> >& positions, RealType particleRadius);

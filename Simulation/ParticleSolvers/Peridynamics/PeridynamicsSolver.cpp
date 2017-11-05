@@ -43,9 +43,6 @@ void PeridynamicsSolver::makeReady()
                               m_NSearch = std::make_unique<NeighborSearch::NeighborSearch3D>(solverParams().horizon);
                               m_NSearch->add_point_set(glm::value_ptr(solverData().positions.front()), solverData().getNParticles(), true, true);
 
-                              for(auto& obj : m_BoundaryObjects) {
-                                  obj->generateSDF(solverParams().domainBMin, solverParams().domainBMax, solverParams().cellSize);
-                              }
 
                               ////////////////////////////////////////////////////////////////////////////////
                               setupDataIO();
@@ -173,13 +170,6 @@ bool PeridynamicsSolver::advanceScene(UInt frame, Real fraction /*= Real(0)*/)
 
     ////////////////////////////////////////////////////////////////////////////////
     bool bSDFRegenerated = false;
-    for(auto& bdObj : m_BoundaryObjects) {
-        if(bdObj->isDynamic()) {
-            bdObj->generateSDF(solverParams().domainBMin, solverParams().domainBMax, solverParams().cellSize);
-            logger().printLog(String("Re-computed SDF for dynamic boundary object: ") + bdObj->nameID(), spdlog::level::debug);
-            bSDFRegenerated = true;
-        }
-    }
 
     __BNN_TODO
     //if(bSDFRegenerated) {

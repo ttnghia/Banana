@@ -186,13 +186,7 @@ bool MPM3D_Solver::advanceScene(UInt frame, Real fraction /*= Real(0)*/)
 
     ////////////////////////////////////////////////////////////////////////////////
     bool bSDFRegenerated = false;
-    for(auto& bdObj : m_BoundaryObjects) {
-        if(bdObj->isDynamic()) {
-            bdObj->generateSDF(solverParams().domainBMin, solverParams().domainBMax, solverParams().cellSize);
-            logger().printLog(String("Re-computed SDF for dynamic boundary object: ") + bdObj->nameID(), spdlog::level::debug);
-            bSDFRegenerated = true;
-        }
-    }
+
 
     __BNN_TODO
     //if(bSDFRegenerated) {
