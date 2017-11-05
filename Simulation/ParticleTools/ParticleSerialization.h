@@ -83,10 +83,10 @@ public:
         String      name;
         DataType    type;
         ElementSize size;
-        Int         count;
+        UInt        count;
         bool        bReady;
 
-        Attribute(const String& name_, DataType type_, ElementSize size_, Int count_ = 1) :
+        Attribute(const String& name_, DataType type_, ElementSize size_, UInt count_ = 1) :
             name(name_), type(type_), size(size_), count(count_), bReady(false) {}
         String typeName();
         size_t typeSize();
@@ -113,24 +113,24 @@ public:
     ////////////////////////////////////////////////////////////////////////////////
     // functions for writing data
     template<class T>
-    void addFixedAttribute(const String& attrName, DataType type, Int count = 1)
+    void addFixedAttribute(const String& attrName, DataType type, UInt count = 1)
     {
         addFixedAttribute(attrName, type, static_cast<ParticleSerialization::ElementSize>(sizeof(T)), count);
     }
 
     template<class T>
-    void addParticleAttribute(const String& attrName, DataType type, Int count = 1)
+    void addParticleAttribute(const String& attrName, DataType type, UInt count = 1)
     {
         addParticleAttribute(attrName, type, static_cast<ParticleSerialization::ElementSize>(sizeof(T)), count);
     }
 
-    void addFixedAttribute(const String& attrName, DataType type, ElementSize size, Int count = 1)
+    void addFixedAttribute(const String& attrName, DataType type, ElementSize size, UInt count = 1)
     {
         __BNN_ASSERT(type == TypeChar || type == TypeInt || type == TypeUInt || type == TypeReal);
         m_FixedAttributes[attrName] = std::make_shared<Attribute>(attrName, type, size, count);
     }
 
-    void addParticleAttribute(const String& attrName, DataType type, ElementSize size, Int count = 1)
+    void addParticleAttribute(const String& attrName, DataType type, ElementSize size, UInt count = 1)
     {
         m_ParticleAttributes[attrName] = std::make_shared<Attribute>(attrName, type, size, count);
     }
@@ -178,10 +178,11 @@ public:
     template<Int N, class T> bool getParticleAttribute(const String& attrName, Vector<MatXxX<N, T> >& values);
 
 private:
-    void buildAttrNameList();
-    void writeHeader(std::ofstream& opf);
-    bool readHeader(std::ifstream& ipf);
-    bool readAttribute(SharedPtr<Attribute>& attr, std::ifstream& ipf, size_t cursor);
+    size_t computeBufferSize();
+    void   buildAttrNameList();
+    void   writeHeader(std::ofstream& opf);
+    bool   readHeader(std::ifstream& ipf);
+    bool   readAttribute(SharedPtr<Attribute>& attr, std::ifstream& ipf, size_t cursor);
 
     UInt                               m_nParticles;
     Map<String, SharedPtr<Attribute> > m_FixedAttributes;

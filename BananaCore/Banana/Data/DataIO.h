@@ -89,9 +89,9 @@ private:
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 inline Int DataIO::getLatestFileIndex(Int maxIndex)
 {
-    for(Int index = 1; index < maxIndex; ++index) {
-        if(!existedFileIndex(index)) {
-            return index - 1;
+    for(Int index = maxIndex; index >= 1; --index) {
+        if(existedFileIndex(index)) {
+            return index;
         }
     }
 

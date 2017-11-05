@@ -32,11 +32,11 @@ namespace ParticleSolvers
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PIC3D_Solver::makeReady()
 {
-    logger().printRunTime("Allocate solver memory: ", [&]() { solverData().makeReady(solverParams()); });
     logger().printRunTime("Compute global boundary SDF: ",
                           [&]()
                           {
                               for(auto& obj : m_BoundaryObjects) {
+                                  obj->advanceScene(globalParams().finishedFrame); // change scene state to the current frame
                                   obj->generateSDF(solverParams().domainBMin, solverParams().domainBMax, solverParams().cellSize);
                               }
                               gridData().computeBoundarySDF(m_BoundaryObjects);
@@ -97,7 +97,6 @@ void PIC3D_Solver::sortParticles()
     if((globalParams().finishedFrame > 0 && !globalParams().bEnableSortParticle) || (globalParams().finishedFrame % globalParams().sortFrequency != 0)) {
         return;
     }
-
     ////////////////////////////////////////////////////////////////////////////////
     static Timer timer;
     logger().printRunTime("Sort data by particle position: ", timer,
@@ -140,6 +139,10 @@ void PIC3D_Solver::loadSimParams(const nlohmann::json& jParams)
     ////////////////////////////////////////////////////////////////////////////////
     solverParams().makeReady();
     solverParams().printParams(m_Logger);
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // allocate memory after having parameters
+    logger().printRunTime("Allocate grid memory: ", [&]() { solverData().makeReady(solverParams()); });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -166,6 +169,7 @@ void PIC3D_Solver::generateParticles(const nlohmann::json& jParams)
         ////////////////////////////////////////////////////////////////////////////////
         // only save frame0 data if particles are generated, not loaded from disk
         saveFrameData();
+        logger().newLine();
     } else {
         m_NSearch->add_point_set(glm::value_ptr(particleData().positions.front()), particleData().getNParticles(), true, true);
     }
@@ -229,9 +233,13 @@ void PIC3D_Solver::setupDataIO()
 
     ////////////////////////////////////////////////////////////////////////////////
     m_MemoryStateIO = std::make_unique<ParticleSerialization>(globalParams().dataPath, "FLIPState", "frame", m_Logger);
+    m_MemoryStateIO->addFixedAttribute<Real>("grid_resolution", ParticleSerialization::TypeUInt, 3);
+    m_MemoryStateIO->addFixedAttribute<Real>("grid_u",          ParticleSerialization::TypeReal, static_cast<UInt>(gridData().u.dataSize()));
+    m_MemoryStateIO->addFixedAttribute<Real>("grid_v",          ParticleSerialization::TypeReal, static_cast<UInt>(gridData().v.dataSize()));
+    m_MemoryStateIO->addFixedAttribute<Real>("grid_w",          ParticleSerialization::TypeReal, static_cast<UInt>(gridData().w.dataSize()));
     m_MemoryStateIO->addFixedAttribute<Real>("particle_radius", ParticleSerialization::TypeReal, 1);
-    m_MemoryStateIO->addParticleAttribute<Real>("position", ParticleSerialization::TypeReal, 3);
-    m_MemoryStateIO->addParticleAttribute<Real>("velocity", ParticleSerialization::TypeReal, 3);
+    m_MemoryStateIO->addParticleAttribute<Real>("particle_position", ParticleSerialization::TypeReal, 3);
+    m_MemoryStateIO->addParticleAttribute<Real>("particle_velocity", ParticleSerialization::TypeReal, 3);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -243,7 +251,7 @@ bool PIC3D_Solver::loadMemoryState()
 
     ////////////////////////////////////////////////////////////////////////////////
     Int latestStateIdx = m_MemoryStateIO->getLatestFileIndex(globalParams().finalFrame);
-    if(latestStateIdx <= 0) {
+    if(latestStateIdx < 0) {
         return false;
     }
 
@@ -252,12 +260,24 @@ bool PIC3D_Solver::loadMemoryState()
         return false;
     }
 
+    ////////////////////////////////////////////////////////////////////////////////
+    // load grid data
+    Vec3ui nCells;
+    __BNN_ASSERT(m_MemoryStateIO->getFixedAttribute("grid_resolution", nCells));
+    __BNN_ASSERT(solverData().grid.getNCells() == nCells);
+    __BNN_ASSERT(m_MemoryStateIO->getFixedAttribute("grid_u", gridData().u.data()));
+    __BNN_ASSERT(m_MemoryStateIO->getFixedAttribute("grid_v", gridData().v.data()));
+    __BNN_ASSERT(m_MemoryStateIO->getFixedAttribute("grid_w", gridData().w.data()));
+
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // load particle data
     Real particleRadius;
     __BNN_ASSERT(m_MemoryStateIO->getFixedAttribute("particle_radius", particleRadius));
     __BNN_ASSERT_APPROX_NUMBERS(solverParams().particleRadius, particleRadius, MEpsilon);
 
-    __BNN_ASSERT(m_MemoryStateIO->getParticleAttribute("position", particleData().positions));
-    __BNN_ASSERT(m_MemoryStateIO->getParticleAttribute("velocity", particleData().velocities));
+    __BNN_ASSERT(m_MemoryStateIO->getParticleAttribute("particle_position", particleData().positions));
+    __BNN_ASSERT(m_MemoryStateIO->getParticleAttribute("particle_velocity", particleData().velocities));
     assert(particleData().velocities.size() == particleData().positions.size());
 
     logger().printLog(String("Loaded memory state from frameIdx = ") + std::to_string(latestStateIdx));
@@ -275,10 +295,14 @@ void PIC3D_Solver::saveMemoryState()
     ////////////////////////////////////////////////////////////////////////////////
     // save state
     m_MemoryStateIO->clearData();
+    m_MemoryStateIO->setFixedAttribute("grid_resolution", solverData().grid.getNCells());
+    m_MemoryStateIO->setFixedAttribute("grid_u",          gridData().u.data());
+    m_MemoryStateIO->setFixedAttribute("grid_v",          gridData().v.data());
+    m_MemoryStateIO->setFixedAttribute("grid_w",          gridData().w.data());
     m_MemoryStateIO->setNParticles(particleData().getNParticles());
     m_MemoryStateIO->setFixedAttribute("particle_radius", solverParams().particleRadius);
-    m_MemoryStateIO->setParticleAttribute("position", particleData().positions);
-    m_MemoryStateIO->setParticleAttribute("velocity", particleData().velocities);
+    m_MemoryStateIO->setParticleAttribute("particle_position", particleData().positions);
+    m_MemoryStateIO->setParticleAttribute("particle_velocity", particleData().velocities);
     m_MemoryStateIO->flushAsync(globalParams().finishedFrame);
 }
 

@@ -259,7 +259,7 @@ void ParticleSolver<N, RealType >::doSimulation()
     logger().printAligned("Start Simulation", '=');
     static Timer frameTimer;
 
-    auto frame = MathHelpers::max(globalParams().startFrame, globalParams().finishedFrame + 1);
+    auto frame = (globalParams().startFrame <= 1) ? globalParams().finishedFrame + 1 : MathHelpers::min(globalParams().startFrame, globalParams().finishedFrame + 1);
     for(; frame <= globalParams().finalFrame; ++frame) {
         logger().newLine();
         logger().printAligned("Frame " + NumberHelpers::formatWithCommas(frame), '=');

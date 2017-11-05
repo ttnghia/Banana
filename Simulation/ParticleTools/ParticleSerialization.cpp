@@ -86,7 +86,8 @@ void ParticleSerialization::flushAsync(const String& fileName)
     __BNN_ASSERT(m_nParticles > 0 && m_FixedAttributes.size() > 0);
     if(m_Logger != nullptr) {
         buildAttrNameList();
-        String str = String("Saving particle file: "); str += fileName;
+        String str = String("Saving file: "); str += fileName;
+        str += String(" ("); str += NumberHelpers::formatWithCommas(static_cast<double>(computeBufferSize()) / 1048576.0); str += String(" MBs)");
         m_Logger->printLog(str);
         str = String("File data: "); str += m_AttributeNameList;
         m_Logger->printLog(str);
@@ -115,6 +116,20 @@ void ParticleSerialization::flushAsync(const String& fileName)
                                       }
                                       opf.close();
                                   });
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+size_t ParticleSerialization::computeBufferSize()
+{
+    size_t totalSize = 0;
+    for(auto& kv : m_FixedAttributes) {
+        totalSize += kv.second->buffer.size();
+    }
+    for(auto& kv : m_ParticleAttributes) {
+        totalSize += kv.second->buffer.size();
+    }
+
+    return totalSize;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -223,7 +238,9 @@ bool ParticleSerialization::read(const String& fileName, const Vector<String>& r
     ////////////////////////////////////////////////////////////////////////////////
     ipf.close();
     if(m_Logger != nullptr) {
-        m_Logger->printLog("Read particle file: " + fileName);
+        String str = String("Read file: "); str += fileName;
+        str += String(" ("); str += NumberHelpers::formatWithCommas(static_cast<double>(m_ByteRead) / 1048576.0); str += String(" MBs)");
+        m_Logger->printLog(str);
     }
     return true;
 }
@@ -276,7 +293,8 @@ bool ParticleSerialization::readHeader(std::ifstream& ipf)
             ls >> m_nParticles;
         } else if(token == "FixedAttribute" || token == "ParticleAttribute") {
             String attrName, typeName;
-            Int    typeSize, count;
+            Int    typeSize;
+            UInt   count;
             size_t dataSize;
             ls >> attrName >> typeName;
             ls >> typeSize >> count;

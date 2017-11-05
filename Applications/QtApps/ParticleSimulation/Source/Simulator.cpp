@@ -43,7 +43,8 @@ void Simulator::resume()
 void Simulator::doSimulation()
 {
     __BNN_ASSERT(m_ParticleData != nullptr);
-    auto frame = MathHelpers::max(m_ParticleSolver->globalParams().startFrame, m_ParticleSolver->globalParams().finishedFrame + 1);
+    auto frame = (m_ParticleSolver->globalParams().startFrame <= 1) ?
+                 m_ParticleSolver->globalParams().finishedFrame + 1 : MathHelpers::min(m_ParticleSolver->globalParams().startFrame, m_ParticleSolver->globalParams().finishedFrame + 1);
     for(; frame <= m_ParticleSolver->globalParams().finalFrame; ++frame) {
         m_ParticleSolver->doSimulationFrame(frame);
 
@@ -89,6 +90,8 @@ void Simulator::changeScene(const QString& scene)
     ////////////////////////////////////////////////////////////////////////////////
     QString sceneFile = QDir::currentPath() + "/Scenes/" + scene;
     m_ParticleSolver->loadScene(sceneFile.toStdString());
+
+    emit systemTimeChanged(m_ParticleSolver->globalParams().evolvedTime(), m_ParticleSolver->globalParams().finishedFrame);
 //    emit domainChanged(m_ParticleSolver->picParams().movingBMin, m_ParticleSolver->picParams().movingBMax);
     emit domainChanged(m_ParticleSolver->solverParams().movingBMin, m_ParticleSolver->solverParams().movingBMax);
 
