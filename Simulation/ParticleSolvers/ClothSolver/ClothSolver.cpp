@@ -93,7 +93,7 @@ void ClothSolver::advanceFrame()
                               [&]()
                               {
                                   Real remainingTime = m_GlobalParams.frameDuration - frameTime;
-                                  Real substep       = MathHelpers::min(computeCFLTimestep(), remainingTime);
+                                  Real substep       = MathHelpers::min(timestepCFL(), remainingTime);
                                   ////////////////////////////////////////////////////////////////////////////////
                                   logger().printRunTime("Find neighbors: ",               funcTimer, [&]() { m_Grid.collectIndexToCells(particleData().positions); });
                                   logger().printRunTime("====> Advance velocity total: ", funcTimer, [&]() { advanceVelocity(substep); });
@@ -251,7 +251,7 @@ void ClothSolver::saveFrameData()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-Real ClothSolver::computeCFLTimestep()
+Real ClothSolver::timestepCFL()
 {
     Real maxVel = MathHelpers::max(ParallelSTL::maxAbs(gridData().u.data()),
                                    ParallelSTL::maxAbs(gridData().v.data()),

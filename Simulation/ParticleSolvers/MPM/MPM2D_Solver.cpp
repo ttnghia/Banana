@@ -65,7 +65,7 @@ void MPM2D_Solver::advanceFrame()
         logger().printRunTime("Sub-step time: ", subStepTimer,
                               [&]()
                               {
-                                  Real substep       = computeCFLTimestep();
+                                  Real substep       = timestepCFL();
                                   Real remainingTime = globalParams().frameDuration - frameTime;
                                   if(frameTime + substep >= globalParams().frameDuration) {
                                       substep = remainingTime;
@@ -284,7 +284,7 @@ void MPM2D_Solver::saveFrameData()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-Real MPM2D_Solver::computeCFLTimestep()
+Real MPM2D_Solver::timestepCFL()
 {
     Real maxVel      = sqrt(ParallelSTL::maxNorm2<2, Real>(particleData().velocities));
     Real CFLTimeStep = maxVel > Real(Tiny) ? solverParams().CFLFactor * solverParams().cellSize / sqrt(maxVel) : Huge;

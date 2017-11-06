@@ -58,7 +58,7 @@ void WCSPHSolver::advanceFrame()
         logger().printRunTime("Sub-step time: ", subStepTimer,
                               [&]()
                               {
-                                  Real substep       = computeCFLTimestep();
+                                  Real substep       = timestepCFL();
                                   Real remainingTime = globalParams().frameDuration - frameTime;
                                   if(frameTime + substep >= globalParams().frameDuration) {
                                       substep = remainingTime;
@@ -333,7 +333,7 @@ void WCSPHSolver::saveFrameData()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-Real WCSPHSolver::computeCFLTimestep()
+Real WCSPHSolver::timestepCFL()
 {
     Real maxVel      = sqrt(ParallelSTL::maxNorm2<3, Real>(solverData().velocities));
     Real CFLTimeStep = maxVel > Real(Tiny) ? solverParams().CFLFactor * Real(0.4) * (Real(2.0) * solverParams().particleRadius / maxVel) : Huge;

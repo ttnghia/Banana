@@ -59,7 +59,7 @@ void PIC2D_Solver::advanceFrame()
         logger().printRunTime("Sub-step time: ", subStepTimer,
                               [&]()
                               {
-                                  Real substep       = computeCFLTimestep();
+                                  Real substep       = timestepCFL();
                                   Real remainingTime = globalParams().frameDuration - frameTime;
                                   if(frameTime + substep >= globalParams().frameDuration) {
                                       substep = remainingTime;
@@ -276,7 +276,7 @@ void PIC2D_Solver::saveFrameData()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-Real PIC2D_Solver::computeCFLTimestep()
+Real PIC2D_Solver::timestepCFL()
 {
     Real maxVel = MathHelpers::max(ParallelSTL::maxAbs(gridData().u.data()),
                                    ParallelSTL::maxAbs(gridData().v.data()));

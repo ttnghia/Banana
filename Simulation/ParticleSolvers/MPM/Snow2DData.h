@@ -144,7 +144,7 @@ struct SimulationData_Snow2D
         Vec_Real  weights;                 // * 16
 
         ////////////////////////////////////////////////////////////////////////////////
-        virtual UInt getNParticles() override { return static_cast<UInt>(positions.size()); }
+        
 
         virtual void reserve(UInt nParticles)
         {

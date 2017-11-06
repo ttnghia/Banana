@@ -74,7 +74,7 @@ void PeridynamicsSolver::advanceFrame()
         logger().printRunTime("Sub-step time: ", subStepTimer,
                               [&]()
                               {
-                                  Real substep       = computeCFLTimestep();
+                                  Real substep       = timestepCFL();
                                   Real remainingTime = globalParams().frameDuration - frameTime;
                                   if(frameTime + substep >= globalParams().frameDuration) {
                                       substep = remainingTime;
@@ -314,7 +314,7 @@ void PeridynamicsSolver::saveFrameData()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-Real PeridynamicsSolver::computeCFLTimestep()
+Real PeridynamicsSolver::timestepCFL()
 {
     Real maxVel = ParallelSTL::maxNorm2(solverData().velocities);
     return maxVel > Tiny ? (solverParams().particleRadius / maxVel * solverParams().CFLFactor) : solverParams().maxTimestep;

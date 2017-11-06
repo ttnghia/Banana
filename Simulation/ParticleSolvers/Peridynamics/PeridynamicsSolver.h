@@ -62,7 +62,7 @@ protected:
     virtual void saveFrameData() override;
 
 protected:
-    Real computeCFLTimestep();
+    Real timestepCFL();
     void advanceVelocity(Real timestep);
     void integrateExplicitEuler(Real timestep);
     void integrateImplicitEuler(Real timestep);

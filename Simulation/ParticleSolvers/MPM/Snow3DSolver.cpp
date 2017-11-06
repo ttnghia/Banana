@@ -68,7 +68,7 @@ void Snow3DSolver::advanceFrame()
         logger().printRunTime("Sub-step time: ", subStepTimer,
                               [&]()
                               {
-                                  Real substep       = computeCFLTimestep();
+                                  Real substep       = timestepCFL();
                                   Real remainingTime = globalParams().frameDuration - frameTime;
                                   if(frameTime + substep >= globalParams().frameDuration) {
                                       substep = remainingTime;
@@ -286,7 +286,7 @@ void Snow3DSolver::saveFrameData()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-Real Snow3DSolver::computeCFLTimestep()
+Real Snow3DSolver::timestepCFL()
 {
     Real maxVel      = sqrt(ParallelSTL::maxNorm2<3, Real>(particleData().velocities));
     Real CFLTimeStep = maxVel > Real(Tiny) ? solverParams().CFLFactor * solverParams().cellSize / sqrt(maxVel) : Huge;
