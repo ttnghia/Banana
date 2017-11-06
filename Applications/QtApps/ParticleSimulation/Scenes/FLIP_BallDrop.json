@@ -3,7 +3,7 @@
     {
         "FrameDuration" : 0.03333333333,
         "StartFrame" : 1,
-        "FinalFrame" : 1000,
+        "FinalFrame" : 100,
         "SaveFrameData" : true,
         "SaveMemoryState" : false,
         "FramePerState" : 10,
@@ -25,11 +25,11 @@
         },
         "CorrectPosition" : false,
         "RepulsiveForceStiffness" : 50,
-        "AdvectionSteps" : 5,
+        "AdvectionSteps" : 2,
         "PIC_FLIP_Ratio" : 0.97,
         "CGRelativeTolerance" : 1e-18,
         "MaxCGIteration" : 1000,
-        "CellSize" : 0.01,
+        "CellSize" : 0.02,
         "CFLFactor" : 1
     },
     "AdditionalBoundaryObjects":

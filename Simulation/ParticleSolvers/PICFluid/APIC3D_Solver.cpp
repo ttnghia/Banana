@@ -150,12 +150,12 @@ void APIC3D_Solver::mapGrid2Particles()
                                     const auto gridPos = grid().getGridCoordinate(ppos);
 
                                     particleData().velocities[p] = getVelocityFromGrid(gridPos);
-                                    apicData().C[p]              = getAffineMatrix(gridPos);
+                                    apicData().C[p]              = getAffineMatrixFromGrid(gridPos);
                                 });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-Mat3x3r APIC3D_Solver::getAffineMatrix(const Vec3r& gridPos)
+Mat3x3r APIC3D_Solver::getAffineMatrixFromGrid(const Vec3r& gridPos)
 {
     Mat3x3r C;
     C[0] = ArrayHelpers::interpolateGradientValue(gridPos - Vec3r(0, 0.5, 0.5), gridData().u, grid().getCellSize());

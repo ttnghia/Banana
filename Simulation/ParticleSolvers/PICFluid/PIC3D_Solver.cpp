@@ -393,7 +393,7 @@ void PIC3D_Solver::moveParticles(Real timestep)
                                 [&](UInt p)
                                 {
                                     auto ppos = particleData().positions[p];
-                                    for(Int i = 0; i < solverParams().advectionSteps; ++i) {
+                                    for(UInt i = 0; i < solverParams().advectionSteps; ++i) {
                                         ppos = trace_rk2(ppos, timestep);
                                         for(auto& obj : m_BoundaryObjects) {
                                             obj->constrainToBoundary(ppos);
@@ -453,7 +453,7 @@ bool PIC3D_Solver::correctParticlePositions(Real timestep)
                                     }
 
                                     auto newPos = ppos;
-                                    for(Int i = 0; i < solverParams().advectionSteps; ++i) {
+                                    for(UInt i = 0; i < solverParams().advectionSteps; ++i) {
                                         newPos += spring * K_Spring;
                                         for(auto& obj : m_BoundaryObjects) {
                                             obj->constrainToBoundary(newPos);
@@ -503,6 +503,34 @@ void PIC3D_Solver::advectGridVelocity(Real timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+bool PIC3D_Solver::addGravity(Real timestep)
+{
+    if(!globalParams().bApplyGravity) {
+        return false;
+    }
+    ParallelFuncs::parallel_for(gridData().v.size(),
+                                [&](size_t i, size_t j, size_t k)
+                                {
+                                    gridData().v(i, j, k) -= Real(9.81) * timestep;
+                                });
+
+    return true;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void PIC3D_Solver::pressureProjection(Real timestep)
+{
+    static Timer funcTimer;
+
+    ////////////////////////////////////////////////////////////////////////////////
+    logger().printRunTimeIndent("{   Compute cell weights: ", funcTimer, [&]() { computeFluidWeights(); });
+    logger().printRunTimeIndent("Compute liquid SDF: ", funcTimer, [&]() { computeFluidSDF(); }, 2);
+    logger().printRunTimeIndent("Compute pressure system: ", funcTimer, [&]() { computeSystem(timestep); }, 2);
+    logger().printRunTimeIndent("Solve linear system: ", funcTimer, [&]() { solveSystem(); }, 2);
+    logger().printRunTimeIndent("Update grid velocity: ", funcTimer, [&]() { updateProjectedVelocity(timestep); }, 2);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PIC3D_Solver::computeFluidWeights()
 {
     auto& boundarySDF = gridData().boundarySDF;
@@ -537,164 +565,6 @@ void PIC3D_Solver::computeFluidWeights()
                                         gridData().w_weights(i, j, k) = MathHelpers::clamp01(tmp);
                                     }
                                 });
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void PIC3D_Solver::extrapolateVelocity()
-{
-    extrapolateVelocity(gridData().u, gridData().tmp_u, gridData().u_valid, gridData().tmp_u_valid, gridData().u_extrapolate);
-    extrapolateVelocity(gridData().v, gridData().tmp_v, gridData().v_valid, gridData().tmp_v_valid, gridData().v_extrapolate);
-    extrapolateVelocity(gridData().w, gridData().tmp_w, gridData().w_valid, gridData().tmp_w_valid, gridData().w_extrapolate);
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void PIC3D_Solver::extrapolateVelocity(Array3r& grid, Array3r& temp_grid, Array3c& valid, Array3c& old_valid, Array3c& extrapolate)
-{
-    extrapolate.assign(0);
-
-    temp_grid.copyDataFrom(grid);
-    for(Int layers = 0; layers < 4; ++layers) {
-        old_valid.copyDataFrom(valid);
-        ParallelFuncs::parallel_for<size_t>(1, grid.size()[0] - 1,
-                                            1, grid.size()[1] - 1,
-                                            1, grid.size()[2] - 1,
-                                            [&](size_t i, size_t j, size_t k)
-                                            {
-                                                if(old_valid(i, j, k)) {
-                                                    return;
-                                                }
-
-                                                ////////////////////////////////////////////////////////////////////////////////
-                                                Real sum   = Real(0);
-                                                UInt count = 0;
-
-                                                if(old_valid(i + 1, j, k)) {
-                                                    sum += grid(i + 1, j, k);
-                                                    ++count;
-                                                }
-
-                                                if(old_valid(i - 1, j, k)) {
-                                                    sum += grid(i - 1, j, k);
-                                                    ++count;
-                                                }
-
-                                                if(old_valid(i, j + 1, k)) {
-                                                    sum += grid(i, j + 1, k);
-                                                    ++count;
-                                                }
-
-                                                if(old_valid(i, j - 1, k)) {
-                                                    sum += grid(i, j - 1, k);
-                                                    ++count;
-                                                }
-
-                                                if(old_valid(i, j, k + 1)) {
-                                                    sum += grid(i, j, k + 1);
-                                                    ++count;
-                                                }
-
-                                                if(old_valid(i, j, k - 1)) {
-                                                    sum += grid(i, j, k - 1);
-                                                    ++count;
-                                                }
-                                                ////////////////////////////////////////////////////////////////////////////////
-                                                if(count > 0) {
-                                                    temp_grid(i, j, k)   = sum / static_cast<Real>(count);
-                                                    valid(i, j, k)       = 1;
-                                                    extrapolate(i, j, k) = 1;
-                                                }
-                                            });
-        ////////////////////////////////////////////////////////////////////////////////
-        grid.copyDataFrom(temp_grid);
-    }
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void PIC3D_Solver::constrainGridVelocity()
-{
-    gridData().tmp_u.copyDataFrom(gridData().u);
-    gridData().tmp_v.copyDataFrom(gridData().v);
-    gridData().tmp_w.copyDataFrom(gridData().w);
-    ////////////////////////////////////////////////////////////////////////////////
-    ParallelFuncs::parallel_for(gridData().u.size(),
-                                [&](size_t i, size_t j, size_t k)
-                                {
-                                    if(gridData().u_extrapolate(i, j, k) == 1 && gridData().u_weights(i, j, k) == 0) {
-                                        const auto gridPos = Vec3r(i, j + 0.5, k + 0.5);
-                                        auto vel           = getVelocityFromGrid(gridPos);
-                                        auto normal        = ArrayHelpers::interpolateGradient(gridPos, gridData().boundarySDF);
-                                        auto mag2Normal    = glm::length2(normal);
-                                        if(mag2Normal > Tiny) {
-                                            normal /= sqrt(mag2Normal);
-                                        }
-                                        vel                      -= glm::dot(vel, normal) * normal;
-                                        gridData().tmp_u(i, j, k) = vel[0];
-                                    }
-                                });
-
-    ParallelFuncs::parallel_for(gridData().v.size(),
-                                [&](size_t i, size_t j, size_t k)
-                                {
-                                    if(gridData().v_extrapolate(i, j, k) == 1 && gridData().v_weights(i, j, k) == 0) {
-                                        const auto gridPos = Vec3r(i + 0.5, j, k + 0.5);
-                                        auto vel           = getVelocityFromGrid(gridPos);
-                                        auto normal        = ArrayHelpers::interpolateGradient(gridPos, gridData().boundarySDF);
-                                        auto mag2Normal    = glm::length2(normal);
-                                        if(mag2Normal > Tiny) {
-                                            normal /= sqrt(mag2Normal);
-                                        }
-                                        vel                      -= glm::dot(vel, normal) * normal;
-                                        gridData().tmp_v(i, j, k) = vel[1];
-                                    }
-                                });
-
-    ParallelFuncs::parallel_for(gridData().w.size(),
-                                [&](size_t i, size_t j, size_t k)
-                                {
-                                    if(gridData().w_extrapolate(i, j, k) == 1 && gridData().w_weights(i, j, k) == 0) {
-                                        const auto gridPos = Vec3r(i + 0.5, j + 0.5, k);
-                                        auto vel           = getVelocityFromGrid(gridPos);
-                                        auto normal        = ArrayHelpers::interpolateGradient(gridPos, gridData().boundarySDF);
-                                        auto mag2Normal    = glm::length2(normal);
-                                        if(mag2Normal > Tiny) {
-                                            normal /= sqrt(mag2Normal);
-                                        }
-                                        vel                      -= glm::dot(vel, normal) * normal;
-                                        gridData().tmp_w(i, j, k) = vel[2];
-                                    }
-                                });
-    ////////////////////////////////////////////////////////////////////////////////
-    gridData().u.copyDataFrom(gridData().tmp_u);
-    gridData().v.copyDataFrom(gridData().tmp_v);
-    gridData().w.copyDataFrom(gridData().tmp_w);
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-bool PIC3D_Solver::addGravity(Real timestep)
-{
-    if(!globalParams().bApplyGravity) {
-        return false;
-    }
-    ParallelFuncs::parallel_for(gridData().v.size(),
-                                [&](size_t i, size_t j, size_t k)
-                                {
-                                    gridData().v(i, j, k) -= Real(9.81) * timestep;
-                                });
-
-    return true;
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void PIC3D_Solver::pressureProjection(Real timestep)
-{
-    static Timer funcTimer;
-
-    ////////////////////////////////////////////////////////////////////////////////
-    logger().printRunTimeIndent("{   Compute cell weights: ", funcTimer, [&]() { computeFluidWeights(); });
-    logger().printRunTimeIndent("Compute liquid SDF: ",       funcTimer, [&]() { computeFluidSDF(); }, 2);
-    logger().printRunTimeIndent("Compute pressure system: ",  funcTimer, [&]() { computeSystem(timestep); }, 2);
-    logger().printRunTimeIndent("Solve linear system: ",      funcTimer, [&]() { solveSystem(); }, 2);
-    logger().printRunTimeIndent("Update grid velocity: ",     funcTimer, [&]() { updateProjectedVelocity(timestep); }, 2);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -887,10 +757,13 @@ void PIC3D_Solver::solveSystem()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PIC3D_Solver::updateProjectedVelocity(Real timestep)
 {
+    ////////////////////////////////////////////////////////////////////////////////
+    // update valid variable for velocity extrapolation
     gridData().u_valid.assign(0);
     gridData().v_valid.assign(0);
     gridData().w_valid.assign(0);
     ////////////////////////////////////////////////////////////////////////////////
+
     ParallelFuncs::parallel_for(grid().getNCells(),
                                 [&](UInt i, UInt j, UInt k)
                                 {
@@ -940,6 +813,136 @@ void PIC3D_Solver::updateProjectedVelocity(Real timestep)
             gridData().w.data()[i] = 0;
         }
     }
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void PIC3D_Solver::extrapolateVelocity()
+{
+    extrapolateVelocity(gridData().u, gridData().tmp_u, gridData().u_valid, gridData().tmp_u_valid, gridData().u_extrapolate);
+    extrapolateVelocity(gridData().v, gridData().tmp_v, gridData().v_valid, gridData().tmp_v_valid, gridData().v_extrapolate);
+    extrapolateVelocity(gridData().w, gridData().tmp_w, gridData().w_valid, gridData().tmp_w_valid, gridData().w_extrapolate);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void PIC3D_Solver::extrapolateVelocity(Array3r& grid, Array3r& temp_grid, Array3c& valid, Array3c& old_valid, Array3c& extrapolate)
+{
+    extrapolate.assign(0);
+
+    temp_grid.copyDataFrom(grid);
+    for(Int layers = 0; layers < 4; ++layers) {
+        old_valid.copyDataFrom(valid);
+        ParallelFuncs::parallel_for<size_t>(1, grid.size()[0] - 1,
+                                            1, grid.size()[1] - 1,
+                                            1, grid.size()[2] - 1,
+                                            [&](size_t i, size_t j, size_t k)
+                                            {
+                                                if(old_valid(i, j, k)) {
+                                                    return;
+                                                }
+
+                                                ////////////////////////////////////////////////////////////////////////////////
+                                                Real sum   = Real(0);
+                                                UInt count = 0;
+
+                                                if(old_valid(i + 1, j, k)) {
+                                                    sum += grid(i + 1, j, k);
+                                                    ++count;
+                                                }
+
+                                                if(old_valid(i - 1, j, k)) {
+                                                    sum += grid(i - 1, j, k);
+                                                    ++count;
+                                                }
+
+                                                if(old_valid(i, j + 1, k)) {
+                                                    sum += grid(i, j + 1, k);
+                                                    ++count;
+                                                }
+
+                                                if(old_valid(i, j - 1, k)) {
+                                                    sum += grid(i, j - 1, k);
+                                                    ++count;
+                                                }
+
+                                                if(old_valid(i, j, k + 1)) {
+                                                    sum += grid(i, j, k + 1);
+                                                    ++count;
+                                                }
+
+                                                if(old_valid(i, j, k - 1)) {
+                                                    sum += grid(i, j, k - 1);
+                                                    ++count;
+                                                }
+                                                ////////////////////////////////////////////////////////////////////////////////
+                                                if(count > 0) {
+                                                    temp_grid(i, j, k)   = sum / static_cast<Real>(count);
+                                                    valid(i, j, k)       = 1;
+                                                    extrapolate(i, j, k) = 1;
+                                                }
+                                            });
+        ////////////////////////////////////////////////////////////////////////////////
+        grid.copyDataFrom(temp_grid);
+    }
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void PIC3D_Solver::constrainGridVelocity()
+{
+    gridData().tmp_u.copyDataFrom(gridData().u);
+    gridData().tmp_v.copyDataFrom(gridData().v);
+    gridData().tmp_w.copyDataFrom(gridData().w);
+    ////////////////////////////////////////////////////////////////////////////////
+    ParallelFuncs::parallel_for(gridData().u.size(),
+                                [&](size_t i, size_t j, size_t k)
+                                {
+                                    if(gridData().u_extrapolate(i, j, k) == 1 && gridData().u_weights(i, j, k) == 0) {
+                                        const auto gridPos = Vec3r(i, j + 0.5, k + 0.5);
+                                        auto vel           = getVelocityFromGrid(gridPos);
+                                        auto normal        = ArrayHelpers::interpolateGradient(gridPos, gridData().boundarySDF);
+                                        auto mag2Normal    = glm::length2(normal);
+                                        if(mag2Normal > Tiny) {
+                                            normal /= sqrt(mag2Normal);
+                                        }
+                                        vel                      -= glm::dot(vel, normal) * normal;
+                                        gridData().tmp_u(i, j, k) = vel[0];
+                                    }
+                                });
+
+    ParallelFuncs::parallel_for(gridData().v.size(),
+                                [&](size_t i, size_t j, size_t k)
+                                {
+                                    if(gridData().v_extrapolate(i, j, k) == 1 && gridData().v_weights(i, j, k) == 0) {
+                                        const auto gridPos = Vec3r(i + 0.5, j, k + 0.5);
+                                        auto vel           = getVelocityFromGrid(gridPos);
+                                        auto normal        = ArrayHelpers::interpolateGradient(gridPos, gridData().boundarySDF);
+                                        auto mag2Normal    = glm::length2(normal);
+                                        if(mag2Normal > Tiny) {
+                                            normal /= sqrt(mag2Normal);
+                                        }
+                                        vel                      -= glm::dot(vel, normal) * normal;
+                                        gridData().tmp_v(i, j, k) = vel[1];
+                                    }
+                                });
+
+    ParallelFuncs::parallel_for(gridData().w.size(),
+                                [&](size_t i, size_t j, size_t k)
+                                {
+                                    if(gridData().w_extrapolate(i, j, k) == 1 && gridData().w_weights(i, j, k) == 0) {
+                                        const auto gridPos = Vec3r(i + 0.5, j + 0.5, k);
+                                        auto vel           = getVelocityFromGrid(gridPos);
+                                        auto normal        = ArrayHelpers::interpolateGradient(gridPos, gridData().boundarySDF);
+                                        auto mag2Normal    = glm::length2(normal);
+                                        if(mag2Normal > Tiny) {
+                                            normal /= sqrt(mag2Normal);
+                                        }
+                                        vel                      -= glm::dot(vel, normal) * normal;
+                                        gridData().tmp_w(i, j, k) = vel[2];
+                                    }
+                                });
+    ////////////////////////////////////////////////////////////////////////////////
+    gridData().u.copyDataFrom(gridData().tmp_u);
+    gridData().v.copyDataFrom(gridData().tmp_v);
+    gridData().w.copyDataFrom(gridData().tmp_w);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

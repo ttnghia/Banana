@@ -71,14 +71,17 @@ void FLIP3D_Solver::mapParticles2Grid()
     gridData().v.assign(0);
     gridData().w.assign(0);
 
-    gridData().u_valid.assign(0);
-    gridData().v_valid.assign(0);
-    gridData().w_valid.assign(0);
-
     gridData().tmp_u.assign(0);
     gridData().tmp_v.assign(0);
     gridData().tmp_w.assign(0);
+
     ////////////////////////////////////////////////////////////////////////////////
+    // update valid variable for velocity extrapolation
+    gridData().u_valid.assign(0);
+    gridData().v_valid.assign(0);
+    gridData().w_valid.assign(0);
+    ////////////////////////////////////////////////////////////////////////////////
+
     ParallelFuncs::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
                                 {
