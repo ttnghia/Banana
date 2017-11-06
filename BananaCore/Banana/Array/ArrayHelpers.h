@@ -25,6 +25,8 @@
 #include <Banana/Array/Array.h>
 #include <Banana/Utils/MathHelpers.h>
 
+#include <array>
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
 {
@@ -32,6 +34,52 @@ namespace Banana
 namespace ArrayHelpers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+inline void getCoordinatesAndWeights(const Vec2r& point, const Vec2ui& size, std::array<Vec2i, 8>& indices, std::array<Real, 8>& weights)
+{
+    int  i, j;
+    Real fx, fy;
+
+    MathHelpers::get_barycentric(point[0], i, fx, 0, (int)size[0]);
+    MathHelpers::get_barycentric(point[1], j, fy, 0, (int)size[1]);
+
+    indices[0] = Vec2i(i, j);
+    indices[1] = Vec2i(i + 1, j);
+    indices[2] = Vec2i(i, j + 1);
+    indices[3] = Vec2i(i + 1, j + 1);
+
+    weights[0] = (Real(1.0) - fx) * (Real(1.0) - fy);
+    weights[1] = fx * (Real(1.0) - fy);
+    weights[2] = (Real(1.0) - fx) * fy;
+    weights[3] = fx * fy;
+}
+
+inline void getCoordinatesAndWeights(const Vec3r& point, const Vec3ui& size, std::array<Vec3i, 8>& indices, std::array<Real, 8>& weights)
+{
+    int  i, j, k;
+    Real fx, fy, fz;
+
+    MathHelpers::get_barycentric(point[0], i, fx, 0, (int)size[0]);
+    MathHelpers::get_barycentric(point[1], j, fy, 0, (int)size[1]);
+    MathHelpers::get_barycentric(point[2], k, fz, 0, (int)size[2]);
+
+    indices[0] = Vec3i(i, j, k);
+    indices[1] = Vec3i(i + 1, j, k);
+    indices[2] = Vec3i(i, j + 1, k);
+    indices[3] = Vec3i(i + 1, j + 1, k);
+    indices[4] = Vec3i(i, j, k + 1);
+    indices[5] = Vec3i(i + 1, j, k + 1);
+    indices[6] = Vec3i(i, j + 1, k + 1);
+    indices[7] = Vec3i(i + 1, j + 1, k + 1);
+
+    weights[0] = (1 - fx) * (1 - fy) * (1 - fz);
+    weights[1] = fx * (1 - fy) * (1 - fz);
+    weights[2] = (1 - fx) * fy * (1 - fz);
+    weights[3] = fx * fy * (1 - fz);
+    weights[4] = (1 - fx) * (1 - fy) * fz;
+    weights[5] = fx * (1 - fy) * fz;
+    weights[6] = (1 - fx) * fy * fz;
+    weights[7] = fx * fy * fz;
+}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 inline Real interpolateValueLinear(const Vec2r& point, const Array2r& grid)
