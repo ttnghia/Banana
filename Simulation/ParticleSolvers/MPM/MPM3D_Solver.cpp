@@ -93,7 +93,7 @@ void MPM3D_Solver::advanceFrame()
 void MPM3D_Solver::loadSimParams(const nlohmann::json& jParams)
 {
     __BNN_ASSERT(m_BoundaryObjects.size() > 0);
-    SharedPtr<GeometryObjects::BoxObject<3, Real> > box = dynamic_pointer_cast<GeometryObjects::BoxObject<3, Real> >(m_BoundaryObjects[0]->geometry());
+    auto box = std::dynamic_pointer_cast<GeometryObjects::BoxObject<3, Real> >(m_BoundaryObjects[0]->geometry());
     __BNN_ASSERT(box != nullptr);
     solverParams().movingBMin = box->boxMin();
     solverParams().movingBMax = box->boxMax();
