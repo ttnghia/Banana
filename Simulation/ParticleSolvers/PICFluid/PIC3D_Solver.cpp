@@ -399,7 +399,7 @@ void PIC3D_Solver::moveParticles(Real timestep)
                                 {
                                     auto ppos = particleData().positions[p];
                                     for(UInt i = 0; i < solverParams().advectionSteps; ++i) {
-                                        ppos = trace_rk2(ppos, timestep);
+                                        ppos = trace_rk2(ppos, substep);
                                         for(auto& obj : m_BoundaryObjects) {
                                             obj->constrainToBoundary(ppos);
                                         }
