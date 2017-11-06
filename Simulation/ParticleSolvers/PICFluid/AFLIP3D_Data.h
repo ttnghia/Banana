@@ -21,8 +21,7 @@
 
 #pragma once
 
-#include <ParticleSolvers/PICFluid/APIC3D_Data.h>
-#include <ParticleSolvers/PICFluid/PIC3D_Solver.h>
+#include <ParticleSolvers/PICFluid/PIC3D_Data.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -31,34 +30,66 @@ namespace Banana
 namespace ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class APIC3D_Solver : public PIC3D_Solver
+struct AFLIP3D_Parameters : public SimulationParameters
 {
-public:
-    APIC3D_Solver() = default;
+    AFLIP3D_Parameters() = default;
 
     ////////////////////////////////////////////////////////////////////////////////
-    virtual String getSolverName() override { return String("APIC3D_Solver"); }
-    virtual String getGreetingMessage() override { return String("Fluid Simulation using APIC-3D Solver"); }
-
-    ////////////////////////////////////////////////////////////////////////////////
-    auto&       apicData() { return m_APICData; }
-    const auto& apicData() const { return m_APICData; }
-
-protected:
-    virtual void generateParticles(const nlohmann::json& jParams) override;
-    virtual bool advanceScene(UInt frame, Real fraction = Real(0)) override;
-    virtual void allocateSolverMemory() override;
-    virtual void advanceVelocity(Real timestep) override;
-
-    void mapParticles2Grid();
-    void mapGrid2Particles();
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // small helper functions
-    __BNN_INLINE Mat3x3r getAffineMatrixFromGrid(const Vec3r& gridPos);
+    // data only for flip
+    Real PIC_FLIP_ratio = Real(0.97);
     ////////////////////////////////////////////////////////////////////////////////
 
-    APIC3D_Data m_APICData;
+    virtual void printParams(const SharedPtr<Logger>& logger) override
+    {
+        ////////////////////////////////////////////////////////////////////////////////
+        // FLIP only parameter
+        logger->printLog(String("AFLIP-3D parameters:"));
+        logger->printLogIndent(String("PIC/FLIP ratio: ") + std::to_string(PIC_FLIP_ratio));
+        ////////////////////////////////////////////////////////////////////////////////
+        logger->newLine();
+    }
+};
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+struct AFLIP3D_Data
+{
+    ////////////////////////////////////////////////////////////////////////////////
+    // affine matrices
+    Vec_Mat3x3r C;
+    ////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // grid variables
+    Array3r        du, dv, dw;
+    Array3r        u_old, v_old, w_old;
+    Array3SpinLock uLock, vLock, wLock;
+    ////////////////////////////////////////////////////////////////////////////////
+
+    UInt getNParticles() const { return static_cast<UInt>(C.size()); }
+
+    void reserveParticleData(UInt nParticles) { C.reserve(nParticles); }
+    void resizeParticleData(UInt nParticles) { C.resize(nParticles, Mat3x3r(0.0)); }
+    void resizeGridData(const Vec3ui& nCells)
+    {
+        du.resize(nCells.x + 1, nCells.y, nCells.z, 0);
+        u_old.resize(nCells.x + 1, nCells.y, nCells.z, 0);
+        uLock.resize(nCells.x + 1, nCells.y, nCells.z);
+
+        dv.resize(nCells.x, nCells.y + 1, nCells.z, 0);
+        v_old.resize(nCells.x, nCells.y + 1, nCells.z, 0);
+        vLock.resize(nCells.x, nCells.y + 1, nCells.z);
+
+        dw.resize(nCells.x, nCells.y, nCells.z + 1, 0);
+        w_old.resize(nCells.x, nCells.y, nCells.z + 1, 0);
+        wLock.resize(nCells.x, nCells.y, nCells.z + 1);
+    }
+
+    void backupGridVelocity(const PIC3D_Data& picData)
+    {
+        tbb::parallel_invoke([&] { u_old.copyDataFrom(picData.gridData.u); },
+                             [&] { v_old.copyDataFrom(picData.gridData.v); },
+                             [&] { w_old.copyDataFrom(picData.gridData.w); });
+    }
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

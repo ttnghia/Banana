@@ -219,6 +219,12 @@
     <ClInclude Include="ParticleSolvers\MPM\MPM2D_Solver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ParticleSolvers\PICFluid\AFLIP3D_Solver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticleSolvers\PICFluid\AFLIP3D_Data.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ParticleTools\_ParticleTools.Test.cpp">
@@ -246,6 +252,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ParticleSolvers\PICFluid\APIC3D_Solver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleSolvers\PICFluid\AFLIP3D_Solver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

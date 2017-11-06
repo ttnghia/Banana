@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include <ParticleSolvers/PICFluid/APIC3D_Data.h>
+#include <ParticleSolvers/PICFluid/AFLIP3D_Data.h>
 #include <ParticleSolvers/PICFluid/PIC3D_Solver.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -31,20 +31,23 @@ namespace Banana
 namespace ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class APIC3D_Solver : public PIC3D_Solver
+class AFLIP3D_Solver : public PIC3D_Solver
 {
 public:
-    APIC3D_Solver() = default;
+    AFLIP3D_Solver() = default;
 
     ////////////////////////////////////////////////////////////////////////////////
-    virtual String getSolverName() override { return String("APIC3D_Solver"); }
-    virtual String getGreetingMessage() override { return String("Fluid Simulation using APIC-3D Solver"); }
+    virtual String getSolverName() override { return String("AFLIP3D_Solver"); }
+    virtual String getGreetingMessage() override { return String("Fluid Simulation using APIC/FLIP-3D Solver"); }
 
     ////////////////////////////////////////////////////////////////////////////////
-    auto&       apicData() { return m_APICData; }
-    const auto& apicData() const { return m_APICData; }
+    auto&       aflipParams() { return m_AFLIPParams; }
+    const auto& aflipParams() const { return m_AFLIPParams; }
+    auto&       aflipData() { return m_AFLIPData; }
+    const auto& aflipData() const { return m_AFLIPData; }
 
 protected:
+    virtual void loadSimParams(const nlohmann::json& jParams) override;
     virtual void generateParticles(const nlohmann::json& jParams) override;
     virtual bool advanceScene(UInt frame, Real fraction = Real(0)) override;
     virtual void allocateSolverMemory() override;
@@ -55,10 +58,13 @@ protected:
 
     ////////////////////////////////////////////////////////////////////////////////
     // small helper functions
+    __BNN_INLINE void    computeChangesGridVelocity();
+    __BNN_INLINE Vec3r   getVelocityChangesFromGrid(const Vec3r& gridPos);
     __BNN_INLINE Mat3x3r getAffineMatrixFromGrid(const Vec3r& gridPos);
+    __BNN_INLINE Mat3x3r getAffineMatrixChangesFromGrid(const Vec3r& gridPos);
     ////////////////////////////////////////////////////////////////////////////////
-
-    APIC3D_Data m_APICData;
+    AFLIP3D_Parameters m_AFLIPParams;
+    AFLIP3D_Data       m_AFLIPData;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
