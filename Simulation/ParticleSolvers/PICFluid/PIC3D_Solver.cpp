@@ -32,10 +32,10 @@ namespace ParticleSolvers
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PIC3D_Solver::makeReady()
 {
-    logger().printRunTime("Compute global boundary SDF: ",
+    logger().printRunTime("Prepare simulation objects: ",
                           [&]()
                           {
-                              for(auto& obj : m_BoundaryObjects) {
+                              for(auto& obj : m_DynamicObjects) {
                                   obj->advanceScene(globalParams().finishedFrame); // change scene state to the current frame
                               }
                               computeBoundarySDF();
@@ -68,7 +68,6 @@ void PIC3D_Solver::advanceFrame()
                                       substep = remainingTime * Real(0.5);
                                   }
                                   ////////////////////////////////////////////////////////////////////////////////
-                                  logger().printRunTime("Find neighbors: ", funcTimer, [&]() { grid().collectIndexToCells(particleData().positions); });
                                   logger().printRunTime("Move particles: ", funcTimer, [&]() { moveParticles(substep); });
                                   logger().printRunTimeIf("Correct particle positions: ", funcTimer, [&]() { return correctParticlePositions(substep); });
                                   logger().printRunTime("}=> Advance velocity: ", funcTimer, [&]() { advanceVelocity(substep); });
@@ -409,12 +408,14 @@ bool PIC3D_Solver::correctParticlePositions(Real timestep)
     if(!solverParams().bCorrectPosition) {
         return false;
     }
+    logger().printRunTime("Find neighbors: ", [&]() { grid().collectIndexToCells(particleData().positions); });
+    ////////////////////////////////////////////////////////////////////////////////
     const auto radius     = Real(2.0) * solverParams().particleRadius;
     const auto threshold  = Real(0.01) * radius;
     const auto threshold2 = threshold * threshold;
     const auto substep    = timestep / Real(solverParams().advectionSteps);
     const auto K_Spring   = radius * substep * solverParams().repulsiveForceStiffness;
-
+    ////////////////////////////////////////////////////////////////////////////////
     particleData().tmp_positions.resize(particleData().positions.size());
     ParallelFuncs::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)

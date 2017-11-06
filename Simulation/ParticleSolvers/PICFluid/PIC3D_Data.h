@@ -21,18 +21,12 @@
 
 #pragma once
 
-#include <Banana/Setup.h>
 #include <Banana/Array/Array.h>
 #include <Banana/Grid/Grid.h>
-#include <Banana/NeighborSearch/NeighborSearch3D.h>
-#include <Banana/ParallelHelpers/ParallelObjects.h>
-#include <Banana/ParallelHelpers/ParallelFuncs.h>
 #include <Banana/LinearAlgebra/LinearSolvers/PCGSolver.h>
 #include <Banana/LinearAlgebra/SparseMatrix/SparseMatrix.h>
 #include <Banana/Utils/NumberHelpers.h>
-#include <Banana/Utils/MathHelpers.h>
 #include <ParticleSolvers/ParticleSolverData.h>
-#include <SimulationObjects/BoundaryObject.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -130,7 +124,7 @@ struct PIC3D_Parameters : public SimulationParameters
         ////////////////////////////////////////////////////////////////////////////////
 
         ////////////////////////////////////////////////////////////////////////////////
-        // position correction
+        // particle position parameters
         logger->printLogIndent(String("Correct particle position: ") + (bCorrectPosition ? String("Yes") : String("No")));
         logger->printLogIndentIf(bCorrectPosition, String("Repulsive force stiffness: ") + NumberHelpers::formatToScientific(repulsiveForceStiffness));
         logger->printLogIndent(String("Advection steps/timestep: ") + std::to_string(advectionSteps));
@@ -150,7 +144,7 @@ struct PIC3D_Data
 {
     struct ParticleData : public ParticleSimulationData<3, Real>
     {
-        virtual UInt getNParticles() override { return static_cast<UInt>(positions.size()); }
+        
 
         virtual void reserve(UInt nParticles) override
         {
@@ -203,7 +197,7 @@ struct PIC3D_Data
         Array3c tmp_u_valid, tmp_v_valid, tmp_w_valid;
         ////////////////////////////////////////////////////////////////////////////////
 
-        virtual void resize(const Vec3<UInt>& nCells)
+        virtual void resize(const Vec3ui& nCells)
         {
             u.resize(nCells.x + 1, nCells.y, nCells.z, 0);
             u_weights.resize(nCells.x + 1, nCells.y, nCells.z, 0);
@@ -234,7 +228,6 @@ struct PIC3D_Data
     } gridData;
 
     ////////////////////////////////////////////////////////////////////////////////
-
     Grid3r             grid;
     PCGSolver<Real>    pcgSolver;
     SparseMatrix<Real> matrix;
