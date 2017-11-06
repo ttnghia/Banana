@@ -139,9 +139,10 @@ void PIC3D_Solver::loadSimParams(const nlohmann::json& jParams)
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
-    // position-correction
+    // particle position parameters
     JSONHelpers::readBool(jParams, solverParams().bCorrectPosition, "CorrectPosition");
     JSONHelpers::readValue(jParams, solverParams().repulsiveForceStiffness, "RepulsiveForceStiffness");
+    JSONHelpers::readValue(jParams, solverParams().advectionSteps,          "AdvectionSteps");
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -387,17 +388,17 @@ Real PIC3D_Solver::timestepCFL()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PIC3D_Solver::moveParticles(Real timestep)
 {
-    //const Real substep = timestep * Real(0.2);
+    const Real substep = timestep / Real(solverParams().advectionSteps);
     ParallelFuncs::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
                                 {
                                     auto ppos = particleData().positions[p];
-                                    //for(Int i = 0; i < 5; ++i) {
-                                    ppos = trace_rk2(ppos, timestep);
-                                    for(auto& obj : m_BoundaryObjects) {
-                                        obj->constrainToBoundary(ppos);
+                                    for(Int i = 0; i < solverParams().advectionSteps; ++i) {
+                                        ppos = trace_rk2(ppos, timestep);
+                                        for(auto& obj : m_BoundaryObjects) {
+                                            obj->constrainToBoundary(ppos);
+                                        }
                                     }
-                                    //}
                                     particleData().positions[p] = ppos;
                                 });
 }
@@ -411,9 +412,8 @@ bool PIC3D_Solver::correctParticlePositions(Real timestep)
     const auto radius     = Real(2.0) * solverParams().particleRadius;
     const auto threshold  = Real(0.01) * radius;
     const auto threshold2 = threshold * threshold;
-    //const auto substep    = timestep * Real(0.2);
-    //const auto K_Spring   = radius * substep * solverParams().repulsiveForceStiffness;
-    const auto K_Spring = radius * timestep * solverParams().repulsiveForceStiffness;
+    const auto substep    = timestep / Real(solverParams().advectionSteps);
+    const auto K_Spring   = radius * substep * solverParams().repulsiveForceStiffness;
 
     particleData().tmp_positions.resize(particleData().positions.size());
     ParallelFuncs::parallel_for(particleData().getNParticles(),
@@ -452,13 +452,13 @@ bool PIC3D_Solver::correctParticlePositions(Real timestep)
                                         }
                                     }
 
-                                    auto newPos = ppos + spring * K_Spring;
-                                    //for(Int i = 0; i < 5; ++i) {
-                                    //newPos += spring * K_Spring;
-                                    for(auto& obj : m_BoundaryObjects) {
-                                        obj->constrainToBoundary(newPos);
+                                    auto newPos = ppos;
+                                    for(Int i = 0; i < solverParams().advectionSteps; ++i) {
+                                        newPos += spring * K_Spring;
+                                        for(auto& obj : m_BoundaryObjects) {
+                                            obj->constrainToBoundary(newPos);
+                                        }
                                     }
-                                    //}
 
                                     particleData().tmp_positions[p] = newPos;
                                 });

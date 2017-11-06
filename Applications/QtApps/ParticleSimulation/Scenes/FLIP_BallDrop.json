@@ -25,10 +25,11 @@
         },
         "CorrectPosition" : false,
         "RepulsiveForceStiffness" : 50,
+        "AdvectionSteps" : 5,
         "PIC_FLIP_Ratio" : 0.97,
         "CGRelativeTolerance" : 1e-18,
         "MaxCGIteration" : 1000,
-        "CellSize" : 0.02,
+        "CellSize" : 0.01,
         "CFLFactor" : 1
     },
     "AdditionalBoundaryObjects":

@@ -72,9 +72,10 @@ struct PIC3D_Parameters : public SimulationParameters
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
-    // position-correction
+    // particle position parameters
     bool bCorrectPosition        = true;
     Real repulsiveForceStiffness = Real(50);
+    UInt advectionSteps          = 1;
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -132,6 +133,7 @@ struct PIC3D_Parameters : public SimulationParameters
         // position correction
         logger->printLogIndent(String("Correct particle position: ") + (bCorrectPosition ? String("Yes") : String("No")));
         logger->printLogIndentIf(bCorrectPosition, String("Repulsive force stiffness: ") + NumberHelpers::formatToScientific(repulsiveForceStiffness));
+        logger->printLogIndent(String("Advection steps/timestep: ") + std::to_string(advectionSteps));
         ////////////////////////////////////////////////////////////////////////////////
 
         ////////////////////////////////////////////////////////////////////////////////
