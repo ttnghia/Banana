@@ -202,6 +202,7 @@ bool PIC3D_Solver::advanceScene(UInt frame, Real fraction /*= Real(0)*/)
             particleData().addParticles(particleData().tmp_positions, particleData().tmp_velocities);
             ////////////////////////////////////////////////////////////////////////////////
             logger().printLogIndentIf(nGen > 0, String("Generated ") + NumberHelpers::formatWithCommas(nGen) + String(" new particles by ") + generator->nameID());
+            bSceneChanged |= (nGen > 0);
         }
     }
 
@@ -210,6 +211,7 @@ bool PIC3D_Solver::advanceScene(UInt frame, Real fraction /*= Real(0)*/)
             remover->findRemovingCandidate(particleData().removeMarker, particleData().positions);
             UInt nRemoved = particleData().removeParticles(particleData().removeMarker);
             logger().printLogIndentIf(nRemoved > 0, String("Removed ") + NumberHelpers::formatWithCommas(nRemoved) + String(" particles by ") + remover->nameID());
+            bSceneChanged |= (nRemoved > 0);
         }
     }
 
