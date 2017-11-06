@@ -81,7 +81,6 @@ void APIC3D_Solver::mapParticles2Grid()
                                     const auto& ppos    = particleData().positions[p];
                                     const auto& pvel    = particleData().velocities[p];
                                     const auto& pC      = apicData().C[p];
-                                    const auto gridPos  = grid().getGridCoordinate(ppos);
                                     const auto pCellIdx = grid().getCellIdx<Int>(ppos);
 
                                     for(Int lk = -1; lk <= 1; ++lk) {
@@ -93,30 +92,33 @@ void APIC3D_Solver::mapParticles2Grid()
                                                 }
 
                                                 if(li >= 0) {
-                                                    const auto pu       = grid().getWorldCoordinate(Vec3r(cellIdx[0], cellIdx[1] + 0.5, cellIdx[2] + 0.5));
-                                                    const auto du       = (ppos - pu) / grid().getCellSize();
-                                                    const auto weight_u = MathHelpers::tril_kernel(du[0], du[1], du[2]);
+                                                    const auto gpos     = grid().getWorldCoordinate(Vec3r(cellIdx[0], cellIdx[1] + 0.5, cellIdx[2] + 0.5));
+                                                    const auto dpg      = (ppos - gpos) / grid().getCellSize();
+                                                    const auto weight   = MathHelpers::trilinear_kernel(dpg[0], dpg[1], dpg[2]);
+                                                    const auto momentum = weight * (pvel[0] + glm::dot(pC[0], gpos - ppos));
                                                     apicData().uLock(cellIdx).lock();
-                                                    gridData().u(cellIdx)     += weight_u * (pvel[0] + glm::dot(pC[0], pu - ppos));
-                                                    gridData().tmp_u(cellIdx) += weight_u;
+                                                    gridData().u(cellIdx)     += momentum;
+                                                    gridData().tmp_u(cellIdx) += weight;
                                                     apicData().uLock(cellIdx).unlock();
                                                 }
                                                 if(lj >= 0) {
-                                                    const auto pv       = grid().getWorldCoordinate(Vec3r(cellIdx[0] + 0.5, cellIdx[1], cellIdx[2] + 0.5));
-                                                    const auto dv       = (ppos - pv) / grid().getCellSize();
-                                                    const auto weight_v = MathHelpers::tril_kernel(dv[0], dv[1], dv[2]);
+                                                    const auto gpos     = grid().getWorldCoordinate(Vec3r(cellIdx[0] + 0.5, cellIdx[1], cellIdx[2] + 0.5));
+                                                    const auto dpg      = (ppos - gpos) / grid().getCellSize();
+                                                    const auto weight   = MathHelpers::trilinear_kernel(dpg[0], dpg[1], dpg[2]);
+                                                    const auto momentum = weight * (pvel[1] + glm::dot(pC[1], gpos - ppos));
                                                     apicData().vLock(cellIdx).lock();
-                                                    gridData().v(cellIdx)     += weight_v * (pvel[1] + glm::dot(pC[1], pv - ppos));
-                                                    gridData().tmp_v(cellIdx) += weight_v;
+                                                    gridData().v(cellIdx)     += momentum;
+                                                    gridData().tmp_v(cellIdx) += weight;
                                                     apicData().vLock(cellIdx).unlock();
                                                 }
                                                 if(lk >= 0) {
-                                                    const auto pw       = grid().getWorldCoordinate(Vec3r(cellIdx[0] + 0.5, cellIdx[1] + 0.5, cellIdx[2]));
-                                                    const auto dw       = (ppos - pw) / grid().getCellSize();
-                                                    const auto weight_w = MathHelpers::tril_kernel(dw[0], dw[1], dw[2]);
+                                                    const auto gpos     = grid().getWorldCoordinate(Vec3r(cellIdx[0] + 0.5, cellIdx[1] + 0.5, cellIdx[2]));
+                                                    const auto dpg      = (ppos - gpos) / grid().getCellSize();
+                                                    const auto weight   = MathHelpers::trilinear_kernel(dpg[0], dpg[1], dpg[2]);
+                                                    const auto momentum = weight * (pvel[2] + glm::dot(pC[1], gpos - ppos));
                                                     apicData().wLock(cellIdx).lock();
-                                                    gridData().w(cellIdx)     += weight_w * (pvel[2] + glm::dot(pC[2], pw - ppos));
-                                                    gridData().tmp_w(cellIdx) += weight_w;
+                                                    gridData().w(cellIdx)     += momentum;
+                                                    gridData().tmp_w(cellIdx) += weight;
                                                     apicData().wLock(cellIdx).unlock();
                                                 }
                                             }

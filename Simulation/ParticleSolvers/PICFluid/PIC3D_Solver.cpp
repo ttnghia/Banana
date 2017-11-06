@@ -387,17 +387,17 @@ Real PIC3D_Solver::timestepCFL()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PIC3D_Solver::moveParticles(Real timestep)
 {
-    const Real substep = timestep * Real(0.2);
+    //const Real substep = timestep * Real(0.2);
     ParallelFuncs::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
                                 {
                                     auto ppos = particleData().positions[p];
-                                    for(Int i = 0; i < 5; ++i) {
-                                        ppos = trace_rk2(ppos, substep);
-                                        for(auto& obj : m_BoundaryObjects) {
-                                            obj->constrainToBoundary(ppos);
-                                        }
+                                    //for(Int i = 0; i < 5; ++i) {
+                                    ppos = trace_rk2(ppos, timestep);
+                                    for(auto& obj : m_BoundaryObjects) {
+                                        obj->constrainToBoundary(ppos);
                                     }
+                                    //}
                                     particleData().positions[p] = ppos;
                                 });
 }
@@ -411,8 +411,9 @@ bool PIC3D_Solver::correctParticlePositions(Real timestep)
     const auto radius     = Real(2.0) * solverParams().particleRadius;
     const auto threshold  = Real(0.01) * radius;
     const auto threshold2 = threshold * threshold;
-    const auto substep    = timestep * Real(0.2);
-    const auto K_Spring   = radius * substep * solverParams().repulsiveForceStiffness;
+    //const auto substep    = timestep * Real(0.2);
+    //const auto K_Spring   = radius * substep * solverParams().repulsiveForceStiffness;
+    const auto K_Spring = radius * timestep * solverParams().repulsiveForceStiffness;
 
     particleData().tmp_positions.resize(particleData().positions.size());
     ParallelFuncs::parallel_for(particleData().getNParticles(),
@@ -451,13 +452,13 @@ bool PIC3D_Solver::correctParticlePositions(Real timestep)
                                         }
                                     }
 
-                                    auto newPos = ppos;
-                                    for(Int i = 0; i < 5; ++i) {
-                                        newPos += spring * K_Spring;
-                                        for(auto& obj : m_BoundaryObjects) {
-                                            obj->constrainToBoundary(newPos);
-                                        }
+                                    auto newPos = ppos + spring * K_Spring;
+                                    //for(Int i = 0; i < 5; ++i) {
+                                    //newPos += spring * K_Spring;
+                                    for(auto& obj : m_BoundaryObjects) {
+                                        obj->constrainToBoundary(newPos);
                                     }
+                                    //}
 
                                     particleData().tmp_positions[p] = newPos;
                                 });
@@ -903,19 +904,19 @@ void PIC3D_Solver::updateProjectedVelocity(Real timestep)
                                     const auto pr_bottom = phi_bottom < 0 ? solverData().pressure[gridData().activeCellIdx(i, j - 1, k)] : Real(0);
                                     const auto pr_near   = phi_near < 0 ? solverData().pressure[gridData().activeCellIdx(i, j, k - 1)] : Real(0);
 
-                                    if(i > 0 && i <= grid().getNCells()[0] && (phi_center < 0 || phi_left < 0) && gridData().u_weights(i, j, k) > 0) {
+                                    if(i > 0 && (phi_center < 0 || phi_left < 0) && gridData().u_weights(i, j, k) > 0) {
                                         const auto theta = MathHelpers::max(Real(0.01), MathHelpers::fraction_inside(phi_left, phi_center));
                                         gridData().u(i, j, k)      -= timestep * (pr_center - pr_left) / theta;
                                         gridData().u_valid(i, j, k) = 1;
                                     }
 
-                                    if(j > 0 && j <= grid().getNCells()[1] && (phi_center < 0 || phi_bottom < 0) && gridData().v_weights(i, j, k) > 0) {
+                                    if(j > 0 && (phi_center < 0 || phi_bottom < 0) && gridData().v_weights(i, j, k) > 0) {
                                         const auto theta = MathHelpers::max(Real(0.01), MathHelpers::fraction_inside(phi_bottom, phi_center));
                                         gridData().v(i, j, k)      -= timestep * (pr_center - pr_bottom) / theta;
                                         gridData().v_valid(i, j, k) = 1;
                                     }
 
-                                    if(k > 0 && k <= grid().getNCells()[2] && gridData().w_weights(i, j, k) > 0 && (phi_center < 0 || phi_near < 0)) {
+                                    if(k > 0 && gridData().w_weights(i, j, k) > 0 && (phi_center < 0 || phi_near < 0)) {
                                         const auto theta = MathHelpers::max(Real(0.01), MathHelpers::fraction_inside(phi_near, phi_center));
                                         gridData().w(i, j, k)      -= timestep * (pr_center - pr_near) / theta;
                                         gridData().w_valid(i, j, k) = 1;

@@ -98,7 +98,7 @@ void FLIP3D_Solver::mapParticles2Grid()
                                                 if(li >= 0) {
                                                     const auto pu       = grid().getWorldCoordinate(Vec3r(cellIdx[0], cellIdx[1] + 0.5, cellIdx[2] + 0.5));
                                                     const auto du       = (ppos - pu) / grid().getCellSize();
-                                                    const auto weight_u = MathHelpers::tril_kernel(du[0], du[1], du[2]);
+                                                    const auto weight_u = MathHelpers::trilinear_kernel(du[0], du[1], du[2]);
                                                     flipData().uLock(cellIdx).lock();
                                                     gridData().u(cellIdx)     += weight_u * pvel[0];
                                                     gridData().tmp_u(cellIdx) += weight_u;
@@ -107,7 +107,7 @@ void FLIP3D_Solver::mapParticles2Grid()
                                                 if(lj >= 0) {
                                                     const auto pv       = grid().getWorldCoordinate(Vec3r(cellIdx[0] + 0.5, cellIdx[1], cellIdx[2] + 0.5));
                                                     const auto dv       = (ppos - pv) / grid().getCellSize();
-                                                    const auto weight_v = MathHelpers::tril_kernel(dv[0], dv[1], dv[2]);
+                                                    const auto weight_v = MathHelpers::trilinear_kernel(dv[0], dv[1], dv[2]);
                                                     flipData().vLock(cellIdx).lock();
                                                     gridData().v(cellIdx)     += weight_v * pvel[1];
                                                     gridData().tmp_v(cellIdx) += weight_v;
@@ -116,7 +116,7 @@ void FLIP3D_Solver::mapParticles2Grid()
                                                 if(lk >= 0) {
                                                     const auto pw       = grid().getWorldCoordinate(Vec3r(cellIdx[0] + 0.5, cellIdx[1] + 0.5, cellIdx[2]));
                                                     const auto dw       = (ppos - pw) / grid().getCellSize();
-                                                    const auto weight_w = MathHelpers::tril_kernel(dw[0], dw[1], dw[2]);
+                                                    const auto weight_w = MathHelpers::trilinear_kernel(dw[0], dw[1], dw[2]);
                                                     flipData().wLock(cellIdx).lock();
                                                     gridData().w(cellIdx)     += weight_w * pvel[2];
                                                     gridData().tmp_w(cellIdx) += weight_w;

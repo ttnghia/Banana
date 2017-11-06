@@ -777,7 +777,7 @@ inline T bilinear_kernel(T dx_, T dy_)
 }
 
 template<class T>
-inline T tril_kernel(T dx_, T dy_, T dz_)
+inline T trilinear_kernel(T dx_, T dy_, T dz_)
 {
     T dx = dx_ > 0 ? dx_ : -dx_;
     T dy = dy_ > 0 ? dy_ : -dy_;
