@@ -53,5 +53,6 @@ RESOURCES += \
     Shader.qrc
 
 DISTFILES += \
+    Scenes/MPM_BallDrop.json \
     Scenes/FLIP_BallDrop.json \
     Scenes/FLIP_RotationalBoxBoundary.json

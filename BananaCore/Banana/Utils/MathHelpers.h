@@ -618,10 +618,28 @@ inline int intlog2(int x)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class T>
+inline void get_barycentric(T x, int& i, T& f)
+{
+    T s = std::floor(x);
+    i = static_cast<int>(s);
+    f = (T)(x - s);
+}
+
+template<Int N, class T>
+inline void get_barycentric(const VecX<N, T>& x, VecX<N, int>& i, VecX<N, T>& f)
+{
+    for(Int j = 0; j < N; ++j) {
+        T s = std::floor(x[j]);
+        i[j] = static_cast<int>(s);
+        f[j] = (T)(x[j] - s);
+    }
+}
+
+template<class T>
 inline void get_barycentric(T x, int& i, T& f, int i_low, int i_high)
 {
     T s = std::floor(x);
-    i = (int)s;
+    i = static_cast<int>(s);
 
     if(i < i_low) {
         i = i_low;
@@ -638,7 +656,7 @@ template<class T>
 inline void get_bary_below(T x, int& i, T& f, int i_low, int i_high)
 {
     T s = std::floor(x - T(0.5));
-    i = int(s);
+    i = static_cast<int>(s);
 
     if(i < i_low) {
         i = i_low;

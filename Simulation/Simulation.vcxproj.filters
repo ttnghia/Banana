@@ -257,5 +257,8 @@
     <ClCompile Include="ParticleSolvers\PICFluid\AFLIP3D_Solver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ParticleSolvers\MPM\MPM3D_Solver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

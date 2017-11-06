@@ -204,6 +204,7 @@
     <ClInclude Include="SurfaceReconstruction\MarchingCube.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ParticleSolvers\MPM\MPM3D_Solver.cpp" />
     <ClCompile Include="ParticleSolvers\PICFluid\AFLIP3D_Solver.cpp" />
     <ClCompile Include="ParticleSolvers\PICFluid\APIC3D_Solver.cpp" />
     <ClCompile Include="ParticleSolvers\PICFluid\FLIP3D_Solver.cpp" />

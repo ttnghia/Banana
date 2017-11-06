@@ -43,7 +43,6 @@ public:
 
     virtual void makeReady() override;
     virtual void advanceFrame() override;
-    virtual void sortParticles() override;
 
     ////////////////////////////////////////////////////////////////////////////////
     auto&       solverParams() { return m_SimParams; }
@@ -55,20 +54,18 @@ protected:
     virtual void loadSimParams(const nlohmann::json& jParams) override;
     virtual void generateParticles(const nlohmann::json& jParams) override;
     virtual bool advanceScene(UInt frame, Real fraction = Real(0)) override;
-    virtual void allocateSolverMemory() override {}
+    virtual void allocateSolverMemory() override;
     virtual void setupDataIO() override;
     virtual bool loadMemoryState() override;
     virtual void saveMemoryState() override;
     virtual void saveFrameData() override;
+    virtual void advanceVelocity(Real timestep);
 
-    Real computeCFLTimestep();
-    void advanceVelocity(Real timestep);
+    Real timestepCFL();
     void moveParticles(Real timestep);
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // grid processing
-    void massToGrid();
-    void mapParticle2Grid(Real timestep);
+    void mapParticleMasses2Grid();
+    bool initParticleVolumes();
+    void mapParticleVelocities2Grid(Real timestep);
     void constrainGridVelocity(Real timestep);
 
     //Compute grid velocities
@@ -76,27 +73,28 @@ protected:
     void implicitVelocities(Real timestep);
 
     //Map grid velocities back to particles
-    void velocityToParticles(Real timestep);
+    void mapGridVelocities2Particles(Real timestep);
     void constrainParticleVelocity(Real timestep);
 
     ////////////////////////////////////////////////////////////////////////////////
     // particle processing
-    void initParticleVolumes();
+
     void updateParticleDeformGradients(Real timestep);
 
     void computePiolaStress();
     void computePiolaStressAndEnergyDensity();
-
+    void getCoordinatesAndWeights(const Vec3r& point, std::array<Vec3i, 8>& indices, std::array<Real, 8>& weights, std::array<Vec3r, 64>& weightGradients);
     ////////////////////////////////////////////////////////////////////////////////
     auto&       particleData() { return solverData().particleData; }
     const auto& particleData() const { return solverData().particleData; }
     auto&       gridData() { return solverData().gridData; }
     const auto& gridData() const { return solverData().gridData; }
+    auto&       grid() { return solverData().grid; }
+    const auto& grid() const { return solverData().grid; }
 
+    ////////////////////////////////////////////////////////////////////////////////
     MPM3D_Parameters m_SimParams;
     MPM3D_Data       m_SimData;
-
-    Grid3r m_Grid;
 };
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace ParticleSolvers
