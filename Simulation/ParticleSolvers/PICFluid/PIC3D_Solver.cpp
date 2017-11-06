@@ -633,21 +633,18 @@ void PIC3D_Solver::computeSystem(Real timestep)
     gridData().activeCellIdx.assign(0u);
     UInt nActiveCells = 0;
 
-    NumberHelpers::scan(grid().getNCells(),
-                        [&](const auto& idx)
-                        {
-                            if(gridData().fluidSDF(idx) < 0) {
-                                gridData().activeCellIdx(idx) = nActiveCells;
-                                ++nActiveCells;
-                            }
-                        });
-
+    for(size_t i = 0; i < gridData().fluidSDF.dataSize(); ++i) {
+        if(gridData().fluidSDF.data()[i] < 0) {
+            gridData().activeCellIdx.data()[i] = nActiveCells;
+            ++nActiveCells;
+        }
+    }
     ////////////////////////////////////////////////////////////////////////////////
     solverData().matrix.resize(nActiveCells);
     solverData().matrix.clear();
     solverData().rhs.resize(nActiveCells, 0);
     solverData().pressure.resize(nActiveCells, 0);
-
+    ////////////////////////////////////////////////////////////////////////////////
     ParallelFuncs::parallel_for<UInt>(1, grid().getNCells()[0] - 1,
                                       1, grid().getNCells()[1] - 1,
                                       1, grid().getNCells()[2] - 1,
