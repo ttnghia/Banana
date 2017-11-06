@@ -130,7 +130,6 @@ void PIC3D_Solver::loadSimParams(const nlohmann::json& jParams)
     JSONHelpers::readValue(jParams, solverParams().CFLFactor,   "CFLFactor");
     ////////////////////////////////////////////////////////////////////////////////
 
-
     ////////////////////////////////////////////////////////////////////////////////
     // CG solver
     JSONHelpers::readValue(jParams, solverParams().CGRelativeTolerance, "CGRelativeTolerance");
@@ -138,7 +137,8 @@ void PIC3D_Solver::loadSimParams(const nlohmann::json& jParams)
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
-    // particle position parameters
+    // particle parameters
+    JSONHelpers::readValue(jParams, solverParams().maxNParticles, "MaxNParticles");
     JSONHelpers::readBool(jParams, solverParams().bCorrectPosition, "CorrectPosition");
     JSONHelpers::readValue(jParams, solverParams().repulsiveForceStiffness, "RepulsiveForceStiffness");
     JSONHelpers::readValue(jParams, solverParams().advectionSteps,          "AdvectionSteps");

@@ -48,8 +48,6 @@ struct PIC3D_Parameters : public SimulationParameters
     Vec3r domainBMax           = SolverDefaultParameters::SimulationDomainBMax3D;
     Vec3r movingBMin;
     Vec3r movingBMax;
-    Real  particleRadius;
-    Real  sdfRadius;
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -66,10 +64,13 @@ struct PIC3D_Parameters : public SimulationParameters
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
-    // particle position parameters
+    // particle parameters
+    UInt maxNParticles           = 0;
     bool bCorrectPosition        = true;
     Real repulsiveForceStiffness = Real(50);
     UInt advectionSteps          = 1;
+    Real particleRadius;
+    Real sdfRadius;
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -99,7 +100,6 @@ struct PIC3D_Parameters : public SimulationParameters
 
         ////////////////////////////////////////////////////////////////////////////////
         // simulation size
-        logger->printLogIndent(String("Particle radius: ") + std::to_string(particleRadius));
         logger->printLogIndent(String("Fluid SDF radius: ") + std::to_string(sdfRadius));
         logger->printLogIndent(String("Ratio grid size/particle radius: ") + std::to_string(ratioCellSizePRadius));
         logger->printLogIndent(String("Expand cells for each dimension: ") + std::to_string(nExpandCells));
@@ -124,10 +124,12 @@ struct PIC3D_Parameters : public SimulationParameters
         ////////////////////////////////////////////////////////////////////////////////
 
         ////////////////////////////////////////////////////////////////////////////////
-        // particle position parameters
+        // particle parameters
+        logger->printLogIndent(String("Particle radius: ") + std::to_string(particleRadius));
         logger->printLogIndent(String("Correct particle position: ") + (bCorrectPosition ? String("Yes") : String("No")));
         logger->printLogIndentIf(bCorrectPosition, String("Repulsive force stiffness: ") + NumberHelpers::formatToScientific(repulsiveForceStiffness));
         logger->printLogIndent(String("Advection steps/timestep: ") + std::to_string(advectionSteps));
+        logger->printLogIndentIf(maxNParticles > 0, String("Max. number of particles: ") + std::to_string(maxNParticles));
         ////////////////////////////////////////////////////////////////////////////////
 
         ////////////////////////////////////////////////////////////////////////////////
@@ -144,8 +146,6 @@ struct PIC3D_Data
 {
     struct ParticleData : public ParticleSimulationData<3, Real>
     {
-        
-
         virtual void reserve(UInt nParticles) override
         {
             positions.reserve(nParticles);
@@ -237,6 +237,9 @@ struct PIC3D_Data
     ////////////////////////////////////////////////////////////////////////////////
     void makeReady(const PIC3D_Parameters& params)
     {
+        if(params.maxNParticles > 0) {
+            particleData.reserve(params.maxNParticles);
+        }
         grid.setGrid(params.domainBMin, params.domainBMax, params.cellSize);
         gridData.resize(grid.getNCells());
         matrix.reserve(grid.getNTotalCells());
