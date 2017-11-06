@@ -482,6 +482,7 @@ void MPM3D_Solver::mapParticleVelocities2Grid(Real timestep)
                                 [&](size_t i)
                                 {
                                     if(gridData().active.data()[i]) {
+                                        assert(gridData().mass.data()[i] > 0);
                                         gridData().velocity.data()[i]    /= gridData().mass.data()[i];
                                         gridData().velocity_new.data()[i] = gridData().velocity.data()[i];
                                     }
@@ -527,7 +528,6 @@ void MPM3D_Solver::explicitVelocities(Real timestep)
 
                                                 Real w = particleData().weights[p * 64 + idx];
                                                 if(w > Tiny) {
-                                                    //Weight the force onto nodes
                                                     gridData().nodeLocks(x, y, z).lock();
                                                     gridData().velocity_new(x, y, z) += f * particleData().weightGradients[p * 64 + idx];
                                                     gridData().nodeLocks(x, y, z).unlock();
@@ -541,7 +541,7 @@ void MPM3D_Solver::explicitVelocities(Real timestep)
                                 [&](size_t i)
                                 {
                                     if(gridData().active.data()[i]) {
-                                        gridData().velocity_new.data()[i] = gridData().velocity.data()[i] +
+                                        gridData().velocity_new.data()[i] = gridData().velocity_new.data()[i] +
                                                                             timestep * (SolverDefaultParameters::Gravity3D - gridData().velocity_new.data()[i] / gridData().mass.data()[i]);
                                     }
                                 });

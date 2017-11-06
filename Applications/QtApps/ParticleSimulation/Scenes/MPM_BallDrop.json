@@ -30,7 +30,7 @@
         "CGRelativeTolerance" : 1e-18,
         "MaxCGIteration" : 1000,
         "CellSize" : 0.2,
-        "CFLFactor" : 1
+        "CFLFactor" : 0.04
     },
     "AdditionalBoundaryObjectsXXX":
     [
