@@ -115,7 +115,7 @@ struct SimulationData_Peridynamics3D : public ParticleSimulationData<3, Real>
     Vec_Vec3r                  solution;
 
     ////////////////////////////////////////////////////////////////////////////////
-    virtual UInt getNParticles() override { return static_cast<UInt>(positions.size()); }
+    
 
     virtual void reserve(UInt nParticles)
     {

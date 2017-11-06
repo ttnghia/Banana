@@ -141,7 +141,7 @@ struct SimulationData_Snow3D
         Vec_Vec3r weightGradients;                 // * 16
         Vec_Real  weights;                         // * 16
 
-        virtual UInt getNParticles() override { return static_cast<UInt>(positions.size()); }
+        
 
         virtual void reserve(UInt nParticles)
         {
@@ -250,7 +250,7 @@ struct SimulationData_Snow3D
         Array3r        boundarySDF;
 
         ////////////////////////////////////////////////////////////////////////////////
-        virtual void resize(const Vec3<UInt>& gridSize)
+        virtual void resize(const Vec3ui& gridSize)
         {
             mass.resize(gridSize);
             active.resize(gridSize);

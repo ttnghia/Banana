@@ -170,10 +170,11 @@ struct SimulationParameters
 template<Int N, class RealType>
 struct ParticleSimulationData
 {
-    virtual UInt getNParticles() = 0;
     virtual void reserve(UInt nParticles) = 0;
     virtual void addParticles(const Vec_VecX<N, RealType>& newPositions, const Vec_VecX<N, RealType>& newVelocities) = 0;
     virtual UInt removeParticles(Vec_Int8& removeMarker) = 0;
+
+    UInt getNParticles() { return static_cast<UInt>(positions.size()); }
 
     ////////////////////////////////////////////////////////////////////////////////
     // main variables
@@ -192,7 +193,7 @@ struct ParticleSimulationData
 template<Int N, class RealType>
 struct GridSimulationData
 {
-    virtual void resize(const VecX<N, UInt>& gridSize) = 0;
+    virtual void resize(const VecX<N, UInt>& nCells) = 0;
     virtual void makeReady() {}
 };
 

@@ -184,7 +184,7 @@ struct MPM2D_Data
 
         Vec_Mat2x2r B, D;          // affine matrix and auxiliary
 
-        virtual UInt getNParticles() override { return static_cast<UInt>(positions.size()); }
+
 
         virtual void reserve(UInt nParticles)
         {

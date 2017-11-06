@@ -120,7 +120,7 @@ struct SimulationData_WCSPH : public ParticleSimulationData<3, Real>
     Vec_Vec3r BDParticles;
 
     ////////////////////////////////////////////////////////////////////////////////
-    virtual UInt getNParticles() override { return static_cast<UInt>(positions.size()); }
+    
 
     virtual void reserve(UInt nParticles)
     {

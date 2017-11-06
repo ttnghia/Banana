@@ -488,44 +488,49 @@ private:
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace ParallelObjects { class SpinLock; }
 
-using Array2c        = Array<2, char>;
-using Array2uc       = Array<2, unsigned char>;
-using Array2s        = Array<2, short>;
-using Array2us       = Array<2, unsigned short>;
-using Array2ll       = Array<2, long long>;
-using Array2ull      = Array<2, unsigned long long>;
-using Array2i        = Array<2, int>;
-using Array2ui       = Array<2, unsigned int>;
-using Array2f        = Array<2, float>;
-using Array2d        = Array<2, double>;
-using Array2r        = Array<2, Real>;
-using Array2SpinLock = Array<2, ParallelObjects::SpinLock>;
+template<class T> using Array2 = Array<2, T>;
+template<class T> using Array3 = Array<3, T>;
 
-using Array2_VecChar   = Array<2, Vector<char> >;
-using Array2_VecInt    = Array<2, Vector<int> >;
-using Array2_VecUInt   = Array<2, Vector<unsigned int> >;
-using Array2_VecFloat  = Array<2, Vector<float> >;
-using Array2_VecDouble = Array<2, Vector<double> >;
+using Array2c        = Array2<char>;
+using Array2uc       = Array2<unsigned char>;
+using Array2s        = Array2<short>;
+using Array2us       = Array2<unsigned short>;
+using Array2ll       = Array2<long long>;
+using Array2ull      = Array2<unsigned long long>;
+using Array2i        = Array2<int>;
+using Array2ui       = Array2<unsigned int>;
+using Array2f        = Array2<float>;
+using Array2d        = Array2<double>;
+using Array2r        = Array2<Real>;
+using Array2SpinLock = Array2<ParallelObjects::SpinLock>;
+
+using Array2_VecChar   = Array2<Vector<char> >;
+using Array2_VecInt    = Array2<Vector<int> >;
+using Array2_VecUInt   = Array2<Vector<unsigned int> >;
+using Array2_VecFloat  = Array2<Vector<float> >;
+using Array2_VecDouble = Array2<Vector<double> >;
+using Array2_VecReal   = Array2<Vector<Real> >;
 
 ////////////////////////////////////////////////////////////////////////////////
-using Array3c        = Array<3, char>;
-using Array3uc       = Array<3, unsigned char>;
-using Array3s        = Array<3, short>;
-using Array3us       = Array<3, unsigned short>;
-using Array3ll       = Array<3, long long>;
-using Array3ull      = Array<3, unsigned long long>;
-using Array3i        = Array<3, int>;
-using Array3ui       = Array<3, unsigned int>;
-using Array3f        = Array<3, float>;
-using Array3d        = Array<3, double>;
-using Array3r        = Array<3, Real>;
-using Array3SpinLock = Array<3, ParallelObjects::SpinLock>;
+using Array3c        = Array3<char>;
+using Array3uc       = Array3<unsigned char>;
+using Array3s        = Array3<short>;
+using Array3us       = Array3<unsigned short>;
+using Array3ll       = Array3<long long>;
+using Array3ull      = Array3<unsigned long long>;
+using Array3i        = Array3<int>;
+using Array3ui       = Array3<unsigned int>;
+using Array3f        = Array3<float>;
+using Array3d        = Array3<double>;
+using Array3r        = Array3<Real>;
+using Array3SpinLock = Array3<ParallelObjects::SpinLock>;
 
-using Array3_VecChar   = Array<3, Vector<char> >;
-using Array3_VecInt    = Array<3, Vector<int> >;
-using Array3_VecUInt   = Array<3, Vector<unsigned int> >;
-using Array3_VecFloat  = Array<3, Vector<float> >;
-using Array3_VecDouble = Array<3, Vector<double> >;
+using Array3_VecChar   = Array3<Vector<char> >;
+using Array3_VecInt    = Array3<Vector<int> >;
+using Array3_VecUInt   = Array3<Vector<unsigned int> >;
+using Array3_VecFloat  = Array3<Vector<float> >;
+using Array3_VecDouble = Array3<Vector<double> >;
+using Array3_VecReal   = Array3<Vector<Real> >;
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana

@@ -57,7 +57,7 @@ struct FLIP3D_Data : public GridSimulationData<3, Real>
     Array3r        u_old, v_old, w_old;
     Array3SpinLock uLock, vLock, wLock;
 
-    virtual void resize(const Vec3<UInt>& nCells)
+    virtual void resize(const Vec3ui& nCells)
     {
         du.resize(nCells.x + 1, nCells.y, nCells.z, 0);
         u_old.resize(nCells.x + 1, nCells.y, nCells.z, 0);

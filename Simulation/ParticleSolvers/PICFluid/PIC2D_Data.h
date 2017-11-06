@@ -145,7 +145,7 @@ struct PIC2D_Data
         Vec_Vec2r tmp_positions;
         ////////////////////////////////////////////////////////////////////////////////
 
-        virtual UInt getNParticles() override { return static_cast<UInt>(positions.size()); }
+        
 
         virtual void reserve(UInt nParticles) override
         {
