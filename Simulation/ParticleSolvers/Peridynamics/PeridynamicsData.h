@@ -36,7 +36,7 @@ namespace ParticleSolvers
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 struct SimulationParameters_Peridynamics3D : public SimulationParameters
 {
-    SimulationParameters_Peridynamics3D() { makeReady(); }
+    SimulationParameters_Peridynamics3D() = default;
 
     ////////////////////////////////////////////////////////////////////////////////
     Real  minTimestep         = Real(1.0e-6);

@@ -32,16 +32,6 @@ namespace ParticleSolvers
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PIC3D_Solver::makeReady()
 {
-    logger().printRunTime("Prepare simulation objects: ",
-                          [&]()
-                          {
-                              for(auto& obj : m_DynamicObjects) {
-                                  obj->advanceScene(globalParams().finishedFrame); // change scene state to the current frame
-                              }
-                              computeBoundarySDF();
-                          });
-
-    ////////////////////////////////////////////////////////////////////////////////
     logger().printMemoryUsage();
     logger().printLog("Solver ready!");
     logger().newLine();
@@ -60,6 +50,11 @@ void PIC3D_Solver::advanceFrame()
         logger().printRunTime("Sub-step time: ", subStepTimer,
                               [&]()
                               {
+                                  if(globalParams().finishedFrame > 0) {
+                                      logger().printRunTimeIf("Advance scene: ", funcTimer,
+                                                              [&]() { return advanceScene(globalParams().finishedFrame, frameTime / globalParams().frameDuration); });
+                                  }
+                                  ////////////////////////////////////////////////////////////////////////////////
                                   auto substep       = timestepCFL();
                                   auto remainingTime = globalParams().frameDuration - frameTime;
                                   if(frameTime + substep >= globalParams().frameDuration) {
@@ -71,7 +66,6 @@ void PIC3D_Solver::advanceFrame()
                                   logger().printRunTime("Move particles: ", funcTimer, [&]() { moveParticles(substep); });
                                   logger().printRunTimeIf("Correct particle positions: ", funcTimer, [&]() { return correctParticlePositions(substep); });
                                   logger().printRunTime("}=> Advance velocity: ", funcTimer, [&]() { advanceVelocity(substep); });
-                                  logger().printRunTimeIf("Advance scene: ", funcTimer, [&]() { return advanceScene(globalParams().finishedFrame, frameTime / globalParams().frameDuration); });
                                   ////////////////////////////////////////////////////////////////////////////////
                                   frameTime += substep;
                                   ++substepCount;

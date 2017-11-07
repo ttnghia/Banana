@@ -37,7 +37,7 @@ namespace ParticleSolvers
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 struct SimulationParameters_WCSPH : public SimulationParameters
 {
-    SimulationParameters_WCSPH() { makeReady(); }
+    SimulationParameters_WCSPH() = default;
 
     ////////////////////////////////////////////////////////////////////////////////
     Real minTimestep = Real(1.0e-6);

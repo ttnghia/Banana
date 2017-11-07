@@ -33,7 +33,7 @@ namespace ParticleSolvers
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 struct SimulationParameters_Snow3D : public SimulationParameters
 {
-    SimulationParameters_Snow3D() { makeReady(); }
+    SimulationParameters_Snow3D() = default;
 
     ////////////////////////////////////////////////////////////////////////////////
     Real CFLFactor           = Real(0.04);

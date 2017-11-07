@@ -37,7 +37,7 @@ namespace ParticleSolvers
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 struct PIC3D_Parameters : public SimulationParameters
 {
-    PIC3D_Parameters() { makeReady(); }
+    PIC3D_Parameters() = default;
 
     ////////////////////////////////////////////////////////////////////////////////
     // simulation size
