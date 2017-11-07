@@ -30,7 +30,7 @@
         "MaxCGIteration" : 1000,
         "CellSize" : 0.02,
         "RatioCellSizePRadius" : 4,
-        "CFLFactor" : 0.03,
+        "CFLFactor" : 0.02,
         "lambda" : 10,
         "mu": 100,
         "MaterialDensity" : 1
@@ -43,7 +43,7 @@
             "Translation" : [0, 0.6, 0],
             "RotationAxisAngle" : [1, 0, 0, 90],
             "Scale" : 0.3,
-            "JitterRatio" : 0.5
+            "JitterRatio" : 0.1
         },
         {
             "GeometryType" : "Torus",
@@ -51,7 +51,7 @@
             "Translation" : [0, -0.3, 0],
             "RotationAxisAngle" : [0, 0, 1, 90],
             "Scale" : 0.3,
-            "JitterRatio" : 0.5
+            "JitterRatio" : 0.1
         }
     ],
     "VisualizationParameters":

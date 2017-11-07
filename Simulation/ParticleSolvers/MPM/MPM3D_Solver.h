@@ -67,23 +67,12 @@ protected:
     bool initParticleVolumes();
     void mapParticleVelocities2Grid(Real timestep);
     void constrainGridVelocity(Real timestep);
-
-    //Compute grid velocities
     void explicitVelocities(Real timestep);
     void implicitVelocities(Real timestep);
-
-    //Map grid velocities back to particles
     void mapGridVelocities2Particles(Real timestep);
     void constrainParticleVelocity(Real timestep);
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // particle processing
-
     void updateParticleDeformGradients(Real timestep);
-
-    void computePiolaStress();
     void computePiolaStressAndEnergyDensity();
-    void getCoordinatesAndWeights(const Vec3r& point, std::array<Vec3i, 8>& indices, std::array<Real, 8>& weights, std::array<Vec3r, 64>& weightGradients);
     ////////////////////////////////////////////////////////////////////////////////
     auto&       particleData() { return solverData().particleData; }
     const auto& particleData() const { return solverData().particleData; }

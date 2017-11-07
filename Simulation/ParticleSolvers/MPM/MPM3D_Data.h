@@ -34,7 +34,7 @@ namespace ParticleSolvers
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 struct MPM3D_Parameters : public SimulationParameters
 {
-    MPM3D_Parameters() { makeReady(); }
+    MPM3D_Parameters() = default;
 
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -64,11 +64,9 @@ struct MPM3D_Parameters : public SimulationParameters
 
     ////////////////////////////////////////////////////////////////////////////////
     // particle parameters
-    UInt maxNParticles = 0;
     Real particleRadius;
-    bool bCorrectPosition        = true;
-    Real repulsiveForceStiffness = Real(50);
-    UInt advectionSteps          = 1;
+    UInt maxNParticles  = 0;
+    UInt advectionSteps = 1;
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -84,8 +82,8 @@ struct MPM3D_Parameters : public SimulationParameters
 
     ////////////////////////////////////////////////////////////////////////////////
     // material parameters
-    Real YoungsModulus   = Real(1.5e3);
-    Real PoissonsRatio   = Real(0.2);
+    Real YoungsModulus   = Real(0);
+    Real PoissonsRatio   = Real(0);
     Real mu              = Real(0);
     Real lambda          = Real(0);
     Real materialDensity = Real(1000.0);
@@ -107,9 +105,13 @@ struct MPM3D_Parameters : public SimulationParameters
         domainBMin -= Vec3r(cellSize * nExpandCells);
         domainBMax += Vec3r(cellSize * nExpandCells);
 
+        __BNN_ASSERT((YoungsModulus > 0 && PoissonsRatio > 0) || (mu > 0 && lambda > 0));
         if(mu == 0 || lambda == 0) {
-            mu     = YoungsModulus / (Real(2.0) + Real(2.0) * PoissonsRatio);
+            mu     = YoungsModulus / Real(2.0) / (Real(1.0) + PoissonsRatio);
             lambda = YoungsModulus * PoissonsRatio / ((Real(1.0) + PoissonsRatio) * (Real(1.0) - Real(2.0) * PoissonsRatio));
+        } else {
+            YoungsModulus = mu * (Real(3.0) * lambda + Real(2.0) * mu) / (lambda + mu);
+            PoissonsRatio = lambda / Real(2.0) / (lambda + mu);
         }
     }
 
@@ -150,8 +152,6 @@ struct MPM3D_Parameters : public SimulationParameters
         ////////////////////////////////////////////////////////////////////////////////
         // particle parameters
         logger->printLogIndent(String("Particle radius: ") + std::to_string(particleRadius));
-        logger->printLogIndent(String("Correct particle position: ") + (bCorrectPosition ? String("Yes") : String("No")));
-        logger->printLogIndentIf(bCorrectPosition, String("Repulsive force stiffness: ") + NumberHelpers::formatToScientific(repulsiveForceStiffness));
         logger->printLogIndent(String("Advection steps/timestep: ") + std::to_string(advectionSteps));
         logger->printLogIndentIf(maxNParticles > 0, String("Max. number of particles: ") + std::to_string(maxNParticles));
         ////////////////////////////////////////////////////////////////////////////////
