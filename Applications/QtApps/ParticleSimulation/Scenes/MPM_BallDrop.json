@@ -1,13 +1,13 @@
 {
     "GlobalParameters":
     {
-        "FrameDuration" : 0.01,
+        "FrameDuration" : 0.03333333333,
         "StartFrame" : 1,
-        "FinalFrame" : 1000,
+        "FinalFrame" : 200,
         "SaveFrameData" : true,
         "SaveMemoryState" : false,
         "FramePerState" : 10,
-        "DataPath" : "D:/SimData/MPM2",
+        "DataPath" : "D:/SimData/MPM3",
         "FrameDataFolder" : "FLIPData",
         "MemoryStateDataFolder" : "FLIPState",
         "OptionalSavingDataXXX" : [ "anisotropic_kernel" ],
@@ -20,20 +20,21 @@
     {
         "SimulationDomainBox" :
         {
-            "BoxMin" : [0, 0, 0],
-            "BoxMax" : [ 7.5, 11.5, 7.5]
+            "BoxMin" : [-1, -1, -1],
+            "BoxMax" : [1, 1, 1]
         },
-        "NExpandCells" : 0,
+        "NExpandCells" : 2,
         "CorrectPosition" : true,
         "RepulsiveForceStiffness" : 50,
         "AdvectionSteps" : 2,
         "PIC_FLIP_Ratio" : 0.97,
         "CGRelativeTolerance" : 1e-18,
         "MaxCGIteration" : 1000,
-        "CellSize" : 0.4,
-        "CFLFactor" : 0.04,
+        "CellSize" : 0.02,
+        "CFLFactor" : 0.03,
         "lambda" : 10,
-        "mu": 10
+        "mu": 100,
+        "MaterialDensity" : 1
     },
     "AdditionalBoundaryObjectsXXX":
     [
@@ -50,8 +51,9 @@
         {
             "GeometryType" : "Sphere",
             "UniqueName" : "SphereParticleGenerator",
-            "Translation" : [3, 3, 3],
-            "Scale" : 0.4
+            "Translation" : [0, 0, 0],
+            "Scale" : 0.2,
+            "JitterRatio" : 0.5
         }
     ],
     "VisualizationParameters":

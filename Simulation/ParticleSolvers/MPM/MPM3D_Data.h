@@ -94,9 +94,10 @@ struct MPM3D_Parameters : public SimulationParameters
 
     virtual void makeReady() override
     {
+        nExpandCells   = MathHelpers::max(nExpandCells, 2u);
         cellVolume     = MathHelpers::cube(cellSize);
         particleRadius = cellSize / ratioCellSizePRadius;
-        particleMass   = 0.01;      // MathHelpers::cube(Real(2.0) * particleRadius) * materialDensity;
+        particleMass   = MathHelpers::cube(Real(2.0) * particleRadius) * materialDensity;
 
         // expand domain simulation by nExpandCells for each dimension
         // this is necessary if the boundary is a box which coincides with the simulation domain
