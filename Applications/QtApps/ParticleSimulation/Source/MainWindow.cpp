@@ -236,14 +236,15 @@ void MainWindow::connectWidgets()
         bool isRunning = m_Simulator->isRunning();
         if(!isRunning) {
             m_Simulator->startSimulation();
+            m_Controller->m_cbSimulationScene->setDisabled(true);
             updateStatusSimulation("Running simulation...");
         } else {
             m_Simulator->stop();
+            m_Controller->m_cbSimulationScene->setDisabled(false);
             updateStatusSimulation("Stopped");
         }
 
         m_Controller->m_btnStartStopSimulation->setText(!isRunning ? QString("Stop") : QString("Resume"));
-//        m_Controller->disableParameters(!isRunning);
         m_BusyBar->setBusy(!isRunning);
     });
 

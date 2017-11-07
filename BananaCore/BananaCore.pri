@@ -39,6 +39,7 @@ win32 {
     } else {
         message("Banana -- Release")
         QMAKE_CXXFLAGS += /Zo /Qpar /GL /W3 /Gy /Gm- /O2 /Ob2 /fp:precise /D "NDEBUG" /fp:except /Oi /EHsc /Ot /wd"4305"
+        QMAKE_LFLAGS += /LTCG:INCREMENTAL
         static {
             LIBS += $$PWD/../Build/ReleaseStaticBuild/BananaCore.lib
             PRE_TARGETDEPS += $$PWD/../Build/ReleaseStaticBuild/BananaCore.lib
