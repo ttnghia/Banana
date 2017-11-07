@@ -49,7 +49,7 @@ void MainWindow::showEvent(QShowEvent* ev)
         Q_ASSERT(m_Simulator != nullptr);
         updateStatusMemoryUsage();
         updateStatusSimulationTime(0, 0);
-        changeScene(m_Controller->m_cbSimulationScene->currentText());
+//        changeScene(m_Controller->m_cbSimulationScene->currentText());
     }
 }
 
@@ -111,6 +111,9 @@ void MainWindow::updateStatusSimulationTime(float time, unsigned int frame)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MainWindow::changeScene(const QString& sceneFile)
 {
+    if(sceneFile == "None") {
+        return;
+    }
     m_Simulator->changeScene(sceneFile);
     m_RenderWidget->setParticlePositions(m_Simulator->getSolver()->getParticlePositions());
     m_RenderWidget->updateParticleData();
