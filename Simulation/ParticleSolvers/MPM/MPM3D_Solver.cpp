@@ -656,8 +656,8 @@ void MPM3D_Solver::constrainGridVelocity(Real timestep)
     ParallelFuncs::parallel_for<UInt>(grid().getNNodes(),
                                       [&](UInt i, UInt j, UInt k)
                                       {
-                                          if(i <= 2 || j <= 2 || k <= 2 ||
-                                             i > grid().getNNodes().x - 2 || j > grid().getNNodes().y - 2 || k > grid().getNNodes().z - 2) {
+                                          if(i < 2 || j < 2 || k < 2 ||
+                                             i > grid().getNNodes().x - 3 || j > grid().getNNodes().y - 3 || k > grid().getNNodes().z - 3) {
                                               gridData().velocity_new(i, j, k) = Vec3r(0);
                                           }
                                       });
@@ -714,8 +714,6 @@ void MPM3D_Solver::mapGridVelocities2ParticlesAPIC(Real timestep)
     ParallelFuncs::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
                                 {
-                                    //calculate PIC and FLIP velocities separately
-                                    //also keep track of velocity gradient
                                     const auto lcorner = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
                                     const auto& pPos   = particleData().positions[p];
                                     auto apicVel       = Vec3r(0);
