@@ -226,7 +226,7 @@ struct MPM3D_Data
             velocities.insert(velocities.end(), newVelocities.begin(), newVelocities.end());
 
             volumes.resize(positions.size(), 0);
-            velocityGrad.resize(positions.size(), Mat3x3r(1.0));
+            velocityGrad.resize(positions.size(), Mat3x3r(0));
 
             deformGrad.resize(positions.size(), Mat3x3r(1.0));
             PiolaStress.resize(positions.size(), Mat3x3r(1.0));

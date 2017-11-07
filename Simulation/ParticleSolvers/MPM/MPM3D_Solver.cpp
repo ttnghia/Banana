@@ -611,11 +611,12 @@ void MPM3D_Solver::mapGridVelocities2Particles(Real timestep)
     ParallelFuncs::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
                                 {
-                                    //We calculate PIC and FLIP velocities separately
-                                    Vec3r pic(0), flip = particleData().velocities[p];
-                                    //Also keep track of velocity gradient
-                                    auto& pVelGrad = particleData().velocityGrad[p];
-                                    pVelGrad = Mat3x3r(0.0);
+                                    //calculate PIC and FLIP velocities separately
+                                    //also keep track of velocity gradient
+                                    auto picVel      = Vec3r(0);
+                                    auto picVelGrad  = Mat3x3r(0.0);
+                                    auto flipVel     = particleData().velocities[p];
+                                    auto flipVelGrad = particleData().velocityGrad[p];
 
                                     auto lcorner = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
                                     for(Int idx = 0, z = lcorner.z - 1, z_end = z + 4; z < z_end; ++z) {
@@ -629,18 +630,16 @@ void MPM3D_Solver::mapGridVelocities2Particles(Real timestep)
                                                 if(w > Tiny) {
                                                     const auto& nVel    = gridData().velocity(x, y, z);
                                                     const auto& nNewVel = gridData().velocity_new(x, y, z);
-                                                    pic      += nNewVel * w;
-                                                    flip     += (nNewVel - nVel) * w;
-                                                    pVelGrad += glm::outerProduct(nNewVel, particleData().weightGradients[p * 64 + idx]);
+                                                    picVel      += nNewVel * w;
+                                                    flipVel     += (nNewVel - nVel) * w;
+                                                    picVelGrad  += glm::outerProduct(nNewVel, particleData().weightGradients[p * 64 + idx]);
+                                                    flipVelGrad += glm::outerProduct(nNewVel - nVel, particleData().weightGradients[p * 64 + idx]);
                                                 }
                                             }
                                         }
                                     }
-                                    particleData().velocities[p] = pic;                                    // MathHelpers::lerp(pic, flip, solverParams().PIC_FLIP_ratio);
-
-
-                                    //printf("map g2p: p=%u, vel = %s,  velgrad = %s\n", p, NumberHelpers::toString(particleData().velocities[p]).c_str(),
-                                    //       NumberHelpers::toString(pVelGrad).c_str());
+                                    particleData().velocities[p]   = MathHelpers::lerp(picVel, flipVel, solverParams().PIC_FLIP_ratio);
+                                    particleData().velocityGrad[p] = MathHelpers::lerp(picVelGrad, flipVelGrad, solverParams().PIC_FLIP_ratio);
                                 });
 }
 
