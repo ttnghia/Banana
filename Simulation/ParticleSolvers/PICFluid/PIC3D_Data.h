@@ -155,6 +155,7 @@ struct PIC3D_Data
         {
             positions.reserve(nParticles);
             velocities.reserve(nParticles);
+            objectIndex.reserve(nParticles);
         }
 
         virtual void addParticles(const Vec_Vec3r& newPositions, const Vec_Vec3r& newVelocities) override
@@ -162,6 +163,11 @@ struct PIC3D_Data
             __BNN_ASSERT(newPositions.size() == newVelocities.size());
             positions.insert(positions.end(), newPositions.begin(), newPositions.end());
             velocities.insert(velocities.end(), newVelocities.begin(), newVelocities.end());
+
+            ////////////////////////////////////////////////////////////////////////////////
+            // add the object index for new particles to the list
+            objectIndex.insert(objectIndex.end(), newPositions.size(), nObjects);
+            ++nObjects; // increase the number of objects
         }
 
         virtual UInt removeParticles(Vec_Int8& removeMarker) override
@@ -171,8 +177,9 @@ struct PIC3D_Data
                 return 0u;
             }
 
-            STLHelpers::eraseByMarker(positions,  removeMarker);
-            STLHelpers::eraseByMarker(velocities, removeMarker);
+            STLHelpers::eraseByMarker(positions,   removeMarker);
+            STLHelpers::eraseByMarker(velocities,  removeMarker);
+            STLHelpers::eraseByMarker(objectIndex, removeMarker);
 
             ////////////////////////////////////////////////////////////////////////////////
             return static_cast<UInt>(removeMarker.size() - positions.size());

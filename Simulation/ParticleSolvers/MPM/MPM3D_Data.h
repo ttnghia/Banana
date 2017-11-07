@@ -201,6 +201,7 @@ struct MPM3D_Data
         {
             positions.reserve(nParticles);
             velocities.reserve(nParticles);
+            objectIndex.reserve(nParticles);
             volumes.reserve(nParticles);
             velocityGrad.reserve(nParticles);
 
@@ -237,6 +238,11 @@ struct MPM3D_Data
 
             B.resize(positions.size(), Mat2x2r(0));
             D.resize(positions.size(), Mat2x2r(0));
+
+            ////////////////////////////////////////////////////////////////////////////////
+            // add the object index for new particles to the list
+            objectIndex.insert(objectIndex.end(), newPositions.size(), nObjects);
+            ++nObjects; // increase the number of objects
         }
 
         virtual UInt removeParticles(Vec_Int8& removeMarker)
@@ -248,6 +254,7 @@ struct MPM3D_Data
 
             STLHelpers::eraseByMarker(positions,    removeMarker);
             STLHelpers::eraseByMarker(velocities,   removeMarker);
+            STLHelpers::eraseByMarker(objectIndex,  removeMarker);
             STLHelpers::eraseByMarker(volumes,      removeMarker);
             STLHelpers::eraseByMarker(velocityGrad, removeMarker); __BNN_TODO_MSG("need to erase, or just resize?");
             STLHelpers::eraseByMarker(B,            removeMarker); __BNN_TODO_MSG("need to erase, or just resize?");

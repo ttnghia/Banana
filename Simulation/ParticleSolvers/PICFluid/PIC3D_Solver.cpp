@@ -99,6 +99,7 @@ void PIC3D_Solver::sortParticles()
                               const auto& d = m_NSearch->point_set(0);
                               d.sort_field(&particleData().positions[0]);
                               d.sort_field(&particleData().velocities[0]);
+                              d.sort_field(&particleData().objectIndex[0]);
                           });
 }
 
@@ -247,6 +248,10 @@ void PIC3D_Solver::setupDataIO()
         m_ParticleDataIO = std::make_unique<ParticleSerialization>(globalParams().dataPath, globalParams().frameDataFolder, "frame", m_Logger);
         m_ParticleDataIO->addFixedAttribute<float>("particle_radius", ParticleSerialization::TypeReal, 1);
         m_ParticleDataIO->addParticleAttribute<float>("position", ParticleSerialization::TypeCompressedReal, 3);
+        if(globalParams().isSavingData("object_index")) {
+            m_ParticleDataIO->addFixedAttribute<UInt>("NObjects", ParticleSerialization::TypeUInt, 1);
+            m_ParticleDataIO->addParticleAttribute<Int8>("object_index", ParticleSerialization::TypeChar, 1);
+        }
         if(globalParams().isSavingData("anisotropic_kernel")) {
             m_ParticleDataIO->addParticleAttribute<float>("anisotropic_kernel", ParticleSerialization::TypeCompressedReal, 9);
         }
@@ -263,8 +268,10 @@ void PIC3D_Solver::setupDataIO()
         m_MemoryStateIO->addFixedAttribute<Real>("grid_v",          ParticleSerialization::TypeReal, static_cast<UInt>(gridData().v.dataSize()));
         m_MemoryStateIO->addFixedAttribute<Real>("grid_w",          ParticleSerialization::TypeReal, static_cast<UInt>(gridData().w.dataSize()));
         m_MemoryStateIO->addFixedAttribute<Real>("particle_radius", ParticleSerialization::TypeReal, 1);
+        m_MemoryStateIO->addFixedAttribute<UInt>("NObjects",        ParticleSerialization::TypeUInt, 1);
         m_MemoryStateIO->addParticleAttribute<Real>("particle_position", ParticleSerialization::TypeReal, 3);
         m_MemoryStateIO->addParticleAttribute<Real>("particle_velocity", ParticleSerialization::TypeReal, 3);
+        m_MemoryStateIO->addParticleAttribute<Int8>("object_index",      ParticleSerialization::TypeChar, 1);
     }
 }
 
@@ -303,6 +310,9 @@ bool PIC3D_Solver::loadMemoryState()
     Real particleRadius;
     __BNN_ASSERT(m_MemoryStateIO->getFixedAttribute("particle_radius", particleRadius));
     __BNN_ASSERT_APPROX_NUMBERS(solverParams().particleRadius, particleRadius, MEpsilon);
+
+    __BNN_ASSERT(m_MemoryStateIO->getFixedAttribute("NObjects", particleData().nObjects));
+    __BNN_ASSERT(m_MemoryStateIO->getParticleAttribute("object_index", particleData().objectIndex));
 
     __BNN_ASSERT(m_MemoryStateIO->getParticleAttribute("particle_position", particleData().positions));
     __BNN_ASSERT(m_MemoryStateIO->getParticleAttribute("particle_velocity", particleData().velocities));
@@ -348,6 +358,10 @@ void PIC3D_Solver::saveFrameData()
     m_ParticleDataIO->clearData();
     m_ParticleDataIO->setNParticles(particleData().getNParticles());
     m_ParticleDataIO->setFixedAttribute("particle_radius", static_cast<float>(solverParams().particleRadius));
+    if(globalParams().isSavingData("object_index")) {
+        m_ParticleDataIO->setFixedAttribute("NObjects", particleData().nObjects);
+        m_ParticleDataIO->setParticleAttribute("object_index", particleData().objectIndex);
+    }
     if(globalParams().isSavingData("anisotropic_kernel")) {
         AnisotropicKernelGenerator aniKernelGenerator(particleData().getNParticles(), particleData().positions.data(), solverParams().particleRadius);
         aniKernelGenerator.generateAniKernels();

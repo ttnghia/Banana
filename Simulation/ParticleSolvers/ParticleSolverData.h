@@ -179,11 +179,15 @@ struct ParticleSimulationData
     ////////////////////////////////////////////////////////////////////////////////
     // main variables
     Vector<VecX<N, RealType> > positions, velocities;
-    Vec_Int8                   removeMarker;
+
+    UInt     nObjects = 0; // number of individual objects that are added each time by particle generator
+    Vec_Int8 objectIndex;  // store the index of individual objects based on the order they are added
+    Vec_Int8 removeMarker; // mark the candidate particles for removal ( 1 = remove, 0 = intact)
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
     // temporary variables
+    // they don't need to be resize alongside with main variables
     Vector<VecX<N, RealType> > tmp_positions, tmp_velocities;
     ////////////////////////////////////////////////////////////////////////////////
 };

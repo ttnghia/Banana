@@ -219,6 +219,10 @@ void MPM3D_Solver::setupDataIO()
         m_ParticleDataIO = std::make_unique<ParticleSerialization>(globalParams().dataPath, globalParams().frameDataFolder, "frame", m_Logger);
         m_ParticleDataIO->addFixedAttribute<float>("particle_radius", ParticleSerialization::TypeReal, 1);
         m_ParticleDataIO->addParticleAttribute<float>("position", ParticleSerialization::TypeCompressedReal, 3);
+        if(globalParams().isSavingData("object_index")) {
+            m_ParticleDataIO->addFixedAttribute<UInt>("NObjects", ParticleSerialization::TypeUInt, 1);
+            m_ParticleDataIO->addParticleAttribute<Int8>("object_index", ParticleSerialization::TypeChar, 1);
+        }
         if(globalParams().isSavingData("velocity")) {
             m_ParticleDataIO->addParticleAttribute<float>("velocity", ParticleSerialization::TypeCompressedReal, 3);
         }
@@ -231,8 +235,10 @@ void MPM3D_Solver::setupDataIO()
         m_MemoryStateIO->addFixedAttribute<Real>("grid_resolution", ParticleSerialization::TypeUInt, 3);
         //m_MemoryStateIO->addFixedAttribute<Real>("grid_u",          ParticleSerialization::TypeReal, static_cast<UInt>(gridData().u.dataSize()));
         m_MemoryStateIO->addFixedAttribute<Real>("particle_radius", ParticleSerialization::TypeReal, 1);
+        m_MemoryStateIO->addFixedAttribute<UInt>("NObjects",        ParticleSerialization::TypeUInt, 1);
         m_MemoryStateIO->addParticleAttribute<Real>("particle_position", ParticleSerialization::TypeReal, 3);
         m_MemoryStateIO->addParticleAttribute<Real>("particle_velocity", ParticleSerialization::TypeReal, 3);
+        m_MemoryStateIO->addParticleAttribute<Int8>("object_index",      ParticleSerialization::TypeChar, 1);
     }
 }
 
@@ -271,6 +277,9 @@ bool MPM3D_Solver::loadMemoryState()
     __BNN_ASSERT(m_MemoryStateIO->getFixedAttribute("particle_radius", particleRadius));
     __BNN_ASSERT_APPROX_NUMBERS(solverParams().particleRadius, particleRadius, MEpsilon);
 
+    __BNN_ASSERT(m_MemoryStateIO->getFixedAttribute("NObjects", particleData().nObjects));
+    __BNN_ASSERT(m_MemoryStateIO->getParticleAttribute("object_index", particleData().objectIndex));
+
     __BNN_ASSERT(m_MemoryStateIO->getParticleAttribute("particle_position", particleData().positions));
     __BNN_ASSERT(m_MemoryStateIO->getParticleAttribute("particle_velocity", particleData().velocities));
     assert(particleData().velocities.size() == particleData().positions.size());
@@ -292,8 +301,10 @@ void MPM3D_Solver::saveMemoryState()
     m_MemoryStateIO->clearData();
     m_MemoryStateIO->setNParticles(particleData().getNParticles());
     m_MemoryStateIO->setFixedAttribute("particle_radius", solverParams().particleRadius);
-    m_MemoryStateIO->setParticleAttribute("position", particleData().positions);
-    m_MemoryStateIO->setParticleAttribute("velocity", particleData().velocities);
+    m_MemoryStateIO->setFixedAttribute("NObjects",        particleData().nObjects);
+    m_MemoryStateIO->setParticleAttribute("object_index", particleData().objectIndex);
+    m_MemoryStateIO->setParticleAttribute("position",     particleData().positions);
+    m_MemoryStateIO->setParticleAttribute("velocity",     particleData().velocities);
     m_MemoryStateIO->flushAsync(m_GlobalParams.finishedFrame);
     __BNN_TODO;
 }
@@ -310,6 +321,10 @@ void MPM3D_Solver::saveFrameData()
     m_ParticleDataIO->setNParticles(particleData().getNParticles());
     m_ParticleDataIO->setFixedAttribute("particle_radius", static_cast<float>(solverParams().particleRadius));
     m_ParticleDataIO->setParticleAttribute("position", particleData().positions);
+    if(globalParams().isSavingData("object_index")) {
+        m_ParticleDataIO->setFixedAttribute("NObjects", particleData().nObjects);
+        m_ParticleDataIO->setParticleAttribute("object_index", particleData().objectIndex);
+    }
     if(globalParams().isSavingData("velocity")) {
         m_ParticleDataIO->setParticleAttribute("velocity", particleData().velocities);
     }
