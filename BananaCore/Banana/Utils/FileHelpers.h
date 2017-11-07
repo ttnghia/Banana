@@ -35,7 +35,7 @@
 #include <filesystem>
 #include <windows.h>
 #endif
-
+ 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
 {
@@ -45,7 +45,8 @@ namespace FileHelpers
 inline void createFolder(const char* folderName)
 {
 #ifdef __BANANA_WINDOWS__
-    CreateDirectoryA(folderName, NULL);
+    //CreateDirectoryA(folderName, NULL);
+    std::experimental::filesystem::create_directories(folderName);
 #else
     char buff[512];
     __BNN_SPRINT(buff, "mkdir -p %s", folderName);
