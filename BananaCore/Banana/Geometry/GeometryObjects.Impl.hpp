@@ -128,8 +128,8 @@ bool GeometryObject<N, RealType >::updateTransformation(UInt frame /*= 0*/, Real
     m_TransformationMatrix    = m_Animation.getTransformation(frame, fraction);
     m_InvTransformationMatrix = glm::inverse(m_TransformationMatrix);
     m_UniformScale            = m_Animation.getUniformScale(frame, fraction);
-    //m_InvScale                = m_Animation.getInvScale(frame, fraction);
-    m_bTransformed = true;
+    m_bTransformed            = true;
+    ////////////////////////////////////////////////////////////////////////////////
     return true;
 }
 

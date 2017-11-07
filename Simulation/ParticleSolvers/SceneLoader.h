@@ -140,7 +140,8 @@ void loadSimulationObject(const nlohmann::json& jParams, const SharedPtr<Simulat
     if(JSONHelpers::readVector(jParams, rotationEulerAngles, "RotationEulerAngles") || JSONHelpers::readVector(jParams, rotationEulerAngles, "RotationEulerAngle")) {
         obj->geometry()->setRotation(MathHelpers::EulerToAxisAngle(rotationEulerAngles, false));
     } else if(JSONHelpers::readVector(jParams, rotationAxisAngle, "RotationAxisAngle")) {
-        obj->geometry()->setRotation(glm::radians(rotationAxisAngle));
+        rotationAxisAngle[N] = glm::radians(rotationAxisAngle[N]);
+        obj->geometry()->setRotation(rotationAxisAngle);
     }
 
     if(JSONHelpers::readValue(jParams, scale, "Scale")) {
