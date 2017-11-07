@@ -59,7 +59,10 @@ void MPM3D_Solver::advanceFrame()
         logger().printRunTime("Sub-step time: ", subStepTimer,
                               [&]()
                               {
-                                  Real substep       = timestepCFL();
+                                  //Real substep       = timestepCFL();
+                                  Real substep = 0.01;;
+                                  __BNN_TODO;
+
                                   Real remainingTime = globalParams().frameDuration - frameTime;
                                   if(frameTime + substep >= globalParams().frameDuration) {
                                       substep = remainingTime;
@@ -95,8 +98,8 @@ void MPM3D_Solver::loadSimParams(const nlohmann::json& jParams)
     __BNN_ASSERT(m_BoundaryObjects.size() > 0);
     auto box = std::dynamic_pointer_cast<GeometryObjects::BoxObject<3, Real> >(m_BoundaryObjects[0]->geometry());
     __BNN_ASSERT(box != nullptr);
-    solverParams().movingBMin = box->boxMin();
-    solverParams().movingBMax = box->boxMax();
+    solverParams().domainBMin = box->boxMin();
+    solverParams().domainBMax = box->boxMax();
 
     ////////////////////////////////////////////////////////////////////////////////
     // simulation size
@@ -158,6 +161,26 @@ void MPM3D_Solver::loadSimParams(const nlohmann::json& jParams)
 void MPM3D_Solver::generateParticles(const nlohmann::json& jParams)
 {
     ParticleSolver3D::generateParticles(jParams);
+
+
+    Vec3r sphere_center(3.f, 3.f, 3.f);
+    Real  sphere_rad = 1;
+    Real  step       = 0.5;
+    for(Real x = sphere_center[0] - sphere_rad; x < sphere_center[0] + sphere_rad; x += step) {
+        for(Real y = sphere_center[1] - sphere_rad; y < sphere_center[1] + sphere_rad; y += step) {
+            for(Real z = sphere_center[2] - sphere_rad; z < sphere_center[2] + sphere_rad; z += step) {
+                Vec3r pos(x, y, z);
+                if(glm::length(pos - sphere_center) < sphere_rad) {
+                    particleData().addParticles({ pos }, { Vec3r(0) });
+                }
+            }
+        }
+    }
+
+
+
+
+
     if(!loadMemoryState()) {
         for(auto& generator : m_ParticleGenerators) {
             generator->buildObject(m_BoundaryObjects, solverParams().particleRadius);
@@ -165,7 +188,8 @@ void MPM3D_Solver::generateParticles(const nlohmann::json& jParams)
             particleData().tmp_positions.resize(0);
             particleData().tmp_velocities.resize(0);
             UInt nGen = generator->generateParticles(particleData().positions, particleData().tmp_positions, particleData().tmp_velocities);
-            particleData().addParticles(particleData().tmp_positions, particleData().tmp_velocities);
+            //particleData().addParticles(particleData().tmp_positions, particleData().tmp_velocities);
+            __BNN_TODO;
             ////////////////////////////////////////////////////////////////////////////////
             logger().printLogIf(nGen > 0, String("Generated ") + NumberHelpers::formatWithCommas(nGen) + String(" particles by ") + generator->nameID());
         }
@@ -376,30 +400,40 @@ void MPM3D_Solver::mapParticleMasses2Grid()
     ParallelFuncs::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
                                 {
-                                    Vec3i lcorner;
-                                    Vec3r fxyz;
-                                    MathHelpers::get_barycentric(particleData().gridCoordinate[p], lcorner, fxyz);
+                                    auto pg = particleData().gridCoordinate[p];
 
-                                    for(Int idx = 0, z = lcorner.z - 1, z_end = z + 3; z < z_end; ++z) {
-                                        auto wz = MathHelpers::cubic_bspline_kernel(fxyz.z);
-                                        auto dz = MathHelpers::cubic_bspline_grad(fxyz.z);
+                                    auto lcorner = NumberHelpers::convert<Int>(pg);
 
-                                        for(Int y = lcorner.y - 1, y_end = y + 3; y < y_end; ++y) {
-                                            auto wy = MathHelpers::cubic_bspline_kernel(fxyz.y);
-                                            auto dy = MathHelpers::cubic_bspline_grad(fxyz.y);
 
-                                            for(Int x = lcorner.x - 1, x_end = x + 3; x < x_end; ++x, ++idx) {
+                                    printf("par: %u, pos = %f, %f, %f,   normed: %f, %f, %f:   corner: %d, %d, %d\n", p,
+                                           particleData().positions[p].x, particleData().positions[p].y, particleData().positions[p].z,
+                                           particleData().gridCoordinate[p].x, particleData().gridCoordinate[p].y, particleData().gridCoordinate[p].z,
+                                           lcorner.x - 1, lcorner.y - 1, lcorner.z - 1);
+
+                                    for(Int idx = 0, z = lcorner.z - 1, z_end = z + 4; z < z_end; ++z) {
+                                        auto dz  = pg.z - Real(z);
+                                        auto wz  = MathHelpers::cubic_bspline_kernel<double>(dz);
+                                        auto dwz = MathHelpers::cubic_bspline_grad<double>(dz);
+
+                                        for(Int y = lcorner.y - 1, y_end = y + 4; y < y_end; ++y) {
+                                            auto dy  = pg.y - Real(y);
+                                            auto wy  = MathHelpers::cubic_bspline_kernel<double>(dy);
+                                            auto dwy = MathHelpers::cubic_bspline_grad<double>(dy);
+
+                                            for(Int x = lcorner.x - 1, x_end = x + 4; x < x_end; ++x, ++idx) {
                                                 if(!grid().isValidNode(x, y, z)) {
+                                                    printf("not valid %d, %d, %d\n", x, y, z);
                                                     particleData().weights[p * 64 + idx]         = 0;
                                                     particleData().weightGradients[p * 64 + idx] = Vec3r(0);
                                                     continue;
                                                 }
 
-                                                auto wx = MathHelpers::cubic_bspline_kernel(fxyz.x);
-                                                auto dx = MathHelpers::cubic_bspline_grad(fxyz.x);
+                                                auto dx  = pg.x - Real(x);
+                                                auto wx  = MathHelpers::cubic_bspline_kernel<double>(dx);
+                                                auto dwx = MathHelpers::cubic_bspline_grad<double>(dx);
 
                                                 auto weight     = wx * wy * wz;
-                                                auto weightGrad = Vec3r(dx * wy * wz, dy * wx * wz, dz * wx * wy) / grid().getCellSize();
+                                                auto weightGrad = Vec3r(dwx * wy * wz, dwy * wx * wz, dwz * wx * wy) / grid().getCellSize();
 
 
                                                 particleData().weights[p * 64 + idx]         = weight;
@@ -408,10 +442,27 @@ void MPM3D_Solver::mapParticleMasses2Grid()
                                                 gridData().nodeLocks(x, y, z).lock();
                                                 gridData().mass(x, y, z) += weight * solverParams().particleMass;
                                                 gridData().nodeLocks(x, y, z).unlock();
+
+
+                                                //printf("p=%u, grid id: %u\n", p, gridData().mass.getCellLinearizedIndex(x, y, z));
+                                                //if(gridData().mass.getCellLinearizedIndex(x, y, z) == 1605) {
+                                                printf("grid: %u,  weip=%15.10f,    %15.10f, %15.10f, %15.10f,     dist = , %15.10f, %15.10f, %15.10f,    pm=%f, current_m=%15.10f\n",
+                                                       gridData().mass.getCellLinearizedIndex(x, y, z),
+                                                       weight, wx, wy, wz,
+                                                       dx, dy, dz,
+                                                       solverParams().particleMass, gridData().mass(x, y, z));
+                                                //}
                                             }
                                         }
                                     }
                                 });
+
+    printf("size; %u\n", gridData().mass.dataSize());
+    for(size_t i = 0; i < gridData().mass.dataSize(); ++i) {
+        if(gridData().mass.data()[i] > 0) {
+            printf("grid: %lu, mass: %15.10e\n", i, gridData().mass.data()[i]);
+        }
+    }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -428,9 +479,9 @@ bool MPM3D_Solver::initParticleVolumes()
                                 {
                                     auto lcorner  = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
                                     auto pDensity = Real(0);
-                                    for(Int idx = 0, z = lcorner.z - 1, z_end = z + 3; z < z_end; ++z) {
-                                        for(Int y = lcorner.y - 1, y_end = y + 3; y < y_end; ++y) {
-                                            for(Int x = lcorner.x - 1, x_end = x + 3; x < x_end; ++x, ++idx) {
+                                    for(Int idx = 0, z = lcorner.z - 1, z_end = z + 4; z < z_end; ++z) {
+                                        for(Int y = lcorner.y - 1, y_end = y + 4; y < y_end; ++y) {
+                                            for(Int x = lcorner.x - 1, x_end = x + 4; x < x_end; ++x, ++idx) {
                                                 if(!grid().isValidNode(x, y, z)) {
                                                     continue;
                                                 }
@@ -446,6 +497,7 @@ bool MPM3D_Solver::initParticleVolumes()
                                     pDensity /= solverParams().cellVolume;
                                     assert(pDensity > 0);
                                     particleData().volumes[p] = solverParams().particleMass / pDensity;
+                                    printf("particle: %u, vol: %f\n", p, particleData().volumes[p]);
                                 });
     ////////////////////////////////////////////////////////////////////////////////
     bComputed = true;
@@ -459,9 +511,9 @@ void MPM3D_Solver::mapParticleVelocities2Grid(Real timestep)
                                 [&](UInt p)
                                 {
                                     auto lcorner = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
-                                    for(Int idx = 0, z = lcorner.z - 1, z_end = z + 3; z < z_end; ++z) {
-                                        for(Int y = lcorner.y - 1, y_end = y + 3; y < y_end; ++y) {
-                                            for(Int x = lcorner.x - 1, x_end = x + 3; x < x_end; ++x, ++idx) {
+                                    for(Int idx = 0, z = lcorner.z - 1, z_end = z + 4; z < z_end; ++z) {
+                                        for(Int y = lcorner.y - 1, y_end = y + 4; y < y_end; ++y) {
+                                            for(Int x = lcorner.x - 1, x_end = x + 4; x < x_end; ++x, ++idx) {
                                                 if(!grid().isValidNode(x, y, z)) {
                                                     continue;
                                                 }
@@ -484,7 +536,10 @@ void MPM3D_Solver::mapParticleVelocities2Grid(Real timestep)
                                     if(gridData().active.data()[i]) {
                                         assert(gridData().mass.data()[i] > 0);
                                         gridData().velocity.data()[i]    /= gridData().mass.data()[i];
-                                        gridData().velocity_new.data()[i] = gridData().velocity.data()[i];
+                                        gridData().velocity_new.data()[i] = Vec3r(0);
+
+
+                                        printf("map p2g, grid: %lu, vel: %s\n", i, NumberHelpers::toString(gridData().velocity.data()[i]).c_str());
                                     }
                                 });
 }
@@ -503,6 +558,8 @@ void MPM3D_Solver::explicitVelocities(Real timestep)
                                     }
                                     Ftemp = U * LinaHelpers::diagMatrix(S) * Vt;
 
+                                    printf("p: %u , deform: %s\n", p, NumberHelpers::toString(Ftemp, false, 10).c_str());
+
                                     // Compute Piola stress tensor:
                                     Real J = glm::determinant(Ftemp);
                                     __BNN_ASSERT(J > 0.0);
@@ -517,11 +574,15 @@ void MPM3D_Solver::explicitVelocities(Real timestep)
                                     particleData().PiolaStress[p]  = P;
                                     particleData().CauchyStress[p] = particleData().volumes[p] * P * glm::transpose(particleData().deformGrad[p]);
 
-                                    Mat3x3r f    = particleData().CauchyStress[p];
+                                    Mat3x3r f = particleData().CauchyStress[p];
+                                    printf("exp vel, p=: %u, J=%15.10f, P=%s,\n                      stress=: %s\n", p, J, NumberHelpers::toString(P, false, 10).c_str(),
+                                           NumberHelpers::toString(f, false, 10).c_str());
+
+
                                     auto lcorner = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
-                                    for(Int idx = 0, z = lcorner.z - 1, z_end = z + 3; z < z_end; ++z) {
-                                        for(Int y = lcorner.y - 1, y_end = y + 3; y < y_end; ++y) {
-                                            for(Int x = lcorner.x - 1, x_end = x + 3; x < x_end; ++x, ++idx) {
+                                    for(Int idx = 0, z = lcorner.z - 1, z_end = z + 4; z < z_end; ++z) {
+                                        for(Int y = lcorner.y - 1, y_end = y + 4; y < y_end; ++y) {
+                                            for(Int x = lcorner.x - 1, x_end = x + 4; x < x_end; ++x, ++idx) {
                                                 if(!grid().isValidNode(x, y, z)) {
                                                     continue;
                                                 }
@@ -541,8 +602,9 @@ void MPM3D_Solver::explicitVelocities(Real timestep)
                                 [&](size_t i)
                                 {
                                     if(gridData().active.data()[i]) {
-                                        gridData().velocity_new.data()[i] = gridData().velocity_new.data()[i] +
+                                        gridData().velocity_new.data()[i] = gridData().velocity.data()[i] +
                                                                             timestep * (SolverDefaultParameters::Gravity3D - gridData().velocity_new.data()[i] / gridData().mass.data()[i]);
+                                        printf("after exp inte, grid: %lu, vel: %s\n", i, NumberHelpers::toString(gridData().velocity_new.data()[i]).c_str());
                                     }
                                 });
 }
@@ -606,9 +668,9 @@ void MPM3D_Solver::mapGridVelocities2Particles(Real timestep)
                                     pVelGrad = Mat3x3r(0.0);
 
                                     auto lcorner = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
-                                    for(Int idx = 0, z = lcorner.z - 1, z_end = z + 3; z < z_end; ++z) {
-                                        for(Int y = lcorner.y - 1, y_end = y + 3; y < y_end; ++y) {
-                                            for(Int x = lcorner.x - 1, x_end = x + 3; x < x_end; ++x, ++idx) {
+                                    for(Int idx = 0, z = lcorner.z - 1, z_end = z + 4; z < z_end; ++z) {
+                                        for(Int y = lcorner.y - 1, y_end = y + 4; y < y_end; ++y) {
+                                            for(Int x = lcorner.x - 1, x_end = x + 4; x < x_end; ++x, ++idx) {
                                                 if(!grid().isValidNode(x, y, z)) {
                                                     continue;
                                                 }
@@ -624,7 +686,11 @@ void MPM3D_Solver::mapGridVelocities2Particles(Real timestep)
                                             }
                                         }
                                     }
-                                    particleData().velocities[p] = MathHelpers::lerp(pic, flip, solverParams().PIC_FLIP_ratio);
+                                    particleData().velocities[p] = pic;                                    // MathHelpers::lerp(pic, flip, solverParams().PIC_FLIP_ratio);
+
+
+                                    printf("map g2p: p=%u, vel = %s,  velgrad = %s\n", p, NumberHelpers::toString(particleData().velocities[p]).c_str(),
+                                           NumberHelpers::toString(pVelGrad).c_str());
                                 });
 }
 
@@ -660,8 +726,19 @@ void MPM3D_Solver::updateParticleDeformGradients(Real timestep)
                                 {
                                     auto velGrad = particleData().velocityGrad[p];
                                     velGrad *= timestep;
+                                    auto vgs = velGrad;
                                     LinaHelpers::sumToDiag(velGrad, Real(1.0));
+                                    auto vgssum = velGrad;
                                     particleData().deformGrad[p] = velGrad * particleData().deformGrad[p];
+
+                                    printf("p=%u, velgrad = %s, \n"
+                                           "       velgrad*ts = %s, \n"
+                                           "       (velgrad*ts) + I = %s, \n"
+                                           "     deformgrad= %s\n", p,
+                                           NumberHelpers::toString(particleData().velocityGrad[p]).c_str(),
+                                           NumberHelpers::toString(vgs).c_str(),
+                                           NumberHelpers::toString(vgssum).c_str(),
+                                           NumberHelpers::toString(particleData().deformGrad[p]).c_str());
                                 });
 }
 
@@ -734,15 +811,15 @@ void MPM3D_Solver::getCoordinatesAndWeights(const Vec3r& point, std::array<Vec3i
     Vec3r fxyz;
     MathHelpers::get_barycentric(point, lcorner, fxyz);
 
-    for(Int idx = 0, z = lcorner.z - 1, z_end = z + 3; z < z_end; ++z) {
+    for(Int idx = 0, z = lcorner.z - 1, z_end = z + 4; z < z_end; ++z) {
         Real wz = MathHelpers::cubic_bspline_kernel(fxyz.z),
              dz = MathHelpers::cubic_bspline_grad(fxyz.z);
 
-        for(Int y = lcorner.y - 1, y_end = y + 3; y < y_end; ++y) {
+        for(Int y = lcorner.y - 1, y_end = y + 4; y < y_end; ++y) {
             Real wy = MathHelpers::cubic_bspline_kernel(fxyz.y),
                  dy = MathHelpers::cubic_bspline_grad(fxyz.y);
 
-            for(Int x = lcorner.x - 1, x_end = x + 3; x < x_end; ++x, ++idx) {
+            for(Int x = lcorner.x - 1, x_end = x + 4; x < x_end; ++x, ++idx) {
                 if(!grid().isValidNode(x, y, z)) {
                     weights[idx]         = 0;
                     weightGradients[idx] = Vec3r(0);

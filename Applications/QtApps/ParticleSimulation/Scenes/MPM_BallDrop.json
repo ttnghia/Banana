@@ -1,9 +1,9 @@
 {
     "GlobalParameters":
     {
-        "FrameDuration" : 0.03333333333,
+        "FrameDuration" : 0.01,
         "StartFrame" : 1,
-        "FinalFrame" : 100,
+        "FinalFrame" : 1000,
         "SaveFrameData" : true,
         "SaveMemoryState" : false,
         "FramePerState" : 10,
@@ -20,17 +20,20 @@
     {
         "SimulationDomainBox" :
         {
-            "BoxMin" : [-1, -1, -1],
-            "BoxMax" : [ 1.0, 1.0, 1.0]
+            "BoxMin" : [0, 0, 0],
+            "BoxMax" : [ 7.5, 11.5, 7.5]
         },
+        "NExpandCells" : 0,
         "CorrectPosition" : true,
         "RepulsiveForceStiffness" : 50,
         "AdvectionSteps" : 2,
         "PIC_FLIP_Ratio" : 0.97,
         "CGRelativeTolerance" : 1e-18,
         "MaxCGIteration" : 1000,
-        "CellSize" : 0.2,
-        "CFLFactor" : 0.04
+        "CellSize" : 0.4,
+        "CFLFactor" : 0.04,
+        "lambda" : 10,
+        "mu": 10
     },
     "AdditionalBoundaryObjectsXXX":
     [
@@ -47,7 +50,7 @@
         {
             "GeometryType" : "Sphere",
             "UniqueName" : "SphereParticleGenerator",
-            "Translation" : [0, 0, 0],
+            "Translation" : [3, 3, 3],
             "Scale" : 0.4
         }
     ],

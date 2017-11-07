@@ -96,7 +96,7 @@ struct MPM3D_Parameters : public SimulationParameters
     {
         cellVolume     = MathHelpers::cube(cellSize);
         particleRadius = cellSize / ratioCellSizePRadius;
-        particleMass   = MathHelpers::cube(Real(2.0) * particleRadius) * materialDensity;
+        particleMass   = 0.01;      // MathHelpers::cube(Real(2.0) * particleRadius) * materialDensity;
 
         // expand domain simulation by nExpandCells for each dimension
         // this is necessary if the boundary is a box which coincides with the simulation domain
@@ -122,10 +122,15 @@ struct MPM3D_Parameters : public SimulationParameters
         logger->printLogIndent(String("Expand cells for each dimension: ") + std::to_string(nExpandCells));
         logger->printLogIndent(String("Cell size: ") + std::to_string(cellSize));
         logger->printLogIndent(String("Cell volume: ") + std::to_string(cellVolume));
+
+        auto domainGrid = NumberHelpers::createGrid<UInt>(domainBMin, domainBMax, cellSize);
+        auto movingGrid = NumberHelpers::createGrid<UInt>(movingBMin, movingBMax, cellSize);
         logger->printLogIndent(String("Domain box: ") + NumberHelpers::toString(domainBMin) + " -> " + NumberHelpers::toString(domainBMax) +
-                               String(" | Resolution: ") + NumberHelpers::toString(NumberHelpers::createGrid<UInt>(domainBMin, domainBMax, cellSize)));
+                               String(" | Resolution: ") + NumberHelpers::toString(domainGrid));
         logger->printLogIndent(String("Moving box: ") + NumberHelpers::toString(movingBMin) + " -> " + NumberHelpers::toString(movingBMax) +
-                               String(" | Resolution: ") + NumberHelpers::toString(NumberHelpers::createGrid<UInt>(movingBMin, movingBMax, cellSize)));
+                               String(" | Resolution: ") + NumberHelpers::toString(movingGrid));
+        logger->printLogIndent(String("Num. cells: ") + NumberHelpers::formatWithCommas(glm::compMul(domainGrid)));
+        logger->printLogIndent(String("Num. nodes: ") + NumberHelpers::formatWithCommas(glm::compMul(domainGrid + Vec3ui(1))));
         ////////////////////////////////////////////////////////////////////////////////
 
         ////////////////////////////////////////////////////////////////////////////////

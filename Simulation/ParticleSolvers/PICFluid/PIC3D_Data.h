@@ -104,10 +104,15 @@ struct PIC3D_Parameters : public SimulationParameters
         logger->printLogIndent(String("Ratio grid size/particle radius: ") + std::to_string(ratioCellSizePRadius));
         logger->printLogIndent(String("Expand cells for each dimension: ") + std::to_string(nExpandCells));
         logger->printLogIndent(String("Cell size: ") + std::to_string(cellSize));
+
+        auto domainGrid = NumberHelpers::createGrid<UInt>(domainBMin, domainBMax, cellSize);
+        auto movingGrid = NumberHelpers::createGrid<UInt>(movingBMin, movingBMax, cellSize);
         logger->printLogIndent(String("Domain box: ") + NumberHelpers::toString(domainBMin) + " -> " + NumberHelpers::toString(domainBMax) +
-                               String(" | Resolution: ") + NumberHelpers::toString(NumberHelpers::createGrid<UInt>(domainBMin, domainBMax, cellSize)));
+                               String(" | Resolution: ") + NumberHelpers::toString(domainGrid));
         logger->printLogIndent(String("Moving box: ") + NumberHelpers::toString(movingBMin) + " -> " + NumberHelpers::toString(movingBMax) +
-                               String(" | Resolution: ") + NumberHelpers::toString(NumberHelpers::createGrid<UInt>(movingBMin, movingBMax, cellSize)));
+                               String(" | Resolution: ") + NumberHelpers::toString(movingGrid));
+        logger->printLogIndent(String("Num. cells: ") + NumberHelpers::formatWithCommas(glm::compMul(domainGrid)));
+        logger->printLogIndent(String("Num. nodes: ") + NumberHelpers::formatWithCommas(glm::compMul(domainGrid + Vec3ui(1))));
         ////////////////////////////////////////////////////////////////////////////////
 
         ////////////////////////////////////////////////////////////////////////////////
