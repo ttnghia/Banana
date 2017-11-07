@@ -229,8 +229,11 @@ void MainWindow::connectWidgets()
 
     connect(m_Controller->m_btnStartStopSimulation, &QPushButton::clicked, [&]
     {
-        bool isRunning = m_Simulator->isRunning();
+        if(m_Controller->m_cbSimulationScene->currentIndex() == 0) {
+            return;
+        }
 
+        bool isRunning = m_Simulator->isRunning();
         if(!isRunning) {
             m_Simulator->startSimulation();
             updateStatusSimulation("Running simulation...");

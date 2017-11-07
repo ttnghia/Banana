@@ -32,6 +32,7 @@ namespace ParticleSolvers
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PIC3D_Solver::makeReady()
 {
+    logger().printRunTime("Computed SDF boundary: ", [&]() { computeBoundarySDF(); });
     logger().printMemoryUsage();
     logger().printLog("Solver ready!");
     logger().newLine();
