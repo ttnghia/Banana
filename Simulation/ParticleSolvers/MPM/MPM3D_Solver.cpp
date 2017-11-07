@@ -455,7 +455,7 @@ bool MPM3D_Solver::initParticleVolumes()
                                                     continue;
                                                 }
 
-                                                Real w = particleData().weights[p * 64 + idx];
+                                                auto w = particleData().weights[p * 64 + idx];
                                                 pDensity += w * gridData().mass(x, y, z);
                                             }
                                         }
@@ -492,7 +492,7 @@ void MPM3D_Solver::mapParticleVelocities2GridFLIP(Real timestep)
                                                     continue;
                                                 }
 
-                                                Real w = particleData().weights[p * 64 + idx];
+                                                auto w = particleData().weights[p * 64 + idx];
                                                 if(w > Tiny) {
                                                     gridData().active(x, y, z) = 1;
                                                     gridData().nodeLocks(x, y, z).lock();
@@ -532,7 +532,7 @@ void MPM3D_Solver::mapParticleVelocities2GridAPIC(Real timestep)
                                                     continue;
                                                 }
 
-                                                Real w = particleData().weights[p * 64 + idx];
+                                                auto w = particleData().weights[p * 64 + idx];
                                                 if(w > Tiny) {
                                                     auto xixp    = grid().getWorldCoordinate(x, y, z) - pPos;
                                                     auto apicVel = (pVel + pBxInvpD * xixp) * w * solverParams().particleMass;
@@ -597,7 +597,7 @@ void MPM3D_Solver::explicitVelocities(Real timestep)
                                                     continue;
                                                 }
 
-                                                Real w = particleData().weights[p * 64 + idx];
+                                                auto w = particleData().weights[p * 64 + idx];
                                                 if(w > Tiny) {
                                                     gridData().nodeLocks(x, y, z).lock();
                                                     gridData().velocity_new(x, y, z) += f * particleData().weightGradients[p * 64 + idx];
@@ -667,7 +667,7 @@ void MPM3D_Solver::constrainGridVelocity(Real timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MPM3D_Solver::mapGridVelocities2Particles(Real timestep)
 {
-    mapGridVelocities2ParticlesAPIC(timestep);
+    mapGridVelocities2ParticlesAFLIP(timestep);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -678,10 +678,10 @@ void MPM3D_Solver::mapGridVelocities2ParticlesFLIP(Real timestep)
                                 {
                                     //calculate PIC and FLIP velocities separately
                                     //also keep track of velocity gradient
-                                    auto picVel      = Vec3r(0);
-                                    auto picVelGrad  = Mat3x3r(0);
                                     auto flipVel     = particleData().velocities[p];
                                     auto flipVelGrad = particleData().velocityGrad[p];
+                                    auto picVel      = Vec3r(0);
+                                    auto picVelGrad  = Mat3x3r(0);
 
                                     auto lcorner = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
                                     for(Int idx = 0, z = lcorner.z - 1, z_end = z + 4; z < z_end; ++z) {
@@ -691,7 +691,7 @@ void MPM3D_Solver::mapGridVelocities2ParticlesFLIP(Real timestep)
                                                     continue;
                                                 }
 
-                                                Real w = particleData().weights[p * 64 + idx];
+                                                auto w = particleData().weights[p * 64 + idx];
                                                 if(w > Tiny) {
                                                     const auto& nVel    = gridData().velocity(x, y, z);
                                                     const auto& nNewVel = gridData().velocity_new(x, y, z);
@@ -726,7 +726,7 @@ void MPM3D_Solver::mapGridVelocities2ParticlesAPIC(Real timestep)
                                                     continue;
                                                 }
 
-                                                Real w = particleData().weights[p * 64 + idx];
+                                                auto w = particleData().weights[p * 64 + idx];
                                                 if(w > Tiny) {
                                                     const auto& nNewVel = gridData().velocity_new(x, y, z);
                                                     apicVel     += nNewVel * w;
@@ -752,11 +752,12 @@ void MPM3D_Solver::mapGridVelocities2ParticlesAFLIP(Real timestep)
                                 {
                                     const auto lcorner = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
                                     const auto& pPos   = particleData().positions[p];
-                                    auto apicVel       = Vec3r(0);
-                                    auto apicVelGrad   = Mat3x3r(0);
                                     auto flipVel       = particleData().velocities[p];
                                     auto flipVelGrad   = particleData().velocityGrad[p];
-                                    auto pB            = Mat3x3r(0);
+                                    auto flipB         = particleData().B[p];
+                                    auto apicVel       = Vec3r(0);
+                                    auto apicVelGrad   = Mat3x3r(0);
+                                    auto apicB         = Mat3x3r(0);
                                     for(Int idx = 0, z = lcorner.z - 1, z_end = z + 4; z < z_end; ++z) {
                                         for(Int y = lcorner.y - 1, y_end = y + 4; y < y_end; ++y) {
                                             for(Int x = lcorner.x - 1, x_end = x + 4; x < x_end; ++x, ++idx) {
@@ -764,24 +765,26 @@ void MPM3D_Solver::mapGridVelocities2ParticlesAFLIP(Real timestep)
                                                     continue;
                                                 }
 
-                                                Real w = particleData().weights[p * 64 + idx];
+                                                auto w = particleData().weights[p * 64 + idx];
                                                 if(w > Tiny) {
                                                     const auto& nVel    = gridData().velocity(x, y, z);
                                                     const auto& nNewVel = gridData().velocity_new(x, y, z);
+                                                    auto diffVel        = nNewVel - nVel;
                                                     apicVel     += nNewVel * w;
-                                                    flipVel     += (nNewVel - nVel) * w;
+                                                    flipVel     += diffVel * w;
                                                     apicVelGrad += glm::outerProduct(nNewVel, particleData().weightGradients[p * 64 + idx]);
                                                     flipVelGrad += glm::outerProduct(nNewVel - nVel, particleData().weightGradients[p * 64 + idx]);
 
                                                     auto xixp = grid().getWorldCoordinate(x, y, z) - pPos;
-                                                    pB += w * glm::outerProduct(nNewVel, xixp);
+                                                    apicB += w * glm::outerProduct(nNewVel, xixp);
+                                                    flipB += w * glm::outerProduct(diffVel, xixp);
                                                 }
                                             }
                                         }
                                     }
                                     particleData().velocities[p]   = MathHelpers::lerp(apicVel, flipVel, solverParams().PIC_FLIP_ratio);
                                     particleData().velocityGrad[p] = MathHelpers::lerp(apicVelGrad, flipVelGrad, solverParams().PIC_FLIP_ratio);
-                                    particleData().B[p]            = pB;
+                                    particleData().B[p]            = MathHelpers::lerp(apicB, flipB, solverParams().PIC_FLIP_ratio);;
                                 });
 }
 

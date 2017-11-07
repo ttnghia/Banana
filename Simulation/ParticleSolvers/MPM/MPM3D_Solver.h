@@ -74,6 +74,7 @@ protected:
     void mapGridVelocities2Particles(Real timestep);
     void mapGridVelocities2ParticlesFLIP(Real timestep);
     void mapGridVelocities2ParticlesAPIC(Real timestep);
+    void mapGridVelocities2ParticlesAFLIP(Real timestep);
     void constrainParticleVelocity(Real timestep);
     void updateParticleDeformGradients(Real timestep);
     void computePiolaStressAndEnergyDensity();
