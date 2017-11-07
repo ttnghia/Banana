@@ -656,8 +656,8 @@ void MPM3D_Solver::constrainGridVelocity(Real timestep)
     ParallelFuncs::parallel_for<UInt>(grid().getNNodes(),
                                       [&](UInt i, UInt j, UInt k)
                                       {
-                                          if(i < 2 || j < 2 || k < 2 ||
-                                             i > grid().getNNodes().x - 3 || j > grid().getNNodes().y - 3 || k > grid().getNNodes().z - 3) {
+                                          if(i < 3 || j < 3 || k < 3 ||
+                                             i > grid().getNNodes().x - 4 || j > grid().getNNodes().y - 4 || k > grid().getNNodes().z - 4) {
                                               gridData().velocity_new(i, j, k) = Vec3r(0);
                                           }
                                       });
@@ -740,6 +740,47 @@ void MPM3D_Solver::mapGridVelocities2ParticlesAPIC(Real timestep)
                                     }
                                     particleData().velocities[p]   = apicVel;
                                     particleData().velocityGrad[p] = apicVelGrad;
+                                    particleData().B[p]            = pB;
+                                });
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void MPM3D_Solver::mapGridVelocities2ParticlesAFLIP(Real timestep)
+{
+    ParallelFuncs::parallel_for(particleData().getNParticles(),
+                                [&](UInt p)
+                                {
+                                    const auto lcorner = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
+                                    const auto& pPos   = particleData().positions[p];
+                                    auto apicVel       = Vec3r(0);
+                                    auto apicVelGrad   = Mat3x3r(0);
+                                    auto flipVel       = particleData().velocities[p];
+                                    auto flipVelGrad   = particleData().velocityGrad[p];
+                                    auto pB            = Mat3x3r(0);
+                                    for(Int idx = 0, z = lcorner.z - 1, z_end = z + 4; z < z_end; ++z) {
+                                        for(Int y = lcorner.y - 1, y_end = y + 4; y < y_end; ++y) {
+                                            for(Int x = lcorner.x - 1, x_end = x + 4; x < x_end; ++x, ++idx) {
+                                                if(!grid().isValidNode(x, y, z)) {
+                                                    continue;
+                                                }
+
+                                                Real w = particleData().weights[p * 64 + idx];
+                                                if(w > Tiny) {
+                                                    const auto& nVel    = gridData().velocity(x, y, z);
+                                                    const auto& nNewVel = gridData().velocity_new(x, y, z);
+                                                    apicVel     += nNewVel * w;
+                                                    flipVel     += (nNewVel - nVel) * w;
+                                                    apicVelGrad += glm::outerProduct(nNewVel, particleData().weightGradients[p * 64 + idx]);
+                                                    flipVelGrad += glm::outerProduct(nNewVel - nVel, particleData().weightGradients[p * 64 + idx]);
+
+                                                    auto xixp = grid().getWorldCoordinate(x, y, z) - pPos;
+                                                    pB += w * glm::outerProduct(nNewVel, xixp);
+                                                }
+                                            }
+                                        }
+                                    }
+                                    particleData().velocities[p]   = MathHelpers::lerp(apicVel, flipVel, solverParams().PIC_FLIP_ratio);
+                                    particleData().velocityGrad[p] = MathHelpers::lerp(apicVelGrad, flipVelGrad, solverParams().PIC_FLIP_ratio);
                                     particleData().B[p]            = pB;
                                 });
 }
