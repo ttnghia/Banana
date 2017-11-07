@@ -236,8 +236,8 @@ struct MPM3D_Data
             weightGradients.resize(positions.size() * 64, Vec3r(0));
             weights.resize(positions.size() * 64, Real(0));
 
-            B.resize(positions.size(), Mat2x2r(0));
-            D.resize(positions.size(), Mat2x2r(0));
+            B.resize(positions.size(), Mat3x3r(0));
+            D.resize(positions.size(), Mat3x3r(0));
 
             ////////////////////////////////////////////////////////////////////////////////
             // add the object index for new particles to the list

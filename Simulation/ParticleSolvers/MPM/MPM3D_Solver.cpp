@@ -388,8 +388,11 @@ void MPM3D_Solver::mapParticleMasses2Grid()
     ParallelFuncs::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
                                 {
-                                    auto pg      = particleData().gridCoordinate[p];
-                                    auto lcorner = NumberHelpers::convert<Int>(pg);
+                                    const auto& pPos   = particleData().positions[p];
+                                    const auto& pg     = particleData().gridCoordinate[p];
+                                    const auto lcorner = NumberHelpers::convert<Int>(pg);
+
+                                    auto pD = Mat3x3r(0);
                                     ////////////////////////////////////////////////////////////////////////////////
                                     for(Int idx = 0, z = lcorner.z - 1, z_end = z + 4; z < z_end; ++z) {
                                         auto dz  = pg.z - Real(z);
@@ -420,9 +423,14 @@ void MPM3D_Solver::mapParticleMasses2Grid()
                                                 gridData().nodeLocks(x, y, z).lock();
                                                 gridData().mass(x, y, z) += weight * solverParams().particleMass;
                                                 gridData().nodeLocks(x, y, z).unlock();
+
+                                                auto xixp = grid().getWorldCoordinate(x, y, z) - pPos;
+                                                pD += weight * glm::outerProduct(xixp, xixp);
                                             }
                                         }
                                     }
+
+                                    particleData().D[p] = pD;
                                 });
 }
 
@@ -438,8 +446,8 @@ bool MPM3D_Solver::initParticleVolumes()
     ParallelFuncs::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
                                 {
-                                    auto lcorner  = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
-                                    auto pDensity = Real(0);
+                                    const auto lcorner = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
+                                    auto pDensity      = Real(0);
                                     for(Int idx = 0, z = lcorner.z - 1, z_end = z + 4; z < z_end; ++z) {
                                         for(Int y = lcorner.y - 1, y_end = y + 4; y < y_end; ++y) {
                                             for(Int x = lcorner.x - 1, x_end = x + 4; x < x_end; ++x, ++idx) {
@@ -465,10 +473,18 @@ bool MPM3D_Solver::initParticleVolumes()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MPM3D_Solver::mapParticleVelocities2Grid(Real timestep)
 {
+    mapParticleVelocities2GridAPIC(timestep);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void MPM3D_Solver::mapParticleVelocities2GridFLIP(Real timestep)
+{
     ParallelFuncs::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
                                 {
-                                    auto lcorner = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
+                                    const auto& pVel   = particleData().velocities[p];
+                                    const auto lcorner = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
+
                                     for(Int idx = 0, z = lcorner.z - 1, z_end = z + 4; z < z_end; ++z) {
                                         for(Int y = lcorner.y - 1, y_end = y + 4; y < y_end; ++y) {
                                             for(Int x = lcorner.x - 1, x_end = x + 4; x < x_end; ++x, ++idx) {
@@ -480,7 +496,50 @@ void MPM3D_Solver::mapParticleVelocities2Grid(Real timestep)
                                                 if(w > Tiny) {
                                                     gridData().active(x, y, z) = 1;
                                                     gridData().nodeLocks(x, y, z).lock();
-                                                    gridData().velocity(x, y, z) += particleData().velocities[p] * w * solverParams().particleMass;
+                                                    gridData().velocity(x, y, z) += pVel * w * solverParams().particleMass;
+                                                    gridData().nodeLocks(x, y, z).unlock();
+                                                }
+                                            }
+                                        }
+                                    }
+                                });
+
+    ParallelFuncs::parallel_for(gridData().active.dataSize(),
+                                [&](size_t i)
+                                {
+                                    if(gridData().active.data()[i]) {
+                                        assert(gridData().mass.data()[i] > 0);
+                                        gridData().velocity.data()[i]    /= gridData().mass.data()[i];
+                                        gridData().velocity_new.data()[i] = Vec3r(0);
+                                    }
+                                });
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void MPM3D_Solver::mapParticleVelocities2GridAPIC(Real timestep)
+{
+    ParallelFuncs::parallel_for(particleData().getNParticles(),
+                                [&](UInt p)
+                                {
+                                    const auto& pPos    = particleData().positions[p];
+                                    const auto& pVel    = particleData().velocities[p];
+                                    const auto pBxInvpD = particleData().B[p] * glm::inverse(particleData().D[p]);
+                                    const auto lcorner  = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
+                                    for(Int idx = 0, z = lcorner.z - 1, z_end = z + 4; z < z_end; ++z) {
+                                        for(Int y = lcorner.y - 1, y_end = y + 4; y < y_end; ++y) {
+                                            for(Int x = lcorner.x - 1, x_end = x + 4; x < x_end; ++x, ++idx) {
+                                                if(!grid().isValidNode(x, y, z)) {
+                                                    continue;
+                                                }
+
+                                                Real w = particleData().weights[p * 64 + idx];
+                                                if(w > Tiny) {
+                                                    auto xixp    = grid().getWorldCoordinate(x, y, z) - pPos;
+                                                    auto apicVel = (pVel + pBxInvpD * xixp) * w * solverParams().particleMass;
+
+                                                    gridData().active(x, y, z) = 1;
+                                                    gridData().nodeLocks(x, y, z).lock();
+                                                    gridData().velocity(x, y, z) += apicVel;
                                                     gridData().nodeLocks(x, y, z).unlock();
                                                 }
                                             }
@@ -608,13 +667,19 @@ void MPM3D_Solver::constrainGridVelocity(Real timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MPM3D_Solver::mapGridVelocities2Particles(Real timestep)
 {
+    mapGridVelocities2ParticlesAPIC(timestep);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void MPM3D_Solver::mapGridVelocities2ParticlesFLIP(Real timestep)
+{
     ParallelFuncs::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
                                 {
                                     //calculate PIC and FLIP velocities separately
                                     //also keep track of velocity gradient
                                     auto picVel      = Vec3r(0);
-                                    auto picVelGrad  = Mat3x3r(0.0);
+                                    auto picVelGrad  = Mat3x3r(0);
                                     auto flipVel     = particleData().velocities[p];
                                     auto flipVelGrad = particleData().velocityGrad[p];
 
@@ -640,6 +705,44 @@ void MPM3D_Solver::mapGridVelocities2Particles(Real timestep)
                                     }
                                     particleData().velocities[p]   = MathHelpers::lerp(picVel, flipVel, solverParams().PIC_FLIP_ratio);
                                     particleData().velocityGrad[p] = MathHelpers::lerp(picVelGrad, flipVelGrad, solverParams().PIC_FLIP_ratio);
+                                });
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void MPM3D_Solver::mapGridVelocities2ParticlesAPIC(Real timestep)
+{
+    ParallelFuncs::parallel_for(particleData().getNParticles(),
+                                [&](UInt p)
+                                {
+                                    //calculate PIC and FLIP velocities separately
+                                    //also keep track of velocity gradient
+                                    const auto lcorner = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
+                                    const auto& pPos   = particleData().positions[p];
+                                    auto apicVel       = Vec3r(0);
+                                    auto apicVelGrad   = Mat3x3r(0);
+                                    auto pB            = Mat3x3r(0);
+                                    for(Int idx = 0, z = lcorner.z - 1, z_end = z + 4; z < z_end; ++z) {
+                                        for(Int y = lcorner.y - 1, y_end = y + 4; y < y_end; ++y) {
+                                            for(Int x = lcorner.x - 1, x_end = x + 4; x < x_end; ++x, ++idx) {
+                                                if(!grid().isValidNode(x, y, z)) {
+                                                    continue;
+                                                }
+
+                                                Real w = particleData().weights[p * 64 + idx];
+                                                if(w > Tiny) {
+                                                    const auto& nNewVel = gridData().velocity_new(x, y, z);
+                                                    apicVel     += nNewVel * w;
+                                                    apicVelGrad += glm::outerProduct(nNewVel, particleData().weightGradients[p * 64 + idx]);
+
+                                                    auto xixp = grid().getWorldCoordinate(x, y, z) - pPos;
+                                                    pB += w * glm::outerProduct(nNewVel, xixp);
+                                                }
+                                            }
+                                        }
+                                    }
+                                    particleData().velocities[p]   = apicVel;
+                                    particleData().velocityGrad[p] = apicVelGrad;
+                                    particleData().B[p]            = pB;
                                 });
 }
 
