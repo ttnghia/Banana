@@ -94,7 +94,7 @@
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
       <AdditionalOptions>/std:c++latest /Zo</AdditionalOptions>
-      <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
+      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
       <FloatingPointExceptions>true</FloatingPointExceptions>
     </ClCompile>
     <Link>
@@ -119,7 +119,7 @@
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <AdditionalOptions>/std:c++latest /Zo</AdditionalOptions>
-      <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
+      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
