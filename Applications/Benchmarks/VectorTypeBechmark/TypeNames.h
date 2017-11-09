@@ -51,7 +51,7 @@ using UInt64 = uint64_t;
 #include <Eigen/Core>
 
 #define DEFAULT_VECTOR_STORAGE_ORDER Eigen::ColMajor
-#define DEFAULT_MATRIX_STORAGE_ORDER Eigen::RowMajor
+#define DEFAULT_MATRIX_STORAGE_ORDER Eigen::ColMajor
 
 // Vectors
 template<class RealType>
