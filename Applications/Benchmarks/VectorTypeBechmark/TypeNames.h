@@ -147,7 +147,6 @@ SPECIALIZE_STL_VECTOR(Triplet)
 #else // not using eigen lib
 #ifdef __Using_GLM_Lib__
 
-#define GLM_FORCE_CXX11
 #define GLM_FORCE_INLINE
 #include <glm/glm.hpp>
 
