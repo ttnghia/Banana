@@ -19,23 +19,16 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-#ifndef PROBLEM_H
-#define PROBLEM_H
-
-//#include <Eigen/Dense>
-
-//#if defined(MATLAB) || defined(NDEBUG)
+#pragma once
 #define EXPECT_NEAR(x, y, z)
-//#else
-//#include "../gtest/gtest.h"
-//#endif /* RELEASE MODE */
 
-#include "meta.h"
-
-namespace Optimization {
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+namespace Banana::Optimization
+{
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-class Problem {
+class Problem
+{
 protected:
 
     bool hasLowerBound_ = false;
@@ -113,13 +106,13 @@ public:
      *
      * @param grad [description]
      */
-    virtual void gradient(const Vector<RealType>& x,  Vector<RealType>& grad)
+    virtual void gradient(const Vector<RealType>& x, Vector<RealType>& grad)
     {
         finiteGradient(x, grad);
     }
 
     // Compute the value AND the gradient
-    virtual RealType value_gradient(const Vector<RealType>& x, Vector<RealType>& grad)
+    virtual RealType valueGradient(const Vector<RealType>& x, Vector<RealType>& grad)
     {
         gradient(x, grad);
         return value(x);
@@ -204,61 +197,60 @@ public:
     }
 
     /*
-        virtual void finiteHessian(const Vector<RealType>& x, MatrixX<RealType>& hessian, int accuracy = 0) final
-        {
-            const RealType eps = std::numeric_limits<RealType>::epsilon() * 10e7;
-            const size_t   DIM = x.size();
+            virtual void finiteHessian(const Vector<RealType>& x, MatrixX<RealType>& hessian, int accuracy = 0) final
+            {
+                    const RealType eps = std::numeric_limits<RealType>::epsilon() * 10e7;
+                    const size_t   DIM = x.size();
 
-            if(accuracy == 0) {
-                for(size_t i = 0; i < DIM; i++) {
-                    for(size_t j = 0; j < DIM; j++) {
-                        Vector<RealType> xx = x;
-                        RealType         f4 = value(xx);
-                        xx[i] += eps;
-                        xx[j] += eps;
-                        RealType f1 = value(xx);
-                        xx[j] -= eps;
-                        RealType f2 = value(xx);
-                        xx[j] += eps;
-                        xx[i] -= eps;
-                        RealType f3 = value(xx);
-                        hessian(i, j) = (f1 - f2 - f3 + f4) / (eps * eps);
+                    if(accuracy == 0) {
+                            for(size_t i = 0; i < DIM; i++) {
+                                    for(size_t j = 0; j < DIM; j++) {
+                                            Vector<RealType> xx = x;
+                                            RealType         f4 = value(xx);
+                                            xx[i] += eps;
+                                            xx[j] += eps;
+                                            RealType f1 = value(xx);
+                                            xx[j] -= eps;
+                                            RealType f2 = value(xx);
+                                            xx[j] += eps;
+                                            xx[i] -= eps;
+                                            RealType f3 = value(xx);
+                                            hessian(i, j) = (f1 - f2 - f3 + f4) / (eps * eps);
+                                    }
+                            }
+                    } else {
+                            Vector<RealType> xx;
+                            for(size_t i = 0; i < DIM; i++) {
+                                    for(size_t j = 0; j < DIM; j++) {
+                                            RealType term_1 = 0;
+                                            xx = x.eval(); xx[i] += 1 * eps;  xx[j] += -2 * eps;  term_1 += value(xx);
+                                            xx = x.eval(); xx[i] += 2 * eps;  xx[j] += -1 * eps;  term_1 += value(xx);
+                                            xx = x.eval(); xx[i] += -2 * eps; xx[j] += 1 * eps;   term_1 += value(xx);
+                                            xx = x.eval(); xx[i] += -1 * eps; xx[j] += 2 * eps;   term_1 += value(xx);
+
+                                            RealType term_2 = 0;
+                                            xx = x.eval(); xx[i] += -1 * eps; xx[j] += -2 * eps;  term_2 += value(xx);
+                                            xx = x.eval(); xx[i] += -2 * eps; xx[j] += -1 * eps;  term_2 += value(xx);
+                                            xx = x.eval(); xx[i] += 1 * eps;  xx[j] += 2 * eps;   term_2 += value(xx);
+                                            xx = x.eval(); xx[i] += 2 * eps;  xx[j] += 1 * eps;   term_2 += value(xx);
+
+                                            RealType term_3 = 0;
+                                            xx = x.eval(); xx[i] += 2 * eps;  xx[j] += -2 * eps;  term_3 += value(xx);
+                                            xx = x.eval(); xx[i] += -2 * eps; xx[j] += 2 * eps;   term_3 += value(xx);
+                                            xx = x.eval(); xx[i] += -2 * eps; xx[j] += -2 * eps;  term_3 -= value(xx);
+                                            xx = x.eval(); xx[i] += 2 * eps;  xx[j] += 2 * eps;   term_3 -= value(xx);
+
+                                            RealType term_4 = 0;
+                                            xx = x.eval(); xx[i] += -1 * eps; xx[j] += -1 * eps;  term_4 += value(xx);
+                                            xx = x.eval(); xx[i] += 1 * eps;  xx[j] += 1 * eps;   term_4 += value(xx);
+                                            xx = x.eval(); xx[i] += 1 * eps;  xx[j] += -1 * eps;  term_4 -= value(xx);
+                                            xx = x.eval(); xx[i] += -1 * eps; xx[j] += 1 * eps;   term_4 -= value(xx);
+
+                                            hessian(i, j) = (-63 * term_1 + 63 * term_2 + 44 * term_3 + 74 * term_4) / (600.0 * eps * eps);
+                                    }
+                            }
                     }
-                }
-            } else {
-                Vector<RealType> xx;
-                for(size_t i = 0; i < DIM; i++) {
-                    for(size_t j = 0; j < DIM; j++) {
-                        RealType term_1 = 0;
-                        xx = x.eval(); xx[i] += 1 * eps;  xx[j] += -2 * eps;  term_1 += value(xx);
-                        xx = x.eval(); xx[i] += 2 * eps;  xx[j] += -1 * eps;  term_1 += value(xx);
-                        xx = x.eval(); xx[i] += -2 * eps; xx[j] += 1 * eps;   term_1 += value(xx);
-                        xx = x.eval(); xx[i] += -1 * eps; xx[j] += 2 * eps;   term_1 += value(xx);
-
-                        RealType term_2 = 0;
-                        xx = x.eval(); xx[i] += -1 * eps; xx[j] += -2 * eps;  term_2 += value(xx);
-                        xx = x.eval(); xx[i] += -2 * eps; xx[j] += -1 * eps;  term_2 += value(xx);
-                        xx = x.eval(); xx[i] += 1 * eps;  xx[j] += 2 * eps;   term_2 += value(xx);
-                        xx = x.eval(); xx[i] += 2 * eps;  xx[j] += 1 * eps;   term_2 += value(xx);
-
-                        RealType term_3 = 0;
-                        xx = x.eval(); xx[i] += 2 * eps;  xx[j] += -2 * eps;  term_3 += value(xx);
-                        xx = x.eval(); xx[i] += -2 * eps; xx[j] += 2 * eps;   term_3 += value(xx);
-                        xx = x.eval(); xx[i] += -2 * eps; xx[j] += -2 * eps;  term_3 -= value(xx);
-                        xx = x.eval(); xx[i] += 2 * eps;  xx[j] += 2 * eps;   term_3 -= value(xx);
-
-                        RealType term_4 = 0;
-                        xx = x.eval(); xx[i] += -1 * eps; xx[j] += -1 * eps;  term_4 += value(xx);
-                        xx = x.eval(); xx[i] += 1 * eps;  xx[j] += 1 * eps;   term_4 += value(xx);
-                        xx = x.eval(); xx[i] += 1 * eps;  xx[j] += -1 * eps;  term_4 -= value(xx);
-                        xx = x.eval(); xx[i] += -1 * eps; xx[j] += 1 * eps;   term_4 -= value(xx);
-
-                        hessian(i, j) = (-63 * term_1 + 63 * term_2 + 44 * term_3 + 74 * term_4) / (600.0 * eps * eps);
-                    }
-                }
-            }
-        }*/
+            }*/
 };
-}
-
-#endif /* PROBLEM_H */
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+} // end namespace Banana::Optimization

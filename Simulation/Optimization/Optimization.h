@@ -19,13 +19,13 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-// CppNumericalSolver
-#ifndef META_H
-#define META_H
+#pragma once
 
 #include <Banana/Setup.h>
 
-namespace Optimization {
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+namespace Banana::Optimization
+{
 //template<class RealType>
 //using EgVector = Eigen::Matrix<RealType, Eigen::Dynamic, 1>;
 //
@@ -54,7 +54,7 @@ struct Options
         store_obj     = false;
         store_runtime = false;
         use_max_iters = false;
-        init_hess     = RealType(1.0); // only used by lbfgs
+        init_hess     = RealType(1.0);     // only used by lbfgs
     }
 };
 
@@ -118,5 +118,5 @@ private:
 //    }
 //    return false;
 //}
-}
-#endif /* META_H */
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+} // end namespace Banana::Optimization

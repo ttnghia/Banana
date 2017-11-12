@@ -111,21 +111,21 @@ struct PIC3D_Parameters : public SimulationParameters
                                String(" | Resolution: ") + NumberHelpers::toString(domainGrid));
         logger->printLogIndent(String("Moving box: ") + NumberHelpers::toString(movingBMin) + " -> " + NumberHelpers::toString(movingBMax) +
                                String(" | Resolution: ") + NumberHelpers::toString(movingGrid));
-        logger->printLogIndent(String("Num. cells: ") + NumberHelpers::formatWithCommas(glm::compMul(domainGrid)));
-        logger->printLogIndent(String("Num. nodes: ") + NumberHelpers::formatWithCommas(glm::compMul(domainGrid + Vec3ui(1))));
+        logger->printLogIndent(String("Num. cells: ") + NumberHelpers::formatWithCommas(glm::compMul(domainGrid)) +
+                               String(" | nodes: ") + NumberHelpers::formatWithCommas(glm::compMul(domainGrid + Vec3ui(1))));
         ////////////////////////////////////////////////////////////////////////////////
 
         ////////////////////////////////////////////////////////////////////////////////
         // time step size
-        logger->printLogIndent(String("Min timestep: ") + NumberHelpers::formatToScientific(minTimestep));
-        logger->printLogIndent(String("Max timestep: ") + NumberHelpers::formatToScientific(maxTimestep));
+        logger->printLogIndent(String("Timestep min: ") + NumberHelpers::formatToScientific(minTimestep) +
+                               String(" | max: ") + NumberHelpers::formatToScientific(maxTimestep));
         logger->printLogIndent(String("CFL factor: ") + std::to_string(CFLFactor));
         ////////////////////////////////////////////////////////////////////////////////
 
         ////////////////////////////////////////////////////////////////////////////////
         // CG parameters
-        logger->printLogIndent(String("ConjugateGradient solver tolerance: ") + NumberHelpers::formatToScientific(CGRelativeTolerance));
-        logger->printLogIndent(String("Max CG iterations: ") + NumberHelpers::formatToScientific(maxCGIteration));
+        logger->printLogIndent(String("ConjugateGradient solver tolerance: ") + NumberHelpers::formatToScientific(CGRelativeTolerance) +
+                               String(" | max CG iterations: ") + NumberHelpers::formatToScientific(maxCGIteration));
         ////////////////////////////////////////////////////////////////////////////////
 
         ////////////////////////////////////////////////////////////////////////////////

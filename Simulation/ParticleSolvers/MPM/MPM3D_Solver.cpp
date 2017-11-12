@@ -31,6 +31,215 @@ namespace Banana
 namespace ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+// MPM3D_Parameters implementation
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void MPM3D_Parameters::makeReady()
+{
+    nExpandCells   = MathHelpers::max(nExpandCells, 2u);
+    cellVolume     = MathHelpers::cube(cellSize);
+    particleRadius = cellSize / ratioCellSizePRadius;
+    particleMass   = MathHelpers::cube(Real(2.0) * particleRadius) * materialDensity;
+
+    // expand domain simulation by nExpandCells for each dimension
+    // this is necessary if the boundary is a box which coincides with the simulation domain
+    // movingBMin/BMax are used in printParams function only
+    movingBMin  = domainBMin;
+    movingBMax  = domainBMax;
+    domainBMin -= Vec3r(cellSize * nExpandCells);
+    domainBMax += Vec3r(cellSize * nExpandCells);
+
+    __BNN_ASSERT((YoungsModulus > 0 && PoissonsRatio > 0) || (mu > 0 && lambda > 0));
+    if(mu == 0 || lambda == 0) {
+        mu     = YoungsModulus / Real(2.0) / (Real(1.0) + PoissonsRatio);
+        lambda = YoungsModulus * PoissonsRatio / ((Real(1.0) + PoissonsRatio) * (Real(1.0) - Real(2.0) * PoissonsRatio));
+    } else {
+        YoungsModulus = mu * (Real(3.0) * lambda + Real(2.0) * mu) / (lambda + mu);
+        PoissonsRatio = lambda / Real(2.0) / (lambda + mu);
+    }
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void MPM3D_Parameters::printParams(const SharedPtr<Logger>& logger)
+{
+    logger->printLog(String("MPM-3D parameters:"));
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // simulation size
+    logger->printLogIndent(String("Ratio grid size/particle radius: ") + std::to_string(ratioCellSizePRadius));
+    logger->printLogIndent(String("Expand cells for each dimension: ") + std::to_string(nExpandCells));
+    logger->printLogIndent(String("Cell size: ") + std::to_string(cellSize) + String(" | volume: ") + NumberHelpers::formatToScientific(cellVolume));
+
+    auto domainGrid = NumberHelpers::createGrid<UInt>(domainBMin, domainBMax, cellSize);
+    auto movingGrid = NumberHelpers::createGrid<UInt>(movingBMin, movingBMax, cellSize);
+    logger->printLogIndent(String("Domain box: ") + NumberHelpers::toString(domainBMin) + " -> " + NumberHelpers::toString(domainBMax) +
+                           String(" | Resolution: ") + NumberHelpers::toString(domainGrid));
+    logger->printLogIndent(String("Moving box: ") + NumberHelpers::toString(movingBMin) + " -> " + NumberHelpers::toString(movingBMax) +
+                           String(" | Resolution: ") + NumberHelpers::toString(movingGrid));
+    logger->printLogIndent(String("Num. cells: ") + NumberHelpers::formatWithCommas(glm::compMul(domainGrid)) +
+                           String(" | nodes: ") + NumberHelpers::formatWithCommas(glm::compMul(domainGrid + Vec3ui(1))));
+    ////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // time step size
+    logger->printLogIndent(String("Timestep min: ") + NumberHelpers::formatToScientific(minTimestep) +
+                           String(" | max: ") + NumberHelpers::formatToScientific(maxTimestep));
+    logger->printLogIndent(String("CFL factor: ") + std::to_string(CFLFactor));
+    ////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // CG parameters
+    logger->printLogIndent(String("ConjugateGradient solver tolerance: ") + NumberHelpers::formatToScientific(CGRelativeTolerance) +
+                           String(" | max CG iterations: ") + NumberHelpers::formatToScientific(maxCGIteration));
+    ////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // particle parameters
+    logger->printLogIndent(String("Particle radius: ") + std::to_string(particleRadius));
+    logger->printLogIndent(String("Advection steps/timestep: ") + std::to_string(advectionSteps));
+    logger->printLogIndentIf(maxNParticles > 0, String("Max. number of particles: ") + std::to_string(maxNParticles));
+    ////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // boundary condition
+    logger->printLogIndent(String("Boundary restitution: ") + std::to_string(boundaryRestitution));
+    ////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // MPM parameters
+    logger->printLogIndent(String("PIC/FLIP ratio: ") + std::to_string(PIC_FLIP_ratio));
+    logger->printLogIndent(String("Implicit ratio: ") + std::to_string(implicitRatio));
+    ////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // material parameters
+    logger->printLogIndent(String("Youngs modulus/Poissons ratio: ") + std::to_string(YoungsModulus) + String("/") + std::to_string(PoissonsRatio));
+    logger->printLogIndent(String("mu/lambda: ") + std::to_string(mu) + String("/") + std::to_string(lambda));
+    logger->printLogIndent(String("Material density: ") + std::to_string(materialDensity));
+    logger->printLogIndent(String("Particle mass: ") + std::to_string(particleMass));
+    ////////////////////////////////////////////////////////////////////////////////
+
+    logger->newLine();
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+// MPM3D_Data implementation
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void MPM3D_Data::ParticleData::reserve(UInt nParticles)
+{
+    positions.reserve(nParticles);
+    velocities.reserve(nParticles);
+    objectIndex.reserve(nParticles);
+    volumes.reserve(nParticles);
+    velocityGrad.reserve(nParticles);
+
+    deformGrad.reserve(nParticles);
+    PiolaStress.reserve(nParticles);
+    CauchyStress.reserve(nParticles);
+
+    gridCoordinate.reserve(nParticles);
+
+    weightGradients.reserve(nParticles * 64);
+    weights.reserve(nParticles * 64);
+
+    B.reserve(nParticles);
+    D.reserve(nParticles);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void MPM3D_Data::ParticleData::addParticles(const Vec_Vec3r& newPositions, const Vec_Vec3r& newVelocities)
+{
+    __BNN_ASSERT(newPositions.size() == newVelocities.size());
+
+    positions.insert(positions.end(), newPositions.begin(), newPositions.end());
+    velocities.insert(velocities.end(), newVelocities.begin(), newVelocities.end());
+
+    volumes.resize(positions.size(), 0);
+    velocityGrad.resize(positions.size(), Mat3x3r(0));
+
+    deformGrad.resize(positions.size(), Mat3x3r(1.0));
+    PiolaStress.resize(positions.size(), Mat3x3r(1.0));
+    CauchyStress.resize(positions.size(), Mat3x3r(1.0));
+
+    gridCoordinate.resize(positions.size(), Vec3r(0));
+    weightGradients.resize(positions.size() * 64, Vec3r(0));
+    weights.resize(positions.size() * 64, Real(0));
+
+    B.resize(positions.size(), Mat3x3r(0));
+    D.resize(positions.size(), Mat3x3r(0));
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // add the object index for new particles to the list
+    objectIndex.insert(objectIndex.end(), newPositions.size(), nObjects);
+    ++nObjects;     // increase the number of objects
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+UInt MPM3D_Data::ParticleData::removeParticles(Vec_Int8& removeMarker)
+{
+    __BNN_ASSERT(removeMarker.size() == positions.size());
+    if(!STLHelpers::contain(removeMarker, Int8(1))) {
+        return 0u;
+    }
+
+    STLHelpers::eraseByMarker(positions,    removeMarker);
+    STLHelpers::eraseByMarker(velocities,   removeMarker);
+    STLHelpers::eraseByMarker(objectIndex,  removeMarker);
+    STLHelpers::eraseByMarker(volumes,      removeMarker);
+    STLHelpers::eraseByMarker(velocityGrad, removeMarker); __BNN_TODO_MSG("need to erase, or just resize?");
+    STLHelpers::eraseByMarker(B,            removeMarker); __BNN_TODO_MSG("need to erase, or just resize?");
+    STLHelpers::eraseByMarker(D,            removeMarker); __BNN_TODO_MSG("need to erase, or just resize?");
+    ////////////////////////////////////////////////////////////////////////////////
+
+    deformGrad.resize(positions.size());
+    PiolaStress.resize(positions.size());
+    CauchyStress.resize(positions.size());
+
+    gridCoordinate.resize(positions.size());
+    weightGradients.resize(positions.size() * 64);
+    weights.resize(positions.size() * 64);
+
+    ////////////////////////////////////////////////////////////////////////////////
+    return static_cast<UInt>(removeMarker.size() - positions.size());
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void MPM3D_Data::GridData::resize(const Vec3ui& nCells)
+{
+    auto nNodes = Vec3ui(nCells[0] + 1, nCells[1] + 1, nCells[2] + 1);
+    ////////////////////////////////////////////////////////////////////////////////
+    active.resize(nNodes, 0);
+    velocity.resize(nNodes, Vec3r(0));
+    velocity_new.resize(nNodes, Vec3r(0));
+
+    mass.resize(nNodes, 0);
+    velocity.resize(nNodes, Vec3r(0));
+
+    weight.resize(nNodes);
+    weightGrad.resize(nNodes);
+
+    nodeLocks.resize(nNodes);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void MPM3D_Data::GridData::resetGrid()
+{
+    active.assign(char(0));
+    activeCellIdx.assign(0u);
+    mass.assign(0);
+    velocity.assign(Vec3r(0));
+    velocity_new.assign(Vec3r(0));
+    __BNN_TODO;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+// MPM3D_Solver implementation
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MPM3D_Solver::makeReady()
 {
     logger().printMemoryUsage();
@@ -342,9 +551,9 @@ void MPM3D_Solver::advanceVelocity(Real timestep)
     m_Logger->printRunTimeIndent("Map particle velocities to grid: ", funcTimer, [&]() { mapParticleVelocities2Grid(timestep); });
 
     if(solverParams().implicitRatio < Tiny) {
-        m_Logger->printRunTimeIndent("Velocity explicit integration: ", funcTimer, [&]() { explicitVelocities(timestep); });
+        m_Logger->printRunTimeIndent("Velocity explicit integration: ", funcTimer, [&]() { explicitIntegration(timestep); });
     } else {
-        m_Logger->printRunTimeIndent("Velocity implicit integration: ", funcTimer, [&]() { implicitVelocities(timestep); });
+        m_Logger->printRunTimeIndent("Velocity implicit integration: ", funcTimer, [&]() { implicitIntegration(timestep); });
     }
 
     m_Logger->printRunTimeIndent("Constrain grid velocity: ",               funcTimer, [&]() { constrainGridVelocity(timestep); });
@@ -559,7 +768,7 @@ void MPM3D_Solver::mapParticleVelocities2GridAPIC(Real timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MPM3D_Solver::explicitVelocities(Real timestep)
+void MPM3D_Solver::explicitIntegration(Real timestep)
 {
     ParallelFuncs::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
@@ -619,10 +828,61 @@ void MPM3D_Solver::explicitVelocities(Real timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//Solve linear system for implicit velocities
-void MPM3D_Solver::implicitVelocities(Real timestep)
+//Solve linear system for implicit velocities integration
+void MPM3D_Solver::implicitIntegration(Real timestep)
 {}
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+Real MPM3D_Data::ObjectiveFunction::valueGradient(const Vector<Real>& v, Vector<Real>& grad)
+{
+    Real totalEnergy = 0.0;
+
+    /*
+       ////////////////////////////////////////////////////////////////////////////////
+       //	Compute Particle Deformation Gradients for new grid velocities
+       for(UInt p = 0; p < particleData->getNParticles(); ++p) {
+       Mat3x3r pF = particleData->deformGrad[p];
+
+       Mat3x3r pVelGrad(0);
+
+       for(int j = 0; j < grid_nodes.size(); ++j) {
+        int   idx = solver->m_grid[grid_nodes[j]]->active_idx;
+        Vec3r curr_v(v[idx * 3 + 0], v[idx * 3 + 1], v[idx * 3 + 2]);
+        pVelGrad += glm::outerProduct(MPM::timestep_s* curr_v, dwip[j]);
+       }
+
+       Mat3x3r newF = (Mat3x3r(1.0) + pVelGrad) * pF;                                   // eq 193 course notes
+       p->tempP = p->vol * p->get_piola_stress(newF) * glm::transpose(pF);
+
+       // Update the total energy
+       Real e = p->get_energy_density(newF) * p->vol;
+       totalEnergy = totalEnergy + e;
+       }                     // end loop particles
+
+
+       ////////////////////////////////////////////////////////////////////////////////
+       //	Compute energy gradient
+       for(int p = 0; p < solver->active_grid.size(); ++p) {
+       GridNode* node = solver->active_grid[p];
+       Vec3r     curr_v(v[p * 3 + 0], v[p * 3 + 1], v[p * 3 + 2]);
+
+       Vec3r momentum_grad = node->m * (curr_v - node->v);
+       Vec3r energy_grad(0, 0, 0);
+
+       for(int j = 0; j < node->particles.size(); ++j) {
+        energy_grad += node->particles[j]->tempP * node->dwip[j];
+       }
+
+       Vec3r tmp = momentum_grad + energy_grad;
+       grad[p * 3]     = tmp[0];
+       grad[p * 3 + 1] = tmp[1];
+       grad[p * 3 + 2] = tmp[2];
+       totalEnergy     = totalEnergy + 0.5 * node->m * glm::length2(curr_v - node->v);
+       }             // end loop grid
+     */
+
+    return totalEnergy;
+}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MPM3D_Solver::constrainGridVelocity(Real timestep)
@@ -667,7 +927,7 @@ void MPM3D_Solver::constrainGridVelocity(Real timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MPM3D_Solver::mapGridVelocities2Particles(Real timestep)
 {
-    mapGridVelocities2ParticlesAFLIP(timestep);
+    mapGridVelocities2ParticlesAPIC(timestep);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

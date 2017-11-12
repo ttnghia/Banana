@@ -19,19 +19,18 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-// CppNumericalSolver
-#ifndef MORETHUENTE_H_
-#define MORETHUENTE_H_
-
-#include "../meta.h"
-#include <cmath>
-
+#pragma once
 
 #include <Banana/ParallelHelpers/ParallelBLAS.h>
+#include <cmath>
 
-namespace Optimization {
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+namespace Banana::Optimization
+{
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType, typename P, int Ord>
-class MoreThuente {
+class MoreThuente
+{
 public:
 
     /**
@@ -53,7 +52,7 @@ public:
         Vector<RealType> g = x;
         //    RealType fval = objFunc.value(x);
         //    objFunc.gradient(x, g);
-        RealType         fval = objFunc.value_gradient(x, g);
+        RealType         fval = objFunc.valueGradient(x, g);
         Vector<RealType> xx   = x;
 
         Vector<RealType> s = searchDir;
@@ -134,7 +133,7 @@ public:
 
             //    f = objFunc.value(x);
             //    objFunc.gradient(x, g);
-            f = objFunc.value_gradient(x, g);
+            f = objFunc.valueGradient(x, g);
 
 
 
@@ -353,6 +352,5 @@ public:
         return 0;
     }
 };
-}
-
-#endif /* MORETHUENTE_H_ */
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+} // end namespace Banana::Optimization

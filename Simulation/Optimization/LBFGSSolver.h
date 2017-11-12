@@ -19,34 +19,25 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-/*
- *  mylbfgssolver.h
- *
- *
- *  All rights are retained by the authors and the University of Minnesota.
- *
- *  Author: Ioannis Karamouzas
- *  Contact: ioannis@cs.umn.edu
- */
+#pragma once
 
 #include <iostream>
 #include <algorithm>
 
-#include "../problem.h"
-
-#include "../linesearch/morethuente.h"
+#include <Optimization/Optimization.h>
+#include <Optimization/MoreThuente.h>
+#include <Optimization/Problem.h>
 
 #include <Banana/ParallelHelpers/ParallelBLAS.h>
 #include <Banana/ParallelHelpers/ParallelSTL.h>
 
-//#include <Eigen/Dense>
-
-#ifndef MYLBFGSSOLVER_H_
-#define MYLBFGSSOLVER_H_
-
-namespace Optimization {
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+namespace Banana::Optimization
+{
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<typename T, int Ord>
-class ISolver {
+class ISolver
+{
 protected:
     const int order_ = Ord;
 public:
@@ -70,7 +61,7 @@ public:
      */
     virtual void minimize(Problem<T>& objFunc, Vector<T>& x0) = 0;
 };
-
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 
 
@@ -83,7 +74,8 @@ public:
  */
 
 template<class RealType>
-class lbfgssolver : public ISolver<RealType, 1> {
+class LBFGSSolver : public ISolver<RealType, 1>
+{
 public:
     void minimize(Problem<RealType>& objFunc, Vector<RealType>& x0)
     {
@@ -101,13 +93,13 @@ public:
         Vector<RealType> grad(_noVars), q(_noVars), grad_old(_noVars), x_old(_noVars);
 
         //	RealType f = objFunc.value(x0);
-        RealType f              = objFunc.value_gradient(x0, grad);
+        RealType f              = objFunc.valueGradient(x0, grad);
         RealType gamma_k        = this->settings_.init_hess;
         RealType gradNorm       = 0;
         RealType alpha_init     = std::min(1.0, 1.0 / ParallelSTL::maxAbs(grad));
         int      globIter       = 0;
         int      maxiter        = this->settings_.maxIter;
-        RealType new_hess_guess = 1.0; // only changed if we converged to a solution
+        RealType new_hess_guess = 1.0;         // only changed if we converged to a solution
 
         for(int k = 0; k < maxiter; k++) {
             x_old    = x0;
@@ -142,7 +134,7 @@ public:
                 alpha_init = std::min(1.0, 1.0 / ParallelSTL::maxAbs(grad));
             }
 
-            const RealType rate = MoreThuente<RealType, decltype(objFunc), 1>::linesearch(x0, ParallelBLAS::multiply(RealType(-1.0), q),  objFunc, alpha_init);
+            const RealType rate = MoreThuente<RealType, decltype(objFunc), 1>::linesearch(x0, ParallelBLAS::multiply(RealType(-1.0), q), objFunc, alpha_init);
             //		const RealType rate = linesearch(objFunc, x0, -q, f, grad, 1.0);
 
 
@@ -152,10 +144,10 @@ public:
             if(ParallelBLAS::norm2(ParallelBLAS::minus(x_old, x0)) < _eps_x) {
                 //			std::cout << "x diff norm: " << (x_old - x0).squaredNorm() << std::endl;
                 break;
-            }     // usually this is a problem so exit
+            }                 // usually this is a problem so exit
 
             //		f = objFunc.value(x0);
-            f = objFunc.value_gradient(x0, grad);
+            f = objFunc.valueGradient(x0, grad);
 
             gradNorm = ParallelSTL::maxAbs(grad);
             if(gradNorm < _eps_g) {
@@ -194,9 +186,7 @@ public:
 
         this->n_iters             = globIter;
         this->settings_.init_hess = new_hess_guess;
-    }   // end minimize
+    }       // end minimize
 };
-}
-/* namespace cppoptlib */
-
-#endif /* MYLBFGSSOLVER_H_ */
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+} // end namespace Banana::Optimization

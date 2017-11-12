@@ -69,8 +69,8 @@ protected:
     void mapParticleVelocities2GridFLIP(Real timestep);
     void mapParticleVelocities2GridAPIC(Real timestep);
     void constrainGridVelocity(Real timestep);
-    void explicitVelocities(Real timestep);
-    void implicitVelocities(Real timestep);
+    void explicitIntegration(Real timestep);
+    void implicitIntegration(Real timestep);
     void mapGridVelocities2Particles(Real timestep);
     void mapGridVelocities2ParticlesFLIP(Real timestep);
     void mapGridVelocities2ParticlesAPIC(Real timestep);
