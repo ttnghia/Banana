@@ -19,7 +19,7 @@ INCLUDEPATH += $$PWD
 INCLUDEPATH += $$PWD/../Externals/spdlog/include
 INCLUDEPATH += $$PWD/../Externals/json/src
 
-CONFIG += c++14
+CONFIG += c++17
 CONFIG += force_debug_info
 
 static {
@@ -49,6 +49,7 @@ win32 {
         }
     }
 
+    QMAKE_CXXFLAGS += /std:c++latest
     INCLUDEPATH += $$PWD/../Externals/tbb_win/include
     LIBS += -ltbb -L$$PWD/../Externals/tbb_win/lib/intel64/vc14
 }
