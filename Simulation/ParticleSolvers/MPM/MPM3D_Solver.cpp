@@ -140,6 +140,9 @@ void MPM3D_Data::ParticleData::reserve(UInt nParticles)
     PiolaStress.reserve(nParticles);
     CauchyStress.reserve(nParticles);
 
+    energy.reserve(nParticles);
+    energyDensity.reserve(nParticles);
+
     gridCoordinate.reserve(nParticles);
 
     weightGradients.reserve(nParticles * 64);
@@ -163,6 +166,9 @@ void MPM3D_Data::ParticleData::addParticles(const Vec_Vec3r& newPositions, const
     deformGrad.resize(positions.size(), Mat3x3r(1.0));
     PiolaStress.resize(positions.size(), Mat3x3r(1.0));
     CauchyStress.resize(positions.size(), Mat3x3r(1.0));
+
+    energy.resize(positions.size(), 0);
+    energyDensity.resize(positions.size(), 0);
 
     gridCoordinate.resize(positions.size(), Vec3r(0));
     weightGradients.resize(positions.size() * 64, Vec3r(0));
@@ -198,6 +204,9 @@ UInt MPM3D_Data::ParticleData::removeParticles(Vec_Int8& removeMarker)
     PiolaStress.resize(positions.size());
     CauchyStress.resize(positions.size());
 
+    energy.resize(positions.size());
+    energyDensity.resize(positions.size());
+
     gridCoordinate.resize(positions.size());
     weightGradients.resize(positions.size() * 64);
     weights.resize(positions.size() * 64);
@@ -212,10 +221,12 @@ void MPM3D_Data::GridData::resize(const Vec3ui& nCells)
     auto nNodes = Vec3ui(nCells[0] + 1, nCells[1] + 1, nCells[2] + 1);
     ////////////////////////////////////////////////////////////////////////////////
     active.resize(nNodes, 0);
+    activeNodeIdx.resize(nNodes, 0u);
     velocity.resize(nNodes, Vec3r(0));
     velocity_new.resize(nNodes, Vec3r(0));
 
     mass.resize(nNodes, 0);
+    energy.resize(nNodes, 0);
     velocity.resize(nNodes, Vec3r(0));
 
     weight.resize(nNodes);
@@ -228,8 +239,9 @@ void MPM3D_Data::GridData::resize(const Vec3ui& nCells)
 void MPM3D_Data::GridData::resetGrid()
 {
     active.assign(char(0));
-    activeCellIdx.assign(0u);
+    activeNodeIdx.assign(0u);
     mass.assign(0);
+    energy.assign(0);
     velocity.assign(Vec3r(0));
     velocity_new.assign(Vec3r(0));
     __BNN_TODO;
@@ -793,7 +805,7 @@ void MPM3D_Solver::explicitIntegration(Real timestep)
 
 
                                     __BNN_TODO_MSG("Need to store piola and cauchy stress?");
-                                    particleData().PiolaStress[p]  = P;
+                                    //particleData().PiolaStress[p]  = P;
                                     particleData().CauchyStress[p] = particleData().volumes[p] * P * glm::transpose(particleData().deformGrad[p]);
 
                                     Mat3x3r f    = particleData().CauchyStress[p];
@@ -828,60 +840,159 @@ void MPM3D_Solver::explicitIntegration(Real timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//Solve linear system for implicit velocities integration
 void MPM3D_Solver::implicitIntegration(Real timestep)
-{}
+{
+    UInt nActives = 0;
+    for(size_t i = 0; i < gridData().active.dataSize(); ++i) {
+        if(gridData().active.data()[i]) {
+            gridData().activeNodeIdx.data()[i] = nActives;
+            ++nActives;
+        }
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////
+    static Vector<Real> v;
+    v.resize(nActives * 3);
+    Vec3r* vPtr = reinterpret_cast<Vec3r*>(v.data());
+    __BNN_ASSERT(vPtr != nullptr);
+
+    ParallelFuncs::parallel_for(grid().getNNodes(),
+                                [&](UInt i, UInt j, UInt k)
+                                {
+                                    if(gridData().active(i, j, k)) {
+                                        vPtr[gridData().activeNodeIdx(i, j, k)] = gridData().velocity(i, j, k);
+                                    }
+                                });
+
+    ////////////////////////////////////////////////////////////////////////////////
+    ObjectiveFunction obj(solverParams(), solverData(), timestep);
+    solverData().lbfgsSolver.minimize(obj, v);
+
+    ////////////////////////////////////////////////////////////////////////////////
+    ParallelFuncs::parallel_for(grid().getNNodes(),
+                                [&](UInt i, UInt j, UInt k)
+                                {
+                                    if(gridData().active(i, j, k)) {
+                                        gridData().velocity(i, j, k) = vPtr[gridData().activeNodeIdx(i, j, k)] + timestep * SolverDefaultParameters::Gravity3D;
+                                    }
+                                });
+}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-Real MPM3D_Data::ObjectiveFunction::valueGradient(const Vector<Real>& v, Vector<Real>& grad)
+Real ObjectiveFunction::valueGradient(const Vector<Real>& v, Vector<Real>& grad)
 {
-    Real totalEnergy = 0.0;
+    auto vPtr    = reinterpret_cast<const Vec3r*>(v.data());
+    auto gradPtr = reinterpret_cast<Vec3r*>(grad.data());
 
-    /*
-       ////////////////////////////////////////////////////////////////////////////////
-       //	Compute Particle Deformation Gradients for new grid velocities
-       for(UInt p = 0; p < particleData->getNParticles(); ++p) {
-       Mat3x3r pF = particleData->deformGrad[p];
+    particleData().tmp_deformGrad.resize(particleData().getNParticles());
 
-       Mat3x3r pVelGrad(0);
+    ////////////////////////////////////////////////////////////////////////////////
+    //	Compute Particle Deformation Gradients for new grid velocities
+    ParallelFuncs::parallel_for(particleData().getNParticles(),
+                                [&](UInt p)
+                                {
+                                    ////////////////////////////////////////////////////////////////////////////////
+                                    // compute gradient velocity
+                                    const auto lcorner = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
+                                    auto pVelGrad      = Mat3x3r(0);
+                                    for(Int idx = 0, z = lcorner.z - 1, z_end = z + 4; z < z_end; ++z) {
+                                        for(Int y = lcorner.y - 1, y_end = y + 4; y < y_end; ++y) {
+                                            for(Int x = lcorner.x - 1, x_end = x + 4; x < x_end; ++x, ++idx) {
+                                                if(!grid().isValidNode(x, y, z)) {
+                                                    continue;
+                                                }
 
-       for(int j = 0; j < grid_nodes.size(); ++j) {
-        int   idx = solver->m_grid[grid_nodes[j]]->active_idx;
-        Vec3r curr_v(v[idx * 3 + 0], v[idx * 3 + 1], v[idx * 3 + 2]);
-        pVelGrad += glm::outerProduct(MPM::timestep_s* curr_v, dwip[j]);
-       }
+                                                auto w = particleData().weights[p * 64 + idx];
+                                                if(w > Tiny) {
+                                                    auto gridIdx    = gridData().activeNodeIdx(x, y, z);
+                                                    auto currentVel = vPtr[gridIdx];
+                                                    pVelGrad += glm::outerProduct(currentVel, particleData().weightGradients[p * 64 + idx]);
+                                                }
+                                            }
+                                        }
+                                    }
 
-       Mat3x3r newF = (Mat3x3r(1.0) + pVelGrad) * pF;                                   // eq 193 course notes
-       p->tempP = p->vol * p->get_piola_stress(newF) * glm::transpose(pF);
+                                    ////////////////////////////////////////////////////////////////////////////////
+                                    auto pF      = particleData().deformGrad[p];
+                                    auto pVolume = particleData().volumes[p];
 
-       // Update the total energy
-       Real e = p->get_energy_density(newF) * p->vol;
-       totalEnergy = totalEnergy + e;
-       }                     // end loop particles
+                                    pVelGrad *= m_timestep;
+                                    LinaHelpers::sumToDiag(pVelGrad, Real(1.0));
+                                    Mat3x3r newF = pVelGrad * pF;
+                                    Mat3x3r U, Vt, Ftemp;
+                                    Vec3r S;
+                                    LinaHelpers::orientedSVD(newF, U, S, Vt);
+                                    if(S[2] < 0) {
+                                        S[2] *= Real(-1.0);
+                                    }
+                                    Ftemp = U * LinaHelpers::diagMatrix(S) * Vt;
+
+                                    ////////////////////////////////////////////////////////////////////////////////
+                                    // Compute Piola stress tensor:
+                                    Real J = glm::determinant(Ftemp);
+                                    __BNN_ASSERT(J > 0);
+                                    assert(NumberHelpers::isValidNumber(J));
+                                    Real logJ   = log(J);
+                                    Mat3x3r Fit = glm::transpose(glm::inverse(Ftemp)); // F^(-T)
+                                    Mat3x3r P   = solverParams().mu * (Ftemp - Fit) + solverParams().lambda * (logJ * Fit);
+                                    assert(LinaHelpers::hasValidElements(P));
+                                    //particleData().PiolaStress[p]    = P;
+                                    particleData().tmp_deformGrad[p] = pVolume * P * glm::transpose(pF);
 
 
-       ////////////////////////////////////////////////////////////////////////////////
-       //	Compute energy gradient
-       for(int p = 0; p < solver->active_grid.size(); ++p) {
-       GridNode* node = solver->active_grid[p];
-       Vec3r     curr_v(v[p * 3 + 0], v[p * 3 + 1], v[p * 3 + 2]);
+                                    ////////////////////////////////////////////////////////////////////////////////
+                                    // compute energy density function
+                                    Real t1 = Real(0.5) * solverParams().mu * (LinaHelpers::trace(glm::transpose(Ftemp) * Ftemp) - Real(3.0));
+                                    Real t2 = -solverParams().mu * logJ;
+                                    Real t3 = Real(0.5) * solverParams().lambda * (logJ * logJ);
+                                    assert(NumberHelpers::isValidNumber(t1));
+                                    assert(NumberHelpers::isValidNumber(t2));
+                                    assert(NumberHelpers::isValidNumber(t3));
+                                    //particleData().energyDensity[p] = t1 + t2 + t3;
+                                    auto eDensity = t1 + t2 + t3;
+                                    particleData().energy[p] = eDensity * pVolume;
+                                });
 
-       Vec3r momentum_grad = node->m * (curr_v - node->v);
-       Vec3r energy_grad(0, 0, 0);
 
-       for(int j = 0; j < node->particles.size(); ++j) {
-        energy_grad += node->particles[j]->tempP * node->dwip[j];
-       }
+    ////////////////////////////////////////////////////////////////////////////////
+    //	Compute energy gradient
+    ParallelFuncs::parallel_for(grid().getNNodes(),
+                                [&] (UInt i, UInt j, UInt k)
+                                {
+                                    if(!gridData().active(i, j, k)) {
+                                        return;
+                                    }
+                                    auto gridIdx    = gridData().activeNodeIdx(i, j, k);
+                                    auto currentVel = vPtr[gridIdx];
+                                    auto diffVel    = currentVel - gridData().velocity(i, j, k);
 
-       Vec3r tmp = momentum_grad + energy_grad;
-       grad[p * 3]     = tmp[0];
-       grad[p * 3 + 1] = tmp[1];
-       grad[p * 3 + 2] = tmp[2];
-       totalEnergy     = totalEnergy + 0.5 * node->m * glm::length2(curr_v - node->v);
-       }             // end loop grid
-     */
+                                    gradPtr[gridIdx ]          = gridData().mass(i, j, k) * diffVel;
+                                    gridData().energy(i, j, k) = Real(0.5) * gridData().mass(i, j, k) * glm::length2(diffVel);
+                                });
 
-    return totalEnergy;
+    ParallelFuncs::parallel_for(particleData().getNParticles(),
+                                [&](UInt p)
+                                {
+                                    const auto lcorner = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
+                                    for(Int idx = 0, z = lcorner.z - 1, z_end = z + 4; z < z_end; ++z) {
+                                        for(Int y = lcorner.y - 1, y_end = y + 4; y < y_end; ++y) {
+                                            for(Int x = lcorner.x - 1, x_end = x + 4; x < x_end; ++x, ++idx) {
+                                                if(!grid().isValidNode(x, y, z)) {
+                                                    continue;
+                                                }
+
+                                                auto dw      = particleData().weightGradients[p * 64 + idx];
+                                                auto gridIdx = gridData().activeNodeIdx(x, y, z);
+                                                gridData().nodeLocks(x, y, z).lock();
+                                                gradPtr[gridIdx] += particleData().tmp_deformGrad[p] * dw;
+                                                gridData().nodeLocks(x, y, z).unlock();
+                                            }
+                                        }
+                                    }
+                                });
+
+    ////////////////////////////////////////////////////////////////////////////////
+    return ParallelSTL::sum(particleData().energy) + ParallelSTL::sum(gridData().energy.data());
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

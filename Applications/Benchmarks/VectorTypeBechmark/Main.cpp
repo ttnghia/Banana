@@ -32,9 +32,9 @@
 
 
 #define USING_TBB
-#define NUM_TEST_LOOP 100
+#define NUM_TEST_LOOP 2
 #define DATA_SIZE     10000000
-#define HIGH_PRECISION
+//#define HIGH_PRECISION
 
 #include <spdlog/spdlog.h>
 #include <ProgressBar.hpp>
@@ -111,8 +111,9 @@ public:
 
     std::string getRunTime()
     {
-        if(m_TimerTicked)
+        if(m_TimerTicked) {
             tock();
+        }
 
         m_StrBuilder.str("");
         m_StrBuilder << formatWithCommas(m_ElapsedTime);
@@ -123,8 +124,9 @@ public:
 
     std::string getRunTime(const char* caption)
     {
-        if(m_TimerTicked)
+        if(m_TimerTicked) {
             tock();
+        }
 
         m_StrBuilder.str("");
         m_StrBuilder << caption;
@@ -189,20 +191,45 @@ void init_vec_data(std::vector<Vec4D>& vec)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 inline void compute_work(Vec3D& vec)
 {
-    real tmp = vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2];
+#if 0
+    auto  v = vec;
+    Vec3D sum(0);
 
-    if(tmp > 0) {
-        vec /= std::sqrt(tmp);
+    for(int i = 0; i < 100; ++i) {
+        v    = glm::normalize(v);
+        sum += v;
     }
+
+    vec = sum;
+#else
+    Vec4D v(vec, 0);
+    Vec4D sum(0);
+
+    for(int i = 0; i < 1; ++i) {
+        v    = glm::normalize(v);
+        sum += (v);
+    }
+
+    memcpy(&vec, &sum, sizeof(Vec3D));
+#endif
 }
 
 inline void compute_work(Vec4D& vec)
 {
-    real tmp = vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2] + vec[3] * vec[3];
+    auto  v = vec;
+    Vec4D sum(0);
 
-    if(tmp > 0) {
-        vec /= std::sqrt(tmp);
+    for(int i = 0; i < 1; ++i) {
+        v    = glm::normalize(v);
+        sum += v;
     }
+
+    vec = sum;
+    /*   real tmp = vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2] + vec[3] * vec[3];
+
+       if(tmp > 0) {
+           vec /= std::sqrt(tmp);
+       }*/
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -227,8 +254,9 @@ void init_matrix_data(std::vector<Mat3x3D>& vec)
 #else
 #ifdef __Using_GLM_Lib__
         real* value_ptr = glm::value_ptr(tmp);
-        for(int i = 0; i < 9; ++i)
+        for(int i = 0; i < 9; ++i) {
             value_ptr[i] = (real)rand();
+        }
 #else
         tmp[0][0] = (real)rand();
         tmp[0][1] = (real)rand();
@@ -277,8 +305,9 @@ void init_matrix_data(std::vector<Mat4x4D>& vec)
 #else
 #ifdef __Using_GLM_Lib__
         real* value_ptr = glm::value_ptr(tmp);
-        for(int i = 0; i < 16; ++i)
+        for(int i = 0; i < 16; ++i) {
             value_ptr[i] = (real)rand();
+        }
 #else
         tmp[0][0] = (real)rand();
         tmp[0][1] = (real)rand();
@@ -316,8 +345,9 @@ inline void compute_work(Mat3x3D& mat)
 #ifdef __Using_GLM_Lib__
     real* value_ptr = glm::value_ptr(mat);
     real  tmp       = 0;
-    for(int i = 0; i < 9; ++i)
+    for(int i = 0; i < 9; ++i) {
         tmp += value_ptr[i] * value_ptr[i];
+    }
 #else
     real tmp = mat[0][0] * mat[0][0] + mat[0][1] * mat[0][1] + mat[0][2] * mat[0][2] +
                mat[1][0] * mat[1][0] + mat[1][1] * mat[1][1] + mat[1][2] * mat[1][2] +
@@ -341,8 +371,9 @@ inline void compute_work(Mat4x4D& mat)
 #ifdef __Using_GLM_Lib__
     real* value_ptr = glm::value_ptr(mat);
     real  tmp       = 0;
-    for(int i = 0; i < 16; ++i)
+    for(int i = 0; i < 16; ++i) {
         tmp += value_ptr[i] * value_ptr[i];
+    }
 #else
     real tmp = mat[0][0] * mat[0][0] + mat[0][1] * mat[0][1] + mat[0][2] * mat[0][2] + mat[0][3] * mat[0][3] +
                mat[1][0] * mat[1][0] + mat[1][1] * mat[1][1] + mat[1][2] * mat[1][2] + mat[1][3] * mat[1][3] +

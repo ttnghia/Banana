@@ -21,15 +21,15 @@
 
 #pragma once
 
-#include <iostream>
-#include <algorithm>
+#include <Banana/ParallelHelpers/ParallelBLAS.h>
+#include <Banana/ParallelHelpers/ParallelSTL.h>
 
 #include <Optimization/Optimization.h>
 #include <Optimization/MoreThuente.h>
 #include <Optimization/Problem.h>
 
-#include <Banana/ParallelHelpers/ParallelBLAS.h>
-#include <Banana/ParallelHelpers/ParallelSTL.h>
+#include <iostream>
+#include <algorithm>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana::Optimization
@@ -38,28 +38,26 @@ namespace Banana::Optimization
 template<typename T, int Ord>
 class ISolver
 {
-protected:
-    const int order_ = Ord;
 public:
-    Options<T>         settings_;
-    int                n_iters;
-    std::vector<T>     obj_vals;
-    std::vector<float> runtimes;
-    ISolver()
-    {
-        settings_ = Options<T>();
-    }
+    ISolver() = default;
 
     /**
-     * @brief minimize an objective function given a gradient (and optinal a hessian)
+     * @brief minimize an objective function given a gradient
      * @details this is just the abstract interface
      *
      * @param x0 starting point
      * @param funObjective objective function
-     * @param funGradient gradient function
-     * @param funcHession hessian function
      */
     virtual void minimize(Problem<T>& objFunc, Vector<T>& x0) = 0;
+
+    ////////////////////////////////////////////////////////////////////////////////
+    Options<T>         settings_;
+    int                n_iters;
+    std::vector<T>     obj_vals;
+    std::vector<float> runtimes;
+
+protected:
+    const int order_ = Ord;
 };
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 

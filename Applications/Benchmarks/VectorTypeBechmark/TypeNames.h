@@ -148,6 +148,12 @@ SPECIALIZE_STL_VECTOR(Triplet)
 #ifdef __Using_GLM_Lib__
 
 #define GLM_FORCE_INLINE
+#define GLM_ENABLE_EXPERIMENTAL
+#define GLM_FORCE_ALIGNED
+//#define GLM_FORCE_AVX512
+//#define GLM_FORCE_SSE2
+//#define GLM_FORCE_PURE
+
 #include <glm/glm.hpp>
 
 // Vectors
@@ -155,10 +161,10 @@ template<class RealType>
 using Vec2 = glm::tvec2<RealType>;
 
 template<class RealType>
-using Vec3 = glm::tvec3<RealType>;
+using Vec3 = glm::tvec3<RealType, glm::aligned_highp>;
 
 template<class RealType>
-using Vec4 = glm::tvec4<RealType>;
+using Vec4 = glm::tvec4<RealType, glm::aligned_highp>;
 
 // matrices
 template<class RealType>

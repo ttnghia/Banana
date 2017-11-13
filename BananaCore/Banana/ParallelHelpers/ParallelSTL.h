@@ -141,7 +141,15 @@ inline void min_max_norm2(const Vector<VecX<N, T> >& x, T& minVal, T& maxVal)
 template<class T>
 inline T sum(const Vector<T>& x)
 {
-    ParallelObjects::VectorSum<T> pObj(x);
+    ParallelObjects::VectorSum<1, T> pObj(x);
+    tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), pObj);
+    return pObj.getResult();
+}
+
+template<Int N, class T>
+inline T sum(const Vector<T>& x)
+{
+    ParallelObjects::VectorSum<N, T> pObj(x);
     tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), pObj);
     return pObj.getResult();
 }

@@ -104,9 +104,9 @@ struct MPM3D_Data
         Vec_Real    volumes;
         Vec_Mat3x3r velocityGrad;
 
-        Vec_Mat3x3r deformGrad;
+        Vec_Mat3x3r deformGrad, tmp_deformGrad;
         Vec_Mat3x3r PiolaStress, CauchyStress;
-        Vec_Real    energyDensity;
+        Vec_Real    energy, energyDensity;
 
         //Grid interpolation weights
         Vec_Vec3r   gridCoordinate;
@@ -123,9 +123,10 @@ struct MPM3D_Data
     struct GridData : public GridSimulationData<3, Real>
     {
         Array3c  active;
-        Array3ui activeCellIdx;        // store linearized indices of active nodes
+        Array3ui activeNodeIdx;        // store linearized indices of active nodes
 
         Array3r       mass;
+        Array3r       energy;
         Array3<Vec3r> velocity;
         Array3<Vec3r> velocity_new;
 
@@ -136,21 +137,6 @@ struct MPM3D_Data
 
         virtual void resize(const Vec3ui& nCells) override;
         void         resetGrid();
-    };
-
-    ////////////////////////////////////////////////////////////////////////////////
-    struct ObjectiveFunction : public Optimization::Problem<Real>
-    {
-        const ParticleData& particleData;
-        const GridData&     gridData;
-
-        ObjectiveFunction(const ParticleData& particleData_, const GridData& gridData_) : particleData(particleData_), gridData(gridData_) {}
-        virtual Real value(const Vector<Real>& v) { throw std::runtime_error("value function: shouldn't get here!"); }
-
-        /**
-           @brief Computes value and gradient of the objective function
-         */
-        virtual Real valueGradient(const Vector<Real>& v, Vector<Real>& grad);
     };
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -168,6 +154,36 @@ struct MPM3D_Data
         gridData.resize(grid.getNCells());
     }
 };
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+class ObjectiveFunction : public Optimization::Problem<Real>
+{
+public:
+    ObjectiveFunction(const MPM3D_Parameters& simParams, MPM3D_Data& simData, Real timestep) :
+        m_SimParams(simParams), m_SimData(simData), m_timestep(timestep) {}
+
+    virtual Real value(const Vector<Real>& v) { throw std::runtime_error("value function: shouldn't get here!"); }
+
+    /**
+       @brief Computes value and gradient of the objective function
+     */
+    virtual Real valueGradient(const Vector<Real>& v, Vector<Real>& grad);
+    ////////////////////////////////////////////////////////////////////////////////
+    auto&       solverParams() { return m_SimParams; }
+    const auto& solverParams() const { return m_SimParams; }
+    auto&       particleData() { return m_SimData.particleData; }
+    const auto& particleData() const { return m_SimData.particleData; }
+    auto&       gridData() { return m_SimData.gridData; }
+    const auto& gridData() const { return m_SimData.gridData; }
+    auto&       grid() { return m_SimData.grid; }
+    const auto& grid() const { return m_SimData.grid; }
+
+private:
+    const MPM3D_Parameters& m_SimParams;
+    MPM3D_Data&             m_SimData;
+    Real                    m_timestep;
+};
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 };      // end namespace ParticleSolvers
 
