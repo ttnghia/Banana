@@ -19,12 +19,12 @@
 
 #include "Common.h"
 
-#include <ParticleSolvers/SPH/WCSPH/WCSPHSolver.h>
-#include <ParticleSolvers/PICFluid/FLIP3D_Solver.h>
-#include <ParticleSolvers/PICFluid/AFLIP3D_Solver.h>
-#include <ParticleSolvers/PICFluid/APIC3D_Solver.h>
+#include <ParticleSolvers/SPH/WCSPHSolver.h>
+#include <ParticleSolvers/HybridFluid/FLIP3D_Solver.h>
+#include <ParticleSolvers/HybridFluid/AFLIP3D_Solver.h>
+#include <ParticleSolvers/HybridFluid/APIC3D_Solver.h>
 #include <ParticleSolvers/MPM/MPM3D_Solver.h>
-#include <ParticleSolvers/Peridynamics/PeridynamicsSolver.h>
+#include <ParticleSolvers/Mass-Spring-System/PeridynamicsSolver.h>
 
 //#define PARTICLE_SOLVER WCSPHSolver
 //#define PARTICLE_SOLVER PIC3D_Solver

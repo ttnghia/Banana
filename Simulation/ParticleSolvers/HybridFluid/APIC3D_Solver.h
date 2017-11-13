@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include <ParticleSolvers/PICFluid/PIC3D_Solver.h>
+#include <ParticleSolvers/HybridFluid/PIC3D_Solver.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana::ParticleSolvers

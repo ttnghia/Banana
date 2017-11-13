@@ -22,17 +22,19 @@
 #pragma once
 
 #include <Banana/Array/Array.h>
-#include <ParticleSolvers/ParticleSolverData.h>
 #include <Banana/Grid/Grid.h>
+#include <Optimization/Problem.h>
+#include <Optimization/LBFGSSolver.h>
+#include <ParticleSolvers/ParticleSolverData.h>
 #include <ParticleSolvers/ParticleSolver.h>
-#include <ParticleSolvers/MPM/MPM2D_Data.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace Banana
+namespace Banana::ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace ParticleSolvers
-{
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+// MPM2D_Parameters
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 struct MPM2D_Parameters : public SimulationParameters
 {
@@ -41,14 +43,13 @@ struct MPM2D_Parameters : public SimulationParameters
 
     ////////////////////////////////////////////////////////////////////////////////
     // simulation size
-    Real  particleRadius       = SolverDefaultParameters::ParticleRadius;
+    Real  cellSize             = SolverDefaultParameters::CellSize;
     Real  ratioCellSizePRadius = SolverDefaultParameters::RatioCellSizeOverParticleRadius;
     UInt  expandCells          = SolverDefaultParameters::NExpandCells;
-    Vec2r domainBMin           = SolverDefaultParameters::SimulationDomainBMin3D;
-    Vec2r domainBMax           = SolverDefaultParameters::SimulationDomainBMax3D;
+    Vec2r domainBMin           = SolverDefaultParameters::SimulationDomainBMin2D;
+    Vec2r domainBMax           = SolverDefaultParameters::SimulationDomainBMax2D;
     Vec2r movingBMin;
     Vec2r movingBMax;
-    Real  cellSize;
     Real  cellVolume;
     ////////////////////////////////////////////////////////////////////////////////
 
@@ -425,7 +426,4 @@ protected:
     Grid2r m_Grid;
 };
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-}   // end namespace ParticleSolvers
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-} // end namespace Banana
+}   // end namespace Banana::ParticleSolvers

@@ -140,10 +140,10 @@
     <ClInclude Include="ParticleSolvers\Mass-Spring-System\ClothSolver.h" />
     <ClInclude Include="ParticleSolvers\MPM\MPM2D_Solver.h" />
     <ClInclude Include="ParticleSolvers\MPM\MPM3D_Solver.h" />
-    <ClInclude Include="ParticleSolvers\PICFluid\AFLIP3D_Solver.h" />
-    <ClInclude Include="ParticleSolvers\PICFluid\APIC2D_Solver.h" />
-    <ClInclude Include="ParticleSolvers\PICFluid\APIC3D_Solver.h" />
-    <ClInclude Include="ParticleSolvers\PICFluid\FLIP2D_Solver.h" />
+    <ClInclude Include="ParticleSolvers\HybridFluid\AFLIP3D_Solver.h" />
+    <ClInclude Include="ParticleSolvers\HybridFluid\APIC2D_Solver.h" />
+    <ClInclude Include="ParticleSolvers\HybridFluid\APIC3D_Solver.h" />
+    <ClInclude Include="ParticleSolvers\HybridFluid\FLIP2D_Solver.h" />
     <ClInclude Include="ParticleSolvers\MPM.bk\MPMData.h" />
     <ClInclude Include="ParticleSolvers\MPM.bk\MPMMaterial.h" />
     <ClInclude Include="ParticleSolvers\MPM.bk\MPMMaterial.Impl.hpp" />
@@ -159,10 +159,9 @@
     <ClInclude Include="ParticleSolvers\MPM\ShapeFunctions.h" />
     <ClInclude Include="ParticleSolvers\MPM\TimeIntegration.h" />
     <ClInclude Include="ParticleSolvers\ParticleSolverData.h" />
-    <ClInclude Include="ParticleSolvers\PICFluid\PIC2D_Solver.h" />
-    <ClInclude Include="ParticleSolvers\PICFluid\PIC3D_Solver.h" />
+    <ClInclude Include="ParticleSolvers\HybridFluid\PIC2D_Solver.h" />
+    <ClInclude Include="ParticleSolvers\HybridFluid\PIC3D_Solver.h" />
     <ClInclude Include="ParticleSolvers\SceneLoader.h" />
-    <ClInclude Include="ParticleSolvers\SPH\WCSPH\WCSPHData.h" />
     <ClInclude Include="ParticleSolvers\_ParticleSolvers.Test.hpp" />
     <ClInclude Include="ParticleSolvers\ParticleSolver.h" />
     <ClInclude Include="ParticleTools\ParticleSerialization.h" />
@@ -172,11 +171,11 @@
     <ClInclude Include="SimulationObjects\ParticleRemover.Impl.hpp" />
     <ClInclude Include="SimulationObjects\SimulationObject.h" />
     <ClInclude Include="SurfaceReconstruction\AniKernelGenerator.h" />
-    <ClInclude Include="ParticleSolvers\PICFluid\FLIP3D_Solver.h" />
-    <ClInclude Include="ParticleSolvers\SPH\PCISPH\PCISPHSolver.h" />
-    <ClInclude Include="ParticleSolvers\SPH\PCISPH\PCISPHSolver.Impl.hpp" />
+    <ClInclude Include="ParticleSolvers\HybridFluid\FLIP3D_Solver.h" />
+    <ClInclude Include="ParticleSolvers\SPH\PCISPHSolver.h" />
+    <ClInclude Include="ParticleSolvers\SPH\PCISPHSolver.Impl.hpp" />
     <ClInclude Include="ParticleSolvers\Mass-Spring-System\PeridynamicsSolver.h" />
-    <ClInclude Include="ParticleSolvers\SPH\WCSPH\WCSPHSolver.h" />
+    <ClInclude Include="ParticleSolvers\SPH\WCSPHSolver.h" />
     <ClInclude Include="ParticleTools\BlueNoiseRelaxation\LloydRelaxation.h" />
     <ClInclude Include="ParticleTools\BlueNoiseRelaxation\SPHBasedRelaxation.Impl.hpp" />
     <ClInclude Include="ParticleSolvers\SPH\KernelFunctions.h" />
@@ -192,10 +191,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ParticleSolvers\MPM\MPM3D_Solver.cpp" />
-    <ClCompile Include="ParticleSolvers\PICFluid\AFLIP3D_Solver.cpp" />
-    <ClCompile Include="ParticleSolvers\PICFluid\APIC3D_Solver.cpp" />
-    <ClCompile Include="ParticleSolvers\PICFluid\FLIP3D_Solver.cpp" />
-    <ClCompile Include="ParticleSolvers\PICFluid\PIC3D_Solver.cpp" />
+    <ClCompile Include="ParticleSolvers\HybridFluid\AFLIP3D_Solver.cpp" />
+    <ClCompile Include="ParticleSolvers\HybridFluid\APIC3D_Solver.cpp" />
+    <ClCompile Include="ParticleSolvers\HybridFluid\FLIP3D_Solver.cpp" />
+    <ClCompile Include="ParticleSolvers\HybridFluid\PIC3D_Solver.cpp" />
     <ClCompile Include="ParticleTools\ParticleHelpers.cpp" />
     <ClCompile Include="ParticleTools\ParticleSerialization.cpp" />
     <ClCompile Include="ParticleTools\_ParticleTools.Test.cpp" />

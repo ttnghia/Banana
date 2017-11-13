@@ -23,7 +23,6 @@
 
 #include <Banana/NeighborSearch/NeighborSearch3D.h>
 #include <ParticleSolvers/ParticleSolver.h>
-#include <ParticleSolvers/Peridynamics/PeridynamicsData.h>
 #include <Banana/LinearAlgebra/SparseMatrix/SparseMatrix.h>
 #include <Banana/LinearAlgebra/LinearSolvers/BlockPCGSolver.h>
 #include <ParticleSolvers/ParticleSolverData.h>
