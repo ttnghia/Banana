@@ -51,12 +51,6 @@
     <ClInclude Include="ParticleSolvers\MPM.bk\TimeIntegration.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ParticleSolvers\Peridynamics\PeridynamicsData.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ParticleSolvers\Peridynamics\PeridynamicsSolver.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ParticleSolvers\SPH\PCISPH\PCISPHSolver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -117,12 +111,6 @@
     <ClInclude Include="SurfaceReconstruction\MarchingCube.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ParticleSolvers\ClothSolver\ClothSolverData.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ParticleSolvers\ClothSolver\ClothSolver.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ParticleTools\ParticleSerialization.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -141,13 +129,7 @@
     <ClInclude Include="SimulationObjects\ParticleGenerator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ParticleSolvers\MPM\Snow2DData.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ParticleSolvers\MPM\Snow2DSolver.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ParticleSolvers\MPM\Snow3DData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ParticleSolvers\MPM\Snow3DSolver.h">
@@ -159,16 +141,10 @@
     <ClInclude Include="ParticleSolvers\MPM\ShapeFunctions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ParticleSolvers\PICFluid\APIC2D_Data.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ParticleSolvers\PICFluid\APIC2D_Solver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ParticleSolvers\PICFluid\APIC3D_Solver.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ParticleSolvers\PICFluid\FLIP2D_Data.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ParticleSolvers\PICFluid\FLIP3D_Solver.h">
@@ -178,9 +154,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ParticleSolvers\PICFluid\FLIP2D_Solver.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ParticleSolvers\PICFluid\PIC2D_Data.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ParticleSolvers\PICFluid\PIC2D_Solver.h">
@@ -201,13 +174,16 @@
     <ClInclude Include="ParticleSolvers\MPM\MPM3D_Solver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ParticleSolvers\MPM\MPM2D_Data.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ParticleSolvers\MPM\MPM2D_Solver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ParticleSolvers\PICFluid\AFLIP3D_Solver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticleSolvers\Mass-Spring-System\PeridynamicsSolver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticleSolvers\Mass-Spring-System\ClothSolver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
