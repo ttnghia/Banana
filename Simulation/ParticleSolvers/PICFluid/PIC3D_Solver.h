@@ -21,15 +21,124 @@
 
 #pragma once
 
+#include <Banana/Array/Array.h>
+#include <Banana/Grid/Grid.h>
+#include <Banana/LinearAlgebra/LinearSolvers/PCGSolver.h>
+#include <Banana/LinearAlgebra/SparseMatrix/SparseMatrix.h>
+#include <Banana/Utils/NumberHelpers.h>
 #include <ParticleSolvers/ParticleSolver.h>
-#include <ParticleSolvers/PICFluid/PIC3D_Data.h>
+#include <ParticleSolvers/ParticleSolverData.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace Banana
+namespace Banana::ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace ParticleSolvers
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+// PIC3D_Parameters
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+struct PIC3D_Parameters : public SimulationParameters
 {
+    ////////////////////////////////////////////////////////////////////////////////
+    // simulation size
+    Real  cellSize             = SolverDefaultParameters::CellSize;
+    Real  ratioCellSizePRadius = SolverDefaultParameters::RatioCellSizeOverParticleRadius;
+    UInt  nExpandCells         = SolverDefaultParameters::NExpandCells;
+    Vec3r domainBMin           = SolverDefaultParameters::SimulationDomainBMin3D;
+    Vec3r domainBMax           = SolverDefaultParameters::SimulationDomainBMax3D;
+    Vec3r movingBMin;
+    Vec3r movingBMax;
+    ////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // time step size
+    Real minTimestep = SolverDefaultParameters::MinTimestep;
+    Real maxTimestep = SolverDefaultParameters::MaxTimestep;
+    Real CFLFactor   = Real(1.0);
+    ////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // CG solver
+    Real CGRelativeTolerance = SolverDefaultParameters::CGRelativeTolerance;
+    UInt maxCGIteration      = SolverDefaultParameters::CGMaxIteration;
+    ////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // particle parameters
+    UInt maxNParticles           = 0;
+    bool bCorrectPosition        = true;
+    Real repulsiveForceStiffness = Real(50);
+    UInt advectionSteps          = 1;
+    Real particleRadius;
+    Real sdfRadius;
+    ////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // boundary condition
+    Real boundaryRestitution = SolverDefaultParameters::BoundaryRestitution;
+    ////////////////////////////////////////////////////////////////////////////////
+
+    virtual void makeReady() override;
+    virtual void printParams(const SharedPtr<Logger>& logger) override;
+};
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+// PIC3D_Data
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+struct PIC3D_Data
+{
+    struct ParticleData : public ParticleSimulationData<3, Real>
+    {
+        virtual void reserve(UInt nParticles) override;
+        virtual void addParticles(const Vec_Vec3r& newPositions, const Vec_Vec3r& newVelocities) override;
+        virtual UInt removeParticles(Vec_Int8& removeMarker) override;
+    };
+
+    ////////////////////////////////////////////////////////////////////////////////
+    struct GridData : public GridSimulationData<3, Real>
+    {
+        ////////////////////////////////////////////////////////////////////////////////
+        // main variables
+        Array3r u, v, w;
+        Array3r u_weights, v_weights, w_weights;                     // mark the percentage domain area that can be occupied by fluid
+        Array3c u_valid, v_valid, w_valid;                           // mark the current faces that are influenced by particles during velocity projection
+        Array3c u_extrapolate, v_extrapolate, w_extrapolate;         // mark the current faces that are influenced by particles during velocity extrapolation
+
+        Array3ui activeCellIdx;                                      // store linearized indices of cells that contribute to pressure projection
+
+        Array3SpinLock fluidSDFLock;
+        Array3r        fluidSDF;
+        Array3r        boundarySDF;
+        ////////////////////////////////////////////////////////////////////////////////
+
+        ////////////////////////////////////////////////////////////////////////////////
+        // variables for temporary data
+        Array3r tmp_u, tmp_v, tmp_w;
+        Array3c tmp_u_valid, tmp_v_valid, tmp_w_valid;
+        ////////////////////////////////////////////////////////////////////////////////
+
+        virtual void resize(const Vec3ui& nCells);
+    };
+
+    ////////////////////////////////////////////////////////////////////////////////
+    ParticleData       particleData;
+    GridData           gridData;
+    Grid3r             grid;
+    PCGSolver<Real>    pcgSolver;
+    SparseMatrix<Real> matrix;
+    Vec_Real           rhs;
+    Vec_Real           pressure;
+
+    ////////////////////////////////////////////////////////////////////////////////
+    void makeReady(const PIC3D_Parameters& params);
+};
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+// PIC3D_Solver
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 class PIC3D_Solver : public ParticleSolver3D
 {
@@ -101,7 +210,4 @@ protected:
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-}   // end namespace ParticleSolvers
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-} // end namespace Banana
+}   // end namespace Banana::ParticleSolvers

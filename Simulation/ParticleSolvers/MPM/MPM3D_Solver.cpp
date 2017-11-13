@@ -248,6 +248,16 @@ void MPM3D_Data::GridData::resetGrid()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void MPM3D_Data::makeReady(const MPM3D_Parameters& params)
+{
+    if(params.maxNParticles > 0) {
+        particleData.reserve(params.maxNParticles);
+    }
+    grid.setGrid(params.domainBMin, params.domainBMax, params.cellSize);
+    gridData.resize(grid.getNCells());
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // MPM3D_Solver implementation
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -873,7 +883,7 @@ void MPM3D_Solver::implicitIntegration(Real timestep)
                                 [&](UInt i, UInt j, UInt k)
                                 {
                                     if(gridData().active(i, j, k)) {
-                                        gridData().velocity(i, j, k) = vPtr[gridData().activeNodeIdx(i, j, k)] + timestep * SolverDefaultParameters::Gravity3D;
+                                        gridData().velocity_new(i, j, k) = vPtr[gridData().activeNodeIdx(i, j, k)] + timestep * SolverDefaultParameters::Gravity3D;
                                     }
                                 });
 }

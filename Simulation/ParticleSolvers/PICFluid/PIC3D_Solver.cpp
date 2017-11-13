@@ -24,11 +24,173 @@
 #include <SurfaceReconstruction/AniKernelGenerator.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace Banana
+namespace Banana::ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace ParticleSolvers
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+// PIC3D_Parameters implementation
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void PIC3D_Parameters::makeReady()
 {
+    particleRadius = cellSize / ratioCellSizePRadius;
+
+    // this radius is used for computing fluid signed distance field
+    sdfRadius = cellSize * Real(1.01 * sqrt(3.0) / 2.0);
+
+    // expand domain simulation by nExpandCells for each dimension
+    // this is necessary if the boundary is a box which coincides with the simulation domain
+    // movingBMin/BMax are used in printParams function only
+    movingBMin  = domainBMin;
+    movingBMax  = domainBMax;
+    domainBMin -= Vec3r(cellSize * nExpandCells);
+    domainBMax += Vec3r(cellSize * nExpandCells);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void PIC3D_Parameters::printParams(const SharedPtr<Logger>& logger)
+{
+    logger->printLog(String("PIC-3D parameters:"));
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // simulation size
+    logger->printLogIndent(String("Fluid SDF radius: ") + std::to_string(sdfRadius));
+    logger->printLogIndent(String("Ratio grid size/particle radius: ") + std::to_string(ratioCellSizePRadius));
+    logger->printLogIndent(String("Expand cells for each dimension: ") + std::to_string(nExpandCells));
+    logger->printLogIndent(String("Cell size: ") + std::to_string(cellSize));
+
+    auto domainGrid = NumberHelpers::createGrid<UInt>(domainBMin, domainBMax, cellSize);
+    auto movingGrid = NumberHelpers::createGrid<UInt>(movingBMin, movingBMax, cellSize);
+    logger->printLogIndent(String("Domain box: ") + NumberHelpers::toString(domainBMin) + " -> " + NumberHelpers::toString(domainBMax) +
+                           String(" | Resolution: ") + NumberHelpers::toString(domainGrid));
+    logger->printLogIndent(String("Moving box: ") + NumberHelpers::toString(movingBMin) + " -> " + NumberHelpers::toString(movingBMax) +
+                           String(" | Resolution: ") + NumberHelpers::toString(movingGrid));
+    logger->printLogIndent(String("Num. cells: ") + NumberHelpers::formatWithCommas(glm::compMul(domainGrid)) +
+                           String(" | nodes: ") + NumberHelpers::formatWithCommas(glm::compMul(domainGrid + Vec3ui(1))));
+    ////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // time step size
+    logger->printLogIndent(String("Timestep min: ") + NumberHelpers::formatToScientific(minTimestep) +
+                           String(" | max: ") + NumberHelpers::formatToScientific(maxTimestep));
+    logger->printLogIndent(String("CFL factor: ") + std::to_string(CFLFactor));
+    ////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // CG parameters
+    logger->printLogIndent(String("ConjugateGradient solver tolerance: ") + NumberHelpers::formatToScientific(CGRelativeTolerance) +
+                           String(" | max CG iterations: ") + NumberHelpers::formatToScientific(maxCGIteration));
+    ////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // particle parameters
+    logger->printLogIndent(String("Particle radius: ") + std::to_string(particleRadius));
+    logger->printLogIndent(String("Correct particle position: ") + (bCorrectPosition ? String("Yes") : String("No")));
+    logger->printLogIndentIf(bCorrectPosition, String("Repulsive force stiffness: ") + NumberHelpers::formatToScientific(repulsiveForceStiffness));
+    logger->printLogIndent(String("Advection steps/timestep: ") + std::to_string(advectionSteps));
+    logger->printLogIndentIf(maxNParticles > 0, String("Max. number of particles: ") + std::to_string(maxNParticles));
+    ////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // boundary condition
+    logger->printLogIndent(String("Boundary restitution: ") + std::to_string(boundaryRestitution));
+    ////////////////////////////////////////////////////////////////////////////////
+
+    logger->newLine();
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+// PIC3D_Data implementation
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void PIC3D_Data::ParticleData::reserve(UInt nParticles)
+{
+    positions.reserve(nParticles);
+    velocities.reserve(nParticles);
+    objectIndex.reserve(nParticles);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void PIC3D_Data::ParticleData::addParticles(const Vec_Vec3r& newPositions, const Vec_Vec3r& newVelocities)
+{
+    __BNN_ASSERT(newPositions.size() == newVelocities.size());
+    positions.insert(positions.end(), newPositions.begin(), newPositions.end());
+    velocities.insert(velocities.end(), newVelocities.begin(), newVelocities.end());
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // add the object index for new particles to the list
+    objectIndex.insert(objectIndex.end(), newPositions.size(), nObjects);
+    ++nObjects;                 // increase the number of objects
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+UInt PIC3D_Data::ParticleData::removeParticles(Vec_Int8& removeMarker)
+{
+    __BNN_ASSERT(removeMarker.size() == positions.size());
+    if(!STLHelpers::contain(removeMarker, Int8(1))) {
+        return 0u;
+    }
+
+    STLHelpers::eraseByMarker(positions,   removeMarker);
+    STLHelpers::eraseByMarker(velocities,  removeMarker);
+    STLHelpers::eraseByMarker(objectIndex, removeMarker);
+
+    ////////////////////////////////////////////////////////////////////////////////
+    return static_cast<UInt>(removeMarker.size() - positions.size());
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void PIC3D_Data::GridData::resize(const Vec3ui& nCells)
+{
+    u.resize(nCells.x + 1, nCells.y, nCells.z, 0);
+    u_weights.resize(nCells.x + 1, nCells.y, nCells.z, 0);
+    u_valid.resize(nCells.x + 1, nCells.y, nCells.z, 0);
+    u_extrapolate.resize(nCells.x + 1, nCells.y, nCells.z, 0);
+    tmp_u.resize(nCells.x + 1, nCells.y, nCells.z, 0);
+    tmp_u_valid.resize(nCells.x + 1, nCells.y, nCells.z, 0);
+
+    v.resize(nCells.x, nCells.y + 1, nCells.z, 0);
+    v_weights.resize(nCells.x, nCells.y + 1, nCells.z, 0);
+    v_valid.resize(nCells.x, nCells.y + 1, nCells.z, 0);
+    v_extrapolate.resize(nCells.x, nCells.y + 1, nCells.z, 0);
+    tmp_v.resize(nCells.x, nCells.y + 1, nCells.z, 0);
+    tmp_v_valid.resize(nCells.x, nCells.y + 1, nCells.z, 0);
+
+    w.resize(nCells.x, nCells.y, nCells.z + 1, 0);
+    w_weights.resize(nCells.x, nCells.y, nCells.z + 1, 0);
+    w_valid.resize(nCells.x, nCells.y, nCells.z + 1, 0);
+    w_extrapolate.resize(nCells.x, nCells.y, nCells.z + 1, 0);
+    tmp_w.resize(nCells.x, nCells.y, nCells.z + 1, 0);
+    tmp_w_valid.resize(nCells.x, nCells.y, nCells.z + 1, 0);
+
+    activeCellIdx.resize(nCells.x, nCells.y, nCells.z, 0);
+    fluidSDFLock.resize(nCells.x, nCells.y, nCells.z);
+    fluidSDF.resize(nCells.x, nCells.y, nCells.z, 0);
+    boundarySDF.resize(nCells.x + 1, nCells.y + 1, nCells.z + 1, 0);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void PIC3D_Data::makeReady(const PIC3D_Parameters& params)
+{
+    if(params.maxNParticles > 0) {
+        particleData.reserve(params.maxNParticles);
+    }
+    grid.setGrid(params.domainBMin, params.domainBMax, params.cellSize);
+    gridData.resize(grid.getNCells());
+    matrix.reserve(grid.getNTotalCells());
+    rhs.reserve(grid.getNTotalCells());
+    pressure.reserve(grid.getNTotalCells());
+
+    pcgSolver.reserve(grid.getNTotalCells());
+    pcgSolver.setSolverParameters(params.CGRelativeTolerance, params.maxCGIteration);
+    pcgSolver.setPreconditioners(PCGSolver<Real>::MICCL0_SYMMETRIC);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+// PIC3D_Solver implementation
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PIC3D_Solver::makeReady()
 {
@@ -1028,7 +1190,4 @@ __BNN_INLINE void PIC3D_Solver::computeBoundarySDF()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-}   // end namespace ParticleSolvers
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-} // end namespace Banana
+}   // end namespace Banana::ParticleSolvers
