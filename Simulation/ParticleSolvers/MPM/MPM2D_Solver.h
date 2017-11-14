@@ -45,7 +45,7 @@ struct MPM2D_Parameters : public SimulationParameters
     // simulation size
     Real  cellSize             = SolverDefaultParameters::CellSize;
     Real  ratioCellSizePRadius = SolverDefaultParameters::RatioCellSizeOverParticleRadius;
-    UInt  expandCells          = SolverDefaultParameters::NExpandCells;
+    UInt  nExpandCells         = SolverDefaultParameters::NExpandCells;
     Vec2r domainBMin           = SolverDefaultParameters::SimulationDomainBMin2D;
     Vec2r domainBMax           = SolverDefaultParameters::SimulationDomainBMax2D;
     Vec2r movingBMin;
@@ -64,6 +64,13 @@ struct MPM2D_Parameters : public SimulationParameters
     // CG solver
     Real CGRelativeTolerance = SolverDefaultParameters::CGRelativeTolerance;
     UInt maxCGIteration      = SolverDefaultParameters::CGMaxIteration;
+    ////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // particle parameters
+    Real particleRadius;
+    UInt maxNParticles  = 0;
+    UInt advectionSteps = 1;
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -87,278 +94,111 @@ struct MPM2D_Parameters : public SimulationParameters
     Real particleMass;
     Real mu     = Real(10.0);         //Lame parameters
     Real lambda = Real(10.0);
-
     ////////////////////////////////////////////////////////////////////////////////
-    virtual void makeReady() override
-    {
-        cellSize     = particleRadius * ratioCellSizePRadius;
-        particleMass = MathHelpers::sqr(Real(2.0) * particleRadius) * materialDensity;
 
-        cellVolume  = MathHelpers::sqr(cellSize);
-        movingBMin  = domainBMin;
-        movingBMax  = domainBMax;
-        domainBMin -= Vec2r(cellSize * expandCells);
-        domainBMax += Vec2r(cellSize * expandCells);
-
-        lambda = YoungsModulus * PoissonsRatio / ((Real(1.0) + PoissonsRatio) * (Real(1.0) - Real(2.0) * PoissonsRatio)),
-        mu     = YoungsModulus / (Real(2.0) + Real(2.0) * PoissonsRatio);
-    }
-
-    ////////////////////////////////////////////////////////////////////////////////
-    virtual void printParams(const SharedPtr<Logger>& logger) override
-    {
-        logger->printLog(String("MPM-2D parameters:"));
-
-        ////////////////////////////////////////////////////////////////////////////////
-        // simulation size
-        logger->printLogIndent(String("Particle radius: ") + std::to_string(particleRadius));
-        logger->printLogIndent(String("Ratio grid size/particle radius: ") + std::to_string(ratioCellSizePRadius));
-        logger->printLogIndent(String("Expand cells for each dimension: ") + std::to_string(expandCells));
-        logger->printLogIndent(String("Cell size: ") + std::to_string(cellSize));
-        logger->printLogIndent(String("Cell volume: ") + std::to_string(cellVolume));
-        logger->printLogIndent(String("Domain box: ") + NumberHelpers::toString(domainBMin) + " -> " + NumberHelpers::toString(domainBMax));
-        logger->printLogIndent(String("Grid resolution: ") + NumberHelpers::toString(NumberHelpers::createGrid<UInt>(domainBMin, domainBMax, cellSize)),        2);
-        logger->printLogIndent(String("Moving box: ") + NumberHelpers::toString(movingBMin) + " -> " + NumberHelpers::toString(movingBMax));
-        logger->printLogIndent(String("Moving grid resolution: ") + NumberHelpers::toString(NumberHelpers::createGrid<UInt>(movingBMin, movingBMax, cellSize)), 2);
-        ////////////////////////////////////////////////////////////////////////////////
-
-        ////////////////////////////////////////////////////////////////////////////////
-        // time step size
-        logger->printLogIndent(String("Min timestep: ") + NumberHelpers::formatToScientific(minTimestep));
-        logger->printLogIndent(String("Max timestep: ") + NumberHelpers::formatToScientific(maxTimestep));
-        logger->printLogIndent(String("CFL factor: ") + std::to_string(CFLFactor));
-        ////////////////////////////////////////////////////////////////////////////////
-
-        ////////////////////////////////////////////////////////////////////////////////
-        // CG parameters
-        logger->printLogIndent(String("ConjugateGradient solver tolerance: ") + NumberHelpers::formatToScientific(CGRelativeTolerance));
-        logger->printLogIndent(String("Max CG iterations: ") + NumberHelpers::formatToScientific(maxCGIteration));
-        ////////////////////////////////////////////////////////////////////////////////
-
-        ////////////////////////////////////////////////////////////////////////////////
-        // position correction
-        logger->printLogIndent(String("Correct particle position: ") + (bCorrectPosition ? String("Yes") : String("No")));
-        logger->printLogIndentIf(bCorrectPosition, String("Repulsive force stiffness: ") + NumberHelpers::formatToScientific(repulsiveForceStiffness));
-        ////////////////////////////////////////////////////////////////////////////////
-
-        ////////////////////////////////////////////////////////////////////////////////
-        // boundary condition
-        logger->printLogIndent(String("Boundary restitution: ") + std::to_string(boundaryRestitution));
-        ////////////////////////////////////////////////////////////////////////////////
-
-        ////////////////////////////////////////////////////////////////////////////////
-        // MPM parameters
-        logger->printLogIndent(String("PIC/FLIP ratio: ") + std::to_string(PIC_FLIP_ratio));
-        logger->printLogIndent(String("Material density: ") + std::to_string(materialDensity));
-        logger->printLogIndent(String("Youngs modulus: ") + std::to_string(YoungsModulus));
-        logger->printLogIndent(String("Poissons ratio: ") + std::to_string(PoissonsRatio));
-        logger->printLogIndent(String("Implicit ratio: ") + std::to_string(implicitRatio));
-        logger->printLogIndent(String("Particle mass: ") + std::to_string(particleMass));
-        logger->printLogIndent(String("mu/lambda: ") + std::to_string(mu) + String("/") + std::to_string(lambda));
-        ////////////////////////////////////////////////////////////////////////////////
-
-        logger->newLine();
-    }
+    virtual void makeReady() override;
+    virtual void printParams(const SharedPtr<Logger>& logger) override;
 };
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+// MPM2D_Data
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 struct MPM2D_Data
 {
     struct ParticleData : public ParticleSimulationData<2, Real>
     {
-        Vec_Real    volumes, densities;
+        Vec_Real    volumes;
         Vec_Mat2x2r velocityGrad;
 
         //Deformation gradient (elastic and plastic parts)
-        Vec_Mat2x2r deformGrad, elasticDeformGrad, plasticDeformGrad;
+        Vec_Mat2x2r deformGrad, tmp_deformGrad;
         Vec_Mat2x2r PiolaStress, CauchyStress;
-        Vec_Real    energyDensity;
-
-        //Cached SVD's for elastic deformation gradient
-        Vec_Mat2x2r svd_w, svd_v;
-        Vec_Vec2r   svd_e;
-
-        //Cached polar decomposition
-        Vec_Mat2x2r polar_r, polar_s;
+        Vec_Real    energy, energyDensity;
 
         //Grid interpolation weights
-        Vec_Vec2r particleGridPos;
+        Vec_Vec2r gridCoordinate;
         Vec_Vec2r weightGradients;         // * 16
         Vec_Real  weights;                 // * 16
 
         Vec_Mat2x2r B, D;                  // affine matrix and auxiliary
 
 
-
-        virtual void reserve(UInt nParticles)
-        {
-            positions.reserve(nParticles);
-            velocities.reserve(nParticles);
-            volumes.reserve(nParticles);
-            densities.reserve(nParticles);
-            velocityGrad.reserve(nParticles);
-
-            elasticDeformGrad.reserve(nParticles);
-            plasticDeformGrad.reserve(nParticles);
-            deformGrad.reserve(nParticles);
-
-            PiolaStress.reserve(nParticles);
-            CauchyStress.reserve(nParticles);
-
-            svd_w.reserve(nParticles);
-            svd_e.reserve(nParticles);
-            svd_v.reserve(nParticles);
-
-            polar_r.reserve(nParticles);
-            polar_s.reserve(nParticles);
-
-            particleGridPos.reserve(nParticles);
-
-            weightGradients.reserve(nParticles * 16);
-            weights.reserve(nParticles * 16);
-
-            B.reserve(nParticles);
-            D.reserve(nParticles);
-
-            removeMarker.reserve(nParticles);
-        }
-
-        virtual void addParticles(const Vec_Vec2r& newPositions, const Vec_Vec2r& newVelocities)
-        {
-            __BNN_ASSERT(newPositions.size() == newVelocities.size());
-            reserve(static_cast<UInt>(newPositions.size()));
-
-            for(size_t p = 0; p < newPositions.size(); ++p) {
-                positions.push_back(newPositions[p]);
-                velocities.push_back(newVelocities[p]);
-                volumes.push_back(0);
-                densities.push_back(0);
-                velocityGrad.push_back(Mat2x2r(1.0));
-
-                elasticDeformGrad.push_back(Mat2x2r(1.0));
-                plasticDeformGrad.push_back(Mat2x2r(1.0));
-                deformGrad.push_back(Mat2x2r(1.0));
-
-                PiolaStress.push_back(Mat2x2r(1.0));
-                CauchyStress.push_back(Mat2x2r(1.0));
-
-                svd_w.push_back(Mat2x2r(1.0));
-                svd_e.push_back(Vec2r(1.0));
-                svd_v.push_back(Mat2x2r(1.0));
-                polar_r.push_back(Mat2x2r(1.0));
-                polar_s.push_back(Mat2x2r(1.0));
-
-                particleGridPos.push_back(Vec2r(0));
-
-                for(int i = 0; i < 16; ++i) {
-                    weightGradients.push_back(Vec2r(0));
-                    weights.push_back(Real(0));
-                }
-
-                B.push_back(Mat2x2r(0));
-                D.push_back(Mat2x2r(0));
-                removeMarker.push_back(Int8(0));
-            }
-        }
-
-        virtual UInt removeParticles(Vec_Int8& removeMarker)
-        {
-            if(!STLHelpers::contain(removeMarker, Int8(1))) {
-                return 0u;
-            }
-
-            STLHelpers::eraseByMarker(positions,    removeMarker);
-            STLHelpers::eraseByMarker(velocities,   removeMarker);
-            STLHelpers::eraseByMarker(volumes,      removeMarker);   // need to erase, or just resize?
-            STLHelpers::eraseByMarker(densities,    removeMarker);   // need to erase, or just resize?
-            STLHelpers::eraseByMarker(velocityGrad, removeMarker);   // need to erase, or just resize?
-            STLHelpers::eraseByMarker(B,            removeMarker);   // need to erase, or just resize?
-            STLHelpers::eraseByMarker(D,            removeMarker);   // need to erase, or just resize?
-            ////////////////////////////////////////////////////////////////////////////////
-            elasticDeformGrad.resize(positions.size());
-            plasticDeformGrad.resize(positions.size());
-            deformGrad.resize(positions.size());
-
-            PiolaStress.resize(positions.size());
-            CauchyStress.resize(positions.size());
-
-            svd_w.resize(positions.size());
-            svd_e.resize(positions.size());
-            svd_v.resize(positions.size());
-
-            polar_r.resize(positions.size());
-            polar_s.resize(positions.size());
-
-            particleGridPos.resize(positions.size());
-
-            weightGradients.resize(positions.size());
-            weights.resize(positions.size());
-
-            ////////////////////////////////////////////////////////////////////////////////
-            // resize removeMarker eventually
-            return static_cast<UInt>(removeMarker.size() - positions.size());
-        }
-    } particleData;
+        virtual void reserve(UInt nParticles) override;
+        virtual void addParticles(const Vec_Vec2r& newPositions, const Vec_Vec2r& newVelocities) override;
+        virtual UInt removeParticles(Vec_Int8& removeMarker) override;
+    };
 
 
     ////////////////////////////////////////////////////////////////////////////////
     struct GridData : public GridSimulationData<2, Real>
     {
-        Array2r         mass;
-        Array2c         active;
-        Array<2, Vec2r> velocity, velocity_new;
+        Array2c  active;
+        Array2ui activeNodeIdx;                // store linearized indices of active nodes
 
-        // variable for implicit velocity solving
-        Array2c         imp_active;
-        Array<2, Vec2r> force,
-                        err,          //error of estimate
-                        r,            //residual of estimate
-                        p,            //residual gradient? squared residual?
-                        Ep, Er;       //yeah, I really don't know how this works...
-        Array2r rDotEr;               //r.dot(Er)
+        Array2r       mass;
+        Array2r       energy;
+        Array2<Vec2r> velocity, velocity_new;
+
+        Array2<Vector<Real> >  weight;
+        Array2<Vector<Vec2r> > weightGrad;
 
         Array2SpinLock nodeLocks;
-        Array2r        boundarySDF;
 
         ////////////////////////////////////////////////////////////////////////////////
-        virtual void resize(const Vec2<UInt>& gridSize)
-        {
-            mass.resize(gridSize);
-            active.resize(gridSize);
-            velocity.resize(gridSize);
-            velocity_new.resize(gridSize);
-            imp_active.resize(gridSize);
-            force.resize(gridSize);
-            err.resize(gridSize);
-            r.resize(gridSize);
-            p.resize(gridSize);
-            Ep.resize(gridSize);
-            Er.resize(gridSize);
-            rDotEr.resize(gridSize);
+        virtual void resize(const Vec2<UInt>& gridSize);
+        void         resetGrid();
+    };
 
-            boundarySDF.resize(gridSize);
-            nodeLocks.resize(gridSize);
-        }
+    ////////////////////////////////////////////////////////////////////////////////
+    ParticleData                    particleData;
+    GridData                        gridData;
+    Grid2r                          grid;
+    Optimization::LBFGSSolver<Real> lbfgsSolver;
 
-        ////////////////////////////////////////////////////////////////////////////////
-        void resetGrid()
-        {
-            mass.assign(Real(0));
-            active.assign(char(0));
-            imp_active.assign(char(0));
-            velocity.assign(Vec2r(0));
-            velocity_new.assign(Vec2r(0));
-            force.assign(Vec2r(0));
-            err.assign(Vec2r(0));
-            r.assign(Vec2r(0));
-            p.assign(Vec2r(0));
-            Ep.assign(Vec2r(0));
-            Er.assign(Vec2r(0));
-            rDotEr.assign(Real(0));
-        }
-    } gridData;
+    void makeReady(const MPM2D_Parameters& params);
 };
 
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+// MPM2D_Objective
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+class MPM2D_Objective : public Optimization::Problem<Real>
+{
+public:
+    MPM2D_Objective(const MPM2D_Parameters& simParams, MPM2D_Data& simData, Real timestep) :
+        m_SimParams(simParams), m_SimData(simData), m_timestep(timestep) {}
+
+    virtual Real value(const Vector<Real>& v) { throw std::runtime_error("value function: shouldn't get here!"); }
+
+    /**
+       @brief Computes value and gradient of the objective function
+     */
+    virtual Real valueGradient(const Vector<Real>& v, Vector<Real>& grad);
+    ////////////////////////////////////////////////////////////////////////////////
+    auto&       solverParams() { return m_SimParams; }
+    const auto& solverParams() const { return m_SimParams; }
+    auto&       particleData() { return m_SimData.particleData; }
+    const auto& particleData() const { return m_SimData.particleData; }
+    auto&       gridData() { return m_SimData.gridData; }
+    const auto& gridData() const { return m_SimData.gridData; }
+    auto&       grid() { return m_SimData.grid; }
+    const auto& grid() const { return m_SimData.grid; }
+
+private:
+    const MPM2D_Parameters& m_SimParams;
+    MPM2D_Data&             m_SimData;
+    Real                    m_timestep;
+};
+
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+// MPM2D_Solver
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 class MPM2D_Solver : public ParticleSolver2D
 {
@@ -371,7 +211,6 @@ public:
 
     virtual void makeReady() override;
     virtual void advanceFrame() override;
-    virtual void sortParticles() override;
 
     ////////////////////////////////////////////////////////////////////////////////
     auto&       solverParams() { return m_SimParams; }
@@ -383,47 +222,39 @@ protected:
     virtual void loadSimParams(const nlohmann::json& jParams) override;
     virtual void generateParticles(const nlohmann::json& jParams) override;
     virtual bool advanceScene(UInt frame, Real fraction = Real(0)) override;
-    virtual void allocateSolverMemory() override {}
+    virtual void allocateSolverMemory() override;
     virtual void setupDataIO() override;
     virtual bool loadMemoryState() override;
     virtual void saveMemoryState() override;
     virtual void saveFrameData() override;
-    Real         timestepCFL();
-    void         advanceVelocity(Real timestep);
-    void         moveParticles(Real timestep);
+    virtual void advanceVelocity(Real timestep);
 
-    ////////////////////////////////////////////////////////////////////////////////
-    // grid processing
-    void massToGrid();
-    void mapParticle2Grid(Real timestep);
+    Real timestepCFL();
+    void moveParticles(Real timestep);
+    void mapParticleMasses2Grid();
+    bool initParticleVolumes();
+    void mapParticleVelocities2Grid(Real timestep);
+    void mapParticleVelocities2GridFLIP(Real timestep);
+    void mapParticleVelocities2GridAPIC(Real timestep);
     void constrainGridVelocity(Real timestep);
-
-    //Compute grid velocities
-    void explicitVelocities(Real timestep);
-    void implicitVelocities(Real timestep);
-
-    //Map grid velocities back to particles
-    void velocityToParticles(Real timestep);
+    void explicitIntegration(Real timestep);
+    void implicitIntegration(Real timestep);
+    void mapGridVelocities2Particles(Real timestep);
+    void mapGridVelocities2ParticlesFLIP(Real timestep);
+    void mapGridVelocities2ParticlesAPIC(Real timestep);
+    void mapGridVelocities2ParticlesAFLIP(Real timestep);
     void constrainParticleVelocity(Real timestep);
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // particle processing
-    void initParticleVolumes();
     void updateParticleDeformGradients(Real timestep);
-
-    void computePiolaStress();
-    void computePiolaStressAndEnergyDensity();
-
     ////////////////////////////////////////////////////////////////////////////////
     auto&       particleData() { return solverData().particleData; }
     const auto& particleData() const { return solverData().particleData; }
     auto&       gridData() { return solverData().gridData; }
     const auto& gridData() const { return solverData().gridData; }
-
+    auto&       grid() { return solverData().grid; }
+    const auto& grid() const { return solverData().grid; }
+    ////////////////////////////////////////////////////////////////////////////////
     MPM2D_Parameters m_SimParams;
     MPM2D_Data       m_SimData;
-
-    Grid2r m_Grid;
 };
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace Banana::ParticleSolvers

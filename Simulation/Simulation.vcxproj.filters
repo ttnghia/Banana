@@ -218,5 +218,8 @@
     <ClCompile Include="ParticleSolvers\HybridFluid\PIC3D_Solver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ParticleSolvers\MPM\MPM2D_Solver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

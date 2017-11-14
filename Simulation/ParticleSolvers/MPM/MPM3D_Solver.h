@@ -130,8 +130,7 @@ struct MPM3D_Data
 
         Array3r       mass;
         Array3r       energy;
-        Array3<Vec3r> velocity;
-        Array3<Vec3r> velocity_new;
+        Array3<Vec3r> velocity, velocity_new;
 
         Array3<Vector<Real> >  weight;
         Array3<Vector<Vec3r> > weightGrad;
@@ -153,13 +152,13 @@ struct MPM3D_Data
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-// ObjectiveFunction
+// MPM3D_Objective
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class ObjectiveFunction : public Optimization::Problem<Real>
+class MPM3D_Objective : public Optimization::Problem<Real>
 {
 public:
-    ObjectiveFunction(const MPM3D_Parameters& simParams, MPM3D_Data& simData, Real timestep) :
+    MPM3D_Objective(const MPM3D_Parameters& simParams, MPM3D_Data& simData, Real timestep) :
         m_SimParams(simParams), m_SimData(simData), m_timestep(timestep) {}
 
     virtual Real value(const Vector<Real>& v) { throw std::runtime_error("value function: shouldn't get here!"); }
@@ -234,7 +233,6 @@ protected:
     void mapGridVelocities2ParticlesAFLIP(Real timestep);
     void constrainParticleVelocity(Real timestep);
     void updateParticleDeformGradients(Real timestep);
-    void computePiolaStressAndEnergyDensity();
     ////////////////////////////////////////////////////////////////////////////////
     auto&       particleData() { return solverData().particleData; }
     const auto& particleData() const { return solverData().particleData; }

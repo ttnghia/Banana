@@ -25,10 +25,7 @@
 #include <Banana/LinearAlgebra/LinaHelpers.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace Banana
-{
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace ParticleSolvers
+namespace Banana::ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -693,7 +690,7 @@ bool MPM3D_Solver::initParticleVolumes()
                                     }
 
                                     pDensity /= solverParams().cellVolume;
-                                    assert(pDensity > 0);
+                                    __BNN_ASSERT(pDensity > 0);
                                     particleData().volumes[p] = solverParams().particleMass / pDensity;
                                 });
     ////////////////////////////////////////////////////////////////////////////////
@@ -875,7 +872,7 @@ void MPM3D_Solver::implicitIntegration(Real timestep)
                                 });
 
     ////////////////////////////////////////////////////////////////////////////////
-    ObjectiveFunction obj(solverParams(), solverData(), timestep);
+    MPM3D_Objective obj(solverParams(), solverData(), timestep);
     solverData().lbfgsSolver.minimize(obj, v);
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -889,7 +886,7 @@ void MPM3D_Solver::implicitIntegration(Real timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-Real ObjectiveFunction::valueGradient(const Vector<Real>& v, Vector<Real>& grad)
+Real MPM3D_Objective::valueGradient(const Vector<Real>& v, Vector<Real>& grad)
 {
     auto vPtr    = reinterpret_cast<const Vec3r*>(v.data());
     auto gradPtr = reinterpret_cast<Vec3r*>(grad.data());
@@ -1207,44 +1204,4 @@ void MPM3D_Solver::updateParticleDeformGradients(Real timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MPM3D_Solver::computePiolaStressAndEnergyDensity()
-{
-    ParallelFuncs::parallel_for(particleData().getNParticles(),
-                                [&](UInt p)
-                                {
-                                    Mat3x3r U, Vt, Ftemp;
-                                    Vec3r S;
-                                    LinaHelpers::orientedSVD(particleData().deformGrad[p], U, S, Vt);
-                                    if(S[2] < 0) {
-                                        S[2] *= Real(-1.0);
-                                    }
-                                    Ftemp = U * LinaHelpers::diagMatrix(S) * Vt;
-
-                                    ////////////////////////////////////////////////////////////////////////////////
-                                    // Compute Piola stress tensor:
-                                    Real J = glm::determinant(Ftemp);
-                                    __BNN_ASSERT(J > 0);
-                                    assert(NumberHelpers::isValidNumber(J));
-                                    Real logJ   = log(J);
-                                    Mat3x3r Fit = glm::transpose(glm::inverse(Ftemp)); // F^(-T)
-                                    Mat3x3r P   = solverParams().mu * (Ftemp - Fit) + solverParams().lambda * (logJ * Fit);
-                                    assert(LinaHelpers::hasValidElements(P));
-                                    particleData().PiolaStress[p] = P;
-
-                                    ////////////////////////////////////////////////////////////////////////////////
-                                    // compute energy density function
-                                    Real t1 = Real(0.5) * solverParams().mu * (LinaHelpers::trace(glm::transpose(Ftemp) * Ftemp) - Real(3.0));
-                                    Real t2 = -solverParams().mu * logJ;
-                                    Real t3 = Real(0.5) * solverParams().lambda * (logJ * logJ);
-                                    assert(NumberHelpers::isValidNumber(t1));
-                                    assert(NumberHelpers::isValidNumber(t2));
-                                    assert(NumberHelpers::isValidNumber(t3));
-                                    particleData().energyDensity[p] = t1 + t2 + t3;
-                                });
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-};  // end namespace ParticleSolvers
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-} // end namespace Banana
+};  // end namespace Banana::ParticleSolvers
