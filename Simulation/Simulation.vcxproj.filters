@@ -45,9 +45,6 @@
     <ClInclude Include="ParticleSolvers\MPM.bk\ShapeFunctions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ParticleSolvers\MPM.bk\ShapeFunctions.Impl.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ParticleSolvers\MPM.bk\TimeIntegration.h">
       <Filter>Header Files</Filter>
     </ClInclude>

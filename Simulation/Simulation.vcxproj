@@ -150,7 +150,6 @@
     <ClInclude Include="ParticleSolvers\MPM.bk\MPMSolver.h" />
     <ClInclude Include="ParticleSolvers\MPM.bk\MPMSolver.Impl.hpp" />
     <ClInclude Include="ParticleSolvers\MPM.bk\ShapeFunctions.h" />
-    <ClInclude Include="ParticleSolvers\MPM.bk\ShapeFunctions.Impl.hpp" />
     <ClInclude Include="ParticleSolvers\MPM.bk\TimeIntegration.h" />
     <ClInclude Include="ParticleSolvers\MPM\Snow2DSolver.h" />
     <ClInclude Include="ParticleSolvers\MPM\MPMMaterial.h" />
