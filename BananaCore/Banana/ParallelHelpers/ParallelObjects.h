@@ -64,11 +64,11 @@ private:
 class FastRandMT
 {
 public:
-    static void seed(UInt seed_) { s_Seed = seed_; }
+    void seed(UInt seed_) { s_Seed = seed_; }
 
     /// Compute a pseudo-random integer
     /// Output value in range [0, 32767]
-    __BNN_INLINE static Int rand()
+    __BNN_INLINE Int rand()
     {
         m_Lock.lock();
         s_Seed = (214013u * s_Seed + 2531011u);
@@ -77,10 +77,9 @@ public:
     }
 
 private:
-    static UInt     s_Seed;
-    static SpinLock m_Lock;
+    UInt     s_Seed = 0u;
+    SpinLock m_Lock;
 };
-UInt FastRandMT::s_Seed = 0;
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
