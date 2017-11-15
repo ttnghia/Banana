@@ -108,6 +108,25 @@ inline RealType generateRandomReal(RealType start = RealType(0), RealType end = 
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+class FastRand
+{
+public:
+    static void seed(UInt seed_) { s_Seed = seed_; }
+
+    /// Compute a pseudo-random integer
+    /// Output value in range [0, 32767]
+    __BNN_INLINE static Int rand()
+    {
+        s_Seed = (214013u * s_Seed + 2531011u);
+        return static_cast<Int>((s_Seed >> 16) & 0x7FFF);
+    }
+
+private:
+    static UInt s_Seed;
+};
+UInt FastRand::s_Seed = 0;
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
 String formatWithCommas(RealType value, Int precision = 2)
 {
