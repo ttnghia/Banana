@@ -53,8 +53,8 @@ QLayout* ColorPicker::getLayout(const QString& label, int labelStretch /*= 5*/)
         if(label.isEmpty()) {
             m_Layout->addWidget(this, 0, 0, 1, 1);
         } else {
-            m_Layout->addWidget(new QLabel(label), 0, 0,            1, labelStretch, Qt::AlignRight);
-            m_Layout->addWidget(this,              0, labelStretch, 1, 1);
+            m_Layout->addWidget(new QLabel(label), 0,            0, 1, labelStretch, Qt::AlignRight);
+            m_Layout->addWidget(this,              0, labelStretch, 1,            1);
         }
     }
 
@@ -80,12 +80,6 @@ void ColorPicker::setColor(QColor color)
     this->setPalette(palette);
 
     m_CurrentColor = color;
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-QColor ColorPicker::getColor() const
-{
-    return m_CurrentColor;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

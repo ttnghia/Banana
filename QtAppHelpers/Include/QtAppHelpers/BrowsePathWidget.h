@@ -35,12 +35,11 @@ public:
     BrowsePathWidget(QString caption, bool folderOnly = true, QWidget* parent = 0);
     BrowsePathWidget(QIcon icon, bool folderOnly = true, QWidget* parent = 0);
 
-    void setupGui(QWidget* button);
-    void setEnabled(bool enabled);
-
-    QLayout*   getLayout() const;
+    void       setupGui(QWidget* button);
+    void       setEnabled(bool enabled) { m_Button->setEnabled(enabled); }
+    QLayout*   getLayout() const { return m_Layout; }
     QGroupBox* getGroupBox(QString title = QString(""));
-    QString    getCurrentPath();
+    auto       getCurrentPath() { return m_txtPath->text(); }
 
 public slots:
     void browse();
@@ -49,7 +48,7 @@ signals:
     void pathChanged(QString path);
 
 public slots:
-    void setPath(QString path);
+    void setPath(QString path) { m_txtPath->setText(path); }
 
 private:
     QLineEdit*       m_txtPath;

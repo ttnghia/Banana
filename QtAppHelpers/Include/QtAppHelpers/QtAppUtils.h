@@ -21,67 +21,16 @@
 
 #pragma once
 
+#include <Banana/Setup.h>
+#include <QtWidgets>
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <QWidget>
-#include <QPainter>
-//#include <vcg/space/point2.h>
-
-template<class ValueType>
-inline ValueType QTLogicalToDevice(QWidget* qw, const ValueType& value)
+namespace Banana
 {
-#if QT_VERSION >= 0x050000
-    return value * qw->devicePixelRatio();
-#else
-    Q_UNUSED(qw);
-    return value;
-#endif
-}
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+inline QColor floatToQColor(float r, float g, float b) { return QColor(static_cast<int>(255 * r), static_cast<int>(255 * g), static_cast<int>(255 * b)); }
+inline QColor floatToQColor(const Vec3f& color) { return floatToQColor(color.x, color.y, color.z); }
+inline Vec3f  QColorToFloat(const QColor& color) { return Vec3f(color.redF(), color.greenF(), color.blueF()); }
 
-template<class ValueType>
-inline ValueType QTLogicalToDevice(QPainter* qp, const ValueType& value)
-{
-#if QT_VERSION >= 0x050000
-    return value * qp->device()->devicePixelRatio();
-#else
-    Q_UNUSED(qp);
-    return value;
-#endif
-}
-
-template<class ValueType>
-inline ValueType QTDeviceToLogical(QWidget* qw, const ValueType& value)
-{
-#if QT_VERSION >= 0x050000
-    return value / qw->devicePixelRatio();
-#else
-    Q_UNUSED(qw);
-    return value;
-#endif
-}
-
-template<class ValueType>
-inline ValueType QTDeviceToLogical(QPainter* qp, const ValueType& value)
-{
-#if QT_VERSION >= 0x050000
-    return value / qp->device()->devicePixelRatio();
-#else
-    Q_UNUSED(qp);
-    return value;
-#endif
-}
-
-//inline vcg::Point2f QTLogicalToOpenGL( QWidget *qw, const QPoint &p)
-//{
-//  return vcg::Point2f(QTLogicalToDevice(qw,p.x()), QTLogicalToDevice(qw,qw->height()-p.y()));
-//}
-
-
-inline int QTDeviceHeight(QWidget* qw)
-{
-    return QTLogicalToDevice(qw, qw->height());
-}
-
-inline int QTDeviceWidth(QWidget* qw)
-{
-    return QTLogicalToDevice(qw, qw->width());
-}
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+} // end namespace Banana

@@ -21,6 +21,9 @@
 
 #pragma once
 
+#include <Banana/Setup.h>
+#include <QtAppHelpers/QtAppUtils.h>
+
 #include <QtGui>
 #include <QtWidgets>
 
@@ -28,22 +31,21 @@
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-inline QColor floatToQColor(float r, float g, float b)
-{
-    return QColor(static_cast<int>(255 * r), static_cast<int>(255 * g), static_cast<int>(255 * b));
-}
-
 class ColorPicker : public QWidget
 {
     Q_OBJECT
 public:
     ColorPicker(QWidget* parent = 0, QSize size = QSize(50, 25));
 
-    void   setColor(QColor color);
-    QColor getColor() const;
-    void   paintEvent(QPaintEvent* e);
-    void   setDefaultSize(QSize size);
-    QSize  sizeHint() const;
+    void setColor(QColor color);
+    void setColor(float r, float g, float b) { setColor(floatToQColor(r, g, b)); }
+    void setColor(const Vec3f& color) { setColor(floatToQColor(color)); }
+
+    auto  getQColor() const { return m_CurrentColor; }
+    auto  getColor() const { return Vec3f(m_CurrentColor.redF(), m_CurrentColor.greenF(), m_CurrentColor.blueF()); }
+    void  paintEvent(QPaintEvent* e);
+    void  setDefaultSize(QSize size);
+    QSize sizeHint() const;
 
     QLayout*   getLayout(const QString& label = QString(""), int labelStretch = 5);
     QGroupBox* getGroupBox(const QString& title = QString(""), const QString& label = QString(""));

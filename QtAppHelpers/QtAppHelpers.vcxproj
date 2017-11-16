@@ -846,7 +846,6 @@
     <ClCompile Include="Source\CustomSplashScreen.cpp" />
     <ClCompile Include="Source\PointLightEditor.cpp" />
     <ClCompile Include="Source\OpenGLWidgetTestRender.cpp" />
-    <ClCompile Include="Source\AvgTimer.cpp" />
     <ClCompile Include="Source\BrowsePathWidget.cpp" />
     <ClCompile Include="Source\ColorPicker.cpp" />
     <ClCompile Include="Source\EnhancedComboBox.cpp" />
@@ -859,6 +858,7 @@
     <ClCompile Include="Source\QtAppShaderProgram.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Include\QtAppHelpers\QtAppUtils.h" />
     <CustomBuild Include="Include\QtAppHelpers\DataList.h">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='DebugQt|x64'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='DebugQt|x64'">Moc%27ing DataList.h...</Message>
@@ -1036,7 +1036,6 @@
       <Command Condition="'$(Configuration)|$(Platform)'=='ReleaseQt|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "..\..\..\Scratch\ProjectBuilds\Banana\QtAppHelpers\$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DUNICODE -DWIN32 -DWIN64 -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB -DNDEBUG "-I." "-I.\Include" "-I.\..\Externals\glm" "-I.\..\Externals\AntTweakBar\include" "-I.\..\OpenGLHelpers\Include" "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I.\release" "-I$(QTDIR)\mkspecs\win32-msvc2015" "-ID:\Scratch\ProjectBuilds\Banana\QtAppHelpers\$(ConfigurationName)\." "-I.\Include\QtAppHelpers"</Command>
     </CustomBuild>
     <ClInclude Include="Include\QtAppHelpers\CustomSplashScreen.h" />
-    <ClInclude Include="Include\QtAppHelpers\DeviceToLogical.h" />
     <CustomBuild Include="Include\QtAppHelpers\EnhancedComboBox.h">
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o "D:\Scratch\ProjectBuilds\Banana\QtAppHelpers\$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DUNICODE -DWIN32 -DWIN64 -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB -DNDEBUG  "-I." "-I.\Include" "-I.\..\Externals\glm" "-I.\..\Externals\AntTweakBar\include" "-I.\..\OpenGLHelpers\Include" "-I$(QTDIR)\include" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtANGLE" "-I$(QTDIR)\include\QtCore" "-I.\release" "-I$(QTDIR)\mkspecs\win32-msvc2015" "-ID:\Scratch\ProjectBuilds\Banana\QtAppHelpers\$(ConfigurationName)\." "-I.\Include\QtAppHelpers"</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticBuild|x64'">"$(QTDIR_STATIC)\bin\moc.exe"  "%(FullPath)" -o "D:\Scratch\ProjectBuilds\Banana\QtAppHelpers\$(ConfigurationName)\moc_%(Filename).cpp"  -D_WINDOWS -DUNICODE -DWIN32 -DWIN64 -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB -DNDEBUG  -DSTATIC "-I." "-I.\Include" "-I.\..\Externals\glm" "-I.\..\Externals\AntTweakBar\include" "-I.\..\OpenGLHelpers\Include" "-I$(QTDIR_STATIC)\include" "-I`$(QTDIR_STATIC)\include\QtWidgets" "-I$(QTDIR_STATIC)\include\QtGui" "-I$(QTDIR_STATIC)\include\QtANGLE" "-I$(QTDIR_STATIC)\include\QtCore" "-I.\release" "-I$(QTDIR_STATIC)\mkspecs\win32-msvc2015" "-ID:\Scratch\ProjectBuilds\Banana\QtAppHelpers\$(ConfigurationName)\." "-I.\Include\QtAppHelpers"</Command>

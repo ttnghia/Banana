@@ -52,7 +52,7 @@ void ClipPlaneEditor::keyPressEvent(QKeyEvent* e)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void ClipPlaneEditor::setClipPlane(const glm::vec4& clipPlane)
+void ClipPlaneEditor::setClipPlane(const Vec4f& clipPlane)
 {
     m_ClipPlane = clipPlane;
     for(int i = 0; i < 4; ++i) {

@@ -54,6 +54,10 @@ signals:
     void materialChanged(const Material::MaterialData& material);
 
 private:
+    QColor floatToQColor(float r, float g, float b) { return QColor(static_cast<int>(255 * r), static_cast<int>(255 * g), static_cast<int>(255 * b)); }
+    QColor floatToQColor(const Vec3f& color) { return floatToQColor(color.x, color.y, color.z); }
+    Vec3f  QColorToFloat(const QColor& color) { return Vec3f(color.redF(), color.greenF(), color.blueF()); }
+
     bool                                m_bDebug;
     QComboBox*                          m_ComboBox;
     QGroupBox*                          m_GroupBox;

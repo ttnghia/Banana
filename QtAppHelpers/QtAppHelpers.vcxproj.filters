@@ -45,16 +45,13 @@
       <Extensions>cpp;moc</Extensions>
       <SourceControlFiles>False</SourceControlFiles>
     </Filter>
-	<Filter Include="Generated Files\ReleaseStaticBuild">
+    <Filter Include="Generated Files\ReleaseStaticBuild">
       <UniqueIdentifier>{ea392039-1279-4def-ac76-15d39660dc9a}</UniqueIdentifier>
       <Extensions>cpp;moc</Extensions>
       <SourceControlFiles>False</SourceControlFiles>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\AvgTimer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\BrowsePathWidget.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -121,7 +118,7 @@
     <ClCompile Include="..\..\..\Scratch\ProjectBuilds\Banana\QtAppHelpers\ReleaseQt\moc_EnhancedComboBox.cpp">
       <Filter>Generated Files\ReleaseQt</Filter>
     </ClCompile>
-	<ClCompile Include="..\..\..\Scratch\ProjectBuilds\Banana\QtAppHelpers\ReleaseStaticBuild\moc_EnhancedComboBox.cpp">
+    <ClCompile Include="..\..\..\Scratch\ProjectBuilds\Banana\QtAppHelpers\ReleaseStaticBuild\moc_EnhancedComboBox.cpp">
       <Filter>Generated Files\ReleaseStaticBuild</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Scratch\ProjectBuilds\Banana\QtAppHelpers\DebugQt\moc_PaintArea.cpp">
@@ -136,7 +133,7 @@
     <ClCompile Include="..\..\..\Scratch\ProjectBuilds\Banana\QtAppHelpers\ReleaseQt\moc_PaintArea.cpp">
       <Filter>Generated Files\ReleaseQt</Filter>
     </ClCompile>
-	<ClCompile Include="..\..\..\Scratch\ProjectBuilds\Banana\QtAppHelpers\ReleaseStaticBuild\moc_PaintArea.cpp">
+    <ClCompile Include="..\..\..\Scratch\ProjectBuilds\Banana\QtAppHelpers\ReleaseStaticBuild\moc_PaintArea.cpp">
       <Filter>Generated Files\ReleaseStaticBuild</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Scratch\ProjectBuilds\Banana\QtAppHelpers\DebugQt\moc_EnhancedMessageBox.cpp">
@@ -151,7 +148,7 @@
     <ClCompile Include="..\..\..\Scratch\ProjectBuilds\Banana\QtAppHelpers\ReleaseQt\moc_EnhancedMessageBox.cpp">
       <Filter>Generated Files\ReleaseQt</Filter>
     </ClCompile>
-	<ClCompile Include="..\..\..\Scratch\ProjectBuilds\Banana\QtAppHelpers\ReleaseStaticBuild\moc_EnhancedMessageBox.cpp">
+    <ClCompile Include="..\..\..\Scratch\ProjectBuilds\Banana\QtAppHelpers\ReleaseStaticBuild\moc_EnhancedMessageBox.cpp">
       <Filter>Generated Files\ReleaseStaticBuild</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Scratch\ProjectBuilds\Banana\QtAppHelpers\DebugQt\moc_EnhancedSlider.cpp">
@@ -166,7 +163,7 @@
     <ClCompile Include="..\..\..\Scratch\ProjectBuilds\Banana\QtAppHelpers\ReleaseQt\moc_EnhancedSlider.cpp">
       <Filter>Generated Files\ReleaseQt</Filter>
     </ClCompile>
-	<ClCompile Include="..\..\..\Scratch\ProjectBuilds\Banana\QtAppHelpers\ReleaseStaticBuild\moc_EnhancedSlider.cpp">
+    <ClCompile Include="..\..\..\Scratch\ProjectBuilds\Banana\QtAppHelpers\ReleaseStaticBuild\moc_EnhancedSlider.cpp">
       <Filter>Generated Files\ReleaseStaticBuild</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Scratch\ProjectBuilds\Banana\QtAppHelpers\DebugQt\moc_FPSCounter.cpp">
@@ -181,7 +178,7 @@
     <ClCompile Include="..\..\..\Scratch\ProjectBuilds\Banana\QtAppHelpers\ReleaseQt\moc_FPSCounter.cpp">
       <Filter>Generated Files\ReleaseQt</Filter>
     </ClCompile>
-	<ClCompile Include="..\..\..\Scratch\ProjectBuilds\Banana\QtAppHelpers\ReleaseStaticBuild\moc_FPSCounter.cpp">
+    <ClCompile Include="..\..\..\Scratch\ProjectBuilds\Banana\QtAppHelpers\ReleaseStaticBuild\moc_FPSCounter.cpp">
       <Filter>Generated Files\ReleaseStaticBuild</Filter>
     </ClCompile>
     <ClCompile Include="Source\QtAppShaderProgram.cpp">
@@ -199,7 +196,7 @@
     <ClCompile Include="..\..\..\Scratch\ProjectBuilds\Banana\QtAppHelpers\ReleaseQt\moc_OpenGLWidgetTestRender.cpp">
       <Filter>Generated Files\ReleaseQt</Filter>
     </ClCompile>
-	<ClCompile Include="..\..\..\Scratch\ProjectBuilds\Banana\QtAppHelpers\ReleaseStaticBuild\moc_OpenGLWidgetTestRender.cpp">
+    <ClCompile Include="..\..\..\Scratch\ProjectBuilds\Banana\QtAppHelpers\ReleaseStaticBuild\moc_OpenGLWidgetTestRender.cpp">
       <Filter>Generated Files\ReleaseStaticBuild</Filter>
     </ClCompile>
     <ClCompile Include="Source\OpenGLWidgetTestRender.cpp">
@@ -217,7 +214,7 @@
     <ClCompile Include="..\..\..\Scratch\ProjectBuilds\Banana\QtAppHelpers\ReleaseQt\moc_MaterialSelector.cpp">
       <Filter>Generated Files\ReleaseQt</Filter>
     </ClCompile>
-	<ClCompile Include="..\..\..\Scratch\ProjectBuilds\Banana\QtAppHelpers\ReleaseStaticBuild\moc_MaterialSelector.cpp">
+    <ClCompile Include="..\..\..\Scratch\ProjectBuilds\Banana\QtAppHelpers\ReleaseStaticBuild\moc_MaterialSelector.cpp">
       <Filter>Generated Files\ReleaseStaticBuild</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Scratch\ProjectBuilds\Banana\QtAppHelpers\DebugQt\moc_PointLightEditor.cpp">
@@ -232,7 +229,7 @@
     <ClCompile Include="..\..\..\Scratch\ProjectBuilds\Banana\QtAppHelpers\ReleaseQt\moc_PointLightEditor.cpp">
       <Filter>Generated Files\ReleaseQt</Filter>
     </ClCompile>
-	<ClCompile Include="..\..\..\Scratch\ProjectBuilds\Banana\QtAppHelpers\ReleaseStaticBuild\moc_PointLightEditor.cpp">
+    <ClCompile Include="..\..\..\Scratch\ProjectBuilds\Banana\QtAppHelpers\ReleaseStaticBuild\moc_PointLightEditor.cpp">
       <Filter>Generated Files\ReleaseStaticBuild</Filter>
     </ClCompile>
     <ClCompile Include="Source\PointLightEditor.cpp">
@@ -256,7 +253,7 @@
     <ClCompile Include="..\..\..\Scratch\ProjectBuilds\Banana\QtAppHelpers\ReleaseQt\moc_ClipPlaneEditor.cpp">
       <Filter>Generated Files\ReleaseQt</Filter>
     </ClCompile>
-	<ClCompile Include="..\..\..\Scratch\ProjectBuilds\Banana\QtAppHelpers\ReleaseStaticBuild\moc_ClipPlaneEditor.cpp">
+    <ClCompile Include="..\..\..\Scratch\ProjectBuilds\Banana\QtAppHelpers\ReleaseStaticBuild\moc_ClipPlaneEditor.cpp">
       <Filter>Generated Files\ReleaseStaticBuild</Filter>
     </ClCompile>
     <ClCompile Include="Source\ClipPlaneEditor.cpp">
@@ -274,7 +271,7 @@
     <ClCompile Include="..\..\..\Scratch\ProjectBuilds\Banana\QtAppHelpers\ReleaseQt\moc_DataList.cpp">
       <Filter>Generated Files\ReleaseQt</Filter>
     </ClCompile>
-	<ClCompile Include="..\..\..\Scratch\ProjectBuilds\Banana\QtAppHelpers\ReleaseStaticBuild\moc_DataList.cpp">
+    <ClCompile Include="..\..\..\Scratch\ProjectBuilds\Banana\QtAppHelpers\ReleaseStaticBuild\moc_DataList.cpp">
       <Filter>Generated Files\ReleaseStaticBuild</Filter>
     </ClCompile>
     <ClCompile Include="Source\DataList.cpp">
@@ -291,7 +288,8 @@
     </ClCompile>
     <ClCompile Include="..\..\..\Scratch\ProjectBuilds\Banana\QtAppHelpers\ReleaseQt\moc_MaterialEditor.cpp">
       <Filter>Generated Files\ReleaseQt</Filter>
-    </ClCompile><ClCompile Include="..\..\..\Scratch\ProjectBuilds\Banana\QtAppHelpers\ReleaseStaticBuild\moc_MaterialEditor.cpp">
+    </ClCompile>
+    <ClCompile Include="..\..\..\Scratch\ProjectBuilds\Banana\QtAppHelpers\ReleaseStaticBuild\moc_MaterialEditor.cpp">
       <Filter>Generated Files\ReleaseStaticBuild</Filter>
     </ClCompile>
     <ClCompile Include="Source\MaterialEditor.cpp">
@@ -309,7 +307,7 @@
     <ClCompile Include="..\..\..\Scratch\ProjectBuilds\Banana\QtAppHelpers\ReleaseQt\moc_ColorPicker.cpp">
       <Filter>Generated Files\ReleaseQt</Filter>
     </ClCompile>
-	<ClCompile Include="..\..\..\Scratch\ProjectBuilds\Banana\QtAppHelpers\ReleaseStaticBuild\moc_ColorPicker.cpp">
+    <ClCompile Include="..\..\..\Scratch\ProjectBuilds\Banana\QtAppHelpers\ReleaseStaticBuild\moc_ColorPicker.cpp">
       <Filter>Generated Files\ReleaseStaticBuild</Filter>
     </ClCompile>
     <ClCompile Include="Source\ColorPicker.cpp">
@@ -330,7 +328,7 @@
     <ClCompile Include="..\..\..\Scratch\ProjectBuilds\Banana\QtAppHelpers\ReleaseQt\moc_BusyBar.cpp">
       <Filter>Generated Files\ReleaseQt</Filter>
     </ClCompile>
-	<ClCompile Include="..\..\..\Scratch\ProjectBuilds\Banana\QtAppHelpers\ReleaseStaticBuild\moc_BusyBar.cpp">
+    <ClCompile Include="..\..\..\Scratch\ProjectBuilds\Banana\QtAppHelpers\ReleaseStaticBuild\moc_BusyBar.cpp">
       <Filter>Generated Files\ReleaseStaticBuild</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Scratch\ProjectBuilds\Banana\QtAppHelpers\DebugQt\moc_OpenGLMainWindow.cpp">
@@ -345,7 +343,7 @@
     <ClCompile Include="..\..\..\Scratch\ProjectBuilds\Banana\QtAppHelpers\ReleaseQt\moc_OpenGLMainWindow.cpp">
       <Filter>Generated Files\ReleaseQt</Filter>
     </ClCompile>
-	<ClCompile Include="..\..\..\Scratch\ProjectBuilds\Banana\QtAppHelpers\ReleaseStaticBuild\moc_OpenGLMainWindow.cpp">
+    <ClCompile Include="..\..\..\Scratch\ProjectBuilds\Banana\QtAppHelpers\ReleaseStaticBuild\moc_OpenGLMainWindow.cpp">
       <Filter>Generated Files\ReleaseStaticBuild</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\Scratch\ProjectBuilds\Banana\QtAppHelpers\DebugQt\moc_OpenGLWidget.cpp">
@@ -360,7 +358,7 @@
     <ClCompile Include="..\..\..\Scratch\ProjectBuilds\Banana\QtAppHelpers\ReleaseQt\moc_OpenGLWidget.cpp">
       <Filter>Generated Files\ReleaseQt</Filter>
     </ClCompile>
-	<ClCompile Include="..\..\..\Scratch\ProjectBuilds\Banana\QtAppHelpers\ReleaseStaticBuild\moc_OpenGLWidget.cpp">
+    <ClCompile Include="..\..\..\Scratch\ProjectBuilds\Banana\QtAppHelpers\ReleaseStaticBuild\moc_OpenGLWidget.cpp">
       <Filter>Generated Files\ReleaseStaticBuild</Filter>
     </ClCompile>
   </ItemGroup>
@@ -371,9 +369,6 @@
     <CustomBuild Include="Include\QtAppHelpers\BrowsePathWidget.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
-    <ClInclude Include="Include\QtAppHelpers\DeviceToLogical.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <CustomBuild Include="Include\QtAppHelpers\EnhancedComboBox.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
@@ -433,5 +428,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="QtAppHelpers.licenseheader" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Include\QtAppHelpers\QtAppUtils.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

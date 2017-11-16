@@ -42,17 +42,17 @@ public:
     void  keyPressEvent(QKeyEvent* e);
 
 signals:
-    void clipPlaneChanged(const glm::vec4& clipPlane);
+    void clipPlaneChanged(const Vec4f& clipPlane);
 
 public slots:
-    void setClipPlane(const glm::vec4&);
+    void setClipPlane(const Vec4f&);
 
 private:
     void setupGUI();
 
-    glm::vec4 m_ClipPlane;
-    QSlider*  m_sldCoeffs[4];
-    QLabel*   m_lblPlanes[4];
+    Vec4f    m_ClipPlane;
+    QSlider* m_sldCoeffs[4];
+    QLabel*  m_lblPlanes[4];
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

@@ -35,14 +35,11 @@ class OpenGLMainWindow : public QMainWindow
     Q_OBJECT
 public:
     OpenGLMainWindow(QWidget* parent, bool bShowFPS = true, bool bShowCamPosition = true);
-    virtual ~OpenGLMainWindow();
+    virtual ~OpenGLMainWindow() = default;
 
     bool         eventFilter(QObject* obj, QEvent* ev);
     virtual bool processKeyPressEvent(QKeyEvent* ev);
-    virtual bool processKeyReleaseEvent(QKeyEvent*)
-    {
-        return false;
-    }
+    virtual bool processKeyReleaseEvent(QKeyEvent*) { return false; }
 
     void setArthurStyle();
     void showFPS(bool bShowFPS);

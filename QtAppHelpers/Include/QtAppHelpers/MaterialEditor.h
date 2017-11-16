@@ -23,22 +23,13 @@
 
 #include <QtAppHelpers/ColorPicker.h>
 #include <OpenGLHelpers/Material.h>
+#include <QtAppHelpers/QtAppUtils.h>
 #include <QtWidgets>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-inline QColor floatToQColor(const glm::vec4& color)
-{
-    return QColor(static_cast<int>(255 * color[0]), static_cast<int>(255 * color[1]), static_cast<int>(255 * color[2]));
-}
-
-inline glm::vec4 QColorToFloat(QColor color)
-{
-    return glm::vec4(static_cast<float>(color.red()) / 255.0, static_cast<float>(color.green()) / 255.0, static_cast<float>(color.blue()) / 255.0, 1.0);
-}
-
 class MaterialEditor : public QDialog
 {
     Q_OBJECT
@@ -46,14 +37,15 @@ class MaterialEditor : public QDialog
 public:
     MaterialEditor(const Material::MaterialData& material = Material::MT_Emerald, QWidget* parent = nullptr);
 
-    void                          setMaterial(const Material::MaterialData& material);
-    const Material::MaterialData& getMaterial() const;
+    void        setMaterial(const Material::MaterialData& material);
+    const auto& getMaterial() const { return m_CurrentMaterial; }
 
 signals:
     void materialChanged(const Material::MaterialData material);
 
 private:
     void setupGUI();
+
 
     ColorPicker*           m_AmbientColorPicker;
     ColorPicker*           m_DiffuseColorPicker;
@@ -74,15 +66,15 @@ public:
     void  setMaterial(const Material::MaterialData& material);
     void  setWidgetColor(const Material::MaterialData& material);
     void  paintEvent(QPaintEvent* e);
-    QSize sizeHint() const;
+    QSize sizeHint() const { return QSize(30, 25); }
 
 signals:
     void materialChanged(const Material::MaterialData& material);
 
 protected:
-    void mousePressEvent(QMouseEvent*);
-    void enterEvent(QEvent*);
-    void leaveEvent(QEvent*);
+    void mousePressEvent(QMouseEvent*) { m_MaterialEditor->show(); }
+    void enterEvent(QEvent*) { QApplication::setOverrideCursor(QCursor(Qt::PointingHandCursor)); }
+    void leaveEvent(QEvent*) { QApplication::restoreOverrideCursor(); }
 
 private:
     MaterialEditor* m_MaterialEditor;
