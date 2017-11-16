@@ -1,0 +1,7 @@
+**/.vs
+**/*.db
+**/*.opendb
+**/Debug/*
+**/Release/*
+**/GeneratedFiles/*
+ParticleVisualizer.pro.user
