@@ -47,7 +47,7 @@ public:
 
 public slots:
     void updateStatusFrameRate(double fps);
-    void updateStatusCameraPosition(const glm::vec3& camPosition);
+    void updateStatusCameraInfo(const Vec3f& camPosition, const Vec3f& camFocus);
 
 protected:
     virtual void instantiateOpenGLWidget() = 0;
@@ -56,7 +56,7 @@ protected:
 
     ////////////////////////////////////////////////////////////////////////////////
     QLabel*       m_lblStatusFPS;
-    QLabel*       m_lblStatusCamPosition;
+    QLabel*       m_lblStatusCameraInfo;
     OpenGLWidget* m_GLWidget;
     bool          m_VSync;
 };

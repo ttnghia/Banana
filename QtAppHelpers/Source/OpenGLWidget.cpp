@@ -172,7 +172,7 @@ void OpenGLWidget::initializeGL()
     m_UBufferCamData = std::make_shared<OpenGLBuffer>();
     m_UBufferCamData->createBuffer(GL_UNIFORM_BUFFER, 5 * sizeof(glm::mat4) + sizeof(glm::vec4), nullptr, GL_DYNAMIC_DRAW);
 
-    emit cameraPositionChanged(m_Camera->getCameraPosition());
+    emit cameraPositionInfoChanged(m_Camera->getCameraPosition(), m_Camera->getCameraFocus());
 
     ////////////////////////////////////////////////////////////////////////////////
     // call init function from derived class
@@ -222,7 +222,7 @@ void OpenGLWidget::uploadCameraData()
         m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getInverseProjectionMatrix()), 3 * sizeof(glm::mat4), sizeof(glm::mat4));
         m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getCameraPosition()),          5 * sizeof(glm::mat4), sizeof(Vec3f));
 
-        emit cameraPositionChanged(m_Camera->getCameraPosition());
+        emit cameraPositionInfoChanged(m_Camera->getCameraPosition(), m_Camera->getCameraFocus());
     }
 }
 

@@ -32,11 +32,11 @@ OpenGLMainWindow::OpenGLMainWindow(QWidget* parent, bool bShowFPS /*= true*/, bo
     m_lblStatusFPS = new QLabel(this);
     m_lblStatusFPS->setMargin(5);
 
-    m_lblStatusCamPosition = new QLabel(this);
-    m_lblStatusCamPosition->setMargin(5);
+    m_lblStatusCameraInfo = new QLabel(this);
+    m_lblStatusCameraInfo->setMargin(5);
 
     statusBar()->addPermanentWidget(m_lblStatusFPS, 1);
-    statusBar()->addPermanentWidget(m_lblStatusCamPosition, 1);
+    statusBar()->addPermanentWidget(m_lblStatusCameraInfo, 1);
     statusBar()->setMinimumHeight(30);
     //statusBar()->setSizeGripEnabled(false);
 
@@ -44,7 +44,7 @@ OpenGLMainWindow::OpenGLMainWindow(QWidget* parent, bool bShowFPS /*= true*/, bo
         m_lblStatusFPS->hide();
     }
     if(!bShowCamPosition) {
-        m_lblStatusCamPosition->hide();
+        m_lblStatusCameraInfo->hide();
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -97,9 +97,9 @@ void OpenGLMainWindow::showFPS(bool bShowFPS)
 void OpenGLMainWindow::showCameraPosition(bool bShowCamPosition)
 {
     if(bShowCamPosition) {
-        m_lblStatusCamPosition->show();
+        m_lblStatusCameraInfo->show();
     } else {
-        m_lblStatusCamPosition->hide();
+        m_lblStatusCameraInfo->hide();
     }
 }
 
@@ -130,9 +130,14 @@ void OpenGLMainWindow::updateStatusFrameRate(double fps)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void OpenGLMainWindow::updateStatusCameraPosition(const glm::vec3& camPosition)
+void OpenGLMainWindow::updateStatusCameraInfo(const Vec3f& camPosition, const Vec3f& camFocus)
 {
-    m_lblStatusCamPosition->setText(QString("Camera: [%1, %2, %3]").arg(camPosition[0]).arg(camPosition[1]).arg(camPosition[2]));
+    m_lblStatusCameraInfo->setText(QString("Camera: [%1, %2, %3] | Focus: [%4, %5, %6]").arg(camPosition[0], 0, 'f', 2)
+                                       .arg(camPosition[1], 0, 'f', 2)
+                                       .arg(camPosition[2], 0, 'f', 2)
+                                       .arg(camFocus[0],    0, 'f', 2)
+                                       .arg(camFocus[1],    0, 'f', 2)
+                                       .arg(camFocus[2],    0, 'f', 2));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -144,8 +149,8 @@ void OpenGLMainWindow::setupOpenglWidget(OpenGLWidget* glWidget)
 
     m_GLWidget = glWidget;
     setCentralWidget(m_GLWidget);
-    connect(&m_GLWidget->m_FPSCounter, &FPSCounter::fpsChanged,              this, &OpenGLMainWindow::updateStatusFrameRate);
-    connect(m_GLWidget,                &OpenGLWidget::cameraPositionChanged, this, &OpenGLMainWindow::updateStatusCameraPosition);
+    connect(&m_GLWidget->m_FPSCounter, &FPSCounter::fpsChanged,                  this, &OpenGLMainWindow::updateStatusFrameRate);
+    connect(m_GLWidget,                &OpenGLWidget::cameraPositionInfoChanged, this, &OpenGLMainWindow::updateStatusCameraInfo);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

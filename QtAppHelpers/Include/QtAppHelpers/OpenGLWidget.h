@@ -111,7 +111,7 @@ protected:
 
 signals:
     void emitDebugString(QString str);
-    void cameraPositionChanged(const Vec3f& cameraPosition);
+    void cameraPositionInfoChanged(const Vec3f& cameraPosition, const Vec3f& cameraFocus);
 
 public slots:
     void printDebug(QString str) { if(m_bPrintDebug) { qDebug() << str; } }
