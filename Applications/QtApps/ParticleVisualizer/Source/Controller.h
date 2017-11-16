@@ -64,6 +64,7 @@ private:
     EnhancedComboBox* m_cbFloorTexture;
     EnhancedSlider*   m_sldFloorSize;
     EnhancedSlider*   m_sldFloorExposure;
+    ColorPicker*      m_pkrBackgroundColor;
     QCheckBox*        m_chkUseAnisotropyKernel;
     MaterialSelector* m_msParticleMaterial;
     MaterialSelector* m_msMeshMaterial;
@@ -76,6 +77,7 @@ private:
     QPushButton* m_btnRepeatPlay;
     QPushButton* m_btnClipViewPlane;
     QPushButton* m_btnReloadTextures;
+    QPushButton* m_btnResetCamera;
 
     QListWidget* m_lstSimInfo;
 

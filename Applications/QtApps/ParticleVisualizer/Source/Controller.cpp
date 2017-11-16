@@ -93,9 +93,20 @@ void Controller::loadTextures()
 void Controller::setupTextureControllers(QBoxLayout* ctrLayout)
 {
     ////////////////////////////////////////////////////////////////////////////////
-    // sky textures
-    m_cbSkyTexture = new EnhancedComboBox;
-    ctrLayout->addWidget(m_cbSkyTexture->getGroupBox("Sky Texture"));
+    // background
+    m_cbSkyTexture       = new EnhancedComboBox;
+    m_pkrBackgroundColor = new ColorPicker;
+    m_pkrBackgroundColor->setMaximumHeight(25);
+    QGridLayout* layoutBackground = new QGridLayout;
+    layoutBackground->addWidget(new QLabel("Skybox:"), 0, 0, 1, 1);
+    layoutBackground->addLayout(m_cbSkyTexture->getLayout(), 0, 1, 1, 2);
+    layoutBackground->addWidget(new QLabel("Background Color: "), 1, 0, 1, 1);
+    layoutBackground->addWidget(m_pkrBackgroundColor, 1, 1, 1, 2);
+
+    QGroupBox* grBackground = new QGroupBox("Background");
+    grBackground->setLayout(layoutBackground);
+    ctrLayout->addWidget(grBackground);
+
 
     ////////////////////////////////////////////////////////////////////////////////
     // floor textures
@@ -245,12 +256,12 @@ void Controller::setupShadowControllers(QBoxLayout* ctrLayout)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Controller::setupButtons(QBoxLayout* ctrLayout)
 {
-    ////////////////////////////////////////////////////////////////////////////////
-    /// reload
     m_btnReloadTextures = new QPushButton("Reload Textures");
+    m_btnResetCamera    = new QPushButton("Reset Camera");
 
-    QVBoxLayout* btnReloadLayout = new QVBoxLayout;
+    QHBoxLayout* btnReloadLayout = new QHBoxLayout;
     btnReloadLayout->addWidget(m_btnReloadTextures);
+    btnReloadLayout->addWidget(m_btnResetCamera);
     ctrLayout->addLayout(btnReloadLayout);
 
     ////////////////////////////////////////////////////////////////////////////////

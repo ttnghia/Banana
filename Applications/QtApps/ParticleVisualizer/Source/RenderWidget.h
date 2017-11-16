@@ -73,7 +73,6 @@ public slots:
     void setParticleColorMode(int colorMode);
 
     void reloadTextures();
-    void resetCameraPosition() { m_Camera->reset(); }
 
     void setParticleMaterial(const Material::MaterialData& material);
     void setMeshMaterial(const Material::MaterialData& material, int meshID);

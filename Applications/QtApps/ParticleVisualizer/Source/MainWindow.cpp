@@ -60,9 +60,6 @@ bool MainWindow::processKeyPressEvent(QKeyEvent* event)
             m_OutputPath->browse();
             return true;
 
-        case Qt::Key_C:
-            m_RenderWidget->resetCameraPosition();
-
         case Qt::Key_R:
             m_Controller->m_btnReverse->click();
             return true;
@@ -106,6 +103,7 @@ void MainWindow::showEvent(QShowEvent* ev)
                            {
                                m_DataList->show();
                                m_DataList->setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignBottom | Qt::AlignRight, m_DataList->size(), qApp->desktop()->availableGeometry()));
+                               m_Controller->m_pkrBackgroundColor->setColor(m_GLWidget->getClearColor().x, m_GLWidget->getClearColor().y, m_GLWidget->getClearColor().z);
                            });
     }
 }
@@ -205,7 +203,7 @@ void MainWindow::setupRenderWidgets()
 void MainWindow::setupPlayList()
 {
     assert(m_DataList != nullptr);
-    m_DataList->setWindowTitle("Simulation List");
+    m_DataList->setWindowTitle("Data List");
 
     ////////////////////////////////////////////////////////////////////////////////
     const QString listFile(QDir::currentPath() + "/PlayList.txt");
@@ -265,8 +263,12 @@ void MainWindow::setupStatusBar()
 void MainWindow::connectWidgets()
 {
     ////////////////////////////////////////////////////////////////////////////////
-    // textures
+    // background and floor
     connect(m_Controller->m_cbSkyTexture->getComboBox(), SIGNAL(currentIndexChanged(int)), m_RenderWidget, SLOT(setSkyBoxTexture(int)));
+    connect(m_Controller->m_pkrBackgroundColor, &ColorPicker::colorChanged, [&](float r, float g, float b)
+            {
+                m_RenderWidget->setClearColor(Vec3f(r, g, b));
+            });
     connect(m_Controller->m_cbFloorTexture->getComboBox(), SIGNAL(currentIndexChanged(int)), m_RenderWidget, SLOT(setFloorTexture(int)));
     connect(m_Controller->m_sldFloorSize->getSlider(), &QSlider::valueChanged, m_RenderWidget, &RenderWidget::setFloorSize);
 
