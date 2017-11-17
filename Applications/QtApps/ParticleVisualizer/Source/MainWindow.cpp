@@ -97,13 +97,14 @@ bool MainWindow::processKeyPressEvent(QKeyEvent* event)
 void MainWindow::showEvent(QShowEvent* ev)
 {
     QMainWindow::showEvent(ev);
-
+    updateStatusMemoryUsage();
+    m_Controller->m_pkrBackgroundColor->setColor(m_GLWidget->getClearColor().x, m_GLWidget->getClearColor().y, m_GLWidget->getClearColor().z);
+    ////////////////////////////////////////////////////////////////////////////////
     if(m_DataList->getListSize() > 0) {
         QTimer::singleShot(100, this, [&]()
                            {
                                m_DataList->show();
                                m_DataList->setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignBottom | Qt::AlignRight, m_DataList->size(), qApp->desktop()->availableGeometry()));
-                               m_Controller->m_pkrBackgroundColor->setColor(m_GLWidget->getClearColor().x, m_GLWidget->getClearColor().y, m_GLWidget->getClearColor().z);
                            });
     }
 }
@@ -136,6 +137,11 @@ void MainWindow::updateNumFrames(int numFrames)
 void MainWindow::updateStatusReadInfo(double readTime, size_t bytes)
 {
     m_lblStatusReadInfo->setText(QString("Load data time: %1 ms (%2 MB)").arg(readTime).arg(static_cast<double>(bytes) / 1048576.0));
+}
+
+void MainWindow::updateStatusMemoryUsage()
+{
+    m_lblStatusMemoryUsage->setText(QString("Memory usage: %1 (MBs)").arg(QString::fromStdString(NumberHelpers::formatWithCommas(getCurrentRSS() / 1048576.0))));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -257,6 +263,17 @@ void MainWindow::setupStatusBar()
     m_lblStatusReadInfo = new QLabel(this);
     m_lblStatusReadInfo->setMargin(5);
     statusBar()->addPermanentWidget(m_lblStatusReadInfo, 2);
+
+    m_lblStatusMemoryUsage = new QLabel(this);
+    m_lblStatusMemoryUsage->setMargin(5);
+    statusBar()->addPermanentWidget(m_lblStatusMemoryUsage, 1);
+
+    QTimer* memTimer = new QTimer(this);
+    connect(memTimer, &QTimer::timeout, [&]
+            {
+                updateStatusMemoryUsage();
+            });
+    memTimer->start(5000);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -279,7 +296,7 @@ void MainWindow::connectWidgets()
 
     ////////////////////////////////////////////////////////////////////////////////
     // render modes/colors
-    connect(m_Controller->m_smParticleColorMode, SIGNAL(mapped(int)), m_RenderWidget, SLOT(setParticleColorMode(int)));
+//    connect(m_Controller->m_smParticleColorMode, SIGNAL(mapped(int)), m_RenderWidget, SLOT(setParticleColorMode(int)));
     connect(m_Controller->m_msParticleMaterial, &MaterialSelector::materialChanged, m_RenderWidget, &RenderWidget::setParticleMaterial);
 //    connect(m_Controller->m_msMeshMaterial, &MaterialSelector::materialChanged,
 //            [&](const Material::MaterialData& material)
@@ -293,6 +310,7 @@ void MainWindow::connectWidgets()
     // buttons
     connect(m_Controller->m_btnReloadTextures, &QPushButton::clicked, m_RenderWidget, &RenderWidget::reloadTextures);
     connect(m_Controller->m_btnReloadTextures, &QPushButton::clicked, m_Controller, &Controller::loadTextures);
+    connect(m_Controller->m_btnResetCamera, &QPushButton::clicked, m_RenderWidget, &RenderWidget::resetCameraPosition);
     connect(m_Controller->m_btnPause, &QPushButton::clicked, m_DataReader.get(), &DataReader::pause);
     connect(m_Controller->m_btnNextFrame, &QPushButton::clicked, m_DataReader.get(), &DataReader::readNextFrame);
     connect(m_Controller->m_btnReset, &QPushButton::clicked, m_DataReader.get(), &DataReader::readFirstFrame);

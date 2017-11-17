@@ -19,6 +19,8 @@ include(../../../OpenGLHelpers/OpenGLHelpers.pri)
 include(../../../Simulation/Simulation.pri)
 
 RESOURCES += Resources.qrc
+macx: ICON = $${PWD}/Icons/Noodle.icns
+win32: RC_ICONS = $$PWD/Icons/Noodle.ico
 
 HEADERS += \
     Source/Controller.h \

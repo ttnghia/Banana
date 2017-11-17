@@ -53,7 +53,7 @@ public slots:
     void updateStatusNumParticlesAndMeshes();
     void updateNumFrames(int numFrames);
     void updateStatusReadInfo(double readTime, size_t bytes);
-
+    void updateStatusMemoryUsage();
     void loadVizData(const QString& dataPath);
 
 private:
@@ -78,6 +78,7 @@ private:
     QLabel* m_lblStatusCurrentFrame = nullptr;
     QLabel* m_lblStatusNumFrames    = nullptr;
     QLabel* m_lblStatusReadInfo     = nullptr;
+    QLabel* m_lblStatusMemoryUsage  = nullptr;
 
     std::unique_ptr<ClipPlaneEditor> m_ClipPlaneEditor = std::make_unique<ClipPlaneEditor>();
     std::unique_ptr<DataManager>     m_DataManager     = std::make_unique<DataManager>();

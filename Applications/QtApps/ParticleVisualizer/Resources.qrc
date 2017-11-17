@@ -7,5 +7,7 @@
         <file>Shaders/mesh.vs.glsl</file>
         <file>Shaders/particle.fs.glsl</file>
         <file>Shaders/particle.vs.glsl</file>
+        <file>Icons/Noodle.icns</file>
+        <file>Icons/Noodle.ico</file>
     </qresource>
 </RCC>
