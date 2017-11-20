@@ -22,35 +22,24 @@
 #pragma once
 
 #include "Common.h"
-#include "FRRenderObjects.h"
-
-#include <Banana/Data/ParticleSystemData.h>
-
-#include <OpenGLHelpers/ShaderProgram.h>
-#include <OpenGLHelpers/OpenGLBuffer.h>
-#include <OpenGLHelpers/OpenGLTexture.h>
+#include "DataReader.h"
 
 #include <QtAppHelpers/QtAppMacros.h>
 #include <QtAppHelpers/OpenGLWidget.h>
 
-#include <map>
-#include <memory>
+#include <OpenGLHelpers/ShaderProgram.h>
+#include <OpenGLHelpers/OpenGLBuffer.h>
+#include <OpenGLHelpers/OpenGLTexture.h>
+#include <OpenGLHelpers/RenderObjects.h>
+
+#include <ParticleTools/ParticleSerialization.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 class RenderWidget : public OpenGLWidget
 {
     Q_OBJECT
-
 public:
-
-    RenderWidget(QWidget* parent = 0);
-
-    const auto& getParticleDataObj() const { return m_ParticleData; }
-    const auto& getSimMeshObjs() const { return m_SimMeshObjs; }
-    const auto& getBoundaryMeshObjs() const { return m_BoundaryMeshObjs; }
-
-    int  getNSimMeshes() const { return m_NumSimMeshes; }
-    int  getNBoundaryMeshes() const { return m_NumBoundaryMeshes; }
+    RenderWidget(QWidget* parent);
     void setCamera(const glm::vec3& cameraPosition, const glm::vec3& cameraFocus);
     void setBox(const glm::vec3& boxMin, const glm::vec3& boxMax);
 
@@ -60,12 +49,13 @@ protected:
     virtual void renderOpenGL() override;
 
 public slots:
-    void updateParticleData();
+    void updateData(const SharedPtr<SimulationData>& simData);
+    void updateLights();
+
     void updateSimMeshes();
     void updateBoundaryMeshes();
     void updateNumSimMeshes(int numMeshes);
     void updateNumBoundaryMeshes(int numMeshes);
-    void updateLights();
 
     void setSkyBoxTexture(int texIndex);
     void setFloorTexture(int texIndex);
@@ -88,10 +78,9 @@ public slots:
     void enableExportFrame(bool bEnable);
 
 signals:
-    void lightsObjChanged(const std::shared_ptr<PointLights>& lights);
+    void lightsObjChanged(const SharedPtr<PointLights>& lights);
 
 private:
-
     ////////////////////////////////////////////////////////////////////////////////
     void initRDataLight();
     void renderLight();
@@ -111,11 +100,11 @@ private:
     ////////////////////////////////////////////////////////////////////////////////
     struct RDataParticle
     {
-        std::shared_ptr<ShaderProgram> shader               = nullptr;
-        std::unique_ptr<OpenGLBuffer>  buffPosition         = nullptr;
-        std::unique_ptr<OpenGLBuffer>  buffAnisotropyMatrix = nullptr;
-        std::unique_ptr<OpenGLBuffer>  buffColorData        = nullptr;
-        std::unique_ptr<Material>      material             = nullptr;
+        SharedPtr<ShaderProgram> shader               = nullptr;
+        UniquePtr<OpenGLBuffer>  buffPosition         = nullptr;
+        UniquePtr<OpenGLBuffer>  buffAnisotropyMatrix = nullptr;
+        UniquePtr<OpenGLBuffer>  buffColorData        = nullptr;
+        UniquePtr<Material>      material             = nullptr;
 
         GLuint VAO;
         GLint  v_Position;
@@ -144,8 +133,7 @@ private:
         bool  initialized         = false;
     } m_RDataParticle;
 
-    SharedPtr<ParticleSystemData> m_ParticleData = std::make_shared<ParticleSystemData>();
-
+    SharedPtr<ParticleSerialization> m_ParticleReaderObj = std::make_shared<ParticleSerialization>();
 
     void initRDataParticle();
     void initFluidVAOs();
@@ -162,15 +150,15 @@ private:
     bool      m_bExrportFrameToImage = false;
 
     ////////////////////////////////////////////////////////////////////////////////
-    std::vector<std::shared_ptr<ShaderProgram> > m_ExternalShaders;
-    std::vector<std::shared_ptr<MeshObject> >    m_SimMeshObjs;
-    std::vector<std::shared_ptr<MeshObject> >    m_BoundaryMeshObjs;
-    std::shared_ptr<PointLights>                 m_Lights;
+    Vector<SharedPtr<ShaderProgram> > m_ExternalShaders;
+    Vector<SharedPtr<MeshObject> >    m_SimMeshObjs;
+    Vector<SharedPtr<MeshObject> >    m_BoundaryMeshObjs;
+    SharedPtr<PointLights>            m_Lights;
 
-    std::vector<std::unique_ptr<FRMeshRender> > m_SimMeshRenders;
-    std::vector<std::unique_ptr<FRMeshRender> > m_BoundaryMeshRenders;
-    std::unique_ptr<SkyBoxRender>               m_SkyBoxRender       = nullptr;
-    std::unique_ptr<FRPlaneRender>              m_PlaneRender        = nullptr;
-    std::unique_ptr<PointLightRender>           m_LightRender        = nullptr;
-    std::unique_ptr<WireFrameBoxRender>         m_WireFrameBoxRender = nullptr;
+    Vector<UniquePtr<MeshRender> > m_SimMeshRenders;
+    Vector<UniquePtr<MeshRender> > m_BoundaryMeshRenders;
+    UniquePtr<SkyBoxRender>        m_SkyBoxRender       = nullptr;
+    UniquePtr<PlaneRender>         m_PlaneRender        = nullptr;
+    UniquePtr<PointLightRender>    m_LightRender        = nullptr;
+    UniquePtr<WireFrameBoxRender>  m_WireFrameBoxRender = nullptr;
 };

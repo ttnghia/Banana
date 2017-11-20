@@ -21,6 +21,9 @@
 
 #pragma once
 
+#include <QStringList>
+#include <QString>
+#include <QDir>
 #include <QWidget>
 #include <QtWidgets>
 
@@ -29,7 +32,8 @@
 #include <QtAppHelpers/EnhancedSlider.h>
 #include <QtAppHelpers/PointLightEditor.h>
 
-#include "Common.h"
+#include "RenderWidget.h"
+#include "DataReader.h"
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 class Controller : public QWidget
@@ -37,13 +41,29 @@ class Controller : public QWidget
     Q_OBJECT
     friend class MainWindow;
 public:
-    explicit Controller(QWidget* parent) : QWidget(parent) { setupGUI(); }
+    explicit Controller(RenderWidget* renderWidget, DataReader* dataReader, QWidget* parent = nullptr) :
+        QWidget(parent), m_RenderWidget(renderWidget), m_DataReader(dataReader)
+    {
+        __BNN_ASSERT(m_RenderWidget != nullptr);
+        __BNN_ASSERT(m_DataReader != nullptr);
+        setupGUI(); connectWidgets();
+    }
 
 public slots:
     void loadTextures();
 
 private:
     void setupGUI();
+    void connectWidgets();
+
+    QStringList getTextureFolders(QString texType);
+    QStringList getTextureFiles(QString texType);
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // main objects
+    RenderWidget* m_RenderWidget = nullptr;
+    DataReader*   m_DataReader   = nullptr;
+    ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
     // background and floor

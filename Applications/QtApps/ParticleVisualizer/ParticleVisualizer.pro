@@ -25,19 +25,15 @@ win32: RC_ICONS = $$PWD/Icons/Noodle.ico
 HEADERS += \
     Source/Controller.h \
     Source/MainWindow.h \
-    Source/DataManager.h \
     Source/DataReader.h \
     Source/Common.h \
-    Source/FRRenderObjects.h \
     Source/RenderWidget.h
 
 SOURCES += \
     Source/Controller.cpp \
     Source/Main.cpp \
     Source/MainWindow.cpp \
-    Source/DataManager.cpp \
     Source/DataReader.cpp \
-    Source/FRRenderObjects.cpp \
     Source/RenderWidget.cpp
 
 DISTFILES += \

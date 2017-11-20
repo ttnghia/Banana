@@ -24,7 +24,6 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 RenderWidget::RenderWidget(QWidget* parent) : OpenGLWidget(parent)
 {
-//    m_ClearColor = DEFAULT_CLEAR_COLOR;
     setCamera(DEFAULT_CAMERA_POSITION, DEFAULT_CAMERA_FOCUS);
 }
 
@@ -232,7 +231,7 @@ void RenderWidget::setParticleColorMode(int colorMode)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void RenderWidget::updateParticleData()
+void RenderWidget::updateData(const SharedPtr<SimulationData>& simData)
 {
     Q_ASSERT(m_RDataParticle.initialized);
     makeCurrent();

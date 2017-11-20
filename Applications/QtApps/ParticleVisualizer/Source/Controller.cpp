@@ -61,6 +61,87 @@ void Controller::setupGUI()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void Controller::connectWidgets()
+{
+    ////////////////////////////////////////////////////////////////////////////////
+    // background and floor
+    connect(m_cbSkyTexture->getComboBox(), SIGNAL(currentIndexChanged(int)), m_RenderWidget, SLOT(setSkyBoxTexture(int)));
+    connect(m_pkrBackgroundColor, &ColorPicker::colorChanged, [&](float r, float g, float b) { m_RenderWidget->setClearColor(Vec3f(r, g, b)); });
+    connect(m_cbFloorTexture->getComboBox(), SIGNAL(currentIndexChanged(int)), m_RenderWidget, SLOT(setFloorTexture(int)));
+    connect(m_sldFloorSize->getSlider(), &QSlider::valueChanged, m_RenderWidget, &RenderWidget::setFloorSize);
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // materials
+    connect(m_msParticleMaterial, &MaterialSelector::materialChanged, m_RenderWidget, &RenderWidget::setParticleMaterial);
+//    connect(m_msMeshMaterial, &MaterialSelector::materialChanged,
+//            [&](const Material::MaterialData& material)
+//            {
+//                m_RenderWidget->setMeshMaterial(material, m_cbMeshMaterialID->currentIndex());
+//            });
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // ani kernel
+    connect(m_chkUseAniKernel, &QCheckBox::toggled, m_RenderWidget, &RenderWidget::enableAniKernel);
+    connect(m_chkUseAniKernel, &QCheckBox::toggled, m_DataReader, &DataReader::enableAniKernel);
+    connect(m_chkComputeAniKernel, &QCheckBox::toggled, m_RenderWidget, &RenderWidget::computeAniKernel);
+    connect(m_chkComputeAniKernel, &QCheckBox::toggled, m_DataReader, &DataReader::computeAniKernel);
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // buttons
+    connect(m_btnReloadTextures, &QPushButton::clicked, m_RenderWidget, &RenderWidget::reloadTextures);
+    connect(m_btnReloadTextures, &QPushButton::clicked, this, &Controller::loadTextures);
+    connect(m_btnResetCamera, &QPushButton::clicked, m_RenderWidget, &RenderWidget::resetCameraPosition);
+    connect(m_btnPause, &QPushButton::clicked, m_DataReader, &DataReader::pause);
+    connect(m_btnNextFrame, &QPushButton::clicked, m_DataReader, &DataReader::readNextFrame);
+    connect(m_btnReset, &QPushButton::clicked, m_DataReader, &DataReader::readFirstFrame);
+    connect(m_btnRepeatPlay, &QPushButton::clicked, m_DataReader, &DataReader::enableRepeat);
+    connect(m_btnReverse, &QPushButton::clicked, m_DataReader, &DataReader::enableReverse);
+    connect(m_btnClipViewPlane, &QPushButton::clicked, m_RenderWidget, &RenderWidget::enableClipPlane);
+
+    ////////////////////////////////////////////////////////////////////////////////
+    //  data handle
+    connect(m_DataReader, &DataReader::numFramesChanged, this, &MainWindow::updateNumFrames);
+    connect(m_DataReader, &DataReader::numFramesChanged, m_DataReader, &DataReader::setNumFrames);
+
+    connect(m_DataReader, &DataReader::currentFrameChanged, this, &MainWindow::updateStatusCurrentFrame);
+    connect(m_DataReader, &DataReader::currentFrameChanged, m_sldFrame, &QSlider::setValue);
+
+    connect(m_DataReader, &DataReader::numParticlesChanged, [&](UInt nParticles) { m_nParticles = nParticles; updateStatusNumParticlesAndMeshes(); });
+    connect(m_DataReader, &DataReader::readInfoChanged, this, &MainWindow::updateStatusReadInfo);
+
+    connect(m_DataReader, &DataReader::renderDataChanged, m_RenderWidget, &RenderWidget::updateParticleData);
+    connect(m_DataReader, &DataReader::numSimMeshesChanged, [&](UInt nMeshes) { m_nMeshes = nMeshes; updateStatusNumParticlesAndMeshes(); });
+    connect(m_DataReader, &DataReader::simMeshesChanged, m_RenderWidget, &RenderWidget::updateSimMeshes);
+    connect(m_DataReader, &DataReader::numSimMeshesChanged, m_RenderWidget, &RenderWidget::updateNumSimMeshes);
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // lights
+    connect(m_LightEditor, &PointLightEditor::lightsChanged, m_RenderWidget, &RenderWidget::updateLights);
+    connect(m_RenderWidget, &RenderWidget::lightsObjChanged, m_LightEditor, &PointLightEditor::setLights);
+    connect(m_chkRenderShadow, &QCheckBox::toggled, m_RenderWidget, &RenderWidget::enableShadow);
+    connect(m_chkVisualizeShadowRegion, &QCheckBox::toggled, m_RenderWidget, &RenderWidget::visualizeShadowRegion);
+    connect(m_sldShadowIntensity->getSlider(), &QSlider::valueChanged, m_RenderWidget, &RenderWidget::setShadowIntensity);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+QStringList Controller::getTextureFolders(QString texType)
+{
+    QDir dataDir(QDir::currentPath() + "/Textures/" + texType);
+    dataDir.setFilter(QDir::NoDotAndDotDot | QDir::Dirs);
+
+    return dataDir.entryList();
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+QStringList Controller::getTextureFiles(QString texType)
+{
+    QDir dataDir(QDir::currentPath() + "/Textures/" + texType);
+    dataDir.setFilter(QDir::NoDotAndDotDot | QDir::Files);
+
+    return dataDir.entryList();
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Controller::loadTextures()
 {
     ////////////////////////////////////////////////////////////////////////////////
@@ -212,7 +293,7 @@ void Controller::setupMaterialControllers(QBoxLayout* layoutCtr)
     m_msMeshMaterial = new MaterialSelector;
     m_msMeshMaterial->setMaterial(DEFAULT_MESH_MATERIAL);
     m_cbMeshMaterialID = new QComboBox;
-    for(int i = 0; i < MAX_NUM_MESHES; ++i) {
+    for(int i = 0; i < NUM_MESHES; ++i) {
         m_cbMeshMaterialID->addItem(QString("%1").arg(i));
     }
     ////////////////////////////////////////////////////////////////////////////////

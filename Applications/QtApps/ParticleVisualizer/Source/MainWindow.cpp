@@ -269,85 +269,23 @@ void MainWindow::setupStatusBar()
     statusBar()->addPermanentWidget(m_lblStatusMemoryUsage, 1);
 
     QTimer* memTimer = new QTimer(this);
-    connect(memTimer, &QTimer::timeout, [&]
-            {
-                updateStatusMemoryUsage();
-            });
+    connect(memTimer, &QTimer::timeout, [&] { updateStatusMemoryUsage(); });
     memTimer->start(5000);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MainWindow::connectWidgets()
 {
-    ////////////////////////////////////////////////////////////////////////////////
-    // background and floor
-    connect(m_Controller->m_cbSkyTexture->getComboBox(), SIGNAL(currentIndexChanged(int)), m_RenderWidget, SLOT(setSkyBoxTexture(int)));
-    connect(m_Controller->m_pkrBackgroundColor, &ColorPicker::colorChanged, [&](float r, float g, float b)
-            {
-                m_RenderWidget->setClearColor(Vec3f(r, g, b));
-            });
-    connect(m_Controller->m_cbFloorTexture->getComboBox(), SIGNAL(currentIndexChanged(int)), m_RenderWidget, SLOT(setFloorTexture(int)));
-    connect(m_Controller->m_sldFloorSize->getSlider(), &QSlider::valueChanged, m_RenderWidget, &RenderWidget::setFloorSize);
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // frame params
-    connect(m_Controller->m_sldFrameDelay->getSlider(), &QSlider::valueChanged, m_DataReader.get(), &DataReader::setDelayTime);
-    connect(m_Controller->m_sldFrameStep->getSlider(), &QSlider::valueChanged, m_DataReader.get(), &DataReader::setFrameStride);
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // render modes/colors
-//    connect(m_Controller->m_smParticleColorMode, SIGNAL(mapped(int)), m_RenderWidget, SLOT(setParticleColorMode(int)));
-    connect(m_Controller->m_msParticleMaterial, &MaterialSelector::materialChanged, m_RenderWidget, &RenderWidget::setParticleMaterial);
-//    connect(m_Controller->m_msMeshMaterial, &MaterialSelector::materialChanged,
-//            [&](const Material::MaterialData& material)
-//            {
-//                m_RenderWidget->setMeshMaterial(material, m_Controller->m_cbMeshMaterialID->currentIndex());
-//            });
-//    connect(m_Controller->m_chkUseAnisotropyKernel, &QCheckBox::toggled, m_RenderWidget, &RenderWidget::enableAnisotropyKernel);
-//    connect(m_Controller->m_chkUseAnisotropyKernel, &QCheckBox::toggled, m_DataReader.get(), &DataReader::enableAniKernel);
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // buttons
-    connect(m_Controller->m_btnReloadTextures, &QPushButton::clicked, m_RenderWidget, &RenderWidget::reloadTextures);
-    connect(m_Controller->m_btnReloadTextures, &QPushButton::clicked, m_Controller, &Controller::loadTextures);
-    connect(m_Controller->m_btnResetCamera, &QPushButton::clicked, m_RenderWidget, &RenderWidget::resetCameraPosition);
-    connect(m_Controller->m_btnPause, &QPushButton::clicked, m_DataReader.get(), &DataReader::pause);
-    connect(m_Controller->m_btnNextFrame, &QPushButton::clicked, m_DataReader.get(), &DataReader::readNextFrame);
-    connect(m_Controller->m_btnReset, &QPushButton::clicked, m_DataReader.get(), &DataReader::readFirstFrame);
-    connect(m_Controller->m_btnRepeatPlay, &QPushButton::clicked, m_DataReader.get(), &DataReader::enableRepeat);
-    connect(m_Controller->m_btnReverse, &QPushButton::clicked, m_DataReader.get(), &DataReader::enableReverse);
-    connect(m_Controller->m_btnClipViewPlane, &QPushButton::clicked, m_RenderWidget, &RenderWidget::enableClipPlane);
-
-    ////////////////////////////////////////////////////////////////////////////////
-    //  data handle
-    connect(m_DataManager.get(), &DataManager::numFramesChanged, this, &MainWindow::updateNumFrames);
-    connect(m_DataManager.get(), &DataManager::numFramesChanged, m_DataReader.get(), &DataReader::setNumFrames);
+    connect(m_DataReader, &DataManager::numFramesChanged, this, &MainWindow::updateNumFrames);
     connect(m_InputPath, &BrowsePathWidget::pathChanged, this, &MainWindow::loadVizData);
-    connect(m_OutputPath, &BrowsePathWidget::pathChanged, m_RenderWidget, &RenderWidget::setCapturePath);
-    connect(m_chkExportFrame, &QCheckBox::toggled, m_RenderWidget, &RenderWidget::enableExportFrame);
+    connect(m_DataReader, &DataReader::currentFrameChanged, this, &MainWindow::updateStatusCurrentFrame);
+    connect(m_sldFrame,  &QSlider::valueChanged, m_DataReader, &DataReader::readFrame);
 
-    connect(m_DataReader.get(), &DataReader::currentFrameChanged, this, &MainWindow::updateStatusCurrentFrame);
-    connect(m_DataReader.get(), &DataReader::currentFrameChanged, m_sldFrame, &QSlider::setValue);
-    connect(m_sldFrame,  &QSlider::valueChanged, m_DataReader.get(), &DataReader::readFrame);
+    connect(m_DataReader, &DataReader::numParticlesChanged, [&](UInt nParticles) { m_nParticles = nParticles; updateStatusNumParticlesAndMeshes(); });
+    connect(m_DataReader, &DataReader::readInfoChanged, this, &MainWindow::updateStatusReadInfo);
 
-    connect(m_DataReader.get(), &DataReader::numParticlesChanged, [&](UInt nParticles) { m_nParticles = nParticles; updateStatusNumParticlesAndMeshes(); });
-    connect(m_DataReader.get(), &DataReader::readInfoChanged, this, &MainWindow::updateStatusReadInfo);
-
-    connect(m_DataReader.get(), &DataReader::renderDataChanged, m_RenderWidget, &RenderWidget::updateParticleData);
-    connect(m_DataReader.get(), &DataReader::numSimMeshesChanged, [&](UInt nMeshes) { m_nMeshes = nMeshes; updateStatusNumParticlesAndMeshes(); });
-    connect(m_DataReader.get(), &DataReader::simMeshesChanged, m_RenderWidget, &RenderWidget::updateSimMeshes);
-    connect(m_DataReader.get(), &DataReader::numSimMeshesChanged, m_RenderWidget, &RenderWidget::updateNumSimMeshes);
-
-    connect(m_DataList.get(), &DataList::currentTextChanged, this, &MainWindow::loadVizData);
-    connect(m_DataList.get(), &DataList::currentTextChanged, m_InputPath, &BrowsePathWidget::setPath);
-
-    connect(m_ClipPlaneEditor.get(), &ClipPlaneEditor::clipPlaneChanged, m_RenderWidget, &RenderWidget::setClipPlane);
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // lights
-    connect(m_Controller->m_LightEditor, &PointLightEditor::lightsChanged, m_RenderWidget, &RenderWidget::updateLights);
-    connect(m_RenderWidget, &RenderWidget::lightsObjChanged, m_Controller->m_LightEditor, &PointLightEditor::setLights);
-    connect(m_Controller->m_chkRenderShadow, &QCheckBox::toggled, m_RenderWidget, &RenderWidget::enableShadow);
-    connect(m_Controller->m_chkVisualizeShadowRegion, &QCheckBox::toggled, m_RenderWidget, &RenderWidget::visualizeShadowRegion);
-    connect(m_Controller->m_sldShadowIntensity->getSlider(), &QSlider::valueChanged, m_RenderWidget, &RenderWidget::setShadowIntensity);
+    connect(m_DataReader, &DataReader::numSimMeshesChanged, [&](UInt nMeshes) { m_nMeshes = nMeshes; updateStatusNumParticlesAndMeshes(); });
+    connect(m_DataList, &DataList::currentTextChanged, this, &MainWindow::loadVizData);
+    connect(m_DataList, &DataList::currentTextChanged, m_InputPath, &BrowsePathWidget::setPath);
+    connect(m_ClipPlaneEditor, &ClipPlaneEditor::clipPlaneChanged, m_RenderWidget, &RenderWidget::setClipPlane);
 }

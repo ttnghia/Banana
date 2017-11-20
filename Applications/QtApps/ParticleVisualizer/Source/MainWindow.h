@@ -80,8 +80,7 @@ private:
     QLabel* m_lblStatusReadInfo     = nullptr;
     QLabel* m_lblStatusMemoryUsage  = nullptr;
 
-    std::unique_ptr<ClipPlaneEditor> m_ClipPlaneEditor = std::make_unique<ClipPlaneEditor>();
-    std::unique_ptr<DataManager>     m_DataManager     = std::make_unique<DataManager>();
-    std::unique_ptr<DataReader>      m_DataReader      = std::make_unique<DataReader>();
-    std::unique_ptr<DataList>        m_DataList        = std::make_unique<DataList>(nullptr, true, true);
+    ClipPlaneEditor* m_ClipPlaneEditor = new ClipPlaneEditor();
+    DataReader*      m_DataReader      = new DataReader();
+    DataList*        m_DataList        = new DataList(nullptr, true, true);
 };
