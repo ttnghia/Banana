@@ -80,7 +80,7 @@ public:
         m_DataTopology   = GL_LINES;
     }
 
-    void setBox(const glm::vec3& boxMin, const glm::vec3& boxMax)
+    void setBox(const Vec3f& boxMin, const Vec3f& boxMax)
     {
         m_Vertices = {
             // top

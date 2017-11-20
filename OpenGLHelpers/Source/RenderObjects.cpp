@@ -47,14 +47,14 @@ void SkyBoxRender::loadTextures(QString textureTopFolder)
     QDir dataDir(textureTopFolder);
     dataDir.setFilter(QDir::NoDotAndDotDot | QDir::Dirs);
 
-    QStringList         allTexFolders = dataDir.entryList();
-    std::vector<QImage> textureImages;
+    QStringList    allTexFolders = dataDir.entryList();
+    Vector<QImage> textureImages;
     textureImages.resize(allTexFolders.count() * 6);
 
-    std::vector<int> loadSuccess;
+    Vector<int> loadSuccess;
     loadSuccess.assign(allTexFolders.count(), 0);
 
-    std::vector<std::future<void> > futureObjs;
+    Vector<std::future<void> > futureObjs;
 
     for(int i = 0; i < allTexFolders.count(); ++i) {
         QString texFolderPath = textureTopFolder + "/" + allTexFolders[i];
@@ -111,7 +111,7 @@ void SkyBoxRender::loadTextures(QString textureTopFolder)
             continue;
         }
 
-        std::shared_ptr<OpenGLTexture> skyboxTex = std::make_shared<OpenGLTexture>(GL_TEXTURE_CUBE_MAP);
+        SharedPtr<OpenGLTexture> skyboxTex = std::make_shared<OpenGLTexture>(GL_TEXTURE_CUBE_MAP);
         for(GLuint j = 0; j < 6; ++j) {
             const QImage& texImg = textureImages[i * 6 + j];
             skyboxTex->uploadData(GL_TEXTURE_CUBE_MAP_POSITIVE_X + j, GL_RGBA, texImg.width(), texImg.height(), GL_RGBA, GL_UNSIGNED_BYTE, texImg.constBits());
@@ -133,7 +133,7 @@ void SkyBoxRender::clearTextures()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void SkyBoxRender::addTexture(const std::shared_ptr<OpenGLTexture>& texture)
+void SkyBoxRender::addTexture(const SharedPtr<OpenGLTexture>& texture)
 {
     texture->setTextureParameter(GL_TEXTURE_WRAP_S, GL_REPEAT);
     texture->setTextureParameter(GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -163,7 +163,7 @@ void SkyBoxRender::scale(float scaleX, float scaleY, float scaleZ)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-const std::shared_ptr<OpenGLTexture>& SkyBoxRender::getCurrentTexture()
+const SharedPtr<OpenGLTexture>& SkyBoxRender::getCurrentTexture()
 {
     return m_CurrentTexture;
 }
@@ -182,9 +182,9 @@ void SkyBoxRender::render()
         return;
     }
 
-    m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getViewMatrix()),       0,                   sizeof(Mat4x4f));
-    m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getProjectionMatrix()), sizeof(Mat4x4f),     sizeof(Mat4x4f));
-    m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getCameraPosition()),   5 * sizeof(Mat4x4f), sizeof(Vec3f));
+    m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getViewMatrix()),            0,                   sizeof(Mat4x4f));
+    m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getProjectionMatrix()), sizeof(Mat4x4f),          sizeof(Mat4x4f));
+    m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getCameraPosition()),        5 * sizeof(Mat4x4f), sizeof(Vec3f));
 
     m_Shader->bind();
     m_CurrentTexture->bind();
@@ -263,7 +263,7 @@ void PointLightRender::render()
 {
     assert(m_Camera != nullptr && m_UBufferCamData != nullptr);
 
-    m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getViewMatrix()),       0,               sizeof(Mat4x4f));
+    m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getViewMatrix()),            0,          sizeof(Mat4x4f));
     m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getProjectionMatrix()), sizeof(Mat4x4f), sizeof(Mat4x4f));
 
     m_Shader->bind();
@@ -369,7 +369,7 @@ void WireFrameBoxRender::transform(const Vec3f& translation, const Vec3f& scale)
     Mat4x4f modelMatrix  = glm::scale(glm::translate(Mat4x4f(1.0), translation), scale);
     Mat4x4f normalMatrix = glm::transpose(glm::inverse(glm::mat3(modelMatrix)));
 
-    m_UBufferModelMatrix->uploadData(glm::value_ptr(modelMatrix),  0,               sizeof(Mat4x4f)); // model matrix
+    m_UBufferModelMatrix->uploadData(glm::value_ptr(modelMatrix),       0,          sizeof(Mat4x4f)); // model matrix
     m_UBufferModelMatrix->uploadData(glm::value_ptr(normalMatrix), sizeof(Mat4x4f), sizeof(Mat4x4f)); // normal matrix}
 }
 
@@ -390,9 +390,9 @@ void WireFrameBoxRender::render()
 
     if(m_SelfUpdateCamera) {
         m_Camera->updateCameraMatrices();
-        m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getViewMatrix()),       0,                   sizeof(Mat4x4f));
-        m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getProjectionMatrix()), sizeof(Mat4x4f),     sizeof(Mat4x4f));
-        m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getCameraPosition()),   5 * sizeof(Mat4x4f), sizeof(Vec3f));
+        m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getViewMatrix()),            0,                   sizeof(Mat4x4f));
+        m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getProjectionMatrix()), sizeof(Mat4x4f),          sizeof(Mat4x4f));
+        m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getCameraPosition()),        5 * sizeof(Mat4x4f), sizeof(Vec3f));
     }
     m_UBufferCamData->bindBufferBase();
     m_Shader->bindUniformBlock(m_UBCamData, m_UBufferCamData->getBindingPoint());
@@ -487,7 +487,7 @@ void OffScreenRender::setNumColorBuffers(int numColorBuffers)
             }
         } else { // m_NumColorBuffers < numColorBuffers
             for(int i = static_cast<int>(m_ColorBuffers.size()); i < numColorBuffers; ++i) {
-                std::shared_ptr<OpenGLTexture> tex = std::make_shared<OpenGLTexture>(GL_TEXTURE_2D);
+                SharedPtr<OpenGLTexture> tex = std::make_shared<OpenGLTexture>(GL_TEXTURE_2D);
                 tex->setTextureParameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
                 tex->setTextureParameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
                 tex->uploadData(GL_TEXTURE_2D, m_FormatColorBuff, m_BufferWidth, m_BufferHeight, GL_RED, GL_UNSIGNED_BYTE, nullptr);
@@ -523,20 +523,20 @@ void OffScreenRender::setNumColorBuffers(int numColorBuffers)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OffScreenRender::setColorBufferParameter(GLenum paramName, GLenum paramValue)
 {
-    for(std::shared_ptr<OpenGLTexture>& tex : m_ColorBuffers) {
+    for(SharedPtr<OpenGLTexture>& tex : m_ColorBuffers) {
         tex->setTextureParameter(paramName, paramValue);
     }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-std::shared_ptr<OpenGLTexture>& OffScreenRender::getColorBuffer(int colorBufferID /*= 0*/)
+SharedPtr<OpenGLTexture>& OffScreenRender::getColorBuffer(int colorBufferID /*= 0*/)
 {
     assert(colorBufferID < m_NumColorBuffers);
     return m_ColorBuffers[colorBufferID];
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void OffScreenRender::swapColorBuffer(std::shared_ptr<OpenGLTexture>& colorBuffer, int bufferID)
+void OffScreenRender::swapColorBuffer(SharedPtr<OpenGLTexture>& colorBuffer, int bufferID)
 {
     std::swap(colorBuffer, m_ColorBuffers[bufferID]);
 
@@ -555,7 +555,7 @@ void OffScreenRender::swapColorBuffer(std::shared_ptr<OpenGLTexture>& colorBuffe
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void OffScreenRender::fastSwapColorBuffer(std::shared_ptr<OpenGLTexture>& colorBuffer, int bufferID)
+void OffScreenRender::fastSwapColorBuffer(SharedPtr<OpenGLTexture>& colorBuffer, int bufferID)
 {
     std::swap(colorBuffer, m_ColorBuffers[bufferID]);
     glCall(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + bufferID, GL_TEXTURE_2D, m_ColorBuffers[bufferID]->getTextureID(), 0));
@@ -576,7 +576,7 @@ void OffScreenRender::initRenderData()
 
     // color attachment
     for(int i = 0; i < m_NumColorBuffers; ++i) {
-        std::shared_ptr<OpenGLTexture> tex = std::make_shared<OpenGLTexture>(GL_TEXTURE_2D);
+        SharedPtr<OpenGLTexture> tex = std::make_shared<OpenGLTexture>(GL_TEXTURE_2D);
         tex->setTextureParameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         tex->setTextureParameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         tex->uploadData(GL_TEXTURE_2D, m_FormatColorBuff, m_BufferWidth, m_BufferHeight, GL_RED, GL_UNSIGNED_BYTE, nullptr);
@@ -657,7 +657,7 @@ void DepthBufferRender::setClearDepthValue(GLfloat clearValue)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-std::shared_ptr<OpenGLTexture>& DepthBufferRender::getDepthBuffer()
+SharedPtr<OpenGLTexture>& DepthBufferRender::getDepthBuffer()
 {
     assert(m_ColorBuffers.size() > 0);
     return m_ColorBuffers[0];
@@ -690,9 +690,9 @@ void ScreenQuadTextureRender::render()
 
     m_Texture->bind();
     m_Shader->bind();
-    m_Shader->setUniformValue(m_UTexSampler, 0);
-    m_Shader->setUniformValue(m_UValueScale, m_ValueScale);
-    m_Shader->setUniformValue(m_UTexelSize,  m_TexelSizeValue);
+    m_Shader->setUniformValue(m_UTexSampler,               0);
+    m_Shader->setUniformValue(m_UValueScale,    m_ValueScale);
+    m_Shader->setUniformValue(m_UTexelSize, m_TexelSizeValue);
 
     glCall(glBindVertexArray(m_VAO));
     glCall(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4); );
@@ -754,7 +754,7 @@ void ScreenQuadTextureRender::setValueScale(float scale)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void ScreenQuadTextureRender::setTexture(const std::shared_ptr<OpenGLTexture>& texture, int texelSize /*= 1*/)
+void ScreenQuadTextureRender::setTexture(const SharedPtr<OpenGLTexture>& texture, int texelSize /*= 1*/)
 {
     m_Texture        = texture;
     m_TexelSizeValue = texelSize;
@@ -774,19 +774,19 @@ void MeshRender::loadTextures(QString textureFolder)
 #endif
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-const std::shared_ptr<MeshObject>& MeshRender::getMeshObj()
+const SharedPtr<MeshObject>& MeshRender::getMeshObj()
 {
     return m_MeshObj;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-const std::shared_ptr<Material>& MeshRender::getMaterial()
+const SharedPtr<Material>& MeshRender::getMaterial()
 {
     return m_Material;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-const std::shared_ptr<OpenGLTexture>& MeshRender::getCurrentTexture()
+const SharedPtr<OpenGLTexture>& MeshRender::getCurrentTexture()
 {
     return m_CurrentTexture;
 }
@@ -809,7 +809,7 @@ void MeshRender::clearTextures(bool insertNullTex /*= true*/)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MeshRender::addTexture(const std::shared_ptr<OpenGLTexture>& texture, GLenum texWrapMode /*= GL_REPEAT*/)
+void MeshRender::addTexture(const SharedPtr<OpenGLTexture>& texture, GLenum texWrapMode /*= GL_REPEAT*/)
 {
     texture->setTextureParameter(GL_TEXTURE_WRAP_S, texWrapMode);
     texture->setTextureParameter(GL_TEXTURE_WRAP_T, texWrapMode);
@@ -829,7 +829,7 @@ void MeshRender::setRenderTextureIndex(int texIndex)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MeshRender::setExternalShadowMaps(const std::vector<std::shared_ptr<OpenGLTexture> >& shadowMaps)
+void MeshRender::setExternalShadowMaps(const Vector<SharedPtr<OpenGLTexture> >& shadowMaps)
 {
     assert(shadowMaps.size() == static_cast<size_t>(m_Lights->getNumLights()));
     m_ExternalShadowMaps = shadowMaps;
@@ -841,7 +841,7 @@ void MeshRender::transform(const Vec3f& translation, const Vec3f& scale)
     Mat4x4f modelMatrix  = glm::scale(glm::translate(Mat4x4f(1.0), translation), scale);
     Mat4x4f normalMatrix = glm::transpose(glm::inverse(glm::mat3(modelMatrix)));
 
-    m_UBufferModelMatrix->uploadData(glm::value_ptr(modelMatrix),  0,               sizeof(Mat4x4f)); // model matrix
+    m_UBufferModelMatrix->uploadData(glm::value_ptr(modelMatrix),       0,          sizeof(Mat4x4f)); // model matrix
     m_UBufferModelMatrix->uploadData(glm::value_ptr(normalMatrix), sizeof(Mat4x4f), sizeof(Mat4x4f)); // normal matrix
 }
 
@@ -855,9 +855,9 @@ void MeshRender::render()
 
     if(m_SelfUpdateCamera) {
         m_Camera->updateCameraMatrices();
-        m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getViewMatrix()),       0,                   sizeof(Mat4x4f));
-        m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getProjectionMatrix()), sizeof(Mat4x4f),     sizeof(Mat4x4f));
-        m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getCameraPosition()),   5 * sizeof(Mat4x4f), sizeof(Vec3f));
+        m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getViewMatrix()),            0,                   sizeof(Mat4x4f));
+        m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getProjectionMatrix()), sizeof(Mat4x4f),          sizeof(Mat4x4f));
+        m_UBufferCamData->uploadData(glm::value_ptr(m_Camera->getCameraPosition()),        5 * sizeof(Mat4x4f), sizeof(Vec3f));
     }
 
     m_Shader->bind();
@@ -1093,15 +1093,15 @@ void MeshRender::setupVAO()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-std::shared_ptr<OpenGLTexture>& MeshRender::getLightShadowMap(int lightID /*= 0*/)
+SharedPtr<OpenGLTexture>& MeshRender::getLightShadowMap(int lightID /*= 0*/)
 {
     assert(m_LightDepthBufferRenders.size() > 0);
     return m_LightDepthBufferRenders[lightID]->getDepthBuffer();
 }
 
-std::vector<std::shared_ptr<OpenGLTexture> > MeshRender::getAllLightShadowMaps()
+Vector<SharedPtr<OpenGLTexture> > MeshRender::getAllLightShadowMaps()
 {
-    std::vector<std::shared_ptr<OpenGLTexture> > depthBuffers;
+    Vector<SharedPtr<OpenGLTexture> > depthBuffers;
     for(int i = 0; i < static_cast<int>(m_LightDepthBufferRenders.size()); ++i) {
         depthBuffers.push_back(m_LightDepthBufferRenders[i]->getDepthBuffer());
     }
@@ -1110,7 +1110,7 @@ std::vector<std::shared_ptr<OpenGLTexture> > MeshRender::getAllLightShadowMaps()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-std::shared_ptr<OpenGLTexture>& MeshRender::getCameraShadowMap()
+SharedPtr<OpenGLTexture>& MeshRender::getCameraShadowMap()
 {
     return m_CameraDepthBufferRender->getDepthBuffer();
 }
@@ -1204,7 +1204,7 @@ void PlaneRender::render()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-const std::shared_ptr<ShaderProgram>& RenderObject::getShader() const
+const SharedPtr<ShaderProgram>& RenderObject::getShader() const
 {
     return m_Shader;
 }

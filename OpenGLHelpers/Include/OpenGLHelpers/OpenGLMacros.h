@@ -31,35 +31,33 @@
 #   include <GL/glew.h>
 #endif
 
-#include <string>
-
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-inline std::string GLErr2Str(GLenum err)
+inline String GLErr2Str(GLenum err)
 {
     switch(err) {
         case GL_NO_ERROR:
-            return std::string("No error.");
+            return String("No error.");
 
         case GL_INVALID_ENUM:
-            return std::string("Invalid enum.");
+            return String("Invalid enum.");
 
         case GL_INVALID_VALUE:
-            return std::string("Invalid value.");
+            return String("Invalid value.");
 
         case GL_INVALID_OPERATION:
-            return std::string("Invalid operation.");
+            return String("Invalid operation.");
 
         case GL_STACK_OVERFLOW:
-            return std::string("Stack overflow.");
+            return String("Stack overflow.");
 
         case GL_STACK_UNDERFLOW:
-            return std::string("Stack underflow.");
+            return String("Stack underflow.");
 
         case GL_OUT_OF_MEMORY:
-            return std::string("Out of memory.");
+            return String("Out of memory.");
 
         default:
-            return std::string("Unknown error.");
+            return String("Unknown error.");
     }
 }
 
@@ -71,28 +69,28 @@ inline std::string GLErr2Str(GLenum err)
 
 #ifdef _DEBUG
 #   ifdef __Banana_Qt__
-#   define glCall(a)                                                                                              \
-    a; {                                                                                                          \
-        GLenum err = glGetError();                                                                                \
-        if(err != GL_NO_ERROR) {                                                                                  \
-            std::string str = "GL error when calling '" + std::string(#a) + "'"                                   \
-                                                                            ". OpenGL error: " + GLErr2Str(err) + \
-                              ", in file: " + __FILE__ + ", line: " + std::to_string(__LINE__);                   \
-            qDebug() << QString::fromStdString(str);                                                              \
-            DEBUG_BREAK                                                                                           \
-        }                                                                                                         \
+#   define glCall(a)                                                                                    \
+    a; {                                                                                                \
+        GLenum err = glGetError();                                                                      \
+        if(err != GL_NO_ERROR) {                                                                        \
+            String str = "GL error when calling '" + String(#a) + "'"                                   \
+                                                                  ". OpenGL error: " + GLErr2Str(err) + \
+                         ", in file: " + __FILE__ + ", line: " + std::to_string(__LINE__);              \
+            qDebug() << QString::fromStdString(str);                                                    \
+            DEBUG_BREAK                                                                                 \
+        }                                                                                               \
     }
 #   else
-#   define glCall(a)                                                                                              \
-    a; {                                                                                                          \
-        GLenum err = glGetError();                                                                                \
-        if(err != GL_NO_ERROR) {                                                                                  \
-            std::string str = "GL error when calling '" + std::string(#a) + "'"                                   \
-                                                                            ". OpenGL error: " + GLErr2Str(err) + \
-                              ", in file: " + __FILE__ + ", line: " + std::to_string(__LINE__);                   \
-            fprintf(stderr, "%s\n", str.c_str());                                                                 \
-            DEBUG_BREAK                                                                                           \
-        }                                                                                                         \
+#   define glCall(a)                                                                                    \
+    a; {                                                                                                \
+        GLenum err = glGetError();                                                                      \
+        if(err != GL_NO_ERROR) {                                                                        \
+            String str = "GL error when calling '" + String(#a) + "'"                                   \
+                                                                  ". OpenGL error: " + GLErr2Str(err) + \
+                         ", in file: " + __FILE__ + ", line: " + std::to_string(__LINE__);              \
+            fprintf(stderr, "%s\n", str.c_str());                                                       \
+            DEBUG_BREAK                                                                                 \
+        }                                                                                               \
     }
 #   endif
 #else // NO _DEBUG

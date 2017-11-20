@@ -58,7 +58,7 @@ void MeshObject::transformObject(GLfloat scaleX, GLfloat scaleY, GLfloat scaleZ,
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MeshObject::setVertices(const std::vector<GLfloat>& vertices)
+void MeshObject::setVertices(const Vector<GLfloat>& vertices)
 {
     m_NumVertices = vertices.size() / 3;
     m_Vertices.resize(vertices.size());
@@ -94,7 +94,7 @@ void MeshObject::setVertices(void* vertexData, size_t dataSize)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MeshObject::setVertexNormal(const std::vector<GLfloat>& normals)
+void MeshObject::setVertexNormal(const Vector<GLfloat>& normals)
 {
     assert(normals.size() == m_NumVertices * 3);
     m_hasVertexNormal = true;
@@ -133,7 +133,7 @@ void MeshObject::clearVertexNormal()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MeshObject::setVertexTexCoord(const std::vector<float>& texcoords)
+void MeshObject::setVertexTexCoord(const Vector<float>& texcoords)
 {
     assert(texcoords.size() == m_NumVertices * 2);
     m_hasVertexTexCoord = true;
@@ -173,7 +173,7 @@ void MeshObject::clearVertexTexCoord()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MeshObject::setVertexColor(const std::vector<float>& vcolors)
+void MeshObject::setVertexColor(const Vector<float>& vcolors)
 {
     assert(vcolors.size() == m_NumVertices * 3);
     m_hasVertexColor = true;
@@ -222,7 +222,7 @@ void MeshObject::clearElementIndex()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MeshObject::setElementIndex(const std::vector<GLuint>& indices)
+void MeshObject::setElementIndex(const Vector<GLuint>& indices)
 {
     m_isMeshVeryLarge = true;
     m_hasIndexBuffer  = true;
@@ -356,58 +356,58 @@ size_t MeshObject::getNumVertices() const
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-const std::vector<GLushort>& MeshObject::getIndexList() const
+const Vector<GLushort>& MeshObject::getIndexList() const
 {
     return m_IndexList;
 }
 
-const std::vector<GLuint>& MeshObject::getIndexListLong() const
+const Vector<GLuint>& MeshObject::getIndexListLong() const
 {
     return m_IndexListLong;
 }
 
-const std::vector<GLfloat>& MeshObject::getVertices() const
+const Vector<GLfloat>& MeshObject::getVertices() const
 {
     return m_Vertices;
 }
 
-const std::vector<GLfloat>& MeshObject::getVertexNormals() const
+const Vector<GLfloat>& MeshObject::getVertexNormals() const
 {
     return m_VertexNormals;
 }
 
-const std::vector<GLfloat>& MeshObject::getVertexTexCoords() const
+const Vector<GLfloat>& MeshObject::getVertexTexCoords() const
 {
     return m_VertexTexCoords;
 }
 
-const std::vector<GLfloat>& MeshObject::getVertexColors() const
+const Vector<GLfloat>& MeshObject::getVertexColors() const
 {
     return m_VertexColors;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-const std::shared_ptr<OpenGLBuffer>& MeshObject::getIndexBuffer() const
+const SharedPtr<OpenGLBuffer>& MeshObject::getIndexBuffer() const
 {
     return m_IndexBuffer;
 }
 
-const std::shared_ptr<OpenGLBuffer>& MeshObject::getVertexBuffer() const
+const SharedPtr<OpenGLBuffer>& MeshObject::getVertexBuffer() const
 {
     return m_VertexBuffer;
 }
 
-const std::shared_ptr<OpenGLBuffer>& MeshObject::getNormalBuffer() const
+const SharedPtr<OpenGLBuffer>& MeshObject::getNormalBuffer() const
 {
     return m_NormalBuffer;
 }
 
-const std::shared_ptr<OpenGLBuffer>& MeshObject::getTexCoordBuffer() const
+const SharedPtr<OpenGLBuffer>& MeshObject::getTexCoordBuffer() const
 {
     return m_TexCoordBuffer;
 }
 
-const std::shared_ptr<OpenGLBuffer>& MeshObject::getVertexColorBuffer() const
+const SharedPtr<OpenGLBuffer>& MeshObject::getVertexColorBuffer() const
 {
     return m_VertexColorBuffer;
 }
@@ -489,7 +489,7 @@ void MeshObject::clearBuffer()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MeshObject::setElementIndex(const std::vector<GLushort>& indices)
+void MeshObject::setElementIndex(const Vector<GLushort>& indices)
 {
     m_isMeshVeryLarge = false;
     m_hasIndexBuffer  = true;

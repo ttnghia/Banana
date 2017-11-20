@@ -36,25 +36,25 @@ class Lights : public OpenGLCallable
 public:
     Lights() : m_NumActiveLights(1)
     {
-        static_assert(sizeof(glm::vec4) == sizeof(GLfloat) * 4, "Size of glm::vec4 != 4 * sizeof(GLfloat).");
+        static_assert(sizeof(Vec4f) == sizeof(GLfloat) * 4, "Size of Vec4f != 4 * sizeof(GLfloat).");
     }
 
     Lights(int numLights) : m_NumActiveLights(numLights)
     {
-        static_assert(sizeof(glm::vec4) == sizeof(GLfloat) * 4, "Size of glm::vec4 != 4 * sizeof(GLfloat).");
+        static_assert(sizeof(Vec4f) == sizeof(GLfloat) * 4, "Size of Vec4f != 4 * sizeof(GLfloat).");
     }
 
     void setNumLights(int numLights);
     int  getNumLights() const;
     void createUniformBuffer();
 
-    virtual void setLightAmbient(const glm::vec4& ambient, int lightID = 0) = 0;
-    virtual void setLightDiffuse(const glm::vec4& diffuse, int lightID = 0) = 0;
-    virtual void setLightSpecular(const glm::vec4& specular, int lightID = 0) = 0;
+    virtual void setLightAmbient(const Vec4f& ambient, int lightID = 0) = 0;
+    virtual void setLightDiffuse(const Vec4f& diffuse, int lightID = 0) = 0;
+    virtual void setLightSpecular(const Vec4f& specular, int lightID = 0) = 0;
 
-    virtual glm::vec4 getLightAmbient(int lightID  = 0) const = 0;
-    virtual glm::vec4 getLightDiffuse(int lightID  = 0) const = 0;
-    virtual glm::vec4 getLightSpecular(int lightID = 0) const = 0;
+    virtual Vec4f getLightAmbient(int lightID  = 0) const = 0;
+    virtual Vec4f getLightDiffuse(int lightID  = 0) const = 0;
+    virtual Vec4f getLightSpecular(int lightID = 0) const = 0;
 
     virtual void uploadLightAmbient(int lightID  = 0) = 0;
     virtual void uploadLightDiffuse(int lightID  = 0) = 0;
@@ -66,7 +66,7 @@ public:
     size_t getLightDataSize() const;
 
     // data for shadow map
-    void   setSceneCenter(const glm::vec3& sceneCenter);
+    void   setSceneCenter(const Vec3f& sceneCenter);
     void   bindUniformBufferLightMatrix();
     GLuint getBufferLightMatrixBindingPoint();
     void   uploadLightMatrixToGPU();
@@ -105,7 +105,7 @@ protected:
     OpenGLBuffer m_UniformBuffer;
     OpenGLBuffer m_UniformBufferLightMatrix;
     LightMatrix  m_LightMatrices[MAX_NUM_LIGHTS];
-    glm::vec3    m_SceneCenter;
+    Vec3f        m_SceneCenter;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -118,34 +118,34 @@ public:
     {
         DirectionalLightData()
         {
-            setAmbient(glm::vec4(1));
-            setDiffuse(glm::vec4(1));
-            setSpecular(glm::vec4(1));
-            setDirection(glm::vec4(-1));
+            setAmbient(Vec4f(1));
+            setDiffuse(Vec4f(1));
+            setSpecular(Vec4f(1));
+            setDirection(Vec4f(-1));
         }
 
-        void setAmbient(const glm::vec4& ambient_)
+        void setAmbient(const Vec4f& ambient_)
         {
             for(int i = 0; i < 4; ++i) {
                 ambient[i] = ambient_[i];
             }
         }
 
-        void setDiffuse(const glm::vec4& diffuse_)
+        void setDiffuse(const Vec4f& diffuse_)
         {
             for(int i = 0; i < 4; ++i) {
                 diffuse[i] = diffuse_[i];
             }
         }
 
-        void setSpecular(const glm::vec4& specular_)
+        void setSpecular(const Vec4f& specular_)
         {
             for(int i = 0; i < 4; ++i) {
                 specular[i] = specular_[i];
             }
         }
 
-        void setDirection(const glm::vec4& direction_)
+        void setDirection(const Vec4f& direction_)
         {
             for(int i = 0; i < 4; ++i) {
                 direction[i] = direction_[i];
@@ -161,17 +161,17 @@ public:
     void                 setLight(const DirectionalLightData& lightData, int lightID = 0);
     DirectionalLightData getLight(int lightID = 0) const;
 
-    void      setLightDirection(const glm::vec4& direction, int lightID = 0);
-    glm::vec4 getLightDirection(int lightID    = 0) const;
-    void      uploadLightDirection(int lightID = 0);
+    void  setLightDirection(const Vec4f& direction, int lightID = 0);
+    Vec4f getLightDirection(int lightID    = 0) const;
+    void  uploadLightDirection(int lightID = 0);
 
-    virtual void setLightAmbient(const glm::vec4& ambient, int lightID = 0) override;
-    virtual void setLightDiffuse(const glm::vec4& diffuse, int lightID = 0) override;
-    virtual void setLightSpecular(const glm::vec4& specular, int lightID = 0) override;
+    virtual void setLightAmbient(const Vec4f& ambient, int lightID = 0) override;
+    virtual void setLightDiffuse(const Vec4f& diffuse, int lightID = 0) override;
+    virtual void setLightSpecular(const Vec4f& specular, int lightID = 0) override;
 
-    virtual glm::vec4 getLightAmbient(int lightID  = 0) const override;
-    virtual glm::vec4 getLightDiffuse(int lightID  = 0) const override;
-    virtual glm::vec4 getLightSpecular(int lightID = 0) const override;
+    virtual Vec4f getLightAmbient(int lightID  = 0) const override;
+    virtual Vec4f getLightDiffuse(int lightID  = 0) const override;
+    virtual Vec4f getLightSpecular(int lightID = 0) const override;
 
     virtual void uploadLightAmbient(int lightID  = 0) override;
     virtual void uploadLightDiffuse(int lightID  = 0) override;
@@ -180,7 +180,7 @@ public:
     virtual void   uploadDataToGPU() override;
     virtual size_t getLightSize() const override
     {
-        return 4 * sizeof(glm::vec4);
+        return 4 * sizeof(Vec4f);
     }
 
     // shadow map helpers
@@ -208,34 +208,34 @@ public:
     {
         PointLightData()
         {
-            setAmbient(glm::vec4(1));
-            setDiffuse(glm::vec4(1));
-            setSpecular(glm::vec4(1));
-            setPosition(glm::vec4(-1));
+            setAmbient(Vec4f(1));
+            setDiffuse(Vec4f(1));
+            setSpecular(Vec4f(1));
+            setPosition(Vec4f(-1));
         }
 
-        void setAmbient(const glm::vec4& ambient_)
+        void setAmbient(const Vec4f& ambient_)
         {
             for(int i = 0; i < 4; ++i) {
                 ambient[i] = ambient_[i];
             }
         }
 
-        void setDiffuse(const glm::vec4& diffuse_)
+        void setDiffuse(const Vec4f& diffuse_)
         {
             for(int i = 0; i < 4; ++i) {
                 diffuse[i] = diffuse_[i];
             }
         }
 
-        void setSpecular(const glm::vec4& specular_)
+        void setSpecular(const Vec4f& specular_)
         {
             for(int i = 0; i < 4; ++i) {
                 specular[i] = specular_[i];
             }
         }
 
-        void setPosition(const glm::vec4& position_)
+        void setPosition(const Vec4f& position_)
         {
             for(int i = 0; i < 4; ++i) {
                 position[i] = position_[i];
@@ -251,17 +251,17 @@ public:
     virtual void   setLight(const PointLightData& lightData, int lightID = 0);
     PointLightData getLight(int lightID) const;
 
-    void      setLightPosition(const glm::vec4& direction, int lightID = 0);
-    glm::vec4 getLightPosition(int lightID    = 0) const;
-    void      uploadLightPosition(int lightID = 0);
+    void  setLightPosition(const Vec4f& direction, int lightID = 0);
+    Vec4f getLightPosition(int lightID    = 0) const;
+    void  uploadLightPosition(int lightID = 0);
 
-    virtual void setLightAmbient(const glm::vec4& ambient, int lightID = 0) override;
-    virtual void setLightDiffuse(const glm::vec4& diffuse, int lightID = 0) override;
-    virtual void setLightSpecular(const glm::vec4& specular, int lightID = 0) override;
+    virtual void setLightAmbient(const Vec4f& ambient, int lightID = 0) override;
+    virtual void setLightDiffuse(const Vec4f& diffuse, int lightID = 0) override;
+    virtual void setLightSpecular(const Vec4f& specular, int lightID = 0) override;
 
-    virtual glm::vec4 getLightAmbient(int lightID  = 0) const override;
-    virtual glm::vec4 getLightDiffuse(int lightID  = 0) const override;
-    virtual glm::vec4 getLightSpecular(int lightID = 0) const override;
+    virtual Vec4f getLightAmbient(int lightID  = 0) const override;
+    virtual Vec4f getLightDiffuse(int lightID  = 0) const override;
+    virtual Vec4f getLightSpecular(int lightID = 0) const override;
 
     virtual void uploadLightAmbient(int lightID  = 0) override;
     virtual void uploadLightDiffuse(int lightID  = 0) override;
@@ -270,7 +270,7 @@ public:
     virtual void   uploadDataToGPU() override;
     virtual size_t getLightSize() const override
     {
-        return 4 * sizeof(glm::vec4);
+        return 4 * sizeof(Vec4f);
     }
 
     // shadow map helpers
@@ -295,45 +295,45 @@ public:
     {
         SpotLightData()
         {
-            setAmbient(glm::vec4(1));
-            setDiffuse(glm::vec4(1));
-            setSpecular(glm::vec4(1));
-            setPosition(glm::vec4(10));
-            setDirection(glm::vec4(-1));
+            setAmbient(Vec4f(1));
+            setDiffuse(Vec4f(1));
+            setSpecular(Vec4f(1));
+            setPosition(Vec4f(10));
+            setDirection(Vec4f(-1));
 
             innerCutOffAngle = M_PI;
             outerCutOffAngle = M_PI;
         }
 
-        void setAmbient(const glm::vec4& ambient_)
+        void setAmbient(const Vec4f& ambient_)
         {
             for(int i = 0; i < 4; ++i) {
                 ambient[i] = ambient_[i];
             }
         }
 
-        void setDiffuse(const glm::vec4& diffuse_)
+        void setDiffuse(const Vec4f& diffuse_)
         {
             for(int i = 0; i < 4; ++i) {
                 diffuse[i] = diffuse_[i];
             }
         }
 
-        void setSpecular(const glm::vec4& specular_)
+        void setSpecular(const Vec4f& specular_)
         {
             for(int i = 0; i < 4; ++i) {
                 specular[i] = specular_[i];
             }
         }
 
-        void setPosition(const glm::vec4& position_)
+        void setPosition(const Vec4f& position_)
         {
             for(int i = 0; i < 4; ++i) {
                 position[i] = position_[i];
             }
         }
 
-        void setDirection(const glm::vec4& direction_)
+        void setDirection(const Vec4f& direction_)
         {
             for(int i = 0; i < 4; ++i) {
                 direction[i] = direction_[i];
@@ -352,24 +352,24 @@ public:
     void          setLight(const SpotLightData& lightData, int lightID = 0);
     SpotLightData getLight(int lightID = 0);
 
-    void      setLightDirection(const glm::vec4& direction, int lightID = 0);
-    void      setLightPosition(const glm::vec4& position, int lightID = 0);
-    void      setLightCuffOffAngles(float innerAngle, float outerAngle, int lightID = 0);
-    glm::vec4 getLightPosition(int lightID        = 0) const;
-    glm::vec4 getLightDirection(int lightID       = 0) const;
-    float     getInnerCutOffAngle(int lightID     = 0) const;
-    float     getOuterCutOffAngle(int lightID     = 0) const;
-    void      uploadLightPosition(int lightID     = 0);
-    void      uploadLightDirection(int lightID    = 0);
-    void      uploadLightCutOffAngles(int lightID = 0);
+    void  setLightDirection(const Vec4f& direction, int lightID = 0);
+    void  setLightPosition(const Vec4f& position, int lightID = 0);
+    void  setLightCuffOffAngles(float innerAngle, float outerAngle, int lightID = 0);
+    Vec4f getLightPosition(int lightID        = 0) const;
+    Vec4f getLightDirection(int lightID       = 0) const;
+    float getInnerCutOffAngle(int lightID     = 0) const;
+    float getOuterCutOffAngle(int lightID     = 0) const;
+    void  uploadLightPosition(int lightID     = 0);
+    void  uploadLightDirection(int lightID    = 0);
+    void  uploadLightCutOffAngles(int lightID = 0);
 
-    virtual void setLightAmbient(const glm::vec4& ambient, int lightID = 0) override;
-    virtual void setLightDiffuse(const glm::vec4& diffuse, int lightID = 0) override;
-    virtual void setLightSpecular(const glm::vec4& specular, int lightID = 0) override;
+    virtual void setLightAmbient(const Vec4f& ambient, int lightID = 0) override;
+    virtual void setLightDiffuse(const Vec4f& diffuse, int lightID = 0) override;
+    virtual void setLightSpecular(const Vec4f& specular, int lightID = 0) override;
 
-    virtual glm::vec4 getLightAmbient(int lightID  = 0) const override;
-    virtual glm::vec4 getLightDiffuse(int lightID  = 0) const override;
-    virtual glm::vec4 getLightSpecular(int lightID = 0) const override;
+    virtual Vec4f getLightAmbient(int lightID  = 0) const override;
+    virtual Vec4f getLightDiffuse(int lightID  = 0) const override;
+    virtual Vec4f getLightSpecular(int lightID = 0) const override;
 
     virtual void uploadLightAmbient(int lightID  = 0) override;
     virtual void uploadLightDiffuse(int lightID  = 0) override;
@@ -378,7 +378,7 @@ public:
     virtual void   uploadDataToGPU() override;
     virtual size_t getLightSize() const override
     {
-        return 5 * sizeof(glm::vec4) + 2 * sizeof(GLfloat);
+        return 5 * sizeof(Vec4f) + 2 * sizeof(GLfloat);
     }
 
     // shadow map helpers

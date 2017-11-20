@@ -23,9 +23,6 @@
 
 #include <OpenGLHelpers/OpenGLMacros.h>
 
-#include <vector>
-#include <memory>
-
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
 {
@@ -34,11 +31,7 @@ class OpenGLTexture : public OpenGLCallable
 {
 public:
     OpenGLTexture() : m_bTextureCreated(false), m_BindedTexUnit(0), m_TexureTarget(GL_TEXTURE_2D) {}
-
-    OpenGLTexture(GLenum textureTarget) : m_bTextureCreated(false), m_BindedTexUnit(0), m_TexureTarget(GL_TEXTURE_2D)
-    {
-        createTexture(textureTarget);
-    }
+    OpenGLTexture(GLenum textureTarget) : m_bTextureCreated(false), m_BindedTexUnit(0), m_TexureTarget(GL_TEXTURE_2D) { createTexture(textureTarget); }
 
     bool isCreated() { return m_bTextureCreated; }
     void createTexture(GLenum textureTarget);
@@ -52,13 +45,9 @@ public:
     void setBestParametersNoMipMap();
     void setSimplestTexture();
 
-    GLuint getTextureID() const
-    {
-        return m_TextureID;
-    }
-
-    void bind(GLuint texUnit = 0);
-    void release();
+    GLuint getTextureID() const { return m_TextureID; }
+    void   bind(GLuint texUnit = 0);
+    void   release();
 
 #ifdef __Banana_Qt__
     static void        loadTextures(std::vector<std::shared_ptr<OpenGLTexture> >& textures, QString textureFolder, bool insertNullTex = true, bool bGenMipMap = true);

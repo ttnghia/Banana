@@ -64,20 +64,17 @@ class Material : public OpenGLCallable
 public:
     struct MaterialData
     {
-        glm::vec4   ambient;
-        glm::vec4   diffuse;
-        glm::vec4   specular;
-        GLfloat     shininess;
-        std::string name;
+        Vec4f   ambient;
+        Vec4f   diffuse;
+        Vec4f   specular;
+        GLfloat shininess;
+        String  name;
 
-        static size_t getSize()
-        {
-            return 3 * sizeof(glm::vec4) + sizeof(GLfloat);
-        }
+        static size_t getSize() { return 3 * sizeof(Vec4f) + sizeof(GLfloat); }
     };
 
-    Material(std::string materialName = std::string("NoName"));
-    Material(const MaterialData& material, std::string materialName = std::string("NoName"));
+    Material(String materialName = String("NoName"));
+    Material(const MaterialData& material, String materialName = String("NoName"));
 
     void createUniformBuffer();
 
@@ -86,22 +83,22 @@ public:
     void uploadSpecularColor();
     void uploadShininess();
 
-    void setAmbientColor(const glm::vec4& ambient);
-    void setDiffuseColor(const glm::vec4& diffuse);
-    void setSpecularColor(const glm::vec4& specular);
+    void setAmbientColor(const Vec4f& ambient);
+    void setDiffuseColor(const Vec4f& diffuse);
+    void setSpecularColor(const Vec4f& specular);
     void setShininess(GLfloat shininess);
 
-    glm::vec4 getAmbientColor() const;
-    glm::vec4 getDiffuseColor() const;
-    glm::vec4 getSpecularColor() const;
-    GLfloat   getShininess() const;
+    Vec4f   getAmbientColor() const;
+    Vec4f   getDiffuseColor() const;
+    Vec4f   getSpecularColor() const;
+    GLfloat getShininess() const;
 
     void   uploadDataToGPU();
     void   bindUniformBuffer();
     GLuint getBufferBindingPoint();
 
-    void        setMaterial(const MaterialData& material);
-    std::string getName();
+    void   setMaterial(const MaterialData& material);
+    String getName();
 
     ////////////////////////////////////////////////////////////////////////////////
     static std::vector<MaterialData> getBuildInMaterials();

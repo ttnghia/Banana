@@ -24,10 +24,6 @@
 #include <OpenGLHelpers/OpenGLMacros.h>
 #include <OpenGLHelpers/OpenGLBuffer.h>
 
-#include <vector>
-#include <cassert>
-#include <memory>
-
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
 {
@@ -64,27 +60,27 @@ public:
     ~MeshObject();
 
     void transformObject(GLfloat scaleX = 1.0, GLfloat scaleY = 1.0, GLfloat scaleZ = 1.0, GLfloat translateX = 0.0, GLfloat translateY = 0.0, GLfloat translateZ = 0.0);
-    void setVertices(const std::vector<GLfloat>& vertices);
+    void setVertices(const Vector<GLfloat>& vertices);
     void setVertices(void* vertexData, size_t dataSize);
 
-    void setVertexNormal(const std::vector<GLfloat>& normals);
+    void setVertexNormal(const Vector<GLfloat>& normals);
     void setVertexNormal(void* normalData, size_t dataSize);
     void inverseVertexNormal();
     void clearVertexNormal();
 
-    void setVertexTexCoord(const std::vector<float>& texcoords);
+    void setVertexTexCoord(const Vector<float>& texcoords);
     void setVertexTexCoord(void* texData, size_t dataSize);
     void scaleVertexTexCoord(GLfloat scaleX, GLfloat scaleY);
     void clearVertexTexCoord();
 
-    void setVertexColor(const std::vector<float>& vcolors);
+    void setVertexColor(const Vector<float>& vcolors);
     void setVertexColor(void* colorData, size_t dataSize);
     void generateRandomVertexColor();
     void clearVertexColor();
 
-    void setElementIndex(const std::vector<GLushort>& indices);
+    void setElementIndex(const Vector<GLushort>& indices);
     void clearElementIndex();
-    void setElementIndex(const std::vector<GLuint>& indices);
+    void setElementIndex(const Vector<GLuint>& indices);
     void clearElementIndexLong();
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -96,18 +92,18 @@ public:
     bool   isEmpty() const;
     size_t getNumVertices() const;
 
-    const std::vector<GLushort>& getIndexList() const;
-    const std::vector<GLuint>&   getIndexListLong() const;
-    const std::vector<GLfloat>&  getVertices() const;
-    const std::vector<GLfloat>&  getVertexNormals() const;
-    const std::vector<GLfloat>&  getVertexTexCoords() const;
-    const std::vector<GLfloat>&  getVertexColors() const;
+    const Vector<GLushort>& getIndexList() const;
+    const Vector<GLuint>&   getIndexListLong() const;
+    const Vector<GLfloat>&  getVertices() const;
+    const Vector<GLfloat>&  getVertexNormals() const;
+    const Vector<GLfloat>&  getVertexTexCoords() const;
+    const Vector<GLfloat>&  getVertexColors() const;
 
-    const std::shared_ptr<OpenGLBuffer>& getIndexBuffer() const;
-    const std::shared_ptr<OpenGLBuffer>& getVertexBuffer() const;
-    const std::shared_ptr<OpenGLBuffer>& getNormalBuffer() const;
-    const std::shared_ptr<OpenGLBuffer>& getTexCoordBuffer() const;
-    const std::shared_ptr<OpenGLBuffer>& getVertexColorBuffer() const;
+    const SharedPtr<OpenGLBuffer>& getIndexBuffer() const;
+    const SharedPtr<OpenGLBuffer>& getVertexBuffer() const;
+    const SharedPtr<OpenGLBuffer>& getNormalBuffer() const;
+    const SharedPtr<OpenGLBuffer>& getTexCoordBuffer() const;
+    const SharedPtr<OpenGLBuffer>& getVertexColorBuffer() const;
 
     bool hasVertexNormal() const;
     bool hasVertexTexCoord() const;
@@ -119,18 +115,18 @@ protected:
     void clearBuffer();
 
     ////////////////////////////////////////////////////////////////////////////////
-    std::shared_ptr<OpenGLBuffer> m_VertexBuffer;
-    std::shared_ptr<OpenGLBuffer> m_NormalBuffer;
-    std::shared_ptr<OpenGLBuffer> m_TexCoordBuffer;
-    std::shared_ptr<OpenGLBuffer> m_VertexColorBuffer;
-    std::shared_ptr<OpenGLBuffer> m_IndexBuffer;
+    SharedPtr<OpenGLBuffer> m_VertexBuffer;
+    SharedPtr<OpenGLBuffer> m_NormalBuffer;
+    SharedPtr<OpenGLBuffer> m_TexCoordBuffer;
+    SharedPtr<OpenGLBuffer> m_VertexColorBuffer;
+    SharedPtr<OpenGLBuffer> m_IndexBuffer;
 
-    std::vector<GLushort> m_IndexList;
-    std::vector<GLuint>   m_IndexListLong;
-    std::vector<GLfloat>  m_Vertices;
-    std::vector<GLfloat>  m_VertexNormals;
-    std::vector<GLfloat>  m_VertexTexCoords;
-    std::vector<GLfloat>  m_VertexColors;
+    Vector<GLushort> m_IndexList;
+    Vector<GLuint>   m_IndexListLong;
+    Vector<GLfloat>  m_Vertices;
+    Vector<GLfloat>  m_VertexNormals;
+    Vector<GLfloat>  m_VertexTexCoords;
+    Vector<GLfloat>  m_VertexColors;
 
     size_t m_NumVertices;
     GLenum m_DataTopology;

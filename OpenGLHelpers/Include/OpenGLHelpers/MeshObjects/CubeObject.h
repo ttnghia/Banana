@@ -32,10 +32,7 @@ namespace Banana
 class CubeObject : public MeshObject
 {
 public:
-    CubeObject()
-    {
-        generateCube();
-    }
+    CubeObject() { generateCube(); }
 
     void generateCube()
     {
