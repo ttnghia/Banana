@@ -774,6 +774,7 @@ void CheckerboardBackgroundRender::render()
     m_Shader->setUniformValue(m_UColor1,             m_Color1);
     m_Shader->setUniformValue(m_UColor2,             m_Color2);
 
+    glCall(glDepthMask(GL_FALSE));
     glCall(glBindVertexArray(m_VAO));
     glCall(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4); );
     glCall(glBindVertexArray(0));

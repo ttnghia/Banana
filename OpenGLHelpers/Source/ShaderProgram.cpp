@@ -976,7 +976,7 @@ SharedPtr<ShaderProgram> ShaderProgram::getCheckerboardBackgroundShader(String p
         "\n"
         "uniform vec4 u_Color1 = vec4(1, 1, 1, 1);\n"
         "uniform vec4 u_Color2 = vec4(0, 0, 0, 1);\n"
-        "uniform vec2 u_TexScales = vec2(1, 1);\n"
+        "uniform vec2 u_TexScales = vec2(0.01, 0.01);\n"
         "uniform int u_ScreenWidth = 1;\n"
         "uniform int u_ScreenHeight= 1;\n"
         "in vec2 f_TexCoord; \n"

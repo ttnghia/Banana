@@ -274,16 +274,23 @@ class CheckerboardBackgroundRender : public RenderObject
 {
 public:
     CheckerboardBackgroundRender() : RenderObject(nullptr, nullptr) { initRenderData(); }
+    CheckerboardBackgroundRender(const Vec3f& color1, const Vec3f& color2) : RenderObject(nullptr, nullptr) { initRenderData(); setColors(color1, color2); }
+    CheckerboardBackgroundRender(const Vec4f& color1, const Vec4f& color2) : RenderObject(nullptr, nullptr) { initRenderData(); setColors(color1, color2); }
 
     void         setTexScales(Vec2f texScales) { m_TexScales = texScales; }
     void         setScreenSize(int width, int height) { m_ScreenWidth = width; m_ScreenHeight = height; }
-    void         setColors(const Vec4f& color1, const Vec4f& color2) { m_Color1 = color1; m_Color2 = color2; }
+    void         setColor1(const Vec3f& color1) { m_Color1 = Vec4f(color1, 1.0); }
+    void         setColor1(const Vec4f& color1) { m_Color1 = color1; }
+    void         setColor2(const Vec3f& color2) { m_Color2 = Vec4f(color2, 1.0); }
+    void         setColor2(const Vec4f& color2) { m_Color2 = color2; }
+    void         setColors(const Vec3f& color1, const Vec3f& color2) { setColor1(color1); setColor2(color2); }
+    void         setColors(const Vec4f& color1, const Vec4f& color2) { setColor1(color1); setColor2(color2); }
     virtual void render() override;
 
 private:
     virtual void initRenderData() override;
 
-    Vec2f m_TexScales    = Vec2f(1);
+    Vec2f m_TexScales    = Vec2f(0.01);
     GLint m_ScreenWidth  = 1;
     GLint m_ScreenHeight = 1;
     Vec4f m_Color1       = Vec4f(1);
