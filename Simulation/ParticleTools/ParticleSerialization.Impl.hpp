@@ -355,14 +355,13 @@ bool ParticleSerialization::getParticleAttributeCompressed(const String& attrNam
     auto& attr = m_ParticleAttributes[attrName];
     __BNN_ASSERT(N == attr->count && sizeof(T) == attr->typeSize());
     __BNN_ASSERT(attr->type == TypeCompressedReal);
-    values.resize(m_nParticles);
+    values.resize(m_nParticles * N);
 
     ////////////////////////////////////////////////////////////////////////////////
     VecX<N, float> dMinf, dMaxf;
     UInt64         segmentStart = 0;
-    UInt64         segmentSize;
+    UInt64         segmentSize  = sizeof(float) * N;
 
-    segmentSize = sizeof(float) * N;
     memcpy(&dMinf, &attr->buffer.data()[segmentStart], segmentSize);
     segmentStart += segmentSize;
     memcpy(&dMaxf, &attr->buffer.data()[segmentStart], segmentSize);
