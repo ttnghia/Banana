@@ -22,9 +22,12 @@
 #pragma once
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#define DEFAULT_CAMERA_POSITION Vec3f(3, 2.0, 0)
-#define DEFAULT_CAMERA_FOCUS    Vec3f(0, 0, 0)
-#define DEFAULT_LIGHT_POSITION  Vec3f(-10, 10, 10)
+#define DEFAULT_CAMERA_POSITION     Vec3f(3.5, 0.5, 0)
+#define DEFAULT_CAMERA_FOCUS        Vec3f(0, 0, 0)
+#define DEFAULT_LIGHT_POSITION      Vec4f(10, 10, -10, 1.0)
+
+#define DEFAULT_CHECKERBOARD_COLOR1 Vec3f(0.9)
+#define DEFAULT_CHECKERBOARD_COLOR2 Vec3f(0.5)
 
 #define CUSTOM_PARTICLE_MATERIAL         \
     {                                    \
@@ -41,6 +44,18 @@
 #define NUM_MESHES            8
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+struct BackgroundMode
+{
+    enum
+    {
+        SkyBox = 0,
+        Color,
+        Checkerboard,
+        Grid,
+        NumBackgroundMode
+    };
+};
+
 struct ParticleColorMode
 {
     enum

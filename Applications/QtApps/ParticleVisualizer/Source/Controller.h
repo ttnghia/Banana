@@ -67,13 +67,26 @@ private:
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
-    // background and floor
-    void setupTextureControllers(QBoxLayout* layoutCtr);
+    // background
+    void setupBackgroundControllers(QBoxLayout* layoutCtr);
     EnhancedComboBox* m_cbSkyTexture;
+    QRadioButton*     m_chkBackgroundSkyBox;
+    QRadioButton*     m_chkBackgroundColor;
+    QRadioButton*     m_chkBackgroundCheckerboard;
+    QRadioButton*     m_chkBackgroundGrid;
+    EnhancedSlider*   m_sldCheckerboardTexScale;
+    EnhancedSlider*   m_sldGridScale;
+    ////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // floor
+    void setupFloorControllers(QBoxLayout* layoutCtr);
     EnhancedComboBox* m_cbFloorTexture;
     EnhancedSlider*   m_sldFloorSize;
     EnhancedSlider*   m_sldFloorExposure;
     ColorPicker*      m_pkrBackgroundColor;
+    ColorPicker*      m_pkrCheckerColor1;
+    ColorPicker*      m_pkrCheckerColor2;
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////

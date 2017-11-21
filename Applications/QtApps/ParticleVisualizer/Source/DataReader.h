@@ -127,7 +127,7 @@ public:
 
     ////////////////////////////////////////////////////////////////////////////////
     // common variables
-    bool        setDataPath(const QString& dataPath);
+    void        setDataPath(const QString& dataPath);
     const auto& getVizData() const { return m_VizData; }
 signals:
     void cameraChanged();
@@ -139,7 +139,8 @@ private:
     QString                       m_FrameDataFolder = QString("FrameData");
     UniquePtr<QFileSystemWatcher> m_DataDirWatcher  = nullptr;
     QString                       m_FrameDataPath;
-    SharedPtr<VisualizationData>  m_VizData = std::make_shared<VisualizationData>();
+    bool                          m_bValidDataPath = false;
+    SharedPtr<VisualizationData>  m_VizData        = std::make_shared<VisualizationData>();
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////

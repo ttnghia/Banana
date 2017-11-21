@@ -118,9 +118,10 @@ void MainWindow::updateStatusCurrentFrame(int currentFrame)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MainWindow::updateStatusNumParticlesAndMeshes()
 {
-    m_lblStatusNumParticles->setText(QString("Particles: %1 | Mesh(es): %2")
-                                         .arg(QString::fromStdString(NumberHelpers::formatWithCommas(m_nParticles)))
-                                         .arg(QString::fromStdString(NumberHelpers::formatWithCommas(m_nMeshes))));
+//    m_lblStatusNumParticles->setText(QString("Particles: %1 | Mesh(es): %2")
+//                                         .arg(QString::fromStdString(NumberHelpers::formatWithCommas(m_nParticles)))
+//                                         .arg(QString::fromStdString(NumberHelpers::formatWithCommas(m_nMeshes))));
+    m_lblStatusNumParticles->setText(QString("Particles: %1").arg(QString::fromStdString(NumberHelpers::formatWithCommas(m_nParticles))));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -135,7 +136,7 @@ void MainWindow::updateNumFrames(int numFrames)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MainWindow::updateStatusReadInfo(double readTime, size_t bytes)
 {
-    m_lblStatusReadInfo->setText(QString("Load data time: %1 ms (%2 MB)").arg(readTime).arg(static_cast<double>(bytes) / 1048576.0));
+    m_lblStatusReadInfo->setText(QString("Load data: %1 ms | %2 MB").arg(readTime).arg(static_cast<double>(bytes) / 1048576.0));
 }
 
 void MainWindow::updateStatusMemoryUsage()

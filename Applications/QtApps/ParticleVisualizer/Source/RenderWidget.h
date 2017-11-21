@@ -75,12 +75,14 @@ private:
     ////////////////////////////////////////////////////////////////////////////////
     // skybox and checkerboard background
 public slots:
+    void setRenderCheckerboard(bool bCheckerboard) { m_bRenderCheckerboardBackground = bCheckerboard; }
     void setSkyBoxTexture(int texIndex) { Q_ASSERT(m_SkyBoxRender != nullptr); m_SkyBoxRender->setRenderTextureIndex(texIndex); }
-    void setCheckerboarrdColors(const Vec4f& color1, const Vec4f& color2) { Q_ASSERT(m_CheckerboardRender != nullptr); m_CheckerboardRender->setColors(color1, color2); }
+    void setCheckerboarrdColor1(const Vec3f& color1) { Q_ASSERT(m_CheckerboardRender != nullptr); m_CheckerboardRender->setColor1(color1); }
+    void setCheckerboarrdColor2(const Vec3f& color2) { Q_ASSERT(m_CheckerboardRender != nullptr); m_CheckerboardRender->setColor2(color2); }
     void setCheckerboarrdScales(const Vec2f& texScales) { Q_ASSERT(m_CheckerboardRender != nullptr); m_CheckerboardRender->setTexScales(texScales); }
 private:
     void initRDataSkyBox();
-    void initRDataCheckerboardBackground() { m_CheckerboardRender = std::make_unique<CheckerboardBackgroundRender>(); }
+    void initRDataCheckerboardBackground() { m_CheckerboardRender = std::make_unique<CheckerboardBackgroundRender>(DEFAULT_CHECKERBOARD_COLOR1, DEFAULT_CHECKERBOARD_COLOR2); }
     void renderSkyBox() { Q_ASSERT(m_SkyBoxRender != nullptr); m_SkyBoxRender->render(); }
     void renderCheckerboardBackground() { Q_ASSERT(m_CheckerboardRender != nullptr); m_CheckerboardRender->render(); }
 
@@ -94,7 +96,7 @@ private:
 public slots:
     void setFloorTexture(int texIndex) { Q_ASSERT(m_FloorRender != nullptr); m_FloorRender->setRenderTextureIndex(texIndex); }
     void setFloorExposure(int percentage) { m_FloorRender->setExposure(static_cast<float>(percentage) / 100.0f); }
-    void setFloorSize(int size) { m_FloorRender->transform(Vec3f(0), Vec3f(static_cast<float>(size))); }
+    void setFloorSize(int size) { m_FloorRender->transform(Vec3f(0, -1.01, 0), Vec3f(static_cast<float>(size))); }
     void setFloorTexScales(int scale) { m_FloorRender->scaleTexCoord(scale, scale); }
 private:
     void initRDataFloor();
@@ -147,6 +149,8 @@ private:
         GLuint ub_CamData;
         GLuint ub_Light;
         GLuint ub_Material;
+        GLuint u_MinPosition;
+        GLuint u_MaxPosition;
         GLuint u_PointRadius;
         GLuint u_ClipPlane;
         GLuint u_IsPointView;

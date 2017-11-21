@@ -63,7 +63,7 @@ private:
 
     ////////////////////////////////////////////////////////////////////////////////
     UInt m_nParticles = 0;
-    UInt m_nMeshes    = 0;
+//    UInt m_nMeshes    = 0;
 
     RenderWidget*     m_RenderWidget   = nullptr;
     Controller*       m_Controller     = nullptr;

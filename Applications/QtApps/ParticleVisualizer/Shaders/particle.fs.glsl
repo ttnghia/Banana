@@ -42,7 +42,6 @@ uniform int u_ScreenHeight;
 
 
 in vec3 f_ViewCenter;
-in vec3 f_CenterPos;
 in vec3 f_Color;
 flat in mat3 f_AnisotropyMatrix;
 

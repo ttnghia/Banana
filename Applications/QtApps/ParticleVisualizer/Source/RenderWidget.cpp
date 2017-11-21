@@ -54,12 +54,12 @@ void RenderWidget::updateData()
     makeCurrent();
     ////////////////////////////////////////////////////////////////////////////////
     __BNN_ASSERT(m_VizData->particleReader.getParticleAttributeCompressed("position", m_RDataParticle.positionDataCompressed, m_RDataParticle.dMinPosition, m_RDataParticle.dMaxPosition));
-    m_RDataParticle.buffPosition->uploadDataAsync(m_RDataParticle.positionDataCompressed.data(), 0, m_RDataParticle.positionDataCompressed.size());
+    m_RDataParticle.buffPosition->uploadDataAsync(m_RDataParticle.positionDataCompressed.data(), 0, m_RDataParticle.positionDataCompressed.size() * sizeof(UInt16));
 
     if(m_RDataParticle.useAnisotropyKernel) {
         if(m_VizData->particleReader.hasParticleAttribute("anisotropic_kernel")) {
             __BNN_ASSERT(m_VizData->particleReader.getParticleAttributeCompressed("anisotropic_kernel", m_RDataParticle.aniKernelDataCompressed, m_RDataParticle.dMinAniKernel, m_RDataParticle.dMaxAniKernel));
-            m_RDataParticle.buffAniKernels->uploadDataAsync(m_RDataParticle.aniKernelDataCompressed.data(), 0, m_RDataParticle.aniKernelDataCompressed.size());
+            m_RDataParticle.buffAniKernels->uploadDataAsync(m_RDataParticle.aniKernelDataCompressed.data(), 0, m_RDataParticle.aniKernelDataCompressed.size() * sizeof(UInt16));
             m_RDataParticle.hasAnisotropyKernel = 1;
         } else {
             m_RDataParticle.hasAnisotropyKernel = 0;
@@ -68,15 +68,13 @@ void RenderWidget::updateData()
 
     if(m_RDataParticle.pColorMode == ParticleColorMode::FromData) {
         __BNN_ASSERT(m_VizData->particleReader.getParticleAttributeCompressed(m_VizData->colorDataName, m_RDataParticle.colorDataCompressed, m_RDataParticle.dMinColorData, m_RDataParticle.dMaxColorData));
-        m_RDataParticle.buffColorData->uploadDataAsync(m_RDataParticle.colorDataCompressed.data(), 0, m_RDataParticle.colorDataCompressed.size());
+        m_RDataParticle.buffColorData->uploadDataAsync(m_RDataParticle.colorDataCompressed.data(), 0, m_RDataParticle.colorDataCompressed.size() * sizeof(UInt16));
     }
 
     ////////////////////////////////////////////////////////////////////////////////
     doneCurrent();
     m_VizData->particleReader.getFixedAttribute("particle_radius", m_RDataParticle.pointRadius);
     m_RDataParticle.numParticles = m_VizData->particleReader.getNParticles();
-
-    __BNN_TODO_MSG("Also upload data for mesh");
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -109,10 +107,8 @@ void RenderWidget::initRDataLight()
     m_Lights = std::make_shared<PointLights>();
     m_Lights->setNumLights(1);
 
-    m_Lights->setLightPosition(glm::vec4(-10, 10, 10, 1.0), 0);
-    //    m_Lights->setLightPosition(glm::vec4(0, 100, 100, 1.0), 1);
+    m_Lights->setLightPosition(DEFAULT_LIGHT_POSITION, 0);
     //    m_Lights->setLightDiffuse(glm::vec4(1.0), 0);
-    //    m_Lights->setLightDiffuse(glm::vec4(0.7), 1);
 
     m_Lights->setSceneCenter(Vec3f(0, 0, 0));
     m_Lights->setLightViewPerspective(30);
@@ -135,8 +131,9 @@ void RenderWidget::initRDataFloor()
     Q_ASSERT(m_UBufferCamData != nullptr && m_Lights != nullptr);
 
     m_FloorRender = std::make_unique<PlaneRender>(m_Camera, m_Lights, QDir::currentPath() + "/Textures/Floor/", m_UBufferCamData);
-    m_FloorRender->transform(Vec3f(0, -0.01, 0), Vec3f(10));
+    m_FloorRender->transform(Vec3f(0, -1.01, 0), Vec3f(10));
     m_FloorRender->scaleTexCoord(2, 2);
+    m_FloorRender->setAllowNonTextureRender(false);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -144,7 +141,7 @@ void RenderWidget::initRDataBox()
 {
     Q_ASSERT(m_UBufferCamData != nullptr);
     m_DomainBoxRender = std::make_unique<WireFrameBoxRender>(m_Camera, m_UBufferCamData);
-    m_DomainBoxRender->setBox(Vec3f(-1, 0, -1), Vec3f(1, 2, 1));
+    m_DomainBoxRender->setBox(Vec3f(-1), Vec3f(1));
     m_DomainBoxRender->setColor(Vec3f(0, 1, 0.5));
 }
 
@@ -201,6 +198,9 @@ void RenderWidget::initRDataParticle()
     m_RDataParticle.u_ScreenWidth         = m_RDataParticle.shader->getUniformLocation("u_ScreenWidth");
     m_RDataParticle.u_ScreenHeight        = m_RDataParticle.shader->getUniformLocation("u_ScreenHeight");
 
+    m_RDataParticle.u_MinPosition = m_RDataParticle.shader->getUniformLocation("u_MinPosition");
+    m_RDataParticle.u_MaxPosition = m_RDataParticle.shader->getUniformLocation("u_MaxPosition");
+
     m_RDataParticle.buffPosition = std::make_unique<OpenGLBuffer>();
     m_RDataParticle.buffPosition->createBuffer(GL_ARRAY_BUFFER, 1, nullptr, GL_DYNAMIC_DRAW);
 
@@ -226,7 +226,7 @@ void RenderWidget::initParticleVAO()
     glCall(glEnableVertexAttribArray(m_RDataParticle.v_Position));
 
     m_RDataParticle.buffPosition->bind();
-    glCall(glVertexAttribPointer(m_RDataParticle.v_Position, 3, GL_UNSIGNED_SHORT, GL_FALSE, 0, reinterpret_cast<GLvoid*>(0)));
+    glCall(glVertexAttribIPointer(m_RDataParticle.v_Position, 3, GL_UNSIGNED_SHORT, 0, reinterpret_cast<GLvoid*>(0)));
 
 //    m_RDataParticle.buffAniKernels->bind();
 //    glCall(glEnableVertexAttribArray(m_RDataParticle.v_AnisotropyMatrix0));
@@ -239,7 +239,7 @@ void RenderWidget::initParticleVAO()
     if(m_RDataParticle.pColorMode == ParticleColorMode::FromData) {
         glCall(glEnableVertexAttribArray(m_RDataParticle.v_Color));
         m_RDataParticle.buffColorData->bind();
-        glCall(glVertexAttribPointer(m_RDataParticle.v_Color, 3, GL_UNSIGNED_SHORT, GL_FALSE, 0, reinterpret_cast<GLvoid*>(0)));
+        glCall(glVertexAttribIPointer(m_RDataParticle.v_Color, 3, GL_UNSIGNED_SHORT, 0, reinterpret_cast<GLvoid*>(0)));
     }
 
     glCall(glBindVertexArray(0));
@@ -268,6 +268,9 @@ void RenderWidget::renderParticles()
     m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_ClipPlane, m_ClipPlane);
     m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_ScreenWidth, width());
     m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_ScreenHeight, height());
+
+    m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_MinPosition, m_RDataParticle.dMinPosition);
+    m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_MaxPosition, m_RDataParticle.dMaxPosition);
 
     if(m_RDataParticle.useAnisotropyKernel && m_RDataParticle.hasAnisotropyKernel) {
         m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_UseAnisotropyKernel, 1);

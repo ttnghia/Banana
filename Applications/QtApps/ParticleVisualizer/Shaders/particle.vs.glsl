@@ -22,7 +22,10 @@ uniform int   u_ScreenWidth;
 uniform int   u_ScreenHeight;
 
 //------------------------------------------------------------------------------------------
-in vec3       v_Position;
+uniform vec3 u_MinPosition;
+uniform vec3 u_MaxPosition;
+
+in ivec3      v_Position;
 in vec3       v_Color;
 in vec3       v_AnisotropyMatrix0;
 in vec3       v_AnisotropyMatrix1;
@@ -64,7 +67,9 @@ void ComputePointSizeAndPosition(mat4 T)
 //------------------------------------------------------------------------------------------
 void main()
 {
-    vec4  eyeCoord = viewMatrix * vec4(v_Position, 1.0);
+    vec3 diff = u_MaxPosition - u_MinPosition;
+    vec3 position = v_Position * diff / 65535.0f + u_MinPosition;
+    vec4  eyeCoord = viewMatrix * vec4(position, 1.0);
     vec3  posEye   = vec3(eyeCoord);
     float dist     = length(posEye);
 
@@ -72,11 +77,11 @@ void main()
               mat4(u_PointRadius, 0, 0, 0,
         0, u_PointRadius, 0, 0,
         0, 0, u_PointRadius, 0,
-        v_Position.x, v_Position.y, v_Position.z, 1.0) :
+        position.x, position.y, position.z, 1.0) :
               mat4(v_AnisotropyMatrix0[0] * u_PointRadius, v_AnisotropyMatrix0[1] * u_PointRadius, v_AnisotropyMatrix0[2] * u_PointRadius, 0,
         v_AnisotropyMatrix1[0] * u_PointRadius, v_AnisotropyMatrix1[1] * u_PointRadius, v_AnisotropyMatrix1[2] * u_PointRadius, 0,
         v_AnisotropyMatrix2[0] * u_PointRadius, v_AnisotropyMatrix2[1] * u_PointRadius, v_AnisotropyMatrix2[2] * u_PointRadius, 0,
-        v_Position.x, v_Position.y, v_Position.z, 1.0);
+        position.x, position.y, position.z, 1.0);
 
 
 
@@ -96,7 +101,7 @@ void main()
         T = mat4(u_PointRadius, 0, 0, 0,
             0, u_PointRadius, 0, 0,
             0, 0, u_PointRadius, 0,
-            v_Position.x, v_Position.y, v_Position.z, 1.0);
+            position.x, position.y, position.z, 1.0);
 
         f_AnisotropyMatrix = mat3(1);
     }
@@ -111,5 +116,5 @@ void main()
 //        eyeCoord *= 2;
 
     gl_Position        = projectionMatrix * eyeCoord;
-    gl_ClipDistance[0] = dot(vec4(v_Position, 1.0), u_ClipPlane);
+    gl_ClipDistance[0] = dot(vec4(position, 1.0), u_ClipPlane);
 }

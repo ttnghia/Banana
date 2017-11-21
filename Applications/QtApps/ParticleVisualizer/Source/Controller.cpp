@@ -28,19 +28,20 @@ void Controller::setupGUI()
     QVBoxLayout* layoutCtr     = new QVBoxLayout;
     QVBoxLayout* layoutButtons = new QVBoxLayout;
     ////////////////////////////////////////////////////////////////////////////////
-    setupTextureControllers(layoutCtr);
+    setupBackgroundControllers(layoutCtr);
+    setupFloorControllers(layoutCtr);
     setupFrameControllers(layoutCtr);
     setupAniKernel(layoutCtr);
     setupMaterialControllers(layoutCtr);
     setupColorModeControllers(layoutCtr);
+    layoutCtr->addStretch();
     setupButtons(layoutButtons);
     ////////////////////////////////////////////////////////////////////////////////
+    loadTextures();
+    m_LightEditor = new PointLightEditor(nullptr, this);
 
     QWidget* mainControls = new QWidget;
     mainControls->setLayout(layoutCtr);
-
-    m_LightEditor = new PointLightEditor(nullptr, this);
-
     ////////////////////////////////////////////////////////////////////////////////
     QTabWidget* tabWidget = new QTabWidget;
     tabWidget->setTabPosition(QTabWidget::South);
@@ -64,10 +65,17 @@ void Controller::connectWidgets()
 {
     ////////////////////////////////////////////////////////////////////////////////
     // background and floor
+    connect(m_chkBackgroundCheckerboard, &QRadioButton::toggled, m_RenderWidget, &RenderWidget::setRenderCheckerboard);
     connect(m_cbSkyTexture->getComboBox(), SIGNAL(currentIndexChanged(int)), m_RenderWidget, SLOT(setSkyBoxTexture(int)));
+
     connect(m_pkrBackgroundColor, &ColorPicker::colorChanged, [&](float r, float g, float b) { m_RenderWidget->setClearColor(Vec3f(r, g, b)); });
+
+    connect(m_pkrCheckerColor1, &ColorPicker::colorChanged, [&](float r, float g, float b) { m_RenderWidget->setCheckerboarrdColor1(Vec3f(r, g, b)); });
+    connect(m_pkrCheckerColor2, &ColorPicker::colorChanged, [&](float r, float g, float b) { m_RenderWidget->setCheckerboarrdColor2(Vec3f(r, g, b)); });
+
     connect(m_cbFloorTexture->getComboBox(), SIGNAL(currentIndexChanged(int)), m_RenderWidget, SLOT(setFloorTexture(int)));
     connect(m_sldFloorSize->getSlider(), &QSlider::valueChanged, m_RenderWidget, &RenderWidget::setFloorSize);
+    connect(m_sldFloorExposure->getSlider(), &QSlider::valueChanged, m_RenderWidget, &RenderWidget::setFloorExposure);
 
     ////////////////////////////////////////////////////////////////////////////////
     // materials
@@ -150,46 +158,97 @@ void Controller::loadTextures()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Controller::setupTextureControllers(QBoxLayout* layoutCtr)
+void Controller::setupBackgroundControllers(QBoxLayout* layoutCtr)
 {
-    m_cbSkyTexture       = new EnhancedComboBox;
+    m_chkBackgroundSkyBox       = new QRadioButton("SkyBox");
+    m_chkBackgroundColor        = new QRadioButton("Color");
+    m_chkBackgroundCheckerboard = new QRadioButton("Checkerboard");
+    m_chkBackgroundGrid         = new QRadioButton("Grid");
+    m_chkBackgroundSkyBox->setChecked(true);
+    QGridLayout* layoutBackgroundType = new QGridLayout;
+    layoutBackgroundType->addWidget(m_chkBackgroundSkyBox, 0, 0, 1, 1);
+    layoutBackgroundType->addWidget(m_chkBackgroundColor, 0, 1, 1, 1);
+    layoutBackgroundType->addWidget(m_chkBackgroundCheckerboard, 1, 0, 1, 1);
+    layoutBackgroundType->addWidget(m_chkBackgroundGrid, 1, 1, 1, 1);
+
+    ////////////////////////////////////////////////////////////////////////////////
+    m_cbSkyTexture = new EnhancedComboBox;
+    QWidget* wSkyTex = new QWidget;
+    m_cbSkyTexture->getLayout()->setContentsMargins(0, 0, 0, 0);
+    wSkyTex->setLayout(m_cbSkyTexture->getLayout());
+    wSkyTex->setMinimumHeight(25);
+    ////////////////////////////////////////////////////////////////////////////////
     m_pkrBackgroundColor = new ColorPicker;
     m_pkrBackgroundColor->setMaximumHeight(25);
+    m_pkrBackgroundColor->setVisible(false);
     ////////////////////////////////////////////////////////////////////////////////
-    QGridLayout* layoutBackground = new QGridLayout;
-    layoutBackground->addWidget(new QLabel("Skybox:"), 0, 0, 1, 1);
-    layoutBackground->addLayout(m_cbSkyTexture->getLayout(), 0, 1, 1, 2);
-    layoutBackground->addWidget(new QLabel("Background Color: "), 1, 0, 1, 1);
-    layoutBackground->addWidget(m_pkrBackgroundColor, 1, 1, 1, 2);
+    m_pkrCheckerColor1        = new ColorPicker;
+    m_pkrCheckerColor2        = new ColorPicker;
+    m_sldCheckerboardTexScale = new EnhancedSlider;
+    m_pkrCheckerColor1->setColor(DEFAULT_CHECKERBOARD_COLOR1);
+    m_pkrCheckerColor2->setColor(DEFAULT_CHECKERBOARD_COLOR2);
+    QHBoxLayout* layoutCheckerboard = new QHBoxLayout;
+    layoutCheckerboard->setContentsMargins(0, 0, 0, 0);
+    layoutCheckerboard->addWidget(m_pkrCheckerColor1, 10);
+    layoutCheckerboard->addStretch(1);
+    layoutCheckerboard->addWidget(m_pkrCheckerColor2, 10);
+    layoutCheckerboard->addStretch(1);
+    layoutCheckerboard->addLayout(m_sldCheckerboardTexScale->getLayout(), 40);
+    QWidget* wCheckerboard = new QWidget;
+    wCheckerboard->setMinimumHeight(25);
+    wCheckerboard->setLayout(layoutCheckerboard);
+    wCheckerboard->setVisible(false);
+    ////////////////////////////////////////////////////////////////////////////////
+    m_sldGridScale = new EnhancedSlider;
+    QWidget* wGridScale = new QWidget;
+    m_sldGridScale->getLayout()->setContentsMargins(0, 0, 0, 0);
+    wGridScale->setLayout(m_sldGridScale->getLayout());
+    wGridScale->setMinimumHeight(25);
+    wGridScale->setVisible(false);
+    ////////////////////////////////////////////////////////////////////////////////
+    QVBoxLayout* layoutBackground = new QVBoxLayout;
+    layoutBackground->addLayout(layoutBackgroundType);
+    layoutBackground->addSpacing(10);
+    layoutBackground->addWidget(wSkyTex);
+    layoutBackground->addWidget(m_pkrBackgroundColor);
+    layoutBackground->addWidget(wCheckerboard);
+    layoutBackground->addWidget(wGridScale);
+    connect(m_chkBackgroundSkyBox, &QRadioButton::toggled, wSkyTex, &QWidget::setVisible);
+    connect(m_chkBackgroundColor, &QRadioButton::toggled, m_pkrBackgroundColor, &ColorPicker::setVisible);
+    connect(m_chkBackgroundCheckerboard, &QRadioButton::toggled, wCheckerboard, &QWidget::setVisible);
+    connect(m_chkBackgroundGrid, &QRadioButton::toggled, wGridScale, &QWidget::setVisible);
     ////////////////////////////////////////////////////////////////////////////////
     QGroupBox* grBackground = new QGroupBox("Background");
     grBackground->setLayout(layoutBackground);
     layoutCtr->addWidget(grBackground);
+}
 
-    ////////////////////////////////////////////////////////////////////////////////
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void Controller::setupFloorControllers(QBoxLayout* layoutCtr)
+{
     m_cbFloorTexture = new EnhancedComboBox;
     m_sldFloorSize   = new EnhancedSlider;
     m_sldFloorSize->setRange(1, 100);
     m_sldFloorSize->getSlider()->setValue(10);
     m_sldFloorExposure = new EnhancedSlider;
     m_sldFloorExposure->setRange(1, 100);
-    m_sldFloorExposure->getSlider()->setValue(50);
+    m_sldFloorExposure->getSlider()->setValue(100);
     ////////////////////////////////////////////////////////////////////////////////
     QFrame* line = new QFrame();
     line->setFrameShape(QFrame::HLine);
     line->setFrameShadow(QFrame::Sunken);
     ////////////////////////////////////////////////////////////////////////////////
-    QVBoxLayout* shadowLayout = new QVBoxLayout;
-    shadowLayout->addLayout(m_cbFloorTexture->getLayout());
-    shadowLayout->addSpacing(10);
-    shadowLayout->addWidget(line);
-    shadowLayout->addLayout(m_sldFloorSize->getLayoutWithLabel("Size:"));
-    shadowLayout->addLayout(m_sldFloorExposure->getLayoutWithLabel("Exposure:"));
+    QVBoxLayout* layoutFloorCtr = new QVBoxLayout;
+    layoutFloorCtr->addLayout(m_cbFloorTexture->getLayout());
+    layoutFloorCtr->addSpacing(10);
+    layoutFloorCtr->addWidget(line);
+    layoutFloorCtr->addLayout(m_sldFloorSize->getLayoutWithLabel("Size:"));
+    layoutFloorCtr->addLayout(m_sldFloorExposure->getLayoutWithLabel("Exposure:"));
     ////////////////////////////////////////////////////////////////////////////////
-    QGroupBox* shadowGroup = new QGroupBox;
-    shadowGroup->setTitle("Floor Texture");
-    shadowGroup->setLayout(shadowLayout);
-    layoutCtr->addWidget(shadowGroup);
+    QGroupBox* grFloor = new QGroupBox;
+    grFloor->setTitle("Floor Texture");
+    grFloor->setLayout(layoutFloorCtr);
+    layoutCtr->addWidget(grFloor);
     ////////////////////////////////////////////////////////////////////////////////
     loadTextures();
 }

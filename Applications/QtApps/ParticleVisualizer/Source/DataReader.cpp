@@ -36,15 +36,16 @@ DataReader::DataReader()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-bool DataReader::setDataPath(const QString& dataPath)
+void DataReader::setDataPath(const QString& dataPath)
 {
     resetData();
-    return loadVizData(dataPath);
+    m_bValidDataPath = loadVizData(dataPath);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void DataReader::resetData()
 {
+    m_bValidDataPath = false;
     m_VizData->resetData();
     emit cameraChanged();
     emit domainBoxChanged();
@@ -249,6 +250,9 @@ void DataReader::readNextFrame()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void DataReader::readFrame(int frame)
 {
+    if(!m_bValidDataPath) {
+        return;
+    }
     m_ReadTimer.tick();
     size_t bytesReads = 0;
     bool   success    = readParticles(frame, bytesReads);
@@ -266,7 +270,7 @@ void DataReader::readFrame(int frame)
 bool DataReader::readParticles(int frameID, size_t& bytesRead)
 {
     if(m_bUseAniKernel) {
-        m_VizData->particleReader.read(frameID, { "position", "anisotropic_kernel" }, false);
+        m_VizData->particleReader.read(frameID, { "particle_radius", "position", "anisotropic_kernel" }, false);
     } else {
         m_VizData->particleReader.read(frameID);
     }
