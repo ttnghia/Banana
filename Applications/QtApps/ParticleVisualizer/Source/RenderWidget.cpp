@@ -26,6 +26,7 @@ void RenderWidget::initOpenGL()
 {
     initRDataSkyBox();
     initRDataCheckerboardBackground();
+    initRDataGridBackground();
     initRDataLight();
     initRDataFloor();
     initRDataBox();
@@ -33,13 +34,34 @@ void RenderWidget::initOpenGL()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void RenderWidget::resizeOpenGLWindow(int width, int height)
+{
+    if(m_CheckerboardRender != nullptr) {
+        m_CheckerboardRender->setScreenSize(width, height);
+    }
+    if(m_GridRender != nullptr) {
+        m_GridRender->setScreenSize(width, height);
+    }
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void RenderWidget::renderOpenGL()
 {
-    if(m_bRenderCheckerboardBackground) {
-        renderCheckerboardBackground();
-    } else {
-        renderSkyBox();
+    switch(m_BackgroundMode) {
+        case BackgroundMode::SkyBox:
+            renderSkyBox();
+            break;
+        case BackgroundMode::Checkerboard:
+            renderCheckerboardBackground();
+            break;
+        case BackgroundMode::Grid:
+            renderGridBackground();
+            break;
+        case BackgroundMode::Color:
+        default:
+            ;
     }
+
     renderFloor();
     renderLight();
     renderBox();
@@ -142,7 +164,7 @@ void RenderWidget::initRDataBox()
     Q_ASSERT(m_UBufferCamData != nullptr);
     m_DomainBoxRender = std::make_unique<WireFrameBoxRender>(m_Camera, m_UBufferCamData);
     m_DomainBoxRender->setBox(Vec3f(-1), Vec3f(1));
-    m_DomainBoxRender->setColor(Vec3f(0, 1, 0.5));
+    m_DomainBoxRender->setColor(DEFAULT_BOX_COLOR);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

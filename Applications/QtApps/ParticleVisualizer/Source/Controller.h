@@ -69,13 +69,14 @@ private:
     ////////////////////////////////////////////////////////////////////////////////
     // background
     void setupBackgroundControllers(QBoxLayout* layoutCtr);
+    QSignalMapper*    m_smBackgroundMode;
     EnhancedComboBox* m_cbSkyTexture;
-    QRadioButton*     m_chkBackgroundSkyBox;
-    QRadioButton*     m_chkBackgroundColor;
-    QRadioButton*     m_chkBackgroundCheckerboard;
-    QRadioButton*     m_chkBackgroundGrid;
-    EnhancedSlider*   m_sldCheckerboardTexScale;
+    EnhancedSlider*   m_sldCheckerboardScale;
+    ColorPicker*      m_pkrCheckerColor1;
+    ColorPicker*      m_pkrCheckerColor2;
     EnhancedSlider*   m_sldGridScale;
+    ColorPicker*      m_pkrGridBackgroundColor;
+    ColorPicker*      m_pkrGridLineColor;
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -85,8 +86,6 @@ private:
     EnhancedSlider*   m_sldFloorSize;
     EnhancedSlider*   m_sldFloorExposure;
     ColorPicker*      m_pkrBackgroundColor;
-    ColorPicker*      m_pkrCheckerColor1;
-    ColorPicker*      m_pkrCheckerColor2;
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -94,12 +93,6 @@ private:
     void setupFrameControllers(QBoxLayout* layoutCtr);
     EnhancedSlider* m_sldFrameStep;
     EnhancedSlider* m_sldFrameDelay;
-    ////////////////////////////////////////////////////////////////////////////////
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // ani-kernel
-    void setupAniKernel(QBoxLayout* layoutCtr);
-    QCheckBox* m_chkUseAniKernel;
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -115,6 +108,14 @@ private:
     void setupColorModeControllers(QBoxLayout* layoutCtr);
     QSignalMapper* m_smParticleColorMode;
     QListWidget*   m_lstParticleData;
+    ////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // misc
+    void setupMiscControllers(QBoxLayout* layoutCtr);
+    QCheckBox*   m_chkUseAniKernel;
+    QCheckBox*   m_chkRenderBox;
+    ColorPicker* m_pkrBoxColor;
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////

@@ -31,9 +31,9 @@ void Controller::setupGUI()
     setupBackgroundControllers(layoutCtr);
     setupFloorControllers(layoutCtr);
     setupFrameControllers(layoutCtr);
-    setupAniKernel(layoutCtr);
     setupMaterialControllers(layoutCtr);
     setupColorModeControllers(layoutCtr);
+    setupMiscControllers(layoutCtr);
     layoutCtr->addStretch();
     setupButtons(layoutButtons);
     ////////////////////////////////////////////////////////////////////////////////
@@ -65,13 +65,19 @@ void Controller::connectWidgets()
 {
     ////////////////////////////////////////////////////////////////////////////////
     // background and floor
-    connect(m_chkBackgroundCheckerboard, &QRadioButton::toggled, m_RenderWidget, &RenderWidget::setRenderCheckerboard);
+    connect(m_smBackgroundMode, SIGNAL(mapped(int)), m_RenderWidget, SLOT(setBackgroundMode(int)));
+
     connect(m_cbSkyTexture->getComboBox(), SIGNAL(currentIndexChanged(int)), m_RenderWidget, SLOT(setSkyBoxTexture(int)));
 
     connect(m_pkrBackgroundColor, &ColorPicker::colorChanged, [&](float r, float g, float b) { m_RenderWidget->setClearColor(Vec3f(r, g, b)); });
 
     connect(m_pkrCheckerColor1, &ColorPicker::colorChanged, [&](float r, float g, float b) { m_RenderWidget->setCheckerboarrdColor1(Vec3f(r, g, b)); });
     connect(m_pkrCheckerColor2, &ColorPicker::colorChanged, [&](float r, float g, float b) { m_RenderWidget->setCheckerboarrdColor2(Vec3f(r, g, b)); });
+    connect(m_sldCheckerboardScale->getSlider(), &QSlider::valueChanged, [&](int value) { m_RenderWidget->setCheckerboarrdScales(Vec2i(value)); });
+
+    connect(m_pkrGridBackgroundColor, &ColorPicker::colorChanged, [&](float r, float g, float b) { m_RenderWidget->setGridBackgroundColor(Vec3f(r, g, b)); });
+    connect(m_pkrGridLineColor, &ColorPicker::colorChanged, [&](float r, float g, float b) { m_RenderWidget->setGridLineColor(Vec3f(r, g, b)); });
+    connect(m_sldGridScale->getSlider(), &QSlider::valueChanged, [&](int value) { m_RenderWidget->setGridScales(Vec2i(value)); });
 
     connect(m_cbFloorTexture->getComboBox(), SIGNAL(currentIndexChanged(int)), m_RenderWidget, SLOT(setFloorTexture(int)));
     connect(m_sldFloorSize->getSlider(), &QSlider::valueChanged, m_RenderWidget, &RenderWidget::setFloorSize);
@@ -79,6 +85,7 @@ void Controller::connectWidgets()
 
     ////////////////////////////////////////////////////////////////////////////////
     // materials
+    connect(m_smParticleColorMode, SIGNAL(mapped(int)), m_RenderWidget, SLOT(setParticleColorMode(int)));
     connect(m_msParticleMaterial, &MaterialSelector::materialChanged, m_RenderWidget, &RenderWidget::setParticleMaterial);
 //    connect(m_msMeshMaterial, &MaterialSelector::materialChanged,
 //            [&](const Material::MaterialData& material)
@@ -87,9 +94,11 @@ void Controller::connectWidgets()
 //            });
 
     ////////////////////////////////////////////////////////////////////////////////
-    // ani kernel
+    // misc controllers
     connect(m_chkUseAniKernel, &QCheckBox::toggled, m_RenderWidget, &RenderWidget::enableAniKernels);
     connect(m_chkUseAniKernel, &QCheckBox::toggled, m_DataReader, &DataReader::enableAniKernel);
+    connect(m_chkRenderBox, &QCheckBox::toggled, m_RenderWidget, &RenderWidget::setRenderBox);
+    connect(m_pkrBoxColor, &ColorPicker::colorChanged, [&](float r, float g, float b) { m_RenderWidget->setBoxColor(Vec3f(r, g, b)); });
 
     ////////////////////////////////////////////////////////////////////////////////
     // buttons
@@ -160,17 +169,17 @@ void Controller::loadTextures()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Controller::setupBackgroundControllers(QBoxLayout* layoutCtr)
 {
-    m_chkBackgroundSkyBox       = new QRadioButton("SkyBox");
-    m_chkBackgroundColor        = new QRadioButton("Color");
-    m_chkBackgroundCheckerboard = new QRadioButton("Checkerboard");
-    m_chkBackgroundGrid         = new QRadioButton("Grid");
-    m_chkBackgroundSkyBox->setChecked(true);
-    QGridLayout* layoutBackgroundType = new QGridLayout;
-    layoutBackgroundType->addWidget(m_chkBackgroundSkyBox, 0, 0, 1, 1);
-    layoutBackgroundType->addWidget(m_chkBackgroundColor, 0, 1, 1, 1);
-    layoutBackgroundType->addWidget(m_chkBackgroundCheckerboard, 1, 0, 1, 1);
-    layoutBackgroundType->addWidget(m_chkBackgroundGrid, 1, 1, 1, 1);
+    QRadioButton* rdbBackgroundSkyBox       = new QRadioButton("SkyBox");
+    QRadioButton* rdbBackgroundColor        = new QRadioButton("Color");
+    QRadioButton* rdbBackgroundCheckerboard = new QRadioButton("Checkerboard");
+    QRadioButton* rdbBackgroundGrid         = new QRadioButton("Grid");
+    rdbBackgroundSkyBox->setChecked(true);
 
+    QGridLayout* layoutBackgroundType = new QGridLayout;
+    layoutBackgroundType->addWidget(rdbBackgroundSkyBox, 0, 0, 1, 1);
+    layoutBackgroundType->addWidget(rdbBackgroundColor, 0, 1, 1, 1);
+    layoutBackgroundType->addWidget(rdbBackgroundCheckerboard, 1, 0, 1, 1);
+    layoutBackgroundType->addWidget(rdbBackgroundGrid, 1, 1, 1, 1);
     ////////////////////////////////////////////////////////////////////////////////
     m_cbSkyTexture = new EnhancedComboBox;
     QWidget* wSkyTex = new QWidget;
@@ -182,29 +191,47 @@ void Controller::setupBackgroundControllers(QBoxLayout* layoutCtr)
     m_pkrBackgroundColor->setMaximumHeight(25);
     m_pkrBackgroundColor->setVisible(false);
     ////////////////////////////////////////////////////////////////////////////////
-    m_pkrCheckerColor1        = new ColorPicker;
-    m_pkrCheckerColor2        = new ColorPicker;
-    m_sldCheckerboardTexScale = new EnhancedSlider;
+    m_pkrCheckerColor1     = new ColorPicker;
+    m_pkrCheckerColor2     = new ColorPicker;
+    m_sldCheckerboardScale = new EnhancedSlider;
+    m_sldCheckerboardScale->setRange(2, 100);
+    m_sldCheckerboardScale->setValue(DEFAULT_CHECKERBOARD_GRID_SIZE);
     m_pkrCheckerColor1->setColor(DEFAULT_CHECKERBOARD_COLOR1);
     m_pkrCheckerColor2->setColor(DEFAULT_CHECKERBOARD_COLOR2);
+
     QHBoxLayout* layoutCheckerboard = new QHBoxLayout;
     layoutCheckerboard->setContentsMargins(0, 0, 0, 0);
     layoutCheckerboard->addWidget(m_pkrCheckerColor1, 10);
     layoutCheckerboard->addStretch(1);
     layoutCheckerboard->addWidget(m_pkrCheckerColor2, 10);
     layoutCheckerboard->addStretch(1);
-    layoutCheckerboard->addLayout(m_sldCheckerboardTexScale->getLayout(), 40);
+    layoutCheckerboard->addLayout(m_sldCheckerboardScale->getLayout(), 40);
+
     QWidget* wCheckerboard = new QWidget;
     wCheckerboard->setMinimumHeight(25);
     wCheckerboard->setLayout(layoutCheckerboard);
     wCheckerboard->setVisible(false);
     ////////////////////////////////////////////////////////////////////////////////
+    m_pkrGridBackgroundColor = new ColorPicker;
+    m_pkrGridLineColor       = new ColorPicker;
+    m_pkrGridBackgroundColor->setColor(DEFAULT_CHECKERBOARD_COLOR1);
+    m_pkrGridLineColor->setColor(DEFAULT_CHECKERBOARD_COLOR2);
     m_sldGridScale = new EnhancedSlider;
-    QWidget* wGridScale = new QWidget;
-    m_sldGridScale->getLayout()->setContentsMargins(0, 0, 0, 0);
-    wGridScale->setLayout(m_sldGridScale->getLayout());
-    wGridScale->setMinimumHeight(25);
-    wGridScale->setVisible(false);
+    m_sldGridScale->setRange(2, 100);
+    m_sldGridScale->setValue(DEFAULT_CHECKERBOARD_GRID_SIZE);
+
+    QHBoxLayout* layoutGrid = new QHBoxLayout;
+    layoutGrid->setContentsMargins(0, 0, 0, 0);
+    layoutGrid->addWidget(m_pkrGridBackgroundColor, 10);
+    layoutGrid->addStretch(1);
+    layoutGrid->addWidget(m_pkrGridLineColor, 10);
+    layoutGrid->addStretch(1);
+    layoutGrid->addLayout(m_sldGridScale->getLayout(), 40);
+
+    QWidget* wGrid = new QWidget;
+    wGrid->setLayout(layoutGrid);
+    wGrid->setMinimumHeight(25);
+    wGrid->setVisible(false);
     ////////////////////////////////////////////////////////////////////////////////
     QVBoxLayout* layoutBackground = new QVBoxLayout;
     layoutBackground->addLayout(layoutBackgroundType);
@@ -212,15 +239,27 @@ void Controller::setupBackgroundControllers(QBoxLayout* layoutCtr)
     layoutBackground->addWidget(wSkyTex);
     layoutBackground->addWidget(m_pkrBackgroundColor);
     layoutBackground->addWidget(wCheckerboard);
-    layoutBackground->addWidget(wGridScale);
-    connect(m_chkBackgroundSkyBox, &QRadioButton::toggled, wSkyTex, &QWidget::setVisible);
-    connect(m_chkBackgroundColor, &QRadioButton::toggled, m_pkrBackgroundColor, &ColorPicker::setVisible);
-    connect(m_chkBackgroundCheckerboard, &QRadioButton::toggled, wCheckerboard, &QWidget::setVisible);
-    connect(m_chkBackgroundGrid, &QRadioButton::toggled, wGridScale, &QWidget::setVisible);
+    layoutBackground->addWidget(wGrid);
+
+    connect(rdbBackgroundSkyBox, &QRadioButton::toggled, wSkyTex, &QWidget::setVisible);
+    connect(rdbBackgroundColor, &QRadioButton::toggled, m_pkrBackgroundColor, &ColorPicker::setVisible);
+    connect(rdbBackgroundCheckerboard, &QRadioButton::toggled, wCheckerboard, &QWidget::setVisible);
+    connect(rdbBackgroundGrid, &QRadioButton::toggled, wGrid, &QWidget::setVisible);
     ////////////////////////////////////////////////////////////////////////////////
     QGroupBox* grBackground = new QGroupBox("Background");
     grBackground->setLayout(layoutBackground);
     layoutCtr->addWidget(grBackground);
+    ////////////////////////////////////////////////////////////////////////////////
+    m_smBackgroundMode = new QSignalMapper(this);
+    connect(rdbBackgroundSkyBox, SIGNAL(clicked()), m_smBackgroundMode, SLOT(map()));
+    connect(rdbBackgroundColor, SIGNAL(clicked()), m_smBackgroundMode, SLOT(map()));
+    connect(rdbBackgroundCheckerboard, SIGNAL(clicked()), m_smBackgroundMode, SLOT(map()));
+    connect(rdbBackgroundGrid, SIGNAL(clicked()), m_smBackgroundMode, SLOT(map()));
+
+    m_smBackgroundMode->setMapping(rdbBackgroundSkyBox, static_cast<int>(BackgroundMode::SkyBox));
+    m_smBackgroundMode->setMapping(rdbBackgroundColor, static_cast<int>(BackgroundMode::Color));
+    m_smBackgroundMode->setMapping(rdbBackgroundCheckerboard, static_cast<int>(BackgroundMode::Checkerboard));
+    m_smBackgroundMode->setMapping(rdbBackgroundGrid, static_cast<int>(BackgroundMode::Grid));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -273,18 +312,6 @@ void Controller::setupFrameControllers(QBoxLayout* layoutCtr)
     QGroupBox* grpFrameControl = new QGroupBox("Frame Controls");
     grpFrameControl->setLayout(layoutFrameCtr);
     layoutCtr->addWidget(grpFrameControl);
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Controller::setupAniKernel(QBoxLayout* layoutCtr)
-{
-    m_chkUseAniKernel = new QCheckBox("Enable anisotropic kernel");
-    QVBoxLayout* layoutAniKernel = new QVBoxLayout;
-    QGroupBox*   grAniKernel     = new QGroupBox("Anisotropic Kernel");
-    ////////////////////////////////////////////////////////////////////////////////
-    layoutAniKernel->addWidget(m_chkUseAniKernel);
-    grAniKernel->setLayout(layoutAniKernel);
-    layoutCtr->addWidget(grAniKernel);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -342,7 +369,7 @@ void Controller::setupColorModeControllers(QBoxLayout* layoutCtr)
     connect(rdbColorRamp, SIGNAL(clicked()), m_smParticleColorMode, SLOT(map()));
     connect(rdbColorUniform, SIGNAL(clicked()), m_smParticleColorMode, SLOT(map()));
     connect(rdbColorData, SIGNAL(clicked()), m_smParticleColorMode, SLOT(map()));
-    ////////////////////////////////////////////////////////////////////////////////
+
     m_smParticleColorMode->setMapping(rdbColorRandom, static_cast<int>(ParticleColorMode::Random));
     m_smParticleColorMode->setMapping(rdbColorRamp, static_cast<int>(ParticleColorMode::Ramp));
     m_smParticleColorMode->setMapping(rdbColorUniform, static_cast<int>(ParticleColorMode::UniformMaterial));
@@ -357,6 +384,38 @@ void Controller::setupColorModeControllers(QBoxLayout* layoutCtr)
     grDataList->setVisible(false);
     grDataList->setLayout(layoutDataList);
     connect(rdbColorData, &QRadioButton::toggled, grDataList, &QGroupBox::setVisible);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void Controller::setupMiscControllers(QBoxLayout* layoutCtr)
+{
+    m_chkUseAniKernel = new QCheckBox("Enable anisotropic kernel");
+    ////////////////////////////////////////////////////////////////////////////////
+    m_chkRenderBox = new QCheckBox("Render domain box");
+    m_chkRenderBox->setChecked(true);
+    m_pkrBoxColor = new ColorPicker;
+    m_pkrBoxColor->setMinimumHeight(20);
+    m_pkrBoxColor->setColor(DEFAULT_BOX_COLOR);
+    connect(m_chkRenderBox, &QCheckBox::toggled, m_pkrBoxColor, &ColorPicker::setEnabled);
+    QHBoxLayout* layoutBox = new QHBoxLayout;
+    layoutBox->addWidget(new QLabel("Box color:"));
+    layoutBox->addWidget(m_pkrBoxColor);
+    ////////////////////////////////////////////////////////////////////////////////
+    QVBoxLayout* layoutMiscCtrls = new QVBoxLayout;
+    QGroupBox*   grMiscCtrls     = new QGroupBox("MISC");
+    ////////////////////////////////////////////////////////////////////////////////
+    QFrame* line = new QFrame();
+    line->setFrameShape(QFrame::HLine);
+    line->setFrameShadow(QFrame::Sunken);
+    ////////////////////////////////////////////////////////////////////////////////
+    layoutMiscCtrls->addWidget(m_chkUseAniKernel);
+    layoutMiscCtrls->addSpacing(5);
+    layoutMiscCtrls->addWidget(line);
+    layoutMiscCtrls->addSpacing(5);
+    layoutMiscCtrls->addWidget(m_chkRenderBox);
+    layoutMiscCtrls->addLayout(layoutBox);
+    grMiscCtrls->setLayout(layoutMiscCtrls);
+    layoutCtr->addWidget(grMiscCtrls);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

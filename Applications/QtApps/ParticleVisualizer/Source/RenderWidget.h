@@ -42,7 +42,7 @@ public:
     RenderWidget(QWidget* parent, const SharedPtr<VisualizationData>& vizData) : OpenGLWidget(parent), m_VizData(vizData) { updateCamera(); }
 private:
     virtual void initOpenGL() override;
-    virtual void resizeOpenGLWindow(int width, int height) override { if(m_CheckerboardRender != nullptr) { m_CheckerboardRender->setScreenSize(width, height); } }
+    virtual void resizeOpenGLWindow(int width, int height) override;
     virtual void renderOpenGL() override;
     SharedPtr<VisualizationData> m_VizData = nullptr;
 
@@ -75,20 +75,26 @@ private:
     ////////////////////////////////////////////////////////////////////////////////
     // skybox and checkerboard background
 public slots:
-    void setRenderCheckerboard(bool bCheckerboard) { m_bRenderCheckerboardBackground = bCheckerboard; }
+    void setBackgroundMode(int backgroundMode) { m_BackgroundMode = backgroundMode; }
     void setSkyBoxTexture(int texIndex) { Q_ASSERT(m_SkyBoxRender != nullptr); m_SkyBoxRender->setRenderTextureIndex(texIndex); }
     void setCheckerboarrdColor1(const Vec3f& color1) { Q_ASSERT(m_CheckerboardRender != nullptr); m_CheckerboardRender->setColor1(color1); }
     void setCheckerboarrdColor2(const Vec3f& color2) { Q_ASSERT(m_CheckerboardRender != nullptr); m_CheckerboardRender->setColor2(color2); }
-    void setCheckerboarrdScales(const Vec2f& texScales) { Q_ASSERT(m_CheckerboardRender != nullptr); m_CheckerboardRender->setTexScales(texScales); }
+    void setCheckerboarrdScales(const Vec2i& scales) { Q_ASSERT(m_CheckerboardRender != nullptr); m_CheckerboardRender->setScales(scales); }
+    void setGridBackgroundColor(const Vec3f& backgroundColor) { Q_ASSERT(m_GridRender != nullptr); m_GridRender->setBackgroundColor(backgroundColor); }
+    void setGridLineColor(const Vec3f& lineColor) { Q_ASSERT(m_GridRender != nullptr); m_GridRender->setLineColor(lineColor); }
+    void setGridScales(const Vec2i& scales) { Q_ASSERT(m_GridRender != nullptr); m_GridRender->setScales(scales); }
 private:
     void initRDataSkyBox();
     void initRDataCheckerboardBackground() { m_CheckerboardRender = std::make_unique<CheckerboardBackgroundRender>(DEFAULT_CHECKERBOARD_COLOR1, DEFAULT_CHECKERBOARD_COLOR2); }
+    void initRDataGridBackground() { m_GridRender = std::make_unique<GridBackgroundRender>(DEFAULT_CHECKERBOARD_COLOR1, DEFAULT_CHECKERBOARD_COLOR2); }
     void renderSkyBox() { Q_ASSERT(m_SkyBoxRender != nullptr); m_SkyBoxRender->render(); }
     void renderCheckerboardBackground() { Q_ASSERT(m_CheckerboardRender != nullptr); m_CheckerboardRender->render(); }
+    void renderGridBackground() { Q_ASSERT(m_GridRender != nullptr); m_GridRender->render(); }
 
-    UniquePtr<SkyBoxRender>                 m_SkyBoxRender                  = nullptr;
-    UniquePtr<CheckerboardBackgroundRender> m_CheckerboardRender            = nullptr;
-    bool                                    m_bRenderCheckerboardBackground = false;
+    UniquePtr<SkyBoxRender>                 m_SkyBoxRender       = nullptr;
+    UniquePtr<CheckerboardBackgroundRender> m_CheckerboardRender = nullptr;
+    UniquePtr<GridBackgroundRender>         m_GridRender         = nullptr;
+    Int                                     m_BackgroundMode     = static_cast<Int>(BackgroundMode::SkyBox);
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -107,11 +113,14 @@ private:
     ////////////////////////////////////////////////////////////////////////////////
     // domain box
 public slots:
+    void setRenderBox(bool bRender) { m_bRenderBox = bRender; }
+    void setBoxColor(const Vec3f& color) { Q_ASSERT(m_DomainBoxRender != nullptr); m_DomainBoxRender->setColor(color); }
     void updateBox() { makeCurrent(); m_DomainBoxRender->setBox(m_VizData->boxMin, m_VizData->boxMax); doneCurrent(); }
 private:
     void initRDataBox();
-    void renderBox() { Q_ASSERT(m_DomainBoxRender != nullptr); m_DomainBoxRender->render(); }
+    void renderBox() { Q_ASSERT(m_DomainBoxRender != nullptr); if(m_bRenderBox) { m_DomainBoxRender->render(); } }
     UniquePtr<WireFrameBoxRender> m_DomainBoxRender = nullptr;
+    bool                          m_bRenderBox      = true;
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
