@@ -787,11 +787,11 @@ void CheckerboardBackgroundRender::initRenderData()
 
     glCall(glGenVertexArrays(1, &m_VAO));
 
-    m_UTexScales    = m_Shader->getUniformLocation("m_TexScales");
-    m_UScreenWidth  = m_Shader->getUniformLocation("m_UScreenWidth");
-    m_UScreenHeight = m_Shader->getUniformLocation("m_UScreenHeight");
-    m_UColor1       = m_Shader->getUniformLocation("m_UColor1");
-    m_UColor2       = m_Shader->getUniformLocation("m_UColor2");
+    m_UTexScales    = m_Shader->getUniformLocation("u_TexScales");
+    m_UScreenWidth  = m_Shader->getUniformLocation("u_ScreenWidth");
+    m_UScreenHeight = m_Shader->getUniformLocation("u_ScreenHeight");
+    m_UColor1       = m_Shader->getUniformLocation("u_Color1");
+    m_UColor2       = m_Shader->getUniformLocation("u_Color2");
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
