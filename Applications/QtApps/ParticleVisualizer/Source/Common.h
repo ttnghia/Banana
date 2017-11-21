@@ -45,7 +45,7 @@ struct ParticleColorMode
 {
     enum
     {
-        Uniform = 0,
+        UniformMaterial = 0,
         Random,
         Ramp,
         FromData,

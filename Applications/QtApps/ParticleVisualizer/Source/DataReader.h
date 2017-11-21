@@ -21,7 +21,6 @@
 
 #pragma once
 
-#include <Banana/Geometry/GeometryObjects.h>
 #include <ParticleTools/ParticleSerialization.h>
 #include <QtAppHelpers/AvgTimer.h>
 
@@ -49,34 +48,74 @@ struct MeshData
 
 struct VisualizationData
 {
-    Vec3f boxMin         = Vec3f(-1.0);
-    Vec3f boxMax         = Vec3f(1.0);
+    ////////////////////////////////////////////////////////////////////////////////
+    // camera
     Vec3f cameraPosition = DEFAULT_CAMERA_POSITION;
     Vec3f cameraFocus    = DEFAULT_CAMERA_FOCUS;
+    ////////////////////////////////////////////////////////////////////////////////
 
+    ////////////////////////////////////////////////////////////////////////////////
+    // domain box
+    Vec3f boxMin = Vec3f(-1.0);
+    Vec3f boxMax = Vec3f(1.0);
+    ////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // light
     Vector<LightData> lights;
-    Vector<MeshData>  boundaryObjs;
+    ////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // boundary and mesh
+    ParticleSerialization boundaryReader;
+    ParticleSerialization meshReader;
+    Vector<MeshData>      meshObjs;
+    Vector<MeshData>      boundaryObjs;
+    ////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // particle data
+    ParticleSerialization particleReader;
+    String                colorDataName;
+    float                 particleRadius;
+    UInt                  nParticles;
+    ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
     VisualizationData() { resetData(); }
     void resetData()
     {
-        boxMin         = Vec3f(-1.0);
-        boxMax         = Vec3f(1.0);
+        ////////////////////////////////////////////////////////////////////////////////
+        // camera
         cameraPosition = DEFAULT_CAMERA_POSITION;
         cameraFocus    = DEFAULT_CAMERA_FOCUS;
+        ////////////////////////////////////////////////////////////////////////////////
 
+        ////////////////////////////////////////////////////////////////////////////////
+        // domain box
+        boxMin = Vec3f(-1.0);
+        boxMax = Vec3f(1.0);
+        ////////////////////////////////////////////////////////////////////////////////
+
+        ////////////////////////////////////////////////////////////////////////////////
+        // light
         lights.resize(0);
         lights.push_back(LightData());
-        boundaryObjs.resize(0);
-    }
-};
+        ////////////////////////////////////////////////////////////////////////////////
 
-struct SimulationData
-{
-    ParticleSerialization particleReader;
-    ParticleSerialization meshReader;
-    ParticleSerialization boundaryReader;
+        ////////////////////////////////////////////////////////////////////////////////
+        // boundary and mesh
+        boundaryObjs.resize(0);
+        meshObjs.resize(0);
+        ////////////////////////////////////////////////////////////////////////////////
+
+        ////////////////////////////////////////////////////////////////////////////////
+        // particles
+        colorDataName  = String("");
+        particleRadius = 0;
+        nParticles     = 0;
+        ////////////////////////////////////////////////////////////////////////////////
+    }
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -85,76 +124,62 @@ class DataReader : public QObject
     Q_OBJECT
 public:
     DataReader();
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // common variables
+    bool        setDataPath(const QString& dataPath);
     const auto& getVizData() const { return m_VizData; }
-    const auto& getSimData() const { return m_SimData; }
-
-    void setDataPath(const QString& dataPath, const QString& dataFolder);
-    auto setParticleReaderObj(const Vector<SharedPtr<MeshObject> >& meshObj) { __BNN_ASSERT(meshObj.size() > 0); if(m_MeshObj.size() == 0) { m_MeshObj = meshObj; } }
-
-
 signals:
-    void numFramesChanged(int numFrames);
+    void cameraChanged();
+    void domainBoxChanged();
+    void lightChanged();
+private:
+    void resetData();
+    bool loadVizData(const QString& dataPath);
+    QString                       m_FrameDataFolder = QString("FrameData");
+    UniquePtr<QFileSystemWatcher> m_DataDirWatcher  = nullptr;
+    QString                       m_FrameDataPath;
+    SharedPtr<VisualizationData>  m_VizData = std::make_shared<VisualizationData>();
+    ////////////////////////////////////////////////////////////////////////////////
 
+    ////////////////////////////////////////////////////////////////////////////////
+    // frames
 signals:
     void numFramesChanged(int numFrames);
     void currentFrameChanged(int currentFrame);
-    void renderDataChanged();
-    void numParticlesChanged(UInt numParticles);
-    void simMeshesChanged();
-    void numSimMeshesChanged(UInt numMeshes);
-    void boundaryMeshesChanged();
-    void numBoundaryMeshesChanged(UInt numMeshes);
-    void readInfoChanged(double readTime, size_t bytes);
-
-private slots:
-    void countFrames();
-
+    void frameReadInfoChanged(double readTime, size_t bytes);
 public slots:
-    void setDelayTime(int delayTime_) { m_AutoTimer->setInterval(delayTime_); }
+    void setFrameDelayTime(int delayTime) { m_AutoTimer->setInterval(delayTime); }
     void setFrameStride(int frameStride) { m_FrameStride = frameStride; }
     void enableRepeat(bool bRepeat) { m_bRepeat = bRepeat; }
-    void enableReverse(bool bReverse) { m_Reverse = bReverse; }
+    void enableReverse(bool bReverse) { m_bReverse = bReverse; }
     void pause(bool bPaused) { m_bPause = bPaused; }
-
-    void setNumFrames(int numFrames) { m_NumFrames = numFrames;  if(m_CurrentFrame > numFrames) { readFrame(numFrames); } }
-    void enableAniKernel(bool bUseAniKernel) { m_bUseAniKernel = bUseAniKernel; }
-
-    void readFirstFrame() { readFrame(1); }
-    void readNextFrameByTimer() { if(!m_bPause) { readNextFrame(); } }
+    void readFirstFrame() { readFrame(0); }
     void readNextFrame();
     void readFrame(int frame);
-
 private:
-    bool loadVizData(const QString& dataPath);
-    void allocateMemory();
+    void readNextFrameByTimer() { if(!m_bPause) { readNextFrame(); } }
+    void countFrames();
+    int  m_nFrames      = 0;
+    int  m_CurrentFrame = 0;
+    int  m_FrameStride  = 1;
+    bool m_bRepeat      = false;
+    bool m_bReverse     = false;
+    bool m_bPause       = false;
+
+    AvgTimer          m_ReadTimer;
+    UniquePtr<QTimer> m_AutoTimer = nullptr;
+    ////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // particles
+signals:
+    void numParticlesChanged(UInt nParticles);
+    void particleDataChanged();
+public slots:
+    void enableAniKernel(bool bUseAniKernel) { m_bUseAniKernel = bUseAniKernel; }
+private:
     bool readParticles(int frameID, size_t& bytesRead);
-    bool readSimMeshes(int frameID, size_t& bytesRead);
-    bool readBoundaryMeshes(int frameID, size_t& bytesRead);
-
-    int m_NumFrames    = 0;
-    int m_CurrentFrame = 0;
-    int m_FrameStride  = 1;
-
-    bool m_bRepeat       = false;
-    bool m_Reverse       = false;
-    bool m_bPause        = false;
     bool m_bUseAniKernel = true;
-
-    QString  m_DataPath = QString("");
-    AvgTimer m_ReadTimer;
-
-    UniquePtr<QTimer>                m_AutoTimer         = nullptr;
-    SharedPtr<ParticleSerialization> m_BoundaryObjReader = nullptr;
-    Vector<SharedPtr<MeshObject> >   m_MeshObj;
-
-    std::function<std::string(int)>  m_GenSimMeshFileName;
-    SharedPtr<ParticleSerialization> m_ParticleReaderObj = std::make_shared<ParticleSerialization>();
-
-    int                           m_NumFrames      = 0;
-    QString                       m_DataPath       = QString("");
-    UniquePtr<QFileSystemWatcher> m_DataDirWatcher = nullptr;
-    QStringList                   m_DataSubFolders;
-
-    SharedPtr<VisualizationData> m_VizData = std::make_shared<VisualizationData>();
-    SharedPtr<SimulationData>    m_SimData = std::make_shared<SimulationData>();
+    ////////////////////////////////////////////////////////////////////////////////
 };

@@ -23,7 +23,6 @@
 
 #include "RenderWidget.h"
 #include "Controller.h"
-#include "DataManager.h"
 #include "DataReader.h"
 
 #include <QtAppHelpers/OpenGLMainWindow.h>
@@ -54,7 +53,6 @@ public slots:
     void updateNumFrames(int numFrames);
     void updateStatusReadInfo(double readTime, size_t bytes);
     void updateStatusMemoryUsage();
-    void loadVizData(const QString& dataPath);
 
 private:
     void setupRenderWidgets();

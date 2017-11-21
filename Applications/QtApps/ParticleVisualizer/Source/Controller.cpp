@@ -30,7 +30,6 @@ void Controller::setupGUI()
     ////////////////////////////////////////////////////////////////////////////////
     setupTextureControllers(layoutCtr);
     setupFrameControllers(layoutCtr);
-    setupShadowControllers(layoutCtr);
     setupAniKernel(layoutCtr);
     setupMaterialControllers(layoutCtr);
     setupColorModeControllers(layoutCtr);
@@ -81,15 +80,11 @@ void Controller::connectWidgets()
 
     ////////////////////////////////////////////////////////////////////////////////
     // ani kernel
-    connect(m_chkUseAniKernel, &QCheckBox::toggled, m_RenderWidget, &RenderWidget::enableAniKernel);
+    connect(m_chkUseAniKernel, &QCheckBox::toggled, m_RenderWidget, &RenderWidget::enableAniKernels);
     connect(m_chkUseAniKernel, &QCheckBox::toggled, m_DataReader, &DataReader::enableAniKernel);
-    connect(m_chkComputeAniKernel, &QCheckBox::toggled, m_RenderWidget, &RenderWidget::computeAniKernel);
-    connect(m_chkComputeAniKernel, &QCheckBox::toggled, m_DataReader, &DataReader::computeAniKernel);
 
     ////////////////////////////////////////////////////////////////////////////////
     // buttons
-    connect(m_btnReloadTextures, &QPushButton::clicked, m_RenderWidget, &RenderWidget::reloadTextures);
-    connect(m_btnReloadTextures, &QPushButton::clicked, this, &Controller::loadTextures);
     connect(m_btnResetCamera, &QPushButton::clicked, m_RenderWidget, &RenderWidget::resetCameraPosition);
     connect(m_btnPause, &QPushButton::clicked, m_DataReader, &DataReader::pause);
     connect(m_btnNextFrame, &QPushButton::clicked, m_DataReader, &DataReader::readNextFrame);
@@ -100,27 +95,12 @@ void Controller::connectWidgets()
 
     ////////////////////////////////////////////////////////////////////////////////
     //  data handle
-    connect(m_DataReader, &DataReader::numFramesChanged, this, &MainWindow::updateNumFrames);
-    connect(m_DataReader, &DataReader::numFramesChanged, m_DataReader, &DataReader::setNumFrames);
-
-    connect(m_DataReader, &DataReader::currentFrameChanged, this, &MainWindow::updateStatusCurrentFrame);
-    connect(m_DataReader, &DataReader::currentFrameChanged, m_sldFrame, &QSlider::setValue);
-
-    connect(m_DataReader, &DataReader::numParticlesChanged, [&](UInt nParticles) { m_nParticles = nParticles; updateStatusNumParticlesAndMeshes(); });
-    connect(m_DataReader, &DataReader::readInfoChanged, this, &MainWindow::updateStatusReadInfo);
-
-    connect(m_DataReader, &DataReader::renderDataChanged, m_RenderWidget, &RenderWidget::updateParticleData);
-    connect(m_DataReader, &DataReader::numSimMeshesChanged, [&](UInt nMeshes) { m_nMeshes = nMeshes; updateStatusNumParticlesAndMeshes(); });
-    connect(m_DataReader, &DataReader::simMeshesChanged, m_RenderWidget, &RenderWidget::updateSimMeshes);
-    connect(m_DataReader, &DataReader::numSimMeshesChanged, m_RenderWidget, &RenderWidget::updateNumSimMeshes);
+    connect(m_DataReader, &DataReader::particleDataChanged, m_RenderWidget, &RenderWidget::updateData);
 
     ////////////////////////////////////////////////////////////////////////////////
     // lights
     connect(m_LightEditor, &PointLightEditor::lightsChanged, m_RenderWidget, &RenderWidget::updateLights);
     connect(m_RenderWidget, &RenderWidget::lightsObjChanged, m_LightEditor, &PointLightEditor::setLights);
-    connect(m_chkRenderShadow, &QCheckBox::toggled, m_RenderWidget, &RenderWidget::enableShadow);
-    connect(m_chkVisualizeShadowRegion, &QCheckBox::toggled, m_RenderWidget, &RenderWidget::visualizeShadowRegion);
-    connect(m_sldShadowIntensity->getSlider(), &QSlider::valueChanged, m_RenderWidget, &RenderWidget::setShadowIntensity);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -237,48 +217,13 @@ void Controller::setupFrameControllers(QBoxLayout* layoutCtr)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Controller::setupShadowControllers(QBoxLayout* layoutCtr)
-{
-    ////////////////////////////////////////////////////////////////////////////////
-    m_chkRenderShadow    = new QCheckBox("Render Shadow");
-    m_sldShadowIntensity = new EnhancedSlider;
-    m_sldShadowIntensity->getSlider()->setValue(100);
-    m_sldShadowIntensity->setEnabled(false);
-    connect(m_chkRenderShadow, &QCheckBox::toggled, m_sldShadowIntensity, &EnhancedSlider::setEnabled);
-    ////////////////////////////////////////////////////////////////////////////////
-    m_chkVisualizeShadowRegion = new QCheckBox("Hightlight Shadow FOV");
-    m_chkVisualizeShadowRegion->setEnabled(false);
-    connect(m_chkRenderShadow, &QCheckBox::toggled, m_chkVisualizeShadowRegion, &QCheckBox::setEnabled);
-    ////////////////////////////////////////////////////////////////////////////////
-    QFrame* line = new QFrame();
-    line->setFrameShape(QFrame::HLine);
-    line->setFrameShadow(QFrame::Sunken);
-    ////////////////////////////////////////////////////////////////////////////////
-    QVBoxLayout* shadowLayout = new QVBoxLayout;
-    shadowLayout->addWidget(m_chkRenderShadow);
-    shadowLayout->addWidget(m_chkVisualizeShadowRegion);
-    shadowLayout->addSpacing(10);
-    shadowLayout->addWidget(line);
-    shadowLayout->addLayout(m_sldShadowIntensity->getLayoutWithLabel("Intensity:"));
-    ////////////////////////////////////////////////////////////////////////////////
-    QGroupBox* shadowGroup = new QGroupBox;
-    shadowGroup->setTitle("Render Shadow");
-    shadowGroup->setLayout(shadowLayout);
-    layoutCtr->addWidget(shadowGroup);
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Controller::setupAniKernel(QBoxLayout* layoutCtr)
 {
-    m_chkUseAniKernel     = new QCheckBox("Enable anisotropic kernel");
-    m_chkComputeAniKernel = new QCheckBox("Compute if not available");
-    m_chkComputeAniKernel->setEnabled(false);
+    m_chkUseAniKernel = new QCheckBox("Enable anisotropic kernel");
     QVBoxLayout* layoutAniKernel = new QVBoxLayout;
     QGroupBox*   grAniKernel     = new QGroupBox("Anisotropic Kernel");
-    connect(m_chkUseAniKernel, &QCheckBox::toggled, m_chkComputeAniKernel, &QCheckBox::setEnabled);
     ////////////////////////////////////////////////////////////////////////////////
     layoutAniKernel->addWidget(m_chkUseAniKernel);
-    layoutAniKernel->addWidget(m_chkComputeAniKernel);
     grAniKernel->setLayout(layoutAniKernel);
     layoutCtr->addWidget(grAniKernel);
 }
@@ -341,7 +286,7 @@ void Controller::setupColorModeControllers(QBoxLayout* layoutCtr)
     ////////////////////////////////////////////////////////////////////////////////
     m_smParticleColorMode->setMapping(rdbColorRandom, static_cast<int>(ParticleColorMode::Random));
     m_smParticleColorMode->setMapping(rdbColorRamp, static_cast<int>(ParticleColorMode::Ramp));
-    m_smParticleColorMode->setMapping(rdbColorUniform, static_cast<int>(ParticleColorMode::Uniform));
+    m_smParticleColorMode->setMapping(rdbColorUniform, static_cast<int>(ParticleColorMode::UniformMaterial));
     m_smParticleColorMode->setMapping(rdbColorData, static_cast<int>(ParticleColorMode::FromData));
     ////////////////////////////////////////////////////////////////////////////////
     m_lstParticleData = new QListWidget;;
@@ -358,13 +303,11 @@ void Controller::setupColorModeControllers(QBoxLayout* layoutCtr)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Controller::setupButtons(QBoxLayout* layoutCtr)
 {
-    m_btnReloadTextures = new QPushButton("Reload Textures");
-    m_btnResetCamera    = new QPushButton("Reset Camera");
+    m_btnResetCamera = new QPushButton("Reset Camera");
     ////////////////////////////////////////////////////////////////////////////////
-    QHBoxLayout* layoutBtnReload = new QHBoxLayout;
-    layoutBtnReload->addWidget(m_btnReloadTextures);
-    layoutBtnReload->addWidget(m_btnResetCamera);
-    layoutCtr->addLayout(layoutBtnReload);
+    QHBoxLayout* layoutBtnResetCamera = new QHBoxLayout;
+    layoutBtnResetCamera->addWidget(m_btnResetCamera);
+    layoutCtr->addLayout(layoutBtnResetCamera);
     ////////////////////////////////////////////////////////////////////////////////
     m_btnPause = new QPushButton(QString("Pause"));
     m_btnPause->setCheckable(true);

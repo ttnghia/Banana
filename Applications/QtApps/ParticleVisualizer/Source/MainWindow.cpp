@@ -44,7 +44,7 @@ void MainWindow::instantiateOpenGLWidget()
         delete m_GLWidget;
     }
 
-    m_RenderWidget = new RenderWidget(this);
+    m_RenderWidget = new RenderWidget(this, m_DataReader->getVizData());
     setupOpenglWidget(m_RenderWidget);
 }
 
@@ -81,7 +81,7 @@ bool MainWindow::processKeyPressEvent(QKeyEvent* event)
             return true;
 
         case Qt::Key_F5:
-            loadVizData(m_InputPath->getCurrentPath());
+            m_DataReader->setDataPath(m_InputPath->getCurrentPath());
             return true;
 
         case Qt::Key_F9:
@@ -126,8 +126,7 @@ void MainWindow::updateStatusNumParticlesAndMeshes()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MainWindow::updateNumFrames(int numFrames)
 {
-    m_DataReader->setNumFrames(numFrames);
-    m_sldFrame->setRange(1, numFrames);
+    m_sldFrame->setRange(0, numFrames - 1);
 
     ////////////////////////////////////////////////////////////////////////////////
     m_lblStatusNumFrames->setText(QString("Total frame: %1").arg(numFrames));
@@ -142,34 +141,6 @@ void MainWindow::updateStatusReadInfo(double readTime, size_t bytes)
 void MainWindow::updateStatusMemoryUsage()
 {
     m_lblStatusMemoryUsage->setText(QString("Memory usage: %1 (MBs)").arg(QString::fromStdString(NumberHelpers::formatWithCommas(getCurrentRSS() / 1048576.0))));
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MainWindow::loadVizData(const QString& dataPath)
-{
-    if(m_DataManager->setDataPath(dataPath)) {
-        assert(m_RenderWidget != nullptr);
-        m_DataReader->setRenderData(m_RenderWidget->getParticleDataObj());
-        m_DataReader->setMeshObj(m_RenderWidget->getSimMeshObjs());
-        m_DataReader->setDataPath(dataPath);
-
-        m_RenderWidget->getParticleDataObj()->resize(0);
-        m_RenderWidget->updateNumSimMeshes(0);
-
-        m_RenderWidget->setBox(m_DataManager->getVizData().boxMin, m_DataManager->getVizData().boxMax);
-        m_RenderWidget->setCamera(m_DataManager->getVizData().cameraPosition, m_DataManager->getVizData().cameraFocus);
-
-        if(m_DataManager->getVizData().boundaryObjs.size() > 0) {
-            auto renderMeshes = m_RenderWidget->getBoundaryMeshObjs();
-            for(size_t i = 0; i < m_DataManager->getVizData().boundaryObjs.size(); ++i) {
-                auto& mesh = m_DataManager->getVizData().boundaryObjs[i];
-                renderMeshes[i]->setVertices((void*)mesh.vertices.data(), mesh.vertices.size() * sizeof(Vec3f));
-                renderMeshes[i]->setVertexNormal((void*)mesh.normals.data(), mesh.normals.size() * sizeof(Vec3f));
-            }
-            m_RenderWidget->updateBoundaryMeshes();
-            m_RenderWidget->updateNumBoundaryMeshes(m_DataManager->getVizData().boundaryObjs.size());
-        }
-    }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -194,7 +165,7 @@ void MainWindow::setupRenderWidgets()
     renderLayout->addWidget(m_sldFrame);
     renderLayout->addLayout(inputOutputLayout);
 
-    m_Controller = new Controller(this);
+    m_Controller = new Controller(m_RenderWidget, m_DataReader, this);
 
     QHBoxLayout* mainLayout = new QHBoxLayout;
     mainLayout->addLayout(renderLayout);
@@ -276,16 +247,15 @@ void MainWindow::setupStatusBar()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MainWindow::connectWidgets()
 {
-    connect(m_DataReader, &DataManager::numFramesChanged, this, &MainWindow::updateNumFrames);
-    connect(m_InputPath, &BrowsePathWidget::pathChanged, this, &MainWindow::loadVizData);
+    connect(m_DataReader, &DataReader::numFramesChanged, this, &MainWindow::updateNumFrames);
+    connect(m_InputPath, &BrowsePathWidget::pathChanged, m_DataReader, &DataReader::setDataPath);
     connect(m_DataReader, &DataReader::currentFrameChanged, this, &MainWindow::updateStatusCurrentFrame);
     connect(m_sldFrame,  &QSlider::valueChanged, m_DataReader, &DataReader::readFrame);
 
     connect(m_DataReader, &DataReader::numParticlesChanged, [&](UInt nParticles) { m_nParticles = nParticles; updateStatusNumParticlesAndMeshes(); });
-    connect(m_DataReader, &DataReader::readInfoChanged, this, &MainWindow::updateStatusReadInfo);
+    connect(m_DataReader, &DataReader::frameReadInfoChanged, this, &MainWindow::updateStatusReadInfo);
 
-    connect(m_DataReader, &DataReader::numSimMeshesChanged, [&](UInt nMeshes) { m_nMeshes = nMeshes; updateStatusNumParticlesAndMeshes(); });
-    connect(m_DataList, &DataList::currentTextChanged, this, &MainWindow::loadVizData);
+    connect(m_DataList, &DataList::currentTextChanged, m_DataReader, &DataReader::setDataPath);
     connect(m_DataList, &DataList::currentTextChanged, m_InputPath, &BrowsePathWidget::setPath);
     connect(m_ClipPlaneEditor, &ClipPlaneEditor::clipPlaneChanged, m_RenderWidget, &RenderWidget::setClipPlane);
 }

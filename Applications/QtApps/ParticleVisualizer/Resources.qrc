@@ -3,8 +3,6 @@
         <file>Icons/open.png</file>
         <file>Icons/refresh.png</file>
         <file>Icons/save.png</file>
-        <file>Shaders/mesh.fs.glsl</file>
-        <file>Shaders/mesh.vs.glsl</file>
         <file>Shaders/particle.fs.glsl</file>
         <file>Shaders/particle.vs.glsl</file>
         <file>Icons/Noodle.icns</file>

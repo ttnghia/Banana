@@ -46,7 +46,8 @@ public:
     {
         __BNN_ASSERT(m_RenderWidget != nullptr);
         __BNN_ASSERT(m_DataReader != nullptr);
-        setupGUI(); connectWidgets();
+        setupGUI();
+        connectWidgets();
     }
 
 public slots:
@@ -83,18 +84,9 @@ private:
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
-    // shadow
-    void setupShadowControllers(QBoxLayout* layoutCtr);
-    QCheckBox*      m_chkRenderShadow;
-    QCheckBox*      m_chkVisualizeShadowRegion;
-    EnhancedSlider* m_sldShadowIntensity;
-    ////////////////////////////////////////////////////////////////////////////////
-
-    ////////////////////////////////////////////////////////////////////////////////
     // ani-kernel
     void setupAniKernel(QBoxLayout* layoutCtr);
     QCheckBox* m_chkUseAniKernel;
-    QCheckBox* m_chkComputeAniKernel;
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -121,7 +113,6 @@ private:
     QPushButton* m_btnReverse;
     QPushButton* m_btnRepeatPlay;
     QPushButton* m_btnClipViewPlane;
-    QPushButton* m_btnReloadTextures;
     QPushButton* m_btnResetCamera;
     ////////////////////////////////////////////////////////////////////////////////
 
