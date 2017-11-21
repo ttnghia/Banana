@@ -100,6 +100,8 @@ using PairReal = std::pair<double, double>;
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // generic types
+template<class K, class V> using Map= std::map<K, V>;
+
 template<class Type> using Vector = std::vector<Type>;
 template<class Type> using Set    = std::set<Type>;
 template<class Type> using Quat   = glm::tquat<Type>;
@@ -127,9 +129,6 @@ template<class Type> using Vec_Vec4   = Vector<Vec4<Type> >;
 template<class Type> using Vec_Mat2x2 = Vector<Mat2x2<Type> >;
 template<class Type> using Vec_Mat3x3 = Vector<Mat3x3<Type> >;
 template<class Type> using Vec_Mat4x4 = Vector<Mat4x4<Type> >;
-
-template<class T, class S>
-using Map = std::map<T, S>;
 
 template<class Type> using SharedPtr = std::shared_ptr<Type>;
 template<class Type> using UniquePtr = std::unique_ptr<Type>;
