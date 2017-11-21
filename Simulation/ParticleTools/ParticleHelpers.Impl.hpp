@@ -349,6 +349,8 @@ void decompress(Vector<Vector<RealType> >& dvec, const DataBuffer& buffer, UInt 
         segmentStart += segmentSize;
     }
 
+    dMinf.resize(nParticles);
+    dMaxf.resize(nParticles);
     Vec_VecUInt16 compressedData(nParticles);
     for(UInt i = 0; i < nParticles; ++i) {
         UInt iSize;
