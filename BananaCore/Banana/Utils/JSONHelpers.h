@@ -83,14 +83,22 @@ inline bool readVector(const nlohmann::json& j, VecX<N, T>& vec, const String& v
     if(jval.is_null()) {
         return false;
     }
-
     Vector<T> values = jval.get<Vector<T> >();
-    __BNN_ASSERT(values.size() == N);
 
-    for(Int i = 0; i < N; ++i) {
-        vec[i] = values[i];
+    Int minSize = static_cast<Int>(values.size());
+    Int maxSize = N;
+    if(minSize > maxSize) {
+        std::swap(minSize, maxSize);
     }
 
+    for(Int i = 0; i < minSize; ++i) {
+        vec[i] = values[i];
+    }
+    if(minSize < N) {
+        for(Int i = minSize; i < N; ++i) {
+            vec[i] = T(0);
+        }
+    }
     return true;
 }
 
