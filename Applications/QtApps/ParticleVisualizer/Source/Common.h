@@ -42,7 +42,7 @@
 #define DEFAULT_CHECKERBOARD_GRID_SIZE 20
 #define DEFAULT_MESH_MATERIAL          Material::MT_Brass
 #define DEFAULT_CLIP_PLANE             Vec4f(0.0, 0.0, -1.0, 0.0)
-#define DEFAULT_DELAY_TIME             50
+#define DEFAULT_DELAY_TIME             40
 #define NUM_MESHES                     8
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

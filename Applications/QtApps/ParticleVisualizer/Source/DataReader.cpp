@@ -93,6 +93,7 @@ bool DataReader::loadVizData(const QString& dataPath)
     m_FrameDataPath = dataPath + QString("/") + QString::fromStdString(frameDataFolder);
     m_DataDirWatcher->addPath(m_FrameDataPath);
     countFrames();
+    readDataList();
 
     ////////////////////////////////////////////////////////////////////////////////
     if(jParams.find("VisualizationParameters") != jParams.end()) {
@@ -228,6 +229,19 @@ void DataReader::countFrames()
     if(numFiles > 0) {
         m_nFrames = numFiles;
         emit numFramesChanged(m_nFrames);
+    }
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void DataReader::readDataList()
+{
+    if(m_VizData->particleReader.readHeader(0) || m_VizData->particleReader.readHeader(1)) {
+        m_DataList.clear();
+        const auto& particleAttrs = m_VizData->particleReader.getParticleAttributes();
+        for(auto& kv: particleAttrs) {
+            m_DataList.push_back(QString::fromStdString(kv.first));
+        }
+        emit particleDataListChanged(m_DataList);
     }
 }
 

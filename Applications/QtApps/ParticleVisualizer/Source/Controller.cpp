@@ -109,6 +109,8 @@ void Controller::connectWidgets()
     // materials and particle color mode
     connect(m_smParticleColorMode, SIGNAL(mapped(int)), m_RenderWidget, SLOT(setParticleColorMode(int)));
     connect(m_msParticleMaterial, &MaterialSelector::materialChanged, m_RenderWidget, &RenderWidget::setParticleMaterial);
+    connect(m_lstParticleData, &QListWidget::currentTextChanged, [&](const QString& dataName) { m_RenderWidget->setColorData(dataName.toStdString()); });
+    connect(m_DataReader, &DataReader::particleDataListChanged, [&](const QStringList& dataList) { m_lstParticleData->addItems(dataList); });
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -251,9 +253,15 @@ void Controller::setupBackgroundControllers(QBoxLayout* layoutCtr)
     wGrid->setMinimumHeight(25);
     wGrid->setVisible(false);
     ////////////////////////////////////////////////////////////////////////////////
+    QFrame* line = new QFrame();
+    line->setFrameShape(QFrame::HLine);
+    line->setFrameShadow(QFrame::Sunken);
+    ////////////////////////////////////////////////////////////////////////////////
     QVBoxLayout* layoutBackground = new QVBoxLayout;
     layoutBackground->addLayout(layoutBackgroundType);
-    layoutBackground->addSpacing(10);
+    layoutBackground->addSpacing(5);
+    layoutBackground->addWidget(line);
+    layoutBackground->addSpacing(5);
     layoutBackground->addWidget(wSkyTex);
     layoutBackground->addWidget(m_pkrBackgroundColor);
     layoutBackground->addWidget(wCheckerboard);
@@ -315,7 +323,7 @@ void Controller::setupFrameControllers(QBoxLayout* layoutCtr)
 {
     ////////////////////////////////////////////////////////////////////////////////
     m_sldFrameDelay = new EnhancedSlider;
-    m_sldFrameDelay->setRange(0, 1000);
+    m_sldFrameDelay->setRange(0, 500);
     m_sldFrameDelay->setTracking(false);
     m_sldFrameDelay->setValue(DEFAULT_DELAY_TIME);
     ///////////////////////////////////////////////////////////////////////////////

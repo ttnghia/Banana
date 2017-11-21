@@ -127,6 +127,7 @@ private:
     // particles
 public slots:
     void setParticleColorMode(int colorMode);
+    void setColorData(const String& colorDataName) { m_VizData->colorDataName = colorDataName; }
     void setParticleMaterial(const Material::MaterialData& material);
     void enableAniKernels(bool bAniKernel) { m_RDataParticle.useAnisotropyKernel = bAniKernel ? 1 : 0; }
 private:

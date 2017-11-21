@@ -176,11 +176,14 @@ private:
     // particles
 signals:
     void numParticlesChanged(UInt nParticles);
+    void particleDataListChanged(const QStringList& dataList);
     void particleDataChanged();
 public slots:
     void enableAniKernel(bool bUseAniKernel) { m_bUseAniKernel = bUseAniKernel; }
 private:
+    void readDataList();
     bool readParticles(int frameID, size_t& bytesRead);
-    bool m_bUseAniKernel = true;
+    QStringList m_DataList;
+    bool        m_bUseAniKernel = true;
     ////////////////////////////////////////////////////////////////////////////////
 };

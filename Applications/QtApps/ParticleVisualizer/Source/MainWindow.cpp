@@ -234,7 +234,7 @@ void MainWindow::setupStatusBar()
 
     m_lblStatusReadInfo = new QLabel(this);
     m_lblStatusReadInfo->setMargin(5);
-    statusBar()->addPermanentWidget(m_lblStatusReadInfo, 2);
+    statusBar()->addPermanentWidget(m_lblStatusReadInfo, 1);
 
     m_lblStatusMemoryUsage = new QLabel(this);
     m_lblStatusMemoryUsage->setMargin(5);

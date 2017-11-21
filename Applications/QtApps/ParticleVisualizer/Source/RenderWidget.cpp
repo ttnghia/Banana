@@ -89,8 +89,10 @@ void RenderWidget::updateData()
     }
 
     if(m_RDataParticle.pColorMode == ParticleColorMode::FromData) {
-        __BNN_ASSERT(m_VizData->particleReader.getParticleAttributeCompressed(m_VizData->colorDataName, m_RDataParticle.colorDataCompressed, m_RDataParticle.dMinColorData, m_RDataParticle.dMaxColorData));
-        m_RDataParticle.buffColorData->uploadDataAsync(m_RDataParticle.colorDataCompressed.data(), 0, m_RDataParticle.colorDataCompressed.size() * sizeof(UInt16));
+        if(!m_VizData->colorDataName.empty()) {
+            __BNN_ASSERT(m_VizData->particleReader.getParticleAttributeCompressed(m_VizData->colorDataName, m_RDataParticle.colorDataCompressed, m_RDataParticle.dMinColorData, m_RDataParticle.dMaxColorData));
+            m_RDataParticle.buffColorData->uploadDataAsync(m_RDataParticle.colorDataCompressed.data(), 0, m_RDataParticle.colorDataCompressed.size() * sizeof(UInt16));
+        }
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -172,11 +174,10 @@ void RenderWidget::setParticleColorMode(int colorMode)
 {
     Q_ASSERT(colorMode < ParticleColorMode::NumColorMode);
     Q_ASSERT(m_RDataParticle.initialized);
-
     m_RDataParticle.pColorMode = colorMode;
 
     ////////////////////////////////////////////////////////////////////////////////
-    if(m_RDataParticle.pColorMode == ParticleColorMode::FromData) {
+    if(m_RDataParticle.pColorMode == ParticleColorMode::FromData && !m_VizData->colorDataName.empty()) {
         makeCurrent();
         initParticleVAO();
         doneCurrent();
