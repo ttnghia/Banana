@@ -109,7 +109,9 @@ void ColorPicker::mousePressEvent(QMouseEvent*)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void ColorPicker::enterEvent(QEvent*)
 {
-    QApplication::setOverrideCursor(QCursor(Qt::PointingHandCursor));
+    if(isEnabled()) {
+        QApplication::setOverrideCursor(QCursor(Qt::PointingHandCursor));
+    }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
