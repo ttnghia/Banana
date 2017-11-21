@@ -22,6 +22,8 @@
 #include "Common.h"
 #include "Controller.h"
 
+#include <Banana/Utils/STLHelpers.h>
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Controller::setupGUI()
 {
@@ -111,13 +113,30 @@ void Controller::connectWidgets()
             {
                 m_RenderWidget->setParticleColorMode(colorMode);
                 if(colorMode == ParticleColorMode::FromData) {
+                    m_DataReader->setColorFromData(true);
                     m_DataReader->reloadCurrentFrame();
+                } else {
+                    m_DataReader->setColorFromData(false);
                 }
             });
     connect(m_pkrColorDataMin, &ColorPicker::colorChanged, [&](float r, float g, float b) { m_RenderWidget->setColorDataMin(Vec3f(r, g, b)); });
     connect(m_pkrColorDataMax, &ColorPicker::colorChanged, [&](float r, float g, float b) { m_RenderWidget->setColorDataMax(Vec3f(r, g, b)); });
     connect(m_msParticleMaterial, &MaterialSelector::materialChanged, m_RenderWidget, &RenderWidget::setParticleMaterial);
-    connect(m_lstParticleData, &QListWidget::currentTextChanged, [&](const QString& dataName) { m_RenderWidget->setColorData(dataName.toStdString()); });
+    connect(m_lstParticleData, &QListWidget::currentTextChanged, [&](const QString& dataAttr)
+            {
+                if(dataAttr.isEmpty()) {
+                    return;
+                }
+                auto strAttr    = dataAttr.toStdString();
+                String dataName = strAttr.substr(0, strAttr.find_first_of("|"));
+                Int dataSize    = stoi(strAttr.substr(strAttr.find_first_of("|") + 1, strAttr.find_last_of("|")));
+                String dataType = strAttr.substr(strAttr.find_last_of("|") + 1);
+                STLHelpers::trim(dataName);
+                STLHelpers::trim(dataType);
+                ////////////////////////////////////////////////////////////////////////////////
+                m_RenderWidget->setColorData(dataName, dataSize);
+                m_DataReader->setColorDataName(dataName);
+            });
     connect(m_DataReader, &DataReader::particleDataListChanged, [&](const QStringList& dataList)
             {
                 m_lstParticleData->clear();

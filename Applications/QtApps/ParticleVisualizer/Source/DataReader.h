@@ -181,10 +181,19 @@ signals:
     void particleDataChanged();
 public slots:
     void enableAniKernel(bool bUseAniKernel) { m_bUseAniKernel = bUseAniKernel; }
+    void setColorFromData(bool bColorFromData) { m_bColorFromData = bColorFromData; }
+    void setColorDataName(const String& colorDataName);
 private:
     void readDataList();
     bool readParticles(int frameID, size_t& bytesRead);
     QStringList m_DataList;
-    bool        m_bUseAniKernel = true;
+    bool        m_bUseAniKernel  = true;
+    bool        m_bHasAniKernel  = false;
+    bool        m_bColorFromData = false;
+
+    const Vector<String> m_BasicAttrs                          = { "particle_radius", "position" };
+    const Vector<String> m_BasicAttrsWithAniKernel             = { "particle_radius", "position", "anisotropic_kernel" };
+    Vector<String>       m_BasicAttrsWithColorData             = { "particle_radius", "position", "" };
+    Vector<String>       m_BasicAttrsWithAniKernelAndColorData = { "particle_radius", "position", "anisotropic_kernel", "" };
     ////////////////////////////////////////////////////////////////////////////////
 };

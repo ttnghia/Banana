@@ -21,8 +21,6 @@
 
 #include "RenderWidget.h"
 
-#include <Banana/Utils/STLHelpers.h>
-
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void RenderWidget::initOpenGL()
 {
@@ -191,14 +189,10 @@ void RenderWidget::setParticleColorMode(int colorMode)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void RenderWidget::setColorData(const String& colorData)
+void RenderWidget::setColorData(const String& colorDataName, Int dataSize)
 {
-    if(colorData.empty()) {
-        return;
-    }
-    m_VizData->colorDataName      = colorData.substr(0, colorData.find_first_of('|'));
-    m_RDataParticle.colorDataSize = std::stoi(colorData.substr(colorData.find_first_of('|') + 1));
-    STLHelpers::trim(m_VizData->colorDataName);
+    m_VizData->colorDataName      = colorDataName;
+    m_RDataParticle.colorDataSize = dataSize;
     ////////////////////////////////////////////////////////////////////////////////
     if(m_RDataParticle.pColorMode == ParticleColorMode::FromData && !m_VizData->colorDataName.empty()) {
         makeCurrent();
