@@ -332,6 +332,31 @@ void writeMatlab(std::ostream& output, const Vector<T>& vec, const char* variabl
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+inline void ltrim(String& s)
+{
+    s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](int ch)
+                                    {
+                                        return !std::isspace(ch);
+                                    }));
+}
+
+// trim from end (in place)
+inline void rtrim(String& s)
+{
+    s.erase(std::find_if(s.rbegin(), s.rend(), [](int ch)
+                         {
+                             return !std::isspace(ch);
+                         }).base(), s.end());
+}
+
+// trim from both ends (in place)
+inline void trim(String& s)
+{
+    ltrim(s);
+    rtrim(s);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace STLHelpers
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
