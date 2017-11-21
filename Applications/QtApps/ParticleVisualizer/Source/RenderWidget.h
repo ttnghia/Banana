@@ -158,21 +158,21 @@ private:
         GLuint ub_CamData;
         GLuint ub_Light;
         GLuint ub_Material;
+        GLuint u_nParticles;
         GLuint u_MinPosition;
         GLuint u_MaxPosition;
         GLuint u_PointRadius;
         GLuint u_ClipPlane;
         GLuint u_IsPointView;
-        GLuint u_HasVColor;
+        GLuint u_ColorMode;
         GLuint u_UseAnisotropyKernel;
         GLuint u_ScreenWidth;
         GLuint u_ScreenHeight;
 
-        GLuint  numParticles = 0;
+        GLuint  nParticles = 0;
         GLfloat pointRadius;
 
         GLint isPointView         = 0;
-        GLint hasVColor           = 0;
         GLint useAnisotropyKernel = 1;
         GLint hasAnisotropyKernel = 0;
         GLint pColorMode          = ParticleColorMode::Ramp;

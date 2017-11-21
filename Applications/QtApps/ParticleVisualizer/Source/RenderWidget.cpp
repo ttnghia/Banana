@@ -96,7 +96,7 @@ void RenderWidget::updateData()
     ////////////////////////////////////////////////////////////////////////////////
     doneCurrent();
     m_VizData->particleReader.getFixedAttribute("particle_radius", m_RDataParticle.pointRadius);
-    m_RDataParticle.numParticles = m_VizData->particleReader.getNParticles();
+    m_RDataParticle.nParticles = m_VizData->particleReader.getNParticles();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -173,7 +173,6 @@ void RenderWidget::setParticleColorMode(int colorMode)
     Q_ASSERT(colorMode < ParticleColorMode::NumColorMode);
     Q_ASSERT(m_RDataParticle.initialized);
 
-    m_RDataParticle.hasVColor  = colorMode != ParticleColorMode::UniformMaterial ? 0 : 1;
     m_RDataParticle.pColorMode = colorMode;
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -212,10 +211,11 @@ void RenderWidget::initRDataParticle()
     m_RDataParticle.ub_Light    = m_RDataParticle.shader->getUniformBlockIndex("Lights");
     m_RDataParticle.ub_Material = m_RDataParticle.shader->getUniformBlockIndex("Material");
 
+    m_RDataParticle.u_nParticles  = m_RDataParticle.shader->getUniformLocation("u_nParticles");
     m_RDataParticle.u_PointRadius = m_RDataParticle.shader->getUniformLocation("u_PointRadius");
     //    m_RDataParticle.u_PointScale = m_RDataParticle.shader->getUniformLocation("u_PointScale");
     m_RDataParticle.u_IsPointView         = m_RDataParticle.shader->getUniformLocation("u_IsPointView");
-    m_RDataParticle.u_HasVColor           = m_RDataParticle.shader->getUniformLocation("u_HasVColor");
+    m_RDataParticle.u_ColorMode           = m_RDataParticle.shader->getUniformLocation("u_ColorMode");
     m_RDataParticle.u_UseAnisotropyKernel = m_RDataParticle.shader->getUniformLocation("u_UseAnisotropyKernel");
     m_RDataParticle.u_ScreenWidth         = m_RDataParticle.shader->getUniformLocation("u_ScreenWidth");
     m_RDataParticle.u_ScreenHeight        = m_RDataParticle.shader->getUniformLocation("u_ScreenHeight");
@@ -284,9 +284,10 @@ void RenderWidget::renderParticles()
     m_RDataParticle.material->bindUniformBuffer();
     m_RDataParticle.shader->bindUniformBlock(m_RDataParticle.ub_Material, m_RDataParticle.material->getBufferBindingPoint());
 
+    m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_nParticles, m_RDataParticle.nParticles);
     m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_PointRadius, m_RDataParticle.pointRadius);
     m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_IsPointView, m_RDataParticle.isPointView);
-    m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_HasVColor, m_RDataParticle.hasVColor);
+    m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_ColorMode, m_RDataParticle.pColorMode);
     m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_ClipPlane, m_ClipPlane);
     m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_ScreenWidth, width());
     m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_ScreenHeight, height());
@@ -302,7 +303,7 @@ void RenderWidget::renderParticles()
 
     glCall(glBindVertexArray(m_RDataParticle.VAO));
     glCall(glEnable(GL_VERTEX_PROGRAM_POINT_SIZE));
-    glCall(glDrawArrays(GL_POINTS, 0, m_RDataParticle.numParticles));
+    glCall(glDrawArrays(GL_POINTS, 0, m_RDataParticle.nParticles));
     glCall(glBindVertexArray(0));
     m_RDataParticle.shader->release();
 }
