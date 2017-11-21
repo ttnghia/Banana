@@ -778,6 +778,7 @@ void CheckerboardBackgroundRender::render()
     glCall(glBindVertexArray(m_VAO));
     glCall(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4); );
     glCall(glBindVertexArray(0));
+    glCall(glDepthMask(GL_TRUE));
     m_Shader->release();
 }
 
@@ -813,6 +814,7 @@ void GridBackgroundRender::render()
     glCall(glBindVertexArray(m_VAO));
     glCall(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4); );
     glCall(glBindVertexArray(0));
+    glCall(glDepthMask(GL_TRUE));
     m_Shader->release();
 }
 
