@@ -762,6 +762,40 @@ void ScreenQuadTextureRender::setTexture(const SharedPtr<OpenGLTexture>& texture
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+// CheckerboardBackgroundRender
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void CheckerboardBackgroundRender::render()
+{
+    m_Shader->bind();
+    m_Shader->setUniformValue(m_UTexScales,       m_TexScales);
+    m_Shader->setUniformValue(m_UScreenWidth,   m_ScreenWidth);
+    m_Shader->setUniformValue(m_UScreenHeight, m_ScreenHeight);
+    m_Shader->setUniformValue(m_UColor1,             m_Color1);
+    m_Shader->setUniformValue(m_UColor2,             m_Color2);
+
+    glCall(glBindVertexArray(m_VAO));
+    glCall(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4); );
+    glCall(glBindVertexArray(0));
+    m_Shader->release();
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void CheckerboardBackgroundRender::initRenderData()
+{
+    m_Shader = ShaderProgram::getCheckerboardBackgroundShader();
+
+    glCall(glGenVertexArrays(1, &m_VAO));
+
+    m_UTexScales    = m_Shader->getUniformLocation("m_TexScales");
+    m_UScreenWidth  = m_Shader->getUniformLocation("m_UScreenWidth");
+    m_UScreenHeight = m_Shader->getUniformLocation("m_UScreenHeight");
+    m_UColor1       = m_Shader->getUniformLocation("m_UColor1");
+    m_UColor2       = m_Shader->getUniformLocation("m_UColor2");
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Mesh render
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

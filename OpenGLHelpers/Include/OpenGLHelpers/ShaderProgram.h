@@ -75,10 +75,10 @@ public:
         setUniformValue(location, value);
     }
 
-    void setUniformValue(GLint location, const glm::mat4& mat);
-    void setUniformValue(GLint location, const glm::vec4& vec);
-    void setUniformValue(GLint location, const glm::vec3& vec);
-    void setUniformValue(GLint location, const glm::vec2& vec);
+    void setUniformValue(GLint location, const Mat4x4f& mat);
+    void setUniformValue(GLint location, const Vec4f& vec);
+    void setUniformValue(GLint location, const Vec3f& vec);
+    void setUniformValue(GLint location, const Vec2f& vec);
     void setUniformValue(GLint location, GLfloat value);
     void setUniformValue(GLint location, GLint value);
     void setUniformValue(GLint location, GLuint value);
@@ -96,12 +96,12 @@ protected:
     void loadFile(String& fileContent, const char* fileName);
 
     ////////////////////////////////////////////////////////////////////////////////
-    bool                     m_isProgramLinked;
-    GLuint                   m_ProgramID;
-    String                   m_ProgramName;
-    Vector<GLuint>           m_ShaderIDs;
-    std::map<GLenum, String> m_ShaderSourceCodes;
-    std::map<GLenum, String> m_ShaderSourceFiles;
+    bool                m_isProgramLinked;
+    GLuint              m_ProgramID;
+    String              m_ProgramName;
+    Vector<GLuint>      m_ShaderIDs;
+    Map<GLenum, String> m_ShaderSourceCodes;
+    Map<GLenum, String> m_ShaderSourceFiles;
 
 public:
     static SharedPtr<ShaderProgram> getSimpleVertexColorShader(String programName = String("SimpleVertexColorShader"));
@@ -115,6 +115,7 @@ public:
     static SharedPtr<ShaderProgram> getSkyBoxShader(String programName = String("SkyBoxShader"));
     static SharedPtr<ShaderProgram> getScreenQuadShader(const char* fragmentShaderSource, String programName = String("ScreenQuadShader"));
     static SharedPtr<ShaderProgram> getScreenQuadShaderFromFile(const char* fragmentShaderFile, String programName = String("ScreenQuadShader"));
+    static SharedPtr<ShaderProgram> getCheckerboardBackgroundShader(String programName = String("CheckerboardShader"));
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

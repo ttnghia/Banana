@@ -245,16 +245,9 @@ private:
 class ScreenQuadTextureRender : public RenderObject
 {
 public:
-    ScreenQuadTextureRender() : RenderObject(nullptr, nullptr), m_Texture(nullptr), m_TexelSizeValue(1), m_ValueScale(1.0)
-    {
-        initRenderData();
-    }
-
+    ScreenQuadTextureRender() : RenderObject(nullptr, nullptr), m_Texture(nullptr), m_TexelSizeValue(1), m_ValueScale(1.0) { initRenderData(); }
     ScreenQuadTextureRender(SharedPtr<OpenGLTexture>& texture, int texelSize = 1) :
-        RenderObject(nullptr, nullptr), m_Texture(texture), m_TexelSizeValue(texelSize), m_ValueScale(1.0)
-    {
-        initRenderData();
-    }
+        RenderObject(nullptr, nullptr), m_Texture(texture), m_TexelSizeValue(texelSize), m_ValueScale(1.0) { initRenderData(); }
 
     void         setValueScale(float scale);
     void         setTexture(const SharedPtr<OpenGLTexture>& texture, int texelSize = 1);
@@ -270,6 +263,39 @@ private:
     GLuint                   m_UTexSampler;
     SharedPtr<OpenGLTexture> m_Texture;
 };
+
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+// CheckerboardBackgroundRender
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+class CheckerboardBackgroundRender : public RenderObject
+{
+public:
+    CheckerboardBackgroundRender() : RenderObject(nullptr, nullptr) { initRenderData(); }
+
+    void         setTexScales(Vec2f texScales) { m_TexScales = texScales; }
+    void         setScreenSize(int width, int height) { m_ScreenWidth = width; m_ScreenHeight = height; }
+    void         setColors(const Vec4f& color1, const Vec4f& color2) { m_Color1 = color1; m_Color2 = color2; }
+    virtual void render() override;
+
+private:
+    virtual void initRenderData() override;
+
+    Vec2f m_TexScales    = Vec2f(1);
+    GLint m_ScreenWidth  = 1;
+    GLint m_ScreenHeight = 1;
+    Vec4f m_Color1       = Vec4f(1);
+    Vec4f m_Color2       = Vec4f(0, 0, 0, 1);
+
+    GLuint m_UTexScales;
+    GLuint m_UScreenWidth;
+    GLuint m_UScreenHeight;
+    GLuint m_UColor1;
+    GLuint m_UColor2;
+};
+
 
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
