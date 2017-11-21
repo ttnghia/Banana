@@ -768,7 +768,7 @@ void ScreenQuadTextureRender::setTexture(const SharedPtr<OpenGLTexture>& texture
 void CheckerboardBackgroundRender::render()
 {
     m_Shader->bind();
-    m_Shader->setUniformValue(m_UTexScales,       m_TexScales);
+    m_Shader->setUniformValue(m_UScales,             m_Scales);
     m_Shader->setUniformValue(m_UScreenWidth,   m_ScreenWidth);
     m_Shader->setUniformValue(m_UScreenHeight, m_ScreenHeight);
     m_Shader->setUniformValue(m_UColor1,             m_Color1);
@@ -788,11 +788,46 @@ void CheckerboardBackgroundRender::initRenderData()
 
     glCall(glGenVertexArrays(1, &m_VAO));
 
-    m_UTexScales    = m_Shader->getUniformLocation("u_TexScales");
+    m_UScales       = m_Shader->getUniformLocation("u_Scales");
     m_UScreenWidth  = m_Shader->getUniformLocation("u_ScreenWidth");
     m_UScreenHeight = m_Shader->getUniformLocation("u_ScreenHeight");
     m_UColor1       = m_Shader->getUniformLocation("u_Color1");
     m_UColor2       = m_Shader->getUniformLocation("u_Color2");
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+// GridBackgroundRender
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void GridBackgroundRender::render()
+{
+    m_Shader->bind();
+    m_Shader->setUniformValue(m_UScales,                   m_Scales);
+    m_Shader->setUniformValue(m_UScreenWidth,         m_ScreenWidth);
+    m_Shader->setUniformValue(m_UScreenHeight,       m_ScreenHeight);
+    m_Shader->setUniformValue(m_UBackgroundColor, m_BackgroundColor);
+    m_Shader->setUniformValue(m_ULineColor,             m_LineColor);
+
+    glCall(glDepthMask(GL_FALSE));
+    glCall(glBindVertexArray(m_VAO));
+    glCall(glDrawArrays(GL_TRIANGLE_STRIP, 0, 4); );
+    glCall(glBindVertexArray(0));
+    m_Shader->release();
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void GridBackgroundRender::initRenderData()
+{
+    m_Shader = ShaderProgram::getGridBackgroundShader();
+
+    glCall(glGenVertexArrays(1, &m_VAO));
+
+    m_UScales          = m_Shader->getUniformLocation("u_Scales");
+    m_UScreenWidth     = m_Shader->getUniformLocation("u_ScreenWidth");
+    m_UScreenHeight    = m_Shader->getUniformLocation("u_ScreenHeight");
+    m_UBackgroundColor = m_Shader->getUniformLocation("m_UBackgroundColor");
+    m_ULineColor       = m_Shader->getUniformLocation("m_ULineColor");
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

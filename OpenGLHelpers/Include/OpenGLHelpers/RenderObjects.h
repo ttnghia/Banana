@@ -277,7 +277,7 @@ public:
     CheckerboardBackgroundRender(const Vec3f& color1, const Vec3f& color2) : RenderObject(nullptr, nullptr) { initRenderData(); setColors(color1, color2); }
     CheckerboardBackgroundRender(const Vec4f& color1, const Vec4f& color2) : RenderObject(nullptr, nullptr) { initRenderData(); setColors(color1, color2); }
 
-    void         setTexScales(Vec2f texScales) { m_TexScales = texScales; }
+    void         setScales(const Vec2i& scales) { m_Scales = scales; }
     void         setScreenSize(int width, int height) { m_ScreenWidth = width; m_ScreenHeight = height; }
     void         setColor1(const Vec3f& color1) { m_Color1 = Vec4f(color1, 1.0); }
     void         setColor1(const Vec4f& color1) { m_Color1 = color1; }
@@ -290,17 +290,59 @@ public:
 private:
     virtual void initRenderData() override;
 
-    Vec2f m_TexScales    = Vec2f(0.01);
-    GLint m_ScreenWidth  = 1;
-    GLint m_ScreenHeight = 1;
+    Vec2i m_Scales       = Vec2i(20);
+    GLint m_ScreenWidth  = 2;
+    GLint m_ScreenHeight = 2;
     Vec4f m_Color1       = Vec4f(1);
     Vec4f m_Color2       = Vec4f(0, 0, 0, 1);
 
-    GLuint m_UTexScales;
+    GLuint m_UScales;
     GLuint m_UScreenWidth;
     GLuint m_UScreenHeight;
     GLuint m_UColor1;
     GLuint m_UColor2;
+};
+
+
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+// GridBackgroundRender
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+class GridBackgroundRender : public RenderObject
+{
+public:
+    GridBackgroundRender() : RenderObject(nullptr, nullptr) { initRenderData(); }
+    GridBackgroundRender(const Vec3f& backgroundColor, const Vec3f& lineColor) :
+        RenderObject(nullptr, nullptr), m_BackgroundColor(backgroundColor, 1.0f), m_LineColor(lineColor, 1.0f) { initRenderData(); }
+    GridBackgroundRender(const Vec4f& backgroundColor, const Vec4f& lineColor) :
+        RenderObject(nullptr, nullptr), m_BackgroundColor(backgroundColor), m_LineColor(lineColor) { initRenderData(); }
+
+    void         setScales(const Vec2i& scales) { m_Scales = scales; }
+    void         setScreenSize(int width, int height) { m_ScreenWidth = width; m_ScreenHeight = height; }
+    void         setBackgroundColor(const Vec3f& backgroundColor) { m_BackgroundColor = Vec4f(backgroundColor, 1.0); }
+    void         setBackgroundColor(const Vec4f& backgroundColor) { m_BackgroundColor = backgroundColor; }
+    void         setLineColor(const Vec3f& lineColor) { m_LineColor = Vec4f(lineColor, 1.0); }
+    void         setLineColor(const Vec4f& lineColor) { m_LineColor = lineColor; }
+    void         setColors(const Vec3f& backgroundColor, const Vec3f& lineColor) { setBackgroundColor(backgroundColor); setLineColor(lineColor); }
+    void         setColors(const Vec4f& backgroundColor, const Vec4f& lineColor) { setBackgroundColor(backgroundColor); setLineColor(lineColor); }
+    virtual void render() override;
+
+private:
+    virtual void initRenderData() override;
+
+    Vec2i m_Scales          = Vec2i(20);
+    GLint m_ScreenWidth     = 2;
+    GLint m_ScreenHeight    = 2;
+    Vec4f m_BackgroundColor = Vec4f(1);
+    Vec4f m_LineColor       = Vec4f(0, 0, 0, 1);
+
+    GLuint m_UScales;
+    GLuint m_UScreenWidth;
+    GLuint m_UScreenHeight;
+    GLuint m_UBackgroundColor;
+    GLuint m_ULineColor;
 };
 
 
