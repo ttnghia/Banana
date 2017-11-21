@@ -28,6 +28,10 @@ layout(std140) uniform CameraData
 
 uniform uint u_nParticles;
 uniform int  u_ColorMode;
+uniform int  u_ColorDataSize;
+uniform vec3 u_ColorDataMin;
+uniform vec3 u_ColorDataMax;
+
 //uniform float u_PointScale;
 uniform vec4  u_ClipPlane;
 uniform float u_PointRadius;
@@ -39,13 +43,12 @@ uniform int   u_ScreenHeight;
 //------------------------------------------------------------------------------------------
 uniform vec3  u_MinPosition;
 uniform vec3  u_MaxPosition;
-uniform vec3  u_MinVColor;
-uniform vec3  u_MaxVColor;
 uniform float u_MinAniMatrix;
 uniform float u_MaxAniMatrix;
 
 in ivec3 v_Position;
-in ivec3 v_Color;
+in int   v_Color1;
+in ivec3 v_Color3;
 in ivec3 v_AnisotropyMatrix0;
 in ivec3 v_AnisotropyMatrix1;
 in ivec3 v_AnisotropyMatrix2;
@@ -68,11 +71,9 @@ float rand(vec2 co)
 vec3 generateVertexColor()
 {
     if(u_ColorMode == COLOR_MODE_RANDOM) {
-        vec3 randColor;
-        randColor.x = rand(vec2(gl_VertexID, gl_VertexID));
-        randColor.y = rand(vec2(gl_VertexID + 1, gl_VertexID));
-        randColor.z = rand(vec2(gl_VertexID, gl_VertexID + 1));
-        return randColor;
+        return vec3(rand(vec2(gl_VertexID, gl_VertexID)),
+                    rand(vec2(gl_VertexID + 1, gl_VertexID)),
+                    rand(vec2(gl_VertexID, gl_VertexID + 1)));
     } else if(u_ColorMode == COLOR_MODE_RAMP) {
         float segmentSize = float(u_nParticles) / 6.0f;
         float segment     = floor(float(gl_VertexID) / segmentSize);
@@ -81,8 +82,13 @@ vec3 generateVertexColor()
         vec3  endVal      = colorRamp[int(segment) + 1];
         return mix(startVal, endVal, t);
     } else {
-        vec3 diff = u_MaxVColor - u_MinVColor;
-        return v_Color * diff / 65535.0f + u_MinVColor;;
+        if(u_ColorDataSize == 1) {
+            return mix(u_ColorDataMin, u_ColorDataMax, float(v_Color1) / 65535.0f);
+        } else {
+            return vec3(mix(u_ColorDataMin.x, u_ColorDataMax.x, float(v_Color3.x) / 65535.0f),
+                        mix(u_ColorDataMin.y, u_ColorDataMax.y, float(v_Color3.y) / 65535.0f),
+                        mix(u_ColorDataMin.z, u_ColorDataMax.z, float(v_Color3.z) / 65535.0f));
+        }
     }
 }
 

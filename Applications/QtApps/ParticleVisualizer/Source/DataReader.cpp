@@ -239,7 +239,13 @@ void DataReader::readDataList()
         m_DataList.clear();
         const auto& particleAttrs = m_VizData->particleReader.getParticleAttributes();
         for(auto& kv: particleAttrs) {
-            m_DataList.push_back(QString::fromStdString(kv.first));
+            String dataAttr = kv.first;
+            dataAttr.insert(dataAttr.end(), 20 - dataAttr.size(), ' ');
+            dataAttr += String(" | ");
+            String dataCount = std::to_string(kv.second->count);
+            dataCount.insert(0, 20 - dataCount.size(), ' ');
+            dataAttr += dataCount;
+            m_DataList.push_back(QString::fromStdString(dataAttr));
         }
         emit particleDataListChanged(m_DataList);
     }

@@ -127,7 +127,7 @@ private:
     // particles
 public slots:
     void setParticleColorMode(int colorMode);
-    void setColorData(const String& colorDataName) { m_VizData->colorDataName = colorDataName; }
+    void setColorData(const String& colorData);
     void setParticleMaterial(const Material::MaterialData& material);
     void enableAniKernels(bool bAniKernel) { m_RDataParticle.useAnisotropyKernel = bAniKernel ? 1 : 0; }
 private:
@@ -139,8 +139,10 @@ private:
 
         Vec3f dMinPosition;
         Vec3f dMaxPosition;
-        Vec3f dMinColorData;
-        Vec3f dMaxColorData;
+        float dMinColorData1;
+        float dMaxColorData1;
+        Vec3f dMinColorData3;
+        Vec3f dMaxColorData3;
         float dMinAniKernel;
         float dMaxAniKernel;
 
@@ -155,7 +157,8 @@ private:
         GLint  v_AnisotropyMatrix0;
         GLint  v_AnisotropyMatrix1;
         GLint  v_AnisotropyMatrix2;
-        GLint  v_Color;
+        GLint  v_Color1;
+        GLint  v_Color3;
         GLuint ub_CamData;
         GLuint ub_Light;
         GLuint ub_Material;
@@ -166,6 +169,9 @@ private:
         GLuint u_ClipPlane;
         GLuint u_IsPointView;
         GLuint u_ColorMode;
+        GLuint u_ColorDataSize;
+        GLuint u_ColorDataMin;
+        GLuint u_ColorDataMax;
         GLuint u_UseAnisotropyKernel;
         GLuint u_ScreenWidth;
         GLuint u_ScreenHeight;
@@ -177,6 +183,9 @@ private:
         GLint useAnisotropyKernel = 1;
         GLint hasAnisotropyKernel = 0;
         GLint pColorMode          = ParticleColorMode::Ramp;
+        GLint colorDataSize       = 1;
+        Vec3f colorDataMin        = DEFAULT_COLOR_DATA_MIN;
+        Vec3f colorDataMax        = DEFAULT_COLOR_DATA_MAX;
         bool  initialized         = false;
     } m_RDataParticle;
 

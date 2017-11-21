@@ -21,6 +21,8 @@
 
 #include "RenderWidget.h"
 
+#include <Banana/Utils/STLHelpers.h>
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void RenderWidget::initOpenGL()
 {
@@ -90,7 +92,12 @@ void RenderWidget::updateData()
 
     if(m_RDataParticle.pColorMode == ParticleColorMode::FromData) {
         if(!m_VizData->colorDataName.empty()) {
-            __BNN_ASSERT(m_VizData->particleReader.getParticleAttributeCompressed(m_VizData->colorDataName, m_RDataParticle.colorDataCompressed, m_RDataParticle.dMinColorData, m_RDataParticle.dMaxColorData));
+            if(m_RDataParticle.colorDataSize == 1) {
+                __BNN_ASSERT(m_VizData->particleReader.getParticleAttributeCompressed(m_VizData->colorDataName, m_RDataParticle.colorDataCompressed, m_RDataParticle.dMinColorData1, m_RDataParticle.dMaxColorData1));
+            } else {
+                __BNN_ASSERT(m_VizData->particleReader.getParticleAttributeCompressed(m_VizData->colorDataName, m_RDataParticle.colorDataCompressed, m_RDataParticle.dMinColorData3, m_RDataParticle.dMaxColorData3));
+            }
+
             m_RDataParticle.buffColorData->uploadDataAsync(m_RDataParticle.colorDataCompressed.data(), 0, m_RDataParticle.colorDataCompressed.size() * sizeof(UInt16));
         }
     }
@@ -175,7 +182,23 @@ void RenderWidget::setParticleColorMode(int colorMode)
     Q_ASSERT(colorMode < ParticleColorMode::NumColorMode);
     Q_ASSERT(m_RDataParticle.initialized);
     m_RDataParticle.pColorMode = colorMode;
+    ////////////////////////////////////////////////////////////////////////////////
+    if(m_RDataParticle.pColorMode == ParticleColorMode::FromData && !m_VizData->colorDataName.empty()) {
+        makeCurrent();
+        initParticleVAO();
+        doneCurrent();
+    }
+}
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void RenderWidget::setColorData(const String& colorData)
+{
+    if(colorData.empty()) {
+        return;
+    }
+    m_VizData->colorDataName      = colorData.substr(0, colorData.find_first_of('|'));
+    m_RDataParticle.colorDataSize = std::stoi(colorData.substr(colorData.find_first_of('|') + 1));
+    STLHelpers::trim(m_VizData->colorDataName);
     ////////////////////////////////////////////////////////////////////////////////
     if(m_RDataParticle.pColorMode == ParticleColorMode::FromData && !m_VizData->colorDataName.empty()) {
         makeCurrent();
@@ -205,7 +228,8 @@ void RenderWidget::initRDataParticle()
     m_RDataParticle.v_AnisotropyMatrix0 = m_RDataParticle.shader->getAtributeLocation("v_AnisotropyMatrix0");
     m_RDataParticle.v_AnisotropyMatrix1 = m_RDataParticle.shader->getAtributeLocation("v_AnisotropyMatrix1");
     m_RDataParticle.v_AnisotropyMatrix2 = m_RDataParticle.shader->getAtributeLocation("v_AnisotropyMatrix2");
-    m_RDataParticle.v_Color             = m_RDataParticle.shader->getAtributeLocation("v_Color");
+    m_RDataParticle.v_Color1            = m_RDataParticle.shader->getAtributeLocation("v_Color1");
+    m_RDataParticle.v_Color3            = m_RDataParticle.shader->getAtributeLocation("v_Color3");
     m_RDataParticle.u_ClipPlane         = m_RDataParticle.shader->getUniformLocation("u_ClipPlane");
 
     m_RDataParticle.ub_CamData  = m_RDataParticle.shader->getUniformBlockIndex("CameraData");
@@ -217,6 +241,9 @@ void RenderWidget::initRDataParticle()
     //    m_RDataParticle.u_PointScale = m_RDataParticle.shader->getUniformLocation("u_PointScale");
     m_RDataParticle.u_IsPointView         = m_RDataParticle.shader->getUniformLocation("u_IsPointView");
     m_RDataParticle.u_ColorMode           = m_RDataParticle.shader->getUniformLocation("u_ColorMode");
+    m_RDataParticle.u_ColorDataSize       = m_RDataParticle.shader->getUniformLocation("u_ColorDataSize");
+    m_RDataParticle.u_ColorDataMin        = m_RDataParticle.shader->getUniformLocation("u_ColorDataMin");
+    m_RDataParticle.u_ColorDataMax        = m_RDataParticle.shader->getUniformLocation("u_ColorDataMax");
     m_RDataParticle.u_UseAnisotropyKernel = m_RDataParticle.shader->getUniformLocation("u_UseAnisotropyKernel");
     m_RDataParticle.u_ScreenWidth         = m_RDataParticle.shader->getUniformLocation("u_ScreenWidth");
     m_RDataParticle.u_ScreenHeight        = m_RDataParticle.shader->getUniformLocation("u_ScreenHeight");
@@ -260,9 +287,15 @@ void RenderWidget::initParticleVAO()
 //    glCall(glVertexAttribPointer(m_RDataParticle.v_AnisotropyMatrix2, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), reinterpret_cast<GLvoid*>(sizeof(GLfloat) * 6)));
 
     if(m_RDataParticle.pColorMode == ParticleColorMode::FromData) {
-        glCall(glEnableVertexAttribArray(m_RDataParticle.v_Color));
         m_RDataParticle.buffColorData->bind();
-        glCall(glVertexAttribIPointer(m_RDataParticle.v_Color, 3, GL_UNSIGNED_SHORT, 0, reinterpret_cast<GLvoid*>(0)));
+        if(m_RDataParticle.colorDataSize == 1) {
+            glCall(glEnableVertexAttribArray(m_RDataParticle.v_Color1));
+            glCall(glVertexAttribIPointer(m_RDataParticle.v_Color1, 1, GL_UNSIGNED_SHORT, 0, reinterpret_cast<GLvoid*>(0)));
+        } else {
+            __BNN_PRINT_LINE
+                glCall(glEnableVertexAttribArray(m_RDataParticle.v_Color3));
+            glCall(glVertexAttribIPointer(m_RDataParticle.v_Color3, 3, GL_UNSIGNED_SHORT, 0, reinterpret_cast<GLvoid*>(0)));
+        }
     }
 
     glCall(glBindVertexArray(0));
@@ -292,6 +325,12 @@ void RenderWidget::renderParticles()
     m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_ClipPlane, m_ClipPlane);
     m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_ScreenWidth, width());
     m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_ScreenHeight, height());
+
+    if(m_RDataParticle.pColorMode == ParticleColorMode::FromData) {
+        m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_ColorDataSize, m_RDataParticle.colorDataSize);
+        m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_ColorDataMin, m_RDataParticle.colorDataMin);
+        m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_ColorDataMax, m_RDataParticle.colorDataMax);
+    }
 
     m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_MinPosition, m_RDataParticle.dMinPosition);
     m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_MaxPosition, m_RDataParticle.dMaxPosition);

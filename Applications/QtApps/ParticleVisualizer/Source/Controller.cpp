@@ -108,9 +108,17 @@ void Controller::connectWidgets()
     ////////////////////////////////////////////////////////////////////////////////
     // materials and particle color mode
     connect(m_smParticleColorMode, SIGNAL(mapped(int)), m_RenderWidget, SLOT(setParticleColorMode(int)));
+//    connect(m_smParticleColorMode, SIGNAL(mapped(int)), this, [&](int colorMode) { if(colorMode == ParticleColorMode::FromData) { m_DataReader->readCurrentFrame(); } });
     connect(m_msParticleMaterial, &MaterialSelector::materialChanged, m_RenderWidget, &RenderWidget::setParticleMaterial);
     connect(m_lstParticleData, &QListWidget::currentTextChanged, [&](const QString& dataName) { m_RenderWidget->setColorData(dataName.toStdString()); });
-    connect(m_DataReader, &DataReader::particleDataListChanged, [&](const QStringList& dataList) { m_lstParticleData->addItems(dataList); });
+    connect(m_DataReader, &DataReader::particleDataListChanged, [&](const QStringList& dataList)
+            {
+                m_lstParticleData->clear();
+                if(dataList.count() > 0) {
+                    m_lstParticleData->addItems(dataList);
+                    m_lstParticleData->setCurrentRow(0);
+                }
+            });
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
