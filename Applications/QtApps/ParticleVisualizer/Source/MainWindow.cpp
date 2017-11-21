@@ -251,6 +251,7 @@ void MainWindow::connectWidgets()
     connect(m_DataReader, &DataReader::numFramesChanged, this, &MainWindow::updateNumFrames);
     connect(m_InputPath, &BrowsePathWidget::pathChanged, m_DataReader, &DataReader::setDataPath);
     connect(m_DataReader, &DataReader::currentFrameChanged, this, &MainWindow::updateStatusCurrentFrame);
+    connect(m_DataReader, &DataReader::currentFrameChanged, m_sldFrame, &QSlider::setValue);
     connect(m_sldFrame,  &QSlider::valueChanged, m_DataReader, &DataReader::readFrame);
 
     connect(m_DataReader, &DataReader::numParticlesChanged, [&](UInt nParticles) { m_nParticles = nParticles; updateStatusNumParticlesAndMeshes(); });
