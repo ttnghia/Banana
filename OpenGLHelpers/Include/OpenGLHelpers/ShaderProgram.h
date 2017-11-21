@@ -76,13 +76,19 @@ public:
     }
 
     void setUniformValue(GLint location, const Mat4x4f& mat);
-    void setUniformValue(GLint location, const Vec4f& vec);
-    void setUniformValue(GLint location, const Vec3f& vec);
-    void setUniformValue(GLint location, const Vec2f& vec);
-    void setUniformValue(GLint location, GLfloat value);
-    void setUniformValue(GLint location, GLint value);
-    void setUniformValue(GLint location, GLuint value);
-    void setUniformValue(GLint location, GLboolean value);
+    void setUniformValue(GLint location, const Vec4f& vec) { glCall(glUniform4fv(location, 1, glm::value_ptr(vec))); }
+    void setUniformValue(GLint location, const Vec3f& vec) { glCall(glUniform3fv(location, 1, glm::value_ptr(vec))); }
+    void setUniformValue(GLint location, const Vec2f& vec) { glCall(glUniform2fv(location, 1, glm::value_ptr(vec))); }
+    void setUniformValue(GLint location, const Vec4i& vec) { glCall(glUniform4iv(location, 1, glm::value_ptr(vec))); }
+    void setUniformValue(GLint location, const Vec3i& vec) { glCall(glUniform3iv(location, 1, glm::value_ptr(vec))); }
+    void setUniformValue(GLint location, const Vec2i& vec) { glCall(glUniform2iv(location, 1, glm::value_ptr(vec))); }
+    void setUniformValue(GLint location, const Vec4ui& vec) { glCall(glUniform4uiv(location, 1, glm::value_ptr(vec))); }
+    void setUniformValue(GLint location, const Vec3ui& vec) { glCall(glUniform3uiv(location, 1, glm::value_ptr(vec))); }
+    void setUniformValue(GLint location, const Vec2ui& vec) { glCall(glUniform2uiv(location, 1, glm::value_ptr(vec))); }
+    void setUniformValue(GLint location, GLfloat value) { glCall(glUniform1f(location, value)); }
+    void setUniformValue(GLint location, GLint value) { glCall(glUniform1i(location, value)); }
+    void setUniformValue(GLint location, GLuint value) { glCall(glUniform1ui(location, value)); }
+    void setUniformValue(GLint location, GLboolean value) { glCall(glUniform1i(location, value ? GL_TRUE : GL_FALSE)); }
 
     ////////////////////////////////////////////////////////////////////////////////
     GLuint getProgramID() const { return m_ProgramID; }
@@ -116,6 +122,7 @@ public:
     static SharedPtr<ShaderProgram> getScreenQuadShader(const char* fragmentShaderSource, String programName = String("ScreenQuadShader"));
     static SharedPtr<ShaderProgram> getScreenQuadShaderFromFile(const char* fragmentShaderFile, String programName = String("ScreenQuadShader"));
     static SharedPtr<ShaderProgram> getCheckerboardBackgroundShader(String programName = String("CheckerboardShader"));
+    static SharedPtr<ShaderProgram> getGridBackgroundShader(String programName = String("CheckerboardShader"));
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
