@@ -64,34 +64,52 @@ void Controller::setupGUI()
 void Controller::connectWidgets()
 {
     ////////////////////////////////////////////////////////////////////////////////
-    // background and floor
+    // background mode
     connect(m_smBackgroundMode, SIGNAL(mapped(int)), m_RenderWidget, SLOT(setBackgroundMode(int)));
+    ////////////////////////////////////////////////////////////////////////////////
 
+    ////////////////////////////////////////////////////////////////////////////////
+    // sky box
     connect(m_cbSkyTexture->getComboBox(), SIGNAL(currentIndexChanged(int)), m_RenderWidget, SLOT(setSkyBoxTexture(int)));
+    ////////////////////////////////////////////////////////////////////////////////
 
+    ////////////////////////////////////////////////////////////////////////////////
+    // background color
     connect(m_pkrBackgroundColor, &ColorPicker::colorChanged, [&](float r, float g, float b) { m_RenderWidget->setClearColor(Vec3f(r, g, b)); });
+    ////////////////////////////////////////////////////////////////////////////////
 
+    ////////////////////////////////////////////////////////////////////////////////
+    // checkerboard background
     connect(m_pkrCheckerColor1, &ColorPicker::colorChanged, [&](float r, float g, float b) { m_RenderWidget->setCheckerboarrdColor1(Vec3f(r, g, b)); });
     connect(m_pkrCheckerColor2, &ColorPicker::colorChanged, [&](float r, float g, float b) { m_RenderWidget->setCheckerboarrdColor2(Vec3f(r, g, b)); });
     connect(m_sldCheckerboardScale->getSlider(), &QSlider::valueChanged, [&](int value) { m_RenderWidget->setCheckerboarrdScales(Vec2i(value)); });
+    ////////////////////////////////////////////////////////////////////////////////
 
+    ////////////////////////////////////////////////////////////////////////////////
+    // grid background
     connect(m_pkrGridBackgroundColor, &ColorPicker::colorChanged, [&](float r, float g, float b) { m_RenderWidget->setGridBackgroundColor(Vec3f(r, g, b)); });
     connect(m_pkrGridLineColor, &ColorPicker::colorChanged, [&](float r, float g, float b) { m_RenderWidget->setGridLineColor(Vec3f(r, g, b)); });
     connect(m_sldGridScale->getSlider(), &QSlider::valueChanged, [&](int value) { m_RenderWidget->setGridScales(Vec2i(value)); });
+    ////////////////////////////////////////////////////////////////////////////////
 
+    ////////////////////////////////////////////////////////////////////////////////
+    // floor
     connect(m_cbFloorTexture->getComboBox(), SIGNAL(currentIndexChanged(int)), m_RenderWidget, SLOT(setFloorTexture(int)));
     connect(m_sldFloorSize->getSlider(), &QSlider::valueChanged, m_RenderWidget, &RenderWidget::setFloorSize);
     connect(m_sldFloorExposure->getSlider(), &QSlider::valueChanged, m_RenderWidget, &RenderWidget::setFloorExposure);
+    ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
-    // materials
+    // frame controllers
+    connect(m_sldFrameDelay->getSlider(), &QSlider::valueChanged, m_DataReader, &DataReader::setFrameDelayTime);
+    connect(m_sldFrameStride->getSlider(), &QSlider::valueChanged, m_DataReader, &DataReader::setFrameStride);
+    ////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // materials and particle color mode
     connect(m_smParticleColorMode, SIGNAL(mapped(int)), m_RenderWidget, SLOT(setParticleColorMode(int)));
     connect(m_msParticleMaterial, &MaterialSelector::materialChanged, m_RenderWidget, &RenderWidget::setParticleMaterial);
-//    connect(m_msMeshMaterial, &MaterialSelector::materialChanged,
-//            [&](const Material::MaterialData& material)
-//            {
-//                m_RenderWidget->setMeshMaterial(material, m_cbMeshMaterialID->currentIndex());
-//            });
+    ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
     // misc controllers
@@ -301,13 +319,13 @@ void Controller::setupFrameControllers(QBoxLayout* layoutCtr)
     m_sldFrameDelay->setTracking(false);
     m_sldFrameDelay->setValue(DEFAULT_DELAY_TIME);
     ///////////////////////////////////////////////////////////////////////////////
-    m_sldFrameStep = new EnhancedSlider;
-    m_sldFrameStep->setRange(1, 100);
-    m_sldFrameStep->setTracking(false);
+    m_sldFrameStride = new EnhancedSlider;
+    m_sldFrameStride->setRange(1, 100);
+    m_sldFrameStride->setTracking(false);
     ////////////////////////////////////////////////////////////////////////////////
     QVBoxLayout* layoutFrameCtr = new QVBoxLayout;
     layoutFrameCtr->addLayout(m_sldFrameDelay->getLayoutWithLabel("Delay:"));
-    layoutFrameCtr->addLayout(m_sldFrameStep->getLayoutWithLabel("Step:"));
+    layoutFrameCtr->addLayout(m_sldFrameStride->getLayoutWithLabel("Step:"));
     ////////////////////////////////////////////////////////////////////////////////
     QGroupBox* grpFrameControl = new QGroupBox("Frame Controls");
     grpFrameControl->setLayout(layoutFrameCtr);
