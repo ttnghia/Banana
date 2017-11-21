@@ -166,6 +166,10 @@ public:
     size_t getBytesRead() const { return m_ByteRead; }
     UInt   getNParticles() const { return m_nParticles; }
 
+    bool hasFixedAttribute(const String& attrName) const { return m_FixedAttributes.find(attrName) != m_FixedAttributes.end(); }
+    bool hasParticleAttribute(const String& attrName) const { return m_ParticleAttributes.find(attrName) != m_ParticleAttributes.end(); }
+    bool hasAttribute(const String& attrName) const { return hasFixedAttribute(attrName) || hasParticleAttribute(attrName); }
+
     template<class T> bool        getFixedAttribute(const String& attrName, T& value);
     template<class T> bool        getFixedAttribute(const String& attrName, T* value);
     template<class T> bool        getFixedAttribute(const String& attrName, Vector<T>& values);
@@ -177,6 +181,10 @@ public:
     template<class T> bool        getParticleAttribute(const String& attrName, Vector<Vector<T> >& values);
     template<Int N, class T> bool getParticleAttribute(const String& attrName, Vector<VecX<N, T> >& values);
     template<Int N, class T> bool getParticleAttribute(const String& attrName, Vector<MatXxX<N, T> >& values);
+
+    template<class T> bool        getParticleAttributeCompressed(const String& attrName, Vec_UInt16& values, T& dMin, T& dMax);
+    template<Int N, class T> bool getParticleAttributeCompressed(const String& attrName, Vec_UInt16& values, VecX<N, T>& dMin, VecX<N, T>& dMax);
+    template<class T> bool        getParticleAttributeCompressed(const String& attrName, Vec_VecUInt16& values, Vector<T>& dMin, Vector<T>& dMax);
 
 private:
     size_t computeBufferSize();
