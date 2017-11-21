@@ -65,10 +65,14 @@ float rand(vec2 co)
     return fract(sin(sn) * c);
 }
 
-vec3 generateVertexColor(vec3 vpos)
+vec3 generateVertexColor()
 {
     if(u_ColorMode == COLOR_MODE_RANDOM) {
-        return vec3(rand(vpos.xy), rand(vpos.xz), rand(vpos.yz));
+        vec3 randColor;
+        randColor.x = rand(vec2(gl_VertexID, gl_VertexID));
+        randColor.y = rand(vec2(gl_VertexID + 1, gl_VertexID));
+        randColor.z = rand(vec2(gl_VertexID, gl_VertexID + 1));
+        return randColor;
     } else if(u_ColorMode == COLOR_MODE_RAMP) {
         float segmentSize = float(u_nParticles) / 6.0f;
         float segment     = floor(float(gl_VertexID) / segmentSize);
@@ -135,7 +139,7 @@ void main()
     /////////////////////////////////////////////////////////////////
     // output
     f_ViewCenter       = posEye;
-    f_Color            = generateVertexColor(position);
+    f_Color            = generateVertexColor();
     f_AnisotropyMatrix = (u_UseAnisotropyKernel == 0) ? mat3(0) : mat3(v_AnisotropyMatrix0, v_AnisotropyMatrix1, v_AnisotropyMatrix2);
 
 #ifdef UNIT_SPHERE_ISOLATED_PARTICLE
