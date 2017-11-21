@@ -156,13 +156,15 @@ public:
 
     ////////////////////////////////////////////////////////////////////////////////
     // functions for reading data
-    const Map<String, SharedPtr<Attribute> >& getFixedAttributes() { return m_FixedAttributes; }
-    const Map<String, SharedPtr<Attribute> >& getParticleAttributes() { return m_ParticleAttributes; }
+    const auto& getFixedAttributes() { return m_FixedAttributes; }
+    const auto& getParticleAttributes() { return m_ParticleAttributes; }
 
     Int    getLatestFileIndex(Int maxIndex) const { return m_DataIO->getLatestFileIndex(maxIndex); }
     String getFilePath(Int fileID) { return m_DataIO->getFilePath(fileID); }
     bool   read(Int fileID, const Vector<String>& readAttributes = {}, bool bStopIfFailed = true);
     bool   read(const String& fileName, const Vector<String>& readAttributes = {}, bool bStopIfFailed = true);
+    bool   readHeader(Int fileID, const Vector<String>& readAttributes = {}, bool bStopIfFailed = true);
+    bool   readHeader(const String& fileName, const Vector<String>& readAttributes = {}, bool bStopIfFailed = true);
     size_t getBytesRead() const { return m_ByteRead; }
     UInt   getNParticles() const { return m_nParticles; }
 

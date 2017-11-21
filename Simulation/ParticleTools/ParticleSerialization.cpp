@@ -194,6 +194,7 @@ bool ParticleSerialization::read(const String& fileName, const Vector<String>& r
     }
 
     ////////////////////////////////////////////////////////////////////////////////
+    clearData();
     m_ByteRead = 0;
     m_ReadAttributeDataSizeMap.clear();
     m_bReadAttributeMap.clear();
@@ -245,6 +246,37 @@ bool ParticleSerialization::read(const String& fileName, const Vector<String>& r
         str += String(" ("); str += NumberHelpers::formatWithCommas(static_cast<double>(m_ByteRead) / 1048576.0); str += String(" MBs)");
         m_Logger->printLog(str);
     }
+    return true;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+bool ParticleSerialization::readHeader(Int fileID, const Vector<String>& readAttributes /*= {}*/, bool bStopIfFailed /*= true*/)
+{
+    __BNN_ASSERT(m_DataIO != nullptr);
+    const String fileName = m_DataIO->getFilePath(fileID);
+    return readHeader(fileName, readAttributes, bStopIfFailed);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+bool ParticleSerialization::readHeader(const String& fileName, const Vector<String>& readAttributes /*= {}*/, bool bStopIfFailed /*= true*/)
+{
+    std::ifstream ipf(fileName, std::ios::binary | std::ios::in);
+    if(!ipf.is_open()) {
+        if(m_Logger != nullptr) {
+            m_Logger->printError("Cannot read file: " + fileName);
+        }
+        return false;
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////
+    clearData();
+    m_ByteRead = 0;
+    m_ReadAttributeDataSizeMap.clear();
+    m_bReadAttributeMap.clear();
+    if(!readHeader(ipf)) {
+        return false;
+    }
+
     return true;
 }
 
