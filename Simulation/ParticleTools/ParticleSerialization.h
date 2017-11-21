@@ -161,8 +161,8 @@ public:
 
     Int    getLatestFileIndex(Int maxIndex) const { return m_DataIO->getLatestFileIndex(maxIndex); }
     String getFilePath(Int fileID) { return m_DataIO->getFilePath(fileID); }
-    bool   read(Int fileID, const Vector<String>& readAttributes = {});
-    bool   read(const String& fileName, const Vector<String>& readAttributes = {});
+    bool   read(Int fileID, const Vector<String>& readAttributes = {}, bool bStopIfFailed = true);
+    bool   read(const String& fileName, const Vector<String>& readAttributes = {}, bool bStopIfFailed = true);
     size_t getBytesRead() const { return m_ByteRead; }
     UInt   getNParticles() const { return m_nParticles; }
 

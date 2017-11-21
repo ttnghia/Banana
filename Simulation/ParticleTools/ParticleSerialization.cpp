@@ -175,21 +175,29 @@ void ParticleSerialization::writeHeader(std::ofstream& opf)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-bool ParticleSerialization::read(Int fileID, const Vector<String>& readAttributes /*= {}*/)
+bool ParticleSerialization::read(Int fileID, const Vector<String>& readAttributes /*= {}*/, bool bStopIfFailed /*= true*/)
 {
     __BNN_ASSERT(m_DataIO != nullptr);
     const String fileName = m_DataIO->getFilePath(fileID);
-    return read(fileName, readAttributes);
+    return read(fileName, readAttributes, bStopIfFailed);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-bool ParticleSerialization::read(const String& fileName, const Vector<String>& readAttributes /*= {}*/)
+bool ParticleSerialization::read(const String& fileName, const Vector<String>& readAttributes /*= {}*/, bool bStopIfFailed /*= true*/)
 {
     std::ifstream ipf(fileName, std::ios::binary | std::ios::in);
     if(!ipf.is_open()) {
         if(m_Logger != nullptr) {
             m_Logger->printError("Cannot read file: " + fileName);
         }
+        return false;
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////
+    m_ByteRead = 0;
+    m_ReadAttributeDataSizeMap.clear();
+    m_bReadAttributeMap.clear();
+    if(!readHeader(ipf)) {
         return false;
     }
 
@@ -207,16 +215,11 @@ bool ParticleSerialization::read(const String& fileName, const Vector<String>& r
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    m_ByteRead = 0;
-    if(!readHeader(ipf)) {
-        return false;
-    }
-
     size_t cursor = ipf.tellg();
     for(auto& kv : m_FixedAttributes) {
         if(m_bReadAttributeMap[kv.second->name]) {
             bool success = readAttribute(kv.second, ipf, cursor);
-            if(!success) { return false; }
+            if(!success && bStopIfFailed) { return false; }
             cursor = ipf.tellg();
         } else {
             size_t attrDataSize = m_ReadAttributeDataSizeMap[kv.second->name];
@@ -227,7 +230,7 @@ bool ParticleSerialization::read(const String& fileName, const Vector<String>& r
     for(auto& kv : m_ParticleAttributes) {
         if(m_bReadAttributeMap[kv.second->name]) {
             bool success = readAttribute(kv.second, ipf, cursor);
-            if(!success) { return false; }
+            if(!success && bStopIfFailed) { return false; }
             cursor = ipf.tellg();
         } else {
             size_t attrDataSize = m_ReadAttributeDataSizeMap[kv.second->name];
@@ -248,8 +251,8 @@ bool ParticleSerialization::read(const String& fileName, const Vector<String>& r
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 bool ParticleSerialization::readHeader(std::ifstream& ipf)
 {
-    std::string line;
-    bool        gotMagic = false;
+    String line;
+    bool   gotMagic = false;
 
     auto getType = [&](const String& typeName) -> DataType
                    {
@@ -282,7 +285,7 @@ bool ParticleSerialization::readHeader(std::ifstream& ipf)
 
     while(std::getline(ipf, line)) {
         std::istringstream ls(line);
-        std::string        token;
+        String             token;
         ls >> token;
 
         if(token == "BananaParticleData") {
@@ -317,8 +320,11 @@ bool ParticleSerialization::readHeader(std::ifstream& ipf)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 bool ParticleSerialization::readAttribute(SharedPtr<Attribute>& attr, std::ifstream& ipf, size_t cursor)
 {
-    ipf.seekg(cursor);
+    if(m_ReadAttributeDataSizeMap.find(attr->name) == m_ReadAttributeDataSizeMap.end()) {
+        return false;
+    }
     size_t dataSize = m_ReadAttributeDataSizeMap[attr->name];
+    ipf.seekg(cursor);
     attr->buffer.resize(dataSize);
     ipf.read((char*)attr->buffer.data(), dataSize);
     m_ByteRead += dataSize;
