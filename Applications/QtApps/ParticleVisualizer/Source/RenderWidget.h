@@ -128,6 +128,8 @@ private:
 public slots:
     void setParticleColorMode(int colorMode);
     void setColorData(const String& colorData);
+    void setColorDataMin(const Vec3f& colorMin) { m_RDataParticle.colorDataMin = colorMin; }
+    void setColorDataMax(const Vec3f& colorMax) { m_RDataParticle.colorDataMax = colorMax; }
     void setParticleMaterial(const Material::MaterialData& material);
     void enableAniKernels(bool bAniKernel) { m_RDataParticle.useAnisotropyKernel = bAniKernel ? 1 : 0; }
 private:

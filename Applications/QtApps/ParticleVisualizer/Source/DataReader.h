@@ -157,6 +157,7 @@ public slots:
     void pause(bool bPaused) { m_bPause = bPaused; }
     void readFirstFrame() { readFrame(0); }
     void readNextFrame();
+    void reloadCurrentFrame() { readFrame(m_CurrentFrame); }
     void readFrame(int frame);
 private:
     void readNextFrameByTimer() { if(!m_bPause) { readNextFrame(); } }

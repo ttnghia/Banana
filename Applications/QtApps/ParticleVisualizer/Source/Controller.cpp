@@ -107,8 +107,15 @@ void Controller::connectWidgets()
 
     ////////////////////////////////////////////////////////////////////////////////
     // materials and particle color mode
-    connect(m_smParticleColorMode, SIGNAL(mapped(int)), m_RenderWidget, SLOT(setParticleColorMode(int)));
-//    connect(m_smParticleColorMode, SIGNAL(mapped(int)), this, [&](int colorMode) { if(colorMode == ParticleColorMode::FromData) { m_DataReader->readCurrentFrame(); } });
+    connect(m_smParticleColorMode, static_cast<void (QSignalMapper::*)(int)>(&QSignalMapper::mapped), this, [&](int colorMode)
+            {
+                m_RenderWidget->setParticleColorMode(colorMode);
+                if(colorMode == ParticleColorMode::FromData) {
+                    m_DataReader->reloadCurrentFrame();
+                }
+            });
+    connect(m_pkrColorDataMin, &ColorPicker::colorChanged, [&](float r, float g, float b) { m_RenderWidget->setColorDataMin(Vec3f(r, g, b)); });
+    connect(m_pkrColorDataMax, &ColorPicker::colorChanged, [&](float r, float g, float b) { m_RenderWidget->setColorDataMax(Vec3f(r, g, b)); });
     connect(m_msParticleMaterial, &MaterialSelector::materialChanged, m_RenderWidget, &RenderWidget::setParticleMaterial);
     connect(m_lstParticleData, &QListWidget::currentTextChanged, [&](const QString& dataName) { m_RenderWidget->setColorData(dataName.toStdString()); });
     connect(m_DataReader, &DataReader::particleDataListChanged, [&](const QStringList& dataList)
@@ -418,6 +425,26 @@ void Controller::setupColorModeControllers(QBoxLayout* layoutCtr)
     grDataList->setVisible(false);
     grDataList->setLayout(layoutDataList);
     connect(rdbColorData, &QRadioButton::toggled, grDataList, &QGroupBox::setVisible);
+    ////////////////////////////////////////////////////////////////////////////////
+    QFrame* line = new QFrame();
+    line->setFrameShape(QFrame::HLine);
+    line->setFrameShadow(QFrame::Sunken);
+    ////////////////////////////////////////////////////////////////////////////////
+    m_pkrColorDataMin = new ColorPicker;
+    m_pkrColorDataMax = new ColorPicker;
+    m_pkrColorDataMin->setColor(DEFAULT_COLOR_DATA_MIN);
+    m_pkrColorDataMax->setColor(DEFAULT_COLOR_DATA_MAX);
+    QHBoxLayout* layoutColorData = new QHBoxLayout;
+    layoutColorData->addWidget(new QLabel("Color min/max:"), 10);
+    layoutColorData->addStretch(1);
+    layoutColorData->addWidget(m_pkrColorDataMin, 10);
+    layoutColorData->addStretch(1);
+    layoutColorData->addWidget(m_pkrColorDataMax, 10);
+
+    layoutDataList->addSpacing(5);
+    layoutDataList->addWidget(line);
+    layoutDataList->addSpacing(5);
+    layoutDataList->addLayout(layoutColorData);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

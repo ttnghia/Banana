@@ -292,8 +292,7 @@ void RenderWidget::initParticleVAO()
             glCall(glEnableVertexAttribArray(m_RDataParticle.v_Color1));
             glCall(glVertexAttribIPointer(m_RDataParticle.v_Color1, 1, GL_UNSIGNED_SHORT, 0, reinterpret_cast<GLvoid*>(0)));
         } else {
-            __BNN_PRINT_LINE
-                glCall(glEnableVertexAttribArray(m_RDataParticle.v_Color3));
+            glCall(glEnableVertexAttribArray(m_RDataParticle.v_Color3));
             glCall(glVertexAttribIPointer(m_RDataParticle.v_Color3, 3, GL_UNSIGNED_SHORT, 0, reinterpret_cast<GLvoid*>(0)));
         }
     }
