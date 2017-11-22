@@ -97,7 +97,8 @@ void Simulator::changeScene(const QString& scene)
     }
 
     m_ParticleSolver.reset();
-    m_ParticleSolver = std::make_unique<ParticleSolverQt>();
+    m_ParticleSolver     = std::make_unique<ParticleSolverQt>();
+    m_VizData->positions = &m_ParticleSolver->solverData().particleData.positions;
 
     ////////////////////////////////////////////////////////////////////////////////
     QString sceneFile = QDir::currentPath() + "/Scenes/" + scene;

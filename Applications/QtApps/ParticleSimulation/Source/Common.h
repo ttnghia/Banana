@@ -22,7 +22,7 @@
 #pragma once
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#define DEFAULT_CAMERA_POSITION     Vec3f(0.0, 0.8, 3.0)
+#define DEFAULT_CAMERA_POSITION     Vec3f(3.0, 0.8, 0)
 #define DEFAULT_CAMERA_FOCUS        Vec3f(0, -0.2, 0)
 #define DEFAULT_LIGHT_POSITION      Vec4f(10, 10, -10, 1.0)
 #define DEFAULT_CLIP_PLANE          Vec4f(-1.0f, 0.0f, 0.0f, 0.0f)

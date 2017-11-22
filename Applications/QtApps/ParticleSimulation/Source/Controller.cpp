@@ -331,30 +331,12 @@ void Controller::setupSimulationControllers(QBoxLayout* layoutCtr)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Controller::setupButtons(QBoxLayout* layoutCtr)
-{
-    ////////////////////////////////////////////////////////////////////////////////
-    m_btnStartStopSimulation = new QPushButton("Start");
-    m_btnResetCamera         = new QPushButton("Reset Camera");
-    m_btnEditClipPlane       = new QPushButton("Edit Clip Plane");
-    m_btnClipViewPlane       = new QPushButton("Clip View");
-    m_btnClipViewPlane->setCheckable(true);
-    ////////////////////////////////////////////////////////////////////////////////
-    QGridLayout* layoutButtons = new QGridLayout;
-    layoutButtons->addWidget(m_btnStartStopSimulation, 0, 0, 1, 1);
-    layoutButtons->addWidget(m_btnResetCamera,         1, 0, 1, 1);
-    layoutButtons->addWidget(m_btnClipViewPlane,       2, 0, 1, 1);
-    layoutButtons->addWidget(m_btnEditClipPlane,       3, 0, 1, 1);
-    ////////////////////////////////////////////////////////////////////////////////
-    layoutCtr->addLayout(layoutButtons);
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Controller::setupMaterialControllers(QBoxLayout* layoutCtr)
 {
     m_msParticleMaterial = new MaterialSelector;
     m_msParticleMaterial->setCustomMaterial(CUSTOM_PARTICLE_MATERIAL);
     m_msParticleMaterial->setDefaultCustomMaterial(true);
+    m_msParticleMaterial->getComboBox()->setEnabled(false);
     QGridLayout* layoutMaterial = new QGridLayout;
     layoutMaterial->addLayout(m_msParticleMaterial->getLayout(), 0, 0, 1, 2);
     ////////////////////////////////////////////////////////////////////////////////
@@ -452,4 +434,23 @@ void Controller::setupMiscControllers(QBoxLayout* layoutCtr)
     layoutMiscCtrls->addLayout(layoutBox);
     grMiscCtrls->setLayout(layoutMiscCtrls);
     layoutCtr->addWidget(grMiscCtrls);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void Controller::setupButtons(QBoxLayout* layoutCtr)
+{
+    ////////////////////////////////////////////////////////////////////////////////
+    m_btnStartStopSimulation = new QPushButton("Start");
+    m_btnResetCamera         = new QPushButton("Reset Camera");
+    m_btnEditClipPlane       = new QPushButton("Edit Clip Plane");
+    m_btnClipViewPlane       = new QPushButton("Clip View");
+    m_btnClipViewPlane->setCheckable(true);
+    ////////////////////////////////////////////////////////////////////////////////
+    QGridLayout* layoutButtons = new QGridLayout;
+    layoutButtons->addWidget(m_btnStartStopSimulation, 0, 0, 1, 1);
+    layoutButtons->addWidget(m_btnResetCamera,         1, 0, 1, 1);
+    layoutButtons->addWidget(m_btnClipViewPlane,       2, 0, 1, 1);
+    layoutButtons->addWidget(m_btnEditClipPlane,       3, 0, 1, 1);
+    ////////////////////////////////////////////////////////////////////////////////
+    layoutCtr->addLayout(layoutButtons);
 }
