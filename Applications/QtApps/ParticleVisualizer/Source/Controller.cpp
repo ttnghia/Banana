@@ -68,6 +68,10 @@ void Controller::connectWidgets()
     ////////////////////////////////////////////////////////////////////////////////
     // background mode
     connect(m_smBackgroundMode, SIGNAL(mapped(int)), m_RenderWidget, SLOT(setBackgroundMode(int)));
+    connect(m_smBackgroundMode, static_cast<void (QSignalMapper::*)(int)>(&QSignalMapper::mapped), [&](int backgroundMode)
+            {
+                m_chkRenderBox->setChecked(backgroundMode == BackgroundMode::SkyBox || backgroundMode == BackgroundMode::Color);
+            });
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -458,6 +462,9 @@ void Controller::setupColorModeControllers(QBoxLayout* layoutCtr)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Controller::setupMiscControllers(QBoxLayout* layoutCtr)
 {
+    m_chkReadFrameInstantly = new QCheckBox("Read frame instantly when slider drag");
+    m_chkReadFrameInstantly->setChecked(true);
+    ////////////////////////////////////////////////////////////////////////////////
     m_chkUseAniKernel = new QCheckBox("Enable anisotropic kernel (if available)");
     ////////////////////////////////////////////////////////////////////////////////
     m_chkRenderBox = new QCheckBox("Render domain box");
@@ -477,6 +484,7 @@ void Controller::setupMiscControllers(QBoxLayout* layoutCtr)
     line->setFrameShape(QFrame::HLine);
     line->setFrameShadow(QFrame::Sunken);
     ////////////////////////////////////////////////////////////////////////////////
+    layoutMiscCtrls->addWidget(m_chkReadFrameInstantly);
     layoutMiscCtrls->addWidget(m_chkUseAniKernel);
     layoutMiscCtrls->addSpacing(5);
     layoutMiscCtrls->addWidget(line);

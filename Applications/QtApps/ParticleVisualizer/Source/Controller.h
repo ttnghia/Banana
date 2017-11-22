@@ -111,6 +111,7 @@ private:
     ////////////////////////////////////////////////////////////////////////////////
     // misc
     void setupMiscControllers(QBoxLayout* layoutCtr);
+    QCheckBox*   m_chkReadFrameInstantly;
     QCheckBox*   m_chkUseAniKernel;
     QCheckBox*   m_chkRenderBox;
     ColorPicker* m_pkrBoxColor;

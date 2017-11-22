@@ -64,6 +64,10 @@ void Controller::connectWidgets()
     ////////////////////////////////////////////////////////////////////////////////
     // background mode
     connect(m_smBackgroundMode, SIGNAL(mapped(int)), m_RenderWidget, SLOT(setBackgroundMode(int)));
+    connect(m_smBackgroundMode, static_cast<void (QSignalMapper::*)(int)>(&QSignalMapper::mapped), [&](int backgroundMode)
+            {
+                m_chkRenderBox->setChecked(backgroundMode == BackgroundMode::SkyBox || backgroundMode == BackgroundMode::Color);
+            });
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////

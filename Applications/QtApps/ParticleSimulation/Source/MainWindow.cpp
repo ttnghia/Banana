@@ -149,7 +149,6 @@ void MainWindow::setupRenderWidgets()
 void MainWindow::setupStatusBar()
 {
     m_BusyBar = new BusyBar(this, BusyBar::Cycle, 10);
-//    m_prBusy->setBusy(true);
     statusBar()->addPermanentWidget(m_BusyBar);
 
     m_lblStatusSimInfo = new QLabel(this);
