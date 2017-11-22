@@ -148,7 +148,7 @@ void RenderWidget::initRDataLight()
 void RenderWidget::initRDataSkyBox()
 {
     Q_ASSERT(m_UBufferCamData != nullptr);
-    m_SkyBoxRender = std::make_unique<SkyBoxRender>(m_Camera, QDir::currentPath() + "/Textures/Sky/", m_UBufferCamData);
+    m_SkyBoxRender = std::make_unique<SkyBoxRender>(m_Camera, getTexPath() + "/Sky/", m_UBufferCamData);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -156,7 +156,7 @@ void RenderWidget::initRDataFloor()
 {
     Q_ASSERT(m_UBufferCamData != nullptr && m_Lights != nullptr);
 
-    m_FloorRender = std::make_unique<PlaneRender>(m_Camera, m_Lights, QDir::currentPath() + "/Textures/Floor/", m_UBufferCamData);
+    m_FloorRender = std::make_unique<PlaneRender>(m_Camera, m_Lights, getTexPath() + "/Floor/", m_UBufferCamData);
     m_FloorRender->transform(Vec3f(0, -1.01, 0), Vec3f(DEFAULT_FLOOR_SIZE));
     m_FloorRender->scaleTexCoord(DEFAULT_FLOOR_SIZE, DEFAULT_FLOOR_SIZE);
     m_FloorRender->setAllowNonTextureRender(false);

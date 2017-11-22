@@ -127,32 +127,31 @@ void Controller::connectWidgets()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-QStringList Controller::getTextureFolders(QString texType)
+QStringList Controller::getTextureFolders(const QString& texType, const QString& texPath)
 {
-    QDir dataDir(QDir::currentPath() + "/Textures/" + texType);
+    QDir dataDir(texPath + "/" + texType);
     dataDir.setFilter(QDir::NoDotAndDotDot | QDir::Dirs);
-
     return dataDir.entryList();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-QStringList Controller::getTextureFiles(QString texType)
+QStringList Controller::getTextureFiles(const QString& texType, const QString& texPath)
 {
-    QDir dataDir(QDir::currentPath() + "/Textures/" + texType);
+    QDir dataDir(texPath + "/" + texType);
     dataDir.setFilter(QDir::NoDotAndDotDot | QDir::Files);
-
     return dataDir.entryList();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Controller::loadTextures()
 {
+    auto texPath = getTexPath();
     ////////////////////////////////////////////////////////////////////////////////
     // sky textures
     int currentSkyTexID = m_cbSkyTexture->getComboBox()->currentIndex();
     m_cbSkyTexture->getComboBox()->clear();
     m_cbSkyTexture->getComboBox()->addItem("None");
-    m_cbSkyTexture->getComboBox()->addItems(getTextureFolders("Sky"));
+    m_cbSkyTexture->getComboBox()->addItems(getTextureFolders("Sky", texPath));
     m_cbSkyTexture->getComboBox()->setCurrentIndex(currentSkyTexID > 0 ? currentSkyTexID : 0);
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -160,7 +159,7 @@ void Controller::loadTextures()
     int currentFloorTexID = m_cbFloorTexture->getComboBox()->currentIndex();
     m_cbFloorTexture->getComboBox()->clear();
     m_cbFloorTexture->getComboBox()->addItem("None");
-    m_cbFloorTexture->getComboBox()->addItems(getTextureFiles("Floor"));
+    m_cbFloorTexture->getComboBox()->addItems(getTextureFiles("Floor", texPath));
     m_cbFloorTexture->getComboBox()->setCurrentIndex(currentFloorTexID > 0 ? currentFloorTexID : 0);
 }
 
@@ -407,7 +406,7 @@ void Controller::setupColorModeControllers(QBoxLayout* layoutCtr)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Controller::setupMiscControllers(QBoxLayout* layoutCtr)
 {
-    m_chkUseAniKernel = new QCheckBox("Enable anisotropic kernel");
+    m_chkUseAniKernel = new QCheckBox("Enable anisotropic kernel (if available)");
     ////////////////////////////////////////////////////////////////////////////////
     m_chkRenderBox = new QCheckBox("Render domain box");
     m_chkRenderBox->setChecked(true);

@@ -81,6 +81,20 @@ using namespace Banana;
 using namespace Banana::ParticleSolvers;
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#include <QString>
+#include <QDir>
+#include <Banana/Utils/AppConfigReader.h>
+inline QString getTexPath()
+{
+    AppConfigReader config("config.ini");
+    if(config.isFileLoaded() && config.hasParam("TexturePath")) {
+        return QString::fromStdString(config.getStringValue("TexturePath"));
+    } else {
+        return QDir::currentPath() + "/Textures";
+    }
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 struct LightData
 {
     LightData(const Vec3f& position_ = DEFAULT_LIGHT_POSITION, const Vec3f& color_ = Vec3f(1.0)) : position(position_), color(color_) {}
@@ -111,7 +125,7 @@ struct VisualizationData
     // particle data
     Vec_Vec3f*   positions      = nullptr;
     Vec_Mat3x3f* aniKernel      = nullptr;
-    Vec_Float*   colorData      = nullptr;
+    char*        colorData      = nullptr;
     UInt         nParticles     = 0;
     float        particleRadius = 0;
     ////////////////////////////////////////////////////////////////////////////////

@@ -51,8 +51,8 @@ private:
     void setupGUI();
     void connectWidgets();
 
-    QStringList getTextureFolders(QString texType);
-    QStringList getTextureFiles(QString texType);
+    QStringList getTextureFolders(const QString& texType, const QString& texPath);
+    QStringList getTextureFiles(const QString& texType, const QString& texPath);
     void        loadTextures();
 
     ////////////////////////////////////////////////////////////////////////////////

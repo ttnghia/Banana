@@ -78,3 +78,17 @@ struct ParticleColorMode
 #include <Banana/Setup.h>
 namespace Banana {}
 using namespace Banana;
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#include <QString>
+#include <QDir>
+#include <Banana/Utils/AppConfigReader.h>
+inline QString getTexPath()
+{
+    AppConfigReader config("config.ini");
+    if(config.isFileLoaded() && config.hasParam("TexturePath")) {
+        return QString::fromStdString(config.getStringValue("TexturePath"));
+    } else {
+        return QDir::currentPath() + "/Textures";
+    }
+}

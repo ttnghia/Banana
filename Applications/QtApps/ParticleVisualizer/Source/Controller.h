@@ -22,7 +22,6 @@
 #pragma once
 
 #include <QStringList>
-#include <QString>
 #include <QDir>
 #include <QWidget>
 #include <QtWidgets>
@@ -51,11 +50,10 @@ public:
     }
 
 private:
-    void setupGUI();
-    void connectWidgets();
-
-    QStringList getTextureFolders(QString texType);
-    QStringList getTextureFiles(QString texType);
+    void        setupGUI();
+    void        connectWidgets();
+    QStringList getTextureFolders(const QString& texType, const QString& texPath);
+    QStringList getTextureFiles(const QString& texType, const QString& texPath);
     void        loadTextures();
 
     ////////////////////////////////////////////////////////////////////////////////
