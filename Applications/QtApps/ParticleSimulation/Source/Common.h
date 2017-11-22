@@ -30,6 +30,8 @@
 #define DEFAULT_CHECKERBOARD_COLOR1 Vec3f(0.9)
 #define DEFAULT_CHECKERBOARD_COLOR2 Vec3f(0.5)
 #define DEFAULT_BOX_COLOR           Vec3f(0, 1, 0.5)
+#define DEFAULT_COLOR_DATA_MIN      Vec3f(0, 0, 0)
+#define DEFAULT_COLOR_DATA_MAX      Vec3f(1, 1, 1)
 
 #define CUSTOM_PARTICLE_MATERIAL         \
     {                                    \
@@ -61,43 +63,14 @@ struct ParticleColorMode
 {
     enum
     {
-        UniformMaterial = 0,
-        Random          = 1,
-        Ramp            = 2,
-        FromData        = 3,
+        UniformMaterial       = 0,
+        Random                = 1,
+        Ramp                  = 2,
+        ObjectIndex           = 3,
+        FromVelocityMagnitude = 4,
         NumColorMode
     };
 };
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#include <QStringList>
-#include <QString>
-#include <QDir>
-////////////////////////////////////////////////////////////////////////////////
-inline QStringList getTextureFolders(QString texType)
-{
-    QDir dataDir(QDir::currentPath() + "/Textures/" + texType);
-    dataDir.setFilter(QDir::NoDotAndDotDot | QDir::Dirs);
-
-    return dataDir.entryList();
-}
-
-inline QStringList getTextureFiles(QString texType)
-{
-    QDir dataDir(QDir::currentPath() + "/Textures/" + texType);
-    dataDir.setFilter(QDir::NoDotAndDotDot | QDir::Files);
-
-    return dataDir.entryList();
-}
-
-inline QStringList getSceneFiles()
-{
-    QDir dataDir(QDir::currentPath() + "/Scenes");
-    dataDir.setFilter(QDir::NoDotAndDotDot | QDir::Files);
-
-    return dataDir.entryList();
-}
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

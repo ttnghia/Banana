@@ -1,17 +1,21 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//
-//  Copyright (c) 2017 by
-//       __      _     _         _____
-//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _
-//   /  \/ / _` | '_ \| |/ _` |   / /\/ '__| | | |/ _ \| '_ \ / _` |
-//  / /\  / (_| | | | | | (_| |  / /  | |  | |_| | (_) | | | | (_| |
-//  \_\ \/ \__, |_| |_|_|\__,_|  \/   |_|   \__,_|\___/|_| |_|\__, |
-//         |___/                                              |___/
-//
-//  <nghiatruong.vn@gmail.com>
-//  All rights reserved.
-//
+//                                .--,       .--,
+//                               ( (  \.---./  ) )
+//                                '.__/o   o\__.'
+//                                   {=  ^  =}
+//                                    >  -  <
+//     ___________________________.""`-------`"".____________________________
+//    /                                                                      \
+//    \    This file is part of Banana - a graphics programming framework    /
+//    /                    Created: 2017 by Nghia Truong                     \
+//    \                      <nghiatruong.vn@gmail.com>                      /
+//    /                      https://ttnghia.github.io                       \
+//    \                        All rights reserved.                          /
+//    /                                                                      \
+//    \______________________________________________________________________/
+//                                  ___)( )(___
+//                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
@@ -89,9 +93,9 @@ void RenderWidget::updateVizData()
         }
     }
 
-    if(m_RDataParticle.pColorMode == ParticleColorMode::FromData) {
-        m_RDataParticle.buffColorData->uploadDataAsync(m_VizData->colorData->data(), 0, m_VizData->colorData->size() * sizeof(float));
-    }
+//    if(m_RDataParticle.pColorMode == ParticleColorMode::FromData) {
+//        m_RDataParticle.buffColorData->uploadDataAsync(m_VizData->colorData->data(), 0, m_VizData->colorData->size() * sizeof(float));
+//    }
 
     ////////////////////////////////////////////////////////////////////////////////
     doneCurrent();
@@ -174,11 +178,11 @@ void RenderWidget::setParticleColorMode(int colorMode)
     Q_ASSERT(m_RDataParticle.initialized);
     m_RDataParticle.pColorMode = colorMode;
     ////////////////////////////////////////////////////////////////////////////////
-    if(m_RDataParticle.pColorMode == ParticleColorMode::FromData) {
-        makeCurrent();
-        initParticlesVAO();
-        doneCurrent();
-    }
+//    if(m_RDataParticle.pColorMode == ParticleColorMode::FromData) {
+//        makeCurrent();
+//        initParticlesVAO();
+//        doneCurrent();
+//    }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -239,16 +243,16 @@ void RenderWidget::initParticlesVAO()
     m_RDataParticle.buffPosition->bind();
     glCall(glVertexAttribPointer(m_RDataParticle.v_Position, 3, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<GLvoid*>(0)));
 
-    if(m_RDataParticle.pColorMode == ParticleColorMode::FromData) {
-        m_RDataParticle.buffColorData->bind();
-        if(m_RDataParticle.colorDataSize == 1) {
-            glCall(glEnableVertexAttribArray(m_RDataParticle.v_Color1));
-            glCall(glVertexAttribIPointer(m_RDataParticle.v_Color1, 1, GL_UNSIGNED_SHORT, 0, reinterpret_cast<GLvoid*>(0)));
-        } else {
-            glCall(glEnableVertexAttribArray(m_RDataParticle.v_Color3));
-            glCall(glVertexAttribIPointer(m_RDataParticle.v_Color3, 3, GL_UNSIGNED_SHORT, 0, reinterpret_cast<GLvoid*>(0)));
-        }
-    }
+//    if(m_RDataParticle.pColorMode == ParticleColorMode::FromData) {
+//        m_RDataParticle.buffColorData->bind();
+//        if(m_RDataParticle.colorDataSize == 1) {
+//            glCall(glEnableVertexAttribArray(m_RDataParticle.v_Color1));
+//            glCall(glVertexAttribIPointer(m_RDataParticle.v_Color1, 1, GL_UNSIGNED_SHORT, 0, reinterpret_cast<GLvoid*>(0)));
+//        } else {
+//            glCall(glEnableVertexAttribArray(m_RDataParticle.v_Color3));
+//            glCall(glVertexAttribIPointer(m_RDataParticle.v_Color3, 3, GL_UNSIGNED_SHORT, 0, reinterpret_cast<GLvoid*>(0)));
+//        }
+//    }
 
     glCall(glBindVertexArray(0));
 }
@@ -277,9 +281,9 @@ void RenderWidget::renderParticles()
     m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_ScreenWidth, width());
     m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_ScreenHeight, height());
 
-    if(m_RDataParticle.pColorMode == ParticleColorMode::FromData) {
-        m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_ColorDataSize, m_RDataParticle.colorDataSize);
-    }
+//    if(m_RDataParticle.pColorMode == ParticleColorMode::FromData) {
+//        m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_ColorDataSize, m_RDataParticle.colorDataSize);
+//    }
 
     if(m_RDataParticle.useAnisotropyKernel && m_RDataParticle.hasAnisotropyKernel) {
         m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_UseAnisotropyKernel, 1);

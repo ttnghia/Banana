@@ -1,17 +1,21 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//
-//  Copyright (c) 2017 by
-//       __      _     _         _____
-//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _
-//   /  \/ / _` | '_ \| |/ _` |   / /\/ '__| | | |/ _ \| '_ \ / _` |
-//  / /\  / (_| | | | | | (_| |  / /  | |  | |_| | (_) | | | | (_| |
-//  \_\ \/ \__, |_| |_|_|\__,_|  \/   |_|   \__,_|\___/|_| |_|\__, |
-//         |___/                                              |___/
-//
-//  <nghiatruong.vn@gmail.com>
-//  All rights reserved.
-//
+//                                .--,       .--,
+//                               ( (  \.---./  ) )
+//                                '.__/o   o\__.'
+//                                   {=  ^  =}
+//                                    >  -  <
+//     ___________________________.""`-------`"".____________________________
+//    /                                                                      \
+//    \    This file is part of Banana - a graphics programming framework    /
+//    /                    Created: 2017 by Nghia Truong                     \
+//    \                      <nghiatruong.vn@gmail.com>                      /
+//    /                      https://ttnghia.github.io                       \
+//    \                        All rights reserved.                          /
+//    /                                                                      \
+//    \______________________________________________________________________/
+//                                  ___)( )(___
+//                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
@@ -74,7 +78,7 @@ bool MainWindow::processKeyPressEvent(QKeyEvent* event)
             return true;
 
         case Qt::Key_X:
-            m_Controller->m_btnEnableClipPlane->click();
+            m_Controller->m_btnClipViewPlane->click();
             return true;
 
         default:
@@ -108,16 +112,6 @@ void MainWindow::updateStatusSimulationTime(float time, unsigned int frame)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MainWindow::changeScene(const QString& sceneFile)
-{
-    if(sceneFile == "None") {
-        return;
-    }
-    m_Simulator->changeScene(sceneFile);
-    m_RenderWidget->updateVizData();
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MainWindow::finishFrame()
 {
     ++m_FrameNumber;
@@ -138,7 +132,7 @@ void MainWindow::finishSimulation()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MainWindow::setupRenderWidgets()
 {
-    m_Controller = new Controller(this);
+    m_Controller = new Controller(m_RenderWidget, this);
 
     QHBoxLayout* mainLayout = new QHBoxLayout;
     mainLayout->addWidget(m_GLWidget);
@@ -186,32 +180,22 @@ void MainWindow::connectWidgets()
 {
     connect(m_ClipPlaneEditor.get(),                       &ClipPlaneEditor::clipPlaneChanged,              m_RenderWidget, &RenderWidget::setClipPlane);
     connect(m_Controller->m_btnEditClipPlane,              &QPushButton::clicked,                           [&] { m_ClipPlaneEditor->show(); });
-    connect(m_Controller->m_btnEnableClipPlane,            &QPushButton::clicked,                           m_RenderWidget, &RenderWidget::enableClipPlane);
-    ////////////////////////////////////////////////////////////////////////////////
-    // textures
-    connect(m_Controller->m_cbSkyTexture->getComboBox(),   SIGNAL(currentIndexChanged(int)),                m_RenderWidget, SLOT(setSkyBoxTexture(int)));
-    connect(m_Controller->m_cbFloorTexture->getComboBox(), SIGNAL(currentIndexChanged(int)),                m_RenderWidget, SLOT(setFloorTexture(int)));
-    connect(m_Controller->m_sldFloorSize->getSlider(),     SIGNAL(valueChanged(int)),                       m_RenderWidget, SLOT(setFloorSize(int)));
-    connect(m_Controller->m_sldFloorExposure->getSlider(), SIGNAL(valueChanged(int)),                       m_RenderWidget, SLOT(setFloorExposure(int)));
-
-    // render modes/colors
-    connect(m_Controller->m_smParticleColorMode,           SIGNAL(mapped(int)),                             m_RenderWidget, SLOT(setParticleColorMode(int)));
-    connect(m_Controller->m_msParticleMaterial,            SIGNAL(materialChanged(Material::MaterialData)), m_RenderWidget, SLOT(setParticleMaterial(Material::MaterialData)));
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // lights
-    connect(m_Controller->m_LightEditor, &PointLightEditor::lightsChanged, m_RenderWidget,              &RenderWidget::updateLights);
-    connect(m_RenderWidget,              &RenderWidget::lightsObjChanged,  m_Controller->m_LightEditor, &PointLightEditor::setLights);
-
     ////////////////////////////////////////////////////////////////////////////////
     // simulation
-    connect(m_Controller->m_cbSimulationScene, &QComboBox::currentTextChanged, this, &MainWindow::changeScene);
+    connect(m_Controller->m_cbSimulationScene, &QComboBox::currentTextChanged, [&](const QString& sceneFile)
+            {
+                if(sceneFile == "None") {
+                    return;
+                }
+                m_Simulator->changeScene(sceneFile);
+                m_RenderWidget->updateVizData();
+            });
+
     connect(m_Controller->m_chkEnableOutput, &QCheckBox::clicked, [&](bool checked)
             {
                 m_bExportImg = checked;
                 m_Simulator->enableExportImg(checked);
             });
-
 
     connect(m_Controller->m_btnStartStopSimulation, &QPushButton::clicked, [&]
             {
@@ -246,5 +230,5 @@ void MainWindow::connectWidgets()
 
     connect(m_Simulator.get(), &Simulator::numParticleChanged, this,           &MainWindow::updateStatusNumParticles);
     connect(m_Simulator.get(), &Simulator::systemTimeChanged,  this,           &MainWindow::updateStatusSimulationTime);
-    connect(m_Simulator.get(), &Simulator::vizDataChanged,    m_RenderWidget, &RenderWidget::updateVizData);
+    connect(m_Simulator.get(), &Simulator::vizDataChanged,     m_RenderWidget, &RenderWidget::updateVizData);
 }
