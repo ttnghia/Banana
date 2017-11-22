@@ -160,6 +160,7 @@
     <ClInclude Include="ParticleSolvers\ParticleSolverData.h" />
     <ClInclude Include="ParticleSolvers\HybridFluid\PIC2D_Solver.h" />
     <ClInclude Include="ParticleSolvers\HybridFluid\PIC3D_Solver.h" />
+    <ClInclude Include="ParticleSolvers\ParticleSolverFactory.h" />
     <ClInclude Include="ParticleSolvers\SceneLoader.h" />
     <ClInclude Include="ParticleSolvers\_ParticleSolvers.Test.hpp" />
     <ClInclude Include="ParticleSolvers\ParticleSolver.h" />
