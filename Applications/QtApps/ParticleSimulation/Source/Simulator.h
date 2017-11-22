@@ -40,7 +40,7 @@ public:
     void stop();
     void reset();
     void startSimulation();
-    void resume();
+    void finishImgExport();
 
     auto& getSolver() const { return m_ParticleSolver; }
     auto& getVizData() const { return m_VizData; }
@@ -51,6 +51,7 @@ public slots:
     void enableExportImg(bool bEnable);
 
 signals:
+    void dimensionChanged();
     void domainChanged();
     void cameraChanged();
     void simulationFinished();

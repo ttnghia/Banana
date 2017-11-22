@@ -31,10 +31,10 @@ MainWindow::MainWindow(QWidget* parent) : OpenGLMainWindow(parent)
     setupPlayList();
     setupStatusBar();
     connectWidgets();
+    ////////////////////////////////////////////////////////////////////////////////
     setArthurStyle();
-
-    setWindowTitle("Particle Visualizer");
     setFocusPolicy(Qt::StrongFocus);
+    setWindowTitle("Particle Visualizer");
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -110,6 +110,11 @@ void MainWindow::showEvent(QShowEvent* ev)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void MainWindow::updateWindowTitle(const QString& filePath)
+{
+    setWindowTitle(QString("Particle Visualizer: ") + filePath);
+}
+
 void MainWindow::updateStatusCurrentFrame(int currentFrame)
 {
     m_lblStatusCurrentFrame->setText(QString("Current frame: %1").arg(currentFrame));
@@ -259,5 +264,6 @@ void MainWindow::connectWidgets()
 
     connect(m_DataList, &DataList::currentTextChanged, m_DataReader, &DataReader::setDataPath);
     connect(m_DataList, &DataList::currentTextChanged, m_InputPath, &BrowsePathWidget::setPath);
+    connect(m_DataList, &DataList::currentTextChanged, [&](const QString& dataPath) { updateWindowTitle(dataPath); });
     connect(m_ClipPlaneEditor, &ClipPlaneEditor::clipPlaneChanged, m_RenderWidget, &RenderWidget::setClipPlane);
 }

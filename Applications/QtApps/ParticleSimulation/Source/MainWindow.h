@@ -48,12 +48,12 @@ protected:
     virtual bool processKeyPressEvent(QKeyEvent* event) override;
     virtual void showEvent(QShowEvent* ev);
 
+public slots:
+    void updateWindowTitle(const QString& filePath);
     void updateStatusSimulation(const QString& status);
     void updateStatusMemoryUsage();
-
-public slots:
     void updateStatusNumParticles(UInt numParticles);
-    void updateStatusSimulationTime(float time, unsigned int frame);
+    void updateStatusSimulationTime(float time, UInt frame);
     void finishFrame();
     void finishSimulation();
 
@@ -63,16 +63,17 @@ private:
     void connectWidgets();
 
     ////////////////////////////////////////////////////////////////////////////////
-    std::unique_ptr<Simulator> m_Simulator             = nullptr;
-    RenderWidget*              m_RenderWidget          = nullptr;
-    Controller*                m_Controller            = nullptr;
-    QLabel*                    m_lblStatusNumParticles = nullptr;
-    QLabel*                    m_lblStatusSimInfo      = nullptr;
-    QLabel*                    m_lblStatusMemoryUsage  = nullptr;
-    QLabel*                    m_lblStatusSimTime      = nullptr;
-    BusyBar*                   m_BusyBar;
+    Simulator*    m_Simulator             = nullptr;
+    RenderWidget* m_RenderWidget          = nullptr;
+    Controller*   m_Controller            = nullptr;
+    QLabel*       m_lblStatusNumParticles = nullptr;
+    QLabel*       m_lblStatusSimInfo      = nullptr;
+    QLabel*       m_lblStatusMemoryUsage  = nullptr;
+    QLabel*       m_lblStatusSimTime      = nullptr;
+    BusyBar*      m_BusyBar;
 
-    int                              m_FrameNumber     = 0;
-    bool                             m_bExportImg      = false;
-    std::unique_ptr<ClipPlaneEditor> m_ClipPlaneEditor = std::make_unique<ClipPlaneEditor>();
+    int  m_FrameNumber = 0;
+    bool m_bExportImg  = false;
+
+    ClipPlaneEditor* m_ClipPlaneEditor = new ClipPlaneEditor();
 };

@@ -83,7 +83,7 @@ using namespace Banana;
 #include <QString>
 #include <QDir>
 #include <Banana/Utils/AppConfigReader.h>
-inline QString getTexPath()
+inline QString getTexturePath()
 {
     AppConfigReader config("config.ini");
     if(config.isFileLoaded() && config.hasParam("TexturePath")) {

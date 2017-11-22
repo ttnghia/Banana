@@ -193,7 +193,7 @@ QStringList Controller::getTextureFiles(const QString& texType, const QString& t
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Controller::loadTextures()
 {
-    auto texPath = getTexPath();
+    auto texPath = getTexturePath();
     ////////////////////////////////////////////////////////////////////////////////
     // sky textures
     int currentSkyTexID = m_cbSkyTexture->getComboBox()->currentIndex();

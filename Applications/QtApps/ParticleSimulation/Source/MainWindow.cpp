@@ -31,14 +31,12 @@ MainWindow::MainWindow(QWidget* parent) : OpenGLMainWindow(parent)
     instantiateOpenGLWidget();
     setupRenderWidgets();
     setupStatusBar();
+    connectWidgets();
+    ////////////////////////////////////////////////////////////////////////////////
     setArthurStyle();
-
-    setWindowTitle("Particle Simulation");
     setFocusPolicy(Qt::StrongFocus);
     showFPS(false);
-//    showCameraPosition(false);
-
-    connectWidgets();
+    setWindowTitle("Particle Simulation");
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -64,7 +62,7 @@ void MainWindow::instantiateOpenGLWidget()
         delete m_GLWidget;
     }
 
-    m_Simulator    = std::make_unique<Simulator>();
+    m_Simulator    = new Simulator();
     m_RenderWidget = new RenderWidget(this, m_Simulator->getVizData());
     setupOpenglWidget(m_RenderWidget);
 }
@@ -87,6 +85,11 @@ bool MainWindow::processKeyPressEvent(QKeyEvent* event)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void MainWindow::updateWindowTitle(const QString& filePath)
+{
+    setWindowTitle(QString("Particle Simulation: ") + filePath);
+}
+
 void MainWindow::updateStatusSimulation(const QString& status)
 {
     m_lblStatusSimInfo->setText(status);
@@ -97,13 +100,12 @@ void MainWindow::updateStatusMemoryUsage()
     m_lblStatusMemoryUsage->setText(QString("Memory usage: %1 (MBs)").arg(QString::fromStdString(NumberHelpers::formatWithCommas(getCurrentRSS() / 1048576.0))));
 }
 
-void MainWindow::updateStatusNumParticles(unsigned int numParticles)
+void MainWindow::updateStatusNumParticles(UInt numParticles)
 {
     m_lblStatusNumParticles->setText(QString("Num. particles: %1").arg(QString::fromStdString(NumberHelpers::formatWithCommas(numParticles))));
 }
 
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MainWindow::updateStatusSimulationTime(float time, unsigned int frame)
+void MainWindow::updateStatusSimulationTime(float time, UInt frame)
 {
     m_lblStatusSimTime->setText(QString("System time: %1 (s) | Frames: %2")
                                     .arg(QString::fromStdString(NumberHelpers::formatWithCommas(time, 5)))
@@ -117,7 +119,7 @@ void MainWindow::finishFrame()
     ++m_FrameNumber;
     if(m_bExportImg) {
         m_RenderWidget->exportScreenToImage(m_FrameNumber);
-        m_Simulator->resume();
+        m_Simulator->finishImgExport();
     }
 }
 
@@ -178,8 +180,8 @@ void MainWindow::setupStatusBar()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MainWindow::connectWidgets()
 {
-    connect(m_ClipPlaneEditor.get(),                       &ClipPlaneEditor::clipPlaneChanged,              m_RenderWidget, &RenderWidget::setClipPlane);
-    connect(m_Controller->m_btnEditClipPlane,              &QPushButton::clicked,                           [&] { m_ClipPlaneEditor->show(); });
+    connect(m_ClipPlaneEditor,                &ClipPlaneEditor::clipPlaneChanged, m_RenderWidget, &RenderWidget::setClipPlane);
+    connect(m_Controller->m_btnEditClipPlane, &QPushButton::clicked,                              [&] { m_ClipPlaneEditor->show(); });
     ////////////////////////////////////////////////////////////////////////////////
     // simulation
     connect(m_Controller->m_cbSimulationScene, &QComboBox::currentTextChanged, [&](const QString& sceneFile)
@@ -189,20 +191,12 @@ void MainWindow::connectWidgets()
                 }
                 m_Simulator->changeScene(sceneFile);
                 m_RenderWidget->updateVizData();
-            });
-
-    connect(m_Controller->m_chkEnableOutput, &QCheckBox::clicked, [&](bool checked)
-            {
-                m_bExportImg = checked;
-                m_Simulator->enableExportImg(checked);
+                updateWindowTitle(getScenePath() + "/" + sceneFile);
             });
 
     connect(m_Controller->m_btnStartStopSimulation, &QPushButton::clicked, [&]
             {
-                if(m_Controller->m_cbSimulationScene->currentIndex() == 0) {
-                    return;
-                }
-
+                if(m_Controller->m_cbSimulationScene->currentText() == "None") { return; }
                 bool isRunning = m_Simulator->isRunning();
                 if(!isRunning) {
                     m_Simulator->startSimulation();
@@ -213,22 +207,19 @@ void MainWindow::connectWidgets()
                     m_Controller->m_cbSimulationScene->setDisabled(false);
                     updateStatusSimulation("Stopped");
                 }
-
                 m_Controller->m_btnStartStopSimulation->setText(!isRunning ? QString("Stop") : QString("Resume"));
                 m_BusyBar->setBusy(!isRunning);
             });
 
-    connect(m_Simulator.get(), &Simulator::frameFinished, [&]
-            {
-                QMetaObject::invokeMethod(this, "finishFrame", Qt::QueuedConnection);
-            });
-
-    connect(m_Simulator.get(), &Simulator::simulationFinished, [&]
-            {
-                QMetaObject::invokeMethod(this, "finishSimulation", Qt::QueuedConnection);
-            });
-
-    connect(m_Simulator.get(), &Simulator::numParticleChanged, this,           &MainWindow::updateStatusNumParticles);
-    connect(m_Simulator.get(), &Simulator::systemTimeChanged,  this,           &MainWindow::updateStatusSimulationTime);
-    connect(m_Simulator.get(), &Simulator::vizDataChanged,     m_RenderWidget, &RenderWidget::updateVizData);
+    connect(m_Controller->m_chkEnableOutput, &QCheckBox::clicked, [&](bool checked) { m_bExportImg = checked; m_Simulator->enableExportImg(checked); });
+    ////////////////////////////////////////////////////////////////////////////////
+    // sim status
+    connect(m_Simulator, &Simulator::frameFinished,                      [&] { QMetaObject::invokeMethod(this, "finishFrame", Qt::QueuedConnection); });
+    connect(m_Simulator, &Simulator::simulationFinished,                 [&] { QMetaObject::invokeMethod(this, "finishSimulation", Qt::QueuedConnection); });
+    connect(m_Simulator, &Simulator::numParticleChanged, this,           &MainWindow::updateStatusNumParticles);
+    connect(m_Simulator, &Simulator::systemTimeChanged,  this,           &MainWindow::updateStatusSimulationTime);
+    connect(m_Simulator, &Simulator::dimensionChanged,   m_RenderWidget, &RenderWidget::updateProjection);
+    connect(m_Simulator, &Simulator::domainChanged,      m_RenderWidget, &RenderWidget::updateBox);
+    connect(m_Simulator, &Simulator::vizDataChanged,     m_RenderWidget, &RenderWidget::updateVizData);
+    ////////////////////////////////////////////////////////////////////////////////
 }

@@ -48,6 +48,7 @@ protected:
     virtual void showEvent(QShowEvent* ev);
 
 public slots:
+    void updateWindowTitle(const QString& filePath);
     void updateStatusCurrentFrame(int currentFrame);
     void updateStatusNumParticlesAndMeshes();
     void updateNumFrames(int numFrames);

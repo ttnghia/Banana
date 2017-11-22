@@ -38,7 +38,7 @@ void Simulator::startSimulation()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Simulator::resume()
+void Simulator::finishImgExport()
 {
     m_bWaitForSavingImg = false;
 }
@@ -101,10 +101,11 @@ void Simulator::changeScene(const QString& scene)
     m_VizData->positions = &m_ParticleSolver->solverData().particleData.positions;
 
     ////////////////////////////////////////////////////////////////////////////////
-    QString sceneFile = QDir::currentPath() + "/Scenes/" + scene;
+    QString sceneFile = getScenePath() + "/" + scene;
     m_ParticleSolver->loadScene(sceneFile.toStdString());
     m_ParticleSolver->makeReady();
     ////////////////////////////////////////////////////////////////////////////////
+    m_VizData->dataDimension  = m_ParticleSolver->solverDimension();
     m_VizData->boxMin         = m_ParticleSolver->solverParams().movingBMin;
     m_VizData->boxMax         = m_ParticleSolver->solverParams().movingBMax;
     m_VizData->nParticles     = m_ParticleSolver->getNParticles();
@@ -116,6 +117,7 @@ void Simulator::changeScene(const QString& scene)
                                    (m_VizData->boxMin.y + m_VizData->boxMax.y) * 0.5f - (m_VizData->boxMax.y - m_VizData->boxMin.y) * 0.1,
                                    (m_VizData->boxMin.z + m_VizData->boxMax.z) * 0.5f);
     ////////////////////////////////////////////////////////////////////////////////
+    emit dimensionChanged();
     emit domainChanged();
     emit cameraChanged();
     emit vizDataChanged();

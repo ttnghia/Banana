@@ -84,13 +84,23 @@ using namespace Banana::ParticleSolvers;
 #include <QString>
 #include <QDir>
 #include <Banana/Utils/AppConfigReader.h>
-inline QString getTexPath()
+inline QString getTexturePath()
 {
     AppConfigReader config("config.ini");
     if(config.isFileLoaded() && config.hasParam("TexturePath")) {
         return QString::fromStdString(config.getStringValue("TexturePath"));
     } else {
         return QDir::currentPath() + "/Textures";
+    }
+}
+
+inline QString getScenePath()
+{
+    AppConfigReader config("config.ini");
+    if(config.isFileLoaded() && config.hasParam("ScenePath")) {
+        return QString::fromStdString(config.getStringValue("ScenePath"));
+    } else {
+        return QDir::currentPath() + "/Scenes";
     }
 }
 
@@ -104,6 +114,11 @@ struct LightData
 
 struct VisualizationData
 {
+    ////////////////////////////////////////////////////////////////////////////////
+    // simulation system dimention
+    UInt dataDimension = 3u;
+    ////////////////////////////////////////////////////////////////////////////////
+
     ////////////////////////////////////////////////////////////////////////////////
     // camera
     Vec3f cameraPosition = DEFAULT_CAMERA_POSITION;

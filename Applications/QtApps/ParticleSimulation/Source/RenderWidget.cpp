@@ -77,6 +77,18 @@ void RenderWidget::renderOpenGL()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void RenderWidget::updateProjection()
+{
+    if(m_VizData->dataDimension == 3u) {
+        m_Camera->setProjection(Camera::OrthographicProjection);
+        m_Camera->setOrthoBox(m_VizData->boxMin, m_VizData->boxMax);
+    } else {
+        m_Camera->setProjection(Camera::PerspectiveProjection);
+        updateCamera();
+    }
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void RenderWidget::updateVizData()
 {
     Q_ASSERT(m_RDataParticle.initialized);
@@ -148,7 +160,7 @@ void RenderWidget::initRDataLight()
 void RenderWidget::initRDataSkyBox()
 {
     Q_ASSERT(m_UBufferCamData != nullptr);
-    m_SkyBoxRender = std::make_unique<SkyBoxRender>(m_Camera, getTexPath() + "/Sky/", m_UBufferCamData);
+    m_SkyBoxRender = std::make_unique<SkyBoxRender>(m_Camera, getTexturePath() + "/Sky/", m_UBufferCamData);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -156,7 +168,7 @@ void RenderWidget::initRDataFloor()
 {
     Q_ASSERT(m_UBufferCamData != nullptr && m_Lights != nullptr);
 
-    m_FloorRender = std::make_unique<PlaneRender>(m_Camera, m_Lights, getTexPath() + "/Floor/", m_UBufferCamData);
+    m_FloorRender = std::make_unique<PlaneRender>(m_Camera, m_Lights, getTexturePath() + "/Floor/", m_UBufferCamData);
     m_FloorRender->transform(Vec3f(0, -1.01, 0), Vec3f(DEFAULT_FLOOR_SIZE));
     m_FloorRender->scaleTexCoord(DEFAULT_FLOOR_SIZE, DEFAULT_FLOOR_SIZE);
     m_FloorRender->setAllowNonTextureRender(false);

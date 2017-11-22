@@ -49,6 +49,7 @@ private:
     SharedPtr<VisualizationData> m_VizData;
 public slots:
     void updateCamera() { m_Camera->setDefaultCamera(m_VizData->cameraPosition, m_VizData->cameraFocus, Vec3f(0, 1, 0)); }
+    void updateProjection();
     void updateVizData();
 
     ////////////////////////////////////////////////////////////////////////////////
