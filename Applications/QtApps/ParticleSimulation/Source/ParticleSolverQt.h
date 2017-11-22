@@ -43,7 +43,9 @@ public:
 
 #if 1
     Vec_Vec3f* getParticlePositions() { return &particleData().positions; }
-    UInt       getNParticles() { return static_cast<UInt>(particleData().positions.size()); }
+    Vec_Vec3f* getParticleVelocities() { return &particleData().velocities; }
+    Vec_Int8*  getObjectIndex() { return &particleData().objectIndex; }
+    UInt       getNParticles() { return particleData().getNParticles(); }
 #else
     Vec_Vec3f& getParticlePositions() { return m_SimData->positions; }
     UInt       getNParticles() { return m_SimData->getNParticles(); }

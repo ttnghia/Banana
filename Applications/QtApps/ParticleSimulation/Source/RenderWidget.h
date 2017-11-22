@@ -1,25 +1,27 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//
-//  Copyright (c) 2017 by
-//       __      _     _         _____
-//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _
-//   /  \/ / _` | '_ \| |/ _` |   / /\/ '__| | | |/ _ \| '_ \ / _` |
-//  / /\  / (_| | | | | | (_| |  / /  | |  | |_| | (_) | | | | (_| |
-//  \_\ \/ \__, |_| |_|_|\__,_|  \/   |_|   \__,_|\___/|_| |_|\__, |
-//         |___/                                              |___/
-//
-//  <nghiatruong.vn@gmail.com>
-//  All rights reserved.
-//
+//                                .--,       .--,
+//                               ( (  \.---./  ) )
+//                                '.__/o   o\__.'
+//                                   {=  ^  =}
+//                                    >  -  <
+//     ___________________________.""`-------`"".____________________________
+//    /                                                                      \
+//    \    This file is part of Banana - a graphics programming framework    /
+//    /                    Created: 2017 by Nghia Truong                     \
+//    \                      <nghiatruong.vn@gmail.com>                      /
+//    /                      https://ttnghia.github.io                       \
+//    \                        All rights reserved.                          /
+//    /                                                                      \
+//    \______________________________________________________________________/
+//                                  ___)( )(___
+//                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 #pragma once
 
 #include "Common.h"
-
-#include <Banana/Data/ParticleSystemData.h>
 
 #include <OpenGLHelpers/OpenGLBuffer.h>
 #include <OpenGLHelpers/OpenGLTexture.h>
@@ -33,112 +35,151 @@
 #include <QtAppHelpers/OpenGLWidget.h>
 #include <QtAppHelpers/EnhancedMessageBox.h>
 
-#include <map>
-#include <memory>
-
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 class RenderWidget : public OpenGLWidget
 {
     Q_OBJECT
-
 public:
-    RenderWidget(QWidget* parent = 0);
-    void setParticlePositions(Vec_Vec3<float>* positions) { m_ParticlePositions = positions; }
-    void setCamera(const glm::vec3& cameraPosition, const glm::vec3& cameraFocus) { m_Camera->setDefaultCamera(cameraPosition, cameraFocus, glm::vec3(0, 1, 0)); }
-    void setBox(const glm::vec3& boxMin, const glm::vec3& boxMax) { makeCurrent(); m_WireFrameBoxRender->setBox(boxMin, boxMax); doneCurrent(); }
-
-    const std::shared_ptr<ParticleSystemData>& getParticleDataObj() const { return m_ParticleData; }
-
-protected:
+    RenderWidget(QWidget* parent, const SharedPtr<VisualizationData>& vizData);
+private:
     virtual void initOpenGL();
     virtual void resizeOpenGLWindow(int, int);
     virtual void renderOpenGL();
-
+    void         initCaptureDir();
+    SharedPtr<VisualizationData> m_VizData;
 public slots:
-    void updateParticleData();
-    void updateLights();
+    void updateCamera() { m_Camera->setDefaultCamera(m_VizData->cameraPosition, m_VizData->cameraFocus, Vec3f(0, 1, 0)); }
+    void updateVizData();
 
-    void setSkyBoxTexture(int texIndex);
-    void setFloorTexture(int texIndex);
-    void setFloorSize(int size);
-    void setFloorExposure(int percentage);
-    void setParticleColorMode(int colorMode);
-    void setParticleMaterial(const Material::MaterialData& material);
-
-    void reloadTextures();
-    void enableClipPlane(bool bEnable = true);
-    void setClipPlane(const glm::vec4& clipPlane);
-
-signals:
-    void lightsObjChanged(const std::shared_ptr<PointLights>& lights);
-
+    ////////////////////////////////////////////////////////////////////////////////
+    // clip plane
+public slots:
+    void enableClipPlane(bool bEnable);
+    void setClipPlane(const Vec4f& clipPlane) { m_ClipPlane = clipPlane; }
 private:
+    Vec4f m_ClipPlane = DEFAULT_CLIP_PLANE;
+    ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
+    // light
+signals:
+    void lightsObjChanged(const SharedPtr<PointLights>& lights);
+public slots:
+    void updateLights();
+private:
     void initRDataLight();
-    void renderLight();
+    void renderLight() { Q_ASSERT(m_LightRender != nullptr); m_LightRender->render(); }
+    SharedPtr<PointLights>      m_Lights      = nullptr;
+    UniquePtr<PointLightRender> m_LightRender = nullptr;
+    ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
+    // skybox and checkerboard background
+public slots:
+    void setBackgroundMode(int backgroundMode) { m_BackgroundMode = backgroundMode; }
+    void setSkyBoxTexture(int texIndex) { Q_ASSERT(m_SkyBoxRender != nullptr); m_SkyBoxRender->setRenderTextureIndex(texIndex); }
+    void setCheckerboarrdColor1(const Vec3f& color1) { Q_ASSERT(m_CheckerboardRender != nullptr); m_CheckerboardRender->setColor1(color1); }
+    void setCheckerboarrdColor2(const Vec3f& color2) { Q_ASSERT(m_CheckerboardRender != nullptr); m_CheckerboardRender->setColor2(color2); }
+    void setCheckerboarrdScales(const Vec2i& scales) { Q_ASSERT(m_CheckerboardRender != nullptr); m_CheckerboardRender->setScales(scales); }
+    void setGridBackgroundColor(const Vec3f& backgroundColor) { Q_ASSERT(m_GridRender != nullptr); m_GridRender->setBackgroundColor(backgroundColor); }
+    void setGridLineColor(const Vec3f& lineColor) { Q_ASSERT(m_GridRender != nullptr); m_GridRender->setLineColor(lineColor); }
+    void setGridScales(const Vec2i& scales) { Q_ASSERT(m_GridRender != nullptr); m_GridRender->setScales(scales); }
+private:
     void initRDataSkyBox();
-    void renderSkyBox();
+    void initRDataCheckerboardBackground() { m_CheckerboardRender = std::make_unique<CheckerboardBackgroundRender>(DEFAULT_CHECKERBOARD_COLOR1, DEFAULT_CHECKERBOARD_COLOR2); }
+    void initRDataGridBackground() { m_GridRender = std::make_unique<GridBackgroundRender>(DEFAULT_CHECKERBOARD_COLOR1, DEFAULT_CHECKERBOARD_COLOR2); }
+    void renderSkyBox() { Q_ASSERT(m_SkyBoxRender != nullptr); m_SkyBoxRender->render(); }
+    void renderCheckerboardBackground() { Q_ASSERT(m_CheckerboardRender != nullptr); m_CheckerboardRender->render(); }
+    void renderGridBackground() { Q_ASSERT(m_GridRender != nullptr); m_GridRender->render(); }
+
+    UniquePtr<SkyBoxRender>                 m_SkyBoxRender       = nullptr;
+    UniquePtr<CheckerboardBackgroundRender> m_CheckerboardRender = nullptr;
+    UniquePtr<GridBackgroundRender>         m_GridRender         = nullptr;
+    Int                                     m_BackgroundMode     = static_cast<Int>(BackgroundMode::SkyBox);
+    ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
+    // floor
+public slots:
+    void setFloorTexture(int texIndex) { Q_ASSERT(m_FloorRender != nullptr); m_FloorRender->setRenderTextureIndex(texIndex); }
+    void setFloorExposure(int percentage) { m_FloorRender->setExposure(static_cast<float>(percentage) / 100.0f); }
+    void setFloorSize(int size) { m_FloorRender->transform(Vec3f(0, -1.01, 0), Vec3f(static_cast<float>(size))); }
+    void setFloorTexScales(int scale) { m_FloorRender->scaleTexCoord(scale, scale); }
+private:
     void initRDataFloor();
-    void renderFloor();
+    void renderFloor() { Q_ASSERT(m_FloorRender != nullptr); m_FloorRender->render(); }
+    UniquePtr<PlaneRender> m_FloorRender = nullptr;
+    ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
+    // domain box
+public slots:
+    void setRenderBox(bool bRender) { m_bRenderBox = bRender; }
+    void setBoxColor(const Vec3f& color) { Q_ASSERT(m_DomainBoxRender != nullptr); m_DomainBoxRender->setColor(color); }
+    void updateBox() { makeCurrent(); m_DomainBoxRender->setBox(m_VizData->boxMin, m_VizData->boxMax); doneCurrent(); }
+private:
     void initRDataBox();
-    void renderBox();
+    void renderBox() { Q_ASSERT(m_DomainBoxRender != nullptr); if(m_bRenderBox) { m_DomainBoxRender->render(); } }
+    UniquePtr<WireFrameBoxRender> m_DomainBoxRender = nullptr;
+    bool                          m_bRenderBox      = true;
+    ////////////////////////////////////////////////////////////////////////////////
+
 
     ////////////////////////////////////////////////////////////////////////////////
+    // particles
+public slots:
+    void setParticleColorMode(int colorMode);
+//    void setColorData(const String& colorDataName, Int dataSize);
+    void setColorDataMin(const Vec3f& colorMin) { m_RDataParticle.colorDataMin = colorMin; }
+    void setColorDataMax(const Vec3f& colorMax) { m_RDataParticle.colorDataMax = colorMax; }
+    void setParticleMaterial(const Material::MaterialData& material);
+    void enableAniKernels(bool bAniKernel) { m_RDataParticle.useAnisotropyKernel = bAniKernel ? 1 : 0; }
+private:
     struct RDataParticle
     {
-        std::shared_ptr<QtAppShaderProgram> shader          = nullptr;
-        std::unique_ptr<OpenGLBuffer>       buffPosition    = nullptr;
-        std::unique_ptr<OpenGLBuffer>       buffColorRandom = nullptr;
-        std::unique_ptr<OpenGLBuffer>       buffColorRamp   = nullptr;
-        std::unique_ptr<Material>           material        = nullptr;
+        SharedPtr<QtAppShaderProgram> shader         = nullptr;
+        UniquePtr<OpenGLBuffer>       buffPosition   = nullptr;
+        UniquePtr<OpenGLBuffer>       buffAniKernels = nullptr;
+        UniquePtr<OpenGLBuffer>       buffColorData  = nullptr;
+        UniquePtr<Material>           material       = nullptr;
 
         GLuint VAO;
         GLint  v_Position;
-        GLint  v_Color;
+        GLint  v_AnisotropyMatrix0;
+        GLint  v_AnisotropyMatrix1;
+        GLint  v_AnisotropyMatrix2;
+        GLint  v_Color1;
+        GLint  v_Color3;
         GLuint ub_CamData;
         GLuint ub_Light;
         GLuint ub_Material;
+        GLuint u_nParticles;
         GLuint u_PointRadius;
-        GLuint u_PointScale;
-        GLuint u_IsPointView;
-        GLuint u_HasVColor;
         GLuint u_ClipPlane;
+        GLuint u_IsPointView;
+        GLuint u_ColorMode;
+        GLuint u_ColorDataSize;
+        GLuint u_ColorDataMin;
+        GLuint u_ColorDataMax;
+        GLuint u_UseAnisotropyKernel;
+        GLuint u_ScreenWidth;
+        GLuint u_ScreenHeight;
 
         GLuint  nParticles = 0;
         GLfloat pointRadius;
-        GLfloat pointScale;
 
-        GLint isPointView = 0;
-        GLint hasVColor   = 1;
-        GLint pColorMode  = ParticleColorMode::Ramp;
+        GLint isPointView         = 0;
+        GLint useAnisotropyKernel = 1;
+        GLint hasAnisotropyKernel = 0;
+        GLint pColorMode          = ParticleColorMode::Ramp;
+        GLint colorDataSize       = 1;
+        Vec3f colorDataMin;
+        Vec3f colorDataMax;
         bool  initialized = false;
     } m_RDataParticle;
 
-    std::shared_ptr<ParticleSystemData> m_ParticleData      = std::make_shared<ParticleSystemData>();
-    Vec_Vec3<float>*                    m_ParticlePositions = nullptr;
-
     void initRDataParticle();
-    void initFluidVAOs();
-    void uploadParticleColorData();
+    void initParticlesVAO();
     void renderParticles();
-    void initParticleDataObj();
-    void initCaptureDir();
-
     ////////////////////////////////////////////////////////////////////////////////
-    glm::vec4 m_ClipPlane = DEFAULT_CLIP_PLANE;
-
-    std::vector<std::shared_ptr<ShaderProgram> > m_ExternalShaders;
-    std::shared_ptr<PointLights>                 m_Lights;
-
-    std::unique_ptr<SkyBoxRender>       m_SkyBoxRender       = nullptr;
-    std::unique_ptr<PlaneRender>        m_PlaneRender        = nullptr;
-    std::unique_ptr<PointLightRender>   m_LightRender        = nullptr;
-    std::unique_ptr<WireFrameBoxRender> m_WireFrameBoxRender = nullptr;
 };

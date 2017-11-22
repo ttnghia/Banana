@@ -30,17 +30,16 @@
 class Simulator : public QObject
 {
     Q_OBJECT
-
 public:
     Simulator() = default;
-    void setParticleSystemData(const std::shared_ptr<ParticleSystemData>& particleData) { m_ParticleData = particleData; }
     bool isRunning() { return !m_bStop; }
     void stop();
     void reset();
     void startSimulation();
     void resume();
 
-    const auto& getSolver() const { return m_ParticleSolver; }
+    auto& getSolver() const { return m_ParticleSolver; }
+    auto& getVizData() const { return m_VizData; }
 
 public slots:
     void doSimulation();
@@ -48,17 +47,18 @@ public slots:
     void enableExportImg(bool bEnable);
 
 signals:
-    void domainChanged(const Vec3f& boxMin, const Vec3f& boxMax);
+    void domainChanged();
+    void cameraChanged();
     void simulationFinished();
     void systemTimeChanged(float time, unsigned int frame);
     void numParticleChanged(UInt numParticles);
-    void particleChanged();
+    void vizDataChanged();
     void frameFinished();
 
-protected:
-    std::shared_ptr<ParticleSystemData> m_ParticleData   = nullptr;
-    std::unique_ptr<ParticleSolverQt>   m_ParticleSolver = nullptr;
-    std::future<void>                   m_SimulationFutureObj;
+private:
+    SharedPtr<VisualizationData> m_VizData        = std::make_shared<VisualizationData>();
+    UniquePtr<ParticleSolverQt>  m_ParticleSolver = nullptr;
+    std::future<void>            m_SimulationFutureObj;
 
     QString       m_Scene;
     volatile bool m_bStop             = true;

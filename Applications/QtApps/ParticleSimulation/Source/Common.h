@@ -1,26 +1,35 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//
-//  Copyright (c) 2017 by
-//       __      _     _         _____
-//    /\ \ \__ _| |__ (_) __ _  /__   \_ __ _   _  ___  _ __   __ _
-//   /  \/ / _` | '_ \| |/ _` |   / /\/ '__| | | |/ _ \| '_ \ / _` |
-//  / /\  / (_| | | | | | (_| |  / /  | |  | |_| | (_) | | | | (_| |
-//  \_\ \/ \__, |_| |_|_|\__,_|  \/   |_|   \__,_|\___/|_| |_|\__, |
-//         |___/                                              |___/
-//
-//  <nghiatruong.vn@gmail.com>
-//  All rights reserved.
-//
+//                                .--,       .--,
+//                               ( (  \.---./  ) )
+//                                '.__/o   o\__.'
+//                                   {=  ^  =}
+//                                    >  -  <
+//     ___________________________.""`-------`"".____________________________
+//    /                                                                      \
+//    \    This file is part of Banana - a graphics programming framework    /
+//    /                    Created: 2017 by Nghia Truong                     \
+//    \                      <nghiatruong.vn@gmail.com>                      /
+//    /                      https://ttnghia.github.io                       \
+//    \                        All rights reserved.                          /
+//    /                                                                      \
+//    \______________________________________________________________________/
+//                                  ___)( )(___
+//                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 #pragma once
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#define DEFAULT_CAMERA_POSITION glm::vec3(0.0, 0.8, 3.0)
-#define DEFAULT_CAMERA_FOCUS    glm::vec3(0, -0.2, 0)
-#define DEFAULT_CLIP_PLANE      glm::vec4(-1.0f, 0.0f, 0.0f, 0.0f)
+#define DEFAULT_CAMERA_POSITION     Vec3f(0.0, 0.8, 3.0)
+#define DEFAULT_CAMERA_FOCUS        Vec3f(0, -0.2, 0)
+#define DEFAULT_LIGHT_POSITION      Vec4f(10, 10, -10, 1.0)
+#define DEFAULT_CLIP_PLANE          Vec4f(-1.0f, 0.0f, 0.0f, 0.0f)
+
+#define DEFAULT_CHECKERBOARD_COLOR1 Vec3f(0.9)
+#define DEFAULT_CHECKERBOARD_COLOR2 Vec3f(0.5)
+#define DEFAULT_BOX_COLOR           Vec3f(0, 1, 0.5)
 
 #define CUSTOM_PARTICLE_MATERIAL         \
     {                                    \
@@ -32,29 +41,30 @@
     }
 
 
-#define PARTICLE_COLOR_RAMP       \
-    {                             \
-        glm::vec3(1.0, 0.0, 0.0), \
-        glm::vec3(1.0, 0.5, 0.0), \
-        glm::vec3(1.0, 1.0, 0.0), \
-        glm::vec3(1.0, 0.0, 1.0), \
-        glm::vec3(0.0, 1.0, 0.0), \
-        glm::vec3(0.0, 1.0, 1.0), \
-        glm::vec3(0.0, 0.0, 1.0)  \
-    }
-
-
-#define DEFAULT_FLOOR_SIZE 10
+#define DEFAULT_CHECKERBOARD_GRID_SIZE 20
+#define DEFAULT_FLOOR_SIZE             10
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class ParticleColorMode
+struct BackgroundMode
 {
-public:
     enum
     {
-        Uniform = 0,
-        Random,
-        Ramp,
+        SkyBox = 0,
+        Color,
+        Checkerboard,
+        Grid,
+        NumBackgroundMode
+    };
+};
+
+struct ParticleColorMode
+{
+    enum
+    {
+        UniformMaterial = 0,
+        Random          = 1,
+        Ramp            = 2,
+        FromData        = 3,
         NumColorMode
     };
 };
@@ -92,10 +102,72 @@ inline QStringList getSceneFiles()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #include <Banana/Setup.h>
-#include <Banana/Data/ParticleSystemData.h>
-#include <ParticleSolvers/ParticleSolver.h>
-#include <memory>
-#include <QVector3D>
-#include <QDebug>
+namespace Banana {}
+namespace Banana::ParticleSolvers {}
 using namespace Banana;
 using namespace Banana::ParticleSolvers;
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+struct LightData
+{
+    LightData(const Vec3f& position_ = DEFAULT_LIGHT_POSITION, const Vec3f& color_ = Vec3f(1.0)) : position(position_), color(color_) {}
+    Vec3f position;
+    Vec3f color;
+};
+
+struct VisualizationData
+{
+    ////////////////////////////////////////////////////////////////////////////////
+    // camera
+    Vec3f cameraPosition = DEFAULT_CAMERA_POSITION;
+    Vec3f cameraFocus    = DEFAULT_CAMERA_FOCUS;
+    ////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // domain box
+    Vec3f boxMin = Vec3f(-1.0);
+    Vec3f boxMax = Vec3f(1.0);
+    ////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // light
+    Vector<LightData> lights;
+    ////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // particle data
+    Vec_Vec3f*   positions      = nullptr;
+    Vec_Mat3x3f* aniKernel      = nullptr;
+    Vec_Float*   colorData      = nullptr;
+    UInt         nParticles     = 0;
+    float        particleRadius = 0;
+    ////////////////////////////////////////////////////////////////////////////////
+
+    VisualizationData() { resetData(); }
+    void resetData()
+    {
+        ////////////////////////////////////////////////////////////////////////////////
+        // camera
+        cameraPosition = DEFAULT_CAMERA_POSITION;
+        cameraFocus    = DEFAULT_CAMERA_FOCUS;
+        ////////////////////////////////////////////////////////////////////////////////
+
+        ////////////////////////////////////////////////////////////////////////////////
+        // domain box
+        boxMin = Vec3f(-1.0);
+        boxMax = Vec3f(1.0);
+        ////////////////////////////////////////////////////////////////////////////////
+
+        ////////////////////////////////////////////////////////////////////////////////
+        // light
+        lights.resize(0);
+        lights.push_back(LightData());
+        ////////////////////////////////////////////////////////////////////////////////
+
+        ////////////////////////////////////////////////////////////////////////////////
+        // particles
+        particleRadius = 0;
+        nParticles     = 0;
+        ////////////////////////////////////////////////////////////////////////////////
+    }
+};

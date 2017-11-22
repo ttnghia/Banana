@@ -42,14 +42,13 @@ void Simulator::resume()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Simulator::doSimulation()
 {
-    __BNN_ASSERT(m_ParticleData != nullptr);
     auto frame = (m_ParticleSolver->globalParams().startFrame <= 1) ?
                  m_ParticleSolver->globalParams().finishedFrame + 1 : MathHelpers::min(m_ParticleSolver->globalParams().startFrame, m_ParticleSolver->globalParams().finishedFrame + 1);
     for(; frame <= m_ParticleSolver->globalParams().finalFrame; ++frame) {
         m_ParticleSolver->doSimulationFrame(frame);
 
         emit systemTimeChanged(m_ParticleSolver->globalParams().evolvedTime(), frame);
-        emit particleChanged();
+        emit vizDataChanged();
         emit frameFinished();
 
         if(m_bExportImg) {
@@ -99,16 +98,23 @@ void Simulator::changeScene(const QString& scene)
     ////////////////////////////////////////////////////////////////////////////////
     QString sceneFile = QDir::currentPath() + "/Scenes/" + scene;
     m_ParticleSolver->loadScene(sceneFile.toStdString());
-
-    emit systemTimeChanged(m_ParticleSolver->globalParams().evolvedTime(), m_ParticleSolver->globalParams().finishedFrame);
-    emit domainChanged(m_ParticleSolver->solverParams().movingBMin, m_ParticleSolver->solverParams().movingBMax);
-
     m_ParticleSolver->makeReady();
-    m_ParticleData->setNumParticles(m_ParticleSolver->getNParticles());
-    m_ParticleData->setUInt("ColorRandomReady", 0);
-    m_ParticleData->setUInt("ColorRampReady",   0);
-    m_ParticleData->setParticleRadius(m_ParticleSolver->solverParams().particleRadius);
-
+    ////////////////////////////////////////////////////////////////////////////////
+    m_VizData->boxMin         = m_ParticleSolver->solverParams().movingBMin;
+    m_VizData->boxMax         = m_ParticleSolver->solverParams().movingBMax;
+    m_VizData->nParticles     = m_ParticleSolver->getNParticles();
+    m_VizData->particleRadius = m_ParticleSolver->solverParams().particleRadius;
+    m_VizData->cameraPosition = Vec3r((m_VizData->boxMin.x + m_VizData->boxMax.x) * 0.5f,
+                                      (m_VizData->boxMin.y + m_VizData->boxMax.y) * 0.5f + (m_VizData->boxMax.y - m_VizData->boxMin.y) * 0.3,
+                                      (m_VizData->boxMin.z + m_VizData->boxMax.z) * 0.5f + (m_VizData->boxMax.z - m_VizData->boxMin.z) * 1.5);
+    m_VizData->cameraFocus = Vec3r((m_VizData->boxMin.x + m_VizData->boxMax.x) * 0.5f,
+                                   (m_VizData->boxMin.y + m_VizData->boxMax.y) * 0.5f - (m_VizData->boxMax.y - m_VizData->boxMin.y) * 0.1,
+                                   (m_VizData->boxMin.z + m_VizData->boxMax.z) * 0.5f);
+    ////////////////////////////////////////////////////////////////////////////////
+    emit domainChanged();
+    emit cameraChanged();
+    emit vizDataChanged();
+    emit systemTimeChanged(m_ParticleSolver->globalParams().evolvedTime(), m_ParticleSolver->globalParams().finishedFrame);
     emit numParticleChanged(m_ParticleSolver->getNParticles());
 }
 

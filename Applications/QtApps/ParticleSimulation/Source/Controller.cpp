@@ -185,7 +185,7 @@ void Controller::setupColorControllers(QBoxLayout* ctrLayout)
 
     m_smParticleColorMode->setMapping(rdbColorRandom,  static_cast<int>(ParticleColorMode::Random));
     m_smParticleColorMode->setMapping(rdbColorRamp,    static_cast<int>(ParticleColorMode::Ramp));
-    m_smParticleColorMode->setMapping(rdbColorUniform, static_cast<int>(ParticleColorMode::Uniform));
+    m_smParticleColorMode->setMapping(rdbColorUniform, static_cast<int>(ParticleColorMode::UniformMaterial));
 
     m_msParticleMaterial = new MaterialSelector;
     m_msParticleMaterial->setCustomMaterial(CUSTOM_PARTICLE_MATERIAL);

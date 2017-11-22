@@ -61,8 +61,7 @@ void MainWindow::instantiateOpenGLWidget()
     }
 
     m_Simulator    = std::make_unique<Simulator>();
-    m_RenderWidget = new RenderWidget(this);
-    m_Simulator->setParticleSystemData(m_RenderWidget->getParticleDataObj());
+    m_RenderWidget = new RenderWidget(this, m_Simulator->getVizData());
     setupOpenglWidget(m_RenderWidget);
 }
 
@@ -115,8 +114,7 @@ void MainWindow::changeScene(const QString& sceneFile)
         return;
     }
     m_Simulator->changeScene(sceneFile);
-    m_RenderWidget->setParticlePositions(m_Simulator->getSolver()->getParticlePositions());
-    m_RenderWidget->updateParticleData();
+    m_RenderWidget->updateVizData();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -177,16 +175,16 @@ void MainWindow::setupStatusBar()
 
     QTimer* memTimer = new QTimer(this);
     connect(memTimer, &QTimer::timeout, [&]
-    {
-        updateStatusMemoryUsage();
-    });
+            {
+                updateStatusMemoryUsage();
+            });
     memTimer->start(5000);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MainWindow::connectWidgets()
 {
-    connect(m_ClipPlaneEditor.get(),                       SIGNAL(clipPlaneChanged(glm::vec4)),             m_RenderWidget, SLOT(setClipPlane(glm::vec4)));
+    connect(m_ClipPlaneEditor.get(),                       &ClipPlaneEditor::clipPlaneChanged,              m_RenderWidget, &RenderWidget::setClipPlane);
     connect(m_Controller->m_btnEditClipPlane,              &QPushButton::clicked,                           [&] { m_ClipPlaneEditor->show(); });
     connect(m_Controller->m_btnEnableClipPlane,            &QPushButton::clicked,                           m_RenderWidget, &RenderWidget::enableClipPlane);
     ////////////////////////////////////////////////////////////////////////////////
@@ -208,18 +206,6 @@ void MainWindow::connectWidgets()
     ////////////////////////////////////////////////////////////////////////////////
     // simulation
     connect(m_Controller->m_cbSimulationScene, &QComboBox::currentTextChanged, this, &MainWindow::changeScene);
-    connect(m_Simulator.get(),                 &Simulator::domainChanged,      [&](const Vec3f& boxMin, const Vec3f& boxMax)
-            {
-                m_RenderWidget->setBox(boxMin, boxMax);
-                Vec3r camPos((boxMin.x + boxMax.x) * 0.5f,
-                             (boxMin.y + boxMax.y) * 0.5f + (boxMax.y - boxMin.y) * 0.3,
-                             (boxMin.z + boxMax.z) * 0.5f + (boxMax.z - boxMin.z) * 1.5);
-
-                Vec3r camFocus((boxMin.x + boxMax.x) * 0.5f,
-                               (boxMin.y + boxMax.y) * 0.5f - (boxMax.y - boxMin.y) * 0.1,
-                               (boxMin.z + boxMax.z) * 0.5f);
-                m_RenderWidget->setCamera(camPos, camFocus);
-            });
     connect(m_Controller->m_chkEnableOutput, &QCheckBox::clicked, [&](bool checked)
             {
                 m_bExportImg = checked;
@@ -228,37 +214,37 @@ void MainWindow::connectWidgets()
 
 
     connect(m_Controller->m_btnStartStopSimulation, &QPushButton::clicked, [&]
-    {
-        if(m_Controller->m_cbSimulationScene->currentIndex() == 0) {
-            return;
-        }
+            {
+                if(m_Controller->m_cbSimulationScene->currentIndex() == 0) {
+                    return;
+                }
 
-        bool isRunning = m_Simulator->isRunning();
-        if(!isRunning) {
-            m_Simulator->startSimulation();
-            m_Controller->m_cbSimulationScene->setDisabled(true);
-            updateStatusSimulation("Running simulation...");
-        } else {
-            m_Simulator->stop();
-            m_Controller->m_cbSimulationScene->setDisabled(false);
-            updateStatusSimulation("Stopped");
-        }
+                bool isRunning = m_Simulator->isRunning();
+                if(!isRunning) {
+                    m_Simulator->startSimulation();
+                    m_Controller->m_cbSimulationScene->setDisabled(true);
+                    updateStatusSimulation("Running simulation...");
+                } else {
+                    m_Simulator->stop();
+                    m_Controller->m_cbSimulationScene->setDisabled(false);
+                    updateStatusSimulation("Stopped");
+                }
 
-        m_Controller->m_btnStartStopSimulation->setText(!isRunning ? QString("Stop") : QString("Resume"));
-        m_BusyBar->setBusy(!isRunning);
-    });
+                m_Controller->m_btnStartStopSimulation->setText(!isRunning ? QString("Stop") : QString("Resume"));
+                m_BusyBar->setBusy(!isRunning);
+            });
 
     connect(m_Simulator.get(), &Simulator::frameFinished, [&]
-    {
-        QMetaObject::invokeMethod(this, "finishFrame", Qt::QueuedConnection);
-    });
+            {
+                QMetaObject::invokeMethod(this, "finishFrame", Qt::QueuedConnection);
+            });
 
     connect(m_Simulator.get(), &Simulator::simulationFinished, [&]
-    {
-        QMetaObject::invokeMethod(this, "finishSimulation", Qt::QueuedConnection);
-    });
+            {
+                QMetaObject::invokeMethod(this, "finishSimulation", Qt::QueuedConnection);
+            });
 
     connect(m_Simulator.get(), &Simulator::numParticleChanged, this,           &MainWindow::updateStatusNumParticles);
     connect(m_Simulator.get(), &Simulator::systemTimeChanged,  this,           &MainWindow::updateStatusSimulationTime);
-    connect(m_Simulator.get(), &Simulator::particleChanged,    m_RenderWidget, &RenderWidget::updateParticleData);
+    connect(m_Simulator.get(), &Simulator::vizDataChanged,    m_RenderWidget, &RenderWidget::updateVizData);
 }
