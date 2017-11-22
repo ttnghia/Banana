@@ -25,6 +25,7 @@
 #define DEFAULT_CAMERA_POSITION     Vec3f(3.5, 0.5, 0)
 #define DEFAULT_CAMERA_FOCUS        Vec3f(0, 0, 0)
 #define DEFAULT_LIGHT_POSITION      Vec4f(10, 10, -10, 1.0)
+#define DEFAULT_CLIP_PLANE          Vec4f(0.0, 0.0, -1.0, 0.0)
 
 #define DEFAULT_CHECKERBOARD_COLOR1 Vec3f(0.9)
 #define DEFAULT_CHECKERBOARD_COLOR2 Vec3f(0.5)
@@ -35,15 +36,16 @@
 #define CUSTOM_PARTICLE_MATERIAL         \
     {                                    \
         Vec4f(0.2 * 0.2),                \
-        Vec4f(0.69, 0.957, 0.259, 1.00), \
+        glm::vec4(1.0, 0.63, 0.3, 1.00), \
         Vec4f(1),                        \
         250.0,                           \
         String("ParticleMaterial")       \
     }
 
 #define DEFAULT_CHECKERBOARD_GRID_SIZE 20
+#define DEFAULT_FLOOR_SIZE             10
+
 #define DEFAULT_MESH_MATERIAL          Material::MT_Brass
-#define DEFAULT_CLIP_PLANE             Vec4f(0.0, 0.0, -1.0, 0.0)
 #define DEFAULT_DELAY_TIME             40
 #define NUM_MESHES                     8
 
@@ -69,22 +71,6 @@ struct ParticleColorMode
         Ramp            = 2,
         FromData        = 3,
         NumColorMode
-    };
-};
-
-struct GLSLPrograms
-{
-    enum
-    {
-        RenderFloor = 0,
-        RenderSkyBox,
-        RenderLight,
-        RenderDataDomain,
-        RenderPointSphere,
-        RenderMesh,
-        RenderMeshDepth,
-        RenderMeshShadow,
-        NumPrograms
     };
 };
 

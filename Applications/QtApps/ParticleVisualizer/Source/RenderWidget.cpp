@@ -70,7 +70,7 @@ void RenderWidget::renderOpenGL()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void RenderWidget::updateData()
+void RenderWidget::updateVizData()
 {
     Q_ASSERT(m_RDataParticle.initialized);
     makeCurrent();
@@ -160,8 +160,8 @@ void RenderWidget::initRDataFloor()
     Q_ASSERT(m_UBufferCamData != nullptr && m_Lights != nullptr);
 
     m_FloorRender = std::make_unique<PlaneRender>(m_Camera, m_Lights, QDir::currentPath() + "/Textures/Floor/", m_UBufferCamData);
-    m_FloorRender->transform(Vec3f(0, -1.01, 0), Vec3f(10));
-    m_FloorRender->scaleTexCoord(2, 2);
+    m_FloorRender->transform(Vec3f(0, -1.01, 0), Vec3f(DEFAULT_FLOOR_SIZE));
+    m_FloorRender->scaleTexCoord(DEFAULT_FLOOR_SIZE, DEFAULT_FLOOR_SIZE);
     m_FloorRender->setAllowNonTextureRender(false);
 }
 
@@ -224,15 +224,13 @@ void RenderWidget::initRDataParticle()
     m_RDataParticle.v_AnisotropyMatrix2 = m_RDataParticle.shader->getAtributeLocation("v_AnisotropyMatrix2");
     m_RDataParticle.v_Color1            = m_RDataParticle.shader->getAtributeLocation("v_Color1");
     m_RDataParticle.v_Color3            = m_RDataParticle.shader->getAtributeLocation("v_Color3");
-    m_RDataParticle.u_ClipPlane         = m_RDataParticle.shader->getUniformLocation("u_ClipPlane");
 
     m_RDataParticle.ub_CamData  = m_RDataParticle.shader->getUniformBlockIndex("CameraData");
     m_RDataParticle.ub_Light    = m_RDataParticle.shader->getUniformBlockIndex("Lights");
     m_RDataParticle.ub_Material = m_RDataParticle.shader->getUniformBlockIndex("Material");
 
-    m_RDataParticle.u_nParticles  = m_RDataParticle.shader->getUniformLocation("u_nParticles");
-    m_RDataParticle.u_PointRadius = m_RDataParticle.shader->getUniformLocation("u_PointRadius");
-    //    m_RDataParticle.u_PointScale = m_RDataParticle.shader->getUniformLocation("u_PointScale");
+    m_RDataParticle.u_nParticles          = m_RDataParticle.shader->getUniformLocation("u_nParticles");
+    m_RDataParticle.u_PointRadius         = m_RDataParticle.shader->getUniformLocation("u_PointRadius");
     m_RDataParticle.u_IsPointView         = m_RDataParticle.shader->getUniformLocation("u_IsPointView");
     m_RDataParticle.u_ColorMode           = m_RDataParticle.shader->getUniformLocation("u_ColorMode");
     m_RDataParticle.u_ColorDataSize       = m_RDataParticle.shader->getUniformLocation("u_ColorDataSize");
@@ -241,6 +239,7 @@ void RenderWidget::initRDataParticle()
     m_RDataParticle.u_UseAnisotropyKernel = m_RDataParticle.shader->getUniformLocation("u_UseAnisotropyKernel");
     m_RDataParticle.u_ScreenWidth         = m_RDataParticle.shader->getUniformLocation("u_ScreenWidth");
     m_RDataParticle.u_ScreenHeight        = m_RDataParticle.shader->getUniformLocation("u_ScreenHeight");
+    m_RDataParticle.u_ClipPlane           = m_RDataParticle.shader->getUniformLocation("u_ClipPlane");
 
     m_RDataParticle.u_MinPosition = m_RDataParticle.shader->getUniformLocation("u_MinPosition");
     m_RDataParticle.u_MaxPosition = m_RDataParticle.shader->getUniformLocation("u_MaxPosition");
@@ -259,13 +258,15 @@ void RenderWidget::initRDataParticle()
     m_RDataParticle.material->uploadDataToGPU();
 
     ////////////////////////////////////////////////////////////////////////////////
+    m_RDataParticle.initialized = true;
+    glCall(glGenVertexArrays(1, &m_RDataParticle.VAO));
     initParticleVAO();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void RenderWidget::initParticleVAO()
 {
-    glCall(glGenVertexArrays(1, &m_RDataParticle.VAO));
+    Q_ASSERT(m_RDataParticle.initialized);
     glCall(glBindVertexArray(m_RDataParticle.VAO));
     glCall(glEnableVertexAttribArray(m_RDataParticle.v_Position));
 
@@ -292,7 +293,6 @@ void RenderWidget::initParticleVAO()
     }
 
     glCall(glBindVertexArray(0));
-    m_RDataParticle.initialized = true;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

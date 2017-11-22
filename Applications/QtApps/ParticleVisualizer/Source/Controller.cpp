@@ -166,7 +166,7 @@ void Controller::connectWidgets()
 
     ////////////////////////////////////////////////////////////////////////////////
     //  data handle
-    connect(m_DataReader, &DataReader::particleDataChanged, m_RenderWidget, &RenderWidget::updateData);
+    connect(m_DataReader, &DataReader::particleDataChanged, m_RenderWidget, &RenderWidget::updateVizData);
 
     ////////////////////////////////////////////////////////////////////////////////
     // lights
@@ -328,7 +328,7 @@ void Controller::setupFloorControllers(QBoxLayout* layoutCtr)
     m_cbFloorTexture = new EnhancedComboBox;
     m_sldFloorSize   = new EnhancedSlider;
     m_sldFloorSize->setRange(1, 100);
-    m_sldFloorSize->getSlider()->setValue(10);
+    m_sldFloorSize->getSlider()->setValue(DEFAULT_FLOOR_SIZE);
     m_sldFloorExposure = new EnhancedSlider;
     m_sldFloorExposure->setRange(1, 100);
     m_sldFloorExposure->getSlider()->setValue(100);

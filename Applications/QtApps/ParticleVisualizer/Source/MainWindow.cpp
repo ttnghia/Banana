@@ -136,7 +136,7 @@ void MainWindow::updateNumFrames(int numFrames)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MainWindow::updateStatusReadInfo(double readTime, size_t bytes)
 {
-    m_lblStatusReadInfo->setText(QString("Load data: %1 ms | %2 MB").arg(readTime).arg(static_cast<double>(bytes) / 1048576.0));
+    m_lblStatusReadInfo->setText(QString("Load data: %1 (ms) | %2 (MBs)").arg(readTime).arg(static_cast<double>(bytes) / 1048576.0));
 }
 
 void MainWindow::updateStatusMemoryUsage()

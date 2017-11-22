@@ -24,12 +24,12 @@
 #include "Common.h"
 #include "DataReader.h"
 
-#include <QtAppHelpers/QtAppMacros.h>
-#include <QtAppHelpers/OpenGLWidget.h>
-
 #include <OpenGLHelpers/OpenGLBuffer.h>
 #include <OpenGLHelpers/OpenGLTexture.h>
 #include <OpenGLHelpers/RenderObjects.h>
+
+#include <QtAppHelpers/QtAppMacros.h>
+#include <QtAppHelpers/OpenGLWidget.h>
 #include <QtAppHelpers/QtAppShaderProgram.h>
 
 #include <ParticleTools/ParticleSerialization.h>
@@ -48,7 +48,7 @@ private:
 
 public slots:
     void updateCamera() { m_Camera->setDefaultCamera(m_VizData->cameraPosition, m_VizData->cameraFocus, Vec3f(0, 1, 0)); }
-    void updateData();
+    void updateVizData();
 
     ////////////////////////////////////////////////////////////////////////////////
     // clip plane
