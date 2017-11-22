@@ -334,18 +334,18 @@ void writeMatlab(std::ostream& output, const Vector<T>& vec, const char* variabl
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 inline void ltrim(String& s)
 {
-    s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](int ch)
+    s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](char ch)
                                     {
-                                        return !std::isspace(ch);
+                                        return ch != ' ';
                                     }));
 }
 
 // trim from end (in place)
 inline void rtrim(String& s)
 {
-    s.erase(std::find_if(s.rbegin(), s.rend(), [](int ch)
+    s.erase(std::find_if(s.rbegin(), s.rend(), [](char ch)
                          {
-                             return !std::isspace(ch);
+                             return ch != ' ';
                          }).base(), s.end());
 }
 
