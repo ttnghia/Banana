@@ -79,7 +79,7 @@ void RenderWidget::renderOpenGL()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void RenderWidget::updateProjection()
 {
-    if(m_VizData->dataDimension == 3u) {
+    if(m_VizData->systemDimension == 3u) {
         m_Camera->setProjection(Camera::OrthographicProjection);
         m_Camera->setOrthoBox(m_VizData->boxMin, m_VizData->boxMax);
     } else {
@@ -94,11 +94,12 @@ void RenderWidget::updateVizData()
     Q_ASSERT(m_RDataParticle.initialized);
     makeCurrent();
     ////////////////////////////////////////////////////////////////////////////////
-    m_RDataParticle.buffPosition->uploadDataAsync(m_VizData->positions->data(), 0, m_VizData->positions->size() * sizeof(Vec3f));
+    m_RDataParticle.buffPosition->uploadDataAsync(m_VizData->positions, 0, m_VizData->nParticles * m_VizData->systemDimension * sizeof(float));
 
     if(m_RDataParticle.useAnisotropyKernel) {
         if(m_VizData->aniKernel != nullptr) {
-            m_RDataParticle.buffAniKernels->uploadDataAsync(m_VizData->aniKernel->data(), 0, m_VizData->aniKernel->size() * sizeof(Mat3x3f));
+            auto aniKernelDataSize = m_VizData->nParticles * m_VizData->systemDimension * m_VizData->systemDimension * sizeof(float);
+            m_RDataParticle.buffAniKernels->uploadDataAsync(m_VizData->aniKernel, 0, aniKernelDataSize);
             m_RDataParticle.hasAnisotropyKernel = 1;
         } else {
             m_RDataParticle.hasAnisotropyKernel = 0;

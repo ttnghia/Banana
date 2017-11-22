@@ -42,7 +42,6 @@ public:
     void startSimulation();
     void finishImgExport();
 
-    auto& getSolver() const { return m_ParticleSolver; }
     auto& getVizData() const { return m_VizData; }
 
 public slots:
@@ -62,7 +61,7 @@ signals:
 
 private:
     SharedPtr<VisualizationData> m_VizData        = std::make_shared<VisualizationData>();
-    UniquePtr<ParticleSolverQt>  m_ParticleSolver = nullptr;
+    SharedPtr<SolverQtBase>      m_ParticleSolver = nullptr;
     std::future<void>            m_SimulationFutureObj;
 
     QString       m_Scene;

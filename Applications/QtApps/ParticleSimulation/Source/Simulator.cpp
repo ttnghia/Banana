@@ -19,9 +19,11 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
+#include <Banana/Utils/JSONHelpers.h>
 #include <ParticleTools/ParticleHelpers.h>
 #include "Simulator.h"
 
+#include <fstream>
 #include <QDebug>
 #include <QDir>
 
@@ -46,12 +48,13 @@ void Simulator::finishImgExport()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Simulator::doSimulation()
 {
-    auto frame = (m_ParticleSolver->globalParams().startFrame <= 1) ?
-                 m_ParticleSolver->globalParams().finishedFrame + 1 : MathHelpers::min(m_ParticleSolver->globalParams().startFrame, m_ParticleSolver->globalParams().finishedFrame + 1);
-    for(; frame <= m_ParticleSolver->globalParams().finalFrame; ++frame) {
+    auto frame = (m_ParticleSolver->getGlobalParams().startFrame <= 1) ?
+                 m_ParticleSolver->getGlobalParams().finishedFrame + 1 :
+                 MathHelpers::min(m_ParticleSolver->getGlobalParams().startFrame, m_ParticleSolver->getGlobalParams().finishedFrame + 1);
+    for(; frame <= m_ParticleSolver->getGlobalParams().finalFrame; ++frame) {
         m_ParticleSolver->doSimulationFrame(frame);
 
-        emit systemTimeChanged(m_ParticleSolver->globalParams().evolvedTime(), frame);
+        emit systemTimeChanged(m_ParticleSolver->getGlobalParams().evolvedTime(), frame);
         emit vizDataChanged();
         emit frameFinished();
 
@@ -63,7 +66,7 @@ void Simulator::doSimulation()
         }
 
         if(m_bStop) {
-            m_ParticleSolver->globalParams().startFrame = frame + 1;
+            m_ParticleSolver->getGlobalParams().startFrame = frame + 1;
             break;
         }
     }
@@ -96,20 +99,33 @@ void Simulator::changeScene(const QString& scene)
         m_SimulationFutureObj.wait();
     }
 
+    ////////////////////////////////////////////////////////////////////////////////
+    QString       sceneFile = getScenePath() + "/" + scene;
+    std::ifstream inFile(sceneFile.toStdString());
+    __BNN_ASSERT(inFile.is_open());
+    nlohmann::json jParams = nlohmann::json::parse(inFile);
+    inFile.close();
+    ////////////////////////////////////////////////////////////////////////////////
+    __BNN_ASSERT(jParams.find("GlobalParameters") != jParams.end());
+    auto   jGlobalParams = jParams["GlobalParameters"];
+    String solverName;
+    __BNN_ASSERT(JSONHelpers::readValue(jGlobalParams, solverName, "Solver"));
+    ////////////////////////////////////////////////////////////////////////////////
     m_ParticleSolver.reset();
-    m_ParticleSolver     = std::make_unique<ParticleSolverQt>();
-    m_VizData->positions = &m_ParticleSolver->solverData().particleData.positions;
-
+    m_ParticleSolver = ParticleSolverQtFactory::createSolver(solverName);
+    __BNN_ASSERT(m_ParticleSolver != nullptr);
+    m_ParticleSolver->loadSceneFromFile(sceneFile.toStdString());
     ////////////////////////////////////////////////////////////////////////////////
-    QString sceneFile = getScenePath() + "/" + scene;
-    m_ParticleSolver->loadScene(sceneFile.toStdString());
-    m_ParticleSolver->makeReady();
+    m_VizData->systemDimension = m_ParticleSolver->getSolverDimension();
+    m_VizData->positions       = m_ParticleSolver->getParticlePositions();
+    m_VizData->velocities      = m_ParticleSolver->getParticleVelocities();
+//    m_VizData->aniKernel =
+    m_VizData->objIndex = m_ParticleSolver->getObjectIndex();
     ////////////////////////////////////////////////////////////////////////////////
-    m_VizData->dataDimension  = m_ParticleSolver->solverDimension();
-    m_VizData->boxMin         = m_ParticleSolver->solverParams().movingBMin;
-    m_VizData->boxMax         = m_ParticleSolver->solverParams().movingBMax;
+    memcpy(&m_VizData->boxMin, m_ParticleSolver->getBMin(), sizeof(float) * m_ParticleSolver->getSolverDimension());
+    memcpy(&m_VizData->boxMax, m_ParticleSolver->getBMax(), sizeof(float) * m_ParticleSolver->getSolverDimension());
     m_VizData->nParticles     = m_ParticleSolver->getNParticles();
-    m_VizData->particleRadius = m_ParticleSolver->solverParams().particleRadius;
+    m_VizData->particleRadius = m_ParticleSolver->getParticleRadius();
     m_VizData->cameraPosition = Vec3r((m_VizData->boxMin.x + m_VizData->boxMax.x) * 0.5f,
                                       (m_VizData->boxMin.y + m_VizData->boxMax.y) * 0.5f + (m_VizData->boxMax.y - m_VizData->boxMin.y) * 0.3,
                                       (m_VizData->boxMin.z + m_VizData->boxMax.z) * 0.5f + (m_VizData->boxMax.z - m_VizData->boxMin.z) * 1.5);
@@ -121,7 +137,7 @@ void Simulator::changeScene(const QString& scene)
     emit domainChanged();
     emit cameraChanged();
     emit vizDataChanged();
-    emit systemTimeChanged(m_ParticleSolver->globalParams().evolvedTime(), m_ParticleSolver->globalParams().finishedFrame);
+    emit systemTimeChanged(m_ParticleSolver->getGlobalParams().evolvedTime(), m_ParticleSolver->getGlobalParams().finishedFrame);
     emit numParticleChanged(m_ParticleSolver->getNParticles());
 }
 

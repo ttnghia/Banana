@@ -1,6 +1,7 @@
 {
     "GlobalParameters":
     {
+        "Solver" : "FLIP3D_Solver",
         "FrameDuration" : 0.03333333333,
         "StartFrame" : 1,
         "FinalFrame" : 300,

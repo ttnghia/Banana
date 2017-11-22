@@ -46,8 +46,7 @@ SOURCES += \
     Source/MainWindow.cpp \
     Source/Simulator.cpp \
     Source/RenderWidget.cpp \
-    Source/Controller.cpp \
-    Source/ParticleSolverQt.cpp
+    Source/Controller.cpp
 
 RESOURCES += \
     Shader.qrc

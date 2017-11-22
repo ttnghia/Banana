@@ -116,7 +116,7 @@ struct VisualizationData
 {
     ////////////////////////////////////////////////////////////////////////////////
     // simulation system dimention
-    UInt dataDimension = 3u;
+    UInt systemDimension = 3u;
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -138,11 +138,12 @@ struct VisualizationData
 
     ////////////////////////////////////////////////////////////////////////////////
     // particle data
-    Vec_Vec3f*   positions      = nullptr;
-    Vec_Mat3x3f* aniKernel      = nullptr;
-    char*        colorData      = nullptr;
-    UInt         nParticles     = 0;
-    float        particleRadius = 0;
+    char* positions      = nullptr;
+    char* velocities     = nullptr;
+    char* aniKernel      = nullptr;
+    char* objIndex       = nullptr;
+    UInt  nParticles     = 0;
+    float particleRadius = 0;
     ////////////////////////////////////////////////////////////////////////////////
 
     VisualizationData() { resetData(); }
