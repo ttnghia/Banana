@@ -200,23 +200,15 @@ void Controller::loadTextures()
     int currentSkyTexID = m_cbSkyTexture->getComboBox()->currentIndex();
     m_cbSkyTexture->getComboBox()->clear();
     m_cbSkyTexture->getComboBox()->addItem("None");
-    QStringList skyTexFolders = getTextureFolders("Sky");
-
-    foreach(QString tex, skyTexFolders) {
-        m_cbSkyTexture->getComboBox()->addItem(tex);
-    }
+    m_cbSkyTexture->getComboBox()->addItems(getTextureFolders("Sky"));
     m_cbSkyTexture->getComboBox()->setCurrentIndex(currentSkyTexID > 0 ? currentSkyTexID : 0);
 
     ////////////////////////////////////////////////////////////////////////////////
     // floor textures
     int currentFloorTexID = m_cbFloorTexture->getComboBox()->currentIndex();
     m_cbFloorTexture->getComboBox()->clear();
-    QStringList floorTexFolders = getTextureFiles("Floor");
     m_cbFloorTexture->getComboBox()->addItem("None");
-
-    foreach(QString tex, floorTexFolders) {
-        m_cbFloorTexture->getComboBox()->addItem(tex);
-    }
+    m_cbFloorTexture->getComboBox()->addItems(getTextureFiles("Floor"));
     m_cbFloorTexture->getComboBox()->setCurrentIndex(currentFloorTexID > 0 ? currentFloorTexID : 0);
 }
 
@@ -348,8 +340,6 @@ void Controller::setupFloorControllers(QBoxLayout* layoutCtr)
     grFloor->setTitle("Floor Texture");
     grFloor->setLayout(layoutFloorCtr);
     layoutCtr->addWidget(grFloor);
-    ////////////////////////////////////////////////////////////////////////////////
-    loadTextures();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

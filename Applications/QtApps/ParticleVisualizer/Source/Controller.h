@@ -50,15 +50,13 @@ public:
         connectWidgets();
     }
 
-public slots:
-    void loadTextures();
-
 private:
     void setupGUI();
     void connectWidgets();
 
     QStringList getTextureFolders(QString texType);
     QStringList getTextureFiles(QString texType);
+    void        loadTextures();
 
     ////////////////////////////////////////////////////////////////////////////////
     // main objects
