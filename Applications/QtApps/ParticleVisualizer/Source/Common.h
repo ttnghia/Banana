@@ -92,3 +92,13 @@ inline QString getTexturePath()
         return QDir::currentPath() + "/Textures";
     }
 }
+
+inline QString getCapturePath()
+{
+    AppConfigReader config("config.ini");
+    if(config.isFileLoaded() && config.hasParam("CapturePath")) {
+        return QString::fromStdString(config.getStringValue("CapturePath"));
+    } else {
+        return QDir::currentPath() + "/Capture";
+    }
+}

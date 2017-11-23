@@ -42,4 +42,5 @@ DISTFILES += \
     Shaders/particle.fs.glsl \
     Shaders/particle.vs.glsl \
     PlayList.txt \
+    config.ini \
     config.ini

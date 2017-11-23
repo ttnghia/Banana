@@ -44,11 +44,17 @@ private:
     virtual void initOpenGL() override;
     virtual void resizeOpenGLWindow(int width, int height) override;
     virtual void renderOpenGL() override;
+    void         initCaptureDir();
     SharedPtr<VisualizationData> m_VizData = nullptr;
 
+    Int  m_CurrentFrame          = 0;
+    bool m_bCaptureFrames        = false;
+    bool m_bCurrentFrameCaptured = false;
+
 public slots:
+    void setCaptureFrame(bool bCapture) { m_bCaptureFrames = bCapture; }
     void updateCamera() { m_Camera->setDefaultCamera(m_VizData->cameraPosition, m_VizData->cameraFocus, Vec3f(0, 1, 0)); }
-    void updateVizData();
+    void updateVizData(Int currentFrame);
 
     ////////////////////////////////////////////////////////////////////////////////
     // clip plane

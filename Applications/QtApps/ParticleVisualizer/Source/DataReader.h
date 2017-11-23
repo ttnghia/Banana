@@ -178,7 +178,7 @@ private:
 signals:
     void numParticlesChanged(UInt nParticles);
     void particleDataListChanged(const QStringList& dataList);
-    void particleDataChanged();
+    void particleDataChanged(Int currentFrame);
 public slots:
     void enableAniKernel(bool bUseAniKernel) { m_bUseAniKernel = bUseAniKernel; }
     void setColorFromData(bool bColorFromData) { m_bColorFromData = bColorFromData; }

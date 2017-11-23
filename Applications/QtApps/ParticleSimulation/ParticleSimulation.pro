@@ -57,4 +57,5 @@ DISTFILES += \
     Scenes/MPM2D_2Spheres.json \
     Scenes/MPM3D_2Spheres.json \
     Scenes/MPM3D_2Toruses.json \
-    Scenes/MPM3D_TorusBallDrop.json
+    Scenes/MPM3D_TorusBallDrop.json \
+    config.ini

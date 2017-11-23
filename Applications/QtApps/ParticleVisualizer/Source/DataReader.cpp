@@ -268,7 +268,7 @@ void DataReader::readFrame(int frame)
     if(success) {
         m_CurrentFrame = frame;
         emit currentFrameChanged(m_CurrentFrame);
-        emit particleDataChanged();
+        emit particleDataChanged(m_CurrentFrame);
         emit frameReadInfoChanged(m_ReadTimer.getAvgTime(), bytesReads);
     }
 }

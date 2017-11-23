@@ -31,6 +31,7 @@ void RenderWidget::initOpenGL()
     initRDataFloor();
     initRDataBox();
     initRDataParticle();
+    initCaptureDir();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -67,12 +68,32 @@ void RenderWidget::renderOpenGL()
     renderBox();
     renderParticles();
     // renderMeshes();
+
+    if(m_bCaptureFrames && !m_bCurrentFrameCaptured) {
+        if(exportScreenToImage(m_CurrentFrame)) {
+            m_bCurrentFrameCaptured = true;
+        }
+    }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void RenderWidget::updateVizData()
+void RenderWidget::initCaptureDir()
+{
+    QString capturePath = getCapturePath();
+    setCapturePath(capturePath);
+    if(!QDir(capturePath).exists()) {
+        QDir().mkdir(capturePath);
+    }
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void RenderWidget::updateVizData(Int currentFrame)
 {
     Q_ASSERT(m_RDataParticle.initialized);
+    m_CurrentFrame          = currentFrame;
+    m_bCurrentFrameCaptured = false;
+
+    ////////////////////////////////////////////////////////////////////////////////
     makeCurrent();
     ////////////////////////////////////////////////////////////////////////////////
     UInt nParticles = m_VizData->particleReader.getNParticles();

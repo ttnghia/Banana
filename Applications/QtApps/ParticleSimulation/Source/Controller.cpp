@@ -118,16 +118,24 @@ void Controller::connectWidgets()
     connect(m_chkUseAniKernel, &QCheckBox::toggled, m_RenderWidget, &RenderWidget::enableAniKernels);
     connect(m_chkRenderBox, &QCheckBox::toggled, m_RenderWidget, &RenderWidget::setRenderBox);
     connect(m_pkrBoxColor, &ColorPicker::colorChanged, [&](float r, float g, float b) { m_RenderWidget->setBoxColor(Vec3f(r, g, b)); });
+    ////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // scene
+    connect(m_OutputPath, &BrowsePathWidget::pathChanged, m_RenderWidget, &RenderWidget::setCapturePath);
+    ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
     // buttons
     connect(m_btnResetCamera, &QPushButton::clicked, m_RenderWidget, &RenderWidget::resetCameraPosition);
     connect(m_btnClipViewPlane, &QPushButton::clicked, m_RenderWidget, &RenderWidget::enableClipPlane);
+    ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
     // lights
     connect(m_LightEditor, &PointLightEditor::lightsChanged, m_RenderWidget, &RenderWidget::updateLights);
     connect(m_RenderWidget, &RenderWidget::lightsObjChanged, m_LightEditor, &PointLightEditor::setLights);
+    ////////////////////////////////////////////////////////////////////////////////
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -300,7 +308,7 @@ void Controller::setupFloorControllers(QBoxLayout* layoutCtr)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 QStringList Controller::getSceneFiles()
 {
-    QDir dataDir(QDir::currentPath() + "/Scenes");
+    QDir dataDir(getScenePath());
     dataDir.setFilter(QDir::NoDotAndDotDot | QDir::Files);
 
     return dataDir.entryList();
@@ -318,9 +326,8 @@ void Controller::setupSimulationControllers(QBoxLayout* layoutCtr)
     grScene->setTitle("Scene");
     grScene->setLayout(layoutScene);
     ////////////////////////////////////////////////////////////////////////////////
-    QString capturePath = QDir::currentPath() + QString("/Capture/");
     m_OutputPath = new BrowsePathWidget("Browse");
-    m_OutputPath->setPath(capturePath);
+    m_OutputPath->setPath(getCapturePath());
     m_chkEnableOutput = new QCheckBox("Export to Images");
     QVBoxLayout* layoutOutput = new QVBoxLayout;
     layoutOutput->addWidget(m_chkEnableOutput);

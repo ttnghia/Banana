@@ -55,7 +55,7 @@ bool MainWindow::processKeyPressEvent(QKeyEvent* event)
             m_InputPath->browse();
             return true;
         case Qt::Key_O:
-            m_OutputPath->browse();
+            m_CapturePath->browse();
             return true;
         case Qt::Key_R:
             m_Controller->m_btnReverse->click();
@@ -191,12 +191,12 @@ void MainWindow::setupDataWidgets(QLayout* dataLayout)
 
     ////////////////////////////////////////////////////////////////////////////////
     // output image path
-    m_chkExportFrame = new QCheckBox("Export to Images");
-    m_OutputPath     = new BrowsePathWidget(QIcon(":/Icons/save.png"));
-
+    m_chkCaptureFrame = new QCheckBox("Export to Images");
+    m_CapturePath     = new BrowsePathWidget(QIcon(":/Icons/save.png"));
+    m_CapturePath->setPath(getCapturePath());
     QHBoxLayout* exportImageLayout = new QHBoxLayout;
-    exportImageLayout->addWidget(m_chkExportFrame);
-    exportImageLayout->addLayout(m_OutputPath->getLayout());
+    exportImageLayout->addWidget(m_chkCaptureFrame);
+    exportImageLayout->addLayout(m_CapturePath->getLayout());
 
     QGroupBox* grExportImage = new QGroupBox("Image Output Path");
     grExportImage->setLayout(exportImageLayout);
@@ -240,6 +240,9 @@ void MainWindow::connectWidgets()
     connect(m_Controller->m_chkReadFrameInstantly, &QCheckBox::toggled, m_sldFrame, &QSlider::setTracking);
 
     connect(m_InputPath,  &BrowsePathWidget::pathChanged, m_DataReader, &DataReader::setDataPath);
+    connect(m_CapturePath,  &BrowsePathWidget::pathChanged, m_RenderWidget, &RenderWidget::setCapturePath);
+    connect(m_chkCaptureFrame, &QCheckBox::toggled, m_RenderWidget, &RenderWidget::setCaptureFrame);
+
     connect(m_sldFrame,   &QSlider::valueChanged,         m_DataReader, &DataReader::readFrame);
 
     connect(m_DataReader, &DataReader::currentFrameChanged,  m_sldFrame, &QSlider::setValue);

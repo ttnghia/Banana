@@ -77,6 +77,16 @@ void RenderWidget::renderOpenGL()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void RenderWidget::initCaptureDir()
+{
+    QString capturePath = getCapturePath();
+    setCapturePath(capturePath);
+    if(!QDir(capturePath).exists()) {
+        QDir().mkdir(capturePath);
+    }
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void RenderWidget::updateProjection()
 {
     if(m_VizData->systemDimension == 3u) {
@@ -309,17 +319,6 @@ void RenderWidget::renderParticles()
     glCall(glDrawArrays(GL_POINTS, 0, m_RDataParticle.nParticles));
     glCall(glBindVertexArray(0));
     m_RDataParticle.shader->release();
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void RenderWidget::initCaptureDir()
-{
-    QString capturePath = QDir::currentPath() + QString("/Capture/");
-    setCapturePath(capturePath);
-
-    if(!QDir(capturePath).exists()) {
-        QDir().mkdir(capturePath);
-    }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

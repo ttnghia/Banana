@@ -2,9 +2,9 @@
     "GlobalParameters":
     {
         "Solver" : "MPM3D_Solver",
-        "FrameDuration" : 0.02333333333,
+        "FrameDuration" : 0.003333333333,
         "StartFrame" : 1,
-        "FinalFrame" : 200,
+        "FinalFrame" : 1000,
         "SaveFrameData" : true,
         "SaveMemoryState" : false,
         "FramePerState" : 10,
@@ -27,10 +27,10 @@
         "NExpandCells" : 2,
         "AdvectionSteps" : 2,
         "PIC_FLIP_Ratio" : 0.9,
-        "ImplicitRatio" : 0,
+        "ImplicitRatio" : 1,
         "CGRelativeTolerance" : 1e-18,
         "MaxCGIteration" : 1000,
-        "CellSize" : 0.1,
+        "CellSize" : 0.05,
         "RatioCellSizePRadius" : 4,
         "CFLFactor" : 0.2,
         "lambda" : 10,
@@ -42,10 +42,10 @@
         {
             "GeometryType" : "Sphere",
             "UniqueName" : "SphereRight",
-            "Translation" : [0, 0, -0.5],
+            "Translation" : [0, 0, -1],
             "Scale" : 0.3,
             "JitterRatio" : 0.1,
-            "InitialVelocity" : [0, 0, 0.5]
+            "InitialVelocity" : [0, 0, 10]
         },
         {
             "GeometryType" : "Sphere",
@@ -53,7 +53,7 @@
             "Translation" : [0, 0, 1],
             "Scale" : 0.3,
             "JitterRatio" : 0.1,
-            "InitialVelocity" : [0, 0, -1]
+            "InitialVelocity" : [0, 0, -10]
         }
     ],
     "VisualizationParameters":
