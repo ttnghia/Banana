@@ -30,6 +30,8 @@ namespace Banana
 String ParticleSerialization::Attribute::typeName()
 {
     switch(type) {
+        case TypeChar:
+            return String("char");
         case TypeInt:
             return String("int");
         case TypeUInt:
@@ -38,6 +40,8 @@ String ParticleSerialization::Attribute::typeName()
             return String("real");
         case TypeCompressedReal:
             return String("compressed_real");
+        case TypeVectorChar:
+            return String("vector_char");
         case TypeVectorInt:
             return String("vector_int");
         case TypeVectorUInt:
@@ -288,6 +292,9 @@ bool ParticleSerialization::readHeader(std::ifstream& ipf)
 
     auto getType = [&](const String& typeName) -> DataType
                    {
+                       if(typeName == "char") {
+                           return TypeChar;
+                       }
                        if(typeName == "int") {
                            return TypeInt;
                        }
@@ -299,6 +306,9 @@ bool ParticleSerialization::readHeader(std::ifstream& ipf)
                        }
                        if(typeName == "compressed_real") {
                            return TypeCompressedReal;
+                       }
+                       if(typeName == "vector_char") {
+                           return TypeVectorChar;
                        }
                        if(typeName == "vector_int") {
                            return TypeVectorInt;
