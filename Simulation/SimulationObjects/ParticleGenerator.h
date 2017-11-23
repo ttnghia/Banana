@@ -224,38 +224,35 @@ UInt ParticleGenerator<N, RealType > ::addParticles(const Vec_VecX<N, RealType>&
     ParallelObjects::SpinLock lock;
 
     if(currentPositions.size() > 0) {
-        ParallelFuncs::parallel_for(m_ObjParticles.size(),
-                                    [&](size_t p)
+        for(const auto& ppos0 : m_ObjParticles) {
+            for(UInt i = 0; i < m_MaxIters; ++i) {
+                bool              bValid = true;
+                VecX<N, RealType> ppos   = ppos0;
+                NumberHelpers::jitter(ppos, m_Jitter);
+                const auto pCellIdx = m_Grid.getCellIdx<Int>(ppos);
+
+                NumberHelpers::scan(VecX<N, Int>(-1), VecX<N, Int>(2),
+                                    [&](const auto& idx)
                                     {
-                                        const auto& ppos0 = m_ObjParticles[p];
-                                        for(UInt i = 0; i < m_MaxIters; ++i) {
-                                            bool bValid            = true;
-                                            VecX<N, RealType> ppos = ppos0;
-                                            NumberHelpers::jitter(ppos, m_Jitter);
-                                            const auto pCellIdx = m_Grid.getCellIdx<Int>(ppos);
-
-                                            NumberHelpers::scan(VecX<N, Int>(-1), VecX<N, Int>(2),
-                                                                [&](const auto& idx)
-                                                                {
-                                                                    auto cellIdx = idx + pCellIdx;
-                                                                    if(m_Grid.isValidCell(cellIdx)) {
-                                                                        for(auto q : m_ParticleIdxInCell(cellIdx)) {
-                                                                            if(glm::length2(ppos - currentPositions[q]) < m_MinDistanceSqr) {
-                                                                                bValid = false;
-                                                                            }
-                                                                        }
-                                                                    }
-                                                                });
-
-                                            if(bValid) {
-                                                lock.lock();
-                                                newPositions.push_back(ppos);
-                                                ++nGenerated;
-                                                lock.unlock();
-                                                break;
+                                        auto cellIdx = idx + pCellIdx;
+                                        if(m_Grid.isValidCell(cellIdx)) {
+                                            for(auto q : m_ParticleIdxInCell(cellIdx)) {
+                                                if(glm::length2(ppos - currentPositions[q]) < m_MinDistanceSqr) {
+                                                    bValid = false;
+                                                }
                                             }
                                         }
                                     });
+
+                if(bValid) {
+                    lock.lock();
+                    newPositions.push_back(ppos);
+                    ++nGenerated;
+                    lock.unlock();
+                    break;
+                }
+            }
+        }
     } else {
         for(const auto& ppos0 : m_ObjParticles) {
             VecX<N, RealType> ppos = ppos0;
