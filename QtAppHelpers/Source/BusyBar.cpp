@@ -34,21 +34,21 @@ BusyBar::BusyBar(QWidget* parent /*= 0*/, Style style /*= Cycle*/, int interval 
     ////////////////////////////////////////////////////////////////////////////////
     m_Timer.setInterval(interval);
     connect(&m_Timer, &QTimer::timeout, [&]
-        {
-            if(m_Style == Cycle) {
-                ++m_Value;
-                if(m_Value > 100) {
-                    m_Value = 0;
+            {
+                if(m_Style == Cycle) {
+                    ++m_Value;
+                    if(m_Value > 100) {
+                        m_Value = 0;
+                    }
+                } else {
+                    --m_Value;
+                    if(m_Value < 0) {
+                        m_Value = 100;
+                    }
                 }
-            } else {
-                --m_Value;
-                if(m_Value < 0) {
-                    m_Value = 100;
-                }
-            }
 
-            setValue(m_Value);
-        });
+                setValue(m_Value);
+            });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

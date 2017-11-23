@@ -119,14 +119,25 @@ inline void throwIfFailed(HRESULT hr)
 #endif
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#define __BNN_COMPILER_MESSAGE(msg) \
+#ifdef QT_CORE_LIB
+#  define __BNN_COMPILER_MESSAGE(msg) \
+    __pragma(message("\033[38;5;214m+++>" msg "\033[0m"))
+
+#  define __BNN_TODO \
+    __pragma(message("\033[38;5;214m+++>TODO: => " __FILE__ "(" __BNN_TO_STRING(__LINE__) ") \033[0m"))
+
+#  define __BNN_TODO_MSG(msg) \
+    __pragma(message("\033[38;5;214m+++>TODO: " msg " => " __FILE__ "(" __BNN_TO_STRING(__LINE__) ") \033[0m"))
+#else
+#  define __BNN_COMPILER_MESSAGE(msg) \
     __pragma(message("+++>" msg))
 
-#define __BNN_TODO \
+#  define __BNN_TODO \
     __pragma(message("+++>TODO: => " __FILE__ "(" __BNN_TO_STRING(__LINE__) ") "))
 
-#define __BNN_TODO_MSG(msg) \
+#  define __BNN_TODO_MSG(msg) \
     __pragma(message("+++>TODO: " msg " => " __FILE__ "(" __BNN_TO_STRING(__LINE__) ") "))
+#endif
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #define __BNN_PRINT_LINE                        \

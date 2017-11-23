@@ -33,9 +33,6 @@
 #define GLM_FORCE_INLINE
 #define GLM_ENABLE_EXPERIMENTAL
 
-#pragma message("Re-compile all and test alignment")
-//#define GLM_FORCE_ALIGNED
-
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/matrix_transform_2d.hpp>
@@ -100,7 +97,7 @@ using PairReal = std::pair<double, double>;
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // generic types
-template<class K, class V> using Map= std::map<K, V>;
+template<class K, class V> using Map = std::map<K, V>;
 
 template<class Type> using Vector = std::vector<Type>;
 template<class Type> using Set    = std::set<Type>;
