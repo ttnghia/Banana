@@ -194,6 +194,48 @@ void ShaderProgram::setUniformValue(GLint location, const Mat4x4f& mat)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void ShaderProgram::setUniformValue(GLint location, const GLfloat* data, GLuint count)
+{
+    switch(count) {
+        case 1u:
+            glCall(glUniform1f(location, data[0]));
+            break;
+        case 2u:
+            glCall(glUniform2fv(location, 1, data));
+            break;
+        case 3u:
+            glCall(glUniform3fv(location, 1, data));
+            break;
+        case 4u:
+            glCall(glUniform4fv(location, 1, data));
+            break;
+        default:
+            glCall(glUniform1fv(location, count, data));
+    }
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void ShaderProgram::setUniformValue(GLint location, const GLint* data, GLuint count)
+{
+    switch(count) {
+        case 1u:
+            glCall(glUniform1i(location, data[0]));
+            break;
+        case 2u:
+            glCall(glUniform2iv(location, 1, data));
+            break;
+        case 3u:
+            glCall(glUniform3iv(location, 1, data));
+            break;
+        case 4u:
+            glCall(glUniform4iv(location, 1, data));
+            break;
+        default:
+            glCall(glUniform1iv(location, count, data));
+    }
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 bool ShaderProgram::addShader(GLenum shaderType, const GLchar* shaderSource)
 {
     GLuint shader = glCall(glCreateShader(shaderType));

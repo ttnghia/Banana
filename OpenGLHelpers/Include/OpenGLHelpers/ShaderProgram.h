@@ -85,6 +85,8 @@ public:
     void setUniformValue(GLint location, const Vec4ui& vec) { glCall(glUniform4uiv(location, 1, glm::value_ptr(vec))); }
     void setUniformValue(GLint location, const Vec3ui& vec) { glCall(glUniform3uiv(location, 1, glm::value_ptr(vec))); }
     void setUniformValue(GLint location, const Vec2ui& vec) { glCall(glUniform2uiv(location, 1, glm::value_ptr(vec))); }
+    void setUniformValue(GLint location, const GLfloat* data, GLuint count);
+    void setUniformValue(GLint location, const GLint* data, GLuint count);
     void setUniformValue(GLint location, GLfloat value) { glCall(glUniform1f(location, value)); }
     void setUniformValue(GLint location, GLint value) { glCall(glUniform1i(location, value)); }
     void setUniformValue(GLint location, GLuint value) { glCall(glUniform1ui(location, value)); }
