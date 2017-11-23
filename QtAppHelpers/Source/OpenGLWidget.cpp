@@ -288,7 +288,7 @@ void OpenGLWidget::checkGLVersion()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void OpenGLWidget::checkGLExtensions(QVector<QString> extensions)
+void OpenGLWidget::checkGLExtensions(const QVector<QString>& extensions)
 {
     QString extStr = QString((const char*)glGetString(GL_EXTENSIONS));
     emit    emitDebugString(extStr);
@@ -307,6 +307,15 @@ void OpenGLWidget::checkGLExtensions(QVector<QString> extensions)
 
     if(!check) {
         exit(EXIT_FAILURE);
+    }
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void OpenGLWidget::setCapturePath(const QString& path)
+{
+    m_CapturePath = path;
+    if(!QDir(path).exists()) {
+        QDir().mkdir(path);
     }
 }
 

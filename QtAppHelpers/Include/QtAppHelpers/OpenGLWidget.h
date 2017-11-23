@@ -32,8 +32,7 @@
 #include <QtGui>
 #include <QtWidgets>
 #include <QSurfaceFormat>
-
-#include <memory>
+#include <QDir>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -91,7 +90,7 @@ protected:
     void uploadCameraData();
     void checkGLErrors();
     void checkGLVersion();
-    void checkGLExtensions(QVector<QString> extensions);
+    void checkGLExtensions(const QVector<QString>& extensions);
 
     ////////////////////////////////////////////////////////////////////////////////
     bool        m_bPrintDebug;
@@ -110,12 +109,12 @@ protected:
     SharedPtr<Camera>       m_Camera         = std::make_shared<Camera>();
 
 signals:
-    void emitDebugString(QString str);
+    void emitDebugString(const QString& str);
     void cameraPositionInfoChanged(const Vec3f& cameraPosition, const Vec3f& cameraFocus);
 
 public slots:
-    void printDebug(QString str) { if(m_bPrintDebug) { qDebug() << str; } }
-    void setCapturePath(QString path) { m_CapturePath = path; }
+    void printDebug(const QString& str) { if(m_bPrintDebug) { qDebug() << str; } }
+    void setCapturePath(const QString& path);
     void resetCameraPosition() { m_Camera->reset(); }
 };
 

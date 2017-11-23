@@ -431,7 +431,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\QtAppHelpers\QtAppUtils.h">
-      <Filter>Generated Files</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
