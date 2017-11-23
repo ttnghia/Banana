@@ -49,9 +49,9 @@ in vec3  v_AnisotropyMatrix0;
 in vec3  v_AnisotropyMatrix1;
 in vec3  v_AnisotropyMatrix2;
 
-out vec3      f_ViewCenter;
-out vec3      f_Color;
-flat out mat3 f_AnisotropyMatrix;
+flat out vec3 f_ViewCenter;
+flat out vec3 f_Color;
+flat out mat3 f_AniMatrix;
 
 //------------------------------------------------------------------------------------------
 float rand(vec2 co)
@@ -140,9 +140,9 @@ void main()
 
     /////////////////////////////////////////////////////////////////
     // output
-    f_ViewCenter       = posEye;
-    f_Color            = generateVertexColor();
-    f_AnisotropyMatrix = (u_UseAniKernel == 0) ? mat3(0) : mat3(v_AnisotropyMatrix0, v_AnisotropyMatrix1, v_AnisotropyMatrix2);
+    f_ViewCenter = posEye;
+    f_Color      = generateVertexColor();
+    f_AniMatrix  = (u_UseAniKernel == 0) ? mat3(0) : mat3(v_AnisotropyMatrix0, v_AnisotropyMatrix1, v_AnisotropyMatrix2);
 
 #ifdef UNIT_SPHERE_ISOLATED_PARTICLE
     float sx = length(v_AnisotropyMatrix0);
@@ -155,7 +155,7 @@ void main()
                  0, 0, u_PointRadius, 0,
                  v_Position.x, v_Position.y, v_Position.z, 1.0);
 
-        f_AnisotropyMatrix = mat3(1);
+        f_AniMatrix = mat3(1);
     }
 #endif
 

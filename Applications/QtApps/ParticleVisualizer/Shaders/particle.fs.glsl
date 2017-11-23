@@ -46,10 +46,9 @@ uniform int   u_UseAnisotropyKernel;
 uniform int   u_ScreenWidth;
 uniform int   u_ScreenHeight;
 
-
-in vec3      f_ViewCenter;
-in vec3      f_Color;
-flat in mat3 f_AnisotropyMatrix;
+flat in vec3 f_ViewCenter;
+flat in vec3 f_Color;
+flat in mat3 f_AniMatrix;
 
 out vec4 outColor;
 
@@ -92,7 +91,7 @@ void main()
         vec4 worldPos = invProjectionMatrix * vec4(fc, 1.0);
         vec3 rayDir   = vec3(worldPos) / worldPos.w;
 
-        mat3 transMatrix    = mat3(viewMatrix) * f_AnisotropyMatrix * u_PointRadius;
+        mat3 transMatrix    = mat3(viewMatrix) * f_AniMatrix * u_PointRadius;
         mat3 transInvMatrix = inverse(transMatrix);
         mat3 normalMatrix   = transpose(inverse((transMatrix)));
 

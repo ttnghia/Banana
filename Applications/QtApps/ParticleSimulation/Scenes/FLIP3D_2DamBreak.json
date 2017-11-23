@@ -30,7 +30,7 @@
         "PIC_FLIP_Ratio" : 0.97,
         "CGRelativeTolerance" : 1e-10,
         "MaxCGIteration" : 1000,
-        "CellSize" : 0.02,
+        "CellSize" : 0.05,
         "CFLFactor" : 1
     },
     "ParticleGenerators":
@@ -39,7 +39,7 @@
             "GeometryType" : "Box",
             "UniqueName" : "BoxLeft",
             "BoxMin" : [-1, -1, -1],
-            "BoxMax" : [-0.25, 0.25, -0.25]
+            "BoxMax" : [-0.25, 0.5, -0.25]
         },
         {
             "GeometryType" : "Box",
