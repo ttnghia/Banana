@@ -135,7 +135,7 @@ public slots:
     void setColorDataMin(const Vec3f& colorMin) { m_RDataParticle.colorMinVal = colorMin; }
     void setColorDataMax(const Vec3f& colorMax) { m_RDataParticle.colorMaxVal = colorMax; }
     void setParticleMaterial(const Material::MaterialData& material);
-    void enableAniKernels(bool bAniKernel) { m_RDataParticle.useAnisotropyKernel = bAniKernel ? 1 : 0; }
+    void enableAniKernel(bool bAniKernel);
 private:
     struct RDataParticle
     {
@@ -156,8 +156,10 @@ private:
         GLuint ub_Light;
         GLuint ub_Material;
         GLuint u_nParticles;
-        GLuint u_MinPosition;
-        GLuint u_MaxPosition;
+        GLuint u_vPositionMin;
+        GLuint u_vPositionMax;
+        GLuint u_vAniKernelMin;
+        GLuint u_vAniKernelMax;
         GLuint u_PointRadius;
         GLuint u_ClipPlane;
         GLuint u_IsPointView;
@@ -173,10 +175,10 @@ private:
         GLuint  nParticles = 0;
         GLfloat pointRadius;
 
-        GLint isPointView         = 0;
-        GLint hasAnisotropyKernel = 0;
-        GLint useAnisotropyKernel = 0;
-        GLint pColorMode          = ParticleColorMode::Ramp;
+        GLint isPointView  = 0;
+        GLint useAniKernel = 0;
+        GLint hasAniKernel = 0;
+        GLint pColorMode   = ParticleColorMode::Ramp;
 
         UInt  dataDimension = 3u;
         float dMinPosition[3];

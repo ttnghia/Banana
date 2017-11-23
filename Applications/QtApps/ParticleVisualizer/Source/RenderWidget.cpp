@@ -111,7 +111,7 @@ void RenderWidget::updateVizData(Int currentFrame)
     ////////////////////////////////////////////////////////////////////////////////
     // upload ani kernel
     {
-        if(m_RDataParticle.useAnisotropyKernel) {
+        if(m_RDataParticle.useAniKernel) {
             if(m_VizData->particleReader.hasParticleAttribute("anisotropic_kernel")) {
                 const auto& aniKernelAttr = m_VizData->particleReader.getParticleAttributes()["anisotropic_kernel"];
                 ////////////////////////////////////////////////////////////////////////////////
@@ -125,9 +125,9 @@ void RenderWidget::updateVizData(Int currentFrame)
                 segmentSize   = nParticles * sizeof(UInt16) * m_RDataParticle.dataDimension * m_RDataParticle.dataDimension;
                 __BNN_ASSERT(segmentStart + segmentSize == aniKernelAttr->buffer.size());
                 m_RDataParticle.buffAniKernels->uploadDataAsync(&aniKernelAttr->buffer.data()[segmentStart], 0, segmentSize);
-                m_RDataParticle.hasAnisotropyKernel = 1;
+                m_RDataParticle.hasAniKernel = 1;
             } else {
-                m_RDataParticle.hasAnisotropyKernel = 0;
+                m_RDataParticle.hasAniKernel = 0;
             }
         }
     }
@@ -292,17 +292,19 @@ void RenderWidget::initRDataParticle()
     m_RDataParticle.ub_Light    = m_RDataParticle.shader->getUniformBlockIndex("Lights");
     m_RDataParticle.ub_Material = m_RDataParticle.shader->getUniformBlockIndex("Material");
 
-    m_RDataParticle.u_nParticles   = m_RDataParticle.shader->getUniformLocation("u_nParticles");
-    m_RDataParticle.u_PointRadius  = m_RDataParticle.shader->getUniformLocation("u_PointRadius");
-    m_RDataParticle.u_IsPointView  = m_RDataParticle.shader->getUniformLocation("u_IsPointView");
-    m_RDataParticle.u_UseAniKernel = m_RDataParticle.shader->getUniformLocation("u_UseAniKernel");
-    m_RDataParticle.u_MinPosition  = m_RDataParticle.shader->getUniformLocation("u_MinPosition");
-    m_RDataParticle.u_MaxPosition  = m_RDataParticle.shader->getUniformLocation("u_MaxPosition");
-    m_RDataParticle.u_ColorMode    = m_RDataParticle.shader->getUniformLocation("u_ColorMode");
-    m_RDataParticle.u_VColorMin    = m_RDataParticle.shader->getUniformLocation("u_VColorMin");
-    m_RDataParticle.u_VColorMax    = m_RDataParticle.shader->getUniformLocation("u_VColorMax");
-    m_RDataParticle.u_ColorMinVal  = m_RDataParticle.shader->getUniformLocation("u_ColorMinVal");
-    m_RDataParticle.u_ColorMaxVal  = m_RDataParticle.shader->getUniformLocation("u_ColorMaxVal");
+    m_RDataParticle.u_nParticles    = m_RDataParticle.shader->getUniformLocation("u_nParticles");
+    m_RDataParticle.u_PointRadius   = m_RDataParticle.shader->getUniformLocation("u_PointRadius");
+    m_RDataParticle.u_IsPointView   = m_RDataParticle.shader->getUniformLocation("u_IsPointView");
+    m_RDataParticle.u_UseAniKernel  = m_RDataParticle.shader->getUniformLocation("u_UseAniKernel");
+    m_RDataParticle.u_vPositionMin  = m_RDataParticle.shader->getUniformLocation("u_vPositionMin");
+    m_RDataParticle.u_vPositionMax  = m_RDataParticle.shader->getUniformLocation("u_vPositionMax");
+    m_RDataParticle.u_vAniKernelMin = m_RDataParticle.shader->getUniformLocation("u_vAniKernelMin");
+    m_RDataParticle.u_vAniKernelMax = m_RDataParticle.shader->getUniformLocation("u_vAniKernelMax");
+    m_RDataParticle.u_ColorMode     = m_RDataParticle.shader->getUniformLocation("u_ColorMode");
+    m_RDataParticle.u_VColorMin     = m_RDataParticle.shader->getUniformLocation("u_VColorMin");
+    m_RDataParticle.u_VColorMax     = m_RDataParticle.shader->getUniformLocation("u_VColorMax");
+    m_RDataParticle.u_ColorMinVal   = m_RDataParticle.shader->getUniformLocation("u_ColorMinVal");
+    m_RDataParticle.u_ColorMaxVal   = m_RDataParticle.shader->getUniformLocation("u_ColorMaxVal");
 
     m_RDataParticle.u_ScreenWidth  = m_RDataParticle.shader->getUniformLocation("u_ScreenWidth");
     m_RDataParticle.u_ScreenHeight = m_RDataParticle.shader->getUniformLocation("u_ScreenHeight");
@@ -334,19 +336,22 @@ void RenderWidget::initParticleVAO()
     glCall(glBindVertexArray(m_RDataParticle.VAO));
     glCall(glEnableVertexAttribArray(m_RDataParticle.v_Position));
 
+    auto dim = m_RDataParticle.dataDimension;
     ////////////////////////////////////////////////////////////////////////////////
     // position
     m_RDataParticle.buffPosition->bind();
-    glCall(glVertexAttribIPointer(m_RDataParticle.v_Position, 3, GL_UNSIGNED_SHORT, 0, reinterpret_cast<GLvoid*>(0)));
+    glCall(glVertexAttribIPointer(m_RDataParticle.v_Position, dim, GL_UNSIGNED_SHORT, 0, reinterpret_cast<GLvoid*>(0)));
     ////////////////////////////////////////////////////////////////////////////////
 
-//    m_RDataParticle.buffAniKernels->bind();
-//    glCall(glEnableVertexAttribArray(m_RDataParticle.v_AnisotropyMatrix0));
-//    glCall(glEnableVertexAttribArray(m_RDataParticle.v_AnisotropyMatrix1));
-//    glCall(glEnableVertexAttribArray(m_RDataParticle.v_AnisotropyMatrix2));
-//    glCall(glVertexAttribPointer(m_RDataParticle.v_AnisotropyMatrix0, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), reinterpret_cast<GLvoid*>(0)));
-//    glCall(glVertexAttribPointer(m_RDataParticle.v_AnisotropyMatrix1, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), reinterpret_cast<GLvoid*>(sizeof(GLfloat) * 3)));
-//    glCall(glVertexAttribPointer(m_RDataParticle.v_AnisotropyMatrix2, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), reinterpret_cast<GLvoid*>(sizeof(GLfloat) * 6)));
+    if(m_RDataParticle.useAniKernel && dim == 3u) {
+        m_RDataParticle.buffAniKernels->bind();
+        glCall(glEnableVertexAttribArray(m_RDataParticle.v_AnisotropyMatrix0));
+        glCall(glEnableVertexAttribArray(m_RDataParticle.v_AnisotropyMatrix1));
+        glCall(glEnableVertexAttribArray(m_RDataParticle.v_AnisotropyMatrix2));
+        glCall(glVertexAttribIPointer(m_RDataParticle.v_AnisotropyMatrix0, dim, GL_UNSIGNED_SHORT, dim * dim * sizeof(UInt16), reinterpret_cast<GLvoid*>(0)));
+        glCall(glVertexAttribIPointer(m_RDataParticle.v_AnisotropyMatrix1, dim, GL_UNSIGNED_SHORT, dim * dim * sizeof(UInt16), reinterpret_cast<GLvoid*>(sizeof(UInt16) * dim)));
+        glCall(glVertexAttribIPointer(m_RDataParticle.v_AnisotropyMatrix2, dim, GL_UNSIGNED_SHORT, dim * dim * sizeof(UInt16), reinterpret_cast<GLvoid*>(sizeof(UInt16) * dim * 2)));
+    }
 
     ////////////////////////////////////////////////////////////////////////////////
     // data for color
@@ -392,11 +397,13 @@ void RenderWidget::renderParticles()
     m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_ScreenWidth, width());
     m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_ScreenHeight, height());
 
-    m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_MinPosition, m_RDataParticle.dMinPosition, m_RDataParticle.dataDimension);
-    m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_MaxPosition, m_RDataParticle.dMaxPosition, m_RDataParticle.dataDimension);
+    m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_vPositionMin, m_RDataParticle.dMinPosition, m_RDataParticle.dataDimension);
+    m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_vPositionMax, m_RDataParticle.dMaxPosition, m_RDataParticle.dataDimension);
 
-    if(m_RDataParticle.useAnisotropyKernel && m_RDataParticle.hasAnisotropyKernel) {
+    if(m_RDataParticle.useAniKernel && m_RDataParticle.hasAniKernel) {
         m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_UseAniKernel, 1);
+        m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_vAniKernelMin, m_RDataParticle.vAniKernelMin);
+        m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_vAniKernelMax, m_RDataParticle.vAniKernelMax);
     } else {
         m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_UseAniKernel, 0);
     }
@@ -422,6 +429,16 @@ void RenderWidget::setParticleMaterial(const Material::MaterialData& material)
     makeCurrent();
     m_RDataParticle.material->setMaterial(material);
     m_RDataParticle.material->uploadDataToGPU();
+    doneCurrent();
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void RenderWidget::enableAniKernel(bool bAniKernel)
+{
+    m_RDataParticle.hasAniKernel = 0;
+    m_RDataParticle.useAniKernel = (bAniKernel && m_RDataParticle.dataDimension == 3u) ? 1 : 0;
+    makeCurrent();
+    initParticleVAO();
     doneCurrent();
 }
 

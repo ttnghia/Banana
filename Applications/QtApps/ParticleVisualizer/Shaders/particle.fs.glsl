@@ -42,7 +42,7 @@ layout(std140) uniform Material
 
 uniform int   u_ColorMode;
 uniform float u_PointRadius;
-uniform int   u_UseAnisotropyKernel;
+uniform int   u_UseAniKernel;
 uniform int   u_ScreenWidth;
 uniform int   u_ScreenHeight;
 
@@ -73,7 +73,7 @@ void main()
     vec3 normal;
     vec3 fragPos;
 
-    if(u_UseAnisotropyKernel == 0) {
+    if(u_UseAniKernel == 0) {
         normal.xy = gl_PointCoord.xy * vec2(2.0, -2.0) + vec2(-1.0, 1.0);
         float mag = dot(normal.xy, normal.xy);
 

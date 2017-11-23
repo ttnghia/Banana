@@ -42,10 +42,10 @@ uniform int   u_ScreenWidth;
 uniform int   u_ScreenHeight;
 
 //------------------------------------------------------------------------------------------
-uniform vec3  u_MinPosition;
-uniform vec3  u_MaxPosition;
-uniform float u_MinAniMatrix;
-uniform float u_MaxAniMatrix;
+uniform vec3  u_vPositionMin;
+uniform vec3  u_vPositionMax;
+uniform float u_vAniKernelMin;
+uniform float u_vAniKernelMax;
 
 in ivec3 v_Position;
 in float v_fColor;
@@ -127,20 +127,30 @@ void ComputePointSizeAndPosition(mat4 T)
 //------------------------------------------------------------------------------------------
 void main()
 {
-    vec3  diff     = u_MaxPosition - u_MinPosition;
-    vec3  position = v_Position * diff / 65535.0f + u_MinPosition;
+    vec3  diff     = u_vPositionMax - u_vPositionMin;
+    vec3  position = v_Position * diff / 65535.0f + u_vPositionMin;
     vec4  eyeCoord = viewMatrix * vec4(position, 1.0);
     vec3  posEye   = vec3(eyeCoord);
     float dist     = length(posEye);
+
+    vec3 aniMat0 = vec3(0);
+    vec3 aniMat1 = vec3(0);
+    vec3 aniMat2 = vec3(0);
+    if(u_UseAniKernel == 1) {
+        float diffA = u_vAniKernelMax - u_vAniKernelMin;
+        aniMat0 = v_AnisotropyMatrix0 * diffA / 65535.0f + vec3(u_vAniKernelMin);
+        aniMat1 = v_AnisotropyMatrix1 * diffA / 65535.0f + vec3(u_vAniKernelMin);
+        aniMat2 = v_AnisotropyMatrix2 * diffA / 65535.0f + vec3(u_vAniKernelMin);
+    }
 
     mat4 T = (u_UseAniKernel == 0) ?
              mat4(u_PointRadius, 0, 0, 0,
                   0, u_PointRadius, 0, 0,
                   0, 0, u_PointRadius, 0,
                   position.x, position.y, position.z, 1.0) :
-             mat4(v_AnisotropyMatrix0[0] * u_PointRadius, v_AnisotropyMatrix0[1] * u_PointRadius, v_AnisotropyMatrix0[2] * u_PointRadius, 0,
-                  v_AnisotropyMatrix1[0] * u_PointRadius, v_AnisotropyMatrix1[1] * u_PointRadius, v_AnisotropyMatrix1[2] * u_PointRadius, 0,
-                  v_AnisotropyMatrix2[0] * u_PointRadius, v_AnisotropyMatrix2[1] * u_PointRadius, v_AnisotropyMatrix2[2] * u_PointRadius, 0,
+             mat4(aniMat0[0] * u_PointRadius, aniMat0[1] * u_PointRadius, aniMat0[2] * u_PointRadius, 0,
+                  aniMat1[0] * u_PointRadius, aniMat1[1] * u_PointRadius, aniMat1[2] * u_PointRadius, 0,
+                  aniMat2[0] * u_PointRadius, aniMat2[1] * u_PointRadius, aniMat2[2] * u_PointRadius, 0,
                   position.x, position.y, position.z, 1.0);
 
 
@@ -149,12 +159,12 @@ void main()
     // output
     f_ViewCenter = posEye;
     f_Color      = generateVertexColor();
-    f_AniMatrix  = (u_UseAniKernel == 0) ? mat3(0) : mat3(v_AnisotropyMatrix0, v_AnisotropyMatrix1, v_AnisotropyMatrix2);
+    f_AniMatrix  = (u_UseAniKernel == 0) ? mat3(0) : mat3(aniMat0, aniMat1, aniMat2);
 
 #ifdef UNIT_SPHERE_ISOLATED_PARTICLE
-    float sx = length(v_AnisotropyMatrix0);
-    float sy = length(v_AnisotropyMatrix1);
-    float sz = length(v_AnisotropyMatrix2);
+    float sx = length(aniMat0);
+    float sy = length(aniMat1);
+    float sz = length(aniMat2);
 
     if(abs(sx - sy) < 1e-2 && abs(sy - sz) < 1e-2 && abs(sz - sx) < 1e-2) {
         T = mat4(u_PointRadius, 0, 0, 0,

@@ -142,8 +142,14 @@ void Controller::connectWidgets()
 
     ////////////////////////////////////////////////////////////////////////////////
     // misc controllers
-    connect(m_chkUseAniKernel, &QCheckBox::toggled, m_RenderWidget, &RenderWidget::enableAniKernels);
-    connect(m_chkUseAniKernel, &QCheckBox::toggled, m_DataReader, &DataReader::enableAniKernel);
+    connect(m_chkUseAniKernel, &QCheckBox::toggled, [&](bool bUseAniKernel)
+            {
+                m_RenderWidget->enableAniKernel(bUseAniKernel);
+                m_DataReader->enableAniKernel(bUseAniKernel);
+                if(bUseAniKernel) {
+                    m_DataReader->reloadCurrentFrame();
+                }
+            });
     connect(m_chkRenderBox, &QCheckBox::toggled, m_RenderWidget, &RenderWidget::setRenderBox);
     connect(m_pkrBoxColor, &ColorPicker::colorChanged, [&](float r, float g, float b) { m_RenderWidget->setBoxColor(Vec3f(r, g, b)); });
 
