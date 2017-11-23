@@ -51,6 +51,6 @@
     "VisualizationParameters":
     {
         "CameraPosition" : [0, 0.7, 3.2],
-        "CameraFocus" : [0, 0.2, 0]
+        "CameraFocus" : [0, -0.15, 0]
     }
 }
