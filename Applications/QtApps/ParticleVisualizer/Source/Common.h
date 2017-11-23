@@ -31,8 +31,8 @@
 #define DEFAULT_CHECKERBOARD_COLOR1 Vec3f(0.9)
 #define DEFAULT_CHECKERBOARD_COLOR2 Vec3f(0.5)
 #define DEFAULT_BOX_COLOR           Vec3f(0, 1, 0.5)
-#define DEFAULT_COLOR_DATA_MIN      Vec3f(0, 0, 1)
-#define DEFAULT_COLOR_DATA_MAX      Vec3f(1, 0, 0)
+#define DEFAULT_COLOR_DATA_MIN      Vec3f(0.7, 0.87, 0.88)
+#define DEFAULT_COLOR_DATA_MAX      Vec3f(0.98, 0.27, 0.35)
 
 #define CUSTOM_PARTICLE_MATERIAL     \
     {                                \
