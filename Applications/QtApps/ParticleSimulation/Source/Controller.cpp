@@ -340,7 +340,7 @@ void Controller::setupSimulationControllers(QBoxLayout* layoutCtr)
     grScene->setLayout(layoutScene);
     ////////////////////////////////////////////////////////////////////////////////
     m_OutputPath = new BrowsePathWidget("Browse");
-    m_OutputPath->setPath(getCapturePath());
+    m_OutputPath->setPath(getDefaultCapturePath());
     m_chkEnableOutput = new QCheckBox("Export to Images");
     QVBoxLayout* layoutOutput = new QVBoxLayout;
     layoutOutput->addWidget(m_chkEnableOutput);

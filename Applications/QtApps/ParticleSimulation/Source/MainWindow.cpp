@@ -211,6 +211,7 @@ void MainWindow::connectWidgets()
             });
 
     connect(m_Controller->m_chkEnableOutput, &QCheckBox::toggled, [&](bool checked) { m_bExportImg = checked; m_Simulator->enableExportImg(checked); });
+    connect(m_Simulator, &Simulator::capturePathChanged, m_RenderWidget, &RenderWidget::setCapturePath);
     ////////////////////////////////////////////////////////////////////////////////
     // sim status
     connect(m_Simulator, &Simulator::frameFinished,                      [&] { QMetaObject::invokeMethod(this, "finishFrame", Qt::QueuedConnection); });

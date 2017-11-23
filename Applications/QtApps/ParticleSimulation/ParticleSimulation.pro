@@ -28,6 +28,7 @@ TARGET = ParticleSimulation
 TEMPLATE = app
 CONFIG += console
 
+#QMAKE_LFLAGS += /VERBOSE
 #CONFIG += static
 
 INCLUDEPATH += $$PWD/Include

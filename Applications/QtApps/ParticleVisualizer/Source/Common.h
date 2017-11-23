@@ -96,7 +96,7 @@ inline QString getTexturePath()
     }
 }
 
-inline QString getCapturePath()
+inline QString getDefaultCapturePath()
 {
     AppConfigReader config("config.ini");
     if(config.isFileLoaded() && config.hasParam("CapturePath")) {

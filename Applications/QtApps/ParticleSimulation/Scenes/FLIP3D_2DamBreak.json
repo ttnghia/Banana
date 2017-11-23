@@ -22,13 +22,13 @@
         "SimulationDomainBox" :
         {
             "BoxMin" : [-1, -1, -1],
-            "BoxMax" : [ 1, 1, 1]
+            "BoxMax" : [ 1, 2, 1]
         },
         "CorrectPosition" : true,
         "RepulsiveForceStiffness" : 50,
         "AdvectionSteps" : 2,
         "PIC_FLIP_Ratio" : 0.97,
-        "CGRelativeTolerance" : 1e-18,
+        "CGRelativeTolerance" : 1e-10,
         "MaxCGIteration" : 1000,
         "CellSize" : 0.02,
         "CFLFactor" : 1
@@ -51,6 +51,7 @@
     "VisualizationParameters":
     {
         "CameraPosition" : [0, 0.7, 3.2],
-        "CameraFocus" : [0, -0.15, 0]
+        "CameraFocus" : [0, -0.2, 0],
+        "CapturePath" : "D:/Scratch/TwoDamBreak/Capture"
     }
 }

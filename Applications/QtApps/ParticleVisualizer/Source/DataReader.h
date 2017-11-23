@@ -133,6 +133,7 @@ signals:
     void cameraChanged();
     void domainBoxChanged();
     void lightsChanged();
+    void capturePathChanged(const QString& capturePath);
 private:
     void resetData();
     bool loadVizData(const QString& dataPath);

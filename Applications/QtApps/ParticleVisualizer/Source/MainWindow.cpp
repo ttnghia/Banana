@@ -193,7 +193,7 @@ void MainWindow::setupDataWidgets(QLayout* dataLayout)
     // output image path
     m_chkCaptureFrame = new QCheckBox("Export to Images");
     m_CapturePath     = new BrowsePathWidget(QIcon(":/Icons/save.png"));
-    m_CapturePath->setPath(getCapturePath());
+    m_CapturePath->setPath(getDefaultCapturePath());
     QHBoxLayout* exportImageLayout = new QHBoxLayout;
     exportImageLayout->addWidget(m_chkCaptureFrame);
     exportImageLayout->addLayout(m_CapturePath->getLayout());

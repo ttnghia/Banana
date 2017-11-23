@@ -163,6 +163,7 @@ void Controller::connectWidgets()
     connect(m_DataReader, &DataReader::domainBoxChanged, m_RenderWidget, &RenderWidget::updateBox);
     connect(m_DataReader, &DataReader::cameraChanged, m_RenderWidget, &RenderWidget::updateCamera);
     connect(m_DataReader, &DataReader::lightsChanged, m_RenderWidget, &RenderWidget::updateLights);
+    connect(m_DataReader, &DataReader::capturePathChanged, m_RenderWidget, &RenderWidget::setCapturePath);
 
     ////////////////////////////////////////////////////////////////////////////////
     // lights

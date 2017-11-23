@@ -119,6 +119,12 @@ bool DataReader::loadVizData(const QString& dataPath)
 
             emit lightsChanged();
         }
+
+        if(jVizParams.find("CapturePath") != jVizParams.end()) {
+            String capturePath;
+            JSONHelpers::readValue(jVizParams, capturePath, "CapturePath");
+            emit capturePathChanged(QString::fromStdString(capturePath));
+        }
     }
 
     __BNN_ASSERT(jParams.find("SimulationParameters") != jParams.end());

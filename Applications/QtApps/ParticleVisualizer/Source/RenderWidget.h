@@ -44,7 +44,6 @@ private:
     virtual void initOpenGL() override;
     virtual void resizeOpenGLWindow(int width, int height) override;
     virtual void renderOpenGL() override;
-    void         initCaptureDir();
     SharedPtr<VisualizationData> m_VizData = nullptr;
 
     Int  m_CurrentFrame          = 0;

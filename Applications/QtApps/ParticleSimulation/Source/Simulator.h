@@ -54,6 +54,7 @@ signals:
     void domainChanged();
     void cameraChanged();
     void lightsChanged();
+    void capturePathChanged(const QString& capturePath);
     void simulationFinished();
     void systemTimeChanged(float time, unsigned int frame);
     void numParticleChanged(UInt numParticles);

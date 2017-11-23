@@ -31,7 +31,7 @@ void RenderWidget::initOpenGL()
     initRDataFloor();
     initRDataBox();
     initRDataParticle();
-    initCaptureDir();
+    setCapturePath(getDefaultCapturePath());
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -73,16 +73,6 @@ void RenderWidget::renderOpenGL()
         if(exportScreenToImage(m_CurrentFrame)) {
             m_bCurrentFrameCaptured = true;
         }
-    }
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void RenderWidget::initCaptureDir()
-{
-    QString capturePath = getCapturePath();
-    setCapturePath(capturePath);
-    if(!QDir(capturePath).exists()) {
-        QDir().mkdir(capturePath);
     }
 }
 

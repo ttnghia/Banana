@@ -28,7 +28,7 @@ RenderWidget::RenderWidget(QWidget* parent, const SharedPtr<VisualizationData>& 
 {
     m_DefaultSize = QSize(1200, 1000);
     updateCamera();
-    initCaptureDir();
+    setCapturePath(getDefaultCapturePath());
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -75,16 +75,6 @@ void RenderWidget::renderOpenGL()
     renderFloor();
     renderBox();
     renderParticles();
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void RenderWidget::initCaptureDir()
-{
-    QString capturePath = getCapturePath();
-    setCapturePath(capturePath);
-    if(!QDir(capturePath).exists()) {
-        QDir().mkdir(capturePath);
-    }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
