@@ -31,11 +31,9 @@
 void Simulator::startSimulation()
 {
     m_bStop = false;
-
     if(m_SimulationFutureObj.valid()) {
         m_SimulationFutureObj.wait();
     }
-
     m_SimulationFutureObj = std::async(std::launch::async, [&] { doSimulation(); });
 }
 

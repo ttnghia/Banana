@@ -139,5 +139,7 @@ public:
         } else if(solverName == "MPM3D_Solver") {
             return dynamic_pointer_cast<SolverQtBase>(std::make_shared<SolverQt<MPM3D_Solver> >());
         }
+
+        return nullptr;
     }
 };
