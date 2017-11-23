@@ -63,9 +63,8 @@ void DataReader::resetData()
     connect(m_DataDirWatcher.get(), &QFileSystemWatcher::directoryChanged, this, &DataReader::countFrames);
 
     ////////////////////////////////////////////////////////////////////////////////
-    m_bHasAniKernel                              = false;
-    m_BasicAttrsWithColorData.back()             = String("");
-    m_BasicAttrsWithAniKernelAndColorData.back() = String("");
+    m_lstAttrPositionAniKernelObjIdx.back()   = String("");
+    m_lstAttrPositionAniKernelVelocity.back() = String("");
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -98,7 +97,6 @@ bool DataReader::loadVizData(const QString& dataPath)
     m_FrameDataPath = dataPath + QString("/") + QString::fromStdString(frameDataFolder);
     m_DataDirWatcher->addPath(m_FrameDataPath);
     countFrames();
-    readDataList();
 
     ////////////////////////////////////////////////////////////////////////////////
     if(jParams.find("VisualizationParameters") != jParams.end()) {
@@ -277,58 +275,23 @@ void DataReader::readFrame(int frame)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void DataReader::setColorDataName(const String& colorDataName)
-{
-    m_BasicAttrsWithColorData.back()             = colorDataName;
-    m_BasicAttrsWithAniKernelAndColorData.back() = colorDataName;
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void DataReader::readDataList()
-{
-    if(m_VizData->particleReader.readHeader(0) || m_VizData->particleReader.readHeader(1)) {
-        m_DataList.clear();
-        const auto& particleAttrs = m_VizData->particleReader.getParticleAttributes();
-        for(auto& kv: particleAttrs) {
-            String dataType = kv.second->typeName();
-            if(dataType.find_first_of("vector") > 0) {
-                continue;
-            }
-            dataType.insert(0, 20 - dataType.size(), ' ');
-
-            String dataAttrName = kv.first;
-            if(dataAttrName == "anisotropic_kernel") {
-                m_bHasAniKernel = true;
-            }
-
-            dataAttrName.insert(dataAttrName.end(), 20 - dataAttrName.size(), ' ');
-            dataAttrName += String(" | ");
-            String dataCount = std::to_string(kv.second->count);
-            dataCount.insert(0, 6 - dataCount.size(), ' ');
-            dataCount.insert(dataCount.end(), 10 - dataCount.size(), ' ');
-            dataAttrName += dataCount;
-            dataAttrName += String(" | ");
-            dataAttrName += dataType;
-            m_DataList.push_back(QString::fromStdString(dataAttrName));
-        }
-        emit particleDataListChanged(m_DataList);
-    }
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 bool DataReader::readParticles(int frameID, size_t& bytesRead)
 {
-    if(m_bUseAniKernel && m_bHasAniKernel) {
-        if(m_bColorFromData && !m_BasicAttrsWithAniKernelAndColorData.back().empty()) {
-            m_VizData->particleReader.read(frameID, m_BasicAttrsWithAniKernelAndColorData);
+    if(m_bUseAniKernel) {
+        if(m_ColorMode == ParticleColorMode::ObjectIndex) {
+            m_VizData->particleReader.read(frameID, m_lstAttrPositionAniKernelObjIdx, false);
+        } else if(m_ColorMode == ParticleColorMode::VelocityMagnitude) {
+            m_VizData->particleReader.read(frameID, m_lstAttrPositionAniKernelVelocity, false);
         } else {
-            m_VizData->particleReader.read(frameID, m_BasicAttrsWithAniKernel);
+            m_VizData->particleReader.read(frameID, m_lstAttrPositionAniKernel);
         }
     } else {
-        if(m_bColorFromData && !m_BasicAttrsWithColorData.back().empty()) {
-            m_VizData->particleReader.read(frameID, m_BasicAttrsWithColorData);
+        if(m_ColorMode == ParticleColorMode::ObjectIndex) {
+            m_VizData->particleReader.read(frameID, m_lstAttrPositionObjIdx, false);
+        } else if(m_ColorMode == ParticleColorMode::VelocityMagnitude) {
+            m_VizData->particleReader.read(frameID, m_lstAttrPositionVelocity, false);
         } else {
-            m_VizData->particleReader.read(frameID, m_BasicAttrs);
+            m_VizData->particleReader.read(frameID, m_lstAttrPosition);
         }
     }
     bytesRead += m_VizData->particleReader.getBytesRead();
@@ -338,11 +301,7 @@ bool DataReader::readParticles(int frameID, size_t& bytesRead)
     float particleRadius;
     __BNN_ASSERT(m_VizData->particleReader.getFixedAttribute("particle_radius", particleRadius));
 
-    if(fabs(particleRadius - m_VizData->particleRadius) > std::numeric_limits<float>::epsilon()) {
-        m_VizData->particleRadius = particleRadius;
-    }
-
-    if(nParticles != m_VizData->particleRadius) {
+    if(nParticles != m_VizData->nParticles) {
         m_VizData->nParticles = nParticles;
         emit numParticlesChanged(nParticles);
     }

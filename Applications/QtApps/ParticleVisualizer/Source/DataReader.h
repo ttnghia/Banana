@@ -79,9 +79,7 @@ struct VisualizationData
     ////////////////////////////////////////////////////////////////////////////////
     // particle data
     ParticleSerialization particleReader;
-    String                colorDataName;
-    float                 particleRadius;
-    UInt                  nParticles;
+    UInt                  nParticles; // for prev. frame, to sync with main window
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -115,9 +113,7 @@ struct VisualizationData
 
         ////////////////////////////////////////////////////////////////////////////////
         // particles
-        colorDataName  = String("");
-        particleRadius = 0;
-        nParticles     = 0;
+        nParticles = 0;
         ////////////////////////////////////////////////////////////////////////////////
     }
 };
@@ -181,23 +177,21 @@ private:
     // particles
 signals:
     void numParticlesChanged(UInt nParticles);
-    void particleDataListChanged(const QStringList& dataList);
     void particleDataChanged(Int currentFrame);
 public slots:
     void enableAniKernel(bool bUseAniKernel) { m_bUseAniKernel = bUseAniKernel; }
-    void setColorFromData(bool bColorFromData) { m_bColorFromData = bColorFromData; }
-    void setColorDataName(const String& colorDataName);
+    void setParticleColorMode(int colorMode) { m_ColorMode = colorMode; }
 private:
-    void readDataList();
     bool readParticles(int frameID, size_t& bytesRead);
     QStringList m_DataList;
-    bool        m_bUseAniKernel  = true;
-    bool        m_bHasAniKernel  = false;
-    bool        m_bColorFromData = false;
+    bool        m_bUseAniKernel = false;
+    int         m_ColorMode     = ParticleColorMode::Ramp;
 
-    const Vector<String> m_BasicAttrs                          = { "particle_radius", "position" };
-    const Vector<String> m_BasicAttrsWithAniKernel             = { "particle_radius", "position", "anisotropic_kernel" };
-    Vector<String>       m_BasicAttrsWithColorData             = { "particle_radius", "position", "" };
-    Vector<String>       m_BasicAttrsWithAniKernelAndColorData = { "particle_radius", "position", "anisotropic_kernel", "" };
+    const Vector<String> m_lstAttrPosition                  = { "particle_radius", "position" };
+    const Vector<String> m_lstAttrPositionObjIdx            = { "particle_radius", "position", "object_index", "NObjects" };
+    const Vector<String> m_lstAttrPositionVelocity          = { "particle_radius", "position", "velocity" };
+    const Vector<String> m_lstAttrPositionAniKernel         = { "particle_radius", "position", "anisotropic_kernel" };
+    Vector<String>       m_lstAttrPositionAniKernelObjIdx   = { "particle_radius", "position", "anisotropic_kernel", "object_index", "NObjects" };
+    Vector<String>       m_lstAttrPositionAniKernelVelocity = { "particle_radius", "position", "anisotropic_kernel", "velocity" };
     ////////////////////////////////////////////////////////////////////////////////
 };

@@ -115,39 +115,30 @@ void Controller::connectWidgets()
     // materials and particle color mode
     connect(m_smParticleColorMode, static_cast<void (QSignalMapper::*)(int)>(&QSignalMapper::mapped), this, [&](int colorMode)
             {
-                m_RenderWidget->setParticleColorMode(colorMode);
-                if(colorMode == ParticleColorMode::FromData) {
-                    m_DataReader->setColorFromData(true);
+                m_DataReader->setParticleColorMode(colorMode);
+                if(colorMode == ParticleColorMode::ObjectIndex ||
+                   colorMode == ParticleColorMode::VelocityMagnitude) {
                     m_DataReader->reloadCurrentFrame();
-                } else {
-                    m_DataReader->setColorFromData(false);
                 }
+
+                // this will call upload color data, which is just reloaded by data reader
+                m_RenderWidget->setParticleColorMode(colorMode);
             });
+    connect(m_msParticleMaterial, &MaterialSelector::materialChanged, m_RenderWidget, &RenderWidget::setParticleMaterial);
     connect(m_pkrColorDataMin, &ColorPicker::colorChanged, [&](float r, float g, float b) { m_RenderWidget->setColorDataMin(Vec3f(r, g, b)); });
     connect(m_pkrColorDataMax, &ColorPicker::colorChanged, [&](float r, float g, float b) { m_RenderWidget->setColorDataMax(Vec3f(r, g, b)); });
-    connect(m_msParticleMaterial, &MaterialSelector::materialChanged, m_RenderWidget, &RenderWidget::setParticleMaterial);
-    connect(m_lstParticleData, &QListWidget::currentTextChanged, [&](const QString& dataAttr)
+    connect(m_btnRndColor, &QPushButton::clicked, [&]
             {
-                if(dataAttr.isEmpty()) {
-                    return;
-                }
-                auto strAttr    = dataAttr.toStdString();
-                String dataName = strAttr.substr(0, strAttr.find_first_of("|"));
-                Int dataSize    = stoi(strAttr.substr(strAttr.find_first_of("|") + 1, strAttr.find_last_of("|")));
-                String dataType = strAttr.substr(strAttr.find_last_of("|") + 1);
-                STLHelpers::trim(dataName);
-                STLHelpers::trim(dataType);
-                ////////////////////////////////////////////////////////////////////////////////
-                m_RenderWidget->setColorData(dataName, dataSize);
-                m_DataReader->setColorDataName(dataName);
-            });
-    connect(m_DataReader, &DataReader::particleDataListChanged, [&](const QStringList& dataList)
-            {
-                m_lstParticleData->clear();
-                if(dataList.count() > 0) {
-                    m_lstParticleData->addItems(dataList);
-                    m_lstParticleData->setCurrentRow(0);
-                }
+                auto colorMin = Vec3f(NumberHelpers::generateRandomReal(0.0f, 1.0f),
+                                      NumberHelpers::generateRandomReal(0.0f, 1.0f),
+                                      NumberHelpers::generateRandomReal(0.0f, 1.0f));
+                auto colorMax = Vec3f(NumberHelpers::generateRandomReal(0.0f, 1.0f),
+                                      NumberHelpers::generateRandomReal(0.0f, 1.0f),
+                                      NumberHelpers::generateRandomReal(0.0f, 1.0f));
+                m_pkrColorDataMin->setColor(colorMin);
+                m_pkrColorDataMax->setColor(colorMax);
+                m_RenderWidget->setColorDataMin(colorMin);
+                m_RenderWidget->setColorDataMax(colorMax);
             });
     ////////////////////////////////////////////////////////////////////////////////
 
@@ -406,40 +397,29 @@ void Controller::setupColorModeControllers(QBoxLayout* layoutCtr)
     QRadioButton* rdbColorRandom  = new QRadioButton("Random");
     QRadioButton* rdbColorRamp    = new QRadioButton("Ramp");
     QRadioButton* rdbColorUniform = new QRadioButton("Uniform Material");
-    QRadioButton* rdbColorData    = new QRadioButton("From Data");
+    QRadioButton* rdbColorObjIdx  = new QRadioButton("Object Index");
+    QRadioButton* rdbColorVelMag  = new QRadioButton("Velocity Magnitude");
     rdbColorRamp->setChecked(true);
     ////////////////////////////////////////////////////////////////////////////////
     QGridLayout* layoutColorMode = new QGridLayout;
     layoutColorMode->addWidget(rdbColorRandom, 0, 0, 1, 1);
     layoutColorMode->addWidget(rdbColorRamp, 0, 1, 1, 1);
     layoutColorMode->addWidget(rdbColorUniform, 1, 0, 1, 1);
-    layoutColorMode->addWidget(rdbColorData, 1, 1, 1, 1);
-    ////////////////////////////////////////////////////////////////////////////////
-    QGroupBox* grColorMode = new QGroupBox;
-    grColorMode->setTitle("Particle Color");
-    grColorMode->setLayout(layoutColorMode);
-    layoutCtr->addWidget(grColorMode);
+    layoutColorMode->addWidget(rdbColorObjIdx, 1, 1, 1, 1);
+    layoutColorMode->addWidget(rdbColorVelMag, 2, 0, 1, 1);
     ////////////////////////////////////////////////////////////////////////////////
     m_smParticleColorMode = new QSignalMapper(this);
     connect(rdbColorRandom, SIGNAL(clicked()), m_smParticleColorMode, SLOT(map()));
     connect(rdbColorRamp, SIGNAL(clicked()), m_smParticleColorMode, SLOT(map()));
     connect(rdbColorUniform, SIGNAL(clicked()), m_smParticleColorMode, SLOT(map()));
-    connect(rdbColorData, SIGNAL(clicked()), m_smParticleColorMode, SLOT(map()));
+    connect(rdbColorObjIdx, SIGNAL(clicked()), m_smParticleColorMode, SLOT(map()));
+    connect(rdbColorVelMag, SIGNAL(clicked()), m_smParticleColorMode, SLOT(map()));
 
     m_smParticleColorMode->setMapping(rdbColorRandom, static_cast<int>(ParticleColorMode::Random));
     m_smParticleColorMode->setMapping(rdbColorRamp, static_cast<int>(ParticleColorMode::Ramp));
     m_smParticleColorMode->setMapping(rdbColorUniform, static_cast<int>(ParticleColorMode::UniformMaterial));
-    m_smParticleColorMode->setMapping(rdbColorData, static_cast<int>(ParticleColorMode::FromData));
-    ////////////////////////////////////////////////////////////////////////////////
-    m_lstParticleData = new QListWidget;;
-    QVBoxLayout* layoutDataList = new QVBoxLayout;
-    layoutDataList->addSpacing(10);
-    layoutDataList->addWidget(m_lstParticleData);
-    QGroupBox* grDataList = new QGroupBox;
-    layoutColorMode->addWidget(grDataList, 2, 0, 1, 2);
-    grDataList->setVisible(false);
-    grDataList->setLayout(layoutDataList);
-    connect(rdbColorData, &QRadioButton::toggled, grDataList, &QGroupBox::setVisible);
+    m_smParticleColorMode->setMapping(rdbColorObjIdx, static_cast<int>(ParticleColorMode::ObjectIndex));
+    m_smParticleColorMode->setMapping(rdbColorVelMag, static_cast<int>(ParticleColorMode::VelocityMagnitude));
     ////////////////////////////////////////////////////////////////////////////////
     QFrame* line = new QFrame();
     line->setFrameShape(QFrame::HLine);
@@ -449,17 +429,27 @@ void Controller::setupColorModeControllers(QBoxLayout* layoutCtr)
     m_pkrColorDataMax = new ColorPicker;
     m_pkrColorDataMin->setColor(DEFAULT_COLOR_DATA_MIN);
     m_pkrColorDataMax->setColor(DEFAULT_COLOR_DATA_MAX);
+    m_btnRndColor = new QPushButton("Rand Color");
     QHBoxLayout* layoutColorData = new QHBoxLayout;
     layoutColorData->addWidget(new QLabel("Color min/max:"), 10);
     layoutColorData->addStretch(1);
     layoutColorData->addWidget(m_pkrColorDataMin, 10);
     layoutColorData->addStretch(1);
     layoutColorData->addWidget(m_pkrColorDataMax, 10);
-
-    layoutDataList->addSpacing(5);
-    layoutDataList->addWidget(line);
-    layoutDataList->addSpacing(5);
-    layoutDataList->addLayout(layoutColorData);
+    layoutColorData->addStretch(1);
+    layoutColorData->addWidget(m_btnRndColor, 10);
+    ////////////////////////////////////////////////////////////////////////////////
+    QVBoxLayout* layoutColorCtrls = new QVBoxLayout;
+    layoutColorCtrls->addLayout(layoutColorMode);
+    layoutColorCtrls->addSpacing(5);
+    layoutColorCtrls->addWidget(line);
+    layoutColorCtrls->addSpacing(5);
+    layoutColorCtrls->addLayout(layoutColorData);
+    ////////////////////////////////////////////////////////////////////////////////
+    QGroupBox* grColorMode = new QGroupBox;
+    grColorMode->setTitle("Particle Color");
+    grColorMode->setLayout(layoutColorCtrls);
+    layoutCtr->addWidget(grColorMode);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

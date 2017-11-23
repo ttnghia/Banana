@@ -1,10 +1,11 @@
 // vertex shader, particle render
 #version 410 core
 
-#define COLOR_MODE_UNIFORM_MATERIAL 0
-#define COLOR_MODE_RANDOM           1
-#define COLOR_MODE_RAMP             2
-#define COLOR_MODE_FROM_DATA        3
+#define COLOR_MODE_UNIFORM_MATERIAL   0
+#define COLOR_MODE_RANDOM             1
+#define COLOR_MODE_RAMP               2
+#define COLOR_MODE_OBJ_INDEX          3
+#define COLOR_MODE_VELOCITY_MAGNITUDE 4
 
 #define UNIT_SPHERE_ISOLATED_PARTICLE
 
@@ -26,17 +27,17 @@ layout(std140) uniform CameraData
     vec4 camPosition;
 };
 
-uniform uint u_nParticles;
-uniform int  u_ColorMode;
-uniform int  u_ColorDataSize;
-uniform vec3 u_ColorDataMin;
-uniform vec3 u_ColorDataMax;
+uniform uint  u_nParticles;
+uniform int   u_ColorMode;
+uniform float u_VColorMin;
+uniform float u_VColorMax;
+uniform vec3  u_ColorMinVal;
+uniform vec3  u_ColorMaxVal;
 
-//uniform float u_PointScale;
 uniform vec4  u_ClipPlane;
 uniform float u_PointRadius;
 uniform int   u_IsPointView;
-uniform int   u_UseAnisotropyKernel;
+uniform int   u_UseAniKernel;
 uniform int   u_ScreenWidth;
 uniform int   u_ScreenHeight;
 
@@ -47,8 +48,8 @@ uniform float u_MinAniMatrix;
 uniform float u_MaxAniMatrix;
 
 in ivec3 v_Position;
-in int   v_Color1;
-in ivec3 v_Color3;
+in int   v_fColor;
+in ivec3 v_iColor;
 in ivec3 v_AnisotropyMatrix0;
 in ivec3 v_AnisotropyMatrix1;
 in ivec3 v_AnisotropyMatrix2;
@@ -81,14 +82,12 @@ vec3 generateVertexColor()
         vec3  startVal    = colorRamp[int(segment)];
         vec3  endVal      = colorRamp[int(segment) + 1];
         return mix(startVal, endVal, t);
+    } else if(u_ColorMode == COLOR_MODE_OBJ_INDEX) {
+        float t = (float(v_iColor) - u_VColorMin) / (u_VColorMax - u_VColorMin);
+        return mix(u_ColorMinVal, u_ColorMaxVal, t);
     } else {
-        if(u_ColorDataSize == 1) {
-            return mix(u_ColorDataMin, u_ColorDataMax, float(v_Color1) / 65535.0f);
-        } else {
-            return vec3(mix(u_ColorDataMin.x, u_ColorDataMax.x, float(v_Color3.x) / 65535.0f),
-                        mix(u_ColorDataMin.y, u_ColorDataMax.y, float(v_Color3.y) / 65535.0f),
-                        mix(u_ColorDataMin.z, u_ColorDataMax.z, float(v_Color3.z) / 65535.0f));
-        }
+        float t = (v_fColor - u_VColorMin) / (u_VColorMax - u_VColorMin);
+        return mix(u_ColorMinVal, u_ColorMaxVal, t);
     }
 }
 
@@ -130,7 +129,7 @@ void main()
     vec3  posEye   = vec3(eyeCoord);
     float dist     = length(posEye);
 
-    mat4 T = (u_UseAnisotropyKernel == 0) ?
+    mat4 T = (u_UseAniKernel == 0) ?
              mat4(u_PointRadius, 0, 0, 0,
                   0, u_PointRadius, 0, 0,
                   0, 0, u_PointRadius, 0,
@@ -146,7 +145,7 @@ void main()
     // output
     f_ViewCenter       = posEye;
     f_Color            = generateVertexColor();
-    f_AnisotropyMatrix = (u_UseAnisotropyKernel == 0) ? mat3(0) : mat3(v_AnisotropyMatrix0, v_AnisotropyMatrix1, v_AnisotropyMatrix2);
+    f_AnisotropyMatrix = (u_UseAniKernel == 0) ? mat3(0) : mat3(v_AnisotropyMatrix0, v_AnisotropyMatrix1, v_AnisotropyMatrix2);
 
 #ifdef UNIT_SPHERE_ISOLATED_PARTICLE
     float sx = length(v_AnisotropyMatrix0);

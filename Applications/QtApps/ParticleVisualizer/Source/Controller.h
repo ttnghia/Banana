@@ -103,9 +103,9 @@ private:
     // color mode
     void setupColorModeControllers(QBoxLayout* layoutCtr);
     QSignalMapper* m_smParticleColorMode;
-    QListWidget*   m_lstParticleData;
     ColorPicker*   m_pkrColorDataMin;
     ColorPicker*   m_pkrColorDataMax;
+    QPushButton*   m_btnRndColor;
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
