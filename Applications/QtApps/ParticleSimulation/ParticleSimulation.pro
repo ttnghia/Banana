@@ -52,6 +52,7 @@ RESOURCES += \
     Shader.qrc
 
 DISTFILES += \
+    Scenes/FLIP3D_2DamBreak.json \
     Scenes/FLIP3D_BallDrop.json \
     Scenes/FLIP3D_RotationalBoxBoundary.json \
     Scenes/MPM2D_2Spheres.json \
