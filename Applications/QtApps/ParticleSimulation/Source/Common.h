@@ -34,13 +34,13 @@
 #define DEFAULT_COLOR_DATA_MIN      Vec3f(0, 0, 1)
 #define DEFAULT_COLOR_DATA_MAX      Vec3f(1, 0, 0)
 
-#define CUSTOM_PARTICLE_MATERIAL         \
-    {                                    \
-        glm::vec4(0.2 * 0.2),            \
-        glm::vec4(1.0, 0.63, 0.3, 1.00), \
-        glm::vec4(1),                    \
-        250.0,                           \
-        std::string("ParticleMaterial")  \
+#define CUSTOM_PARTICLE_MATERIAL     \
+    {                                \
+        Vec4f(0.2 * 0.2),            \
+        Vec4f(1.0, 0.63, 0.3, 1.00), \
+        Vec4f(1),                    \
+        250.0,                       \
+        String("ParticleMaterial")   \
     }
 
 
