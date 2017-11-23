@@ -171,6 +171,7 @@ void Controller::connectWidgets()
     ////////////////////////////////////////////////////////////////////////////////
     //  data handle
     connect(m_DataReader, &DataReader::particleDataChanged, m_RenderWidget, &RenderWidget::updateVizData);
+    connect(m_DataReader, &DataReader::domainBoxChanged, m_RenderWidget, &RenderWidget::updateBox);
 
     ////////////////////////////////////////////////////////////////////////////////
     // lights
