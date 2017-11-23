@@ -81,8 +81,12 @@ vec3 generateVertexColor()
         float t = (float(v_iColor) - u_VColorMin) / (u_VColorMax - u_VColorMin);
         return mix(u_ColorMinVal, u_ColorMaxVal, t);
     } else {
-        float t = (v_fColor - u_VColorMin) / (u_VColorMax - u_VColorMin);
-        return mix(u_ColorMinVal, u_ColorMaxVal, t);
+        float range = u_VColorMax - u_VColorMin;
+        if(range > 0) {
+            return mix(u_ColorMinVal, u_ColorMaxVal, (v_fColor - u_VColorMin) / range);
+        } else {
+            return u_ColorMinVal;
+        }
     }
 }
 

@@ -237,13 +237,11 @@ void MainWindow::setupStatusBar()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MainWindow::connectWidgets()
 {
-    connect(m_Controller->m_chkReadFrameInstantly, &QCheckBox::toggled, m_sldFrame, &QSlider::setTracking);
-
     connect(m_InputPath,  &BrowsePathWidget::pathChanged, m_DataReader, &DataReader::setDataPath);
     connect(m_CapturePath,  &BrowsePathWidget::pathChanged, m_RenderWidget, &RenderWidget::setCapturePath);
     connect(m_chkCaptureFrame, &QCheckBox::toggled, m_RenderWidget, &RenderWidget::setCaptureFrame);
 
-    connect(m_sldFrame,   &QSlider::valueChanged,         m_DataReader, &DataReader::readFrame);
+    connect(m_sldFrame,   &QSlider::sliderMoved, m_DataReader, &DataReader::readFrame);
 
     connect(m_DataReader, &DataReader::currentFrameChanged,  m_sldFrame, &QSlider::setValue);
     connect(m_DataReader, &DataReader::currentFrameChanged,  this,       &MainWindow::updateStatusCurrentFrame);

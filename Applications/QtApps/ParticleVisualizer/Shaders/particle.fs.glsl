@@ -1,12 +1,13 @@
 // fragment shader, particle render
 #version 410 core
 
-#define COLOR_MODE_UNIFORM_MATERIAL 0
-#define COLOR_MODE_RANDOM           1
-#define COLOR_MODE_RAMP             2
-#define COLOR_MODE_FROM_DATA        3
+#define COLOR_MODE_UNIFORM_MATERIAL   0
+#define COLOR_MODE_RANDOM             1
+#define COLOR_MODE_RAMP               2
+#define COLOR_MODE_OBJ_INDEX          3
+#define COLOR_MODE_VELOCITY_MAGNITUDE 4
 
-#define NUM_TOTAL_LIGHTS            8
+#define NUM_TOTAL_LIGHTS              8
 struct PointLight
 {
     vec4 ambient;

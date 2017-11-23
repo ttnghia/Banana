@@ -171,7 +171,7 @@ private:
 
         GLint isPointView         = 0;
         GLint useAnisotropyKernel = 1;
-        GLint hasAnisotropyKernel = 0;
+        GLint hasAniKernel        = 0;
         GLint pColorMode          = ParticleColorMode::Ramp;
 
         float vColorMin   = 0;

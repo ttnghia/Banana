@@ -407,7 +407,7 @@ void Controller::setupColorModeControllers(QBoxLayout* layoutCtr)
     m_pkrColorDataMax = new ColorPicker;
     m_pkrColorDataMin->setColor(DEFAULT_COLOR_DATA_MIN);
     m_pkrColorDataMax->setColor(DEFAULT_COLOR_DATA_MAX);
-    m_btnRndColor = new QPushButton("Rand Color");
+    m_btnRndColor = new QPushButton("Rnd Color");
     QHBoxLayout* layoutColorData = new QHBoxLayout;
     layoutColorData->addWidget(new QLabel("Color min/max:"), 10);
     layoutColorData->addStretch(1);

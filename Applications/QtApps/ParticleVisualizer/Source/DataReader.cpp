@@ -242,7 +242,7 @@ void DataReader::countFrames()
 void DataReader::readNextFrame()
 {
     int nextFrame = m_bReverse ? m_CurrentFrame - m_FrameStride : m_CurrentFrame + m_FrameStride;
-    if(!m_bRepeat && (nextFrame < 0 || nextFrame > m_nFrames)) {
+    if(!m_bRepeat && (nextFrame < 0 || nextFrame >= m_nFrames)) {
         return;
     }
 
@@ -251,7 +251,6 @@ void DataReader::readNextFrame()
     } else if(nextFrame > m_nFrames) {
         nextFrame = 0;
     }
-
     readFrame(nextFrame);
 }
 
@@ -277,25 +276,29 @@ void DataReader::readFrame(int frame)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 bool DataReader::readParticles(int frameID, size_t& bytesRead)
 {
+    bool success = false;
     if(m_bUseAniKernel) {
         if(m_ColorMode == ParticleColorMode::ObjectIndex) {
-            m_VizData->particleReader.read(frameID, m_lstAttrPositionAniKernelObjIdx, false);
+            success = m_VizData->particleReader.read(frameID, m_lstAttrPositionAniKernelObjIdx, false);
         } else if(m_ColorMode == ParticleColorMode::VelocityMagnitude) {
-            m_VizData->particleReader.read(frameID, m_lstAttrPositionAniKernelVelocity, false);
+            success = m_VizData->particleReader.read(frameID, m_lstAttrPositionAniKernelVelocity, false);
         } else {
-            m_VizData->particleReader.read(frameID, m_lstAttrPositionAniKernel);
+            success = m_VizData->particleReader.read(frameID, m_lstAttrPositionAniKernel);
         }
     } else {
         if(m_ColorMode == ParticleColorMode::ObjectIndex) {
-            m_VizData->particleReader.read(frameID, m_lstAttrPositionObjIdx, false);
+            success = m_VizData->particleReader.read(frameID, m_lstAttrPositionObjIdx, false);
         } else if(m_ColorMode == ParticleColorMode::VelocityMagnitude) {
-            m_VizData->particleReader.read(frameID, m_lstAttrPositionVelocity, false);
+            success = m_VizData->particleReader.read(frameID, m_lstAttrPositionVelocity, false);
         } else {
-            m_VizData->particleReader.read(frameID, m_lstAttrPosition);
+            success = m_VizData->particleReader.read(frameID, m_lstAttrPosition);
         }
     }
-    bytesRead += m_VizData->particleReader.getBytesRead();
+    if(!success) {
+        return false;
+    }
 
+    bytesRead += m_VizData->particleReader.getBytesRead();
     ////////////////////////////////////////////////////////////////////////////////
     UInt  nParticles = m_VizData->particleReader.getNParticles();
     float particleRadius;

@@ -113,9 +113,9 @@ void RenderWidget::updateVizData()
         if(m_VizData->aniKernel != nullptr) {
             auto aniKernelDataSize = m_VizData->nParticles * m_VizData->systemDimension * m_VizData->systemDimension * sizeof(float);
             m_RDataParticle.buffAniKernels->uploadDataAsync(m_VizData->aniKernel, 0, aniKernelDataSize);
-            m_RDataParticle.hasAnisotropyKernel = 1;
+            m_RDataParticle.hasAniKernel = 1;
         } else {
-            m_RDataParticle.hasAnisotropyKernel = 0;
+            m_RDataParticle.hasAniKernel = 0;
         }
     }
     ////////////////////////////////////////////////////////////////////////////////
@@ -126,6 +126,7 @@ void RenderWidget::updateVizData()
        m_RDataParticle.pColorMode == ParticleColorMode::VelocityMagnitude) {
         if(m_RDataParticle.pColorMode == ParticleColorMode::ObjectIndex) {
             m_RDataParticle.buffColorData->uploadDataAsync(m_VizData->objIndex, 0, m_VizData->nParticles);
+            m_RDataParticle.vColorMin = 0;
             m_RDataParticle.vColorMax = static_cast<float>(m_VizData->nObjects - 1);
         } else {
             static Vec_Float velMag2;
@@ -139,6 +140,7 @@ void RenderWidget::updateVizData()
                 __BNN_ASSERT(velPtr != nullptr);
                 ParallelFuncs::parallel_for(velMag2.size(), [&](size_t i) { velMag2[i] = glm::length2(velPtr[i]); });
             }
+            m_RDataParticle.vColorMin = ParallelSTL::min(velMag2);
             m_RDataParticle.vColorMax = ParallelSTL::max(velMag2);
             m_RDataParticle.buffColorData->uploadDataAsync(velMag2.data(), 0, velMag2.size() * sizeof(float));
         }
@@ -344,7 +346,7 @@ void RenderWidget::renderParticles()
     m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_ScreenWidth, width());
     m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_ScreenHeight, height());
 
-    if(m_RDataParticle.useAnisotropyKernel && m_RDataParticle.hasAnisotropyKernel) {
+    if(m_RDataParticle.useAnisotropyKernel && m_RDataParticle.hasAniKernel) {
         m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_UseAniKernel, 1);
     } else {
         m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_UseAniKernel, 0);

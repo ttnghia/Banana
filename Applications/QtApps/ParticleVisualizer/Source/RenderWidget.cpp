@@ -153,6 +153,7 @@ void RenderWidget::updateVizData(Int currentFrame)
                 __BNN_ASSERT(m_VizData->particleReader.hasFixedAttribute("NObjects"));
                 UInt nObjects;
                 m_VizData->particleReader.getFixedAttribute("NObjects", nObjects);
+                m_RDataParticle.vColorMin = 0;
                 m_RDataParticle.vColorMax = static_cast<float>(nObjects - 1);
                 ////////////////////////////////////////////////////////////////////////////////
                 m_RDataParticle.buffColorData->uploadDataAsync(objIdxAttr->buffer.data(), 0, nParticles);
@@ -168,6 +169,7 @@ void RenderWidget::updateVizData(Int currentFrame)
                     __BNN_ASSERT(m_VizData->particleReader.getParticleAttribute("velocity", velocity));
                     ParallelFuncs::parallel_for(velMag2.size(), [&](size_t i) { velMag2[i] = glm::length2(velocity[i]); });
                 }
+                m_RDataParticle.vColorMin = ParallelSTL::min(velMag2);
                 m_RDataParticle.vColorMax = ParallelSTL::max(velMag2);
                 m_RDataParticle.buffColorData->uploadDataAsync(velMag2.data(), 0, velMag2.size() * sizeof(float));
             }

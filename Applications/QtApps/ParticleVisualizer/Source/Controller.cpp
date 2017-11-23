@@ -427,7 +427,7 @@ void Controller::setupColorModeControllers(QBoxLayout* layoutCtr)
     m_pkrColorDataMax = new ColorPicker;
     m_pkrColorDataMin->setColor(DEFAULT_COLOR_DATA_MIN);
     m_pkrColorDataMax->setColor(DEFAULT_COLOR_DATA_MAX);
-    m_btnRndColor = new QPushButton("Rand Color");
+    m_btnRndColor = new QPushButton("Rnd Color");
     QHBoxLayout* layoutColorData = new QHBoxLayout;
     layoutColorData->addWidget(new QLabel("Color min/max:"), 10);
     layoutColorData->addStretch(1);
@@ -453,8 +453,6 @@ void Controller::setupColorModeControllers(QBoxLayout* layoutCtr)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Controller::setupMiscControllers(QBoxLayout* layoutCtr)
 {
-    m_chkReadFrameInstantly = new QCheckBox("Read frame instantly when slider drag");
-    m_chkReadFrameInstantly->setChecked(true);
     ////////////////////////////////////////////////////////////////////////////////
     m_chkUseAniKernel = new QCheckBox("Enable anisotropic kernel (if available)");
     ////////////////////////////////////////////////////////////////////////////////
@@ -475,7 +473,6 @@ void Controller::setupMiscControllers(QBoxLayout* layoutCtr)
     line->setFrameShape(QFrame::HLine);
     line->setFrameShadow(QFrame::Sunken);
     ////////////////////////////////////////////////////////////////////////////////
-    layoutMiscCtrls->addWidget(m_chkReadFrameInstantly);
     layoutMiscCtrls->addWidget(m_chkUseAniKernel);
     layoutMiscCtrls->addSpacing(5);
     layoutMiscCtrls->addWidget(line);

@@ -48,8 +48,8 @@ uniform float u_MinAniMatrix;
 uniform float u_MaxAniMatrix;
 
 in ivec3 v_Position;
-in int   v_fColor;
-in ivec3 v_iColor;
+in float v_fColor;
+in int   v_iColor;
 in ivec3 v_AnisotropyMatrix0;
 in ivec3 v_AnisotropyMatrix1;
 in ivec3 v_AnisotropyMatrix2;
@@ -86,8 +86,12 @@ vec3 generateVertexColor()
         float t = (float(v_iColor) - u_VColorMin) / (u_VColorMax - u_VColorMin);
         return mix(u_ColorMinVal, u_ColorMaxVal, t);
     } else {
-        float t = (v_fColor - u_VColorMin) / (u_VColorMax - u_VColorMin);
-        return mix(u_ColorMinVal, u_ColorMaxVal, t);
+        float range = u_VColorMax - u_VColorMin;
+        if(range > 0) {
+            return mix(u_ColorMinVal, u_ColorMaxVal, (v_fColor - u_VColorMin) / range);
+        } else {
+            return u_ColorMinVal;
+        }
     }
 }
 
