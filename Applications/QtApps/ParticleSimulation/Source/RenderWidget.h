@@ -162,7 +162,7 @@ private:
         GLuint u_VColorMax;
         GLuint u_ColorMinVal;
         GLuint u_ColorMaxVal;
-        GLuint u_UseAnisotropyKernel;
+        GLuint u_UseAniKernel;
         GLuint u_ScreenWidth;
         GLuint u_ScreenHeight;
 
@@ -173,15 +173,17 @@ private:
         GLint useAnisotropyKernel = 1;
         GLint hasAnisotropyKernel = 0;
         GLint pColorMode          = ParticleColorMode::Ramp;
-        float vColorMin           = 0;
-        float vColorMax           = 1.0f;
-        Vec3f colorMinVal         = DEFAULT_COLOR_DATA_MIN;
-        Vec3f colorMaxVal         = DEFAULT_COLOR_DATA_MAX;
-        bool  initialized         = false;
+
+        float vColorMin   = 0;
+        float vColorMax   = 1.0f;
+        Vec3f colorMinVal = DEFAULT_COLOR_DATA_MIN;
+        Vec3f colorMaxVal = DEFAULT_COLOR_DATA_MAX;
+
+        bool initialized = false;
     } m_RDataParticle;
 
     void initRDataParticle();
-    void initParticlesVAO();
+    void initParticleVAO();
     void renderParticles();
     ////////////////////////////////////////////////////////////////////////////////
 };

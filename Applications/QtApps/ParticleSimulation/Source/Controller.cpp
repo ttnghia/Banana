@@ -108,9 +108,22 @@ void Controller::connectWidgets()
             {
                 m_msParticleMaterial->getComboBox()->setEnabled(colorMode == ParticleColorMode::UniformMaterial);
             });
+    connect(m_msParticleMaterial, &MaterialSelector::materialChanged, m_RenderWidget, &RenderWidget::setParticleMaterial);
     connect(m_pkrColorDataMin, &ColorPicker::colorChanged, [&](float r, float g, float b) { m_RenderWidget->setColorDataMin(Vec3f(r, g, b)); });
     connect(m_pkrColorDataMax, &ColorPicker::colorChanged, [&](float r, float g, float b) { m_RenderWidget->setColorDataMax(Vec3f(r, g, b)); });
-    connect(m_msParticleMaterial, &MaterialSelector::materialChanged, m_RenderWidget, &RenderWidget::setParticleMaterial);
+    connect(m_btnRndColor, &QPushButton::clicked, [&]
+            {
+                auto colorMin = Vec3f(NumberHelpers::generateRandomReal(0.0f, 1.0f),
+                                      NumberHelpers::generateRandomReal(0.0f, 1.0f),
+                                      NumberHelpers::generateRandomReal(0.0f, 1.0f));
+                auto colorMax = Vec3f(NumberHelpers::generateRandomReal(0.0f, 1.0f),
+                                      NumberHelpers::generateRandomReal(0.0f, 1.0f),
+                                      NumberHelpers::generateRandomReal(0.0f, 1.0f));
+                m_pkrColorDataMin->setColor(colorMin);
+                m_pkrColorDataMax->setColor(colorMax);
+                m_RenderWidget->setColorDataMin(colorMin);
+                m_RenderWidget->setColorDataMax(colorMax);
+            });
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -394,7 +407,7 @@ void Controller::setupColorModeControllers(QBoxLayout* layoutCtr)
     m_pkrColorDataMax = new ColorPicker;
     m_pkrColorDataMin->setColor(DEFAULT_COLOR_DATA_MIN);
     m_pkrColorDataMax->setColor(DEFAULT_COLOR_DATA_MAX);
-    QPushButton* btnRndColor     = new QPushButton("Rand Color");
+    m_btnRndColor = new QPushButton("Rand Color");
     QHBoxLayout* layoutColorData = new QHBoxLayout;
     layoutColorData->addWidget(new QLabel("Color min/max:"), 10);
     layoutColorData->addStretch(1);
@@ -402,21 +415,7 @@ void Controller::setupColorModeControllers(QBoxLayout* layoutCtr)
     layoutColorData->addStretch(1);
     layoutColorData->addWidget(m_pkrColorDataMax, 10);
     layoutColorData->addStretch(1);
-    layoutColorData->addWidget(btnRndColor, 10);
-    connect(btnRndColor, &QPushButton::clicked, [&]
-            {
-                auto colorMin = Vec3f(NumberHelpers::generateRandomReal(0.0f, 1.0f),
-                                      NumberHelpers::generateRandomReal(0.0f, 1.0f),
-                                      NumberHelpers::generateRandomReal(0.0f, 1.0f));
-                auto colorMax = Vec3f(NumberHelpers::generateRandomReal(0.0f, 1.0f),
-                                      NumberHelpers::generateRandomReal(0.0f, 1.0f),
-                                      NumberHelpers::generateRandomReal(0.0f, 1.0f));
-                m_pkrColorDataMin->setColor(colorMin);
-                m_pkrColorDataMax->setColor(colorMax);
-
-                m_RenderWidget->setColorDataMin(colorMin);
-                m_RenderWidget->setColorDataMax(colorMax);
-            });
+    layoutColorData->addWidget(m_btnRndColor, 10);
     ////////////////////////////////////////////////////////////////////////////////
     QVBoxLayout* layoutColorCtrls = new QVBoxLayout;
     layoutColorCtrls->addLayout(layoutColorMode);

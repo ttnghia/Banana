@@ -266,7 +266,6 @@ void RenderWidget::setParticleColorMode(int colorMode)
     ////////////////////////////////////////////////////////////////////////////////
     if(colorMode == ParticleColorMode::ObjectIndex ||
        colorMode == ParticleColorMode::VelocityMagnitude) {
-        updateVizData(m_CurrentFrame);
         makeCurrent();
         initParticleVAO();
         doneCurrent();
@@ -367,7 +366,7 @@ void RenderWidget::initParticleVAO()
             glCall(glVertexAttribIPointer(m_RDataParticle.v_iColor, 1, GL_BYTE, 0, reinterpret_cast<GLvoid*>(0)));
         } else {
             glCall(glEnableVertexAttribArray(m_RDataParticle.v_fColor));
-            glCall(glVertexAttribIPointer(m_RDataParticle.v_fColor, 1, GL_FLOAT, 0, reinterpret_cast<GLvoid*>(0)));
+            glCall(glVertexAttribPointer(m_RDataParticle.v_fColor, 1, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<GLvoid*>(0)));
         }
     }
     ////////////////////////////////////////////////////////////////////////////////

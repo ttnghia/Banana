@@ -115,14 +115,12 @@ void Controller::connectWidgets()
     // materials and particle color mode
     connect(m_smParticleColorMode, static_cast<void (QSignalMapper::*)(int)>(&QSignalMapper::mapped), this, [&](int colorMode)
             {
+                m_RenderWidget->setParticleColorMode(colorMode);
                 m_DataReader->setParticleColorMode(colorMode);
                 if(colorMode == ParticleColorMode::ObjectIndex ||
                    colorMode == ParticleColorMode::VelocityMagnitude) {
                     m_DataReader->reloadCurrentFrame();
                 }
-
-                // this will call upload color data, which is just reloaded by data reader
-                m_RenderWidget->setParticleColorMode(colorMode);
             });
     connect(m_msParticleMaterial, &MaterialSelector::materialChanged, m_RenderWidget, &RenderWidget::setParticleMaterial);
     connect(m_pkrColorDataMin, &ColorPicker::colorChanged, [&](float r, float g, float b) { m_RenderWidget->setColorDataMin(Vec3f(r, g, b)); });

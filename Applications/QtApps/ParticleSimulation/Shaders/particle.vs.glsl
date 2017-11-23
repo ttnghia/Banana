@@ -37,7 +37,7 @@ uniform vec3  u_ColorMaxVal;
 uniform vec4  u_ClipPlane;
 uniform float u_PointRadius;
 uniform int   u_IsPointView;
-uniform int   u_UseAnisotropyKernel;
+uniform int   u_UseAniKernel;
 uniform int   u_ScreenWidth;
 uniform int   u_ScreenHeight;
 
@@ -122,7 +122,7 @@ void main()
     vec3  posEye   = vec3(eyeCoord);
     float dist     = length(posEye);
 
-    mat4 T = (u_UseAnisotropyKernel == 0) ?
+    mat4 T = (u_UseAniKernel == 0) ?
              mat4(u_PointRadius, 0, 0, 0,
                   0, u_PointRadius, 0, 0,
                   0, 0, u_PointRadius, 0,
@@ -138,7 +138,7 @@ void main()
     // output
     f_ViewCenter       = posEye;
     f_Color            = generateVertexColor();
-    f_AnisotropyMatrix = (u_UseAnisotropyKernel == 0) ? mat3(0) : mat3(v_AnisotropyMatrix0, v_AnisotropyMatrix1, v_AnisotropyMatrix2);
+    f_AnisotropyMatrix = (u_UseAniKernel == 0) ? mat3(0) : mat3(v_AnisotropyMatrix0, v_AnisotropyMatrix1, v_AnisotropyMatrix2);
 
 #ifdef UNIT_SPHERE_ISOLATED_PARTICLE
     float sx = length(v_AnisotropyMatrix0);
