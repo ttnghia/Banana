@@ -184,11 +184,12 @@ inline void throwIfFailed(HRESULT hr)
 #endif
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#define __BNN_DIE(err)      \
-    {                       \
-        __BNN_ERROR(err)    \
-        exit(EXIT_FAILURE); \
+#define __BNN_DIE(err)             \
+    {                              \
+        __BNN_ERROR(err)           \
+        __BANANA_EARLY_TERMINATION \
     }
+        //exit(EXIT_FAILURE); \
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #ifdef __BANANA_DEBUG__
 #  define __BNN_ASSERT(condition)                                                            \
