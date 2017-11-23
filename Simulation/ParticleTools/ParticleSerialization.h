@@ -156,8 +156,10 @@ public:
 
     ////////////////////////////////////////////////////////////////////////////////
     // functions for reading data
-    const auto& getFixedAttributes() { return m_FixedAttributes; }
-    const auto& getParticleAttributes() { return m_ParticleAttributes; }
+    auto&       getFixedAttributes() { return m_FixedAttributes; }
+    const auto& getFixedAttributes() const { return m_FixedAttributes; }
+    auto&       getParticleAttributes() { return m_ParticleAttributes; }
+    const auto& getParticleAttributes() const { return m_ParticleAttributes; }
 
     Int    getLatestFileIndex(Int maxIndex) const { return m_DataIO->getLatestFileIndex(maxIndex); }
     String getFilePath(Int fileID) { return m_DataIO->getFilePath(fileID); }
