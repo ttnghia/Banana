@@ -135,16 +135,11 @@ public slots:
 private:
     struct RDataParticle
     {
-        Vec_UInt16 positionDataCompressed;
-        Vec_UInt16 aniKernelDataCompressed;
-        Vec_UInt16 colorDataCompressed;
-
-        Vec3f dMinPosition;
-        Vec3f dMaxPosition;
-        float dMinColorData1;
-        float dMaxColorData1;
-        Vec3f dMinColorData3;
-        Vec3f dMaxColorData3;
+        UInt  dataDimension = 3u;
+        float dMinPosition[3];
+        float dMaxPosition[3];
+        float dMinColorData;
+        float dMaxColorData;
         float dMinAniKernel;
         float dMaxAniKernel;
 

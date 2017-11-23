@@ -75,35 +75,64 @@ void RenderWidget::updateVizData()
     Q_ASSERT(m_RDataParticle.initialized);
     makeCurrent();
     ////////////////////////////////////////////////////////////////////////////////
-    __BNN_ASSERT(m_VizData->particleReader.getParticleAttributeCompressed("position", m_RDataParticle.positionDataCompressed, m_RDataParticle.dMinPosition, m_RDataParticle.dMaxPosition));
-    m_RDataParticle.buffPosition->uploadDataAsync(m_RDataParticle.positionDataCompressed.data(), 0, m_RDataParticle.positionDataCompressed.size() * sizeof(UInt16));
-
-    if(m_RDataParticle.useAnisotropyKernel) {
-        if(m_VizData->particleReader.hasParticleAttribute("anisotropic_kernel")) {
-            __BNN_ASSERT(m_VizData->particleReader.getParticleAttributeCompressed("anisotropic_kernel", m_RDataParticle.aniKernelDataCompressed, m_RDataParticle.dMinAniKernel, m_RDataParticle.dMaxAniKernel));
-            m_RDataParticle.buffAniKernels->uploadDataAsync(m_RDataParticle.aniKernelDataCompressed.data(), 0, m_RDataParticle.aniKernelDataCompressed.size() * sizeof(UInt16));
-            m_RDataParticle.hasAnisotropyKernel = 1;
-        } else {
-            m_RDataParticle.hasAnisotropyKernel = 0;
-        }
-    }
-
-    if(m_RDataParticle.pColorMode == ParticleColorMode::FromData) {
-        if(!m_VizData->colorDataName.empty()) {
-            if(m_RDataParticle.colorDataSize == 1) {
-                __BNN_ASSERT(m_VizData->particleReader.getParticleAttributeCompressed(m_VizData->colorDataName, m_RDataParticle.colorDataCompressed, m_RDataParticle.dMinColorData1, m_RDataParticle.dMaxColorData1));
-            } else {
-                __BNN_ASSERT(m_VizData->particleReader.getParticleAttributeCompressed(m_VizData->colorDataName, m_RDataParticle.colorDataCompressed, m_RDataParticle.dMinColorData3, m_RDataParticle.dMaxColorData3));
-            }
-
-            m_RDataParticle.buffColorData->uploadDataAsync(m_RDataParticle.colorDataCompressed.data(), 0, m_RDataParticle.colorDataCompressed.size() * sizeof(UInt16));
-        }
-    }
+    UInt nParticles = m_VizData->particleReader.getNParticles();
 
     ////////////////////////////////////////////////////////////////////////////////
+    // upload position
+    {
+        __BNN_ASSERT(m_VizData->particleReader.hasParticleAttribute("position"));
+        const auto& positionAttr = m_VizData->particleReader.getParticleAttributes()["position"];
+        m_RDataParticle.dataDimension = positionAttr->count;
+        ////////////////////////////////////////////////////////////////////////////////
+        UInt64 segmentStart = 0;
+        UInt64 segmentSize  = sizeof(float) * m_RDataParticle.dataDimension;
+        memcpy(&m_RDataParticle.dMinPosition[0], &positionAttr->buffer.data()[segmentStart], segmentSize);
+        segmentStart += segmentSize;
+        memcpy(&m_RDataParticle.dMaxPosition[0], &positionAttr->buffer.data()[segmentStart], segmentSize);
+        ////////////////////////////////////////////////////////////////////////////////
+        segmentStart += segmentSize;
+        segmentSize   = nParticles * sizeof(UInt16) * m_RDataParticle.dataDimension;
+        __BNN_ASSERT(segmentStart + segmentSize == positionAttr->buffer.size());
+        m_RDataParticle.buffPosition->uploadDataAsync(&positionAttr->buffer.data()[segmentStart], 0, segmentSize);
+    }
+    ////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // upload ani kernel
+    {
+        if(m_RDataParticle.useAnisotropyKernel) {
+            if(m_VizData->particleReader.hasParticleAttribute("anisotropic_kernel")) {
+                const auto& aniKernelAttr = m_VizData->particleReader.getParticleAttributes()["anisotropic_kernel"];
+                ////////////////////////////////////////////////////////////////////////////////
+                UInt64 segmentStart = 0;
+                UInt64 segmentSize  = sizeof(float);
+                memcpy(&m_RDataParticle.dMinAniKernel, &aniKernelAttr->buffer.data()[segmentStart], segmentSize);
+                segmentStart += segmentSize;
+                memcpy(&m_RDataParticle.dMaxAniKernel, &aniKernelAttr->buffer.data()[segmentStart], segmentSize);
+                ////////////////////////////////////////////////////////////////////////////////
+                segmentStart += segmentSize;
+                segmentSize   = nParticles * sizeof(UInt16) * m_RDataParticle.dataDimension * m_RDataParticle.dataDimension;
+                __BNN_ASSERT(segmentStart + segmentSize == aniKernelAttr->buffer.size());
+                m_RDataParticle.buffAniKernels->uploadDataAsync(&aniKernelAttr->buffer.data()[segmentStart], 0, segmentSize);
+                m_RDataParticle.hasAnisotropyKernel = 1;
+            } else {
+                m_RDataParticle.hasAnisotropyKernel = 0;
+            }
+        }
+    }
+    ////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////
+    {
+        if(m_RDataParticle.pColorMode == ParticleColorMode::FromData) {
+            if(!m_VizData->colorDataName.empty()) {}
+        }
+    }
+    ////////////////////////////////////////////////////////////////////////////////
+
     doneCurrent();
     m_VizData->particleReader.getFixedAttribute("particle_radius", m_RDataParticle.pointRadius);
-    m_RDataParticle.nParticles = m_VizData->particleReader.getNParticles();
+    m_RDataParticle.nParticles = nParticles;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -299,7 +328,10 @@ void RenderWidget::initParticleVAO()
 void RenderWidget::renderParticles()
 {
     Q_ASSERT(m_RDataParticle.initialized);
-
+    if(m_RDataParticle.nParticles == 0) {
+        return;
+    }
+    ////////////////////////////////////////////////////////////////////////////////
     m_RDataParticle.shader->bind();
 
     m_UBufferCamData->bindBufferBase();
@@ -325,8 +357,8 @@ void RenderWidget::renderParticles()
         m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_ColorDataMax, m_RDataParticle.colorDataMax);
     }
 
-    m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_MinPosition, m_RDataParticle.dMinPosition);
-    m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_MaxPosition, m_RDataParticle.dMaxPosition);
+    m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_MinPosition, m_RDataParticle.dMinPosition, m_RDataParticle.dataDimension);
+    m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_MaxPosition, m_RDataParticle.dMaxPosition, m_RDataParticle.dataDimension);
 
     if(m_RDataParticle.useAnisotropyKernel && m_RDataParticle.hasAnisotropyKernel) {
         m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_UseAnisotropyKernel, 1);
