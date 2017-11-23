@@ -219,6 +219,8 @@ void MainWindow::connectWidgets()
     connect(m_Simulator, &Simulator::systemTimeChanged,  this,           &MainWindow::updateStatusSimulationTime);
     connect(m_Simulator, &Simulator::dimensionChanged,   m_RenderWidget, &RenderWidget::updateProjection);
     connect(m_Simulator, &Simulator::domainChanged,      m_RenderWidget, &RenderWidget::updateBox);
+    connect(m_Simulator, &Simulator::cameraChanged,      m_RenderWidget, &RenderWidget::updateCamera);
+    connect(m_Simulator, &Simulator::lightsChanged,      m_RenderWidget, &RenderWidget::updateLights);
     connect(m_Simulator, &Simulator::vizDataChanged,     m_RenderWidget, &RenderWidget::updateVizData);
     ////////////////////////////////////////////////////////////////////////////////
 }

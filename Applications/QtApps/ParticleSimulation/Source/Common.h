@@ -24,7 +24,8 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #define DEFAULT_CAMERA_POSITION     Vec3f(3.0, 0.8, 0)
 #define DEFAULT_CAMERA_FOCUS        Vec3f(0, -0.2, 0)
-#define DEFAULT_LIGHT_POSITION      Vec4f(10, 10, -10, 1.0)
+#define DEFAULT_LIGHT1_POSITION     Vec4f(10, 10, -10, 1.0)
+#define DEFAULT_LIGHT2_POSITION     Vec4f(-10, 10, 10, 1.0)
 #define DEFAULT_CLIP_PLANE          Vec4f(-1.0f, 0.0f, 0.0f, 0.0f)
 
 #define DEFAULT_CHECKERBOARD_COLOR1 Vec3f(0.9)
@@ -45,6 +46,7 @@
 
 #define DEFAULT_CHECKERBOARD_GRID_SIZE 20
 #define DEFAULT_FLOOR_SIZE             10
+#define DEFAULT_FLOOR_EXPOSURE         50
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 struct BackgroundMode
@@ -117,10 +119,14 @@ inline QString getCapturePath()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 struct LightData
 {
-    LightData(const Vec3f& position_ = DEFAULT_LIGHT_POSITION, const Vec3f& color_ = Vec3f(1.0)) : position(position_), color(color_) {}
-    Vec3f position;
-    Vec3f color;
+    LightData(const Vec3f& position_ = Vec3f(1.0)) : position(position_) {}
+    ////////////////////////////////////////////////////////////////////////////////
+    Vec3f position = Vec3f(1.0);
+    Vec3f ambient  = Vec3f(1.0);
+    Vec3f diffuse  = Vec3f(1.0);
+    Vec3f specular = Vec3f(1.0);
 };
+
 
 struct VisualizationData
 {
@@ -174,7 +180,8 @@ struct VisualizationData
         ////////////////////////////////////////////////////////////////////////////////
         // light
         lights.resize(0);
-        lights.push_back(LightData());
+        lights.push_back(LightData(DEFAULT_LIGHT1_POSITION));
+        lights.push_back(LightData(DEFAULT_LIGHT2_POSITION));
         ////////////////////////////////////////////////////////////////////////////////
 
         ////////////////////////////////////////////////////////////////////////////////

@@ -107,9 +107,9 @@ private:
     // floor
 public slots:
     void setFloorTexture(int texIndex) { Q_ASSERT(m_FloorRender != nullptr); m_FloorRender->setRenderTextureIndex(texIndex); }
-    void setFloorExposure(int percentage) { m_FloorRender->setExposure(static_cast<float>(percentage) / 100.0f); }
-    void setFloorSize(int size) { m_FloorRender->transform(Vec3f(0, -1.01, 0), Vec3f(static_cast<float>(size))); }
-    void setFloorTexScales(int scale) { m_FloorRender->scaleTexCoord(scale, scale); }
+    void setFloorExposure(int percentage) { Q_ASSERT(m_FloorRender != nullptr); m_FloorRender->setExposure(static_cast<float>(percentage) / 100.0f); }
+    void setFloorSize(int size) { Q_ASSERT(m_FloorRender != nullptr); m_FloorRender->transform(Vec3f(0, -1.01, 0), Vec3f(static_cast<float>(size))); }
+    void setFloorTexScales(int scale) { Q_ASSERT(m_FloorRender != nullptr); m_FloorRender->scaleTexCoord(scale, scale); }
 private:
     void initRDataFloor();
     void renderFloor() { Q_ASSERT(m_FloorRender != nullptr); m_FloorRender->render(); }

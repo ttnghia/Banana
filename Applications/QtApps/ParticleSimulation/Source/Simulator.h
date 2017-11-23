@@ -53,6 +53,7 @@ signals:
     void dimensionChanged();
     void domainChanged();
     void cameraChanged();
+    void lightsChanged();
     void simulationFinished();
     void systemTimeChanged(float time, unsigned int frame);
     void numParticleChanged(UInt numParticles);

@@ -58,12 +58,16 @@
     ],
     "VisualizationParameters":
     {
-        "CameraPosition" : [0, 0.7, 3.2],
-        "CameraFocus" : [0, 0.0, 0],
         "Light" :
-        {
-            "Position" : [-10, 10, 0],
-            "Color" : [1, 1, 1]
-        }
+        [
+            {
+                "Position" : [-10, 20, 10],
+                "Diffuse" : [1, 1, 1]
+            },
+                        {
+                "Position" : [10, 20, -10],
+                "Diffuse" : [1, 1, 1]
+            }
+        ]
     }
 }

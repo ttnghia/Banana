@@ -172,6 +172,8 @@ void Controller::connectWidgets()
     //  data handle
     connect(m_DataReader, &DataReader::particleDataChanged, m_RenderWidget, &RenderWidget::updateVizData);
     connect(m_DataReader, &DataReader::domainBoxChanged, m_RenderWidget, &RenderWidget::updateBox);
+    connect(m_DataReader, &DataReader::cameraChanged, m_RenderWidget, &RenderWidget::updateCamera);
+    connect(m_DataReader, &DataReader::lightsChanged, m_RenderWidget, &RenderWidget::updateLights);
 
     ////////////////////////////////////////////////////////////////////////////////
     // lights
@@ -327,7 +329,7 @@ void Controller::setupFloorControllers(QBoxLayout* layoutCtr)
     m_sldFloorSize->getSlider()->setValue(DEFAULT_FLOOR_SIZE);
     m_sldFloorExposure = new EnhancedSlider;
     m_sldFloorExposure->setRange(1, 100);
-    m_sldFloorExposure->getSlider()->setValue(100);
+    m_sldFloorExposure->getSlider()->setValue(DEFAULT_FLOOR_EXPOSURE);
     ////////////////////////////////////////////////////////////////////////////////
     QFrame* line = new QFrame();
     line->setFrameShape(QFrame::HLine);

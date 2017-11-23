@@ -35,9 +35,12 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 struct LightData
 {
-    LightData(const Vec3f& position_ = DEFAULT_LIGHT_POSITION, const Vec3f& color_ = Vec3f(1.0)) : position(position_), color(color_) {}
-    Vec3f position;
-    Vec3f color;
+    LightData(const Vec3f& position_ = Vec3f(1.0)) : position(position_) {}
+    ////////////////////////////////////////////////////////////////////////////////
+    Vec3f position = Vec3f(1.0);
+    Vec3f ambient  = Vec3f(1.0);
+    Vec3f diffuse  = Vec3f(1.0);
+    Vec3f specular = Vec3f(1.0);
 };
 
 struct MeshData
@@ -100,7 +103,8 @@ struct VisualizationData
         ////////////////////////////////////////////////////////////////////////////////
         // light
         lights.resize(0);
-        lights.push_back(LightData());
+        lights.push_back(LightData(DEFAULT_LIGHT1_POSITION));
+        lights.push_back(LightData(DEFAULT_LIGHT2_POSITION));
         ////////////////////////////////////////////////////////////////////////////////
 
         ////////////////////////////////////////////////////////////////////////////////
@@ -132,7 +136,7 @@ public:
 signals:
     void cameraChanged();
     void domainBoxChanged();
-    void lightChanged();
+    void lightsChanged();
 private:
     void resetData();
     bool loadVizData(const QString& dataPath);

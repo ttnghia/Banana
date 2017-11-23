@@ -49,7 +49,7 @@ void DataReader::resetData()
     m_VizData->resetData();
     emit cameraChanged();
     emit domainBoxChanged();
-    emit lightChanged();
+    emit lightsChanged();
 
     ////////////////////////////////////////////////////////////////////////////////
     m_CurrentFrame = 0;
@@ -109,14 +109,17 @@ bool DataReader::loadVizData(const QString& dataPath)
         }
 
         if(jVizParams.find("Light") != jVizParams.end()) {
+            m_VizData->lights.resize(0);
             for(auto& jObj : jVizParams["Light"]) {
                 LightData light;
                 JSONHelpers::readVector(jObj, light.position, "Position");
-                JSONHelpers::readVector(jObj, light.color, "Color");
+                JSONHelpers::readVector(jObj, light.ambient, "Ambient");
+                JSONHelpers::readVector(jObj, light.diffuse, "Diffuse");
+                JSONHelpers::readVector(jObj, light.specular, "Specular");
                 m_VizData->lights.push_back(light);
             }
 
-            emit lightChanged();
+            emit lightsChanged();
         }
     }
 

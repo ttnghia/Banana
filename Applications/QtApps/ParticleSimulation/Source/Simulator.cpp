@@ -108,6 +108,7 @@ void Simulator::changeScene(const QString& scene)
     auto   jGlobalParams = jParams["GlobalParameters"];
     String solverName;
     __BNN_ASSERT(JSONHelpers::readValue(jGlobalParams, solverName, "Solver"));
+
     ////////////////////////////////////////////////////////////////////////////////
     m_ParticleSolver.reset();
     m_ParticleSolver = ParticleSolverQtFactory::createSolver(solverName);
@@ -124,12 +125,29 @@ void Simulator::changeScene(const QString& scene)
     memcpy(&m_VizData->boxMax, m_ParticleSolver->getBMax(), sizeof(float) * m_ParticleSolver->getSolverDimension());
     m_VizData->nParticles     = m_ParticleSolver->getNParticles();
     m_VizData->particleRadius = m_ParticleSolver->getParticleRadius();
-    m_VizData->cameraPosition = Vec3r((m_VizData->boxMin.x + m_VizData->boxMax.x) * 0.5f,
-                                      (m_VizData->boxMin.y + m_VizData->boxMax.y) * 0.5f + (m_VizData->boxMax.y - m_VizData->boxMin.y) * 0.3,
-                                      (m_VizData->boxMin.z + m_VizData->boxMax.z) * 0.5f + (m_VizData->boxMax.z - m_VizData->boxMin.z) * 1.5);
-    m_VizData->cameraFocus = Vec3r((m_VizData->boxMin.x + m_VizData->boxMax.x) * 0.5f,
-                                   (m_VizData->boxMin.y + m_VizData->boxMax.y) * 0.5f - (m_VizData->boxMax.y - m_VizData->boxMin.y) * 0.1,
-                                   (m_VizData->boxMin.z + m_VizData->boxMax.z) * 0.5f);
+    ////////////////////////////////////////////////////////////////////////////////
+    if(jParams.find("VisualizationParameters") != jParams.end()) {
+        auto jVizParams = jParams["VisualizationParameters"];
+        if(!JSONHelpers::readVector(jVizParams, m_VizData->cameraPosition, "CameraPosition") &&
+           !JSONHelpers::readVector(jVizParams, m_VizData->cameraFocus, "CameraFocus")) {
+            m_VizData->cameraPosition = DEFAULT_CAMERA_POSITION;
+            m_VizData->cameraFocus    = DEFAULT_CAMERA_FOCUS;
+        }
+
+        if(jVizParams.find("Light") != jVizParams.end()) {
+            m_VizData->lights.resize(0);
+            for(auto& jObj : jVizParams["Light"]) {
+                LightData light;
+                JSONHelpers::readVector(jObj, light.position, "Position");
+                JSONHelpers::readVector(jObj, light.ambient, "Ambient");
+                JSONHelpers::readVector(jObj, light.diffuse, "Diffuse");
+                JSONHelpers::readVector(jObj, light.specular, "Specular");
+                m_VizData->lights.push_back(light);
+            }
+
+            emit lightsChanged();
+        }
+    }
     ////////////////////////////////////////////////////////////////////////////////
     emit dimensionChanged();
     emit domainChanged();

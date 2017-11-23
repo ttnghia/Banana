@@ -286,7 +286,7 @@ void Controller::setupFloorControllers(QBoxLayout* layoutCtr)
     m_sldFloorSize->getSlider()->setValue(DEFAULT_FLOOR_SIZE);
     m_sldFloorExposure = new EnhancedSlider;
     m_sldFloorExposure->setRange(1, 100);
-    m_sldFloorExposure->getSlider()->setValue(100);
+    m_sldFloorExposure->getSlider()->setValue(DEFAULT_FLOOR_EXPOSURE);
     ////////////////////////////////////////////////////////////////////////////////
     QFrame* line = new QFrame();
     line->setFrameShape(QFrame::HLine);

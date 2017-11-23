@@ -174,9 +174,18 @@ void RenderWidget::enableClipPlane(bool bEnable)
 void RenderWidget::updateLights()
 {
     if(isValid()) {
+        Int nLights = static_cast<Int>(m_VizData->lights.size());
+        m_Lights->setNumLights(nLights);
+        for(Int i = 0; i < nLights; ++i) {
+            m_Lights->setLightPosition(Vec4f(m_VizData->lights[i].position, 1.0f), i);
+            m_Lights->setLightAmbient(Vec4f(m_VizData->lights[i].ambient, 1.0f), i);
+            m_Lights->setLightDiffuse(Vec4f(m_VizData->lights[i].diffuse, 1.0f), i);
+            m_Lights->setLightSpecular(Vec4f(m_VizData->lights[i].specular, 1.0f), i);
+        }
         makeCurrent();
         m_Lights->uploadDataToGPU();
         doneCurrent();
+        emit lightsObjChanged(m_Lights);
     }
 }
 
@@ -184,10 +193,9 @@ void RenderWidget::updateLights()
 void RenderWidget::initRDataLight()
 {
     m_Lights = std::make_shared<PointLights>();
-    m_Lights->setNumLights(1);
-
-    m_Lights->setLightPosition(DEFAULT_LIGHT_POSITION, 0);
-    //    m_Lights->setLightDiffuse(glm::vec4(1.0), 0);
+    m_Lights->setNumLights(2);
+    m_Lights->setLightPosition(DEFAULT_LIGHT1_POSITION, 0);
+    m_Lights->setLightPosition(DEFAULT_LIGHT2_POSITION, 1);
 
     m_Lights->setSceneCenter(Vec3f(0, 0, 0));
     m_Lights->setLightViewPerspective(30);
@@ -213,6 +221,7 @@ void RenderWidget::initRDataFloor()
     m_FloorRender->transform(Vec3f(0, -1.01, 0), Vec3f(DEFAULT_FLOOR_SIZE));
     m_FloorRender->scaleTexCoord(DEFAULT_FLOOR_SIZE, DEFAULT_FLOOR_SIZE);
     m_FloorRender->setAllowNonTextureRender(false);
+    m_FloorRender->setExposure(static_cast<float>(DEFAULT_FLOOR_EXPOSURE) / 100.0f);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
