@@ -130,9 +130,8 @@ private:
     // particles
 public slots:
     void setParticleColorMode(int colorMode);
-//    void setColorData(const String& colorDataName, Int dataSize);
-    void setColorDataMin(const Vec3f& colorMin) { m_RDataParticle.colorDataMin = colorMin; }
-    void setColorDataMax(const Vec3f& colorMax) { m_RDataParticle.colorDataMax = colorMax; }
+    void setColorDataMin(const Vec3f& colorMin) { m_RDataParticle.colorMinVal = colorMin; }
+    void setColorDataMax(const Vec3f& colorMax) { m_RDataParticle.colorMaxVal = colorMax; }
     void setParticleMaterial(const Material::MaterialData& material);
     void enableAniKernels(bool bAniKernel) { m_RDataParticle.useAnisotropyKernel = bAniKernel ? 1 : 0; }
 private:
@@ -149,8 +148,8 @@ private:
         GLint  v_AnisotropyMatrix0;
         GLint  v_AnisotropyMatrix1;
         GLint  v_AnisotropyMatrix2;
-        GLint  v_Color1;
-        GLint  v_Color3;
+        GLint  v_iColor;
+        GLint  v_fColor;
         GLuint ub_CamData;
         GLuint ub_Light;
         GLuint ub_Material;
@@ -159,9 +158,10 @@ private:
         GLuint u_ClipPlane;
         GLuint u_IsPointView;
         GLuint u_ColorMode;
-        GLuint u_ColorDataSize;
-        GLuint u_ColorDataMin;
-        GLuint u_ColorDataMax;
+        GLuint u_VColorMin;
+        GLuint u_VColorMax;
+        GLuint u_ColorMinVal;
+        GLuint u_ColorMaxVal;
         GLuint u_UseAnisotropyKernel;
         GLuint u_ScreenWidth;
         GLuint u_ScreenHeight;
@@ -173,10 +173,11 @@ private:
         GLint useAnisotropyKernel = 1;
         GLint hasAnisotropyKernel = 0;
         GLint pColorMode          = ParticleColorMode::Ramp;
-        GLint colorDataSize       = 1;
-        Vec3f colorDataMin;
-        Vec3f colorDataMax;
-        bool  initialized = false;
+        float vColorMin           = 0;
+        float vColorMax           = 1.0f;
+        Vec3f colorMinVal         = DEFAULT_COLOR_DATA_MIN;
+        Vec3f colorMaxVal         = DEFAULT_COLOR_DATA_MAX;
+        bool  initialized         = false;
     } m_RDataParticle;
 
     void initRDataParticle();

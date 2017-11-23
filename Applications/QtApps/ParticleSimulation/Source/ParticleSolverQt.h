@@ -53,11 +53,12 @@ public:
     virtual float*            getBMin()                  = 0;
     virtual float*            getBMax()                  = 0;
 
-    virtual char* getParticlePositions()  = 0;
-    virtual char* getParticleVelocities() = 0;
-    virtual char* getObjectIndex()        = 0;
-    virtual UInt  getNParticles() const   = 0;
-    virtual float getParticleRadius()     = 0;
+    virtual char* getParticlePositions()    = 0;
+    virtual char* getParticleVelocities()   = 0;
+    virtual char* getObjectIndex()          = 0;
+    virtual UInt  getNObjects() const       = 0;
+    virtual UInt  getNParticles() const     = 0;
+    virtual float getParticleRadius() const = 0;
 };
 
 
@@ -111,8 +112,9 @@ public:
     virtual char* getParticlePositions()  override { return reinterpret_cast<char*>(particleData().positions.data()); }
     virtual char* getParticleVelocities()  override { return reinterpret_cast<char*>(particleData().velocities.data()); }
     virtual char* getObjectIndex() override { return reinterpret_cast<char*>(particleData().objectIndex.data()); }
+    virtual UInt  getNObjects() const override { return particleData().nObjects; }
     virtual UInt  getNParticles()  const override { return particleData().getNParticles(); }
-    virtual float getParticleRadius() override { return solverParams().particleRadius; }
+    virtual float getParticleRadius() const override { return solverParams().particleRadius; }
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

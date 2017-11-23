@@ -31,8 +31,8 @@
 #define DEFAULT_CHECKERBOARD_COLOR1 Vec3f(0.9)
 #define DEFAULT_CHECKERBOARD_COLOR2 Vec3f(0.5)
 #define DEFAULT_BOX_COLOR           Vec3f(0, 1, 0.5)
-#define DEFAULT_COLOR_DATA_MIN      Vec3f(0, 0, 0)
-#define DEFAULT_COLOR_DATA_MAX      Vec3f(1, 1, 1)
+#define DEFAULT_COLOR_DATA_MIN      Vec3f(0, 0, 1)
+#define DEFAULT_COLOR_DATA_MAX      Vec3f(1, 0, 0)
 
 #define CUSTOM_PARTICLE_MATERIAL         \
     {                                    \
@@ -65,11 +65,11 @@ struct ParticleColorMode
 {
     enum
     {
-        UniformMaterial       = 0,
-        Random                = 1,
-        Ramp                  = 2,
-        ObjectIndex           = 3,
-        FromVelocityMagnitude = 4,
+        UniformMaterial   = 0,
+        Random            = 1,
+        Ramp              = 2,
+        ObjectIndex       = 3,
+        VelocityMagnitude = 4,
         NumColorMode
     };
 };
@@ -158,6 +158,7 @@ struct VisualizationData
     char* velocities     = nullptr;
     char* aniKernel      = nullptr;
     char* objIndex       = nullptr;
+    UInt  nObjects       = 1;
     UInt  nParticles     = 0;
     float particleRadius = 0;
     ////////////////////////////////////////////////////////////////////////////////

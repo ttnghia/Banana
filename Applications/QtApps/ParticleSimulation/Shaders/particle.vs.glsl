@@ -1,10 +1,11 @@
 // vertex shader, particle render
 #version 410 core
 
-#define COLOR_MODE_UNIFORM_MATERIAL 0
-#define COLOR_MODE_RANDOM           1
-#define COLOR_MODE_RAMP             2
-#define COLOR_MODE_FROM_DATA        3
+#define COLOR_MODE_UNIFORM_MATERIAL   0
+#define COLOR_MODE_RANDOM             1
+#define COLOR_MODE_RAMP               2
+#define COLOR_MODE_OBJ_INDEX          3
+#define COLOR_MODE_VELOCITY_MAGNITUDE 4
 
 #define UNIT_SPHERE_ISOLATED_PARTICLE
 
@@ -26,11 +27,12 @@ layout(std140) uniform CameraData
     vec4 camPosition;
 };
 
-uniform uint u_nParticles;
-uniform int  u_ColorMode;
-uniform int  u_ColorDataSize;
-uniform vec3 u_ColorDataMin;
-uniform vec3 u_ColorDataMax;
+uniform uint  u_nParticles;
+uniform int   u_ColorMode;
+uniform float u_VColorMin;
+uniform float u_VColorMax;
+uniform vec3  u_ColorMinVal;
+uniform vec3  u_ColorMaxVal;
 
 uniform vec4  u_ClipPlane;
 uniform float u_PointRadius;
@@ -41,8 +43,8 @@ uniform int   u_ScreenHeight;
 
 //------------------------------------------------------------------------------------------
 in vec3  v_Position;
-in float v_Color1;
-in vec3  v_Color3;
+in float v_fColor;
+in int   v_iColor;
 in vec3  v_AnisotropyMatrix0;
 in vec3  v_AnisotropyMatrix1;
 in vec3  v_AnisotropyMatrix2;
@@ -75,14 +77,12 @@ vec3 generateVertexColor()
         vec3  startVal    = colorRamp[int(segment)];
         vec3  endVal      = colorRamp[int(segment) + 1];
         return mix(startVal, endVal, t);
+    } else if(u_ColorMode == COLOR_MODE_OBJ_INDEX) {
+        float t = (float(v_iColor) - u_VColorMin) / (u_VColorMax - u_VColorMin);
+        return mix(u_ColorMinVal, u_ColorMaxVal, t);
     } else {
-        if(u_ColorDataSize == 1) {
-            return mix(u_ColorDataMin, u_ColorDataMax, v_Color1);
-        } else {
-            return vec3(mix(u_ColorDataMin.x, u_ColorDataMax.x, v_Color3.x),
-                        mix(u_ColorDataMin.y, u_ColorDataMax.y, v_Color3.y),
-                        mix(u_ColorDataMin.z, u_ColorDataMax.z, v_Color3.z));
-        }
+        float t = (v_fColor - u_VColorMin) / (u_VColorMax - u_VColorMin);
+        return mix(u_ColorMinVal, u_ColorMaxVal, t);
     }
 }
 

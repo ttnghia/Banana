@@ -123,6 +123,7 @@ void Simulator::changeScene(const QString& scene)
     ////////////////////////////////////////////////////////////////////////////////
     memcpy(&m_VizData->boxMin, m_ParticleSolver->getBMin(), sizeof(float) * m_ParticleSolver->getSolverDimension());
     memcpy(&m_VizData->boxMax, m_ParticleSolver->getBMax(), sizeof(float) * m_ParticleSolver->getSolverDimension());
+    m_VizData->nObjects       = m_ParticleSolver->getNObjects();
     m_VizData->nParticles     = m_ParticleSolver->getNParticles();
     m_VizData->particleRadius = m_ParticleSolver->getParticleRadius();
     ////////////////////////////////////////////////////////////////////////////////
