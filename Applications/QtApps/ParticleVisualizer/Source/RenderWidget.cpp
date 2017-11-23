@@ -343,6 +343,8 @@ void RenderWidget::initParticleVAO()
     glCall(glVertexAttribIPointer(m_RDataParticle.v_Position, dim, GL_UNSIGNED_SHORT, 0, reinterpret_cast<GLvoid*>(0)));
     ////////////////////////////////////////////////////////////////////////////////
 
+    ////////////////////////////////////////////////////////////////////////////////
+    // ani kernel
     if(m_RDataParticle.useAniKernel && dim == 3u) {
         m_RDataParticle.buffAniKernels->bind();
         glCall(glEnableVertexAttribArray(m_RDataParticle.v_AnisotropyMatrix0));
@@ -352,6 +354,7 @@ void RenderWidget::initParticleVAO()
         glCall(glVertexAttribIPointer(m_RDataParticle.v_AnisotropyMatrix1, dim, GL_UNSIGNED_SHORT, dim * dim * sizeof(UInt16), reinterpret_cast<GLvoid*>(sizeof(UInt16) * dim)));
         glCall(glVertexAttribIPointer(m_RDataParticle.v_AnisotropyMatrix2, dim, GL_UNSIGNED_SHORT, dim * dim * sizeof(UInt16), reinterpret_cast<GLvoid*>(sizeof(UInt16) * dim * 2)));
     }
+    ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
     // data for color

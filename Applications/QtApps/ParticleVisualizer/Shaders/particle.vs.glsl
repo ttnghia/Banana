@@ -29,8 +29,8 @@ layout(std140) uniform CameraData
 
 uniform uint  u_nParticles;
 uniform int   u_ColorMode;
-uniform float u_VColorMin;
-uniform float u_VColorMax;
+uniform float u_vColorMin;
+uniform float u_vColorMax;
 uniform vec3  u_ColorMinVal;
 uniform vec3  u_ColorMaxVal;
 
@@ -83,12 +83,12 @@ vec3 generateVertexColor()
         vec3  endVal      = colorRamp[int(segment) + 1];
         return mix(startVal, endVal, t);
     } else if(u_ColorMode == COLOR_MODE_OBJ_INDEX) {
-        float t = (float(v_iColor) - u_VColorMin) / (u_VColorMax - u_VColorMin);
+        float t = (float(v_iColor) - u_vColorMin) / (u_vColorMax - u_vColorMin);
         return mix(u_ColorMinVal, u_ColorMaxVal, t);
     } else {
-        float range = u_VColorMax - u_VColorMin;
+        float range = u_vColorMax - u_vColorMin;
         if(range > 0) {
-            return mix(u_ColorMinVal, u_ColorMaxVal, (v_fColor - u_VColorMin) / range);
+            return mix(u_ColorMinVal, u_ColorMaxVal, (v_fColor - u_vColorMin) / range);
         } else {
             return u_ColorMinVal;
         }
