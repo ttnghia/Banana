@@ -301,8 +301,8 @@ void RenderWidget::initRDataParticle()
     m_RDataParticle.u_vAniKernelMin = m_RDataParticle.shader->getUniformLocation("u_vAniKernelMin");
     m_RDataParticle.u_vAniKernelMax = m_RDataParticle.shader->getUniformLocation("u_vAniKernelMax");
     m_RDataParticle.u_ColorMode     = m_RDataParticle.shader->getUniformLocation("u_ColorMode");
-    m_RDataParticle.u_VColorMin     = m_RDataParticle.shader->getUniformLocation("u_VColorMin");
-    m_RDataParticle.u_VColorMax     = m_RDataParticle.shader->getUniformLocation("u_VColorMax");
+    m_RDataParticle.u_vColorMin     = m_RDataParticle.shader->getUniformLocation("u_vColorMin");
+    m_RDataParticle.u_vColorMax     = m_RDataParticle.shader->getUniformLocation("u_vColorMax");
     m_RDataParticle.u_ColorMinVal   = m_RDataParticle.shader->getUniformLocation("u_ColorMinVal");
     m_RDataParticle.u_ColorMaxVal   = m_RDataParticle.shader->getUniformLocation("u_ColorMaxVal");
 
@@ -413,8 +413,8 @@ void RenderWidget::renderParticles()
 
     if(m_RDataParticle.pColorMode == ParticleColorMode::ObjectIndex ||
        m_RDataParticle.pColorMode == ParticleColorMode::VelocityMagnitude) {
-        m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_VColorMin, m_RDataParticle.vColorMin);
-        m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_VColorMax, m_RDataParticle.vColorMax);
+        m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_vColorMin, m_RDataParticle.vColorMin);
+        m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_vColorMax, m_RDataParticle.vColorMax);
         m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_ColorMinVal, m_RDataParticle.colorMinVal);
         m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_ColorMaxVal, m_RDataParticle.colorMaxVal);
     }

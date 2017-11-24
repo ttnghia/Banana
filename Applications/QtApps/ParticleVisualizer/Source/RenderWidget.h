@@ -165,8 +165,8 @@ private:
         GLuint u_IsPointView;
         GLuint u_UseAniKernel;
         GLuint u_ColorMode;
-        GLuint u_VColorMin;
-        GLuint u_VColorMax;
+        GLuint u_vColorMin;
+        GLuint u_vColorMax;
         GLuint u_ColorMinVal;
         GLuint u_ColorMaxVal;
         GLuint u_ScreenWidth;
