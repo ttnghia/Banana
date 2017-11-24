@@ -53,6 +53,8 @@ String ParticleSerialization::Attribute::typeName()
         default:
             __BNN_DIE_UNKNOWN_ERROR
     }
+
+    return String("");
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
