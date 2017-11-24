@@ -131,7 +131,7 @@ void compress(const Vector<RealType>& dvec, DataBuffer& buffer, bool bWriteVecto
 template<class RealType>
 void compress(const Vector<Vector<RealType> >& dvec, Vector<RealType>& dMin, Vector<RealType>& dMax, Vec_VecUInt16& compressedData)
 {
-    __BNN_ASSERT(dvec.size() = dMin.size() && dvec.size() == dMax.size());
+    __BNN_REQUIRE(dvec.size() = dMin.size() && dvec.size() == dMax.size());
 
     compressedData.resize(dvec.size());
     ParallelFuncs::parallel_for<size_t>(0, dvec.size(),
@@ -174,7 +174,7 @@ template<Int N, class RealType>
 void decompress(Vector<VecX<N, RealType> >& dvec, const VecX<N, RealType>& dMin, const VecX<N, RealType>& dMax, const Vec_UInt16& compressedData)
 {
     const VecX<N, RealType> diff = dMax - dMin;
-    __BNN_ASSERT((compressedData.size() / N) * N == compressedData.size());
+    __BNN_REQUIRE((compressedData.size() / N) * N == compressedData.size());
 
     dvec.resize(compressedData.size() / N);
     ParallelFuncs::parallel_for<size_t>(0, dvec.size(),
@@ -211,7 +211,7 @@ void decompress(Vector<VecX<N, RealType> >& dvec, const DataBuffer& buffer, UInt
     segmentStart += segmentSize;
 
     segmentSize = nParticles * N * sizeof(UInt16);
-    __BNN_ASSERT(segmentStart + segmentSize == buffer.size());
+    __BNN_REQUIRE(segmentStart + segmentSize == buffer.size());
     Vec_UInt16 compressedData(nParticles* N);
     memcpy(compressedData.data(), &buffer.data()[segmentStart], segmentSize);
 
@@ -229,7 +229,7 @@ void decompress(Vector<MatXxX<N, RealType> >& dvec, RealType dMin, RealType dMax
 {
     Int            NN   = N * N;
     const RealType diff = dMax - dMin;
-    __BNN_ASSERT((compressedData.size() / NN) * NN == compressedData.size());
+    __BNN_REQUIRE((compressedData.size() / NN) * NN == compressedData.size());
 
     dvec.resize(compressedData.size() / NN);
     ParallelFuncs::parallel_for<size_t>(0, dvec.size(),
@@ -267,7 +267,7 @@ void decompress(Vector<MatXxX<N, RealType> >& dvec, const DataBuffer& buffer, UI
     segmentStart += segmentSize;
 
     segmentSize = nParticles * N * N * sizeof(UInt16);
-    __BNN_ASSERT(segmentStart + segmentSize == buffer.size());
+    __BNN_REQUIRE(segmentStart + segmentSize == buffer.size());
     Vec_UInt16 compressedData(nParticles* N* N);
     memcpy(compressedData.data(), &buffer.data()[segmentStart], segmentSize);
 
@@ -311,7 +311,7 @@ void decompress(Vector<RealType>& dvec, const DataBuffer& buffer, UInt nParticle
     segmentStart += segmentSize;
 
     segmentSize = nParticles * sizeof(UInt16);
-    __BNN_ASSERT(segmentStart + segmentSize == buffer.size());
+    __BNN_REQUIRE(segmentStart + segmentSize == buffer.size());
     Vec_UInt16 compressedData(nParticles);
     memcpy(compressedData.data(), &buffer.data()[segmentStart], segmentSize);
 
@@ -324,7 +324,7 @@ void decompress(Vector<RealType>& dvec, const DataBuffer& buffer, UInt nParticle
 template<class RealType>
 void decompress(Vector<Vector<RealType> >& dvec, const Vector<RealType>& dMin, const Vector<RealType>& dMax, const Vec_VecUInt16& compressedData)
 {
-    __BNN_ASSERT(compressedData.size() = dMin.size() && compressedData.size() == dMax.size());
+    __BNN_REQUIRE(compressedData.size() = dMin.size() && compressedData.size() == dMax.size());
 
     dvec.resize(compressedData.size());
     ParallelFuncs::parallel_for<size_t>(0, dvec.size(),
@@ -366,7 +366,7 @@ void decompress(Vector<Vector<RealType> >& dvec, const DataBuffer& buffer, UInt 
 
         compressedData[i].resize(iSize);
         segmentSize = iSize * sizeof(UInt16);
-        __BNN_ASSERT(segmentStart + segmentSize <= buffer.size());
+        __BNN_REQUIRE(segmentStart + segmentSize <= buffer.size());
         memcpy(compressedData[i].data(), &buffer.data()[segmentStart], segmentSize);
     }
 

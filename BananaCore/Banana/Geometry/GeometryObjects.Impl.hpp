@@ -27,7 +27,7 @@
 template<Int N, class RealType>
 Vec2<RealType> GeometryObject<N, RealType >::gradSignedDistance(const Vec2<RealType>& ppos, bool bNegativeInside /*= true*/, RealType dxy /*= RealType(1e-4)*/) const
 {
-    __BNN_ASSERT_MSG(N == 2, "Array dimension != 2");
+    __BNN_REQUIRE_MSG(N == 2, "Array dimension != 2");
 
     RealType v00 = signedDistance(Vec2r(ppos[0] - dxy, ppos[1] - dxy), bNegativeInside);
     RealType v01 = signedDistance(Vec2r(ppos[0] - dxy, ppos[1] + dxy), bNegativeInside);
@@ -47,7 +47,7 @@ Vec2<RealType> GeometryObject<N, RealType >::gradSignedDistance(const Vec2<RealT
 template<Int N, class RealType>
 Vec3<RealType> GeometryObject<N, RealType >::gradSignedDistance(const Vec3<RealType>& ppos, bool bNegativeInside /*= true*/, RealType dxyz /*= RealType(1e-4)*/) const
 {
-    __BNN_ASSERT_MSG(N == 3, "Array dimension != 3");
+    __BNN_REQUIRE_MSG(N == 3, "Array dimension != 3");
 
     RealType v000 = signedDistance(Vec3r(ppos[0] - dxyz, ppos[1] - dxyz, ppos[2] - dxyz), bNegativeInside);
     RealType v001 = signedDistance(Vec3r(ppos[0] - dxyz, ppos[1] - dxyz, ppos[2] + dxyz), bNegativeInside);
@@ -296,7 +296,7 @@ RealType TorusObject<3, RealType >::signedDistance(const Vec3<RealType>& ppos0, 
 template<Int N, class RealType>
 RealType Torus28Object<N, RealType >::signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside /*= true*/) const
 {
-    __BNN_ASSERT_MSG(N == 3, "Object dimension != 3");
+    __BNN_REQUIRE_MSG(N == 3, "Object dimension != 3");
     auto           ppos = invTransform(ppos0);
     Vec2<RealType> q    = Vec2<RealType>(MathHelpers::norm2(ppos[0], ppos[2]) - m_OuterRadius, ppos[1]);
     RealType       d    = m_UniformScale * (MathHelpers::norm8(q[0], q[1]) - m_InnerRadius);
@@ -307,7 +307,7 @@ RealType Torus28Object<N, RealType >::signedDistance(const VecX<N, RealType>& pp
 template<Int N, class RealType>
 RealType Torus2InfObject<N, RealType >::signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside /*= true*/) const
 {
-    __BNN_ASSERT_MSG(N == 3, "Object dimension != 3");
+    __BNN_REQUIRE_MSG(N == 3, "Object dimension != 3");
     auto           ppos = invTransform(ppos0);
     Vec2<RealType> q    = Vec2<RealType>(MathHelpers::norm2(ppos[0], ppos[2]) - m_OuterRadius, ppos[1]);
     RealType       d    = m_UniformScale * (MathHelpers::norm_inf(q[0], q[1]) - m_InnerRadius);
@@ -356,7 +356,7 @@ RealType TorusInfInfObject<3, RealType >::signedDistance(const Vec3<RealType>& p
 template<Int N, class RealType>
 RealType CylinderObject<N, RealType >::signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside /*= true*/) const
 {
-    __BNN_ASSERT_MSG(N == 3, "Object dimension != 3");
+    __BNN_REQUIRE_MSG(N == 3, "Object dimension != 3");
     auto     ppos = invTransform(ppos0);
     RealType d    = m_UniformScale * MathHelpers::max(MathHelpers::norm2(ppos[0], ppos[2]) - m_Radius, std::abs(ppos[1]) - RealType(1.0));
     return bNegativeInside ? d : -d;
@@ -366,7 +366,7 @@ RealType CylinderObject<N, RealType >::signedDistance(const VecX<N, RealType>& p
 template<Int N, class RealType>
 RealType ConeObject<N, RealType >::signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside /*= true*/) const
 {
-    __BNN_ASSERT_MSG(N == 3, "Object dimension != 3");
+    __BNN_REQUIRE_MSG(N == 3, "Object dimension != 3");
     auto     ppos  = invTransform(ppos0);
     RealType theta = std::atan(m_Radius); // radius / h, where h = 1
     RealType d1    = MathHelpers::norm2(ppos[0], ppos[2]) * cos(theta) - std::abs(ppos[1]) * sin(theta);
@@ -387,7 +387,7 @@ RealType PlaneObject<N, RealType >::signedDistance(const VecX<N, RealType>& ppos
 template<Int N, class RealType>
 RealType TriangleObject<N, RealType >::signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside /*= true*/) const
 {
-    __BNN_ASSERT_MSG(N == 2, "Object dimension != 2");
+    __BNN_REQUIRE_MSG(N == 2, "Object dimension != 2");
     __BNN_UNUSED(ppos0);
     __BNN_UNUSED(bNegativeInside);
     __BNN_UNIMPLEMENTED_FUNC;
@@ -398,7 +398,7 @@ RealType TriangleObject<N, RealType >::signedDistance(const VecX<N, RealType>& p
 template<Int N, class RealType>
 RealType HexagonObject<N, RealType >::signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside /*= true*/) const
 {
-    __BNN_ASSERT_MSG(N == 2, "Object dimension != 2");
+    __BNN_REQUIRE_MSG(N == 2, "Object dimension != 2");
     auto     ppos = invTransform(ppos0);
     RealType dx   = fabs(ppos[0]);
     RealType dy   = fabs(ppos[1]);
@@ -410,7 +410,7 @@ RealType HexagonObject<N, RealType >::signedDistance(const VecX<N, RealType>& pp
 template<Int N, class RealType>
 RealType TriangularPrismObject<N, RealType >::signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside /*= true*/) const
 {
-    __BNN_ASSERT_MSG(N == 3, "Object dimension != 3");
+    __BNN_REQUIRE_MSG(N == 3, "Object dimension != 3");
     auto              ppos = invTransform(ppos0);
     VecX<N, RealType> q;
     for(Int i = 0; i < N; ++i) {
@@ -425,7 +425,7 @@ RealType TriangularPrismObject<N, RealType >::signedDistance(const VecX<N, RealT
 template<Int N, class RealType>
 RealType HexagonalPrismObject<N, RealType >::signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside /*= true*/) const
 {
-    __BNN_ASSERT_MSG(N == 3, "Object dimension != 3");
+    __BNN_REQUIRE_MSG(N == 3, "Object dimension != 3");
     auto              ppos = invTransform(ppos0);
     VecX<N, RealType> q;
     for(Int i = 0; i < N; ++i) {
@@ -440,7 +440,7 @@ RealType HexagonalPrismObject<N, RealType >::signedDistance(const VecX<N, RealTy
 template<Int N, class RealType>
 RealType CapsuleObject<N, RealType >::signedDistance(const VecX<N, RealType>& ppos0, bool bNegativeInside /*= true*/) const
 {
-    __BNN_ASSERT_MSG(N == 3, "Object dimension != 3");
+    __BNN_REQUIRE_MSG(N == 3, "Object dimension != 3");
     VecX<N, RealType> a(0); // end point a
     VecX<N, RealType> b(0); // end point b
     a[2] = RealType(1.0) - m_Radius;
@@ -651,7 +651,7 @@ inline bool point_in_triangle_2d(float x0, float y0,
     }
 
     float sum = a + b + c;
-    __BNN_ASSERT(sum != 0);                             // if the SOS signs match and are nonkero, there's no way all of a, b, and c are zero.
+    __BNN_REQUIRE(sum != 0);                             // if the SOS signs match and are nonkero, there's no way all of a, b, and c are zero.
     a /= sum;
     b /= sum;
     c /= sum;
@@ -664,7 +664,7 @@ template<class RealType>
 void computeSDFMesh(const Vector<Vec3ui>& faces, const Vec_Vec3f& vertices, const Vec3f& origin, RealType cellSize,
                     UInt ni, UInt nj, UInt nk, Array<3, RealType>& SDF, Int exactBand = 1)
 {
-    __BNN_ASSERT(ni > 0 && nj > 0 && nk > 0);
+    __BNN_REQUIRE(ni > 0 && nj > 0 && nk > 0);
 
     SDF.resize(ni, nj, nk);
     SDF.assign(RealType(ni + nj + nk) * cellSize);               // upper bound on distance
@@ -766,7 +766,7 @@ void computeSDFMesh(const Vector<Vec3ui>& faces, const Vec_Vec3f& vertices, cons
 template<class RealType>
 RealType TriMeshObject<3, RealType >::signedDistance(const Vec3<RealType>& ppos0, bool bNegativeInside /*= true*/) const
 {
-    __BNN_ASSERT(m_bSDFGenerated);
+    __BNN_REQUIRE(m_bSDFGenerated);
 
     auto     ppos    = invTransform(ppos0);
     auto     gridPos = m_Grid3D.getGridCoordinate(ppos);
@@ -781,7 +781,7 @@ void TriMeshObject<3, RealType >::computeSDF()
     ////////////////////////////////////////////////////////////////////////////////
     // Load mesh
     MeshLoader meshLoader;
-    __BNN_ASSERT(meshLoader.loadMesh(m_TriMeshFile));
+    __BNN_REQUIRE(meshLoader.loadMesh(m_TriMeshFile));
 
     Vec3f bbmin   = meshLoader.getAABBMin();
     Vec3f bbmax   = meshLoader.getAABBMax();

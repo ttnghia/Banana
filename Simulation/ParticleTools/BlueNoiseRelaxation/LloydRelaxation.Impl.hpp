@@ -40,7 +40,7 @@ void LloydRelaxation<Real >::relaxPositions(std::vector<Vec3<Real> >& denseParti
                                             int                       maxIterations /*= 1000*/,
                                             bool                      bUseCandidateCenters /*= false*/)
 {
-    __BNN_ASSERT(denseParticles.size() > 4 * particles.size());
+    __BNN_REQUIRE(denseParticles.size() > 4 * particles.size());
     computeLloydClusters(denseParticles, particles, minIterations, maxIterations, bUseCandidateCenters);
 }
 
@@ -53,7 +53,7 @@ void LloydRelaxation<Real >::relaxParticlesWeighted(const std::vector<Real>&  we
                                                     int                       maxIterations /*= 1000*/,
                                                     bool                      bUseCandidateCenters /*= false*/)
 {
-    __BNN_ASSERT(denseParticles.size() > 4 * particles.size());
+    __BNN_REQUIRE(denseParticles.size() > 4 * particles.size());
     computeWeightedLloydClusters(weights, denseParticles, particles, minIterations, maxIterations, bUseCandidateCenters);
 }
 
@@ -86,7 +86,7 @@ void LloydRelaxation<Real >::computeLloydClusters(std::vector<Vec3<Real> >& samp
 
         m_Timer.tick();
         collectSampleToCluster(clusterCenters, samples, samplesInCluster);
-        __BNN_ASSERT(samplesInCluster.size() == numClusters);
+        __BNN_REQUIRE(samplesInCluster.size() == numClusters);
         totalTime = m_Timer.tock();
         m_Logger.printLog(m_Timer.getRunTime("Collect samples to clusters total: "));
 
@@ -98,7 +98,7 @@ void LloydRelaxation<Real >::computeLloydClusters(std::vector<Vec3<Real> >& samp
                           [&](tbb::blocked_range<size_t> r)
                           {
                               for(size_t clusterIdx = r.begin(); clusterIdx != r.end(); ++clusterIdx) {
-                                  __BNN_ASSERT(samplesInCluster[clusterIdx].size() > 0);
+                                  __BNN_REQUIRE(samplesInCluster[clusterIdx].size() > 0);
 
                                   Vec3<Real>& center = clusterCenters[clusterIdx];
 
@@ -173,7 +173,7 @@ void LloydRelaxation<Real >::computeLloydClusters(std::vector<Vec3<Real> >& samp
     }
 
     m_Logger.newLine();
-    __BNN_ASSERT(minClusterDistance > m_OverlapThreshold * m_ParticleRadius);
+    __BNN_REQUIRE(minClusterDistance > m_OverlapThreshold * m_ParticleRadius);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -185,7 +185,7 @@ void LloydRelaxation<Real >::computeWeightedLloydClusters(const std::vector<Real
                                                           int                       maxIterations /*= 100*/,
                                                           bool                      bUseCandidateCenters /*= false*/)
 {
-    __BNN_ASSERT(samples.size() == weights.size());
+    __BNN_REQUIRE(samples.size() == weights.size());
 
 
     Vec_VecUInt              samplesInCluster;
@@ -209,7 +209,7 @@ void LloydRelaxation<Real >::computeWeightedLloydClusters(const std::vector<Real
 
         m_Timer.tick();
         collectSampleToCluster(clusterCenters, samples, samplesInCluster);
-        __BNN_ASSERT(samplesInCluster.size() == numClusters);
+        __BNN_REQUIRE(samplesInCluster.size() == numClusters);
         totalTime = m_Timer.tock();
         m_Logger.printLog(m_Timer.getRunTime("Collect samples to clusters total: "));
 
@@ -221,7 +221,7 @@ void LloydRelaxation<Real >::computeWeightedLloydClusters(const std::vector<Real
                           [&](tbb::blocked_range<size_t> r)
                           {
                               for(size_t clusterIdx = r.begin(); clusterIdx != r.end(); ++clusterIdx) {
-                                  __BNN_ASSERT(samplesInCluster[clusterIdx].size() > 0);
+                                  __BNN_REQUIRE(samplesInCluster[clusterIdx].size() > 0);
                                   Vec3<Real>& center = clusterCenters[clusterIdx];
 
                                   if(bUseCandidateCenters) {
@@ -279,7 +279,7 @@ void LloydRelaxation<Real >::computeWeightedLloydClusters(const std::vector<Real
     }
 
     m_Logger.newLine();
-    __BNN_ASSERT(minClusterDistance > m_OverlapThreshold * m_ParticleRadius);
+    __BNN_REQUIRE(minClusterDistance > m_OverlapThreshold * m_ParticleRadius);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -340,7 +340,7 @@ void LloydRelaxation<Real >::collectSampleToCluster(const std::vector<Vec3<Real>
                                   }
                               }     // end loop over neighbor cells
 
-                              __BNN_ASSERT(bHasNeighbor);
+                              __BNN_REQUIRE(bHasNeighbor);
                               m_ClosestCluster[sampleIdx] = closestClusterIdx;
                           }
                       });     // end parallel for
@@ -395,7 +395,7 @@ size_t LloydRelaxation<Real >::computeMedian(const std::vector<Vec3<Real> >& sam
 template<class Real>
 size_t LloydRelaxation<Real >::computeWeightedMedian(const std::vector<Vec3<Real> >& samples, const std::vector<Real>& weights, const Vec_UInt& subsetIndices)
 {
-    __BNN_ASSERT(samples.size() == weights.size());
+    __BNN_REQUIRE(samples.size() == weights.size());
 
     std::vector<Real> dist2(subsetIndices.size(), 0);
 
@@ -444,7 +444,7 @@ template<class Real>
 void LloydRelaxation<Real >::computeWeightedMean(const std::vector<Vec3<Real> >& samples, const std::vector<Real>& weights, const Vec_UInt& subsetIndices, Vec3<Real>& mean)
 {
     mean = Vec3<Real>(0);
-    __BNN_ASSERT(samples.size() == weights.size());
+    __BNN_REQUIRE(samples.size() == weights.size());
 
     Real sumW = 0;
 
@@ -455,7 +455,7 @@ void LloydRelaxation<Real >::computeWeightedMean(const std::vector<Vec3<Real> >&
         sumW += w;
     }
 
-    __BNN_ASSERT(sumW != 0);
+    __BNN_REQUIRE(sumW != 0);
 
     mean = mean / sumW;
 }
@@ -640,7 +640,7 @@ void LloydRelaxation<Real >::sortSamples(std::vector<Vec3<Real> >& samples, cons
         }
     }
 
-    __BNN_ASSERT(index == numSamples);
+    __BNN_REQUIRE(index == numSamples);
 
     std::copy(tmp_samples.begin(), tmp_samples.end(), samples.begin());
     tmp_samples.clear();

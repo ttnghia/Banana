@@ -28,6 +28,8 @@ namespace Banana
 Camera::Camera() :
     m_bDirty(true),
     m_bDebug(false),
+    m_WindowWidth(0),
+    m_WindowHeight(0),
     m_bReseted(false),
     m_CameraPosition(Vec3f(1, 0, 0)),
     m_CameraFocus(Vec3f(0, 0, 0)),
@@ -42,8 +44,8 @@ Camera::Camera() :
     m_Rotation(0.0f, 0.0f, 0.0f),
     m_Zooming(0.0f),
     m_Projection(PerspectiveProjection),
-    m_OrthoBMin(-1.0f),
-    m_OrthoBMax(1.0f)
+    m_OrthoLeft(-1.0f),
+    m_OrthoRight(1.0f)
 {
     setDefaultCamera(m_CameraPosition, m_CameraFocus, m_CameraUpDirection);
 }
@@ -87,22 +89,24 @@ void Camera::setDefaultCamera(const Vec3f& defaultPosition, const Vec3f& default
 void Camera::setProjection(Projection projection)
 {
     m_Projection = projection;
+    updateProjectionMatrix();
 }
 
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Camera::setFrustum(float fov, float nearZ, float farZ)
 {
     m_Frustum.m_Fov  = fov;
     m_Frustum.m_Near = nearZ;
     m_Frustum.m_Far  = farZ;
-
-    setDirty(true);
+    updateProjectionMatrix();
 }
 
-void Camera::setOrthoBox(const Vec3f& bMin, const Vec3f& bMax)
+void Camera::setOrthoBox(float bLeft, float bRight, float bNear /*= -10.0f*/, float bFar /*= 10.0f*/)
 {
-    m_OrthoBMin = bMin;
-    m_OrthoBMax = bMax;
+    m_OrthoLeft  = bLeft;
+    m_OrthoRight = bRight;
+    m_OrthoNear  = bNear;
+    m_OrthoFar   = bFar;
+    updateProjectionMatrix();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -110,14 +114,22 @@ void Camera::resizeWindow(int width, int height)
 {
     m_WindowWidth  = width;
     m_WindowHeight = height;
+    updateProjectionMatrix();
+}
 
-    ////////////////////////////////////////////////////////////////////////////////
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void Camera::updateProjectionMatrix()
+{
+    if(m_WindowWidth == 0 || m_WindowHeight == 0) {
+        return;
+    }
+    auto aspectRatio = static_cast<float>(m_WindowWidth) / static_cast<float>(m_WindowHeight);
     if(m_Projection == PerspectiveProjection) {
-        m_ProjectionMatrix = glm::perspective(m_Frustum.m_Fov, static_cast<float>(width) / static_cast<float>(height), m_Frustum.m_Near, m_Frustum.m_Far);
+        m_ProjectionMatrix = glm::perspective(m_Frustum.m_Fov, aspectRatio, m_Frustum.m_Near, m_Frustum.m_Far);
     } else {
-        m_ProjectionMatrix = glm::ortho(m_OrthoBMin[0], m_OrthoBMax[0],
-                                        m_OrthoBMin[1], m_OrthoBMax[1],
-                                        m_OrthoBMin[2], m_OrthoBMax[2]); // left, right, bot, top, near, far
+        m_ProjectionMatrix = glm::ortho(m_OrthoLeft, m_OrthoRight,
+                                        m_OrthoLeft / aspectRatio, m_OrthoRight / aspectRatio,
+                                        m_OrthoNear, m_OrthoFar);  // left, right, bot, top, near, far
     }
     m_InverseProjectionMatrix = glm::inverse(m_ProjectionMatrix);
     m_ViewProjectionMatrix    = m_ProjectionMatrix * m_ViewMatrix;
@@ -158,7 +170,6 @@ void Camera::updateCameraMatrices()
             printf("CameraDebug::UpdateViewMatrix CameraPosition = [%f, %f, %f], CameraFocus = [%f, %f, %f]\n",
                    m_CameraPosition[0], m_CameraPosition[1], m_CameraPosition[2],
                    m_CameraFocus[0], m_CameraFocus[1], m_CameraFocus[2]);
-            fflush(stdout);
         }
     }
 }
@@ -347,17 +358,23 @@ void Camera::zoom()
 {
     m_Zooming *= m_ZoomingLag;
 
-    Vec3f eyeDir = m_CameraPosition - m_CameraFocus;
-    float len    = static_cast<float>(eyeDir.length());
-    eyeDir /= len;
+    if(m_Projection == PerspectiveProjection) {
+        Vec3f eyeDir = m_CameraPosition - m_CameraFocus;
+        float len    = static_cast<float>(eyeDir.length());
+        eyeDir /= len;
+        len    *= (1.0f + m_Zooming);
 
-    len *= static_cast<float>(1.0 + m_Zooming);
-
-    if(len < 0.1f) {
-        len = 0.1f;
+        if(len < 0.1f) {
+            len = 0.1f;
+        }
+        m_CameraPosition = len * eyeDir + m_CameraFocus;
+    } else {
+        m_OrthoLeft  *= (1.0f + m_Zooming);
+        m_OrthoRight *= (1.0f + m_Zooming);
+        m_OrthoNear  *= (1.0f + m_Zooming);
+        m_OrthoFar   *= (1.0f + m_Zooming);
+        updateProjectionMatrix();
     }
-
-    m_CameraPosition = len * eyeDir + m_CameraFocus;
     setDirty(true);
 }
 

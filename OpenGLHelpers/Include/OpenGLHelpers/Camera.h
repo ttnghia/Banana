@@ -58,12 +58,13 @@ public:
     void setDefaultCamera(const Vec3f& defaultPosition, const Vec3f& defaultCameraFocus, const Vec3f& defaultUpDirection);
     void setProjection(Projection projection);
     void setFrustum(float fov, float nearZ, float farZ);
-    void setOrthoBox(const Vec3f& bMin, const Vec3f& bMax);
+    void setOrthoBox(float bLeft, float bRight, float bNear = -10.0f, float bFar = 10.0f);
     void resizeWindow(int width, int height);
     void reset();
 
     ////////////////////////////////////////////////////////////////////////////////
     // updateViewMatrix need to be called each time frame updating
+    void updateProjectionMatrix();
     void updateCameraMatrices();
 
     void setTranslationLag(float translationLag);
@@ -117,8 +118,10 @@ private:
     Vec2f m_LastMousePos;
 
     Frustum m_Frustum;
-    Vec3f   m_OrthoBMin;
-    Vec3f   m_OrthoBMax;
+    float   m_OrthoLeft;
+    float   m_OrthoRight;
+    float   m_OrthoNear;
+    float   m_OrthoFar;
 
     Mat4x4f m_ViewMatrix;
     Mat4x4f m_ProjectionMatrix;
