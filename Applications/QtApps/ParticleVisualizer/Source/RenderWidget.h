@@ -52,7 +52,7 @@ private:
 
 public slots:
     void setCaptureFrame(bool bCapture) { m_bCaptureFrames = bCapture; }
-    void updateCamera() { m_Camera->setDefaultCamera(m_VizData->cameraPosition, m_VizData->cameraFocus, Vec3f(0, 1, 0)); }
+    void updateCamera() { m_Camera->setCamera(m_VizData->cameraPosition, m_VizData->cameraFocus, Vec3f(0, 1, 0)); }
     void updateVizData(Int currentFrame);
 
     ////////////////////////////////////////////////////////////////////////////////

@@ -124,7 +124,7 @@ void OpenGLWidgetTestRender::initTestRenderFloor(QString texFile)
 
     ////////////////////////////////////////////////////////////////////////////////
     // camera
-    m_Camera->setDefaultCamera(glm::vec3(2, 1, 0), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+    m_Camera->setCamera(glm::vec3(2, 1, 0), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 
     ////////////////////////////////////////////////////////////////////////////////
     // light
@@ -183,7 +183,7 @@ void OpenGLWidgetTestRender::initTestRenderMeshWithShadow(QString meshFile, QStr
 
     ////////////////////////////////////////////////////////////////////////////////
     // camera
-    m_Camera->setDefaultCamera(glm::vec3(2, 1, 0), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+    m_Camera->setCamera(glm::vec3(2, 1, 0), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 
     ////////////////////////////////////////////////////////////////////////////////
     // light

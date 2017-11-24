@@ -111,8 +111,7 @@ void OpenGLMainWindow::setArthurStyle()
 
     QList<QWidget*> widgets = findChildren<QWidget*>();
 
-    foreach(QWidget * w, widgets)
-    {
+    foreach(QWidget* w, widgets) {
         QString className = QString(w->metaObject()->className());
 
         if((className == "QScrollBar") || (className == "QComboBox") || (className == "QCheckBox")) {

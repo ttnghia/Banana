@@ -37,7 +37,7 @@ const std::shared_ptr<ParticleSystemData>& RenderWidget::getParticleDataObj() co
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void RenderWidget::setCamera(const glm::vec3& cameraPosition, const glm::vec3& cameraFocus)
 {
-    m_Camera->setDefaultCamera(cameraPosition, cameraFocus, glm::vec3(0, 1, 0));
+    m_Camera->setCamera(cameraPosition, cameraFocus, glm::vec3(0, 1, 0));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
