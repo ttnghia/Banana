@@ -128,7 +128,6 @@ void Controller::connectWidgets()
 
     ////////////////////////////////////////////////////////////////////////////////
     // misc controllers
-    connect(m_chkUseAniKernel, &QCheckBox::toggled, m_RenderWidget, &RenderWidget::enableAniKernels);
     connect(m_chkRenderBox, &QCheckBox::toggled, m_RenderWidget, &RenderWidget::setRenderBox);
     connect(m_pkrBoxColor, &ColorPicker::colorChanged, [&](float r, float g, float b) { m_RenderWidget->setBoxColor(Vec3f(r, g, b)); });
     ////////////////////////////////////////////////////////////////////////////////
@@ -433,8 +432,6 @@ void Controller::setupColorModeControllers(QBoxLayout* layoutCtr)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Controller::setupMiscControllers(QBoxLayout* layoutCtr)
 {
-    m_chkUseAniKernel = new QCheckBox("Enable anisotropic kernel (if available)");
-    ////////////////////////////////////////////////////////////////////////////////
     m_chkRenderBox = new QCheckBox("Render domain box");
     m_chkRenderBox->setChecked(true);
     m_pkrBoxColor = new ColorPicker;
@@ -452,7 +449,6 @@ void Controller::setupMiscControllers(QBoxLayout* layoutCtr)
     line->setFrameShape(QFrame::HLine);
     line->setFrameShadow(QFrame::Sunken);
     ////////////////////////////////////////////////////////////////////////////////
-    layoutMiscCtrls->addWidget(m_chkUseAniKernel);
     layoutMiscCtrls->addSpacing(5);
     layoutMiscCtrls->addWidget(line);
     layoutMiscCtrls->addSpacing(5);

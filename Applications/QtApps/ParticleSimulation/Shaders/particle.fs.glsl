@@ -41,13 +41,9 @@ layout(std140) uniform Material
 
 uniform int   u_ColorMode;
 uniform float u_PointRadius;
-uniform int   u_UseAnisotropyKernel;
-uniform int   u_ScreenWidth;
-uniform int   u_ScreenHeight;
 
 flat in vec3 f_ViewCenter;
 flat in vec3 f_Color;
-flat in mat3 f_AniMatrix;
 
 out vec4 outColor;
 
@@ -72,45 +68,14 @@ void main()
     vec3 normal;
     vec3 fragPos;
 
-    if(u_UseAnisotropyKernel == 0) {
-        normal.xy = gl_PointCoord.xy * vec2(2.0, -2.0) + vec2(-1.0, 1.0);
-        float mag = dot(normal.xy, normal.xy);
+    normal.xy = gl_PointCoord.xy * vec2(2.0, -2.0) + vec2(-1.0, 1.0);
+    float mag = dot(normal.xy, normal.xy);
 
-        if(mag > 1.0) {
-            discard;           // kill pixels outside circle
-        }
-        normal.z = sqrt(1.0 - mag);
-        fragPos  = f_ViewCenter + normal * u_PointRadius;
-    } else {
-        vec3 fc = gl_FragCoord.xyz;
-        fc.xy /= vec2(u_ScreenWidth, u_ScreenHeight);
-        fc    *= 2.0;
-        fc    -= 1.0;
-
-        vec4 worldPos = invProjectionMatrix * vec4(fc, 1.0);
-        vec3 rayDir   = vec3(worldPos) / worldPos.w;
-
-        mat3 transMatrix    = mat3(viewMatrix) * f_AniMatrix * u_PointRadius;
-        mat3 transInvMatrix = inverse(transMatrix);
-        mat3 normalMatrix   = transpose(inverse((transMatrix)));
-
-        vec3 camT    = transInvMatrix * vec3(0, 0, 0);
-        vec3 centerT = transInvMatrix * f_ViewCenter;
-        vec3 rayDirT = normalize(transInvMatrix * rayDir);
-
-        // solve the ray-sphere intersection
-        float tmp   = dot(rayDirT, camT - centerT);
-        float delta = tmp * tmp - dot(camT - centerT, camT - centerT) + 1.0;
-        if(delta < 0.0) {
-            discard;             // kill pixels outside circle in parameter space
-        }
-        float d                  = -tmp - sqrt(delta);
-        vec3  intersectionPointT = camT + rayDirT * d;
-        vec3  normalT            = normalize(intersectionPointT - centerT);
-
-        fragPos = transMatrix * intersectionPointT;;
-        normal  = normalize(normalMatrix * normalT);
+    if(mag > 1.0) {
+        discard;               // kill pixels outside circle
     }
+    normal.z = sqrt(1.0 - mag);
+    fragPos  = f_ViewCenter + normal * u_PointRadius;
 
     // correct depth
     float z = dot(vec4(fragPos, 1.0), transpose(projectionMatrix)[2]);

@@ -46,6 +46,8 @@ void RenderWidget::initOpenGL()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void RenderWidget::resizeOpenGLWindow(int width, int height)
 {
+    m_RDataParticle.pointScale = static_cast<GLfloat>(height) / tanf(55.0 * 0.5 * M_PI / 180.0);
+
     if(m_CheckerboardRender != nullptr) {
         m_CheckerboardRender->setScreenSize(width, height);
     }
@@ -96,19 +98,6 @@ void RenderWidget::updateVizData()
     makeCurrent();
     ////////////////////////////////////////////////////////////////////////////////
     m_RDataParticle.buffPosition->uploadDataAsync(m_VizData->positions, 0, m_VizData->nParticles * m_VizData->systemDimension * sizeof(float));
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // upload anikernel
-    if(m_RDataParticle.useAnisotropyKernel) {
-        if(m_VizData->aniKernel != nullptr) {
-            auto aniKernelDataSize = m_VizData->nParticles * m_VizData->systemDimension * m_VizData->systemDimension * sizeof(float);
-            m_RDataParticle.buffAniKernels->uploadDataAsync(m_VizData->aniKernel, 0, aniKernelDataSize);
-            m_RDataParticle.hasAniKernel = 1;
-        } else {
-            m_RDataParticle.hasAniKernel = 0;
-        }
-    }
-    ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
     // color data
@@ -244,35 +233,26 @@ void RenderWidget::initRDataParticle()
     m_RDataParticle.shader->addFragmentShaderFromResource(":/Shaders/particle.fs.glsl");
     m_RDataParticle.shader->link();
 
-    m_RDataParticle.v_Position          = m_RDataParticle.shader->getAtributeLocation("v_Position");
-    m_RDataParticle.v_AnisotropyMatrix0 = m_RDataParticle.shader->getAtributeLocation("v_AnisotropyMatrix0");
-    m_RDataParticle.v_AnisotropyMatrix1 = m_RDataParticle.shader->getAtributeLocation("v_AnisotropyMatrix1");
-    m_RDataParticle.v_AnisotropyMatrix2 = m_RDataParticle.shader->getAtributeLocation("v_AnisotropyMatrix2");
-    m_RDataParticle.v_iColor            = m_RDataParticle.shader->getAtributeLocation("v_iColor");
-    m_RDataParticle.v_fColor            = m_RDataParticle.shader->getAtributeLocation("v_fColor");
+    m_RDataParticle.v_Position = m_RDataParticle.shader->getAtributeLocation("v_Position");
+    m_RDataParticle.v_iColor   = m_RDataParticle.shader->getAtributeLocation("v_iColor");
+    m_RDataParticle.v_fColor   = m_RDataParticle.shader->getAtributeLocation("v_fColor");
 
     m_RDataParticle.ub_CamData  = m_RDataParticle.shader->getUniformBlockIndex("CameraData");
     m_RDataParticle.ub_Light    = m_RDataParticle.shader->getUniformBlockIndex("Lights");
     m_RDataParticle.ub_Material = m_RDataParticle.shader->getUniformBlockIndex("Material");
 
-    m_RDataParticle.u_nParticles   = m_RDataParticle.shader->getUniformLocation("u_nParticles");
-    m_RDataParticle.u_PointRadius  = m_RDataParticle.shader->getUniformLocation("u_PointRadius");
-    m_RDataParticle.u_IsPointView  = m_RDataParticle.shader->getUniformLocation("u_IsPointView");
-    m_RDataParticle.u_ColorMode    = m_RDataParticle.shader->getUniformLocation("u_ColorMode");
-    m_RDataParticle.u_VColorMin    = m_RDataParticle.shader->getUniformLocation("u_VColorMin");
-    m_RDataParticle.u_VColorMax    = m_RDataParticle.shader->getUniformLocation("u_VColorMax");
-    m_RDataParticle.u_ColorMinVal  = m_RDataParticle.shader->getUniformLocation("u_ColorMinVal");
-    m_RDataParticle.u_ColorMaxVal  = m_RDataParticle.shader->getUniformLocation("u_ColorMaxVal");
-    m_RDataParticle.u_UseAniKernel = m_RDataParticle.shader->getUniformLocation("u_UseAniKernel");
-    m_RDataParticle.u_ScreenWidth  = m_RDataParticle.shader->getUniformLocation("u_ScreenWidth");
-    m_RDataParticle.u_ScreenHeight = m_RDataParticle.shader->getUniformLocation("u_ScreenHeight");
-    m_RDataParticle.u_ClipPlane    = m_RDataParticle.shader->getUniformLocation("u_ClipPlane");
+    m_RDataParticle.u_nParticles  = m_RDataParticle.shader->getUniformLocation("u_nParticles");
+    m_RDataParticle.u_PointRadius = m_RDataParticle.shader->getUniformLocation("u_PointRadius");
+    m_RDataParticle.u_PointScale  = m_RDataParticle.shader->getUniformLocation("u_PointScale");
+    m_RDataParticle.u_ColorMode   = m_RDataParticle.shader->getUniformLocation("u_ColorMode");
+    m_RDataParticle.u_vColorMin   = m_RDataParticle.shader->getUniformLocation("u_vColorMin");
+    m_RDataParticle.u_vColorMax   = m_RDataParticle.shader->getUniformLocation("u_vColorMax");
+    m_RDataParticle.u_ColorMinVal = m_RDataParticle.shader->getUniformLocation("u_ColorMinVal");
+    m_RDataParticle.u_ColorMaxVal = m_RDataParticle.shader->getUniformLocation("u_ColorMaxVal");
+    m_RDataParticle.u_ClipPlane   = m_RDataParticle.shader->getUniformLocation("u_ClipPlane");
 
     m_RDataParticle.buffPosition = std::make_unique<OpenGLBuffer>();
     m_RDataParticle.buffPosition->createBuffer(GL_ARRAY_BUFFER, 1, nullptr, GL_DYNAMIC_DRAW);
-
-    m_RDataParticle.buffAniKernels = std::make_unique<OpenGLBuffer>();
-    m_RDataParticle.buffAniKernels->createBuffer(GL_ARRAY_BUFFER, 1, nullptr, GL_DYNAMIC_DRAW);
 
     m_RDataParticle.buffColorData = std::make_unique<OpenGLBuffer>();
     m_RDataParticle.buffColorData->createBuffer(GL_ARRAY_BUFFER, 1, nullptr, GL_DYNAMIC_DRAW);
@@ -330,22 +310,14 @@ void RenderWidget::renderParticles()
 
     m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_nParticles, m_RDataParticle.nParticles);
     m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_PointRadius, m_RDataParticle.pointRadius);
-    m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_IsPointView, m_RDataParticle.isPointView);
+    m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_PointScale,  m_RDataParticle.pointScale);
     m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_ColorMode, m_RDataParticle.pColorMode);
     m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_ClipPlane, m_ClipPlane);
-    m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_ScreenWidth, width());
-    m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_ScreenHeight, height());
-
-    if(m_RDataParticle.useAnisotropyKernel && m_RDataParticle.hasAniKernel) {
-        m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_UseAniKernel, 1);
-    } else {
-        m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_UseAniKernel, 0);
-    }
 
     if(m_RDataParticle.pColorMode == ParticleColorMode::ObjectIndex ||
        m_RDataParticle.pColorMode == ParticleColorMode::VelocityMagnitude) {
-        m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_VColorMin, m_RDataParticle.vColorMin);
-        m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_VColorMax, m_RDataParticle.vColorMax);
+        m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_vColorMin, m_RDataParticle.vColorMin);
+        m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_vColorMax, m_RDataParticle.vColorMax);
         m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_ColorMinVal, m_RDataParticle.colorMinVal);
         m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_ColorMaxVal, m_RDataParticle.colorMaxVal);
     }

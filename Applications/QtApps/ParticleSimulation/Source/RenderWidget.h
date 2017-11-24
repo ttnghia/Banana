@@ -132,21 +132,16 @@ public slots:
     void setColorDataMin(const Vec3f& colorMin) { m_RDataParticle.colorMinVal = colorMin; }
     void setColorDataMax(const Vec3f& colorMax) { m_RDataParticle.colorMaxVal = colorMax; }
     void setParticleMaterial(const Material::MaterialData& material);
-    void enableAniKernels(bool bAniKernel) { m_RDataParticle.useAnisotropyKernel = bAniKernel ? 1 : 0; }
 private:
     struct RDataParticle
     {
-        SharedPtr<QtAppShaderProgram> shader         = nullptr;
-        UniquePtr<OpenGLBuffer>       buffPosition   = nullptr;
-        UniquePtr<OpenGLBuffer>       buffAniKernels = nullptr;
-        UniquePtr<OpenGLBuffer>       buffColorData  = nullptr;
-        UniquePtr<Material>           material       = nullptr;
+        SharedPtr<QtAppShaderProgram> shader        = nullptr;
+        UniquePtr<OpenGLBuffer>       buffPosition  = nullptr;
+        UniquePtr<OpenGLBuffer>       buffColorData = nullptr;
+        UniquePtr<Material>           material      = nullptr;
 
         GLuint VAO;
         GLint  v_Position;
-        GLint  v_AnisotropyMatrix0;
-        GLint  v_AnisotropyMatrix1;
-        GLint  v_AnisotropyMatrix2;
         GLint  v_iColor;
         GLint  v_fColor;
         GLuint ub_CamData;
@@ -154,25 +149,19 @@ private:
         GLuint ub_Material;
         GLuint u_nParticles;
         GLuint u_PointRadius;
+        GLuint u_PointScale;
         GLuint u_ClipPlane;
-        GLuint u_IsPointView;
         GLuint u_ColorMode;
-        GLuint u_VColorMin;
-        GLuint u_VColorMax;
+        GLuint u_vColorMin;
+        GLuint u_vColorMax;
         GLuint u_ColorMinVal;
         GLuint u_ColorMaxVal;
-        GLuint u_UseAniKernel;
-        GLuint u_ScreenWidth;
-        GLuint u_ScreenHeight;
 
         GLuint  nParticles = 0;
         GLfloat pointRadius;
+        GLfloat pointScale;
 
-        GLint isPointView         = 0;
-        GLint useAnisotropyKernel = 1;
-        GLint hasAniKernel        = 0;
-        GLint pColorMode          = ParticleColorMode::Ramp;
-
+        GLint pColorMode  = ParticleColorMode::Ramp;
         float vColorMin   = 0;
         float vColorMax   = 1.0f;
         Vec3f colorMinVal = DEFAULT_COLOR_DATA_MIN;
