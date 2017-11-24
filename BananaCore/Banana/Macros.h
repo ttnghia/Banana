@@ -189,10 +189,10 @@ inline void throwIfFailed(HRESULT hr)
         __BNN_ERROR(err)           \
         __BANANA_EARLY_TERMINATION \
     }
-        //exit(EXIT_FAILURE); \
+//exit(EXIT_FAILURE);
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #ifdef __BANANA_DEBUG__
-#  define __BNN_REQUIRE(condition)                                                            \
+#  define __BNN_REQUIRE(condition)                                                           \
     {                                                                                        \
         if(!(condition))                                                                     \
         {                                                                                    \
@@ -203,7 +203,7 @@ inline void throwIfFailed(HRESULT hr)
         }                                                                                    \
     }
 #else
-#  define __BNN_REQUIRE(condition)                                                            \
+#  define __BNN_REQUIRE(condition)                                                           \
     {                                                                                        \
         if(!(condition))                                                                     \
         {                                                                                    \
@@ -217,7 +217,7 @@ inline void throwIfFailed(HRESULT hr)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #ifdef __BANANA_DEBUG__
-#  define __BNN_REQUIRE_MSG(condition, msg)                                                   \
+#  define __BNN_REQUIRE_MSG(condition, msg)                                                  \
     {                                                                                        \
         if(!(condition))                                                                     \
         {                                                                                    \
@@ -229,7 +229,7 @@ inline void throwIfFailed(HRESULT hr)
         }                                                                                    \
     }
 #else
-#  define __BNN_REQUIRE_MSG(condition, msg)                                                   \
+#  define __BNN_REQUIRE_MSG(condition, msg)                                                  \
     {                                                                                        \
         if(!(condition))                                                                     \
         {                                                                                    \
