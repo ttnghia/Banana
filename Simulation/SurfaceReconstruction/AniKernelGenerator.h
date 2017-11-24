@@ -31,25 +31,30 @@ namespace Banana
 class AnisotropicKernelGenerator
 {
 public:
-    AnisotropicKernelGenerator(UInt nParticles, Vec3r* particles, Real particleRadius, Real defaultSpraySize = Real(0.75), Real kernelRatio = Real(8.0)) :
-        m_NParticles(nParticles), m_Particles(particles), m_DefaultSpraySize(defaultSpraySize)
+    AnisotropicKernelGenerator(const Vec_Vec3r& particles, Real particleRadius, Real defaultSpraySize = Real(0.75), Real kernelRatio = Real(8.0)) :
+        AnisotropicKernelGenerator((static_cast<UInt>(particles.size())), particles.data(), defaultSpraySize, kernelRatio) {}
+
+    AnisotropicKernelGenerator(UInt nParticles, const Vec3r* particles, Real particleRadius, Real defaultSpraySize = Real(0.75), Real kernelRatio = Real(8.0)) :
+        m_nParticles(nParticles), m_Particles(particles), m_DefaultSpraySize(defaultSpraySize)
     {
         m_KernelRadius    = kernelRatio * particleRadius;
         m_KernelRadiusSqr = m_KernelRadius * m_KernelRadius;
         m_KernelRadiusInv = Real(1.0) / m_KernelRadius;
 
         m_NSearch = std::make_unique<NeighborSearch::NeighborSearch3D>(m_KernelRadius, true);
-        m_NSearch->add_point_set(glm::value_ptr(m_Particles[0]), m_NParticles, true, true);
+        m_NSearch->add_point_set(glm::value_ptr(m_Particles[0]), m_nParticles, true, true);
+        m_bUseInternalData = true;
     }
 
-    void               generateAniKernels();
-    const Vec_Vec3r&   kernelCenters() const { return m_KernelCenters; }
-    const Vec_Mat3x3r& kernelMatrices() const { return m_KernelMatrices; }
+    void        computeAniKernels(Vec_Vec3r& kernelCenters, Vec_Mat3x3r& kernelMatrices);
+    void        computeAniKernels() { computeAniKernels(m_KernelCenters, m_KernelMatrices); }
+    const auto& kernelCenters() const { return m_KernelCenters; }
+    const auto& kernelMatrices() const { return m_KernelMatrices; }
 
 private:
-    __BNN_INLINE Real W(Real d2) { return (d2 < m_KernelRadiusSqr) ? Real(1.0) - MathHelpers::cube(sqrt(d2) * m_KernelRadiusInv) : Real(0); }
-    __BNN_INLINE Real W(const Vec3r& r) { return W(glm::length2(r)); }
-    __BNN_INLINE Real W(const Vec3r& xi, const Vec3r& xj) { return W(glm::length2(xi - xj)); }
+    Real W(Real d2) { return (d2 < m_KernelRadiusSqr) ? Real(1.0) - MathHelpers::cube(sqrt(d2) * m_KernelRadiusInv) : Real(0); }
+    Real W(const Vec3r& r) { return W(glm::length2(r)); }
+    Real W(const Vec3r& xi, const Vec3r& xj) { return W(glm::length2(xi - xj)); }
 
     ////////////////////////////////////////////////////////////////////////////////
     Real m_KernelRadius;
@@ -57,12 +62,13 @@ private:
     Real m_KernelRadiusInv;
     Real m_DefaultSpraySize;
 
-    UInt                                        m_NParticles = 0;
-    Vec3r*                                      m_Particles  = nullptr;
-    UniquePtr<NeighborSearch::NeighborSearch3D> m_NSearch    = nullptr;
+    UniquePtr<NeighborSearch::NeighborSearch3D> m_NSearch = nullptr;
 
-    Vec_Vec3r   m_KernelCenters;
-    Vec_Mat3x3r m_KernelMatrices;
+    UInt         m_nParticles;
+    const Vec3r* m_Particles;
+    Vec_Vec3r    m_KernelCenters;
+    Vec_Mat3x3r  m_KernelMatrices;
+    bool         m_bUseInternalData = true;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

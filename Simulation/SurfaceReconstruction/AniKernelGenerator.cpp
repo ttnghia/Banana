@@ -33,16 +33,16 @@
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void AnisotropicKernelGenerator::generateAniKernels()
+void AnisotropicKernelGenerator::computeAniKernels(Vec_Vec3r& kernelCenters, Vec_Mat3x3r& kernelMatrices)
 {
-    m_KernelCenters.resize(m_NParticles);
-    m_KernelMatrices.resize(m_NParticles);
+    kernelCenters.resize(m_nParticles);
+    kernelMatrices.resize(m_nParticles);
 
     ////////////////////////////////////////////////////////////////////////////////
     m_NSearch->find_neighbors();
     const auto& d0 = m_NSearch->point_set(0);
 
-    ParallelFuncs::parallel_for<UInt>(0, m_NParticles,
+    ParallelFuncs::parallel_for<UInt>(0, m_nParticles,
                                       [&](UInt p)
                                       {
                                           ////////////////////////////////////////////////////////////////////////////////
@@ -60,12 +60,12 @@ void AnisotropicKernelGenerator::generateAniKernels()
                                               pposWM += wpq * qpos;
                                           }
 
-                                          pposWM            /= sumW;
-                                          m_KernelCenters[p] = Real(1.0 - AniGen_Lambda) * ppos + Real(AniGen_Lambda) * pposWM;
+                                          pposWM          /= sumW;
+                                          kernelCenters[p] = Real(1.0 - AniGen_Lambda) * ppos + Real(AniGen_Lambda) * pposWM;
 
                                           ////////////////////////////////////////////////////////////////////////////////
                                           if(d0.n_neighbors(0, p) < AniGen_NeighborCountThreshold) {
-                                              m_KernelMatrices[p] = Mat3x3r(m_DefaultSpraySize);
+                                              kernelMatrices[p] = Mat3x3r(m_DefaultSpraySize);
                                               return;
                                           }
 
@@ -91,8 +91,8 @@ void AnisotropicKernelGenerator::generateAniKernels()
                                           QRSVD::svd(C, U, S, V);
 
                                           Vec3r sigmas = Vec3r(S[0], MathHelpers::max(S[1], S[0] / AniGen_Kr), MathHelpers::max(S[2], S[0] / AniGen_Kr));
-                                          sigmas             *= std::cbrt(Real(1.0) / glm::compMul(sigmas)); // scale so that det(covariance) == 1
-                                          m_KernelMatrices[p] = U * LinaHelpers::diagMatrix(sigmas) * glm::transpose(V);
+                                          sigmas           *= std::cbrt(Real(1.0) / glm::compMul(sigmas));   // scale so that det(covariance) == 1
+                                          kernelMatrices[p] = U * LinaHelpers::diagMatrix(sigmas) * glm::transpose(V);
                                       });
 }
 
