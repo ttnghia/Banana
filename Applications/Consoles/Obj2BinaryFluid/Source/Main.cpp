@@ -87,7 +87,7 @@ void convertFluid()
 
         Vec3f*                     particles = reinterpret_cast<Vec3f*>((void*)loader.getVertices().data());
         AnisotropicKernelGenerator aniKernelGenerator(static_cast<UInt>(loader.getNVertices()), particles, particleRadius, kernelRatio);
-        aniKernelGenerator.generateAniKernels();
+        aniKernelGenerator.computeAniKernels();
 
         outputPos->clearBuffer();
         outputPos->getBuffer().append(static_cast<UInt>(loader.getNVertices()));
