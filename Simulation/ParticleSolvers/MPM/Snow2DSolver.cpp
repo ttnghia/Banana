@@ -112,9 +112,9 @@ void Snow2DSolver::sortParticles()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Snow2DSolver::loadSimParams(const nlohmann::json& jParams)
 {
-    __BNN_ASSERT(m_BoundaryObjects.size() > 0);
+    __BNN_REQUIRE(m_BoundaryObjects.size() > 0);
     SharedPtr<GeometryObjects::BoxObject<2, Real> > box = dynamic_pointer_cast<GeometryObjects::BoxObject<2, Real> >(m_BoundaryObjects[0]->geometry());
-    __BNN_ASSERT(box != nullptr);
+    __BNN_REQUIRE(box != nullptr);
     solverParams().movingBMin = box->boxMin();
     solverParams().movingBMax = box->boxMax();
 
@@ -236,11 +236,11 @@ bool Snow2DSolver::loadMemoryState()
     }
 
     Real particleRadius;
-    __BNN_ASSERT(m_MemoryStateIO->getFixedAttribute("particle_radius", particleRadius));
-    __BNN_ASSERT_APPROX_NUMBERS(solverParams().particleRadius, particleRadius, MEpsilon);
+    __BNN_REQUIRE(m_MemoryStateIO->getFixedAttribute("particle_radius", particleRadius));
+    __BNN_REQUIRE_APPROX_NUMBERS(solverParams().particleRadius, particleRadius, MEpsilon);
 
-    __BNN_ASSERT(m_MemoryStateIO->getParticleAttribute("position", particleData().positions));
-    __BNN_ASSERT(m_MemoryStateIO->getParticleAttribute("velocity", particleData().velocities));
+    __BNN_REQUIRE(m_MemoryStateIO->getParticleAttribute("position", particleData().positions));
+    __BNN_REQUIRE(m_MemoryStateIO->getParticleAttribute("velocity", particleData().velocities));
     assert(particleData().velocities.size() == particleData().positions.size());
 
     return true;

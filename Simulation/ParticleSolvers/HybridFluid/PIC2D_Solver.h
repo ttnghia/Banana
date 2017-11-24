@@ -157,7 +157,7 @@ struct PIC2D_Data
 
         virtual void addParticles(const Vec_Vec2r& newPositions, const Vec_Vec2r& newVelocities) override
         {
-            __BNN_ASSERT(newPositions.size() == newVelocities.size());
+            __BNN_REQUIRE(newPositions.size() == newVelocities.size());
             positions.insert(positions.end(), newPositions.begin(), newPositions.end());
             velocities.insert(velocities.end(), newVelocities.begin(), newVelocities.end());
             tmp_positions.resize(positions.size());

@@ -99,18 +99,18 @@ void Simulator::changeScene(const QString& scene)
     ////////////////////////////////////////////////////////////////////////////////
     QString       sceneFile = getScenePath() + "/" + scene;
     std::ifstream inFile(sceneFile.toStdString());
-    __BNN_ASSERT(inFile.is_open());
+    __BNN_REQUIRE(inFile.is_open());
     nlohmann::json jParams = nlohmann::json::parse(inFile);
     inFile.close();
     ////////////////////////////////////////////////////////////////////////////////
-    __BNN_ASSERT(jParams.find("GlobalParameters") != jParams.end());
+    __BNN_REQUIRE(jParams.find("GlobalParameters") != jParams.end());
     auto   jGlobalParams = jParams["GlobalParameters"];
     String solverName;
-    __BNN_ASSERT(JSONHelpers::readValue(jGlobalParams, solverName, "Solver"));
+    __BNN_REQUIRE(JSONHelpers::readValue(jGlobalParams, solverName, "Solver"));
     ////////////////////////////////////////////////////////////////////////////////
     m_ParticleSolver.reset();
     m_ParticleSolver = ParticleSolverQtFactory::createSolver(solverName);
-    __BNN_ASSERT(m_ParticleSolver != nullptr);
+    __BNN_REQUIRE(m_ParticleSolver != nullptr);
     m_ParticleSolver->loadSceneFromFile(sceneFile.toStdString());
     ////////////////////////////////////////////////////////////////////////////////
     m_VizData->systemDimension = m_ParticleSolver->getSolverDimension();

@@ -357,7 +357,7 @@ public:
     }
 
     __BNN_INLINE void assign(const T& value) { m_Data.assign(m_Data.size(), value); }
-    __BNN_INLINE void copyDataFrom(const Array<N, T>& other) { __BNN_ASSERT(equalSize(other)); m_Data = other.m_Data; }
+    __BNN_INLINE void copyDataFrom(const Array<N, T>& other) { __BNN_REQUIRE(equalSize(other)); m_Data = other.m_Data; }
     __BNN_INLINE void setZero() { m_Data.assign(m_Data.size(), 0); }
     __BNN_INLINE void clear() { m_Data.resize(0); m_Size = VecX<N, size_type>(0); }
     __BNN_INLINE void swap(Array<N, T>& other) { std::swap(m_Size, other.m_Size); m_Data.swap(other.m_Data); }
@@ -475,7 +475,7 @@ public:
             buffer.getData<UInt>(tmp, sizeof(UInt) * i);
             m_Size[i] = static_cast<size_type>(tmp);
         }
-        __BNN_ASSERT(buffer.buffer().size() == N * sizeof(UInt) + sizeof(T) * glm::compMul(m_Size));
+        __BNN_REQUIRE(buffer.buffer().size() == N * sizeof(UInt) + sizeof(T) * glm::compMul(m_Size));
         buffer.getData(m_Data, sizeof(UInt) * N, static_cast<UInt>(glm::compMul(m_Size)));
         return true;
     }

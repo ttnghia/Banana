@@ -162,7 +162,7 @@ void WCSPHSolver::generateParticles(const nlohmann::json& jParams)
     }
 
     if(solverParams().bUseBoundaryParticles) {
-        __BNN_ASSERT(m_BoundaryObjects.size() != 0);
+        __BNN_REQUIRE(m_BoundaryObjects.size() != 0);
         for(auto& bdObj : m_BoundaryObjects) {
             __BNN_TODO_MSG("Unify boundary particles into solver data")
             UInt nGen = bdObj->generateBoundaryParticles(solverData().BDParticles, Real(0.85) * solverParams().particleRadius);
@@ -269,11 +269,11 @@ bool WCSPHSolver::loadMemoryState()
     }
 
     Real particleRadius;
-    __BNN_ASSERT(m_MemoryStateIO->getFixedAttribute("particle_radius", particleRadius));
-    __BNN_ASSERT_APPROX_NUMBERS(solverParams().particleRadius, particleRadius, MEpsilon);
+    __BNN_REQUIRE(m_MemoryStateIO->getFixedAttribute("particle_radius", particleRadius));
+    __BNN_REQUIRE_APPROX_NUMBERS(solverParams().particleRadius, particleRadius, MEpsilon);
 
-    __BNN_ASSERT(m_MemoryStateIO->getParticleAttribute("position", solverData().positions));
-    __BNN_ASSERT(m_MemoryStateIO->getParticleAttribute("velocity", solverData().velocities));
+    __BNN_REQUIRE(m_MemoryStateIO->getParticleAttribute("position", solverData().positions));
+    __BNN_REQUIRE(m_MemoryStateIO->getParticleAttribute("velocity", solverData().velocities));
     assert(solverData().velocities.size() == solverData().getNParticles());
 
     logger().printLog(String("Loaded memory state from frameIdx = ") + std::to_string(latestStateIdx));

@@ -87,10 +87,10 @@ bool DataReader::loadVizData(const QString& dataPath)
 
     ////////////////////////////////////////////////////////////////////////////////
     // read the frame data folder
-    __BNN_ASSERT(jParams.find("GlobalParameters") != jParams.end());
+    __BNN_REQUIRE(jParams.find("GlobalParameters") != jParams.end());
     auto   jGlobalParams = jParams["GlobalParameters"];
     String frameDataFolder;
-    __BNN_ASSERT(JSONHelpers::readValue(jGlobalParams, frameDataFolder, "FrameDataFolder"));
+    __BNN_REQUIRE(JSONHelpers::readValue(jGlobalParams, frameDataFolder, "FrameDataFolder"));
     m_VizData->particleReader.setDataPath(dataPath.toStdString(), frameDataFolder, "frame");
 
     // add to dir watcher
@@ -127,7 +127,7 @@ bool DataReader::loadVizData(const QString& dataPath)
         }
     }
 
-    __BNN_ASSERT(jParams.find("SimulationParameters") != jParams.end());
+    __BNN_REQUIRE(jParams.find("SimulationParameters") != jParams.end());
     auto jSimParams = jParams["SimulationParameters"];
     if(jSimParams.find("SimulationDomainBox") != jSimParams.end()) {
         auto  jDomainParams = jSimParams["SimulationDomainBox"];
@@ -157,8 +157,8 @@ bool DataReader::loadVizData(const QString& dataPath)
         auto jBDParams = jParams["AdditionalBoundaryObjects"];
         for(auto& jObj : jBDParams) {
             String geometryType;
-            __BNN_ASSERT(JSONHelpers::readValue(jObj, geometryType, "GeometryType"));
-            __BNN_ASSERT(!geometryType.empty());
+            __BNN_REQUIRE(JSONHelpers::readValue(jObj, geometryType, "GeometryType"));
+            __BNN_REQUIRE(!geometryType.empty());
 
             if((geometryType != "TriMesh") && (geometryType != "trimesh")) {
                 continue;
@@ -170,7 +170,7 @@ bool DataReader::loadVizData(const QString& dataPath)
             Vec4f  rotationAxisAngle(1, 0, 0, 0);
             float  scale = 1.0f;
 
-            __BNN_ASSERT(JSONHelpers::readValue(jObj, meshFile, "MeshFile"));
+            __BNN_REQUIRE(JSONHelpers::readValue(jObj, meshFile, "MeshFile"));
 
             JSONHelpers::readVector(jObj, translation, "Translation");
             JSONHelpers::readVector(jObj, rotationEulerAngles, "RotationEulerAngles");
@@ -187,7 +187,7 @@ bool DataReader::loadVizData(const QString& dataPath)
             Mat4x4f transformationMatrix = translationMatrix * rotationMatrix * scaleMatrix;
 
             MeshLoader meshLoader;
-            __BNN_ASSERT(meshLoader.loadMesh(meshFile));
+            __BNN_REQUIRE(meshLoader.loadMesh(meshFile));
 
             Vec3f bbmin   = meshLoader.getAABBMin();
             Vec3f bbmax   = meshLoader.getAABBMax();
@@ -312,7 +312,7 @@ bool DataReader::readParticles(int frameID, size_t& bytesRead)
     }
     ////////////////////////////////////////////////////////////////////////////////
     float particleRadius;
-    __BNN_ASSERT(m_VizData->particleReader.getFixedAttribute("particle_radius", particleRadius));
+    __BNN_REQUIRE(m_VizData->particleReader.getFixedAttribute("particle_radius", particleRadius));
     ////////////////////////////////////////////////////////////////////////////////
     return true;
 }

@@ -211,7 +211,7 @@ void Logger::initialize(bool bPrint2Console /*= true*/, bool bWriteLog2File /*= 
 
             ++i;
 
-            __BNN_ASSERT(i < 1000);
+            __BNN_REQUIRE(i < 1000);
         } while(true);
 
         ////////////////////////////////////////////////////////////////////////////////

@@ -50,7 +50,7 @@ class Logger
 public:
     Logger(const String& instanceName)
     {
-        __BNN_ASSERT(s_bInitialized);
+        __BNN_REQUIRE(s_bInitialized);
         m_ConsoleLogger = std::make_shared<spdlog::logger>(instanceName, s_ConsoleSink);
 
         if(s_LogFileSink != nullptr) {

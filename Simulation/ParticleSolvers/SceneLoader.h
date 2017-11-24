@@ -119,8 +119,8 @@ inline void loadGlobalParams(const nlohmann::json& jParams, ParticleSolvers::Glo
 template<Int N, class RealType>
 void loadSimulationObject(const nlohmann::json& jParams, const SharedPtr<SimulationObject<N, RealType> >& obj)
 {
-    __BNN_ASSERT(obj != nullptr);
-    __BNN_ASSERT(JSONHelpers::readValue(jParams, obj->nameID(), "UniqueName"));
+    __BNN_REQUIRE(obj != nullptr);
+    __BNN_REQUIRE(JSONHelpers::readValue(jParams, obj->nameID(), "UniqueName"));
 
     ////////////////////////////////////////////////////////////////////////////////
     JSONHelpers::readValue(jParams, obj->meshFile(),     "MeshFile");
@@ -168,10 +168,10 @@ void loadSimulationObject(const nlohmann::json& jParams, const SharedPtr<Simulat
             JSONHelpers::readValue(jAnimation, startFrame, "StartFrame");
             aniObj.setPeriodic(bPeriodic, startFrame);
         }
-        __BNN_ASSERT(jAnimation.find("KeyFrames") != jAnimation.end());
+        __BNN_REQUIRE(jAnimation.find("KeyFrames") != jAnimation.end());
         for(auto& jKeyFrame : jAnimation["KeyFrames"]) {
             KeyFrame<N, RealType> keyFrame;
-            __BNN_ASSERT(JSONHelpers::readValue(jKeyFrame, keyFrame.frame, "Frame"));
+            __BNN_REQUIRE(JSONHelpers::readValue(jKeyFrame, keyFrame.frame, "Frame"));
             JSONHelpers::readVector(jKeyFrame, keyFrame.translation, "Translation");
 
             VecX<N, Real> rotationEulerAngles;
@@ -208,10 +208,10 @@ void loadSimulationObject(const nlohmann::json& jParams, const SharedPtr<Simulat
                 box->setPeriodic(bPeriodic, startFrame);
             }
 
-            __BNN_ASSERT(jAnimation.find("KeyFrames") != jAnimation.end());
+            __BNN_REQUIRE(jAnimation.find("KeyFrames") != jAnimation.end());
             for(auto& jKeyFrame : jAnimation["KeyFrames"]) {
                 UInt frame;
-                __BNN_ASSERT(JSONHelpers::readValue(jKeyFrame, frame, "Frame"));
+                __BNN_REQUIRE(JSONHelpers::readValue(jKeyFrame, frame, "Frame"));
                 if(JSONHelpers::readVector(jKeyFrame, bMin, "BoxMin") && JSONHelpers::readVector(jKeyFrame, bMax, "BoxMax")) {
                     box->addKeyFrame(frame, bMin, bMax);
                 }
@@ -225,7 +225,7 @@ void loadSimulationObject(const nlohmann::json& jParams, const SharedPtr<Simulat
     // specialized for trimesh object
     auto meshObj = dynamic_pointer_cast<GeometryObjects::TriMeshObject<N, RealType> >(obj->geometry());
     if(meshObj != nullptr) {
-        __BNN_ASSERT(JSONHelpers::readValue(jParams, meshObj->meshFile(), "MeshFile"));
+        __BNN_REQUIRE(JSONHelpers::readValue(jParams, meshObj->meshFile(), "MeshFile"));
         JSONHelpers::readValue(jParams, meshObj->sdfStep(), "SDFStep");
         meshObj->computeSDF();
     }
@@ -237,8 +237,8 @@ void loadBoundaryObjects(const nlohmann::json& jParams, Vector<SharedPtr<Boundar
 {
     for(auto& jObj : jParams) {
         String geometryType;
-        __BNN_ASSERT(JSONHelpers::readValue(jObj, geometryType, "GeometryType"));
-        __BNN_ASSERT(!geometryType.empty());
+        __BNN_REQUIRE(JSONHelpers::readValue(jObj, geometryType, "GeometryType"));
+        __BNN_REQUIRE(!geometryType.empty());
 
         SharedPtr<BoundaryObject<N, RealType> > obj = nullptr;
         if(geometryType == "Box" || geometryType == "box" || geometryType == "BOX") {
@@ -257,8 +257,8 @@ void loadParticleGenerators(const nlohmann::json& jParams, Vector<SharedPtr<Part
 {
     for(auto& jObj : jParams) {
         String geometryType;
-        __BNN_ASSERT(JSONHelpers::readValue(jObj, geometryType, "GeometryType"));
-        __BNN_ASSERT(!geometryType.empty());
+        __BNN_REQUIRE(JSONHelpers::readValue(jObj, geometryType, "GeometryType"));
+        __BNN_REQUIRE(!geometryType.empty());
 
         auto obj = std::make_shared<ParticleGenerator<N, RealType> >(geometryType);
         particleGenerators.push_back(obj);
@@ -281,8 +281,8 @@ void loadParticleRemovers(const nlohmann::json& jParams, Vector<SharedPtr<Partic
 {
     for(auto& jObj : jParams) {
         String geometryType;
-        __BNN_ASSERT(JSONHelpers::readValue(jObj, geometryType, "GeometryType"));
-        __BNN_ASSERT(!geometryType.empty());
+        __BNN_REQUIRE(JSONHelpers::readValue(jObj, geometryType, "GeometryType"));
+        __BNN_REQUIRE(!geometryType.empty());
 
         auto obj = std::make_shared<ParticleRemover<N, RealType> >(geometryType);
         particleRemovers.push_back(obj);

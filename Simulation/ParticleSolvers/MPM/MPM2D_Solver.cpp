@@ -47,7 +47,7 @@ void MPM2D_Parameters::makeReady()
     domainBMin -= Vec2r(cellSize * nExpandCells);
     domainBMax += Vec2r(cellSize * nExpandCells);
 
-    __BNN_ASSERT((YoungsModulus > 0 && PoissonsRatio > 0) || (mu > 0 && lambda > 0));
+    __BNN_REQUIRE((YoungsModulus > 0 && PoissonsRatio > 0) || (mu > 0 && lambda > 0));
     if(mu == 0 || lambda == 0) {
         mu     = YoungsModulus / Real(2.0) / (Real(1.0) + PoissonsRatio);
         lambda = YoungsModulus * PoissonsRatio / ((Real(1.0) + PoissonsRatio) * (Real(1.0) - Real(2.0) * PoissonsRatio));
@@ -152,7 +152,7 @@ void MPM2D_Data::ParticleData::reserve(UInt nParticles)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MPM2D_Data::ParticleData::addParticles(const Vec_Vec2r& newPositions, const Vec_Vec2r& newVelocities)
 {
-    __BNN_ASSERT(newPositions.size() == newVelocities.size());
+    __BNN_REQUIRE(newPositions.size() == newVelocities.size());
 
     positions.insert(positions.end(), newPositions.begin(), newPositions.end());
     velocities.insert(velocities.end(), newVelocities.begin(), newVelocities.end());
@@ -183,7 +183,7 @@ void MPM2D_Data::ParticleData::addParticles(const Vec_Vec2r& newPositions, const
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 UInt MPM2D_Data::ParticleData::removeParticles(Vec_Int8& removeMarker)
 {
-    __BNN_ASSERT(removeMarker.size() == positions.size());
+    __BNN_REQUIRE(removeMarker.size() == positions.size());
     if(!STLHelpers::contain(removeMarker, Int8(1))) {
         return 0u;
     }
@@ -318,9 +318,9 @@ void MPM2D_Solver::advanceFrame()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MPM2D_Solver::loadSimParams(const nlohmann::json& jParams)
 {
-    __BNN_ASSERT(m_BoundaryObjects.size() > 0);
+    __BNN_REQUIRE(m_BoundaryObjects.size() > 0);
     auto box = std::dynamic_pointer_cast<GeometryObjects::BoxObject<2, Real> >(m_BoundaryObjects[0]->geometry());
-    __BNN_ASSERT(box != nullptr);
+    __BNN_REQUIRE(box != nullptr);
     solverParams().domainBMin = box->boxMin();
     solverParams().domainBMax = box->boxMax();
 
@@ -395,7 +395,7 @@ void MPM2D_Solver::generateParticles(const nlohmann::json& jParams)
             logger().printLogIf(nGen > 0, String("Generated ") + NumberHelpers::formatWithCommas(nGen) + String(" particles by ") + generator->nameID());
         }
 
-        __BNN_ASSERT(particleData().getNParticles() > 0);
+        __BNN_REQUIRE(particleData().getNParticles() > 0);
         ////////////////////////////////////////////////////////////////////////////////
         // only save frame0 data if particles are just generated (not loaded from disk)
         saveFrameData();
@@ -494,23 +494,23 @@ bool MPM2D_Solver::loadMemoryState()
     ////////////////////////////////////////////////////////////////////////////////
     // load grid data
     Vec2ui nCells;
-    __BNN_ASSERT(m_MemoryStateIO->getFixedAttribute("grid_resolution", nCells));
-    __BNN_ASSERT(grid().getNCells() == nCells);
+    __BNN_REQUIRE(m_MemoryStateIO->getFixedAttribute("grid_resolution", nCells));
+    __BNN_REQUIRE(grid().getNCells() == nCells);
     __BNN_TODO;
-    //__BNN_ASSERT(m_MemoryStateIO->getFixedAttribute("grid_u", gridData().u.data()));
+    //__BNN_REQUIRE(m_MemoryStateIO->getFixedAttribute("grid_u", gridData().u.data()));
 
 
     ////////////////////////////////////////////////////////////////////////////////
     // load particle data
     Real particleRadius;
-    __BNN_ASSERT(m_MemoryStateIO->getFixedAttribute("particle_radius", particleRadius));
-    __BNN_ASSERT_APPROX_NUMBERS(solverParams().particleRadius, particleRadius, MEpsilon);
+    __BNN_REQUIRE(m_MemoryStateIO->getFixedAttribute("particle_radius", particleRadius));
+    __BNN_REQUIRE_APPROX_NUMBERS(solverParams().particleRadius, particleRadius, MEpsilon);
 
-    __BNN_ASSERT(m_MemoryStateIO->getFixedAttribute("NObjects", particleData().nObjects));
-    __BNN_ASSERT(m_MemoryStateIO->getParticleAttribute("object_index", particleData().objectIndex));
+    __BNN_REQUIRE(m_MemoryStateIO->getFixedAttribute("NObjects", particleData().nObjects));
+    __BNN_REQUIRE(m_MemoryStateIO->getParticleAttribute("object_index", particleData().objectIndex));
 
-    __BNN_ASSERT(m_MemoryStateIO->getParticleAttribute("particle_position", particleData().positions));
-    __BNN_ASSERT(m_MemoryStateIO->getParticleAttribute("particle_velocity", particleData().velocities));
+    __BNN_REQUIRE(m_MemoryStateIO->getParticleAttribute("particle_position", particleData().positions));
+    __BNN_REQUIRE(m_MemoryStateIO->getParticleAttribute("particle_velocity", particleData().velocities));
     assert(particleData().velocities.size() == particleData().positions.size());
 
     logger().printLog(String("Loaded memory state from frameIdx = ") + std::to_string(latestStateIdx));
@@ -684,7 +684,7 @@ bool MPM2D_Solver::initParticleVolumes()
                                     }
 
                                     pDensity /= solverParams().cellVolume;
-                                    __BNN_ASSERT(pDensity > 0);
+                                    __BNN_REQUIRE(pDensity > 0);
                                     particleData().volumes[p] = solverParams().particleMass / pDensity;
                                 });
     ////////////////////////////////////////////////////////////////////////////////
@@ -793,7 +793,7 @@ void MPM2D_Solver::explicitIntegration(Real timestep)
 
                                     // Compute Piola stress tensor:
                                     Real J = glm::determinant(Ftemp);
-                                    __BNN_ASSERT(J > 0.0);
+                                    __BNN_REQUIRE(J > 0.0);
                                     assert(NumberHelpers::isValidNumber(J));
                                     Mat2x2r Fit = glm::transpose(glm::inverse(Ftemp)); // F^(-T)
                                     Mat2x2r P   = solverParams().mu * (Ftemp - Fit) + solverParams().lambda * (log(J) * Fit);
@@ -851,7 +851,7 @@ void MPM2D_Solver::implicitIntegration(Real timestep)
     static Vector<Real> v;
     v.resize(nActives * 3);
     Vec2r* vPtr = reinterpret_cast<Vec2r*>(v.data());
-    __BNN_ASSERT(vPtr != nullptr);
+    __BNN_REQUIRE(vPtr != nullptr);
 
     ParallelFuncs::parallel_for(grid().getNNodes(),
                                 [&](UInt i, UInt j)
@@ -925,7 +925,7 @@ Real MPM2D_Objective::valueGradient(const Vector<Real>& v, Vector<Real>& grad)
                                     ////////////////////////////////////////////////////////////////////////////////
                                     // Compute Piola stress tensor:
                                     Real J = glm::determinant(Ftemp);
-                                    __BNN_ASSERT(J > 0);
+                                    __BNN_REQUIRE(J > 0);
                                     assert(NumberHelpers::isValidNumber(J));
                                     Real logJ   = log(J);
                                     Mat2x2r Fit = glm::transpose(glm::inverse(Ftemp)); // F^(-T)

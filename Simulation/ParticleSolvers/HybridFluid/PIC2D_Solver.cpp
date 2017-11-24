@@ -229,11 +229,11 @@ bool PIC2D_Solver::loadMemoryState()
     }
 
     Real particleRadius;
-    __BNN_ASSERT(m_MemoryStateIO->getFixedAttribute("particle_radius", particleRadius));
-    __BNN_ASSERT_APPROX_NUMBERS(solverParams().particleRadius, particleRadius, MEpsilon);
+    __BNN_REQUIRE(m_MemoryStateIO->getFixedAttribute("particle_radius", particleRadius));
+    __BNN_REQUIRE_APPROX_NUMBERS(solverParams().particleRadius, particleRadius, MEpsilon);
 
-    //__BNN_ASSERT(m_MemoryStateIO->getParticleAttribute("position", particleData().positions));
-    //__BNN_ASSERT(m_MemoryStateIO->getParticleAttribute("velocity", particleData().velocities));
+    //__BNN_REQUIRE(m_MemoryStateIO->getParticleAttribute("position", particleData().positions));
+    //__BNN_REQUIRE(m_MemoryStateIO->getParticleAttribute("velocity", particleData().velocities));
     //assert(particleData().velocities.size() == particleData().positions.size());
     return true;
 }

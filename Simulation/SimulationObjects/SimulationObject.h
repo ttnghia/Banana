@@ -39,7 +39,7 @@ public:
     static constexpr UInt objDimension() noexcept { return static_cast<UInt>(N); }
     ////////////////////////////////////////////////////////////////////////////////
     SimulationObject() = delete;
-    SimulationObject(const String& geometryType) : m_GeometryObj(GeometryObjectFactory::createGeometry<N, RealType>(geometryType)) { __BNN_ASSERT(m_GeometryObj != nullptr); }
+    SimulationObject(const String& geometryType) : m_GeometryObj(GeometryObjectFactory::createGeometry<N, RealType>(geometryType)) { __BNN_REQUIRE(m_GeometryObj != nullptr); }
     ////////////////////////////////////////////////////////////////////////////////
     auto& nameID() { return m_NameID; }
     auto& meshFile() { return m_MeshFile; }

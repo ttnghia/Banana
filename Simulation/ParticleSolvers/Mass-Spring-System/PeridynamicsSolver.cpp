@@ -107,9 +107,9 @@ void PeridynamicsSolver::advanceFrame()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PeridynamicsSolver::loadSimParams(const nlohmann::json& jParams)
 {
-    __BNN_ASSERT(m_BoundaryObjects.size() > 0);
+    __BNN_REQUIRE(m_BoundaryObjects.size() > 0);
     SharedPtr<GeometryObjects::BoxObject<3, Real> > box = static_pointer_cast<GeometryObjects::BoxObject<3, Real> >(m_BoundaryObjects[0]->geometry());
-    __BNN_ASSERT(box != nullptr);
+    __BNN_REQUIRE(box != nullptr);
     solverParams().domainBMin = box->boxMin();
     solverParams().domainBMax = box->boxMax();
 
@@ -232,15 +232,15 @@ bool PeridynamicsSolver::loadMemoryState()
     }
 
     Real particleRadius;
-    __BNN_ASSERT(m_MemoryStateIO->getFixedAttribute("particle_radius", particleRadius));
-    __BNN_ASSERT_APPROX_NUMBERS(solverParams().particleRadius, particleRadius, MEpsilon);
+    __BNN_REQUIRE(m_MemoryStateIO->getFixedAttribute("particle_radius", particleRadius));
+    __BNN_REQUIRE_APPROX_NUMBERS(solverParams().particleRadius, particleRadius, MEpsilon);
 
-    __BNN_ASSERT(m_MemoryStateIO->getFixedAttribute("num_active_particles", solverData().nActives));
-    __BNN_ASSERT(m_MemoryStateIO->getParticleAttribute("position", solverData().positions));
-    __BNN_ASSERT(m_MemoryStateIO->getParticleAttribute("velocity", solverData().velocities));
-    __BNN_ASSERT(m_MemoryStateIO->getParticleAttribute("particle_mass", solverData().particleMass));
-    __BNN_ASSERT(m_MemoryStateIO->getParticleAttribute("stretch_threshold", solverData().stretchThreshold));
-    __BNN_ASSERT(m_MemoryStateIO->getParticleAttribute("solverData().bondList", solverData().bondList));
+    __BNN_REQUIRE(m_MemoryStateIO->getFixedAttribute("num_active_particles", solverData().nActives));
+    __BNN_REQUIRE(m_MemoryStateIO->getParticleAttribute("position", solverData().positions));
+    __BNN_REQUIRE(m_MemoryStateIO->getParticleAttribute("velocity", solverData().velocities));
+    __BNN_REQUIRE(m_MemoryStateIO->getParticleAttribute("particle_mass", solverData().particleMass));
+    __BNN_REQUIRE(m_MemoryStateIO->getParticleAttribute("stretch_threshold", solverData().stretchThreshold));
+    __BNN_REQUIRE(m_MemoryStateIO->getParticleAttribute("solverData().bondList", solverData().bondList));
     assert(solverData().velocities.size() == solverData().positions.size() && solverData().bondList.size() == solverData().positions.size());
 
     return true;

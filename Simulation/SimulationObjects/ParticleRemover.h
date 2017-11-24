@@ -72,7 +72,7 @@ bool ParticleRemover<N, RealType >::isActive(UInt currentFrame)
 template<Int N, class RealType>
 void ParticleRemover<N, RealType >::findRemovingCandidate(Vec_Int8& removeMarker, const Vec_VecX<N, RealType>& positions)
 {
-    __BNN_ASSERT(m_bObjReady);
+    __BNN_REQUIRE(m_bObjReady);
     removeMarker.resize(positions.size());
     ParallelFuncs::parallel_for(removeMarker.size(),
                                 [&](size_t p)

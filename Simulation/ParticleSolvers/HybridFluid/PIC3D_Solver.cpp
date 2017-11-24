@@ -116,7 +116,7 @@ void PIC3D_Data::ParticleData::reserve(UInt nParticles)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PIC3D_Data::ParticleData::addParticles(const Vec_Vec3r& newPositions, const Vec_Vec3r& newVelocities)
 {
-    __BNN_ASSERT(newPositions.size() == newVelocities.size());
+    __BNN_REQUIRE(newPositions.size() == newVelocities.size());
     positions.insert(positions.end(), newPositions.begin(), newPositions.end());
     velocities.insert(velocities.end(), newVelocities.begin(), newVelocities.end());
     ////////////////////////////////////////////////////////////////////////////////
@@ -128,7 +128,7 @@ void PIC3D_Data::ParticleData::addParticles(const Vec_Vec3r& newPositions, const
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 UInt PIC3D_Data::ParticleData::removeParticles(Vec_Int8& removeMarker)
 {
-    __BNN_ASSERT(removeMarker.size() == positions.size());
+    __BNN_REQUIRE(removeMarker.size() == positions.size());
     if(!STLHelpers::contain(removeMarker, Int8(1))) {
         return 0u;
     }
@@ -269,9 +269,9 @@ void PIC3D_Solver::sortParticles()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PIC3D_Solver::loadSimParams(const nlohmann::json& jParams)
 {
-    __BNN_ASSERT(m_BoundaryObjects.size() > 0);
+    __BNN_REQUIRE(m_BoundaryObjects.size() > 0);
     auto box = std::dynamic_pointer_cast<GeometryObjects::BoxObject<3, Real> >(m_BoundaryObjects[0]->geometry());
-    __BNN_ASSERT(box != nullptr);
+    __BNN_REQUIRE(box != nullptr);
     solverParams().domainBMin = box->boxMin();
     solverParams().domainBMax = box->boxMax();
 
@@ -332,7 +332,7 @@ void PIC3D_Solver::generateParticles(const nlohmann::json& jParams)
             ////////////////////////////////////////////////////////////////////////////////
             logger().printLogIf(nGen > 0, String("Generated ") + NumberHelpers::formatWithCommas(nGen) + String(" particles by ") + generator->nameID());
         }
-        __BNN_ASSERT(particleData().getNParticles() > 0);
+        __BNN_REQUIRE(particleData().getNParticles() > 0);
         m_NSearch->add_point_set(glm::value_ptr(particleData().positions.front()), particleData().getNParticles(), true, true);
 
         ////////////////////////////////////////////////////////////////////////////////
@@ -461,24 +461,24 @@ bool PIC3D_Solver::loadMemoryState()
     ////////////////////////////////////////////////////////////////////////////////
     // load grid data
     Vec3ui nCells;
-    __BNN_ASSERT(m_MemoryStateIO->getFixedAttribute("grid_resolution", nCells));
-    __BNN_ASSERT(grid().getNCells() == nCells);
-    __BNN_ASSERT(m_MemoryStateIO->getFixedAttribute("grid_u", gridData().u.data()));
-    __BNN_ASSERT(m_MemoryStateIO->getFixedAttribute("grid_v", gridData().v.data()));
-    __BNN_ASSERT(m_MemoryStateIO->getFixedAttribute("grid_w", gridData().w.data()));
+    __BNN_REQUIRE(m_MemoryStateIO->getFixedAttribute("grid_resolution", nCells));
+    __BNN_REQUIRE(grid().getNCells() == nCells);
+    __BNN_REQUIRE(m_MemoryStateIO->getFixedAttribute("grid_u", gridData().u.data()));
+    __BNN_REQUIRE(m_MemoryStateIO->getFixedAttribute("grid_v", gridData().v.data()));
+    __BNN_REQUIRE(m_MemoryStateIO->getFixedAttribute("grid_w", gridData().w.data()));
 
 
     ////////////////////////////////////////////////////////////////////////////////
     // load particle data
     Real particleRadius;
-    __BNN_ASSERT(m_MemoryStateIO->getFixedAttribute("particle_radius", particleRadius));
-    __BNN_ASSERT_APPROX_NUMBERS(solverParams().particleRadius, particleRadius, MEpsilon);
+    __BNN_REQUIRE(m_MemoryStateIO->getFixedAttribute("particle_radius", particleRadius));
+    __BNN_REQUIRE_APPROX_NUMBERS(solverParams().particleRadius, particleRadius, MEpsilon);
 
-    __BNN_ASSERT(m_MemoryStateIO->getFixedAttribute("NObjects", particleData().nObjects));
-    __BNN_ASSERT(m_MemoryStateIO->getParticleAttribute("object_index", particleData().objectIndex));
+    __BNN_REQUIRE(m_MemoryStateIO->getFixedAttribute("NObjects", particleData().nObjects));
+    __BNN_REQUIRE(m_MemoryStateIO->getParticleAttribute("object_index", particleData().objectIndex));
 
-    __BNN_ASSERT(m_MemoryStateIO->getParticleAttribute("particle_position", particleData().positions));
-    __BNN_ASSERT(m_MemoryStateIO->getParticleAttribute("particle_velocity", particleData().velocities));
+    __BNN_REQUIRE(m_MemoryStateIO->getParticleAttribute("particle_position", particleData().positions));
+    __BNN_REQUIRE(m_MemoryStateIO->getParticleAttribute("particle_velocity", particleData().velocities));
     assert(particleData().velocities.size() == particleData().positions.size());
 
     logger().printLog(String("Loaded memory state from frameIdx = ") + std::to_string(latestStateIdx));

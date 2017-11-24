@@ -42,7 +42,7 @@ class Controller : public QWidget
 public:
     explicit Controller(RenderWidget* renderWidget, QWidget* parent = nullptr) : QWidget(parent), m_RenderWidget(renderWidget)
     {
-        __BNN_ASSERT(m_RenderWidget != nullptr);
+        __BNN_REQUIRE(m_RenderWidget != nullptr);
         setupGUI();
         connectWidgets();
     }

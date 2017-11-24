@@ -192,7 +192,7 @@ inline void throwIfFailed(HRESULT hr)
         //exit(EXIT_FAILURE); \
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #ifdef __BANANA_DEBUG__
-#  define __BNN_ASSERT(condition)                                                            \
+#  define __BNN_REQUIRE(condition)                                                            \
     {                                                                                        \
         if(!(condition))                                                                     \
         {                                                                                    \
@@ -203,7 +203,7 @@ inline void throwIfFailed(HRESULT hr)
         }                                                                                    \
     }
 #else
-#  define __BNN_ASSERT(condition)                                                            \
+#  define __BNN_REQUIRE(condition)                                                            \
     {                                                                                        \
         if(!(condition))                                                                     \
         {                                                                                    \
@@ -217,7 +217,7 @@ inline void throwIfFailed(HRESULT hr)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #ifdef __BANANA_DEBUG__
-#  define __BNN_ASSERT_MSG(condition, msg)                                                   \
+#  define __BNN_REQUIRE_MSG(condition, msg)                                                   \
     {                                                                                        \
         if(!(condition))                                                                     \
         {                                                                                    \
@@ -229,7 +229,7 @@ inline void throwIfFailed(HRESULT hr)
         }                                                                                    \
     }
 #else
-#  define __BNN_ASSERT_MSG(condition, msg)                                                   \
+#  define __BNN_REQUIRE_MSG(condition, msg)                                                   \
     {                                                                                        \
         if(!(condition))                                                                     \
         {                                                                                    \
@@ -274,5 +274,5 @@ inline void throwIfFailed(HRESULT hr)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // data macros
-#define __BNN_ASSERT_EQUAL(a, b)                     __BNN_ASSERT_MSG(a == b, "Numbers are not equal.");
-#define __BNN_ASSERT_APPROX_NUMBERS(a, b, threshold) __BNN_ASSERT_MSG(threshold > fabs(a - b), "Numbers are not equal.");
+#define __BNN_REQUIRE_EQUAL(a, b)                     __BNN_REQUIRE_MSG(a == b, "Numbers are not equal.");
+#define __BNN_REQUIRE_APPROX_NUMBERS(a, b, threshold) __BNN_REQUIRE_MSG(threshold > fabs(a - b), "Numbers are not equal.");

@@ -126,7 +126,7 @@ void ParticleHelpers::connectedComponentAnalysis(const Vec_VecUInt& connectionLi
         }
     }
 
-    __BNN_ASSERT(nProcessed == connectionList.size());
+    __BNN_REQUIRE(nProcessed == connectionList.size());
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

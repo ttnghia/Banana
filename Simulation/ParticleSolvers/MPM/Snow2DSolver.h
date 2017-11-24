@@ -175,7 +175,7 @@ struct SimulationData_Snow2D
 
         virtual void addParticles(const Vec_Vec2r& newPositions, const Vec_Vec2r& newVelocities)
         {
-            __BNN_ASSERT(newPositions.size() == newVelocities.size());
+            __BNN_REQUIRE(newPositions.size() == newVelocities.size());
             reserve(static_cast<UInt>(newPositions.size()));
 
             for(size_t p = 0; p < newPositions.size(); ++p) {

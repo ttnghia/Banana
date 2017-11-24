@@ -136,7 +136,7 @@ struct SimulationData_WCSPH : public ParticleSimulationData<3, Real>
 
     virtual void addParticles(const Vec_Vec3r& newPositions, const Vec_Vec3r& newVelocities)
     {
-        __BNN_ASSERT(newPositions.size() == newVelocities.size());
+        __BNN_REQUIRE(newPositions.size() == newVelocities.size());
         positions.insert(positions.end(), newPositions.begin(), newPositions.end());
         velocities.insert(velocities.end(), newVelocities.begin(), newVelocities.end());
 

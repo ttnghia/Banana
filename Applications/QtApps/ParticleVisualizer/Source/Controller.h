@@ -43,8 +43,8 @@ public:
     explicit Controller(RenderWidget* renderWidget, DataReader* dataReader, QWidget* parent = nullptr) :
         QWidget(parent), m_RenderWidget(renderWidget), m_DataReader(dataReader)
     {
-        __BNN_ASSERT(m_RenderWidget != nullptr);
-        __BNN_ASSERT(m_DataReader != nullptr);
+        __BNN_REQUIRE(m_RenderWidget != nullptr);
+        __BNN_REQUIRE(m_DataReader != nullptr);
         setupGUI();
         connectWidgets();
     }

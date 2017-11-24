@@ -70,7 +70,7 @@ template<Int N, class IndexType>
 IndexType IndexMapper<N, IndexType >::get1DIdx(const VecX<N, IndexType>& key)
 {
 #ifdef __BANANA_DEBUG__
-    __BNN_ASSERT(m_idx_XDTo1D.find(key) != m_idx_XDTo1D.end());
+    __BNN_REQUIRE(m_idx_XDTo1D.find(key) != m_idx_XDTo1D.end());
 #endif
 
     return m_idx_XDTo1D[key];
@@ -99,7 +99,7 @@ template<Int N, class IndexType>
 void IndexMapper<N, IndexType >::addUniqueKey(const VecX<N, IndexType>& key)
 {
 #ifdef __BANANA_DEBUG__
-    __BNN_ASSERT(m_idx_XDTo1D.find(key) == m_idx_XDTo1D.end());
+    __BNN_REQUIRE(m_idx_XDTo1D.find(key) == m_idx_XDTo1D.end());
 #endif
 
     m_idx_XDTo1D[key]    = m_Size;

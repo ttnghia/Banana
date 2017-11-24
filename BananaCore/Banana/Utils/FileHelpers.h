@@ -288,7 +288,7 @@ inline std::future<void> writeFileAsync(const void* dataBuffer, size_t dataSize,
     std::future<void> futureObj = std::async(std::launch::async, [&]
             {
                 std::ofstream file(fileName, std::ios::binary | std::ios::out);
-                __BNN_ASSERT_MSG(file.is_open(), "Could not open file for writing.");
+                __BNN_REQUIRE_MSG(file.is_open(), "Could not open file for writing.");
 
                 file.write((char*)dataBuffer, dataSize);
                 file.close();

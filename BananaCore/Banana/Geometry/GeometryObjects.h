@@ -158,7 +158,7 @@ public:
     virtual String   name() override { return String("TorusObject"); }
     virtual RealType signedDistance(const Vec2<RealType>& ppos0, bool bNegativeInside = true) const override;
 
-    void setRadiusRatio(RealType ratio) { __BNN_ASSERT(ratio > 0); m_OuterRadius = RealType(1.0) - m_InnerRadius; m_InnerRadius = m_OuterRadius / ratio; }
+    void setRadiusRatio(RealType ratio) { __BNN_REQUIRE(ratio > 0); m_OuterRadius = RealType(1.0) - m_InnerRadius; m_InnerRadius = m_OuterRadius / ratio; }
 
 protected:
     const RealType m_OuterRadius = RealType(0.75);
@@ -173,7 +173,7 @@ public:
     virtual String   name() override { return String("TorusObject"); }
     virtual RealType signedDistance(const Vec3<RealType>& ppos0, bool bNegativeInside = true) const override;
 
-    void setRadiusRatio(RealType ratio) { __BNN_ASSERT(ratio > 0); m_OuterRadius = RealType(1.0) - m_InnerRadius; m_InnerRadius = m_OuterRadius / ratio; }
+    void setRadiusRatio(RealType ratio) { __BNN_REQUIRE(ratio > 0); m_OuterRadius = RealType(1.0) - m_InnerRadius; m_InnerRadius = m_OuterRadius / ratio; }
 
 protected:
     const RealType m_OuterRadius = RealType(0.75);

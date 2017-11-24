@@ -140,7 +140,7 @@ void ParticleGenerator<N, RealType >::buildObject(const Vector<SharedPtr<Boundar
                             }
                         });
 
-    __BNN_ASSERT(m_ObjParticles.size() > 0)
+    __BNN_REQUIRE(m_ObjParticles.size() > 0)
 
     ////////////////////////////////////////////////////////////////////////////////
     __BNN_TODO;
@@ -162,7 +162,7 @@ template<Int N, class RealType>
 UInt ParticleGenerator<N, RealType > ::generateParticles(const Vec_VecX<N, RealType>& currentPositions,
                                                          Vec_VecX<N, RealType>& newPositions, Vec_VecX<N, RealType>& newVelocities, UInt frame)
 {
-    __BNN_ASSERT(m_bObjReady);
+    __BNN_REQUIRE(m_bObjReady);
     if(!isActive(frame)) {
         return 0u;
     }

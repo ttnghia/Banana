@@ -49,25 +49,25 @@ public:
         ////////////////////////////////////////////////////////////////////////////////
         // fluid solvers
         if(solverName == "AFLIP3D_Solver") {
-            __BNN_ASSERT(N == 3);
+            __BNN_REQUIRE(N == 3);
             return dynamic_pointer_cast<ParticleSolver<N, RealType> >(std::make_shared<AFLIP3D_Solver>());
         } else if(solverName == "APIC3D_Solver") {
-            __BNN_ASSERT(N == 3);
+            __BNN_REQUIRE(N == 3);
             return dynamic_pointer_cast<ParticleSolver<N, RealType> >(std::make_shared<APIC3D_Solver>());
         } else if(solverName == "FLIP3D_Solver") {
-            __BNN_ASSERT(N == 3);
+            __BNN_REQUIRE(N == 3);
             return dynamic_pointer_cast<ParticleSolver<N, RealType> >(std::make_shared<FLIP3D_Solver>());
         } else if(solverName == "PIC3D_Solver") {
-            __BNN_ASSERT(N == 3);
+            __BNN_REQUIRE(N == 3);
             return dynamic_pointer_cast<ParticleSolver<N, RealType> >(std::make_shared<PIC3D_Solver>());
         }
         ////////////////////////////////////////////////////////////////////////////////
         // MPM solver
         else if(solverName == "MPM2D_Solver") {
-            __BNN_ASSERT(N == 2);
+            __BNN_REQUIRE(N == 2);
             return dynamic_pointer_cast<ParticleSolver<N, RealType> >(std::make_shared<MPM2D_Solver>());
         } else if(solverName == "MPM3D_Solver") {
-            __BNN_ASSERT(N == 3);
+            __BNN_REQUIRE(N == 3);
             return dynamic_pointer_cast<ParticleSolver<N, RealType> >(std::make_shared<MPM3D_Solver>());
         }
     }

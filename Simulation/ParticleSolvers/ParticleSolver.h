@@ -132,7 +132,7 @@ void ParticleSolver<N, RealType >::loadScene(const String& sceneFile)
 
     ////////////////////////////////////////////////////////////////////////////////
     // read global parameters
-    __BNN_ASSERT(jParams.find("GlobalParameters") != jParams.end());
+    __BNN_REQUIRE(jParams.find("GlobalParameters") != jParams.end());
     {
         nlohmann::json jFrameParams = jParams["GlobalParameters"];
         SceneLoader::loadGlobalParams(jFrameParams, globalParams());
@@ -154,7 +154,7 @@ void ParticleSolver<N, RealType >::loadScene(const String& sceneFile)
 
     ////////////////////////////////////////////////////////////////////////////////
     // read simulation parameters
-    __BNN_ASSERT(jParams.find("SimulationParameters") != jParams.end());
+    __BNN_REQUIRE(jParams.find("SimulationParameters") != jParams.end());
     {
         nlohmann::json jSimParams = jParams["SimulationParameters"];
 
@@ -184,7 +184,7 @@ void ParticleSolver<N, RealType >::loadScene(const String& sceneFile)
 
             if(JSONHelpers::readVector(jBoxParams, boxMin, "BoxMin") && JSONHelpers::readVector(jBoxParams, boxMax, "BoxMax")) {
                 SharedPtr<GeometryObjects::BoxObject<N, RealType> > box = dynamic_pointer_cast<GeometryObjects::BoxObject<N, RealType> >(obj->geometry());
-                __BNN_ASSERT(box != nullptr);
+                __BNN_REQUIRE(box != nullptr);
                 box->setOriginalBox(boxMin, boxMax);
             }
         }
@@ -320,7 +320,7 @@ void ParticleSolver<N, RealType >::generateBoundaries(const nlohmann::json& jPar
         if(staticBoundaries.size() > 1) {
             SharedPtr<SimulationObjects::BoundaryObject<N, RealType> > csgBoundary = std::make_shared<SimulationObjects::BoundaryObject<N, RealType> >("CSGObject");
             SharedPtr<GeometryObjects::CSGObject<N, RealType> >        csgObj      = std::static_pointer_cast<GeometryObjects::CSGObject<N, RealType> >(csgBoundary->geometry());
-            __BNN_ASSERT(csgObj != nullptr);
+            __BNN_REQUIRE(csgObj != nullptr);
 
             for(auto& obj : staticBoundaries) {
                 csgObj->addObject(obj->geometry(), GeometryObjects::CSGOperations::Union);
@@ -340,7 +340,7 @@ void ParticleSolver<N, RealType >::generateBoundaries(const nlohmann::json& jPar
 template<Int N, class RealType>
 void ParticleSolver<N, RealType >::generateParticles(const nlohmann::json& jParams)
 {
-    __BNN_ASSERT(jParams.find("ParticleGenerators") != jParams.end());
+    __BNN_REQUIRE(jParams.find("ParticleGenerators") != jParams.end());
     SceneLoader::loadParticleGenerators<N, RealType>(jParams["ParticleGenerators"], m_ParticleGenerators);
 }
 

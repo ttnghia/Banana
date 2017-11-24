@@ -111,11 +111,11 @@ void RenderWidget::updateVizData()
             velMag2.resize(m_VizData->nParticles);
             if(m_VizData->systemDimension == 2) {
                 auto velPtr = reinterpret_cast<Vec2f*>(m_VizData->velocities);
-                __BNN_ASSERT(velPtr != nullptr);
+                __BNN_REQUIRE(velPtr != nullptr);
                 ParallelFuncs::parallel_for(velMag2.size(), [&](size_t i) { velMag2[i] = glm::length2(velPtr[i]); });
             } else {
                 auto velPtr = reinterpret_cast<Vec3f*>(m_VizData->velocities);
-                __BNN_ASSERT(velPtr != nullptr);
+                __BNN_REQUIRE(velPtr != nullptr);
                 ParallelFuncs::parallel_for(velMag2.size(), [&](size_t i) { velMag2[i] = glm::length2(velPtr[i]); });
             }
             m_RDataParticle.vColorMin = ParallelSTL::min(velMag2);

@@ -33,7 +33,7 @@ void convert2BNN(const char* inputFile, const char* outputFile)
     ////////////////////////////////////////////////////////////////////////////////
     // read bgeo
     Partio::ParticlesData* partioData = Partio::read(inputFile);
-    __BNN_ASSERT_MSG(partioData, "Could not open file for reading.");
+    __BNN_REQUIRE_MSG(partioData, "Could not open file for reading.");
     const int nParticles = partioData->numParticles();
 
 #if defined(_DEBUG) || defined(DEBUG)

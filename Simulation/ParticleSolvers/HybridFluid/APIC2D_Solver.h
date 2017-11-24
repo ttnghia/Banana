@@ -47,7 +47,7 @@ struct APIC2D_Data : public ParticleSimulationData<2, Real>
 
     virtual void addParticles(const Vec_Vec2r& newPositions, const Vec_Vec2r& newVelocities)
     {
-        __BNN_ASSERT(newPositions.size() == newVelocities.size());
+        __BNN_REQUIRE(newPositions.size() == newVelocities.size());
         __BNN_UNUSED(newVelocities);
         C.resize(newPositions.size(), Mat2x2r(1.0));
     }

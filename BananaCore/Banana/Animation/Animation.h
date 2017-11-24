@@ -182,7 +182,7 @@ public:
         }
 
         ////////////////////////////////////////////////////////////////////////////////
-        __BNN_ASSERT(m_bReady)
+        __BNN_REQUIRE(m_bReady)
 
 
         if(m_bPeriodic && frame > m_MaxFrame) {
@@ -209,7 +209,7 @@ public:
         }
 
         ////////////////////////////////////////////////////////////////////////////////
-        __BNN_ASSERT(m_bReady)
+        __BNN_REQUIRE(m_bReady)
         VecX<N, RealType> translation;
         VecX<N + 1, RealType> rotation;
         RealType              scale;
@@ -235,7 +235,7 @@ public:
 
     MatXxX<N + 1, RealType> getInvTransformation(UInt frame, RealType fraction = RealType(0))
     {
-        __BNN_ASSERT(m_bReady);
+        __BNN_REQUIRE(m_bReady);
         return glm::inverse(getTransformation(frame, fraction));
     }
 

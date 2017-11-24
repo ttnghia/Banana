@@ -40,7 +40,7 @@ namespace ParallelBLAS
 template<class RealType>
 inline RealType dotProduct(const Vector<RealType>& x, const Vector<RealType>& y)
 {
-    __BNN_ASSERT(x.size() == y.size());
+    __BNN_REQUIRE(x.size() == y.size());
     ParallelObjects::DotProduct<1, RealType> pObj(x, y);
     tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), pObj);
 
@@ -50,7 +50,7 @@ inline RealType dotProduct(const Vector<RealType>& x, const Vector<RealType>& y)
 template<Int N, class RealType>
 inline RealType dotProduct(const Vector<VecX<N, RealType> >& x, const Vector<VecX<N, RealType> >& y)
 {
-    __BNN_ASSERT(x.size() == y.size());
+    __BNN_REQUIRE(x.size() == y.size());
     ParallelObjects::DotProduct<N, RealType> pObj(x, y);
     tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), pObj);
 
@@ -80,7 +80,7 @@ inline RealType norm2(const Vector<VecX<N, RealType> >& x)
 template<class VectorType>
 inline Vector<VectorType> add(const Vector<VectorType>& x, const Vector<VectorType>& y)
 {
-    __BNN_ASSERT(x.size() == y.size());
+    __BNN_REQUIRE(x.size() == y.size());
     Vector<VectorType> z(x.size());
     ParallelFuncs::parallel_for(z.size(), [&](size_t i) { z[i] = x[i] + y[i]; });
     return z;
@@ -89,7 +89,7 @@ inline Vector<VectorType> add(const Vector<VectorType>& x, const Vector<VectorTy
 template<class VectorType>
 inline Vector<VectorType> minus(const Vector<VectorType>& x, const Vector<VectorType>& y)
 {
-    __BNN_ASSERT(x.size() == y.size());
+    __BNN_REQUIRE(x.size() == y.size());
     Vector<VectorType> z(x.size());
     ParallelFuncs::parallel_for(z.size(), [&](size_t i) { z[i] = x[i] - y[i]; });
     return z;

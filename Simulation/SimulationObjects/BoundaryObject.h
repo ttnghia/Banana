@@ -80,7 +80,7 @@ public:
     BoxBoundaryInterface() : BoundaryObject<N, RealType>("Box")
     {
         m_Box = std::dynamic_pointer_cast<GeometryObjects::BoxObject<N, RealType> >(m_GeometryObj);
-        __BNN_ASSERT(m_Box != nullptr);
+        __BNN_REQUIRE(m_Box != nullptr);
     }
 
     VecX<N, RealType> boxMin() const noexcept { return m_Box->boxMin(); }

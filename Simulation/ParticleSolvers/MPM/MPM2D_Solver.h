@@ -86,14 +86,18 @@ struct MPM2D_Parameters : public SimulationParameters
 
     ////////////////////////////////////////////////////////////////////////////////
     // MPM parameters
-    Real PIC_FLIP_ratio  = SolverDefaultParameters::PIC_FLIP_Ratio;
-    Real materialDensity = Real(100.0);
-    Real YoungsModulus   = Real(1.5e3);
-    Real PoissonsRatio   = Real(0.2);
-    Real implicitRatio   = Real(0);
+    Real PIC_FLIP_ratio = SolverDefaultParameters::PIC_FLIP_Ratio;
+    Real implicitRatio  = Real(0);
+    ////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // material parameters
+    Real YoungsModulus   = Real(0);
+    Real PoissonsRatio   = Real(0);
+    Real mu              = Real(0);
+    Real lambda          = Real(0);
+    Real materialDensity = Real(1000.0);
     Real particleMass;
-    Real mu     = Real(10.0);         //Lame parameters
-    Real lambda = Real(10.0);
     ////////////////////////////////////////////////////////////////////////////////
 
     virtual void makeReady() override;
@@ -112,7 +116,6 @@ struct MPM2D_Data
         Vec_Real    volumes;
         Vec_Mat2x2r velocityGrad;
 
-        //Deformation gradient (elastic and plastic parts)
         Vec_Mat2x2r deformGrad, tmp_deformGrad;
         Vec_Mat2x2r PiolaStress, CauchyStress;
         Vec_Real    energy, energyDensity;

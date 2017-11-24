@@ -79,7 +79,7 @@ void ParticleSerialization::clearData()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void ParticleSerialization::flushAsync(Int fileID)
 {
-    __BNN_ASSERT(m_DataIO != nullptr);
+    __BNN_REQUIRE(m_DataIO != nullptr);
     m_DataIO->createOutputFolders();
     flushAsync(m_DataIO->getFilePath(fileID));
 }
@@ -87,7 +87,7 @@ void ParticleSerialization::flushAsync(Int fileID)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void ParticleSerialization::flushAsync(const String& fileName)
 {
-    __BNN_ASSERT(m_nParticles > 0 && m_FixedAttributes.size() > 0);
+    __BNN_REQUIRE(m_nParticles > 0 && m_FixedAttributes.size() > 0);
     if(m_Logger != nullptr) {
         buildAttrNameList();
         String str = String("Saving file: "); str += fileName;
@@ -111,11 +111,11 @@ void ParticleSerialization::flushAsync(const String& fileName)
                                       ////////////////////////////////////////////////////////////////////////////////
                                       writeHeader(opf);
                                       for(auto& kv : m_FixedAttributes) {
-                                          __BNN_ASSERT(kv.second->bReady);
+                                          __BNN_REQUIRE(kv.second->bReady);
                                           opf.write((char*)kv.second->buffer.data(), kv.second->buffer.size());
                                       }
                                       for(auto& kv : m_ParticleAttributes) {
-                                          __BNN_ASSERT(kv.second->bReady);
+                                          __BNN_REQUIRE(kv.second->bReady);
                                           opf.write((char*)kv.second->buffer.data(), kv.second->buffer.size());
                                       }
                                       opf.close();
@@ -141,12 +141,12 @@ void ParticleSerialization::buildAttrNameList()
 {
     if(m_AttributeNameList.empty()) {
         for(auto& kv : m_FixedAttributes) {
-            __BNN_ASSERT(kv.second->bReady);
+            __BNN_REQUIRE(kv.second->bReady);
             m_AttributeNameList += kv.first;
             m_AttributeNameList += String(", ");
         }
         for(auto& kv : m_ParticleAttributes) {
-            __BNN_ASSERT(kv.second->bReady);
+            __BNN_REQUIRE(kv.second->bReady);
             m_AttributeNameList += kv.first;
             m_AttributeNameList += String(", ");
         }
@@ -181,7 +181,7 @@ void ParticleSerialization::writeHeader(std::ofstream& opf)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 bool ParticleSerialization::read(Int fileID, const Vector<String>& readAttributes /*= {}*/, bool bStopIfFailed /*= true*/)
 {
-    __BNN_ASSERT(m_DataIO != nullptr);
+    __BNN_REQUIRE(m_DataIO != nullptr);
     const String fileName = m_DataIO->getFilePath(fileID);
     return read(fileName, readAttributes, bStopIfFailed);
 }
@@ -256,7 +256,7 @@ bool ParticleSerialization::read(const String& fileName, const Vector<String>& r
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 bool ParticleSerialization::readHeader(Int fileID, const Vector<String>& readAttributes /*= {}*/, bool bStopIfFailed /*= true*/)
 {
-    __BNN_ASSERT(m_DataIO != nullptr);
+    __BNN_REQUIRE(m_DataIO != nullptr);
     const String fileName = m_DataIO->getFilePath(fileID);
     return readHeader(fileName, readAttributes, bStopIfFailed);
 }

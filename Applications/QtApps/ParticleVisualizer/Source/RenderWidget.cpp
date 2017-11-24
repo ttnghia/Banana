@@ -88,7 +88,7 @@ void RenderWidget::updateVizData(Int currentFrame)
     ////////////////////////////////////////////////////////////////////////////////
     // upload position
     {
-        __BNN_ASSERT(m_VizData->particleReader.hasParticleAttribute("position"));
+        __BNN_REQUIRE(m_VizData->particleReader.hasParticleAttribute("position"));
         const auto& positionAttr = m_VizData->particleReader.getParticleAttributes()["position"];
         m_RDataParticle.dataDimension = positionAttr->count;
         ////////////////////////////////////////////////////////////////////////////////
@@ -100,7 +100,7 @@ void RenderWidget::updateVizData(Int currentFrame)
         ////////////////////////////////////////////////////////////////////////////////
         segmentStart += segmentSize;
         segmentSize   = nParticles * sizeof(UInt16) * m_RDataParticle.dataDimension;
-        __BNN_ASSERT(segmentStart + segmentSize == positionAttr->buffer.size());
+        __BNN_REQUIRE(segmentStart + segmentSize == positionAttr->buffer.size());
         m_RDataParticle.buffPosition->uploadDataAsync(&positionAttr->buffer.data()[segmentStart], 0, segmentSize);
     }
     ////////////////////////////////////////////////////////////////////////////////
@@ -120,7 +120,7 @@ void RenderWidget::updateVizData(Int currentFrame)
                 ////////////////////////////////////////////////////////////////////////////////
                 segmentStart += segmentSize;
                 segmentSize   = nParticles * sizeof(UInt16) * m_RDataParticle.dataDimension * m_RDataParticle.dataDimension;
-                __BNN_ASSERT(segmentStart + segmentSize == aniKernelAttr->buffer.size());
+                __BNN_REQUIRE(segmentStart + segmentSize == aniKernelAttr->buffer.size());
                 m_RDataParticle.buffAniKernels->uploadDataAsync(&aniKernelAttr->buffer.data()[segmentStart], 0, segmentSize);
                 m_RDataParticle.hasAniKernel = 1;
             } else {
@@ -136,8 +136,8 @@ void RenderWidget::updateVizData(Int currentFrame)
            m_RDataParticle.pColorMode == ParticleColorMode::VelocityMagnitude) {
             if(m_RDataParticle.pColorMode == ParticleColorMode::ObjectIndex && m_VizData->particleReader.hasParticleAttribute("object_index")) {
                 const auto& objIdxAttr = m_VizData->particleReader.getParticleAttributes()["object_index"];
-                __BNN_ASSERT(nParticles == objIdxAttr->buffer.size());
-                __BNN_ASSERT(m_VizData->particleReader.hasFixedAttribute("NObjects"));
+                __BNN_REQUIRE(nParticles == objIdxAttr->buffer.size());
+                __BNN_REQUIRE(m_VizData->particleReader.hasFixedAttribute("NObjects"));
                 UInt nObjects;
                 m_VizData->particleReader.getFixedAttribute("NObjects", nObjects);
                 m_RDataParticle.vColorMin = 0;
@@ -149,11 +149,11 @@ void RenderWidget::updateVizData(Int currentFrame)
                 velMag2.resize(m_VizData->nParticles);
                 if(m_RDataParticle.dataDimension == 2) {
                     static Vec_Vec2f velocity;
-                    __BNN_ASSERT(m_VizData->particleReader.getParticleAttribute("velocity", velocity));
+                    __BNN_REQUIRE(m_VizData->particleReader.getParticleAttribute("velocity", velocity));
                     ParallelFuncs::parallel_for(velMag2.size(), [&](size_t i) { velMag2[i] = glm::length2(velocity[i]); });
                 } else {
                     static Vec_Vec3f velocity;
-                    __BNN_ASSERT(m_VizData->particleReader.getParticleAttribute("velocity", velocity));
+                    __BNN_REQUIRE(m_VizData->particleReader.getParticleAttribute("velocity", velocity));
                     ParallelFuncs::parallel_for(velMag2.size(), [&](size_t i) { velMag2[i] = glm::length2(velocity[i]); });
                 }
                 m_RDataParticle.vColorMin = ParallelSTL::min(velMag2);
