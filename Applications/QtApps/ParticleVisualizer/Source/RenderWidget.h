@@ -53,6 +53,7 @@ private:
 public slots:
     void setCaptureFrame(bool bCapture) { m_bCaptureFrames = bCapture; }
     void updateCamera() { m_Camera->setCamera(m_VizData->cameraPosition, m_VizData->cameraFocus, Vec3f(0, 1, 0)); }
+    void updateDataDimension();
     void updateVizData(Int currentFrame);
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -156,6 +157,7 @@ private:
         GLuint ub_Light;
         GLuint ub_Material;
         GLuint u_nParticles;
+        GLuint u_Dimension;
         GLuint u_vPositionMin;
         GLuint u_vPositionMax;
         GLuint u_vAniKernelMin;
@@ -171,6 +173,7 @@ private:
         GLuint u_ColorMaxVal;
         GLuint u_ScreenWidth;
         GLuint u_ScreenHeight;
+        GLuint u_DomainHeight;
 
         GLuint  nParticles = 0;
         GLfloat pointRadius;
@@ -181,8 +184,8 @@ private:
         GLint pColorMode   = ParticleColorMode::Ramp;
 
         UInt  dataDimension = 3u;
-        float dMinPosition[3];
-        float dMaxPosition[3];
+        Vec3f dMinPosition;
+        Vec3f dMaxPosition;
         float vAniKernelMin;
         float vAniKernelMax;
         float vColorMin   = 0;

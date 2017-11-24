@@ -77,6 +77,18 @@ void RenderWidget::renderOpenGL()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void RenderWidget::updateDataDimension()
+{
+    if(m_RDataParticle.dataDimension == 3u) {
+        m_Camera->setProjection(Camera::PerspectiveProjection);
+    } else {
+        m_Camera->setProjection(Camera::OrthographicProjection);
+        m_Camera->setOrthoBox(m_VizData->boxMin.x * 1.01f, m_VizData->boxMax.x * 1.01f, m_VizData->boxMin.y * 1.01f, m_VizData->boxMax.y * 1.01f);
+    }
+    initParticleVAO();
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void RenderWidget::updateVizData(Int currentFrame)
 {
     Q_ASSERT(m_RDataParticle.initialized);
@@ -90,13 +102,16 @@ void RenderWidget::updateVizData(Int currentFrame)
     {
         __BNN_REQUIRE(m_VizData->particleReader.hasParticleAttribute("position"));
         const auto& positionAttr = m_VizData->particleReader.getParticleAttributes()["position"];
-        m_RDataParticle.dataDimension = positionAttr->count;
+        if(m_RDataParticle.dataDimension != positionAttr->count) {
+            m_RDataParticle.dataDimension = positionAttr->count;
+            updateDataDimension();
+        }
         ////////////////////////////////////////////////////////////////////////////////
         UInt64 segmentStart = 0;
         UInt64 segmentSize  = sizeof(float) * m_RDataParticle.dataDimension;
-        memcpy(&m_RDataParticle.dMinPosition[0], &positionAttr->buffer.data()[segmentStart], segmentSize);
+        memcpy(&m_RDataParticle.dMinPosition, &positionAttr->buffer.data()[segmentStart], segmentSize);
         segmentStart += segmentSize;
-        memcpy(&m_RDataParticle.dMaxPosition[0], &positionAttr->buffer.data()[segmentStart], segmentSize);
+        memcpy(&m_RDataParticle.dMaxPosition, &positionAttr->buffer.data()[segmentStart], segmentSize);
         ////////////////////////////////////////////////////////////////////////////////
         segmentStart += segmentSize;
         segmentSize   = nParticles * sizeof(UInt16) * m_RDataParticle.dataDimension;
@@ -104,7 +119,6 @@ void RenderWidget::updateVizData(Int currentFrame)
         m_RDataParticle.buffPosition->uploadDataAsync(&positionAttr->buffer.data()[segmentStart], 0, segmentSize);
     }
     ////////////////////////////////////////////////////////////////////////////////
-
     ////////////////////////////////////////////////////////////////////////////////
     // upload ani kernel
     {
@@ -289,6 +303,7 @@ void RenderWidget::initRDataParticle()
     m_RDataParticle.ub_Material = m_RDataParticle.shader->getUniformBlockIndex("Material");
     ////////////////////////////////////////////////////////////////////////////////
     m_RDataParticle.u_nParticles    = m_RDataParticle.shader->getUniformLocation("u_nParticles");
+    m_RDataParticle.u_Dimension     = m_RDataParticle.shader->getUniformLocation("u_Dimension");
     m_RDataParticle.u_PointRadius   = m_RDataParticle.shader->getUniformLocation("u_PointRadius");
     m_RDataParticle.u_IsPointView   = m_RDataParticle.shader->getUniformLocation("u_IsPointView");
     m_RDataParticle.u_UseAniKernel  = m_RDataParticle.shader->getUniformLocation("u_UseAniKernel");
@@ -303,6 +318,7 @@ void RenderWidget::initRDataParticle()
     m_RDataParticle.u_ColorMaxVal   = m_RDataParticle.shader->getUniformLocation("u_ColorMaxVal");
     m_RDataParticle.u_ScreenWidth   = m_RDataParticle.shader->getUniformLocation("u_ScreenWidth");
     m_RDataParticle.u_ScreenHeight  = m_RDataParticle.shader->getUniformLocation("u_ScreenHeight");
+    m_RDataParticle.u_DomainHeight  = m_RDataParticle.shader->getUniformLocation("u_DomainHeight");
     m_RDataParticle.u_ClipPlane     = m_RDataParticle.shader->getUniformLocation("u_ClipPlane");
     ////////////////////////////////////////////////////////////////////////////////
     m_RDataParticle.buffPosition = std::make_unique<OpenGLBuffer>();
@@ -385,8 +401,9 @@ void RenderWidget::renderParticles()
     m_RDataParticle.shader->bindUniformBlock(m_RDataParticle.ub_Light, m_Lights->getBufferBindingPoint());
     m_RDataParticle.shader->bindUniformBlock(m_RDataParticle.ub_Material, m_RDataParticle.material->getBufferBindingPoint());
     ////////////////////////////////////////////////////////////////////////////////
-    m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_vPositionMin, m_RDataParticle.dMinPosition, m_RDataParticle.dataDimension);
-    m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_vPositionMax, m_RDataParticle.dMaxPosition, m_RDataParticle.dataDimension);
+    m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_Dimension,  m_RDataParticle.dataDimension);
+    m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_vPositionMin, m_RDataParticle.dMinPosition);
+    m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_vPositionMax, m_RDataParticle.dMaxPosition);
     m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_nParticles, m_RDataParticle.nParticles);
     m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_PointRadius, m_RDataParticle.pointRadius);
     m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_IsPointView, m_RDataParticle.isPointView);
@@ -394,6 +411,7 @@ void RenderWidget::renderParticles()
     m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_ClipPlane, m_ClipPlane);
     m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_ScreenWidth, width());
     m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_ScreenHeight, height());
+    m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_DomainHeight, (m_Camera->getOrthoBoxMax().y - m_Camera->getOrthoBoxMin().y) * 0.9f);
     ////////////////////////////////////////////////////////////////////////////////
     if(m_RDataParticle.useAniKernel && m_RDataParticle.hasAniKernel) {
         m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_UseAniKernel, 1);

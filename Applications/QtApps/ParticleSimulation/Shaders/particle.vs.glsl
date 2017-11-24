@@ -27,6 +27,7 @@ layout(std140) uniform CameraData
     vec4 camPosition;
 };
 
+uniform uint  u_Dimension;
 uniform uint  u_nParticles;
 uniform int   u_ColorMode;
 uniform float u_vColorMin;
@@ -37,7 +38,6 @@ uniform vec3  u_ColorMaxVal;
 uniform vec4  u_ClipPlane;
 uniform float u_PointRadius;
 uniform float u_PointScale;
-uniform uint  u_Dimension;
 uniform int   u_ScreenHeight;
 uniform float u_DomainHeight;
 //------------------------------------------------------------------------------------------
@@ -94,7 +94,7 @@ void main()
     f_ViewCenter = posEye;
     f_Color      = generateVertexColor();
 
-    gl_PointSize       = (u_Dimension == 3) ? u_PointRadius * u_PointScale / length(posEye) : u_PointRadius * float(u_ScreenHeight) / u_DomainHeight;
+    gl_PointSize       = (u_Dimension == 3) ? u_PointRadius * u_PointScale / length(posEye) : u_PointRadius * 2.0 * float(u_ScreenHeight) / u_DomainHeight;
     gl_Position        = projectionMatrix * eyeCoord;
     gl_ClipDistance[0] = dot(vec4(v_Position, 1.0), u_ClipPlane);
 }

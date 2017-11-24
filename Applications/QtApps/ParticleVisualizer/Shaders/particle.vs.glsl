@@ -27,6 +27,7 @@ layout(std140) uniform CameraData
     vec4 camPosition;
 };
 
+uniform uint  u_Dimension;
 uniform uint  u_nParticles;
 uniform int   u_ColorMode;
 uniform float u_vColorMin;
@@ -40,7 +41,7 @@ uniform int   u_IsPointView;
 uniform int   u_UseAniKernel;
 uniform int   u_ScreenWidth;
 uniform int   u_ScreenHeight;
-
+uniform float u_DomainHeight;
 //------------------------------------------------------------------------------------------
 uniform vec3  u_vPositionMin;
 uniform vec3  u_vPositionMax;
@@ -121,14 +122,15 @@ void ComputePointSizeAndPosition(mat4 T)
     float sy = abs(ybc[ 0 ] - ybc[ 1 ]) * .5 * u_ScreenHeight;
 
     float pointSize = ceil(max(sx, sy));
-    gl_PointSize = pointSize;
+    gl_PointSize = (u_Dimension == 3) ? pointSize : u_PointRadius * 2.0 * float(u_ScreenHeight) / u_DomainHeight;
 }
 
 //------------------------------------------------------------------------------------------
 void main()
 {
-    vec3  diff     = u_vPositionMax - u_vPositionMin;
-    vec3  position = v_Position * diff / 65535.0f + u_vPositionMin;
+    vec3 diff     = u_vPositionMax - u_vPositionMin;
+    vec3 position = v_Position * diff / 65535.0f + u_vPositionMin;
+    if(u_Dimension == 2) { position.z = 0; }
     vec4  eyeCoord = viewMatrix * vec4(position, 1.0);
     vec3  posEye   = vec3(eyeCoord);
     float dist     = length(posEye);
