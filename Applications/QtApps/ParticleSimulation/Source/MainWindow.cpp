@@ -189,7 +189,6 @@ void MainWindow::connectWidgets()
                     return;
                 }
                 m_Simulator->changeScene(sceneFile);
-                m_RenderWidget->updateVizData();
                 updateWindowTitle(getScenePath() + "/" + sceneFile);
             });
 
@@ -218,7 +217,7 @@ void MainWindow::connectWidgets()
     connect(m_Simulator, &Simulator::simulationFinished,                 [&] { QMetaObject::invokeMethod(this, "finishSimulation", Qt::QueuedConnection); });
     connect(m_Simulator, &Simulator::numParticleChanged, this,           &MainWindow::updateStatusNumParticles);
     connect(m_Simulator, &Simulator::systemTimeChanged,  this,           &MainWindow::updateStatusSimulationTime);
-    connect(m_Simulator, &Simulator::dimensionChanged,   m_RenderWidget, &RenderWidget::updateProjection);
+    connect(m_Simulator, &Simulator::dimensionChanged,   m_RenderWidget, &RenderWidget::updateSolverDimension);
     connect(m_Simulator, &Simulator::domainChanged,      m_RenderWidget, &RenderWidget::updateBox);
     connect(m_Simulator, &Simulator::cameraChanged,      m_RenderWidget, &RenderWidget::updateCamera);
     connect(m_Simulator, &Simulator::lightsChanged,      m_RenderWidget, &RenderWidget::updateLights);

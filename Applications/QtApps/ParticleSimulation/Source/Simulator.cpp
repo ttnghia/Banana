@@ -116,8 +116,7 @@ void Simulator::changeScene(const QString& scene)
     m_VizData->systemDimension = m_ParticleSolver->getSolverDimension();
     m_VizData->positions       = m_ParticleSolver->getParticlePositions();
     m_VizData->velocities      = m_ParticleSolver->getParticleVelocities();
-//    m_VizData->aniKernel =
-    m_VizData->objIndex = m_ParticleSolver->getObjectIndex();
+    m_VizData->objIndex        = m_ParticleSolver->getObjectIndex();
     ////////////////////////////////////////////////////////////////////////////////
     memcpy(&m_VizData->boxMin, m_ParticleSolver->getBMin(), sizeof(float) * m_ParticleSolver->getSolverDimension());
     memcpy(&m_VizData->boxMax, m_ParticleSolver->getBMax(), sizeof(float) * m_ParticleSolver->getSolverDimension());
@@ -126,12 +125,14 @@ void Simulator::changeScene(const QString& scene)
     m_VizData->particleRadius = m_ParticleSolver->getParticleRadius();
     ////////////////////////////////////////////////////////////////////////////////
     if(jParams.find("VisualizationParameters") != jParams.end()) {
-        auto jVizParams = jParams["VisualizationParameters"];
-        if(!JSONHelpers::readVector(jVizParams, m_VizData->cameraPosition, "CameraPosition") &&
-           !JSONHelpers::readVector(jVizParams, m_VizData->cameraFocus, "CameraFocus")) {
+        auto jVizParams    = jParams["VisualizationParameters"];
+        auto bReadCamPos   = JSONHelpers::readVector(jVizParams, m_VizData->cameraPosition, "CameraPosition");
+        auto bReadCamFocus = JSONHelpers::readVector(jVizParams, m_VizData->cameraFocus, "CameraFocus");
+        if(!bReadCamPos && !bReadCamFocus) {
             m_VizData->cameraPosition = DEFAULT_CAMERA_POSITION;
             m_VizData->cameraFocus    = DEFAULT_CAMERA_FOCUS;
         }
+
         if(jVizParams.find("Light") != jVizParams.end()) {
             m_VizData->lights.resize(0);
             for(auto& jObj : jVizParams["Light"]) {

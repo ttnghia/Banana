@@ -47,8 +47,8 @@ private:
     virtual void renderOpenGL();
     SharedPtr<VisualizationData> m_VizData;
 public slots:
-    void updateCamera() { m_Camera->setDefaultCamera(m_VizData->cameraPosition, m_VizData->cameraFocus, Vec3f(0, 1, 0)); }
-    void updateProjection();
+    void updateCamera() { m_Camera->setCamera(m_VizData->cameraPosition, m_VizData->cameraFocus, Vec3f(0, 1, 0)); }
+    void updateSolverDimension();
     void updateVizData();
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -150,6 +150,9 @@ private:
         GLuint u_nParticles;
         GLuint u_PointRadius;
         GLuint u_PointScale;
+        GLuint u_Dimension;
+        GLuint u_ScreenHeight;
+        GLuint u_DomainHeight;
         GLuint u_ClipPlane;
         GLuint u_ColorMode;
         GLuint u_vColorMin;

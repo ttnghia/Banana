@@ -37,7 +37,9 @@ uniform vec3  u_ColorMaxVal;
 uniform vec4  u_ClipPlane;
 uniform float u_PointRadius;
 uniform float u_PointScale;
-
+uniform uint  u_Dimension;
+uniform int   u_ScreenHeight;
+uniform float u_DomainHeight;
 //------------------------------------------------------------------------------------------
 in vec3  v_Position;
 in float v_fColor;
@@ -86,17 +88,13 @@ vec3 generateVertexColor()
 //------------------------------------------------------------------------------------------
 void main()
 {
-    vec4  eyeCoord = viewMatrix * vec4(v_Position, 1.0);
-    vec3  posEye   = vec3(eyeCoord);
-    float dist     = length(posEye);
-
-
+    vec4 eyeCoord = viewMatrix * vec4(v_Position, 1.0);
+    vec3 posEye   = vec3(eyeCoord);
     /////////////////////////////////////////////////////////////////
-    // output
     f_ViewCenter = posEye;
     f_Color      = generateVertexColor();
 
-    gl_PointSize       = u_PointRadius * u_PointScale / dist;
+    gl_PointSize       = (u_Dimension == 3) ? u_PointRadius * u_PointScale / length(posEye) : u_PointRadius * float(u_ScreenHeight) / u_DomainHeight;
     gl_Position        = projectionMatrix * eyeCoord;
     gl_ClipDistance[0] = dot(vec4(v_Position, 1.0), u_ClipPlane);
 }
