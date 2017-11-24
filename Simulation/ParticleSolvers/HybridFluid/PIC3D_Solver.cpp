@@ -109,6 +109,8 @@ void PIC3D_Data::ParticleData::reserve(UInt nParticles)
     positions.reserve(nParticles);
     velocities.reserve(nParticles);
     objectIndex.reserve(nParticles);
+    aniKernelCenters.reserve(nParticles);
+    aniKernelMatrices.reserve(nParticles);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -117,7 +119,6 @@ void PIC3D_Data::ParticleData::addParticles(const Vec_Vec3r& newPositions, const
     __BNN_ASSERT(newPositions.size() == newVelocities.size());
     positions.insert(positions.end(), newPositions.begin(), newPositions.end());
     velocities.insert(velocities.end(), newVelocities.begin(), newVelocities.end());
-
     ////////////////////////////////////////////////////////////////////////////////
     // add the object index for new particles to the list
     objectIndex.insert(objectIndex.end(), newPositions.size(), nObjects);
@@ -525,10 +526,10 @@ void PIC3D_Solver::saveFrameData()
         m_ParticleDataIO->setParticleAttribute("object_index", particleData().objectIndex);
     }
     if(globalParams().isSavingData("anisotropic_kernel")) {
-        AnisotropicKernelGenerator aniKernelGenerator(particleData().getNParticles(), particleData().positions.data(), solverParams().particleRadius);
-        aniKernelGenerator.generateAniKernels();
-        m_ParticleDataIO->setParticleAttribute("position",           aniKernelGenerator.kernelCenters());
-        m_ParticleDataIO->setParticleAttribute("anisotropic_kernel", aniKernelGenerator.kernelMatrices());
+        AnisotropicKernelGenerator aniKernelGenerator(particleData().positions, solverParams().particleRadius);
+        aniKernelGenerator.computeAniKernels(particleData().aniKernelCenters, particleData().aniKernelMatrices);
+        m_ParticleDataIO->setParticleAttribute("position",           particleData().aniKernelCenters);
+        m_ParticleDataIO->setParticleAttribute("anisotropic_kernel", particleData().aniKernelMatrices);
     } else {
         m_ParticleDataIO->setParticleAttribute("position", particleData().positions);
     }

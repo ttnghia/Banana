@@ -91,6 +91,8 @@ struct PIC3D_Data
 {
     struct ParticleData : public ParticleSimulationData<3, Real>
     {
+        Vec_Vec3f    aniKernelCenters;
+        Vec_Mat3x3f  aniKernelMatrices;
         virtual void reserve(UInt nParticles) override;
         virtual void addParticles(const Vec_Vec3r& newPositions, const Vec_Vec3r& newVelocities) override;
         virtual UInt removeParticles(Vec_Int8& removeMarker) override;
