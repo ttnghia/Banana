@@ -300,4 +300,26 @@ void Camera::zoom()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+Vec3f Camera::getOrthoBoxMin() const
+{
+    auto aspectRatio = static_cast<float>(m_WindowWidth) / static_cast<float>(m_WindowHeight);
+    if((m_OrthoBoxMax.x - m_OrthoBoxMin.x) > (m_OrthoBoxMax.y - m_OrthoBoxMin.y)) {
+        return Vec3f(m_OrthoBoxMin.x, m_OrthoBoxMin.x / aspectRatio, m_OrthoBoxMin.z);
+    } else {
+        return Vec3f(m_OrthoBoxMin.y * aspectRatio, m_OrthoBoxMin.y, m_OrthoBoxMin.z);
+    }
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+Vec3f Camera::getOrthoBoxMax() const
+{
+    auto aspectRatio = static_cast<float>(m_WindowWidth) / static_cast<float>(m_WindowHeight);
+    if((m_OrthoBoxMax.x - m_OrthoBoxMin.x) > (m_OrthoBoxMax.y - m_OrthoBoxMin.y)) {
+        return Vec3f(m_OrthoBoxMax.x, m_OrthoBoxMax.x / aspectRatio, m_OrthoBoxMax.z);
+    } else {
+        return Vec3f(m_OrthoBoxMax.y * aspectRatio, m_OrthoBoxMax.y, m_OrthoBoxMax.z);
+    }
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana

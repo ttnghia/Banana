@@ -87,8 +87,8 @@ public:
     bool        isCameraChanged() { return m_bDirty; }
     auto        getProjection() const { return m_Projection; }
     const auto& getFrustum() const { return m_Frustum; }
-    const auto& getOrthoBoxMin() const { return m_OrthoBoxMin; }
-    const auto& getOrthoBoxMax() const { return m_OrthoBoxMax; }
+    Vec3f       getOrthoBoxMin() const;
+    Vec3f       getOrthoBoxMax() const;
 
     const auto& getCameraPosition() const { return m_CameraPosition; }
     const auto& getCameraFocus() const { return m_CameraFocus; }
