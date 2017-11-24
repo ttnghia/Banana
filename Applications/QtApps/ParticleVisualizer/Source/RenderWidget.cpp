@@ -82,12 +82,9 @@ void RenderWidget::updateVizData(Int currentFrame)
     Q_ASSERT(m_RDataParticle.initialized);
     m_CurrentFrame          = currentFrame;
     m_bCurrentFrameCaptured = false;
-
     ////////////////////////////////////////////////////////////////////////////////
     makeCurrent();
-    ////////////////////////////////////////////////////////////////////////////////
     UInt nParticles = m_VizData->particleReader.getNParticles();
-
     ////////////////////////////////////////////////////////////////////////////////
     // upload position
     {
@@ -166,7 +163,6 @@ void RenderWidget::updateVizData(Int currentFrame)
         }
     }
     ////////////////////////////////////////////////////////////////////////////////
-
     doneCurrent();
     m_VizData->particleReader.getFixedAttribute("particle_radius", m_RDataParticle.pointRadius);
     m_RDataParticle.nParticles = nParticles;
@@ -198,6 +194,7 @@ void RenderWidget::updateLights()
             m_Lights->setLightDiffuse(Vec4f(m_VizData->lights[i].diffuse, 1.0f), i);
             m_Lights->setLightSpecular(Vec4f(m_VizData->lights[i].specular, 1.0f), i);
         }
+        ////////////////////////////////////////////////////////////////////////////////
         makeCurrent();
         m_Lights->uploadDataToGPU();
         doneCurrent();
@@ -212,11 +209,11 @@ void RenderWidget::initRDataLight()
     m_Lights->setNumLights(2);
     m_Lights->setLightPosition(DEFAULT_LIGHT1_POSITION, 0);
     m_Lights->setLightPosition(DEFAULT_LIGHT2_POSITION, 1);
-
+    ////////////////////////////////////////////////////////////////////////////////
     m_Lights->setSceneCenter(Vec3f(0, 0, 0));
     m_Lights->setLightViewPerspective(30);
     m_Lights->uploadDataToGPU();
-
+    ////////////////////////////////////////////////////////////////////////////////
     m_LightRender = std::make_unique<PointLightRender>(m_Camera, m_Lights, m_UBufferCamData);
     emit lightsObjChanged(m_Lights);
 }
@@ -232,7 +229,6 @@ void RenderWidget::initRDataSkyBox()
 void RenderWidget::initRDataFloor()
 {
     Q_ASSERT(m_UBufferCamData != nullptr && m_Lights != nullptr);
-
     m_FloorRender = std::make_unique<PlaneRender>(m_Camera, m_Lights, getTexturePath() + "/Floor/", m_UBufferCamData);
     m_FloorRender->transform(Vec3f(0, -1.01, 0), Vec3f(DEFAULT_FLOOR_SIZE));
     m_FloorRender->scaleTexCoord(DEFAULT_FLOOR_SIZE, DEFAULT_FLOOR_SIZE);
@@ -280,18 +276,18 @@ void RenderWidget::initRDataParticle()
     m_RDataParticle.shader->addVertexShaderFromResource(":/Shaders/particle.vs.glsl");
     m_RDataParticle.shader->addFragmentShaderFromResource(":/Shaders/particle.fs.glsl");
     m_RDataParticle.shader->link();
-
+    ////////////////////////////////////////////////////////////////////////////////
     m_RDataParticle.v_Position          = m_RDataParticle.shader->getAtributeLocation("v_Position");
     m_RDataParticle.v_AnisotropyMatrix0 = m_RDataParticle.shader->getAtributeLocation("v_AnisotropyMatrix0");
     m_RDataParticle.v_AnisotropyMatrix1 = m_RDataParticle.shader->getAtributeLocation("v_AnisotropyMatrix1");
     m_RDataParticle.v_AnisotropyMatrix2 = m_RDataParticle.shader->getAtributeLocation("v_AnisotropyMatrix2");
     m_RDataParticle.v_iColor            = m_RDataParticle.shader->getAtributeLocation("v_iColor");
     m_RDataParticle.v_fColor            = m_RDataParticle.shader->getAtributeLocation("v_fColor");
-
+    ////////////////////////////////////////////////////////////////////////////////
     m_RDataParticle.ub_CamData  = m_RDataParticle.shader->getUniformBlockIndex("CameraData");
     m_RDataParticle.ub_Light    = m_RDataParticle.shader->getUniformBlockIndex("Lights");
     m_RDataParticle.ub_Material = m_RDataParticle.shader->getUniformBlockIndex("Material");
-
+    ////////////////////////////////////////////////////////////////////////////////
     m_RDataParticle.u_nParticles    = m_RDataParticle.shader->getUniformLocation("u_nParticles");
     m_RDataParticle.u_PointRadius   = m_RDataParticle.shader->getUniformLocation("u_PointRadius");
     m_RDataParticle.u_IsPointView   = m_RDataParticle.shader->getUniformLocation("u_IsPointView");
@@ -305,24 +301,22 @@ void RenderWidget::initRDataParticle()
     m_RDataParticle.u_vColorMax     = m_RDataParticle.shader->getUniformLocation("u_vColorMax");
     m_RDataParticle.u_ColorMinVal   = m_RDataParticle.shader->getUniformLocation("u_ColorMinVal");
     m_RDataParticle.u_ColorMaxVal   = m_RDataParticle.shader->getUniformLocation("u_ColorMaxVal");
-
-    m_RDataParticle.u_ScreenWidth  = m_RDataParticle.shader->getUniformLocation("u_ScreenWidth");
-    m_RDataParticle.u_ScreenHeight = m_RDataParticle.shader->getUniformLocation("u_ScreenHeight");
-    m_RDataParticle.u_ClipPlane    = m_RDataParticle.shader->getUniformLocation("u_ClipPlane");
-
+    m_RDataParticle.u_ScreenWidth   = m_RDataParticle.shader->getUniformLocation("u_ScreenWidth");
+    m_RDataParticle.u_ScreenHeight  = m_RDataParticle.shader->getUniformLocation("u_ScreenHeight");
+    m_RDataParticle.u_ClipPlane     = m_RDataParticle.shader->getUniformLocation("u_ClipPlane");
+    ////////////////////////////////////////////////////////////////////////////////
     m_RDataParticle.buffPosition = std::make_unique<OpenGLBuffer>();
     m_RDataParticle.buffPosition->createBuffer(GL_ARRAY_BUFFER, 1, nullptr, GL_DYNAMIC_DRAW);
-
+    ////////////////////////////////////////////////////////////////////////////////
     m_RDataParticle.buffAniKernels = std::make_unique<OpenGLBuffer>();
     m_RDataParticle.buffAniKernels->createBuffer(GL_ARRAY_BUFFER, 1, nullptr, GL_DYNAMIC_DRAW);
-
+    ////////////////////////////////////////////////////////////////////////////////
     m_RDataParticle.buffColorData = std::make_unique<OpenGLBuffer>();
     m_RDataParticle.buffColorData->createBuffer(GL_ARRAY_BUFFER, 1, nullptr, GL_DYNAMIC_DRAW);
-
+    ////////////////////////////////////////////////////////////////////////////////
     m_RDataParticle.material = std::make_unique<Material>();
     m_RDataParticle.material->setMaterial(CUSTOM_PARTICLE_MATERIAL);
     m_RDataParticle.material->uploadDataToGPU();
-
     ////////////////////////////////////////////////////////////////////////////////
     m_RDataParticle.initialized = true;
     initParticleVAO();
@@ -335,7 +329,7 @@ void RenderWidget::initParticleVAO()
     glCall(glGenVertexArrays(1, &m_RDataParticle.VAO));
     glCall(glBindVertexArray(m_RDataParticle.VAO));
     glCall(glEnableVertexAttribArray(m_RDataParticle.v_Position));
-
+    ////////////////////////////////////////////////////////////////////////////////
     auto dim = m_RDataParticle.dataDimension;
     ////////////////////////////////////////////////////////////////////////////////
     // position
@@ -382,16 +376,17 @@ void RenderWidget::renderParticles()
     }
     ////////////////////////////////////////////////////////////////////////////////
     m_RDataParticle.shader->bind();
-
+    ////////////////////////////////////////////////////////////////////////////////
     m_UBufferCamData->bindBufferBase();
-    m_RDataParticle.shader->bindUniformBlock(m_RDataParticle.ub_CamData, m_UBufferCamData->getBindingPoint());
-
     m_Lights->bindUniformBuffer();
-    m_RDataParticle.shader->bindUniformBlock(m_RDataParticle.ub_Light, m_Lights->getBufferBindingPoint());
-
     m_RDataParticle.material->bindUniformBuffer();
+    ////////////////////////////////////////////////////////////////////////////////
+    m_RDataParticle.shader->bindUniformBlock(m_RDataParticle.ub_CamData, m_UBufferCamData->getBindingPoint());
+    m_RDataParticle.shader->bindUniformBlock(m_RDataParticle.ub_Light, m_Lights->getBufferBindingPoint());
     m_RDataParticle.shader->bindUniformBlock(m_RDataParticle.ub_Material, m_RDataParticle.material->getBufferBindingPoint());
-
+    ////////////////////////////////////////////////////////////////////////////////
+    m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_vPositionMin, m_RDataParticle.dMinPosition, m_RDataParticle.dataDimension);
+    m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_vPositionMax, m_RDataParticle.dMaxPosition, m_RDataParticle.dataDimension);
     m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_nParticles, m_RDataParticle.nParticles);
     m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_PointRadius, m_RDataParticle.pointRadius);
     m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_IsPointView, m_RDataParticle.isPointView);
@@ -399,10 +394,7 @@ void RenderWidget::renderParticles()
     m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_ClipPlane, m_ClipPlane);
     m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_ScreenWidth, width());
     m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_ScreenHeight, height());
-
-    m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_vPositionMin, m_RDataParticle.dMinPosition, m_RDataParticle.dataDimension);
-    m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_vPositionMax, m_RDataParticle.dMaxPosition, m_RDataParticle.dataDimension);
-
+    ////////////////////////////////////////////////////////////////////////////////
     if(m_RDataParticle.useAniKernel && m_RDataParticle.hasAniKernel) {
         m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_UseAniKernel, 1);
         m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_vAniKernelMin, m_RDataParticle.vAniKernelMin);
@@ -410,7 +402,7 @@ void RenderWidget::renderParticles()
     } else {
         m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_UseAniKernel, 0);
     }
-
+    ////////////////////////////////////////////////////////////////////////////////
     if(m_RDataParticle.pColorMode == ParticleColorMode::ObjectIndex ||
        m_RDataParticle.pColorMode == ParticleColorMode::VelocityMagnitude) {
         m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_vColorMin, m_RDataParticle.vColorMin);
@@ -418,7 +410,7 @@ void RenderWidget::renderParticles()
         m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_ColorMinVal, m_RDataParticle.colorMinVal);
         m_RDataParticle.shader->setUniformValue(m_RDataParticle.u_ColorMaxVal, m_RDataParticle.colorMaxVal);
     }
-
+    ////////////////////////////////////////////////////////////////////////////////
     glCall(glBindVertexArray(m_RDataParticle.VAO));
     glCall(glEnable(GL_VERTEX_PROGRAM_POINT_SIZE));
     glCall(glDrawArrays(GL_POINTS, 0, m_RDataParticle.nParticles));

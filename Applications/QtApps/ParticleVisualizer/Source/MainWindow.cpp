@@ -143,24 +143,31 @@ void MainWindow::setupRenderWidgets()
     m_sldFrame->setRange(1, 1);
     m_sldFrame->setValue(1);
     m_sldFrame->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-
+    ////////////////////////////////////////////////////////////////////////////////
+    m_InputPath       = new BrowsePathWidget(QIcon(":/Icons/open.png"));
+    m_chkCaptureFrame = new QCheckBox("Export to Images");
+    m_CapturePath     = new BrowsePathWidget(QIcon(":/Icons/save.png"));
+    m_CapturePath->setPath(getDefaultCapturePath());
+    QHBoxLayout* exportImageLayout = new QHBoxLayout;
+    exportImageLayout->addWidget(m_chkCaptureFrame);
+    exportImageLayout->addLayout(m_CapturePath->getLayout());
+    QGroupBox* grExportImage = new QGroupBox("Image Output Path");
+    grExportImage->setLayout(exportImageLayout);
     ////////////////////////////////////////////////////////////////////////////////
     QHBoxLayout* inputOutputLayout = new QHBoxLayout;
-    setupDataWidgets(inputOutputLayout);
-
+    inputOutputLayout->addWidget(m_InputPath->getGroupBox("Input Path"));
+    inputOutputLayout->addWidget(grExportImage);
     ////////////////////////////////////////////////////////////////////////////////
-    // setup layouts
     QVBoxLayout* renderLayout = new QVBoxLayout;
     renderLayout->addWidget(m_GLWidget, 1);
     renderLayout->addWidget(m_sldFrame);
     renderLayout->addLayout(inputOutputLayout);
-
+    ////////////////////////////////////////////////////////////////////////////////
     m_Controller = new Controller(m_RenderWidget, m_DataReader, this);
-
     QHBoxLayout* mainLayout = new QHBoxLayout;
     mainLayout->addLayout(renderLayout);
     mainLayout->addWidget(m_Controller);
-
+    ////////////////////////////////////////////////////////////////////////////////
     QWidget* mainWidget = new QWidget(this);
     mainWidget->setLayout(mainLayout);
     setCentralWidget(mainWidget);
@@ -171,10 +178,8 @@ void MainWindow::setupPlayList()
 {
     assert(m_DataList != nullptr);
     m_DataList->setWindowTitle("Data List");
-
     ////////////////////////////////////////////////////////////////////////////////
     const QString listFile(QDir::currentPath() + "/PlayList.txt");
-
     if(QFile::exists(listFile)) {
         m_DataList->loadListFromFile(listFile);
     } else {
@@ -183,52 +188,28 @@ void MainWindow::setupPlayList()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MainWindow::setupDataWidgets(QLayout* dataLayout)
-{
-    ////////////////////////////////////////////////////////////////////////////////
-    // input data path
-    m_InputPath = new BrowsePathWidget(QIcon(":/Icons/open.png"));
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // output image path
-    m_chkCaptureFrame = new QCheckBox("Export to Images");
-    m_CapturePath     = new BrowsePathWidget(QIcon(":/Icons/save.png"));
-    m_CapturePath->setPath(getDefaultCapturePath());
-    QHBoxLayout* exportImageLayout = new QHBoxLayout;
-    exportImageLayout->addWidget(m_chkCaptureFrame);
-    exportImageLayout->addLayout(m_CapturePath->getLayout());
-
-    QGroupBox* grExportImage = new QGroupBox("Image Output Path");
-    grExportImage->setLayout(exportImageLayout);
-
-    ////////////////////////////////////////////////////////////////////////////////
-    dataLayout->addWidget(m_InputPath->getGroupBox("Input Path"));
-    dataLayout->addWidget(grExportImage);
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MainWindow::setupStatusBar()
 {
     m_lblStatusCurrentFrame = new QLabel(this);
     m_lblStatusCurrentFrame->setMargin(5);
     statusBar()->addPermanentWidget(m_lblStatusCurrentFrame, 1);
-
+    ////////////////////////////////////////////////////////////////////////////////
     m_lblStatusNumFrames = new QLabel(this);
     m_lblStatusNumFrames->setMargin(5);
     statusBar()->addPermanentWidget(m_lblStatusNumFrames, 1);
-
+    ////////////////////////////////////////////////////////////////////////////////
     m_lblStatusNumParticles = new QLabel(this);
     m_lblStatusNumParticles->setMargin(5);
     statusBar()->addPermanentWidget(m_lblStatusNumParticles, 1);
-
+    ////////////////////////////////////////////////////////////////////////////////
     m_lblStatusReadInfo = new QLabel(this);
     m_lblStatusReadInfo->setMargin(5);
     statusBar()->addPermanentWidget(m_lblStatusReadInfo, 1);
-
+    ////////////////////////////////////////////////////////////////////////////////
     m_lblStatusMemoryUsage = new QLabel(this);
     m_lblStatusMemoryUsage->setMargin(5);
     statusBar()->addPermanentWidget(m_lblStatusMemoryUsage, 1);
-
+    ////////////////////////////////////////////////////////////////////////////////
     QTimer* memTimer = new QTimer(this);
     connect(memTimer, &QTimer::timeout, [&] { updateStatusMemoryUsage(); });
     memTimer->start(5000);
@@ -237,21 +218,21 @@ void MainWindow::setupStatusBar()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MainWindow::connectWidgets()
 {
+    connect(m_sldFrame,   &QSlider::sliderMoved, m_DataReader, &DataReader::readFrame);
+    ////////////////////////////////////////////////////////////////////////////////
     connect(m_InputPath,  &BrowsePathWidget::pathChanged, m_DataReader, &DataReader::setDataPath);
     connect(m_CapturePath,  &BrowsePathWidget::pathChanged, m_RenderWidget, &RenderWidget::setCapturePath);
     connect(m_chkCaptureFrame, &QCheckBox::toggled, m_RenderWidget, &RenderWidget::setCaptureFrame);
-
-    connect(m_sldFrame,   &QSlider::sliderMoved, m_DataReader, &DataReader::readFrame);
-
+    ////////////////////////////////////////////////////////////////////////////////
     connect(m_DataReader, &DataReader::currentFrameChanged,  m_sldFrame, &QSlider::setValue);
     connect(m_DataReader, &DataReader::currentFrameChanged,  this,       &MainWindow::updateStatusCurrentFrame);
     connect(m_DataReader, &DataReader::frameReadInfoChanged, this,       &MainWindow::updateStatusReadInfo);
     connect(m_DataReader, &DataReader::numFramesChanged,     this,       &MainWindow::updateNumFrames);
     connect(m_DataReader, &DataReader::numParticlesChanged,              [&](UInt nParticles) { m_nParticles = nParticles; updateStatusNumParticlesAndMeshes(); });
-
+    ////////////////////////////////////////////////////////////////////////////////
     connect(m_DataList, &DataList::currentTextChanged, m_DataReader, &DataReader::setDataPath);
     connect(m_DataList, &DataList::currentTextChanged, m_InputPath,  &BrowsePathWidget::setPath);
     connect(m_DataList, &DataList::currentTextChanged,               [&](const QString& dataPath) { updateWindowTitle(dataPath); });
-
+    ////////////////////////////////////////////////////////////////////////////////
     connect(m_ClipPlaneEditor, &ClipPlaneEditor::clipPlaneChanged, m_RenderWidget, &RenderWidget::setClipPlane);
 }

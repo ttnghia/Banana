@@ -90,13 +90,12 @@ void Simulator::changeScene(const QString& scene)
 {
     m_Scene = scene;
     emit systemTimeChanged(0, 0);
-
+    ////////////////////////////////////////////////////////////////////////////////
     // wait until the simulation stop before modifying the scene
     if(m_SimulationFutureObj.valid()) {
         m_bStop = true;
         m_SimulationFutureObj.wait();
     }
-
     ////////////////////////////////////////////////////////////////////////////////
     QString       sceneFile = getScenePath() + "/" + scene;
     std::ifstream inFile(sceneFile.toStdString());
@@ -108,7 +107,6 @@ void Simulator::changeScene(const QString& scene)
     auto   jGlobalParams = jParams["GlobalParameters"];
     String solverName;
     __BNN_ASSERT(JSONHelpers::readValue(jGlobalParams, solverName, "Solver"));
-
     ////////////////////////////////////////////////////////////////////////////////
     m_ParticleSolver.reset();
     m_ParticleSolver = ParticleSolverQtFactory::createSolver(solverName);
@@ -134,7 +132,6 @@ void Simulator::changeScene(const QString& scene)
             m_VizData->cameraPosition = DEFAULT_CAMERA_POSITION;
             m_VizData->cameraFocus    = DEFAULT_CAMERA_FOCUS;
         }
-
         if(jVizParams.find("Light") != jVizParams.end()) {
             m_VizData->lights.resize(0);
             for(auto& jObj : jVizParams["Light"]) {
@@ -145,10 +142,8 @@ void Simulator::changeScene(const QString& scene)
                 JSONHelpers::readVector(jObj, light.specular, "Specular");
                 m_VizData->lights.push_back(light);
             }
-
             emit lightsChanged();
         }
-
         if(jVizParams.find("CapturePath") != jVizParams.end()) {
             String capturePath;
             JSONHelpers::readValue(jVizParams, capturePath, "CapturePath");

@@ -58,7 +58,6 @@ public slots:
 private:
     void setupRenderWidgets();
     void setupPlayList();
-    void setupDataWidgets(QLayout* dataLayout);
     void setupStatusBar();
     void connectWidgets();
 

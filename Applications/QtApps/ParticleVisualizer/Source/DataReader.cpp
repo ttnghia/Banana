@@ -303,18 +303,16 @@ bool DataReader::readParticles(int frameID, size_t& bytesRead)
     if(!success) {
         return false;
     }
-
     bytesRead += m_VizData->particleReader.getBytesRead();
     ////////////////////////////////////////////////////////////////////////////////
-    UInt  nParticles = m_VizData->particleReader.getNParticles();
-    float particleRadius;
-    __BNN_ASSERT(m_VizData->particleReader.getFixedAttribute("particle_radius", particleRadius));
-
+    UInt nParticles = m_VizData->particleReader.getNParticles();
     if(nParticles != m_VizData->nParticles) {
         m_VizData->nParticles = nParticles;
         emit numParticlesChanged(nParticles);
     }
-
+    ////////////////////////////////////////////////////////////////////////////////
+    float particleRadius;
+    __BNN_ASSERT(m_VizData->particleReader.getFixedAttribute("particle_radius", particleRadius));
     ////////////////////////////////////////////////////////////////////////////////
     return true;
 }
