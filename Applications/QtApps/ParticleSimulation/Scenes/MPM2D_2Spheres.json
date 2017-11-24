@@ -8,7 +8,7 @@
         "SaveFrameData" : true,
         "SaveMemoryState" : false,
         "FramePerState" : 10,
-        "DataPath" : "D:/Scratch/TwoToruses_APIC",
+        "DataPath" : "D:/Scratch/MPM2D_TwoSphere_APIC",
         "FrameDataFolder" : "FLIPData",
         "MemoryStateDataFolder" : "MPMState",
         "OptionalSavingDataXXX" : [ "object_index" ],
@@ -58,12 +58,21 @@
     ],
     "VisualizationParameters":
     {
-        "CameraPosition" : [0, 0.7, 3.2],
-        "CameraFocus" : [0, 0.0, 0],
+        "CapturePath" : "D:/Scratch/MPM2D_TwoSphere_APIC/Capture",
         "Light" :
-        {
-            "Position" : [-10, 10, 0],
-            "Color" : [1, 1, 1]
-        }
+        [
+            {
+                "Position" : [-10, 20, 10],
+                "Diffuse" : [0.7, 0.7, 0.7]
+            },
+            {
+                "Position" : [10, 20, -10],
+                "Diffuse" : [0.7, 0.7, 0.7]
+            },
+            {
+                "Position" : [0, -20, 0],
+                "Diffuse" : [1, 1, 1]
+            }
+        ]
     }
 }

@@ -11,7 +11,7 @@
         "DataPath" : "D:/Scratch/TwoDamBreak",
         "FrameDataFolder" : "FLIPData",
         "MemoryStateDataFolder" : "FLIPState",
-        "OptionalSavingData" : [ "anisotropic_kernel" , "object_index" , "velocity" ],
+        "OptionalSavingData" : [ "anisotropic_kernel" , "object_index" ],
         "LogLevel" : "Debug",
         "PrintLogToFile" : true,
         "EnableSortParticle" : false,
@@ -22,7 +22,7 @@
         "SimulationDomainBox" :
         {
             "BoxMin" : [-1, -1, -1],
-            "BoxMax" : [ 1, 2, 1]
+            "BoxMax" : [ 1, 3, 1]
         },
         "CorrectPosition" : true,
         "RepulsiveForceStiffness" : 50,
@@ -30,7 +30,7 @@
         "PIC_FLIP_Ratio" : 0.97,
         "CGRelativeTolerance" : 1e-10,
         "MaxCGIteration" : 1000,
-        "CellSize" : 0.05,
+        "CellSize" : 0.02,
         "CFLFactor" : 1
     },
     "ParticleGenerators":
@@ -52,6 +52,21 @@
     {
         "CameraPosition" : [0, 0.7, 3.2],
         "CameraFocus" : [0, -0.2, 0],
-        "CapturePath" : "D:/Scratch/TwoDamBreak/Capture"
+        "CapturePath" : "D:/Scratch/TwoDamBreak/Capture",
+        "Light" :
+        [
+            {
+                "Position" : [-10, 20, 10],
+                "Diffuse" : [0.7, 0.7, 0.7]
+            },
+            {
+                "Position" : [10, 20, -10],
+                "Diffuse" : [0.7, 0.7, 0.7]
+            },
+            {
+                "Position" : [0, -20, 0],
+                "Diffuse" : [0.7, 0.7, 0.7]
+            }
+        ]
     }
 }

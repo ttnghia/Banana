@@ -8,7 +8,7 @@
         "SaveFrameData" : true,
         "SaveMemoryState" : false,
         "FramePerState" : 10,
-        "DataPath" : "D:/Scratch/TwoSphere_APIC",
+        "DataPath" : "D:/Scratch/MPM3D_TwoSphere_APIC",
         "FrameDataFolder" : "MPMData",
         "MemoryStateDataFolder" : "MPMState",
         "OptionalSavingData" : [ "object_index" ],
@@ -58,14 +58,19 @@
     ],
     "VisualizationParameters":
     {
+        "CapturePath" : "D:/Scratch/MPM3D_TwoSphere_APIC/Capture",
         "Light" :
         [
             {
                 "Position" : [-10, 20, 10],
-                "Diffuse" : [1, 1, 1]
+                "Diffuse" : [0.7, 0.7, 0.7]
             },
-                        {
+            {
                 "Position" : [10, 20, -10],
+                "Diffuse" : [0.7, 0.7, 0.7]
+            },
+            {
+                "Position" : [0, -20, 0],
                 "Diffuse" : [1, 1, 1]
             }
         ]
