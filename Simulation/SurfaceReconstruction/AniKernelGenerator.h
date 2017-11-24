@@ -32,7 +32,7 @@ class AnisotropicKernelGenerator
 {
 public:
     AnisotropicKernelGenerator(const Vec_Vec3r& particles, Real particleRadius, Real defaultSpraySize = Real(0.75), Real kernelRatio = Real(8.0)) :
-        AnisotropicKernelGenerator((static_cast<UInt>(particles.size())), particles.data(), defaultSpraySize, kernelRatio) {}
+        AnisotropicKernelGenerator((static_cast<UInt>(particles.size())), particles.data(), particleRadius, defaultSpraySize, kernelRatio) {}
 
     AnisotropicKernelGenerator(UInt nParticles, const Vec3r* particles, Real particleRadius, Real defaultSpraySize = Real(0.75), Real kernelRatio = Real(8.0)) :
         m_nParticles(nParticles), m_Particles(particles), m_DefaultSpraySize(defaultSpraySize)
