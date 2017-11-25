@@ -103,27 +103,14 @@ struct MPM_2DParameters : public SimulationParameters
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-// MPM2D_Data
+// AniMPM_2DData
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-struct MPM2D_Data
+struct AniMPM_2DData
 {
     struct ParticleData : public ParticleSimulationData<2, Real>
     {
-        Vec_Real    volumes;
-        Vec_Mat2x2r velocityGrad;
-
-        Vec_Mat2x2r deformGrad, tmp_deformGrad;
-        Vec_Mat2x2r PiolaStress, CauchyStress;
-        Vec_Real    energy, energyDensity;
-
-        //Grid interpolation weights
-        Vec_Vec2r gridCoordinate;
-        Vec_Vec2r weightGradients;         // * 16
-        Vec_Real  weights;                 // * 16
-
-        Vec_Mat2x2r B, D;                  // affine matrix and auxiliary
-
+        Vec_Vec2r localAxes;
 
         virtual void reserve(UInt nParticles) override;
         virtual void addParticles(const Vec_Vec2r& newPositions, const Vec_Vec2r& newVelocities) override;
@@ -134,64 +121,16 @@ struct MPM2D_Data
     ////////////////////////////////////////////////////////////////////////////////
     struct GridData : public GridSimulationData<2, Real>
     {
-        Array2c  active;
-        Array2ui activeNodeIdx;                // store linearized indices of active nodes
-
-        Array2r       mass;
-        Array2r       energy;
-        Array2<Vec2r> velocity, velocity_new;
-
-        Array2<Vector<Real> >  weight;
-        Array2<Vector<Vec2r> > weightGrad;
-
-        Array2SpinLock nodeLocks;
-
         ////////////////////////////////////////////////////////////////////////////////
         virtual void resize(const Vec2<UInt>& gridSize);
         void         resetGrid();
     };
 
     ////////////////////////////////////////////////////////////////////////////////
-    ParticleData                    particleData;
-    GridData                        gridData;
-    Grid2r                          grid;
-    Optimization::LBFGSSolver<Real> lbfgsSolver;
+    ParticleData particleData;
+    GridData     gridData;
 
     void makeReady(const MPM_2DParameters& params);
-};
-
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-// MPM2D_Objective
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class MPM2D_Objective : public Optimization::Problem<Real>
-{
-public:
-    MPM2D_Objective(const MPM_2DParameters& simParams, MPM2D_Data& simData, Real timestep) :
-        m_SimParams(simParams), m_SimData(simData), m_timestep(timestep) {}
-
-    virtual Real value(const Vector<Real>& v) { throw std::runtime_error("value function: shouldn't get here!"); }
-
-    /**
-       @brief Computes value and gradient of the objective function
-     */
-    virtual Real valueGradient(const Vector<Real>& v, Vector<Real>& grad);
-    ////////////////////////////////////////////////////////////////////////////////
-    auto&       solverParams() { return m_SimParams; }
-    const auto& solverParams() const { return m_SimParams; }
-    auto&       particleData() { return m_SimData.particleData; }
-    const auto& particleData() const { return m_SimData.particleData; }
-    auto&       gridData() { return m_SimData.gridData; }
-    const auto& gridData() const { return m_SimData.gridData; }
-    auto&       grid() { return m_SimData.grid; }
-    const auto& grid() const { return m_SimData.grid; }
-
-private:
-    const MPM_2DParameters& m_SimParams;
-    MPM2D_Data&             m_SimData;
-    Real                    m_timestep;
 };
 
 
@@ -254,7 +193,7 @@ protected:
     const auto& grid() const { return solverData().grid; }
     ////////////////////////////////////////////////////////////////////////////////
     MPM_2DParameters m_SimParams;
-    MPM2D_Data       m_SimData;
+    AniMPM_2DData    m_SimData;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

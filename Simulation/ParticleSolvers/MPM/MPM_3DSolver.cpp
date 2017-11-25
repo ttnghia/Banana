@@ -122,10 +122,10 @@ void MPM_3DParameters::printParams(const SharedPtr<Logger>& logger)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-// MPM3D_Data implementation
+// MPM_3DData implementation
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MPM3D_Data::ParticleData::reserve(UInt nParticles)
+void MPM_3DData::ParticleData::reserve(UInt nParticles)
 {
     positions.reserve(nParticles);
     velocities.reserve(nParticles);
@@ -150,7 +150,7 @@ void MPM3D_Data::ParticleData::reserve(UInt nParticles)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MPM3D_Data::ParticleData::addParticles(const Vec_Vec3r& newPositions, const Vec_Vec3r& newVelocities)
+void MPM_3DData::ParticleData::addParticles(const Vec_Vec3r& newPositions, const Vec_Vec3r& newVelocities)
 {
     __BNN_REQUIRE(newPositions.size() == newVelocities.size());
 
@@ -181,7 +181,7 @@ void MPM3D_Data::ParticleData::addParticles(const Vec_Vec3r& newPositions, const
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-UInt MPM3D_Data::ParticleData::removeParticles(Vec_Int8& removeMarker)
+UInt MPM_3DData::ParticleData::removeParticles(Vec_Int8& removeMarker)
 {
     __BNN_REQUIRE(removeMarker.size() == positions.size());
     if(!STLHelpers::contain(removeMarker, Int8(1))) {
@@ -213,7 +213,7 @@ UInt MPM3D_Data::ParticleData::removeParticles(Vec_Int8& removeMarker)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MPM3D_Data::GridData::resize(const Vec3ui& nCells)
+void MPM_3DData::GridData::resize(const Vec3ui& nCells)
 {
     auto nNodes = Vec3ui(nCells[0] + 1, nCells[1] + 1, nCells[2] + 1);
     ////////////////////////////////////////////////////////////////////////////////
@@ -233,7 +233,7 @@ void MPM3D_Data::GridData::resize(const Vec3ui& nCells)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MPM3D_Data::GridData::resetGrid()
+void MPM_3DData::GridData::resetGrid()
 {
     active.assign(char(0));
     activeNodeIdx.assign(0u);
@@ -245,7 +245,7 @@ void MPM3D_Data::GridData::resetGrid()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MPM3D_Data::makeReady(const MPM_3DParameters& params)
+void MPM_3DData::makeReady(const MPM_3DParameters& params)
 {
     if(params.maxNParticles > 0) {
         particleData.reserve(params.maxNParticles);
@@ -872,7 +872,7 @@ void MPM_3DSolver::implicitIntegration(Real timestep)
                                 });
 
     ////////////////////////////////////////////////////////////////////////////////
-    MPM3D_Objective obj(solverParams(), solverData(), timestep);
+    MPM_3DObjective obj(solverParams(), solverData(), timestep);
     solverData().lbfgsSolver.minimize(obj, v);
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -886,7 +886,7 @@ void MPM_3DSolver::implicitIntegration(Real timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-Real MPM3D_Objective::valueGradient(const Vector<Real>& v, Vector<Real>& grad)
+Real MPM_3DObjective::valueGradient(const Vector<Real>& v, Vector<Real>& grad)
 {
     auto vPtr    = reinterpret_cast<const Vec3r*>(v.data());
     auto gradPtr = reinterpret_cast<Vec3r*>(grad.data());

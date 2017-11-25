@@ -26,7 +26,7 @@ namespace Banana::ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-// AFLIP_3DParameters and AFLIP3D_Data implementations
+// AFLIP_3DParameters and AFLIP_3DData implementations
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void AFLIP_3DParameters::printParams(const SharedPtr<Logger>& logger)
@@ -40,7 +40,7 @@ void AFLIP_3DParameters::printParams(const SharedPtr<Logger>& logger)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void AFLIP3D_Data::resizeGridData(const Vec3ui& nCells)
+void AFLIP_3DData::resizeGridData(const Vec3ui& nCells)
 {
     du.resize(nCells.x + 1, nCells.y, nCells.z, 0);
     u_old.resize(nCells.x + 1, nCells.y, nCells.z, 0);
@@ -56,7 +56,7 @@ void AFLIP3D_Data::resizeGridData(const Vec3ui& nCells)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void AFLIP3D_Data::backupGridVelocity(const PIC3D_Data& picData)
+void AFLIP_3DData::backupGridVelocity(const PIC_3DData& picData)
 {
     tbb::parallel_invoke([&] { u_old.copyDataFrom(picData.gridData.u); },
                          [&] { v_old.copyDataFrom(picData.gridData.v); },

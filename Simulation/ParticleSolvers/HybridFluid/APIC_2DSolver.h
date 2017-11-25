@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include <ParticleSolvers/PICFluid/APIC2D_Data.h>
+#include <ParticleSolvers/PICFluid/APIC_2DData.h>
 #include <ParticleSolvers/PICFluid/PIC_2DSolver.h>
 #include <Banana/Array/Array.h>
 #include <Banana/LinearAlgebra/SparseMatrix/SparseMatrix.h>
@@ -31,7 +31,7 @@
 namespace Banana::ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-struct APIC2D_Data : public ParticleSimulationData<2, Real>
+struct APIC_2DData : public ParticleSimulationData<2, Real>
 {
     ////////////////////////////////////////////////////////////////////////////////
     // variable for apic only
@@ -92,7 +92,7 @@ protected:
 
     Mat2x2r getAffineMatrix(const Vec2r& gridPos);
     ////////////////////////////////////////////////////////////////////////////////
-    APIC2D_Data m_apicData;
+    APIC_2DData m_apicData;
 };
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace Banana::ParticleSolvers

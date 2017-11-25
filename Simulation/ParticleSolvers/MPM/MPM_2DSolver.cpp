@@ -122,10 +122,10 @@ void MPM_2DParameters::printParams(const SharedPtr<Logger>& logger)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-// MPM2D_Data implementation
+// MPM_2DData implementation
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MPM2D_Data::ParticleData::reserve(UInt nParticles)
+void MPM_2DData::ParticleData::reserve(UInt nParticles)
 {
     positions.reserve(nParticles);
     velocities.reserve(nParticles);
@@ -150,7 +150,7 @@ void MPM2D_Data::ParticleData::reserve(UInt nParticles)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MPM2D_Data::ParticleData::addParticles(const Vec_Vec2r& newPositions, const Vec_Vec2r& newVelocities)
+void MPM_2DData::ParticleData::addParticles(const Vec_Vec2r& newPositions, const Vec_Vec2r& newVelocities)
 {
     __BNN_REQUIRE(newPositions.size() == newVelocities.size());
 
@@ -181,7 +181,7 @@ void MPM2D_Data::ParticleData::addParticles(const Vec_Vec2r& newPositions, const
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-UInt MPM2D_Data::ParticleData::removeParticles(Vec_Int8& removeMarker)
+UInt MPM_2DData::ParticleData::removeParticles(Vec_Int8& removeMarker)
 {
     __BNN_REQUIRE(removeMarker.size() == positions.size());
     if(!STLHelpers::contain(removeMarker, Int8(1))) {
@@ -213,7 +213,7 @@ UInt MPM2D_Data::ParticleData::removeParticles(Vec_Int8& removeMarker)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MPM2D_Data::GridData::resize(const Vec2ui& nCells)
+void MPM_2DData::GridData::resize(const Vec2ui& nCells)
 {
     auto nNodes = Vec2ui(nCells[0] + 1, nCells[1] + 1);
     ////////////////////////////////////////////////////////////////////////////////
@@ -233,7 +233,7 @@ void MPM2D_Data::GridData::resize(const Vec2ui& nCells)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MPM2D_Data::GridData::resetGrid()
+void MPM_2DData::GridData::resetGrid()
 {
     active.assign(char(0));
     activeNodeIdx.assign(0u);
@@ -245,7 +245,7 @@ void MPM2D_Data::GridData::resetGrid()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MPM2D_Data::makeReady(const MPM_2DParameters& params)
+void MPM_2DData::makeReady(const MPM_2DParameters& params)
 {
     if(params.maxNParticles > 0) {
         particleData.reserve(params.maxNParticles);
@@ -862,7 +862,7 @@ void MPM_2DSolver::implicitIntegration(Real timestep)
                                 });
 
     ////////////////////////////////////////////////////////////////////////////////
-    MPM2D_Objective obj(solverParams(), solverData(), timestep);
+    MPM_2DObjective obj(solverParams(), solverData(), timestep);
     solverData().lbfgsSolver.minimize(obj, v);
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -876,7 +876,7 @@ void MPM_2DSolver::implicitIntegration(Real timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-Real MPM2D_Objective::valueGradient(const Vector<Real>& v, Vector<Real>& grad)
+Real MPM_2DObjective::valueGradient(const Vector<Real>& v, Vector<Real>& grad)
 {
     auto vPtr    = reinterpret_cast<const Vec2r*>(v.data());
     auto gradPtr = reinterpret_cast<Vec2r*>(grad.data());

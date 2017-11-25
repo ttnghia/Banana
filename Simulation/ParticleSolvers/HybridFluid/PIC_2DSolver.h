@@ -32,7 +32,7 @@
 #include <ParticleSolvers/ParticleSolverData.h>
 #include <SimulationObjects/BoundaryObject.h>
 #include <ParticleSolvers/ParticleSolver.h>
-#include <ParticleSolvers/PICFluid/PIC2D_Data.h>
+#include <ParticleSolvers/PICFluid/PIC_2DData.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -137,7 +137,7 @@ struct PIC_2DParameters : public SimulationParameters
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-struct PIC2D_Data
+struct PIC_2DData
 {
     struct ParticleData : public ParticleSimulationData<2, Real>
     {
@@ -321,7 +321,7 @@ protected:
 
     ////////////////////////////////////////////////////////////////////////////////
     PIC_2DParameters m_picParams;
-    PIC2D_Data       m_picData;
+    PIC_2DData       m_picData;
 };
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace ParticleSolvers

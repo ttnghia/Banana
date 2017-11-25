@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include <ParticleSolvers/PICFluid/FLIP2D_Data.h>
+#include <ParticleSolvers/PICFluid/FLIP_2DData.h>
 #include <ParticleSolvers/PICFluid/PIC_2DSolver.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -53,7 +53,7 @@ struct FLIP_2DParameters : public SimulationParameters
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-struct FLIP2D_Data : public GridSimulationData<2, Real>
+struct FLIP_2DData : public GridSimulationData<2, Real>
 {
     Array2r du, dv;
     Array2r u_old, v_old;
@@ -67,7 +67,7 @@ struct FLIP2D_Data : public GridSimulationData<2, Real>
         v_old.resize(gridSize.x, gridSize.y + 1);
     }
 
-    void backupGridVelocity(const PIC2D_Data& picData)
+    void backupGridVelocity(const PIC_2DData& picData)
     {
         u_old.copyDataFrom(picData.gridData.u);
         v_old.copyDataFrom(picData.gridData.v);
@@ -103,7 +103,7 @@ protected:
 
     ////////////////////////////////////////////////////////////////////////////////
     FLIP_2DParameters m_flipParams;
-    FLIP2D_Data       m_flipData;
+    FLIP_2DData       m_flipData;
 };
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace ParticleSolvers

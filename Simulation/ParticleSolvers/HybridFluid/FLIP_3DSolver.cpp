@@ -44,10 +44,10 @@ void FLIP_3DParameters::printParams(const SharedPtr<Logger>& logger)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-// FLIP3D_Data implementation
+// FLIP_3DData implementation
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FLIP3D_Data::resize(const Vec3ui& nCells)
+void FLIP_3DData::resize(const Vec3ui& nCells)
 {
     du.resize(nCells.x + 1, nCells.y, nCells.z, 0);
     u_old.resize(nCells.x + 1, nCells.y, nCells.z, 0);
@@ -63,7 +63,7 @@ void FLIP3D_Data::resize(const Vec3ui& nCells)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FLIP3D_Data::backupGridVelocity(const PIC3D_Data& picData)
+void FLIP_3DData::backupGridVelocity(const PIC_3DData& picData)
 {
     tbb::parallel_invoke([&] { u_old.copyDataFrom(picData.gridData.u); },
                          [&] { v_old.copyDataFrom(picData.gridData.v); },
