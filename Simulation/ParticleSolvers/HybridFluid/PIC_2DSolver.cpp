@@ -20,7 +20,7 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 #include <Banana/Array/ArrayHelpers.h>
-#include <ParticleSolvers/PICFluid/PIC2D_Solver.h>
+#include <ParticleSolvers/PICFluid/PIC_2DSolver.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -29,7 +29,7 @@ namespace Banana
 namespace ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void PIC2D_Solver::makeReady()
+void PIC_2DSolver::makeReady()
 {
     logger().printRunTime("Allocate solver memory: ",
                           [&]()
@@ -47,7 +47,7 @@ void PIC2D_Solver::makeReady()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void PIC2D_Solver::advanceFrame()
+void PIC_2DSolver::advanceFrame()
 {
     static Timer subStepTimer;
     static Timer funcTimer;
@@ -95,7 +95,7 @@ void PIC2D_Solver::advanceFrame()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void PIC2D_Solver::sortParticles()
+void PIC_2DSolver::sortParticles()
 {
     static UInt frameCount = 0;
     ++frameCount;
@@ -118,7 +118,7 @@ void PIC2D_Solver::sortParticles()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void PIC2D_Solver::loadSimParams(const nlohmann::json& jParams)
+void PIC_2DSolver::loadSimParams(const nlohmann::json& jParams)
 {
     JSONHelpers::readVector(jParams, solverParams().movingBMin, "BoxMin");
     JSONHelpers::readVector(jParams, solverParams().movingBMax, "BoxMax");
@@ -135,7 +135,7 @@ void PIC2D_Solver::loadSimParams(const nlohmann::json& jParams)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void PIC2D_Solver::generateParticles(const nlohmann::json& jParams)
+void PIC_2DSolver::generateParticles(const nlohmann::json& jParams)
 {
     ParticleSolver2D::generateParticles(jParams);
 
@@ -157,7 +157,7 @@ void PIC2D_Solver::generateParticles(const nlohmann::json& jParams)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-bool PIC2D_Solver::advanceScene(UInt frame, Real fraction /*= Real(0)*/)
+bool PIC_2DSolver::advanceScene(UInt frame, Real fraction /*= Real(0)*/)
 {
     bool bSceneChanged = ParticleSolver2D::advanceScene(frame, fraction);
 
@@ -195,7 +195,7 @@ bool PIC2D_Solver::advanceScene(UInt frame, Real fraction /*= Real(0)*/)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void PIC2D_Solver::setupDataIO()
+void PIC_2DSolver::setupDataIO()
 {
     m_ParticleDataIO = std::make_unique<ParticleSerialization>(m_GlobalParams.dataPath, globalParams().frameDataFolder, "frame", m_Logger);
     m_ParticleDataIO->addFixedAttribute<float>("particle_radius", ParticleSerialization::TypeReal, 1);
@@ -211,7 +211,7 @@ void PIC2D_Solver::setupDataIO()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-bool PIC2D_Solver::loadMemoryState()
+bool PIC_2DSolver::loadMemoryState()
 {
     if(!m_GlobalParams.bLoadMemoryState) {
         return false;
@@ -239,7 +239,7 @@ bool PIC2D_Solver::loadMemoryState()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void PIC2D_Solver::saveMemoryState()
+void PIC_2DSolver::saveMemoryState()
 {
     if(!m_GlobalParams.bSaveMemoryState) {
         return;
@@ -264,7 +264,7 @@ void PIC2D_Solver::saveMemoryState()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void PIC2D_Solver::saveFrameData()
+void PIC_2DSolver::saveFrameData()
 {
     if(!m_GlobalParams.bSaveFrameData) {
         return;
@@ -280,7 +280,7 @@ void PIC2D_Solver::saveFrameData()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-Real PIC2D_Solver::timestepCFL()
+Real PIC_2DSolver::timestepCFL()
 {
     Real maxVel = MathHelpers::max(ParallelSTL::maxAbs(gridData().u.data()),
                                    ParallelSTL::maxAbs(gridData().v.data()));
@@ -289,7 +289,7 @@ Real PIC2D_Solver::timestepCFL()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void PIC2D_Solver::advanceVelocity(Real timestep)
+void PIC_2DSolver::advanceVelocity(Real timestep)
 {
     static Timer funcTimer;
 
@@ -308,7 +308,7 @@ void PIC2D_Solver::advanceVelocity(Real timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void PIC2D_Solver::moveParticles(Real timestep)
+void PIC_2DSolver::moveParticles(Real timestep)
 {
     ParallelFuncs::parallel_for<UInt>(0, particleData().getNParticles(),
                                       [&](UInt p)
@@ -331,7 +331,7 @@ void PIC2D_Solver::moveParticles(Real timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void PIC2D_Solver::correctPositions(Real timestep)
+void PIC_2DSolver::correctPositions(Real timestep)
 {
     //const Real radius    = picData().grid.getCellSize() / Real(sqrt(2.0));
     //const Real threshold = Real(0.01) * radius;
@@ -381,7 +381,7 @@ void PIC2D_Solver::correctPositions(Real timestep)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //Compute finite-volume style face-weights for fluid from nodal signed distances
-void PIC2D_Solver::computeFluidWeights()
+void PIC_2DSolver::computeFluidWeights()
 {
     ParallelFuncs::parallel_for<UInt>(solverData().grid.getNNodes(),
                                       [&](UInt i, UInt j)
@@ -404,14 +404,14 @@ void PIC2D_Solver::computeFluidWeights()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void PIC2D_Solver::extrapolateVelocity()
+void PIC_2DSolver::extrapolateVelocity()
 {
     extrapolateVelocity(gridData().u, gridData().tmp_u, gridData().u_valid, gridData().tmp_u_valid);
     extrapolateVelocity(gridData().v, gridData().tmp_v, gridData().v_valid, gridData().tmp_v_valid);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void PIC2D_Solver::extrapolateVelocity(Array2r& grid, Array2r& temp_grid, Array2c& valid, Array2c& old_valid)
+void PIC_2DSolver::extrapolateVelocity(Array2r& grid, Array2r& temp_grid, Array2c& valid, Array2c& old_valid)
 {
     temp_grid.copyDataFrom(grid);
     for(Int layers = 0; layers < 10; ++layers) {
@@ -467,7 +467,7 @@ void PIC2D_Solver::extrapolateVelocity(Array2r& grid, Array2r& temp_grid, Array2
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void PIC2D_Solver::constrainGridVelocity()
+void PIC_2DSolver::constrainGridVelocity()
 {
     gridData().tmp_u.copyDataFrom(gridData().u);
     gridData().tmp_v.copyDataFrom(gridData().v);
@@ -515,7 +515,7 @@ void PIC2D_Solver::constrainGridVelocity()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void PIC2D_Solver::addGravity(Real timestep)
+void PIC_2DSolver::addGravity(Real timestep)
 {
     ParallelFuncs::parallel_for<size_t>(gridData().v.size(),
                                         [&](size_t i, size_t j)
@@ -525,7 +525,7 @@ void PIC2D_Solver::addGravity(Real timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void PIC2D_Solver::pressureProjection(Real timestep)
+void PIC_2DSolver::pressureProjection(Real timestep)
 {
     static Timer funcTimer;
 
@@ -538,7 +538,7 @@ void PIC2D_Solver::pressureProjection(Real timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void PIC2D_Solver::computeFluidSDF()
+void PIC_2DSolver::computeFluidSDF()
 {
     gridData().fluidSDF.assign(solverParams().sdfRadius);
 
@@ -582,7 +582,7 @@ void PIC2D_Solver::computeFluidSDF()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void PIC2D_Solver::computeMatrix(Real timestep)
+void PIC_2DSolver::computeMatrix(Real timestep)
 {
     solverData().matrix.clear();
 
@@ -650,7 +650,7 @@ void PIC2D_Solver::computeMatrix(Real timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void PIC2D_Solver::computeRhs()
+void PIC_2DSolver::computeRhs()
 {
     solverData().rhs.assign(solverData().rhs.size(), 0);
     ParallelFuncs::parallel_for<UInt>(1, solverData().grid.getNCells()[0] - 1,
@@ -675,7 +675,7 @@ void PIC2D_Solver::computeRhs()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void PIC2D_Solver::solveSystem()
+void PIC_2DSolver::solveSystem()
 {
     bool success = solverData().pcgSolver.solve_precond(solverData().matrix, solverData().rhs, solverData().pressure);
     logger().printLog("Conjugate Gradient iterations: " + NumberHelpers::formatWithCommas(solverData().pcgSolver.iterations()) +
@@ -686,7 +686,7 @@ void PIC2D_Solver::solveSystem()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void PIC2D_Solver::updateVelocity(Real timestep)
+void PIC_2DSolver::updateVelocity(Real timestep)
 {
     gridData().u_valid.assign(0);
     gridData().v_valid.assign(0);
@@ -727,7 +727,7 @@ void PIC2D_Solver::updateVelocity(Real timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void PIC2D_Solver::computeChangesGridVelocity()
+void PIC_2DSolver::computeChangesGridVelocity()
 {
     ParallelFuncs::parallel_for<size_t>(0, gridData().u.dataSize(),
                                         [&](size_t i) { gridData().du.data()[i] = gridData().u.data()[i] - gridData().u_old.data()[i]; });
@@ -737,7 +737,7 @@ void PIC2D_Solver::computeChangesGridVelocity()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //Interpolate velocity from the MAC grid.
-Vec2r PIC2D_Solver::getVelocityFromGrid(const Vec2r& gridPos)
+Vec2r PIC_2DSolver::getVelocityFromGrid(const Vec2r& gridPos)
 {
     Real vu = ArrayHelpers::interpolateValueLinear(gridPos - Vec2r(0, 0.5), gridData().u);
     Real vv = ArrayHelpers::interpolateValueLinear(gridPos - Vec2r(0.5, 0), gridData().v);
@@ -746,7 +746,7 @@ Vec2r PIC2D_Solver::getVelocityFromGrid(const Vec2r& gridPos)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-Vec2r PIC2D_Solver::getVelocityChangesFromGrid(const Vec2r& gridPos)
+Vec2r PIC_2DSolver::getVelocityChangesFromGrid(const Vec2r& gridPos)
 {
     Real changed_vu = ArrayHelpers::interpolateValueLinear(gridPos - Vec2r(0, 0.5), gridData().du);
     Real changed_vv = ArrayHelpers::interpolateValueLinear(gridPos - Vec2r(0.5, 0), gridData().dv);

@@ -21,81 +21,78 @@
 
 #pragma once
 
-#include <ParticleSolvers/HybridFluid/PIC3D_Solver.h>
+#include <ParticleSolvers/PICFluid/APIC2D_Data.h>
+#include <ParticleSolvers/PICFluid/PIC_2DSolver.h>
+#include <Banana/Array/Array.h>
+#include <Banana/LinearAlgebra/SparseMatrix/SparseMatrix.h>
+#include <ParticleSolvers/ParticleSolverData.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana::ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-// FLIP3D_Parameters
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-struct FLIP3D_Parameters : public SimulationParameters
+struct APIC2D_Data : public ParticleSimulationData<2, Real>
 {
-    FLIP3D_Parameters() = default;
-
     ////////////////////////////////////////////////////////////////////////////////
-    // data only for flip
-    Real PIC_FLIP_ratio = Real(0.97);
+    // variable for apic only
+    Vec_Mat2x2r C;     // affine matrix
     ////////////////////////////////////////////////////////////////////////////////
 
-    virtual void printParams(const SharedPtr<Logger>& logger) override;
+    virtual UInt getNParticles() override { return static_cast<UInt>(C.size()); }
+
+    virtual void reserve(UInt nParticles)
+    {
+        C.reserve(nParticles);
+    }
+
+    virtual void addParticles(const Vec_Vec2r& newPositions, const Vec_Vec2r& newVelocities)
+    {
+        __BNN_REQUIRE(newPositions.size() == newVelocities.size());
+        __BNN_UNUSED(newVelocities);
+        C.resize(newPositions.size(), Mat2x2r(1.0));
+    }
+
+    virtual UInt removeParticles(Vec_Int8& removeMarker)
+    {
+        if(!STLHelpers::contain(removeMarker, Int8(1))) {
+            return 0u;
+        }
+
+        __BNN_TODO
+        STLHelpers::eraseByMarker(C, removeMarker);                                 // need to erase, or just resize?
+
+        ////////////////////////////////////////////////////////////////////////////////
+        return static_cast<UInt>(removeMarker.size() - positions.size());
+    }
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-// FLIP3D_Data
+// APIC_2DSolver
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-struct FLIP3D_Data : public GridSimulationData<3, Real>
-{
-    Array3r        du, dv, dw;
-    Array3r        u_old, v_old, w_old;
-    Array3SpinLock uLock, vLock, wLock;
-
-    ////////////////////////////////////////////////////////////////////////////////
-    virtual void resize(const Vec3ui& nCells);
-    void         backupGridVelocity(const PIC3D_Data& picData);
-};
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-// FLIP3D_Solver
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class FLIP3D_Solver : public PIC3D_Solver
+class APIC_2DSolver : public PIC_2DSolver
 {
 public:
-    FLIP3D_Solver() = default;
+    APIC_2DSolver() = default;
 
     ////////////////////////////////////////////////////////////////////////////////
-    virtual String getSolverName() override { return String("FLIP3D_Solver"); }
-    virtual String getGreetingMessage() override { return String("Fluid Simulation using FLIP-3D Solver"); }
+    virtual String getSolverName() override { return String("APIC_2DSolver"); }
+    virtual String getGreetingMessage() override { return String("Fluid Simulation using FLIP-2D Solver"); }
 
-    ////////////////////////////////////////////////////////////////////////////////
-    auto&       flipParams() { return m_FLIPParams; }
-    const auto& flipParams() const { return m_FLIPParams; }
-    auto&       flipData() { return m_FLIPData; }
-    const auto& flipData() const { return m_FLIPData; }
+    auto&       apicData() { return m_apicData; }
+    const auto& apicData() const { return m_apicData; }
 
 protected:
-    virtual void loadSimParams(const nlohmann::json& jParams) override;
-    virtual void allocateSolverMemory() override;
+    virtual void generateParticles(const nlohmann::json& jParams) override;
+    virtual bool advanceScene(UInt frame, Real fraction = Real(0)) override;
     virtual void advanceVelocity(Real timestep) override;
+    void         mapParticles2Grid();
+    void         mapGrid2Particles();
 
-    void mapParticles2Grid();
-    void mapGrid2Particles();
-
+    Mat2x2r getAffineMatrix(const Vec2r& gridPos);
     ////////////////////////////////////////////////////////////////////////////////
-    // small helper functions
-    __BNN_INLINE void  computeChangesGridVelocity();
-    __BNN_INLINE Vec3r getVelocityChangesFromGrid(const Vec3r& ppos);
-
-    ////////////////////////////////////////////////////////////////////////////////
-    FLIP3D_Parameters m_FLIPParams;
-    FLIP3D_Data       m_FLIPData;
+    APIC2D_Data m_apicData;
 };
-
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace Banana::ParticleSolvers

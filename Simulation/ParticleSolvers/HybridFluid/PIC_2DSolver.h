@@ -41,9 +41,9 @@ namespace Banana
 namespace ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-struct PIC2D_Parameters : public SimulationParameters
+struct PIC_2DParameters : public SimulationParameters
 {
-    PIC2D_Parameters() = default;
+    PIC_2DParameters() = default;
 
     ////////////////////////////////////////////////////////////////////////////////
     // simulation size
@@ -244,7 +244,7 @@ struct PIC2D_Data
     Vec_Real           pressure;
 
     ////////////////////////////////////////////////////////////////////////////////
-    void makeReady(const PIC2D_Parameters& picParams)
+    void makeReady(const PIC_2DParameters& picParams)
     {
         grid.setGrid(picParams.domainBMin, picParams.domainBMax, picParams.cellSize);
         gridData.resize(grid.getNCells());
@@ -259,13 +259,13 @@ struct PIC2D_Data
 
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class PIC2D_Solver : public ParticleSolver2D
+class PIC_2DSolver : public ParticleSolver2D
 {
 public:
-    PIC2D_Solver() = default;
+    PIC_2DSolver() = default;
 
     ////////////////////////////////////////////////////////////////////////////////
-    virtual String getSolverName() override { return String("PIC2D_Solver"); }
+    virtual String getSolverName() override { return String("PIC_2DSolver"); }
     virtual String getGreetingMessage() override { return String("Fluid Simulation using PIC-2D Solver"); }
 
     virtual void makeReady() override;
@@ -320,7 +320,7 @@ protected:
     const auto& gridData() const { return solverData().gridData; }
 
     ////////////////////////////////////////////////////////////////////////////////
-    PIC2D_Parameters m_picParams;
+    PIC_2DParameters m_picParams;
     PIC2D_Data       m_picData;
 };
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

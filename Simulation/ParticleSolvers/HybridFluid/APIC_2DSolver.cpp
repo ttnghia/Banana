@@ -20,7 +20,7 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 #include <Banana/Array/ArrayHelpers.h>
-#include <ParticleSolvers/PICFluid/APIC2D_Solver.h>
+#include <ParticleSolvers/PICFluid/APIC_2DSolver.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -29,18 +29,18 @@ namespace Banana
 namespace ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void APIC2D_Solver::generateParticles(const nlohmann::json& jParams)
+void APIC_2DSolver::generateParticles(const nlohmann::json& jParams)
 {
-    PIC2D_Solver::generateParticles(jParams);
+    PIC_2DSolver::generateParticles(jParams);
     if(particleData().getNParticles() != apicData().getNParticles()) {
         apicData().C.resize(particleData().getNParticles(), Mat2x2r(0));
     }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-bool APIC2D_Solver::advanceScene(UInt frame, Real fraction)
+bool APIC_2DSolver::advanceScene(UInt frame, Real fraction)
 {
-    bool bSceneChanged = PIC2D_Solver::advanceScene(frame, fraction);
+    bool bSceneChanged = PIC_2DSolver::advanceScene(frame, fraction);
     if(particleData().getNParticles() != apicData().getNParticles()) {
         apicData().C.resize(particleData().getNParticles());
     }
@@ -48,7 +48,7 @@ bool APIC2D_Solver::advanceScene(UInt frame, Real fraction)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void APIC2D_Solver::advanceVelocity(Real timestep)
+void APIC_2DSolver::advanceVelocity(Real timestep)
 {
     static Timer funcTimer;
     ////////////////////////////////////////////////////////////////////////////////
@@ -61,7 +61,7 @@ void APIC2D_Solver::advanceVelocity(Real timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void APIC2D_Solver::mapParticles2Grid()
+void APIC_2DSolver::mapParticles2Grid()
 {
     const Vec2r span = Vec2r(solverData().grid.getCellSize());
 
@@ -133,7 +133,7 @@ void APIC2D_Solver::mapParticles2Grid()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void APIC2D_Solver::mapGrid2Particles()
+void APIC_2DSolver::mapGrid2Particles()
 {
     ParallelFuncs::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
@@ -147,7 +147,7 @@ void APIC2D_Solver::mapGrid2Particles()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-Mat2x2r APIC2D_Solver::getAffineMatrix(const Vec2r& gridPos)
+Mat2x2r APIC_2DSolver::getAffineMatrix(const Vec2r& gridPos)
 {
     Mat2x2r C;
     C[0] = ArrayHelpers::interpolateGradientValue(gridPos - Vec2r(0, 0.5), gridData().u, solverData().grid.getCellSize());

@@ -22,7 +22,7 @@
 #pragma once
 
 #include <ParticleSolvers/PICFluid/FLIP2D_Data.h>
-#include <ParticleSolvers/PICFluid/PIC2D_Solver.h>
+#include <ParticleSolvers/PICFluid/PIC_2DSolver.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -31,9 +31,9 @@ namespace Banana
 namespace ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-struct FLIP2D_Parameters : public SimulationParameters
+struct FLIP_2DParameters : public SimulationParameters
 {
-    FLIP2D_Parameters() = default;
+    FLIP_2DParameters() = default;
 
     ////////////////////////////////////////////////////////////////////////////////
     // data only for flip
@@ -75,13 +75,13 @@ struct FLIP2D_Data : public GridSimulationData<2, Real>
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class FLIP2D_Solver : public PIC2D_Solver
+class FLIP_2DSolver : public PIC_2DSolver
 {
 public:
-    FLIP2D_Solver() = default;
+    FLIP_2DSolver() = default;
 
     ////////////////////////////////////////////////////////////////////////////////
-    virtual String getSolverName() override { return String("FLIP2D_Solver"); }
+    virtual String getSolverName() override { return String("FLIP_2DSolver"); }
     virtual String getGreetingMessage() override { return String("Fluid Simulation using FLIP-2D Solver"); }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -102,7 +102,7 @@ protected:
     Vec2r getVelocityChangesFromGrid(const Vec2r& gridPos);
 
     ////////////////////////////////////////////////////////////////////////////////
-    FLIP2D_Parameters m_flipParams;
+    FLIP_2DParameters m_flipParams;
     FLIP2D_Data       m_flipData;
 };
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

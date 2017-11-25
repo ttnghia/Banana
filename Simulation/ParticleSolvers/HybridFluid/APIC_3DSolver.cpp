@@ -19,22 +19,22 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-#include <ParticleSolvers/HybridFluid/APIC3D_Solver.h>
+#include <ParticleSolvers/HybridFluid/APIC_3DSolver.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana::ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void APIC3D_Solver::generateParticles(const nlohmann::json& jParams)
+void APIC_3DSolver::generateParticles(const nlohmann::json& jParams)
 {
-    PIC3D_Solver::generateParticles(jParams);
+    PIC_3DSolver::generateParticles(jParams);
     apicData().resizeParticleData(particleData().getNParticles());
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-bool APIC3D_Solver::advanceScene(UInt frame, Real fraction)
+bool APIC_3DSolver::advanceScene(UInt frame, Real fraction)
 {
-    bool bSceneChanged = PIC3D_Solver::advanceScene(frame, fraction);
+    bool bSceneChanged = PIC_3DSolver::advanceScene(frame, fraction);
     if(particleData().getNParticles() != apicData().getNParticles()) {
         apicData().resizeParticleData(particleData().getNParticles());
     }
@@ -42,14 +42,14 @@ bool APIC3D_Solver::advanceScene(UInt frame, Real fraction)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void APIC3D_Solver::allocateSolverMemory()
+void APIC_3DSolver::allocateSolverMemory()
 {
-    PIC3D_Solver::allocateSolverMemory();
+    PIC_3DSolver::allocateSolverMemory();
     apicData().resizeGridData(grid().getNCells());
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void APIC3D_Solver::advanceVelocity(Real timestep)
+void APIC_3DSolver::advanceVelocity(Real timestep)
 {
     static Timer funcTimer;
     ////////////////////////////////////////////////////////////////////////////////
@@ -62,7 +62,7 @@ void APIC3D_Solver::advanceVelocity(Real timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void APIC3D_Solver::mapParticles2Grid()
+void APIC_3DSolver::mapParticles2Grid()
 {
     gridData().u.assign(0);
     gridData().v.assign(0);
@@ -138,7 +138,7 @@ void APIC3D_Solver::mapParticles2Grid()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void APIC3D_Solver::mapGrid2Particles()
+void APIC_3DSolver::mapGrid2Particles()
 {
     ParallelFuncs::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
@@ -152,7 +152,7 @@ void APIC3D_Solver::mapGrid2Particles()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-__BNN_INLINE Mat3x3r APIC3D_Solver::getAffineMatrixFromGrid(const Vec3r& gridPos)
+__BNN_INLINE Mat3x3r APIC_3DSolver::getAffineMatrixFromGrid(const Vec3r& gridPos)
 {
     Mat3x3r C;
     C[0] = ArrayHelpers::interpolateGradientValue(gridPos - Vec3r(0, 0.5, 0.5), gridData().u, grid().getCellSize());

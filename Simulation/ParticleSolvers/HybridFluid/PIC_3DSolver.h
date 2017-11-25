@@ -23,41 +23,38 @@
 
 #include <Banana/Array/Array.h>
 #include <Banana/Grid/Grid.h>
-#include <Optimization/Problem.h>
-#include <Optimization/LBFGSSolver.h>
-#include <ParticleSolvers/ParticleSolverData.h>
+#include <Banana/LinearAlgebra/LinearSolvers/PCGSolver.h>
+#include <Banana/LinearAlgebra/SparseMatrix/SparseMatrix.h>
+#include <Banana/Utils/NumberHelpers.h>
 #include <ParticleSolvers/ParticleSolver.h>
+#include <ParticleSolvers/ParticleSolverData.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana::ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-// MPM2D_Parameters
+// PIC_3DParameters
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-struct MPM2D_Parameters : public SimulationParameters
+struct PIC_3DParameters : public SimulationParameters
 {
-    MPM2D_Parameters() = default;
-
-
     ////////////////////////////////////////////////////////////////////////////////
     // simulation size
     Real  cellSize             = SolverDefaultParameters::CellSize;
     Real  ratioCellSizePRadius = SolverDefaultParameters::RatioCellSizeOverParticleRadius;
     UInt  nExpandCells         = SolverDefaultParameters::NExpandCells;
-    Vec2r domainBMin           = SolverDefaultParameters::SimulationDomainBMin2D;
-    Vec2r domainBMax           = SolverDefaultParameters::SimulationDomainBMax2D;
-    Vec2r movingBMin;
-    Vec2r movingBMax;
-    Real  cellVolume;
+    Vec3r domainBMin           = SolverDefaultParameters::SimulationDomainBMin3D;
+    Vec3r domainBMax           = SolverDefaultParameters::SimulationDomainBMax3D;
+    Vec3r movingBMin;
+    Vec3r movingBMax;
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
     // time step size
     Real minTimestep = SolverDefaultParameters::MinTimestep;
     Real maxTimestep = SolverDefaultParameters::MaxTimestep;
-    Real CFLFactor   = Real(0.04);
+    Real CFLFactor   = Real(1.0);
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -68,36 +65,17 @@ struct MPM2D_Parameters : public SimulationParameters
 
     ////////////////////////////////////////////////////////////////////////////////
     // particle parameters
-    Real particleRadius;
-    UInt maxNParticles  = 0;
-    UInt advectionSteps = 1;
-    ////////////////////////////////////////////////////////////////////////////////
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // position-correction
+    UInt maxNParticles           = 0;
     bool bCorrectPosition        = true;
     Real repulsiveForceStiffness = Real(50);
+    UInt advectionSteps          = 1;
+    Real particleRadius;
+    Real sdfRadius;
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
     // boundary condition
     Real boundaryRestitution = SolverDefaultParameters::BoundaryRestitution;
-    ////////////////////////////////////////////////////////////////////////////////
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // MPM parameters
-    Real PIC_FLIP_ratio = SolverDefaultParameters::PIC_FLIP_Ratio;
-    Real implicitRatio  = Real(0);
-    ////////////////////////////////////////////////////////////////////////////////
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // material parameters
-    Real YoungsModulus   = Real(0);
-    Real PoissonsRatio   = Real(0);
-    Real mu              = Real(0);
-    Real lambda          = Real(0);
-    Real materialDensity = Real(1000.0);
-    Real particleMass;
     ////////////////////////////////////////////////////////////////////////////////
 
     virtual void makeReady() override;
@@ -106,120 +84,83 @@ struct MPM2D_Parameters : public SimulationParameters
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-// MPM2D_Data
+// PIC3D_Data
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-struct MPM2D_Data
+struct PIC3D_Data
 {
-    struct ParticleData : public ParticleSimulationData<2, Real>
+    struct ParticleData : public ParticleSimulationData<3, Real>
     {
-        Vec_Real    volumes;
-        Vec_Mat2x2r velocityGrad;
-
-        Vec_Mat2x2r deformGrad, tmp_deformGrad;
-        Vec_Mat2x2r PiolaStress, CauchyStress;
-        Vec_Real    energy, energyDensity;
-
-        //Grid interpolation weights
-        Vec_Vec2r gridCoordinate;
-        Vec_Vec2r weightGradients;         // * 16
-        Vec_Real  weights;                 // * 16
-
-        Vec_Mat2x2r B, D;                  // affine matrix and auxiliary
-
-
+        Vec_Vec3f    aniKernelCenters;
+        Vec_Mat3x3f  aniKernelMatrices;
         virtual void reserve(UInt nParticles) override;
-        virtual void addParticles(const Vec_Vec2r& newPositions, const Vec_Vec2r& newVelocities) override;
+        virtual void addParticles(const Vec_Vec3r& newPositions, const Vec_Vec3r& newVelocities) override;
         virtual UInt removeParticles(Vec_Int8& removeMarker) override;
     };
 
-
     ////////////////////////////////////////////////////////////////////////////////
-    struct GridData : public GridSimulationData<2, Real>
+    struct GridData : public GridSimulationData<3, Real>
     {
-        Array2c  active;
-        Array2ui activeNodeIdx;                // store linearized indices of active nodes
+        ////////////////////////////////////////////////////////////////////////////////
+        // main variables
+        Array3r u, v, w;
+        Array3r u_weights, v_weights, w_weights;                     // mark the percentage domain area that can be occupied by fluid
+        Array3c u_valid, v_valid, w_valid;                           // mark the current faces that are influenced by particles during velocity projection
+        Array3c u_extrapolate, v_extrapolate, w_extrapolate;         // mark the current faces that are influenced by particles during velocity extrapolation
 
-        Array2r       mass;
-        Array2r       energy;
-        Array2<Vec2r> velocity, velocity_new;
+        Array3ui activeCellIdx;                                      // store linearized indices of cells that contribute to pressure projection
 
-        Array2<Vector<Real> >  weight;
-        Array2<Vector<Vec2r> > weightGrad;
-
-        Array2SpinLock nodeLocks;
+        Array3SpinLock fluidSDFLock;
+        Array3r        fluidSDF;
+        Array3r        boundarySDF;
+        ////////////////////////////////////////////////////////////////////////////////
 
         ////////////////////////////////////////////////////////////////////////////////
-        virtual void resize(const Vec2<UInt>& gridSize);
-        void         resetGrid();
+        // variables for temporary data
+        Array3r tmp_u, tmp_v, tmp_w;
+        Array3c tmp_u_valid, tmp_v_valid, tmp_w_valid;
+        ////////////////////////////////////////////////////////////////////////////////
+
+        virtual void resize(const Vec3ui& nCells);
     };
 
     ////////////////////////////////////////////////////////////////////////////////
-    ParticleData                    particleData;
-    GridData                        gridData;
-    Grid2r                          grid;
-    Optimization::LBFGSSolver<Real> lbfgsSolver;
-
-    void makeReady(const MPM2D_Parameters& params);
-};
-
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-// MPM2D_Objective
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class MPM2D_Objective : public Optimization::Problem<Real>
-{
-public:
-    MPM2D_Objective(const MPM2D_Parameters& simParams, MPM2D_Data& simData, Real timestep) :
-        m_SimParams(simParams), m_SimData(simData), m_timestep(timestep) {}
-
-    virtual Real value(const Vector<Real>& v) { throw std::runtime_error("value function: shouldn't get here!"); }
-
-    /**
-       @brief Computes value and gradient of the objective function
-     */
-    virtual Real valueGradient(const Vector<Real>& v, Vector<Real>& grad);
-    ////////////////////////////////////////////////////////////////////////////////
-    auto&       solverParams() { return m_SimParams; }
-    const auto& solverParams() const { return m_SimParams; }
-    auto&       particleData() { return m_SimData.particleData; }
-    const auto& particleData() const { return m_SimData.particleData; }
-    auto&       gridData() { return m_SimData.gridData; }
-    const auto& gridData() const { return m_SimData.gridData; }
-    auto&       grid() { return m_SimData.grid; }
-    const auto& grid() const { return m_SimData.grid; }
-
-private:
-    const MPM2D_Parameters& m_SimParams;
-    MPM2D_Data&             m_SimData;
-    Real                    m_timestep;
-};
-
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-// MPM2D_Solver
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class MPM2D_Solver : public ParticleSolver2D
-{
-public:
-    MPM2D_Solver() = default;
+    ParticleData       particleData;
+    GridData           gridData;
+    Grid3r             grid;
+    PCGSolver<Real>    pcgSolver;
+    SparseMatrix<Real> matrix;
+    Vec_Real           rhs;
+    Vec_Real           pressure;
 
     ////////////////////////////////////////////////////////////////////////////////
-    virtual String getSolverName() override { return String("MPM2DSolver"); }
-    virtual String getGreetingMessage() override { return String("Simulation using MPM-2D Solver"); }
+    void makeReady(const PIC_3DParameters& params);
+};
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+// PIC_3DSolver
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+class PIC_3DSolver : public ParticleSolver3D
+{
+public:
+    PIC_3DSolver() = default;
+
+    ////////////////////////////////////////////////////////////////////////////////
+    virtual String getSolverName() override { return String("PIC_3DSolver"); }
+    virtual String getGreetingMessage() override { return String("Fluid Simulation using PIC-3D Solver"); }
+
+    ////////////////////////////////////////////////////////////////////////////////
     virtual void makeReady() override;
     virtual void advanceFrame() override;
+    virtual void sortParticles() override;
 
     ////////////////////////////////////////////////////////////////////////////////
-    auto&       solverParams() { return m_SimParams; }
-    const auto& solverParams() const { return m_SimParams; }
-    auto&       solverData() { return m_SimData; }
-    const auto& solverData() const { return m_SimData; }
+    auto&       solverParams() { return m_SolverParams; }
+    const auto& solverParams() const { return m_SolverParams; }
+    auto&       solverData() { return m_SolverData; }
+    const auto& solverData() const { return m_SolverData; }
 
 protected:
     virtual void loadSimParams(const nlohmann::json& jParams) override;
@@ -233,21 +174,30 @@ protected:
     virtual void advanceVelocity(Real timestep);
 
     Real timestepCFL();
-    void moveParticles(Real timestep);
-    void mapParticleMasses2Grid();
-    bool initParticleVolumes();
-    void mapParticleVelocities2Grid(Real timestep);
-    void mapParticleVelocities2GridFLIP(Real timestep);
-    void mapParticleVelocities2GridAPIC(Real timestep);
-    void constrainGridVelocity(Real timestep);
-    void explicitIntegration(Real timestep);
-    void implicitIntegration(Real timestep);
-    void mapGridVelocities2Particles(Real timestep);
-    void mapGridVelocities2ParticlesFLIP(Real timestep);
-    void mapGridVelocities2ParticlesAPIC(Real timestep);
-    void mapGridVelocities2ParticlesAFLIP(Real timestep);
-    void constrainParticleVelocity(Real timestep);
-    void updateParticleDeformGradients(Real timestep);
+    void moveParticles(Real timeStep);
+    bool correctParticlePositions(Real timestep);
+    void advectGridVelocity(Real timestep);
+    bool addGravity(Real timestep);
+    void pressureProjection(Real timestep);
+    void computeFluidWeights();
+    void computeFluidSDF();
+    void computeSystem(Real timestep);
+    void solveSystem();
+    void updateProjectedVelocity(Real timestep);
+    void extrapolateVelocity();
+    void extrapolateVelocity(Array3r& grid, Array3r& temp_grid, Array3c& valid, Array3c& old_valid, Array3c& extrapolate);
+    void constrainGridVelocity();
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // small helper functions
+    __BNN_INLINE Real  getVelocityFromGridU(const Vec3r& ppos);
+    __BNN_INLINE Real  getVelocityFromGridV(const Vec3r& ppos);
+    __BNN_INLINE Real  getVelocityFromGridW(const Vec3r& ppos);
+    __BNN_INLINE Vec3r getVelocityFromGrid(const Vec3r& ppos);
+    __BNN_INLINE Vec3r trace_rk2(const Vec3r& ppos, Real timestep);
+    __BNN_INLINE Vec3r trace_rk2_grid(const Vec3r& gridPos, Real timestep);
+    __BNN_INLINE void  computeBoundarySDF();
+
     ////////////////////////////////////////////////////////////////////////////////
     auto&       particleData() { return solverData().particleData; }
     const auto& particleData() const { return solverData().particleData; }
@@ -255,9 +205,11 @@ protected:
     const auto& gridData() const { return solverData().gridData; }
     auto&       grid() { return solverData().grid; }
     const auto& grid() const { return solverData().grid; }
+
     ////////////////////////////////////////////////////////////////////////////////
-    MPM2D_Parameters m_SimParams;
-    MPM2D_Data       m_SimData;
+    PIC_3DParameters m_SolverParams;
+    PIC3D_Data       m_SolverData;
 };
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace Banana::ParticleSolvers

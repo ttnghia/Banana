@@ -19,17 +19,17 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-#include <ParticleSolvers/HybridFluid/AFLIP3D_Solver.h>
+#include <ParticleSolvers/HybridFluid/AFLIP_3DSolver.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana::ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-// AFLIP3D_Parameters and AFLIP3D_Data implementations
+// AFLIP_3DParameters and AFLIP3D_Data implementations
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void AFLIP3D_Parameters::printParams(const SharedPtr<Logger>& logger)
+void AFLIP_3DParameters::printParams(const SharedPtr<Logger>& logger)
 {
     ////////////////////////////////////////////////////////////////////////////////
     // FLIP only parameter
@@ -65,12 +65,12 @@ void AFLIP3D_Data::backupGridVelocity(const PIC3D_Data& picData)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-// AFLIP3D_Solver implementation
+// AFLIP_3DSolver implementation
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void AFLIP3D_Solver::loadSimParams(const nlohmann::json& jParams)
+void AFLIP_3DSolver::loadSimParams(const nlohmann::json& jParams)
 {
-    PIC3D_Solver::loadSimParams(jParams);
+    PIC_3DSolver::loadSimParams(jParams);
 
     ////////////////////////////////////////////////////////////////////////////////
     // FLIP parameter
@@ -81,16 +81,16 @@ void AFLIP3D_Solver::loadSimParams(const nlohmann::json& jParams)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void AFLIP3D_Solver::generateParticles(const nlohmann::json& jParams)
+void AFLIP_3DSolver::generateParticles(const nlohmann::json& jParams)
 {
-    PIC3D_Solver::generateParticles(jParams);
+    PIC_3DSolver::generateParticles(jParams);
     aflipData().resizeParticleData(particleData().getNParticles());
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-bool AFLIP3D_Solver::advanceScene(UInt frame, Real fraction)
+bool AFLIP_3DSolver::advanceScene(UInt frame, Real fraction)
 {
-    bool bSceneChanged = PIC3D_Solver::advanceScene(frame, fraction);
+    bool bSceneChanged = PIC_3DSolver::advanceScene(frame, fraction);
     if(particleData().getNParticles() != aflipData().getNParticles()) {
         aflipData().resizeParticleData(particleData().getNParticles());
     }
@@ -98,14 +98,14 @@ bool AFLIP3D_Solver::advanceScene(UInt frame, Real fraction)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void AFLIP3D_Solver::allocateSolverMemory()
+void AFLIP_3DSolver::allocateSolverMemory()
 {
-    PIC3D_Solver::allocateSolverMemory();
+    PIC_3DSolver::allocateSolverMemory();
     aflipData().resizeGridData(grid().getNCells());
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void AFLIP3D_Solver::advanceVelocity(Real timestep)
+void AFLIP_3DSolver::advanceVelocity(Real timestep)
 {
     static Timer funcTimer;
     ////////////////////////////////////////////////////////////////////////////////
@@ -122,7 +122,7 @@ void AFLIP3D_Solver::advanceVelocity(Real timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void AFLIP3D_Solver::mapParticles2Grid()
+void AFLIP_3DSolver::mapParticles2Grid()
 {
     gridData().u.assign(0);
     gridData().v.assign(0);
@@ -208,7 +208,7 @@ void AFLIP3D_Solver::mapParticles2Grid()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void AFLIP3D_Solver::mapGrid2Particles()
+void AFLIP_3DSolver::mapGrid2Particles()
 {
     ParallelFuncs::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
@@ -229,7 +229,7 @@ void AFLIP3D_Solver::mapGrid2Particles()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-__BNN_INLINE void AFLIP3D_Solver::computeChangesGridVelocity()
+__BNN_INLINE void AFLIP_3DSolver::computeChangesGridVelocity()
 {
     ParallelFuncs::parallel_for(gridData().u.dataSize(), [&](size_t i) { aflipData().du.data()[i] = gridData().u.data()[i] - aflipData().u_old.data()[i]; });
     ParallelFuncs::parallel_for(gridData().v.dataSize(), [&](size_t i) { aflipData().dv.data()[i] = gridData().v.data()[i] - aflipData().v_old.data()[i]; });
@@ -237,7 +237,7 @@ __BNN_INLINE void AFLIP3D_Solver::computeChangesGridVelocity()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-__BNN_INLINE Vec3r AFLIP3D_Solver::getVelocityChangesFromGrid(const Vec3r& gridPos)
+__BNN_INLINE Vec3r AFLIP_3DSolver::getVelocityChangesFromGrid(const Vec3r& gridPos)
 {
     Real changed_vu = ArrayHelpers::interpolateValueLinear(gridPos - Vec3r(0, 0.5, 0.5), aflipData().du);
     Real changed_vv = ArrayHelpers::interpolateValueLinear(gridPos - Vec3r(0.5, 0, 0.5), aflipData().dv);
@@ -247,7 +247,7 @@ __BNN_INLINE Vec3r AFLIP3D_Solver::getVelocityChangesFromGrid(const Vec3r& gridP
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-__BNN_INLINE Mat3x3r AFLIP3D_Solver::getAffineMatrixFromGrid(const Vec3r& gridPos)
+__BNN_INLINE Mat3x3r AFLIP_3DSolver::getAffineMatrixFromGrid(const Vec3r& gridPos)
 {
     Mat3x3r C;
     C[0] = ArrayHelpers::interpolateGradientValue(gridPos - Vec3r(0, 0.5, 0.5), gridData().u, grid().getCellSize());
@@ -258,7 +258,7 @@ __BNN_INLINE Mat3x3r AFLIP3D_Solver::getAffineMatrixFromGrid(const Vec3r& gridPo
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-__BNN_INLINE Mat3x3r AFLIP3D_Solver::getAffineMatrixChangesFromGrid(const Vec3r& gridPos)
+__BNN_INLINE Mat3x3r AFLIP_3DSolver::getAffineMatrixChangesFromGrid(const Vec3r& gridPos)
 {
     Mat3x3r C;
     C[0] = ArrayHelpers::interpolateGradientValue(gridPos - Vec3r(0, 0.5, 0.5), aflipData().du, grid().getCellSize());

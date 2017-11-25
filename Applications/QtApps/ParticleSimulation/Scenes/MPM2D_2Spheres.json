@@ -1,10 +1,10 @@
 {
     "GlobalParameters":
     {
-        "Solver" : "MPM2D_Solver",
-        "FrameDuration" : 0.03333333333,
+        "Solver" : "MPM_2DSolver",
+        "FrameDuration" : 0.003333333333,
         "StartFrame" : 1,
-        "FinalFrame" : 200,
+        "FinalFrame" : 1000,
         "SaveFrameData" : true,
         "SaveMemoryState" : false,
         "FramePerState" : 10,
@@ -30,7 +30,7 @@
         "ImplicitRatio" : 1,
         "CGRelativeTolerance" : 1e-18,
         "MaxCGIteration" : 1000,
-        "CellSize" : 0.05,
+        "CellSize" : 0.03,
         "RatioCellSizePRadius" : 4,
         "CFLFactor" : 0.2,
         "lambda" : 10,

@@ -21,19 +21,19 @@
 
 #pragma once
 
-#include <ParticleSolvers/HybridFluid/PIC3D_Solver.h>
+#include <ParticleSolvers/HybridFluid/PIC_3DSolver.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana::ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-// AFLIP3D_Parameters
+// AFLIP_3DParameters
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-struct AFLIP3D_Parameters : public SimulationParameters
+struct AFLIP_3DParameters : public SimulationParameters
 {
-    AFLIP3D_Parameters() = default;
+    AFLIP_3DParameters() = default;
 
     ////////////////////////////////////////////////////////////////////////////////
     // data only for flip
@@ -72,16 +72,16 @@ struct AFLIP3D_Data
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-// AFLIP3D_Solver
+// AFLIP_3DSolver
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class AFLIP3D_Solver : public PIC3D_Solver
+class AFLIP_3DSolver : public PIC_3DSolver
 {
 public:
-    AFLIP3D_Solver() = default;
+    AFLIP_3DSolver() = default;
 
     ////////////////////////////////////////////////////////////////////////////////
-    virtual String getSolverName() override { return String("AFLIP3D_Solver"); }
+    virtual String getSolverName() override { return String("AFLIP_3DSolver"); }
     virtual String getGreetingMessage() override { return String("Fluid Simulation using APIC/FLIP-3D Solver"); }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -107,7 +107,7 @@ protected:
     __BNN_INLINE Mat3x3r getAffineMatrixFromGrid(const Vec3r& gridPos);
     __BNN_INLINE Mat3x3r getAffineMatrixChangesFromGrid(const Vec3r& gridPos);
     ////////////////////////////////////////////////////////////////////////////////
-    AFLIP3D_Parameters m_AFLIPParams;
+    AFLIP_3DParameters m_AFLIPParams;
     AFLIP3D_Data       m_AFLIPData;
 };
 
