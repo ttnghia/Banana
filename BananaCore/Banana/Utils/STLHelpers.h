@@ -279,6 +279,21 @@ inline size_t eraseByMarker(Vector<T>& vec, const Vector<S>& marker, S eraseValu
     return marker.size() - last;
 }
 
+template<class T, class S>
+inline size_t eraseByMarker(Vector<T>& vec, UInt dim, const Vector<S>& marker, S eraseValue = S(1))
+{
+    assert(marker.size() == vec.size());
+    size_t last = 0;
+    size_t i    = 0;
+    for(; i < vec.size(); ++i, ++last) {
+        while(marker[i] == eraseValue) { ++i; }
+        if(i >= vec.size()) { break; }
+        for(UInt j = 0; j < dim; ++j) { vec[last * dim + j] = vec[i * dim + j]; }
+    }
+    vec.resize(last);
+    return marker.size() - last;
+}
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class T>
 inline bool replaceOnce(Vector<T>& vec, const T& oldElement, const T& newElement)
