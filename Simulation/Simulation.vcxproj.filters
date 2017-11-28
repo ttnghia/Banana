@@ -126,9 +126,6 @@
     <ClInclude Include="Optimization\MoreThuente.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Optimization\Optimization.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Optimization\Problem.h">
       <Filter>Header Files</Filter>
     </ClInclude>

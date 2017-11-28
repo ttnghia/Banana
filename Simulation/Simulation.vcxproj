@@ -135,7 +135,6 @@
   <ItemGroup>
     <ClInclude Include="Optimization\LBFGSSolver.h" />
     <ClInclude Include="Optimization\MoreThuente.h" />
-    <ClInclude Include="Optimization\Optimization.h" />
     <ClInclude Include="Optimization\Problem.h" />
     <ClInclude Include="ParticleSolvers\Mass-Spring-System\ClothSolver.h" />
     <ClInclude Include="ParticleSolvers\MPM\MPM_2DSolver.h" />

@@ -131,7 +131,7 @@ public:
     {
         // TODO: check if derived class exists:
         // int(typeid(&Rosenbrock<float>::gradient) == typeid(&Problem<float>::gradient)) == 1 --> overwritten
-        const int        D = x.size();
+        const size_t     D = x.size();
         Vector<RealType> actual_grad(D);
         Vector<RealType> expected_grad(D);
         gradient(x, actual_grad);
@@ -139,7 +139,7 @@ public:
 
         bool correct = true;
 
-        for(int d = 0; d < D; ++d) {
+        for(size_t d = 0; d < D; ++d) {
             RealType scale = std::max((std::max(fabs(actual_grad[d]), fabs(expected_grad[d]))), RealType(1.));
             EXPECT_NEAR(actual_grad[d], expected_grad[d], 1e-2 * scale);
             if(fabs(actual_grad[d] - expected_grad[d]) > 1e-2 * scale) {
@@ -175,7 +175,7 @@ public:
     virtual void finiteGradient(const Vector<RealType>& x, Vector<RealType>& grad, int accuracy = 0) final
     {
         // accuracy can be 0, 1, 2, 3
-        const RealType                            eps   = 2.2204e-6;
+        const RealType                            eps   = RealType(2.2204e-6);
         const size_t                              D     = x.size();
         const std::vector<std::vector<RealType> > coeff =
         { { 1, -1 }, { 1, -8, 8, -1 }, { -1, 9, -45, 45, -9, 1 }, { 3, -32, 168, -672, 672, -168, 32, -3 } };

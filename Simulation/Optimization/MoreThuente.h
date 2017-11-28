@@ -28,7 +28,7 @@
 namespace Banana::Optimization
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType, typename P, int Ord>
+template<class RealType, typename P, Int Order>
 class MoreThuente
 {
 public:
@@ -43,41 +43,34 @@ public:
      * @return step-width
      */
 
-    static RealType linesearch(const Vector<RealType>& x, const Vector<RealType>& searchDir, P& objFunc,
-                               const RealType alpha_init = 1.0)
+    static RealType linesearch(const Vector<RealType>& x, const Vector<RealType>& searchDir, P& objFunc, const RealType alpha_init = RealType(1.0))
     {
         // assume step width
-        RealType ak = alpha_init;
-
-        Vector<RealType> g = x;
-        //    RealType fval = objFunc.value(x);
-        //    objFunc.gradient(x, g);
+        RealType         ak   = alpha_init;
+        Vector<RealType> g    = x;
         RealType         fval = objFunc.valueGradient(x, g);
         Vector<RealType> xx   = x;
-
-        Vector<RealType> s = searchDir;
-
+        Vector<RealType> s    = searchDir;
+        ////////////////////////////////////////////////////////////////////////////////
         cvsrch(objFunc, xx, fval, g, ak, s);
-
         return ak;
     }
 
-    static int cvsrch(P& objFunc, Vector<RealType>& x, RealType f, Vector<RealType>& g, RealType& stp, Vector<RealType>& s)
+    static Int cvsrch(P& objFunc, Vector<RealType>& x, RealType f, Vector<RealType>& g, RealType& stp, Vector<RealType>& s)
     {
-        // we rewrite this from MIN-LAPACK and some MATLAB code
-        int            info   = 0;
-        int            infoc  = 1;
+        Int            info   = 0;
+        Int            infoc  = 1;
         const RealType xtol   = RealType(1e-15);
         const RealType ftol   = RealType(1e-4);
         const RealType gtol   = RealType(1e-2);
         const RealType stpmin = RealType(1e-15);
         const RealType stpmax = RealType(1e15);
         const RealType xtrapf = RealType(4);
-        const int      maxfev = 20;
-        int            nfev   = 0;
+        const Int      maxfev = 20;
+        Int            nfev   = 0;
 
         RealType dginit = ParallelBLAS::dotProduct(g, s);
-        if(dginit >= 0.0) {
+        if(dginit >= 0) {
             // no descent direction
             // TODO: handle this case
             return -1;
@@ -86,17 +79,16 @@ public:
         bool brackt = false;
         bool stage1 = true;
 
-        RealType finit  = f;
-        RealType dgtest = ftol * dginit;
-        RealType width  = stpmax - stpmin;
-        RealType width1 = 2 * width;
-        //Vector<RealType> wa     = x.eval();
-        Vector<RealType> wa = x;
+        RealType         finit  = f;
+        RealType         dgtest = ftol * dginit;
+        RealType         width  = stpmax - stpmin;
+        RealType         width1 = 2 * width;
+        Vector<RealType> wa     = x;
 
-        RealType stx = 0.0;
+        RealType stx = RealType(0.0);
         RealType fx  = finit;
         RealType dgx = dginit;
-        RealType sty = 0.0;
+        RealType sty = RealType(0.0);
         RealType fy  = finit;
         RealType dgy = dginit;
 
@@ -118,10 +110,9 @@ public:
             stp = std::min(stp, stpmax);
 
             // Oops, let us return the last reliable values
-            if(
-                (brackt && (stp <= stmin || stp >= stmax))
-                | (nfev >= maxfev - 1) | (infoc == 0)
-                | (brackt & (stmax - stmin <= xtol * stmax))) {
+            if((brackt && (stp <= stmin || stp >= stmax)) |
+               (nfev >= maxfev - 1) |
+               (infoc == 0) | (brackt & (stmax - stmin <= xtol * stmax))) {
                 stp = stx;
             }
 
@@ -134,8 +125,6 @@ public:
             //    f = objFunc.value(x);
             //    objFunc.gradient(x, g);
             f = objFunc.valueGradient(x, g);
-
-
 
             nfev++;
             RealType dg     = ParallelBLAS::dotProduct(g, s);
@@ -195,8 +184,8 @@ public:
             }
 
             if(brackt) {
-                if(fabs(sty - stx) >= 0.66 * width1) {
-                    stp = stx + 0.5 * (sty - stx);
+                if(fabs(sty - stx) >= RealType(0.66) * width1) {
+                    stp = stx + RealType(0.5) * (sty - stx);
                 }
                 width1 = width;
                 width  = fabs(sty - stx);
@@ -206,8 +195,8 @@ public:
         return 0;
     }
 
-    static int cstep(RealType& stx, RealType& fx, RealType& dx, RealType& sty, RealType& fy, RealType& dy, RealType& stp,
-                     RealType& fp, RealType& dp, bool& brackt, RealType& stpmin, RealType& stpmax, int& info)
+    static Int cstep(RealType& stx, RealType& fx, RealType& dx, RealType& sty, RealType& fy, RealType& dy, RealType& stp,
+                     RealType& fp, RealType& dp, bool& brackt, RealType& stpmin, RealType& stpmax, Int& info)
     {
         info = 0;
         bool bound = false;
@@ -227,7 +216,7 @@ public:
         if(fp > fx) {
             info  = 1;
             bound = true;
-            RealType theta = 3. * (fx - fp) / (stp - stx) + dx + dp;
+            RealType theta = RealType(3.0) * (fx - fp) / (stp - stx) + dx + dp;
             RealType s     = std::max(theta, std::max(dx, dp));
             RealType gamma = s * sqrt((theta / s) * (theta / s) - (dx / s) * (dp / s));
             if(stp < stx) {

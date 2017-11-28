@@ -292,10 +292,10 @@ void MPM_2DSolver::advanceFrame()
                                       substep = remainingTime * Real(0.5);
                                   }
                                   ////////////////////////////////////////////////////////////////////////////////
-                                  logger().printRunTime("Find neighbors: ", funcTimer,
-                                                        [&]() { grid().collectIndexToCells(particleData().positions, particleData().gridCoordinate); });
-                                  logger().printRunTime("====> Advance velocity total: ", funcTimer, [&]() { advanceVelocity(substep); });
                                   logger().printRunTime("Move particles: ", funcTimer, [&]() { moveParticles(substep); });
+                                  logger().printRunTime("Find particles' grid coordinate: ", funcTimer,
+                                                        [&]() { grid().collectIndexToCells(particleData().positions, particleData().gridCoordinate); });
+                                  logger().printRunTime("}=> Advance velocity: ", funcTimer, [&]() { advanceVelocity(substep); });
                                   ////////////////////////////////////////////////////////////////////////////////
 
                                   frameTime += substep;

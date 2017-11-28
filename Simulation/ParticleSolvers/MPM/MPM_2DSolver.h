@@ -175,7 +175,7 @@ public:
     MPM_2DObjective(const MPM_2DParameters& simParams, MPM_2DData& simData, Real timestep) :
         m_SimParams(simParams), m_SimData(simData), m_timestep(timestep) {}
 
-    virtual Real value(const Vector<Real>& v) { throw std::runtime_error("value function: shouldn't get here!"); }
+    virtual Real value(const Vector<Real>&) { throw std::runtime_error("value function: shouldn't get here!"); }
 
     /**
        @brief Computes value and gradient of the objective function

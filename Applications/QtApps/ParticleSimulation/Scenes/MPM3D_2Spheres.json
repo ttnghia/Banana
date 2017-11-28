@@ -1,10 +1,10 @@
 {
     "GlobalParameters":
     {
-        "Solver" : "MPM3D_Solver",
+        "Solver" : "MPM_3DSolver",
         "FrameDuration" : 0.003333333333,
         "StartFrame" : 1,
-        "FinalFrame" : 1000,
+        "FinalFrame" : 10,
         "SaveFrameData" : true,
         "SaveMemoryState" : false,
         "FramePerState" : 10,

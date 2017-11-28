@@ -30,73 +30,18 @@ namespace Banana::ParticleSolvers
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-// MPM_2DParameters
+// AniMPM_2DParameters
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-struct MPM_2DParameters : public SimulationParameters
+struct AniMPM_2DParameters : public SimulationParameters
 {
-    MPM_2DParameters() = default;
+    AniMPM_2DParameters() = default;
 
 
     ////////////////////////////////////////////////////////////////////////////////
-    // simulation size
-    Real  cellSize             = SolverDefaultParameters::CellSize;
-    Real  ratioCellSizePRadius = SolverDefaultParameters::RatioCellSizeOverParticleRadius;
-    UInt  nExpandCells         = SolverDefaultParameters::NExpandCells;
-    Vec2r domainBMin           = SolverDefaultParameters::SimulationDomainBMin2D;
-    Vec2r domainBMax           = SolverDefaultParameters::SimulationDomainBMax2D;
-    Vec2r movingBMin;
-    Vec2r movingBMax;
-    Real  cellVolume;
-    ////////////////////////////////////////////////////////////////////////////////
+    // Anisotropic MPM parameters
 
     ////////////////////////////////////////////////////////////////////////////////
-    // time step size
-    Real minTimestep = SolverDefaultParameters::MinTimestep;
-    Real maxTimestep = SolverDefaultParameters::MaxTimestep;
-    Real CFLFactor   = Real(0.04);
-    ////////////////////////////////////////////////////////////////////////////////
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // CG solver
-    Real CGRelativeTolerance = SolverDefaultParameters::CGRelativeTolerance;
-    UInt maxCGIteration      = SolverDefaultParameters::CGMaxIteration;
-    ////////////////////////////////////////////////////////////////////////////////
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // particle parameters
-    Real particleRadius;
-    UInt maxNParticles  = 0;
-    UInt advectionSteps = 1;
-    ////////////////////////////////////////////////////////////////////////////////
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // position-correction
-    bool bCorrectPosition        = true;
-    Real repulsiveForceStiffness = Real(50);
-    ////////////////////////////////////////////////////////////////////////////////
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // boundary condition
-    Real boundaryRestitution = SolverDefaultParameters::BoundaryRestitution;
-    ////////////////////////////////////////////////////////////////////////////////
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // MPM parameters
-    Real PIC_FLIP_ratio = SolverDefaultParameters::PIC_FLIP_Ratio;
-    Real implicitRatio  = Real(0);
-    ////////////////////////////////////////////////////////////////////////////////
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // material parameters
-    Real YoungsModulus   = Real(0);
-    Real PoissonsRatio   = Real(0);
-    Real mu              = Real(0);
-    Real lambda          = Real(0);
-    Real materialDensity = Real(1000.0);
-    Real particleMass;
-    ////////////////////////////////////////////////////////////////////////////////
-
     virtual void makeReady() override;
     virtual void printParams(const SharedPtr<Logger>& logger) override;
 };
@@ -108,13 +53,13 @@ struct MPM_2DParameters : public SimulationParameters
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 struct AniMPM_2DData
 {
-    struct ParticleData : public ParticleSimulationData<2, Real>
+    struct ParticleData
     {
-        Vec_Vec2r localAxes;
+        Vec_Vec2r localDirections;
 
-        virtual void reserve(UInt nParticles) override;
-        virtual void addParticles(const Vec_Vec2r& newPositions, const Vec_Vec2r& newVelocities) override;
-        virtual UInt removeParticles(Vec_Int8& removeMarker) override;
+        void reserve(UInt nParticles);
+        void resize(UInt nParticles);
+        UInt removeParticles(Vec_Int8& removeMarker);
     };
 
 
@@ -149,13 +94,11 @@ public:
     virtual String getGreetingMessage() override { return String("Simulation using Anisotropic-MPM-2D Solver"); }
 
     virtual void makeReady() override;
-    virtual void advanceFrame() override;
-
     ////////////////////////////////////////////////////////////////////////////////
-    auto&       solverParams() { return m_SimParams; }
-    const auto& solverParams() const { return m_SimParams; }
-    auto&       solverData() { return m_SimData; }
-    const auto& solverData() const { return m_SimData; }
+    auto&       aniParams() { return m_AniParams; }
+    const auto& aniParams() const { return m_AniParams; }
+    auto&       aniData() { return m_AniData; }
+    const auto& aniData() const { return m_AniData; }
 
 protected:
     virtual void loadSimParams(const nlohmann::json& jParams) override;
@@ -168,32 +111,12 @@ protected:
     virtual void saveFrameData() override;
     virtual void advanceVelocity(Real timestep);
 
-    Real timestepCFL();
-    void moveParticles(Real timestep);
-    void mapParticleMasses2Grid();
-    bool initParticleVolumes();
-    void mapParticleVelocities2Grid(Real timestep);
-    void mapParticleVelocities2GridFLIP(Real timestep);
-    void mapParticleVelocities2GridAPIC(Real timestep);
-    void constrainGridVelocity(Real timestep);
     void explicitIntegration(Real timestep);
     void implicitIntegration(Real timestep);
-    void mapGridVelocities2Particles(Real timestep);
-    void mapGridVelocities2ParticlesFLIP(Real timestep);
-    void mapGridVelocities2ParticlesAPIC(Real timestep);
-    void mapGridVelocities2ParticlesAFLIP(Real timestep);
-    void constrainParticleVelocity(Real timestep);
     void updateParticleDeformGradients(Real timestep);
     ////////////////////////////////////////////////////////////////////////////////
-    auto&       particleData() { return solverData().particleData; }
-    const auto& particleData() const { return solverData().particleData; }
-    auto&       gridData() { return solverData().gridData; }
-    const auto& gridData() const { return solverData().gridData; }
-    auto&       grid() { return solverData().grid; }
-    const auto& grid() const { return solverData().grid; }
-    ////////////////////////////////////////////////////////////////////////////////
-    MPM_2DParameters m_SimParams;
-    AniMPM_2DData    m_SimData;
+    AniMPM_2DParameters m_AniParams;
+    AniMPM_2DData       m_AniData;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

@@ -33,9 +33,14 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////
-// mpm solvers
+// MPM solvers
 #include <ParticleSolvers/MPM/MPM_2DSolver.h>
 #include <ParticleSolvers/MPM/MPM_3DSolver.h>
+////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
+// anisotropic MPM solvers
+#include <ParticleSolvers/MPM/AniMPM_2DSolver.h>
 ////////////////////////////////////////////////////////////////////////////////
 
 //#include <ParticleSolvers/Mass-Spring-System/PeridynamicsSolver.h>
@@ -140,6 +145,11 @@ public:
             return dynamic_pointer_cast<SolverQtBase>(std::make_shared<SolverQt<MPM_2DSolver> >());
         } else if(solverName == "MPM_3DSolver") {
             return dynamic_pointer_cast<SolverQtBase>(std::make_shared<SolverQt<MPM_3DSolver> >());
+        }
+        ////////////////////////////////////////////////////////////////////////////////
+        // anisotropic MPM solver
+        else if(solverName == "AniMPM_2DSolver") {
+            return dynamic_pointer_cast<SolverQtBase>(std::make_shared<SolverQt<AniMPM_2DSolver> >());
         }
 
         return nullptr;

@@ -872,8 +872,14 @@ void MPM_3DSolver::implicitIntegration(Real timestep)
                                 });
 
     ////////////////////////////////////////////////////////////////////////////////
+    static Timer timer;
+    timer.tick();
     MPM_3DObjective obj(solverParams(), solverData(), timestep);
     solverData().lbfgsSolver.minimize(obj, v);
+    timer.tock();
+    logger().printLogIndent(timer.getRunTime("Minimize energy: ") + String(". Iterations: ") +
+                            NumberHelpers::formatWithCommas(solverData().lbfgsSolver.nIters()) + String(", tolerance: ") +
+                            NumberHelpers::formatToScientific(solverData().lbfgsSolver.gradTolerance()));
 
     ////////////////////////////////////////////////////////////////////////////////
     ParallelFuncs::parallel_for(grid().getNNodes(),
