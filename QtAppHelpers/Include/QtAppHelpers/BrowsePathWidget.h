@@ -37,9 +37,9 @@ public:
 
     void       setupGui(QWidget* button);
     void       setEnabled(bool enabled) { m_Button->setEnabled(enabled); }
-    QLayout*   getLayout() const { return m_Layout; }
+    QLayout*   getLayout() { return m_Layout; }
     QGroupBox* getGroupBox(QString title = QString(""));
-    auto       getCurrentPath() { return m_txtPath->text(); }
+    auto       getCurrentPath() const { return m_txtPath->text(); }
 
 public slots:
     void browse();
