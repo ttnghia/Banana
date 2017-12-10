@@ -90,6 +90,9 @@ inline void scan(const VecX<N, IndexType>& maxIdx, const Function& f, Int dim = 
 template<class IntType>
 inline IntType generateRandomInt(IntType start = 0, IntType end = std::numeric_limits<IntType>::max())
 {
+    if(end < start) {
+        end = start;
+    }
     std::random_device                     rd;
     std::mt19937                           gen(rd());
     std::uniform_int_distribution<IntType> dis(start, end);
@@ -100,6 +103,9 @@ inline IntType generateRandomInt(IntType start = 0, IntType end = std::numeric_l
 template<class RealType>
 inline RealType generateRandomReal(RealType start = RealType(0), RealType end = std::numeric_limits<RealType>::max())
 {
+    if(end < start) {
+        end = start;
+    }
     std::random_device                       rd;
     std::mt19937                             gen(rd());
     std::uniform_real_distribution<RealType> dis(start, end);
