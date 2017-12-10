@@ -28,7 +28,9 @@ namespace Banana
 OpenGLMainWindow::OpenGLMainWindow(QWidget* parent, bool bShowFPS /*= true*/, bool bShowCamPosition /*= true*/) : QMainWindow(parent), m_GLWidget(nullptr)
 {
     qApp->installEventFilter(this);
-
+    m_VSync = (QSurfaceFormat::defaultFormat().swapInterval() > 0);
+    ////////////////////////////////////////////////////////////////////////////////
+    // setup status bar
     m_lblStatusFPS = new QLabel(this);
     m_lblStatusFPS->setMargin(5);
 
@@ -39,34 +41,13 @@ OpenGLMainWindow::OpenGLMainWindow(QWidget* parent, bool bShowFPS /*= true*/, bo
     statusBar()->addPermanentWidget(m_lblStatusCameraInfo, 1);
     statusBar()->setMinimumHeight(30);
     //statusBar()->setSizeGripEnabled(false);
-
+    ////////////////////////////////////////////////////////////////////////////////
     if(!bShowFPS) {
         m_lblStatusFPS->hide();
     }
     if(!bShowCamPosition) {
         m_lblStatusCameraInfo->hide();
     }
-
-    ////////////////////////////////////////////////////////////////////////////////
-    QSurfaceFormat sformat = QSurfaceFormat::defaultFormat();
-    m_VSync = (sformat.swapInterval() > 0);
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-bool OpenGLMainWindow::eventFilter(QObject*, QEvent* ev)
-{
-    if(ev->type() == QEvent::KeyPress) {
-        QKeyEvent* keyEvent = static_cast<QKeyEvent*>(ev);
-        return processKeyPressEvent(keyEvent);
-    }
-
-    if(ev->type() == QEvent::KeyRelease) {
-        QKeyEvent* keyEvent = static_cast<QKeyEvent*>(ev);
-
-        return processKeyReleaseEvent(keyEvent);
-    }
-
-    return false;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -80,6 +61,35 @@ bool OpenGLMainWindow::processKeyPressEvent(QKeyEvent* ev)
 
         default:
             return false;
+    }
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+bool OpenGLMainWindow::eventFilter(QObject*, QEvent* ev)
+{
+    switch(ev->type()) {
+        case QEvent::KeyPress:
+            return processKeyPressEvent(static_cast<QKeyEvent*>(ev));
+        case QEvent::KeyRelease:
+            return processKeyReleaseEvent(static_cast<QKeyEvent*>(ev));
+        default:
+            return false;
+    }
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void OpenGLMainWindow::setArthurStyle()
+{
+    QStyle* arthurStyle = new ArthurStyle();
+    setStyle(arthurStyle);
+    ////////////////////////////////////////////////////////////////////////////////
+    QList<QWidget*> widgets = findChildren<QWidget*>();
+    foreach(QWidget* w, widgets) {
+        QString className = QString(w->metaObject()->className());
+        if(className == "QScrollBar" || className == "QComboBox" || className == "QCheckBox") {
+            continue;
+        }
+        w->setStyle(arthurStyle);
     }
 }
 
@@ -104,25 +114,6 @@ void OpenGLMainWindow::showCameraPosition(bool bShowCamPosition)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void OpenGLMainWindow::setArthurStyle()
-{
-    QStyle* arthurStyle = new ArthurStyle();
-    setStyle(arthurStyle);
-
-    QList<QWidget*> widgets = findChildren<QWidget*>();
-
-    foreach(QWidget* w, widgets) {
-        QString className = QString(w->metaObject()->className());
-
-        if((className == "QScrollBar") || (className == "QComboBox") || (className == "QCheckBox")) {
-            continue;
-        }
-
-        w->setStyle(arthurStyle);
-    }
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLMainWindow::updateStatusFrameRate(double fps)
 {
     m_lblStatusFPS->setText(QString("FPS: %1 (%2 ms/frame) | VSync: %3").arg(fps).arg(1000.0 / fps).arg(m_VSync ? "On" : "Off"));
@@ -131,7 +122,8 @@ void OpenGLMainWindow::updateStatusFrameRate(double fps)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLMainWindow::updateStatusCameraInfo(const Vec3f& camPosition, const Vec3f& camFocus)
 {
-    m_lblStatusCameraInfo->setText(QString("Camera: [%1, %2, %3] | Focus: [%4, %5, %6]").arg(camPosition[0], 0, 'f', 2)
+    m_lblStatusCameraInfo->setText(QString("Camera: [%1, %2, %3] | Focus: [%4, %5, %6]")
+                                       .arg(camPosition[0], 0, 'f', 2)
                                        .arg(camPosition[1], 0, 'f', 2)
                                        .arg(camPosition[2], 0, 'f', 2)
                                        .arg(camFocus[0],    0, 'f', 2)
@@ -142,6 +134,7 @@ void OpenGLMainWindow::updateStatusCameraInfo(const Vec3f& camPosition, const Ve
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLMainWindow::setupOpenglWidget(OpenGLWidget* glWidget)
 {
+    __BNN_REQUIRE(glWidget != nullptr);
     if(m_GLWidget != nullptr) {
         delete m_GLWidget;
     }

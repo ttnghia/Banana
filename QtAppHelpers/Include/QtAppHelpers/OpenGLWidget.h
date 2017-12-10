@@ -41,14 +41,12 @@ namespace Banana
 class OpenGLWidget : public QOpenGLWidget, public OpenGLFunctions
 {
     Q_OBJECT
-
     friend class OpenGLMainWindow;
+
 public:
     OpenGLWidget(QWidget* parent);
-    ~OpenGLWidget() = default;
 
     void setPrintDebug(bool pdebug) { m_bPrintDebug = pdebug; }
-    void setUpdateTimeout(int timeout) { m_WidgetUpdateTimeout = timeout; }
     void setDefaultSize(QSize size) { m_DefaultSize = size; }
     void setClearColor(const Vec3f& color);
     void resetClearColor() { glClearColor(m_ClearColor[0], m_ClearColor[1], m_ClearColor[2], 1.0f); }
@@ -93,13 +91,12 @@ protected:
     void checkGLExtensions(const QVector<QString>& extensions);
 
     ////////////////////////////////////////////////////////////////////////////////
-    bool        m_bPrintDebug;
-    int         m_WidgetUpdateTimeout;
-    QSize       m_DefaultSize;
-    Vec3f       m_ClearColor;
-    SpecialKey  m_SpecialKeyPressed;
-    MouseButton m_MouseButtonPressed;
-    QString     m_CapturePath = QString("");
+    bool        m_bPrintDebug        = true;
+    QSize       m_DefaultSize        = QSize(1920, 1080);
+    Vec3f       m_ClearColor         = Vec4f(0.38f, 0.52f, 0.10f, 1.0f);
+    SpecialKey  m_SpecialKeyPressed  = SpecialKey::NoKey;
+    MouseButton m_MouseButtonPressed = MouseButton::NoButton;
+    QString     m_CapturePath        = QString("");
 
     FPSCounter m_FPSCounter;
 
@@ -113,7 +110,7 @@ signals:
     void cameraPositionInfoChanged(const Vec3f& cameraPosition, const Vec3f& cameraFocus);
 
 public slots:
-    void printDebug(const QString& str) { if(m_bPrintDebug) { qDebug() << str; } }
+    void printDebugString(const QString& str) { if(m_bPrintDebug) { qDebug() << str; } }
     void setCapturePath(const QString& path);
     void resetCameraPosition() { m_Camera->reset(); }
 };
