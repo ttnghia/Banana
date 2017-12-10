@@ -42,9 +42,9 @@ MaterialEditor::MaterialEditor(const Material::MaterialData& material /*= Materi
 void MaterialEditor::setMaterial(const Material::MaterialData& material)
 {
     m_CurrentMaterial = material;
-    m_AmbientColorPicker->setColor(floatToQColor(material.ambient));
-    m_DiffuseColorPicker->setColor(floatToQColor(material.diffuse));
-    m_SpecularColorPicker->setColor(floatToQColor(material.specular));
+    m_AmbientColorPicker->setColor(QtAppUtils::floatToQColor(material.ambient));
+    m_DiffuseColorPicker->setColor(QtAppUtils::floatToQColor(material.diffuse));
+    m_SpecularColorPicker->setColor(QtAppUtils::floatToQColor(material.specular));
     m_txtShininess->setText(QString::number(material.shininess));
 }
 
@@ -84,9 +84,9 @@ void MaterialEditor::setupGUI()
     connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
     connect(buttonBox, &QDialogButtonBox::accepted, this, [&]()
             {
-                m_CurrentMaterial.ambient   = Vec4f(QColorToFloat(m_AmbientColorPicker->getQColor()), 1);
-                m_CurrentMaterial.diffuse   = Vec4f(QColorToFloat(m_DiffuseColorPicker->getQColor()), 1);
-                m_CurrentMaterial.specular  = Vec4f(QColorToFloat(m_SpecularColorPicker->getQColor()), 1);
+                m_CurrentMaterial.ambient   = Vec4f(QtAppUtils::QColorToFloat(m_AmbientColorPicker->getQColor()), 1);
+                m_CurrentMaterial.diffuse   = Vec4f(QtAppUtils::QColorToFloat(m_DiffuseColorPicker->getQColor()), 1);
+                m_CurrentMaterial.specular  = Vec4f(QtAppUtils::QColorToFloat(m_SpecularColorPicker->getQColor()), 1);
                 m_CurrentMaterial.shininess = m_txtShininess->text().toFloat();
 
                 emit materialChanged(m_CurrentMaterial);
@@ -122,7 +122,7 @@ void MaterialColorPicker::setMaterial(const Material::MaterialData& material)
 void MaterialColorPicker::setWidgetColor(const Material::MaterialData& material)
 {
     QPalette palette = this->palette();
-    palette.setColor(QPalette::Window, floatToQColor(material.diffuse));
+    palette.setColor(QPalette::Window, QtAppUtils::floatToQColor(material.diffuse));
     setPalette(palette);
 }
 

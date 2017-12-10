@@ -25,6 +25,7 @@
 #include <QtAppHelpers/QtAppMacros.h>
 #include <QtAppHelpers/AvgTimer.h>
 #include <QtAppHelpers/FPSCounter.h>
+#include <QtAppHelpers/QtAppUtils.h>
 
 #include <OpenGLHelpers/Camera.h>
 #include <OpenGLHelpers/OpenGLBuffer.h>
@@ -96,7 +97,7 @@ protected:
     Vec3f       m_ClearColor         = Vec4f(0.38f, 0.52f, 0.10f, 1.0f);
     SpecialKey  m_SpecialKeyPressed  = SpecialKey::NoKey;
     MouseButton m_MouseButtonPressed = MouseButton::NoButton;
-    QString     m_CapturePath        = QString("");
+    QString     m_CapturePath        = QtAppUtils::getDefaultCapturePath();
 
     FPSCounter m_FPSCounter;
 

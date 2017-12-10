@@ -35,12 +35,12 @@ class OpenGLMainWindow : public QMainWindow
     Q_OBJECT
 public:
     OpenGLMainWindow(QWidget* parent, bool bShowFPS = true, bool bShowCamPosition = true);
-    virtual ~OpenGLMainWindow() = default;
 
-    bool         eventFilter(QObject* obj, QEvent* ev);
     virtual bool processKeyPressEvent(QKeyEvent* ev);
     virtual bool processKeyReleaseEvent(QKeyEvent*) { return false; }
 
+    bool vSync() const { return m_VSync; }
+    bool eventFilter(QObject* obj, QEvent* ev);
     void setArthurStyle();
     void showFPS(bool bShowFPS);
     void showCameraPosition(bool bShowCamPosition);
@@ -50,8 +50,6 @@ public slots:
     void updateStatusCameraInfo(const Vec3f& camPosition, const Vec3f& camFocus);
 
 protected:
-    virtual void instantiateOpenGLWidget() = 0;
-
     void setupOpenglWidget(OpenGLWidget* glWidget);
 
     ////////////////////////////////////////////////////////////////////////////////

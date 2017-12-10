@@ -38,8 +38,8 @@ public:
     ColorPicker(QWidget* parent = 0, QSize size = QSize(50, 25));
 
     void setColor(QColor color);
-    void setColor(float r, float g, float b) { setColor(floatToQColor(r, g, b)); }
-    void setColor(const Vec3f& color) { setColor(floatToQColor(color)); }
+    void setColor(float r, float g, float b) { setColor(QtAppUtils::floatToQColor(r, g, b)); }
+    void setColor(const Vec3f& color) { setColor(QtAppUtils::floatToQColor(color)); }
 
     auto  getQColor() const { return m_CurrentColor; }
     auto  getColor() const { return Vec3f(m_CurrentColor.redF(), m_CurrentColor.greenF(), m_CurrentColor.blueF()); }
