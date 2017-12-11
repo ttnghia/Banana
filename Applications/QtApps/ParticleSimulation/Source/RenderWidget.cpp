@@ -28,18 +28,11 @@ RenderWidget::RenderWidget(QWidget* parent, const SharedPtr<VisualizationData>& 
 {
     m_DefaultSize = QSize(1200, 1000);
     updateCamera();
-    setCapturePath(getDefaultCapturePath());
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void RenderWidget::initOpenGL()
 {
-    initRDataSkyBox();
-    initRDataCheckerboardBackground();
-    initRDataGridBackground();
-    initRDataLight();
-    initRDataFloor();
-    initRDataBox();
     initRDataParticle();
 }
 
@@ -47,35 +40,11 @@ void RenderWidget::initOpenGL()
 void RenderWidget::resizeOpenGLWindow(int width, int height)
 {
     m_RDataParticle.pointScale = static_cast<GLfloat>(height) / tanf(55.0 * 0.5 * M_PI / 180.0);
-    ////////////////////////////////////////////////////////////////////////////////
-    if(m_CheckerboardRender != nullptr) {
-        m_CheckerboardRender->setScreenSize(width, height);
-    }
-    if(m_GridRender != nullptr) {
-        m_GridRender->setScreenSize(width, height);
-    }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void RenderWidget::renderOpenGL()
 {
-    switch(m_BackgroundMode) {
-        case BackgroundMode::SkyBox:
-            renderSkyBox();
-            break;
-        case BackgroundMode::Checkerboard:
-            renderCheckerboardBackground();
-            break;
-        case BackgroundMode::Grid:
-            renderGridBackground();
-            break;
-        case BackgroundMode::Color:
-        default:
-            ;
-    }
-    renderLight();
-    renderFloor();
-    renderBox();
     renderParticles();
 }
 
@@ -130,83 +99,6 @@ void RenderWidget::updateVizData()
     doneCurrent();
     m_RDataParticle.nParticles  = m_VizData->nParticles;
     m_RDataParticle.pointRadius = m_VizData->particleRadius;
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void RenderWidget::enableClipPlane(bool bEnable)
-{
-    if(isValid()) {
-        makeCurrent();
-        if(bEnable) {
-            glCall(glEnable(GL_CLIP_PLANE0));
-        } else {
-            glCall(glDisable(GL_CLIP_PLANE0));
-        }
-        doneCurrent();
-    }
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void RenderWidget::updateLights()
-{
-    if(isValid()) {
-        Int nLights = static_cast<Int>(m_VizData->lights.size());
-        m_Lights->setNumLights(nLights);
-        for(Int i = 0; i < nLights; ++i) {
-            m_Lights->setLightPosition(Vec4f(m_VizData->lights[i].position, 1.0f), i);
-            m_Lights->setLightAmbient(Vec4f(m_VizData->lights[i].ambient, 1.0f), i);
-            m_Lights->setLightDiffuse(Vec4f(m_VizData->lights[i].diffuse, 1.0f), i);
-            m_Lights->setLightSpecular(Vec4f(m_VizData->lights[i].specular, 1.0f), i);
-        }
-        ////////////////////////////////////////////////////////////////////////////////
-        makeCurrent();
-        m_Lights->uploadDataToGPU();
-        doneCurrent();
-        emit lightsObjChanged(m_Lights);
-    }
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void RenderWidget::initRDataLight()
-{
-    m_Lights = std::make_shared<PointLights>();
-    m_Lights->setNumLights(2);
-    m_Lights->setLightPosition(DEFAULT_LIGHT1_POSITION, 0);
-    m_Lights->setLightPosition(DEFAULT_LIGHT2_POSITION, 1);
-    ////////////////////////////////////////////////////////////////////////////////
-    m_Lights->setSceneCenter(Vec3f(0, 0, 0));
-    m_Lights->setLightViewPerspective(30);
-    m_Lights->uploadDataToGPU();
-    ////////////////////////////////////////////////////////////////////////////////
-    m_LightRender = std::make_unique<PointLightRender>(m_Camera, m_Lights, m_UBufferCamData);
-    emit lightsObjChanged(m_Lights);
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void RenderWidget::initRDataSkyBox()
-{
-    Q_ASSERT(m_UBufferCamData != nullptr);
-    m_SkyBoxRender = std::make_unique<SkyBoxRender>(m_Camera, getTexturePath() + "/Sky/", m_UBufferCamData);
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void RenderWidget::initRDataFloor()
-{
-    Q_ASSERT(m_UBufferCamData != nullptr && m_Lights != nullptr);
-    m_FloorRender = std::make_unique<PlaneRender>(m_Camera, m_Lights, getTexturePath() + "/Floor/", m_UBufferCamData);
-    m_FloorRender->transform(Vec3f(0, -1.01, 0), Vec3f(DEFAULT_FLOOR_SIZE));
-    m_FloorRender->scaleTexCoord(DEFAULT_FLOOR_SIZE, DEFAULT_FLOOR_SIZE);
-    m_FloorRender->setAllowNonTextureRender(false);
-    m_FloorRender->setExposure(static_cast<float>(DEFAULT_FLOOR_EXPOSURE) / 100.0f);
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void RenderWidget::initRDataBox()
-{
-    Q_ASSERT(m_UBufferCamData != nullptr);
-    m_DomainBoxRender = std::make_unique<WireFrameBoxRender>(m_Camera, m_UBufferCamData);
-    m_DomainBoxRender->setBox(Vec3f(-1), Vec3f(1));
-    m_DomainBoxRender->setColor(DEFAULT_BOX_COLOR);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

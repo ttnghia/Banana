@@ -51,7 +51,7 @@ public slots:
 
 signals:
     void dimensionChanged();
-    void domainChanged();
+    void domainChanged(const Vec3f& boxMin, const Vec3f& boxMax);
     void cameraChanged();
     void lightsChanged();
     void capturePathChanged(const QString& capturePath);

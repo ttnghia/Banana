@@ -26,23 +26,20 @@
 
 #include <QtAppHelpers/BrowsePathWidget.h>
 #include <QtAppHelpers/MaterialSelector.h>
-#include <QtAppHelpers/EnhancedComboBox.h>
-#include <QtAppHelpers/EnhancedSlider.h>
-#include <QtAppHelpers/BrowsePathWidget.h>
-#include <QtAppHelpers/PointLightEditor.h>
+#include <QtAppHelpers/OpenGLController.h>
 
 #include "Common.h"
 #include "RenderWidget.h"
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class Controller : public QWidget
+class Controller : public OpenGLController
 {
     Q_OBJECT
     friend class MainWindow;
 public:
-    explicit Controller(RenderWidget* renderWidget, QWidget* parent = nullptr) : QWidget(parent), m_RenderWidget(renderWidget)
+    explicit Controller(RenderWidget* renderWidget, QWidget* parent = nullptr, int width = 300) :
+        OpenGLController(static_cast<OpenGLWidget*>(renderWidget), parent, width), m_RenderWidget(renderWidget)
     {
-        __BNN_REQUIRE(m_RenderWidget != nullptr);
         setupGUI();
         connectWidgets();
     }
@@ -51,46 +48,20 @@ private:
     void setupGUI();
     void connectWidgets();
 
-    QStringList getTextureFolders(const QString& texType, const QString& texPath);
-    QStringList getTextureFiles(const QString& texType, const QString& texPath);
-    void        loadTextures();
-
     ////////////////////////////////////////////////////////////////////////////////
     // main objects
     RenderWidget* m_RenderWidget = nullptr;
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
-    // background
-    void setupBackgroundControllers(QBoxLayout* layoutCtr);
-    QSignalMapper*    m_smBackgroundMode;
-    EnhancedComboBox* m_cbSkyTexture;
-    EnhancedSlider*   m_sldCheckerboardScale;
-    ColorPicker*      m_pkrCheckerColor1;
-    ColorPicker*      m_pkrCheckerColor2;
-    EnhancedSlider*   m_sldGridScale;
-    ColorPicker*      m_pkrGridBackgroundColor;
-    ColorPicker*      m_pkrGridLineColor;
-    ////////////////////////////////////////////////////////////////////////////////
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // floor
-    void setupFloorControllers(QBoxLayout* layoutCtr);
-    EnhancedComboBox* m_cbFloorTexture;
-    EnhancedSlider*   m_sldFloorSize;
-    EnhancedSlider*   m_sldFloorExposure;
-    ColorPicker*      m_pkrBackgroundColor;
-    ////////////////////////////////////////////////////////////////////////////////
-
-    ////////////////////////////////////////////////////////////////////////////////
     // material
-    void setupMaterialControllers(QBoxLayout* layoutCtr);
+    void setupMaterialControllers();
     MaterialSelector* m_msParticleMaterial;
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
     // color mode
-    void setupColorModeControllers(QBoxLayout* layoutCtr);
+    void setupColorModeControllers();
     QSignalMapper* m_smParticleColorMode;
     ColorPicker*   m_pkrColorDataMin;
     ColorPicker*   m_pkrColorDataMax;
@@ -98,16 +69,8 @@ private:
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
-    // misc
-    void setupMiscControllers(QBoxLayout* layoutCtr);
-    QCheckBox*   m_chkRenderBox;
-    ColorPicker* m_pkrBoxColor;
-    ////////////////////////////////////////////////////////////////////////////////
-
-    ////////////////////////////////////////////////////////////////////////////////
     // simulation controllers
-    void        setupSimulationControllers(QBoxLayout* layoutCtr);
-    QStringList getSceneFiles();
+    void setupSimulationControllers();
     QComboBox*        m_cbSimulationScene;
     QCheckBox*        m_chkEnableOutput;
     BrowsePathWidget* m_OutputPath;
@@ -115,15 +78,10 @@ private:
 
     ////////////////////////////////////////////////////////////////////////////////
     // buttons
-    void setupButtons(QBoxLayout* layoutCtr);
+    void setupButtons();
     QPushButton* m_btnStartStopSimulation;
     QPushButton* m_btnResetCamera;
     QPushButton* m_btnClipViewPlane;
     QPushButton* m_btnEditClipPlane;
-    ////////////////////////////////////////////////////////////////////////////////
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // light
-    PointLightEditor* m_LightEditor;
     ////////////////////////////////////////////////////////////////////////////////
 };

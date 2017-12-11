@@ -24,11 +24,15 @@
 #include <QMouseEvent>
 #include <Banana/Utils/NumberHelpers.h>
 #include <Banana/System/MemoryUsage.h>
+#include <QtAppHelpers/QtAppUtils.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 MainWindow::MainWindow(QWidget* parent) : OpenGLMainWindow(parent)
 {
-    instantiateOpenGLWidget();
+    m_Simulator    = new Simulator();
+    m_RenderWidget = new RenderWidget(this, m_Simulator->getVizData());
+    ////////////////////////////////////////////////////////////////////////////////
+    setupOpenglWidget(m_RenderWidget);
     setupRenderWidgets();
     setupStatusBar();
     connectWidgets();
@@ -43,28 +47,13 @@ MainWindow::MainWindow(QWidget* parent) : OpenGLMainWindow(parent)
 void MainWindow::showEvent(QShowEvent* ev)
 {
     QMainWindow::showEvent(ev);
-
     static bool showed = false;
     if(!showed) {
         showed = true;
-
         Q_ASSERT(m_Simulator != nullptr);
         updateStatusMemoryUsage();
         updateStatusSimulationTime(0, 0);
-//        changeScene(m_Controller->m_cbSimulationScene->currentText());
     }
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MainWindow::instantiateOpenGLWidget()
-{
-    if(m_GLWidget != nullptr) {
-        delete m_GLWidget;
-    }
-
-    m_Simulator    = new Simulator();
-    m_RenderWidget = new RenderWidget(this, m_Simulator->getVizData());
-    setupOpenglWidget(m_RenderWidget);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -189,7 +178,7 @@ void MainWindow::connectWidgets()
                     return;
                 }
                 m_Simulator->changeScene(sceneFile);
-                updateWindowTitle(getScenePath() + "/" + sceneFile);
+                updateWindowTitle(QtAppUtils::getDefaultPath("Scenes") + "/" + sceneFile);
             });
 
     connect(m_Controller->m_btnStartStopSimulation, &QPushButton::clicked, [&]
@@ -218,7 +207,7 @@ void MainWindow::connectWidgets()
     connect(m_Simulator, &Simulator::numParticleChanged, this,           &MainWindow::updateStatusNumParticles);
     connect(m_Simulator, &Simulator::systemTimeChanged,  this,           &MainWindow::updateStatusSimulationTime);
     connect(m_Simulator, &Simulator::dimensionChanged,   m_RenderWidget, &RenderWidget::updateSolverDimension);
-    connect(m_Simulator, &Simulator::domainChanged,      m_RenderWidget, &RenderWidget::updateBox);
+    connect(m_Simulator, &Simulator::domainChanged,      m_RenderWidget, &RenderWidget::setBox);
     connect(m_Simulator, &Simulator::cameraChanged,      m_RenderWidget, &RenderWidget::updateCamera);
     connect(m_Simulator, &Simulator::lightsChanged,      m_RenderWidget, &RenderWidget::updateLights);
     connect(m_Simulator, &Simulator::vizDataChanged,     m_RenderWidget, &RenderWidget::updateVizData);

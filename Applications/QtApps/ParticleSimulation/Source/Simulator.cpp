@@ -19,9 +19,11 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-#include <Banana/Utils/JSONHelpers.h>
-#include <ParticleTools/ParticleHelpers.h>
 #include "Simulator.h"
+
+#include <Banana/Utils/JSONHelpers.h>
+#include <QtAppHelpers/QtAppUtils.h>
+#include <ParticleTools/ParticleHelpers.h>
 
 #include <fstream>
 #include <QDebug>
@@ -97,7 +99,7 @@ void Simulator::changeScene(const QString& scene)
         m_SimulationFutureObj.wait();
     }
     ////////////////////////////////////////////////////////////////////////////////
-    QString       sceneFile = getScenePath() + "/" + scene;
+    QString       sceneFile = QtAppUtils::getDefaultPath("Scenes") + "/" + scene;
     std::ifstream inFile(sceneFile.toStdString());
     __BNN_REQUIRE(inFile.is_open());
     nlohmann::json jParams = nlohmann::json::parse(inFile);
@@ -134,14 +136,14 @@ void Simulator::changeScene(const QString& scene)
         }
 
         if(jVizParams.find("Light") != jVizParams.end()) {
-            m_VizData->lights.resize(0);
-            for(auto& jObj : jVizParams["Light"]) {
-                LightData light;
-                JSONHelpers::readVector(jObj, light.position, "Position");
-                JSONHelpers::readVector(jObj, light.ambient, "Ambient");
-                JSONHelpers::readVector(jObj, light.diffuse, "Diffuse");
-                JSONHelpers::readVector(jObj, light.specular, "Specular");
-                m_VizData->lights.push_back(light);
+            m_VizData->lights.resize(jVizParams["Light"].size());
+            for(size_t i = 0; i < jVizParams["Light"].size(); ++i) {
+                auto& jObj = jVizParams["Light"][i];
+                Vec3f tmp;
+                if(JSONHelpers::readVector(jObj, tmp, "Position")) { m_VizData->lights[i].position = Vec4f(tmp, 1.0f); }
+                if(JSONHelpers::readVector(jObj, tmp, "Ambient")) { m_VizData->lights[i].ambient = Vec4f(tmp, 1.0f); }
+                if(JSONHelpers::readVector(jObj, tmp, "Diffuse")) { m_VizData->lights[i].diffuse = Vec4f(tmp, 1.0f); }
+                if(JSONHelpers::readVector(jObj, tmp, "Specular")) { m_VizData->lights[i].specular = Vec4f(tmp, 1.0f); }
             }
             emit lightsChanged();
         }
@@ -153,7 +155,7 @@ void Simulator::changeScene(const QString& scene)
     }
     ////////////////////////////////////////////////////////////////////////////////
     emit dimensionChanged();
-    emit domainChanged();
+    emit domainChanged(m_VizData->boxMin, m_VizData->boxMax);
     emit cameraChanged();
     emit vizDataChanged();
     emit systemTimeChanged(m_ParticleSolver->getGlobalParams().evolvedTime(), m_ParticleSolver->getGlobalParams().finishedFrame);

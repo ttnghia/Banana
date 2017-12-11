@@ -44,7 +44,6 @@ public:
     MainWindow(QWidget* parent = 0);
 
 protected:
-    virtual void instantiateOpenGLWidget();
     virtual bool processKeyPressEvent(QKeyEvent* event) override;
     virtual void showEvent(QShowEvent* ev);
 
