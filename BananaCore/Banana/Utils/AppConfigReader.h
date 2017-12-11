@@ -33,7 +33,7 @@ namespace Banana
 class AppConfigReader
 {
 public:
-    AppConfigReader(const std::string& fileName) : m_bFileLoaded(false) { loadConfig(fileName); }
+    AppConfigReader(const std::string& fileName) { loadConfig(fileName); }
 
     bool isFileLoaded() { return m_bFileLoaded; }
     bool hasParam(const std::string& paramName) { return (m_AppConfigs.find(paramName) != m_AppConfigs.end()); }
@@ -48,8 +48,10 @@ private:
         std::ifstream inFile(fileName);
 
         if(!inFile.is_open()) {
-            fprintf(stderr, "Warning: Cannot open file %s for reading. No config info was loaded.\n", fileName.c_str());
-            fflush(stderr);
+            if(m_bPrintError) {
+                fprintf(stderr, "Warning: Cannot open file %s for reading. No config info was loaded.\n", fileName.c_str());
+                fflush(stderr);
+            }
             return;
         }
 
@@ -78,7 +80,8 @@ private:
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    bool m_bFileLoaded;
+    bool m_bFileLoaded = false;
+    bool m_bPrintError = false;
 
     std::map<std::string, std::string> m_AppConfigs;
 };
