@@ -49,14 +49,9 @@ class OpenGLWidget : public QOpenGLWidget, public OpenGLFunctions
 public:
     OpenGLWidget(QWidget* parent);
 
-    void setPrintDebug(bool pdebug) { m_bPrintDebug = pdebug; }
-    void setDefaultSize(QSize size) { m_DefaultSize = size; }
-    void setClearColor(const Vec3f& color);
-    void resetClearColor() { glClearColor(m_ClearColor[0], m_ClearColor[1], m_ClearColor[2], 1.0f); }
-    void setViewFrustum(float fov, float nearZ, float farZ) { m_Camera->setFrustum(fov, nearZ, farZ); }
+    const auto& getClearColor() const { return m_ClearColor; }
+    auto&       getCamera() const { return m_Camera; }
 
-    bool         exportScreenToImage(int frame);
-    const Vec3f& getClearColor() const { return m_ClearColor; }
     ////////////////////////////////////////////////////////////////////////////////
     // => QWidget interface
 public:
@@ -100,7 +95,7 @@ protected:
     ////////////////////////////////////////////////////////////////////////////////
     bool        m_bPrintDebug        = true;
     QSize       m_DefaultSize        = QSize(1920, 1080);
-    Vec3f       m_ClearColor         = Vec4f(0.38f, 0.52f, 0.10f, 1.0f);
+    Vec3f       m_ClearColor         = Vec3f(0.38f, 0.52f, 0.10f);
     SpecialKey  m_SpecialKeyPressed  = SpecialKey::NoKey;
     MouseButton m_MouseButtonPressed = MouseButton::NoButton;
     QString     m_CapturePath        = QtAppUtils::getDefaultCapturePath();
@@ -119,7 +114,14 @@ signals:
 public slots:
     void printDebugString(const QString& str) { if(m_bPrintDebug) { qDebug() << str; } }
     void setCapturePath(const QString& path);
+    void setPrintDebug(bool pdebug) { m_bPrintDebug = pdebug; }
+    void setDefaultSize(QSize size) { m_DefaultSize = size; }
+    void setClearColor(const Vec3f& color);
+    void resetClearColor() { glClearColor(m_ClearColor[0], m_ClearColor[1], m_ClearColor[2], 1.0f); }
+    void setViewFrustum(float fov, float nearZ, float farZ) { m_Camera->setFrustum(fov, nearZ, farZ); }
+    void setCamera(const Vec3f& cameraPosition, const Vec3f& cameraFocus) { m_Camera->setCamera(cameraPosition, cameraFocus, Vec3f(0, 1, 0)); }
     void resetCameraPosition() { m_Camera->reset(); }
+    bool exportScreenToImage(int frame);
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////

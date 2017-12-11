@@ -38,32 +38,6 @@ OpenGLWidget::OpenGLWidget(QWidget* parent) : QOpenGLWidget(parent)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void OpenGLWidget::setClearColor(const Vec3f& color)
-{
-    m_ClearColor = color;
-    if(isValid()) {
-        makeCurrent();
-        resetClearColor();
-        doneCurrent();
-    }
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-bool OpenGLWidget::exportScreenToImage(Int frame)
-{
-    if(m_CapturePath.isEmpty()) {
-        return false;
-    }
-    ////////////////////////////////////////////////////////////////////////////////
-    makeCurrent();
-    glCall(glReadPixels(0, 0, width(), height(), GL_RGB, GL_UNSIGNED_BYTE, m_CaptureImage->bits()));
-    doneCurrent();
-    m_CaptureImage->mirrored().save(QString(m_CapturePath + "/frame.%1.jpg").arg(frame, 4, 10, QChar('0')));
-    ////////////////////////////////////////////////////////////////////////////////
-    return true;
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLWidget::mousePressEvent(QMouseEvent* ev)
 {
     if(ev->button() == Qt::LeftButton) {
@@ -323,6 +297,32 @@ void OpenGLWidget::setCapturePath(const QString& path)
     if(!QDir(path).exists()) {
         QDir().mkdir(path);
     }
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void OpenGLWidget::setClearColor(const Vec3f& color)
+{
+    m_ClearColor = color;
+    if(isValid()) {
+        makeCurrent();
+        resetClearColor();
+        doneCurrent();
+    }
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+bool OpenGLWidget::exportScreenToImage(Int frame)
+{
+    if(m_CapturePath.isEmpty()) {
+        return false;
+    }
+    ////////////////////////////////////////////////////////////////////////////////
+    makeCurrent();
+    glCall(glReadPixels(0, 0, width(), height(), GL_RGB, GL_UNSIGNED_BYTE, m_CaptureImage->bits()));
+    doneCurrent();
+    m_CaptureImage->mirrored().save(QString(m_CapturePath + "/frame.%1.jpg").arg(frame, 4, 10, QChar('0')));
+    ////////////////////////////////////////////////////////////////////////////////
+    return true;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
