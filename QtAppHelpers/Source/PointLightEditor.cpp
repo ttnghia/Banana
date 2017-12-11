@@ -25,7 +25,7 @@
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-PointLightEditor::PointLightEditor(std::shared_ptr<PointLights> lights /*= nullptr*/, QWidget* parent /*= nullptr*/)
+PointLightEditor::PointLightEditor(SharedPtr<PointLights> lights /*= nullptr*/, QWidget* parent /*= nullptr*/)
     : QWidget(parent), m_Lights(lights)
 {
     QVBoxLayout* mainLayout = new QVBoxLayout;
@@ -78,14 +78,13 @@ PointLightEditor::PointLightEditor(std::shared_ptr<PointLights> lights /*= nullp
         mainLayout->addWidget(grLight);
     }
 
-    mainLayout->addStretch();
-
     QPushButton* btnApply = new QPushButton("Apply Lights");
     connect(btnApply, & QPushButton::clicked, this, & PointLightEditor::applyLights);
     QHBoxLayout* btnLayout = new QHBoxLayout;
     btnLayout->addWidget(btnApply, 2);
     btnLayout->addStretch(1);
 
+    mainLayout->addStretch();
     mainLayout->addLayout(btnLayout);
     setLayout(mainLayout);
     connectComponents();
@@ -93,10 +92,35 @@ PointLightEditor::PointLightEditor(std::shared_ptr<PointLights> lights /*= nullp
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void PointLightEditor::setLights(std::shared_ptr<PointLights> lights)
+void PointLightEditor::setLights(SharedPtr<PointLights> lights)
 {
     m_Lights = lights;
     lightToGUI();
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void PointLightEditor::lightToGUI()
+{
+    if(m_Lights == nullptr) {
+        return;
+    }
+
+    for(int i = 0; i < m_Lights->getNumLights(); ++i) {
+        m_CheckBoxes[i] -> setChecked(true);
+
+        Vec4f ambient  = m_Lights->getLightAmbient(i);
+        Vec4f diffuse  = m_Lights->getLightDiffuse(i);
+        Vec4f specular = m_Lights->getLightSpecular(i);
+        Vec4f position = m_Lights->getLightPosition(i);
+
+        for(int j = 0; j < 3; ++j)
+        {
+            m_LightAmbients[i][j] -> setText(QString("%1").arg(ambient[j], 8, 'g', 6));
+            m_LightDiffuses[i][j] -> setText(QString("%1").arg(diffuse[j], 8, 'g', 6));
+            m_LightSpeculars[i][j] -> setText(QString("%1").arg(specular[j], 8, 'g', 6));
+            m_LightPositions[i][j] -> setText(QString("%1").arg(position[j], 8, 'g', 6));
+        }
+    }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -212,55 +236,27 @@ void PointLightEditor::applyLights()
     ////////////////////////////////////////////////////////////////////////////////
     // update light data
     for(int i = 0; i < numPointLights; ++i) {
-        PointLights::PointLightData light;
+        m_Lights->setLightAmbient(Vec4f(m_LightAmbients[i][0]->text().toFloat(),
+                                        m_LightAmbients[i][1]->text().toFloat(),
+                                        m_LightAmbients[i][2]->text().toFloat(),
+                                        1.0), i);
+        m_Lights->setLightDiffuse(Vec4f(m_LightDiffuses[i][0]->text().toFloat(),
+                                        m_LightDiffuses[i][1]->text().toFloat(),
+                                        m_LightDiffuses[i][2]->text().toFloat(),
+                                        1.0), i);
+        m_Lights->setLightSpecular(Vec4f(m_LightSpeculars[i][0]->text().toFloat(),
+                                         m_LightSpeculars[i][1]->text().toFloat(),
+                                         m_LightSpeculars[i][2]->text().toFloat(),
+                                         1.0), i);
 
-        light.setAmbient(glm::vec4(m_LightAmbients[i][0]->text().toFloat(),
-                                   m_LightAmbients[i][1]->text().toFloat(),
-                                   m_LightAmbients[i][2]->text().toFloat(),
-                                   1.0));
-        light.setDiffuse(glm::vec4(m_LightDiffuses[i][0]->text().toFloat(),
-                                   m_LightDiffuses[i][1]->text().toFloat(),
-                                   m_LightDiffuses[i][2]->text().toFloat(),
-                                   1.0));
-        light.setSpecular(glm::vec4(m_LightSpeculars[i][0]->text().toFloat(),
-                                    m_LightSpeculars[i][1]->text().toFloat(),
-                                    m_LightSpeculars[i][2]->text().toFloat(),
-                                    1.0));
-
-        light.setPosition(glm::vec4(m_LightPositions[i][0]->text().toFloat(),
-                                    m_LightPositions[i][1]->text().toFloat(),
-                                    m_LightPositions[i][2]->text().toFloat(),
-                                    1.0));
-
-        m_Lights->setLight(light, i);
+        m_Lights->setLightPosition(Vec4f(m_LightPositions[i][0]->text().toFloat(),
+                                         m_LightPositions[i][1]->text().toFloat(),
+                                         m_LightPositions[i][2]->text().toFloat(),
+                                         1.0), i);
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    emit lightsChanged(m_Lights);
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void PointLightEditor::lightToGUI()
-{
-    if(m_Lights == nullptr) {
-        return;
-    }
-
-    for(int i = 0; i < m_Lights->getNumLights(); ++i) {
-        m_CheckBoxes[i]->setChecked(true);
-
-        glm::vec4 ambient  = m_Lights->getLightAmbient(i);
-        glm::vec4 diffuse  = m_Lights->getLightDiffuse(i);
-        glm::vec4 specular = m_Lights->getLightSpecular(i);
-        glm::vec4 position = m_Lights->getLightPosition(i);
-
-        for(int j = 0; j < 3; ++j) {
-            m_LightAmbients[i][j]->setText(QString("%1").arg(ambient[j], 8, 'g', 6));
-            m_LightDiffuses[i][j]->setText(QString("%1").arg(diffuse[j], 8, 'g', 6));
-            m_LightSpeculars[i][j]->setText(QString("%1").arg(specular[j], 8, 'g', 6));
-            m_LightPositions[i][j]->setText(QString("%1").arg(position[j], 8, 'g', 6));
-        }
-    }
+    emit lightsChanged();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

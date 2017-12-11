@@ -44,7 +44,7 @@ namespace Banana
 class RenderObject : public OpenGLCallable
 {
 public:
-    const SharedPtr<ShaderProgram>& getShader() const;
+    const auto& getShader() const { return m_Shader; }
 
 protected:
     RenderObject(const SharedPtr<Camera>& camera, const SharedPtr<OpenGLBuffer>& bufferCamData = nullptr) :
@@ -151,20 +151,24 @@ class WireFrameBoxRender : public RenderObject
 {
 public:
     WireFrameBoxRender(const SharedPtr<Camera>& camera, const SharedPtr<OpenGLBuffer>& bufferCamData = nullptr) :
-        RenderObject(camera, bufferCamData), m_BoxColor(0.5, 0.5, 0)
+        RenderObject(camera, bufferCamData)
     {
         initRenderData();
     }
 
-    void         setColor(const Vec3f& color);
+    const auto& getColor() const { return m_BoxColor; }
+
+    void         setColor(const Vec3f& color) { m_BoxColor = color; }
     void         transform(const Vec3f& translation, const Vec3f& scale);
     void         setBox(const Vec3f& boxMin, const Vec3f& boxMax);
     virtual void render() override;
+    ////////////////////////////////////////////////////////////////////////////////
+    static Vec3f getDefaultBoxColor() { return Vec3f(0.0f, 1.0f, 0.5f); }
 
 private:
     virtual void initRenderData() override;
 
-    Vec3f                         m_BoxColor;
+    Vec3f                         m_BoxColor = getDefaultBoxColor();
     GLuint                        m_AtrVPosition;
     GLuint                        m_UColor;
     UniquePtr<WireFrameBoxObject> m_WireFrameBoxObj;
@@ -277,6 +281,10 @@ public:
     CheckerboardBackgroundRender(const Vec3f& color1, const Vec3f& color2) : RenderObject(nullptr, nullptr) { initRenderData(); setColors(color1, color2); }
     CheckerboardBackgroundRender(const Vec4f& color1, const Vec4f& color2) : RenderObject(nullptr, nullptr) { initRenderData(); setColors(color1, color2); }
 
+    const auto& getScales() const { return m_Scales; }
+    const auto& getColor1() const { return m_Color1; }
+    const auto& getColor2() const { return m_Color2; }
+
     void         setScales(const Vec2i& scales) { m_Scales = scales; }
     void         setScreenSize(int width, int height) { m_ScreenWidth = width; m_ScreenHeight = height; }
     void         setColor1(const Vec3f& color1) { m_Color1 = Vec4f(color1, 1.0); }
@@ -286,15 +294,18 @@ public:
     void         setColors(const Vec3f& color1, const Vec3f& color2) { setColor1(color1); setColor2(color2); }
     void         setColors(const Vec4f& color1, const Vec4f& color2) { setColor1(color1); setColor2(color2); }
     virtual void render() override;
-
+    ////////////////////////////////////////////////////////////////////////////////
+    static Vec2i getDefaultScales() { return Vec2i(20); }
+    static Vec4f getDefaultColor1() { return Vec4f(0.9f, 0.9f, 0.9f, 1.0f); }
+    static Vec4f getDefaultColor2() { return Vec4f(0.5f, 0.5f, 0.5f, 1.0f); }
 private:
     virtual void initRenderData() override;
 
-    Vec2i m_Scales       = Vec2i(20);
     GLint m_ScreenWidth  = 2;
     GLint m_ScreenHeight = 2;
-    Vec4f m_Color1       = Vec4f(1);
-    Vec4f m_Color2       = Vec4f(0, 0, 0, 1);
+    Vec2i m_Scales       = getDefaultScales();
+    Vec4f m_Color1       = getDefaultColor1();
+    Vec4f m_Color2       = getDefaultColor2();
 
     GLuint m_UScales;
     GLuint m_UScreenWidth;
@@ -319,6 +330,10 @@ public:
     GridBackgroundRender(const Vec4f& backgroundColor, const Vec4f& lineColor) :
         RenderObject(nullptr, nullptr), m_BackgroundColor(backgroundColor), m_LineColor(lineColor) { initRenderData(); }
 
+    const auto& getScales() const { return m_Scales; }
+    const auto& getBackgroundColor() const { return m_BackgroundColor; }
+    const auto& getLineColor() const { return m_LineColor; }
+
     void         setScales(const Vec2i& scales) { m_Scales = scales; }
     void         setScreenSize(int width, int height) { m_ScreenWidth = width; m_ScreenHeight = height; }
     void         setBackgroundColor(const Vec3f& backgroundColor) { m_BackgroundColor = Vec4f(backgroundColor, 1.0); }
@@ -328,15 +343,19 @@ public:
     void         setColors(const Vec3f& backgroundColor, const Vec3f& lineColor) { setBackgroundColor(backgroundColor); setLineColor(lineColor); }
     void         setColors(const Vec4f& backgroundColor, const Vec4f& lineColor) { setBackgroundColor(backgroundColor); setLineColor(lineColor); }
     virtual void render() override;
+    ////////////////////////////////////////////////////////////////////////////////
+    static Vec2i getDefaultScales() { return Vec2i(20); }
+    static Vec4f getDefaultBackgroundColor() { return Vec4f(0.9f, 0.9f, 0.9f, 1.0f); }
+    static Vec4f getDefaultLineColor() { return Vec4f(0.5f, 0.5f, 0.5f, 1.0f); }
 
 private:
     virtual void initRenderData() override;
 
-    Vec2i m_Scales          = Vec2i(20);
     GLint m_ScreenWidth     = 2;
     GLint m_ScreenHeight    = 2;
-    Vec4f m_BackgroundColor = Vec4f(1);
-    Vec4f m_LineColor       = Vec4f(0, 0, 0, 1);
+    Vec2i m_Scales          = getDefaultScales();
+    Vec4f m_BackgroundColor = getDefaultBackgroundColor();
+    Vec4f m_LineColor       = getDefaultLineColor();
 
     GLuint m_UScales;
     GLuint m_UScreenWidth;
@@ -366,7 +385,7 @@ public:
         OpenGLTexture::loadTextures(m_Textures, textureFolder);
     }
 
-    void loadTextures(QString textureFolder);
+    void loadTextures(QString textureFolder) { OpenGLTexture::loadTextures(m_Textures, textureFolder); }
 #endif
 
     MeshRender(const SharedPtr<MeshObject>& meshObj, const SharedPtr<Camera>& camera, const SharedPtr<PointLights>& light,
@@ -377,18 +396,22 @@ public:
         initRenderData();
     }
 
-    const SharedPtr<MeshObject>&    getMeshObj();
-    const SharedPtr<Material>&      getMaterial();
-    const SharedPtr<OpenGLTexture>& getCurrentTexture();
-    size_t                          getNumTextures();
+    const auto& getMeshObj() const { return m_MeshObj; }
+    const auto& getMaterial() const { return m_Material; }
+    const auto& getCurrentTexture() const { return m_CurrentTexture; }
+    auto        getNumTextures() const { return m_Textures.size(); }
+    const auto& getTranslation() const { return m_Translation; }
+    const auto& getScales() const { return m_Scales; }
 
     void clearTextures(bool insertNullTex = true);
     void addTexture(const SharedPtr<OpenGLTexture>& texture, GLenum texWrapMode = GL_REPEAT);
     void setRenderTextureIndex(int texIndex);
     void setExternalShadowMaps(const Vector<SharedPtr<OpenGLTexture> >& shadowMaps);
     void resizeShadowMap(int width, int height);
-    void setExposure(float exposure);
-    void transform(const Vec3f& translation, const Vec3f& scale);
+    void setExposure(float exposure) { m_Exposure = exposure; }
+    void transform(const Vec3f& translation, const Vec3f& scales);
+    void translate(const Vec3f& translation) { transform(translation, m_Scales); }
+    void scale(const Vec3f& scales) { transform(m_Translation, scales); }
     void setupVAO();
 
     SharedPtr<OpenGLTexture>&         getLightShadowMap(int lightID = 0);
@@ -436,6 +459,8 @@ protected:
     GLuint  m_CDSUBCameraData;
     GLuint  m_CDSVAO;
 
+    Vec3f                                 m_Translation = Vec3f(0);
+    Vec3f                                 m_Scales      = Vec3f(1.0);
     SharedPtr<ShaderProgram>              m_LightDepthShader;
     SharedPtr<ShaderProgram>              m_CameraDepthShader;
     Vector<UniquePtr<DepthBufferRender> > m_LightDepthBufferRenders;
@@ -455,13 +480,13 @@ public:
 #ifdef __Banana_Qt__
     PlaneRender(const SharedPtr<Camera>& camera, const SharedPtr<PointLights>& light, QString textureFolder,
                 const SharedPtr<OpenGLBuffer>& bufferCamData = nullptr) :
-        MeshRender(std::make_shared<GridObject>(), camera, light, textureFolder, nullptr, bufferCamData),
-        m_AllowedNonTexRender(true) {}
+        MeshRender(std::make_shared<GridObject>(), camera, light, textureFolder, nullptr, bufferCamData) {}
 #endif
 
     PlaneRender(const SharedPtr<Camera>& camera, const SharedPtr<PointLights>& light, const SharedPtr<OpenGLBuffer>& bufferCamData = nullptr) :
-        MeshRender(std::make_shared<GridObject>(), camera, light, nullptr, bufferCamData),
-        m_AllowedNonTexRender(true) {}
+        MeshRender(std::make_shared<GridObject>(), camera, light, nullptr, bufferCamData) {}
+
+    const auto& getScaleTexCoord() const { return m_ScaleTexCoord; }
 
     void setAllowNonTextureRender(bool allowNonTex);
     void scaleTexCoord(int scaleX, int scaleY);
@@ -469,7 +494,8 @@ public:
     virtual void render() override;
 
 protected:
-    bool m_AllowedNonTexRender;
+    Vec2f m_ScaleTexCoord       = Vec2f(1.0);
+    bool  m_AllowedNonTexRender = true;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

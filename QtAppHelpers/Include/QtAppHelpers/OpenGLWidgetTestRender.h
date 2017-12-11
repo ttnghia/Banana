@@ -79,22 +79,22 @@ private:
     void renderMeshWithShadow();
 
     TestCase                                 m_TestCase;
-    std::unique_ptr<OpenGLBuffer>            m_UBufferModelMatrix;
-    std::unique_ptr<OpenGLBuffer>            m_VertexBuffer;
-    std::unique_ptr<OpenGLBuffer>            m_IndexBuffer;
-    std::unique_ptr<MeshLoader>              m_MeshLoader;
-    std::unique_ptr<SkyBoxRender>            m_SkyBoxRender;
-    std::unique_ptr<PlaneRender>             m_FloorRender;
-    std::unique_ptr<PointLightRender>        m_PointLightRender;
-    std::unique_ptr<MeshRender>              m_MeshRender;
-    std::unique_ptr<DepthBufferRender>       m_DepthBufferRender;
-    std::unique_ptr<ScreenQuadTextureRender> m_ScreenQuadTexRender;
+    UniquePtr<OpenGLBuffer>            m_UBufferModelMatrix;
+    UniquePtr<OpenGLBuffer>            m_VertexBuffer;
+    UniquePtr<OpenGLBuffer>            m_IndexBuffer;
+    UniquePtr<MeshLoader>              m_MeshLoader;
+    UniquePtr<SkyBoxRender>            m_SkyBoxRender;
+    UniquePtr<PlaneRender>             m_FloorRender;
+    UniquePtr<PointLightRender>        m_PointLightRender;
+    UniquePtr<MeshRender>              m_MeshRender;
+    UniquePtr<DepthBufferRender>       m_DepthBufferRender;
+    UniquePtr<ScreenQuadTextureRender> m_ScreenQuadTexRender;
 
-    std::shared_ptr<OpenGLTexture> m_Texture;
-    std::shared_ptr<MeshObject>    m_MeshObj;
-    std::shared_ptr<PointLights>   m_Lights;
-    std::shared_ptr<Material>      m_Material;
-    std::shared_ptr<ShaderProgram> m_Shader;
+    SharedPtr<OpenGLTexture> m_Texture;
+    SharedPtr<MeshObject>    m_MeshObj;
+    SharedPtr<PointLights>   m_Lights;
+    SharedPtr<Material>      m_Material;
+    SharedPtr<ShaderProgram> m_Shader;
     GLuint                         m_VAO;
 };
 

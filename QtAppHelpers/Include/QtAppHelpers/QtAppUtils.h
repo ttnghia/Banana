@@ -45,14 +45,43 @@ inline QString getTexturePath()
     }
 }
 
+inline QStringList getTextureFolders(const QString& texType)
+{
+    QDir dataDir(getTexturePath() + "/" + texType);
+    dataDir.setFilter(QDir::NoDotAndDotDot | QDir::Dirs);
+    return dataDir.entryList();
+}
+
+inline QStringList getTextureFiles(const QString& texType)
+{
+    QDir dataDir(getTexturePath() + "/" + texType);
+    dataDir.setFilter(QDir::NoDotAndDotDot | QDir::Files);
+    return dataDir.entryList();
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+inline QString getDefaultPath(const String& folderName)
+{
+    String          folderParams = folderName + "Path";
+    AppConfigReader config("config.ini");
+    if(config.isFileLoaded() && config.hasParam(folderParams)) {
+        return QString::fromStdString(config.getStringValue(folderParams));
+    } else {
+        return QDir::currentPath() + "/" + QString::fromStdString(folderName);
+    }
+}
+
+inline QStringList getFiles(const String& folderName)
+{
+    QDir dataDir(getDefaultPath(folderName));
+    dataDir.setFilter(QDir::NoDotAndDotDot | QDir::Files);
+    return dataDir.entryList();
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 inline QString getDefaultCapturePath()
 {
-    AppConfigReader config("config.ini");
-    if(config.isFileLoaded() && config.hasParam("CapturePath")) {
-        return QString::fromStdString(config.getStringValue("CapturePath"));
-    } else {
-        return QDir::currentPath() + "/Capture";
-    }
+    return getDefaultPath("Capture");
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

@@ -184,7 +184,7 @@ void OpenGLTexture::OpenGLTexture::release()
 #include <QStringList>
 #include <QString>
 
-void OpenGLTexture::loadTextures(std::vector<std::shared_ptr<OpenGLTexture> >& textures, QString textureFolder, bool insertNullTex /*= true*/, bool bGenMipMap /*= true*/)
+void OpenGLTexture::loadTextures(std::vector<SharedPtr<OpenGLTexture> >& textures, QString textureFolder, bool insertNullTex /*= true*/, bool bGenMipMap /*= true*/)
 {
     // clear current textures
     textures.resize(0);
@@ -217,7 +217,7 @@ void OpenGLTexture::loadTextures(std::vector<std::shared_ptr<OpenGLTexture> >& t
     }
 
     for(const QImage& texImg : textureImages) {
-        std::shared_ptr<OpenGLTexture> tex = std::make_shared<OpenGLTexture>(GL_TEXTURE_2D);
+        SharedPtr<OpenGLTexture> tex = std::make_shared<OpenGLTexture>(GL_TEXTURE_2D);
         tex->uploadData(GL_TEXTURE_2D, GL_RGBA, texImg.width(), texImg.height(), GL_RGBA, GL_UNSIGNED_BYTE, texImg.constBits());
 
         if(bGenMipMap) {

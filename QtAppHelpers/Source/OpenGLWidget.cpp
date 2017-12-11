@@ -49,7 +49,7 @@ void OpenGLWidget::setClearColor(const Vec3f& color)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-bool OpenGLWidget::exportScreenToImage(int frame)
+bool OpenGLWidget::exportScreenToImage(Int frame)
 {
     if(m_CapturePath.isEmpty()) {
         return false;
@@ -160,21 +160,34 @@ void OpenGLWidget::initializeGL()
     m_UBufferCamData = std::make_shared<OpenGLBuffer>();
     m_UBufferCamData->createBuffer(GL_UNIFORM_BUFFER, 5 * sizeof(Mat4x4f) + sizeof(Vec4f), nullptr, GL_DYNAMIC_DRAW);
     emit cameraPositionInfoChanged(m_Camera->getCameraPosition(), m_Camera->getCameraFocus());
-
+    ////////////////////////////////////////////////////////////////////////////////
+    initRDataLight();
+    initRDataSkyBox();
+    initRDataCheckerboardBackground();
+    initRDataGridBackground();
+    initRDataBox();
+    initRDataFloor();
     ////////////////////////////////////////////////////////////////////////////////
     // call init function from derived class
     initOpenGL();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void OpenGLWidget::resizeGL(int w, int h)
+void OpenGLWidget::resizeGL(Int w, Int h)
 {
     glCall(glViewport(0, 0, w, h));
     m_Camera->resizeWindow((float)w, (float)h);
     m_CaptureImage.reset(new QImage(w, h, QImage::Format_RGB888));
-
     ////////////////////////////////////////////////////////////////////////////////
-    // call init function from derived class
+    ////////////////////////////////////////////////////////////////////////////////
+    if(m_CheckerboardRender != nullptr) {
+        m_CheckerboardRender->setScreenSize(w, h);
+    }
+    if(m_GridRender != nullptr) {
+        m_GridRender->setScreenSize(w, h);
+    }
+    ////////////////////////////////////////////////////////////////////////////////
+    // call resize function from derived class
     resizeOpenGLWindow(w, h);
 }
 
@@ -182,11 +195,29 @@ void OpenGLWidget::resizeGL(int w, int h)
 void OpenGLWidget::paintGL()
 {
     m_FPSCounter.countFrame();
+    ////////////////////////////////////////////////////////////////////////////////
     glCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
     uploadCameraData();
-
     ////////////////////////////////////////////////////////////////////////////////
-    // call init function from derived class
+    switch(m_BackgroundMode) {
+        case BackgroundMode::SkyBox:
+            renderSkyBox();
+            break;
+        case BackgroundMode::Checkerboard:
+            renderCheckerboardBackground();
+            break;
+        case BackgroundMode::Grid:
+            renderGridBackground();
+            break;
+        case BackgroundMode::Color:
+        default:
+            ;
+    }
+    renderLight();
+    renderFloor();
+    renderBox();
+    ////////////////////////////////////////////////////////////////////////////////
+    // call render function from derived class
     renderOpenGL();
 }
 
@@ -255,8 +286,8 @@ void OpenGLWidget::checkGLVersion()
     emit emitDebugString(QString("GPU: ") + deviceStr);
     emit emitDebugString(QString("OpenGL driver: ") + verStr);
 
-    int major = verStr.left(verStr.indexOf(".")).toInt();
-    int minor = verStr.mid(verStr.indexOf(".") + 1, 1).toInt();
+    Int major = verStr.left(verStr.indexOf(".")).toInt();
+    Int minor = verStr.mid(verStr.indexOf(".") + 1, 1).toInt();
 
     if(!(major >= 4 && minor >= 1)) {
         QMessageBox msgBox(QMessageBox::Critical, "Error", QString("Your OpenGL version is %1.%2 (Required: OpenGL >= 4.1).").arg(major).arg(minor));
@@ -292,6 +323,77 @@ void OpenGLWidget::setCapturePath(const QString& path)
     if(!QDir(path).exists()) {
         QDir().mkdir(path);
     }
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void OpenGLWidget::enableClipPlane(bool bEnable)
+{
+    if(isValid()) {
+        makeCurrent();
+        if(bEnable) {
+            glCall(glEnable(GL_CLIP_PLANE0));
+        } else {
+            glCall(glDisable(GL_CLIP_PLANE0));
+        }
+        doneCurrent();
+    }
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void OpenGLWidget::initRDataLight()
+{
+    m_Lights = std::make_shared<PointLights>();
+    m_Lights->setNumLights(2);
+    m_Lights->setLightPosition(Vec4f(10.0f, 10.0f, -10.0f, 1.0f), 0);
+    m_Lights->setLightPosition(Vec4f(-10.0f, 10.0f, 10.0f, 1.0f), 1);
+    ////////////////////////////////////////////////////////////////////////////////
+    m_Lights->setSceneCenter(Vec3f(0, 0, 0));
+    m_Lights->setLightViewPerspective(30);
+    m_Lights->uploadDataToGPU();
+    ////////////////////////////////////////////////////////////////////////////////
+    m_LightRender = std::make_unique<PointLightRender>(m_Camera, m_Lights, m_UBufferCamData);
+    emit lightsObjChanged(m_Lights);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void OpenGLWidget::setLights(const Vector<PointLights::PointLightData>& lightData)
+{
+    for(Int i = 0, iend = static_cast<Int>(lightData.size()); i < iend; ++i) {
+        m_Lights->setLight(lightData[i], i);
+    }
+    updateLights();
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void OpenGLWidget::updateLights()
+{
+    if(isValid()) {
+        makeCurrent();
+        m_Lights->uploadDataToGPU();
+        doneCurrent();
+    }
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void OpenGLWidget::initRDataSkyBox()
+{
+    Q_ASSERT(m_UBufferCamData != nullptr);
+    m_SkyBoxRender = std::make_unique<SkyBoxRender>(m_Camera, QtAppUtils::getTexturePath() + "/Sky/", m_UBufferCamData);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void OpenGLWidget::initRDataFloor()
+{
+    Q_ASSERT(m_UBufferCamData != nullptr && m_Lights != nullptr);
+    m_FloorRender = std::make_unique<PlaneRender>(m_Camera, m_Lights, QtAppUtils::getTexturePath() + "/Floor/", m_UBufferCamData);
+    m_FloorRender->setAllowNonTextureRender(false);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void OpenGLWidget::initRDataBox()
+{
+    Q_ASSERT(m_UBufferCamData != nullptr);
+    m_DomainBoxRender = std::make_unique<WireFrameBoxRender>(m_Camera, m_UBufferCamData);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

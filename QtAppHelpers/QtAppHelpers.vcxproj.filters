@@ -361,6 +361,24 @@
     <ClCompile Include="..\..\..\Scratch\ProjectBuilds\Banana\QtAppHelpers\ReleaseStaticBuild\moc_OpenGLWidget.cpp">
       <Filter>Generated Files\ReleaseStaticBuild</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\Scratch\ProjectBuilds\Banana\QtAppHelpers\DebugQt\moc_OpenGLController.cpp">
+      <Filter>Generated Files\DebugQt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Scratch\ProjectBuilds\Banana\QtAppHelpers\ReleaseStaticBuild\moc_OpenGLController.cpp">
+      <Filter>Generated Files\ReleaseStaticBuild</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Scratch\ProjectBuilds\Banana\QtAppHelpers\Debug\moc_OpenGLController.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Scratch\ProjectBuilds\Banana\QtAppHelpers\Release\moc_OpenGLController.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Scratch\ProjectBuilds\Banana\QtAppHelpers\ReleaseQt\moc_OpenGLController.cpp">
+      <Filter>Generated Files\ReleaseQt</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\OpenGLController.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="Include\QtAppHelpers\AvgTimer.h">
@@ -399,6 +417,9 @@
     <ClInclude Include="Include\QtAppHelpers\CustomSplashScreen.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <CustomBuild Include="Include\QtAppHelpers\OpenGLController.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="Include\QtAppHelpers\BusyBar.h">

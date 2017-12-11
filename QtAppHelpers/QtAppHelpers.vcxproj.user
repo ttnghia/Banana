@@ -27,4 +27,7 @@ $(LocalDebuggerEnvironment)</LocalDebuggerEnvironment>
     <QTDIR>C:\Qt\Qt5.10.0\5.10.0\msvc2017_64</QTDIR>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
+  <PropertyGroup>
+    <ShowAllFiles>true</ShowAllFiles>
+  </PropertyGroup>
 </Project>

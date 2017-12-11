@@ -40,18 +40,18 @@ class PointLightEditor : public QWidget
     Q_OBJECT
 
 public:
-    PointLightEditor(std::shared_ptr<PointLights> lights = nullptr, QWidget* parent = nullptr);
+    PointLightEditor(SharedPtr<PointLights> lights = nullptr, QWidget* parent = nullptr);
 
 public slots:
-    void setLights(std::shared_ptr<PointLights> lights);
+    void setLights(SharedPtr<PointLights> lights);
+    void lightToGUI();
 
 signals:
-    void lightsChanged(const std::shared_ptr<PointLights>& lights);
+    void lightsChanged();
 
 private:
     void connectComponents();
     void applyLights();
-    void lightToGUI();
 
     QCheckBox*   m_CheckBoxes[MAX_POINT_LIGHT];
     QLineEdit*   m_LightAmbients[MAX_POINT_LIGHT][3];
@@ -60,7 +60,7 @@ private:
     QLineEdit*   m_LightPositions[MAX_POINT_LIGHT][3];
     ColorPicker* m_ColorSelectors[MAX_POINT_LIGHT][3];
 
-    std::shared_ptr<PointLights> m_Lights = nullptr;
+    SharedPtr<PointLights> m_Lights = nullptr;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

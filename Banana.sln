@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27004.2006
+VisualStudioVersion = 15.0.27004.2010
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BananaCore", "BananaCore\BananaCore.vcxproj", "{27A187C4-FB19-47E9-AFDF-E6E8CC5B7E18}"
 EndProject
@@ -51,6 +51,9 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VectorTypeBechmark", "Applications\Benchmarks\VectorTypeBechmark\VectorTypeBechmark.vcxproj", "{824501A8-20D8-4ACD-AE31-4F81D1591C68}"
 EndProject
 Global
+	GlobalSection(Performance) = preSolution
+		HasPerformanceSessions = true
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
 		DebugQt|x64 = DebugQt|x64

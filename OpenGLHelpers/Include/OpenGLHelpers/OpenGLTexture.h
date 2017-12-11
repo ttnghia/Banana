@@ -50,7 +50,7 @@ public:
     void   release();
 
 #ifdef __Banana_Qt__
-    static void        loadTextures(std::vector<std::shared_ptr<OpenGLTexture> >& textures, QString textureFolder, bool insertNullTex = true, bool bGenMipMap = true);
+    static void        loadTextures(std::vector<SharedPtr<OpenGLTexture> >& textures, QString textureFolder, bool insertNullTex = true, bool bGenMipMap = true);
     static QStringList getTextureFolders(QString texType, QString texRootFolder = QString("Textures"));
     static QStringList getTextureFiles(QString texType, QString texRootFolder = QString("Textures"));
 #endif

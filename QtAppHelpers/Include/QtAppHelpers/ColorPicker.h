@@ -40,6 +40,7 @@ public:
     void setColor(QColor color);
     void setColor(float r, float g, float b) { setColor(QtAppUtils::floatToQColor(r, g, b)); }
     void setColor(const Vec3f& color) { setColor(QtAppUtils::floatToQColor(color)); }
+    void setColor(const Vec4f& color) { setColor(QtAppUtils::floatToQColor(Vec3f(color.x, color.y, color.z))); }
 
     auto  getQColor() const { return m_CurrentColor; }
     auto  getColor() const { return Vec3f(m_CurrentColor.redF(), m_CurrentColor.greenF(), m_CurrentColor.blueF()); }
