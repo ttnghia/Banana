@@ -48,7 +48,7 @@ signals:
     void pathChanged(QString path);
 
 public slots:
-    void setPath(QString path) { m_txtPath->setText(path); }
+    void setPath(QString path) { m_txtPath->setText(path); m_CurrentPath = path; }
 
 private:
     QLineEdit*       m_txtPath;
