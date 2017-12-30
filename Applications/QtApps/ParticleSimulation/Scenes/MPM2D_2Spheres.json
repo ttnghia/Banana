@@ -5,7 +5,7 @@
         "FrameDuration" : 0.003333333333,
         "StartFrame" : 1,
         "FinalFrame" : 50,
-        "SaveFrameData" : true,
+        "SaveFrameData" : false,
         "SaveMemoryState" : false,
         "FramePerState" : 10,
         "DataPath" : "D:/Scratch/MPM2D_TwoSphere_APIC",

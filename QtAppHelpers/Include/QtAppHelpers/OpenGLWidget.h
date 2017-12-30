@@ -102,10 +102,11 @@ protected:
 
     FPSCounter m_FPSCounter;
 
-    UniquePtr<QTimer>       m_UpdateTimer    = nullptr;
-    UniquePtr<QImage>       m_CaptureImage   = nullptr;
-    SharedPtr<OpenGLBuffer> m_UBufferCamData = nullptr;
-    SharedPtr<Camera>       m_Camera         = std::make_shared<Camera>();
+    QString                 m_CaptureImageExt = QString("png");
+    UniquePtr<QImage>       m_CaptureImage    = nullptr;
+    UniquePtr<QTimer>       m_UpdateTimer     = nullptr;
+    SharedPtr<OpenGLBuffer> m_UBufferCamData  = nullptr;
+    SharedPtr<Camera>       m_Camera          = std::make_shared<Camera>();
 
 signals:
     void emitDebugString(const QString& str);
@@ -121,6 +122,8 @@ public slots:
     void setViewFrustum(float fov, float nearZ, float farZ) { m_Camera->setFrustum(fov, nearZ, farZ); }
     void setCamera(const Vec3f& cameraPosition, const Vec3f& cameraFocus) { m_Camera->setCamera(cameraPosition, cameraFocus, Vec3f(0, 1, 0)); }
     void resetCameraPosition() { m_Camera->reset(); }
+
+    void setCaptureImageExtension(const QString& ext) { m_CaptureImageExt = ext; }
     bool exportScreenToImage(int frame);
     ////////////////////////////////////////////////////////////////////////////////
 

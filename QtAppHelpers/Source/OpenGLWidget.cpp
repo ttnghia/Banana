@@ -320,7 +320,7 @@ bool OpenGLWidget::exportScreenToImage(Int frame)
     makeCurrent();
     glCall(glReadPixels(0, 0, width(), height(), GL_RGB, GL_UNSIGNED_BYTE, m_CaptureImage->bits()));
     doneCurrent();
-    m_CaptureImage->mirrored().save(QString(m_CapturePath + "/frame.%1.jpg").arg(frame, 4, 10, QChar('0')));
+    m_CaptureImage->mirrored().save(QString(m_CapturePath + "/frame.%1.%2").arg(frame, 4, 10, QChar('0')).arg(m_CaptureImageExt));
     ////////////////////////////////////////////////////////////////////////////////
     return true;
 }
