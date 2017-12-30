@@ -50,6 +50,7 @@
 #endif // __TBB_DEFINE_MIC
 
 #include "task.h"
+#include "task_arena.h"
 #include "aligned_space.h"
 #include "atomic.h"
 #include "internal/_template_helpers.h"
@@ -122,6 +123,7 @@ namespace internal {
 using namespace tbb::internal;
 template<typename Range, typename Body, typename Partitioner> class start_for;
 template<typename Range, typename Body, typename Partitioner> class start_reduce;
+template<typename Range, typename Body, typename Partitioner> class start_deterministic_reduce;
 
 //! Join task node that contains shared flag for stealing feedback
 class flag_task: public task {
@@ -348,16 +350,25 @@ struct proportional_mode : adaptive_mode<Partition> {
 #endif // warning 4127 is back
 };
 
+static size_t get_initial_partition_head() {
+    int current_index = tbb::this_task_arena::current_thread_index();
+    if (current_index == tbb::task_arena::not_initialized)
+        current_index = 0;
+    return size_t(current_index);
+}
+
 //! Provides default linear indexing of partitioner's sequence
 template <typename Partition>
 struct linear_affinity_mode : proportional_mode<Partition> {
     size_t my_head;
+    size_t my_max_affinity;
     using proportional_mode<Partition>::self;
-    linear_affinity_mode() : proportional_mode<Partition>(), my_head(0) {}
+    linear_affinity_mode() : proportional_mode<Partition>(), my_head(get_initial_partition_head()),
+                             my_max_affinity(self().my_divisor) {}
     linear_affinity_mode(linear_affinity_mode &src, split) : proportional_mode<Partition>(src, split())
-        , my_head(src.my_head + src.my_divisor) {}
+        , my_head((src.my_head + src.my_divisor) % src.my_max_affinity), my_max_affinity(src.my_max_affinity) {}
     linear_affinity_mode(linear_affinity_mode &src, const proportional_split& split_obj) : proportional_mode<Partition>(src, split_obj)
-        , my_head(src.my_head + src.my_divisor) {}
+        , my_head((src.my_head + src.my_divisor) % src.my_max_affinity), my_max_affinity(src.my_max_affinity) {}
     void set_affinity( task &t ) {
         if( self().my_divisor )
             t.set_affinity( affinity_id(my_head) + 1 );
@@ -595,6 +606,7 @@ private:
     template<typename Range, typename Body, typename Partitioner> friend class serial::interface9::start_for;
     template<typename Range, typename Body, typename Partitioner> friend class interface9::internal::start_for;
     template<typename Range, typename Body, typename Partitioner> friend class interface9::internal::start_reduce;
+    template<typename Range, typename Body, typename Partitioner> friend class interface9::internal::start_deterministic_reduce;
     template<typename Range, typename Body, typename Partitioner> friend class internal::start_scan;
     // backward compatibility
     class partition_type: public internal::partition_type_base {
@@ -640,6 +652,7 @@ private:
     template<typename Range, typename Body, typename Partitioner> friend class serial::interface9::start_for;
     template<typename Range, typename Body, typename Partitioner> friend class interface9::internal::start_for;
     template<typename Range, typename Body, typename Partitioner> friend class interface9::internal::start_reduce;
+    template<typename Range, typename Body, typename Partitioner> friend class interface9::internal::start_deterministic_reduce;
     template<typename Range, typename Body, typename Partitioner> friend class internal::start_scan;
     // backward compatibility
     typedef interface9::internal::old_auto_partition_type partition_type;
