@@ -60,16 +60,27 @@ PointLightEditor::PointLightEditor(SharedPtr<PointLights> lights /*= nullptr*/, 
             m_LightSpeculars[i][j] -> setEnabled((i == 0));
             m_LightPositions[i][j] -> setEnabled((i == 0));
 
-            lightLayouts[i] -> addWidget(m_LightAmbients[i][j], 1, j + 2, 1, 1);
-            lightLayouts[i] -> addWidget(m_LightDiffuses[i][j], 2, j + 2, 1, 1);
-            lightLayouts[i] -> addWidget(m_LightSpeculars[i][j], 3, j + 2, 1, 1);
-            lightLayouts[i] -> addWidget(m_LightPositions[i][j], 4, j + 2, 1, 1);
 
             m_ColorSelectors[i][j] = new ColorPicker;
             m_ColorSelectors[i][j] -> setColor(Vec3f(1.0, 1.0, 1.0));
             m_ColorSelectors[i][j] -> setFixedWidth(50);
             m_ColorSelectors[i][j] -> setEnabled((i == 0));
-            lightLayouts[i] -> addWidget(m_ColorSelectors[i][j], j + 1, 5, 1, 1);
+        }
+
+        for(int j = 0; j < 3; ++j) {
+            lightLayouts[i] -> addWidget(m_LightAmbients[i][j], 1, j + 2, 1, 1);
+            lightLayouts[i] -> addWidget(m_ColorSelectors[i][0], 1, 5, 1, 1);
+        }
+        for(int j = 0; j < 3; ++j) {
+            lightLayouts[i] -> addWidget(m_LightDiffuses[i][j], 2, j + 2, 1, 1);
+            lightLayouts[i] -> addWidget(m_ColorSelectors[i][1], 2, 5, 1, 1);
+        }
+        for(int j = 0; j < 3; ++j) {
+            lightLayouts[i] -> addWidget(m_LightSpeculars[i][j], 3, j + 2, 1, 1);
+            lightLayouts[i] -> addWidget(m_ColorSelectors[i][2], 3, 5, 1, 1);
+        }
+        for(int j = 0; j < 3; ++j) {
+            lightLayouts[i] -> addWidget(m_LightPositions[i][j], 4, j + 2, 1, 1);
         }
 
 
