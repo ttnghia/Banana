@@ -68,13 +68,13 @@ bool BlockPCGSolver<N, RealType >::solve(const BlockSparseMatrix<N, RealType>& m
 
         tbb::parallel_invoke(
             [&]
-        {
-            ParallelBLAS::addScaled(alpha, z, result);
-        },
+            {
+                ParallelBLAS::addScaled(alpha, z, result);
+            },
             [&]
-        {
-            ParallelBLAS::addScaled(-alpha, s, r);
-        });
+            {
+                ParallelBLAS::addScaled(-alpha, s, r);
+            });
 
         m_OutResidual = ParallelSTL::maxAbs<N, RealType>(r);
 
@@ -144,13 +144,13 @@ bool BlockPCGSolver<N, RealType >::solve_precond(const BlockSparseMatrix<N, Real
         RealType alpha = rho / ParallelBLAS::dotProduct<N, RealType>(s, z);
         tbb::parallel_invoke(
             [&]
-        {
-            ParallelBLAS::addScaled(alpha, s, result);
-        },
+            {
+                ParallelBLAS::addScaled(alpha, s, result);
+            },
             [&]
-        {
-            ParallelBLAS::addScaled(-alpha, z, r);
-        });
+            {
+                ParallelBLAS::addScaled(-alpha, z, r);
+            });
 
         m_OutResidual = ParallelSTL::maxAbs<N, RealType>(r);
 
@@ -177,18 +177,18 @@ template<Int N, class RealType>
 void BlockPCGSolver<N, RealType >::formPreconditioner(const BlockSparseMatrix<N, RealType>& matrix)
 {
     m_JacobiPreconditioner.resize(matrix.size());
-    ParallelFuncs::parallel_for(matrix.size(),
-                                [&](UInt i)
-                                {
-                                    auto& v = matrix.getIndices(i);
-                                    auto it = std::lower_bound(v.begin(), v.end(), i);
-                                    m_JacobiPreconditioner[i] = (it != v.end()) ? glm::inverse(matrix.getValues(i)[std::distance(v.begin(), it)]) : MatXxX<N, RealType>(0);
-                                });
+    Scheduler::parallel_for(matrix.size(),
+                            [&](UInt i)
+                            {
+                                auto& v = matrix.getIndices(i);
+                                auto it = std::lower_bound(v.begin(), v.end(), i);
+                                m_JacobiPreconditioner[i] = (it != v.end()) ? glm::inverse(matrix.getValues(i)[std::distance(v.begin(), it)]) : MatXxX<N, RealType>(0);
+                            });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
 void BlockPCGSolver<N, RealType >::applyPreconditioner(const Vec_VecX<N, RealType>& x, Vec_VecX<N, RealType>& result)
 {
-    ParallelFuncs::parallel_for(x.size(), [&](size_t i) { result[i] = m_JacobiPreconditioner[i] * x[i]; });
+    Scheduler::parallel_for(x.size(), [&](size_t i) { result[i] = m_JacobiPreconditioner[i] * x[i]; });
 }

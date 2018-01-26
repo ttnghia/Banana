@@ -72,83 +72,83 @@ void APIC_3DSolver::mapParticles2Grid()
     gridData().tmp_v.assign(0);
     gridData().tmp_w.assign(0);
     ////////////////////////////////////////////////////////////////////////////////
-    ParallelFuncs::parallel_for(particleData().getNParticles(),
-                                [&](UInt p)
-                                {
-                                    const auto& ppos   = particleData().positions[p];
-                                    const auto& pvel   = particleData().velocities[p];
-                                    const auto& pC     = apicData().C[p];
-                                    const auto gridPos = grid().getGridCoordinate(ppos);
+    Scheduler::parallel_for(particleData().getNParticles(),
+                            [&](UInt p)
+                            {
+                                const auto& ppos   = particleData().positions[p];
+                                const auto& pvel   = particleData().velocities[p];
+                                const auto& pC     = apicData().C[p];
+                                const auto gridPos = grid().getGridCoordinate(ppos);
 
-                                    std::array<Vec3i, 8> indices;
-                                    std::array<Real, 8> weights;
+                                std::array<Vec3i, 8> indices;
+                                std::array<Real, 8> weights;
 
-                                    ArrayHelpers::getCoordinatesAndWeights(gridPos - Vec3r(0, 0.5, 0.5), gridData().u.size(), indices, weights);
-                                    for(Int i = 0; i < 8; ++i) {
-                                        const auto gpos     = grid().getWorldCoordinate(Vec3r(indices[i][0], indices[i][1] + 0.5, indices[i][2] + 0.5));
-                                        const auto momentum = weights[i] * (pvel[0] + glm::dot(pC[0], gpos - ppos));
-                                        apicData().uLock(indices[i]).lock();
-                                        gridData().u(indices[i])     += momentum;
-                                        gridData().tmp_u(indices[i]) += weights[i];
-                                        apicData().uLock(indices[i]).unlock();
-                                    }
+                                ArrayHelpers::getCoordinatesAndWeights(gridPos - Vec3r(0, 0.5, 0.5), gridData().u.size(), indices, weights);
+                                for(Int i = 0; i < 8; ++i) {
+                                    const auto gpos     = grid().getWorldCoordinate(Vec3r(indices[i][0], indices[i][1] + 0.5, indices[i][2] + 0.5));
+                                    const auto momentum = weights[i] * (pvel[0] + glm::dot(pC[0], gpos - ppos));
+                                    apicData().uLock(indices[i]).lock();
+                                    gridData().u(indices[i])     += momentum;
+                                    gridData().tmp_u(indices[i]) += weights[i];
+                                    apicData().uLock(indices[i]).unlock();
+                                }
 
-                                    ArrayHelpers::getCoordinatesAndWeights(gridPos - Vec3r(0.5, 0, 0.5), gridData().v.size(), indices, weights);
-                                    for(Int i = 0; i < 8; ++i) {
-                                        const auto gpos     = grid().getWorldCoordinate(Vec3r(indices[i][0] + 0.5, indices[i][1], indices[i][2] + 0.5));
-                                        const auto momentum = weights[i] * (pvel[1] + glm::dot(pC[1], gpos - ppos));
-                                        apicData().vLock(indices[i]).lock();
-                                        gridData().v(indices[i])     += momentum;
-                                        gridData().tmp_v(indices[i]) += weights[i];
-                                        apicData().vLock(indices[i]).unlock();
-                                    }
+                                ArrayHelpers::getCoordinatesAndWeights(gridPos - Vec3r(0.5, 0, 0.5), gridData().v.size(), indices, weights);
+                                for(Int i = 0; i < 8; ++i) {
+                                    const auto gpos     = grid().getWorldCoordinate(Vec3r(indices[i][0] + 0.5, indices[i][1], indices[i][2] + 0.5));
+                                    const auto momentum = weights[i] * (pvel[1] + glm::dot(pC[1], gpos - ppos));
+                                    apicData().vLock(indices[i]).lock();
+                                    gridData().v(indices[i])     += momentum;
+                                    gridData().tmp_v(indices[i]) += weights[i];
+                                    apicData().vLock(indices[i]).unlock();
+                                }
 
-                                    ArrayHelpers::getCoordinatesAndWeights(gridPos - Vec3r(0.5, 0.5, 0), gridData().w.size(), indices, weights);
-                                    for(Int i = 0; i < 8; ++i) {
-                                        const auto gpos     = grid().getWorldCoordinate(Vec3r(indices[i][0] + 0.5, indices[i][1] + 0.5, indices[i][2]));
-                                        const auto momentum = weights[i] * (pvel[2] + glm::dot(pC[2], gpos - ppos));
-                                        apicData().wLock(indices[i]).lock();
-                                        gridData().w(indices[i])     += momentum;
-                                        gridData().tmp_w(indices[i]) += weights[i];
-                                        apicData().wLock(indices[i]).unlock();
-                                    }
-                                });
+                                ArrayHelpers::getCoordinatesAndWeights(gridPos - Vec3r(0.5, 0.5, 0), gridData().w.size(), indices, weights);
+                                for(Int i = 0; i < 8; ++i) {
+                                    const auto gpos     = grid().getWorldCoordinate(Vec3r(indices[i][0] + 0.5, indices[i][1] + 0.5, indices[i][2]));
+                                    const auto momentum = weights[i] * (pvel[2] + glm::dot(pC[2], gpos - ppos));
+                                    apicData().wLock(indices[i]).lock();
+                                    gridData().w(indices[i])     += momentum;
+                                    gridData().tmp_w(indices[i]) += weights[i];
+                                    apicData().wLock(indices[i]).unlock();
+                                }
+                            });
     ////////////////////////////////////////////////////////////////////////////////
-    ParallelFuncs::parallel_for(gridData().u.dataSize(),
-                                [&](size_t i)
-                                {
-                                    if(gridData().tmp_u.data()[i] > Tiny) {
-                                        gridData().u.data()[i] /= gridData().tmp_u.data()[i];
-                                    }
-                                });
-    ParallelFuncs::parallel_for(gridData().v.dataSize(),
-                                [&](size_t i)
-                                {
-                                    if(gridData().tmp_v.data()[i] > Tiny) {
-                                        gridData().v.data()[i] /= gridData().tmp_v.data()[i];
-                                    }
-                                });
-    ParallelFuncs::parallel_for(gridData().w.dataSize(),
-                                [&](size_t i)
-                                {
-                                    if(gridData().tmp_w.data()[i] > Tiny) {
-                                        gridData().w.data()[i] /= gridData().tmp_w.data()[i];
-                                    }
-                                });
+    Scheduler::parallel_for(gridData().u.dataSize(),
+                            [&](size_t i)
+                            {
+                                if(gridData().tmp_u.data()[i] > Tiny) {
+                                    gridData().u.data()[i] /= gridData().tmp_u.data()[i];
+                                }
+                            });
+    Scheduler::parallel_for(gridData().v.dataSize(),
+                            [&](size_t i)
+                            {
+                                if(gridData().tmp_v.data()[i] > Tiny) {
+                                    gridData().v.data()[i] /= gridData().tmp_v.data()[i];
+                                }
+                            });
+    Scheduler::parallel_for(gridData().w.dataSize(),
+                            [&](size_t i)
+                            {
+                                if(gridData().tmp_w.data()[i] > Tiny) {
+                                    gridData().w.data()[i] /= gridData().tmp_w.data()[i];
+                                }
+                            });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void APIC_3DSolver::mapGrid2Particles()
 {
-    ParallelFuncs::parallel_for(particleData().getNParticles(),
-                                [&](UInt p)
-                                {
-                                    const auto& ppos   = particleData().positions[p];
-                                    const auto gridPos = grid().getGridCoordinate(ppos);
+    Scheduler::parallel_for(particleData().getNParticles(),
+                            [&](UInt p)
+                            {
+                                const auto& ppos   = particleData().positions[p];
+                                const auto gridPos = grid().getGridCoordinate(ppos);
 
-                                    particleData().velocities[p] = getVelocityFromGrid(gridPos);
-                                    apicData().C[p]              = getAffineMatrixFromGrid(gridPos);
-                                });
+                                particleData().velocities[p] = getVelocityFromGrid(gridPos);
+                                apicData().C[p]              = getAffineMatrixFromGrid(gridPos);
+                            });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

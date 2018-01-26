@@ -182,24 +182,24 @@ UInt ParticleGenerator<N, RealType > ::addFullShapeParticles(const Vec_VecX<N, R
 {
     bool bEmptyRegion = true;
     if(currentPositions.size() > 0) {
-        ParallelFuncs::parallel_for(m_ObjParticles.size(),
-                                    [&](size_t p)
-                                    {
-                                        const auto& ppos    = m_ObjParticles[p];
-                                        const auto pCellIdx = m_Grid.getCellIdx<Int>(ppos);
-                                        NumberHelpers::scan(VecX<N, Int>(-1), VecX<N, Int>(2),
-                                                            [&](const auto& idx)
-                                                            {
-                                                                auto cellIdx = idx + pCellIdx;
-                                                                if(m_Grid.isValidCell(cellIdx)) {
-                                                                    for(auto q : m_ParticleIdxInCell(cellIdx)) {
-                                                                        if(glm::length2(ppos - currentPositions[q]) < m_MinDistanceSqr) {
-                                                                            bEmptyRegion = false;
-                                                                        }
+        Scheduler::parallel_for(m_ObjParticles.size(),
+                                [&](size_t p)
+                                {
+                                    const auto& ppos    = m_ObjParticles[p];
+                                    const auto pCellIdx = m_Grid.getCellIdx<Int>(ppos);
+                                    NumberHelpers::scan(VecX<N, Int>(-1), VecX<N, Int>(2),
+                                                        [&](const auto& idx)
+                                                        {
+                                                            auto cellIdx = idx + pCellIdx;
+                                                            if(m_Grid.isValidCell(cellIdx)) {
+                                                                for(auto q : m_ParticleIdxInCell(cellIdx)) {
+                                                                    if(glm::length2(ppos - currentPositions[q]) < m_MinDistanceSqr) {
+                                                                        bEmptyRegion = false;
                                                                     }
                                                                 }
-                                                            });
-                                    });
+                                                            }
+                                                        });
+                                });
     }
 
     if(bEmptyRegion) {
@@ -301,16 +301,16 @@ void ParticleGenerator<N, RealType >::collectNeighborParticles(const Vec_VecX<N,
         cell.resize(0);
     }
 
-    ParallelFuncs::parallel_for(static_cast<UInt>(positions.size()),
-                                [&](UInt p)
-                                {
-                                    auto cellIdx = m_Grid.getCellIdx<Int>(positions[p]);
-                                    if(m_Grid.isValidCell(cellIdx)) {
-                                        m_Lock(cellIdx).lock();
-                                        m_ParticleIdxInCell(cellIdx).push_back(p);
-                                        m_Lock(cellIdx).unlock();
-                                    }
-                                });
+    Scheduler::parallel_for(static_cast<UInt>(positions.size()),
+                            [&](UInt p)
+                            {
+                                auto cellIdx = m_Grid.getCellIdx<Int>(positions[p]);
+                                if(m_Grid.isValidCell(cellIdx)) {
+                                    m_Lock(cellIdx).lock();
+                                    m_ParticleIdxInCell(cellIdx).push_back(p);
+                                    m_Lock(cellIdx).unlock();
+                                }
+                            });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

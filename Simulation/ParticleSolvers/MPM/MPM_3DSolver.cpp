@@ -594,72 +594,72 @@ void MPM_3DSolver::moveParticles(Real timestep)
     __BNN_TODO_MSG("How to avoid particle penetration? Changing velocity? Then how about vel gradient?");
 
     const Real substep = timestep / Real(solverParams().advectionSteps);
-    ParallelFuncs::parallel_for(particleData().getNParticles(),
-                                [&](UInt p)
-                                {
-                                    auto ppos = particleData().positions[p];
-                                    ppos += timestep * particleData().velocities[p];
-                                    __BNN_TODO_MSG("Trace_rk2 or just Euler?");
-                                    //ppos = trace_rk2(ppos, timestep);
-                                    for(auto& obj : m_BoundaryObjects) {
-                                        obj->constrainToBoundary(ppos);
-                                    }
-                                    //for(UInt i = 0; i < solverParams().advectionSteps; ++i) {
-                                    //}
-                                    particleData().positions[p] = ppos;
-                                });
+    Scheduler::parallel_for(particleData().getNParticles(),
+                            [&](UInt p)
+                            {
+                                auto ppos = particleData().positions[p];
+                                ppos += timestep * particleData().velocities[p];
+                                __BNN_TODO_MSG("Trace_rk2 or just Euler?");
+                                //ppos = trace_rk2(ppos, timestep);
+                                for(auto& obj : m_BoundaryObjects) {
+                                    obj->constrainToBoundary(ppos);
+                                }
+                                //for(UInt i = 0; i < solverParams().advectionSteps; ++i) {
+                                //}
+                                particleData().positions[p] = ppos;
+                            });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MPM_3DSolver::mapParticleMasses2Grid()
 {
-    ParallelFuncs::parallel_for(particleData().getNParticles(),
-                                [&](UInt p)
-                                {
-                                    const auto& pPos   = particleData().positions[p];
-                                    const auto& pg     = particleData().gridCoordinate[p];
-                                    const auto lcorner = NumberHelpers::convert<Int>(pg);
+    Scheduler::parallel_for(particleData().getNParticles(),
+                            [&](UInt p)
+                            {
+                                const auto& pPos   = particleData().positions[p];
+                                const auto& pg     = particleData().gridCoordinate[p];
+                                const auto lcorner = NumberHelpers::convert<Int>(pg);
 
-                                    auto pD = Mat3x3r(0);
-                                    ////////////////////////////////////////////////////////////////////////////////
-                                    for(Int idx = 0, z = lcorner.z - 1, z_end = z + 4; z < z_end; ++z) {
-                                        auto dz  = pg.z - Real(z);
-                                        auto wz  = MathHelpers::cubic_bspline_kernel(dz);
-                                        auto dwz = MathHelpers::cubic_bspline_grad(dz);
+                                auto pD = Mat3x3r(0);
+                                ////////////////////////////////////////////////////////////////////////////////
+                                for(Int idx = 0, z = lcorner.z - 1, z_end = z + 4; z < z_end; ++z) {
+                                    auto dz  = pg.z - Real(z);
+                                    auto wz  = MathHelpers::cubic_bspline_kernel(dz);
+                                    auto dwz = MathHelpers::cubic_bspline_grad(dz);
 
-                                        for(Int y = lcorner.y - 1, y_end = y + 4; y < y_end; ++y) {
-                                            auto dy  = pg.y - Real(y);
-                                            auto wy  = MathHelpers::cubic_bspline_kernel(dy);
-                                            auto dwy = MathHelpers::cubic_bspline_grad(dy);
+                                    for(Int y = lcorner.y - 1, y_end = y + 4; y < y_end; ++y) {
+                                        auto dy  = pg.y - Real(y);
+                                        auto wy  = MathHelpers::cubic_bspline_kernel(dy);
+                                        auto dwy = MathHelpers::cubic_bspline_grad(dy);
 
-                                            for(Int x = lcorner.x - 1, x_end = x + 4; x < x_end; ++x, ++idx) {
-                                                if(!grid().isValidNode(x, y, z)) {
-                                                    particleData().weights[p * 64 + idx]         = 0;
-                                                    particleData().weightGradients[p * 64 + idx] = Vec3r(0);
-                                                    continue;
-                                                }
-
-                                                auto dx  = pg.x - Real(x);
-                                                auto wx  = MathHelpers::cubic_bspline_kernel(dx);
-                                                auto dwx = MathHelpers::cubic_bspline_grad(dx);
-
-                                                auto weight     = wx * wy * wz;
-                                                auto weightGrad = Vec3r(dwx * wy * wz, dwy * wx * wz, dwz * wx * wy) / grid().getCellSize();
-                                                particleData().weights[p * 64 + idx]         = weight;
-                                                particleData().weightGradients[p * 64 + idx] = weightGrad;
-
-                                                gridData().nodeLocks(x, y, z).lock();
-                                                gridData().mass(x, y, z) += weight * solverParams().particleMass;
-                                                gridData().nodeLocks(x, y, z).unlock();
-
-                                                auto xixp = grid().getWorldCoordinate(x, y, z) - pPos;
-                                                pD += weight * glm::outerProduct(xixp, xixp);
+                                        for(Int x = lcorner.x - 1, x_end = x + 4; x < x_end; ++x, ++idx) {
+                                            if(!grid().isValidNode(x, y, z)) {
+                                                particleData().weights[p * 64 + idx]         = 0;
+                                                particleData().weightGradients[p * 64 + idx] = Vec3r(0);
+                                                continue;
                                             }
+
+                                            auto dx  = pg.x - Real(x);
+                                            auto wx  = MathHelpers::cubic_bspline_kernel(dx);
+                                            auto dwx = MathHelpers::cubic_bspline_grad(dx);
+
+                                            auto weight     = wx * wy * wz;
+                                            auto weightGrad = Vec3r(dwx * wy * wz, dwy * wx * wz, dwz * wx * wy) / grid().getCellSize();
+                                            particleData().weights[p * 64 + idx]         = weight;
+                                            particleData().weightGradients[p * 64 + idx] = weightGrad;
+
+                                            gridData().nodeLocks(x, y, z).lock();
+                                            gridData().mass(x, y, z) += weight * solverParams().particleMass;
+                                            gridData().nodeLocks(x, y, z).unlock();
+
+                                            auto xixp = grid().getWorldCoordinate(x, y, z) - pPos;
+                                            pD += weight * glm::outerProduct(xixp, xixp);
                                         }
                                     }
+                                }
 
-                                    particleData().D[p] = pD;
-                                });
+                                particleData().D[p] = pD;
+                            });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -671,28 +671,28 @@ bool MPM_3DSolver::initParticleVolumes()
         return false;
     }
     ////////////////////////////////////////////////////////////////////////////////
-    ParallelFuncs::parallel_for(particleData().getNParticles(),
-                                [&](UInt p)
-                                {
-                                    const auto lcorner = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
-                                    auto pDensity      = Real(0);
-                                    for(Int idx = 0, z = lcorner.z - 1, z_end = z + 4; z < z_end; ++z) {
-                                        for(Int y = lcorner.y - 1, y_end = y + 4; y < y_end; ++y) {
-                                            for(Int x = lcorner.x - 1, x_end = x + 4; x < x_end; ++x, ++idx) {
-                                                if(!grid().isValidNode(x, y, z)) {
-                                                    continue;
-                                                }
-
-                                                auto w = particleData().weights[p * 64 + idx];
-                                                pDensity += w * gridData().mass(x, y, z);
+    Scheduler::parallel_for(particleData().getNParticles(),
+                            [&](UInt p)
+                            {
+                                const auto lcorner = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
+                                auto pDensity      = Real(0);
+                                for(Int idx = 0, z = lcorner.z - 1, z_end = z + 4; z < z_end; ++z) {
+                                    for(Int y = lcorner.y - 1, y_end = y + 4; y < y_end; ++y) {
+                                        for(Int x = lcorner.x - 1, x_end = x + 4; x < x_end; ++x, ++idx) {
+                                            if(!grid().isValidNode(x, y, z)) {
+                                                continue;
                                             }
+
+                                            auto w = particleData().weights[p * 64 + idx];
+                                            pDensity += w * gridData().mass(x, y, z);
                                         }
                                     }
+                                }
 
-                                    pDensity /= solverParams().cellVolume;
-                                    __BNN_REQUIRE(pDensity > 0);
-                                    particleData().volumes[p] = solverParams().particleMass / pDensity;
-                                });
+                                pDensity /= solverParams().cellVolume;
+                                __BNN_REQUIRE(pDensity > 0);
+                                particleData().volumes[p] = solverParams().particleMass / pDensity;
+                            });
     ////////////////////////////////////////////////////////////////////////////////
     bComputed = true;
     return true;
@@ -707,143 +707,143 @@ void MPM_3DSolver::mapParticleVelocities2Grid(Real timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MPM_3DSolver::mapParticleVelocities2GridFLIP(Real timestep)
 {
-    ParallelFuncs::parallel_for(particleData().getNParticles(),
-                                [&](UInt p)
-                                {
-                                    const auto& pVel   = particleData().velocities[p];
-                                    const auto lcorner = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
+    Scheduler::parallel_for(particleData().getNParticles(),
+                            [&](UInt p)
+                            {
+                                const auto& pVel   = particleData().velocities[p];
+                                const auto lcorner = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
 
-                                    for(Int idx = 0, z = lcorner.z - 1, z_end = z + 4; z < z_end; ++z) {
-                                        for(Int y = lcorner.y - 1, y_end = y + 4; y < y_end; ++y) {
-                                            for(Int x = lcorner.x - 1, x_end = x + 4; x < x_end; ++x, ++idx) {
-                                                if(!grid().isValidNode(x, y, z)) {
-                                                    continue;
-                                                }
+                                for(Int idx = 0, z = lcorner.z - 1, z_end = z + 4; z < z_end; ++z) {
+                                    for(Int y = lcorner.y - 1, y_end = y + 4; y < y_end; ++y) {
+                                        for(Int x = lcorner.x - 1, x_end = x + 4; x < x_end; ++x, ++idx) {
+                                            if(!grid().isValidNode(x, y, z)) {
+                                                continue;
+                                            }
 
-                                                auto w = particleData().weights[p * 64 + idx];
-                                                if(w > Tiny) {
-                                                    gridData().active(x, y, z) = 1;
-                                                    gridData().nodeLocks(x, y, z).lock();
-                                                    gridData().velocity(x, y, z) += pVel * w * solverParams().particleMass;
-                                                    gridData().nodeLocks(x, y, z).unlock();
-                                                }
+                                            auto w = particleData().weights[p * 64 + idx];
+                                            if(w > Tiny) {
+                                                gridData().active(x, y, z) = 1;
+                                                gridData().nodeLocks(x, y, z).lock();
+                                                gridData().velocity(x, y, z) += pVel * w * solverParams().particleMass;
+                                                gridData().nodeLocks(x, y, z).unlock();
                                             }
                                         }
                                     }
-                                });
+                                }
+                            });
 
-    ParallelFuncs::parallel_for(gridData().active.dataSize(),
-                                [&](size_t i)
-                                {
-                                    if(gridData().active.data()[i]) {
-                                        assert(gridData().mass.data()[i] > 0);
-                                        gridData().velocity.data()[i]    /= gridData().mass.data()[i];
-                                        gridData().velocity_new.data()[i] = Vec3r(0);
-                                    }
-                                });
+    Scheduler::parallel_for(gridData().active.dataSize(),
+                            [&](size_t i)
+                            {
+                                if(gridData().active.data()[i]) {
+                                    assert(gridData().mass.data()[i] > 0);
+                                    gridData().velocity.data()[i]    /= gridData().mass.data()[i];
+                                    gridData().velocity_new.data()[i] = Vec3r(0);
+                                }
+                            });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MPM_3DSolver::mapParticleVelocities2GridAPIC(Real timestep)
 {
-    ParallelFuncs::parallel_for(particleData().getNParticles(),
-                                [&](UInt p)
-                                {
-                                    const auto& pPos    = particleData().positions[p];
-                                    const auto& pVel    = particleData().velocities[p];
-                                    const auto pBxInvpD = particleData().B[p] * glm::inverse(particleData().D[p]);
-                                    const auto lcorner  = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
-                                    for(Int idx = 0, z = lcorner.z - 1, z_end = z + 4; z < z_end; ++z) {
-                                        for(Int y = lcorner.y - 1, y_end = y + 4; y < y_end; ++y) {
-                                            for(Int x = lcorner.x - 1, x_end = x + 4; x < x_end; ++x, ++idx) {
-                                                if(!grid().isValidNode(x, y, z)) {
-                                                    continue;
-                                                }
+    Scheduler::parallel_for(particleData().getNParticles(),
+                            [&](UInt p)
+                            {
+                                const auto& pPos    = particleData().positions[p];
+                                const auto& pVel    = particleData().velocities[p];
+                                const auto pBxInvpD = particleData().B[p] * glm::inverse(particleData().D[p]);
+                                const auto lcorner  = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
+                                for(Int idx = 0, z = lcorner.z - 1, z_end = z + 4; z < z_end; ++z) {
+                                    for(Int y = lcorner.y - 1, y_end = y + 4; y < y_end; ++y) {
+                                        for(Int x = lcorner.x - 1, x_end = x + 4; x < x_end; ++x, ++idx) {
+                                            if(!grid().isValidNode(x, y, z)) {
+                                                continue;
+                                            }
 
-                                                auto w = particleData().weights[p * 64 + idx];
-                                                if(w > Tiny) {
-                                                    auto xixp    = grid().getWorldCoordinate(x, y, z) - pPos;
-                                                    auto apicVel = (pVel + pBxInvpD * xixp) * w * solverParams().particleMass;
+                                            auto w = particleData().weights[p * 64 + idx];
+                                            if(w > Tiny) {
+                                                auto xixp    = grid().getWorldCoordinate(x, y, z) - pPos;
+                                                auto apicVel = (pVel + pBxInvpD * xixp) * w * solverParams().particleMass;
 
-                                                    gridData().active(x, y, z) = 1;
-                                                    gridData().nodeLocks(x, y, z).lock();
-                                                    gridData().velocity(x, y, z) += apicVel;
-                                                    gridData().nodeLocks(x, y, z).unlock();
-                                                }
+                                                gridData().active(x, y, z) = 1;
+                                                gridData().nodeLocks(x, y, z).lock();
+                                                gridData().velocity(x, y, z) += apicVel;
+                                                gridData().nodeLocks(x, y, z).unlock();
                                             }
                                         }
                                     }
-                                });
+                                }
+                            });
 
-    ParallelFuncs::parallel_for(gridData().active.dataSize(),
-                                [&](size_t i)
-                                {
-                                    if(gridData().active.data()[i]) {
-                                        assert(gridData().mass.data()[i] > 0);
-                                        gridData().velocity.data()[i]    /= gridData().mass.data()[i];
-                                        gridData().velocity_new.data()[i] = Vec3r(0);
-                                    }
-                                });
+    Scheduler::parallel_for(gridData().active.dataSize(),
+                            [&](size_t i)
+                            {
+                                if(gridData().active.data()[i]) {
+                                    assert(gridData().mass.data()[i] > 0);
+                                    gridData().velocity.data()[i]    /= gridData().mass.data()[i];
+                                    gridData().velocity_new.data()[i] = Vec3r(0);
+                                }
+                            });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MPM_3DSolver::explicitIntegration(Real timestep)
 {
-    ParallelFuncs::parallel_for(particleData().getNParticles(),
-                                [&](UInt p)
-                                {
-                                    Mat3x3r U, Vt, Ftemp;
-                                    Vec3r S;
-                                    LinaHelpers::orientedSVD(particleData().deformGrad[p], U, S, Vt);
-                                    auto Ss = S;
-                                    if(S[2] < 0) {
-                                        S[2] *= Real(-1.0);
-                                    }
-                                    Ftemp = U * LinaHelpers::diagMatrix(S) * Vt;
+    Scheduler::parallel_for(particleData().getNParticles(),
+                            [&](UInt p)
+                            {
+                                Mat3x3r U, Vt, Ftemp;
+                                Vec3r S;
+                                LinaHelpers::orientedSVD(particleData().deformGrad[p], U, S, Vt);
+                                auto Ss = S;
+                                if(S[2] < 0) {
+                                    S[2] *= Real(-1.0);
+                                }
+                                Ftemp = U * LinaHelpers::diagMatrix(S) * Vt;
 
-                                    // Compute Piola stress tensor:
-                                    Real J = glm::compMul(S); // J = determinant(F)
-                                    __BNN_REQUIRE(J > 0.0);
-                                    assert(NumberHelpers::isValidNumber(J));
-                                    Mat3x3r Fit = glm::transpose(glm::inverse(Ftemp)); // F^(-T)
-                                    Mat3x3r P   = solverParams().mu * (Ftemp - Fit) + solverParams().lambda * (log(J) * Fit);
-                                    assert(LinaHelpers::hasValidElements(P));
+                                // Compute Piola stress tensor:
+                                Real J = glm::compMul(S);     // J = determinant(F)
+                                __BNN_REQUIRE(J > 0.0);
+                                assert(NumberHelpers::isValidNumber(J));
+                                Mat3x3r Fit = glm::transpose(glm::inverse(Ftemp));     // F^(-T)
+                                Mat3x3r P   = solverParams().mu * (Ftemp - Fit) + solverParams().lambda * (log(J) * Fit);
+                                assert(LinaHelpers::hasValidElements(P));
 
 
 
-                                    __BNN_TODO_MSG("Need to store piola and cauchy stress?");
-                                    //particleData().PiolaStress[p]  = P;
-                                    particleData().CauchyStress[p] = particleData().volumes[p] * P * glm::transpose(particleData().deformGrad[p]);
+                                __BNN_TODO_MSG("Need to store piola and cauchy stress?");
+                                //particleData().PiolaStress[p]  = P;
+                                particleData().CauchyStress[p] = particleData().volumes[p] * P * glm::transpose(particleData().deformGrad[p]);
 
-                                    Mat3x3r f    = particleData().CauchyStress[p];
-                                    auto lcorner = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
-                                    ////////////////////////////////////////////////////////////////////////////////
-                                    for(Int idx = 0, z = lcorner.z - 1, z_end = z + 4; z < z_end; ++z) {
-                                        for(Int y = lcorner.y - 1, y_end = y + 4; y < y_end; ++y) {
-                                            for(Int x = lcorner.x - 1, x_end = x + 4; x < x_end; ++x, ++idx) {
-                                                if(!grid().isValidNode(x, y, z)) {
-                                                    continue;
-                                                }
+                                Mat3x3r f    = particleData().CauchyStress[p];
+                                auto lcorner = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
+                                ////////////////////////////////////////////////////////////////////////////////
+                                for(Int idx = 0, z = lcorner.z - 1, z_end = z + 4; z < z_end; ++z) {
+                                    for(Int y = lcorner.y - 1, y_end = y + 4; y < y_end; ++y) {
+                                        for(Int x = lcorner.x - 1, x_end = x + 4; x < x_end; ++x, ++idx) {
+                                            if(!grid().isValidNode(x, y, z)) {
+                                                continue;
+                                            }
 
-                                                auto w = particleData().weights[p * 64 + idx];
-                                                if(w > Tiny) {
-                                                    gridData().nodeLocks(x, y, z).lock();
-                                                    gridData().velocity_new(x, y, z) += f * particleData().weightGradients[p * 64 + idx];
-                                                    gridData().nodeLocks(x, y, z).unlock();
-                                                }
+                                            auto w = particleData().weights[p * 64 + idx];
+                                            if(w > Tiny) {
+                                                gridData().nodeLocks(x, y, z).lock();
+                                                gridData().velocity_new(x, y, z) += f * particleData().weightGradients[p * 64 + idx];
+                                                gridData().nodeLocks(x, y, z).unlock();
                                             }
                                         }
                                     }
-                                });
+                                }
+                            });
 
-    ParallelFuncs::parallel_for(gridData().active.dataSize(),
-                                [&](size_t i)
-                                {
-                                    if(gridData().active.data()[i]) {
-                                        gridData().velocity_new.data()[i] = gridData().velocity.data()[i] +
-                                                                            timestep * (SolverDefaultParameters::Gravity3D - gridData().velocity_new.data()[i] / gridData().mass.data()[i]);
-                                    }
-                                });
+    Scheduler::parallel_for(gridData().active.dataSize(),
+                            [&](size_t i)
+                            {
+                                if(gridData().active.data()[i]) {
+                                    gridData().velocity_new.data()[i] = gridData().velocity.data()[i] +
+                                                                        timestep * (SolverDefaultParameters::Gravity3D - gridData().velocity_new.data()[i] / gridData().mass.data()[i]);
+                                }
+                            });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -863,13 +863,13 @@ void MPM_3DSolver::implicitIntegration(Real timestep)
     Vec3r* vPtr = reinterpret_cast<Vec3r*>(v.data());
     __BNN_REQUIRE(vPtr != nullptr);
 
-    ParallelFuncs::parallel_for(grid().getNNodes(),
-                                [&](UInt i, UInt j, UInt k)
-                                {
-                                    if(gridData().active(i, j, k)) {
-                                        vPtr[gridData().activeNodeIdx(i, j, k)] = gridData().velocity(i, j, k);
-                                    }
-                                });
+    Scheduler::parallel_for(grid().getNNodes(),
+                            [&](UInt i, UInt j, UInt k)
+                            {
+                                if(gridData().active(i, j, k)) {
+                                    vPtr[gridData().activeNodeIdx(i, j, k)] = gridData().velocity(i, j, k);
+                                }
+                            });
 
     ////////////////////////////////////////////////////////////////////////////////
     static Timer timer;
@@ -882,13 +882,13 @@ void MPM_3DSolver::implicitIntegration(Real timestep)
                             NumberHelpers::formatToScientific(solverData().lbfgsSolver.gradTolerance()));
 
     ////////////////////////////////////////////////////////////////////////////////
-    ParallelFuncs::parallel_for(grid().getNNodes(),
-                                [&](UInt i, UInt j, UInt k)
-                                {
-                                    if(gridData().active(i, j, k)) {
-                                        gridData().velocity_new(i, j, k) = vPtr[gridData().activeNodeIdx(i, j, k)] + timestep * SolverDefaultParameters::Gravity3D;
-                                    }
-                                });
+    Scheduler::parallel_for(grid().getNNodes(),
+                            [&](UInt i, UInt j, UInt k)
+                            {
+                                if(gridData().active(i, j, k)) {
+                                    gridData().velocity_new(i, j, k) = vPtr[gridData().activeNodeIdx(i, j, k)] + timestep * SolverDefaultParameters::Gravity3D;
+                                }
+                            });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -901,108 +901,108 @@ Real MPM_3DObjective::valueGradient(const Vector<Real>& v, Vector<Real>& grad)
 
     ////////////////////////////////////////////////////////////////////////////////
     //	Compute Particle Deformation Gradients for new grid velocities
-    ParallelFuncs::parallel_for(particleData().getNParticles(),
-                                [&](UInt p)
-                                {
-                                    ////////////////////////////////////////////////////////////////////////////////
-                                    // compute gradient velocity
-                                    const auto lcorner = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
-                                    auto pVelGrad      = Mat3x3r(0);
-                                    for(Int idx = 0, z = lcorner.z - 1, z_end = z + 4; z < z_end; ++z) {
-                                        for(Int y = lcorner.y - 1, y_end = y + 4; y < y_end; ++y) {
-                                            for(Int x = lcorner.x - 1, x_end = x + 4; x < x_end; ++x, ++idx) {
-                                                if(!grid().isValidNode(x, y, z)) {
-                                                    continue;
-                                                }
+    Scheduler::parallel_for(particleData().getNParticles(),
+                            [&](UInt p)
+                            {
+                                ////////////////////////////////////////////////////////////////////////////////
+                                // compute gradient velocity
+                                const auto lcorner = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
+                                auto pVelGrad      = Mat3x3r(0);
+                                for(Int idx = 0, z = lcorner.z - 1, z_end = z + 4; z < z_end; ++z) {
+                                    for(Int y = lcorner.y - 1, y_end = y + 4; y < y_end; ++y) {
+                                        for(Int x = lcorner.x - 1, x_end = x + 4; x < x_end; ++x, ++idx) {
+                                            if(!grid().isValidNode(x, y, z)) {
+                                                continue;
+                                            }
 
-                                                auto w = particleData().weights[p * 64 + idx];
-                                                if(w > Tiny) {
-                                                    auto gridIdx    = gridData().activeNodeIdx(x, y, z);
-                                                    auto currentVel = vPtr[gridIdx];
-                                                    pVelGrad += glm::outerProduct(currentVel, particleData().weightGradients[p * 64 + idx]);
-                                                }
+                                            auto w = particleData().weights[p * 64 + idx];
+                                            if(w > Tiny) {
+                                                auto gridIdx    = gridData().activeNodeIdx(x, y, z);
+                                                auto currentVel = vPtr[gridIdx];
+                                                pVelGrad += glm::outerProduct(currentVel, particleData().weightGradients[p * 64 + idx]);
                                             }
                                         }
                                     }
+                                }
 
-                                    ////////////////////////////////////////////////////////////////////////////////
-                                    auto pF      = particleData().deformGrad[p];
-                                    auto pVolume = particleData().volumes[p];
+                                ////////////////////////////////////////////////////////////////////////////////
+                                auto pF      = particleData().deformGrad[p];
+                                auto pVolume = particleData().volumes[p];
 
-                                    pVelGrad *= m_timestep;
-                                    LinaHelpers::sumToDiag(pVelGrad, Real(1.0));
-                                    Mat3x3r newF = pVelGrad * pF;
-                                    Mat3x3r U, Vt, Ftemp;
-                                    Vec3r S;
-                                    LinaHelpers::orientedSVD(newF, U, S, Vt);
-                                    if(S[2] < 0) {
-                                        S[2] *= Real(-1.0);
-                                    }
-                                    Ftemp = U * LinaHelpers::diagMatrix(S) * Vt;
+                                pVelGrad *= m_timestep;
+                                LinaHelpers::sumToDiag(pVelGrad, Real(1.0));
+                                Mat3x3r newF = pVelGrad * pF;
+                                Mat3x3r U, Vt, Ftemp;
+                                Vec3r S;
+                                LinaHelpers::orientedSVD(newF, U, S, Vt);
+                                if(S[2] < 0) {
+                                    S[2] *= Real(-1.0);
+                                }
+                                Ftemp = U * LinaHelpers::diagMatrix(S) * Vt;
 
-                                    ////////////////////////////////////////////////////////////////////////////////
-                                    // Compute Piola stress tensor:
-                                    Real J = glm::determinant(Ftemp);
-                                    __BNN_REQUIRE(J > 0);
-                                    assert(NumberHelpers::isValidNumber(J));
-                                    Real logJ   = log(J);
-                                    Mat3x3r Fit = glm::transpose(glm::inverse(Ftemp)); // F^(-T)
-                                    Mat3x3r P   = solverParams().mu * (Ftemp - Fit) + solverParams().lambda * (logJ * Fit);
-                                    assert(LinaHelpers::hasValidElements(P));
-                                    //particleData().PiolaStress[p]    = P;
-                                    particleData().tmp_deformGrad[p] = pVolume * P * glm::transpose(pF);
+                                ////////////////////////////////////////////////////////////////////////////////
+                                // Compute Piola stress tensor:
+                                Real J = glm::determinant(Ftemp);
+                                __BNN_REQUIRE(J > 0);
+                                assert(NumberHelpers::isValidNumber(J));
+                                Real logJ   = log(J);
+                                Mat3x3r Fit = glm::transpose(glm::inverse(Ftemp));     // F^(-T)
+                                Mat3x3r P   = solverParams().mu * (Ftemp - Fit) + solverParams().lambda * (logJ * Fit);
+                                assert(LinaHelpers::hasValidElements(P));
+                                //particleData().PiolaStress[p]    = P;
+                                particleData().tmp_deformGrad[p] = pVolume * P * glm::transpose(pF);
 
 
-                                    ////////////////////////////////////////////////////////////////////////////////
-                                    // compute energy density function
-                                    Real t1 = Real(0.5) * solverParams().mu * (LinaHelpers::trace(glm::transpose(Ftemp) * Ftemp) - Real(3.0));
-                                    Real t2 = -solverParams().mu * logJ;
-                                    Real t3 = Real(0.5) * solverParams().lambda * (logJ * logJ);
-                                    assert(NumberHelpers::isValidNumber(t1));
-                                    assert(NumberHelpers::isValidNumber(t2));
-                                    assert(NumberHelpers::isValidNumber(t3));
-                                    //particleData().energyDensity[p] = t1 + t2 + t3;
-                                    auto eDensity = t1 + t2 + t3;
-                                    particleData().energy[p] = eDensity * pVolume;
-                                });
+                                ////////////////////////////////////////////////////////////////////////////////
+                                // compute energy density function
+                                Real t1 = Real(0.5) * solverParams().mu * (LinaHelpers::trace(glm::transpose(Ftemp) * Ftemp) - Real(3.0));
+                                Real t2 = -solverParams().mu * logJ;
+                                Real t3 = Real(0.5) * solverParams().lambda * (logJ * logJ);
+                                assert(NumberHelpers::isValidNumber(t1));
+                                assert(NumberHelpers::isValidNumber(t2));
+                                assert(NumberHelpers::isValidNumber(t3));
+                                //particleData().energyDensity[p] = t1 + t2 + t3;
+                                auto eDensity = t1 + t2 + t3;
+                                particleData().energy[p] = eDensity * pVolume;
+                            });
 
 
     ////////////////////////////////////////////////////////////////////////////////
     //	Compute energy gradient
-    ParallelFuncs::parallel_for(grid().getNNodes(),
-                                [&] (UInt i, UInt j, UInt k)
-                                {
-                                    if(!gridData().active(i, j, k)) {
-                                        return;
-                                    }
-                                    auto gridIdx    = gridData().activeNodeIdx(i, j, k);
-                                    auto currentVel = vPtr[gridIdx];
-                                    auto diffVel    = currentVel - gridData().velocity(i, j, k);
+    Scheduler::parallel_for(grid().getNNodes(),
+                            [&] (UInt i, UInt j, UInt k)
+                            {
+                                if(!gridData().active(i, j, k)) {
+                                    return;
+                                }
+                                auto gridIdx    = gridData().activeNodeIdx(i, j, k);
+                                auto currentVel = vPtr[gridIdx];
+                                auto diffVel    = currentVel - gridData().velocity(i, j, k);
 
-                                    gradPtr[gridIdx ]          = gridData().mass(i, j, k) * diffVel;
-                                    gridData().energy(i, j, k) = Real(0.5) * gridData().mass(i, j, k) * glm::length2(diffVel);
-                                });
+                                gradPtr[gridIdx ]          = gridData().mass(i, j, k) * diffVel;
+                                gridData().energy(i, j, k) = Real(0.5) * gridData().mass(i, j, k) * glm::length2(diffVel);
+                            });
 
-    ParallelFuncs::parallel_for(particleData().getNParticles(),
-                                [&](UInt p)
-                                {
-                                    const auto lcorner = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
-                                    for(Int idx = 0, z = lcorner.z - 1, z_end = z + 4; z < z_end; ++z) {
-                                        for(Int y = lcorner.y - 1, y_end = y + 4; y < y_end; ++y) {
-                                            for(Int x = lcorner.x - 1, x_end = x + 4; x < x_end; ++x, ++idx) {
-                                                if(!grid().isValidNode(x, y, z)) {
-                                                    continue;
-                                                }
-
-                                                auto dw      = particleData().weightGradients[p * 64 + idx];
-                                                auto gridIdx = gridData().activeNodeIdx(x, y, z);
-                                                gridData().nodeLocks(x, y, z).lock();
-                                                gradPtr[gridIdx] += particleData().tmp_deformGrad[p] * dw;
-                                                gridData().nodeLocks(x, y, z).unlock();
+    Scheduler::parallel_for(particleData().getNParticles(),
+                            [&](UInt p)
+                            {
+                                const auto lcorner = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
+                                for(Int idx = 0, z = lcorner.z - 1, z_end = z + 4; z < z_end; ++z) {
+                                    for(Int y = lcorner.y - 1, y_end = y + 4; y < y_end; ++y) {
+                                        for(Int x = lcorner.x - 1, x_end = x + 4; x < x_end; ++x, ++idx) {
+                                            if(!grid().isValidNode(x, y, z)) {
+                                                continue;
                                             }
+
+                                            auto dw      = particleData().weightGradients[p * 64 + idx];
+                                            auto gridIdx = gridData().activeNodeIdx(x, y, z);
+                                            gridData().nodeLocks(x, y, z).lock();
+                                            gradPtr[gridIdx] += particleData().tmp_deformGrad[p] * dw;
+                                            gridData().nodeLocks(x, y, z).unlock();
                                         }
                                     }
-                                });
+                                }
+                            });
 
     ////////////////////////////////////////////////////////////////////////////////
     return ParallelSTL::sum(particleData().energy) + ParallelSTL::sum(gridData().energy.data());
@@ -1015,36 +1015,36 @@ void MPM_3DSolver::constrainGridVelocity(Real timestep)
     Vec3r delta_scale = Vec3r(timestep);
     delta_scale /= solverParams().cellSize;
 
-    ParallelFuncs::parallel_for<UInt>(grid().getNNodes(),
-                                      [&](UInt x, UInt y, UInt z)
-                                      {
-                                          if(gridData().active(x, y, z)) {
-                                              bool velChanged    = false;
-                                              Vec3r velocity_new = gridData().velocity_new(x, y, z);
-                                              Vec3r new_pos      = gridData().velocity_new(x, y, z) * delta_scale + Vec3r(x, y, z);
+    Scheduler::parallel_for<UInt>(grid().getNNodes(),
+                                  [&](UInt x, UInt y, UInt z)
+                                  {
+                                      if(gridData().active(x, y, z)) {
+                                          bool velChanged    = false;
+                                          Vec3r velocity_new = gridData().velocity_new(x, y, z);
+                                          Vec3r new_pos      = gridData().velocity_new(x, y, z) * delta_scale + Vec3r(x, y, z);
 
-                                              for(UInt i = 0; i < solverDimension(); ++i) {
-                                                  if(new_pos[i] < Real(2) || new_pos[i] > Real(grid().getNNodes()[i] - 2 - 1)) {
-                                                      velocity_new[i]                          = 0;
-                                                      velocity_new[solverDimension() - i - 1] *= solverParams().boundaryRestitution;
-                                                      velChanged                               = true;
-                                                  }
-                                              }
-
-                                              if(velChanged) {
-                                                  gridData().velocity_new(x, y, z) = velocity_new;
+                                          for(UInt i = 0; i < solverDimension(); ++i) {
+                                              if(new_pos[i] < Real(2) || new_pos[i] > Real(grid().getNNodes()[i] - 2 - 1)) {
+                                                  velocity_new[i]                          = 0;
+                                                  velocity_new[solverDimension() - i - 1] *= solverParams().boundaryRestitution;
+                                                  velChanged                               = true;
                                               }
                                           }
-                                      });
+
+                                          if(velChanged) {
+                                              gridData().velocity_new(x, y, z) = velocity_new;
+                                          }
+                                      }
+                                  });
 #else
-    ParallelFuncs::parallel_for<UInt>(grid().getNNodes(),
-                                      [&](UInt i, UInt j, UInt k)
-                                      {
-                                          if(i < 3 || j < 3 || k < 3 ||
-                                             i > grid().getNNodes().x - 4 || j > grid().getNNodes().y - 4 || k > grid().getNNodes().z - 4) {
-                                              gridData().velocity_new(i, j, k) = Vec3r(0);
-                                          }
-                                      });
+    Scheduler::parallel_for<UInt>(grid().getNNodes(),
+                                  [&](UInt i, UInt j, UInt k)
+                                  {
+                                      if(i < 3 || j < 3 || k < 3 ||
+                                         i > grid().getNNodes().x - 4 || j > grid().getNNodes().y - 4 || k > grid().getNNodes().z - 4) {
+                                          gridData().velocity_new(i, j, k) = Vec3r(0);
+                                      }
+                                  });
 #endif
 }
 
@@ -1057,156 +1057,156 @@ void MPM_3DSolver::mapGridVelocities2Particles(Real timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MPM_3DSolver::mapGridVelocities2ParticlesFLIP(Real timestep)
 {
-    ParallelFuncs::parallel_for(particleData().getNParticles(),
-                                [&](UInt p)
-                                {
-                                    //calculate PIC and FLIP velocities separately
-                                    //also keep track of velocity gradient
-                                    auto flipVel     = particleData().velocities[p];
-                                    auto flipVelGrad = particleData().velocityGrad[p];
-                                    auto picVel      = Vec3r(0);
-                                    auto picVelGrad  = Mat3x3r(0);
+    Scheduler::parallel_for(particleData().getNParticles(),
+                            [&](UInt p)
+                            {
+                                //calculate PIC and FLIP velocities separately
+                                //also keep track of velocity gradient
+                                auto flipVel     = particleData().velocities[p];
+                                auto flipVelGrad = particleData().velocityGrad[p];
+                                auto picVel      = Vec3r(0);
+                                auto picVelGrad  = Mat3x3r(0);
 
-                                    auto lcorner = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
-                                    for(Int idx = 0, z = lcorner.z - 1, z_end = z + 4; z < z_end; ++z) {
-                                        for(Int y = lcorner.y - 1, y_end = y + 4; y < y_end; ++y) {
-                                            for(Int x = lcorner.x - 1, x_end = x + 4; x < x_end; ++x, ++idx) {
-                                                if(!grid().isValidNode(x, y, z)) {
-                                                    continue;
-                                                }
+                                auto lcorner = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
+                                for(Int idx = 0, z = lcorner.z - 1, z_end = z + 4; z < z_end; ++z) {
+                                    for(Int y = lcorner.y - 1, y_end = y + 4; y < y_end; ++y) {
+                                        for(Int x = lcorner.x - 1, x_end = x + 4; x < x_end; ++x, ++idx) {
+                                            if(!grid().isValidNode(x, y, z)) {
+                                                continue;
+                                            }
 
-                                                auto w = particleData().weights[p * 64 + idx];
-                                                if(w > Tiny) {
-                                                    const auto& nVel    = gridData().velocity(x, y, z);
-                                                    const auto& nNewVel = gridData().velocity_new(x, y, z);
-                                                    picVel      += nNewVel * w;
-                                                    flipVel     += (nNewVel - nVel) * w;
-                                                    picVelGrad  += glm::outerProduct(nNewVel, particleData().weightGradients[p * 64 + idx]);
-                                                    flipVelGrad += glm::outerProduct(nNewVel - nVel, particleData().weightGradients[p * 64 + idx]);
-                                                }
+                                            auto w = particleData().weights[p * 64 + idx];
+                                            if(w > Tiny) {
+                                                const auto& nVel    = gridData().velocity(x, y, z);
+                                                const auto& nNewVel = gridData().velocity_new(x, y, z);
+                                                picVel      += nNewVel * w;
+                                                flipVel     += (nNewVel - nVel) * w;
+                                                picVelGrad  += glm::outerProduct(nNewVel, particleData().weightGradients[p * 64 + idx]);
+                                                flipVelGrad += glm::outerProduct(nNewVel - nVel, particleData().weightGradients[p * 64 + idx]);
                                             }
                                         }
                                     }
-                                    particleData().velocities[p]   = MathHelpers::lerp(picVel, flipVel, solverParams().PIC_FLIP_ratio);
-                                    particleData().velocityGrad[p] = MathHelpers::lerp(picVelGrad, flipVelGrad, solverParams().PIC_FLIP_ratio);
-                                });
+                                }
+                                particleData().velocities[p]   = MathHelpers::lerp(picVel, flipVel, solverParams().PIC_FLIP_ratio);
+                                particleData().velocityGrad[p] = MathHelpers::lerp(picVelGrad, flipVelGrad, solverParams().PIC_FLIP_ratio);
+                            });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MPM_3DSolver::mapGridVelocities2ParticlesAPIC(Real timestep)
 {
-    ParallelFuncs::parallel_for(particleData().getNParticles(),
-                                [&](UInt p)
-                                {
-                                    const auto lcorner = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
-                                    const auto& pPos   = particleData().positions[p];
-                                    auto apicVel       = Vec3r(0);
-                                    auto apicVelGrad   = Mat3x3r(0);
-                                    auto pB            = Mat3x3r(0);
-                                    for(Int idx = 0, z = lcorner.z - 1, z_end = z + 4; z < z_end; ++z) {
-                                        for(Int y = lcorner.y - 1, y_end = y + 4; y < y_end; ++y) {
-                                            for(Int x = lcorner.x - 1, x_end = x + 4; x < x_end; ++x, ++idx) {
-                                                if(!grid().isValidNode(x, y, z)) {
-                                                    continue;
-                                                }
+    Scheduler::parallel_for(particleData().getNParticles(),
+                            [&](UInt p)
+                            {
+                                const auto lcorner = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
+                                const auto& pPos   = particleData().positions[p];
+                                auto apicVel       = Vec3r(0);
+                                auto apicVelGrad   = Mat3x3r(0);
+                                auto pB            = Mat3x3r(0);
+                                for(Int idx = 0, z = lcorner.z - 1, z_end = z + 4; z < z_end; ++z) {
+                                    for(Int y = lcorner.y - 1, y_end = y + 4; y < y_end; ++y) {
+                                        for(Int x = lcorner.x - 1, x_end = x + 4; x < x_end; ++x, ++idx) {
+                                            if(!grid().isValidNode(x, y, z)) {
+                                                continue;
+                                            }
 
-                                                auto w = particleData().weights[p * 64 + idx];
-                                                if(w > Tiny) {
-                                                    const auto& nNewVel = gridData().velocity_new(x, y, z);
-                                                    apicVel     += nNewVel * w;
-                                                    apicVelGrad += glm::outerProduct(nNewVel, particleData().weightGradients[p * 64 + idx]);
+                                            auto w = particleData().weights[p * 64 + idx];
+                                            if(w > Tiny) {
+                                                const auto& nNewVel = gridData().velocity_new(x, y, z);
+                                                apicVel     += nNewVel * w;
+                                                apicVelGrad += glm::outerProduct(nNewVel, particleData().weightGradients[p * 64 + idx]);
 
-                                                    auto xixp = grid().getWorldCoordinate(x, y, z) - pPos;
-                                                    pB += w * glm::outerProduct(nNewVel, xixp);
-                                                }
+                                                auto xixp = grid().getWorldCoordinate(x, y, z) - pPos;
+                                                pB += w * glm::outerProduct(nNewVel, xixp);
                                             }
                                         }
                                     }
-                                    particleData().velocities[p]   = apicVel;
-                                    particleData().velocityGrad[p] = apicVelGrad;
-                                    particleData().B[p]            = pB;
-                                });
+                                }
+                                particleData().velocities[p]   = apicVel;
+                                particleData().velocityGrad[p] = apicVelGrad;
+                                particleData().B[p]            = pB;
+                            });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MPM_3DSolver::mapGridVelocities2ParticlesAFLIP(Real timestep)
 {
-    ParallelFuncs::parallel_for(particleData().getNParticles(),
-                                [&](UInt p)
-                                {
-                                    const auto lcorner = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
-                                    const auto& pPos   = particleData().positions[p];
-                                    auto flipVel       = particleData().velocities[p];
-                                    auto flipVelGrad   = particleData().velocityGrad[p];
-                                    auto flipB         = particleData().B[p];
-                                    auto apicVel       = Vec3r(0);
-                                    auto apicVelGrad   = Mat3x3r(0);
-                                    auto apicB         = Mat3x3r(0);
-                                    for(Int idx = 0, z = lcorner.z - 1, z_end = z + 4; z < z_end; ++z) {
-                                        for(Int y = lcorner.y - 1, y_end = y + 4; y < y_end; ++y) {
-                                            for(Int x = lcorner.x - 1, x_end = x + 4; x < x_end; ++x, ++idx) {
-                                                if(!grid().isValidNode(x, y, z)) {
-                                                    continue;
-                                                }
+    Scheduler::parallel_for(particleData().getNParticles(),
+                            [&](UInt p)
+                            {
+                                const auto lcorner = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
+                                const auto& pPos   = particleData().positions[p];
+                                auto flipVel       = particleData().velocities[p];
+                                auto flipVelGrad   = particleData().velocityGrad[p];
+                                auto flipB         = particleData().B[p];
+                                auto apicVel       = Vec3r(0);
+                                auto apicVelGrad   = Mat3x3r(0);
+                                auto apicB         = Mat3x3r(0);
+                                for(Int idx = 0, z = lcorner.z - 1, z_end = z + 4; z < z_end; ++z) {
+                                    for(Int y = lcorner.y - 1, y_end = y + 4; y < y_end; ++y) {
+                                        for(Int x = lcorner.x - 1, x_end = x + 4; x < x_end; ++x, ++idx) {
+                                            if(!grid().isValidNode(x, y, z)) {
+                                                continue;
+                                            }
 
-                                                auto w = particleData().weights[p * 64 + idx];
-                                                if(w > Tiny) {
-                                                    const auto& nVel    = gridData().velocity(x, y, z);
-                                                    const auto& nNewVel = gridData().velocity_new(x, y, z);
-                                                    auto diffVel        = nNewVel - nVel;
-                                                    apicVel     += nNewVel * w;
-                                                    flipVel     += diffVel * w;
-                                                    apicVelGrad += glm::outerProduct(nNewVel, particleData().weightGradients[p * 64 + idx]);
-                                                    flipVelGrad += glm::outerProduct(nNewVel - nVel, particleData().weightGradients[p * 64 + idx]);
+                                            auto w = particleData().weights[p * 64 + idx];
+                                            if(w > Tiny) {
+                                                const auto& nVel    = gridData().velocity(x, y, z);
+                                                const auto& nNewVel = gridData().velocity_new(x, y, z);
+                                                auto diffVel        = nNewVel - nVel;
+                                                apicVel     += nNewVel * w;
+                                                flipVel     += diffVel * w;
+                                                apicVelGrad += glm::outerProduct(nNewVel, particleData().weightGradients[p * 64 + idx]);
+                                                flipVelGrad += glm::outerProduct(nNewVel - nVel, particleData().weightGradients[p * 64 + idx]);
 
-                                                    auto xixp = grid().getWorldCoordinate(x, y, z) - pPos;
-                                                    apicB += w * glm::outerProduct(nNewVel, xixp);
-                                                    flipB += w * glm::outerProduct(diffVel, xixp);
-                                                }
+                                                auto xixp = grid().getWorldCoordinate(x, y, z) - pPos;
+                                                apicB += w * glm::outerProduct(nNewVel, xixp);
+                                                flipB += w * glm::outerProduct(diffVel, xixp);
                                             }
                                         }
                                     }
-                                    particleData().velocities[p]   = MathHelpers::lerp(apicVel, flipVel, solverParams().PIC_FLIP_ratio);
-                                    particleData().velocityGrad[p] = MathHelpers::lerp(apicVelGrad, flipVelGrad, solverParams().PIC_FLIP_ratio);
-                                    particleData().B[p]            = MathHelpers::lerp(apicB, flipB, solverParams().PIC_FLIP_ratio);;
-                                });
+                                }
+                                particleData().velocities[p]   = MathHelpers::lerp(apicVel, flipVel, solverParams().PIC_FLIP_ratio);
+                                particleData().velocityGrad[p] = MathHelpers::lerp(apicVelGrad, flipVelGrad, solverParams().PIC_FLIP_ratio);
+                                particleData().B[p]            = MathHelpers::lerp(apicB, flipB, solverParams().PIC_FLIP_ratio);;
+                            });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MPM_3DSolver::constrainParticleVelocity(Real timestep)
 {
-    ParallelFuncs::parallel_for(particleData().getNParticles(),
-                                [&](UInt p)
-                                {
-                                    bool velChanged = false;
-                                    auto pVel       = particleData().velocities[p];
-                                    auto new_pos    = particleData().gridCoordinate[p] + pVel * timestep / solverParams().cellSize;
+    Scheduler::parallel_for(particleData().getNParticles(),
+                            [&](UInt p)
+                            {
+                                bool velChanged = false;
+                                auto pVel       = particleData().velocities[p];
+                                auto new_pos    = particleData().gridCoordinate[p] + pVel * timestep / solverParams().cellSize;
 
-                                    //Left border, right border
-                                    for(UInt i = 0; i < solverDimension(); ++i) {
-                                        if(new_pos[i] < Real(2 - 1) || new_pos[0] > Real(grid().getNNodes()[i] - 2)) {
-                                            pVel[i]   *= -solverParams().boundaryRestitution;
-                                            velChanged = true;
-                                        }
+                                //Left border, right border
+                                for(UInt i = 0; i < solverDimension(); ++i) {
+                                    if(new_pos[i] < Real(2 - 1) || new_pos[0] > Real(grid().getNNodes()[i] - 2)) {
+                                        pVel[i]   *= -solverParams().boundaryRestitution;
+                                        velChanged = true;
                                     }
+                                }
 
-                                    if(velChanged) {
-                                        particleData().velocities[p] = pVel;
-                                    }
-                                });
+                                if(velChanged) {
+                                    particleData().velocities[p] = pVel;
+                                }
+                            });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MPM_3DSolver::updateParticleDeformGradients(Real timestep)
 {
-    ParallelFuncs::parallel_for(particleData().getNParticles(),
-                                [&](UInt p)
-                                {
-                                    auto velGrad = particleData().velocityGrad[p];
-                                    velGrad *= timestep;
-                                    LinaHelpers::sumToDiag(velGrad, Real(1.0));
-                                    particleData().deformGrad[p] = velGrad * particleData().deformGrad[p];
-                                });
+    Scheduler::parallel_for(particleData().getNParticles(),
+                            [&](UInt p)
+                            {
+                                auto velGrad = particleData().velocityGrad[p];
+                                velGrad *= timestep;
+                                LinaHelpers::sumToDiag(velGrad, Real(1.0));
+                                particleData().deformGrad[p] = velGrad * particleData().deformGrad[p];
+                            });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

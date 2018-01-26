@@ -225,12 +225,12 @@ void SDFGrid::generateParticles()
         }
     }
 
-    ParallelFuncs::parallel_for(negativeColorScale.size(),
+    Scheduler::parallel_for(negativeColorScale.size(),
                                 [&](size_t i)
                                 {
                                     negativeColorScale[i] = 1.0f - sqrt(-negativeColorScale[i] / maxAbsNegativeDistance);
                                 });
-    ParallelFuncs::parallel_for(positiveColorScale.size(),
+    Scheduler::parallel_for(positiveColorScale.size(),
                                 [&](size_t i)
                                 {
                                     positiveColorScale[i] = 1.0f - sqrt(positiveColorScale[i] / maxPositiveDistance);

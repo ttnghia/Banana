@@ -181,7 +181,7 @@
     <ClInclude Include="Banana\LinearAlgebra\LinearSolvers\PCGSolver.h" />
     <ClInclude Include="Banana\LinearAlgebra\SparseMatrix\SparseMatrix.h" />
     <ClInclude Include="Banana\ParallelHelpers\ParallelBLAS.h" />
-    <ClInclude Include="Banana\ParallelHelpers\ParallelFuncs.h" />
+    <ClInclude Include="Banana\ParallelHelpers\Scheduler.h" />
     <ClInclude Include="Banana\ParallelHelpers\ParallelObjects.h" />
     <ClInclude Include="Banana\ParallelHelpers\ParallelSTL.h" />
     <ClInclude Include="Banana\ParallelHelpers\_ParallelHelpers.Test.hpp" />

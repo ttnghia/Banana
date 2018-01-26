@@ -25,6 +25,7 @@
 
 #include <tbb/tbb.h>
 
+#include <utility>
 #include <algorithm>
 #include <functional>
 #include <vector>
@@ -34,11 +35,11 @@
 namespace Banana
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace ParallelFuncs
+namespace Scheduler
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class IndexType, class Function>
-inline void parallel_for(IndexType beginIdx, IndexType endIdx, const Function& function)
+inline void parallel_for(IndexType beginIdx, IndexType endIdx, Function&& function)
 {
 #if defined(__Banana_No_Parallel) || defined(__Banana_Disable_Parallel) || defined(__BNN_NO_PARALLEL) || defined(__BNN_DISABLE_PARALLEL)
     for(IndexType i = beginIdx; i < endIdx; ++i) {
@@ -56,9 +57,9 @@ inline void parallel_for(IndexType beginIdx, IndexType endIdx, const Function& f
 }
 
 template<class IndexType, class Function>
-inline void parallel_for(IndexType endIdx, const Function& function)
+inline void parallel_for(IndexType endIdx, Function&& function)
 {
-    ParallelFuncs::parallel_for(IndexType(0), endIdx, function);
+    Scheduler::parallel_for(IndexType(0), endIdx, std::forward<Function>(function));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -66,41 +67,41 @@ inline void parallel_for(IndexType endIdx, const Function& function)
 template<class IndexType, class Function>
 inline void parallel_for_row_major(IndexType beginIdxX, IndexType endIdxX,
                                    IndexType beginIdxY, IndexType endIdxY,
-                                   const Function& function)
+                                   Function&& function)
 {
-    ParallelFuncs::parallel_for(beginIdxX, endIdxX,
-                                [&](IndexType i)
-                                {
-                                    for(IndexType j = beginIdxY; j < endIdxY; ++j) {
-                                        function(i, j);
-                                    }
-                                });
+    Scheduler::parallel_for(beginIdxX, endIdxX,
+                            [&](IndexType i)
+                            {
+                                for(IndexType j = beginIdxY; j < endIdxY; ++j) {
+                                    function(i, j);
+                                }
+                            });
 }
 
 template<class IndexType, class Function>
 inline void parallel_for(IndexType beginIdxX, IndexType endIdxX,
                          IndexType beginIdxY, IndexType endIdxY,
-                         const Function& function)
+                         Function&& function)
 {
-    ParallelFuncs::parallel_for(beginIdxY, endIdxY,
-                                [&](IndexType j)
-                                {
-                                    for(IndexType i = beginIdxX; i < endIdxX; ++i) {
-                                        function(i, j);
-                                    }
-                                });
+    Scheduler::parallel_for(beginIdxY, endIdxY,
+                            [&](IndexType j)
+                            {
+                                for(IndexType i = beginIdxX; i < endIdxX; ++i) {
+                                    function(i, j);
+                                }
+                            });
 }
 
 template<class IndexType, class Function>
-inline void parallel_for_row_major(const Vec2<IndexType>& endIdx, const Function& function)
+inline void parallel_for_row_major(const Vec2<IndexType>& endIdx, Function&& function)
 {
-    ParallelFuncs::parallel_for_row_major(IndexType(0), endIdx[0], IndexType(0), endIdx[1], function);
+    Scheduler::parallel_for_row_major(IndexType(0), endIdx[0], IndexType(0), endIdx[1], std::forward<Function>(function));
 }
 
 template<class IndexType, class Function>
-inline void parallel_for(const Vec2<IndexType>& endIdx, const Function& function)
+inline void parallel_for(const Vec2<IndexType>& endIdx, Function&& function)
 {
-    ParallelFuncs::parallel_for(IndexType(0), endIdx[0], IndexType(0), endIdx[1], function);
+    Scheduler::parallel_for(IndexType(0), endIdx[0], IndexType(0), endIdx[1], std::forward<Function>(function));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -109,50 +110,50 @@ template<class IndexType, class Function>
 inline void parallel_for_row_major(IndexType beginIdxX, IndexType endIdxX,
                                    IndexType beginIdxY, IndexType endIdxY,
                                    IndexType beginIdxZ, IndexType endIdxZ,
-                                   const Function& function)
+                                   Function&& function)
 {
-    ParallelFuncs::parallel_for(beginIdxX, endIdxX,
-                                [&](IndexType i)
-                                {
-                                    for(IndexType j = beginIdxY; j < endIdxY; ++j) {
-                                        for(IndexType k = beginIdxZ; k < endIdxZ; ++k) {
-                                            function(i, j, k);
-                                        }
+    Scheduler::parallel_for(beginIdxX, endIdxX,
+                            [&](IndexType i)
+                            {
+                                for(IndexType j = beginIdxY; j < endIdxY; ++j) {
+                                    for(IndexType k = beginIdxZ; k < endIdxZ; ++k) {
+                                        function(i, j, k);
                                     }
-                                });
+                                }
+                            });
 }
 
 template<class IndexType, class Function>
 inline void parallel_for(IndexType beginIdxX, IndexType endIdxX,
                          IndexType beginIdxY, IndexType endIdxY,
                          IndexType beginIdxZ, IndexType endIdxZ,
-                         const Function& function)
+                         Function&& function)
 {
-    ParallelFuncs::parallel_for(beginIdxZ, endIdxZ,
-                                [&](IndexType k)
-                                {
-                                    for(IndexType j = beginIdxY; j < endIdxY; ++j) {
-                                        for(IndexType i = beginIdxX; i < endIdxX; ++i) {
-                                            function(i, j, k);
-                                        }
+    Scheduler::parallel_for(beginIdxZ, endIdxZ,
+                            [&](IndexType k)
+                            {
+                                for(IndexType j = beginIdxY; j < endIdxY; ++j) {
+                                    for(IndexType i = beginIdxX; i < endIdxX; ++i) {
+                                        function(i, j, k);
                                     }
-                                });
+                                }
+                            });
 }
 
 template<class IndexType, class Function>
-inline void parallel_for_row_major(const Vec3<IndexType>& endIdx, const Function& function)
+inline void parallel_for_row_major(const Vec3<IndexType>& endIdx, Function&& function)
 {
-    ParallelFuncs::parallel_for_row_major(IndexType(0), endIdx[0], IndexType(0), endIdx[1], IndexType(0), endIdx[2], function);
+    Scheduler::parallel_for_row_major(IndexType(0), endIdx[0], IndexType(0), endIdx[1], IndexType(0), endIdx[2], std::forward<Function>(function));
 }
 
 template<class IndexType, class Function>
-inline void parallel_for(const Vec3<IndexType>& endIdx, const Function& function)
+inline void parallel_for(const Vec3<IndexType>& endIdx, Function&& function)
 {
-    ParallelFuncs::parallel_for(IndexType(0), endIdx[0], IndexType(0), endIdx[1], IndexType(0), endIdx[2], function);
+    Scheduler::parallel_for(IndexType(0), endIdx[0], IndexType(0), endIdx[1], IndexType(0), endIdx[2], std::forward<Function>(function));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-}   // namespace ParallelFuncs
+}   // namespace Scheduler
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 } // end namespace Banana

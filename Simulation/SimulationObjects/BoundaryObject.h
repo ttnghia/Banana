@@ -28,7 +28,7 @@
 #include <Banana/Utils/FileHelpers.h>
 #include <Banana/Utils/JSONHelpers.h>
 #include <Banana/Geometry/GeometryObjectFactory.h>
-#include <Banana/ParallelHelpers/ParallelFuncs.h>
+#include <Banana/ParallelHelpers/Scheduler.h>
 #include <ParticleSolvers/ParticleSolverData.h>
 #include <ParticleTools/ParticleHelpers.h>
 #include <ParticleTools/ParticleSerialization.h>

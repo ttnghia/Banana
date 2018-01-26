@@ -26,7 +26,7 @@
 
 #include <tbb/tbb.h>
 #include <Banana/ParallelHelpers/ParallelObjects.h>
-#include <Banana/ParallelHelpers/ParallelFuncs.h>
+#include <Banana/ParallelHelpers/Scheduler.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -82,7 +82,7 @@ inline Vector<VectorType> add(const Vector<VectorType>& x, const Vector<VectorTy
 {
     __BNN_REQUIRE(x.size() == y.size());
     Vector<VectorType> z(x.size());
-    ParallelFuncs::parallel_for(z.size(), [&](size_t i) { z[i] = x[i] + y[i]; });
+    Scheduler::parallel_for(z.size(), [&](size_t i) { z[i] = x[i] + y[i]; });
     return z;
 }
 
@@ -91,7 +91,7 @@ inline Vector<VectorType> minus(const Vector<VectorType>& x, const Vector<Vector
 {
     __BNN_REQUIRE(x.size() == y.size());
     Vector<VectorType> z(x.size());
-    ParallelFuncs::parallel_for(z.size(), [&](size_t i) { z[i] = x[i] - y[i]; });
+    Scheduler::parallel_for(z.size(), [&](size_t i) { z[i] = x[i] - y[i]; });
     return z;
 }
 
@@ -101,7 +101,7 @@ inline Vector<VectorType> minus(const Vector<VectorType>& x, const Vector<Vector
 template<class RealType, class VectorType>
 inline void addScaled(RealType alpha, const Vector<VectorType>& x, Vector<VectorType>& y)
 {
-    ParallelFuncs::parallel_for(x.size(), [&, alpha](size_t i) { y[i] += alpha * x[i]; });
+    Scheduler::parallel_for(x.size(), [&, alpha](size_t i) { y[i] += alpha * x[i]; });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -110,7 +110,7 @@ inline void addScaled(RealType alpha, const Vector<VectorType>& x, Vector<Vector
 template<class RealType, class VectorType>
 inline void scaledAdd(RealType beta, const Vector<VectorType>& x, Vector<VectorType>& y)
 {
-    ParallelFuncs::parallel_for(x.size(), [&, beta](size_t i) { y[i] = beta * y[i] + x[i]; });
+    Scheduler::parallel_for(x.size(), [&, beta](size_t i) { y[i] = beta * y[i] + x[i]; });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -119,7 +119,7 @@ inline void scaledAdd(RealType beta, const Vector<VectorType>& x, Vector<VectorT
 template<class RealType, class VectorType>
 inline void scale(RealType alpha, Vector<VectorType>& x)
 {
-    ParallelFuncs::parallel_for(x.size(), [&, alpha](size_t i) { x[i] *= alpha; });
+    Scheduler::parallel_for(x.size(), [&, alpha](size_t i) { x[i] *= alpha; });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -128,7 +128,7 @@ template<class RealType, class VectorType>
 inline Vector<VectorType> multiply(RealType alpha, const Vector<VectorType>& x)
 {
     Vector<VectorType> y(x.size());
-    ParallelFuncs::parallel_for(x.size(), [&, alpha](size_t i) { y[i] = x[i] * alpha; });
+    Scheduler::parallel_for(x.size(), [&, alpha](size_t i) { y[i] = x[i] * alpha; });
     return y;
 }
 

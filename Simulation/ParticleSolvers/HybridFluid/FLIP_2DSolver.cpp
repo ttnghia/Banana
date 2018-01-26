@@ -63,9 +63,9 @@ void FLIP_2DSolver::advanceVelocity(Real timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void FLIP_2DSolver::computeChangesGridVelocity()
 {
-    ParallelFuncs::parallel_for<size_t>(0, gridData().u.dataSize(),
+    Scheduler::parallel_for<size_t>(0, gridData().u.dataSize(),
                                         [&](size_t i) { gridData().du.data()[i] = gridData().u.data()[i] - gridData().u_old.data()[i]; });
-    ParallelFuncs::parallel_for<size_t>(0, gridData().v.dataSize(),
+    Scheduler::parallel_for<size_t>(0, gridData().v.dataSize(),
                                         [&](size_t i) { gridData().dv.data()[i] = gridData().v.data()[i] - gridData().v_old.data()[i]; });
 }
 
@@ -74,7 +74,7 @@ void FLIP_2DSolver::mapParticles2Grid()
 {
     const Vec2r span = Vec2r(solverData().grid.getCellSize());
 
-    ParallelFuncs::parallel_for<UInt>(solverData().grid.getNNodes(),
+    Scheduler::parallel_for<UInt>(solverData().grid.getNNodes(),
                                       [&](UInt i, UInt j)
                                       {
                                           const Vec2r pu = Vec2r(i, j + 0.5) * solverData().grid.getCellSize() + solverData().grid.getBMin();
@@ -144,7 +144,7 @@ void FLIP_2DSolver::mapParticles2Grid()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void FLIP_2DSolver::mapGrid2Particles()
 {
-    ParallelFuncs::parallel_for<UInt>(0, particleData().getNParticles(),
+    Scheduler::parallel_for<UInt>(0, particleData().getNParticles(),
                                       [&](UInt p)
                                       {
                                           const Vec2r& ppos = particleData().positions[p];

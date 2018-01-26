@@ -24,7 +24,7 @@
 #include <Banana/Array/Array.h>
 #include <Banana/Grid/Grid.h>
 #include <Banana/ParallelHelpers/ParallelObjects.h>
-#include <Banana/ParallelHelpers/ParallelFuncs.h>
+#include <Banana/ParallelHelpers/Scheduler.h>
 #include <Banana/LinearAlgebra/LinearSolvers/PCGSolver.h>
 #include <Banana/LinearAlgebra/SparseMatrix/SparseMatrix.h>
 #include <Banana/Utils/NumberHelpers.h>

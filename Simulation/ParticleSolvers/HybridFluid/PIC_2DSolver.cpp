@@ -310,7 +310,7 @@ void PIC_2DSolver::advanceVelocity(Real timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PIC_2DSolver::moveParticles(Real timestep)
 {
-    ParallelFuncs::parallel_for<UInt>(0, particleData().getNParticles(),
+    Scheduler::parallel_for<UInt>(0, particleData().getNParticles(),
                                       [&](UInt p)
                                       {
                                           Vec2r ppos          = particleData().positions[p] + particleData().velocities[p] * timestep;
@@ -338,7 +338,7 @@ void PIC_2DSolver::correctPositions(Real timestep)
 
     //// todo: check if this is needed, as this could be done before
     //picData().grid.getNeighborList(particleData().positions, particleData().neighborList, 1);
-    //ParallelFuncs::parallel_for<UInt>(0, particleData().getNParticles(),
+    //Scheduler::parallel_for<UInt>(0, particleData().getNParticles(),
     //                                  [&](UInt p)
     //                                  {
     //                                      const Vec2r& ppos         = particleData().positions[p];
@@ -383,7 +383,7 @@ void PIC_2DSolver::correctPositions(Real timestep)
 //Compute finite-volume style face-weights for fluid from nodal signed distances
 void PIC_2DSolver::computeFluidWeights()
 {
-    ParallelFuncs::parallel_for<UInt>(solverData().grid.getNNodes(),
+    Scheduler::parallel_for<UInt>(solverData().grid.getNNodes(),
                                       [&](UInt i, UInt j)
                                       {
                                           bool valid_index_u = gridData().u_weights.isValidIndex(i, j);
@@ -417,7 +417,7 @@ void PIC_2DSolver::extrapolateVelocity(Array2r& grid, Array2r& temp_grid, Array2
     for(Int layers = 0; layers < 10; ++layers) {
         bool stop = true;
         old_valid.copyDataFrom(valid);
-        ParallelFuncs::parallel_for<UInt>(1, solverData().grid.getNCells()[0] - 1,
+        Scheduler::parallel_for<UInt>(1, solverData().grid.getNCells()[0] - 1,
                                           1, solverData().grid.getNCells()[1] - 1,
                                           [&](UInt i, UInt j)
                                           {
@@ -473,7 +473,7 @@ void PIC_2DSolver::constrainGridVelocity()
     gridData().tmp_v.copyDataFrom(gridData().v);
 
     ////////////////////////////////////////////////////////////////////////////////
-    ParallelFuncs::parallel_for<size_t>(gridData().u.size(),
+    Scheduler::parallel_for<size_t>(gridData().u.size(),
                                         [&](size_t i, size_t j)
                                         {
                                             if(gridData().u_weights(i, j) < Tiny) {
@@ -491,7 +491,7 @@ void PIC_2DSolver::constrainGridVelocity()
                                             }
                                         });
 
-    ParallelFuncs::parallel_for<size_t>(gridData().v.size(),
+    Scheduler::parallel_for<size_t>(gridData().v.size(),
                                         [&](size_t i, size_t j)
                                         {
                                             if(gridData().v_weights(i, j) < Tiny) {
@@ -517,7 +517,7 @@ void PIC_2DSolver::constrainGridVelocity()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PIC_2DSolver::addGravity(Real timestep)
 {
-    ParallelFuncs::parallel_for<size_t>(gridData().v.size(),
+    Scheduler::parallel_for<size_t>(gridData().v.size(),
                                         [&](size_t i, size_t j)
                                         {
                                             gridData().v(i, j) -= Real(9.8) * timestep;
@@ -550,7 +550,7 @@ void PIC_2DSolver::computeFluidSDF()
         const Vec2i cellUp = Vec2i(MathHelpers::min(cellId[0] + 1, static_cast<Int>(solverData().grid.getNCells()[0]) - 1),
                                    MathHelpers::min(cellId[1] + 1, static_cast<Int>(solverData().grid.getNCells()[1]) - 1));
 
-        ParallelFuncs::parallel_for<int>(cellDown[0], cellUp[0],
+        Scheduler::parallel_for<int>(cellDown[0], cellUp[0],
                                          cellDown[1], cellUp[1],
                                          [&](int i, int j)
                                          {
@@ -565,7 +565,7 @@ void PIC_2DSolver::computeFluidSDF()
 
     ////////////////////////////////////////////////////////////////////////////////
     //extend phi slightly into solids (this is a simple, naive approach, but works reasonably well)
-    ParallelFuncs::parallel_for<UInt>(solverData().grid.getNNodes(),
+    Scheduler::parallel_for<UInt>(solverData().grid.getNNodes(),
                                       [&](int i, int j)
                                       {
                                           if(gridData().fluidSDF(i, j) < solverData().grid.getHalfCellSize()) {
@@ -653,7 +653,7 @@ void PIC_2DSolver::computeMatrix(Real timestep)
 void PIC_2DSolver::computeRhs()
 {
     solverData().rhs.assign(solverData().rhs.size(), 0);
-    ParallelFuncs::parallel_for<UInt>(1, solverData().grid.getNCells()[0] - 1,
+    Scheduler::parallel_for<UInt>(1, solverData().grid.getNCells()[0] - 1,
                                       1, solverData().grid.getNCells()[1] - 1,
                                       [&](UInt i, UInt j)
                                       {
@@ -691,7 +691,7 @@ void PIC_2DSolver::updateVelocity(Real timestep)
     gridData().u_valid.assign(0);
     gridData().v_valid.assign(0);
 
-    ParallelFuncs::parallel_for<UInt>(solverData().grid.getNNodes(),
+    Scheduler::parallel_for<UInt>(solverData().grid.getNNodes(),
                                       [&](UInt i, UInt j)
                                       {
                                           const UInt idx = solverData().grid.getCellLinearizedIndex(i, j);
@@ -729,9 +729,9 @@ void PIC_2DSolver::updateVelocity(Real timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PIC_2DSolver::computeChangesGridVelocity()
 {
-    ParallelFuncs::parallel_for<size_t>(0, gridData().u.dataSize(),
+    Scheduler::parallel_for<size_t>(0, gridData().u.dataSize(),
                                         [&](size_t i) { gridData().du.data()[i] = gridData().u.data()[i] - gridData().u_old.data()[i]; });
-    ParallelFuncs::parallel_for<size_t>(0, gridData().v.dataSize(),
+    Scheduler::parallel_for<size_t>(0, gridData().v.dataSize(),
                                         [&](size_t i) { gridData().dv.data()[i] = gridData().v.data()[i] - gridData().v_old.data()[i]; });
 }
 

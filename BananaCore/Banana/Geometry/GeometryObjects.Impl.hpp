@@ -575,7 +575,7 @@ void sweep(const Vector<Vec3ui>& tri,
         k1 = -1;
     }
 
-    //    ParallelFuncs::parallel_for<Int>(i0, i1 + 1, j0, j1 + 1, k0, k1 + 1,
+    //    Scheduler::parallel_for<Int>(i0, i1 + 1, j0, j1 + 1, k0, k1 + 1,
     //                                       [&](Int i, Int j, Int k)
 
     for(Int k = k0; k != k1; k += dk) {
@@ -692,17 +692,17 @@ void computeSDFMesh(const Vector<Vec3ui>& faces, const Vec_Vec3f& vertices, cons
         Int k0 = MathHelpers::clamp(static_cast<Int>(MathHelpers::min(fp[2], fq[2], fr[2])) - exactBand, 0, static_cast<Int>(nk - 1));
         Int k1 = MathHelpers::clamp(static_cast<Int>(MathHelpers::max(fp[2], fq[2], fr[2])) + exactBand + 1, 0, static_cast<Int>(nk - 1));
 
-        ParallelFuncs::parallel_for<Int>(i0, i1 + 1, j0, j1 + 1, k0, k1 + 1,
-                                         [&](Int i, Int j, Int k)
-                                         {
-                                             Vec3f gx   = Vec3f(i, j, k) * cellSize + origin;
-                                             RealType d = point_triangle_distance(gx, vertices[p], vertices[q], vertices[r]);
+        Scheduler::parallel_for<Int>(i0, i1 + 1, j0, j1 + 1, k0, k1 + 1,
+                                     [&](Int i, Int j, Int k)
+                                     {
+                                         Vec3f gx   = Vec3f(i, j, k) * cellSize + origin;
+                                         RealType d = point_triangle_distance(gx, vertices[p], vertices[q], vertices[r]);
 
-                                             if(d < SDF(i, j, k)) {
-                                                 SDF(i, j, k)         = d;
-                                                 closest_tri(i, j, k) = face;
-                                             }
-                                         });
+                                         if(d < SDF(i, j, k)) {
+                                             SDF(i, j, k)         = d;
+                                             closest_tri(i, j, k) = face;
+                                         }
+                                     });
 
         // and do intersection counts
         j0 = MathHelpers::clamp(static_cast<Int>(std::ceil(MathHelpers::min(fp[1], fq[1], fr[1]))) - 10, 0, static_cast<Int>(nj - 1));
@@ -745,21 +745,21 @@ void computeSDFMesh(const Vector<Vec3ui>& faces, const Vec_Vec3f& vertices, cons
     }
 
     // then figure out signs (inside/outside) from intersection counts
-    ParallelFuncs::parallel_for<UInt>(0, nk,
-                                      [&](UInt k)
-                                      {
-                                          for(UInt j = 0; j < nj; ++j) {
-                                              UInt total_count = 0;
+    Scheduler::parallel_for<UInt>(0, nk,
+                                  [&](UInt k)
+                                  {
+                                      for(UInt j = 0; j < nj; ++j) {
+                                          UInt total_count = 0;
 
-                                              for(UInt i = 0; i < ni; ++i) {
-                                                  total_count += intersectionCount(i, j, k);
+                                          for(UInt i = 0; i < ni; ++i) {
+                                              total_count += intersectionCount(i, j, k);
 
-                                                  if(total_count & 1) {             // if parity of intersections so far is odd,
-                                                      SDF(i, j, k) = -SDF(i, j, k); // we are inside the mesh
-                                                  }
+                                              if(total_count & 1) {                     // if parity of intersections so far is odd,
+                                                  SDF(i, j, k) = -SDF(i, j, k);         // we are inside the mesh
                                               }
                                           }
-                                      });
+                                      }
+                                  });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

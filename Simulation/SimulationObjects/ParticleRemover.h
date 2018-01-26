@@ -22,7 +22,7 @@
 #pragma once
 
 #include <Banana/Geometry/GeometryObjects.h>
-#include <Banana/ParallelHelpers/ParallelFuncs.h>
+#include <Banana/ParallelHelpers/Scheduler.h>
 #include <SimulationObjects/SimulationObject.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -74,11 +74,11 @@ void ParticleRemover<N, RealType >::findRemovingCandidate(Vec_Int8& removeMarker
 {
     __BNN_REQUIRE(m_bObjReady);
     removeMarker.resize(positions.size());
-    ParallelFuncs::parallel_for(removeMarker.size(),
-                                [&](size_t p)
-                                {
-                                    removeMarker[p] = (signedDistance(positions[p]) < 0) ? Int8(1) : Int8(0);
-                                });
+    Scheduler::parallel_for(removeMarker.size(),
+                            [&](size_t p)
+                            {
+                                removeMarker[p] = (signedDistance(positions[p]) < 0) ? Int8(1) : Int8(0);
+                            });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

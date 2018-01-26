@@ -54,7 +54,7 @@ void ClothSolver::makeReady()
                                   obj->generateSDF(solverParams().domainBMin, solverParams().domainBMax, solverParams().cellSize);
                               }
 
-                              ParallelFuncs::parallel_for<UInt>(m_Grid.getNNodes(),
+                              Scheduler::parallel_for<UInt>(m_Grid.getNNodes(),
                                                                 [&](UInt i, UInt j, UInt k)
                                                                 {
                                                                     Real minSD = Huge;
@@ -295,7 +295,7 @@ void ClothSolver::advanceVelocity(Real timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void ClothSolver::moveParticles(Real timestep)
 {
-    ParallelFuncs::parallel_for<UInt>(0, solverData().getNParticles(),
+    Scheduler::parallel_for<UInt>(0, solverData().getNParticles(),
                                       [&](UInt p)
                                       {
                                           Vec3r pvel = particleData().velocities[p];
@@ -325,7 +325,7 @@ void ClothSolver::moveParticles(Real timestep)
 //Compute finite-volume style face-weights for fluid from nodal signed distances
 void ClothSolver::computeFluidWeights()
 {
-    ParallelFuncs::parallel_for<UInt>(m_Grid.getNNodes(),
+    Scheduler::parallel_for<UInt>(m_Grid.getNNodes(),
                                       [&](UInt i, UInt j, UInt k)
                                       {
                                           bool valid_index_u = gridData().u_weights.isValidIndex(i, j, k);
@@ -364,7 +364,7 @@ void ClothSolver::addRepulsiveVelocity2Particles(Real timestep)
     //m_Grid.getNeighborList(particleData().positions, particleData().neighborList, solverParams().nearKernelRadiusSqr);
     ////////////////////////////////////////////////////////////////////////////////
 
-    ParallelFuncs::parallel_for<UInt>(0, solverData().getNParticles(),
+    Scheduler::parallel_for<UInt>(0, solverData().getNParticles(),
                                       [&](UInt p)
                                       {
                                           //const Vec_UInt& neighbors = particleData().neighborList[p];
@@ -406,7 +406,7 @@ void ClothSolver::velocityToGrid()
 {
     const Vec3r span = Vec3r(m_Grid.getCellSize() * static_cast<Real>(solverParams().kernelSpan));
 
-    ParallelFuncs::parallel_for<UInt>(m_Grid.getNNodes(),
+    Scheduler::parallel_for<UInt>(m_Grid.getNNodes(),
                                       [&](UInt i, UInt j, UInt k)
                                       {
                                           const Vec3r pu = Vec3r(i, j + 0.5, k + 0.5) * m_Grid.getCellSize() + m_Grid.getBMin();
@@ -512,7 +512,7 @@ void ClothSolver::extrapolateVelocity(Array3r& grid, Array3r& temp_grid, Array3c
     for(Int layers = 0; layers < solverParams().kernelSpan; ++layers) {
         bool stop = true;
         old_valid.copyDataFrom(valid);
-        ParallelFuncs::parallel_for<UInt>(1, m_Grid.getNCells()[0] - 1,
+        Scheduler::parallel_for<UInt>(1, m_Grid.getNCells()[0] - 1,
                                           1, m_Grid.getNCells()[1] - 1,
                                           1, m_Grid.getNCells()[2] - 1,
                                           [&](UInt ii, UInt jj, UInt kk)
@@ -591,7 +591,7 @@ void ClothSolver::constrainGridVelocity()
     gridData().w_temp.copyDataFrom(gridData().w);
 
     ////////////////////////////////////////////////////////////////////////////////
-    ParallelFuncs::parallel_for<size_t>(gridData().u.size(),
+    Scheduler::parallel_for<size_t>(gridData().u.size(),
                                         [&](size_t i, size_t j, size_t k)
                                         {
                                             if(gridData().u_weights(i, j, k) < Tiny) {
@@ -609,7 +609,7 @@ void ClothSolver::constrainGridVelocity()
                                             }
                                         });
 
-    ParallelFuncs::parallel_for<size_t>(gridData().v.size(),
+    Scheduler::parallel_for<size_t>(gridData().v.size(),
                                         [&](size_t i, size_t j, size_t k)
                                         {
                                             if(gridData().v_weights(i, j, k) < Tiny) {
@@ -627,7 +627,7 @@ void ClothSolver::constrainGridVelocity()
                                             }
                                         });
 
-    ParallelFuncs::parallel_for<size_t>(gridData().w.size(),
+    Scheduler::parallel_for<size_t>(gridData().w.size(),
                                         [&](size_t i, size_t j, size_t k)
                                         {
                                             if(gridData().w_weights(i, j, k) < Tiny) {
@@ -654,7 +654,7 @@ void ClothSolver::constrainGridVelocity()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void ClothSolver::addGravity(Real timestep)
 {
-    ParallelFuncs::parallel_for<size_t>(gridData().v.size(),
+    Scheduler::parallel_for<size_t>(gridData().v.size(),
                                         [&](size_t i, size_t j, size_t k)
                                         {
                                             gridData().v(i, j, k) -= Real(9.81) * timestep;
@@ -682,7 +682,7 @@ void ClothSolver::computeFluidSDF()
 {
     gridData().fluidSDF.assign(m_Grid.getCellSize() * Real(3.0));
 
-    ParallelFuncs::parallel_for<UInt>(0, solverData().getNParticles(),
+    Scheduler::parallel_for<UInt>(0, solverData().getNParticles(),
                                       [&](UInt p)
                                       {
                                           const Vec3r ppos     = particleData().positions[p];
@@ -712,7 +712,7 @@ void ClothSolver::computeFluidSDF()
 
     ////////////////////////////////////////////////////////////////////////////////
     //extend phi slightly into solids (this is a simple, naive approach, but works reasonably well)
-    ParallelFuncs::parallel_for<UInt>(m_Grid.getNCells(),
+    Scheduler::parallel_for<UInt>(m_Grid.getNCells(),
                                       [&](int i, int j, int k)
                                       {
                                           if(gridData().fluidSDF(i, j, k) < m_Grid.getHalfCellSize()) {
@@ -737,7 +737,7 @@ void ClothSolver::computeMatrix(Real timestep)
 {
     solverData().matrix.clear();
 
-    ParallelFuncs::parallel_for<UInt>(1, m_Grid.getNCells()[0] - 1,
+    Scheduler::parallel_for<UInt>(1, m_Grid.getNCells()[0] - 1,
                                       1, m_Grid.getNCells()[1] - 1,
                                       1, m_Grid.getNCells()[2] - 1,
                                       [&](UInt i, UInt j, UInt k)
@@ -828,7 +828,7 @@ void ClothSolver::computeMatrix(Real timestep)
 void ClothSolver::computeRhs()
 {
     solverData().rhs.assign(solverData().rhs.size(), 0);
-    ParallelFuncs::parallel_for<UInt>(1, m_Grid.getNCells()[0] - 1,
+    Scheduler::parallel_for<UInt>(1, m_Grid.getNCells()[0] - 1,
                                       1, m_Grid.getNCells()[1] - 1,
                                       1, m_Grid.getNCells()[2] - 1,
                                       [&](UInt i, UInt j, UInt k)
@@ -872,7 +872,7 @@ void ClothSolver::updateVelocity(Real timestep)
     gridData().v_valid.assign(0);
     gridData().w_valid.assign(0);
 
-    ParallelFuncs::parallel_for<UInt>(m_Grid.getNCells(),
+    Scheduler::parallel_for<UInt>(m_Grid.getNCells(),
                                       [&](UInt i, UInt j, UInt k)
                                       {
                                           const UInt idx = m_Grid.getCellLinearizedIndex(i, j, k);
@@ -923,18 +923,18 @@ void ClothSolver::updateVelocity(Real timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void ClothSolver::computeChangesGridVelocity()
 {
-    ParallelFuncs::parallel_for<size_t>(0, gridData().u.dataSize(),
+    Scheduler::parallel_for<size_t>(0, gridData().u.dataSize(),
                                         [&](size_t i) { gridData().du.data()[i] = gridData().u.data()[i] - gridData().u_old.data()[i]; });
-    ParallelFuncs::parallel_for<size_t>(0, gridData().v.dataSize(),
+    Scheduler::parallel_for<size_t>(0, gridData().v.dataSize(),
                                         [&](size_t i) { gridData().dv.data()[i] = gridData().v.data()[i] - gridData().v_old.data()[i]; });
-    ParallelFuncs::parallel_for<size_t>(0, gridData().w.dataSize(),
+    Scheduler::parallel_for<size_t>(0, gridData().w.dataSize(),
                                         [&](size_t i) { gridData().dw.data()[i] = gridData().w.data()[i] - gridData().w_old.data()[i]; });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void ClothSolver::velocityToParticles()
 {
-    ParallelFuncs::parallel_for<UInt>(0, solverData().getNParticles(),
+    Scheduler::parallel_for<UInt>(0, solverData().getNParticles(),
                                       [&](UInt p)
                                       {
                                           const Vec3r& ppos = particleData().positions[p];

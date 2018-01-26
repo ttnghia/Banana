@@ -334,7 +334,7 @@ void Snow3DSolver::updateParticles(Real timestep)
 // todo: consider each node, and accumulate particle data, rather than  consider each particles
 void Snow3DSolver::massToGrid()
 {
-    ParallelFuncs::parallel_for<UInt>(particleData().getNParticles(),
+    Scheduler::parallel_for<UInt>(particleData().getNParticles(),
                                       [&](UInt p)
                                       {
                                           Real ox = particleData().particleGridPos[p][0];
@@ -386,7 +386,7 @@ void Snow3DSolver::massToGrid()
 void Snow3DSolver::velocityToGrid(Real timestep)
 {
     //We interpolate velocity after mass, to conserve momentum
-    ParallelFuncs::parallel_for(particleData().getNParticles(),
+    Scheduler::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
                                 {
                                     Int ox = static_cast<Int>(particleData().particleGridPos[p][0]);
@@ -413,7 +413,7 @@ void Snow3DSolver::velocityToGrid(Real timestep)
                                     }
                                 });
 
-    ParallelFuncs::parallel_for(gridData().active.dataSize(),
+    Scheduler::parallel_for(gridData().active.dataSize(),
                                 [&](size_t i)
                                 {
                                     if(gridData().active.data()[i]) {
@@ -428,7 +428,7 @@ void Snow3DSolver::velocityToGrid(Real timestep)
 void Snow3DSolver::calculateParticleVolumes()
 {
     //Estimate each particles volume (for force calculations)
-    ParallelFuncs::parallel_for(particleData().getNParticles(),
+    Scheduler::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
                                 {
                                     Int ox = static_cast<Int>(particleData().particleGridPos[p][0]);
@@ -465,7 +465,7 @@ void Snow3DSolver::explicitVelocities(Real timestep)
 {
     //First, compute the forces
     //We store force in velocity_new, since we're not using that variable at the moment
-    ParallelFuncs::parallel_for(particleData().getNParticles(),
+    Scheduler::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
                                 {
                                     //Solve for grid internal forces
@@ -494,7 +494,7 @@ void Snow3DSolver::explicitVelocities(Real timestep)
                                 });
 
     //Now we have all grid forces, compute velocities (euler integration)
-    ParallelFuncs::parallel_for(gridData().active.dataSize(),
+    Scheduler::parallel_for(gridData().active.dataSize(),
                                 [&](size_t i)
                                 {
                                     if(gridData().active.data()[i]) {
@@ -520,7 +520,7 @@ void Snow3DSolver::implicitVelocities(Real timestep)
     //iteratively refine our guess until the error is small enough.
 
     //INITIALIZE LINEAR SOLVE
-    ParallelFuncs::parallel_for(gridData().imp_active.dataSize(),
+    Scheduler::parallel_for(gridData().imp_active.dataSize(),
                                 [&](size_t i)
                                 {
                                     gridData().imp_active.data()[i] = gridData().active.data()[i];
@@ -536,7 +536,7 @@ void Snow3DSolver::implicitVelocities(Real timestep)
     //As said before, we need to compute vf-E*vf as our initial "r" residual
     recomputeImplicitForces(timestep);
 
-    ParallelFuncs::parallel_for(gridData().imp_active.dataSize(),
+    Scheduler::parallel_for(gridData().imp_active.dataSize(),
                                 [&](size_t i)
                                 {
                                     if(gridData().imp_active.data()[i]) {
@@ -552,7 +552,7 @@ void Snow3DSolver::implicitVelocities(Real timestep)
     recomputeImplicitForces(timestep);
 
     //Ep starts out the same as Er
-    ParallelFuncs::parallel_for(gridData().imp_active.dataSize(),
+    Scheduler::parallel_for(gridData().imp_active.dataSize(),
                                 [&](size_t i)
                                 {
                                     if(gridData().imp_active.data()[i]) {
@@ -564,7 +564,7 @@ void Snow3DSolver::implicitVelocities(Real timestep)
     for(UInt i = 0; i < solverParams().maxCGIteration; i++) {
         bool done = true;
 
-        ParallelFuncs::parallel_for(gridData().imp_active.dataSize(),
+        Scheduler::parallel_for(gridData().imp_active.dataSize(),
                                     [&](size_t i)
                                     {
                                         //Only perform calculations on nodes that haven't been solved yet
@@ -596,7 +596,7 @@ void Snow3DSolver::implicitVelocities(Real timestep)
         recomputeImplicitForces(timestep);
 
         //Calculate the gradient for our next guess
-        ParallelFuncs::parallel_for(gridData().imp_active.dataSize(),
+        Scheduler::parallel_for(gridData().imp_active.dataSize(),
                                     [&](size_t i)
                                     {
                                         if(gridData().imp_active.data()[i]) {
@@ -617,7 +617,7 @@ void Snow3DSolver::implicitVelocities(Real timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Snow3DSolver::recomputeImplicitForces(Real timestep)
 {
-    ParallelFuncs::parallel_for(particleData().getNParticles(),
+    Scheduler::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
                                 {
                                     Int ox = static_cast<Int>(particleData().particleGridPos[p][0]);
@@ -643,7 +643,7 @@ void Snow3DSolver::recomputeImplicitForces(Real timestep)
 
     //We have delta force for each node; to get Er, we use the following formula:
     //	r - IMPLICIT_RATIO*TIMESTEP*delta_force/mass
-    ParallelFuncs::parallel_for(gridData().imp_active.dataSize(),
+    Scheduler::parallel_for(gridData().imp_active.dataSize(),
                                 [&](size_t i)
                                 {
                                     if(gridData().imp_active.data()[i]) {
@@ -657,7 +657,7 @@ void Snow3DSolver::recomputeImplicitForces(Real timestep)
 //Map grid velocities back to particles
 void Snow3DSolver::velocityToParticles(Real timestep)
 {
-    ParallelFuncs::parallel_for(particleData().getNParticles(),
+    Scheduler::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
                                 {
                                     //We calculate PIC and FLIP velocities separately
@@ -709,7 +709,7 @@ void Snow3DSolver::constrainGridVelocity(Real timestep)
     Vec3r delta_scale = Vec3r(timestep);
     delta_scale /= solverParams().cellSize;
 
-    ParallelFuncs::parallel_for<UInt>(m_Grid.getNNodes(),
+    Scheduler::parallel_for<UInt>(m_Grid.getNNodes(),
                                       [&](UInt x, UInt y, UInt z)
                                       {
                                           if(gridData().active(x, y, z)) {
@@ -735,7 +735,7 @@ void Snow3DSolver::constrainGridVelocity(Real timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Snow3DSolver::constrainParticleVelocity(Real timestep)
 {
-    ParallelFuncs::parallel_for(particleData().getNParticles(),
+    Scheduler::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
                                 {
                                     bool velChanged = false;
@@ -760,7 +760,7 @@ void Snow3DSolver::constrainParticleVelocity(Real timestep)
 
 void Snow3DSolver::updateParticlePositions(Real timestep)
 {
-    ParallelFuncs::parallel_for(particleData().getNParticles(),
+    Scheduler::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
                                 {
                                     Vec3r ppos = particleData().positions[p] + particleData().velocities[p] * timestep;
@@ -783,7 +783,7 @@ void Snow3DSolver::updateParticlePositions(Real timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Snow3DSolver::updateGradients(Real timestep)
 {
-    ParallelFuncs::parallel_for(particleData().getNParticles(),
+    Scheduler::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
                                 {
                                     Mat3x3r velGrad = particleData().velocityGradients[p];
@@ -798,7 +798,7 @@ void Snow3DSolver::updateGradients(Real timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Snow3DSolver::applyPlasticity()
 {
-    ParallelFuncs::parallel_for(particleData().getNParticles(),
+    Scheduler::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
                                 {
                                     Mat3x3r elasticDeformGrad = particleData().elasticDeformGrad[p];

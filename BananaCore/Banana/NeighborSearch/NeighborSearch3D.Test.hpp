@@ -24,7 +24,7 @@
 
 #include <Banana/Utils/NumberHelpers.h>
 #include <Banana/Utils/MathHelpers.h>
-#include <Banana/ParallelHelpers/ParallelFuncs.h>
+#include <Banana/ParallelHelpers/Scheduler.h>
 #include <Banana/NeighborSearch/NeighborSearch3D.h>
 #include <Banana/Grid/Grid.h>
 #include <catch.hpp>
@@ -91,25 +91,25 @@ Vector<Vector<UInt> > brute_force_search(size_t n_positions)
 {
     Vector<Vector<UInt> > brute_force_neighbors(n_positions);
 
-    ParallelFuncs::parallel_for<size_t>(0, n_positions,
-                                        [&](size_t i)
-                                        {
-                                            Vector<UInt>& neighbors = brute_force_neighbors[i];
-                                            Vec3r const& xa         = positions[i];
+    Scheduler::parallel_for<size_t>(0, n_positions,
+                                    [&](size_t i)
+                                    {
+                                        Vector<UInt>& neighbors = brute_force_neighbors[i];
+                                        Vec3r const& xa         = positions[i];
 
-                                            for(int j = 0; j < n_positions; ++j) {
-                                                if(i == size_t(j)) {
-                                                    continue;
-                                                }
-
-                                                Vec3r const& xb = positions[j];
-
-                                                Real l2 = glm::length2(xa - xb);
-                                                if(l2 < radius * radius) {
-                                                    neighbors.push_back(j);
-                                                }
+                                        for(int j = 0; j < n_positions; ++j) {
+                                            if(i == size_t(j)) {
+                                                continue;
                                             }
-                                        });
+
+                                            Vec3r const& xb = positions[j];
+
+                                            Real l2 = glm::length2(xa - xb);
+                                            if(l2 < radius * radius) {
+                                                neighbors.push_back(j);
+                                            }
+                                        }
+                                    });
 
     return std::move(brute_force_neighbors);
 }
@@ -220,14 +220,14 @@ Vec3r enright_velocity_field(Vec3r const& x)
 void advect()
 {
     const Real timestep = Real(0.01);
-    ParallelFuncs::parallel_for<size_t>(0, positions.size(), [&](size_t i)
-                                        {
-                                            Vec3r& x = positions[i];
-                                            Vec3r v  = enright_velocity_field(x);
-                                            x[0] += timestep * v[0];
-                                            x[1] += timestep * v[1];
-                                            x[2] += timestep * v[1];
-                                        });
+    Scheduler::parallel_for<size_t>(0, positions.size(), [&](size_t i)
+                                    {
+                                        Vec3r& x = positions[i];
+                                        Vec3r v  = enright_velocity_field(x);
+                                        x[0] += timestep * v[0];
+                                        x[1] += timestep * v[1];
+                                        x[2] += timestep * v[1];
+                                    });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

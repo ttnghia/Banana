@@ -20,7 +20,7 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 #include <ParticleSolvers/Peridynamics/PeridynamicsSolver.h>
-#include <Banana/ParallelHelpers/ParallelFuncs.h>
+#include <Banana/ParallelHelpers/Scheduler.h>
 #include <Banana/ParallelHelpers/ParallelSTL.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -361,7 +361,7 @@ void PeridynamicsSolver::integrateImplicitNewmarkBeta(Real timestep)
     logger().printRunTime("Solve system: ", funcTimer, [&]() { solveLinearSystem(); });
     logger().printRunTime("Update velocity: ", funcTimer, [&]() { updateVelocity(timestep); });
 
-    ParallelFuncs::parallel_for(solverData().nActives,
+    Scheduler::parallel_for(solverData().nActives,
                                 [&](UInt p)
                                 {
                                     solverData().velocities[p] = (solverData().velocities[p] + velocity_old[p]) * Real(0.5);
@@ -371,7 +371,7 @@ void PeridynamicsSolver::integrateImplicitNewmarkBeta(Real timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PeridynamicsSolver::moveParticles(Real timestep)
 {
-    ParallelFuncs::parallel_for<UInt>(0, solverData().nActives,
+    Scheduler::parallel_for<UInt>(0, solverData().nActives,
                                       [&](UInt p)
                                       {
                                           auto ppos0 = solverData().positions[p];
@@ -392,7 +392,7 @@ void PeridynamicsSolver::buildLinearSystem(Real timestep)
     solverData().rhs.assign(solverData().rhs.size(), Vec3r(0));
 
     ////////////////////////////////////////////////////////////////////////////////
-    ParallelFuncs::parallel_for(solverData().getNParticles(),
+    Scheduler::parallel_for(solverData().getNParticles(),
                                 [&](UInt p)
                                 {
                                     if(!solverData().isActive(p)) {
@@ -496,7 +496,7 @@ void PeridynamicsSolver::computeImplicitForce(UInt p, Vec3r& pforce, Mat3x3r& su
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PeridynamicsSolver::computeExplicitForces()
 {
-    ParallelFuncs::parallel_for(solverData().nActives,
+    Scheduler::parallel_for(solverData().nActives,
                                 [&](UInt p)
                                 {
                                     Vec3r springForce(0, 0, 0);
@@ -567,7 +567,7 @@ void PeridynamicsSolver::solveLinearSystem()
 void PeridynamicsSolver::updateVelocity(Real timestep)
 {
     const static Vec3r gravity = m_GlobalParams.bApplyGravity ? solverParams().gravity : Vec3r(0);
-    ParallelFuncs::parallel_for<size_t>(0, solverData().velocities.size(),
+    Scheduler::parallel_for<size_t>(0, solverData().velocities.size(),
                                         [&](size_t p)
                                         {
                                             solverData().velocities[p] += (gravity + solverData().solution[p]) * timestep;
@@ -592,7 +592,7 @@ bool PeridynamicsSolver::removeBrokenBonds()
     }
 
     // if there is only 1-2 bonds remain, then just delete it
-    ParallelFuncs::parallel_for(solverData().bondList.size(),
+    Scheduler::parallel_for(solverData().bondList.size(),
                                 [&](size_t p)
                                 {
                                     if(solverData().bondList[p].size() <= 2) {
@@ -618,7 +618,7 @@ bool PeridynamicsSolver::removeBrokenBonds()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PeridynamicsSolver::computeRemainingBondRatio()
 {
-    ParallelFuncs::parallel_for(solverData().getNParticles(),
+    Scheduler::parallel_for(solverData().getNParticles(),
                                 [&](UInt p)
                                 {
                                     solverData().bondRemainingRatio[p] = static_cast<Real>(solverData().bondList[p].size()) / static_cast<Real>(solverData().bondList_t0[p].size());

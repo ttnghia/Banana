@@ -287,59 +287,59 @@ void AniMPM_2DSolver::advanceVelocity(Real timestep)
 //Calculate next timestep velocities for use in implicit integration
 void AniMPM_2DSolver::explicitIntegration(Real timestep)
 {
-    ParallelFuncs::parallel_for(particleData().getNParticles(),
-                                [&](UInt p)
-                                {
-                                    Mat2x2r U, Vt, Ftemp;
-                                    Vec2r S;
-                                    LinaHelpers::orientedSVD(particleData().deformGrad[p], U, S, Vt);
-                                    if(S[1] < 0) {
-                                        S[1] *= Real(-1.0);
-                                    }
-                                    Ftemp = U * LinaHelpers::diagMatrix(S) * Vt;
+    Scheduler::parallel_for(particleData().getNParticles(),
+                            [&](UInt p)
+                            {
+                                Mat2x2r U, Vt, Ftemp;
+                                Vec2r S;
+                                LinaHelpers::orientedSVD(particleData().deformGrad[p], U, S, Vt);
+                                if(S[1] < 0) {
+                                    S[1] *= Real(-1.0);
+                                }
+                                Ftemp = U * LinaHelpers::diagMatrix(S) * Vt;
 
-                                    // Compute Piola stress tensor:
-                                    Real J = glm::determinant(Ftemp);
-                                    __BNN_REQUIRE(J > 0.0);
-                                    assert(NumberHelpers::isValidNumber(J));
-                                    Mat2x2r Fit = glm::transpose(glm::inverse(Ftemp)); // F^(-T)
-                                    Mat2x2r P   = solverParams().mu * (Ftemp - Fit) + solverParams().lambda * (log(J) * Fit);
-                                    assert(LinaHelpers::hasValidElements(P));
+                                // Compute Piola stress tensor:
+                                Real J = glm::determinant(Ftemp);
+                                __BNN_REQUIRE(J > 0.0);
+                                assert(NumberHelpers::isValidNumber(J));
+                                Mat2x2r Fit = glm::transpose(glm::inverse(Ftemp));     // F^(-T)
+                                Mat2x2r P   = solverParams().mu * (Ftemp - Fit) + solverParams().lambda * (log(J) * Fit);
+                                assert(LinaHelpers::hasValidElements(P));
 
 
 
-                                    __BNN_TODO_MSG("Need to store piola and cauchy stress?");
-                                    particleData().PiolaStress[p]  = P;
-                                    particleData().CauchyStress[p] = particleData().volumes[p] * P * glm::transpose(particleData().deformGrad[p]);
+                                __BNN_TODO_MSG("Need to store piola and cauchy stress?");
+                                particleData().PiolaStress[p]  = P;
+                                particleData().CauchyStress[p] = particleData().volumes[p] * P * glm::transpose(particleData().deformGrad[p]);
 
-                                    Mat2x2r f    = particleData().CauchyStress[p];
-                                    auto lcorner = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
+                                Mat2x2r f    = particleData().CauchyStress[p];
+                                auto lcorner = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
 
-                                    for(Int idx = 0, y = lcorner.y - 1, y_end = y + 4; y < y_end; ++y) {
-                                        for(Int x = lcorner.x - 1, x_end = x + 4; x < x_end; ++x, ++idx) {
-                                            if(!grid().isValidNode(x, y)) {
-                                                continue;
-                                            }
+                                for(Int idx = 0, y = lcorner.y - 1, y_end = y + 4; y < y_end; ++y) {
+                                    for(Int x = lcorner.x - 1, x_end = x + 4; x < x_end; ++x, ++idx) {
+                                        if(!grid().isValidNode(x, y)) {
+                                            continue;
+                                        }
 
-                                            Real w = particleData().weights[p * 16 + idx];
-                                            if(w > Tiny) {
-                                                gridData().nodeLocks(x, y).lock();
-                                                gridData().velocity_new(x, y) += f * particleData().weightGradients[p * 16 + idx];
-                                                gridData().nodeLocks(x, y).unlock();
-                                            }
+                                        Real w = particleData().weights[p * 16 + idx];
+                                        if(w > Tiny) {
+                                            gridData().nodeLocks(x, y).lock();
+                                            gridData().velocity_new(x, y) += f * particleData().weightGradients[p * 16 + idx];
+                                            gridData().nodeLocks(x, y).unlock();
                                         }
                                     }
-                                });
+                                }
+                            });
 
     //Now we have all grid forces, compute velocities (euler integration)
-    ParallelFuncs::parallel_for(gridData().active.dataSize(),
-                                [&](size_t i)
-                                {
-                                    if(gridData().active.data()[i]) {
-                                        gridData().velocity_new.data()[i] = gridData().velocity.data()[i] +
-                                                                            timestep * (SolverDefaultParameters::Gravity2D - gridData().velocity_new.data()[i] / gridData().mass.data()[i]);
-                                    }
-                                });
+    Scheduler::parallel_for(gridData().active.dataSize(),
+                            [&](size_t i)
+                            {
+                                if(gridData().active.data()[i]) {
+                                    gridData().velocity_new.data()[i] = gridData().velocity.data()[i] +
+                                                                        timestep * (SolverDefaultParameters::Gravity2D - gridData().velocity_new.data()[i] / gridData().mass.data()[i]);
+                                }
+                            });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -360,13 +360,13 @@ void AniMPM_2DSolver::implicitIntegration(Real timestep)
     Vec2r* vPtr = reinterpret_cast<Vec2r*>(v.data());
     __BNN_REQUIRE(vPtr != nullptr);
 
-    ParallelFuncs::parallel_for(grid().getNNodes(),
-                                [&](UInt i, UInt j)
-                                {
-                                    if(gridData().active(i, j)) {
-                                        vPtr[gridData().activeNodeIdx(i, j)] = gridData().velocity(i, j);
-                                    }
-                                });
+    Scheduler::parallel_for(grid().getNNodes(),
+                            [&](UInt i, UInt j)
+                            {
+                                if(gridData().active(i, j)) {
+                                    vPtr[gridData().activeNodeIdx(i, j)] = gridData().velocity(i, j);
+                                }
+                            });
 
     ////////////////////////////////////////////////////////////////////////////////
     static Timer timer;
@@ -379,26 +379,26 @@ void AniMPM_2DSolver::implicitIntegration(Real timestep)
                             NumberHelpers::formatToScientific(solverData().lbfgsSolver.gradTolerance()));
 
     ////////////////////////////////////////////////////////////////////////////////
-    ParallelFuncs::parallel_for(grid().getNNodes(),
-                                [&](UInt i, UInt j)
-                                {
-                                    if(gridData().active(i, j)) {
-                                        gridData().velocity_new(i, j) = vPtr[gridData().activeNodeIdx(i, j)] + timestep * SolverDefaultParameters::Gravity2D;
-                                    }
-                                });
+    Scheduler::parallel_for(grid().getNNodes(),
+                            [&](UInt i, UInt j)
+                            {
+                                if(gridData().active(i, j)) {
+                                    gridData().velocity_new(i, j) = vPtr[gridData().activeNodeIdx(i, j)] + timestep * SolverDefaultParameters::Gravity2D;
+                                }
+                            });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void AniMPM_2DSolver::updateParticleDeformGradients(Real timestep)
 {
-    ParallelFuncs::parallel_for(particleData().getNParticles(),
-                                [&](UInt p)
-                                {
-                                    auto velGrad = particleData().velocityGrad[p];
-                                    velGrad *= timestep;
-                                    LinaHelpers::sumToDiag(velGrad, Real(1.0));
-                                    particleData().deformGrad[p] = velGrad * particleData().deformGrad[p];
-                                });
+    Scheduler::parallel_for(particleData().getNParticles(),
+                            [&](UInt p)
+                            {
+                                auto velGrad = particleData().velocityGrad[p];
+                                velGrad *= timestep;
+                                LinaHelpers::sumToDiag(velGrad, Real(1.0));
+                                particleData().deformGrad[p] = velGrad * particleData().deformGrad[p];
+                            });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

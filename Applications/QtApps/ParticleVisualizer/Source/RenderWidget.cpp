@@ -164,11 +164,11 @@ void RenderWidget::updateVizData(Int currentFrame)
                 if(m_RDataParticle.dataDimension == 2) {
                     static Vec_Vec2f velocity;
                     __BNN_REQUIRE(m_VizData->particleReader.getParticleAttribute("velocity", velocity));
-                    ParallelFuncs::parallel_for(velMag2.size(), [&](size_t i) { velMag2[i] = glm::length2(velocity[i]); });
+                    Scheduler::parallel_for(velMag2.size(), [&](size_t i) { velMag2[i] = glm::length2(velocity[i]); });
                 } else {
                     static Vec_Vec3f velocity;
                     __BNN_REQUIRE(m_VizData->particleReader.getParticleAttribute("velocity", velocity));
-                    ParallelFuncs::parallel_for(velMag2.size(), [&](size_t i) { velMag2[i] = glm::length2(velocity[i]); });
+                    Scheduler::parallel_for(velMag2.size(), [&](size_t i) { velMag2[i] = glm::length2(velocity[i]); });
                 }
                 m_RDataParticle.vColorMin = ParallelSTL::min(velMag2);
                 m_RDataParticle.vColorMax = ParallelSTL::max(velMag2);

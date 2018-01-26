@@ -136,23 +136,23 @@ void SparseMatrix<RealType >::checkSymmetry() const noexcept
     std::cout << "============================== Checking Matrix Symmetry... ==============================" << std::endl;
     std::cout << "Matrix size: " << nRows << std::endl;
 
-    ParallelFuncs::parallel_for<UInt>(0, nRows,
-                                      [&](UInt i)
-                                      {
-                                          for(UInt j = i + 1; j < nRows; ++j) {
-                                              if(STLHelpers::Sorted::contain(colIndex[i], j)) {
-                                                  auto err = std::abs((*this)(i, j) - (*this)(j, i));
+    Scheduler::parallel_for<UInt>(0, nRows,
+                                  [&](UInt i)
+                                  {
+                                      for(UInt j = i + 1; j < nRows; ++j) {
+                                          if(STLHelpers::Sorted::contain(colIndex[i], j)) {
+                                              auto err = std::abs((*this)(i, j) - (*this)(j, i));
 
-                                                  if(err > 1e-8) {
-                                                      check = false;
-                                                      std::cout << "Invalid matrix element at index " << i << ", " << j
-                                                                << ", err = " << err << ": "
-                                                                << "matrix(" << i << ", " << j << ") = " << (*this)(i, j) << " != "
-                                                                << "matrix(" << j << ", " << i << ") = " << (*this)(j, i) << std::endl;
-                                                  }
+                                              if(err > 1e-8) {
+                                                  check = false;
+                                                  std::cout << "Invalid matrix element at index " << i << ", " << j
+                                                            << ", err = " << err << ": "
+                                                            << "matrix(" << i << ", " << j << ") = " << (*this)(i, j) << " != "
+                                                            << "matrix(" << j << ", " << i << ") = " << (*this)(j, i) << std::endl;
                                               }
                                           }
-                                      });
+                                      }
+                                  });
 
     if(check) {
         std::cout << "All matrix elements are valid!" << std::endl;
@@ -204,12 +204,12 @@ void FixedSparseMatrix<RealType >::constructFromSparseMatrix(const SparseMatrix<
     colIndex.resize(rowStart[nRows] + 1);
     colValue.resize(rowStart[nRows] + 1);
 
-    ParallelFuncs::parallel_for<UInt>(0, matrix.nRows,
-                                      [&](UInt i)
-                                      {
-                                          memcpy(&colIndex[rowStart[i]], matrix.colIndex[i].data(), matrix.colIndex[i].size() * sizeof(UInt));
-                                          memcpy(&colValue[rowStart[i]], matrix.colValue[i].data(), matrix.colValue[i].size() * sizeof(RealType));
-                                      }); // end parallel_for
+    Scheduler::parallel_for<UInt>(0, matrix.nRows,
+                                  [&](UInt i)
+                                  {
+                                      memcpy(&colIndex[rowStart[i]], matrix.colIndex[i].data(), matrix.colIndex[i].size() * sizeof(UInt));
+                                      memcpy(&colValue[rowStart[i]], matrix.colValue[i].data(), matrix.colValue[i].size() * sizeof(RealType));
+                                  });         // end parallel_for
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -220,14 +220,14 @@ void FixedSparseMatrix<RealType >::multiply(const FixedSparseMatrix<RealType>& m
     assert(matrix.nRows == static_cast<UInt>(x.size()));
     result.resize(matrix.nRows);
 
-    ParallelFuncs::parallel_for<UInt>(matrix.nRows,
-                                      [&](UInt i)
-                                      {
-                                          RealType tmpResult = 0;
-                                          for(UInt j = matrix.rowStart[i], jEnd = matrix.rowStart[i + 1]; j < jEnd; ++j) {
-                                              tmpResult += matrix.colValue[j] * x[matrix.colIndex[j]];
-                                          }
+    Scheduler::parallel_for<UInt>(matrix.nRows,
+                                  [&](UInt i)
+                                  {
+                                      RealType tmpResult = 0;
+                                      for(UInt j = matrix.rowStart[i], jEnd = matrix.rowStart[i + 1]; j < jEnd; ++j) {
+                                          tmpResult += matrix.colValue[j] * x[matrix.colIndex[j]];
+                                      }
 
-                                          result[i] = tmpResult;
-                                      });
+                                      result[i] = tmpResult;
+                                  });
 }

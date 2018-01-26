@@ -69,9 +69,6 @@
     <ClInclude Include="Banana\ParallelHelpers\ParallelBLAS.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Banana\ParallelHelpers\ParallelFuncs.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Banana\ParallelHelpers\ParallelObjects.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -208,6 +205,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Banana\Array\IndexMapper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Banana\ParallelHelpers\Scheduler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

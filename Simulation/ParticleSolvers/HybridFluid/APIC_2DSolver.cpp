@@ -65,7 +65,7 @@ void APIC_2DSolver::mapParticles2Grid()
 {
     const Vec2r span = Vec2r(solverData().grid.getCellSize());
 
-    ParallelFuncs::parallel_for(solverData().grid.getNNodes(),
+    Scheduler::parallel_for(solverData().grid.getNNodes(),
                                 [&](UInt i, UInt j)
                                 {
                                     const Vec2r pu = Vec2r(i, j + 0.5) * solverData().grid.getCellSize() + solverData().grid.getBMin();
@@ -135,7 +135,7 @@ void APIC_2DSolver::mapParticles2Grid()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void APIC_2DSolver::mapGrid2Particles()
 {
-    ParallelFuncs::parallel_for(particleData().getNParticles(),
+    Scheduler::parallel_for(particleData().getNParticles(),
                                 [&](UInt p)
                                 {
                                     const auto& ppos   = particleData().positions[p];

@@ -236,11 +236,11 @@ void PCGSolver<RealType >::applyPreconditioner(const Vector<RealType>& x, Vector
 template<class RealType>
 void PCGSolver<RealType >::applyJacobiPreconditioner(const Vector<RealType>& x, Vector<RealType>& result)
 {
-    ParallelFuncs::parallel_for<size_t>(0, x.size(),
-                                        [&](size_t i)
-                                        {
-                                            result[i] = m_JacobiPrecond[i] * x[i];
-                                        });
+    Scheduler::parallel_for<size_t>(0, x.size(),
+                                    [&](size_t i)
+                                    {
+                                        result[i] = m_JacobiPrecond[i] * x[i];
+                                    });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -282,16 +282,16 @@ template<class RealType>
 void PCGSolver<RealType >::formPreconditioner_Jacobi(const SparseMatrix<RealType>& matrix)
 {
     m_JacobiPrecond.resize(matrix.nRows);
-    ParallelFuncs::parallel_for<UInt>(0, matrix.nRows,
-                                      [&](UInt i)
-                                      {
-                                          UInt k = 0;
-                                          if(STLHelpers::Sorted::contain(matrix.colIndex[i], i, k)) {
-                                              m_JacobiPrecond[i] = RealType(1.0) / matrix.colValue[i][k];
-                                          } else {
-                                              m_JacobiPrecond[i] = 0;
-                                          }
-                                      });
+    Scheduler::parallel_for<UInt>(0, matrix.nRows,
+                                  [&](UInt i)
+                                  {
+                                      UInt k = 0;
+                                      if(STLHelpers::Sorted::contain(matrix.colIndex[i], i, k)) {
+                                          m_JacobiPrecond[i] = RealType(1.0) / matrix.colValue[i][k];
+                                      } else {
+                                          m_JacobiPrecond[i] = 0;
+                                      }
+                                  });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

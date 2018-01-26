@@ -24,7 +24,7 @@
 #include <Banana/Setup.h>
 #include <Banana/Array/Array.h>
 #include <Banana/Utils/MathHelpers.h>
-#include <Banana/ParallelHelpers/ParallelFuncs.h>
+#include <Banana/ParallelHelpers/Scheduler.h>
 #include <Banana/ParallelHelpers/ParallelObjects.h>
 
 #include <cassert>

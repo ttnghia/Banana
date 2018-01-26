@@ -362,7 +362,7 @@ void WCSPHSolver::advanceVelocity(Real timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void WCSPHSolver::moveParticles(Real timestep)
 {
-    ParallelFuncs::parallel_for(solverData().getNParticles(),
+    Scheduler::parallel_for(solverData().getNParticles(),
                                 [&](UInt p)
                                 {
                                     auto ppos0 = solverData().positions[p];
@@ -383,7 +383,7 @@ void WCSPHSolver::correctPositions(Real timestep)
     const auto  threshold2    = threshold * threshold;
     const auto& fluidPointSet = m_NSearch->point_set(0);
 
-    ParallelFuncs::parallel_for(solverData().getNParticles(),
+    Scheduler::parallel_for(solverData().getNParticles(),
                                 [&](UInt p)
                                 {
                                     const auto& ppos = solverData().positions[p];
@@ -418,7 +418,7 @@ void WCSPHSolver::correctPositions(Real timestep)
 void WCSPHSolver::computeDensity()
 {
     const NeighborSearch::PointSet& fluidPointSet = m_NSearch->point_set(0);
-    ParallelFuncs::parallel_for(solverData().getNParticles(),
+    Scheduler::parallel_for(solverData().getNParticles(),
                                 [&](UInt p)
                                 {
                                     const auto& ppos = solverData().positions[p];
@@ -450,7 +450,7 @@ void WCSPHSolver::computeDensity()
 void WCSPHSolver::correctDensity()
 {
     const NeighborSearch::PointSet& fluidPointSet = m_NSearch->point_set(0);
-    ParallelFuncs::parallel_for(solverData().getNParticles(),
+    Scheduler::parallel_for(solverData().getNParticles(),
                                 [&](UInt p)
                                 {
                                     const auto& ppos = solverData().positions[p];
@@ -494,7 +494,7 @@ void WCSPHSolver::correctDensity()
 void WCSPHSolver::computePressureForces()
 {
     const NeighborSearch::PointSet& fluidPointSet = m_NSearch->point_set(0);
-    ParallelFuncs::parallel_for(solverData().getNParticles(),
+    Scheduler::parallel_for(solverData().getNParticles(),
                                 [&](UInt p)
                                 {
                                     Vec3r pressureAccel(0);
@@ -555,7 +555,7 @@ void WCSPHSolver::computeViscosity()
     assert(solverData().getNParticles() == solverData().diffuseVelocity.size());
 
     const NeighborSearch::PointSet& fluidPointSet = m_NSearch->point_set(0);
-    ParallelFuncs::parallel_for(solverData().getNParticles(),
+    Scheduler::parallel_for(solverData().getNParticles(),
                                 [&](UInt p)
                                 {
                                     const auto& ppos      = solverData().positions[p];
@@ -591,14 +591,14 @@ void WCSPHSolver::computeViscosity()
                                 });
 
 
-    ParallelFuncs::parallel_for(solverData().velocities.size(), [&](size_t p) { solverData().velocities[p] += solverData().diffuseVelocity[p]; });
+    Scheduler::parallel_for(solverData().velocities.size(), [&](size_t p) { solverData().velocities[p] += solverData().diffuseVelocity[p]; });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void WCSPHSolver::updateVelocity(Real timestep)
 {
     const static Vec3r gravity = globalParams().bApplyGravity ? Vec3r(0, -9.8, 0) : Vec3r(0);
-    ParallelFuncs::parallel_for(solverData().velocities.size(),
+    Scheduler::parallel_for(solverData().velocities.size(),
                                 [&](size_t p)
                                 {
                                     //solverData().velocities[p] += (gravity + solverData().pressureForces[p] + solverData().surfaceTensionForces[p]) * timestep;

@@ -21,7 +21,7 @@
 
 #include <Banana/Data/ParticleSystemData.h>
 #include <Banana/Geometry/GeometryObjects.h>
-#include <Banana/ParallelHelpers/ParallelFuncs.h>
+#include <Banana/ParallelHelpers/Scheduler.h>
 #include <Banana/Utils/Timer.h>
 #include <QObject>
 
