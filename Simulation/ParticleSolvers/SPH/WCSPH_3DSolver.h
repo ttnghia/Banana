@@ -38,9 +38,9 @@ struct SimulationParameters_WCSPH : public SimulationParameters
     SimulationParameters_WCSPH() = default;
 
     ////////////////////////////////////////////////////////////////////////////////
-    Real minTimestep = Real(1.0e-6);
-    Real maxTimestep = Real(5.0e-4);
-    Real CFLFactor   = Real(0.5);
+    Real minTimestep = 1.0e-6_f;
+    Real maxTimestep = 5.0e-4_f;
+    Real CFLFactor   = 0.5_f;
 
     Real pressureStiffness = Real(DEFAULT_PRESSURE_STIFFNESS);
     Real viscosityFluid    = Real(DEFAULT_VISCOSITY);
@@ -48,12 +48,12 @@ struct SimulationParameters_WCSPH : public SimulationParameters
     Real particleRadius    = Real(2.0 / 32.0 / 4.0);
 
     Real boundaryRestitution     = Real(SolverDefaultParameters::BoundaryRestitution);
-    Real attractivePressureRatio = Real(0.1);
-    Real restDensity             = Real(1000.0);
-    Real densityVariationRatio   = Real(10.0);
+    Real attractivePressureRatio = 0.1_f;
+    Real restDensity             = 1000.0_f;
+    Real densityVariationRatio   = 10.0_f;
 
     bool bCorrectPosition        = false;
-    Real repulsiveForceStiffness = Real(10.0);
+    Real repulsiveForceStiffness = 10.0_f;
 
     bool bCorrectDensity        = false;
     bool bUseBoundaryParticles  = false;
@@ -70,10 +70,10 @@ struct SimulationParameters_WCSPH : public SimulationParameters
     ////////////////////////////////////////////////////////////////////////////////
     virtual void makeReady() override
     {
-        kernelRadius    = particleRadius * Real(4.0);
+        kernelRadius    = particleRadius * 4.0_f;
         kernelRadiusSqr = kernelRadius * kernelRadius;
 
-        particleMass   = MathHelpers::cube(Real(2.0) * particleRadius) * restDensity * Real(0.9);
+        particleMass   = MathHelpers::cube(2.0_f * particleRadius) * restDensity * 0.9_f;
         restDensitySqr = restDensity * restDensity;
 
         densityMin = restDensity / densityVariationRatio;
@@ -190,7 +190,7 @@ public:
 protected:
     virtual void loadSimParams(const nlohmann::json& jParams) override;
     virtual void generateParticles(const nlohmann::json& jParams) override;
-    virtual bool advanceScene(UInt frame, Real fraction = Real(0)) override;
+    virtual bool advanceScene(UInt frame, Real fraction = 0_f) override;
     virtual void setupDataIO() override;
     virtual bool loadMemoryState() override;
     virtual void saveMemoryState() override;

@@ -104,7 +104,7 @@ void ClothSolver::advanceFrame()
                                   ++substepCount;
                                   logger().printLog("Finished step " + NumberHelpers::formatWithCommas(substepCount) + " of size " + NumberHelpers::formatToScientific<Real>(substep) +
                                                     "(" + NumberHelpers::formatWithCommas(substep / m_GlobalParams.frameDuration * 100) + "% of the frame, to " +
-                                                    NumberHelpers::formatWithCommas(100 * (frameTime) / m_GlobalParams.frameDuration) + "% of the frame).");
+                                                    NumberHelpers::formatWithCommas(100 * (frameTime) / m_GlobalParams.frameDuration) + "% of the frame)");
                               });
 
         ////////////////////////////////////////////////////////////////////////////////
@@ -333,7 +333,7 @@ void ClothSolver::computeFluidWeights()
                                           bool valid_index_w = gridData().w_weights.isValidIndex(i, j, k);
 
                                           if(valid_index_u) {
-                                              const Real tmp = Real(1.0) - MathHelpers::fraction_inside(gridData().boundarySDF(i, j,     k),
+                                              const Real tmp = 1.0_f - MathHelpers::fraction_inside(gridData().boundarySDF(i, j,     k),
                                                                                                         gridData().boundarySDF(i, j + 1, k),
                                                                                                         gridData().boundarySDF(i, j,     k + 1),
                                                                                                         gridData().boundarySDF(i, j + 1, k + 1));
@@ -341,7 +341,7 @@ void ClothSolver::computeFluidWeights()
                                           }
 
                                           if(valid_index_v) {
-                                              const Real tmp = Real(1.0) - MathHelpers::fraction_inside(gridData().boundarySDF(i,     j, k),
+                                              const Real tmp = 1.0_f - MathHelpers::fraction_inside(gridData().boundarySDF(i,     j, k),
                                                                                                         gridData().boundarySDF(i,     j, k + 1),
                                                                                                         gridData().boundarySDF(i + 1, j, k),
                                                                                                         gridData().boundarySDF(i + 1, j, k + 1));
@@ -349,7 +349,7 @@ void ClothSolver::computeFluidWeights()
                                           }
 
                                           if(valid_index_w) {
-                                              const Real tmp = Real(1.0) - MathHelpers::fraction_inside(gridData().boundarySDF(i,     j,     k),
+                                              const Real tmp = 1.0_f - MathHelpers::fraction_inside(gridData().boundarySDF(i,     j,     k),
                                                                                                         gridData().boundarySDF(i,     j + 1, k),
                                                                                                         gridData().boundarySDF(i + 1, j,     k),
                                                                                                         gridData().boundarySDF(i + 1, j + 1, k));
@@ -390,7 +390,7 @@ void ClothSolver::addRepulsiveVelocity2Particles(Real timestep)
                                                               continue;
                                                           }
 
-                                                          const Real x = Real(1.0) - d / solverParams().nearKernelRadius;
+                                                          const Real x = 1.0_f - d / solverParams().nearKernelRadius;
                                                           pvel += (x * x / d) * xpq;
                                                       }
                                                   }
@@ -421,13 +421,13 @@ void ClothSolver::velocityToGrid()
                                           const Vec3r pvMax = pv + span;
                                           const Vec3r pwMax = pw + span;
 
-                                          Real sum_weight_u = Real(0);
-                                          Real sum_weight_v = Real(0);
-                                          Real sum_weight_w = Real(0);
+                                          Real sum_weight_u = 0_f;
+                                          Real sum_weight_v = 0_f;
+                                          Real sum_weight_w = 0_f;
 
-                                          Real sum_u = Real(0);
-                                          Real sum_v = Real(0);
-                                          Real sum_w = Real(0);
+                                          Real sum_u = 0_f;
+                                          Real sum_v = 0_f;
+                                          Real sum_w = 0_f;
 
                                           bool valid_index_u = gridData().u.isValidIndex(i, j, k);
                                           bool valid_index_v = gridData().v.isValidIndex(i, j, k);
@@ -478,17 +478,17 @@ void ClothSolver::velocityToGrid()
                                           } // end loop over neighbor cells
 
                                           if(valid_index_u) {
-                                              gridData().u(i, j, k)       = (sum_weight_u > Tiny) ? sum_u / sum_weight_u : Real(0);
+                                              gridData().u(i, j, k)       = (sum_weight_u > Tiny) ? sum_u / sum_weight_u : 0_f;
                                               gridData().u_valid(i, j, k) = (sum_weight_u > Tiny) ? 1 : 0;
                                           }
 
                                           if(valid_index_v) {
-                                              gridData().v(i, j, k)       = (sum_weight_v > Tiny) ? sum_v / sum_weight_v : Real(0);
+                                              gridData().v(i, j, k)       = (sum_weight_v > Tiny) ? sum_v / sum_weight_v : 0_f;
                                               gridData().v_valid(i, j, k) = (sum_weight_v > Tiny) ? 1 : 0;
                                           }
 
                                           if(valid_index_w) {
-                                              gridData().w(i, j, k)       = (sum_weight_w > Tiny) ? sum_w / sum_weight_w : Real(0);
+                                              gridData().w(i, j, k)       = (sum_weight_w > Tiny) ? sum_w / sum_weight_w : 0_f;
                                               gridData().w_valid(i, j, k) = (sum_weight_w > Tiny) ? 1 : 0;
                                           }
                                       });
@@ -526,7 +526,7 @@ void ClothSolver::extrapolateVelocity(Array3r& grid, Array3r& temp_grid, Array3c
                                               }
 
                                               ////////////////////////////////////////////////////////////////////////////////
-                                              Real sum   = Real(0);
+                                              Real sum   = 0_f;
                                               UInt count = 0;
 
                                               if(old_valid(i + 1, j, k)) {
@@ -657,7 +657,7 @@ void ClothSolver::addGravity(Real timestep)
     Scheduler::parallel_for<size_t>(gridData().v.size(),
                                         [&](size_t i, size_t j, size_t k)
                                         {
-                                            gridData().v(i, j, k) -= Real(9.81) * timestep;
+                                            gridData().v(i, j, k) -= 9.81_f * timestep;
                                         });
 }
 
@@ -680,7 +680,7 @@ void ClothSolver::pressureProjection(Real timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void ClothSolver::computeFluidSDF()
 {
-    gridData().fluidSDF.assign(m_Grid.getCellSize() * Real(3.0));
+    gridData().fluidSDF.assign(m_Grid.getCellSize() * 3.0_f);
 
     Scheduler::parallel_for<UInt>(0, solverData().getNParticles(),
                                       [&](UInt p)
@@ -716,7 +716,7 @@ void ClothSolver::computeFluidSDF()
                                       [&](int i, int j, int k)
                                       {
                                           if(gridData().fluidSDF(i, j, k) < m_Grid.getHalfCellSize()) {
-                                              const Real phiValSolid = Real(0.125) * (gridData().boundarySDF(i,     j,     k) +
+                                              const Real phiValSolid = 0.125_f * (gridData().boundarySDF(i,     j,     k) +
                                                                                       gridData().boundarySDF(i + 1, j,     k) +
                                                                                       gridData().boundarySDF(i,     j + 1, k) +
                                                                                       gridData().boundarySDF(i + 1, j + 1, k) +
@@ -769,7 +769,7 @@ void ClothSolver::computeMatrix(Real timestep)
                                               center_term += right_term;
                                               solverData().matrix.addElement(cellIdx, cellIdx + 1, -right_term);
                                           } else {
-                                              Real theta = MathHelpers::max(Real(0.01), MathHelpers::fraction_inside(center_phi, right_phi));
+                                              Real theta = MathHelpers::max(0.01_f, MathHelpers::fraction_inside(center_phi, right_phi));
                                               center_term += right_term / theta;
                                           }
 
@@ -778,7 +778,7 @@ void ClothSolver::computeMatrix(Real timestep)
                                               center_term += left_term;
                                               solverData().matrix.addElement(cellIdx, cellIdx - 1, -left_term);
                                           } else {
-                                              Real theta = MathHelpers::max(Real(0.01), MathHelpers::fraction_inside(center_phi, left_phi));
+                                              Real theta = MathHelpers::max(0.01_f, MathHelpers::fraction_inside(center_phi, left_phi));
                                               center_term += left_term / theta;
                                           }
 
@@ -787,7 +787,7 @@ void ClothSolver::computeMatrix(Real timestep)
                                               center_term += top_term;
                                               solverData().matrix.addElement(cellIdx, cellIdx + m_Grid.getNCells()[0], -top_term);
                                           } else {
-                                              Real theta = MathHelpers::max(Real(0.01), MathHelpers::fraction_inside(center_phi, top_phi));
+                                              Real theta = MathHelpers::max(0.01_f, MathHelpers::fraction_inside(center_phi, top_phi));
                                               center_term += top_term / theta;
                                           }
 
@@ -796,7 +796,7 @@ void ClothSolver::computeMatrix(Real timestep)
                                               center_term += bottom_term;
                                               solverData().matrix.addElement(cellIdx, cellIdx - m_Grid.getNCells()[0], -bottom_term);
                                           } else {
-                                              Real theta = MathHelpers::max(Real(0.01), MathHelpers::fraction_inside(center_phi, bottom_phi));
+                                              Real theta = MathHelpers::max(0.01_f, MathHelpers::fraction_inside(center_phi, bottom_phi));
                                               center_term += bottom_term / theta;
                                           }
 
@@ -805,7 +805,7 @@ void ClothSolver::computeMatrix(Real timestep)
                                               center_term += far_term;
                                               solverData().matrix.addElement(cellIdx, cellIdx + m_Grid.getNCells()[0] * m_Grid.getNCells()[1], -far_term);
                                           } else {
-                                              Real theta = MathHelpers::max(Real(0.01), MathHelpers::fraction_inside(center_phi, far_phi));
+                                              Real theta = MathHelpers::max(0.01_f, MathHelpers::fraction_inside(center_phi, far_phi));
                                               center_term += far_term / theta;
                                           }
 
@@ -814,7 +814,7 @@ void ClothSolver::computeMatrix(Real timestep)
                                               center_term += near_term;
                                               solverData().matrix.addElement(cellIdx, cellIdx - m_Grid.getNCells()[0] * m_Grid.getNCells()[1], -near_term);
                                           } else {
-                                              Real theta = MathHelpers::max(Real(0.01), MathHelpers::fraction_inside(center_phi, near_phi));
+                                              Real theta = MathHelpers::max(0.01_f, MathHelpers::fraction_inside(center_phi, near_phi));
                                               center_term += near_term / theta;
                                           }
 
@@ -837,7 +837,7 @@ void ClothSolver::computeRhs()
                                               return;
                                           }
 
-                                          Real tmp = Real(0);
+                                          Real tmp = 0_f;
 
                                           tmp -= gridData().u_weights(i + 1, j, k) * gridData().u(i + 1, j, k);
                                           tmp += gridData().u_weights(i, j, k) * gridData().u(i, j, k);
@@ -883,19 +883,19 @@ void ClothSolver::updateVelocity(Real timestep)
                                           const Real near_phi   = k > 0 ? gridData().fluidSDF(i, j, k - 1) : 0;
 
                                           if(i > 0 && i < m_Grid.getNCells()[0] - 1 && (center_phi < 0 || left_phi < 0) && gridData().u_weights(i, j, k) > 0) {
-                                              Real theta = MathHelpers::max(Real(0.01), MathHelpers::fraction_inside(left_phi, center_phi));
+                                              Real theta = MathHelpers::max(0.01_f, MathHelpers::fraction_inside(left_phi, center_phi));
                                               gridData().u(i, j, k)      -= timestep * (solverData().pressure[idx] - solverData().pressure[idx - 1]) / theta;
                                               gridData().u_valid(i, j, k) = 1;
                                           }
 
                                           if(j > 0 && j < m_Grid.getNCells()[1] - 1 && (center_phi < 0 || bottom_phi < 0) && gridData().v_weights(i, j, k) > 0) {
-                                              Real theta = MathHelpers::max(Real(0.01), MathHelpers::fraction_inside(bottom_phi, center_phi));
+                                              Real theta = MathHelpers::max(0.01_f, MathHelpers::fraction_inside(bottom_phi, center_phi));
                                               gridData().v(i, j, k)      -= timestep * (solverData().pressure[idx] - solverData().pressure[idx - m_Grid.getNCells()[0]]) / theta;
                                               gridData().v_valid(i, j, k) = 1;
                                           }
 
                                           if(k > 0 && k < m_Grid.getNCells()[2] - 1 && gridData().w_weights(i, j, k) > 0 && (center_phi < 0 || near_phi < 0)) {
-                                              Real theta = MathHelpers::max(Real(0.01), MathHelpers::fraction_inside(near_phi, center_phi));
+                                              Real theta = MathHelpers::max(0.01_f, MathHelpers::fraction_inside(near_phi, center_phi));
                                               gridData().w(i, j, k)      -= timestep * (solverData().pressure[idx] - solverData().pressure[idx - m_Grid.getNCells()[0] * m_Grid.getNCells()[1]]) / theta;
                                               gridData().w_valid(i, j, k) = 1;
                                           }

@@ -49,9 +49,9 @@ Grid<3, Real> grid3D = Grid<3, Real>(Vec3r(-2), Vec3r(2), Real(1.0 / 128.0));
 const size_t N               = 50;
 const size_t N_enright_steps = 50;
 
-const Real r_omega  = Real(0.75);
+const Real r_omega  = 0.75_f;
 const Real r_omega2 = r_omega * r_omega;
-const Real radius   = Real(2.001) * (Real(2.0) * r_omega / static_cast<Real>(N - 1));
+const Real radius   = 2.001_f * (2.0_f * r_omega / static_cast<Real>(N - 1));
 const Real radius2  = radius * radius;
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -207,11 +207,11 @@ Vec3r enright_velocity_field(Vec3r const& x)
     sin_pi_y_2 *= sin_pi_y_2;
     sin_pi_z_2 *= sin_pi_z_2;
 
-    Real sin_2_pi_x = static_cast<Real>(std::sin(Real(2.0 * M_PI) * x[0]));
-    Real sin_2_pi_y = static_cast<Real>(std::sin(Real(2.0 * M_PI) * x[1]));
-    Real sin_2_pi_z = static_cast<Real>(std::sin(Real(2.0 * M_PI) * x[2]));
+    Real sin_2_pi_x = std::sin(2.0_f * M_PI * x[0]);
+    Real sin_2_pi_y = std::sin(2.0_f * M_PI * x[1]);
+    Real sin_2_pi_z = std::sin(2.0_f * M_PI * x[2]);
 
-    return Vec3r(static_cast<Real>(2.0) * sin_pi_x_2 * sin_2_pi_y * sin_2_pi_z,
+    return Vec3r(2.0_f * sin_pi_x_2 * sin_2_pi_y * sin_2_pi_z,
                  -sin_2_pi_x * sin_pi_y_2 * sin_2_pi_z,
                  -sin_2_pi_x * sin_2_pi_y * sin_pi_z_2);
 }
@@ -219,7 +219,7 @@ Vec3r enright_velocity_field(Vec3r const& x)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void advect()
 {
-    const Real timestep = Real(0.01);
+    const Real timestep = 0.01_f;
     Scheduler::parallel_for<size_t>(0, positions.size(), [&](size_t i)
                                     {
                                         Vec3r& x = positions[i];
@@ -247,9 +247,9 @@ TEST_CASE("Test CompactNSearch", "[CompactNSearch]")
                 Real l2 = x[0] * x[0] + x[1] * x[1] + x[2] * x[2];
 
                 if(l2 < r_omega2) {
-                    x[0] += Real(0.35);
-                    x[1] += Real(0.35);
-                    x[2] += Real(0.35);
+                    x[0] += 0.35_f;
+                    x[1] += 0.35_f;
+                    x[2] += 0.35_f;
                     positions.push_back(x);
 
                     if(min_x > x[0]) {

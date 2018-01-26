@@ -47,9 +47,9 @@ inline void getCoordinatesAndWeights(const Vec2r& point, const Vec2ui& size, std
     indices[2] = Vec2i(i, j + 1);
     indices[3] = Vec2i(i + 1, j + 1);
 
-    weights[0] = (Real(1.0) - fi) * (Real(1.0) - fj);
-    weights[1] = fi * (Real(1.0) - fj);
-    weights[2] = (Real(1.0) - fi) * fj;
+    weights[0] = (1.0_f - fi) * (1.0_f - fj);
+    weights[1] = fi * (1.0_f - fj);
+    weights[2] = (1.0_f - fi) * fj;
     weights[3] = fi * fj;
 }
 
@@ -156,10 +156,10 @@ inline Real interpolateValueCubicBSpline(const Vec2r& point, const Array2r& grid
         }
     }
 
-    if(sumW > Real(1e-30)) {
+    if(sumW > 1e-30_f) {
         return sumVal / sumW;
     } else {
-        return Real(0);
+        return 0_f;
     }
 }
 
@@ -193,7 +193,7 @@ inline Real interpolateValueCubicBSpline(const Vec3r& point, const Array3r& grid
     if(sumW > 0) {
         return sumVal / sumW;
     } else {
-        return Real(0);
+        return 0_f;
     }
 }
 
@@ -257,9 +257,9 @@ inline Vec2r interpolateGradientValue(const Vec2r& point, const Array2r& grid, R
     Real v10 = grid(i + 1, j);
     Real v11 = grid(i + 1, j + 1);
 
-    Vec2r grad = v00 * Vec2r(fj - Real(1.0), fi - Real(1.0)) +
-                 v10 * Vec2r(Real(1.0) - fj, -fi) +
-                 v01 * Vec2r(-fj,            Real(1.0) - fi) +
+    Vec2r grad = v00 * Vec2r(fj - 1.0_f, fi - 1.0_f) +
+                 v10 * Vec2r(1.0_f - fj, -fi) +
+                 v01 * Vec2r(-fj,            1.0_f - fi) +
                  v11 * Vec2r(fj,             fi);
     return grad / cellSize;
 }
@@ -372,13 +372,13 @@ inline Vec3r interpolateGradientValue(const Vec3r& point, const Array3r& grid, R
     Real v110 = grid(i + 1, j + 1, k);
     Real v111 = grid(i + 1, j + 1, k + 1);
 
-    Vec3r grad = v000 * Vec3r(-(Real(1.0) - fj) * (Real(1.0) - fk), -(Real(1.0) - fi) * (Real(1.0) - fk), -(Real(1.0) - fi) * (Real(1.0) - fj)) +
-                 v001 * Vec3r(-(Real(1.0) - fj) * fk, -(Real(1.0) - fi) * fk, (Real(1.0) - fi) * (Real(1.0) - fj)) +
-                 v010 * Vec3r(-fj * (Real(1.0) - fk), (Real(1.0) - fi) * (Real(1.0) - fk), -(Real(1.0) - fi) * fj) +
-                 v011 * Vec3r(-fj * fk, (Real(1.0) - fi) * fk, (Real(1.0) - fi) * fj) +
-                 v100 * Vec3r((Real(1.0) - fj) * (Real(1.0) - fk), -fi * (Real(1.0) - fk), -fi * (Real(1.0) - fj)) +
-                 v101 * Vec3r((Real(1.0) - fj) * fk, -fi * fk, fi * (Real(1.0) - fj)) +
-                 v110 * Vec3r(fj * (Real(1.0) - fk), fi * (Real(1.0) - fk), -fi * fj) +
+    Vec3r grad = v000 * Vec3r(-(1.0_f - fj) * (1.0_f - fk), -(1.0_f - fi) * (1.0_f - fk), -(1.0_f - fi) * (1.0_f - fj)) +
+                 v001 * Vec3r(-(1.0_f - fj) * fk, -(1.0_f - fi) * fk, (1.0_f - fi) * (1.0_f - fj)) +
+                 v010 * Vec3r(-fj * (1.0_f - fk), (1.0_f - fi) * (1.0_f - fk), -(1.0_f - fi) * fj) +
+                 v011 * Vec3r(-fj * fk, (1.0_f - fi) * fk, (1.0_f - fi) * fj) +
+                 v100 * Vec3r((1.0_f - fj) * (1.0_f - fk), -fi * (1.0_f - fk), -fi * (1.0_f - fj)) +
+                 v101 * Vec3r((1.0_f - fj) * fk, -fi * fk, fi * (1.0_f - fj)) +
+                 v110 * Vec3r(fj * (1.0_f - fk), fi * (1.0_f - fk), -fi * fj) +
                  v111 * Vec3r(fj * fk, fi * fk, fi * fj);
     return grad / cellSize;
 }

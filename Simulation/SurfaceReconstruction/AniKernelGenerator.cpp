@@ -49,7 +49,7 @@ void AnisotropicKernelGenerator::computeAniKernels(Vec_Vec3r& kernelCenters, Vec
                                       // compute kernel center and weighted mean position
                                       const Vec3r& ppos = m_Particles[p];
                                       Vec3r pposWM      = ppos;
-                                      Real sumW         = Real(1.0);
+                                      Real sumW         = 1.0_f;
 
                                       for(UInt q : d0.neighbors(0, p)) {
                                           const Vec3r& qpos = m_Particles[q];
@@ -72,7 +72,7 @@ void AnisotropicKernelGenerator::computeAniKernels(Vec_Vec3r& kernelCenters, Vec
                                       ////////////////////////////////////////////////////////////////////////////////
                                       // compute covariance matrix and anisotropy matrix
                                       Mat3x3<Real> C(0);
-                                      sumW = Real(0);
+                                      sumW = 0_f;
                                       for(UInt q : d0.neighbors(0, p)) {
                                           const Vec3r& qpos = m_Particles[q];
                                           const Vec3r xpq   = qpos - pposWM;
@@ -91,7 +91,7 @@ void AnisotropicKernelGenerator::computeAniKernels(Vec_Vec3r& kernelCenters, Vec
                                       QRSVD::svd(C, U, S, V);
 
                                       Vec3r sigmas = Vec3r(S[0], MathHelpers::max(S[1], S[0] / AniGen_Kr), MathHelpers::max(S[2], S[0] / AniGen_Kr));
-                                      sigmas           *= std::cbrt(Real(1.0) / glm::compMul(sigmas));       // scale so that det(covariance) == 1
+                                      sigmas           *= std::cbrt(1.0_f / glm::compMul(sigmas));       // scale so that det(covariance) == 1
                                       kernelMatrices[p] = U * LinaHelpers::diagMatrix(sigmas) * glm::transpose(V);
                                   });
 }

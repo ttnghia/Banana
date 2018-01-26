@@ -62,7 +62,7 @@ struct PIC_2DParameters : public SimulationParameters
     // time step size
     Real minTimestep = SolverDefaultParameters::MinTimestep;
     Real maxTimestep = SolverDefaultParameters::MaxTimestep;
-    Real CFLFactor   = Real(1.0);
+    Real CFLFactor   = 1.0_f;
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -74,7 +74,7 @@ struct PIC_2DParameters : public SimulationParameters
     ////////////////////////////////////////////////////////////////////////////////
     // position-correction
     bool bCorrectPosition        = true;
-    Real repulsiveForceStiffness = Real(50);
+    Real repulsiveForceStiffness = 50_f;
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -281,7 +281,7 @@ public:
 protected:
     virtual void loadSimParams(const nlohmann::json& jParams) override;
     virtual void generateParticles(const nlohmann::json& jParams) override;
-    virtual bool advanceScene(UInt frame, Real fraction = Real(0)) override;
+    virtual bool advanceScene(UInt frame, Real fraction = 0_f) override;
     virtual void allocateSolverMemory() override {}
     virtual void setupDataIO() override;
     virtual bool loadMemoryState() override;

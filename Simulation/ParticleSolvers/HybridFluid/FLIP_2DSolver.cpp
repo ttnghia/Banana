@@ -86,11 +86,11 @@ void FLIP_2DSolver::mapParticles2Grid()
                                           const Vec2r puMax = pu + span;
                                           const Vec2r pvMax = pv + span;
 
-                                          Real sum_weight_u = Real(0);
-                                          Real sum_weight_v = Real(0);
+                                          Real sum_weight_u = 0_f;
+                                          Real sum_weight_v = 0_f;
 
-                                          Real sum_u = Real(0);
-                                          Real sum_v = Real(0);
+                                          Real sum_u = 0_f;
+                                          Real sum_v = 0_f;
 
                                           bool valid_index_u = gridData().u.isValidIndex(i, j);
                                           bool valid_index_v = gridData().v.isValidIndex(i, j);
@@ -130,12 +130,12 @@ void FLIP_2DSolver::mapParticles2Grid()
                                           } // end loop over neighbor cells
 
                                           if(valid_index_u) {
-                                              gridData().u(i, j)       = (sum_weight_u > Tiny) ? sum_u / sum_weight_u : Real(0);
+                                              gridData().u(i, j)       = (sum_weight_u > Tiny) ? sum_u / sum_weight_u : 0_f;
                                               gridData().u_valid(i, j) = (sum_weight_u > Tiny) ? 1 : 0;
                                           }
 
                                           if(valid_index_v) {
-                                              gridData().v(i, j)       = (sum_weight_v > Tiny) ? sum_v / sum_weight_v : Real(0);
+                                              gridData().v(i, j)       = (sum_weight_v > Tiny) ? sum_v / sum_weight_v : 0_f;
                                               gridData().v_valid(i, j) = (sum_weight_v > Tiny) ? 1 : 0;
                                           }
                                       });

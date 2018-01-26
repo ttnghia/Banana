@@ -37,7 +37,7 @@ struct FLIP_2DParameters : public SimulationParameters
 
     ////////////////////////////////////////////////////////////////////////////////
     // data only for flip
-    Real PIC_FLIP_ratio = Real(0.97);
+    Real PIC_FLIP_ratio = 0.97_f;
     ////////////////////////////////////////////////////////////////////////////////
 
     virtual void printParams(const SharedPtr<Logger>& logger) override

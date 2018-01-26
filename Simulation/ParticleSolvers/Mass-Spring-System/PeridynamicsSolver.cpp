@@ -78,8 +78,8 @@ void PeridynamicsSolver::advanceFrame()
                                   Real remainingTime = globalParams().frameDuration - frameTime;
                                   if(frameTime + substep >= globalParams().frameDuration) {
                                       substep = remainingTime;
-                                  } else if(frameTime + Real(1.5) * substep >= globalParams().frameDuration) {
-                                      substep = remainingTime * Real(0.5);
+                                  } else if(frameTime + 1.5_f * substep >= globalParams().frameDuration) {
+                                      substep = remainingTime * 0.5_f;
                                   }
                                   ////////////////////////////////////////////////////////////////////////////////
                                   logger().printRunTime("====> Advance velocity total: ", funcTimer, [&]() { advanceVelocity(substep); });
@@ -90,7 +90,7 @@ void PeridynamicsSolver::advanceFrame()
                                   ++substepCount;
                                   logger().printLog("Finished step " + NumberHelpers::formatWithCommas(substepCount) + " of size " + NumberHelpers::formatToScientific<Real>(substep) +
                                                     "(" + NumberHelpers::formatWithCommas(substep / m_GlobalParams.frameDuration * 100) + "% of the frame, to " +
-                                                    NumberHelpers::formatWithCommas(100 * (frameTime) / m_GlobalParams.frameDuration) + "% of the frame).");
+                                                    NumberHelpers::formatWithCommas(100 * (frameTime) / m_GlobalParams.frameDuration) + "% of the frame)");
                                   logger().printRunTime("Advance scene: ", funcTimer, [&]() { advanceScene(globalParams().finishedFrame, frameTime / globalParams().frameDuration); });
                               });
 
@@ -144,7 +144,7 @@ void PeridynamicsSolver::generateParticles(const nlohmann::json& jParams)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-bool PeridynamicsSolver::advanceScene(UInt frame, Real fraction /*= Real(0)*/)
+bool PeridynamicsSolver::advanceScene(UInt frame, Real fraction /*= 0_f*/)
 {
     bool bSceneChanged = ParticleSolver3D::advanceScene(frame, fraction);
 
@@ -364,7 +364,7 @@ void PeridynamicsSolver::integrateImplicitNewmarkBeta(Real timestep)
     Scheduler::parallel_for(solverData().nActives,
                                 [&](UInt p)
                                 {
-                                    solverData().velocities[p] = (solverData().velocities[p] + velocity_old[p]) * Real(0.5);
+                                    solverData().velocities[p] = (solverData().velocities[p] + velocity_old[p]) * 0.5_f;
                                 });
 }
 
@@ -387,7 +387,7 @@ void PeridynamicsSolver::moveParticles(Real timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PeridynamicsSolver::buildLinearSystem(Real timestep)
 {
-    const Real rhs_coeff = (solverParams().integrationScheme == SolverDefaultParameters::IntegrationScheme::NewmarkBeta) ? Real(2.0) : Real(1.0);
+    const Real rhs_coeff = (solverParams().integrationScheme == SolverDefaultParameters::IntegrationScheme::NewmarkBeta) ? 2.0_f : 1.0_f;
     solverData().matrix.clear();
     solverData().rhs.assign(solverData().rhs.size(), Vec3r(0));
 
@@ -418,8 +418,8 @@ void PeridynamicsSolver::buildLinearSystem(Real timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PeridynamicsSolver::computeImplicitForce(UInt p, Vec3r& pforce, Mat3x3r& sumLHS, Vec3r& sumRHS, Real timestep)
 {
-    const Real fdx_coeff = (solverParams().integrationScheme == SolverDefaultParameters::IntegrationScheme::NewmarkBeta) ? MathHelpers::sqr(timestep) / Real(4.0) : MathHelpers::sqr(timestep);
-    const Real fdv_coeff = (solverParams().integrationScheme == SolverDefaultParameters::IntegrationScheme::NewmarkBeta) ? timestep* Real(0.5) : timestep;
+    const Real fdx_coeff = (solverParams().integrationScheme == SolverDefaultParameters::IntegrationScheme::NewmarkBeta) ? MathHelpers::sqr(timestep) / 4.0_f : MathHelpers::sqr(timestep);
+    const Real fdv_coeff = (solverParams().integrationScheme == SolverDefaultParameters::IntegrationScheme::NewmarkBeta) ? timestep* 0.5_f : timestep;
 
     const Vec3r& ppos = solverData().positions[p];
     const Vec3r& pvel = solverData().velocities[p];
@@ -446,7 +446,7 @@ void PeridynamicsSolver::computeImplicitForce(UInt p, Vec3r& pforce, Mat3x3r& su
         }
 
         Real d0     = pd0[bondIndex];
-        Real drdivd = dij / d0 - Real(1.0);
+        Real drdivd = dij / d0 - 1.0_f;
 
         if(solverData().isActive(p) && solverData().isActive(q) && drdivd > std::max(bthreshold, solverData().stretchThreshold[q])) {
             solverData().brokenBonds[p].push_back(bondIndex);
@@ -456,7 +456,7 @@ void PeridynamicsSolver::computeImplicitForce(UInt p, Vec3r& pforce, Mat3x3r& su
         Real vscale(1.0);
 
         if(d0 > (solverParams().horizon - solverParams().particleRadius)) {
-            vscale = Real(0.5) + (solverParams().horizon - d0) / Real(2.0) / solverParams().particleRadius;
+            vscale = 0.5_f + (solverParams().horizon - d0) / 2.0_f / solverParams().particleRadius;
         }
 
         if(drdivd < smin) {
@@ -489,7 +489,7 @@ void PeridynamicsSolver::computeImplicitForce(UInt p, Vec3r& pforce, Mat3x3r& su
     }
 
     ss0                                 = solverData().stretchThreshold_t0[p];
-    solverData().newStretchThreshold[p] = ss0 - Real(0.25) * smin;
+    solverData().newStretchThreshold[p] = ss0 - 0.25_f * smin;
     pforce                             += solverParams().KSpring * springForce + solverParams().KDamping * dampingForce;
 }
 
@@ -520,7 +520,7 @@ void PeridynamicsSolver::computeExplicitForces()
                                         }
 
                                         Real d0     = pd0[bondIndex];
-                                        Real drdivd = dij / d0 - Real(1.0);
+                                        Real drdivd = dij / d0 - 1.0_f;
 
                                         if(solverData().isActive(p) && solverData().isActive(q) && drdivd > std::max(bthreshold, solverData().stretchThreshold[q])) {
                                             continue; // continue to the next loop without change the walker
@@ -529,7 +529,7 @@ void PeridynamicsSolver::computeExplicitForces()
                                         Real vscale(1.0);
 
                                         if(d0 > (solverParams().horizon - solverParams().particleRadius)) {
-                                            vscale = Real(0.5) + (solverParams().horizon - d0) / Real(2.0) / solverParams().particleRadius;
+                                            vscale = 0.5_f + (solverParams().horizon - d0) / 2.0_f / solverParams().particleRadius;
                                         }
 
                                         springForce += (drdivd * vscale) * eij;

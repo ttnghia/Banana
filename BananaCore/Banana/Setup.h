@@ -271,5 +271,72 @@ using Vec_VecMat3x3r = Vector<Vector<Mat3x3r> >;
 using Vec_VecMat4x4r = Vector<Vector<Mat4x4r> >;
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+// Conversion operators
+Real constexpr operator "" _f(long double x)
+{
+    return static_cast<Real>(x);
+}
+
+Real constexpr operator "" _f(unsigned long long int x)
+{
+    return static_cast<Real>(x);
+}
+
+float constexpr operator "" _f32(long double x)
+{
+    return static_cast<float>(x);
+}
+
+float constexpr operator "" _f32(unsigned long long int x)
+{
+    return static_cast<float>(x);
+}
+
+float constexpr operator "" _fl(long double x)
+{
+    return static_cast<float>(x);
+}
+
+float constexpr operator "" _fl(unsigned long long int x)
+{
+    return static_cast<float>(x);
+}
+
+double constexpr operator "" _f64(long double x)
+{
+    return static_cast<double>(x);
+}
+
+double constexpr operator "" _f64(unsigned long long int x)
+{
+    return static_cast<double>(x);
+}
+
+double constexpr operator "" _d(long double x)
+{
+    return static_cast<double>(x);
+}
+
+double constexpr operator "" _d(unsigned long long int x)
+{
+    return static_cast<double>(x);
+}
+
+Int32 constexpr operator "" _int(unsigned long long int x)
+{
+    return static_cast<Int32>(x);
+}
+
+UInt32 constexpr operator "" _uint(unsigned long long int x)
+{
+    return static_cast<UInt32>(x);
+}
+
+UInt64 constexpr operator "" _uint64(unsigned long long int x)
+{
+    return static_cast<UInt64>(x);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // include macros after typename definitions
 #include <Banana/Macros.h>

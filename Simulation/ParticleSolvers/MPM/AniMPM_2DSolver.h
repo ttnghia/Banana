@@ -103,7 +103,7 @@ public:
 protected:
     virtual void loadSimParams(const nlohmann::json& jParams) override;
     virtual void generateParticles(const nlohmann::json& jParams) override;
-    virtual bool advanceScene(UInt frame, Real fraction = Real(0)) override;
+    virtual bool advanceScene(UInt frame, Real fraction = 0_f) override;
     virtual void allocateSolverMemory() override;
     virtual void setupDataIO() override;
     virtual bool loadMemoryState() override;

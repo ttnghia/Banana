@@ -794,14 +794,14 @@ void TriMeshObject<3, RealType >::computeSDF()
     bbmax *= scale;
 
     // expand the bounding box
-    Vec3f meshCenter = (bbmax + bbmin) * Real(0.5);
+    Vec3f meshCenter = (bbmax + bbmin) * 0.5_f;
     auto  cmin       = bbmin - meshCenter;
     auto  cmax       = bbmax - meshCenter;
 
     //bbmin = meshCenter + glm::normalize(cmin) * glm::length(cmin);
     //bbmax = meshCenter + glm::normalize(cmax) * glm::length(cmax);
-    bbmin = meshCenter + glm::normalize(cmin) * glm::length(cmin) * Real(1.1);
-    bbmax = meshCenter + glm::normalize(cmax) * glm::length(cmax) * Real(1.1);
+    bbmin = meshCenter + glm::normalize(cmin) * glm::length(cmin) * 1.1_f;
+    bbmax = meshCenter + glm::normalize(cmax) * glm::length(cmax) * 1.1_f;
 
     // to move the mesh center to origin
     bbmin -= meshCenter;

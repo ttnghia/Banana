@@ -37,7 +37,7 @@ struct AFLIP_3DParameters : public SimulationParameters
 
     ////////////////////////////////////////////////////////////////////////////////
     // data only for flip
-    Real PIC_FLIP_ratio = Real(0.97);
+    Real PIC_FLIP_ratio = 0.97_f;
     ////////////////////////////////////////////////////////////////////////////////
 
     virtual void printParams(const SharedPtr<Logger>& logger) override;
@@ -93,7 +93,7 @@ public:
 protected:
     virtual void loadSimParams(const nlohmann::json& jParams) override;
     virtual void generateParticles(const nlohmann::json& jParams) override;
-    virtual bool advanceScene(UInt frame, Real fraction = Real(0)) override;
+    virtual bool advanceScene(UInt frame, Real fraction = 0_f) override;
     virtual void allocateSolverMemory() override;
     virtual void advanceVelocity(Real timestep) override;
 

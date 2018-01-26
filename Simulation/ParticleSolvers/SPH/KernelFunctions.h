@@ -48,8 +48,8 @@ public:
         const Real pi = static_cast<Real>(M_PI);
 
         const Real h3 = m_radius * m_radius * m_radius;
-        m_k      = Real(8.0) / (pi * h3);
-        m_l      = Real(48.0) / (pi * h3);
+        m_k      = 8.0_f / (pi * h3);
+        m_l      = 48.0_f / (pi * h3);
         m_W_zero = W(Vec3r(0));
     }
 
@@ -58,13 +58,13 @@ public:
     {
         Real       res = 0;
         const Real q   = r / m_radius;
-        if(q <= Real(1.0)) {
-            if(q <= Real(0.5)) {
+        if(q <= 1.0_f) {
+            if(q <= 0.5_f) {
                 const Real q2 = q * q;
                 const Real q3 = q2 * q;
-                res = m_k * (Real(6.0) * q3 - Real(6.0) * q2 + Real(1.0));
+                res = m_k * (6.0_f * q3 - 6.0_f * q2 + 1.0_f);
             } else {
-                res = m_k * (Real(2.0) * pow(Real(1.0) - q, 3));
+                res = m_k * (2.0_f * pow(1.0_f - q, 3));
             }
         }
         return res;
@@ -80,12 +80,12 @@ public:
         Vec3r      res = Vec3r(0);
         const Real rl  = glm::length(r);
         const Real q   = rl / m_radius;
-        if(q <= Real(1.0) && rl > Real(1.0e-6)) {
-            const Vec3r gradq = r * (Real(1.0) / (rl * m_radius));
-            if(q <= Real(0.5)) {
-                res = m_l * q * (Real(3.0) * q - Real(2.0)) * gradq;
+        if(q <= 1.0_f && rl > 1e-6_f) {
+            const Vec3r gradq = r * (1.0_f / (rl * m_radius));
+            if(q <= 0.5_f) {
+                res = m_l * q * (3.0_f * q - 2.0_f) * gradq;
             } else {
-                const Real factor = Real(1.0) - q;
+                const Real factor = 1.0_f - q;
                 res = m_l * (-factor * factor) * gradq;
             }
         }
@@ -118,8 +118,8 @@ public:
     {
         m_radius = val;
         const Real pi = static_cast<Real>(M_PI);
-        m_k      = Real(315.0) / (Real(64.0) * pi * pow(m_radius, 9));
-        m_l      = Real(-945.0) / (Real(32.0) * pi * pow(m_radius, 9));
+        m_k      = 315.0_f / (64.0_f * pi * pow(m_radius, 9));
+        m_l      = -945.0_f / (32.0_f * pi * pow(m_radius, 9));
         m_m      = m_l;
         m_W_zero = W(Vec3r(0));
     }
@@ -180,7 +180,7 @@ public:
         const Real radius2 = m_radius * m_radius;
         if(r2 <= radius2) {
             Real tmp  = radius2 - r2;
-            Real tmp2 = Real(3.0) * radius2 - Real(7.0) * r2;
+            Real tmp2 = 3.0_f * radius2 - 7.0_f * r2;
             res = m_m * tmp * tmp2;
         }
 
@@ -212,8 +212,8 @@ public:
         m_radius = val;
         const Real radius6 = pow(m_radius, 6);
         const Real pi      = Real(M_PI);
-        m_k      = Real(15.0) / (pi * radius6);
-        m_l      = Real(-45.0) / (pi * radius6);
+        m_k      = 15.0_f / (pi * radius6);
+        m_l      = -45.0_f / (pi * radius6);
         m_W_zero = W(Vec3r(0));
     }
 
@@ -288,8 +288,8 @@ public:
     {
         m_radius = val;
         const Real pi = static_cast<Real>(M_PI);
-        m_k      = Real(32.0) / (pi * pow(m_radius, 9));
-        m_c      = pow(m_radius, 6) / Real(64.0);
+        m_k      = 32.0_f / (pi * pow(m_radius, 9));
+        m_c      = pow(m_radius, 6) / 64.0_f;
         m_W_zero = W(Vec3r(0));
     }
 
@@ -307,10 +307,10 @@ public:
         if(r2 <= radius2) {
             const Real r1 = sqrt(r2);
             const Real r3 = r2 * r1;
-            if(r1 > Real(0.5) * m_radius) {
+            if(r1 > 0.5_f * m_radius) {
                 res = m_k * pow(m_radius - r1, 3) * r3;
             } else {
-                res = m_k * Real(2.0) * pow(m_radius - r1, 3) * r3 - m_c;
+                res = m_k * 2.0_f * pow(m_radius - r1, 3) * r3 - m_c;
             }
         }
         return res;
@@ -324,10 +324,10 @@ public:
         if(r2 <= radius2) {
             const Real r1 = sqrt(r2);
             const Real r3 = r2 * r1;
-            if(r1 > Real(0.5) * m_radius) {
+            if(r1 > 0.5_f * m_radius) {
                 res = m_k * pow(m_radius - r1, 3) * r3;
             } else {
-                res = m_k * Real(2.0) * pow(m_radius - r1, 3) * r3 - m_c;
+                res = m_k * 2.0_f * pow(m_radius - r1, 3) * r3 - m_c;
             }
         }
         return res;
@@ -355,7 +355,7 @@ public:
     void setRadius(Real val)
     {
         m_radius = val;
-        m_k      = Real(0.007) / pow(m_radius, Real(3.25));
+        m_k      = 0.007_f / pow(m_radius, 3.25_f);
         m_W_zero = W(Vec3r(0));
     }
 
@@ -371,8 +371,8 @@ public:
         const Real radius2 = m_radius * m_radius;
         if(r2 <= radius2) {
             const Real r = sqrt(r2);
-            if(r > Real(0.5) * m_radius) {
-                res = m_k * pow(Real(-4.0) * r2 / m_radius + Real(6.0) * r - Real(2.0) * m_radius, Real(0.25));
+            if(r > 0.5_f * m_radius) {
+                res = m_k * pow(-4.0_f * r2 / m_radius + 6.0_f * r - 2.0_f * m_radius, 0.25_f);
             }
         }
         return res;
@@ -385,8 +385,8 @@ public:
         const Real radius2 = m_radius * m_radius;
         if(r2 <= radius2) {
             const Real r = sqrt(r2);
-            if(r > Real(0.5) * m_radius) {
-                res = m_k * pow(Real(-4.0) * r2 / m_radius + Real(6.0) * r - Real(2.0) * m_radius, Real(0.25));
+            if(r > 0.5_f * m_radius) {
+                res = m_k * pow(-4.0_f * r2 / m_radius + 6.0_f * r - 2.0_f * m_radius, 0.25_f);
             }
         }
         return res;
@@ -423,11 +423,11 @@ public:
         m_radius2 = val * val;
         kernel.setRadius(val);
         const Real stepSize = m_radius / (Real)resolution;
-        m_invStepSize = Real(1.0) / stepSize;
+        m_invStepSize = 1.0_f / stepSize;
         for(unsigned int i = 0; i < resolution; i++) {
             const Real posX = stepSize * (Real)i;               // Store kernel values in the middle of an interval
             m_W[i] = kernel.W(posX);
-            if(posX > Real(1.0e-6)) {
+            if(posX > 1e-6_f) {
                 m_gradW[i] = kernel.gradW(Vec3r(posX, 0, 0))[0] / posX;
             } else {
                 m_gradW[i] = 0;

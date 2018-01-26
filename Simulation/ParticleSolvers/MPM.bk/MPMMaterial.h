@@ -34,18 +34,18 @@ struct MPMMaterial
 
     MPMMaterial(const Real dens, const Real Y, const Real P, const Real c, const Real d, const Real e) :
         density(dens),
-        bulkModK(Y / (Real(3.0) * (Real(1.0) - Real(2.0) * P))),
-        shearModG(Y / (Real(2.0) * (Real(1.0) + P))),
+        bulkModK(Y / (3.0_f * (1.0_f - 2.0_f * P))),
+        shearModG(Y / (2.0_f * (1.0_f + P))),
         yieldStress(c),
         isoHardMod(d),
         kinHardMod(e)
     {
-        if(density < Real(0.0)) { throw std::exception("invalid density"); }
-        if(Y < Real(0.0)) { throw std::exception("invalid Young's modulus"); }
-        if(P > Real(0.5) - std::numeric_limits<Real>::epsilon() || P < Real(0.0)) { throw std::exception("invalid Poisson's ratio"); }
-        if(yieldStress < Real(0.0)) { throw std::exception("invalid yield stress - no plasticity found in plastic model"); }
-        if(isoHardMod < Real(0.0)) { throw std::exception("invalid isotropic hardening modulus"); }
-        if(kinHardMod < Real(0.0)) { throw std::exception("invalid kinematic hardening modulus"); }
+        if(density < 0_f) { throw std::exception("invalid density"); }
+        if(Y < 0_f) { throw std::exception("invalid Young's modulus"); }
+        if(P > 0.5_f - std::numeric_limits<Real>::epsilon() || P < 0_f) { throw std::exception("invalid Poisson's ratio"); }
+        if(yieldStress < 0_f) { throw std::exception("invalid yield stress - no plasticity found in plastic model"); }
+        if(isoHardMod < 0_f) { throw std::exception("invalid isotropic hardening modulus"); }
+        if(kinHardMod < 0_f) { throw std::exception("invalid kinematic hardening modulus"); }
     }
 };
 

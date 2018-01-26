@@ -122,7 +122,7 @@ void AniMPM_2DSolver::generateParticles(const nlohmann::json& jParams)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-bool AniMPM_2DSolver::advanceScene(UInt frame, Real fraction /*= Real(0)*/)
+bool AniMPM_2DSolver::advanceScene(UInt frame, Real fraction /*= 0_f*/)
 {
     bool bSceneChanged = MPM_2DSolver::advanceScene(frame, fraction);
 
@@ -294,7 +294,7 @@ void AniMPM_2DSolver::explicitIntegration(Real timestep)
                                 Vec2r S;
                                 LinaHelpers::orientedSVD(particleData().deformGrad[p], U, S, Vt);
                                 if(S[1] < 0) {
-                                    S[1] *= Real(-1.0);
+                                    S[1] *= -1.0_f;
                                 }
                                 Ftemp = U * LinaHelpers::diagMatrix(S) * Vt;
 
@@ -396,7 +396,7 @@ void AniMPM_2DSolver::updateParticleDeformGradients(Real timestep)
                             {
                                 auto velGrad = particleData().velocityGrad[p];
                                 velGrad *= timestep;
-                                LinaHelpers::sumToDiag(velGrad, Real(1.0));
+                                LinaHelpers::sumToDiag(velGrad, 1.0_f);
                                 particleData().deformGrad[p] = velGrad * particleData().deformGrad[p];
                             });
 }

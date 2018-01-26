@@ -31,15 +31,15 @@ namespace Banana
 class AnisotropicKernelGenerator
 {
 public:
-    AnisotropicKernelGenerator(const Vec_Vec3r& particles, Real particleRadius, Real defaultSpraySize = Real(0.75), Real kernelRatio = Real(8.0)) :
+    AnisotropicKernelGenerator(const Vec_Vec3r& particles, Real particleRadius, Real defaultSpraySize = 0.75_f, Real kernelRatio = 8.0_f) :
         AnisotropicKernelGenerator((static_cast<UInt>(particles.size())), particles.data(), particleRadius, defaultSpraySize, kernelRatio) {}
 
-    AnisotropicKernelGenerator(UInt nParticles, const Vec3r* particles, Real particleRadius, Real defaultSpraySize = Real(0.75), Real kernelRatio = Real(8.0)) :
+    AnisotropicKernelGenerator(UInt nParticles, const Vec3r* particles, Real particleRadius, Real defaultSpraySize = 0.75_f, Real kernelRatio = 8.0_f) :
         m_nParticles(nParticles), m_Particles(particles), m_DefaultSpraySize(defaultSpraySize)
     {
         m_KernelRadius    = kernelRatio * particleRadius;
         m_KernelRadiusSqr = m_KernelRadius * m_KernelRadius;
-        m_KernelRadiusInv = Real(1.0) / m_KernelRadius;
+        m_KernelRadiusInv = 1.0_f / m_KernelRadius;
 
         m_NSearch = std::make_unique<NeighborSearch::NeighborSearch3D>(m_KernelRadius, true);
         m_NSearch->add_point_set(glm::value_ptr(m_Particles[0]), m_nParticles, true, true);
@@ -52,7 +52,7 @@ public:
     const auto& kernelMatrices() const { return m_KernelMatrices; }
 
 private:
-    Real W(Real d2) { return (d2 < m_KernelRadiusSqr) ? Real(1.0) - MathHelpers::cube(sqrt(d2) * m_KernelRadiusInv) : Real(0); }
+    Real W(Real d2) { return (d2 < m_KernelRadiusSqr) ? 1.0_f - MathHelpers::cube(sqrt(d2) * m_KernelRadiusInv) : 0_f; }
     Real W(const Vec3r& r) { return W(glm::length2(r)); }
     Real W(const Vec3r& xi, const Vec3r& xj) { return W(glm::length2(xi - xj)); }
 

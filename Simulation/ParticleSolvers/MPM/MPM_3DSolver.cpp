@@ -37,7 +37,7 @@ void MPM_3DParameters::makeReady()
     nExpandCells   = MathHelpers::max(nExpandCells, 2u);
     cellVolume     = MathHelpers::cube(cellSize);
     particleRadius = cellSize / ratioCellSizePRadius;
-    particleMass   = MathHelpers::cube(Real(2.0) * particleRadius) * materialDensity;
+    particleMass   = MathHelpers::cube(2.0_f * particleRadius) * materialDensity;
 
     // expand domain simulation by nExpandCells for each dimension
     // this is necessary if the boundary is a box which coincides with the simulation domain
@@ -49,11 +49,11 @@ void MPM_3DParameters::makeReady()
 
     __BNN_REQUIRE((YoungsModulus > 0 && PoissonsRatio > 0) || (mu > 0 && lambda > 0));
     if(mu == 0 || lambda == 0) {
-        mu     = YoungsModulus / Real(2.0) / (Real(1.0) + PoissonsRatio);
-        lambda = YoungsModulus * PoissonsRatio / ((Real(1.0) + PoissonsRatio) * (Real(1.0) - Real(2.0) * PoissonsRatio));
+        mu     = YoungsModulus / 2.0_f / (1.0_f + PoissonsRatio);
+        lambda = YoungsModulus * PoissonsRatio / ((1.0_f + PoissonsRatio) * (1.0_f - 2.0_f * PoissonsRatio));
     } else {
-        YoungsModulus = mu * (Real(3.0) * lambda + Real(2.0) * mu) / (lambda + mu);
-        PoissonsRatio = lambda / Real(2.0) / (lambda + mu);
+        YoungsModulus = mu * (3.0_f * lambda + 2.0_f * mu) / (lambda + mu);
+        PoissonsRatio = lambda / 2.0_f / (lambda + mu);
     }
 }
 
@@ -169,7 +169,7 @@ void MPM_3DData::ParticleData::addParticles(const Vec_Vec3r& newPositions, const
 
     gridCoordinate.resize(positions.size(), Vec3r(0));
     weightGradients.resize(positions.size() * 64, Vec3r(0));
-    weights.resize(positions.size() * 64, Real(0));
+    weights.resize(positions.size() * 64, 0_f);
 
     B.resize(positions.size(), Mat3x3r(0));
     D.resize(positions.size(), Mat3x3r(0));
@@ -288,8 +288,8 @@ void MPM_3DSolver::advanceFrame()
                                   Real remainingTime = globalParams().frameDuration - frameTime;
                                   if(frameTime + substep >= globalParams().frameDuration) {
                                       substep = remainingTime;
-                                  } else if(frameTime + Real(1.5) * substep >= globalParams().frameDuration) {
-                                      substep = remainingTime * Real(0.5);
+                                  } else if(frameTime + 1.5_f * substep >= globalParams().frameDuration) {
+                                      substep = remainingTime * 0.5_f;
                                   }
                                   ////////////////////////////////////////////////////////////////////////////////
                                   logger().printRunTime("Move particles: ", funcTimer, [&]() { moveParticles(substep); });
@@ -301,7 +301,7 @@ void MPM_3DSolver::advanceFrame()
                                   ++substepCount;
                                   logger().printLog("Finished step " + NumberHelpers::formatWithCommas(substepCount) + " of size " + NumberHelpers::formatToScientific<Real>(substep) +
                                                     "(" + NumberHelpers::formatWithCommas(substep / m_GlobalParams.frameDuration * 100) + "% of the frame, to " +
-                                                    NumberHelpers::formatWithCommas(100 * (frameTime) / m_GlobalParams.frameDuration) + "% of the frame).");
+                                                    NumberHelpers::formatWithCommas(100 * (frameTime) / m_GlobalParams.frameDuration) + "% of the frame)");
                               });
 
         logger().newLine();
@@ -401,7 +401,7 @@ void MPM_3DSolver::generateParticles(const nlohmann::json& jParams)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-bool MPM_3DSolver::advanceScene(UInt frame, Real fraction /*= Real(0)*/)
+bool MPM_3DSolver::advanceScene(UInt frame, Real fraction /*= 0_f*/)
 {
     ////////////////////////////////////////////////////////////////////////////////
     // evolve the dynamic objects
@@ -675,7 +675,7 @@ bool MPM_3DSolver::initParticleVolumes()
                             [&](UInt p)
                             {
                                 const auto lcorner = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
-                                auto pDensity      = Real(0);
+                                auto pDensity      = 0_f;
                                 for(Int idx = 0, z = lcorner.z - 1, z_end = z + 4; z < z_end; ++z) {
                                     for(Int y = lcorner.y - 1, y_end = y + 4; y < y_end; ++y) {
                                         for(Int x = lcorner.x - 1, x_end = x + 4; x < x_end; ++x, ++idx) {
@@ -797,7 +797,7 @@ void MPM_3DSolver::explicitIntegration(Real timestep)
                                 LinaHelpers::orientedSVD(particleData().deformGrad[p], U, S, Vt);
                                 auto Ss = S;
                                 if(S[2] < 0) {
-                                    S[2] *= Real(-1.0);
+                                    S[2] *= -1.0_f;
                                 }
                                 Ftemp = U * LinaHelpers::diagMatrix(S) * Vt;
 
@@ -930,13 +930,13 @@ Real MPM_3DObjective::valueGradient(const Vector<Real>& v, Vector<Real>& grad)
                                 auto pVolume = particleData().volumes[p];
 
                                 pVelGrad *= m_timestep;
-                                LinaHelpers::sumToDiag(pVelGrad, Real(1.0));
+                                LinaHelpers::sumToDiag(pVelGrad, 1.0_f);
                                 Mat3x3r newF = pVelGrad * pF;
                                 Mat3x3r U, Vt, Ftemp;
                                 Vec3r S;
                                 LinaHelpers::orientedSVD(newF, U, S, Vt);
                                 if(S[2] < 0) {
-                                    S[2] *= Real(-1.0);
+                                    S[2] *= -1.0_f;
                                 }
                                 Ftemp = U * LinaHelpers::diagMatrix(S) * Vt;
 
@@ -955,9 +955,9 @@ Real MPM_3DObjective::valueGradient(const Vector<Real>& v, Vector<Real>& grad)
 
                                 ////////////////////////////////////////////////////////////////////////////////
                                 // compute energy density function
-                                Real t1 = Real(0.5) * solverParams().mu * (LinaHelpers::trace(glm::transpose(Ftemp) * Ftemp) - Real(3.0));
+                                Real t1 = 0.5_f * solverParams().mu * (LinaHelpers::trace(glm::transpose(Ftemp) * Ftemp) - 3.0_f);
                                 Real t2 = -solverParams().mu * logJ;
-                                Real t3 = Real(0.5) * solverParams().lambda * (logJ * logJ);
+                                Real t3 = 0.5_f * solverParams().lambda * (logJ * logJ);
                                 assert(NumberHelpers::isValidNumber(t1));
                                 assert(NumberHelpers::isValidNumber(t2));
                                 assert(NumberHelpers::isValidNumber(t3));
@@ -980,7 +980,7 @@ Real MPM_3DObjective::valueGradient(const Vector<Real>& v, Vector<Real>& grad)
                                 auto diffVel    = currentVel - gridData().velocity(i, j, k);
 
                                 gradPtr[gridIdx ]          = gridData().mass(i, j, k) * diffVel;
-                                gridData().energy(i, j, k) = Real(0.5) * gridData().mass(i, j, k) * glm::length2(diffVel);
+                                gridData().energy(i, j, k) = 0.5_f * gridData().mass(i, j, k) * glm::length2(diffVel);
                             });
 
     Scheduler::parallel_for(particleData().getNParticles(),
@@ -1024,7 +1024,7 @@ void MPM_3DSolver::constrainGridVelocity(Real timestep)
                                           Vec3r new_pos      = gridData().velocity_new(x, y, z) * delta_scale + Vec3r(x, y, z);
 
                                           for(UInt i = 0; i < solverDimension(); ++i) {
-                                              if(new_pos[i] < Real(2) || new_pos[i] > Real(grid().getNNodes()[i] - 2 - 1)) {
+                                              if(new_pos[i] < 2.0_f || new_pos[i] > Real(grid().getNNodes()[i] - 2 - 1)) {
                                                   velocity_new[i]                          = 0;
                                                   velocity_new[solverDimension() - i - 1] *= solverParams().boundaryRestitution;
                                                   velChanged                               = true;
@@ -1204,7 +1204,7 @@ void MPM_3DSolver::updateParticleDeformGradients(Real timestep)
                             {
                                 auto velGrad = particleData().velocityGrad[p];
                                 velGrad *= timestep;
-                                LinaHelpers::sumToDiag(velGrad, Real(1.0));
+                                LinaHelpers::sumToDiag(velGrad, 1.0_f);
                                 particleData().deformGrad[p] = velGrad * particleData().deformGrad[p];
                             });
 }

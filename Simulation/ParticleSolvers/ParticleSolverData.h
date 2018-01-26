@@ -35,15 +35,15 @@ namespace Banana::SolverDefaultParameters
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 static const UInt FrameRate   = 30u;
-static const Real MinTimestep = Real(1.0e-6);
-static const Real MaxTimestep = Real(1.0 / 30.0);
+static const Real MinTimestep = 1.0e-6_f;
+static const Real MaxTimestep = 1.0_f / 30.0_f;
 
 static const UInt NExpandCells                    = 2u;
-static const Real RatioCellSizeOverParticleRadius = Real(2.0);
-static const Real CellSize                        = Real(1.0 / 64.0);
-static const Real ParticleRadius                  = Real(2.0 / 64.0 / 4.0);
+static const Real RatioCellSizeOverParticleRadius = 2.0_f;
+static const Real CellSize                        = 1.0_f / 64.0_f;
+static const Real ParticleRadius                  = 2.0_f / 64.0_f / 4.0_f;
 
-static const Real BoundaryRestitution = Real(0.9);
+static const Real BoundaryRestitution = 0.9_f;
 
 static const Vec2r SimulationDomainBMin2D = Vec2r(-1.0);
 static const Vec2r SimulationDomainBMax2D = Vec2r(1.0);
@@ -54,9 +54,9 @@ static const Vec2r Gravity2D = Vec2r(0, -9.81);
 static const Vec3r Gravity3D = Vec3r(0, -9.81, 0);
 
 static const UInt CGMaxIteration      = 10'000u;
-static const Real CGRelativeTolerance = Real(1e-15);
+static const Real CGRelativeTolerance = 1e-15_f;
 
-static const Real PIC_FLIP_Ratio = Real(0.97);
+static const Real PIC_FLIP_Ratio = 0.97_f;
 enum IntegrationScheme { ExplicitVerlet, ExplicitEuler, ImplicitEuler, NewmarkBeta };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -113,7 +113,7 @@ struct GlobalParameters
         ////////////////////////////////////////////////////////////////////////////////
         // frame and time parameters
         logger.printLogIndent(String("Frame duration: ") + NumberHelpers::formatToScientific(frameDuration) +
-                              String(" (~") + std::to_string(static_cast<int>(round(Real(1.0) / frameDuration))) + String(" fps)"));
+                              String(" (~") + std::to_string(static_cast<int>(round(1.0_f / frameDuration))) + String(" fps)"));
         logger.printLogIndent(String("Start frame: ") + std::to_string(startFrame));
         logger.printLogIndent(String("Final frame: ") + std::to_string(finalFrame));
         ////////////////////////////////////////////////////////////////////////////////

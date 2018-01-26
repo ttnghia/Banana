@@ -70,7 +70,7 @@ public:
 
     static Int floor(const Real v)
     {
-        return (Int)(v + Real(32768.0)) - Real(32768.0); // Shift to get positive values
+        return (Int)(v + 32768.0_f) - 32768.0_f; // Shift to get positive values
     }
 
     /** Performs the poisson sampling with the

@@ -39,7 +39,7 @@ struct SimulationParameters_Snow3D : public SimulationParameters
     SimulationParameters_Snow3D() = default;
 
     ////////////////////////////////////////////////////////////////////////////////
-    Real CFLFactor           = Real(0.04);
+    Real CFLFactor           = 0.04_f;
     Real PIC_FLIP_ratio      = SolverDefaultParameters::PIC_FLIP_Ratio;
     Real minTimestep         = SolverDefaultParameters::MinTimestep;
     Real maxTimestep         = SolverDefaultParameters::MaxTimestep;
@@ -48,21 +48,21 @@ struct SimulationParameters_Snow3D : public SimulationParameters
     Real CGRelativeTolerance = SolverDefaultParameters::CGRelativeTolerance;
     UInt maxCGIteration      = SolverDefaultParameters::CGMaxIteration;
 
-    Real thresholdCompression = Real(1.0 - 1.9e-2); //Fracture threshold for compression (1-2.5e-2)
-    Real thresholdStretching  = Real(1.0 + 7.5e-3); //Fracture threshold for stretching (1+7.5e-3)
-    Real hardening            = Real(5.0);          //How much plastic deformation strengthens material (10)
-    Real materialDensity      = Real(100.0);        //Density of snow in kg/m^2 (400 for 3d)
-    Real YoungsModulus        = Real(1.5e5);        //Young's modulus (springiness) (1.4e5)
-    Real PoissonsRatio        = Real(0.2);          //Poisson's ratio (transverse/axial strain ratio) (.2)
-    Real implicitRatio        = Real(0);            //Percentage that should be implicit vs explicit for velocity update
+    Real thresholdCompression = 1.0_f - 1.9e-2_f; //Fracture threshold for compression (1-2.5e-2)
+    Real thresholdStretching  = 1.0_f + 7.5e-3_f; //Fracture threshold for stretching (1+7.5e-3)
+    Real hardening            = 5.0_f;          //How much plastic deformation strengthens material (10)
+    Real materialDensity      = 100.0_f;        //Density of snow in kg/m^2 (400 for 3d)
+    Real YoungsModulus        = 1.5e5_f;        //Young's modulus (springiness) (1.4e5)
+    Real PoissonsRatio        = 0.2_f;          //Poisson's ratio (transverse/axial strain ratio) (.2)
+    Real implicitRatio        = 0_f;            //Percentage that should be implicit vs explicit for velocity update
 
-    Real maxImplicitError = Real(1e4);              //Maximum allowed error for conjugate residual
-    Real minImplicitError = Real(1e-4);             //Minimum allowed error for conjugate residual
+    Real maxImplicitError = 1e4_f;              //Maximum allowed error for conjugate residual
+    Real minImplicitError = 1e-4_f;             //Minimum allowed error for conjugate residual
 
     Int kernelSpan = 2;
 
     Real  cellSize                    = SolverDefaultParameters::CellSize;
-    Real  ratioCellSizeParticleRadius = Real(2.0);
+    Real  ratioCellSizeParticleRadius = 2.0_f;
     Vec3r domainBMin                  = Vec3r(0.0);
     Vec3r domainBMax                  = Vec3r(1.0);
 
@@ -86,8 +86,8 @@ struct SimulationParameters_Snow3D : public SimulationParameters
         movingBMin = domainBMin + Vec3r(cellSize * SolverDefaultParameters::NExpandCells);
         movingBMax = domainBMax - Vec3r(cellSize * SolverDefaultParameters::NExpandCells);
 
-        lambda = YoungsModulus * PoissonsRatio / ((Real(1.0) + PoissonsRatio) * (Real(1.0) - Real(2.0) * PoissonsRatio)),
-        mu     = YoungsModulus / (Real(2.0) + Real(2.0) * PoissonsRatio);
+        lambda = YoungsModulus * PoissonsRatio / ((1.0_f + PoissonsRatio) * (1.0_f - 2.0_f * PoissonsRatio)),
+        mu     = YoungsModulus / (2.0_f + 2.0_f * PoissonsRatio);
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -194,7 +194,7 @@ struct SimulationData_Snow3D
 
                 for(int i = 0; i < 64; ++i) {
                     weightGradients.push_back(Vec3r(0));
-                    weights.push_back(Real(0));
+                    weights.push_back(0_f);
                 }
             }
         }
@@ -275,7 +275,7 @@ struct SimulationData_Snow3D
         ////////////////////////////////////////////////////////////////////////////////
         void resetGrid()
         {
-            mass.assign(Real(0));
+            mass.assign(0_f);
             active.assign(char(0));
             imp_active.assign(char(0));
             velocity.assign(Vec3r(0));
@@ -286,7 +286,7 @@ struct SimulationData_Snow3D
             p.assign(Vec3r(0));
             Ep.assign(Vec3r(0));
             Er.assign(Vec3r(0));
-            rDotEr.assign(Real(0));
+            rDotEr.assign(0_f);
         }
     } gridData;
 };
@@ -314,7 +314,7 @@ public:
 protected:
     virtual void loadSimParams(const nlohmann::json& jParams) override;
     virtual void generateParticles(const nlohmann::json& jParams) override;
-    virtual bool advanceScene(UInt frame, Real fraction = Real(0)) override;
+    virtual bool advanceScene(UInt frame, Real fraction = 0_f) override;
     virtual void allocateSolverMemory() override {}
     virtual void setupDataIO() override;
     virtual bool loadMemoryState() override;

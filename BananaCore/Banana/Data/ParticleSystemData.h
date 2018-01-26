@@ -116,7 +116,7 @@ public:
 
     //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     template<class Real, int N>
-    void addArray(const std::string& arrName, bool bInit = false, Real initVal = Real(0))
+    void addArray(const std::string& arrName, bool bInit = false, Real initVal = 0_f)
     {
         size_t arraySize    = m_NumParticles * sizeof(Real) * N;
         size_t maxArraySize = m_MaxNumParticles * sizeof(Real) * N;
@@ -160,7 +160,7 @@ public:
             Real* dataPtr = reinterpret_cast<Real*>(getArray(arrName)->data());
 
             for(unsigned int i = 0, iEnd = m_MaxNumParticles * N; i < iEnd; ++i) {
-                dataPtr[i] = Real(0);
+                dataPtr[i] = 0_f;
             }
         }
     }

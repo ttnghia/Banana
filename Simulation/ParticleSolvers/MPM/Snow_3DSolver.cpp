@@ -77,8 +77,8 @@ void Snow3DSolver::advanceFrame()
                                   Real remainingTime = globalParams().frameDuration - frameTime;
                                   if(frameTime + substep >= globalParams().frameDuration) {
                                       substep = remainingTime;
-                                  } else if(frameTime + Real(1.5) * substep >= globalParams().frameDuration) {
-                                      substep = remainingTime * Real(0.5);
+                                  } else if(frameTime + 1.5_f * substep >= globalParams().frameDuration) {
+                                      substep = remainingTime * 0.5_f;
                                   }
                                   ////////////////////////////////////////////////////////////////////////////////
                                   logger().printRunTime("Find neighbors: ", funcTimer,
@@ -92,7 +92,7 @@ void Snow3DSolver::advanceFrame()
                                   ++substepCount;
                                   logger().printLog("Finished step " + NumberHelpers::formatWithCommas(substepCount) + " of size " + NumberHelpers::formatToScientific<Real>(substep) +
                                                     "(" + NumberHelpers::formatWithCommas(substep / m_GlobalParams.frameDuration * 100) + "% of the frame, to " +
-                                                    NumberHelpers::formatWithCommas(100 * (frameTime) / m_GlobalParams.frameDuration) + "% of the frame).");
+                                                    NumberHelpers::formatWithCommas(100 * (frameTime) / m_GlobalParams.frameDuration) + "% of the frame)");
                               });
 
         ////////////////////////////////////////////////////////////////////////////////
@@ -167,7 +167,7 @@ void Snow3DSolver::generateParticles(const nlohmann::json& jParams)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-bool Snow3DSolver::advanceScene(UInt frame, Real fraction /*= Real(0)*/)
+bool Snow3DSolver::advanceScene(UInt frame, Real fraction /*= 0_f*/)
 {
     bool bSceneChanged = ParticleSolver3D::advanceScene(frame, fraction);
 
@@ -435,7 +435,7 @@ void Snow3DSolver::calculateParticleVolumes()
                                     Int oy = static_cast<Int>(particleData().particleGridPos[p][1]);
                                     Int oz = static_cast<Int>(particleData().particleGridPos[p][2]);
 
-                                    Real pdensity = Real(0);
+                                    Real pdensity = 0_f;
                                     //First compute particle density
                                     for(Int idx = 0, z = oz - 1, z_end = z + 3; z <= z_end; z++) {
                                         for(Int y = oy - 1, y_end = y + 3; y <= y_end; y++) {
@@ -788,7 +788,7 @@ void Snow3DSolver::updateGradients(Real timestep)
                                 {
                                     Mat3x3r velGrad = particleData().velocityGradients[p];
                                     velGrad *= timestep;
-                                    LinaHelpers::sumToDiag(velGrad, Real(1.0));
+                                    LinaHelpers::sumToDiag(velGrad, 1.0_f);
 
                                     particleData().velocityGradients[p] = velGrad;
                                     particleData().elasticDeformGrad[p] = velGrad * particleData().elasticDeformGrad[p];
@@ -847,15 +847,15 @@ void Snow3DSolver::applyPlasticity()
 Mat3x3r Snow3DSolver::computeEnergyDerivative(UInt p)
 {
     //Adjust lame parameters to account for hardening
-    Real harden = exp(solverParams().hardening * (Real(1.0) - glm::determinant(particleData().plasticDeformGrad[p])));
+    Real harden = exp(solverParams().hardening * (1.0_f - glm::determinant(particleData().plasticDeformGrad[p])));
     Real Je     = glm::compMul(particleData().svd_e[p]);
 
     //This is the co-rotational term
-    Mat3x3r temp = Real(3.0) * solverParams().mu *
+    Mat3x3r temp = 3.0_f * solverParams().mu *
                    (particleData().elasticDeformGrad[p] - particleData().svd_w[p] * glm::transpose(particleData().svd_v[p])) *
                    glm::transpose(particleData().elasticDeformGrad[p]);
     //Add in the primary contour term
-    LinaHelpers::sumToDiag(temp, solverParams().lambda * Je * (Je - Real(1.0)));
+    LinaHelpers::sumToDiag(temp, solverParams().lambda * Je * (Je - 1.0_f));
     //Add hardening and volume
     return particleData().volumes[p] * harden * temp;
 }
@@ -915,10 +915,10 @@ Vec3r Snow3DSolver::computeDeltaForce(UInt p, const Vec3r& u, const Vec3r& weigh
     //Calculate "A" as given by the paper
     //Co-rotational term
     Mat3x3r Ap = del_elastic - del_rotate;
-    Ap *= Real(3.0) * solverParams().mu;
+    Ap *= 3.0_f * solverParams().mu;
 
     //Primary contour term
-    del_cofactor *= (glm::determinant(elasticDeformGrad) - Real(1.0));
+    del_cofactor *= (glm::determinant(elasticDeformGrad) - 1.0_f);
     cofactor     *= LinaHelpers::frobeniusInnerProduct(cofactor, del_elastic);
     cofactor     += del_cofactor;
     cofactor     *= solverParams().lambda;

@@ -54,7 +54,7 @@ struct MPM_3DParameters : public SimulationParameters
     // time step size
     Real minTimestep = SolverDefaultParameters::MinTimestep;
     Real maxTimestep = SolverDefaultParameters::MaxTimestep;
-    Real CFLFactor   = Real(0.04);
+    Real CFLFactor   = 0.04_f;
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -78,16 +78,16 @@ struct MPM_3DParameters : public SimulationParameters
     ////////////////////////////////////////////////////////////////////////////////
     // MPM parameters
     Real PIC_FLIP_ratio = SolverDefaultParameters::PIC_FLIP_Ratio;
-    Real implicitRatio  = Real(0);
+    Real implicitRatio  = 0_f;
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
     // material parameters
-    Real YoungsModulus   = Real(0);
-    Real PoissonsRatio   = Real(0);
-    Real mu              = Real(0);
-    Real lambda          = Real(0);
-    Real materialDensity = Real(1000.0);
+    Real YoungsModulus   = 0_f;
+    Real PoissonsRatio   = 0_f;
+    Real mu              = 0_f;
+    Real lambda          = 0_f;
+    Real materialDensity = 1000.0_f;
     Real particleMass;
     ////////////////////////////////////////////////////////////////////////////////
 
@@ -209,7 +209,7 @@ public:
 protected:
     virtual void loadSimParams(const nlohmann::json& jParams) override;
     virtual void generateParticles(const nlohmann::json& jParams) override;
-    virtual bool advanceScene(UInt frame, Real fraction = Real(0)) override;
+    virtual bool advanceScene(UInt frame, Real fraction = 0_f) override;
     virtual void allocateSolverMemory() override;
     virtual void setupDataIO() override;
     virtual bool loadMemoryState() override;

@@ -68,8 +68,8 @@ void PIC_2DSolver::advanceFrame()
                                   Real remainingTime = globalParams().frameDuration - frameTime;
                                   if(frameTime + substep >= globalParams().frameDuration) {
                                       substep = remainingTime;
-                                  } else if(frameTime + Real(1.5) * substep >= globalParams().frameDuration) {
-                                      substep = remainingTime * Real(0.5);
+                                  } else if(frameTime + 1.5_f * substep >= globalParams().frameDuration) {
+                                      substep = remainingTime * 0.5_f;
                                   }
                                   ////////////////////////////////////////////////////////////////////////////////
                                   logger().printRunTime("Find neighbors: ",               funcTimer, [&]() { solverData().grid.collectIndexToCells(particleData().positions); });
@@ -81,7 +81,7 @@ void PIC_2DSolver::advanceFrame()
                                   ++substepCount;
                                   logger().printLog("Finished step " + NumberHelpers::formatWithCommas(substepCount) + " of size " + NumberHelpers::formatToScientific<Real>(substep) +
                                                     "(" + NumberHelpers::formatWithCommas(substep / m_GlobalParams.frameDuration * 100) + "% of the frame, to " +
-                                                    NumberHelpers::formatWithCommas(100 * (frameTime) / m_GlobalParams.frameDuration) + "% of the frame).");
+                                                    NumberHelpers::formatWithCommas(100 * (frameTime) / m_GlobalParams.frameDuration) + "% of the frame)");
                               });
 
         ////////////////////////////////////////////////////////////////////////////////
@@ -157,7 +157,7 @@ void PIC_2DSolver::generateParticles(const nlohmann::json& jParams)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-bool PIC_2DSolver::advanceScene(UInt frame, Real fraction /*= Real(0)*/)
+bool PIC_2DSolver::advanceScene(UInt frame, Real fraction /*= 0_f*/)
 {
     bool bSceneChanged = ParticleSolver2D::advanceScene(frame, fraction);
 
@@ -333,8 +333,8 @@ void PIC_2DSolver::moveParticles(Real timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PIC_2DSolver::correctPositions(Real timestep)
 {
-    //const Real radius    = picData().grid.getCellSize() / Real(sqrt(2.0));
-    //const Real threshold = Real(0.01) * radius;
+    //const Real radius    = picData().grid.getCellSize() / sqrt(2.0)_f;
+    //const Real threshold = 0.01_f * radius;
 
     //// todo: check if this is needed, as this could be done before
     //picData().grid.getNeighborList(particleData().positions, particleData().neighborList, 1);
@@ -348,7 +348,7 @@ void PIC_2DSolver::correctPositions(Real timestep)
     //                                      for(UInt q : neighbors) {
     //                                          const Vec2r& qpos = particleData().positions[q];
     //                                          Real dist         = glm::length(ppos - qpos);
-    //                                          Real w            = Real(50.0) * MathHelpers::smooth_kernel(dist * dist, radius);
+    //                                          Real w            = 50.0_f * MathHelpers::smooth_kernel(dist * dist, radius);
 
     //                                          if(dist > threshold) {
     //                                              spring += w * (ppos - qpos) / dist * radius;
@@ -390,15 +390,15 @@ void PIC_2DSolver::computeFluidWeights()
                                           bool valid_index_v = gridData().v_weights.isValidIndex(i, j);
 
                                           if(valid_index_u) {
-                                              const Real tmp = Real(1.0) - MathHelpers::fraction_inside(gridData().boundarySDF(i, j),
+                                              const Real tmp = 1.0_f - MathHelpers::fraction_inside(gridData().boundarySDF(i, j),
                                                                                                         gridData().boundarySDF(i, j + 1));
-                                                                                                        gridData().u_weights(i, j) = MathHelpers::clamp(tmp, Real(0), Real(1.0));
+                                                                                                        gridData().u_weights(i, j) = MathHelpers::clamp(tmp, 0_f, 1.0_f);
                                           }
 
                                           if(valid_index_v) {
-                                              const Real tmp = Real(1.0) - MathHelpers::fraction_inside(gridData().boundarySDF(i, j),
+                                              const Real tmp = 1.0_f - MathHelpers::fraction_inside(gridData().boundarySDF(i, j),
                                                                                                         gridData().boundarySDF(i, j + 1));
-                                                                                                        gridData().v_weights(i, j) = MathHelpers::clamp(tmp, Real(0), Real(1.0));
+                                                                                                        gridData().v_weights(i, j) = MathHelpers::clamp(tmp, 0_f, 1.0_f);
                                           }
                                       });
 }
@@ -425,7 +425,7 @@ void PIC_2DSolver::extrapolateVelocity(Array2r& grid, Array2r& temp_grid, Array2
                                                   return;
                                               }
 
-                                              Real sum   = Real(0);
+                                              Real sum   = 0_f;
                                               UInt count = 0;
 
                                               // TODO
@@ -520,7 +520,7 @@ void PIC_2DSolver::addGravity(Real timestep)
     Scheduler::parallel_for<size_t>(gridData().v.size(),
                                         [&](size_t i, size_t j)
                                         {
-                                            gridData().v(i, j) -= Real(9.8) * timestep;
+                                            gridData().v(i, j) -= 9.8_f * timestep;
                                         });
 }
 
@@ -569,7 +569,7 @@ void PIC_2DSolver::computeFluidSDF()
                                       [&](int i, int j)
                                       {
                                           if(gridData().fluidSDF(i, j) < solverData().grid.getHalfCellSize()) {
-                                              const Real phiValSolid = Real(0.25) * (gridData().boundarySDF(i, j) +
+                                              const Real phiValSolid = 0.25_f * (gridData().boundarySDF(i, j) +
                                                                                      gridData().boundarySDF(i + 1, j) +
                                                                                      gridData().boundarySDF(i, j + 1) +
                                                                                      gridData().boundarySDF(i + 1, j + 1));
@@ -610,7 +610,7 @@ void PIC_2DSolver::computeMatrix(Real timestep)
                     center_term += right_term;
                     solverData().matrix.addElement(cellIdx, cellIdx + 1, -right_term);
                 } else {
-                    Real theta = MathHelpers::min(Real(0.01), MathHelpers::fraction_inside(center_phi, right_phi));
+                    Real theta = MathHelpers::min(0.01_f, MathHelpers::fraction_inside(center_phi, right_phi));
                     center_term += right_term / theta;
                 }
 
@@ -619,7 +619,7 @@ void PIC_2DSolver::computeMatrix(Real timestep)
                     center_term += left_term;
                     solverData().matrix.addElement(cellIdx, cellIdx - 1, -left_term);
                 } else {
-                    Real theta = MathHelpers::min(Real(0.01), MathHelpers::fraction_inside(center_phi, left_phi));
+                    Real theta = MathHelpers::min(0.01_f, MathHelpers::fraction_inside(center_phi, left_phi));
                     center_term += left_term / theta;
                 }
 
@@ -628,7 +628,7 @@ void PIC_2DSolver::computeMatrix(Real timestep)
                     center_term += top_term;
                     solverData().matrix.addElement(cellIdx, cellIdx + solverData().grid.getNCells()[0], -top_term);
                 } else {
-                    Real theta = MathHelpers::min(Real(0.01), MathHelpers::fraction_inside(center_phi, top_phi));
+                    Real theta = MathHelpers::min(0.01_f, MathHelpers::fraction_inside(center_phi, top_phi));
                     center_term += top_term / theta;
                 }
 
@@ -637,7 +637,7 @@ void PIC_2DSolver::computeMatrix(Real timestep)
                     center_term += bottom_term;
                     solverData().matrix.addElement(cellIdx, cellIdx - solverData().grid.getNCells()[0], -bottom_term);
                 } else {
-                    Real theta = MathHelpers::min(Real(0.01), MathHelpers::fraction_inside(center_phi, bottom_phi));
+                    Real theta = MathHelpers::min(0.01_f, MathHelpers::fraction_inside(center_phi, bottom_phi));
                     center_term += bottom_term / theta;
                 }
 
@@ -661,7 +661,7 @@ void PIC_2DSolver::computeRhs()
                                           const Real center_phi = gridData().fluidSDF(i, j);
 
                                           if(center_phi < 0) {
-                                              Real tmp = Real(0);
+                                              Real tmp = 0_f;
 
                                               tmp -= gridData().u_weights(i + 1, j) * gridData().u(i + 1, j);
                                               tmp += gridData().u_weights(i, j) * gridData().u(i, j);
@@ -701,13 +701,13 @@ void PIC_2DSolver::updateVelocity(Real timestep)
                                           const Real bottom_phi = j > 0 ? gridData().fluidSDF(i, j - 1) : 0;
 
                                           if(i > 0 && (center_phi < 0 || left_phi < 0) && gridData().u_weights(i, j) > 0) {
-                                              Real theta = MathHelpers::min(Real(0.01), MathHelpers::fraction_inside(left_phi, center_phi));
+                                              Real theta = MathHelpers::min(0.01_f, MathHelpers::fraction_inside(left_phi, center_phi));
                                               gridData().u(i, j)      -= timestep * (solverData().pressure[idx] - solverData().pressure[idx - 1]) / theta;
                                               gridData().u_valid(i, j) = 1;
                                           }
 
                                           if(j > 0 && (center_phi < 0 || bottom_phi < 0) && gridData().v_weights(i, j) > 0) {
-                                              Real theta = MathHelpers::min(Real(0.01), MathHelpers::fraction_inside(bottom_phi, center_phi));
+                                              Real theta = MathHelpers::min(0.01_f, MathHelpers::fraction_inside(bottom_phi, center_phi));
                                               gridData().v(i, j)      -= timestep * (solverData().pressure[idx] - solverData().pressure[idx - solverData().grid.getNCells()[0]]) / theta;
                                               gridData().v_valid(i, j) = 1;
                                           }

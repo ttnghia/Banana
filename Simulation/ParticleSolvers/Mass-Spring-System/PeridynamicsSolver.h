@@ -40,17 +40,17 @@ struct SimulationParameters_Peridynamics3D : public SimulationParameters
     SimulationParameters_Peridynamics3D() = default;
 
     ////////////////////////////////////////////////////////////////////////////////
-    Real  minTimestep         = Real(1.0e-6);
-    Real  maxTimestep         = Real(1.0e-3);
-    Real  CFLFactor           = Real(2.0);
-    Real  boundaryRestitution = SolverDefaultParameters::BoundaryRestitution;
-    Real  particleRadius      = Real(2.0 / 64.0 / 4.0);
-    Real  CGRelativeTolerance = Real(1e-15);
+    Real  minTimestep         = 1.0e-6_f;
+    Real  maxTimestep         = 1.0e-3_f;
+    Real  CFLFactor           = 2.0_f;
+    Real  boundaryRestitution = SolverDefaultParameters::BoundaryRestitution_f;
+    Real  particleRadius      = 2.0_f / 64.0_f / 4.0_f;
+    Real  CGRelativeTolerance = 1e-15_f;
     UInt  maxCGIteration      = 10000;
     Vec3r gravity             = SolverDefaultParameters::Gravity3D;
 
     SolverDefaultParameters::IntegrationScheme integrationScheme       = SolverDefaultParameters::IntegrationScheme::NewmarkBeta;
-    Real                                       repulsiveForceStiffness = Real(1e-3);
+    Real                                       repulsiveForceStiffness = 1e-3_f;
 
     bool zeroInitialCGSolution = true;
     Real KSpring;
@@ -64,8 +64,8 @@ struct SimulationParameters_Peridynamics3D : public SimulationParameters
     ////////////////////////////////////////////////////////////////////////////////
     virtual void makeReady() override
     {
-        cellSize = particleRadius * Real(4.0);
-        horizon  = particleRadius * Real(6.0);
+        cellSize = particleRadius * 4.0_f;
+        horizon  = particleRadius * 6.0_f;
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -235,7 +235,7 @@ public:
 protected:
     virtual void loadSimParams(const nlohmann::json& jParams) override;
     virtual void generateParticles(const nlohmann::json& jParams) override;
-    virtual bool advanceScene(UInt frame, Real fraction = Real(0)) override;
+    virtual bool advanceScene(UInt frame, Real fraction = 0_f) override;
     virtual void allocateSolverMemory() override {}
     virtual void setupDataIO() override;
     virtual bool loadMemoryState() override;

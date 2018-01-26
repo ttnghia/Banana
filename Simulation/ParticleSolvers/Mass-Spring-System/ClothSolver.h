@@ -42,21 +42,21 @@ struct SimulationParameters_Cloth3D
     SimulationParameters_Cloth3D() { makeReady(); }
 
     ////////////////////////////////////////////////////////////////////////////////
-    Real minTimestep         = Real(1.0e-6);
-    Real maxTimestep         = Real(5.0e-4);
-    Real CFLFactor           = Real(1.0);
-    Real PIC_FLIP_ratio      = Real(0.97);
-    Real boundaryRestitution = Real(SolverDefaultParameters::BoundaryRestitution);
-    Real gravity             = Real(9.81);
-    Real particleRadius      = Real(2.0 / 64.0 / 4.0);
+    Real minTimestep         = 1.0e-6_f;
+    Real maxTimestep         = 5.0e-4_f;
+    Real CFLFactor           = 1.0_f;
+    Real PIC_FLIP_ratio      = 0.97_f;
+    Real boundaryRestitution = SolverDefaultParameters::BoundaryRestitution_f;
+    Real gravity             = 9.81_f;
+    Real particleRadius      = 2.0_f / 64.0_f / 4.0_f;
     UInt expandCells         = 2;
-    Real CGRelativeTolerance = Real(1e-15);
+    Real CGRelativeTolerance = 1e-15_f;
     UInt maxCGIteration      = 10000;
 
     SolverDefaultParameters::InterpolationKernels p2gKernel = SolverDefaultParameters::InterpolationKernels::Linear;
 
     bool bApplyRepulsiveForces   = false;
-    Real repulsiveForceStiffness = Real(1e-3);
+    Real repulsiveForceStiffness = 1e-3_f;
 
     Vec3r movingBMin = Vec3r(-1.0);
     Vec3r movingBMax = Vec3r(1.0);
@@ -73,8 +73,8 @@ struct SimulationParameters_Cloth3D
     ////////////////////////////////////////////////////////////////////////////////
     void makeReady()
     {
-        cellSize            = particleRadius * Real(4.0);
-        nearKernelRadius    = particleRadius * Real(2.5);
+        cellSize            = particleRadius * 4.0_f;
+        nearKernelRadius    = particleRadius * 2.5_f;
         nearKernelRadiusSqr = nearKernelRadius * nearKernelRadius;
 
         sdfRadius  = cellSize * Real(1.01 * sqrt(3.0) / 2.0);

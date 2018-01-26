@@ -36,7 +36,7 @@ void WCSPHSolver::makeReady()
                           {
                               m_CubicKernel.setRadius(solverParams().kernelRadius);
                               m_SpikyKernel.setRadius(solverParams().kernelRadius);
-                              //m_NearSpikyKernel.setRadius(Real(1.5) * solverParams().particleRadius);
+                              //m_NearSpikyKernel.setRadius(1.5_f * solverParams().particleRadius);
                           });
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -67,8 +67,8 @@ void WCSPHSolver::advanceFrame()
                                   Real remainingTime = globalParams().frameDuration - frameTime;
                                   if(frameTime + substep >= globalParams().frameDuration) {
                                       substep = remainingTime;
-                                  } else if(frameTime + Real(1.5) * substep >= globalParams().frameDuration) {
-                                      substep = remainingTime * Real(0.5);
+                                  } else if(frameTime + 1.5_f * substep >= globalParams().frameDuration) {
+                                      substep = remainingTime * 0.5_f;
                                   }
                                   ////////////////////////////////////////////////////////////////////////////////
                                   logger().printRunTime("Find neighbors: ",               funcTimer, [&]() { m_NSearch->find_neighbors(); });
@@ -165,7 +165,7 @@ void WCSPHSolver::generateParticles(const nlohmann::json& jParams)
         __BNN_REQUIRE(m_BoundaryObjects.size() != 0);
         for(auto& bdObj : m_BoundaryObjects) {
             __BNN_TODO_MSG("Unify boundary particles into solver data")
-            UInt nGen = bdObj->generateBoundaryParticles(solverData().BDParticles, Real(0.85) * solverParams().particleRadius);
+            UInt nGen = bdObj->generateBoundaryParticles(solverData().BDParticles, 0.85_f * solverParams().particleRadius);
             logger().printLog(String("Generated ") + NumberHelpers::formatWithCommas(nGen) + String(" boundary particles by ") + bdObj->nameID());
         }
 
@@ -184,7 +184,7 @@ void WCSPHSolver::generateParticles(const nlohmann::json& jParams)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-bool WCSPHSolver::advanceScene(UInt frame, Real fraction /*= Real(0)*/)
+bool WCSPHSolver::advanceScene(UInt frame, Real fraction /*= 0_f*/)
 {
     bool bSceneChanged = ParticleSolver3D::advanceScene(frame, fraction);
 
@@ -340,7 +340,7 @@ void WCSPHSolver::saveFrameData()
 Real WCSPHSolver::timestepCFL()
 {
     Real maxVel      = sqrt(ParallelSTL::maxNorm2<3, Real>(solverData().velocities));
-    Real CFLTimeStep = maxVel > Real(Tiny) ? solverParams().CFLFactor * Real(0.4) * (Real(2.0) * solverParams().particleRadius / maxVel) : Huge;
+    Real CFLTimeStep = maxVel > Real(Tiny) ? solverParams().CFLFactor * 0.4_f * (2.0_f * solverParams().particleRadius / maxVel) : Huge;
     return MathHelpers::clamp(CFLTimeStep, solverParams().minTimestep, solverParams().maxTimestep);
 }
 
@@ -378,8 +378,8 @@ void WCSPHSolver::moveParticles(Real timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void WCSPHSolver::correctPositions(Real timestep)
 {
-    const auto  radius        = Real(2.0) * solverParams().particleRadius / Real(sqrt(solverDimension()));
-    const auto  threshold     = Real(0.05) * radius;
+    const auto  radius        = 2.0_f * solverParams().particleRadius / Real(sqrt(solverDimension()));
+    const auto  threshold     = 0.05_f * radius;
     const auto  threshold2    = threshold * threshold;
     const auto& fluidPointSet = m_NSearch->point_set(0);
 
@@ -442,7 +442,7 @@ void WCSPHSolver::computeDensity()
 
                                     ////////////////////////////////////////////////////////////////////////////////
                                     solverData().densities[p] = (pden < Tiny) ?
-                                                                Real(0) : MathHelpers::clamp(pden * solverParams().particleMass, solverParams().densityMin, solverParams().densityMax);
+                                                                0_f : MathHelpers::clamp(pden * solverParams().particleMass, solverParams().densityMin, solverParams().densityMax);
                                 });
 }
 
@@ -483,7 +483,7 @@ void WCSPHSolver::correctDensity()
                                     }
 
                                     ////////////////////////////////////////////////////////////////////////////////
-                                    solverData().densities_tmp[p] = (tmp < Tiny) ? Real(0) :
+                                    solverData().densities_tmp[p] = (tmp < Tiny) ? 0_f :
                                                                     MathHelpers::clamp(pden / tmp * solverParams().particleMass, solverParams().densityMin, solverParams().densityMax);
                                 });       // end parallel_for
 
@@ -506,9 +506,9 @@ void WCSPHSolver::computePressureForces()
 
                                     ////////////////////////////////////////////////////////////////////////////////
                                     const auto& ppos     = solverData().positions[p];
-                                    const auto pdrho     = MathHelpers::pow7(pden / solverParams().restDensity) - Real(1.0);
+                                    const auto pdrho     = MathHelpers::pow7(pden / solverParams().restDensity) - 1.0_f;
                                     const auto ppressure = solverParams().bUseAttractivePressure ?
-                                                           MathHelpers::max(pdrho, pdrho * solverParams().attractivePressureRatio) : MathHelpers::max(pdrho, Real(0));
+                                                           MathHelpers::max(pdrho, pdrho * solverParams().attractivePressureRatio) : MathHelpers::max(pdrho, 0_f);
 
                                     for(UInt q : fluidPointSet.neighbors(0, p)) {
                                         const auto& qpos = solverData().positions[q];
@@ -517,9 +517,9 @@ void WCSPHSolver::computePressureForces()
                                             continue;
                                         }
 
-                                        const auto qdrho     = MathHelpers::pow7(qden / solverParams().restDensity) - Real(1.0);
+                                        const auto qdrho     = MathHelpers::pow7(qden / solverParams().restDensity) - 1.0_f;
                                         const auto qpressure = solverParams().bUseAttractivePressure ?
-                                                               MathHelpers::max(qdrho, qdrho * solverParams().attractivePressureRatio) : MathHelpers::max(qdrho, Real(0));
+                                                               MathHelpers::max(qdrho, qdrho * solverParams().attractivePressureRatio) : MathHelpers::max(qdrho, 0_f);
 
                                         const auto r        = qpos - ppos;
                                         const auto pressure = (ppressure / (pden * pden) + qpressure / (qden * qden)) * m_SpikyKernel.gradW(r);
@@ -573,7 +573,7 @@ void WCSPHSolver::computeViscosity()
                                         }
 
                                         const auto r = qpos - ppos;
-                                        diffVelFluid += (Real(1.0) / qden) * m_CubicKernel.W(r) * (qvel - pvel);
+                                        diffVelFluid += (1.0_f / qden) * m_CubicKernel.W(r) * (qvel - pvel);
                                     }       // end loop over neighbor cells
 
                                     ////////////////////////////////////////////////////////////////////////////////
@@ -581,7 +581,7 @@ void WCSPHSolver::computeViscosity()
                                         for(UInt q : fluidPointSet.neighbors(1, p)) {
                                             const auto& qpos = solverData().BDParticles[q];
                                             const auto r     = qpos - ppos;
-                                            diffVelBoundary -= (Real(1.0) / solverParams().restDensity) * m_CubicKernel.W(r) * pvel;
+                                            diffVelBoundary -= (1.0_f / solverParams().restDensity) * m_CubicKernel.W(r) * pvel;
                                         }
                                     }
 

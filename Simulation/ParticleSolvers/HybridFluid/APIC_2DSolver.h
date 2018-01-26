@@ -85,7 +85,7 @@ public:
 
 protected:
     virtual void generateParticles(const nlohmann::json& jParams) override;
-    virtual bool advanceScene(UInt frame, Real fraction = Real(0)) override;
+    virtual bool advanceScene(UInt frame, Real fraction = 0_f) override;
     virtual void advanceVelocity(Real timestep) override;
     void         mapParticles2Grid();
     void         mapGrid2Particles();
