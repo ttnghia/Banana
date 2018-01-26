@@ -204,18 +204,16 @@ void PIC_3DSolver::makeReady()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PIC_3DSolver::advanceFrame()
 {
-    static Timer subStepTimer;
-    static Timer funcTimer;
-    Real         frameTime    = 0;
-    Int          substepCount = 0;
+    Real frameTime    = 0;
+    Int  substepCount = 0;
 
     ////////////////////////////////////////////////////////////////////////////////
     while(frameTime < globalParams().frameDuration) {
-        logger().printRunTime("Sub-step time: ", subStepTimer,
+        logger().printRunTime("Sub-step time: ",
                               [&]()
                               {
                                   if(globalParams().finishedFrame > 0) {
-                                      logger().printRunTimeIf("Advance scene: ", funcTimer,
+                                      logger().printRunTimeIf("Advance scene: ",
                                                               [&]() { return advanceScene(globalParams().finishedFrame, frameTime / globalParams().frameDuration); });
                                   }
                                   ////////////////////////////////////////////////////////////////////////////////
@@ -227,9 +225,9 @@ void PIC_3DSolver::advanceFrame()
                                       substep = remainingTime * 0.5_f;
                                   }
                                   ////////////////////////////////////////////////////////////////////////////////
-                                  logger().printRunTime("Move particles: ", funcTimer, [&]() { moveParticles(substep); });
-                                  logger().printRunTimeIf("Correct particle positions: ", funcTimer, [&]() { return correctParticlePositions(substep); });
-                                  logger().printRunTime("}=> Advance velocity: ", funcTimer, [&]() { advanceVelocity(substep); });
+                                  logger().printRunTime("Move particles: ", [&]() { moveParticles(substep); });
+                                  logger().printRunTimeIf("Correct particle positions: ", [&]() { return correctParticlePositions(substep); });
+                                  logger().printRunTime("}=> Advance velocity: ", [&]() { advanceVelocity(substep); });
                                   ////////////////////////////////////////////////////////////////////////////////
                                   frameTime += substep;
                                   ++substepCount;
@@ -254,8 +252,7 @@ void PIC_3DSolver::sortParticles()
         return;
     }
     ////////////////////////////////////////////////////////////////////////////////
-    static Timer timer;
-    logger().printRunTime("Sort data by particle position: ", timer,
+    logger().printRunTime("Sort data by particle position: ",
                           [&]()
                           {
                               m_NSearch->z_sort();
@@ -543,13 +540,11 @@ void PIC_3DSolver::saveFrameData()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PIC_3DSolver::advanceVelocity(Real timestep)
 {
-    static Timer funcTimer;
-    ////////////////////////////////////////////////////////////////////////////////
-    logger().printRunTime("{   Advect grid velocity: ",          funcTimer, [&]() { advectGridVelocity(timestep); });
-    logger().printRunTimeIndentIf("Add gravity: ",               funcTimer, [&]() { return addGravity(timestep); });
-    logger().printRunTimeIndent("}=> Pressure projection: ",     funcTimer, [&]() { pressureProjection(timestep); });
-    logger().printRunTimeIndent("Extrapolate grid velocity: : ", funcTimer, [&]() { extrapolateVelocity(); });
-    logger().printRunTimeIndent("Constrain grid velocity: ",     funcTimer, [&]() { constrainGridVelocity(); });
+    logger().printRunTime("{   Advect grid velocity: ",          [&]() { advectGridVelocity(timestep); });
+    logger().printRunTimeIndentIf("Add gravity: ",               [&]() { return addGravity(timestep); });
+    logger().printRunTimeIndent("}=> Pressure projection: ",     [&]() { pressureProjection(timestep); });
+    logger().printRunTimeIndent("Extrapolate grid velocity: : ", [&]() { extrapolateVelocity(); });
+    logger().printRunTimeIndent("Constrain grid velocity: ",     [&]() { constrainGridVelocity(); });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -699,14 +694,11 @@ bool PIC_3DSolver::addGravity(Real timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PIC_3DSolver::pressureProjection(Real timestep)
 {
-    static Timer funcTimer;
-
-    ////////////////////////////////////////////////////////////////////////////////
-    logger().printRunTimeIndent("{   Compute cell weights: ", funcTimer, [&]() { computeFluidWeights(); });
-    logger().printRunTimeIndent("Compute liquid SDF: ", funcTimer, [&]() { computeFluidSDF(); }, 2);
-    logger().printRunTimeIndent("Compute pressure system: ", funcTimer, [&]() { computeSystem(timestep); }, 2);
-    logger().printRunTimeIndent("Solve linear system: ", funcTimer, [&]() { solveSystem(); }, 2);
-    logger().printRunTimeIndent("Update grid velocity: ", funcTimer, [&]() { updateProjectedVelocity(timestep); }, 2);
+    logger().printRunTimeIndent("{   Compute cell weights: ",  [&]() { computeFluidWeights(); });
+    logger().printRunTimeIndent("Compute liquid SDF: ", [&]() { computeFluidSDF(); }, 2);
+    logger().printRunTimeIndent("Compute pressure system: ", [&]() { computeSystem(timestep); }, 2);
+    logger().printRunTimeIndent("Solve linear system: ", [&]() { solveSystem(); }, 2);
+    logger().printRunTimeIndent("Update grid velocity: ", [&]() { updateProjectedVelocity(timestep); }, 2);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -722,25 +714,25 @@ void PIC_3DSolver::computeFluidWeights()
 
                                 if(valid_index_u) {
                                     const Real tmp = 1.0_f - MathHelpers::fraction_inside(boundarySDF(i, j,     k),
-                                                                                              boundarySDF(i, j + 1, k),
-                                                                                              boundarySDF(i, j,     k + 1),
-                                                                                              boundarySDF(i, j + 1, k + 1));
+                                                                                          boundarySDF(i, j + 1, k),
+                                                                                          boundarySDF(i, j,     k + 1),
+                                                                                          boundarySDF(i, j + 1, k + 1));
                                     gridData().u_weights(i, j, k) = MathHelpers::clamp01(tmp);
                                 }
 
                                 if(valid_index_v) {
                                     const Real tmp = 1.0_f - MathHelpers::fraction_inside(boundarySDF(i,     j, k),
-                                                                                              boundarySDF(i,     j, k + 1),
-                                                                                              boundarySDF(i + 1, j, k),
-                                                                                              boundarySDF(i + 1, j, k + 1));
+                                                                                          boundarySDF(i,     j, k + 1),
+                                                                                          boundarySDF(i + 1, j, k),
+                                                                                          boundarySDF(i + 1, j, k + 1));
                                     gridData().v_weights(i, j, k) = MathHelpers::clamp01(tmp);
                                 }
 
                                 if(valid_index_w) {
                                     const Real tmp = 1.0_f - MathHelpers::fraction_inside(boundarySDF(i,     j,     k),
-                                                                                              boundarySDF(i,     j + 1, k),
-                                                                                              boundarySDF(i + 1, j,     k),
-                                                                                              boundarySDF(i + 1, j + 1, k));
+                                                                                          boundarySDF(i,     j + 1, k),
+                                                                                          boundarySDF(i + 1, j,     k),
+                                                                                          boundarySDF(i + 1, j + 1, k));
                                     gridData().w_weights(i, j, k) = MathHelpers::clamp01(tmp);
                                 }
                             });
@@ -782,13 +774,13 @@ void PIC_3DSolver::computeFluidSDF()
                             {
                                 if(gridData().fluidSDF(i, j, k) < grid().getHalfCellSize()) {
                                     const auto phiValSolid = 0.125_f * (gridData().boundarySDF(i,     j,     k) +
-                                                                            gridData().boundarySDF(i + 1, j,     k) +
-                                                                            gridData().boundarySDF(i,     j + 1, k) +
-                                                                            gridData().boundarySDF(i + 1, j + 1, k) +
-                                                                            gridData().boundarySDF(i,     j,     k + 1) +
-                                                                            gridData().boundarySDF(i + 1, j,     k + 1) +
-                                                                            gridData().boundarySDF(i,     j + 1, k + 1) +
-                                                                            gridData().boundarySDF(i + 1, j + 1, k + 1));
+                                                                        gridData().boundarySDF(i + 1, j,     k) +
+                                                                        gridData().boundarySDF(i,     j + 1, k) +
+                                                                        gridData().boundarySDF(i + 1, j + 1, k) +
+                                                                        gridData().boundarySDF(i,     j,     k + 1) +
+                                                                        gridData().boundarySDF(i + 1, j,     k + 1) +
+                                                                        gridData().boundarySDF(i,     j + 1, k + 1) +
+                                                                        gridData().boundarySDF(i + 1, j + 1, k + 1));
 
                                     if(phiValSolid < 0) {
                                         gridData().fluidSDF(i, j, k) = -grid().getHalfCellSize();

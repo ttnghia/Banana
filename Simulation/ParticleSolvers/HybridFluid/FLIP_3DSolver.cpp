@@ -97,18 +97,16 @@ void FLIP_3DSolver::allocateSolverMemory()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void FLIP_3DSolver::advanceVelocity(Real timestep)
 {
-    static Timer funcTimer;
-    ////////////////////////////////////////////////////////////////////////////////
-    logger().printRunTime("{   Map particles to grid: ",         funcTimer, [&]() { mapParticles2Grid(); });
-    logger().printRunTimeIndent("Extrapolate grid velocity: : ", funcTimer, [&]() { extrapolateVelocity(); });
-    logger().printRunTimeIndent("Constrain grid velocity: ",     funcTimer, [&]() { constrainGridVelocity(); });
-    logger().printRunTimeIndent("Backup grid: ",                 funcTimer, [&]() { flipData().backupGridVelocity(solverData()); });
-    logger().printRunTimeIndentIf("Add gravity: ",               funcTimer, [&]() { return addGravity(timestep); });
-    logger().printRunTimeIndent("}=> Pressure projection: ",     funcTimer, [&]() { pressureProjection(timestep); });
-    logger().printRunTimeIndent("Extrapolate grid velocity: : ", funcTimer, [&]() { extrapolateVelocity(); });
-    logger().printRunTimeIndent("Constrain grid velocity: ",     funcTimer, [&]() { constrainGridVelocity(); });
-    logger().printRunTimeIndent("Compute grid changes: ",        funcTimer, [&]() { computeChangesGridVelocity(); });
-    logger().printRunTimeIndent("Map grid to particles: ",       funcTimer, [&]() { mapGrid2Particles(); });
+    logger().printRunTime("{   Map particles to grid: ",         [&]() { mapParticles2Grid(); });
+    logger().printRunTimeIndent("Extrapolate grid velocity: : ", [&]() { extrapolateVelocity(); });
+    logger().printRunTimeIndent("Constrain grid velocity: ",     [&]() { constrainGridVelocity(); });
+    logger().printRunTimeIndent("Backup grid: ",                 [&]() { flipData().backupGridVelocity(solverData()); });
+    logger().printRunTimeIndentIf("Add gravity: ",               [&]() { return addGravity(timestep); });
+    logger().printRunTimeIndent("}=> Pressure projection: ",     [&]() { pressureProjection(timestep); });
+    logger().printRunTimeIndent("Extrapolate grid velocity: : ", [&]() { extrapolateVelocity(); });
+    logger().printRunTimeIndent("Constrain grid velocity: ",     [&]() { constrainGridVelocity(); });
+    logger().printRunTimeIndent("Compute grid changes: ",        [&]() { computeChangesGridVelocity(); });
+    logger().printRunTimeIndent("Map grid to particles: ",       [&]() { mapGrid2Particles(); });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

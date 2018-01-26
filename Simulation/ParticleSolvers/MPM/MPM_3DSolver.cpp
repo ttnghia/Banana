@@ -215,7 +215,7 @@ UInt MPM_3DData::ParticleData::removeParticles(Vec_Int8& removeMarker)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MPM_3DData::GridData::resize(const Vec3ui& nCells)
 {
-    auto nNodes = Vec3ui(nCells[0] + 1, nCells[1] + 1, nCells[2] + 1);
+    auto nNodes = Vec3ui(nCells[0] + 1u, nCells[1] + 1u, nCells[2] + 1u);
     ////////////////////////////////////////////////////////////////////////////////
     active.resize(nNodes, 0);
     activeNodeIdx.resize(nNodes, 0u);
@@ -269,18 +269,16 @@ void MPM_3DSolver::makeReady()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MPM_3DSolver::advanceFrame()
 {
-    static Timer subStepTimer;
-    static Timer funcTimer;
-    Real         frameTime    = 0;
-    UInt         substepCount = 0;
+    Real frameTime    = 0;
+    UInt substepCount = 0;
 
     ////////////////////////////////////////////////////////////////////////////////
     while(frameTime < m_GlobalParams.frameDuration) {
-        logger().printRunTime("Sub-step time: ", subStepTimer,
+        logger().printRunTime("Sub-step time: ",
                               [&]()
                               {
                                   if(globalParams().finishedFrame > 0) {
-                                      logger().printRunTimeIf("Advance scene: ", funcTimer,
+                                      logger().printRunTimeIf("Advance scene: ",
                                                               [&]() { return advanceScene(globalParams().finishedFrame, frameTime / globalParams().frameDuration); });
                                   }
                                   ////////////////////////////////////////////////////////////////////////////////
@@ -292,10 +290,10 @@ void MPM_3DSolver::advanceFrame()
                                       substep = remainingTime * 0.5_f;
                                   }
                                   ////////////////////////////////////////////////////////////////////////////////
-                                  logger().printRunTime("Move particles: ", funcTimer, [&]() { moveParticles(substep); });
-                                  logger().printRunTime("Find particles' grid coordinate: ", funcTimer,
+                                  logger().printRunTime("Move particles: ", [&]() { moveParticles(substep); });
+                                  logger().printRunTime("Find particles' grid coordinate: ",
                                                         [&]() { grid().collectIndexToCells(particleData().positions, particleData().gridCoordinate); });
-                                  logger().printRunTime("}=> Advance velocity: ", funcTimer, [&]() { advanceVelocity(substep); });
+                                  logger().printRunTime("}=> Advance velocity: ", [&]() { advanceVelocity(substep); });
                                   ////////////////////////////////////////////////////////////////////////////////
                                   frameTime += substep;
                                   ++substepCount;
@@ -562,22 +560,20 @@ void MPM_3DSolver::saveFrameData()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MPM_3DSolver::advanceVelocity(Real timestep)
 {
-    static Timer funcTimer;
-    ////////////////////////////////////////////////////////////////////////////////
-    m_Logger->printRunTime("{   Reset grid data: ", funcTimer, [&]() { gridData().resetGrid(); });
-    m_Logger->printRunTimeIndent("Map particle masses to grid: ", funcTimer, [&]() { mapParticleMasses2Grid(); });
-    m_Logger->printRunTimeIndentIf("Compute particle volumes: ", funcTimer, [&]() { return initParticleVolumes(); });
-    m_Logger->printRunTimeIndent("Map particle velocities to grid: ", funcTimer, [&]() { mapParticleVelocities2Grid(timestep); });
+    m_Logger->printRunTime("{   Reset grid data: ", [&]() { gridData().resetGrid(); });
+    m_Logger->printRunTimeIndent("Map particle masses to grid: ", [&]() { mapParticleMasses2Grid(); });
+    m_Logger->printRunTimeIndentIf("Compute particle volumes: ", [&]() { return initParticleVolumes(); });
+    m_Logger->printRunTimeIndent("Map particle velocities to grid: ", [&]() { mapParticleVelocities2Grid(timestep); });
 
     if(solverParams().implicitRatio < Tiny) {
-        m_Logger->printRunTimeIndent("Velocity explicit integration: ", funcTimer, [&]() { explicitIntegration(timestep); });
+        m_Logger->printRunTimeIndent("Velocity explicit integration: ", [&]() { explicitIntegration(timestep); });
     } else {
-        m_Logger->printRunTimeIndent("Velocity implicit integration: ", funcTimer, [&]() { implicitIntegration(timestep); });
+        m_Logger->printRunTimeIndent("Velocity implicit integration: ", [&]() { implicitIntegration(timestep); });
     }
 
-    m_Logger->printRunTimeIndent("Constrain grid velocity: ",               funcTimer, [&]() { constrainGridVelocity(timestep); });
-    m_Logger->printRunTimeIndent("Map grid velocities to particles: ",      funcTimer, [&]() { mapGridVelocities2Particles(timestep); });
-    m_Logger->printRunTimeIndent("Update particle deformation gradients: ", funcTimer, [&]() { updateParticleDeformGradients(timestep); });
+    m_Logger->printRunTimeIndent("Constrain grid velocity: ",               [&]() { constrainGridVelocity(timestep); });
+    m_Logger->printRunTimeIndent("Map grid velocities to particles: ",      [&]() { mapGridVelocities2Particles(timestep); });
+    m_Logger->printRunTimeIndent("Update particle deformation gradients: ", [&]() { updateParticleDeformGradients(timestep); });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

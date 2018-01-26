@@ -74,7 +74,7 @@ UInt AniMPM_2DData::ParticleData::removeParticles(Vec_Int8& removeMarker)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void AniMPM_2DData::GridData::resize(const Vec2ui& nCells)
 {
-    auto nNodes = Vec2ui(nCells[0] + 1, nCells[1] + 1);
+    auto nNodes = Vec2ui(nCells[0] + 1u, nCells[1] + 1u);
     ////////////////////////////////////////////////////////////////////////////////
 }
 
@@ -265,22 +265,20 @@ void AniMPM_2DSolver::saveFrameData()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void AniMPM_2DSolver::advanceVelocity(Real timestep)
 {
-    static Timer funcTimer;
-    ////////////////////////////////////////////////////////////////////////////////
-    m_Logger->printRunTime("{   Reset grid data: ", funcTimer, [&]() { gridData().resetGrid(); });
-    m_Logger->printRunTimeIndent("Map particle masses to grid: ", funcTimer, [&]() { mapParticleMasses2Grid(); });
-    m_Logger->printRunTimeIndentIf("Compute particle volumes: ", funcTimer, [&]() { return initParticleVolumes(); });
-    m_Logger->printRunTimeIndent("Map particle velocities to grid: ", funcTimer, [&]() { mapParticleVelocities2Grid(timestep); });
+    m_Logger->printRunTime("{   Reset grid data: ", [&]() { gridData().resetGrid(); });
+    m_Logger->printRunTimeIndent("Map particle masses to grid: ", [&]() { mapParticleMasses2Grid(); });
+    m_Logger->printRunTimeIndentIf("Compute particle volumes: ", [&]() { return initParticleVolumes(); });
+    m_Logger->printRunTimeIndent("Map particle velocities to grid: ", [&]() { mapParticleVelocities2Grid(timestep); });
 
     if(solverParams().implicitRatio < Tiny) {
-        m_Logger->printRunTimeIndent("Velocity explicit integration: ", funcTimer, [&]() { explicitIntegration(timestep); });
+        m_Logger->printRunTimeIndent("Velocity explicit integration: ", [&]() { explicitIntegration(timestep); });
     } else {
-        m_Logger->printRunTimeIndent("Velocity implicit integration: ", funcTimer, [&]() { implicitIntegration(timestep); });
+        m_Logger->printRunTimeIndent("Velocity implicit integration: ", [&]() { implicitIntegration(timestep); });
     }
 
-    m_Logger->printRunTimeIndent("Constrain grid velocity: ",               funcTimer, [&]() { constrainGridVelocity(timestep); });
-    m_Logger->printRunTimeIndent("Map grid velocities to particles: ",      funcTimer, [&]() { mapGridVelocities2Particles(timestep); });
-    m_Logger->printRunTimeIndent("Update particle deformation gradients: ", funcTimer, [&]() { updateParticleDeformGradients(timestep); });
+    m_Logger->printRunTimeIndent("Constrain grid velocity: ",               [&]() { constrainGridVelocity(timestep); });
+    m_Logger->printRunTimeIndent("Map grid velocities to particles: ",      [&]() { mapGridVelocities2Particles(timestep); });
+    m_Logger->printRunTimeIndent("Update particle deformation gradients: ", [&]() { updateParticleDeformGradients(timestep); });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

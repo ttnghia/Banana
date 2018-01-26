@@ -73,9 +73,9 @@ struct GlobalParameters
     ////////////////////////////////////////////////////////////////////////////////
     // frame and time parameters
     Real frameDuration = Real(1.0 / SolverDefaultParameters::FrameRate);
-    UInt startFrame    = 1;
-    UInt finalFrame    = 1;
-    UInt finishedFrame = 0;
+    UInt startFrame    = 1u;
+    UInt finalFrame    = 1u;
+    UInt finishedFrame = 0u;
     Real evolvedTime() const { return frameDuration * static_cast<Real>(finishedFrame); }
     ////////////////////////////////////////////////////////////////////////////////
 

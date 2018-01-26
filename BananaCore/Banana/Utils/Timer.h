@@ -25,6 +25,7 @@
 #include <string>
 #include <cassert>
 #include <sstream>
+#include <iomanip>
 
 #include <Banana/Utils/NumberHelpers.h>
 

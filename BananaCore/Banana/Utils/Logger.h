@@ -82,34 +82,23 @@ public:
         printLogIndent(Timer::getRunTime<Function>(caption, function), indentLevel, trailing);
     }
 
-    template<class Function> void printRunTime(const char* caption, Timer& timer, const Function& function)
+    template<class Function> void printRunTimeIf(const char* caption, const Function& function)
     {
-        timer.tick(); function(); timer.tock(); printLog(timer.getRunTime(caption));
-    }
-
-    template<class Function> void printRunTimeIndent(const char* caption, Timer& timer, const Function& function, UInt indentLevel = 1, char trailing = ' ')
-    {
-        timer.tick(); function(); timer.tock(); printLogIndent(timer.getRunTime(caption), indentLevel, trailing);
-    }
-
-    template<class Function> void printRunTimeIf(const char* caption, Timer& timer, const Function& function)
-    {
+        Timer timer;
         timer.tick();
-        bool result = function();
+        bool bResult = function();
         timer.tock();
-        printLogIf(result, timer.getRunTime(caption));
+        printLogIf(bResult, timer.getRunTime(caption));
     }
 
-    template<class Function> void printRunTimeIndentIf(const char* caption, Timer& timer, const Function& function, UInt indentLevel = 1, char trailing = ' ')
+    template<class Function> void printRunTimeIndentIf(const char* caption, const Function& function, UInt indentLevel = 1, char trailing = ' ')
     {
+        Timer timer;
         timer.tick();
-        bool result = function();
+        bool bResult = function();
         timer.tock();
-        printLogIndentIf(result, timer.getRunTime(caption), indentLevel, trailing);
+        printLogIndentIf(bResult, timer.getRunTime(caption), indentLevel, trailing);
     }
-
-    void printRunTime(const char* caption, Timer& timer) { printLog(timer.getRunTime(caption)); }
-    void printRunTimeIndent(const char* caption, Timer& timer, UInt indentLevel = 1, char trailing = ' ') { printLogIndent(timer.getRunTime(caption), indentLevel, trailing); }
 
     ////////////////////////////////////////////////////////////////////////////////
     void printLog(const String& s);

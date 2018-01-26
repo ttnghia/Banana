@@ -82,8 +82,7 @@ public:
         ////////////////////////////////////////////////////////////////////////////////
         static String strMsg = String("Frame finished. Frame duration: ") + NumberHelpers::formatToScientific(m_GlobalParams.frameDuration) +
                                String("(s) (~") + std::to_string(static_cast<int>(round(1.0_f / m_GlobalParams.frameDuration))) + String(" fps). Run time: ");
-        static Timer frameTimer;
-        logger().printRunTime(strMsg.c_str(), frameTimer,
+        logger().printRunTime(strMsg.c_str(),
                               [&]()
                               {
                                   sortParticles();
