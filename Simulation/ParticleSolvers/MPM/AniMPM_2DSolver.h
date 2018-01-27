@@ -33,17 +33,23 @@ namespace Banana::ParticleSolvers
 // AniMPM_2DParameters
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-struct AniMPM_2DParameters : public SimulationParameters
+struct AniMPM_2DParameters : public SimulationParameters2D
 {
-    AniMPM_2DParameters() = default;
-
-
     ////////////////////////////////////////////////////////////////////////////////
     // Anisotropic MPM parameters
 
     ////////////////////////////////////////////////////////////////////////////////
-    virtual void makeReady() override;
-    virtual void printParams(const SharedPtr<Logger>& logger) override;
+    virtual void makeReady() override {}
+    virtual void printParams(const SharedPtr<Logger>& logger) override
+    {
+        logger->printLog(String("AniMPM-2D parameters:"));
+
+        ////////////////////////////////////////////////////////////////////////////////
+        logger->printLogIndent(String("XXX: ") + std::to_string(0));
+        ////////////////////////////////////////////////////////////////////////////////
+
+        logger->newLine();
+    }
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

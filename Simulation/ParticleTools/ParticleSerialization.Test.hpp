@@ -36,7 +36,7 @@ using namespace Banana;
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void runTest(Int testID)
 {
-    auto logger = Logger::create("Tester_" + std::to_string(testID));
+    auto logger = Logger::createLogger("Tester_" + std::to_string(testID));
     logger->printTextBox("Test " + std::to_string(testID));
 
     ////////////////////////////////////////////////////////////////////////////////

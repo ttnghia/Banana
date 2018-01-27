@@ -37,49 +37,24 @@ namespace Banana::ParticleSolvers
 // PIC_3DParameters
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-struct PIC_3DParameters : public SimulationParameters
+struct PIC_3DParameters : public SimulationParameters3D
 {
-    ////////////////////////////////////////////////////////////////////////////////
-    // simulation size
-    Real  cellSize             = SolverDefaultParameters::CellSize;
-    Real  ratioCellSizePRadius = SolverDefaultParameters::RatioCellSizeOverParticleRadius;
-    UInt  nExpandCells         = SolverDefaultParameters::NExpandCells;
-    Vec3r domainBMin           = SolverDefaultParameters::SimulationDomainBMin3D;
-    Vec3r domainBMax           = SolverDefaultParameters::SimulationDomainBMax3D;
-    Vec3r movingBMin;
-    Vec3r movingBMax;
-    ////////////////////////////////////////////////////////////////////////////////
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // time step size
-    Real minTimestep = SolverDefaultParameters::MinTimestep;
-    Real maxTimestep = SolverDefaultParameters::MaxTimestep;
-    Real CFLFactor   = 1.0_f;
-    ////////////////////////////////////////////////////////////////////////////////
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // CG solver
-    Real CGRelativeTolerance = SolverDefaultParameters::CGRelativeTolerance;
-    UInt maxCGIteration      = SolverDefaultParameters::CGMaxIteration;
-    ////////////////////////////////////////////////////////////////////////////////
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // particle parameters
-    UInt maxNParticles           = 0;
-    bool bCorrectPosition        = true;
-    Real repulsiveForceStiffness = 50_f;
-    UInt advectionSteps          = 1;
-    Real particleRadius;
+    // this radius is used for computing fluid signed distance field
     Real sdfRadius;
-    ////////////////////////////////////////////////////////////////////////////////
 
-    ////////////////////////////////////////////////////////////////////////////////
-    // boundary condition
-    Real boundaryRestitution = SolverDefaultParameters::BoundaryRestitution;
-    ////////////////////////////////////////////////////////////////////////////////
+    virtual void makeReady() override
+    {
+        SimulationParameters3D::makeReady();
+        sdfRadius = cellSize * Real(1.01 * sqrt(3.0) / 2.0);
+    }
 
-    virtual void makeReady() override;
-    virtual void printParams(const SharedPtr<Logger>& logger) override;
+    virtual void printParams(const SharedPtr<Logger>& logger) override
+    {
+        logger->printLog(String("PIC-3D parameters:"));
+        SimulationParameters3D::printParams(logger);
+        logger->printLogIndent(String("Fluid SDF radius: ") + std::to_string(sdfRadius));
+        logger->newLine();
+    }
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -157,6 +132,20 @@ public:
     virtual void sortParticles() override;
 
     ////////////////////////////////////////////////////////////////////////////////
+    virtual SimulationParameters3D* commonSimData()
+    {
+        auto ptr = dynamic_cast<SimulationParameters3D*>(&m_SolverParams);
+        __BNN_REQUIRE(ptr != nullptr);
+        return ptr;
+    }
+
+    virtual ParticleSimulationData3D* commonParticleData()
+    {
+        auto ptr = dynamic_cast<ParticleSimulationData3D*>(&m_SolverData.particleData);
+        __BNN_REQUIRE(ptr != nullptr);
+        return ptr;
+    }
+
     auto&       solverParams() { return m_SolverParams; }
     const auto& solverParams() const { return m_SolverParams; }
     auto&       solverData() { return m_SolverData; }

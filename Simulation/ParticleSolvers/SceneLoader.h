@@ -89,8 +89,9 @@ inline void loadGlobalParams(const nlohmann::json& jParams, ParticleSolvers::Glo
     JSONHelpers::readBool(jParams, globalParams.bLoadMemoryState, "LoadMemoryState");
     JSONHelpers::readBool(jParams, globalParams.bSaveMemoryState, "SaveMemoryState");
     JSONHelpers::readBool(jParams, globalParams.bSaveFrameData,   "SaveFrameData");
+    JSONHelpers::readBool(jParams, globalParams.bSaveSubstepData, "SaveSubstepData");
     JSONHelpers::readValue(jParams, globalParams.framePerState, "FramePerState");
-    JSONHelpers::readVector(jParams, globalParams.optionalSavingData, "OptionalSavingData");
+    JSONHelpers::readVector(jParams, globalParams.SaveDataList, "OptionalSavingData");
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////

@@ -41,97 +41,21 @@ namespace Banana
 namespace ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-struct PIC_2DParameters : public SimulationParameters
+struct PIC_2DParameters : public SimulationParameters2D
 {
-    PIC_2DParameters() = default;
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // simulation size
-    Real  particleRadius       = SolverDefaultParameters::ParticleRadius;
-    Real  ratioCellSizePRadius = SolverDefaultParameters::RatioCellSizeOverParticleRadius;
-    UInt  expandCells          = SolverDefaultParameters::NExpandCells;
-    Vec2r domainBMin           = SolverDefaultParameters::SimulationDomainBMin2D;
-    Vec2r domainBMax           = SolverDefaultParameters::SimulationDomainBMax2D;
-    Vec2r movingBMin;
-    Vec2r movingBMax;
-    Real  cellSize;
-    Real  sdfRadius;
-    ////////////////////////////////////////////////////////////////////////////////
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // time step size
-    Real minTimestep = SolverDefaultParameters::MinTimestep;
-    Real maxTimestep = SolverDefaultParameters::MaxTimestep;
-    Real CFLFactor   = 1.0_f;
-    ////////////////////////////////////////////////////////////////////////////////
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // CG solver
-    Real CGRelativeTolerance = SolverDefaultParameters::CGRelativeTolerance;
-    UInt maxCGIteration      = SolverDefaultParameters::CGMaxIteration;
-    ////////////////////////////////////////////////////////////////////////////////
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // position-correction
-    bool bCorrectPosition        = true;
-    Real repulsiveForceStiffness = 50_f;
-    ////////////////////////////////////////////////////////////////////////////////
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // boundary condition
-    Real boundaryRestitution = SolverDefaultParameters::BoundaryRestitution;
-    ////////////////////////////////////////////////////////////////////////////////
-
+    // this radius is used for computing fluid signed distance field
+    Real sdfRadius;
     virtual void makeReady() override
     {
-        cellSize    = particleRadius * ratioCellSizePRadius;
-        sdfRadius   = cellSize * Real(1.01 * sqrt(2.0) / 2.0);
-        movingBMin  = domainBMin;
-        movingBMax  = domainBMax;
-        domainBMin -= Vec2r(cellSize * expandCells);
-        domainBMax += Vec2r(cellSize * expandCells);
+        SimulationParameters2D::makeReady();
+        sdfRadius = cellSize * Real(1.01 * sqrt(2.0) / 2.0);
     }
 
     virtual void printParams(const SharedPtr<Logger>& logger) override
     {
         logger->printLog(String("PIC-2D parameters:"));
-
-        ////////////////////////////////////////////////////////////////////////////////
-        // simulation size
-        logger->printLogIndent(String("Particle radius: ") + std::to_string(particleRadius));
-        logger->printLogIndent(String("Ratio grid size/particle radius: ") + std::to_string(ratioCellSizePRadius));
-        logger->printLogIndent(String("Expand cells for each dimension: ") + std::to_string(expandCells));
-        logger->printLogIndent(String("Cell size: ") + std::to_string(cellSize));
-        logger->printLogIndent(String("SDF radius: ") + std::to_string(sdfRadius));
-        logger->printLogIndent(String("Domain box: ") + NumberHelpers::toString(domainBMin) + " -> " + NumberHelpers::toString(domainBMax));
-        logger->printLogIndent(String("Grid resolution: ") + NumberHelpers::toString(NumberHelpers::createGrid<UInt>(domainBMin, domainBMax, cellSize)),        2);
-        logger->printLogIndent(String("Moving box: ") + NumberHelpers::toString(movingBMin) + " -> " + NumberHelpers::toString(movingBMax));
-        logger->printLogIndent(String("Moving grid resolution: ") + NumberHelpers::toString(NumberHelpers::createGrid<UInt>(movingBMin, movingBMax, cellSize)), 2);
-        ////////////////////////////////////////////////////////////////////////////////
-
-        ////////////////////////////////////////////////////////////////////////////////
-        // time step size
-        logger->printLogIndent(String("Min timestep: ") + NumberHelpers::formatToScientific(minTimestep));
-        logger->printLogIndent(String("Max timestep: ") + NumberHelpers::formatToScientific(maxTimestep));
-        logger->printLogIndent(String("CFL factor: ") + std::to_string(CFLFactor));
-        ////////////////////////////////////////////////////////////////////////////////
-
-        ////////////////////////////////////////////////////////////////////////////////
-        // CG parameters
-        logger->printLogIndent(String("ConjugateGradient solver tolerance: ") + NumberHelpers::formatToScientific(CGRelativeTolerance));
-        logger->printLogIndent(String("Max CG iterations: ") + NumberHelpers::formatToScientific(maxCGIteration));
-        ////////////////////////////////////////////////////////////////////////////////
-
-        ////////////////////////////////////////////////////////////////////////////////
-        // position correction
-        logger->printLogIndent(String("Correct particle position: ") + (bCorrectPosition ? String("Yes") : String("No")));
-        logger->printLogIndentIf(bCorrectPosition, String("Repulsive force stiffness: ") + NumberHelpers::formatToScientific(repulsiveForceStiffness));
-        ////////////////////////////////////////////////////////////////////////////////
-
-        ////////////////////////////////////////////////////////////////////////////////
-        // boundary condition
-        logger->printLogIndent(String("Boundary restitution: ") + std::to_string(boundaryRestitution));
-
+        SimulationParameters2D::printParams(logger);
+        logger->printLogIndent(String("Fluid SDF radius: ") + std::to_string(sdfRadius));
         logger->newLine();
     }
 };
@@ -139,7 +63,7 @@ struct PIC_2DParameters : public SimulationParameters
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 struct PIC_2DData
 {
-    struct ParticleData : public ParticleSimulationData<2, Real>
+    struct ParticleData : public ParticleSimulationData2D
     {
         ////////////////////////////////////////////////////////////////////////////////
         // variables for storing temporary data
@@ -257,7 +181,6 @@ struct PIC_2DData
     }
 };
 
-
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 class PIC_2DSolver : public ParticleSolver2D
 {
@@ -273,10 +196,24 @@ public:
     virtual void sortParticles() override;
 
     ////////////////////////////////////////////////////////////////////////////////
-    auto&       solverParams() { return m_picParams; }
-    const auto& solverParams() const { return m_picParams; }
-    auto&       solverData() { return m_picData; }
-    const auto& solverData() const { return m_picData; }
+    virtual SimulationParameters2D* commonSimData()
+    {
+        auto ptr = dynamic_cast<SimulationParameters2D*>(&m_SolverParams);
+        __BNN_REQUIRE(ptr != nullptr);
+        return ptr;
+    }
+
+    virtual ParticleSimulationData2D* commonParticleData()
+    {
+        auto ptr = dynamic_cast<ParticleSimulationData2D*>(&m_SolverData.particleData);
+        __BNN_REQUIRE(ptr != nullptr);
+        return ptr;
+    }
+
+    auto&       solverParams() { return m_SolverParams; }
+    const auto& solverParams() const { return m_SolverParams; }
+    auto&       solverData() { return m_SolverData; }
+    const auto& solverData() const { return m_SolverData; }
 
 protected:
     virtual void loadSimParams(const nlohmann::json& jParams) override;
@@ -320,8 +257,8 @@ protected:
     const auto& gridData() const { return solverData().gridData; }
 
     ////////////////////////////////////////////////////////////////////////////////
-    PIC_2DParameters m_picParams;
-    PIC_2DData       m_picData;
+    PIC_2DParameters m_SolverParams;
+    PIC_2DData       m_SolverData;
 };
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace ParticleSolvers

@@ -63,7 +63,6 @@ struct SimulationParameters_WCSPH : public SimulationParameters
     Real densityMin;
     Real densityMax;
     Real kernelRadius;
-    Real particleMass;
     Real kernelRadiusSqr;
     Real restDensitySqr;
 

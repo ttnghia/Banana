@@ -157,7 +157,15 @@ inline T sum(const Vector<T>& x)
 template<class T>
 inline T sum_sqr(const Vector<T>& x)
 {
-    ParallelObjects::VectorSumSqr<T> pObj(x);
+    ParallelObjects::VectorSumSqr<1, T> pObj(x);
+    tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), pObj);
+    return pObj.getResult();
+}
+
+template<Int N, class T>
+inline T sum_sqr(const Vector<VecX<N, T> >& x)
+{
+    ParallelObjects::VectorSumSqr<N, T> pObj(x);
     tbb::parallel_reduce(tbb::blocked_range<size_t>(0, x.size()), pObj);
     return pObj.getResult();
 }

@@ -73,11 +73,16 @@ public:
     virtual void advanceFrame() = 0;
     virtual void sortParticles() {}
 
+    virtual SimulationParameters<N, RealType>*   commonSimData()      = 0;
+    virtual ParticleSimulationData<N, RealType>* commonParticleData() = 0;
+
     ////////////////////////////////////////////////////////////////////////////////
     auto&       globalParams() noexcept { return m_GlobalParams; }
     const auto& globalParams() const noexcept { return m_GlobalParams; }
     auto&       logger() noexcept { assert(m_Logger != nullptr); return *m_Logger; }
     const auto& logger() const noexcept { assert(m_Logger != nullptr); return *m_Logger; }
+    auto&       dataLogger(const String& dataName) { assert(m_DataLoggers[dataName] != nullptr); return *m_DataLoggers[dataName]; }
+    const auto& dataLogger(const String& dataName) const { assert(m_DataLoggers[dataName] != nullptr); return *m_DataLoggers[dataName]; }
 
 protected:
     virtual void loadSimParams(const nlohmann::json& jParams) = 0;
@@ -91,12 +96,14 @@ protected:
     virtual bool loadMemoryState()      = 0;
     virtual void saveMemoryState()      = 0;
     virtual void saveFrameData();
+    virtual void logSubstepData(Real frameTime, Real substep);
 
     ////////////////////////////////////////////////////////////////////////////////
     GlobalParameters m_GlobalParams;
 
-    UniquePtr<tbb::task_scheduler_init> m_ThreadInit = nullptr;
-    SharedPtr<Logger>                   m_Logger     = nullptr;
+    UniquePtr<tbb::task_scheduler_init>  m_ThreadInit = nullptr;
+    SharedPtr<Logger>                    m_Logger     = nullptr;
+    std::map<String, SharedPtr<Logger> > m_DataLoggers;
 
     UniquePtr<ParticleSerialization> m_ParticleDataIO      = nullptr;
     UniquePtr<ParticleSerialization> m_DynamicObjectDataIO = nullptr;
@@ -245,7 +252,7 @@ void ParticleSolver<N, RealType >::loadScene(const String& sceneFile)
 template<Int N, class RealType>
 void ParticleSolver<N, RealType >::setupLogger()
 {
-    m_Logger = Logger::create(getSolverName());
+    m_Logger = Logger::createLogger(getSolverName());
     m_Logger->setLoglevel(globalParams().logLevel);
     logger().printTextBox(getGreetingMessage());
 }
@@ -255,12 +262,10 @@ template<Int N, class RealType>
 void ParticleSolver<N, RealType >::doSimulation()
 {
     makeReady();
-
     ////////////////////////////////////////////////////////////////////////////////
     m_ThreadInit.reset();
     m_ThreadInit = std::make_unique<tbb::task_scheduler_init>(globalParams().nThreads == 0 ? tbb::task_scheduler_init::automatic : globalParams().nThreads);
     logger().printAligned("Start Simulation", '=');
-    static Timer frameTimer;
 
     auto startFrame = (globalParams().startFrame <= 1) ? globalParams().finishedFrame + 1 : MathHelpers::min(globalParams().startFrame, globalParams().finishedFrame + 1);
     for(auto frame = startFrame; frame <= globalParams().finalFrame; ++frame) {
@@ -271,7 +276,7 @@ void ParticleSolver<N, RealType >::doSimulation()
         ////////////////////////////////////////////////////////////////////////////////
         static const String strMsg = String("Frame finished. Frame duration: ") + NumberHelpers::formatToScientific(globalParams().frameDuration) +
                                      String("(s) (~") + std::to_string(static_cast<int>(round(1.0_f / globalParams().frameDuration))) + String(" fps). Run time: ");
-        logger().printRunTime(strMsg.c_str(), frameTimer,
+        logger().printRunTime(strMsg.c_str(),
                               [&]()
                               {
                                   sortParticles();
@@ -388,6 +393,25 @@ void Banana::ParticleSolvers::ParticleSolver<N, RealType >::saveFrameData()
             }
         }
         m_DynamicObjectDataIO->flushAsync(globalParams().finishedFrame);
+    }
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+// Save the frame data for dynamic objects
+template<Int N, class RealType>
+void Banana::ParticleSolvers::ParticleSolver<N, RealType >::logSubstepData(Real frameTime, Real substep)
+{
+    if(globalParams().bSaveSubstepData && globalParams().isSavingData("SubStepSize")) {
+        String dataStr = String("SystemTime: ") + NumberHelpers::formatToScientific(globalParams().evolvedTime() + frameTime, 10) +
+                         String(" | SubStepSize: ") + NumberHelpers::formatToScientific(substep, 10);
+        dataLogger("SubStepSize").printLog(dataStr);
+    }
+
+    if(globalParams().bSaveSubstepData && globalParams().isSavingData("SubStepKineticEnergy")) {
+        Real   kineticEnergy = ParallelSTL::sum_sqr<N, RealType>(commonParticleData()->velocities) * commonSimData()->particleMass * 0.5_f;
+        String dataStr       = String("SystemTime: ") + NumberHelpers::formatToScientific(globalParams().evolvedTime() + frameTime, 10) +
+                               String(" | SystemKineticEnergy: ") + NumberHelpers::formatToScientific(kineticEnergy, 10);
+        dataLogger("SubStepKineticEnergy").printLog(dataStr);
     }
 }
 

@@ -31,16 +31,18 @@ namespace Banana::ParticleSolvers
 // FLIP_3DParameters
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-struct FLIP_3DParameters : public SimulationParameters
+struct FLIP_3DParameters : public SimulationParameters3D
 {
-    FLIP_3DParameters() = default;
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // data only for flip
-    Real PIC_FLIP_ratio = 0.97_f;
-    ////////////////////////////////////////////////////////////////////////////////
-
-    virtual void printParams(const SharedPtr<Logger>& logger) override;
+    virtual void printParams(const SharedPtr<Logger>& logger) override
+    {
+        ////////////////////////////////////////////////////////////////////////////////
+        // FLIP only parameter
+        logger->printLog(String("FLIP-3D parameters:"));
+        SimulationParameters3D::printParams(logger);
+        logger->printLogIndent(String("PIC/FLIP ratio: ") + std::to_string(PIC_FLIP_ratio));
+        ////////////////////////////////////////////////////////////////////////////////
+        logger->newLine();
+    }
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

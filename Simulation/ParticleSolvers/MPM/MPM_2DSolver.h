@@ -36,58 +36,11 @@ namespace Banana::ParticleSolvers
 // MPM_2DParameters
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-struct MPM_2DParameters : public SimulationParameters
+struct MPM_2DParameters : public SimulationParameters2D
 {
-    MPM_2DParameters() = default;
-
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // simulation size
-    Real  cellSize             = SolverDefaultParameters::CellSize;
-    Real  ratioCellSizePRadius = SolverDefaultParameters::RatioCellSizeOverParticleRadius;
-    UInt  nExpandCells         = SolverDefaultParameters::NExpandCells;
-    Vec2r domainBMin           = SolverDefaultParameters::SimulationDomainBMin2D;
-    Vec2r domainBMax           = SolverDefaultParameters::SimulationDomainBMax2D;
-    Vec2r movingBMin;
-    Vec2r movingBMax;
-    Real  cellVolume;
-    ////////////////////////////////////////////////////////////////////////////////
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // time step size
-    Real minTimestep = SolverDefaultParameters::MinTimestep;
-    Real maxTimestep = SolverDefaultParameters::MaxTimestep;
-    Real CFLFactor   = 0.04_f;
-    ////////////////////////////////////////////////////////////////////////////////
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // CG solver
-    Real CGRelativeTolerance = SolverDefaultParameters::CGRelativeTolerance;
-    UInt maxCGIteration      = SolverDefaultParameters::CGMaxIteration;
-    ////////////////////////////////////////////////////////////////////////////////
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // particle parameters
-    Real particleRadius;
-    UInt maxNParticles  = 0;
-    UInt advectionSteps = 1;
-    ////////////////////////////////////////////////////////////////////////////////
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // position-correction
-    bool bCorrectPosition        = true;
-    Real repulsiveForceStiffness = 50_f;
-    ////////////////////////////////////////////////////////////////////////////////
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // boundary condition
-    Real boundaryRestitution = SolverDefaultParameters::BoundaryRestitution;
-    ////////////////////////////////////////////////////////////////////////////////
-
     ////////////////////////////////////////////////////////////////////////////////
     // MPM parameters
-    Real PIC_FLIP_ratio = SolverDefaultParameters::PIC_FLIP_Ratio;
-    Real implicitRatio  = 0_f;
+    Real implicitRatio = 0_f;
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -97,11 +50,43 @@ struct MPM_2DParameters : public SimulationParameters
     Real mu              = 0_f;
     Real lambda          = 0_f;
     Real materialDensity = 1000.0_f;
-    Real particleMass;
     ////////////////////////////////////////////////////////////////////////////////
 
-    virtual void makeReady() override;
-    virtual void printParams(const SharedPtr<Logger>& logger) override;
+    virtual void makeReady() override
+    {
+        SimulationParameters2D::makeReady();
+        nExpandCells = MathHelpers::max(nExpandCells, 2u);
+        particleMass = MathHelpers::sqr(2.0_f * particleRadius) * materialDensity;
+
+        __BNN_REQUIRE((YoungsModulus > 0 && PoissonsRatio > 0) || (mu > 0 && lambda > 0));
+        if(mu == 0 || lambda == 0) {
+            mu     = YoungsModulus / 2.0_f / (1.0_f + PoissonsRatio);
+            lambda = YoungsModulus * PoissonsRatio / ((1.0_f + PoissonsRatio) * (1.0_f - 2.0_f * PoissonsRatio));
+        } else {
+            YoungsModulus = mu * (3.0_f * lambda + 2.0_f * mu) / (lambda + mu);
+            PoissonsRatio = lambda / 2.0_f / (lambda + mu);
+        }
+    }
+
+    virtual void printParams(const SharedPtr<Logger>& logger) override
+    {
+        logger->printLog(String("MPM-2D parameters:"));
+        SimulationParameters2D::printParams(logger);
+        ////////////////////////////////////////////////////////////////////////////////
+        // MPM parameters
+        logger->printLogIndent(String("PIC/FLIP ratio: ") + std::to_string(PIC_FLIP_ratio));
+        logger->printLogIndent(String("Implicit ratio: ") + std::to_string(implicitRatio));
+        ////////////////////////////////////////////////////////////////////////////////
+
+        ////////////////////////////////////////////////////////////////////////////////
+        // material parameters
+        logger->printLogIndent(String("Youngs modulus/Poissons ratio: ") + std::to_string(YoungsModulus) + String("/") + std::to_string(PoissonsRatio));
+        logger->printLogIndent(String("mu/lambda: ") + std::to_string(mu) + String("/") + std::to_string(lambda));
+        logger->printLogIndent(String("Material density: ") + std::to_string(materialDensity));
+        logger->printLogIndent(String("Particle mass: ") + std::to_string(particleMass));
+        ////////////////////////////////////////////////////////////////////////////////
+        logger->newLine();
+    }
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -111,7 +96,7 @@ struct MPM_2DParameters : public SimulationParameters
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 struct MPM_2DData
 {
-    struct ParticleData : public ParticleSimulationData<2, Real>
+    struct ParticleData : public ParticleSimulationData2D
     {
         Vec_Real    volumes;
         Vec_Mat2x2r velocityGrad;
@@ -216,10 +201,24 @@ public:
     virtual void advanceFrame() override;
 
     ////////////////////////////////////////////////////////////////////////////////
-    auto&       solverParams() { return m_SimParams; }
-    const auto& solverParams() const { return m_SimParams; }
-    auto&       solverData() { return m_SimData; }
-    const auto& solverData() const { return m_SimData; }
+    virtual SimulationParameters2D* commonSimData()
+    {
+        auto ptr = dynamic_cast<SimulationParameters2D*>(&m_SolverParams);
+        __BNN_REQUIRE(ptr != nullptr);
+        return ptr;
+    }
+
+    virtual ParticleSimulationData2D* commonParticleData()
+    {
+        auto ptr = dynamic_cast<ParticleSimulationData2D*>(&m_SolverData.particleData);
+        __BNN_REQUIRE(ptr != nullptr);
+        return ptr;
+    }
+
+    auto&       solverParams() { return m_SolverParams; }
+    const auto& solverParams() const { return m_SolverParams; }
+    auto&       solverData() { return m_SolverData; }
+    const auto& solverData() const { return m_SolverData; }
 
 protected:
     virtual void loadSimParams(const nlohmann::json& jParams) override;
@@ -256,8 +255,8 @@ protected:
     auto&       grid() { return solverData().grid; }
     const auto& grid() const { return solverData().grid; }
     ////////////////////////////////////////////////////////////////////////////////
-    MPM_2DParameters m_SimParams;
-    MPM_2DData       m_SimData;
+    MPM_2DParameters m_SolverParams;
+    MPM_2DData       m_SolverData;
 };
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace Banana::ParticleSolvers

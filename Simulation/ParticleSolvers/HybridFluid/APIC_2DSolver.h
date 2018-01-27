@@ -31,7 +31,7 @@
 namespace Banana::ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-struct APIC_2DData : public ParticleSimulationData<2, Real>
+struct APIC_2DData : public ParticleSimulationData2D
 {
     ////////////////////////////////////////////////////////////////////////////////
     // variable for apic only
@@ -80,8 +80,8 @@ public:
     virtual String getSolverName() override { return String("APIC_2DSolver"); }
     virtual String getGreetingMessage() override { return String("Fluid Simulation using FLIP-2D Solver"); }
 
-    auto&       apicData() { return m_apicData; }
-    const auto& apicData() const { return m_apicData; }
+    auto&       apicData() { return m_APICData; }
+    const auto& apicData() const { return m_APICData; }
 
 protected:
     virtual void generateParticles(const nlohmann::json& jParams) override;
@@ -92,7 +92,7 @@ protected:
 
     Mat2x2r getAffineMatrix(const Vec2r& gridPos);
     ////////////////////////////////////////////////////////////////////////////////
-    APIC_2DData m_apicData;
+    APIC_2DData m_APICData;
 };
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace Banana::ParticleSolvers

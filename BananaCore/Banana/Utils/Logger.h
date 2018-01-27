@@ -48,17 +48,32 @@ class Logger
 {
     using Clock = std::chrono::system_clock;
 public:
-    Logger(const String& instanceName)
+    Logger(const String& loggerName, bool bDefaultLogPolicy = true, bool bPrint2Console = true, bool bWriteLog2File = false, bool bDataLogger = false)
     {
         __BNN_REQUIRE(s_bInitialized);
-        m_ConsoleLogger = std::make_shared<spdlog::logger>(instanceName, s_ConsoleSink);
 
-        if(s_LogFileSink != nullptr) {
-            m_FileLogger = std::make_shared<spdlog::async_logger>(instanceName, s_LogFileSink, 1024);
+        if(bDefaultLogPolicy) {
+            m_bPrint2Console = s_bPrint2Console;
+            m_bWriteLog2File = s_bWriteLog2File;
+        } else {
+            m_bPrint2Console = bPrint2Console;
+            m_bWriteLog2File = bWriteLog2File;
+        }
+
+        if(m_bPrint2Console) {
+            m_ConsoleLogger = std::make_shared<spdlog::logger>(loggerName, s_ConsoleSink);
+        }
+
+        if(m_bWriteLog2File) {
+            if(!bDataLogger) {
+                __BNN_REQUIRE(s_SystemLogFileSink != nullptr);
+                m_FileLogger = std::make_shared<spdlog::async_logger>(loggerName, s_SystemLogFileSink, 1024);
+            } else {
+                __BNN_REQUIRE(s_DataLogSinks.find(loggerName) != s_DataLogSinks.end() && s_DataLogSinks[loggerName] != nullptr);
+                m_FileLogger = std::make_shared<spdlog::async_logger>(loggerName, s_DataLogSinks[loggerName], 1024);
+            }
         }
     }
-
-    static auto create(const String& instanceName) { return std::make_shared<Logger>(instanceName); }
 
     ////////////////////////////////////////////////////////////////////////////////
     void setLoglevel(spdlog::level::level_enum level) { m_ConsoleLogger->set_level(level); if(m_FileLogger != nullptr) { m_FileLogger->set_level(level); } }
@@ -112,18 +127,30 @@ public:
     void printMemoryUsage();
 
     ////////////////////////////////////////////////////////////////////////////////
+    static auto createLogger(const String& loggerName, bool bDefaultLogPolicy = true, bool bPrint2Console = true, bool bWriteLog2File = false)
+    {
+        return std::make_shared<Logger>(loggerName, bDefaultLogPolicy, bPrint2Console, bWriteLog2File);
+    }
+
+    static auto createDataLogger(const String& loggerName, bool bDefaultLogPolicy = true, bool bPrint2Console = true, bool bWriteLog2File = false)
+    {
+        return std::make_shared<Logger>(loggerName, bDefaultLogPolicy, bPrint2Console, bWriteLog2File, true);
+    }
+
+    static void  registerDataLogFile(const String& logFile) { __BNN_REQUIRE(!s_bInitialized); s_DataLogFiles.push_back(logFile); }
     static void  initialize(bool bPrint2Console = true, bool bWriteLog2File = false);
     static void  initialize(const String& dataPath, bool bPrint2Console = true, bool bWriteLog2File = false);
     static void  shutdown();
     static void  setDataPath(const String& dataPath) { s_DataPath = dataPath; }
     static auto& mainLogger() noexcept { assert(s_MainLogger != nullptr); return *s_MainLogger; }
-private:
+
     static String getTotalRunTime();
     static void   signalHandler(int signum);
 
     ////////////////////////////////////////////////////////////////////////////////
     static bool s_bPrint2Console;
     static bool s_bWriteLog2File;
+private:
     static bool s_bInitialized;
     static bool s_bShutdown;
 
@@ -138,12 +165,17 @@ private:
     static SharedPtr<spdlog::sinks::ansicolor_stdout_sink_mt> s_ConsoleSink;
 #endif
 
-    static SharedPtr<spdlog::sinks::simple_file_sink_mt> s_LogFileSink;
+    static Vector<String>                                                   s_DataLogFiles;
+    static std::map<String, SharedPtr<spdlog::sinks::simple_file_sink_mt> > s_DataLogSinks;
+
+    static SharedPtr<spdlog::sinks::simple_file_sink_mt> s_SystemLogFileSink;
     static SharedPtr<Logger>                             s_MainLogger;
 
     ////////////////////////////////////////////////////////////////////////////////
     SharedPtr<spdlog::logger>       m_ConsoleLogger = nullptr;
     SharedPtr<spdlog::async_logger> m_FileLogger    = nullptr;
+    bool                            m_bPrint2Console;
+    bool                            m_bWriteLog2File;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

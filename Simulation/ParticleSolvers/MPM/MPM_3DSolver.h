@@ -36,49 +36,11 @@ namespace Banana::ParticleSolvers
 // MPM_3DParameters
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-struct MPM_3DParameters : public SimulationParameters
+struct MPM_3DParameters : public SimulationParameters3D
 {
     ////////////////////////////////////////////////////////////////////////////////
-    // simulation size
-    Real  cellSize             = SolverDefaultParameters::CellSize;
-    Real  ratioCellSizePRadius = SolverDefaultParameters::RatioCellSizeOverParticleRadius;
-    UInt  nExpandCells         = SolverDefaultParameters::NExpandCells;
-    Vec3r domainBMin           = SolverDefaultParameters::SimulationDomainBMin3D;
-    Vec3r domainBMax           = SolverDefaultParameters::SimulationDomainBMax3D;
-    Vec3r movingBMin;
-    Vec3r movingBMax;
-    Real  cellVolume;
-    ////////////////////////////////////////////////////////////////////////////////
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // time step size
-    Real minTimestep = SolverDefaultParameters::MinTimestep;
-    Real maxTimestep = SolverDefaultParameters::MaxTimestep;
-    Real CFLFactor   = 0.04_f;
-    ////////////////////////////////////////////////////////////////////////////////
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // CG solver
-    Real CGRelativeTolerance = SolverDefaultParameters::CGRelativeTolerance;
-    UInt maxCGIteration      = SolverDefaultParameters::CGMaxIteration;
-    ////////////////////////////////////////////////////////////////////////////////
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // particle parameters
-    Real particleRadius;
-    UInt maxNParticles  = 0;
-    UInt advectionSteps = 1;
-    ////////////////////////////////////////////////////////////////////////////////
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // boundary condition
-    Real boundaryRestitution = SolverDefaultParameters::BoundaryRestitution;
-    ////////////////////////////////////////////////////////////////////////////////
-
-    ////////////////////////////////////////////////////////////////////////////////
     // MPM parameters
-    Real PIC_FLIP_ratio = SolverDefaultParameters::PIC_FLIP_Ratio;
-    Real implicitRatio  = 0_f;
+    Real implicitRatio = 0_f;
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -88,7 +50,6 @@ struct MPM_3DParameters : public SimulationParameters
     Real mu              = 0_f;
     Real lambda          = 0_f;
     Real materialDensity = 1000.0_f;
-    Real particleMass;
     ////////////////////////////////////////////////////////////////////////////////
 
     virtual void makeReady() override;
@@ -201,6 +162,20 @@ public:
     virtual void advanceFrame() override;
 
     ////////////////////////////////////////////////////////////////////////////////
+    virtual SimulationParameters3D* commonSimData()
+    {
+        auto ptr = dynamic_cast<SimulationParameters3D*>(&m_SimParams);
+        __BNN_REQUIRE(ptr != nullptr);
+        return ptr;
+    }
+
+    virtual ParticleSimulationData3D* commonParticleData()
+    {
+        auto ptr = dynamic_cast<ParticleSimulationData3D*>(&m_SimData.particleData);
+        __BNN_REQUIRE(ptr != nullptr);
+        return ptr;
+    }
+
     auto&       solverParams() { return m_SimParams; }
     const auto& solverParams() const { return m_SimParams; }
     auto&       solverData() { return m_SimData; }

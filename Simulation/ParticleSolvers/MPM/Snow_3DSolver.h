@@ -50,14 +50,14 @@ struct SimulationParameters_Snow3D : public SimulationParameters
 
     Real thresholdCompression = 1.0_f - 1.9e-2_f; //Fracture threshold for compression (1-2.5e-2)
     Real thresholdStretching  = 1.0_f + 7.5e-3_f; //Fracture threshold for stretching (1+7.5e-3)
-    Real hardening            = 5.0_f;          //How much plastic deformation strengthens material (10)
-    Real materialDensity      = 100.0_f;        //Density of snow in kg/m^2 (400 for 3d)
-    Real YoungsModulus        = 1.5e5_f;        //Young's modulus (springiness) (1.4e5)
-    Real PoissonsRatio        = 0.2_f;          //Poisson's ratio (transverse/axial strain ratio) (.2)
-    Real implicitRatio        = 0_f;            //Percentage that should be implicit vs explicit for velocity update
+    Real hardening            = 5.0_f;            //How much plastic deformation strengthens material (10)
+    Real materialDensity      = 100.0_f;          //Density of snow in kg/m^2 (400 for 3d)
+    Real YoungsModulus        = 1.5e5_f;          //Young's modulus (springiness) (1.4e5)
+    Real PoissonsRatio        = 0.2_f;            //Poisson's ratio (transverse/axial strain ratio) (.2)
+    Real implicitRatio        = 0_f;              //Percentage that should be implicit vs explicit for velocity update
 
-    Real maxImplicitError = 1e4_f;              //Maximum allowed error for conjugate residual
-    Real minImplicitError = 1e-4_f;             //Minimum allowed error for conjugate residual
+    Real maxImplicitError = 1e4_f;                //Maximum allowed error for conjugate residual
+    Real minImplicitError = 1e-4_f;               //Minimum allowed error for conjugate residual
 
     Int kernelSpan = 2;
 
@@ -67,8 +67,7 @@ struct SimulationParameters_Snow3D : public SimulationParameters
     Vec3r domainBMax                  = Vec3r(1.0);
 
     // the following need to be computed
-    Real particleRadius;
-    Real particleMass;
+
 
     Real  cellArea;
     Vec3r movingBMin;

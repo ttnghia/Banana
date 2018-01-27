@@ -49,18 +49,16 @@ void PIC_2DSolver::makeReady()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PIC_2DSolver::advanceFrame()
 {
-    static Timer subStepTimer;
-    static Timer funcTimer;
-    Real         frameTime    = 0;
-    int          substepCount = 0;
+    Real frameTime    = 0;
+    int  substepCount = 0;
 
     ////////////////////////////////////////////////////////////////////////////////
     while(frameTime < m_GlobalParams.frameDuration) {
-        logger().printRunTime("Sub-step time: ", subStepTimer,
+        logger().printRunTime("Sub-step time: ",
                               [&]()
                               {
                                   if(globalParams().finishedFrame > 0) {
-                                      logger().printRunTimeIf("Advance scene: ", funcTimer,
+                                      logger().printRunTimeIf("Advance scene: ",
                                                               [&]() { return advanceScene(globalParams().finishedFrame, frameTime / globalParams().frameDuration); });
                                   }
                                   ////////////////////////////////////////////////////////////////////////////////
@@ -72,10 +70,10 @@ void PIC_2DSolver::advanceFrame()
                                       substep = remainingTime * 0.5_f;
                                   }
                                   ////////////////////////////////////////////////////////////////////////////////
-                                  logger().printRunTime("Find neighbors: ",               funcTimer, [&]() { solverData().grid.collectIndexToCells(particleData().positions); });
-                                  logger().printRunTime("====> Advance velocity total: ", funcTimer, [&]() { advanceVelocity(substep); });
-                                  logger().printRunTime("Move particles: ",               funcTimer, [&]() { moveParticles(substep); });
-                                  logger().printRunTime("Correct particle positions: ",   funcTimer, [&]() { correctPositions(substep); });
+                                  logger().printRunTime("Find neighbors: ", [&]() { solverData().grid.collectIndexToCells(particleData().positions); });
+                                  logger().printRunTime("====> Advance velocity total: ", [&]() { advanceVelocity(substep); });
+                                  logger().printRunTime("Move particles: ", [&]() { moveParticles(substep); });
+                                  logger().printRunTime("Correct particle positions: ", [&]() { correctPositions(substep); });
                                   ////////////////////////////////////////////////////////////////////////////////
                                   frameTime += substep;
                                   ++substepCount;
@@ -106,8 +104,7 @@ void PIC_2DSolver::sortParticles()
 
     ////////////////////////////////////////////////////////////////////////////////
     frameCount = 0;
-    static Timer timer;
-    logger().printRunTime("Sort data by particle position: ", timer,
+    logger().printRunTime("Sort data by particle position: ",
                           [&]()
                           {
                               solverData().grid.collectIndexToCells(particleData().positions);
@@ -291,43 +288,40 @@ Real PIC_2DSolver::timestepCFL()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PIC_2DSolver::advanceVelocity(Real timestep)
 {
-    static Timer funcTimer;
-
-    ////////////////////////////////////////////////////////////////////////////////
     static bool weight_computed = false;
     if(!weight_computed) {
-        logger().printRunTime("Compute cell weights: ", funcTimer, [&]() { computeFluidWeights(); });
+        logger().printRunTime("Compute cell weights: ", [&]() { computeFluidWeights(); });
         weight_computed = true;
     }
 
 
-    logger().printRunTime("Add gravity: ",                                 funcTimer, [&]() { addGravity(timestep); });
-    logger().printRunTime("====> Pressure projection: ",                   funcTimer, [&]() { pressureProjection(timestep); });
-    logger().printRunTime("Extrapolate grid velocity: : ",                 funcTimer, [&]() { extrapolateVelocity(); });
-    logger().printRunTime("Constrain grid velocity: ",                     funcTimer, [&]() { constrainGridVelocity(); });
+    logger().printRunTime("Add gravity: ",                 [&]() { addGravity(timestep); });
+    logger().printRunTime("====> Pressure projection: ",   [&]() { pressureProjection(timestep); });
+    logger().printRunTime("Extrapolate grid velocity: : ", [&]() { extrapolateVelocity(); });
+    logger().printRunTime("Constrain grid velocity: ",     [&]() { constrainGridVelocity(); });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PIC_2DSolver::moveParticles(Real timestep)
 {
     Scheduler::parallel_for<UInt>(0, particleData().getNParticles(),
-                                      [&](UInt p)
-                                      {
-                                          Vec2r ppos          = particleData().positions[p] + particleData().velocities[p] * timestep;
-                                          const Vec2r gridPos = solverData().grid.getGridCoordinate(ppos);
-                                          const Real phiVal   = ArrayHelpers::interpolateValueLinear(gridPos, gridData().boundarySDF);
+                                  [&](UInt p)
+                                  {
+                                      Vec2r ppos          = particleData().positions[p] + particleData().velocities[p] * timestep;
+                                      const Vec2r gridPos = solverData().grid.getGridCoordinate(ppos);
+                                      const Real phiVal   = ArrayHelpers::interpolateValueLinear(gridPos, gridData().boundarySDF);
 
-                                          if(phiVal < 0) {
-                                              Vec2r grad    = ArrayHelpers::interpolateGradient(gridPos, gridData().boundarySDF);
-                                              Real mag2Grad = glm::length2(grad);
+                                      if(phiVal < 0) {
+                                          Vec2r grad    = ArrayHelpers::interpolateGradient(gridPos, gridData().boundarySDF);
+                                          Real mag2Grad = glm::length2(grad);
 
-                                              if(mag2Grad > Tiny) {
-                                                  ppos -= phiVal * grad / sqrt(mag2Grad);
-                                              }
+                                          if(mag2Grad > Tiny) {
+                                              ppos -= phiVal * grad / sqrt(mag2Grad);
                                           }
+                                      }
 
-                                          particleData().positions[p] = ppos;
-                                      });
+                                      particleData().positions[p] = ppos;
+                                  });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -384,23 +378,23 @@ void PIC_2DSolver::correctPositions(Real timestep)
 void PIC_2DSolver::computeFluidWeights()
 {
     Scheduler::parallel_for<UInt>(solverData().grid.getNNodes(),
-                                      [&](UInt i, UInt j)
-                                      {
-                                          bool valid_index_u = gridData().u_weights.isValidIndex(i, j);
-                                          bool valid_index_v = gridData().v_weights.isValidIndex(i, j);
+                                  [&](UInt i, UInt j)
+                                  {
+                                      bool valid_index_u = gridData().u_weights.isValidIndex(i, j);
+                                      bool valid_index_v = gridData().v_weights.isValidIndex(i, j);
 
-                                          if(valid_index_u) {
-                                              const Real tmp = 1.0_f - MathHelpers::fraction_inside(gridData().boundarySDF(i, j),
-                                                                                                        gridData().boundarySDF(i, j + 1));
-                                                                                                        gridData().u_weights(i, j) = MathHelpers::clamp(tmp, 0_f, 1.0_f);
-                                          }
+                                      if(valid_index_u) {
+                                          const Real tmp = 1.0_f - MathHelpers::fraction_inside(gridData().boundarySDF(i, j),
+                                                                                                gridData().boundarySDF(i, j + 1));
+                                                                                                gridData().u_weights(i, j) = MathHelpers::clamp(tmp, 0_f, 1.0_f);
+                                      }
 
-                                          if(valid_index_v) {
-                                              const Real tmp = 1.0_f - MathHelpers::fraction_inside(gridData().boundarySDF(i, j),
-                                                                                                        gridData().boundarySDF(i, j + 1));
-                                                                                                        gridData().v_weights(i, j) = MathHelpers::clamp(tmp, 0_f, 1.0_f);
-                                          }
-                                      });
+                                      if(valid_index_v) {
+                                          const Real tmp = 1.0_f - MathHelpers::fraction_inside(gridData().boundarySDF(i, j),
+                                                                                                gridData().boundarySDF(i, j + 1));
+                                                                                                gridData().v_weights(i, j) = MathHelpers::clamp(tmp, 0_f, 1.0_f);
+                                      }
+                                  });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -418,43 +412,43 @@ void PIC_2DSolver::extrapolateVelocity(Array2r& grid, Array2r& temp_grid, Array2
         bool stop = true;
         old_valid.copyDataFrom(valid);
         Scheduler::parallel_for<UInt>(1, solverData().grid.getNCells()[0] - 1,
-                                          1, solverData().grid.getNCells()[1] - 1,
-                                          [&](UInt i, UInt j)
-                                          {
-                                              if(old_valid(i, j)) {
-                                                  return;
-                                              }
+                                      1, solverData().grid.getNCells()[1] - 1,
+                                      [&](UInt i, UInt j)
+                                      {
+                                          if(old_valid(i, j)) {
+                                              return;
+                                          }
 
-                                              Real sum   = 0_f;
-                                              UInt count = 0;
+                                          Real sum   = 0_f;
+                                          UInt count = 0;
 
-                                              // TODO
-                                              if(old_valid(i + 1, j)) {
-                                                  sum += grid(i + 1, j);
-                                                  ++count;
-                                              }
+                                          // TODO
+                                          if(old_valid(i + 1, j)) {
+                                              sum += grid(i + 1, j);
+                                              ++count;
+                                          }
 
-                                              if(old_valid(i - 1, j)) {
-                                                  sum += grid(i - 1, j);
-                                                  ++count;
-                                              }
+                                          if(old_valid(i - 1, j)) {
+                                              sum += grid(i - 1, j);
+                                              ++count;
+                                          }
 
-                                              if(old_valid(i, j + 1)) {
-                                                  sum += grid(i, j + 1);
-                                                  ++count;
-                                              }
+                                          if(old_valid(i, j + 1)) {
+                                              sum += grid(i, j + 1);
+                                              ++count;
+                                          }
 
-                                              if(old_valid(i, j - 1)) {
-                                                  sum += grid(i, j - 1);
-                                                  ++count;
-                                              }
+                                          if(old_valid(i, j - 1)) {
+                                              sum += grid(i, j - 1);
+                                              ++count;
+                                          }
 
-                                              if(count > 0) {
-                                                  stop            = false;
-                                                  temp_grid(i, j) = sum / static_cast<Real>(count);
-                                                  valid(i, j)     = 1;
-                                              }
-                                          });
+                                          if(count > 0) {
+                                              stop            = false;
+                                              temp_grid(i, j) = sum / static_cast<Real>(count);
+                                              valid(i, j)     = 1;
+                                          }
+                                      });
 
         // if nothing changed in the last iteration: stop
         if(stop) {
@@ -474,40 +468,40 @@ void PIC_2DSolver::constrainGridVelocity()
 
     ////////////////////////////////////////////////////////////////////////////////
     Scheduler::parallel_for<size_t>(gridData().u.size(),
-                                        [&](size_t i, size_t j)
-                                        {
-                                            if(gridData().u_weights(i, j) < Tiny) {
-                                                const Vec2r gridPos = Vec2r(i, j + 0.5);
-                                                Vec2r vel           = getVelocityFromGrid(gridPos);
-                                                Vec2r normal        = ArrayHelpers::interpolateGradient(gridPos, gridData().boundarySDF);
-                                                Real mag2Normal     = glm::length2(normal);
-                                                if(mag2Normal > Tiny) {
-                                                    normal /= sqrt(mag2Normal);
-                                                }
-
-                                                Real perp_component = glm::dot(vel, normal);
-                                                vel                   -= perp_component * normal;
-                                                gridData().tmp_u(i, j) = vel[0];
+                                    [&](size_t i, size_t j)
+                                    {
+                                        if(gridData().u_weights(i, j) < Tiny) {
+                                            const Vec2r gridPos = Vec2r(i, j + 0.5);
+                                            Vec2r vel           = getVelocityFromGrid(gridPos);
+                                            Vec2r normal        = ArrayHelpers::interpolateGradient(gridPos, gridData().boundarySDF);
+                                            Real mag2Normal     = glm::length2(normal);
+                                            if(mag2Normal > Tiny) {
+                                                normal /= sqrt(mag2Normal);
                                             }
-                                        });
+
+                                            Real perp_component = glm::dot(vel, normal);
+                                            vel                   -= perp_component * normal;
+                                            gridData().tmp_u(i, j) = vel[0];
+                                        }
+                                    });
 
     Scheduler::parallel_for<size_t>(gridData().v.size(),
-                                        [&](size_t i, size_t j)
-                                        {
-                                            if(gridData().v_weights(i, j) < Tiny) {
-                                                const Vec2r gridPos = Vec2r(i + 0.5, j);
-                                                Vec2r vel           = getVelocityFromGrid(gridPos);
-                                                Vec2r normal        = ArrayHelpers::interpolateGradient(gridPos, gridData().boundarySDF);
-                                                Real mag2Normal     = glm::length2(normal);
-                                                if(mag2Normal > Tiny) {
-                                                    normal /= sqrt(mag2Normal);
-                                                }
-
-                                                Real perp_component = glm::dot(vel, normal);
-                                                vel                   -= perp_component * normal;
-                                                gridData().tmp_v(i, j) = vel[1];
+                                    [&](size_t i, size_t j)
+                                    {
+                                        if(gridData().v_weights(i, j) < Tiny) {
+                                            const Vec2r gridPos = Vec2r(i + 0.5, j);
+                                            Vec2r vel           = getVelocityFromGrid(gridPos);
+                                            Vec2r normal        = ArrayHelpers::interpolateGradient(gridPos, gridData().boundarySDF);
+                                            Real mag2Normal     = glm::length2(normal);
+                                            if(mag2Normal > Tiny) {
+                                                normal /= sqrt(mag2Normal);
                                             }
-                                        });
+
+                                            Real perp_component = glm::dot(vel, normal);
+                                            vel                   -= perp_component * normal;
+                                            gridData().tmp_v(i, j) = vel[1];
+                                        }
+                                    });
 
     ////////////////////////////////////////////////////////////////////////////////
     gridData().u.copyDataFrom(gridData().tmp_u);
@@ -518,23 +512,20 @@ void PIC_2DSolver::constrainGridVelocity()
 void PIC_2DSolver::addGravity(Real timestep)
 {
     Scheduler::parallel_for<size_t>(gridData().v.size(),
-                                        [&](size_t i, size_t j)
-                                        {
-                                            gridData().v(i, j) -= 9.8_f * timestep;
-                                        });
+                                    [&](size_t i, size_t j)
+                                    {
+                                        gridData().v(i, j) -= 9.8_f * timestep;
+                                    });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PIC_2DSolver::pressureProjection(Real timestep)
 {
-    static Timer funcTimer;
-
-    ////////////////////////////////////////////////////////////////////////////////
-    logger().printRunTime("Compute liquid SDF: ",      funcTimer, [&]() { computeFluidSDF(); });
-    logger().printRunTime("Compute pressure matrix: ", funcTimer, [&]() { computeMatrix(timestep); });
-    logger().printRunTime("Compute RHS: ",             funcTimer, [&]() { computeRhs(); });
-    logger().printRunTime("Solve linear system: ",     funcTimer, [&]() { solveSystem(); });
-    logger().printRunTime("Update grid velocity: ",    funcTimer, [&]() { updateVelocity(timestep); });
+    logger().printRunTime("Compute liquid SDF: ",      [&]() { computeFluidSDF(); });
+    logger().printRunTime("Compute pressure matrix: ", [&]() { computeMatrix(timestep); });
+    logger().printRunTime("Compute RHS: ",             [&]() { computeRhs(); });
+    logger().printRunTime("Solve linear system: ",     [&]() { solveSystem(); });
+    logger().printRunTime("Update grid velocity: ",    [&]() { updateVelocity(timestep); });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -551,34 +542,34 @@ void PIC_2DSolver::computeFluidSDF()
                                    MathHelpers::min(cellId[1] + 1, static_cast<Int>(solverData().grid.getNCells()[1]) - 1));
 
         Scheduler::parallel_for<int>(cellDown[0], cellUp[0],
-                                         cellDown[1], cellUp[1],
-                                         [&](int i, int j)
-                                         {
-                                             const Vec2r sample = Vec2r(i + 0.5, j + 0.5) * solverData().grid.getCellSize() + solverData().grid.getBMin();
-                                             const Real phiVal  = glm::length(sample - particleData().positions[p]) - solverParams().sdfRadius;
+                                     cellDown[1], cellUp[1],
+                                     [&](int i, int j)
+                                     {
+                                         const Vec2r sample = Vec2r(i + 0.5, j + 0.5) * solverData().grid.getCellSize() + solverData().grid.getBMin();
+                                         const Real phiVal  = glm::length(sample - particleData().positions[p]) - solverParams().sdfRadius;
 
-                                             if(phiVal < gridData().fluidSDF(i, j)) {
-                                                 gridData().fluidSDF(i, j) = phiVal;
-                                             }
-                                         });
+                                         if(phiVal < gridData().fluidSDF(i, j)) {
+                                             gridData().fluidSDF(i, j) = phiVal;
+                                         }
+                                     });
     }
 
     ////////////////////////////////////////////////////////////////////////////////
     //extend phi slightly into solids (this is a simple, naive approach, but works reasonably well)
     Scheduler::parallel_for<UInt>(solverData().grid.getNNodes(),
-                                      [&](int i, int j)
-                                      {
-                                          if(gridData().fluidSDF(i, j) < solverData().grid.getHalfCellSize()) {
-                                              const Real phiValSolid = 0.25_f * (gridData().boundarySDF(i, j) +
-                                                                                     gridData().boundarySDF(i + 1, j) +
-                                                                                     gridData().boundarySDF(i, j + 1) +
-                                                                                     gridData().boundarySDF(i + 1, j + 1));
+                                  [&](int i, int j)
+                                  {
+                                      if(gridData().fluidSDF(i, j) < solverData().grid.getHalfCellSize()) {
+                                          const Real phiValSolid = 0.25_f * (gridData().boundarySDF(i, j) +
+                                                                             gridData().boundarySDF(i + 1, j) +
+                                                                             gridData().boundarySDF(i, j + 1) +
+                                                                             gridData().boundarySDF(i + 1, j + 1));
 
-                                              if(phiValSolid < 0) {
-                                                  gridData().fluidSDF(i, j) = -solverData().grid.getHalfCellSize();
-                                              }
+                                          if(phiValSolid < 0) {
+                                              gridData().fluidSDF(i, j) = -solverData().grid.getHalfCellSize();
                                           }
-                                      });
+                                      }
+                                  });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -654,24 +645,24 @@ void PIC_2DSolver::computeRhs()
 {
     solverData().rhs.assign(solverData().rhs.size(), 0);
     Scheduler::parallel_for<UInt>(1, solverData().grid.getNCells()[0] - 1,
-                                      1, solverData().grid.getNCells()[1] - 1,
-                                      [&](UInt i, UInt j)
-                                      {
-                                          const UInt idx        = solverData().grid.getCellLinearizedIndex(i, j);
-                                          const Real center_phi = gridData().fluidSDF(i, j);
+                                  1, solverData().grid.getNCells()[1] - 1,
+                                  [&](UInt i, UInt j)
+                                  {
+                                      const UInt idx        = solverData().grid.getCellLinearizedIndex(i, j);
+                                      const Real center_phi = gridData().fluidSDF(i, j);
 
-                                          if(center_phi < 0) {
-                                              Real tmp = 0_f;
+                                      if(center_phi < 0) {
+                                          Real tmp = 0_f;
 
-                                              tmp -= gridData().u_weights(i + 1, j) * gridData().u(i + 1, j);
-                                              tmp += gridData().u_weights(i, j) * gridData().u(i, j);
+                                          tmp -= gridData().u_weights(i + 1, j) * gridData().u(i + 1, j);
+                                          tmp += gridData().u_weights(i, j) * gridData().u(i, j);
 
-                                              tmp -= gridData().v_weights(i, j + 1) * gridData().v(i, j + 1);
-                                              tmp += gridData().v_weights(i, j) * gridData().v(i, j);
+                                          tmp -= gridData().v_weights(i, j + 1) * gridData().v(i, j + 1);
+                                          tmp += gridData().v_weights(i, j) * gridData().v(i, j);
 
-                                              solverData().rhs[idx] = tmp;
-                                          } // end if(centre_phi < 0)
-                                      });
+                                          solverData().rhs[idx] = tmp;
+                                      }     // end if(centre_phi < 0)
+                                  });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -692,26 +683,26 @@ void PIC_2DSolver::updateVelocity(Real timestep)
     gridData().v_valid.assign(0);
 
     Scheduler::parallel_for<UInt>(solverData().grid.getNNodes(),
-                                      [&](UInt i, UInt j)
-                                      {
-                                          const UInt idx = solverData().grid.getCellLinearizedIndex(i, j);
+                                  [&](UInt i, UInt j)
+                                  {
+                                      const UInt idx = solverData().grid.getCellLinearizedIndex(i, j);
 
-                                          const Real center_phi = gridData().fluidSDF(i, j);
-                                          const Real left_phi   = i > 0 ? gridData().fluidSDF(i - 1, j) : 0;
-                                          const Real bottom_phi = j > 0 ? gridData().fluidSDF(i, j - 1) : 0;
+                                      const Real center_phi = gridData().fluidSDF(i, j);
+                                      const Real left_phi   = i > 0 ? gridData().fluidSDF(i - 1, j) : 0;
+                                      const Real bottom_phi = j > 0 ? gridData().fluidSDF(i, j - 1) : 0;
 
-                                          if(i > 0 && (center_phi < 0 || left_phi < 0) && gridData().u_weights(i, j) > 0) {
-                                              Real theta = MathHelpers::min(0.01_f, MathHelpers::fraction_inside(left_phi, center_phi));
-                                              gridData().u(i, j)      -= timestep * (solverData().pressure[idx] - solverData().pressure[idx - 1]) / theta;
-                                              gridData().u_valid(i, j) = 1;
-                                          }
+                                      if(i > 0 && (center_phi < 0 || left_phi < 0) && gridData().u_weights(i, j) > 0) {
+                                          Real theta = MathHelpers::min(0.01_f, MathHelpers::fraction_inside(left_phi, center_phi));
+                                          gridData().u(i, j)      -= timestep * (solverData().pressure[idx] - solverData().pressure[idx - 1]) / theta;
+                                          gridData().u_valid(i, j) = 1;
+                                      }
 
-                                          if(j > 0 && (center_phi < 0 || bottom_phi < 0) && gridData().v_weights(i, j) > 0) {
-                                              Real theta = MathHelpers::min(0.01_f, MathHelpers::fraction_inside(bottom_phi, center_phi));
-                                              gridData().v(i, j)      -= timestep * (solverData().pressure[idx] - solverData().pressure[idx - solverData().grid.getNCells()[0]]) / theta;
-                                              gridData().v_valid(i, j) = 1;
-                                          }
-                                      });
+                                      if(j > 0 && (center_phi < 0 || bottom_phi < 0) && gridData().v_weights(i, j) > 0) {
+                                          Real theta = MathHelpers::min(0.01_f, MathHelpers::fraction_inside(bottom_phi, center_phi));
+                                          gridData().v(i, j)      -= timestep * (solverData().pressure[idx] - solverData().pressure[idx - solverData().grid.getNCells()[0]]) / theta;
+                                          gridData().v_valid(i, j) = 1;
+                                      }
+                                  });
 
     for(size_t i = 0; i < gridData().u_valid.dataSize(); ++i) {
         if(gridData().u_valid.data()[i] == 0) {
@@ -730,9 +721,9 @@ void PIC_2DSolver::updateVelocity(Real timestep)
 void PIC_2DSolver::computeChangesGridVelocity()
 {
     Scheduler::parallel_for<size_t>(0, gridData().u.dataSize(),
-                                        [&](size_t i) { gridData().du.data()[i] = gridData().u.data()[i] - gridData().u_old.data()[i]; });
+                                    [&](size_t i) { gridData().du.data()[i] = gridData().u.data()[i] - gridData().u_old.data()[i]; });
     Scheduler::parallel_for<size_t>(0, gridData().v.dataSize(),
-                                        [&](size_t i) { gridData().dv.data()[i] = gridData().v.data()[i] - gridData().v_old.data()[i]; });
+                                    [&](size_t i) { gridData().dv.data()[i] = gridData().v.data()[i] - gridData().v_old.data()[i]; });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

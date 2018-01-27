@@ -37,13 +37,17 @@ String                    Logger::s_TimeLogFile = String("time.txt");
 Logger::Clock::time_point Logger::s_StartupTime;
 Logger::Clock::time_point Logger::s_ShutdownTime;
 
+
+Vector<String>                                                   Logger::s_DataLogFiles;
+std::map<String, SharedPtr<spdlog::sinks::simple_file_sink_mt> > Logger::s_DataLogSinks;
+
 #ifdef __BANANA_WINDOWS__
 SharedPtr<spdlog::sinks::wincolor_stdout_sink_mt> Logger::s_ConsoleSink = std::make_shared<spdlog::sinks::wincolor_stdout_sink_mt>();
 #else
 SharedPtr<spdlog::sinks::ansicolor_stdout_sink_mt> Logger::s_ConsoleSink = std::make_shared<spdlog::sinks::ansicolor_stdout_sink_mt>();
 #endif
-SharedPtr<spdlog::sinks::simple_file_sink_mt> Logger::s_LogFileSink = nullptr;
-SharedPtr<Logger>                             Logger::s_MainLogger  = nullptr;
+SharedPtr<spdlog::sinks::simple_file_sink_mt> Logger::s_SystemLogFileSink = nullptr;
+SharedPtr<Logger>                             Logger::s_MainLogger        = nullptr;
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Logger::printSeparator()
@@ -108,11 +112,11 @@ void Logger::printError(const String& s, UInt maxSize)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Logger::printLog(const String& s)
 {
-    if(s_bPrint2Console) {
+    if(m_bPrint2Console) {
         m_ConsoleLogger->info(s);
     }
 
-    if(s_bWriteLog2File) {
+    if(m_bWriteLog2File) {
         m_FileLogger->info(s);
     }
 }
@@ -120,11 +124,11 @@ void Logger::printLog(const String& s)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Logger::printLog(const String& s, spdlog::level::level_enum level)
 {
-    if(s_bPrint2Console) {
+    if(m_bPrint2Console) {
         m_ConsoleLogger->log(level, s);
     }
 
-    if(s_bWriteLog2File) {
+    if(m_bWriteLog2File) {
         m_FileLogger->log(level, s);
     }
 }
@@ -201,11 +205,17 @@ void Logger::initialize(bool bPrint2Console /*= true*/, bool bWriteLog2File /*= 
         String file;
 
         do {
-            file = s_DataPath + "/Log/log_" + std::to_string(i) + ".txt";
+            file = s_DataPath + String("/Log/log_") + std::to_string(i) + String(".txt");
 
             if(!FileHelpers::fileExisted(file)) {
-                s_LogFileSink = std::make_shared<spdlog::sinks::simple_file_sink_mt>(file);
-                s_TimeLogFile = s_DataPath + "/Log/time_" + std::to_string(i) + ".txt";
+                s_SystemLogFileSink = std::make_shared<spdlog::sinks::simple_file_sink_mt>(file);
+                s_TimeLogFile       = s_DataPath + String("/Log/time_") + std::to_string(i) + String(".txt");
+
+                // create loggers for data, if any
+                for(const auto& dataFile: s_DataLogFiles) {
+                    file                     = s_DataPath + "/Log/" + dataFile + String("_") + std::to_string(i) + String(".txt");
+                    s_DataLogSinks[dataFile] = std::make_shared<spdlog::sinks::simple_file_sink_mt>(file);
+                }
                 break;
             }
 
@@ -240,7 +250,7 @@ void Logger::initialize(bool bPrint2Console /*= true*/, bool bWriteLog2File /*= 
 
     ////////////////////////////////////////////////////////////////////////////////
     s_bInitialized = true;
-    s_MainLogger   = Logger::create("Main");
+    s_MainLogger   = Logger::createLogger("Main");
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

@@ -31,29 +31,22 @@ namespace Banana
 namespace ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-struct FLIP_2DParameters : public SimulationParameters
+struct FLIP_2DParameters : public SimulationParameters2D
 {
-    FLIP_2DParameters() = default;
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // data only for flip
-    Real PIC_FLIP_ratio = 0.97_f;
-    ////////////////////////////////////////////////////////////////////////////////
-
     virtual void printParams(const SharedPtr<Logger>& logger) override
     {
         ////////////////////////////////////////////////////////////////////////////////
         // FLIP only parameter
         logger->printLog(String("FLIP-2D parameters:"));
+        SimulationParameters2D::printParams(logger);
         logger->printLogIndent(String("PIC/FLIP ratio: ") + std::to_string(PIC_FLIP_ratio));
         ////////////////////////////////////////////////////////////////////////////////
-
         logger->newLine();
     }
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-struct FLIP_2DData : public GridSimulationData<2, Real>
+struct FLIP_2DData : public GridSimulationData2D
 {
     Array2r du, dv;
     Array2r u_old, v_old;
@@ -85,10 +78,10 @@ public:
     virtual String getGreetingMessage() override { return String("Fluid Simulation using FLIP-2D Solver"); }
 
     ////////////////////////////////////////////////////////////////////////////////
-    auto&       flipParams() { return m_flipParams; }
-    const auto& flipParams() const { return m_flipParams; }
-    auto&       flipData() { return m_flipData; }
-    const auto& flipData() const { return m_flipData; }
+    auto&       flipParams() { return m_FLIPParams; }
+    const auto& flipParams() const { return m_FLIPParams; }
+    auto&       flipData() { return m_FLIPData; }
+    const auto& flipData() const { return m_FLIPData; }
 
 protected:
     virtual void loadSimParams(const nlohmann::json& jParams) override;
@@ -102,8 +95,8 @@ protected:
     Vec2r getVelocityChangesFromGrid(const Vec2r& gridPos);
 
     ////////////////////////////////////////////////////////////////////////////////
-    FLIP_2DParameters m_flipParams;
-    FLIP_2DData       m_flipData;
+    FLIP_2DParameters m_FLIPParams;
+    FLIP_2DData       m_FLIPData;
 };
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace ParticleSolvers
