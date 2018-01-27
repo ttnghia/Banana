@@ -28,23 +28,6 @@ namespace Banana::ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-// AFLIP_3DParameters
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-struct AFLIP_3DParameters : public SimulationParameters3D
-{
-    virtual void printParams(const SharedPtr<Logger>& logger) override
-    {
-        logger->printLog(String("AFLIP-3D parameters:"));
-        SimulationParameters3D::printParams(logger);
-        logger->printLogIndent(String("PIC/FLIP ratio: ") + std::to_string(PIC_FLIP_ratio));
-        ////////////////////////////////////////////////////////////////////////////////
-        logger->newLine();
-    }
-};
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // AFLIP_3DData
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -85,15 +68,13 @@ public:
     virtual String getGreetingMessage() override { return String("Fluid Simulation using APIC/FLIP-3D Solver"); }
 
     ////////////////////////////////////////////////////////////////////////////////
-    auto&       aflipParams() { return m_AFLIPParams; }
-    const auto& aflipParams() const { return m_AFLIPParams; }
-    auto&       aflipData() { return m_AFLIPData; }
-    const auto& aflipData() const { return m_AFLIPData; }
+    auto&       AFLIPData() { return m_AFLIPData; }
+    const auto& AFLIPData() const { return m_AFLIPData; }
 
 protected:
     virtual void loadSimParams(const nlohmann::json& jParams) override;
     virtual void generateParticles(const nlohmann::json& jParams) override;
-    virtual bool advanceScene(UInt frame, Real fraction = 0_f) override;
+    virtual bool advanceScene() override;
     virtual void allocateSolverMemory() override;
     virtual void advanceVelocity(Real timestep) override;
 
@@ -102,13 +83,12 @@ protected:
 
     ////////////////////////////////////////////////////////////////////////////////
     // small helper functions
-    __BNN_INLINE void    computeChangesGridVelocity();
-    __BNN_INLINE Vec3r   getVelocityChangesFromGrid(const Vec3r& gridPos);
-    __BNN_INLINE Mat3x3r getAffineMatrixFromGrid(const Vec3r& gridPos);
-    __BNN_INLINE Mat3x3r getAffineMatrixChangesFromGrid(const Vec3r& gridPos);
+    void    computeChangesGridVelocity();
+    Vec3r   getVelocityChangesFromGrid(const Vec3r& gridPos);
+    Mat3x3r getAffineMatrixFromGrid(const Vec3r& gridPos);
+    Mat3x3r getAffineMatrixChangesFromGrid(const Vec3r& gridPos);
     ////////////////////////////////////////////////////////////////////////////////
-    AFLIP_3DParameters m_AFLIPParams;
-    AFLIP_3DData       m_AFLIPData;
+    AFLIP_3DData m_AFLIPData;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

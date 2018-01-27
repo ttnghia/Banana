@@ -28,15 +28,15 @@ namespace Banana::ParticleSolvers
 void APIC_3DSolver::generateParticles(const nlohmann::json& jParams)
 {
     PIC_3DSolver::generateParticles(jParams);
-    apicData().resizeParticleData(particleData().getNParticles());
+    APICData().resizeParticleData(particleData().getNParticles());
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-bool APIC_3DSolver::advanceScene(UInt frame, Real fraction)
+bool APIC_3DSolver::advanceScene()
 {
-    bool bSceneChanged = PIC_3DSolver::advanceScene(frame, fraction);
-    if(particleData().getNParticles() != apicData().getNParticles()) {
-        apicData().resizeParticleData(particleData().getNParticles());
+    bool bSceneChanged = PIC_3DSolver::advanceScene();
+    if(particleData().getNParticles() != APICData().getNParticles()) {
+        APICData().resizeParticleData(particleData().getNParticles());
     }
     return bSceneChanged;
 }
@@ -45,7 +45,7 @@ bool APIC_3DSolver::advanceScene(UInt frame, Real fraction)
 void APIC_3DSolver::allocateSolverMemory()
 {
     PIC_3DSolver::allocateSolverMemory();
-    apicData().resizeGridData(grid().getNCells());
+    APICData().resizeGridData(grid().getNCells());
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -75,7 +75,7 @@ void APIC_3DSolver::mapParticles2Grid()
                             {
                                 const auto& ppos   = particleData().positions[p];
                                 const auto& pvel   = particleData().velocities[p];
-                                const auto& pC     = apicData().C[p];
+                                const auto& pC     = APICData().C[p];
                                 const auto gridPos = grid().getGridCoordinate(ppos);
 
                                 std::array<Vec3i, 8> indices;
@@ -85,30 +85,30 @@ void APIC_3DSolver::mapParticles2Grid()
                                 for(Int i = 0; i < 8; ++i) {
                                     const auto gpos     = grid().getWorldCoordinate(Vec3r(indices[i][0], indices[i][1] + 0.5, indices[i][2] + 0.5));
                                     const auto momentum = weights[i] * (pvel[0] + glm::dot(pC[0], gpos - ppos));
-                                    apicData().uLock(indices[i]).lock();
+                                    APICData().uLock(indices[i]).lock();
                                     gridData().u(indices[i])     += momentum;
                                     gridData().tmp_u(indices[i]) += weights[i];
-                                    apicData().uLock(indices[i]).unlock();
+                                    APICData().uLock(indices[i]).unlock();
                                 }
 
                                 ArrayHelpers::getCoordinatesAndWeights(gridPos - Vec3r(0.5, 0, 0.5), gridData().v.size(), indices, weights);
                                 for(Int i = 0; i < 8; ++i) {
                                     const auto gpos     = grid().getWorldCoordinate(Vec3r(indices[i][0] + 0.5, indices[i][1], indices[i][2] + 0.5));
                                     const auto momentum = weights[i] * (pvel[1] + glm::dot(pC[1], gpos - ppos));
-                                    apicData().vLock(indices[i]).lock();
+                                    APICData().vLock(indices[i]).lock();
                                     gridData().v(indices[i])     += momentum;
                                     gridData().tmp_v(indices[i]) += weights[i];
-                                    apicData().vLock(indices[i]).unlock();
+                                    APICData().vLock(indices[i]).unlock();
                                 }
 
                                 ArrayHelpers::getCoordinatesAndWeights(gridPos - Vec3r(0.5, 0.5, 0), gridData().w.size(), indices, weights);
                                 for(Int i = 0; i < 8; ++i) {
                                     const auto gpos     = grid().getWorldCoordinate(Vec3r(indices[i][0] + 0.5, indices[i][1] + 0.5, indices[i][2]));
                                     const auto momentum = weights[i] * (pvel[2] + glm::dot(pC[2], gpos - ppos));
-                                    apicData().wLock(indices[i]).lock();
+                                    APICData().wLock(indices[i]).lock();
                                     gridData().w(indices[i])     += momentum;
                                     gridData().tmp_w(indices[i]) += weights[i];
-                                    apicData().wLock(indices[i]).unlock();
+                                    APICData().wLock(indices[i]).unlock();
                                 }
                             });
     ////////////////////////////////////////////////////////////////////////////////
@@ -145,12 +145,12 @@ void APIC_3DSolver::mapGrid2Particles()
                                 const auto gridPos = grid().getGridCoordinate(ppos);
 
                                 particleData().velocities[p] = getVelocityFromGrid(gridPos);
-                                apicData().C[p]              = getAffineMatrixFromGrid(gridPos);
+                                APICData().C[p]              = getAffineMatrixFromGrid(gridPos);
                             });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-__BNN_INLINE Mat3x3r APIC_3DSolver::getAffineMatrixFromGrid(const Vec3r& gridPos)
+Mat3x3r APIC_3DSolver::getAffineMatrixFromGrid(const Vec3r& gridPos)
 {
     Mat3x3r C;
     C[0] = ArrayHelpers::interpolateGradientValue(gridPos - Vec3r(0, 0.5, 0.5), gridData().u, grid().getCellSize());

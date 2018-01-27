@@ -25,6 +25,10 @@
 namespace Banana::ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+// AFLIP_3DData implementation
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void AFLIP_3DData::resizeGridData(const Vec3ui& nCells)
 {
     du.resize(nCells.x + 1, nCells.y, nCells.z, 0);
@@ -59,25 +63,26 @@ void AFLIP_3DSolver::loadSimParams(const nlohmann::json& jParams)
 
     ////////////////////////////////////////////////////////////////////////////////
     // FLIP parameter
-    JSONHelpers::readValue(jParams, aflipParams().PIC_FLIP_ratio, "PIC_FLIP_Ratio");
+    JSONHelpers::readValue(jParams, solverParams().PIC_FLIP_ratio, "PIC_FLIP_Ratio");
     ////////////////////////////////////////////////////////////////////////////////
 
-    aflipParams().printParams(m_Logger);
+    logger().printLog(String("AFLIP-3D parameters:"));
+    logger().printLogIndent(String("PIC/FLIP ratio: ") + std::to_string(solverParams().PIC_FLIP_ratio));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void AFLIP_3DSolver::generateParticles(const nlohmann::json& jParams)
 {
     PIC_3DSolver::generateParticles(jParams);
-    aflipData().resizeParticleData(particleData().getNParticles());
+    AFLIPData().resizeParticleData(particleData().getNParticles());
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-bool AFLIP_3DSolver::advanceScene(UInt frame, Real fraction)
+bool AFLIP_3DSolver::advanceScene()
 {
-    bool bSceneChanged = PIC_3DSolver::advanceScene(frame, fraction);
-    if(particleData().getNParticles() != aflipData().getNParticles()) {
-        aflipData().resizeParticleData(particleData().getNParticles());
+    bool bSceneChanged = PIC_3DSolver::advanceScene();
+    if(particleData().getNParticles() != AFLIPData().getNParticles()) {
+        AFLIPData().resizeParticleData(particleData().getNParticles());
     }
     return bSceneChanged;
 }
@@ -86,7 +91,7 @@ bool AFLIP_3DSolver::advanceScene(UInt frame, Real fraction)
 void AFLIP_3DSolver::allocateSolverMemory()
 {
     PIC_3DSolver::allocateSolverMemory();
-    aflipData().resizeGridData(grid().getNCells());
+    AFLIPData().resizeGridData(grid().getNCells());
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -95,7 +100,7 @@ void AFLIP_3DSolver::advanceVelocity(Real timestep)
     logger().printRunTime("{   Map particles to grid: ",         [&]() { mapParticles2Grid(); });
     logger().printRunTimeIndent("Extrapolate grid velocity: : ", [&]() { extrapolateVelocity(); });
     logger().printRunTimeIndent("Constrain grid velocity: ",     [&]() { constrainGridVelocity(); });
-    logger().printRunTimeIndent("Backup grid: ",                 [&]() { aflipData().backupGridVelocity(solverData()); });
+    logger().printRunTimeIndent("Backup grid: ",                 [&]() { AFLIPData().backupGridVelocity(solverData()); });
     logger().printRunTimeIndentIf("Add gravity: ",               [&]() { return addGravity(timestep); });
     logger().printRunTimeIndent("}=> Pressure projection: ",     [&]() { pressureProjection(timestep); });
     logger().printRunTimeIndent("Extrapolate grid velocity: : ", [&]() { extrapolateVelocity(); });
@@ -127,7 +132,7 @@ void AFLIP_3DSolver::mapParticles2Grid()
                             {
                                 const auto& ppos   = particleData().positions[p];
                                 const auto& pvel   = particleData().velocities[p];
-                                const auto& pC     = aflipData().C[p];
+                                const auto& pC     = AFLIPData().C[p];
                                 const auto gridPos = grid().getGridCoordinate(ppos);
 
                                 std::array<Vec3i, 8> indices;
@@ -137,30 +142,30 @@ void AFLIP_3DSolver::mapParticles2Grid()
                                 for(Int i = 0; i < 8; ++i) {
                                     const auto gpos     = grid().getWorldCoordinate(Vec3r(indices[i][0], indices[i][1] + 0.5, indices[i][2] + 0.5));
                                     const auto momentum = weights[i] * (pvel[0] + glm::dot(pC[0], gpos - ppos));
-                                    aflipData().uLock(indices[i]).lock();
+                                    AFLIPData().uLock(indices[i]).lock();
                                     gridData().u(indices[i])     += momentum;
                                     gridData().tmp_u(indices[i]) += weights[i];
-                                    aflipData().uLock(indices[i]).unlock();
+                                    AFLIPData().uLock(indices[i]).unlock();
                                 }
 
                                 ArrayHelpers::getCoordinatesAndWeights(gridPos - Vec3r(0.5, 0, 0.5), gridData().v.size(), indices, weights);
                                 for(Int i = 0; i < 8; ++i) {
                                     const auto gpos     = grid().getWorldCoordinate(Vec3r(indices[i][0] + 0.5, indices[i][1], indices[i][2] + 0.5));
                                     const auto momentum = weights[i] * (pvel[1] + glm::dot(pC[1], gpos - ppos));
-                                    aflipData().vLock(indices[i]).lock();
+                                    AFLIPData().vLock(indices[i]).lock();
                                     gridData().v(indices[i])     += momentum;
                                     gridData().tmp_v(indices[i]) += weights[i];
-                                    aflipData().vLock(indices[i]).unlock();
+                                    AFLIPData().vLock(indices[i]).unlock();
                                 }
 
                                 ArrayHelpers::getCoordinatesAndWeights(gridPos - Vec3r(0.5, 0.5, 0), gridData().w.size(), indices, weights);
                                 for(Int i = 0; i < 8; ++i) {
                                     const auto gpos     = grid().getWorldCoordinate(Vec3r(indices[i][0] + 0.5, indices[i][1] + 0.5, indices[i][2]));
                                     const auto momentum = weights[i] * (pvel[2] + glm::dot(pC[2], gpos - ppos));
-                                    aflipData().wLock(indices[i]).lock();
+                                    AFLIPData().wLock(indices[i]).lock();
                                     gridData().w(indices[i])     += momentum;
                                     gridData().tmp_w(indices[i]) += weights[i];
-                                    aflipData().wLock(indices[i]).unlock();
+                                    AFLIPData().wLock(indices[i]).unlock();
                                 }
                             });
     ////////////////////////////////////////////////////////////////////////////////
@@ -198,7 +203,7 @@ void AFLIP_3DSolver::mapGrid2Particles()
                             {
                                 const auto& ppos = particleData().positions[p];
                                 const auto& pvel = particleData().velocities[p];
-                                const auto& pC   = aflipData().C[p];
+                                const auto& pC   = AFLIPData().C[p];
 
                                 const auto gridPos  = grid().getGridCoordinate(ppos);
                                 const auto gridVel  = getVelocityFromGrid(gridPos);
@@ -206,31 +211,31 @@ void AFLIP_3DSolver::mapGrid2Particles()
                                 const auto gridC    = getAffineMatrixFromGrid(gridPos);
                                 const auto dGridC   = getAffineMatrixChangesFromGrid(gridPos);
 
-                                particleData().velocities[p] = MathHelpers::lerp(gridVel, pvel + dGridVel, aflipParams().PIC_FLIP_ratio);
-                                aflipData().C[p]             = MathHelpers::lerp(gridC, pC + dGridC, aflipParams().PIC_FLIP_ratio);
+                                particleData().velocities[p] = MathHelpers::lerp(gridVel, pvel + dGridVel, solverParams().PIC_FLIP_ratio);
+                                AFLIPData().C[p]             = MathHelpers::lerp(gridC, pC + dGridC, solverParams().PIC_FLIP_ratio);
                             });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-__BNN_INLINE void AFLIP_3DSolver::computeChangesGridVelocity()
+void AFLIP_3DSolver::computeChangesGridVelocity()
 {
-    Scheduler::parallel_for(gridData().u.dataSize(), [&](size_t i) { aflipData().du.data()[i] = gridData().u.data()[i] - aflipData().u_old.data()[i]; });
-    Scheduler::parallel_for(gridData().v.dataSize(), [&](size_t i) { aflipData().dv.data()[i] = gridData().v.data()[i] - aflipData().v_old.data()[i]; });
-    Scheduler::parallel_for(gridData().w.dataSize(), [&](size_t i) { aflipData().dw.data()[i] = gridData().w.data()[i] - aflipData().w_old.data()[i]; });
+    Scheduler::parallel_for(gridData().u.dataSize(), [&](size_t i) { AFLIPData().du.data()[i] = gridData().u.data()[i] - AFLIPData().u_old.data()[i]; });
+    Scheduler::parallel_for(gridData().v.dataSize(), [&](size_t i) { AFLIPData().dv.data()[i] = gridData().v.data()[i] - AFLIPData().v_old.data()[i]; });
+    Scheduler::parallel_for(gridData().w.dataSize(), [&](size_t i) { AFLIPData().dw.data()[i] = gridData().w.data()[i] - AFLIPData().w_old.data()[i]; });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-__BNN_INLINE Vec3r AFLIP_3DSolver::getVelocityChangesFromGrid(const Vec3r& gridPos)
+Vec3r AFLIP_3DSolver::getVelocityChangesFromGrid(const Vec3r& gridPos)
 {
-    Real changed_vu = ArrayHelpers::interpolateValueLinear(gridPos - Vec3r(0, 0.5, 0.5), aflipData().du);
-    Real changed_vv = ArrayHelpers::interpolateValueLinear(gridPos - Vec3r(0.5, 0, 0.5), aflipData().dv);
-    Real changed_vw = ArrayHelpers::interpolateValueLinear(gridPos - Vec3r(0.5, 0.5, 0), aflipData().dw);
+    Real changed_vu = ArrayHelpers::interpolateValueLinear(gridPos - Vec3r(0, 0.5, 0.5), AFLIPData().du);
+    Real changed_vv = ArrayHelpers::interpolateValueLinear(gridPos - Vec3r(0.5, 0, 0.5), AFLIPData().dv);
+    Real changed_vw = ArrayHelpers::interpolateValueLinear(gridPos - Vec3r(0.5, 0.5, 0), AFLIPData().dw);
 
     return Vec3r(changed_vu, changed_vv, changed_vw);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-__BNN_INLINE Mat3x3r AFLIP_3DSolver::getAffineMatrixFromGrid(const Vec3r& gridPos)
+Mat3x3r AFLIP_3DSolver::getAffineMatrixFromGrid(const Vec3r& gridPos)
 {
     Mat3x3r C;
     C[0] = ArrayHelpers::interpolateGradientValue(gridPos - Vec3r(0, 0.5, 0.5), gridData().u, grid().getCellSize());
@@ -241,12 +246,12 @@ __BNN_INLINE Mat3x3r AFLIP_3DSolver::getAffineMatrixFromGrid(const Vec3r& gridPo
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-__BNN_INLINE Mat3x3r AFLIP_3DSolver::getAffineMatrixChangesFromGrid(const Vec3r& gridPos)
+Mat3x3r AFLIP_3DSolver::getAffineMatrixChangesFromGrid(const Vec3r& gridPos)
 {
     Mat3x3r C;
-    C[0] = ArrayHelpers::interpolateGradientValue(gridPos - Vec3r(0, 0.5, 0.5), aflipData().du, grid().getCellSize());
-    C[1] = ArrayHelpers::interpolateGradientValue(gridPos - Vec3r(0.5, 0, 0.5), aflipData().dv, grid().getCellSize());
-    C[2] = ArrayHelpers::interpolateGradientValue(gridPos - Vec3r(0.5, 0.5, 0), aflipData().dw, grid().getCellSize());
+    C[0] = ArrayHelpers::interpolateGradientValue(gridPos - Vec3r(0, 0.5, 0.5), AFLIPData().du, grid().getCellSize());
+    C[1] = ArrayHelpers::interpolateGradientValue(gridPos - Vec3r(0.5, 0, 0.5), AFLIPData().dv, grid().getCellSize());
+    C[2] = ArrayHelpers::interpolateGradientValue(gridPos - Vec3r(0.5, 0.5, 0), AFLIPData().dw, grid().getCellSize());
 
     return C;
 }

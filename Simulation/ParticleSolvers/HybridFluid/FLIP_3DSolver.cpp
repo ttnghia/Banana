@@ -66,17 +66,18 @@ void FLIP_3DSolver::loadSimParams(const nlohmann::json& jParams)
 
     ////////////////////////////////////////////////////////////////////////////////
     // FLIP parameter
-    JSONHelpers::readValue(jParams, flipParams().PIC_FLIP_ratio, "PIC_FLIP_Ratio");
+    JSONHelpers::readValue(jParams, solverParams().PIC_FLIP_ratio, "PIC_FLIP_Ratio");
     ////////////////////////////////////////////////////////////////////////////////
 
-    flipParams().printParams(m_Logger);
+    logger().printLog(String("AFLIP-3D parameters:"));
+    logger().printLogIndent(String("PIC/FLIP ratio: ") + std::to_string(solverParams().PIC_FLIP_ratio));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void FLIP_3DSolver::allocateSolverMemory()
 {
     PIC_3DSolver::allocateSolverMemory();
-    flipData().resize(grid().getNCells());
+    FLIPData().resize(grid().getNCells());
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -85,7 +86,7 @@ void FLIP_3DSolver::advanceVelocity(Real timestep)
     logger().printRunTime("{   Map particles to grid: ",         [&]() { mapParticles2Grid(); });
     logger().printRunTimeIndent("Extrapolate grid velocity: : ", [&]() { extrapolateVelocity(); });
     logger().printRunTimeIndent("Constrain grid velocity: ",     [&]() { constrainGridVelocity(); });
-    logger().printRunTimeIndent("Backup grid: ",                 [&]() { flipData().backupGridVelocity(solverData()); });
+    logger().printRunTimeIndent("Backup grid: ",                 [&]() { FLIPData().backupGridVelocity(solverData()); });
     logger().printRunTimeIndentIf("Add gravity: ",               [&]() { return addGravity(timestep); });
     logger().printRunTimeIndent("}=> Pressure projection: ",     [&]() { pressureProjection(timestep); });
     logger().printRunTimeIndent("Extrapolate grid velocity: : ", [&]() { extrapolateVelocity(); });
@@ -126,30 +127,30 @@ void FLIP_3DSolver::mapParticles2Grid()
                                 for(Int i = 0; i < 8; ++i) {
                                     const auto gpos     = grid().getWorldCoordinate(Vec3r(indices[i][0], indices[i][1] + 0.5, indices[i][2] + 0.5));
                                     const auto momentum = weights[i] * pvel[0];
-                                    flipData().uLock(indices[i]).lock();
+                                    FLIPData().uLock(indices[i]).lock();
                                     gridData().u(indices[i])     += momentum;
                                     gridData().tmp_u(indices[i]) += weights[i];
-                                    flipData().uLock(indices[i]).unlock();
+                                    FLIPData().uLock(indices[i]).unlock();
                                 }
 
                                 ArrayHelpers::getCoordinatesAndWeights(gridPos - Vec3r(0.5, 0, 0.5), gridData().v.size(), indices, weights);
                                 for(Int i = 0; i < 8; ++i) {
                                     const auto gpos     = grid().getWorldCoordinate(Vec3r(indices[i][0] + 0.5, indices[i][1], indices[i][2] + 0.5));
                                     const auto momentum = weights[i] * pvel[1];
-                                    flipData().vLock(indices[i]).lock();
+                                    FLIPData().vLock(indices[i]).lock();
                                     gridData().v(indices[i])     += momentum;
                                     gridData().tmp_v(indices[i]) += weights[i];
-                                    flipData().vLock(indices[i]).unlock();
+                                    FLIPData().vLock(indices[i]).unlock();
                                 }
 
                                 ArrayHelpers::getCoordinatesAndWeights(gridPos - Vec3r(0.5, 0.5, 0), gridData().w.size(), indices, weights);
                                 for(Int i = 0; i < 8; ++i) {
                                     const auto gpos     = grid().getWorldCoordinate(Vec3r(indices[i][0] + 0.5, indices[i][1] + 0.5, indices[i][2]));
                                     const auto momentum = weights[i] * pvel[2];
-                                    flipData().wLock(indices[i]).lock();
+                                    FLIPData().wLock(indices[i]).lock();
                                     gridData().w(indices[i])     += momentum;
                                     gridData().tmp_w(indices[i]) += weights[i];
-                                    flipData().wLock(indices[i]).unlock();
+                                    FLIPData().wLock(indices[i]).unlock();
                                 }
                             });
     ////////////////////////////////////////////////////////////////////////////////
@@ -192,24 +193,24 @@ void FLIP_3DSolver::mapGrid2Particles()
                                 const auto gridVel  = getVelocityFromGrid(gridPos);
                                 const auto dGridVel = getVelocityChangesFromGrid(gridPos);
 
-                                particleData().velocities[p] = MathHelpers::lerp(gridVel, pvel + dGridVel, flipParams().PIC_FLIP_ratio);
+                                particleData().velocities[p] = MathHelpers::lerp(gridVel, pvel + dGridVel, solverParams().PIC_FLIP_ratio);
                             });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-__BNN_INLINE void FLIP_3DSolver::computeChangesGridVelocity()
+void FLIP_3DSolver::computeChangesGridVelocity()
 {
-    Scheduler::parallel_for(gridData().u.dataSize(), [&](size_t i) { flipData().du.data()[i] = gridData().u.data()[i] - flipData().u_old.data()[i]; });
-    Scheduler::parallel_for(gridData().v.dataSize(), [&](size_t i) { flipData().dv.data()[i] = gridData().v.data()[i] - flipData().v_old.data()[i]; });
-    Scheduler::parallel_for(gridData().w.dataSize(), [&](size_t i) { flipData().dw.data()[i] = gridData().w.data()[i] - flipData().w_old.data()[i]; });
+    Scheduler::parallel_for(gridData().u.dataSize(), [&](size_t i) { FLIPData().du.data()[i] = gridData().u.data()[i] - FLIPData().u_old.data()[i]; });
+    Scheduler::parallel_for(gridData().v.dataSize(), [&](size_t i) { FLIPData().dv.data()[i] = gridData().v.data()[i] - FLIPData().v_old.data()[i]; });
+    Scheduler::parallel_for(gridData().w.dataSize(), [&](size_t i) { FLIPData().dw.data()[i] = gridData().w.data()[i] - FLIPData().w_old.data()[i]; });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-__BNN_INLINE Vec3r FLIP_3DSolver::getVelocityChangesFromGrid(const Vec3r& gridPos)
+Vec3r FLIP_3DSolver::getVelocityChangesFromGrid(const Vec3r& gridPos)
 {
-    Real changed_vu = ArrayHelpers::interpolateValueLinear(gridPos - Vec3r(0, 0.5, 0.5), flipData().du);
-    Real changed_vv = ArrayHelpers::interpolateValueLinear(gridPos - Vec3r(0.5, 0, 0.5), flipData().dv);
-    Real changed_vw = ArrayHelpers::interpolateValueLinear(gridPos - Vec3r(0.5, 0.5, 0), flipData().dw);
+    Real changed_vu = ArrayHelpers::interpolateValueLinear(gridPos - Vec3r(0, 0.5, 0.5), FLIPData().du);
+    Real changed_vv = ArrayHelpers::interpolateValueLinear(gridPos - Vec3r(0.5, 0, 0.5), FLIPData().dv);
+    Real changed_vw = ArrayHelpers::interpolateValueLinear(gridPos - Vec3r(0.5, 0.5, 0), FLIPData().dw);
 
     return Vec3r(changed_vu, changed_vv, changed_vw);
 }

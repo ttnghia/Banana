@@ -70,12 +70,12 @@ public:
     virtual String getGreetingMessage() override { return String("Fluid Simulation using APIC-3D Solver"); }
 
     ////////////////////////////////////////////////////////////////////////////////
-    auto&       apicData() { return m_APICData; }
-    const auto& apicData() const { return m_APICData; }
+    auto&       APICData() { return m_APICData; }
+    const auto& APICData() const { return m_APICData; }
 
 protected:
     virtual void generateParticles(const nlohmann::json& jParams) override;
-    virtual bool advanceScene(UInt frame, Real fraction = 0_f) override;
+    virtual bool advanceScene() override;
     virtual void allocateSolverMemory() override;
     virtual void advanceVelocity(Real timestep) override;
 
@@ -84,7 +84,7 @@ protected:
 
     ////////////////////////////////////////////////////////////////////////////////
     // small helper functions
-    __BNN_INLINE Mat3x3r getAffineMatrixFromGrid(const Vec3r& gridPos);
+    Mat3x3r getAffineMatrixFromGrid(const Vec3r& gridPos);
     ////////////////////////////////////////////////////////////////////////////////
 
     APIC_3DData m_APICData;

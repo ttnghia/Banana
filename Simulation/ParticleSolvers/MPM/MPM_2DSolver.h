@@ -72,6 +72,7 @@ struct MPM_2DParameters : public SimulationParameters2D
     {
         logger->printLog(String("MPM-2D parameters:"));
         SimulationParameters2D::printParams(logger);
+
         ////////////////////////////////////////////////////////////////////////////////
         // MPM parameters
         logger->printLogIndent(String("PIC/FLIP ratio: ") + std::to_string(PIC_FLIP_ratio));
@@ -223,7 +224,7 @@ public:
 protected:
     virtual void loadSimParams(const nlohmann::json& jParams) override;
     virtual void generateParticles(const nlohmann::json& jParams) override;
-    virtual bool advanceScene(UInt frame, Real fraction = 0_f) override;
+    virtual bool advanceScene() override;
     virtual void allocateSolverMemory() override;
     virtual void setupDataIO() override;
     virtual bool loadMemoryState() override;

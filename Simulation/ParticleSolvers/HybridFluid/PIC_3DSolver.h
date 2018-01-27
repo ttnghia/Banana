@@ -64,7 +64,7 @@ struct PIC_3DParameters : public SimulationParameters3D
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 struct PIC_3DData
 {
-    struct ParticleData : public ParticleSimulationData<3, Real>
+    struct ParticleData : public ParticleSimulationData3D
     {
         Vec_Vec3f    aniKernelCenters;
         Vec_Mat3x3f  aniKernelMatrices;
@@ -154,7 +154,7 @@ public:
 protected:
     virtual void loadSimParams(const nlohmann::json& jParams) override;
     virtual void generateParticles(const nlohmann::json& jParams) override;
-    virtual bool advanceScene(UInt frame, Real fraction = 0_f) override;
+    virtual bool advanceScene() override;
     virtual void allocateSolverMemory() override;
     virtual void setupDataIO() override;
     virtual bool loadMemoryState() override;
@@ -179,13 +179,13 @@ protected:
 
     ////////////////////////////////////////////////////////////////////////////////
     // small helper functions
-    __BNN_INLINE Real  getVelocityFromGridU(const Vec3r& ppos);
-    __BNN_INLINE Real  getVelocityFromGridV(const Vec3r& ppos);
-    __BNN_INLINE Real  getVelocityFromGridW(const Vec3r& ppos);
-    __BNN_INLINE Vec3r getVelocityFromGrid(const Vec3r& ppos);
-    __BNN_INLINE Vec3r trace_rk2(const Vec3r& ppos, Real timestep);
-    __BNN_INLINE Vec3r trace_rk2_grid(const Vec3r& gridPos, Real timestep);
-    __BNN_INLINE void  computeBoundarySDF();
+    Real  getVelocityFromGridU(const Vec3r& ppos);
+    Real  getVelocityFromGridV(const Vec3r& ppos);
+    Real  getVelocityFromGridW(const Vec3r& ppos);
+    Vec3r getVelocityFromGrid(const Vec3r& ppos);
+    Vec3r trace_rk2(const Vec3r& ppos, Real timestep);
+    Vec3r trace_rk2_grid(const Vec3r& gridPos, Real timestep);
+    void  computeBoundarySDF();
 
     ////////////////////////////////////////////////////////////////////////////////
     auto&       particleData() { return solverData().particleData; }

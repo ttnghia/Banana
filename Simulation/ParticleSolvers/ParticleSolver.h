@@ -89,14 +89,14 @@ protected:
     virtual void generateBoundaries(const nlohmann::json& jParams);
     virtual void generateParticles(const nlohmann::json& jParams);
     virtual void generateRemovers(const nlohmann::json& jParams);
-    virtual bool advanceScene(UInt frame, RealType fraction = RealType(0));
+    virtual bool advanceScene();
 
     virtual void allocateSolverMemory() = 0;
     virtual void setupDataIO()          = 0;
     virtual bool loadMemoryState()      = 0;
     virtual void saveMemoryState()      = 0;
     virtual void saveFrameData();
-    virtual void logSubstepData(Real frameTime, Real substep);
+    virtual void logSubstepData();
 
     ////////////////////////////////////////////////////////////////////////////////
     GlobalParameters m_GlobalParams;
@@ -361,12 +361,12 @@ void ParticleSolver<N, RealType >::generateRemovers(const nlohmann::json& jParam
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-bool ParticleSolver<N, RealType >::advanceScene(UInt frame, RealType fraction /*= RealType(0)*/)
+bool ParticleSolver<N, RealType >::advanceScene()
 {
     bool bSceneChanged = false;
     if(m_DynamicObjects.size() > 0) {
         for(auto& obj : m_DynamicObjects) {
-            bSceneChanged |= obj->advanceScene(frame, fraction);
+            bSceneChanged |= obj->advanceScene(globalParams().finishedFrame, globalParams().frameTime / globalParams().frameDuration);
         }
     }
 
@@ -399,17 +399,17 @@ void Banana::ParticleSolvers::ParticleSolver<N, RealType >::saveFrameData()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Save the frame data for dynamic objects
 template<Int N, class RealType>
-void Banana::ParticleSolvers::ParticleSolver<N, RealType >::logSubstepData(Real frameTime, Real substep)
+void Banana::ParticleSolvers::ParticleSolver<N, RealType >::logSubstepData()
 {
     if(globalParams().bSaveSubstepData && globalParams().isSavingData("SubStepSize")) {
-        String dataStr = String("SystemTime: ") + NumberHelpers::formatToScientific(globalParams().evolvedTime() + frameTime, 10) +
-                         String(" | SubStepSize: ") + NumberHelpers::formatToScientific(substep, 10);
+        String dataStr = String("SystemTime: ") + NumberHelpers::formatToScientific(globalParams().evolvedTime(), 10) +
+                         String(" | SubStepSize: ") + NumberHelpers::formatToScientific(globalParams().frameSubstep, 10);
         dataLogger("SubStepSize").printLog(dataStr);
     }
 
     if(globalParams().bSaveSubstepData && globalParams().isSavingData("SubStepKineticEnergy")) {
         Real   kineticEnergy = ParallelSTL::sum_sqr<N, RealType>(commonParticleData()->velocities) * commonSimData()->particleMass * 0.5_f;
-        String dataStr       = String("SystemTime: ") + NumberHelpers::formatToScientific(globalParams().evolvedTime() + frameTime, 10) +
+        String dataStr       = String("SystemTime: ") + NumberHelpers::formatToScientific(globalParams().evolvedTime(), 10) +
                                String(" | SystemKineticEnergy: ") + NumberHelpers::formatToScientific(kineticEnergy, 10);
         dataLogger("SubStepKineticEnergy").printLog(dataStr);
     }

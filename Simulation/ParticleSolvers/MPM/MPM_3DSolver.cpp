@@ -218,24 +218,28 @@ void MPM_3DSolver::makeReady()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MPM_3DSolver::advanceFrame()
 {
-    Real frameTime    = 0;
-    UInt substepCount = 0;
+    const auto& frameDuration = globalParams().frameDuration;
+    auto&       frameTime     = globalParams().frameTime;
+    auto&       substep       = globalParams().frameSubstep;
+    auto&       substepCount  = globalParams().frameSubstepCount;
+    auto&       finishedFrame = globalParams().finishedFrame;
 
+    frameTime    = 0_f;
+    substepCount = 0u;
     ////////////////////////////////////////////////////////////////////////////////
-    while(frameTime < m_GlobalParams.frameDuration) {
+    while(frameTime < frameDuration) {
         logger().printRunTime("Sub-step time: ",
                               [&]()
                               {
                                   if(globalParams().finishedFrame > 0) {
-                                      logger().printRunTimeIf("Advance scene: ",
-                                                              [&]() { return advanceScene(globalParams().finishedFrame, frameTime / globalParams().frameDuration); });
+                                      logger().printRunTimeIf("Advance scene: ", [&]() { return advanceScene(); });
                                   }
                                   ////////////////////////////////////////////////////////////////////////////////
-                                  Real substep       = timestepCFL();
-                                  Real remainingTime = globalParams().frameDuration - frameTime;
-                                  if(frameTime + substep >= globalParams().frameDuration) {
+                                  substep = timestepCFL();
+                                  auto remainingTime = frameDuration - frameTime;
+                                  if(frameTime + substep >= frameDuration) {
                                       substep = remainingTime;
-                                  } else if(frameTime + 1.5_f * substep >= globalParams().frameDuration) {
+                                  } else if(frameTime + 1.5_f * substep >= frameDuration) {
                                       substep = remainingTime * 0.5_f;
                                   }
                                   ////////////////////////////////////////////////////////////////////////////////
@@ -244,18 +248,22 @@ void MPM_3DSolver::advanceFrame()
                                                         [&]() { grid().collectIndexToCells(particleData().positions, particleData().gridCoordinate); });
                                   logger().printRunTime("}=> Advance velocity: ", [&]() { advanceVelocity(substep); });
                                   ////////////////////////////////////////////////////////////////////////////////
+
                                   frameTime += substep;
                                   ++substepCount;
-                                  logger().printLog("Finished step " + NumberHelpers::formatWithCommas(substepCount) + " of size " + NumberHelpers::formatToScientific<Real>(substep) +
-                                                    "(" + NumberHelpers::formatWithCommas(substep / m_GlobalParams.frameDuration * 100) + "% of the frame, to " +
-                                                    NumberHelpers::formatWithCommas(100 * (frameTime) / m_GlobalParams.frameDuration) + "% of the frame)");
+                                  logger().printLog("Finished step " + NumberHelpers::formatWithCommas(substepCount) +
+                                                    " of size " + NumberHelpers::formatToScientific<Real>(substep) +
+                                                    "(" + NumberHelpers::formatWithCommas(substep / frameDuration * 100.0_f) +
+                                                    "% of the frame, to " + NumberHelpers::formatWithCommas(100.0_f * frameTime / frameDuration) +
+                                                    "% of the frame)");
                               });
 
+        ////////////////////////////////////////////////////////////////////////////////
         logger().newLine();
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    ++m_GlobalParams.finishedFrame;
+    ++finishedFrame;
     saveFrameData();
     saveMemoryState();
 }
@@ -348,19 +356,19 @@ void MPM_3DSolver::generateParticles(const nlohmann::json& jParams)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-bool MPM_3DSolver::advanceScene(UInt frame, Real fraction /*= 0_f*/)
+bool MPM_3DSolver::advanceScene()
 {
     ////////////////////////////////////////////////////////////////////////////////
     // evolve the dynamic objects
-    bool bSceneChanged = ParticleSolver3D::advanceScene(frame, fraction);
+    bool bSceneChanged = ParticleSolver3D::advanceScene();
 
     ////////////////////////////////////////////////////////////////////////////////
     // add/remove particles
     for(auto& generator : m_ParticleGenerators) {
-        if(generator->isActive(frame)) {
+        if(generator->isActive(globalParams().finishedFrame)) {
             particleData().tmp_positions.resize(0);
             particleData().tmp_velocities.resize(0);
-            UInt nGen = generator->generateParticles(particleData().positions, particleData().tmp_positions, particleData().tmp_velocities, frame);
+            UInt nGen = generator->generateParticles(particleData().positions, particleData().tmp_positions, particleData().tmp_velocities, globalParams().finishedFrame);
             particleData().addParticles(particleData().tmp_positions, particleData().tmp_velocities);
             ////////////////////////////////////////////////////////////////////////////////
             logger().printLogIndentIf(nGen > 0, String("Generated ") + NumberHelpers::formatWithCommas(nGen) + String(" new particles by ") + generator->nameID());
@@ -369,7 +377,7 @@ bool MPM_3DSolver::advanceScene(UInt frame, Real fraction /*= 0_f*/)
     }
 
     for(auto& remover : m_ParticleRemovers) {
-        if(remover->isActive(frame)) {
+        if(remover->isActive(globalParams().finishedFrame)) {
             remover->findRemovingCandidate(particleData().removeMarker, particleData().positions);
             UInt nRemoved = particleData().removeParticles(particleData().removeMarker);
             logger().printLogIndentIf(nRemoved > 0, String("Removed ") + NumberHelpers::formatWithCommas(nRemoved) + String(" particles by ") + remover->nameID());

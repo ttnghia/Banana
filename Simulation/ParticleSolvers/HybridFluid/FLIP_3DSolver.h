@@ -28,29 +28,10 @@ namespace Banana::ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-// FLIP_3DParameters
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-struct FLIP_3DParameters : public SimulationParameters3D
-{
-    virtual void printParams(const SharedPtr<Logger>& logger) override
-    {
-        ////////////////////////////////////////////////////////////////////////////////
-        // FLIP only parameter
-        logger->printLog(String("FLIP-3D parameters:"));
-        SimulationParameters3D::printParams(logger);
-        logger->printLogIndent(String("PIC/FLIP ratio: ") + std::to_string(PIC_FLIP_ratio));
-        ////////////////////////////////////////////////////////////////////////////////
-        logger->newLine();
-    }
-};
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // FLIP_3DData
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-struct FLIP_3DData : public GridSimulationData<3, Real>
+struct FLIP_3DData : public GridSimulationData3D
 {
     Array3r        du, dv, dw;
     Array3r        u_old, v_old, w_old;
@@ -76,10 +57,8 @@ public:
     virtual String getGreetingMessage() override { return String("Fluid Simulation using FLIP-3D Solver"); }
 
     ////////////////////////////////////////////////////////////////////////////////
-    auto&       flipParams() { return m_FLIPParams; }
-    const auto& flipParams() const { return m_FLIPParams; }
-    auto&       flipData() { return m_FLIPData; }
-    const auto& flipData() const { return m_FLIPData; }
+    auto&       FLIPData() { return m_FLIPData; }
+    const auto& FLIPData() const { return m_FLIPData; }
 
 protected:
     virtual void loadSimParams(const nlohmann::json& jParams) override;
@@ -91,12 +70,11 @@ protected:
 
     ////////////////////////////////////////////////////////////////////////////////
     // small helper functions
-    __BNN_INLINE void  computeChangesGridVelocity();
-    __BNN_INLINE Vec3r getVelocityChangesFromGrid(const Vec3r& ppos);
+    void  computeChangesGridVelocity();
+    Vec3r getVelocityChangesFromGrid(const Vec3r& ppos);
 
     ////////////////////////////////////////////////////////////////////////////////
-    FLIP_3DParameters m_FLIPParams;
-    FLIP_3DData       m_FLIPData;
+    FLIP_3DData m_FLIPData;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

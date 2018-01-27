@@ -4,7 +4,7 @@
         "Solver" : "MPM_3DSolver",
         "FrameDuration" : 0.003333333333,
         "StartFrame" : 1,
-        "FinalFrame" : 10,
+        "FinalFrame" : 50,
         "SaveFrameData" : false,
         "SaveMemoryState" : false,
         "FramePerState" : 10,

@@ -100,9 +100,9 @@ void AniMPM_2DSolver::generateParticles(const nlohmann::json& jParams)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-bool AniMPM_2DSolver::advanceScene(UInt frame, Real fraction /*= 0_f*/)
+bool AniMPM_2DSolver::advanceScene()
 {
-    bool bSceneChanged = MPM_2DSolver::advanceScene(frame, fraction);
+    bool bSceneChanged = MPM_2DSolver::advanceScene();
 
     if(bSceneChanged) {
         aniData().particleData.resize(particleData().getNParticles());
