@@ -27,6 +27,8 @@
 #include <ParticleSolvers/HybridFluid/APIC_3DSolver.h>
 #include <ParticleSolvers/HybridFluid/FLIP_3DSolver.h>
 #include <ParticleSolvers/HybridFluid/PIC_3DSolver.h>
+
+#include <ParticleSolvers/SPH/WCSPH_3DSolver.h>
 ////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -60,6 +62,9 @@ public:
         } else if(solverName == "PIC_3DSolver") {
             __BNN_REQUIRE(N == 3);
             return dynamic_pointer_cast<ParticleSolver<N, RealType> >(std::make_shared<PIC_3DSolver>());
+        } else if(solverName == "WCSPH_3DSolver") {
+            __BNN_REQUIRE(N == 3);
+            return dynamic_pointer_cast<ParticleSolver<N, RealType> >(std::make_shared<WCSPH_3DSolver>());
         }
         ////////////////////////////////////////////////////////////////////////////////
         // MPM solver
@@ -70,6 +75,8 @@ public:
             __BNN_REQUIRE(N == 3);
             return dynamic_pointer_cast<ParticleSolver<N, RealType> >(std::make_shared<MPM_3DSolver>());
         }
+
+        return nullptr;
     }
 };
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
