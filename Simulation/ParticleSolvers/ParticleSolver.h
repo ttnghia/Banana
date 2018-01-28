@@ -366,7 +366,7 @@ bool ParticleSolver<N, RealType >::advanceScene()
     bool bSceneChanged = false;
     if(m_DynamicObjects.size() > 0) {
         for(auto& obj : m_DynamicObjects) {
-            bSceneChanged |= obj->advanceScene(globalParams().finishedFrame, globalParams().frameTime / globalParams().frameDuration);
+            bSceneChanged |= obj->advanceScene(globalParams().finishedFrame, globalParams().frameLocalTime / globalParams().frameDuration);
         }
     }
 

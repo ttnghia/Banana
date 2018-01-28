@@ -132,7 +132,7 @@ void PIC_3DSolver::makeReady()
 void PIC_3DSolver::advanceFrame()
 {
     const auto& frameDuration = globalParams().frameDuration;
-    auto&       frameTime     = globalParams().frameTime;
+    auto&       frameTime     = globalParams().frameLocalTime;
     auto&       substep       = globalParams().frameSubstep;
     auto&       substepCount  = globalParams().frameSubstepCount;
     auto&       finishedFrame = globalParams().finishedFrame;
@@ -163,7 +163,7 @@ void PIC_3DSolver::advanceFrame()
                                   frameTime += substep;
                                   ++substepCount;
                                   logger().printLog("Finished step " + NumberHelpers::formatWithCommas(substepCount) +
-                                                    " of size " + NumberHelpers::formatToScientific<Real>(substep) +
+                                                    " of size " + NumberHelpers::formatToScientific(substep) +
                                                     "(" + NumberHelpers::formatWithCommas(substep / frameDuration * 100.0_f) +
                                                     "% of the frame, to " + NumberHelpers::formatWithCommas(100.0_f * frameTime / frameDuration) +
                                                     "% of the frame)");
