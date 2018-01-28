@@ -165,22 +165,26 @@ struct SimulationParameters
     RealType maxTimestep = RealType(SolverDefaultParameters::MaxTimestep);
     RealType CFLFactor   = RealType(1.0);
     ////////////////////////////////////////////////////////////////////////////////
-
     ////////////////////////////////////////////////////////////////////////////////
     // simulation size
-    RealType          cellSize             = RealType(SolverDefaultParameters::CellSize);
-    RealType          ratioCellSizePRadius = RealType(SolverDefaultParameters::RatioCellSizeOverParticleRadius);
-    UInt              nExpandCells         = SolverDefaultParameters::NExpandCells;
-    VecX<N, RealType> domainBMin           = VecX<N, RealType>(-1);
-    VecX<N, RealType> domainBMax           = VecX<N, RealType>(1);
+    VecX<N, RealType> domainBMin = VecX<N, RealType>(-1);
+    VecX<N, RealType> domainBMax = VecX<N, RealType>(1);
     VecX<N, RealType> movingBMin;
     VecX<N, RealType> movingBMax;
-    Real              cellVolume;
     ////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // grid
+    bool     bUseGrid             = true;
+    RealType cellSize             = RealType(SolverDefaultParameters::CellSize);
+    RealType ratioCellSizePRadius = RealType(SolverDefaultParameters::RatioCellSizeOverParticleRadius);
+    UInt     nExpandCells         = SolverDefaultParameters::NExpandCells;
+    Real     cellVolume;
+
 
     ////////////////////////////////////////////////////////////////////////////////
     // particle parameters
-    RealType particleRadius;
+    RealType particleRadius = 0_f;
     RealType particleMass   = RealType(1.0);
     UInt     maxNParticles  = 0u;
     UInt     advectionSteps = 1u;
@@ -213,8 +217,14 @@ struct SimulationParameters
 
     virtual void makeReady()
     {
-        cellVolume     = (N == 2) ? MathHelpers::sqr(cellSize) : MathHelpers::cube(cellSize);;
-        particleRadius = cellSize / ratioCellSizePRadius;
+        if(bUseGrid) {
+            particleRadius = cellSize / ratioCellSizePRadius;
+        } else {
+            cellSize     = 0_f;
+            nExpandCells = 0u;
+        }
+
+        cellVolume = (N == 2) ? MathHelpers::sqr(cellSize) : MathHelpers::cube(cellSize);;
 
         // expand domain simulation by nExpandCells for each dimension
         // this is necessary if the boundary is a box which coincides with the simulation domain
@@ -240,19 +250,24 @@ struct SimulationParameters
         ////////////////////////////////////////////////////////////////////////////////
 
         ////////////////////////////////////////////////////////////////////////////////
-        // simulation size
-        logger->printLogIndent(String("Cell size: ") + std::to_string(cellSize));
-        logger->printLogIndent(String("Ratio grid size/particle radius: ") + std::to_string(ratioCellSizePRadius));
-        logger->printLogIndent(String("Expand cells for each dimension: ") + std::to_string(nExpandCells));
-
+        // domain size
         auto domainGrid = NumberHelpers::createGrid<UInt>(domainBMin, domainBMax, cellSize);
         auto movingGrid = NumberHelpers::createGrid<UInt>(movingBMin, movingBMax, cellSize);
         logger->printLogIndent(String("Domain box: ") + NumberHelpers::toString(domainBMin) + " -> " + NumberHelpers::toString(domainBMax) +
                                String(" | Resolution: ") + NumberHelpers::toString(domainGrid));
         logger->printLogIndent(String("Moving box: ") + NumberHelpers::toString(movingBMin) + " -> " + NumberHelpers::toString(movingBMax) +
                                String(" | Resolution: ") + NumberHelpers::toString(movingGrid));
-        logger->printLogIndent(String("Number of cells: ") + NumberHelpers::formatWithCommas(glm::compMul(domainGrid)) +
-                               String(" | nodes: ") + NumberHelpers::formatWithCommas(glm::compMul(domainGrid + VecX<N, UInt32>(1))));
+        ////////////////////////////////////////////////////////////////////////////////
+
+        ////////////////////////////////////////////////////////////////////////////////
+        // grid
+        if(bUseGrid) {
+            logger->printLogIndent(String("Cell size: ") + std::to_string(cellSize));
+            logger->printLogIndent(String("Ratio grid size/particle radius: ") + std::to_string(ratioCellSizePRadius));
+            logger->printLogIndent(String("Expand cells for each dimension: ") + std::to_string(nExpandCells));
+            logger->printLogIndent(String("Number of cells: ") + NumberHelpers::formatWithCommas(glm::compMul(domainGrid)) +
+                                   String(" | nodes: ") + NumberHelpers::formatWithCommas(glm::compMul(domainGrid + VecX<N, UInt32>(1))));
+        }
         ////////////////////////////////////////////////////////////////////////////////
 
         ////////////////////////////////////////////////////////////////////////////////
