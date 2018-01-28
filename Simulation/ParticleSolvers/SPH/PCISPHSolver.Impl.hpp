@@ -29,7 +29,7 @@ namespace ParticleSolvers
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PCISPHSolver::makeReady()
 {
-    WCSPHSolver::makeReady();
+    WCSPH_3DSolver::makeReady();
 
     ////////////////////////////////////////////////////////////////////////////////
     predicted_position.resize(positions.size());

@@ -206,15 +206,15 @@ void Snow2DSolver::setupDataIO()
 {
     m_ParticleDataIO = std::make_unique<ParticleSerialization>(m_GlobalParams.dataPath, "MPMData", "frame", m_Logger);
     m_ParticleDataIO->addFixedAttribute<float>("particle_radius", ParticleSerialization::TypeReal, 1);
-    m_ParticleDataIO->addParticleAttribute<float>("position", ParticleSerialization::TypeCompressedReal, 2);
-    m_ParticleDataIO->addParticleAttribute<float>("velocity", ParticleSerialization::TypeCompressedReal, 2);
+    m_ParticleDataIO->addParticleAttribute<float>("particle_position", ParticleSerialization::TypeCompressedReal, 2);
+    m_ParticleDataIO->addParticleAttribute<float>("particle_velocity", ParticleSerialization::TypeCompressedReal, 2);
 
     ////////////////////////////////////////////////////////////////////////////////
 
     m_MemoryStateIO = std::make_unique<ParticleSerialization>(m_GlobalParams.dataPath, "MPMState", "frame", m_Logger);
     m_MemoryStateIO->addFixedAttribute<Real>("particle_radius", ParticleSerialization::TypeReal, 1);
-    m_MemoryStateIO->addParticleAttribute<Real>("position", ParticleSerialization::TypeReal, 2);
-    m_MemoryStateIO->addParticleAttribute<Real>("velocity", ParticleSerialization::TypeReal, 2);
+    m_MemoryStateIO->addParticleAttribute<Real>("particle_position", ParticleSerialization::TypeReal, 2);
+    m_MemoryStateIO->addParticleAttribute<Real>("particle_velocity", ParticleSerialization::TypeReal, 2);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -239,8 +239,8 @@ bool Snow2DSolver::loadMemoryState()
     __BNN_REQUIRE(m_MemoryStateIO->getFixedAttribute("particle_radius", particleRadius));
     __BNN_REQUIRE_APPROX_NUMBERS(solverParams().particleRadius, particleRadius, MEpsilon);
 
-    __BNN_REQUIRE(m_MemoryStateIO->getParticleAttribute("position", particleData().positions));
-    __BNN_REQUIRE(m_MemoryStateIO->getParticleAttribute("velocity", particleData().velocities));
+    __BNN_REQUIRE(m_MemoryStateIO->getParticleAttribute("particle_position", particleData().positions));
+    __BNN_REQUIRE(m_MemoryStateIO->getParticleAttribute("particle_velocity", particleData().velocities));
     assert(particleData().velocities.size() == particleData().positions.size());
 
     return true;
@@ -266,8 +266,8 @@ void Snow2DSolver::saveMemoryState()
     m_MemoryStateIO->clearData();
     m_MemoryStateIO->setNParticles(particleData().getNParticles());
     m_MemoryStateIO->setFixedAttribute("particle_radius", solverParams().particleRadius);
-    m_MemoryStateIO->setParticleAttribute("position", particleData().positions);
-    m_MemoryStateIO->setParticleAttribute("velocity", particleData().velocities);
+    m_MemoryStateIO->setParticleAttribute("particle_position", particleData().positions);
+    m_MemoryStateIO->setParticleAttribute("particle_velocity", particleData().velocities);
     m_MemoryStateIO->flushAsync(m_GlobalParams.finishedFrame);
 }
 
@@ -282,8 +282,8 @@ void Snow2DSolver::saveFrameData()
     m_ParticleDataIO->clearData();
     m_ParticleDataIO->setNParticles(particleData().getNParticles());
     m_ParticleDataIO->setFixedAttribute("particle_radius", static_cast<float>(solverParams().particleRadius));
-    m_ParticleDataIO->setParticleAttribute("position", particleData().positions);
-    m_ParticleDataIO->setParticleAttribute("velocity", particleData().velocities);
+    m_ParticleDataIO->setParticleAttribute("particle_position", particleData().positions);
+    m_ParticleDataIO->setParticleAttribute("particle_velocity", particleData().velocities);
     m_ParticleDataIO->flushAsync(m_GlobalParams.finishedFrame);
 }
 

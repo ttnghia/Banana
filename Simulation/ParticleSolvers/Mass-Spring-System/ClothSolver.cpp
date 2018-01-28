@@ -170,15 +170,15 @@ void ClothSolver::setupDataIO()
 {
     m_ParticleIO = std::make_unique<ParticleSerialization>(m_GlobalParams.dataPath, "FLIPData", "frame", m_Logger);
     m_ParticleIO->addFixedAtribute<float>("particle_radius", ParticleSerialization::TypeReal, 1);
-    m_ParticleIO->addParticleAtribute<float>("position", ParticleSerialization::TypeCompressedReal, 3);
-    m_ParticleIO->addParticleAtribute<float>("velocity", ParticleSerialization::TypeCompressedReal, 3);
+    m_ParticleIO->addParticleAtribute<float>("particle_position", ParticleSerialization::TypeCompressedReal, 3);
+    m_ParticleIO->addParticleAtribute<float>("particle_velocity", ParticleSerialization::TypeCompressedReal, 3);
 
     ////////////////////////////////////////////////////////////////////////////////
 
     m_MemoryStateIO = std::make_unique<ParticleSerialization>(m_GlobalParams.dataPath, "FLIPState", "frame", m_Logger);
     m_MemoryStateIO->addFixedAtribute<Real>("particle_radius", ParticleSerialization::TypeReal, 1);
-    m_MemoryStateIO->addParticleAtribute<Real>("position", ParticleSerialization::TypeReal, 3);
-    m_MemoryStateIO->addParticleAtribute<Real>("velocity", ParticleSerialization::TypeReal, 3);
+    m_MemoryStateIO->addParticleAtribute<Real>("particle_position", ParticleSerialization::TypeReal, 3);
+    m_MemoryStateIO->addParticleAtribute<Real>("particle_velocity", ParticleSerialization::TypeReal, 3);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -203,8 +203,8 @@ bool ClothSolver::loadMemoryState()
     __BNN_REQUIRE(m_MemoryStateIO->getFixedAttribute("particle_radius", particleRadius));
     __BNN_REQUIRE_APPROX_NUMBERS(solverParams().particleRadius, particleRadius, MEpsilon);
 
-    __BNN_REQUIRE(m_MemoryStateIO->getParticleAttribute("position", particleData().positions));
-    __BNN_REQUIRE(m_MemoryStateIO->getParticleAttribute("velocity", particleData().velocities));
+    __BNN_REQUIRE(m_MemoryStateIO->getParticleAttribute("particle_position", particleData().positions));
+    __BNN_REQUIRE(m_MemoryStateIO->getParticleAttribute("particle_velocity", particleData().velocities));
     assert(particleData().velocities.size() == particleData().positions.size());
 
     return true;
@@ -230,8 +230,8 @@ void ClothSolver::saveMemoryState()
     m_MemoryStateIO->clearData();
     m_MemoryStateIO->setNParticles(solverData().getNParticles());
     m_MemoryStateIO->setFixedAttribute("particle_radius", solverParams().particleRadius);
-    m_MemoryStateIO->setParticleAttribute("position", particleData().positions);
-    m_MemoryStateIO->setParticleAttribute("velocity", particleData().velocities);
+    m_MemoryStateIO->setParticleAttribute("particle_position", particleData().positions);
+    m_MemoryStateIO->setParticleAttribute("particle_velocity", particleData().velocities);
     m_MemoryStateIO->flushAsync(m_GlobalParams.finishedFrame);
 }
 
@@ -245,8 +245,8 @@ void ClothSolver::saveFrameData()
     m_ParticleIO->clearData();
     m_ParticleIO->setNParticles(solverData().getNParticles());
     m_ParticleIO->setFixedAttribute("particle_radius", static_cast<float>(solverParams().particleRadius));
-    m_ParticleIO->setParticleAttribute("position", particleData().positions);
-    m_ParticleIO->setParticleAttribute("velocity", particleData().velocities);
+    m_ParticleIO->setParticleAttribute("particle_position", particleData().positions);
+    m_ParticleIO->setParticleAttribute("particle_velocity", particleData().velocities);
     m_ParticleIO->flushAsync(m_GlobalParams.finishedFrame);
 }
 

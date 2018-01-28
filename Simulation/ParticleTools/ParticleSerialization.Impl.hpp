@@ -429,13 +429,13 @@ void Banana::ParticleSerialization::saveParticle(const String& fileName, const V
     ParticleSerialization particleWriter;
     particleWriter.addFixedAttribute<Real>("particle_radius", ParticleSerialization::TypeReal, 1);
     if(bCompress) {
-        particleWriter.addParticleAttribute<Real>("position", ParticleSerialization::TypeCompressedReal, 3);
+        particleWriter.addParticleAttribute<Real>("particle_position", ParticleSerialization::TypeCompressedReal, 3);
     } else {
-        particleWriter.addParticleAttribute<Real>("position", ParticleSerialization::TypeReal, 3);
+        particleWriter.addParticleAttribute<Real>("particle_position", ParticleSerialization::TypeReal, 3);
     }
     particleWriter.setNParticles(positions.size());
     particleWriter.setFixedAttribute("particle_radius", particleRadius);
-    particleWriter.setParticleAttribute("position", positions);
+    particleWriter.setParticleAttribute("particle_position", positions);
     particleWriter.flushAsync(fileName);
 }
 
@@ -451,7 +451,7 @@ bool Banana::ParticleSerialization::loadParticle(const String& fileName, Vector<
     Real tmpRadius;
     __BNN_REQUIRE(particleReader.getFixedAttribute("particle_radius", tmpRadius));
     __BNN_REQUIRE_APPROX_NUMBERS(tmpRadius, particleRadius, MEpsilon);
-    __BNN_REQUIRE(particleReader.getParticleAttribute("position", positions));
+    __BNN_REQUIRE(particleReader.getParticleAttribute("particle_position", positions));
 
     return true;
 }

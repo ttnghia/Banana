@@ -127,13 +127,13 @@ void AniMPM_2DSolver::setupDataIO()
     if(globalParams().bSaveFrameData) {
         m_ParticleDataIO = std::make_unique<ParticleSerialization>(globalParams().dataPath, globalParams().frameDataFolder, "frame", m_Logger);
         m_ParticleDataIO->addFixedAttribute<float>("particle_radius", ParticleSerialization::TypeReal, 1);
-        m_ParticleDataIO->addParticleAttribute<float>("position", ParticleSerialization::TypeCompressedReal, 2);
-        if(globalParams().isSavingData("object_index")) {
+        m_ParticleDataIO->addParticleAttribute<float>("particle_position", ParticleSerialization::TypeCompressedReal, 2);
+        if(globalParams().isSavingData("ObjectIndex")) {
             m_ParticleDataIO->addFixedAttribute<UInt>("NObjects", ParticleSerialization::TypeUInt, 1);
-            m_ParticleDataIO->addParticleAttribute<Int8>("object_index", ParticleSerialization::TypeChar, 1);
+            m_ParticleDataIO->addParticleAttribute<Int8>("object_index", ParticleSerialization::TypeInt16, 1);
         }
-        if(globalParams().isSavingData("velocity")) {
-            m_ParticleDataIO->addParticleAttribute<float>("velocity", ParticleSerialization::TypeCompressedReal, 2);
+        if(globalParams().isSavingData("ParticleVelocity")) {
+            m_ParticleDataIO->addParticleAttribute<float>("particle_velocity", ParticleSerialization::TypeCompressedReal, 2);
         }
     }
 
@@ -147,7 +147,7 @@ void AniMPM_2DSolver::setupDataIO()
         m_MemoryStateIO->addFixedAttribute<UInt>("NObjects",        ParticleSerialization::TypeUInt, 1);
         m_MemoryStateIO->addParticleAttribute<Real>("particle_position", ParticleSerialization::TypeReal, 2);
         m_MemoryStateIO->addParticleAttribute<Real>("particle_velocity", ParticleSerialization::TypeReal, 2);
-        m_MemoryStateIO->addParticleAttribute<Int8>("object_index",      ParticleSerialization::TypeChar, 1);
+        m_MemoryStateIO->addParticleAttribute<Int16>("object_index",      ParticleSerialization::TypeInt16, 1);
     }
 }
 
@@ -212,8 +212,8 @@ void AniMPM_2DSolver::saveMemoryState()
     m_MemoryStateIO->setFixedAttribute("particle_radius", solverParams().particleRadius);
     m_MemoryStateIO->setFixedAttribute("NObjects",        particleData().nObjects);
     m_MemoryStateIO->setParticleAttribute("object_index", particleData().objectIndex);
-    m_MemoryStateIO->setParticleAttribute("position",     particleData().positions);
-    m_MemoryStateIO->setParticleAttribute("velocity",     particleData().velocities);
+    m_MemoryStateIO->setParticleAttribute("particle_position",     particleData().positions);
+    m_MemoryStateIO->setParticleAttribute("particle_velocity",     particleData().velocities);
     m_MemoryStateIO->flushAsync(m_GlobalParams.finishedFrame);
     __BNN_TODO;
 }
@@ -229,13 +229,13 @@ void AniMPM_2DSolver::saveFrameData()
     m_ParticleDataIO->clearData();
     m_ParticleDataIO->setNParticles(particleData().getNParticles());
     m_ParticleDataIO->setFixedAttribute("particle_radius", static_cast<float>(solverParams().particleRadius));
-    m_ParticleDataIO->setParticleAttribute("position", particleData().positions);
-    if(globalParams().isSavingData("object_index")) {
+    m_ParticleDataIO->setParticleAttribute("particle_position", particleData().positions);
+    if(globalParams().isSavingData("ObjectIndex")) {
         m_ParticleDataIO->setFixedAttribute("NObjects", particleData().nObjects);
         m_ParticleDataIO->setParticleAttribute("object_index", particleData().objectIndex);
     }
-    if(globalParams().isSavingData("velocity")) {
-        m_ParticleDataIO->setParticleAttribute("velocity", particleData().velocities);
+    if(globalParams().isSavingData("ParticleVelocity")) {
+        m_ParticleDataIO->setParticleAttribute("particle_velocity", particleData().velocities);
     }
     m_ParticleDataIO->flushAsync(m_GlobalParams.finishedFrame);
 }

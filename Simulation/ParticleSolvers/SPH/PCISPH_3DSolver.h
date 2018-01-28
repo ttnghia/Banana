@@ -31,11 +31,11 @@ namespace Banana
 namespace ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class PCISPHSolver : public WCSPHSolver
+class PCISPHSolver : public WCSPH_3DSolver
 {
 public:
-    PCISPHSolver(std::shared_ptr<ParameterManager>& params, SimulationParameters_WCSPH* SPHParams) :
-        WCSPHSolver(params, SPHParams),
+    PCISPHSolver(std::shared_ptr<ParameterManager>& params, WCSPH_3DParameters* SPHParams) :
+        WCSPH_3DSolver(params, SPHParams),
         max_pcisph_iterations(SPHParams->maxIterationPCISPH),
         density_error_threshold(SPHParams->densityErrorThreshold)
     {

@@ -39,22 +39,10 @@ namespace Banana::ParticleSolvers
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 struct PIC_3DParameters : public SimulationParameters3D
 {
-    // this radius is used for computing fluid signed distance field
-    Real sdfRadius;
-
-    virtual void makeReady() override
-    {
-        SimulationParameters3D::makeReady();
-        sdfRadius = cellSize * Real(1.01 * sqrt(3.0) / 2.0);
-    }
-
-    virtual void printParams(const SharedPtr<Logger>& logger) override
-    {
-        logger->printLog(String("PIC-3D parameters:"));
-        SimulationParameters3D::printParams(logger);
-        logger->printLogIndent(String("Fluid SDF radius: ") + std::to_string(sdfRadius));
-        logger->newLine();
-    }
+    Real sdfRadius; // this radius is used for computing fluid signed distance field
+    ////////////////////////////////////////////////////////////////////////////////
+    virtual void makeReady() override;
+    virtual void printParams(const SharedPtr<Logger>& logger) override;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

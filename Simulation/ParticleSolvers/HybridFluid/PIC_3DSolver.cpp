@@ -28,6 +28,26 @@ namespace Banana::ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+// PIC_3DParameters implementation
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void PIC_3DParameters::makeReady()
+{
+    SimulationParameters3D::makeReady();
+    sdfRadius = cellSize * Real(1.01 * sqrt(3.0) / 2.0);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void PIC_3DParameters::printParams(const SharedPtr<Logger>& logger)
+{
+    logger->printLog(String("PIC-3D parameters:"));
+    SimulationParameters3D::printParams(logger);
+    logger->printLogIndent(String("Fluid SDF radius: ") + std::to_string(sdfRadius));
+    logger->newLine();
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // PIC_3DData implementation
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -46,9 +66,10 @@ void PIC_3DData::ParticleData::addParticles(const Vec_Vec3r& newPositions, const
     __BNN_REQUIRE(newPositions.size() == newVelocities.size());
     positions.insert(positions.end(), newPositions.begin(), newPositions.end());
     velocities.insert(velocities.end(), newVelocities.begin(), newVelocities.end());
+
     ////////////////////////////////////////////////////////////////////////////////
     // add the object index for new particles to the list
-    objectIndex.insert(objectIndex.end(), newPositions.size(), nObjects);
+    objectIndex.insert(objectIndex.end(), newPositions.size(), static_cast<Int16>(nObjects));
     ++nObjects;                 // increase the number of objects
 }
 
@@ -269,6 +290,10 @@ void PIC_3DSolver::generateParticles(const nlohmann::json& jParams)
         // only save frame0 data if particles are just generated (not loaded from disk)
         saveFrameData();
         logger().newLine();
+
+        ////////////////////////////////////////////////////////////////////////////////
+        // sort particles after saving
+        sortParticles();
     } else {
         m_NSearch->add_point_set(glm::value_ptr(particleData().positions.front()), particleData().getNParticles(), true, true);
     }
@@ -340,16 +365,16 @@ void PIC_3DSolver::setupDataIO()
     if(globalParams().bSaveFrameData) {
         m_ParticleDataIO = std::make_unique<ParticleSerialization>(globalParams().dataPath, globalParams().frameDataFolder, "frame", m_Logger);
         m_ParticleDataIO->addFixedAttribute<float>("particle_radius", ParticleSerialization::TypeReal, 1);
-        m_ParticleDataIO->addParticleAttribute<float>("position", ParticleSerialization::TypeCompressedReal, 3);
-        if(globalParams().isSavingData("object_index")) {
+        m_ParticleDataIO->addParticleAttribute<float>("particle_position", ParticleSerialization::TypeCompressedReal, 3);
+        if(globalParams().isSavingData("ObjectIndex")) {
             m_ParticleDataIO->addFixedAttribute<UInt>("NObjects", ParticleSerialization::TypeUInt, 1);
-            m_ParticleDataIO->addParticleAttribute<Int8>("object_index", ParticleSerialization::TypeChar, 1);
+            m_ParticleDataIO->addParticleAttribute<Int8>("object_index", ParticleSerialization::TypeInt16, 1);
         }
-        if(globalParams().isSavingData("anisotropic_kernel")) {
+        if(globalParams().isSavingData("AniKernel")) {
             m_ParticleDataIO->addParticleAttribute<float>("anisotropic_kernel", ParticleSerialization::TypeCompressedReal, 9);
         }
-        if(globalParams().isSavingData("velocity")) {
-            m_ParticleDataIO->addParticleAttribute<float>("velocity", ParticleSerialization::TypeCompressedReal, 3);
+        if(globalParams().isSavingData("ParticleVelocity")) {
+            m_ParticleDataIO->addParticleAttribute<float>("particle_velocity", ParticleSerialization::TypeCompressedReal, 3);
         }
     }
 
@@ -362,9 +387,9 @@ void PIC_3DSolver::setupDataIO()
         m_MemoryStateIO->addFixedAttribute<Real>("grid_w",          ParticleSerialization::TypeReal, static_cast<UInt>(gridData().w.dataSize()));
         m_MemoryStateIO->addFixedAttribute<Real>("particle_radius", ParticleSerialization::TypeReal, 1);
         m_MemoryStateIO->addFixedAttribute<UInt>("NObjects",        ParticleSerialization::TypeUInt, 1);
-        m_MemoryStateIO->addParticleAttribute<Real>("particle_position", ParticleSerialization::TypeReal, 3);
-        m_MemoryStateIO->addParticleAttribute<Real>("particle_velocity", ParticleSerialization::TypeReal, 3);
-        m_MemoryStateIO->addParticleAttribute<Int8>("object_index",      ParticleSerialization::TypeChar, 1);
+        m_MemoryStateIO->addParticleAttribute<Real>( "particle_position", ParticleSerialization::TypeReal,  3);
+        m_MemoryStateIO->addParticleAttribute<Real>( "particle_velocity", ParticleSerialization::TypeReal,  3);
+        m_MemoryStateIO->addParticleAttribute<Int16>("object_index",      ParticleSerialization::TypeInt16, 1);
     }
 }
 
@@ -409,7 +434,7 @@ bool PIC_3DSolver::loadMemoryState()
 
     __BNN_REQUIRE(m_MemoryStateIO->getParticleAttribute("particle_position", particleData().positions));
     __BNN_REQUIRE(m_MemoryStateIO->getParticleAttribute("particle_velocity", particleData().velocities));
-    assert(particleData().velocities.size() == particleData().positions.size());
+    __BNN_REQUIRE(particleData().velocities.size() == particleData().positions.size());
 
     logger().printLog(String("Loaded memory state from frameIdx = ") + std::to_string(latestStateIdx));
     globalParams().finishedFrame = latestStateIdx;
@@ -424,7 +449,6 @@ void PIC_3DSolver::saveMemoryState()
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    // save state
     m_MemoryStateIO->clearData();
     ////////////////////////////////////////////////////////////////////////////////
     m_MemoryStateIO->setFixedAttribute("grid_resolution", grid().getNCells());
@@ -434,8 +458,10 @@ void PIC_3DSolver::saveMemoryState()
     ////////////////////////////////////////////////////////////////////////////////
     m_MemoryStateIO->setNParticles(particleData().getNParticles());
     m_MemoryStateIO->setFixedAttribute("particle_radius", solverParams().particleRadius);
+    m_MemoryStateIO->setFixedAttribute("NObjects",        particleData().nObjects);
     m_MemoryStateIO->setParticleAttribute("particle_position", particleData().positions);
     m_MemoryStateIO->setParticleAttribute("particle_velocity", particleData().velocities);
+    m_MemoryStateIO->setParticleAttribute("object_index",      particleData().objectIndex);
     ////////////////////////////////////////////////////////////////////////////////
     m_MemoryStateIO->flushAsync(globalParams().finishedFrame);
 }
@@ -448,36 +474,27 @@ void PIC_3DSolver::saveFrameData()
     }
 
     ParticleSolver3D::saveFrameData();
+    ////////////////////////////////////////////////////////////////////////////////
     m_ParticleDataIO->clearData();
     m_ParticleDataIO->setNParticles(particleData().getNParticles());
     m_ParticleDataIO->setFixedAttribute("particle_radius", static_cast<float>(solverParams().particleRadius));
-    if(globalParams().isSavingData("object_index")) {
+    if(globalParams().isSavingData("ObjectIndex")) {
         m_ParticleDataIO->setFixedAttribute("NObjects", particleData().nObjects);
         m_ParticleDataIO->setParticleAttribute("object_index", particleData().objectIndex);
     }
-    if(globalParams().isSavingData("anisotropic_kernel")) {
+    if(globalParams().isSavingData("AniKernel")) {
         AnisotropicKernelGenerator aniKernelGenerator(particleData().positions, solverParams().particleRadius);
         aniKernelGenerator.computeAniKernels(particleData().aniKernelCenters, particleData().aniKernelMatrices);
-        m_ParticleDataIO->setParticleAttribute("position",           particleData().aniKernelCenters);
+        m_ParticleDataIO->setParticleAttribute("particle_position",  particleData().aniKernelCenters);
         m_ParticleDataIO->setParticleAttribute("anisotropic_kernel", particleData().aniKernelMatrices);
     } else {
-        m_ParticleDataIO->setParticleAttribute("position", particleData().positions);
+        m_ParticleDataIO->setParticleAttribute("particle_position", particleData().positions);
     }
 
-    if(globalParams().isSavingData("velocity")) {
-        m_ParticleDataIO->setParticleAttribute("velocity", particleData().velocities);
+    if(globalParams().isSavingData("ParticleVelocity")) {
+        m_ParticleDataIO->setParticleAttribute("particle_velocity", particleData().velocities);
     }
     m_ParticleDataIO->flushAsync(globalParams().finishedFrame);
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void PIC_3DSolver::advanceVelocity(Real timestep)
-{
-    logger().printRunTime("{   Advect grid velocity: ",          [&]() { advectGridVelocity(timestep); });
-    logger().printRunTimeIndentIf("Add gravity: ",               [&]() { return addGravity(timestep); });
-    logger().printRunTimeIndent("}=> Pressure projection: ",     [&]() { pressureProjection(timestep); });
-    logger().printRunTimeIndent("Extrapolate grid velocity: : ", [&]() { extrapolateVelocity(); });
-    logger().printRunTimeIndent("Constrain grid velocity: ",     [&]() { constrainGridVelocity(); });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -486,7 +503,7 @@ Real PIC_3DSolver::timestepCFL()
     Real maxVel = MathHelpers::max(ParallelSTL::maxAbs(gridData().u.data()),
                                    ParallelSTL::maxAbs(gridData().v.data()),
                                    ParallelSTL::maxAbs(gridData().w.data()));
-    Real timestep = maxVel > Tiny ? (grid().getCellSize() / maxVel * solverParams().CFLFactor) : Huge;
+    Real timestep = maxVel > Tiny ? solverParams().CFLFactor * (grid().getCellSize() / maxVel) : Huge;
     return MathHelpers::clamp(timestep, solverParams().minTimestep, solverParams().maxTimestep);
 }
 
@@ -516,7 +533,7 @@ bool PIC_3DSolver::correctParticlePositions(Real timestep)
     }
     logger().printRunTime("Find neighbors: ", [&]() { grid().collectIndexToCells(particleData().positions); });
     ////////////////////////////////////////////////////////////////////////////////
-    const auto radius     = 2.0_f * solverParams().particleRadius;
+    const auto radius     = 2.0_f * solverParams().particleRadius / Real(sqrt(solverDimension()));
     const auto threshold  = 0.01_f * radius;
     const auto threshold2 = threshold * threshold;
     const auto substep    = timestep / Real(solverParams().advectionSteps);
@@ -571,7 +588,18 @@ bool PIC_3DSolver::correctParticlePositions(Real timestep)
                             });
 
     particleData().positions = particleData().tmp_positions;
+    ////////////////////////////////////////////////////////////////////////////////
     return true;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void PIC_3DSolver::advanceVelocity(Real timestep)
+{
+    logger().printRunTime("{   Advect grid velocity: ", [&]() { advectGridVelocity(timestep); });
+    logger().printRunTimeIndentIf("Add gravity: ", [&]() { return addGravity(timestep); });
+    logger().printRunTimeIndent("}=> Pressure projection: ", [&]() { pressureProjection(timestep); });
+    logger().printRunTimeIndent("Extrapolate grid velocity: : ", [&]() { extrapolateVelocity(); });
+    logger().printRunTimeIndent("Constrain grid velocity: ", [&]() { constrainGridVelocity(); });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

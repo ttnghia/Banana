@@ -159,60 +159,6 @@ struct GlobalParameters
 template<Int N, class RealType>
 struct SimulationParameters
 {
-    virtual void printParams(const SharedPtr<Logger>& logger)
-    {
-        ////////////////////////////////////////////////////////////////////////////////
-        // boundary condition
-        logger->printLogIndent(String("Boundary restitution: ") + std::to_string(boundaryRestitution));
-        ////////////////////////////////////////////////////////////////////////////////
-
-        ////////////////////////////////////////////////////////////////////////////////
-        // time step size
-        logger->printLogIndent(String("Timestep min: ") + NumberHelpers::formatToScientific(minTimestep) +
-                               String(" | max: ") + NumberHelpers::formatToScientific(maxTimestep));
-        logger->printLogIndent(String("CFL factor: ") + std::to_string(CFLFactor));
-        ////////////////////////////////////////////////////////////////////////////////
-
-        ////////////////////////////////////////////////////////////////////////////////
-        // simulation size
-        logger->printLogIndent(String("Cell size: ") + std::to_string(cellSize));
-        logger->printLogIndent(String("Ratio grid size/particle radius: ") + std::to_string(ratioCellSizePRadius));
-        logger->printLogIndent(String("Expand cells for each dimension: ") + std::to_string(nExpandCells));
-
-        auto domainGrid = NumberHelpers::createGrid<UInt>(domainBMin, domainBMax, cellSize);
-        auto movingGrid = NumberHelpers::createGrid<UInt>(movingBMin, movingBMax, cellSize);
-        logger->printLogIndent(String("Domain box: ") + NumberHelpers::toString(domainBMin) + " -> " + NumberHelpers::toString(domainBMax) +
-                               String(" | Resolution: ") + NumberHelpers::toString(domainGrid));
-        logger->printLogIndent(String("Moving box: ") + NumberHelpers::toString(movingBMin) + " -> " + NumberHelpers::toString(movingBMax) +
-                               String(" | Resolution: ") + NumberHelpers::toString(movingGrid));
-        logger->printLogIndent(String("Number of cells: ") + NumberHelpers::formatWithCommas(glm::compMul(domainGrid)) +
-                               String(" | nodes: ") + NumberHelpers::formatWithCommas(glm::compMul(domainGrid + VecX<N, UInt32>(1))));
-        ////////////////////////////////////////////////////////////////////////////////
-
-        ////////////////////////////////////////////////////////////////////////////////
-        // particle parameters
-        logger->printLogIndent(String("Particle radius: ") + std::to_string(particleRadius));
-        logger->printLogIndent(String("Correct particle position: ") + (bCorrectPosition ? String("Yes") : String("No")));
-        logger->printLogIndentIf(bCorrectPosition, String("Repulsive force stiffness: ") + NumberHelpers::formatToScientific(repulsiveForceStiffness));
-        logger->printLogIndent(String("Advection steps/timestep: ") + std::to_string(advectionSteps));
-        logger->printLogIndentIf(maxNParticles > 0, String("Max. number of particles: ") + std::to_string(maxNParticles));
-        ////////////////////////////////////////////////////////////////////////////////
-    }
-
-    virtual void makeReady()
-    {
-        cellVolume     = (N == 2) ? MathHelpers::sqr(cellSize) : MathHelpers::cube(cellSize);;
-        particleRadius = cellSize / ratioCellSizePRadius;
-
-        // expand domain simulation by nExpandCells for each dimension
-        // this is necessary if the boundary is a box which coincides with the simulation domain
-        // movingBMin/BMax are used in printParams function only
-        movingBMin  = domainBMin;
-        movingBMax  = domainBMax;
-        domainBMin -= VecX<N, RealType>(cellSize * nExpandCells);
-        domainBMax += VecX<N, RealType>(cellSize * nExpandCells);
-    }
-
     ////////////////////////////////////////////////////////////////////////////////
     // time step size
     RealType minTimestep = RealType(SolverDefaultParameters::MinTimestep);
@@ -263,6 +209,61 @@ struct SimulationParameters
     // boundary condition
     RealType boundaryRestitution = RealType(SolverDefaultParameters::BoundaryRestitution);
     ////////////////////////////////////////////////////////////////////////////////
+
+
+    virtual void makeReady()
+    {
+        cellVolume     = (N == 2) ? MathHelpers::sqr(cellSize) : MathHelpers::cube(cellSize);;
+        particleRadius = cellSize / ratioCellSizePRadius;
+
+        // expand domain simulation by nExpandCells for each dimension
+        // this is necessary if the boundary is a box which coincides with the simulation domain
+        // movingBMin/BMax are used in printParams function only
+        movingBMin  = domainBMin;
+        movingBMax  = domainBMax;
+        domainBMin -= VecX<N, RealType>(cellSize * nExpandCells);
+        domainBMax += VecX<N, RealType>(cellSize * nExpandCells);
+    }
+
+    virtual void printParams(const SharedPtr<Logger>& logger)
+    {
+        ////////////////////////////////////////////////////////////////////////////////
+        // boundary condition
+        logger->printLogIndent(String("Boundary restitution: ") + std::to_string(boundaryRestitution));
+        ////////////////////////////////////////////////////////////////////////////////
+
+        ////////////////////////////////////////////////////////////////////////////////
+        // time step size
+        logger->printLogIndent(String("Timestep min: ") + NumberHelpers::formatToScientific(minTimestep) +
+                               String(" | max: ") + NumberHelpers::formatToScientific(maxTimestep));
+        logger->printLogIndent(String("CFL factor: ") + std::to_string(CFLFactor));
+        ////////////////////////////////////////////////////////////////////////////////
+
+        ////////////////////////////////////////////////////////////////////////////////
+        // simulation size
+        logger->printLogIndent(String("Cell size: ") + std::to_string(cellSize));
+        logger->printLogIndent(String("Ratio grid size/particle radius: ") + std::to_string(ratioCellSizePRadius));
+        logger->printLogIndent(String("Expand cells for each dimension: ") + std::to_string(nExpandCells));
+
+        auto domainGrid = NumberHelpers::createGrid<UInt>(domainBMin, domainBMax, cellSize);
+        auto movingGrid = NumberHelpers::createGrid<UInt>(movingBMin, movingBMax, cellSize);
+        logger->printLogIndent(String("Domain box: ") + NumberHelpers::toString(domainBMin) + " -> " + NumberHelpers::toString(domainBMax) +
+                               String(" | Resolution: ") + NumberHelpers::toString(domainGrid));
+        logger->printLogIndent(String("Moving box: ") + NumberHelpers::toString(movingBMin) + " -> " + NumberHelpers::toString(movingBMax) +
+                               String(" | Resolution: ") + NumberHelpers::toString(movingGrid));
+        logger->printLogIndent(String("Number of cells: ") + NumberHelpers::formatWithCommas(glm::compMul(domainGrid)) +
+                               String(" | nodes: ") + NumberHelpers::formatWithCommas(glm::compMul(domainGrid + VecX<N, UInt32>(1))));
+        ////////////////////////////////////////////////////////////////////////////////
+
+        ////////////////////////////////////////////////////////////////////////////////
+        // particle parameters
+        logger->printLogIndent(String("Particle radius: ") + std::to_string(particleRadius));
+        logger->printLogIndent(String("Correct particle position: ") + (bCorrectPosition ? String("Yes") : String("No")));
+        logger->printLogIndentIf(bCorrectPosition, String("Repulsive force stiffness: ") + NumberHelpers::formatToScientific(repulsiveForceStiffness));
+        logger->printLogIndent(String("Advection steps/timestep: ") + std::to_string(advectionSteps));
+        logger->printLogIndentIf(maxNParticles > 0, String("Max. number of particles: ") + std::to_string(maxNParticles));
+        ////////////////////////////////////////////////////////////////////////////////
+    }
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -279,9 +280,9 @@ struct ParticleSimulationData
     // main variables
     Vector<VecX<N, RealType> > positions, velocities;
 
-    UInt     nObjects = 0; // number of individual objects that are added each time by particle generator
-    Vec_Int8 objectIndex;  // store the index of individual objects based on the order they are added
-    Vec_Int8 removeMarker; // mark the candidate particles for removal ( 1 = remove, 0 = intact)
+    UInt      nObjects = 0; // number of individual objects that are added each time by particle generator
+    Vec_Int16 objectIndex;  // store the index of individual objects based on the order they are added
+    Vec_Int8  removeMarker; // mark the candidate particles for removal ( 1 = remove, 0 = intact)
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
