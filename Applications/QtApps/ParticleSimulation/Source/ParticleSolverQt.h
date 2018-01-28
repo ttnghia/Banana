@@ -25,11 +25,12 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 // fluid solvers
-//#include <ParticleSolvers/SPH/WCSPHSolver.h>
 #include <ParticleSolvers/HybridFluid/AFLIP_3DSolver.h>
 #include <ParticleSolvers/HybridFluid/APIC_3DSolver.h>
 #include <ParticleSolvers/HybridFluid/FLIP_3DSolver.h>
 #include <ParticleSolvers/HybridFluid/PIC_3DSolver.h>
+
+#include <ParticleSolvers/SPH/WCSPH_3DSolver.h>
 ////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -42,8 +43,6 @@
 // anisotropic MPM solvers
 #include <ParticleSolvers/MPM/AniMPM_2DSolver.h>
 ////////////////////////////////////////////////////////////////////////////////
-
-//#include <ParticleSolvers/Mass-Spring-System/PeridynamicsSolver.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 class SolverQtBase
@@ -80,8 +79,8 @@ public:
         logger().newLine();
 
         ////////////////////////////////////////////////////////////////////////////////
-        static String strMsg = String("Frame finished. Frame duration: ") + NumberHelpers::formatToScientific(m_GlobalParams.frameDuration) +
-                               String("(s) (~") + std::to_string(static_cast<int>(round(1.0_f / m_GlobalParams.frameDuration))) + String(" fps). Run time: ");
+        static String strMsg = String("Frame finished. Frame duration: ") + NumberHelpers::formatToScientific(globalParams().frameDuration) +
+                               String("(s) (~") + std::to_string(static_cast<int>(round(1.0_f / globalParams().frameDuration))) + String(" fps). Run time: ");
         logger().printRunTime(strMsg.c_str(),
                               [&]()
                               {
@@ -98,8 +97,8 @@ public:
     {
         logger().newLine();
         logger().printAligned("Simulation finished", '+');
-        logger().printLog("Total frames: " + NumberHelpers::formatWithCommas(m_GlobalParams.finishedFrame - m_GlobalParams.startFrame + 1));
-        logger().printLog("Data path: " + m_GlobalParams.dataPath);
+        logger().printLog("Total frames: " + NumberHelpers::formatWithCommas(globalParams().finishedFrame - globalParams().startFrame + 1));
+        logger().printLog("Data path: " + globalParams().dataPath);
         auto strs = FileHelpers::getFolderSizeInfo(globalParams().dataPath, 1);
         for(auto& str: strs) {
             logger().printLog(str);
@@ -137,6 +136,8 @@ public:
             return dynamic_pointer_cast<SolverQtBase>(std::make_shared<SolverQt<FLIP_3DSolver> >());
         } else if(solverName == "PIC_3DSolver") {
             return dynamic_pointer_cast<SolverQtBase>(std::make_shared<SolverQt<PIC_3DSolver> >());
+        } else if(solverName == "WCSPH_3DSolver") {
+            return dynamic_pointer_cast<SolverQtBase>(std::make_shared<SolverQt<WCSPH_3DSolver> >());
         }
         ////////////////////////////////////////////////////////////////////////////////
         // MPM solver
