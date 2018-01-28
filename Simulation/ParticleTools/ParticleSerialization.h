@@ -58,6 +58,7 @@ public:
     enum DataType
     {
         TypeChar,
+        TypeInt16,
         TypeInt,
         TypeUInt,
         TypeReal,

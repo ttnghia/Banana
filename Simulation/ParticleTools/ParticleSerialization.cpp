@@ -32,6 +32,8 @@ String ParticleSerialization::Attribute::typeName()
     switch(type) {
         case TypeChar:
             return String("char");
+        case TypeInt16:
+            return String("int16");
         case TypeInt:
             return String("int");
         case TypeUInt:
@@ -296,6 +298,9 @@ bool ParticleSerialization::readHeader(std::ifstream& ipf)
                    {
                        if(typeName == "char") {
                            return TypeChar;
+                       }
+                       if(typeName == "int16") {
+                           return TypeInt16;
                        }
                        if(typeName == "int") {
                            return TypeInt;
