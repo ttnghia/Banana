@@ -25,9 +25,13 @@
             "BoxMax" : [ 1, 1, 1]
         },
         "CorrectPosition" : true,
+        "NormalizeDensity" : false,
+        "DensityByBDParticle" : false,
         "RepulsiveForceStiffness" : 50,
-        "ParticleRadius" : 0.025,
-        "CFLFactor" : 0.4
+        "ParticleRadius" : 0.015,
+        "ParticleMassScale" : 0.8,
+        "CFLFactor" : 0.4,
+        "ViscosityFluid" : 5e-2
     },
     "AdditionalBoundaryObjectsXXX":
     [
@@ -60,7 +64,7 @@
                 "Diffuse" : [0.7, 0.7, 0.7]
             },
             {
-                "Position" : [10, 20, -10],
+                "Position" : [10, -20, -10],
                 "Diffuse" : [0.7, 0.7, 0.7]
             },
             {

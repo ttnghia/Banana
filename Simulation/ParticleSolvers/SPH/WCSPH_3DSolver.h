@@ -139,6 +139,8 @@ public:
     const auto& solverParams() const { return m_SolverParams; }
     auto&       solverData() { return m_SolverData; }
     const auto& solverData() const { return m_SolverData; }
+    auto&       particleData() { return m_SolverData; }
+    const auto& particleData() const { return m_SolverData; }
 
 protected:
     virtual void loadSimParams(const nlohmann::json& jParams) override;

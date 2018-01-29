@@ -32,6 +32,12 @@ namespace Banana::ParticleSolvers
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void WCSPH_3DParameters::makeReady()
 {
+    ////////////////////////////////////////////////////////////////////////////////
+    // explicitly set no grid
+    bUseGrid = false;
+
+    ////////////////////////////////////////////////////////////////////////////////
+    SimulationParameters3D::makeReady();
     particleMass   = MathHelpers::cube(2.0_f * particleRadius) * restDensity * particleMassScale;
     restDensitySqr = restDensity * restDensity;
     densityMin     = restDensity / densityVariationRatio;
@@ -54,8 +60,8 @@ void WCSPH_3DParameters::printParams(const SharedPtr<Logger>& logger)
     logger->printLogIndent("Use attractive pressure: " + (bAttractivePressure ? std::string("Yes") : std::string("No")));
     logger->printLogIndentIf(bAttractivePressure, "Attractive pressure ratio: " + std::to_string(attractivePressureRatio));
 
-    logger->printLogIndent("Viscosity fluid-fluid: " + std::to_string(viscosityFluid));
-    logger->printLogIndent("Viscosity fluid-boundary: " + std::to_string(viscosityBoundary));
+    logger->printLogIndent("Viscosity fluid-fluid: " + NumberHelpers::formatToScientific(viscosityFluid, 2));
+    logger->printLogIndent("Viscosity fluid-boundary: " + NumberHelpers::formatToScientific(viscosityBoundary, 2));
 
     logger->printLogIndent("Particle mass scale: " + std::to_string(particleMassScale));
     logger->printLogIndent("Particle mass: " + std::to_string(particleMass));
@@ -67,7 +73,7 @@ void WCSPH_3DParameters::printParams(const SharedPtr<Logger>& logger)
     logger->printLogIndent("Ratio kernel radius/particle radius: " + std::to_string(ratioKernelPRadius));
     logger->printLogIndent("Ratio near kernel radius/particle radius: " + std::to_string(ratioNearKernelPRadius));
     logger->printLogIndent("Kernel radius: " + std::to_string(kernelRadius));
-    logger->printLogIndent("Near kernel radius: " + std::to_string(kernelRadius));
+    logger->printLogIndent("Near kernel radius: " + std::to_string(nearKernelRadius));
     logger->newLine();
 }
 
@@ -593,11 +599,11 @@ bool WCSPH_3DSolver::correctParticlePositions(Real timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void WCSPH_3DSolver::advanceVelocity(Real timestep)
 {
-    logger().printRunTime("Compute density: ",     [&]() { computeDensity(); });
-    logger().printRunTimeIf("Normalize density: ", [&]() { return normalizeDensity(); });
-    logger().printRunTime("Compute forces: ",      [&]() { computeForces(); });
-    logger().printRunTime("Update velocity: ",     [&]() { updateVelocity(timestep); });
-    logger().printRunTime("Compute viscosity: ",   [&]() { computeViscosity(); });
+    logger().printRunTime("{   Compute density: ",       [&]() { computeDensity(); });
+    logger().printRunTimeIndentIf("Normalize density: ", [&]() { return normalizeDensity(); });
+    logger().printRunTimeIndent("Compute forces: ",      [&]() { computeForces(); });
+    logger().printRunTimeIndent("Update velocity: ",     [&]() { updateVelocity(timestep); });
+    logger().printRunTimeIndent("Compute viscosity: ",   [&]() { computeViscosity(); });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -633,7 +639,7 @@ void WCSPH_3DSolver::computeDensity()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 bool WCSPH_3DSolver::normalizeDensity()
 {
-    if(solverParams().bNormalizeDensity) {
+    if(!solverParams().bNormalizeDensity) {
         return false;
     }
     ////////////////////////////////////////////////////////////////////////////////
@@ -642,13 +648,13 @@ bool WCSPH_3DSolver::normalizeDensity()
                             [&](UInt p)
                             {
                                 const auto& ppos = solverData().positions[p];
-                                auto pden        = solverData().densities[p];
-                                if(pden < Tiny) {
+                                auto pdensity    = solverData().densities[p];
+                                if(pdensity < Tiny) {
                                     return;
                                 }
 
                                 ////////////////////////////////////////////////////////////////////////////////
-                                Real tmp = solverData().kernelCubicSpline.W_zero() / pden;
+                                Real tmp = solverData().kernelCubicSpline.W_zero() / pdensity;
                                 for(UInt q : fluidPointSet.neighbors(0, p)) {
                                     const auto& qpos    = solverData().positions[q];
                                     const auto qdensity = solverData().densities[q];
@@ -671,7 +677,7 @@ bool WCSPH_3DSolver::normalizeDensity()
                                 }
 
                                 ////////////////////////////////////////////////////////////////////////////////
-                                solverData().tmp_densities[p] = (tmp < Tiny) ? 0_f : MathHelpers::clamp(pden / tmp * solverParams().particleMass,
+                                solverData().tmp_densities[p] = (tmp < Tiny) ? 0_f : MathHelpers::clamp(pdensity / (tmp * solverParams().particleMass),
                                                                                                         solverParams().densityMin,
                                                                                                         solverParams().densityMax);
                             });
@@ -687,7 +693,7 @@ void WCSPH_3DSolver::computeForces()
     auto particlePressure = [&](auto density)
                             {
                                 auto error = Real(MathHelpers::pow7(density / solverParams().restDensity)) - 1.0_f;
-                                error /= (density * density);
+                                error *= (solverParams().pressureStiffness / density / density);
                                 if(error > 0_f) {
                                     return error;
                                 } else if(!solverParams().bAttractivePressure) {
@@ -737,7 +743,18 @@ void WCSPH_3DSolver::computeForces()
                                 }
 
                                 ////////////////////////////////////////////////////////////////////////////////
-                                solverData().forces[p] = pforce * (solverParams().pressureStiffness * solverParams().particleMass);
+                                solverData().forces[p] = pforce * solverParams().particleMass;
+                            });
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void WCSPH_3DSolver::updateVelocity(Real timestep)
+{
+    const static Vec3r gravity = globalParams().bApplyGravity ? Vec3r(0, -9.81, 0) : Vec3r(0);
+    Scheduler::parallel_for(solverData().velocities.size(),
+                            [&](size_t p)
+                            {
+                                solverData().velocities[p] += (gravity + solverData().forces[p]) * timestep;
                             });
 }
 
@@ -784,17 +801,6 @@ void WCSPH_3DSolver::computeViscosity()
 
 
     Scheduler::parallel_for(solverData().velocities.size(), [&](size_t p) { solverData().velocities[p] += solverData().diffuseVelocity[p]; });
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void WCSPH_3DSolver::updateVelocity(Real timestep)
-{
-    const static Vec3r gravity = globalParams().bApplyGravity ? Vec3r(0, -9.81, 0) : Vec3r(0);
-    Scheduler::parallel_for(solverData().velocities.size(),
-                            [&](size_t p)
-                            {
-                                solverData().velocities[p] += (gravity + solverData().forces[p]) * timestep;
-                            });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
