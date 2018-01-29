@@ -88,6 +88,18 @@ void Logger::printTextBox(const String& s)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void Logger::printTextBox(const Vector<String>& strs)
+{
+    printSeparator();
+    printAligned("", ' ');
+    for(const auto& s: strs) {
+        printAligned(s);
+    }
+    printAligned("", ' ');
+    printSeparator();
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Logger::printWarning(const String& s, UInt maxSize)
 {
     String str = s;

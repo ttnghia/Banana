@@ -83,6 +83,7 @@ public:
     void printSeparator();
     void printAligned(const String& s, char padding = PADDING, const String& wrapper = WRAPPER, UInt maxSize = 100);
     void printTextBox(const String& s);
+    void printTextBox(const Vector<String>& strs);
     void printWarning(const String& s, UInt maxSize = 100);
     void printError(const String& s, UInt maxSize = 100);
 

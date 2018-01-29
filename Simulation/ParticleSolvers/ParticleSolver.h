@@ -43,6 +43,7 @@
 
 #include <memory>
 #include <fstream>
+#include <sstream>
 #include <functional>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -253,8 +254,11 @@ template<Int N, class RealType>
 void ParticleSolver<N, RealType >::setupLogger()
 {
     m_Logger = Logger::createLogger(getSolverName());
-    m_Logger->setLoglevel(globalParams().logLevel);
-    logger().printTextBox(getGreetingMessage());
+    logger().setLoglevel(globalParams().logLevel);
+
+    std::stringstream ss;
+    ss << "Build: " << __DATE__ << " - " << __TIME__;
+    logger().printTextBox({ getGreetingMessage(), ss.str() });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
