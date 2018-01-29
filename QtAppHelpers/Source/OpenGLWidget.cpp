@@ -344,8 +344,8 @@ void OpenGLWidget::initRDataLight()
 {
     m_Lights = std::make_shared<PointLights>();
     m_Lights->setNumLights(2);
-    m_Lights->setLightPosition(Vec4f(10.0f, 10.0f, -10.0f, 1.0f), 0);
-    m_Lights->setLightPosition(Vec4f(-10.0f, 10.0f, 10.0f, 1.0f), 1);
+    m_Lights->setLightPosition(Vec4f(10.0f, 10.0f, -10.0f, 1.0f),  0);
+    m_Lights->setLightPosition(Vec4f(-10.0f, -10.0f, 10.0f, 1.0f), 1);
     ////////////////////////////////////////////////////////////////////////////////
     m_Lights->setSceneCenter(Vec3f(0, 0, 0));
     m_Lights->setLightViewPerspective(30);
@@ -358,6 +358,7 @@ void OpenGLWidget::initRDataLight()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void OpenGLWidget::setLights(const Vector<PointLights::PointLightData>& lightData)
 {
+    m_Lights->setNumLights(static_cast<Int>(lightData.size()));
     for(Int i = 0, iend = static_cast<Int>(lightData.size()); i < iend; ++i) {
         m_Lights->setLight(lightData[i], i);
     }

@@ -199,7 +199,8 @@ void MainWindow::connectWidgets()
             });
 
     connect(m_Controller->m_chkEnableOutput, &QCheckBox::toggled, [&](bool checked) { m_bExportImg = checked; m_Simulator->enableExportImg(checked); });
-    connect(m_Simulator, &Simulator::capturePathChanged, m_RenderWidget, &RenderWidget::setCapturePath);
+    connect(m_Simulator, &Simulator::capturePathChanged, m_Controller->m_OutputPath, &BrowsePathWidget::setPath);
+    connect(m_Simulator, &Simulator::lightsChanged,      m_Controller->m_LightEditor, &PointLightEditor::changeLights);
     ////////////////////////////////////////////////////////////////////////////////
     // sim status
     connect(m_Simulator, &Simulator::frameFinished,                      [&] { QMetaObject::invokeMethod(this, "finishFrame", Qt::QueuedConnection); });
@@ -209,7 +210,6 @@ void MainWindow::connectWidgets()
     connect(m_Simulator, &Simulator::dimensionChanged,   m_RenderWidget, &RenderWidget::updateSolverDimension);
     connect(m_Simulator, &Simulator::domainChanged,      m_RenderWidget, &RenderWidget::setBox);
     connect(m_Simulator, &Simulator::cameraChanged,      m_RenderWidget, &RenderWidget::updateCamera);
-    connect(m_Simulator, &Simulator::lightsChanged,      m_RenderWidget, &RenderWidget::updateLights);
     connect(m_Simulator, &Simulator::vizDataChanged,     m_RenderWidget, &RenderWidget::updateVizData);
     ////////////////////////////////////////////////////////////////////////////////
 }

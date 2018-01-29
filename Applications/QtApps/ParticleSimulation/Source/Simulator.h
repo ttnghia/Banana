@@ -53,7 +53,7 @@ signals:
     void dimensionChanged();
     void domainChanged(const Vec3f& boxMin, const Vec3f& boxMax);
     void cameraChanged();
-    void lightsChanged();
+    void lightsChanged(const Vector<PointLights::PointLightData>& lightData);
     void capturePathChanged(const QString& capturePath);
     void simulationFinished();
     void systemTimeChanged(float time, unsigned int frame);

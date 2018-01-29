@@ -51,7 +51,7 @@ void OpenGLController::connectBasicWidgets()
     ////////////////////////////////////////////////////////////////////////////////
     // lights
     connect(m_LightEditor, &PointLightEditor::lightsChanged, m_GLWidget,    &OpenGLWidget::updateLights);
-    connect(m_GLWidget,    &OpenGLWidget::lightsObjChanged,  m_LightEditor, &PointLightEditor::setLights);
+    connect(m_GLWidget,    &OpenGLWidget::lightsObjChanged,  m_LightEditor, &PointLightEditor::setLightObject);
     ////////////////////////////////////////////////////////////////////////////////
 
 

@@ -115,6 +115,7 @@ void Simulator::changeScene(const QString& scene)
     __BNN_REQUIRE(m_ParticleSolver != nullptr);
     m_ParticleSolver->loadSceneFromFile(sceneFile.toStdString());
     ////////////////////////////////////////////////////////////////////////////////
+    m_VizData->resetData();
     m_VizData->systemDimension = m_ParticleSolver->getSolverDimension();
     m_VizData->positions       = m_ParticleSolver->getParticlePositions();
     m_VizData->velocities      = m_ParticleSolver->getParticleVelocities();
@@ -145,7 +146,7 @@ void Simulator::changeScene(const QString& scene)
                 if(JSONHelpers::readVector(jObj, tmp, "Diffuse")) { m_VizData->lights[i].diffuse = Vec4f(tmp, 1.0f); }
                 if(JSONHelpers::readVector(jObj, tmp, "Specular")) { m_VizData->lights[i].specular = Vec4f(tmp, 1.0f); }
             }
-            emit lightsChanged();
+            emit lightsChanged(m_VizData->lights);
         }
         if(jVizParams.find("CapturePath") != jVizParams.end()) {
             String capturePath;
