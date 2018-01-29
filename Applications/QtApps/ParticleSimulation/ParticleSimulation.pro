@@ -53,6 +53,7 @@ RESOURCES += \
     Shader.qrc
 
 DISTFILES += \
+    Scenes/_Testing.json \
     Scenes/FLIP3D_2DamBreak.json \
     Scenes/FLIP3D_BallDrop.json \
     Scenes/SPH3D_BallDrop.json \
