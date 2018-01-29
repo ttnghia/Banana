@@ -103,10 +103,21 @@ PointLightEditor::PointLightEditor(SharedPtr<PointLights> lights /*= nullptr*/, 
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void PointLightEditor::setLights(SharedPtr<PointLights> lights)
+void PointLightEditor::setLightObject(SharedPtr<PointLights> lights)
 {
     m_Lights = lights;
     lightToGUI();
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void PointLightEditor::changeLights(const Vector<PointLights::PointLightData>& lightData)
+{
+    m_Lights->setNumLights(static_cast<Int>(lightData.size()));
+    for(Int i = 0, iend = static_cast<Int>(lightData.size()); i < iend; ++i) {
+        m_Lights->setLight(lightData[i], i);
+    }
+    lightToGUI();
+    emit lightsChanged();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
