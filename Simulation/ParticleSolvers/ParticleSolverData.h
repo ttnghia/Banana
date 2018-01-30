@@ -45,14 +45,22 @@ static const Real ParticleRadius                  = 2.0_f / 64.0_f / 4.0_f;
 
 static const Real BoundaryRestitution = 0.9_f;
 
-static const Vec2r Gravity2D = Vec2r(0, -9.81);
-static const Vec3r Gravity3D = Vec3r(0, -9.81, 0);
-
 static const UInt CGMaxIteration      = 10'000u;
 static const Real CGRelativeTolerance = 1e-15_f;
 
 static const Real PIC_FLIP_Ratio = 0.97_f;
-enum IntegrationScheme { ExplicitVerlet, ExplicitEuler, ImplicitEuler, NewmarkBeta };
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+}   // end namespace ParticleSolverConstants
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+namespace Banana::Constants
+{
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+static const Vec2r Gravity2D = Vec2r(0, -9.81);
+static const Vec3r Gravity3D = Vec3r(0, -9.81, 0);
+
+enum ParticleActivity { Active = 0, InActive = 1, SemiActive = 2 };
+enum IntegrationScheme { ExplicitVerlet = 0, ExplicitEuler, ImplicitEuler, NewmarkBeta };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace ParticleSolverConstants
@@ -297,6 +305,7 @@ struct ParticleSimulationData
 
     UInt      nObjects = 0; // number of individual objects that are added each time by particle generator
     Vec_Int16 objectIndex;  // store the index of individual objects based on the order they are added
+    Vec_Int8  activity;     // store the state of particles: Active = 0, InActive = 1, SemiActive = 2
     Vec_Int8  removeMarker; // mark the candidate particles for removal ( 1 = remove, 0 = intact)
     ////////////////////////////////////////////////////////////////////////////////
 

@@ -419,8 +419,8 @@ void MPM_3DSolver::setupDataIO()
         //m_MemoryStateIO->addFixedAttribute<Real>("grid_u",          ParticleSerialization::TypeReal, static_cast<UInt>(gridData().u.dataSize()));
         m_MemoryStateIO->addFixedAttribute<Real>("particle_radius", ParticleSerialization::TypeReal, 1);
         m_MemoryStateIO->addFixedAttribute<UInt>("NObjects",        ParticleSerialization::TypeUInt, 1);
-        m_MemoryStateIO->addParticleAttribute<Real>("particle_position", ParticleSerialization::TypeReal, 3);
-        m_MemoryStateIO->addParticleAttribute<Real>("particle_velocity", ParticleSerialization::TypeReal, 3);
+        m_MemoryStateIO->addParticleAttribute<Real>( "particle_position", ParticleSerialization::TypeReal,  3);
+        m_MemoryStateIO->addParticleAttribute<Real>( "particle_velocity", ParticleSerialization::TypeReal,  3);
         m_MemoryStateIO->addParticleAttribute<Int16>("object_index",      ParticleSerialization::TypeInt16, 1);
     }
 }
@@ -485,9 +485,9 @@ void MPM_3DSolver::saveMemoryState()
     m_MemoryStateIO->setNParticles(particleData().getNParticles());
     m_MemoryStateIO->setFixedAttribute("particle_radius", solverParams().particleRadius);
     m_MemoryStateIO->setFixedAttribute("NObjects",        particleData().nObjects);
-    m_MemoryStateIO->setParticleAttribute("object_index", particleData().objectIndex);
-    m_MemoryStateIO->setParticleAttribute("particle_position",     particleData().positions);
-    m_MemoryStateIO->setParticleAttribute("particle_velocity",     particleData().velocities);
+    m_MemoryStateIO->setParticleAttribute("object_index",      particleData().objectIndex);
+    m_MemoryStateIO->setParticleAttribute("particle_position", particleData().positions);
+    m_MemoryStateIO->setParticleAttribute("particle_velocity", particleData().velocities);
     m_MemoryStateIO->flushAsync(m_GlobalParams.finishedFrame);
     __BNN_TODO;
 }
@@ -794,7 +794,7 @@ void MPM_3DSolver::explicitIntegration(Real timestep)
                             {
                                 if(gridData().active.data()[i]) {
                                     gridData().velocity_new.data()[i] = gridData().velocity.data()[i] +
-                                                                        timestep * (SolverDefaultParameters::Gravity3D - gridData().velocity_new.data()[i] / gridData().mass.data()[i]);
+                                                                        timestep * (Constants::Gravity3D - gridData().velocity_new.data()[i] / gridData().mass.data()[i]);
                                 }
                             });
 }
@@ -839,7 +839,7 @@ void MPM_3DSolver::implicitIntegration(Real timestep)
                             [&](UInt i, UInt j, UInt k)
                             {
                                 if(gridData().active(i, j, k)) {
-                                    gridData().velocity_new(i, j, k) = vPtr[gridData().activeNodeIdx(i, j, k)] + timestep * SolverDefaultParameters::Gravity3D;
+                                    gridData().velocity_new(i, j, k) = vPtr[gridData().activeNodeIdx(i, j, k)] + timestep * Constants::Gravity3D;
                                 }
                             });
 }
