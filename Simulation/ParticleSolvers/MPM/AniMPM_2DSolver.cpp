@@ -150,14 +150,14 @@ void AniMPM_2DSolver::setupDataIO()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-bool AniMPM_2DSolver::loadMemoryState()
+Int AniMPM_2DSolver::loadMemoryState()
 {
     if(!m_GlobalParams.bLoadMemoryState) {
-        return false;
+        return -1;
     }
 
-    if(!MPM_2DSolver::loadMemoryState()) {
-        return false;
+    if(MPM_2DSolver::loadMemoryState() == 0) {
+        return -1;
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -165,12 +165,12 @@ bool AniMPM_2DSolver::loadMemoryState()
     Int latestStateIdx = (lastFrame > 1 && FileHelpers::fileExisted(m_MemoryStateIO->getFilePath(lastFrame))) ?
                          lastFrame : m_MemoryStateIO->getLatestFileIndex(globalParams().finalFrame);
     if(latestStateIdx < 0) {
-        return false;
+        return -1;
     }
 
     if(!m_MemoryStateIO->read(latestStateIdx)) {
         logger().printError("Cannot read latest memory state file!");
-        return false;
+        return -1;
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -197,14 +197,14 @@ bool AniMPM_2DSolver::loadMemoryState()
 
     logger().printLog(String("Loaded memory state from frameIdx = ") + std::to_string(latestStateIdx));
     globalParams().finishedFrame = latestStateIdx;
-    return true;
+    return latestStateIdx;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void AniMPM_2DSolver::saveMemoryState()
+Int AniMPM_2DSolver::saveMemoryState()
 {
     if(!globalParams().bSaveMemoryState || (globalParams().finishedFrame % globalParams().framePerState != 0)) {
-        return;
+        return -1;
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -216,15 +216,16 @@ void AniMPM_2DSolver::saveMemoryState()
     m_MemoryStateIO->setParticleAttribute("object_index",      particleData().objectIndex);
     m_MemoryStateIO->setParticleAttribute("particle_position", particleData().positions);
     m_MemoryStateIO->setParticleAttribute("particle_velocity", particleData().velocities);
-    m_MemoryStateIO->flushAsync(m_GlobalParams.finishedFrame);
+    m_MemoryStateIO->flushAsync(globalParams().finishedFrame);
     __BNN_TODO;
+    return globalParams().finishedFrame;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void AniMPM_2DSolver::saveFrameData()
+Int AniMPM_2DSolver::saveFrameData()
 {
     if(!m_GlobalParams.bSaveFrameData) {
-        return;
+        return -1;
     }
 
     ParticleSolver2D::saveFrameData();
@@ -239,7 +240,8 @@ void AniMPM_2DSolver::saveFrameData()
     if(globalParams().isSavingData("ParticleVelocity")) {
         m_ParticleDataIO->setParticleAttribute("particle_velocity", particleData().velocities);
     }
-    m_ParticleDataIO->flushAsync(m_GlobalParams.finishedFrame);
+    m_ParticleDataIO->flushAsync(globalParams().finishedFrame);
+    return globalParams().finishedFrame;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

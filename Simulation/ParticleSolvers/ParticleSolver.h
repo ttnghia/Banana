@@ -94,9 +94,9 @@ protected:
 
     virtual void allocateSolverMemory() = 0;
     virtual void setupDataIO()          = 0;
-    virtual bool loadMemoryState()      = 0;
-    virtual void saveMemoryState()      = 0;
-    virtual void saveFrameData();
+    virtual Int  loadMemoryState()      = 0;
+    virtual Int  saveMemoryState()      = 0;
+    virtual Int  saveFrameData();
     virtual void logSubstepData();
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -380,24 +380,27 @@ bool ParticleSolver<N, RealType >::advanceScene()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Save the frame data for dynamic objects
 template<Int N, class RealType>
-void Banana::ParticleSolvers::ParticleSolver<N, RealType >::saveFrameData()
+Int Banana::ParticleSolvers::ParticleSolver<N, RealType >::saveFrameData()
 {
-    if(m_DynamicObjects.size() > 0) {
-        m_DynamicObjectDataIO->clearData();
-        m_DynamicObjectDataIO->setNParticles(1);
-        for(auto& obj : m_DynamicObjects) {
-            m_DynamicObjectDataIO->setFixedAttribute(obj->nameID() + String("_transformation"), glm::value_ptr(obj->geometry()->getTransformationMatrix()));
-
-            ////////////////////////////////////////////////////////////////////////////////
-            // specialized for box object
-            auto box = dynamic_pointer_cast<GeometryObjects::BoxObject<N, RealType> >(obj->geometry());
-            if(box != nullptr) {
-                m_DynamicObjectDataIO->setFixedAttribute(obj->nameID() + String("_box_min"), box->originalBoxMin());
-                m_DynamicObjectDataIO->setFixedAttribute(obj->nameID() + String("_box_max"), box->originalBoxMax());
-            }
-        }
-        m_DynamicObjectDataIO->flushAsync(globalParams().finishedFrame);
+    if(m_DynamicObjects.size() == 0) {
+        return -1;
     }
+    ////////////////////////////////////////////////////////////////////////////////
+    m_DynamicObjectDataIO->clearData();
+    m_DynamicObjectDataIO->setNParticles(1);
+    for(auto& obj : m_DynamicObjects) {
+        m_DynamicObjectDataIO->setFixedAttribute(obj->nameID() + String("_transformation"), glm::value_ptr(obj->geometry()->getTransformationMatrix()));
+
+        ////////////////////////////////////////////////////////////////////////////////
+        // specialized for box object
+        auto box = dynamic_pointer_cast<GeometryObjects::BoxObject<N, RealType> >(obj->geometry());
+        if(box != nullptr) {
+            m_DynamicObjectDataIO->setFixedAttribute(obj->nameID() + String("_box_min"), box->originalBoxMin());
+            m_DynamicObjectDataIO->setFixedAttribute(obj->nameID() + String("_box_max"), box->originalBoxMax());
+        }
+    }
+    m_DynamicObjectDataIO->flushAsync(globalParams().finishedFrame);
+    return globalParams().finishedFrame;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

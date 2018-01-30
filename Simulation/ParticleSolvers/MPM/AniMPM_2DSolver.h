@@ -112,9 +112,9 @@ protected:
     virtual bool advanceScene() override;
     virtual void allocateSolverMemory() override;
     virtual void setupDataIO() override;
-    virtual bool loadMemoryState() override;
-    virtual void saveMemoryState() override;
-    virtual void saveFrameData() override;
+    virtual Int  loadMemoryState() override;
+    virtual Int  saveMemoryState() override;
+    virtual Int  saveFrameData() override;
     virtual void advanceVelocity(Real timestep);
 
     void explicitIntegration(Real timestep);

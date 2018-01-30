@@ -87,7 +87,7 @@ void PIC_2DSolver::advanceFrame()
     }       // end while
 
     ////////////////////////////////////////////////////////////////////////////////
-    ++m_GlobalParams.finishedFrame;
+    ++globalParams().finishedFrame;
     saveFrameData();
     saveMemoryState();
 }
@@ -136,7 +136,7 @@ void PIC_2DSolver::generateParticles(const nlohmann::json& jParams)
 {
     ParticleSolver2D::generateParticles(jParams);
 
-    if(!loadMemoryState()) {
+    if(loadMemoryState() < 0) {
         Vec_Vec2r tmpPositions;
         Vec_Vec2r tmpVelocities;
         for(auto& generator : m_ParticleGenerators) {
@@ -208,21 +208,21 @@ void PIC_2DSolver::setupDataIO()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-bool PIC_2DSolver::loadMemoryState()
+Int PIC_2DSolver::loadMemoryState()
 {
     if(!m_GlobalParams.bLoadMemoryState) {
-        return false;
+        return -1;
     }
 
     ////////////////////////////////////////////////////////////////////////////////
     int latestStateIdx = m_MemoryStateIO->getLatestFileIndex(m_GlobalParams.finalFrame);
     if(latestStateIdx < 0) {
-        return false;
+        return -1;
     }
 
     if(!m_MemoryStateIO->read(latestStateIdx)) {
         logger().printError("Cannot read latest memory state file!");
-        return false;
+        return -1;
     }
 
     Real particleRadius;
@@ -232,21 +232,21 @@ bool PIC_2DSolver::loadMemoryState()
     //__BNN_REQUIRE(m_MemoryStateIO->getParticleAttribute("particle_position", particleData().positions));
     //__BNN_REQUIRE(m_MemoryStateIO->getParticleAttribute("particle_velocity", particleData().velocities));
     //assert(particleData().velocities.size() == particleData().positions.size());
-    return true;
+    return latestStateIdx;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void PIC_2DSolver::saveMemoryState()
+Int PIC_2DSolver::saveMemoryState()
 {
     if(!m_GlobalParams.bSaveMemoryState) {
-        return;
+        return -1;
     }
 
     static UInt frameCount = 0;
     ++frameCount;
 
     if(frameCount < m_GlobalParams.framePerState) {
-        return;
+        return -1;
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -257,14 +257,15 @@ void PIC_2DSolver::saveMemoryState()
     m_MemoryStateIO->setFixedAttribute("particle_radius", solverParams().particleRadius);
     //m_MemoryStateIO->setParticleAttribute("particle_position", particleData().positions);
     //m_MemoryStateIO->setParticleAttribute("particle_velocity", particleData().velocities);
-    m_MemoryStateIO->flushAsync(m_GlobalParams.finishedFrame);
+    m_MemoryStateIO->flushAsync(globalParams().finishedFrame);
+    return globalParams().finishedFrame;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void PIC_2DSolver::saveFrameData()
+Int PIC_2DSolver::saveFrameData()
 {
     if(!m_GlobalParams.bSaveFrameData) {
-        return;
+        return -1;
     }
 
     ParticleSolver2D::saveFrameData();
@@ -273,7 +274,8 @@ void PIC_2DSolver::saveFrameData()
     m_ParticleDataIO->setFixedAttribute("particle_radius", static_cast<float>(solverParams().particleRadius));
     //m_ParticleIO->setParticleAttribute("particle_position", particleData().positions);
     //m_ParticleIO->setParticleAttribute("particle_velocity", particleData().velocities);
-    m_ParticleDataIO->flushAsync(m_GlobalParams.finishedFrame);
+    m_ParticleDataIO->flushAsync(globalParams().finishedFrame);
+    return globalParams().finishedFrame;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

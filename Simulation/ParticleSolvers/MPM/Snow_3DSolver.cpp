@@ -100,7 +100,7 @@ void Snow3DSolver::advanceFrame()
     }           // end while
 
     ////////////////////////////////////////////////////////////////////////////////
-    ++m_GlobalParams.finishedFrame;
+    ++globalParams().finishedFrame;
     saveFrameData();
     saveMemoryState();
 }
@@ -146,7 +146,7 @@ void Snow3DSolver::generateParticles(const nlohmann::json& jParams)
     ParticleSolver3D::generateParticles(jParams);
 
     m_NSearch = std::make_unique<NeighborSearch::NeighborSearch3D>(solverParams().cellSize);
-    if(!loadMemoryState()) {
+    if(loadMemoryState() < 0) {
         Vec_Vec3r tmpPositions;
         Vec_Vec3r tmpVelocities;
         for(auto& generator : m_ParticleGenerators) {
@@ -220,21 +220,21 @@ void Snow3DSolver::setupDataIO()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-bool Snow3DSolver::loadMemoryState()
+Int Snow3DSolver::loadMemoryState()
 {
     if(!m_GlobalParams.bLoadMemoryState) {
-        return false;
+        return -1;
     }
 
     ////////////////////////////////////////////////////////////////////////////////
     int latestStateIdx = m_MemoryStateIO->getLatestFileIndex(m_GlobalParams.finalFrame);
     if(latestStateIdx < 0) {
-        return false;
+        return -1;
     }
 
     if(!m_MemoryStateIO->read(latestStateIdx)) {
         logger().printError("Cannot read latest memory state file!");
-        return false;
+        return -1;
     }
 
     Real particleRadius;
@@ -245,21 +245,21 @@ bool Snow3DSolver::loadMemoryState()
     __BNN_REQUIRE(m_MemoryStateIO->getParticleAttribute("particle_velocity", particleData().velocities));
     assert(particleData().velocities.size() == particleData().positions.size());
 
-    return true;
+    return latestStateIdx;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Snow3DSolver::saveMemoryState()
+Int Snow3DSolver::saveMemoryState()
 {
     if(!m_GlobalParams.bSaveMemoryState) {
-        return;
+        return -1;
     }
 
     static UInt frameCount = 0;
     ++frameCount;
 
     if(frameCount < m_GlobalParams.framePerState) {
-        return;
+        return -1;
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -270,14 +270,15 @@ void Snow3DSolver::saveMemoryState()
     m_MemoryStateIO->setFixedAttribute("particle_radius", solverParams().particleRadius);
     m_MemoryStateIO->setParticleAttribute("particle_position", particleData().positions);
     m_MemoryStateIO->setParticleAttribute("particle_velocity", particleData().velocities);
-    m_MemoryStateIO->flushAsync(m_GlobalParams.finishedFrame);
+    m_MemoryStateIO->flushAsync(globalParams().finishedFrame);
+    return globalParams().finishedFrame;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void Snow3DSolver::saveFrameData()
+Int Snow3DSolver::saveFrameData()
 {
     if(!m_GlobalParams.bSaveFrameData) {
-        return;
+        return -1;
     }
 
     ParticleSolver3D::saveFrameData();
@@ -286,7 +287,8 @@ void Snow3DSolver::saveFrameData()
     m_ParticleDataIO->setFixedAttribute("particle_radius", static_cast<float>(solverParams().particleRadius));
     m_ParticleDataIO->setParticleAttribute("particle_position", particleData().positions);
     m_ParticleDataIO->setParticleAttribute("particle_velocity", particleData().velocities);
-    m_ParticleDataIO->flushAsync(m_GlobalParams.finishedFrame);
+    m_ParticleDataIO->flushAsync(globalParams().finishedFrame);
+    return globalParams().finishedFrame;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

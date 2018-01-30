@@ -40,8 +40,8 @@ public:
     ////////////////////////////////////////////////////////////////////////////////
     virtual void makeReady() override;
     virtual void advanceFrame() override;
-    virtual void saveFrameData() override;
-    virtual void saveMemoryState() override;
+    virtual Int  saveFrameData() override;
+    virtual Int  saveMemoryState() override;
 
     virtual std::string getSolverName() override { return std::string("MPMSolver"); }
     virtual UInt        getNParticles() override { return static_cast<UInt>(m_SimData->positions.size()); }

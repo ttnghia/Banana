@@ -47,7 +47,7 @@ void PeridynamicsSolver::makeReady()
                               ////////////////////////////////////////////////////////////////////////////////
                               setupDataIO();
                               solverData().makeReady();
-                              if(!loadMemoryState()) {
+                              if(loadMemoryState() < 0) {
                                   m_NSearch->z_sort();
                                   const auto& d = m_NSearch->point_set(0);
                                   d.sort_field(&solverData().positions[0]);
@@ -99,7 +99,7 @@ void PeridynamicsSolver::advanceFrame()
     }           // end while
 
     ////////////////////////////////////////////////////////////////////////////////
-    ++m_GlobalParams.finishedFrame;
+    ++globalParams().finishedFrame;
     saveFrameData();
     saveMemoryState();
 }
@@ -126,7 +126,7 @@ void PeridynamicsSolver::generateParticles(const nlohmann::json& jParams)
 {
     ParticleSolver3D::generateParticles(jParams);
 
-    if(!loadMemoryState()) {
+    if(loadMemoryState() < 0) {
         Vec_Vec3r tmpPositions;
         Vec_Vec3r tmpVelocities;
         for(auto& generator : m_ParticleGenerators) {
@@ -214,21 +214,21 @@ void PeridynamicsSolver::setupDataIO()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-bool PeridynamicsSolver::loadMemoryState()
+Int PeridynamicsSolver::loadMemoryState()
 {
     if(!m_GlobalParams.bLoadMemoryState) {
-        return false;
+        return 0;
     }
 
     ////////////////////////////////////////////////////////////////////////////////
     int latestStateIdx = m_MemoryStateIO->getLatestFileIndex(m_GlobalParams.finalFrame);
     if(latestStateIdx < 0) {
-        return false;
+        return 0;
     }
 
     if(!m_MemoryStateIO->read(latestStateIdx)) {
         logger().printError("Cannot read latest memory state file!");
-        return false;
+        return 0;
     }
 
     Real particleRadius;
@@ -243,21 +243,21 @@ bool PeridynamicsSolver::loadMemoryState()
     __BNN_REQUIRE(m_MemoryStateIO->getParticleAttribute("solverData().bondList", solverData().bondList));
     assert(solverData().velocities.size() == solverData().positions.size() && solverData().bondList.size() == solverData().positions.size());
 
-    return true;
+    return latestStateIdx;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void PeridynamicsSolver::saveMemoryState()
+Int PeridynamicsSolver::saveMemoryState()
 {
     if(!m_GlobalParams.bSaveMemoryState) {
-        return;
+        return -1;
     }
 
     static UInt frameCount = 0;
     ++frameCount;
 
     if(frameCount < m_GlobalParams.framePerState) {
-        return;
+        return -1;
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -272,14 +272,15 @@ void PeridynamicsSolver::saveMemoryState()
     m_MemoryStateIO->setParticleAttribute("particle_mass",         solverData().particleMass);
     m_MemoryStateIO->setParticleAttribute("stretch_threshold",     solverData().stretchThreshold);
     m_MemoryStateIO->setParticleAttribute("solverData().bondList", solverData().bondList);
-    m_MemoryStateIO->flushAsync(m_GlobalParams.finishedFrame);
+    m_MemoryStateIO->flushAsync(globalParams().finishedFrame);
+    return globalParams().finishedFrame;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void PeridynamicsSolver::saveFrameData()
+Int PeridynamicsSolver::saveFrameData()
 {
     if(!m_GlobalParams.bSaveFrameData) {
-        return;
+        return -1;
     }
 
     ParticleSolver3D::saveFrameData();
@@ -310,7 +311,8 @@ void PeridynamicsSolver::saveFrameData()
     if(m_GlobalParams.isSavingData("particle_velocity")) {
         m_ParticleDataIO->setParticleAttribute("particle_velocity", solverData().velocities);
     }
-    m_ParticleDataIO->flushAsync(m_GlobalParams.finishedFrame);
+    m_ParticleDataIO->flushAsync(globalParams().finishedFrame);
+    return globalParams().finishedFrame;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

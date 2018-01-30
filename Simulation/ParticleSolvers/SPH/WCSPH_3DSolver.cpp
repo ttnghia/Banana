@@ -286,7 +286,7 @@ void WCSPH_3DSolver::generateParticles(const nlohmann::json& jParams)
 {
     ParticleSolver3D::generateParticles(jParams);
     m_NSearch = std::make_unique<NeighborSearch::NeighborSearch3D>(solverParams().kernelRadius);
-    if(!loadMemoryState()) {
+    if(loadMemoryState() < 0) {
         for(auto& generator : m_ParticleGenerators) {
             generator->buildObject(m_BoundaryObjects, solverParams().particleRadius);
             ////////////////////////////////////////////////////////////////////////////////
@@ -428,10 +428,10 @@ void WCSPH_3DSolver::setupDataIO()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-bool WCSPH_3DSolver::loadMemoryState()
+Int WCSPH_3DSolver::loadMemoryState()
 {
     if(!globalParams().bLoadMemoryState) {
-        return false;
+        return -1;
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -439,12 +439,12 @@ bool WCSPH_3DSolver::loadMemoryState()
     Int latestStateIdx = (lastFrame > 1 && FileHelpers::fileExisted(m_MemoryStateIO->getFilePath(lastFrame))) ?
                          lastFrame : m_MemoryStateIO->getLatestFileIndex(globalParams().finalFrame);
     if(latestStateIdx < 0) {
-        return false;
+        return -1;
     }
 
     if(!m_MemoryStateIO->read(latestStateIdx)) {
         logger().printError("Cannot read latest memory state file!");
-        return false;
+        return -1;
     }
 
     Real particleRadius;
@@ -460,14 +460,14 @@ bool WCSPH_3DSolver::loadMemoryState()
 
     logger().printLog(String("Loaded memory state from frameIdx = ") + std::to_string(latestStateIdx));
     globalParams().finishedFrame = latestStateIdx;
-    return true;
+    return latestStateIdx;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void WCSPH_3DSolver::saveMemoryState()
+Int WCSPH_3DSolver::saveMemoryState()
 {
     if(!globalParams().bSaveMemoryState || (globalParams().finishedFrame % globalParams().framePerState != 0)) {
-        return;
+        return -1;
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -481,13 +481,14 @@ void WCSPH_3DSolver::saveMemoryState()
     m_MemoryStateIO->setParticleAttribute("object_index",      solverData().objectIndex);
     ////////////////////////////////////////////////////////////////////////////////
     m_MemoryStateIO->flushAsync(globalParams().finishedFrame);
+    return globalParams().finishedFrame;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void WCSPH_3DSolver::saveFrameData()
+Int WCSPH_3DSolver::saveFrameData()
 {
     if(!globalParams().bSaveFrameData) {
-        return;
+        return -1;
     }
 
     ParticleSolver3D::saveFrameData();
@@ -517,6 +518,7 @@ void WCSPH_3DSolver::saveFrameData()
     }
 
     m_ParticleDataIO->flushAsync(globalParams().finishedFrame);
+    return globalParams().finishedFrame;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

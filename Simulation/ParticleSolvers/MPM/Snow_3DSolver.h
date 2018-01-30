@@ -316,9 +316,9 @@ protected:
     virtual bool advanceScene(UInt frame, Real fraction = 0_f) override;
     virtual void allocateSolverMemory() override {}
     virtual void setupDataIO() override;
-    virtual bool loadMemoryState() override;
-    virtual void saveMemoryState() override;
-    virtual void saveFrameData() override;
+    virtual Int  loadMemoryState() override;
+    virtual Int  saveMemoryState() override;
+    virtual Int  saveFrameData() override;
 
     Real timestepCFL();
     void advanceVelocity(Real timestep);
