@@ -99,9 +99,9 @@ UInt MPM_2DData::ParticleData::removeParticles(Vec_Int8& removeMarker)
     STLHelpers::eraseByMarker(velocities,   removeMarker);
     STLHelpers::eraseByMarker(objectIndex,  removeMarker);
     STLHelpers::eraseByMarker(volumes,      removeMarker);
-    STLHelpers::eraseByMarker(velocityGrad, removeMarker); __BNN_TODO_MSG("need to erase, or just resize?");
-    STLHelpers::eraseByMarker(B,            removeMarker); __BNN_TODO_MSG("need to erase, or just resize?");
-    STLHelpers::eraseByMarker(D,            removeMarker); __BNN_TODO_MSG("need to erase, or just resize?");
+    STLHelpers::eraseByMarker(velocityGrad, removeMarker);
+    STLHelpers::eraseByMarker(B,            removeMarker);
+    STLHelpers::eraseByMarker(D,            removeMarker);
     ////////////////////////////////////////////////////////////////////////////////
 
     deformGrad.resize(positions.size());
@@ -376,8 +376,8 @@ void MPM_2DSolver::setupDataIO()
         //m_MemoryStateIO->addFixedAttribute<Real>("grid_u",          ParticleSerialization::TypeReal, static_cast<UInt>(gridData().u.dataSize()));
         m_MemoryStateIO->addFixedAttribute<Real>("particle_radius", ParticleSerialization::TypeReal, 1);
         m_MemoryStateIO->addFixedAttribute<UInt>("NObjects",        ParticleSerialization::TypeUInt, 1);
-        m_MemoryStateIO->addParticleAttribute<Real>("particle_position", ParticleSerialization::TypeReal, 2);
-        m_MemoryStateIO->addParticleAttribute<Real>("particle_velocity", ParticleSerialization::TypeReal, 2);
+        m_MemoryStateIO->addParticleAttribute<Real>( "particle_position", ParticleSerialization::TypeReal,  2);
+        m_MemoryStateIO->addParticleAttribute<Real>( "particle_velocity", ParticleSerialization::TypeReal,  2);
         m_MemoryStateIO->addParticleAttribute<Int16>("object_index",      ParticleSerialization::TypeInt16, 1);
     }
 }
@@ -442,9 +442,9 @@ void MPM_2DSolver::saveMemoryState()
     m_MemoryStateIO->setNParticles(particleData().getNParticles());
     m_MemoryStateIO->setFixedAttribute("particle_radius", solverParams().particleRadius);
     m_MemoryStateIO->setFixedAttribute("NObjects",        particleData().nObjects);
-    m_MemoryStateIO->setParticleAttribute("object_index", particleData().objectIndex);
-    m_MemoryStateIO->setParticleAttribute("particle_position",     particleData().positions);
-    m_MemoryStateIO->setParticleAttribute("particle_velocity",     particleData().velocities);
+    m_MemoryStateIO->setParticleAttribute("object_index",      particleData().objectIndex);
+    m_MemoryStateIO->setParticleAttribute("particle_position", particleData().positions);
+    m_MemoryStateIO->setParticleAttribute("particle_velocity", particleData().velocities);
     m_MemoryStateIO->flushAsync(m_GlobalParams.finishedFrame);
     __BNN_TODO;
 }

@@ -33,14 +33,14 @@ namespace Banana::ParticleSolvers
 // AniMPM_2DParameters
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-struct AniMPM_2DParameters : public SimulationParameters2D
+struct AniMPM_2DParameters
 {
     ////////////////////////////////////////////////////////////////////////////////
     // Anisotropic MPM parameters
 
     ////////////////////////////////////////////////////////////////////////////////
-    virtual void makeReady() override {}
-    virtual void printParams(const SharedPtr<Logger>& logger) override
+    void makeReady() {}
+    void printParams(const SharedPtr<Logger>& logger)
     {
         logger->printLog(String("AniMPM-2D parameters:"));
 
@@ -61,7 +61,7 @@ struct AniMPM_2DData
 {
     struct ParticleData
     {
-        Vec_Vec2r localDirections;
+        Vec_Mat2x2r localDirections;
 
         void reserve(UInt nParticles);
         void resize(UInt nParticles);
@@ -70,7 +70,7 @@ struct AniMPM_2DData
 
 
     ////////////////////////////////////////////////////////////////////////////////
-    struct GridData : public GridSimulationData<2, Real>
+    struct GridData : public GridSimulationData2D
     {
         ////////////////////////////////////////////////////////////////////////////////
         virtual void resize(const Vec2<UInt>& gridSize);

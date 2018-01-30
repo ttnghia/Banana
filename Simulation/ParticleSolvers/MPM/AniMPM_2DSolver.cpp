@@ -33,19 +33,19 @@ namespace Banana::ParticleSolvers
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void AniMPM_2DData::ParticleData::reserve(UInt nParticles)
 {
-    localDirections.reserve(nParticles * 2);
+    localDirections.reserve(nParticles);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void AniMPM_2DData::ParticleData::resize(UInt nParticles)
 {
-    localDirections.resize(nParticles * 2);
+    localDirections.resize(nParticles);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 UInt AniMPM_2DData::ParticleData::removeParticles(Vec_Int8& removeMarker)
 {
-    STLHelpers::eraseByMarker(localDirections, 2, removeMarker);
+    STLHelpers::eraseByMarker(localDirections, removeMarker);
     return static_cast<UInt>(removeMarker.size() - localDirections.size());
 }
 
@@ -145,8 +145,8 @@ void AniMPM_2DSolver::setupDataIO()
         //m_MemoryStateIO->addFixedAttribute<Real>("grid_u",          ParticleSerialization::TypeReal, static_cast<UInt>(gridData().u.dataSize()));
         m_MemoryStateIO->addFixedAttribute<Real>("particle_radius", ParticleSerialization::TypeReal, 1);
         m_MemoryStateIO->addFixedAttribute<UInt>("NObjects",        ParticleSerialization::TypeUInt, 1);
-        m_MemoryStateIO->addParticleAttribute<Real>("particle_position", ParticleSerialization::TypeReal, 2);
-        m_MemoryStateIO->addParticleAttribute<Real>("particle_velocity", ParticleSerialization::TypeReal, 2);
+        m_MemoryStateIO->addParticleAttribute<Real>( "particle_position", ParticleSerialization::TypeReal,  2);
+        m_MemoryStateIO->addParticleAttribute<Real>( "particle_velocity", ParticleSerialization::TypeReal,  2);
         m_MemoryStateIO->addParticleAttribute<Int16>("object_index",      ParticleSerialization::TypeInt16, 1);
     }
 }
@@ -211,9 +211,9 @@ void AniMPM_2DSolver::saveMemoryState()
     m_MemoryStateIO->setNParticles(particleData().getNParticles());
     m_MemoryStateIO->setFixedAttribute("particle_radius", solverParams().particleRadius);
     m_MemoryStateIO->setFixedAttribute("NObjects",        particleData().nObjects);
-    m_MemoryStateIO->setParticleAttribute("object_index", particleData().objectIndex);
-    m_MemoryStateIO->setParticleAttribute("particle_position",     particleData().positions);
-    m_MemoryStateIO->setParticleAttribute("particle_velocity",     particleData().velocities);
+    m_MemoryStateIO->setParticleAttribute("object_index",      particleData().objectIndex);
+    m_MemoryStateIO->setParticleAttribute("particle_position", particleData().positions);
+    m_MemoryStateIO->setParticleAttribute("particle_velocity", particleData().velocities);
     m_MemoryStateIO->flushAsync(m_GlobalParams.finishedFrame);
     __BNN_TODO;
 }
