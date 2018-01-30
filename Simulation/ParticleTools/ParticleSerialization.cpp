@@ -145,12 +145,12 @@ void ParticleSerialization::buildAttrNameList()
 {
     if(m_AttributeNameList.empty()) {
         for(auto& kv : m_FixedAttributes) {
-            __BNN_REQUIRE(kv.second->bReady);
+            __BNN_REQUIRE_MSG(kv.second->bReady, kv.first + String(" attribute is not set!"));
             m_AttributeNameList += kv.first;
             m_AttributeNameList += String(", ");
         }
         for(auto& kv : m_ParticleAttributes) {
-            __BNN_REQUIRE(kv.second->bReady);
+            __BNN_REQUIRE_MSG(kv.second->bReady, kv.first + String(" attribute is not set!"));
             m_AttributeNameList += kv.first;
             m_AttributeNameList += String(", ");
         }
