@@ -125,7 +125,6 @@ void AniMPM_2DSolver::setupDataIO()
     __BNN_TODO
 
     if(globalParams().bSaveFrameData) {
-        m_ParticleDataIO = std::make_unique<ParticleSerialization>(globalParams().dataPath, globalParams().frameDataFolder, "frame", m_Logger);
         m_ParticleDataIO->addFixedAttribute<float>("particle_radius", ParticleSerialization::TypeReal, 1);
         m_ParticleDataIO->addParticleAttribute<float>("particle_position", ParticleSerialization::TypeCompressedReal, 2);
         if(globalParams().isSavingData("ObjectIndex")) {
@@ -140,7 +139,6 @@ void AniMPM_2DSolver::setupDataIO()
     ////////////////////////////////////////////////////////////////////////////////
     if(globalParams().bLoadMemoryState || globalParams().bSaveMemoryState) {
         __BNN_TODO;
-        m_MemoryStateIO = std::make_unique<ParticleSerialization>(globalParams().dataPath, globalParams().memoryStateDataFolder, "frame", m_Logger);
         m_MemoryStateIO->addFixedAttribute<Real>("grid_resolution", ParticleSerialization::TypeUInt, 2);
         //m_MemoryStateIO->addFixedAttribute<Real>("grid_u",          ParticleSerialization::TypeReal, static_cast<UInt>(gridData().u.dataSize()));
         m_MemoryStateIO->addFixedAttribute<Real>("particle_radius", ParticleSerialization::TypeReal, 1);
@@ -155,6 +153,10 @@ void AniMPM_2DSolver::setupDataIO()
 bool AniMPM_2DSolver::loadMemoryState()
 {
     if(!m_GlobalParams.bLoadMemoryState) {
+        return false;
+    }
+
+    if(!MPM_2DSolver::loadMemoryState()) {
         return false;
     }
 

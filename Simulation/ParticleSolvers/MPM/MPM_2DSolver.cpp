@@ -758,7 +758,7 @@ void MPM_2DSolver::implicitIntegration(Real timestep)
 
     ////////////////////////////////////////////////////////////////////////////////
     static Vector<Real> v;
-    v.resize(nActives * 3);
+    v.resize(nActives * 2);
     Vec2r* vPtr = reinterpret_cast<Vec2r*>(v.data());
     __BNN_REQUIRE(vPtr != nullptr);
 
@@ -928,8 +928,10 @@ void MPM_2DSolver::constrainGridVelocity(Real timestep)
     Scheduler::parallel_for<UInt>(grid().getNNodes(),
                                   [&](UInt i, UInt j)
                                   {
-                                      if(i < 3 || j < 3 ||
-                                         i > grid().getNNodes().x - 4 || j > grid().getNNodes().y - 4) {
+                                      if(i < 3 ||
+                                         j < 3 ||
+                                         i > grid().getNNodes().x - 4 ||
+                                         j > grid().getNNodes().y - 4) {
                                           gridData().velocity_new(i, j) = Vec2r(0);
                                       }
                                   });

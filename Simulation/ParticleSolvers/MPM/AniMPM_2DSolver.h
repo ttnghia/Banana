@@ -121,6 +121,11 @@ protected:
     void implicitIntegration(Real timestep);
     void updateParticleDeformGradients(Real timestep);
     ////////////////////////////////////////////////////////////////////////////////
+    auto&       aniParticleData() { return aniData().particleData; }
+    const auto& aniParticleData() const { return aniData().particleData; }
+    auto&       aniGridData() { return aniData().gridData; }
+    const auto& aniGridData() const { return aniData().gridData; }
+    ////////////////////////////////////////////////////////////////////////////////
     AniMPM_2DParameters m_AniParams;
     AniMPM_2DData       m_AniData;
 };
