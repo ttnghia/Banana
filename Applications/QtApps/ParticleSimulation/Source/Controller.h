@@ -72,6 +72,7 @@ private:
     // simulation controllers
     void setupSimulationControllers();
     QComboBox*        m_cbSimulationScene;
+    QPushButton*      m_btnReloadScene;
     QCheckBox*        m_chkEnableOutput;
     BrowsePathWidget* m_OutputPath;
     ////////////////////////////////////////////////////////////////////////////////

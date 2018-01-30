@@ -48,9 +48,9 @@ void Controller::connectWidgets()
                 m_msParticleMaterial->getComboBox()->setEnabled(colorMode == ParticleColorMode::UniformMaterial);
             });
     connect(m_msParticleMaterial, &MaterialSelector::materialChanged, m_RenderWidget, &RenderWidget::setParticleMaterial);
-    connect(m_pkrColorDataMin, &ColorPicker::colorChanged, [&](float r, float g, float b) { m_RenderWidget->setColorDataMin(Vec3f(r, g, b)); });
-    connect(m_pkrColorDataMax, &ColorPicker::colorChanged, [&](float r, float g, float b) { m_RenderWidget->setColorDataMax(Vec3f(r, g, b)); });
-    connect(m_btnRndColor, &QPushButton::clicked, [&]
+    connect(m_pkrColorDataMin,    &ColorPicker::colorChanged,         [&](float r, float g, float b) { m_RenderWidget->setColorDataMin(Vec3f(r, g, b)); });
+    connect(m_pkrColorDataMax,    &ColorPicker::colorChanged,         [&](float r, float g, float b) { m_RenderWidget->setColorDataMax(Vec3f(r, g, b)); });
+    connect(m_btnRndColor,        &QPushButton::clicked,              [&]()
             {
                 auto colorMin = Vec3f(NumberHelpers::generateRandomReal(0.0f, 1.0f),
                                       NumberHelpers::generateRandomReal(0.0f, 1.0f),
@@ -72,7 +72,7 @@ void Controller::connectWidgets()
 
     ////////////////////////////////////////////////////////////////////////////////
     // buttons
-    connect(m_btnResetCamera, &QPushButton::clicked, m_RenderWidget, &RenderWidget::resetCameraPosition);
+    connect(m_btnResetCamera,   &QPushButton::clicked, m_RenderWidget, &RenderWidget::resetCameraPosition);
     connect(m_btnClipViewPlane, &QPushButton::clicked, m_RenderWidget, &RenderWidget::enableClipPlane);
     ////////////////////////////////////////////////////////////////////////////////
 }
@@ -83,8 +83,11 @@ void Controller::setupSimulationControllers()
     m_cbSimulationScene = new QComboBox;
     m_cbSimulationScene->addItem(QString("None"));
     m_cbSimulationScene->addItems(QtAppUtils::getFiles("Scenes"));
-    QVBoxLayout* layoutScene = new QVBoxLayout;
-    layoutScene->addWidget(m_cbSimulationScene);
+    m_btnReloadScene = new QPushButton(" Reload ");
+    QHBoxLayout* layoutScene = new QHBoxLayout;
+    layoutScene->addWidget(m_cbSimulationScene, 10);
+    layoutScene->addStretch(1);
+    layoutScene->addWidget(m_btnReloadScene, 10);
     QGroupBox* grScene = new QGroupBox;
     grScene->setTitle("Scene");
     grScene->setLayout(layoutScene);
@@ -130,24 +133,24 @@ void Controller::setupColorModeControllers()
     rdbColorRamp->setChecked(true);
     ////////////////////////////////////////////////////////////////////////////////
     QGridLayout* layoutColorMode = new QGridLayout;
-    layoutColorMode->addWidget(rdbColorRandom, 0, 0, 1, 1);
-    layoutColorMode->addWidget(rdbColorRamp, 0, 1, 1, 1);
+    layoutColorMode->addWidget(rdbColorRandom,  0, 0, 1, 1);
+    layoutColorMode->addWidget(rdbColorRamp,    0, 1, 1, 1);
     layoutColorMode->addWidget(rdbColorUniform, 1, 0, 1, 1);
-    layoutColorMode->addWidget(rdbColorObjIdx, 1, 1, 1, 1);
-    layoutColorMode->addWidget(rdbColorVelMag, 2, 0, 1, 1);
+    layoutColorMode->addWidget(rdbColorObjIdx,  1, 1, 1, 1);
+    layoutColorMode->addWidget(rdbColorVelMag,  2, 0, 1, 1);
     ////////////////////////////////////////////////////////////////////////////////
     m_smParticleColorMode = new QSignalMapper(this);
-    connect(rdbColorRandom, SIGNAL(clicked()), m_smParticleColorMode, SLOT(map()));
-    connect(rdbColorRamp, SIGNAL(clicked()), m_smParticleColorMode, SLOT(map()));
+    connect(rdbColorRandom,  SIGNAL(clicked()), m_smParticleColorMode, SLOT(map()));
+    connect(rdbColorRamp,    SIGNAL(clicked()), m_smParticleColorMode, SLOT(map()));
     connect(rdbColorUniform, SIGNAL(clicked()), m_smParticleColorMode, SLOT(map()));
-    connect(rdbColorObjIdx, SIGNAL(clicked()), m_smParticleColorMode, SLOT(map()));
-    connect(rdbColorVelMag, SIGNAL(clicked()), m_smParticleColorMode, SLOT(map()));
+    connect(rdbColorObjIdx,  SIGNAL(clicked()), m_smParticleColorMode, SLOT(map()));
+    connect(rdbColorVelMag,  SIGNAL(clicked()), m_smParticleColorMode, SLOT(map()));
 
-    m_smParticleColorMode->setMapping(rdbColorRandom, static_cast<int>(ParticleColorMode::Random));
-    m_smParticleColorMode->setMapping(rdbColorRamp, static_cast<int>(ParticleColorMode::Ramp));
+    m_smParticleColorMode->setMapping(rdbColorRandom,  static_cast<int>(ParticleColorMode::Random));
+    m_smParticleColorMode->setMapping(rdbColorRamp,    static_cast<int>(ParticleColorMode::Ramp));
     m_smParticleColorMode->setMapping(rdbColorUniform, static_cast<int>(ParticleColorMode::UniformMaterial));
-    m_smParticleColorMode->setMapping(rdbColorObjIdx, static_cast<int>(ParticleColorMode::ObjectIndex));
-    m_smParticleColorMode->setMapping(rdbColorVelMag, static_cast<int>(ParticleColorMode::VelocityMagnitude));
+    m_smParticleColorMode->setMapping(rdbColorObjIdx,  static_cast<int>(ParticleColorMode::ObjectIndex));
+    m_smParticleColorMode->setMapping(rdbColorVelMag,  static_cast<int>(ParticleColorMode::VelocityMagnitude));
     ////////////////////////////////////////////////////////////////////////////////
     QFrame* line = new QFrame();
     line->setFrameShape(QFrame::HLine);

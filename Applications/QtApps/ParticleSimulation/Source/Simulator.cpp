@@ -52,7 +52,7 @@ void Simulator::doSimulation()
                  m_ParticleSolver->getGlobalParams().finishedFrame + 1 :
                  MathHelpers::min(m_ParticleSolver->getGlobalParams().startFrame, m_ParticleSolver->getGlobalParams().finishedFrame + 1);
     for(; frame <= m_ParticleSolver->getGlobalParams().finalFrame; ++frame) {
-        m_ParticleSolver->doSimulationFrame(frame);
+        m_ParticleSolver->doFrameSimulation(frame);
 
         emit systemTimeChanged(m_ParticleSolver->getGlobalParams().evolvedTime(), frame);
         emit vizDataChanged();

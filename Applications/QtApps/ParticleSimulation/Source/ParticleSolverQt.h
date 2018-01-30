@@ -49,7 +49,7 @@ class SolverQtBase
 {
 public:
     virtual void loadSceneFromFile(const String& sceneFile) = 0;
-    virtual void doSimulationFrame(UInt frame)              = 0;
+    virtual void doFrameSimulation(UInt frame)              = 0;
     virtual void endSimulation() = 0;
 
     virtual UInt              getSolverDimension() const = 0;
@@ -72,7 +72,7 @@ class SolverQt : public Solver, public SolverQtBase
 {
 public:
     virtual void loadSceneFromFile(const String& sceneFile) { loadScene(sceneFile); makeReady(); }
-    virtual void doSimulationFrame(UInt frame) override
+    virtual void doFrameSimulation(UInt frame) override
     {
         logger().newLine();
         logger().printAligned("Frame " + NumberHelpers::formatWithCommas(frame), '=');

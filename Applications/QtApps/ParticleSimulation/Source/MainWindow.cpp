@@ -48,6 +48,7 @@ void MainWindow::showEvent(QShowEvent* ev)
 {
     QMainWindow::showEvent(ev);
     static bool showed = false;
+
     if(!showed) {
         showed = true;
         Q_ASSERT(m_Simulator != nullptr);
@@ -106,6 +107,7 @@ void MainWindow::updateStatusSimulationTime(float time, UInt frame)
 void MainWindow::finishFrame()
 {
     ++m_FrameNumber;
+
     if(m_bExportImg) {
         m_RenderWidget->exportScreenToImage(m_FrameNumber);
         m_Simulator->finishImgExport();
@@ -118,6 +120,7 @@ void MainWindow::finishSimulation()
     m_Controller->m_btnStartStopSimulation->setText(QString("Start"));
     updateStatusSimulation("Simulation Finished");
     m_Controller->m_cbSimulationScene->setDisabled(false);
+    m_Controller->m_btnReloadScene->setDisabled(false);
     m_BusyBar->reset();
 }
 
@@ -170,42 +173,63 @@ void MainWindow::setupStatusBar()
 void MainWindow::connectWidgets()
 {
     connect(m_ClipPlaneEditor,                &ClipPlaneEditor::clipPlaneChanged, m_RenderWidget, &RenderWidget::setClipPlane);
-    connect(m_Controller->m_btnEditClipPlane, &QPushButton::clicked,                              [&] { m_ClipPlaneEditor->show(); });
+    connect(m_Controller->m_btnEditClipPlane, &QPushButton::clicked,              [&] { m_ClipPlaneEditor->show(); });
     ////////////////////////////////////////////////////////////////////////////////
     // simulation
+    connect(m_Controller->m_btnReloadScene,   &QPushButton::clicked,
+            [&]()
+            {
+                QString sceneFile = m_Controller->m_cbSimulationScene->currentText();
+
+                if(sceneFile == "None") {
+                    return;
+                }
+                m_Simulator->changeScene(sceneFile);
+            });
+
     connect(m_Controller->m_cbSimulationScene, &QComboBox::currentTextChanged, [&](const QString& sceneFile)
             {
                 if(sceneFile == "None") {
                     return;
                 }
+
                 m_Simulator->changeScene(sceneFile);
                 updateWindowTitle(QtAppUtils::getDefaultPath("Scenes") + "/" + sceneFile);
             });
 
-    connect(m_Controller->m_btnStartStopSimulation, &QPushButton::clicked, [&]
-    {
-        if(m_Controller->m_cbSimulationScene->currentText() == "None") { return; }
-        bool isRunning = m_Simulator->isRunning();
-        if(!isRunning) {
-            m_Simulator->startSimulation();
-            m_Controller->m_cbSimulationScene->setDisabled(true);
-            updateStatusSimulation("Running simulation...");
-        } else {
-            m_Simulator->stop();
-            m_Controller->m_cbSimulationScene->setDisabled(false);
-            updateStatusSimulation("Stopped");
-        }
-        m_Controller->m_btnStartStopSimulation->setText(!isRunning ? QString("Stop") : QString("Resume"));
-        m_BusyBar->setBusy(!isRunning);
-    });
+    connect(m_Controller->m_btnStartStopSimulation, &QPushButton::clicked, [&]()
+            {
+                if(m_Controller->m_cbSimulationScene->currentText() == "None") {
+                    return;
+                }
+                bool isRunning = m_Simulator->isRunning();
 
-    connect(m_Controller->m_chkEnableOutput, &QCheckBox::toggled, [&](bool checked) { m_bExportImg = checked; m_Simulator->enableExportImg(checked); });
-    connect(m_Simulator, &Simulator::capturePathChanged, m_Controller->m_OutputPath, &BrowsePathWidget::setPath);
+                if(!isRunning) {
+                    m_Simulator->startSimulation();
+                    m_Controller->m_cbSimulationScene->setDisabled(true);
+                    m_Controller->m_btnReloadScene->setDisabled(true);
+                    updateStatusSimulation("Running simulation...");
+                } else {
+                    m_Simulator->stop();
+                    m_Controller->m_cbSimulationScene->setDisabled(false);
+                    m_Controller->m_btnReloadScene->setDisabled(false);
+                    updateStatusSimulation("Stopped");
+                }
+                m_Controller->m_btnStartStopSimulation->setText(!isRunning ? QString("Stop") : QString("Resume"));
+                m_BusyBar->setBusy(!isRunning);
+            });
+
+    connect(m_Controller->m_chkEnableOutput, &QCheckBox::toggled, [&](bool checked)
+            {
+                m_bExportImg = checked;
+                m_Simulator->enableExportImg(checked);
+            });
+    connect(m_Simulator, &Simulator::capturePathChanged, m_Controller->m_OutputPath,  &BrowsePathWidget::setPath);
     connect(m_Simulator, &Simulator::lightsChanged,      m_Controller->m_LightEditor, &PointLightEditor::changeLights);
     ////////////////////////////////////////////////////////////////////////////////
     // sim status
-    connect(m_Simulator, &Simulator::frameFinished,                      [&] { QMetaObject::invokeMethod(this, "finishFrame", Qt::QueuedConnection); });
-    connect(m_Simulator, &Simulator::simulationFinished,                 [&] { QMetaObject::invokeMethod(this, "finishSimulation", Qt::QueuedConnection); });
+    connect(m_Simulator, &Simulator::frameFinished,      [&] { QMetaObject::invokeMethod(this, "finishFrame", Qt::QueuedConnection); });
+    connect(m_Simulator, &Simulator::simulationFinished, [&] { QMetaObject::invokeMethod(this, "finishSimulation", Qt::QueuedConnection); });
     connect(m_Simulator, &Simulator::numParticleChanged, this,           &MainWindow::updateStatusNumParticles);
     connect(m_Simulator, &Simulator::systemTimeChanged,  this,           &MainWindow::updateStatusSimulationTime);
     connect(m_Simulator, &Simulator::dimensionChanged,   m_RenderWidget, &RenderWidget::updateSolverDimension);
