@@ -68,11 +68,11 @@ void Logger::printAligned(const String& s, char padding, const String& wrapper, 
     String finalStr;
     finalStr.reserve(finalLength + 1);
 
-    finalStr.append(wrapper);
-    finalStr.append(String(paddingSize, padding));
-    finalStr.append(str);
-    finalStr.append((finalLength == static_cast<size_t>(maxSize)) ? String(paddingSize, padding) : String(paddingSize + 1, padding));
-    finalStr.append(wrapper);
+    finalStr += wrapper;
+    finalStr += String(paddingSize, padding);
+    finalStr += str;
+    finalStr += (finalLength == static_cast<size_t>(maxSize)) ? String(paddingSize, padding) : String(paddingSize + 1, padding);
+    finalStr += wrapper;
 
     printLog(finalStr);
 }
@@ -102,23 +102,13 @@ void Logger::printTextBox(const Vector<String>& strs)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Logger::printWarning(const String& s, UInt maxSize)
 {
-    String str = s;
-    str += String(" ");
-
-    size_t paddingSize = (static_cast<size_t>(maxSize) - str.length());
-    str += String(paddingSize, '*');
-    printLog(str, spdlog::level::warn);
+    printLogPadding(s, spdlog::level::warn, maxSize);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Logger::printError(const String& s, UInt maxSize)
 {
-    String str = s;
-    str += String(" ");
-
-    size_t paddingSize = (static_cast<size_t>(maxSize) - str.length());
-    str += String(paddingSize, '*');
-    printLog(str, spdlog::level::err);
+    printLogPadding(s, spdlog::level::err, maxSize);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -150,8 +140,57 @@ void Logger::printLogIndent(const String& s, UInt indentLevel /*= 1*/, char trai
 {
     String str;
     str.reserve(256);
-    str.append(String(INDENT_SIZE * indentLevel, trailing));
-    str.append(s);
+    str += String(INDENT_SIZE * indentLevel, trailing);
+    str += s;
+
+    printLog(str);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void Logger::printLogPadding(const String& s, UInt maxSize /*= 100*/)
+{
+    auto str = s;
+    str += String(" ");
+    size_t paddingSize = (static_cast<size_t>(maxSize) - str.length());
+    str += String(paddingSize, '*');
+
+    if(m_bPrint2Console) {
+        m_ConsoleLogger->info(str);
+    }
+
+    if(m_bWriteLog2File) {
+        m_FileLogger->info(str);
+    }
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void Logger::printLogPadding(const String& s, spdlog::level::level_enum level, UInt maxSize /*= 100*/)
+{
+    auto str = s;
+    str += String(" ");
+    size_t paddingSize = (static_cast<size_t>(maxSize) - str.length());
+    str += String(paddingSize, '*');
+
+    if(m_bPrint2Console) {
+        m_ConsoleLogger->log(level, str);
+    }
+
+    if(m_bWriteLog2File) {
+        m_FileLogger->log(level, str);
+    }
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void Logger::printLogPaddingIndent(const String& s, UInt maxSize /*= 100*/, UInt indentLevel /*= 1*/, char trailing /*= ' '*/)
+{
+    String str;
+    str.reserve(256);
+    str += String(INDENT_SIZE * indentLevel, trailing);
+    str += s;
+    str += String(" ");
+
+    size_t paddingSize = (static_cast<size_t>(maxSize) - str.length());
+    str += String(paddingSize, '*');
 
     printLog(str);
 }
@@ -262,6 +301,7 @@ void Logger::initialize(bool bPrint2Console /*= true*/, bool bWriteLog2File /*= 
 
     ////////////////////////////////////////////////////////////////////////////////
     s_bInitialized = true;
+    s_bShutdown    = false;
     s_MainLogger   = Logger::createLogger("Main");
 }
 
@@ -271,8 +311,8 @@ void Logger::shutdown()
     if(s_bShutdown) {
         return;
     }
-    s_bShutdown = true;
-
+    s_bInitialized = false;
+    s_bShutdown    = true;
     ////////////////////////////////////////////////////////////////////////////////
     s_ShutdownTime = Clock::now();
     String totalRunTime = getTotalRunTime();
@@ -288,7 +328,7 @@ void Logger::shutdown()
         std::stringstream strBuilder;
         strBuilder.str("");
         strBuilder << "Logger shut down at: " << ltime.tm_mon << "/" << ltime.tm_mday;
-        strBuilder << "/" << (ltime.tm_year + 1900) << ", " << ltime.tm_hour << ":" << ltime.tm_min << ":" << ltime.tm_sec << std::endl;
+        strBuilder << "/" << (ltime.tm_year + 1900) << ", " << ltime.tm_hour << ":" << ltime.tm_min << ":" << ltime.tm_sec << "\n";
         strBuilder << totalRunTime;
 
         FileHelpers::appendToFile(strBuilder.str(), s_TimeLogFile);
@@ -296,9 +336,8 @@ void Logger::shutdown()
 
     ////////////////////////////////////////////////////////////////////////////////
     s_MainLogger->printMemoryUsage();
-    s_MainLogger->printLog(totalRunTime);
-    s_MainLogger->printSeparator();
-    s_MainLogger->newLine();
+    s_MainLogger->printLogPadding(totalRunTime, 150);
+    s_MainLogger->printLog("\n");
     spdlog::drop_all();
 }
 
@@ -347,19 +386,15 @@ void Logger::signalHandler(int signum)
         case SIGFPE:
             s_MainLogger->printWarning("Signal Floating-Point Exception");
             break;
-
         case SIGINT:
             s_MainLogger->printWarning("Signal Interrupt(User pressed Ctrl+C)");
             break;
-
         case SIGSEGV:
             s_MainLogger->printWarning("Signal Segmentation Violation");
             break;
-
         case SIGTERM:
             s_MainLogger->printWarning("Signal Terminate");
             break;
-
         default:
             s_MainLogger->printWarning("Unknown signal caught: " + std::to_string(signum));
     }

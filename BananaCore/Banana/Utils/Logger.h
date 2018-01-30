@@ -121,6 +121,10 @@ public:
     void printLog(const String& s, spdlog::level::level_enum level);
     void printLogIndent(const String& s, UInt indentLevel = 1, char trailing = ' ');
 
+    void printLogPadding(const String& s, UInt maxSize = 100);
+    void printLogPadding(const String& s, spdlog::level::level_enum level, UInt maxSize = 100);
+    void printLogPaddingIndent(const String& s, UInt maxSize = 100, UInt indentLevel = 1, char trailing = ' ');
+
     void printLogIf(bool bCondition, const String& s);
     void printLogIf(bool bCondition, const String& s, spdlog::level::level_enum level);
     void printLogIndentIf(bool bCondition, const String& s, UInt indentLevel = 1, char trailing = ' ');
