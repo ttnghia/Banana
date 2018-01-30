@@ -97,7 +97,11 @@ public:
     {
         logger().newLine();
         logger().printAligned("Simulation finished", '+');
-        logger().printLog("Total frames: " + NumberHelpers::formatWithCommas(globalParams().finishedFrame - globalParams().startFrame + 1));
+        logger().printLog(String("Total frames: ") + NumberHelpers::formatWithCommas(globalParams().finishedFrame - globalParams().startFrame + 1) +
+                          String(" (Save frame data: ") + (globalParams().bSaveFrameData ? String("Yes") : String("No")) +
+                          String(" | Save state: ") + (globalParams().bSaveMemoryState ? String("Yes") : String("No")) +
+                          (globalParams().bSaveMemoryState ? String(" (") + std::to_string(globalParams().framePerState) + String(" frames/state)") : String("")) +
+                          String(")"));
         logger().printLog("Data path: " + globalParams().dataPath);
         auto strs = FileHelpers::getFolderSizeInfo(globalParams().dataPath, 1);
         for(auto& str: strs) {

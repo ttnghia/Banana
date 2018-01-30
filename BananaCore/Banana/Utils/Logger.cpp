@@ -336,7 +336,7 @@ void Logger::shutdown()
 
     ////////////////////////////////////////////////////////////////////////////////
     s_MainLogger->printMemoryUsage();
-    s_MainLogger->printLogPadding(totalRunTime, 150);
+    s_MainLogger->printLogPadding(totalRunTime, 120);
     s_MainLogger->printLog("\n");
     spdlog::drop_all();
 }
