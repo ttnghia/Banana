@@ -72,6 +72,7 @@ void Simulator::doSimulation()
     }
 
     m_ParticleSolver->endSimulation();
+    m_ParticleSolver.reset();
     emit simulationFinished();
 }
 
@@ -110,7 +111,6 @@ void Simulator::changeScene(const QString& scene)
     String solverName;
     __BNN_REQUIRE(JSONHelpers::readValue(jGlobalParams, solverName, "Solver"));
     ////////////////////////////////////////////////////////////////////////////////
-    m_ParticleSolver.reset();
     m_ParticleSolver = ParticleSolverQtFactory::createSolver(solverName);
     __BNN_REQUIRE(m_ParticleSolver != nullptr);
     m_ParticleSolver->loadSceneFromFile(sceneFile.toStdString());

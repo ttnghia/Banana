@@ -117,6 +117,7 @@ void MainWindow::finishSimulation()
 {
     m_Controller->m_btnStartStopSimulation->setText(QString("Start"));
     updateStatusSimulation("Simulation Finished");
+    m_Controller->m_cbSimulationScene->setDisabled(false);
     m_BusyBar->reset();
 }
 
@@ -159,9 +160,9 @@ void MainWindow::setupStatusBar()
 
     QTimer* memTimer = new QTimer(this);
     connect(memTimer, &QTimer::timeout, [&]
-            {
-                updateStatusMemoryUsage();
-            });
+    {
+        updateStatusMemoryUsage();
+    });
     memTimer->start(5000);
 }
 
@@ -182,21 +183,21 @@ void MainWindow::connectWidgets()
             });
 
     connect(m_Controller->m_btnStartStopSimulation, &QPushButton::clicked, [&]
-            {
-                if(m_Controller->m_cbSimulationScene->currentText() == "None") { return; }
-                bool isRunning = m_Simulator->isRunning();
-                if(!isRunning) {
-                    m_Simulator->startSimulation();
-                    m_Controller->m_cbSimulationScene->setDisabled(true);
-                    updateStatusSimulation("Running simulation...");
-                } else {
-                    m_Simulator->stop();
-                    m_Controller->m_cbSimulationScene->setDisabled(false);
-                    updateStatusSimulation("Stopped");
-                }
-                m_Controller->m_btnStartStopSimulation->setText(!isRunning ? QString("Stop") : QString("Resume"));
-                m_BusyBar->setBusy(!isRunning);
-            });
+    {
+        if(m_Controller->m_cbSimulationScene->currentText() == "None") { return; }
+        bool isRunning = m_Simulator->isRunning();
+        if(!isRunning) {
+            m_Simulator->startSimulation();
+            m_Controller->m_cbSimulationScene->setDisabled(true);
+            updateStatusSimulation("Running simulation...");
+        } else {
+            m_Simulator->stop();
+            m_Controller->m_cbSimulationScene->setDisabled(false);
+            updateStatusSimulation("Stopped");
+        }
+        m_Controller->m_btnStartStopSimulation->setText(!isRunning ? QString("Stop") : QString("Resume"));
+        m_BusyBar->setBusy(!isRunning);
+    });
 
     connect(m_Controller->m_chkEnableOutput, &QCheckBox::toggled, [&](bool checked) { m_bExportImg = checked; m_Simulator->enableExportImg(checked); });
     connect(m_Simulator, &Simulator::capturePathChanged, m_Controller->m_OutputPath, &BrowsePathWidget::setPath);

@@ -31,6 +31,9 @@ CONFIG += console
 #QMAKE_LFLAGS += /VERBOSE
 #CONFIG += static
 
+#macx: ICON = $${PWD}/Resource/Icons/Bananas.icns
+win32: RC_ICONS = $$PWD/../../../Assets/Icons/Bananas.ico
+
 INCLUDEPATH += $$PWD/Include
 
 
