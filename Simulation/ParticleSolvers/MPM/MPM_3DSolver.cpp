@@ -621,7 +621,7 @@ void MPM_3DSolver::mapParticleMasses2Grid()
 //This should only be called once, at the beginning of the simulation
 bool MPM_3DSolver::initParticleVolumes()
 {
-    if(solverParams().bVolumeComputed) {
+    if(solverParams().bParticleVolumeComputed) {
         return false;
     }
     ////////////////////////////////////////////////////////////////////////////////
@@ -648,8 +648,7 @@ bool MPM_3DSolver::initParticleVolumes()
                                 particleData().volumes[p] = solverParams().particleMass / pDensity;
                             });
     ////////////////////////////////////////////////////////////////////////////////
-    solverParams().bVolumeComputed = true;
-    return true;
+    return (solverParams().bParticleVolumeComputed = true);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
