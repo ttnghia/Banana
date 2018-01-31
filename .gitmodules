@@ -40,3 +40,6 @@
 [submodule "Externals/Vc"]
 	path = Externals/Vc
 	url = https://github.com/VcDevel/Vc
+[submodule "Externals/enum-flags"]
+	path = Externals/enum-flags
+	url = https://github.com/grisumbras/enum-flags
