@@ -58,11 +58,7 @@ void Snow3DSolver::makeReady()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Snow3DSolver::advanceFrame()
 {
-    static Timer subStepTimer;
-    static Timer funcTimer;
-    Real         frameTime    = 0;
-    UInt         substepCount = 0;
-
+    
     ////////////////////////////////////////////////////////////////////////////////
     while(frameTime < m_GlobalParams.frameDuration) {
         logger().printRunTime("Sub-step time: ", subStepTimer,
@@ -172,8 +168,6 @@ bool Snow3DSolver::advanceScene(UInt frame, Real fraction /*= 0_f*/)
     bool bSceneChanged = ParticleSolver3D::advanceScene(frame, fraction);
 
     ////////////////////////////////////////////////////////////////////////////////
-    static Vec_Vec3r tmpPositions;
-    static Vec_Vec3r tmpVelocities;
     UInt             nNewParticles = 0;
     for(auto& generator : m_ParticleGenerators) {
         if(generator->isActive(frame)) {
@@ -255,13 +249,7 @@ Int Snow3DSolver::saveMemoryState()
         return -1;
     }
 
-    static UInt frameCount = 0;
-    ++frameCount;
-
-    if(frameCount < m_GlobalParams.framePerState) {
-        return -1;
-    }
-
+    
     ////////////////////////////////////////////////////////////////////////////////
     // save state
     frameCount = 0;
@@ -302,8 +290,6 @@ Real Snow3DSolver::timestepCFL()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Snow3DSolver::advanceVelocity(Real timestep)
 {
-    static Timer funcTimer;
-
     ////////////////////////////////////////////////////////////////////////////////
     logger().printRunTime("Reset grid data: ", funcTimer, [&]() { gridData().resetGrid(); });
     logger().printRunTime("Compute mass for grid nodes: ", funcTimer, [&]() { massToGrid(); });
@@ -324,7 +310,6 @@ void Snow3DSolver::advanceVelocity(Real timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Snow3DSolver::updateParticles(Real timestep)
 {
-    static Timer funcTimer;
 
     ////////////////////////////////////////////////////////////////////////////////
     logger().printRunTime("Move particles: ", funcTimer, [&]() { updateParticlePositions(timestep); });

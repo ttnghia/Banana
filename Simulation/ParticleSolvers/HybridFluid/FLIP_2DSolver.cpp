@@ -40,24 +40,19 @@ void FLIP_2DSolver::loadSimParams(const nlohmann::json& jParams)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void FLIP_2DSolver::advanceVelocity(Real timestep)
 {
-    static Timer funcTimer;
-
-    ////////////////////////////////////////////////////////////////////////////////
-    static bool weight_computed = false;
-    if(!weight_computed) {
-        logger().printRunTime("Compute cell weights: ", funcTimer, [&]() { computeFluidWeights(); });
-        weight_computed = true;
+     if(!solverParams().bCellWeightComputed) {
+        logger().printRunTime("Compute cell weights: ", [&]() { computeFluidWeights(); });
+        solverParams().bCellWeightComputed = true;
     }
-
-
-    logger().printRunTime("Interpolate velocity from particles to grid: ", funcTimer, [&]() { mapParticles2Grid(); });
-    logger().printRunTime("Backup grid velocities: ",                      funcTimer, [&]() { gridData().backupGridVelocity(); });
-    logger().printRunTime("Add gravity: ",                                 funcTimer, [&]() { addGravity(timestep); });
-    logger().printRunTime("====> Pressure projection: ",                   funcTimer, [&]() { pressureProjection(timestep); });
-    logger().printRunTime("Extrapolate grid velocity: : ",                 funcTimer, [&]() { extrapolateVelocity(); });
-    logger().printRunTime("Constrain grid velocity: ",                     funcTimer, [&]() { constrainGridVelocity(); });
-    logger().printRunTime("Compute changes of grid velocity: ",            funcTimer, [&]() { computeChangesGridVelocity(); });
-    logger().printRunTime("Interpolate velocity from grid to particles: ", funcTimer, [&]() { mapGrid2Particles(); });
+    ////////////////////////////////////////////////////////////////////////////////
+    logger().printRunTime("Interpolate velocity from particles to grid: ", [&]() { mapParticles2Grid(); });
+    logger().printRunTime("Backup grid velocities: ",                      [&]() { gridData().backupGridVelocity(); });
+    logger().printRunTime("Add gravity: ",                                 [&]() { addGravity(timestep); });
+    logger().printRunTime("====> Pressure projection: ",                   [&]() { pressureProjection(timestep); });
+    logger().printRunTime("Extrapolate grid velocity: : ",                 [&]() { extrapolateVelocity(); });
+    logger().printRunTime("Constrain grid velocity: ",                     [&]() { constrainGridVelocity(); });
+    logger().printRunTime("Compute changes of grid velocity: ",            [&]() { computeChangesGridVelocity(); });
+    logger().printRunTime("Interpolate velocity from grid to particles: ", [&]() { mapGrid2Particles(); });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

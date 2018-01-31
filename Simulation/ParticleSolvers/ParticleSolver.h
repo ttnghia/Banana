@@ -278,7 +278,7 @@ void ParticleSolver<N, RealType >::doSimulation()
         logger().newLine();
 
         ////////////////////////////////////////////////////////////////////////////////
-        static const String strMsg = String("Frame finished. Frame duration: ") + NumberHelpers::formatToScientific(globalParams().frameDuration) +
+        const String strMsg = String("Frame finished. Frame duration: ") + NumberHelpers::formatToScientific(globalParams().frameDuration) +
                                      String("(s) (~") + std::to_string(static_cast<int>(round(1.0_f / globalParams().frameDuration))) + String(" fps). Run time: ");
         logger().printRunTime(strMsg.c_str(),
                               [&]()

@@ -43,8 +43,8 @@ namespace ParticleSolvers
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 struct PIC_2DParameters : public SimulationParameters2D
 {
-    // this radius is used for computing fluid signed distance field
-    Real sdfRadius;
+    bool bCellWeightComputed = false;
+    Real sdfRadius; // this radius is used for computing fluid signed distance field
     virtual void makeReady() override
     {
         SimulationParameters2D::makeReady();

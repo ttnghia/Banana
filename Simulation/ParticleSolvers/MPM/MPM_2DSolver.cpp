@@ -573,8 +573,7 @@ void MPM_2DSolver::mapParticleMasses2Grid()
 //This should only be called once, at the beginning of the simulation
 bool MPM_2DSolver::initParticleVolumes()
 {
-    static bool bComputed = false;
-    if(bComputed) {
+    if(solverParams().bVolumeComputed) {
         return false;
     }
     ////////////////////////////////////////////////////////////////////////////////
@@ -599,7 +598,7 @@ bool MPM_2DSolver::initParticleVolumes()
                                 particleData().volumes[p] = solverParams().particleMass / pDensity;
                             });
     ////////////////////////////////////////////////////////////////////////////////
-    bComputed = true;
+    solverParams().bVolumeComputed = true;
     return true;
 }
 

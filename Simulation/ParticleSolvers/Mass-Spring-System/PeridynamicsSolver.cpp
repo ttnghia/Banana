@@ -64,11 +64,7 @@ void PeridynamicsSolver::makeReady()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PeridynamicsSolver::advanceFrame()
 {
-    static Timer subStepTimer;
-    static Timer funcTimer;
-    Real         frameTime    = 0;
-    int          substepCount = 0;
-
+    
     ////////////////////////////////////////////////////////////////////////////////
     while(frameTime < m_GlobalParams.frameDuration) {
         logger().printRunTime("Sub-step time: ", subStepTimer,
@@ -355,7 +351,7 @@ void PeridynamicsSolver::integrateImplicitEuler(Real timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PeridynamicsSolver::integrateImplicitNewmarkBeta(Real timestep)
 {
-    static Timer     funcTimer;
+    
     static Vec_Vec3r velocity_old;
     velocity_old = solverData().velocities;
 
@@ -568,7 +564,7 @@ void PeridynamicsSolver::solveLinearSystem()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PeridynamicsSolver::updateVelocity(Real timestep)
 {
-    const static Vec3r gravity = m_GlobalParams.bApplyGravity ? solverParams().gravity : Vec3r(0);
+    
     Scheduler::parallel_for<size_t>(0, solverData().velocities.size(),
                                         [&](size_t p)
                                         {

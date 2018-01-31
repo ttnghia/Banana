@@ -95,15 +95,11 @@ void PIC_2DSolver::advanceFrame()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PIC_2DSolver::sortParticles()
 {
-    static UInt frameCount = 0;
-    ++frameCount;
-
-    if(frameCount < m_GlobalParams.sortFrequency) {
+    assert(m_NSearch != nullptr);
+    if(!globalParams().bEnableSortParticle || (globalParams().finishedFrame > 0 && (globalParams().finishedFrame + 1) % globalParams().sortFrequency != 0)) {
         return;
     }
 
-    ////////////////////////////////////////////////////////////////////////////////
-    frameCount = 0;
     logger().printRunTime("Sort data by particle position: ",
                           [&]()
                           {

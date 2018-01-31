@@ -58,11 +58,7 @@ void Snow2DSolver::makeReady()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Snow2DSolver::advanceFrame()
 {
-    static Timer subStepTimer;
-    static Timer funcTimer;
-    Real         frameTime    = 0;
-    UInt         substepCount = 0;
-
+    
     ////////////////////////////////////////////////////////////////////////////////
     while(frameTime < m_GlobalParams.frameDuration) {
         logger().printRunTime("Sub-step time: ", subStepTimer,
@@ -253,13 +249,7 @@ Int Snow2DSolver::saveMemoryState()
         return -1;
     }
 
-    static UInt frameCount = 0;
-    ++frameCount;
-
-    if(frameCount < m_GlobalParams.framePerState) {
-        return -1;
-    }
-
+    
     ////////////////////////////////////////////////////////////////////////////////
     // save state
     frameCount = 0;
@@ -322,8 +312,7 @@ void Snow2DSolver::advanceVelocity(Real timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Snow2DSolver::updateParticles(Real timestep)
 {
-    static Timer funcTimer;
-
+    
     ////////////////////////////////////////////////////////////////////////////////
     logger().printRunTime("Move particles: ", funcTimer, [&]() { updateParticlePositions(timestep); });
     logger().printRunTime("Update particle gradients: ", funcTimer, [&]() { updateGradients(timestep); });

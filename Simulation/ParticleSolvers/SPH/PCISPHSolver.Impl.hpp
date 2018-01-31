@@ -150,8 +150,8 @@ void PCISPHSolver::advanceVelocity(Real timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PCISPHSolver::compute_beta_delta(Real timestep)
 {
-    static bool precomputed = false;
-    static Real beta        = 1.0;
+    //static bool precomputed = false;
+    //static Real beta        = 1.0;
 
     if(!precomputed) {
         std::random_device                   rd;
@@ -206,13 +206,13 @@ void PCISPHSolver::predict_velocity_position(Real timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PCISPHSolver::update_density_pressure()
 {
-    static const Real influence_distance = m_CellSize * m_KernelCellSpan;
-    static const Real valid_lx           = m_MovingBMin[0] + influence_distance;
-    static const Real valid_ux           = m_MovingBMax[0] - influence_distance;
-    static const Real valid_ly           = m_MovingBMin[1] + influence_distance;
-    static const Real valid_uy           = m_MovingBMax[1] - influence_distance;
-    static const Real valid_lz           = m_MovingBMin[2] + influence_distance;
-    static const Real valid_uz           = m_MovingBMax[2] - influence_distance;
+    //static const Real influence_distance = m_CellSize * m_KernelCellSpan;
+    //static const Real valid_lx           = m_MovingBMin[0] + influence_distance;
+    //static const Real valid_ux           = m_MovingBMax[0] - influence_distance;
+    //static const Real valid_ly           = m_MovingBMin[1] + influence_distance;
+    //static const Real valid_uy           = m_MovingBMax[1] - influence_distance;
+    //static const Real valid_lz           = m_MovingBMin[2] + influence_distance;
+    //static const Real valid_uz           = m_MovingBMax[2] - influence_distance;
 
     tbb::parallel_for(tbb::blocked_range<size_t>(0, pressure.size()), [&](tbb::blocked_range<size_t> r)
                       {
@@ -315,13 +315,13 @@ void PCISPHSolver::update_density_pressure()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PCISPHSolver::computePressureAcceleration()
 {
-    static const Real influence_distance = m_CellSize * m_KernelCellSpan;
-    static const Real valid_lx           = m_MovingBMin[0] + influence_distance;
-    static const Real valid_ux           = m_MovingBMax[0] - influence_distance;
-    static const Real valid_ly           = m_MovingBMin[1] + influence_distance;
-    static const Real valid_uy           = m_MovingBMax[1] - influence_distance;
-    static const Real valid_lz           = m_MovingBMin[2] + influence_distance;
-    static const Real valid_uz           = m_MovingBMax[2] - influence_distance;
+    //static const Real influence_distance = m_CellSize * m_KernelCellSpan;
+    //static const Real valid_lx           = m_MovingBMin[0] + influence_distance;
+    //static const Real valid_ux           = m_MovingBMax[0] - influence_distance;
+    //static const Real valid_ly           = m_MovingBMin[1] + influence_distance;
+    //static const Real valid_uy           = m_MovingBMax[1] - influence_distance;
+    //static const Real valid_lz           = m_MovingBMin[2] + influence_distance;
+    //static const Real valid_uz           = m_MovingBMax[2] - influence_distance;
 
     tbb::parallel_for(tbb::blocked_range<size_t>(0, positions.size()), [&](tbb::blocked_range<size_t> r)
                       {

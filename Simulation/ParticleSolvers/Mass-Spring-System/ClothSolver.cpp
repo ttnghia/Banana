@@ -82,11 +82,7 @@ void ClothSolver::makeReady()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void ClothSolver::advanceFrame()
 {
-    static Timer subStepTimer;
-    static Timer funcTimer;
-    Real         frameTime    = 0;
-    int          substepCount = 0;
-
+    
     ////////////////////////////////////////////////////////////////////////////////
     while(frameTime < m_GlobalParams.frameDuration) {
         logger().printRunTime("Sub-step time: ", subStepTimer,
@@ -669,8 +665,7 @@ void ClothSolver::addGravity(Real timestep)
 
 void ClothSolver::pressureProjection(Real timestep)
 {
-    static Timer funcTimer;
-
+    
     ////////////////////////////////////////////////////////////////////////////////
     logger().printRunTime("Compute liquid SDF: ",      funcTimer, [&]() { computeFluidSDF(); });
     logger().printRunTime("Compute pressure matrix: ", funcTimer, [&]() { computeMatrix(timestep); });

@@ -50,14 +50,12 @@ bool APIC_2DSolver::advanceScene(UInt frame, Real fraction)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void APIC_2DSolver::advanceVelocity(Real timestep)
 {
-    static Timer funcTimer;
-    ////////////////////////////////////////////////////////////////////////////////
-    logger().printRunTime("Interpolate velocity from particles to grid: ", funcTimer, [&]() { mapParticles2Grid(); });
-    logger().printRunTime("Add gravity: ", funcTimer, [&]() { addGravity(timestep); });
-    logger().printRunTime("====> Pressure projection: ", funcTimer, [&]() { pressureProjection(timestep); });
-    logger().printRunTime("Extrapolate grid velocity: : ", funcTimer, [&]() { extrapolateVelocity(); });
-    logger().printRunTime("Constrain grid velocity: ", funcTimer, [&]() { constrainGridVelocity(); });
-    logger().printRunTime("Interpolate velocity from grid to particles: ", funcTimer, [&]() { mapGrid2Particles(); });
+    logger().printRunTime("Interpolate velocity from particles to grid: ", [&]() { mapParticles2Grid(); });
+    logger().printRunTime("Add gravity: ",                                 [&]() { addGravity(timestep); });
+    logger().printRunTime("====> Pressure projection: ",                   [&]() { pressureProjection(timestep); });
+    logger().printRunTime("Extrapolate grid velocity: : ",                 [&]() { extrapolateVelocity(); });
+    logger().printRunTime("Constrain grid velocity: ",                     [&]() { constrainGridVelocity(); });
+    logger().printRunTime("Interpolate velocity from grid to particles: ", [&]() { mapGrid2Particles(); });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
