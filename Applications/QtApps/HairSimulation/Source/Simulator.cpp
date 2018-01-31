@@ -67,7 +67,7 @@ void Simulator::doSimulation()
 
         if(m_bStop) {
             m_ParticleSolver->getGlobalParams().startFrame = frame + 1;
-            break;
+            return;
         }
     }
 

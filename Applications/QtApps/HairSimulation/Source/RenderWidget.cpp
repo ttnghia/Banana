@@ -75,7 +75,7 @@ void RenderWidget::updateVizData()
     if(m_RDataParticle.pColorMode == ParticleColorMode::ObjectIndex ||
        m_RDataParticle.pColorMode == ParticleColorMode::VelocityMagnitude) {
         if(m_RDataParticle.pColorMode == ParticleColorMode::ObjectIndex) {
-            m_RDataParticle.buffColorData->uploadDataAsync(m_VizData->objIndex, 0, m_VizData->nParticles);
+            m_RDataParticle.buffColorData->uploadDataAsync(m_VizData->objIndex, 0, m_VizData->nParticles * sizeof(Int16));
             m_RDataParticle.vColorMin = 0;
             m_RDataParticle.vColorMax = static_cast<float>(m_VizData->nObjects - 1);
         } else {
@@ -176,7 +176,7 @@ void RenderWidget::initParticleVAO()
         m_RDataParticle.buffColorData->bind();
         if(m_RDataParticle.pColorMode == ParticleColorMode::ObjectIndex) {
             glCall(glEnableVertexAttribArray(m_RDataParticle.v_iColor));
-            glCall(glVertexAttribIPointer(m_RDataParticle.v_iColor, 1, GL_BYTE, 0, reinterpret_cast<GLvoid*>(0)));
+            glCall(glVertexAttribIPointer(m_RDataParticle.v_iColor, 1, GL_SHORT, 0, reinterpret_cast<GLvoid*>(0)));
         } else {
             glCall(glEnableVertexAttribArray(m_RDataParticle.v_fColor));
             glCall(glVertexAttribPointer(m_RDataParticle.v_fColor, 1, GL_FLOAT, GL_FALSE, 0, reinterpret_cast<GLvoid*>(0)));
