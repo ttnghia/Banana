@@ -59,7 +59,7 @@ struct AniMPM_2DParameters
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 struct AniMPM_2DData
 {
-    struct ParticleData
+    struct AniParticleData
     {
         Vec_Mat2x2r localDirections;
 
@@ -78,10 +78,10 @@ struct AniMPM_2DData
     };
 
     ////////////////////////////////////////////////////////////////////////////////
-    ParticleData particleData;
-    GridData     gridData;
+    AniParticleData particleData;
+    GridData        gridData;
 
-    void makeReady(const MPM_2DParameters& params);
+    void makeReady(const MPM_2DParameters& params, const MPM_2DData& mpmData);
 };
 
 

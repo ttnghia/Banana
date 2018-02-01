@@ -31,19 +31,19 @@ namespace Banana::ParticleSolvers
 // AniMPM_2DData implementation
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void AniMPM_2DData::ParticleData::reserve(UInt nParticles)
+void AniMPM_2DData::AniParticleData::reserve(UInt nParticles)
 {
     localDirections.reserve(nParticles);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void AniMPM_2DData::ParticleData::resize(UInt nParticles)
+void AniMPM_2DData::AniParticleData::resize(UInt nParticles)
 {
     localDirections.resize(nParticles);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-UInt AniMPM_2DData::ParticleData::removeParticles(Vec_Int8& removeMarker)
+UInt AniMPM_2DData::AniParticleData::removeParticles(Vec_Int8& removeMarker)
 {
     STLHelpers::eraseByMarker(localDirections, removeMarker);
     return static_cast<UInt>(removeMarker.size() - localDirections.size());
@@ -63,11 +63,13 @@ void AniMPM_2DData::GridData::resetGrid()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void AniMPM_2DData::makeReady(const MPM_2DParameters& params)
+void AniMPM_2DData::makeReady(const MPM_2DParameters& params, const MPM_2DData& mpmData)
 {
-    if(params.maxNParticles > 0) {
-        particleData.reserve(params.maxNParticles);
-    }
+    particleData.reserve(params.maxNParticles);
+    particleData.resize(mpmData.particleData.getNParticles());
+    particleData.localDirections.assign(particleData.localDirections.size(), Mat2x2r(1.0_f));
+
+    gridData.resize(mpmData.grid.getNCells());
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -115,7 +117,7 @@ bool AniMPM_2DSolver::advanceScene()
 void AniMPM_2DSolver::allocateSolverMemory()
 {
     MPM_2DSolver::allocateSolverMemory();
-    aniData().makeReady(solverParams());
+    aniData().makeReady(solverParams(), solverData());
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -288,11 +290,23 @@ void AniMPM_2DSolver::explicitIntegration(Real timestep)
 
 
 
+
+
+                                auto M = Ftemp;
+                                auto q = M;
+                                auto r = M;
+                                LinaHelpers::QRDecomposition(M, q, r);
+
+
+
+
+
                                 __BNN_TODO_MSG("Need to store piola and cauchy stress?");
                                 particleData().PiolaStress[p]  = P;
                                 particleData().CauchyStress[p] = particleData().volumes[p] * P * glm::transpose(particleData().deformGrad[p]);
 
-                                Mat2x2r f    = particleData().CauchyStress[p];
+                                Mat2x2r f = particleData().CauchyStress[p];
+
                                 auto lcorner = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
 
                                 for(Int idx = 0, y = lcorner.y - 1, y_end = y + 4; y < y_end; ++y) {
