@@ -337,6 +337,33 @@ inline void orientedSVD(const MatXxX<N, RealType>& M, MatXxX<N, RealType>& U, Ve
 }       // end oriented svd
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType>
+void QRDecomposition(const MatXxX<N, RealType>& M, MatXxX<N, RealType>& Q, MatXxX<N, RealType>& R)
+{
+    for(Int i = 0; i < N; ++i) {
+        //Copy in Q the input's i-th column.
+        Q[i] = M[i];
+
+        //j = [0, i]
+        // Make that column orthogonal to all the previous ones by substracting to it the non-orthogonal projection of all the previous columns.
+        // Also: Fill the zero elements of R
+        for(Int j = 0; j < i; ++j) {
+            Q[i]   -= glm::dot(Q[i], Q[j]) * Q[j];
+            R[j][i] = 0;
+        }
+
+        //Now, Q i-th column is orthogonal to all the previous columns. Normalize it.
+        Q[i] = glm::normalize(Q[i]);
+
+        //j = [i, C]
+        //Finally, compute the corresponding coefficients of R by computing the projection of the resulting column on the other columns of the input.
+        for(Int j = i; j < N; ++j) {
+            R[j][i] = glm::dot(M[j], Q[i]);
+        }
+    }
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace LinaHelpers
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
