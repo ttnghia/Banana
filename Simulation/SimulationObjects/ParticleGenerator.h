@@ -31,6 +31,12 @@
 namespace Banana::SimulationObjects
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+namespace DefaultFunctions
+{
+inline auto velocityGenerator = [](const auto& pos, const auto& v0) { __BNN_UNUSED(pos); return v0; };
+inline auto postProcessFunc = []() {};
+};
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
 class ParticleGenerator : public SimulationObject<N, RealType>
 {
@@ -49,11 +55,21 @@ public:
     ////////////////////////////////////////////////////////////////////////////////
     bool isActive(UInt currentFrame);
     void buildObject(const Vector<SharedPtr<BoundaryObject<N, Real> > >& boundaryObjects, RealType particleRadius);
-    UInt generateParticles(const Vec_VecX<N, RealType>& currentPositions, Vec_VecX<N, RealType>& newPositions, Vec_VecX<N, RealType>& newVelocities, UInt frame = 0);
+
+    template<class VelocityGenerator = decltype(DefaultFunctions::velocityGenerator),
+             class PostProcessFunc = decltype(DefaultFunctions::postProcessFunc)>
+    UInt generateParticles(const Vec_VecX<N, RealType>& currentPositions, Vec_VecX<N, RealType>& newPositions, Vec_VecX<N, RealType>& newVelocities, UInt frame = 0u,
+                           VelocityGenerator&& velGenerator = std::forward<decltype(DefaultFunctions::velocityGenerator)>(DefaultFunctions::velocityGenerator),
+                           PostProcessFunc&& postProcess    = std::forward<decltype(DefaultFunctions::postProcessFunc)>(DefaultFunctions::postProcessFunc));
 
 protected:
-    UInt addFullShapeParticles(const Vec_VecX<N, RealType>& currentPositions, Vec_VecX<N, RealType>& newPositions, Vec_VecX<N, RealType>& newVelocities);
-    UInt addParticles(const Vec_VecX<N, RealType>& currentPositions, Vec_VecX<N, RealType>& newPositions, Vec_VecX<N, RealType>& newVelocities);
+    template<class VelocityGenerator = decltype(DefaultFunctions::velocityGenerator)>
+    UInt addFullShapeParticles(const Vec_VecX<N, RealType>& currentPositions, Vec_VecX<N, RealType>& newPositions, Vec_VecX<N, RealType>& newVelocities,
+                               VelocityGenerator&& velGenerator = std::forward<decltype(DefaultFunctions::velocityGenerator)>(DefaultFunctions::velocityGenerator));
+
+    template<class VelocityGenerator = decltype(DefaultFunctions::velocityGenerator)>
+    UInt addParticles(const Vec_VecX<N, RealType>& currentPositions, Vec_VecX<N, RealType>& newPositions, Vec_VecX<N, RealType>& newVelocities,
+                      VelocityGenerator&& velGenerator = std::forward<decltype(DefaultFunctions::velocityGenerator)>(DefaultFunctions::velocityGenerator));
 
     void relaxPositions(Vector<VecX<N, RealType> >& positions, RealType particleRadius);
     void collectNeighborParticles(const Vec_VecX<N, RealType>& positions);
@@ -157,26 +173,36 @@ void ParticleGenerator<N, RealType >::buildObject(const Vector<SharedPtr<Boundar
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
+template<class VelocityGenerator /* = decltype(DefaultFunctions::velocityGenerator)*/,
+         class PostProcessFunc /* = decltype(DefaultFunctions::postProcessFunc)*/>
 UInt ParticleGenerator<N, RealType > ::generateParticles(const Vec_VecX<N, RealType>& currentPositions,
-                                                         Vec_VecX<N, RealType>& newPositions, Vec_VecX<N, RealType>& newVelocities, UInt frame)
+                                                         Vec_VecX<N, RealType>& newPositions, Vec_VecX<N, RealType>& newVelocities, UInt frame /*= 0u*/,
+                                                         VelocityGenerator&& velGenerator, PostProcessFunc&& postProcessFunc)
 {
     __BNN_REQUIRE(m_bObjReady);
     if(!isActive(frame)) {
         return 0u;
     }
 
+    newPositions.resize(0);
+    newVelocities.resize(0);
     collectNeighborParticles(currentPositions);
     auto nGen = m_bFullShapeObj ?
-                addFullShapeParticles(currentPositions, newPositions, newVelocities) :
-                addParticles(currentPositions, newPositions, newVelocities);
+                addFullShapeParticles(currentPositions, newPositions, newVelocities, velGenerator) :
+                addParticles(currentPositions, newPositions, newVelocities, velGenerator);
+
+    postProcessFunc();
+    ////////////////////////////////////////////////////////////////////////////////
     m_NGeneratedParticles += nGen;
     return nGen;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
+template<class VelocityGenerator /* = decltype(DefaultFunctions::velocityGenerator)*/>
 UInt ParticleGenerator<N, RealType > ::addFullShapeParticles(const Vec_VecX<N, RealType>& currentPositions,
-                                                             Vec_VecX<N, RealType>& newPositions, Vec_VecX<N, RealType>& newVelocities)
+                                                             Vec_VecX<N, RealType>& newPositions, Vec_VecX<N, RealType>& newVelocities,
+                                                             VelocityGenerator&& velGenerator)
 {
     bool bEmptyRegion = true;
     if(currentPositions.size() > 0) {
@@ -204,7 +230,9 @@ UInt ParticleGenerator<N, RealType > ::addFullShapeParticles(const Vec_VecX<N, R
         newPositions.reserve(newPositions.size() + m_ObjParticles.size());
         newVelocities.reserve(newVelocities.size() + m_ObjParticles.size());
         newPositions.insert(newPositions.end(), m_ObjParticles.begin(), m_ObjParticles.end());
-        newVelocities.insert(newVelocities.end(), m_ObjParticles.size(), m_v0);
+        for(const auto& pos : m_ObjParticles) {
+            newVelocities.push_back(velGenerator(pos, m_v0));
+        }
     }
 
     return static_cast<UInt>(m_ObjParticles.size());
@@ -212,8 +240,10 @@ UInt ParticleGenerator<N, RealType > ::addFullShapeParticles(const Vec_VecX<N, R
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
+template<class VelocityGenerator /* = decltype(DefaultFunctions::velocityGenerator)*/>
 UInt ParticleGenerator<N, RealType > ::addParticles(const Vec_VecX<N, RealType>& currentPositions,
-                                                    Vec_VecX<N, RealType>& newPositions, Vec_VecX<N, RealType>& newVelocities)
+                                                    Vec_VecX<N, RealType>& newPositions, Vec_VecX<N, RealType>& newVelocities,
+                                                    VelocityGenerator&& velGenerator)
 
 {
     newPositions.reserve(newPositions.size() + m_ObjParticles.size());
@@ -260,7 +290,9 @@ UInt ParticleGenerator<N, RealType > ::addParticles(const Vec_VecX<N, RealType>&
         }
     }
 
-    newVelocities.insert(newVelocities.end(), nGenerated, m_v0);
+    for(size_t i = newVelocities.size(); i < newPositions.size(); ++i) {
+        newVelocities.push_back(velGenerator(newPositions[i], m_v0));
+    }
     return nGenerated;
 }
 
