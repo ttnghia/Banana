@@ -59,7 +59,7 @@ inline VecX<N, IndexType> createGrid(const VecX<N, RealType>& bmin, const VecX<N
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class IndexType, class Function>
-inline void scan(VecX<N, IndexType> idx, const VecX<N, IndexType>& minIdx, const VecX<N, IndexType>& maxIdx, const Function& f, Int dim = 0)
+inline void scan(VecX<N, IndexType> idx, const VecX<N, IndexType>& minIdx, const VecX<N, IndexType>& maxIdx, Function&& f, Int dim = 0)
 {
     if(dim == N - 1) {
         for(IndexType i = minIdx[dim]; i < maxIdx[dim]; ++i) {
@@ -75,13 +75,13 @@ inline void scan(VecX<N, IndexType> idx, const VecX<N, IndexType>& minIdx, const
 }
 
 template<Int N, class IndexType, class Function>
-inline void scan(const VecX<N, IndexType>& minIdx, const VecX<N, IndexType>& maxIdx, const Function& f, Int dim = 0)
+inline void scan(const VecX<N, IndexType>& minIdx, const VecX<N, IndexType>& maxIdx, Function&& f, Int dim = 0)
 {
     scan(VecX<N, IndexType>(0), minIdx, maxIdx, f, dim);
 }
 
 template<Int N, class IndexType, class Function>
-inline void scan(const VecX<N, IndexType>& maxIdx, const Function& f, Int dim = 0)
+inline void scan(const VecX<N, IndexType>& maxIdx, Function&& f, Int dim = 0)
 {
     scan(VecX<N, IndexType>(0), VecX<N, IndexType>(0), maxIdx, f, dim);
 }

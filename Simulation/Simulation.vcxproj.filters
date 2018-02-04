@@ -105,9 +105,6 @@
     <ClInclude Include="ParticleTools\ParticleSerialization.Test.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SimulationObjects\ParticleRemover.Impl.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="SimulationObjects\ParticleRemover.h">
       <Filter>Header Files</Filter>
     </ClInclude>
