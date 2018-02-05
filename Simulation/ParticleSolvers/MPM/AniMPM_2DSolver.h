@@ -28,6 +28,15 @@
 namespace Banana::ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+enum class MPMParticleTypes
+{
+    StandardParticle,
+    VertexParticle,
+    QuadratureParticle,
+    UnknownType
+};
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // AniMPM_2DParameters
@@ -62,6 +71,7 @@ struct AniMPM_2DData
     struct AniParticleData
     {
         Vec_Mat2x2r localDirections;
+        Vec_Int8    particleType;
 
         void reserve(UInt nParticles);
         void resize(UInt nParticles);
@@ -81,7 +91,8 @@ struct AniMPM_2DData
     AniParticleData particleData;
     GridData        gridData;
 
-    void makeReady(const MPM_2DParameters& params, const MPM_2DData& mpmData);
+    void makeReady(const MPM_2DParameters& params,  MPM_2DData& mpmData);
+    void classifyParticles(const MPM_2DParameters& params,  MPM_2DData& mpmData);
 };
 
 
@@ -118,8 +129,10 @@ protected:
     virtual void advanceVelocity(Real timestep);
 
     void explicitIntegration(Real timestep);
-    void implicitIntegration(Real timestep);
+    //void implicitIntegration(Real timestep);
     void updateParticleDeformGradients(Real timestep);
+
+    void computeLagrangianForces();
     ////////////////////////////////////////////////////////////////////////////////
     auto&       aniParticleData() { return aniData().particleData; }
     const auto& aniParticleData() const { return aniData().particleData; }

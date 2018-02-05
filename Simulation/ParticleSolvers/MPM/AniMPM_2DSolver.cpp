@@ -34,18 +34,21 @@ namespace Banana::ParticleSolvers
 void AniMPM_2DData::AniParticleData::reserve(UInt nParticles)
 {
     localDirections.reserve(nParticles);
+    particleType.reserve(nParticles);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void AniMPM_2DData::AniParticleData::resize(UInt nParticles)
 {
-    localDirections.resize(nParticles);
+    localDirections.resize(nParticles, Mat2x2r(1.0_f));
+    particleType.resize(nParticles, static_cast<Int8>(MPMParticleTypes::UnknownType));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 UInt AniMPM_2DData::AniParticleData::removeParticles(Vec_Int8& removeMarker)
 {
     STLHelpers::eraseByMarker(localDirections, removeMarker);
+    STLHelpers::eraseByMarker(particleType,    removeMarker);
     return static_cast<UInt>(removeMarker.size() - localDirections.size());
 }
 
@@ -63,13 +66,45 @@ void AniMPM_2DData::GridData::resetGrid()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void AniMPM_2DData::makeReady(const MPM_2DParameters& params, const MPM_2DData& mpmData)
+void AniMPM_2DData::makeReady(const MPM_2DParameters& params,  MPM_2DData& mpmData)
 {
     particleData.reserve(params.maxNParticles);
     particleData.resize(mpmData.particleData.getNParticles());
-    particleData.localDirections.assign(particleData.localDirections.size(), Mat2x2r(1.0_f));
 
     gridData.resize(mpmData.grid.getNCells());
+
+    ////////////////////////////////////////////////////////////////////////////////
+    classifyParticles(params, mpmData);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void AniMPM_2DData::classifyParticles(const MPM_2DParameters& params,  MPM_2DData& mpmData)
+{
+    auto& positions    = mpmData.particleData.positions;
+    auto& particleType = particleData.particleType;
+    auto& objIdx       = mpmData.particleData.objectIndex;
+
+    for(size_t i = 0; i < positions.size(); ++i) {
+        for(size_t j = 0; j < positions.size(); ++j) {
+            if(i == j ||
+               glm::length2(positions[i] - positions[j]) > 9.0_f * params.particleRadiusSqr ||
+               abs(positions[i].y - positions[j].y) > params.particleRadius * 0.5_f) {
+                continue;
+            }
+
+            if(particleType[j] == static_cast<Int8>(MPMParticleTypes::StandardParticle)) {
+                particleType[i] = static_cast<Int8>(MPMParticleTypes::VertexParticle);
+                objIdx[i]       = 1;
+            } else if(particleType[j] == static_cast<Int8>(MPMParticleTypes::VertexParticle)) {
+                particleType[i] = static_cast<Int8>(MPMParticleTypes::StandardParticle);
+                objIdx[i]       = 0;
+            }
+        }
+        if(particleType[i] == static_cast<Int8>(MPMParticleTypes::UnknownType)) {
+            particleType[i] = static_cast<Int8>(MPMParticleTypes::StandardParticle);
+            objIdx[i]       = 0;
+        }
+    }
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -97,8 +132,29 @@ void AniMPM_2DSolver::loadSimParams(const nlohmann::json& jParams)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void AniMPM_2DSolver::generateParticles(const nlohmann::json& jParams)
 {
-    MPM_2DSolver::generateParticles(jParams);
-    aniData().particleData.resize(particleData().getNParticles());
+    ParticleSolver2D::generateParticles(jParams);
+
+    if(loadMemoryState() < 0) {
+        for(auto& generator : m_ParticleGenerators) {
+            generator->buildObject(m_BoundaryObjects, solverParams().particleRadius);
+            ////////////////////////////////////////////////////////////////////////////////
+            particleData().tmp_positions.resize(0);
+            particleData().tmp_velocities.resize(0);
+            UInt nGen = generator->generateParticles(particleData().positions, particleData().tmp_positions, particleData().tmp_velocities);
+            particleData().addParticles(particleData().tmp_positions, particleData().tmp_velocities);
+            ////////////////////////////////////////////////////////////////////////////////
+            logger().printLogIf(nGen > 0, String("Generated ") + NumberHelpers::formatWithCommas(nGen) + String(" particles by ") + generator->nameID());
+        }
+
+        __BNN_REQUIRE(particleData().getNParticles() > 0);
+        ////////////////////////////////////////////////////////////////////////////////
+        // only save frame0 data if particles are just generated (not loaded from disk)
+        saveFrameData();
+        logger().newLine();
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////
+    aniData().makeReady(solverParams(), solverData());
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -117,7 +173,6 @@ bool AniMPM_2DSolver::advanceScene()
 void AniMPM_2DSolver::allocateSolverMemory()
 {
     MPM_2DSolver::allocateSolverMemory();
-    aniData().makeReady(solverParams(), solverData());
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -128,26 +183,13 @@ void AniMPM_2DSolver::setupDataIO()
 
     if(globalParams().bSaveFrameData) {
         m_ParticleDataIO->addFixedAttribute<float>("particle_radius", ParticleSerialization::TypeReal, 1);
-        m_ParticleDataIO->addParticleAttribute<float>("particle_position", ParticleSerialization::TypeCompressedReal, 2);
-        if(globalParams().isSavingData("ObjectIndex")) {
-            m_ParticleDataIO->addFixedAttribute<UInt>("NObjects", ParticleSerialization::TypeUInt, 1);
-            m_ParticleDataIO->addParticleAttribute<Int8>("object_index", ParticleSerialization::TypeInt16, 1);
-        }
-        if(globalParams().isSavingData("ParticleVelocity")) {
-            m_ParticleDataIO->addParticleAttribute<float>("particle_velocity", ParticleSerialization::TypeCompressedReal, 2);
-        }
+        m_ParticleDataIO->addParticleAttribute<Int8>("object_index", ParticleSerialization::TypeInt16, 1);
     }
 
     ////////////////////////////////////////////////////////////////////////////////
     if(globalParams().bLoadMemoryState || globalParams().bSaveMemoryState) {
-        __BNN_TODO;
         m_MemoryStateIO->addFixedAttribute<Real>("grid_resolution", ParticleSerialization::TypeUInt, 2);
-        //m_MemoryStateIO->addFixedAttribute<Real>("grid_u",          ParticleSerialization::TypeReal, static_cast<UInt>(gridData().u.dataSize()));
-        m_MemoryStateIO->addFixedAttribute<Real>("particle_radius", ParticleSerialization::TypeReal, 1);
-        m_MemoryStateIO->addFixedAttribute<UInt>("NObjects",        ParticleSerialization::TypeUInt, 1);
-        m_MemoryStateIO->addParticleAttribute<Real>( "particle_position", ParticleSerialization::TypeReal,  2);
-        m_MemoryStateIO->addParticleAttribute<Real>( "particle_velocity", ParticleSerialization::TypeReal,  2);
-        m_MemoryStateIO->addParticleAttribute<Int16>("object_index",      ParticleSerialization::TypeInt16, 1);
+        m_MemoryStateIO->addParticleAttribute<Real>("particle_position", ParticleSerialization::TypeReal, 2);
     }
 }
 
@@ -155,10 +197,6 @@ void AniMPM_2DSolver::setupDataIO()
 Int AniMPM_2DSolver::loadMemoryState()
 {
     if(!m_GlobalParams.bLoadMemoryState) {
-        return -1;
-    }
-
-    if(MPM_2DSolver::loadMemoryState() == 0) {
         return -1;
     }
 
@@ -337,49 +375,9 @@ void AniMPM_2DSolver::explicitIntegration(Real timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//Solve linear system for implicit velocities
-void AniMPM_2DSolver::implicitIntegration(Real timestep)
+void AniMPM_2DSolver::computeLagrangianForces()
 {
-    UInt nActives = 0;
-    for(size_t i = 0; i < gridData().active.dataSize(); ++i) {
-        if(gridData().active.data()[i]) {
-            gridData().activeNodeIdx.data()[i] = nActives;
-            ++nActives;
-        }
-    }
-
-    ////////////////////////////////////////////////////////////////////////////////
-    static Vector<Real> v;
-    v.resize(nActives * 3);
-    Vec2r* vPtr = reinterpret_cast<Vec2r*>(v.data());
-    __BNN_REQUIRE(vPtr != nullptr);
-
-    Scheduler::parallel_for(grid().getNNodes(),
-                            [&](UInt i, UInt j)
-                            {
-                                if(gridData().active(i, j)) {
-                                    vPtr[gridData().activeNodeIdx(i, j)] = gridData().velocity(i, j);
-                                }
-                            });
-
-    ////////////////////////////////////////////////////////////////////////////////
-    static Timer timer;
-    timer.tick();
-    MPM_2DObjective obj(solverParams(), solverData(), timestep);
-    solverData().lbfgsSolver.minimize(obj, v);
-    timer.tock();
-    logger().printLogIndent(timer.getRunTime("Minimize energy: ") + String(". Iterations: ") +
-                            NumberHelpers::formatWithCommas(solverData().lbfgsSolver.nIters()) + String(", tolerance: ") +
-                            NumberHelpers::formatToScientific(solverData().lbfgsSolver.gradTolerance()));
-
-    ////////////////////////////////////////////////////////////////////////////////
-    Scheduler::parallel_for(grid().getNNodes(),
-                            [&](UInt i, UInt j)
-                            {
-                                if(gridData().active(i, j)) {
-                                    gridData().velocity_new(i, j) = vPtr[gridData().activeNodeIdx(i, j)] + timestep * Constants::Gravity2D;
-                                }
-                            });
+    //
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
