@@ -4,7 +4,7 @@
         "Solver" : "AniMPM_2DSolver",
         "FrameDuration" : 0.003333333333,
         "StartFrame" : 1,
-        "FinalFrame" : 50,
+        "FinalFrame" : 100,
         "SaveFrameData" : false,
         "SaveMemoryState" : false,
         "FramePerState" : 10,
@@ -30,9 +30,9 @@
         "ImplicitRatio" : 0,
         "CGRelativeTolerance" : 1e-18,
         "MaxCGIteration" : 1000,
-        "CellSize" : 0.03,
+        "CellSize" : 0.05,
         "RatioCellSizePRadius" : 4,
-        "CFLFactor" : 0.2,
+        "CFLFactor" : 0.02,
         "lambda" : 10,
         "mu": 100,
         "MaterialDensity" : 1
@@ -44,7 +44,7 @@
             "UniqueName" : "SphereRight",
             "Translation" : [-1, 0],
             "Scale" : 0.3,
-            "JitterRatio" : 0.1,
+            "JitterRatio" : 0.0,
             "InitialVelocity" : [10, 0]
         },
         {
@@ -52,7 +52,7 @@
             "UniqueName" : "SphereLeft",
             "Translation" : [1, 0],
             "Scale" : 0.3,
-            "JitterRatio" : 0.1,
+            "JitterRatio" : 0.0,
             "InitialVelocity" : [-10, 0]
         }
     ],
