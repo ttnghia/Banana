@@ -276,3 +276,4 @@ inline void throwIfFailed(HRESULT hr)
 // data macros
 #define __BNN_REQUIRE_EQUAL(a, b)                     __BNN_REQUIRE_MSG(a == b, "Numbers are not equal.");
 #define __BNN_REQUIRE_APPROX_NUMBERS(a, b, threshold) __BNN_REQUIRE_MSG(threshold > fabs(a - b), "Numbers are not equal.");
+#define __BNN_TO_CSTRING(x)                           NumberHelpers::toString(x).c_str()
