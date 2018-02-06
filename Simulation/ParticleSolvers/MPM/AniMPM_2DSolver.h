@@ -46,6 +46,7 @@ struct AniMPM_2DParameters
 {
     ////////////////////////////////////////////////////////////////////////////////
     // Anisotropic MPM parameters
+    Real KSpring = 1e8_f;
 
     ////////////////////////////////////////////////////////////////////////////////
     void makeReady() {}
@@ -93,6 +94,7 @@ struct AniMPM_2DData
 
     void makeReady(const MPM_2DParameters& params,  MPM_2DData& mpmData);
     void classifyParticles(const MPM_2DParameters& params,  MPM_2DData& mpmData);
+    void find_d0(const MPM_2DParameters& params,  MPM_2DData& mpmData);
 };
 
 
@@ -128,11 +130,14 @@ protected:
     virtual Int  saveFrameData() override;
     virtual void advanceVelocity(Real timestep);
 
-    void explicitIntegration(Real timestep);
-    //void implicitIntegration(Real timestep);
-    void updateParticleDeformGradients(Real timestep);
+    virtual void moveParticles(Real timestep);
+    virtual void explicitIntegration(Real timestep);
+    //virtual void implicitIntegration(Real timestep);
+    virtual void mapGridVelocities2ParticlesAPIC(Real timestep);
+    virtual void updateParticleDeformGradients(Real timestep);
 
     void computeLagrangianForces();
+    void diffuseVelocity();
     ////////////////////////////////////////////////////////////////////////////////
     auto&       aniParticleData() { return aniData().particleData; }
     const auto& aniParticleData() const { return aniData().particleData; }
