@@ -237,22 +237,22 @@ protected:
     virtual Int  saveFrameData() override;
     virtual void advanceVelocity(Real timestep);
 
-    Real timestepCFL();
-    void moveParticles(Real timestep);
-    void mapParticleMasses2Grid();
-    bool initParticleVolumes();
-    void mapParticleVelocities2Grid(Real timestep);
-    void mapParticleVelocities2GridFLIP(Real timestep);
-    void mapParticleVelocities2GridAPIC(Real timestep);
-    void constrainGridVelocity(Real timestep);
-    void explicitIntegration(Real timestep);
-    void implicitIntegration(Real timestep);
-    void mapGridVelocities2Particles(Real timestep);
-    void mapGridVelocities2ParticlesFLIP(Real timestep);
-    void mapGridVelocities2ParticlesAPIC(Real timestep);
-    void mapGridVelocities2ParticlesAFLIP(Real timestep);
-    void constrainParticleVelocity(Real timestep);
-    void updateParticleDeformGradients(Real timestep);
+    virtual Real timestepCFL();
+    virtual void moveParticles(Real timestep);
+    virtual void mapParticleMasses2Grid();
+    virtual bool initParticleVolumes();
+    virtual void mapParticleVelocities2Grid(Real timestep);
+    virtual void mapParticleVelocities2GridFLIP(Real timestep);
+    virtual void mapParticleVelocities2GridAPIC(Real timestep);
+    virtual void constrainGridVelocity(Real timestep);
+    virtual void explicitIntegration(Real timestep);
+    virtual void implicitIntegration(Real timestep);
+    virtual void mapGridVelocities2Particles(Real timestep);
+    virtual void mapGridVelocities2ParticlesFLIP(Real timestep);
+    virtual void mapGridVelocities2ParticlesAPIC(Real timestep);
+    virtual void mapGridVelocities2ParticlesAFLIP(Real timestep);
+    virtual void constrainParticleVelocity(Real timestep);
+    virtual void updateParticleDeformGradients(Real timestep);
     ////////////////////////////////////////////////////////////////////////////////
     auto&       particleData() { return solverData().particleData; }
     const auto& particleData() const { return solverData().particleData; }
