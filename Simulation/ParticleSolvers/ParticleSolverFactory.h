@@ -21,22 +21,8 @@
 
 #pragma once
 
-////////////////////////////////////////////////////////////////////////////////
-// fluid solvers
-#include <ParticleSolvers/HybridFluid/AFLIP_3DSolver.h>
-#include <ParticleSolvers/HybridFluid/APIC_3DSolver.h>
-#include <ParticleSolvers/HybridFluid/FLIP_3DSolver.h>
-#include <ParticleSolvers/HybridFluid/PIC_3DSolver.h>
-
-#include <ParticleSolvers/SPH/WCSPH_3DSolver.h>
-////////////////////////////////////////////////////////////////////////////////
-
-////////////////////////////////////////////////////////////////////////////////
-// mpm solvers
-#include <ParticleSolvers/MPM/MPM_2DSolver.h>
-#include <ParticleSolvers/MPM/MPM_3DSolver.h>
-////////////////////////////////////////////////////////////////////////////////
-
+#include <Banana/Setup.h>
+#include <map>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana::ParticleSolvers
@@ -46,38 +32,33 @@ template<Int N, class RealType>
 class ParticleSolverFactory
 {
 public:
+    ParticleSolverFactory() = delete;
+    using PtrCreateMethod   = UniquePtr<ParticleSolver<N, RealType> >(*)();
+    ////////////////////////////////////////////////////////////////////////////////
+    static bool registerSolver(const String& solverName, PtrCreateMethod funcCreate)
+    {
+        if(auto it = s_CreateMethods.find(solverName); it == s_CreateMethods.end()) {
+            s_CreateMethods[solverName] = funcCreate;
+            return true;
+        }
+        return false;
+    }
+
     static SharedPtr<ParticleSolver<N, RealType> > createSolver(const String& solverName)
     {
-        ////////////////////////////////////////////////////////////////////////////////
-        // fluid solvers
-        if(solverName == "AFLIP_3DSolver") {
-            __BNN_REQUIRE(N == 3);
-            return dynamic_pointer_cast<ParticleSolver<N, RealType> >(std::make_shared<AFLIP_3DSolver>());
-        } else if(solverName == "APIC_3DSolver") {
-            __BNN_REQUIRE(N == 3);
-            return dynamic_pointer_cast<ParticleSolver<N, RealType> >(std::make_shared<APIC_3DSolver>());
-        } else if(solverName == "FLIP_3DSolver") {
-            __BNN_REQUIRE(N == 3);
-            return dynamic_pointer_cast<ParticleSolver<N, RealType> >(std::make_shared<FLIP_3DSolver>());
-        } else if(solverName == "PIC_3DSolver") {
-            __BNN_REQUIRE(N == 3);
-            return dynamic_pointer_cast<ParticleSolver<N, RealType> >(std::make_shared<PIC_3DSolver>());
-        } else if(solverName == "WCSPH_3DSolver") {
-            __BNN_REQUIRE(N == 3);
-            return dynamic_pointer_cast<ParticleSolver<N, RealType> >(std::make_shared<WCSPH_3DSolver>());
+        if(auto it = s_CreateMethods.find(name); it != s_CreateMethods.end()) {
+            return it->second(); // call the createFunc
         }
-        ////////////////////////////////////////////////////////////////////////////////
-        // MPM solver
-        else if(solverName == "MPM_2DSolver") {
-            __BNN_REQUIRE(N == 2);
-            return dynamic_pointer_cast<ParticleSolver<N, RealType> >(std::make_shared<MPM_2DSolver>());
-        } else if(solverName == "MPM_3DSolver") {
-            __BNN_REQUIRE(N == 3);
-            return dynamic_pointer_cast<ParticleSolver<N, RealType> >(std::make_shared<MPM_3DSolver>());
-        }
-
         return nullptr;
     }
+
+private:
+    static inline std::map<String, PtrCreateMethod> s_CreateMethods;
 };
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-} // end namespace Banana::ParticleSolverFactory
+using ParticleSolverFactory2D = ParticleSolverFactory<2, Real>;
+using ParticleSolverFactory3D = ParticleSolverFactory<3, Real>;
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+}; // end namespace Banana::ParticleSolvers
