@@ -58,6 +58,7 @@ class ParticleSolver
 {
 public:
     static constexpr UInt solverDimension() noexcept { return static_cast<UInt>(N); }
+    using SolverRealType = typename RealType;
 
     ParticleSolver() = default;
     virtual ~ParticleSolver() { Logger::shutdown(); }
@@ -67,8 +68,7 @@ public:
     void doSimulation();
 
     ////////////////////////////////////////////////////////////////////////////////
-    virtual String getSolverName()      = 0;
-    virtual String getGreetingMessage() = 0;
+    virtual String getSolverDescription() = 0;
 
     virtual void makeReady()    = 0;
     virtual void advanceFrame() = 0;
@@ -258,7 +258,7 @@ void ParticleSolver<N, RealType >::setupLogger()
 
     std::stringstream ss;
     ss << "Build: " << __DATE__ << " - " << __TIME__;
-    logger().printTextBox({ getGreetingMessage(), ss.str() });
+    logger().printTextBox({ getSolverDescription(), ss.str() });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -279,7 +279,7 @@ void ParticleSolver<N, RealType >::doSimulation()
 
         ////////////////////////////////////////////////////////////////////////////////
         const String strMsg = String("Frame finished. Frame duration: ") + NumberHelpers::formatToScientific(globalParams().frameDuration) +
-                                     String("(s) (~") + std::to_string(static_cast<int>(round(1.0_f / globalParams().frameDuration))) + String(" fps). Run time: ");
+                              String("(s) (~") + std::to_string(static_cast<int>(round(1.0_f / globalParams().frameDuration))) + String(" fps). Run time: ");
         logger().printRunTime(strMsg.c_str(),
                               [&]()
                               {
