@@ -40,15 +40,9 @@ public:
     static SharedPtr<ParticleSolver<N, RealType> > createSolver(const String& solverName);
 
 private:
-    static std::map<String, PtrCreateMethod>  s_CreateMethods;
-    static std::map<String, PtrCreateMethod>* s_CreateMethods2;
+    static std::map<String, PtrCreateMethod>& getCreateMethods();
 };
 
-template<Int N, class RealType>
-std::map<String, typename ParticleSolverFactory<N, RealType>::PtrCreateMethod> ParticleSolverFactory<N, RealType>::s_CreateMethods;
-
-template<Int N, class RealType>
-std::map<String, typename ParticleSolverFactory<N, RealType>::PtrCreateMethod>* ParticleSolverFactory<N, RealType>::s_CreateMethods2 = new std::map<String, typename ParticleSolverFactory<N, RealType>::PtrCreateMethod>;
 
 using ParticleSolverFactory2D = ParticleSolverFactory<2, Real>;
 using ParticleSolverFactory3D = ParticleSolverFactory<3, Real>;
@@ -57,27 +51,27 @@ using ParticleSolverFactory3D = ParticleSolverFactory<3, Real>;
 template<Int N, class RealType>
 bool ParticleSolverFactory<N, RealType >::registerSolver(const String& solverName, PtrCreateMethod funcCreate)
 {
-    auto y = s_CreateMethods2;
-    auto x = s_CreateMethods.size();
-    s_CreateMethods["abc"] = nullptr;
-
-
-    auto it = s_CreateMethods.find(solverName);
-    if(it == s_CreateMethods.end()) {
-        s_CreateMethods[solverName] = funcCreate;
-        return true;
-    }
-    return false;
+    auto[it, success] = getCreateMethods().insert(std::pair<String, PtrCreateMethod>(solverName, funcCreate));
+    __BNN_UNUSED(it);
+    return success;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
 SharedPtr<ParticleSolver<N, RealType> > ParticleSolverFactory<N, RealType >::createSolver(const String& solverName)
 {
-    if(auto it = s_CreateMethods.find(name); it != s_CreateMethods.end()) {
+    if(auto it = getCreateMethods().find(name); it != getCreateMethods().end()) {
         return it->second();     // call the createFunc
     }
     return nullptr;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType>
+std::map<String, typename ParticleSolverFactory<N, RealType>::PtrCreateMethod>& ParticleSolverFactory<N, RealType >::getCreateMethods()
+{
+    static std::map<String, PtrCreateMethod> mCreateMethods;
+    return mCreateMethods;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
