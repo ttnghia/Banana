@@ -23,9 +23,10 @@
 
 #include <Banana/Grid/Grid.h>
 #include <ParticleSolvers/ParticleSolver.h>
-#include <ParticleSolvers/MPM/Snow2DData.h>
-#include <Banana/Array/Array.h>
 #include <ParticleSolvers/ParticleSolverData.h>
+#include <ParticleSolvers/MPM/Snow2DData.h>
+#include <ParticleSolvers/ParticleSolverFactory.h>
+#include <Banana/Array/Array.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -50,14 +51,14 @@ struct SimulationParameters_Snow2D : public SimulationParameters
 
     Real thresholdCompression = 1.0_f - 1.9e-2_f; //Fracture threshold for compression (1-2.5e-2)
     Real thresholdStretching  = 1.0_f + 7.5e-3_f; //Fracture threshold for stretching (1+7.5e-3)
-    Real hardening            = 5.0_f;          //How much plastic deformation strengthens material (10)
-    Real materialDensity      = 100.0_f;        //Density of snow in kg/m^2 (400 for 3d)
-    Real YoungsModulus        = 1.5e5_f;        //Young's modulus (springiness) (1.4e5)
-    Real PoissonsRatio        = 0.2_f;          //Poisson's ratio (transverse/axial strain ratio) (.2)
-    Real implicitRatio        = 0_f;            //Percentage that should be implicit vs explicit for velocity update
+    Real hardening            = 5.0_f;            //How much plastic deformation strengthens material (10)
+    Real materialDensity      = 100.0_f;          //Density of snow in kg/m^2 (400 for 3d)
+    Real YoungsModulus        = 1.5e5_f;          //Young's modulus (springiness) (1.4e5)
+    Real PoissonsRatio        = 0.2_f;            //Poisson's ratio (transverse/axial strain ratio) (.2)
+    Real implicitRatio        = 0_f;              //Percentage that should be implicit vs explicit for velocity update
 
-    Real maxImplicitError = 1e4_f;              //Maximum allowed error for conjugate residual
-    Real minImplicitError = 1e-4_f;             //Minimum allowed error for conjugate residual
+    Real maxImplicitError = 1e4_f;                //Maximum allowed error for conjugate residual
+    Real minImplicitError = 1e-4_f;               //Minimum allowed error for conjugate residual
 
     Int kernelSpan = 2;
 
@@ -294,14 +295,17 @@ struct SimulationData_Snow2D
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class Snow2DSolver : public ParticleSolver2D
+class Snow2DSolver : public ParticleSolver2D, public RegisteredInFactory<Snow2DSolver>
 {
 public:
-    Snow2DSolver() = default;
+    Snow2DSolver() { __BNN_REQUIRE(RegisteredInFactory<Snow2DSolver>::s_bRegistered); }
 
     ////////////////////////////////////////////////////////////////////////////////
-    virtual String getSolverName() override { return String("MPM2DSolver"); }
-    virtual String getGreetingMessage() override { return String("Simulation using MPM-2D Solver"); }
+    static String                      solverName() { return String("MPM2DSolver"); }
+    static SharedPtr<ParticleSolver2D> createSolver() { return std::make_shared<Snow2DSolver>(); }
+
+    virtual String getSolverName() { return Snow2DSolver::solverName(); }
+    virtual String getSolverDescription() override { return String("Simulation using MPM-2D Solver"); }
 
     virtual void makeReady() override;
     virtual void advanceFrame() override;

@@ -22,8 +22,9 @@
 #pragma once
 
 #include <ParticleSolvers/ParticleSolver.h>
-#include <ParticleSolvers/SPH/KernelFunctions.h>
 #include <ParticleSolvers/ParticleSolverData.h>
+#include <ParticleSolvers/ParticleSolverFactory.h>
+#include <ParticleSolvers/SPH/KernelFunctions.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana::ParticleSolvers
@@ -107,14 +108,17 @@ struct WCSPH_3DData : public ParticleSimulationData3D
 // WCSPH_3DSolver
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class WCSPH_3DSolver : public ParticleSolver3D
+class WCSPH_3DSolver : public ParticleSolver3D, public RegisteredInFactory<WCSPH_3DSolver>
 {
 public:
-    WCSPH_3DSolver() = default;
+    WCSPH_3DSolver() { __BNN_REQUIRE(RegisteredInFactory<WCSPH_3DSolver>::s_bRegistered); }
 
     ////////////////////////////////////////////////////////////////////////////////
-    virtual String getSolverName() override { return String("WCSPHSolver"); }
-    virtual String getGreetingMessage() override { return String("Fluid Simulation using WCSPH-3D Solver"); }
+    static String                      solverName() { return String("WCSPHSolver"); }
+    static SharedPtr<ParticleSolver3D> createSolver() { return std::make_shared<WCSPH_3DSolver>(); }
+
+    virtual String getSolverName() { return WCSPH_3DSolver::solverName(); }
+    virtual String getSolverDescription() override { return String("Fluid Simulation using WCSPH-3D Solver"); }
 
     virtual void makeReady() override;
     virtual void advanceFrame() override;

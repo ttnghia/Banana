@@ -93,7 +93,7 @@ protected:
 
     RealType m_GradTol  = RealType(1e-4);
     RealType m_InitHess = RealType(1.0);         // only used by lbfgs
-    size_t   m_MaxIter  = RealType(100000);
+    size_t   m_MaxIter  = 100000;
 };
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 

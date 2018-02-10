@@ -26,7 +26,7 @@
 #include <Banana/LinearAlgebra/SparseMatrix/SparseMatrix.h>
 #include <Banana/LinearAlgebra/LinearSolvers/BlockPCGSolver.h>
 #include <ParticleSolvers/ParticleSolverData.h>
-
+#include <ParticleSolvers/ParticleSolverFactory.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -213,14 +213,17 @@ struct SimulationData_Peridynamics3D : public ParticleSimulationData<3, Real>
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class PeridynamicsSolver : public ParticleSolver3D
+class PeridynamicsSolver : public ParticleSolver3D, public RegisteredInFactory<PeridynamicsSolver>
 {
 public:
-    PeridynamicsSolver() = default;
+    PeridynamicsSolver() { __BNN_REQUIRE(RegisteredInFactory<PeridynamicsSolver>::s_bRegistered); }
 
     ////////////////////////////////////////////////////////////////////////////////
-    virtual String getSolverName() override { return String("Peridynamics3DSolver"); }
-    virtual String getGreetingMessage() override { return String("Solid Simulation using Peridynamics-3D Solver"); }
+    static String                      solverName() { return String("Peridynamics3DSolver"); }
+    static SharedPtr<ParticleSolver3D> createSolver() { return std::make_shared<PeridynamicsSolver>(); }
+
+    virtual String getSolverName() { return PeridynamicsSolver::solverName(); }
+    virtual String getSolverDescription() override { return String("Solid Simulation using Peridynamics-3D Solver"); }
 
     virtual void makeReady() override;
     virtual void advanceFrame() override;

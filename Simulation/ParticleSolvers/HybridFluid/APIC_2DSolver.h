@@ -71,14 +71,17 @@ struct APIC_2DData : public ParticleSimulationData2D
 // APIC_2DSolver
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class APIC_2DSolver : public PIC_2DSolver
+class APIC_2DSolver : public PIC_2DSolver, public RegisteredInFactory<APIC_2DSolver>
 {
 public:
-    APIC_2DSolver() = default;
+    APIC_2DSolver() { __BNN_REQUIRE(RegisteredInFactory<APIC_2DSolver>::s_bRegistered); }
 
     ////////////////////////////////////////////////////////////////////////////////
-    virtual String getSolverName() override { return String("APIC_2DSolver"); }
-    virtual String getGreetingMessage() override { return String("Fluid Simulation using FLIP-2D Solver"); }
+    static String                      solverName() { return String("APIC_2DSolver"); }
+    static SharedPtr<ParticleSolver2D> createSolver() { return std::make_shared<APIC_2DSolver>(); }
+
+    virtual String getSolverName() { return APIC_2DSolver::solverName(); }
+    virtual String getSolverDescription() override { return String("Fluid Simulation using FLIP-2D Solver"); }
 
     auto&       apicData() { return m_APICData; }
     const auto& apicData() const { return m_APICData; }

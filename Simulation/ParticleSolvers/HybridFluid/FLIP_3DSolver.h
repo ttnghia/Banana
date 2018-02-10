@@ -47,14 +47,17 @@ struct FLIP_3DData : public GridSimulationData3D
 // FLIP_3DSolver
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class FLIP_3DSolver : public PIC_3DSolver
+class FLIP_3DSolver : public PIC_3DSolver, public RegisteredInFactory<FLIP_3DSolver>
 {
 public:
-    FLIP_3DSolver() = default;
+    FLIP_3DSolver() { __BNN_REQUIRE(RegisteredInFactory<FLIP_3DSolver>::s_bRegistered); }
 
     ////////////////////////////////////////////////////////////////////////////////
-    virtual String getSolverName() override { return String("FLIP_3DSolver"); }
-    virtual String getGreetingMessage() override { return String("Fluid Simulation using FLIP-3D Solver"); }
+    static String                      solverName() { return String("FLIP_3DSolver"); }
+    static SharedPtr<ParticleSolver3D> createSolver() { return std::make_shared<FLIP_3DSolver>(); }
+
+    virtual String getSolverName() { return FLIP_3DSolver::solverName(); }
+    virtual String getSolverDescription() override { return String("Fluid Simulation using FLIP-3D Solver"); }
 
     ////////////////////////////////////////////////////////////////////////////////
     auto&       FLIPData() { return m_FLIPData; }

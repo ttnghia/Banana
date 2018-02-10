@@ -27,6 +27,7 @@
 #include <Optimization/LBFGSSolver.h>
 #include <ParticleSolvers/ParticleSolver.h>
 #include <ParticleSolvers/ParticleSolverData.h>
+#include <ParticleSolvers/ParticleSolverFactory.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana::ParticleSolvers
@@ -154,14 +155,17 @@ private:
 // MPM_3DSolver
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class MPM_3DSolver : public ParticleSolver3D
+class MPM_3DSolver : public ParticleSolver3D, public RegisteredInFactory<MPM_3DSolver>
 {
 public:
-    MPM_3DSolver() = default;
+    MPM_3DSolver() { __BNN_REQUIRE(RegisteredInFactory<MPM_3DSolver>::s_bRegistered); }
 
     ////////////////////////////////////////////////////////////////////////////////
-    virtual String getSolverName() override { return String("MPM3DSolver"); }
-    virtual String getGreetingMessage() override { return String("Simulation using MPM-3D Solver"); }
+    static String                      solverName() { return String("MPM3DSolver"); }
+    static SharedPtr<ParticleSolver3D> createSolver() { return std::make_shared<MPM_3DSolver>(); }
+
+    virtual String getSolverName() { return MPM_3DSolver::solverName(); }
+    virtual String getSolverDescription() override { return String("Simulation using MPM-3D Solver"); }
 
     virtual void makeReady() override;
     virtual void advanceFrame() override;

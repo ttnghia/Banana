@@ -68,6 +68,7 @@ public:
     void doSimulation();
 
     ////////////////////////////////////////////////////////////////////////////////
+    virtual String getSolverName()        = 0;
     virtual String getSolverDescription() = 0;
 
     virtual void makeReady()    = 0;

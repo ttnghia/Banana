@@ -68,14 +68,17 @@ struct FLIP_2DData : public GridSimulationData2D
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class FLIP_2DSolver : public PIC_2DSolver
+class FLIP_2DSolver : public PIC_2DSolver, public RegisteredInFactory<FLIP_2DSolver>
 {
 public:
-    FLIP_2DSolver() = default;
+    FLIP_2DSolver() { __BNN_REQUIRE(RegisteredInFactory<FLIP_2DSolver>::s_bRegistered); }
 
     ////////////////////////////////////////////////////////////////////////////////
-    virtual String getSolverName() override { return String("FLIP_2DSolver"); }
-    virtual String getGreetingMessage() override { return String("Fluid Simulation using FLIP-2D Solver"); }
+    static String                      solverName() { return String("FLIP_2DSolver"); }
+    static SharedPtr<ParticleSolver2D> createSolver() { return std::make_shared<FLIP_2DSolver>(); }
+
+    virtual String getSolverName() { return FLIP_2DSolver::solverName(); }
+    virtual String getSolverDescription() override { return String("Fluid Simulation using FLIP-2D Solver"); }
 
     ////////////////////////////////////////////////////////////////////////////////
     auto&       flipParams() { return m_FLIPParams; }

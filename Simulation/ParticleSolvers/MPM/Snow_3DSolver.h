@@ -23,9 +23,10 @@
 
 #include <Banana/Grid/Grid.h>
 #include <ParticleSolvers/ParticleSolver.h>
+#include <ParticleSolvers/ParticleSolverData.h>
+#include <ParticleSolvers/ParticleSolverFactory.h>
 #include <ParticleSolvers/MPM/Snow3DData.h>
 #include <Banana/Array/Array.h>
-#include <ParticleSolvers/ParticleSolverData.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -291,14 +292,17 @@ struct SimulationData_Snow3D
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class Snow3DSolver : public ParticleSolver3D
+class Snow3DSolver : public ParticleSolver3D, public RegisteredInFactory<Snow3DSolver>
 {
 public:
-    Snow3DSolver() = default;
+    Snow3DSolver() { __BNN_REQUIRE(RegisteredInFactory<Snow3DSolver>::s_bRegistered); }
 
     ////////////////////////////////////////////////////////////////////////////////
-    virtual String getSolverName() override { return String("MPM3DSolver"); }
-    virtual String getGreetingMessage() override { return String("Simulation using MPM-3D Solver"); }
+    static String                      solverName() { return String("MPM3DSolver"); }
+    static SharedPtr<ParticleSolver3D> createSolver() { return std::make_shared<Snow3DSolver>(); }
+
+    virtual String getSolverName() { return Snow3DSolver::solverName(); }
+    virtual String getSolverDescription() override { return String("Simulation using MPM-3D Solver"); }
 
     virtual void makeReady() override;
     virtual void advanceFrame() override;

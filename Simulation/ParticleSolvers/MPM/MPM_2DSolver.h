@@ -27,6 +27,7 @@
 #include <Optimization/LBFGSSolver.h>
 #include <ParticleSolvers/ParticleSolverData.h>
 #include <ParticleSolvers/ParticleSolver.h>
+#include <ParticleSolvers/ParticleSolverFactory.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana::ParticleSolvers
@@ -194,14 +195,17 @@ private:
 // MPM_2DSolver
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class MPM_2DSolver : public ParticleSolver2D
+class MPM_2DSolver : public ParticleSolver2D, public RegisteredInFactory<MPM_2DSolver>
 {
 public:
-    MPM_2DSolver() = default;
+    MPM_2DSolver() { __BNN_REQUIRE(RegisteredInFactory<MPM_2DSolver>::s_bRegistered); }
 
     ////////////////////////////////////////////////////////////////////////////////
-    virtual String getSolverName() override { return String("MPM2DSolver"); }
-    virtual String getGreetingMessage() override { return String("Simulation using MPM-2D Solver"); }
+    static String                      solverName() { return String("MPM2DSolver"); }
+    static SharedPtr<ParticleSolver2D> createSolver() { return std::make_shared<MPM_2DSolver>(); }
+
+    virtual String getSolverName() { return MPM_2DSolver::solverName(); }
+    virtual String getSolverDescription() override { return String("Simulation using MPM-2D Solver"); }
 
     virtual void makeReady() override;
     virtual void advanceFrame() override;

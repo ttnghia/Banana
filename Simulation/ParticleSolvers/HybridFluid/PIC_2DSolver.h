@@ -33,6 +33,7 @@
 #include <SimulationObjects/BoundaryObject.h>
 #include <ParticleSolvers/ParticleSolver.h>
 #include <ParticleSolvers/PICFluid/PIC_2DData.h>
+#include <ParticleSolvers/ParticleSolverFactory.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -182,14 +183,17 @@ struct PIC_2DData
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class PIC_2DSolver : public ParticleSolver2D
+class PIC_2DSolver : public ParticleSolver2D, public RegisteredInFactory<PIC_2DSolver>
 {
 public:
-    PIC_2DSolver() = default;
+    PIC_2DSolver() { __BNN_REQUIRE(RegisteredInFactory<PIC_2DSolver>::s_bRegistered); }
 
     ////////////////////////////////////////////////////////////////////////////////
-    virtual String getSolverName() override { return String("PIC_2DSolver"); }
-    virtual String getGreetingMessage() override { return String("Fluid Simulation using PIC-2D Solver"); }
+    static String                      solverName() { return String("PIC_2DSolver"); }
+    static SharedPtr<ParticleSolver2D> createSolver() { return std::make_shared<PIC_2DSolver>(); }
+
+    virtual String getSolverName() { return PIC_2DSolver::solverName(); }
+    virtual String getSolverDescription() override { return String("Fluid Simulation using PIC-2D Solver"); }
 
     virtual void makeReady() override;
     virtual void advanceFrame() override;

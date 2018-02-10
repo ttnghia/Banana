@@ -28,6 +28,7 @@
 #include <Banana/Utils/NumberHelpers.h>
 #include <ParticleSolvers/ParticleSolver.h>
 #include <ParticleSolvers/ParticleSolverData.h>
+#include <ParticleSolvers/ParticleSolverFactory.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana::ParticleSolvers
@@ -105,14 +106,17 @@ struct PIC_3DData
 // PIC_3DSolver
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class PIC_3DSolver : public ParticleSolver3D
+class PIC_3DSolver : public ParticleSolver3D, public RegisteredInFactory<PIC_3DSolver>
 {
 public:
-    PIC_3DSolver() = default;
+    PIC_3DSolver() { __BNN_REQUIRE(RegisteredInFactory<PIC_3DSolver>::s_bRegistered); }
 
     ////////////////////////////////////////////////////////////////////////////////
-    virtual String getSolverName() override { return String("PIC_3DSolver"); }
-    virtual String getGreetingMessage() override { return String("Fluid Simulation using PIC-3D Solver"); }
+    static String                      solverName() { return String("PIC_3DSolver"); }
+    static SharedPtr<ParticleSolver3D> createSolver() { return std::make_shared<PIC_3DSolver>(); }
+
+    virtual String getSolverName() { return PIC_3DSolver::solverName(); }
+    virtual String getSolverDescription() override { return String("Fluid Simulation using PIC-3D Solver"); }
 
     ////////////////////////////////////////////////////////////////////////////////
     virtual void makeReady() override;

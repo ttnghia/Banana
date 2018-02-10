@@ -60,14 +60,17 @@ struct APIC_3DData
 // APIC_3DSolver
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class APIC_3DSolver : public PIC_3DSolver
+class APIC_3DSolver : public PIC_3DSolver, public RegisteredInFactory<APIC_3DSolver>
 {
 public:
-    APIC_3DSolver() = default;
+    APIC_3DSolver() { __BNN_REQUIRE(RegisteredInFactory<APIC_3DSolver>::s_bRegistered); }
 
     ////////////////////////////////////////////////////////////////////////////////
-    virtual String getSolverName() override { return String("APIC_3DSolver"); }
-    virtual String getGreetingMessage() override { return String("Fluid Simulation using APIC-3D Solver"); }
+    static String                      solverName() { return String("APIC_3DSolver"); }
+    static SharedPtr<ParticleSolver3D> createSolver() { return std::make_shared<APIC_3DSolver>(); }
+
+    virtual String getSolverName() { return APIC_3DSolver::solverName(); }
+    virtual String getSolverDescription() override { return String("Fluid Simulation using APIC-3D Solver"); }
 
     ////////////////////////////////////////////////////////////////////////////////
     auto&       APICData() { return m_APICData; }

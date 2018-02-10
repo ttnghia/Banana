@@ -31,7 +31,7 @@ namespace Banana
 namespace ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class PCISPHSolver : public WCSPH_3DSolver
+class PCISPHSolver : public WCSPH_3DSolver, public RegisteredInFactory<PCISPHSolver>
 {
 public:
     PCISPHSolver(std::shared_ptr<ParameterManager>& params, WCSPH_3DParameters* SPHParams) :
@@ -40,7 +40,10 @@ public:
         density_error_threshold(SPHParams->densityErrorThreshold)
     {
         eta = density_error_threshold * 0.01 * m_RestDensity;
+        __BNN_REQUIRE(RegisteredInFactory<PCISPHSolver>::s_bRegistered);
     }
+
+    static SharedPtr<ParticleSolver3D> createSolver() { return std::make_shared<PCISPHSolver>(); }
 
     virtual void makeReady() override;
     virtual void advanceVelocity(Real timestep) override;

@@ -29,6 +29,7 @@
 #include <Banana/ParallelHelpers/ParallelObjects.h>
 #include <Banana/LinearAlgebra/SparseMatrix/SparseMatrix.h>
 #include <ParticleSolvers/ParticleSolverData.h>
+#include <ParticleSolvers/ParticleSolverFactory.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana
@@ -209,14 +210,17 @@ struct SimulationData_Cloth3D
     }
 };
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class ClothSolver : public ParticleSolver3D
+class ClothSolver : public ParticleSolver3D, public RegisteredInFactory<ClothSolver>
 {
 public:
-    ClothSolver() = default;
+    ClothSolver() { __BNN_REQUIRE(RegisteredInFactory<ClothSolver>::s_bRegistered); }
 
     ////////////////////////////////////////////////////////////////////////////////
-    virtual String getSolverName() override { return String("ClothSolver"); }
-    virtual String getGreetingMessage() override { return String("Cloth Simulation using Mass-Spring System"); }
+    static String                      solverName() { return String("ClothSolver"); }
+    static SharedPtr<ParticleSolver3D> createSolver() { return std::make_shared<ClothSolver>(); }
+
+    virtual String getSolverName() { return ClothSolver::solverName(); }
+    virtual String getSolverDescription() override { return String("Cloth Simulation using Mass-Spring System"); }
 
     virtual void makeReady() override;
     virtual void advanceFrame() override;

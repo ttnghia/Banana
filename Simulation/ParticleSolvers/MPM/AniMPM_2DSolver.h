@@ -103,14 +103,17 @@ struct AniMPM_2DData
 // MPM_2DSolver
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class AniMPM_2DSolver : public MPM_2DSolver
+class AniMPM_2DSolver : public MPM_2DSolver, public RegisteredInFactory<AniMPM_2DSolver>
 {
 public:
-    AniMPM_2DSolver() = default;
+    AniMPM_2DSolver() { __BNN_REQUIRE(RegisteredInFactory<AniMPM_2DSolver>::s_bRegistered); }
 
     ////////////////////////////////////////////////////////////////////////////////
-    virtual String getSolverName() override { return String("AniMPM2DSolver"); }
-    virtual String getGreetingMessage() override { return String("Simulation using Anisotropic-MPM-2D Solver"); }
+    static String                      solverName() { return String("AniMPM2DSolver"); }
+    static SharedPtr<ParticleSolver2D> createSolver() { return std::make_shared<AniMPM_2DSolver>(); }
+
+    virtual String getSolverName() { return AniMPM_2DSolver::solverName(); }
+    virtual String getSolverDescription() override { return String("Simulation using Anisotropic-MPM-2D Solver"); }
 
     virtual void makeReady() override;
     ////////////////////////////////////////////////////////////////////////////////
