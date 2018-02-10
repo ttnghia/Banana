@@ -34,13 +34,13 @@ class ParticleSolverFactory
 {
 public:
     ParticleSolverFactory() = delete;
-    using PtrCreateMethod   = SharedPtr<ParticleSolver<N, RealType> >(*)();
+    using CreateMethodPtr   = SharedPtr<ParticleSolver<N, RealType> >(*)();
     ////////////////////////////////////////////////////////////////////////////////
-    static bool                                    registerSolver(const String& solverName, PtrCreateMethod funcCreate);
+    static bool                                    registerSolver(const String& solverName, CreateMethodPtr funcCreate);
     static SharedPtr<ParticleSolver<N, RealType> > createSolver(const String& solverName);
 
 private:
-    static std::map<String, PtrCreateMethod>& getCreateMethods();
+    static std::map<String, CreateMethodPtr>& getCreateMethods();
 };
 
 
@@ -49,9 +49,9 @@ using ParticleSolverFactory3D = ParticleSolverFactory<3, Real>;
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-bool ParticleSolverFactory<N, RealType >::registerSolver(const String& solverName, PtrCreateMethod funcCreate)
+bool ParticleSolverFactory<N, RealType >::registerSolver(const String& solverName, CreateMethodPtr funcCreate)
 {
-    auto[it, success] = getCreateMethods().insert(std::pair<String, PtrCreateMethod>(solverName, funcCreate));
+    auto[it, success] = getCreateMethods().insert(std::pair<String, CreateMethodPtr>(solverName, funcCreate));
     __BNN_UNUSED(it);
     return success;
 }
@@ -68,9 +68,9 @@ SharedPtr<ParticleSolver<N, RealType> > ParticleSolverFactory<N, RealType >::cre
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-std::map<String, typename ParticleSolverFactory<N, RealType>::PtrCreateMethod>& ParticleSolverFactory<N, RealType >::getCreateMethods()
+std::map<String, typename ParticleSolverFactory<N, RealType>::CreateMethodPtr>& ParticleSolverFactory<N, RealType >::getCreateMethods()
 {
-    static std::map<String, PtrCreateMethod> mCreateMethods;
+    static std::map<String, CreateMethodPtr> mCreateMethods;
     return mCreateMethods;
 }
 
