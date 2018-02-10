@@ -106,7 +106,7 @@ struct AniMPM_2DData
 class AniMPM_2DSolver : public MPM_2DSolver, public RegisteredInFactory<AniMPM_2DSolver>
 {
 public:
-    AniMPM_2DSolver() { __BNN_REQUIRE(RegisteredInFactory<AniMPM_2DSolver>::s_bRegistered); }
+    AniMPM_2DSolver() = default;
 
     ////////////////////////////////////////////////////////////////////////////////
     static String                      solverName() { return String("AniMPM2DSolver"); }

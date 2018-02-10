@@ -158,7 +158,7 @@ private:
 class MPM_3DSolver : public ParticleSolver3D, public RegisteredInFactory<MPM_3DSolver>
 {
 public:
-    MPM_3DSolver() { __BNN_REQUIRE(RegisteredInFactory<MPM_3DSolver>::s_bRegistered); }
+    MPM_3DSolver() = default;
 
     ////////////////////////////////////////////////////////////////////////////////
     static String                      solverName() { return String("MPM3DSolver"); }

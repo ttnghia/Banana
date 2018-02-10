@@ -79,6 +79,7 @@ template<class Solver>
 class RegisteredInFactory
 {
 protected:
+    RegisteredInFactory() { __BNN_REQUIRE(s_bRegistered); }
     static bool s_bRegistered;
 };
 

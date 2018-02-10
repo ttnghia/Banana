@@ -63,7 +63,7 @@ struct APIC_3DData
 class APIC_3DSolver : public PIC_3DSolver, public RegisteredInFactory<APIC_3DSolver>
 {
 public:
-    APIC_3DSolver() { __BNN_REQUIRE(RegisteredInFactory<APIC_3DSolver>::s_bRegistered); }
+    APIC_3DSolver() = default;
 
     ////////////////////////////////////////////////////////////////////////////////
     static String                      solverName() { return String("APIC_3DSolver"); }

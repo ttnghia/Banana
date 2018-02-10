@@ -295,7 +295,7 @@ struct SimulationData_Snow3D
 class Snow3DSolver : public ParticleSolver3D, public RegisteredInFactory<Snow3DSolver>
 {
 public:
-    Snow3DSolver() { __BNN_REQUIRE(RegisteredInFactory<Snow3DSolver>::s_bRegistered); }
+    Snow3DSolver() = default;
 
     ////////////////////////////////////////////////////////////////////////////////
     static String                      solverName() { return String("MPM3DSolver"); }

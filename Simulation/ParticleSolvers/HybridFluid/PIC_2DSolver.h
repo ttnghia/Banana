@@ -186,7 +186,7 @@ struct PIC_2DData
 class PIC_2DSolver : public ParticleSolver2D, public RegisteredInFactory<PIC_2DSolver>
 {
 public:
-    PIC_2DSolver() { __BNN_REQUIRE(RegisteredInFactory<PIC_2DSolver>::s_bRegistered); }
+    PIC_2DSolver() = default;
 
     ////////////////////////////////////////////////////////////////////////////////
     static String                      solverName() { return String("PIC_2DSolver"); }

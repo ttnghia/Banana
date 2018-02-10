@@ -216,7 +216,7 @@ struct SimulationData_Peridynamics3D : public ParticleSimulationData<3, Real>
 class PeridynamicsSolver : public ParticleSolver3D, public RegisteredInFactory<PeridynamicsSolver>
 {
 public:
-    PeridynamicsSolver() { __BNN_REQUIRE(RegisteredInFactory<PeridynamicsSolver>::s_bRegistered); }
+    PeridynamicsSolver() = default;
 
     ////////////////////////////////////////////////////////////////////////////////
     static String                      solverName() { return String("Peridynamics3DSolver"); }

@@ -298,7 +298,7 @@ struct SimulationData_Snow2D
 class Snow2DSolver : public ParticleSolver2D, public RegisteredInFactory<Snow2DSolver>
 {
 public:
-    Snow2DSolver() { __BNN_REQUIRE(RegisteredInFactory<Snow2DSolver>::s_bRegistered); }
+    Snow2DSolver() = default;
 
     ////////////////////////////////////////////////////////////////////////////////
     static String                      solverName() { return String("MPM2DSolver"); }

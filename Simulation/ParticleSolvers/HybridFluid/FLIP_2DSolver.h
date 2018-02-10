@@ -71,7 +71,7 @@ struct FLIP_2DData : public GridSimulationData2D
 class FLIP_2DSolver : public PIC_2DSolver, public RegisteredInFactory<FLIP_2DSolver>
 {
 public:
-    FLIP_2DSolver() { __BNN_REQUIRE(RegisteredInFactory<FLIP_2DSolver>::s_bRegistered); }
+    FLIP_2DSolver() = default;
 
     ////////////////////////////////////////////////////////////////////////////////
     static String                      solverName() { return String("FLIP_2DSolver"); }

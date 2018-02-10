@@ -111,7 +111,7 @@ struct WCSPH_3DData : public ParticleSimulationData3D
 class WCSPH_3DSolver : public ParticleSolver3D, public RegisteredInFactory<WCSPH_3DSolver>
 {
 public:
-    WCSPH_3DSolver() { __BNN_REQUIRE(RegisteredInFactory<WCSPH_3DSolver>::s_bRegistered); }
+    WCSPH_3DSolver() = default;
 
     ////////////////////////////////////////////////////////////////////////////////
     static String                      solverName() { return String("WCSPHSolver"); }

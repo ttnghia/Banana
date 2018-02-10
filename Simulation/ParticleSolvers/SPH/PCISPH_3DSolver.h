@@ -40,7 +40,6 @@ public:
         density_error_threshold(SPHParams->densityErrorThreshold)
     {
         eta = density_error_threshold * 0.01 * m_RestDensity;
-        __BNN_REQUIRE(RegisteredInFactory<PCISPHSolver>::s_bRegistered);
     }
 
     static SharedPtr<ParticleSolver3D> createSolver() { return std::make_shared<PCISPHSolver>(); }

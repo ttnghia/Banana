@@ -74,7 +74,7 @@ struct APIC_2DData : public ParticleSimulationData2D
 class APIC_2DSolver : public PIC_2DSolver, public RegisteredInFactory<APIC_2DSolver>
 {
 public:
-    APIC_2DSolver() { __BNN_REQUIRE(RegisteredInFactory<APIC_2DSolver>::s_bRegistered); }
+    APIC_2DSolver() = default;
 
     ////////////////////////////////////////////////////////////////////////////////
     static String                      solverName() { return String("APIC_2DSolver"); }

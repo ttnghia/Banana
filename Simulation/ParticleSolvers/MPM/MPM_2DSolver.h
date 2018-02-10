@@ -198,7 +198,7 @@ private:
 class MPM_2DSolver : public ParticleSolver2D, public RegisteredInFactory<MPM_2DSolver>
 {
 public:
-    MPM_2DSolver() { __BNN_REQUIRE(RegisteredInFactory<MPM_2DSolver>::s_bRegistered); }
+    MPM_2DSolver() = default;
 
     ////////////////////////////////////////////////////////////////////////////////
     static String                      solverName() { return String("MPM2DSolver"); }

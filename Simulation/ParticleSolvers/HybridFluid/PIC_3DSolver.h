@@ -109,7 +109,7 @@ struct PIC_3DData
 class PIC_3DSolver : public ParticleSolver3D, public RegisteredInFactory<PIC_3DSolver>
 {
 public:
-    PIC_3DSolver() { __BNN_REQUIRE(RegisteredInFactory<PIC_3DSolver>::s_bRegistered); }
+    PIC_3DSolver() = default;
 
     ////////////////////////////////////////////////////////////////////////////////
     static String                      solverName() { return String("PIC_3DSolver"); }

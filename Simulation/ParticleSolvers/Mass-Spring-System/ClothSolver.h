@@ -213,7 +213,7 @@ struct SimulationData_Cloth3D
 class ClothSolver : public ParticleSolver3D, public RegisteredInFactory<ClothSolver>
 {
 public:
-    ClothSolver() { __BNN_REQUIRE(RegisteredInFactory<ClothSolver>::s_bRegistered); }
+    ClothSolver() = default;
 
     ////////////////////////////////////////////////////////////////////////////////
     static String                      solverName() { return String("ClothSolver"); }

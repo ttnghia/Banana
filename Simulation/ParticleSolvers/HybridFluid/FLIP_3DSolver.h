@@ -50,7 +50,7 @@ struct FLIP_3DData : public GridSimulationData3D
 class FLIP_3DSolver : public PIC_3DSolver, public RegisteredInFactory<FLIP_3DSolver>
 {
 public:
-    FLIP_3DSolver() { __BNN_REQUIRE(RegisteredInFactory<FLIP_3DSolver>::s_bRegistered); }
+    FLIP_3DSolver() = default;
 
     ////////////////////////////////////////////////////////////////////////////////
     static String                      solverName() { return String("FLIP_3DSolver"); }

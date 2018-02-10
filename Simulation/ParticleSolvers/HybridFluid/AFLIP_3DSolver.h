@@ -61,7 +61,7 @@ struct AFLIP_3DData
 class AFLIP_3DSolver : public PIC_3DSolver, public RegisteredInFactory<AFLIP_3DSolver>
 {
 public:
-    AFLIP_3DSolver() { __BNN_REQUIRE(RegisteredInFactory<AFLIP_3DSolver>::s_bRegistered); }
+    AFLIP_3DSolver() = default;
 
     ////////////////////////////////////////////////////////////////////////////////
     static String                      solverName() { return String("AFLIP_3DSolver"); }
