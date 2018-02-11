@@ -69,7 +69,7 @@ inline void scan(VecX<N, IndexType> idx, const VecX<N, IndexType>& minIdx, const
     } else {
         for(IndexType i = minIdx[dim]; i < maxIdx[dim]; ++i) {
             idx[dim] = i;
-            scan(idx, minIdx, maxIdx, f, dim + 1);
+            scan(idx, minIdx, maxIdx, std::forward<Function>(f), dim + 1);
         }
     }
 }
@@ -77,13 +77,19 @@ inline void scan(VecX<N, IndexType> idx, const VecX<N, IndexType>& minIdx, const
 template<Int N, class IndexType, class Function>
 inline void scan(const VecX<N, IndexType>& minIdx, const VecX<N, IndexType>& maxIdx, Function&& f, Int dim = 0)
 {
-    scan(VecX<N, IndexType>(0), minIdx, maxIdx, f, dim);
+    scan(VecX<N, IndexType>(0), minIdx, maxIdx, std::forward<Function>(f), dim);
 }
 
 template<Int N, class IndexType, class Function>
 inline void scan(const VecX<N, IndexType>& maxIdx, Function&& f, Int dim = 0)
 {
-    scan(VecX<N, IndexType>(0), VecX<N, IndexType>(0), maxIdx, f, dim);
+    scan(VecX<N, IndexType>(0), VecX<N, IndexType>(0), maxIdx, std::forward<Function>(f), dim);
+}
+
+template<Int N, class IndexType, class Function>
+inline void scan11(Function&& f)
+{
+    scan(VecX<N, IndexType>(0), VecX<N, IndexType>(-1), VecX<N, IndexType>(2), std::forward<Function>(f));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
