@@ -51,11 +51,11 @@ public:
     auto& restitution() { return m_RestitutionCoeff; }
     auto& isDynamic() { return m_bDynamics; }
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    virtual RealType          signedDistance(const VecX<N, RealType>& ppos) const override { return m_GeometryObj->signedDistance(ppos, false); }
-    virtual VecX<N, RealType> gradSignedDistance(const VecX<N, RealType>& ppos, RealType dxyz = RealType(1e-4)) const override { return m_GeometryObj->gradSignedDistance(ppos, false, dxyz); }
-    virtual bool              isInside(const VecX<N, RealType>& ppos) const override { return m_GeometryObj->isInside(ppos, false); }
+    virtual RealType signedDistance(const VecN& ppos) const override { return m_GeometryObj->signedDistance(ppos, false); }
+    virtual VecN     gradSignedDistance(const VecN& ppos, RealType dxyz = RealType(1e-4)) const override { return m_GeometryObj->gradSignedDistance(ppos, false, dxyz); }
+    virtual bool     isInside(const VecN& ppos) const override { return m_GeometryObj->isInside(ppos, false); }
     ////////////////////////////////////////////////////////////////////////////////
-    void constrainToBoundary(VecX<N, RealType>& ppos);
+    void constrainToBoundary(VecN& ppos);
     UInt generateBoundaryParticles(Vec_VecX<N, RealType>& PDPositions, RealType particleRadius, Int numBDLayers = 2, bool useCache = true);
 
 protected:
@@ -80,9 +80,9 @@ public:
         __BNN_REQUIRE(m_Box != nullptr);
     }
 
-    VecX<N, RealType> boxMin() const noexcept { return m_Box->boxMin(); }
-    VecX<N, RealType> boxMax() const noexcept { return m_Box->boxMax(); }
-    void              setSizeScale(const VecX<N, RealType>& sizeScale) { m_Box->setSizeScale(sizeScale); }
+    VecN boxMin() const noexcept { return m_Box->boxMin(); }
+    VecN boxMax() const noexcept { return m_Box->boxMax(); }
+    void setSizeScale(const VecN& sizeScale) { m_Box->setSizeScale(sizeScale); }
 
 protected:
     BoxPtr m_Box;

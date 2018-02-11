@@ -276,12 +276,11 @@ void PIC_3DSolver::generateParticles(const nlohmann::json& jParams)
         for(auto& generator : m_ParticleGenerators) {
             generator->buildObject(m_BoundaryObjects, solverParams().particleRadius);
             ////////////////////////////////////////////////////////////////////////////////
-            particleData().tmp_positions.resize(0);
-            particleData().tmp_velocities.resize(0);
-            UInt nGen = generator->generateParticles(particleData().positions, particleData().tmp_positions, particleData().tmp_velocities);
-            particleData().addParticles(particleData().tmp_positions, particleData().tmp_velocities);
-            ////////////////////////////////////////////////////////////////////////////////
-            logger().printLogIf(nGen > 0, String("Generated ") + NumberHelpers::formatWithCommas(nGen) + String(" particles by ") + generator->nameID());
+            UInt nGen = generator->generateParticles(particleData().positions);
+            if(nGen > 0) {
+                particleData().addParticles(generator->generatedPositions(), generator->generatedVelocities());
+                logger().printLog(String("Generated ") + NumberHelpers::formatWithCommas(nGen) + String(" particles by ") + generator->nameID());
+            }
         }
         __BNN_REQUIRE(particleData().getNParticles() > 0);
         m_NSearch->add_point_set(glm::value_ptr(particleData().positions.front()), particleData().getNParticles(), true, true);
@@ -310,12 +309,11 @@ bool PIC_3DSolver::advanceScene()
     // add/remove particles
     for(auto& generator : m_ParticleGenerators) {
         if(generator->isActive(globalParams().finishedFrame)) {
-            particleData().tmp_positions.resize(0);
-            particleData().tmp_velocities.resize(0);
-            UInt nGen = generator->generateParticles(particleData().positions, particleData().tmp_positions, particleData().tmp_velocities, globalParams().finishedFrame);
-            particleData().addParticles(particleData().tmp_positions, particleData().tmp_velocities);
-            ////////////////////////////////////////////////////////////////////////////////
-            logger().printLogIndentIf(nGen > 0, String("Generated ") + NumberHelpers::formatWithCommas(nGen) + String(" new particles by ") + generator->nameID());
+            UInt nGen = generator->generateParticles(particleData().positions, globalParams().finishedFrame);
+            if(nGen > 0) {
+                particleData().addParticles(generator->generatedPositions(), generator->generatedVelocities());
+                logger().printLogIndent(String("Generated ") + NumberHelpers::formatWithCommas(nGen) + String(" particles by ") + generator->nameID());
+            }
             bSceneChanged |= (nGen > 0);
         }
     }

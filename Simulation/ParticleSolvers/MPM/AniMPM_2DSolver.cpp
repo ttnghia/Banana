@@ -205,12 +205,11 @@ void AniMPM_2DSolver::generateParticles(const nlohmann::json& jParams)
         for(auto& generator : m_ParticleGenerators) {
             generator->buildObject(m_BoundaryObjects, solverParams().particleRadius);
             ////////////////////////////////////////////////////////////////////////////////
-            particleData().tmp_positions.resize(0);
-            particleData().tmp_velocities.resize(0);
-            UInt nGen = generator->generateParticles(particleData().positions, particleData().tmp_positions, particleData().tmp_velocities);
-            particleData().addParticles(particleData().tmp_positions, particleData().tmp_velocities);
-            ////////////////////////////////////////////////////////////////////////////////
-            logger().printLogIf(nGen > 0, String("Generated ") + NumberHelpers::formatWithCommas(nGen) + String(" particles by ") + generator->nameID());
+            UInt nGen = generator->generateParticles(particleData().positions);
+            if(nGen > 0) {
+                particleData().addParticles(generator->generatedPositions(), generator->generatedVelocities());
+                logger().printLog(String("Generated ") + NumberHelpers::formatWithCommas(nGen) + String(" particles by ") + generator->nameID());
+            }
         }
 
         __BNN_REQUIRE(particleData().getNParticles() > 0);

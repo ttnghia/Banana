@@ -39,7 +39,7 @@ UInt BoundaryObject<N, RealType >::generateBoundaryParticles(Vec_VecX<N, RealTyp
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void BoundaryObject<N, RealType >::constrainToBoundary(VecX<N, RealType>& ppos)
+void BoundaryObject<N, RealType >::constrainToBoundary(VecN& ppos)
 {
     const auto phiVal = signedDistance(ppos);
     if(phiVal < 0) {

@@ -21,7 +21,6 @@
 
 #pragma once
 
-#include <Banana/Setup.h>
 #include <ParticleSolvers/ParticleSolver.h>
 #include <map>
 

@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include <SimulationObjects/HairObjectGenerator.h>
+#include <SimulationObjects/ParticleGenerator.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana::SimulationObjects
@@ -46,10 +46,6 @@ protected:
     template<class VelocityGenerator = decltype(DefaultFunctions::velocityGenerator)>
     UInt addFullShapeParticles(const Vec_VecX<N, RealType>& currentPositions, Vec_VecX<N, RealType>& newPositions, Vec_VecX<N, RealType>& newVelocities,
                                VelocityGenerator&& velGenerator = std::forward<decltype(DefaultFunctions::velocityGenerator)>(DefaultFunctions::velocityGenerator));
-
-    template<class VelocityGenerator = decltype(DefaultFunctions::velocityGenerator)>
-    UInt addParticles(const Vec_VecX<N, RealType>& currentPositions, Vec_VecX<N, RealType>& newPositions, Vec_VecX<N, RealType>& newVelocities,
-                      VelocityGenerator&& velGenerator = std::forward<decltype(DefaultFunctions::velocityGenerator)>(DefaultFunctions::velocityGenerator));
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -87,7 +83,7 @@ void HairObjectGenerator<N, RealType >::buildObject(const Vector<SharedPtr<Bound
     NumberHelpers::scan(pGrid,
                         [&](const auto& idx)
                         {
-                            VecX<N, RealType> ppos = boxMin + NumberHelpers::convert<RealType>(idx) * spacing;
+                            VecN ppos = boxMin + NumberHelpers::convert<RealType>(idx) * spacing;
                             for(auto& bdObj : boundaryObjects) {
                                 if(bdObj->signedDistance(ppos) < 0) {
                                     return;
@@ -156,18 +152,17 @@ UInt HairObjectGenerator<N, RealType > ::addFullShapeParticles(const Vec_VecX<N,
                                 {
                                     const auto& ppos    = m_ObjParticles[p];
                                     const auto pCellIdx = m_Grid.getCellIdx<Int>(ppos);
-                                    NumberHelpers::scan(VecX<N, Int>(-1), VecX<N, Int>(2),
-                                                        [&](const auto& idx)
-                                                        {
-                                                            auto cellIdx = idx + pCellIdx;
-                                                            if(m_Grid.isValidCell(cellIdx)) {
-                                                                for(auto q : m_ParticleIdxInCell(cellIdx)) {
-                                                                    if(glm::length2(ppos - currentPositions[q]) < m_MinDistanceSqr) {
-                                                                        bEmptyRegion = false;
-                                                                    }
-                                                                }
-                                                            }
-                                                        });
+                                    NumberHelpers::scan11<N, Int>([&](const auto& idx)
+                                                                  {
+                                                                      auto cellIdx = idx + pCellIdx;
+                                                                      if(m_Grid.isValidCell(cellIdx)) {
+                                                                          for(auto q : m_ParticleIdxInCell(cellIdx)) {
+                                                                              if(glm::length2(ppos - currentPositions[q]) < m_MinDistanceSqr) {
+                                                                                  bEmptyRegion = false;
+                                                                              }
+                                                                          }
+                                                                      }
+                                                                  });
                                 });
     }
 
@@ -181,64 +176,6 @@ UInt HairObjectGenerator<N, RealType > ::addFullShapeParticles(const Vec_VecX<N,
     }
 
     return static_cast<UInt>(m_ObjParticles.size());
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<Int N, class RealType>
-template<class VelocityGenerator /* = decltype(DefaultFunctions::velocityGenerator)*/>
-UInt HairObjectGenerator<N, RealType > ::addParticles(const Vec_VecX<N, RealType>& currentPositions,
-                                                      Vec_VecX<N, RealType>& newPositions, Vec_VecX<N, RealType>& newVelocities,
-                                                      VelocityGenerator&& velGenerator)
-
-{
-    newPositions.reserve(newPositions.size() + m_ObjParticles.size());
-    newVelocities.reserve(newVelocities.size() + m_ObjParticles.size());
-    UInt                      nGenerated = 0;
-    ParallelObjects::SpinLock lock;
-
-    if(currentPositions.size() > 0) {
-        for(const auto& ppos0 : m_ObjParticles) {
-            for(UInt i = 0; i < m_MaxIters; ++i) {
-                bool              bValid = true;
-                VecX<N, RealType> ppos   = ppos0;
-                NumberHelpers::jitter(ppos, m_Jitter);
-                const auto pCellIdx = m_Grid.getCellIdx<Int>(ppos);
-
-                NumberHelpers::scan(VecX<N, Int>(-1), VecX<N, Int>(2),
-                                    [&](const auto& idx)
-                                    {
-                                        auto cellIdx = idx + pCellIdx;
-                                        if(m_Grid.isValidCell(cellIdx)) {
-                                            for(auto q : m_ParticleIdxInCell(cellIdx)) {
-                                                if(glm::length2(ppos - currentPositions[q]) < m_MinDistanceSqr) {
-                                                    bValid = false;
-                                                }
-                                            }
-                                        }
-                                    });
-
-                if(bValid) {
-                    lock.lock();
-                    newPositions.push_back(ppos);
-                    ++nGenerated;
-                    lock.unlock();
-                    break;
-                }
-            }
-        }
-    } else {
-        for(const auto& ppos0 : m_ObjParticles) {
-            VecX<N, RealType> ppos = ppos0;
-            NumberHelpers::jitter(ppos, m_Jitter);
-            newPositions.push_back(ppos);
-            ++nGenerated;
-        }
-    }
-
-    for(size_t i = newVelocities.size(); i < newPositions.size(); ++i) {
-        newVelocities.push_back(velGenerator(newPositions[i], m_v0));
-    }
-    return nGenerated;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
