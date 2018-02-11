@@ -136,6 +136,8 @@
     <ClInclude Include="Optimization\LBFGSSolver.h" />
     <ClInclude Include="Optimization\MoreThuente.h" />
     <ClInclude Include="Optimization\Problem.h" />
+    <ClInclude Include="ParticleSolvers\HybridFluid\NarrowBandFLIP_2DSolver.h" />
+    <ClInclude Include="ParticleSolvers\HybridFluid\NarrowBandFLIP_3DSolver.h" />
     <ClInclude Include="ParticleSolvers\Mass-Spring-System\ClothSolver.h" />
     <ClInclude Include="ParticleSolvers\MPM\MPM_2DSolver.h" />
     <ClInclude Include="ParticleSolvers\MPM\AniMPM_2DSolver.h" />
@@ -167,6 +169,7 @@
     <ClInclude Include="ParticleTools\ParticleSerialization.h" />
     <ClInclude Include="ParticleTools\ParticleSerialization.Impl.hpp" />
     <ClInclude Include="ParticleTools\ParticleSerialization.Test.hpp" />
+    <ClInclude Include="SimulationObjects\HairObjectGenerator.h" />
     <ClInclude Include="SimulationObjects\ParticleRemover.h" />
     <ClInclude Include="SimulationObjects\SimulationObject.h" />
     <ClInclude Include="SurfaceReconstruction\AniKernelGenerator.h" />
@@ -189,6 +192,8 @@
     <ClInclude Include="SurfaceReconstruction\MarchingCube.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ParticleSolvers\HybridFluid\NarrowBandFLIP_2DSolver.cpp" />
+    <ClCompile Include="ParticleSolvers\HybridFluid\NarrowBandFLIP_3DSolver.cpp" />
     <ClCompile Include="ParticleSolvers\MPM\MPM_2DSolver.cpp" />
     <ClCompile Include="ParticleSolvers\MPM\AniMPM_2DSolver.cpp" />
     <ClCompile Include="ParticleSolvers\MPM\MPM_3DSolver.cpp" />
