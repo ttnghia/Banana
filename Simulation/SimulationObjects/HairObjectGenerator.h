@@ -83,7 +83,7 @@ void HairObjectGenerator<N, RealType >::buildObject(const Vector<SharedPtr<Bound
     NumberHelpers::scan(pGrid,
                         [&](const auto& idx)
                         {
-                            VecN ppos = boxMin + NumberHelpers::convert<RealType>(idx) * spacing;
+                            VecNr ppos = boxMin + NumberHelpers::convert<RealType>(idx) * spacing;
                             for(auto& bdObj : boundaryObjects) {
                                 if(bdObj->signedDistance(ppos) < 0) {
                                     return;
