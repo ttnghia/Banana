@@ -28,7 +28,7 @@
 #include <future>
 
 #include "Common.h"
-#include "ParticleSolverQt.h"
+#include "ParticleSolverInterface.h"
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 class Simulator : public QObject
@@ -62,12 +62,11 @@ signals:
     void frameFinished();
 
 private:
-    SharedPtr<VisualizationData> m_VizData        = std::make_shared<VisualizationData>();
-    SharedPtr<SolverQtBase>      m_ParticleSolver = nullptr;
-    std::future<void>            m_SimulationFutureObj;
-
-    QString       m_Scene;
-    volatile bool m_bStop             = true;
-    volatile bool m_bWaitForSavingImg = false;
-    volatile bool m_bExportImg        = false;
+    SharedPtr<VisualizationData>       m_VizData        = std::make_shared<VisualizationData>();
+    SharedPtr<ParticleSolverInterface> m_ParticleSolver = nullptr;
+    std::future<void>                  m_SimulationFutureObj;
+    QString                            m_Scene;
+    volatile bool                      m_bStop             = true;
+    volatile bool                      m_bWaitForSavingImg = false;
+    volatile bool                      m_bExportImg        = false;
 };

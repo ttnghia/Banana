@@ -163,7 +163,7 @@ public:
     MPM_3DSolver() = default;
 
     ////////////////////////////////////////////////////////////////////////////////
-    static String                      solverName() { return String("MPM3DSolver"); }
+    static String                      solverName() { return String("MPM_3DSolver"); }
     static SharedPtr<ParticleSolver3D> createSolver() { return std::make_shared<MPM_3DSolver>(); }
 
     virtual String getSolverName() { return MPM_3DSolver::solverName(); }

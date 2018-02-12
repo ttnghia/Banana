@@ -66,6 +66,8 @@ public:
     void loadScene(const String& sceneFile);
     void setupLogger();
     void doSimulation();
+    void doFrameSimulation(UInt frame);
+    void finalizeSimulation();
 
     ////////////////////////////////////////////////////////////////////////////////
     virtual String getSolverName()        = 0;
@@ -76,8 +78,8 @@ public:
     virtual void sortParticles() {}
 
     ////////////////////////////////////////////////////////////////////////////////
-    SimulationParameters<N, RealType>&         generalSimParams() { __BNN_REQUIRE(m_SolverParams != nullptr); return *m_SolverParams; }
-    const SimulationParameters<N, RealType>&   generalSimParams() const { __BNN_REQUIRE(m_SolverParams != nullptr); return *m_SolverParams; }
+    SimulationParameters<N, RealType>&         generalSolverParams() { __BNN_REQUIRE(m_SolverParams != nullptr); return *m_SolverParams; }
+    const SimulationParameters<N, RealType>&   generalSolverParams() const { __BNN_REQUIRE(m_SolverParams != nullptr); return *m_SolverParams; }
     ParticleSimulationData<N, RealType>&       generalParticleData() { __BNN_REQUIRE(m_SolverData != nullptr); return m_SolverData->generalParticleData(); }
     const ParticleSimulationData<N, RealType>& generalParticleData() const { __BNN_REQUIRE(m_SolverData != nullptr); return m_SolverData->generalParticleData(); }
 
@@ -257,6 +259,9 @@ void ParticleSolver<N, RealType >::loadScene(const String& sceneFile)
             }
         }
     }
+
+    ////////////////////////////////////////////////////////////////////////////////
+    makeReady();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -275,34 +280,47 @@ void ParticleSolver<N, RealType >::setupLogger()
 template<Int N, class RealType>
 void ParticleSolver<N, RealType >::doSimulation()
 {
-    makeReady();
+    logger().printAligned("Start Simulation", '=');
     ////////////////////////////////////////////////////////////////////////////////
     m_ThreadInit.reset();
     m_ThreadInit = std::make_unique<tbb::task_scheduler_init>(globalParams().nThreads == 0 ? tbb::task_scheduler_init::automatic : globalParams().nThreads);
-    logger().printAligned("Start Simulation", '=');
 
-    auto startFrame = (globalParams().startFrame <= 1) ? globalParams().finishedFrame + 1 : MathHelpers::min(globalParams().startFrame, globalParams().finishedFrame + 1);
+    auto startFrame = (globalParams().startFrame <= 1) ?
+                      globalParams().finishedFrame + 1 :
+                      MathHelpers::min(globalParams().startFrame, globalParams().finishedFrame + 1);
     for(auto frame = startFrame; frame <= globalParams().finalFrame; ++frame) {
-        logger().newLine();
-        logger().printAligned(String("Frame ") + NumberHelpers::formatWithCommas(frame), '=');
-        logger().newLine();
-
-        ////////////////////////////////////////////////////////////////////////////////
-        const String strMsg = String("Frame finished. Frame duration: ") + NumberHelpers::formatToScientific(globalParams().frameDuration) +
-                              String("(s) (~") + std::to_string(static_cast<int>(round(1.0_f / globalParams().frameDuration))) + String(" fps). Run time: ");
-        logger().printRunTime(strMsg.c_str(),
-                              [&]()
-                              {
-                                  sortParticles();
-                                  advanceFrame();
-                              });
-
-        ////////////////////////////////////////////////////////////////////////////////
-        logger().printMemoryUsage();
-        logger().newLine();
+        doFrameSimulation(frame);
     }
+    finalizeSimulation();
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType>
+void ParticleSolver<N, RealType >::doFrameSimulation(UInt frame)
+{
+    logger().newLine();
+    logger().printAligned(String("Frame ") + NumberHelpers::formatWithCommas(frame), '=');
+    logger().newLine();
 
     ////////////////////////////////////////////////////////////////////////////////
+    const String strMsg = String("Frame finished. Frame duration: ") + NumberHelpers::formatToScientific(globalParams().frameDuration) +
+                          String("(s) (~") + std::to_string(static_cast<int>(round(1.0_f / globalParams().frameDuration))) + String(" fps). Run time: ");
+    logger().printRunTime(strMsg.c_str(),
+                          [&]()
+                          {
+                              sortParticles();
+                              advanceFrame();
+                          });
+
+    ////////////////////////////////////////////////////////////////////////////////
+    logger().printMemoryUsage();
+    logger().newLine();
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType>
+void ParticleSolver<N, RealType >::finalizeSimulation()
+{
     logger().newLine();
     logger().printAligned(String("Simulation finished"), '+');
     logger().printLog(String("Total frames: ") + NumberHelpers::formatWithCommas(globalParams().finishedFrame - globalParams().startFrame + 1) +
@@ -429,7 +447,7 @@ void Banana::ParticleSolvers::ParticleSolver<N, RealType >::logSubstepData()
     }
 
     if(globalParams().bSaveSubstepData && globalParams().isSavingData("SubStepKineticEnergy")) {
-        Real   kineticEnergy = ParallelSTL::sum_sqr<N, RealType>(generalParticleData().velocities) * generalSimParams().particleMass * 0.5_f;
+        Real   kineticEnergy = ParallelSTL::sum_sqr<N, RealType>(generalParticleData().velocities) * generalSolverParams().particleMass * 0.5_f;
         String dataStr       = String("SystemTime: ") + NumberHelpers::formatToScientific(globalParams().evolvedTime(), 10) +
                                String(" | SystemKineticEnergy: ") + NumberHelpers::formatToScientific(kineticEnergy, 10);
         dataLogger("SubStepKineticEnergy").printLog(dataStr);

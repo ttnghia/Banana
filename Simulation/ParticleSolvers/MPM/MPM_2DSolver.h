@@ -203,7 +203,7 @@ public:
     MPM_2DSolver() = default;
 
     ////////////////////////////////////////////////////////////////////////////////
-    static String                      solverName() { return String("MPM2DSolver"); }
+    static String                      solverName() { return String("MPM_2DSolver"); }
     static SharedPtr<ParticleSolver2D> createSolver() { return std::make_shared<MPM_2DSolver>(); }
 
     virtual String getSolverName() { return MPM_2DSolver::solverName(); }

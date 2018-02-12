@@ -43,7 +43,7 @@ HEADERS += \
     Source/Simulator.h \
     Source/RenderWidget.h \
     Source/Controller.h \
-    Source/ParticleSolverQt.h
+    Source/ParticleSolverInterface.h
 
 SOURCES += \
     Source/Main.cpp \

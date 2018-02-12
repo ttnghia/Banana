@@ -126,7 +126,7 @@ public:
     WCSPH_3DSolver() = default;
 
     ////////////////////////////////////////////////////////////////////////////////
-    static String                      solverName() { return String("WCSPHSolver"); }
+    static String                      solverName() { return String("WCSPH_3DSolver"); }
     static SharedPtr<ParticleSolver3D> createSolver() { return std::make_shared<WCSPH_3DSolver>(); }
 
     virtual String getSolverName() { return WCSPH_3DSolver::solverName(); }

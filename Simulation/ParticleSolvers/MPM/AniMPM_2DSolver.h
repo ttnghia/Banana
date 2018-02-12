@@ -109,7 +109,7 @@ public:
     AniMPM_2DSolver() = default;
 
     ////////////////////////////////////////////////////////////////////////////////
-    static String                      solverName() { return String("AniMPM2DSolver"); }
+    static String                      solverName() { return String("AniMPM_2DSolver"); }
     static SharedPtr<ParticleSolver2D> createSolver() { return std::make_shared<AniMPM_2DSolver>(); }
 
     virtual String getSolverName() { return AniMPM_2DSolver::solverName(); }

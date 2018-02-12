@@ -50,6 +50,10 @@ using ParticleSolverFactory3D = ParticleSolverFactory<3, Real>;
 template<Int N, class RealType>
 bool ParticleSolverFactory<N, RealType >::registerSolver(const String& solverName, CreateMethodPtr funcCreate)
 {
+#ifdef __BANANA_DEBUG__
+    printf("Register particle solver: %s\n", solverName.c_str());
+    fflush(stdout);
+#endif
     auto[it, success] = getCreateMethods().insert(std::pair<String, CreateMethodPtr>(solverName, funcCreate));
     __BNN_UNUSED(it);
     return success;
@@ -59,7 +63,7 @@ bool ParticleSolverFactory<N, RealType >::registerSolver(const String& solverNam
 template<Int N, class RealType>
 SharedPtr<ParticleSolver<N, RealType> > ParticleSolverFactory<N, RealType >::createSolver(const String& solverName)
 {
-    if(auto it = getCreateMethods().find(name); it != getCreateMethods().end()) {
+    if(auto it = getCreateMethods().find(solverName); it != getCreateMethods().end()) {
         return it->second();     // call the createFunc
     }
     return nullptr;
