@@ -59,7 +59,7 @@ class ParticleSolver
 public:
     static constexpr UInt solverDimension() noexcept { return static_cast<UInt>(N); }
     using SolverRealType = typename RealType;
-
+    ////////////////////////////////////////////////////////////////////////////////
     ParticleSolver() = default;
     virtual ~ParticleSolver() { Logger::shutdown(); }
 
@@ -75,10 +75,12 @@ public:
     virtual void advanceFrame() = 0;
     virtual void sortParticles() {}
 
-    virtual SimulationParameters<N, RealType>*   commonSimData()      = 0;
-    virtual ParticleSimulationData<N, RealType>* commonParticleData() = 0;
-
     ////////////////////////////////////////////////////////////////////////////////
+    SimulationParameters<N, RealType>&         generalSimParams() { __BNN_REQUIRE(m_SolverParams != nullptr); return *m_SolverParams; }
+    const SimulationParameters<N, RealType>&   generalSimParams() const { __BNN_REQUIRE(m_SolverParams != nullptr); return *m_SolverParams; }
+    ParticleSimulationData<N, RealType>&       generalParticleData() { __BNN_REQUIRE(m_SolverData != nullptr); return m_SolverData->generalParticleData(); }
+    const ParticleSimulationData<N, RealType>& generalParticleData() const { __BNN_REQUIRE(m_SolverData != nullptr); return m_SolverData->generalParticleData(); }
+
     auto&       globalParams() noexcept { return m_GlobalParams; }
     const auto& globalParams() const noexcept { return m_GlobalParams; }
     auto&       logger() noexcept { assert(m_Logger != nullptr); return *m_Logger; }
@@ -101,7 +103,9 @@ protected:
     virtual void logSubstepData();
 
     ////////////////////////////////////////////////////////////////////////////////
-    GlobalParameters m_GlobalParams;
+    GlobalParameters                              m_GlobalParams;
+    SharedPtr<SimulationParameters<N, RealType> > m_SolverParams = nullptr;
+    SharedPtr<SimulationData<N, RealType> >       m_SolverData   = nullptr;
 
     UniquePtr<tbb::task_scheduler_init>  m_ThreadInit = nullptr;
     SharedPtr<Logger>                    m_Logger     = nullptr;
@@ -160,6 +164,13 @@ void ParticleSolver<N, RealType >::loadScene(const String& sceneFile)
         globalParams().printParams(logger());
     }
 
+    ////////////////////////////////////////////////////////////////////////////////
+    // allocate memory for simParams and simData
+    {
+        allocateSolverMemory();
+        __BNN_REQUIRE(m_SolverParams != nullptr);
+        __BNN_REQUIRE(m_SolverData != nullptr);
+    }
 
     ////////////////////////////////////////////////////////////////////////////////
     // read simulation parameters
@@ -201,9 +212,7 @@ void ParticleSolver<N, RealType >::loadScene(const String& sceneFile)
     }
 
     ////////////////////////////////////////////////////////////////////////////////
-    // Setup solver memory, data io after having global params and boundary objects ready
-    logger().printRunTime("Allocate solver memory: ", [&]() { allocateSolverMemory(); });          // do this by derived solver, after having parameters
-    logger().newLine();
+    // Setup data io after having global params and boundary objects ready
     setupDataIO();
 
 
@@ -420,7 +429,7 @@ void Banana::ParticleSolvers::ParticleSolver<N, RealType >::logSubstepData()
     }
 
     if(globalParams().bSaveSubstepData && globalParams().isSavingData("SubStepKineticEnergy")) {
-        Real   kineticEnergy = ParallelSTL::sum_sqr<N, RealType>(commonParticleData()->velocities) * commonSimData()->particleMass * 0.5_f;
+        Real   kineticEnergy = ParallelSTL::sum_sqr<N, RealType>(generalParticleData().velocities) * generalSimParams().particleMass * 0.5_f;
         String dataStr       = String("SystemTime: ") + NumberHelpers::formatToScientific(globalParams().evolvedTime(), 10) +
                                String(" | SystemKineticEnergy: ") + NumberHelpers::formatToScientific(kineticEnergy, 10);
         dataLogger("SubStepKineticEnergy").printLog(dataStr);

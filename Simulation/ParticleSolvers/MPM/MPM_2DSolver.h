@@ -101,7 +101,7 @@ struct MPM_2DParameters : public SimulationParameters2D
 // MPM_2DData
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-struct MPM_2DData
+struct MPM_2DData : public SimulationData2D
 {
     struct ParticleData : public ParticleSimulationData2D
     {
@@ -127,7 +127,7 @@ struct MPM_2DData
 
 
     ////////////////////////////////////////////////////////////////////////////////
-    struct GridData : public GridSimulationData<2, Real>
+    struct GridData : public GridSimulationData2D
     {
         Array2c  active;
         Array2ui activeNodeIdx;                // store linearized indices of active nodes
@@ -152,7 +152,9 @@ struct MPM_2DData
     Grid2r                          grid;
     Optimization::LBFGSSolver<Real> lbfgsSolver;
 
-    void makeReady(const MPM_2DParameters& params);
+    virtual const ParticleSimulationData2D& generalParticleData() const override { return particleData; }
+    virtual ParticleSimulationData2D&       generalParticleData() override { return particleData; }
+    void                                    makeReady(const MPM_2DParameters& params);
 };
 
 
@@ -211,24 +213,17 @@ public:
     virtual void advanceFrame() override;
 
     ////////////////////////////////////////////////////////////////////////////////
-    virtual SimulationParameters2D* commonSimData()
-    {
-        auto ptr = dynamic_cast<SimulationParameters2D*>(&m_SolverParams);
-        __BNN_REQUIRE(ptr != nullptr);
-        return ptr;
-    }
-
-    virtual ParticleSimulationData2D* commonParticleData()
-    {
-        auto ptr = dynamic_cast<ParticleSimulationData2D*>(&m_SolverData.particleData);
-        __BNN_REQUIRE(ptr != nullptr);
-        return ptr;
-    }
-
-    auto&       solverParams() { return m_SolverParams; }
-    const auto& solverParams() const { return m_SolverParams; }
-    auto&       solverData() { return m_SolverData; }
-    const auto& solverData() const { return m_SolverData; }
+    auto&       solverParams() { return *(std::static_pointer_cast<MPM_2DParameters>(m_SolverParams)); }
+    const auto& solverParams() const { return *(std::static_pointer_cast<MPM_2DParameters>(m_SolverParams)); }
+    auto&       solverData() { return *(std::static_pointer_cast<MPM_2DData>(m_SolverData)); }
+    const auto& solverData() const { return *(std::static_pointer_cast<MPM_2DData>(m_SolverData)); }
+    ////////////////////////////////////////////////////////////////////////////////
+    auto&       particleData() { return solverData().particleData; }
+    const auto& particleData() const { return solverData().particleData; }
+    auto&       gridData() { return solverData().gridData; }
+    const auto& gridData() const { return solverData().gridData; }
+    auto&       grid() { return solverData().grid; }
+    const auto& grid() const { return solverData().grid; }
 
 protected:
     virtual void loadSimParams(const nlohmann::json& jParams) override;
@@ -257,16 +252,6 @@ protected:
     virtual void mapGridVelocities2ParticlesAFLIP(Real timestep);
     virtual void constrainParticleVelocity(Real timestep);
     virtual void updateParticleDeformGradients(Real timestep);
-    ////////////////////////////////////////////////////////////////////////////////
-    auto&       particleData() { return solverData().particleData; }
-    const auto& particleData() const { return solverData().particleData; }
-    auto&       gridData() { return solverData().gridData; }
-    const auto& gridData() const { return solverData().gridData; }
-    auto&       grid() { return solverData().grid; }
-    const auto& grid() const { return solverData().grid; }
-    ////////////////////////////////////////////////////////////////////////////////
-    MPM_2DParameters m_SolverParams;
-    MPM_2DData       m_SolverData;
 };
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace Banana::ParticleSolvers

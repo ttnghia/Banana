@@ -121,12 +121,16 @@ public:
     const auto& aniParams() const { return m_AniParams; }
     auto&       aniData() { return m_AniData; }
     const auto& aniData() const { return m_AniData; }
+    ////////////////////////////////////////////////////////////////////////////////
+    auto&       aniParticleData() { return aniData().particleData; }
+    const auto& aniParticleData() const { return aniData().particleData; }
+    auto&       aniGridData() { return aniData().gridData; }
+    const auto& aniGridData() const { return aniData().gridData; }
 
 protected:
     virtual void loadSimParams(const nlohmann::json& jParams) override;
     virtual void generateParticles(const nlohmann::json& jParams) override;
     virtual bool advanceScene() override;
-    virtual void allocateSolverMemory() override;
     virtual void setupDataIO() override;
     virtual Int  loadMemoryState() override;
     virtual Int  saveMemoryState() override;
@@ -141,11 +145,6 @@ protected:
 
     void computeLagrangianForces();
     void diffuseVelocity();
-    ////////////////////////////////////////////////////////////////////////////////
-    auto&       aniParticleData() { return aniData().particleData; }
-    const auto& aniParticleData() const { return aniData().particleData; }
-    auto&       aniGridData() { return aniData().gridData; }
-    const auto& aniGridData() const { return aniData().gridData; }
     ////////////////////////////////////////////////////////////////////////////////
     AniMPM_2DParameters m_AniParams;
     AniMPM_2DData       m_AniData;

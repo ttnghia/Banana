@@ -51,19 +51,19 @@ struct PIC_3DParameters : public SimulationParameters3D
 // PIC_3DData
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-struct PIC_3DData
+struct PIC_3DData : public SimulationData3D
 {
     struct ParticleData : public ParticleSimulationData3D
     {
-        Vec_Vec3f    aniKernelCenters;
-        Vec_Mat3x3f  aniKernelMatrices;
+        Vec_Vec3f   aniKernelCenters;
+        Vec_Mat3x3f aniKernelMatrices;
         virtual void reserve(UInt nParticles) override;
         virtual void addParticles(const Vec_Vec3r& newPositions, const Vec_Vec3r& newVelocities) override;
         virtual UInt removeParticles(Vec_Int8& removeMarker) override;
     };
 
     ////////////////////////////////////////////////////////////////////////////////
-    struct GridData : public GridSimulationData<3, Real>
+    struct GridData : public GridSimulationData3D
     {
         ////////////////////////////////////////////////////////////////////////////////
         // main variables
@@ -98,7 +98,9 @@ struct PIC_3DData
     Vec_Real           pressure;
 
     ////////////////////////////////////////////////////////////////////////////////
-    void makeReady(const PIC_3DParameters& params);
+    virtual const ParticleSimulationData3D& generalParticleData() const override { return particleData; }
+    virtual ParticleSimulationData3D&       generalParticleData() override { return particleData; }
+    void                                    makeReady(const PIC_3DParameters& params);
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -124,24 +126,17 @@ public:
     virtual void sortParticles() override;
 
     ////////////////////////////////////////////////////////////////////////////////
-    virtual SimulationParameters3D* commonSimData()
-    {
-        auto ptr = dynamic_cast<SimulationParameters3D*>(&m_SolverParams);
-        __BNN_REQUIRE(ptr != nullptr);
-        return ptr;
-    }
-
-    virtual ParticleSimulationData3D* commonParticleData()
-    {
-        auto ptr = dynamic_cast<ParticleSimulationData3D*>(&m_SolverData.particleData);
-        __BNN_REQUIRE(ptr != nullptr);
-        return ptr;
-    }
-
-    auto&       solverParams() { return m_SolverParams; }
-    const auto& solverParams() const { return m_SolverParams; }
-    auto&       solverData() { return m_SolverData; }
-    const auto& solverData() const { return m_SolverData; }
+    auto&       solverParams() { return *(std::static_pointer_cast<PIC_3DParameters>(m_SolverParams)); }
+    const auto& solverParams() const { return *(std::static_pointer_cast<PIC_3DParameters>(m_SolverParams)); }
+    auto&       solverData() { return *(std::static_pointer_cast<PIC_3DData>(m_SolverData)); }
+    const auto& solverData() const { return *(std::static_pointer_cast<PIC_3DData>(m_SolverData)); }
+    ////////////////////////////////////////////////////////////////////////////////
+    auto&       particleData() { return solverData().particleData; }
+    const auto& particleData() const { return solverData().particleData; }
+    auto&       gridData() { return solverData().gridData; }
+    const auto& gridData() const { return solverData().gridData; }
+    auto&       grid() { return solverData().grid; }
+    const auto& grid() const { return solverData().grid; }
 
 protected:
     virtual void loadSimParams(const nlohmann::json& jParams) override;
@@ -178,18 +173,6 @@ protected:
     Vec3r trace_rk2(const Vec3r& ppos, Real timestep);
     Vec3r trace_rk2_grid(const Vec3r& gridPos, Real timestep);
     void  computeBoundarySDF();
-
-    ////////////////////////////////////////////////////////////////////////////////
-    auto&       particleData() { return solverData().particleData; }
-    const auto& particleData() const { return solverData().particleData; }
-    auto&       gridData() { return solverData().gridData; }
-    const auto& gridData() const { return solverData().gridData; }
-    auto&       grid() { return solverData().grid; }
-    const auto& grid() const { return solverData().grid; }
-
-    ////////////////////////////////////////////////////////////////////////////////
-    PIC_3DParameters m_SolverParams;
-    PIC_3DData       m_SolverData;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

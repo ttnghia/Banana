@@ -81,26 +81,38 @@ struct WCSPH_3DParameters : public SimulationParameters3D
 // WCSPH_3DData
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-struct WCSPH_3DData : public ParticleSimulationData3D
+struct WCSPH_3DData : public SimulationData3D
 {
-    Vec_Real    densities;
-    Vec_Real    tmp_densities;
-    Vec_Vec3r   forces;
-    Vec_Vec3r   diffuseVelocity;
-    Vec_Vec3f   aniKernelCenters;
-    Vec_Mat3x3f aniKernelMatrices;
-    Vec_Vec3r   BDParticles;
+    struct ParticleData : public ParticleSimulationData3D
+    {
+        Vec_Real    densities;
+        Vec_Real    tmp_densities;
+        Vec_Vec3r   forces;
+        Vec_Vec3r   diffuseVelocity;
+        Vec_Vec3f   aniKernelCenters;
+        Vec_Mat3x3f aniKernelMatrices;
+        Vec_Vec3r   BDParticles;
+        ////////////////////////////////////////////////////////////////////////////////
+        virtual void reserve(UInt nParticles);
+        virtual void addParticles(const Vec_Vec3r& newPositions, const Vec_Vec3r& newVelocities);
+        virtual UInt removeParticles(Vec_Int8& removeMarker);
+    };
 
+    struct Kernels
+    {
+        PrecomputedKernel<CubicKernel, 10000> kernelCubicSpline;
+        PrecomputedKernel<SpikyKernel, 10000> kernelSpiky;
+        PrecomputedKernel<SpikyKernel, 10000> nearKernelSpiky;
+    };
 
     __BNN_TODO_MSG("Check if precomputed kernel is bad")
-    PrecomputedKernel<CubicKernel, 10000> kernelCubicSpline;
-    PrecomputedKernel<SpikyKernel, 10000> kernelSpiky;
-    PrecomputedKernel<SpikyKernel, 10000> nearKernelSpiky;
+    ParticleData particleData;
+    Kernels kernels;
 
     ////////////////////////////////////////////////////////////////////////////////
-    virtual void reserve(UInt nParticles);
-    virtual void addParticles(const Vec_Vec3r& newPositions, const Vec_Vec3r& newVelocities);
-    virtual UInt removeParticles(Vec_Int8& removeMarker);
+    virtual const ParticleSimulationData3D& generalParticleData() const override { return particleData; }
+    virtual ParticleSimulationData3D&       generalParticleData() override { return particleData; }
+    void                                    makeReady(const WCSPH_3DParameters& solverParams);
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -125,26 +137,15 @@ public:
     virtual void sortParticles() override;
 
     ////////////////////////////////////////////////////////////////////////////////
-    virtual SimulationParameters3D* commonSimData()
-    {
-        auto ptr = dynamic_cast<SimulationParameters3D*>(&m_SolverParams);
-        __BNN_REQUIRE(ptr != nullptr);
-        return ptr;
-    }
-
-    virtual ParticleSimulationData3D* commonParticleData()
-    {
-        auto ptr = dynamic_cast<ParticleSimulationData3D*>(&m_SolverData);
-        __BNN_REQUIRE(ptr != nullptr);
-        return ptr;
-    }
-
-    auto&       solverParams() { return m_SolverParams; }
-    const auto& solverParams() const { return m_SolverParams; }
-    auto&       solverData() { return m_SolverData; }
-    const auto& solverData() const { return m_SolverData; }
-    auto&       particleData() { return m_SolverData; }
-    const auto& particleData() const { return m_SolverData; }
+    auto&       solverParams() { return *(std::static_pointer_cast<WCSPH_3DParameters>(m_SolverParams)); }
+    const auto& solverParams() const { return *(std::static_pointer_cast<WCSPH_3DParameters>(m_SolverParams)); }
+    auto&       solverData() { return *(std::static_pointer_cast<WCSPH_3DData>(m_SolverData)); }
+    const auto& solverData() const { return *(std::static_pointer_cast<WCSPH_3DData>(m_SolverData)); }
+    ////////////////////////////////////////////////////////////////////////////////
+    auto&       particleData() { return solverData().particleData; }
+    const auto& particleData() const { return solverData().particleData; }
+    auto&       kernels() { return solverData().kernels; }
+    const auto& kernels() const { return solverData().kernels; }
 
 protected:
     virtual void loadSimParams(const nlohmann::json& jParams) override;
@@ -165,10 +166,6 @@ protected:
     void computeForces();
     void updateVelocity(Real timestep);
     void computeViscosity();
-
-    ////////////////////////////////////////////////////////////////////////////////
-    WCSPH_3DParameters m_SolverParams;
-    WCSPH_3DData       m_SolverData;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

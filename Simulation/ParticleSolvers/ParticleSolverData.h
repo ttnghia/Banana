@@ -59,8 +59,9 @@ namespace Banana::Constants
 static const Vec2r Gravity2D = Vec2r(0, -9.81);
 static const Vec3r Gravity3D = Vec3r(0, -9.81, 0);
 
+enum IntegrationScheme { ExplicitVerlet = 0, ExplicitEuler = 1, ImplicitEuler = 2, NewmarkBeta =3 };
 enum ParticleActivity { Active = 0, InActive = 1, SemiActive = 2 };
-enum IntegrationScheme { ExplicitVerlet = 0, ExplicitEuler, ImplicitEuler, NewmarkBeta };
+enum HairParticleType { FixedPosition = 0, Vertex = 1, Quadrature = 2 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace ParticleSolverConstants
@@ -324,10 +325,31 @@ struct ParticleSimulationData
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
+struct HairSimulationData : public ParticleSimulationData<N, RealType>
+{
+    //virtual void reserve(UInt nParticles) = 0;
+    //virtual void addParticles(const Vec_VecX<N, RealType>& newPositions, const Vec_VecX<N, RealType>& newVelocities) = 0;
+    //virtual UInt removeParticles(Vec_Int8& removeMarker) = 0;
+
+    ////////////////////////////////////////////////////////////////////////////////
+    Vec_Int8 particleType; // store the type of hair particles
+};
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType>
 struct GridSimulationData
 {
     virtual void resize(const VecX<N, UInt>& nCells) = 0;
     virtual void makeReady() {}
+};
+
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType>
+struct SimulationData
+{
+    virtual const ParticleSimulationData<N, RealType>& generalParticleData() const = 0;
+    virtual ParticleSimulationData<N, RealType>&       generalParticleData()       = 0;
 };
 
 
@@ -340,6 +362,9 @@ using ParticleSimulationData3D = ParticleSimulationData<3, Real>;
 
 using GridSimulationData2D = GridSimulationData<2, Real>;
 using GridSimulationData3D = GridSimulationData<3, Real>;
+
+using SimulationData2D = SimulationData<2, Real>;
+using SimulationData3D = SimulationData<3, Real>;
 
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

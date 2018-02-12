@@ -285,8 +285,11 @@ void MPM_2DSolver::loadSimParams(const nlohmann::json& jParams)
     JSONHelpers::readValue(jParams, solverParams().materialDensity, "MaterialDensity");
     ////////////////////////////////////////////////////////////////////////////////
 
+    ////////////////////////////////////////////////////////////////////////////////
     solverParams().makeReady();
     solverParams().printParams(m_Logger);
+    ////////////////////////////////////////////////////////////////////////////////
+    solverData().makeReady(solverParams());
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -347,7 +350,8 @@ bool MPM_2DSolver::advanceScene()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MPM_2DSolver::allocateSolverMemory()
 {
-    solverData().makeReady(solverParams());
+    m_SolverParams = std::make_shared<MPM_2DParameters>();
+    m_SolverData   = std::make_shared<MPM_2DData>();
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

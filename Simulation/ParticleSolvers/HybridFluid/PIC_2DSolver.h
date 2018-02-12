@@ -62,7 +62,7 @@ struct PIC_2DParameters : public SimulationParameters2D
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-struct PIC_2DData
+struct PIC_2DData : public SimulationData2D
 {
     struct ParticleData : public ParticleSimulationData2D
     {
@@ -104,7 +104,7 @@ struct PIC_2DData
     } particleData;
 
     ////////////////////////////////////////////////////////////////////////////////
-    struct GridData : public GridSimulationData<2, Real>
+    struct GridData : public GridSimulationData2D
     {
         ////////////////////////////////////////////////////////////////////////////////
         // main variables
@@ -169,7 +169,9 @@ struct PIC_2DData
     Vec_Real           pressure;
 
     ////////////////////////////////////////////////////////////////////////////////
-    void makeReady(const PIC_2DParameters& picParams)
+    virtual const ParticleSimulationData2D& generalParticleData() const override { return particleData; }
+    virtual ParticleSimulationData2D&       generalParticleData() override { return particleData; }
+    void                                    makeReady(const PIC_2DParameters& picParams)
     {
         grid.setGrid(picParams.domainBMin, picParams.domainBMax, picParams.cellSize);
         gridData.resize(grid.getNCells());
@@ -200,24 +202,15 @@ public:
     virtual void sortParticles() override;
 
     ////////////////////////////////////////////////////////////////////////////////
-    virtual SimulationParameters2D* commonSimData()
-    {
-        auto ptr = dynamic_cast<SimulationParameters2D*>(&m_SolverParams);
-        __BNN_REQUIRE(ptr != nullptr);
-        return ptr;
-    }
-
-    virtual ParticleSimulationData2D* commonParticleData()
-    {
-        auto ptr = dynamic_cast<ParticleSimulationData2D*>(&m_SolverData.particleData);
-        __BNN_REQUIRE(ptr != nullptr);
-        return ptr;
-    }
-
-    auto&       solverParams() { return m_SolverParams; }
-    const auto& solverParams() const { return m_SolverParams; }
-    auto&       solverData() { return m_SolverData; }
-    const auto& solverData() const { return m_SolverData; }
+    auto&       solverParams() { return *(std::static_pointer_cast<PIC_2DParameters>(m_SolverParams)); }
+    const auto& solverParams() const { return *(std::static_pointer_cast<PIC_2DParameters>(m_SolverParams)); }
+    auto&       solverData() { return *(std::static_pointer_cast<PIC_2DData>(m_SolverData)); }
+    const auto& solverData() const { return *(std::static_pointer_cast<PIC_2DData>(m_SolverData)); }
+    ////////////////////////////////////////////////////////////////////////////////
+    auto&       particleData() { return solverData().particleData; }
+    const auto& particleData() const { return solverData().particleData; }
+    auto&       gridData() { return solverData().gridData; }
+    const auto& gridData() const { return solverData().gridData; }
 
 protected:
     virtual void loadSimParams(const nlohmann::json& jParams) override;
@@ -253,16 +246,6 @@ protected:
     // helper functions
     Vec2r getVelocityFromGrid(const Vec2r& gridPos);
     Vec2r getVelocityChangesFromGrid(const Vec2r& gridPos);
-
-    ////////////////////////////////////////////////////////////////////////////////
-    auto&       particleData() { return solverData().particleData; }
-    const auto& particleData() const { return solverData().particleData; }
-    auto&       gridData() { return solverData().gridData; }
-    const auto& gridData() const { return solverData().gridData; }
-
-    ////////////////////////////////////////////////////////////////////////////////
-    PIC_2DParameters m_SolverParams;
-    PIC_2DData       m_SolverData;
 };
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace ParticleSolvers

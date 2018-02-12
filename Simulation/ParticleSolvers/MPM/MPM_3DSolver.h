@@ -67,9 +67,9 @@ struct MPM_3DParameters : public SimulationParameters3D
 // MPM_3DData
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-struct MPM_3DData
+struct MPM_3DData : public SimulationData3D
 {
-    struct ParticleData : public ParticleSimulationData<3, Real>
+    struct ParticleData : public ParticleSimulationData3D
     {
         Vec_Real    volumes;
         Vec_Mat3x3r velocityGrad;
@@ -90,7 +90,7 @@ struct MPM_3DData
     };
 
     ////////////////////////////////////////////////////////////////////////////////
-    struct GridData : public GridSimulationData<3, Real>
+    struct GridData : public GridSimulationData3D
     {
         Array3c  active;
         Array3ui activeNodeIdx;        // store linearized indices of active nodes
@@ -114,7 +114,9 @@ struct MPM_3DData
     Grid3r                          grid;
     Optimization::LBFGSSolver<Real> lbfgsSolver;
 
-    void makeReady(const MPM_3DParameters& params);
+    virtual const ParticleSimulationData3D& generalParticleData() const override { return particleData; }
+    virtual ParticleSimulationData3D&       generalParticleData() override { return particleData; }
+    void                                    makeReady(const MPM_3DParameters& params);
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -171,24 +173,17 @@ public:
     virtual void advanceFrame() override;
 
     ////////////////////////////////////////////////////////////////////////////////
-    virtual SimulationParameters3D* commonSimData()
-    {
-        auto ptr = dynamic_cast<SimulationParameters3D*>(&m_SimParams);
-        __BNN_REQUIRE(ptr != nullptr);
-        return ptr;
-    }
-
-    virtual ParticleSimulationData3D* commonParticleData()
-    {
-        auto ptr = dynamic_cast<ParticleSimulationData3D*>(&m_SimData.particleData);
-        __BNN_REQUIRE(ptr != nullptr);
-        return ptr;
-    }
-
-    auto&       solverParams() { return m_SimParams; }
-    const auto& solverParams() const { return m_SimParams; }
-    auto&       solverData() { return m_SimData; }
-    const auto& solverData() const { return m_SimData; }
+    auto&       solverParams() { return *(std::static_pointer_cast<MPM_3DParameters>(m_SolverParams)); }
+    const auto& solverParams() const { return *(std::static_pointer_cast<MPM_3DParameters>(m_SolverParams)); }
+    auto&       solverData() { return *(std::static_pointer_cast<MPM_3DData>(m_SolverData)); }
+    const auto& solverData() const { return *(std::static_pointer_cast<MPM_3DData>(m_SolverData)); }
+    ////////////////////////////////////////////////////////////////////////////////
+    auto&       particleData() { return solverData().particleData; }
+    const auto& particleData() const { return solverData().particleData; }
+    auto&       gridData() { return solverData().gridData; }
+    const auto& gridData() const { return solverData().gridData; }
+    auto&       grid() { return solverData().grid; }
+    const auto& grid() const { return solverData().grid; }
 
 protected:
     virtual void loadSimParams(const nlohmann::json& jParams) override;
@@ -217,17 +212,6 @@ protected:
     void mapGridVelocities2ParticlesAFLIP(Real timestep);
     void constrainParticleVelocity(Real timestep);
     void updateParticleDeformGradients(Real timestep);
-    ////////////////////////////////////////////////////////////////////////////////
-    auto&       particleData() { return solverData().particleData; }
-    const auto& particleData() const { return solverData().particleData; }
-    auto&       gridData() { return solverData().gridData; }
-    const auto& gridData() const { return solverData().gridData; }
-    auto&       grid() { return solverData().grid; }
-    const auto& grid() const { return solverData().grid; }
-
-    ////////////////////////////////////////////////////////////////////////////////
-    MPM_3DParameters m_SimParams;
-    MPM_3DData       m_SimData;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
