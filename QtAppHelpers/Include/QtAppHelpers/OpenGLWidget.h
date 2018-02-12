@@ -93,7 +93,11 @@ protected:
     void checkGLExtensions(const QVector<QString>& extensions);
 
     ////////////////////////////////////////////////////////////////////////////////
-    bool        m_bPrintDebug        = true;
+#ifdef __BANANA_DEBUG__
+    bool m_bPrintDebug = true;
+#else
+    bool m_bPrintDebug = false;
+#endif
     QSize       m_DefaultSize        = QSize(1920, 1080);
     Vec3f       m_ClearColor         = Vec3f(0.38f, 0.52f, 0.10f);
     SpecialKey  m_SpecialKeyPressed  = SpecialKey::NoKey;
