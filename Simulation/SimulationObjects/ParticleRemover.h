@@ -34,7 +34,7 @@ class ParticleRemover : public SimulationObject<N, RealType>
 {
 public:
     ParticleRemover() = delete;
-    ParticleRemover(const String& geometryType) : SimulationObject<N, RealType>(geometryType) {}
+    ParticleRemover(const JParams& jParams, const String& geometryType) : SimulationObject<N, RealType>(jParams, geometryType) {}
     ////////////////////////////////////////////////////////////////////////////////
     auto& startFrame() { return m_StartFrame; }
     auto& maxFrame() { return m_MaxFrame; }

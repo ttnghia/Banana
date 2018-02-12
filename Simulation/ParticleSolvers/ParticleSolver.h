@@ -184,7 +184,7 @@ void ParticleSolver<N, RealType >::loadScene(const String& sceneFile)
         if(jSimParams.find("SimulationDomainBox") != jSimParams.end()) {
             nlohmann::json jBoxParams = jSimParams["SimulationDomainBox"];
 
-            auto obj = std::make_shared<SimulationObjects::BoxBoundary<N, RealType> >();
+            auto obj = std::make_shared<SimulationObjects::BoxBoundary<N, RealType> >(jBoxParams);
             m_BoundaryObjects.push_back(obj);
 
             // domain box cannot be dynamic
@@ -359,7 +359,7 @@ void ParticleSolver<N, RealType >::generateBoundaries(const nlohmann::json& jPar
         }
 
         if(staticBoundaries.size() > 1) {
-            SharedPtr<SimulationObjects::BoundaryObject<N, RealType> > csgBoundary = std::make_shared<SimulationObjects::BoundaryObject<N, RealType> >("CSGObject");
+            SharedPtr<SimulationObjects::BoundaryObject<N, RealType> > csgBoundary = std::make_shared<SimulationObjects::BoundaryObject<N, RealType> >(JParams(), "CSGObject");
             SharedPtr<GeometryObjects::CSGObject<N, RealType> >        csgObj      = std::static_pointer_cast<GeometryObjects::CSGObject<N, RealType> >(csgBoundary->geometry());
             __BNN_REQUIRE(csgObj != nullptr);
 

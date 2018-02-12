@@ -46,13 +46,13 @@ class BoundaryObject : public SimulationObject<N, RealType>
 {
 public:
     BoundaryObject() = delete;
-    BoundaryObject(const String& geometryType) : SimulationObject<N, RealType>(geometryType) {}
+    BoundaryObject(const JParams& jParams, const String& geometryType) : SimulationObject<N, RealType>(jParams, geometryType) {}
     ////////////////////////////////////////////////////////////////////////////////
     auto& restitution() { return m_RestitutionCoeff; }
     auto& isDynamic() { return m_bDynamics; }
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     virtual RealType signedDistance(const VecNr& ppos) const override { return m_GeometryObj->signedDistance(ppos, false); }
-    virtual VecNr     gradSignedDistance(const VecNr& ppos, RealType dxyz = RealType(1e-4)) const override { return m_GeometryObj->gradSignedDistance(ppos, false, dxyz); }
+    virtual VecNr    gradSignedDistance(const VecNr& ppos, RealType dxyz = RealType(1e-4)) const override { return m_GeometryObj->gradSignedDistance(ppos, false, dxyz); }
     virtual bool     isInside(const VecNr& ppos) const override { return m_GeometryObj->isInside(ppos, false); }
     ////////////////////////////////////////////////////////////////////////////////
     void constrainToBoundary(VecNr& ppos);
@@ -74,7 +74,7 @@ class BoxBoundaryInterface : public BoundaryObject<N, RealType>
 {
     using BoxPtr = SharedPtr<GeometryObjects::BoxObject<N, RealType> >;
 public:
-    BoxBoundaryInterface() : BoundaryObject<N, RealType>("Box")
+    BoxBoundaryInterface(const JParams& jParams) : BoundaryObject<N, RealType>(jParams, "Box")
     {
         m_Box = std::dynamic_pointer_cast<GeometryObjects::BoxObject<N, RealType> >(m_GeometryObj);
         __BNN_REQUIRE(m_Box != nullptr);
@@ -82,7 +82,7 @@ public:
 
     VecNr boxMin() const noexcept { return m_Box->boxMin(); }
     VecNr boxMax() const noexcept { return m_Box->boxMax(); }
-    void setSizeScale(const VecNr& sizeScale) { m_Box->setSizeScale(sizeScale); }
+    void  setSizeScale(const VecNr& sizeScale) { m_Box->setSizeScale(sizeScale); }
 
 protected:
     BoxPtr m_Box;
@@ -97,6 +97,7 @@ template<class RealType>
 class BoxBoundary<2, RealType> : public BoxBoundaryInterface<2, RealType>
 {
 public:
+    BoxBoundary(const JParams& jParams) : BoxBoundaryInterface<2, RealType>(jParams) {}
     virtual void generateBoundaryParticles_Impl(Vec_Vec2<RealType>& PDPositions, RealType particleRadius, Int numBDLayers = 2) override;
 };
 
@@ -105,6 +106,7 @@ template<class RealType>
 class BoxBoundary<3, RealType> : public BoxBoundaryInterface<3, RealType>
 {
 public:
+    BoxBoundary(const JParams& jParams) : BoxBoundaryInterface<3, RealType>(jParams) {}
     virtual void generateBoundaryParticles_Impl(Vec_Vec3<RealType>& PDPositions, RealType particleRadius, Int numBDLayers = 2) override;
 };
 

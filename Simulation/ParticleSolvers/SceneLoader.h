@@ -243,9 +243,9 @@ void loadBoundaryObjects(const nlohmann::json& jParams, Vector<SharedPtr<Boundar
 
         SharedPtr<BoundaryObject<N, RealType> > obj = nullptr;
         if(geometryType == "Box" || geometryType == "box" || geometryType == "BOX") {
-            obj = std::make_shared<BoxBoundary<N, RealType> >();
+            obj = std::make_shared<BoxBoundary<N, RealType> >(jObj);
         } else {
-            obj = std::make_shared<BoundaryObject<N, RealType> >(geometryType);
+            obj = std::make_shared<BoundaryObject<N, RealType> >(jObj, geometryType);
         }
         boundaryObjs.push_back(obj);
         loadSimulationObject(jObj, static_pointer_cast<SimulationObject<N, RealType> >(obj));
@@ -261,7 +261,7 @@ void loadParticleGenerators(const nlohmann::json& jParams, Vector<SharedPtr<Part
         __BNN_REQUIRE(JSONHelpers::readValue(jObj, geometryType, "GeometryType"));
         __BNN_REQUIRE(!geometryType.empty());
 
-        auto obj = std::make_shared<ParticleGenerator<N, RealType> >(geometryType);
+        auto obj = std::make_shared<ParticleGenerator<N, RealType> >(jObj, geometryType);
         particleGenerators.push_back(obj);
         loadSimulationObject(jObj, static_pointer_cast<SimulationObject<N, RealType> >(obj));
 
@@ -285,7 +285,7 @@ void loadParticleRemovers(const nlohmann::json& jParams, Vector<SharedPtr<Partic
         __BNN_REQUIRE(JSONHelpers::readValue(jObj, geometryType, "GeometryType"));
         __BNN_REQUIRE(!geometryType.empty());
 
-        auto obj = std::make_shared<ParticleRemover<N, RealType> >(geometryType);
+        auto obj = std::make_shared<ParticleRemover<N, RealType> >(jObj, geometryType);
         particleRemovers.push_back(obj);
         loadSimulationObject(jObj, static_pointer_cast<SimulationObject<N, RealType> >(obj));
 

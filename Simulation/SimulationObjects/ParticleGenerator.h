@@ -42,7 +42,7 @@ class ParticleGenerator : public SimulationObject<N, RealType>
 {
 public:
     ParticleGenerator() = delete;
-    ParticleGenerator(const String& geometryType) : SimulationObject<N, RealType>(geometryType) { }
+    ParticleGenerator(const JParams& jParams, const String& geometryType) : SimulationObject<N, RealType>(jParams, geometryType) { }
     ////////////////////////////////////////////////////////////////////////////////
     auto& v0() { return m_v0; }
     auto& minDistanceRatio() { return m_MinDistanceRatio; }
@@ -67,11 +67,11 @@ public:
 
 protected:
     template<class VelocityGenerator = decltype(DefaultFunctions::velocityGenerator)>
-    UInt addFullShapeParticles(const Vec_VecNr&     currentPositions,
+    UInt addFullShapeParticles(const Vec_VecNr&    currentPositions,
                                VelocityGenerator&& velGenerator = std::forward<decltype(DefaultFunctions::velocityGenerator)>(DefaultFunctions::velocityGenerator));
 
     template<class VelocityGenerator = decltype(DefaultFunctions::velocityGenerator)>
-    UInt addParticles(const Vec_VecNr&     currentPositions,
+    UInt addParticles(const Vec_VecNr&    currentPositions,
                       VelocityGenerator&& velGenerator = std::forward<decltype(DefaultFunctions::velocityGenerator)>(DefaultFunctions::velocityGenerator));
 
     void relaxPositions(Vector<VecNr>& positions, RealType particleRadius);
@@ -79,18 +79,18 @@ protected:
     ////////////////////////////////////////////////////////////////////////////////
     Vec_VecNr m_ObjParticles;
     VecNr     m_v0               = VecNr(0);
-    UInt     m_StartFrame       = 0u;
-    UInt     m_MaxFrame         = 0u;
-    UInt     m_MaxNParticles    = std::numeric_limits<UInt>::max();
-    UInt     m_MaxIters         = 10u;
-    RealType m_MinDistanceRatio = RealType(2.0);
-    RealType m_MinDistanceSqr   = RealType(0);
-    RealType m_Jitter           = RealType(0);
-    RealType m_ParticleRadius   = RealType(0);
+    UInt      m_StartFrame       = 0u;
+    UInt      m_MaxFrame         = 0u;
+    UInt      m_MaxNParticles    = std::numeric_limits<UInt>::max();
+    UInt      m_MaxIters         = 10u;
+    RealType  m_MinDistanceRatio = RealType(2.0);
+    RealType  m_MinDistanceSqr   = RealType(0);
+    RealType  m_Jitter           = RealType(0);
+    RealType  m_ParticleRadius   = RealType(0);
 
     std::unordered_set<UInt> m_ActiveFrames;
 
-    UInt     m_NGeneratedParticles = 0;
+    UInt      m_NGeneratedParticles = 0;
     Vec_VecNr m_GeneratedPositions;
     Vec_VecNr m_GeneratedVelocities;
 
@@ -254,7 +254,7 @@ UInt ParticleGenerator<N, RealType > ::addParticles(const Vec_VecNr& currentPosi
     if(currentPositions.size() > 0) {
         for(const auto& ppos0 : m_ObjParticles) {
             for(UInt i = 0; i < m_MaxIters; ++i) {
-                bool bValid = true;
+                bool  bValid = true;
                 VecNr ppos   = ppos0;
                 NumberHelpers::jitter(ppos, m_Jitter);
                 const auto pCellIdx = m_Grid.getCellIdx<Int>(ppos);

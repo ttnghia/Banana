@@ -36,12 +36,17 @@ class SimulationObject
 {
 public:
     using GeometryPtr = SharedPtr<GeometryObjects::GeometryObject<N, RealType> >;
-    using VecNr        = VecX<N, RealType>;
-    using Vec_VecNr    = Vec_VecX<N, RealType>;
+    using VecNr       = VecX<N, RealType>;
+    using Vec_VecNr   = Vec_VecX<N, RealType>;
     static constexpr UInt objDimension() noexcept { return static_cast<UInt>(N); }
     ////////////////////////////////////////////////////////////////////////////////
     SimulationObject() = delete;
-    SimulationObject(const String& geometryType) : m_GeometryObj(GeometryObjectFactory::createGeometry<N, RealType>(geometryType)) { __BNN_REQUIRE(m_GeometryObj != nullptr); }
+    SimulationObject(const JParams& jParams, const String& geometryType) :
+        m_jParams(jParams), m_GeometryObj(GeometryObjectFactory::createGeometry<N, RealType>(geometryType))
+    {
+        __BNN_REQUIRE(m_GeometryObj != nullptr);
+    }
+
     ////////////////////////////////////////////////////////////////////////////////
     auto& nameID() { return m_NameID; }
     auto& meshFile() { return m_MeshFile; }
@@ -52,13 +57,14 @@ public:
     auto& geometry() { return m_GeometryObj; }
     ////////////////////////////////////////////////////////////////////////////////
     virtual RealType signedDistance(const VecNr& ppos) const { return m_GeometryObj->signedDistance(ppos, true); }
-    virtual VecNr     gradSignedDistance(const VecNr& ppos, RealType dxyz = RealType(1e-4)) const { return m_GeometryObj->gradSignedDistance(ppos, true, dxyz); }
+    virtual VecNr    gradSignedDistance(const VecNr& ppos, RealType dxyz = RealType(1e-4)) const { return m_GeometryObj->gradSignedDistance(ppos, true, dxyz); }
     virtual bool     isInside(const VecNr& ppos) const { return m_GeometryObj->isInside(ppos, true); }
     ////////////////////////////////////////////////////////////////////////////////
     //virtual void makeReady() {}     // todo: need this?
     virtual bool advanceScene(UInt frame, RealType fraction = RealType(0)) { return m_GeometryObj->updateTransformation(frame, fraction); }
 
 protected:
+    JParams     m_jParams;
     GeometryPtr m_GeometryObj   = nullptr;
     String      m_NameID        = String(String("Object_") + std::to_string(NumberHelpers::generateRandomInt<Int>()));
     String      m_MeshFile      = String("");
