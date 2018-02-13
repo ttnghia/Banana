@@ -60,7 +60,7 @@ struct APIC_3DData
 // APIC_3DSolver
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class APIC_3DSolver : public PIC_3DSolver, public RegisteredInFactory<APIC_3DSolver>
+class APIC_3DSolver : public PIC_3DSolver, public RegisteredInSolverFactory<APIC_3DSolver>
 {
 public:
     APIC_3DSolver() = default;

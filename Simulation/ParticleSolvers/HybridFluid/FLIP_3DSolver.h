@@ -47,7 +47,7 @@ struct FLIP_3DData : public GridSimulationData3D
 // FLIP_3DSolver
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class FLIP_3DSolver : public PIC_3DSolver, public RegisteredInFactory<FLIP_3DSolver>
+class FLIP_3DSolver : public PIC_3DSolver, public RegisteredInSolverFactory<FLIP_3DSolver>
 {
 public:
     FLIP_3DSolver() = default;

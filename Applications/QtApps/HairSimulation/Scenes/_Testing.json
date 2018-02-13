@@ -1,7 +1,7 @@
 {
     "GlobalParameters":
     {
-        "Solver" : "AniMPM_2DSolver",
+        "Solver" : "HairMPM_2DSolver",
         "FrameDuration" : 0.003333333333,
         "StartFrame" : 1,
         "FinalFrame" : 100,
@@ -33,7 +33,7 @@
         "CellSize" : 0.05,
         "RatioCellSizePRadius" : 4,
         "CFLFactor" : 0.02,
-        "lambda" : 10,
+        "lambda" : 100,
         "mu": 100,
         "MaterialDensity" : 1
     },

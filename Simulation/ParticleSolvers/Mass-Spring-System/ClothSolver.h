@@ -210,7 +210,7 @@ struct SimulationData_Cloth3D
     }
 };
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class ClothSolver : public ParticleSolver3D, public RegisteredInFactory<ClothSolver>
+class ClothSolver : public ParticleSolver3D, public RegisteredInSolverFactory<ClothSolver>
 {
 public:
     ClothSolver() = default;

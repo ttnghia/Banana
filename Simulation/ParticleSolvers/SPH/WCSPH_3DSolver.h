@@ -120,7 +120,7 @@ struct WCSPH_3DData : public SimulationData3D
 // WCSPH_3DSolver
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class WCSPH_3DSolver : public ParticleSolver3D, public RegisteredInFactory<WCSPH_3DSolver>
+class WCSPH_3DSolver : public ParticleSolver3D, public RegisteredInSolverFactory<WCSPH_3DSolver>
 {
 public:
     WCSPH_3DSolver() = default;

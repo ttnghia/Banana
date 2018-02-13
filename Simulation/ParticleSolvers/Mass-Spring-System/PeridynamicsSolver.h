@@ -213,7 +213,7 @@ struct SimulationData_Peridynamics3D : public ParticleSimulationData<3, Real>
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class PeridynamicsSolver : public ParticleSolver3D, public RegisteredInFactory<PeridynamicsSolver>
+class PeridynamicsSolver : public ParticleSolver3D, public RegisteredInSolverFactory<PeridynamicsSolver>
 {
 public:
     PeridynamicsSolver() = default;

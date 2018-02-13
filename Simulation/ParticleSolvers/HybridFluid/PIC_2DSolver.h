@@ -185,7 +185,7 @@ struct PIC_2DData : public SimulationData2D
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class PIC_2DSolver : public ParticleSolver2D, public RegisteredInFactory<PIC_2DSolver>
+class PIC_2DSolver : public ParticleSolver2D, public RegisteredInSolverFactory<PIC_2DSolver>
 {
 public:
     PIC_2DSolver() = default;

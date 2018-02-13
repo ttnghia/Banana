@@ -19,7 +19,7 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-#include <ParticleSolvers/MPM/AniMPM_2DSolver.h>
+#include <ParticleSolvers/MPM/HairMPM_2DSolver.h>
 #include <Banana/ParallelHelpers/ParallelSTL.h>
 #include <Banana/LinearAlgebra/LinaHelpers.h>
 
@@ -176,17 +176,17 @@ void AniMPM_2DData::find_d0(const MPM_2DParameters& params,  MPM_2DData& mpmData
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-// AniMPM_2DSolver implementation
+// HairMPM_2DSolver implementation
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void AniMPM_2DSolver::makeReady()
+void HairMPM_2DSolver::makeReady()
 {
     MPM_2DSolver::makeReady();
     __BNN_TODO
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void AniMPM_2DSolver::loadSimParams(const nlohmann::json& jParams)
+void HairMPM_2DSolver::loadSimParams(const nlohmann::json& jParams)
 {
     MPM_2DSolver::loadSimParams(jParams);
 
@@ -197,7 +197,7 @@ void AniMPM_2DSolver::loadSimParams(const nlohmann::json& jParams)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void AniMPM_2DSolver::generateParticles(const nlohmann::json& jParams)
+void HairMPM_2DSolver::generateParticles(const nlohmann::json& jParams)
 {
     ParticleSolver2D::generateParticles(jParams);
 
@@ -224,7 +224,7 @@ void AniMPM_2DSolver::generateParticles(const nlohmann::json& jParams)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-bool AniMPM_2DSolver::advanceScene()
+bool HairMPM_2DSolver::advanceScene()
 {
     bool bSceneChanged = MPM_2DSolver::advanceScene();
 
@@ -236,7 +236,7 @@ bool AniMPM_2DSolver::advanceScene()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void AniMPM_2DSolver::setupDataIO()
+void HairMPM_2DSolver::setupDataIO()
 {
     MPM_2DSolver::setupDataIO();
     __BNN_TODO
@@ -254,7 +254,7 @@ void AniMPM_2DSolver::setupDataIO()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-Int AniMPM_2DSolver::loadMemoryState()
+Int HairMPM_2DSolver::loadMemoryState()
 {
     if(!m_GlobalParams.bLoadMemoryState) {
         return -1;
@@ -301,7 +301,7 @@ Int AniMPM_2DSolver::loadMemoryState()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-Int AniMPM_2DSolver::saveMemoryState()
+Int HairMPM_2DSolver::saveMemoryState()
 {
     if(!globalParams().bSaveMemoryState || (globalParams().finishedFrame % globalParams().framePerState != 0)) {
         return -1;
@@ -322,7 +322,7 @@ Int AniMPM_2DSolver::saveMemoryState()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-Int AniMPM_2DSolver::saveFrameData()
+Int HairMPM_2DSolver::saveFrameData()
 {
     if(!m_GlobalParams.bSaveFrameData) {
         return -1;
@@ -345,7 +345,7 @@ Int AniMPM_2DSolver::saveFrameData()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void AniMPM_2DSolver::advanceVelocity(Real timestep)
+void HairMPM_2DSolver::advanceVelocity(Real timestep)
 {
     m_Logger->printRunTime("{   Reset grid data: ", [&]() { gridData().resetGrid(); });
     m_Logger->printRunTimeIndent("Map particle masses to grid: ", [&]() { mapParticleMasses2Grid(); });
@@ -365,7 +365,7 @@ void AniMPM_2DSolver::advanceVelocity(Real timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void AniMPM_2DSolver::moveParticles(Real timestep)
+void HairMPM_2DSolver::moveParticles(Real timestep)
 {
     __BNN_TODO_MSG("How to avoid particle penetration? Changing velocity? Then how about vel gradient?");
 
@@ -401,7 +401,7 @@ void AniMPM_2DSolver::moveParticles(Real timestep)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //Calculate next timestep velocities for use in implicit integration
-void AniMPM_2DSolver::explicitIntegration(Real timestep)
+void HairMPM_2DSolver::explicitIntegration(Real timestep)
 {
     computeLagrangianForces();
 
@@ -477,7 +477,7 @@ void AniMPM_2DSolver::explicitIntegration(Real timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void AniMPM_2DSolver::computeLagrangianForces()
+void HairMPM_2DSolver::computeLagrangianForces()
 {
     Scheduler::parallel_for(particleData().getNParticles(),
                             [&](UInt p)
@@ -524,7 +524,7 @@ void AniMPM_2DSolver::computeLagrangianForces()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void AniMPM_2DSolver::diffuseVelocity()
+void HairMPM_2DSolver::diffuseVelocity()
 {
     Vec_Vec2r diffuseVelocity;
     diffuseVelocity.resize(particleData().positions.size());
@@ -552,7 +552,7 @@ void AniMPM_2DSolver::diffuseVelocity()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void AniMPM_2DSolver::updateParticleDeformGradients(Real timestep)
+void HairMPM_2DSolver::updateParticleDeformGradients(Real timestep)
 {
     Scheduler::parallel_for(particleData().getNParticles(),
                             [&](UInt p)
@@ -578,7 +578,7 @@ void AniMPM_2DSolver::updateParticleDeformGradients(Real timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void AniMPM_2DSolver::mapGridVelocities2ParticlesAPIC(Real timestep)
+void HairMPM_2DSolver::mapGridVelocities2ParticlesAPIC(Real timestep)
 {
     Scheduler::parallel_for(particleData().getNParticles(),
                             [&](UInt p)

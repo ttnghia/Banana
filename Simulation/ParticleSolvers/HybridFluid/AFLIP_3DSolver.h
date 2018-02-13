@@ -58,7 +58,7 @@ struct AFLIP_3DData
 // AFLIP_3DSolver
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class AFLIP_3DSolver : public PIC_3DSolver, public RegisteredInFactory<AFLIP_3DSolver>
+class AFLIP_3DSolver : public PIC_3DSolver, public RegisteredInSolverFactory<AFLIP_3DSolver>
 {
 public:
     AFLIP_3DSolver() = default;

@@ -31,7 +31,7 @@ namespace Banana
 namespace ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class PCISPHSolver : public WCSPH_3DSolver, public RegisteredInFactory<PCISPHSolver>
+class PCISPHSolver : public WCSPH_3DSolver, public RegisteredInSolverFactory<PCISPHSolver>
 {
 public:
     PCISPHSolver(std::shared_ptr<ParameterManager>& params, WCSPH_3DParameters* SPHParams) :

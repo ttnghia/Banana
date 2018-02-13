@@ -140,7 +140,7 @@
     <ClInclude Include="ParticleSolvers\HybridFluid\NarrowBandFLIP_3DSolver.h" />
     <ClInclude Include="ParticleSolvers\Mass-Spring-System\ClothSolver.h" />
     <ClInclude Include="ParticleSolvers\MPM\MPM_2DSolver.h" />
-    <ClInclude Include="ParticleSolvers\MPM\AniMPM_2DSolver.h" />
+    <ClInclude Include="ParticleSolvers\MPM\HairMPM_2DSolver.h" />
     <ClInclude Include="ParticleSolvers\MPM\MPM_3DSolver.h" />
     <ClInclude Include="ParticleSolvers\HybridFluid\AFLIP_3DSolver.h" />
     <ClInclude Include="ParticleSolvers\HybridFluid\APIC_2DSolver.h" />
@@ -195,7 +195,7 @@
     <ClCompile Include="ParticleSolvers\HybridFluid\NarrowBandFLIP_2DSolver.cpp" />
     <ClCompile Include="ParticleSolvers\HybridFluid\NarrowBandFLIP_3DSolver.cpp" />
     <ClCompile Include="ParticleSolvers\MPM\MPM_2DSolver.cpp" />
-    <ClCompile Include="ParticleSolvers\MPM\AniMPM_2DSolver.cpp" />
+    <ClCompile Include="ParticleSolvers\MPM\HairMPM_2DSolver.cpp" />
     <ClCompile Include="ParticleSolvers\MPM\MPM_3DSolver.cpp" />
     <ClCompile Include="ParticleSolvers\HybridFluid\AFLIP_3DSolver.cpp" />
     <ClCompile Include="ParticleSolvers\HybridFluid\APIC_3DSolver.cpp" />

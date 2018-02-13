@@ -292,7 +292,7 @@ struct SimulationData_Snow3D
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class Snow3DSolver : public ParticleSolver3D, public RegisteredInFactory<Snow3DSolver>
+class Snow3DSolver : public ParticleSolver3D, public RegisteredInSolverFactory<Snow3DSolver>
 {
 public:
     Snow3DSolver() = default;

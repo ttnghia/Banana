@@ -197,7 +197,7 @@ private:
 // MPM_2DSolver
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class MPM_2DSolver : public ParticleSolver2D, public RegisteredInFactory<MPM_2DSolver>
+class MPM_2DSolver : public ParticleSolver2D, public RegisteredInSolverFactory<MPM_2DSolver>
 {
 public:
     MPM_2DSolver() = default;

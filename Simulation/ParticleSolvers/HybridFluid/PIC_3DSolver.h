@@ -108,7 +108,7 @@ struct PIC_3DData : public SimulationData3D
 // PIC_3DSolver
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class PIC_3DSolver : public ParticleSolver3D, public RegisteredInFactory<PIC_3DSolver>
+class PIC_3DSolver : public ParticleSolver3D, public RegisteredInSolverFactory<PIC_3DSolver>
 {
 public:
     PIC_3DSolver() = default;

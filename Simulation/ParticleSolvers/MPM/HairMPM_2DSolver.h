@@ -103,17 +103,17 @@ struct AniMPM_2DData
 // MPM_2DSolver
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class AniMPM_2DSolver : public MPM_2DSolver, public RegisteredInFactory<AniMPM_2DSolver>
+class HairMPM_2DSolver : public MPM_2DSolver, public RegisteredInSolverFactory<HairMPM_2DSolver>
 {
 public:
-    AniMPM_2DSolver() = default;
+    HairMPM_2DSolver() = default;
 
     ////////////////////////////////////////////////////////////////////////////////
-    static String                      solverName() { return String("AniMPM_2DSolver"); }
-    static SharedPtr<ParticleSolver2D> createSolver() { return std::make_shared<AniMPM_2DSolver>(); }
+    static String                      solverName() { return String("HairMPM_2DSolver"); }
+    static SharedPtr<ParticleSolver2D> createSolver() { return std::make_shared<HairMPM_2DSolver>(); }
 
-    virtual String getSolverName() { return AniMPM_2DSolver::solverName(); }
-    virtual String getSolverDescription() override { return String("Simulation using Anisotropic-MPM-2D Solver"); }
+    virtual String getSolverName() { return HairMPM_2DSolver::solverName(); }
+    virtual String getSolverDescription() override { return String("Simulation using Hair-Anisotropic-MPM-2D Solver"); }
 
     virtual void makeReady() override;
     ////////////////////////////////////////////////////////////////////////////////

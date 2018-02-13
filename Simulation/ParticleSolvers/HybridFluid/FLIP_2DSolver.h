@@ -68,7 +68,7 @@ struct FLIP_2DData : public GridSimulationData2D
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class FLIP_2DSolver : public PIC_2DSolver, public RegisteredInFactory<FLIP_2DSolver>
+class FLIP_2DSolver : public PIC_2DSolver, public RegisteredInSolverFactory<FLIP_2DSolver>
 {
 public:
     FLIP_2DSolver() = default;

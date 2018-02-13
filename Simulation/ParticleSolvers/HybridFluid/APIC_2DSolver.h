@@ -71,7 +71,7 @@ struct APIC_2DData : public ParticleSimulationData2D
 // APIC_2DSolver
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-class APIC_2DSolver : public PIC_2DSolver, public RegisteredInFactory<APIC_2DSolver>
+class APIC_2DSolver : public PIC_2DSolver, public RegisteredInSolverFactory<APIC_2DSolver>
 {
 public:
     APIC_2DSolver() = default;
