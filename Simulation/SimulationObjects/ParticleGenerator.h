@@ -52,12 +52,12 @@ public:
     auto& maxNParticles() { return m_MaxNParticles; }
     auto& maxSamplingIters() { return m_MaxIters; }
     auto& activeFrames() { return m_ActiveFrames; }
+    bool  isActive(UInt currentFrame);
     ////////////////////////////////////////////////////////////////////////////////
     const auto& generatedPositions() const { return m_GeneratedPositions; }
     const auto& generatedVelocities() const { return m_GeneratedVelocities; }
     ////////////////////////////////////////////////////////////////////////////////
-    bool isActive(UInt currentFrame);
-    void buildObject(const Vector<SharedPtr<BoundaryObject<N, Real> > >& boundaryObjects, RealType particleRadius);
+    virtual void buildObject(const Vector<SharedPtr<BoundaryObject<N, Real> > >& boundaryObjects, RealType particleRadius);
 
     template<class VelocityGenerator = decltype(DefaultFunctions::velocityGenerator),
              class PostProcessFunc = decltype(DefaultFunctions::postProcessFunc)>

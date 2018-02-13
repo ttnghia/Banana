@@ -34,18 +34,32 @@ public:
     HairObjectGenerator() = delete;
     HairObjectGenerator(const String& geometryType) : SimulationObject<N, RealType>(geometryType) {}
     ////////////////////////////////////////////////////////////////////////////////
-    void buildObject(const Vector<SharedPtr<BoundaryObject<N, Real> > >& boundaryObjects, RealType particleRadius);
+    const auto& generatedHairParticleType() const { return m_GeneratedParticleTypes; }
+    ////////////////////////////////////////////////////////////////////////////////
+    virtual void buildObject(const Vector<SharedPtr<BoundaryObject<N, Real> > >& boundaryObjects, RealType particleRadius);
 
     template<class VelocityGenerator = decltype(DefaultFunctions::velocityGenerator),
              class PostProcessFunc = decltype(DefaultFunctions::postProcessFunc)>
-    UInt generateParticles(const Vec_VecX<N, RealType>& currentPositions, Vec_VecX<N, RealType>& newPositions, Vec_VecX<N, RealType>& newVelocities, UInt frame = 0u,
-                           VelocityGenerator&& velGenerator = std::forward<decltype(DefaultFunctions::velocityGenerator)>(DefaultFunctions::velocityGenerator),
-                           PostProcessFunc&& postProcess    = std::forward<decltype(DefaultFunctions::postProcessFunc)>(DefaultFunctions::postProcessFunc));
+    UInt generateHair(const Vec_VecX<N, RealType>& currentPositions, UInt frame = 0u,
+                      VelocityGenerator&& velGenerator = std::forward<decltype(DefaultFunctions::velocityGenerator)>(DefaultFunctions::velocityGenerator),
+                      PostProcessFunc&& postProcess    = std::forward<decltype(DefaultFunctions::postProcessFunc)>(DefaultFunctions::postProcessFunc));
 
 protected:
     template<class VelocityGenerator = decltype(DefaultFunctions::velocityGenerator)>
-    UInt addFullShapeParticles(const Vec_VecX<N, RealType>& currentPositions, Vec_VecX<N, RealType>& newPositions, Vec_VecX<N, RealType>& newVelocities,
+    UInt buildSphereHairObjects(const Vec_VecX<N, RealType>& currentPositions,
+                                VelocityGenerator&& velGenerator = std::forward<decltype(DefaultFunctions::velocityGenerator)>(DefaultFunctions::velocityGenerator));
+
+    template<class VelocityGenerator = decltype(DefaultFunctions::velocityGenerator)>
+    UInt buildPlaneHairObjects(const Vec_VecX<N, RealType>& currentPositions,
                                VelocityGenerator&& velGenerator = std::forward<decltype(DefaultFunctions::velocityGenerator)>(DefaultFunctions::velocityGenerator));
+    template<class VelocityGenerator = decltype(DefaultFunctions::velocityGenerator)>
+    UInt buildDiskHairObjects(const Vec_VecX<N, RealType>& currentPositions,
+                              VelocityGenerator&& velGenerator = std::forward<decltype(DefaultFunctions::velocityGenerator)>(DefaultFunctions::velocityGenerator));
+
+    UInt loadCYHairModel();
+    UInt loadPhotoboothHairModel();
+    ////////////////////////////////////////////////////////////////////////////////
+    Vec_Int8 m_GeneratedParticleTypes;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -114,36 +128,10 @@ void HairObjectGenerator<N, RealType >::buildObject(const Vector<SharedPtr<Bound
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-template<class VelocityGenerator /* = decltype(DefaultFunctions::velocityGenerator)*/,
-         class PostProcessFunc /* = decltype(DefaultFunctions::postProcessFunc)*/>
-UInt HairObjectGenerator<N, RealType > ::generateParticles(const Vec_VecX<N, RealType>& currentPositions,
-                                                           Vec_VecX<N, RealType>& newPositions, Vec_VecX<N, RealType>& newVelocities, UInt frame /*= 0u*/,
-                                                           VelocityGenerator&& velGenerator, PostProcessFunc&& postProcessFunc)
-{
-    __BNN_REQUIRE(m_bObjReady);
-    if(!isActive(frame)) {
-        return 0u;
-    }
-
-    newPositions.resize(0);
-    newVelocities.resize(0);
-    collectNeighborParticles(currentPositions);
-    auto nGen = m_bFullShapeObj ?
-                addFullShapeParticles(currentPositions, newPositions, newVelocities, velGenerator) :
-                addParticles(currentPositions, newPositions, newVelocities, velGenerator);
-
-    postProcessFunc();
-    ////////////////////////////////////////////////////////////////////////////////
-    m_NGeneratedParticles += nGen;
-    return nGen;
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<Int N, class RealType>
 template<class VelocityGenerator /* = decltype(DefaultFunctions::velocityGenerator)*/>
-UInt HairObjectGenerator<N, RealType > ::addFullShapeParticles(const Vec_VecX<N, RealType>& currentPositions,
-                                                               Vec_VecX<N, RealType>& newPositions, Vec_VecX<N, RealType>& newVelocities,
-                                                               VelocityGenerator&& velGenerator)
+UInt HairObjectGenerator<N, RealType > ::buildSphereHairObjects(const Vec_VecX<N, RealType>& currentPositions,
+                                                                Vec_VecX<N, RealType>& newPositions, Vec_VecX<N, RealType>& newVelocities,
+                                                                VelocityGenerator&& velGenerator)
 {
     bool bEmptyRegion = true;
     if(currentPositions.size() > 0) {
@@ -176,6 +164,33 @@ UInt HairObjectGenerator<N, RealType > ::addFullShapeParticles(const Vec_VecX<N,
     }
 
     return static_cast<UInt>(m_ObjParticles.size());
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType>
+template<class VelocityGenerator /* = decltype(DefaultFunctions::velocityGenerator)*/,
+         class PostProcessFunc /* = decltype(DefaultFunctions::postProcessFunc)*/>
+UInt HairObjectGenerator<N, RealType > ::generateParticles(const Vec_VecX<N, RealType>& currentPositions,
+                                                           Vec_VecX<N, RealType>& newPositions, Vec_VecX<N, RealType>& newVelocities, UInt frame /*= 0u*/,
+                                                           VelocityGenerator&& velGenerator, PostProcessFunc&& postProcessFunc)
+{
+    __BNN_REQUIRE(m_bObjReady);
+    if(!isActive(frame)) {
+        return 0u;
+    }
+
+    m_GeneratedPositions.resize(0);
+    m_GeneratedVelocities.resize(0);
+    collectNeighborParticles(currentPositions);
+    UInt nGen = 0;
+    if(m_GeometryObj->name() == "Sphere") {
+        buildSphereHairObjects(currentPositions, velGenerator);
+    }
+
+    postProcessFunc();
+    ////////////////////////////////////////////////////////////////////////////////
+    m_NGeneratedParticles += nGen;
+    return nGen;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

@@ -612,7 +612,6 @@ void AniMPM_2DSolver::mapGridVelocities2ParticlesAPIC(Real timestep)
                                 particleData().B[p]            = pB;
                             });
 
-    //return;
     Scheduler::parallel_for(particleData().getNParticles(),
                             [&](UInt p)
                             {

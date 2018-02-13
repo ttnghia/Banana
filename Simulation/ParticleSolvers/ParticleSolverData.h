@@ -22,6 +22,7 @@
 #pragma once
 
 #include <Banana/Setup.h>
+#include <Banana/Geometry/GeometryObjects.h>
 #include <Banana/Utils/MathHelpers.h>
 #include <Banana/Utils/NumberHelpers.h>
 #include <Banana/Utils/STLHelpers.h>
@@ -333,6 +334,8 @@ struct HairSimulationData : public ParticleSimulationData<N, RealType>
 
     ////////////////////////////////////////////////////////////////////////////////
     Vec_Int8 particleType; // store the type of hair particles
+
+    UniquePtr<GeometryObjects::GeometryObject<N, RealType> > geometry = nullptr;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
