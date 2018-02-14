@@ -70,10 +70,11 @@ public:
     auto&       getAnimation() { return m_Animation; }
     const auto& getTransformationMatrix() const { return m_TransformationMatrix; }
 
+    VecX<N, RealType> getVelocityAt(const VecX<N, RealType>& ppos) const;
     VecX<N, RealType> transform(const VecX<N, RealType>& ppos) const;
     VecX<N, RealType> invTransform(const VecX<N, RealType>& ppos) const;
 
-    virtual bool updateTransformation(UInt frame = 0, RealType fraction = RealType(0));
+    virtual bool updateTransformation(UInt frame = 0, RealType fraction = RealType(0), RealType frameDuration = RealType(1.0_f / 30.0_f));
 protected:
 
 
@@ -81,6 +82,10 @@ protected:
     bool     m_bTransformed = false;
     RealType m_UniformScale = RealType(1.0);
     //RealType m_InvScale     = RealType(1.0);
+
+    RealType                m_LastTime                 = 0_f;
+    RealType                m_CurrentTime              = 0_f;
+    MatXxX<N + 1, RealType> m_LastTransformationMatrix = MatXxX<N + 1, RealType>(1.0);
 
     MatXxX<N + 1, RealType> m_TransformationMatrix    = MatXxX<N + 1, RealType>(1.0);
     MatXxX<N + 1, RealType> m_InvTransformationMatrix = MatXxX<N + 1, RealType>(1.0);
@@ -113,7 +118,7 @@ public:
     void setPeriodic(bool bPeriodic, UInt startFrame = 0) { m_bPeriodic = bPeriodic; m_StartFrame = startFrame; }
 
     void         makeReadyAnimation();
-    virtual bool updateTransformation(UInt frame = 0, RealType fraction = RealType(0)) override;
+    virtual bool updateTransformation(UInt frame = 0, RealType fraction = RealType(0), RealType frameDuration = RealType(1.0_f / 30.0_f)) override;
 
 protected:
     VecX<N, RealType> m_BoxMin = VecX<N, RealType>(-1.0);

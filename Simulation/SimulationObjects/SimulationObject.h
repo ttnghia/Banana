@@ -61,7 +61,10 @@ public:
     virtual bool     isInside(const VecNr& ppos) const { return m_GeometryObj->isInside(ppos, true); }
     ////////////////////////////////////////////////////////////////////////////////
     //virtual void makeReady() {}     // todo: need this?
-    virtual bool advanceScene(UInt frame, RealType fraction = RealType(0)) { return m_GeometryObj->updateTransformation(frame, fraction); }
+    virtual bool advanceScene(UInt frame, RealType fraction = RealType(0), RealType frameDuration = RealType(1.0_f / 30.0_f))
+    {
+        return m_GeometryObj->updateTransformation(frame, fraction, frameDuration);
+    }
 
 protected:
     JParams     m_jParams;

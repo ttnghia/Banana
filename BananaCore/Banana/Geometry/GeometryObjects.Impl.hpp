@@ -118,12 +118,16 @@ void Banana::GeometryObjects::GeometryObject<N, RealType >::resetTransformation(
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 template<Int N, class RealType>
-bool GeometryObject<N, RealType >::updateTransformation(UInt frame /*= 0*/, RealType fraction /*= RealType(0)*/)
+bool GeometryObject<N, RealType >::updateTransformation(UInt frame /*= 0*/, RealType fraction /*= RealType(0)*/, RealType frameDuration /*= RealType(1.0_f / 30.0_f)*/)
 {
     if(frame > 0 && m_Animation.nKeyFrames() == 1) {
         return false;
     }
 
+    ////////////////////////////////////////////////////////////////////////////////
+    m_LastTime                 = m_CurrentTime;
+    m_CurrentTime              = frameDuration * RealType(frame + fraction);
+    m_LastTransformationMatrix = m_TransformationMatrix;
     ////////////////////////////////////////////////////////////////////////////////
     m_TransformationMatrix    = m_Animation.getTransformation(frame, fraction);
     m_InvTransformationMatrix = glm::inverse(m_TransformationMatrix);
@@ -131,6 +135,20 @@ bool GeometryObject<N, RealType >::updateTransformation(UInt frame /*= 0*/, Real
     m_bTransformed            = true;
     ////////////////////////////////////////////////////////////////////////////////
     return true;
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType>
+VecX<N, RealType> GeometryObject<N, RealType >::getVelocityAt(const VecX<N, RealType>& ppos) const
+{
+    if(std::abs(m_CurrentTime - m_LastTime) < MEpsilon) {
+        return VecX<N, RealType>(0);
+    }
+    auto currentCenter = transform(VecX<N, RealType>(0));
+    auto pC            = ppos - currentCenter;
+    auto lastPC        = m_LastTransformationMatrix * invTransform(pC);
+
+    return (pC - lastPC) / (m_CurrentTime - m_LastTime);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -239,9 +257,10 @@ void Banana::GeometryObjects::BoxObject<N, RealType >::makeReadyAnimation()
 
 ////////////////////////////////////////////////////////////////////////////////
 template<Int N, class RealType>
-bool Banana::GeometryObjects::BoxObject<N, RealType >::updateTransformation(UInt frame /*= 0*/, RealType fraction /*= RealType(0)*/)
+bool Banana::GeometryObjects::BoxObject<N, RealType >::updateTransformation(UInt frame /*= 0*/, RealType fraction /*= RealType(0)*/,
+                                                                            RealType frameDuration /*= RealType(1.0_f / 30.0_f)*/)
 {
-    GeometryObject<N, RealType>::updateTransformation(frame, fraction);
+    GeometryObject<N, RealType>::updateTransformation(frame, fraction, frameDuration);
 
     if(!m_bAnimationReady) {
         return false;
