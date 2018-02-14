@@ -100,18 +100,7 @@ void PeridynamicsSolver::advanceFrame()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PeridynamicsSolver::loadSimParams(const JParams& jParams)
 {
-    __BNN_REQUIRE(m_BoundaryObjects.size() > 0);
-    SharedPtr<GeometryObjects::BoxObject<3, Real> > box = static_pointer_cast<GeometryObjects::BoxObject<3, Real> >(m_BoundaryObjects[0]->geometry());
-    __BNN_REQUIRE(box != nullptr);
-    solverParams().domainBMin = box->boxMin();
-    solverParams().domainBMax = box->boxMax();
-
-
-    JSONHelpers::readValue(jParams, solverParams().particleRadius,      "ParticleRadius");
-
-    JSONHelpers::readValue(jParams, solverParams().boundaryRestitution, "BoundaryRestitution");
-    JSONHelpers::readValue(jParams, solverParams().CGRelativeTolerance, "CGRelativeTolerance");
-    JSONHelpers::readValue(jParams, solverParams().maxCGIteration,      "MaxCGIteration");
+//
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

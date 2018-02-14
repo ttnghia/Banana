@@ -105,24 +105,6 @@ void Snow2DSolver::sortParticles()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void Snow2DSolver::loadSimParams(const JParams& jParams)
 {
-    __BNN_REQUIRE(m_BoundaryObjects.size() > 0);
-    SharedPtr<GeometryObjects::BoxObject<2, Real> > box = dynamic_pointer_cast<GeometryObjects::BoxObject<2, Real> >(m_BoundaryObjects[0]->geometry());
-    __BNN_REQUIRE(box != nullptr);
-    solverParams().movingBMin = box->boxMin();
-    solverParams().movingBMax = box->boxMax();
-
-    JSONHelpers::readValue(jParams, solverParams().minTimestep,          "MinTimestep");
-    JSONHelpers::readValue(jParams, solverParams().maxTimestep,          "MaxTimestep");
-    JSONHelpers::readValue(jParams, solverParams().CFLFactor,            "CFLFactor");
-
-    JSONHelpers::readValue(jParams, solverParams().PIC_FLIP_ratio,       "PIC_FLIP_Ratio");
-    JSONHelpers::readValue(jParams, solverParams().particleRadius,       "ParticleRadius");
-
-
-    JSONHelpers::readValue(jParams, solverParams().boundaryRestitution,  "BoundaryRestitution");
-    JSONHelpers::readValue(jParams, solverParams().CGRelativeTolerance,  "CGRelativeTolerance");
-    JSONHelpers::readValue(jParams, solverParams().maxCGIteration,       "MaxCGIteration");
-
     JSONHelpers::readValue(jParams, solverParams().thresholdCompression, "ThresholdCompression");
     JSONHelpers::readValue(jParams, solverParams().thresholdStretching,  "ThresholdStretching");
     JSONHelpers::readValue(jParams, solverParams().hardening,            "Hardening");

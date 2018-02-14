@@ -57,20 +57,6 @@ void AFLIP_3DData::backupGridVelocity(const PIC_3DData& picData)
 // AFLIP_3DSolver implementation
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void AFLIP_3DSolver::loadSimParams(const JParams& jParams)
-{
-    PIC_3DSolver::loadSimParams(jParams);
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // FLIP parameter
-    JSONHelpers::readValue(jParams, solverParams().PIC_FLIP_ratio, "PIC_FLIP_Ratio");
-    ////////////////////////////////////////////////////////////////////////////////
-
-    logger().printLog(String("AFLIP-3D parameters:"));
-    logger().printLogIndent(String("PIC/FLIP ratio: ") + std::to_string(solverParams().PIC_FLIP_ratio));
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void AFLIP_3DSolver::generateParticles(const JParams& jParams)
 {
     PIC_3DSolver::generateParticles(jParams);

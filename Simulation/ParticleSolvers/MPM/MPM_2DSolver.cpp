@@ -229,51 +229,9 @@ void MPM_2DSolver::advanceFrame()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void MPM_2DSolver::loadSimParams(const JParams& jParams)
 {
-    __BNN_REQUIRE(m_BoundaryObjects.size() > 0);
-    auto box = std::dynamic_pointer_cast<GeometryObjects::BoxObject<2, Real> >(m_BoundaryObjects[0]->geometry());
-    __BNN_REQUIRE(box != nullptr);
-    solverParams().domainBMin = box->boxMin();
-    solverParams().domainBMax = box->boxMax();
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // simulation size
-    JSONHelpers::readValue(jParams, solverParams().cellSize,             "CellSize");
-    JSONHelpers::readValue(jParams, solverParams().ratioCellSizePRadius, "RatioCellSizePRadius");
-    JSONHelpers::readValue(jParams, solverParams().nExpandCells,         "NExpandCells");
-    ////////////////////////////////////////////////////////////////////////////////
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // time step size
-    JSONHelpers::readValue(jParams, solverParams().minTimestep, "MinTimestep");
-    JSONHelpers::readValue(jParams, solverParams().maxTimestep, "MaxTimestep");
-    JSONHelpers::readValue(jParams, solverParams().CFLFactor,   "CFLFactor");
-    ////////////////////////////////////////////////////////////////////////////////
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // CG solver
-    JSONHelpers::readValue(jParams, solverParams().CGRelativeTolerance, "CGRelativeTolerance");
-    JSONHelpers::readValue(jParams, solverParams().maxCGIteration,      "MaxCGIteration");
-    ////////////////////////////////////////////////////////////////////////////////
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // particle parameters
-    JSONHelpers::readValue(jParams, solverParams().maxNParticles,  "MaxNParticles");
-    JSONHelpers::readValue(jParams, solverParams().advectionSteps, "AdvectionSteps");
-    ////////////////////////////////////////////////////////////////////////////////
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // boundary condition
-    if(JSONHelpers::readValue(jParams, solverParams().boundaryRestitution, "BoundaryRestitution")) {
-        for(auto& obj : m_BoundaryObjects) {
-            obj->restitution() = solverParams().boundaryRestitution;
-        }
-    }
-    ////////////////////////////////////////////////////////////////////////////////
-
     ////////////////////////////////////////////////////////////////////////////////
     // MPM parameters
-    JSONHelpers::readValue(jParams, solverParams().PIC_FLIP_ratio, "PIC_FLIP_Ratio");
-    JSONHelpers::readValue(jParams, solverParams().implicitRatio,  "ImplicitRatio");
+    JSONHelpers::readValue(jParams, solverParams().implicitRatio, "ImplicitRatio");
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////

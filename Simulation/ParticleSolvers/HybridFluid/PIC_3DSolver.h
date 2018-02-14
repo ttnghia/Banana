@@ -139,7 +139,6 @@ public:
     const auto& grid() const { return solverData().grid; }
 
 protected:
-    virtual void loadSimParams(const JParams& jParams) override;
     virtual void generateParticles(const JParams& jParams) override;
     virtual bool advanceScene() override;
     virtual void allocateSolverMemory() override;

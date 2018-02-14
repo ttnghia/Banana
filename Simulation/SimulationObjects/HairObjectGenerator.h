@@ -130,7 +130,6 @@ void HairObjectGenerator<N, RealType >::buildObject(const Vector<SharedPtr<Bound
 template<Int N, class RealType>
 template<class VelocityGenerator /* = decltype(DefaultFunctions::velocityGenerator)*/>
 UInt HairObjectGenerator<N, RealType > ::buildSphereHairObjects(const Vec_VecX<N, RealType>& currentPositions,
-                                                                Vec_VecX<N, RealType>& newPositions, Vec_VecX<N, RealType>& newVelocities,
                                                                 VelocityGenerator&& velGenerator)
 {
     bool bEmptyRegion = true;
@@ -170,9 +169,8 @@ UInt HairObjectGenerator<N, RealType > ::buildSphereHairObjects(const Vec_VecX<N
 template<Int N, class RealType>
 template<class VelocityGenerator /* = decltype(DefaultFunctions::velocityGenerator)*/,
          class PostProcessFunc /* = decltype(DefaultFunctions::postProcessFunc)*/>
-UInt HairObjectGenerator<N, RealType > ::generateParticles(const Vec_VecX<N, RealType>& currentPositions,
-                                                           Vec_VecX<N, RealType>& newPositions, Vec_VecX<N, RealType>& newVelocities, UInt frame /*= 0u*/,
-                                                           VelocityGenerator&& velGenerator, PostProcessFunc&& postProcessFunc)
+UInt HairObjectGenerator<N, RealType > ::generateHair(const Vec_VecX<N, RealType>& currentPositions, UInt frame /*= 0u*/,
+                                                      VelocityGenerator&& velGenerator, PostProcessFunc&& postProcessFunc)
 {
     __BNN_REQUIRE(m_bObjReady);
     if(!isActive(frame)) {

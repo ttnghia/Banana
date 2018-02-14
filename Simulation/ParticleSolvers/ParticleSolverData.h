@@ -198,11 +198,11 @@ struct SimulationParameters
     RealType particleRadiusSqr = 0_f;
     RealType particleMass      = RealType(1.0);
     UInt     maxNParticles     = 0u;
-    UInt     advectionSteps    = 1u;
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
-    // position-correction, if applicable
+    // advection and position-correction, if applicable
+    UInt     advectionSteps    = 1u;
     bool     bCorrectPosition        = false;
     RealType repulsiveForceStiffness = RealType(50.0);
     ////////////////////////////////////////////////////////////////////////////////

@@ -108,23 +108,6 @@ void PIC_2DSolver::sortParticles()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void PIC_2DSolver::loadSimParams(const JParams& jParams)
-{
-    JSONHelpers::readVector(jParams, solverParams().movingBMin, "BoxMin");
-    JSONHelpers::readVector(jParams, solverParams().movingBMax, "BoxMax");
-
-    JSONHelpers::readValue(jParams, solverParams().particleRadius,      "ParticleRadius");
-
-    JSONHelpers::readValue(jParams, solverParams().boundaryRestitution, "BoundaryRestitution");
-    JSONHelpers::readValue(jParams, solverParams().CGRelativeTolerance, "CGRelativeTolerance");
-    JSONHelpers::readValue(jParams, solverParams().maxCGIteration,      "MaxCGIteration");
-
-    ////////////////////////////////////////////////////////////////////////////////
-    solverParams().makeReady();
-    solverParams().printParams(m_Logger);
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PIC_2DSolver::generateParticles(const JParams& jParams)
 {
     ParticleSolver2D::generateParticles(jParams);

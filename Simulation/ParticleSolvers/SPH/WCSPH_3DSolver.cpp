@@ -225,30 +225,6 @@ void WCSPH_3DSolver::sortParticles()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void WCSPH_3DSolver::loadSimParams(const JParams& jParams)
 {
-    __BNN_REQUIRE(m_BoundaryObjects.size() > 0);
-    auto box = std::dynamic_pointer_cast<GeometryObjects::BoxObject<3, Real> >(m_BoundaryObjects[0]->geometry());
-    __BNN_REQUIRE(box != nullptr);
-    solverParams().domainBMin = box->boxMin();
-    solverParams().domainBMax = box->boxMax();
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // simulation size
-    JSONHelpers::readValue(jParams, solverParams().particleRadius, "ParticleRadius");
-    ////////////////////////////////////////////////////////////////////////////////
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // particle parameters
-    JSONHelpers::readValue(jParams, solverParams().maxNParticles,  "MaxNParticles");
-    JSONHelpers::readValue(jParams, solverParams().advectionSteps, "AdvectionSteps");
-    ////////////////////////////////////////////////////////////////////////////////
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // time step size
-    JSONHelpers::readValue(jParams, solverParams().minTimestep, "MinTimestep");
-    JSONHelpers::readValue(jParams, solverParams().maxTimestep, "MaxTimestep");
-    JSONHelpers::readValue(jParams, solverParams().CFLFactor,   "CFLFactor");
-    ////////////////////////////////////////////////////////////////////////////////
-
     ////////////////////////////////////////////////////////////////////////////////
     // forces
     JSONHelpers::readValue(jParams, solverParams().pressureStiffness,       "PressureStiffness");
@@ -277,13 +253,6 @@ void WCSPH_3DSolver::loadSimParams(const JParams& jParams)
     JSONHelpers::readValue(jParams, solverParams().ratioNearKernelPRadius, "RatioNearKernelPRadius");
     ////////////////////////////////////////////////////////////////////////////////
 
-    ////////////////////////////////////////////////////////////////////////////////
-    // boundary condition
-    if(JSONHelpers::readValue(jParams, solverParams().boundaryRestitution, "BoundaryRestitution")) {
-        for(auto& obj : m_BoundaryObjects) {
-            obj->restitution() = solverParams().boundaryRestitution;
-        }
-    }
     ////////////////////////////////////////////////////////////////////////////////
     solverParams().makeReady();
     solverParams().printParams(m_Logger);

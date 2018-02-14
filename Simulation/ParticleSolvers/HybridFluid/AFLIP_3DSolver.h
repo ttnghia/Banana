@@ -75,7 +75,6 @@ public:
     const auto& AFLIPData() const { return m_AFLIPData; }
 
 protected:
-    virtual void loadSimParams(const JParams& jParams) override;
     virtual void generateParticles(const JParams& jParams) override;
     virtual bool advanceScene() override;
     virtual void allocateSolverMemory() override;

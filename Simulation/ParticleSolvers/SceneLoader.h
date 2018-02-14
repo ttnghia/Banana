@@ -26,6 +26,7 @@
 #include <ParticleSolvers/ParticleSolverData.h>
 #include <SimulationObjects/BoundaryObject.h>
 #include <SimulationObjects/ParticleGenerator.h>
+#include <SimulationObjects/HairObjectGenerator.h>
 #include <SimulationObjects/ParticleRemover.h>
 
 #include <json.hpp>
@@ -43,7 +44,7 @@ using namespace SimulationObjects;
 bool loadDataPath(const String& sceneFile, String& dataPath);
 void loadGlobalParams(const JParams& jParams, ParticleSolvers::GlobalParameters& globalParams);
 
-
+template<Int N, class RealType> void loadGeneralSolverParams(const JParams& jParams, ParticleSolvers::SimulationParameters<N, RealType>& solverParams);
 template<Int N, class RealType> void loadSimulationObject(const JParams& jParams, const SharedPtr<SimulationObject<N, RealType> >& obj);
 template<Int N, class RealType> void loadBoundaryObjects(const JParams& jParams, Vector<SharedPtr<BoundaryObject<N, RealType> > >& boundaryObjs);
 template<Int N, class RealType> void loadParticleGenerators(const JParams& jParams, Vector<SharedPtr<ParticleGenerator<N, RealType> > >& particleGenerators);
@@ -111,6 +112,50 @@ inline void loadGlobalParams(const JParams& jParams, ParticleSolvers::GlobalPara
     JSONHelpers::readBool(jParams, globalParams.bApplyGravity,       "ApplyGravity");
     JSONHelpers::readBool(jParams, globalParams.bEnableSortParticle, "EnableSortParticle");
     JSONHelpers::readValue(jParams, globalParams.sortFrequency, "SortFrequency");
+    ////////////////////////////////////////////////////////////////////////////////
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType>
+void loadGeneralSolverParams(const JParams& jParams, ParticleSolvers::SimulationParameters<N, RealType>& solverParams)
+{
+    ////////////////////////////////////////////////////////////////////////////////
+    // time step size
+    JSONHelpers::readValue(jParams, solverParams.minTimestep, "MinTimestep");
+    JSONHelpers::readValue(jParams, solverParams.maxTimestep, "MaxTimestep");
+    JSONHelpers::readValue(jParams, solverParams.CFLFactor,   "CFLFactor");
+    ////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // simulation size
+    JSONHelpers::readValue(jParams, solverParams.particleRadius,       "ParticleRadius");
+    JSONHelpers::readValue(jParams, solverParams.cellSize,             "CellSize");
+    JSONHelpers::readValue(jParams, solverParams.ratioCellSizePRadius, "RatioCellSizePRadius");
+    JSONHelpers::readValue(jParams, solverParams.nExpandCells,         "NExpandCells");
+    ////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // particle parameters
+    JSONHelpers::readValue(jParams, solverParams.maxNParticles,  "MaxNParticles");
+    JSONHelpers::readValue(jParams, solverParams.advectionSteps, "AdvectionSteps");
+    JSONHelpers::readBool(jParams, solverParams.bCorrectPosition, "CorrectPosition");
+    JSONHelpers::readValue(jParams, solverParams.repulsiveForceStiffness, "RepulsiveForceStiffness");
+    ////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // CG solver
+    JSONHelpers::readValue(jParams, solverParams.CGRelativeTolerance, "CGRelativeTolerance");
+    JSONHelpers::readValue(jParams, solverParams.maxCGIteration,      "MaxCGIteration");
+    ////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // data only for PIC/FLIP blending, if applicable
+    JSONHelpers::readValue(jParams, solverParams.PIC_FLIP_ratio, "PIC_FLIP_ratio");
+    ////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // boundary condition
+    JSONHelpers::readValue(jParams, solverParams.boundaryRestitution, "BoundaryRestitution");
     ////////////////////////////////////////////////////////////////////////////////
 }
 

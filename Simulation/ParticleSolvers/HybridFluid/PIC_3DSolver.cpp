@@ -218,59 +218,6 @@ void PIC_3DSolver::sortParticles()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void PIC_3DSolver::loadSimParams(const JParams& jParams)
-{
-    __BNN_REQUIRE(m_BoundaryObjects.size() > 0);
-    auto box = std::dynamic_pointer_cast<GeometryObjects::BoxObject<3, Real> >(m_BoundaryObjects[0]->geometry());
-    __BNN_REQUIRE(box != nullptr);
-    solverParams().domainBMin = box->boxMin();
-    solverParams().domainBMax = box->boxMax();
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // simulation size
-    JSONHelpers::readValue(jParams, solverParams().cellSize,             "CellSize");
-    JSONHelpers::readValue(jParams, solverParams().ratioCellSizePRadius, "RatioCellSizePRadius");
-    JSONHelpers::readValue(jParams, solverParams().nExpandCells,         "NExpandCells");
-    ////////////////////////////////////////////////////////////////////////////////
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // time step size
-    JSONHelpers::readValue(jParams, solverParams().minTimestep, "MinTimestep");
-    JSONHelpers::readValue(jParams, solverParams().maxTimestep, "MaxTimestep");
-    JSONHelpers::readValue(jParams, solverParams().CFLFactor,   "CFLFactor");
-    ////////////////////////////////////////////////////////////////////////////////
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // CG solver
-    JSONHelpers::readValue(jParams, solverParams().CGRelativeTolerance, "CGRelativeTolerance");
-    JSONHelpers::readValue(jParams, solverParams().maxCGIteration,      "MaxCGIteration");
-    ////////////////////////////////////////////////////////////////////////////////
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // particle parameters
-    JSONHelpers::readValue(jParams, solverParams().maxNParticles, "MaxNParticles");
-    JSONHelpers::readBool(jParams, solverParams().bCorrectPosition, "CorrectPosition");
-    JSONHelpers::readValue(jParams, solverParams().repulsiveForceStiffness, "RepulsiveForceStiffness");
-    JSONHelpers::readValue(jParams, solverParams().advectionSteps,          "AdvectionSteps");
-    ////////////////////////////////////////////////////////////////////////////////
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // boundary condition
-    if(JSONHelpers::readValue(jParams, solverParams().boundaryRestitution, "BoundaryRestitution")) {
-        for(auto& obj : m_BoundaryObjects) {
-            obj->restitution() = solverParams().boundaryRestitution;
-        }
-    }
-    ////////////////////////////////////////////////////////////////////////////////
-
-    ////////////////////////////////////////////////////////////////////////////////
-    solverParams().makeReady();
-    solverParams().printParams(m_Logger);
-    ////////////////////////////////////////////////////////////////////////////////
-    solverData().makeReady(solverParams());
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void PIC_3DSolver::generateParticles(const JParams& jParams)
 {
     ParticleSolver3D::generateParticles(jParams);

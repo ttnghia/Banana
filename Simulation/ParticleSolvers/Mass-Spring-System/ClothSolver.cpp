@@ -134,17 +134,6 @@ void ClothSolver::sortParticles()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void ClothSolver::loadSimParams(const JParams& jParams)
 {
-    JSONHelpers::readVector(jParams, solverParams().movingBMin, "BoxMin");
-    JSONHelpers::readVector(jParams, solverParams().movingBMax, "BoxMax");
-
-
-    JSONHelpers::readValue(jParams, solverParams().particleRadius,      "ParticleRadius");
-    JSONHelpers::readValue(jParams, solverParams().PIC_FLIP_ratio,      "PIC_FLIP_Ratio");
-
-    JSONHelpers::readValue(jParams, solverParams().boundaryRestitution, "BoundaryRestitution");
-    JSONHelpers::readValue(jParams, solverParams().CGRelativeTolerance, "CGRelativeTolerance");
-    JSONHelpers::readValue(jParams, solverParams().maxCGIteration,      "MaxCGIteration");
-
     JSONHelpers::readBool(jParams, solverParams().bApplyRepulsiveForces, "ApplyRepulsiveForces");
     JSONHelpers::readBool(jParams, solverParams().bApplyRepulsiveForces, "ApplyRepulsiveForce");
     JSONHelpers::readValue(jParams, solverParams().repulsiveForceStiffness, "RepulsiveForceStiffness");

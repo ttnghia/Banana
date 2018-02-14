@@ -88,7 +88,7 @@ public:
     const auto& dataLogger(const String& dataName) const { assert(m_DataLoggers[dataName] != nullptr); return *m_DataLoggers[dataName]; }
 
 protected:
-    virtual void loadSimParams(const JParams& jParams) = 0;
+    virtual void loadSimParams(const JParams& jParams) { __BNN_UNUSED(jParams); }
     virtual void generateBoundaries(const JParams& jParams);
     virtual void generateParticles(const JParams& jParams);
     virtual void generateRemovers(const JParams& jParams);
@@ -177,13 +177,16 @@ void ParticleSolver<N, RealType >::loadScene(const String& sceneFile)
     __BNN_REQUIRE(m_SceneJParams.find("SimulationParameters") != m_SceneJParams.end());
     {
         JParams jSimParams = m_SceneJParams["SimulationParameters"];
+        SceneLoader::loadGeneralSolverParams(jSimParams, generalSolverParams());
 
         // load simulation domain box from sim param and set it as the first boundary object
-        if(jSimParams.find("SimulationDomainBox") != jSimParams.end()) {
+        __BNN_REQUIRE(jSimParams.find("SimulationDomainBox") != jSimParams.end());
+        {
             JParams jBoxParams = jSimParams["SimulationDomainBox"];
 
             auto obj = std::make_shared<SimulationObjects::BoxBoundary<N, RealType> >(jBoxParams);
             m_BoundaryObjects.push_back(obj);
+            auto box = std::dynamic_pointer_cast<GeometryObjects::BoxObject<N, RealType> >(obj->geometry());
 
             // domain box cannot be dynamic
             JSONHelpers::readValue(jBoxParams, obj->meshFile(),     "MeshFile");
@@ -194,27 +197,30 @@ void ParticleSolver<N, RealType >::loadScene(const String& sceneFile)
             Real              scale;
             VecX<N, RealType> boxMin;
             VecX<N, RealType> boxMax;
+            __BNN_REQUIRE(box != nullptr);
 
             if(JSONHelpers::readVector(jBoxParams, translation, "Translation")) {
-                obj->geometry()->setTranslation(translation);
+                box->setTranslation(translation);
             }
             if(JSONHelpers::readValue(jBoxParams, scale, "Scale")) {
-                obj->geometry()->setUniformScale(scale);
+                box->setUniformScale(scale);
             }
 
             if(JSONHelpers::readVector(jBoxParams, boxMin, "BoxMin") && JSONHelpers::readVector(jBoxParams, boxMax, "BoxMax")) {
-                SharedPtr<GeometryObjects::BoxObject<N, RealType> > box = dynamic_pointer_cast<GeometryObjects::BoxObject<N, RealType> >(obj->geometry());
-                __BNN_REQUIRE(box != nullptr);
                 box->setOriginalBox(boxMin, boxMax);
             }
+            ////////////////////////////////////////////////////////////////////////////////
+            // set simulation domain
+            generalSolverParams().domainBMin = box->boxMin();
+            generalSolverParams().domainBMax = box->boxMax();
         }
+
         loadSimParams(jSimParams); // do this by derived solver
     }
 
     ////////////////////////////////////////////////////////////////////////////////
     // Setup data io after having global params and boundary objects ready
     setupDataIO();
-
 
     ////////////////////////////////////////////////////////////////////////////////
     // read object parameters and generate scene
@@ -338,40 +344,45 @@ void ParticleSolver<N, RealType >::finalizeSimulation()
 template<Int N, class RealType>
 void ParticleSolver<N, RealType >::generateBoundaries(const JParams& jParams)
 {
-    if(jParams.find("AdditionalBoundaryObjects") == jParams.end()) {
-        return;
+    if(jParams.find("AdditionalBoundaryObjects") != jParams.end()) {
+        SceneLoader::loadBoundaryObjects<N, RealType>(jParams["AdditionalBoundaryObjects"], m_BoundaryObjects);
+
+        ////////////////////////////////////////////////////////////////////////////////
+        // combine static boundaries
+        {
+            Vector<SharedPtr<SimulationObjects::BoundaryObject<N, RealType> > > staticBoundaries;
+            Vector<SharedPtr<SimulationObjects::BoundaryObject<N, RealType> > > dynamicBoundaries;
+            for(auto& obj : m_BoundaryObjects) {
+                if(obj->isDynamic()) {
+                    dynamicBoundaries.push_back(obj);
+                } else {
+                    staticBoundaries.push_back(obj);
+                }
+            }
+
+            if(staticBoundaries.size() > 1) {
+                SharedPtr<SimulationObjects::BoundaryObject<N, RealType> > csgBoundary = std::make_shared<SimulationObjects::BoundaryObject<N, RealType> >(JParams(), "CSGObject");
+                SharedPtr<GeometryObjects::CSGObject<N, RealType> >        csgObj      = std::static_pointer_cast<GeometryObjects::CSGObject<N, RealType> >(csgBoundary->geometry());
+                __BNN_REQUIRE(csgObj != nullptr);
+
+                for(auto& obj : staticBoundaries) {
+                    csgObj->addObject(obj->geometry(), GeometryObjects::CSGOperations::Union);
+                }
+
+                m_BoundaryObjects.resize(0);
+                m_BoundaryObjects.push_back(csgBoundary);
+
+                for(auto& obj : dynamicBoundaries) {
+                    m_BoundaryObjects.push_back(obj);
+                }
+            }
+        }
     }
-    SceneLoader::loadBoundaryObjects<N, RealType>(jParams["AdditionalBoundaryObjects"], m_BoundaryObjects);
 
     ////////////////////////////////////////////////////////////////////////////////
-    // combine static boundaries
-    {
-        Vector<SharedPtr<SimulationObjects::BoundaryObject<N, RealType> > > staticBoundaries;
-        Vector<SharedPtr<SimulationObjects::BoundaryObject<N, RealType> > > dynamicBoundaries;
-        for(auto& obj : m_BoundaryObjects) {
-            if(obj->isDynamic()) {
-                dynamicBoundaries.push_back(obj);
-            } else {
-                staticBoundaries.push_back(obj);
-            }
-        }
-
-        if(staticBoundaries.size() > 1) {
-            SharedPtr<SimulationObjects::BoundaryObject<N, RealType> > csgBoundary = std::make_shared<SimulationObjects::BoundaryObject<N, RealType> >(JParams(), "CSGObject");
-            SharedPtr<GeometryObjects::CSGObject<N, RealType> >        csgObj      = std::static_pointer_cast<GeometryObjects::CSGObject<N, RealType> >(csgBoundary->geometry());
-            __BNN_REQUIRE(csgObj != nullptr);
-
-            for(auto& obj : staticBoundaries) {
-                csgObj->addObject(obj->geometry(), GeometryObjects::CSGOperations::Union);
-            }
-
-            m_BoundaryObjects.resize(0);
-            m_BoundaryObjects.push_back(csgBoundary);
-
-            for(auto& obj : dynamicBoundaries) {
-                m_BoundaryObjects.push_back(obj);
-            }
-        }
+    // set general parameters for boundary objects
+    for(auto& obj : m_BoundaryObjects) {
+        obj->restitution() = generalSolverParams().boundaryRestitution;
     }
 }
 
