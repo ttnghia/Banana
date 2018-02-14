@@ -31,21 +31,21 @@ namespace Banana::ParticleSolvers
 // HairMPM_2DData implementation
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void HairMPM_2DData::AniParticleData::reserve(UInt nParticles)
+void HairMPM_2DData::ParticleData::reserve(UInt nParticles)
 {
     localDirections.reserve(nParticles);
     particleType.reserve(nParticles);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void HairMPM_2DData::AniParticleData::resize(UInt nParticles)
+void HairMPM_2DData::ParticleData::resize(UInt nParticles)
 {
     localDirections.resize(nParticles, Mat2x2r(1.0_f));
     particleType.resize(nParticles, static_cast<Int8>(Constants::HairParticleType::UnknownType));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-UInt HairMPM_2DData::AniParticleData::removeParticles(Vec_Int8& removeMarker)
+UInt HairMPM_2DData::ParticleData::removeParticles(Vec_Int8& removeMarker)
 {
     STLHelpers::eraseByMarker(localDirections, removeMarker);
     STLHelpers::eraseByMarker(particleType,    removeMarker);
@@ -471,7 +471,7 @@ void HairMPM_2DSolver::explicitIntegration(Real timestep)
                             {
                                 if(gridData().active.data()[i]) {
                                     gridData().velocity_new.data()[i] = gridData().velocity.data()[i] +
-                                                                        timestep * (Constants::Gravity2D - gridData().velocity_new.data()[i] / gridData().mass.data()[i]);
+                                                                        timestep * (solverParams().gravity() - gridData().velocity_new.data()[i] / gridData().mass.data()[i]);
                                 }
                             });
 }

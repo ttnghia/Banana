@@ -226,6 +226,17 @@ struct SimulationParameters
     ////////////////////////////////////////////////////////////////////////////////
 
 
+    ////////////////////////////////////////////////////////////////////////////////
+    // gravity
+    virtual VecX<N, RealType> gravity(const VecX<N, RealType>& pos = VecX<N, RealType>(0)) const
+    {
+        __BNN_UNUSED(pos);
+        if constexpr(N == 2)
+            return Constants::Gravity2D;
+        else
+            return Constants::Gravity3D;
+    }
+
     virtual void makeReady()
     {
         if(bUseGrid) {

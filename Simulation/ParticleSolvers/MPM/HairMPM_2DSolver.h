@@ -83,7 +83,7 @@ struct HairMPM_2DData
     ParticleData particleData;
     GridData     gridData;
 
-    SharedPtr<GeometryObjects::GeometryObject2D> geometryObj;
+    Vector<SharedPtr<GeometryObjects::GeometryObject2D> > hairObjs;
 
     void makeReady(const MPM_2DParameters& params,  MPM_2DData& mpmData);
     void classifyParticles(const MPM_2DParameters& params,  MPM_2DData& mpmData);

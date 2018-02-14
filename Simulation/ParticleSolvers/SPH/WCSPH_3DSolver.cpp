@@ -759,7 +759,7 @@ void WCSPH_3DSolver::computeForces()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void WCSPH_3DSolver::updateVelocity(Real timestep)
 {
-    const Vec3r gravity = globalParams().bApplyGravity ? Constants::Gravity3D : Vec3r(0);
+    const Vec3r gravity = globalParams().bApplyGravity ? solverParams().gravity() : Vec3r(0);
     Scheduler::parallel_for(particleData().velocities.size(),
                             [&](size_t p)
                             {

@@ -796,7 +796,7 @@ void MPM_3DSolver::explicitIntegration(Real timestep)
                             {
                                 if(gridData().active.data()[i]) {
                                     gridData().velocity_new.data()[i] = gridData().velocity.data()[i] +
-                                                                        timestep * (Constants::Gravity3D - gridData().velocity_new.data()[i] / gridData().mass.data()[i]);
+                                                                        timestep * (solverParams().gravity() - gridData().velocity_new.data()[i] / gridData().mass.data()[i]);
                                 }
                             });
 }
@@ -841,7 +841,7 @@ void MPM_3DSolver::implicitIntegration(Real timestep)
                             [&](UInt i, UInt j, UInt k)
                             {
                                 if(gridData().active(i, j, k)) {
-                                    gridData().velocity_new(i, j, k) = vPtr[gridData().activeNodeIdx(i, j, k)] + timestep * Constants::Gravity3D;
+                                    gridData().velocity_new(i, j, k) = vPtr[gridData().activeNodeIdx(i, j, k)] + timestep * solverParams().gravity();
                                 }
                             });
 }
