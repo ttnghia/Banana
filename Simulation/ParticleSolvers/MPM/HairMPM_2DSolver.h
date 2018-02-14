@@ -60,7 +60,7 @@ struct HairMPM_2DParameters
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 struct HairMPM_2DData
 {
-    struct AniParticleData
+    struct ParticleData
     {
         Vec_Mat2x2r localDirections;
         Vec_Int8    particleType;
@@ -80,8 +80,10 @@ struct HairMPM_2DData
     };
 
     ////////////////////////////////////////////////////////////////////////////////
-    AniParticleData particleData;
-    GridData        gridData;
+    ParticleData particleData;
+    GridData     gridData;
+
+    SharedPtr<GeometryObjects::GeometryObject2D> geometryObj;
 
     void makeReady(const MPM_2DParameters& params,  MPM_2DData& mpmData);
     void classifyParticles(const MPM_2DParameters& params,  MPM_2DData& mpmData);
@@ -113,8 +115,8 @@ public:
     auto&       aniData() { return m_AniData; }
     const auto& aniData() const { return m_AniData; }
     ////////////////////////////////////////////////////////////////////////////////
-    auto&       aniParticleData() { return aniData().particleData; }
-    const auto& aniParticleData() const { return aniData().particleData; }
+    auto&       ParticleData() { return aniData().particleData; }
+    const auto& ParticleData() const { return aniData().particleData; }
     auto&       aniGridData() { return aniData().gridData; }
     const auto& aniGridData() const { return aniData().gridData; }
 
