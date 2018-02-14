@@ -34,12 +34,12 @@ namespace JSONHelpers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class T>
-inline bool readValue(const nlohmann::json& j, T& v, const String& valueName)
+inline bool readValue(const JParams& j, T& v, const String& valueName)
 {
     if(j.find(valueName) == j.end()) {
         return false;
     }
-    const nlohmann::json jval = j[valueName];
+    const JParams jval = j[valueName];
 
     if(jval.is_null()) {
         return false;
@@ -50,12 +50,12 @@ inline bool readValue(const nlohmann::json& j, T& v, const String& valueName)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-inline bool readBool(const nlohmann::json& j, bool& v, const String& valueName)
+inline bool readBool(const JParams& j, bool& v, const String& valueName)
 {
     if(j.find(valueName) == j.end()) {
         return false;
     }
-    const nlohmann::json jval = j[valueName];
+    const JParams jval = j[valueName];
 
     if(jval.is_null()) {
         return false;
@@ -73,12 +73,12 @@ inline bool readBool(const nlohmann::json& j, bool& v, const String& valueName)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class T>
-inline bool readVector(const nlohmann::json& j, VecX<N, T>& vec, const String& valueName)
+inline bool readVector(const JParams& j, VecX<N, T>& vec, const String& valueName)
 {
     if(j.find(valueName) == j.end()) {
         return false;
     }
-    const nlohmann::json jval = j[valueName];
+    const JParams jval = j[valueName];
 
     if(jval.is_null()) {
         return false;
@@ -104,12 +104,12 @@ inline bool readVector(const nlohmann::json& j, VecX<N, T>& vec, const String& v
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class T>
-inline bool readVector(const nlohmann::json& j, Vector<T>& vec, const String& valueName)
+inline bool readVector(const JParams& j, Vector<T>& vec, const String& valueName)
 {
     if(j.find(valueName) == j.end()) {
         return false;
     }
-    const nlohmann::json jval = j[valueName];
+    const JParams jval = j[valueName];
 
     if(jval.is_null()) {
         return false;

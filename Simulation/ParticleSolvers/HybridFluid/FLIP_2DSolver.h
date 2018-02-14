@@ -87,7 +87,7 @@ public:
     const auto& flipData() const { return m_FLIPData; }
 
 protected:
-    virtual void loadSimParams(const nlohmann::json& jParams) override;
+    virtual void loadSimParams(const JParams& jParams) override;
     virtual void advanceVelocity(Real timestep) override;
     ////////////////////////////////////////////////////////////////////////////////
     void computeChangesGridVelocity();

@@ -41,13 +41,13 @@ namespace SceneLoader
 using namespace SimulationObjects;
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 bool loadDataPath(const String& sceneFile, String& dataPath);
-void loadGlobalParams(const nlohmann::json& jParams, ParticleSolvers::GlobalParameters& globalParams);
+void loadGlobalParams(const JParams& jParams, ParticleSolvers::GlobalParameters& globalParams);
 
 
-template<Int N, class RealType> void loadSimulationObject(const nlohmann::json& jParams, const SharedPtr<SimulationObject<N, RealType> >& obj);
-template<Int N, class RealType> void loadBoundaryObjects(const nlohmann::json& jParams, Vector<SharedPtr<BoundaryObject<N, RealType> > >& boundaryObjs);
-template<Int N, class RealType> void loadParticleGenerators(const nlohmann::json& jParams, Vector<SharedPtr<ParticleGenerator<N, RealType> > >& particleGenerators);
-template<Int N, class RealType> void loadParticleRemovers(const nlohmann::json& jParams, Vector<SharedPtr<ParticleRemover<N, RealType> > >& particleRemovers);
+template<Int N, class RealType> void loadSimulationObject(const JParams& jParams, const SharedPtr<SimulationObject<N, RealType> >& obj);
+template<Int N, class RealType> void loadBoundaryObjects(const JParams& jParams, Vector<SharedPtr<BoundaryObject<N, RealType> > >& boundaryObjs);
+template<Int N, class RealType> void loadParticleGenerators(const JParams& jParams, Vector<SharedPtr<ParticleGenerator<N, RealType> > >& particleGenerators);
+template<Int N, class RealType> void loadParticleRemovers(const JParams& jParams, Vector<SharedPtr<ParticleRemover<N, RealType> > >& particleRemovers);
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -61,7 +61,7 @@ inline bool loadDataPath(const String& sceneFile, String& dataPath)
         return false;
     }
 
-    nlohmann::json jParams = nlohmann::json::parse(inputFile);
+    JParams jParams = JParams::parse(inputFile);
     if(jParams.find("GlobalParameters") == jParams.end()) {
         return false;
     } else {
@@ -70,7 +70,7 @@ inline bool loadDataPath(const String& sceneFile, String& dataPath)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-inline void loadGlobalParams(const nlohmann::json& jParams, ParticleSolvers::GlobalParameters& globalParams)
+inline void loadGlobalParams(const JParams& jParams, ParticleSolvers::GlobalParameters& globalParams)
 {
     JSONHelpers::readValue(jParams, globalParams.nThreads, "NThreads");
 
@@ -118,7 +118,7 @@ inline void loadGlobalParams(const nlohmann::json& jParams, ParticleSolvers::Glo
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 template<Int N, class RealType>
-void loadSimulationObject(const nlohmann::json& jParams, const SharedPtr<SimulationObject<N, RealType> >& obj)
+void loadSimulationObject(const JParams& jParams, const SharedPtr<SimulationObject<N, RealType> >& obj)
 {
     __BNN_REQUIRE(obj != nullptr);
     __BNN_REQUIRE(JSONHelpers::readValue(jParams, obj->nameID(), "UniqueName"));
@@ -234,7 +234,7 @@ void loadSimulationObject(const nlohmann::json& jParams, const SharedPtr<Simulat
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void loadBoundaryObjects(const nlohmann::json& jParams, Vector<SharedPtr<BoundaryObject<N, RealType> > >& boundaryObjs)
+void loadBoundaryObjects(const JParams& jParams, Vector<SharedPtr<BoundaryObject<N, RealType> > >& boundaryObjs)
 {
     for(auto& jObj : jParams) {
         String geometryType;
@@ -254,7 +254,7 @@ void loadBoundaryObjects(const nlohmann::json& jParams, Vector<SharedPtr<Boundar
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void loadParticleGenerators(const nlohmann::json& jParams, Vector<SharedPtr<ParticleGenerator<N, RealType> > >& particleGenerators)
+void loadParticleGenerators(const JParams& jParams, Vector<SharedPtr<ParticleGenerator<N, RealType> > >& particleGenerators)
 {
     for(auto& jObj : jParams) {
         String geometryType;
@@ -278,7 +278,7 @@ void loadParticleGenerators(const nlohmann::json& jParams, Vector<SharedPtr<Part
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void loadParticleRemovers(const nlohmann::json& jParams, Vector<SharedPtr<ParticleRemover<N, RealType> > >& particleRemovers)
+void loadParticleRemovers(const JParams& jParams, Vector<SharedPtr<ParticleRemover<N, RealType> > >& particleRemovers)
 {
     for(auto& jObj : jParams) {
         String geometryType;

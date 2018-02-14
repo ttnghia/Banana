@@ -186,7 +186,7 @@ void HairMPM_2DSolver::makeReady()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void HairMPM_2DSolver::loadSimParams(const nlohmann::json& jParams)
+void HairMPM_2DSolver::loadSimParams(const JParams& jParams)
 {
     MPM_2DSolver::loadSimParams(jParams);
 
@@ -197,7 +197,7 @@ void HairMPM_2DSolver::loadSimParams(const nlohmann::json& jParams)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void HairMPM_2DSolver::generateParticles(const nlohmann::json& jParams)
+void HairMPM_2DSolver::generateParticles(const JParams& jParams)
 {
     ParticleSolver2D::generateParticles(jParams);
 

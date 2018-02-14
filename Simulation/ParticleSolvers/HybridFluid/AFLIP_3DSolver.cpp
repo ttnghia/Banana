@@ -57,7 +57,7 @@ void AFLIP_3DData::backupGridVelocity(const PIC_3DData& picData)
 // AFLIP_3DSolver implementation
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void AFLIP_3DSolver::loadSimParams(const nlohmann::json& jParams)
+void AFLIP_3DSolver::loadSimParams(const JParams& jParams)
 {
     PIC_3DSolver::loadSimParams(jParams);
 
@@ -71,7 +71,7 @@ void AFLIP_3DSolver::loadSimParams(const nlohmann::json& jParams)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void AFLIP_3DSolver::generateParticles(const nlohmann::json& jParams)
+void AFLIP_3DSolver::generateParticles(const JParams& jParams)
 {
     PIC_3DSolver::generateParticles(jParams);
     AFLIPData().resizeParticleData(particleData().getNParticles());

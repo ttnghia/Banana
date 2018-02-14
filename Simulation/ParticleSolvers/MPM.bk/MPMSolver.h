@@ -49,7 +49,7 @@ public:
     virtual Vec_Vec3r& getVelocity() override { return m_SimData->velocity; }
 
 private:
-    virtual void loadSimParams(const nlohmann::json& jParams) override {}
+    virtual void loadSimParams(const JParams& jParams) override {}
 
 
     void gather_mass(struct mesh** cell_point, int dest_x, int dest_y, int src_x, int src_y, int node_id, struct material** point);

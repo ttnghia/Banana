@@ -60,7 +60,7 @@ void FLIP_3DData::backupGridVelocity(const PIC_3DData& picData)
 // FLIP_3DSolver implementation
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void FLIP_3DSolver::loadSimParams(const nlohmann::json& jParams)
+void FLIP_3DSolver::loadSimParams(const JParams& jParams)
 {
     PIC_3DSolver::loadSimParams(jParams);
 

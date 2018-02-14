@@ -91,10 +91,10 @@ public:
     const auto& dataLogger(const String& dataName) const { assert(m_DataLoggers[dataName] != nullptr); return *m_DataLoggers[dataName]; }
 
 protected:
-    virtual void loadSimParams(const nlohmann::json& jParams) = 0;
-    virtual void generateBoundaries(const nlohmann::json& jParams);
-    virtual void generateParticles(const nlohmann::json& jParams);
-    virtual void generateRemovers(const nlohmann::json& jParams);
+    virtual void loadSimParams(const JParams& jParams) = 0;
+    virtual void generateBoundaries(const JParams& jParams);
+    virtual void generateParticles(const JParams& jParams);
+    virtual void generateRemovers(const JParams& jParams);
     virtual bool advanceScene();
 
     virtual void allocateSolverMemory() = 0;
@@ -105,6 +105,7 @@ protected:
     virtual void logSubstepData();
 
     ////////////////////////////////////////////////////////////////////////////////
+    JParams                                       m_SceneJParams;
     GlobalParameters                              m_GlobalParams;
     SharedPtr<SimulationParameters<N, RealType> > m_SolverParams = nullptr;
     SharedPtr<SimulationData<N, RealType> >       m_SolverData   = nullptr;
@@ -143,13 +144,13 @@ void ParticleSolver<N, RealType >::loadScene(const String& sceneFile)
         return;
     }
 
-    nlohmann::json jParams = nlohmann::json::parse(inputFile);
+    m_SceneJParams = JParams::parse(inputFile);
 
     ////////////////////////////////////////////////////////////////////////////////
     // read global parameters
-    __BNN_REQUIRE(jParams.find("GlobalParameters") != jParams.end());
+    __BNN_REQUIRE(m_SceneJParams.find("GlobalParameters") != m_SceneJParams.end());
     {
-        nlohmann::json jFrameParams = jParams["GlobalParameters"];
+        JParams jFrameParams = m_SceneJParams["GlobalParameters"];
         SceneLoader::loadGlobalParams(jFrameParams, globalParams());
         if(globalParams().bSaveFrameData || globalParams().bSaveMemoryState || globalParams().bPrintLog2File) {
             FileHelpers::createFolder(globalParams().dataPath);
@@ -176,13 +177,13 @@ void ParticleSolver<N, RealType >::loadScene(const String& sceneFile)
 
     ////////////////////////////////////////////////////////////////////////////////
     // read simulation parameters
-    __BNN_REQUIRE(jParams.find("SimulationParameters") != jParams.end());
+    __BNN_REQUIRE(m_SceneJParams.find("SimulationParameters") != m_SceneJParams.end());
     {
-        nlohmann::json jSimParams = jParams["SimulationParameters"];
+        JParams jSimParams = m_SceneJParams["SimulationParameters"];
 
         // load simulation domain box from sim param and set it as the first boundary object
         if(jSimParams.find("SimulationDomainBox") != jSimParams.end()) {
-            nlohmann::json jBoxParams = jSimParams["SimulationDomainBox"];
+            JParams jBoxParams = jSimParams["SimulationDomainBox"];
 
             auto obj = std::make_shared<SimulationObjects::BoxBoundary<N, RealType> >(jBoxParams);
             m_BoundaryObjects.push_back(obj);
@@ -221,9 +222,9 @@ void ParticleSolver<N, RealType >::loadScene(const String& sceneFile)
     ////////////////////////////////////////////////////////////////////////////////
     // read object parameters and generate scene
     {
-        generateBoundaries(jParams);
-        generateParticles(jParams);
-        generateRemovers(jParams);
+        generateBoundaries(m_SceneJParams);
+        generateParticles(m_SceneJParams);
+        generateRemovers(m_SceneJParams);
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -338,7 +339,7 @@ void ParticleSolver<N, RealType >::finalizeSimulation()
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void ParticleSolver<N, RealType >::generateBoundaries(const nlohmann::json& jParams)
+void ParticleSolver<N, RealType >::generateBoundaries(const JParams& jParams)
 {
     if(jParams.find("AdditionalBoundaryObjects") == jParams.end()) {
         return;
@@ -379,7 +380,7 @@ void ParticleSolver<N, RealType >::generateBoundaries(const nlohmann::json& jPar
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void ParticleSolver<N, RealType >::generateParticles(const nlohmann::json& jParams)
+void ParticleSolver<N, RealType >::generateParticles(const JParams& jParams)
 {
     __BNN_REQUIRE(jParams.find("ParticleGenerators") != jParams.end());
     SceneLoader::loadParticleGenerators<N, RealType>(jParams["ParticleGenerators"], m_ParticleGenerators);
@@ -387,7 +388,7 @@ void ParticleSolver<N, RealType >::generateParticles(const nlohmann::json& jPara
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void ParticleSolver<N, RealType >::generateRemovers(const nlohmann::json& jParams)
+void ParticleSolver<N, RealType >::generateRemovers(const JParams& jParams)
 {
     if(jParams.find("ParticleRemovers") == jParams.end()) {
         return;

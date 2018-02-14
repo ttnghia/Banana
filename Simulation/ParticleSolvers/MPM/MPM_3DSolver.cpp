@@ -269,7 +269,7 @@ void MPM_3DSolver::advanceFrame()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MPM_3DSolver::loadSimParams(const nlohmann::json& jParams)
+void MPM_3DSolver::loadSimParams(const JParams& jParams)
 {
     __BNN_REQUIRE(m_BoundaryObjects.size() > 0);
     auto box = std::dynamic_pointer_cast<GeometryObjects::BoxObject<3, Real> >(m_BoundaryObjects[0]->geometry());
@@ -335,7 +335,7 @@ void MPM_3DSolver::loadSimParams(const nlohmann::json& jParams)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MPM_3DSolver::generateParticles(const nlohmann::json& jParams)
+void MPM_3DSolver::generateParticles(const JParams& jParams)
 {
     ParticleSolver3D::generateParticles(jParams);
     ////////////////////////////////////////////////////////////////////////////////

@@ -29,7 +29,7 @@ namespace Banana
 namespace ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void APIC_2DSolver::generateParticles(const nlohmann::json& jParams)
+void APIC_2DSolver::generateParticles(const JParams& jParams)
 {
     PIC_2DSolver::generateParticles(jParams);
     if(particleData().getNParticles() != apicData().getNParticles()) {

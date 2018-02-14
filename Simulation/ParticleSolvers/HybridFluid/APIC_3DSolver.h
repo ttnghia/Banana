@@ -77,7 +77,7 @@ public:
     const auto& APICData() const { return m_APICData; }
 
 protected:
-    virtual void generateParticles(const nlohmann::json& jParams) override;
+    virtual void generateParticles(const JParams& jParams) override;
     virtual bool advanceScene() override;
     virtual void allocateSolverMemory() override;
     virtual void advanceVelocity(Real timestep) override;

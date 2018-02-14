@@ -135,7 +135,7 @@ void ClothSolver::sortParticles()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void ClothSolver::loadSimParams(const nlohmann::json& jParams)
+void ClothSolver::loadSimParams(const JParams& jParams)
 {
     JSONHelpers::readVector(jParams, solverParams().movingBMin, "BoxMin");
     JSONHelpers::readVector(jParams, solverParams().movingBMax, "BoxMax");

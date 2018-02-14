@@ -233,7 +233,7 @@ public:
     const auto& solverData() const { return m_SimData; }
 
 protected:
-    virtual void loadSimParams(const nlohmann::json& jParams) override;
+    virtual void loadSimParams(const JParams& jParams) override;
     virtual void setupDataIO() override;
     virtual Int  loadMemoryState() override;
     virtual Int  saveMemoryState() override;

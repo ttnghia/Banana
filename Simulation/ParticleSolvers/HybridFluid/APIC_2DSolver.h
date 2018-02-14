@@ -87,7 +87,7 @@ public:
     const auto& apicData() const { return m_APICData; }
 
 protected:
-    virtual void generateParticles(const nlohmann::json& jParams) override;
+    virtual void generateParticles(const JParams& jParams) override;
     virtual bool advanceScene(UInt frame, Real fraction = 0_f) override;
     virtual void advanceVelocity(Real timestep) override;
     void         mapParticles2Grid();

@@ -25,7 +25,7 @@
 namespace Banana::ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void APIC_3DSolver::generateParticles(const nlohmann::json& jParams)
+void APIC_3DSolver::generateParticles(const JParams& jParams)
 {
     PIC_3DSolver::generateParticles(jParams);
     APICData().resizeParticleData(particleData().getNParticles());

@@ -111,7 +111,7 @@ void PIC_2DSolver::sortParticles()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void PIC_2DSolver::loadSimParams(const nlohmann::json& jParams)
+void PIC_2DSolver::loadSimParams(const JParams& jParams)
 {
     JSONHelpers::readVector(jParams, solverParams().movingBMin, "BoxMin");
     JSONHelpers::readVector(jParams, solverParams().movingBMax, "BoxMax");
@@ -128,7 +128,7 @@ void PIC_2DSolver::loadSimParams(const nlohmann::json& jParams)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void PIC_2DSolver::generateParticles(const nlohmann::json& jParams)
+void PIC_2DSolver::generateParticles(const JParams& jParams)
 {
     ParticleSolver2D::generateParticles(jParams);
 

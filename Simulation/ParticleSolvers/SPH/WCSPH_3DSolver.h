@@ -148,8 +148,8 @@ public:
     const auto& kernels() const { return solverData().kernels; }
 
 protected:
-    virtual void loadSimParams(const nlohmann::json& jParams) override;
-    virtual void generateParticles(const nlohmann::json& jParams) override;
+    virtual void loadSimParams(const JParams& jParams) override;
+    virtual void generateParticles(const JParams& jParams) override;
     virtual bool advanceScene() override;
     virtual void allocateSolverMemory() override;
     virtual void setupDataIO() override;
