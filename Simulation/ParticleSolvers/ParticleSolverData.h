@@ -61,7 +61,7 @@ namespace Banana::Constants
 static const Vec2r Gravity2D = Vec2r(0, -9.81);
 static const Vec3r Gravity3D = Vec3r(0, -9.81, 0);
 
-enum GravityType { Directional = 0, ToCenter = 1, FromCenter = 2 };
+enum GravityType { Earth = 0, Directional = 1, ToCenter = 2, FromCenter = 3 };
 enum IntegrationScheme { ExplicitVerlet = 0, ExplicitEuler = 1, ImplicitEuler = 2, NewmarkBeta = 3 };
 enum ParticleType { Active = 0, InActive = 1, SemiActive = 2, Constrained = 3 };
 enum HairParticleType { FixedPosition = 0, Vertex = 1, Quadrature = 2, UnknownType = 3 };
@@ -236,8 +236,9 @@ struct SimulationParameters
 
     virtual VecX<N, RealType> gravity(const VecX<N, RealType>& pos = VecX<N, RealType>(0)) const
     {
-        if(gravityType == static_cast<Int>(Constants::GravityType::Directional)) {
-            if constexpr(N == 2) { return Constants::Gravity2D; } else { return Constants::Gravity3D; }
+        if(gravityType == static_cast<Int>(Constants::GravityType::Earth) ||
+           gravityType == static_cast<Int>(Constants::GravityType::Directional)) {
+            return gravityDirection;
         } else if(gravityType == static_cast<Int>(Constants::GravityType::ToCenter)) {
             return 9.81_f * glm::normalize(gravityCenter - pos);
         } else {
@@ -263,6 +264,23 @@ struct SimulationParameters
         movingBMax  = domainBMax;
         domainBMin -= VecX<N, RealType>(cellSize * nExpandCells);
         domainBMax += VecX<N, RealType>(cellSize * nExpandCells);
+
+        ////////////////////////////////////////////////////////////////////////////////
+        if(gravityType == static_cast<Int>(Constants::GravityType::Directional)) {
+            if(glm::length2(gravityDirection) < MEpsilon) {
+                gravityType = static_cast<Int>(Constants::GravityType::Earth);
+            } else {
+                gravityDirection = 9.81_f * glm::normalize(gravityDirection);
+            }
+        }
+
+        if(gravityType == static_cast<Int>(Constants::GravityType::Earth)) {
+            if constexpr(N == 2) {
+                gravityDirection = Constants::Gravity2D;
+            } else {
+                gravityDirection = Constants::Gravity3D;
+            }
+        }
     }
 
     virtual void printParams(const SharedPtr<Logger>& logger)
@@ -307,6 +325,29 @@ struct SimulationParameters
         logger->printLogIndentIf(bCorrectPosition, String("Repulsive force stiffness: ") + NumberHelpers::formatToScientific(repulsiveForceStiffness));
         logger->printLogIndent(String("Advection steps/timestep: ") + std::to_string(advectionSteps));
         logger->printLogIndentIf(maxNParticles > 0, String("Max. number of particles: ") + std::to_string(maxNParticles));
+        ////////////////////////////////////////////////////////////////////////////////
+
+        ////////////////////////////////////////////////////////////////////////////////
+        // boundary restitution, if applicable
+        logger->printLogIndent(String("Boundary restitution (if applicable): ") + std::to_string(boundaryRestitution));
+        ////////////////////////////////////////////////////////////////////////////////
+
+        ////////////////////////////////////////////////////////////////////////////////
+        // gravity
+        switch(gravityType) {
+            case static_cast<Int>(Constants::GravityType::Earth):
+                logger->printLogIndent(String("Gravity: Earth"));
+            case static_cast<Int>(Constants::GravityType::Directional):
+                logger->printLogIndent(String("Gravity: Directional"));
+                logger->printLogIndent(String("Gravity direction: ") + NumberHelpers::toString(gravityDirection));
+                break;
+            case static_cast<Int>(Constants::GravityType::ToCenter):
+                logger->printLogIndent(String("Gravity: ToCenter"));
+            case static_cast<Int>(Constants::GravityType::FromCenter):
+                logger->printLogIndent(String("Gravity: FromCenter"));
+                logger->printLogIndent(String("Gravity center: ") + NumberHelpers::toString(gravityCenter));
+            default:;
+        }
         ////////////////////////////////////////////////////////////////////////////////
     }
 };
