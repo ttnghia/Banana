@@ -52,6 +52,7 @@ public:
     auto& maxNParticles() { return m_MaxNParticles; }
     auto& maxSamplingIters() { return m_MaxIters; }
     auto& activeFrames() { return m_ActiveFrames; }
+    auto& constraintObjectID() { return m_ConstraintObjectID; }
     bool  isActive(UInt currentFrame);
     ////////////////////////////////////////////////////////////////////////////////
     const auto& generatedPositions() const { return m_GeneratedPositions; }
@@ -79,15 +80,16 @@ protected:
     void collectNeighborParticles(const Vec_VecNr& positions);
     ////////////////////////////////////////////////////////////////////////////////
     Vec_VecNr m_ObjParticles;
-    VecNr     m_v0               = VecNr(0);
-    UInt      m_StartFrame       = 0u;
-    UInt      m_MaxFrame         = 0u;
-    UInt      m_MaxNParticles    = std::numeric_limits<UInt>::max();
-    UInt      m_MaxIters         = 10u;
-    RealType  m_MinDistanceRatio = RealType(2.0);
-    RealType  m_MinDistanceSqr   = RealType(0);
-    RealType  m_Jitter           = RealType(0);
-    RealType  m_ParticleRadius   = RealType(0);
+    VecNr     m_v0                 = VecNr(0);
+    UInt      m_StartFrame         = 0u;
+    UInt      m_MaxFrame           = 0u;
+    UInt      m_MaxNParticles      = std::numeric_limits<UInt>::max();
+    UInt      m_MaxIters           = 10u;
+    RealType  m_MinDistanceRatio   = RealType(2.0);
+    RealType  m_MinDistanceSqr     = RealType(0);
+    RealType  m_Jitter             = RealType(0);
+    RealType  m_ParticleRadius     = RealType(0);
+    String    m_ConstraintObjectID = String("");
 
     std::unordered_set<UInt> m_ActiveFrames;
 

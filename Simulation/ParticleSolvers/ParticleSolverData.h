@@ -61,9 +61,9 @@ namespace Banana::Constants
 static const Vec2r Gravity2D = Vec2r(0, -9.81);
 static const Vec3r Gravity3D = Vec3r(0, -9.81, 0);
 
-enum IntegrationScheme { ExplicitVerlet = 0, ExplicitEuler = 1, ImplicitEuler = 2, NewmarkBeta = 3 };
-enum ParticleType { Active = 0, InActive = 1, SemiActive = 2, Constrained = 3 };
-enum HairParticleType { FixedPosition = 0, Vertex = 1, Quadrature = 2, UnknownType = 3 };
+enum IntegrationScheme : Int8 { ExplicitVerlet = 0, ExplicitEuler = 1, ImplicitEuler = 2, NewmarkBeta = 3 };
+enum ParticleType : Int8 { Active = 0, InActive = 1, SemiActive = 2, Constrained = 3 };
+enum HairParticleType : Int8 { FixedPosition = 0, Vertex = 1, Quadrature = 2, UnknownType = 3 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace ParticleSolverConstants
