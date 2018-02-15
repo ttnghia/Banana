@@ -157,6 +157,16 @@ void loadGeneralSolverParams(const JParams& jParams, ParticleSolvers::Simulation
     // boundary condition
     JSONHelpers::readValue(jParams, solverParams.boundaryRestitution, "BoundaryRestitution");
     ////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // gravity
+    JSONHelpers::readValue(jParams, solverParams.gravityType, "GravityType");
+    __BNN_REQUIRE(solverParams.gravityType == static_cast<Int>(GravityType::Directional) ||
+                  solverParams.gravityType == static_cast<Int>(GravityType::ToCenter) ||
+                  solverParams.gravityType == static_cast<Int>(GravityType::FromCenter));
+    JSONHelpers::readValue(jParams, solverParams.gravityDirection, "GravityDirection");
+    JSONHelpers::readValue(jParams, solverParams.gravityCenter,    "GravityCenter");
+    ////////////////////////////////////////////////////////////////////////////////
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

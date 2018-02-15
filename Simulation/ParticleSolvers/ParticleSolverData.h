@@ -61,9 +61,10 @@ namespace Banana::Constants
 static const Vec2r Gravity2D = Vec2r(0, -9.81);
 static const Vec3r Gravity3D = Vec3r(0, -9.81, 0);
 
-enum IntegrationScheme : Int8 { ExplicitVerlet = 0, ExplicitEuler = 1, ImplicitEuler = 2, NewmarkBeta = 3 };
-enum ParticleType : Int8 { Active = 0, InActive = 1, SemiActive = 2, Constrained = 3 };
-enum HairParticleType : Int8 { FixedPosition = 0, Vertex = 1, Quadrature = 2, UnknownType = 3 };
+enum GravityType { Directional = 0, ToCenter = 1, FromCenter = 2 };
+enum IntegrationScheme { ExplicitVerlet = 0, ExplicitEuler = 1, ImplicitEuler = 2, NewmarkBeta = 3 };
+enum ParticleType { Active = 0, InActive = 1, SemiActive = 2, Constrained = 3 };
+enum HairParticleType { FixedPosition = 0, Vertex = 1, Quadrature = 2, UnknownType = 3 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace ParticleSolverConstants
@@ -130,7 +131,7 @@ struct GlobalParameters
 
         ////////////////////////////////////////////////////////////////////////////////
         // data IO parameters
-        logger.printLogIndentIf(bSaveMemoryState || bSaveFrameData || bPrintLog2File, ("Data path: ") + dataPath);
+        logger.printLogIndentIf(bSaveMemoryState || bSaveFrameData || bPrintLog2File, ("Data path: *") + dataPath);
         logger.printLogIndentIf(bSaveMemoryState,                                     ("Memory state data folder: ") + memoryStateDataFolder, 2);
         logger.printLogIndentIf(bSaveFrameData,                                       ("Frame data folder: ") + frameDataFolder,              2);
         logger.printLogIndent(String("Load saved memory state: ") + (bLoadMemoryState ? String("Yes") : String("No")));
@@ -141,7 +142,7 @@ struct GlobalParameters
             String str; for(const auto& s : SaveDataList) {
                 str += s; str += String(", ");
             }
-            str.erase(str.find_last_of(","), str.size()); // remove last ',' character
+            str.erase(str.find_last_of(","), str.size());             // remove last ',' character
             logger.printLogIndent(String("Save data: ") + str, 2);
         }
         ////////////////////////////////////////////////////////////////////////////////
@@ -203,7 +204,7 @@ struct SimulationParameters
 
     ////////////////////////////////////////////////////////////////////////////////
     // advection and position-correction, if applicable
-    UInt     advectionSteps    = 1u;
+    UInt     advectionSteps          = 1u;
     bool     bCorrectPosition        = false;
     RealType repulsiveForceStiffness = RealType(50.0);
     ////////////////////////////////////////////////////////////////////////////////
@@ -229,13 +230,19 @@ struct SimulationParameters
 
     ////////////////////////////////////////////////////////////////////////////////
     // gravity
+    Int               gravityType      = static_cast<Int>(Constants::GravityType::Directional);
+    VecX<N, RealType> gravityDirection = VecX<N, RealType>(0);
+    VecX<N, RealType> gravityCenter    = VecX<N, RealType>(0);
+
     virtual VecX<N, RealType> gravity(const VecX<N, RealType>& pos = VecX<N, RealType>(0)) const
     {
-        __BNN_UNUSED(pos);
-        if constexpr(N == 2)
-            return Constants::Gravity2D;
-        else
-            return Constants::Gravity3D;
+        if(gravityType == static_cast<Int>(Constants::GravityType::Directional)) {
+            if constexpr(N == 2) { return Constants::Gravity2D; } else { return Constants::Gravity3D; }
+        } else if(gravityType == static_cast<Int>(Constants::GravityType::ToCenter)) {
+            return 9.81_f * glm::normalize(gravityCenter - pos);
+        } else {
+            return 9.81_f * glm::normalize(pos - gravityCenter);
+        }
     }
 
     virtual void makeReady()
@@ -318,17 +325,17 @@ struct ParticleSimulationData
     // main variables
     Vector<VecX<N, RealType> > positions, velocities;
 
-    UInt      nObjects = 0;                 // number of individual objects that are added each time by particle generator
-    Vec_Int16 objectIndex;                  // store the index of individual objects based on the order they are added
+    UInt      nObjects = 0;                     // number of individual objects that are added each time by particle generator
+    Vec_Int16 objectIndex;                      // store the index of individual objects based on the order they are added
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
     // optional variables
-    Vec_Int8                   activity;     // store the state of particles: Active = 0, InActive = 1, SemiActive = 2
-    Vec_Int8                   removeMarker; // mark the candidate particles for removal ( 1 = remove, 0 = intact)
-    Vector<VecX<N, RealType> > position_t0;  // positions at time t = 0, if needed
-    Vec_VecUInt                neighborIdx;  // list of neighbors particles, if needed
-    Vec_Vec<RealType>          neighbor_d0;  // list of distances to neighbors particles, at time t = 0, if needed
+    Vec_Int8                   activity;         // store the state of particles: Active = 0, InActive = 1, SemiActive = 2
+    Vec_Int8                   removeMarker;     // mark the candidate particles for removal ( 1 = remove, 0 = intact)
+    Vector<VecX<N, RealType> > position_t0;      // positions at time t = 0, if needed
+    Vec_VecUInt                neighborIdx;      // list of neighbors particles, if needed
+    Vec_Vec<RealType>          neighbor_d0;      // list of distances to neighbors particles, at time t = 0, if needed
     ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -351,7 +358,7 @@ struct HairSimulationData : public ParticleSimulationData<N, RealType>
     //virtual UInt removeParticles(Vec_Int8& removeMarker) = 0;
 
     ////////////////////////////////////////////////////////////////////////////////
-    Vec_Int8 hairParticleType; // store the type of hair particles
+    Vec_Int8 hairParticleType;     // store the type of hair particles
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
