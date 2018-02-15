@@ -40,17 +40,28 @@
     "ParticleGenerators":
     [
         {
-            "GeometryType" : "Sphere",
+            "GeometryType" : "Box",
+            "UniqueName" : "Box",
+            "Translation" : [0.5, -0.5],
+            "Scale" : 0.3,
+            "JitterRatio" : 0.0,
+            "InitialVelocity" : [10, 0]
+        }
+    ],
+    "ParticleGeneratorsBackup":
+    [
+        {
+            "GeometryType" : "Box",
             "UniqueName" : "SphereRight",
-            "Translation" : [-1, 0],
+            "Translation" : [-1, 0.1],
             "Scale" : 0.3,
             "JitterRatio" : 0.0,
             "InitialVelocity" : [10, 0]
         },
         {
-            "GeometryType" : "Sphere",
+            "GeometryType" : "Box",
             "UniqueName" : "SphereLeft",
-            "Translation" : [1, 0],
+            "Translation" : [1, -0.1],
             "Scale" : 0.3,
             "JitterRatio" : 0.0,
             "InitialVelocity" : [-10, 0]
