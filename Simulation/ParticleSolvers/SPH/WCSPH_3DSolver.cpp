@@ -269,7 +269,7 @@ void WCSPH_3DSolver::generateParticles(const JParams& jParams)
         for(auto& generator : m_ParticleGenerators) {
             generator->buildObject(m_BoundaryObjects, solverParams().particleRadius);
             ////////////////////////////////////////////////////////////////////////////////
-            UInt nGen = generator->generateParticles(particleData().positions);
+            UInt nGen = generator->generateParticles(particleData().positions, m_BoundaryObjects);
             if(nGen > 0) {
                 particleData().addParticles(generator->generatedPositions(), generator->generatedVelocities());
                 logger().printLog(String("Generated ") + NumberHelpers::formatWithCommas(nGen) + String(" particles by ") + generator->nameID());
@@ -324,7 +324,7 @@ bool WCSPH_3DSolver::advanceScene()
     // add/remove particles
     for(auto& generator : m_ParticleGenerators) {
         if(generator->isActive(globalParams().finishedFrame)) {
-            UInt nGen = generator->generateParticles(particleData().positions, globalParams().finishedFrame);
+            UInt nGen = generator->generateParticles(particleData().positions, m_BoundaryObjects, globalParams().finishedFrame);
             if(nGen > 0) {
                 particleData().addParticles(generator->generatedPositions(), generator->generatedVelocities());
                 logger().printLogIndent(String("Generated ") + NumberHelpers::formatWithCommas(nGen) + String(" particles by ") + generator->nameID());

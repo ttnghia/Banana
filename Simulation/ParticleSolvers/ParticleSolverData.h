@@ -27,6 +27,7 @@
 #include <Banana/Utils/NumberHelpers.h>
 #include <Banana/Utils/STLHelpers.h>
 #include <Banana/Utils/Logger.h>
+#include <SimulationObjects/SimulationObject.h>
 
 #include <string>
 #include <numeric>
@@ -61,7 +62,7 @@ static const Vec2r Gravity2D = Vec2r(0, -9.81);
 static const Vec3r Gravity3D = Vec3r(0, -9.81, 0);
 
 enum IntegrationScheme { ExplicitVerlet = 0, ExplicitEuler = 1, ImplicitEuler = 2, NewmarkBeta = 3 };
-enum ParticleActivity { Active = 0, InActive = 1, SemiActive = 2 };
+enum ParticleType { Active = 0, InActive = 1, SemiActive = 2, Constrained = 3 };
 enum HairParticleType { FixedPosition = 0, Vertex = 1, Quadrature = 2, UnknownType = 3 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -328,6 +329,12 @@ struct ParticleSimulationData
     Vector<VecX<N, RealType> > position_t0;  // positions at time t = 0, if needed
     Vec_VecUInt                neighborIdx;  // list of neighbors particles, if needed
     Vec_Vec<RealType>          neighbor_d0;  // list of distances to neighbors particles, at time t = 0, if needed
+    ////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // map from particle index to pointers of constraint boundary object
+    std::map<UInt, SharedPtr<SimulationObjects::SimulationObject<N, RealType> > > constraintObjs;
+    ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
     // temporary variables
@@ -344,9 +351,7 @@ struct HairSimulationData : public ParticleSimulationData<N, RealType>
     //virtual UInt removeParticles(Vec_Int8& removeMarker) = 0;
 
     ////////////////////////////////////////////////////////////////////////////////
-    Vec_Int8 particleType; // store the type of hair particles
-
-    UniquePtr<GeometryObjects::GeometryObject<N, RealType> > geometry = nullptr;
+    Vec_Int8 hairParticleType; // store the type of hair particles
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
