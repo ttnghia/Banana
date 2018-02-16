@@ -45,7 +45,7 @@ void HairMPM_2DData::ParticleData::resize(UInt nParticles)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-UInt HairMPM_2DData::ParticleData::removeParticles(Vec_Int8& removeMarker)
+UInt HairMPM_2DData::ParticleData::removeParticles(const Vec_Int8& removeMarker)
 {
     STLHelpers::eraseByMarker(localDirections, removeMarker);
     STLHelpers::eraseByMarker(particleType,    removeMarker);
@@ -358,10 +358,10 @@ void HairMPM_2DSolver::advanceVelocity(Real timestep)
         m_Logger->printRunTimeIndent("Velocity implicit integration: ", [&]() { implicitIntegration(timestep); });
     }
 
-    m_Logger->printRunTimeIndent("Constrain grid velocity: ",               [&]() { constrainGridVelocity(timestep); });
-    m_Logger->printRunTimeIndent("Map grid velocities to particles: ",      [&]() { mapGridVelocities2Particles(timestep); });
-    m_Logger->printRunTimeIndent("Update particle deformation gradients: ", [&]() { updateParticleDeformGradients(timestep); });
-    m_Logger->printRunTimeIndent("Diffuse velocity: ",                      [&]() { diffuseVelocity(); });
+    m_Logger->printRunTimeIndent("Constrain grid velocity: ",          [&]() { gridCollision(timestep); });
+    m_Logger->printRunTimeIndent("Map grid velocities to particles: ", [&]() { mapGridVelocities2Particles(timestep); });
+    m_Logger->printRunTimeIndent("Update particle states: ",           [&]() { updateParticleStates(timestep); });
+    m_Logger->printRunTimeIndent("Diffuse velocity: ",                 [&]() { diffuseVelocity(); });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -414,12 +414,10 @@ void HairMPM_2DSolver::explicitIntegration(Real timestep)
                                 }
 
                                 auto deformGrad = particleData().deformGrad[p];
-                                //printf("%s\n", __BNN_TO_CSTRING(deformGrad[1]));
                                 deformGrad[1] = Vec2r(0, 1);
 
-                                Mat2x2r U, Vt, Ftemp;
-                                Vec2r S;
-                                LinaHelpers::orientedSVD(deformGrad, U, S, Vt);
+                                Mat2x2r Ftemp;
+                                auto [U, S, Vt] = LinaHelpers::orientedSVD(deformGrad);
                                 if(S[1] < 0) {
                                     S[1] *= -1.0_f;
                                 }
@@ -435,6 +433,8 @@ void HairMPM_2DSolver::explicitIntegration(Real timestep)
 
 
 
+                                auto M = Ftemp;
+                                auto [q, r] = LinaHelpers::QRDecomposition(M);
 
 
 
@@ -504,6 +504,7 @@ void HairMPM_2DSolver::computeLagrangianForces()
                                 //    fflush(stdout);
                                 //}
 
+
                                 ////////////////////////////////////////////////////////////////////////////////
                                 auto lcorner = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
                                 for(Int idx = 0, y = lcorner.y - 1, y_end = y + 4; y < y_end; ++y) {
@@ -552,7 +553,7 @@ void HairMPM_2DSolver::diffuseVelocity()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void HairMPM_2DSolver::updateParticleDeformGradients(Real timestep)
+void HairMPM_2DSolver::updateParticleStates(Real timestep)
 {
     Scheduler::parallel_for(particleData().getNParticles(),
                             [&](UInt p)

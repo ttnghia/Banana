@@ -122,7 +122,7 @@ struct MPM_2DData : public SimulationData2D
 
         virtual void reserve(UInt nParticles) override;
         virtual void addParticles(const Vec_Vec2r& newPositions, const Vec_Vec2r& newVelocities) override;
-        virtual UInt removeParticles(Vec_Int8& removeMarker) override;
+        virtual UInt removeParticles(const Vec_Int8& removeMarker) override;
     };
 
 
@@ -243,7 +243,7 @@ protected:
     virtual void mapParticleVelocities2Grid(Real timestep);
     virtual void mapParticleVelocities2GridFLIP(Real timestep);
     virtual void mapParticleVelocities2GridAPIC(Real timestep);
-    virtual void constrainGridVelocity(Real timestep);
+    virtual void gridCollision(Real timestep);
     virtual void explicitIntegration(Real timestep);
     virtual void implicitIntegration(Real timestep);
     virtual void mapGridVelocities2Particles(Real timestep);
@@ -251,7 +251,7 @@ protected:
     virtual void mapGridVelocities2ParticlesAPIC(Real timestep);
     virtual void mapGridVelocities2ParticlesAFLIP(Real timestep);
     virtual void constrainParticleVelocity(Real timestep);
-    virtual void updateParticleDeformGradients(Real timestep);
+    virtual void updateParticleStates(Real timestep);
 };
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace Banana::ParticleSolvers

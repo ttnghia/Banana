@@ -130,7 +130,7 @@ void MPM_3DData::ParticleData::addParticles(const Vec_Vec3r& newPositions, const
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-UInt MPM_3DData::ParticleData::removeParticles(Vec_Int8& removeMarker)
+UInt MPM_3DData::ParticleData::removeParticles(const Vec_Int8& removeMarker)
 {
     __BNN_REQUIRE(removeMarker.size() == positions.size());
     if(!STLHelpers::contain(removeMarker, Int8(1))) {
@@ -705,14 +705,13 @@ void MPM_3DSolver::explicitIntegration(Real timestep)
     Scheduler::parallel_for(particleData().getNParticles(),
                             [&](UInt p)
                             {
-                                Mat3x3r U, Vt, Ftemp;
-                                Vec3r S;
-                                LinaHelpers::orientedSVD(particleData().deformGrad[p], U, S, Vt);
+                                auto deformGrad = particleData().deformGrad[p];
+                                auto [U, S, Vt] = LinaHelpers::orientedSVD(deformGrad);
                                 auto Ss = S;
                                 if(S[2] < 0) {
                                     S[2] *= -1.0_f;
                                 }
-                                Ftemp = U * LinaHelpers::diagMatrix(S) * Vt;
+                                Mat3x3r Ftemp = U * LinaHelpers::diagMatrix(S) * Vt;
 
                                 // Compute Piola stress tensor:
                                 Real J = glm::compMul(S);     // J = determinant(F)
@@ -726,7 +725,7 @@ void MPM_3DSolver::explicitIntegration(Real timestep)
 
                                 __BNN_TODO_MSG("Need to store piola and cauchy stress?");
                                 //particleData().PiolaStress[p]  = P;
-                                particleData().CauchyStress[p] = particleData().volumes[p] * P * glm::transpose(particleData().deformGrad[p]);
+                                particleData().CauchyStress[p] = particleData().volumes[p] * P * glm::transpose(deformGrad);
 
                                 Mat3x3r f    = particleData().CauchyStress[p];
                                 auto lcorner = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
@@ -845,13 +844,11 @@ Real MPM_3DObjective::valueGradient(const Vector<Real>& v, Vector<Real>& grad)
                                 pVelGrad *= m_timestep;
                                 LinaHelpers::sumToDiag(pVelGrad, 1.0_f);
                                 Mat3x3r newF = pVelGrad * pF;
-                                Mat3x3r U, Vt, Ftemp;
-                                Vec3r S;
-                                LinaHelpers::orientedSVD(newF, U, S, Vt);
+                                auto [U, S, Vt] = LinaHelpers::orientedSVD(newF);
                                 if(S[2] < 0) {
                                     S[2] *= -1.0_f;
                                 }
-                                Ftemp = U * LinaHelpers::diagMatrix(S) * Vt;
+                                Mat3x3r Ftemp = U * LinaHelpers::diagMatrix(S) * Vt;
 
                                 ////////////////////////////////////////////////////////////////////////////////
                                 // Compute Piola stress tensor:

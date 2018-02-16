@@ -67,7 +67,7 @@ struct HairMPM_2DData
 
         void reserve(UInt nParticles);
         void resize(UInt nParticles);
-        UInt removeParticles(Vec_Int8& removeMarker);
+        UInt removeParticles(const Vec_Int8& removeMarker);
     };
 
 
@@ -115,8 +115,8 @@ public:
     auto&       aniData() { return m_AniData; }
     const auto& aniData() const { return m_AniData; }
     ////////////////////////////////////////////////////////////////////////////////
-    auto&       ParticleData() { return aniData().particleData; }
-    const auto& ParticleData() const { return aniData().particleData; }
+    auto&       aniParticleData() { return aniData().particleData; }
+    const auto& aniParticleData() const { return aniData().particleData; }
     auto&       aniGridData() { return aniData().gridData; }
     const auto& aniGridData() const { return aniData().gridData; }
 
@@ -134,7 +134,7 @@ protected:
     virtual void explicitIntegration(Real timestep);
     //virtual void implicitIntegration(Real timestep);
     virtual void mapGridVelocities2ParticlesAPIC(Real timestep);
-    virtual void updateParticleDeformGradients(Real timestep);
+    virtual void updateParticleStates(Real timestep);
 
     void computeLagrangianForces();
     void diffuseVelocity();

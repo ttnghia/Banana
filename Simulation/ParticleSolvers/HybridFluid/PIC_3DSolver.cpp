@@ -74,7 +74,7 @@ void PIC_3DData::ParticleData::addParticles(const Vec_Vec3r& newPositions, const
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-UInt PIC_3DData::ParticleData::removeParticles(Vec_Int8& removeMarker)
+UInt PIC_3DData::ParticleData::removeParticles(const Vec_Int8& removeMarker)
 {
     __BNN_REQUIRE(removeMarker.size() == positions.size());
     if(!STLHelpers::contain(removeMarker, Int8(1))) {

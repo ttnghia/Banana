@@ -114,7 +114,7 @@ void WCSPH_3DData::ParticleData::addParticles(const Vec_Vec3r& newPositions, con
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-UInt WCSPH_3DData::ParticleData::removeParticles(Vec_Int8& removeMarker)
+UInt WCSPH_3DData::ParticleData::removeParticles(const Vec_Int8& removeMarker)
 {
     if(!STLHelpers::contain(removeMarker, Int8(1))) {
         return 0u;

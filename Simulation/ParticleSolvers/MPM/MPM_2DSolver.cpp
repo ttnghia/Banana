@@ -88,7 +88,7 @@ void MPM_2DData::ParticleData::addParticles(const Vec_Vec2r& newPositions, const
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-UInt MPM_2DData::ParticleData::removeParticles(Vec_Int8& removeMarker)
+UInt MPM_2DData::ParticleData::removeParticles(const Vec_Int8& removeMarker)
 {
     __BNN_REQUIRE(removeMarker.size() == positions.size());
     if(!STLHelpers::contain(removeMarker, Int8(1))) {
@@ -447,9 +447,9 @@ void MPM_2DSolver::advanceVelocity(Real timestep)
         m_Logger->printRunTimeIndent("Velocity implicit integration: ", [&]() { implicitIntegration(timestep); });
     }
 
-    m_Logger->printRunTimeIndent("Constrain grid velocity: ",               [&]() { constrainGridVelocity(timestep); });
+    m_Logger->printRunTimeIndent("Constrain grid velocity: ",               [&]() { gridCollision(timestep); });
     m_Logger->printRunTimeIndent("Map grid velocities to particles: ",      [&]() { mapGridVelocities2Particles(timestep); });
-    m_Logger->printRunTimeIndent("Update particle deformation gradients: ", [&]() { updateParticleDeformGradients(timestep); });
+    m_Logger->printRunTimeIndent("Update particle deformation gradients: ", [&]() { updateParticleStates(timestep); });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -652,9 +652,9 @@ void MPM_2DSolver::explicitIntegration(Real timestep)
     Scheduler::parallel_for(particleData().getNParticles(),
                             [&](UInt p)
                             {
-                                Mat2x2r U, Vt, Ftemp;
-                                Vec2r S;
-                                LinaHelpers::orientedSVD(particleData().deformGrad[p], U, S, Vt);
+                                auto deformGrad = particleData().deformGrad[p];
+                                Mat2x2r Ftemp;
+                                auto [U, S, Vt] = LinaHelpers::orientedSVD(deformGrad);
                                 if(S[1] < 0) {
                                     S[1] *= -1.0_f;
                                 }
@@ -672,7 +672,7 @@ void MPM_2DSolver::explicitIntegration(Real timestep)
 
                                 __BNN_TODO_MSG("Need to store piola and cauchy stress?");
                                 particleData().PiolaStress[p]  = P;
-                                particleData().CauchyStress[p] = particleData().volumes[p] * P * glm::transpose(particleData().deformGrad[p]);
+                                particleData().CauchyStress[p] = particleData().volumes[p] * P * glm::transpose(deformGrad);
 
                                 Mat2x2r f    = particleData().CauchyStress[p];
                                 auto lcorner = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
@@ -783,13 +783,11 @@ Real MPM_2DObjective::valueGradient(const Vector<Real>& v, Vector<Real>& grad)
                                 pVelGrad *= m_timestep;
                                 LinaHelpers::sumToDiag(pVelGrad, 1.0_f);
                                 Mat2x2r newF = pVelGrad * pF;
-                                Mat2x2r U, Vt, Ftemp;
-                                Vec2r S;
-                                LinaHelpers::orientedSVD(newF, U, S, Vt);
+                                auto [U, S, Vt] = LinaHelpers::orientedSVD(newF);
                                 if(S[1] < 0) {
                                     S[1] *= -1.0_f;
                                 }
-                                Ftemp = U * LinaHelpers::diagMatrix(S) * Vt;
+                                Mat2x2r Ftemp = U * LinaHelpers::diagMatrix(S) * Vt;
 
                                 ////////////////////////////////////////////////////////////////////////////////
                                 // Compute Piola stress tensor:
@@ -857,7 +855,7 @@ Real MPM_2DObjective::valueGradient(const Vector<Real>& v, Vector<Real>& grad)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MPM_2DSolver::constrainGridVelocity(Real timestep)
+void MPM_2DSolver::gridCollision(Real timestep)
 {
 #if 0
     Vec2r delta_scale = Vec2r(timestep);
@@ -1041,7 +1039,7 @@ void MPM_2DSolver::constrainParticleVelocity(Real timestep)
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void MPM_2DSolver::updateParticleDeformGradients(Real timestep)
+void MPM_2DSolver::updateParticleStates(Real timestep)
 {
     Scheduler::parallel_for(particleData().getNParticles(),
                             [&](UInt p)

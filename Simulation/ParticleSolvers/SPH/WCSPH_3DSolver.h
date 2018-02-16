@@ -95,7 +95,7 @@ struct WCSPH_3DData : public SimulationData3D
         ////////////////////////////////////////////////////////////////////////////////
         virtual void reserve(UInt nParticles);
         virtual void addParticles(const Vec_Vec3r& newPositions, const Vec_Vec3r& newVelocities);
-        virtual UInt removeParticles(Vec_Int8& removeMarker);
+        virtual UInt removeParticles(const Vec_Int8& removeMarker);
     };
 
     struct Kernels

@@ -59,7 +59,7 @@ struct PIC_3DData : public SimulationData3D
         Vec_Mat3x3f aniKernelMatrices;
         virtual void reserve(UInt nParticles) override;
         virtual void addParticles(const Vec_Vec3r& newPositions, const Vec_Vec3r& newVelocities) override;
-        virtual UInt removeParticles(Vec_Int8& removeMarker) override;
+        virtual UInt removeParticles(const Vec_Int8& removeMarker) override;
     };
 
     ////////////////////////////////////////////////////////////////////////////////
