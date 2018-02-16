@@ -29,10 +29,7 @@
 #include <random>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace Banana
-{
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace LinaHelpers
+namespace Banana::LinaHelpers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
@@ -317,8 +314,11 @@ inline Vector<MatXxX<N, RealType> > randVecMatrices(SizeType size, RealType minV
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-inline void orientedSVD(const MatXxX<N, RealType>& M, MatXxX<N, RealType>& U, VecX<N, RealType>& S, MatXxX<N, RealType>& Vt)
+inline auto orientedSVD(const MatXxX<N, RealType>& M)
 {
+    MatXxX<N, RealType> U, Vt;
+    VecX<N, RealType>   S;
+
     QRSVD::svd(M, U, S, Vt);
     Vt = glm::transpose(Vt);
 
@@ -334,12 +334,16 @@ inline void orientedSVD(const MatXxX<N, RealType>& M, MatXxX<N, RealType>& U, Ve
         Vt        = J * Vt;
         S[N - 1] *= RealType(-1.0);
     }
+
+    return std::make_tuple(U, S, Vt);
 }       // end oriented svd
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void QRDecomposition(const MatXxX<N, RealType>& M, MatXxX<N, RealType>& Q, MatXxX<N, RealType>& R)
+inline auto QRDecomposition(const MatXxX<N, RealType>& M)
 {
+    MatXxX<N, RealType> Q, R;
+
     for(Int i = 0; i < N; ++i) {
         //Copy in Q the input's i-th column.
         Q[i] = M[i];
@@ -361,10 +365,10 @@ void QRDecomposition(const MatXxX<N, RealType>& M, MatXxX<N, RealType>& Q, MatXx
             R[j][i] = glm::dot(M[j], Q[i]);
         }
     }
+
+    //return { Q, R };
+    return std::make_tuple(Q, R);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-}   // end namespace LinaHelpers
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-} // end namespace Banana
+}   // end namespace Banana::LinaHelpers
