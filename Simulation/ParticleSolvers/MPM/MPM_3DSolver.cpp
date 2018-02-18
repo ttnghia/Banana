@@ -362,11 +362,11 @@ void MPM_3DSolver::setupDataIO()
         m_ParticleDataIO = std::make_unique<ParticleSerialization>(globalParams().dataPath, globalParams().frameDataFolder, "frame", m_Logger);
         m_ParticleDataIO->addFixedAttribute<float>("particle_radius", ParticleSerialization::TypeReal, 1);
         m_ParticleDataIO->addParticleAttribute<float>("particle_position", ParticleSerialization::TypeCompressedReal, 3);
-        if(globalParams().isSavingData("ObjectIndex")) {
+        if(globalParams().savingData("ObjectIndex")) {
             m_ParticleDataIO->addFixedAttribute<UInt>("NObjects", ParticleSerialization::TypeUInt, 1);
             m_ParticleDataIO->addParticleAttribute<Int8>("object_index", ParticleSerialization::TypeInt16, 1);
         }
-        if(globalParams().isSavingData("ParticleVelocity")) {
+        if(globalParams().savingData("ParticleVelocity")) {
             m_ParticleDataIO->addParticleAttribute<float>("particle_velocity", ParticleSerialization::TypeCompressedReal, 3);
         }
     }
@@ -465,11 +465,11 @@ Int MPM_3DSolver::saveFrameData()
     m_ParticleDataIO->setNParticles(particleData().getNParticles());
     m_ParticleDataIO->setFixedAttribute("particle_radius", static_cast<float>(solverParams().particleRadius));
     m_ParticleDataIO->setParticleAttribute("particle_position", particleData().positions);
-    if(globalParams().isSavingData("ObjectIndex")) {
+    if(globalParams().savingData("ObjectIndex")) {
         m_ParticleDataIO->setFixedAttribute("NObjects", particleData().nObjects);
         m_ParticleDataIO->setParticleAttribute("object_index", particleData().objectIndex);
     }
-    if(globalParams().isSavingData("ParticleVelocity")) {
+    if(globalParams().savingData("ParticleVelocity")) {
         m_ParticleDataIO->setParticleAttribute("particle_velocity", particleData().velocities);
     }
     m_ParticleDataIO->flushAsync(globalParams().finishedFrame);

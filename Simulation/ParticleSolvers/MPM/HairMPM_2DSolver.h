@@ -57,7 +57,7 @@ struct HairMPM_2DParameters
             logger->printLogIndent(String("Hair stretch processing method: projection"));
         } else {
             logger->printLogIndent(String("Hair stretch processing method: spring forces"));
-            logger->printLogIndent(String("Spring constant: ") + NumberHelpers::formatToScientific(KSpring));
+            logger->printLogIndent(String("Spring constant: ") + NumberHelpers::formatToScientific(KSpring), 2);
         }
         ////////////////////////////////////////////////////////////////////////////////
 

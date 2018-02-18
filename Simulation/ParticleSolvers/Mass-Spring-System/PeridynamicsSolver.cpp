@@ -169,16 +169,16 @@ void PeridynamicsSolver::setupDataIO()
     m_ParticleDataIO->addFixedAttribute<float>("particle_radius",      ParticleSerialization::TypeReal, 1);
     m_ParticleDataIO->addFixedAttribute<UInt>( "num_active_particles", ParticleSerialization::TypeUInt, 1);
     m_ParticleDataIO->addParticleAttribute<float>("particle_position", ParticleSerialization::TypeCompressedReal, 3);
-    if(m_GlobalParams.isSavingData("particle_velocity")) {
+    if(m_GlobalParams.savingData("particle_velocity")) {
         m_ParticleDataIO->addParticleAttribute<float>("particle_velocity", ParticleSerialization::TypeCompressedReal, 3);
     }
-    if(m_GlobalParams.isSavingData("bond_remain_ratio")) {
+    if(m_GlobalParams.savingData("bond_remain_ratio")) {
         m_ParticleDataIO->addParticleAttribute<float>("bond_remain_ratio", ParticleSerialization::TypeCompressedReal, 1);
     }
-    if(m_GlobalParams.isSavingData("solverData().bondList")) {
+    if(m_GlobalParams.savingData("solverData().bondList")) {
         m_ParticleDataIO->addParticleAttribute<UInt>("solverData().bondList", ParticleSerialization::TypeVectorUInt, 1);
     }
-    if(m_GlobalParams.isSavingData("connected_component_label")) {
+    if(m_GlobalParams.savingData("connected_component_label")) {
         m_ParticleDataIO->addFixedAttribute<UInt>("num_connected_components", ParticleSerialization::TypeUInt, 1);
         m_ParticleDataIO->addParticleAttribute<Int8>("connected_component_label", ParticleSerialization::TypeVectorChar, 1);
     }
@@ -272,17 +272,17 @@ Int PeridynamicsSolver::saveFrameData()
     m_ParticleDataIO->setFixedAttribute("num_active_particles", solverData().nActives);
     m_ParticleDataIO->setParticleAttribute("particle_position", solverData().positions);
 
-    if(m_GlobalParams.isSavingData("particle_velocity")) {
+    if(m_GlobalParams.savingData("particle_velocity")) {
         m_ParticleDataIO->setParticleAttribute("particle_velocity", solverData().velocities);
     }
-    if(m_GlobalParams.isSavingData("bond_remain_ratio")) {
+    if(m_GlobalParams.savingData("bond_remain_ratio")) {
         computeRemainingBondRatio();
         m_ParticleDataIO->setParticleAttribute("bond_remain_ratio", solverData().bondRemainingRatio);
     }
-    if(m_GlobalParams.isSavingData("solverData().bondList")) {
+    if(m_GlobalParams.savingData("solverData().bondList")) {
         m_ParticleDataIO->setParticleAttribute("solverData().bondList", solverData().bondList);
     }
-    if(m_GlobalParams.isSavingData("connected_component_label")) {
+    if(m_GlobalParams.savingData("connected_component_label")) {
         UInt nComponents;
         ParticleHelpers::connectedComponentAnalysis(solverData().bondList, solverData().connectedComponentIdx, nComponents);
         m_ParticleDataIO->setFixedAttribute("num_connected_components", nComponents);
@@ -290,7 +290,7 @@ Int PeridynamicsSolver::saveFrameData()
     }
 
 
-    if(m_GlobalParams.isSavingData("particle_velocity")) {
+    if(m_GlobalParams.savingData("particle_velocity")) {
         m_ParticleDataIO->setParticleAttribute("particle_velocity", solverData().velocities);
     }
     m_ParticleDataIO->flushAsync(globalParams().finishedFrame);

@@ -164,7 +164,7 @@ struct GlobalParameters
         logger.newLine();
     }
 
-    bool isSavingData(const String& dataName)
+    bool savingData(const String& dataName)
     {
         return (std::find(SaveDataList.begin(), SaveDataList.end(), dataName) != SaveDataList.end());
     }

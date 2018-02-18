@@ -449,13 +449,13 @@ Int Banana::ParticleSolvers::ParticleSolver<N, RealType >::saveFrameData()
 template<Int N, class RealType>
 void Banana::ParticleSolvers::ParticleSolver<N, RealType >::logSubstepData()
 {
-    if(globalParams().bSaveSubstepData && globalParams().isSavingData("SubStepSize")) {
+    if(globalParams().bSaveSubstepData && globalParams().savingData("SubStepSize")) {
         String dataStr = String("SystemTime: ") + NumberHelpers::formatToScientific(globalParams().evolvedTime(), 10) +
                          String(" | SubStepSize: ") + NumberHelpers::formatToScientific(globalParams().frameSubstep, 10);
         dataLogger("SubStepSize").printLog(dataStr);
     }
 
-    if(globalParams().bSaveSubstepData && globalParams().isSavingData("SubStepKineticEnergy")) {
+    if(globalParams().bSaveSubstepData && globalParams().savingData("SubStepKineticEnergy")) {
         Real   kineticEnergy = ParallelSTL::sum_sqr<N, RealType>(generalParticleData().velocities) * generalSolverParams().particleMass * 0.5_f;
         String dataStr       = String("SystemTime: ") + NumberHelpers::formatToScientific(globalParams().evolvedTime(), 10) +
                                String(" | SystemKineticEnergy: ") + NumberHelpers::formatToScientific(kineticEnergy, 10);

@@ -238,7 +238,7 @@ bool HairMPM_2DSolver::advanceScene()
     bool bSceneChanged = MPM_2DSolver::advanceScene();
 
     if(bSceneChanged) {
-        aniData().particleData.resize(particleData().getNParticles());
+        aniParticleData().resize(particleData().getNParticles());
     }
     ////////////////////////////////////////////////////////////////////////////////
     return bSceneChanged;
@@ -342,11 +342,11 @@ Int HairMPM_2DSolver::saveFrameData()
     m_ParticleDataIO->setNParticles(particleData().getNParticles());
     m_ParticleDataIO->setFixedAttribute("particle_radius", static_cast<float>(solverParams().particleRadius));
     m_ParticleDataIO->setParticleAttribute("particle_position", particleData().positions);
-    if(globalParams().isSavingData("ObjectIndex")) {
+    if(globalParams().savingData("ObjectIndex")) {
         m_ParticleDataIO->setFixedAttribute("NObjects", particleData().nObjects);
         m_ParticleDataIO->setParticleAttribute("object_index", particleData().objectIndex);
     }
-    if(globalParams().isSavingData("ParticleVelocity")) {
+    if(globalParams().savingData("ParticleVelocity")) {
         m_ParticleDataIO->setParticleAttribute("particle_velocity", particleData().velocities);
     }
     m_ParticleDataIO->flushAsync(globalParams().finishedFrame);
@@ -383,7 +383,7 @@ void HairMPM_2DSolver::moveParticles(Real timestep)
                             [&](UInt p)
                             {
                                 size_t nNeighbors = particleData().neighborIdx[p].size();
-                                if(aniData().particleData.particleType[p] == static_cast<Int8>(HairParticleType::Vertex) ||
+                                if(aniParticleData().particleType[p] == static_cast<Int8>(HairParticleType::Vertex) ||
                                    nNeighbors == 1) {
                                     auto ppos = particleData().positions[p];
                                     ppos += timestep * particleData().velocities[p];
@@ -418,7 +418,7 @@ void HairMPM_2DSolver::explicitIntegration(Real timestep)
     Scheduler::parallel_for(particleData().getNParticles(),
                             [&](UInt p)
                             {
-                                if(aniData().particleData.particleType[p] == static_cast<Int8>(HairParticleType::Vertex)) {
+                                if(aniParticleData().particleType[p] == static_cast<Int8>(HairParticleType::Vertex)) {
                                     return;
                                 }
 
@@ -491,7 +491,7 @@ void HairMPM_2DSolver::computeLagrangianForces()
     Scheduler::parallel_for(particleData().getNParticles(),
                             [&](UInt p)
                             {
-                                if(aniData().particleData.particleType[p] != static_cast<Int8>(HairParticleType::Vertex)) {
+                                if(aniParticleData().particleType[p] != static_cast<Int8>(HairParticleType::Vertex)) {
                                     return;
                                 }
                                 Vec2r f(0);
@@ -567,7 +567,7 @@ void HairMPM_2DSolver::updateParticleStates(Real timestep)
     Scheduler::parallel_for(particleData().getNParticles(),
                             [&](UInt p)
                             {
-                                if(aniData().particleData.particleType[p] != static_cast<Int8>(HairParticleType::Vertex)) {
+                                if(aniParticleData().particleType[p] != static_cast<Int8>(HairParticleType::Vertex)) {
                                     auto deformGrad   = particleData().deformGrad[p];
                                     size_t nNeighbors = particleData().neighborIdx[p].size();
                                     deformGrad[0] = nNeighbors == 1 ? (particleData().positions[p] -
@@ -582,7 +582,7 @@ void HairMPM_2DSolver::updateParticleStates(Real timestep)
                                     deformGrad[1] = velGrad * deformGrad[1];
 
 
-                                    particleData().deformGrad[p] = deformGrad * glm::inverse(aniData().particleData.localDirections[p]);
+                                    particleData().deformGrad[p] = deformGrad * glm::inverse(aniParticleData().localDirections[p]);
                                 }
                             });
 }
@@ -615,7 +615,7 @@ void HairMPM_2DSolver::mapGridVelocities2ParticlesAPIC(Real timestep)
                                         }
                                     }
                                 }
-                                if(aniData().particleData.particleType[p] == static_cast<Int8>(HairParticleType::Vertex)) {
+                                if(aniParticleData().particleType[p] == static_cast<Int8>(HairParticleType::Vertex)) {
                                     particleData().velocities[p] = apicVel;
                                 }
                                 particleData().velocityGrad[p] = apicVelGrad;
@@ -625,7 +625,7 @@ void HairMPM_2DSolver::mapGridVelocities2ParticlesAPIC(Real timestep)
     Scheduler::parallel_for(particleData().getNParticles(),
                             [&](UInt p)
                             {
-                                if(aniData().particleData.particleType[p] == static_cast<Int8>(HairParticleType::Vertex)) {
+                                if(aniParticleData().particleType[p] == static_cast<Int8>(HairParticleType::Vertex)) {
                                     return;
                                 }
 
