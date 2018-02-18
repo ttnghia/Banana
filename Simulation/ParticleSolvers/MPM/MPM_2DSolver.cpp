@@ -231,6 +231,7 @@ void MPM_2DSolver::loadSimParams(const JParams& jParams)
 {
     ////////////////////////////////////////////////////////////////////////////////
     // MPM parameters
+    JSONHelpers::readValue(jParams, solverParams().KDamping,      "KDamping");
     JSONHelpers::readValue(jParams, solverParams().implicitRatio, "ImplicitRatio");
     ////////////////////////////////////////////////////////////////////////////////
 

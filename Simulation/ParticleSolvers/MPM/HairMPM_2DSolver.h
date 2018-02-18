@@ -36,17 +36,29 @@ namespace Banana::ParticleSolvers
 struct HairMPM_2DParameters
 {
     ////////////////////////////////////////////////////////////////////////////////
+    // hair stretch processing
+    HairStretchProcessingMethod stretchProcessingMethod = HairStretchProcessingMethod::Projection;
+    Real                        KSpring                 = 1e8_f;
+    ////////////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////////////
     // Anisotropic MPM parameters
-    Real KSpring = 1e8_f;
+
+    ////////////////////////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////////////////////////
     void makeReady() {}
     void printParams(const SharedPtr<Logger>& logger)
     {
-        logger->printLog(String("AniMPM-2D parameters:"));
+        logger->printLog(String("HairMPM-2D parameters:"));
 
         ////////////////////////////////////////////////////////////////////////////////
-        logger->printLogIndent(String("XXX: ") + std::to_string(0));
+        if(stretchProcessingMethod == HairStretchProcessingMethod::Projection) {
+            logger->printLogIndent(String("Hair stretch processing method: projection"));
+        } else {
+            logger->printLogIndent(String("Hair stretch processing method: spring forces"));
+            logger->printLogIndent(String("Spring constant: ") + NumberHelpers::formatToScientific(KSpring));
+        }
         ////////////////////////////////////////////////////////////////////////////////
 
         logger->newLine();
@@ -128,8 +140,8 @@ protected:
     virtual Int  loadMemoryState() override;
     virtual Int  saveMemoryState() override;
     virtual Int  saveFrameData() override;
-    virtual void advanceVelocity(Real timestep);
 
+    virtual void advanceVelocity(Real timestep);
     virtual void moveParticles(Real timestep);
     virtual void explicitIntegration(Real timestep);
     //virtual void implicitIntegration(Real timestep);

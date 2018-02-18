@@ -46,6 +46,7 @@ struct MPM_2DParameters : public SimulationParameters2D
 
     ////////////////////////////////////////////////////////////////////////////////
     // MPM parameters
+    Real KDamping      = 1e-2_f;
     Real implicitRatio = 0_f;
     ////////////////////////////////////////////////////////////////////////////////
 
@@ -82,6 +83,7 @@ struct MPM_2DParameters : public SimulationParameters2D
         ////////////////////////////////////////////////////////////////////////////////
         // MPM parameters
         logger->printLogIndent(String("PIC/FLIP ratio: ") + std::to_string(PIC_FLIP_ratio));
+        logger->printLogIndent(String("Damping constant: ") + NumberHelpers::formatToScientific(KDamping));
         logger->printLogIndent(String("Implicit ratio: ") + std::to_string(implicitRatio));
         ////////////////////////////////////////////////////////////////////////////////
 
@@ -234,8 +236,8 @@ protected:
     virtual Int  loadMemoryState() override;
     virtual Int  saveMemoryState() override;
     virtual Int  saveFrameData() override;
-    virtual void advanceVelocity(Real timestep);
 
+    virtual void advanceVelocity(Real timestep);
     virtual Real timestepCFL();
     virtual void moveParticles(Real timestep);
     virtual void mapParticleMasses2Grid();
