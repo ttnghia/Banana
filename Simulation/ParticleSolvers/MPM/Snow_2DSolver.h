@@ -38,13 +38,13 @@ struct SimulationParameters_Snow2D : public SimulationParameters
 
     ////////////////////////////////////////////////////////////////////////////////
     Real CFLFactor           = 0.04_f;
-    Real PIC_FLIP_ratio      = SolverDefaultParameters::PIC_FLIP_Ratio;
-    Real minTimestep         = SolverDefaultParameters::MinTimestep;
-    Real maxTimestep         = SolverDefaultParameters::MaxTimestep;
-    Real boundaryRestitution = SolverDefaultParameters::BoundaryRestitution;
+    Real PIC_FLIP_ratio      = ParticleSolverDefaultParameters::PIC_FLIP_Ratio;
+    Real minTimestep         = ParticleSolverDefaultParameters::MinTimestep;
+    Real maxTimestep         = ParticleSolverDefaultParameters::MaxTimestep;
+    Real boundaryRestitution = ParticleSolverDefaultParameters::BoundaryRestitution;
 
-    Real CGRelativeTolerance = SolverDefaultParameters::CGRelativeTolerance;
-    UInt maxCGIteration      = SolverDefaultParameters::CGMaxIteration;
+    Real CGRelativeTolerance = ParticleSolverDefaultParameters::CGRelativeTolerance;
+    UInt maxCGIteration      = ParticleSolverDefaultParameters::CGMaxIteration;
 
     Real thresholdCompression = 1.0_f - 1.9e-2_f; //Fracture threshold for compression (1-2.5e-2)
     Real thresholdStretching  = 1.0_f + 7.5e-3_f; //Fracture threshold for stretching (1+7.5e-3)
@@ -59,7 +59,7 @@ struct SimulationParameters_Snow2D : public SimulationParameters
 
     Int kernelSpan = 2;
 
-    Real  cellSize                    = SolverDefaultParameters::CellSize;
+    Real  cellSize                    = ParticleSolverDefaultParameters::CellSize;
     Real  ratioCellSizeParticleRadius = 2.0_f;
     Vec2r movingBMin                  = Vec2r(-1.0);
     Vec2r movingBMax                  = Vec2r(1.0);
@@ -81,8 +81,8 @@ struct SimulationParameters_Snow2D : public SimulationParameters
         particleMass   = particleRadius * particleRadius * materialDensity;
 
         cellArea   = cellSize * cellSize;
-        domainBMin = movingBMin - Vec2r(cellSize * SolverDefaultParameters::NExpandCells);
-        domainBMax = movingBMax + Vec2r(cellSize * SolverDefaultParameters::NExpandCells);
+        domainBMin = movingBMin - Vec2r(cellSize * ParticleSolverDefaultParameters::NExpandCells);
+        domainBMax = movingBMax + Vec2r(cellSize * ParticleSolverDefaultParameters::NExpandCells);
 
         lambda = YoungsModulus * PoissonsRatio / ((1.0_f + PoissonsRatio) * (1.0_f - 2.0_f * PoissonsRatio)),
         mu     = YoungsModulus / (2.0_f + 2.0_f * PoissonsRatio);

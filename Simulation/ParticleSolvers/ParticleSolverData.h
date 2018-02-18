@@ -33,7 +33,7 @@
 #include <numeric>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace Banana::SolverDefaultParameters
+namespace Banana::ParticleSolverDefaultParameters
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 static const UInt FrameRate   = 30u;
@@ -55,19 +55,22 @@ static const Real PIC_FLIP_Ratio = 0.97_f;
 } // end namespace Banana::SolverDefaultParameters
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace Banana::Constants
+namespace Banana::ParticleSolverConstants
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 static const Vec2r Gravity2D = Vec2r(0, -9.81);
 static const Vec3r Gravity3D = Vec3r(0, -9.81, 0);
 
-enum GravityType { Earth = 0, Directional = 1, ToCenter = 2, FromCenter = 3 };
-enum IntegrationScheme { ExplicitVerlet = 0, ExplicitEuler = 1, ImplicitEuler = 2, NewmarkBeta = 3 };
-enum ParticleType { Active = 0, InActive = 1, SemiActive = 2, Constrained = 3 };
-enum HairParticleType { FixedPosition = 0, Vertex = 1, Quadrature = 2, UnknownType = 3 };
+enum class HairStretchProcessingMethod { Projection = 0, SpringForce = 1 };
+enum class GravityType { Earth = 0, Directional = 1, ToCenter = 2, FromCenter = 3 };
+enum class IntegrationScheme { ExplicitVerlet = 0, ExplicitEuler = 1, ImplicitEuler = 2, NewmarkBeta = 3 };
+enum class ParticleType { Active = 0, InActive = 1, SemiActive = 2, Constrained = 3 };
+enum class HairParticleType { FixedPosition = 0, Vertex = 1, Quadrature = 2, UnknownType = 3 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 }   // end namespace ParticleSolverConstants
+
+using namespace Banana::ParticleSolverConstants;
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana::ParticleSolvers
@@ -80,7 +83,7 @@ struct GlobalParameters
     ////////////////////////////////////////////////////////////////////////////////
     // frame and time parameters
     Real frameLocalTime    = 0_f;
-    Real frameDuration     = Real(1.0 / SolverDefaultParameters::FrameRate);
+    Real frameDuration     = Real(1.0 / ParticleSolverDefaultParameters::FrameRate);
     Real frameSubstep      = 0_f;
     UInt frameSubstepCount = 0u;
     UInt startFrame        = 1u;
@@ -173,8 +176,8 @@ struct SimulationParameters
 {
     ////////////////////////////////////////////////////////////////////////////////
     // time step size
-    RealType minTimestep = RealType(SolverDefaultParameters::MinTimestep);
-    RealType maxTimestep = RealType(SolverDefaultParameters::MaxTimestep);
+    RealType minTimestep = RealType(ParticleSolverDefaultParameters::MinTimestep);
+    RealType maxTimestep = RealType(ParticleSolverDefaultParameters::MaxTimestep);
     RealType CFLFactor   = RealType(1.0);
     ////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////
@@ -188,9 +191,9 @@ struct SimulationParameters
     ////////////////////////////////////////////////////////////////////////////////
     // grid
     bool     bUseGrid             = true;
-    RealType cellSize             = RealType(SolverDefaultParameters::CellSize);
-    RealType ratioCellSizePRadius = RealType(SolverDefaultParameters::RatioCellSizeOverParticleRadius);
-    UInt     nExpandCells         = SolverDefaultParameters::NExpandCells;
+    RealType cellSize             = RealType(ParticleSolverDefaultParameters::CellSize);
+    RealType ratioCellSizePRadius = RealType(ParticleSolverDefaultParameters::RatioCellSizeOverParticleRadius);
+    UInt     nExpandCells         = ParticleSolverDefaultParameters::NExpandCells;
     Real     cellVolume;
 
 
@@ -211,35 +214,35 @@ struct SimulationParameters
 
     ////////////////////////////////////////////////////////////////////////////////
     // CG solver, if available
-    RealType CGRelativeTolerance = RealType(SolverDefaultParameters::CGRelativeTolerance);
-    UInt     maxCGIteration      = SolverDefaultParameters::CGMaxIteration;
+    RealType CGRelativeTolerance = RealType(ParticleSolverDefaultParameters::CGRelativeTolerance);
+    UInt     maxCGIteration      = ParticleSolverDefaultParameters::CGMaxIteration;
     ////////////////////////////////////////////////////////////////////////////////
 
 
     ////////////////////////////////////////////////////////////////////////////////
     // data only for PIC/FLIP blending, if applicable
-    RealType PIC_FLIP_ratio = RealType(SolverDefaultParameters::PIC_FLIP_Ratio);
+    RealType PIC_FLIP_ratio = RealType(ParticleSolverDefaultParameters::PIC_FLIP_Ratio);
     ////////////////////////////////////////////////////////////////////////////////
 
 
     ////////////////////////////////////////////////////////////////////////////////
     // boundary condition
-    RealType boundaryRestitution = RealType(SolverDefaultParameters::BoundaryRestitution);
+    RealType boundaryRestitution = RealType(ParticleSolverDefaultParameters::BoundaryRestitution);
     ////////////////////////////////////////////////////////////////////////////////
 
 
     ////////////////////////////////////////////////////////////////////////////////
     // gravity
-    Int               gravityType      = static_cast<Int>(Constants::GravityType::Directional);
+    GravityType       gravityType      = GravityType::Directional;
     VecX<N, RealType> gravityDirection = VecX<N, RealType>(0);
     VecX<N, RealType> gravityCenter    = VecX<N, RealType>(0);
 
     virtual VecX<N, RealType> gravity(const VecX<N, RealType>& pos = VecX<N, RealType>(0)) const
     {
-        if(gravityType == static_cast<Int>(Constants::GravityType::Earth) ||
-           gravityType == static_cast<Int>(Constants::GravityType::Directional)) {
+        if(gravityType == GravityType::Earth ||
+           gravityType == GravityType::Directional) {
             return gravityDirection;
-        } else if(gravityType == static_cast<Int>(Constants::GravityType::ToCenter)) {
+        } else if(gravityType == GravityType::ToCenter) {
             return 9.81_f * glm::normalize(gravityCenter - pos);
         } else {
             return 9.81_f * glm::normalize(pos - gravityCenter);
@@ -266,19 +269,19 @@ struct SimulationParameters
         domainBMax += VecX<N, RealType>(cellSize * nExpandCells);
 
         ////////////////////////////////////////////////////////////////////////////////
-        if(gravityType == static_cast<Int>(Constants::GravityType::Directional)) {
+        if(gravityType == GravityType::Directional) {
             if(glm::length2(gravityDirection) < MEpsilon) {
-                gravityType = static_cast<Int>(Constants::GravityType::Earth);
+                gravityType = GravityType::Earth;
             } else {
                 gravityDirection = 9.81_f * glm::normalize(gravityDirection);
             }
         }
 
-        if(gravityType == static_cast<Int>(Constants::GravityType::Earth)) {
+        if(gravityType == GravityType::Earth) {
             if constexpr(N == 2) {
-                gravityDirection = Constants::Gravity2D;
+                gravityDirection = Gravity2D;
             } else {
-                gravityDirection = Constants::Gravity3D;
+                gravityDirection = Gravity3D;
             }
         }
     }
@@ -335,15 +338,15 @@ struct SimulationParameters
         ////////////////////////////////////////////////////////////////////////////////
         // gravity
         switch(gravityType) {
-            case static_cast<Int>(Constants::GravityType::Earth):
+            case static_cast<Int>(GravityType::Earth):
                 logger->printLogIndent(String("Gravity: Earth"));
-            case static_cast<Int>(Constants::GravityType::Directional):
+            case static_cast<Int>(GravityType::Directional):
                 logger->printLogIndent(String("Gravity: Directional"));
                 logger->printLogIndent(String("Gravity direction: ") + NumberHelpers::toString(gravityDirection));
                 break;
-            case static_cast<Int>(Constants::GravityType::ToCenter):
+            case static_cast<Int>(GravityType::ToCenter):
                 logger->printLogIndent(String("Gravity: ToCenter"));
-            case static_cast<Int>(Constants::GravityType::FromCenter):
+            case static_cast<Int>(GravityType::FromCenter):
                 logger->printLogIndent(String("Gravity: FromCenter"));
                 logger->printLogIndent(String("Gravity center: ") + NumberHelpers::toString(gravityCenter));
             default:;

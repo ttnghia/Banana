@@ -164,13 +164,13 @@ void loadGeneralSolverParams(const JParams& jParams, ParticleSolvers::Simulation
     JSONHelpers::readValue(jParams, gravityType, "GravityType");
     __BNN_REQUIRE(gravityType == "Earth" || gravityType == "Directional" || gravityType == "ToCenter" || gravityType == "FromCenter");
     if(gravityType == "Earth") {
-        solverParams.gravityType = static_cast<Int>(Constants::GravityType::Earth);
+        solverParams.gravityType = ParticleSolverConstants::GravityType::Earth;
     } else if(gravityType == "Directional") {
-        solverParams.gravityType = static_cast<Int>(Constants::GravityType::Directional);
+        solverParams.gravityType = ParticleSolverConstants::GravityType::Directional;
     } else if(gravityType == "ToCenter") {
-        solverParams.gravityType = static_cast<Int>(Constants::GravityType::ToCenter);
+        solverParams.gravityType = ParticleSolverConstants::GravityType::ToCenter;
     } else {
-        solverParams.gravityType = static_cast<Int>(Constants::GravityType::FromCenter);
+        solverParams.gravityType = ParticleSolverConstants::GravityType::FromCenter;
     }
     JSONHelpers::readVector(jParams, solverParams.gravityDirection, "GravityDirection");
     JSONHelpers::readVector(jParams, solverParams.gravityCenter,    "GravityCenter");

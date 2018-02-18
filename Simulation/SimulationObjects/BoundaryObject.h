@@ -61,7 +61,7 @@ public:
 protected:
     virtual void generateBoundaryParticles_Impl(Vec_VecX<N, RealType>&, RealType, Int) {}
     ////////////////////////////////////////////////////////////////////////////////
-    RealType m_RestitutionCoeff = SolverDefaultParameters::BoundaryRestitution;
+    RealType m_RestitutionCoeff = ParticleSolverDefaultParameters::BoundaryRestitution;
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+`
