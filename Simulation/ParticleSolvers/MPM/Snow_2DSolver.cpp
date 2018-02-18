@@ -131,7 +131,7 @@ void Snow2DSolver::generateParticles(const JParams& jParams)
             UInt nGen = generator->generateParticles(particleData().positions, tmpPositions, tmpVelocities);
             particleData().addParticles(tmpPositions, tmpVelocities);
             ////////////////////////////////////////////////////////////////////////////////
-            logger().printLog(String("Generated ") + NumberHelpers::formatWithCommas(nGen) + String(" particles by ") + generator->nameID());
+            logger().printLog(String("Generated ") + NumberHelpers::formatWithCommas(nGen) + String(" particles by generator: ") + generator->nameID());
         }
         sortParticles();
     }

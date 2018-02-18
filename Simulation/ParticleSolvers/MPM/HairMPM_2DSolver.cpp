@@ -190,7 +190,7 @@ void HairMPM_2DSolver::loadSimParams(const JParams& jParams)
 {
     MPM_2DSolver::loadSimParams(jParams);
     ////////////////////////////////////////////////////////////////////////////////
-    String stretchProcessingMethod;
+    String stretchProcessingMethod("Projection");
     JSONHelpers::readValue(jParams, stretchProcessingMethod, "StretchProcessingMethod");
     __BNN_REQUIRE(stretchProcessingMethod == "Projection" || stretchProcessingMethod == "SpringForce");
     if(stretchProcessingMethod == "Projection") {
@@ -217,7 +217,7 @@ void HairMPM_2DSolver::generateParticles(const JParams& jParams)
             UInt nGen = generator->generateParticles(particleData().positions, m_BoundaryObjects);
             if(nGen > 0) {
                 particleData().addParticles(generator->generatedPositions(), generator->generatedVelocities());
-                logger().printLog(String("Generated ") + NumberHelpers::formatWithCommas(nGen) + String(" particles by ") + generator->nameID());
+                logger().printLog(String("Generated ") + NumberHelpers::formatWithCommas(nGen) + String(" particles by generator: ") + generator->nameID());
             }
         }
 

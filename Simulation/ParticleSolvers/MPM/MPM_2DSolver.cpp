@@ -263,7 +263,7 @@ void MPM_2DSolver::generateParticles(const JParams& jParams)
             UInt nGen = generator->generateParticles(particleData().positions, m_BoundaryObjects);
             if(nGen > 0) {
                 particleData().addParticles(generator->generatedPositions(), generator->generatedVelocities());
-                logger().printLog(String("Generated ") + NumberHelpers::formatWithCommas(nGen) + String(" particles by ") + generator->nameID());
+                logger().printLog(String("Generated ") + NumberHelpers::formatWithCommas(nGen) + String(" particles by generator: ") + generator->nameID());
             }
         }
 

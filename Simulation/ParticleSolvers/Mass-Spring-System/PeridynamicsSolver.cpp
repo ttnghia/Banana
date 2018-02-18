@@ -119,7 +119,7 @@ void PeridynamicsSolver::generateParticles(const JParams& jParams)
             UInt nGen = generator->generateParticles(solverData().positions, tmpPositions, tmpVelocities);
             solverData().addParticles(tmpPositions, tmpVelocities);
             ////////////////////////////////////////////////////////////////////////////////
-            logger().printLog(String("Generated ") + NumberHelpers::formatWithCommas(nGen) + String(" particles by ") + generator->nameID());
+            logger().printLog(String("Generated ") + NumberHelpers::formatWithCommas(nGen) + String(" particles by generator: ") + generator->nameID());
         }
         sortParticles();
     }

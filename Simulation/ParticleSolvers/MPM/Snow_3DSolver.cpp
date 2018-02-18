@@ -132,7 +132,7 @@ void Snow3DSolver::generateParticles(const JParams& jParams)
             UInt nGen = generator->generateParticles(particleData().positions, tmpPositions, tmpVelocities);
             particleData().addParticles(tmpPositions, tmpVelocities);
             ////////////////////////////////////////////////////////////////////////////////
-            logger().printLog(String("Generated ") + NumberHelpers::formatWithCommas(nGen) + String(" particles by ") + generator->nameID());
+            logger().printLog(String("Generated ") + NumberHelpers::formatWithCommas(nGen) + String(" particles by generator: ") + generator->nameID());
         }
         m_NSearch->add_point_set(glm::value_ptr(particleData().positions.front()), particleData().getNParticles(), true, true);
         sortParticles();
