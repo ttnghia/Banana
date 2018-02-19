@@ -366,8 +366,19 @@ inline auto QRDecomposition(const MatXxX<N, RealType>& M)
         }
     }
 
-    //return { Q, R };
     return std::make_tuple(Q, R);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType>
+inline auto symmetryDecomposition(const MatXxX<N, RealType>& M)
+{
+    MatXxX<N, RealType> symComp, skewSymComp;
+    auto                Mt = glm::transpose(M);
+
+    symComp     = RealType(0.5) * (M + Mt);
+    skewSymComp = RealType(0.5) * (M - Mt);
+    return std::make_tuple(symComp, skewSymComp);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
