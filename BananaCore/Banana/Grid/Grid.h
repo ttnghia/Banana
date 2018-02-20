@@ -42,43 +42,43 @@ public:
 
     ////////////////////////////////////////////////////////////////////////////////
     // Setters
-    __BNN_INLINE void         setGrid(const VecX<N, RealType>& bMin, const VecX<N, RealType>& bMax, RealType cellSize);
-    __BNN_INLINE virtual void setCellSize(RealType cellSize);
+    void setGrid(const VecX<N, RealType>& bMin, const VecX<N, RealType>& bMax, RealType cellSize);
+    void setCellSize(RealType cellSize);
 
     ////////////////////////////////////////////////////////////////////////////////
     // Getters
-    __BNN_INLINE const VecX<N, RealType>& getBMin() const noexcept { return m_BMin; }
-    __BNN_INLINE const VecX<N, RealType>& getBMax() const noexcept { return m_BMax; }
+    const auto& getBMin() const noexcept { return m_BMin; }
+    const auto& getBMax() const noexcept { return m_BMax; }
 
-    __BNN_INLINE const VecX<N, UInt>& getNCells() const noexcept { return m_NCells; }
-    __BNN_INLINE const VecX<N, UInt>& getNNodes() const noexcept { return m_NNodes; }
-    __BNN_INLINE UInt                 getNTotalCells() const noexcept { return m_NTotalCells; }
-    __BNN_INLINE UInt                 getNTotalNodes() const noexcept { return m_NTotalNodes; }
+    const auto& getNCells() const noexcept { return m_NCells; }
+    const auto& getNNodes() const noexcept { return m_NNodes; }
+    auto        getNTotalCells() const noexcept { return m_NTotalCells; }
+    auto        getNTotalNodes() const noexcept { return m_NTotalNodes; }
 
     ////////////////////////////////////////////////////////////////////////////////
-    __BNN_INLINE RealType getCellSize() const noexcept { return m_CellSize; }
-    __BNN_INLINE RealType getInvCellSize() const noexcept { return m_InvCellSize; }
-    __BNN_INLINE RealType getHalfCellSize() const noexcept { return m_HalfCellSize; }
-    __BNN_INLINE RealType getCellSizeSquared() const noexcept { return m_CellSizeSqr; }
+    auto getCellSize() const noexcept { return m_CellSize; }
+    auto getInvCellSize() const noexcept { return m_InvCellSize; }
+    auto getHalfCellSize() const noexcept { return m_HalfCellSize; }
+    auto getCellSizeSquared() const noexcept { return m_CellSizeSqr; }
 
     ////////////////////////////////////////////////////////////////////////////////
     // Grid 2D =>
     template<class IndexType>
-    __BNN_INLINE IndexType getCellLinearizedIndex(IndexType i, IndexType j) const
+    IndexType getCellLinearizedIndex(IndexType i, IndexType j) const
     {
         static_assert(N == 2, "Array dimension != 2");
         return j * static_cast<IndexType>(getNCells()[0]) + i;
     }
 
     template<class IndexType>
-    __BNN_INLINE IndexType getNodeLinearizedIndex(IndexType i, IndexType j) const
+    IndexType getNodeLinearizedIndex(IndexType i, IndexType j) const
     {
         static_assert(N == 2, "Array dimension != 2");
         return j * static_cast<IndexType>(getNNodes()[0]()) + i;
     }
 
     template<class IndexType>
-    __BNN_INLINE bool isValidCell(IndexType i, IndexType j)  const noexcept
+    bool isValidCell(IndexType i, IndexType j)  const noexcept
     {
         static_assert(N == 2, "Array dimension != 2");
         return (i >= 0 &&
@@ -88,13 +88,13 @@ public:
     }
 
     template<class IndexType>
-    __BNN_INLINE bool isValidCell(const Vec2<IndexType>& index) const noexcept
+    bool isValidCell(const Vec2<IndexType>& index) const noexcept
     {
         return isValidCell(index[0], index[1]);
     }
 
     template<class IndexType>
-    __BNN_INLINE bool isValidNode(IndexType i, IndexType j)  const noexcept
+    bool isValidNode(IndexType i, IndexType j)  const noexcept
     {
         static_assert(N == 2, "Array dimension != 2");
         return (i >= 0 &&
@@ -104,7 +104,7 @@ public:
     }
 
     template<class IndexType>
-    __BNN_INLINE bool isValidNode(const Vec2<IndexType>& index) const noexcept
+    bool isValidNode(const Vec2<IndexType>& index) const noexcept
     {
         return isValidNode(index[0], index[1]);
     }
@@ -115,21 +115,21 @@ public:
     ////////////////////////////////////////////////////////////////////////////////
     // Grid 3D =>
     template<class IndexType>
-    __BNN_INLINE IndexType getCellLinearizedIndex(IndexType i, IndexType j, IndexType k) const
+    IndexType getCellLinearizedIndex(IndexType i, IndexType j, IndexType k) const
     {
         static_assert(N == 3, "Array dimension != 3");
         return (k * static_cast<IndexType>(getNCells()[1]) + j) * static_cast<IndexType>(getNCells()[0]) + i;
     }
 
     template<class IndexType>
-    __BNN_INLINE IndexType getNodeLinearizedIndex(IndexType i, IndexType j, IndexType k) const
+    IndexType getNodeLinearizedIndex(IndexType i, IndexType j, IndexType k) const
     {
         static_assert(N == 3, "Array dimension != 3");
         return (k * static_cast<IndexType>(getNNodes()[1]()) + j) * static_cast<IndexType>(getNNodes()[0]) + i;
     }
 
     template<class IndexType>
-    __BNN_INLINE bool isValidCell(IndexType i, IndexType j, IndexType k)  const noexcept
+    bool isValidCell(IndexType i, IndexType j, IndexType k)  const noexcept
     {
         static_assert(N == 3, "Array dimension != 3");
         return (i >= 0 &&
@@ -141,13 +141,13 @@ public:
     }
 
     template<class IndexType>
-    __BNN_INLINE bool isValidCell(const Vec3<IndexType>& index) const noexcept
+    bool isValidCell(const Vec3<IndexType>& index) const noexcept
     {
         return isValidCell(index[0], index[1], index[2]);
     }
 
     template<class IndexType>
-    __BNN_INLINE bool isValidNode(IndexType i, IndexType j, IndexType k)  const noexcept
+    bool isValidNode(IndexType i, IndexType j, IndexType k)  const noexcept
     {
         static_assert(N == 3, "Array dimension != 3");
         return (i >= 0 &&
@@ -159,7 +159,7 @@ public:
     }
 
     template<class IndexType>
-    __BNN_INLINE bool isValidNode(const Vec3<IndexType>& index) const noexcept
+    bool isValidNode(const Vec3<IndexType>& index) const noexcept
     {
         return isValidNode(index[0], index[1], index[2]);
     }
@@ -169,7 +169,7 @@ public:
 
     ////////////////////////////////////////////////////////////////////////////////
     template<class IndexType>
-    __BNN_INLINE VecX<N, IndexType> getCellIdx(const VecX<N, RealType>& ppos) const noexcept
+    auto getCellIdx(const VecX<N, RealType>& ppos) const noexcept
     {
         VecX<N, IndexType> cellIdx;
         for(Int i = 0; i < N; ++i) {
@@ -179,7 +179,7 @@ public:
     }
 
     template<class IndexType>
-    __BNN_INLINE VecX<N, IndexType> getNearestValidCellIdx(const VecX<N, IndexType>& cellIdx) const noexcept
+    auto getNearestValidCellIdx(const VecX<N, IndexType>& cellIdx) const noexcept
     {
         VecX<N, IndexType> validCellIdx;
 
@@ -191,7 +191,7 @@ public:
     }
 
     template<class IndexType>
-    __BNN_INLINE VecX<N, IndexType> getValidCellIdx(const VecX<N, RealType>& ppos) const noexcept
+    auto getValidCellIdx(const VecX<N, RealType>& ppos) const noexcept
     {
         return getNearestValidCellIdx<IndexType>(getCellIdx<IndexType>(ppos));
     }
@@ -199,28 +199,28 @@ public:
     ////////////////////////////////////////////////////////////////////////////////
     // Particle processing
     template<class IndexType>
-    __BNN_INLINE VecX<N, RealType> getWorldCoordinate(const VecX<N, IndexType>& cellIdx) const
+    auto getWorldCoordinate(const VecX<N, IndexType>& nodeIdx) const
     {
-        return NumberHelpers::convert<RealType>(cellIdx) * m_CellSize + m_BMin;
+        return NumberHelpers::convert<RealType>(nodeIdx) * m_CellSize + m_BMin;
     }
 
     template<class IndexType>
-    __BNN_INLINE Vec2<RealType> getWorldCoordinate(IndexType i, IndexType j) const
+    auto getWorldCoordinate(IndexType i, IndexType j) const
     {
         static_assert(N == 2, "Array dimension != 2");
         return Vec2<RealType>(i, j) * m_CellSize + m_BMin;
     }
 
     template<class IndexType>
-    __BNN_INLINE Vec3<RealType> getWorldCoordinate(IndexType i, IndexType j, IndexType k) const
+    auto getWorldCoordinate(IndexType i, IndexType j, IndexType k) const
     {
         static_assert(N == 3, "Array dimension != 3");
         return Vec3<RealType>(i, j, k) * m_CellSize + m_BMin;
     }
 
-    __BNN_INLINE VecX<N, RealType> getGridCoordinate(const VecX<N, RealType>& ppos) const { return (ppos - m_BMin) / m_CellSize; }
-
-    __BNN_INLINE bool isInsideGrid(const VecX<N, RealType>& ppos) const noexcept;
+    auto getGridCoordinate(const VecX<N, RealType>& ppos) const { return (ppos - m_BMin) / m_CellSize; }
+    ////////////////////////////////////////////////////////////////////////////////
+    bool isInsideGrid(const VecX<N, RealType>& ppos) const noexcept;
 
     void constrainToGrid(Vector<VecX<N, RealType> >& positions);
     void collectIndexToCells(const Vector<VecX<N, RealType> >& positions);
@@ -237,14 +237,14 @@ public:
     const Vec_UInt& getParticleIdxSortedByCell();
 
     template<class IndexType>
-    const Vec_UInt& getParticleIdxInCell(const VecX<N, IndexType>& cellIdx) const { return m_ParticleIdxInCell(cellIdx); }
+    const auto& getParticleIdxInCell(const VecX<N, IndexType>& cellIdx) const { return m_ParticleIdxInCell(cellIdx); }
 protected:
     VecX<N, RealType> m_BMin         = VecX<N, RealType>(-1.0);
     VecX<N, RealType> m_BMax         = VecX<N, RealType>(1.0);
     VecX<N, UInt>     m_NCells       = VecX<N, UInt>(0);
     VecX<N, UInt>     m_NNodes       = VecX<N, UInt>(0);
-    UInt              m_NTotalCells  = 1;
-    UInt              m_NTotalNodes  = 1;
+    UInt              m_NTotalCells  = 1u;
+    UInt              m_NTotalNodes  = 1u;
     RealType          m_CellSize     = RealType(1);
     RealType          m_InvCellSize  = RealType(1);
     RealType          m_HalfCellSize = RealType(0.5);

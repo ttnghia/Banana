@@ -68,7 +68,7 @@ public:
 
     /// Compute a pseudo-random integer
     /// Output value in range [0, 32767]
-    __BNN_INLINE Int rand()
+    Int rand()
     {
         m_Lock.lock();
         s_Seed = (214013u * s_Seed + 2531011u);
