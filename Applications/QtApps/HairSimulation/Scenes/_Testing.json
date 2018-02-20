@@ -39,7 +39,7 @@
         "GravityType" : "Directional",
         "GravityDirection" : [-1, -1]
     },
-    "ParticleGenerators":
+    "ParticleGeneratorsXXX":
     [
         {
             "GeometryType" : "Box",
@@ -50,7 +50,7 @@
             "InitialVelocity" : [0, 0]
         }
     ],
-    "ParticleGeneratorsBackup":
+    "ParticleGenerators":
     [
         {
             "GeometryType" : "Box",

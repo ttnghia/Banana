@@ -77,6 +77,7 @@ struct HairMPM_2DData
         Vec_Mat2x2r localDirections;
         Vec_Int8    particleType;
         Vec_Vec2r   predictPositions;
+        Vec_Mat2x2r predictPositionGradients;
 
         void reserve(UInt nParticles);
         void resize(UInt nParticles);
@@ -87,7 +88,7 @@ struct HairMPM_2DData
     ////////////////////////////////////////////////////////////////////////////////
     struct GridData : public GridSimulationData2D
     {
-        Array2<Vec2r> predictPositions;
+        Array2<Vec2r> predictNodePositions;
         ////////////////////////////////////////////////////////////////////////////////
         virtual void resize(const Vec2<UInt>& gridSize);
         void         resetGrid();
@@ -150,7 +151,7 @@ protected:
     //virtual void implicitIntegration(Real timestep);
     virtual void mapGridVelocities2ParticlesAPIC(Real timestep);
     virtual void predictGridNodePositions(Real timestep);
-    virtual void predictParticlePositionGradients(Real timestep);
+    virtual void predictParticlePositions();
     virtual void updateParticleStates(Real timestep);
 
     void computeLagrangianForces();

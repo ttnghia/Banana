@@ -36,6 +36,7 @@ void HairMPM_2DData::ParticleData::reserve(UInt nParticles)
     localDirections.reserve(nParticles);
     particleType.reserve(nParticles);
     predictPositions.reserve(nParticles);
+    predictPositionGradients.reserve(nParticles);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -44,6 +45,7 @@ void HairMPM_2DData::ParticleData::resize(UInt nParticles)
     localDirections.resize(nParticles, Mat2x2r(1.0_f));
     particleType.resize(nParticles, static_cast<Int8>(HairParticleType::UnknownType));
     predictPositions.resize(nParticles, Vec2r(0));
+    predictPositionGradients.resize(nParticles, Mat2x2r(0));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -52,6 +54,7 @@ UInt HairMPM_2DData::ParticleData::removeParticles(const Vec_Int8& removeMarker)
     STLHelpers::eraseByMarker(localDirections, removeMarker);
     STLHelpers::eraseByMarker(particleType,    removeMarker);
     predictPositions.resize(localDirections.size(), Vec2r(0));
+    predictPositionGradients.resize(localDirections.size(), Mat2x2r(0));
     return static_cast<UInt>(removeMarker.size() - localDirections.size());
 }
 
@@ -59,13 +62,13 @@ UInt HairMPM_2DData::ParticleData::removeParticles(const Vec_Int8& removeMarker)
 void HairMPM_2DData::GridData::resize(const Vec2ui& nCells)
 {
     auto nNodes = Vec2ui(nCells[0] + 1u, nCells[1] + 1u);
-    predictPositions.resize(nNodes);
+    predictNodePositions.resize(nNodes);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void HairMPM_2DData::GridData::resetGrid()
 {
-    predictPositions.assign(Vec2r(0));
+    predictNodePositions.assign(Vec2r(0));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -73,7 +76,6 @@ void HairMPM_2DData::makeReady(const MPM_2DParameters& params,  MPM_2DData& mpmD
 {
     particleData.reserve(params.maxNParticles);
     particleData.resize(mpmData.particleData.getNParticles());
-
     gridData.resize(mpmData.grid.getNCells());
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -201,7 +203,6 @@ void HairMPM_2DData::computeLocalDirections(MPM_2DData& mpmData)
 void HairMPM_2DSolver::makeReady()
 {
     MPM_2DSolver::makeReady();
-    __BNN_TODO
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -249,6 +250,7 @@ void HairMPM_2DSolver::generateParticles(const JParams& jParams)
 
     ////////////////////////////////////////////////////////////////////////////////
     aniData().makeReady(solverParams(), solverData());
+    logger().printLog(String("Allocate memory for anisotropic data"));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -613,13 +615,13 @@ void HairMPM_2DSolver::predictGridNodePositions(Real timestep)
                             [&](UInt i, UInt j)
                             {
                                 if(gridData().active(i, j)) {
-                                    aniGridData().predictPositions(i, j) = grid().getWorldCoordinate(i, j) + timestep * gridData().velocity_new(i, j);
+                                    aniGridData().predictNodePositions(i, j) = grid().getWorldCoordinate(i, j) + timestep * gridData().velocity_new(i, j);
                                 }
                             });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void HairMPM_2DSolver::predictParticlePositionGradients(Real timestep)
+void HairMPM_2DSolver::predictParticlePositions()
 {
     Scheduler::parallel_for(particleData().getNParticles(),
                             [&](UInt p)
@@ -627,6 +629,7 @@ void HairMPM_2DSolver::predictParticlePositionGradients(Real timestep)
                                 const auto lcorner = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
                                 const auto& pPos   = particleData().positions[p];
                                 Vec2r ppos(0);
+                                Mat2x2r pposGrad(0);
                                 for(Int idx = 0, y = lcorner.y - 1, y_end = y + 4; y < y_end; ++y) {
                                     for(Int x = lcorner.x - 1, x_end = x + 4; x < x_end; ++x, ++idx) {
                                         if(!grid().isValidNode(x, y)) {
@@ -635,12 +638,17 @@ void HairMPM_2DSolver::predictParticlePositionGradients(Real timestep)
 
                                         auto w = particleData().weights[p * 16 + idx];
                                         if(w > Tiny) {
-                                            auto dw = particleData().weightGradients[p * 16 + idx];
-                                            ppos += aniGridData().predictPositions(x, y) * dw;
+                                            auto dw      = particleData().weightGradients[p * 16 + idx];
+                                            auto gridPos = aniGridData().predictNodePositions(x, y);
+                                            ppos     += gridPos * w;
+                                            pposGrad += glm::outerProduct(gridPos, dw);
                                         }
                                     }
                                 }
                                 aniParticleData().predictPositions[p] = ppos;
+                                if(aniParticleData().particleType[p] == static_cast<Int8>(HairParticleType::Vertex)) {} else {
+                                    aniParticleData().predictPositionGradients[p] = pposGrad;
+                                }
                             });
 }
 
@@ -648,26 +656,29 @@ void HairMPM_2DSolver::predictParticlePositionGradients(Real timestep)
 void HairMPM_2DSolver::updateParticleStates(Real timestep)
 {
     predictGridNodePositions(timestep);
-
+    predictParticlePositions();
+    ////////////////////////////////////////////////////////////////////////////////
+    auto& neighborIdx      = particleData().neighborIdx;
+    auto& predictPositions = aniParticleData().predictPositions;
     Scheduler::parallel_for(particleData().getNParticles(),
                             [&](UInt p)
                             {
                                 if(aniParticleData().particleType[p] != static_cast<Int8>(HairParticleType::Vertex)) {
-                                    auto deformGrad   = particleData().deformGrad[p];
-                                    size_t nNeighbors = particleData().neighborIdx[p].size();
-                                    deformGrad[0] = nNeighbors == 1 ? (particleData().positions[p] -
-                                                                       particleData().positions[particleData().neighborIdx[p][0]]) :
-                                                    (particleData().positions[particleData().neighborIdx[p][1]] -
-                                                                       particleData().positions[particleData().neighborIdx[p][0]]);
+                                    size_t nNeighbors  = neighborIdx[p].size();
+                                    Mat2x2r deformGrad = particleData().deformGrad[p];
+                                    deformGrad[0] = nNeighbors == 1 ?
+                                                    (predictPositions[p] - predictPositions[neighborIdx[p][0]]) :
+                                                    (predictPositions[neighborIdx[p][1]] - predictPositions[neighborIdx[p][0]]);
 
 
-                                    auto velGrad = particleData().velocityGrad[p];
-                                    velGrad *= timestep;
-                                    LinaHelpers::sumToDiag(velGrad, 1.0_f);
-                                    deformGrad[1] = velGrad * deformGrad[1];
-
-
-                                    particleData().deformGrad[p] = deformGrad * glm::inverse(aniParticleData().localDirections[p]);
+                                    if(p < 30) {
+                                        printf("deformgrad1: %s, update: %s\n",
+                                               NumberHelpers::toString(deformGrad[1],                                                 10).c_str(),
+                                               NumberHelpers::toString(aniParticleData().predictPositionGradients[p] * deformGrad[1], 10).c_str());
+                                        fflush(stdout);
+                                    }
+                                    deformGrad[1]                = aniParticleData().predictPositionGradients[p] * deformGrad[1];
+                                    particleData().deformGrad[p] = deformGrad;
                                 }
                             });
 }
