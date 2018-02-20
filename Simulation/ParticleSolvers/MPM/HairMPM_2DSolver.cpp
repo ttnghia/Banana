@@ -35,6 +35,7 @@ void HairMPM_2DData::ParticleData::reserve(UInt nParticles)
 {
     localDirections.reserve(nParticles);
     particleType.reserve(nParticles);
+    predictPositions.reserve(nParticles);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -42,6 +43,7 @@ void HairMPM_2DData::ParticleData::resize(UInt nParticles)
 {
     localDirections.resize(nParticles, Mat2x2r(1.0_f));
     particleType.resize(nParticles, static_cast<Int8>(HairParticleType::UnknownType));
+    predictPositions.resize(nParticles, Vec2r(0));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -49,6 +51,7 @@ UInt HairMPM_2DData::ParticleData::removeParticles(const Vec_Int8& removeMarker)
 {
     STLHelpers::eraseByMarker(localDirections, removeMarker);
     STLHelpers::eraseByMarker(particleType,    removeMarker);
+    predictPositions.resize(localDirections.size(), Vec2r(0));
     return static_cast<UInt>(removeMarker.size() - localDirections.size());
 }
 
@@ -56,13 +59,13 @@ UInt HairMPM_2DData::ParticleData::removeParticles(const Vec_Int8& removeMarker)
 void HairMPM_2DData::GridData::resize(const Vec2ui& nCells)
 {
     auto nNodes = Vec2ui(nCells[0] + 1u, nCells[1] + 1u);
-    ////////////////////////////////////////////////////////////////////////////////
+    predictPositions.resize(nNodes);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void HairMPM_2DData::GridData::resetGrid()
 {
-    __BNN_TODO
+    predictPositions.assign(Vec2r(0));
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -76,6 +79,7 @@ void HairMPM_2DData::makeReady(const MPM_2DParameters& params,  MPM_2DData& mpmD
     ////////////////////////////////////////////////////////////////////////////////
     classifyParticles(params, mpmData);
     find_d0(params, mpmData);
+    computeLocalDirections(mpmData);
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -109,69 +113,84 @@ void HairMPM_2DData::classifyParticles(const MPM_2DParameters& params,  MPM_2DDa
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void HairMPM_2DData::find_d0(const MPM_2DParameters& params,  MPM_2DData& mpmData)
+void HairMPM_2DData::find_d0(const MPM_2DParameters& params, MPM_2DData& mpmData)
 {
     auto& positions    = mpmData.particleData.positions;
-    auto& particleType = particleData.particleType;
     auto& d0           = mpmData.particleData.neighbor_d0;
     auto& neighborIdx  = mpmData.particleData.neighborIdx;
+    auto& particleType = particleData.particleType;
 
     d0.resize(positions.size());
     neighborIdx.resize(positions.size());
 
-    for(size_t i = 0; i < positions.size(); ++i) {
-        for(size_t j = 0; j < positions.size(); ++j) {
-            if(i == j ||
-               glm::length2(positions[i] - positions[j]) > 25.0_f * params.particleRadiusSqr ||
-               abs(positions[i].y - positions[j].y) > params.particleRadius * 0.5_f) {
-                continue;
-            }
+    Scheduler::parallel_for(positions.size(),
+                            [&](size_t p)
+                            {
+                                for(size_t i = 0; i < positions.size(); ++i) {
+                                    if(p == i ||
+                                       glm::length2(positions[p] - positions[i]) > 25.0_f * params.particleRadiusSqr ||
+                                       abs(positions[p].y - positions[i].y) > params.particleRadius * 0.5_f) {
+                                        continue;
+                                    }
 
-            if(particleType[i] == static_cast<Int8>(HairParticleType::Vertex) &&
-               particleType[j] == static_cast<Int8>(HairParticleType::Vertex)) {
-                neighborIdx[i].push_back(static_cast<UInt>(j));
-                d0[i].push_back(glm::length(positions[i] - positions[j]));
+                                    if(particleType[p] == static_cast<Int8>(HairParticleType::Vertex) &&
+                                       particleType[i] == static_cast<Int8>(HairParticleType::Vertex)) {
+                                        neighborIdx[p].push_back(static_cast<UInt>(i));
+                                        d0[p].push_back(glm::length(positions[p] - positions[i]));
 
-                if(i < 30) {
-                    printf("%u: j = %u, d0=%f\n", i, neighborIdx[i].back(), d0[i].back());
-                    fflush(stdout);
-                }
-            }
+                                        if(p < 30) {
+                                            printf("%u: j = %u, d0=%f\n", p, neighborIdx[p].back(), d0[p].back());
+                                            fflush(stdout);
+                                        }
+                                    }
 
-            if(particleType[i] != particleType[j] &&
-               particleType[i] != static_cast<Int8>(HairParticleType::Vertex) &&
-               glm::length2(positions[i] - positions[j]) < 9.0_f * params.particleRadiusSqr) {
-                neighborIdx[i].push_back(static_cast<UInt>(j));
-                d0[i].push_back(glm::length(positions[i] - positions[j]));
-            }
-        }
-    }
-
-
-    for(size_t i = 0; i < positions.size(); ++i) {
-        if(particleData.particleType[i] != static_cast<Int8>(HairParticleType::Vertex)) {
-            size_t nNeighbors = neighborIdx[i].size();
-            if(nNeighbors > 1) {
-                Vec2r ppos(0);
-                for(size_t j = 0; j < nNeighbors; ++j) {
-                    UInt q = neighborIdx[i][j];
-                    ppos += positions[q];
-                }
-
-                positions[i] = ppos / static_cast<Real>(nNeighbors);
-            }
-
-            if(nNeighbors == 1) {
-                particleData.localDirections[i][0] = positions[i] - positions[neighborIdx[i][0]];
-            } else {
-                particleData.localDirections[i][0] = positions[neighborIdx[i][1]] - positions[neighborIdx[i][0]];
-            }
-        }
-    }
-
+                                    if(particleType[p] != particleType[i] &&
+                                       particleType[p] != static_cast<Int8>(HairParticleType::Vertex) &&
+                                       glm::length2(positions[p] - positions[i]) < 9.0_f * params.particleRadiusSqr) {
+                                        neighborIdx[p].push_back(static_cast<UInt>(i));
+                                        d0[p].push_back(glm::length(positions[p] - positions[i]));
+                                    }
+                                }
+                            });
 
 
     printf("find d0\n");
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void HairMPM_2DData::computeLocalDirections(MPM_2DData& mpmData)
+{
+    auto& positions       = mpmData.particleData.positions;
+    auto& neighborIdx     = mpmData.particleData.neighborIdx;
+    auto& particleType    = particleData.particleType;
+    auto& localDirections = particleData.localDirections;
+
+    Scheduler::parallel_for(positions.size(),
+                            [&](size_t p)
+                            {
+                                if(particleType[p] != static_cast<Int8>(HairParticleType::Vertex)) {
+                                    size_t nNeighbors = neighborIdx[p].size();
+                                    if(nNeighbors > 1) {
+                                        Vec2r ppos(0);
+                                        for(size_t j = 0; j < nNeighbors; ++j) {
+                                            UInt q = neighborIdx[p][j];
+                                            ppos += positions[q];
+                                        }
+
+                                        positions[p] = ppos / static_cast<Real>(nNeighbors);
+                                    }
+
+                                    Mat2x2r directions;
+                                    if(nNeighbors == 1) {
+                                        directions[0] = positions[p] - positions[neighborIdx[p][0]];
+                                    } else {
+                                        directions[0] = positions[neighborIdx[p][1]] - positions[neighborIdx[p][0]];
+                                    }
+
+                                    directions[1]      = glm::normalize(Vec2r(directions[0].y, -directions[0].x));
+                                    localDirections[p] = directions;
+                                }
+                            });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -370,7 +389,7 @@ void HairMPM_2DSolver::advanceVelocity(Real timestep)
     m_Logger->printRunTimeIndent("Constrain grid velocity: ",          [&]() { gridCollision(timestep); });
     m_Logger->printRunTimeIndent("Map grid velocities to particles: ", [&]() { mapGridVelocities2Particles(timestep); });
     m_Logger->printRunTimeIndent("Update particle states: ",           [&]() { updateParticleStates(timestep); });
-    //m_Logger->printRunTimeIndent("Diffuse velocity: ",                 [&]() { diffuseVelocity(); });
+    m_Logger->printRunTimeIndent("Diffuse velocity: ",                 [&]() { computeDamping(); });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -534,60 +553,6 @@ void HairMPM_2DSolver::computeLagrangianForces()
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void HairMPM_2DSolver::diffuseVelocity()
-{
-    Vec_Vec2r diffuseVelocity;
-    diffuseVelocity.resize(particleData().positions.size());
-
-    Scheduler::parallel_for(particleData().getNParticles(),
-                            [&](UInt p)
-                            {
-                                const auto& pvel   = particleData().velocities[p];
-                                Vec2r diffVelFluid = Vec2r(0);
-                                ////////////////////////////////////////////////////////////////////////////////
-                                for(size_t j = 0; j < particleData().neighborIdx[p].size(); ++j) {
-                                    UInt q           = particleData().neighborIdx[p][j];
-                                    const auto& qvel = particleData().velocities[q];
-
-                                    diffVelFluid += qvel - pvel;
-                                }
-
-
-                                ////////////////////////////////////////////////////////////////////////////////
-                                diffuseVelocity[p] = diffVelFluid * 1e0_f * solverParams().particleMass;
-                            });
-
-
-    Scheduler::parallel_for(particleData().velocities.size(), [&](size_t p) { particleData().velocities[p] += diffuseVelocity[p]; });
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void HairMPM_2DSolver::updateParticleStates(Real timestep)
-{
-    Scheduler::parallel_for(particleData().getNParticles(),
-                            [&](UInt p)
-                            {
-                                if(aniParticleData().particleType[p] != static_cast<Int8>(HairParticleType::Vertex)) {
-                                    auto deformGrad   = particleData().deformGrad[p];
-                                    size_t nNeighbors = particleData().neighborIdx[p].size();
-                                    deformGrad[0] = nNeighbors == 1 ? (particleData().positions[p] -
-                                                                       particleData().positions[particleData().neighborIdx[p][0]]) :
-                                                    (particleData().positions[particleData().neighborIdx[p][1]] -
-                                                                       particleData().positions[particleData().neighborIdx[p][0]]);
-
-
-                                    auto velGrad = particleData().velocityGrad[p];
-                                    velGrad *= timestep;
-                                    LinaHelpers::sumToDiag(velGrad, 1.0_f);
-                                    deformGrad[1] = velGrad * deformGrad[1];
-
-
-                                    particleData().deformGrad[p] = deformGrad * glm::inverse(aniParticleData().localDirections[p]);
-                                }
-                            });
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void HairMPM_2DSolver::mapGridVelocities2ParticlesAPIC(Real timestep)
 {
     Scheduler::parallel_for(particleData().getNParticles(),
@@ -639,6 +604,120 @@ void HairMPM_2DSolver::mapGridVelocities2ParticlesAPIC(Real timestep)
 
                                 particleData().velocities[p] = pvel / static_cast<Real>(nNeighbors);
                             });
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void HairMPM_2DSolver::predictGridNodePositions(Real timestep)
+{
+    Scheduler::parallel_for(grid().getNNodes(),
+                            [&](UInt i, UInt j)
+                            {
+                                if(gridData().active(i, j)) {
+                                    aniGridData().predictPositions(i, j) = grid().getWorldCoordinate(i, j) + timestep * gridData().velocity_new(i, j);
+                                }
+                            });
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void HairMPM_2DSolver::predictParticlePositionGradients(Real timestep)
+{
+    Scheduler::parallel_for(particleData().getNParticles(),
+                            [&](UInt p)
+                            {
+                                const auto lcorner = NumberHelpers::convert<Int>(particleData().gridCoordinate[p]);
+                                const auto& pPos   = particleData().positions[p];
+                                Vec2r ppos(0);
+                                for(Int idx = 0, y = lcorner.y - 1, y_end = y + 4; y < y_end; ++y) {
+                                    for(Int x = lcorner.x - 1, x_end = x + 4; x < x_end; ++x, ++idx) {
+                                        if(!grid().isValidNode(x, y)) {
+                                            continue;
+                                        }
+
+                                        auto w = particleData().weights[p * 16 + idx];
+                                        if(w > Tiny) {
+                                            auto dw = particleData().weightGradients[p * 16 + idx];
+                                            ppos += aniGridData().predictPositions(x, y) * dw;
+                                        }
+                                    }
+                                }
+                                aniParticleData().predictPositions[p] = ppos;
+                            });
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void HairMPM_2DSolver::updateParticleStates(Real timestep)
+{
+    predictGridNodePositions(timestep);
+
+    Scheduler::parallel_for(particleData().getNParticles(),
+                            [&](UInt p)
+                            {
+                                if(aniParticleData().particleType[p] != static_cast<Int8>(HairParticleType::Vertex)) {
+                                    auto deformGrad   = particleData().deformGrad[p];
+                                    size_t nNeighbors = particleData().neighborIdx[p].size();
+                                    deformGrad[0] = nNeighbors == 1 ? (particleData().positions[p] -
+                                                                       particleData().positions[particleData().neighborIdx[p][0]]) :
+                                                    (particleData().positions[particleData().neighborIdx[p][1]] -
+                                                                       particleData().positions[particleData().neighborIdx[p][0]]);
+
+
+                                    auto velGrad = particleData().velocityGrad[p];
+                                    velGrad *= timestep;
+                                    LinaHelpers::sumToDiag(velGrad, 1.0_f);
+                                    deformGrad[1] = velGrad * deformGrad[1];
+
+
+                                    particleData().deformGrad[p] = deformGrad * glm::inverse(aniParticleData().localDirections[p]);
+                                }
+                            });
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void HairMPM_2DSolver::computeDamping()
+{
+#if 1
+    Vec_Vec2r diffuseVelocity;
+    diffuseVelocity.resize(particleData().positions.size());
+
+    Scheduler::parallel_for(particleData().getNParticles(),
+                            [&](UInt p)
+                            {
+                                const auto& pvel   = particleData().velocities[p];
+                                Vec2r diffVelFluid = Vec2r(0);
+                                ////////////////////////////////////////////////////////////////////////////////
+                                for(size_t j = 0; j < particleData().neighborIdx[p].size(); ++j) {
+                                    UInt q           = particleData().neighborIdx[p][j];
+                                    const auto& qvel = particleData().velocities[q];
+
+                                    diffVelFluid += qvel - pvel;
+                                }
+
+
+                                ////////////////////////////////////////////////////////////////////////////////
+                                diffuseVelocity[p] = diffVelFluid * 1e0_f * solverParams().particleMass;
+                            });
+
+
+    Scheduler::parallel_for(particleData().velocities.size(), [&](size_t p) { particleData().velocities[p] += diffuseVelocity[p]; });
+#else
+    Scheduler::parallel_for(particleData().getNParticles(),
+                            [&](UInt p)
+                            {
+                                const auto& pvel   = particleData().velocities[p];
+                                Vec2r diffVelFluid = Vec2r(0);
+                                ////////////////////////////////////////////////////////////////////////////////
+                                for(size_t j = 0; j < particleData().neighborIdx[p].size(); ++j) {
+                                    UInt q           = particleData().neighborIdx[p][j];
+                                    const auto& qvel = particleData().velocities[q];
+
+                                    diffVelFluid += qvel - pvel;
+                                }
+
+
+                                ////////////////////////////////////////////////////////////////////////////////
+                                diffuseVelocity[p] = diffVelFluid * 1e0_f * solverParams().particleMass;
+                            });
+#endif
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
