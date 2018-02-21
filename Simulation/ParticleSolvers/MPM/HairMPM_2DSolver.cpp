@@ -381,6 +381,7 @@ void HairMPM_2DSolver::advanceVelocity(Real timestep)
     m_Logger->printRunTimeIndent("Map particle masses to grid: ", [&]() { mapParticleMasses2Grid(); });
     m_Logger->printRunTimeIndentIf("Compute particle volumes: ", [&]() { return initParticleVolumes(); });
     m_Logger->printRunTimeIndent("Map particle velocities to grid: ", [&]() { mapParticleVelocities2Grid(timestep); });
+    m_Logger->printRunTimeIndent("Damp velocity: ",                   [&]() { computeDamping(); });
 
     if(solverParams().implicitRatio < Tiny) {
         m_Logger->printRunTimeIndent("Velocity explicit integration: ", [&]() { explicitIntegration(timestep); });
@@ -391,7 +392,7 @@ void HairMPM_2DSolver::advanceVelocity(Real timestep)
     m_Logger->printRunTimeIndent("Constrain grid velocity: ",          [&]() { gridCollision(timestep); });
     m_Logger->printRunTimeIndent("Map grid velocities to particles: ", [&]() { mapGridVelocities2Particles(timestep); });
     m_Logger->printRunTimeIndent("Update particle states: ",           [&]() { updateParticleStates(timestep); });
-    m_Logger->printRunTimeIndent("Diffuse velocity: ",                 [&]() { computeDamping(); });
+    m_Logger->printRunTimeIndent("Compute plasticity: ",               [&]() { computePlasticity(); });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -462,9 +463,6 @@ void HairMPM_2DSolver::explicitIntegration(Real timestep)
                                 assert(LinaHelpers::hasValidElements(P));
 
 
-
-                                auto M = Ftemp;
-                                auto [q, r] = LinaHelpers::QRDecomposition(M);
 
 
 
@@ -663,7 +661,7 @@ void HairMPM_2DSolver::updateParticleStates(Real timestep)
     Scheduler::parallel_for(particleData().getNParticles(),
                             [&](UInt p)
                             {
-                                if(aniParticleData().particleType[p] != static_cast<Int8>(HairParticleType::Vertex)) {
+                                if(aniParticleData().particleType[p] == static_cast<Int8>(HairParticleType::Quadrature)) {
                                     size_t nNeighbors  = neighborIdx[p].size();
                                     Mat2x2r deformGrad = particleData().deformGrad[p];
                                     deformGrad[0] = nNeighbors == 1 ?
@@ -729,6 +727,56 @@ void HairMPM_2DSolver::computeDamping()
                                 diffuseVelocity[p] = diffVelFluid * 1e0_f * solverParams().particleMass;
                             });
 #endif
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void HairMPM_2DSolver::computePlasticity()
+{
+    Scheduler::parallel_for(particleData().getNParticles(),
+                            [&](UInt p)
+                            {
+                                if(aniParticleData().particleType[p] == static_cast<Int8>(HairParticleType::Quadrature)) {
+                                    const auto& deformGrad = particleData().deformGrad[p];
+                                    const auto& directions = aniParticleData().localDirections[p];
+                                    auto[Q, R] = LinaHelpers::QRDecomposition(deformGrad * directions);
+
+                                    Mat2x2r stretch = particleData().CauchyStress[p];
+                                    Mat2x2r sQ;
+                                    for(Int i = 0; i < 2; ++i) {
+                                        for(Int j = 0; j < 2; ++j) {
+                                            sQ[i][j] = glm::dot(Q[i], stretch * Q[j]);
+                                        }
+                                    }
+                                    auto J2 = MathHelpers::sqr(sQ[2][2] - sQ[3][3]) + 4_f * sQ[3][2];
+                                    auto R3 = R;
+                                    R3[0][0] = 1_f;
+                                    R3[0][1] = 0_f;
+
+                                    auto[U, S, Vt] = LinaHelpers::orientedSVD(R3);
+                                    auto lnS = S;
+                                    for(Int i = 0; i < 2; ++i) {
+                                        assert(S[i] > 0);
+                                        lnS[i] = log(S[i]);
+                                    }
+
+
+                                    if(lnS[0] + lnS[1] >= 0) {
+                                        lnS[0] = lnS[1] = 0;
+                                    } else if(sqrt(J2) + aniParams().normalFriction * 0.5_f * sQ[1][1] * sQ[2][2] > 0) {
+                                        auto nu = 0.5_f * (lnS[1] - lnS[0]) +
+                                                  0.25_f * aniParams().normalFriction * solverParams().lambda / solverParams().mu * (lnS[1] + lnS[0]);
+                                        lnS[0] -= nu;
+                                        lnS[1] += nu;
+                                    }
+
+                                    //if(sqrt(J2) + aniParams().normalFriction * 0.5_f * sQ[1][1] * sQ[2][2] > 0) {}
+                                    for(Int i = 0; i < 2; ++i) {
+                                        S[i] = exp(lnS[i]);
+                                    }
+                                    R                            = U * LinaHelpers::diagMatrix(S) * Vt;
+                                    particleData().deformGrad[p] = Q * R * glm::inverse(directions);
+                                }
+                            });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
