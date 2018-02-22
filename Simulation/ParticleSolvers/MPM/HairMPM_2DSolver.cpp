@@ -752,7 +752,7 @@ void HairMPM_2DSolver::computePlasticity()
                                     R3[0][0] = 1_f;
                                     R3[0][1] = 0_f;
 
-                                    auto[U, S, Vt] = LinaHelpers::orientedSVD(R3);
+                                    auto [U, S, Vt] = LinaHelpers::orientedSVD(R3);
                                     auto lnS = S;
                                     for(Int i = 0; i < 2; ++i) {
                                         assert(S[i] > 0);
@@ -773,7 +773,8 @@ void HairMPM_2DSolver::computePlasticity()
                                     for(Int i = 0; i < 2; ++i) {
                                         S[i] = exp(lnS[i]);
                                     }
-                                    R                            = U * LinaHelpers::diagMatrix(S) * Vt;
+                                    R = U * LinaHelpers::diagMatrix(S) * Vt;
+                                    ////////////////////////////////////////////////////////////////////////////////
                                     particleData().deformGrad[p] = Q * R * glm::inverse(directions);
                                 }
                             });

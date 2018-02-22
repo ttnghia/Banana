@@ -169,7 +169,7 @@ void PIC_3DSolver::advanceFrame()
                                       logger().printRunTimeIf("Advance scene: ", [&]() { return advanceScene(); });
                                   }
                                   ////////////////////////////////////////////////////////////////////////////////
-                                  substep = timestepCFL();
+                                  logger().printRunTime("CFL timestep: ", [&]() { substep = timestepCFL(); });
                                   auto remainingTime = frameDuration - frameTime;
                                   if(frameTime + substep >= frameDuration) {
                                       substep = remainingTime;
