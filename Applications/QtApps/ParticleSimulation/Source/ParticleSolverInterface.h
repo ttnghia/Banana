@@ -153,7 +153,7 @@ inline UInt ParticleSolverInterface::getNObjects() const
 {
     return m_Solver2D != nullptr ?
            m_Solver2D->generalParticleData().nObjects :
-           m_Solver2D->generalParticleData().nObjects;
+           m_Solver3D->generalParticleData().nObjects;
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
