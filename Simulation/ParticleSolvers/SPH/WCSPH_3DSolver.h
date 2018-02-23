@@ -85,13 +85,14 @@ struct WCSPH_3DData : public SimulationData3D
 {
     struct ParticleData : public ParticleSimulationData3D
     {
-        Vec_Real    densities;
-        Vec_Real    tmp_densities;
-        Vec_Vec3r   forces;
-        Vec_Vec3r   diffuseVelocity;
-        Vec_Vec3f   aniKernelCenters;
-        Vec_Mat3x3f aniKernelMatrices;
-        Vec_Vec3r   BDParticles;
+        Vec_Real     densities;
+        Vec_Real     tmp_densities;
+        Vec_VecVec4r neighborInfo;         // store relative position and density of neighbors, including boundary particles
+        Vec_Vec3r    forces;
+        Vec_Vec3r    diffuseVelocity;
+        Vec_Vec3f    aniKernelCenters;
+        Vec_Mat3x3f  aniKernelMatrices;
+        Vec_Vec3r    BDParticles;
         ////////////////////////////////////////////////////////////////////////////////
         virtual void reserve(UInt nParticles);
         virtual void addParticles(const Vec_Vec3r& newPositions, const Vec_Vec3r& newVelocities);
@@ -163,6 +164,8 @@ protected:
     bool correctParticlePositions(Real timestep);
     void computeDensity();
     bool normalizeDensity();
+    void collectNeighborRelativePositions();
+    void collectNeighborDensities();
     void computeForces();
     void updateVelocity(Real timestep);
     void computeViscosity();
