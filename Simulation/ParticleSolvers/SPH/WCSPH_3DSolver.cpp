@@ -22,7 +22,6 @@
 #include <ParticleSolvers/SPH/WCSPH_3DSolver.h>
 #include <SurfaceReconstruction/AniKernelGenerator.h>
 
-//#define NO_TEST
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana::ParticleSolvers
 {
@@ -184,6 +183,7 @@ void WCSPH_3DSolver::advanceFrame()
                                   ////////////////////////////////////////////////////////////////////////////////
                                   logger().printRunTime("Move particles: ", [&]() { moveParticles(substep); });
                                   logger().printRunTime("Find neighbors: ", [&]() { m_NSearch->find_neighbors(); });
+                                  logger().printRunTime("Compute neighbor relative positions: ",   [&]() { computeNeighborRelativePositions(); });
                                   logger().printRunTimeIf("Correct particle positions: ", [&]() { return correctParticlePositions(substep); });
                                   logger().printRunTime("}=> Advance velocity: ", [&]() { advanceVelocity(substep); });
                                   ////////////////////////////////////////////////////////////////////////////////
@@ -515,8 +515,8 @@ void WCSPH_3DSolver::moveParticles(Real timestep)
     Scheduler::parallel_for(particleData().getNParticles(),
                             [&](UInt p)
                             {
-                                auto ppos       = particleData().positions[p];
-                                const auto pvel = particleData().velocities[p];
+                                auto ppos        = particleData().positions[p];
+                                const auto& pvel = particleData().velocities[p];
                                 for(UInt i = 0; i < solverParams().advectionSteps; ++i) {
                                     ppos += pvel * substep;
                                     for(auto& obj : m_BoundaryObjects) {
@@ -524,6 +524,39 @@ void WCSPH_3DSolver::moveParticles(Real timestep)
                                     }
                                 }
                                 particleData().positions[p] = ppos;
+                            });
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+void WCSPH_3DSolver::computeNeighborRelativePositions()
+{
+    auto computeRelativePositions = [&](const auto& ppos, const auto& neighborList, auto& pNeighborInfo)
+                                    {
+                                        for(UInt q : neighborList) {
+                                            const auto& qpos = particleData().positions[q];
+                                            const auto  r    = qpos - ppos;
+                                            pNeighborInfo.emplace_back(Vec4r(r, solverParams().restDensity));
+                                        }
+                                    };
+    ////////////////////////////////////////////////////////////////////////////////
+    const auto& fluidPointSet = m_NSearch->point_set(0);
+    Scheduler::parallel_for(particleData().getNParticles(),
+                            [&](UInt p)
+                            {
+                                const auto& fluidNeighborList = fluidPointSet.neighbors(0, p);
+                                if(fluidNeighborList.size() == 0) {
+                                    return;
+                                }
+                                ////////////////////////////////////////////////////////////////////////////////
+                                const auto& ppos    = particleData().positions[p];
+                                auto& pNeighborInfo = particleData().neighborInfo[p];
+                                pNeighborInfo.resize(0);
+                                pNeighborInfo.reserve(64);
+                                computeRelativePositions(ppos, fluidNeighborList, pNeighborInfo);
+                                if(solverParams().bDensityByBDParticle) {
+                                    const auto& PDNeighborList = fluidPointSet.neighbors(1, p);
+                                    computeRelativePositions(ppos, PDNeighborList, pNeighborInfo);
+                                }
                             });
 }
 
@@ -580,9 +613,6 @@ bool WCSPH_3DSolver::correctParticlePositions(Real timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void WCSPH_3DSolver::advanceVelocity(Real timestep)
 {
-#ifndef NO_TEST
-    logger().printRunTimeIndent("Collect neighbor relative positions: ",   [&]() { collectNeighborRelativePositions(); });
-#endif
     logger().printRunTime("{   Compute density: ",       [&]() { computeDensity(); });
     logger().printRunTimeIndentIf("Normalize density: ", [&]() { return normalizeDensity(); });
 #ifndef NO_TEST
@@ -591,37 +621,6 @@ void WCSPH_3DSolver::advanceVelocity(Real timestep)
     logger().printRunTimeIndent("Compute forces: ",      [&]() { computeForces(); });
     logger().printRunTimeIndent("Update velocity: ",     [&]() { updateVelocity(timestep); });
     logger().printRunTimeIndent("Compute viscosity: ",   [&]() { computeViscosity(); });
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void WCSPH_3DSolver::collectNeighborRelativePositions()
-{
-    const auto& fluidPointSet = m_NSearch->point_set(0);
-    Scheduler::parallel_for(particleData().getNParticles(),
-                            [&](UInt p)
-                            {
-                                if(fluidPointSet.neighbors(0, p).size() == 0) {
-                                    return;
-                                }
-                                ////////////////////////////////////////////////////////////////////////////////
-                                auto& ppos          = particleData().positions[p];
-                                auto& pNeighborInfo = particleData().neighborInfo[p];
-                                pNeighborInfo.resize(0);
-                                pNeighborInfo.reserve(64);
-                                for(UInt q : fluidPointSet.neighbors(0, p)) {
-                                    auto& qpos = particleData().positions[q];
-                                    auto r     = qpos - ppos;
-                                    pNeighborInfo.emplace_back(Vec4r(r, 0));
-                                }
-                                ////////////////////////////////////////////////////////////////////////////////
-                                if(solverParams().bDensityByBDParticle) {
-                                    for(UInt q : fluidPointSet.neighbors(1, p)) {
-                                        auto& qpos = particleData().BDParticles[q];
-                                        auto r     = qpos - ppos;
-                                        pNeighborInfo.emplace_back(Vec4r(r, solverParams().restDensity));
-                                    }
-                                }
-                            });
 }
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
