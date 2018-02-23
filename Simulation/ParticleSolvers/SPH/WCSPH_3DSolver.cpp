@@ -566,35 +566,34 @@ bool WCSPH_3DSolver::correctParticlePositions(Real timestep)
     if(!solverParams().bCorrectPosition) {
         return false;
     }
-    const auto  radius        = 2.0_f * solverParams().particleRadius / Real(sqrt(solverDimension()));
-    const auto  threshold     = 0.01_f * radius;
-    const auto  threshold2    = threshold * threshold;
-    const auto& fluidPointSet = m_NSearch->point_set(0);
-    const auto  substep       = timestep / Real(solverParams().advectionSteps);
-    const auto  K_Spring      = radius * substep * solverParams().repulsiveForceStiffness;
+    const auto radius     = 2.0_f * solverParams().particleRadius / Real(sqrt(solverDimension()));
+    const auto radius2    = radius * radius;
+    const auto threshold  = 0.01_f * radius;
+    const auto threshold2 = threshold * threshold;
+    const auto substep    = timestep / Real(solverParams().advectionSteps);
+    const auto K_Spring   = radius * substep * solverParams().repulsiveForceStiffness;
     ////////////////////////////////////////////////////////////////////////////////
     particleData().tmp_positions.resize(particleData().positions.size());
     Scheduler::parallel_for(particleData().getNParticles(),
                             [&](UInt p)
                             {
-                                const auto& ppos = particleData().positions[p];
-                                Vec3r spring(0);
-
-                                for(UInt q : fluidPointSet.neighbors(0, p)) {
-                                    const auto& qpos = particleData().positions[q];
-                                    const auto xpq   = qpos - ppos;
-                                    const auto d2    = glm::length2(xpq);
-                                    const auto w     = MathHelpers::smooth_kernel(d2, radius);
-
-                                    if(d2 > threshold2) {
-                                        spring += w * xpq / sqrt(d2);
-                                    } else {
-                                        spring += threshold / timestep * Vec3r(MathHelpers::frand11<Real>(),
-                                                                               MathHelpers::frand11<Real>(),
-                                                                               MathHelpers::frand11<Real>());
-                                    }
+                                const auto& pNeighborInfo = particleData().neighborInfo[p];
+                                if(pNeighborInfo.size() == 0) {
+                                    return;
                                 }
-                                auto newPos = ppos;
+
+                                Vec3r spring(0);
+                                for(const auto& qInfo : pNeighborInfo) {
+                                    const auto xpq = Vec3r(qInfo);
+                                    const auto d2  = glm::length2(xpq);
+                                    if(d2 > radius2) {
+                                        continue;
+                                    }
+
+                                    const auto w = MathHelpers::smooth_kernel(d2, radius);
+                                    spring += (d2 > threshold2) ? w * xpq / sqrt(d2) : threshold / timestep * MathHelpers::vrand11<Vec3r>();
+                                }
+                                auto newPos = particleData().positions[p];
                                 for(UInt i = 0; i < solverParams().advectionSteps; ++i) {
                                     newPos += spring * K_Spring;
                                     for(auto& obj : m_BoundaryObjects) {
