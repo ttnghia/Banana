@@ -455,7 +455,7 @@ void MPM_2DSolver::advanceVelocity(Real timestep)
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 Real MPM_2DSolver::timestepCFL()
 {
-    Real maxVel   = sqrt(ParallelSTL::maxNorm2(particleData().velocities));
+    Real maxVel   = ParallelSTL::maxNorm2(particleData().velocities);
     Real timestep = maxVel > Tiny ? (grid().getCellSize() / maxVel * solverParams().CFLFactor) : Huge;
     return MathHelpers::clamp(timestep, solverParams().minTimestep, solverParams().maxTimestep);
 }

@@ -134,7 +134,7 @@ struct GlobalParameters
 
         ////////////////////////////////////////////////////////////////////////////////
         // data IO parameters
-        logger.printLogIndentIf(bSaveMemoryState || bSaveFrameData || bPrintLog2File, ("Data path: *") + dataPath);
+        logger.printLogIndentIf(bSaveMemoryState || bSaveFrameData || bPrintLog2File, ("Data path: ") + dataPath);
         logger.printLogIndentIf(bSaveMemoryState,                                     ("Memory state data folder: ") + memoryStateDataFolder, 2);
         logger.printLogIndentIf(bSaveFrameData,                                       ("Frame data folder: ") + frameDataFolder,              2);
         logger.printLogIndent(String("Load saved memory state: ") + (bLoadMemoryState ? String("Yes") : String("No")));
@@ -305,9 +305,9 @@ struct SimulationParameters
         auto domainGrid = NumberHelpers::createGrid<UInt>(domainBMin, domainBMax, cellSize);
         auto movingGrid = NumberHelpers::createGrid<UInt>(movingBMin, movingBMax, cellSize);
         logger->printLogIndent(String("Domain box: ") + NumberHelpers::toString(domainBMin) + " -> " + NumberHelpers::toString(domainBMax) +
-                               String(" | Resolution: ") + NumberHelpers::toString(domainGrid));
+                               (bUseGrid ? String(" | Resolution: ") + NumberHelpers::toString(domainGrid) : String("")));
         logger->printLogIndent(String("Moving box: ") + NumberHelpers::toString(movingBMin) + " -> " + NumberHelpers::toString(movingBMax) +
-                               String(" | Resolution: ") + NumberHelpers::toString(movingGrid));
+                               (bUseGrid ? String(" | Resolution: ") + NumberHelpers::toString(movingGrid) : String("")));
         ////////////////////////////////////////////////////////////////////////////////
 
         ////////////////////////////////////////////////////////////////////////////////

@@ -261,7 +261,7 @@ Int Snow3DSolver::saveFrameData()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 Real Snow3DSolver::timestepCFL()
 {
-    Real maxVel      = sqrt(ParallelSTL::maxNorm2<3, Real>(particleData().velocities));
+    Real maxVel      = ParallelSTL::maxNorm2<3, Real>(particleData().velocities);
     Real CFLTimeStep = maxVel > Real(Tiny) ? solverParams().CFLFactor * solverParams().cellSize / sqrt(maxVel) : Huge;
     return MathHelpers::min(MathHelpers::max(CFLTimeStep, solverParams().minTimestep), solverParams().maxTimestep);
 }

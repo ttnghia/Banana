@@ -60,6 +60,7 @@ public:
     ParticleSolver() = default;
     virtual ~ParticleSolver() { Logger::shutdown(); }
 
+    void setupScene();
     void loadScene(const String& sceneFile);
     void setupLogger();
     void doSimulation();
@@ -131,6 +132,13 @@ using ParticleSolver3D = ParticleSolver<3, Real>;
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Implementation
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType>
+void ParticleSolver<N, RealType >::setupScene()
+{
+    //
+}
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
 void ParticleSolver<N, RealType >::loadScene(const String& sceneFile)
@@ -421,7 +429,7 @@ bool ParticleSolver<N, RealType >::advanceScene()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Save the frame data for dynamic objects
 template<Int N, class RealType>
-Int Banana::ParticleSolvers::ParticleSolver<N, RealType >::saveFrameData()
+Int Banana::ParticleSolvers::ParticleSolver<N, RealType>::saveFrameData()
 {
     if(m_DynamicObjects.size() == 0) {
         return -1;
@@ -447,7 +455,7 @@ Int Banana::ParticleSolvers::ParticleSolver<N, RealType >::saveFrameData()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // Save the frame data for dynamic objects
 template<Int N, class RealType>
-void Banana::ParticleSolvers::ParticleSolver<N, RealType >::logSubstepData()
+void Banana::ParticleSolvers::ParticleSolver<N, RealType>::logSubstepData()
 {
     if(globalParams().bSaveSubstepData && globalParams().savingData("SubStepSize")) {
         String dataStr = String("SystemTime: ") + NumberHelpers::formatToScientific(globalParams().evolvedTime(), 10) +

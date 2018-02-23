@@ -500,7 +500,7 @@ Int WCSPH_3DSolver::saveFrameData()
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 Real WCSPH_3DSolver::timestepCFL()
 {
-    Real maxVel      = Real(sqrt(ParallelSTL::maxNorm2(particleData().velocities)));
+    Real maxVel      = ParallelSTL::maxNorm2(particleData().velocities);
     Real CFLTimeStep = maxVel > Real(Tiny) ? solverParams().CFLFactor * (2.0_f * solverParams().particleRadius / maxVel) : Huge;
     return MathHelpers::clamp(CFLTimeStep, solverParams().minTimestep, solverParams().maxTimestep);
 }

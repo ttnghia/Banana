@@ -65,7 +65,7 @@ struct WCSPH_3DParameters : public SimulationParameters3D
     ////////////////////////////////////////////////////////////////////////////////
     // kernel data
     Real ratioKernelPRadius     = 4.0_f;
-    Real ratioNearKernelPRadius = 2.0_f;
+    Real ratioNearKernelPRadius = 1.5_f;
     Real kernelRadius;
     Real kernelRadiusSqr;
     Real nearKernelRadius;
