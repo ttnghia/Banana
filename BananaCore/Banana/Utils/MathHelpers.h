@@ -583,6 +583,16 @@ inline T frand11()
     return frand(T(-1.0), T(1.0));
 }
 
+template<class Vector>
+inline Vector vrand11()
+{
+    Vector tmp;
+    for(Int i = 0; i < tmp.length(); ++i) {
+        tmp[i] = frand(Vector::value_type(-1.0), Vector::value_type(1.0));
+    }
+    return tmp;
+}
+
 // returns repeatable stateless pseudo-random number in [0,1]
 template<class T>
 inline T frandhash(unsigned int seed)
@@ -864,14 +874,14 @@ inline T quad_bspline_grad(T f)
 template<class T>
 inline T cubic_bspline_kernel(T f)
 {
-    T x  = f > 0 ? f : -f;
+    T x = f > 0 ? f : -f;
 
     if(x >= T(2.0)) {
         return T(0);
     }
 
     if(x >= T(1.0)) {
-        return max(T(0), x * (x * (-x / T(6.0)  + T(1.0)) - T(2.0)) + T(4.0 / 3.0));
+        return max(T(0), x * (x * (-x / T(6.0) + T(1.0)) - T(2.0)) + T(4.0 / 3.0));
     }
 
     // else, x < 1.0
