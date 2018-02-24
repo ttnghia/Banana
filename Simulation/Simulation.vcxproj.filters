@@ -189,6 +189,9 @@
     <ClInclude Include="ParticleSolvers\MPM\HairMPM_2DSolver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ParticleTools\BlueNoiseRelaxation\BlueNoiseRelaxation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ParticleTools\_ParticleTools.Test.cpp">

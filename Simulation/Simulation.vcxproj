@@ -166,6 +166,7 @@
     <ClInclude Include="ParticleSolvers\SceneLoader.h" />
     <ClInclude Include="ParticleSolvers\_ParticleSolvers.Test.hpp" />
     <ClInclude Include="ParticleSolvers\ParticleSolver.h" />
+    <ClInclude Include="ParticleTools\BlueNoiseRelaxation\BlueNoiseRelaxation.h" />
     <ClInclude Include="ParticleTools\ParticleSerialization.h" />
     <ClInclude Include="ParticleTools\ParticleSerialization.Impl.hpp" />
     <ClInclude Include="ParticleTools\ParticleSerialization.Test.hpp" />

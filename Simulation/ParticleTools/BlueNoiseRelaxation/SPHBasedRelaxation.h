@@ -8,7 +8,7 @@
 //     ___________________________.""`-------`"".____________________________
 //    /                                                                      \
 //    \    This file is part of Banana - a graphics programming framework    /
-//    /                    Created: 2017 by Nghia Truong                     \
+//    /                    Created: 2018 by Nghia Truong                     \
 //    \                      <nghiatruong.vn@gmail.com>                      /
 //    /                      https://ttnghia.github.io                       \
 //    \                        All rights reserved.                          /
@@ -21,78 +21,91 @@
 
 #pragma once
 
-#include <Banana/Setup.h>
 #include <Banana/Array/Array.h>
 #include <Banana/Utils/Logger.h>
+#include <Banana/Utils/MathHelpers.h>
 #include <Banana/Grid/Grid.h>
+#include <ParticleTools/BlueNoiseRelaxation/BlueNoiseRelaxation.h>
+#include <ParticleSolvers/SPH/KernelFunctions.h>
+#include <ParticleSolvers/SPH/WCSPH_3DSolver.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace Banana
+namespace Banana::ParticleTools
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-template<class RealType>
-class SPHBasedRelaxation
+template<Int N, class RealType>
+class SPHBasedRelaxation : public BlueNoiseRelaxation<N, RealType>
 {
 public:
-    SPHBasedRelaxation(std::vector<Vec3<RealType> >& particles, RealType particleRadius, Array<3, RealType>& sdf_grid_, RealType sdf_cell_size_) {}
+    SPHBasedRelaxation(const ParticleSolvers::GlobalParameters& globalParams,
+                       const SharedPtr<ParticleSolvers::SimulationParameters<N, RealType>>& solverParams,
+                       const Vector<SharedPtr<SimulationObjects::BoundaryObject<N, RealType>>>& boundaryObjs) :
+        BlueNoiseRelaxation(globalParams, solverParams, boundaryObjs)
+    {
+        __BNN_REQUIRE(N == 3);
+    }
 
-    static void relaxPositions(const Vec_Vec3r& positions, Real particleRadius) {}
+    virtual String getName() const override { return String("SPHBasedRelaxation"); }
+
+protected:
+    virtual void iterate(Vec_VecX<N, RealType>& positions, UInt iter) override;
+    virtual void allocateMemory(Vec_VecX<N, RealType>& positions) override { particleData().allocateMemory(positions); }
+    ////////////////////////////////////////////////////////////////////////////////
+    auto&       solverParams() { static auto ptrParams = std::static_pointer_cast<ParticleSolvers::WCSPH_3DParameters>(m_SolverParams); return *ptrParams; }
+    const auto& solverParams() const { static auto ptrParams = std::static_pointer_cast<ParticleSolvers::WCSPH_3DParameters>(m_SolverParams); return *ptrParams; }
+    ////////////////////////////////////////////////////////////////////////////////
+    RealType timestepCFL();
+    void     moveParticles(RealType timestep);
+    void     computeNeighborRelativePositions();
+    void     computeDensity();
+    void     normalizeDensity();
+    void     collectNeighborDensities();
+    void     computeForces();
+    void     updateVelocity(RealType timestep);
+    void     computeViscosity();
+    ////////////////////////////////////////////////////////////////////////////////
+    struct
+    {
+        UInt                              nParticles = 0u;
+        VecX<N + 1, RealType>*            positions  = nullptr;
+        Vector<VecX<N, RealType>>         velocities;
+        Vector<RealType>                  densities;
+        Vector<RealType>                  tmp_densities;
+        Vector<Vec_VecX<N + 1, RealType>> neighborInfo;
+        Vector<VecX<N, RealType>>         forces;
+        Vector<VecX<N, RealType>>         diffuseVelocity;
+        ////////////////////////////////////////////////////////////////////////////////
+        UInt getNParticles() const { return nParticles; }
+        void allocateMemory(Vec_VecX<N, RealType>& positions_)
+        {
+            nParticles = static_cast<UInt>(positions_.size());
+            positions  = positions_.data();
+            ////////////////////////////////////////////////////////////////////////////////
+            velocities.resize(nParticles, VecX<N, RealType>(0));
+            densities.resize(nParticles, 0);
+            tmp_densities.resize(nParticles, 0);
+            neighborInfo.resize(nParticles);
+            forces.resize(nParticles, VecX<N, RealType>(0));
+            diffuseVelocity.resize(nParticles, VecX<N, RealType>(0));
+        }
+    } m_SPHData;
+
+    auto&       particleData() { return m_SPHData; }
+    const auto& particleData() const { return m_SPHData; }
+    ////////////////////////////////////////////////////////////////////////////////
+    struct Kernels
+    {
+        ParticleSolvers::PrecomputedKernel<ParticleSolvers::CubicKernel, 10000> kernelCubicSpline;
+        ParticleSolvers::PrecomputedKernel<ParticleSolvers::SpikyKernel, 10000> kernelSpiky;
+        ParticleSolvers::PrecomputedKernel<ParticleSolvers::SpikyKernel, 10000> nearKernelSpiky;
+    } m_Kernels;
+    auto&       kernels() { return m_Kernels; }
+    const auto& kernels() const { return m_Kernels; }
 };
-#if 0
-void iterate(int iters);
-
-private:
-void       compute_kernel_parameters();
-RealType   kernel_density(const VectorType& r);
-VectorType gradient_kernel(const VectorType& r);
-RealType   laplacian_kernel(const VectorType& r);
-VectorType gradient_pressure_kernel(const VectorType& r);
-RealType   laplacian_viscosity_kernel(const VectorType& r);
-VectorType kernel_coherence(const VectorType& r);
-VectorType kernel_near(const VectorType& r);
-
-RealType cfl(RealType scale);
-void     collect_particles();
-void     compute_density();
-void     compute_forces();
-void     update_velocity(RealType dt);
-void     update_position(RealType dt);
-void     constrain_boundary();
-void     update_rest_density();
-void     findParticleMinDistance();
-RealType findMinDistance();
-void     resolve_overlapping();
-
-std::vector<VectorType>& particles;
-std::vector<VectorType>  velocity;
-std::vector<VectorType>  force;
-std::vector<RealType>    density;
-std::vector<RealType>    velocity_magnitude;
-std::vector<RealType>    min_distance;
-
-RealType       particle_mass;
-RealType       particle_radius;
-RealType       cell_size;
-RealType       rest_density;
-Array3_VecUInt cellParticles;
-
-
-// kernel
-RealType kernel_radius;
-RealType kernel_radius_sqr;
-RealType kernel_coeff_density;
-RealType kernel_coeff_gradient;
-RealType kernel_coeff_laplace;
-RealType kernel_coeff_gradient_pressure;
-RealType kernel_coeff_laplace_viscous;
-RealType kernel_coeff_coherence;
-RealType kernel_coeff_h6over64;
-RealType kernel_coeff_near;
-RealType kernel_near_radius;
-};
-#endif
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//#include <ParticleTools/BlueNoiseRelaxation/SPHBasedRelaxation.Impl.hpp>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-} // end namespace Banana
+#include <ParticleTools/BlueNoiseRelaxation/SPHBasedRelaxation.Impl.hpp>
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+} // end namespace Banana::ParticleTools
+
