@@ -24,6 +24,8 @@
 #include <Banana/Geometry/GeometryObjects.h>
 #include <Banana/NeighborSearch/NeighborSearch3D.h>
 #include <SimulationObjects/SimulationObject.h>
+//#include <ParticleTools/BlueNoiseRelaxation/LloydRelaxation.h>
+//#include <ParticleTools/BlueNoiseRelaxation/SPHBasedRelaxation.h>
 
 #include <unordered_set>
 
@@ -59,21 +61,21 @@ public:
     const auto& generatedVelocities() const { return m_GeneratedVelocities; }
     auto        generatedConstraintObject() const { return m_GeneratedConstraintObj; }
     ////////////////////////////////////////////////////////////////////////////////
-    virtual void buildObject(const Vector<SharedPtr<BoundaryObject<N, Real> > >& boundaryObjects, RealType particleRadius);
+    virtual void buildObject(const Vector<SharedPtr<BoundaryObject<N, Real>>>& boundaryObjects, RealType particleRadius);
 
     template<class VelocityGenerator = decltype(DefaultFunctions::velocityGenerator),
              class PostProcessFunc = decltype(DefaultFunctions::postProcessFunc)>
-    UInt generateParticles(const Vec_VecNr& currentPositions, const Vector<SharedPtr<SimulationObjects::BoundaryObject<N, Real> > >& boundaryObjs, UInt frame = 0u,
+    UInt generateParticles(const Vec_VecNr& currentPositions, const Vector<SharedPtr<SimulationObjects::BoundaryObject<N, Real>>>& boundaryObjs, UInt frame = 0u,
                            VelocityGenerator&& velGenerator = std::forward<decltype(DefaultFunctions::velocityGenerator)>(DefaultFunctions::velocityGenerator),
                            PostProcessFunc&& postProcess    = std::forward<decltype(DefaultFunctions::postProcessFunc)>(DefaultFunctions::postProcessFunc));
 
 protected:
     template<class VelocityGenerator = decltype(DefaultFunctions::velocityGenerator)>
-    UInt addFullShapeParticles(const Vec_VecNr& currentPositions, const Vector<SharedPtr<SimulationObjects::BoundaryObject<N, Real> > >& boundaryObjs,
+    UInt addFullShapeParticles(const Vec_VecNr& currentPositions, const Vector<SharedPtr<SimulationObjects::BoundaryObject<N, Real>>>& boundaryObjs,
                                VelocityGenerator&& velGenerator = std::forward<decltype(DefaultFunctions::velocityGenerator)>(DefaultFunctions::velocityGenerator));
 
     template<class VelocityGenerator = decltype(DefaultFunctions::velocityGenerator)>
-    UInt addParticles(const Vec_VecNr& currentPositions, const Vector<SharedPtr<SimulationObjects::BoundaryObject<N, Real> > >& boundaryObjs,
+    UInt addParticles(const Vec_VecNr& currentPositions, const Vector<SharedPtr<SimulationObjects::BoundaryObject<N, Real>>>& boundaryObjs,
                       VelocityGenerator&& velGenerator = std::forward<decltype(DefaultFunctions::velocityGenerator)>(DefaultFunctions::velocityGenerator));
 
     void relaxPositions(Vector<VecNr>& positions, RealType particleRadius);
@@ -93,10 +95,10 @@ protected:
 
     std::unordered_set<UInt> m_ActiveFrames;
 
-    UInt                                      m_NGeneratedParticles = 0;
-    Vec_VecNr                                 m_GeneratedPositions;
-    Vec_VecNr                                 m_GeneratedVelocities;
-    SharedPtr<SimulationObject<N, RealType> > m_GeneratedConstraintObj;
+    UInt                                     m_NGeneratedParticles = 0;
+    Vec_VecNr                                m_GeneratedPositions;
+    Vec_VecNr                                m_GeneratedVelocities;
+    SharedPtr<SimulationObject<N, RealType>> m_GeneratedConstraintObj;
 
     Grid<N, RealType>                   m_Grid;
     Array<N, Vec_UInt>                  m_ParticleIdxInCell;
@@ -123,7 +125,7 @@ bool ParticleGenerator<N, RealType >::isActive(UInt currentFrame)
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void ParticleGenerator<N, RealType >::buildObject(const Vector<SharedPtr<BoundaryObject<N, Real> > >& boundaryObjects, RealType particleRadius)
+void ParticleGenerator<N, RealType >::buildObject(const Vector<SharedPtr<BoundaryObject<N, Real>>>& boundaryObjects, RealType particleRadius)
 {
     if(m_bObjReady) {
         return;
@@ -185,9 +187,9 @@ void ParticleGenerator<N, RealType >::buildObject(const Vector<SharedPtr<Boundar
 template<Int N, class RealType>
 template<class VelocityGenerator /* = decltype(DefaultFunctions::velocityGenerator)*/,
          class PostProcessFunc /* = decltype(DefaultFunctions::postProcessFunc)*/>
-UInt ParticleGenerator<N, RealType > ::generateParticles(const Vec_VecNr& currentPositions,
-                                                         const Vector<SharedPtr<SimulationObjects::BoundaryObject<N, Real> > >& boundaryObjs,
-                                                         UInt frame /*= 0u*/, VelocityGenerator&& velGenerator, PostProcessFunc&& postProcessFunc)
+UInt ParticleGenerator<N, RealType >::generateParticles(const Vec_VecNr& currentPositions,
+                                                        const Vector<SharedPtr<SimulationObjects::BoundaryObject<N, Real>>>& boundaryObjs,
+                                                        UInt frame /*= 0u*/, VelocityGenerator&& velGenerator, PostProcessFunc&& postProcessFunc)
 {
     __BNN_REQUIRE(m_bObjReady);
     if(!isActive(frame)) {
@@ -210,9 +212,9 @@ UInt ParticleGenerator<N, RealType > ::generateParticles(const Vec_VecNr& curren
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
 template<class VelocityGenerator /* = decltype(DefaultFunctions::velocityGenerator)*/>
-UInt ParticleGenerator<N, RealType > ::addFullShapeParticles(const Vec_VecNr& currentPositions,
-                                                             const Vector<SharedPtr<SimulationObjects::BoundaryObject<N, Real> > >& boundaryObjs,
-                                                             VelocityGenerator&& velGenerator)
+UInt ParticleGenerator<N, RealType >::addFullShapeParticles(const Vec_VecNr& currentPositions,
+                                                            const Vector<SharedPtr<SimulationObjects::BoundaryObject<N, Real>>>& boundaryObjs,
+                                                            VelocityGenerator&& velGenerator)
 {
     bool bEmptyRegion = true;
     if(currentPositions.size() > 0) {
@@ -250,9 +252,9 @@ UInt ParticleGenerator<N, RealType > ::addFullShapeParticles(const Vec_VecNr& cu
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
 template<class VelocityGenerator /* = decltype(DefaultFunctions::velocityGenerator)*/>
-UInt ParticleGenerator<N, RealType > ::addParticles(const Vec_VecNr& currentPositions,
-                                                    const Vector<SharedPtr<SimulationObjects::BoundaryObject<N, Real> > >& boundaryObjs,
-                                                    VelocityGenerator&& velGenerator)
+UInt ParticleGenerator<N, RealType >::addParticles(const Vec_VecNr& currentPositions,
+                                                   const Vector<SharedPtr<SimulationObjects::BoundaryObject<N, Real>>>& boundaryObjs,
+                                                   VelocityGenerator&& velGenerator)
 
 {
     m_GeneratedPositions.reserve(m_GeneratedPositions.size() + m_ObjParticles.size());

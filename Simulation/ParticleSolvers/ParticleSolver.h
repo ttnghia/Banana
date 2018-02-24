@@ -82,12 +82,13 @@ public:
 
     auto&       globalParams() noexcept { return m_GlobalParams; }
     const auto& globalParams() const noexcept { return m_GlobalParams; }
+
+protected:
     auto&       logger() noexcept { assert(m_Logger != nullptr); return *m_Logger; }
     const auto& logger() const noexcept { assert(m_Logger != nullptr); return *m_Logger; }
     auto&       dataLogger(const String& dataName) { assert(m_DataLoggers[dataName] != nullptr); return *m_DataLoggers[dataName]; }
     const auto& dataLogger(const String& dataName) const { assert(m_DataLoggers[dataName] != nullptr); return *m_DataLoggers[dataName]; }
 
-protected:
     virtual void loadSimParams(const JParams& jParams) { __BNN_UNUSED(jParams); }
     virtual void generateBoundaries(const JParams& jParams);
     virtual void generateParticles(const JParams& jParams);
@@ -102,25 +103,25 @@ protected:
     virtual void logSubstepData();
 
     ////////////////////////////////////////////////////////////////////////////////
-    JParams                                       m_SceneJParams;
-    GlobalParameters                              m_GlobalParams;
-    SharedPtr<SimulationParameters<N, RealType> > m_SolverParams = nullptr;
-    SharedPtr<SimulationData<N, RealType> >       m_SolverData   = nullptr;
+    JParams                                      m_SceneJParams;
+    GlobalParameters                             m_GlobalParams;
+    SharedPtr<SimulationParameters<N, RealType>> m_SolverParams = nullptr;
+    SharedPtr<SimulationData<N, RealType>>       m_SolverData   = nullptr;
 
-    UniquePtr<tbb::task_scheduler_init>  m_ThreadInit = nullptr;
-    SharedPtr<Logger>                    m_Logger     = nullptr;
-    std::map<String, SharedPtr<Logger> > m_DataLoggers;
+    UniquePtr<tbb::task_scheduler_init> m_ThreadInit = nullptr;
+    SharedPtr<Logger>                   m_Logger     = nullptr;
+    std::map<String, SharedPtr<Logger>> m_DataLoggers;
 
     UniquePtr<ParticleSerialization> m_ParticleDataIO      = nullptr;
     UniquePtr<ParticleSerialization> m_DynamicObjectDataIO = nullptr;
     UniquePtr<ParticleSerialization> m_MemoryStateIO       = nullptr;
 
     // todo: add NSearch for 2D
-    UniquePtr<NeighborSearch::NeighborSearch3D>                        m_NSearch = nullptr;
-    Vector<SharedPtr<SimulationObjects::BoundaryObject<N, Real> > >    m_BoundaryObjects;    // individual objects, as one can be dynamic while the others are not
-    Vector<SharedPtr<SimulationObjects::ParticleGenerator<N, Real> > > m_ParticleGenerators; // individual objects, as they can have different behaviors
-    Vector<SharedPtr<SimulationObjects::ParticleRemover<N, Real> > >   m_ParticleRemovers;   // individual objects, as they can have different behaviors
-    Vector<SharedPtr<SimulationObjects::SimulationObject<N, Real> > >  m_DynamicObjects;     // store all dynamic objects
+    UniquePtr<NeighborSearch::NeighborSearch3D>                          m_NSearch = nullptr;
+    Vector<SharedPtr<SimulationObjects::BoundaryObject<N, RealType>>>    m_BoundaryObjects;      // individual objects, as one can be dynamic while the others are not
+    Vector<SharedPtr<SimulationObjects::ParticleGenerator<N, RealType>>> m_ParticleGenerators;   // individual objects, as they can have different behaviors
+    Vector<SharedPtr<SimulationObjects::ParticleRemover<N, RealType>>>   m_ParticleRemovers;     // individual objects, as they can have different behaviors
+    Vector<SharedPtr<SimulationObjects::SimulationObject<N, RealType>>>  m_DynamicObjects;       // store all dynamic objects
 };
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -184,17 +185,17 @@ void ParticleSolver<N, RealType >::loadScene(const String& sceneFile)
         {
             JParams jBoxParams = jSimParams["SimulationDomainBox"];
 
-            auto obj = std::make_shared<SimulationObjects::BoxBoundary<N, RealType> >(jBoxParams);
+            auto obj = std::make_shared<SimulationObjects::BoxBoundary<N, RealType>>(jBoxParams);
             m_BoundaryObjects.push_back(obj);
-            auto box = std::dynamic_pointer_cast<GeometryObjects::BoxObject<N, RealType> >(obj->geometry());
+            auto box = std::dynamic_pointer_cast<GeometryObjects::BoxObject<N, RealType>>(obj->geometry());
 
             // domain box cannot be dynamic
             JSONHelpers::readValue(jBoxParams, obj->meshFile(),     "MeshFile");
             JSONHelpers::readValue(jBoxParams, obj->particleFile(), "ParticleFile");
 
             // domain box can only has translation, scale and size scale
-            VecX<N, Real>     translation;
-            Real              scale;
+            VecX<N, RealType> translation;
+            RealType          scale;
             VecX<N, RealType> boxMin;
             VecX<N, RealType> boxMax;
             __BNN_REQUIRE(box != nullptr);
@@ -256,7 +257,7 @@ void ParticleSolver<N, RealType >::loadScene(const String& sceneFile)
 
             ////////////////////////////////////////////////////////////////////////////////
             // specialized for box object
-            auto box = dynamic_pointer_cast<GeometryObjects::BoxObject<N, RealType> >(obj->geometry());
+            auto box = dynamic_pointer_cast<GeometryObjects::BoxObject<N, RealType>>(obj->geometry());
             if(box != nullptr) {
                 m_DynamicObjectDataIO->addFixedAttribute<float>(obj->nameID() + String("_box_min"), ParticleSerialization::TypeReal, N);
                 m_DynamicObjectDataIO->addFixedAttribute<float>(obj->nameID() + String("_box_max"), ParticleSerialization::TypeReal, N);
@@ -350,8 +351,8 @@ void ParticleSolver<N, RealType >::generateBoundaries(const JParams& jParams)
         ////////////////////////////////////////////////////////////////////////////////
         // combine static boundaries
         {
-            Vector<SharedPtr<SimulationObjects::BoundaryObject<N, RealType> > > staticBoundaries;
-            Vector<SharedPtr<SimulationObjects::BoundaryObject<N, RealType> > > dynamicBoundaries;
+            Vector<SharedPtr<SimulationObjects::BoundaryObject<N, RealType>>> staticBoundaries;
+            Vector<SharedPtr<SimulationObjects::BoundaryObject<N, RealType>>> dynamicBoundaries;
             for(auto& obj : m_BoundaryObjects) {
                 if(obj->isDynamic()) {
                     dynamicBoundaries.push_back(obj);
@@ -361,8 +362,8 @@ void ParticleSolver<N, RealType >::generateBoundaries(const JParams& jParams)
             }
 
             if(staticBoundaries.size() > 1) {
-                SharedPtr<SimulationObjects::BoundaryObject<N, RealType> > csgBoundary = std::make_shared<SimulationObjects::BoundaryObject<N, RealType> >(JParams(), "CSGObject");
-                SharedPtr<GeometryObjects::CSGObject<N, RealType> >        csgObj      = std::static_pointer_cast<GeometryObjects::CSGObject<N, RealType> >(csgBoundary->geometry());
+                auto csgBoundary = std::make_shared<SimulationObjects::BoundaryObject<N, RealType>>(JParams(), "CSGObject");
+                auto csgObj      = std::static_pointer_cast<GeometryObjects::CSGObject<N, RealType>>(csgBoundary->geometry());
                 __BNN_REQUIRE(csgObj != nullptr);
 
                 for(auto& obj : staticBoundaries) {
@@ -434,7 +435,7 @@ Int Banana::ParticleSolvers::ParticleSolver<N, RealType>::saveFrameData()
 
         ////////////////////////////////////////////////////////////////////////////////
         // specialized for box object
-        auto box = dynamic_pointer_cast<GeometryObjects::BoxObject<N, RealType> >(obj->geometry());
+        auto box = dynamic_pointer_cast<GeometryObjects::BoxObject<N, RealType>>(obj->geometry());
         if(box != nullptr) {
             m_DynamicObjectDataIO->setFixedAttribute(obj->nameID() + String("_box_min"), box->originalBoxMin());
             m_DynamicObjectDataIO->setFixedAttribute(obj->nameID() + String("_box_max"), box->originalBoxMax());
@@ -456,9 +457,9 @@ void Banana::ParticleSolvers::ParticleSolver<N, RealType>::logSubstepData()
     }
 
     if(globalParams().bSaveSubstepData && globalParams().savingData("SubStepKineticEnergy")) {
-        Real   kineticEnergy = ParallelSTL::sum_sqr<N, RealType>(generalParticleData().velocities) * generalSolverParams().particleMass * 0.5_f;
-        String dataStr       = String("SystemTime: ") + NumberHelpers::formatToScientific(globalParams().evolvedTime(), 10) +
-                               String(" | SystemKineticEnergy: ") + NumberHelpers::formatToScientific(kineticEnergy, 10);
+        RealType kineticEnergy = ParallelSTL::sum_sqr<N, RealType>(generalParticleData().velocities) * generalSolverParams().particleMass * 0.5_f;
+        String   dataStr       = String("SystemTime: ") + NumberHelpers::formatToScientific(globalParams().evolvedTime(), 10) +
+                                 String(" | SystemKineticEnergy: ") + NumberHelpers::formatToScientific(kineticEnergy, 10);
         dataLogger("SubStepKineticEnergy").printLog(dataStr);
     }
 }
