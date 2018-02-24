@@ -173,10 +173,11 @@ public:
     virtual void advanceFrame() override;
 
     ////////////////////////////////////////////////////////////////////////////////
-    auto&       solverParams() { return *(std::static_pointer_cast<MPM_3DParameters>(m_SolverParams)); }
-    const auto& solverParams() const { return *(std::static_pointer_cast<MPM_3DParameters>(m_SolverParams)); }
-    auto&       solverData() { return *(std::static_pointer_cast<MPM_3DData>(m_SolverData)); }
-    const auto& solverData() const { return *(std::static_pointer_cast<MPM_3DData>(m_SolverData)); }
+    auto&       solverParams() { static auto ptrParams = std::static_pointer_cast<MPM_3DParameters>(m_SolverParams); return *ptrParams; }
+    const auto& solverParams() const { static auto ptrParams = std::static_pointer_cast<MPM_3DParameters>(m_SolverParams); return *ptrParams; }
+    auto&       solverData() { static auto ptrData = std::static_pointer_cast<MPM_3DData>(m_SolverData); return *ptrData; }
+    const auto& solverData() const { static auto ptrData = std::static_pointer_cast<MPM_3DData>(m_SolverData); return *ptrData; }
+
     ////////////////////////////////////////////////////////////////////////////////
     auto&       particleData() { return solverData().particleData; }
     const auto& particleData() const { return solverData().particleData; }
