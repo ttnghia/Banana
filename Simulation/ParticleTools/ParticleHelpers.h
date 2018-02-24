@@ -26,8 +26,6 @@
 #include <Banana/Utils/FileHelpers.h>
 #include <Banana/Utils/MathHelpers.h>
 #include <Banana/ParallelHelpers/ParallelSTL.h>
-#include <ParticleTools/BlueNoiseRelaxation/LloydRelaxation.h>
-#include <ParticleTools/BlueNoiseRelaxation/SPHBasedRelaxation.h>
 
 #include <string>
 #include <cmath>
@@ -35,36 +33,37 @@
 #include <cassert>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace Banana
-{
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-namespace ParticleHelpers
+namespace Banana::ParticleHelpers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 // template functions are defined in a hpp file
 
-template<Int N, class RealType> void compress(const Vector<VecX<N, RealType> >& dvec, VecX<N, RealType>& dMin, VecX<N, RealType>& dMax, Vec_UInt16& compressedData);
-template<Int N, class RealType> void compress(const Vector<VecX<N, RealType> >& dvec, DataBuffer& buffer, bool bWriteVectorSize = true);
-template<Int N, class RealType> void compress(const Vector<MatXxX<N, RealType> >& dvec, RealType& dMin, RealType& dMax, Vec_UInt16& compressedData);
-template<Int N, class RealType> void compress(const Vector<MatXxX<N, RealType> >& dvec, DataBuffer& buffer, bool bWriteVectorSize = true);
+template<Int N, class RealType> auto getAABB(const Vec_VecX<N, RealType>& positions);
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType> void compress(const Vec_VecX<N, RealType>& dvec, VecX<N, RealType>& dMin, VecX<N, RealType>& dMax, Vec_UInt16& compressedData);
+template<Int N, class RealType> void compress(const Vec_VecX<N, RealType>& dvec, DataBuffer& buffer, bool bWriteVectorSize = true);
+template<Int N, class RealType> void compress(const Vector<MatXxX<N, RealType>>& dvec, RealType& dMin, RealType& dMax, Vec_UInt16& compressedData);
+template<Int N, class RealType> void compress(const Vector<MatXxX<N, RealType>>& dvec, DataBuffer& buffer, bool bWriteVectorSize = true);
 
 template<class RealType> void compress(const Vector<RealType>& dvec, RealType& dMin, RealType& dMax, Vec_UInt16& compressedData);
 template<class RealType> void compress(const Vector<RealType>& dvec, DataBuffer& buffer, bool bWriteVectorSize = true);
-template<class RealType> void compress(const Vector<Vector<RealType> >& dvec, Vector<RealType>& dMin, Vector<RealType>& dMax, Vec_VecUInt16& compressedData);
-template<class RealType> void compress(const Vector<Vector<RealType> >& dvec, DataBuffer& buffer, bool bWriteVectorSize = true);
+template<class RealType> void compress(const Vector<Vector<RealType>>& dvec, Vector<RealType>& dMin, Vector<RealType>& dMax, Vec_VecUInt16& compressedData);
+template<class RealType> void compress(const Vector<Vector<RealType>>& dvec, DataBuffer& buffer, bool bWriteVectorSize = true);
 
 
-template<Int N, class RealType> void decompress(Vector<VecX<N, RealType> >& dvec, const VecX<N, RealType>& dMin, const VecX<N, RealType>& dMax, const Vec_UInt16& compressedData);
-template<Int N, class RealType> void decompress(Vector<VecX<N, RealType> >& dvec, const DataBuffer& buffer, UInt nParticles = 0);
-template<Int N, class RealType> void decompress(Vector<MatXxX<N, RealType> >& dvec, RealType dMin, RealType dMax, const Vec_UInt16& compressedData);
-template<Int N, class RealType> void decompress(Vector<MatXxX<N, RealType> >& dvec, const DataBuffer& buffer, UInt nParticles = 0);
+template<Int N, class RealType> void decompress(Vec_VecX<N, RealType>& dvec, const VecX<N, RealType>& dMin, const VecX<N, RealType>& dMax, const Vec_UInt16& compressedData);
+template<Int N, class RealType> void decompress(Vec_VecX<N, RealType>& dvec, const DataBuffer& buffer, UInt nParticles = 0);
+template<Int N, class RealType> void decompress(Vector<MatXxX<N, RealType>>& dvec, RealType dMin, RealType dMax, const Vec_UInt16& compressedData);
+template<Int N, class RealType> void decompress(Vector<MatXxX<N, RealType>>& dvec, const DataBuffer& buffer, UInt nParticles = 0);
 
 template<class RealType> void decompress(Vector<RealType>& dvec, RealType dMin, RealType dMax, const Vec_UInt16& compressedData);
 template<class RealType> void decompress(Vector<RealType>& dvec, const DataBuffer& buffer, UInt nParticles = 0);
-template<class RealType> void decompress(Vector<Vector<RealType> >& dvec, const Vector<RealType> dMin, const Vector<RealType>& dMax, const Vec_VecUInt16& compressedData);
-template<class RealType> void decompress(Vector<Vector<RealType> >& dvec, const DataBuffer& buffer, UInt nParticles = 0);
+template<class RealType> void decompress(Vector<Vector<RealType>>& dvec, const Vector<RealType> dMin, const Vector<RealType>& dMax, const Vec_VecUInt16& compressedData);
+template<class RealType> void decompress(Vector<Vector<RealType>>& dvec, const DataBuffer& buffer, UInt nParticles = 0);
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
 void springForceDx(const VecX<N, RealType>& eij, RealType dij, RealType d0, RealType KSpring, RealType KDamping, MatXxX<N, RealType>& springDx, MatXxX<N, RealType>& dampingDx);
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -79,7 +78,4 @@ UInt spawnComponent(UInt p, Int depth, UInt8 currentIdx, const Vec_VecUInt& conn
 
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-}   // end namespace ParticleHelpers
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-} // end namespace Banana
+}   // end namespace Banana::ParticleHelpers

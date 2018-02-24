@@ -18,9 +18,17 @@
 //                                 (((__) (__)))
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-
 template<Int N, class RealType>
-void compress(const Vector<VecX<N, RealType> >& dvec, VecX<N, RealType>& dMin, VecX<N, RealType>& dMax, Vec_UInt16& compressedData)
+auto getAABB(const Vec_VecX<N, RealType>& positions)
+{
+    VecX<N, RealType> bMin, bMax;
+    ParallelSTL::min_max<N, RealType>(positions, bMin, bMax);
+    return std::make_tuple(bMin, bMax);
+}
+
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+template<Int N, class RealType>
+void compress(const Vec_VecX<N, RealType>& dvec, VecX<N, RealType>& dMin, VecX<N, RealType>& dMax, Vec_UInt16& compressedData)
 {
     ParallelSTL::min_max<N, RealType>(dvec, dMin, dMax);
     const VecX<N, RealType> diff = dMax - dMin;
@@ -38,7 +46,7 @@ void compress(const Vector<VecX<N, RealType> >& dvec, VecX<N, RealType>& dMin, V
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void compress(const Vector<VecX<N, RealType> >& dvec, DataBuffer& buffer, bool bWriteVectorSize /*= true*/)
+void compress(const Vec_VecX<N, RealType>& dvec, DataBuffer& buffer, bool bWriteVectorSize /*= true*/)
 {
     VecX<N, RealType> dMin, dMax;
     Vec_UInt16        compressedData;
@@ -59,7 +67,7 @@ void compress(const Vector<VecX<N, RealType> >& dvec, DataBuffer& buffer, bool b
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void compress(const Vector<MatXxX<N, RealType> >& dvec, RealType& dMin, RealType& dMax, Vec_UInt16& compressedData)
+void compress(const Vector<MatXxX<N, RealType>>& dvec, RealType& dMin, RealType& dMax, Vec_UInt16& compressedData)
 {
     Int NN = N * N;
     ParallelSTL::min_max<N, RealType>(dvec, dMin, dMax);
@@ -79,7 +87,7 @@ void compress(const Vector<MatXxX<N, RealType> >& dvec, RealType& dMin, RealType
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void compress(const Vector<MatXxX<N, RealType> >& dvec, DataBuffer& buffer, bool bWriteVectorSize /*= true*/)
+void compress(const Vector<MatXxX<N, RealType>>& dvec, DataBuffer& buffer, bool bWriteVectorSize /*= true*/)
 {
     RealType   dMin, dMax;
     Vec_UInt16 compressedData;
@@ -129,7 +137,7 @@ void compress(const Vector<RealType>& dvec, DataBuffer& buffer, bool bWriteVecto
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-void compress(const Vector<Vector<RealType> >& dvec, Vector<RealType>& dMin, Vector<RealType>& dMax, Vec_VecUInt16& compressedData)
+void compress(const Vector<Vector<RealType>>& dvec, Vector<RealType>& dMin, Vector<RealType>& dMax, Vec_VecUInt16& compressedData)
 {
     __BNN_REQUIRE(dvec.size() = dMin.size() && dvec.size() == dMax.size());
 
@@ -143,7 +151,7 @@ void compress(const Vector<Vector<RealType> >& dvec, Vector<RealType>& dMin, Vec
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-void compress(const Vector<Vector<RealType> >& dvec, DataBuffer& buffer, bool bWriteVectorSize /*= true*/)
+void compress(const Vector<Vector<RealType>>& dvec, DataBuffer& buffer, bool bWriteVectorSize /*= true*/)
 {
     Vector<RealType> dMin, dMax;
     Vec_VecUInt16    compressedData;
@@ -171,7 +179,7 @@ void compress(const Vector<Vector<RealType> >& dvec, DataBuffer& buffer, bool bW
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void decompress(Vector<VecX<N, RealType> >& dvec, const VecX<N, RealType>& dMin, const VecX<N, RealType>& dMax, const Vec_UInt16& compressedData)
+void decompress(Vec_VecX<N, RealType>& dvec, const VecX<N, RealType>& dMin, const VecX<N, RealType>& dMax, const Vec_UInt16& compressedData)
 {
     const VecX<N, RealType> diff = dMax - dMin;
     __BNN_REQUIRE((compressedData.size() / N) * N == compressedData.size());
@@ -191,7 +199,7 @@ void decompress(Vector<VecX<N, RealType> >& dvec, const VecX<N, RealType>& dMin,
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void decompress(Vector<VecX<N, RealType> >& dvec, const DataBuffer& buffer, UInt nParticles /*= 0*/)
+void decompress(Vec_VecX<N, RealType>& dvec, const DataBuffer& buffer, UInt nParticles /*= 0*/)
 {
     VecX<N, float> dMinf, dMaxf;
 
@@ -225,7 +233,7 @@ void decompress(Vector<VecX<N, RealType> >& dvec, const DataBuffer& buffer, UInt
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void decompress(Vector<MatXxX<N, RealType> >& dvec, RealType dMin, RealType dMax, const Vec_UInt16& compressedData)
+void decompress(Vector<MatXxX<N, RealType>>& dvec, RealType dMin, RealType dMax, const Vec_UInt16& compressedData)
 {
     Int            NN   = N * N;
     const RealType diff = dMax - dMin;
@@ -248,7 +256,7 @@ void decompress(Vector<MatXxX<N, RealType> >& dvec, RealType dMin, RealType dMax
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void decompress(Vector<MatXxX<N, RealType> >& dvec, const DataBuffer& buffer, UInt nParticles /*= 0*/)
+void decompress(Vector<MatXxX<N, RealType>>& dvec, const DataBuffer& buffer, UInt nParticles /*= 0*/)
 {
     float  dMinf, dMaxf;
     UInt64 segmentStart = 0;
@@ -322,7 +330,7 @@ void decompress(Vector<RealType>& dvec, const DataBuffer& buffer, UInt nParticle
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-void decompress(Vector<Vector<RealType> >& dvec, const Vector<RealType>& dMin, const Vector<RealType>& dMax, const Vec_VecUInt16& compressedData)
+void decompress(Vector<Vector<RealType>>& dvec, const Vector<RealType>& dMin, const Vector<RealType>& dMax, const Vec_VecUInt16& compressedData)
 {
     __BNN_REQUIRE(compressedData.size() = dMin.size() && compressedData.size() == dMax.size());
 
@@ -336,7 +344,7 @@ void decompress(Vector<Vector<RealType> >& dvec, const Vector<RealType>& dMin, c
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<class RealType>
-void decompress(Vector<Vector<RealType> >& dvec, const DataBuffer& buffer, UInt nParticles /*= 0*/)
+void decompress(Vector<Vector<RealType>>& dvec, const DataBuffer& buffer, UInt nParticles /*= 0*/)
 {
     Vector<float> dMinf, dMaxf;
 
@@ -377,7 +385,8 @@ void decompress(Vector<Vector<RealType> >& dvec, const DataBuffer& buffer, UInt 
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 template<Int N, class RealType>
-void springForceDx(const VecX<N, RealType>& eij, RealType dij, RealType d0, RealType KSpring, RealType KDamping, MatXxX<N, RealType>& springDx, MatXxX<N, RealType>& dampingDx)
+void springForceDx(const VecX<N, RealType>& eij, RealType dij, RealType d0, RealType KSpring, RealType KDamping,
+                   MatXxX<N, RealType>& springDx, MatXxX<N, RealType>& dampingDx)
 {
     const MatXxX<N, RealType> xijxijT = glm::outerProduct(eij, eij);
     dampingDx = xijxijT * (-KDamping);
