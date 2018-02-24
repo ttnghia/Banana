@@ -195,6 +195,9 @@
     <ClInclude Include="ParticleSolvers\SPH\SPHSolverData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ParticleSolvers\SPH\WCSPH_2DSolver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ParticleTools\_ParticleTools.Test.cpp">
@@ -243,6 +246,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ParticleSolvers\MPM\HairMPM_2DSolver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleSolvers\SPH\WCSPH_2DSolver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
