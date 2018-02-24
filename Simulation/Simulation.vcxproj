@@ -164,6 +164,7 @@
     <ClInclude Include="ParticleSolvers\HybridFluid\PIC_3DSolver.h" />
     <ClInclude Include="ParticleSolvers\ParticleSolverFactory.h" />
     <ClInclude Include="ParticleSolvers\SceneLoader.h" />
+    <ClInclude Include="ParticleSolvers\SPH\SPHSolverData.h" />
     <ClInclude Include="ParticleSolvers\_ParticleSolvers.Test.hpp" />
     <ClInclude Include="ParticleSolvers\ParticleSolver.h" />
     <ClInclude Include="ParticleTools\BlueNoiseRelaxation\BlueNoiseRelaxation.h" />

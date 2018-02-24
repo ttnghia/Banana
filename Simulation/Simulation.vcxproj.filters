@@ -192,6 +192,9 @@
     <ClInclude Include="ParticleTools\BlueNoiseRelaxation\BlueNoiseRelaxation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ParticleSolvers\SPH\SPHSolverData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ParticleTools\_ParticleTools.Test.cpp">

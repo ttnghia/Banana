@@ -24,102 +24,11 @@
 #include <ParticleSolvers/ParticleSolver.h>
 #include <ParticleSolvers/ParticleSolverData.h>
 #include <ParticleSolvers/ParticleSolverFactory.h>
-#include <ParticleSolvers/SPH/KernelFunctions.h>
+#include <ParticleSolvers/SPH/SPHSolverData.h>
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 namespace Banana::ParticleSolvers
 {
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-// WCSPH_3DParameters
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-struct WCSPH_3DParameters : public SimulationParameters3D
-{
-    ////////////////////////////////////////////////////////////////////////////////
-    // pressure
-    Real pressureStiffness       = 50000.0_f;
-    Real nearPressureStiffness   = 5000.0_f;
-    bool bAttractivePressure     = false;
-    Real attractivePressureRatio = 0.1_f;
-    ////////////////////////////////////////////////////////////////////////////////
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // viscosity
-    Real viscosityFluid    = 1e-2_f;
-    Real viscosityBoundary = 1e-5_f;
-    ////////////////////////////////////////////////////////////////////////////////
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // density
-    Real particleMassScale     = 0.9_f;
-    Real restDensity           = 1000.0_f;
-    Real densityVariationRatio = 10.0_f;
-    bool bNormalizeDensity     = false;
-    bool bDensityByBDParticle  = false;
-    Real restDensitySqr;
-    Real densityMin;
-    Real densityMax;
-    ////////////////////////////////////////////////////////////////////////////////
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // kernel data
-    Real ratioKernelPRadius     = 4.0_f;
-    Real ratioNearKernelPRadius = 1.5_f;
-    Real kernelRadius;
-    Real kernelRadiusSqr;
-    Real nearKernelRadius;
-    Real nearKernelRadiusSqr;
-    ////////////////////////////////////////////////////////////////////////////////
-
-    virtual void makeReady() override;
-    virtual void printParams(const SharedPtr<Logger>& logger) override;
-};
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-// WCSPH_3DData
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-struct WCSPH_3DData : public SimulationData3D
-{
-    struct ParticleData : public ParticleSimulationData3D
-    {
-        Vec_Real     densities;
-        Vec_Real     tmp_densities;
-        Vec_VecVec4r neighborInfo;         // store relative position and density of neighbors, including boundary particles
-        Vec_Vec3r    forces;
-        Vec_Vec3r    diffuseVelocity;
-        Vec_Vec3f    aniKernelCenters;
-        Vec_Mat3x3f  aniKernelMatrices;
-        Vec_Vec3r    BDParticles;
-        ////////////////////////////////////////////////////////////////////////////////
-        virtual void reserve(UInt nParticles);
-        virtual void addParticles(const Vec_Vec3r& newPositions, const Vec_Vec3r& newVelocities);
-        virtual UInt removeParticles(const Vec_Int8& removeMarker);
-    };
-
-    struct Kernels
-    {
-        PrecomputedKernel<CubicKernel, 10000> kernelCubicSpline;
-        PrecomputedKernel<SpikyKernel, 10000> kernelSpiky;
-        PrecomputedKernel<SpikyKernel, 10000> nearKernelSpiky;
-    };
-
-    __BNN_TODO_MSG("Check if precomputed kernel is bad")
-    ParticleData particleData;
-    Kernels kernels;
-
-    ////////////////////////////////////////////////////////////////////////////////
-    virtual const ParticleSimulationData3D& generalParticleData() const override { return particleData; }
-    virtual ParticleSimulationData3D&       generalParticleData() override { return particleData; }
-    void                                    makeReady(const WCSPH_3DParameters& solverParams);
-};
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-// WCSPH_3DSolver
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 class WCSPH_3DSolver : public ParticleSolver3D, public RegisteredInSolverFactory<WCSPH_3DSolver>
 {

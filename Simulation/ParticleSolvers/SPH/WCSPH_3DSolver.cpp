@@ -26,126 +26,6 @@
 namespace Banana::ParticleSolvers
 {
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-// WCSPH_3DParameters implementation
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void WCSPH_3DParameters::makeReady()
-{
-    ////////////////////////////////////////////////////////////////////////////////
-    // explicitly set no grid
-    bUseGrid = false;
-
-    ////////////////////////////////////////////////////////////////////////////////
-    SimulationParameters3D::makeReady();
-    particleMass   = MathHelpers::cube(2.0_f * particleRadius) * restDensity * particleMassScale;
-    restDensitySqr = restDensity * restDensity;
-    densityMin     = restDensity / densityVariationRatio;
-    densityMax     = restDensity * densityVariationRatio;
-
-    kernelRadius    = particleRadius * ratioKernelPRadius;
-    kernelRadiusSqr = kernelRadius * kernelRadius;
-
-    nearKernelRadius    = particleRadius * ratioNearKernelPRadius;
-    nearKernelRadiusSqr = kernelRadius * nearKernelRadius;
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void WCSPH_3DParameters::printParams(const SharedPtr<Logger>& logger)
-{
-    logger->printLog("SPH simulation parameters:");
-    SimulationParameters3D::printParams(logger);
-    logger->printLogIndent("Pressure stiffness: " + NumberHelpers::formatWithCommas(pressureStiffness));
-    logger->printLogIndent("Near pressure stiffness: " + NumberHelpers::formatWithCommas(nearPressureStiffness));
-    logger->printLogIndent("Use attractive pressure: " + (bAttractivePressure ? std::string("Yes") : std::string("No")));
-    logger->printLogIndentIf(bAttractivePressure, "Attractive pressure ratio: " + std::to_string(attractivePressureRatio));
-
-    logger->printLogIndent("Viscosity fluid-fluid: " + NumberHelpers::formatToScientific(viscosityFluid, 2));
-    logger->printLogIndent("Viscosity fluid-boundary: " + NumberHelpers::formatToScientific(viscosityBoundary, 2));
-
-    logger->printLogIndent("Particle mass scale: " + std::to_string(particleMassScale));
-    logger->printLogIndent("Particle mass: " + std::to_string(particleMass));
-    logger->printLogIndent("Rest density: " + std::to_string(restDensity));
-    logger->printLogIndent("Density variation: " + std::to_string(densityVariationRatio));
-    logger->printLogIndent("Normalize density: " + (bNormalizeDensity ? std::string("Yes") : std::string("No")));
-    logger->printLogIndent("Generate boundary particles: " + (bDensityByBDParticle ? std::string("Yes") : std::string("No")));
-
-    logger->printLogIndent("Ratio kernel radius/particle radius: " + std::to_string(ratioKernelPRadius));
-    logger->printLogIndent("Ratio near kernel radius/particle radius: " + std::to_string(ratioNearKernelPRadius));
-    logger->printLogIndent("Kernel radius: " + std::to_string(kernelRadius));
-    logger->printLogIndent("Near kernel radius: " + std::to_string(nearKernelRadius));
-    logger->newLine();
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-// WCSPH_3DData implementation
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void WCSPH_3DData::ParticleData::reserve(UInt nParticles)
-{
-    positions.reserve(nParticles);
-    velocities.reserve(nParticles);
-    objectIndex.reserve(nParticles);
-    densities.reserve(nParticles);
-    tmp_densities.reserve(nParticles);
-    neighborInfo.reserve(nParticles);
-    forces.reserve(nParticles);
-    diffuseVelocity.reserve(nParticles);
-    aniKernelCenters.reserve(nParticles);
-    aniKernelMatrices.reserve(nParticles);
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void WCSPH_3DData::ParticleData::addParticles(const Vec_Vec3r& newPositions, const Vec_Vec3r& newVelocities)
-{
-    __BNN_REQUIRE(newPositions.size() == newVelocities.size());
-    positions.insert(positions.end(), newPositions.begin(), newPositions.end());
-    velocities.insert(velocities.end(), newVelocities.begin(), newVelocities.end());
-
-    densities.resize(positions.size(), 0);
-    tmp_densities.resize(positions.size(), 0);
-    neighborInfo.resize(positions.size());
-    forces.resize(positions.size(), Vec3r(0));
-    diffuseVelocity.resize(positions.size(), Vec3r(0));
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // add the object index for new particles to the list
-    objectIndex.insert(objectIndex.end(), newPositions.size(), static_cast<Int8>(nObjects));
-    ++nObjects;                     // increase the number of objects
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-UInt WCSPH_3DData::ParticleData::removeParticles(const Vec_Int8& removeMarker)
-{
-    if(!STLHelpers::contain(removeMarker, Int8(1))) {
-        return 0u;
-    }
-
-    STLHelpers::eraseByMarker(positions,  removeMarker);
-    STLHelpers::eraseByMarker(velocities, removeMarker);
-    ////////////////////////////////////////////////////////////////////////////////
-    densities.resize(positions.size());
-    tmp_densities.resize(positions.size());
-    forces.resize(positions.size());
-    diffuseVelocity.resize(positions.size());
-    ////////////////////////////////////////////////////////////////////////////////
-    return static_cast<UInt>(removeMarker.size() - positions.size());
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-void WCSPH_3DData::makeReady(const WCSPH_3DParameters& solverParams)
-{
-    kernels.kernelCubicSpline.setRadius(solverParams.kernelRadius);
-    kernels.kernelSpiky.setRadius(solverParams.kernelRadius);
-    kernels.nearKernelSpiky.setRadius(solverParams.nearKernelRadius);
-}
-
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-// WCSPH_3DSolver implementation
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 void WCSPH_3DSolver::makeReady()
 {
     logger().printMemoryUsage();
@@ -504,7 +384,7 @@ Int WCSPH_3DSolver::saveFrameData()
 Real WCSPH_3DSolver::timestepCFL()
 {
     Real maxVel      = ParallelSTL::maxNorm2(particleData().velocities);
-    Real CFLTimeStep = maxVel > Real(Tiny) ? solverParams().CFLFactor * (2.0_f * solverParams().particleRadius / maxVel) : Huge;
+    Real CFLTimeStep = maxVel > Tiny ? solverParams().CFLFactor * (2.0_f * solverParams().particleRadius / maxVel) : Huge;
     return MathHelpers::clamp(CFLTimeStep, solverParams().minTimestep, solverParams().maxTimestep);
 }
 
