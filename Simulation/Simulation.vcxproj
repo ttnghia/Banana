@@ -204,6 +204,7 @@
     <ClCompile Include="ParticleSolvers\HybridFluid\APIC_3DSolver.cpp" />
     <ClCompile Include="ParticleSolvers\HybridFluid\FLIP_3DSolver.cpp" />
     <ClCompile Include="ParticleSolvers\HybridFluid\PIC_3DSolver.cpp" />
+    <ClCompile Include="ParticleSolvers\SPH\WCSPH_2DSolver.cpp" />
     <ClCompile Include="ParticleSolvers\SPH\WCSPH_3DSolver.cpp" />
     <ClCompile Include="ParticleTools\ParticleHelpers.cpp" />
     <ClCompile Include="ParticleTools\ParticleSerialization.cpp" />
@@ -211,7 +212,6 @@
     <ClCompile Include="SurfaceReconstruction\AniKernelGenerator.cpp" />
     <ClCompile Include="SurfaceReconstruction\MarchingCube.cpp" />
     <ClCompile Include="SurfaceReconstruction\_SurfaceReconstruction.Test.cpp" />
-    <ClCompile Include="ParticleSolvers\SPH\WCSPH_2DSolver.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

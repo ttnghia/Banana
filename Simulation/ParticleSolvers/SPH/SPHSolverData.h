@@ -192,9 +192,9 @@ struct WCSPH_Data : public SimulationData<N, RealType>
 
     struct Kernels
     {
-        PrecomputedKernel<CubicKernel, 10000> kernelCubicSpline;
-        PrecomputedKernel<SpikyKernel, 10000> kernelSpiky;
-        PrecomputedKernel<SpikyKernel, 10000> nearKernelSpiky;
+        PrecomputedKernel<N, RealType, CubicKernel, 10000> kernelCubicSpline;
+        PrecomputedKernel<N, RealType, SpikyKernel, 10000> kernelSpiky;
+        PrecomputedKernel<N, RealType, SpikyKernel, 10000> nearKernelSpiky;
     };
 
     ParticleData particleData;
